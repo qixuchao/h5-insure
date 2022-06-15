@@ -1,0 +1,39 @@
+.record-list {
+  width: 100%;
+  position: relative;
+  background: linear-gradient(184deg, #fbe9dd 0%, #fff4eb 45%, #f4f5f7 100%);
+  background-size: 100% 50%;
+  background-repeat: no-repeat;
+  background-color: #f4f5f7;
+  .container {
+    padding: 0px 30px 52px 30px;
+    margin-top: 40px;
+  }
+  .has-btn {
+    margin-bottom: 120px;
+  }
+  .textarea-card-area {
+    height: 300px;
+  }
+  .record-btn {
+    height: 150px;
+    background: #ffffff;
+    box-shadow: 0px -2px 10px 0px #f6f6f6;
+    position: fixed;
+    bottom: 0px;
+    z-index: 3;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    .btn-sub {
+      background: $btn-background;
+      border-radius: 45px;
+      font-size: 32px;
+      font-weight: 600;
+      width: 100%;
+      color: #ffffff;
+    }
+  }
+}

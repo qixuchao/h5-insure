@@ -1,0 +1,66 @@
+// :root {
+//   // 主题颜色
+//   // --van-blue: var(--van-blue, $primary-color);
+//   --van-primary-color: var(--van-blue);
+//   // 自定义覆盖主按钮背景颜色
+//   --van-button-primary-background-color: var(--primary-background-color,
+//   linear-gradient(to right, #f70800, #ff5003));
+// }
+// // linear-gradient(to right, #f70800, #ff5003));
+$primary-color: var(--van-primary-color);
+$btn-background: var(--van-button-primary-background-color); // 自定义主颜色背景颜色
+$text-color: #343434; // 标准黑色字 主要文字颜色
+$label-color: #616161; // 次一级的描述文字颜色
+$tip-color: #909090; // 不重要提示文字颜色
+$border-color: #e0e0e0; // 浅边框颜色
+$moment-golden-color: #b38e57; // 文字金色
+$label-color2: #c1c1c1;
+
+$home-daily-tag-text-color: var(--home-daily-tag-text-color); // // 首页日程tag按钮颜色
+$home-daily-tag-text-color-checked: var(--home-daily-tag-text-color-checked); // // 首页日程tag按钮颜色
+$home-activity-box-wrap: var(--home-activity-box-wrap); // // 首页日程tag按钮颜色
+$home-activity-box-wrap-text: var(--home-activity-box-wrap-text); // // 首页日程tag按钮颜色
+$home-daily-tag-uncheck-btn-color: var(--home-daily-tag-uncheck-btn-color); //首页日程tag按钮未选中背景颜色
+$home-daily-btn-border-color: var(--home-daily-btn-border-color); // 首页日程按钮边框色
+$home-activity-btn: var(--home-activity-btn); // 首页活动量按钮颜色
+$daliy-box-shadow: var(--daliy-box-shadow); //日程阴影
+$daliy-dat: var(--daliy-dat); //日程日期小点
+$daily-add-tag-background-active: var(--daily-add-tag-background-active);
+$daily-add-tag-border: var(--daily-add-tag-border);
+$daily-item-title-text: var(--daily-item-title-text);
+$daily-item-dot-background: var(--daily-item-dot-background);
+$daily-item-content-shadow: var(--daily-item-content-shadow);
+$daily-item-content-border: var(--daily-item-content-border);
+$daily-team-item-tag-background: var(--daily-team-item-tag-background);
+$daily-team-item-tag-color: var(--daily-team-item-tag-color);
+$daily-team-item-complete-color: var(--daily-team-item-complete-color);
+
+$voice-background: var(--voice-background);
+$voice-color: var(--voice-text-color);
+
+$article-detail-addproduct-btn-background: var(--article-detail-addproduct-btn-background);
+
+$custom-detail-tag-custom-background: var(--custom-detail-tag-custom-background);
+$home-daily-btn-text-color: var(--home-daily-btn-text-color);
+
+$visitor-top-bg: var(--visitor-top-background);
+
+// $zaui-base-size: 22px;
+$zaui-base-size: 26.5px;
+// 卡片标题
+$zaui-font-size-card-title: $zaui-base-size + 12px;
+// 首页访客正文字体
+$zaui-font-size-spec: $zaui-base-size + 4px;
+// 页面正文
+$zaui-font-size: $zaui-base-size + 6px;
+// 弹窗标题、数字
+$zaui-font-size-modal-title: $zaui-base-size + 10px;
+// 小控件文字大小
+$zaui-font-size-sm: $zaui-base-size + 2px;
+$zaui-font-size-sm2: $zaui-base-size + 4px;
+$zaui-font-size-sm3: $zaui-base-size;
+// 中控件文字大小
+$zaui-font-size-md: $zaui-base-size + 6px;
+$zaui-font-size-md2: $zaui-base-size + 8px;
+// 大控件文字大小
+$zaui-font-size-lg: $zaui-base-size + 6px;

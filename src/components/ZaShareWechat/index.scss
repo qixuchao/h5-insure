@@ -1,0 +1,58 @@
+.com-za-share-wechat{
+    .share-popup {
+        .top {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 74px 136px 54px 136px;
+
+          .left,
+          .right {
+            .img-out {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 104px;
+              height: 104px;
+              background: #f2f7f8;
+              border-radius: 50%;
+              margin-bottom: 20px;
+              img {
+                width: 51px;
+                height: 44px;
+              }
+            }
+            .text {
+              height: 37px;
+              color: #343434;
+              font-weight: 500;
+              font-size: $zaui-font-size-md;
+              font-family: PingFangSC-Medium, PingFang SC;
+              line-height: 37px;
+              text-align: center;
+            }
+          }
+          .right{
+            .img-out{
+              img{
+                width: 51px;
+                height: 51px;
+              }
+            }
+          }
+        }
+        .bottom {
+          width: 100%;
+          height: 106px;
+          padding-top: 32px;
+          color: #464646;
+          font-weight: 400;
+          font-size: $zaui-font-size-lg;
+          font-family: PingFangSC-Regular, PingFang SC;
+          line-height: 42px;
+          text-align: center;
+          background: #ffffff;
+          border-top: 2px solid #f0f0f0;
+        }
+      }
+}

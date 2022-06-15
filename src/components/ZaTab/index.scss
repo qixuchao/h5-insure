@@ -1,0 +1,17 @@
+
+.com-za-tab {
+    // height: 100vh;
+    .van-tab{
+        --van-tab-active-text-color:#343434;
+        --van-tab-text-color:#969696;
+        // color: #969696;
+        font-size: 30px;
+        
+    }
+     .van-tab--active{
+         font-size: 34px;
+         font-weight: 600;
+         color:#343434;
+     }
+    
+}

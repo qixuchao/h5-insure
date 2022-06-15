@@ -1,0 +1,434 @@
+.page-activity-volume {
+  .empty-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .top-empty{
+    padding: 50px 0;
+  }
+  .icon-search-index {
+    font-size: 33px;
+  }
+  .customers-anlay {
+    padding-bottom: 30px;
+    .empty-title {
+      font-size: $zaui-font-size-sm;
+    }
+  }
+  .header-tab {
+    padding: 0 42px;
+    display: flex;
+    justify-content: space-between;
+    .team {
+      span {
+        display: inline-block;
+        font-size: $zaui-font-size-md2;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #969696;
+        line-height: 80px;
+        &:not(:first-child) {
+          margin-left: 40px;
+        }
+        .line {
+          width: 50px;
+          height: 8px;
+          background: var(--van-primary-color);
+          border-radius: 4px;
+          margin-left: 5px;
+        }
+      }
+      .active {
+        font-size: $zaui-font-size-card-title;
+        font-family: PingFangSC-Semibold, PingFang SC;
+        font-weight: 600;
+        color: #343434;
+        // border-bottom: 4px solid #ff5342;
+      }
+    }
+    .search {
+      line-height: 100px;
+    }
+  }
+  .top-sticky {
+    background-color: #ffffff;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 99;
+    .range-date {
+      .van-field__control {
+        text-align: center;
+        color: #b8b8b8;
+      }
+      .van-field__body {
+        background: #f4f5f7;
+        border-radius: 26px;
+        padding: 8px 30px;
+      }
+    }
+  }
+
+  .content-wrap {
+    margin-top: -20px;
+    padding: 20px 30px 68px 30px;
+    background-color: #f4f5f7;
+    & > div {
+      margin-top: 20px;
+      background-color: #ffffff;
+      border-radius: 20px;
+    }
+  }
+  .loading-class{
+    margin: 0;
+    height: calc(100vh - 170px);
+    background: #f6f6fa;
+  }
+  .no-target {
+    width: 240px;
+    height: 68px;
+    margin: 50px auto 98px;
+    background: var(--article-detail-addproduct-btn-background);
+    border-radius: 34px;
+    border: 1px solid var(--home-daily-btn-border-color);
+    font-size: $zaui-font-size-sm;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: $primary-color;
+    line-height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .progress-desc {
+    text-align: right;
+    font-size: $zaui-font-size-md;
+    margin: -60px 0 40px 0;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #909090;
+    line-height: 26px;
+    padding: 0 30px;
+  }
+  .card-progress {
+    padding: 0 30px 30px 30px;
+    .line-two {
+      display: grid;
+      grid-template-columns: repeat(2, calc(50% - 5px));
+      // grid-template-rows: repeat(2, 49%);
+      grid-row-gap: 10px;
+      grid-column-gap: 10px;
+      & .com-progress-card:last-child {
+        grid-column-start: span 2;
+      }
+      & .com-progress-card:nth-child(even):last-child {
+        grid-column-start: span 1;
+      }
+    }
+    .line-one {
+      margin-top: 20px;
+    }
+  }
+  .kpi {
+    padding: 30px;
+    // background-image: url('../../assets/images/activityvolume/bg.png');
+    // background-repeat: no-repeat;
+    // -moz-background-size: 100% 100%;
+    // background-size: 100% 100%;
+    background:var(--activityvolume-kpi-background) !important;
+    box-shadow: inset 0px 2px 0px 0px #ffffff;
+    position: relative;
+    z-index: 1;
+    &-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #5c2d17;
+      position: relative;
+      z-index: 2;
+      &__title {
+        img{
+          width: 134px;
+          height: 32px;
+        }
+      }
+      &__subtitle {
+        font-size: $zaui-font-size-md;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        line-height: 26px;
+      }
+    }
+    .bg-cion{
+      width: 495px;
+      height: 113px;
+      position: absolute;
+      z-index: 0;
+      right: 10px;
+      top: 10px;
+    }
+    &-content {
+      padding-top: 10px ;
+      z-index: 2;
+      position: relative;
+      div:first-child {
+        .com-progress-card{
+          margin-bottom: -20px;
+        }
+      }
+      .com-progress-card {
+        background-color: #ffffff;
+        border-radius: 0;
+        padding-left:30px ;
+        padding-right: 30px;
+        &:first-child {
+          border-radius: 14px 14px 14px 14px;
+          // margin-bottom: -20px;
+        }
+        
+      }
+    }
+  }
+  .sale-after {
+    .content {
+      display: flex;
+      padding: 16px 48px 52px 60px;
+      justify-content: space-between;
+      .item {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        .left-icon {
+          width: 76px;
+          height: 76px;
+        }
+        .description {
+          margin-left: 35px;
+          .sale-after-title {
+            font-size: $zaui-font-size-sm;
+            font-weight: 400;
+            color: #616161;
+            line-height: 39px;
+            font-family: PingFangSC-Regular, PingFang SC;
+          }
+          .sale-after-unit {
+            font-size: 46px;
+            font-family: DINAlternate-Bold, DINAlternate;
+            font-weight: bold;
+            color: $primary-color;
+            line-height: 58px;
+            margin-top: -6px;
+          }
+        }
+      }
+    }
+  }
+  // 客户数据分析
+  .customer-data {
+    .content {
+      width: 100%;
+      padding: 30px;
+      display: flex;
+      position: relative;
+      .left-label {
+        height: 300px;
+        display: flex;
+        margin-right: 40px;
+        margin-top: -15px;
+        flex-direction: column;
+        justify-content: space-around;
+        .item {
+          // width: 100%;
+          // width: ;
+          width: 250px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          .left {
+            .dot-left {
+              width: 20px;
+              height: 10px;
+              vertical-align: middle;
+              margin-right: 16px;
+              display: inline-block;
+              border-radius: 5px;
+            }
+            .linear-gradient__level1 {
+              background: var(--activityvolume-customer-area-1);
+              box-shadow: 0px 2px 4px 0px var(--activityvolume-customer-area-box-shadow);
+            }
+            .linear-gradient__level2 {
+              background:  var(--activityvolume-customer-area-2);
+              box-shadow: 0px 2px 4px 0px var(--activityvolume-customer-area-box-shadow);
+            }
+            .linear-gradient__level3 {
+              background:  var(--activityvolume-customer-area-3);
+              box-shadow: 0px 2px 4px 0px var(--activityvolume-customer-area-box-shadow);
+            }
+            .linear-gradient__level4 {
+              background:  var(--activityvolume-customer-area-4);
+              box-shadow: 0px 2px 4px 0px var(--activityvolume-customer-area-box-shadow);
+            }
+            .linear-gradient__level5 {
+              background:  var(--activityvolume-customer-area-5);
+              box-shadow: 0px 2px 4px 0px var(--activityvolume-customer-area-box-shadow);
+            }
+            .label {
+              font-size: $zaui-font-size-sm;
+              font-family: PingFangSC-Regular, PingFang SC;
+              font-weight: 400;
+              color: #616161;
+              line-height: 39px;
+            }
+          }
+          .number {
+            // text-align: right;
+            padding-top: 5px;
+          }
+        }
+      }
+      .unit-text {
+        position: absolute;
+        right: 6px;
+        bottom: 40px;
+        font-size: $zaui-font-size-sm;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #909090;
+        line-height: 28px;
+      }
+    }
+  }
+  // 获客数据分析
+  .get-customers {
+    padding-bottom:60px;
+    .rite-circle {
+      margin-top: -40px;
+      text-align: center;
+      // padding: 60px 0;
+      position: relative;
+      .center-text {
+        font-size: $zaui-font-size-sm2;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #616161;
+        line-height: 37px;
+      }
+    }
+    .statistics {
+      display: grid;
+      grid-template-columns: repeat(2, calc(50% - 15px ));
+      // grid-template-rows: repeat(2, 50%);
+      // grid-row-gap: 24px;
+      grid-column-gap: 30px;
+      // padding: 0 30px;
+      .item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        .desc {
+          .orange {
+            background: linear-gradient(90deg, #ffb31c 0%, #ffc21d 100%);
+            box-shadow: 0px 2px 4px 0px rgba(255, 140, 29, 0.5);
+          }
+          .red {
+            background: linear-gradient(270deg, #e84d17 0%, #fd6e3b 100%);
+            box-shadow: 0px 2px 4px 0px rgba(249, 52, 17, 0.5);
+          }
+          .blue {
+            background: linear-gradient(270deg, #1f95fb 0%, #27a9f4 100%);
+          }
+          .green {
+            background: linear-gradient(270deg, #1fd79f 0%, #17e6cd 100%);
+            box-shadow: 0px 2px 4px 0px rgba(31, 208, 145, 0.4);
+          }
+          .dot {
+            width: 20px;
+            height: 10px;
+            vertical-align: middle;
+            display: inline-block;
+            margin-right: 14px;
+            border-radius: 7px;
+          }
+          .text {
+            display: inline-block;
+            font-size: $zaui-font-size-sm;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #616161;
+            line-height: 33px;
+          }
+        }
+        .total {
+          font-size: $zaui-font-size-md;
+          font-family: DINAlternate-Bold, DINAlternate;
+          font-weight: bold;
+          color: #343434;
+          line-height: 32px;
+          padding-right: 12px;
+        }
+      }
+    }
+  }
+  .data-analysis {
+    padding-bottom: 62px;
+    display: flex;
+    justify-content: space-around;
+    margin-top: 40px;
+    .item {
+      --van-circle-text-color:#343434;
+      --van-circle-text-font-weight:bold;
+      --van-circle-text-font-size:32px;
+      text-align: center;
+      // &:not(:first-child) {
+      //   margin-left: 70px;
+      // }
+      .bottom-description-activity{
+        margin-top: 8px;
+       .description-num{
+        font-size:$zaui-font-size-sm;
+        font-family: Helvetica;
+        color: #909090;
+        line-height: 29px;
+        margin-bottom: 16px;
+        
+       } 
+       .description {
+        font-size:$zaui-font-size-sm;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #343434;
+        line-height: 33px;
+      }
+      }
+    }
+    .item:first-child{
+      .bottom-description-activity{
+        .description-num{
+          .fs{
+            color: #F15B26;
+          }
+        }
+      }
+    }
+    .item:nth-child(2){
+      .bottom-description-activity{
+        .description-num{
+          .fs{
+            color: #229DF9;
+          }
+        }
+      }
+    }
+    .item:last-child{
+      .bottom-description-activity{
+        .description-num{
+          .fs{
+            color: #1AE0BA ;
+          }
+        }
+      }
+    }
+  }
+}

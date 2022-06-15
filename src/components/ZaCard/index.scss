@@ -1,0 +1,44 @@
+.com-card-wrap {
+  .header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 30px;
+    box-shadow: inset 0px 2px 0px 0px #ffffff;
+    border-radius: 20px 20px 0px 0px;
+    .title {
+      .text {
+        font-size: $zaui-font-size-card-title;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: bold;
+        color: #151515;
+        line-height: 48px;
+      }
+      .under-line {
+        width: 60px;
+        height: 8px;
+        margin-top: 5px;
+        border-radius: 4px;
+        margin-left: 2px;
+      }
+    }
+    .more {
+      line-height: 37px;
+      font-size: $zaui-font-size-sm2;
+      font-weight: 400;
+      align-items: center;
+      font-family: PingFangSC-Regular, PingFang SC;
+      margin-top: 10px;
+      .icon-right_arrow2 {
+        font-size: 21px;
+        margin-top: -5px;
+        margin-left: 5px;
+      }
+      // &::after {
+      //   content: '>';
+      //   display: inline-block;
+      //   margin-left: 11px;
+      // }
+    }
+  }
+}

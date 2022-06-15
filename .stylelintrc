@@ -1,0 +1,10 @@
+{
+  "extends": "stylelint-config-za",
+  "rules": {
+    "declaration-block-trailing-semicolon": null,
+    "declaration-colon-newline-after": null,
+    "function-calc-no-invalid": null,
+    "rule-empty-line-before": null
+  },
+  "ignoreFiles": ["**/*.js", "**/*.vue"]
+}

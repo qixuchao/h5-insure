@@ -1,0 +1,63 @@
+html,
+body,
+div,
+p,
+ol,
+li,
+ul,
+dl,
+dt,
+a,
+input,
+span,
+dd,
+textarea,
+header,
+main,
+section,
+h1,
+h2,
+h3,
+h4,
+img,
+button,
+video {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  text-decoration: none;
+  list-style: none;
+  caret-color: $primary-color;
+}
+
+// @font-face{
+//   font-family: 'PingFang SC';
+//   font-style: normal;
+//   font-display:swap;
+//   font-weight: 400;
+//   src: local('PingFangSC-Regular');
+// }
+
+// @font-face{
+//   font-family: 'PingFang SC';
+//   font-style: normal;
+//   font-display:swap;
+//   font-weight: 500;
+//   src: local('PingFangSC-Medium');
+// }
+
+html,
+body {
+  font-family: 'PingFang SC', Helvetica, Tahoma, 'Microsoft YaHei', Arial;
+  -webkit-font-smoothing: antialiased;
+  height: 100% !important;
+  width: 100%;
+  user-select: none;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+input[type='radio'],
+input[type='checkbox'] {
+  background: $btn-background;
+}

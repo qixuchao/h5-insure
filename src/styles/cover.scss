@@ -1,0 +1,90 @@
+/**
+ * vant 组件库需要全局覆盖的样式
+ */
+
+//  tab组件的下划线颜色和选中文字颜色
+.van-tabs__line {
+  height: 8px;
+}
+.van-button{
+  // border: none;
+}
+.van-tab--active {
+  font-weight: 600;
+  color: $primary-color;
+}
+.van-list__finished-text{
+  text-align: center;
+  line-height:normal;
+  font-size:$zaui-font-size-sm2;
+font-family: PingFangSC-Medium, PingFang SC;
+font-weight: 400;
+color: #D7D7D7;
+margin-top: 52px;
+}
+.van-button__text {
+  font-size: 32px;
+}
+.van-button--default{
+  border: none;
+  color: var(--van-button-default-color);
+    background: var(--van-button-default-background-color);
+}
+// cell中右侧箭头行高
+.van-cell-group .van-cell--clickable .van-cell__right-icon::before {
+  // vertical-align: sub;
+}
+
+// cell 箭头与文字对齐
+.van-cell__right-icon {
+  margin-right: -4px;
+}
+
+.van-dialog {
+  width: 560px;
+  .van-dialog__message {
+    font-size: 32px;
+    color: #343434;
+    text-align: center;
+    width: 100%;
+  }
+  .van-dialog__footer {
+    padding: 0 40px;
+    padding-bottom: 40px;
+    justify-content: space-between;
+
+    &:after {
+      border: none;
+    }
+
+    .van-button {
+      width: 230px;
+      height: 76px;
+      border-radius: 38px;
+      flex: none;
+
+      &.van-dialog__cancel {
+        background: #eff1f7;
+        color: $label-color;
+      }
+
+      &.van-dialog__confirm {
+        background: $primary-color;
+        color: #fff;
+
+        &:after {
+          border: none;
+        }
+      }
+    }
+  }
+}
+
+// checkbox 样式
+.van-checkbox__icon .van-icon {
+  // border-radius: 8px;
+}
+.van-field__left-icon{
+  display: flex;
+  align-items: center;
+}

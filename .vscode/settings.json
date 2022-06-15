@@ -1,0 +1,9 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "emmet.triggerExpansionOnTab": true,
+  "editor.formatOnSave": true,
+  "i18n-ally.localesPaths": ["locales"]
+}

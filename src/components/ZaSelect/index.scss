@@ -1,0 +1,105 @@
+.select-comp-popup {
+    --van-popup-round-border-radius: 20px;
+    .com-pop-select {
+      .empty-select {
+        margin-top: 208px;
+        .empty-title {
+          font-size: $zaui-font-size-md2;
+        }
+      }
+      position: relative;
+  
+      .title {
+        position: sticky;
+        top: 0;
+        background: #ffffff;
+        z-index: 1;
+        text-align: center;
+        padding: 26px 0;
+        font-size: $zaui-font-size-modal-title;
+        line-height: 50px;
+        font-weight: 500;
+        color: #343434;
+        border-bottom: 1px solid #f4f5f7;
+        .back-icon {
+          position: absolute;
+          left: 30px;
+          line-height: 50px;
+          top: 30px;
+          display: flex;
+          .back-icon-left {
+            display: flex;
+            align-items: center;
+            img {
+              width: 24px;
+              height: 28px;
+            }
+            span {
+              color: #616161;
+            }
+          }
+          .back-icon-right {
+            color: #616161;
+            margin-left: 20px;
+          }
+        }
+        .close-img {
+          position: absolute;
+          right: 30px;
+          top: 30px;
+          img {
+            width: 28px;
+            height: 28px;
+          }
+        }
+      }
+      .van-cell-group--inset {
+        margin: 0;
+        margin-bottom: 200px;
+      }
+      .search {
+        margin-top: 10px;
+        --van-search-content-background-color: #f3f3f3;
+      }
+      .cell {
+        --van-checkbox-border-color: #e1e1e1;
+        padding: 30px 30px 30px 0;
+        margin-left: 30px;
+        border-bottom: 2px solid #f4f5f7 !important;
+        .van-radio__label {
+          flex: 1;
+        }
+      }
+      .van-cell::after {
+        display: none;
+      }
+      .footer {
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+        height: 150px;
+        padding: 30px;
+        background: #ffffff;
+        box-shadow: 0 -2px 10px 0 #f6f6f6;
+        .btn {
+          width: 100%;
+          height: 88px;
+          background: $btn-background;
+          border-radius: 45px;
+          display: block;
+          margin: 0 auto;
+          color: #ffffff;
+        }
+      }
+      .empty {
+        display: none;
+        text-align: center;
+        color: #969696;
+        .img {
+          width: 200px;
+          height: 200px;
+          margin: 188px 0 40px 0;
+        }
+      }
+    }
+  }
