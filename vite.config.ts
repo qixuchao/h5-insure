@@ -29,8 +29,8 @@ export default defineConfig((env) => {
       proxy: {
         '/client': {
           // 本地 8000 前端代码的接口 代理到 8888 的服务端口
-          target: 'https://www.gconline.cn/acvmtest',
-          // target: 'http://zat-aquarius-activity.test.za-tech.net',
+          // target: 'https://www.gconline.cn/acvmtest',
+          target: 'http://zat-aquarius-activity.test.za-tech.net',
 
           changeOrigin: true, // 允许跨域
           // rewrite: (path) => path.replace(/^\/client/, ''),
