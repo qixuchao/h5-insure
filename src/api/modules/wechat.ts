@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 import request from '@/api/request';
 
 const prefix = '/activity';

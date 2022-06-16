@@ -71,4 +71,4 @@ const getItemDays = (now = dayjs(), formatType: string) => {
   ];
 };
 
-export { getItemDays };
+export default { getItemDays };

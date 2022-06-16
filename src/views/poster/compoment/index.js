@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 /* eslint-disable no-useless-escape */
 export const urlDelP = (url, name) => {
   // console.log(url, name);
