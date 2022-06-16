@@ -15,6 +15,7 @@ module.exports = {
   },
   extends: [
     './.eslintrc-auto-import.js',
+    'za/typescript-vue',
     'airbnb-base',
     'plugin:@typescript-eslint/recommended',
     'plugin:vue/vue3-recommended',
