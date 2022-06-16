@@ -3,10 +3,10 @@
   $primary-color: var(--van-primary-color);
   --van-button-primary-background-color: var(--primary-background-color, linear-gradient(to right, #f70800, #ff5003));
   --van-record-primary-background-color: linear-gradient(90deg, #ff5003 0%, #f70800 100%);
-  --van-field-placeholder-text-color:#b8b8b8;
+  --van-field-placeholder-text-color: #b8b8b8;
   --van-tabs-bottom-bar-color: #ff2b1f;
   --van-search-content-background-color: #f3f3f3;
-  --van-popup-round-border-radius:20px;
+  --van-popup-round-border-radius: 20px;
   --home-daily-header-color: 255, 83, 66; // 首页日程头部颜色/下划线/右侧文字颜色/箭头颜色
   --home-activity-header-color: 255, 122, 44; // 首页活动量分析头部颜色/下划线/右侧文字颜色/箭头颜色
   --home-activity-customer-header-color: 66, 96, 220; // 首页待跟进客户头部颜色/下划线/右侧文字颜色/箭头颜色
@@ -25,11 +25,11 @@
   --daily-item-title-text: #c98c88; // 工作日志item标题文字颜色
   --daily-item-dot-background: rgb(255, 83, 66, 0.2); // 工作日志item标题圆点背景色
   --daily-item-content-shadow: #f6f6fa;
-  --daily-item-content-border: #F8E3E3;
+  --daily-item-content-border: #f8e3e3;
   --daily-team-item-tag-background: #ffeee7;
   --daily-team-item-tag-color: #ff6600;
   --daily-team-item-complete-color: #b39366;
---van-search-content-background-color: #f3f3f3;
+  --van-search-content-background-color: #f3f3f3;
   --article-detail-addproduct-btn-background: #ffecea;
 
   --voice-background: linear-gradient(65deg, #faeddd 0%, #f2d6b7 100%);
@@ -49,10 +49,10 @@
   // zadatachange组件选中状态的boxshadow
   --data-change-box-shadow: rgba(255, 91, 0, 0.23);
   // 目标表格色值
-  --target-team-head-table: #EFE1CA;
-  --target-team-body-table: #FAF4EA;
-  --target-person-head-table: #FFD9C2;
-  --target-person-body-table: #FFF3EC;
+  --target-team-head-table: #efe1ca;
+  --target-team-body-table: #faf4ea;
+  --target-person-head-table: #ffd9c2;
+  --target-person-body-table: #fff3ec;
 
   --target-title-background-color: #fff7f8;
 
@@ -62,20 +62,115 @@
   --activityvolume-customer-area-3: #fd865d;
   --activityvolume-customer-area-4: #fda88b;
   --activityvolume-customer-area-5: #fecab9;
-  --activityvolume-customer-area-box-shadow:rgba(249, 43, 0, 0.5);
-  --activityvolume-kpi-background: #F7DED1;
-
+  --activityvolume-customer-area-box-shadow: rgba(249, 43, 0, 0.5);
+  --activityvolume-kpi-background: #f7ded1;
 
   --activityvolume-achievement-1: 253, 68, 56;
   --activityvolume-achievement-2: 255, 142, 32;
 
-  --van-button-primary-background-color-shadow:#fc3102;
+  --van-button-primary-background-color-shadow: #fc3102;
 
-  --van-tab-text-color:#969696;
+  --van-tab-text-color: #969696;
+
+  // TODO 需要把交付 tokens变量删除替换
+  // =================基线 design tokens========================================
+  /* ==================   颜色 =================  */
+
+  /***** ====== 基本变量 ===== *****/
+  // 全局背景
+  --zaui-global-bg: #f2f5fc;
+  // 全局背景返白
+  --zaui-global-bg-white: #ffffff;
+  // 标准区块背景（除（首页、我的、名片等定制化页面外的）二三级页面的卡片背景）
+  --zaui-base-bg: #ffffff;
+  // 分割线（用于内容与内容的分割）
+  --zaui-dividing-line: #eeeff4;
+  // 品牌色（整个app的主题色）
+  --zaui-brand: #0d6efe;
+  // 金额色（产品价格的颜色）
+  --zaui-price: #ff5840;
+  // 文本强调色（帮助信息里重点突出的强调色）
+  --zaui-aide-text-stress: #0d6efe;
+  // 主要按钮上的文字色
+  --zaui-button-primary-highlight-text: #ffffff;
+  // 弹窗按钮未选中文字色
+  --zaui-button-secondary-highlight-text: #515865;
+  // 标题文字色（第一层级）一般是卡片标题
+  --zaui-text-title: #393d46;
+  // 正文文本（第二层级）一般是描述等
+  --zaui-text: #393d46;
+  // 弱化的正文信息（第三层级）类似于阅读量、转发数、来访人员
+  --zaui-text-weak: #99a9c0;
+  // 辅助文本（第四层级）介绍补充说明类文案
+  --zaui-aide-text: #99a9c0;
+  // 强链接按钮（第五层级）强链接的文本颜色
+  --zaui-link: #bcc7da;
+
+  /***** ====== icon ===== *****/
+  // 按钮
+  --zaui-icon-fill: #0d6efe;
+  // 填充色反白
+  --zaui-icon-highlight-white: #ffffff;
+
+  /***** ====== 按钮 ===== *****/
+  // 主要按钮(页面的主要操作按钮)
+  --zaui-button-primary: #0d6efe;
+  // 次要按钮(页面的次要操作按钮)
+  --zaui-button-secondary: #ffffff;
+  // 次要按钮边框色
+  --zaui-button-secondary-line: #0d6efe;
+  // 主要文字按钮
+  --zaui-primary-text: #0d6efe;
+  // 弹窗按钮未选中背景色
+  --zaui-popup-button: #f6f7fc;
+  // 弹窗按钮选中背景色
+  --zaui-popup-highlight-button: #0d6efe;
+  // 弹窗按钮选中边框色
+  --zaui-popup-highlight-button-line: #0d6efe;
+  // 按钮disabled背景颜色
+  --zaui-disabled-button: #8fbbfc;
+  // 按钮disabled文字颜色
+  --zaui-disabled-button-text: #ffffff;
+
+  /***** ====== 状态 ===== *****/
+  // 错误、告警色
+  --zaui-danger: #ff5050;
+  --zaui-disabled-text: #393d46;
+
+  /* ================== 圆角 =================  */
+  // 标签圆角小(一般用于产品列表，获客爆文、客户标签、日程类型、团队目标类型、团队成员职级、家庭成员类型、保单生效状态等)
+  --zaui-border-radius-tag-small: 8px;
+  // 标签圆角大(一般用于擅长领域、客户详情中的客户标签)
+  --zaui-border-radius-tag-big: 12px;
+  // 图片圆角(一般用于产品图片、视频、海报、文章的图片框)
+  --zaui-border-radius-picture: 12px;
+  // 弹窗筛选按钮圆角(一般用于弹窗的筛选按钮等)
+  --zaui-border-radius-popup-button: 8px;
+  // 主要按钮圆角(页面底部吸底或垂直跟在模块下方的大的块级按钮)
+  --zaui-border-radius-primary-button: 8px;
+  // 搜索框圆角
+  --zaui-border-radius-searchBar: 8px;
+  // 区块圆角(一般是区块卡片)
+  --zaui-border-radius-card: 20px;
+  // 临时层圆角(一般是弹窗、反馈)
+  --zaui-border-radius-feedback: 12px;
+
+  /* ================== 间距 =================  */
+  // 首页、我的、名片区块行间距
+  --zaui-space-home-card: 30px;
+  // 内页区块行间距
+  --zaui-space-card: 20px;
+  // 区块距页面边距
+  --zaui-page-border: 30px;
+  // 内容距区块边距
+  --zaui-card-border: 30px;
+  // 内页区块与内容间距大
+  --zaui-space-border-big: 30px;
+  // 内页区块与内容间距小
+  --zaui-space-border-small: 20px;
 }
 
 $primary-color: var(--van-primary-color); //全局主题色
-
 // 导出变量，给代码中js使用
 :export {
   primaryColor: #ff2b1f;
