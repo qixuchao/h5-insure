@@ -1,0 +1,1 @@
+import{a as t}from"./index-b8742a0a.js";var c="/static/assets/searchempty.bb58b4f6.png",n="/static/assets/back.80993c49.png";const a="/activity",o=(s={})=>{const e=`${a}/agency/queryJurisdictionAgency`;return t.post(e,s)},y=(s={})=>{const e=`${a}/agency/queryMemberSize`;return t.post(e,s)};export{y as a,n as b,c as e,o as q};

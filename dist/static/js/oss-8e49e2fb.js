@@ -1,0 +1,1 @@
+import{a as t}from"./index-b8742a0a.js";const s="/activity",r=e=>{const a=new FormData;return a.append("file",e),t.post(`${s}/ossService/upload`,a)},n=e=>t.get(`${s}/ossService/getPathByKey?key=${e}`),i=(e,a)=>t.post(`${s}/ossService/uploadBase64File`,{fileBase64:e,fileFormat:a});export{r as a,n as g,i as u};

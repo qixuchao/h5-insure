@@ -1,0 +1,1 @@
+import{a as s}from"./index-b8742a0a.js";const i="/activity",e=(t={})=>s.post(`${i}/v1/activities/search`,t),c=()=>s.post(`${i}/queryFullDict`,{dictCode:"activityTypeKA"}),r=(t={})=>s.post(`${i}/v1/activities/save`,t),o=(t={})=>s.post(`${i}/v1/activities/findDetailById`,t);export{r as a,o as f,c as q,e as s};

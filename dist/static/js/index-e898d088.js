@@ -1,0 +1,1 @@
+import{_ as a}from"./plugin-vue_export-helper-46f75680.js";import{h as o,j as t,r,k as n,B as s}from"./vendor-e9263418.js";const c={},_=s(" \u65E5\u7A0B ");function p(d,f){const e=r("ZaPageWrap");return n(),o(e,{"main-class":"page-agenda"},{default:t(()=>[_]),_:1})}var l=a(c,[["render",p]]);export{l as default};

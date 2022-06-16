@@ -1,0 +1,1 @@
+import{a as i}from"./index-b8742a0a.js";const e="/activity",r=t=>i({url:`${e}/visit/searchVisitWithPage`,method:"POST",data:t}),a=t=>i({url:`${e}/visit/removeVisitRecord`,method:"POST",data:t}),o=t=>i({url:`${e}/visit/searchVisitDetail`,method:"POST",data:t}),c=t=>i({url:`${e}/visit/saveOrUpdateVisitRecord`,method:"POST",data:t});export{c as a,o as b,a as r,r as s};

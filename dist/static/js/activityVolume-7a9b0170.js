@@ -1,0 +1,1 @@
+import{a as s}from"./index-b8742a0a.js";const i=t=>s.post("/activity/goal/searchBaGoal",{}),c=t=>s.post("/activity/statisticCustomer",t),o=t=>s.post("/activity/statisticQuota",t),r=t=>s.post("/activity/statisticWork",t),e=t=>s.post("/activity/v1/niche/queryNicheUsageStatistics",t);export{c as a,o as b,r as c,e as q,i as s};
