@@ -32,8 +32,14 @@ export const data = {
     }
   ],
   "git": {
-    "updatedTime": null,
-    "contributors": []
+    "updatedTime": 1655275805000,
+    "contributors": [
+      {
+        "name": "za-jijianmei",
+        "email": "jianmei.ji@zhonganbio.com",
+        "commits": 1
+      }
+    ]
   },
   "filePathRelative": "components/progressCard.md"
 }

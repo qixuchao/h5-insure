@@ -1,11 +1,11 @@
 export const data = {
-  "key": "v-543c9d2e",
-  "path": "/pages/custome.html",
+  "key": "v-aaa5b068",
+  "path": "/pages/activityVolume.html",
   "title": "",
   "lang": "en-US",
   "frontmatter": {
     "tags": [
-      "custome"
+      "activityVolume"
     ]
   },
   "excerpt": "",
@@ -18,47 +18,41 @@ export const data = {
     },
     {
       "level": 2,
-      "title": "客户列表",
-      "slug": "客户列表",
+      "title": "活动量分析",
+      "slug": "活动量分析",
       "children": []
     },
     {
       "level": 2,
-      "title": "客户详情",
-      "slug": "客户详情",
+      "title": "售后指标",
+      "slug": "售后指标",
       "children": [
         {
           "level": 3,
-          "title": "拜访记录",
-          "slug": "拜访记录",
+          "title": "业绩指标",
+          "slug": "业绩指标",
           "children": []
         },
         {
           "level": 3,
-          "title": "互动记录",
-          "slug": "互动记录",
+          "title": "客户数据分析",
+          "slug": "客户数据分析",
+          "children": []
+        },
+        {
+          "level": 3,
+          "title": "获客数据分析",
+          "slug": "获客数据分析",
           "children": []
         }
       ]
-    },
-    {
-      "level": 2,
-      "title": "客户关联",
-      "slug": "客户关联",
-      "children": []
     }
   ],
   "git": {
-    "updatedTime": 1655275805000,
-    "contributors": [
-      {
-        "name": "za-jijianmei",
-        "email": "jianmei.ji@zhonganbio.com",
-        "commits": 1
-      }
-    ]
+    "updatedTime": null,
+    "contributors": []
   },
-  "filePathRelative": "pages/custome.md"
+  "filePathRelative": "pages/activityVolume.md"
 }
 
 if (import.meta.webpackHot) {

@@ -14,11 +14,11 @@ export const data = {
     }
   ],
   "git": {
-    "updatedTime": 1648620815000,
+    "updatedTime": 1655275805000,
     "contributors": [
       {
-        "name": "liangxiaojun",
-        "email": "353030799@qq.com",
+        "name": "za-jijianmei",
+        "email": "jianmei.ji@zhonganbio.com",
         "commits": 1
       }
     ]

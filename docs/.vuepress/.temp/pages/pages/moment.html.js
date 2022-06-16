@@ -1,11 +1,11 @@
 export const data = {
-  "key": "v-543c9d2e",
-  "path": "/pages/custome.html",
+  "key": "v-205f0335",
+  "path": "/pages/moment.html",
   "title": "",
   "lang": "en-US",
   "frontmatter": {
     "tags": [
-      "custome"
+      "moment"
     ]
   },
   "excerpt": "",
@@ -18,47 +18,41 @@ export const data = {
     },
     {
       "level": 2,
-      "title": "客户列表",
-      "slug": "客户列表",
+      "title": "banner 图",
+      "slug": "banner-图",
       "children": []
     },
     {
       "level": 2,
-      "title": "客户详情",
-      "slug": "客户详情",
+      "title": "访客",
+      "slug": "访客",
       "children": [
         {
           "level": 3,
-          "title": "拜访记录",
-          "slug": "拜访记录",
+          "title": "日程安排",
+          "slug": "日程安排",
           "children": []
         },
         {
           "level": 3,
-          "title": "互动记录",
-          "slug": "互动记录",
+          "title": "活动量",
+          "slug": "活动量",
+          "children": []
+        },
+        {
+          "level": 3,
+          "title": "待跟进客户",
+          "slug": "待跟进客户",
           "children": []
         }
       ]
-    },
-    {
-      "level": 2,
-      "title": "客户关联",
-      "slug": "客户关联",
-      "children": []
     }
   ],
   "git": {
-    "updatedTime": 1655275805000,
-    "contributors": [
-      {
-        "name": "za-jijianmei",
-        "email": "jianmei.ji@zhonganbio.com",
-        "commits": 1
-      }
-    ]
+    "updatedTime": null,
+    "contributors": []
   },
-  "filePathRelative": "pages/custome.md"
+  "filePathRelative": "pages/moment.md"
 }
 
 if (import.meta.webpackHot) {

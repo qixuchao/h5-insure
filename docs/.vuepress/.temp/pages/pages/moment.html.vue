@@ -1,6 +1,6 @@
 <template><h2 id="介绍" tabindex="-1"><a class="header-anchor" href="#介绍" aria-hidden="true">#</a> 介绍</h2>
 <ul>
-<li>代码目录： views/activity</li>
+<li>代码目录： views/moment</li>
 <li>功能罗列：
 <ul>
 <li>首页 banner 区</li>

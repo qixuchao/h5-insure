@@ -1,6 +1,6 @@
 export const data = {
-  "key": "v-543c9d2e",
-  "path": "/pages/custome.html",
+  "key": "v-67ee9b25",
+  "path": "/pages/card.html",
   "title": "",
   "lang": "en-US",
   "frontmatter": {
@@ -49,16 +49,10 @@ export const data = {
     }
   ],
   "git": {
-    "updatedTime": 1655275805000,
-    "contributors": [
-      {
-        "name": "za-jijianmei",
-        "email": "jianmei.ji@zhonganbio.com",
-        "commits": 1
-      }
-    ]
+    "updatedTime": null,
+    "contributors": []
   },
-  "filePathRelative": "pages/custome.md"
+  "filePathRelative": "pages/card.md"
 }
 
 if (import.meta.webpackHot) {

@@ -1,21 +1,11 @@
 export const data = {
-  "key": "v-166a2a94",
-  "path": "/pages/home.html",
+  "key": "v-cdab86f4",
+  "path": "/pages/activity.html",
   "title": "",
   "lang": "en-US",
-  "frontmatter": {
-    "tags": [
-      "home"
-    ]
-  },
+  "frontmatter": {},
   "excerpt": "",
   "headers": [
-    {
-      "level": 2,
-      "title": "介绍",
-      "slug": "介绍",
-      "children": []
-    },
     {
       "level": 2,
       "title": "banner 图",
@@ -49,16 +39,10 @@ export const data = {
     }
   ],
   "git": {
-    "updatedTime": 1655275805000,
-    "contributors": [
-      {
-        "name": "za-jijianmei",
-        "email": "jianmei.ji@zhonganbio.com",
-        "commits": 1
-      }
-    ]
+    "updatedTime": null,
+    "contributors": []
   },
-  "filePathRelative": "pages/home.md"
+  "filePathRelative": "pages/activity.md"
 }
 
 if (import.meta.webpackHot) {

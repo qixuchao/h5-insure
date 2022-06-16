@@ -1,11 +1,11 @@
 export const data = {
-  "key": "v-543c9d2e",
-  "path": "/pages/custome.html",
+  "key": "v-10b49745",
+  "path": "/pages/businessCard.html",
   "title": "",
   "lang": "en-US",
   "frontmatter": {
     "tags": [
-      "custome"
+      "businessCard"
     ]
   },
   "excerpt": "",
@@ -18,47 +18,47 @@ export const data = {
     },
     {
       "level": 2,
-      "title": "客户列表",
-      "slug": "客户列表",
+      "title": "个人名片首页",
+      "slug": "个人名片首页",
       "children": []
     },
     {
       "level": 2,
-      "title": "客户详情",
-      "slug": "客户详情",
+      "title": "名片信息编辑页",
+      "slug": "名片信息编辑页",
       "children": [
         {
           "level": 3,
-          "title": "拜访记录",
-          "slug": "拜访记录",
+          "title": "擅长领域编辑/个人介绍/选择模块",
+          "slug": "擅长领域编辑-个人介绍-选择模块",
           "children": []
         },
         {
           "level": 3,
-          "title": "互动记录",
-          "slug": "互动记录",
+          "title": "生成海报",
+          "slug": "生成海报",
           "children": []
         }
       ]
     },
     {
       "level": 2,
-      "title": "客户关联",
-      "slug": "客户关联",
+      "title": "名片分享页",
+      "slug": "名片分享页",
+      "children": []
+    },
+    {
+      "level": 2,
+      "title": "名片访客",
+      "slug": "名片访客",
       "children": []
     }
   ],
   "git": {
-    "updatedTime": 1655275805000,
-    "contributors": [
-      {
-        "name": "za-jijianmei",
-        "email": "jianmei.ji@zhonganbio.com",
-        "commits": 1
-      }
-    ]
+    "updatedTime": null,
+    "contributors": []
   },
-  "filePathRelative": "pages/custome.md"
+  "filePathRelative": "pages/businessCard.md"
 }
 
 if (import.meta.webpackHot) {

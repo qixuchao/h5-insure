@@ -50,11 +50,11 @@ export const data = {
   "excerpt": "",
   "headers": [],
   "git": {
-    "updatedTime": 1649384582000,
+    "updatedTime": 1655275805000,
     "contributors": [
       {
-        "name": "liangxiaojun",
-        "email": "353030799@qq.com",
+        "name": "za-jijianmei",
+        "email": "jianmei.ji@zhonganbio.com",
         "commits": 1
       }
     ]

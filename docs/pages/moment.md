@@ -1,10 +1,10 @@
 ---
-tags: ['home']
+tags: ['moment']
 ---
 
 ## 介绍
 
-- 代码目录： views/activity
+- 代码目录： views/moment
 - 功能罗列：
   - 首页 banner 区
   - 访客动态

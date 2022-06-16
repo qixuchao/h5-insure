@@ -1,17 +1,4 @@
-<template><h2 id="介绍" tabindex="-1"><a class="header-anchor" href="#介绍" aria-hidden="true">#</a> 介绍</h2>
-<ul>
-<li>代码目录： views/activity</li>
-<li>功能罗列：
-<ul>
-<li>首页 banner 区</li>
-<li>访客动态</li>
-<li>日程安排</li>
-<li>个人活动量分析</li>
-<li>访客</li>
-</ul>
-</li>
-</ul>
-<p><img src="/images/home.png" alt="首页"></p>
+<template><p><img src="/images/home01.png" alt="首页"></p>
 <h2 id="banner-图" tabindex="-1"><a class="header-anchor" href="#banner-图" aria-hidden="true">#</a> banner 图</h2>
 <blockquote>
 <p>可动态配置模块，目前已配置模块路由</p>
@@ -56,7 +43,4 @@
 <blockquote>
 <p>待跟进客户,点击可进入客户详情</p>
 </blockquote>
-<ul>
-<li>默认展示 10 条</li>
-</ul>
 </template>
