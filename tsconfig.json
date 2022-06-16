@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "esnext",
     "useDefineForClassFields": true,
+    "suppressImplicitAnyIndexErrors": true,
     "module": "esnext",
     "moduleResolution": "node",
     "strict": true,
@@ -10,15 +11,18 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "lib": ["esnext", "dom"],
-    "types": ["@intlify/vite-plugin-vue-i18n/client"],
+    "skipLibCheck": true,
+    "types": ["vite/client", "@intlify/vite-plugin-vue-i18n/client"],
+    "typeRoots": ["@types", "./node_modules/@types"],
     // baseUrl来告诉编译器到哪里去查找模块，所有非相对模块导入都会被当做相对于 baseUrl。
     "baseUrl": ".",
     // 非相对模块导入的路径映射配置
     "paths": {
       "@/*": ["src/*"],
+      "#/*": ["types/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "@types", "vite.config.ts"],
   // 编译器默认排除的编译文件
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist", "**/*.js"]
 }
