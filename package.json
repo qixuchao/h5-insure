@@ -11,7 +11,8 @@
     "prepare": "husky install",
     "docs:dev": "vuepress dev docs",
     "docs:build": "NODE_ENV=prd vuepress build docs",
-    "build:prod": "VITE_BASE=/acvmtest/ VITE_API_BASEURL=/acvmtest/client  vite build"
+    "build:prod": "VITE_BASE=/acvmtest/ VITE_API_BASEURL=/acvmtest/client  vite build",
+    "lint:report": "eslint --ext .jsx,.js,.ts,.tsx src -f checkstyle -o report_zacc_eslint_js.xml; stylelint --custom-formatter node_modules/stylelint-checkstyle-formatter 'src/**/*.{css}' > report_zacc_stylelint_css.xml; exit 0"
   },
   "dependencies": {
     "@amap/amap-jsapi-loader": "^1.0.1",
