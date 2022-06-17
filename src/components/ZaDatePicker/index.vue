@@ -202,6 +202,7 @@ const state = reactive({
 });
 
 const emits = defineEmits<{
+  // eslint-disable-next-line @typescript-eslint/prefer-function-type
   (e: 'onChangeDatePicker', data: string): void;
 }>();
 

@@ -38,8 +38,9 @@ export default (env: ConfigEnv) => {
       targets: ['defaults', 'not IE 11'],
     }),
     AutoImport({
-      dts: './src/auto-imports.d.ts',
-      imports: ['vue', 'pinia', 'vue-router', 'vue-i18n', , '@vueuse/core'],
+      dts: true,
+      /* eslint-disable no-sparse-arrays */
+      imports: ['vue', 'vue-router'],
       // Generate corresponding .eslintrc-auto-import.json file.
       // eslint globals Docs - https://eslint.org/docs/user-guide/configuring/language-options#specifying-globals
       eslintrc: {
@@ -76,15 +77,15 @@ export default (env: ConfigEnv) => {
     env.mode === 'production'
       ? null
       : checker({
-          enableBuild: false,
-          typescript: true,
-          vueTsc: true,
-          eslint: {
-            lintCommand: 'eslint "./src/**/*.{ts,tsx,vue}"',
-            dev: {
-              logLevel: ['error'],
-            },
+        enableBuild: false,
+        typescript: true,
+        vueTsc: true,
+        eslint: {
+          lintCommand: 'eslint "./src/**/*.{ts,tsx,vue}"',
+          dev: {
+            logLevel: ['error'],
           },
-        }),
+        },
+      }),
   ];
 };

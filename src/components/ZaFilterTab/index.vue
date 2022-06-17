@@ -1,3 +1,11 @@
+<!--
+ * @Author: jianmei.ji
+ * @Email: jianmei.ji@zhonganbio.com
+ * @Date: 2022-06-13 10:59:34
+ * @LastEditors: jianmei.ji
+ * @LastEditTime: 2022-06-17 19:43:18
+ * @Description:
+-->
 <template>
   <div class="com-tab-filter" :class="[filterClass || '']">
     <div class="article-mid">
@@ -54,7 +62,7 @@
 <script lang="ts" setup>
 import './index.scss';
 import { useSlots } from 'vue';
-import { usePopup } from '@/hooks';
+import usePopup from '../../hooks';
 import ZaSvg from '../ZaSvg/index.vue';
 
 const props = defineProps({
