@@ -1,1 +1,0 @@
-import{a as t}from"./index-b8742a0a.js";const s="/activity",a=e=>t({url:`${s}/v1/niche/pageList`,method:"POST",data:e}),o=e=>t({url:`${s}/v1/niche/updateFeedback`,method:"POST",data:e}),u=e=>t({url:`${s}/v1/niche/updateUseType`,method:"POST",data:e}),n=e=>t({url:`${s}/customer/dialCustomerPhone`,method:"POST",data:e});export{o as a,a as g,n as q,u};

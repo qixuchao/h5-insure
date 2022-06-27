@@ -34,5 +34,5 @@ app.mount('#app');
 
 if (BASE_PREFIX.indexOf('/acvmtest') === -1) {
   // eslint-disable-next-line
-  new vconsole();
+  // new vconsole();
 }

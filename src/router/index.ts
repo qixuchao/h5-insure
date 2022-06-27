@@ -15,7 +15,7 @@ import Storage from '@/utils/storage';
 import { REDIRECT_URI, ORIGIN } from '@/utils';
 import routes from '@/router/routes';
 
-import { accountLogin, searchUserByToken } from '@/api/modules/user';
+// import { accountLogin, searchUserByToken } from '@/api/modules/user';
 import useStore from '@/store/app';
 import { getJssdkSignature } from '@/api/modules/wechat';
 import { isWechat } from '@/utils/index';
@@ -37,8 +37,8 @@ const authList: Array<string> = ['My', 'MsgList', 'FollowList', 'Profile', 'Modi
 const handlePageResult = async (res: { status: number; data: string }, storage: Storage, next: NavigationGuardNext) => {
   if (res?.status === 200) {
     storage.set('token', res.data);
-    const { data } = await searchUserByToken();
-    storage.set('userInfo', data?.data || {});
+    // const { data } = await searchUserByToken();
+    // storage.set('userInfo', data?.data || {});
     const url = storage.get('url');
     if (url) {
       window.location.replace(url);
@@ -50,6 +50,7 @@ const handlePageResult = async (res: { status: number; data: string }, storage: 
 let realAuthUrl = '';
 
 router.beforeEach(async (to, from, next) => {
+  next();
   if (!realAuthUrl) {
     realAuthUrl = ORIGIN + (to.redirectedFrom || to.fullPath);
   }
@@ -77,14 +78,14 @@ router.beforeEach(async (to, from, next) => {
     }
     if (to.query?.code) {
       // 登录获取token
-      const { data } = await accountLogin({
-        clientId: 'ZA',
-        code: to.query.code,
-        source: 'app',
-        // eslint-disable-next-line no-restricted-globals
-        redirectUri: `${location.origin}${location.pathname}`,
-      });
-      await handlePageResult(data, storage, next);
+      // const { data } = await accountLogin({
+      //   clientId: 'ZA',
+      //   code: to.query.code,
+      //   source: 'app',
+      //   // eslint-disable-next-line no-restricted-globals
+      //   redirectUri: `${location.origin}${location.pathname}`,
+      // });
+      // await handlePageResult({}, storage, next);
     } else {
       // 绕过登录
       if (to.path === '/mock') {
@@ -99,7 +100,7 @@ router.beforeEach(async (to, from, next) => {
         next();
       } else {
         storage.set('url', window.location.href);
-        window.location.href = REDIRECT_URI;
+        // window.location.href = REDIRECT_URI;
       }
     }
   }

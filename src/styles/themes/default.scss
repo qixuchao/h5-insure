@@ -1,72 +1,12 @@
 :root {
-  --van-primary-color: #ff2b1f;
+  --van-primary-color: #0d6efe;
   $primary-color: var(--van-primary-color);
-  --van-button-primary-background-color: var(--primary-background-color, linear-gradient(to right, #f70800, #ff5003));
+  --van-button-primary-background-color: var(--van-primary-color);
   --van-record-primary-background-color: linear-gradient(90deg, #ff5003 0%, #f70800 100%);
   --van-field-placeholder-text-color: #b8b8b8;
-  --van-tabs-bottom-bar-color: #ff2b1f;
+  --van-tabs-bottom-bar-color: #0d6efe;
   --van-search-content-background-color: #f3f3f3;
   --van-popup-round-border-radius: 20px;
-  --home-daily-header-color: 255, 83, 66; // 首页日程头部颜色/下划线/右侧文字颜色/箭头颜色
-  --home-activity-header-color: 255, 122, 44; // 首页活动量分析头部颜色/下划线/右侧文字颜色/箭头颜色
-  --home-activity-customer-header-color: 66, 96, 220; // 首页待跟进客户头部颜色/下划线/右侧文字颜色/箭头颜色
-  --home-daily-tag-text-color: #c98c88; // 首页日程tag按钮文字颜色
-  --home-daily-tag-text-color-checked: #fff; // 首页日程tag按钮选中文字颜色
-  --home-daily-tag-uncheck-btn-color: #ffecea; // 首页日程tag按钮未选中背景颜色
-  --home-daily-btn-border-color: #ff5342; // 首页日程按钮边框色
-  --home-daily-btn-text-color: #ff5342; // 首页日程按钮边框色
-  --home-activity-btn: #fd7a2c; // 首页活动量按钮颜色
-  --home-activity-box-wrap: #ffece3; // 首页活动量周期选择背景色
-  --home-activity-box-wrap-text: #bd8869; // 首页活动量周期选择文案
-  --daliy-box-shadow: #fc3102; //日程阴影
-  --daliy-dat: #ff1717; //日程日期小点
-  --daily-add-tag-border: #fbdfdf; // 工作日志tag按钮border
-  --daily-add-tag-background-active: linear-gradient(180deg, #ffecea 0%, #ffffff 100%); // 工作日志tag按钮选中背景色
-  --daily-item-title-text: #c98c88; // 工作日志item标题文字颜色
-  --daily-item-dot-background: rgb(255, 83, 66, 0.2); // 工作日志item标题圆点背景色
-  --daily-item-content-shadow: #f6f6fa;
-  --daily-item-content-border: #f8e3e3;
-  --daily-team-item-tag-background: #ffeee7;
-  --daily-team-item-tag-color: #ff6600;
-  --daily-team-item-complete-color: #b39366;
-  --van-search-content-background-color: #f3f3f3;
-  --article-detail-addproduct-btn-background: #ffecea;
-
-  --voice-background: linear-gradient(65deg, #faeddd 0%, #f2d6b7 100%);
-  --voice-text-color: #7c3c10;
-
-  --custom-detail-tag-custom-background: #ffebea; // 客户管理-客户详情-客户标签-自定义标签背景颜色
-
-  --visitor-top-background: linear-gradient(96deg, #ff6537 0%, #ff4537 100%); // 访客管理顶部数据背景色
-
-  // 活动量头部半圆
-  --activity-circle-top-1: #f70800;
-  --activity-circle-top-2: #fb4209;
-  --activity-circle-top-3: #ff7d03;
-  // 活动量小标题
-  --acticity-title-color: 255, 83, 66;
-
-  // zadatachange组件选中状态的boxshadow
-  --data-change-box-shadow: rgba(255, 91, 0, 0.23);
-  // 目标表格色值
-  --target-team-head-table: #efe1ca;
-  --target-team-body-table: #faf4ea;
-  --target-person-head-table: #ffd9c2;
-  --target-person-body-table: #fff3ec;
-
-  --target-title-background-color: #fff7f8;
-
-  // 活动量
-  --activityvolume-customer-area-1: #fb4202;
-  --activityvolume-customer-area-2: #fc6430;
-  --activityvolume-customer-area-3: #fd865d;
-  --activityvolume-customer-area-4: #fda88b;
-  --activityvolume-customer-area-5: #fecab9;
-  --activityvolume-customer-area-box-shadow: rgba(249, 43, 0, 0.5);
-  --activityvolume-kpi-background: #f7ded1;
-
-  --activityvolume-achievement-1: 253, 68, 56;
-  --activityvolume-achievement-2: 255, 142, 32;
 
   --van-button-primary-background-color-shadow: #fc3102;
 
@@ -173,5 +113,5 @@
 $primary-color: var(--van-primary-color); //全局主题色
 // 导出变量，给代码中js使用
 :export {
-  primaryColor: #ff2b1f;
+  primaryColor: #0d6efe;
 }

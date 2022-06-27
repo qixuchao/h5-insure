@@ -39,7 +39,7 @@ axiosInstance.interceptors.request.use(
     const storage = new Storage({ source: 'localStorage' });
     return {
       ...config,
-      headers: { ...config.headers, token: storage.get('token'), systemChannel: storage.get('systemChannel') },
+      headers: { ...config.headers },
     };
   },
   (error: AxiosError) => {
@@ -52,14 +52,14 @@ axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data;
     if (res.code === UNLOGIN || res.status === UNLOGIN) {
-      window.location.href = REDIRECT_URI;
-      return response;
+      // window.location.href = REDIRECT_URI;
+      return res;
     }
-    if (res.status === SUCCESS_CODE) {
-      return response;
+    if (res.code === SUCCESS_CODE) {
+      return res;
     }
     Toast.fail((res && res.data) || (res && res.message) || '请求出错');
-    return response;
+    return res;
   },
   (error: AxiosError) => {
     const { response } = error;

@@ -27,13 +27,11 @@ export default defineConfig((env) => {
       strictPort: false, // 如果端口已占用直接退出
       // 接口代理
       proxy: {
-        '/client': {
+        '/api': {
           // 本地 8000 前端代码的接口 代理到 8888 的服务端口
           // target: 'https://www.gconline.cn/acvmtest',
-          target: 'http://zat-aquarius-activity.test.za-tech.net',
-
+          target: 'http://141604-zat-planet-gateway.test.za-tech.net',
           changeOrigin: true, // 允许跨域
-          // rewrite: (path) => path.replace(/^\/client/, ''),
         },
       },
     },

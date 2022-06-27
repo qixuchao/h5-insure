@@ -23,7 +23,7 @@ const showCodeMessage = (code: number | string): string => {
   return codeMessageMap[JSON.stringify(code)] || '网络连接异常,请稍后再试!';
 };
 // 成功状态code
-export const SUCCESS_CODE = 200;
+export const SUCCESS_CODE = '10000';
 // 未登录
 export const UNLOGIN = '401';
 

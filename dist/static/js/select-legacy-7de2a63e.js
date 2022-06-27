@@ -1,1 +1,0 @@
-System.register(["./index-legacy-9604cbf9.js"],(function(e){"use strict";var t;return{setters:[function(e){t=e.a}],execute:function(){e("e","/static/assets/searchempty.bb58b4f6.png"),e("b","/static/assets/back.80993c49.png"),e("q",((e={})=>t.post("/activity/agency/queryJurisdictionAgency",e))),e("a",((e={})=>t.post("/activity/agency/queryMemberSize",e)))}}}));

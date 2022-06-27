@@ -1,1 +1,0 @@
-import{_ as e}from"./plugin-vue_export-helper-46f75680.js";import{g as s,k as o,m as l,y as t,J as _}from"./vendor-e9263418.js";const c={class:"com-za-voice-play"},p=s({props:{play:{type:Boolean,default:!1}},setup(a){return(n,r)=>(o(),l("div",c,[t("div",{class:_(["play-icon",{playing:a.play}])},null,2)]))}});var d=e(p,[["__scopeId","data-v-98f2547c"]]);export{d as Z};
