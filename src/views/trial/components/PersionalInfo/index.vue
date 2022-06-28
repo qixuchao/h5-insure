@@ -37,7 +37,7 @@
         v-if="factorList.includes('OCCUPATION_CATEGORY')"
         v-model="state.formInfo.occupationalClass"
         :rules="[{ required: true, message: '请选择' }]"
-        name="birth"
+        name="occupationalClass"
         label="职业类型"
         is-link
         placeholder="请选择"
@@ -47,6 +47,8 @@
     <van-popup v-model:show="isShow" position="bottom">
       <van-datetime-picker
         type="date"
+        :min-date="new Date('1900-01-01')"
+        :max-date="new Date()"
         @confirm="
           (value) => {
             state.formInfo.birthday = dayjs(value).format('YYYY-MM-DD');

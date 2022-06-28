@@ -20,7 +20,7 @@
             <VanTab
               v-for="risk in state.riskPlanData"
               :key="risk.planCode"
-              :name="riskInfo.planCode"
+              :name="risk.planCode"
               :title="risk.planName"
             >
               <RiskList :risk-info="riskInfo" :origin-data="risk.riskDetailVOList" :pick-factor="pickFactor" />
@@ -30,7 +30,7 @@
       </div>
     </div>
     <div class="footer-bar">
-      <span class="trial-result"></span>
+      <span class="trial-result">{{ state.trialResult.premium }}</span>
       <VanButton v-if="state.canTrial" type="primary" @click="trial">去试算</VanButton>
       <VanButton v-else type="primary" @click="trial">去投保</VanButton>
     </div>
@@ -49,10 +49,12 @@ const insured = ref({
   insuredCode: '',
   personVO: {},
 }); // 被保人
-const riskInfo = ref({
-  liabilityVOList: [],
-  riderRiskVOList: [],
-}); // 险种信息
+const riskInfo = ref([
+  {
+    liabilityVOList: [],
+    riderRiskVOList: [{}],
+  },
+]); // 险种信息
 const holderRef = ref({});
 const insuredRef = ref({});
 const riskFormRef = ref({});
@@ -80,15 +82,24 @@ const queryOccupationalList = async () => {
 
 const dealTrialData = () => {
   const trialData = {
-    holder: holder.value,
+    holder: {
+      personVO: {
+        ...holder.value.personVO,
+        birthday: holder.value.personVO.birthday && `${holder.value.personVO.birthday} 00:00:00`,
+      },
+    },
     productCode: state?.riskBaseInfo?.productCode,
     insuredVOList: [
       {
         ...insured.value,
+        personVO: {
+          ...insured.value.personVO,
+          birthday: insured.value.personVO.birthday && `${insured.value.personVO.birthday} 00:00:00`,
+        },
         productPlanVOList: [
           {
             planCode: state.currentPlan || state.riskPlanData?.[0]?.planCode,
-            riskVOList: [{ ...riskInfo.value }],
+            riskVOList: riskInfo.value,
           },
         ],
       },
@@ -120,7 +131,6 @@ const queryProductInfo = () => {
         state.riskBaseInfo = data?.productBasicInfoVO;
         state.riskData = data?.riskDetailVOList || [];
         state.riskPlanData = data?.productRelationPlanVOList || [];
-
         queryOccupationalList();
       }
     })
@@ -132,11 +142,17 @@ const pickFactor = (factorObj: { insuredFactorList: string[]; holderFactorList: 
   state.insuredFactor = factorObj.holderFactorList;
 };
 
-watch([() => riskInfo.value, () => holder.value, () => insured.value], (newVal) => {
-  if (newVal && state.canTrial) {
-    state.canTrial = true;
-  }
-});
+watch(
+  [() => riskInfo.value, () => holder.value, () => insured.value],
+  (newVal) => {
+    if (newVal && state.canTrial) {
+      state.canTrial = true;
+    }
+  },
+  {
+    deep: true,
+  },
+);
 
 onBeforeMount(() => {
   queryProductInfo();

@@ -1,12 +1,14 @@
 <template>
   <div class="risk-list-wrapper">
-    <RiskItem :form-info="state.mainRiskInfo" :origin-data="state.mainRiskData" />
+    <RiskItem :form-info="state.mainRiskInfo" :index="0" :origin-data="state.mainRiskData" />
     <RiskItem
-      v-for="riderRisk in state.requiredRiderRiskData"
+      v-for="(riderRisk, index) in state.requiredRiderRiskData"
       :key="riderRisk.id"
       :form-info="state.riderRiskInfo"
+      :index="index"
       :origin-data="riderRisk"
     />
+
     <div v-if="state.riderRiskList.length" class="add-rider-risk">
       <span class="left-part">{{ `共有${state.riderRiskList.length}款附加险可以添加` }}</span>
       <ProCheckButton activied @click="toggle(true)">+ 附加险</ProCheckButton>
@@ -15,7 +17,9 @@
       v-if="showPopup"
       :show="showPopup"
       :risk-list="state.riderRiskList"
+      :collocation-list="state.mainRiskData.collocationVOList || []"
       @finished="onFinished"
+      @close="toggle(false)"
     ></RiskRelationList>
   </div>
 </template>
@@ -45,39 +49,22 @@ const props = defineProps({
 });
 
 const [showPopup, toggle] = useToggle(false);
+const instance = getCurrentInstance();
 
 const mainRiskFormRef = ref(null);
 const riderRiskFormRef = ref(null);
 
 const state = reactive({
   mainRiskInfo: props.riskInfo,
-  riderRiskInfo: props.riskInfo.riderRiskVOList,
+  riderRiskInfo: props.riskInfo[0].riderRiskVOList,
   requiredRiderRiskData: [],
   mainRiskData: {},
   riderRiskList: [],
 });
 
-const onFinished = () => {};
-
-watch(
-  () => state.mainRiskData,
-  (newVal) => {
-    const extralInfo = {
-      riskType: 1,
-      riskId: newVal.id,
-      riskCode: newVal.riskCode,
-      riskCategory: newVal.riskCategory,
-      liabilityVOList: newVal.riskLiabilityInfoVOList.map((liab) => ({
-        liabilityAttributeCode: liab.liabilityAttribute,
-        liabilityAttributeValue: liab.liabilityAttributeValue,
-        liabilityCode: liab.liabilityCode,
-        liabilityId: liab.id,
-        liabilityRateType: liab.liabilityRateType,
-      })),
-    };
-    Object.assign(state.mainRiskInfo, extralInfo);
-  },
-);
+const onFinished = (risk) => {
+  state.requiredRiderRiskData.push(risk);
+};
 
 // 监听主险的数据,同步更新相关附加险的信息
 watch(
@@ -115,6 +102,7 @@ watch(
         selectedFator.filter((factor) => factor.factorObject === 'holder').map((factor: any) => factor.factorCode),
       );
     });
+
     props.pickFactor({
       insuredFactorList: [...new Set(insuredFactorList)],
       holderFactorList: [...new Set(holderFactorList)],
@@ -133,7 +121,7 @@ watch(
       if (risk.riskType === 1) {
         state.mainRiskData = risk;
         state.requiredRiderRiskData = risk?.requiredRiderRiskVOList || [];
-        state.riderRiskList = state.riderRiskList.concat(risk?.optionalRiderRiskVOList || []);
+        state.riderRiskList = risk?.optionalRiderRiskVOList;
       } else {
         state.riderRiskList.push(risk);
       }
