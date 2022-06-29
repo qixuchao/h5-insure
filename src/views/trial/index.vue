@@ -2,11 +2,21 @@
   <ZaPageWrap class="page-trial-wrapper">
     <div v-if="state.holderFactor.length" class="part-card">
       <div class="part-title">投保人</div>
-      <PersonalInfo ref="holderRef" :form-info="holder.personVO" :factor-list="state.holderFactor"></PersonalInfo>
+      <PersonalInfo
+        ref="holderRef"
+        :insured-code="state.riskBaseInfo?.insuredCode"
+        :form-info="holder.personVO"
+        :factor-list="state.holderFactor"
+      ></PersonalInfo>
     </div>
     <div v-if="state.insuredFactor.length" class="part-card">
       <div class="part-title">被保人</div>
-      <PersonalInfo ref="insuredRef" :form-info="insured.personVO" :factor-list="state.insuredFactor"></PersonalInfo>
+      <PersonalInfo
+        ref="insuredRef"
+        :insured-code="state.riskBaseInfo?.insuredCode"
+        :form-info="insured.personVO"
+        :factor-list="state.insuredFactor"
+      ></PersonalInfo>
     </div>
     <div class="risk-content">
       <div v-if="state.riskData.length" class="risk">

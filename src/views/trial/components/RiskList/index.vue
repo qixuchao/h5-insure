@@ -6,16 +6,21 @@
       :key="riderRisk.id"
       :form-info="state.riderRiskInfo"
       :index="index"
+      :main-risk-data="state.mainRiskData"
       :origin-data="riderRisk"
     />
 
-    <div v-if="state.riderRiskList.length" class="add-rider-risk">
-      <span class="left-part">{{ `共有${state.riderRiskList.length}款附加险可以添加` }}</span>
+    <div v-if="state.riderRiskList.length - state.checkedList.length" class="add-rider-risk">
+      <span class="left-part">{{
+        `共有${state.riderRiskList.length - state.checkedList.length}款附加险可以添加`
+      }}</span>
       <ProCheckButton activied @click="toggle(true)">+ 附加险</ProCheckButton>
     </div>
     <RiskRelationList
       v-if="showPopup"
+      v-model="state.checkedList"
       :show="showPopup"
+      :disabled="state.disabledList"
       :risk-list="state.riderRiskList"
       :collocation-list="state.mainRiskData.collocationVOList || []"
       @finished="onFinished"
@@ -60,10 +65,15 @@ const state = reactive({
   requiredRiderRiskData: [],
   mainRiskData: {},
   riderRiskList: [],
+  checkedList: [],
+  relationListNum: 0,
+  disabledList: [] as any[],
 });
 
-const onFinished = (risk) => {
-  state.requiredRiderRiskData.push(risk);
+const onFinished = (risk, disabled: any[]) => {
+  state.riderRiskInfo.push({});
+  state.disabledList = disabled;
+  state.requiredRiderRiskData = state.requiredRiderRiskData.concat(risk);
 };
 
 // 监听主险的数据,同步更新相关附加险的信息

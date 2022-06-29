@@ -8,7 +8,7 @@
       :rules="[{ required: true, message: '请填写' }]"
     >
       <template #input>
-        <VanStepper v-model="state.formInfo[index].sumInsured"></VanStepper>
+        <VanStepper v-model="state.formInfo[index].sumInsured" :min="amount.min" :max="amount.max"></VanStepper>
       </template>
     </VanField>
     <VanField
@@ -23,35 +23,38 @@
       </template>
     </VanField>
     <VanField
-      v-if="!isEmpty(originData?.riskInsureLimitVO?.insurancePeriodValueList)"
+      v-if="
+        !isEmpty(originData?.riskInsureLimitVO?.insurancePeriodValueList) ||
+        !isEmpty(originData?.riskInsureLimitVO?.insurancePeriodRule)
+      "
       v-model="state.formInfo[index].coverageYear"
       label="保障期间"
       name="coverageYear"
       :rules="[{ required: true, message: '请选择' }]"
     >
       <template #input>
-        <ProRadioButton
-          v-model="state.formInfo[index].coverageYear"
-          :options="pickEnums(INSURANCE_PERIOD_VALUE, originData?.riskInsureLimitVO?.insurancePeriodValueList)"
-        ></ProRadioButton>
+        <ProRadioButton v-model="state.formInfo[index].coverageYear" :options="coverageYearOptions"></ProRadioButton>
       </template>
     </VanField>
     <VanField
-      v-if="!isEmpty(originData?.riskInsureLimitVO?.paymentPeriodValueList)"
+      v-if="
+        !isEmpty(originData?.riskInsureLimitVO?.paymentPeriodValueList) ||
+        !isEmpty(originData?.riskInsureLimitVO?.paymentPeriodRule)
+      "
       v-model="state.formInfo[index].paymentYear"
       label="交费期间"
       name="paymentYear"
       :rules="[{ required: true, message: '请选择' }]"
     >
       <template #input>
-        <ProRadioButton
-          v-model="state.formInfo[index].paymentYear"
-          :options="pickEnums(PAYMENT_PERIOD_VALUE, originData?.riskInsureLimitVO?.paymentPeriodValueList)"
-        ></ProRadioButton>
+        <ProRadioButton v-model="state.formInfo[index].paymentYear" :options="paymentYearOptions"></ProRadioButton>
       </template>
     </VanField>
     <VanField
-      v-if="!isEmpty(originData?.riskInsureLimitVO?.paymentFrequencyList)"
+      v-if="
+        !isEmpty(originData?.riskInsureLimitVO?.paymentFrequencyList) ||
+        !isEmpty(originData?.riskInsureLimitVO?.paymentTypeRule)
+      "
       v-model="state.formInfo[index].paymentFrequency"
       label="交费方式"
       name="paymentFrequency"
@@ -60,7 +63,7 @@
       <template #input>
         <ProRadioButton
           v-model="state.formInfo[index].paymentFrequency"
-          :options="pickEnums(PAYMENT_FREQUENCY, originData?.riskInsureLimitVO?.paymentFrequencyList)"
+          :options="paymentFrequencyOptions"
         ></ProRadioButton>
       </template>
     </VanField>
@@ -143,6 +146,7 @@ import {
   ANNUITY_DRAW_TYPE,
   LIABILITY_ATTRIBUTE_VALUE,
   INSURE_FLAG,
+  RULE_INSURANCE,
 } from '@/common/contants/trial';
 
 const props = defineProps({
@@ -154,6 +158,10 @@ const props = defineProps({
   formInfo: {
     type: Object,
     required: true,
+    default: () => {},
+  },
+  mainRiskData: {
+    type: Object,
     default: () => {},
   },
   index: {
@@ -183,10 +191,69 @@ const isEmpty = (value: any) => {
 const pickEnums = (origin: any[], target: any[]) => {
   let currentTarget = target;
   if (!Array.isArray(target)) {
-    currentTarget = [currentTarget];
+    currentTarget = [`${currentTarget}`];
   }
   return (origin || []).filter((or) => currentTarget.includes(`${or.value}`));
 };
+
+// 保障期间可选选项
+const coverageYearOptions = computed(() => {
+  // 主险
+  if (props.originData?.riskType === 1) {
+    return pickEnums(INSURANCE_PERIOD_VALUE, props?.originData?.riskInsureLimitVO?.insurancePeriodValueList);
+  }
+  if (props.originData?.periodType === 2) {
+    return pickEnums([{ value: '4', label: '1年' }], props?.originData?.riskInsureLimitVO?.insurancePeriodRule);
+  }
+  return pickEnums(INSURANCE_PERIOD_VALUE, props?.mainRiskData?.riskInsureLimitVO?.insurancePeriodValueList);
+});
+
+// 交费期间可选选项
+const paymentYearOptions = computed(() => {
+  // 主险
+  if (props.originData?.riskType === 1) {
+    return pickEnums(PAYMENT_PERIOD_VALUE, props?.originData?.riskInsureLimitVO?.paymentPeriodValueList);
+  }
+  // 附加险-豁免险
+  if (props.originData?.exemptFlag === 1) {
+    return pickEnums(RULE_INSURANCE, props?.originData?.riskInsureLimitVO?.paymentPeriodRule);
+  }
+  if (props.originData?.periodType === 2) {
+    return pickEnums([{ value: '4', label: '1年交' }], props?.originData?.riskInsureLimitVO?.paymentPeriodRule);
+  }
+  return pickEnums(PAYMENT_PERIOD_VALUE, props?.mainRiskData?.riskInsureLimitVO?.paymentPeriodValueList);
+});
+
+// 交费方式可选选项
+const paymentFrequencyOptions = computed(() => {
+  // 主险
+  if (props.originData?.riskType === 1) {
+    return pickEnums(PAYMENT_FREQUENCY, props?.originData?.riskInsureLimitVO?.paymentFrequencyList);
+  }
+  return pickEnums(PAYMENT_FREQUENCY, props?.mainRiskData?.riskInsureLimitVO?.paymentFrequencyList);
+});
+
+// 保额的最大值和最小值
+const amount = computed(() => {
+  let min = 0;
+  let max = 0;
+  (props.originData?.riskCalcMethodInfoVO?.paymentMethodLimitList || []).forEach((limit, index) => {
+    if (index === 0) {
+      min = limit.minAmount;
+      max = limit.maxAmount;
+    }
+    if (min > limit.minAmount) {
+      min = limit.minAmount;
+    }
+    if (max < limit.maxAmount) {
+      max = limit.maxAmount;
+    }
+  });
+
+  state.formInfo[props.index].sumInsured = min;
+
+  return { min, max };
+});
 
 onBeforeMount(() => {
   const extralInfo = {
@@ -196,7 +263,7 @@ onBeforeMount(() => {
     mainRiskCode: props.originData.riskCode,
     mainRiskId: props.originData.id,
     riskCategory: props.originData.riskCategory,
-    liabilityVOList: props.originData.riskLiabilityInfoVOList.map((liab) => ({
+    liabilityVOList: (props.originData.riskLiabilityInfoVOList || []).map((liab) => ({
       liabilityAttributeCode: liab.liabilityAttribute,
       liabilityAttributeValue: liab.liabilityAttributeValue,
       liabilityCode: liab.liabilityCode,
@@ -204,9 +271,8 @@ onBeforeMount(() => {
       liabilityRateType: liab.liabilityRateType,
     })),
   };
-
-  Object.assign(state.formInfo[props.index], extralInfo);
-  // state.formInfo[props.index] = extralInfo;
+  console.log('props.index', props.index);
+  Object.assign(state?.formInfo?.[props.index], extralInfo);
 });
 
 watch(

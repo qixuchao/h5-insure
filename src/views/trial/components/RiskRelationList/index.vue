@@ -5,16 +5,22 @@
       <div class="risk-list">
         <van-checkbox-group v-model="checked">
           <van-cell-group inset>
-            <VanCell v-for="item in riskList" :key="item.id" :title="item.riskName" @click="toggle(item.id, item)">
+            <VanCell v-for="item in riskList" :key="item.id" :title="item.riskName" @click="toggle(item.id)">
               <template #right-icon>
-                <van-checkbox :ref="(el) => (checkboxRefs[item.id] = el)" shape="square" :name="item.id" @click.stop />
+                <van-checkbox
+                  :ref="(el) => (checkboxRefs[item.id] = el)"
+                  :disabled="disabled.includes(item.id)"
+                  shape="square"
+                  :name="item.id"
+                  @click.stop
+                />
               </template>
             </VanCell>
           </van-cell-group>
         </van-checkbox-group>
       </div>
       <div class="footer-bar">
-        <VanButton type="primary" block @click="onFinished">确认</VanButton>
+        <VanButton type="primary" :disabled="!state.currentChecked.length" block @click="onFinished">确认</VanButton>
       </div>
     </VanPopup>
   </div>
@@ -37,24 +43,59 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  disabled: {
+    type: Array,
+    required: true,
+    default: () => [],
+  },
+  modelValue: {
+    type: Array,
+    required: true,
+    default: () => [],
+  },
 });
 
-const emits = defineEmits(['finished', 'close']);
+const emits = defineEmits(['finished', 'close', 'update:modelValue']);
 
 const checkboxRefs = ref<any[]>([]);
-const checked = ref([]);
-const disabled = ref([]);
+const checked = ref<any[]>([]);
+const disabled = ref<any[]>(props.disabled);
 
 const state = reactive({
   show: props.show,
-  checkedItems: [],
+  currentChecked: [] as any[],
 });
 
-const calcRelation = (riskId) => {};
+const calcRelation = (riskId: number, status: boolean) => {
+  props.collocationList.forEach((riderRisk: any) => {
+    if (riskId === riderRisk.riskId) {
+      if (!status) {
+        if (riderRisk.collocationType === 1) {
+          state.currentChecked.push(riderRisk.collocationRiskId, riskId);
+        } else if (riderRisk.collocationType === 3) {
+          disabled.value.push(riderRisk.collocationRiskId);
+        }
+      } else {
+        if (riderRisk.collocationType === 1) {
+          state.currentChecked = state.currentChecked.filter(
+            (id) => !(id === riderRisk.collocationRiskId || id === riskId),
+          );
+        } else if (riderRisk.collocationType === 3) {
+          disabled.value.filter((id) => id !== riderRisk.collocationRiskId);
+        }
+      }
+    }
+  });
+};
 
-const toggle = (index: number, item: any) => {
-  // if (checked.value.includes(index)) {
-  // }
+const onChange = (names) => {
+  console.log('names', names);
+};
+
+const toggle = (index: number) => {
+  const status = state.currentChecked.includes(index);
+  console.log('status', status);
+  calcRelation(index, status);
   checkboxRefs?.value?.[index]?.toggle?.();
 };
 
@@ -63,7 +104,10 @@ const onClose = () => {
 };
 
 const onFinished = () => {
-  emits('finished', checked.value);
+  const checkedItems = props.riskList.filter((risk) => state.currentChecked.includes(risk.id));
+
+  emits('update:modelValue', checked);
+  emits('finished', checkedItems);
   emits('close');
 };
 
@@ -72,9 +116,10 @@ onBeforeUpdate(() => {
 });
 
 watch(
-  () => props.show,
+  () => props.modelValue,
   (newVal) => {
-    state.show = newVal;
+    checked.value = newVal;
+    disabled.value = newVal;
   },
   {
     deep: true,

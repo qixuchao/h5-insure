@@ -42,7 +42,11 @@
         is-link
         placeholder="请选择"
         @click="toggleOccupational(true)"
-      ></VanField>
+      >
+        <template #input>
+          <div>{{ state.occupationalText }}</div>
+        </template>
+      </VanField>
     </VanForm>
     <van-popup v-model:show="isShow" position="bottom">
       <van-datetime-picker
@@ -58,15 +62,15 @@
         @cancel="toggle(false)"
       />
     </van-popup>
-    <ProPopup :show="isShowOccupational" title="职业选择" position="bottom" closeable>
-      <van-cascader
-        v-model="state.formInfo.occupationalClass"
-        title="请选择职业"
-        :options="[]"
-        @close="toggleOccupational(false)"
-        @finish="onFinish"
-      />
-    </ProPopup>
+    <Occupational
+      v-if="isShowOccupational"
+      v-model="state.formInfo.occupationalClass"
+      :show="isShowOccupational"
+      insured-code="insuredCode"
+      @finish="onFinish"
+      @close="onClose"
+    >
+    </Occupational>
   </div>
 </template>
 
@@ -75,13 +79,18 @@ import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
 import { SEX_LIMIT, SOCIAL_INSURANCE_LIMIT } from '@/common/contants/trial';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
-import ProPopup from '@/components/ProPopup/index.vue';
+import Occupational from '../Occupational/index.vue';
 
 const props = defineProps({
   formInfo: {
     type: Object,
     required: true,
     default: () => {},
+  },
+  insuredCode: {
+    type: String,
+    required: true,
+    default: '',
   },
   factorList: {
     type: Array,
@@ -96,9 +105,17 @@ const formRef = ref();
 
 const state = reactive({
   formInfo: props?.formInfo,
+  occupationalText: '',
 });
 
-const onFinish = () => {};
+const onFinish = (text: string) => {
+  state.occupationalText = text;
+};
+
+const onClose = () => {
+  toggleOccupational(false);
+};
+
 const validateForm = () => {
   return new Promise((resolve, reject) => {
     formRef?.value.validate().then(
