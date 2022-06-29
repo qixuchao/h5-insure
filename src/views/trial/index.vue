@@ -16,7 +16,7 @@
       </div>
       <div v-if="state.riskPlanData.length" class="plan-risk">
         <VanForm ref="riskFormRef" input-align="right" error-message-align="right">
-          <VanTabs v-model="state.currentPlan">
+          <VanTabs v-model="state.currentPlan" type="card">
             <VanTab
               v-for="risk in state.riskPlanData"
               :key="risk.planCode"
@@ -29,6 +29,7 @@
         </VanForm>
       </div>
     </div>
+
     <div class="footer-bar">
       <span class="trial-result">{{ state.trialResult.premium }}</span>
       <VanButton v-if="state.canTrial" type="primary" @click="trial">去试算</VanButton>
@@ -161,6 +162,22 @@ onBeforeMount(() => {
 <style lang="scss" scoped>
 .page-trial-wrapper {
   padding-bottom: 150px;
+  .plan-risk {
+    ::v-deep .van-tabs__nav.van-tabs__nav--card {
+      border: 0 !important;
+      .van-tab.van-tab--card {
+        margin: 0 12px;
+        background-color: #f7f6ff;
+        border-right: 0;
+        color: var(--zaui-text-title);
+        border-radius: 10px;
+        &.van-tab--active {
+          background-color: $primary-color;
+          color: #fff;
+        }
+      }
+    }
+  }
   .footer-bar {
     position: fixed;
     width: 100%;
