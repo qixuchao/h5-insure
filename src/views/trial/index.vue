@@ -2,16 +2,26 @@
   <ZaPageWrap class="page-trial-wrapper">
     <div v-if="state.holderFactor.length" class="part-card">
       <div class="part-title">投保人</div>
-      <PersonalInfo ref="holderRef" :form-info="holder.personVO" :factor-list="state.holderFactor"></PersonalInfo>
+      <PersonalInfo
+        ref="holderRef"
+        :insured-code="state.riskBaseInfo?.insuredCode"
+        :form-info="holder.personVO"
+        :factor-list="state.holderFactor"
+      ></PersonalInfo>
     </div>
     <div v-if="state.insuredFactor.length" class="part-card">
       <div class="part-title">被保人</div>
-      <PersonalInfo ref="insuredRef" :form-info="insured.personVO" :factor-list="state.insuredFactor"></PersonalInfo>
+      <PersonalInfo
+        ref="insuredRef"
+        :insured-code="state.riskBaseInfo?.insuredCode"
+        :form-info="insured.personVO"
+        :factor-list="state.insuredFactor"
+      ></PersonalInfo>
     </div>
     <div class="risk-content">
       <div v-if="state.riskData.length" class="risk">
         <VanForm ref="riskFormRef" input-align="right" error-message-align="right">
-          <RiskList :risk-info="riskInfo" :origin-data="state.riskData" :pick-factor="pickFactor" />
+          <RiskList :risk-info="riskInfo" :risk-key="0" :origin-data="state.riskData" :pick-factor="pickFactor" />
         </VanForm>
       </div>
       <div v-if="state.riskPlanData.length" class="plan-risk">
@@ -23,7 +33,12 @@
               :name="risk.planCode"
               :title="risk.planName"
             >
-              <RiskList :risk-info="riskInfo" :origin-data="risk.riskDetailVOList" :pick-factor="pickFactor" />
+              <RiskList
+                :risk-info="riskInfo[risk.planCode]"
+                :origin-data="risk.riskDetailVOList"
+                :pick-factor="pickFactor"
+                :risk-key="risk.planCode"
+              />
             </VanTab>
           </VanTabs>
         </VanForm>
@@ -31,7 +46,7 @@
     </div>
 
     <div class="footer-bar">
-      <span class="trial-result">{{ state.trialResult.premium }}</span>
+      <span class="trial-result">{{ state.trialResult.premium || 0 }}</span>
       <VanButton v-if="state.canTrial" type="primary" @click="trial">去试算</VanButton>
       <VanButton v-else type="primary" @click="trial">去投保</VanButton>
     </div>
@@ -50,12 +65,7 @@ const insured = ref({
   insuredCode: '',
   personVO: {},
 }); // 被保人
-const riskInfo = ref([
-  {
-    liabilityVOList: [],
-    riderRiskVOList: [{}],
-  },
-]); // 险种信息
+const riskInfo = ref({}); // 险种信息
 const holderRef = ref({});
 const insuredRef = ref({});
 const riskFormRef = ref({});
@@ -82,6 +92,15 @@ const queryOccupationalList = async () => {
 };
 
 const dealTrialData = () => {
+  const riderRiskVOList = Object.values(riskInfo.value[state.currentPlan].riderRiskVOList).map((riderRisk) => {
+    const risk = riderRisk;
+    if (risk.paymentYear === '3') {
+      const paymentYear = (riskInfo.value[state.currentPlan].paymentYear || '').split('_');
+      paymentYear[1] && (paymentYear[1] -= 1);
+      risk.paymentYear = paymentYear.join('_');
+    }
+    return risk;
+  });
   const trialData = {
     holder: {
       personVO: {
@@ -100,7 +119,12 @@ const dealTrialData = () => {
         productPlanVOList: [
           {
             planCode: state.currentPlan || state.riskPlanData?.[0]?.planCode,
-            riskVOList: riskInfo.value,
+            riskVOList: [
+              {
+                ...riskInfo.value[state.currentPlan],
+                riderRiskVOList,
+              },
+            ],
           },
         ],
       },
@@ -130,9 +154,16 @@ const queryProductInfo = () => {
     .then(({ code, data }) => {
       if (code === '10000') {
         state.riskBaseInfo = data?.productBasicInfoVO;
+
+        data?.productRelationPlanVOList.forEach((plan, index) => {
+          if (index === 0) {
+            state.currentPlan = plan.planCode;
+          }
+          Object.assign(riskInfo.value, { [plan.planCode]: { liabilityVOList: [], riderRiskVOList: {} } });
+        });
         state.riskData = data?.riskDetailVOList || [];
         state.riskPlanData = data?.productRelationPlanVOList || [];
-        queryOccupationalList();
+        // queryOccupationalList();
       }
     })
     .finally(() => {});

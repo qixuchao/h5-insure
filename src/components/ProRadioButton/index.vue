@@ -4,8 +4,9 @@
       v-for="option in options"
       :key="option.value"
       :label="option.label"
+      :disabled="disabled"
       :activied="state.currentValue === option.value"
-      @click="selectBtn(option.value)"
+      @click="!disabled && selectBtn(option.value)"
     />
   </div>
 </template>
@@ -24,6 +25,14 @@ const props = defineProps({
     default: () => [],
     required: true,
   },
+  isSimply: {
+    type: Boolean,
+    default: false,
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emits = defineEmits(['update:modelValue']);
@@ -36,6 +45,12 @@ const selectBtn = (value) => {
   state.currentValue = value;
   emits('update:modelValue', value);
 };
+
+onMounted(() => {
+  if (!props.isSimply && props?.options.length === 1) {
+    selectBtn(props?.options?.[0]?.value);
+  }
+});
 </script>
 
 <style lang="scss" scoped>
