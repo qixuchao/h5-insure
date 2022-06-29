@@ -1,5 +1,12 @@
 <template>
-  <div :class="{ 'com-check-btn': true, activied, disabled }">
+  <div
+    :class="{
+      'com-check-btn': true,
+      activied: activied && !disabled,
+      disabled: !activied && disabled,
+      'activied-disabled': activied && disabled,
+    }"
+  >
     <slot>
       {{ label }}
     </slot>
@@ -37,12 +44,19 @@ const props = defineProps({
   font-weight: 400;
   margin: 0 0 16px 16px;
   &.activied {
-    border: 1px solid $primary-color;
+    border: 2px solid $primary-color;
     color: $primary-color;
     background-color: rgba(13, 110, 254, 0.1);
   }
   &.disabled {
+    opacity: 0.4;
+    border: 2px solid #e6e6eb;
+  }
+  &.activied-disabled {
+    border: none;
     background-color: #8fbbfc;
+    font-weight: 400;
+    color: #ffffff;
   }
 }
 </style>

@@ -1,12 +1,13 @@
 <template>
   <div class="risk-list-wrapper">
-    <RiskItem :form-info="state.mainRiskInfo" :index="0" :origin-data="state.mainRiskData" />
+    <RiskItem :form-info="state.mainRiskInfo" :index="riskKey" :origin-data="state.mainRiskData" />
     <RiskItem
       v-for="(riderRisk, index) in state.requiredRiderRiskData"
       :key="riderRisk.id"
-      :form-info="state.riderRiskInfo"
+      :form-info="state.riderRiskInfo[riderRisk.id]"
       :index="index"
       :main-risk-data="state.mainRiskData"
+      :main-risk-info="state.mainRiskInfo"
       :origin-data="riderRisk"
     />
 
@@ -51,6 +52,11 @@ const props = defineProps({
     required: true,
     default: () => {},
   },
+  riskKey: {
+    type: [String, Number],
+    required: true,
+    default: 0,
+  },
 });
 
 const [showPopup, toggle] = useToggle(false);
@@ -61,7 +67,7 @@ const riderRiskFormRef = ref(null);
 
 const state = reactive({
   mainRiskInfo: props.riskInfo,
-  riderRiskInfo: props.riskInfo[0].riderRiskVOList,
+  riderRiskInfo: props.riskInfo?.riderRiskVOList,
   requiredRiderRiskData: [],
   mainRiskData: {},
   riderRiskList: [],
@@ -70,16 +76,31 @@ const state = reactive({
   disabledList: [] as any[],
 });
 
-const onFinished = (risk, disabled: any[]) => {
-  state.riderRiskInfo.push({});
+// 添加附加险信息
+const onFinished = (risk: any, disabled: any[]) => {
+  (risk || []).forEach((ri) => {
+    Object.assign(state.riderRiskInfo, { [ri.id]: {} });
+  });
+
   state.disabledList = disabled;
   state.requiredRiderRiskData = state.requiredRiderRiskData.concat(risk);
 };
 
+onBeforeMount(() => {
+  state.requiredRiderRiskData;
+});
+
 // 监听主险的数据,同步更新相关附加险的信息
 watch(
   () => state.mainRiskInfo,
-  () => {},
+  (newVal) => {
+    const newRiskInfo = {};
+    // for (const riskId in state.riderRiskInfo) {
+    //   if (state?.riderRiskInfo?.[riskId]) {
+    //     console.log(123);
+    //   }
+    // }
+  },
   {
     deep: true,
     immediate: true,
@@ -113,6 +134,10 @@ watch(
       );
     });
 
+    (newVal || []).forEach((risk) => {
+      Object.assign(state.riderRiskInfo, { [risk.id]: {} });
+    });
+
     props.pickFactor({
       insuredFactorList: [...new Set(insuredFactorList)],
       holderFactorList: [...new Set(holderFactorList)],
@@ -140,6 +165,18 @@ watch(
   {
     deep: true,
     immediate: true,
+  },
+);
+
+watch(
+  () => props.riskInfo,
+  () => {
+    // state.mainRiskData = props.riskInfo;
+    // state.riderRiskInfo = props.riskInfo?.[props.riskKey]?.riderRiskVOList;
+  },
+  {
+    immediate: true,
+    deep: true,
   },
 );
 </script>
