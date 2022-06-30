@@ -98,7 +98,7 @@ const isShow = computed(() => {
           // margin-right: var(--zaui-space-card);
           width: 40px;
           height: 40px;
-          background-color: #0d6efe;
+          background-color: #ff5840;
           font-size: 28px;
           font-weight: 400;
           color: #ffffff;
