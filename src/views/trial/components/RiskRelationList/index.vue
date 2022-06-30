@@ -26,6 +26,7 @@
   </div>
 </template>
 <script lang="ts" setup>
+import { combineConsoleFeatures } from 'vscode-languageserver';
 import ProPopup from '@/components/ProPopup/index.vue';
 
 const props = defineProps({
@@ -67,6 +68,15 @@ const state = reactive({
 });
 
 const calcRelation = (riskId: number, status: boolean) => {
+  if (!props.collocationList.length) {
+    if (status) {
+      state.currentChecked = [];
+      return;
+    }
+    state.currentChecked.push(riskId);
+    return;
+  }
+
   props.collocationList.forEach((riderRisk: any) => {
     if (riskId === riderRisk.riskId) {
       if (!status) {

@@ -17,10 +17,10 @@
   text-align: center;
   line-height:normal;
   font-size:$zaui-font-size-sm2;
-font-family: PingFangSC-Medium, PingFang SC;
-font-weight: 400;
-color: #D7D7D7;
-margin-top: 52px;
+  font-family: PingFangSC-Medium, PingFang SC;
+  font-weight: 400;
+  color: #D7D7D7;
+  margin-top: 52px;
 }
 .van-button__text {
   font-size: 32px;
@@ -30,6 +30,12 @@ margin-top: 52px;
   color: var(--van-button-default-color);
     background: var(--van-button-default-background-color);
 }
+
+.van-cell {
+  padding: 33px 30px;
+  // height: 106px;
+}
+
 // cell中右侧箭头行高
 .van-cell-group .van-cell--clickable .van-cell__right-icon::before {
   // vertical-align: sub;

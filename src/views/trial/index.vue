@@ -46,9 +46,18 @@
     </div>
 
     <div class="footer-bar">
-      <span class="trial-result">{{ state.trialResult.premium || 0 }}</span>
-      <VanButton v-if="state.canTrial" type="primary" @click="trial">去试算</VanButton>
-      <VanButton v-else type="primary" @click="trial">去投保</VanButton>
+      <span class="trial-result">
+        <span class="result-num">{{ (state?.trialResult?.premium || 0).toLocaleString() }}</span>
+        元起
+      </span>
+      <div class="trial-operate">
+        <div v-if="state.retrialTip" class="retrial-tip">
+          条件更改后，需要重新试算
+          <span class="close-icon" @click="closeTip">X</span>
+        </div>
+        <VanButton v-if="state.canTrial" type="primary" @click="trial">去试算</VanButton>
+        <VanButton v-else type="primary" @click="trial">立即投保</VanButton>
+      </div>
     </div>
   </ZaPageWrap>
 </template>
@@ -87,7 +96,12 @@ const state = reactive({
   riskPlanData: [],
   trialResult: {},
   canTrial: true,
+  retrialTip: false,
 });
+
+const closeTip = () => {
+  state.retrialTip = false;
+};
 
 const queryOccupationalList = async () => {
   const dictCodeList = [
@@ -189,15 +203,16 @@ const queryProductInfo = () => {
 };
 
 const pickFactor = (factorObj: { insuredFactorList: string[]; holderFactorList: string[] }) => {
-  state.holderFactor = factorObj.insuredFactorList;
-  state.insuredFactor = factorObj.holderFactorList;
+  state.holderFactor = factorObj.holderFactorList;
+  state.insuredFactor = factorObj.insuredFactorList;
 };
 
 watch(
   [() => riskInfo.value, () => holder.value, () => insured.value],
   (newVal) => {
-    if (newVal && state.canTrial) {
+    if (newVal && !state.canTrial) {
       state.canTrial = true;
+      state.retrialTip = true;
     }
   },
   {
@@ -228,6 +243,29 @@ onBeforeMount(() => {
   //     }
   //   }
   // }
+  // margin-bottom: 150px;
+  background-color: #f2f5fc;
+
+  .part-card {
+    background-color: #ffffff;
+    margin-bottom: 20px;
+  }
+  .plan-risk {
+    ::v-deep .van-tabs__nav.van-tabs__nav--card {
+      border: 0 !important;
+      .van-tab.van-tab--card {
+        margin: 0 12px;
+        background-color: #f7f6ff;
+        border-right: 0;
+        color: var(--zaui-text-title);
+        border-radius: 10px;
+        &.van-tab--active {
+          background-color: $primary-color;
+          color: #fff;
+        }
+      }
+    }
+  }
   .footer-bar {
     position: fixed;
     width: 100%;
@@ -238,6 +276,58 @@ onBeforeMount(() => {
     padding: 30px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #efeff4;
+
+    .trial-result {
+      width: 440px;
+      color: #ff5840;
+      font-size: 24px;
+      font-weight: 600;
+      .result-num {
+        font-size: 46px;
+        font-weight: 500;
+        margin-left: 13px;
+      }
+    }
+    .trial-operate {
+      button {
+        width: 280px;
+      }
+      .retrial-tip {
+        position: absolute;
+        z-index: 122;
+        // width: 354px;
+        height: 42px;
+        border-radius: 100px;
+        background-color: #ff5840;
+        font-size: 26px;
+        font-family: PingFangSC-Regular, PingFang SC, sans-serif;
+        font-weight: 400;
+        color: #ffffff;
+        line-height: 37px;
+        padding: 3px 21px 2px 20px;
+        right: 30px;
+        top: -42px;
+        display: flex;
+        align-items: center;
+        .close-icon {
+          margin-left: 13px;
+        }
+        &:after {
+          content: ' ';
+          position: absolute;
+          z-index: 11;
+          width: 0;
+          height: 0;
+          border: 10px solid transparent;
+          border-top: 10px solid #ff5840;
+          border-right: 10px solid #ff5840;
+          right: 37px;
+          bottom: -20px;
+        }
+      }
+    }
   }
 }
 </style>

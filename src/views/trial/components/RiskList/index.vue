@@ -9,6 +9,7 @@
       :main-risk-data="state.mainRiskData"
       :main-risk-info="state.mainRiskInfo"
       :origin-data="riderRisk"
+      :remove-risk="removeRiderRisk"
     />
 
     <div v-if="state?.riderRiskList?.length - state?.checkedList?.length" class="add-rider-risk">
@@ -23,7 +24,7 @@
       :show="showPopup"
       :disabled="state.disabledList"
       :risk-list="state.riderRiskList"
-      :collocation-list="state.mainRiskData.collocationVOList || []"
+      :collocation-list="state.mainRiskData?.collocationVOList || []"
       @finished="onFinished"
       @close="toggle(false)"
     ></RiskRelationList>
@@ -32,6 +33,7 @@
 
 <script lang="ts" setup>
 import { useToggle } from '@vant/use';
+import { Dialog } from 'vant/es';
 import RiskItem from '../RiskItem/index.vue';
 import ProCheckButton from '@/components/ProCheckButton/index.vue';
 import RiskRelationList from '../RiskRelationList/index.vue';
@@ -81,6 +83,27 @@ const onFinished = (risk: any, disabled: any[]) => {
   state.requiredRiderRiskData = state.requiredRiderRiskData.concat(risk);
 };
 
+// 移除附加险
+const removeRiderRisk = (riskId: number) => {
+  const removeRiskIds = [riskId];
+
+  (state.mainRiskData?.collocationVOList || []).forEach((risk) => {
+    if (riskId === risk.riskId && risk.collocationType === 1) {
+      removeRiskIds.push(risk.collocationRiskId);
+    }
+  });
+
+  Dialog.confirm({
+    message: '确定要删除附加险么？',
+  })
+    .then(() => {
+      console.log('remove', riskId);
+      state.requiredRiderRiskData = state.requiredRiderRiskData.filter((risk) => !removeRiskIds.includes(risk.id));
+      Object.assign(state.riderRiskInfo, { [riskId]: undefined });
+    })
+    .catch(() => {});
+};
+
 onBeforeMount(() => {
   state.requiredRiderRiskData;
 });
@@ -111,6 +134,7 @@ watch(
     immediate: true,
   },
 );
+
 // 计算出主险和附加险的投保人和被保人的因子
 watch(
   () => state.requiredRiderRiskData,
@@ -178,11 +202,21 @@ watch(
 
 <style lang="scss" scoped>
 .risk-list-wrapper {
+  margin-bottom: 235px;
   .add-rider-risk {
+    background-color: #ffffff;
+    margin-top: -20px;
+    height: 106px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: var(--van-cell-vertical-padding) var(--van-cell-horizontal-padding);
+
+    .left-part {
+      font-weight: 400;
+      color: #99a9c0;
+      font-size: 30px;
+    }
   }
 }
 </style>

@@ -1,5 +1,10 @@
 <template>
-  <div class="com-risk-card-wrapper">
+  <div class="com-risk-card-wrapper part-card">
+    <RiskName
+      :risk-type="originData?.riskType"
+      :name="originData?.riskName"
+      @click="removeRisk(originData?.id)"
+    ></RiskName>
     <VanField
       v-if="originData?.riskCalcMethodInfoVO?.saleMethod === 1"
       v-model="state.formInfo.sumInsured"
@@ -219,6 +224,10 @@ const props = defineProps({
     default: 0,
     required: true,
   },
+  removeRisk: {
+    type: Function,
+    default: () => {},
+  },
 });
 
 const riskPremium = inject('premium');
@@ -382,8 +391,13 @@ watch(
       if (props.originData?.riskInsureLimitVO?.insurancePeriodRule === 1) {
         state.formInfo.coverageYear = newVal.coverageYear;
       }
-      if (props.originData?.riskInsureLimitVO?.insurancePeriodRule === 1) {
-        state.formInfo.coverageYear = newVal.coverageYear;
+
+      if (props.originData?.riskInsureLimitVO?.paymentPeriodRule === 1) {
+        state.formInfo.paymentYear = newVal.paymentYear;
+      }
+
+      if (props.originData?.riskInsureLimitVO?.paymentTypeRule === 1) {
+        state.formInfo.paymentFrequency = newVal.paymentFrequency;
       }
     }
   },
@@ -393,3 +407,12 @@ watch(
   },
 );
 </script>
+
+<style lang="scss" scoped>
+.com-risk-card-wrapper {
+  &.part-card {
+    background-color: #ffffff;
+    margin-bottom: 20px;
+  }
+}
+</style>
