@@ -12,8 +12,7 @@ else
   # test/pre/prd 环境
   API_URL="http:\/\/zat-planet-gateway.${DEPLOY_ENV}.za-tech.net"
 fi
-echo 111111111
-echo $API_URL
+
 # replace
 sed -i "s/<API_URL>/${API_URL}/g" /etc/nginx/conf.d/nginx_app.conf
 
