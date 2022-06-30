@@ -107,8 +107,13 @@ const dealTrialData = () => {
       paymentYear[1] && (paymentYear[1] -= 1);
       risk.paymentYear = paymentYear.join('_');
     }
+    risk.liabilityVOList = risk.liabilityVOList.filter((liab) => !['-1'].includes(liab.liabilityAttributeValue));
     return risk;
   });
+
+  const mainRisk = riskInfo.value[state.currentPlan];
+  mainRisk.liabilityVOList = mainRisk.liabilityVOList.filter((liab) => !['-1'].includes(liab.liabilityAttributeValue));
+
   const trialData = {
     holder: {
       personVO: {
@@ -129,7 +134,7 @@ const dealTrialData = () => {
             planCode: state.currentPlan || '',
             riskVOList: [
               {
-                ...riskInfo.value[state.currentPlan],
+                ...mainRisk,
                 riderRiskVOList,
               },
             ],

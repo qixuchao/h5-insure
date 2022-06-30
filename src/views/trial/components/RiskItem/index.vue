@@ -68,7 +68,11 @@
       :rules="[{ required: true, message: '请选择' }]"
     >
       <template #input>
-        <ProRadioButton v-model="state.formInfo.coverageYear" :options="coverageYearOptions"></ProRadioButton>
+        <ProRadioButton
+          v-model="state.formInfo.coverageYear"
+          :prevent="preventCoverageYear"
+          :options="coverageYearOptions"
+        ></ProRadioButton>
       </template>
     </VanField>
     <VanField
@@ -180,6 +184,7 @@
 
 <script lang="ts" setup>
 import { inject } from 'vue';
+import { Toast } from 'vant/es';
 import ProCheckboxButton from '@/components/ProCheckButton/index.vue';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
 import {
@@ -247,6 +252,10 @@ const pickEnums = (origin: any[], target: any[]) => {
     currentTarget = [`${currentTarget}`];
   }
   return (origin || []).filter((or) => currentTarget.includes(`${or.value}`) || currentTarget.includes(or.value));
+};
+
+const preventCoverageYear = () => {
+  Toast('请选择主险');
 };
 
 // 保障期间可选选项
