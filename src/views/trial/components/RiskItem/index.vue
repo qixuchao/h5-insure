@@ -147,9 +147,9 @@
       </VanField>
       <VanField
         v-else
+        v-model="state.formInfo.liabilityVOList[num].liabilityAttributeValue"
         :label="liab.liabilityName"
         name="liabilityAttributeValue"
-        :rules="[{ required: liab.optionalFlag === 1 && liab.liabilityAttributeValue, message: '请选择' }]"
       >
         <template #input>
           <div>
