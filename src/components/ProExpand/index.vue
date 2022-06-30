@@ -1,13 +1,10 @@
 <template>
   <div class="risk-responsibility">
-    <div class="title">责任投保说明</div>
+    <div class="title">{{ title }}</div>
     <div class="responsibility-content" :style="{ height: height }">
-      <ul>
-        <li v-for="(item, index) in dataSourse" :key="index">
-          <div class="responsibility-sign">{{ index + 1 }}</div>
-          <div>{{ item }}</div>
-        </li>
-      </ul>
+      <div class="content">
+        <slot></slot>
+      </div>
       <div class="show-button" @click="handleClick">
         <span>{{ isShow ? '收起' : '展开' }}</span>
         <ZaSvg style="width: 20px; height: 20px" :name="isShow ? 'arrow-up' : 'arrow-down'"></ZaSvg>
@@ -17,28 +14,30 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, computed, ref } from 'vue';
+import { defineProps, computed, ref, defineEmits } from 'vue';
 
 const props = defineProps({
-  dataSourse: {
-    type: Array,
-    default: () => [],
+  modelValue: Boolean,
+  title: {
+    type: String,
+    default: '',
   },
   minHeight: {
     type: [Number, String],
-    default: 100,
+    default: 80,
   },
   maxHeight: {
     type: [Number, String],
     default: 200,
   },
-  onChange: {
-    type: Function,
-    default: () => {},
-  },
 });
 
-const isShow = ref(false);
+const isShow = ref();
+
+onMounted(() => {
+  isShow.value = props.modelValue;
+});
+const emits = defineEmits(['update:modelValue']);
 
 const height = computed(() => {
   return isShow.value ? `${props.maxHeight}px` : `${props.minHeight}px`;
@@ -46,9 +45,7 @@ const height = computed(() => {
 
 const handleClick = () => {
   isShow.value = !isShow.value;
-  if (isShow.value) {
-    props.onChange();
-  }
+  emits('update:modelValue', isShow.value);
 };
 </script>
 
