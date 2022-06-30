@@ -68,11 +68,7 @@
       :rules="[{ required: true, message: '请选择' }]"
     >
       <template #input>
-        <ProRadioButton
-          v-model="state.formInfo.coverageYear"
-          :prevent="preventCoverageYear"
-          :options="coverageYearOptions"
-        ></ProRadioButton>
+        <ProRadioButton v-model="state.formInfo.coverageYear" :options="coverageYearOptions"></ProRadioButton>
       </template>
     </VanField>
     <VanField
@@ -382,8 +378,17 @@ watch(
 
 // 监听主险的数据变化
 watch(
-  () => props.mainRiskInfo,
-  (newVal) => {},
+  () => props?.mainRiskInfo,
+  (newVal) => {
+    if (newVal && props.originData.riskType === 2) {
+      if (props.originData?.riskInsureLimitVO?.insurancePeriodRule === 1) {
+        state.formInfo.coverageYear = newVal.coverageYear;
+      }
+      if (props.originData?.riskInsureLimitVO?.insurancePeriodRule === 1) {
+        state.formInfo.coverageYear = newVal.coverageYear;
+      }
+    }
+  },
   {
     immediate: true,
     deep: true,

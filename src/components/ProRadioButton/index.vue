@@ -33,10 +33,6 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  prevent: {
-    type: Function,
-    default: () => {},
-  },
 });
 
 const emits = defineEmits(['update:modelValue']);
@@ -46,7 +42,6 @@ const state = reactive({
 });
 
 const selectBtn = (value) => {
-  console.log(props.prevent);
   state.currentValue = value;
   emits('update:modelValue', value);
 };
@@ -56,6 +51,13 @@ onMounted(() => {
     selectBtn(props?.options?.[0]?.value);
   }
 });
+
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    state.currentValue = newVal;
+  },
+);
 </script>
 
 <style lang="scss" scoped>

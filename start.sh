@@ -1,5 +1,6 @@
 #!/bin/bash
-
+# DEPLOY_ENV=dev
+# GATEWAY_PROJECT_ID=141604
 if [ $DEPLOY_ENV = 'dev' ]
 then
   # 修改: Ship 开发环境 -> 应用编排 -> 高级配置 -> 环境变量, 保存并生效后等待服务重启
@@ -11,7 +12,8 @@ else
   # test/pre/prd 环境
   API_URL="http:\/\/zat-planet-gateway.${DEPLOY_ENV}.za-tech.net"
 fi
-
+echo 111111111
+echo $API_URL
 # replace
 sed -i "s/<API_URL>/${API_URL}/g" /etc/nginx/conf.d/nginx_app.conf
 
