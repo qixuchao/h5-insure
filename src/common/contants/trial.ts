@@ -390,11 +390,11 @@ export const RISK_COLLOCATION_TYPE = [
 // 责任的可选关系
 export const OPTIONAL_FLAG = [
   {
-    label: '可选',
+    label: '必选',
     value: 1,
   },
   {
-    label: '必选',
+    label: '可选',
     value: 2,
   },
 ];
@@ -507,11 +507,11 @@ export const RULE_PAYMENT = [
 export const LIABILITY_ATTRIBUTE_VALUE = [
   {
     label: '返保额',
-    value: 1,
+    value: '1',
   },
   {
     label: '返保费',
-    value: 2,
+    value: '2',
   },
 ];
 

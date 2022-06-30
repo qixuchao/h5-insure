@@ -32,8 +32,18 @@
 }
 
 .van-cell {
-  padding: 33px 30px;
-  // height: 106px;
+  padding: 23px 30px;
+  min-height: 106px;
+
+  .van-field__label {
+    width: 210px;
+    margin-right: 12px;
+    line-height: 42px;
+    font-size: 30px;
+    font-weight: 400;
+    color: #393D46;
+
+  }
 }
 
 // cell中右侧箭头行高

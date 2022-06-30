@@ -1,5 +1,8 @@
 <template>
   <div class="com-risk-card-wrapper part-card">
+    <ProTitle :risk-type="originData?.riskType" :title="originData?.riskName">
+      <div class="delete-risk"></div>
+    </ProTitle>
     <RiskName
       :risk-type="originData?.riskType"
       :name="originData?.riskName"
@@ -131,7 +134,7 @@
         ></ProRadioButton>
       </template>
     </VanField>
-    <div v-for="(liab, num) in originData?.riskLiabilityInfoVOList || []" :key="liab.liabilityId">
+    <div v-for="(liab, num) in originData?.riskLiabilityInfoVOList || []" :key="num">
       <VanField
         v-if="liab.optionalFlag === 1"
         v-model="state.formInfo.liabilityVOList[num].liabilityAttributeValue"
@@ -141,11 +144,16 @@
       >
         <template #input>
           <div>
-            <span v-if="!liab.liabilityAttributeValue">50万</span>
+            <span v-if="isEmpty(liab.liabilityAttributeValueList)">50万</span>
             <ProRadioButton
               v-else
               v-model="state.formInfo.liabilityVOList[num].liabilityAttributeValue"
-              :options="LIABILITY_ATTRIBUTE_VALUE"
+              :options="
+                pickEnums(
+                  LIABILITY_ATTRIBUTE_VALUE,
+                  originData?.riskLiabilityInfoVOList?.[num]?.liabilityAttributeValueList,
+                )
+              "
             ></ProRadioButton>
           </div>
         </template>
@@ -159,14 +167,19 @@
         <template #input>
           <div>
             <ProRadioButton
-              v-if="!liab.liabilityAttributeValue"
+              v-if="isEmpty(liab.liabilityAttributeValueList)"
               v-model="state.formInfo.liabilityVOList[num].liabilityAttributeValue"
               :options="INSURE_FLAG"
             ></ProRadioButton>
             <ProRadioButton
               v-else
               v-model="state.formInfo.liabilityVOList[num].liabilityAttributeValue"
-              :options="LIABILITY_ATTRIBUTE_VALUE"
+              :options="
+                pickEnums(
+                  LIABILITY_ATTRIBUTE_VALUE,
+                  originData?.riskLiabilityInfoVOList?.[num]?.liabilityAttributeValueList,
+                )
+              "
             ></ProRadioButton>
           </div>
         </template>
@@ -228,9 +241,14 @@ const props = defineProps({
     type: Function,
     default: () => {},
   },
+  ageRange: {
+    type: Array,
+    required: true,
+    default: () => ['', ''],
+  },
 });
 
-const riskPremium = inject('premium');
+const riskPremium = inject('premium') || {};
 
 const state = reactive({
   formInfo: props.formInfo,
@@ -360,13 +378,13 @@ onBeforeMount(() => {
     mainRiskId: props?.mainRiskData?.id,
     riskCategory: props.originData.riskCategory,
     liabilityVOList: (props.originData.riskLiabilityInfoVOList || []).map((liab) => ({
-      liabilityAttributeCode: liab.liabilityAttribute,
-      liabilityAttributeValue: liab.liabilityAttributeValue,
+      liabilityAttributeCode: liab.liabilityAttributeType,
       liabilityCode: liab.liabilityCode,
       liabilityId: liab.id,
       liabilityRateType: liab.liabilityRateType,
     })),
   };
+
   Object.assign(state?.formInfo, extralInfo);
 });
 

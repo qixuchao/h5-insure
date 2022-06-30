@@ -97,6 +97,11 @@ const props = defineProps({
     required: true,
     default: () => [],
   },
+  ageRange: {
+    type: Array,
+    required: true,
+    default: () => [],
+  },
 });
 
 const [isShow, toggle] = useToggle();
@@ -128,6 +133,25 @@ const validateForm = () => {
     );
   });
 };
+
+const ageRangeObj = computed(() => {
+  const splitAge = (age = '') => {
+    const ageNum = +age.split('_')[1];
+    const ageType = age.split('_')[0];
+    return [ageNum, ageType];
+  };
+  const min = splitAge((props?.ageRange as any[])[1]);
+  const max = splitAge((props?.ageRange as any[])[0]);
+  const minAge = new Date(dayjs().subtract(min[0], min[1]));
+  const maxAge = new Date(dayjs().subtract(max[0], max[1]));
+
+  console.log('minAge', minAge, maxAge);
+
+  return {
+    minAge,
+    maxAge,
+  };
+});
 
 defineExpose({
   validateForm,

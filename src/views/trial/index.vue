@@ -7,6 +7,7 @@
         :insured-code="state.riskBaseInfo?.insuredCode"
         :form-info="holder.personVO"
         :factor-list="state.holderFactor"
+        :age-range="state.ageRange"
       ></PersonalInfo>
     </div>
     <div v-if="state.insuredFactor.length" class="part-card">
@@ -16,6 +17,7 @@
         :insured-code="state.riskBaseInfo?.insuredCode"
         :form-info="insured.personVO"
         :factor-list="state.insuredFactor"
+        :age-range="state.ageRange"
       ></PersonalInfo>
     </div>
     <div class="risk-content">
@@ -97,6 +99,7 @@ const state = reactive({
   trialResult: {},
   canTrial: true,
   retrialTip: false,
+  ageRange: [] as any[],
 });
 
 const closeTip = () => {
@@ -125,7 +128,7 @@ const dealTrialData = () => {
     return risk;
   });
 
-  const mainRisk = riskInfo.value[state.currentPlan];
+  const mainRisk = { ...riskInfo.value[state.currentPlan] };
   mainRisk.liabilityVOList = mainRisk.liabilityVOList.filter((liab) => !['-1'].includes(liab.liabilityAttributeValue));
 
   const trialData = {
@@ -202,9 +205,10 @@ const queryProductInfo = () => {
     .finally(() => {});
 };
 
-const pickFactor = (factorObj: { insuredFactorList: string[]; holderFactorList: string[] }) => {
+const pickFactor = (factorObj: { insuredFactorList: string[]; holderFactorList: string[]; ageRange: string[] }) => {
   state.holderFactor = factorObj.holderFactorList;
   state.insuredFactor = factorObj.insuredFactorList;
+  state.ageRange = factorObj.ageRange;
 };
 
 watch(

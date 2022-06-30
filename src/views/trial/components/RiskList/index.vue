@@ -97,11 +97,26 @@ const removeRiderRisk = (riskId: number) => {
     message: '确定要删除附加险么？',
   })
     .then(() => {
-      console.log('remove', riskId);
       state.requiredRiderRiskData = state.requiredRiderRiskData.filter((risk) => !removeRiskIds.includes(risk.id));
       Object.assign(state.riderRiskInfo, { [riskId]: undefined });
     })
     .catch(() => {});
+};
+
+const compareHolderAge = (currentAge: string, nextAge: string): any[] => {
+  const current = currentAge.split('_');
+  const next = nextAge.split('_');
+
+  if (current[0] === next[0]) {
+    if (+current[1] > +next[1]) {
+      return [nextAge, currentAge];
+    }
+    return [currentAge, nextAge];
+  }
+  if (current[0] === 'age') {
+    return [currentAge, nextAge];
+  }
+  return [nextAge, currentAge];
 };
 
 onBeforeMount(() => {
@@ -142,7 +157,9 @@ watch(
     const riskList = [state.mainRiskData, ...newVal];
     let insuredFactorList: string[] = [];
     let holderFactorList: string[] = [];
-    riskList.forEach((risk) => {
+    let ageRange: any[] = [];
+
+    riskList.forEach((risk, index) => {
       const selectedFator: any[] = risk?.riskCalcMethodInfoVO?.riskFactorRelationList || [];
       insuredFactorList = insuredFactorList.concat(
         selectedFator.filter((factor) => factor.factorObject === 'insured').map((factor: any) => factor.factorCode),
@@ -151,6 +168,15 @@ watch(
       holderFactorList = holderFactorList.concat(
         selectedFator.filter((factor) => factor.factorObject === 'holder').map((factor: any) => factor.factorCode),
       );
+
+      if (index === 0) {
+        ageRange[0] = risk?.riskInsureLimitVO?.minHolderAge || '';
+        ageRange[1] = risk?.riskInsureLimitVO?.maxHolderAge;
+      } else {
+        const minAge = compareHolderAge(ageRange[0], risk?.riskInsureLimitVO?.minHolderAge)[0];
+        const maxAge = compareHolderAge(ageRange[1], risk?.riskInsureLimitVO?.maxHolderAge)[1];
+        ageRange = [minAge, maxAge];
+      }
     });
 
     (newVal || []).forEach((risk) => {
@@ -160,6 +186,7 @@ watch(
     props.pickFactor({
       insuredFactorList: [...new Set(insuredFactorList)],
       holderFactorList: [...new Set(holderFactorList)],
+      ageRange,
     });
   },
   {
