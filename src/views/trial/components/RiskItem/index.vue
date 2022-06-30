@@ -1,6 +1,5 @@
 <template>
   <div class="com-risk-card-wrapper">
-    <RiskName :risk-type="originData?.riskType" :name="originData?.riskName"></RiskName>
     <VanField
       v-if="originData?.riskCalcMethodInfoVO?.saleMethod === 1"
       v-model="state.formInfo.sumInsured"
@@ -194,7 +193,6 @@ import {
   RULE_INSURANCE,
   RULE_PAYMENT,
 } from '@/common/contants/trial';
-import RiskName from '../RiskName/index.vue';
 
 const props = defineProps({
   originData: {

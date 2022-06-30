@@ -1,7 +1,20 @@
 <template>
   <div class="card-title">
-    <VanCell v-if="!collapse">
-      <template #title>
+    <VanCell>
+      <!-- 险种名称 -->
+      <template v-if="isShow" #title>
+        <div class="risk-title">
+          <div class="left-content">
+            <div :class="riskType === 1 ? 'main-risk' : 'minor-risk'">{{ riskType === 1 ? '主' : '附' }}</div>
+            <div class="risk-name">{{ title }}</div>
+          </div>
+          <div v-if="ctx.$slots.default" class="right-content">
+            <slot name="default"></slot>
+          </div>
+        </div>
+      </template>
+      <!-- 区域标题 -->
+      <template v-else #title>
         <div class="pic" />
         <div class="pic-title">{{ title }}</div>
       </template>
@@ -21,16 +34,24 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps } from 'vue';
+import { defineProps, computed, getCurrentInstance } from 'vue';
 
 const props = defineProps({
   title: {
     type: String,
-    default: () => '',
+    default: '',
+  },
+  riskType: {
+    type: Number,
+    default: 0,
   },
 });
 
-const activeNames = ref(['1']);
+const { ctx } = getCurrentInstance();
+
+const isShow = computed(() => {
+  return props.riskType === 1 || props.riskType === 2;
+});
 </script>
 
 <style lang="scss" scoped>
@@ -52,16 +73,56 @@ const activeNames = ref(['1']);
       color: #393d46;
       line-height: 42px;
     }
-  }
-
-  ::v-deep .van-collapse-item__content {
-    // padding: var(--van-collapse-item-content-padding) 0;
-    padding: 0;
-  }
-
-  .collapse-title {
-    font-size: 28px;
-    font-weight: 700;
+    .risk-title {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      .left-content {
+        display: flex;
+        align-items: center;
+        .main-risk {
+          margin-right: 10px;
+          width: 40px;
+          height: 40px;
+          background-color: #0d6efe;
+          font-size: 28px;
+          font-weight: 400;
+          color: #ffffff;
+          line-height: 40px;
+          text-align: center;
+          border-radius: 8px;
+        }
+        .minor-risk {
+          margin-right: 10px;
+          // margin-right: var(--zaui-space-card);
+          width: 40px;
+          height: 40px;
+          background-color: #0d6efe;
+          font-size: 28px;
+          font-weight: 400;
+          color: #ffffff;
+          line-height: 40px;
+          text-align: center;
+          border-radius: 8px;
+        }
+        .risk-name {
+          width: 540px;
+          height: 42px;
+          font-size: 30px;
+          font-weight: 600;
+          color: #333333;
+          line-height: 42px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+      .right-content {
+        width: 40px;
+        height: 40px;
+      }
+    }
   }
 }
 </style>
