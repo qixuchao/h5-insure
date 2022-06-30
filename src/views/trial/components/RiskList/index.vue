@@ -1,6 +1,6 @@
 <template>
   <div class="risk-list-wrapper">
-    <RiskItem :form-info="state.mainRiskInfo" :index="riskKey" :origin-data="state.mainRiskData" />
+    <RiskItem :form-info="state.mainRiskInfo" :origin-data="state.mainRiskData" />
     <RiskItem
       v-for="(riderRisk, index) in state.requiredRiderRiskData"
       :key="riderRisk.id"
@@ -11,7 +11,7 @@
       :origin-data="riderRisk"
     />
 
-    <div v-if="state.riderRiskList.length - state.checkedList.length" class="add-rider-risk">
+    <div v-if="state?.riderRiskList?.length - state?.checkedList?.length" class="add-rider-risk">
       <span class="left-part">{{
         `共有${state.riderRiskList.length - state.checkedList.length}款附加险可以添加`
       }}</span>
@@ -51,11 +51,6 @@ const props = defineProps({
     type: Function,
     required: true,
     default: () => {},
-  },
-  riskKey: {
-    type: [String, Number],
-    required: true,
-    default: 0,
   },
 });
 
