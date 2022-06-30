@@ -1,3 +1,4 @@
+#!/bin/bash
 
 if [ $DEPLOY_ENV = 'dev' ]
 then
