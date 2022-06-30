@@ -1,7 +1,7 @@
 <template>
   <ZaPageWrap class="page-trial-wrapper">
     <div v-if="state.holderFactor.length" class="part-card">
-      <div class="part-title">投保人</div>
+      <ProTitle title="投保人"></ProTitle>
       <PersonalInfo
         ref="holderRef"
         :insured-code="state.riskBaseInfo?.insuredCode"
@@ -10,7 +10,7 @@
       ></PersonalInfo>
     </div>
     <div v-if="state.insuredFactor.length" class="part-card">
-      <div class="part-title">被保人</div>
+      <ProTitle title="被保人"></ProTitle>
       <PersonalInfo
         ref="insuredRef"
         :insured-code="state.riskBaseInfo?.insuredCode"
@@ -21,7 +21,7 @@
     <div class="risk-content">
       <div v-if="state.riskData.length" class="risk">
         <VanForm ref="riskFormRef" input-align="right" error-message-align="right">
-          <RiskList :risk-info="riskInfo" :risk-key="0" :origin-data="state.riskData" :pick-factor="pickFactor" />
+          <RiskList :risk-info="riskInfo[0]" :origin-data="state.riskData" :pick-factor="pickFactor" />
         </VanForm>
       </div>
       <div v-if="state.riskPlanData.length" class="plan-risk">
@@ -34,10 +34,10 @@
               :title="risk.planName"
             >
               <RiskList
+                v-if="risk.planCode === state.currentPlan"
                 :risk-info="riskInfo[risk.planCode]"
                 :origin-data="risk.riskDetailVOList"
                 :pick-factor="pickFactor"
-                :risk-key="risk.planCode"
               />
             </VanTab>
           </VanTabs>
@@ -53,10 +53,15 @@
   </ZaPageWrap>
 </template>
 <script lang="ts" setup>
+import { provide } from 'vue';
+import { useRoute } from 'vue-router';
 import PersonalInfo from './components/PersionalInfo/index.vue';
 import RiskList from './components/RiskList/index.vue';
 import { insureProductDetail, premiumCalc } from '@/api/modules/trial';
 import { getDic } from '@/api';
+import ProTitle from '@/components/ProTitle/index.vue';
+
+const { id = 115 } = useRoute().query;
 
 const holder = ref({
   personVO: {},
@@ -69,6 +74,9 @@ const riskInfo = ref({}); // 险种信息
 const holderRef = ref({});
 const insuredRef = ref({});
 const riskFormRef = ref({});
+const riskPremiumRef = ref({});
+
+provide('premium', riskPremiumRef.value);
 
 const state = reactive({
   currentPlan: '',
@@ -99,8 +107,13 @@ const dealTrialData = () => {
       paymentYear[1] && (paymentYear[1] -= 1);
       risk.paymentYear = paymentYear.join('_');
     }
+    risk.liabilityVOList = risk.liabilityVOList.filter((liab) => !['-1'].includes(liab.liabilityAttributeValue));
     return risk;
   });
+
+  const mainRisk = riskInfo.value[state.currentPlan];
+  mainRisk.liabilityVOList = mainRisk.liabilityVOList.filter((liab) => !['-1'].includes(liab.liabilityAttributeValue));
+
   const trialData = {
     holder: {
       personVO: {
@@ -118,10 +131,10 @@ const dealTrialData = () => {
         },
         productPlanVOList: [
           {
-            planCode: state.currentPlan || state.riskPlanData?.[0]?.planCode,
+            planCode: state.currentPlan || '',
             riskVOList: [
               {
-                ...riskInfo.value[state.currentPlan],
+                ...mainRisk,
                 riderRiskVOList,
               },
             ],
@@ -135,6 +148,12 @@ const dealTrialData = () => {
     if (code === '10000') {
       state.trialResult = data;
       state.canTrial = false;
+      const riskPremium = {};
+      (data.riskPremiumDetailVOList || []).forEach((risk) => {
+        riskPremium[risk.riskCode] = risk;
+      });
+      Object.assign(riskPremiumRef.value, riskPremium);
+      console.log(riskPremiumRef.value);
     }
   });
 };
@@ -150,16 +169,16 @@ const trial = () => {
 };
 
 const queryProductInfo = () => {
-  insureProductDetail({ productId: 115 })
+  insureProductDetail({ productId: id })
     .then(({ code, data }) => {
       if (code === '10000') {
         state.riskBaseInfo = data?.productBasicInfoVO;
 
-        data?.productRelationPlanVOList.forEach((plan, index) => {
+        (data?.productRelationPlanVOList || data?.riskDetailVOList || []).forEach((plan, index) => {
           if (index === 0) {
-            state.currentPlan = plan.planCode;
+            state.currentPlan = plan.planCode || 0;
           }
-          Object.assign(riskInfo.value, { [plan.planCode]: { liabilityVOList: [], riderRiskVOList: {} } });
+          Object.assign(riskInfo.value, { [plan.planCode || index]: { liabilityVOList: [], riderRiskVOList: {} } });
         });
         state.riskData = data?.riskDetailVOList || [];
         state.riskPlanData = data?.productRelationPlanVOList || [];

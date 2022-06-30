@@ -51,6 +51,13 @@ onMounted(() => {
     selectBtn(props?.options?.[0]?.value);
   }
 });
+
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    state.currentValue = newVal;
+  },
+);
 </script>
 
 <style lang="scss" scoped>

@@ -1,5 +1,6 @@
 <template>
   <div class="com-risk-card-wrapper">
+    <RiskName :risk-type="originData?.riskType" :name="originData?.riskName"></RiskName>
     <VanField
       v-if="originData?.riskCalcMethodInfoVO?.saleMethod === 1"
       v-model="state.formInfo.sumInsured"
@@ -33,9 +34,13 @@
       </template>
     </VanField>
     <VanField
-      v-if="originData?.riskCalcMethodInfoVO?.saleMethod === 3"
+      v-if="
+        originData?.riskCalcMethodInfoVO?.saleMethod === 3 ||
+        (originData?.riskCalcMethodInfoVO?.saleMethod === 4 &&
+          (originData?.riskCalcMethodInfoVO?.minCopy || originData?.riskCalcMethodInfoVO?.maxCopy))
+      "
       v-model="state.formInfo.copy"
-      label="份数"
+      label="投保份数"
       name="copy"
       :rules="[{ required: true, message: '请填写' }]"
     >
@@ -43,19 +48,13 @@
         <VanStepper v-model="state.formInfo.copy" :step="1" :min="copy.min" :max="copy.max"></VanStepper>
       </template>
     </VanField>
+
     <VanField
-      v-if="originData?.riskCalcMethodInfoVO?.saleMethod === 2 && originData?.riskType === 1"
+      v-if="originData?.riskCalcMethodInfoVO?.saleMethod !== 1 && riskPremium?.[originData?.riskCode]"
       label="保额"
-      name="premium"
-      :rules="[{ required: true, message: '请填写' }]"
     >
       <template #input>
-        <VanStepper
-          v-model="state.formInfo.premium"
-          :step="originData?.riskCalcMethodInfoVO?.increaseDecreaseNum || 1"
-          :min="premium.min"
-          :max="premium.max"
-        ></VanStepper>
+        <div>{{ riskPremium?.[originData?.riskCode]?.amount }}</div>
       </template>
     </VanField>
     <VanField
@@ -131,6 +130,7 @@
     <div v-for="(liab, num) in originData?.riskLiabilityInfoVOList || []" :key="liab.liabilityId">
       <VanField
         v-if="liab.optionalFlag === 1"
+        v-model="state.formInfo.liabilityVOList[num].liabilityAttributeValue"
         :label="liab.liabilityName"
         name="liabilityAttributeValue"
         :rules="[{ required: liab.liabilityAttributeValue, message: '请选择' }]"
@@ -148,15 +148,15 @@
       </VanField>
       <VanField
         v-else
+        v-model="state.formInfo.liabilityVOList[num].liabilityAttributeValue"
         :label="liab.liabilityName"
         name="liabilityAttributeValue"
-        :rules="[{ required: liab.optionalFlag === 1 && liab.liabilityAttributeValue, message: '请选择' }]"
       >
         <template #input>
           <div>
             <ProRadioButton
               v-if="!liab.liabilityAttributeValue"
-              v-model="state.formInfo.liabilityVOList[num].flag"
+              v-model="state.formInfo.liabilityVOList[num].liabilityAttributeValue"
               :options="INSURE_FLAG"
             ></ProRadioButton>
             <ProRadioButton
@@ -179,7 +179,8 @@
 </template>
 
 <script lang="ts" setup>
-import { vShow } from 'vue-demi';
+import { inject } from 'vue';
+import { Toast } from 'vant/es';
 import ProCheckboxButton from '@/components/ProCheckButton/index.vue';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
 import {
@@ -193,6 +194,7 @@ import {
   RULE_INSURANCE,
   RULE_PAYMENT,
 } from '@/common/contants/trial';
+import RiskName from '../RiskName/index.vue';
 
 const props = defineProps({
   originData: {
@@ -221,6 +223,8 @@ const props = defineProps({
   },
 });
 
+const riskPremium = inject('premium');
+
 const state = reactive({
   formInfo: props.formInfo,
 });
@@ -243,7 +247,11 @@ const pickEnums = (origin: any[], target: any[]) => {
   if (!Array.isArray(target)) {
     currentTarget = [`${currentTarget}`];
   }
-  return (origin || []).filter((or) => currentTarget.includes(`${or.value}`));
+  return (origin || []).filter((or) => currentTarget.includes(`${or.value}`) || currentTarget.includes(or.value));
+};
+
+const preventCoverageYear = () => {
+  Toast('请选择主险');
 };
 
 // 保障期间可选选项
@@ -329,7 +337,7 @@ const premium = computed(() => {
 
 // 份数的最大值和最小值
 const copy = computed(() => {
-  const min = props.originData?.riskCalcMethodInfoVO?.minCopy;
+  const min = props.originData?.riskCalcMethodInfoVO?.minCopy || 1;
   const max = props.originData?.riskCalcMethodInfoVO?.maxCopy;
   state.formInfo.copy = min;
 
@@ -341,8 +349,8 @@ onBeforeMount(() => {
     riskType: props.originData.riskType,
     riskId: props.originData.id,
     riskCode: props.originData.riskCode,
-    mainRiskCode: props.originData.riskCode,
-    mainRiskId: props.originData.id,
+    mainRiskCode: props?.mainRiskData?.riskCode,
+    mainRiskId: props?.mainRiskData?.id,
     riskCategory: props.originData.riskCategory,
     liabilityVOList: (props.originData.riskLiabilityInfoVOList || []).map((liab) => ({
       liabilityAttributeCode: liab.liabilityAttribute,
@@ -355,10 +363,32 @@ onBeforeMount(() => {
   Object.assign(state?.formInfo, extralInfo);
 });
 
+watch(
+  () => state.formInfo?.paymentFrequency,
+  (newVal) => {
+    if ([3, 4].includes(props.originData?.riskCalcMethodInfoVO?.saleMethod)) {
+      (props.originData?.riskCalcMethodInfoVO?.paymentMethodLimitList || []).forEach((paymment) => {
+        if (+paymment.paymentFrequency === +newVal) {
+          Object.assign(state.formInfo, { sumInsured: paymment.perCopyAmount, premium: paymment.perCopyPremium });
+        }
+      });
+    }
+  },
+);
+
 // 监听主险的数据变化
 watch(
-  () => props.mainRiskInfo,
-  (newVal) => {},
+  () => props?.mainRiskInfo,
+  (newVal) => {
+    if (newVal && props.originData.riskType === 2) {
+      if (props.originData?.riskInsureLimitVO?.insurancePeriodRule === 1) {
+        state.formInfo.coverageYear = newVal.coverageYear;
+      }
+      if (props.originData?.riskInsureLimitVO?.insurancePeriodRule === 1) {
+        state.formInfo.coverageYear = newVal.coverageYear;
+      }
+    }
+  },
   {
     immediate: true,
     deep: true,

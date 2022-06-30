@@ -38,6 +38,8 @@ margin-top: 52px;
 // cell 箭头与文字对齐
 .van-cell__right-icon {
   margin-right: -4px;
+  display: flex;
+  align-items: center;
 }
 
 .van-dialog {

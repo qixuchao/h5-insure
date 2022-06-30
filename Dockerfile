@@ -1,20 +1,13 @@
-FROM base-registry.zhonganinfo.com/env/node-ngx:11.10.1
-
-ARG DEPLOY_ENV
-
-WORKDIR /root/app
+FROM base-registry.zhonganinfo.com/env/nginx:1.15.0
 
 COPY nginx_app.conf /etc/nginx/conf.d/
 
-RUN  rm -rf /root/app/dist/
+COPY start.sh /
 
-COPY ./dist /root/app/dist
+RUN chmod a+x /start.sh
 
-RUN rm -f /etc/nginx/conf.d/default.conf
-
-RUN  rm -fr node_modules
-
-RUN  chmod 755 /root  -R
+COPY ./dist /var/www/html
 
 EXPOSE 8080
 
+CMD ["/start.sh"]
