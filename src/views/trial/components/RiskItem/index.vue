@@ -130,6 +130,7 @@
     <div v-for="(liab, num) in originData?.riskLiabilityInfoVOList || []" :key="liab.liabilityId">
       <VanField
         v-if="liab.optionalFlag === 1"
+        v-model="state.formInfo.liabilityVOList[num].liabilityAttributeValue"
         :label="liab.liabilityName"
         name="liabilityAttributeValue"
         :rules="[{ required: liab.liabilityAttributeValue, message: '请选择' }]"
@@ -155,7 +156,7 @@
           <div>
             <ProRadioButton
               v-if="!liab.liabilityAttributeValue"
-              v-model="state.formInfo.liabilityVOList[num].flag"
+              v-model="state.formInfo.liabilityVOList[num].liabilityAttributeValue"
               :options="INSURE_FLAG"
             ></ProRadioButton>
             <ProRadioButton

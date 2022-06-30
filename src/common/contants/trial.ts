@@ -495,7 +495,7 @@ export const RULE_INSURANCE = [
 
 export const RULE_PAYMENT = [
   {
-    label: '主险期间减1',
+    label: '同主险期间减1',
     value: '3',
   },
   {
@@ -518,10 +518,10 @@ export const LIABILITY_ATTRIBUTE_VALUE = [
 export const INSURE_FLAG = [
   {
     label: '投保',
-    value: 1,
+    value: '0',
   },
   {
     label: '不投保',
-    value: 2,
+    value: '-1',
   },
 ];
