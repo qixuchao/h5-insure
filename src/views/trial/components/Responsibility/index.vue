@@ -1,31 +1,16 @@
 <template>
   <div class="risk-responsibility">
     <div class="title">责任投保说明</div>
-    <div class="responsibility-content">
+    <div class="responsibility-content" :style="{ height: height }">
       <ul>
-        <li v-if="dataSourse && dataSourse.length >= 1">
-          <div class="responsibility-sign">1</div>
-          <span>{{ isShowData[0] }}</span>
+        <li v-for="(item, index) in dataSourse" :key="index">
+          <div class="responsibility-sign">{{ index + 1 }}</div>
+          <div>{{ item }}</div>
         </li>
-        <li v-if="dataSourse && dataSourse.length >= 2">
-          <div class="responsibility-sign">2</div>
-          <span>{{ isShowData[1] }}</span>
-        </li>
-        <div v-show="isShow">
-          <li v-for="(item, index) in dataSourse" :key="index">
-            <div class="responsibility-sign">{{ index + 3 }}</div>
-            <span>{{ item }}</span>
-          </li>
-        </div>
       </ul>
-      <div class="spread">
-        <div style="text-align: center" @click="handleClick">
-          <span>{{ isShow ? '收起' : '展开' }}</span>
-          <ZaSvg
-            style="width: 20px; height: 20px; vertical-align: top"
-            :name="isShow ? 'arrow-up' : 'arrow-down'"
-          ></ZaSvg>
-        </div>
+      <div class="show-button" @click="handleClick">
+        <span>{{ isShow ? '收起' : '展开' }}</span>
+        <ZaSvg style="width: 20px; height: 20px" :name="isShow ? 'arrow-up' : 'arrow-down'"></ZaSvg>
       </div>
     </div>
   </div>
@@ -39,49 +24,75 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
-});
-const isShowData = computed(() => {
-  return [
-    props.dataSourse && props.dataSourse[0] ? props.dataSourse[0] : '',
-    props.dataSourse && props.dataSourse[1] ? props.dataSourse[1] : '',
-  ];
-});
-const hiddenData = computed(() => {
-  const arr = props.dataSourse && props.dataSourse.length ? props.dataSourse : [];
-  return arr.splice(1, 2);
+  minHeight: {
+    type: [Number, String],
+    default: 100,
+  },
+  maxHeight: {
+    type: [Number, String],
+    default: 200,
+  },
+  onChange: {
+    type: Function,
+    default: () => {},
+  },
 });
 
 const isShow = ref(false);
 
+const height = computed(() => {
+  return isShow.value ? `${props.maxHeight}px` : `${props.minHeight}px`;
+});
+
 const handleClick = () => {
   isShow.value = !isShow.value;
+  if (isShow.value) {
+    props.onChange();
+  }
 };
 </script>
 
 <style lang="scss" scoped>
 .risk-responsibility {
   .title {
-    padding: var(--zaui-page-border) var(--zaui-space-home-card);
-    font-size: $zaui-font-size;
-    font-weight: 700;
-    color: #000;
+    font-size: 26px;
+    font-weight: 500;
+    color: #393d46;
+    padding: 20px 0;
+    padding-left: var(--van-cell-horizontal-padding);
+    overflow: hidden;
   }
   .responsibility-content {
+    position: relative;
     padding-left: var(--zaui-page-border);
     font-size: $zaui-font-size;
     color: #ccc;
+    overflow: hidden;
     li {
       display: flex;
       align-items: center;
-      height: 54px;
+      height: 58px;
+      font-size: 26px;
+      .responsibility-sign {
+        width: 28px;
+        height: 28px;
+        line-height: 28px;
+        text-align: center;
+        border: 1px solid #99a9c0;
+        border-radius: 50%;
+        margin-right: 14px;
+      }
     }
-    .responsibility-sign {
-      margin-right: var(--zaui-space-card);
-      width: 36px;
-      height: 36px;
+    .show-button {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 100%;
+      height: 88px;
+      line-height: 88px;
+      background-color: #fff;
       text-align: center;
-      border-radius: 50%;
-      border: 1px solid #ccc;
+      transform: translateX(-50%);
     }
   }
 }

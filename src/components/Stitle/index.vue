@@ -2,11 +2,11 @@
   <div class="card-title">
     <VanCell v-if="!collapse">
       <template #title>
-        <ZaSvg name="line" color="var(--van-primary-color)"></ZaSvg>
-        <h4>{{ title }}</h4>
+        <div class="pic" />
+        <div class="pic-title">{{ title }}</div>
       </template>
     </VanCell>
-    <VanCollapse v-else v-model="activeNames">
+    <!-- <VanCollapse v-else v-model="activeNames">
       <VanCollapseItem name="1">
         <template #title>
           <ZaSvg name="line" color="var(--van-primary-color)"></ZaSvg>
@@ -16,7 +16,7 @@
           <slot />
         </template>
       </VanCollapseItem>
-    </VanCollapse>
+    </VanCollapse> -->
   </div>
 </template>
 
@@ -28,10 +28,6 @@ const props = defineProps({
     type: String,
     default: () => '',
   },
-  collapse: {
-    type: Boolean,
-    default: false,
-  },
 });
 
 const activeNames = ref(['1']);
@@ -42,6 +38,20 @@ const activeNames = ref(['1']);
   ::v-deep .van-cell__title {
     display: flex;
     align-items: center;
+    .pic {
+      margin-right: 16px;
+      width: 8px;
+      height: 28px;
+      background: #0d6efe;
+      border-radius: 4px;
+    }
+    .pic-title {
+      height: 40px;
+      font-size: 30px;
+      font-weight: bold;
+      color: #393d46;
+      line-height: 42px;
+    }
   }
 
   ::v-deep .van-collapse-item__content {
