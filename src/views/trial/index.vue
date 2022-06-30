@@ -124,12 +124,28 @@ const dealTrialData = () => {
       paymentYear[1] && (paymentYear[1] -= 1);
       risk.paymentYear = paymentYear.join('_');
     }
-    risk.liabilityVOList = risk.liabilityVOList.filter((liab) => !['-1'].includes(liab.liabilityAttributeValue));
+    risk.liabilityVOList = risk.liabilityVOList
+      .filter((liab) => !['-1'].includes(liab.liabilityAttributeValue))
+      .map((liab) => {
+        const currentLiab = liab;
+        if (currentLiab.liabilityAttributeValue === '0') {
+          currentLiab.liabilityAttributeValue = '';
+        }
+        return currentLiab;
+      });
     return risk;
   });
 
   const mainRisk = { ...riskInfo.value[state.currentPlan] };
-  mainRisk.liabilityVOList = mainRisk.liabilityVOList.filter((liab) => !['-1'].includes(liab.liabilityAttributeValue));
+  mainRisk.liabilityVOList = mainRisk.liabilityVOList
+    .filter((liab) => !['-1'].includes(liab.liabilityAttributeValue))
+    .map((liab) => {
+      const currentLiab = liab;
+      if (currentLiab.liabilityAttributeValue === '0') {
+        currentLiab.liabilityAttributeValue = '';
+      }
+      return currentLiab;
+    });
 
   const trialData = {
     holder: {
