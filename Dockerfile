@@ -6,7 +6,7 @@ COPY start.sh /
 
 RUN chmod a+x /start.sh
 
-COPY ./dist /root/app/dist/
+COPY ./dist /var/www/html
 
 EXPOSE 8080
 
