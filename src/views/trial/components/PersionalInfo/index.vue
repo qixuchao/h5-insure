@@ -51,8 +51,8 @@
     <van-popup v-model:show="isShow" position="bottom">
       <van-datetime-picker
         type="date"
-        :min-date="new Date('1900-01-01')"
-        :max-date="new Date()"
+        :min-date="ageRangeObj.minAge"
+        :max-date="ageRangeObj.maxAge"
         @confirm="
           (value) => {
             state.formInfo.birthday = dayjs(value).format('YYYY-MM-DD');
@@ -142,14 +142,16 @@ const ageRangeObj = computed(() => {
   };
   const min = splitAge((props?.ageRange as any[])[1]);
   const max = splitAge((props?.ageRange as any[])[0]);
-  const minAge = new Date(dayjs().subtract(min[0], min[1]));
-  const maxAge = new Date(dayjs().subtract(max[0], max[1]));
 
-  console.log('minAge', minAge, maxAge);
-
+  const minAge = dayjs()
+    .subtract(min[0], min[1] === 'age' ? 'year' : 'day')
+    .format('YYYY-MM-DD');
+  const maxAge = dayjs()
+    .subtract(max[0], max[1] === 'age' ? 'year' : 'day')
+    .format('YYYY-MM-DD');
   return {
-    minAge,
-    maxAge,
+    minAge: new Date(minAge),
+    maxAge: new Date(maxAge),
   };
 });
 

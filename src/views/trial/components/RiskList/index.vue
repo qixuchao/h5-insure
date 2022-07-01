@@ -10,6 +10,7 @@
       :main-risk-info="state.mainRiskInfo"
       :origin-data="riderRisk"
       :remove-risk="removeRiderRisk"
+      :remove-risk-list="state.checkedList"
     />
 
     <div v-if="state?.riderRiskList?.length - state?.checkedList?.length" class="add-rider-risk">
@@ -75,11 +76,6 @@ const state = reactive({
 
 // 添加附加险信息
 const onFinished = (risk: any, disabled: any[]) => {
-  (risk || []).forEach((ri) => {
-    Object.assign(state.riderRiskInfo, { [ri.id]: {} });
-  });
-
-  state.disabledList = disabled;
   state.requiredRiderRiskData = state.requiredRiderRiskData.concat(risk);
 };
 
@@ -88,10 +84,12 @@ const removeRiderRisk = (riskId: number) => {
   const removeRiskIds = [riskId];
 
   (state.mainRiskData?.collocationVOList || []).forEach((risk) => {
-    if (riskId === risk.riskId && risk.collocationType === 1) {
+    if (riskId === risk.riskId && risk.collocationType === 2) {
       removeRiskIds.push(risk.collocationRiskId);
     }
   });
+
+  state.checkedList = state.checkedList.filter((id) => !removeRiskIds.includes(id));
 
   Dialog.confirm({
     message: '确定要删除附加险么？',
@@ -180,7 +178,22 @@ watch(
     });
 
     (newVal || []).forEach((risk) => {
-      Object.assign(state.riderRiskInfo, { [risk.id]: {} });
+      const extralInfo = {
+        riskType: risk.riskType,
+        riskId: risk.id,
+        riskCode: risk.riskCode,
+        mainRiskCode: state.mainRiskData.riskCode,
+        mainRiskId: state.mainRiskData?.id,
+        riskCategory: risk.riskCategory,
+        liabilityVOList: (risk.riskLiabilityInfoVOList || []).map((liab) => ({
+          liabilityAttributeCode: liab.liabilityAttributeType,
+          liabilityCode: liab.liabilityCode,
+          liabilityId: liab.id,
+          liabilityRateType: liab.liabilityRateType,
+        })),
+      };
+
+      Object.assign(state.riderRiskInfo, { [risk.id]: extralInfo });
     });
 
     props.pickFactor({

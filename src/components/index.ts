@@ -10,10 +10,11 @@ import { Component } from 'vue';
 import ZaAvatar from './ZaAvatar/index.vue';
 import ZaCircleProgress from './ZaCircleProgress/index.vue';
 import ZaMap from './ZaMap/index.vue';
-import ZaSvg from './ZaSvg/index.vue';
+import ProSvg from './ProSvg/index.vue';
 import ZaPageWrap from './ZaPageWrap/index';
 import ZaFilterTab from './ZaFilterTab/index.vue';
 import ProTitle from './ProTitle/index.vue'
+import ProExpand from './ProExpand/index.vue'
 
 interface ComponentMap {
   [key: string]: Component;
@@ -24,10 +25,11 @@ export const globalComs: ComponentMap = {
   ZaAvatar, //  头像
   ZaCircleProgress, // 半圆进度条
   ZaMap, // 百度地图组件（未完成）
-  ZaSvg, // 本地svg组件，svg文件放到assets/svg/目录下
+  ProSvg, // 本地svg组件，svg文件放到assets/svg/目录下
   ZaPageWrap, // 页面布局包裹组件 ，每个页面都用这个包一次，方便后面做全局调整
   ZaFilterTab, //
   ProTitle,
+  ProExpand,
 };
 
 function install(app: any) {

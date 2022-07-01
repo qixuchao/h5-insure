@@ -26,7 +26,7 @@
       <div v-if="filter" class="filter" @click="openPop">
         <div class="shadow"></div>
         <div class="text">筛选</div>
-        <ZaSvg name="filter-1" />
+        <ProSvg name="filter-1" />
       </div>
 
       <van-popup
@@ -63,7 +63,7 @@
 import './index.scss';
 import { useSlots } from 'vue';
 import usePopup from '../../hooks';
-import ZaSvg from '../ZaSvg/index.vue';
+import ProSvg from '../ProSvg/index.vue';
 
 const props = defineProps({
   tagList: {

@@ -1,15 +1,12 @@
 <template>
   <div class="com-risk-card-wrapper part-card">
     <ProTitle :risk-type="originData?.riskType" :title="originData?.riskName">
-      <div class="delete-risk"></div>
+      <div v-if="removeRiskList.includes(originData.id)" class="delete-risk" @click="removeRisk(originData.id)">
+        <ProSvg name="delete" color="#0d6efe"></ProSvg>
+      </div>
     </ProTitle>
-    <RiskName
-      :risk-type="originData?.riskType"
-      :name="originData?.riskName"
-      @click="removeRisk(originData?.id)"
-    ></RiskName>
     <VanField
-      v-if="originData?.riskCalcMethodInfoVO?.saleMethod === 1"
+      v-if="originData?.riskCalcMethodInfoVO?.saleMethod === 1 && originData?.exemptFlag === 2"
       v-model="state.formInfo.sumInsured"
       label="保额"
       name="sumInsured"
@@ -57,7 +54,10 @@
     </VanField>
 
     <VanField
-      v-if="originData?.riskCalcMethodInfoVO?.saleMethod !== 1 && riskPremium?.[originData?.riskCode]"
+      v-if="
+        (![1, 4].includes(originData?.riskCalcMethodInfoVO?.saleMethod) || originData?.exemptFlag === 1) &&
+        riskPremium?.[originData?.riskCode]
+      "
       label="保额"
     >
       <template #input>
@@ -187,10 +187,11 @@
     </div>
 
     <div v-if="originData?.relationDesc" class="liab-desc">
-      <div class="title">责任投保说明</div>
-      <div>
-        {{ originData?.relationDesc }}
-      </div>
+      <ProExpand title="责任投保说明">
+        <div>
+          {{ originData?.relationDesc }}
+        </div>
+      </ProExpand>
     </div>
   </div>
 </template>
@@ -241,10 +242,9 @@ const props = defineProps({
     type: Function,
     default: () => {},
   },
-  ageRange: {
+  removeRiskList: {
     type: Array,
-    required: true,
-    default: () => ['', ''],
+    default: () => [],
   },
 });
 
@@ -401,6 +401,17 @@ watch(
   },
 );
 
+watch(
+  () => props.removeRiskList,
+  () => {
+    console.log('ops.removeRisk', props.removeRiskList);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
 // 监听主险的数据变化
 watch(
   () => props?.mainRiskInfo,
@@ -431,6 +442,15 @@ watch(
   &.part-card {
     background-color: #ffffff;
     margin-bottom: 20px;
+  }
+  .delete-risk {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5px;
+    .svg-icon {
+      font-size: 32px;
+    }
   }
 }
 </style>

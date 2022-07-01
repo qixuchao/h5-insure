@@ -5,7 +5,7 @@
       :key="option.value"
       :label="option.label"
       :disabled="disabled"
-      :activied="state.currentValue === option.value"
+      :activied="state.currentValue == option.value"
       @click="!disabled && selectBtn(option.value)"
     />
   </div>
@@ -16,7 +16,7 @@ import ProCheckButton from '../ProCheckButton/index.vue';
 
 const props = defineProps({
   modelValue: {
-    type: String,
+    type: [String, Number],
     default: '',
     required: true,
   },
@@ -47,7 +47,7 @@ const selectBtn = (value) => {
 };
 
 onMounted(() => {
-  if (!props.isSimply && props?.options.length === 1) {
+  if (!props.isSimply && props?.options?.length === 1) {
     selectBtn(props?.options?.[0]?.value);
   }
 });
@@ -56,6 +56,9 @@ watch(
   () => props.modelValue,
   (newVal) => {
     state.currentValue = newVal;
+  },
+  {
+    immediate: true,
   },
 );
 </script>

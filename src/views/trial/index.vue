@@ -21,30 +21,37 @@
       ></PersonalInfo>
     </div>
     <div class="risk-content">
-      <div v-if="state.riskData.length" class="risk">
-        <VanForm ref="riskFormRef" input-align="right" error-message-align="right">
-          <RiskList :risk-info="riskInfo[0]" :origin-data="state.riskData" :pick-factor="pickFactor" />
-        </VanForm>
-      </div>
-      <div v-if="state.riskPlanData.length" class="plan-risk">
-        <VanForm ref="riskFormRef" input-align="right" error-message-align="right">
-          <VanTabs v-model="state.currentPlan">
-            <VanTab
-              v-for="risk in state.riskPlanData"
-              :key="risk.planCode"
-              :name="risk.planCode"
-              :title="risk.planName"
-            >
-              <RiskList
-                v-if="risk.planCode === state.currentPlan"
-                :risk-info="riskInfo[risk.planCode]"
-                :origin-data="risk.riskDetailVOList"
-                :pick-factor="pickFactor"
-              />
-            </VanTab>
-          </VanTabs>
-        </VanForm>
-      </div>
+      <van-collapse v-model="state.collapseName">
+        <van-collapse-item name="1">
+          <template #title>
+            <ProTitle title="投保方案"></ProTitle>
+          </template>
+          <div v-if="state.riskData.length" class="risk">
+            <VanForm ref="riskFormRef" input-align="right" error-message-align="right">
+              <RiskList :risk-info="riskInfo[0]" :origin-data="state.riskData" :pick-factor="pickFactor" />
+            </VanForm>
+          </div>
+          <div v-if="state.riskPlanData.length" class="plan-risk">
+            <VanForm ref="riskFormRef" input-align="right" error-message-align="right">
+              <VanTabs v-model:active="state.currentPlan">
+                <VanTab
+                  v-for="risk in state.riskPlanData"
+                  :key="risk.planCode"
+                  :name="risk.planCode"
+                  :title="risk.planName"
+                >
+                  <RiskList
+                    v-if="risk.planCode === state.currentPlan"
+                    :risk-info="riskInfo[risk.planCode]"
+                    :origin-data="risk.riskDetailVOList"
+                    :pick-factor="pickFactor"
+                  />
+                </VanTab>
+              </VanTabs>
+            </VanForm>
+          </div>
+        </van-collapse-item>
+      </van-collapse>
     </div>
 
     <div class="footer-bar">
@@ -100,6 +107,7 @@ const state = reactive({
   canTrial: true,
   retrialTip: false,
   ageRange: [] as any[],
+  collapseName: ['1'],
 });
 
 const closeTip = () => {
@@ -117,14 +125,16 @@ const queryOccupationalList = async () => {
 };
 
 const dealTrialData = () => {
-  const riderRiskVOList = Object.values(riskInfo.value[state.currentPlan].riderRiskVOList).map((riderRisk) => {
+  const mainRisk = JSON.parse(JSON.stringify(riskInfo.value[state.currentPlan]));
+
+  const riderRiskVOList = Object.values(mainRisk.riderRiskVOList).map((riderRisk) => {
     const risk = riderRisk;
     if (risk.paymentYear === '3') {
       const paymentYear = (riskInfo.value[state.currentPlan].paymentYear || '').split('_');
       paymentYear[1] && (paymentYear[1] -= 1);
       risk.paymentYear = paymentYear.join('_');
     }
-    risk.liabilityVOList = risk.liabilityVOList
+    risk.liabilityVOList = (risk.liabilityVOList || [])
       .filter((liab) => !['-1'].includes(liab.liabilityAttributeValue))
       .map((liab) => {
         const currentLiab = liab;
@@ -136,7 +146,6 @@ const dealTrialData = () => {
     return risk;
   });
 
-  const mainRisk = { ...riskInfo.value[state.currentPlan] };
   mainRisk.liabilityVOList = mainRisk.liabilityVOList
     .filter((liab) => !['-1'].includes(liab.liabilityAttributeValue))
     .map((liab) => {
@@ -186,7 +195,6 @@ const dealTrialData = () => {
         riskPremium[risk.riskCode] = risk;
       });
       Object.assign(riskPremiumRef.value, riskPremium);
-      console.log(riskPremiumRef.value);
     }
   });
 };
@@ -224,6 +232,7 @@ const queryProductInfo = () => {
 const pickFactor = (factorObj: { insuredFactorList: string[]; holderFactorList: string[]; ageRange: string[] }) => {
   state.holderFactor = factorObj.holderFactorList;
   state.insuredFactor = factorObj.insuredFactorList;
+  console.log('factorObj.ageRange', factorObj.ageRange);
   state.ageRange = factorObj.ageRange;
 };
 
@@ -246,32 +255,25 @@ onBeforeMount(() => {
 </script>
 <style lang="scss" scoped>
 .page-trial-wrapper {
-  padding-bottom: 150px;
-  // .plan-risk {
-  //   ::v-deep .van-tabs__nav.van-tabs__nav--card {
-  //     border: 0 !important;
-  //     .van-tab.van-tab--card {
-  //       margin: 0 12px;
-  //       background-color: #f7f6ff;
-  //       border-right: 0;
-  //       color: var(--zaui-text-title);
-  //       border-radius: 10px;
-  //       &.van-tab--active {
-  //         background-color: $primary-color;
-  //         color: #fff;
-  //       }
-  //     }
-  //   }
-  // }
-  // margin-bottom: 150px;
   background-color: #f2f5fc;
 
   .part-card {
     background-color: #ffffff;
     margin-bottom: 20px;
   }
+
+  .risk-content {
+    :deep(.van-collapse-item__title--expanded) {
+      padding: 0 30px 0 0;
+      display: flex;
+      align-items: center;
+    }
+    :deep(.van-collapse-item__content) {
+      padding: 0;
+    }
+  }
   .plan-risk {
-    ::v-deep .van-tabs__nav.van-tabs__nav--card {
+    :deep(.van-tabs__nav.van-tabs__nav--card) {
       border: 0 !important;
       .van-tab.van-tab--card {
         margin: 0 12px;

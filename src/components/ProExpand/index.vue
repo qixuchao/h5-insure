@@ -7,7 +7,7 @@
       </div>
       <div class="show-button" @click="handleClick">
         <span>{{ isShow ? '收起' : '展开' }}</span>
-        <ZaSvg style="width: 20px; height: 20px" :name="isShow ? 'arrow-up' : 'arrow-down'"></ZaSvg>
+        <ProSvg style="width: 20px; height: 20px" :name="isShow ? 'arrow-up' : 'arrow-down'"></ProSvg>
       </div>
     </div>
   </div>
@@ -37,6 +37,7 @@ const isShow = ref();
 onMounted(() => {
   isShow.value = props.modelValue;
 });
+
 const emits = defineEmits(['update:modelValue']);
 
 const height = computed(() => {
@@ -63,7 +64,7 @@ const handleClick = () => {
     position: relative;
     padding-left: var(--zaui-page-border);
     font-size: $zaui-font-size;
-    color: #ccc;
+    color: #aab9d0;
     overflow: hidden;
     li {
       display: flex;
