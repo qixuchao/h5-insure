@@ -318,10 +318,6 @@ const pickEnums = (origin: any[], target: any[]) => {
   return (origin || []).filter((or) => currentTarget.includes(`${or.value}`) || currentTarget.includes(or.value));
 };
 
-const preventCoverageYear = () => {
-  Toast('请选择主险');
-};
-
 // 保障期间可选选项
 const coverageYearOptions = computed(() => {
   // 主险
@@ -342,7 +338,7 @@ const paymentYearOptions = computed(() => {
   }
   // 附加险-豁免险
   if (props.originData?.exemptFlag === 1) {
-    return pickEnums(RULE_PAYMENT, props?.originData?.riskInsureLimitVO?.paymentPeriodRule);
+    return pickEnums(RULE_PAYMENT, [props?.originData?.riskInsureLimitVO?.paymentPeriodRule]);
   }
   if (props.originData?.periodType === 2) {
     return pickEnums([{ value: 'year_1', label: '1年交' }], ['year_1']);

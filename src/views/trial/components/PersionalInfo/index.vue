@@ -12,6 +12,7 @@
         :rules="[{ required: true, message: '请选择出生日期' }]"
         name="birth"
         label="出生日期"
+        class="isLink"
         is-link
         placeholder="请选择"
         @click="toggle(true)"

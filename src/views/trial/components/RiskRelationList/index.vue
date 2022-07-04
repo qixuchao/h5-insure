@@ -13,12 +13,18 @@
       <div class="risk-list">
         <van-checkbox-group v-model="checked">
           <van-cell-group inset>
-            <VanCell v-for="item in riskList" :key="item.id" :title="item.riskName" @click="toggle(item.id)">
+            <VanCell
+              v-for="item in riskList"
+              :key="item.id"
+              :title="item.riskName"
+              :disabled="disabled.includes(item.id)"
+              @click="toggle(item.id)"
+            >
               <template #right-icon>
                 <van-checkbox
                   :ref="(el) => (checkboxRefs[item.id] = el)"
-                  :disabled="disabled.includes(item.id)"
                   shape="square"
+                  :disabled="disabled.includes(item.id)"
                   :name="item.id"
                   @click.stop="toggle(item.id)"
                 />
@@ -92,34 +98,45 @@ const calcRelation = (riskId: number, status: boolean) => {
     state.currentChecked.push(riskId);
     return;
   }
-
-  props.collocationList.forEach((riderRisk: any) => {
-    if (riskId === riderRisk.riskId) {
-      if (!status) {
-        if (riderRisk.collocationType === 2) {
-          state.currentChecked.push(riderRisk.collocationRiskId, riskId);
-        } else if (riderRisk.collocationType === 3) {
-          state.currentChecked.push(riskId);
-          disabled.value.push(riderRisk.collocationRiskId);
+  let checkedList: any[] = [];
+  let disabledList: any[] = [];
+  if (!status) {
+    props.collocationList.forEach((riderRisk: any) => {
+      if (riskId === riderRisk.riskId) {
+        if (!status) {
+          if (riderRisk.collocationType === 2) {
+            checkedList.push(riderRisk.collocationRiskId);
+          } else if (riderRisk.collocationType === 3) {
+            disabledList.push(riderRisk.collocationRiskId);
+          }
+          checkedList.push(riskId);
         }
-        state.currentChecked.push(riskId);
-      } else {
-        if (riderRisk.collocationType === 2) {
-          state.currentChecked = state.currentChecked.filter(
-            (id) => !(id === riderRisk.collocationRiskId || id === riskId),
-          );
-        } else if (riderRisk.collocationType === 3) {
-          state.currentChecked = state.currentChecked.filter((id) => id !== riskId);
-          disabled.value.filter((id) => id !== riderRisk.collocationRiskId);
-        }
-        state.currentChecked = state.currentChecked.filter((id) => id !== riskId);
       }
-    }
-  });
+    });
+    state.currentChecked.push(...checkedList);
+    disabled.value = disabledList;
+  } else {
+    props.collocationList.forEach((riderRisk: any) => {
+      if (riskId === riderRisk.riskId) {
+        if (riderRisk.collocationType === 2) {
+          checkedList = checkedList.filter((id) => id !== riderRisk.collocationRiskId || id !== riskId);
+        } else if (riderRisk.collocationType === 3) {
+          checkedList = checkedList.filter((id) => id !== riskId);
+          disabledList = disabledList.filter((id) => id !== riderRisk.collocationRiskId);
+        }
+        disabledList = disabledList.filter((id) => id !== riskId);
+      }
+    });
+    state.currentChecked = checkedList;
+    disabled.value = disabledList;
+  }
 };
 
 const toggle = (index: number) => {
-  const status = state.currentChecked.includes(index);
+  if (disabled.value.includes(index)) {
+    return;
+  }
+  const status = checked.value.includes(index);
   calcRelation(index, status);
   checkboxRefs?.value?.[index]?.toggle?.();
 };
@@ -138,6 +155,17 @@ const onFinished = () => {
 onBeforeUpdate(() => {
   checkboxRefs.value = [];
 });
+
+watch(
+  () => state.currentChecked,
+  (newVal) => {
+    checked.value = newVal;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 watch(
   () => props.modelValue,

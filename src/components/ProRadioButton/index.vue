@@ -65,17 +65,6 @@ onMounted(() => {
 });
 
 watch(
-  () => props,
-  () => {
-    console.log('props', props);
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
-
-watch(
   () => props.modelValue,
   (newVal) => {
     state.currentValue = newVal;
