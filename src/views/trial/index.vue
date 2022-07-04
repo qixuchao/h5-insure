@@ -86,7 +86,7 @@ import { getDic } from '@/api';
 import ProTitle from '@/components/ProTitle/index.vue';
 import ProTabButton from '@/components/ProCheckButton/TabButton.vue';
 
-const { id = 115 } = useRoute().query;
+const { id = 118 } = useRoute().query;
 
 const holder = ref({
   personVO: {},

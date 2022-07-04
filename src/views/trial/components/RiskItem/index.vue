@@ -85,7 +85,7 @@
       v-model="state.formInfo.coverageYear"
       label="保障期间"
       name="coverageYear"
-      :rules="[{ required: true, message: '请选择' }]"
+      :rules="[{ required: true, message: '请选择保障期间' }]"
     >
       <template #input>
         <ProRadioButton
@@ -104,7 +104,7 @@
       v-model="state.formInfo.paymentYear"
       label="交费期间"
       name="paymentYear"
-      :rules="[{ required: true, message: '请选择' }]"
+      :rules="[{ required: true, message: '请选择交费期间' }]"
     >
       <template #input>
         <ProRadioButton
@@ -123,7 +123,7 @@
       v-model="state.formInfo.paymentFrequency"
       label="交费方式"
       name="paymentFrequency"
-      :rules="[{ required: true, message: '请选择' }]"
+      :rules="[{ required: true, message: '请选择交费方式' }]"
     >
       <template #input>
         <ProRadioButton
@@ -139,7 +139,7 @@
       v-model="state.formInfo.annuityDrawDate"
       label="领取时间"
       name="annuityDrawDate"
-      :rules="[{ required: true, message: '请选择' }]"
+      :rules="[{ required: true, message: '请选择领取时间' }]"
     >
       <template #input>
         <ProRadioButton
@@ -153,7 +153,7 @@
       v-model="state.formInfo.annuityDrawType"
       label="领取方式"
       name="annuityDrawType"
-      :rules="[{ required: true, message: '请选择' }]"
+      :rules="[{ required: true, message: '请选择领取方式' }]"
     >
       <template #input>
         <ProRadioButton
@@ -168,7 +168,7 @@
         v-model="state.formInfo.liabilityVOList[num].liabilityAttributeValue"
         :label="liab.liabilityName"
         name="liabilityAttributeValue"
-        :rules="[{ required: liab.liabilityAttributeValue, message: '请选择' }]"
+        :rules="[{ required: liab.liabilityAttributeValue, message: `请选择${liab.liabilityName}` }]"
       >
         <template #input>
           <div>

@@ -9,7 +9,7 @@
           factorList.includes('APPLICANT.DAY')
         "
         v-model="state.formInfo.birthday"
-        :rules="[{ required: true, message: '请选择' }]"
+        :rules="[{ required: true, message: '请选择出生日期' }]"
         name="birth"
         label="出生日期"
         is-link
@@ -21,7 +21,7 @@
         v-model="state.formInfo.gender"
         name="gender"
         label="性别"
-        :rules="[{ required: true, message: '请选择' }]"
+        :rules="[{ required: true, message: '请选择性别' }]"
       >
         <template #input>
           <ProRadioButton v-model="state.formInfo.gender" :options="SEX_LIMIT" />
@@ -32,7 +32,7 @@
         v-model="state.formInfo.socialSecurity"
         name="socialSecurity"
         label="社保"
-        :rules="[{ required: true, message: '请选择' }]"
+        :rules="[{ required: true, message: '请选择社保' }]"
       >
         <template #input>
           <ProRadioButton v-model="state.formInfo.socialSecurity" :options="SOCIAL_INSURANCE_LIMIT" />
@@ -41,7 +41,7 @@
       <VanField
         v-if="factorList.includes('OCCUPATION_CATEGORY')"
         v-model="state.formInfo.occupationalClass"
-        :rules="[{ required: true, message: '请选择' }]"
+        :rules="[{ required: true, message: '请选择职业类型' }]"
         name="occupationalClass"
         label="职业类型"
         is-link

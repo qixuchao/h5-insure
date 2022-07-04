@@ -8,7 +8,7 @@
             <div :class="riskType === 1 ? 'main-risk' : 'minor-risk'">{{ riskType === 1 ? '主' : '附' }}</div>
             <div class="risk-name">{{ title }}</div>
           </div>
-          <div v-if="ctx.$slots.default" class="right-content">
+          <div class="right-content">
             <slot name="default"></slot>
           </div>
         </div>
