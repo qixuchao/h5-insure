@@ -1,6 +1,6 @@
 import { SetupContext } from 'vue';
 import { useRouter } from 'vue-router';
-import ZaSvg from '@/components/ZaSvg/index.vue';
+import ProSvg from '@/components/ProSvg/index.vue';
 import './index.scss';
 
 interface CardProps {
@@ -48,7 +48,7 @@ export default function Card(props: CardProps, context: SetupContext) {
             }}
           >
             {subtitle}
-            <ZaSvg name="right_arrow2" class="more" color="colorVariable(0.7)" />
+            <ProSvg name="right_arrow2" class="more" color="colorVariable(0.7)" />
           </div>
         )}
       </div>

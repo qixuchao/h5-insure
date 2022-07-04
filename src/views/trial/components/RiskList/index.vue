@@ -1,6 +1,6 @@
 <template>
   <div class="risk-list-wrapper">
-    <RiskItem :form-info="state.mainRiskInfo" :origin-data="state.mainRiskData" />
+    <RiskItem v-if="state.mainRiskData" :form-info="state.mainRiskInfo" :origin-data="state.mainRiskData" />
     <RiskItem
       v-for="(riderRisk, index) in state.requiredRiderRiskData"
       :key="riderRisk.id"
@@ -81,72 +81,28 @@ const onFinished = (risk: any, disabled: any[]) => {
 
 // 移除附加险
 const removeRiderRisk = (riskId: number) => {
-  const removeRiskIds = [riskId];
-
-  (state.mainRiskData?.collocationVOList || []).forEach((risk) => {
-    if (riskId === risk.riskId && risk.collocationType === 2) {
-      removeRiskIds.push(risk.collocationRiskId);
-    }
-  });
-
-  state.checkedList = state.checkedList.filter((id) => !removeRiskIds.includes(id));
-
   Dialog.confirm({
     message: '确定要删除附加险么？',
   })
     .then(() => {
+      const removeRiskIds = [riskId];
+
+      (state.mainRiskData?.collocationVOList || []).forEach((risk) => {
+        if (riskId === risk.riskId && risk.collocationType === 2) {
+          removeRiskIds.push(risk.collocationRiskId);
+        }
+      });
+
+      state.checkedList = state.checkedList.filter((id) => !removeRiskIds.includes(id));
       state.requiredRiderRiskData = state.requiredRiderRiskData.filter((risk) => !removeRiskIds.includes(risk.id));
       Object.assign(state.riderRiskInfo, { [riskId]: undefined });
     })
     .catch(() => {});
 };
 
-const compareHolderAge = (currentAge: string, nextAge: string): any[] => {
-  const current = currentAge.split('_');
-  const next = nextAge.split('_');
-
-  if (current[0] === next[0]) {
-    if (+current[1] > +next[1]) {
-      return [nextAge, currentAge];
-    }
-    return [currentAge, nextAge];
-  }
-  if (current[0] === 'age') {
-    return [currentAge, nextAge];
-  }
-  return [nextAge, currentAge];
-};
-
 onBeforeMount(() => {
   state.requiredRiderRiskData;
 });
-
-// 监听主险的数据,同步更新相关附加险的信息
-watch(
-  () => state.mainRiskInfo,
-  (newVal) => {
-    const newRiskInfo = {};
-    // for (const riskId in state.riderRiskInfo) {
-    //   if (state?.riderRiskInfo?.[riskId]) {
-    //     console.log(123);
-    //   }
-    // }
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
-
-// 监听附加险信息
-watch(
-  () => state.riderRiskInfo,
-  () => {},
-  {
-    deep: true,
-    immediate: true,
-  },
-);
 
 // 计算出主险和附加险的投保人和被保人的因子
 watch(
@@ -155,7 +111,7 @@ watch(
     const riskList = [state.mainRiskData, ...newVal];
     let insuredFactorList: string[] = [];
     let holderFactorList: string[] = [];
-    let ageRange: any[] = [];
+    const ageRange: any[] = [];
 
     riskList.forEach((risk, index) => {
       const selectedFator: any[] = risk?.riskCalcMethodInfoVO?.riskFactorRelationList || [];
@@ -166,15 +122,7 @@ watch(
       holderFactorList = holderFactorList.concat(
         selectedFator.filter((factor) => factor.factorObject === 'holder').map((factor: any) => factor.factorCode),
       );
-
-      if (index === 0) {
-        ageRange[0] = risk?.riskInsureLimitVO?.minHolderAge || '';
-        ageRange[1] = risk?.riskInsureLimitVO?.maxHolderAge;
-      } else {
-        const minAge = compareHolderAge(ageRange[0], risk?.riskInsureLimitVO?.minHolderAge)[0];
-        const maxAge = compareHolderAge(ageRange[1], risk?.riskInsureLimitVO?.maxHolderAge)[1];
-        ageRange = [minAge, maxAge];
-      }
+      ageRange.push(risk?.riskInsureLimitVO?.minHolderAge, risk?.riskInsureLimitVO?.maxHolderAge);
     });
 
     (newVal || []).forEach((risk) => {
@@ -224,18 +172,6 @@ watch(
   {
     deep: true,
     immediate: true,
-  },
-);
-
-watch(
-  () => props.riskInfo,
-  () => {
-    // state.mainRiskData = props.riskInfo;
-    // state.riderRiskInfo = props.riskInfo?.[props.riskKey]?.riderRiskVOList;
-  },
-  {
-    immediate: true,
-    deep: true,
   },
 );
 </script>

@@ -10,15 +10,20 @@
       v-model="state.formInfo.sumInsured"
       label="保额"
       name="sumInsured"
-      :rules="[{ required: true, message: '请填写' }]"
+      :rules="[{ required: true, message: '请填写' }, {}]"
     >
       <template #input>
-        <VanStepper
-          v-model="state.formInfo.sumInsured"
-          :min="amount.min"
-          :step="originData?.riskCalcMethodInfoVO?.increaseDecreaseNum || 1"
-          :max="amount.max"
-        ></VanStepper>
+        <div class="custom-field">
+          <VanStepper
+            v-model="state.formInfo.sumInsured"
+            :min="amount.min"
+            :step="originData?.riskCalcMethodInfoVO?.increaseDecreaseNum || 1"
+            :max="amount.max"
+          ></VanStepper>
+          <span class="field-tip">{{
+            `金额最低${amount.min}元，为${originData?.riskCalcMethodInfoVO?.increaseDecreaseNum || 1}的倍数`
+          }}</span>
+        </div>
       </template>
     </VanField>
     <VanField
@@ -29,12 +34,17 @@
       :rules="[{ required: true, message: '请填写' }]"
     >
       <template #input>
-        <VanStepper
-          v-model="state.formInfo.premium"
-          :step="originData?.riskCalcMethodInfoVO?.increaseDecreaseNum || 1"
-          :min="premium.min"
-          :max="premium.max"
-        ></VanStepper>
+        <div class="custom-field">
+          <VanStepper
+            v-model="state.formInfo.premium"
+            :step="originData?.riskCalcMethodInfoVO?.increaseDecreaseNum || 1"
+            :min="premium.min"
+            :max="premium.max"
+          ></VanStepper>
+          <span class="field-tip">{{
+            `金额最低${premium.min}元，为${originData?.riskCalcMethodInfoVO?.increaseDecreaseNum || 1}的倍数`
+          }}</span>
+        </div>
       </template>
     </VanField>
     <VanField
@@ -49,7 +59,10 @@
       :rules="[{ required: true, message: '请填写' }]"
     >
       <template #input>
-        <VanStepper v-model="state.formInfo.copy" :step="1" :min="copy.min" :max="copy.max"></VanStepper>
+        <div class="custom-field">
+          <VanStepper v-model="state.formInfo.copy" :step="1" :min="copy.min" :max="copy.max"></VanStepper>
+          <span class="field-tip">{{ `${copy.min}份起购，最多购买${copy.max}份` }}</span>
+        </div>
       </template>
     </VanField>
 
@@ -75,7 +88,12 @@
       :rules="[{ required: true, message: '请选择' }]"
     >
       <template #input>
-        <ProRadioButton v-model="state.formInfo.coverageYear" :options="coverageYearOptions"></ProRadioButton>
+        <ProRadioButton
+          v-model="state.formInfo.coverageYear"
+          :disabled="disabledProperties.coverageYear.disabled"
+          :prevent="disabledProperties.coverageYear.prevent ? '请先选择主险保障期间' : ''"
+          :options="coverageYearOptions"
+        ></ProRadioButton>
       </template>
     </VanField>
     <VanField
@@ -89,13 +107,18 @@
       :rules="[{ required: true, message: '请选择' }]"
     >
       <template #input>
-        <ProRadioButton v-model="state.formInfo.paymentYear" :options="paymentYearOptions"></ProRadioButton>
+        <ProRadioButton
+          v-model="state.formInfo.paymentYear"
+          :disabled="disabledProperties.paymentYear.disabled"
+          :prevent="disabledProperties.paymentYear.prevent ? '请先选择主险交费期间' : ''"
+          :options="paymentYearOptions"
+        ></ProRadioButton>
       </template>
     </VanField>
     <VanField
       v-if="
         !isEmpty(originData?.riskInsureLimitVO?.paymentFrequencyList) ||
-        !isEmpty(originData?.riskInsureLimitVO?.paymentTypeRule)
+        !isEmpty(originData?.riskInsureLimitVO?.paymentPeriodRule)
       "
       v-model="state.formInfo.paymentFrequency"
       label="交费方式"
@@ -103,7 +126,12 @@
       :rules="[{ required: true, message: '请选择' }]"
     >
       <template #input>
-        <ProRadioButton v-model="state.formInfo.paymentFrequency" :options="paymentFrequencyOptions"></ProRadioButton>
+        <ProRadioButton
+          v-model="state.formInfo.paymentFrequency"
+          :disabled="disabledProperties.paymentFrequency.disabled"
+          :prevent="disabledProperties.paymentFrequency.prevent ? '请先选择主险交费方式' : ''"
+          :options="paymentFrequencyOptions"
+        ></ProRadioButton>
       </template>
     </VanField>
     <VanField
@@ -250,6 +278,21 @@ const props = defineProps({
 
 const riskPremium = inject('premium') || {};
 
+const disabledProperties = ref({
+  paymentYear: {
+    disabled: false,
+    prevent: false,
+  },
+  coverageYear: {
+    disabled: false,
+    prevent: false,
+  },
+  paymentFrequency: {
+    disabled: false,
+    prevent: false,
+  },
+});
+
 const state = reactive({
   formInfo: props.formInfo,
 });
@@ -312,6 +355,9 @@ const paymentFrequencyOptions = computed(() => {
   // 主险
   if (props.originData?.riskType === 1) {
     return pickEnums(PAYMENT_FREQUENCY, props?.originData?.riskInsureLimitVO?.paymentFrequencyList);
+  }
+  if (props?.originData?.paymentTypeRule === 1) {
+    return pickEnums(PAYMENT_FREQUENCY, props?.mainRiskData?.riskInsureLimitVO?.paymentFrequencyList);
   }
   return pickEnums(PAYMENT_FREQUENCY, props?.mainRiskData?.riskInsureLimitVO?.paymentFrequencyList);
 });
@@ -389,6 +435,16 @@ onBeforeMount(() => {
 });
 
 watch(
+  () => props,
+  () => {},
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+// 交费方式
+watch(
   () => state.formInfo?.paymentFrequency,
   (newVal) => {
     if ([3, 4].includes(props.originData?.riskCalcMethodInfoVO?.saleMethod)) {
@@ -398,17 +454,19 @@ watch(
         }
       });
     }
+    if (newVal === '1' && state.formInfo.paymentYear !== 'single') {
+      state.formInfo.paymentYear = 'single';
+    }
   },
 );
 
+// 交费期间
 watch(
-  () => props.removeRiskList,
-  () => {
-    console.log('ops.removeRisk', props.removeRiskList);
-  },
-  {
-    deep: true,
-    immediate: true,
+  () => state.formInfo?.paymentYear,
+  (newVal) => {
+    if (newVal === 'single' && state.formInfo.paymentFrequency !== '1') {
+      state.formInfo.paymentFrequency = '1';
+    }
   },
 );
 
@@ -418,14 +476,29 @@ watch(
   (newVal) => {
     if (newVal && props.originData.riskType === 2) {
       if (props.originData?.riskInsureLimitVO?.insurancePeriodRule === 1) {
+        if (newVal.coverageYear) {
+          disabledProperties.value.coverageYear.disabled = true;
+        } else {
+          disabledProperties.value.coverageYear.prevent = true;
+        }
         state.formInfo.coverageYear = newVal.coverageYear;
       }
 
       if (props.originData?.riskInsureLimitVO?.paymentPeriodRule === 1) {
+        if (newVal.paymentYear) {
+          disabledProperties.value.paymentYear.disabled = true;
+        } else {
+          disabledProperties.value.paymentYear.prevent = true;
+        }
         state.formInfo.paymentYear = newVal.paymentYear;
       }
 
       if (props.originData?.riskInsureLimitVO?.paymentTypeRule === 1) {
+        if (newVal.paymentFrequency) {
+          disabledProperties.value.paymentFrequency.disabled = true;
+        } else {
+          disabledProperties.value.paymentFrequency.prevent = true;
+        }
         state.formInfo.paymentFrequency = newVal.paymentFrequency;
       }
     }
@@ -450,6 +523,16 @@ watch(
     margin-top: 5px;
     .svg-icon {
       font-size: 32px;
+    }
+  }
+
+  .custom-field {
+    display: flex;
+    flex-direction: column;
+    .field-tip {
+      font-size: 24px;
+      font-weight: 400;
+      color: #99a9c0;
     }
   }
 }

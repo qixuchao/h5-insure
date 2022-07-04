@@ -2,7 +2,12 @@
   <div class="com-personal-info-wrapper">
     <VanForm ref="formRef" input-align="right" error-message-align="right">
       <VanField
-        v-if="factorList.includes('APPLICANT.AGE') || factorList.includes('AGE')"
+        v-if="
+          factorList.includes('APPLICANT.AGE') ||
+          factorList.includes('AGE') ||
+          factorList.includes('DAY') ||
+          factorList.includes('APPLICANT.DAY')
+        "
         v-model="state.formInfo.birthday"
         :rules="[{ required: true, message: '请选择' }]"
         name="birth"
@@ -44,7 +49,8 @@
         @click="toggleOccupational(true)"
       >
         <template #input>
-          <div>{{ state.occupationalText }}</div>
+          <span v-if="!state.occupationalText" class="placeholder">请选择</span>
+          <div v-else>{{ state.occupationalText }}</div>
         </template>
       </VanField>
     </VanForm>
@@ -134,14 +140,39 @@ const validateForm = () => {
   });
 };
 
+const compareHolderAge = (ageList: any[]) => {
+  const currentList = ageList || [];
+  for (let i = 0; i < currentList.length; i++) {
+    for (let j = i + 1; j < currentList.length; j++) {
+      const preAge = currentList[i].split('_');
+      const nexAge = currentList[j].split('_');
+      const temp = currentList[i];
+      if (preAge[0] === nexAge[0]) {
+        if (preAge > nexAge) {
+          currentList[i] = currentList[j];
+          currentList[j] = temp;
+        }
+      } else {
+        if (preAge[0] === 'age') {
+          currentList[i] = currentList[j];
+          currentList[j] = temp;
+        }
+      }
+    }
+  }
+
+  return currentList;
+};
+
 const ageRangeObj = computed(() => {
+  const ageList = compareHolderAge(props?.ageRange);
   const splitAge = (age = '') => {
     const ageNum = +age.split('_')[1];
     const ageType = age.split('_')[0];
     return [ageNum, ageType];
   };
-  const min = splitAge((props?.ageRange as any[])[1]);
-  const max = splitAge((props?.ageRange as any[])[0]);
+  const min = splitAge(ageList[0]);
+  const max = splitAge(ageList[ageList.length - 1]);
 
   const minAge = dayjs()
     .subtract(min[0], min[1] === 'age' ? 'year' : 'day')
@@ -150,8 +181,8 @@ const ageRangeObj = computed(() => {
     .subtract(max[0], max[1] === 'age' ? 'year' : 'day')
     .format('YYYY-MM-DD');
   return {
-    minAge: new Date(minAge),
-    maxAge: new Date(maxAge),
+    minAge: new Date(maxAge),
+    maxAge: new Date(minAge),
   };
 });
 
@@ -159,3 +190,10 @@ defineExpose({
   validateForm,
 });
 </script>
+<style lang="scss" scoped>
+.com-personal-info-wrapper {
+  .placeholder {
+    color: #99a9c0;
+  }
+}
+</style>

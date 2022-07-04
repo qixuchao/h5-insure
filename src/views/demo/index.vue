@@ -66,7 +66,6 @@ const state = reactive({
 });
 
 const trial = () => {
-  console.log('trial', formRef.value);
   formRef.value.submit();
 };
 </script>

@@ -22,7 +22,7 @@
     <!-- <VanCollapse v-else v-model="activeNames">
       <VanCollapseItem name="1">
         <template #title>
-          <ZaSvg name="line" color="var(--van-primary-color)"></ZaSvg>
+          <ProSvg name="line" color="var(--van-primary-color)"></ProSvg>
           <h4>{{ title }}</h4>
         </template>
         <template v-if="collapse">

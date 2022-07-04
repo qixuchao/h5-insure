@@ -1,6 +1,14 @@
 <template>
   <div class="com-risk-list-wrapper">
-    <VanPopup v-model:show="state.show" title="选择附加险" show-footer position="bottom" closeable @close="onClose">
+    <VanPopup
+      v-model:show="state.show"
+      title="选择附加险"
+      show-footer
+      round
+      position="bottom"
+      closeable
+      @close="onClose"
+    >
       <div class="popup-title">选择附加险</div>
       <div class="risk-list">
         <van-checkbox-group v-model="checked">
@@ -14,6 +22,14 @@
                   :name="item.id"
                   @click.stop="toggle(item.id)"
                 />
+              </template>
+              <template #title>
+                <div class="cell-title">
+                  <div class="title">
+                    {{ item.riskName }}
+                  </div>
+                  <div class="title-desc">此处为险种简要说明</div>
+                </div>
               </template>
             </VanCell>
           </van-cell-group>
@@ -102,14 +118,6 @@ const calcRelation = (riskId: number, status: boolean) => {
   });
 };
 
-const onChange = (names) => {
-  console.log('names', names);
-};
-
-const onClick = () => {
-  console.log(123123);
-};
-
 const toggle = (index: number) => {
   const status = state.currentChecked.includes(index);
   calcRelation(index, status);
@@ -152,10 +160,33 @@ watch(
     align-items: center;
     justify-content: center;
     padding: 0 64px;
+    font-size: 34px;
+    font-weight: 600;
+    color: #393d46;
   }
   .risk-list {
     height: 1038px;
     padding-bottom: 150px;
+  }
+
+  :deep(.van-cell-group--inset) {
+    border-bottom: 1px solid #eeeff4;
+
+    .van-cell {
+      padding: 23px 0;
+    }
+  }
+
+  .cell-title {
+    display: flex;
+    flex-direction: column;
+    .title {
+    }
+    .title-desc {
+      font-size: 24px;
+      font-weight: 400;
+      color: #99a9c0;
+    }
   }
   .footer-bar {
     padding: 0 40px;

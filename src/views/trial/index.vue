@@ -35,15 +35,18 @@
             <VanForm ref="riskFormRef" input-align="right" error-message-align="right">
               <VanTabs v-model:active="state.currentPlan">
                 <VanTab
-                  v-for="risk in state.riskPlanData"
-                  :key="risk.planCode"
-                  :name="risk.planCode"
-                  :title="risk.planName"
+                  v-for="plan in state.riskPlanData"
+                  :key="plan.planCode"
+                  :name="plan.planCode"
+                  :title="plan.planName"
                 >
+                  <template #title>
+                    <ProTabButton :title="plan.planName" :active="state.currentPlan === plan.planCode"></ProTabButton>
+                  </template>
                   <RiskList
-                    v-if="risk.planCode === state.currentPlan"
-                    :risk-info="riskInfo[risk.planCode]"
-                    :origin-data="risk.riskDetailVOList"
+                    v-if="plan.planCode === state.currentPlan"
+                    :risk-info="riskInfo[plan.planCode]"
+                    :origin-data="plan.riskDetailVOList"
                     :pick-factor="pickFactor"
                   />
                 </VanTab>
@@ -56,7 +59,9 @@
 
     <div class="footer-bar">
       <span class="trial-result">
-        <span class="result-num">{{ (state?.trialResult?.premium || 0).toLocaleString() }}</span>
+        <span class="result-num">{{
+          (!state.retrialTip ? state?.trialResult?.premium || '0' : '0').toLocaleString()
+        }}</span>
         元起
       </span>
       <div class="trial-operate">
@@ -65,7 +70,7 @@
           <span class="close-icon" @click="closeTip">X</span>
         </div>
         <VanButton v-if="state.canTrial" type="primary" @click="trial">去试算</VanButton>
-        <VanButton v-else type="primary" @click="trial">立即投保</VanButton>
+        <VanButton v-else type="primary" @click="toInsured">立即投保</VanButton>
       </div>
     </div>
   </ZaPageWrap>
@@ -73,11 +78,13 @@
 <script lang="ts" setup>
 import { provide } from 'vue';
 import { useRoute } from 'vue-router';
+import { Toast } from 'vant/es';
 import PersonalInfo from './components/PersionalInfo/index.vue';
 import RiskList from './components/RiskList/index.vue';
 import { insureProductDetail, premiumCalc } from '@/api/modules/trial';
 import { getDic } from '@/api';
 import ProTitle from '@/components/ProTitle/index.vue';
+import ProTabButton from '@/components/ProCheckButton/TabButton.vue';
 
 const { id = 115 } = useRoute().query;
 
@@ -186,15 +193,23 @@ const dealTrialData = () => {
     ],
   };
 
+  state.retrialTip = false;
   premiumCalc({ ...trialData }).then(({ code, data }) => {
     if (code === '10000') {
       state.trialResult = data;
       state.canTrial = false;
       const riskPremium = {};
-      (data.riskPremiumDetailVOList || []).forEach((risk) => {
-        riskPremium[risk.riskCode] = risk;
-      });
+      const flatRiskPremium = (premiumList = []) => {
+        (premiumList || []).forEach((risk) => {
+          riskPremium[risk.riskCode] = risk;
+          if (risk.riskPremiumDetailVOList) {
+            flatRiskPremium(risk.riskPremiumDetailVOList);
+          }
+        });
+      };
+      flatRiskPremium(data.riskPremiumDetailVOList);
       Object.assign(riskPremiumRef.value, riskPremium);
+      console.log('riskPremiumRef', riskPremiumRef.value);
     }
   });
 };
@@ -207,6 +222,10 @@ const trial = () => {
   ]).then(() => {
     dealTrialData();
   });
+};
+
+const toInsured = () => {
+  Toast('准备投保');
 };
 
 const queryProductInfo = () => {
@@ -223,7 +242,6 @@ const queryProductInfo = () => {
         });
         state.riskData = data?.riskDetailVOList || [];
         state.riskPlanData = data?.productRelationPlanVOList || [];
-        // queryOccupationalList();
       }
     })
     .finally(() => {});
@@ -232,7 +250,6 @@ const queryProductInfo = () => {
 const pickFactor = (factorObj: { insuredFactorList: string[]; holderFactorList: string[]; ageRange: string[] }) => {
   state.holderFactor = factorObj.holderFactorList;
   state.insuredFactor = factorObj.insuredFactorList;
-  console.log('factorObj.ageRange', factorObj.ageRange);
   state.ageRange = factorObj.ageRange;
 };
 
@@ -273,19 +290,8 @@ onBeforeMount(() => {
     }
   }
   .plan-risk {
-    :deep(.van-tabs__nav.van-tabs__nav--card) {
-      border: 0 !important;
-      .van-tab.van-tab--card {
-        margin: 0 12px;
-        background-color: #f7f6ff;
-        border-right: 0;
-        color: var(--zaui-text-title);
-        border-radius: 10px;
-        &.van-tab--active {
-          background-color: $primary-color;
-          color: #fff;
-        }
-      }
+    :deep(.van-tabs__line) {
+      display: none;
     }
   }
   .footer-bar {

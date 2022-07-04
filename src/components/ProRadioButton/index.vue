@@ -12,6 +12,7 @@
 </template>
 
 <script lang="ts" setup>
+import { Toast } from 'vant/es';
 import ProCheckButton from '../ProCheckButton/index.vue';
 
 const props = defineProps({
@@ -33,6 +34,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  prevent: {
+    type: String,
+    default: '',
+  },
 });
 
 const emits = defineEmits(['update:modelValue']);
@@ -42,15 +47,33 @@ const state = reactive({
 });
 
 const selectBtn = (value) => {
+  console.log('props.prevent', props.prevent);
+  if (props.prevent) {
+    Toast(props.prevent);
+    return;
+  }
   state.currentValue = value;
   emits('update:modelValue', value);
 };
 
 onMounted(() => {
   if (!props.isSimply && props?.options?.length === 1) {
-    selectBtn(props?.options?.[0]?.value);
+    const value = props?.options?.[0]?.value;
+    state.currentValue = value;
+    emits('update:modelValue', value);
   }
 });
+
+watch(
+  () => props,
+  () => {
+    console.log('props', props);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 watch(
   () => props.modelValue,

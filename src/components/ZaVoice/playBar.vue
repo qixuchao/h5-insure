@@ -4,7 +4,7 @@
       <ZaPlay :play="playingUrl === url && playStatus === 'playing'" class="voice-icon" />
       {{ duration }}"
     </div>
-    <ZaSvg v-show="showDelete" name="close" class="close-icon" @click.stop="handleDeleteClick" />
+    <ProSvg v-show="showDelete" name="close" class="close-icon" @click.stop="handleDeleteClick" />
   </div>
 </template>
 
@@ -12,7 +12,7 @@
 import { defineProps, onBeforeUnmount, defineEmits } from 'vue';
 import { useRoute } from 'vue-router';
 import ZaPlay from '@/components/ZaVoice/play.vue';
-import ZaSvg from '@/components/ZaSvg/index.vue';
+import ProSvg from '@/components/ProSvg/index.vue';
 import useStore from '@/store/app';
 import { play, voicePause, voiceStop } from '@/utils/record';
 

@@ -57,7 +57,6 @@ const onClose = () => {
 };
 
 const onFinished = ({ value, selectedOptions }: any) => {
-  console.log(value, selectedOptions);
   const text = (selectedOptions || []).map((option) => option.value).join('/');
   emits('update:modelValue', value);
   emits('finish', text);
