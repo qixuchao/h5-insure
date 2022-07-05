@@ -13,6 +13,7 @@
         name="birth"
         label="出生日期"
         class="isLink"
+        readonly
         is-link
         placeholder="请选择"
         @click="toggle(true)"
@@ -46,6 +47,7 @@
         name="occupationalClass"
         label="职业类型"
         is-link
+        readonly
         placeholder="请选择"
         @click="toggleOccupational(true)"
       >

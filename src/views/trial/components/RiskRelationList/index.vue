@@ -136,7 +136,7 @@ const toggle = (index: number) => {
   if (disabled.value.includes(index)) {
     return;
   }
-  const status = checked.value.includes(index);
+  const status = state.currentChecked.includes(index);
   calcRelation(index, status);
   checkboxRefs?.value?.[index]?.toggle?.();
 };

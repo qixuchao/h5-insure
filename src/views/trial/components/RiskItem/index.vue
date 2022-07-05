@@ -16,6 +16,7 @@
         <div class="custom-field">
           <VanStepper
             v-model="state.formInfo.sumInsured"
+            input-width="64px"
             :min="amount.min"
             :step="originData?.riskCalcMethodInfoVO?.increaseDecreaseNum || 1"
             :max="amount.max"
@@ -39,6 +40,7 @@
             v-model="state.formInfo.premium"
             :step="originData?.riskCalcMethodInfoVO?.increaseDecreaseNum || 1"
             :min="premium.min"
+            input-width="64px"
             :max="premium.max"
           ></VanStepper>
           <span class="field-tip">{{

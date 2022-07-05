@@ -32,7 +32,7 @@ app.directive('clipboard', clipboard);
 app.directive('resize', resize);
 app.mount('#app');
 
-if (BASE_PREFIX.indexOf('/acvmtest') === -1) {
+if (window.location.origin.indexOf('test') !== -1) {
   // eslint-disable-next-line
-  // new vconsole();
+  new vconsole();
 }
