@@ -338,7 +338,7 @@ const paymentYearOptions = computed(() => {
   }
   // 附加险-豁免险
   if (props.originData?.exemptFlag === 1) {
-    return pickEnums(RULE_PAYMENT, [props?.originData?.riskInsureLimitVO?.paymentPeriodRule]);
+    return pickEnums(RULE_PAYMENT, [`${props?.originData?.riskInsureLimitVO?.paymentPeriodRule}`]);
   }
   if (props.originData?.periodType === 2) {
     return pickEnums([{ value: 'year_1', label: '1年交' }], ['year_1']);
