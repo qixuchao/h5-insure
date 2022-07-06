@@ -189,17 +189,6 @@ const ageRangeObj = computed(() => {
   };
 });
 
-watch(
-  () => props,
-  () => {
-    console.log('props', props);
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
-
 defineExpose({
   validateForm,
 });
