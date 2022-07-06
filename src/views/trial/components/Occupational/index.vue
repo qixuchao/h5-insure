@@ -58,7 +58,8 @@ const onClose = () => {
 
 const onFinished = ({ value, selectedOptions }: any) => {
   const text = (selectedOptions || []).map((option) => option.value).join('/');
-  emits('update:modelValue', value);
+  const currentValue = +selectedOptions[selectedOptions.length - 1].name;
+  emits('update:modelValue', currentValue);
   emits('finish', text);
   onClose();
 };
@@ -96,9 +97,16 @@ const queryOccupationalList = () => {
   });
 };
 
-onBeforeMount(() => {
-  queryOccupationalList();
-});
+watch(
+  () => props,
+  () => {
+    queryOccupationalList(props.insuredCode);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 watch(
   () => props.modelValue,

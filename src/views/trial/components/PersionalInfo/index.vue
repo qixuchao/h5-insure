@@ -75,7 +75,7 @@
       v-if="isShowOccupational"
       v-model="state.formInfo.occupationalClass"
       :show="isShowOccupational"
-      insured-code="insuredCode"
+      :insured-code="insuredCode"
       @finish="onFinish"
       @close="onClose"
     >
@@ -188,6 +188,17 @@ const ageRangeObj = computed(() => {
     maxAge: new Date(minAge),
   };
 });
+
+watch(
+  () => props,
+  () => {
+    console.log('props', props);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 defineExpose({
   validateForm,

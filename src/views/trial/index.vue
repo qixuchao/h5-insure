@@ -4,7 +4,7 @@
       <ProTitle title="投保人"></ProTitle>
       <PersonalInfo
         ref="holderRef"
-        :insured-code="state.riskBaseInfo?.insuredCode"
+        :insured-code="state.riskBaseInfo?.insurerCode"
         :form-info="holder.personVO"
         :factor-list="state.holderFactor"
         :age-range="state.ageRange"
@@ -14,7 +14,7 @@
       <ProTitle title="被保人"></ProTitle>
       <PersonalInfo
         ref="insuredRef"
-        :insured-code="state.riskBaseInfo?.insuredCode"
+        :insured-code="state.riskBaseInfo?.insurerCode"
         :form-info="insured.personVO"
         :factor-list="state.insuredFactor"
         :age-range="state.ageRange"
@@ -233,6 +233,7 @@ const queryProductInfo = () => {
     .then(({ code, data }) => {
       if (code === '10000') {
         state.riskBaseInfo = data?.productBasicInfoVO;
+        console.log('state.riskBaseInfo', state.riskBaseInfo);
 
         (data?.productRelationPlanVOList || data?.riskDetailVOList || []).forEach((plan, index) => {
           if (index === 0) {
