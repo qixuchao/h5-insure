@@ -95,6 +95,7 @@
           :disabled="disabledProperties.coverageYear.disabled"
           :prevent="disabledProperties.coverageYear.prevent ? '请先选择主险保障期间' : ''"
           :options="coverageYearOptions"
+          :prop="{ label: 'name', value: 'value' }"
         ></ProRadioButton>
       </template>
     </VanField>
@@ -114,6 +115,7 @@
           :disabled="disabledProperties.paymentYear.disabled"
           :prevent="disabledProperties.paymentYear.prevent ? '请先选择主险交费期间' : ''"
           :options="paymentYearOptions"
+          :prop="{ label: 'name', value: 'value' }"
         ></ProRadioButton>
       </template>
     </VanField>
@@ -276,9 +278,27 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  enums: {
+    type: Object,
+    default: () => {},
+  },
 });
 
+const enumList = ref({});
+
 const riskPremium = inject('premium') || {};
+enumList.value = inject('enumList') || {};
+
+watch(
+  enumList.value,
+  (newVal) => {
+    console.log(newVal);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 const disabledProperties = ref({
   paymentYear: {
@@ -312,7 +332,7 @@ const isEmpty = (value: any) => {
   return false;
 };
 
-const pickEnums = (origin: any[], target: any[]) => {
+const pickEnums = (origin: any[], target: any[], prop = {}) => {
   let currentTarget = target;
   if (!Array.isArray(target)) {
     currentTarget = [`${currentTarget}`];
@@ -324,28 +344,35 @@ const pickEnums = (origin: any[], target: any[]) => {
 const coverageYearOptions = computed(() => {
   // 主险
   if (props.originData?.riskType === 1) {
-    return pickEnums(INSURANCE_PERIOD_VALUE, props?.originData?.riskInsureLimitVO?.insurancePeriodValueList);
+    console.log('enumList.value?.RISK_INSURANCE_PERIOD', enumList.value?.RISK_INSURANCE_PERIOD);
+    return pickEnums(
+      props?.enums.RISK_INSURANCE_PERIOD,
+      props?.originData?.riskInsureLimitVO?.insurancePeriodValueList,
+    );
   }
   if (props.originData?.periodType === 2) {
     return pickEnums([{ value: 'year_1', label: '1年' }], ['year_1']);
   }
-  return pickEnums(INSURANCE_PERIOD_VALUE, props?.mainRiskData?.riskInsureLimitVO?.insurancePeriodValueList);
+  return pickEnums(
+    props?.enums?.RISK_INSURANCE_PERIOD,
+    props?.mainRiskData?.riskInsureLimitVO?.insurancePeriodValueList,
+  );
 });
 
 // 交费期间可选选项
 const paymentYearOptions = computed(() => {
   // 主险
   if (props.originData?.riskType === 1) {
-    return pickEnums(PAYMENT_PERIOD_VALUE, props?.originData?.riskInsureLimitVO?.paymentPeriodValueList);
+    return pickEnums(props?.enums?.RISK_PAYMENT_PERIOD, props?.originData?.riskInsureLimitVO?.paymentPeriodValueList);
   }
   // 附加险-豁免险
   if (props.originData?.exemptFlag === 1) {
     return pickEnums(RULE_PAYMENT, [`${props?.originData?.riskInsureLimitVO?.paymentPeriodRule}`]);
   }
   if (props.originData?.periodType === 2) {
-    return pickEnums([{ value: 'year_1', label: '1年交' }], ['year_1']);
+    return pickEnums([{ value: 'year_1', name: '1年交' }], ['year_1']);
   }
-  return pickEnums(PAYMENT_PERIOD_VALUE, props?.mainRiskData?.riskInsureLimitVO?.paymentPeriodValueList);
+  return pickEnums(props?.enums?.RISK_PAYMENT_PERIOD, props?.mainRiskData?.riskInsureLimitVO?.paymentPeriodValueList);
 });
 
 // 交费方式可选选项

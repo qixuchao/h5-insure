@@ -1,11 +1,17 @@
 <template>
   <div class="risk-list-wrapper">
-    <RiskItem v-if="state.mainRiskData" :form-info="state.mainRiskInfo" :origin-data="state.mainRiskData" />
+    <RiskItem
+      v-if="state.mainRiskData"
+      :enums="enums"
+      :form-info="state.mainRiskInfo"
+      :origin-data="state.mainRiskData"
+    />
     <RiskItem
       v-for="(riderRisk, index) in state.requiredRiderRiskData"
       :key="riderRisk.id"
       :form-info="state.riderRiskInfo[riderRisk.id]"
       :index="index"
+      :enums="enums"
       :main-risk-data="state.mainRiskData"
       :main-risk-info="state.mainRiskInfo"
       :origin-data="riderRisk"
@@ -53,6 +59,10 @@ const props = defineProps({
   pickFactor: {
     type: Function,
     required: true,
+    default: () => {},
+  },
+  enums: {
+    type: Object,
     default: () => {},
   },
 });

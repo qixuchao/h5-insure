@@ -80,8 +80,8 @@ const dealEmptyChildren = (occupationalList: any[]) => {
   return list;
 };
 
-const queryOccupationalList = () => {
-  const dictCode = `${props.insurerCode?.toLocaleUpperCase?.()}_OCCUPATION`;
+const queryOccupationalList = (insurerCode = '') => {
+  const dictCode = `${insurerCode?.toLocaleUpperCase?.()}_OCCUPATION`;
   const occupationalObj = localStore.get('occupational') || {};
   if (occupationalObj[dictCode]) {
     state.options = occupationalObj[dictCode];

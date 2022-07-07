@@ -28,7 +28,12 @@
           </template>
           <div v-if="state.riskData.length" class="risk">
             <VanForm ref="riskFormRef" input-align="right" error-message-align="right">
-              <RiskList :risk-info="riskInfo[0]" :origin-data="state.riskData" :pick-factor="pickFactor" />
+              <RiskList
+                :risk-info="riskInfo[0]"
+                :enums="state.enumList"
+                :origin-data="state.riskData"
+                :pick-factor="pickFactor"
+              />
             </VanForm>
           </div>
           <div v-if="state.riskPlanData.length" class="plan-risk">
@@ -46,6 +51,7 @@
                   <RiskList
                     v-if="plan.planCode === state.currentPlan"
                     :risk-info="riskInfo[plan.planCode]"
+                    :enums="state.enumList"
                     :origin-data="plan.riskDetailVOList"
                     :pick-factor="pickFactor"
                   />
@@ -101,8 +107,6 @@ const insuredRef = ref({});
 const riskFormRef = ref({});
 const riskPremiumRef = ref({});
 
-provide('premium', riskPremiumRef.value);
-
 const state = reactive({
   currentPlan: '',
   riskBaseInfo: {},
@@ -113,22 +117,15 @@ const state = reactive({
   trialResult: {},
   canTrial: true,
   retrialTip: false,
+  enumList: {},
   ageRange: [] as any[],
   collapseName: ['1'],
 });
 
+provide('premium', riskPremiumRef.value);
+
 const closeTip = () => {
   state.retrialTip = false;
-};
-
-const queryOccupationalList = async () => {
-  const dictCodeList = [
-    'RISK_PAYMENT_PERIOD',
-    'RISK_INSURANCE_PERIOD',
-    'LIABILITY_ATTRIBUTE_TYPE',
-    `${state?.riskBaseInfo?.insurerCode?.toLocaleUpperCase?.()}_OCCUPATION`,
-  ];
-  const { code, data } = await getDic({ dictCodeList });
 };
 
 const dealTrialData = () => {
@@ -209,7 +206,6 @@ const dealTrialData = () => {
       };
       flatRiskPremium(data.riskPremiumDetailVOList);
       Object.assign(riskPremiumRef.value, riskPremium);
-      console.log('riskPremiumRef', riskPremiumRef.value);
     }
   });
 };
@@ -226,6 +222,19 @@ const trial = () => {
 
 const toInsured = () => {
   Toast('准备投保');
+};
+
+const queryDictList = () => {
+  const dictCodeList = ['RISK_PAYMENT_PERIOD', 'RISK_INSURANCE_PERIOD'];
+  getDic({ dictCodeList }).then(({ code, data }) => {
+    if (code === '10000') {
+      const enums = {};
+      data.forEach((i) => {
+        enums[i.dictCode] = i.dictItemList;
+      });
+      state.enumList = enums;
+    }
+  });
 };
 
 const queryProductInfo = () => {
@@ -269,6 +278,7 @@ watch(
 
 onBeforeMount(() => {
   queryProductInfo();
+  queryDictList();
 });
 </script>
 <style lang="scss" scoped>

@@ -484,22 +484,22 @@ export const RULE_RISK_INSURANCE = [
 ];
 export const RULE_INSURANCE = [
   {
-    label: '主险保障期间减1',
+    name: '主险保障期间减1',
     value: '3',
   },
   {
-    label: '无限制',
+    name: '无限制',
     value: '2',
   },
 ];
 
 export const RULE_PAYMENT = [
   {
-    label: '同主险期间减1',
+    name: '同主险期间减1',
     value: '3',
   },
   {
-    label: '无限制',
+    name: '无限制',
     value: '2',
   },
 ];
