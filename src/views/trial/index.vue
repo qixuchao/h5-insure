@@ -190,9 +190,10 @@ const dealTrialData = () => {
     ],
   };
 
-  state.retrialTip = false;
   premiumCalc({ ...trialData }).then(({ code, data }) => {
     if (code === '10000') {
+      state.retrialTip = false;
+
       state.trialResult = data;
       state.canTrial = false;
       const riskPremium = {};
@@ -206,6 +207,8 @@ const dealTrialData = () => {
       };
       flatRiskPremium(data.riskPremiumDetailVOList);
       Object.assign(riskPremiumRef.value, riskPremium);
+    } else {
+      state.retrialTip = true;
     }
   });
 };
