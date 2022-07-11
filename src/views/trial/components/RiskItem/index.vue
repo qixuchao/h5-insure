@@ -10,7 +10,13 @@
       v-model="state.formInfo.sumInsured"
       label="保额"
       name="sumInsured"
-      :rules="[{ required: true, message: '请填写' }, {}]"
+      :rules="[
+        { required: true, message: '请填写' },
+        {
+          trigger: 'onChange',
+          validator: validateSumInsured,
+        },
+      ]"
     >
       <template #input>
         <div class="custom-field">
@@ -32,7 +38,13 @@
       v-model="state.formInfo.premium"
       label="保费"
       name="premium"
-      :rules="[{ required: true, message: '请填写' }]"
+      :rules="[
+        { required: true, message: '请填写' },
+        {
+          trigger: 'onChange',
+          validator: validateSumInsured,
+        },
+      ]"
     >
       <template #input>
         <div class="custom-field">
@@ -289,17 +301,6 @@ const enumList = ref({});
 const riskPremium = inject('premium') || {};
 enumList.value = inject('enumList') || {};
 
-watch(
-  enumList.value,
-  (newVal) => {
-    console.log(newVal);
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
-
 const disabledProperties = ref({
   paymentYear: {
     disabled: false,
@@ -440,6 +441,15 @@ const copy = computed(() => {
   return { min, max };
 });
 
+// 校验保额/保费是否是增减幅度的倍数
+const validateSumInsured = (value: string, rule: any) => {
+  const step = props.originData?.riskCalcMethodInfoVO?.increaseDecreaseNum || 1;
+  if (+value % step === 0) {
+    return '';
+  }
+  return `金额必须是${step}的倍数`;
+};
+
 onBeforeMount(() => {
   const extralInfo = {
     riskType: props.originData.riskType,
@@ -458,15 +468,6 @@ onBeforeMount(() => {
 
   Object.assign(state?.formInfo, extralInfo);
 });
-
-watch(
-  () => props,
-  () => {},
-  {
-    deep: true,
-    immediate: true,
-  },
-);
 
 // 交费方式
 watch(

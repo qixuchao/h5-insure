@@ -82,11 +82,11 @@ const emits = defineEmits(['finished', 'close', 'update:modelValue']);
 
 const checkboxRefs = ref<any[]>([]);
 const checked = ref<any[]>([]);
-const disabled = ref<any[]>(props.disabled);
+const disabled = ref<any[]>([...props.disabled]);
 
 const state = reactive({
   show: props.show,
-  currentChecked: [] as any[],
+  currentChecked: [...props.modelValue] as any[],
 });
 
 const calcRelation = (riskId: number, status: boolean) => {
@@ -98,8 +98,8 @@ const calcRelation = (riskId: number, status: boolean) => {
     state.currentChecked.push(riskId);
     return;
   }
-  let checkedList: any[] = [];
-  let disabledList: any[] = [];
+  let checkedList: any[] = state.currentChecked;
+  let disabledList: any[] = disabled.value;
   if (!status) {
     props.collocationList.forEach((riderRisk: any) => {
       if (riskId === riderRisk.riskId) {
@@ -123,8 +123,9 @@ const calcRelation = (riskId: number, status: boolean) => {
         } else if (riderRisk.collocationType === 3) {
           checkedList = checkedList.filter((id) => id !== riskId);
           disabledList = disabledList.filter((id) => id !== riderRisk.collocationRiskId);
+        } else {
+          checkedList = checkedList.filter((id) => id !== riskId);
         }
-        disabledList = disabledList.filter((id) => id !== riskId);
       }
     });
     state.currentChecked = checkedList;
@@ -147,8 +148,8 @@ const onClose = () => {
 
 const onFinished = () => {
   const checkedItems = props.riskList.filter((risk) => state.currentChecked.includes(risk.id));
-  emits('update:modelValue', checked);
-  emits('finished', checkedItems);
+  emits('update:modelValue', [...new Set(checked.value)]);
+  emits('finished', checkedItems, disabled.value);
   emits('close');
 };
 
@@ -167,11 +168,23 @@ watch(
   },
 );
 
+// watch(
+//   () => props.disabled,
+//   (newVal) => {
+//     disabled.value.push(...newVal);
+//   },
+//   {
+//     deep: true,
+//     immediate: true,
+//   },
+// );
+
 watch(
   () => props.modelValue,
-  (newVal) => {
+  (newVal = []) => {
     checked.value = newVal;
-    disabled.value = newVal;
+    // state.currentChecked = newVal;
+    disabled.value.push(...newVal);
   },
   {
     deep: true,

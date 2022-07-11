@@ -85,8 +85,9 @@ const state = reactive({
 });
 
 // 添加附加险信息
-const onFinished = (risk: any, disabled: any[]) => {
+const onFinished = (risk: any[], disabled: any[]) => {
   state.requiredRiderRiskData = state.requiredRiderRiskData.concat(risk);
+  state.disabledList = disabled;
 };
 
 // 移除附加险
@@ -98,13 +99,16 @@ const removeRiderRisk = (riskId: number) => {
       const removeRiskIds = [riskId];
 
       (state.mainRiskData?.collocationVOList || []).forEach((risk) => {
-        if (riskId === risk.riskId && risk.collocationType === 2) {
+        if (riskId === risk.riskId && (risk.collocationType === 2 || risk.collocationType === 3)) {
           removeRiskIds.push(risk.collocationRiskId);
         }
       });
 
+      debugger;
+
       state.checkedList = state.checkedList.filter((id) => !removeRiskIds.includes(id));
       state.requiredRiderRiskData = state.requiredRiderRiskData.filter((risk) => !removeRiskIds.includes(risk.id));
+      state.disabledList = state.disabledList.filter((id) => !removeRiskIds.includes(id));
       Object.assign(state.riderRiskInfo, { [riskId]: undefined });
     })
     .catch(() => {});
