@@ -19,7 +19,6 @@
 </template>
 
 <script lang="ts" setup>
-import { defineEmits, defineProps, onMounted, ref } from 'vue';
 import ZaSelect from '../ZaSelect/index.vue';
 import { queryAgency, IAgency } from '@/api/modules/select';
 

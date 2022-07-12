@@ -2,8 +2,8 @@
  * @Description:
  * @Autor: kevin.liang
  * @Date: 2022-03-01 18:11:32
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-03-07 13:52:25
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-07-12 10:54:39
 -->
 <template>
   <svg :class="svgClass" v-bind="$attrs" :style="{ color: color }">
@@ -12,8 +12,6 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, computed } from 'vue';
-
 const props = defineProps({
   name: {
     type: String,

@@ -73,7 +73,6 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, defineProps, defineEmits } from 'vue';
 import { Icon } from 'vant';
 import ZaEmpty from '../ZaEmpty/index.vue';
 import emptyImg from '@/assets/images/searchempty.png';

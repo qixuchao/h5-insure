@@ -5,7 +5,6 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps } from 'vue';
 // 提前加载，防止动画播放不出来
 import '@/assets/images/component/play1.png';
 import '@/assets/images/component/play2.png';

@@ -1,3 +1,11 @@
+<!--
+ * @Author: za-qixuchao qixuchao@zhongan.io
+ * @Date: 2022-07-12 10:50:33
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-07-12 11:02:56
+ * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProPreviewPDF/index.vue
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 <template>
   <ProPopup class="com-preview-pdf" :show="true" title="pdf预览" @closed="handleClosed">
     <ProTab :list="pdfList" sticky offset-top="10%" class="tabs" :active="activeIndex">
@@ -9,7 +17,6 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, defineEmits } from 'vue';
 import ProTab from '@/components/ProTab/index.vue';
 import ProPopup from '@/components/ProPopup/index.vue';
 
@@ -42,7 +49,7 @@ const handleClosed = () => {
     height: 100%;
     display: flex;
     flex-direction: column;
-    ::v-deep .van-tabs__content {
+    :deep(.van-tabs__content) {
       flex: 1;
       height: 0;
       .van-tab__panel {

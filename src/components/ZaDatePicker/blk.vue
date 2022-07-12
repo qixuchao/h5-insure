@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, withDefaults, watch } from 'vue';
+import { withDefaults } from 'vue';
 import dayjs, { Dayjs } from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat.js';
 import weekOfYear from 'dayjs/plugin/weekOfYear';

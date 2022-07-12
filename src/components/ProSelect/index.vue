@@ -1,3 +1,11 @@
+<!--
+ * @Author: za-qixuchao qixuchao@zhongan.io
+ * @Date: 2022-07-12 10:50:33
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-07-12 11:02:25
+ * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProSelect/index.vue
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 <template>
   <ProPopup v-model:show="isShow" class="com-select" title="请选择" show-footer @submit="handleSubmit">
     <div class="com-select-container">
@@ -11,7 +19,6 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, defineEmits } from 'vue';
 import ProPopup from '@/components/ProPopup/index.vue';
 
 const emits = defineEmits(['update:show', 'submit']);

@@ -14,7 +14,6 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, watch } from 'vue';
 import { Tabs, Tab } from 'vant';
 
 const props = defineProps({

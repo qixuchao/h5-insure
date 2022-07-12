@@ -13,7 +13,6 @@
 
 <script lang="ts" setup>
 import { Overlay } from 'vant';
-import { defineProps, defineEmits } from 'vue';
 
 const emits = defineEmits(['close']);
 
