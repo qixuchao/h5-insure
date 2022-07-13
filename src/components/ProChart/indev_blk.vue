@@ -7,7 +7,7 @@
 import * as echarts from 'echarts';
 
 const initCharts = () => {
-  const chartDom = document.getElementById('funnel');
+  const chartDom: any = document.getElementById('funnel');
   const myChart = echarts.init(chartDom);
 
   let base = +new Date(2016, 9, 3);
@@ -53,7 +53,7 @@ const initCharts = () => {
         },
         label: {
           show: true,
-          formatter(params) {
+          formatter(params: any) {
             return echarts.format.formatTime('yyyy-MM-dd', params.value);
           },
           backgroundColor: '#7581BD',

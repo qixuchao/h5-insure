@@ -23,6 +23,8 @@
 
       <VanButton type="primary" @click="trial">试算</VanButton>
     </VanForm>
+
+    <ProChart :min="0" :max="100" :step-value="10" />
   </ZaPageWrap>
   <van-popup v-model:show="isShow" position="bottom">
     <van-datetime-picker
@@ -42,6 +44,7 @@
 import { useToggle } from '@vant/use';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
 import ProCheckboxButton from '@/components/ProCheckboxButton/index.vue';
+import ProChart from '@/components/ProChart/indev.vue';
 
 const [isShow, toggle] = useToggle(false);
 
