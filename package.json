@@ -36,6 +36,7 @@
     "prism-theme-vars": "^0.2.2",
     "qrcode": "^1.5.0",
     "recorder-core": "^1.2.22030501",
+    "signature_pad": "^4.0.5",
     "vant": "^3.4.5",
     "vconsole": "^3.14.6",
     "vue": "^3.2.25",

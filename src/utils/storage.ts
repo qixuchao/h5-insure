@@ -61,7 +61,7 @@ export default class Storage {
    * @param {string} key 字段
    */
   get(key: string) {
-    let result = null;
+    let result: any = null;
     if (this.props.source === 'cookie') {
       const value = getCookie(key);
       try {

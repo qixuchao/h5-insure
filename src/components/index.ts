@@ -1,12 +1,12 @@
+import { Component } from 'vue';
 /*
  * @Description: 需要全局注册的组件统一注册
  * @Autor: kevin.liang
  * @Date: 2022-03-08 13:51:54
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-03-08 14:49:01
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-07-12 16:27:33
  */
 /* eslint-disable prettier/prettier */
-import { Component } from 'vue';
 import ZaAvatar from './ZaAvatar/index.vue';
 import ZaCircleProgress from './ZaCircleProgress/index.vue';
 import ZaMap from './ZaMap/index.vue';
@@ -15,6 +15,8 @@ import ZaPageWrap from './ZaPageWrap/index';
 import ZaFilterTab from './ZaFilterTab/index.vue';
 import ProTitle from './ProTitle/index.vue'
 import ProExpand from './ProExpand/index.vue'
+import ProPreviewPDF from './ProPreviewPDF/index.vue'
+import ProSign from './ProSign/index.vue'
 
 interface ComponentMap {
   [key: string]: Component;
@@ -30,6 +32,8 @@ export const globalComs: ComponentMap = {
   ZaFilterTab, //
   ProTitle,
   ProExpand,
+  ProPreviewPDF,
+  ProSign
 };
 
 function install(app: any) {
