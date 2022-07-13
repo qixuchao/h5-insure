@@ -4,7 +4,7 @@
   </div>
 </template>
 <script lang="ts" setup="props, context">
-import { defineProps, useSlots, withDefaults } from 'vue';
+import { withDefaults } from 'vue';
 
 interface AvatarProps {
   src?: string | undefined;

@@ -34,8 +34,6 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, computed, getCurrentInstance } from 'vue';
-
 const props = defineProps({
   title: {
     type: String,
@@ -56,7 +54,7 @@ const isShow = computed(() => {
 
 <style lang="scss" scoped>
 .card-title {
-  ::v-deep .van-cell__title {
+  :deep(.van-cell__title) {
     display: flex;
     align-items: center;
     .pic {

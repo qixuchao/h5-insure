@@ -2,8 +2,8 @@
  * @Description: 半圆进度条 （支持自定义颜色、半径、粗细）
  * @Autor: kevin.liang
  * @Date: 2022-03-02 17:39:42
- * @LastEditors: jianmei.ji
- * @LastEditTime: 2022-05-16 15:47:04
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-07-12 11:01:31
 -->
 <template>
   <div
@@ -83,7 +83,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, withDefaults } from 'vue';
+import { withDefaults } from 'vue';
 
 interface Props {
   modelValue: number;

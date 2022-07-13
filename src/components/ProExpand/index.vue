@@ -14,8 +14,6 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, computed, ref, defineEmits } from 'vue';
-
 const props = defineProps({
   modelValue: Boolean,
   title: {
