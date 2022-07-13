@@ -78,7 +78,7 @@
 import { useToggle } from '@vant/use';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
 import ProCheckboxButton from '@/components/ProCheckboxButton/index.vue';
-import ProChart from '@/components/ProChart/indev.vue';
+import ProChart from '@/components/ProChart/index.vue';
 import ProImageUpload from '@/components/ProImageUpload/index.vue';
 import ProCard from '@/components/ProCard/index.vue';
 import ProDivider from '@/components/ProDivider/index.vue';
