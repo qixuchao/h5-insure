@@ -1,7 +1,7 @@
 <template>
-  <ZaPageWrap>
-    <VanForm ref="formRef">
-      <VanField
+  <ProPageWrap>
+    <ProForm ref="formRef">
+      <ProField
         v-model="formInfo.birth"
         :rules="[{ required: true, message: '请选择' }]"
         name="birth"
@@ -9,20 +9,20 @@
         is-link
         placeholder="请选择"
         @click="toggle(true)"
-      ></VanField>
-      <VanField v-model="formInfo.gender" name="gender" label="性别" :rules="[{ required: true, message: '请选择' }]">
+      ></ProField>
+      <ProField v-model="formInfo.gender" name="gender" label="性别" :rules="[{ required: true, message: '请选择' }]">
         <template #input>
           <ProRadioButton v-model="formInfo.gender" :options="options" />
         </template>
-      </VanField>
-      <VanField v-model="formInfo.like" name="like" label="爱好" :rules="[{ required: true, message: '请选择' }]">
+      </ProField>
+      <ProField v-model="formInfo.like" name="like" label="爱好" :rules="[{ required: true, message: '请选择' }]">
         <template #input>
           <ProCheckboxButton v-model="formInfo.like" :options="options" />
         </template>
-      </VanField>
+      </ProField>
 
       <VanButton type="primary" @click="trial">试算</VanButton>
-    </VanForm>
+    </ProForm>
     <ProDivider />
     <ProImageUpload />
     <ProDivider />
@@ -58,9 +58,12 @@
     <ProCard title="电子签名2">
       <ProSign ref="signRef2" selector="sign2"></ProSign>
     </ProCard>
+    <ProCard title="单元格">
+      <ProCell title="12313131,，测侧沃尔沃认为问题问题提问试-——" content="123132侧呃呃呃312312"></ProCell>
+    </ProCard>
     <ProChart :min="0" :max="100" :step-value="10" />
     <ProFixedButton :button-image="ProFixedButtonDefaultImage" />
-  </ZaPageWrap>
+  </ProPageWrap>
   <van-popup v-model:show="isShow" position="bottom">
     <van-datetime-picker
       type="time"
