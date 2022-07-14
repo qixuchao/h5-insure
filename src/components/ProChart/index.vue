@@ -2,7 +2,7 @@
 <template>
   <div class="com-chart">
     {{ state.currentScale }}
-    <div id="funnel" :style="{ width: '100%', height: '450px' }"></div>
+    <div id="funnel" :style="{ width: '100%', height: '350px' }"></div>
     <div class="slider-wrap">
       <van-button icon="minus" type="primary" @click="handleChangeSliderValue('minus')" />
       <van-slider
@@ -51,6 +51,10 @@ const option = {
     trigger: 'axis',
     color: '#393D46',
     backgroundColor: 'rgba(255,255,255,0.9)',
+    position: ['25%', '-45%'],
+    textStyle: {
+      fontSize: 12,
+    }, // 修改字体大小
   },
   legend: {
     data: ['累计总保费', '身故或全残保险金', '保单年度末现金价值2', '身故或全残保险金', '保单年度末现金价值'],
@@ -167,7 +171,6 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-
     .van-button {
       width: 48px;
       height: 48px;

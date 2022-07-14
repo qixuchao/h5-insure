@@ -59,6 +59,7 @@
       <ProSign ref="signRef2" selector="sign2"></ProSign>
     </ProCard>
     <ProChart :min="0" :max="100" :step-value="10" />
+    <ProFixedButton :button-image="ProFixedButtonDefaultImage" />
   </ZaPageWrap>
   <van-popup v-model:show="isShow" position="bottom">
     <van-datetime-picker
@@ -84,6 +85,8 @@ import ProCard from '@/components/ProCard/index.vue';
 import ProDivider from '@/components/ProDivider/index.vue';
 import ProSelect from '@/components/ProSelect/index.vue';
 import pdfPreview from '@/utils/pdfPreview';
+import ProFixedButton from '@/components/ProFixedButton/index.vue';
+import ProFixedButtonDefaultImage from '@/assets/images/customer/da.png';
 
 const [isShow, toggle] = useToggle(false);
 
