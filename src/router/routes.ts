@@ -22,6 +22,12 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     meta: { title: 'demo' },
     component: () => import('@/views/demo/index.vue'),
   },
+  {
+    name: 'question',
+    path: '/question',
+    meta: { title: '问卷' },
+    component: () => import('@/views/question/index.vue'),
+  },
 ];
 
 export default asyncRoutes;

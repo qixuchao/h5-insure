@@ -1,5 +1,5 @@
 <template>
-  <ZaPageWrap class="page-trial-wrapper">
+  <ProPageWrap class="page-trial-wrapper">
     <div v-if="state.holderFactor.length" class="part-card">
       <ProTitle title="投保人"></ProTitle>
       <PersonalInfo
@@ -79,7 +79,7 @@
         <VanButton v-else type="primary" @click="toInsured">立即投保</VanButton>
       </div>
     </div>
-  </ZaPageWrap>
+  </ProPageWrap>
 </template>
 <script lang="ts" setup>
 import { provide } from 'vue';

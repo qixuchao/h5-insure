@@ -1,3 +1,11 @@
+/*
+ * @Author: za-qixuchao qixuchao@zhongan.io
+ * @Date: 2022-06-21 19:34:02
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-07-14 10:23:27
+ * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProPageWrap/index.tsx
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import { useEventListener, useWindowSize } from '@vueuse/core';
 import { Icon } from 'vant';
 import { defineComponent, nextTick, onMounted, ref } from 'vue';
@@ -24,7 +32,7 @@ interface ZaPageWrapOptions {
 }
 
 export default defineComponent<ZaPageWrapOptions>({
-  name: 'ZaPageWrap',
+  name: 'ProPageWrap',
   setup(props, { slots, attrs }) {
     // const { hideFooterPlaceholder } = attrs;
     const mainClass = attrs['main-class'];
