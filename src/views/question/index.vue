@@ -5,30 +5,21 @@
  * index.vue
 -->
 <template>
-  <ZaPageWrap>
+  <ZaPageWrap class="page-quersion">
     <ProCard title="投保人健康告知书">
       <div class="question-item">
         <div class="problem">1. 下述哪种描述符合您吸烟情况？</div>
         <van-radio-group v-model="checkedProblem1">
           <van-cell-group inset>
-            <van-cell title="a. 平均每日吸烟2包以上" clickable @click="checkedProblem1 = '1'">
+            <van-cell
+              v-for="i of radioSelectList"
+              :key="i.value"
+              :title="i.title"
+              clickable
+              @click="checkedProblem1 = i.value"
+            >
               <template #right-icon>
-                <van-radio name="1" />
-              </template>
-            </van-cell>
-            <van-cell title="b. 平均每日吸烟1包-2包" clickable @click="checkedProblem1 = '2'">
-              <template #right-icon>
-                <van-radio name="2" />
-              </template>
-            </van-cell>
-            <van-cell title="c. 平均每日吸烟1包以内" clickable @click="checkedProblem1 = '3'">
-              <template #right-icon>
-                <van-radio name="3" />
-              </template>
-            </van-cell>
-            <van-cell title="d. 从不吸烟 " clickable @click="checkedProblem1 = '4'">
-              <template #right-icon>
-                <van-radio name="4" />
+                <van-radio :name="i.value" />
               </template>
             </van-cell>
           </van-cell-group>
@@ -76,12 +67,30 @@ import { ref, onBeforeUpdate } from 'vue';
 import ProCard from '@/components/ProCard/index.vue';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
 
-const checkboxRefs = ref([]);
+const checkboxRefs = ref<any>([]);
 
 const state = reactive({
   checkedProblem1: '',
   checked: [],
   modelValue: '',
+  radioSelectList: [
+    {
+      title: 'a. 平均每日吸烟2包以上',
+      value: '1',
+    },
+    {
+      title: 'b. 平均每日吸烟1包-2包',
+      value: '2',
+    },
+    {
+      title: 'c. 平均每日吸烟1包以内',
+      value: '3',
+    },
+    {
+      title: 'd. 从不吸烟',
+      value: '4',
+    },
+  ],
   checkList: [
     'a. 我是答案a我是答案a我是答案a我是',
     'b. 我是答案b我是答案b我是答案b',
@@ -90,10 +99,16 @@ const state = reactive({
   ],
   inputValue: '',
 });
-const { checkedProblem1, checked, checkList, modelValue, inputValue } = toRefs(state);
+const { checkedProblem1, checked, checkList, modelValue, inputValue, radioSelectList } = toRefs(state);
 
-const toggle = (index: number) => {
+const toggle = (index: string) => {
   checkboxRefs.value[index].toggle();
+};
+
+const checkHeight = (height: any) => {
+  const regular = /^(0{1}|[1-9]\d{0,3}|.{0})$/;
+  const reg = new RegExp(regular);
+  return !!reg.test(height);
 };
 
 onBeforeUpdate(() => {
@@ -102,7 +117,19 @@ onBeforeUpdate(() => {
 </script>
 
 <style scoped lang="scss">
+.page-quersion {
+  :deep(.body) {
+    background-color: #f2f5fc;
+    padding: 0;
+    .com-radio-btn {
+      justify-content: flex-start;
+    }
+  }
+}
 .question-item {
+  background-color: #ffffff;
+  margin-bottom: 20px;
+  padding: 0 30px;
   .problem {
     min-height: 106px;
     font-size: 30px;
