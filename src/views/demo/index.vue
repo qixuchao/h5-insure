@@ -23,20 +23,16 @@
 
       <VanButton type="primary" @click="trial">试算</VanButton>
     </VanForm>
-    <ProDivider />
     <ProImageUpload />
-    <ProDivider />
     <ProCard title="折叠卡片" :show-fold="true">
       <p>卡片内容，可以被折叠</p>
       <p>卡片内容，可以被折叠</p>
       <p>卡片内容，可以被折叠</p>
       <p>卡片内容，可以被折叠</p>
     </ProCard>
-    <ProDivider />
     <ProCard title="link卡片" link="查看更多" @link-click="handleLinkClick">
       <p>卡片内容，查看更多</p>
     </ProCard>
-    <ProDivider />
     <ProCard title="PDF预览">
       <div class="pdf-preview">
         <van-button v-for="(item, index) in pdfList" :key="index" type="primary" class="item" @click="preview(index)">{{
@@ -44,7 +40,6 @@
         }}</van-button>
       </div>
     </ProCard>
-    <ProDivider />
     <ProCard title="ProSelect">
       <van-button type="primary" @click="isProSelectShow = true">弹出选择</van-button>
       <ProSelect v-model:show="isProSelectShow" :data-source="selectList" value-key="code" />

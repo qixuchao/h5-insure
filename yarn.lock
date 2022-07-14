@@ -6320,6 +6320,11 @@ signal-exit@^3.0.2, signal-exit@^3.0.3:
   resolved "https://registry.npmmirror.com/signal-exit/-/signal-exit-3.0.7.tgz#a9a1767f8af84155114eaabd73f99273c8f59ad9"
   integrity sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==
 
+signature_pad@^4.0.5:
+  version "4.0.5"
+  resolved "https://registry.npmmirror.com/signature_pad/-/signature_pad-4.0.5.tgz#4db9938e215557d851146552614f83df6f133b93"
+  integrity sha512-DeqSbAyO59ET/Cu92fLEgFmvGiaeaWkRgOetm0GnUV7z3LtEKOz2CazkIGmIdr9ZfSyZz6VgTpTxbP0fgfYuyg==
+
 slash@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmmirror.com/slash/-/slash-3.0.0.tgz#6539be870c165adbd5240220dbe361f1bc4d4634"

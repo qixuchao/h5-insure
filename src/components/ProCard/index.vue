@@ -13,17 +13,21 @@
         {{ link }}
         <ProSvg name="right_arrow" class="icon" />
       </div>
+      <slot v-if="extra" name="extra" class="extra" />
     </div>
     <div ref="body" class="body" :style="{ height: `${bodyHeight}px` }">
       <slot />
     </div>
   </div>
+  <ProDivider />
 </template>
 
 <script lang="ts" setup>
+import { useSlots } from 'vue';
 import { useToggle } from '@vant/use';
 import { getHiddenDomSize } from '@/utils/dom';
 import ProSvg from '@/components/ProSvg/index.vue';
+import ProDivider from '@/components/ProDivider/index.vue';
 
 const [isFold, toggle] = useToggle(false);
 const body = ref<HTMLDivElement>();
@@ -58,6 +62,10 @@ const bodyHeight = computed(() => {
 const handleLinkClick = () => {
   emits('link-click');
 };
+
+const extra = computed(() => {
+  return !!useSlots().extra;
+});
 </script>
 
 <style lang="scss" scoped>

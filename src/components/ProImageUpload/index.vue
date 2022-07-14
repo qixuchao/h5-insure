@@ -1,32 +1,53 @@
 <template>
   <div class="com-image-upload">
-    <input ref="input" type="file" class="input" @change="handleChange" />
-    <van-image width="100%" height="100%" :icon-size="50" @click="handleClick"></van-image>
+    <van-uploader v-model="fileList" :after-read="handleAfterRead" :max-count="maxCount">
+      <div class="upload-item">
+        <ProSvg name="image-upload" class="icon" />
+      </div>
+    </van-uploader>
   </div>
 </template>
 
 <script lang="ts" setup>
-const input = ref<HTMLInputElement>();
+import { UploaderFileListItem } from 'vant';
+import { defineProps, defineEmits } from 'vue';
+import ProSvg from '@/components/ProSvg/index.vue';
 
-const handleClick = () => {
-  console.log('input', input.value);
-  input.value?.click();
-};
+const emits = defineEmits(['update:modelValue']);
+const props = defineProps({
+  modelValue: {
+    type: Array as () => Array<string>,
+    default: () => [],
+  },
+  maxCount: {
+    type: Number,
+    default: 1,
+  },
+});
 
-const handleChange = (e: Event) => {
-  const target = e.target as HTMLInputElement;
+const fileList = ref<Array<UploaderFileListItem>>(props.modelValue.map((x) => ({ url: x })));
 
-  const file = target?.files?.[0];
-  console.log(file);
+const handleAfterRead = (e) => {
+  console.log(e);
 };
 </script>
 
 <style lang="scss" scoped>
 .com-image-upload {
-  width: 300px;
-  height: 300px;
-  .input {
-    display: none;
+  padding: 30px;
+  .upload-item {
+    width: 160px;
+    height: 160px;
+    background: #f7f8fd;
+    border-radius: 12px;
+    border: 1px dashed #c1ccdd;
+    margin-right: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .icon {
+      font-size: 50px;
+    }
   }
 }
 </style>
