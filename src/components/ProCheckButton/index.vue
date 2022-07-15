@@ -1,10 +1,18 @@
+<!--
+ * @Author: za-qixuchao qixuchao@zhongan.io
+ * @Date: 2022-06-22 16:53:19
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-07-15 09:13:02
+ * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProCheckButton/index.vue
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 <template>
   <div
     :class="{
       'com-check-btn': true,
-      activied: activied && !disabled,
-      disabled: !activied && disabled,
-      'activied-disabled': activied && disabled,
+      activated: activated && !disabled,
+      activated: !activated && disabled,
+      'active-disabled': activated && disabled,
     }"
   >
     <slot>
@@ -23,7 +31,7 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  activied: {
+  activated: {
     type: Boolean,
     default: false,
   },
@@ -43,7 +51,7 @@ const props = defineProps({
   color: #393d46;
   font-weight: 400;
   margin: 0 0 16px 16px;
-  &.activied {
+  &.activated {
     border: 2px solid $primary-color;
     color: $primary-color;
     background-color: rgba(13, 110, 254, 0.1);
@@ -52,7 +60,7 @@ const props = defineProps({
     opacity: 0.4;
     border: 2px solid #e6e6eb;
   }
-  &.activied-disabled {
+  &.activated-disabled {
     border: none;
     background-color: #8fbbfc;
     font-weight: 400;

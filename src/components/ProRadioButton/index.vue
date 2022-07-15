@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-22 18:54:35
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-07 22:52:14
+ * @LastEditTime: 2022-07-15 09:12:49
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProRadioButton/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -13,7 +13,7 @@
       :key="option[prop.value]"
       :label="option[prop.label]"
       :disabled="disabled"
-      :activied="state.currentValue == option[prop.value]"
+      :activated="state.currentValue == option[prop.value]"
       @click="!disabled && selectBtn(option[prop.value])"
     />
   </div>

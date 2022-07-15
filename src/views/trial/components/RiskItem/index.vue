@@ -255,7 +255,7 @@ import {
   INSURE_FLAG,
   RULE_INSURANCE,
   RULE_PAYMENT,
-} from '@/common/contants/trial';
+} from '@/common/constants/trial';
 
 const props = defineProps({
   originData: {
