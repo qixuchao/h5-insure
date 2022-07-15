@@ -1,13 +1,5 @@
-<!--
- * @Author: jianmei.ji
- * @Email: jianmei.ji@zhonganbio.com
- * @Date: 2022-06-13 10:59:34
- * @LastEditors: jianmei.ji
- * @LastEditTime: 2022-06-17 19:43:18
- * @Description:
--->
 <template>
-  <div class="com-tab-filter" :class="[filterClass || '']">
+  <div class="com-tab-filter">
     <div class="article-mid">
       <div class="article-tag">
         <div
@@ -24,16 +16,16 @@
         </div>
       </div>
       <div v-if="filter" class="filter" @click="openPop">
-        <div class="shadow"></div>
+        <span></span>
         <div class="text">筛选</div>
-        <ProSvg name="filter-1" />
+        <ZaSvg name="filter" />
       </div>
 
       <van-popup
         :show="isPopShow"
         position="right"
         close-on-click-overlay
-        :style="popupStyle || { width: '80%', height: '100%' }"
+        :style="popupStyle || { width: '65%', height: '100%' }"
         @click-overlay="closePop"
       >
         <div v-if="slotFilter" class="search-filter">
@@ -62,8 +54,8 @@
 <script lang="ts" setup>
 import './index.scss';
 import { useSlots } from 'vue';
-import usePopup from '../../hooks';
-import ProSvg from '../ProSvg/index.vue';
+import usePopup from '@/hooks/usePopup';
+import ZaSvg from '../ZaSvg/index.vue';
 
 const props = defineProps({
   tagList: {
@@ -77,10 +69,6 @@ const props = defineProps({
   popupStyle: {
     type: Object,
     default: () => {},
-  },
-  filterClass: {
-    type: String,
-    default: '',
   },
 });
 const { isPopShow, openPop, closePop } = usePopup(false);
