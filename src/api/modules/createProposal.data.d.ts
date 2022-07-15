@@ -30,7 +30,7 @@ export interface ProposalProductRiskVoItem {
     paymentFrequency: number;
     premium: number;
     proposalProductId: number;
-    proposalProductRiskVOList: object[];
+    proposalProductRiskVOList: ProposalProductRiskVoItem[];
     riskCode: string;
     riskName: string;
     riskType: number;

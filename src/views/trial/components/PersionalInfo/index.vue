@@ -86,7 +86,7 @@
 <script lang="ts" setup>
 import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
-import { SEX_LIMIT, SOCIAL_INSURANCE_LIMIT } from '@/common/contants/trial';
+import { SEX_LIMIT, SOCIAL_INSURANCE_LIMIT } from '@/common/constants/trial';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
 import Occupational from '../Occupational/index.vue';
 
