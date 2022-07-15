@@ -23,7 +23,13 @@
 
       <VanButton type="primary" @click="trial">试算</VanButton>
     </ProForm>
-    <ProImageUpload />
+    <ProCard title="图片上传">
+      <ProImageUpload :max-count="9" />
+    </ProCard>
+    <ProCard title="身份证上传">
+      <ProIDCardUpload />
+    </ProCard>
+
     <ProCard title="折叠卡片" :show-fold="true">
       <p>卡片内容，可以被折叠</p>
       <p>卡片内容，可以被折叠</p>
@@ -32,6 +38,10 @@
     </ProCard>
     <ProCard title="link卡片" link="查看更多" @link-click="handleLinkClick">
       <p>卡片内容，查看更多</p>
+    </ProCard>
+    <ProCard title="自定义">
+      <template #extra> 自定义按钮 </template>
+      自定义
     </ProCard>
     <ProCard title="PDF预览">
       <div class="pdf-preview">
@@ -85,6 +95,7 @@ import ProSelect from '@/components/ProSelect/index.vue';
 import pdfPreview from '@/utils/pdfPreview';
 import ProFixedButton from '@/components/ProFixedButton/index.vue';
 import ProFixedButtonDefaultImage from '@/assets/images/customer/da.png';
+import ProIDCardUpload from '@/components/ProIDCardUpload/index.vue';
 
 const [isShow, toggle] = useToggle(false);
 

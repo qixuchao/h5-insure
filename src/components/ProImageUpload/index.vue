@@ -4,6 +4,7 @@
       <div class="upload-item">
         <ProSvg name="image-upload" class="icon" />
       </div>
+      <!-- <template #preview-delete>111</template> -->
     </van-uploader>
   </div>
 </template>
@@ -47,6 +48,20 @@ const handleAfterRead = (e) => {
     justify-content: center;
     .icon {
       font-size: 50px;
+    }
+  }
+  .van-uploader {
+    ::v-deep .van-uploader__wrapper {
+      .van-uploader__preview {
+        margin-right: 30px;
+        margin-bottom: 30px;
+        border-radius: 12px;
+        border: 1px dashed #c1ccdd;
+        .van-uploader__preview-image {
+          width: 160px;
+          height: 160px;
+        }
+      }
     }
   }
 }
