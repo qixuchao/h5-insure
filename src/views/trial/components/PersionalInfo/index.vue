@@ -86,7 +86,7 @@
 <script lang="ts" setup>
 import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
-import { SEX_LIMIT, SOCIAL_INSURANCE_LIMIT } from '@/common/contants/trial';
+import { SEX_LIMIT, SOCIAL_INSURANCE_LIMIT } from '@/common/constants/trial';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
 import Occupational from '../Occupational/index.vue';
 
@@ -183,6 +183,7 @@ const ageRangeObj = computed(() => {
   const maxAge = dayjs()
     .subtract(max[0], max[1] === 'age' ? 'year' : 'day')
     .format('YYYY-MM-DD');
+  console.log('ageRangeObj', new Date(maxAge), new Date(minAge));
   return {
     minAge: new Date(maxAge),
     maxAge: new Date(minAge),

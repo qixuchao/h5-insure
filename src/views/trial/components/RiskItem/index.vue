@@ -14,7 +14,7 @@
         { required: true, message: '请填写' },
         {
           trigger: 'onChange',
-          validator: validateSumInsured,
+          validator: (...params) => validateSumInsured(...params, 'sumInsured'),
         },
       ]"
     >
@@ -42,7 +42,7 @@
         { required: true, message: '请填写' },
         {
           trigger: 'onChange',
-          validator: validateSumInsured,
+          validator: (...params) => validateSumInsured(...params, 'premium'),
         },
       ]"
     >
@@ -255,7 +255,7 @@ import {
   INSURE_FLAG,
   RULE_INSURANCE,
   RULE_PAYMENT,
-} from '@/common/contants/trial';
+} from '@/common/constants/trial';
 
 const props = defineProps({
   originData: {
@@ -352,7 +352,7 @@ const coverageYearOptions = computed(() => {
     );
   }
   if (props.originData?.periodType === 2) {
-    return pickEnums([{ value: 'year_1', label: '1年' }], ['year_1']);
+    return pickEnums([{ value: 'year_1', name: '1年' }], ['year_1']);
   }
   return pickEnums(
     props?.enums?.RISK_INSURANCE_PERIOD,
@@ -442,8 +442,24 @@ const copy = computed(() => {
 });
 
 // 校验保额/保费是否是增减幅度的倍数
-const validateSumInsured = (value: string, rule: any) => {
+const validateSumInsured = (value: string, rule: any, type: string) => {
   const step = props.originData?.riskCalcMethodInfoVO?.increaseDecreaseNum || 1;
+  if (type === 'sumInsured') {
+    if (+value > amount.value.max) {
+      return `金额最大${amount.value.max}元`;
+    }
+    if (+value < amount.value.min) {
+      return `金额最小${amount.value.min}元`;
+    }
+  } else {
+    if (+value > premium.value.max) {
+      return `金额最大${premium.value.max}元`;
+    }
+    if (+value < premium.value.min) {
+      return `金额最小${premium.value.min}元`;
+    }
+  }
+
   if (+value % step === 0) {
     return '';
   }

@@ -139,7 +139,7 @@ const dealTrialData = () => {
       risk.paymentYear = paymentYear.join('_');
     }
     risk.liabilityVOList = (risk.liabilityVOList || [])
-      .filter((liab) => !['-1'].includes(liab.liabilityAttributeValue))
+      .filter((liab) => liab.liabilityAttributeValue && liab.liabilityAttributeValue !== '-1')
       .map((liab) => {
         const currentLiab = liab;
         if (currentLiab.liabilityAttributeValue === '0') {
@@ -151,7 +151,7 @@ const dealTrialData = () => {
   });
 
   mainRisk.liabilityVOList = mainRisk.liabilityVOList
-    .filter((liab) => !['-1'].includes(liab.liabilityAttributeValue))
+    .filter((liab) => liab.liabilityAttributeValue && liab.liabilityAttributeValue !== '-1')
     .map((liab) => {
       const currentLiab = liab;
       if (currentLiab.liabilityAttributeValue === '0') {
@@ -208,7 +208,7 @@ const dealTrialData = () => {
       flatRiskPremium(data.riskPremiumDetailVOList);
       Object.assign(riskPremiumRef.value, riskPremium);
     } else {
-      state.retrialTip = true;
+      // state.retrialTip = true;
     }
   });
 };
@@ -350,7 +350,7 @@ onBeforeMount(() => {
         line-height: 37px;
         padding: 3px 21px 2px 20px;
         right: 30px;
-        top: -42px;
+        top: -35px;
         display: flex;
         align-items: center;
         .close-icon {
@@ -366,7 +366,7 @@ onBeforeMount(() => {
           border-top: 10px solid #ff5840;
           border-right: 10px solid #ff5840;
           right: 37px;
-          bottom: -20px;
+          bottom: -12px;
         }
       }
     }
