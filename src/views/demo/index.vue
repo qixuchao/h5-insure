@@ -68,6 +68,9 @@
     </ProCard>
     <ProChart :min="0" :max="100" :step-value="10" />
     <ProFixedButton :button-image="ProFixedButtonDefaultImage" />
+    <ProCard title="ProTable">
+      <ProTable :columns="columns" class="table" :data-source="dataSource" />
+    </ProCard>
   </ProPageWrap>
   <van-popup v-model:show="isShow" position="bottom">
     <van-datetime-picker
@@ -96,6 +99,7 @@ import pdfPreview from '@/utils/pdfPreview';
 import ProFixedButton from '@/components/ProFixedButton/index.vue';
 import ProFixedButtonDefaultImage from '@/assets/images/customer/da.png';
 import ProIDCardUpload from '@/components/ProIDCardUpload/index.vue';
+import ProTable from '@/components/ProTable/index.vue';
 
 const [isShow, toggle] = useToggle(false);
 
@@ -182,6 +186,109 @@ const handleLinkClick = () => {
 const preview = (index: number) => {
   pdfPreview(pdfList, index);
 };
+
+const columns = [
+  {
+    title: '险种名称',
+    dataIndex: 'key1',
+    width: 180,
+  },
+  {
+    title: '保额',
+    dataIndex: 'key2',
+  },
+  {
+    title: '保障期间',
+    dataIndex: 'key3',
+    width: 110,
+  },
+  {
+    title: '缴费期间',
+    dataIndex: 'key4',
+    width: 110,
+  },
+  {
+    title: '保费',
+    dataIndex: 'key5',
+    width: 120,
+  },
+  {
+    title: 'columnA',
+    dataIndex: 'key6',
+    width: 120,
+  },
+  {
+    title: 'columnB',
+    dataIndex: 'key7',
+    width: 120,
+  },
+];
+
+const dataSource = [
+  {
+    key1: '众安家庭共享保额意外险',
+    key2: '50万',
+    key3: '1年期',
+    key4: '一次交清',
+    key5: '988.00',
+    key6: 'columnA',
+    key7: 'columnB',
+  },
+  {
+    key1: '众安家庭共享保额意外险',
+    key2: '50万',
+    key3: '1年期',
+    key4: '一次交清',
+    key5: '988.00',
+    key6: 'columnA',
+    key7: 'columnB',
+  },
+  {
+    key1: '众安家庭共享保额意外险',
+    key2: '50万',
+    key3: '1年期',
+    key4: '一次交清',
+    key5: '988.00',
+    key6: 'columnA',
+    key7: 'columnB',
+  },
+  {
+    key1: '众安家庭共享保额意外险',
+    key2: '50万',
+    key3: '1年期',
+    key4: '一次交清',
+    key5: '988.00',
+    key6: 'columnA',
+    key7: 'columnB',
+  },
+  {
+    key1: '众安家庭共享保额意外险',
+    key2: '50万',
+    key3: '1年期',
+    key4: '一次交清',
+    key5: '988.00',
+    key6: 'columnA',
+    key7: 'columnB',
+  },
+  {
+    key1: '众安家庭共享保额意外险',
+    key2: '50万',
+    key3: '1年期',
+    key4: '一次交清',
+    key5: '988.00',
+    key6: 'columnA',
+    key7: 'columnB',
+  },
+  {
+    key1: '众安家庭共享保额意外险',
+    key2: '50万',
+    key3: '1年期',
+    key4: '一次交清',
+    key5: '988.00',
+    key6: 'columnA',
+    key7: 'columnB',
+  },
+];
 </script>
 
 <style lang="scss" scoped>
@@ -192,5 +299,8 @@ const preview = (index: number) => {
     margin-right: 30px;
     margin-bottom: 30px;
   }
+}
+.table {
+  margin: 30px 0;
 }
 </style>

@@ -61,6 +61,22 @@ const handleAfterRead = (e) => {
           width: 160px;
           height: 160px;
         }
+        .van-uploader__preview-delete {
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          right: -17px;
+          top: -17px;
+          background: #acbbd0;
+          border: 4px solid #ffffff;
+          text-align: center;
+          .van-uploader__preview-delete-icon {
+            position: static;
+            font-size: 24px;
+            display: block;
+            transform: none;
+          }
+        }
       }
     }
   }
