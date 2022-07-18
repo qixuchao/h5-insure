@@ -42,6 +42,12 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     meta: { title: '创建计划书' },
     component: () => import('@/views/proposal/createProposal/index.vue'),
   },
+  {
+    name: 'ProductList',
+    path: '/product-list',
+    meta: { title: '产品列表' },
+    component: () => import('@/views/proposal/proposalList/index.vue'),
+  },
 ];
 
 export default asyncRoutes;

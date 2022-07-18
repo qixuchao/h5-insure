@@ -11,7 +11,7 @@
     v-model:show="isShow"
     :="$attrs"
     position="bottom"
-    :style="{ height: '90%' }"
+    :style="{ height: '85%' }"
     round
     closeable
     class="com-pro-popup"
@@ -84,6 +84,7 @@ watch(isShow, (val) => {
       color: #393d46;
       text-align: center;
       line-height: 104px;
+      border-bottom: 1px solid #eeeff4;
     }
     .body {
       flex: 1;

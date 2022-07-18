@@ -1,0 +1,137 @@
+<template>
+  <div class="com-id-card-upload">
+    <van-uploader v-model="frontImage" :max-count="1" :deletable="false" :preview-full-image="false">
+      <div class="upload-item">
+        <img :src="IDCardUploadFrontImage" class="bg" />
+        <img :src="IDCardUploadIconImage" class="icon" />
+        <div class="text">上传人像面</div>
+      </div>
+      <template #preview-cover>
+        <div class="upload-item cover" @click="handleFrontClick">
+          <div class="bg" />
+          <img :src="IDCardUploadIconImage" class="icon" />
+          <div class="text">上传人像面</div>
+        </div>
+      </template>
+    </van-uploader>
+    <van-uploader v-model="backImage" :max-count="1" :deletable="false" :preview-full-image="false">
+      <div class="upload-item">
+        <img :src="IDCardUploadBackImage" class="bg" />
+        <img :src="IDCardUploadIconImage" class="icon" />
+        <div class="text">上传国徽面</div>
+      </div>
+      <template #preview-cover>
+        <div class="upload-item cover" @click="handleBackClick">
+          <div class="bg" />
+          <img :src="IDCardUploadIconImage" class="icon" />
+          <div class="text">上传人像面</div>
+        </div>
+      </template>
+    </van-uploader>
+    <van-uploader ref="instance" v-model="temp" class="temp-uploader" :max-count="1" />
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { defineProps } from 'vue';
+import { UploaderFileListItem, UploaderInstance } from 'vant';
+import IDCardUploadIconImage from '@/assets/images/component/idcard-upload.png';
+import IDCardUploadFrontImage from '@/assets/images/component/idcard-front.png';
+import IDCardUploadBackImage from '@/assets/images/component/idcard-back.png';
+
+const props = defineProps({
+  front: {
+    type: String,
+    default: '',
+  },
+  back: {
+    type: String,
+    default: '',
+  },
+});
+
+let current: 'front' | 'back' = 'front';
+const instance = ref<UploaderInstance>();
+const frontImage = ref<Array<UploaderFileListItem>>([]);
+const backImage = ref<Array<UploaderFileListItem>>([]);
+const temp = ref<Array<UploaderFileListItem>>([]);
+
+const handleFrontClick = () => {
+  current = 'front';
+  temp.value = [];
+  setTimeout(() => {
+    instance.value?.chooseFile();
+  });
+};
+
+const handleBackClick = () => {
+  current = 'back';
+  temp.value = [];
+  setTimeout(() => {
+    instance.value?.chooseFile();
+  });
+};
+
+watch(temp, (val) => {
+  if (val && val[0]) {
+    if (current === 'front') {
+      frontImage.value = val;
+    } else {
+      backImage.value = val;
+    }
+  }
+});
+</script>
+
+<style lang="scss" scoped>
+.com-id-card-upload {
+  display: flex;
+  padding: 30px 0;
+  justify-content: space-between;
+  .upload-item {
+    width: 320px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    &.cover {
+      .bg {
+        background: rgba(0, 0, 0, 0.2);
+      }
+    }
+    .bg {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: 0;
+    }
+    .icon {
+      width: 66px;
+      height: 66px;
+      z-index: 9;
+    }
+    .text {
+      font-size: 26px;
+      margin-top: 9px;
+      color: #0d6efe;
+      z-index: 9;
+    }
+  }
+  .van-uploader {
+    ::v-deep .van-uploader__wrapper {
+      .van-uploader__preview {
+        margin: 0;
+        .van-uploader__preview-image {
+          width: 320px;
+          height: 200px;
+        }
+      }
+    }
+  }
+  .temp-uploader {
+    display: none;
+  }
+}
+</style>

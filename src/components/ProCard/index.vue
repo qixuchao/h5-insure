@@ -15,7 +15,7 @@
       </div>
       <slot v-if="extra" name="extra" class="extra" />
     </div>
-    <div ref="body" class="body" :style="{ height: `${bodyHeight}px` }">
+    <div ref="body" class="body" :style="{ height: showFold ? `${bodyHeight}px` : 'auto' }">
       <slot />
     </div>
   </div>
