@@ -10,7 +10,7 @@
   <div class="com-cell-wrapper">
     <div class="cell-container">
       <div :class="['left-part', state.status === 'left' ? 'large' : '']">{{ title }}</div>
-      <div class="diliver"></div>
+      <div class="divider"></div>
       <div :class="['right-part', state.status === 'right' ? 'large' : '']">
         {{ content }}
       </div>
@@ -61,15 +61,21 @@ onBeforeMount(() => {
 
 <style lang="scss" scoped>
 .com-cell-wrapper {
+  margin: 30px 0;
   .cell-container {
     display: flex;
+    font-size: 28px;
+    line-height: 30px;
     .left-part {
       width: 30%;
+      color: #515865;
     }
     .right-part {
       width: 30%;
+      color: #393d46;
+      text-align: right;
     }
-    .diliver {
+    .divider {
       width: 10%;
     }
     .large {
