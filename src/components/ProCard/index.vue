@@ -28,7 +28,7 @@
 <script lang="ts" setup>
 import { useSlots } from 'vue';
 import { useToggle } from '@vant/use';
-import { getHiddenDomSize } from '@/utils/dom';
+import { getHiddenDomHeight } from '@/utils/dom';
 import ProSvg from '@/components/ProSvg/index.vue';
 import ProDivider from '@/components/ProDivider/index.vue';
 
@@ -59,7 +59,7 @@ const bodyHeight = computed(() => {
   if (isFold.value) {
     return 0;
   }
-  return getHiddenDomSize(body.value);
+  return getHiddenDomHeight(body.value);
 });
 
 const handleLinkClick = () => {

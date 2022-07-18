@@ -4,40 +4,65 @@
     :offset-top="offsetTop"
     :shrink="shrink"
     :sticky="sticky"
-    :animated="animated"
+    :scrollspy="scrollspy"
+    :line-height="4"
+    :line-width="28"
+    :class="['pro-tab', { smallGap }]"
     @click-tab="handleClickTab"
   >
     <Tab v-for="(item, index) in list" :key="index" :title="item.title" :disabled="item.disabled">
-      <slot :name="item.slotName" />
+      <slot v-if="item.slotName" :name="item.slotName" />
     </Tab>
   </Tabs>
 </template>
 
 <script lang="ts" setup>
+import { defineEmits } from 'vue';
 import { Tabs, Tab } from 'vant';
+
+const emits = defineEmits(['update:active']);
 
 const props = defineProps({
   list: {
-    type: Array as () => Array<{ title: string; disabled?: boolean; slotName: string }>,
+    type: Array as () => Array<{ title: string; disabled?: boolean; slotName?: string }>,
     default: () => [],
   },
-  shrink: { type: Boolean, default: false }, // 是否收缩布局
   sticky: { type: Boolean, default: false }, // 是否粘性布局
-  animated: { type: Boolean, default: false }, // 是否滑动切换
   offsetTop: { type: [Number, String], default: 0 },
   active: { type: Number, default: 0 },
+  scrollspy: { type: Boolean, default: false },
+  smallGap: { type: Boolean, default: false },
 });
 
 const activeIndex = ref(props.active);
 
-watch(
-  () => props.active,
-  (val) => {
-    activeIndex.value = val;
-  },
-);
+watch(activeIndex, (val) => {
+  emits('update:active', val);
+});
 
 const handleClickTab = () => {};
+
+const shrink = computed(() => {
+  return props.list.length >= 5;
+});
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.pro-tab {
+  ::v-deep .van-tabs__nav--shrink {
+    .van-tab {
+      margin-right: 60px;
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+  &.smallGap {
+    ::v-deep .van-tabs__nav--shrink {
+      .van-tab {
+        margin-right: 45px;
+      }
+    }
+  }
+}
+</style>
