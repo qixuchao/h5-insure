@@ -5,6 +5,7 @@
     :shrink="shrink"
     :sticky="sticky"
     :animated="animated"
+    :scrollspy="scrollspy"
     @click-tab="handleClickTab"
   >
     <Tab v-for="(item, index) in list" :key="index" :title="item.title" :disabled="item.disabled">
@@ -26,6 +27,7 @@ const props = defineProps({
   animated: { type: Boolean, default: false }, // 是否滑动切换
   offsetTop: { type: [Number, String], default: 0 },
   active: { type: Number, default: 0 },
+  scrollspy: { type: Boolean, default: false },
 });
 
 const activeIndex = ref(props.active);
