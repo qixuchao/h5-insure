@@ -60,6 +60,12 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     meta: { title: '支付状态' },
     component: () => import('@/views/pay/index.vue'),
   },
+  {
+    name: 'order',
+    path: '/order',
+    meta: { title: '订单列表' },
+    component: () => import('@/views/order/index.vue'),
+  },
 ];
 
 export default asyncRoutes;

@@ -109,6 +109,8 @@ onBeforeMount(async () => {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
 }
 .page {
   background-color: #fff;
