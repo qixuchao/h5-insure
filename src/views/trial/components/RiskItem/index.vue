@@ -1,12 +1,12 @@
 <template>
   <div class="com-risk-card-wrapper part-card">
-    <ProTitle :risk-type="originData?.riskType" :title="originData?.riskName">
+    <ProTitle :risk-type="originData.riskType" :title="originData.riskName">
       <div v-if="removeRiskList.includes(originData.id)" class="delete-risk" @click="removeRisk(originData.id)">
         <ProSvg name="delete" color="#0d6efe"></ProSvg>
       </div>
     </ProTitle>
     <VanField
-      v-if="originData?.riskCalcMethodInfoVO?.saleMethod === 1 && originData?.exemptFlag === 2"
+      v-if="originData.riskCalcMethodInfoVO?.saleMethod === 1 && originData.exemptFlag === 2"
       v-model="state.formInfo.sumInsured"
       label="保额"
       name="sumInsured"
@@ -24,11 +24,11 @@
             v-model="state.formInfo.sumInsured"
             input-width="64px"
             :min="amount.min"
-            :step="originData?.riskCalcMethodInfoVO?.increaseDecreaseNum || 1"
+            :step="originData.riskCalcMethodInfoVO?.increaseDecreaseNum || 1"
             :max="amount.max"
           ></VanStepper>
           <span class="field-tip">{{
-            `金额最低${amount.min}元，为${originData?.riskCalcMethodInfoVO?.increaseDecreaseNum || 1}的倍数`
+            `金额最低${amount.min}元，为${originData.riskCalcMethodInfoVO?.increaseDecreaseNum || 1}的倍数`
           }}</span>
         </div>
       </template>
@@ -82,7 +82,7 @@
 
     <VanField
       v-if="
-        (![1, 4].includes(originData?.riskCalcMethodInfoVO?.saleMethod) || originData?.exemptFlag === 1) &&
+        (![1, 4].includes(originData.riskCalcMethodInfoVO?.saleMethod || 0) || originData?.exemptFlag === 1) &&
         riskPremium?.[originData?.riskCode]
       "
       label="保额"
@@ -160,7 +160,7 @@
       <template #input>
         <ProRadioButton
           v-model="state.formInfo.annuityDrawDate"
-          :options="pickEnums(ANNUITY_DRAW_DATE, originData?.riskInsureLimitVO?.annuityDrawTypeList)"
+          :options="pickEnums(ANNUITY_DRAW_DATE, originData.riskInsureLimitVO?.annuityDrawTypeList || [])"
         ></ProRadioButton>
       </template>
     </VanField>
@@ -174,11 +174,11 @@
       <template #input>
         <ProRadioButton
           v-model="state.formInfo.annuityDrawType"
-          :options="pickEnums(ANNUITY_DRAW_TYPE, originData?.riskInsureLimitVO?.annuityDrawFrequencyList)"
+          :options="pickEnums(ANNUITY_DRAW_TYPE, originData.riskInsureLimitVO?.annuityDrawFrequencyList || [])"
         ></ProRadioButton>
       </template>
     </VanField>
-    <div v-for="(liab, num) in originData?.riskLiabilityInfoVOList || []" :key="num">
+    <div v-for="(liab, num) in originData.riskLiabilityInfoVOList || []" :key="num">
       <VanField
         v-if="liab.optionalFlag === 1"
         v-model="state.formInfo.liabilityVOList[num].liabilityAttributeValue"
@@ -221,7 +221,7 @@
               :options="
                 pickEnums(
                   LIABILITY_ATTRIBUTE_VALUE,
-                  originData?.riskLiabilityInfoVOList?.[num]?.liabilityAttributeValueList,
+                  originData.riskLiabilityInfoVOList?.[num]?.liabilityAttributeValueList,
                 )
               "
             ></ProRadioButton>
@@ -241,10 +241,8 @@
 </template>
 
 <script lang="ts" setup>
-import { inject } from 'vue';
+import { inject, withDefaults } from 'vue';
 import { Toast } from 'vant/es';
-import ProCheckboxButton from '@/components/ProCheckButton/index.vue';
-import ProRadioButton from '@/components/ProRadioButton/index.vue';
 import {
   INSURANCE_PERIOD_VALUE,
   PAYMENT_PERIOD_VALUE,
@@ -257,43 +255,28 @@ import {
   RULE_PAYMENT,
 } from '@/common/constants/trial';
 
-const props = defineProps({
-  originData: {
-    type: Object,
-    required: true,
-    default: () => {},
-  },
-  formInfo: {
-    type: Object,
-    required: true,
-    default: () => {},
-  },
-  mainRiskData: {
-    type: Object,
-    default: () => {},
-  },
-  mainRiskInfo: {
-    type: Object,
-    required: false,
-    default: () => {},
-  },
-  index: {
-    type: [Number, String],
-    default: 0,
-    required: true,
-  },
-  removeRisk: {
-    type: Function,
-    default: () => {},
-  },
-  removeRiskList: {
-    type: Array,
-    default: () => [],
-  },
-  enums: {
-    type: Object,
-    default: () => {},
-  },
+import { RiskDetailVoItem, RiskVoItem } from '@/api/modules/trial.data';
+
+interface Props {
+  originData: Partial<RiskDetailVoItem>;
+  formInfo: Partial<RiskVoItem>;
+  mainRiskData: Partial<RiskDetailVoItem>;
+  mainRiskInfo: Partial<RiskVoItem>;
+  index: number;
+  removeRisk: () => void;
+  removeRiskList: any[];
+  enums: any;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  originData: () => ({}),
+  formInfo: () => ({}),
+  mainRiskData: () => ({}),
+  mainRiskInfo: () => ({}),
+  index: 0,
+  removeRisk: () => {},
+  removeRiskList: () => [],
+  enums: () => ({}),
 });
 
 const enumList = ref({});
@@ -316,7 +299,7 @@ const disabledProperties = ref({
   },
 });
 
-const state = reactive({
+const state = reactive<{ formInfo: Partial<RiskVoItem> }>({
   formInfo: props.formInfo,
 });
 
@@ -345,18 +328,17 @@ const pickEnums = (origin: any[], target: any[], prop = {}) => {
 const coverageYearOptions = computed(() => {
   // 主险
   if (props.originData?.riskType === 1) {
-    console.log('enumList.value?.RISK_INSURANCE_PERIOD', enumList.value?.RISK_INSURANCE_PERIOD);
     return pickEnums(
-      props?.enums.RISK_INSURANCE_PERIOD,
-      props?.originData?.riskInsureLimitVO?.insurancePeriodValueList,
+      props.enums.RISK_INSURANCE_PERIOD,
+      props.originData.riskInsureLimitVO?.insurancePeriodValueList || [],
     );
   }
   if (props.originData?.periodType === 2) {
     return pickEnums([{ value: 'year_1', label: '1年' }], ['year_1']);
   }
   return pickEnums(
-    props?.enums?.RISK_INSURANCE_PERIOD,
-    props?.mainRiskData?.riskInsureLimitVO?.insurancePeriodValueList,
+    props.enums?.RISK_INSURANCE_PERIOD,
+    props.mainRiskData.riskInsureLimitVO?.insurancePeriodValueList || [],
   );
 });
 
@@ -364,7 +346,10 @@ const coverageYearOptions = computed(() => {
 const paymentYearOptions = computed(() => {
   // 主险
   if (props.originData?.riskType === 1) {
-    return pickEnums(props?.enums?.RISK_PAYMENT_PERIOD, props?.originData?.riskInsureLimitVO?.paymentPeriodValueList);
+    return pickEnums(
+      props?.enums?.RISK_PAYMENT_PERIOD,
+      props.originData.riskInsureLimitVO?.paymentPeriodValueList || [],
+    );
   }
   // 附加险-豁免险
   if (props.originData?.exemptFlag === 1) {
@@ -373,19 +358,19 @@ const paymentYearOptions = computed(() => {
   if (props.originData?.periodType === 2) {
     return pickEnums([{ value: 'year_1', name: '1年交' }], ['year_1']);
   }
-  return pickEnums(props?.enums?.RISK_PAYMENT_PERIOD, props?.mainRiskData?.riskInsureLimitVO?.paymentPeriodValueList);
+  return pickEnums(props.enums.RISK_PAYMENT_PERIOD, props.mainRiskData.riskInsureLimitVO?.paymentPeriodValueList || []);
 });
 
 // 交费方式可选选项
 const paymentFrequencyOptions = computed(() => {
   // 主险
   if (props.originData?.riskType === 1) {
-    return pickEnums(PAYMENT_FREQUENCY, props?.originData?.riskInsureLimitVO?.paymentFrequencyList);
+    return pickEnums(PAYMENT_FREQUENCY, props.originData.riskInsureLimitVO?.paymentFrequencyList || []);
   }
-  if (props?.originData?.paymentTypeRule === 1) {
-    return pickEnums(PAYMENT_FREQUENCY, props?.mainRiskData?.riskInsureLimitVO?.paymentFrequencyList);
+  if (props.originData.riskInsureLimitVO?.paymentTypeRule === 1) {
+    return pickEnums(PAYMENT_FREQUENCY, props.mainRiskData.riskInsureLimitVO?.paymentFrequencyList || []);
   }
-  return pickEnums(PAYMENT_FREQUENCY, props?.mainRiskData?.riskInsureLimitVO?.paymentFrequencyList);
+  return pickEnums(PAYMENT_FREQUENCY, props.mainRiskData.riskInsureLimitVO?.paymentFrequencyList || []);
 });
 
 // 保额的最大值和最小值
@@ -436,7 +421,7 @@ const premium = computed(() => {
 const copy = computed(() => {
   const min = props.originData?.riskCalcMethodInfoVO?.minCopy || 1;
   const max = props.originData?.riskCalcMethodInfoVO?.maxCopy;
-  state.formInfo.copy = min;
+  state.formInfo.copy = `${min || 1}`;
 
   return { min, max };
 });
@@ -472,15 +457,15 @@ onBeforeMount(() => {
 // 交费方式
 watch(
   () => state.formInfo?.paymentFrequency,
-  (newVal) => {
-    if ([3, 4].includes(props.originData?.riskCalcMethodInfoVO?.saleMethod)) {
-      (props.originData?.riskCalcMethodInfoVO?.paymentMethodLimitList || []).forEach((paymment) => {
-        if (+paymment.paymentFrequency === +newVal) {
-          Object.assign(state.formInfo, { sumInsured: paymment.perCopyAmount, premium: paymment.perCopyPremium });
+  (newVal = 0) => {
+    if ([3, 4].includes(props.originData.riskCalcMethodInfoVO?.saleMethod || 0)) {
+      (props.originData?.riskCalcMethodInfoVO?.paymentMethodLimitList || []).forEach((payment) => {
+        if (+payment.paymentFrequency === +newVal) {
+          Object.assign(state.formInfo, { sumInsured: payment.perCopyAmount, premium: payment.perCopyPremium });
         }
       });
     }
-    if (newVal === '1' && state.formInfo.paymentYear !== 'single') {
+    if (+newVal === 1 && state.formInfo.paymentYear !== 'single') {
       state.formInfo.paymentYear = 'single';
     }
   },
@@ -490,8 +475,8 @@ watch(
 watch(
   () => state.formInfo?.paymentYear,
   (newVal) => {
-    if (newVal === 'single' && state.formInfo.paymentFrequency !== '1') {
-      state.formInfo.paymentFrequency = '1';
+    if (newVal === 'single' && +(state.formInfo.paymentFrequency || 0) !== 1) {
+      state.formInfo.paymentFrequency = 1;
     }
   },
 );

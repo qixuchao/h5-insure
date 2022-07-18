@@ -4,7 +4,7 @@ import { Component } from 'vue';
  * @Autor: kevin.liang
  * @Date: 2022-03-08 13:51:54
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-14 16:01:31
+ * @LastEditTime: 2022-07-16 17:06:53
  */
 /* eslint-disable prettier/prettier */
 import ZaAvatar from './ZaAvatar/index.vue';
@@ -22,6 +22,7 @@ import ProForm from './ProForm/index.vue'
 import ProField from './ProField/index.vue'
 import ProRadioButton from './ProRadioButton/index.vue'
 import ProCheckButton from './ProCheckButton/index.vue'
+import ProTabBButton from './ProCheckButton/TabButton.vue'
 import ProCheckboxButton from './ProCheckboxButton/index.vue'
 
 
@@ -46,7 +47,8 @@ export const globalComs: ComponentMap = {
   ProField,
   ProCheckButton,
   ProCheckboxButton,
-  ProRadioButton
+  ProRadioButton,
+  ProTabBButton
 };
 
 function install(app: any) {

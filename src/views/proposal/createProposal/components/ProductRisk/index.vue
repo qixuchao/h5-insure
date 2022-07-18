@@ -1,92 +1,67 @@
+<!--
+ * @Author: za-qixuchao qixuchao@zhongan.io
+ * @Date: 2022-07-16 13:39:05
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-07-18 09:30:39
+ * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductRisk/index.vue
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 <template>
-  <ProPageWrap class="page-trial-wrapper">
-    <div v-if="state.holderFactor.length" class="part-card">
-      <ProTitle title="投保人"></ProTitle>
-      <PersonalInfo
-        ref="holderRef"
-        :insured-code="state.riskBaseInfo?.insurerCode"
-        :form-info="holder.personVO"
-        :factor-list="state.holderFactor"
-        :age-range="state.ageRange"
-      ></PersonalInfo>
-    </div>
-    <div v-if="state.insuredFactor.length" class="part-card">
-      <ProTitle title="被保人"></ProTitle>
-      <PersonalInfo
-        ref="insuredRef"
-        :insured-code="state.riskBaseInfo?.insurerCode"
-        :form-info="insured.personVO"
-        :factor-list="state.insuredFactor"
-        :age-range="state.ageRange"
-      ></PersonalInfo>
-    </div>
-    <div class="risk-content">
-      <van-collapse v-model="state.collapseName">
-        <van-collapse-item name="1">
-          <template #title>
+  <div class="com-product-risk-wrapper">
+    <VanPopup v-model:show="state.isShow" round position="bottom" closeable :style="{ height: '80%' }">
+      <div class="popup-container">
+        <div class="popup-title">请选择保障方案</div>
+        <div class="message"></div>
+        <div class="risk-trial-wrapper">
+          <div v-if="state.holderFactor.length" class="part-card">
+            <ProTitle title="投保人"></ProTitle>
+            <PersonalInfo
+              ref="holderRef"
+              :insured-code="state.riskBaseInfo?.insurerCode"
+              :form-info="holder.personVO"
+              :factor-list="state.holderFactor"
+              :age-range="state.ageRange"
+            ></PersonalInfo>
+          </div>
+          <div v-if="state.insuredFactor.length" class="part-card">
+            <ProTitle title="被保人"></ProTitle>
+            <PersonalInfo
+              ref="insuredRef"
+              :insured-code="state.riskBaseInfo?.insurerCode"
+              :form-info="insured.personVO"
+              :factor-list="state.insuredFactor"
+              :age-range="state.ageRange"
+            ></PersonalInfo>
+          </div>
+          <div class="risk-content">
             <ProTitle title="投保方案"></ProTitle>
-          </template>
-          <div v-if="state.riskData.length" class="risk">
-            <VanForm ref="riskFormRef" input-align="right" error-message-align="right">
-              <RiskList
-                :risk-info="riskInfo[0]"
-                :enums="state.enumList"
-                :origin-data="state.riskData"
-                :pick-factor="pickFactor"
-              />
-            </VanForm>
-          </div>
-          <div v-if="state.riskPlanData.length" class="plan-risk">
-            <VanForm ref="riskFormRef" input-align="right" error-message-align="right">
-              <VanTabs v-model:active="state.currentPlan">
-                <VanTab
-                  v-for="plan in state.riskPlanData"
-                  :key="plan.planCode"
-                  :name="plan.planCode"
-                  :title="plan.planName"
-                >
-                  <template #title>
-                    <ProTabButton :title="plan.planName" :active="state.currentPlan === plan.planCode"></ProTabButton>
-                  </template>
-                  <RiskList
-                    v-if="plan.planCode === state.currentPlan"
-                    :risk-info="riskInfo[plan.planCode]"
-                    :enums="state.enumList"
-                    :origin-data="plan.riskDetailVOList"
-                    :pick-factor="pickFactor"
-                  />
-                </VanTab>
-              </VanTabs>
-            </VanForm>
-          </div>
-        </van-collapse-item>
-      </van-collapse>
-    </div>
 
-    <div class="footer-bar">
-      <span class="trial-result">
-        <span class="result-num">{{
-          (!state.retrialTip ? state.trialResult?.premium || '0' : '0').toLocaleString()
-        }}</span>
-        元起
-      </span>
-      <div class="trial-operate">
-        <div v-if="state.retrialTip" class="retrial-tip">
-          条件更改后，需要重新试算
-          <span class="close-icon" @click="closeTip">X</span>
+            <div v-if="state.riskData.length" class="risk">
+              <VanForm ref="riskFormRef" input-align="right" error-message-align="right">
+                <RiskList
+                  :risk-info="riskInfo[0]"
+                  :enums="state.enumList"
+                  :origin-data="state.riskData"
+                  :pick-factor="pickFactor"
+                />
+              </VanForm>
+            </div>
+          </div>
         </div>
-        <VanButton v-if="state.canTrial" type="primary" @click="trial">去试算</VanButton>
-        <VanButton v-else type="primary" @click="toInsured">立即投保</VanButton>
+        <div class="footer-bar">
+          <VanButton block type="primary" @click="trial">确认</VanButton>
+        </div>
       </div>
-    </div>
-  </ProPageWrap>
+    </VanPopup>
+  </div>
 </template>
+
 <script lang="ts" setup>
-import { provide } from 'vue';
+import { provide, withDefaults } from 'vue';
 import { useRoute } from 'vue-router';
 import { Toast } from 'vant/es';
-import PersonalInfo from './components/PersonalInfo/index.vue';
-import RiskList from './components/RiskList/index.vue';
+import PersonalInfo from '@/views/trial/components/PersonalInfo/index.vue';
+import RiskList from '@/views/trial/components/RiskList/index.vue';
 import { insureProductDetail, premiumCalc } from '@/api/modules/trial';
 import { getDic } from '@/api';
 import {
@@ -100,10 +75,7 @@ import {
   premiumCalcData,
   RiskPremiumDetailVoItem,
   ProductRelationPlanVoItem,
-  premiumCalcResponse,
-  ProductPlanVoItem,
 } from '@/api/modules/trial.data';
-
 import { DictData } from '@/api/index.data';
 
 interface PageState {
@@ -113,17 +85,26 @@ interface PageState {
   insuredFactor: string[];
   riskData: RiskDetailVoItem[];
   riskPlanData: ProductRelationPlanVoItem[];
-  trialResult: Partial<premiumCalcResponse>;
+  trialResult: {};
   canTrial: boolean;
   retrialTip: boolean;
   enumList: any;
   ageRange: any;
   collapseName: string[];
+  isShow: boolean;
 }
 
 interface HolderPerson {
   personVO: Partial<PersonVo>;
 }
+
+interface Props {
+  isShow: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  isShow: false,
+});
 
 const { id = 118 } = useRoute().query;
 
@@ -134,7 +115,7 @@ const insured = ref<Omit<InsuredVoItem, 'productPlanVOList'>>({
   insuredCode: '',
   personVO: {} as PersonVo,
 }); // 被保人
-const riskInfo = ref<Partial<ProductPlanVoItem>>({}); // 险种信息
+const riskInfo = ref({}); // 险种信息
 const holderRef = ref({});
 const insuredRef = ref({});
 const riskFormRef = ref({});
@@ -142,6 +123,7 @@ const riskPremiumRef = ref({});
 
 const state = reactive<PageState>({
   currentPlan: '',
+  isShow: props.isShow,
   riskBaseInfo: {},
   holderFactor: [],
   insuredFactor: [],
@@ -278,6 +260,7 @@ const queryProductInfo = () => {
     .then(({ code, data }) => {
       if (code === '10000') {
         state.riskBaseInfo = data?.productBasicInfoVO;
+        console.log('state.riskBaseInfo', state.riskBaseInfo);
 
         (data?.productRelationPlanVOList || data?.riskDetailVOList || []).forEach((plan, index) => {
           if (index === 0) {
@@ -285,7 +268,6 @@ const queryProductInfo = () => {
           }
           Object.assign(riskInfo.value, { [plan.planCode || index]: { liabilityVOList: [], riderRiskVOList: {} } });
         });
-
         state.riskData = data.riskDetailVOList || [];
         state.riskPlanData = data.productRelationPlanVOList || [];
       }
@@ -318,8 +300,22 @@ onBeforeMount(() => {
 });
 </script>
 <style lang="scss" scoped>
-.page-trial-wrapper {
-  background-color: #f2f5fc;
+.com-product-risk-wrapper {
+  .popup-container {
+    background-color: #f2f5fc;
+
+    .popup-title {
+      height: 104px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 64px;
+      font-size: 34px;
+      font-weight: 600;
+
+      background-color: #ffffff;
+    }
+  }
 
   .part-card {
     background-color: #ffffff;

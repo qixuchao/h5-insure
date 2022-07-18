@@ -84,33 +84,25 @@
 </template>
 
 <script lang="ts" setup>
+import { withDefaults } from 'vue';
 import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
 import { SEX_LIMIT, SOCIAL_INSURANCE_LIMIT } from '@/common/constants/trial';
-import ProRadioButton from '@/components/ProRadioButton/index.vue';
 import Occupational from '../Occupational/index.vue';
+import { PersonVo } from '@/api/modules/trial.data';
 
-const props = defineProps({
-  formInfo: {
-    type: Object,
-    required: true,
-    default: () => {},
-  },
-  insuredCode: {
-    type: String,
-    required: true,
-    default: '',
-  },
-  factorList: {
-    type: Array,
-    required: true,
-    default: () => [],
-  },
-  ageRange: {
-    type: Array,
-    required: true,
-    default: () => [],
-  },
+interface Props {
+  formInfo: Partial<PersonVo>;
+  insuredCode: string;
+  factorList: any[];
+  ageRange: any[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  formInfo: () => ({}),
+  insuredCode: '',
+  factorList: () => [],
+  ageRange: () => [],
 });
 
 const [isShow, toggle] = useToggle();
@@ -118,7 +110,7 @@ const [isShowOccupational, toggleOccupational] = useToggle();
 const formRef = ref();
 
 const state = reactive({
-  formInfo: props?.formInfo,
+  formInfo: props.formInfo,
   occupationalText: '',
 });
 
@@ -178,10 +170,10 @@ const ageRangeObj = computed(() => {
   const max = splitAge(ageList[ageList.length - 1]);
 
   const minAge = dayjs()
-    .subtract(min[0], min[1] === 'age' ? 'year' : 'day')
+    .subtract(min[0] as number, min[1] === 'age' ? 'year' : 'day')
     .format('YYYY-MM-DD');
   const maxAge = dayjs()
-    .subtract(max[0], max[1] === 'age' ? 'year' : 'day')
+    .subtract(max[0] as number, max[1] === 'age' ? 'year' : 'day')
     .format('YYYY-MM-DD');
   return {
     minAge: new Date(maxAge),
