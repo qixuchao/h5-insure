@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 10:50:19
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-12 11:03:47
+ * @LastEditTime: 2022-07-17 09:17:19
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/trial/components/RiskList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -47,32 +47,36 @@
 </template>
 
 <script lang="ts" setup>
+import { withDefaults } from 'vue';
 import { useToggle } from '@vant/use';
 import { Dialog } from 'vant/es';
 import RiskItem from '../RiskItem/index.vue';
-import ProCheckButton from '@/components/ProCheckButton/index.vue';
 import RiskRelationList from '../RiskRelationList/index.vue';
+import { RiskDetailVoItem, RiskVoItem } from '@/api/modules/trial.data';
 
-const props = defineProps({
-  riskInfo: {
-    type: Object,
-    required: true,
-    default: () => {},
-  },
-  originData: {
-    type: Object,
-    required: true,
-    default: () => {},
-  },
-  pickFactor: {
-    type: Function,
-    required: true,
-    default: () => {},
-  },
-  enums: {
-    type: Object,
-    default: () => {},
-  },
+interface Props {
+  riskInfo: Partial<RiskVoItem>;
+  originData: RiskDetailVoItem[];
+  pickFactor: (factorObj: any) => void;
+  enums: any;
+}
+
+interface PageState {
+  mainRiskInfo: Partial<RiskVoItem>;
+  riderRiskInfo: RiskVoItem[];
+  requiredRiderRiskData: RiskDetailVoItem[];
+  mainRiskData: Partial<RiskDetailVoItem>;
+  riderRiskList: RiskDetailVoItem[];
+  checkedList: any[];
+  relationListNum: number;
+  disabledList: any[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  riskInfo: () => ({}),
+  originData: () => [],
+  pickFactor: () => {},
+  enums: () => {},
 });
 
 const [showPopup, toggle] = useToggle(false);
@@ -81,15 +85,15 @@ const instance = getCurrentInstance();
 const mainRiskFormRef = ref(null);
 const riderRiskFormRef = ref(null);
 
-const state = reactive({
+const state = reactive<PageState>({
   mainRiskInfo: props.riskInfo,
-  riderRiskInfo: props.riskInfo?.riderRiskVOList,
+  riderRiskInfo: props.riskInfo?.riderRiskVOList || [],
   requiredRiderRiskData: [],
   mainRiskData: {},
   riderRiskList: [],
   checkedList: [],
   relationListNum: 0,
-  disabledList: [] as any[],
+  disabledList: [],
 });
 
 // 添加附加险信息
@@ -148,7 +152,7 @@ watch(
     });
 
     (newVal || []).forEach((risk) => {
-      const extralInfo = {
+      const extraInfo = {
         riskType: risk.riskType,
         riskId: risk.id,
         riskCode: risk.riskCode,
@@ -163,7 +167,7 @@ watch(
         })),
       };
 
-      Object.assign(state.riderRiskInfo, { [risk.id]: extralInfo });
+      Object.assign(state.riderRiskInfo, { [risk.id]: extraInfo });
     });
 
     props.pickFactor({
@@ -184,8 +188,8 @@ watch(
     (newVal || []).forEach((risk) => {
       if (risk.riskType === 1) {
         state.mainRiskData = risk;
-        state.requiredRiderRiskData = risk?.requiredRiderRiskVOList || [];
-        state.riderRiskList = risk?.optionalRiderRiskVOList;
+        state.requiredRiderRiskData = risk.requiredRiderRiskVOList || [];
+        state.riderRiskList = risk.optionalRiderRiskVOList;
       } else {
         state.riderRiskList.push(risk);
       }

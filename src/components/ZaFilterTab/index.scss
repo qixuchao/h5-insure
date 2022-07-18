@@ -1,6 +1,6 @@
 .com-tab-filter {
   .article-mid {
-    padding: 15px 0 10px 30px;
+    padding: 10px 0 10px 30px;
     display: flex;
     align-items: center;
 
@@ -15,6 +15,7 @@
       height: 70px;
       padding-bottom: 24px;
       white-space: nowrap;
+
       .tag-item {
 
         // position: relative;
@@ -27,10 +28,9 @@
           .triangle {
             width: 0;
             height: 0;
-            margin-top: -2px;
-            border-left: 18px solid transparent;
-            border-right: 18px solid transparent;
-            border-top: 14px solid $primary-color;
+            border-left: 17px solid transparent;
+            border-right: 17px solid transparent;
+            border-top: 18px solid $primary-color;
           }
         }
 
@@ -78,30 +78,27 @@
       align-items: center;
       margin-right: 30px;
       padding-bottom: 20px;
+      width: 120px;
       display: flex;
       align-items: center;
       color: $primary-color;
       font-size: $zaui-font-size-sm;
       fill: 616161;
 
-      .icon-filter-1 {
+      .icon-filter {
         margin-left: 4px;
-        margin-top: 2px;
       }
 
-      .shadow {
+      span {
         display: inline-block;
         margin-right: 8px;
-        margin-left: -4px;
-        width: 8px;
-        height: 50px;
-        background: linear-gradient(90deg, rgba(226, 226, 226, 0) 0%, rgba(168, 168, 168, 0.22) 100%);
+        width: 12px;
+        height: 46px;
         // background: linear-gradient(270deg, rgba(208, 208, 208, 0.52) 0%, rgba(226, 226, 226, 0) 100%);
       }
 
       .text {
-        width: 59px;
-        margin-right: -1px;
+        width: 55px;
       }
     }
   }
@@ -111,7 +108,7 @@
 
     .popup-title {
       height: 42px;
-      margin-top: 80px;
+      margin-top: 32px;
       margin-bottom: 24px;
       color: #343434;
       font-weight: 500;
@@ -138,8 +135,7 @@
 
         &.checked {
           background: $btn-background;
-          // border-color: transparent;
-          border: 0px;
+          border-color: transparent;
         }
 
         .pop-tag {
