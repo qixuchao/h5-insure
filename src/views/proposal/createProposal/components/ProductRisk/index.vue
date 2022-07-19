@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-16 13:39:05
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-18 09:30:39
+ * @LastEditTime: 2022-07-18 21:36:03
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductRisk/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -11,7 +11,7 @@
     <VanPopup v-model:show="state.isShow" round position="bottom" closeable :style="{ height: '80%' }">
       <div class="popup-container">
         <div class="popup-title">请选择保障方案</div>
-        <div class="message"></div>
+        <ProMessage v-if="messageInfo" :content="messageInfo"></ProMessage>
         <div class="risk-trial-wrapper">
           <div v-if="state.holderFactor.length" class="part-card">
             <ProTitle title="投保人"></ProTitle>
@@ -80,6 +80,7 @@ import { DictData } from '@/api/index.data';
 
 interface PageState {
   currentPlan: string;
+
   riskBaseInfo: Partial<ProductBasicInfoVo>;
   holderFactor: string[];
   insuredFactor: string[];
@@ -106,7 +107,7 @@ const props = withDefaults(defineProps<Props>(), {
   isShow: false,
 });
 
-const { id = 118 } = useRoute().query;
+const { id = 152 } = useRoute().query;
 
 const holder = ref<HolderPerson>({
   personVO: {},
@@ -142,6 +143,16 @@ provide('premium', riskPremiumRef.value);
 const closeTip = () => {
   state.retrialTip = false;
 };
+
+const messageInfo = computed(() => {
+  let message = '';
+  const mainRisk = state.riskData[0];
+  const requiredRiskNames = (mainRisk?.requiredRiderRiskVOList || []).map((risk) => risk.riskName);
+  if (requiredRiskNames.length) {
+    message = `特殊提示: ${mainRisk.riskName}和${requiredRiskNames.join('、')}必须同时投保`;
+  }
+  return message;
+});
 
 const dealTrialData = () => {
   const mainRisk = JSON.parse(JSON.stringify(riskInfo.value[state.currentPlan]));
@@ -260,7 +271,6 @@ const queryProductInfo = () => {
     .then(({ code, data }) => {
       if (code === '10000') {
         state.riskBaseInfo = data?.productBasicInfoVO;
-        console.log('state.riskBaseInfo', state.riskBaseInfo);
 
         (data?.productRelationPlanVOList || data?.riskDetailVOList || []).forEach((plan, index) => {
           if (index === 0) {
@@ -291,6 +301,16 @@ watch(
   },
   {
     deep: true,
+  },
+);
+
+watch(
+  () => props.isShow,
+  (newVal) => {
+    state.isShow = newVal;
+  },
+  {
+    immediate: true,
   },
 );
 

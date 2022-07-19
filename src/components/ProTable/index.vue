@@ -1,49 +1,51 @@
 <template>
   <div class="com-table">
-    <table class="scroll-table">
-      <thead class="table-header">
-        <tr class="table-row">
-          <th
-            v-for="(item, index) in columns"
-            :key="index"
-            :class="[
-              'table-cell',
-              `table-cell-width-${item.width}`,
-              `table-cell-${index}`,
-              {
-                fixed: item.fixed || (columns.length > 4 && index === 0),
-              },
-            ]"
-          >
-            {{ item.title }}
-          </th>
-        </tr>
-      </thead>
-      <tbody class="table-body">
-        <template v-for="(item, index) in displayDataSource" :key="index">
+    <div class="table-wrapper">
+      <table class="scroll-table">
+        <thead class="table-header">
           <tr class="table-row">
-            <td
-              v-for="(column, columnIndex) in columns"
-              :key="columnIndex"
+            <th
+              v-for="(item, index) in columns"
+              :key="index"
               :class="[
                 'table-cell',
-                `table-cell-width-${column.width}`,
+                `table-cell-width-${item.width}`,
+                `table-cell-${index}`,
                 {
-                  fixed: column.fixed || (columns.length > 4 && columnIndex === 0),
+                  fixed: item.fixed || (columns.length > 4 && index === 0),
                 },
               ]"
             >
-              <span>
-                {{ item[column.dataIndex] }}
-              </span>
-            </td>
+              {{ item.title }}
+            </th>
           </tr>
-        </template>
-      </tbody>
-    </table>
-  </div>
-  <div v-if="dataSource.length > 4" class="show-more" @click="handleShowMore">
-    {{ showMore ? '收起明细' : '展开明细' }} <ProSvg name="down" :class="['icon', { showMore }]" />
+        </thead>
+        <tbody class="table-body">
+          <template v-for="(item, index) in displayDataSource" :key="index">
+            <tr class="table-row">
+              <td
+                v-for="(column, columnIndex) in columns"
+                :key="columnIndex"
+                :class="[
+                  'table-cell',
+                  `table-cell-width-${column.width}`,
+                  {
+                    fixed: column.fixed || (columns.length > 4 && columnIndex === 0),
+                  },
+                ]"
+              >
+                <span>
+                  {{ item[column.dataIndex] }}
+                </span>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+    <div v-if="dataSource.length > 4" class="show-more" @click="handleShowMore">
+      {{ showMore ? '收起明细' : '展开明细' }} <ProSvg name="down" :class="['icon', { showMore }]" />
+    </div>
   </div>
 </template>
 
@@ -82,123 +84,132 @@ const displayDataSource = computed(() => {
 
 <style lang="scss" scoped>
 .com-table {
-  overflow-x: auto;
-  font-size: 24px;
-  .scroll-table {
-    table-layout: fixed;
-    width: 100%;
-    border-spacing: 0;
-    .table-header {
-      color: #393d46;
-      background: #f2f2f2;
-      tr:first-child {
-        th:first-child {
-          border-radius: 8px 0 0 0;
+  .table-wrapper {
+    overflow-x: auto;
+    font-size: 24px;
+    .scroll-table {
+      table-layout: fixed;
+      width: 100%;
+      border-spacing: 0;
+      .table-header {
+        color: #393d46;
+        background: #f2f2f2;
+        tr:first-child {
+          th:first-child {
+            border-radius: 8px 0 0 0;
+          }
+          th:last-child {
+            border-radius: 0 8px 0 0;
+          }
         }
-        th:last-child {
-          border-radius: 0 8px 0 0;
-        }
-      }
-      .table-row {
-        .table-cell {
-          border-top: 1px solid #eeeff4;
-        }
-      }
-    }
-    .table-body {
-      color: #969696;
-      tr:last-child {
-        td:first-child {
-          border-radius: 0 0 0 8px;
-        }
-        td:last-child {
-          border-radius: 0 0 8px 0;
-        }
-      }
-      .table-row {
-        .table-cell {
-          &:first-child {
-            border-left: 1px solid #eeeff4;
+        .table-row {
+          .table-cell {
+            border-top: 1px solid #eeeff4;
           }
         }
       }
-    }
-    .table-row {
-      line-height: 40px;
-      height: 80px;
-      justify-content: space-between;
-      .table-cell {
-        position: relative;
-        text-align: center;
-        width: 80px;
-        border-right: 1px solid #eeeff4;
-        border-bottom: 1px solid #eeeff4;
-        background: #fff;
-        &.fixed {
-          position: sticky;
-          left: 0;
-          z-index: 2;
-          &:after {
-            content: ' ';
-            width: 30px;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            right: -30px;
-            background: linear-gradient(270deg, rgba(255, 255, 255, 0) 0%, rgba(0, 0, 0, 0.15) 100%);
-            opacity: 0.36;
+      .table-body {
+        color: #969696;
+        tr:last-child {
+          td:first-child {
+            border-radius: 0 0 0 8px;
+          }
+          td:last-child {
+            border-radius: 0 0 8px 0;
           }
         }
-        &.table-cell-width-80 {
+        .table-row {
+          .table-cell {
+            &:first-child {
+              border-left: 1px solid #eeeff4;
+            }
+          }
+        }
+      }
+      .table-row {
+        line-height: 40px;
+        height: 80px;
+        justify-content: space-between;
+        .table-cell {
+          position: relative;
+          text-align: center;
           width: 80px;
-        }
-        &.table-cell-width-90 {
-          width: 90px;
-        }
-        &.table-cell-width-100 {
-          width: 100px;
-        }
-        &.table-cell-width-110 {
-          width: 110px;
-        }
-        &.table-cell-width-120 {
-          width: 120px;
-        }
-        &.table-cell-width-130 {
-          width: 130px;
-        }
-        &.table-cell-width-140 {
-          width: 140px;
-        }
-        &.table-cell-width-150 {
-          width: 150px;
-        }
-        &.table-cell-width-160 {
-          width: 160px;
-        }
-        &.table-cell-width-170 {
-          width: 170px;
-        }
-        &.table-cell-width-180 {
-          width: 180px;
+          border-right: 1px solid #eeeff4;
+          border-bottom: 1px solid #eeeff4;
+          background: #fff;
+          &.fixed {
+            position: sticky;
+            left: 0;
+            z-index: 2;
+            &:after {
+              content: ' ';
+              width: 30px;
+              height: 100%;
+              position: absolute;
+              top: 0;
+              right: -30px;
+              background: linear-gradient(270deg, rgba(255, 255, 255, 0) 0%, rgba(0, 0, 0, 0.15) 100%);
+              opacity: 0.36;
+            }
+          }
+          &.table-cell-width-80 {
+            width: 80px;
+          }
+          &.table-cell-width-90 {
+            width: 90px;
+          }
+          &.table-cell-width-100 {
+            width: 100px;
+          }
+          &.table-cell-width-110 {
+            width: 110px;
+          }
+          &.table-cell-width-120 {
+            width: 120px;
+          }
+          &.table-cell-width-130 {
+            width: 130px;
+          }
+          &.table-cell-width-140 {
+            width: 140px;
+          }
+          &.table-cell-width-150 {
+            width: 150px;
+          }
+          &.table-cell-width-160 {
+            width: 160px;
+          }
+          &.table-cell-width-170 {
+            width: 170px;
+          }
+          &.table-cell-width-180 {
+            width: 180px;
+          }
+          &.table-cell-width-190 {
+            width: 190px;
+          }
+          &.table-cell-width-200 {
+            width: 200px;
+          }
         }
       }
     }
   }
-}
-.show-more {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 26px;
-  color: #aab9d0;
-  .icon {
-    margin-left: 10px;
-    font-size: 20px;
-    transition: transform 0.5s;
-    &.showMore {
-      transform: rotate(180deg);
+  .show-more {
+    padding: 30px 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 26px;
+    color: #aab9d0;
+    .icon {
+      margin-left: 10px;
+      font-size: 20px;
+      transition: transform 0.5s;
+      &.showMore {
+        transform: rotate(180deg);
+      }
     }
   }
 }

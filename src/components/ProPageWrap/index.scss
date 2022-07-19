@@ -36,6 +36,8 @@ $header-height: 88px;
 .page-main {
   position: relative;
   width: 100%;
+  flex: 1;
+  height: 0;
 }
 .page-footer {
   position: fixed;

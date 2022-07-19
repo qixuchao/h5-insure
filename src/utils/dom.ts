@@ -1,5 +1,5 @@
 // eslint-disable-next-line
-export const getHiddenDomSize = (dom: HTMLElement | undefined) => {
+export const getHiddenDomHeight = (dom: HTMLElement | undefined) => {
   if (dom) {
     const clone = dom.cloneNode(true) as HTMLElement;
     clone.style.position = 'absolute';
