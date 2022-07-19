@@ -16,4 +16,6 @@ export const formatJsonToUrlParams = (data: instanceObject) => {
     : '';
 };
 
-export default formatJsonToUrlParams;
+export const transformToMoney = (num: number | string) => {
+  return String(num).replace(/\B(?=(\d{3})+$)/g, ',');
+};

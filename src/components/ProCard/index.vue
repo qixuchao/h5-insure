@@ -1,19 +1,22 @@
 <template>
   <div class="com-card-wrap">
-    <div v-if="title" class="header">
-      <div class="title">{{ title }}</div>
-      <ProSvg
-        v-if="showFold"
-        name="down"
-        color="#99A9C0"
-        :class="['fold-icon', { fold: isFold }]"
-        @click="handleFoldClick"
-      />
-      <div v-if="link" class="link" @click="handleLinkClick">
-        {{ link }}
-        <ProSvg name="right_arrow" class="icon" />
+    <div class="header">
+      <div class="title-wrapper">
+        <div class="title">{{ title }}</div>
+        <ProSvg
+          v-if="showFold"
+          name="down"
+          color="#99A9C0"
+          :class="['fold-icon', { fold: isFold }]"
+          @click="handleFoldClick"
+        />
+        <div v-if="link" class="link" @click="handleLinkClick">
+          {{ link }}
+          <ProSvg name="right_arrow" class="icon" />
+        </div>
+        <slot v-if="extra" name="extra" />
       </div>
-      <slot v-if="extra" name="extra" class="extra" />
+      <slot v-if="subTitle" name="subTitle" />
     </div>
     <div ref="body" class="body" :style="{ height: showFold ? `${bodyHeight}px` : 'auto' }">
       <slot />
@@ -25,7 +28,7 @@
 <script lang="ts" setup>
 import { useSlots } from 'vue';
 import { useToggle } from '@vant/use';
-import { getHiddenDomSize } from '@/utils/dom';
+import { getHiddenDomHeight } from '@/utils/dom';
 import ProSvg from '@/components/ProSvg/index.vue';
 import ProDivider from '@/components/ProDivider/index.vue';
 
@@ -56,7 +59,7 @@ const bodyHeight = computed(() => {
   if (isFold.value) {
     return 0;
   }
-  return getHiddenDomSize(body.value);
+  return getHiddenDomHeight(body.value);
 });
 
 const handleLinkClick = () => {
@@ -66,50 +69,55 @@ const handleLinkClick = () => {
 const extra = computed(() => {
   return !!useSlots().extra;
 });
+
+const subTitle = computed(() => {
+  return !!useSlots().subTitle;
+});
 </script>
 
 <style lang="scss" scoped>
 .com-card-wrap {
   background-color: #ffffff;
   .header {
-    height: 90px;
-    line-height: 90px;
     margin-left: 30px;
     padding-right: 30px;
     border-bottom: 1px solid #eeeff4;
-    display: flex;
-    align-items: center;
-    .title {
-      font-size: 30px;
-      font-weight: bold;
-      color: #333333;
+    .title-wrapper {
+      height: 90px;
+      line-height: 90px;
       display: flex;
       align-items: center;
-      flex: 1;
-
-      &:before {
-        content: ' ';
-        width: 8px;
-        height: 28px;
-        border-radius: 4px;
-        background: #0d6efe;
-        margin-right: 16px;
+      .title {
+        font-size: 30px;
+        font-weight: bold;
+        color: #333333;
+        display: flex;
+        align-items: center;
+        flex: 1;
+        &:before {
+          content: ' ';
+          width: 8px;
+          height: 28px;
+          border-radius: 4px;
+          background: #0d6efe;
+          margin-right: 16px;
+        }
       }
-    }
-    .fold-icon {
-      transition: all 0.3s;
-      &.fold {
-        transform: rotate(180deg);
+      .fold-icon {
+        transition: all 0.3s;
+        &.fold {
+          transform: rotate(180deg);
+        }
       }
-    }
-    .link {
-      color: #0d6efe;
-      font-size: 26px;
-      display: flex;
-      align-items: center;
-      .icon {
-        margin-left: 6px;
-        font-size: 22px;
+      .link {
+        color: #0d6efe;
+        font-size: 26px;
+        display: flex;
+        align-items: center;
+        .icon {
+          margin-left: 6px;
+          font-size: 22px;
+        }
       }
     }
   }

@@ -70,6 +70,9 @@
     <ProFixedButton :button-image="ProFixedButtonDefaultImage" />
     <ProCard title="ProTable">
       <ProTable :columns="columns" class="table" :data-source="dataSource" />
+      <p>
+        注意：因行内样式无法正确转换未rem，columns中的width，目前仅支持80-200，如需其他的宽度，请在组件内对应添加&.table-cell-width-的样式
+      </p>
     </ProCard>
   </ProPageWrap>
   <van-popup v-model:show="isShow" position="bottom">
