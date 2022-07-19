@@ -40,8 +40,8 @@
           />
         </div>
         <div class="footer-btn">
-          <van-button plain type="primary">重置</van-button>
-          <van-button type="primary">确定</van-button>
+          <van-button plain type="primary" @click="reset">重置</van-button>
+          <van-button type="primary" @click="handleClickFliter">确定</van-button>
         </div>
       </van-popup>
     </div>
@@ -78,6 +78,14 @@ const onClickTag = (id: any, index: number) => {
 };
 const onPopTagClick = (id: number, index: number) => {
   onClickTag(id, index);
+  closePop();
+};
+
+const reset = () => {
+  closePop();
+};
+
+const handleClickFliter = () => {
   closePop();
 };
 </script>

@@ -5,7 +5,7 @@
  * index.vue
 -->
 <template>
-  <ZaPageWrap class="page-quersion">
+  <ZaPageWrap class="com-quersion">
     <ProCard title="投保人健康告知书">
       <div class="question-item">
         <div class="problem">1. 下述哪种描述符合您吸烟情况？</div>
@@ -117,7 +117,7 @@ onBeforeUpdate(() => {
 </script>
 
 <style scoped lang="scss">
-.page-quersion {
+.com-quersion {
   :deep(.body) {
     background-color: #f2f5fc;
     padding: 0;

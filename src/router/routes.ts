@@ -39,10 +39,10 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/demo/index.vue'),
   },
   {
-    name: 'question',
-    path: '/question',
-    meta: { title: '问卷' },
-    component: () => import('@/views/question/index.vue'),
+    name: 'healthNotice',
+    path: '/healthNotice',
+    meta: { title: '健康告知书' },
+    component: () => import('@/views/healthNotice/index.vue'),
   },
   {
     name: 'createProposal',
@@ -58,7 +58,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   },
   {
     name: 'ProductList',
-    path: '/product-list',
+    path: '/productList',
     meta: { title: '产品列表' },
     component: () => import('@/views/proposal/proposalList/index.vue'),
   },
