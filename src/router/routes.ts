@@ -45,6 +45,12 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/healthNotice/index.vue'),
   },
   {
+    name: 'questionNotification',
+    path: '/questionNotification',
+    meta: { title: '问卷告知' },
+    component: () => import('@/views/questionNotification/index.vue'),
+  },
+  {
     name: 'createProposal',
     path: '/proposal/createProposal',
     meta: { title: '创建计划书' },
