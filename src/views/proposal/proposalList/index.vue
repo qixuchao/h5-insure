@@ -22,8 +22,12 @@
       />
     </div>
     <div class="page-product-list">
-      <ProductItem v-for="i in 10" :key="i" :is-hot="i" />
-      <p class="is-end-tips">- 已经到底了哦 -</p>
+      <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
+        <van-list v-model:loading="loading" :finished="finished" finished-text="已经到底了哦" @load="onLoad">
+          <ProductItem v-for="i in 10" :key="i" :is-hot="i" />
+        </van-list>
+      </van-pull-refresh>
+      <!-- <p class="is-end-tips">- 已经到底了哦 -</p> -->
     </div>
   </ZaPageWrap>
   <van-sticky position="bottom">
@@ -43,19 +47,54 @@ interface StateType {
   searchValue: string;
   tagLists: Array<any>;
   isOpen: boolean;
+  loading: boolean;
+  finished: boolean;
+  refreshing: boolean;
+  productList: Array<any>;
 }
 
 const state = reactive<StateType>({
   searchValue: '',
   tagLists: [],
   isOpen: true,
+  loading: false,
+  finished: false,
+  refreshing: false,
+  productList: [],
 });
 
-const { searchValue, tagLists, isOpen } = toRefs(state);
+const { searchValue, tagLists, isOpen, loading, finished, refreshing, productList } = toRefs(state);
 
 const handleSearchClick = () => {};
 const handleClickTag = (id: number) => {
   console.log(id);
+};
+const onLoad = () => {
+  setTimeout(() => {
+    if (refreshing.value) {
+      productList.value = [];
+      refreshing.value = false;
+    }
+
+    for (let i = 0; i < 10; i++) {
+      productList.value.push(productList.value.length + 1);
+    }
+    loading.value = false;
+
+    if (productList.value.length >= 40) {
+      finished.value = true;
+    }
+  }, 1000);
+};
+
+const onRefresh = () => {
+  // 清空列表数据
+  finished.value = false;
+
+  // 重新加载数据
+  // 将 loading 设置为 true，表示处于加载状态
+  loading.value = true;
+  onLoad();
 };
 
 onMounted(() => {
