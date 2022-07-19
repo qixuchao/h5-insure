@@ -2,20 +2,20 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-22 18:54:35
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-15 09:12:49
+ * @LastEditTime: 2022-07-18 16:10:05
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProRadioButton/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <div class="com-radio-btn">
-    <ProCheckButton
-      v-for="option in options"
-      :key="option[prop.value]"
-      :label="option[prop.label]"
-      :disabled="disabled"
-      :activated="state.currentValue == option[prop.value]"
-      @click="!disabled && selectBtn(option[prop.value])"
-    />
+    <div v-for="option in options" :key="option[prop.value]" class="btn-wrapper">
+      <ProCheckButton
+        :label="option[prop.label]"
+        :disabled="disabled"
+        :activated="state.currentValue == option[prop.value]"
+        @click="!disabled && selectBtn(option[prop.value])"
+      />
+    </div>
   </div>
 </template>
 
@@ -91,5 +91,8 @@ watch(
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
+  .btn-wrapper {
+    margin: 0 0 16px 16px;
+  }
 }
 </style>

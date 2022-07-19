@@ -2,8 +2,8 @@
  * @Description: 用户模块
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-02-18 10:37:33
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-07-18 18:38:54
  */
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { Toast } from 'vant';
@@ -36,10 +36,14 @@ axiosInstance.interceptors.request.use(
   (config: AxiosRequestConfig) => {
     // TODO 在这里可以加上想要在请求发送前处理的逻辑
     // TODO 比如 loading 等
-    const storage = new Storage({ source: 'localStorage' });
+    const storage = new Storage({ source: 'cookie' });
+    const token = storage.get('token') || '';
     return {
       ...config,
-      headers: { ...config.headers },
+      headers: {
+        ...config.headers,
+        token,
+      },
     };
   },
   (error: AxiosError) => {
@@ -52,7 +56,7 @@ axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data;
     if (res.code === UNLOGIN || res.status === UNLOGIN) {
-      // window.location.href = REDIRECT_URI;
+      window.location.href = '/login';
       return res;
     }
     if (res.code === SUCCESS_CODE) {

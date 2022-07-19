@@ -1,6 +1,6 @@
 <template>
   <div class="com-card-wrap">
-    <div class="header">
+    <div v-if="title" class="header">
       <div class="title">{{ title }}</div>
       <ProSvg
         v-if="showFold"
@@ -70,6 +70,7 @@ const extra = computed(() => {
 
 <style lang="scss" scoped>
 .com-card-wrap {
+  background-color: #ffffff;
   .header {
     height: 90px;
     line-height: 90px;
@@ -85,6 +86,7 @@ const extra = computed(() => {
       display: flex;
       align-items: center;
       flex: 1;
+
       &:before {
         content: ' ';
         width: 8px;
