@@ -183,12 +183,12 @@
       </div>
       <van-action-sheet v-model:show="showShare" cancel-text="取消" close-on-click-action>
         <div class="content">
-          <div class="bx">
+          <div class="bx" @click="handleShare('1')">
             <div class="wechat"><img src="@/assets/images/compositionProposal/wechat.png" alt="" /></div>
             <div class="txt">微信好友</div>
           </div>
           <div class="bx">
-            <div class="friend">
+            <div class="friend" @click="handleShare('2')">
               <img src="@/assets/images/compositionProposal/pengyouquan.png" alt="" />
             </div>
             <div class="txt">朋友圈</div>
@@ -204,7 +204,9 @@
   </ProPageWrap>
 </template>
 <script lang="ts" setup>
-const activeNames = ref(['1']);
+import wx from 'weixin-js-sdk';
+
+const activeNames = ref('1');
 const num = ref(12);
 const showShare = ref(false);
 
@@ -219,6 +221,28 @@ const handleReduce = () => {
     return;
   }
   num.value -= 1;
+};
+
+const handleShare = (type: string) => {
+  const shareProps = {
+    title: `计划书`, // 分享标题
+    desc: '您的贴心保险管家', // 分享描述
+    link: ``, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+    imgUrl: '', // 分享图标
+    success() {
+      // 设置成功
+      console.log('f分享成功');
+    },
+  };
+
+  wx.ready(() => {
+    console.log('ready');
+    if (type === '1') {
+      wx.onMenuShareAppMessage(shareProps);
+    } else {
+      wx.onMenuShareTimeline(shareProps);
+    }
+  });
 };
 </script>
 
