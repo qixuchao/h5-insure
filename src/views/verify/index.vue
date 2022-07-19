@@ -2,6 +2,7 @@
   <ProPageWrap>
     <div class="page-verify">
       <ProMessage
+        type="warning"
         title="尊敬的客户，本次投保需要进行身份认证"
         content="本产品投保需要对投保人、被保人进行实名认证，您购买本产品的累计总保费已超过20万，按监管要求，需要提供投保人、被保人、指定受益人证件影像，本产品非本人投保且带身故责任、需对投保人、被保人（成人）的投保意愿进行签字确认。"
       />
@@ -18,7 +19,7 @@
           <div class="action">去认证 <ProSvg name="right_arrow" class="icon" /></div>
         </div>
       </ProCard>
-      <ProCard title="投保人签名" :show-icon="false" class="sign-card">
+      <ProCard title="投保人签名" :show-icon="false" class="sign-card" :show-line="false">
         <template #extra>
           <div class="resign">重签</div>
         </template>
@@ -27,7 +28,7 @@
           <div class="date">签名日期： 2022-01-01</div>
           <div class="file">
             签名将被用于以下文件：<span v-for="(item, index) in fileList" :key="index" class="file-name"
-              >{{ `《${item}》` }}<span class="dun-hao">、</span></span
+              >{{ `《${item}》` }}<span v-if="index !== fileList.length - 1" class="dun-hao">、</span></span
             >
           </div>
         </div>
@@ -45,7 +46,7 @@
           <div class="action">去认证 <ProSvg name="right_arrow" class="icon" /></div>
         </div>
       </ProCard>
-      <ProCard title="投保人签名" :show-icon="false" class="sign-card">
+      <ProCard title="投保人签名" :show-icon="false" class="sign-card" :show-line="false">
         <template #extra>
           <div class="resign">重签</div>
         </template>
@@ -54,7 +55,7 @@
           <div class="date">签名日期： 2022-01-01</div>
           <div class="file">
             签名将被用于以下文件：<span v-for="(item, index) in fileList" :key="index" class="file-name"
-              >{{ `《${item}》` }}<span class="dun-hao">、</span></span
+              >{{ `《${item}》` }}<span v-if="index !== fileList.length - 1" class="dun-hao">、</span></span
             >
           </div>
         </div>

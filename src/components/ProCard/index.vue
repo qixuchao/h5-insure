@@ -1,7 +1,7 @@
 <template>
   <div class="com-card">
     <div class="com-card-wrap">
-      <div class="header">
+      <div :class="['header', { showLine }]">
         <div class="title-wrapper">
           <div :class="['title', { showIcon }]">{{ title }}</div>
           <ProSvg
@@ -55,6 +55,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  showLine: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const handleFoldClick = () => {
@@ -88,7 +92,9 @@ const subTitle = computed(() => {
     .header {
       margin-left: 30px;
       padding-right: 30px;
-      border-bottom: 1px solid #eeeff4;
+      &.showLine {
+        border-bottom: 1px solid #eeeff4;
+      }
       .title-wrapper {
         height: 90px;
         line-height: 90px;
