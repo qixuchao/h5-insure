@@ -8,8 +8,9 @@
 -->
 <template>
   <div class="com-sign-wrapper">
-    <div :id="selector" class="sign-container">
-      <canvas :width="width" :height="height"></canvas>
+    <div ref="container" class="sign-container">
+      <div v-if="empty" class="placeholder">{{ placeholder }}</div>
+      <canvas ref="canvas" class="canvas"></canvas>
     </div>
   </div>
 </template>
@@ -23,26 +24,20 @@ interface ComState {
 }
 
 const props = defineProps({
-  width: {
-    type: String,
-    default: '200',
-  },
-  height: {
-    type: String,
-    default: '200',
-  },
-  selector: {
-    type: String,
-    required: true,
-    default: `canvas-${+new Date()}`,
-  },
   options: {
     type: Object,
     default: () => {},
   },
+  placeholder: {
+    type: String,
+    default: '请输入',
+  },
 });
 
-const signatureIns = ref(null);
+const signatureIns = ref<SignaturePad>();
+const canvas = ref<HTMLCanvasElement>();
+const container = ref<HTMLDivElement>();
+const empty = ref(true);
 
 const state = ref<ComState>({
   options: {
@@ -56,11 +51,11 @@ const state = ref<ComState>({
 /**
  * @description: 将canvas中的内容保存为base64
  * @param {string} type 'image/jpeg'、’image/png‘、’image/svg+xml
- * @param {numbber} rate 生成图片的压缩比例
+ * @param {number} rate 生成图片的压缩比例
  * @return {string} 返回一个base64字符串
  */
-const saveSign = (type?: string, rate?: number) => {
-  console.log('signatureIns.value?.toDataURL?.(type, rate)', signatureIns.value?.toDataURL?.(type, rate));
+const saveSign = (type = 'image/png', rate = 0.8) => {
+  console.log('length', signatureIns.value?.toDataURL?.(type, rate).length);
   return signatureIns.value?.toDataURL?.(type, rate);
 };
 
@@ -80,19 +75,24 @@ const isEmpty = () => {
 
 const clearSign = () => {
   signatureIns.value?.clear();
+  empty.value = true;
 };
 
 const setDataURL = (data: string, option: any) => {
   clearSign();
   signatureIns.value?.fromDataURL(data, option);
+  empty.value = false;
 };
 
 onMounted(() => {
-  const container = document.querySelector(`#${props.selector}`);
-  const canvas = container?.querySelector('canvas');
-  canvas.width = container?.getBoundingClientRect()?.width as number;
-  canvas.height = container?.getBoundingClientRect()?.height as number;
-  signatureIns.value = new SignaturePad(canvas);
+  if (canvas.value && container.value) {
+    canvas.value.width = container.value.getBoundingClientRect().width;
+    canvas.value.height = container.value.getBoundingClientRect().height;
+    signatureIns.value = new SignaturePad(canvas.value);
+    signatureIns.value.addEventListener('beginStroke', () => {
+      empty.value = false;
+    });
+  }
 });
 
 defineExpose({
@@ -108,5 +108,25 @@ defineExpose({
 <style lang="scss" scoped>
 .com-sign-wrapper {
   width: 100%;
+  height: 400px;
+  .sign-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: #f7f9fd;
+    border-radius: 20px;
+    border: 1px solid #eaeaea;
+    .placeholder {
+      position: absolute;
+      width: 100%;
+      height: 40px;
+      line-height: 40px;
+      top: 50%;
+      margin-top: -20px;
+      text-align: center;
+      font-size: 28px;
+      color: #99a9c0;
+    }
+  }
 }
 </style>
