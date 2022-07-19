@@ -61,7 +61,9 @@
       </div>
       <div class="container">
         <div class="common-title">
-          <div class="title"><img src="" alt="" /> 众安家庭共享保额意外险</div>
+          <div class="title">
+            <img src="@/assets/images/compositionProposal/title.png" class="ig" /> 众安家庭共享保额意外险
+          </div>
           <div class="text-detail">条款详情</div>
         </div>
         <div class="product-detail">
@@ -81,7 +83,9 @@
         </div>
         <div class="line2"></div>
         <div class="common-title">
-          <div class="title"><img src="" alt="" /> 众安家庭共享保额意外险</div>
+          <div class="title">
+            <img src="@/assets/images/compositionProposal/title.png" class="ig" /> 众安家庭共享保额意外险
+          </div>
           <div class="text-detail">条款详情</div>
         </div>
         <div class="product-detail">
@@ -111,7 +115,11 @@
               <div class="line"></div>
 
               <div class="box">
-                <p class="box-title">保单年度<span>1</span>年度，被保人<span>30</span>岁时</p>
+                <p class="box-title">
+                  <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
+                  保单年度<span>1</span>年度，被保人<span>30</span>岁时
+                  <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
+                </p>
                 <div class="box-price">
                   <div style="flex: 1">
                     <p class="text1">16,000,000.00</p>
@@ -128,15 +136,19 @@
                 </div>
               </div>
               <div class="slider">
-                <div class="add"></div>
+                <div class="add lf" @click="handleReduce">
+                  <img src="@/assets/images/compositionProposal/cut.png" alt="" />
+                </div>
                 <div style="flex: 1">
-                  <van-slider v-model="value" :min="1" :max="100" bar-height="8px">
+                  <van-slider v-model="num" :min="1" :max="100" bar-height="8px">
                     <template #button>
-                      <div class="custom-button">{{ value }}</div>
+                      <div class="custom-button">{{ num }} 岁</div>
                     </template>
                   </van-slider>
                 </div>
-                <div class="add"></div>
+                <div class="add rg" @click="handleAdd">
+                  <img src="@/assets/images/compositionProposal/add.png" alt="" />
+                </div>
               </div>
               <p class="slider-dec">拖动按钮查看不同年龄保障</p>
               <div class="btn-two">
@@ -169,32 +181,45 @@
           </van-collapse-item>
         </van-collapse>
       </div>
+      <van-action-sheet v-model:show="showShare" cancel-text="取消" close-on-click-action>
+        <div class="content">
+          <div class="bx">
+            <div class="wechat"><img src="@/assets/images/compositionProposal/wechat.png" alt="" /></div>
+            <div class="txt">微信好友</div>
+          </div>
+          <div class="bx">
+            <div class="friend">
+              <img src="@/assets/images/compositionProposal/pengyouquan.png" alt="" />
+            </div>
+            <div class="txt">朋友圈</div>
+          </div>
+        </div>
+      </van-action-sheet>
 
       <div class="footer-btn">
         <van-button plain type="primary" class="btn">生成PDF</van-button>
-        <van-button type="primary" class="btn">分享计划书</van-button>
+        <van-button type="primary" class="btn" @click="showShare = true">分享计划书</van-button>
       </div>
     </div>
   </ProPageWrap>
 </template>
 <script lang="ts" setup>
-import ProDivider from '@/components/ProDivider/index.vue';
-import ProCard from '@/components/ProCard/index.vue';
-import ProTab from '@/components/ProTab/index.vue';
-import ProCell from '@/components/ProCell/index.vue';
-import FieldInfo from '../components/fieldInfo.vue';
-import swipeImage from '@/assets/images/temp/swipe.png';
-import detailImage from '@/assets/images/temp/detail.png';
-
-const imageList = ref([swipeImage, swipeImage, swipeImage]);
-const tabList = [
-  { title: '安联臻爱医疗险', slotName: 'tab1' },
-  { title: '安联臻爱医疗险', slotName: 'tab2' },
-];
-const fileList = ['保险条款', '投保须知', '费率表', '责任免除条款说明书', '重要提示', '特别约定', '特殊职业类别表'];
-
 const activeNames = ref(['1']);
-const value = ref(12);
+const num = ref(12);
+const showShare = ref(false);
+
+const handleAdd = () => {
+  if (num.value > 99) {
+    return;
+  }
+  num.value += 1;
+};
+const handleReduce = () => {
+  if (num.value < 1) {
+    return;
+  }
+  num.value -= 1;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -293,6 +318,13 @@ const value = ref(12);
         font-size: 30px;
         font-weight: 600;
         color: #393d46;
+        display: flex;
+        align-items: center;
+        .ig {
+          width: 18px;
+          height: 29px;
+          margin-right: 16px;
+        }
       }
       .text-detail {
         width: 128px;
@@ -343,10 +375,18 @@ const value = ref(12);
         padding: 40px 0;
         border-radius: 20px;
         &-title {
+          padding: 0 16px;
           font-size: 32px;
           font-weight: 500;
           color: #333333;
           text-align: center;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          img {
+            width: 41px;
+            height: 29px;
+          }
           span {
             color: #ff5840;
           }
@@ -374,14 +414,16 @@ const value = ref(12);
         align-items: center;
         margin-top: 30px;
         .add {
-          width: 48px;
-          height: 48px;
-          border: 2px solid #0d6efe;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 20px;
+          img {
+            width: 48px;
+            height: 48;
+          }
+        }
+        .lf {
+          margin-right: 45px;
+        }
+        .rg {
+          margin-left: 45px;
         }
         .custom-button {
           width: 104px;
@@ -421,6 +463,50 @@ const value = ref(12);
       display: inline-block;
       background: #0d6efe;
       border-radius: 50%;
+    }
+  }
+  .content {
+    display: flex;
+    padding: 74px 0 50px 0;
+
+    .bx {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      flex: 1;
+      .txt {
+        font-size: 26px;
+        font-weight: 500;
+        color: #343434;
+        margin-top: 14px;
+      }
+      .wechat {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 104px;
+        height: 104px;
+        background: #00bc70;
+        border-radius: 50%;
+        img {
+          width: 54px;
+          height: 44px;
+        }
+      }
+      .friend {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 104px;
+        height: 104px;
+        background: #f2f7f8;
+        border-radius: 50%;
+        img {
+          width: 48px;
+          height: 48px;
+        }
+      }
     }
   }
   .footer-btn {
