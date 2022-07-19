@@ -42,6 +42,7 @@
 import ProductItem from './components/productItem.vue';
 import InsureFilter from './components/insureFilter.vue';
 import { tabsData } from './mockData';
+import { queryProposalProductList } from '@/api/modules/product';
 
 interface StateType {
   searchValue: string;
@@ -99,6 +100,10 @@ const onRefresh = () => {
 
 onMounted(() => {
   tagLists.value = [{ labelCategoryName: '全部', id: '' }, ...tabsData.data];
+
+  queryProposalProductList({}).then((res: any) => {
+    console.log(res);
+  });
 });
 </script>
 
