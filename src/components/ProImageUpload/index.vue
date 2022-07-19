@@ -35,14 +35,13 @@ const handleAfterRead = (e) => {
 
 <style lang="scss" scoped>
 .com-image-upload {
-  padding: 30px;
+  margin-top: 20px;
   .upload-item {
     width: 160px;
     height: 160px;
     background: #f7f8fd;
     border-radius: 12px;
     border: 1px dashed #c1ccdd;
-    margin-right: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -52,9 +51,13 @@ const handleAfterRead = (e) => {
   }
   .van-uploader {
     ::v-deep .van-uploader__wrapper {
+      .van-uploader__input-wrapper {
+        margin-right: 30px;
+        margin-bottom: 0px;
+      }
       .van-uploader__preview {
         margin-right: 30px;
-        margin-bottom: 30px;
+        margin-bottom: 0px;
         border-radius: 12px;
         border: 1px dashed #c1ccdd;
         .van-uploader__preview-image {

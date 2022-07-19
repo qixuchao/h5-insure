@@ -92,6 +92,18 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     meta: { title: '组合计划书' },
     component: () => import('@/views/proposal/compositionProposal/index.vue'),
   },
+  {
+    name: 'verify',
+    path: '/verify',
+    meta: { title: '身份认证' },
+    component: () => import('@/views/verify/index.vue'),
+  },
+  {
+    name: 'bankCard',
+    path: '/bankCard',
+    meta: { title: '添加银行卡' },
+    component: () => import('@/views/bankCard/index.vue'),
+  },
 ];
 
 export default asyncRoutes;

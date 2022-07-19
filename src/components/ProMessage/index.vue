@@ -47,6 +47,9 @@ const props = withDefaults(defineProps<Props>(), {
   .message-title {
     font-weight: 600;
   }
+  .message-content {
+    margin-top: 20px;
+  }
   &.warning {
     color: #ff911e;
     background-color: #fff6e4;

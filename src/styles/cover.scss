@@ -34,15 +34,26 @@
 .van-cell {
   padding: 23px 30px;
   min-height: 106px;
+  align-items: center;
 
   .van-field__label {
     width: 210px;
     margin-right: 12px;
-    line-height: 42px;
+    line-height: 60px;
     font-size: 30px;
     font-weight: 400;
     color: #393D46;
 
+  }
+  .van-field__value{
+    line-height: 60px;
+    .van-field__error-message{
+      position: absolute;
+      bottom: -30px;
+      &.van-field__error-message--right{
+        right: 0;
+      }
+    }
   }
 
   .van-field__control {
