@@ -14,7 +14,7 @@
         class="search"
         @click-input="handleSearchClick"
       />
-      <ZaFilterTab
+      <InsureFilter
         v-model:tagList="tagLists"
         v-model:filter="isOpen"
         filter-class="filter-area"
@@ -36,7 +36,7 @@
 
 <script setup lang="ts">
 import ProductItem from './components/productItem.vue';
-import ZaFilterTab from '@/components/ZaFilterTab/index.vue';
+import InsureFilter from './components/insureFilter.vue';
 import { tabsData } from './mockData';
 
 interface StateType {
