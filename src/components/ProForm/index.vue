@@ -21,12 +21,11 @@ const props = defineProps({
   },
   inputAlign: {
     type: String,
-    required: true,
-    default: 'left',
+    default: 'right',
   },
   errorMessageAlign: {
     type: String,
-    default: 'left',
+    default: 'right',
   },
 });
 
