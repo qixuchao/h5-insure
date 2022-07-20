@@ -198,20 +198,20 @@ export interface RiskVoItem {
     annuityDrawDate: number;
     annuityDrawType: number;
     copy: string;
-    coverageYear: string;
+    coveragePeriod: string;
     insuredCode: string;
     liabilityVOList: LiabilityVoItem[];
     mainRiskCode: string;
     mainRiskId: number;
     paymentFrequency: number;
-    paymentYear: string;
+    chargePeriod: string;
     premium: number;
     riderRiskVOList: RiskVoItem[];
     riskCategory: number;
     riskCode: string;
     riskId: number;
     riskType: number;
-    sumInsured: number;
+    amount: number;
 }
 
 export interface LiabilityVoItem {

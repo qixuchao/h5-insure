@@ -7,9 +7,9 @@
     </ProTitle>
     <VanField
       v-if="originData.riskCalcMethodInfoVO?.saleMethod === 1 && originData.exemptFlag === 2"
-      v-model="state.formInfo.sumInsured"
+      v-model="state.formInfo.amount"
       label="保额"
-      name="sumInsured"
+      name="amount"
       :rules="[
         { required: true, message: '请填写' },
         {
@@ -21,7 +21,7 @@
       <template #input>
         <div class="custom-field">
           <VanStepper
-            v-model="state.formInfo.sumInsured"
+            v-model="state.formInfo.amount"
             input-width="64px"
             :min="amount.min"
             :step="originData.riskCalcMethodInfoVO?.increaseDecreaseNum || 1"
@@ -96,16 +96,16 @@
         !isEmpty(originData?.riskInsureLimitVO?.insurancePeriodValueList) ||
         !isEmpty(originData?.riskInsureLimitVO?.insurancePeriodRule)
       "
-      v-model="state.formInfo.coverageYear"
+      v-model="state.formInfo.coveragePeriod"
       label="保障期间"
-      name="coverageYear"
+      name="coveragePeriod"
       :rules="[{ required: true, message: '请选择保障期间' }]"
     >
       <template #input>
         <ProRadioButton
-          v-model="state.formInfo.coverageYear"
-          :disabled="disabledProperties.coverageYear.disabled"
-          :prevent="disabledProperties.coverageYear.prevent ? '请先选择主险保障期间' : ''"
+          v-model="state.formInfo.coveragePeriod"
+          :disabled="disabledProperties.coveragePeriod.disabled"
+          :prevent="disabledProperties.coveragePeriod.prevent ? '请先选择主险保障期间' : ''"
           :options="coverageYearOptions"
           :prop="{ label: 'name', value: 'value' }"
         ></ProRadioButton>
@@ -116,16 +116,16 @@
         !isEmpty(originData?.riskInsureLimitVO?.paymentPeriodValueList) ||
         !isEmpty(originData?.riskInsureLimitVO?.paymentPeriodRule)
       "
-      v-model="state.formInfo.paymentYear"
+      v-model="state.formInfo.chargePeriod"
       label="交费期间"
-      name="paymentYear"
+      name="chargePeriod"
       :rules="[{ required: true, message: '请选择交费期间' }]"
     >
       <template #input>
         <ProRadioButton
-          v-model="state.formInfo.paymentYear"
-          :disabled="disabledProperties.paymentYear.disabled"
-          :prevent="disabledProperties.paymentYear.prevent ? '请先选择主险交费期间' : ''"
+          v-model="state.formInfo.chargePeriod"
+          :disabled="disabledProperties.chargePeriod.disabled"
+          :prevent="disabledProperties.chargePeriod.prevent ? '请先选择主险交费期间' : ''"
           :options="paymentYearOptions"
           :prop="{ label: 'name', value: 'value' }"
         ></ProRadioButton>
@@ -285,11 +285,11 @@ const riskPremium = inject('premium') || {};
 enumList.value = inject('enumList') || {};
 
 const disabledProperties = ref({
-  paymentYear: {
+  chargePeriod: {
     disabled: false,
     prevent: false,
   },
-  coverageYear: {
+  coveragePeriod: {
     disabled: false,
     prevent: false,
   },
@@ -390,7 +390,7 @@ const amount = computed(() => {
     }
   });
 
-  state.formInfo.sumInsured = min;
+  state.formInfo.amount = min;
 
   return { min, max };
 });
@@ -461,19 +461,19 @@ watch(
     if ([3, 4].includes(props.originData.riskCalcMethodInfoVO?.saleMethod || 0)) {
       (props.originData?.riskCalcMethodInfoVO?.paymentMethodLimitList || []).forEach((payment) => {
         if (+payment.paymentFrequency === +newVal) {
-          Object.assign(state.formInfo, { sumInsured: payment.perCopyAmount, premium: payment.perCopyPremium });
+          Object.assign(state.formInfo, { amount: payment.perCopyAmount, premium: payment.perCopyPremium });
         }
       });
     }
-    if (+newVal === 1 && state.formInfo.paymentYear !== 'single') {
-      state.formInfo.paymentYear = 'single';
+    if (+newVal === 1 && state.formInfo.chargePeriod !== 'single') {
+      state.formInfo.chargePeriod = 'single';
     }
   },
 );
 
 // 交费期间
 watch(
-  () => state.formInfo?.paymentYear,
+  () => state.formInfo?.chargePeriod,
   (newVal) => {
     if (newVal === 'single' && +(state.formInfo.paymentFrequency || 0) !== 1) {
       state.formInfo.paymentFrequency = 1;
@@ -487,21 +487,21 @@ watch(
   (newVal) => {
     if (newVal && props.originData.riskType === 2) {
       if (props.originData?.riskInsureLimitVO?.insurancePeriodRule === 1) {
-        if (newVal.coverageYear) {
-          disabledProperties.value.coverageYear.disabled = true;
+        if (newVal.coveragePeriod) {
+          disabledProperties.value.coveragePeriod.disabled = true;
         } else {
-          disabledProperties.value.coverageYear.prevent = true;
+          disabledProperties.value.coveragePeriod.prevent = true;
         }
-        state.formInfo.coverageYear = newVal.coverageYear;
+        state.formInfo.coveragePeriod = newVal.coveragePeriod;
       }
 
       if (props.originData?.riskInsureLimitVO?.paymentPeriodRule === 1) {
-        if (newVal.paymentYear) {
-          disabledProperties.value.paymentYear.disabled = true;
+        if (newVal.chargePeriod) {
+          disabledProperties.value.chargePeriod.disabled = true;
         } else {
-          disabledProperties.value.paymentYear.prevent = true;
+          disabledProperties.value.chargePeriod.prevent = true;
         }
-        state.formInfo.paymentYear = newVal.paymentYear;
+        state.formInfo.chargePeriod = newVal.chargePeriod;
       }
 
       if (props.originData?.riskInsureLimitVO?.paymentTypeRule === 1) {
