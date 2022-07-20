@@ -27,3 +27,34 @@ export const FLAG_LIST = [
     value: '2',
   },
 ];
+
+export const PRODUCT_CATEGORY = [
+  {
+    label: '全部',
+    value: '',
+  },
+  {
+    label: '意外',
+    value: '1',
+  },
+  {
+    label: '重疾',
+    value: '2',
+  },
+  {
+    label: '医疗',
+    value: '3',
+  },
+  {
+    label: '年金',
+    value: '4',
+  },
+  {
+    label: '寿险',
+    value: '5',
+  },
+  {
+    label: '万能',
+    value: '6',
+  },
+];

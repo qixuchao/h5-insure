@@ -40,6 +40,17 @@ const state = reactive({
   currentValue: props.modelValue || [],
 });
 
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    state.currentValue = newVal;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
 const selectBtn = (value) => {
   const valueIndex = state.currentValue.indexOf(value);
   if (valueIndex !== -1) {

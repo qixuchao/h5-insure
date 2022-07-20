@@ -12,4 +12,4 @@ import { DictData } from './index.data';
 export const getDic = (data = {}) =>
   request.post<DictData[], ResponseData>('/api/gateway/system/dict/v2/queryDictInfo', data);
 
-export default {};
+export const queryInsurer = () => request.post<ResponseData<any>>(`/api/proposal/queryInsurer`);

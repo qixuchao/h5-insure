@@ -3,14 +3,14 @@
     <div class="article-mid">
       <div class="article-tag">
         <div
-          v-for="(item, index) in tagList"
+          v-for="(item, index) in PRODUCT_CATEGORY"
           :key="index"
           class="tag-item"
           :class="{ checked: indexCheck == index }"
-          @click="onClickTag(item?.id, index)"
+          @click="onClickTag(item?.value, index)"
         >
           <div class="tag-out" :class="{ checked: indexCheck == index }">
-            <div class="tag-item-text" :class="{ checked: indexCheck == index }">{{ item.labelCategoryName }}</div>
+            <div class="tag-item-text" :class="{ checked: indexCheck == index }">{{ item.label }}</div>
           </div>
           <div class="trianele-out"><div :class="{ triangle: indexCheck == index }"></div></div>
         </div>
@@ -30,18 +30,11 @@
       >
         <div class="popup-inner">
           <div class="popup-title">保险公司</div>
-          <ProCheckboxButton
-            :options="[
-              { label: 'dsfasdasdas', value: '123' },
-              { label: 'ashd', value: '342' },
-              { label: 'sdfdsfdsfdsfdsfdsfds', value: '126543' },
-              { label: 'ashd', value: '56756' },
-            ]"
-          />
+          <ProCheckboxButton v-model="checkedInsure" :options="insureList" />
         </div>
         <div class="footer-btn">
           <van-button plain type="primary" @click="reset">重置</van-button>
-          <van-button type="primary" @click="handleClickFliter">确定</van-button>
+          <van-button type="primary" @click="handleClickFilter">确定</van-button>
         </div>
       </van-popup>
     </div>
@@ -52,6 +45,8 @@
 import usePopup from '@/hooks/usePopup';
 import ProCheckboxButton from '@/components/ProCheckboxButton/index.vue';
 import ZaSvg from '@/components/ZaSvg/index.vue';
+import { queryInsurer } from '@/api';
+import { PRODUCT_CATEGORY } from '@/common/constants';
 
 const props = defineProps({
   tagList: {
@@ -69,25 +64,43 @@ const props = defineProps({
 });
 
 const { isPopShow, openPop, closePop } = usePopup(false);
-const emit = defineEmits(['currentIndex']);
+const emit = defineEmits(['onSelectInsure']);
 
-const indexCheck = ref(0);
+const state = reactive({
+  insureList: [],
+  checkedInsure: [],
+});
+
+const { insureList, checkedInsure } = toRefs(state);
+
+const indexCheck = ref<string | number>('');
 const onClickTag = (id: any, index: number) => {
   indexCheck.value = index;
-  emit('currentIndex', id);
-};
-const onPopTagClick = (id: number, index: number) => {
-  onClickTag(id, index);
-  closePop();
+  emit('onSelectInsure', { insurerCodeList: checkedInsure.value, showCategory: indexCheck.value });
 };
 
 const reset = () => {
+  checkedInsure.value = [];
+};
+
+const handleClickFilter = () => {
+  emit('onSelectInsure', { insurerCodeList: checkedInsure.value, showCategory: indexCheck.value });
   closePop();
 };
 
-const handleClickFliter = () => {
-  closePop();
-};
+onMounted(() => {
+  queryInsurer().then((res: any) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      insureList.value = data?.map((i: any) => {
+        return {
+          label: i.abbreviation,
+          value: i.id,
+        };
+      });
+    }
+  });
+});
 </script>
 
 <style scoped lang="scss">
