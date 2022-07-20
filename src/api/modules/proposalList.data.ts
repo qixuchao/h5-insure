@@ -24,4 +24,7 @@ export interface QueryProposalProductListType {
   sortCondition: string;
   sorts: Sort[];
   total: number;
+  title: string;
+  insurerCodeList: Array<string>;
+  showCategory: string | number;
 }

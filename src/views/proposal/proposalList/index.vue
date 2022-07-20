@@ -67,11 +67,8 @@ interface StateType {
   refreshing: boolean;
   productList: any[];
   selectProduct: any[];
-}
-
-interface SearchType {
-  showCategory?: number;
-  insurerCodeList?: Array<number>;
+  insurerCodeList: string[];
+  showCategory: number | string;
 }
 
 const state = reactive<StateType>({
@@ -83,23 +80,45 @@ const state = reactive<StateType>({
   refreshing: false,
   productList: [],
   selectProduct: [],
+  insurerCodeList: [],
+  showCategory: '',
 });
 
-const { searchValue, tagLists, isOpen, loading, finished, refreshing, productList, selectProduct } = toRefs(state);
-
-const handleSearchClick = () => {};
-const handleClickTag = (val: SearchType) => {
-  console.log(val);
-};
+const {
+  searchValue,
+  tagLists,
+  isOpen,
+  loading,
+  finished,
+  refreshing,
+  productList,
+  selectProduct,
+  insurerCodeList,
+  showCategory,
+} = toRefs(state);
 
 const getProducts = () => {
-  queryProposalProductList({}).then((res: any) => {
+  queryProposalProductList({
+    title: searchValue.value,
+    insurerCodeList: insurerCodeList.value,
+    showCategory: showCategory.value,
+    pageNum: 1,
+    pageSize: 10,
+  }).then((res: any) => {
     const { code, data } = res;
     if (code === '10000') {
       console.log(data);
       productList.value = data?.datas;
     }
   });
+};
+
+const handleSearchClick = () => {};
+const handleClickTag = (val: any) => {
+  const { selectInsureCode, selectCategory } = val;
+  insurerCodeList.value = selectInsureCode;
+  showCategory.value = selectCategory;
+  getProducts();
 };
 
 const onLoad = () => {

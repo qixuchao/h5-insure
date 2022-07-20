@@ -76,7 +76,7 @@ const { insureList, checkedInsure } = toRefs(state);
 const indexCheck = ref<string | number>('');
 const onClickTag = (id: any, index: number) => {
   indexCheck.value = index;
-  emit('onSelectInsure', { insurerCodeList: checkedInsure.value, showCategory: indexCheck.value });
+  emit('onSelectInsure', { selectInsureCode: checkedInsure.value, selectCategory: indexCheck.value });
 };
 
 const reset = () => {
@@ -84,7 +84,7 @@ const reset = () => {
 };
 
 const handleClickFilter = () => {
-  emit('onSelectInsure', { insurerCodeList: checkedInsure.value, showCategory: indexCheck.value });
+  emit('onSelectInsure', { selectInsureCode: checkedInsure.value, selectCategory: indexCheck.value });
   closePop();
 };
 
@@ -95,7 +95,7 @@ onMounted(() => {
       insureList.value = data?.map((i: any) => {
         return {
           label: i.abbreviation,
-          value: i.id,
+          value: i.insurerCode,
         };
       });
     }
