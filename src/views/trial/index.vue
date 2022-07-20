@@ -166,10 +166,10 @@ const dealTrialData = () => {
 
   const riderRiskVOList = Object.values(mainRisk.riderRiskVOList as RiskVoItem[]).map((riderRisk) => {
     const risk: RiskVoItem = riderRisk;
-    if (risk.paymentYear === '3') {
-      const paymentYear = (riskInfo.value[state.currentPlan].paymentYear || '').split('_');
+    if (risk.chargePeriod === '3') {
+      const paymentYear = (riskInfo.value[state.currentPlan].chargePeriod || '').split('_');
       paymentYear[1] && (paymentYear[1] -= 1);
-      risk.paymentYear = paymentYear.join('_');
+      risk.chargePeriod = paymentYear.join('_');
     }
     risk.liabilityVOList = (risk.liabilityVOList || [])
       .filter((liab) => !['-1'].includes(liab.liabilityAttributeValue))
@@ -274,7 +274,7 @@ const queryDictList = () => {
 };
 
 const queryProductInfo = () => {
-  insureProductDetail({ productId: id })
+  insureProductDetail({ productId: id, source: 1 })
     .then(({ code, data }) => {
       if (code === '10000') {
         state.riskBaseInfo = data?.productBasicInfoVO;

@@ -2,13 +2,13 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-16 13:39:05
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-18 21:36:03
+ * @LastEditTime: 2022-07-20 09:42:44
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductRisk/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <div class="com-product-risk-wrapper">
-    <VanPopup v-model:show="state.isShow" round position="bottom" closeable :style="{ height: '80%' }">
+    <VanPopup v-model:show="state.isShow" round position="bottom" closeable :style="{ height: '80%' }" @close="onClose">
       <div class="popup-container">
         <div class="popup-title">请选择保障方案</div>
         <ProMessage v-if="messageInfo" :content="messageInfo"></ProMessage>
@@ -101,14 +101,23 @@ interface HolderPerson {
 
 interface Props {
   isShow: boolean;
+  type: 'add' | 'edit';
+  productId?: number;
+  riskType?: 1 | 2;
+  formInfo: any;
+  productInfo: any;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   isShow: false,
+  type: 'add',
+  productId: 0,
+  formInfo: {},
+  riskType: 1,
+  productInfo: {},
 });
 
-const { id = 152 } = useRoute().query;
-
+const emits = defineEmits(['close', 'finished']);
 const holder = ref<HolderPerson>({
   personVO: {},
 }); // 投保人
@@ -154,15 +163,48 @@ const messageInfo = computed(() => {
   return message;
 });
 
+// 将试算的数据转换成计划书的数据
+const formatData = (trialData: premiumCalcData, riskPremium: any) => {
+  const riderRisk = (trialData.insuredVOList[0].productPlanVOList[0].riskVOList[0].riderRiskVOList || []).map(
+    (risk: RiskVoItem) => {
+      return {
+        ...risk,
+        premium: riskPremium[risk.riskCode].premium,
+      };
+    },
+  );
+  const proposalData = {
+    proposalHolder: trialData.holder?.personVO || {},
+    proposalInsuredList: [
+      {
+        ...trialData.insuredVOList[0].personVO,
+        proposalInsuredProductList: [
+          {
+            productId: '',
+            productName: '',
+            proposalProductRiskList: [
+              {
+                ...trialData.insuredVOList[0].productPlanVOList[0].riskVOList,
+                proposalProductRiskVOList: riderRisk,
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+  return proposalData;
+};
+
 const dealTrialData = () => {
   const mainRisk = JSON.parse(JSON.stringify(riskInfo.value[state.currentPlan]));
 
   const riderRiskVOList = Object.values(mainRisk.riderRiskVOList as RiskVoItem[]).map((riderRisk) => {
     const risk: RiskVoItem = riderRisk;
-    if (risk.paymentYear === '3') {
-      const paymentYear = (riskInfo.value[state.currentPlan].paymentYear || '').split('_');
+    if (risk.chargePeriod === '3') {
+      const paymentYear = (riskInfo.value[state.currentPlan].chargePeriod || '').split('_');
       paymentYear[1] && (paymentYear[1] -= 1);
-      risk.paymentYear = paymentYear.join('_');
+      risk.chargePeriod = paymentYear.join('_');
     }
     risk.liabilityVOList = (risk.liabilityVOList || [])
       .filter((liab) => !['-1'].includes(liab.liabilityAttributeValue))
@@ -233,6 +275,7 @@ const dealTrialData = () => {
       };
       flatRiskPremium(data.riskPremiumDetailVOList);
       Object.assign(riskPremiumRef.value, riskPremium);
+      emits('finished', formatData(trialData, riskPremium));
     } else {
       state.retrialTip = true;
     }
@@ -247,6 +290,10 @@ const trial = () => {
   ]).then(() => {
     dealTrialData();
   });
+};
+
+const onClose = () => {
+  emits('close');
 };
 
 const toInsured = () => {
@@ -267,12 +314,12 @@ const queryDictList = () => {
 };
 
 const queryProductInfo = () => {
-  insureProductDetail({ productId: id })
+  insureProductDetail({ productId: props.productId, source: 2 })
     .then(({ code, data }) => {
       if (code === '10000') {
-        state.riskBaseInfo = data?.productBasicInfoVO;
+        state.riskBaseInfo = data.productBasicInfoVO;
 
-        (data?.productRelationPlanVOList || data?.riskDetailVOList || []).forEach((plan, index) => {
+        (data.productRelationPlanVOList || data.riskDetailVOList || []).forEach((plan, index) => {
           if (index === 0) {
             state.currentPlan = plan.planCode || '0';
           }
@@ -314,8 +361,48 @@ watch(
   },
 );
 
+watch(
+  () => props.productId,
+  (newVal) => {
+    newVal && queryProductInfo();
+  },
+  {
+    immediate: true,
+  },
+);
+
+watch(
+  () => props.formInfo,
+  (newVal = {}) => {
+    console.log('newVal', newVal);
+    const currentInfo = {
+      0: {
+        ...newVal.proposalProductRiskList[0],
+        riderRiskVOList: newVal.proposalProductRiskList[0].proposalProductRiskVOList,
+      },
+    };
+    Object.assign(riskInfo.value, currentInfo);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  () => props.productInfo,
+  (newVal) => {
+    console.log('productInfo', newVal);
+    state.riskBaseInfo = newVal.productBasicInfoVO;
+    state.riskData = newVal.riskDetailVOList;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
 onBeforeMount(() => {
-  queryProductInfo();
   queryDictList();
 });
 </script>

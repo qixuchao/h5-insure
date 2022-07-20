@@ -2,13 +2,13 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 16:43:35
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-18 21:32:08
+ * @LastEditTime: 2022-07-19 22:27:54
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <div class="com-product-list-wrapper">
-    <div v-for="risk in productRiskList" :key="risk.riskCode">
+    <div v-for="risk in productRiskList" :key="risk.riskId">
       <div class="risk-item-wrapper">
         <ProTitle :risk-type="risk.riskType" :title="risk.riskName" />
         <div class="content">
@@ -57,42 +57,66 @@
             </div>
           </div>
           <div class="operate-bar">
-            <ProCheckButton :round="32" class="border" @click="deleteRisk(risk)">删除</ProCheckButton>
-            <ProCheckButton activated :round="32" @click="addRisk(risk)">+ 附加险</ProCheckButton>
-            <ProCheckButton activated :round="32" @click="updateRisk(risk)">修改</ProCheckButton>
+            <ProCheckButton :round="32" class="border" @click="deleteRisk(riderRisk)">删除</ProCheckButton>
+            <ProCheckButton activated :round="32" @click="addRisk(riderRisk)">+ 附加险</ProCheckButton>
+            <ProCheckButton activated :round="32" @click="updateRisk(riderRisk)">修改</ProCheckButton>
           </div>
         </div>
       </div>
     </div>
+    <RiskRelationList
+      v-if="showRelationList"
+      v-model="state.checkedList"
+      :show="showRelationList"
+      :disabled="state.disabledList"
+      :risk-list="state.riderRiskList"
+      :collocation-list="state.mainRiskData.collocationVOList || []"
+      @finished="onFinished"
+      @close="toggleRelationList(false)"
+    ></RiskRelationList>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
-import { ProposalProductRiskVoItem } from '@/api/modules/createProposal.data';
+import { useToggle } from '@vant/use';
+import { ProposalProductRiskItem, ProposalInsuredProductItem } from '@/api/modules/createProposal.data';
 
 interface Props {
-  productRiskList: ProposalProductRiskVoItem[];
+  productRiskList: ProposalProductRiskItem[];
   enumList: any;
+  productInfo: Partial<ProposalInsuredProductItem>;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   productRiskList: () => [],
   enumList: () => ({}),
+  productInfo: () => ({}),
 });
 
 const emits = defineEmits(['deleteRisk', 'updateRisk', 'addRisk']);
+const [showRelationList, toggleRelationList] = useToggle();
+const state = ref({
+  checkedList: [],
+  disabledList: [],
+  riderRiskList: [],
+  mainRiskData: {},
+});
 
-const deleteRisk = (riskRecord: ProposalProductRiskVoItem) => {
-  emits('deleteRisk', riskRecord);
+const onFinished = () => {
+  console.log('12313');
 };
 
-const updateRisk = (riskRecord: ProposalProductRiskVoItem) => {
-  emits('updateRisk', riskRecord);
+const deleteRisk = (riskRecord: ProposalProductRiskItem) => {
+  emits('deleteRisk', riskRecord, props.productInfo);
 };
 
-const addRisk = (riskRecord: ProposalProductRiskVoItem) => {
-  emits('addRisk', riskRecord);
+const updateRisk = (riskRecord: ProposalProductRiskItem) => {
+  emits('updateRisk', riskRecord, props.productInfo);
+};
+
+const addRisk = (riskRecord: ProposalProductRiskItem) => {
+  emits('addRisk', riskRecord, props.productInfo);
 };
 </script>
 

@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:14:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-18 21:21:29
+ * @LastEditTime: 2022-07-19 21:28:27
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -61,6 +61,7 @@
         <ProductList
           :enum-list="state.enumList"
           :product-risk-list="product.proposalProductRiskList"
+          :product-info="product"
           @add-risk="addRisk"
           @update-risk="updateRisk"
           @delete-risk="deleteRisk"
@@ -73,7 +74,7 @@
     <div class="footer-bar">
       <span class="trial-result">
         总保费
-        <span class="result-num">￥{{ 1000 }}</span>
+        <span class="result-num">￥{{ proposalInfo.totalPremium.toLocaleString() }}</span>
       </span>
       <div class="trial-operate">
         <VanButton type="primary" @click="saveProposalData">保存并预览</VanButton>
@@ -91,7 +92,15 @@
         @cancel="toggleDatePickVisible(false)"
       />
     </van-popup>
-    <ProductRisk v-if="showProductRisk" :is-show="showProductRisk"></ProductRisk>
+    <ProductRisk
+      v-if="showProductRisk"
+      :is-show="showProductRisk"
+      type="edit"
+      :product-info="state.productCollection[state.productId]"
+      :form-info="state.productInfo"
+      @close="closeProductRisk"
+      @finished="onFinished"
+    ></ProductRisk>
   </ProPageWrap>
 </template>
 
@@ -99,21 +108,26 @@
 import { Dialog, Toast } from 'vant';
 import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
+import { useRouter } from 'vue-router';
 import { getDic } from '@/api/index';
 import { DictData } from '@/api/index.data';
 import { queryProposalDetail, addOrUpdateProposal } from '@/api/modules/createProposal';
 import {
   ProposalInfo,
-  ProposalProductRiskVoItem,
-  ProposalInsuredProductVoItem,
-  ProposalHolderVo,
+  ProposalProductRiskItem,
+  ProposalInsuredProductItem,
+  ProposalHolder,
 } from '@/api/modules/createProposal.data';
+import { insureProductDetail } from '@/api/modules/trial';
 import { SEX_LIMIT_LIST } from '@/common/constants';
 import ProductList from './components/ProductList/index.vue';
 import ProductRisk from './components/ProductRisk/index.vue';
 
 interface State {
   enumList: any;
+  productId: number;
+  productCollection: any;
+  productInfo: any;
 }
 
 const [showDatePick, toggleDatePickVisible] = useToggle(false);
@@ -134,8 +148,13 @@ const proposalInfo = ref<any>({
   relationUserType: 1,
 });
 
+const router = useRouter();
+
 const state = ref<State>({
   enumList: {},
+  productId: 0,
+  productCollection: {},
+  productInfo: {},
 });
 
 const formRef = ref();
@@ -143,20 +162,39 @@ const formRef = ref();
 // 原始的产品详情数据
 const selectedProduct = ref({});
 // 试算之后的产品险种列表
-const trialedProductList = ref<ProposalInsuredProductVoItem[]>([]);
+const trialedProductList = ref<ProposalInsuredProductItem[]>([]);
 
-const deleteRisk = (riskInfo: ProposalProductRiskVoItem) => {
-  Dialog.confirm({ message: '确认删除该险种？' }).then(() => {});
+const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsuredProductItem) => {
+  const currentProduct = productInfo;
+  Dialog.confirm({ message: '确认删除该险种？' }).then(() => {
+    // 删除主险等同于删除整个产品信息
+    if (riskInfo.riskType === 1) {
+      proposalInfo.value.proposalInsuredList[0].proposalInsuredProductList =
+        proposalInfo.value.proposalInsuredList[0].proposalInsuredProductList.filter(
+          (product: ProposalInsuredProductItem) => product.productId !== productInfo.productId,
+        );
+    } else {
+      currentProduct.proposalProductRiskList[0].proposalProductRiskVOList =
+        currentProduct.proposalProductRiskList[0].proposalProductRiskVOList.filter(
+          (risk) => risk.riskId !== riskInfo.riskId,
+        );
+    }
+  });
 };
-const updateRisk = (riskInfo: ProposalProductRiskVoItem) => {
+
+// 修改险种
+const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsuredProductItem) => {
+  state.value.productId = productInfo.productId;
+  state.value.productInfo = productInfo;
+
   toggleProductRisk(true);
 };
-const addRisk = (riskInfo: ProposalProductRiskVoItem) => {};
 
-const queryProductInfo = async () => {};
+// 添加附加险
+const addRisk = (riskInfo: ProposalProductRiskItem) => {};
 
 const queryProposalInfo = () => {
-  queryProposalDetail({ id: 18 }).then(({ code, data }) => {
+  queryProposalDetail({ id: 19 }).then(({ code, data }) => {
     if (code === '10000') {
       Object.assign(proposalInfo.value, data);
     }
@@ -164,7 +202,7 @@ const queryProposalInfo = () => {
 };
 
 const saveProposalData = () => {
-  addOrUpdateProposal(proposalInfo).then(({ code }) => {
+  addOrUpdateProposal(proposalInfo.value).then(({ code }) => {
     if (code === '10000') {
       Toast('提交成哥');
     }
@@ -184,21 +222,54 @@ const queryDictList = () => {
   });
 };
 
+// 添加或修改险种信息成功的回调
+const onFinished = (productInfo: ProposalInfo) => {
+  proposalInfo.value.proposalInsuredList[0] = proposalInfo.value.proposalInsuredList[0].map(
+    (productList: ProposalInsuredProductItem[]) => {
+      let currentProductList = productList;
+      if (productList[0].productId === productInfo.proposalInsuredList[0].proposalInsuredProductList[0].productId) {
+        currentProductList = productInfo.proposalInsuredList[0].proposalInsuredProductList;
+      }
+      return currentProductList;
+    },
+  );
+};
+
+const queryProductInfo = () => {
+  insureProductDetail({ productId: 118, source: 2 })
+    .then(({ code, data }) => {
+      if (code === '10000') {
+        state.value.productCollection[data.productBasicInfoVO.id] = data;
+      }
+    })
+    .finally(() => {});
+};
+
 const addMainRisk = () => {
-  toggleProductRisk(true);
+  router.push({
+    path: '/product-list',
+    query: {
+      type: 'select',
+    },
+  });
+};
+
+const closeProductRisk = () => {
+  toggleProductRisk(false);
 };
 
 onBeforeMount(() => {
   queryProposalInfo();
+  queryProductInfo();
+  queryDictList();
 });
 </script>
 
 <style lang="scss" scoped>
 .page-create-wrapper {
   background-color: #f2f5fc;
-  padding-bottom: 150px;
   .container {
-    padding: 30px;
+    padding: 30px 30px 180px 30px;
     :deep(.com-card-wrap) {
       .body {
         padding: 0;

@@ -1,6 +1,6 @@
 <template>
   <div class="com-card-wrap">
-    <div class="header">
+    <div v-if="title" class="header">
       <div class="title-wrapper">
         <div class="title">{{ title }}</div>
         <ProSvg
