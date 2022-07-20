@@ -1,11 +1,5 @@
-<!--
- * new page
- * @author: liyang
- * @since: 2022-07-15
- * index.vue
--->
 <template>
-  <ZaPageWrap main-class="page-product">
+  <ZaPageWrap class="page-product">
     <div class="filter-key-by-list">
       <van-search
         v-model="searchValue"
@@ -18,24 +12,30 @@
         v-model:tagList="tagLists"
         v-model:filter="isOpen"
         filter-class="filter-area"
-        @current-index="handleClickTag"
+        @on-select-insure="handleClickTag"
       />
     </div>
     <div class="page-product-list">
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
         <van-list v-model:loading="loading" :finished="finished" finished-text="已经到底了哦" @load="onLoad">
-          <ProductItem v-for="i in 10" :key="i" :is-hot="i" />
+          <ProductItem v-for="i in productList" :key="i.id" :product-info="i?.showConfig">
+            <template #checkedProduct>
+              <div class="check-button">
+                <van-checkbox v-model="checked" name="i.id" shape="square"></van-checkbox>
+              </div>
+            </template>
+          </ProductItem>
         </van-list>
       </van-pull-refresh>
       <!-- <p class="is-end-tips">- 已经到底了哦 -</p> -->
     </div>
+    <van-sticky position="bottom" :offset-bottom="0">
+      <div class="add-plan">
+        <p class="has-select">已选<span class="has-select-product">3</span>款产品 <span class="icon"></span></p>
+        <van-button type="primary">添加计划书</van-button>
+      </div>
+    </van-sticky>
   </ZaPageWrap>
-  <van-sticky position="bottom">
-    <div class="add-plan">
-      <p class="has-select">已选<span class="has-select-product">3</span>款产品 <span class="icon"></span></p>
-      <van-button type="primary">添加计划书</van-button>
-    </div>
-  </van-sticky>
 </template>
 
 <script setup lang="ts">
@@ -52,6 +52,12 @@ interface StateType {
   finished: boolean;
   refreshing: boolean;
   productList: Array<any>;
+  checked: string;
+}
+
+interface SearchType {
+  showCategory?: number;
+  insurerCodeList?: Array<number>;
 }
 
 const state = reactive<StateType>({
@@ -62,30 +68,36 @@ const state = reactive<StateType>({
   finished: false,
   refreshing: false,
   productList: [],
+  checked: '',
 });
 
-const { searchValue, tagLists, isOpen, loading, finished, refreshing, productList } = toRefs(state);
+const { searchValue, tagLists, isOpen, loading, finished, refreshing, productList, checked } = toRefs(state);
 
 const handleSearchClick = () => {};
-const handleClickTag = (id: number) => {
-  console.log(id);
+const handleClickTag = (val: SearchType) => {
+  console.log(val);
 };
+
+const getProducts = () => {
+  queryProposalProductList({}).then((res: any) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      console.log(data);
+      productList.value = data?.datas;
+    }
+  });
+};
+
 const onLoad = () => {
-  setTimeout(() => {
-    if (refreshing.value) {
-      productList.value = [];
-      refreshing.value = false;
-    }
-
-    for (let i = 0; i < 10; i++) {
-      productList.value.push(productList.value.length + 1);
-    }
-    loading.value = false;
-
-    if (productList.value.length >= 40) {
-      finished.value = true;
-    }
-  }, 1000);
+  if (refreshing.value) {
+    productList.value = [];
+    refreshing.value = false;
+  }
+  getProducts();
+  loading.value = false;
+  // if (productList.value.length >= 40) {
+  //   finished.value = true;
+  // }
 };
 
 const onRefresh = () => {
@@ -100,10 +112,6 @@ const onRefresh = () => {
 
 onMounted(() => {
   tagLists.value = [{ labelCategoryName: '全部', id: '' }, ...tabsData.data];
-
-  queryProposalProductList({}).then((res: any) => {
-    console.log(res);
-  });
 });
 </script>
 
@@ -134,42 +142,48 @@ onMounted(() => {
     text-align: center;
   }
 }
-.add-plan {
+:deep(.van-sticky) {
   width: 100%;
-  height: 150px;
-  padding: 0 30px;
-  background-color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-top: 1px solid #efeff4;
-  .has-select {
-    font-size: 30px;
-    font-family: PingFangSC-Regular, PingFang SC;
-    font-weight: 400;
-    color: #393d46;
-    line-height: 42px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  .add-plan {
+    width: 100%;
+    height: 150px;
+    padding: 0 30px;
+    background-color: #ffffff;
     display: flex;
     align-items: center;
-    .has-select-product {
-      color: #c40;
-      font-weight: bold;
+    justify-content: space-between;
+    border-top: 1px solid #efeff4;
+    .has-select {
+      font-size: 30px;
+      font-family: PingFangSC-Regular, PingFang SC;
+      font-weight: 400;
+      color: #393d46;
+      line-height: 42px;
+      display: flex;
+      align-items: center;
+      .has-select-product {
+        color: #c40;
+        font-weight: bold;
+      }
+      .icon {
+        width: 33px;
+        height: 33px;
+        display: inline-block;
+        background: #ecedf2;
+        margin-left: 10px;
+        border-radius: 50%;
+      }
     }
-    .icon {
-      width: 33px;
-      height: 33px;
-      display: inline-block;
-      background: #ecedf2;
-      margin-left: 10px;
-      border-radius: 50%;
+    .van-button {
+      width: 280px;
+      height: 90px;
+      line-height: 90px;
+      background: #0d6efe;
+      border-radius: 8px;
     }
-  }
-  .van-button {
-    width: 280px;
-    height: 90px;
-    line-height: 90px;
-    background: #0d6efe;
-    border-radius: 8px;
   }
 }
 </style>

@@ -5,3 +5,13 @@ export interface QueryProposalProductListType {
   showCategory?: string | number;
   title?: string;
 }
+
+export interface ProductInfoVoItem {
+  fileName?: any;
+  fileType?: string;
+  fileUrl?: string;
+  tags?: Array<string>;
+  text?: string;
+  title?: string;
+  insurerName?: string;
+}

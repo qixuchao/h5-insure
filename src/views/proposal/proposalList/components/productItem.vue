@@ -8,27 +8,35 @@
   <div class="com-product-item">
     <div class="content-wrap">
       <div class="product-image">
-        <van-image :src="ProductImage" />
-        <p class="insure-name">横琴人寿</p>
-        <span class="is-top new">热销</span>
+        <van-image :src="productInfo.fileUrl" />
+        <p class="insure-name">{{ productInfo.insurerName }}</p>
+        <!-- <span class="is-top new">热销</span> -->
       </div>
       <div class="product-info">
-        <p class="title">慧泽达尔文6号重疾险慧泽达尔文6号重疾险</p>
-        <p class="description">保证续保20年，增值服务多，医疗服务优</p>
+        <p class="title">{{ productInfo.title }}</p>
+        <p class="description">{{ productInfo.text }}</p>
         <p class="tags">
-          <span class="tag">高性价比之选</span>
-          <span class="tag">家庭保障</span>
+          <span v-for="(i, idx) of productInfo.tags" :key="idx" class="tag">{{ i }}</span>
         </p>
       </div>
-      <div class="check-button">
-        <van-checkbox v-model="checked" shape="square"></van-checkbox>
-      </div>
+      <slot name="checkedProduct"> </slot>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import ProductImage from '@/views/proposal/proposalList/components/test.png';
+import { withDefaults } from 'vue';
+import { ProductInfoVoItem } from '@/api/modules/product.data';
+
+interface Props {
+  productInfo: Partial<ProductInfoVoItem>;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  productInfo: () => ({}),
+});
+
+const { productInfo } = toRefs(props);
 
 const state = reactive({
   checked: false,
@@ -89,7 +97,7 @@ const { checked } = toRefs(state);
     }
     .product-info {
       margin: 0 24px;
-      max-width: 440px;
+      width: 440px;
       .title {
         font-size: 28px;
         font-family: PingFangSC-Medium, PingFang SC;
