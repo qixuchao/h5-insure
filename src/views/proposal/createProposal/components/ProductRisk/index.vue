@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-16 13:39:05
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-20 09:42:44
+ * @LastEditTime: 2022-07-20 14:02:06
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductRisk/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -105,7 +105,7 @@ interface Props {
   productId?: number;
   riskType?: 1 | 2;
   formInfo: any;
-  productInfo: any;
+  productData: any;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -114,7 +114,7 @@ const props = withDefaults(defineProps<Props>(), {
   productId: 0,
   formInfo: {},
   riskType: 1,
-  productInfo: {},
+  productData: {},
 });
 
 const emits = defineEmits(['close', 'finished']);
@@ -132,7 +132,7 @@ const riskFormRef = ref({});
 const riskPremiumRef = ref({});
 
 const state = reactive<PageState>({
-  currentPlan: '',
+  currentPlan: '0',
   isShow: props.isShow,
   riskBaseInfo: {},
   holderFactor: [],
@@ -148,6 +148,7 @@ const state = reactive<PageState>({
 });
 
 provide('premium', riskPremiumRef.value);
+provide('source', 'proposal');
 
 const closeTip = () => {
   state.retrialTip = false;
@@ -173,6 +174,7 @@ const formatData = (trialData: premiumCalcData, riskPremium: any) => {
       };
     },
   );
+
   const proposalData = {
     proposalHolder: trialData.holder?.personVO || {},
     proposalInsuredList: [
@@ -390,9 +392,8 @@ watch(
 );
 
 watch(
-  () => props.productInfo,
+  () => props.productData,
   (newVal) => {
-    console.log('productInfo', newVal);
     state.riskBaseInfo = newVal.productBasicInfoVO;
     state.riskData = newVal.riskDetailVOList;
   },

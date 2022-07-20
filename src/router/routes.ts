@@ -39,10 +39,16 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/demo/index.vue'),
   },
   {
-    name: 'question',
-    path: '/question',
-    meta: { title: '问卷' },
-    component: () => import('@/views/question/index.vue'),
+    name: 'healthNotice',
+    path: '/healthNotice',
+    meta: { title: '健康告知书' },
+    component: () => import('@/views/healthNotice/index.vue'),
+  },
+  {
+    name: 'questionNotification',
+    path: '/questionNotification',
+    meta: { title: '问卷告知' },
+    component: () => import('@/views/questionNotification/index.vue'),
   },
   {
     name: 'createProposal',
@@ -58,7 +64,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   },
   {
     name: 'ProductList',
-    path: '/product-list',
+    path: '/productList',
     meta: { title: '产品列表' },
     component: () => import('@/views/proposal/proposalList/index.vue'),
   },
@@ -85,6 +91,18 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     path: '/compositionProposal',
     meta: { title: '组合计划书' },
     component: () => import('@/views/proposal/compositionProposal/index.vue'),
+  },
+  {
+    name: 'verify',
+    path: '/verify',
+    meta: { title: '身份认证' },
+    component: () => import('@/views/verify/index.vue'),
+  },
+  {
+    name: 'bankCard',
+    path: '/bankCard',
+    meta: { title: '添加银行卡' },
+    component: () => import('@/views/bankCard/index.vue'),
   },
 ];
 

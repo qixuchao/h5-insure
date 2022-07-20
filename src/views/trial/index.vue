@@ -156,6 +156,7 @@ const state = reactive<PageState>({
 });
 
 provide('premium', riskPremiumRef.value);
+provide('source', '');
 
 const closeTip = () => {
   state.retrialTip = false;

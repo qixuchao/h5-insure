@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:14:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-19 21:28:27
+ * @LastEditTime: 2022-07-20 14:49:34
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -56,12 +56,13 @@
       </VanForm>
       <ProCard
         v-for="product in proposalInfo.proposalInsuredList[0].proposalInsuredProductList || []"
-        :key="product.productCode"
+        :key="product.productId"
       >
         <ProductList
           :enum-list="state.enumList"
           :product-risk-list="product.proposalProductRiskList"
           :product-info="product"
+          :product-data="state.productCollection[product.productId]"
           @add-risk="addRisk"
           @update-risk="updateRisk"
           @delete-risk="deleteRisk"
@@ -96,7 +97,7 @@
       v-if="showProductRisk"
       :is-show="showProductRisk"
       type="edit"
-      :product-info="state.productCollection[state.productId]"
+      :product-data="state.productCollection[state.productId]"
       :form-info="state.productInfo"
       @close="closeProductRisk"
       @finished="onFinished"
@@ -204,7 +205,7 @@ const queryProposalInfo = () => {
 const saveProposalData = () => {
   addOrUpdateProposal(proposalInfo.value).then(({ code }) => {
     if (code === '10000') {
-      Toast('提交成哥');
+      Toast('提交成功');
     }
   });
 };
@@ -249,7 +250,7 @@ const addMainRisk = () => {
   router.push({
     path: '/product-list',
     query: {
-      type: 'select',
+      isCreateProposal: '1',
     },
   });
 };

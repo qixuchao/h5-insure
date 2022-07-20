@@ -10,6 +10,15 @@
         placeholder="请选择"
         @click="toggle(true)"
       ></ProField>
+      <ProField
+        v-model="formInfo.city"
+        type="picker"
+        label="城市"
+        :data-source="selectList"
+        is-link
+        placeholder="请选择城市"
+        :rules="[{ required: true, message: '请选择城市' }]"
+      />
       <ProField v-model="formInfo.gender" name="gender" label="性别" :rules="[{ required: true, message: '请选择' }]">
         <template #input>
           <ProRadioButton v-model="formInfo.gender" :options="options" />
@@ -52,7 +61,7 @@
     </ProCard>
     <ProCard title="ProSelect">
       <van-button type="primary" @click="isProSelectShow = true">弹出选择</van-button>
-      <ProSelect v-model:show="isProSelectShow" :data-source="selectList" value-key="code" />
+      <ProSelect v-model:show="isProSelectShow" :data-source="selectList" />
     </ProCard>
     <ProCard title="电子签名1">
       <ProSign ref="signRef1" selector="sign1"></ProSign>
@@ -110,6 +119,7 @@ const formInfo = ref({
   gender: '1',
   like: [],
   birth: '',
+  city: '',
 });
 const formRef = ref();
 const options = [
@@ -152,13 +162,13 @@ const pdfList = [
 ];
 
 const selectList = [
-  { title: '北京', code: '1' },
-  { title: '上海', code: '2' },
-  { title: '广州', code: '3' },
-  { title: '深圳', code: '4' },
-  { title: '武汉', code: '5' },
-  { title: '天津', code: '6' },
-  { title: '杭州', code: '7' },
+  { label: '北京', value: '1' },
+  { label: '上海', value: '2' },
+  { label: '广州', value: '3' },
+  { label: '深圳', value: '4' },
+  { label: '武汉', value: '5' },
+  { label: '天津', value: '6' },
+  { label: '杭州', value: '7' },
 ];
 
 const isProSelectShow = ref(false);
@@ -172,14 +182,15 @@ const clearSign1 = () => {
 };
 
 const saveSign1 = () => {
-  console.log('length', signRef1.value?.save('image/svg+xml', 1).length);
+  const data = signRef1.value?.save();
+  localStorage.setItem('test_sign', data);
 };
 
 const reView = () => {
-  signRef1.value?.setDataURL(
-    'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgMzQ1IDIwNSIgd2lkdGg9IjE3Mi41IiBoZWlnaHQ9IjEwMi41Ij48cGF0aCBkPSJNIDE2Ni4xMzcsMTAuMjU4IEMgMTYzLjQwMSwxMy4zOTAgMTYzLjU2NywxMy41MDcgMTYwLjk5NywxNi43NTUiIHN0cm9rZS13aWR0aD0iNC4yNTQiIHN0cm9rZT0iYmxhY2siIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCI+PC9wYXRoPjxwYXRoIGQ9Ik0gMTYwLjk5NywxNi43NTUgQyAxNTkuMzEyLDE5LjYxMSAxNTkuMDc1LDE5LjQ0OCAxNTcuNDg1LDIyLjM3NSIgc3Ryb2tlLXdpZHRoPSI0LjEwNyIgc3Ryb2tlPSJibGFjayIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIj48L3BhdGg+PHBhdGggZD0iTSAxNTcuNDg1LDIyLjM3NSBDIDE1My4wMDUsMjguNDExIDE1My4zNTIsMjguNjI5IDE0OS4wNzcsMzQuNzkxIiBzdHJva2Utd2lkdGg9IjMuMjU1IiBzdHJva2U9ImJsYWNrIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiPjwvcGF0aD48cGF0aCBkPSJNIDE0OS4wNzcsMzQuNzkxIEMgMTQ0LjIzOSw0My4zOTggMTQzLjkwNCw0My4xOTIgMTM5LjI4Myw1MS45MzciIHN0cm9rZS13aWR0aD0iMi43MDEiIHN0cm9rZT0iYmxhY2siIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCI+PC9wYXRoPjxwYXRoIGQ9Ik0gMTM5LjI4Myw1MS45MzcgQyAxMzYuNjAyLDU1Ljg1OCAxMzYuOTExLDU2LjAyMyAxMzQuNDIwLDYwLjA0MCIgc3Ryb2tlLXdpZHRoPSIzLjIzNiIgc3Ryb2tlPSJibGFjayIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIj48L3BhdGg+PHBhdGggZD0iTSAxMzQuNDIwLDYwLjA0MCBDIDEzMi4zNjgsNjQuODQ2IDEzMi4wMTAsNjQuNjY0IDEzMC4wOTgsNjkuNTQ5IiBzdHJva2Utd2lkdGg9IjMuNDA2IiBzdHJva2U9ImJsYWNrIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiPjwvcGF0aD48cGF0aCBkPSJNIDEzMC4wOTgsNjkuNTQ5IEMgMTIxLjQ1MSw4Ny4wMjEgMTIxLjYyNyw4Ny4xMDUgMTEyLjkzOSwxMDQuNTU5IiBzdHJva2Utd2lkdGg9IjEuOTM5IiBzdHJva2U9ImJsYWNrIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiPjwvcGF0aD48cGF0aCBkPSJNIDExMi45MzksMTA0LjU1OSBDIDEwOS4zOTUsMTExLjY4MSAxMDkuNDY4LDExMS43MTIgMTA2LjEzMiwxMTguOTMwIiBzdHJva2Utd2lkdGg9IjIuNDgyIiBzdHJva2U9ImJsYWNrIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiPjwvcGF0aD48cGF0aCBkPSJNIDEwNi4xMzIsMTE4LjkzMCBDIDEwMi4zOTQsMTI3LjQzOSAxMDIuMzE4LDEyNy40MDMgOTguNzg0LDEzNi4wMDIiIHN0cm9rZS13aWR0aD0iMi42MjIiIHN0cm9rZT0iYmxhY2siIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCI+PC9wYXRoPjxwYXRoIGQ9Ik0gOTguNzg0LDEzNi4wMDIgQyA5Ni40NjQsMTQxLjc3MSA5Ni4zNjksMTQxLjczMSA5NC4wODIsMTQ3LjUxNCIgc3Ryb2tlLXdpZHRoPSIzLjAzMSIgc3Ryb2tlPSJibGFjayIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIj48L3BhdGg+PHBhdGggZD0iTSA5NC4wODIsMTQ3LjUxNCBDIDkyLjM1OCwxNTEuNzU4IDkyLjMyOCwxNTEuNzQ0IDkwLjUxMywxNTUuOTUwIiBzdHJva2Utd2lkdGg9IjMuNDQzIiBzdHJva2U9ImJsYWNrIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiPjwvcGF0aD48cGF0aCBkPSJNIDkwLjUxMywxNTUuOTUwIEMgODguNzQ2LDE1OS42MjggODguODcwLDE1OS42ODIgODcuMTA1LDE2My4zNjEiIHN0cm9rZS13aWR0aD0iMy42ODYiIHN0cm9rZT0iYmxhY2siIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCI+PC9wYXRoPjxwYXRoIGQ9Ik0gODcuMTA1LDE2My4zNjEgQyA4NS43MzQsMTY2LjU5NCA4NS42OTEsMTY2LjU3NSA4NC40MDMsMTY5Ljg0NCIgc3Ryb2tlLXdpZHRoPSIzLjg4NyIgc3Ryb2tlPSJibGFjayIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIj48L3BhdGg+PHBhdGggZD0iTSA4NC40MDMsMTY5Ljg0NCBDIDgzLjM1NywxNzIuMjU2IDgzLjQwNywxNzIuMjc0IDgyLjQ1MiwxNzQuNzIwIiBzdHJva2Utd2lkdGg9IjQuMTY2IiBzdHJva2U9ImJsYWNrIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiPjwvcGF0aD48cGF0aCBkPSJNIDgyLjQ1MiwxNzQuNzIwIEMgODEuNTU1LDE3Ny45NzMgODEuMjk2LDE3Ny44NjkgODAuMjgyLDE4MS4wNzEiIHN0cm9rZS13aWR0aD0iNC40OTMiIHN0cm9rZT0iYmxhY2siIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCI+PC9wYXRoPjxwYXRoIGQ9Ik0gODAuMjgyLDE4MS4wNzEgQyA3OC43OTUsMTgzLjc5NSA3OS4xMDgsMTgzLjkyNyA3Ny41NTcsMTg2LjYyOCIgc3Ryb2tlLXdpZHRoPSI0LjgzMyIgc3Ryb2tlPSJibGFjayIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIj48L3BhdGg+PHBhdGggZD0iTSA3Ny41NTcsMTg2LjYyOCBDIDc2LjU1OCwxODguOTY3IDc2LjU0MywxODguOTQ5IDc1Ljc3OCwxOTEuMzc3IiBzdHJva2Utd2lkdGg9IjUuMTc5IiBzdHJva2U9ImJsYWNrIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiPjwvcGF0aD48L3N2Zz4=',
-    { ratio: 1 },
-  );
+  const data = localStorage.getItem('test_sign');
+  if (data) {
+    signRef1.value?.setDataURL(data, { ratio: 1 });
+  }
 };
 
 const handleLinkClick = () => {

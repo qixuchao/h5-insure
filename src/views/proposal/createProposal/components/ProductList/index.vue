@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 16:43:35
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-19 22:27:54
+ * @LastEditTime: 2022-07-20 15:04:15
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -69,8 +69,8 @@
       v-model="state.checkedList"
       :show="showRelationList"
       :disabled="state.disabledList"
-      :risk-list="state.riderRiskList"
-      :collocation-list="state.mainRiskData.collocationVOList || []"
+      :risk-list="riderRiskList"
+      :collocation-list="collocationRiderList"
       @finished="onFinished"
       @close="toggleRelationList(false)"
     ></RiskRelationList>
@@ -81,17 +81,21 @@
 import { withDefaults } from 'vue';
 import { useToggle } from '@vant/use';
 import { ProposalProductRiskItem, ProposalInsuredProductItem } from '@/api/modules/createProposal.data';
+import { ProductData } from '@/api/modules/trial.data';
+import RiskRelationList from '@/views/trial/components/RiskRelationList/index.vue';
 
 interface Props {
   productRiskList: ProposalProductRiskItem[];
   enumList: any;
   productInfo: Partial<ProposalInsuredProductItem>;
+  productData: Partial<ProductData>;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   productRiskList: () => [],
   enumList: () => ({}),
   productInfo: () => ({}),
+  productData: () => ({}),
 });
 
 const emits = defineEmits(['deleteRisk', 'updateRisk', 'addRisk']);
@@ -101,6 +105,14 @@ const state = ref({
   disabledList: [],
   riderRiskList: [],
   mainRiskData: {},
+});
+
+const riderRiskList = computed(() => {
+  return props.productData?.riskDetailVOList?.[0].optionalRiderRiskVOList || [];
+});
+
+const collocationRiderList = computed(() => {
+  return props.productData?.riskDetailVOList?.[0].collocationVOList || [];
 });
 
 const onFinished = () => {
@@ -116,8 +128,20 @@ const updateRisk = (riskRecord: ProposalProductRiskItem) => {
 };
 
 const addRisk = (riskRecord: ProposalProductRiskItem) => {
+  toggleRelationList(true);
   emits('addRisk', riskRecord, props.productInfo);
 };
+
+watch(
+  () => props,
+  () => {
+    console.log('props', props);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 </script>
 
 <style lang="scss" scoped>

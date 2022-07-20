@@ -11,13 +11,13 @@
     v-model:show="isShow"
     :="$attrs"
     position="bottom"
-    :style="{ height: '85%' }"
+    :style="{ height: `${height}%` }"
     round
-    closeable
+    :closeable="closeable"
     class="com-pro-popup"
   >
     <div class="container">
-      <div class="header">
+      <div v-if="title" class="header">
         {{ title }}
       </div>
       <div class="body">
@@ -32,6 +32,7 @@
 
 <script lang="ts" setup>
 import { Popup } from 'vant';
+import { defineProps } from 'vue';
 
 const emits = defineEmits(['update:show', 'submit']);
 
@@ -47,6 +48,14 @@ const props = defineProps({
   title: {
     type: String,
     default: '',
+  },
+  height: {
+    type: Number,
+    default: 85,
+  },
+  closeable: {
+    type: Boolean,
+    default: true,
   },
 });
 
