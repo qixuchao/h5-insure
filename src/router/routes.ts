@@ -63,10 +63,16 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/product/detail/index.vue'),
   },
   {
-    name: 'ProductList',
-    path: '/productList',
-    meta: { title: '产品列表' },
+    name: 'proposalList',
+    path: '/proposalList',
+    meta: { title: '计划书列表' },
     component: () => import('@/views/proposal/proposalList/index.vue'),
+  },
+  {
+    name: 'historyProposalList',
+    path: '/historyProposalList',
+    meta: { title: '历史计划书列表' },
+    component: () => import('@/views/proposal/historyList/index.vue'),
   },
   {
     name: 'pay',

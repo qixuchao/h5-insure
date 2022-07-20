@@ -1,5 +1,5 @@
 <template>
-  <ZaPageWrap class="page-product">
+  <ZaPageWrap class="page-proposal">
     <div class="filter-key-by-list">
       <van-search
         v-model="searchValue"
@@ -15,7 +15,7 @@
         @on-select-insure="handleClickTag"
       />
     </div>
-    <div class="page-product-list">
+    <div class="page-proposal-list">
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
         <van-list v-model:loading="loading" :finished="finished" finished-text="已经到底了哦" @load="onLoad">
           <ProductItem v-for="i in productList" :key="i.id" :product-info="i?.showConfig">
@@ -158,12 +158,15 @@ onMounted(() => {
     width: 100%;
     min-height: 56px;
     line-height: 56px;
-    .van-cell {
-      padding: 0;
+    .van-search__content {
+      border-radius: 8px;
+      .van-cell {
+        padding: 0;
+      }
     }
   }
 }
-.page-product-list {
+.page-proposal-list {
   padding: 0 30px;
   .is-end-tips {
     font-size: 26px;
