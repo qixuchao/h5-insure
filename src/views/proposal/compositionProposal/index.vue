@@ -9,7 +9,8 @@
 <template>
   <ProPageWrap>
     <div class="page-composition-proposal">
-      <div class="container">
+      <div class="head-bg">众先生众先生众先生的 众先生众先生的计划</div>
+      <div class="container head-cover">
         <div class="info-detail">
           <div class="name">
             <div class="img"></div>
@@ -196,7 +197,7 @@
         </div>
       </van-action-sheet>
 
-      <div class="footer-btn">
+      <div v-if="!isShare" class="footer-btn">
         <van-button plain type="primary" class="btn">生成PDF</van-button>
         <van-button type="primary" class="btn" @click="showShare = true">分享计划书</van-button>
       </div>
@@ -205,6 +206,9 @@
 </template>
 <script lang="ts" setup>
 import wx from 'weixin-js-sdk';
+
+const router = useRoute();
+const { isShare } = router.params;
 
 const activeNames = ref('1');
 const num = ref(12);
@@ -248,9 +252,23 @@ const handleShare = (type: string) => {
 
 <style lang="scss" scoped>
 .page-composition-proposal {
-  padding: 30px;
+  padding: 0 30px 30px 30px;
   background-color: #3486ff;
   margin-bottom: 150px;
+  .head-bg {
+    background-image: url('@/assets/images/compositionProposal/head.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    margin: 0 -30px;
+    height: 242px;
+    padding: 52px 278px 0 40px;
+    font-size: 42px;
+    font-weight: 600;
+    color: #ffffff;
+  }
+  .head-cover {
+    margin-top: -30px;
+  }
   .info-detail {
     padding-top: 26px;
     display: flex;
