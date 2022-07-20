@@ -29,9 +29,9 @@
           </ProductItem>
         </van-list>
       </van-pull-refresh>
-      <!-- <p class="is-end-tips">- 已经到底了哦 -</p> -->
+      <p class="is-end-tips">- 已经到底了哦 -</p>
     </div>
-    <van-sticky v-if="isCreateProposal" position="bottom" :offset-bottom="0">
+    <div v-if="isCreateProposal" class="van-sticky">
       <div class="add-plan">
         <p class="has-select">
           已选<span class="has-select-product">{{ selectProduct.length }}</span
@@ -39,7 +39,7 @@
         </p>
         <van-button type="primary">添加计划书</van-button>
       </div>
-    </van-sticky>
+    </div>
   </ZaPageWrap>
 </template>
 
@@ -168,6 +168,7 @@ onMounted(() => {
 }
 .page-proposal-list {
   padding: 0 30px;
+  margin-bottom: 200px;
   .is-end-tips {
     font-size: 26px;
     font-family: PingFangSC-Medium, PingFang SC;
@@ -178,7 +179,7 @@ onMounted(() => {
     text-align: center;
   }
 }
-:deep(.van-sticky) {
+.van-sticky {
   width: 100%;
   position: fixed;
   bottom: 0;
