@@ -23,7 +23,7 @@
         <slot />
       </div>
     </div>
-    <ProDivider />
+    <ProDivider v-if="showDivider" />
   </div>
 </template>
 
@@ -56,6 +56,10 @@ const props = defineProps({
     default: true,
   },
   showLine: {
+    type: Boolean,
+    default: true,
+  },
+  showDivider: {
     type: Boolean,
     default: true,
   },
