@@ -36,7 +36,7 @@
     v-model:show="showPicker"
     v-model="tempModelValue"
     :columns="dataSource"
-    :title="pickerTitle || label"
+    :title="title || label"
   />
 </template>
 
@@ -74,7 +74,7 @@ const props = defineProps({
     type: Array as () => Array<{ label: string; value: number | string }>,
     default: () => [],
   },
-  pickerTitle: {
+  title: {
     type: String,
     default: '',
   },

@@ -26,21 +26,6 @@ import ProImageUpload from '@/components/ProImageUpload/index.vue';
 
 const formData = reactive({ way: '', type: '', no: '', phone: '' });
 
-const dataSource = [
-  {
-    label: '银行转账',
-    value: 1,
-  },
-  {
-    label: '支付宝',
-    value: 2,
-  },
-  {
-    label: '微信',
-    value: 3,
-  },
-];
-
 const bank = [
   {
     label: '工商银行',
