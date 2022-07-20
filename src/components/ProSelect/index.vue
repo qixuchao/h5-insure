@@ -30,11 +30,11 @@ const props = defineProps({
   },
   labelKey: {
     type: String,
-    default: 'title',
+    default: 'label',
   },
   valueKey: {
     type: String,
-    default: 'id',
+    default: 'value',
   },
   show: {
     type: Boolean,

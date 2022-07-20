@@ -10,6 +10,15 @@
         placeholder="请选择"
         @click="toggle(true)"
       ></ProField>
+      <ProField
+        v-model="formInfo.city"
+        type="picker"
+        label="城市"
+        :data-source="selectList"
+        is-link
+        placeholder="请选择城市"
+        :rules="[{ required: true, message: '请选择城市' }]"
+      />
       <ProField v-model="formInfo.gender" name="gender" label="性别" :rules="[{ required: true, message: '请选择' }]">
         <template #input>
           <ProRadioButton v-model="formInfo.gender" :options="options" />
@@ -52,7 +61,7 @@
     </ProCard>
     <ProCard title="ProSelect">
       <van-button type="primary" @click="isProSelectShow = true">弹出选择</van-button>
-      <ProSelect v-model:show="isProSelectShow" :data-source="selectList" value-key="code" />
+      <ProSelect v-model:show="isProSelectShow" :data-source="selectList" />
     </ProCard>
     <ProCard title="电子签名1">
       <ProSign ref="signRef1" selector="sign1"></ProSign>
@@ -110,6 +119,7 @@ const formInfo = ref({
   gender: '1',
   like: [],
   birth: '',
+  city: '',
 });
 const formRef = ref();
 const options = [
@@ -152,13 +162,13 @@ const pdfList = [
 ];
 
 const selectList = [
-  { title: '北京', code: '1' },
-  { title: '上海', code: '2' },
-  { title: '广州', code: '3' },
-  { title: '深圳', code: '4' },
-  { title: '武汉', code: '5' },
-  { title: '天津', code: '6' },
-  { title: '杭州', code: '7' },
+  { label: '北京', value: '1' },
+  { label: '上海', value: '2' },
+  { label: '广州', value: '3' },
+  { label: '深圳', value: '4' },
+  { label: '武汉', value: '5' },
+  { label: '天津', value: '6' },
+  { label: '杭州', value: '7' },
 ];
 
 const isProSelectShow = ref(false);
