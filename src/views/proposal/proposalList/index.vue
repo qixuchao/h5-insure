@@ -19,9 +19,11 @@
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
         <van-list v-model:loading="loading" :finished="finished" finished-text="已经到底了哦" @load="onLoad">
           <ProductItem v-for="i in productList" :key="i.id" :product-info="i?.showConfig">
-            <template #checkedProduct>
+            <template v-if="isCreateProposal" #checkedProduct>
               <div class="check-button">
-                <van-checkbox v-model="checked" name="i.id" shape="square"></van-checkbox>
+                <van-checkbox-group v-model="selectProduct">
+                  <van-checkbox :name="i.productId" shape="square"></van-checkbox>
+                </van-checkbox-group>
               </div>
             </template>
           </ProductItem>
@@ -29,9 +31,12 @@
       </van-pull-refresh>
       <!-- <p class="is-end-tips">- 已经到底了哦 -</p> -->
     </div>
-    <van-sticky position="bottom" :offset-bottom="0">
+    <van-sticky v-if="isCreateProposal" position="bottom" :offset-bottom="0">
       <div class="add-plan">
-        <p class="has-select">已选<span class="has-select-product">3</span>款产品 <span class="icon"></span></p>
+        <p class="has-select">
+          已选<span class="has-select-product">{{ selectProduct.length }}</span
+          >款产品 <span class="icon"></span>
+        </p>
         <van-button type="primary">添加计划书</van-button>
       </div>
     </van-sticky>
@@ -39,20 +44,29 @@
 </template>
 
 <script setup lang="ts">
+import { withDefaults } from 'vue';
 import ProductItem from './components/productItem.vue';
 import InsureFilter from './components/insureFilter.vue';
 import { tabsData } from './mockData';
-import { queryProposalProductList } from '@/api/modules/product';
+import { queryProposalProductList } from '@/api/modules/proposalList';
+
+interface Props {
+  isCreateProposal: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  isCreateProposal: true,
+});
 
 interface StateType {
   searchValue: string;
-  tagLists: Array<any>;
+  tagLists: any[];
   isOpen: boolean;
   loading: boolean;
   finished: boolean;
   refreshing: boolean;
-  productList: Array<any>;
-  checked: string;
+  productList: any[];
+  selectProduct: any[];
 }
 
 interface SearchType {
@@ -68,10 +82,10 @@ const state = reactive<StateType>({
   finished: false,
   refreshing: false,
   productList: [],
-  checked: '',
+  selectProduct: [],
 });
 
-const { searchValue, tagLists, isOpen, loading, finished, refreshing, productList, checked } = toRefs(state);
+const { searchValue, tagLists, isOpen, loading, finished, refreshing, productList, selectProduct } = toRefs(state);
 
 const handleSearchClick = () => {};
 const handleClickTag = (val: SearchType) => {
