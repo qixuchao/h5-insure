@@ -110,6 +110,12 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     meta: { title: '添加银行卡' },
     component: () => import('@/views/bankCard/index.vue'),
   },
+  {
+    name: 'salesmanInform',
+    path: '/salesmanInform',
+    meta: { title: '营销员告知' },
+    component: () => import('@/views/insureFlow/salesmanInform/index.vue'),
+  },
 ];
 
 export default asyncRoutes;
