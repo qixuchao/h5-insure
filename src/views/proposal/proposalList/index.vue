@@ -1,11 +1,5 @@
-<!--
- * new page
- * @author: liyang
- * @since: 2022-07-15
- * index.vue
--->
 <template>
-  <ZaPageWrap main-class="page-product">
+  <ZaPageWrap class="page-proposal">
     <div class="filter-key-by-list">
       <van-search
         v-model="searchValue"
@@ -18,40 +12,63 @@
         v-model:tagList="tagLists"
         v-model:filter="isOpen"
         filter-class="filter-area"
-        @current-index="handleClickTag"
+        @on-select-insure="handleClickTag"
       />
     </div>
-    <div class="page-product-list">
+    <div class="page-proposal-list">
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
         <van-list v-model:loading="loading" :finished="finished" finished-text="已经到底了哦" @load="onLoad">
-          <ProductItem v-for="i in 10" :key="i" :is-hot="i" />
+          <ProductItem v-for="i in productList" :key="i.id" :product-info="i?.showConfig">
+            <template v-if="isCreateProposal" #checkedProduct>
+              <div class="check-button">
+                <van-checkbox-group v-model="selectProduct">
+                  <van-checkbox :name="i.productId" shape="square"></van-checkbox>
+                </van-checkbox-group>
+              </div>
+            </template>
+          </ProductItem>
         </van-list>
       </van-pull-refresh>
-      <!-- <p class="is-end-tips">- 已经到底了哦 -</p> -->
+      <p class="is-end-tips">- 已经到底了哦 -</p>
+    </div>
+    <div v-if="isCreateProposal" class="van-sticky">
+      <div class="add-plan">
+        <p class="has-select">
+          已选<span class="has-select-product">{{ selectProduct.length }}</span
+          >款产品 <span class="icon"></span>
+        </p>
+        <van-button type="primary">添加计划书</van-button>
+      </div>
     </div>
   </ZaPageWrap>
-  <van-sticky position="bottom">
-    <div class="add-plan">
-      <p class="has-select">已选<span class="has-select-product">3</span>款产品 <span class="icon"></span></p>
-      <van-button type="primary">添加计划书</van-button>
-    </div>
-  </van-sticky>
 </template>
 
 <script setup lang="ts">
+import { withDefaults } from 'vue';
 import ProductItem from './components/productItem.vue';
 import InsureFilter from './components/insureFilter.vue';
 import { tabsData } from './mockData';
-import { queryProposalProductList } from '@/api/modules/product';
+import { queryProposalProductList } from '@/api/modules/proposalList';
+
+interface Props {
+  isCreateProposal: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  isCreateProposal: true,
+});
 
 interface StateType {
   searchValue: string;
-  tagLists: Array<any>;
+  tagLists: any[];
   isOpen: boolean;
   loading: boolean;
   finished: boolean;
   refreshing: boolean;
-  productList: Array<any>;
+  productList: any[];
+  selectProduct: any[];
+  insurerCodeList: string[];
+  showCategory: number | string;
 }
 
 const state = reactive<StateType>({
@@ -62,30 +79,58 @@ const state = reactive<StateType>({
   finished: false,
   refreshing: false,
   productList: [],
+  selectProduct: [],
+  insurerCodeList: [],
+  showCategory: '',
 });
 
-const { searchValue, tagLists, isOpen, loading, finished, refreshing, productList } = toRefs(state);
+const {
+  searchValue,
+  tagLists,
+  isOpen,
+  loading,
+  finished,
+  refreshing,
+  productList,
+  selectProduct,
+  insurerCodeList,
+  showCategory,
+} = toRefs(state);
+
+const getProducts = () => {
+  queryProposalProductList({
+    title: searchValue.value,
+    insurerCodeList: insurerCodeList.value,
+    showCategory: showCategory.value,
+    pageNum: 1,
+    pageSize: 10,
+  }).then((res: any) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      console.log(data);
+      productList.value = data?.datas;
+    }
+  });
+};
 
 const handleSearchClick = () => {};
-const handleClickTag = (id: number) => {
-  console.log(id);
+const handleClickTag = (val: any) => {
+  const { selectInsureCode, selectCategory } = val;
+  insurerCodeList.value = selectInsureCode;
+  showCategory.value = selectCategory;
+  getProducts();
 };
+
 const onLoad = () => {
-  setTimeout(() => {
-    if (refreshing.value) {
-      productList.value = [];
-      refreshing.value = false;
-    }
-
-    for (let i = 0; i < 10; i++) {
-      productList.value.push(productList.value.length + 1);
-    }
-    loading.value = false;
-
-    if (productList.value.length >= 40) {
-      finished.value = true;
-    }
-  }, 1000);
+  if (refreshing.value) {
+    productList.value = [];
+    refreshing.value = false;
+  }
+  getProducts();
+  loading.value = false;
+  // if (productList.value.length >= 40) {
+  //   finished.value = true;
+  // }
 };
 
 const onRefresh = () => {
@@ -100,10 +145,6 @@ const onRefresh = () => {
 
 onMounted(() => {
   tagLists.value = [{ labelCategoryName: '全部', id: '' }, ...tabsData.data];
-
-  queryProposalProductList({}).then((res: any) => {
-    console.log(res);
-  });
 });
 </script>
 
@@ -117,13 +158,17 @@ onMounted(() => {
     width: 100%;
     min-height: 56px;
     line-height: 56px;
-    .van-cell {
-      padding: 0;
+    .van-search__content {
+      border-radius: 8px;
+      .van-cell {
+        padding: 0;
+      }
     }
   }
 }
-.page-product-list {
+.page-proposal-list {
   padding: 0 30px;
+  margin-bottom: 200px;
   .is-end-tips {
     font-size: 26px;
     font-family: PingFangSC-Medium, PingFang SC;
@@ -134,42 +179,48 @@ onMounted(() => {
     text-align: center;
   }
 }
-.add-plan {
+.van-sticky {
   width: 100%;
-  height: 150px;
-  padding: 0 30px;
-  background-color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-top: 1px solid #efeff4;
-  .has-select {
-    font-size: 30px;
-    font-family: PingFangSC-Regular, PingFang SC;
-    font-weight: 400;
-    color: #393d46;
-    line-height: 42px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  .add-plan {
+    width: 100%;
+    height: 150px;
+    padding: 0 30px;
+    background-color: #ffffff;
     display: flex;
     align-items: center;
-    .has-select-product {
-      color: #c40;
-      font-weight: bold;
+    justify-content: space-between;
+    border-top: 1px solid #efeff4;
+    .has-select {
+      font-size: 30px;
+      font-family: PingFangSC-Regular, PingFang SC;
+      font-weight: 400;
+      color: #393d46;
+      line-height: 42px;
+      display: flex;
+      align-items: center;
+      .has-select-product {
+        color: #c40;
+        font-weight: bold;
+      }
+      .icon {
+        width: 33px;
+        height: 33px;
+        display: inline-block;
+        background: #ecedf2;
+        margin-left: 10px;
+        border-radius: 50%;
+      }
     }
-    .icon {
-      width: 33px;
-      height: 33px;
-      display: inline-block;
-      background: #ecedf2;
-      margin-left: 10px;
-      border-radius: 50%;
+    .van-button {
+      width: 280px;
+      height: 90px;
+      line-height: 90px;
+      background: #0d6efe;
+      border-radius: 8px;
     }
-  }
-  .van-button {
-    width: 280px;
-    height: 90px;
-    line-height: 90px;
-    background: #0d6efe;
-    border-radius: 8px;
   }
 }
 </style>

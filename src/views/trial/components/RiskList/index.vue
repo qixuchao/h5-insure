@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 10:50:19
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-17 09:17:19
+ * @LastEditTime: 2022-07-20 11:15:00
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/trial/components/RiskList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -27,11 +27,11 @@
       :remove-risk-list="state.checkedList"
     />
 
-    <div v-if="state?.riderRiskList?.length - state?.checkedList?.length" class="add-rider-risk">
+    <div v-if="source !== 'proposal' && state.riderRiskList?.length - state.checkedList?.length" class="add-rider-risk">
       <span class="left-part">{{
         `共有${state.riderRiskList.length - state.checkedList.length}款附加险可以添加`
       }}</span>
-      <ProCheckButton activied @click="toggle(true)">+ 附加险</ProCheckButton>
+      <ProCheckButton activated @click="toggle(true)">+ 附加险</ProCheckButton>
     </div>
     <RiskRelationList
       v-if="showPopup"
@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts" setup>
-import { withDefaults } from 'vue';
+import { withDefaults, inject } from 'vue';
 import { useToggle } from '@vant/use';
 import { Dialog } from 'vant/es';
 import RiskItem from '../RiskItem/index.vue';
@@ -79,6 +79,7 @@ const props = withDefaults(defineProps<Props>(), {
   enums: () => {},
 });
 
+const source = inject('source') || '';
 const [showPopup, toggle] = useToggle(false);
 const instance = getCurrentInstance();
 

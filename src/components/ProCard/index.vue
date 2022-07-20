@@ -2,7 +2,7 @@
   <div class="com-card">
     <div class="com-card-wrap">
       <div :class="['header', { showLine }]">
-        <div class="title-wrapper">
+        <div v-if="title" class="title-wrapper">
           <div :class="['title', { showIcon }]">{{ title }}</div>
           <ProSvg
             v-if="showFold"
