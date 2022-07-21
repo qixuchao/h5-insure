@@ -32,9 +32,9 @@
         <FieldInfo label="保障金额" content="¥100,000.00" />
         <FieldInfo label="首期保费" content="¥10,000.00" />
       </div>
-      <div class="footer">
-        <div class="button cancel">删除</div>
-        <div class="button ok">去处理</div>
+      <div class="footer-button">
+        <van-button plain type="primary">删除</van-button>
+        <van-button type="primary">去处理</van-button>
       </div>
     </div>
   </ProPageWrap>
@@ -106,34 +106,6 @@ import FieldInfo from '../components/fieldInfo.vue';
         border-radius: 4px;
         background: #0d6efe;
         margin-right: 16px;
-      }
-    }
-  }
-  .footer {
-    position: fixed;
-    width: 100%;
-    height: 150px;
-    bottom: 0;
-    left: 0;
-    background: #fff;
-    display: flex;
-    padding: 0 30px;
-    justify-content: space-between;
-    align-items: center;
-    .button {
-      width: 335px;
-      height: 90px;
-      line-height: 90px;
-      text-align: center;
-      background: #ffffff;
-      border-radius: 8px;
-      &.cancel {
-        border: 1px solid #0d6efe;
-        color: #0d6efe;
-      }
-      &.ok {
-        background: #0d6efe;
-        color: #fff;
       }
     }
   }
