@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-16 13:39:05
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-20 14:02:06
+ * @LastEditTime: 2022-07-21 09:57:40
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductRisk/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -105,7 +105,7 @@ interface Props {
   productId?: number;
   riskType?: 1 | 2;
   formInfo: any;
-  productData: any;
+  productData?: any;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -126,10 +126,10 @@ const insured = ref<Omit<InsuredVoItem, 'productPlanVOList'>>({
   personVO: {} as PersonVo,
 }); // 被保人
 const riskInfo = ref({}); // 险种信息
-const holderRef = ref({});
-const insuredRef = ref({});
-const riskFormRef = ref({});
-const riskPremiumRef = ref({});
+const holderRef = ref<any>({});
+const insuredRef = ref<any>({});
+const riskFormRef = ref<any>({});
+const riskPremiumRef = ref<any>({});
 
 const state = reactive<PageState>({
   currentPlan: '0',
@@ -156,11 +156,14 @@ const closeTip = () => {
 
 const messageInfo = computed(() => {
   let message = '';
-  const mainRisk = state.riskData[0];
-  const requiredRiskNames = (mainRisk?.requiredRiderRiskVOList || []).map((risk) => risk.riskName);
-  if (requiredRiskNames.length) {
-    message = `特殊提示: ${mainRisk.riskName}和${requiredRiskNames.join('、')}必须同时投保`;
+  if (state.riskData?.[0]) {
+    const mainRisk = state.riskData[0];
+    const requiredRiskNames = (mainRisk?.requiredRiderRiskVOList || []).map((risk) => risk.riskName);
+    if (requiredRiskNames.length) {
+      message = `特殊提示: ${mainRisk.riskName}和${requiredRiskNames.join('、')}必须同时投保`;
+    }
   }
+
   return message;
 });
 
@@ -182,12 +185,13 @@ const formatData = (trialData: premiumCalcData, riskPremium: any) => {
         ...trialData.insuredVOList[0].personVO,
         proposalInsuredProductList: [
           {
-            productId: '',
-            productName: '',
+            productId: state.riskBaseInfo.id,
+            productName: state.riskBaseInfo.productName,
             proposalProductRiskList: [
               {
-                ...trialData.insuredVOList[0].productPlanVOList[0].riskVOList,
-                proposalProductRiskVOList: riderRisk,
+                ...trialData.insuredVOList[0].productPlanVOList[0].riskVOList[0],
+                premium: riskPremium[trialData.insuredVOList[0].productPlanVOList[0].riskVOList[0].riskCode].premium,
+                riderRiskVOList: riderRisk,
               },
             ],
           },
@@ -203,13 +207,15 @@ const dealTrialData = () => {
 
   const riderRiskVOList = Object.values(mainRisk.riderRiskVOList as RiskVoItem[]).map((riderRisk) => {
     const risk: RiskVoItem = riderRisk;
+    // 如果交费期间规则是同主险期间减1，对交费期间值进行减1操作
     if (risk.chargePeriod === '3') {
       const paymentYear = (riskInfo.value[state.currentPlan].chargePeriod || '').split('_');
       paymentYear[1] && (paymentYear[1] -= 1);
       risk.chargePeriod = paymentYear.join('_');
     }
+    // 去除主险下不投保的责任
     risk.liabilityVOList = (risk.liabilityVOList || [])
-      .filter((liab) => !['-1'].includes(liab.liabilityAttributeValue))
+      .filter((liab) => liab.liabilityAttributeValue !== '-1')
       .map((liab) => {
         const currentLiab = liab;
         if (currentLiab.liabilityAttributeValue === '0') {
@@ -219,9 +225,9 @@ const dealTrialData = () => {
       });
     return risk;
   });
-
+  // 去除附加险下不投保的责任
   mainRisk.liabilityVOList = (mainRisk.liabilityVOList as LiabilityVoItem[])
-    .filter((liab) => !['-1'].includes(liab.liabilityAttributeValue))
+    .filter((liab) => liab.liabilityAttributeValue !== '-1')
     .map((liab) => {
       const currentLiab = liab;
       if (currentLiab.liabilityAttributeValue === '0') {
@@ -230,6 +236,7 @@ const dealTrialData = () => {
       return currentLiab;
     });
 
+  // 整合试算需要的数据结构
   const trialData: premiumCalcData = {
     holder: {
       personVO: {
@@ -267,10 +274,11 @@ const dealTrialData = () => {
       state.trialResult = data;
       state.canTrial = false;
       const riskPremium = {};
+      // 将试算结果中的主附险嵌套结构拍平
       const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
         premiumList.forEach((risk) => {
           riskPremium[risk.riskCode] = risk;
-          if (risk.riskPremiumDetailVOList.length) {
+          if (risk.riskPremiumDetailVOList?.length) {
             flatRiskPremium(risk.riskPremiumDetailVOList);
           }
         });
@@ -302,6 +310,7 @@ const toInsured = () => {
   Toast('准备投保');
 };
 
+// 通过字典获取保障期间和交费期间枚举值
 const queryDictList = () => {
   const dictCodeList = ['RISK_PAYMENT_PERIOD', 'RISK_INSURANCE_PERIOD'];
   getDic({ dictCodeList }).then(({ code, data }) => {
@@ -320,13 +329,14 @@ const queryProductInfo = () => {
     .then(({ code, data }) => {
       if (code === '10000') {
         state.riskBaseInfo = data.productBasicInfoVO;
-
+        // 根据险种或者计划数据生成默认的form数据
         (data.productRelationPlanVOList || data.riskDetailVOList || []).forEach((plan, index) => {
           if (index === 0) {
             state.currentPlan = plan.planCode || '0';
           }
           Object.assign(riskInfo.value, { [plan.planCode || index]: { liabilityVOList: [], riderRiskVOList: {} } });
         });
+
         state.riskData = data.riskDetailVOList || [];
         state.riskPlanData = data.productRelationPlanVOList || [];
       }
@@ -334,6 +344,7 @@ const queryProductInfo = () => {
     .finally(() => {});
 };
 
+// 从险种信息中提取投被保人的因子
 const pickFactor = (factorObj: { insuredFactorList: string[]; holderFactorList: string[]; ageRange: string[] }) => {
   state.holderFactor = factorObj.holderFactorList;
   state.insuredFactor = factorObj.insuredFactorList;
@@ -376,14 +387,15 @@ watch(
 watch(
   () => props.formInfo,
   (newVal = {}) => {
-    console.log('newVal', newVal);
-    const currentInfo = {
-      0: {
-        ...newVal.proposalProductRiskList[0],
-        riderRiskVOList: newVal.proposalProductRiskList[0].proposalProductRiskVOList,
-      },
-    };
-    Object.assign(riskInfo.value, currentInfo);
+    if (props.type === 'edit') {
+      const currentInfo = {
+        0: {
+          ...newVal.proposalProductRiskList[0],
+          riderRiskVOList: newVal.proposalProductRiskList[0].proposalProductRiskVOList,
+        },
+      };
+      Object.assign(riskInfo.value, currentInfo);
+    }
   },
   {
     deep: true,
@@ -394,8 +406,10 @@ watch(
 watch(
   () => props.productData,
   (newVal) => {
-    state.riskBaseInfo = newVal.productBasicInfoVO;
-    state.riskData = newVal.riskDetailVOList;
+    if (props.type === 'edit') {
+      state.riskBaseInfo = newVal.productBasicInfoVO;
+      state.riskData = newVal.riskDetailVOList;
+    }
   },
   {
     deep: true,

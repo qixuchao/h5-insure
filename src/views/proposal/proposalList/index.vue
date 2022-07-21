@@ -18,7 +18,7 @@
     <div class="page-product-list">
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
         <van-list v-model:loading="loading" :finished="finished" finished-text="已经到底了哦" @load="onLoad">
-          <ProductItem v-for="i in productList" :key="i.id" :product-info="i?.showConfig">
+          <ProductItem v-for="i in productList" :key="i.id" :product-info="i?.showConfig" @click="selectProposal(i)">
             <template #checkedProduct>
               <div class="check-button">
                 <van-checkbox v-model="checked" name="i.id" shape="square"></van-checkbox>
@@ -35,14 +35,27 @@
         <van-button type="primary">添加计划书</van-button>
       </div>
     </van-sticky>
+    <ProductRisk
+      v-if="showProductRisk"
+      :is-show="showProductRisk"
+      type="add"
+      :product-id="state.productId"
+      @close="closeProductRisk"
+      @finished="onFinished"
+    ></ProductRisk>
   </ZaPageWrap>
 </template>
 
 <script setup lang="ts">
+import { useToggle } from '@vant/use';
+import { useRouter } from 'vue-router';
 import ProductItem from './components/productItem.vue';
 import InsureFilter from './components/insureFilter.vue';
 import { tabsData } from './mockData';
 import { queryProposalProductList } from '@/api/modules/product';
+import ProductRisk from '../createProposal/components/ProductRisk/index.vue';
+import createProposalStore from '@/store/proposal/createProposal';
+import { ProposalInfo } from '@/api/modules/createProposal.data';
 
 interface StateType {
   searchValue: string;
@@ -53,6 +66,7 @@ interface StateType {
   refreshing: boolean;
   productList: Array<any>;
   checked: string;
+  productId?: number;
 }
 
 interface SearchType {
@@ -69,9 +83,14 @@ const state = reactive<StateType>({
   refreshing: false,
   productList: [],
   checked: '',
+  productId: undefined,
 });
 
 const { searchValue, tagLists, isOpen, loading, finished, refreshing, productList, checked } = toRefs(state);
+
+const [showProductRisk, toggleProductRisk] = useToggle();
+const store = createProposalStore();
+const router = useRouter();
 
 const handleSearchClick = () => {};
 const handleClickTag = (val: SearchType) => {
@@ -98,6 +117,24 @@ const onLoad = () => {
   // if (productList.value.length >= 40) {
   //   finished.value = true;
   // }
+};
+
+/** ****** 创建计划书相关逻辑 ******** */
+const selectProposal = (proposalInfo: any) => {
+  state.productId = proposalInfo.productId;
+  toggleProductRisk(true);
+};
+
+const closeProductRisk = () => {
+  toggleProductRisk(false);
+};
+
+const onFinished = (proposalInfo: ProposalInfo) => {
+  store.setTrialData([proposalInfo]);
+  toggleProductRisk(false);
+  router.push({
+    path: '/proposal/createProposal',
+  });
 };
 
 const onRefresh = () => {
