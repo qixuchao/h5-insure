@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import ProCard from '@/components/ProCard/index.vue';
 
-const signRef2 = ref(null);
+const signRef2 = ref<any>(null);
 
 const checked = ref<boolean>(false);
 

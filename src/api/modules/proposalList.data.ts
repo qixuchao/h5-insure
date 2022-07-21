@@ -29,3 +29,52 @@ export interface QueryProposalProductListType {
   showCategory: string | number;
   excludeProductIdList: Array<string | number>;
 }
+
+export interface HistoryProposalListParams {
+  name: string;
+  pageNum: number;
+  pageSize: number;
+  relationUserType: string | number;
+}
+
+export interface LiabilityDetailVoItem {
+  liabilityAttributeCode: string;
+  liabilityAttributeValue: string;
+  liabilityCode: string;
+  liabilityDesc: string;
+  liabilityId: number;
+  liabilityIndemnityContent: string;
+  liabilityIndemnityType: number;
+  liabilityName: string;
+  liabilityRateType: number;
+  liabilityTopType: number;
+  liabilityType: number;
+}
+
+export interface ProposalProductRiskVoItem {
+  amount: number;
+  chargePeriod: string;
+  copy: number;
+  coveragePeriod: string;
+  id: number;
+  liabilityDetailVOList: LiabilityDetailVoItem[];
+  mainRiskId: number;
+  paymentFrequency: number;
+  premium: number;
+  proposalProductId: number;
+  proposalProductRiskVOList: object[];
+  riskCode: string;
+  riskId: number;
+  riskName: string;
+  riskType: number;
+}
+
+export interface HistoryProposalListType {
+  id: number;
+  proposalName: string;
+  proposalProductRiskVOList: ProposalProductRiskVoItem[];
+  totalPremium: number;
+}
+export interface HistoryProposalListResponse {
+  datas: HistoryProposalListType[];
+}

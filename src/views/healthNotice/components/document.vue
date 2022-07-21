@@ -16,12 +16,10 @@
         </p>
       </div>
     </div>
-    <van-sticky :offset-bottom="0" position="bottom">
-      <div class="submit-button">
-        <van-button plain type="primary">部分为是</van-button>
-        <van-button type="primary">以上皆否</van-button>
-      </div>
-    </van-sticky>
+    <div class="footer-button">
+      <van-button plain type="primary">部分为是</van-button>
+      <van-button type="primary">以上皆否</van-button>
+    </div>
   </ZaPageWrap>
 </template>
 
@@ -46,20 +44,7 @@ import { mockTempData } from './mockData';
     font-weight: 400;
     color: #393d46;
     line-height: 48px;
-  }
-  .submit-button {
-    width: 100%;
-    height: 150px;
-    padding: 0 30px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #ffffff;
-    box-shadow: 0px -2px 10px 0px #f6f6f6;
-    .van-button {
-      border-radius: 8px;
-      padding: 0 75px;
-    }
+    margin-bottom: 200px;
   }
 }
 </style>
