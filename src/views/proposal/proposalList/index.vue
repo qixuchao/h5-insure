@@ -1,6 +1,6 @@
 <template>
   <ZaPageWrap class="page-proposal">
-    <div class="filter-key-by-list">
+    <div class="search-wrap">
       <van-search
         v-model="searchValue"
         placeholder="请输入关键词"
@@ -41,6 +41,7 @@
       </div>
     </div>
   </ZaPageWrap>
+  <ProFixedButton v-if="!isCreateProposal" :button-image="ProFixedButtonDefaultImage" />
 </template>
 
 <script setup lang="ts">
@@ -48,7 +49,9 @@ import { withDefaults } from 'vue';
 import ProductItem from './components/productItem.vue';
 import InsureFilter from './components/insureFilter.vue';
 import { tabsData } from './mockData';
+import ProFixedButton from '@/components/ProFixedButton/index.vue';
 import { queryProposalProductList } from '@/api/modules/proposalList';
+import ProFixedButtonDefaultImage from '@/assets/images/customer/da.png';
 
 interface Props {
   isCreateProposal: boolean;
@@ -105,8 +108,9 @@ const getProducts = () => {
     title: searchValue.value,
     insurerCodeList: insurerCodeList.value,
     showCategory: showCategory.value,
+    excludeProductIdList: [],
     pageNum: 1,
-    pageSize: 99,
+    pageSize: 999,
   }).then((res: any) => {
     const { code, data, total } = res;
     if (code === '10000') {
@@ -153,7 +157,7 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.filter-key-by-list {
+.search-wrap {
   position: sticky;
   top: 0;
   z-index: 999;

@@ -27,4 +27,5 @@ export interface QueryProposalProductListType {
   title: string;
   insurerCodeList: Array<string>;
   showCategory: string | number;
+  excludeProductIdList: Array<string | number>;
 }

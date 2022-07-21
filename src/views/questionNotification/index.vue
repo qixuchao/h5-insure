@@ -18,6 +18,10 @@
       <van-cell title="《健康告知书》" is-link value="去完成" />
       <van-cell title="《被保人声明》" is-link value="去完成" />
     </ProCard>
+    <div class="footer-button">
+      <van-button plain type="primary">分享</van-button>
+      <van-button type="primary">下一步</van-button>
+    </div>
   </ZaPageWrap>
 </template>
 
