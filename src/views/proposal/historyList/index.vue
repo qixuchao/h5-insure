@@ -36,8 +36,6 @@ import ProTable from '@/components/ProTable/index.vue';
 import { historyProposalList, deleteProposal } from '@/api/modules/proposalList';
 import { HistoryProposalListType } from '@/api/modules/proposalList.data';
 
-const searchValue = ref<string>('');
-
 const columns = [
   {
     title: '险种名称',
@@ -62,15 +60,33 @@ const columns = [
 
 interface StatueProps {
   historyList: Array<HistoryProposalListType>;
+  searchValue: string;
 }
 
 const state = reactive<StatueProps>({
   historyList: [],
+  searchValue: '',
 });
 
-const { historyList } = toRefs(state);
+const { historyList, searchValue } = toRefs(state);
 
-const handleSearchClick = () => {};
+const getHistoryList = () => {
+  historyProposalList({
+    name: searchValue.value,
+    pageNum: 1,
+    pageSize: 999,
+    relationUserType: 2,
+  }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      historyList.value = data.datas;
+    }
+  });
+};
+
+const handleSearchClick = () => {
+  getHistoryList();
+};
 
 const delRisk = (id: number) => {
   Dialog.confirm({
@@ -82,24 +98,11 @@ const delRisk = (id: number) => {
         const { code } = res;
         if (code === '10000') {
           Toast.success('删除成功');
+          getHistoryList();
         }
       });
     })
     .catch(() => {});
-};
-
-const getHistoryList = () => {
-  historyProposalList({
-    name: '',
-    pageNum: 1,
-    pageSize: 999,
-    relationUserType: 2,
-  }).then((res) => {
-    const { code, data } = res;
-    if (code === '10000') {
-      historyList.value = data.datas;
-    }
-  });
 };
 
 onMounted(() => {
