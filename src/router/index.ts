@@ -109,7 +109,7 @@ router.beforeEach(async (to, from, next) => {
 const IS_WECHAT = isWechat();
 router.beforeResolve(async (to, from) => {
   if (to.meta.requireWxJs && IS_WECHAT) {
-    const res = await getJssdkSignature({ url: encodeURIComponent(realAuthUrl) });
+    const res = await getJssdkSignature({ url: encodeURIComponent(realAuthUrl), systemCode: 'ZAXY_OFFICIAL' });
     wx.config({
       debug: false,
       appId: res.data.data.appid,

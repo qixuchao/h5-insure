@@ -63,10 +63,16 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/product/detail/index.vue'),
   },
   {
-    name: 'ProductList',
-    path: '/productList',
-    meta: { title: '产品列表' },
+    name: 'proposalList',
+    path: '/proposalList',
+    meta: { title: '计划书列表' },
     component: () => import('@/views/proposal/proposalList/index.vue'),
+  },
+  {
+    name: 'historyProposalList',
+    path: '/historyProposalList',
+    meta: { title: '历史计划书列表' },
+    component: () => import('@/views/proposal/historyList/index.vue'),
   },
   {
     name: 'pay',
@@ -103,6 +109,12 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     path: '/bankCard',
     meta: { title: '添加银行卡' },
     component: () => import('@/views/bankCard/index.vue'),
+  },
+  {
+    name: 'salesmanInform',
+    path: '/salesmanInform',
+    meta: { title: '营销员告知' },
+    component: () => import('@/views/insureFlow/salesmanInform/index.vue'),
   },
 ];
 

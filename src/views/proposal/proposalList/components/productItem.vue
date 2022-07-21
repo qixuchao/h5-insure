@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 import { withDefaults } from 'vue';
-import { ProductInfoVoItem } from '@/api/modules/product.data';
+import { ProductInfoVoItem } from '@/api/modules/proposalList.data';
 
 interface Props {
   productInfo: Partial<ProductInfoVoItem>;
