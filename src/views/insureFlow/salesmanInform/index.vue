@@ -9,7 +9,10 @@
     <ProCard title="告知书">
       <van-cell title="《投保人问卷》" is-link value="去完成" />
     </ProCard>
-    <ProCard title="营销员签字" link="重签" :show-divider="false" :show-line="false" @link-click="resetSign">
+    <ProCard title="营销员签字" :show-divider="false" :show-line="false">
+      <template #extra>
+        <div class="resign" @click="resetSign">重签</div>
+      </template>
       <ProSign ref="signRef2" selector="sign2"></ProSign>
     </ProCard>
     <footer class="footer-btn">
@@ -17,7 +20,7 @@
         <van-checkbox v-model="checked" shape="square"></van-checkbox>
         <p class="tips">您的签名将被用于<span>《营销员告知书》</span>文件</p>
       </div>
-      <div class="next-btn">
+      <div class="footer-button">
         <van-button type="primary" block>下一步</van-button>
       </div>
     </footer>
@@ -41,6 +44,7 @@ const resetSign = () => {
   .van-cell {
     display: flex;
     align-items: center;
+    padding: 30px 0;
     :deep(.van-cell__title) {
       font-size: 30px;
       font-family: PingFangSC-Regular, PingFang SC;
@@ -58,6 +62,10 @@ const resetSign = () => {
     .active {
       color: #0d6efe;
     }
+  }
+  .resign {
+    font-size: 28px;
+    color: $zaui-aide-text-stress;
   }
   .footer-btn {
     width: calc(100% - 60px);

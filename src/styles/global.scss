@@ -1,0 +1,30 @@
+
+// 全部footer下一步按钮通用样式
+.footer-button {
+  width: 100%;
+  height: 150px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-top: 1px solid $zaui-line;
+  padding: 0 30px;
+  background: #ffffff;
+  .van-button {
+    height: 90px;
+    border-radius: 8px;
+    border: 2px solid #0d6efe;
+    &:not(:first-child) {
+      margin-left: 20px;
+    }
+    &:nth-last-child(1):first-child{
+      width: 100%;
+    }
+    &:nth-last-child(2):first-child,
+    &:nth-last-child(2):first-child ~  .van-button {
+      width: calc(100% / 2);
+    }
+  }
+}

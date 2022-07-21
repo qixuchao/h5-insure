@@ -49,7 +49,7 @@ const screenScroll = () => {
   };
 };
 const handleClickFixedButton = () => {
-  Toast('click event');
+  Toast('历史计划书');
 };
 onBeforeMount(() => {
   window.addEventListener('scroll', screenScroll);

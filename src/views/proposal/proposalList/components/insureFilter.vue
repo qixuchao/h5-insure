@@ -32,7 +32,7 @@
           <div class="popup-title">保险公司</div>
           <ProCheckboxButton v-model="checkedInsure" :options="insureList" />
         </div>
-        <div class="footer-btn">
+        <div class="footer-button">
           <van-button plain type="primary" @click="reset">重置</van-button>
           <van-button type="primary" @click="handleClickFilter">确定</van-button>
         </div>
@@ -216,24 +216,6 @@ onMounted(() => {
         .com-check-btn {
           margin: 0 12px 10px 0;
         }
-      }
-    }
-    .footer-btn {
-      width: 100%;
-      height: 150px;
-      background: #ffffff;
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      border-top: 1px solid $zaui-line;
-      padding: 0 15px;
-      .van-button {
-        width: 238px;
-        border-radius: 8px;
-        border: 2px solid #0d6efe;
       }
     }
   }
