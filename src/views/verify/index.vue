@@ -60,9 +60,9 @@
           </div>
         </div>
       </ProCard>
-      <div class="footer">
-        <div class="button cancel">分享</div>
-        <div class="button ok">提交</div>
+      <div class="footer-button footer">
+        <van-button plain type="primary">分享</van-button>
+        <van-button type="primary">提交</van-button>
       </div>
     </div>
   </ProPageWrap>
@@ -151,28 +151,7 @@ const fileList = ['营销员保至书', '投保人须知', 'xxxxxxxxxxxxx'];
     }
   }
   .footer {
-    height: 150px;
-    background: #fff;
-    display: flex;
-    padding: 0 30px;
-    justify-content: space-between;
-    align-items: center;
-    .button {
-      width: 335px;
-      height: 90px;
-      line-height: 90px;
-      text-align: center;
-      background: #ffffff;
-      border-radius: 8px;
-      &.cancel {
-        border: 1px solid #0d6efe;
-        color: #0d6efe;
-      }
-      &.ok {
-        background: #0d6efe;
-        color: #fff;
-      }
-    }
+    position: static;
   }
 }
 </style>

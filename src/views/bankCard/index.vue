@@ -49,8 +49,8 @@
         <van-checkbox v-model="agree" class="checkbox" shape="square" :icon-size="16" /> 投保人阅读并接受
         <div class="file">《银行转账授权》</div>
       </div>
-      <div class="footer">
-        <div class="button">下一步</div>
+      <div class="footer-button footer">
+        <van-button type="primary">下一步</van-button>
       </div>
     </div>
   </ProPageWrap>
@@ -148,21 +148,7 @@ const handleYearCardClick = (type: string) => {
     }
   }
   .footer {
-    height: 150px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0 30px;
-    .button {
-      width: 100%;
-      height: 90px;
-      line-height: 90px;
-      color: #fff;
-      background: #0d6efe;
-      border-radius: 8px;
-      font-size: 36px;
-      text-align: center;
-    }
+    position: static;
   }
 }
 </style>
