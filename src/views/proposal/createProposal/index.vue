@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:14:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-20 21:09:30
+ * @LastEditTime: 2022-07-21 10:46:41
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -147,7 +147,7 @@ const proposalInfo = ref<any>({
   ],
   proposalName: '',
   totalPremium: 0,
-  relationUserType: 1,
+  relationUserType: 2,
 });
 
 const router = useRouter();
@@ -180,10 +180,8 @@ const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
           (product: ProposalInsuredProductItem) => product.productId !== productInfo.productId,
         );
     } else {
-      currentProduct.proposalProductRiskList[0].proposalProductRiskVOList =
-        currentProduct.proposalProductRiskList[0].proposalProductRiskVOList.filter(
-          (risk) => risk.riskId !== riskInfo.riskId,
-        );
+      currentProduct.proposalProductRiskList[0].riderRiskVOList =
+        currentProduct.proposalProductRiskList[0].riderRiskVOList.filter((risk) => risk.riskId !== riskInfo.riskId);
     }
   });
 };
@@ -208,9 +206,14 @@ const queryProposalInfo = () => {
 };
 
 const saveProposalData = () => {
-  addOrUpdateProposal(proposalInfo.value).then(({ code }) => {
+  addOrUpdateProposal(proposalInfo.value).then(({ code, data }) => {
     if (code === '10000') {
-      Toast('提交成功');
+      router.push({
+        path: '/compositionProposal',
+        query: {
+          id: data,
+        },
+      });
     }
   });
 };
