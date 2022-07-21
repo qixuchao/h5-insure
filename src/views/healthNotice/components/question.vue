@@ -54,11 +54,9 @@
         </van-cell-group>
       </div>
     </ProCard>
-    <van-sticky :offset-bottom="0" position="bottom">
-      <div class="submit-button">
-        <van-button type="primary" block>提交</van-button>
-      </div>
-    </van-sticky>
+    <div class="footer-button">
+      <van-button type="primary" block>提交</van-button>
+    </div>
   </ZaPageWrap>
 </template>
 
@@ -101,7 +99,7 @@ const state = reactive({
 });
 const { checkedProblem1, checked, checkList, modelValue, inputValue, radioSelectList } = toRefs(state);
 
-const toggle = (index: string) => {
+const toggle = (index: string | number) => {
   checkboxRefs.value[index].toggle();
 };
 
@@ -120,7 +118,8 @@ onBeforeUpdate(() => {
 .com-quersion {
   :deep(.body) {
     background-color: #f2f5fc;
-    padding: 0;
+    padding: 0 !important;
+    margin-bottom: 120px;
     .com-radio-btn {
       justify-content: flex-start;
     }
@@ -137,17 +136,6 @@ onBeforeUpdate(() => {
     font-weight: 500;
     color: #393d46;
     line-height: 106px;
-  }
-}
-.submit-button {
-  width: 100%;
-  height: 150px;
-  padding: 0 30px;
-  display: flex;
-  align-items: center;
-  background: #ffffff;
-  .van-button {
-    border-radius: 8px;
   }
 }
 </style>

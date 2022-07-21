@@ -68,7 +68,9 @@ const selectBtn = (value) => {
   flex-wrap: wrap;
   justify-content: flex-end;
   .btn-wrapper {
-    margin: 0 0 16px 16px;
+    display: grid;
+    grid-column-gap: 16px;
+    grid-row-gap: 16px;
   }
 }
 </style>
