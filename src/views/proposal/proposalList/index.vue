@@ -29,7 +29,7 @@
           </ProductItem>
         </van-list>
       </van-pull-refresh>
-      <p class="is-end-tips">- 已经到底了哦 -</p>
+      <!-- <p class="is-end-tips">- 已经到底了哦 -</p> -->
     </div>
     <div v-if="isCreateProposal" class="van-sticky">
       <div class="add-plan">
@@ -69,6 +69,7 @@ interface StateType {
   selectProduct: any[];
   insurerCodeList: string[];
   showCategory: number | string;
+  productTotal: number;
 }
 
 const state = reactive<StateType>({
@@ -82,6 +83,7 @@ const state = reactive<StateType>({
   selectProduct: [],
   insurerCodeList: [],
   showCategory: '',
+  productTotal: 0,
 });
 
 const {
@@ -95,6 +97,7 @@ const {
   selectProduct,
   insurerCodeList,
   showCategory,
+  productTotal,
 } = toRefs(state);
 
 const getProducts = () => {
@@ -103,12 +106,13 @@ const getProducts = () => {
     insurerCodeList: insurerCodeList.value,
     showCategory: showCategory.value,
     pageNum: 1,
-    pageSize: 10,
+    pageSize: 99,
   }).then((res: any) => {
-    const { code, data } = res;
+    const { code, data, total } = res;
     if (code === '10000') {
       console.log(data);
       productList.value = data?.datas;
+      productTotal.value = total;
     }
   });
 };
@@ -128,14 +132,14 @@ const onLoad = () => {
   }
   getProducts();
   loading.value = false;
-  // if (productList.value.length >= 40) {
-  //   finished.value = true;
-  // }
+  if (productTotal.value === productList.value.length) {
+    finished.value = true;
+  }
 };
 
 const onRefresh = () => {
   // 清空列表数据
-  finished.value = false;
+  finished.value = true;
 
   // 重新加载数据
   // 将 loading 设置为 true，表示处于加载状态
