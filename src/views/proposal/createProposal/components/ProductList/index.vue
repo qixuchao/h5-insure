@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 16:43:35
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-20 15:04:15
+ * @LastEditTime: 2022-07-21 10:32:21
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -36,7 +36,7 @@
           </div>
         </div>
       </div>
-      <div v-for="riderRisk in risk.proposalProductRiskVOList" :key="riderRisk.riskCode" class="risk-item-wrapper">
+      <div v-for="riderRisk in risk.riderRiskVOList" :key="riderRisk.riskCode" class="risk-item-wrapper">
         <ProTitle :risk-type="riderRisk.riskType" :title="riderRisk.riskName" />
         <div class="content">
           <div class="risk-premium">
@@ -91,6 +91,13 @@ interface Props {
   productData: Partial<ProductData>;
 }
 
+interface State {
+  checkedList: [];
+  disabledList: [];
+  riderRiskList: ProposalProductRiskItem[];
+  mainRiskData: ProductData;
+}
+
 const props = withDefaults(defineProps<Props>(), {
   productRiskList: () => [],
   enumList: () => ({}),
@@ -100,11 +107,11 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emits = defineEmits(['deleteRisk', 'updateRisk', 'addRisk']);
 const [showRelationList, toggleRelationList] = useToggle();
-const state = ref({
+const state = ref<State>({
   checkedList: [],
   disabledList: [],
   riderRiskList: [],
-  mainRiskData: {},
+  mainRiskData: {} as ProductData,
 });
 
 const riderRiskList = computed(() => {

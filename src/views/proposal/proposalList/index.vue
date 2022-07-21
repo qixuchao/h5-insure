@@ -18,8 +18,8 @@
     <div class="page-proposal-list">
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
         <van-list v-model:loading="loading" :finished="finished" finished-text="已经到底了哦" @load="onLoad">
-          <ProductItem v-for="i in productList" :key="i.id" :product-info="i?.showConfig">
-            <template v-if="isCreateProposal" #checkedProduct>
+          <ProductItem v-for="i in productList" :key="i.id" :product-info="i?.showConfig" @click="selectProposal(i)">
+            <template #checkedProduct>
               <div class="check-button">
                 <van-checkbox-group v-model="selectProduct">
                   <van-checkbox :name="i.productId" shape="square"></van-checkbox>
@@ -40,15 +40,29 @@
         <van-button type="primary">添加计划书</van-button>
       </div>
     </div>
+
+    <ProductRisk
+      v-if="showProductRisk"
+      :is-show="showProductRisk"
+      type="add"
+      :product-id="state.productId"
+      @close="closeProductRisk"
+      @finished="onFinished"
+    ></ProductRisk>
   </ZaPageWrap>
   <ProFixedButton v-if="!isCreateProposal" :button-image="ProFixedButtonDefaultImage" />
 </template>
 
 <script setup lang="ts">
+import { useToggle } from '@vant/use';
+import { useRouter } from 'vue-router';
 import { withDefaults } from 'vue';
 import ProductItem from './components/productItem.vue';
 import InsureFilter from './components/insureFilter.vue';
 import { tabsData } from './mockData';
+import ProductRisk from '../createProposal/components/ProductRisk/index.vue';
+import createProposalStore from '@/store/proposal/createProposal';
+import { ProposalInfo } from '@/api/modules/createProposal.data';
 import ProFixedButton from '@/components/ProFixedButton/index.vue';
 import { queryProposalProductList } from '@/api/modules/proposalList';
 import ProFixedButtonDefaultImage from '@/assets/images/customer/da.png';
@@ -73,6 +87,8 @@ interface StateType {
   insurerCodeList: string[];
   showCategory: number | string;
   productTotal: number;
+  productId?: number;
+  checked: string;
 }
 
 const state = reactive<StateType>({
@@ -87,6 +103,8 @@ const state = reactive<StateType>({
   insurerCodeList: [],
   showCategory: '',
   productTotal: 0,
+  checked: '',
+  productId: undefined,
 });
 
 const {
@@ -102,6 +120,10 @@ const {
   showCategory,
   productTotal,
 } = toRefs(state);
+
+const [showProductRisk, toggleProductRisk] = useToggle();
+const store = createProposalStore();
+const router = useRouter();
 
 const getProducts = () => {
   queryProposalProductList({
@@ -139,6 +161,24 @@ const onLoad = () => {
   if (productTotal.value === productList.value.length) {
     finished.value = true;
   }
+};
+
+/** ****** 创建计划书相关逻辑 ******** */
+const selectProposal = (proposalInfo: any) => {
+  state.productId = proposalInfo.productId;
+  toggleProductRisk(true);
+};
+
+const closeProductRisk = () => {
+  toggleProductRisk(false);
+};
+
+const onFinished = (proposalInfo: ProposalInfo) => {
+  store.setTrialData([proposalInfo]);
+  toggleProductRisk(false);
+  router.push({
+    path: '/proposal/createProposal',
+  });
 };
 
 const onRefresh = () => {

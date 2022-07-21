@@ -34,7 +34,6 @@
                   <div class="title">
                     {{ item.riskName }}
                   </div>
-                  <div class="title-desc">此处为险种简要说明</div>
                 </div>
               </template>
             </VanCell>
@@ -48,34 +47,23 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { combineConsoleFeatures } from 'vscode-languageserver';
-import ProPopup from '@/components/ProPopup/index.vue';
+import { withDefaults } from 'vue';
+import { CollocationVoItem, RiskDetailVoItem } from '@/api/modules/trial.data';
 
-const props = defineProps({
-  riskList: {
-    type: Array,
-    required: true,
-    default: () => [],
-  },
-  show: {
-    type: Boolean,
-    required: true,
-    default: false,
-  },
-  collocationList: {
-    type: Array,
-    default: () => [],
-  },
-  disabled: {
-    type: Array,
-    required: true,
-    default: () => [],
-  },
-  modelValue: {
-    type: Array,
-    required: true,
-    default: () => [],
-  },
+interface Props {
+  riskList: RiskDetailVoItem[];
+  show: boolean;
+  collocationList: CollocationVoItem[];
+  disabled: [];
+  modelValue: [];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  riskList: () => [],
+  show: false,
+  collocationList: () => [],
+  disabled: () => [],
+  modelValue: () => [],
 });
 
 const emits = defineEmits(['finished', 'close', 'update:modelValue']);
@@ -168,23 +156,11 @@ watch(
   },
 );
 
-// watch(
-//   () => props.disabled,
-//   (newVal) => {
-//     disabled.value.push(...newVal);
-//   },
-//   {
-//     deep: true,
-//     immediate: true,
-//   },
-// );
-
 watch(
   () => props.modelValue,
-  (newVal = []) => {
-    checked.value = newVal;
-    // state.currentChecked = newVal;
-    disabled.value.push(...newVal);
+  (newVal) => {
+    checked.value = newVal || [];
+    disabled.value.push(...(newVal || []));
   },
   {
     deep: true,

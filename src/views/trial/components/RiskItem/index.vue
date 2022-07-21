@@ -133,8 +133,8 @@
     </VanField>
     <VanField
       v-if="
-        !isEmpty(originData?.riskInsureLimitVO?.paymentFrequencyList) ||
-        !isEmpty(originData?.riskInsureLimitVO?.paymentPeriodRule)
+        !isEmpty(originData.riskInsureLimitVO?.paymentFrequencyList) ||
+        !isEmpty(originData.riskInsureLimitVO?.paymentPeriodRule)
       "
       v-model="state.formInfo.paymentFrequency"
       label="交费方式"
@@ -195,7 +195,7 @@
               :options="
                 pickEnums(
                   LIABILITY_ATTRIBUTE_VALUE,
-                  originData?.riskLiabilityInfoVOList?.[num]?.liabilityAttributeValueList,
+                  originData.riskLiabilityInfoVOList?.[num]?.liabilityAttributeValueList,
                 )
               "
             ></ProRadioButton>
@@ -233,7 +233,7 @@
     <div v-if="originData?.relationDesc" class="liab-desc">
       <ProExpand title="责任投保说明">
         <div>
-          {{ originData?.relationDesc }}
+          {{ originData.relationDesc }}
         </div>
       </ProExpand>
     </div>
@@ -258,7 +258,7 @@ import {
 import { RiskDetailVoItem, RiskVoItem } from '@/api/modules/trial.data';
 
 interface Props {
-  originData: Partial<RiskDetailVoItem>;
+  originData: RiskDetailVoItem;
   formInfo: Partial<RiskVoItem>;
   mainRiskData: Partial<RiskDetailVoItem>;
   mainRiskInfo: Partial<RiskVoItem>;
@@ -269,7 +269,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  originData: () => ({}),
+  originData: () => ({} as RiskDetailVoItem),
   formInfo: () => ({}),
   mainRiskData: () => ({}),
   mainRiskInfo: () => ({}),
@@ -281,7 +281,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const enumList = ref({});
 
-const riskPremium = inject('premium') || {};
+const riskPremium: any = inject('premium') || {};
 enumList.value = inject('enumList') || {};
 
 const disabledProperties = ref({
@@ -299,8 +299,8 @@ const disabledProperties = ref({
   },
 });
 
-const state = reactive<{ formInfo: Partial<RiskVoItem> }>({
-  formInfo: props.formInfo,
+const state = reactive<{ formInfo: RiskVoItem }>({
+  formInfo: props.formInfo as RiskVoItem,
 });
 
 const isEmpty = (value: any) => {
@@ -439,6 +439,7 @@ onBeforeMount(() => {
   const extralInfo = {
     riskType: props.originData.riskType,
     riskId: props.originData.id,
+    riskName: props.originData.riskName,
     riskCode: props.originData.riskCode,
     mainRiskCode: props?.mainRiskData?.riskCode,
     mainRiskId: props?.mainRiskData?.id,
@@ -492,7 +493,7 @@ watch(
         } else {
           disabledProperties.value.coveragePeriod.prevent = true;
         }
-        state.formInfo.coveragePeriod = newVal.coveragePeriod;
+        state.formInfo.coveragePeriod = newVal.coveragePeriod || '';
       }
 
       if (props.originData?.riskInsureLimitVO?.paymentPeriodRule === 1) {
@@ -501,7 +502,7 @@ watch(
         } else {
           disabledProperties.value.chargePeriod.prevent = true;
         }
-        state.formInfo.chargePeriod = newVal.chargePeriod;
+        state.formInfo.chargePeriod = newVal.chargePeriod || '';
       }
 
       if (props.originData?.riskInsureLimitVO?.paymentTypeRule === 1) {
@@ -510,7 +511,7 @@ watch(
         } else {
           disabledProperties.value.paymentFrequency.prevent = true;
         }
-        state.formInfo.paymentFrequency = newVal.paymentFrequency;
+        state.formInfo.paymentFrequency = newVal.paymentFrequency || 0;
       }
     }
   },
