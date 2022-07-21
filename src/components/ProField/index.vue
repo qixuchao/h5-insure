@@ -51,7 +51,7 @@ const emits = defineEmits(['click', 'update:modelValue']);
 
 const props = defineProps({
   modelValue: {
-    type: [String, Number],
+    type: [String, Number, Array],
     default: '',
   },
   placeholder: {
