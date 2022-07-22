@@ -7,7 +7,7 @@
     <ProField label="持卡人" name="type">
       <template #input>王小明</template>
     </ProField>
-    <ProField v-model="formData.type" label="开户银行" is-link placeholder="请选择" type="picker" :data-source="bank" />
+    <ProPicker v-model="formData.type" label="开户银行" is-link placeholder="请选择" :data-source="bank" />
     <ProField label="银行卡照片" block label-width="100%">
       <template #label>
         <div class="field-title">银行卡照片 <span class="sub-title"> （需上传正反两面）</span></div>
@@ -23,6 +23,7 @@
 <script lang="ts" setup>
 import ProField from '@/components/ProField/index.vue';
 import ProImageUpload from '@/components/ProImageUpload/index.vue';
+import ProPicker from '@/components/ProPicker/index.vue';
 
 const formData = reactive({ way: '', type: '', no: '', phone: '' });
 

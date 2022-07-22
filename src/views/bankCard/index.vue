@@ -3,14 +3,7 @@
     <div class="page-bank-card">
       <ProCard title="首期支付">
         <ProForm>
-          <ProField
-            v-model="formData.way1"
-            label="支付方式"
-            is-link
-            placeholder="请选择"
-            type="picker"
-            :data-source="dataSource"
-          />
+          <ProPicker v-model="formData.way1" label="支付方式" is-link placeholder="请选择" :data-source="dataSource" />
           <BankCardInfo />
         </ProForm>
       </ProCard>
@@ -21,14 +14,7 @@
               <van-switch v-model="formData.sameFirst" size="22" />
             </template>
           </ProField>
-          <ProField
-            v-model="formData.way2"
-            label="支付方式"
-            is-link
-            placeholder="请选择"
-            type="picker"
-            :data-source="dataSource"
-          />
+          <ProPicker v-model="formData.way2" label="支付方式" is-link placeholder="请选择" :data-source="dataSource" />
           <BankCardInfo v-if="!formData.sameFirst" />
         </ProForm>
       </ProCard>
@@ -60,6 +46,7 @@
 import ProCard from '@/components/ProCard/index.vue';
 import ProForm from '@/components/ProForm/index.vue';
 import ProField from '@/components/ProField/index.vue';
+import ProPicker from '@/components/ProPicker/index.vue';
 import BankCardInfo from '@/components/BankCardInfo/index.vue';
 
 const formData = reactive({ way1: '', way2: '', sameFirst: true });
