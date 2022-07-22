@@ -10,15 +10,33 @@
         placeholder="请选择"
         @click="toggle(true)"
       ></ProField>
-      <ProField
+      <ProPicker
         v-model="formInfo.city"
-        type="picker"
         label="城市"
+        name="city"
         :data-source="selectList"
         is-link
         placeholder="请选择城市"
         :rules="[{ required: true, message: '请选择城市' }]"
       />
+      <ProDatePicker
+        v-model="formInfo.dateTime"
+        label="datetime"
+        type="datetime"
+        name="datetime"
+        :rules="[{ required: true, message: '请选择' }]"
+      />
+      <ProDatePicker
+        v-model="formInfo.date"
+        label="date"
+        type="date"
+        name="date"
+        :rules="[{ required: true, message: '请选择' }]"
+      />
+      <ProDatePicker v-model="formInfo.time" label="time" type="time" name="date" />
+      <ProDatePicker v-model="formInfo.yearMonth" label="year-month" type="year-month" name="date" />
+      <ProDatePicker v-model="formInfo.monthDay" label="month-day" type="month-day" name="date" />
+      <ProDatePicker v-model="formInfo.datehour" label="datehour" type="datehour" name="date" />
       <ProField v-model="formInfo.gender" name="gender" label="性别" :rules="[{ required: true, message: '请选择' }]">
         <template #input>
           <ProRadioButton v-model="formInfo.gender" :options="options" />
@@ -112,6 +130,8 @@ import ProFixedButton from '@/components/ProFixedButton/index.vue';
 import ProFixedButtonDefaultImage from '@/assets/images/customer/da.png';
 import ProIDCardUpload from '@/components/ProIDCardUpload/index.vue';
 import ProTable from '@/components/ProTable/index.vue';
+import ProDatePicker from '@/components/ProDatePicker/index.vue';
+import ProPicker from '@/components/ProPicker/index.vue';
 
 const [isShow, toggle] = useToggle(false);
 
@@ -120,6 +140,12 @@ const formInfo = ref({
   like: [],
   birth: '',
   city: '',
+  date: '',
+  dateTime: '2020-02-02 02:02',
+  time: '',
+  yearMonth: '',
+  monthDay: '',
+  datehour: '',
 });
 const formRef = ref();
 const options = [

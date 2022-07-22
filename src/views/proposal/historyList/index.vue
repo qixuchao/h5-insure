@@ -14,42 +14,14 @@
       @click-input="handleSearchClick"
     />
     <div class="proposal-content">
-      <div class="proposal-item">
-        <div class="title">陈先生的计划书这里是是是标题20个字占位</div>
-        <p class="premium">保费：<span>¥1,289.00</span></p>
-        <ProTable :columns="columns" class="table" :data-source="dataSource" />
+      <div v-for="i of historyList" :key="i.id" class="proposal-item">
+        <div class="title">{{ i.proposalName }}</div>
+        <p class="premium">
+          保费：<span>¥{{ i.totalPremium }}</span>
+        </p>
+        <ProTable :columns="columns" class="table" :data-source="i.proposalProductRiskVOList" />
         <div class="operate-btn">
-          <van-button plain round type="primary" class="del-btn">删除</van-button>
-          <van-button plain round type="primary">编辑</van-button>
-          <van-button plain round type="primary">预览</van-button>
-        </div>
-      </div>
-      <div class="proposal-item">
-        <div class="title">陈先生的计划书这里是是是标题20个字占位</div>
-        <p class="premium">保费：<span>¥1,289.00</span></p>
-        <ProTable :columns="columns" class="table" :data-source="dataSource" />
-        <div class="operate-btn">
-          <van-button plain round type="primary" class="del-btn">删除</van-button>
-          <van-button plain round type="primary">编辑</van-button>
-          <van-button plain round type="primary">预览</van-button>
-        </div>
-      </div>
-      <div class="proposal-item">
-        <div class="title">陈先生的计划书这里是是是标题20个字占位</div>
-        <p class="premium">保费：<span>¥1,289.00</span></p>
-        <ProTable :columns="columns" class="table" :data-source="dataSource" />
-        <div class="operate-btn">
-          <van-button plain round type="primary" class="del-btn">删除</van-button>
-          <van-button plain round type="primary">编辑</van-button>
-          <van-button plain round type="primary">预览</van-button>
-        </div>
-      </div>
-      <div class="proposal-item">
-        <div class="title">陈先生的计划书这里是是是标题20个字占位</div>
-        <p class="premium">保费：<span>¥1,289.00</span></p>
-        <ProTable :columns="columns" class="table" :data-source="dataSource" />
-        <div class="operate-btn">
-          <van-button plain round type="primary" class="del-btn">删除</van-button>
+          <van-button plain round type="primary" class="del-btn" @click="delRisk(i.id)">删除</van-button>
           <van-button plain round type="primary">编辑</van-button>
           <van-button plain round type="primary">预览</van-button>
         </div>
@@ -59,53 +31,83 @@
 </template>
 
 <script setup lang="ts">
+import { Dialog, Toast } from 'vant';
 import ProTable from '@/components/ProTable/index.vue';
-
-const searchValue = ref<string>('');
+import { historyProposalList, deleteProposal } from '@/api/modules/proposalList';
+import { HistoryProposalListType } from '@/api/modules/proposalList.data';
 
 const columns = [
   {
     title: '险种名称',
-    dataIndex: 'key1',
+    dataIndex: 'riskName',
     width: 180,
   },
   {
     title: '保障期间',
-    dataIndex: 'key2',
+    dataIndex: 'coveragePeriod',
   },
   {
     title: '缴费期间',
-    dataIndex: 'key4',
+    dataIndex: 'chargePeriod',
     width: 110,
   },
   {
     title: '保费',
-    dataIndex: 'key5',
+    dataIndex: 'premium',
     width: 120,
   },
 ];
-const dataSource = [
-  {
-    key1: '众安家庭共享',
-    key2: '50万',
-    key4: '一次交清',
-    key5: '988.00',
-  },
-  {
-    key1: '众安家庭共享',
-    key2: '50万',
-    key4: '一次交清',
-    key5: '988.00',
-  },
-  {
-    key1: '众安家庭共享',
-    key2: '50万',
-    key4: '一次交清',
-    key5: '988.00',
-  },
-];
 
-const handleSearchClick = () => {};
+interface StatueProps {
+  historyList: Array<HistoryProposalListType>;
+  searchValue: string;
+}
+
+const state = reactive<StatueProps>({
+  historyList: [],
+  searchValue: '',
+});
+
+const { historyList, searchValue } = toRefs(state);
+
+const getHistoryList = () => {
+  historyProposalList({
+    name: searchValue.value,
+    pageNum: 1,
+    pageSize: 999,
+    relationUserType: 2,
+  }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      historyList.value = data.datas;
+    }
+  });
+};
+
+const handleSearchClick = () => {
+  getHistoryList();
+};
+
+const delRisk = (id: number) => {
+  Dialog.confirm({
+    title: '删除计划书',
+    message: '确认删除计划书',
+  })
+    .then(() => {
+      deleteProposal(id).then((res) => {
+        const { code } = res;
+        if (code === '10000') {
+          Toast.success('删除成功');
+          getHistoryList();
+        }
+      });
+    })
+    .catch(() => {});
+};
+
+onMounted(() => {
+  getHistoryList();
+});
 </script>
 
 <style scoped lang="scss">

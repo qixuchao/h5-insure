@@ -1,7 +1,13 @@
 <template>
-  <ProPopup v-model:show="showPopup" :height="40" :closeable="false">
+  <ProField :="$attrs" :is-link="isLink" :label="label" :model-value="modelValue" @click="handleClick">
+    <template #input>
+      <span v-if="displayValue" class="displayValue">{{ displayValue }}</span>
+      <span v-else class="placeholder">{{ placeholder }}</span>
+    </template>
+  </ProField>
+  <ProPopup v-model:show="show" :height="40" :closeable="false">
     <van-picker
-      :title="title"
+      :title="title || label"
       :columns="formatColumn"
       :default-index="defaultIndex"
       @cancel="handleCancel"
@@ -13,7 +19,9 @@
 <script lang="ts" setup>
 import { defineProps, defineEmits } from 'vue';
 import { PickerColumn } from 'vant';
+import { useToggle } from '@vant/use';
 import ProPopup from '@/components/ProPopup/index.vue';
+import ProField from '../ProField/index.vue';
 
 const emits = defineEmits(['update:show', 'confirm', 'cancel', 'update:modelValue']);
 const props = defineProps({
@@ -21,58 +29,72 @@ const props = defineProps({
     type: [String, Number],
     default: '',
   },
+  dataSource: {
+    type: Array as () => Array<{ label: string; value: number | string }>,
+    default: () => [],
+  },
   title: {
     type: String,
     default: '',
-  },
-  columns: {
-    type: Array as () => Array<{ label: string; value: string | number }>,
-    default: () => [],
   },
   show: {
     type: Boolean,
     default: false,
   },
+  label: {
+    type: String,
+    default: '',
+  },
+  isLink: {
+    type: Boolean,
+    default: true,
+  },
+  placeholder: {
+    type: String,
+    default: '请选择',
+  },
 });
 
-const showPopup = ref(props.show);
+const [show, toggle] = useToggle(false);
+
+const handleClick = () => {
+  toggle(true);
+};
 
 const handleConfirm = (item: any) => {
   emits('update:modelValue', item.value);
-  showPopup.value = false;
+  toggle(false);
 };
 
 const handleCancel = () => {
-  showPopup.value = false;
+  toggle(false);
 };
 
 const formatColumn = computed(() => {
-  if (props.columns) {
-    return props.columns.map((item) => ({ text: item.label, ...item }));
+  if (props.dataSource) {
+    return props.dataSource.map((item) => ({ text: item.label, ...item }));
   }
   return [];
 });
 
 const defaultIndex = computed(() => {
   if (props.modelValue) {
-    return props.columns.findIndex((x) => x.value === props.modelValue);
+    return props.dataSource.findIndex((x) => x.value === props.modelValue);
   }
   return '';
 });
 
-watch(
-  () => props.show,
-  (val) => {
-    showPopup.value = val;
-  },
-);
-
-watch(showPopup, (val) => {
-  emits('update:show', val);
+const displayValue = computed(() => {
+  const find = props.dataSource.find((x) => x.value === props.modelValue);
+  if (find) {
+    return find.label;
+  }
+  return props.modelValue || '';
 });
 </script>
 
 <style lang="scss" scoped>
-.com-picker {
+.placeholder {
+  color: var(--van-field-placeholder-text-color);
 }
 </style>
