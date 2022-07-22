@@ -1,5 +1,5 @@
 <template>
-  <ProField :="$attrs" :is-link="isLink" :label="label" @click="handleClick">
+  <ProField :="$attrs" :is-link="isLink" :label="label" :model-value="modelValue" @click="handleClick">
     <template #input>
       <span v-if="displayValue" class="displayValue">{{ displayValue }}</span>
       <span v-else class="placeholder">{{ placeholder }}</span>

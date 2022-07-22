@@ -8,7 +8,13 @@
 -->
 <template>
   <div class="com-form-wrapper">
-    <VanForm :label-align="labelAlign" :input-align="inputAlign" :error-message-align="errorMessageAlign" :="$attrs">
+    <VanForm
+      ref="formRef"
+      :label-align="labelAlign"
+      :input-align="inputAlign"
+      :error-message-align="errorMessageAlign"
+      :="$attrs"
+    >
       <slot></slot>
     </VanForm>
   </div>

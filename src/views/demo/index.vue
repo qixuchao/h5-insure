@@ -10,17 +10,29 @@
         placeholder="请选择"
         @click="toggle(true)"
       ></ProField>
-      <ProField
+      <ProPicker
         v-model="formInfo.city"
-        type="picker"
         label="城市"
+        name="city"
         :data-source="selectList"
         is-link
         placeholder="请选择城市"
         :rules="[{ required: true, message: '请选择城市' }]"
       />
-      <ProDatePicker v-model="formInfo.dateTime" label="datetime" type="datetime" name="datetime" />
-      <ProDatePicker v-model="formInfo.date" label="date" type="date" name="date" />
+      <ProDatePicker
+        v-model="formInfo.dateTime"
+        label="datetime"
+        type="datetime"
+        name="datetime"
+        :rules="[{ required: true, message: '请选择' }]"
+      />
+      <ProDatePicker
+        v-model="formInfo.date"
+        label="date"
+        type="date"
+        name="date"
+        :rules="[{ required: true, message: '请选择' }]"
+      />
       <ProDatePicker v-model="formInfo.time" label="time" type="time" name="date" />
       <ProDatePicker v-model="formInfo.yearMonth" label="year-month" type="year-month" name="date" />
       <ProDatePicker v-model="formInfo.monthDay" label="month-day" type="month-day" name="date" />
@@ -119,6 +131,7 @@ import ProFixedButtonDefaultImage from '@/assets/images/customer/da.png';
 import ProIDCardUpload from '@/components/ProIDCardUpload/index.vue';
 import ProTable from '@/components/ProTable/index.vue';
 import ProDatePicker from '@/components/ProDatePicker/index.vue';
+import ProPicker from '@/components/ProPicker/index.vue';
 
 const [isShow, toggle] = useToggle(false);
 
