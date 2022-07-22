@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 16:05:16
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-14 16:13:13
+ * @LastEditTime: 2022-07-22 16:47:33
  * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -58,3 +58,39 @@ export const PRODUCT_CATEGORY = [
     value: '6',
   },
 ];
+
+export const PAGE_CODE_ENUMS = {};
+
+export const CERT_TYPE = {
+  CERT: { value: 1, label: '身份证', code: 'I' },
+  PASSPORT: { value: 2, label: '护照', code: 'P' },
+  HOUSE_HOLD: { value: 3, label: '户口本', code: 'H' },
+  BIRTH: { value: 4, label: '出生证', code: 'B' },
+  MILITARY_CARD: { value: 5, label: '军官证', code: 'M' },
+  SOLIDER: { value: 6, label: '士兵证', code: 'S' },
+  PERMIT_FOR_HONGKONGMACAO: { value: 7, label: '港澳居民来往内地通行证', code: null },
+  PERMIT_FOR_TAIWAN: { value: 8, label: '台湾居民来往内地通行证', code: null },
+  HK_MACAO_RESIDENCE_PERMIT: { value: 9, label: '港澳居民居住证', code: null },
+  TAIWAN_RESIDENCE_PERMIT: { value: 10, label: '台湾居民居住证', code: null },
+  FOREIGN_PERMANENT: { value: 11, label: '外国人永久居留证', code: 'J' },
+  RETURN_HOME: { value: 12, label: '返乡证', code: 'GJ' },
+  HONGKONG_MACAO: { value: 13, label: '大陆居民往来港澳通行证', code: 'GA' },
+  STUDENT: { value: 14, label: '学生证', code: 'X' },
+  TAIWAN_TRAVEL: { value: 15, label: '大陆居民往来台湾通行证', code: 'TW' },
+  SEAFARER: { value: 16, label: '国际海员证', code: 'G' },
+  TAIWAN_ID: { value: 17, label: '台湾身份证', code: 'TWI' },
+  MACAO_ID: { value: 18, label: '澳门居民身份证', code: 'BIR' },
+  HONGKONG_ID: { value: 19, label: '香港身份证', code: 'HKI' },
+  TORONTO_HOSPITAL: { value: 23, label: '税务登记证', code: null },
+  BUSINESS_LICENSE: { value: 24, label: '营业执照', code: null },
+  ORGANIZATION_CODE: { value: 25, label: '组织机构代码', code: null },
+  UNIFICATION_CODE: { value: 26, label: '统一社会信用代码', code: null },
+  OTHERS: { value: 127, label: '其他', code: 'Q' },
+};
+
+// 证件类型 CERT_TYPE
+export const CERT_TYPE_LIST = Object.values(CERT_TYPE) || [];
+
+export const CERT_TYPE_LIST_FOR_PERSON = CERT_TYPE_LIST.filter((c) =>
+  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 127].includes(c.value),
+);

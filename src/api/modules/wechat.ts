@@ -13,7 +13,7 @@ const prefix = '/activity';
 
 // 获取微信jstoken
 export const getJssdkSignature = (data: any) => {
-  return request.post(`/api/app/officialAccount/jssdkSignature`, data);
+  return request.post(`/api/app/insure/app/officialAccount/jssdkSignature`, data);
 };
 
 export default {};
