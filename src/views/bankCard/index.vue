@@ -3,7 +3,14 @@
     <div class="page-bank-card">
       <ProCard title="首期支付">
         <ProForm>
-          <ProPicker v-model="formData.way1" label="支付方式" is-link placeholder="请选择" :data-source="dataSource" />
+          <ProPicker
+            v-model="firstFormData.payMethod"
+            required
+            label="支付方式"
+            is-link
+            placeholder="请选择"
+            :data-source="PAY_METHOD_LIST"
+          />
           <BankCardInfo />
         </ProForm>
       </ProCard>
@@ -11,11 +18,17 @@
         <ProForm>
           <ProField label="同首期">
             <template #input>
-              <van-switch v-model="formData.sameFirst" size="22" />
+              <van-switch v-model="renewFormData.sameFirst" size="22" />
             </template>
           </ProField>
-          <ProPicker v-model="formData.way2" label="支付方式" is-link placeholder="请选择" :data-source="dataSource" />
-          <BankCardInfo v-if="!formData.sameFirst" />
+          <ProPicker
+            v-model="renewFormData.way2"
+            label="支付方式"
+            is-link
+            placeholder="请选择"
+            :data-source="dataSource"
+          />
+          <BankCardInfo v-if="!renewFormData.sameFirst" />
         </ProForm>
       </ProCard>
       <ProCard title="年金领取银行卡" class="year-card" :show-divider="false">
@@ -36,7 +49,7 @@
         <div class="file">《银行转账授权》</div>
       </div>
       <div class="footer-button footer">
-        <van-button type="primary">下一步</van-button>
+        <van-button type="primary" @click="handleSubmit">下一步</van-button>
       </div>
     </div>
   </ProPageWrap>
@@ -48,8 +61,12 @@ import ProForm from '@/components/ProForm/index.vue';
 import ProField from '@/components/ProField/index.vue';
 import ProPicker from '@/components/ProPicker/index.vue';
 import BankCardInfo from '@/components/BankCardInfo/index.vue';
+import { PAY_METHOD_LIST, PAY_METHOD_ENUM } from '@/utils/constants';
 
-const formData = reactive({ way1: '', way2: '', sameFirst: true });
+const firstFormData = reactive({ payMethod: '', way2: '', sameFirst: true });
+const renewFormData = reactive({ payMethod: '', way2: '', sameFirst: true });
+const repriseFormData = reactive({ payMethod: '', way2: '', sameFirst: true });
+
 const yearCardSelect = ref('first');
 const agree = ref(false);
 
@@ -86,6 +103,12 @@ const yearCard = [
 const handleYearCardClick = (type: string) => {
   yearCardSelect.value = type;
 };
+
+// const handleSubmit = () => {
+//   const data = [
+//     payMethod:
+//   ]
+// }
 </script>
 
 <style lang="scss" scoped>

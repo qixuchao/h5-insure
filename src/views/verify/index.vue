@@ -16,14 +16,14 @@
         <div class="verify-item">
           <div class="label">身份证号码</div>
           <div class="no">510***********292X</div>
-          <div class="action">去认证 <ProSvg name="right_arrow" class="icon" /></div>
+          <div class="action" @click="handleVerify">去认证 <ProSvg name="right_arrow" class="icon" /></div>
         </div>
       </ProCard>
       <ProCard title="投保人签名" :show-icon="false" class="sign-card" :show-line="false">
         <template #extra>
-          <div class="resign">重签</div>
+          <div class="resign" @click="handleResign1">重签</div>
         </template>
-        <ProSign class="sign" />
+        <ProSign ref="sign1" class="sign" />
         <div class="sign-body">
           <div class="date">签名日期： 2022-01-01</div>
           <div class="file">
@@ -48,9 +48,9 @@
       </ProCard>
       <ProCard title="投保人签名" :show-icon="false" class="sign-card" :show-line="false">
         <template #extra>
-          <div class="resign">重签</div>
+          <div class="resign" @click="handleResign2">重签</div>
         </template>
-        <ProSign class="sign" />
+        <ProSign ref="sign2" class="sign" />
         <div class="sign-body">
           <div class="date">签名日期： 2022-01-01</div>
           <div class="file">
@@ -62,19 +62,51 @@
       </ProCard>
       <div class="footer-button footer">
         <van-button plain type="primary">分享</van-button>
-        <van-button type="primary">提交</van-button>
+        <van-button type="primary" @click="handleSubmit">提交</van-button>
       </div>
     </div>
   </ProPageWrap>
 </template>
 
 <script lang="ts" setup>
+import { Toast } from 'vant';
 import ProMessage from '@/components/ProMessage/index.vue';
 import ProCard from '@/components/ProCard/index.vue';
 import ProSvg from '@/components/ProSvg/index.vue';
 import ProSign from '@/components/ProSign/index.vue';
+import { faceVerify, saveSign } from '@/api/modules/verify';
 
 const fileList = ['营销员保至书', '投保人须知', 'xxxxxxxxxxxxx'];
+const sign1 = ref();
+const sign2 = ref();
+
+const handleResign1 = () => {
+  sign1.value?.clear();
+};
+
+const handleResign2 = () => {
+  sign2.value?.clear();
+};
+
+const handleVerify = () => {
+  faceVerify({ callbackUrl: 'string', certiNo: '', faceAuthMode: 'TENCENT', userName: '' });
+};
+
+const handleSubmit = () => {
+  const empty1 = sign1.value?.isEmpty();
+  const empty2 = sign2.value?.isEmpty();
+  if (empty1) {
+    Toast.fail('请投保人签名');
+    return;
+  }
+  if (empty2) {
+    Toast.fail('请被保人签名');
+    return;
+  }
+  const data1 = sign1.value?.save();
+  const data2 = sign2.value?.save();
+  Promise.all([saveSign('HOLDER', data1), saveSign('INSURED', data2)]);
+};
 </script>
 
 <style lang="scss" scoped>
