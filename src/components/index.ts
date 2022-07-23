@@ -4,7 +4,7 @@ import { Component } from 'vue';
  * @Autor: kevin.liang
  * @Date: 2022-03-08 13:51:54
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-18 15:13:02
+ * @LastEditTime: 2022-07-23 11:59:16
  */
 /* eslint-disable prettier/prettier */
 import ZaAvatar from './ZaAvatar/index.vue';
@@ -26,6 +26,8 @@ import ProTabBButton from './ProCheckButton/TabButton.vue'
 import ProCheckboxButton from './ProCheckboxButton/index.vue'
 import ProMessage from './ProMessage/index.vue'
 import ProCard from './ProCard/index.vue'
+import ProPicker from './ProPicker/index.vue'
+import ProDatePicker from './ProDatePicker/index.vue'
 
 
 interface ComponentMap {
@@ -52,7 +54,9 @@ export const globalComs: ComponentMap = {
   ProRadioButton,
   ProTabBButton,
   ProMessage,
-  ProCard
+  ProCard,
+  ProPicker,
+  ProDatePicker
 };
 
 function install(app: any) {

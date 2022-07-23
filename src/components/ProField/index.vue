@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 15:06:48
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-22 17:01:41
+ * @LastEditTime: 2022-07-23 11:19:03
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProField/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -22,16 +22,7 @@
     <template v-if="slot.label" #label>
       <slot name="label">{{ label }}</slot>
     </template>
-    <template v-if="slot.input || type === 'picker'" #input>
-      <div v-if="formProps.isView">
-        {{ modelValue || '  123' }}
-      </div>
-      <div v-else>
-        <slot v-if="slot.input" name="input"> </slot>
-        <span v-if="type === 'picker' && displayPickValue">{{ displayPickValue }}</span>
-        <span v-if="type === 'picker' && !displayPickValue" class="placeholder">{{ currentPlaceholder }}</span>
-      </div>
-    </template>
+    <template v-if="slot.input" #input> </template>
     <template v-if="slot.leftIcon" #left-icon></template>
     <template v-if="slot.rightIcon" #right-icon></template>
     <template v-if="slot.button" #button></template>
@@ -44,7 +35,6 @@
 import { withDefaults } from 'vue';
 import { FieldType } from 'vant';
 import { useToggle } from '@vant/use';
-import ProPicker from '@/components/ProPicker/index.vue';
 
 interface Props {
   modelValue: string | number;
