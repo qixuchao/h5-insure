@@ -1,5 +1,13 @@
 <template>
-  <ProField :="$attrs" :is-link="isLink" :label="label" :model-value="modelValue" @click="handleClick">
+  <ProField
+    :="$attrs"
+    :is-link="isLink"
+    :label="label"
+    :model-value="modelValue"
+    :is-view="isView"
+    :required="required"
+    @click="handleClick"
+  >
     <template #input>
       <span v-if="displayValue" class="displayValue">{{ displayValue }}</span>
       <span v-else class="placeholder">{{ placeholder }}</span>
@@ -37,10 +45,6 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  show: {
-    type: Boolean,
-    default: false,
-  },
   label: {
     type: String,
     default: '',
@@ -52,6 +56,14 @@ const props = defineProps({
   placeholder: {
     type: String,
     default: '请选择',
+  },
+  isView: {
+    type: Boolean,
+    default: false,
+  },
+  required: {
+    type: Boolean,
+    default: false,
   },
 });
 

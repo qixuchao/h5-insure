@@ -1,4 +1,4 @@
-import { constantListToMap } from './index';
+import { constantListToMap } from './utils';
 
 export const PAY_METHOD_ENUM = {
   REAL_TIME: 1,
@@ -42,3 +42,5 @@ export const BANK_CARD_TYPE_LIST = [
   { value: BANK_CARD_TYPE_ENUM.PRE_CREDIT, label: '准贷记卡' },
   { value: BANK_CARD_TYPE_ENUM.OTHER, label: '其他' },
 ];
+
+export const BANK_CARD_TYPE_MAP = constantListToMap(BANK_CARD_TYPE_LIST);

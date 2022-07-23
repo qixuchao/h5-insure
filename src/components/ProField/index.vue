@@ -8,108 +8,77 @@
 -->
 <template>
   <VanField
-    v-model="tempModelValue"
     :="$attrs"
-    :name="name"
     :label="label"
     input-align="right"
-    :is-link="formProps.isView ? false : isLink"
-    :placeholder="currentPlaceholder"
+    :is-link="showLink"
+    :placeholder="placeholder"
     :rules="currentRules"
     :class="['com-pro-field', { block }]"
+    :required="required"
+    :readonly="formProps.isView || isView"
     @click="handleClick"
   >
     <template v-if="slot.label" #label>
       <slot name="label">{{ label }}</slot>
     </template>
-    <template v-if="slot.input" #input> </template>
-    <template v-if="slot.leftIcon" #left-icon></template>
-    <template v-if="slot.rightIcon" #right-icon></template>
-    <template v-if="slot.button" #button></template>
-    <template v-if="slot.extra" #extra></template>
-    <template v-if="slot['error-message']" #error-message></template>
+    <template v-if="slot.input" #input>
+      <slot name="input" />
+    </template>
   </VanField>
 </template>
 
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
-import { FieldType } from 'vant';
-import { useToggle } from '@vant/use';
 
 interface Props {
-  modelValue: string | number;
-  placeholder: string;
+  placeholder?: string;
   label: string;
-  name: string;
-  type: FieldType | 'picker';
-  dataSource: Array<{ label: string; value: number | string }>;
   title?: string;
-  block: boolean;
-  isLink: boolean;
+  block?: boolean;
+  isLink?: boolean;
   rules?: any[];
   required?: boolean;
+  isView?: boolean;
 }
 
 const slot = useSlots();
-const emits = defineEmits(['click', 'update:modelValue']);
+const emits = defineEmits(['click']);
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: '',
-  placeholder: '',
+  placeholder: '请输入',
   label: '',
-  name: '',
-  type: 'text',
-  dataSource: () => [],
   title: '',
   block: false,
   isLink: false,
   rules: () => [],
   required: false,
+  isView: false,
 });
 
-const [showPicker, toggle] = useToggle(false);
-const tempModelValue = ref(props.modelValue);
 const formProps: any = inject('formProps') || {};
 
 const dealData = () => {};
 
-const currentPlaceholder = computed(() => {
-  return props.placeholder || props.isLink ? '请选择' : '请输入';
-});
-
 const currentRules = computed(() => {
-  return props.rules || props.required
-    ? [{ required: true, message: `${props.isLink ? '请选择' : '请输入'}${props.title}` }]
+  if (props.rules && props.rules.length > 0) {
+    props.rules;
+  }
+  return props.required
+    ? [{ required: true, message: `${props.isLink ? '请选择' : '请输入'}${props.label}` }]
     : undefined;
 });
 
 const handleClick = () => {
-  if (props.type !== 'picker') {
+  if (!props.isView && !formProps.isView) {
     emits('click');
-  } else {
-    toggle();
   }
 };
 
-const displayPickValue = computed(() => {
-  if (props.type !== 'picker') {
-    return '';
+const showLink = computed(() => {
+  if (props.isView || formProps.isView) {
+    return false;
   }
-  const find = props.dataSource.find((x) => x.value === props.modelValue);
-  if (find) {
-    return find.label;
-  }
-  return props.modelValue || '';
-});
-
-watch(
-  () => props.modelValue,
-  (val) => {
-    tempModelValue.value = val;
-  },
-);
-
-watch(tempModelValue, (val) => {
-  emits('update:modelValue', val);
+  return props.isLink;
 });
 </script>
 

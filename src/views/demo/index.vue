@@ -19,6 +19,16 @@
         placeholder="请选择城市"
         :rules="[{ required: true, message: '请选择城市' }]"
       />
+      <ProPicker
+        v-model="formInfo.city"
+        label="城市 isView"
+        name="city"
+        :data-source="selectList"
+        is-link
+        placeholder="请选择城市"
+        :rules="[{ required: true, message: '请选择城市' }]"
+        is-view
+      />
       <ProDatePicker
         v-model="formInfo.dateTime"
         label="datetime"
@@ -200,7 +210,7 @@ const selectList = [
 const isProSelectShow = ref(false);
 
 const trial = () => {
-  formRef.value.submit();
+  formRef.value.validate();
 };
 
 const clearSign1 = () => {

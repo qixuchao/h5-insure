@@ -2,27 +2,28 @@
   <ProPageWrap>
     <div class="page-bank-card">
       <ProCard title="首期支付">
-        <ProForm>
+        <ProForm ref="form1">
           <ProPicker
             v-model="firstFormData.payMethod"
+            name="payMethod"
             required
             label="支付方式"
             is-link
             placeholder="请选择"
             :data-source="PAY_METHOD_LIST"
           />
-          <BankCardInfo />
+          <BankCardInfo v-model="firstFormData.bankData" />
         </ProForm>
       </ProCard>
       <ProCard title="续期支付">
-        <ProForm>
+        <ProForm ref="form2">
           <ProField label="同首期">
             <template #input>
               <van-switch v-model="renewFormData.sameFirst" size="22" />
             </template>
           </ProField>
           <ProPicker
-            v-model="renewFormData.way2"
+            v-model="renewFormData.payMethod"
             label="支付方式"
             is-link
             placeholder="请选择"
@@ -31,18 +32,20 @@
           <BankCardInfo v-if="!renewFormData.sameFirst" />
         </ProForm>
       </ProCard>
-      <ProCard title="年金领取银行卡" class="year-card" :show-divider="false">
-        <div class="year-card-list">
+      <ProCard title="年金领取银行卡" class="reprise-card" :show-divider="false">
+        <div class="reprise-card-list">
           <div
-            v-for="(item, index) in yearCard"
+            v-for="(item, index) in repriseCard"
             :key="index"
-            :class="['year-card-item', { selected: yearCardSelect === item.value }]"
+            :class="['reprise-card-item', { selected: repriseCardSelect === item.value }]"
             @click="handleYearCardClick(item.value)"
           >
             {{ item.label }}
           </div>
         </div>
-        <BankCardInfo v-if="yearCardSelect === 'other'" />
+        <ProForm ref="form3">
+          <BankCardInfo v-if="repriseCardSelect === 'other'" v-model="repriseFormData.bankData" />
+        </ProForm>
       </ProCard>
       <div class="agree">
         <van-checkbox v-model="agree" class="checkbox" shape="square" :icon-size="16" /> 投保人阅读并接受
@@ -61,14 +64,17 @@ import ProForm from '@/components/ProForm/index.vue';
 import ProField from '@/components/ProField/index.vue';
 import ProPicker from '@/components/ProPicker/index.vue';
 import BankCardInfo from '@/components/BankCardInfo/index.vue';
-import { PAY_METHOD_LIST, PAY_METHOD_ENUM } from '@/utils/constants';
+import { PAY_METHOD_LIST, PAY_METHOD_ENUM } from '@/common/constants/bankCard';
 
-const firstFormData = reactive({ payMethod: '', way2: '', sameFirst: true });
-const renewFormData = reactive({ payMethod: '', way2: '', sameFirst: true });
-const repriseFormData = reactive({ payMethod: '', way2: '', sameFirst: true });
+const firstFormData = reactive({ payMethod: '', bankData: {} });
+const renewFormData = reactive({ payMethod: '', bankData: {}, sameFirst: true });
+const repriseFormData = reactive({ bankData: {} });
 
-const yearCardSelect = ref('first');
+const repriseCardSelect = ref('first');
 const agree = ref(false);
+const form1 = ref();
+const form2 = ref();
+const form3 = ref();
 
 const dataSource = [
   {
@@ -85,7 +91,7 @@ const dataSource = [
   },
 ];
 
-const yearCard = [
+const repriseCard = [
   {
     label: '同首期',
     value: 'first',
@@ -101,14 +107,16 @@ const yearCard = [
 ];
 
 const handleYearCardClick = (type: string) => {
-  yearCardSelect.value = type;
+  repriseCardSelect.value = type;
 };
 
-// const handleSubmit = () => {
-//   const data = [
-//     payMethod:
-//   ]
-// }
+const handleSubmit = () => {
+  form1.value?.validate().then((res: { [key: string]: any }) => {
+    console.log(res);
+  });
+  form2.value?.validate();
+  form3.value?.validate();
+};
 </script>
 
 <style lang="scss" scoped>
@@ -118,14 +126,14 @@ const handleYearCardClick = (type: string) => {
       padding: 0;
     }
   }
-  .year-card {
-    .year-card-list {
+  .reprise-card {
+    .reprise-card-list {
       padding: 0 30px;
       height: 106px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      .year-card-item {
+      .reprise-card-item {
         text-align: center;
         width: 216px;
         height: 60px;

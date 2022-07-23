@@ -1022,10 +1022,10 @@
   resolved "https://registry.npmmirror.com/@vant/area-data/-/area-data-1.3.1.tgz#07f4947aaa16d2c63e1447dc937d7567883f24aa"
   integrity sha512-xji2kfVBXzFYmHAJNbhYjiRJ4GnN+enbTmtx6FnpTyxs9sUcFtS11BZ23hYCGuj4s02gXyrzUBTXGqhX5IKHIw==
 
-"@vant/icons@^1.7.1":
-  version "1.7.3"
-  resolved "https://registry.npmmirror.com/@vant/icons/-/icons-1.7.3.tgz#e51b46065cfde445617401ebe309a33b62a29725"
-  integrity sha512-tW4EqzxN4kXw1rnlnQJQHofEifPbt/gECOWiibomht8QLyvoGuE4iUmDFS288dJ07ZjuTy0bhdABj0SENo2fmQ==
+"@vant/icons@^1.8.0":
+  version "1.8.0"
+  resolved "https://registry.npmmirror.com/@vant/icons/-/icons-1.8.0.tgz#36b13f2e628b533f6523a93a168cf02f07056674"
+  integrity sha512-sKfEUo2/CkQFuERxvkuF6mGQZDKu3IQdj5rV9Fm0weJXtchDSSQ+zt8qPCNUEhh9Y8shy5PzxbvAfOOkCwlCXg==
 
 "@vant/popperjs@^1.1.0":
   version "1.1.0"
@@ -1034,10 +1034,10 @@
   dependencies:
     "@popperjs/core" "^2.9.2"
 
-"@vant/use@^1.3.5":
-  version "1.3.5"
-  resolved "https://registry.npmmirror.com/@vant/use/-/use-1.3.5.tgz#fd2817850e76e3098e29d4c8d864e19207c03ab1"
-  integrity sha512-S4rfMQT+71quUbSY9sF7vJTEADVWqHxn8zUbpEl4vzI2CCJx67ri/ZHV911LpXIaZVgSSGPLE5xLV8javmbU0Q==
+"@vant/use@^1.3.6":
+  version "1.4.1"
+  resolved "https://registry.npmmirror.com/@vant/use/-/use-1.4.1.tgz#22cdd81c6e2cf8dc746278608a3facbd4fdbcdc7"
+  integrity sha512-YonNN0SuJLEJuqdoMcVAJm2JUZWkHNrW81QzeF6FLyG5HFUGlmTM5Sby7gdS3Z/8UDMlkWRQpJxBWbmVzmUWxQ==
 
 "@vitejs/plugin-legacy@^1.6.4":
   version "1.7.1"
@@ -7100,14 +7100,14 @@ validate-npm-package-license@^3.0.1:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
 
-vant@^3.4.5:
-  version "3.4.5"
-  resolved "https://registry.npmmirror.com/vant/-/vant-3.4.5.tgz#2934f6623d3705120607eb777ae4151ef192befe"
-  integrity sha512-3an2v6ejW9pijKmaDbSCW7Hs1R45tqtTIcedfI8hEAA5zC2Bp8cXU6Z4gUCK6/RAGOJsB+vcyLINLb1cGS/SzQ==
+vant@3.4.9:
+  version "3.4.9"
+  resolved "https://registry.npmmirror.com/vant/-/vant-3.4.9.tgz#53ea09b0aa228474fe5a5a6c6bc9f07ba91c6ad9"
+  integrity sha512-OXwfL3oDahlEQC4HhaC7TmM9uoPDjAuWi1mR/OLW3JyOvPoCR8YhOtX2M6OQnz3Hnd3l4oWjjASKNGltWiPtjQ==
   dependencies:
-    "@vant/icons" "^1.7.1"
+    "@vant/icons" "^1.8.0"
     "@vant/popperjs" "^1.1.0"
-    "@vant/use" "^1.3.5"
+    "@vant/use" "^1.3.6"
 
 vary@^1:
   version "1.1.2"
