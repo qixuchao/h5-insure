@@ -11,8 +11,8 @@ import { ProductData, premiumCalcData, premiumCalcResponse } from './trial.data'
 
 // 获取产品详情
 export const insureProductDetail = (params: any = {}) =>
-  request.post<ProductData, ResponseData<ProductData>>('/api/product/insureProductDetail', params);
+  request.post<ProductData, ResponseData<ProductData>>('/api/app/insure/product/insureProductDetail', params);
 
 // 保费试算
 export const premiumCalc = (params: premiumCalcData) =>
-  request.post<premiumCalcResponse, ResponseData<premiumCalcResponse>>('/api/insurance/premiumCalc', params);
+  request.post<premiumCalcResponse, ResponseData<premiumCalcResponse>>('/api/app/insure/insurance/premiumCalc', params);
