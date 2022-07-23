@@ -10,7 +10,7 @@
         </template>
       </van-swipe>
       <div class="title">
-        <div class="text">富得生命满天星重大疾病保险</div>
+        <div class="text">富得生命满天星重大疾病保险{{ detail?.productBasicInfoVO.productName }}</div>
         <div class="desc">
           重大疾病不分组赔付3次，保费低；人生重要阶段，轻症/重疾翻倍赔；特定良性肿瘤保险金，可选责任质优价低；
         </div>
@@ -54,7 +54,9 @@
           </div>
         </template>
         <template #tab2>
-          <ProCard title="理赔流程"> </ProCard>
+          <ProCard title="理赔流程">
+            <ProTimeline :list="timeList" />
+          </ProCard>
         </template>
         <template #tab3>
           <ProCard title="常见问题">
@@ -74,12 +76,17 @@
 </template>
 
 <script lang="ts" setup>
+import { onMounted } from 'vue';
 import ProDivider from '@/components/ProDivider/index.vue';
 import ProCard from '@/components/ProCard/index.vue';
 import ProTab from '@/components/ProTab/index.vue';
 import ProCell from '@/components/ProCell/index.vue';
 import FieldInfo from '../components/fieldInfo.vue';
 import Question from '../components/question/index.vue';
+import ProTimeline from '@/components/ProTimeline/index.vue';
+import { productDetail } from '@/api/modules/product';
+import { ProductDetail } from '@/api/modules/productd.data';
+
 import swipeImage from '@/assets/images/temp/swipe.png';
 import detailImage from '@/assets/images/temp/detail.png';
 
@@ -89,6 +96,8 @@ const tabList = [
   { title: '理赔流程', slotName: 'tab2' },
   { title: '常见问题', slotName: 'tab3' },
 ];
+const detail = ref<ProductDetail>();
+
 const fileList = ['保险条款', '投保须知', '费率表', '责任免除条款说明书', '重要提示', '特别约定', '特殊职业类别表'];
 const questionList = [
   {
@@ -117,6 +126,42 @@ const questionList = [
       '又称责任免除，指保险人依照法律规定或合同约定，不承担保险责任的范围，是对保险责任的限制。详见具体产品的保险条款。',
   },
 ];
+
+const timeList = [
+  {
+    title: '申请理赔',
+    desc: '致电保险公司客服 400-69-12345 申请理赔',
+  },
+  {
+    title: '提交材料',
+    desc: '保险金给付申请书、受益人有效身份证件、保险公司指定或认可的医疗机构出具的病历或疾病诊断说明书、银行卡附件及开户信息',
+  },
+  {
+    title: '审核材料',
+    desc: '保险公司进行理赔资料审核',
+  },
+  {
+    title: '完成理赔',
+    desc: '保险公司支付客户理赔款',
+  },
+  {
+    title: '提交材料',
+    desc: '保险金给付申请书、受益人有效身份证件、保险公司指定或认可的医疗机构出具的病历或疾病诊断说明书、银行卡附件及开户信息',
+  },
+  {
+    title: '审核材料',
+    desc: '保险公司进行理赔资料审核',
+  },
+];
+
+onMounted(() => {
+  productDetail({}).then((res) => {
+    const {
+      data: { code, data },
+    } = res;
+    detail.value = data;
+  });
+});
 </script>
 
 <style lang="scss" scoped>
