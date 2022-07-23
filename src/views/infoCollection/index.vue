@@ -2,15 +2,23 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-22 16:48:36
+ * @LastEditTime: 2022-07-23 10:54:15
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <ProPageWrap class="page-info-wrapper">
-    <ProForm ref="formRef" is-view>
+    <ProForm ref="formRef">
       <ProCard title="投保人">
-        <ProField label="证件类型" name="certType" required is-link></ProField>
+        <ProField
+          label="证件类型"
+          name="certType"
+          readonly
+          type="picker"
+          :data-source="CERT_TYPE_LIST"
+          required
+          is-link
+        ></ProField>
         <ProField label="身份证上传" name="type" required></ProField>
         <ProField label="姓名" name="name" required></ProField>
         <ProField v-model="holderInfo.gender" required label="性别" name="gender" placeholder="请选择">
@@ -85,14 +93,15 @@
       </ProCard>
     </ProForm>
     <div class="footer-button">
-      <VanButton block type="primary" @click="nextStep">下一步</VanButton>
+      <VanButton block type="primary" @click="goNextPage">下一步</VanButton>
     </div>
   </ProPageWrap>
 </template>
 
 <script lang="ts" setup>
 import { useRoute } from 'vue-router';
-import { getInitFactor } from '@/api';
+import { dataTool } from 'echarts';
+import { getInitFactor, nextStep } from '@/api';
 import { factorData, HolderReq, HolderExtInfo, BeneficiaryReqItem } from '@/api/index.data';
 import { SEX_LIMIT_LIST, FLAG_LIST, CERT_TYPE_LIST } from '@/common/constants';
 import { RELATION_HOLDER_LIST, BENEFICIARY_LIST } from '@/common/constants/infoCollection';
@@ -117,8 +126,21 @@ const state = reactive<State>({
   beneficiaryId: 0,
 });
 
-const nextStep = () => {
-  formRef.value.validate();
+const goNextPage = () => {
+  nextStep({ pageCode: 'InfoCollection' }).then(({ code, data }) => {
+    if (code === '10000') {
+      console.log('data', data);
+    }
+  });
+  formRef.value.validate((validate: boolean) => {
+    if (!validate) {
+      nextStep({ pageCode: 'infoCollection' }).then(({ code, data }) => {
+        if (code === '10000') {
+          console.log('data', data);
+        }
+      });
+    }
+  });
 };
 
 const addBeneficiary = () => {

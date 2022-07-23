@@ -27,7 +27,7 @@
         {{ modelValue || '  123' }}
       </div>
       <div v-else>
-        <slot v-if="slot.input" name="input"></slot>
+        <slot v-if="slot.input" name="input"> </slot>
         <span v-if="type === 'picker' && displayPickValue">{{ displayPickValue }}</span>
         <span v-if="type === 'picker' && !displayPickValue" class="placeholder">{{ currentPlaceholder }}</span>
       </div>
