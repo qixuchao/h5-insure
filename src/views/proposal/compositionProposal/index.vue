@@ -9,22 +9,28 @@
 <template>
   <ProPageWrap>
     <div class="page-composition-proposal">
-      <div class="head-bg">众先生众先生众先生的 众先生众先生的计划</div>
+      <div class="head-bg">{{ info?.name }}先生的计划</div>
       <div class="container head-cover">
         <div class="info-detail">
           <div class="name">
-            <div class="img"></div>
+            <div class="img">
+              <img :src="info?.avatar" alt="" />
+            </div>
             <div>
-              <p clase="p1">被保人</p>
-              <p class="p2">男，30岁</p>
+              <p clase="p1">{{ info?.name }}</p>
+              <p class="p2">{{ GENDER[info?.gender] }}，{{ age }}岁</p>
             </div>
           </div>
-          <div class="fe">首年保费： <span>¥128,999,99.00</span></div>
+          <div class="fe">
+            首年保费： <span>¥{{ info?.totalPremium }}</span>
+          </div>
         </div>
         <div class="line"></div>
 
-        <div>
-          <table class="table-detaile">
+        <div class="tp">
+          <ProTable :columns="columns" class="table" :data-source="dataSource" />
+
+          <!-- <table class="table-detaile">
             <thead>
               <tr>
                 <td>险种名称</td>
@@ -35,54 +41,50 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td style="width: 25%">牛市口街道康街道反空降</td>
-                <td style="width: 15%">500万</td>
-                <td style="width: 25%">保至70岁</td>
-                <td style="width: 25%">一次交清</td>
-                <td style="width: 15%">3020.00</td>
-              </tr>
-              <tr>
-                <td style="width: 25%">牛市口街道康街道反空降</td>
-                <td style="width: 15%">500万</td>
-                <td style="width: 25%">保至70岁</td>
-                <td style="width: 25%">一次交清</td>
-                <td style="width: 15%">3020.00</td>
-              </tr>
-              <tr>
-                <td style="width: 25%">牛市逊南康街道反空降</td>
-                <td style="width: 15%">500万</td>
-                <td style="width: 25%">保至70岁</td>
-                <td style="width: 25%">一次交清</td>
-                <td style="width: 15%">3020.00</td>
+              <tr v-for="(item, i) in info?.proposalProductRiskVOList" :key="i">
+                <td style="width: 25%">{{ item.riskName }}</td>
+                <td style="width: 15%">{{ item.amount }}</td>
+                <td style="width: 25%">{{ item.coveragePeriod }}</td>
+                <td style="width: 25%">{{ item.chargePeriod }}</td>
+                <td style="width: 15%">{{ item.premium }}</td>
               </tr>
             </tbody>
-          </table>
+          </table> -->
         </div>
       </div>
       <div class="container">
-        <div class="common-title">
-          <div class="title">
-            <img src="@/assets/images/compositionProposal/title.png" class="ig" /> 众安家庭共享保额意外险
+        <div v-for="(item, i) in info?.liabilityByRiskVOList" :key="i">
+          <div class="common-title">
+            <div class="title">
+              <img src="@/assets/images/compositionProposal/title.png" class="ig" /> {{ item.riskName }}
+            </div>
+            <div class="text-detail">条款详情</div>
           </div>
-          <div class="text-detail">条款详情</div>
+          <div class="product-detail">
+            <van-collapse v-model="activeNames" accordion :is-link="false" :border="false" size="middle">
+              <van-collapse-item
+                v-for="(val, k) in item.proposalRiskLiabilityVOList"
+                :key="k"
+                title="标题1"
+                name="1"
+                value-class="price"
+                value="50万"
+              >
+                1、全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案；
+                2、我是文案我是文案我是文案我是文案我是文案我是案我是文案我是文案我是文案我是文案
+              </van-collapse-item>
+              <van-collapse-item title="标题2" value-class="price" value="50万" name="2">
+                1、全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案；
+                2、我是文案我是文案我是文案我是文案我是文案我是案我是文案我是文案我是文案我是文案
+              </van-collapse-item>
+              <van-collapse-item title="标题3" value-class="price" value="50万" name="3">
+                在代码阅读过程中人们说脏话的频率是衡量代码质量的唯一标准。
+              </van-collapse-item>
+            </van-collapse>
+          </div>
+          <div class="line2"></div>
         </div>
-        <div class="product-detail">
-          <van-collapse v-model="activeNames" accordion :is-link="false" :border="false" size="middle">
-            <van-collapse-item title="标题1" name="1" value-class="price" value="50万">
-              1、全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案；
-              2、我是文案我是文案我是文案我是文案我是文案我是案我是文案我是文案我是文案我是文案
-            </van-collapse-item>
-            <van-collapse-item title="标题2" value-class="price" value="50万" name="2">
-              1、全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案；
-              2、我是文案我是文案我是文案我是文案我是文案我是案我是文案我是文案我是文案我是文案
-            </van-collapse-item>
-            <van-collapse-item title="标题3" value-class="price" value="50万" name="3">
-              在代码阅读过程中人们说脏话的频率是衡量代码质量的唯一标准。
-            </van-collapse-item>
-          </van-collapse>
-        </div>
-        <div class="line2"></div>
+
         <div class="common-title">
           <div class="title">
             <img src="@/assets/images/compositionProposal/title.png" class="ig" /> 众安家庭共享保额意外险
@@ -108,57 +110,73 @@
 
       <div class="container">
         <div class="common-title">利益演示</div>
-        <van-tabs title-active-color="#0D6EFE" title-inactive-color="#393D46">
-          <van-tab title="众安家庭共享保额意外险意外险">
+        <van-tabs
+          :active="active"
+          title-active-color="#0D6EFE"
+          title-inactive-color="#393D46"
+          shrink
+          scrollspy
+          @click-tab="changeTab"
+        >
+          <van-tab v-for="(item, i) in info?.benefitRiskResultVOList" :key="i" :name="i" :title="item.riskName">
             <div class="benefit">
               <div class="benefit-title">众安家庭共享保额意外险意外险</div>
 
               <div class="line"></div>
-
-              <div class="box">
-                <p class="box-title">
-                  <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
-                  保单年度<span>1</span>年度，被保人<span>30</span>岁时
-                  <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
-                </p>
-                <div class="box-price">
-                  <div style="flex: 1">
-                    <p class="text1">16,000,000.00</p>
-                    <p class="text2">累计总保费(元）</p>
+              <div v-if="showChart">
+                <div class="box">
+                  <p class="box-title">
+                    <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
+                    保单年度<span>{{ price[price.length - 2] }}</span
+                    >年度，被保人<span>{{ price[price.length - 1] }}</span
+                    >岁时
+                    <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
+                  </p>
+                  <div class="box-price">
+                    <div v-for="(val, k) in item.benefitRiskItemResultVOList[0].headers" :key="k" style="width: 33%">
+                      <p class="text1">{{ price[k] }}</p>
+                      <p class="text2">{{ val }}(元）</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="slider">
+                  <div class="add lf" @click="handleReduce">
+                    <img src="@/assets/images/compositionProposal/cut.png" alt="" />
                   </div>
                   <div style="flex: 1">
-                    <p class="text1">16,000,000.00</p>
-                    <p class="text2">现金价值(元）</p>
+                    <van-slider
+                      v-if="ageBegin"
+                      v-model="num"
+                      :min="ageBegin"
+                      :max="ageEnd"
+                      bar-height="8px"
+                      @change="handleChange"
+                    >
+                      <template #button>
+                        <div class="custom-button">{{ num }} 岁</div>
+                      </template>
+                    </van-slider>
                   </div>
-                  <div style="flex: 1">
-                    <p class="text1">16,000,000.00</p>
-                    <p class="text2">现金价值(元）</p>
+                  <div class="add rg" @click="handleAdd">
+                    <img src="@/assets/images/compositionProposal/add.png" alt="" />
                   </div>
                 </div>
               </div>
-              <div class="slider">
-                <div class="add lf" @click="handleReduce">
-                  <img src="@/assets/images/compositionProposal/cut.png" alt="" />
-                </div>
-                <div style="flex: 1">
-                  <van-slider v-model="num" :min="1" :max="100" bar-height="8px">
-                    <template #button>
-                      <div class="custom-button">{{ num }} 岁</div>
-                    </template>
-                  </van-slider>
-                </div>
-                <div class="add rg" @click="handleAdd">
-                  <img src="@/assets/images/compositionProposal/add.png" alt="" />
-                </div>
+
+              <div v-else>
+                <ProChart />
               </div>
               <p class="slider-dec">拖动按钮查看不同年龄保障</p>
               <div class="btn-two">
-                <van-button round type="primary" class="btn">图表展示</van-button>
-                <van-button round plain type="primary" class="btn">趋势展示</van-button>
+                <van-button round :plain="!showChart" type="primary" class="btn" @click="handleChangeChart('1')"
+                  >图表展示</van-button
+                >
+                <van-button round :plain="showChart" type="primary" class="btn" @click="handleChangeChart('2')"
+                  >趋势展示</van-button
+                >
               </div>
             </div>
           </van-tab>
-          <van-tab title="安联臻爱医疗险">内容 2</van-tab>
         </van-tabs>
       </div>
 
@@ -166,19 +184,11 @@
         <div class="common-title">保险公司简介</div>
 
         <van-collapse v-model="activeNames" accordion :is-link="false" :border="false" size="middle">
-          <van-collapse-item name="1" value-class="price" value="50万">
+          <van-collapse-item v-for="(item, i) in info?.insurerInfoVOList" :key="i" name="1" value-class="price">
             <template #title>
-              <div><span class="poiner"></span> 保险公司</div>
+              <div><span class="poiner"></span> {{ item.insurerName }}</div>
             </template>
-            1、全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案；
-            2、我是文案我是文案我是文案我是文案我是文案我是案我是文案我是文案我是文案我是文案
-          </van-collapse-item>
-          <van-collapse-item name="1" value-class="price" value="50万">
-            <template #title>
-              <div><span class="poiner"></span> 保险公司2</div>
-            </template>
-            1、全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案；
-            2、我是文案我是文案我是文案我是文案我是文案我是案我是文案我是文案我是文案我是文案
+            {{ item.insurerDesc }}
           </van-collapse-item>
         </van-collapse>
       </div>
@@ -206,32 +216,137 @@
 </template>
 <script lang="ts" setup>
 import wx from 'weixin-js-sdk';
+import dayjs from 'dayjs';
+import { queryProposalDetail } from '@/api/modules/proposalList';
+import ProTable from '@/components/ProTable/index.vue';
+import ProChart from '@/components/ProChart/index.vue';
 
 const router = useRoute();
 const { isShare } = router.params;
+const columns = [
+  {
+    title: '险种名称',
+    dataIndex: 'key1',
+    width: 180,
+  },
+  {
+    title: '保额',
+    dataIndex: 'key2',
+  },
+  {
+    title: '保障期间',
+    dataIndex: 'key3',
+    width: 110,
+  },
+  {
+    title: '缴费期间',
+    dataIndex: 'key4',
+    width: 110,
+  },
+  {
+    title: '保费',
+    dataIndex: 'key5',
+    width: 120,
+  },
+];
 
-const activeNames = ref('1');
-const num = ref(12);
+const dataSource = ref([]);
+const active = ref(0);
+const info = ref();
+const age = ref(0);
+const price = ref<string[]>([]);
+const ageBegin = ref(0);
+const ageEnd = ref(0);
+const activeNames = ref('');
+const num = ref(0);
+const showChart = ref(true);
 const showShare = ref(false);
+const GENDER = {
+  1: '男',
+  2: '女',
+};
+
+const getData = () => {
+  // eslint-disable-next-line array-callback-return
+  info.value.benefitRiskResultVOList[active.value].benefitRiskItemResultVOList[0].dataList.map((item: string[]) => {
+    if (num.value.toString() === item[item.length - 1]) {
+      price.value = item;
+    }
+  });
+};
+
+const getBenefit = () => {
+  // eslint-disable-next-line array-callback-return
+  info.value.benefitRiskResultVOList[0].benefitRiskItemResultVOList[0].dataList.map((item: string[], i: string) => {
+    item.push(i + 1);
+    item.push((age.value + i + 1).toString());
+  });
+};
+
+onMounted(() => {
+  queryProposalDetail(20).then((res) => {
+    console.log('>>>>>>>>>>>', res.data?.proposalInsuredVOList[0]);
+    // eslint-disable-next-line prefer-destructuring
+    info.value = res.data?.proposalInsuredVOList[0];
+    age.value = dayjs().diff(info.value.birthday, 'y');
+
+    ageBegin.value = info.value.benefitRiskResultVOList[0].ageBegin;
+    ageEnd.value = info.value.benefitRiskResultVOList[0].ageEnd;
+    num.value = age.value + 1;
+    getBenefit();
+    getData();
+    info.value?.proposalProductRiskVOList.map(
+      // eslint-disable-next-line array-callback-return
+      (item: { riskName: any; amount: any; coveragePeriod: any; chargePeriod: any; premium: any }) => {
+        dataSource.value.push({
+          key1: item.riskName,
+          key2: item.amount,
+          key3: item.coveragePeriod,
+          key4: item.chargePeriod,
+          key5: item.premium,
+        });
+      },
+    );
+  });
+});
+
+const handleChange = (val: number) => {
+  getData();
+};
 
 const handleAdd = () => {
-  if (num.value > 99) {
+  if (num.value > ageEnd.value - 1) {
     return;
   }
   num.value += 1;
+  getData();
 };
 const handleReduce = () => {
-  if (num.value < 1) {
-    return;
+  if (num.value > ageBegin.value) {
+    num.value -= 1;
+    getData();
   }
-  num.value -= 1;
+};
+const changeTab = (val: { name: number }) => {
+  console.log('>>', val);
+  active.value = val.name;
+  ageBegin.value = info.value.benefitRiskResultVOList[val.name].ageBegin;
+  ageEnd.value = info.value.benefitRiskResultVOList[val.name].ageEnd;
+};
+
+const handleChangeChart = (val: string) => {
+  if (val === '1') {
+    showChart.value = true;
+  } else {
+    showChart.value = false;
+  }
 };
 
 const handleShare = (type: string) => {
   const shareProps = {
     title: `计划书`, // 分享标题
     desc: '您的贴心保险管家', // 分享描述
-    link: ``, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+    link: `${window.location.href}?isShare=1`, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
     imgUrl: '', // 分享图标
     success() {
       // 设置成功
@@ -293,6 +408,10 @@ const handleShare = (type: string) => {
       background: #eeeeee;
       margin-right: 16px;
       border-radius: 50%;
+      img {
+        width: 80px;
+        height: 80px;
+      }
     }
     .fe {
       font-size: 26px;
@@ -309,6 +428,9 @@ const handleShare = (type: string) => {
   .line2 {
     padding-bottom: 30px;
     border-bottom: 1px solid #eeeff4;
+  }
+  .tp {
+    margin-top: 30px;
   }
   .table-detaile {
     margin-top: 30px;
@@ -411,7 +533,6 @@ const handleShare = (type: string) => {
       .box {
         width: 630px;
         margin: 0 auto;
-        height: 281px;
         background: #fafafa;
         border: 1px solid #9fb3d2;
         padding: 40px 0;
@@ -439,6 +560,7 @@ const handleShare = (type: string) => {
           justify-content: space-between;
           align-items: center;
           text-align: center;
+          flex-wrap: wrap;
           .text1 {
             font-size: 28px;
             font-weight: 500;

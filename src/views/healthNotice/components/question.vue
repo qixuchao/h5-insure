@@ -65,6 +65,8 @@ import { ref, onBeforeUpdate } from 'vue';
 import ProCard from '@/components/ProCard/index.vue';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
 
+import { getCustomerQuestions } from '@/api/modules/inform';
+
 const checkboxRefs = ref<any>([]);
 
 const state = reactive({
@@ -111,6 +113,11 @@ const checkHeight = (height: any) => {
 
 onBeforeUpdate(() => {
   checkboxRefs.value = [];
+});
+
+onMounted(() => {
+  // getCustomerQuestions({}).then(res=>{
+  // })
 });
 </script>
 

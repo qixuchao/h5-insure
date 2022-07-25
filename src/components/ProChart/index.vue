@@ -1,23 +1,22 @@
 <!-- 漏斗图 -->
 <template>
   <div class="com-chart">
-    {{ state.currentScale }}
     <div id="funnel" :style="{ width: '100%', height: '350px' }"></div>
-    <div class="slider-wrap">
-      <van-button icon="minus" type="primary" @click="handleChangeSliderValue('minus')" />
-      <van-slider
-        v-model="state.sliderVal"
-        bar-height="4px"
-        :step="props.stepValue"
-        :min="min"
-        :max="max"
-        active-color="#0D6EFE"
-      >
-        <template #button>
-          <div class="custom-button">{{ state.sliderVal }}</div>
-        </template></van-slider
-      >
-      <van-button icon="plus" type="primary" @click="handleChangeSliderValue('add')" />
+
+    <div class="slider">
+      <div class="add lf">
+        <img src="@/assets/images/compositionProposal/cut.png" alt="" @click="handleChangeSliderValue('minus')" />
+      </div>
+      <div style="flex: 1">
+        <van-slider v-model="state.sliderVal" :min="1" :max="100" bar-height="8px">
+          <template #button>
+            <div class="custom-button">{{ state.sliderVal }} 岁</div>
+          </template>
+        </van-slider>
+      </div>
+      <div class="add rg">
+        <img src="@/assets/images/compositionProposal/add.png" alt="" @click="handleChangeSliderValue('add')" />
+      </div>
     </div>
   </div>
 </template>
@@ -41,7 +40,7 @@ const props = withDefaults(defineProps<Props>(), {
 const { min, max, stepValue } = toRefs(props);
 
 const state = reactive({
-  sliderVal: 0,
+  sliderVal: 10,
   currentScale: 0,
 });
 let myChart: echarts.ECharts;
@@ -164,31 +163,34 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .com-chart {
-  margin: 100px 0;
-  .slider-wrap {
-    height: 100px;
-    padding: 40px;
+  margin: 100px 0 0 0;
+  .slider {
     display: flex;
     align-items: center;
-    justify-content: center;
-    .van-button {
-      width: 48px;
-      height: 48px;
-    }
-
-    .van-slider {
-      margin: 0 56px;
-      .custom-button {
-        width: 104px;
-        height: 46px;
-        background: #0d6efe;
-        box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.1);
-        border-radius: 28px;
-        border: 5px solid #a2c7ff;
-        color: #fff;
-        font-size: 24px;
-        text-align: center;
+    margin-top: 30px;
+    .add {
+      img {
+        width: 48px;
+        height: 48;
       }
+    }
+    .lf {
+      margin-right: 45px;
+    }
+    .rg {
+      margin-left: 45px;
+    }
+    .custom-button {
+      width: 104px;
+      height: 46px;
+      background: #0d6efe;
+      box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.1);
+      border-radius: 28px;
+      border: 5px solid #a2c7ff;
+      font-size: 24px;
+      font-weight: 600;
+      color: #ffffff;
+      text-align: center;
     }
   }
 }
