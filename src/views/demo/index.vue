@@ -61,10 +61,10 @@
       <VanButton type="primary" @click="trial">试算</VanButton>
     </ProForm>
     <ProCard title="图片上传">
-      <ProImageUpload :max-count="9" />
+      <ProImageUpload v-model="images" :max-count="9" />
     </ProCard>
     <ProCard title="身份证上传">
-      <ProIDCardUpload />
+      <ProIDCardUpload v-model:front="front" v-model:back="back" />
     </ProCard>
 
     <ProCard title="折叠卡片" :show-fold="true">
@@ -173,6 +173,9 @@ const signRef2 = ref(null);
 const state = reactive({
   btns: [1, 2],
 });
+const images = ref([]);
+const front = ref('');
+const back = ref('');
 
 const pdfList = [
   {

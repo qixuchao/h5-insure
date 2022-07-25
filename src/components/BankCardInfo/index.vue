@@ -15,10 +15,10 @@
         <span class="field-title">银行卡照片 <span class="sub-title">(需上传正反两面)</span></span>
       </template>
       <template #input>
-        <ProImageUpload :max-count="2" />
+        <ProImageUpload v-model="formData.images" :max-count="2" :upload-type="UPLOAD_TYPE_ENUM.BANK_CARD" />
       </template>
     </ProField>
-    <ProField v-model="formData.mobile" label="预留手机号" type="number" required />
+    <ProField v-model="formData.mobile" label="预留手机号" type="number" required name="mobile" />
   </div>
 </template>
 
@@ -27,6 +27,7 @@ import ProField from '@/components/ProField/index.vue';
 import ProImageUpload from '@/components/ProImageUpload/index.vue';
 import ProPicker from '@/components/ProPicker/index.vue';
 import { BANK_CARD_TYPE_LIST, BANK_CARD_TYPE_ENUM } from '@/common/constants/bankCard';
+import { UPLOAD_TYPE_ENUM } from '@/common/constants';
 
 const emits = defineEmits(['update:modelValue']);
 const props = defineProps({
@@ -42,6 +43,7 @@ let formData = reactive({
   accountName: '',
   bankBranch: '',
   mobile: '',
+  images: [],
 });
 
 watch(
