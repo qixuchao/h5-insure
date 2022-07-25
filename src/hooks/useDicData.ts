@@ -1,23 +1,23 @@
 import { Ref } from 'vue';
-import { DictData } from '@/api/index.data';
+import { DictItemItem } from '@/api/index.data';
 import { getDic } from '@/api';
 
-const DIC_DATA: { [key: string]: DictData } = {};
+const DIC_DATA: { [key: string]: DictItemItem[] } = {};
 
-const useDicData = (dicCode: string): Ref<DictData> => {
-  const dicData = ref<DictData>(DIC_DATA[dicCode]);
-  if (!dicData.value) {
+const useDicData = (dicCode: string): Ref<DictItemItem[]> => {
+  const dicList = ref<DictItemItem[]>(DIC_DATA[dicCode] || []);
+  if (dicList.value.length === 0) {
     getDic({ dictCodeList: [dicCode] }).then((res) => {
       const { code, data } = res;
       if (code === '10000') {
         // eslint-disable-next-line
-        dicData.value = data[0];
+        dicList.value = data[0].dictItemList;
         // eslint-disable-next-line
-        DIC_DATA[dicCode] = data[0];
+        DIC_DATA[dicCode] = data[0].dictItemList;
       }
     });
   }
-  return dicData;
+  return dicList;
 };
 
 export default useDicData;

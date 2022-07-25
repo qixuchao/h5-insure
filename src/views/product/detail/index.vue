@@ -49,7 +49,7 @@
       <ProCard v-if="showByFactor('guaranteeDetail')" title="保障详情" link="查看详情">
         <div v-if="detail && detail?.tenantProductInsureVO" class="basic">
           <ProCell
-            v-for="(item, index) in detail?.tenantProductInsureVO.guaranteeList"
+            v-for="(item, index) in detail?.tenantProductInsureVO?.guaranteeList"
             :key="index"
             :title="item.guaranteeType"
             content="基本保基本保额基本保额说基"
@@ -63,17 +63,17 @@
           <FieldInfo
             v-if="showByFactor('guaranteeAge')"
             title="投保年龄"
-            :desc="formatHolderAgeLimit(detail?.tenantProductInsureVO.holderAgeLimit)"
+            :desc="formatHolderAgeLimit(detail?.tenantProductInsureVO?.holderAgeLimit)"
           />
           <FieldInfo
             v-if="showByFactor('guaranteeTime')"
             title="保障期间"
-            :desc="formatPaymentPeriod(detail?.tenantProductInsureVO.insurancePeriodValues)"
+            :desc="formatPaymentPeriod(detail?.tenantProductInsureVO?.insurancePeriodValues)"
           />
           <FieldInfo
             v-if="showByFactor('paymentTime')"
             title="交费期间"
-            :desc="formatPaymentPeriod(detail?.tenantProductInsureVO.paymentPeriodValues)"
+            :desc="formatPaymentPeriod(detail?.tenantProductInsureVO?.paymentPeriodValues)"
           />
           <FieldInfo v-if="showByFactor('paymentMethod')" title="交费方式" desc="年交" />
           <FieldInfo v-if="showByFactor('drawTime')" title="领取年龄" desc="55/60/55周岁" />
@@ -83,7 +83,7 @@
             v-if="showByFactor('sexLimit')"
             v-show="detail?.tenantProductInsureVO?.sexLimit !== '1'"
             title="性别限制"
-            :desc="formatSex(detail?.tenantProductInsureVO.sexLimit)"
+            :desc="formatSex(detail?.tenantProductInsureVO?.sexLimit)"
           />
           <FieldInfo
             v-if="showByFactor('socialInsuranceLimit')"
