@@ -45,11 +45,11 @@ const submit = () => {
   formRef.value.submit();
 };
 
-const getValues = () => {
+const getValues = (): Record<string, any> => {
   return formRef.value.getValues();
 };
 
-const validate: Promise<{ [key: string]: any }> = (name?: string | string[]) => {
+const validate = (name?: string | string[]): Promise<Record<string, any>> => {
   return new Promise((resolve, reject) => {
     formRef.value
       .validate(name)

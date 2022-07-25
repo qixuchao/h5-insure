@@ -17,13 +17,14 @@
       </ProCard>
       <ProCard title="续期支付">
         <ProForm ref="form2">
-          <ProField label="同首期">
+          <ProField label="同首期" name="sameFirst">
             <template #input>
               <van-switch v-model="renewFormData.sameFirst" size="22" />
             </template>
           </ProField>
           <ProPicker
             v-model="renewFormData.payMethod"
+            name="payMethod"
             label="支付方式"
             is-link
             placeholder="请选择"
@@ -112,10 +113,14 @@ const handleYearCardClick = (type: string) => {
 
 const handleSubmit = () => {
   form1.value?.validate().then((res: { [key: string]: any }) => {
-    console.log(res);
+    console.log('1', res);
   });
-  form2.value?.validate();
-  form3.value?.validate();
+  form2.value?.validate().then((res: { [key: string]: any }) => {
+    console.log('2', res);
+  });
+  form3.value?.validate().then((res: { [key: string]: any }) => {
+    console.log('3', res);
+  });
 };
 </script>
 

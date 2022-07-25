@@ -49,7 +49,7 @@ const shrink = computed(() => {
 
 <style lang="scss" scoped>
 .pro-tab {
-  ::v-deep .van-tabs__nav--shrink {
+  :deep(.van-tabs__nav--shrink) {
     .van-tab {
       margin-right: 60px;
       &:last-child {
@@ -58,7 +58,7 @@ const shrink = computed(() => {
     }
   }
   &.smallGap {
-    ::v-deep .van-tabs__nav--shrink {
+    :deep(.van-tabs__nav--shrink) {
       .van-tab {
         margin-right: 45px;
       }
