@@ -231,9 +231,7 @@ const handlePlanItemClick = (index: number) => {
 
 onMounted(() => {
   productDetail({}).then((res) => {
-    const {
-      data: { code, data },
-    } = res;
+    const { code, data } = res;
     detail.value = data;
   });
 

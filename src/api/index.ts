@@ -12,7 +12,7 @@ import { PAGE_API_ENUMS } from '@/common/constants/index';
 
 // 通用字典接口
 export const getDic = (data = {}) =>
-  request.post<DictData[], ResponseData>('/api/gateway/system/dict/v2/queryDictInfo', data);
+  request.post<DictData[], ResponseData<DictData[]>>('/api/gateway/system/dict/v2/queryDictInfo', data);
 
 // 获取保司列表
 export const queryInsurer = () => request.post<ResponseData<any>>(`/api/app/insure/proposal/queryInsurer`);
