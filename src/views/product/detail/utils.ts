@@ -16,7 +16,10 @@ const formatAge = (age: string) => {
  * @param age 投保年龄限制,例：day_30,age_60（范围，以英文逗号分隔）
  * @returns 投保年龄限制
  */
-export const formatHolderAgeLimit = (age: string) => {
+export const formatHolderAgeLimit = (age?: string) => {
+  if (!age) {
+    return '';
+  }
   const arr = age.split(',');
   if (arr.length === 1) {
     return formatAge(arr[0]);
@@ -24,7 +27,7 @@ export const formatHolderAgeLimit = (age: string) => {
   return `${formatAge(arr[0])} ~ ${formatAge(arr[1])}`;
 };
 
-export const formatPaymentPeriod = (payment: string) => {
+export const formatPaymentPeriod = (payment?: string) => {
   /**
    * 缴费期间值 固定：固定数字，枚举：英文逗号隔开，范围：最小值，最大值
    * 按年缴：以year开头，例如year_10
@@ -32,6 +35,9 @@ export const formatPaymentPeriod = (payment: string) => {
    * 缴至多少岁：以to开头，例如to_60
    * 趸缴：single
    */
+  if (!payment) {
+    return '';
+  }
   if (payment === 'single') {
     return '趸缴';
   }
@@ -51,7 +57,10 @@ export const formatPaymentPeriod = (payment: string) => {
   return '';
 };
 
-export const formatSex = (sex: string) => {
+export const formatSex = (sex?: string) => {
+  if (!sex) {
+    return '';
+  }
   switch (sex) {
     case '1':
       return '无限制';

@@ -166,3 +166,9 @@ export enum UPLOAD_TYPE_ENUM {
    */
   OTHER = '99',
 }
+
+// eslint-disable-next-line
+export enum YES_NO_ENUM {
+  YES = 'YES',
+  NO = 'NO',
+}

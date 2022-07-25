@@ -21,7 +21,7 @@ export interface DictItemItem {
 }
 
 // 页面初始化因子
-export interface factorData {
+export interface FactorData {
     clientType: number;
     flowType: number;
     id: number;

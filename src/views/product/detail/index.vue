@@ -1,7 +1,7 @@
 <template>
   <ProPageWrap>
     <div class="page-product-detail">
-      <van-swipe class="swipe">
+      <van-swipe v-if="showByFactor('picture')" class="swipe">
         <van-swipe-item v-for="(item, index) in imageList" :key="index">
           <img :src="item" class="swipe-img" />
         </van-swipe-item>
@@ -9,10 +9,10 @@
           <div class="custom-indicator">{{ active + 1 }}/{{ total }}</div>
         </template>
       </van-swipe>
-      <div class="title">
-        <div class="text">富得生命满天星重大疾病保险{{ detail?.productFullName }}</div>
-        <div class="desc">
-          重大疾病不分组赔付3次，保费低；人生重要阶段，轻症/重疾翻倍赔；特定良性肿瘤保险金，可选责任质优价低；
+      <div v-if="showByFactor('title')" class="title">
+        <div class="text">{{ detail?.productFullName }}</div>
+        <div v-if="showByFactor('introduction')" class="desc">
+          {{ detail?.showConfigVO.desc }}
         </div>
       </div>
       <ProDivider />
@@ -46,8 +46,8 @@
           {{ item }}
         </div>
       </div>
-      <ProCard title="保障详情" link="查看详情">
-        <div v-if="detail && detail.tenantProductInsureVO" class="basic">
+      <ProCard v-if="showByFactor('guaranteeDetail')" title="保障详情" link="查看详情">
+        <div v-if="detail && detail?.tenantProductInsureVO" class="basic">
           <ProCell
             v-for="(item, index) in detail?.tenantProductInsureVO.guaranteeList"
             :key="index"
@@ -61,44 +61,39 @@
         </div>
         <div class="field">
           <FieldInfo
-            v-if="detail && detail.tenantProductInsureVO.holderAgeLimit"
+            v-if="showByFactor('guaranteeAge')"
             title="投保年龄"
-            :desc="formatHolderAgeLimit(detail.tenantProductInsureVO.holderAgeLimit)"
+            :desc="formatHolderAgeLimit(detail?.tenantProductInsureVO.holderAgeLimit)"
           />
           <FieldInfo
-            v-if="detail && detail.tenantProductInsureVO.insurancePeriodValues"
+            v-if="showByFactor('guaranteeTime')"
             title="保障期间"
-            :desc="formatPaymentPeriod(detail.tenantProductInsureVO.insurancePeriodValues)"
+            :desc="formatPaymentPeriod(detail?.tenantProductInsureVO.insurancePeriodValues)"
           />
           <FieldInfo
-            v-if="detail && detail.tenantProductInsureVO.paymentPeriodValues"
+            v-if="showByFactor('paymentTime')"
             title="交费期间"
-            :desc="formatPaymentPeriod(detail.tenantProductInsureVO.paymentPeriodValues)"
+            :desc="formatPaymentPeriod(detail?.tenantProductInsureVO.paymentPeriodValues)"
           />
-          <FieldInfo title="交费方式" desc="年交" />
-          <FieldInfo title="领取年龄" desc="55/60/55周岁" />
-          <FieldInfo title="领取方式" desc="年领/月领" />
+          <FieldInfo v-if="showByFactor('paymentMethod')" title="交费方式" desc="年交" />
+          <FieldInfo v-if="showByFactor('drawTime')" title="领取年龄" desc="55/60/55周岁" />
+          <FieldInfo v-if="showByFactor('drawType')" title="领取方式" desc="年领/月领" />
 
           <FieldInfo
-            v-if="detail && detail.tenantProductInsureVO.sexLimit && detail.tenantProductInsureVO.sexLimit !== '1'"
+            v-if="showByFactor('sexLimit')"
+            v-show="detail?.tenantProductInsureVO?.sexLimit !== '1'"
             title="性别限制"
-            :desc="formatSex(detail.tenantProductInsureVO.sexLimit)"
+            :desc="formatSex(detail?.tenantProductInsureVO.sexLimit)"
           />
           <FieldInfo
-            v-if="
-              detail &&
-              detail.tenantProductInsureVO.socialInsuranceLimit &&
-              detail.tenantProductInsureVO.socialInsuranceLimit !== '1'
-            "
+            v-if="showByFactor('socialInsuranceLimit')"
+            v-show="detail?.tenantProductInsureVO?.socialInsuranceLimit !== '1'"
             title="社保限制"
             desc="无社保限制"
           />
           <FieldInfo
-            v-if="
-              detail &&
-              detail.tenantProductInsureVO.occupationLimit &&
-              detail.tenantProductInsureVO.occupationLimit !== '1'
-            "
+            v-if="showByFactor('occupationType')"
+            v-show="detail?.tenantProductInsureVO?.occupationLimit !== '1'"
             title="职业类别"
             desc="1-3类职业"
           />
@@ -151,14 +146,19 @@ import ProCell from '@/components/ProCell/index.vue';
 import FieldInfo from '../components/fieldInfo.vue';
 import Question from '../components/question/index.vue';
 import ProTimeline from '@/components/ProTimeline/index.vue';
-import { productDetail, productList } from '@/api/modules/product';
+import { productDetail, productList, getFactor } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/productd.data';
+import { ProductInsureFactorItem } from '@/api/index.data';
 import { formatHolderAgeLimit, formatPaymentPeriod, formatSex } from './utils';
 import { transformToMoney } from '@/utils/format';
+import { YES_NO_ENUM } from '@/common/constants';
+import useDicData from '@/hooks/useDicData';
 
 import swipeImage from '@/assets/images/temp/swipe.png';
 import detailImage from '@/assets/images/temp/detail.png';
 
+const dic1 = useDicData('BANK');
+console.log('dic1', dic1.value);
 const imageList = ref([swipeImage, swipeImage, swipeImage]);
 const tabList = [
   { title: '产品特色', slotName: 'tab1' },
@@ -168,6 +168,7 @@ const tabList = [
 const activePlan = ref(1);
 const planList = ['加单基础版计划1', '2222222222222', '3333333333333333', '444444444444', '555555555555555'];
 const detail = ref<ProductDetail>();
+const factor = ref<{ [key: string]: ProductInsureFactorItem }>({});
 
 const fileList = ['保险条款', '投保须知', '费率表', '责任免除条款说明书', '重要提示', '特别约定', '特殊职业类别表'];
 const questionList = [
@@ -229,13 +230,27 @@ const handlePlanItemClick = (index: number) => {
   activePlan.value = index;
 };
 
-onMounted(() => {
-  productDetail({}).then((res) => {
-    const { code, data } = res;
-    detail.value = data;
-  });
+const showByFactor = (key: string) => {
+  return factor.value && factor.value[key] && factor.value[key].isDisplay === YES_NO_ENUM.YES;
+};
 
-  productList();
+onMounted(() => {
+  productDetail({ productCode: 'CQ75CQ76' }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      detail.value = data;
+    }
+  });
+  getFactor({ pageCode: 'productInfo', templateId: 1 }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      const temp = {};
+      data.productInsureFactorList.forEach((item) => {
+        temp[item.code] = item;
+      });
+      factor.value = temp;
+    }
+  });
 });
 </script>
 

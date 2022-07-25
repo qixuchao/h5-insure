@@ -61,6 +61,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useRouter } from 'vue-router';
 import ProCard from '@/components/ProCard/index.vue';
 import ProForm from '@/components/ProForm/index.vue';
 import ProField from '@/components/ProField/index.vue';
@@ -73,7 +74,11 @@ import {
   PAY_INFO_TYPE_ENUM,
   PAY_INFO_TYPE_LIST,
 } from '@/common/constants/bankCard';
-import { getDic } from '@/api';
+import useDicData from '@/hooks/useDicData';
+
+const dic1 = useDicData('BANK');
+const dic2 = useDicData('CERT_TYPE');
+const router = useRouter();
 
 const firstFormData = reactive({ payMethod: '', bankData: {} });
 const renewFormData = reactive({ payMethod: '', bankData: {}, sameFirst: true });
@@ -109,11 +114,8 @@ const handleSubmit = () => {
     ];
     console.log('data', data);
   });
+  router.push('/product/detail');
 };
-
-onMounted(() => {
-  getDic({ dictCodeList: ['BANK'] });
-});
 </script>
 
 <style lang="scss" scoped>

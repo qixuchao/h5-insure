@@ -32,7 +32,7 @@ export interface ShowConfigVO {
    */
   price: string;
   /**
-   * 产品文案
+   * 推广文案
    */
   promotion: string;
   /**
