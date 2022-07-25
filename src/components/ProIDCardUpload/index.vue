@@ -1,6 +1,12 @@
 <template>
   <div class="com-id-card-upload">
-    <van-uploader v-model="frontImage" :max-count="1" :deletable="false" :preview-full-image="false">
+    <van-uploader
+      :model-value="frontImage"
+      :max-count="1"
+      :deletable="false"
+      :preview-full-image="false"
+      :after-read="handleFrontRead"
+    >
       <div class="upload-item">
         <img :src="IDCardUploadFrontImage" class="bg" />
         <img :src="IDCardUploadIconImage" class="icon" />
@@ -14,7 +20,13 @@
         </div>
       </template>
     </van-uploader>
-    <van-uploader v-model="backImage" :max-count="1" :deletable="false" :preview-full-image="false">
+    <van-uploader
+      :model-value="backImage"
+      :max-count="1"
+      :deletable="false"
+      :preview-full-image="false"
+      :after-read="handleBackRead"
+    >
       <div class="upload-item">
         <img :src="IDCardUploadBackImage" class="bg" />
         <img :src="IDCardUploadIconImage" class="icon" />
@@ -28,16 +40,18 @@
         </div>
       </template>
     </van-uploader>
-    <van-uploader ref="instance" v-model="temp" class="temp-uploader" :max-count="1" />
+    <van-uploader ref="instance" class="temp-uploader" :max-count="1" :after-read="handleTempRead" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { defineProps } from 'vue';
 import { UploaderFileListItem, UploaderInstance } from 'vant';
+import { fileUpload } from '@/api/modules/file';
 import IDCardUploadIconImage from '@/assets/images/component/idcard-upload.png';
 import IDCardUploadFrontImage from '@/assets/images/component/idcard-front.png';
 import IDCardUploadBackImage from '@/assets/images/component/idcard-back.png';
+import { UPLOAD_TYPE_ENUM } from '@/common/constants';
 
 const props = defineProps({
   front: {
@@ -50,6 +64,7 @@ const props = defineProps({
   },
 });
 
+const emits = defineEmits(['update:front', 'update:back']);
 let current: 'front' | 'back' = 'front';
 const instance = ref<UploaderInstance>();
 const frontImage = ref<Array<UploaderFileListItem>>([]);
@@ -71,6 +86,54 @@ const handleBackClick = () => {
     instance.value?.chooseFile();
   });
 };
+
+const handleFrontRead = (e: { file: File }) => {
+  fileUpload(e.file, UPLOAD_TYPE_ENUM.ID_CARD_FRONT).then((res) => {
+    if (res.code === '10000') {
+      emits('update:front', res.data.url);
+    }
+  });
+};
+
+const handleBackRead = (e: { file: File }) => {
+  fileUpload(e.file, UPLOAD_TYPE_ENUM.ID_CARD_BACK).then((res) => {
+    if (res.code === '10000') {
+      emits('update:back', res.data.url);
+    }
+  });
+};
+
+const handleTempRead = (e: { file: File }) => {
+  fileUpload(e.file, current === 'front' ? UPLOAD_TYPE_ENUM.ID_CARD_FRONT : UPLOAD_TYPE_ENUM.ID_CARD_BACK).then(
+    (res) => {
+      if (res.code === '10000') {
+        emits(current === 'front' ? 'update:front' : 'update:back', res.data.url);
+      }
+    },
+  );
+};
+
+watch(
+  () => props.front,
+  (val) => {
+    if (val) {
+      frontImage.value = [{ url: val }];
+    }
+  },
+  { immediate: true },
+);
+
+watch(
+  () => props.back,
+  (val) => {
+    if (val) {
+      backImage.value = [{ url: val }];
+    }
+  },
+  {
+    immediate: true,
+  },
+);
 
 watch(temp, (val) => {
   if (val && val[0]) {
@@ -120,7 +183,7 @@ watch(temp, (val) => {
     }
   }
   .van-uploader {
-    ::v-deep .van-uploader__wrapper {
+    :deep(.van-uploader__wrapper) {
       .van-uploader__preview {
         margin: 0;
         .van-uploader__preview-image {

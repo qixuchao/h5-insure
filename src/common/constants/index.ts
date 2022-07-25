@@ -106,3 +106,69 @@ export const PAGE_API_ENUMS = {
   salesNotice: '/api/app/insure/insurance/nextStepByPageSalesNotice', // 营销员告知
   sign: '/api/app/insure/insurance/nextStepByPageSign', // 人脸识别
 };
+
+// eslint-disable-next-line
+export enum UPLOAD_TYPE_ENUM {
+  /**
+   * 代理人头像
+   */
+  AGENT_AVATAR = '1',
+  /**
+   * 代理人微信二维码
+   */
+  AGENT_WECHAT_QRCODE = '2',
+  /**
+   * 身份证正面
+   */
+  ID_CARD_FRONT = '3',
+  /**
+   * 身份证背面
+   */
+  ID_CARD_BACK = '4',
+  /**
+   * 在线签名
+   */
+  SIGN = '5',
+  /**
+   * 拍照
+   */
+  PHOTO = '6',
+  /**
+   * 银行卡
+   */
+  BANK_CARD = '7',
+  /**
+   * 财务资料
+   */
+  FINANCE_DOCUMENT = '8',
+  /**
+   * 病例资料
+   */
+  CASE_DOCUMENT = '9',
+  /**
+   * 投保人身份证明文件
+   */
+  HOLDER_IDENTITY_DOCUMENT = '10',
+  /**
+   * 被保人身份证明文件
+   */
+  INSURED_IDENTITY_DOCUMENT = '11',
+  /**
+   * 受益人身份证明文件
+   */
+  BENEFICIARY_DOCUMENT = '12',
+  /**
+   * 个人税收居民身份声明文件
+   */
+  TAX_STATEMENT_DOCUMENT = '13',
+  /**
+   * 其他
+   */
+  OTHER = '99',
+}
+
+// eslint-disable-next-line
+export enum YES_NO_ENUM {
+  YES = 'YES',
+  NO = 'NO',
+}

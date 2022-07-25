@@ -20,3 +20,8 @@ export const historyProposalList = (data: Partial<HistoryProposalListParams>) =>
 
 // H5端查询计历史划书删除
 export const deleteProposal = (id: number) => request.post<any, ResponseData>(`${API_PREFIXED}/deleteProposal/${id}`);
+
+// 计划书详情
+export const queryProposalDetail = (id: number) => {
+  return request.post(`${API_PREFIXED}/preview/${id}`);
+};

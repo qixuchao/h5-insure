@@ -2,89 +2,119 @@
   <ProPageWrap>
     <div class="page-bank-card">
       <ProCard title="首期支付">
-        <ProForm>
-          <ProPicker v-model="formData.way1" label="支付方式" is-link placeholder="请选择" :data-source="dataSource" />
-          <BankCardInfo />
+        <ProForm ref="form1">
+          <ProPicker
+            v-model="firstFormData.payMethod"
+            name="payMethod"
+            required
+            label="支付方式"
+            is-link
+            placeholder="请选择"
+            :data-source="PAY_METHOD_LIST"
+          />
+          <BankCardInfo v-model="firstFormData.bankData" />
         </ProForm>
       </ProCard>
       <ProCard title="续期支付">
-        <ProForm>
-          <ProField label="同首期">
+        <ProForm ref="form2">
+          <ProField label="同首期" name="sameFirst">
             <template #input>
-              <van-switch v-model="formData.sameFirst" size="22" />
+              <van-switch v-model="renewFormData.sameFirst" size="22" />
             </template>
           </ProField>
-          <ProPicker v-model="formData.way2" label="支付方式" is-link placeholder="请选择" :data-source="dataSource" />
-          <BankCardInfo v-if="!formData.sameFirst" />
+          <ProPicker
+            v-model="renewFormData.payMethod"
+            name="payMethod"
+            label="支付方式"
+            is-link
+            placeholder="请选择"
+            :data-source="PAY_METHOD_LIST"
+            required
+          />
+          <BankCardInfo v-if="!renewFormData.sameFirst" />
         </ProForm>
       </ProCard>
-      <ProCard title="年金领取银行卡" class="year-card" :show-divider="false">
-        <div class="year-card-list">
+      <ProCard title="年金领取银行卡" class="reprise-card" :show-divider="false">
+        <div class="reprise-card-list">
           <div
-            v-for="(item, index) in yearCard"
+            v-for="(item, index) in PAY_INFO_TYPE_LIST"
             :key="index"
-            :class="['year-card-item', { selected: yearCardSelect === item.value }]"
+            :class="['reprise-card-item', { selected: payInfoType === item.value }]"
             @click="handleYearCardClick(item.value)"
           >
             {{ item.label }}
           </div>
         </div>
-        <BankCardInfo v-if="yearCardSelect === 'other'" />
+        <ProForm ref="form3">
+          <BankCardInfo v-if="payInfoType === PAY_INFO_TYPE_ENUM.OTHER" v-model="repriseFormData.bankData" />
+        </ProForm>
       </ProCard>
       <div class="agree">
         <van-checkbox v-model="agree" class="checkbox" shape="square" :icon-size="16" /> 投保人阅读并接受
         <div class="file">《银行转账授权》</div>
       </div>
       <div class="footer-button footer">
-        <van-button type="primary">下一步</van-button>
+        <van-button type="primary" @click="handleSubmit">下一步</van-button>
       </div>
     </div>
   </ProPageWrap>
 </template>
 
 <script lang="ts" setup>
+import { useRouter } from 'vue-router';
 import ProCard from '@/components/ProCard/index.vue';
 import ProForm from '@/components/ProForm/index.vue';
 import ProField from '@/components/ProField/index.vue';
 import ProPicker from '@/components/ProPicker/index.vue';
 import BankCardInfo from '@/components/BankCardInfo/index.vue';
+import {
+  PAY_METHOD_LIST,
+  PAY_METHOD_ENUM,
+  PAYMENT_TYPE_ENUM,
+  PAY_INFO_TYPE_ENUM,
+  PAY_INFO_TYPE_LIST,
+} from '@/common/constants/bankCard';
+import useDicData from '@/hooks/useDicData';
 
-const formData = reactive({ way1: '', way2: '', sameFirst: true });
-const yearCardSelect = ref('first');
+const dic1 = useDicData('BANK');
+const dic2 = useDicData('CERT_TYPE');
+const router = useRouter();
+
+const firstFormData = reactive({ payMethod: '', bankData: {} });
+const renewFormData = reactive({ payMethod: '', bankData: {}, sameFirst: true });
+const repriseFormData = reactive({ bankData: {} });
+
+const payInfoType = ref(PAY_INFO_TYPE_ENUM.FIRST_SAME);
 const agree = ref(false);
+const form1 = ref();
+const form2 = ref();
+const form3 = ref();
 
-const dataSource = [
-  {
-    label: '银行转账',
-    value: 1,
-  },
-  {
-    label: '支付宝',
-    value: 2,
-  },
-  {
-    label: '微信',
-    value: 3,
-  },
-];
+const handleYearCardClick = (type: PAY_INFO_TYPE_ENUM) => {
+  payInfoType.value = type;
+};
 
-const yearCard = [
-  {
-    label: '同首期',
-    value: 'first',
-  },
-  {
-    label: '同续期',
-    value: 'second',
-  },
-  {
-    label: '其他',
-    value: 'other',
-  },
-];
-
-const handleYearCardClick = (type: string) => {
-  yearCardSelect.value = type;
+const handleSubmit = () => {
+  Promise.all([form1.value?.validate(), form2.value?.validate(), form3.value?.validate()]).then((results) => {
+    const data = [
+      {
+        ...results[0],
+        paymentType: PAYMENT_TYPE_ENUM.FIRST_TERM,
+      },
+      {
+        ...results[1],
+        paymentType: PAYMENT_TYPE_ENUM.RENEW_TERM,
+        payInfoType: results[1].sameFirst ? PAY_INFO_TYPE_ENUM.FIRST_SAME : PAYMENT_TYPE_ENUM.OTHER,
+      },
+      {
+        ...results[2],
+        paymentType: PAYMENT_TYPE_ENUM.REPRISE,
+        payInfoType,
+      },
+    ];
+    console.log('data', data);
+  });
+  router.push('/product/detail');
 };
 </script>
 
@@ -95,14 +125,14 @@ const handleYearCardClick = (type: string) => {
       padding: 0;
     }
   }
-  .year-card {
-    .year-card-list {
+  .reprise-card {
+    .reprise-card-list {
       padding: 0 30px;
       height: 106px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      .year-card-item {
+      .reprise-card-item {
         text-align: center;
         width: 216px;
         height: 60px;

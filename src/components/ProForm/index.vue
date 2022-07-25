@@ -24,10 +24,10 @@ import { withDefaults } from 'vue';
 import type { FormInstance } from 'vant';
 
 interface Props {
-  labelAlign: 'left' | 'right';
-  inputAlign: 'left' | 'right';
-  errorMessageAlign: 'left' | 'right';
-  isView: boolean;
+  labelAlign?: 'left' | 'right';
+  inputAlign?: 'left' | 'right';
+  errorMessageAlign?: 'left' | 'right';
+  isView?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -45,23 +45,33 @@ const submit = () => {
   formRef.value.submit();
 };
 
-const validate = () => {
-  formRef.value.validate();
+const getValues = (): Record<string, any> => {
+  return formRef.value.getValues();
 };
 
-const resetValidation = () => {
-  formRef.value.resetValidation();
+const validate = (name?: string | string[]): Promise<Record<string, any>> => {
+  return new Promise((resolve, reject) => {
+    formRef.value
+      .validate(name)
+      .then(() => {
+        resolve(getValues());
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
 };
 
-const getValues = () => {
-  formRef.value.getValues();
+const resetValidation = (name?: string | string[]) => {
+  formRef.value.resetValidation(name);
 };
 
-const scrollToField = () => {
-  formRef.value.scrollToField();
+const scrollToField = (name: string, alignToTop: boolean) => {
+  formRef.value.scrollToField(name, alignToTop);
 };
 
 defineExpose({
+  getValues,
   submit,
   validate,
   resetValidation,

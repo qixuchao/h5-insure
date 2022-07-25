@@ -1,7 +1,7 @@
 <template>
   <ProPageWrap>
     <div class="page-product-detail">
-      <van-swipe class="swipe">
+      <van-swipe v-if="showByFactor('picture')" class="swipe">
         <van-swipe-item v-for="(item, index) in imageList" :key="index">
           <img :src="item" class="swipe-img" />
         </van-swipe-item>
@@ -9,32 +9,94 @@
           <div class="custom-indicator">{{ active + 1 }}/{{ total }}</div>
         </template>
       </van-swipe>
-      <div class="title">
-        <div class="text">富得生命满天星重大疾病保险{{ detail?.productBasicInfoVO.productName }}</div>
-        <div class="desc">
-          重大疾病不分组赔付3次，保费低；人生重要阶段，轻症/重疾翻倍赔；特定良性肿瘤保险金，可选责任质优价低；
+      <div v-if="showByFactor('title')" class="title">
+        <div class="text">{{ detail?.productFullName }}</div>
+        <div v-if="showByFactor('introduction')" class="desc">
+          {{ detail?.showConfigVO.desc }}
         </div>
       </div>
       <ProDivider />
-      <ProCard title="保障详情" link="查看详情">
-        <div class="basic">
-          <ProCell title="身故保险金" content="基本保基本保额基本保额说基" />
+      <div class="plan">
+        <div
+          v-for="(item, index) in planList.slice(0, 2)"
+          :key="index"
+          :class="['plan-item', 'length-2', { active: activePlan === index }]"
+          @click="handlePlanItemClick(index)"
+        >
+          {{ item }}
+        </div>
+      </div>
+      <div class="plan">
+        <div
+          v-for="(item, index) in planList.slice(0, 3)"
+          :key="index"
+          :class="['plan-item', 'length-3', { active: activePlan === index }]"
+          @click="handlePlanItemClick(index)"
+        >
+          {{ item }}
+        </div>
+      </div>
+      <div class="plan">
+        <div
+          v-for="(item, index) in planList"
+          :key="index"
+          :class="['plan-item', { active: activePlan === index }]"
+          @click="handlePlanItemClick(index)"
+        >
+          {{ item }}
+        </div>
+      </div>
+      <ProCard v-if="showByFactor('guaranteeDetail')" title="保障详情" link="查看详情">
+        <div v-if="detail && detail?.tenantProductInsureVO" class="basic">
+          <ProCell
+            v-for="(item, index) in detail?.tenantProductInsureVO?.guaranteeList"
+            :key="index"
+            :title="item.guaranteeType"
+            content="基本保基本保额基本保额说基"
+          />
           <ProCell title="特定良性肿瘤手术保障" content="按已交保费200%" />
           <ProCell title="重大疾病、轻症和中症疾病豁免保险费" content="200万" />
           <ProCell title="身故保险金" content="按已交保费200%" />
           <ProCell title="身故保险金" content="基本保基本保额基本保额说基" />
         </div>
         <div class="field">
-          <FieldInfo title="投保年龄" desc="满30天 ~ 60周岁" />
-          <FieldInfo title="交费期间" desc="趸交/3年/5年/10年/15年/18年/19年/20年" />
-          <FieldInfo title="交费方式" desc="年交" />
-          <FieldInfo title="投保年龄" desc="满30天" />
-          <FieldInfo title="领取年龄" desc="55/60/55周岁" />
-          <FieldInfo title="投保年龄" desc="满30天" />
-          <FieldInfo title="领取方式" desc="年领/月领" />
-          <FieldInfo title="性别限制" desc="无性别限制" />
-          <FieldInfo title="社保限制" desc="无社保限制" />
-          <FieldInfo title="职业类别" desc="1-3类职业" />
+          <FieldInfo
+            v-if="showByFactor('guaranteeAge')"
+            title="投保年龄"
+            :desc="formatHolderAgeLimit(detail?.tenantProductInsureVO?.holderAgeLimit)"
+          />
+          <FieldInfo
+            v-if="showByFactor('guaranteeTime')"
+            title="保障期间"
+            :desc="formatPaymentPeriod(detail?.tenantProductInsureVO?.insurancePeriodValues)"
+          />
+          <FieldInfo
+            v-if="showByFactor('paymentTime')"
+            title="交费期间"
+            :desc="formatPaymentPeriod(detail?.tenantProductInsureVO?.paymentPeriodValues)"
+          />
+          <FieldInfo v-if="showByFactor('paymentMethod')" title="交费方式" desc="年交" />
+          <FieldInfo v-if="showByFactor('drawTime')" title="领取年龄" desc="55/60/55周岁" />
+          <FieldInfo v-if="showByFactor('drawType')" title="领取方式" desc="年领/月领" />
+
+          <FieldInfo
+            v-if="showByFactor('sexLimit')"
+            v-show="detail?.tenantProductInsureVO?.sexLimit !== '1'"
+            title="性别限制"
+            :desc="formatSex(detail?.tenantProductInsureVO?.sexLimit)"
+          />
+          <FieldInfo
+            v-if="showByFactor('socialInsuranceLimit')"
+            v-show="detail?.tenantProductInsureVO?.socialInsuranceLimit !== '1'"
+            title="社保限制"
+            desc="无社保限制"
+          />
+          <FieldInfo
+            v-if="showByFactor('occupationType')"
+            v-show="detail?.tenantProductInsureVO?.occupationLimit !== '1'"
+            title="职业类别"
+            desc="1-3类职业"
+          />
         </div>
       </ProCard>
       <ProTab class="tabs" :list="tabList" sticky scrollspy>
@@ -65,7 +127,7 @@
         </template>
       </ProTab>
       <div class="footer">
-        <div class="price">￥4,700.00</div>
+        <div class="price">￥{{ transformToMoney(detail?.showConfigVO.price) }}</div>
         <div class="buttons">
           <div class="left">计划书</div>
           <div class="right">算保费</div>
@@ -84,19 +146,29 @@ import ProCell from '@/components/ProCell/index.vue';
 import FieldInfo from '../components/fieldInfo.vue';
 import Question from '../components/question/index.vue';
 import ProTimeline from '@/components/ProTimeline/index.vue';
-import { productDetail } from '@/api/modules/product';
+import { productDetail, productList, getFactor } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/productd.data';
+import { ProductInsureFactorItem } from '@/api/index.data';
+import { formatHolderAgeLimit, formatPaymentPeriod, formatSex } from './utils';
+import { transformToMoney } from '@/utils/format';
+import { YES_NO_ENUM } from '@/common/constants';
+import useDicData from '@/hooks/useDicData';
 
 import swipeImage from '@/assets/images/temp/swipe.png';
 import detailImage from '@/assets/images/temp/detail.png';
 
+const dic1 = useDicData('BANK');
+console.log('dic1', dic1.value);
 const imageList = ref([swipeImage, swipeImage, swipeImage]);
 const tabList = [
   { title: '产品特色', slotName: 'tab1' },
   { title: '理赔流程', slotName: 'tab2' },
   { title: '常见问题', slotName: 'tab3' },
 ];
+const activePlan = ref(1);
+const planList = ['加单基础版计划1', '2222222222222', '3333333333333333', '444444444444', '555555555555555'];
 const detail = ref<ProductDetail>();
+const factor = ref<{ [key: string]: ProductInsureFactorItem }>({});
 
 const fileList = ['保险条款', '投保须知', '费率表', '责任免除条款说明书', '重要提示', '特别约定', '特殊职业类别表'];
 const questionList = [
@@ -154,12 +226,30 @@ const timeList = [
   },
 ];
 
+const handlePlanItemClick = (index: number) => {
+  activePlan.value = index;
+};
+
+const showByFactor = (key: string) => {
+  return factor.value && factor.value[key] && factor.value[key].isDisplay === YES_NO_ENUM.YES;
+};
+
 onMounted(() => {
-  productDetail({}).then((res) => {
-    const {
-      data: { code, data },
-    } = res;
-    detail.value = data;
+  productDetail({ productCode: 'CQ75CQ76' }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      detail.value = data;
+    }
+  });
+  getFactor({ pageCode: 'productInfo', templateId: 1 }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      const temp = {};
+      data.productInsureFactorList.forEach((item) => {
+        temp[item.code] = item;
+      });
+      factor.value = temp;
+    }
   });
 });
 </script>
@@ -201,6 +291,64 @@ onMounted(() => {
       font-size: 26px;
       color: #99a9c0;
       line-height: 37px;
+    }
+  }
+  .plan {
+    display: flex;
+    padding: 30px;
+    overflow-x: auto;
+    .plan-item {
+      position: relative;
+      flex: 0 0 200px;
+      margin-right: 20px;
+      padding: 0 30px;
+      height: 80px;
+      line-height: 80px;
+      border-radius: 12px;
+      border: 1px solid #ccd4e0;
+      font-size: 28px;
+      color: #393d46;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      text-align: center;
+      &.active {
+        background: #0d6efe;
+        color: #fff;
+        &::before {
+          content: '';
+          position: absolute;
+          top: 2px;
+          right: 2px;
+          height: 0;
+          width: 0;
+          border-top: 20px solid #fff;
+          border-right: 20px solid #fff;
+          border-bottom: 20px solid transparent;
+          border-left: 20px solid transparent;
+          border-radius: 0 12px 0 0;
+        }
+        &::after {
+          content: '\2714';
+          color: #0d6efe;
+          position: absolute;
+          top: 5px;
+          right: -5px;
+          height: 20px;
+          width: 40px;
+          line-height: 20px;
+          font-size: 20px;
+        }
+      }
+      &:last-child {
+        margin-right: 0;
+      }
+      &.length-2 {
+        flex: 0 0 335px;
+      }
+      &.length-3 {
+        flex: 0 0 216px;
+      }
     }
   }
   .tabs {

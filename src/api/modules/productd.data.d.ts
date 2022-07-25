@@ -1,207 +1,219 @@
-export interface ProductBasicInfoVO {
+export interface ShowConfigVO {
   /**
-   * 主键ID
+   * 展示类别
+   */
+  categoryNo: number;
+  /**
+   * 自定义标签1
+   */
+  cusLabel1: string;
+  /**
+   * 自定义标签2
+   */
+  cusLabel2: string;
+  /**
+   * 产品文案
+   */
+  desc: string;
+  /**
+   * 产品图片
+   */
+  image: string;
+  /**
+   * 是否首页展示
+   */
+  isAgentAppFirst: number;
+  /**
+   * 产品标签
+   */
+  label: string;
+  /**
+   * 产品价格
+   */
+  price: string;
+  /**
+   * 推广文案
+   */
+  promotion: string;
+  /**
+   * 产品特色
+   */
+  specialty: string[];
+  /**
+   * 产品标题
+   */
+  title: string;
+}
+
+export interface AttachmentVOList {
+  /**
+   * 文件分类
+   */
+  attachmentCategory: string;
+  /**
+   * 文件id
+   */
+  attachmentId: number;
+  /**
+   * 文件名称
+   */
+  attachmentName: string;
+  /**
+   * 文件备注
+   */
+  attachmentRemarks: string;
+  /**
+   * 文件类型
+   */
+  attachmentType: string;
+  /**
+   * 文件地址
+   */
+  attachmentUri: string;
+  /**
+   * 上传时间
+   */
+  gmtCreated: string;
+  /**
+   * 产品id
+   */
+  productId: number;
+}
+
+export interface TitleAndDescVO {
+  /**
+   * 内容
+   */
+  content: string;
+  /**
+   * 说明
+   */
+  desc: string;
+  /**
+   * 标题
+   */
+  title: string;
+}
+
+export interface GuaranteeList {
+  /**
+   * 保障类型
+   */
+  guaranteeType: string;
+  /**
+   * 保障详情描述
+   */
+  titleAndDescVOS: TitleAndDescVO[];
+}
+
+export interface TenantProductInsureVO {
+  /**
+   * 产品资料
+   */
+  attachmentVOList: AttachmentVOList[];
+  /**
+   * banner图
+   */
+  banner: string[];
+  /**
+   * 配置状态 1.暂存 2.完成
+   */
+  configStatus: number;
+  /**
+   * 保障详情
+   */
+  guaranteeList: GuaranteeList[];
+  /**
+   * 投保年龄限制,例：day_30,age_60（范围，以英文逗号分隔）
+   */
+  holderAgeLimit: string;
+  /**
+   * 租户产品投保详情表主键
    */
   id: number;
   /**
-   * 保司code
+   * 保障期间值 固定：固定数字，枚举：英文逗号隔开，范围：最小值，最大值
+按年缴：以year开头，例如year_10
+按月保：以month开头，例如month_10
+按天保：以day开头，例如day_10
+保至多少岁：以to开头，例如to_60
+保终生：to_life
    */
-  insurerCode: string;
+  insurancePeriodValues: string;
   /**
-   * 保司名称
+   * 职业限制 -1.无限制,1.职业等级一，2.职业等级二，3.职业等级三
+4.职业等级四，5.职业等级五，6.职业等级六（以英文逗号分隔）
    */
-  insurerName: string;
+  occupationLimit: string;
   /**
-   * 产品分类
+   * 缴费期间值 固定：固定数字，枚举：英文逗号隔开，范围：最小值，最大值
+按年缴：以year开头，例如year_10
+按月缴：以month开头，例如month_10
+缴至多少岁：以to开头，例如to_60
+趸缴：single
    */
-  productCategory: number;
+  paymentPeriodValues: string;
   /**
    * 产品code
    */
   productCode: string;
   /**
-   * 产品全称
+   * 产品简介
    */
-  productFullName: string;
+  productDesc: string;
   /**
    * 产品名称
    */
   productName: string;
-}
-
-export interface PaymentMethodLimitList {
-  maxAmount: number;
-  maxPremium: number;
-  minAmount: number;
-  minPremium: number;
-  paymentFrequency: number;
-  perCopyAmount: number;
-  perCopyPremium: number;
-  riskId: number;
-}
-
-export interface RiskFactorRelationList {
-  businessType: number;
-  factorCode: string;
-  factorName: string;
-  factorObject: string;
-  id: number;
-  riskId: number;
-}
-
-export interface RiskFormulaRelationList {
-  formulaCode: string;
-  formulaName: string;
-  formulaType: string;
-  id: number;
-  liabilityId: number;
-  riskId: number;
-}
-
-export interface RiskCalcMethodInfoVO {
-  calculateType: number;
-  calculateTypeDesc: string;
-  dataTableList: string[];
-  id: number;
-  increaseDecreaseNum: number;
-  maxCopy: number;
-  minCopy: number;
-  paymentMethodLimitList: PaymentMethodLimitList[];
-  riskFactorRelationList: RiskFactorRelationList[];
-  riskFormulaRelationList: RiskFormulaRelationList[];
-  riskId: number;
-  saleMethod: number;
-  saleMethodDesc: string;
-  singeAmount: number;
-  singePremium: number;
-}
-
-export interface RiskFactorLinkAgeInfoVOList {
-  annuityDrawDate: number;
-  annuityDrawDateDesc: string;
-  id: number;
-  insurancePeriod: string;
-  maxHolderAge: string;
-  minHolderAge: string;
-  paymentPeriod: string;
-  riskId: number;
-}
-
-export interface RiskInsureLimitVO {
-  annuityDrawFrequencyList: number[];
-  annuityDrawTypeList: number[];
-  id: number;
-  insurancePeriodRule: number;
-  insurancePeriodType: number;
-  insurancePeriodValueList: string[];
-  insuredNum: number;
-  maxHolderAge: string;
-  minHolderAge: string;
-  occupationLimitList: string[];
-  paymentFrequencyList: string[];
-  paymentPeriodRule: number;
-  paymentPeriodType: number;
-  paymentPeriodValueList: string[];
-  paymentTypeRule: number;
-  riskId: number;
+  /**
+   * 常见问题
+   */
+  questionList: any[];
+  /**
+   * 理赔流程
+   */
+  settlementProcessList: any[];
+  /**
+   * 性别限制 -1.无限制,1.男 2.女 （ （以英文逗号分隔）
+   */
   sexLimit: string;
+  /**
+   * 社保限制 -1.无限制,1.是 2.否 （以英文逗号分隔）
+   */
   socialInsuranceLimit: string;
-  toLifeAge: number;
-}
-
-export interface RiskLiabilityInfoVOList {
-  amount: number;
-  amountCalculateType: number;
-  amountCalculateTypeDesc: string;
-  extraInfo: string;
-  id: number;
-  liabilityAttributeType: number;
-  liabilityAttributeValueList: string[];
-  liabilityCode: string;
-  liabilityDesc: string;
-  liabilityId: number;
-  liabilityName: string;
-  liabilityRateType: number;
-  optionFlag: string;
-  optionalFlag: number;
-  optionalFlagDesc: string;
-  premium: number;
-  premiumCalculateDesc: string;
-  premiumCalculateType: number;
-  riskId: number;
-}
-
-export interface RiskRuleInfoVOList {
-  id: number;
-  riskId: number;
-  ruleCondition: string;
-  ruleName: string;
-  ruleParams: string;
-  ruleTip: string;
-}
-
-export interface CollocationVOList {
-  collocationRiskCode: string;
-  collocationRiskId: number;
-  collocationRiskName: string;
-  collocationType: number;
-  collocationTypeDesc: string;
-  id: number;
-  riskId: number;
-  riskType: number;
-  riskTypeDesc: string;
-}
-
-export interface RiskDetailVOList {
-  circCategory: string;
-  circCategoryDesc: string;
-  collocationVOList: CollocationVOList[];
-  configStatus: number;
-  exemptFlag: number;
-  exemptType: number;
-  exemptTypeDesc: string;
-  extraInfo: string;
-  id: number;
-  insurerCode: string;
-  insurerName: string;
-  liabilityPlanOssUrl: string;
-  optionalRiderRiskVOList: any[];
-  periodType: number;
-  periodTypeDesc: string;
-  relationDesc: string;
-  requiredRiderRiskVOList: any[];
-  riskCalcMethodInfoVO: RiskCalcMethodInfoVO;
-  riskCategory: number;
-  riskCategoryDesc: string;
-  riskCode: string;
-  riskFactorLinkAgeInfoVOList: RiskFactorLinkAgeInfoVOList[];
-  riskInsureLimitVO: RiskInsureLimitVO;
-  riskLiabilityInfoVOList: RiskLiabilityInfoVOList[];
-  riskName: string;
-  riskRuleInfoVOList: RiskRuleInfoVOList[];
-  riskType: number;
-  riskTypeDesc: string;
-}
-
-export interface ProductRelationPlanVOList {
-  id: number;
-  planCode: string;
-  planName: string;
-  riskDetailVOList: RiskDetailVOList[];
-  riskNum: number;
+  /**
+   * 产品特色
+   */
+  spec: string[];
+  /**
+   * 等待期：day_30,age_60
+   */
+  waitPeriod: string;
 }
 
 export interface ProductDetail {
   /**
-   * 产品基础信息
+   * 产品id
    */
-  productBasicInfoVO: ProductBasicInfoVO;
+  id: number;
   /**
-   * 产品计划基本信息
+   * 产品code
    */
-  productRelationPlanVOList: ProductRelationPlanVOList[];
+  productCode: string;
   /**
-   * 产品险种信息
+   * 产品名称
    */
-  riskDetailVOList: RiskDetailVOList[];
+  productFullName: string;
+  /**
+   * 产品简称
+   */
+  productName: string;
+  /**
+   * 展示配置
+   */
+  showConfigVO: ShowConfigVO;
+  /**
+   * 商品中心产品详情
+   */
+  tenantProductInsureVO: TenantProductInsureVO;
 }

@@ -1,10 +1,14 @@
 <template>
   <div class="com-image-upload">
-    <van-uploader v-model="fileList" :after-read="handleAfterRead" :max-count="maxCount">
+    <van-uploader
+      :model-value="fileList"
+      :after-read="handleAfterRead"
+      :max-count="maxCount"
+      :before-delete="handleBeforeDelete"
+    >
       <div class="upload-item">
         <ProSvg name="image-upload" class="icon" />
       </div>
-      <!-- <template #preview-delete>111</template> -->
     </van-uploader>
   </div>
 </template>
@@ -13,6 +17,8 @@
 import { UploaderFileListItem } from 'vant';
 import { defineProps, defineEmits } from 'vue';
 import ProSvg from '@/components/ProSvg/index.vue';
+import { fileUpload } from '@/api/modules/file';
+import { UPLOAD_TYPE_ENUM } from '@/common/constants';
 
 const emits = defineEmits(['update:modelValue']);
 const props = defineProps({
@@ -24,13 +30,39 @@ const props = defineProps({
     type: Number,
     default: 1,
   },
+  uploadType: {
+    type: String as () => UPLOAD_TYPE_ENUM,
+    default: UPLOAD_TYPE_ENUM.OTHER,
+  },
 });
 
-const fileList = ref<Array<UploaderFileListItem>>(props.modelValue.map((x) => ({ url: x })));
+const fileList = ref<Array<UploaderFileListItem>>([]);
 
-const handleAfterRead = (e) => {
-  console.log(e);
+const handleAfterRead = (e: { file: File; content: string }) => {
+  fileUpload(e.file, props.uploadType).then((res) => {
+    if (res.code === '10000') {
+      emits('update:modelValue', [...props.modelValue, res.data.url]);
+    }
+  });
 };
+
+const handleBeforeDelete = (file: string, target: { index: number }) => {
+  const { index } = target;
+  emits(
+    'update:modelValue',
+    props.modelValue.filter((x, i) => i !== index),
+  );
+};
+
+watch(
+  () => props.modelValue,
+  (val) => {
+    fileList.value = val.map((item) => ({ url: item }));
+  },
+  {
+    immediate: true,
+  },
+);
 </script>
 
 <style lang="scss" scoped>
@@ -50,7 +82,7 @@ const handleAfterRead = (e) => {
     }
   }
   .van-uploader {
-    ::v-deep .van-uploader__wrapper {
+    :deep(.van-uploader__wrapper) {
       .van-uploader__input-wrapper {
         margin-right: 30px;
         margin-bottom: 0px;
