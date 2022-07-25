@@ -21,7 +21,9 @@
               <p class="p2">{{ GENDER[info?.gender] }}，{{ age }}岁</p>
             </div>
           </div>
-          <div class="fe">首年保费： <span>¥128,999,99.00</span></div>
+          <div class="fe">
+            首年保费： <span>¥{{ info?.totalPremium }}</span>
+          </div>
         </div>
         <div class="line"></div>
 
@@ -344,7 +346,7 @@ const handleShare = (type: string) => {
   const shareProps = {
     title: `计划书`, // 分享标题
     desc: '您的贴心保险管家', // 分享描述
-    link: window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+    link: `${window.location.href}?isShare=1`, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
     imgUrl: '', // 分享图标
     success() {
       // 设置成功
