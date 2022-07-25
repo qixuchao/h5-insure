@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 16:05:16
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-23 10:54:28
+ * @LastEditTime: 2022-07-25 17:49:33
  * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -100,7 +100,7 @@ export const PAGE_API_ENUMS = {
   premiumTrial: '/api/app/insure/insurance/nextStepByPagePremiumCal', // 保费试算
   customerNotice: '/api/app/insure/insurance/nextStepByPageInfoCollection', // 客户告知书
   questionNotice: '/api/app/insure/insurance/nextStepByPageNotice', // 问卷告知书
-  InfoCollection: '/api/app/insure/insurance/nextStepByPageInfoCollection', // 信息采集
+  infoCollection: '/api/app/insure/insurance/nextStepByPageInfoCollection', // 信息采集
   infoPreview: '/api/app/insure/insurance/nextStepByPagePreview', // 信息采集预览
   payInfo: '/api/app/insure/insurance/nextStepByPagePayInfo', // 添加银行卡信息
   salesNotice: '/api/app/insure/insurance/nextStepByPageSalesNotice', // 营销员告知
