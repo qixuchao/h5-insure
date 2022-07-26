@@ -22,7 +22,7 @@
         <ProTable :columns="columns" class="table" :data-source="i.proposalProductRiskVOList" />
         <div class="operate-btn">
           <van-button plain round type="primary" class="del-btn" @click="delRisk(i.id)">删除</van-button>
-          <van-button plain round type="primary">编辑</van-button>
+          <van-button plain round type="primary" @click="editProposal(i.id)">编辑</van-button>
           <van-button plain round type="primary">预览</van-button>
         </div>
       </div>
@@ -32,6 +32,7 @@
 
 <script setup lang="ts">
 import { Dialog, Toast } from 'vant';
+import { useRouter } from 'vue-router';
 import ProTable from '@/components/ProTable/index.vue';
 import { historyProposalList, deleteProposal } from '@/api/modules/proposalList';
 import { HistoryProposalListType } from '@/api/modules/proposalList.data';
@@ -69,6 +70,7 @@ const state = reactive<StatueProps>({
 });
 
 const { historyList, searchValue } = toRefs(state);
+const router = useRouter();
 
 const getHistoryList = () => {
   historyProposalList({
@@ -103,6 +105,15 @@ const delRisk = (id: number) => {
       });
     })
     .catch(() => {});
+};
+
+const editProposal = (id) => {
+  router.push({
+    path: '/proposal/createProposal',
+    query: {
+      id,
+    },
+  });
 };
 
 onMounted(() => {

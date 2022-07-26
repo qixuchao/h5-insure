@@ -33,14 +33,19 @@
     </div>
     <div v-if="isCreateProposal" class="van-sticky">
       <div class="add-plan">
-        <p class="has-select">
+        <p class="has-select" @click="toggleSelectProduct(true)">
           已选<span class="has-select-product">{{ selectProduct.length }}</span
           >款产品 <span class="icon"></span>
         </p>
         <van-button type="primary">添加计划书</van-button>
       </div>
     </div>
-
+    <TrialProductPopup
+      v-model="selectProduct"
+      :proposal-list="[]"
+      :is-show="showSelectProduct"
+      @close="toggleSelectProduct(false)"
+    ></TrialProductPopup>
     <ProductRisk
       v-if="showProductRisk"
       :is-show="showProductRisk"
@@ -55,7 +60,7 @@
 
 <script setup lang="ts">
 import { useToggle } from '@vant/use';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { withDefaults } from 'vue';
 import ProductItem from './components/productItem.vue';
 import InsureFilter from './components/insureFilter.vue';
@@ -66,6 +71,7 @@ import { ProposalInfo } from '@/api/modules/createProposal.data';
 import ProFixedButton from '@/components/ProFixedButton/index.vue';
 import { queryProposalProductList } from '@/api/modules/proposalList';
 import ProFixedButtonDefaultImage from '@/assets/images/customer/da.png';
+import TrialProductPopup from './components/TrialProductPopup/index.vue';
 
 interface Props {
   isCreateProposal: boolean;
@@ -89,6 +95,7 @@ interface StateType {
   productTotal: number;
   productId?: number;
   checked: string;
+  proposalList: any[];
 }
 
 const state = reactive<StateType>({
@@ -105,6 +112,7 @@ const state = reactive<StateType>({
   productTotal: 0,
   checked: '',
   productId: undefined,
+  proposalList: [],
 });
 
 const {
@@ -122,8 +130,11 @@ const {
 } = toRefs(state);
 
 const [showProductRisk, toggleProductRisk] = useToggle();
+const [showSelectProduct, toggleSelectProduct] = useToggle();
 const store = createProposalStore();
 const router = useRouter();
+const route = useRoute();
+const { isCreateProposal } = route.query;
 
 const getProducts = () => {
   queryProposalProductList({
@@ -174,6 +185,11 @@ const closeProductRisk = () => {
 };
 
 const onFinished = (proposalInfo: ProposalInfo) => {
+  if (isCreateProposal) {
+    state.proposalList.push(proposalInfo);
+    toggleProductRisk(false);
+    return;
+  }
   store.setTrialData([proposalInfo]);
   toggleProductRisk(false);
   router.push({
@@ -232,6 +248,7 @@ onMounted(() => {
   position: fixed;
   bottom: 0;
   left: 0;
+  z-index: 9999;
   .add-plan {
     width: 100%;
     height: 150px;

@@ -28,7 +28,8 @@
             label="支付方式"
             is-link
             placeholder="请选择"
-            :data-source="dataSource"
+            :data-source="PAY_METHOD_LIST"
+            required
           />
           <BankCardInfo v-if="!renewFormData.sameFirst" />
         </ProForm>
@@ -36,16 +37,16 @@
       <ProCard title="年金领取银行卡" class="reprise-card" :show-divider="false">
         <div class="reprise-card-list">
           <div
-            v-for="(item, index) in repriseCard"
+            v-for="(item, index) in PAY_INFO_TYPE_LIST"
             :key="index"
-            :class="['reprise-card-item', { selected: repriseCardSelect === item.value }]"
+            :class="['reprise-card-item', { selected: payInfoType === item.value }]"
             @click="handleYearCardClick(item.value)"
           >
             {{ item.label }}
           </div>
         </div>
         <ProForm ref="form3">
-          <BankCardInfo v-if="repriseCardSelect === 'other'" v-model="repriseFormData.bankData" />
+          <BankCardInfo v-if="payInfoType === PAY_INFO_TYPE_ENUM.OTHER" v-model="repriseFormData.bankData" />
         </ProForm>
       </ProCard>
       <div class="agree">
@@ -60,67 +61,60 @@
 </template>
 
 <script lang="ts" setup>
+import { useRouter } from 'vue-router';
 import ProCard from '@/components/ProCard/index.vue';
 import ProForm from '@/components/ProForm/index.vue';
 import ProField from '@/components/ProField/index.vue';
 import ProPicker from '@/components/ProPicker/index.vue';
 import BankCardInfo from '@/components/BankCardInfo/index.vue';
-import { PAY_METHOD_LIST, PAY_METHOD_ENUM } from '@/common/constants/bankCard';
+import {
+  PAY_METHOD_LIST,
+  PAY_METHOD_ENUM,
+  PAYMENT_TYPE_ENUM,
+  PAY_INFO_TYPE_ENUM,
+  PAY_INFO_TYPE_LIST,
+} from '@/common/constants/bankCard';
+import useDicData from '@/hooks/useDicData';
+
+const dic1 = useDicData('BANK');
+const dic2 = useDicData('CERT_TYPE');
+const router = useRouter();
 
 const firstFormData = reactive({ payMethod: '', bankData: {} });
 const renewFormData = reactive({ payMethod: '', bankData: {}, sameFirst: true });
 const repriseFormData = reactive({ bankData: {} });
 
-const repriseCardSelect = ref('first');
+const payInfoType = ref(PAY_INFO_TYPE_ENUM.FIRST_SAME);
 const agree = ref(false);
 const form1 = ref();
 const form2 = ref();
 const form3 = ref();
 
-const dataSource = [
-  {
-    label: '银行转账',
-    value: 1,
-  },
-  {
-    label: '支付宝',
-    value: 2,
-  },
-  {
-    label: '微信',
-    value: 3,
-  },
-];
-
-const repriseCard = [
-  {
-    label: '同首期',
-    value: 'first',
-  },
-  {
-    label: '同续期',
-    value: 'second',
-  },
-  {
-    label: '其他',
-    value: 'other',
-  },
-];
-
-const handleYearCardClick = (type: string) => {
-  repriseCardSelect.value = type;
+const handleYearCardClick = (type: PAY_INFO_TYPE_ENUM) => {
+  payInfoType.value = type;
 };
 
 const handleSubmit = () => {
-  form1.value?.validate().then((res: { [key: string]: any }) => {
-    console.log('1', res);
+  Promise.all([form1.value?.validate(), form2.value?.validate(), form3.value?.validate()]).then((results) => {
+    const data = [
+      {
+        ...results[0],
+        paymentType: PAYMENT_TYPE_ENUM.FIRST_TERM,
+      },
+      {
+        ...results[1],
+        paymentType: PAYMENT_TYPE_ENUM.RENEW_TERM,
+        payInfoType: results[1].sameFirst ? PAY_INFO_TYPE_ENUM.FIRST_SAME : PAYMENT_TYPE_ENUM.OTHER,
+      },
+      {
+        ...results[2],
+        paymentType: PAYMENT_TYPE_ENUM.REPRISE,
+        payInfoType,
+      },
+    ];
+    console.log('data', data);
   });
-  form2.value?.validate().then((res: { [key: string]: any }) => {
-    console.log('2', res);
-  });
-  form3.value?.validate().then((res: { [key: string]: any }) => {
-    console.log('3', res);
-  });
+  router.push('/product/detail');
 };
 </script>
 

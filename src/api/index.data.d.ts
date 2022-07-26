@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-16 19:38:49
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-21 18:06:44
+ * @LastEditTime: 2022-07-25 16:27:55
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/index.data.d.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -21,7 +21,7 @@ export interface DictItemItem {
 }
 
 // 页面初始化因子
-export interface factorData {
+export interface FactorData {
     clientType: number;
     flowType: number;
     id: number;
@@ -321,6 +321,48 @@ export interface AttachmentReqItem {
     uriKey: string;
 }
 
+// 获取模板response
+
+export interface TemplateInfo {
+    clientType: string;
+    flowType: string;
+    id: number;
+    productCategory: number;
+    remark: string;
+    status: string;
+    templateName: string;
+    templatePageList: TemplatePageItem[];
+    venderCode: string;
+}
+
+export interface TemplatePageItem {
+    jumpRule: string;
+    nextPageCode: string;
+    pageCode: string;
+    pageName: string;
+    pageType: string;
+    position: number;
+    productInsureFactorList: ProductInsureFactorItem[];
+    templateId: number;
+}
+
+export interface ProductInsureFactorItem {
+    code: string;
+    dataSource: number;
+    defaultValue: string;
+    displayType: string;
+    factorScript: string;
+    hasDefaultValue: string;
+    isDisplay: string;
+    isMustInput: string;
+    isReadOnly: string;
+    moduleType: string;
+    pageCode: string;
+    placeholder: string;
+    position: number;
+    templateId: number;
+    title: string;
+}
 
 
 

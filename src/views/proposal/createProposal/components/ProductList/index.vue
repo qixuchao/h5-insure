@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 16:43:35
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-21 10:32:21
+ * @LastEditTime: 2022-07-25 01:30:11
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -62,6 +62,9 @@
             <ProCheckButton activated :round="32" @click="updateRisk(riderRisk)">修改</ProCheckButton>
           </div>
         </div>
+      </div>
+      <div class="premium-total">
+        保费: <span class="premium">￥{{ 234234 }}</span>
       </div>
     </div>
     <RiskRelationList
@@ -155,6 +158,19 @@ watch(
 .com-product-list-wrapper {
   .content {
     padding: 0 $zaui-card-border;
+  }
+
+  .premium-total {
+    padding: 0 $zaui-card-border;
+    font-size: 26px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #333333;
+    margin: 20px 0 30px;
+    .premium {
+      color: #ff5840;
+      font-weight: 600;
+    }
   }
   .risk-item-wrapper {
     margin: $zaui-card-border;
