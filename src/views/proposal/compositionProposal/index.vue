@@ -61,50 +61,20 @@
             <div class="text-detail">条款详情</div>
           </div>
           <div class="product-detail">
-            <van-collapse v-model="activeNames" accordion :is-link="false" :border="false" size="middle">
+            <van-collapse v-model="item.riskName1" accordion :is-link="false" :border="false" size="middle">
               <van-collapse-item
                 v-for="(val, k) in item.proposalRiskLiabilityVOList"
                 :key="k"
-                title="标题1"
-                name="1"
+                :title="val.liabilityName"
+                :name="k"
                 value-class="price"
                 value="50万"
               >
-                1、全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案；
-                2、我是文案我是文案我是文案我是文案我是文案我是案我是文案我是文案我是文案我是文案
-              </van-collapse-item>
-              <van-collapse-item title="标题2" value-class="price" value="50万" name="2">
-                1、全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案；
-                2、我是文案我是文案我是文案我是文案我是文案我是案我是文案我是文案我是文案我是文案
-              </van-collapse-item>
-              <van-collapse-item title="标题3" value-class="price" value="50万" name="3">
-                在代码阅读过程中人们说脏话的频率是衡量代码质量的唯一标准。
+                {{ val.liabilityDesc }}
               </van-collapse-item>
             </van-collapse>
           </div>
           <div class="line2"></div>
-        </div>
-
-        <div class="common-title">
-          <div class="title">
-            <img src="@/assets/images/compositionProposal/title.png" class="ig" /> 众安家庭共享保额意外险
-          </div>
-          <div class="text-detail">条款详情</div>
-        </div>
-        <div class="product-detail">
-          <van-collapse v-model="activeNames" accordion :is-link="false" :border="false" size="middle">
-            <van-collapse-item title="标题1" name="1" value-class="price" value="50万">
-              1、全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案；
-              2、我是文案我是文案我是文案我是文案我是文案我是案我是文案我是文案我是文案我是文案
-            </van-collapse-item>
-            <van-collapse-item title="标题2" value-class="price" value="50万" name="2">
-              1、全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案；
-              2、我是文案我是文案我是文案我是文案我是文案我是案我是文案我是文案我是文案我是文案
-            </van-collapse-item>
-            <van-collapse-item title="标题3" value-class="price" value="50万" name="3">
-              在代码阅读过程中人们说脏话的频率是衡量代码质量的唯一标准。
-            </van-collapse-item>
-          </van-collapse>
         </div>
       </div>
 
@@ -164,8 +134,13 @@
               </div>
 
               <div v-else>
-                <ProChart />
+                <ProChart
+                  :min="ageBegin"
+                  :max="ageEnd"
+                  :data="item.benefitRiskItemResultVOList[0].benefitRiskItemList"
+                />
               </div>
+
               <p class="slider-dec">拖动按钮查看不同年龄保障</p>
               <div class="btn-two">
                 <van-button round :plain="!showChart" type="primary" class="btn" @click="handleChangeChart('1')"
@@ -258,6 +233,11 @@ const price = ref<string[]>([]);
 const ageBegin = ref(0);
 const ageEnd = ref(0);
 const activeNames = ref('');
+const activeNames1 = ref([]);
+const act = reactive({
+  ar: [],
+});
+
 const num = ref(0);
 const showChart = ref(true);
 const showShare = ref(false);
