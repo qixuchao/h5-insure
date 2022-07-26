@@ -3,7 +3,7 @@
   <div class="com-chart">
     <p class="box-title">
       <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
-      保单年度<span>{{ state.sliderVal - min }}</span
+      保单年度<span>{{ state.sliderVal - min + 1 }}</span
       >年度，被保人<span>{{ state.sliderVal }}</span
       >岁时
       <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
@@ -70,7 +70,7 @@ const state = reactive({
       trigger: 'axis',
       color: '#393D46',
       backgroundColor: 'rgba(255,255,255,0.9)',
-      position: ['25%', '-15%'],
+      position: ['25%', '7%'],
       textStyle: {
         fontSize: 12,
       }, // 修改字体大小
@@ -82,6 +82,7 @@ const state = reactive({
       left: '3%',
       right: '4%',
       bottom: '3%',
+      top: '35%',
       containLabel: true,
     },
     xAxis: {
@@ -164,7 +165,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .com-chart {
   .box-title {
-    margin-top: 40px 0 42px 0;
+    margin: 40px 0 42px 0;
     padding: 0 16px;
     font-size: 32px;
     font-weight: 500;

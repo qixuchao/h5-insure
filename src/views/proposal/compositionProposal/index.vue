@@ -29,27 +29,6 @@
 
         <div class="tp">
           <ProTable :columns="columns" class="table" :data-source="dataSource" />
-
-          <!-- <table class="table-detaile">
-            <thead>
-              <tr>
-                <td>险种名称</td>
-                <td>保额</td>
-                <td>保障期间</td>
-                <td>缴费期间</td>
-                <td>保费</td>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, i) in info?.proposalProductRiskVOList" :key="i">
-                <td style="width: 25%">{{ item.riskName }}</td>
-                <td style="width: 15%">{{ item.amount }}</td>
-                <td style="width: 25%">{{ item.coveragePeriod }}</td>
-                <td style="width: 25%">{{ item.chargePeriod }}</td>
-                <td style="width: 15%">{{ item.premium }}</td>
-              </tr>
-            </tbody>
-          </table> -->
         </div>
       </div>
       <div class="container">
@@ -382,16 +361,16 @@ const handleShare = (type: string) => {
 const getPdf = () => {
   generatePdf('20').then((res) => {
     console.log('>>>', res);
+    pdfPreview(
+      [
+        {
+          title: '组合计划书',
+          url: 'https://dlsvr04.asus.com.cn/pub/ASUS/mb/Socket2066/WS_C422_PRO_SE/T16048_WS_C422_PRO_SE_V4_WEB.pdf',
+        },
+      ],
+      0,
+    );
   });
-  pdfPreview(
-    [
-      {
-        title: '组合计划书',
-        url: 'https://dlsvr04.asus.com.cn/pub/ASUS/mb/Socket2066/WS_C422_PRO_SE/T16048_WS_C422_PRO_SE_V4_WEB.pdf',
-      },
-    ],
-    0,
-  );
 };
 </script>
 
