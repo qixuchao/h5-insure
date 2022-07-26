@@ -6,9 +6,9 @@
 -->
 <template>
   <div class="com-health-notice">
-    <!-- <Question /> -->
+    <Question />
     <!-- <Document /> -->
-    <InsuranceNotice />
+    <!-- <InsuranceNotice /> -->
   </div>
 </template>
 

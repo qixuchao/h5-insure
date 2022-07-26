@@ -136,7 +136,7 @@ const displayDataSource = computed(() => {
           width: 80px;
           border-right: 1px solid #eeeff4;
           border-bottom: 1px solid #eeeff4;
-          background: #fff;
+          // background: #fff;
           &.fixed {
             position: sticky;
             left: 0;

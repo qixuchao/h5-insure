@@ -29,27 +29,6 @@
 
         <div class="tp">
           <ProTable :columns="columns" class="table" :data-source="dataSource" />
-
-          <!-- <table class="table-detaile">
-            <thead>
-              <tr>
-                <td>险种名称</td>
-                <td>保额</td>
-                <td>保障期间</td>
-                <td>缴费期间</td>
-                <td>保费</td>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, i) in info?.proposalProductRiskVOList" :key="i">
-                <td style="width: 25%">{{ item.riskName }}</td>
-                <td style="width: 15%">{{ item.amount }}</td>
-                <td style="width: 25%">{{ item.coveragePeriod }}</td>
-                <td style="width: 25%">{{ item.chargePeriod }}</td>
-                <td style="width: 15%">{{ item.premium }}</td>
-              </tr>
-            </tbody>
-          </table> -->
         </div>
       </div>
       <div class="container">
@@ -61,50 +40,20 @@
             <div class="text-detail">条款详情</div>
           </div>
           <div class="product-detail">
-            <van-collapse v-model="activeNames" accordion :is-link="false" :border="false" size="middle">
+            <van-collapse v-model="item.riskName1" accordion :is-link="false" :border="false" size="middle">
               <van-collapse-item
                 v-for="(val, k) in item.proposalRiskLiabilityVOList"
                 :key="k"
-                title="标题1"
-                name="1"
+                :title="val.liabilityName"
+                :name="k"
                 value-class="price"
-                value="50万"
+                :value="val.liabilityIndemnityContent"
               >
-                1、全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案；
-                2、我是文案我是文案我是文案我是文案我是文案我是案我是文案我是文案我是文案我是文案
-              </van-collapse-item>
-              <van-collapse-item title="标题2" value-class="price" value="50万" name="2">
-                1、全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案；
-                2、我是文案我是文案我是文案我是文案我是文案我是案我是文案我是文案我是文案我是文案
-              </van-collapse-item>
-              <van-collapse-item title="标题3" value-class="price" value="50万" name="3">
-                在代码阅读过程中人们说脏话的频率是衡量代码质量的唯一标准。
+                {{ val.liabilityDesc }}
               </van-collapse-item>
             </van-collapse>
           </div>
           <div class="line2"></div>
-        </div>
-
-        <div class="common-title">
-          <div class="title">
-            <img src="@/assets/images/compositionProposal/title.png" class="ig" /> 众安家庭共享保额意外险
-          </div>
-          <div class="text-detail">条款详情</div>
-        </div>
-        <div class="product-detail">
-          <van-collapse v-model="activeNames" accordion :is-link="false" :border="false" size="middle">
-            <van-collapse-item title="标题1" name="1" value-class="price" value="50万">
-              1、全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案；
-              2、我是文案我是文案我是文案我是文案我是文案我是案我是文案我是文案我是文案我是文案
-            </van-collapse-item>
-            <van-collapse-item title="标题2" value-class="price" value="50万" name="2">
-              1、全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案全量展示后台配置文案；
-              2、我是文案我是文案我是文案我是文案我是文案我是案我是文案我是文案我是文案我是文案
-            </van-collapse-item>
-            <van-collapse-item title="标题3" value-class="price" value="50万" name="3">
-              在代码阅读过程中人们说脏话的频率是衡量代码质量的唯一标准。
-            </van-collapse-item>
-          </van-collapse>
         </div>
       </div>
 
@@ -120,8 +69,7 @@
         >
           <van-tab v-for="(item, i) in info?.benefitRiskResultVOList" :key="i" :name="i" :title="item.riskName">
             <div class="benefit">
-              <div class="benefit-title">众安家庭共享保额意外险意外险</div>
-
+              <div class="benefit-title">{{ item?.riskName }}</div>
               <div class="line"></div>
               <div v-if="showChart">
                 <div class="box">
@@ -164,8 +112,13 @@
               </div>
 
               <div v-else>
-                <ProChart />
+                <ProChart
+                  :min="ageBegin"
+                  :max="ageEnd"
+                  :data="item.benefitRiskItemResultVOList[0].benefitRiskItemList"
+                />
               </div>
+
               <p class="slider-dec">拖动按钮查看不同年龄保障</p>
               <div class="btn-two">
                 <van-button round :plain="!showChart" type="primary" class="btn" @click="handleChangeChart('1')"
@@ -208,7 +161,7 @@
       </van-action-sheet>
 
       <div v-if="!isShare" class="footer-btn">
-        <van-button plain type="primary" class="btn">生成PDF</van-button>
+        <van-button plain type="primary" class="btn" @click="getPdf">生成PDF</van-button>
         <van-button type="primary" class="btn" @click="showShare = true">分享计划书</van-button>
       </div>
     </div>
@@ -217,12 +170,13 @@
 <script lang="ts" setup>
 import wx from 'weixin-js-sdk';
 import dayjs from 'dayjs';
-import { queryProposalDetail } from '@/api/modules/proposalList';
+import { queryProposalDetail, generatePdf } from '@/api/modules/proposalList';
 import ProTable from '@/components/ProTable/index.vue';
 import ProChart from '@/components/ProChart/index.vue';
+import pdfPreview from '@/utils/pdfPreview';
 
 const router = useRoute();
-const { isShare } = router.params;
+const { isShare, id } = router.params;
 const columns = [
   {
     title: '险种名称',
@@ -250,7 +204,7 @@ const columns = [
   },
 ];
 
-const dataSource = ref([]);
+const dataSource = ref([] as any);
 const active = ref(0);
 const info = ref();
 const age = ref(0);
@@ -258,6 +212,7 @@ const price = ref<string[]>([]);
 const ageBegin = ref(0);
 const ageEnd = ref(0);
 const activeNames = ref('');
+
 const num = ref(0);
 const showChart = ref(true);
 const showShare = ref(false);
@@ -283,7 +238,47 @@ const getBenefit = () => {
   });
 };
 
+// 保障期间
+const getCover = (val: string) => {
+  const arr = val.split('_');
+  if (val === 'to_life') {
+    return '保终生';
+  }
+  switch (arr[0]) {
+    case 'year':
+      return `${arr[1]}年`;
+    case 'month':
+      return `${arr[1]}月`;
+    case 'day':
+      return `${arr[1]}天`;
+    case 'to':
+      return `保至${arr[1]}岁`;
+
+    default:
+      return '';
+  }
+};
+
+// 交费期间
+const getChargePay = (val: string) => {
+  const arr = val.split('_');
+  switch (arr[0]) {
+    case 'year':
+      return `${arr[1]}年交`;
+    case 'month':
+      return `${arr[1]}月交`;
+    case 'to':
+      return `交至${arr[1]}岁`;
+    case 'single':
+      return `趸缴`;
+
+    default:
+      return '';
+  }
+};
+
 onMounted(() => {
+  // Number(id)
   queryProposalDetail(20).then((res) => {
     console.log('>>>>>>>>>>>', res.data?.proposalInsuredVOList[0]);
     // eslint-disable-next-line prefer-destructuring
@@ -301,8 +296,8 @@ onMounted(() => {
         dataSource.value.push({
           key1: item.riskName,
           key2: item.amount,
-          key3: item.coveragePeriod,
-          key4: item.chargePeriod,
+          key3: getCover(item.coveragePeriod),
+          key4: getChargePay(item.chargePeriod),
           key5: item.premium,
         });
       },
@@ -328,7 +323,6 @@ const handleReduce = () => {
   }
 };
 const changeTab = (val: { name: number }) => {
-  console.log('>>', val);
   active.value = val.name;
   ageBegin.value = info.value.benefitRiskResultVOList[val.name].ageBegin;
   ageEnd.value = info.value.benefitRiskResultVOList[val.name].ageEnd;
@@ -361,6 +355,21 @@ const handleShare = (type: string) => {
     } else {
       wx.onMenuShareTimeline(shareProps);
     }
+  });
+};
+
+const getPdf = () => {
+  generatePdf('20').then((res) => {
+    console.log('>>>', res);
+    pdfPreview(
+      [
+        {
+          title: '组合计划书',
+          url: 'https://dlsvr04.asus.com.cn/pub/ASUS/mb/Socket2066/WS_C422_PRO_SE/T16048_WS_C422_PRO_SE_V4_WEB.pdf',
+        },
+      ],
+      0,
+    );
   });
 };
 </script>
@@ -478,12 +487,15 @@ const handleShare = (type: string) => {
       justify-content: space-between;
       padding-top: 34px;
       margin-bottom: 30px;
+      font-weight: 500;
+      color: #333333;
       .title {
         font-size: 30px;
         font-weight: 600;
         color: #393d46;
         display: flex;
         align-items: center;
+        font-weight: 600;
         .ig {
           width: 18px;
           height: 29px;
@@ -537,6 +549,7 @@ const handleShare = (type: string) => {
         border: 1px solid #9fb3d2;
         padding: 40px 0;
         border-radius: 20px;
+        margin-top: 40px;
         &-title {
           padding: 0 16px;
           font-size: 32px;
@@ -686,6 +699,7 @@ const handleShare = (type: string) => {
     align-items: center;
     justify-content: space-between;
     padding: 30px;
+    z-index: 100;
     .btn {
       width: 335px;
       height: 90px;
