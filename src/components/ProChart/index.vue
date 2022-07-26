@@ -1,6 +1,13 @@
 <!-- 漏斗图 -->
 <template>
   <div class="com-chart">
+    <p class="box-title">
+      <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
+      保单年度<span>{{ state.sliderVal - min }}</span
+      >年度，被保人<span>{{ state.sliderVal }}</span
+      >岁时
+      <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
+    </p>
     <div id="funnel" :style="{ width: '100%', height: '350px' }"></div>
 
     <div class="slider">
@@ -57,7 +64,6 @@ const { min, max, stepValue, data } = toRefs(props);
 
 const state = reactive({
   sliderVal: 1,
-  currentScale: 9,
   option: {
     color: ['#0D6EFE', '#2ABE21', '#FF5840', '#0DCCFE', '#8D40FF', '#8D40FF', '#C500CF', '#FF9A26'],
     tooltip: {
@@ -96,7 +102,7 @@ const handleChangeSliderValue = (type: string) => {
     state.sliderVal -= stepValue.value;
   }
   let index = 0;
-  state.option.xAxis.data.forEach((item, i) => {
+  state.option.xAxis.data.forEach((item: number, i: number) => {
     if (item === state.sliderVal) {
       index = i;
     }
@@ -109,7 +115,7 @@ const handleChangeSliderValue = (type: string) => {
 };
 const handleChange = (val: number) => {
   let index = 0;
-  state.option.xAxis.data.forEach((item, i) => {
+  state.option.xAxis.data.forEach((item: number, i: number) => {
     if (item === val) {
       index = i;
     }
@@ -157,7 +163,24 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .com-chart {
-  margin: 100px 0 0 0;
+  .box-title {
+    margin-top: 40px 0 42px 0;
+    padding: 0 16px;
+    font-size: 32px;
+    font-weight: 500;
+    color: #333333;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    img {
+      width: 41px;
+      height: 29px;
+    }
+    span {
+      color: #ff5840;
+    }
+  }
   .slider {
     display: flex;
     align-items: center;

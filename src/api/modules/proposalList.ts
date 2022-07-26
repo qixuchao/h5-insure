@@ -25,3 +25,8 @@ export const deleteProposal = (id: number) => request.post<any, ResponseData>(`$
 export const queryProposalDetail = (id: number) => {
   return request.post(`${API_PREFIXED}/preview/${id}`);
 };
+
+// 生成计划书pdf
+export const generatePdf = (id: string) => {
+  return request.post(`${API_PREFIXED}/generatePdf/${id}`);
+};

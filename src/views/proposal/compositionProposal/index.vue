@@ -68,7 +68,7 @@
                 :title="val.liabilityName"
                 :name="k"
                 value-class="price"
-                value="50万"
+                :value="val.liabilityIndemnityContent"
               >
                 {{ val.liabilityDesc }}
               </van-collapse-item>
@@ -90,8 +90,7 @@
         >
           <van-tab v-for="(item, i) in info?.benefitRiskResultVOList" :key="i" :name="i" :title="item.riskName">
             <div class="benefit">
-              <div class="benefit-title">众安家庭共享保额意外险意外险</div>
-
+              <div class="benefit-title">{{ item?.riskName }}</div>
               <div class="line"></div>
               <div v-if="showChart">
                 <div class="box">
@@ -183,7 +182,7 @@
       </van-action-sheet>
 
       <div v-if="!isShare" class="footer-btn">
-        <van-button plain type="primary" class="btn">生成PDF</van-button>
+        <van-button plain type="primary" class="btn" @click="getPdf">生成PDF</van-button>
         <van-button type="primary" class="btn" @click="showShare = true">分享计划书</van-button>
       </div>
     </div>
@@ -192,12 +191,13 @@
 <script lang="ts" setup>
 import wx from 'weixin-js-sdk';
 import dayjs from 'dayjs';
-import { queryProposalDetail } from '@/api/modules/proposalList';
+import { queryProposalDetail, generatePdf } from '@/api/modules/proposalList';
 import ProTable from '@/components/ProTable/index.vue';
 import ProChart from '@/components/ProChart/index.vue';
+import pdfPreview from '@/utils/pdfPreview';
 
 const router = useRoute();
-const { isShare } = router.params;
+const { isShare, id } = router.params;
 const columns = [
   {
     title: '险种名称',
@@ -225,7 +225,7 @@ const columns = [
   },
 ];
 
-const dataSource = ref([]);
+const dataSource = ref([] as any);
 const active = ref(0);
 const info = ref();
 const age = ref(0);
@@ -233,10 +233,6 @@ const price = ref<string[]>([]);
 const ageBegin = ref(0);
 const ageEnd = ref(0);
 const activeNames = ref('');
-const activeNames1 = ref([]);
-const act = reactive({
-  ar: [],
-});
 
 const num = ref(0);
 const showChart = ref(true);
@@ -263,7 +259,47 @@ const getBenefit = () => {
   });
 };
 
+// 保障期间
+const getCover = (val: string) => {
+  const arr = val.split('_');
+  if (val === 'to_life') {
+    return '保终生';
+  }
+  switch (arr[0]) {
+    case 'year':
+      return `${arr[1]}年`;
+    case 'month':
+      return `${arr[1]}月`;
+    case 'day':
+      return `${arr[1]}天`;
+    case 'to':
+      return `保至${arr[1]}岁`;
+
+    default:
+      return '';
+  }
+};
+
+// 交费期间
+const getChargePay = (val: string) => {
+  const arr = val.split('_');
+  switch (arr[0]) {
+    case 'year':
+      return `${arr[1]}年交`;
+    case 'month':
+      return `${arr[1]}月交`;
+    case 'to':
+      return `交至${arr[1]}岁`;
+    case 'single':
+      return `趸缴`;
+
+    default:
+      return '';
+  }
+};
+
 onMounted(() => {
+  // Number(id)
   queryProposalDetail(20).then((res) => {
     console.log('>>>>>>>>>>>', res.data?.proposalInsuredVOList[0]);
     // eslint-disable-next-line prefer-destructuring
@@ -281,8 +317,8 @@ onMounted(() => {
         dataSource.value.push({
           key1: item.riskName,
           key2: item.amount,
-          key3: item.coveragePeriod,
-          key4: item.chargePeriod,
+          key3: getCover(item.coveragePeriod),
+          key4: getChargePay(item.chargePeriod),
           key5: item.premium,
         });
       },
@@ -308,7 +344,6 @@ const handleReduce = () => {
   }
 };
 const changeTab = (val: { name: number }) => {
-  console.log('>>', val);
   active.value = val.name;
   ageBegin.value = info.value.benefitRiskResultVOList[val.name].ageBegin;
   ageEnd.value = info.value.benefitRiskResultVOList[val.name].ageEnd;
@@ -342,6 +377,21 @@ const handleShare = (type: string) => {
       wx.onMenuShareTimeline(shareProps);
     }
   });
+};
+
+const getPdf = () => {
+  generatePdf('20').then((res) => {
+    console.log('>>>', res);
+  });
+  pdfPreview(
+    [
+      {
+        title: '组合计划书',
+        url: 'https://dlsvr04.asus.com.cn/pub/ASUS/mb/Socket2066/WS_C422_PRO_SE/T16048_WS_C422_PRO_SE_V4_WEB.pdf',
+      },
+    ],
+    0,
+  );
 };
 </script>
 
@@ -458,12 +508,15 @@ const handleShare = (type: string) => {
       justify-content: space-between;
       padding-top: 34px;
       margin-bottom: 30px;
+      font-weight: 500;
+      color: #333333;
       .title {
         font-size: 30px;
         font-weight: 600;
         color: #393d46;
         display: flex;
         align-items: center;
+        font-weight: 600;
         .ig {
           width: 18px;
           height: 29px;
@@ -517,6 +570,7 @@ const handleShare = (type: string) => {
         border: 1px solid #9fb3d2;
         padding: 40px 0;
         border-radius: 20px;
+        margin-top: 40px;
         &-title {
           padding: 0 16px;
           font-size: 32px;
@@ -666,6 +720,7 @@ const handleShare = (type: string) => {
     align-items: center;
     justify-content: space-between;
     padding: 30px;
+    z-index: 100;
     .btn {
       width: 335px;
       height: 90px;
