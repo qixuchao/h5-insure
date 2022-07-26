@@ -116,8 +116,10 @@ onBeforeUpdate(() => {
 });
 
 onMounted(() => {
-  // getCustomerQuestions({}).then(res=>{
-  // })
+  getCustomerQuestions({
+    productCode: 'aiheyichina',
+    objectType: 1,
+  }).then((res) => {});
 });
 </script>
 

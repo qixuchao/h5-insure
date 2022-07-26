@@ -1,10 +1,6 @@
 export interface GetCustomerQuestionsType {
-  insurerCode: string;
-  noticeType: number;
-  objectId: string;
-  objectType: number;
-  orderId: number;
-  productCategory: number;
+  objectType: number | string;
+  productCode: number | string;
 }
 
 export interface GetCustomerQuestionsResponse {
