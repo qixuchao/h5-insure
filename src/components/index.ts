@@ -4,7 +4,7 @@ import { Component } from 'vue';
  * @Autor: kevin.liang
  * @Date: 2022-03-08 13:51:54
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-25 16:41:44
+ * @LastEditTime: 2022-07-26 10:05:55
  */
 /* eslint-disable prettier/prettier */
 import ZaAvatar from './ZaAvatar/index.vue';
@@ -31,6 +31,7 @@ import ProDatePicker from './ProDatePicker/index.vue'
 import ProSelect from './ProSelect/index.vue'
 import ProPopup from './ProPopup/index.vue'
 import ProIDCardUpload from './ProIDCardUpload/index.vue'
+import ProImageUpload from './ProImageUpload/index.vue'
 
 
 interface ComponentMap {
@@ -62,7 +63,8 @@ export const globalComs: ComponentMap = {
   ProDatePicker,
   ProSelect,
   ProPopup,
-  ProIDCardUpload
+  ProIDCardUpload,
+  ProImageUpload
 };
 
 function install(app: any) {

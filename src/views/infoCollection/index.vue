@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-25 17:50:30
+ * @LastEditTime: 2022-07-27 07:49:11
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -10,126 +10,7 @@
   <ProPageWrap class="page-info-wrapper">
     <ProForm ref="formRef">
       <ProCard title="投保人">
-        <ProPicker
-          v-model="formInfo.holderReq.certType"
-          label="证件类型"
-          name="certType"
-          readonly
-          :data-source="CERT_TYPE_LIST"
-          required
-        ></ProPicker>
-        <ProField label="身份证上传" block required>
-          <template #input>
-            <ProIDCardUpload></ProIDCardUpload>
-          </template>
-        </ProField>
-        <ProField v-model="formInfo.holderReq.name" label="姓名" name="name" required></ProField>
-        <ProField v-model="formInfo.holderReq.gender" required label="性别" name="gender" placeholder="请选择">
-          <template #input>
-            <ProRadioButton v-model="formInfo.holderReq.gender" :options="SEX_LIMIT_LIST"></ProRadioButton>
-          </template>
-        </ProField>
-        <ProField
-          v-model="formInfo.holderReq.certNo"
-          label="证件号码"
-          name="certNo"
-          required
-          placeholder="请输入"
-        ></ProField>
-        <ProDatePicker v-model="formInfo.holderReq.birthday" label="出生日期" name="birthday" required></ProDatePicker>
-        <ProDatePicker
-          v-model="formInfo.holderReq.certEndDate"
-          label="有效期至"
-          name="certEndDate"
-          required
-        ></ProDatePicker>
-        <ProField label="户籍所在地" name="type" placeholder="请选择" is-link></ProField>
-        <ProField
-          v-model="formInfo.holderReq.extInfo.hasSocialInsurance"
-          label="社保"
-          name="hasSocialInsurance"
-          placeholder="请选择"
-        >
-          <template #input>
-            <ProRadioButton
-              v-model="formInfo.holderReq.extInfo.hasSocialInsurance"
-              :options="FLAG_LIST"
-            ></ProRadioButton>
-          </template>
-        </ProField>
-        <ProField
-          v-model="formInfo.holderReq.extInfo.occupationCode"
-          label="职业"
-          name="occupationCode"
-          placeholder="请选择"
-          is-link
-        ></ProField>
-        <ProField
-          v-model="formInfo.holderReq.extInfo.personalAnnualIncome"
-          label="个人年收入"
-          name="personalAnnualIncome"
-          placeholder="请输入"
-        ></ProField>
-        <ProField
-          v-model="formInfo.holderReq.extInfo.familyAnnualIncome"
-          label="家庭年收入"
-          name="familyAnnualIncome"
-          placeholder="请输入"
-        ></ProField>
-        <ProField
-          v-model="formInfo.holderReq.extInfo.nationalityCode"
-          label="国籍"
-          name="nationalityCode"
-          placeholder="请选择"
-          is-link
-        ></ProField>
-        <ProField v-model="formInfo.holderReq.extInfo.hasUsCard" label="美国绿卡" name="hasUsCard" placeholder="请选择">
-          <template #input>
-            <ProRadioButton v-model="formInfo.holderReq.extInfo.hasUsCard" :options="FLAG_LIST"></ProRadioButton>
-          </template>
-        </ProField>
-        <ProField
-          v-model="formInfo.holderReq.extInfo.marriageStatus"
-          label="婚姻状况"
-          name="marriageStatus"
-          placeholder="请选择"
-          is-link
-        ></ProField>
-        <ProField
-          v-model="formInfo.holderReq.extInfo.educationDegree"
-          label="学历"
-          name="educationDegree"
-          placeholder="请选择"
-          is-link
-        ></ProField>
-        <ProField v-model="formInfo.holderReq.mobile" label="手机号码" name="mobile" placeholder="请输入"></ProField>
-        <ProField v-model="formInfo.holderReq.email" label="电子邮箱" name="email" placeholder="请输入"></ProField>
-        <ProField label="家庭地址" name="type" placeholder="请选择"></ProField>
-        <ProField
-          v-model="formInfo.holderReq.extInfo.familyAddress"
-          label="地址详情"
-          name="familyAddress"
-          placeholder="请输入"
-        ></ProField>
-        <ProField
-          v-model="formInfo.holderReq.extInfo.familyZipCode"
-          label="家庭邮编"
-          name="familyZipCode"
-          placeholder="请输入"
-        ></ProField>
-        <ProField label="工作地址" name="type" placeholder="请选择"></ProField>
-        <ProField
-          v-model="formInfo.holderReq.extInfo.workAddress"
-          label="地址详情"
-          name="workAddress"
-          placeholder="请输入"
-        ></ProField>
-        <ProField
-          v-model="formInfo.holderReq.extInfo.workZipCode"
-          label="工作邮编"
-          name="workZipCode"
-          placeholder="请输入"
-        ></ProField>
+        <PersonalInfo :form-info="formInfo.holderReq" :factor-list="pageFactor.HOLDER"></PersonalInfo>
       </ProCard>
       <ProCard title="被保人">
         <ProField
@@ -145,6 +26,11 @@
             ></ProRadioButton>
           </template>
         </ProField>
+        <PersonalInfo
+          v-if="formInfo.insuredReqList[0].relationToHolder !== '0'"
+          :form-info="formInfo.insuredReqList[0]"
+          :factor-list="pageFactor.INSURER || []"
+        ></PersonalInfo>
         <ProField label="投保地区" name="type" placeholder="请选择" is-link></ProField>
       </ProCard>
 
@@ -172,7 +58,7 @@
               <span class="title">{{ `受益人${index + 1}` }}</span>
               <ProSvg name="delete" @click="removeBeneficiary(beneficiary)">删除</ProSvg>
             </div>
-            <BeneficiaryInfo :form-info="beneficiary" />
+            <BeneficiaryInfo :form-info="beneficiary" :factor-list="pageFactor.BENEFICIARY" />
           </div>
           <VanButton @click="addBeneficiary">+添加受益人</VanButton>
         </div>
@@ -189,11 +75,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useToggle } from '@vant/use';
 import { getInitFactor, nextStep, getTemplateInfo } from '@/api';
+import { queryDetail } from '@/api/modules/order';
 import {
-  factorData,
+  FactorData,
   NextStepRequstData,
   HolderReq,
   HolderExtInfo,
@@ -202,9 +89,9 @@ import {
   TemplatePageItem,
   ProductInsureFactorItem,
 } from '@/api/index.data';
-import { SEX_LIMIT_LIST, FLAG_LIST, CERT_TYPE_LIST } from '@/common/constants';
 import { RELATION_HOLDER_LIST, BENEFICIARY_LIST } from '@/common/constants/infoCollection';
 import BeneficiaryInfo from './components/BeneficiaryInfo/index.vue';
+import PersonalInfo from './components/PersonalInfo/index.vue';
 
 interface State {
   beneficiaryId: number;
@@ -214,19 +101,31 @@ interface State {
 
 type BeneficiaryItem = BeneficiaryReqItem & { beneficiaryId?: number };
 
+interface FactorEnums {
+  [props: string]: ProductInsureFactorItem[];
+}
+
+const router = useRouter();
+const route = useRoute();
+
+const { templateId = 1, orderNo = '2022021815432987130620' } = route.query;
 const [showAddress, toggleAddress] = useToggle();
-const pageFactor = ref<Partial<ProductInsureFactorItem[]>>([]);
+const pageCode = 'infoCollection';
+const pageFactor = ref<FactorEnums>({});
 // 投保人信息
-const formInfo = ref<NextStepRequstData>({
+const formInfo = ref<any>({
   holderReq: {
     extInfo: {},
   } as HolderReq,
   pageCode: 'infoCollection',
   insuredReqList: [
     {
+      relationToHolder: '0',
+      extInfo: {},
       beneficiaryReqList: [
         {
           beneficiaryId: 0,
+          extInfo: {},
         },
       ],
     },
@@ -248,7 +147,7 @@ const goNextPage = () => {
   });
   formRef.value.validate((validate: boolean) => {
     if (!validate) {
-      nextStep({ pageCode: 'infoCollection' }).then(({ code, data }) => {
+      nextStep({ pageCode }).then(({ code, data }) => {
         if (code === '10000') {
           console.log('data', data);
         }
@@ -259,7 +158,7 @@ const goNextPage = () => {
 
 const addBeneficiary = () => {
   state.beneficiaryId += 1;
-  formInfo.value.insuredReqList[0].beneficiaryReqList.push({ id: state.beneficiaryId } as BeneficiaryItem);
+  formInfo.value.insuredReqList[0].beneficiaryReqList.push({ id: state.beneficiaryId, extInfo: {} } as BeneficiaryItem);
 };
 
 const removeBeneficiary = (beneficiaryItem: BeneficiaryItem) => {
@@ -270,20 +169,27 @@ const removeBeneficiary = (beneficiaryItem: BeneficiaryItem) => {
   );
 };
 
-onBeforeMount(() => {
-  getTemplateInfo({
-    productCategory: 5,
-    venderCode: 'everbrightlife',
-  }).then(({ code, data }) => {
+const queryOrderDetail = () => {
+  queryDetail({ orderNo }).then(({ code, data }) => {
     if (code === '10000') {
-      const { pageCode, templateId } =
-        data.templatePageList.find((template: TemplatePageItem) => template.pageCode === 'infoCollection') || {};
-      getInitFactor({ pageCode, templateId }).then(({ code: co, data: da }) => {
-        if (code === '10000') {
-          pageFactor.value = da.productInsureFactorList;
-          state.nextPage = da.nextPageCode;
-        }
+      Object.assign(data, formInfo.value);
+    }
+  });
+};
+
+onBeforeMount(() => {
+  queryOrderDetail();
+  getInitFactor({ pageCode, templateId }).then(({ code, data }) => {
+    if (code === '10000') {
+      const factorObj = {
+        BENEFICIARY: [] as ProductInsureFactorItem[],
+        INSURER: [] as ProductInsureFactorItem[],
+        HOLDER: [] as ProductInsureFactorItem[],
+      };
+      data.productInsureFactorList.forEach((factor: ProductInsureFactorItem) => {
+        (factorObj[factor.moduleType] = factorObj[factor.moduleType] || []).push(factor);
       });
+      pageFactor.value = factorObj;
     }
   });
 });

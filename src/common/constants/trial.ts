@@ -525,3 +525,25 @@ export const INSURE_FLAG = [
     value: '-1',
   },
 ];
+
+export const INSURANCE_PERIOD_TYPE_ENUMS = {
+  1: '天',
+  2: '月',
+  3: '年',
+  4: '至$岁',
+  5: '至终身',
+  day: 1,
+  month: 2,
+  year: 3,
+  to: 4,
+  to_life: 5,
+};
+
+export const PAYMENT_PERIOD_TYPE_ENUMS = {
+  1: '趸交',
+  2: '$年交',
+  3: '至$岁',
+  single: 1,
+  year: 2,
+  to: 3,
+};

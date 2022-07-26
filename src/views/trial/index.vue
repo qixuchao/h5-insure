@@ -76,7 +76,7 @@
           <span class="close-icon" @click="closeTip">X</span>
         </div>
         <VanButton v-if="state.canTrial" type="primary" @click="trial">去试算</VanButton>
-        <VanButton v-else type="primary" @click="toInsured">立即投保</VanButton>
+        <VanButton v-else type="primary" @click="goNextPage">立即投保</VanButton>
       </div>
     </div>
   </ProPageWrap>
@@ -88,7 +88,8 @@ import { Toast } from 'vant/es';
 import PersonalInfo from './components/PersonalInfo/index.vue';
 import RiskList from './components/RiskList/index.vue';
 import { insureProductDetail, premiumCalc } from '@/api/modules/trial';
-import { getDic } from '@/api';
+import { getDic, nextStep } from '@/api';
+import { useCookie } from '@/hooks/useStorage';
 import {
   ProductBasicInfoVo,
   RiskDetailVoItem,
@@ -103,6 +104,7 @@ import {
   premiumCalcResponse,
   ProductPlanVoItem,
 } from '@/api/modules/trial.data';
+import { PAYMENT_PERIOD_TYPE_ENUMS, INSURANCE_PERIOD_TYPE_ENUMS } from '@/common/constants/trial';
 
 import { DictData } from '@/api/index.data';
 
@@ -119,13 +121,14 @@ interface PageState {
   enumList: any;
   ageRange: any;
   collapseName: string[];
+  insuredRiskList: any[];
 }
 
 interface HolderPerson {
   personVO: Partial<PersonVo>;
 }
 
-const { id = 118 } = useRoute().query;
+const { id = 118, templateId = 1 } = useRoute().query;
 
 const holder = ref<HolderPerson>({
   personVO: {},
@@ -153,13 +156,74 @@ const state = reactive<PageState>({
   enumList: {},
   ageRange: [],
   collapseName: ['1'],
+  insuredRiskList: [],
 });
 
 provide('premium', riskPremiumRef.value);
 provide('source', '');
 
+const userInfo = useCookie().get('userInfo');
+const pageCode = 'premiumTrial';
+
 const closeTip = () => {
   state.retrialTip = false;
+};
+
+const transformData = (riskList, riskPremium) => {
+  const currentRiskList: any[] = [];
+  const transfer = (list) => {
+    list.forEach((risk) => {
+      const currentRisk = {
+        initialAmount: riskPremium[risk.riskCode]?.amount,
+        paymentFrequency: risk.paymentFrequency,
+        paymentPeriod: risk.chargePeriod.split('_')[1],
+        paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],
+        insurancePeriodType: INSURANCE_PERIOD_TYPE_ENUMS[risk.coveragePeriod.split('_')[0]],
+        insurancePeriodValue: risk.coveragePeriod.split('_')[1],
+        riskCode: risk.riskCode,
+        riskType: risk.riskType,
+        initialPremium: riskPremium[risk.riskCode]?.premium,
+      };
+      currentRiskList.push(currentRisk);
+      if (risk.riderRiskVOList?.length) {
+        transfer(risk.riderRiskVOList);
+      }
+    });
+  };
+
+  transfer(riskList);
+  state.insuredRiskList = currentRiskList;
+};
+
+const goNextPage = () => {
+  nextStep({
+    agencyId: 'test',
+    saleChannelId: '1',
+    saleUserId: '1',
+    tenantId: 9991000007,
+    venderCode: '99',
+    pageCode,
+    extInfo: {
+      templateId: +(templateId || 1),
+      pageCode,
+    },
+    holderReq: {
+      gender: '1',
+    },
+    insuredReqList: [
+      {
+        gender: '1',
+        productReqList: [
+          {
+            productCode: state.riskBaseInfo.productCode || '',
+            productName: state.riskBaseInfo.productName || '',
+            premium: state.trialResult.premium || 0,
+            riskReqList: state.insuredRiskList,
+          },
+        ],
+      },
+    ],
+  }).then(({ code, data }) => {});
 };
 
 const dealTrialData = () => {
@@ -234,12 +298,13 @@ const dealTrialData = () => {
       const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
         premiumList.forEach((risk) => {
           riskPremium[risk.riskCode] = risk;
-          if (risk.riskPremiumDetailVOList.length) {
+          if (risk.riskPremiumDetailVOList?.length) {
             flatRiskPremium(risk.riskPremiumDetailVOList);
           }
         });
       };
       flatRiskPremium(data.riskPremiumDetailVOList);
+      transformData(trialData.insuredVOList[0].productPlanVOList[0].riskVOList, riskPremium);
       Object.assign(riskPremiumRef.value, riskPremium);
     } else {
       state.retrialTip = true;
@@ -255,10 +320,6 @@ const trial = () => {
   ]).then(() => {
     dealTrialData();
   });
-};
-
-const toInsured = () => {
-  Toast('准备投保');
 };
 
 const queryDictList = () => {
