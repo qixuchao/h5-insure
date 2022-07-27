@@ -30,6 +30,7 @@
 
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
+import { formatRule } from './utils';
 
 interface Props {
   placeholder?: string;
@@ -40,6 +41,7 @@ interface Props {
   rules?: any[];
   required?: boolean;
   isView?: boolean;
+  validateType?: Array<string>;
 }
 
 const slot = useSlots();
@@ -53,6 +55,7 @@ const props = withDefaults(defineProps<Props>(), {
   rules: () => [],
   required: false,
   isView: false,
+  validateType: () => [],
 });
 
 const formProps: any = inject('formProps') || {};
@@ -60,12 +63,17 @@ const formProps: any = inject('formProps') || {};
 const dealData = () => {};
 
 const currentRules = computed(() => {
+  let rules = [];
   if (props.rules && props.rules.length > 0) {
-    props.rules;
+    rules = [...props.rules];
   }
-  return props.required
-    ? [{ required: true, message: `${props.isLink ? '请选择' : '请输入'}${props.label}` }]
-    : undefined;
+  if (props.required) {
+    rules = [...rules, { required: true, message: `${props.isLink ? '请选择' : '请输入'}${props.label}` }];
+  }
+  if (props.validateType && props.validateType.length > 0) {
+    rules = [...rules, ...props.validateType.map((type) => formatRule(type, props.label))];
+  }
+  return rules;
 });
 
 const handleClick = () => {

@@ -2,7 +2,7 @@
   <ProPageWrap>
     <div class="page-product-detail">
       <van-swipe v-if="showByFactor('picture')" class="swipe">
-        <van-swipe-item v-for="(item, index) in imageList" :key="index">
+        <van-swipe-item v-for="(item, index) in detail?.tenantProductInsureVO?.banner || []" :key="index">
           <img :src="item" class="swipe-img" />
         </van-swipe-item>
         <template #indicator="{ active, total }">
@@ -16,29 +16,9 @@
         </div>
       </div>
       <ProDivider />
-      <div class="plan">
+      <div v-if="(detail?.tenantProductInsureVO?.guaranteeList || []).length > 1" class="plan">
         <div
-          v-for="(item, index) in planList.slice(0, 2)"
-          :key="index"
-          :class="['plan-item', 'length-2', { active: activePlan === index }]"
-          @click="handlePlanItemClick(index)"
-        >
-          {{ item }}
-        </div>
-      </div>
-      <div class="plan">
-        <div
-          v-for="(item, index) in planList.slice(0, 3)"
-          :key="index"
-          :class="['plan-item', 'length-3', { active: activePlan === index }]"
-          @click="handlePlanItemClick(index)"
-        >
-          {{ item }}
-        </div>
-      </div>
-      <div class="plan">
-        <div
-          v-for="(item, index) in planList"
+          v-for="(item, index) in detail?.tenantProductInsureVO?.guaranteeList"
           :key="index"
           :class="['plan-item', { active: activePlan === index }]"
           @click="handlePlanItemClick(index)"
@@ -46,18 +26,14 @@
           {{ item }}
         </div>
       </div>
-      <ProCard v-if="showByFactor('guaranteeDetail')" title="保障详情" link="查看详情">
+      <ProCard v-if="showByFactor('guaranteeDetail')" title="保障详情" link="查看详情" @link-click="handleLinkClick">
         <div v-if="detail && detail?.tenantProductInsureVO" class="basic">
           <ProCell
-            v-for="(item, index) in detail?.tenantProductInsureVO?.guaranteeList"
+            v-for="(item, index) in detail?.tenantProductInsureVO?.guaranteeList[activePlan].titleAndDescVOS"
             :key="index"
-            :title="item.guaranteeType"
-            content="基本保基本保额基本保额说基"
+            :title="item.title"
+            :content="item.desc"
           />
-          <ProCell title="特定良性肿瘤手术保障" content="按已交保费200%" />
-          <ProCell title="重大疾病、轻症和中症疾病豁免保险费" content="200万" />
-          <ProCell title="身故保险金" content="按已交保费200%" />
-          <ProCell title="身故保险金" content="基本保基本保额基本保额说基" />
         </div>
         <div class="field">
           <FieldInfo
@@ -68,12 +44,12 @@
           <FieldInfo
             v-if="showByFactor('guaranteeTime')"
             title="保障期间"
-            :desc="formatPaymentPeriod(detail?.tenantProductInsureVO?.insurancePeriodValues)"
+            :desc="formatPaymentPeriodLimit(detail?.tenantProductInsureVO?.insurancePeriodValues)"
           />
           <FieldInfo
             v-if="showByFactor('paymentTime')"
             title="交费期间"
-            :desc="formatPaymentPeriod(detail?.tenantProductInsureVO?.paymentPeriodValues)"
+            :desc="formatPaymentPeriodLimit(detail?.tenantProductInsureVO?.paymentPeriodValues)"
           />
           <FieldInfo v-if="showByFactor('paymentMethod')" title="交费方式" desc="年交" />
           <FieldInfo v-if="showByFactor('drawTime')" title="领取年龄" desc="55/60/55周岁" />
@@ -81,35 +57,48 @@
 
           <FieldInfo
             v-if="showByFactor('sexLimit')"
-            v-show="detail?.tenantProductInsureVO?.sexLimit !== '1'"
+            v-show="detail?.tenantProductInsureVO?.sexLimit !== '-1'"
             title="性别限制"
-            :desc="formatSex(detail?.tenantProductInsureVO?.sexLimit)"
+            :desc="formatSexLimit(detail?.tenantProductInsureVO?.sexLimit)"
           />
           <FieldInfo
             v-if="showByFactor('socialInsuranceLimit')"
-            v-show="detail?.tenantProductInsureVO?.socialInsuranceLimit !== '1'"
+            v-show="detail?.tenantProductInsureVO?.socialInsuranceLimit !== '-1'"
             title="社保限制"
-            desc="无社保限制"
+            :desc="formatSocialInsuranceLimit(detail?.tenantProductInsureVO?.socialInsuranceLimit)"
           />
           <FieldInfo
             v-if="showByFactor('occupationType')"
-            v-show="detail?.tenantProductInsureVO?.occupationLimit !== '1'"
+            v-show="detail?.tenantProductInsureVO?.occupationLimit !== '-1'"
             title="职业类别"
-            desc="1-3类职业"
+            :desc="formatOccupationLimit(detail?.tenantProductInsureVO?.occupationLimit)"
           />
         </div>
       </ProCard>
       <ProTab class="tabs" :list="tabList" sticky scrollspy>
         <template #tab1>
           <div class="tab-1">
-            <img :src="detailImage" class="detail-img" />
+            <img
+              v-for="(item, index) in detail?.tenantProductInsureVO?.spec || []"
+              :key="index"
+              :src="item"
+              class="detail-img"
+            />
             <ProCard title="产品资料">
               <template #subTitle>
                 <div class="sub-title">*产品资料文件详情可手动放大，以便您更清晰查阅内容。</div>
               </template>
               <div class="tab-1-content">
-                请查看<span v-for="(item, index) in fileList" :key="index" class="file-name"
-                  >{{ `《${item}》` }}<span v-if="index !== fileList.length - 1" class="dun-hao">、</span></span
+                请查看<span
+                  v-for="(item, index) in detail?.tenantProductInsureVO?.attachmentVOList || []"
+                  :key="index"
+                  class="file-name"
+                  >{{ `《${item.attachmentName}》`
+                  }}<span
+                    v-if="index !== (detail?.tenantProductInsureVO?.attachmentVOList || []).length - 1"
+                    class="dun-hao"
+                    >、</span
+                  ></span
                 >
               </div>
             </ProCard>
@@ -117,24 +106,36 @@
         </template>
         <template #tab2>
           <ProCard title="理赔流程">
-            <ProTimeline :list="timeList" />
+            <ProTimeline :list="detail?.tenantProductInsureVO?.settlementProcessList" />
           </ProCard>
         </template>
         <template #tab3>
           <ProCard title="常见问题">
-            <Question :list="questionList" />
+            <Question :list="detail?.tenantProductInsureVO?.questionList" />
           </ProCard>
         </template>
       </ProTab>
       <div class="footer">
         <div class="price">￥{{ transformToMoney(detail?.showConfigVO.price) }}</div>
         <div class="buttons">
-          <div class="left">计划书</div>
-          <div class="right">算保费</div>
+          <!-- <div class="left">计划书</div> -->
+          <van-button class="right">算保费</van-button>
         </div>
       </div>
     </div>
   </ProPageWrap>
+  <ProPopup v-model:show="popupShow" title="保障详情">
+    <div class="guarantee-list">
+      <div
+        v-for="(item, index) in detail?.tenantProductInsureVO?.guaranteeList[activePlan].titleAndDescVOS"
+        :key="index"
+        class="guarantee-item"
+      >
+        <div class="title">{{ item.title }}</div>
+        <div class="content">{{ item.content }}</div>
+      </div>
+    </div>
+  </ProPopup>
 </template>
 
 <script lang="ts" setup>
@@ -146,85 +147,29 @@ import ProCell from '@/components/ProCell/index.vue';
 import FieldInfo from '../components/fieldInfo.vue';
 import Question from '../components/question/index.vue';
 import ProTimeline from '@/components/ProTimeline/index.vue';
+import ProPopup from '@/components/ProPopup/index.vue';
 import { productDetail, productList, getFactor } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/productd.data';
 import { ProductInsureFactorItem } from '@/api/index.data';
-import { formatHolderAgeLimit, formatPaymentPeriod, formatSex } from './utils';
+import {
+  formatHolderAgeLimit,
+  formatPaymentPeriodLimit,
+  formatSexLimit,
+  formatOccupationLimit,
+  formatSocialInsuranceLimit,
+} from './utils';
 import { transformToMoney } from '@/utils/format';
 import { YES_NO_ENUM } from '@/common/constants';
-import useDicData from '@/hooks/useDicData';
 
-import swipeImage from '@/assets/images/temp/swipe.png';
-import detailImage from '@/assets/images/temp/detail.png';
-
-const dic1 = useDicData('BANK');
-console.log('dic1', dic1.value);
-const imageList = ref([swipeImage, swipeImage, swipeImage]);
 const tabList = [
   { title: '产品特色', slotName: 'tab1' },
   { title: '理赔流程', slotName: 'tab2' },
   { title: '常见问题', slotName: 'tab3' },
 ];
-const activePlan = ref(1);
-const planList = ['加单基础版计划1', '2222222222222', '3333333333333333', '444444444444', '555555555555555'];
+const activePlan = ref(0);
+const popupShow = ref(false);
 const detail = ref<ProductDetail>();
 const factor = ref<{ [key: string]: ProductInsureFactorItem }>({});
-
-const fileList = ['保险条款', '投保须知', '费率表', '责任免除条款说明书', '重要提示', '特别约定', '特殊职业类别表'];
-const questionList = [
-  {
-    question: '什么是除外责任？',
-    answer:
-      '又称责任免除，指保险人依照法律规定或合同约定，不承担保险责任的范围，是对保险责任的限制。详见具体产品的保险条款。',
-  },
-  {
-    question: '电子保单是否具有合法的法律效力？',
-    answer:
-      '网上投保为您提供电子保单，根据《中国人民共和国合同法》第十一条规定，数据电文是合法的合同表现形式，电子保单与纸质保单具有同等法。',
-  },
-  {
-    question: '什么是等待期？为什么要设置等待期？',
-    answer:
-      '网上投保为您提供电子保单，根据《中国人民共和国合同法》第十一条规定，数据电文是合法的合同表现形式，电子保单与纸质保单具有同等法律效力。十一条规定，数据电文是合法的合同表现形式，电子保单与纸质保单具有同等。',
-  },
-  {
-    question: '什么是等待期？为什么要设置等待期？什么是等待期？为什么要设置等待期？',
-    answer:
-      '网上投保为您提供电子保单，根据《中国人民共和国合同法》第十一条规定，数据电文是合法的合同表现形式，电子保单与纸质保单具有同等法律效力。十一条规定，数据电文是合法的合同表现形式，电子保单与纸质保单具有同等。',
-  },
-  {
-    question: '什么是除外责任？',
-    answer:
-      '又称责任免除，指保险人依照法律规定或合同约定，不承担保险责任的范围，是对保险责任的限制。详见具体产品的保险条款。',
-  },
-];
-
-const timeList = [
-  {
-    title: '申请理赔',
-    desc: '致电保险公司客服 400-69-12345 申请理赔',
-  },
-  {
-    title: '提交材料',
-    desc: '保险金给付申请书、受益人有效身份证件、保险公司指定或认可的医疗机构出具的病历或疾病诊断说明书、银行卡附件及开户信息',
-  },
-  {
-    title: '审核材料',
-    desc: '保险公司进行理赔资料审核',
-  },
-  {
-    title: '完成理赔',
-    desc: '保险公司支付客户理赔款',
-  },
-  {
-    title: '提交材料',
-    desc: '保险金给付申请书、受益人有效身份证件、保险公司指定或认可的医疗机构出具的病历或疾病诊断说明书、银行卡附件及开户信息',
-  },
-  {
-    title: '审核材料',
-    desc: '保险公司进行理赔资料审核',
-  },
-];
 
 const handlePlanItemClick = (index: number) => {
   activePlan.value = index;
@@ -234,8 +179,12 @@ const showByFactor = (key: string) => {
   return factor.value && factor.value[key] && factor.value[key].isDisplay === YES_NO_ENUM.YES;
 };
 
+const handleLinkClick = () => {
+  popupShow.value = true;
+};
+
 onMounted(() => {
-  productDetail({ productCode: 'CQ75CQ76' }).then((res) => {
+  productDetail({ productCode: 'CQ75CQ76', withInsureInfo: true }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
       detail.value = data;
@@ -403,9 +352,9 @@ onMounted(() => {
         color: #0d6efe;
       }
       .right {
-        width: 170px;
+        width: 340px;
         color: #fff;
-        border-radius: 0 8px 8px 0;
+        border-radius: 8px;
         background: #0d6efe;
       }
     }

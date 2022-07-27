@@ -7,7 +7,7 @@
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import request from './request';
-import { DictData, FactorData, NextStepRequstData, TemplateInfo } from './index.data';
+import { DictData, FactorData, NextStepRequestData, TemplateInfo } from './index.data';
 import { PAGE_API_ENUMS } from '@/common/constants/index';
 
 // 通用字典接口
@@ -22,12 +22,15 @@ export const getInitFactor = (data = {}) =>
   request.post<FactorData, ResponseData>('/api/app/insure/insurance/getInitFactor', data);
 
 // 下一步操作
-export const nextStep = (data = {} as NextStepRequstData) =>
+export const nextStep = (data = {} as NextStepRequestData) =>
   request.post<any, ResponseData>(PAGE_API_ENUMS[data.pageCode], data);
 
 // 获取订单详情
 export const getOrderDetail = (data = {}) =>
-  request.post<NextStepRequstData, ResponseData>('/api/app/insure/insurance/getTenantOrderDetail', data);
+  request.post<NextStepRequestData, ResponseData<NextStepRequestData>>(
+    '/api/app/insure/insurance/getTenantOrderDetail',
+    data,
+  );
 
 // 获取模板信息
 export const getTemplateInfo = (data = {}) =>

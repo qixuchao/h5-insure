@@ -194,7 +194,7 @@ import { useToggle } from '@vant/use';
 import { getInitFactor, nextStep, getTemplateInfo } from '@/api';
 import {
   factorData,
-  NextStepRequstData,
+  NextStepRequestData,
   HolderReq,
   HolderExtInfo,
   BeneficiaryReqItem,
@@ -217,7 +217,7 @@ type BeneficiaryItem = BeneficiaryReqItem & { beneficiaryId?: number };
 const [showAddress, toggleAddress] = useToggle();
 const pageFactor = ref<Partial<ProductInsureFactorItem[]>>([]);
 // 投保人信息
-const formInfo = ref<NextStepRequstData>({
+const formInfo = ref<NextStepRequestData>({
   holderReq: {
     extInfo: {},
   } as HolderReq,

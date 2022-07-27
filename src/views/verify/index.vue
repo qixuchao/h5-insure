@@ -9,8 +9,8 @@
       <ProCard title="投保人" class="card">
         <template #extra>
           <div class="people">
-            <div class="name">王小明</div>
-            <div class="status">待认证</div>
+            <div class="name">{{ detail?.tenantOrderHolder?.name }}</div>
+            <div class="status">{{}} 待认证</div>
           </div>
         </template>
         <div class="verify-item">
@@ -75,8 +75,11 @@ import ProCard from '@/components/ProCard/index.vue';
 import ProSvg from '@/components/ProSvg/index.vue';
 import ProSign from '@/components/ProSign/index.vue';
 import { faceVerify, saveSign } from '@/api/modules/verify';
+import { nextStep, getOrderDetail } from '@/api';
+import { NextStepRequestData } from '@/api/index.data';
 
 const fileList = ['营销员保至书', '投保人须知', 'xxxxxxxxxxxxx'];
+const detail = ref<NextStepRequestData>();
 const sign1 = ref();
 const sign2 = ref();
 
@@ -107,6 +110,19 @@ const handleSubmit = () => {
   const data2 = sign2.value?.save();
   Promise.all([saveSign('HOLDER', data1), saveSign('INSURED', data2)]);
 };
+
+onMounted(() => {
+  getOrderDetail({
+    orderNo: '2022072710380711215',
+    saleUserId: 'D1234567-1',
+    tenantId: '9991000007',
+  }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      detail.value = data;
+    }
+  });
+});
 </script>
 
 <style lang="scss" scoped>

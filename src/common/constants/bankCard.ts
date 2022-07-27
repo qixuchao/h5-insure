@@ -99,3 +99,28 @@ export const PAY_INFO_TYPE_LIST = [
 ];
 
 export const PAY_INFO_TYPE_MAP = constantListToMap(PAYMENT_TYPE_LIST);
+
+// eslint-disable-next-line
+export enum EXPIRY_METHOD_ENUM {
+  /**
+   * 自动垫付
+   */
+  AUTOMATIC_PADDING = 1,
+  /**
+   * 中止合同
+   */
+  CANCEL = 2,
+}
+
+export const EXPIRY_METHOD_LIST = [
+  {
+    value: EXPIRY_METHOD_ENUM.AUTOMATIC_PADDING,
+    label: '自动垫付',
+  },
+  {
+    value: EXPIRY_METHOD_ENUM.CANCEL,
+    label: '中止合同',
+  },
+];
+
+export const EXPIRY_METHOD_MAP = constantListToMap(EXPIRY_METHOD_LIST);
