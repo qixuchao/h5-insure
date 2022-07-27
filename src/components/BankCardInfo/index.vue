@@ -28,7 +28,7 @@ import ProImageUpload from '@/components/ProImageUpload/index.vue';
 import ProPicker from '@/components/ProPicker/index.vue';
 import { BANK_CARD_TYPE_LIST, BANK_CARD_TYPE_ENUM } from '@/common/constants/bankCard';
 import { UPLOAD_TYPE_ENUM } from '@/common/constants';
-import { getDic } from '@/api';
+import useDicData from '@/hooks/useDicData';
 
 const emits = defineEmits(['update:modelValue']);
 const props = defineProps({
@@ -38,6 +38,7 @@ const props = defineProps({
   },
 });
 
+const bankDic = useDicData('BANK');
 let formData = reactive({
   bankCardType: BANK_CARD_TYPE_ENUM.DEBIT,
   bankCardNo: '',
@@ -58,18 +59,8 @@ watch(formData, (val) => {
   emits('update:modelValue', val);
 });
 
-const bankList = ref<Array<{ label: string; value: string }>>([]);
-
-onMounted(() => {
-  getDic({ dictCodeList: ['BANK'] }).then((res) => {
-    const { code, data } = res;
-    if (code === '10000') {
-      const bankDict = data.find((x) => x.dictCode === 'BANK');
-      if (bankDict) {
-        bankList.value = bankDict.dictItemList.map((item) => ({ value: item.code, label: item.name }));
-      }
-    }
-  });
+const bankList = computed(() => {
+  return bankDic.value.map((item) => ({ label: item.name, value: item.code }));
 });
 </script>
 

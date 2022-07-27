@@ -74,10 +74,7 @@ import {
   PAY_INFO_TYPE_ENUM,
   PAY_INFO_TYPE_LIST,
 } from '@/common/constants/bankCard';
-import useDicData from '@/hooks/useDicData';
 
-const dic1 = useDicData('BANK');
-const dic2 = useDicData('CERT_TYPE');
 const router = useRouter();
 
 const firstFormData = reactive({ payMethod: '', bankData: {} });

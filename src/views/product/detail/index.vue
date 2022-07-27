@@ -152,13 +152,10 @@ import { ProductInsureFactorItem } from '@/api/index.data';
 import { formatHolderAgeLimit, formatPaymentPeriod, formatSex } from './utils';
 import { transformToMoney } from '@/utils/format';
 import { YES_NO_ENUM } from '@/common/constants';
-import useDicData from '@/hooks/useDicData';
 
 import swipeImage from '@/assets/images/temp/swipe.png';
 import detailImage from '@/assets/images/temp/detail.png';
 
-const dic1 = useDicData('BANK');
-console.log('dic1', dic1.value);
 const imageList = ref([swipeImage, swipeImage, swipeImage]);
 const tabList = [
   { title: '产品特色', slotName: 'tab1' },
