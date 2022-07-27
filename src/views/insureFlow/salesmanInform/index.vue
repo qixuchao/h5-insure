@@ -29,6 +29,7 @@
 
 <script setup lang="ts">
 import ProCard from '@/components/ProCard/index.vue';
+import { getMarketerNotices, getMarketerNoticesDetail } from '@/api/modules/salesmanInform';
 
 const signRef2 = ref<any>(null);
 
@@ -37,6 +38,23 @@ const checked = ref<boolean>(false);
 const resetSign = () => {
   signRef2.value?.clear();
 };
+
+onMounted(() => {
+  // getMarketerNotices({
+  //   insureCode: '123',
+  //   noticeType: '1',
+  //   objectId: '1',
+  //   objectType: '1',
+  //   orderNo: '2022011815151382958351',
+  // }).then((res) => {});
+  getMarketerNoticesDetail({
+    insureCode: '123',
+    noticeType: '1',
+    objectId: '1',
+    objectType: '1',
+    orderNo: '2022011815151382958351',
+  }).then((res) => {});
+});
 </script>
 
 <style scoped lang="scss">

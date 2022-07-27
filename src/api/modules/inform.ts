@@ -5,10 +5,10 @@ import { GetCustomerQuestionsType, GetCustomerQuestionsResponse } from './inform
 const API_PREFIXED = `/api/app/insure/insurance`;
 
 // 在线投保 - 问卷告知详情;
-export const getCustomerQuestions = (data: any) =>
+export const getCustomerQuestions = (params: Partial<GetCustomerQuestionsType>) =>
   request.get<GetCustomerQuestionsType, ResponseData<GetCustomerQuestionsResponse[]>>(
     `${API_PREFIXED}/getCustomerQuestions`,
-    data,
+    { params },
   );
 
 export default {};

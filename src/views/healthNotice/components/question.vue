@@ -117,8 +117,12 @@ onBeforeUpdate(() => {
 
 onMounted(() => {
   getCustomerQuestions({
-    productCode: 'aiheyichina',
+    insurerCode: 'aiheyichina',
+    noticeType: 1,
+    objectId: '1',
     objectType: 1,
+    orderNo: '2022011815151382958351',
+    productCategory: 2,
   }).then((res) => {});
 });
 </script>
