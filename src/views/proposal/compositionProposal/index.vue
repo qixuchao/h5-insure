@@ -176,7 +176,7 @@ import ProChart from '@/components/ProChart/index.vue';
 import pdfPreview from '@/utils/pdfPreview';
 
 const router = useRoute();
-const { isShare, id } = router.params;
+const { isShare, id } = router.query;
 const columns = [
   {
     title: '险种名称',
@@ -278,8 +278,7 @@ const getChargePay = (val: string) => {
 };
 
 onMounted(() => {
-  // Number(id)
-  queryProposalDetail(20).then((res) => {
+  queryProposalDetail(Number(id)).then((res) => {
     console.log('>>>>>>>>>>>', res.data?.proposalInsuredVOList[0]);
     // eslint-disable-next-line prefer-destructuring
     info.value = res.data?.proposalInsuredVOList[0];
@@ -359,13 +358,14 @@ const handleShare = (type: string) => {
 };
 
 const getPdf = () => {
-  generatePdf('20').then((res) => {
-    console.log('>>>', res);
+  generatePdf(id.toString()).then((res) => {
+    console.log('>>>', res.data);
     pdfPreview(
       [
         {
           title: '组合计划书',
-          url: 'https://dlsvr04.asus.com.cn/pub/ASUS/mb/Socket2066/WS_C422_PRO_SE/T16048_WS_C422_PRO_SE_V4_WEB.pdf',
+          url: res.data,
+          // 'https://dlsvr04.asus.com.cn/pub/ASUS/mb/Socket2066/WS_C422_PRO_SE/T16048_WS_C422_PRO_SE_V4_WEB.pdf',
         },
       ],
       0,
