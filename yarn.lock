@@ -5232,6 +5232,11 @@ nanoid@^3.3.1:
   resolved "https://registry.npmmirror.com/nanoid/-/nanoid-3.3.2.tgz#c89622fafb4381cd221421c69ec58547a1eec557"
   integrity sha512-CuHBogktKwpm5g2sRgv83jEy2ijFzBwMoYA60orPDR7ynsLijJDqgsi4RDGj3OJpy3Ieb+LYwiRmIOGyytgITA==
 
+nanoid@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-4.0.0.tgz#6e144dee117609232c3f415c34b0e550e64999a5"
+  integrity sha512-IgBP8piMxe/gf73RTQx7hmnhwz0aaEXYakvqZyE302IXW3HyVNhdNGC+O2MwMAVhLEnvXlvKtGbtJf6wvHihCg==
+
 nanomatch@^1.2.1, nanomatch@^1.2.9:
   version "1.2.13"
   resolved "https://registry.yarnpkg.com/nanomatch/-/nanomatch-1.2.13.tgz#b87a8aa4fc0de8fe6be88895b38983ff265bd119"
@@ -5627,6 +5632,11 @@ pause-stream@0.0.11:
   integrity sha1-/lo0sMvOErWqaitAPuLnO2AvFEU=
   dependencies:
     through "~2.3"
+
+pdfjs-dist@2.11.338:
+  version "2.11.338"
+  resolved "https://registry.yarnpkg.com/pdfjs-dist/-/pdfjs-dist-2.11.338.tgz#6aafe34b0eb399d358bf899f52838905ddf3b1a5"
+  integrity sha512-Ti5VTB0VvSdtTtc7TG71ghMx0SEuNcEs4ghVuZxW0p6OqLjMc0xekZV1B+MmlxEG2Du2e5jgazucWIG/SXTcdA==
 
 picocolors@^1.0.0:
   version "1.0.0"
