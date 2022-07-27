@@ -12,7 +12,7 @@
             placeholder="请选择"
             :data-source="PAY_METHOD_LIST"
           />
-          <BankCardInfo v-model="firstFormData.bankData" />
+          <BankCardInfo v-model="firstFormData.bankData" :holder-name="holderName" />
         </ProForm>
       </ProCard>
       <ProCard title="续期支付">
@@ -31,7 +31,17 @@
             :data-source="PAY_METHOD_LIST"
             required
           />
-          <BankCardInfo v-if="!renewFormData.sameFirst" />
+          <ProPicker
+            v-model="renewFormData.expiryMethod"
+            name="expiryMethod"
+            label="保费逾期未支付"
+            is-link
+            placeholder="请选择"
+            :data-source="EXPIRY_METHOD_LIST"
+            required
+            label-width="200"
+          />
+          <BankCardInfo v-if="!renewFormData.sameFirst" :holder-name="holderName" />
         </ProForm>
       </ProCard>
       <ProCard title="年金领取银行卡" class="reprise-card" :show-divider="false">
@@ -46,7 +56,11 @@
           </div>
         </div>
         <ProForm ref="form3">
-          <BankCardInfo v-if="payInfoType === PAY_INFO_TYPE_ENUM.OTHER" v-model="repriseFormData.bankData" />
+          <BankCardInfo
+            v-if="payInfoType === PAY_INFO_TYPE_ENUM.OTHER"
+            v-model="repriseFormData.bankData"
+            :holder-name="holderName"
+          />
         </ProForm>
       </ProCard>
       <div class="agree">
@@ -73,12 +87,21 @@ import {
   PAYMENT_TYPE_ENUM,
   PAY_INFO_TYPE_ENUM,
   PAY_INFO_TYPE_LIST,
+  EXPIRY_METHOD_LIST,
+  EXPIRY_METHOD_ENUM,
 } from '@/common/constants/bankCard';
+import { nextStep, getOrderDetail } from '@/api';
 
 const router = useRouter();
-
-const firstFormData = reactive({ payMethod: '', bankData: {} });
-const renewFormData = reactive({ payMethod: '', bankData: {}, sameFirst: true });
+let orderDetail = {};
+const holderName = ref('');
+const firstFormData = reactive({ payMethod: PAY_METHOD_ENUM.REAL_TIME, bankData: {} });
+const renewFormData = reactive({
+  payMethod: PAY_METHOD_ENUM.REAL_TIME,
+  expiryMethod: EXPIRY_METHOD_ENUM.AUTOMATIC_PADDING,
+  bankData: {},
+  sameFirst: true,
+});
 const repriseFormData = reactive({ bankData: {} });
 
 const payInfoType = ref(PAY_INFO_TYPE_ENUM.FIRST_SAME);
@@ -109,10 +132,31 @@ const handleSubmit = () => {
         payInfoType,
       },
     ];
-    console.log('data', data);
+    nextStep({
+      ...orderDetail,
+      pageCode: 'payInfo',
+      tenantOrderPayInfoList: data,
+      extInfo: { ...orderDetail.extInfo, templateId: '1', pageCode: 'payInfo' },
+      operateOption: {
+        withPayInfo: true,
+      },
+    });
   });
-  router.push('/product/detail');
 };
+
+onMounted(() => {
+  getOrderDetail({
+    orderNo: '2022072710380711215',
+    saleUserId: 'D1234567-1',
+    tenantId: '9991000007',
+  }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      orderDetail = data;
+      holderName.value = data?.tenantOrderHolder.name;
+    }
+  });
+});
 </script>
 
 <style lang="scss" scoped>

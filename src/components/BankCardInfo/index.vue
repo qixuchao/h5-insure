@@ -8,9 +8,9 @@
       is-view
     />
     <ProField v-model="formData.bankCardNo" label="银行卡号" name="bankCardNo" type="number" required />
-    <ProField v-model="formData.accountName" label="持卡人" name="accountName" is-view />
+    <ProField :model-value="holderName" label="持卡人" name="accountName" is-view />
     <ProPicker v-model="formData.payBank" name="payBank" label="开户银行" :data-source="bankList" required />
-    <ProField label="银行卡照片" block label-width="100%" required name="images">
+    <ProField label="银行卡照片" block label-width="100%" name="images" :rules="[{ validator: imagesValidator }]">
       <template #label>
         <span class="field-title">银行卡照片 <span class="sub-title">(需上传正反两面)</span></span>
       </template>
@@ -18,11 +18,19 @@
         <ProImageUpload v-model="formData.images" :max-count="2" :upload-type="UPLOAD_TYPE_ENUM.BANK_CARD" />
       </template>
     </ProField>
-    <ProField v-model="formData.mobile" label="预留手机号" type="number" required name="mobile" />
+    <ProField
+      v-model="formData.mobile"
+      label="预留手机号"
+      type="number"
+      required
+      name="mobile"
+      :validate-type="['phone']"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
+import { Ref } from 'vue';
 import ProField from '@/components/ProField/index.vue';
 import ProImageUpload from '@/components/ProImageUpload/index.vue';
 import ProPicker from '@/components/ProPicker/index.vue';
@@ -36,6 +44,10 @@ const props = defineProps({
     type: Object,
     default: () => {},
   },
+  holderName: {
+    type: String,
+    default: '',
+  },
 });
 
 const bankDic = useDicData('BANK');
@@ -47,6 +59,13 @@ let formData = reactive({
   mobile: '',
   images: [],
 });
+
+const imagesValidator = (images: Array<string>) => {
+  if (images && images.length === 2) {
+    return true;
+  }
+  return '请上传银行卡正反面照片';
+};
 
 watch(
   () => props.modelVale,

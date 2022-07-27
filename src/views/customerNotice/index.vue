@@ -19,7 +19,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { STATUS_CODES } from 'http';
 import { dataToEsm } from '@rollup/pluginutils';
 import { nextStep, getTemplateInfo, getInitFactor } from '@/api';
-import { NextStepRequstData, TemplatePageItem } from '@/api/index.data';
+import { NextStepRequestData, TemplatePageItem } from '@/api/index.data';
 import { getCustomerNotices } from '@/api/modules/customerNotice';
 
 interface State {
@@ -30,7 +30,7 @@ const pageCode = 'customerNotice';
 const route = useRoute();
 const router = useRouter();
 
-const pageData = ref<NextStepRequstData>({
+const pageData = ref<NextStepRequestData>({
   pageCode,
 });
 
