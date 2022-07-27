@@ -18,6 +18,8 @@
       :type="type"
       :model-value="tempModelValue"
       :title="title || label"
+      :min="min"
+      :max="max"
       @confirm="handleConfirm"
       @cancel="handleCancel"
     />
@@ -66,6 +68,14 @@ const props = defineProps({
   required: {
     type: Boolean,
     default: false,
+  },
+  min: {
+    type: String,
+    default: new Date('1900-01-01'),
+  },
+  max: {
+    type: String,
+    default: new Date(),
   },
 });
 

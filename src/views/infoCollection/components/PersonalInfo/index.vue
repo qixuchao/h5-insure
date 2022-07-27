@@ -10,12 +10,12 @@
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
       required
     ></ProPicker>
-    <ProField label="身份证上传" block required>
+    <ProField v-if="state.formInfo.certType + '' === '1'" label="身份证上传" block required>
       <template #input>
-        <ProIDCardUpload></ProIDCardUpload>
+        <ProIDCardUpload :front="state.front" :back="state.back"></ProIDCardUpload>
       </template>
     </ProField>
-    <ProField label="证件上传" block required>
+    <ProField v-if="state.formInfo.certType && state.formInfo.certType + '' !== '1'" label="证件上传" block required>
       <template #input>
         <ProImageUpload></ProImageUpload>
       </template>
@@ -30,7 +30,7 @@
     ></ProField>
     <ProField v-if="factorObj.name" v-model="state.formInfo.name" label="姓名" name="name" required></ProField>
     <ProField
-      v-if="factorObj.gender"
+      v-if="factorObj.sex"
       v-model="state.formInfo.gender"
       required
       label="性别"
@@ -46,6 +46,9 @@
       v-model="state.formInfo.birthday"
       label="出生日期"
       name="birthday"
+      :min="state.birth.min"
+      :max="state.birth.max"
+      type="date"
       required
     ></ProDatePicker>
     <ProDatePicker
@@ -53,6 +56,7 @@
       v-model="state.formInfo.certEndDate"
       label="有效期至"
       name="certEndDate"
+      type="date"
       required
     ></ProDatePicker>
     <ProField label="户籍所在地" name="type" placeholder="请选择" is-link></ProField>
@@ -68,7 +72,7 @@
       </template>
     </ProField>
     <ProField
-      v-if="factorObj.occupationCode"
+      v-if="factorObj.occupation"
       v-model="state.formInfo.extInfo.occupationCode"
       label="职业"
       name="occupationCode"
@@ -76,7 +80,7 @@
       is-link
     ></ProField>
     <ProField
-      v-if="factorObj.personalAnnualIncome"
+      v-if="factorObj.annualIncome"
       v-model="state.formInfo.extInfo.personalAnnualIncome"
       label="个人年收入"
       name="personalAnnualIncome"
@@ -90,7 +94,7 @@
       placeholder="请输入"
     ></ProField>
     <ProField
-      v-if="factorObj.nationalityCode"
+      v-if="factorObj.nation"
       v-model="state.formInfo.extInfo.nationalityCode"
       label="国籍"
       name="nationalityCode"
@@ -98,7 +102,7 @@
       is-link
     ></ProField>
     <ProField
-      v-if="factorObj.hasUsCard"
+      v-if="factorObj.marriage"
       v-model="state.formInfo.extInfo.hasUsCard"
       label="美国绿卡"
       name="hasUsCard"
@@ -109,7 +113,7 @@
       </template>
     </ProField>
     <ProField
-      v-if="factorObj.marriageStatus"
+      v-if="factorObj.marriage"
       v-model="state.formInfo.extInfo.marriageStatus"
       label="婚姻状况"
       name="marriageStatus"
@@ -138,24 +142,24 @@
       name="email"
       placeholder="请输入"
     ></ProField>
-    <ProField label="家庭地址" name="type" placeholder="请选择"></ProField>
+    <ProField v-if="factorObj.familyAddress" label="家庭地址" name="type" placeholder="请选择"></ProField>
     <ProField
-      v-if="factorObj.familyAddress"
+      v-if="factorObj.familyAddressDetail"
       v-model="state.formInfo.extInfo.familyAddress"
       label="地址详情"
       name="familyAddress"
       placeholder="请输入"
     ></ProField>
     <ProField
-      v-if="factorObj.familyZipCode"
+      v-if="factorObj.familyPostCode"
       v-model="state.formInfo.extInfo.familyZipCode"
       label="家庭邮编"
       name="familyZipCode"
       placeholder="请输入"
     ></ProField>
-    <ProField label="工作地址" name="type" placeholder="请选择"></ProField>
+    <ProField v-if="factorObj.workAddress" label="工作地址" name="type" placeholder="请选择"></ProField>
     <ProField
-      v-if="factorObj.workAddress"
+      v-if="factorObj.workAddressDetail"
       v-model="state.formInfo.extInfo.workAddress"
       label="地址详情"
       name="workAddress"
@@ -165,14 +169,47 @@
       v-if="factorObj.workZipCode"
       v-model="state.formInfo.extInfo.workZipCode"
       label="工作邮编"
-      name="workZipCode"
+      name="workPostCode"
       placeholder="请输入"
     ></ProField>
+    <ProField
+      v-if="factorObj.workPlace"
+      v-model="state.formInfo.extInfo.workStation"
+      label="单位名称"
+      name="workPostCode"
+      placeholder="请输入"
+    ></ProField>
+    <ProField
+      v-if="factorObj.workContent"
+      v-model="state.formInfo.extInfo.workContent"
+      label="工作内容"
+      name="workPostCode"
+      placeholder="请输入"
+    ></ProField>
+    <ProField
+      v-if="factorObj.taxCert"
+      v-model="state.formInfo.extInfo.taxResident"
+      label="税收居民身份"
+      name="workPostCode"
+      placeholder="请输入"
+    ></ProField>
+    <ProField
+      v-if="factorObj.partTime"
+      v-model="state.formInfo.extInfo.isPartTime"
+      label="是否兼职"
+      name="isPartTime"
+      placeholder="请输入"
+    >
+      <template #input>
+        <ProRadioButton v-model="state.formInfo.extInfo.isPartTime" :options="FLAG_LIST"></ProRadioButton>
+      </template>
+    </ProField>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
+import dayjs from 'dayjs';
 import { InsuredReqItem, HolderReq, ProductInsureFactorItem } from '@/api/index.data';
 import { SEX_LIMIT_LIST, FLAG_LIST } from '@/common/constants';
 import useDicData from '@/hooks/useDicData';
@@ -191,7 +228,10 @@ interface State {
   formInfo: FormInfo;
 }
 
-const CERT_TYPE = useDicData('CERT_TYPE');
+const CERT_TYPE = ref([]);
+useDicData('CERT_TYPE').then((resolve) => {
+  CERT_TYPE.value = resolve.value;
+});
 
 const props = withDefaults(defineProps<Props>(), {
   formInfo: () => ({}),
@@ -200,6 +240,12 @@ const props = withDefaults(defineProps<Props>(), {
 
 const state = ref({
   formInfo: props.formInfo,
+  birth: {
+    min: dayjs(new Date('1900-01-01')).format('YYYY-MM-DD'),
+    max: dayjs(new Date()).format('YYYY-MM-DD'),
+  },
+  front: '',
+  back: '',
 });
 
 const factorObj = computed(() => {

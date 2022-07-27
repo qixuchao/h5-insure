@@ -29,7 +29,6 @@ import { PickerColumn } from 'vant';
 import { useToggle } from '@vant/use';
 import { nullableTypeAnnotation } from '@babel/types';
 import ProPopup from '@/components/ProPopup/index.vue';
-import ProField from '../ProField/index.vue';
 
 const emits = defineEmits(['update:show', 'confirm', 'cancel', 'update:modelValue']);
 const props = defineProps({
@@ -86,10 +85,10 @@ const handleClick = () => {
 };
 
 const handleConfirm = (item: any) => {
-  if (!item?.value) {
+  if (!item?.[0]?.value) {
     return;
   }
-  emits('update:modelValue', item.value);
+  emits('update:modelValue', item[0].value);
   toggle(false);
 };
 
@@ -97,17 +96,7 @@ const handleCancel = () => {
   toggle(false);
 };
 
-const formatColumn = computed(() => {
-  if (props.dataSource) {
-    return props.dataSource.map((item) => ({
-      ...item,
-      text: item[props.mapping.label],
-      value: item[props.mapping.value],
-      children: item[props.mapping.children] || null,
-    }));
-  }
-  return [];
-});
+const formatColumn = ref<any[]>([]);
 
 const defaultIndex = computed(() => {
   if (props.modelValue) {
@@ -123,6 +112,23 @@ const displayValue = computed(() => {
   }
   return props.modelValue || '';
 });
+
+watch(
+  () => props.dataSource,
+  (newVal = []) => {
+    console.log('newVal', newVal);
+    formatColumn.value = newVal.map((item) => ({
+      ...item,
+      text: item[props.mapping.label],
+      value: item[props.mapping.value],
+      children: null,
+    }));
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 </script>
 
 <style lang="scss" scoped>

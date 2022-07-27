@@ -83,13 +83,14 @@
 </template>
 <script lang="ts" setup>
 import { provide } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant/es';
 import PersonalInfo from './components/PersonalInfo/index.vue';
 import RiskList from './components/RiskList/index.vue';
 import { insureProductDetail, premiumCalc } from '@/api/modules/trial';
 import { getDic, nextStep } from '@/api';
 import { useCookie } from '@/hooks/useStorage';
+import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 import {
   ProductBasicInfoVo,
   RiskDetailVoItem,
@@ -128,7 +129,17 @@ interface HolderPerson {
   personVO: Partial<PersonVo>;
 }
 
-const { id = 118, templateId = 1 } = useRoute().query;
+const router = useRouter();
+const route = useRoute();
+const {
+  id = 118,
+  templateId = 1,
+  agencyId = 'test',
+  saleChannelId = '1',
+  saleUserId = '1',
+  tenantId = 9991000007,
+  venderCode = '99',
+} = route.query;
 
 const holder = ref<HolderPerson>({
   personVO: {},
@@ -197,33 +208,42 @@ const transformData = (riskList, riskPremium) => {
 
 const goNextPage = () => {
   nextStep({
-    agencyId: 'test',
-    saleChannelId: '1',
-    saleUserId: '1',
-    tenantId: 9991000007,
-    venderCode: '99',
+    agencyId,
+    saleChannelId,
+    saleUserId,
+    tenantId,
+    venderCode,
     pageCode,
     extInfo: {
       templateId: +(templateId || 1),
       pageCode,
     },
-    holderReq: {
-      gender: '1',
-    },
-    insuredReqList: [
+    tenantOrderHolder: {},
+    tenantOrderInsuredList: [
       {
-        gender: '1',
-        productReqList: [
+        tenantOrderProductList: [
           {
             productCode: state.riskBaseInfo.productCode || '',
             productName: state.riskBaseInfo.productName || '',
             premium: state.trialResult.premium || 0,
-            riskReqList: state.insuredRiskList,
+            tenantOrderRiskList: state.insuredRiskList,
           },
         ],
       },
     ],
-  }).then(({ code, data }) => {});
+  }).then(({ code, data }) => {
+    if (code === '10000') {
+      if (data.pageAction.pageAction === 'jumpToPage') {
+        router.push({
+          path: PAGE_ROUTE_ENUMS[data.pageAction.data.nextPageCode],
+          query: {
+            ...route.query,
+            orderNo: data.pageAction.data.orderNo,
+          },
+        });
+      }
+    }
+  });
 };
 
 const dealTrialData = () => {
