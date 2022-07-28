@@ -54,7 +54,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { Toast } from 'vant';
 import { listCustomerQuestions } from '@/api/modules/inform';
 import { NOTICE_OBJECT_TYPE } from '@/common/constants/notice';
-import { ListCustomerQuestionsResponse } from '@/api/modules/inform.data';
+import { ListCustomerQuestionsResponse, tenantOrderNoticeProps } from '@/api/modules/inform.data';
 import { nextStep, getOrderDetail } from '@/api';
 import { NextStepRequestData } from '@/api/index.data';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
@@ -73,12 +73,14 @@ interface StateProps {
   listQuestions: ListCustomerQuestionsResponse[];
   pageData: Partial<NextStepRequestData>;
   showShare: boolean;
+  tenantOrderNoticeList: Partial<tenantOrderNoticeProps[]>;
 }
 
 const state = reactive<StateProps>({
   listQuestions: [],
   pageData: {},
   showShare: false,
+  tenantOrderNoticeList: [],
 });
 
 const isHolderQuestions = (objectType: number) => {
@@ -150,12 +152,22 @@ const handleClickNextStep = () => {
     Toast('请完成所有告知进行下一步');
     return;
   }
-  state.pageData.extInfo = {
-    ...state.pageData.extInfo,
-    isReadCustomerNotice: 1,
-    pageCode: 'questionNotice',
-    templateId,
-  };
+  const tenantOrderNoticeList = {};
+
+  state.tenantOrderNoticeList = state.listQuestions.map((i) => {
+    return {
+      content: '',
+      contentType: i.questionnaireType,
+      id: i.id,
+      isDone: 1,
+      name: i.title,
+      objectId: i.id,
+      objectType: i.objectType,
+      type: i.questionnaireType,
+    };
+  });
+
+  Object.assign(state.pageData, { pageCode: 'questionNotice' }, { tenantOrderNoticeList: state.tenantOrderNoticeList });
   nextStep(state.pageData).then(({ code, data }) => {
     if (code === '10000') {
       if (data.pageAction.pageAction === 'jumpToPage') {

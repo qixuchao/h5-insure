@@ -63,3 +63,14 @@ export interface UpdateOrderNoticeStatusProps {
   orderId: number | string;
   tenantId: number | string;
 }
+
+export interface tenantOrderNoticeProps {
+  content: string;
+  contentType: number;
+  id: number;
+  isDone: number;
+  name: string;
+  objectId: string;
+  objectType: number;
+  type: number;
+}
