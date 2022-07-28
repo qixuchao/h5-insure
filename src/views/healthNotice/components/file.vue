@@ -8,8 +8,8 @@
   <div class="com-pdf-viewer">
     <div :id="id" :isee_pdf="pdfUrl" class="pdf-wapper"></div>
     <div class="footer-button">
-      <van-button plain type="primary">部分为是</van-button>
-      <van-button type="primary">以上皆否</van-button>
+      <van-button plain type="primary" @click="emits('onSubmitCurrentStatus', 2)">部分为是</van-button>
+      <van-button type="primary" @click="emits('onSubmitCurrentStatus', 1)">以上皆否</van-button>
     </div>
   </div>
 </template>
@@ -34,6 +34,8 @@ const props = defineProps({
     default: '',
   },
 });
+
+const emits = defineEmits<(e: 'onSubmitCurrentStatus', code: number) => void>();
 
 const id = nanoid();
 

@@ -65,7 +65,7 @@ import { ref, onBeforeUpdate } from 'vue';
 import ProCard from '@/components/ProCard/index.vue';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
 
-import { getCustomerQuestions } from '@/api/modules/inform';
+import { listCustomerQuestions } from '@/api/modules/inform';
 
 const checkboxRefs = ref<any>([]);
 
@@ -116,7 +116,7 @@ onBeforeUpdate(() => {
 });
 
 onMounted(() => {
-  getCustomerQuestions({
+  listCustomerQuestions({
     insurerCode: 'aiheyichina',
     noticeType: 1,
     objectId: '1',
