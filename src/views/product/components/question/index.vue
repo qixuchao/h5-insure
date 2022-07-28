@@ -1,6 +1,6 @@
 <template>
   <div class="com-question">
-    <Item v-for="(item, index) in displayList" :key="index" :question="item.question" :answer="item.answer" />
+    <Item v-for="(item, index) in displayList" :key="index" :question="item.title" :answer="item.desc" />
     <div v-if="list.length > 4" class="show-more" @click="handleShowMore">
       {{ showMore ? '收起' : '展开' }} <ProSvg name="down" :class="['icon', { showMore }]" />
     </div>
@@ -15,7 +15,7 @@ import Item from './item.vue';
 
 const props = defineProps({
   list: {
-    type: Array as () => Array<{ question: string; answer: string }>,
+    type: Array as () => Array<{ title: string; desc: string }>,
     default: () => [],
   },
 });

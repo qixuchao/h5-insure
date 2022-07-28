@@ -132,11 +132,10 @@ interface HolderPerson {
 const router = useRouter();
 const route = useRoute();
 const {
-  id = 118,
+  productCode = 'MMBBSF',
   templateId = 1,
-  agencyId = 'test',
-  saleChannelId = '1',
-  saleUserId = '1',
+  agentCode = 'test',
+  agencyCode = '',
   tenantId = 9991000007,
   venderCode = '99',
 } = route.query;
@@ -208,9 +207,8 @@ const transformData = (riskList, riskPremium) => {
 
 const goNextPage = () => {
   nextStep({
-    agencyId,
-    saleChannelId,
-    saleUserId,
+    agencyId: agencyCode,
+    saleUserId: agentCode,
     tenantId,
     venderCode,
     pageCode,
@@ -356,7 +354,7 @@ const queryDictList = () => {
 };
 
 const queryProductInfo = () => {
-  insureProductDetail({ productId: id, source: 1 })
+  insureProductDetail({ productCode, source: 1 })
     .then(({ code, data }) => {
       if (code === '10000') {
         state.riskBaseInfo = data?.productBasicInfoVO;

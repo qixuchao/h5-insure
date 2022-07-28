@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-27 17:43:01
+ * @LastEditTime: 2022-07-27 22:28:00
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -95,12 +95,13 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { useToggle } from '@vant/use';
+import { conditionalExpression } from '@babel/types';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 import { getInitFactor, nextStep, getTemplateInfo } from '@/api';
 import { queryDetail } from '@/api/modules/order';
 import {
   FactorData,
-  NextStepRequstData,
+  NextStepRequestData,
   TenantOrderHolder,
   HolderExtInfo,
   TenantOrderBeneficiaryItem,
@@ -131,7 +132,7 @@ const route = useRoute();
 
 const { templateId = 1, orderNo = '2022072710380711215', tenantId = '9991000007' } = route.query;
 const [showAddress, toggleAddress] = useToggle();
-const pageCode = 'infoCollection';
+const pageCode = route.path === '/infoPreview' ? 'infoPreview' : 'infoCollection';
 const pageFactor = ref<FactorEnums>({});
 // 表单信息
 const formInfo = ref<any>({
@@ -222,7 +223,6 @@ const queryOrderDetail = () => {
           currentList.extInfo = {};
           return currentList;
         });
-
       Object.assign(formInfo.value, data);
     }
   });
@@ -230,7 +230,7 @@ const queryOrderDetail = () => {
 
 onBeforeMount(() => {
   queryOrderDetail();
-  getInitFactor({ pageCode, templateId }).then(({ code, data }) => {
+  getInitFactor({ pageCode: 'infoCollection', templateId }).then(({ code, data }) => {
     if (code === '10000') {
       const factorObj = {
         BENEFICIARY: [] as ProductInsureFactorItem[],

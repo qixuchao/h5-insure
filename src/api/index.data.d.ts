@@ -63,7 +63,7 @@ export interface ProductInsureFactorItem {
 }
 
 // 下一步接口的入参
-export interface NextStepRequstData {
+export interface NextStepRequestData {
     agencyId: string;
     applicationNo: string;
     commencementTime: string;

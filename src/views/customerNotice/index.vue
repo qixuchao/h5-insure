@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-25 09:04:29
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-27 17:58:51
+ * @LastEditTime: 2022-07-27 18:03:21
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/customerNotice/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -20,7 +20,7 @@ import { STATUS_CODES } from 'http';
 import { dataToEsm } from '@rollup/pluginutils';
 import { nextStep, getTemplateInfo, getInitFactor } from '@/api';
 import { queryDetail } from '@/api/modules/order';
-import { NextStepRequstData, TemplatePageItem } from '@/api/index.data';
+import { NextStepRequestData, TemplatePageItem } from '@/api/index.data';
 import { getCustomerNotices } from '@/api/modules/customerNotice';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 
@@ -38,7 +38,9 @@ const {
   tenantId = 9991000007,
 } = route.query;
 
-const pageData = ref<NextStepRequstData>({});
+const pageData = ref<NextStepRequestData>({
+  pageCode,
+});
 
 const state = reactive<State>({
   nextPage: '',

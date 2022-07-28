@@ -7,7 +7,7 @@
 <template>
   <ZaPageWrap class="page-salesman-inform">
     <ProCard title="告知书">
-      <van-cell title="《投保人问卷》" is-link value="去完成" />
+      <van-cell :title="`《${NOTICE_OBJECT[state.noticeType as any]}告知》`" is-link value="去完成" />
     </ProCard>
     <ProCard title="营销员签字" :show-divider="false" :show-line="false">
       <template #extra>
@@ -29,6 +29,9 @@
 
 <script setup lang="ts">
 import ProCard from '@/components/ProCard/index.vue';
+import { getMarketerNotices, getMarketerNoticesDetail } from '@/api/modules/salesmanInform';
+
+import { NOTICE_OBJECT } from '@/common/constants/notice';
 
 const signRef2 = ref<any>(null);
 
@@ -37,6 +40,39 @@ const checked = ref<boolean>(false);
 const resetSign = () => {
   signRef2.value?.clear();
 };
+
+interface StateProps {
+  noticeType: string;
+  materialSource: string;
+}
+
+const state = reactive<Partial<StateProps>>({
+  noticeType: '',
+  materialSource: '',
+});
+
+onMounted(() => {
+  getMarketerNotices({
+    insureCode: '123',
+    noticeType: '1',
+    objectId: '1',
+    objectType: '1',
+    orderNo: '2022011815151382958351',
+  }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      state.noticeType = data.noticeObject;
+      state.materialSource = data.materialSource;
+    }
+  });
+  // getMarketerNoticesDetail({
+  //   insureCode: '123',
+  //   noticeType: '1',
+  //   objectId: '1',
+  //   objectType: '1',
+  //   orderNo: '2022011815151382958351',
+  // }).then((res) => {});
+});
 </script>
 
 <style scoped lang="scss">

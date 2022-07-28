@@ -12,6 +12,7 @@
 <script lang="ts" setup>
 import ProTab from '@/components/ProTab/index.vue';
 import Item from './components/item.vue';
+import { getOrderList } from '@/api/modules/order';
 
 const active = ref(0);
 
@@ -37,6 +38,10 @@ const list = [{}, {}, {}, {}, {}, {}, {}, {}, {}];
 
 watch(active, (val) => {
   console.log(val);
+});
+
+onMounted(() => {
+  getOrderList();
 });
 </script>
 
