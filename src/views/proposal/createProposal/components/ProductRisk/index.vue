@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-16 13:39:05
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-21 09:57:40
+ * @LastEditTime: 2022-07-29 11:34:10
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductRisk/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -106,6 +106,8 @@ interface Props {
   riskType?: 1 | 2;
   formInfo: any;
   productData?: any;
+  holder: any;
+  insured: any;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -115,15 +117,21 @@ const props = withDefaults(defineProps<Props>(), {
   formInfo: {},
   riskType: 1,
   productData: {},
+  holder: {},
+  insured: {},
 });
 
 const emits = defineEmits(['close', 'finished']);
 const holder = ref<HolderPerson>({
-  personVO: {},
+  personVO: {
+    ...props.holder,
+  },
 }); // 投保人
 const insured = ref<Omit<InsuredVoItem, 'productPlanVOList'>>({
   insuredCode: '',
-  personVO: {} as PersonVo,
+  personVO: {
+    ...props.insured,
+  } as PersonVo,
 }); // 被保人
 const riskInfo = ref({}); // 险种信息
 const holderRef = ref<any>({});
@@ -177,7 +185,7 @@ const formatData = (trialData: premiumCalcData, riskPremium: any) => {
       };
     },
   );
-
+  debugger;
   const proposalData = {
     proposalHolder: trialData.holder?.personVO || {},
     proposalInsuredList: [
@@ -205,7 +213,7 @@ const formatData = (trialData: premiumCalcData, riskPremium: any) => {
 const dealTrialData = () => {
   const mainRisk = JSON.parse(JSON.stringify(riskInfo.value[state.currentPlan]));
 
-  const riderRiskVOList = Object.values(mainRisk.riderRiskVOList as RiskVoItem[]).map((riderRisk) => {
+  const riderRiskVOList = Object.values(mainRisk.riderRiskVOList || ([] as RiskVoItem[])).map((riderRisk) => {
     const risk: RiskVoItem = riderRisk;
     // 如果交费期间规则是同主险期间减1，对交费期间值进行减1操作
     if (risk.chargePeriod === '3') {
@@ -239,19 +247,13 @@ const dealTrialData = () => {
   // 整合试算需要的数据结构
   const trialData: premiumCalcData = {
     holder: {
-      personVO: {
-        ...holder.value.personVO,
-        birthday: holder.value.personVO.birthday ? `${holder.value.personVO.birthday} 00:00:00` : '',
-      } as any,
+      personVO: holder.value.personVO as PersonVo,
     },
     productCode: state.riskBaseInfo.productCode as string,
     insuredVOList: [
       {
         ...insured.value,
-        personVO: {
-          ...insured.value.personVO,
-          birthday: insured.value.personVO.birthday && `${insured.value.personVO.birthday} 00:00:00`,
-        },
+        personVO: insured.value.personVO,
         productPlanVOList: [
           {
             planCode: state.currentPlan || '',
@@ -407,9 +409,21 @@ watch(
   () => props.productData,
   (newVal) => {
     if (props.type === 'edit') {
+      console.log('newVal', newVal);
       state.riskBaseInfo = newVal.productBasicInfoVO;
       state.riskData = newVal.riskDetailVOList;
     }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  () => props,
+  () => {
+    console.log('props', props);
   },
   {
     deep: true,

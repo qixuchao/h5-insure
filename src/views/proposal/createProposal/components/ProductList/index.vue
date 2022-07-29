@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 16:43:35
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-25 01:30:11
+ * @LastEditTime: 2022-07-29 10:20:44
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -30,8 +30,14 @@
             </div>
           </div>
           <div class="operate-bar">
-            <ProCheckButton :round="32" class="border" @click="deleteRisk(risk)">删除</ProCheckButton>
-            <ProCheckButton activated :round="32" @click="addRisk(risk)">+ 附加险</ProCheckButton>
+            <ProCheckButton v-if="productNum" :round="32" class="border" @click="deleteRisk(risk)">删除</ProCheckButton>
+            <ProCheckButton
+              v-if="productData?.riskDetailVOList?.[0]?.optionalRiderRiskVOList?.length"
+              activated
+              :round="32"
+              @click="addRisk(risk)"
+              >+ 附加险</ProCheckButton
+            >
             <ProCheckButton activated :round="32" @click="updateRisk(risk)">修改</ProCheckButton>
           </div>
         </div>
@@ -57,14 +63,22 @@
             </div>
           </div>
           <div class="operate-bar">
-            <ProCheckButton :round="32" class="border" @click="deleteRisk(riderRisk)">删除</ProCheckButton>
-            <ProCheckButton activated :round="32" @click="addRisk(riderRisk)">+ 附加险</ProCheckButton>
+            <ProCheckButton v-if="productNum" :round="32" class="border" @click="deleteRisk(riderRisk)"
+              >删除</ProCheckButton
+            >
+            <ProCheckButton
+              v-if="productData?.riskDetailVOList?.[0]?.optionalRiderRiskVOList?.length"
+              activated
+              :round="32"
+              @click="addRisk(riderRisk)"
+              >+ 附加险</ProCheckButton
+            >
             <ProCheckButton activated :round="32" @click="updateRisk(riderRisk)">修改</ProCheckButton>
           </div>
         </div>
       </div>
       <div class="premium-total">
-        保费: <span class="premium">￥{{ 234234 }}</span>
+        保费: <span class="premium">￥{{ state.totalPremium.toLocaleString() }}</span>
       </div>
     </div>
     <RiskRelationList
@@ -92,6 +106,8 @@ interface Props {
   enumList: any;
   productInfo: Partial<ProposalInsuredProductItem>;
   productData: Partial<ProductData>;
+  pickProductPremium: (type: any) => void;
+  productNum: number;
 }
 
 interface State {
@@ -99,6 +115,7 @@ interface State {
   disabledList: [];
   riderRiskList: ProposalProductRiskItem[];
   mainRiskData: ProductData;
+  totalPremium: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -106,6 +123,8 @@ const props = withDefaults(defineProps<Props>(), {
   enumList: () => ({}),
   productInfo: () => ({}),
   productData: () => ({}),
+  pickProductPremium: () => {},
+  productNum: 0,
 });
 
 const emits = defineEmits(['deleteRisk', 'updateRisk', 'addRisk']);
@@ -115,6 +134,7 @@ const state = ref<State>({
   disabledList: [],
   riderRiskList: [],
   mainRiskData: {} as ProductData,
+  totalPremium: 0,
 });
 
 const riderRiskList = computed(() => {
@@ -126,7 +146,7 @@ const collocationRiderList = computed(() => {
 });
 
 const onFinished = () => {
-  console.log('12313');
+  emits('updateRisk', props.productInfo);
 };
 
 const deleteRisk = (riskRecord: ProposalProductRiskItem) => {
@@ -143,9 +163,20 @@ const addRisk = (riskRecord: ProposalProductRiskItem) => {
 };
 
 watch(
-  () => props,
-  () => {
-    console.log('props', props);
+  () => props.productInfo,
+  (newVal) => {
+    let productPremium = 0;
+    const calcProduct = (riskList: ProposalProductRiskItem[]) => {
+      riskList.forEach((risk: ProposalProductRiskItem) => {
+        productPremium += risk.premium;
+        if (risk.riderRiskVOList?.length) {
+          calcProduct(risk.riderRiskVOList);
+        }
+      });
+    };
+    calcProduct(newVal.proposalProductRiskList || []);
+    props?.pickProductPremium?.({ [`${newVal.productId}`]: productPremium });
+    state.value.totalPremium = productPremium;
   },
   {
     deep: true,

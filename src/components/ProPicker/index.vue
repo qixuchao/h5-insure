@@ -1,9 +1,9 @@
 <template>
   <ProField
+    :model="state.value"
     :="$attrs"
     :is-link="isLink"
     :label="label"
-    :model-value="modelValue"
     :is-view="isView"
     :required="required"
     @click="handleClick"
@@ -25,11 +25,10 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, defineEmits } from 'vue';
 import { PickerColumn } from 'vant';
 import { useToggle } from '@vant/use';
+import { nullableTypeAnnotation } from '@babel/types';
 import ProPopup from '@/components/ProPopup/index.vue';
-import ProField from '../ProField/index.vue';
 
 const emits = defineEmits(['update:show', 'confirm', 'cancel', 'update:modelValue']);
 const props = defineProps({
@@ -65,16 +64,31 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  mapping: {
+    type: Object,
+    default: () => ({
+      label: 'label',
+      value: 'value',
+      children: 'children',
+    }),
+  },
 });
 
 const [show, toggle] = useToggle(false);
+
+const state = ref({
+  value: props.modelValue,
+});
 
 const handleClick = () => {
   toggle(true);
 };
 
 const handleConfirm = (item: any) => {
-  emits('update:modelValue', item.value);
+  if (!item?.[0]?.value) {
+    return;
+  }
+  emits('update:modelValue', item[0].value);
   toggle(false);
 };
 
@@ -82,27 +96,39 @@ const handleCancel = () => {
   toggle(false);
 };
 
-const formatColumn = computed(() => {
-  if (props.dataSource) {
-    return props.dataSource.map((item) => ({ text: item.label, ...item }));
-  }
-  return [];
-});
+const formatColumn = ref<any[]>([]);
 
 const defaultIndex = computed(() => {
   if (props.modelValue) {
-    return props.dataSource.findIndex((x) => x.value === props.modelValue);
+    return props.dataSource.findIndex((x) => x[props.mapping.value] === props.modelValue);
   }
   return '';
 });
 
 const displayValue = computed(() => {
-  const find = props.dataSource.find((x) => x.value === props.modelValue);
+  const find = props.dataSource.find((x) => x[props.mapping.value] === props.modelValue);
   if (find) {
-    return find.label;
+    return find[props.mapping.label];
   }
   return props.modelValue || '';
 });
+
+watch(
+  () => props.dataSource,
+  (newVal = []) => {
+    console.log('newVal', newVal);
+    formatColumn.value = newVal.map((item) => ({
+      ...item,
+      text: item[props.mapping.label],
+      value: item[props.mapping.value],
+      children: null,
+    }));
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 </script>
 
 <style lang="scss" scoped>

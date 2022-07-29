@@ -30,6 +30,8 @@
     "live-server": "^1.2.1",
     "lodash": "^4.17.21",
     "mitt": "^3.0.0",
+    "nanoid": "^4.0.0",
+    "pdfjs-dist": "2.11.338",
     "nprogress": "^0.2.0",
     "pinia": "^2.0.9",
     "postcss-px-to-relative-unit": "^2.0.0",

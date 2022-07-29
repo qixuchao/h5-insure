@@ -31,20 +31,21 @@
       </van-pull-refresh>
       <!-- <p class="is-end-tips">- 已经到底了哦 -</p> -->
     </div>
-    <div v-if="isCreateProposal" class="van-sticky">
+    <div v-if="isCreateProposal && showFooter" class="van-sticky">
       <div class="add-plan">
         <p class="has-select" @click="toggleSelectProduct(true)">
           已选<span class="has-select-product">{{ selectProduct.length }}</span
           >款产品 <span class="icon"></span>
         </p>
-        <van-button type="primary">添加计划书</van-button>
+        <van-button type="primary" :disabled="!selectProduct.length" @click="addProposal">添加计划书</van-button>
       </div>
     </div>
     <TrialProductPopup
       v-model="selectProduct"
-      :proposal-list="[]"
+      :proposal-list="state.proposalList"
       :is-show="showSelectProduct"
       @close="toggleSelectProduct(false)"
+      @checked="checkProductRisk"
     ></TrialProductPopup>
     <ProductRisk
       v-if="showProductRisk"
@@ -55,7 +56,7 @@
       @finished="onFinished"
     ></ProductRisk>
   </ZaPageWrap>
-  <ProFixedButton v-if="!isCreateProposal" :button-image="ProFixedButtonDefaultImage" />
+  <ProFixedButton v-if="!isCreateProposal" :button-image="ProFixedButtonDefaultImage" @click="goHistoryList" />
 </template>
 
 <script setup lang="ts">
@@ -96,6 +97,7 @@ interface StateType {
   productId?: number;
   checked: string;
   proposalList: any[];
+  showFooter: boolean;
 }
 
 const state = reactive<StateType>({
@@ -113,6 +115,7 @@ const state = reactive<StateType>({
   checked: '',
   productId: undefined,
   proposalList: [],
+  showFooter: true,
 });
 
 const {
@@ -127,6 +130,7 @@ const {
   insurerCodeList,
   showCategory,
   productTotal,
+  showFooter,
 } = toRefs(state);
 
 const [showProductRisk, toggleProductRisk] = useToggle();
@@ -174,10 +178,31 @@ const onLoad = () => {
   }
 };
 
+const goHistoryList = () => {
+  router.push({
+    path: 'historyProposalList',
+  });
+};
+
 /** ****** 创建计划书相关逻辑 ******** */
 const selectProposal = (proposalInfo: any) => {
+  showFooter.value = false;
   state.productId = proposalInfo.productId;
   toggleProductRisk(true);
+};
+
+const checkProductRisk = (checked: any[]) => {
+  state.selectProduct = checked;
+};
+
+const addProposal = () => {
+  const selectedProduct = state.proposalList.filter((proposal) => {
+    return state.selectProduct.includes(proposal.proposalInsuredList[0].proposalInsuredProductList[0].productId);
+  });
+  store.setTrialData(selectedProduct);
+  router.push({
+    path: '/proposal/createProposal',
+  });
 };
 
 const closeProductRisk = () => {
@@ -187,9 +212,11 @@ const closeProductRisk = () => {
 const onFinished = (proposalInfo: ProposalInfo) => {
   if (isCreateProposal) {
     state.proposalList.push(proposalInfo);
+    showFooter.value = true;
     toggleProductRisk(false);
     return;
   }
+
   store.setTrialData([proposalInfo]);
   toggleProductRisk(false);
   router.push({
@@ -206,6 +233,17 @@ const onRefresh = () => {
   loading.value = true;
   onLoad();
 };
+
+watch(
+  () => selectProduct,
+  (newVal) => {
+    console.log('newVal', newVal);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 onMounted(() => {
   tagLists.value = [{ labelCategoryName: '全部', id: '' }, ...tabsData.data];

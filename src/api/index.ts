@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-25 23:36:12
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-25 21:20:39
+ * @LastEditTime: 2022-07-28 18:05:01
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -23,7 +23,7 @@ export const getInitFactor = (data = {}) =>
 
 // 下一步操作
 export const nextStep = (data = {} as NextStepRequestData) =>
-  request.post<any, ResponseData>(PAGE_API_ENUMS[data.pageCode], data);
+  request.post<any, ResponseData>(PAGE_API_ENUMS[data.extInfo.pageCode], data);
 
 // 获取订单详情
 export const getOrderDetail = (data = {}) =>
