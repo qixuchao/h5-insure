@@ -1,14 +1,29 @@
 import request from '@/api/request';
-import { GetCustomerQuestionsType, GetCustomerQuestionsResponse } from './inform.data';
+import {
+  ListCustomerQuestionsProps,
+  ListCustomerQuestionsResponse,
+  GetCustomerQuestionsDetailProps,
+  GetCustomerQuestionsDetailResponse,
+  UpdateOrderNoticeStatusProps,
+} from './inform.data';
 
 // 告知相关接口
 const API_PREFIXED = `/api/app/insure/insurance`;
 
-// 在线投保 - 问卷告知详情;
-export const getCustomerQuestions = (params: Partial<GetCustomerQuestionsType>) =>
-  request.get<GetCustomerQuestionsType, ResponseData<GetCustomerQuestionsResponse[]>>(
-    `${API_PREFIXED}/getCustomerQuestions`,
-    { params },
+// 在线投保-问卷告知列表
+export const listCustomerQuestions = (data: Partial<ListCustomerQuestionsProps>) =>
+  request.post<ListCustomerQuestionsProps, ResponseData<ListCustomerQuestionsResponse[]>>(
+    `${API_PREFIXED}/listCustomerQuestions`,
+    data,
   );
 
-export default {};
+// 在线投保-问卷告知查询详情
+export const getCustomerQuestionsDetail = (data: Partial<GetCustomerQuestionsDetailProps>) =>
+  request.post<GetCustomerQuestionsDetailProps, ResponseData<GetCustomerQuestionsDetailResponse>>(
+    `${API_PREFIXED}/getCustomerQuestionsDetail`,
+    data,
+  );
+
+// 在线投保-更新问卷状态
+export const updateOrderNoticeStatus = (data: Partial<UpdateOrderNoticeStatusProps>) =>
+  request.post<UpdateOrderNoticeStatusProps, ResponseData>(`${API_PREFIXED}/updateOrderNoticeStatus`, data);

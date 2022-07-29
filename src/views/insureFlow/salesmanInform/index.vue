@@ -56,8 +56,9 @@ onMounted(() => {
     insureCode: '123',
     noticeType: '1',
     objectId: '1',
-    objectType: '1',
+    objectType: '2',
     orderNo: '2022011815151382958351',
+    tenantId: 9991000007,
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
