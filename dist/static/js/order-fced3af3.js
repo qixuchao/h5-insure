@@ -1,1 +1,0 @@
-import{b as e}from"./index-e3074f98.js";const a=(r={})=>e.post("/api/app/insure/insurance/getTenantOrderDetail",r),o=()=>e.post("/api/app/order/v1/pageQuery",{condition:{orderTopStatus:"-1"}});export{o as g,a as q};
