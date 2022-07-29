@@ -9,6 +9,7 @@ export interface ListCustomerQuestionsProps {
 }
 
 export interface ListCustomerQuestionsResponse {
+  content: string;
   gmtCreated: string;
   id: number;
   insurerCode: string;
@@ -39,11 +40,12 @@ export interface GetProductManuscriptsProps {
 export interface GetCustomerQuestionsDetailProps {
   insurerCode: string;
   noticeType: number;
-  objectId: string;
+  objectId: string | number;
   objectType: number;
   orderNo: string;
   productCategory: number;
   tenantId: number;
+  id: string | number;
 }
 export interface GetCustomerQuestionsDetailResponse {
   content: string;
@@ -73,4 +75,14 @@ export interface tenantOrderNoticeProps {
   objectId: string;
   objectType: number;
   type: number;
+}
+
+export interface SaveMarketerNoticesProps {
+  content: string;
+  contentType: number;
+  isDone: number;
+  noticeType: number;
+  objectId: string;
+  objectType: number;
+  orderNo: string;
 }
