@@ -17,9 +17,14 @@
       </ProCard>
       <ProCard title="续期支付">
         <ProForm ref="form2">
-          <ProField label="同首期" name="sameFirst">
+          <ProField label="同首期" name="payInfoType">
             <template #input>
-              <van-switch v-model="renewFormData.sameFirst" size="22" />
+              <van-switch
+                v-model="renewFormData.payInfoType"
+                size="22"
+                :active-value="PAY_INFO_TYPE_ENUM.FIRST_SAME"
+                :inactive-value="PAY_INFO_TYPE_ENUM.OTHER"
+              />
             </template>
           </ProField>
           <ProPicker
@@ -41,7 +46,11 @@
             required
             label-width="200"
           />
-          <BankCardInfo v-if="!renewFormData.sameFirst" :holder-name="holderName" />
+          <BankCardInfo
+            v-if="renewFormData.payInfoType !== PAY_INFO_TYPE_ENUM.FIRST_SAME"
+            v-model="renewFormData.bankData"
+            :holder-name="holderName"
+          />
         </ProForm>
       </ProCard>
       <ProCard title="年金领取银行卡" class="reprise-card" :show-divider="false">
@@ -90,19 +99,19 @@ import {
   EXPIRY_METHOD_LIST,
   EXPIRY_METHOD_ENUM,
 } from '@/common/constants/bankCard';
-import { nextStep, getOrderDetail } from '@/api';
+import { nextStep, getOrderDetail, getInitFactor } from '@/api';
 
 const router = useRouter();
 let orderDetail = {};
 const holderName = ref('');
-const firstFormData = reactive({ payMethod: PAY_METHOD_ENUM.REAL_TIME, bankData: {} });
-const renewFormData = reactive({
+const firstFormData = ref({ payMethod: PAY_METHOD_ENUM.REAL_TIME, bankData: {} });
+const renewFormData = ref({
   payMethod: PAY_METHOD_ENUM.REAL_TIME,
   expiryMethod: EXPIRY_METHOD_ENUM.AUTOMATIC_PADDING,
   bankData: {},
-  sameFirst: true,
+  payInfoType: PAY_INFO_TYPE_ENUM.FIRST_SAME,
 });
-const repriseFormData = reactive({ bankData: {} });
+const repriseFormData = ref({ bankData: {} });
 
 const payInfoType = ref(PAY_INFO_TYPE_ENUM.FIRST_SAME);
 const agree = ref(false);
@@ -119,19 +128,75 @@ const handleSubmit = () => {
     const data = [
       {
         ...results[0],
+        id: firstFormData.value.id,
         paymentType: PAYMENT_TYPE_ENUM.FIRST_TERM,
       },
       {
         ...results[1],
+        id: renewFormData.value.id,
         paymentType: PAYMENT_TYPE_ENUM.RENEW_TERM,
-        payInfoType: results[1].sameFirst ? PAY_INFO_TYPE_ENUM.FIRST_SAME : PAYMENT_TYPE_ENUM.OTHER,
       },
       {
         ...results[2],
+        id: repriseFormData.value.id,
         paymentType: PAYMENT_TYPE_ENUM.REPRISE,
-        payInfoType,
+        payInfoType: payInfoType.value,
       },
     ];
+    const tenantOrderAttachmentList = [
+      {
+        category: 24, // 银行卡正面
+        name: '首期签约银行卡正面',
+        objectType: 5, // 首期签约
+        type: 'png',
+        uri: results[0].images[0],
+        id: firstFormData.value.bankData.imagesId[0],
+      },
+      {
+        category: 25, // 银行卡背面
+        name: '首期签约银行卡背面',
+        objectType: 5, // 首期签约
+        type: 'png',
+        uri: results[0].images[1],
+        id: firstFormData.value.bankData.imagesId[1],
+      },
+    ];
+    if (renewFormData.value.payInfoType === PAY_INFO_TYPE_ENUM.OTHER) {
+      tenantOrderAttachmentList.push({
+        category: 24, // 银行卡正面
+        name: '续期签约银行卡正面',
+        objectType: 6, // 续期签约
+        type: 'png',
+        uri: results[1].images[0],
+        id: renewFormData.value.bankData.imagesId[0],
+      });
+      tenantOrderAttachmentList.push({
+        category: 25, // 银行卡背面
+        name: '续期签约银行卡正面',
+        objectType: 6, // 续期签约
+        type: 'png',
+        uri: results[1].images[1],
+        id: renewFormData.value.bankData.imagesId[1],
+      });
+    }
+    if (payInfoType.value === PAY_INFO_TYPE_ENUM.OTHER) {
+      tenantOrderAttachmentList.push({
+        category: 24, // 银行卡正面
+        name: '年金签约银行卡正面',
+        objectType: 7, // 年金签约
+        type: 'png',
+        uri: results[2].images[0],
+        id: repriseFormData.value.bankData.imagesId[0],
+      });
+      tenantOrderAttachmentList.push({
+        category: 25, // 银行卡背面
+        name: '年金签约银行卡正面',
+        objectType: 7, // 年金签约
+        type: 'png',
+        uri: results[2].images[1],
+        id: repriseFormData.value.bankData.imagesId[1],
+      });
+    }
     nextStep({
       ...orderDetail,
       pageCode: 'payInfo',
@@ -139,12 +204,17 @@ const handleSubmit = () => {
       extInfo: { ...orderDetail.extInfo, templateId: '1', pageCode: 'payInfo' },
       operateOption: {
         withPayInfo: true,
+        withAttachmentInfo: true,
       },
+      tenantOrderAttachmentList,
     });
   });
 };
 
 onMounted(() => {
+  getInitFactor({ pageCode: 'payInfo', templateId: 1 }).then((res) => {
+    console.log('res', res);
+  });
   getOrderDetail({
     orderNo: '2022072710380711215',
     saleUserId: 'D1234567-1',
@@ -152,8 +222,53 @@ onMounted(() => {
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
-      orderDetail = data;
-      holderName.value = data?.tenantOrderHolder.name;
+      if (data) {
+        orderDetail = data;
+        holderName.value = data.tenantOrderHolder.name;
+        data.tenantOrderPayInfoList.forEach((item) => {
+          if (item.paymentType === PAYMENT_TYPE_ENUM.FIRST_TERM) {
+            firstFormData.value = item;
+            firstFormData.value.bankData = { ...item, images: [], imagesId: [] };
+          } else if (item.paymentType === PAYMENT_TYPE_ENUM.RENEW_TERM) {
+            renewFormData.value = item;
+            renewFormData.value.bankData = { ...item, images: [], imagesId: [] };
+          } else if (item.paymentType === PAYMENT_TYPE_ENUM.REPRISE) {
+            repriseFormData.value = item;
+            repriseFormData.value.bankData = { ...item, images: [], imagesId: [] };
+            payInfoType.value = item.payInfoType;
+          }
+        });
+        data.tenantOrderAttachmentList.forEach((item) => {
+          if (item.objectType === 5) {
+            if (item.category === 24) {
+              firstFormData.value.bankData.images[0] = item.uri;
+              firstFormData.value.bankData.imagesId[0] = item.id;
+            }
+            if (item.category === 25) {
+              firstFormData.value.bankData.images[1] = item.uri;
+              firstFormData.value.bankData.imagesId[1] = item.id;
+            }
+          } else if (item.objectType === 6) {
+            if (item.category === 24) {
+              renewFormData.value.bankData.images[0] = item.uri;
+              renewFormData.value.bankData.imagesId[0] = item.id;
+            }
+            if (item.category === 25) {
+              renewFormData.value.bankData.images[1] = item.uri;
+              renewFormData.value.bankData.imagesId[1] = item.id;
+            }
+          } else if (item.objectType === 7) {
+            if (item.category === 24) {
+              repriseFormData.value.bankData.images[0] = item.uri;
+              repriseFormData.value.bankData.imagesId[0] = item.id;
+            }
+            if (item.category === 25) {
+              repriseFormData.value.bankData.images[1] = item.uri;
+              repriseFormData.value.bankData.imagesId[1] = item.id;
+            }
+          }
+        });
+      }
     }
   });
 });

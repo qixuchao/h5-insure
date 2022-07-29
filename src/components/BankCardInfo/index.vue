@@ -40,7 +40,7 @@ import useDicData from '@/hooks/useDicData';
 
 const emits = defineEmits(['update:modelValue']);
 const props = defineProps({
-  modelVale: {
+  modelValue: {
     type: Object,
     default: () => {},
   },
@@ -51,7 +51,7 @@ const props = defineProps({
 });
 
 const bankDic = useDicData('BANK');
-let formData = reactive({
+const formData = ref({
   bankCardType: BANK_CARD_TYPE_ENUM.DEBIT,
   bankCardNo: '',
   accountName: '',
@@ -68,9 +68,12 @@ const imagesValidator = (images: Array<string>) => {
 };
 
 watch(
-  () => props.modelVale,
+  () => props.modelValue,
   (val) => {
-    formData = val;
+    formData.value = val;
+  },
+  {
+    immediate: true,
   },
 );
 

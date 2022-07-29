@@ -16,6 +16,7 @@
 <script lang="ts" setup>
 import { UploaderFileListItem } from 'vant';
 import { defineProps, defineEmits } from 'vue';
+import { useCustomFieldValue } from '@vant/use';
 import ProSvg from '@/components/ProSvg/index.vue';
 import { fileUpload } from '@/api/modules/file';
 import { UPLOAD_TYPE_ENUM } from '@/common/constants';
@@ -37,6 +38,8 @@ const props = defineProps({
 });
 
 const fileList = ref<Array<UploaderFileListItem>>([]);
+
+useCustomFieldValue(() => props.modelValue);
 
 const handleAfterRead = (e: { file: File; content: string }) => {
   fileUpload(e.file, props.uploadType).then((res) => {

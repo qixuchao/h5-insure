@@ -172,3 +172,10 @@ export enum YES_NO_ENUM {
   YES = 'YES',
   NO = 'NO',
 }
+
+// eslint-disable-next-line
+export enum NOTICE_TYPE_ENUM {
+  HOLDER = 1,
+  INSURED = 2,
+  AGENT = 3,
+}
