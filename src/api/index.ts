@@ -35,3 +35,7 @@ export const getOrderDetail = (data = {}) =>
 // 获取模板信息
 export const getTemplateInfo = (data = {}) =>
   request.post<TemplateInfo, ResponseData<TemplateInfo>>('/api/app/insure/insurance/getTemplateInfo', data);
+
+// 签名认证
+export const validateSign = (data = {}) =>
+  request.post<any, ResponseData>('/api/app/insure/insurance/validateSign', data);
