@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 10:50:19
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-20 21:41:31
+ * @LastEditTime: 2022-07-28 18:34:26
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/trial/components/RiskList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -162,9 +162,9 @@ watch(
         mainRiskId: state.mainRiskData?.id,
         riskCategory: risk.riskCategory,
         liabilityVOList: (risk.riskLiabilityInfoVOList || []).map((liab) => ({
+          ...liab,
           liabilityAttributeCode: liab.liabilityAttributeType,
           liabilityCode: liab.liabilityCode,
-          liabilityId: liab.id,
           liabilityRateType: liab.liabilityRateType,
         })),
       };

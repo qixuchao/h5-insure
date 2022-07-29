@@ -23,7 +23,7 @@
         <div class="operate-btn">
           <van-button plain round type="primary" class="del-btn" @click="delRisk(i.id)">删除</van-button>
           <van-button plain round type="primary" @click="editProposal(i.id)">编辑</van-button>
-          <van-button plain round type="primary">预览</van-button>
+          <van-button plain round type="primary" @click="previewProposal(i.id)">预览</van-button>
         </div>
       </div>
     </div>
@@ -107,7 +107,16 @@ const delRisk = (id: number) => {
     .catch(() => {});
 };
 
-const editProposal = (id) => {
+const previewProposal = (id: number) => {
+  router.push({
+    path: 'compositionProposal',
+    query: {
+      id,
+    },
+  });
+};
+
+const editProposal = (id: number) => {
   router.push({
     path: '/proposal/createProposal',
     query: {

@@ -445,9 +445,9 @@ onBeforeMount(() => {
     mainRiskId: props?.mainRiskData?.id,
     riskCategory: props.originData.riskCategory,
     liabilityVOList: (props.originData.riskLiabilityInfoVOList || []).map((liab) => ({
+      ...liab,
       liabilityAttributeCode: liab.liabilityAttributeType,
       liabilityCode: liab.liabilityCode,
-      liabilityId: liab.id,
       liabilityRateType: liab.liabilityRateType,
     })),
   };

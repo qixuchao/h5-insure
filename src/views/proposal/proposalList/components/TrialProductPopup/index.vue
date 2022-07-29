@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-20 18:07:20
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-24 23:31:55
+ * @LastEditTime: 2022-07-29 09:21:48
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/proposalList/components/TrialProductPopup/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -11,7 +11,7 @@
     <VanPopup v-model:show="state.isShow" position="bottom" @close="close">
       <div class="container">
         <div class="popup-header">
-          <span class="clear-all"> 清空选项 </span>
+          <span class="clear-all" @click="clearAll"> 清空选项 </span>
           <span class="title"> 已选产品 </span>
           <span @click="close">X</span>
         </div>
@@ -69,7 +69,7 @@ const props = withDefaults(defineProps<Props>(), {
   modalValue: () => [],
 });
 
-const emits = defineEmits(['close']);
+const emits = defineEmits(['close', 'update:modalValue', 'checked']);
 const checkboxRefs = ref<any[]>([]);
 const checked = ref<any[]>([]);
 
@@ -81,8 +81,14 @@ const close = () => {
   emits('close');
 };
 
+const clearAll = () => {
+  checked.value = [];
+  emits('checked', []);
+};
+
 const toggle = (index: number) => {
   checkboxRefs?.value?.[index]?.toggle?.();
+  emits('checked', checked.value);
 };
 
 watch(

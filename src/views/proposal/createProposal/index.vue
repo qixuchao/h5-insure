@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:14:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-28 10:30:31
+ * @LastEditTime: 2022-07-29 11:28:35
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -33,6 +33,7 @@
             v-model="proposalInfo.proposalInsuredList[0].birthday"
             name="birthday"
             label="出生日期"
+            formate="YYYY-MM-DD"
             is-link
             readonly
             placeholder="请选择"
@@ -62,7 +63,9 @@
           :enum-list="state.enumList"
           :product-risk-list="product.proposalProductRiskList"
           :product-info="product"
+          :product-num="proposalInfo.proposalInsuredList[0]?.proposalInsuredProductList?.length - 1"
           :product-data="state.productCollection[product.productId]"
+          :pick-product-premium="pickProductPremium"
           @add-risk="addRisk"
           @update-risk="updateRisk"
           @delete-risk="deleteRisk"
@@ -99,6 +102,8 @@
       type="edit"
       :product-data="state.productCollection[state.productId]"
       :form-info="state.productInfo"
+      :holder="proposalInfo.proposalHolder"
+      :insured="proposalInfo.proposalInsuredList[0]"
       @close="closeProductRisk"
       @finished="onFinished"
     ></ProductRisk>
@@ -131,6 +136,7 @@ interface State {
   productId: number;
   productCollection: ProductData;
   productInfo: ProposalInsuredProductItem;
+  productPremium: any;
 }
 
 const [showDatePick, toggleDatePickVisible] = useToggle(false);
@@ -162,6 +168,7 @@ const state = ref<State>({
   productId: 0,
   productCollection: {},
   productInfo: {} as ProposalInsuredProductItem,
+  productPremium: {},
 });
 
 const formRef = ref();
@@ -197,6 +204,13 @@ const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
 // 添加附加险
 const addRisk = (riskInfo: ProposalProductRiskItem) => {};
 
+const pickProductPremium = (premiumData = {}) => {
+  Object.assign(state.value.productPremium, premiumData);
+  proposalInfo.value.totalPremium = Object.values(state.value.productPremium).reduce((pre: any, next: any) => {
+    return pre + next;
+  }, 0);
+};
+
 const queryProposalInfo = () => {
   queryProposalDetail({ id }).then(({ code, data }) => {
     if (code === '10000') {
@@ -206,15 +220,17 @@ const queryProposalInfo = () => {
 };
 
 const saveProposalData = () => {
-  addOrUpdateProposal(proposalInfo.value).then(({ code, data }) => {
-    if (code === '10000') {
-      router.push({
-        path: '/compositionProposal',
-        query: {
-          id: data,
-        },
-      });
-    }
+  formRef.value.validate().then(() => {
+    addOrUpdateProposal(proposalInfo.value).then(({ code, data }) => {
+      if (code === '10000') {
+        router.push({
+          path: '/compositionProposal',
+          query: {
+            id: data,
+          },
+        });
+      }
+    });
   });
 };
 
@@ -233,22 +249,22 @@ const queryDictList = () => {
 
 // 添加或修改险种信息成功的回调
 const onFinished = (productInfo: ProposalInfo) => {
-  proposalInfo.value.proposalInsuredList[0] = proposalInfo.value.proposalInsuredList[0].map(
-    (productList: ProposalInsuredProductItem[]) => {
-      let currentProductList = productList;
-      if (productList[0].productId === productInfo.proposalInsuredList[0].proposalInsuredProductList[0].productId) {
-        currentProductList = productInfo.proposalInsuredList[0].proposalInsuredProductList;
+  proposalInfo.value.proposalInsuredList[0].proposalInsuredProductList =
+    proposalInfo.value.proposalInsuredList[0].proposalInsuredProductList.map((product: ProposalInsuredProductItem) => {
+      let currentProduct = product;
+      if (product.productId === productInfo.proposalInsuredList[0].proposalInsuredProductList[0].productId) {
+        currentProduct = { ...productInfo.proposalInsuredList[0].proposalInsuredProductList[0] };
       }
-      return currentProductList;
-    },
-  );
+      return currentProduct;
+    });
+  toggleProductRisk(false);
 };
 
-const queryProductInfo = () => {
-  insureProductDetail({ productId: 118, source: 2 })
+const queryProductInfo = (searchData: any) => {
+  queryProductDetailList(searchData)
     .then(({ code, data }) => {
       if (code === '10000') {
-        state.value.productCollection[data.productBasicInfoVO.id] = data;
+        state.value.productCollection = data;
       }
     })
     .finally(() => {});
@@ -270,14 +286,34 @@ const closeProductRisk = () => {
 
 onBeforeMount(() => {
   const currentProposalInfo = store.$state.trialData;
+  const preProposalInfo: any = store.$state.proposalInfo;
   if (id) {
     queryProposalInfo();
-  } else if (currentProposalInfo.length) {
+  } else if (!Object.keys(preProposalInfo).length && currentProposalInfo.length) {
     Object.assign(proposalInfo.value, currentProposalInfo[0]);
+  } else if (Object.keys(preProposalInfo).length && currentProposalInfo.length) {
+    preProposalInfo.proposalInsuredList[0].proposalInsuredProductList.push(
+      ...currentProposalInfo[0].proposalInsuredList[0].proposalInsuredProductList,
+    );
+    proposalInfo.value = preProposalInfo;
   }
-  queryProductInfo();
   queryDictList();
 });
+
+watch(
+  () => proposalInfo.value.proposalInsuredList[0].proposalInsuredProductList?.length,
+  () => {
+    const productList = proposalInfo.value.proposalInsuredList[0].proposalInsuredProductList.map(
+      (productItem: ProposalInsuredProductItem) => {
+        return {
+          productId: productItem.productId,
+          source: 2,
+        };
+      },
+    );
+    queryProductInfo({ voList: productList });
+  },
+);
 </script>
 
 <style lang="scss" scoped>

@@ -2,13 +2,13 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-27 22:28:00
+ * @LastEditTime: 2022-07-28 12:41:09
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <ProPageWrap class="page-info-wrapper">
-    <ProForm ref="formRef">
+    <ProForm v-if="!state.isLoading" ref="formRef">
       <ProCard title="投保人">
         <PersonalInfo :form-info="formInfo.tenantOrderHolder" :factor-list="pageFactor.HOLDER"></PersonalInfo>
       </ProCard>
@@ -119,6 +119,7 @@ interface State {
   addressList: ContactInfo[];
   nextPage: '';
   currentAddress: any;
+  isLoading: boolean;
 }
 
 type BeneficiaryItem = TenantOrderBeneficiaryItem & { beneficiaryId?: number };
@@ -167,6 +168,7 @@ const state = reactive<State>({
   addressList: [],
   nextPage: '',
   currentAddress: null,
+  isLoading: true,
 });
 
 const goNextPage = () => {
@@ -211,21 +213,26 @@ const removeBeneficiary = (beneficiaryItem: BeneficiaryItem) => {
 };
 
 const queryOrderDetail = () => {
-  queryDetail({ orderNo, tenantId }).then(({ code, data }) => {
-    if (code === '10000') {
-      const currentData = data;
-      currentData.extInfo = { ...currentData.extInfo, pageCode, templateId };
-      currentData.tenantOrderHolder.extInfo = currentData.tenantOrderHolder.extInfo || {};
-      currentData.tenantOrderInsuredList[0].extInfo = currentData.tenantOrderInsuredList[0].extInfo || {};
-      currentData.tenantOrderInsuredList[0].tenantOrderBeneficiaryList =
-        currentData.tenantOrderInsuredList[0].tenantOrderBeneficiaryList.map((list: any) => {
-          const currentList = list;
-          currentList.extInfo = {};
-          return currentList;
-        });
-      Object.assign(formInfo.value, data);
-    }
-  });
+  queryDetail({ orderNo, tenantId })
+    .then(({ code, data }) => {
+      if (code === '10000') {
+        const currentData = data;
+        currentData.extInfo = { ...currentData.extInfo, pageCode, templateId };
+        currentData.tenantOrderHolder = currentData.tenantOrderHolder || {};
+        currentData.tenantOrderHolder.extInfo = currentData.tenantOrderHolder.extInfo || {};
+        currentData.tenantOrderInsuredList[0].extInfo = currentData.tenantOrderInsuredList[0].extInfo || {};
+        currentData.tenantOrderInsuredList[0].tenantOrderBeneficiaryList =
+          currentData.tenantOrderInsuredList[0].tenantOrderBeneficiaryList.map((list: any) => {
+            const currentList = list;
+            currentList.extInfo = {};
+            return currentList;
+          });
+        Object.assign(formInfo.value, currentData);
+      }
+    })
+    .finally(() => {
+      state.isLoading = false;
+    });
 };
 
 onBeforeMount(() => {
