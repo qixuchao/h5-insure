@@ -10,6 +10,7 @@
       <van-cell
         v-for="i of isHolderQuestions(1)"
         :key="i.id"
+        :class="{ 'is-active': i.isDone === 2 }"
         :title="`《${i.questionnaireName}》`"
         is-link
         :value="`${i.isDone === 1 ? '已完成' : '去完成'}`"
@@ -20,6 +21,7 @@
       <van-cell
         v-for="i of isHolderQuestions(2)"
         :key="i.id"
+        :class="{ 'is-active': i.isDone === 2 }"
         :title="`《${i.questionnaireName}》`"
         is-link
         :value="`${i.isDone === 1 ? '已完成' : '去完成'}`"
@@ -53,25 +55,37 @@ import wx from 'weixin-js-sdk';
 import { useRouter, useRoute } from 'vue-router';
 import { Toast } from 'vant';
 import { listCustomerQuestions } from '@/api/modules/inform';
+import { NOTICE_OBJECT_TYPE } from '@/common/constants/notice';
 import {
   ListCustomerQuestionsResponse,
   ListCustomerQuestionsProps,
   tenantOrderNoticeProps,
 } from '@/api/modules/inform.data';
+import { nextStep, getOrderDetail } from '@/api';
+import { NextStepRequestData } from '@/api/index.data';
+import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 import { sessionStore } from '@/hooks/useStorage';
 
 const router = useRouter();
 const route = useRoute();
 
+const {
+  orderNo = '2022021815432987130620',
+  productCode = 'CQ75CQ76',
+  templateId = 1,
+  tenantId = 9991000007,
+} = route.query;
+
 interface StateProps {
   listQuestions: ListCustomerQuestionsResponse[];
+  pageData: Partial<NextStepRequestData>;
   showShare: boolean;
   tenantOrderNoticeList: Partial<tenantOrderNoticeProps[]>;
 }
 
 const state = reactive<StateProps>({
   listQuestions: [],
-
+  pageData: {},
   showShare: false,
   tenantOrderNoticeList: [],
 });
@@ -93,11 +107,22 @@ const handleShare = (type: string) => {
   };
 
   wx.ready(() => {
-    console.log('ready');
     if (type === '1') {
       wx.onMenuShareAppMessage(shareProps);
     } else {
       wx.onMenuShareTimeline(shareProps);
+    }
+  });
+};
+
+const orderDetail = () => {
+  getOrderDetail({
+    orderNo: '2022021815432987130620',
+    saleUserId: 'D1234567-1',
+    tenantId: '9991000007',
+  }).then(({ code, data }) => {
+    if (code === '10000') {
+      Object.assign(state.pageData, data);
     }
   });
 };
@@ -107,8 +132,8 @@ const getQuestionList = () => {
     insurerCode: 'andainsurer',
     // 告知类型：1-投保告知，2-健康告知，3-特别约定，4-投保人问卷，5-被保人问卷，6-投保人声明，7-被保人声明，8-免责条款，9-营销员告知
     // objectId: '1',
-    objectType: 1, // 适用角色 ：1-投保人，2-被保人，3-营销人员(代理人)
-    orderNo: '2022011815151382958351',
+    // objectType: 1, // 适用角色 ：1-投保人，2-被保人，3-营销人员(代理人)
+    orderNo: '2022021815432987130620',
     productCategory: 1,
     tenantId: 9991000007,
   };
@@ -136,11 +161,32 @@ const handleClickNextStep = () => {
   const isAllRead = state.listQuestions.every((i) => i.isDone === 1);
   if (!isAllRead) {
     Toast('请完成所有告知进行下一步');
+    return;
   }
+  router.push({
+    path: '/verify',
+    query: route.query,
+  });
+
+  // Object.assign(state.pageData, { pageCode: 'questionNotice', tenantOrderNoticeList: state.listQuestions });
+
+  //  verify
+
+  // nextStep(state.pageData).then(({ code, data }) => {
+  //   if (code === '10000') {
+  //     if (data.pageAction.pageAction === 'jumpToPage') {
+  //       router.push({
+  //         path: PAGE_ROUTE_ENUMS[data.pageAction.data.nextPageCode],
+  //         query: route.query,
+  //       });
+  //     }
+  //   }
+  // });
 };
 
 onMounted(() => {
   getQuestionList();
+  orderDetail();
 });
 </script>
 
@@ -168,8 +214,12 @@ onMounted(() => {
 
       line-height: 42px;
     }
-    .active {
-      color: #0d6efe;
+  }
+  :deep(.is-active) {
+    .van-cell__value {
+      span {
+        color: #0d6efe;
+      }
     }
   }
 }

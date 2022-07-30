@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:14:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-29 11:28:35
+ * @LastEditTime: 2022-07-30 18:25:51
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -15,7 +15,7 @@
             v-model="proposalInfo.proposalName"
             name="proposalName"
             placeholder="请输入计划书名称"
-            :rules="[{ required: true, message: '请输入计划书名称' }]"
+            :rules="[{ required: true, message: '请输入计划书名称' }, { validator: validateName }]"
           >
             <template #label>
               <span>计划书名称</span>
@@ -36,6 +36,8 @@
             formate="YYYY-MM-DD"
             is-link
             readonly
+            :min-date="proposalInfo.proposalInsuredList[0]?.dateRange?.minAge"
+            :max-date="proposalInfo.proposalInsuredList[0]?.dateRange?.maxAge"
             placeholder="请选择"
             :rules="[{ required: true, message: '请选择' }]"
             @click="toggleDatePickVisible(true)"
@@ -60,13 +62,12 @@
         :key="product.productId"
       >
         <ProductList
-          :enum-list="state.enumList"
           :product-risk-list="product.proposalProductRiskList"
           :product-info="product"
           :product-num="proposalInfo.proposalInsuredList[0]?.proposalInsuredProductList?.length - 1"
           :product-data="state.productCollection[product.productId]"
           :pick-product-premium="pickProductPremium"
-          @add-risk="addRisk"
+          @add-rider-risk="addRisk"
           @update-risk="updateRisk"
           @delete-risk="deleteRisk"
         ></ProductList>
@@ -99,11 +100,13 @@
     <ProductRisk
       v-if="showProductRisk"
       :is-show="showProductRisk"
-      type="edit"
+      :type="state.type"
+      :rider-risk="state.riderRisk?.[state.productId] || []"
       :product-data="state.productCollection[state.productId]"
       :form-info="state.productInfo"
       :holder="proposalInfo.proposalHolder"
       :insured="proposalInfo.proposalInsuredList[0]"
+      :current-risk="state.currentRisk"
       @close="closeProductRisk"
       @finished="onFinished"
     ></ProductRisk>
@@ -132,11 +135,13 @@ import ProductList from './components/ProductList/index.vue';
 import ProductRisk from './components/ProductRisk/index.vue';
 
 interface State {
-  enumList: any;
   productId: number;
   productCollection: ProductData;
   productInfo: ProposalInsuredProductItem;
   productPremium: any;
+  riderRisk: any;
+  type: 'add' | 'edit' | 'addRiderRisk';
+  currentRisk: any[];
 }
 
 const [showDatePick, toggleDatePickVisible] = useToggle(false);
@@ -164,11 +169,13 @@ const store = createProposalStore();
 const { id, type = 'add' } = route.query;
 
 const state = ref<State>({
-  enumList: {},
   productId: 0,
   productCollection: {},
   productInfo: {} as ProposalInsuredProductItem,
   productPremium: {},
+  riderRisk: {},
+  type: 'add',
+  currentRisk: [],
 });
 
 const formRef = ref();
@@ -177,6 +184,15 @@ const formRef = ref();
 const selectedProduct = ref({});
 // 试算之后的产品险种列表
 const trialedProductList = ref<ProposalInsuredProductItem[]>([]);
+
+const validateName = (value: string, rule: any) => {
+  if (/^.{1,20}$/.test(value)) {
+    console.log('value', value, rule);
+
+    return '';
+  }
+  return '计划书名称不能超过20个字符';
+};
 
 const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsuredProductItem) => {
   const currentProduct = productInfo;
@@ -198,11 +214,18 @@ const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
 const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsuredProductItem) => {
   state.value.productId = productInfo.productId;
   state.value.productInfo = productInfo;
+  state.value.type = 'edit';
+  state.value.currentRisk = [riskInfo.riskId];
   toggleProductRisk(true);
 };
 
 // 添加附加险
-const addRisk = (riskInfo: ProposalProductRiskItem) => {};
+const addRisk = (productInfo: ProposalInsuredProductItem) => {
+  state.value.productId = productInfo.productId;
+  state.value.productInfo = productInfo;
+  state.value.type = 'addRiderRisk';
+  toggleProductRisk(true);
+};
 
 const pickProductPremium = (premiumData = {}) => {
   Object.assign(state.value.productPremium, premiumData);
@@ -234,19 +257,6 @@ const saveProposalData = () => {
   });
 };
 
-const queryDictList = () => {
-  const dictCodeList = ['RISK_PAYMENT_PERIOD', 'RISK_INSURANCE_PERIOD'];
-  getDic({ dictCodeList }).then(({ code, data }) => {
-    if (code === '10000') {
-      const enums = {};
-      data.forEach((i: DictData) => {
-        enums[i.dictCode] = i.dictItemList;
-      });
-      state.enumList = enums;
-    }
-  });
-};
-
 // 添加或修改险种信息成功的回调
 const onFinished = (productInfo: ProposalInfo) => {
   proposalInfo.value.proposalInsuredList[0].proposalInsuredProductList =
@@ -272,6 +282,7 @@ const queryProductInfo = (searchData: any) => {
 
 const addMainRisk = () => {
   store.setProposalInfo(proposalInfo.value);
+  store.setExcludeProduct(Object.keys(state.value.productCollection));
   router.push({
     path: '/proposalList',
     query: {
@@ -287,6 +298,7 @@ const closeProductRisk = () => {
 onBeforeMount(() => {
   const currentProposalInfo = store.$state.trialData;
   const preProposalInfo: any = store.$state.proposalInfo;
+  console.log('proposalInfo.proposalInsuredList[0]?.dateRange?.minAge', currentProposalInfo);
   if (id) {
     queryProposalInfo();
   } else if (!Object.keys(preProposalInfo).length && currentProposalInfo.length) {
@@ -297,7 +309,6 @@ onBeforeMount(() => {
     );
     proposalInfo.value = preProposalInfo;
   }
-  queryDictList();
 });
 
 watch(

@@ -85,4 +85,6 @@ export interface SaveMarketerNoticesProps {
   objectId: string;
   objectType: number;
   orderNo: string;
+  tenantId: number | string;
+  orderId: number | string;
 }

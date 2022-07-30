@@ -6,50 +6,53 @@
 -->
 <template>
   <ZaPageWrap class="com-quersion">
-    <ProCard title="投保人健康告知书">
-      <div class="question-item">
-        <div class="problem">1. 下述哪种描述符合您吸烟情况？</div>
-        <van-radio-group v-model="checkedProblem1">
+    <ProCard :title="`${titleMap[questionnaireType as any]}健康告知书`">
+      <div v-for="(i, idx) of props.currentPageInfo" :key="idx" class="question-item">
+        <div class="problem">{{ idx + 1 }}. {{ i.title }}</div>
+        <!-- 单选 -->
+        <van-radio-group v-if="i.questionType === 1" v-model="checkedProblem1">
           <van-cell-group inset>
             <van-cell
-              v-for="i of radioSelectList"
-              :key="i.value"
-              :title="i.title"
+              v-for="child of parseData(i.options)"
+              :key="child.uid"
+              :title="child.title"
               clickable
-              @click="checkedProblem1 = i.value"
+              @click="checkedProblem1 = child.value"
             >
               <template #right-icon>
-                <van-radio :name="i.value" />
+                <van-radio :name="child.value" />
               </template>
             </van-cell>
           </van-cell-group>
         </van-radio-group>
-      </div>
-      <div class="question-item">
-        <div class="problem">2. 下述哪种描述符合您的饮酒情况？</div>
-        <van-checkbox-group v-model="checked">
+        <!-- 多选 -->
+        <van-checkbox-group v-if="i.questionType === 2" v-model="checked">
           <van-cell-group inset>
-            <van-cell v-for="(item, index) in checkList" :key="item" clickable :title="item" @click="toggle(index)">
+            <van-cell
+              v-for="(item, index) in parseData(i.options)"
+              :key="item.uid"
+              clickable
+              :title="item.title"
+              @click="toggle(index)"
+            >
               <template #right-icon>
                 <van-checkbox :ref="(el:any) => (checkboxRefs[index] = el)" shape="square" :name="item" @click.stop />
               </template>
             </van-cell>
           </van-cell-group>
         </van-checkbox-group>
-      </div>
-      <div class="question-item">
-        <div class="problem">3. 您是否目前或过去曾进行过以下检查或治疗</div>
+        <!-- 判断 -->
         <ProRadioButton
+          v-if="i.questionType === 3"
           :model-value="modelValue"
           :options="[
             { label: '是', value: 'Y' },
             { label: '否', value: 'N' },
           ]"
         />
-      </div>
-      <div class="question-item">
-        <div class="problem">4. 您的身高是多少（cm）</div>
-        <van-cell-group inset>
+        <!-- 填空题 -->
+
+        <van-cell-group v-if="i.questionType === 4" inset>
           <van-field v-model="inputValue" placeholder="请输入" />
         </van-cell-group>
       </div>
@@ -61,48 +64,64 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeUpdate } from 'vue';
+import { useRoute } from 'vue-router';
+
+import { ref, onBeforeUpdate, withDefaults } from 'vue';
 import ProCard from '@/components/ProCard/index.vue';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
 
-import { listCustomerQuestions } from '@/api/modules/inform';
-
+const route = useRoute();
 const checkboxRefs = ref<any>([]);
+
+const { questionnaireType } = route.query;
+
+const titleMap = {
+  '1': '投保人',
+  '2': '被保人',
+  '3': '代理人',
+};
 
 const state = reactive({
   checkedProblem1: '',
   checked: [],
   modelValue: '',
-  radioSelectList: [
-    {
-      title: 'a. 平均每日吸烟2包以上',
-      value: '1',
-    },
-    {
-      title: 'b. 平均每日吸烟1包-2包',
-      value: '2',
-    },
-    {
-      title: 'c. 平均每日吸烟1包以内',
-      value: '3',
-    },
-    {
-      title: 'd. 从不吸烟',
-      value: '4',
-    },
-  ],
-  checkList: [
-    'a. 我是答案a我是答案a我是答案a我是',
-    'b. 我是答案b我是答案b我是答案b',
-    'c. 我是答案b我是答案b我是答案badf',
-    'd. 我是答案d我是答案d我是答案d',
-  ],
+
   inputValue: '',
 });
-const { checkedProblem1, checked, checkList, modelValue, inputValue, radioSelectList } = toRefs(state);
+const { checkedProblem1, checked, modelValue, inputValue } = toRefs(state);
 
 const toggle = (index: string | number) => {
   checkboxRefs.value[index].toggle();
+};
+
+interface ItemProps {
+  content: object;
+  options: string;
+  position: number;
+  questionType: number;
+  questionnaireId: number;
+  textType: object;
+  title: string;
+}
+
+interface Props {
+  currentPageInfo: ItemProps[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  currentPageInfo: () => [],
+});
+
+const parseData = (val: string) => {
+  if (val) {
+    return JSON.parse(val).map((i: any) => {
+      return {
+        title: i.value,
+        value: i.uid,
+      };
+    });
+  }
+  return {};
 };
 
 const checkHeight = (height: any) => {
@@ -113,17 +132,6 @@ const checkHeight = (height: any) => {
 
 onBeforeUpdate(() => {
   checkboxRefs.value = [];
-});
-
-onMounted(() => {
-  listCustomerQuestions({
-    insurerCode: 'aiheyichina',
-    noticeType: 1,
-    objectId: '1',
-    objectType: 1,
-    orderNo: '2022011815151382958351',
-    productCategory: 2,
-  }).then((res) => {});
 });
 </script>
 
