@@ -21,18 +21,22 @@ const DIC_CODE: string[] = [
   'HAS_SOCIAL_INSURANCE',
   'WORK_STATUS',
 ];
-const useDicData = async (dicCode: string): Promise<Ref<DictItemItem[]>> => {
+const useDicData = (dicCode: string): Ref<DictItemItem[]> => {
   const dicList = ref<DictItemItem[]>(DIC_DATA[dicCode] || []);
 
-  if (dicList.value.length === 0) DIC_CODE.push(dicCode);
-  const { code, data } = await getDic({ dictCodeList: [...new Set(DIC_CODE)] });
-  if (code === '10000') {
-    data.forEach((dict) => {
-      if (dict.dictCode === dicCode) {
-        dicList.value = dict.dictItemList;
-      }
+  if (dicList.value.length === 0) {
+    DIC_CODE.push(dicCode);
+    getDic({ dictCodeList: [...new Set(DIC_CODE)] }).then((res) => {
+      const { code, data } = res;
+      if (code === '10000') {
+        data.forEach((dict) => {
+          if (dict.dictCode === dicCode) {
+            dicList.value = dict.dictItemList;
+          }
 
-      DIC_DATA[dict.dictCode] = dict.dictItemList;
+          DIC_DATA[dict.dictCode] = dict.dictItemList;
+        });
+      }
     });
   }
   return dicList;

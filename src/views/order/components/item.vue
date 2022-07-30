@@ -1,13 +1,17 @@
 <template>
   <div class="com-order-item">
     <div class="header">
-      <div class="product-name">横琴臻爱医疗险（感恩版）横琴臻爱医疗险（感恩版）</div>
-      <div class="company-name">横琴人寿横琴人寿</div>
+      <div class="product-name">{{ detail.goodsName }}</div>
+      <div class="company-name">{{ detail.companyName }}</div>
       <div class="status">保单生成中</div>
     </div>
-    <div class="holder">投保人： 王小明 2022-01-01 12:30:30</div>
+    <div class="holder">
+      投保人： {{ detail.policyHolder }} {{ dayjs(detail.orderStartDate).format('YYYY-MM-DD HH:mm:ss') }}
+    </div>
     <div class="footer">
-      <div class="fee">保费：<span class="money">￥</span></div>
+      <div class="fee">
+        保费：<span class="money">￥{{ detail.prem }}</span>
+      </div>
       <div class="buttons">
         <div class="button">删除</div>
         <div class="button">去处理</div>
@@ -16,7 +20,18 @@
   </div>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { defineProps } from 'vue';
+import dayjs from 'dayjs';
+import { OrderItem } from '@/api/modules/order.data';
+
+const props = defineProps({
+  detail: {
+    type: Object as () => OrderItem,
+    default: () => {},
+  },
+});
+</script>
 
 <style lang="scss" scoped>
 .com-order-item {
