@@ -3,50 +3,68 @@
     <div class="page-order">
       <ProTab v-model:active="active" :list="tabList" small-gap class="tab" />
       <div class="body">
-        <Item v-for="(item, index) in list" :key="index" />
+        <Item v-for="(item, index) in list" :key="index" :detail="item" @click="handleClick(item)" />
       </div>
     </div>
   </ProPageWrap>
 </template>
 
 <script lang="ts" setup>
+import { useRouter } from 'vue-router';
 import ProTab from '@/components/ProTab/index.vue';
 import Item from './components/item.vue';
 import { getOrderList } from '@/api/modules/order';
+import { OrderItem } from '@/api/modules/order.data';
 
+const router = useRouter();
 const active = ref(0);
-
+const list = ref<Array<OrderItem>>([]);
 const tabList = [
   {
     title: '全部',
-    code: '',
+    status: '',
   },
   {
     title: '待处理',
-    code: '-1',
+    status: '-1',
   },
   {
     title: '待支付',
-    code: '0',
+    status: '0',
   },
   {
     title: '已完成',
-    code: '1',
+    status: '1',
   },
   {
     title: '已失效',
-    code: '2',
+    status: '2',
   },
 ];
 
-const list = [{}, {}, {}, {}, {}, {}, {}, {}, {}];
+const currentStatus = computed(() => {
+  return tabList[active.value].status;
+});
 
-watch(active, (val) => {
-  console.log(val);
+const handleClick = (item: OrderItem) => {
+  router.push(`/order/detail?id=${item.id}`);
+};
+
+const getData = () => {
+  getOrderList({ condition: { orderTopStatus: currentStatus.value } }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      list.value = data.datas;
+    }
+  });
+};
+
+watch(currentStatus, () => {
+  getData();
 });
 
 onMounted(() => {
-  getOrderList();
+  getData();
 });
 </script>
 

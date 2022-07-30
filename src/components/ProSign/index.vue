@@ -78,7 +78,7 @@ const clearSign = () => {
   empty.value = true;
 };
 
-const setDataURL = (data: string, option: any) => {
+const setDataURL = (data: string, option: any = { ratio: 1 }) => {
   clearSign();
   signatureIns.value?.fromDataURL(data, option);
   empty.value = false;
