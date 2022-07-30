@@ -30,6 +30,7 @@
 <script setup lang="ts">
 import ProCard from '@/components/ProCard/index.vue';
 import { getMarketerNotices, getMarketerNoticesDetail } from '@/api/modules/salesmanInform';
+import { listCustomerQuestions } from '@/api/modules/inform';
 
 import { NOTICE_OBJECT } from '@/common/constants/notice';
 
@@ -52,18 +53,20 @@ const state = reactive<Partial<StateProps>>({
 });
 
 onMounted(() => {
-  getMarketerNotices({
-    insureCode: '123',
-    noticeType: '1',
+  listCustomerQuestions({
+    insurerCode: 'andainsurer',
+    noticeType: 9,
+    // 告知类型：1-投保告知，2-健康告知，3-特别约定，4-投保人问卷，5-被保人问卷，6-投保人声明，7-被保人声明，8-免责条款，9-营销员告知
     objectId: '1',
-    objectType: '2',
+    objectType: 3, // 适用角色 ：1-投保人，2-被保人，3-营销人员(代理人)
     orderNo: '2022011815151382958351',
+    productCategory: 1,
     tenantId: 9991000007,
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
-      state.noticeType = data.noticeObject;
-      state.materialSource = data.materialSource;
+      // state.noticeType = data.noticeObject;
+      // state.materialSource = data.materialSource;
     }
   });
   // getMarketerNoticesDetail({

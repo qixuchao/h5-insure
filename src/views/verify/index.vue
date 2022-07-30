@@ -113,7 +113,7 @@ const handleSubmit = () => {
 
 onMounted(() => {
   getOrderDetail({
-    orderNo: '2022072710380711215',
+    orderNo: '2022021815432987130620',
     saleUserId: 'D1234567-1',
     tenantId: '9991000007',
   }).then((res) => {

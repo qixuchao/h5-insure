@@ -25,10 +25,6 @@ import 'pdfjs-dist/web/pdf_viewer.css';
 PDFJS.GlobalWorkerOptions.workerSrc = workerSrc;
 
 const props = defineProps({
-  title: {
-    type: String,
-    default: '',
-  },
   url: {
     type: String,
     default: '',

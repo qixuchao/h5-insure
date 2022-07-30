@@ -7,7 +7,7 @@
 
 <template>
   <div class="com-health-notice">
-    <Question v-if="isQuestion" />
+    <Question v-if="isQuestion" :current-page-info="state.currentQuestionInfo" />
     <!-- <Document /> -->
     <!-- <InsuranceNotice /> -->
     <Enclosure
@@ -40,6 +40,7 @@ const {
   orderNo = '2022021815432987130620',
   productCode = 'CQ75CQ76',
   templateId = 1,
+  orderId = 13005,
   tenantId = 9991000007,
 } = route.query;
 
@@ -54,7 +55,7 @@ const state = reactive<StateProps>({
 });
 
 const isQuestion = computed(() => {
-  return questionnaireType === '2' && [2].includes(state.currentQuestionInfo[0]?.textType as any);
+  return questionnaireType === '2';
 });
 
 const isPDFOrPic = computed(() => {
@@ -62,9 +63,6 @@ const isPDFOrPic = computed(() => {
 });
 
 const onSubmitCurrentStatus = (status: number) => {
-  console.log(status);
-  console.log(currentQuestion);
-
   const { id, objectType } = currentQuestion;
 
   saveMarketerNotices({
@@ -74,9 +72,16 @@ const onSubmitCurrentStatus = (status: number) => {
     noticeType: 4,
     objectId: id as any,
     objectType,
+    orderId,
     orderNo: orderNo as any,
+    tenantId: 9991000007,
   }).then(({ code, data }) => {
     console.log(code);
+    if (code === '10000') {
+      router.push({
+        path: '/questionNotification',
+      });
+    }
   });
   // updateOrderNoticeStatus({
   //   isDone: status,
