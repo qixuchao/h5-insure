@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 10:50:19
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-28 18:34:26
+ * @LastEditTime: 2022-07-30 08:53:41
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/trial/components/RiskList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -59,6 +59,7 @@ interface Props {
   originData: RiskDetailVoItem[];
   pickFactor: (factorObj: any) => void;
   enums: any;
+  riderRiskList?: RiskVoItem[];
 }
 
 interface PageState {
@@ -77,6 +78,7 @@ const props = withDefaults(defineProps<Props>(), {
   originData: () => [],
   pickFactor: () => {},
   enums: () => {},
+  riderRiskList: () => [],
 });
 
 const source = inject('source') || '';
@@ -117,8 +119,6 @@ const removeRiderRisk = (riskId: number) => {
         }
       });
 
-      debugger;
-
       state.checkedList = state.checkedList.filter((id) => !removeRiskIds.includes(id));
       state.requiredRiderRiskData = state.requiredRiderRiskData.filter((risk) => !removeRiskIds.includes(risk.id));
       state.disabledList = state.disabledList.filter((id) => !removeRiskIds.includes(id));
@@ -128,7 +128,7 @@ const removeRiderRisk = (riskId: number) => {
 };
 
 onBeforeMount(() => {
-  state.requiredRiderRiskData;
+  // state.requiredRiderRiskData.push;
 });
 
 // 计算出主险和附加险的投保人和被保人的因子

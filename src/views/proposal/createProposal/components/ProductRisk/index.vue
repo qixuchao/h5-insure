@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-16 13:39:05
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-29 11:34:10
+ * @LastEditTime: 2022-07-30 09:18:32
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductRisk/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -43,6 +43,7 @@
                   :enums="state.enumList"
                   :origin-data="state.riskData"
                   :pick-factor="pickFactor"
+                  :rider-risk-list="riderRisk"
                 />
               </VanForm>
             </div>
@@ -108,6 +109,7 @@ interface Props {
   productData?: any;
   holder: any;
   insured: any;
+  riderRisk?: RiskDetailVoItem[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -116,9 +118,10 @@ const props = withDefaults(defineProps<Props>(), {
   productId: 0,
   formInfo: {},
   riskType: 1,
-  productData: {},
-  holder: {},
-  insured: {},
+  productData: () => ({}),
+  holder: () => ({}),
+  insured: () => ({}),
+  riderRisk: () => [],
 });
 
 const emits = defineEmits(['close', 'finished']);
@@ -185,7 +188,6 @@ const formatData = (trialData: premiumCalcData, riskPremium: any) => {
       };
     },
   );
-  debugger;
   const proposalData = {
     proposalHolder: trialData.holder?.personVO || {},
     proposalInsuredList: [
@@ -231,6 +233,7 @@ const dealTrialData = () => {
         }
         return currentLiab;
       });
+
     return risk;
   });
   // 去除附加险下不投保的责任
@@ -409,7 +412,7 @@ watch(
   () => props.productData,
   (newVal) => {
     if (props.type === 'edit') {
-      console.log('newVal', newVal);
+      const currentVal = newVal;
       state.riskBaseInfo = newVal.productBasicInfoVO;
       state.riskData = newVal.riskDetailVOList;
     }
