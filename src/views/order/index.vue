@@ -1,7 +1,7 @@
 <template>
   <ProPageWrap>
     <div class="page-order">
-      <ProTab v-model:active="active" :list="tabList" small-gap class="tab"></ProTab>
+      <ProTab v-model:active="active" :list="tabList" small-gap class="tab" />
       <div class="body">
         <Item v-for="(item, index) in list" :key="index" />
       </div>
@@ -19,18 +19,23 @@ const active = ref(0);
 const tabList = [
   {
     title: '全部',
+    code: '',
   },
   {
     title: '待处理',
+    code: '-1',
   },
   {
     title: '待支付',
+    code: '0',
   },
   {
     title: '已完成',
+    code: '1',
   },
   {
     title: '已失效',
+    code: '2',
   },
 ];
 

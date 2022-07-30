@@ -1,7 +1,13 @@
 import request from '@/api/request';
+import { INotice } from './verify.data';
 
-export const faceVerify = (data: { callbackUrl: string; certiNo: string; faceAuthMode: string; userName: string }) => {
+export const faceVerify = (data: any) => {
   return request.post<
+    {
+      expire: number;
+      originalUrl: string;
+      serialNo: string;
+    },
     ResponseData<{
       expire: number;
       originalUrl: string;
@@ -11,23 +17,29 @@ export const faceVerify = (data: { callbackUrl: string; certiNo: string; faceAut
 };
 
 export const faceVerifySave = (data: any) => {
-  return request.post<ResponseData<{ status: string; statusDesc: string }>>(
+  return request.post<{ status: string; statusDesc: string }, ResponseData<{ status: string; statusDesc: string }>>(
     '/api/app/insure/insurance/saveCustomerFaceResult',
     data,
   );
 };
 
-export const saveSign = (type: 'HOLDER' | 'INSURED', fileBase64: string) => {
+export const saveSign = (
+  type: 'HOLDER' | 'INSURED',
+  fileBase64: string,
+  orderId: string | number,
+  tenantId: string | number,
+) => {
   const data = {
-    bizObjectId: 'string',
     bizObjectType: type,
     docCategory: 'ELECTRIC_SIGN',
-    docDesc: '',
-    docName: '',
-    docSize: 0,
-    docType: '',
+    docType: 'png',
     fileBase64,
-    orderId: 0,
+    orderId,
+    tenantId,
   };
   return request.post<ResponseData<boolean>>('/api/app/insure/insurance/saveCustomerSignResult', data);
+};
+
+export const getFile = (data: any) => {
+  return request.post<INotice, ResponseData<Array<INotice>>>('/api/app/insure/insurance/listProductManuscripts', data);
 };

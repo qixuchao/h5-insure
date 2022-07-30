@@ -216,4 +216,12 @@ export interface ProductDetail {
    * 商品中心产品详情
    */
   tenantProductInsureVO: TenantProductInsureVO;
+  /**
+   * 类别
+   */
+  categoryNo: number;
+  /**
+   * 保司code
+   */
+  insurerCode: string;
 }
