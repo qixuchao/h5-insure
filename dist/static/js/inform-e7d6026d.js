@@ -1,1 +1,0 @@
-import{b as s}from"./index-21ff2934.js";const e="/api/app/insure/insurance",a=t=>s.post(`${e}/listCustomerQuestions`,t),i=t=>s.post(`${e}/getCustomerQuestionsDetail`,t),u=t=>s.post(`${e}/updateOrderNoticeStatus`,t);export{i as g,a as l,u};
