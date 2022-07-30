@@ -1,5 +1,5 @@
 import request from '@/api/request';
-import { ProductDetail } from './productd.data';
+import { ProductDetail } from './product.data';
 import { TemplatePageItem } from '../index.data';
 
 export const productDetail = (data: any) => {

@@ -16,7 +16,7 @@
         @click="handleClickInformDetails(i)"
       />
     </ProCard>
-    <ProCard title="被保人">
+    <ProCard v-if="isHolderQuestions(2).length > 0" title="被保人">
       <van-cell
         v-for="i of isHolderQuestions(2)"
         :key="i.id"
@@ -53,32 +53,25 @@ import wx from 'weixin-js-sdk';
 import { useRouter, useRoute } from 'vue-router';
 import { Toast } from 'vant';
 import { listCustomerQuestions } from '@/api/modules/inform';
-import { NOTICE_OBJECT_TYPE } from '@/common/constants/notice';
-import { ListCustomerQuestionsResponse, tenantOrderNoticeProps } from '@/api/modules/inform.data';
-import { nextStep, getOrderDetail } from '@/api';
-import { NextStepRequestData } from '@/api/index.data';
-import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import {
+  ListCustomerQuestionsResponse,
+  ListCustomerQuestionsProps,
+  tenantOrderNoticeProps,
+} from '@/api/modules/inform.data';
+import { sessionStore } from '@/hooks/useStorage';
 
 const router = useRouter();
 const route = useRoute();
 
-const {
-  orderNo = '2022021815432987130620',
-  productCode = 'CQ75CQ76',
-  templateId = 1,
-  tenantId = 9991000007,
-} = route.query;
-
 interface StateProps {
   listQuestions: ListCustomerQuestionsResponse[];
-  pageData: Partial<NextStepRequestData>;
   showShare: boolean;
   tenantOrderNoticeList: Partial<tenantOrderNoticeProps[]>;
 }
 
 const state = reactive<StateProps>({
   listQuestions: [],
-  pageData: {},
+
   showShare: false,
   tenantOrderNoticeList: [],
 });
@@ -109,35 +102,28 @@ const handleShare = (type: string) => {
   });
 };
 
-const orderDetail = () => {
-  getOrderDetail({
-    orderNo: '2022072710380711215',
-    saleUserId: 'D1234567-1',
-    tenantId: '9991000007',
-  }).then(({ code, data }) => {
-    if (code === '10000') {
-      Object.assign(state.pageData, data);
-    }
-  });
-};
-
 const getQuestionList = () => {
-  listCustomerQuestions({
-    insurerCode: 'anshengtianping',
-    noticeType: 1,
+  const data: Partial<ListCustomerQuestionsProps> = {
+    insurerCode: 'andainsurer',
+    // 告知类型：1-投保告知，2-健康告知，3-特别约定，4-投保人问卷，5-被保人问卷，6-投保人声明，7-被保人声明，8-免责条款，9-营销员告知
     // objectId: '1',
-    objectType: 2,
+    objectType: 1, // 适用角色 ：1-投保人，2-被保人，3-营销人员(代理人)
     orderNo: '2022011815151382958351',
-    productCategory: 2,
+    productCategory: 1,
     tenantId: 9991000007,
-  }).then(({ code, data }) => {
-    if (code === '10000') {
-      state.listQuestions = data;
+  };
+  Promise.all([
+    listCustomerQuestions({ ...data, noticeType: 4, objectType: 1 }),
+    listCustomerQuestions({ ...data, noticeType: 5, objectType: 2 }),
+  ]).then(([{ code: code1, data: data1 }, { code: code2, data: data2 }]) => {
+    if (code1 === '10000' && code2 === '10000') {
+      state.listQuestions = [...data1, ...data2];
     }
   });
 };
 
 const handleClickInformDetails = (rows: ListCustomerQuestionsResponse) => {
+  sessionStore.set('questionData', rows);
   router.push({
     path: '/healthNotice',
     query: {
@@ -150,39 +136,11 @@ const handleClickNextStep = () => {
   const isAllRead = state.listQuestions.every((i) => i.isDone === 1);
   if (!isAllRead) {
     Toast('请完成所有告知进行下一步');
-    return;
   }
-  const tenantOrderNoticeList = {};
-
-  state.tenantOrderNoticeList = state.listQuestions.map((i) => {
-    return {
-      content: '',
-      contentType: i.questionnaireType,
-      id: i.id,
-      isDone: 1,
-      name: i.title,
-      objectId: i.id,
-      objectType: i.objectType,
-      type: i.questionnaireType,
-    };
-  });
-
-  Object.assign(state.pageData, { pageCode: 'questionNotice' }, { tenantOrderNoticeList: state.tenantOrderNoticeList });
-  nextStep(state.pageData).then(({ code, data }) => {
-    if (code === '10000') {
-      if (data.pageAction.pageAction === 'jumpToPage') {
-        router.push({
-          path: PAGE_ROUTE_ENUMS[data.pageAction.data.nextPageCode],
-          query: route.query,
-        });
-      }
-    }
-  });
 };
 
 onMounted(() => {
   getQuestionList();
-  orderDetail();
 });
 </script>
 

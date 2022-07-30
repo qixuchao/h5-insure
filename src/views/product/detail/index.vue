@@ -116,7 +116,9 @@
         </template>
       </ProTab>
       <div class="footer">
-        <div class="price">￥{{ transformToMoney(detail?.showConfigVO.price) }}</div>
+        <div class="price">
+          <!-- ￥{{ transformToMoney(detail?.showConfigVO.price) }} -->
+        </div>
         <div class="buttons">
           <!-- <div class="left">计划书</div> -->
           <van-button class="right">算保费</van-button>
@@ -124,8 +126,18 @@
       </div>
     </div>
   </ProPageWrap>
-  <ProPopup v-model:show="popupShow" title="保障详情">
-    <div class="guarantee-list">
+  <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
+    <ProTab
+      v-if="(detail?.tenantProductInsureVO?.guaranteeList || []).length > 1"
+      :list="
+        (detail?.tenantProductInsureVO?.guaranteeList || []).map((item, index) => ({
+          title: item.guaranteeType,
+          slotName: `guarantee-${index}`,
+        }))
+      "
+      class="tab"
+    ></ProTab>
+    <div v-if="(detail?.tenantProductInsureVO?.guaranteeList || []).length < 2" class="guarantee-list">
       <div
         v-for="(item, index) in detail?.tenantProductInsureVO?.guaranteeList[activePlan].titleAndDescVOS"
         :key="index"
@@ -148,9 +160,10 @@ import FieldInfo from '../components/fieldInfo.vue';
 import Question from '../components/question/index.vue';
 import ProTimeline from '@/components/ProTimeline/index.vue';
 import ProPopup from '@/components/ProPopup/index.vue';
-import { productDetail, productList, getFactor } from '@/api/modules/product';
-import { ProductDetail } from '@/api/modules/productd.data';
+import { productDetail, productList } from '@/api/modules/product';
+import { ProductDetail } from '@/api/modules/product.data';
 import { ProductInsureFactorItem } from '@/api/index.data';
+import { getTemplateInfo, getInitFactor } from '@/api';
 import {
   formatHolderAgeLimit,
   formatPaymentPeriodLimit,
@@ -188,16 +201,20 @@ onMounted(() => {
     const { code, data } = res;
     if (code === '10000') {
       detail.value = data;
-    }
-  });
-  getFactor({ pageCode: 'productInfo', templateId: 1 }).then((res) => {
-    const { code, data } = res;
-    if (code === '10000') {
-      const temp = {};
-      data.productInsureFactorList.forEach((item) => {
-        temp[item.code] = item;
+      const { insurerCode, categoryNo } = data;
+      getTemplateInfo({ productCategory: 5, venderCode: 'everbrightlife' }).then((templateRes) => {
+        if (templateRes.code === '10000') {
+          getInitFactor({ pageCode: 'productInfo', templateId: templateRes.data.id }).then((factorRes) => {
+            if (factorRes.code === '10000') {
+              const temp = {};
+              factorRes.data.productInsureFactorList.forEach((item) => {
+                temp[item.code] = item;
+              });
+              factor.value = temp;
+            }
+          });
+        }
       });
-      factor.value = temp;
     }
   });
 });
@@ -356,6 +373,39 @@ onMounted(() => {
         color: #fff;
         border-radius: 8px;
         background: #0d6efe;
+      }
+    }
+  }
+}
+</style>
+
+<style lang="scss">
+.guarantee-popup {
+  .body {
+    display: flex;
+    flex-direction: column;
+    .guarantee-list {
+      padding: 30px 40px;
+      flex: 1;
+      height: 0;
+      overflow-y: auto;
+      .guarantee-item {
+        margin-top: 40px;
+        .title {
+          height: 52px;
+          font-size: 28px;
+          font-weight: 500;
+          color: #393d46;
+          line-height: 52px;
+        }
+        .content {
+          margin-top: 14px;
+          font-size: 26px;
+          color: #393d46;
+          line-height: 44px;
+          padding-bottom: 40px;
+          border-bottom: 1px solid #eeeef4;
+        }
       }
     }
   }

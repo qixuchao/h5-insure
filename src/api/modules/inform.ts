@@ -5,6 +5,7 @@ import {
   GetCustomerQuestionsDetailProps,
   GetCustomerQuestionsDetailResponse,
   UpdateOrderNoticeStatusProps,
+  SaveMarketerNoticesProps,
 } from './inform.data';
 
 // 告知相关接口
@@ -27,3 +28,7 @@ export const getCustomerQuestionsDetail = (data: Partial<GetCustomerQuestionsDet
 // 在线投保-更新问卷状态
 export const updateOrderNoticeStatus = (data: Partial<UpdateOrderNoticeStatusProps>) =>
   request.post<UpdateOrderNoticeStatusProps, ResponseData>(`${API_PREFIXED}/updateOrderNoticeStatus`, data);
+
+// 在线投保-问卷告知查询详情
+export const saveMarketerNotices = (data: Partial<SaveMarketerNoticesProps>) =>
+  request.post<SaveMarketerNoticesProps, ResponseData>(`${API_PREFIXED}/saveMarketerNotices`, data);
