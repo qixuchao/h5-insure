@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 10:50:19
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-30 08:53:41
+ * @LastEditTime: 2022-07-30 16:27:23
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/trial/components/RiskList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -27,7 +27,13 @@
       :remove-risk-list="state.checkedList"
     />
 
-    <div v-if="source !== 'proposal' && state.riderRiskList?.length - state.checkedList?.length" class="add-rider-risk">
+    <div
+      v-if="
+        state.riderRiskList?.length - state.checkedList?.length &&
+        (trialType.origin !== 'proposal' || trialType.type === 'addRiderRisk')
+      "
+      class="add-rider-risk"
+    >
       <span class="left-part">{{
         `共有${state.riderRiskList.length - state.checkedList.length}款附加险可以添加`
       }}</span>
@@ -81,7 +87,7 @@ const props = withDefaults(defineProps<Props>(), {
   riderRiskList: () => [],
 });
 
-const source = inject('source') || '';
+const trialType: any = inject('source') || {};
 const [showPopup, toggle] = useToggle(false);
 const instance = getCurrentInstance();
 

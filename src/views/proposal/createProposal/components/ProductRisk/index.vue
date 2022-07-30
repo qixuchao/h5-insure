@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-16 13:39:05
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-30 09:18:32
+ * @LastEditTime: 2022-07-30 17:59:43
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductRisk/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -94,6 +94,7 @@ interface PageState {
   ageRange: any;
   collapseName: string[];
   isShow: boolean;
+  type: 'add' | 'edit' | 'addRiderRisk' | 'repeatAdd';
 }
 
 interface HolderPerson {
@@ -102,7 +103,7 @@ interface HolderPerson {
 
 interface Props {
   isShow: boolean;
-  type: 'add' | 'edit';
+  type: 'add' | 'edit' | 'addRiderRisk' | 'repeatAdd';
   productId?: number;
   riskType?: 1 | 2;
   formInfo: any;
@@ -110,6 +111,7 @@ interface Props {
   holder: any;
   insured: any;
   riderRisk?: RiskDetailVoItem[];
+  currentRisk?: any[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -122,6 +124,7 @@ const props = withDefaults(defineProps<Props>(), {
   holder: () => ({}),
   insured: () => ({}),
   riderRisk: () => [],
+  currentRisk: () => [],
 });
 
 const emits = defineEmits(['close', 'finished']);
@@ -156,10 +159,15 @@ const state = reactive<PageState>({
   enumList: {},
   ageRange: [],
   collapseName: ['1'],
+  type: props.type,
 });
 
 provide('premium', riskPremiumRef.value);
-provide('source', 'proposal');
+provide('source', {
+  type: state.type,
+  origin: 'proposal',
+  showRiskList: props.currentRisk,
+});
 
 const closeTip = () => {
   state.retrialTip = false;
@@ -189,10 +197,14 @@ const formatData = (trialData: premiumCalcData, riskPremium: any) => {
     },
   );
   const proposalData = {
-    proposalHolder: trialData.holder?.personVO || {},
+    proposalHolder: {
+      ...trialData.holder?.personVO,
+      dateRange: insuredRef?.value?.ageRangeObj,
+    },
     proposalInsuredList: [
       {
         ...trialData.insuredVOList[0].personVO,
+        dateRange: insuredRef?.value?.ageRangeObj,
         proposalInsuredProductList: [
           {
             productId: state.riskBaseInfo.id,
@@ -392,11 +404,11 @@ watch(
 watch(
   () => props.formInfo,
   (newVal = {}) => {
-    if (props.type === 'edit') {
+    if (props.type !== 'add') {
       const currentInfo = {
         0: {
           ...newVal.proposalProductRiskList[0],
-          riderRiskVOList: newVal.proposalProductRiskList[0].proposalProductRiskVOList,
+          riderRiskVOList: {} || newVal.proposalProductRiskList[0].proposalProductRiskVOList,
         },
       };
       Object.assign(riskInfo.value, currentInfo);
@@ -411,7 +423,7 @@ watch(
 watch(
   () => props.productData,
   (newVal) => {
-    if (props.type === 'edit') {
+    if (props.type !== 'add') {
       const currentVal = newVal;
       state.riskBaseInfo = newVal.productBasicInfoVO;
       state.riskData = newVal.riskDetailVOList;
@@ -424,13 +436,9 @@ watch(
 );
 
 watch(
-  () => props,
-  () => {
-    console.log('props', props);
-  },
-  {
-    deep: true,
-    immediate: true,
+  () => props.type,
+  (newVal) => {
+    state.type = newVal;
   },
 );
 

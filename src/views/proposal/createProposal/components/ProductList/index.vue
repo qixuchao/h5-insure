@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 16:43:35
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-29 20:34:37
+ * @LastEditTime: 2022-07-30 15:31:30
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -21,11 +21,11 @@
               <span class="factor-name"> 保额(元) </span>
             </div>
             <div class="factor">
-              <span class="factor-value">{{ risk.coveragePeriod }}</span>
+              <span class="factor-value">{{ pickNameInList(RISK_INSURANCE_PERIOD, risk.coveragePeriod) }}</span>
               <span class="factor-name"> 保障期间 </span>
             </div>
             <div class="factor">
-              <span class="factor-value">{{ risk.chargePeriod }}</span>
+              <span class="factor-value">{{ pickNameInList(RISK_PAYMENT_PERIOD, risk.chargePeriod) }}</span>
               <span class="factor-name"> 缴费期间 </span>
             </div>
           </div>
@@ -54,11 +54,11 @@
               <span class="factor-name"> 保额(元) </span>
             </div>
             <div class="factor">
-              <span class="factor-value">{{ risk.coveragePeriod }}</span>
+              <span class="factor-value">{{ pickNameInList(RISK_INSURANCE_PERIOD, riderRisk.coveragePeriod) }}</span>
               <span class="factor-name"> 保障期间 </span>
             </div>
             <div class="factor">
-              <span class="factor-value">{{ risk.chargePeriod }}</span>
+              <span class="factor-value">{{ pickNameInList(RISK_PAYMENT_PERIOD, riderRisk.chargePeriod) }}</span>
               <span class="factor-name"> 缴费期间 </span>
             </div>
           </div>
@@ -81,17 +81,6 @@
         保费: <span class="premium">￥{{ state.totalPremium.toLocaleString() }}</span>
       </div>
     </div>
-    <RiskRelationList
-      v-if="showRelationList"
-      v-model="state.checkedList"
-      :show="showRelationList"
-      :disabled="state.disabledList"
-      :risk-list="riderRiskList"
-      :collocation-list="collocationRiderList"
-      @finished="onFinished"
-      @checked="checkRiderRisk"
-      @close="toggleRelationList(false)"
-    ></RiskRelationList>
   </div>
 </template>
 
@@ -100,11 +89,12 @@ import { withDefaults } from 'vue';
 import { useToggle } from '@vant/use';
 import { ProposalProductRiskItem, ProposalInsuredProductItem } from '@/api/modules/createProposal.data';
 import { ProductData } from '@/api/modules/trial.data';
+import { pickNameInList } from '@/utils';
 import RiskRelationList from '../RiskRelationList/index.vue';
+import useDict from '@/hooks/useDicData';
 
 interface Props {
   productRiskList: ProposalProductRiskItem[];
-  enumList: any;
   productInfo: Partial<ProposalInsuredProductItem>;
   productData: Partial<ProductData>;
   pickProductPremium: (type: any) => void;
@@ -122,14 +112,13 @@ interface State {
 
 const props = withDefaults(defineProps<Props>(), {
   productRiskList: () => [],
-  enumList: () => ({}),
   productInfo: () => ({}),
   productData: () => ({}),
   pickProductPremium: () => {},
   productNum: 0,
 });
 
-const emits = defineEmits(['deleteRisk', 'updateRisk', 'addRisk']);
+const emits = defineEmits(['deleteRisk', 'updateRisk', 'addRiderRisk']);
 const [showRelationList, toggleRelationList] = useToggle();
 const state = ref<State>({
   checkedList: [],
@@ -140,6 +129,16 @@ const state = ref<State>({
   currentRiskRecord: {} as ProposalProductRiskItem,
 });
 
+const RISK_PAYMENT_PERIOD = ref<any>([]);
+useDict('RISK_PAYMENT_PERIOD').then((result) => {
+  RISK_PAYMENT_PERIOD.value = result.value;
+});
+
+const RISK_INSURANCE_PERIOD = ref<any>([]);
+useDict('RISK_INSURANCE_PERIOD').then((result) => {
+  RISK_INSURANCE_PERIOD.value = result.value;
+});
+
 const riderRiskList = computed(() => {
   return props.productData?.riskDetailVOList?.[0].optionalRiderRiskVOList || [];
 });
@@ -147,14 +146,6 @@ const riderRiskList = computed(() => {
 const collocationRiderList = computed(() => {
   return props.productData?.riskDetailVOList?.[0].collocationVOList || [];
 });
-
-const checkRiderRisk = (checkedItems, disabledList) => {
-  emits('addRisk', checkedItems, props.productInfo);
-};
-
-const onFinished = () => {
-  emits('updateRisk', props.productInfo);
-};
 
 const deleteRisk = (riskRecord: ProposalProductRiskItem) => {
   emits('deleteRisk', riskRecord, props.productInfo);
@@ -166,7 +157,7 @@ const updateRisk = (riskRecord: ProposalProductRiskItem) => {
 
 const addRisk = (riskRecord: ProposalProductRiskItem) => {
   state.value.currentRiskRecord = riskRecord;
-  toggleRelationList(true);
+  emits('addRiderRisk', props.productInfo);
 };
 
 watch(

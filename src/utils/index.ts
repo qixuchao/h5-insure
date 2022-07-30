@@ -1,3 +1,11 @@
+/*
+ * @Author: za-qixuchao qixuchao@zhongan.io
+ * @Date: 2022-07-28 10:28:12
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-07-30 09:55:33
+ * @FilePath: /zat-planet-h5-cloud-insure/src/utils/index.ts
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 /* eslint-disable no-useless-escape */
 // import md5 from 'md5';
 import dayjs from 'dayjs';
@@ -20,3 +28,12 @@ export const ORIGIN =
 
 export const WX_ENV =
   BASE_PREFIX.indexOf('/acvmtest') > -1 ? ORIGIN : 'http://demo-aquarius-h5-test.zhongan.io/aquarius-activity';
+
+export const pickNameInList = (
+  targetList: any[],
+  value: number | string,
+  mapping = { label: 'name', value: 'code' },
+) => {
+  const currentTarget = targetList.filter((target) => target[mapping.value] === value) || [];
+  return currentTarget?.[0]?.[mapping.label] || '';
+};

@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-22 16:53:19
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-18 16:18:56
+ * @LastEditTime: 2022-07-30 12:56:36
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProCheckButton/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -12,7 +12,7 @@
       'com-check-btn': true,
       activated: activated && !disabled,
       disabled: !activated && disabled,
-      'active-disabled': activated && disabled,
+      'activated-disabled': activated && disabled,
     }"
     :style="{ borderRadius: `${round / 2}px` }"
   >
