@@ -7,7 +7,11 @@
 
 <template>
   <div class="com-health-notice">
-    <Question v-if="isQuestion" :current-page-info="state.currentQuestionInfo" />
+    <Question
+      v-if="isQuestion"
+      :current-page-info="state.currentQuestionInfo"
+      @on-submit-current-status="onSubmitCurrentStatus"
+    />
     <!-- <Document /> -->
     <!-- <InsuranceNotice /> -->
     <Enclosure
@@ -44,6 +48,12 @@ const {
   tenantId = 9991000007,
 } = route.query;
 
+const mapNoticeMap = {
+  1: 4,
+  2: 5,
+  3: 9,
+};
+
 interface StateProps {
   pageData: Partial<NextStepRequestData>;
   currentQuestionInfo: Partial<GetCustomerQuestionsDetailResponse[]>;
@@ -69,7 +79,7 @@ const onSubmitCurrentStatus = (status: number) => {
     content: state.currentQuestionInfo[0]?.content,
     contentType: questionnaireType as any,
     isDone: status,
-    noticeType: 4,
+    noticeType: mapNoticeMap[objectType],
     objectId: id as any,
     objectType,
     orderId,
@@ -78,23 +88,9 @@ const onSubmitCurrentStatus = (status: number) => {
   }).then(({ code, data }) => {
     console.log(code);
     if (code === '10000') {
-      router.push({
-        path: '/questionNotification',
-      });
+      router.go(-1);
     }
   });
-  // updateOrderNoticeStatus({
-  //   isDone: status,
-  //   noticeType: 1,
-  //   objectId: '57',
-  //   objectType: 1,
-  //   orderId: '2022011815151382958351',
-  //   tenantId: 9991000007,
-  // }).then(({ code, data }) => {
-  //   if (code === '10000') {
-  //     console.log(data);
-  //   }
-  // });
 };
 
 const orderDetail = () => {

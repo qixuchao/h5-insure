@@ -24,7 +24,7 @@ export const faceVerifySave = (data: any) => {
 };
 
 export const saveSign = (
-  type: 'HOLDER' | 'INSURED',
+  type: 'HOLDER' | 'INSURED' | 'AGENT',
   fileBase64: string,
   orderId: string | number,
   tenantId: string | number,

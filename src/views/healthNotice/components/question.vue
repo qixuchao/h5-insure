@@ -10,14 +10,14 @@
       <div v-for="(i, idx) of props.currentPageInfo" :key="idx" class="question-item">
         <div class="problem">{{ idx + 1 }}. {{ i.title }}</div>
         <!-- 单选 -->
-        <van-radio-group v-if="i.questionType === 1" v-model="checkedProblem1">
+        <van-radio-group v-if="i.questionType === 1" v-model="radioCheckedProblem">
           <van-cell-group inset>
             <van-cell
               v-for="child of parseData(i.options)"
               :key="child.uid"
               :title="child.title"
               clickable
-              @click="checkedProblem1 = child.value"
+              @click="radioCheckedProblem = child.value"
             >
               <template #right-icon>
                 <van-radio :name="child.value" />
@@ -58,14 +58,14 @@
       </div>
     </ProCard>
     <div class="footer-button">
-      <van-button type="primary" block>提交</van-button>
+      <van-button type="primary" block @click="handleSubmitCurrentQuestion">提交</van-button>
     </div>
   </ZaPageWrap>
 </template>
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-
+import { Toast } from 'vant';
 import { ref, onBeforeUpdate, withDefaults } from 'vue';
 import ProCard from '@/components/ProCard/index.vue';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
@@ -80,15 +80,15 @@ const titleMap = {
   '2': '被保人',
   '3': '代理人',
 };
+const emits = defineEmits<(e: 'onSubmitCurrentStatus', code: number) => void>();
 
 const state = reactive({
-  checkedProblem1: '',
+  radioCheckedProblem: '',
   checked: [],
   modelValue: '',
-
   inputValue: '',
 });
-const { checkedProblem1, checked, modelValue, inputValue } = toRefs(state);
+const { radioCheckedProblem, checked, modelValue, inputValue } = toRefs(state);
 
 const toggle = (index: string | number) => {
   checkboxRefs.value[index].toggle();
@@ -124,10 +124,12 @@ const parseData = (val: string) => {
   return {};
 };
 
-const checkHeight = (height: any) => {
-  const regular = /^(0{1}|[1-9]\d{0,3}|.{0})$/;
-  const reg = new RegExp(regular);
-  return !!reg.test(height);
+const handleSubmitCurrentQuestion = () => {
+  if ([radioCheckedProblem.value, modelValue.value, inputValue.value].includes('') || checked.value.length === 0) {
+    Toast('请完成所有题目进行下一步');
+    return;
+  }
+  emits('onSubmitCurrentStatus', 1);
 };
 
 onBeforeUpdate(() => {
