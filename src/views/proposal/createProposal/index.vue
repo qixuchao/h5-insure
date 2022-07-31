@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:14:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-31 16:40:48
+ * @LastEditTime: 2022-07-31 21:52:51
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -246,6 +246,7 @@ const saveProposalData = () => {
   formRef.value.validate().then(() => {
     addOrUpdateProposal(proposalInfo.value).then(({ code, data }) => {
       if (code === '10000') {
+        store.$reset();
         router.push({
           path: '/compositionProposal',
           query: {
@@ -298,7 +299,6 @@ const closeProductRisk = () => {
 onBeforeMount(() => {
   const currentProposalInfo = store.$state.trialData;
   const preProposalInfo: any = store.$state.proposalInfo;
-  console.log('proposalInfo.proposalInsuredList[0]?.dateRange?.minAge', currentProposalInfo);
   if (id) {
     queryProposalInfo();
   } else if (!Object.keys(preProposalInfo).length && currentProposalInfo.length) {

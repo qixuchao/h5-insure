@@ -83,7 +83,7 @@
     <VanField
       v-if="
         (![1].includes(originData.riskCalcMethodInfoVO?.saleMethod || 0) || originData?.exemptFlag === 1) &&
-        riskPremium?.[originData?.riskCode]
+        (originData.riskCalcMethodInfoVO?.fixedAmount || riskPremium?.[originData?.riskCode])
       "
       label="保额"
     >
@@ -430,14 +430,14 @@ const copy = computed(() => {
 const validateSumInsured = (value: string, rule: any, type: string) => {
   const step = props.originData?.riskCalcMethodInfoVO?.increaseDecreaseNum || 1;
   if (type === 'sumInsured') {
-    if (+value > amount.value.max) {
+    if (amount.value.max && +value > amount.value.max) {
       return `金额最大${amount.value.max}元`;
     }
     if (+value < amount.value.min) {
       return `金额最小${amount.value.min}元`;
     }
   } else {
-    if (+value > premium.value.max) {
+    if (premium.value.max && +value > premium.value.max) {
       return `金额最大${premium.value.max}元`;
     }
     if (+value < premium.value.min) {

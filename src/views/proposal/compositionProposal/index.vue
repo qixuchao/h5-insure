@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-14 10:26:59
+ * @LastEditTime: 2022-07-31 21:29:37
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/compositionProposal/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -358,18 +358,10 @@ const handleShare = (type: string) => {
 };
 
 const getPdf = () => {
-  generatePdf(id.toString()).then((res) => {
-    console.log('>>>', res.data);
-    pdfPreview(
-      [
-        {
-          title: '组合计划书',
-          url: res.data,
-          // 'https://dlsvr04.asus.com.cn/pub/ASUS/mb/Socket2066/WS_C422_PRO_SE/T16048_WS_C422_PRO_SE_V4_WEB.pdf',
-        },
-      ],
-      0,
-    );
+  generatePdf(id.toString()).then(({ code, data, message }) => {
+    if (code === '10000') {
+      window.location.href = message;
+    }
   });
 };
 </script>

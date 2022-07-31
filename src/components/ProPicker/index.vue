@@ -106,7 +106,7 @@ const defaultIndex = computed(() => {
 });
 
 const displayValue = computed(() => {
-  const find = props.dataSource.find((x) => x[props.mapping.value] === props.modelValue);
+  const find = props.dataSource.find((x) => `${x[props.mapping.value]}` === `${props.modelValue}`);
   if (find) {
     return find[props.mapping.label];
   }
