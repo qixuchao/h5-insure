@@ -82,13 +82,13 @@
 
     <VanField
       v-if="
-        (![1, 4].includes(originData.riskCalcMethodInfoVO?.saleMethod || 0) || originData?.exemptFlag === 1) &&
+        (![1].includes(originData.riskCalcMethodInfoVO?.saleMethod || 0) || originData?.exemptFlag === 1) &&
         riskPremium?.[originData?.riskCode]
       "
       label="保额"
     >
       <template #input>
-        <div>{{ riskPremium?.[originData?.riskCode]?.amount }}</div>
+        <div>{{ originData.riskCalcMethodInfoVO?.fixedAmount || riskPremium?.[originData?.riskCode]?.amount }}</div>
       </template>
     </VanField>
     <VanField
@@ -459,7 +459,7 @@ onBeforeMount(() => {
 watch(
   () => state.formInfo?.paymentFrequency,
   (newVal = 0) => {
-    if ([3, 4].includes(props.originData.riskCalcMethodInfoVO?.saleMethod || 0)) {
+    if ([3].includes(props.originData.riskCalcMethodInfoVO?.saleMethod || 0)) {
       (props.originData?.riskCalcMethodInfoVO?.paymentMethodLimitList || []).forEach((payment) => {
         if (+payment.paymentFrequency === +newVal) {
           Object.assign(state.formInfo, { amount: payment.perCopyAmount, premium: payment.perCopyPremium });
@@ -472,6 +472,15 @@ watch(
   },
 );
 
+// 份数
+watch(
+  () => state.formInfo?.copy,
+  (newVal) => {
+    if (props.originData.riskCalcMethodInfoVO?.saleMethod === 4) {
+      state.formInfo.amount = +(newVal || 1) * (props.originData.riskCalcMethodInfoVO?.fixedAmount || 0);
+    }
+  },
+);
 // 交费期间
 watch(
   () => state.formInfo?.chargePeriod,
