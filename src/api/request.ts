@@ -3,7 +3,7 @@
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-25 21:11:12
+ * @LastEditTime: 2022-07-30 21:39:57
  */
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { Toast } from 'vant';
@@ -36,7 +36,7 @@ axiosInstance.interceptors.request.use(
   (config: AxiosRequestConfig) => {
     // TODO 在这里可以加上想要在请求发送前处理的逻辑
     // TODO 比如 loading 等
-    const storage = new Storage({ source: 'cookie' });
+    const storage = new Storage({ source: 'localStorage' });
     const token = storage.get('token') || '';
     return {
       ...config,

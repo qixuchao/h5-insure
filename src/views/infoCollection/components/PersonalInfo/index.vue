@@ -12,12 +12,12 @@
     ></ProPicker>
     <ProField v-if="state.formInfo.certType + '' === '1'" label="身份证上传" block required>
       <template #input>
-        <ProIDCardUpload :front="state.front" :back="state.back"></ProIDCardUpload>
+        <ProIDCardUpload v-model:front="tempImages[0]" v-model:back="tempImages[1]"></ProIDCardUpload>
       </template>
     </ProField>
     <ProField v-if="state.formInfo.certType && state.formInfo.certType + '' !== '1'" label="证件上传" block required>
       <template #input>
-        <ProImageUpload></ProImageUpload>
+        <ProImageUpload v-model="tempImages" :max-count="1"></ProImageUpload>
       </template>
     </ProField>
     <ProField
@@ -218,6 +218,7 @@ type FormInfo = InsuredReqItem | HolderReq;
 interface Props {
   formInfo: FormInfo;
   factorList: ProductInsureFactorItem[];
+  images: string[];
 }
 
 interface FactorObj {
@@ -228,14 +229,14 @@ interface State {
   formInfo: FormInfo;
 }
 
-const CERT_TYPE = ref([]);
-useDicData('CERT_TYPE').then((resolve) => {
-  CERT_TYPE.value = resolve.value;
-});
+const emits = defineEmits(['update:images']);
+const CERT_TYPE = useDicData('CERT_TYPE');
+const tempImages = ref<string[]>([]);
 
 const props = withDefaults(defineProps<Props>(), {
   formInfo: () => ({}),
   factorList: () => [],
+  images: () => [],
 });
 
 const state = ref({
@@ -264,6 +265,27 @@ watch(
   {
     deep: true,
     immediate: true,
+  },
+);
+
+watch(
+  () => props.images,
+  (val) => {
+    tempImages.value = val;
+  },
+  {
+    immediate: true,
+  },
+);
+
+watch(
+  tempImages,
+  (val) => {
+    console.log('val', val);
+    emits('update:images', val);
+  },
+  {
+    deep: true,
   },
 );
 </script>

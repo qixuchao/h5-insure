@@ -18,8 +18,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { STATUS_CODES } from 'http';
 import { dataToEsm } from '@rollup/pluginutils';
-import { nextStep, getTemplateInfo, getInitFactor } from '@/api';
-import { queryDetail } from '@/api/modules/order';
+import { nextStep, getTemplateInfo, getInitFactor, getOrderDetail } from '@/api';
 import { NextStepRequestData, TemplatePageItem } from '@/api/index.data';
 import { getCustomerNotices } from '@/api/modules/customerNotice';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
@@ -55,7 +54,7 @@ const getNotices = () => {
 };
 
 const queryOrderInfo = () => {
-  queryDetail({ orderNo, tenantId }).then(({ code, data }) => {
+  getOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       Object.assign(pageData.value, data);
     }

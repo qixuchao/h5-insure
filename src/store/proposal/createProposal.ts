@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-20 15:48:15
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-25 08:58:26
+ * @LastEditTime: 2022-07-30 10:51:34
  * @FilePath: /zat-planet-h5-cloud-insure/src/store/proposal/createProposal.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -12,6 +12,7 @@ import { ProposalInfo } from '@/api/modules/createProposal.data';
 export interface State {
   proposalInfo: Partial<ProposalInfo>;
   trialData: ProposalInfo[];
+  excludeProduct: any[];
 }
 
 const useStore = defineStore<
@@ -21,6 +22,7 @@ const useStore = defineStore<
   {
     setProposalInfo: (data: ProposalInfo) => void;
     setTrialData: (data: ProposalInfo[]) => void;
+    setExcludeProduct: (data: any[]) => void;
   }
 >({
   // 这里的id必须为唯一ID
@@ -29,6 +31,7 @@ const useStore = defineStore<
     return {
       proposalInfo: {},
       trialData: [],
+      excludeProduct: [],
     };
   },
   // pinia 放弃了 mutations 只使用 actions
@@ -39,6 +42,9 @@ const useStore = defineStore<
     },
     setTrialData(data) {
       this.$state.trialData = data;
+    },
+    setExcludeProduct(data) {
+      this.$state.excludeProduct = data;
     },
   },
 });

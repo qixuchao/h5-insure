@@ -148,6 +148,7 @@ watch(temp, (val) => {
 
 <style lang="scss" scoped>
 .com-id-card-upload {
+  width: 100%;
   display: flex;
   padding: 30px 0;
   justify-content: space-between;

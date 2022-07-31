@@ -3,10 +3,12 @@
     <VanForm ref="formRef" input-align="right" error-message-align="right">
       <VanField
         v-if="
-          factorList.includes('APPLICANT.AGE') ||
-          factorList.includes('AGE') ||
-          factorList.includes('DAY') ||
-          factorList.includes('APPLICANT.DAY')
+          (trialType.type === 'proposal' && (trialType.type === 'add' || trialType.type === 'repeatAdd')) ||
+          (trialType.type !== 'proposal' &&
+            (factorList.includes('APPLICANT.AGE') ||
+              factorList.includes('AGE') ||
+              factorList.includes('DAY') ||
+              factorList.includes('APPLICANT.DAY')))
         "
         v-model="state.formInfo.birthday"
         :rules="[{ required: true, message: '请选择出生日期' }]"
@@ -19,7 +21,10 @@
         @click="toggle(true)"
       ></VanField>
       <VanField
-        v-if="factorList.includes('APPLICANT.GENDER') || factorList.includes('GENDER')"
+        v-if="
+          (trialType.type === 'proposal' && (trialType.type === 'add' || trialType.type === 'repeatAdd')) ||
+          (trialType.type !== 'proposal' && (factorList.includes('APPLICANT.GENDER') || factorList.includes('GENDER')))
+        "
         v-model="state.formInfo.gender"
         name="gender"
         label="性别"
@@ -108,6 +113,7 @@ const props = withDefaults(defineProps<Props>(), {
 const [isShow, toggle] = useToggle();
 const [isShowOccupational, toggleOccupational] = useToggle();
 const formRef = ref();
+const trialType: any = inject('source') || {};
 
 const state = reactive({
   formInfo: props.formInfo,
@@ -183,6 +189,7 @@ const ageRangeObj = computed(() => {
 
 defineExpose({
   validateForm,
+  ageRangeObj: ageRangeObj.value,
 });
 </script>
 <style lang="scss" scoped>

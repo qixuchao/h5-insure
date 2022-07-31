@@ -176,8 +176,8 @@ const handleSubmit = () => {
   }).then(() => {
     const data = holderSign.value?.save();
     Promise.all([
-      saveSign('HOLDER', data, orderNo, 9991000007),
-      ...insuredSignRefs.map((x) => saveSign('INSURED', x.save(), orderNo, 9991000007)),
+      saveSign('HOLDER', data, 2779003, 9991000007),
+      ...insuredSignRefs.map((x) => saveSign('INSURED', x.save(), 2779003, 9991000007)),
     ]).then(() => {
       nextStep({ ...detail.value });
     });
@@ -193,11 +193,15 @@ onMounted(() => {
     const { code, data } = res;
     if (code === '10000') {
       detail.value = data;
+      let insuredIndex = 0;
       data.tenantOrderAttachmentList.forEach((item) => {
         if (item.category === 21) {
           // 电子签名
           if (item.objectType === 2) {
             holderSign.value.setDataURL(item.fileBase64);
+          } else if (item.objectType === 1) {
+            insuredSignRefs[insuredIndex].setDataURL(item.fileBase64);
+            insuredIndex += 1;
           }
         }
       });
@@ -210,7 +214,7 @@ onMounted(() => {
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
-      fileList.value = data;
+      fileList.value = data || [];
     }
   });
   const verifyData = storage.get('verifyData');

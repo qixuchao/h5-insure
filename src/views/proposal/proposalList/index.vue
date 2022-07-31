@@ -19,7 +19,7 @@
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
         <van-list v-model:loading="loading" :finished="finished" finished-text="已经到底了哦" @load="onLoad">
           <ProductItem v-for="i in productList" :key="i.id" :product-info="i?.showConfig" @click="selectProposal(i)">
-            <template #checkedProduct>
+            <template v-if="isCreateProposal" #checkedProduct>
               <div class="check-button">
                 <van-checkbox-group v-model="selectProduct">
                   <van-checkbox :name="i.productId" shape="square"></van-checkbox>
@@ -50,7 +50,8 @@
     <ProductRisk
       v-if="showProductRisk"
       :is-show="showProductRisk"
-      type="add"
+      :type="addProposalType"
+      :insured="insured"
       :product-id="state.productId"
       @close="closeProductRisk"
       @finished="onFinished"
@@ -139,13 +140,14 @@ const store = createProposalStore();
 const router = useRouter();
 const route = useRoute();
 const { isCreateProposal } = route.query;
+const addProposalType = ref<any>(isCreateProposal ? 'repeatAdd' : 'add');
 
 const getProducts = () => {
   queryProposalProductList({
     title: searchValue.value,
     insurerCodeList: insurerCodeList.value,
     showCategory: showCategory.value,
-    excludeProductIdList: [],
+    excludeProductIdList: store.$state.excludeProduct || [],
     pageNum: 1,
     pageSize: 999,
   }).then((res: any) => {
@@ -183,6 +185,11 @@ const goHistoryList = () => {
     path: 'historyProposalList',
   });
 };
+
+const insured = computed(() => {
+  const { birthday, gender } = store.$state.proposalInfo.proposalInsuredList?.[0] || {};
+  return { birthday, gender };
+});
 
 /** ****** 创建计划书相关逻辑 ******** */
 const selectProposal = (proposalInfo: any) => {

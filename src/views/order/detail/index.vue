@@ -6,17 +6,22 @@
           <template #label>
             <div class="header">
               <div class="product-name">横琴臻爱医疗险（感恩版）横琴臻爱医疗险（感恩版）</div>
-              <div class="company-name">横琴人寿横琴人寿</div>
+              <div class="company-name">{{ detail?.venderName }}</div>
             </div>
           </template>
           <template #content>
             <div class="status">待处理</div>
           </template>
         </FieldInfo>
-        <FieldInfo label="订单号" content="P100000737709" />
-        <FieldInfo label="投保时间" content="2022-01-01 12:00:00" />
-        <FieldInfo label="投保人" content="王小明" />
-        <FieldInfo label="被保人" content="王小明" />
+        <FieldInfo label="订单号" :content="detail?.orderNo" />
+        <FieldInfo label="投保时间" :content="dayjs(detail?.orderDate).format('YYYY-MM-DD HH:mm:ss')" />
+        <FieldInfo label="投保人" :content="detail?.tenantOrderHolder?.name" />
+        <FieldInfo
+          v-for="(item, index) in detail?.tenantOrderInsuredList || []"
+          :key="index"
+          label="被保人"
+          :content="item.name"
+        />
       </div>
       <div class="card">
         <FieldInfo>
@@ -41,7 +46,27 @@
 </template>
 
 <script lang="ts" setup>
+import { useRoute } from 'vue-router';
+import dayjs from 'dayjs';
 import FieldInfo from '../components/fieldInfo.vue';
+import { getOrderDetail } from '@/api/modules/order';
+import { OrderDetail } from '@/api/modules/order.data';
+
+const route = useRoute();
+const detail = ref<OrderDetail>();
+
+onMounted(() => {
+  console.log(route);
+  const {
+    query: { id },
+  } = route;
+  getOrderDetail(id).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      detail.value = data;
+    }
+  });
+});
 </script>
 
 <style lang="scss" scoped>

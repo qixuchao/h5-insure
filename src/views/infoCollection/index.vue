@@ -10,7 +10,11 @@
   <ProPageWrap class="page-info-wrapper">
     <ProForm v-if="!state.isLoading" ref="formRef">
       <ProCard title="投保人">
-        <PersonalInfo :form-info="formInfo.tenantOrderHolder" :factor-list="pageFactor.HOLDER"></PersonalInfo>
+        <PersonalInfo
+          v-model:images="holderImages"
+          :form-info="formInfo.tenantOrderHolder"
+          :factor-list="pageFactor.HOLDER"
+        ></PersonalInfo>
       </ProCard>
       <ProCard title="被保人">
         <ProField
@@ -28,6 +32,7 @@
         </ProField>
         <PersonalInfo
           v-if="formInfo.tenantOrderInsuredList[0].relationToHolder !== '0'"
+          v-model:images="insuredImages"
           :form-info="formInfo.tenantOrderInsuredList[0]"
           :factor-list="pageFactor.INSURER || []"
         ></PersonalInfo>
@@ -97,8 +102,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useToggle } from '@vant/use';
 import { conditionalExpression } from '@babel/types';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
-import { getInitFactor, nextStep, getTemplateInfo } from '@/api';
-import { queryDetail } from '@/api/modules/order';
+import { getInitFactor, nextStep, getTemplateInfo, getOrderDetail } from '@/api';
 import {
   FactorData,
   NextStepRequestData,
@@ -159,10 +163,12 @@ const formInfo = ref<any>({
     withBeneficiaryInfo: true,
     withHolderInfo: true,
     withInsuredInfo: true,
+    withAttachmentInfo: true,
   },
 });
 const formRef = ref<any>(null);
-
+const holderImages = ref<string[]>([]);
+const insuredImages = ref<string[]>([]);
 const state = reactive<State>({
   beneficiaryId: 0,
   addressList: [],
@@ -172,7 +178,34 @@ const state = reactive<State>({
 });
 
 const goNextPage = () => {
-  nextStep(formInfo.value).then(({ code, data }) => {
+  const formData = { ...formInfo.value };
+  formData.tenantOrderAttachmentList = [
+    {
+      category: 2,
+      objectType: 2,
+      name: '投保人证件正面',
+      uri: holderImages.value[0],
+    },
+    {
+      category: 3,
+      objectType: 2,
+      name: '投保人证件背面',
+      uri: holderImages.value[1],
+    },
+    {
+      category: 2,
+      objectType: 3,
+      name: '被保人证件正面',
+      uri: insuredImages.value[0],
+    },
+    {
+      category: 2,
+      objectType: 3,
+      name: '被保人证件背面',
+      uri: insuredImages.value[1],
+    },
+  ];
+  nextStep(formData).then(({ code, data }) => {
     if (code === '10000') {
       if (data.pageAction.pageAction === 'jumpToPage') {
         router.push({
@@ -213,7 +246,7 @@ const removeBeneficiary = (beneficiaryItem: BeneficiaryItem) => {
 };
 
 const queryOrderDetail = () => {
-  queryDetail({ orderNo, tenantId })
+  getOrderDetail({ orderNo, tenantId })
     .then(({ code, data }) => {
       if (code === '10000') {
         const currentData = data;
@@ -227,6 +260,23 @@ const queryOrderDetail = () => {
             currentList.extInfo = {};
             return currentList;
           });
+        currentData.tenantOrderAttachmentList.forEach((item) => {
+          item.category === 2; // 正面
+          item.objectType;
+          if (item.category === 2) {
+            if (item.objectType === 2) {
+              holderImages[0] = item.uri;
+            } else if (item.objectType === 3) {
+              insuredImages[0] = item.uri;
+            }
+          } else if (item.category === 3) {
+            if (item.objectType === 2) {
+              holderImages[1] = item.uri;
+            } else if (item.objectType === 3) {
+              insuredImages[1] = item.uri;
+            }
+          }
+        });
         Object.assign(formInfo.value, currentData);
       }
     })

@@ -310,7 +310,7 @@ const isEmpty = (value: any) => {
   if (Array.isArray(value) && !value.length) {
     return true;
   }
-  if ({}.toString.call(value) === 'object Object') {
+  if ({}.toString.call(value) === '[object Object]') {
     return Object.keys(value).length;
   }
   return false;
