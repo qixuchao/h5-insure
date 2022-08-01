@@ -1,0 +1,1 @@
+import{b as s}from"./index-5e028fb3.js";const t="/api/app/insure/proposal",e=o=>s.post(`${t}/queryProposalProductList`,o),a=o=>s.post(`${t}/historyProposalList`,o),p=o=>s.post(`${t}/deleteProposal/${o}`),n=o=>s.post(`${t}/preview/${o}`),P=o=>s.post(`${t}/generatePdf/${o}`);export{n as a,p as d,P as g,a as h,e as q};
