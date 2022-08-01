@@ -30,7 +30,7 @@
     </ProCard>
 
     <div class="footer-button">
-      <van-button plain type="primary" @click="state.showShare = true">分享</van-button>
+      <!-- <van-button plain type="primary" @click="state.showShare = true">分享</van-button> -->
       <van-button type="primary" @click="handleClickNextStep">下一步</van-button>
     </div>
   </ZaPageWrap>
@@ -158,11 +158,11 @@ const handleClickInformDetails = (rows: ListCustomerQuestionsResponse) => {
 };
 
 const handleClickNextStep = () => {
-  const isAllRead = state.listQuestions.every((i) => i.isDone === 1);
-  if (!isAllRead) {
-    Toast('请完成所有告知进行下一步');
-    return;
-  }
+  // const isAllRead = state.listQuestions.every((i) => i.isDone === 1);
+  // if (!isAllRead) {
+  //   Toast('请完成所有告知进行下一步');
+  //   return;
+  // }
   router.push({
     path: '/verify',
     query: route.query,

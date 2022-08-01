@@ -6,10 +6,10 @@
 -->
 <template>
   <ZaPageWrap class="com-document">
-    <div class="title">{{ props.currentPageInfo[0]?.questionnaireName }}</div>
+    <div class="title">{{ props.currentPageInfo[0]?.title }}</div>
     <div v-dompurify-html="props.currentPageInfo[0]?.content" class="content"></div>
     <div class="footer-button">
-      <van-button type="primary" @click="handleClickHasDone">了解并继续</van-button>
+      <van-button type="primary" @click="emits('onSubmitCurrentStatus', 1)">了解并继续</van-button>
     </div>
   </ZaPageWrap>
 </template>
@@ -26,10 +26,6 @@ const props = withDefaults(defineProps<Props>(), {
   currentPageInfo: () => [],
 });
 const emits = defineEmits<(e: 'onSubmitCurrentStatus', code: number) => void>();
-
-const handleClickHasDone = () => {
-  emits('onSubmitCurrentStatus', 1);
-};
 </script>
 
 <style scoped lang="scss">
