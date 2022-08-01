@@ -3,7 +3,7 @@
     <div class="header">
       <div class="product-name">{{ detail.goodsName }}</div>
       <div class="company-name">{{ detail.companyName }}</div>
-      <div class="status">保单生成中</div>
+      <div class="status">{{ ORDER_STATUS_MAP[detail.orderStatus] }}</div>
     </div>
     <div class="holder">
       投保人： {{ detail.policyHolder }} {{ dayjs(detail.orderStartDate).format('YYYY-MM-DD HH:mm:ss') }}
@@ -12,9 +12,25 @@
       <div class="fee">
         保费：<span class="money">￥{{ detail.prem }}</span>
       </div>
-      <div class="buttons">
-        <div class="button">删除</div>
-        <div class="button">去处理</div>
+      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.PENDING" class="buttons">
+        <van-button class="button" @click.stop="handleDelete">删除</van-button>
+        <van-button class="button primary" @click.stop="handleProcess">去处理</van-button>
+      </div>
+      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.PAYING" class="buttons">
+        <van-button class="button" @click.stop="handleDelete">删除</van-button>
+        <van-button class="button primary" @click.stop="handlePay">去支付</van-button>
+      </div>
+      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.PAYMENT_FAILED" class="buttons">
+        <van-button class="button" @click.stop="handleDelete">删除</van-button>
+        <van-button class="button primary" @click.stop="handlePay">去支付</van-button>
+      </div>
+      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.PAYMENT_SUCCESS" class="buttons"></div>
+      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.UNDERWRITE" class="buttons"></div>
+      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.INSURER_REJECT" class="buttons">
+        <van-button class="button" @click.stop="handleDelete">删除</van-button>
+      </div>
+      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.TIMEOUT" class="buttons">
+        <van-button class="button" @click.stop="handleDelete">删除</van-button>
       </div>
     </div>
   </div>
@@ -22,15 +38,37 @@
 
 <script lang="ts" setup>
 import { defineProps } from 'vue';
+import { useRouter } from 'vue-router';
 import dayjs from 'dayjs';
 import { OrderItem } from '@/api/modules/order.data';
+import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
+import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 
+const router = useRouter();
 const props = defineProps({
   detail: {
     type: Object as () => OrderItem,
     default: () => {},
   },
 });
+
+const handleDetail = () => {
+  router.push({
+    path: PAGE_ROUTE_ENUMS.orderDetail,
+    query: { id: props.detail.id },
+  });
+};
+
+const handleDelete = () => {};
+
+const handlePay = () => {
+  router.push({
+    path: PAGE_ROUTE_ENUMS.payInfo,
+    query: { id: props.detail.id },
+  });
+};
+
+const handleProcess = () => {};
 </script>
 
 <style lang="scss" scoped>
@@ -54,7 +92,7 @@ const props = defineProps({
       color: #393d46;
     }
     .company-name {
-      flex: 0 0 110px;
+      flex: 0 0 120px;
       height: 40px;
       line-height: 40px;
       text-align: center;
@@ -68,7 +106,6 @@ const props = defineProps({
       text-overflow: ellipsis;
     }
     .status {
-      flex: 0 0 130px;
       margin-left: 30px;
       font-size: 26px;
       color: #99a9c0;
@@ -106,6 +143,10 @@ const props = defineProps({
         font-size: 28px;
         color: #0d6efe;
         margin-right: 16px;
+        &.primary {
+          background: #0d6efe;
+          color: #fff;
+        }
         &:last-child {
           margin-right: 0;
         }

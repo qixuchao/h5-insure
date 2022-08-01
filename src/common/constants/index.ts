@@ -124,6 +124,8 @@ export const PAGE_ROUTE_ENUMS = {
   payInfo: 'bankCard', // 添加银行卡信息
   salesNotice: 'salesmanInform', // 营销员告知
   sign: 'verify', // 人脸识别
+  orderDetail: 'orderDetail', // 订单详情
+  orderList: 'order', // 订单列表
 };
 
 // eslint-disable-next-line
