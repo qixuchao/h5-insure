@@ -7,13 +7,13 @@
 
 <template>
   <div class="com-health-notice">
-    <!-- <Question
+    <Question
       v-if="isQuestion"
       :current-page-info="state.currentQuestionInfo"
       @on-submit-current-status="onSubmitCurrentStatus"
-    /> -->
+    />
     <!-- <Document /> -->
-    <!-- <InsuranceNotice v-if="isRichText" :current-page-info="state.currentQuestionInfo" /> -->
+    <InsuranceNotice v-if="isRichText" :current-page-info="state.currentQuestionInfo" />
     <Enclosure
       v-if="isPDFOrPic"
       :url="state.currentQuestionInfo[0]?.content"
