@@ -9,7 +9,9 @@
 <template>
   <ProPageWrap>
     <div class="page-composition-proposal">
-      <div class="head-bg">{{ info?.name }}先生的计划</div>
+      <div class="head-bg">
+        {{ proposalName }}
+      </div>
       <div class="container head-cover">
         <div class="info-detail">
           <div class="name">
@@ -145,24 +147,9 @@
           </van-collapse-item>
         </van-collapse>
       </div>
-      <van-action-sheet v-model:show="showShare" cancel-text="取消" close-on-click-action>
-        <div class="content">
-          <div class="bx" @click="handleShare('1')">
-            <div class="wechat"><img src="@/assets/images/compositionProposal/wechat.png" alt="" /></div>
-            <div class="txt">微信好友</div>
-          </div>
-          <div class="bx">
-            <div class="friend" @click="handleShare('2')">
-              <img src="@/assets/images/compositionProposal/pengyouquan.png" alt="" />
-            </div>
-            <div class="txt">朋友圈</div>
-          </div>
-        </div>
-      </van-action-sheet>
-
       <div v-if="!isShare" class="footer-btn">
         <van-button plain type="primary" class="btn" @click="getPdf">生成PDF</van-button>
-        <van-button type="primary" class="btn" @click="showShare = true">分享计划书</van-button>
+        <van-button type="primary" class="btn" @click="handleShare">分享计划书</van-button>
       </div>
     </div>
   </ProPageWrap>
@@ -171,6 +158,9 @@
 import wx from 'weixin-js-sdk';
 import dayjs from 'dayjs';
 import { queryProposalDetail, generatePdf } from '@/api/modules/proposalList';
+import { isApp, isWechat, ORIGIN } from '@/utils';
+import Storage from '@/utils/storage';
+import jsbridge from '@/utils/jsbridge';
 import ProTable from '@/components/ProTable/index.vue';
 import ProChart from '@/components/ProChart/index.vue';
 import pdfPreview from '@/utils/pdfPreview';
@@ -212,14 +202,30 @@ const price = ref<string[]>([]);
 const ageBegin = ref(0);
 const ageEnd = ref(0);
 const activeNames = ref('');
+const proposalName = ref('');
 
 const num = ref(0);
 const showChart = ref(true);
-const showShare = ref(false);
 const GENDER = {
   1: '男',
   2: '女',
 };
+
+const isMale = (gender: number) => {
+  return gender === 1;
+};
+
+watch(
+  () => info.value,
+  (val) => {
+    const { gender, name } = val;
+    if (isMale(1)) {
+      proposalName.value = `${name}先生的计划书`;
+    } else {
+      proposalName.value = `${name}女士的计划书`;
+    }
+  },
+);
 
 const getData = () => {
   // eslint-disable-next-line array-callback-return
@@ -278,8 +284,12 @@ const getChargePay = (val: string) => {
 };
 
 onMounted(() => {
+  if (router.query.token) {
+    const storage = new Storage({ source: 'localStorage' });
+    storage.set('token', router.query.token);
+  }
+
   queryProposalDetail(Number(id)).then((res) => {
-    console.log('>>>>>>>>>>>', res.data?.proposalInsuredVOList[0]);
     // eslint-disable-next-line prefer-destructuring
     info.value = res.data?.proposalInsuredVOList[0];
     age.value = dayjs().diff(info.value.birthday, 'y');
@@ -336,25 +346,36 @@ const handleChangeChart = (val: string) => {
 };
 
 const handleShare = (type: string) => {
+  const skipUrl = `${ORIGIN}?isShare=1`;
+  const authUrl = `${ORIGIN}/api/app/officialAccount/outerUserAuth?systemCode=BAO_A&skipUrl=${encodeURIComponent(
+    skipUrl,
+  )}`;
   const shareProps = {
-    title: `计划书`, // 分享标题
+    title: `${info.value.name}计划书`, // 分享标题
     desc: '您的贴心保险管家', // 分享描述
-    link: `${window.location.href}?isShare=1`, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-    imgUrl: '', // 分享图标
+    link: authUrl, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+    img: '', // 微信分享
+    imgUrl: '', // app分享
     success() {
       // 设置成功
-      console.log('f分享成功');
+      console.log('分享成功回调');
     },
   };
 
-  wx.ready(() => {
-    console.log('ready');
-    if (type === '1') {
-      wx.onMenuShareAppMessage(shareProps);
-    } else {
-      wx.onMenuShareTimeline(shareProps);
-    }
-  });
+  if (isApp()) {
+    jsbridge.shareConfig(shareProps);
+    return;
+  }
+
+  if (isWechat()) {
+    wx.ready(() => {
+      console.log('ready');
+      // 分享给朋友｜分享到QQ
+      wx.updateAppMessageShareData(shareProps);
+      // 分享到朋友圈｜分享到 QQ 空间
+      wx.updateTimelineShareData(shareProps);
+    });
+  }
 };
 
 const getPdf = () => {
