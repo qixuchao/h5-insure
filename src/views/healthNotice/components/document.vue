@@ -6,25 +6,45 @@
 -->
 <template>
   <ZaPageWrap class="com-document">
-    <div class="title">投保人需确认被保险人是否存在以下情况？</div>
-    <div class="content">
-      <div v-for="(i, idx) of mockTempData" :key="idx">
+    <div class="title">{{ props.currentPageInfo[0]?.questionnaireName }}</div>
+    <div v-dompurify-html="props.currentPageInfo[0]?.content" class="content">
+      <!-- <div v-for="(i, idx) of mockTempData" :key="idx">
         <p>{{ idx + 1 }}. 【{{ i.title }}】</p>
         <p v-for="(child, childIxd) of i.content" :key="childIxd">
           <span v-if="i.content.length > 1">（{{ childIxd + 1 }}）</span>
           {{ child }}
         </p>
-      </div>
+      </div> -->
     </div>
     <div class="footer-button">
-      <van-button plain type="primary">部分为是</van-button>
-      <van-button type="primary">以上皆否</van-button>
+      <van-button plain type="primary" @click="emits('onSubmitCurrentStatus', 2)">部分为是</van-button>
+      <van-button type="primary" @click="emits('onSubmitCurrentStatus', 1)">以上皆否</van-button>
     </div>
   </ZaPageWrap>
 </template>
 
 <script setup lang="ts">
-import { mockTempData } from './mockData';
+import { withDefaults } from 'vue';
+
+interface ItemProps {
+  content: object;
+  options: string;
+  position: number;
+  questionType: number;
+  questionnaireId: number;
+  questionnaireName: string;
+  textType: object;
+  title: string;
+}
+
+interface Props {
+  currentPageInfo: ItemProps[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  currentPageInfo: () => [],
+});
+const emits = defineEmits<(e: 'onSubmitCurrentStatus', code: number) => void>();
 </script>
 
 <style scoped lang="scss">

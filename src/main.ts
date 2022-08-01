@@ -17,6 +17,7 @@ import dayjs from 'dayjs';
 import zh from 'dayjs/locale/zh-cn';
 
 // pinia
+import VueDOMPurifyHTML from 'vue-dompurify-html';
 import store from '@/store';
 import router from '@/router/index';
 import '@/styles/index.scss';
@@ -29,6 +30,7 @@ dayjs.locale({ ...zh, weekStart: 1 });
 const app = createApp(App);
 const BASE_PREFIX = import.meta.env.VITE_API_BASEURL;
 
+app.use(VueDOMPurifyHTML);
 app.use(vue3PhotoPreview);
 app.use(router).use(store);
 app.use(Vant);
