@@ -55,6 +55,7 @@ export interface GetCustomerQuestionsDetailResponse {
   questionnaireId: number;
   textType: number;
   title: string;
+  questionnaireName: string;
 }
 
 export interface UpdateOrderNoticeStatusProps {

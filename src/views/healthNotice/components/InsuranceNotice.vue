@@ -16,20 +16,10 @@
 
 <script setup lang="ts">
 import { withDefaults } from 'vue';
-
-interface ItemProps {
-  content: object;
-  options: string;
-  position: number;
-  questionType: number;
-  questionnaireId: number;
-  questionnaireName: string;
-  textType: object;
-  title: string;
-}
+import { GetCustomerQuestionsDetailResponse } from '@/api/modules/inform.data';
 
 interface Props {
-  currentPageInfo: ItemProps[];
+  currentPageInfo: GetCustomerQuestionsDetailResponse[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
