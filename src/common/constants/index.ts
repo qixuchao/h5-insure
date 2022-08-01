@@ -6,14 +6,21 @@
  * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
+
+// eslint-disable-next-line
+export enum SEX_LIMIT_ENUM {
+  MALE = '1',
+  FEMALE = '2',
+}
+
 export const SEX_LIMIT_LIST = [
   {
     label: '男',
-    value: '1',
+    value: SEX_LIMIT_ENUM.MALE,
   },
   {
     label: '女',
-    value: '2',
+    value: SEX_LIMIT_ENUM.FEMALE,
   },
 ];
 
@@ -108,7 +115,7 @@ export const PAGE_API_ENUMS = {
 };
 
 export const PAGE_ROUTE_ENUMS = {
-  productInfo: 'product/detail', // 产品详情
+  productInfo: 'productDetail', // 产品详情
   premiumTrial: 'trial', // 保费试算
   customerNotice: 'customerNotice', // 客户告知书
   questionNotice: 'questionNotification', // 问卷告知书
@@ -117,6 +124,8 @@ export const PAGE_ROUTE_ENUMS = {
   payInfo: 'bankCard', // 添加银行卡信息
   salesNotice: 'salesmanInform', // 营销员告知
   sign: 'verify', // 人脸识别
+  orderDetail: 'orderDetail', // 订单详情
+  orderList: 'order', // 订单列表
 };
 
 // eslint-disable-next-line

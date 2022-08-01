@@ -100,6 +100,7 @@
 
 <script lang="ts" setup>
 import dayjs from 'dayjs';
+import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import ProMessage from '@/components/ProMessage/index.vue';
 import ProCard from '@/components/ProCard/index.vue';
@@ -107,13 +108,22 @@ import ProSvg from '@/components/ProSvg/index.vue';
 import ProSign from '@/components/ProSign/index.vue';
 import { faceVerify, saveSign, getFile, faceVerifySave } from '@/api/modules/verify';
 import { nextStep, getOrderDetail } from '@/api';
-import { NOTICE_TYPE_ENUM } from '@/common/constants';
+import { NOTICE_TYPE_ENUM, PAGE_ROUTE_ENUMS } from '@/common/constants';
 import { NextStepRequestData } from '@/api/index.data';
 import { INotice } from '@/api/modules/verify.data';
 import Storage from '@/utils/storage';
 
-const orderNo = '2022072810590219649';
+const route = useRoute();
+const router = useRouter();
 
+const {
+  orderNo = '2022072810590219649',
+  saleUserId = 'D1234567-1',
+  tenantId = '9991000007',
+  templateId = 1,
+  productCode = 'CQ75CQ76',
+} = route.query;
+const pageCode = 'sign';
 const storage = new Storage({ source: 'localStorage' });
 const fileList = ref<Array<INotice>>([]);
 const detail = ref();
@@ -174,12 +184,28 @@ const handleSubmit = () => {
     title: '提示',
     message: '请确认信息填写无误后，再进行支付',
   }).then(() => {
-    const data = holderSign.value?.save();
+    const signData = holderSign.value?.save();
     Promise.all([
-      saveSign('HOLDER', data, 2779003, 9991000007),
-      ...insuredSignRefs.map((x) => saveSign('INSURED', x.save(), 2779003, 9991000007)),
+      saveSign('HOLDER', signData, 2779003, `${tenantId}`),
+      ...insuredSignRefs.map((x) => saveSign('INSURED', x.save(), 2779003, `${tenantId}`)),
     ]).then(() => {
-      nextStep({ ...detail.value });
+      nextStep({
+        ...detail.value,
+        pageCode: '',
+        operateOption: { withSignInfo: true },
+        extInfo: {
+          pageCode: '',
+          templateId,
+        },
+      }).then((res) => {
+        const { code, data } = res;
+        if (code === '10000' && data.success) {
+          router.push({
+            path: PAGE_ROUTE_ENUMS[data.pageAction.data.nextPageCode],
+            query: { orderNo, saleUserId, tenantId },
+          });
+        }
+      });
     });
   });
 };
@@ -187,8 +213,8 @@ const handleSubmit = () => {
 onMounted(() => {
   getOrderDetail({
     orderNo,
-    saleUserId: 'D1234567-1',
-    tenantId: '9991000007',
+    saleUserId,
+    tenantId,
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
@@ -208,9 +234,9 @@ onMounted(() => {
     }
   });
   getFile({
-    orderNo: '2022011815151382958351',
-    productCode: 'CQ75CQ76',
-    tenantId: 9991000007,
+    orderNo,
+    productCode,
+    tenantId,
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
@@ -224,7 +250,7 @@ onMounted(() => {
       certiNo: certNo,
       orderNo,
       serialNo,
-      tenantId: 9991000007,
+      tenantId,
       userName: name,
     }).then((res) => {
       storage.remove('verifyData');

@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-27 21:44:23
+ * @LastEditTime: 2022-08-01 17:24:00
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -58,7 +58,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   },
   {
     name: 'productDetail',
-    path: '/product/detail',
+    path: '/productDetail',
     meta: { title: '产品详情' },
     component: () => import('@/views/product/detail/index.vue'),
   },
@@ -88,14 +88,14 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   },
   {
     name: 'orderDetail',
-    path: '/order/detail',
+    path: '/orderDetail',
     meta: { title: '订单详情' },
     component: () => import('@/views/order/detail/index.vue'),
   },
   {
     name: 'compositionProposal',
     path: '/compositionProposal',
-    meta: { title: '组合计划书' },
+    meta: { title: '组合计划书', requireWxJs: true },
     component: () => import('@/views/proposal/compositionProposal/index.vue'),
   },
   {
@@ -126,7 +126,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     name: 'infoPreview',
     path: '/infoPreview',
     meta: { title: '保费预览' },
-    component: () => import('@/views/infoCollection/index.vue'),
+    component: () => import('@/views/infoPreview/index.vue'),
   },
   {
     name: 'customerNotice',

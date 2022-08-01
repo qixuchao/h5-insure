@@ -23,7 +23,21 @@ export const getInitFactor = (data = {}) =>
 
 // 下一步操作
 export const nextStep = (data = {} as NextStepRequestData) =>
-  request.post<any, ResponseData>(PAGE_API_ENUMS[data.extInfo.pageCode], data);
+  request.post<
+    any,
+    ResponseData<{
+      pageAction: {
+        data: {
+          nextPageCode: string;
+          orderId: number;
+          orderNo: string;
+        };
+        message: string;
+        pageAction: string;
+      };
+      success: boolean;
+    }>
+  >(PAGE_API_ENUMS[data.extInfo.pageCode], data);
 
 // 获取订单详情
 export const getOrderDetail = (data = {}) =>

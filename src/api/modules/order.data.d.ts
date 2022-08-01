@@ -1,3 +1,5 @@
+import { ORDER_STATUS_ENUM } from "@/common/constants/order";
+
 export interface Condition {
   companyName: string;
   goodsName: string;
@@ -16,7 +18,7 @@ export interface OrderItem {
   id: number;
   orderNo: string;
   orderStartDate: string;
-  orderStatus: string;
+  orderStatus: ORDER_STATUS_ENUM;
   orderTopStatus: string;
   policyHolder: string;
   prem: number;

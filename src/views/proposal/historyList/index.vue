@@ -190,7 +190,7 @@ onMounted(() => {
         justify-content: flex-end;
 
         .van-button {
-          width: 128px;
+          // width: 128px;
           height: 60px;
           font-size: 28px;
           border-radius: 32px;

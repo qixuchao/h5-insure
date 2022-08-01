@@ -37,3 +37,7 @@ export const pickNameInList = (
   const currentTarget = targetList.filter((target) => target[mapping.value] === value) || [];
   return currentTarget?.[0]?.[mapping.label] || '';
 };
+
+export const isApp = () => {
+  return Boolean(window?.AppJSInterface || window?.webkit?.messageHandlers);
+};
