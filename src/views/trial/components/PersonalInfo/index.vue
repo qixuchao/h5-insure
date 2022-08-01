@@ -181,6 +181,7 @@ const ageRangeObj = computed(() => {
   const maxAge = dayjs()
     .subtract(max[0] as number, max[1] === 'age' ? 'year' : 'day')
     .format('YYYY-MM-DD');
+  console.log('ageRangeObj', new Date(maxAge), new Date(minAge));
   return {
     minAge: new Date(maxAge),
     maxAge: new Date(minAge),

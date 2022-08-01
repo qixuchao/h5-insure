@@ -14,7 +14,7 @@
         { required: true, message: '请填写' },
         {
           trigger: 'onChange',
-          validator: validateSumInsured,
+          validator: (...params) => validateSumInsured(...params, 'sumInsured'),
         },
       ]"
     >
@@ -42,7 +42,7 @@
         { required: true, message: '请填写' },
         {
           trigger: 'onChange',
-          validator: validateSumInsured,
+          validator: (...params) => validateSumInsured(...params, 'premium'),
         },
       ]"
     >
@@ -82,13 +82,13 @@
 
     <VanField
       v-if="
-        (![1, 4].includes(originData.riskCalcMethodInfoVO?.saleMethod || 0) || originData?.exemptFlag === 1) &&
-        riskPremium?.[originData?.riskCode]
+        (![1].includes(originData.riskCalcMethodInfoVO?.saleMethod || 0) || originData?.exemptFlag === 1) &&
+        (originData.riskCalcMethodInfoVO?.fixedAmount || riskPremium?.[originData?.riskCode])
       "
       label="保额"
     >
       <template #input>
-        <div>{{ riskPremium?.[originData?.riskCode]?.amount }}</div>
+        <div>{{ originData.riskCalcMethodInfoVO?.fixedAmount || riskPremium?.[originData?.riskCode]?.amount }}</div>
       </template>
     </VanField>
     <VanField
@@ -334,7 +334,7 @@ const coverageYearOptions = computed(() => {
     );
   }
   if (props.originData?.periodType === 2) {
-    return pickEnums([{ value: 'year_1', label: '1年' }], ['year_1']);
+    return pickEnums([{ value: 'year_1', name: '1年' }], ['year_1']);
   }
   return pickEnums(
     props.enums?.RISK_INSURANCE_PERIOD,
@@ -427,8 +427,24 @@ const copy = computed(() => {
 });
 
 // 校验保额/保费是否是增减幅度的倍数
-const validateSumInsured = (value: string, rule: any) => {
+const validateSumInsured = (value: string, rule: any, type: string) => {
   const step = props.originData?.riskCalcMethodInfoVO?.increaseDecreaseNum || 1;
+  if (type === 'sumInsured') {
+    if (amount.value.max && +value > amount.value.max) {
+      return `金额最大${amount.value.max}元`;
+    }
+    if (+value < amount.value.min) {
+      return `金额最小${amount.value.min}元`;
+    }
+  } else {
+    if (premium.value.max && +value > premium.value.max) {
+      return `金额最大${premium.value.max}元`;
+    }
+    if (+value < premium.value.min) {
+      return `金额最小${premium.value.min}元`;
+    }
+  }
+
   if (+value % step === 0) {
     return '';
   }
@@ -459,7 +475,7 @@ onBeforeMount(() => {
 watch(
   () => state.formInfo?.paymentFrequency,
   (newVal = 0) => {
-    if ([3, 4].includes(props.originData.riskCalcMethodInfoVO?.saleMethod || 0)) {
+    if ([3].includes(props.originData.riskCalcMethodInfoVO?.saleMethod || 0)) {
       (props.originData?.riskCalcMethodInfoVO?.paymentMethodLimitList || []).forEach((payment) => {
         if (+payment.paymentFrequency === +newVal) {
           Object.assign(state.formInfo, { amount: payment.perCopyAmount, premium: payment.perCopyPremium });
@@ -472,6 +488,15 @@ watch(
   },
 );
 
+// 份数
+watch(
+  () => state.formInfo?.copy,
+  (newVal) => {
+    if (props.originData.riskCalcMethodInfoVO?.saleMethod === 4) {
+      state.formInfo.amount = +(newVal || 1) * (props.originData.riskCalcMethodInfoVO?.fixedAmount || 0);
+    }
+  },
+);
 // 交费期间
 watch(
   () => state.formInfo?.chargePeriod,
