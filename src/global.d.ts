@@ -103,4 +103,12 @@ declare module 'recorder-core' {
   }
   export default RecorderCore;
 }
-declare module 'qrcode'
+declare module 'qrcode';
+
+interface Window {
+  AppJSInterface?: () => void;
+
+  webkit: {
+    messageHandlers: () => void
+  }
+}
