@@ -6,7 +6,8 @@
 -->
 <template>
   <div class="com-pdf-viewer">
-    <div :id="id" :isee_pdf="pdfUrl" class="pdf-wapper"></div>
+    <van-image v-if="isPicture" width="100%" height="80vh" fit="contain" :src="props.url" />
+    <div v-else :id="id" :isee_pdf="pdfUrl" class="pdf-wapper"></div>
     <div class="footer-button">
       <van-button plain type="primary" @click="emits('onSubmitCurrentStatus', 2)">部分为是</van-button>
       <van-button type="primary" @click="emits('onSubmitCurrentStatus', 1)">以上皆否</van-button>
@@ -37,6 +38,11 @@ const id = nanoid();
 
 const show = ref(false);
 const loading = ref(true);
+
+const isPicture = computed(() => {
+  // eslint-disable-next-line array-callback-return
+  return ['png', 'jpg', 'jpeg'].some((i) => props.url.includes(i));
+});
 
 const loadPdfCanvas = () => {
   const container = document.getElementById(id) as HTMLElement;

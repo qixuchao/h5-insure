@@ -13,8 +13,8 @@
         <van-radio-group v-if="i.questionType === 1" v-model="radioCheckedProblem">
           <van-cell-group inset>
             <van-cell
-              v-for="child of parseData(i.options)"
-              :key="child.uid"
+              v-for="(child, childIdx) of parseData(i.options)"
+              :key="childIdx"
               :title="child.title"
               clickable
               @click="radioCheckedProblem = child.value"
@@ -51,7 +51,6 @@
           ]"
         />
         <!-- 填空题 -->
-
         <van-cell-group v-if="i.questionType === 4" inset>
           <van-field v-model="inputValue" placeholder="请输入" />
         </van-cell-group>
@@ -124,6 +123,8 @@ const handleSubmitCurrentQuestion = () => {
 };
 
 onBeforeUpdate(() => {
+  console.log(6666);
+
   checkboxRefs.value = [];
 });
 </script>
