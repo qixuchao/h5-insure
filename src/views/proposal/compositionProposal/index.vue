@@ -234,7 +234,7 @@ watch(
 
 const getData = () => {
   // eslint-disable-next-line array-callback-return
-  info.value.benefitRiskResultVOList[active.value].benefitRiskItemResultVOList[0].dataList.map((item: string[]) => {
+  info.value.benefitRiskResultVOList[active.value]?.benefitRiskItemResultVOList[0]?.dataList?.map((item: string[]) => {
     if (num.value.toString() === item[item.length - 1]) {
       price.value = item;
     }
@@ -243,7 +243,7 @@ const getData = () => {
 
 const getBenefit = () => {
   // eslint-disable-next-line array-callback-return
-  info.value.benefitRiskResultVOList[0].benefitRiskItemResultVOList[0].dataList.map((item: string[], i: string) => {
+  info.value.benefitRiskResultVOList[0]?.benefitRiskItemResultVOList[0]?.dataList?.map((item: string[], i: string) => {
     item.push(i + 1);
     item.push((age.value + i + 1).toString());
   });
@@ -308,8 +308,9 @@ const shareConfigProps = () => {
 const setWeixinShare = () => {
   const shareProps = shareConfigProps();
 
-  if (isWechat()) {
+  if (!isWechat()) {
     console.log('在微信内, 默认设置分享信息');
+    console.log(shareProps);
     wx.ready(() => {
       console.log('ready');
       // 分享给朋友｜分享到QQ
@@ -331,8 +332,8 @@ onMounted(() => {
     info.value = res.data?.proposalInsuredVOList[0];
     age.value = dayjs().diff(info.value.birthday, 'y');
 
-    ageBegin.value = info.value.benefitRiskResultVOList[0].ageBegin;
-    ageEnd.value = info.value.benefitRiskResultVOList[0].ageEnd;
+    ageBegin.value = info.value.benefitRiskResultVOList[0]?.ageBegin;
+    ageEnd.value = info.value.benefitRiskResultVOList[0]?.ageEnd;
     num.value = age.value + 1;
     getBenefit();
     getData();
@@ -387,15 +388,15 @@ const handleShare = (type: string) => {
   const shareProps = shareConfigProps();
   console.log('点击了分享按钮');
 
-  if (isApp()) {
-    console.log('在app内');
-    jsbridge.shareConfig(shareProps);
-    return;
-  }
-
   if (isWechat()) {
     console.log('在微信内，弹起遮罩');
     showOverLay.value = true;
+    return;
+  }
+
+  if (isApp()) {
+    console.log('在app内');
+    jsbridge.shareConfig(shareProps);
   }
 };
 
