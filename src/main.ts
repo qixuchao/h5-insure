@@ -34,7 +34,7 @@ app.use(VueDOMPurifyHTML);
 app.use(vue3PhotoPreview);
 app.use(router).use(store);
 app.use(Vant);
-// app.component('ZaPageWrap', ZaPageWrap);
+// app.component('ProPageWrap', ProPageWrap);
 // 加载自定义的全局组件
 app.use(globalComps);
 app.directive('clipboard', clipboard);

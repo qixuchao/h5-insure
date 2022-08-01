@@ -5,7 +5,7 @@
  * index.vue
 -->
 <template>
-  <ZaPageWrap class="page-question-notice">
+  <ProPageWrap class="page-question-notice">
     <ProCard v-if="isHolderQuestions(1).length > 0" title="投保人">
       <van-cell
         v-for="i of isHolderQuestions(1)"
@@ -33,7 +33,7 @@
       <!-- <van-button plain type="primary" @click="state.showShare = true">分享</van-button> -->
       <van-button type="primary" @click="handleClickNextStep">下一步</van-button>
     </div>
-  </ZaPageWrap>
+  </ProPageWrap>
   <van-action-sheet v-model:show="state.showShare" cancel-text="取消" close-on-click-action>
     <div class="content">
       <div class="bx" @click="handleShare('1')">

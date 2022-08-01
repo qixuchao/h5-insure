@@ -5,7 +5,7 @@
  * index.vue
 -->
 <template>
-  <ZaPageWrap class="page-salesman-inform">
+  <ProPageWrap class="page-salesman-inform">
     <ProCard title="营销员告知书">
       <van-cell
         v-for="i of state.noticeList"
@@ -32,7 +32,7 @@
         <van-button type="primary" block @click="handleClickNextStep">下一步</van-button>
       </div>
     </footer>
-  </ZaPageWrap>
+  </ProPageWrap>
 </template>
 
 <script setup lang="ts">

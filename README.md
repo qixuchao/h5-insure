@@ -58,7 +58,7 @@ npm run build
   - vue 组件 声明 props 时，defineProps 都采用对象方式，声明每个 prop 的类型，是否必填 或 默认值
   - vue 组件 声明 emit 时，defineEmit 都要把事件定义清楚
   - 每个 vue 文件组件添加 name 属性， 如：orderList.vue 页面 name: 'OrderList' 这样便于在 vue-devtool 中调试识别。
-  - 每个 vue 页面 root 的元素的 ZaPageWrap 组件 传入 main-class 以 "page-文件名" 如：page-order-list page-order-detail
+  - 每个 vue 页面 root 的元素的 ProPageWrap 组件 传入 main-class 以 "page-文件名" 如：page-order-list page-order-detail
   - 每个 vue 组件的 root 元素的 class 以 "com-文件名" 如： com-order-item com-side-bar
   - 页面声明过定时器的，一定要记得离开时销毁
   - 声明的 pinia store 变量，要写注释

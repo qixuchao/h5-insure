@@ -1,5 +1,5 @@
 <template>
-  <ZaPageWrap main-class="page-home">
+  <ProPageWrap main-class="page-home">
     <VanGrid>
       <VanGridItem v-for="route in routes" :key="route.path" link-type="navigateTo">
         <RouterLink :to="route.path">
@@ -7,7 +7,7 @@
         </RouterLink>
       </VanGridItem>
     </VanGrid>
-  </ZaPageWrap>
+  </ProPageWrap>
 </template>
 
 <script lang="ts" setup>

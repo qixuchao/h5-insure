@@ -5,13 +5,13 @@
  * document.vue
 -->
 <template>
-  <ZaPageWrap class="com-document">
+  <ProPageWrap class="com-document">
     <div class="title">{{ props.currentPageInfo[0]?.title }}</div>
     <div v-dompurify-html="props.currentPageInfo[0]?.content" class="content"></div>
     <div class="footer-button">
       <van-button type="primary" @click="emits('onSubmitCurrentStatus', 1)">了解并继续</van-button>
     </div>
-  </ZaPageWrap>
+  </ProPageWrap>
 </template>
 
 <script setup lang="ts">

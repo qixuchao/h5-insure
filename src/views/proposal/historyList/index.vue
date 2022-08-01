@@ -5,7 +5,7 @@
  * index.vue
 -->
 <template>
-  <ZaPageWrap class="page-history-proposal">
+  <ProPageWrap class="page-history-proposal">
     <van-search
       v-model="searchValue"
       placeholder="请输入关键词"
@@ -27,7 +27,7 @@
         </div>
       </div>
     </div>
-  </ZaPageWrap>
+  </ProPageWrap>
 </template>
 
 <script setup lang="ts">

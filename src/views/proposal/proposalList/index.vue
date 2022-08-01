@@ -1,5 +1,5 @@
 <template>
-  <ZaPageWrap class="page-proposal">
+  <ProPageWrap class="page-proposal">
     <div class="search-wrap">
       <van-search
         v-model="searchValue"
@@ -56,7 +56,7 @@
       @close="closeProductRisk"
       @finished="onFinished"
     ></ProductRisk>
-  </ZaPageWrap>
+  </ProPageWrap>
   <ProFixedButton v-if="!isCreateProposal" :button-image="ProFixedButtonDefaultImage" @click="goHistoryList" />
 </template>
 

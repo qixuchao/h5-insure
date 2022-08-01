@@ -5,7 +5,7 @@
  * index.vue
 -->
 <template>
-  <ZaPageWrap class="com-quersion">
+  <ProPageWrap class="com-quersion">
     <ProCard :title="`${titleMap[questionnaireType as any]}健康告知书`">
       <div v-for="(i, idx) of props.currentPageInfo" :key="idx" class="question-item">
         <div class="problem">{{ idx + 1 }}. {{ i.title }}</div>
@@ -60,7 +60,7 @@
     <div class="footer-button">
       <van-button type="primary" block @click="handleSubmitCurrentQuestion">提交</van-button>
     </div>
-  </ZaPageWrap>
+  </ProPageWrap>
 </template>
 
 <script setup lang="ts">
