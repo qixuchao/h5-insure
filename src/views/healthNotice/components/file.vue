@@ -40,7 +40,6 @@ const show = ref(false);
 const loading = ref(true);
 
 const isPicture = computed(() => {
-  // eslint-disable-next-line array-callback-return
   return ['png', 'jpg', 'jpeg'].some((i) => props.url.includes(i));
 });
 
