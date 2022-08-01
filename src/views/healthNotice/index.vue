@@ -23,6 +23,7 @@
       :url="state.currentQuestionInfo[0]?.content"
       @on-submit-current-status="onSubmitCurrentStatus"
     />
+    <IsLinkPage v-if="isLink" :url="state.currentQuestionInfo[0]?.content" />
   </div>
 </template>
 
@@ -32,6 +33,7 @@ import Question from './components/question.vue'; // 问卷类型
 import Document from './components/document.vue'; // 文本类型
 import InsuranceNotice from './components/InsuranceNotice.vue'; // 告知类型
 import Enclosure from './components/file.vue'; // 文件类型 PDF或图片
+import IsLinkPage from './components/link.vue'; // 链接时候
 import { ListCustomerQuestionsResponse, GetCustomerQuestionsDetailResponse } from '@/api/modules/inform.data';
 import { nextStep, getOrderDetail } from '@/api';
 import { getCustomerQuestionsDetail, updateOrderNoticeStatus, saveMarketerNotices } from '@/api/modules/inform';
@@ -73,11 +75,14 @@ const isQuestion = computed(() => {
 });
 
 const isPDFOrPic = computed(() => {
-  return questionnaireType === '1' && [1, 3].includes(state.currentQuestionInfo[0]?.textType as any);
+  return questionnaireType === '1' && [1].includes(state.currentQuestionInfo[0]?.textType as any);
 });
 
 const isRichText = computed(() => {
   return questionnaireType === '1' && [2].includes(state.currentQuestionInfo[0]?.textType as any);
+});
+const isLink = computed(() => {
+  return questionnaireType === '1' && [3].includes(state.currentQuestionInfo[0]?.textType as any);
 });
 
 const onSubmitCurrentStatus = (status: number) => {
