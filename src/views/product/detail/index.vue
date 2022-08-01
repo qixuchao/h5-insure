@@ -115,14 +115,15 @@
           </ProCard>
         </template>
       </ProTab>
-      <div class="footer">
-        <div class="price">
-          <!-- ￥{{ transformToMoney(detail?.showConfigVO.price) }} -->
-        </div>
+      <!-- <div class="footer">
+        <div class="price">￥{{ transformToMoney(detail?.showConfigVO.price) }}</div>
         <div class="buttons">
-          <!-- <div class="left">计划书</div> -->
+          <div class="left">计划书</div>
           <van-button class="right" @click="handleSubmit">算保费</van-button>
         </div>
+      </div> -->
+      <div class="footer-button">
+        <van-button type="primary" @click="handleSubmit">算保费</van-button>
       </div>
     </div>
   </ProPageWrap>
@@ -235,6 +236,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .page-product-detail {
+  padding-bottom: 180px;
   .swipe {
     width: 100%;
     height: 400px;

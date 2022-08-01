@@ -5,12 +5,14 @@
         <FieldInfo>
           <template #label>
             <div class="header">
-              <div class="product-name">横琴臻爱医疗险（感恩版）横琴臻爱医疗险（感恩版）</div>
+              <div class="product-name">
+                {{ detail?.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productName }}
+              </div>
               <div class="company-name">{{ detail?.venderName }}</div>
             </div>
           </template>
           <template #content>
-            <div class="status">待处理</div>
+            <div class="status">{{ !!detail ? ORDER_STATUS_MAP[detail?.orderStatus] : '' }}</div>
           </template>
         </FieldInfo>
         <FieldInfo label="订单号" :content="detail?.orderNo" />
@@ -37,23 +39,51 @@
         <FieldInfo label="保障金额" content="¥100,000.00" />
         <FieldInfo label="首期保费" content="¥10,000.00" />
       </div>
-      <div class="footer-button">
-        <van-button plain type="primary">删除</van-button>
-        <van-button type="primary">去处理</van-button>
+      <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.PENDING" class="footer-button">
+        <van-button type="primary" @click.stop="handleDelete">删除</van-button>
+        <van-button type="primary" @click.stop="handleProcess">去处理</van-button>
+      </div>
+      <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.PAYING" class="footer-button">
+        <van-button type="primary" @click.stop="handleDelete">删除</van-button>
+        <van-button type="primary" @click.stop="handlePay">去支付</van-button>
+      </div>
+      <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.PAYMENT_FAILED" class="footer-button">
+        <van-button type="primary" @click.stop="handleDelete">删除</van-button>
+        <van-button type="primary" @click.stop="handlePay">去支付</van-button>
+      </div>
+      <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.PAYMENT_SUCCESS" class="footer-button"></div>
+      <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.UNDERWRITE" class="footer-button"></div>
+      <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.INSURER_REJECT" class="footer-button">
+        <van-button type="primary" @click.stop="handleDelete">删除</van-button>
+      </div>
+      <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.TIMEOUT" class="footer-button">
+        <van-button type="primary" @click.stop="handleDelete">删除</van-button>
       </div>
     </div>
   </ProPageWrap>
 </template>
 
 <script lang="ts" setup>
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import dayjs from 'dayjs';
 import FieldInfo from '../components/fieldInfo.vue';
 import { getOrderDetail } from '@/api/modules/order';
+import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
 import { OrderDetail } from '@/api/modules/order.data';
+import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 
 const route = useRoute();
+const router = useRouter();
 const detail = ref<OrderDetail>();
+
+const handleDelete = () => {};
+const handleProcess = () => {};
+const handlePay = () => {
+  router.push({
+    path: PAGE_ROUTE_ENUMS.payInfo,
+    query: { id: 1 },
+  });
+};
 
 onMounted(() => {
   console.log(route);

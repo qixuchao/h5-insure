@@ -47,7 +47,7 @@ const currentStatus = computed(() => {
 });
 
 const handleClick = (item: OrderItem) => {
-  router.push(`/order/detail?id=${item.id}`);
+  router.push(`/orderDetail?id=${item.id}`);
 };
 
 const getData = () => {
