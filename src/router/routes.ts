@@ -143,6 +143,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   {
     name: 'pdf',
     path: '/openPdf',
+    meta: { title: 'pdf' },
     component: () => import('@/views/openPdf/index.vue'),
   },
 ];
