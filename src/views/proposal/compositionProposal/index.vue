@@ -307,9 +307,8 @@ const shareConfigProps = () => {
 const setWeixinShare = () => {
   const shareProps = shareConfigProps();
 
-  console.log(shareProps);
-
   if (isWechat()) {
+    console.log('在微信内, 默认设置分享信息');
     wx.ready(() => {
       console.log('ready');
       // 分享给朋友｜分享到QQ
@@ -385,13 +384,16 @@ const handleChangeChart = (val: string) => {
 
 const handleShare = (type: string) => {
   const shareProps = shareConfigProps();
+  console.log('点击了分享按钮');
 
   if (isApp()) {
+    console.log('在app内');
     jsbridge.shareConfig(shareProps);
     return;
   }
 
   if (isWechat()) {
+    console.log('在微信内，弹起遮罩');
     showOverLay.value = true;
   }
 };

@@ -39,5 +39,5 @@ export const pickNameInList = (
 };
 
 export const isApp = () => {
-  return Boolean(window.AppJSInterface || (window.webkit && window.webkit.messageHandlers));
+  return Boolean(window?.AppJSInterface || window?.webkit?.messageHandlers);
 };

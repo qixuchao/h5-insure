@@ -95,7 +95,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   {
     name: 'compositionProposal',
     path: '/compositionProposal',
-    meta: { title: '组合计划书' },
+    meta: { title: '组合计划书', requireWxJs: true },
     component: () => import('@/views/proposal/compositionProposal/index.vue'),
   },
   {
