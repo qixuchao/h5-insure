@@ -41,3 +41,7 @@ export const pickNameInList = (
 export const isApp = () => {
   return Boolean(window?.AppJSInterface || window?.webkit?.messageHandlers);
 };
+
+export const toLocal = (number: number) => {
+  return number && number.toLocaleString();
+};

@@ -25,7 +25,7 @@
             </div>
           </div>
           <div class="fe">
-            首年保费： <span>¥{{ info?.totalPremium }}</span>
+            首年保费： <span>¥{{ toLocal(info?.totalPremium) }}</span>
           </div>
         </div>
         <div class="line"></div>
@@ -40,7 +40,6 @@
             <div class="title">
               <img src="@/assets/images/compositionProposal/title.png" class="ig" /> {{ item.riskName }}
             </div>
-            <div class="text-detail">条款详情</div>
           </div>
           <div class="product-detail">
             <van-collapse v-model="item.riskName1" accordion :is-link="false" :border="false" size="middle">
@@ -85,7 +84,7 @@
                   </p>
                   <div class="box-price">
                     <div v-for="(val, k) in item.benefitRiskItemResultVOList[0].headers" :key="k" style="width: 33%">
-                      <p class="text1">{{ price[k] }}</p>
+                      <p class="text1">{{ toLocal(Number(price[k])) }}</p>
                       <p class="text2">{{ val }}(元）</p>
                     </div>
                   </div>
@@ -94,7 +93,7 @@
                   <div class="add lf" @click="handleReduce">
                     <img src="@/assets/images/compositionProposal/cut.png" alt="" />
                   </div>
-                  <div style="flex: 1">
+                  <div style="flex: 1; margin: 0px 5px">
                     <van-slider
                       v-if="ageBegin"
                       v-model="num"
@@ -159,8 +158,9 @@
 <script lang="ts" setup>
 import wx from 'weixin-js-sdk';
 import dayjs from 'dayjs';
+import { Toast } from 'vant';
 import { queryProposalDetail, generatePdf } from '@/api/modules/proposalList';
-import { isApp, isWechat, ORIGIN } from '@/utils';
+import { toLocal, isApp, isWechat, ORIGIN } from '@/utils';
 import Storage from '@/utils/storage';
 import jsbridge from '@/utils/jsbridge';
 import ZaShareOverlay from '@/components/ZaShareOverlay/index.vue';
@@ -169,6 +169,7 @@ import ProChart from '@/components/ProChart/index.vue';
 import pdfPreview from '@/utils/pdfPreview';
 
 const router = useRoute();
+const history = useRouter();
 const { isShare, id } = router.query;
 const columns = [
   {
@@ -403,9 +404,19 @@ const onCloseOverlay = () => {
 };
 
 const getPdf = () => {
-  generatePdf(id.toString()).then(({ code, data, message }) => {
+  if (!id) {
+    Toast('PDF生成失败');
+    return;
+  }
+  Toast.loading({
+    message: 'PDF生成中...',
+    forbidClick: true,
+  });
+  generatePdf(id.toString()).then((res: any) => {
+    const { code, message } = res;
     if (code === '10000') {
-      window.location.href = message;
+      Toast.clear();
+      history.push(`/openPdf?url=${encodeURIComponent(message)}`);
     }
   });
 };
@@ -539,14 +550,6 @@ const getPdf = () => {
           margin-right: 16px;
         }
       }
-      .text-detail {
-        width: 128px;
-        height: 40px;
-        font-size: 24px;
-        border-radius: 24px;
-        border: 2px solid #e6e6eb;
-        text-align: center;
-      }
     }
     .product-detail {
       background-color: #f6f6fa;
@@ -635,6 +638,8 @@ const getPdf = () => {
         }
         .lf {
           margin-right: 45px;
+          display: flex;
+          align-items: center;
         }
         .rg {
           margin-left: 45px;

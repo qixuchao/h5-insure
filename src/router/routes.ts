@@ -140,6 +140,11 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     meta: { title: '签名认证' },
     component: () => import('@/views/middlePage/index.vue'),
   },
+  {
+    name: 'pdf',
+    path: '/openPdf',
+    component: () => import('@/views/openPdf/index.vue'),
+  },
 ];
 
 export default asyncRoutes;
