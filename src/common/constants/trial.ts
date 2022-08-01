@@ -1,3 +1,5 @@
+import { constantListToMap } from '@/utils';
+
 export const RISK_CATEGORY = [
   {
     label: '意外',
@@ -243,6 +245,7 @@ export const PAYMENT_FREQUENCY = [
   //   value: '6',
   // },
 ];
+export const PAYMENT_FREQUENCY_MAP = constantListToMap(PAYMENT_FREQUENCY);
 
 // 缴费期间值
 export const PAYMENT_PERIOD_VALUE = [

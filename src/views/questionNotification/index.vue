@@ -165,7 +165,7 @@ const handleClickNextStep = () => {
   //   return;
   // }
   router.push({
-    path: '/verify',
+    path: '/infoCollection',
     query: route.query,
   });
 

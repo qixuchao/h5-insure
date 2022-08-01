@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-28 10:28:12
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-30 09:55:33
+ * @LastEditTime: 2022-08-01 23:38:48
  * @FilePath: /zat-planet-h5-cloud-insure/src/utils/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -46,4 +46,21 @@ export const isApp = () => {
 
 export const toLocal = (number: number) => {
   return number && number.toLocaleString();
+};
+
+// 是否为空值
+export function isNullish(value: any) {
+  return [undefined, null].includes(value);
+}
+
+// constant List -> Map
+export const constantListToMap = (arr: ConstantList): object => {
+  if (!(Array.isArray(arr) && arr.length)) return {};
+  return arr.reduce((result, { value, label }) => {
+    if (!isNullish(value)) {
+      // eslint-disable-next-line no-param-reassign
+      result[value] = label;
+    }
+    return result;
+  }, {});
 };

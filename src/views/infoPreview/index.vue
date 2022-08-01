@@ -2,13 +2,14 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-01 17:23:35
+ * @LastEditTime: 2022-08-01 19:45:22
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <ProPageWrap class="page-info-wrapper">
-    <ProForm v-if="!state.isLoading" ref="formRef">
+    <ProForm v-if="!state.isLoading" ref="formRef" is-view>
+      <InsuredInfo :product-data="formInfo.tenantOrderInsuredList[0]?.tenantOrderProductList?.[0]"></InsuredInfo>
       <ProCard title="投保人">
         <PersonalInfo
           v-model:images="holderImages"
@@ -117,6 +118,7 @@ import { RELATION_HOLDER_LIST, BENEFICIARY_LIST } from '@/common/constants/infoC
 import BeneficiaryInfo from '../infoCollection/components/BeneficiaryInfo/index.vue';
 import PersonalInfo from '../infoCollection/components/PersonalInfo/index.vue';
 import AddressSelect from '../infoCollection/components/AddressSelect/index.vue';
+import InsuredInfo from './components/InsuredPart.vue';
 
 interface State {
   beneficiaryId: number;
