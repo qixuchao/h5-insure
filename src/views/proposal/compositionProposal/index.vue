@@ -152,6 +152,7 @@
         <van-button plain type="primary" class="btn" @click="getPdf">生成PDF</van-button>
         <van-button type="primary" class="btn" @click="handleShare">分享计划书</van-button>
       </div>
+      <ZaShareOverlay :show="showOverLay" @on-close="onCloseOverlay" />
     </div>
   </ProPageWrap>
 </template>
@@ -162,6 +163,7 @@ import { queryProposalDetail, generatePdf } from '@/api/modules/proposalList';
 import { isApp, isWechat, ORIGIN } from '@/utils';
 import Storage from '@/utils/storage';
 import jsbridge from '@/utils/jsbridge';
+import ZaShareOverlay from '@/components/ZaShareOverlay/index.vue';
 import ProTable from '@/components/ProTable/index.vue';
 import ProChart from '@/components/ProChart/index.vue';
 import pdfPreview from '@/utils/pdfPreview';
@@ -204,6 +206,7 @@ const ageBegin = ref(0);
 const ageEnd = ref(0);
 const activeNames = ref('');
 const proposalName = ref('');
+const showOverLay = ref(false); // 分享遮罩层
 
 const num = ref(0);
 const showChart = ref(true);
@@ -284,6 +287,39 @@ const getChargePay = (val: string) => {
   }
 };
 
+const shareConfigProps = () => {
+  const skipUrl = `${ORIGIN}?isShare=1`;
+  const authUrl = `${ORIGIN}/api/app/officialAccount/outerUserAuth?systemCode=BAO_A&skipUrl=${encodeURIComponent(
+    skipUrl,
+  )}`;
+  return {
+    title: `${info.value.name}的计划书`, // 分享标题
+    desc: '您的贴心保险管家', // 分享描述
+    link: authUrl, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+    img: '', // 微信分享
+    success() {
+      // 设置成功
+      console.log('分享成功回调');
+    },
+  };
+};
+
+const setWeixinShare = () => {
+  const shareProps = shareConfigProps();
+
+  console.log(shareProps);
+
+  if (isWechat()) {
+    wx.ready(() => {
+      console.log('ready');
+      // 分享给朋友｜分享到QQ
+      wx.updateAppMessageShareData(shareProps);
+      // 分享到朋友圈｜分享到 QQ 空间
+      wx.updateTimelineShareData(shareProps);
+    });
+  }
+};
+
 onMounted(() => {
   if (router.query.token) {
     const storage = new Storage({ source: 'localStorage' });
@@ -312,6 +348,7 @@ onMounted(() => {
         });
       },
     );
+    setWeixinShare();
   });
 });
 
@@ -347,21 +384,7 @@ const handleChangeChart = (val: string) => {
 };
 
 const handleShare = (type: string) => {
-  const skipUrl = `${ORIGIN}?isShare=1`;
-  const authUrl = `${ORIGIN}/api/app/officialAccount/outerUserAuth?systemCode=BAO_A&skipUrl=${encodeURIComponent(
-    skipUrl,
-  )}`;
-  const shareProps = {
-    title: `${info.value.name}计划书`, // 分享标题
-    desc: '您的贴心保险管家', // 分享描述
-    link: authUrl, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-    img: '', // 微信分享
-    imgUrl: '', // app分享
-    success() {
-      // 设置成功
-      console.log('分享成功回调');
-    },
-  };
+  const shareProps = shareConfigProps();
 
   if (isApp()) {
     jsbridge.shareConfig(shareProps);
@@ -369,14 +392,12 @@ const handleShare = (type: string) => {
   }
 
   if (isWechat()) {
-    wx.ready(() => {
-      console.log('ready');
-      // 分享给朋友｜分享到QQ
-      wx.updateAppMessageShareData(shareProps);
-      // 分享到朋友圈｜分享到 QQ 空间
-      wx.updateTimelineShareData(shareProps);
-    });
+    showOverLay.value = true;
   }
+};
+
+const onCloseOverlay = () => {
+  showOverLay.value = false;
 };
 
 const getPdf = () => {
