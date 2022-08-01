@@ -16,7 +16,8 @@
         <div class="info-detail">
           <div class="name">
             <div class="img">
-              <img :src="info?.avatar" alt="" />
+              <img v-if="isMale(info?.gender)" src="@/assets/images/compositionProposal/male.png" />
+              <img v-if="!isMale(info?.gender)" src="@/assets/images/compositionProposal/female.png" />
             </div>
             <div>
               <p clase="p1">{{ info?.name }}</p>
