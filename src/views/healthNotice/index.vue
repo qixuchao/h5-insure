@@ -13,12 +13,12 @@
       @on-submit-current-status="onSubmitCurrentStatus"
     /> -->
     <!-- <Document /> -->
-    <InsuranceNotice v-if="isRichText" :current-page-info="state.currentQuestionInfo" />
-    <!-- <Enclosure
+    <!-- <InsuranceNotice v-if="isRichText" :current-page-info="state.currentQuestionInfo" /> -->
+    <Enclosure
       v-if="isPDFOrPic"
       :url="state.currentQuestionInfo[0]?.content"
       @on-submit-current-status="onSubmitCurrentStatus"
-    /> -->
+    />
   </div>
 </template>
 
