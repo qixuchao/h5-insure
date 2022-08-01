@@ -91,7 +91,7 @@ const onSubmitCurrentStatus = (status: number) => {
     objectId: id as any,
     objectType,
     orderId,
-    orderNo: orderNo as any,
+    orderNo,
     tenantId: 9991000007,
   }).then(({ code, data }) => {
     console.log(code);
@@ -103,9 +103,9 @@ const onSubmitCurrentStatus = (status: number) => {
 
 const orderDetail = () => {
   getOrderDetail({
-    orderNo: '2022072710380711215',
+    orderNo,
     saleUserId: 'D1234567-1',
-    tenantId: '9991000007',
+    tenantId,
   }).then(({ code, data }) => {
     if (code === '10000') {
       Object.assign(state.pageData, data);
@@ -122,8 +122,8 @@ onMounted(() => {
     id,
     objectType,
     productCategory,
-    orderNo: '2022011815151382958351',
-    tenantId: 9991000007,
+    orderNo,
+    tenantId,
   }).then(({ code, data }) => {
     if (code === '10000') {
       state.currentQuestionInfo = data;

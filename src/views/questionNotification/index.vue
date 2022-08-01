@@ -73,6 +73,7 @@ const {
   orderNo = '2022021815432987130620',
   productCode = 'CQ75CQ76',
   templateId = 1,
+  saleUserId = 'D1234567-1',
   tenantId = 9991000007,
 } = route.query;
 
@@ -117,9 +118,9 @@ const handleShare = (type: string) => {
 
 const orderDetail = () => {
   getOrderDetail({
-    orderNo: '2022021815432987130620',
-    saleUserId: 'D1234567-1',
-    tenantId: '9991000007',
+    orderNo,
+    saleUserId,
+    tenantId,
   }).then(({ code, data }) => {
     if (code === '10000') {
       Object.assign(state.pageData, data);
@@ -133,7 +134,7 @@ const getQuestionList = () => {
     // 告知类型：1-投保告知，2-健康告知，3-特别约定，4-投保人问卷，5-被保人问卷，6-投保人声明，7-被保人声明，8-免责条款，9-营销员告知
     // objectId: '1',
     // objectType: 1, // 适用角色 ：1-投保人，2-被保人，3-营销人员(代理人)
-    orderNo: '2022021815432987130620',
+    orderNo,
     productCategory: 1,
     tenantId: 9991000007,
   };

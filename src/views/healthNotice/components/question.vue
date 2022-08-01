@@ -112,14 +112,14 @@ const parseData = (val: string) => {
       };
     });
   }
-  return {};
+  return [];
 };
 
 const handleSubmitCurrentQuestion = () => {
-  if ([radioCheckedProblem.value, modelValue.value, inputValue.value].includes('') || checked.value.length === 0) {
-    Toast('请完成所有题目进行下一步');
-    return;
-  }
+  // if ([radioCheckedProblem.value, modelValue.value, inputValue.value].includes('') || checked.value.length === 0) {
+  //   Toast('请完成所有题目进行下一步');
+  //   return;
+  // }
   emits('onSubmitCurrentStatus', 1);
 };
 

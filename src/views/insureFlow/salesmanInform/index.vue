@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter, useRouteuseRoute } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { Toast } from 'vant';
 import ProCard from '@/components/ProCard/index.vue';
 import { getMarketerNotices, getMarketerNoticesDetail } from '@/api/modules/salesmanInform';
@@ -52,8 +52,14 @@ import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 const router = useRouter();
 const route = useRoute();
 
-const agentSignRef = ref<any>(null);
+const {
+  orderNo = '2022021815432987130620',
+  productCode = 'andainsurer',
+  templateId = 1,
+  tenantId = 9991000007,
+} = route.query;
 
+const agentSignRef = ref<any>(null);
 const checked = ref<boolean>(false);
 
 const resetSign = () => {
@@ -89,12 +95,12 @@ const orderDetail = () => {
 onMounted(() => {
   orderDetail();
   listCustomerQuestions({
-    insurerCode: 'andainsurer',
+    insurerCode: productCode,
     // 告知类型：1-投保告知，2-健康告知，3-特别约定，4-投保人问卷，5-被保人问卷，6-投保人声明，7-被保人声明，8-免责条款，9-营销员告知
     // objectType: 1, // 适用角色 ：1-投保人，2-被保人，3-营销人员(代理人)
-    orderNo: '2022021815432987130620',
+    orderNo,
     productCategory: 1,
-    tenantId: 9991000007,
+    tenantId,
     noticeType: 9,
     objectType: 3,
   }).then(({ code, data }) => {
@@ -126,7 +132,7 @@ const handleClickNextStep = () => {
   }
 
   const signData = agentSignRef.value?.save();
-  saveSign('AGENT', signData, '2022072810590219649', 9991000007).then((code) => {
+  saveSign('AGENT', signData, orderNo, tenantId).then((code) => {
     if (code) {
       nextStep({
         ...state.pageData,
