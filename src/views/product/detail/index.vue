@@ -121,7 +121,7 @@
         </div>
         <div class="buttons">
           <!-- <div class="left">计划书</div> -->
-          <van-button class="right">算保费</van-button>
+          <van-button class="right" @click="handleSubmit">算保费</van-button>
         </div>
       </div>
     </div>
@@ -152,6 +152,7 @@
 
 <script lang="ts" setup>
 import { onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import ProDivider from '@/components/ProDivider/index.vue';
 import ProCard from '@/components/ProCard/index.vue';
 import ProTab from '@/components/ProTab/index.vue';
@@ -172,8 +173,12 @@ import {
   formatSocialInsuranceLimit,
 } from './utils';
 import { transformToMoney } from '@/utils/format';
-import { YES_NO_ENUM } from '@/common/constants';
+import { YES_NO_ENUM, PAGE_ROUTE_ENUMS } from '@/common/constants';
 
+const route = useRoute();
+const router = useRouter();
+const { productCode = 'CQ75CQ76' } = route.query;
+let templateId = '';
 const tabList = [
   { title: '产品特色', slotName: 'tab1' },
   { title: '理赔流程', slotName: 'tab2' },
@@ -196,15 +201,23 @@ const handleLinkClick = () => {
   popupShow.value = true;
 };
 
+const handleSubmit = () => {
+  router.push({
+    path: PAGE_ROUTE_ENUMS.premiumTrial,
+    query: { templateId, productCode },
+  });
+};
+
 onMounted(() => {
-  productDetail({ productCode: 'CQ75CQ76', withInsureInfo: true }).then((res) => {
+  productDetail({ productCode, withInsureInfo: true }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
       detail.value = data;
       const { insurerCode, categoryNo } = data;
       getTemplateInfo({ productCategory: 5, venderCode: 'everbrightlife' }).then((templateRes) => {
         if (templateRes.code === '10000') {
-          getInitFactor({ pageCode: 'productInfo', templateId: templateRes.data.id }).then((factorRes) => {
+          templateId = templateRes.data.id;
+          getInitFactor({ pageCode: 'productInfo', templateId }).then((factorRes) => {
             if (factorRes.code === '10000') {
               const temp = {};
               factorRes.data.productInsureFactorList.forEach((item) => {

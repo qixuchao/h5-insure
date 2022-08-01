@@ -58,7 +58,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   },
   {
     name: 'productDetail',
-    path: '/product/detail',
+    path: '/productDetail',
     meta: { title: '产品详情' },
     component: () => import('@/views/product/detail/index.vue'),
   },
@@ -88,7 +88,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   },
   {
     name: 'orderDetail',
-    path: '/order/detail',
+    path: '/orderDetail',
     meta: { title: '订单详情' },
     component: () => import('@/views/order/detail/index.vue'),
   },

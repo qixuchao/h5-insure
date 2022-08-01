@@ -27,6 +27,7 @@
       name="certNo"
       required
       placeholder="请输入"
+      :validate-type="state.formInfo.certType === '1' ? ['idCard'] : []"
     ></ProField>
     <ProField v-if="factorObj.name" v-model="state.formInfo.name" label="姓名" name="name" required></ProField>
     <ProField
@@ -36,6 +37,7 @@
       label="性别"
       name="gender"
       placeholder="请选择"
+      :is-view="isIdCard"
     >
       <template #input>
         <ProRadioButton v-model="state.formInfo.gender" :options="SEX_LIMIT_LIST"></ProRadioButton>
@@ -50,6 +52,7 @@
       :max="state.birth.max"
       type="date"
       required
+      :is-view="isIdCard"
     ></ProDatePicker>
     <ProDatePicker
       v-if="factorObj.certEndDate"
@@ -212,6 +215,7 @@ import { withDefaults } from 'vue';
 import dayjs from 'dayjs';
 import { InsuredReqItem, HolderReq, ProductInsureFactorItem } from '@/api/index.data';
 import { SEX_LIMIT_LIST, FLAG_LIST } from '@/common/constants';
+import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import useDicData from '@/hooks/useDicData';
 
 type FormInfo = InsuredReqItem | HolderReq;
@@ -232,6 +236,7 @@ interface State {
 const emits = defineEmits(['update:images']);
 const CERT_TYPE = useDicData('CERT_TYPE');
 const tempImages = ref<string[]>([]);
+const isIdCard = ref(false);
 
 const props = withDefaults(defineProps<Props>(), {
   formInfo: () => ({}),
@@ -258,9 +263,15 @@ const factorObj = computed(() => {
 });
 
 watch(
-  () => state.value.formInfo,
+  () => state.value.formInfo.certNo,
   (newVal) => {
-    console.log('newVal', newVal);
+    if (validateIdCardNo(newVal)) {
+      state.value.formInfo.gender = getSex(newVal);
+      state.value.formInfo.birthday = new Date(getBirth(newVal));
+      isIdCard.value = true;
+    } else {
+      isIdCard.value = false;
+    }
   },
   {
     deep: true,
@@ -281,7 +292,6 @@ watch(
 watch(
   tempImages,
   (val) => {
-    console.log('val', val);
     emits('update:images', val);
   },
   {

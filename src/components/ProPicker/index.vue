@@ -1,6 +1,6 @@
 <template>
   <ProField
-    :model="state.value"
+    :model-value="modelValue"
     :="$attrs"
     :is-link="isLink"
     :label="label"
@@ -76,10 +76,6 @@ const props = defineProps({
 
 const [show, toggle] = useToggle(false);
 
-const state = ref({
-  value: props.modelValue,
-});
-
 const handleClick = () => {
   toggle(true);
 };
@@ -116,7 +112,6 @@ const displayValue = computed(() => {
 watch(
   () => props.dataSource,
   (newVal = []) => {
-    console.log('newVal', newVal);
     formatColumn.value = newVal.map((item) => ({
       ...item,
       text: item[props.mapping.label],

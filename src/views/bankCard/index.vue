@@ -84,7 +84,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import ProCard from '@/components/ProCard/index.vue';
 import ProForm from '@/components/ProForm/index.vue';
 import ProField from '@/components/ProField/index.vue';
@@ -99,9 +99,18 @@ import {
   EXPIRY_METHOD_LIST,
   EXPIRY_METHOD_ENUM,
 } from '@/common/constants/bankCard';
+import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 import { nextStep, getOrderDetail, getInitFactor } from '@/api';
 
+const route = useRoute();
 const router = useRouter();
+const {
+  orderNo = '2022072710380711215',
+  saleUserId = 'D1234567-1',
+  tenantId = '9991000007',
+  templateId = 1,
+} = route.query;
+
 let orderDetail = {};
 const holderName = ref('');
 const firstFormData = ref({ payMethod: PAY_METHOD_ENUM.REAL_TIME, bankData: {} });
@@ -125,7 +134,7 @@ const handleYearCardClick = (type: PAY_INFO_TYPE_ENUM) => {
 
 const handleSubmit = () => {
   Promise.all([form1.value?.validate(), form2.value?.validate(), form3.value?.validate()]).then((results) => {
-    const data = [
+    const payInfoList = [
       {
         ...results[0],
         id: firstFormData.value.id,
@@ -200,13 +209,21 @@ const handleSubmit = () => {
     nextStep({
       ...orderDetail,
       pageCode: 'payInfo',
-      tenantOrderPayInfoList: data,
+      tenantOrderPayInfoList: payInfoList,
       extInfo: { ...orderDetail.extInfo, templateId: '1', pageCode: 'payInfo' },
       operateOption: {
         withPayInfo: true,
         withAttachmentInfo: true,
       },
       tenantOrderAttachmentList,
+    }).then((res) => {
+      const { code, data } = res;
+      if (code === '10000' && data.success) {
+        router.push({
+          path: PAGE_ROUTE_ENUMS[data.pageAction.data.nextPageCode],
+          query: { orderNo, saleUserId, tenantId },
+        });
+      }
     });
   });
 };
@@ -216,9 +233,9 @@ onMounted(() => {
     console.log('res', res);
   });
   getOrderDetail({
-    orderNo: '2022072710380711215',
-    saleUserId: 'D1234567-1',
-    tenantId: '9991000007',
+    orderNo,
+    saleUserId,
+    tenantId,
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
