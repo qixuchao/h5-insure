@@ -9,7 +9,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } f
 import { Toast } from 'vant';
 import Storage from '@/utils/storage';
 import { REDIRECT_URI } from '@/utils';
-import showCodeMessage, { SUCCESS_CODE, UNLOGIN } from '@/api/code';
+import showCodeMessage, { SUCCESS_CODE, SUCCESS_STATUS, UNLOGIN } from '@/api/code';
 import { formatJsonToUrlParams, instanceObject } from '@/utils/format';
 
 // URL前缀，默认为 /
@@ -59,7 +59,7 @@ axiosInstance.interceptors.response.use(
       window.location.href = '/login';
       return res;
     }
-    if (res.code === SUCCESS_CODE) {
+    if (res.code === SUCCESS_CODE || res.status === SUCCESS_STATUS) {
       return res;
     }
     Toast.fail((res && res.data) || (res && res.message) || '请求出错');

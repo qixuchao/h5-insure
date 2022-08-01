@@ -24,6 +24,7 @@ const showCodeMessage = (code: number | string): string => {
 };
 // 成功状态code
 export const SUCCESS_CODE = '10000';
+export const SUCCESS_STATUS = 200;
 // 未登录
 export const UNLOGIN = '401';
 
