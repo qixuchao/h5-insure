@@ -20,7 +20,11 @@
         <div
           v-for="(item, index) in detail?.tenantProductInsureVO?.guaranteeList"
           :key="index"
-          :class="['plan-item', { active: activePlan === index }]"
+          :class="[
+            'plan-item',
+            `length-${(detail?.tenantProductInsureVO?.guaranteeList || []).length}`,
+            { active: activePlan === index },
+          ]"
           @click="handlePlanItemClick(index)"
         >
           {{ item }}
@@ -89,17 +93,20 @@
                 <div class="sub-title">*产品资料文件详情可手动放大，以便您更清晰查阅内容。</div>
               </template>
               <div class="tab-1-content">
-                请查看<span
+                请查看
+                <ProPdfViewer
                   v-for="(item, index) in detail?.tenantProductInsureVO?.attachmentVOList || []"
                   :key="index"
                   class="file-name"
-                  >{{ `《${item.attachmentName}》`
-                  }}<span
+                  :title="`《${item.attachmentName}》`"
+                  :url="item.attachmentUri"
+                >
+                  <span
                     v-if="index !== (detail?.tenantProductInsureVO?.attachmentVOList || []).length - 1"
                     class="dun-hao"
                     >、</span
-                  ></span
-                >
+                  >
+                </ProPdfViewer>
               </div>
             </ProCard>
           </div>
@@ -123,7 +130,7 @@
         </div>
       </div> -->
       <div class="footer-button">
-        <van-button type="primary" @click="handleSubmit">算保费</van-button>
+        <van-button type="primary" @click="goPage">算保费</van-button>
       </div>
     </div>
   </ProPageWrap>
@@ -138,7 +145,7 @@
       "
       class="tab"
     ></ProTab>
-    <div v-if="(detail?.tenantProductInsureVO?.guaranteeList || []).length < 2" class="guarantee-list">
+    <div class="guarantee-list">
       <div
         v-for="(item, index) in detail?.tenantProductInsureVO?.guaranteeList[activePlan].titleAndDescVOS"
         :key="index"
@@ -161,6 +168,7 @@ import FieldInfo from '../components/fieldInfo.vue';
 import Question from '../components/question/index.vue';
 import ProTimeline from '@/components/ProTimeline/index.vue';
 import ProPopup from '@/components/ProPopup/index.vue';
+import ProPdfViewer from '@/components/ProPDFviewer/index.vue';
 import { productDetail, productList } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ProductInsureFactorItem } from '@/api/index.data';

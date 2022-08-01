@@ -64,10 +64,11 @@
 </template>
 
 <script lang="ts" setup>
+import { Dialog, Toast } from 'vant';
 import { useRoute, useRouter } from 'vue-router';
 import dayjs from 'dayjs';
 import FieldInfo from '../components/fieldInfo.vue';
-import { getOrderDetail } from '@/api/modules/order';
+import { getOrderDetail, deleteOrder } from '@/api/modules/order';
 import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
 import { OrderDetail } from '@/api/modules/order.data';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
@@ -76,13 +77,50 @@ const route = useRoute();
 const router = useRouter();
 const detail = ref<OrderDetail>();
 
-const handleDelete = () => {};
-const handleProcess = () => {};
-const handlePay = () => {
-  router.push({
-    path: PAGE_ROUTE_ENUMS.payInfo,
-    query: { id: 1 },
+const handleDelete = () => {
+  Dialog.confirm({
+    title: '确认',
+    message: '确认删除订单？',
+  }).then(() => {
+    deleteOrder(detail.value.id).then((res) => {
+      const { code, data } = res;
+      if (code === '10000') {
+        Toast.success('删除成功');
+      }
+    });
   });
+};
+const handleProcess = () => {
+  if (detail.value) {
+    const {
+      orderNo,
+      id: orderId,
+      saleUserId,
+      tenantId,
+      extInfo: { templateId, pageCode },
+    } = detail.value;
+    const productCode = detail.value.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productCode;
+    router.push({
+      path: PAGE_ROUTE_ENUMS[pageCode],
+      query: { productCode, orderNo, orderId, saleUserId, templateId, tenantId },
+    });
+  }
+};
+const handlePay = () => {
+  if (detail.value) {
+    const {
+      orderNo,
+      id: orderId,
+      saleUserId,
+      tenantId,
+      extInfo: { templateId },
+    } = detail.value;
+    const productCode = detail.value.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productCode;
+    router.push({
+      path: PAGE_ROUTE_ENUMS.payInfo,
+      query: { productCode, orderNo, orderId, saleUserId, templateId, tenantId },
+    });
+  }
 };
 
 onMounted(() => {

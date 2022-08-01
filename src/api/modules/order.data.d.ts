@@ -13,15 +13,21 @@ export interface Condition {
 }
 
 export interface OrderItem {
+  agencyId: string;
   companyName: string;
+  goodsCode: string;
   goodsName: string;
   id: number;
   orderNo: string;
   orderStartDate: string;
-  orderStatus: ORDER_STATUS_ENUM;
+  orderStatus: string;
   orderTopStatus: string;
+  pageCode: string;
   policyHolder: string;
   prem: number;
+  saleUserId: string;
+  templateId: number;
+  tenantId: number;
 }
 
 export interface Sort {

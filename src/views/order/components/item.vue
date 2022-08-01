@@ -37,13 +37,16 @@
 </template>
 
 <script lang="ts" setup>
+import { Dialog, Toast } from 'vant';
 import { defineProps } from 'vue';
 import { useRouter } from 'vue-router';
 import dayjs from 'dayjs';
 import { OrderItem } from '@/api/modules/order.data';
+import { deleteOrder } from '@/api/modules/order';
 import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 
+const emits = defineEmits(['afterDelete']);
 const router = useRouter();
 const props = defineProps({
   detail: {
@@ -59,16 +62,36 @@ const handleDetail = () => {
   });
 };
 
-const handleDelete = () => {};
-
-const handlePay = () => {
-  router.push({
-    path: PAGE_ROUTE_ENUMS.payInfo,
-    query: { id: props.detail.id },
+const handleDelete = () => {
+  Dialog.confirm({
+    title: '确认',
+    message: '确认删除订单？',
+  }).then(() => {
+    deleteOrder(props.detail.id).then((res) => {
+      const { code, data } = res;
+      if (code === '10000') {
+        Toast.success('删除成功');
+        emits('afterDelete');
+      }
+    });
   });
 };
 
-const handleProcess = () => {};
+const handlePay = () => {
+  const { goodsCode: productCode, orderNo, id: orderId, saleUserId, templateId, tenantId } = props.detail;
+  router.push({
+    path: PAGE_ROUTE_ENUMS.payInfo,
+    query: { productCode, orderNo, orderId, saleUserId, templateId, tenantId },
+  });
+};
+
+const handleProcess = () => {
+  const { goodsCode: productCode, orderNo, id: orderId, saleUserId, templateId, tenantId } = props.detail;
+  router.push({
+    path: PAGE_ROUTE_ENUMS[props.detail.pageCode],
+    query: { productCode, orderNo, orderId, saleUserId, templateId, tenantId },
+  });
+};
 </script>
 
 <style lang="scss" scoped>

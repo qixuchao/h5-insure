@@ -3,7 +3,13 @@
     <div class="page-order">
       <ProTab v-model:active="active" :list="tabList" small-gap class="tab" />
       <div class="body">
-        <Item v-for="(item, index) in list" :key="index" :detail="item" @click="handleClick(item)" />
+        <Item
+          v-for="(item, index) in list"
+          :key="index"
+          :detail="item"
+          @click="handleClick(item)"
+          @after-delete="handleAfterDelete"
+        />
       </div>
     </div>
   </ProPageWrap>
@@ -57,6 +63,10 @@ const getData = () => {
       list.value = data.datas;
     }
   });
+};
+
+const handleAfterDelete = () => {
+  getData();
 };
 
 watch(currentStatus, () => {

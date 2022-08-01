@@ -16,3 +16,7 @@ export const getOrderList = (data: any) => {
 export const getOrderDetail = (id: string) => {
   return request.post<OrderDetail, ResponseData<OrderDetail>>('/api/app/order/v1/detail', { id });
 };
+
+export const deleteOrder = (id: number) => {
+  return request.post<any, ResponseData>('/api/app/order/v1/delete', { id, status: 'deleted' });
+};
