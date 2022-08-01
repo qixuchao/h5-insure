@@ -17,7 +17,7 @@
       <div v-for="i of historyList" :key="i.id" class="proposal-item">
         <div class="title">{{ i.proposalName }}</div>
         <p class="premium">
-          保费：<span>¥{{ i.totalPremium }}</span>
+          保费：<span>¥{{ toLocal(i.totalPremium) }}</span>
         </p>
         <ProTable :columns="columns" class="table" :data-source="i.proposalProductRiskVOList" />
         <div class="operate-btn">
@@ -33,6 +33,7 @@
 <script setup lang="ts">
 import { Dialog, Toast } from 'vant';
 import { useRouter } from 'vue-router';
+import { toLocal } from '@/utils';
 import ProTable from '@/components/ProTable/index.vue';
 import { historyProposalList, deleteProposal } from '@/api/modules/proposalList';
 import { HistoryProposalListType } from '@/api/modules/proposalList.data';

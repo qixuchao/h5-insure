@@ -6,7 +6,7 @@
 -->
 <template>
   <ZaPageWrap class="com-document">
-    <div class="title">{{ props.currentPageInfo[0]?.questionnaireName }}</div>
+    <div class="title">{{ props.currentPageInfo[0]?.title }}</div>
     <div v-dompurify-html="props.currentPageInfo[0]?.content" class="content">
       <!-- <div v-for="(i, idx) of mockTempData" :key="idx">
         <p>{{ idx + 1 }}. 【{{ i.title }}】</p>
