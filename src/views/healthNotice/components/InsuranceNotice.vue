@@ -6,24 +6,30 @@
 -->
 <template>
   <ZaPageWrap class="com-document">
-    <div class="title">投保人需确认被保险人是否存在以下情况？</div>
-    <div class="content">
-      <div v-for="(i, idx) of mockTempData" :key="idx">
-        <p>{{ idx + 1 }}. 【{{ i.title }}】</p>
-        <p v-for="(child, childIxd) of i.content" :key="childIxd">
-          <span v-if="i.content.length > 1">（{{ childIxd + 1 }}）</span>
-          {{ child }}
-        </p>
-      </div>
-    </div>
+    <div class="title">{{ props.currentPageInfo[0]?.questionnaireName }}</div>
+    <div v-dompurify-html="props.currentPageInfo[0]?.content" class="content"></div>
     <div class="footer-button">
-      <van-button type="primary">了解并继续</van-button>
+      <van-button type="primary" @click="handleClickHasDone">了解并继续</van-button>
     </div>
   </ZaPageWrap>
 </template>
 
 <script setup lang="ts">
-import { mockTempData } from './mockData';
+import { withDefaults } from 'vue';
+import { GetCustomerQuestionsDetailResponse } from '@/api/modules/inform.data';
+
+interface Props {
+  currentPageInfo: GetCustomerQuestionsDetailResponse[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  currentPageInfo: () => [],
+});
+const emits = defineEmits<(e: 'onSubmitCurrentStatus', code: number) => void>();
+
+const handleClickHasDone = () => {
+  emits('onSubmitCurrentStatus', 1);
+};
 </script>
 
 <style scoped lang="scss">

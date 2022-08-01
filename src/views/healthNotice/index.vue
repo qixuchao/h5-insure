@@ -13,7 +13,7 @@
       @on-submit-current-status="onSubmitCurrentStatus"
     />
     <!-- <Document /> -->
-    <!-- <InsuranceNotice /> -->
+    <InsuranceNotice v-if="isRichText" :current-page-info="state.currentQuestionInfo" />
     <Enclosure
       v-if="isPDFOrPic"
       :url="state.currentQuestionInfo[0]?.content"
@@ -70,6 +70,10 @@ const isQuestion = computed(() => {
 
 const isPDFOrPic = computed(() => {
   return questionnaireType === '1' && [1, 3].includes(state.currentQuestionInfo[0]?.textType as any);
+});
+
+const isRichText = computed(() => {
+  return questionnaireType === '1' && [2].includes(state.currentQuestionInfo[0]?.textType as any);
 });
 
 const onSubmitCurrentStatus = (status: number) => {

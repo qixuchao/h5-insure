@@ -69,6 +69,7 @@ import { Toast } from 'vant';
 import { ref, onBeforeUpdate, withDefaults } from 'vue';
 import ProCard from '@/components/ProCard/index.vue';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
+import { GetCustomerQuestionsDetailResponse } from '@/api/modules/inform.data';
 
 const route = useRoute();
 const checkboxRefs = ref<any>([]);
@@ -94,18 +95,8 @@ const toggle = (index: string | number) => {
   checkboxRefs.value[index].toggle();
 };
 
-interface ItemProps {
-  content: object;
-  options: string;
-  position: number;
-  questionType: number;
-  questionnaireId: number;
-  textType: object;
-  title: string;
-}
-
 interface Props {
-  currentPageInfo: ItemProps[];
+  currentPageInfo: GetCustomerQuestionsDetailResponse[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
