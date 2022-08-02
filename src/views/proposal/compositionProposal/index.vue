@@ -297,18 +297,10 @@ const shareConfigProps = () => {
   const authUrl = `${ORIGIN}/api/app/officialAccount/outerUserAuth?systemCode=BAO_A&skipUrl=${encodeURIComponent(
     skipUrl,
   )}`;
-  // 写死的图片
-  const imgUrl = 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/4e9f65f5-1bfc-4062-959b-c3101cb9e763.jpg';
   return {
     title: `${info.value.name}的计划书`, // 分享标题
     desc: '您的贴心保险管家', // 分享描述
     link: authUrl, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-    img: imgUrl, // 微信分享
-    imgUrl,
-    success() {
-      // 设置成功
-      console.log('分享成功回调');
-    },
   };
 };
 
@@ -319,13 +311,21 @@ const setWeixinShare = () => {
     console.log('在微信内, 默认设置分享信息');
     console.log(shareProps);
     wx.ready(() => {
+      const p = {
+        ...shareProps,
+        imgUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/4e9f65f5-1bfc-4062-959b-c3101cb9e763.jpg',
+        success: () => {
+          console.log('分享成功回调');
+        },
+      };
       console.log('ready');
+      console.log(p);
       // 分享给朋友｜分享到QQ
-      wx.updateAppMessageShareData(shareProps);
+      wx.updateAppMessageShareData(p);
       // 分享到朋友圈｜分享到 QQ 空间
-      wx.updateTimelineShareData(shareProps);
-      wx.onMenuShareAppMessage(shareProps);
-      wx.onMenuShareTimeline(shareProps);
+      wx.updateTimelineShareData(p);
+      // wx.onMenuShareAppMessage(p);
+      // wx.onMenuShareTimeline(p);
     });
   }
 };
@@ -406,7 +406,10 @@ const handleShare = (type: string) => {
 
   if (isApp()) {
     console.log('在app内');
-    jsbridge.shareConfig(shareProps);
+    jsbridge.shareConfig({
+      ...shareProps,
+      img: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/4e9f65f5-1bfc-4062-959b-c3101cb9e763.jpg',
+    });
   }
 };
 
