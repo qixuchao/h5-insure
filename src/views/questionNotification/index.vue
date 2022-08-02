@@ -159,30 +159,31 @@ const handleClickInformDetails = (rows: ListCustomerQuestionsResponse) => {
 };
 
 const handleClickNextStep = () => {
-  // const isAllRead = state.listQuestions.every((i) => i.isDone === 1);
-  // if (!isAllRead) {
-  //   Toast('请完成所有告知进行下一步');
-  //   return;
-  // }
-  router.push({
-    path: '/infoCollection',
-    query: route.query,
-  });
-
-  // Object.assign(state.pageData, { pageCode: 'questionNotice', tenantOrderNoticeList: state.listQuestions });
-
-  //  verify
-
-  // nextStep(state.pageData).then(({ code, data }) => {
-  //   if (code === '10000') {
-  //     if (data.pageAction.pageAction === 'jumpToPage') {
-  //       router.push({
-  //         path: PAGE_ROUTE_ENUMS[data.pageAction.data.nextPageCode],
-  //         query: route.query,
-  //       });
-  //     }
-  //   }
+  const isAllRead = state.listQuestions.every((i) => i.isDone === 1);
+  if (!isAllRead) {
+    Toast('请完成所有告知进行下一步');
+    return;
+  }
+  // router.push({
+  //   path: '/infoCollection',
+  //   query: route.query,
   // });
+
+  Object.assign(state.pageData, { pageCode: 'questionNotice', tenantOrderNoticeList: state.listQuestions });
+
+  nextStep({
+    ...state.pageData,
+    extInfo: { ...state.pageData.extInfo, templateId: '1', pageCode: 'questionNotice' },
+  }).then(({ code, data }) => {
+    if (code === '10000') {
+      if (data.pageAction.pageAction === 'jumpToPage') {
+        router.push({
+          path: PAGE_ROUTE_ENUMS[data.pageAction.data.nextPageCode],
+          query: route.query,
+        });
+      }
+    }
+  });
 };
 
 onMounted(() => {
