@@ -8,7 +8,7 @@
  */
 import { Ref } from 'vue';
 import { throttle } from 'lodash';
-import { DictItemItem } from '@/api/index.data';
+import { DictItemItem, DictData } from '@/api/index.data';
 import { getDic } from '@/api';
 
 const DIC_DATA: { [key: string]: DictItemItem[] } = {};
@@ -25,38 +25,28 @@ const DIC_CODE: string[] = [
   'RISK_INSURANCE_PERIOD',
 ];
 
-// const doGetDic = throttle(() => {
-//   return new Promise((resolve, reject) => {
-//     getDic({ dictCodeList: [...new Set(DIC_CODE)] }).then((res) => {
-//       const { code, data } = res;
-//       if (code === '10000') {
-//         data.forEach((dict) => {
-//           if (dict.dictCode === dicCode) {
-//             dicList.value = dict.dictItemList;
-//           }
-
-//           DIC_DATA[dict.dictCode] = dict.dictItemList;
-//         });
-//       }
-//     });
-//   })
-// }, 1);
+const doGetDic = throttle<() => Promise<DictData[]>>(() => {
+  return new Promise((resolve, reject) => {
+    getDic({ dictCodeList: [...new Set(DIC_CODE)] }).then((res) => {
+      const { code, data } = res;
+      if (code === '10000') {
+        resolve(data);
+      }
+    });
+  });
+}, 100);
 
 const useDicData = (dicCode: string): Ref<DictItemItem[]> => {
   const dicList = ref<DictItemItem[]>(DIC_DATA[dicCode] || []);
   if (dicList.value.length === 0) {
     DIC_CODE.push(dicCode);
-    getDic({ dictCodeList: [...new Set(DIC_CODE)] }).then((res) => {
-      const { code, data } = res;
-      if (code === '10000') {
-        data.forEach((dict) => {
-          if (dict.dictCode === dicCode) {
-            dicList.value = dict.dictItemList;
-          }
-
-          DIC_DATA[dict.dictCode] = dict.dictItemList;
-        });
-      }
+    doGetDic()?.then((data: DictData[]) => {
+      data.forEach((dict) => {
+        if (dict.dictCode === dicCode) {
+          dicList.value = dict.dictItemList;
+        }
+        DIC_DATA[dict.dictCode] = dict.dictItemList;
+      });
     });
   }
   return dicList;
