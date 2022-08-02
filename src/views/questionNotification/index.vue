@@ -70,11 +70,14 @@ const router = useRouter();
 const route = useRoute();
 
 const {
-  orderNo = '2022021815432987130620',
-  productCode = 'CQ75CQ76',
-  templateId = 1,
-  saleUserId = 'D1234567-1',
-  tenantId = 9991000007,
+  productCode = 'MMBBSF',
+  agentCode = '65434444',
+  tenantId = '9991000007',
+  agencyCode = '3311222',
+  insurerCode = 'zhongan',
+  productCategory = '1',
+  templateId = '1',
+  orderNo = '2022080217103534947',
 } = route.query;
 
 interface StateProps {
@@ -102,7 +105,6 @@ const handleShare = (type: string) => {
     link: `${window.location.href}?isShare=1`, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
     imgUrl: '', // 分享图标
     success() {
-      // 设置成功
       console.log('分享成功');
     },
   };
@@ -119,7 +121,7 @@ const handleShare = (type: string) => {
 const orderDetail = () => {
   getOrderDetail({
     orderNo,
-    saleUserId,
+    saleUserId: agentCode,
     tenantId,
   }).then(({ code, data }) => {
     if (code === '10000') {
@@ -130,13 +132,13 @@ const orderDetail = () => {
 
 const getQuestionList = () => {
   const data: Partial<ListCustomerQuestionsProps> = {
-    insurerCode: 'andainsurer',
+    insurerCode,
     // 告知类型：1-投保告知，2-健康告知，3-特别约定，4-投保人问卷，5-被保人问卷，6-投保人声明，7-被保人声明，8-免责条款，9-营销员告知
     // objectId: '1',
     // objectType: 1, // 适用角色 ：1-投保人，2-被保人，3-营销人员(代理人)
     orderNo,
-    productCategory: 1,
-    tenantId: 9991000007,
+    productCategory,
+    tenantId,
   };
   Promise.all([
     listCustomerQuestions({ ...data, noticeType: 4, objectType: 1 }),
@@ -154,6 +156,8 @@ const handleClickInformDetails = (rows: ListCustomerQuestionsResponse) => {
     path: '/healthNotice',
     query: {
       questionnaireType: rows.questionnaireType,
+      orderId: state.pageData?.id,
+      ...route.query,
     },
   });
 };
@@ -164,10 +168,6 @@ const handleClickNextStep = () => {
     Toast('请完成所有告知进行下一步');
     return;
   }
-  // router.push({
-  //   path: '/infoCollection',
-  //   query: route.query,
-  // });
 
   Object.assign(state.pageData, { pageCode: 'questionNotice', tenantOrderNoticeList: state.listQuestions });
 

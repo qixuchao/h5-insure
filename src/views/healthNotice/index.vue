@@ -57,6 +57,7 @@ const {
   orderNo = '2022021815432987130620',
   productCode = 'CQ75CQ76',
   templateId = 1,
+  agentCode = '65434444',
   orderId = 13005,
   tenantId = 9991000007,
 } = route.query;
@@ -116,7 +117,7 @@ const onSubmitCurrentStatus = (status: number, questionContent?: any) => {
 const orderDetail = () => {
   getOrderDetail({
     orderNo,
-    saleUserId: 'D1234567-1',
+    saleUserId: agentCode,
     tenantId,
   }).then(({ code, data }) => {
     if (code === '10000') {
