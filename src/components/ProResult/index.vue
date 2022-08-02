@@ -92,12 +92,16 @@ const img = computed(() => {
     font-size: 32px;
     text-align: center;
     padding: 0 30px;
-    justify-content: space-between;
+    justify-content: center;
     .button {
       width: 335px;
       height: 90px;
       line-height: 90px;
       border-radius: 8px;
+      margin-right: 20px;
+      &:last-child {
+        margin-right: 0;
+      }
     }
     .cancel {
       border: 1px solid #0d6efe;

@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-02 08:37:46
+ * @LastEditTime: 2022-08-02 18:43:11
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -31,7 +31,7 @@
           </template>
         </ProField>
         <PersonalInfo
-          v-if="formInfo.tenantOrderInsuredList[0].relationToHolder !== '0'"
+          v-if="+formInfo.tenantOrderInsuredList[0].relationToHolder !== 1"
           v-model:images="insuredImages"
           :form-info="formInfo.tenantOrderInsuredList[0]"
           :factor-list="pageFactor.INSURER || []"
@@ -55,7 +55,7 @@
         </ProField>
         <div v-if="formInfo.tenantOrderInsuredList[0].insuredBeneficiaryType == 2" class="beneficiary-part">
           <div
-            v-for="(beneficiary, index) in formInfo.tenantOrderInsuredList[0].beneficiaryReqList"
+            v-for="(beneficiary, index) in formInfo.tenantOrderInsuredList[0].tenantOrderBeneficiaryList"
             :key="beneficiary.beneficiaryId"
             class="beneficiary-item"
           >
@@ -89,6 +89,7 @@
       <VanButton block type="primary" @click="goNextPage">下一步</VanButton>
     </div>
     <AddressSelect
+      v-if="showAddress"
       v-model="state.currentAddress"
       :show="showAddress"
       :data-source="state.addressList"
@@ -237,7 +238,7 @@ const selectAddress = (value) => {
 
 const addBeneficiary = () => {
   state.beneficiaryId += 1;
-  formInfo.value.tenantOrderInsuredList[0].beneficiaryReqList.push({
+  formInfo.value.tenantOrderInsuredList[0].tenantOrderBeneficiaryList.push({
     id: state.beneficiaryId,
     extInfo: {},
   } as BeneficiaryItem);
