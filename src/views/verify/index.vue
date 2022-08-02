@@ -119,13 +119,18 @@ const route = useRoute();
 const router = useRouter();
 
 const {
-  orderNo = '2022072810590219649',
   saleUserId = 'D1234567-1',
   tenantId = '9991000007',
   templateId = 1,
   productCode = 'CQ75CQ76',
   insurerCode = 'ancheng',
 } = route.query;
+let { orderNo } = route.query;
+
+if (typeof orderNo === 'object') {
+  // eslint-disable-next-line
+  orderNo = (orderNo || [])[0];
+}
 const pageCode = 'sign';
 const storage = new Storage({ source: 'localStorage' });
 const fileList = ref<Array<INotice>>([]);

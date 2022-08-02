@@ -228,9 +228,9 @@ onMounted(() => {
     if (code === '10000') {
       detail.value = data;
       const { insurerCode, categoryNo } = data;
-      getTemplateInfo({ productCategory: 5, venderCode: 'everbrightlife' }).then((templateRes) => {
+      getTemplateInfo({ productCategory: categoryNo, venderCode: insurerCode }).then((templateRes) => {
         if (templateRes.code === '10000') {
-          templateId.value = templateRes.data.id;
+          templateId.value = templateRes.data?.id;
           getInitFactor({ pageCode: 'productInfo', templateId: templateId.value }).then((factorRes) => {
             if (factorRes.code === '10000') {
               const temp = {};
