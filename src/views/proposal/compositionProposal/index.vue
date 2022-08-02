@@ -308,7 +308,7 @@ const shareConfigProps = () => {
 const setWeixinShare = () => {
   const shareProps = shareConfigProps();
 
-  if (!isWechat()) {
+  if (isWechat()) {
     console.log('在微信内, 默认设置分享信息');
     console.log(shareProps);
     wx.ready(() => {
