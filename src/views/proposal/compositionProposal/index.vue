@@ -297,12 +297,14 @@ const shareConfigProps = () => {
   const authUrl = `${ORIGIN}/api/app/officialAccount/outerUserAuth?systemCode=BAO_A&skipUrl=${encodeURIComponent(
     skipUrl,
   )}`;
+  // 写死的图片
+  const imgUrl = 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/4e9f65f5-1bfc-4062-959b-c3101cb9e763.jpg';
   return {
     title: `${info.value.name}的计划书`, // 分享标题
     desc: '您的贴心保险管家', // 分享描述
     link: authUrl, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-    img: '', // 微信分享
-    imgUrl: '',
+    img: imgUrl, // 微信分享
+    imgUrl,
     success() {
       // 设置成功
       console.log('分享成功回调');
