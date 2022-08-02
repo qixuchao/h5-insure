@@ -7,7 +7,7 @@
 <template>
   <ProPageWrap class="com-quersion">
     <ProCard :title="`${titleMap[questionnaireType as any]}健康告知书`">
-      <div v-for="(i, idx) of listQuestions" :key="idx" class="question-item">
+      <div v-for="(i, idx) of props.currentPageInfo" :key="idx" class="question-item">
         <div class="problem">{{ idx + 1 }}. {{ i.title }}</div>
         <!-- 单选 -->
         <van-radio-group v-if="i.questionType === 1" v-model="radioCheckedProblem">
@@ -36,7 +36,12 @@
               @click="toggle(index)"
             >
               <template #right-icon>
-                <van-checkbox :ref="(el:any) => (checkboxRefs[index] = el)" shape="square" :name="item" @click.stop />
+                <van-checkbox
+                  :ref="(el:any) => (checkboxRefs[index] = el)"
+                  shape="square"
+                  :name="item.value"
+                  @click.stop
+                />
               </template>
             </van-cell>
           </van-cell-group>
@@ -87,11 +92,12 @@ const state = reactive({
   checked: [],
   modelValue: '',
   inputValue: '',
-  listQuestions: [],
 });
-const { radioCheckedProblem, checked, modelValue, inputValue, listQuestions } = toRefs(state);
+const { radioCheckedProblem, checked, modelValue, inputValue } = toRefs(state);
 
 const toggle = (index: string | number) => {
+  console.log(checkboxRefs.value[index].toggle);
+
   checkboxRefs.value[index].toggle();
 };
 
@@ -115,17 +121,6 @@ const parseData = (val: string) => {
   return [];
 };
 
-watch(
-  () => props.currentPageInfo,
-  (newVal: any) => {
-    listQuestions.value = newVal;
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
-
 const handleSubmitCurrentQuestion = () => {
   // if ([radioCheckedProblem.value, modelValue.value, inputValue.value].includes('') || checked.value.length === 0) {
   //   Toast('请完成所有题目进行下一步');
@@ -135,8 +130,6 @@ const handleSubmitCurrentQuestion = () => {
 };
 
 onBeforeUpdate(() => {
-  console.log(6666);
-
   checkboxRefs.value = [];
 });
 </script>
