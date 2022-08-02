@@ -2,14 +2,13 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-01 19:45:22
+ * @LastEditTime: 2022-08-02 18:48:48
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <ProPageWrap class="page-info-wrapper">
     <ProForm v-if="!state.isLoading" ref="formRef" is-view>
-      <InsuredInfo :product-data="formInfo.tenantOrderInsuredList[0]?.tenantOrderProductList?.[0]"></InsuredInfo>
       <ProCard title="投保人">
         <PersonalInfo
           v-model:images="holderImages"
@@ -32,7 +31,7 @@
           </template>
         </ProField>
         <PersonalInfo
-          v-if="formInfo.tenantOrderInsuredList[0].relationToHolder !== '0'"
+          v-if="+formInfo.tenantOrderInsuredList[0].relationToHolder !== 1"
           v-model:images="insuredImages"
           :form-info="formInfo.tenantOrderInsuredList[0]"
           :factor-list="pageFactor.INSURER || []"
@@ -42,19 +41,19 @@
 
       <ProCard title="受益人">
         <ProField
-          v-model="formInfo.tenantOrderInsuredList[0].beneficiaryType"
+          v-model="formInfo.tenantOrderInsuredList[0].insuredBeneficiaryType"
           label="受益人类型"
-          name="beneficiaryType"
+          name="insuredBeneficiaryType"
           placeholder="请选择"
         >
           <template #input>
             <ProRadioButton
-              v-model="formInfo.tenantOrderInsuredList[0].beneficiaryType"
+              v-model="formInfo.tenantOrderInsuredList[0].insuredBeneficiaryType"
               :options="BENEFICIARY_LIST"
             ></ProRadioButton>
           </template>
         </ProField>
-        <div v-if="formInfo.tenantOrderInsuredList[0].beneficiaryType == 2" class="beneficiary-part">
+        <div v-if="formInfo.tenantOrderInsuredList[0].insuredBeneficiaryType == 2" class="beneficiary-part">
           <div
             v-for="(beneficiary, index) in formInfo.tenantOrderInsuredList[0].beneficiaryReqList"
             :key="beneficiary.beneficiaryId"
@@ -62,18 +61,13 @@
           >
             <div class="part-title">
               <span class="title">{{ `受益人${index + 1}` }}</span>
-              <ProSvg name="delete" @click="removeBeneficiary(beneficiary)">删除</ProSvg>
             </div>
             <BeneficiaryInfo :form-info="beneficiary" :factor-list="pageFactor.BENEFICIARY" />
           </div>
-          <VanButton @click="addBeneficiary">+添加受益人</VanButton>
         </div>
       </ProCard>
       <ProCard title="保单通讯信息">
-        <ProCheckButton v-if="!state.currentAddress" activated @click="toggleAddress(true)"
-          >选择保单通讯信息</ProCheckButton
-        >
-        <van-cell v-else title="单元格" is-link>
+        <van-cell v-if="state.currentAddress" title="单元格" is-link>
           <template #title>
             <div class="radio-item-wrapper">
               <p>
@@ -118,7 +112,6 @@ import { RELATION_HOLDER_LIST, BENEFICIARY_LIST } from '@/common/constants/infoC
 import BeneficiaryInfo from '../infoCollection/components/BeneficiaryInfo/index.vue';
 import PersonalInfo from '../infoCollection/components/PersonalInfo/index.vue';
 import AddressSelect from '../infoCollection/components/AddressSelect/index.vue';
-import InsuredInfo from './components/InsuredPart.vue';
 
 interface State {
   beneficiaryId: number;
@@ -153,6 +146,7 @@ const formInfo = ref<any>({
     {
       relationToHolder: '0',
       extInfo: {},
+      insuredBeneficiaryType: '1',
       tenantOrderBeneficiaryList: [
         {
           beneficiaryId: 0,
