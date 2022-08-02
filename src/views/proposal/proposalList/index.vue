@@ -1,19 +1,8 @@
 <template>
   <ProPageWrap class="page-proposal">
     <div class="search-wrap">
-      <van-search
-        v-model="searchValue"
-        placeholder="请输入关键词"
-        shape="round"
-        class="search"
-        @click-input="handleSearchClick"
-      />
-      <InsureFilter
-        v-model:tagList="tagLists"
-        v-model:filter="isOpen"
-        filter-class="filter-area"
-        @on-select-insure="handleClickTag"
-      />
+      <van-search v-model="searchValue" placeholder="请输入关键词" shape="round" class="search" @search="onSearch" />
+      <InsureFilter v-model:filter="isOpen" filter-class="filter-area" @on-select-insure="handleClickTag" />
     </div>
     <div class="page-proposal-list">
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
@@ -66,7 +55,6 @@ import { useRouter, useRoute } from 'vue-router';
 import { withDefaults } from 'vue';
 import ProductItem from './components/productItem.vue';
 import InsureFilter from './components/insureFilter.vue';
-import { tabsData } from './mockData';
 import ProductRisk from '../createProposal/components/ProductRisk/index.vue';
 import createProposalStore from '@/store/proposal/createProposal';
 import { ProposalInfo } from '@/api/modules/createProposal.data';
@@ -160,7 +148,10 @@ const getProducts = () => {
   });
 };
 
-const handleSearchClick = () => {};
+const onSearch = (val: string) => {
+  getProducts();
+};
+
 const handleClickTag = (val: any) => {
   const { selectInsureCode, selectCategory } = val;
   insurerCodeList.value = selectInsureCode;
@@ -251,10 +242,6 @@ watch(
     immediate: true,
   },
 );
-
-onMounted(() => {
-  tagLists.value = [{ labelCategoryName: '全部', id: '' }, ...tabsData.data];
-});
 </script>
 
 <style scoped lang="scss">

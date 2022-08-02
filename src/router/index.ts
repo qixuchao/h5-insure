@@ -108,7 +108,6 @@ router.beforeEach(async (to, from, next) => {
 
 const IS_WECHAT = isWechat();
 router.beforeResolve(async (to, from) => {
-  console.log('准备微信鉴权');
   if (to.meta.requireWxJs && IS_WECHAT) {
     console.log('在微信环境，开始鉴权');
     const res = await getJssdkSignature({ url: encodeURIComponent(realAuthUrl) });

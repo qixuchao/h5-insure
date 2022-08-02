@@ -100,7 +100,7 @@
                       :min="ageBegin"
                       :max="ageEnd"
                       bar-height="8px"
-                      @change="handleChange"
+                      @drag-end="handleChange"
                     >
                       <template #button>
                         <div class="custom-button">{{ num }} 岁</div>
@@ -293,8 +293,8 @@ const getChargePay = (val: string) => {
 };
 
 const shareConfigProps = () => {
-  const skipUrl = `${ORIGIN}?isShare=1`;
-  const authUrl = `${ORIGIN}/api/app/officialAccount/outerUserAuth?systemCode=BAO_A&skipUrl=${encodeURIComponent(
+  const skipUrl = `${ORIGIN}/compositionProposal?id=${id}&isShare=1`;
+  const authUrl = `${ORIGIN}/api/app/officialAccount/outerUserAuth?systemCode=GOODS_CLOUD&skipUrl=${encodeURIComponent(
     skipUrl,
   )}`;
   return {
@@ -755,7 +755,7 @@ const getPdf = () => {
     align-items: center;
     justify-content: space-between;
     padding: 30px;
-    z-index: 100;
+    z-index: 99999999; // echart 覆盖了footer，提高层级
     .btn {
       width: 335px;
       height: 90px;
