@@ -1,1 +1,0 @@
-import{b as r}from"./index-24b012cc.js";const a=e=>r.post("/api/app/order/v1/pageQuery",e),p=e=>r.post("/api/app/order/v1/detail",{id:e}),s=e=>r.post("/api/app/order/v1/delete",{id:e,status:"deleted"});export{p as a,s as d,a as g};
