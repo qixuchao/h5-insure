@@ -1,31 +1,26 @@
 <!--
- * new page
  * @author: liyang
  * @since: 2022-07-20
  * index.vue
 -->
 <template>
   <ProPageWrap class="page-history-proposal">
-    <van-search
-      v-model="searchValue"
-      placeholder="请输入关键词"
-      shape="round"
-      class="search"
-      @click-input="handleSearchClick"
-    />
+    <van-search v-model="searchValue" placeholder="请输入关键词" shape="round" class="search" @search="onSearch" />
     <div class="proposal-content">
-      <div v-for="i of historyList" :key="i.id" class="proposal-item">
-        <div class="title">{{ i.proposalName }}</div>
-        <p class="premium">
-          保费：<span>¥{{ toLocal(i.totalPremium) }}</span>
-        </p>
-        <ProTable :columns="columns" class="table" :data-source="i.proposalProductRiskVOList" />
-        <div class="operate-btn">
-          <van-button plain round type="primary" class="del-btn" @click="delRisk(i.id)">删除</van-button>
-          <van-button plain round type="primary" @click="editProposal(i.id)">编辑</van-button>
-          <van-button plain round type="primary" @click="previewProposal(i.id)">预览</van-button>
+      <van-list v-model:loading="loading" :finished="finished" finished-text="- 没有更多了 -" @load="onloadClick">
+        <div v-for="i of historyList" :key="i.id" class="proposal-item">
+          <div class="title">{{ i.proposalName }}</div>
+          <p class="premium">
+            保费：<span>¥{{ toLocal(i.totalPremium) }}</span>
+          </p>
+          <ProTable :columns="columns" class="table" :data-source="i.proposalProductRiskVOList" />
+          <div class="operate-btn">
+            <van-button plain round type="primary" class="del-btn" @click="delRisk(i.id)">删除</van-button>
+            <van-button plain round type="primary" @click="editProposal(i.id)">编辑</van-button>
+            <van-button plain round type="primary" @click="previewProposal(i.id)">预览</van-button>
+          </div>
         </div>
-      </div>
+      </van-list>
     </div>
   </ProPageWrap>
 </template>
@@ -34,6 +29,7 @@
 import { Dialog, Toast } from 'vant';
 import { useRouter } from 'vue-router';
 import { toLocal } from '@/utils';
+import emptyImg from '@/assets/images/searchempty.png';
 import ProTable from '@/components/ProTable/index.vue';
 import { historyProposalList, deleteProposal } from '@/api/modules/proposalList';
 import { HistoryProposalListType } from '@/api/modules/proposalList.data';
@@ -69,6 +65,9 @@ const state = reactive<StatueProps>({
   historyList: [],
   searchValue: '',
 });
+const loading = ref(false);
+const finished = ref(false);
+const pageNum = ref(1);
 
 const { historyList, searchValue } = toRefs(state);
 const router = useRouter();
@@ -76,18 +75,32 @@ const router = useRouter();
 const getHistoryList = () => {
   historyProposalList({
     name: searchValue.value,
-    pageNum: 1,
-    pageSize: 999,
+    pageNum: pageNum.value,
+    pageSize: 20,
     relationUserType: 2,
-  }).then((res) => {
+  }).then((res: any) => {
     const { code, data } = res;
     if (code === '10000') {
-      historyList.value = data.datas;
+      if (pageNum.value === 1) {
+        historyList.value = data.datas || [];
+      } else {
+        historyList.value = historyList.value.concat(data.datas);
+      }
+
+      pageNum.value += 1;
+      loading.value = false;
+      finished.value = historyList.value.length >= data.total;
     }
   });
 };
 
-const handleSearchClick = () => {
+const onloadClick = () => {
+  getHistoryList();
+};
+
+const onSearch = (val: string) => {
+  searchValue.value = val;
+  pageNum.value = 1;
   getHistoryList();
 };
 
@@ -125,10 +138,6 @@ const editProposal = (id: number) => {
     },
   });
 };
-
-onMounted(() => {
-  getHistoryList();
-});
 </script>
 
 <style scoped lang="scss">
@@ -207,5 +216,9 @@ onMounted(() => {
       }
     }
   }
+}
+
+:deep .van-list__finished-text {
+  margin-bottom: 30px;
 }
 </style>

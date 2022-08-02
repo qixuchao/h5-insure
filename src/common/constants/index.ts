@@ -41,24 +41,24 @@ export const PRODUCT_CATEGORY = [
     value: '',
   },
   {
-    label: '意外',
-    value: '1',
+    label: '医疗',
+    value: '3',
   },
   {
     label: '重疾',
     value: '2',
   },
   {
-    label: '医疗',
-    value: '3',
-  },
-  {
-    label: '年金',
-    value: '4',
+    label: '意外',
+    value: '1',
   },
   {
     label: '寿险',
     value: '5',
+  },
+  {
+    label: '年金',
+    value: '4',
   },
   {
     label: '万能',
