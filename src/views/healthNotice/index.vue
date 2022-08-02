@@ -23,7 +23,11 @@
       :url="state.currentQuestionInfo[0]?.content"
       @on-submit-current-status="onSubmitCurrentStatus"
     />
-    <IsLinkPage v-if="isLink" :url="state.currentQuestionInfo[0]?.content" />
+    <IsLinkPage
+      v-if="isLink"
+      :url="state.currentQuestionInfo[0]?.content"
+      @on-submit-current-status="onSubmitCurrentStatus"
+    />
   </div>
 </template>
 
