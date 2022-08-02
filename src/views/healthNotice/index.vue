@@ -7,22 +7,25 @@
 
 <template>
   <div class="com-health-notice">
+    <!-- 问答 -->
     <Question
       v-if="isQuestion"
       :current-page-info="state.currentQuestionInfo"
       @on-submit-current-status="onSubmitCurrentStatus"
     />
-    <!-- <Document /> -->
+    <!-- <Document />富文本 -->
     <InsuranceNotice
       v-if="isRichText"
       :current-page-info="state.currentQuestionInfo"
       @on-submit-current-status="onSubmitCurrentStatus"
     />
+    <!-- 图片或者pdf -->
     <Enclosure
       v-if="isPDFOrPic"
       :url="state.currentQuestionInfo[0]?.content"
       @on-submit-current-status="onSubmitCurrentStatus"
     />
+    <!-- 链接 -->
     <IsLinkPage
       v-if="isLink"
       :url="state.currentQuestionInfo[0]?.content"
@@ -89,11 +92,11 @@ const isLink = computed(() => {
   return questionnaireType === '1' && [3].includes(state.currentQuestionInfo[0]?.textType as any);
 });
 
-const onSubmitCurrentStatus = (status: number) => {
+const onSubmitCurrentStatus = (status: number, questionContent?: any) => {
   const { id, objectType } = currentQuestion;
 
   saveMarketerNotices({
-    content: state.currentQuestionInfo[0]?.content,
+    content: questionContent || state.currentQuestionInfo[0]?.content,
     contentType: questionnaireType as any,
     isDone: status,
     noticeType: mapNoticeMap[objectType],
@@ -123,7 +126,6 @@ const orderDetail = () => {
 };
 
 onMounted(() => {
-  console.log(currentQuestion);
   const { insurerCode, id, objectType, productCategory } = currentQuestion;
   getCustomerQuestionsDetail({
     insurerCode,
