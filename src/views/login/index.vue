@@ -56,4 +56,8 @@ const onSubmit = (values) => {
     }
   });
 };
+onMounted(() => {
+  localStorage.clear();
+  document.cookie = '';
+});
 </script>
