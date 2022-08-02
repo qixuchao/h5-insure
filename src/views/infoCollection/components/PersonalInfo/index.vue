@@ -6,7 +6,7 @@
       label="证件类型"
       name="certType"
       readonly
-      :data-source="CERT_TYPE"
+      :data-source="certType"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
       required
     ></ProPicker>
@@ -62,7 +62,15 @@
       type="date"
       required
     ></ProDatePicker>
-    <ProField label="户籍所在地" name="type" placeholder="请选择" is-link></ProField>
+    <ProPicker
+      v-model="state.formInfo.extInfo.region"
+      label="户籍所在地"
+      name="type"
+      placeholder="请选择"
+      is-link
+      :data-source="region"
+      :mapping="{ label: 'name', value: 'code', children: 'children' }"
+    ></ProPicker>
     <ProField
       v-if="factorObj.hasSocialInsurance"
       v-model="state.formInfo.extInfo.hasSocialInsurance"
@@ -80,8 +88,26 @@
       label="职业"
       name="occupationCode"
       placeholder="请选择"
+      :data-source="occupationCode"
+      :mapping="{ label: 'name', value: 'code', children: 'child' }"
       is-link
     ></ProField>
+    <!-- <ProField
+      v-if="factorObj.occupation"
+      v-model="state.formInfo.occupationalClass"
+      :rules="[{ required: true, message: '请选择职业类型' }]"
+      name="occupationalClass"
+      label="职业类型"
+      is-link
+      readonly
+      placeholder="请选择"
+      @click="toggleOccupational(true)"
+    >
+      <template #input>
+        <span v-if="!state.occupationalText" class="placeholder">请选择</span>
+        <div v-else>{{ state.occupationalText }}</div>
+      </template>
+    </ProField> -->
     <ProField
       v-if="factorObj.annualIncome"
       v-model="state.formInfo.extInfo.personalAnnualIncome"
@@ -96,14 +122,17 @@
       name="familyAnnualIncome"
       placeholder="请输入"
     ></ProField>
-    <ProField
+    <ProPicker
       v-if="factorObj.nation"
       v-model="state.formInfo.extInfo.nationalityCode"
       label="国籍"
       name="nationalityCode"
+      readonly
+      :data-source="nationalityCode"
+      :mapping="{ label: 'name', value: 'code', children: 'child' }"
       placeholder="请选择"
       is-link
-    ></ProField>
+    ></ProPicker>
     <ProField
       v-if="factorObj.marriage"
       v-model="state.formInfo.extInfo.hasUsCard"
@@ -115,22 +144,28 @@
         <ProRadioButton v-model="state.formInfo.extInfo.hasUsCard" :options="FLAG_LIST"></ProRadioButton>
       </template>
     </ProField>
-    <ProField
+    <ProPicker
       v-if="factorObj.marriage"
       v-model="state.formInfo.extInfo.marriageStatus"
       label="婚姻状况"
       name="marriageStatus"
+      readonly
       placeholder="请选择"
+      :data-source="marriageStatus"
+      :mapping="{ label: 'name', value: 'code', children: 'child' }"
       is-link
-    ></ProField>
-    <ProField
+    ></ProPicker>
+    <ProPicker
       v-if="factorObj.educationDegree"
       v-model="state.formInfo.extInfo.educationDegree"
       label="学历"
+      readonly
       name="educationDegree"
+      :data-source="degree"
+      :mapping="{ label: 'name', value: 'code', children: 'child' }"
       placeholder="请选择"
       is-link
-    ></ProField>
+    ></ProPicker>
     <ProField
       v-if="factorObj.mobile"
       v-model="state.formInfo.mobile"
@@ -145,7 +180,15 @@
       name="email"
       placeholder="请输入"
     ></ProField>
-    <ProField v-if="factorObj.familyAddress" label="家庭地址" name="type" placeholder="请选择"></ProField>
+    <ProPicker
+      v-if="factorObj.familyAddress"
+      v-model="state.formInfo.type"
+      label="家庭地址"
+      :data-source="region"
+      :mapping="{ label: 'name', value: 'code', children: 'child' }"
+      name="type"
+      placeholder="请选择"
+    ></ProPicker>
     <ProField
       v-if="factorObj.familyAddressDetail"
       v-model="state.formInfo.extInfo.familyAddress"
@@ -207,12 +250,22 @@
         <ProRadioButton v-model="state.formInfo.extInfo.isPartTime" :options="FLAG_LIST"></ProRadioButton>
       </template>
     </ProField>
+    <Occupational
+      v-if="isShowOccupational"
+      v-model="state.formInfo.occupationalClass"
+      :show="isShowOccupational"
+      :insured-code="insuredCode"
+      @finish="onFinish"
+      @close="onClose"
+    >
+    </Occupational>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
 import dayjs from 'dayjs';
+import { useToggle } from '@vant/use';
 import { InsuredReqItem, HolderReq, ProductInsureFactorItem } from '@/api/index.data';
 import { SEX_LIMIT_LIST, FLAG_LIST } from '@/common/constants';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
@@ -233,8 +286,14 @@ interface State {
   formInfo: FormInfo;
 }
 
+const [isShowOccupational, toggleOccupational] = useToggle();
 const emits = defineEmits(['update:images']);
-const CERT_TYPE = useDicData('CERT_TYPE');
+const certType = useDicData('CERT_TYPE'); // 证件类型
+const occupationCode = useDicData('HENGQIN_OCCUPATION'); // 职业
+const marriageStatus = useDicData('MARRIAGE_STATUS'); // 婚姻状况
+const degree = useDicData('DEGREE'); // 学历
+const nationalityCode = useDicData('NATIONALITY'); // 国籍
+const region = useDicData('NATIONAL_REGION_CODE'); // 全国区域编码
 const tempImages = ref<string[]>([]);
 const isIdCard = ref(false);
 
@@ -252,6 +311,7 @@ const state = ref({
   },
   front: '',
   back: '',
+  occupationalText: '',
 });
 
 const factorObj = computed(() => {
@@ -261,6 +321,14 @@ const factorObj = computed(() => {
   });
   return factor;
 });
+
+const onFinish = (text: string) => {
+  state.value.occupationalText = text;
+};
+
+const onClose = () => {
+  toggleOccupational(false);
+};
 
 watch(
   () => state.value.formInfo.certNo,
