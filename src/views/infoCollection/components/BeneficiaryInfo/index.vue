@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 20:07:46
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-27 07:43:15
+ * @LastEditTime: 2022-08-02 08:21:40
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/infoCollection/components/BeneficiaryInfo.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -25,7 +25,8 @@
       label="证件类型"
       name="certType"
       readonly
-      :data-source="CERT_TYPE_LIST"
+      :data-source="certType"
+      :mapping="{ label: 'name', value: 'code', children: 'child' }"
       required
     >
     </ProPicker>
@@ -56,7 +57,8 @@
       v-model="state.formInfo.extInfo.nationalityCode"
       label="国籍"
       name="nationalityCode"
-      :data-source="CERT_TYPE_LIST"
+      :data-source="nationalityCode"
+      :mapping="{ label: 'name', value: 'code', children: 'child' }"
       required
     >
     </ProPicker>
@@ -78,6 +80,7 @@ import { withDefaults } from 'vue';
 import { BeneficiaryReqItem, ProductInsureFactorItem } from '@/api/index.data';
 import { RELATION_INSURED_LIST } from '@/common/constants/infoCollection';
 import { SEX_LIMIT_LIST, CERT_TYPE_LIST } from '@/common/constants';
+import useDicData from '@/hooks/useDicData';
 
 interface Props {
   formInfo: BeneficiaryReqItem;
@@ -99,6 +102,14 @@ const props = withDefaults(defineProps<Props>(), {
 const state = ref<State>({
   formInfo: props.formInfo,
 });
+
+const emits = defineEmits(['update:images']);
+const certType = useDicData('CERT_TYPE'); // 证件类型
+const occupationCode = useDicData('HENGQIN_OCCUPATION'); // 职业
+const marriageStatus = useDicData('MARRIAGE_STATUS'); // 婚姻状况
+const degree = useDicData('DEGREE'); // 学历
+const nationalityCode = useDicData('NATIONALITY'); // 国籍
+const region = useDicData('NATIONAL_REGION_CODE'); // 全国区域编码
 
 const factorObj = computed(() => {
   const factor: FactorObj = {};

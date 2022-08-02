@@ -216,6 +216,7 @@ const goPage = () => {
     query: {
       ...route.query,
       productCode: detail.value?.baseProductCode,
+      insurerCode: detail.value?.insurerCode,
       templateId: templateId.value,
     },
   });

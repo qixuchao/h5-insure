@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-01 12:36:54
+ * @LastEditTime: 2022-08-02 08:37:46
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -41,19 +41,19 @@
 
       <ProCard title="受益人">
         <ProField
-          v-model="formInfo.tenantOrderInsuredList[0].beneficiaryType"
+          v-model="formInfo.tenantOrderInsuredList[0].insuredBeneficiaryType"
           label="受益人类型"
-          name="beneficiaryType"
+          name="insuredBeneficiaryType"
           placeholder="请选择"
         >
           <template #input>
             <ProRadioButton
-              v-model="formInfo.tenantOrderInsuredList[0].beneficiaryType"
+              v-model="formInfo.tenantOrderInsuredList[0].insuredBeneficiaryType"
               :options="BENEFICIARY_LIST"
             ></ProRadioButton>
           </template>
         </ProField>
-        <div v-if="formInfo.tenantOrderInsuredList[0].beneficiaryType == 2" class="beneficiary-part">
+        <div v-if="formInfo.tenantOrderInsuredList[0].insuredBeneficiaryType == 2" class="beneficiary-part">
           <div
             v-for="(beneficiary, index) in formInfo.tenantOrderInsuredList[0].beneficiaryReqList"
             :key="beneficiary.beneficiaryId"
@@ -151,6 +151,7 @@ const formInfo = ref<any>({
     {
       relationToHolder: '0',
       extInfo: {},
+      insuredBeneficiaryType: '1',
       tenantOrderBeneficiaryList: [
         {
           beneficiaryId: 0,
