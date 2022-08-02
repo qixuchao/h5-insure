@@ -11,7 +11,7 @@
         v-for="i of isHolderQuestions(1)"
         :key="i.id"
         :class="{ 'is-active': i.isDone === 2 }"
-        :title="`《${i.questionnaireName}》`"
+        :title="`《${i.title}》`"
         is-link
         :value="`${i.isDone === 1 ? '已完成' : '去完成'}`"
         @click="handleClickInformDetails(i)"
@@ -22,7 +22,7 @@
         v-for="i of isHolderQuestions(2)"
         :key="i.id"
         :class="{ 'is-active': i.isDone === 2 }"
-        :title="`《${i.questionnaireName}》`"
+        :title="`《${i.title}》`"
         is-link
         :value="`${i.isDone === 1 ? '已完成' : '去完成'}`"
         @click="handleClickInformDetails(i)"

@@ -38,13 +38,10 @@ axiosInstance.interceptors.request.use(
     // TODO 比如 loading 等
     const storage = new Storage({ source: 'cookie' });
     const local = new Storage({ source: 'localStorage' });
-    const token = storage.get('token') || local.get('token');
+    const token = storage.get('token') || local.get('token') || '';
     return {
       ...config,
-      headers: {
-        ...config.headers,
-        token,
-      },
+      headers: token ? { token } : {},
     };
   },
   (error: AxiosError) => {
