@@ -31,7 +31,7 @@
         <div class="line"></div>
 
         <div class="tp">
-          <ProTable :columns="columns" class="table" :data-source="dataSource" />
+          <ProTable v-if="dataSource.length > 0" :columns="columns" class="table" :data-source="dataSource" />
         </div>
       </div>
       <div class="container">
@@ -233,20 +233,24 @@ watch(
 );
 
 const getData = () => {
-  // eslint-disable-next-line array-callback-return
-  info.value.benefitRiskResultVOList[active.value]?.benefitRiskItemResultVOList[0]?.dataList?.map((item: string[]) => {
-    if (num.value.toString() === item[item.length - 1]) {
-      price.value = item;
-    }
-  });
+  info.value?.benefitRiskResultVOList?.[active.value]?.benefitRiskItemResultVOList?.[0]?.dataList?.map(
+    (item: string[]) => {
+      if (num.value.toString() === item[item.length - 1]) {
+        price.value = item;
+      }
+      return item;
+    },
+  );
 };
 
 const getBenefit = () => {
-  // eslint-disable-next-line array-callback-return
-  info.value.benefitRiskResultVOList[0]?.benefitRiskItemResultVOList[0]?.dataList?.map((item: string[], i: string) => {
-    item.push(i + 1);
-    item.push((age.value + i + 1).toString());
-  });
+  info.value?.benefitRiskResultVOList?.[0]?.benefitRiskItemResultVOList?.[0]?.dataList?.map(
+    (item: string[], i: string) => {
+      item.push(i + 1);
+      item.push((age.value + i + 1).toString());
+      return item;
+    },
+  );
 };
 
 // 保障期间
@@ -297,11 +301,6 @@ const shareConfigProps = () => {
     title: `${info.value.name}的计划书`, // 分享标题
     desc: '您的贴心保险管家', // 分享描述
     link: authUrl, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-    img: '', // 微信分享
-    success() {
-      // 设置成功
-      console.log('分享成功回调');
-    },
   };
 };
 
@@ -312,11 +311,21 @@ const setWeixinShare = () => {
     console.log('在微信内, 默认设置分享信息');
     console.log(shareProps);
     wx.ready(() => {
+      const p = {
+        ...shareProps,
+        imgUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/4e9f65f5-1bfc-4062-959b-c3101cb9e763.jpg',
+        success: () => {
+          console.log('分享成功回调');
+        },
+      };
       console.log('ready');
+      console.log(p);
       // 分享给朋友｜分享到QQ
-      wx.updateAppMessageShareData(shareProps);
+      wx.updateAppMessageShareData(p);
       // 分享到朋友圈｜分享到 QQ 空间
-      wx.updateTimelineShareData(shareProps);
+      wx.updateTimelineShareData(p);
+      // wx.onMenuShareAppMessage(p);
+      // wx.onMenuShareTimeline(p);
     });
   }
 };
@@ -339,13 +348,14 @@ onMounted(() => {
     getData();
     info.value?.proposalProductRiskVOList.map(
       // eslint-disable-next-line array-callback-return
-      (item: { riskName: any; amount: any; coveragePeriod: any; chargePeriod: any; premium: any }) => {
+      (item: any) => {
+        const { riskName, amount, coveragePeriod, chargePeriod, premium } = item;
         dataSource.value.push({
-          key1: item.riskName,
-          key2: item.amount,
-          key3: getCover(item.coveragePeriod),
-          key4: getChargePay(item.chargePeriod),
-          key5: item.premium,
+          key1: riskName,
+          key2: amount,
+          key3: getCover(coveragePeriod),
+          key4: getChargePay(chargePeriod),
+          key5: premium,
         });
       },
     );
@@ -396,7 +406,10 @@ const handleShare = (type: string) => {
 
   if (isApp()) {
     console.log('在app内');
-    jsbridge.shareConfig(shareProps);
+    jsbridge.shareConfig({
+      ...shareProps,
+      img: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/4e9f65f5-1bfc-4062-959b-c3101cb9e763.jpg',
+    });
   }
 };
 

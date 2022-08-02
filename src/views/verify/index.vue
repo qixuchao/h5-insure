@@ -142,7 +142,7 @@ const handleResignInsured = (index: number) => {
 const doVerify = (certNo: string, name: string) => {
   faceVerify({
     callbackUrl: window.location.href,
-    certiNo: '2022072710380711215',
+    certiNo: certNo,
     faceAuthMode: 'TENCENT',
     userName: name,
     tenantId: 9991000007,
@@ -186,15 +186,15 @@ const handleSubmit = () => {
   }).then(() => {
     const signData = holderSign.value?.save();
     Promise.all([
-      saveSign('HOLDER', signData, 2779003, `${tenantId}`),
-      ...insuredSignRefs.map((x) => saveSign('INSURED', x.save(), 2779003, `${tenantId}`)),
+      saveSign('HOLDER', signData, detail.value?.id, `${tenantId}`),
+      ...insuredSignRefs.map((x) => saveSign('INSURED', x.save(), detail.value?.id, `${tenantId}`)),
     ]).then(() => {
       nextStep({
         ...detail.value,
-        pageCode: '',
+        pageCode: 'sign',
         operateOption: { withSignInfo: true },
         extInfo: {
-          pageCode: '',
+          pageCode: 'sign',
           templateId,
         },
       }).then((res) => {
