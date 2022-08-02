@@ -41,10 +41,7 @@ axiosInstance.interceptors.request.use(
     const token = storage.get('token') || local.get('token');
     return {
       ...config,
-      headers: {
-        ...config.headers,
-        token,
-      },
+      headers: token ? { token } : {},
     };
   },
   (error: AxiosError) => {
