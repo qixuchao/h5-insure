@@ -107,7 +107,7 @@ const route = useRoute();
 const router = useRouter();
 const {
   orderNo = '2022072710380711215',
-  saleUserId = 'D1234567-1',
+  agentCode = 'D1234567-1',
   tenantId = '9991000007',
   templateId = 1,
 } = route.query;
@@ -226,7 +226,7 @@ const handleSubmit = () => {
       if (code === '10000' && data.success) {
         router.push({
           path: PAGE_ROUTE_ENUMS[data.pageAction.data.nextPageCode],
-          query: { orderNo, saleUserId, tenantId },
+          query: route.query,
         });
       }
     });
@@ -239,7 +239,7 @@ onMounted(() => {
   });
   getOrderDetail({
     orderNo,
-    saleUserId,
+    saleUserId: agentCode,
     tenantId,
   }).then((res) => {
     const { code, data } = res;

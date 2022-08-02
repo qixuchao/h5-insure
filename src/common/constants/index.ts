@@ -126,6 +126,7 @@ export const PAGE_ROUTE_ENUMS = {
   sign: 'verify', // 人脸识别
   orderDetail: 'orderDetail', // 订单详情
   orderList: 'order', // 订单列表
+  paymentResult: 'pay',
 };
 
 // eslint-disable-next-line

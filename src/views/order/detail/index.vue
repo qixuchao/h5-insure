@@ -25,7 +25,7 @@
           :content="item.name"
         />
       </div>
-      <div class="card">
+      <!-- <div class="card">
         <FieldInfo>
           <template #label>
             <div class="detail">保障信息</div>
@@ -38,7 +38,8 @@
         <FieldInfo label="附加豁免保险费重大疾病保险" content="投保" />
         <FieldInfo label="保障金额" content="¥100,000.00" />
         <FieldInfo label="首期保费" content="¥10,000.00" />
-      </div>
+      </div> -->
+      <InsureInfo :product-data="detail?.tenantOrderInsuredList[0]?.tenantOrderProductList?.[0]" class="insure-info" />
       <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.PENDING" class="footer-button">
         <van-button type="primary" @click.stop="handleDelete">删除</van-button>
         <van-button type="primary" @click.stop="handleProcess">去处理</van-button>
@@ -72,6 +73,7 @@ import { getOrderDetail, deleteOrder } from '@/api/modules/order';
 import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
 import { OrderDetail } from '@/api/modules/order.data';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import InsureInfo from '@/views/infoPreview/components/InsuredPart.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -144,6 +146,10 @@ onMounted(() => {
   padding: 30px;
   padding-bottom: 180px;
   overflow-y: auto;
+  .insure-info {
+    border-radius: 20px;
+    margin-top: 30px;
+  }
   .card {
     background: #fff;
     border-radius: 20px;
