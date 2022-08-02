@@ -211,6 +211,7 @@ const goNextPage = () => {
     saleUserId: agentCode,
     tenantId,
     venderCode,
+    orderDataSource: 1,
     pageCode,
     extInfo: {
       templateId: +(templateId || 1),
