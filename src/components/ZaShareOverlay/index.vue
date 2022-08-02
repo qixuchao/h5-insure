@@ -1,6 +1,6 @@
 <template>
   <div class="com-za-share-overlay">
-    <van-overlay :show="show" z-index="999" @click="onClosed">
+    <van-overlay :show="show" z-index="999999999" @click="onClosed">
       <div class="wrapper" @click.stop>
         <div class="block">{{ text }}</div>
         <img :src="jiantouImg" alt="" />

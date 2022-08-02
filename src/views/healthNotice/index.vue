@@ -7,22 +7,25 @@
 
 <template>
   <div class="com-health-notice">
+    <!-- 问答 -->
     <Question
       v-if="isQuestion"
       :current-page-info="state.currentQuestionInfo"
       @on-submit-current-status="onSubmitCurrentStatus"
     />
-    <!-- <Document /> -->
+    <!-- <Document />富文本 -->
     <InsuranceNotice
       v-if="isRichText"
       :current-page-info="state.currentQuestionInfo"
       @on-submit-current-status="onSubmitCurrentStatus"
     />
+    <!-- 图片或者pdf -->
     <Enclosure
       v-if="isPDFOrPic"
       :url="state.currentQuestionInfo[0]?.content"
       @on-submit-current-status="onSubmitCurrentStatus"
     />
+    <!-- 链接 -->
     <IsLinkPage
       v-if="isLink"
       :url="state.currentQuestionInfo[0]?.content"
@@ -54,6 +57,7 @@ const {
   orderNo = '2022021815432987130620',
   productCode = 'CQ75CQ76',
   templateId = 1,
+  agentCode = '65434444',
   orderId = 13005,
   tenantId = 9991000007,
 } = route.query;
@@ -89,11 +93,11 @@ const isLink = computed(() => {
   return questionnaireType === '1' && [3].includes(state.currentQuestionInfo[0]?.textType as any);
 });
 
-const onSubmitCurrentStatus = (status: number) => {
+const onSubmitCurrentStatus = (status: number, questionContent?: any) => {
   const { id, objectType } = currentQuestion;
 
   saveMarketerNotices({
-    content: state.currentQuestionInfo[0]?.content,
+    content: questionContent || state.currentQuestionInfo[0]?.content,
     contentType: questionnaireType as any,
     isDone: status,
     noticeType: mapNoticeMap[objectType],
@@ -113,7 +117,7 @@ const onSubmitCurrentStatus = (status: number) => {
 const orderDetail = () => {
   getOrderDetail({
     orderNo,
-    saleUserId: 'D1234567-1',
+    saleUserId: agentCode,
     tenantId,
   }).then(({ code, data }) => {
     if (code === '10000') {
@@ -123,7 +127,6 @@ const orderDetail = () => {
 };
 
 onMounted(() => {
-  console.log(currentQuestion);
   const { insurerCode, id, objectType, productCategory } = currentQuestion;
   getCustomerQuestionsDetail({
     insurerCode,

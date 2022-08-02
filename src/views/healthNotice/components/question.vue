@@ -7,26 +7,26 @@
 <template>
   <ProPageWrap class="com-quersion">
     <ProCard :title="`${titleMap[questionnaireType as any]}健康告知书`">
-      <div v-for="(i, idx) of props.currentPageInfo" :key="idx" class="question-item">
+      <div v-for="(i, idx) of listQuestions" :key="idx" class="question-item">
         <div class="problem">{{ idx + 1 }}. {{ i.title }}</div>
         <!-- 单选 -->
-        <van-radio-group v-if="i.questionType === 1" v-model="radioCheckedProblem">
+        <van-radio-group v-if="i.questionType === 1" v-model="i.singleAnswer">
           <van-cell-group inset>
             <van-cell
               v-for="(child, childIdx) of parseData(i.options)"
               :key="childIdx"
               :title="child.title"
               clickable
-              @click="radioCheckedProblem = child.value"
+              @click="i.singleAnswer = childIdx"
             >
               <template #right-icon>
-                <van-radio :name="child.value" />
+                <van-radio :name="childIdx" />
               </template>
             </van-cell>
           </van-cell-group>
         </van-radio-group>
         <!-- 多选 -->
-        <van-checkbox-group v-if="i.questionType === 2" v-model="checked">
+        <van-checkbox-group v-if="i.questionType === 2" v-model="i.multipleChoose">
           <van-cell-group inset>
             <van-cell
               v-for="(item, index) in parseData(i.options)"
@@ -36,12 +36,7 @@
               @click="toggle(index)"
             >
               <template #right-icon>
-                <van-checkbox
-                  :ref="(el:any) => (checkboxRefs[index] = el)"
-                  shape="square"
-                  :name="item.value"
-                  @click.stop
-                />
+                <van-checkbox :ref="(el:any) => (checkboxRefs[index] = el)" shape="square" :name="index" @click.stop />
               </template>
             </van-cell>
           </van-cell-group>
@@ -49,7 +44,7 @@
         <!-- 判断 -->
         <ProRadioButton
           v-if="i.questionType === 3"
-          :model-value="modelValue"
+          v-model="i.singleAnswer"
           :options="[
             { label: '是', value: 'Y' },
             { label: '否', value: 'N' },
@@ -57,7 +52,7 @@
         />
         <!-- 填空题 -->
         <van-cell-group v-if="i.questionType === 4" inset>
-          <van-field v-model="inputValue" placeholder="请输入" />
+          <van-field v-model="i.singleAnswer" placeholder="请输入" />
         </van-cell-group>
       </div>
     </ProCard>
@@ -85,19 +80,22 @@ const titleMap = {
   '2': '被保人',
   '3': '代理人',
 };
-const emits = defineEmits<(e: 'onSubmitCurrentStatus', code: number) => void>();
+const emits = defineEmits<(e: 'onSubmitCurrentStatus', code: number, questionContent: any) => void>();
 
-const state = reactive({
-  radioCheckedProblem: '',
-  checked: [],
-  modelValue: '',
-  inputValue: '',
+interface StateProps {
+  listQuestions: any;
+}
+const state = reactive<StateProps>({
+  // radioCheckedProblem: '',
+  // checked: [],
+  // modelValue: '',
+  // inputValue: '',
+  listQuestions: [],
 });
-const { radioCheckedProblem, checked, modelValue, inputValue } = toRefs(state);
+// radioCheckedProblem, checked, modelValue, inputValue,
+const { listQuestions } = toRefs(state);
 
 const toggle = (index: string | number) => {
-  console.log(checkboxRefs.value[index].toggle);
-
   checkboxRefs.value[index].toggle();
 };
 
@@ -121,12 +119,38 @@ const parseData = (val: string) => {
   return [];
 };
 
+watch(
+  () => props.currentPageInfo,
+  (newVal: any) => {
+    listQuestions.value = newVal.map((i: GetCustomerQuestionsDetailResponse, index: number) => {
+      if (i.questionType === 2) {
+        return {
+          multipleChoose: [],
+          ...i,
+        };
+      }
+      return {
+        singleAnswer: i.questionType === 3 ? 0 : '',
+        ...i,
+      };
+    });
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
 const handleSubmitCurrentQuestion = () => {
-  // if ([radioCheckedProblem.value, modelValue.value, inputValue.value].includes('') || checked.value.length === 0) {
-  //   Toast('请完成所有题目进行下一步');
-  //   return;
-  // }
-  emits('onSubmitCurrentStatus', 1);
+  const isAllAnswer = listQuestions.value.some(
+    (i: any) => ['undefined', ''].includes(i.singleAnswer) || i.multipleChoose?.length === 0,
+  );
+
+  if (isAllAnswer) {
+    Toast('请完成所有题目进行下一步');
+  } else {
+    emits('onSubmitCurrentStatus', 1, JSON.stringify(listQuestions.value));
+  }
 };
 
 onBeforeUpdate(() => {
