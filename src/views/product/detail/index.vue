@@ -218,6 +218,7 @@ const goPage = () => {
       productCode: detail.value?.baseProductCode,
       insurerCode: detail.value?.insurerCode,
       templateId: templateId.value,
+      productCategory: detail.value?.productCategory,
     },
   });
 };

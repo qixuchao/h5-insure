@@ -2,7 +2,7 @@
  * @Author: za-yuxiaowei yuxiaowei@zhongan.io
  * @Date: 2022-07-12 10:50:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-27 15:15:10
+ * @LastEditTime: 2022-08-02 18:45:29
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProSelect/index.vue
  * @Description:
 -->
@@ -69,10 +69,6 @@ watch(
     checked.value = newVal;
   },
 );
-
-watch(isShow.value, (val) => {
-  emits('update:show', val);
-});
 </script>
 
 <style lang="scss" scoped>

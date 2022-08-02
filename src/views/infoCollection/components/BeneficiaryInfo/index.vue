@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 20:07:46
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-02 08:21:40
+ * @LastEditTime: 2022-08-02 18:42:02
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/infoCollection/components/BeneficiaryInfo.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -67,7 +67,7 @@
       v-model="state.formInfo.benefitOrder"
       label="受益人顺序"
       name="benefitOrder"
-      :data-source="CERT_TYPE_LIST"
+      :data-source="BENEFICIARY_ORDER"
       required
     >
     </ProPicker>
@@ -78,7 +78,7 @@
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
 import { BeneficiaryReqItem, ProductInsureFactorItem } from '@/api/index.data';
-import { RELATION_INSURED_LIST } from '@/common/constants/infoCollection';
+import { RELATION_INSURED_LIST, BENEFICIARY_ORDER } from '@/common/constants/infoCollection';
 import { SEX_LIMIT_LIST, CERT_TYPE_LIST } from '@/common/constants';
 import useDicData from '@/hooks/useDicData';
 

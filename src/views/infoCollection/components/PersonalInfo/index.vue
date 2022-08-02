@@ -63,9 +63,9 @@
       required
     ></ProDatePicker>
     <ProPicker
-      v-model="state.formInfo.extInfo.region"
+      v-model="state.formInfo.extInfo.provinceCode"
       label="户籍所在地"
-      name="type"
+      name="provinceCode"
       placeholder="请选择"
       is-link
       :data-source="region"
@@ -182,11 +182,11 @@
     ></ProField>
     <ProPicker
       v-if="factorObj.familyAddress"
-      v-model="state.formInfo.type"
+      v-model="state.formInfo.familyProvinceCode"
       label="家庭地址"
       :data-source="region"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
-      name="type"
+      name="familyProvinceCode"
       placeholder="请选择"
     ></ProPicker>
     <ProField
@@ -203,7 +203,15 @@
       name="familyZipCode"
       placeholder="请输入"
     ></ProField>
-    <ProField v-if="factorObj.workAddress" label="工作地址" name="type" placeholder="请选择"></ProField>
+    <ProField
+      v-if="factorObj.workAddress"
+      v-model="state.formInfo.extInfo.workProvinceCode"
+      label="工作地址"
+      name="workProvinceCode"
+      :data-source="region"
+      :mapping="{ label: 'name', value: 'code', children: 'child' }"
+      placeholder="请选择"
+    ></ProField>
     <ProField
       v-if="factorObj.workAddressDetail"
       v-model="state.formInfo.extInfo.workAddress"
@@ -229,16 +237,17 @@
       v-if="factorObj.workContent"
       v-model="state.formInfo.extInfo.workContent"
       label="工作内容"
-      name="workPostCode"
+      name="workContent"
       placeholder="请输入"
     ></ProField>
-    <ProField
+    <ProPicker
       v-if="factorObj.taxCert"
       v-model="state.formInfo.extInfo.taxResident"
       label="税收居民身份"
-      name="workPostCode"
+      name="taxResident"
+      :data-source="TAX_RESIDENT"
       placeholder="请输入"
-    ></ProField>
+    ></ProPicker>
     <ProField
       v-if="factorObj.partTime"
       v-model="state.formInfo.extInfo.isPartTime"
@@ -270,6 +279,7 @@ import { InsuredReqItem, HolderReq, ProductInsureFactorItem } from '@/api/index.
 import { SEX_LIMIT_LIST, FLAG_LIST } from '@/common/constants';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import useDicData from '@/hooks/useDicData';
+import { TAX_RESIDENT } from '@/common/constants/infoCollection';
 
 type FormInfo = InsuredReqItem | HolderReq;
 interface Props {
