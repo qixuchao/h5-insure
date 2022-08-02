@@ -116,7 +116,7 @@ router.beforeResolve(async (to, from) => {
       data: { appid, timestamp, nonceStr, signature },
     } = res;
     wx.config({
-      debug: true,
+      debug: false,
       appId: appid,
       timestamp,
       nonceStr,

@@ -84,6 +84,7 @@
 </template>
 
 <script lang="ts" setup>
+import { Toast } from 'vant';
 import { useRouter, useRoute } from 'vue-router';
 import ProCard from '@/components/ProCard/index.vue';
 import ProForm from '@/components/ProForm/index.vue';
@@ -113,14 +114,14 @@ const {
 
 let orderDetail = {};
 const holderName = ref('');
-const firstFormData = ref({ payMethod: PAY_METHOD_ENUM.REAL_TIME, bankData: {} });
+const firstFormData = ref({ payMethod: PAY_METHOD_ENUM.REAL_TIME, bankData: { imagesId: [] } });
 const renewFormData = ref({
   payMethod: PAY_METHOD_ENUM.REAL_TIME,
   expiryMethod: EXPIRY_METHOD_ENUM.AUTOMATIC_PADDING,
-  bankData: {},
+  bankData: { imagesId: [] },
   payInfoType: PAY_INFO_TYPE_ENUM.FIRST_SAME,
 });
-const repriseFormData = ref({ bankData: {} });
+const repriseFormData = ref({ bankData: { imagesId: [] } });
 
 const payInfoType = ref(PAY_INFO_TYPE_ENUM.FIRST_SAME);
 const agree = ref(false);
@@ -133,6 +134,10 @@ const handleYearCardClick = (type: PAY_INFO_TYPE_ENUM) => {
 };
 
 const handleSubmit = () => {
+  if (!agree.value) {
+    Toast.fail('请勾选同意银行转账授权');
+    return;
+  }
   Promise.all([form1.value?.validate(), form2.value?.validate(), form3.value?.validate()]).then((results) => {
     const payInfoList = [
       {

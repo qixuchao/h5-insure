@@ -3,7 +3,7 @@
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-02 10:05:06
+ * @LastEditTime: 2022-08-02 10:54:25
  */
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { Toast } from 'vant';
