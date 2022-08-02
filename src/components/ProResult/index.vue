@@ -4,8 +4,8 @@
     <div class="title">{{ title }}</div>
     <div v-if="desc" class="desc">{{ desc }}</div>
     <div class="buttons">
-      <div v-if="cancelText" class="button cancel" @click="handleCancelClick">{{ cancelText }}</div>
-      <div v-if="okText" class="button ok" @click="handleOkClick">{{ okText }}</div>
+      <van-button v-if="cancelText" class="button cancel" @click="handleCancelClick">{{ cancelText }}</van-button>
+      <van-button v-if="okText" class="button ok" @click="handleOkClick">{{ okText }}</van-button>
     </div>
   </div>
 </template>
