@@ -66,13 +66,12 @@
           title-active-color="#0D6EFE"
           title-inactive-color="#393D46"
           shrink
-          scrollspy
           @click-tab="changeTab"
         >
           <van-tab v-for="(item, i) in info?.benefitRiskResultVOList" :key="i" :name="i" :title="item.riskName">
             <div class="benefit">
-              <div class="benefit-title">{{ item?.riskName }}</div>
-              <div class="line"></div>
+              <!-- <div class="benefit-title">{{ item?.riskName }}</div> -->
+              <!-- <div class="line"></div> -->
               <div v-if="showChart">
                 <div class="box">
                   <p class="box-title">
