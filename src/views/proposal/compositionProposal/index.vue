@@ -31,7 +31,7 @@
         <div class="line"></div>
 
         <div class="tp">
-          <ProTable :columns="columns" class="table" :data-source="dataSource" />
+          <ProTable v-if="dataSource.length > 0" :columns="columns" class="table" :data-source="dataSource" />
         </div>
       </div>
       <div class="container">
@@ -233,20 +233,24 @@ watch(
 );
 
 const getData = () => {
-  // eslint-disable-next-line array-callback-return
-  info.value.benefitRiskResultVOList[active.value]?.benefitRiskItemResultVOList[0]?.dataList?.map((item: string[]) => {
-    if (num.value.toString() === item[item.length - 1]) {
-      price.value = item;
-    }
-  });
+  info.value?.benefitRiskResultVOList?.[active.value]?.benefitRiskItemResultVOList?.[0]?.dataList?.map(
+    (item: string[]) => {
+      if (num.value.toString() === item[item.length - 1]) {
+        price.value = item;
+      }
+      return item;
+    },
+  );
 };
 
 const getBenefit = () => {
-  // eslint-disable-next-line array-callback-return
-  info.value.benefitRiskResultVOList[0]?.benefitRiskItemResultVOList[0]?.dataList?.map((item: string[], i: string) => {
-    item.push(i + 1);
-    item.push((age.value + i + 1).toString());
-  });
+  info.value?.benefitRiskResultVOList?.[0]?.benefitRiskItemResultVOList?.[0]?.dataList?.map(
+    (item: string[], i: string) => {
+      item.push(i + 1);
+      item.push((age.value + i + 1).toString());
+      return item;
+    },
+  );
 };
 
 // 保障期间
@@ -298,6 +302,7 @@ const shareConfigProps = () => {
     desc: '您的贴心保险管家', // 分享描述
     link: authUrl, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
     img: '', // 微信分享
+    imgUrl: '',
     success() {
       // 设置成功
       console.log('分享成功回调');
@@ -317,6 +322,8 @@ const setWeixinShare = () => {
       wx.updateAppMessageShareData(shareProps);
       // 分享到朋友圈｜分享到 QQ 空间
       wx.updateTimelineShareData(shareProps);
+      wx.onMenuShareAppMessage(shareProps);
+      wx.onMenuShareTimeline(shareProps);
     });
   }
 };
@@ -339,13 +346,14 @@ onMounted(() => {
     getData();
     info.value?.proposalProductRiskVOList.map(
       // eslint-disable-next-line array-callback-return
-      (item: { riskName: any; amount: any; coveragePeriod: any; chargePeriod: any; premium: any }) => {
+      (item: any) => {
+        const { riskName, amount, coveragePeriod, chargePeriod, premium } = item;
         dataSource.value.push({
-          key1: item.riskName,
-          key2: item.amount,
-          key3: getCover(item.coveragePeriod),
-          key4: getChargePay(item.chargePeriod),
-          key5: item.premium,
+          key1: riskName,
+          key2: amount,
+          key3: getCover(coveragePeriod),
+          key4: getChargePay(chargePeriod),
+          key5: premium,
         });
       },
     );
