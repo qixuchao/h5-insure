@@ -19,7 +19,8 @@
           <div class="label">身份证号码</div>
           <div class="no">{{ detail?.tenantOrderHolder?.certNo }}</div>
           <div v-if="!detail?.tenantOrderHolder?.extInfo?.isCert" class="action" @click="handleVerify(-1)">
-            去认证 <ProSvg name="right_arrow" class="icon" />
+            去认证
+            <ProSvg name="right_arrow" class="icon" />
           </div>
         </div>
       </ProCard>
@@ -59,7 +60,8 @@
             <div class="label">身份证号码</div>
             <div class="no">{{ item.certNo }}</div>
             <div v-if="!item.extInfo?.isCert" class="action" @click="handleVerify(index)">
-              去认证 <ProSvg name="right_arrow" class="icon" />
+              去认证
+              <ProSvg name="right_arrow" class="icon" />
             </div>
           </div>
         </ProCard>
@@ -122,6 +124,7 @@ const {
   tenantId = '9991000007',
   templateId = 1,
   productCode = 'CQ75CQ76',
+  insurerCode = 'ancheng',
 } = route.query;
 const pageCode = 'sign';
 const storage = new Storage({ source: 'localStorage' });
@@ -197,6 +200,7 @@ const handleSubmit = () => {
           pageCode: 'sign',
           templateId,
         },
+        venderCode: 'ancheng',
       }).then((res) => {
         const { code, data } = res;
         if (code === '10000' && data.success) {
@@ -210,7 +214,7 @@ const handleSubmit = () => {
   });
 };
 
-onMounted(() => {
+const getDetail = () => {
   getOrderDetail({
     orderNo,
     saleUserId,
@@ -219,20 +223,29 @@ onMounted(() => {
     const { code, data } = res;
     if (code === '10000') {
       detail.value = data;
-      let insuredIndex = 0;
-      data.tenantOrderAttachmentList.forEach((item) => {
-        if (item.category === 21) {
-          // 电子签名
-          if (item.objectType === 2) {
-            holderSign.value.setDataURL(item.fileBase64);
-          } else if (item.objectType === 1) {
-            insuredSignRefs[insuredIndex].setDataURL(item.fileBase64);
-            insuredIndex += 1;
+      setTimeout(() => {
+        let insuredIndex = 0;
+        data.tenantOrderAttachmentList.forEach((item) => {
+          if (item.category === 21) {
+            // 电子签名
+            if (item.objectType === 2) {
+              holderSign.value.clear();
+
+              holderSign.value.setDataURL(item.fileBase64);
+            } else if (item.objectType === 1) {
+              insuredSignRefs[insuredIndex].clear();
+              insuredSignRefs[insuredIndex].setDataURL(item.fileBase64);
+              insuredIndex += 1;
+            }
           }
-        }
+        });
       });
     }
   });
+};
+
+onMounted(() => {
+  getDetail();
   getFile({
     orderNo,
     productCode,
@@ -253,7 +266,11 @@ onMounted(() => {
       tenantId,
       userName: name,
     }).then((res) => {
-      storage.remove('verifyData');
+      const { code, data } = res;
+      if (code === '10000') {
+        storage.remove('verifyData');
+        getDetail();
+      }
     });
   }
 });
@@ -267,11 +284,13 @@ onMounted(() => {
       margin-left: 40px;
       display: flex;
       align-items: center;
+
       .name {
         font-size: 30px;
         font-weight: 600;
         color: #393d46;
       }
+
       .status {
         margin-left: 20px;
         text-align: center;
@@ -282,12 +301,14 @@ onMounted(() => {
         border: 1px solid #99a9c0;
         font-size: 24px;
         color: #99a9c0;
+
         &.verified {
           color: #0d6efe;
           border-color: #0d6efe;
         }
       }
     }
+
     .verify-item {
       display: flex;
       align-items: center;
@@ -295,15 +316,18 @@ onMounted(() => {
       line-height: 106px;
       font-size: 30px;
       color: #393d46;
+
       .no {
         margin-left: 48px;
       }
+
       .action {
         flex: 1;
         display: flex;
         align-items: center;
         justify-content: flex-end;
         color: #99a9c0;
+
         .icon {
           margin-left: 10px;
           color: #99a9c0;
@@ -312,26 +336,32 @@ onMounted(() => {
       }
     }
   }
+
   .sign-card {
     .resign {
       font-size: 28px;
       color: #0d6efe;
     }
+
     .sign-body {
       padding-bottom: 30px;
+
       .date {
         margin-top: 24px;
         font-size: 28px;
         color: #99a9c0;
         line-height: 40px;
       }
+
       .file {
         margin-top: 16px;
         font-size: 28px;
         color: #393d46;
         line-height: 40px;
+
         .file-name {
           color: #0d6efe;
+
           .dun-hao {
             color: #393d46;
           }
@@ -339,9 +369,11 @@ onMounted(() => {
       }
     }
   }
+
   .footer {
     position: static;
     justify-content: space-between;
+
     .refresh-btn {
       width: 50px;
       border: none;
@@ -349,10 +381,12 @@ onMounted(() => {
       font-size: 20px;
       line-height: 28px;
       text-align: center;
+
       .text {
         margin-top: 10px;
       }
     }
+
     .submit-btn {
       flex: 1;
     }

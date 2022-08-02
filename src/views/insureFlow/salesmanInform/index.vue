@@ -53,10 +53,14 @@ const router = useRouter();
 const route = useRoute();
 
 const {
-  orderNo = '2022021815432987130620',
-  productCode = 'andainsurer',
-  templateId = 1,
-  tenantId = 9991000007,
+  productCode = 'MMBBSF',
+  agentCode = '65434444',
+  tenantId = '9991000007',
+  agencyCode = '3311222',
+  insurerCode = 'zhongan',
+  productCategory = '1',
+  templateId = '1',
+  orderNo = '2022080217103534947',
 } = route.query;
 
 const agentSignRef = ref<any>(null);
@@ -82,9 +86,9 @@ const state = reactive<Partial<StateProps>>({
 
 const orderDetail = () => {
   getOrderDetail({
-    orderNo: '2022021815432987130620',
-    saleUserId: 'D1234567-1',
-    tenantId: '9991000007',
+    orderNo,
+    saleUserId: agentCode,
+    tenantId,
   }).then(({ code, data }) => {
     if (code === '10000') {
       Object.assign(state.pageData, data);
@@ -99,7 +103,7 @@ onMounted(() => {
     // 告知类型：1-投保告知，2-健康告知，3-特别约定，4-投保人问卷，5-被保人问卷，6-投保人声明，7-被保人声明，8-免责条款，9-营销员告知
     // objectType: 1, // 适用角色 ：1-投保人，2-被保人，3-营销人员(代理人)
     orderNo,
-    productCategory: 1,
+    productCategory,
     tenantId,
     noticeType: 9,
     objectType: 3,
@@ -121,11 +125,11 @@ const handleClickInformDetails = (rows: ListCustomerQuestionsResponse) => {
 };
 
 const handleClickNextStep = () => {
-  // const isAllRead = state.noticeList.every((i) => i.isDone === 1);
-  // if (!isAllRead) {
-  //   Toast('请完成所有告知进行下一步');
-  //   return;
-  // }
+  const isAllRead = state.noticeList.every((i) => i.isDone === 1);
+  if (!isAllRead) {
+    Toast('请完成所有告知进行下一步');
+    return;
+  }
   if (agentSignRef.value?.isEmpty()) {
     Toast('请完成代理人签字进行下一步');
     return;

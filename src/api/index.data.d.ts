@@ -297,6 +297,7 @@ export interface TenantOrderAttachmentItem {
   category: number;
   desc: string;
   id: number;
+  fileBase64: string;
   name: string;
   objectId: string;
   objectType: number;
