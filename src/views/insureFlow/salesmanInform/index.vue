@@ -140,7 +140,7 @@ const handleClickNextStep = () => {
     if (code) {
       nextStep({
         ...state.pageData,
-        extInfo: { ...state.pageData.extInfo, templateId: '1', pageCode: 'salesNotice' },
+        extInfo: { ...state.pageData.extInfo, templateId: '1', pageCode: 'salesNotice', venderCode: insurerCode },
       }).then((code2, data) => {
         if (code2 === '10000') {
           if (data.pageAction.pageAction === 'jumpToPage') {

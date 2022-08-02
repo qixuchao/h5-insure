@@ -174,6 +174,7 @@ const handleClickNextStep = () => {
   nextStep({
     ...state.pageData,
     extInfo: { ...state.pageData.extInfo, templateId: '1', pageCode: 'questionNotice' },
+    venderCode: insurerCode,
   }).then(({ code, data }) => {
     if (code === '10000') {
       if (data.pageAction.pageAction === 'jumpToPage') {
