@@ -120,6 +120,7 @@ const delRisk = (id: number) => {
         const { code } = res;
         if (code === '10000') {
           Toast.success('删除成功');
+          pageNum.value = 1;
           getHistoryList();
         }
       });
