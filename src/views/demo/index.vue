@@ -266,6 +266,12 @@ const columns = [
     width: 120,
   },
   {
+    title: 'render',
+    render(row: any, index: number) {
+      return row.name + index;
+    },
+  },
+  {
     title: 'columnA',
     dataIndex: 'key6',
     width: 120,

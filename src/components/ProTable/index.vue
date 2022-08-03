@@ -35,7 +35,7 @@
                 ]"
               >
                 <span>
-                  {{ item[column.dataIndex] }}
+                  {{ column.render ? column.render(item, index) : item[column.dataIndex] }}
                 </span>
               </td>
             </tr>
@@ -56,7 +56,13 @@ import ProSvg from '@/components/ProSvg/index.vue';
 
 const props = defineProps({
   columns: {
-    type: Array as () => Array<{ title: string; fixed?: boolean; dataIndex: string; width?: number }>,
+    type: Array as () => Array<{
+      title: string;
+      fixed?: boolean;
+      dataIndex: string;
+      width?: number;
+      render: (item: any) => string;
+    }>,
     default: () => [],
   },
   dataSource: {
