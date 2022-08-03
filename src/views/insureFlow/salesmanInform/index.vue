@@ -143,7 +143,7 @@ const handleClickNextStep = () => {
         ...state.pageData,
         extInfo: { ...state.pageData.extInfo, templateId, pageCode: 'salesNotice' },
         venderCode: insurerCode,
-      }).then((code2, data) => {
+      }).then(({ code: code2, data }) => {
         if (code2 === '10000') {
           if (data.pageAction.pageAction === 'jumpToPage') {
             router.push({
