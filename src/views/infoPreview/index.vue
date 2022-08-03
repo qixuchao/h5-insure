@@ -39,7 +39,6 @@
         ></PersonalInfo>
         <ProField label="投保地区" name="type" placeholder="请选择" is-link></ProField>
       </ProCard>
-
       <ProCard title="受益人">
         <ProField
           v-model="formInfo.tenantOrderInsuredList[0].insuredBeneficiaryType"
