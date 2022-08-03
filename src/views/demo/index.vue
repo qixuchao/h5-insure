@@ -268,7 +268,7 @@ const columns = [
   {
     title: 'render',
     render(row: any, index: number) {
-      return row.name + index;
+      return row.key1 + index;
     },
   },
   {
