@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:14:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-31 21:52:51
+ * @LastEditTime: 2022-08-03 09:43:59
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -15,7 +15,10 @@
             v-model="proposalInfo.proposalName"
             name="proposalName"
             placeholder="请输入计划书名称"
-            :rules="[{ required: true, message: '请输入计划书名称' }, { validator: validateName }]"
+            :rules="[
+              { required: true, message: '请输入计划书名称' },
+              { validator: (...params) => validateName('计划书名称', ...params) },
+            ]"
           >
             <template #label>
               <span>计划书名称</span>
@@ -27,6 +30,7 @@
             v-model="proposalInfo.proposalInsuredList[0].name"
             name="name"
             label="姓名"
+            :rules="[{ validator: (...params) => validateName('姓名', ...params) }]"
             placeholder="请输入（选填）"
           ></VanField>
           <VanField
@@ -185,13 +189,11 @@ const selectedProduct = ref({});
 // 试算之后的产品险种列表
 const trialedProductList = ref<ProposalInsuredProductItem[]>([]);
 
-const validateName = (value: string, rule: any) => {
+const validateName = (desc: string, value: string, rule: any) => {
   if (/^.{1,20}$/.test(value)) {
-    console.log('value', value, rule);
-
     return '';
   }
-  return '计划书名称不能超过20个字符';
+  return `${desc}不能超过20个字符`;
 };
 
 const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsuredProductItem) => {

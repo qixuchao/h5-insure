@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-25 09:04:29
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-01 23:35:00
+ * @LastEditTime: 2022-08-03 16:47:06
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/customerNotice/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -17,6 +17,7 @@
       </div>
       <!-- 文件 -->
       <div v-else-if="materialData.materialSource === 1">
+        <!-- <van-image v-if="isPicture" width="100%" height="80vh" fit="contain" :src="props.url" /> -->
         <div
           id="customerNotice"
           isee_pdf="https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022080122423069709444bc4acd84f4481ab140e84456c0f/复星联合流程图V1.5.pdf?Expires=16599"
