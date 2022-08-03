@@ -103,7 +103,7 @@ const onSubmitCurrentStatus = (status: number, questionContent?: any) => {
     noticeType: mapNoticeMap[objectType],
     objectId: id as any,
     objectType,
-    orderId,
+    orderId: state.pageData.id,
     orderNo,
     tenantId: 9991000007,
   }).then(({ code, data }) => {
