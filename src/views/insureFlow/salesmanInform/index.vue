@@ -120,6 +120,7 @@ const handleClickInformDetails = (rows: ListCustomerQuestionsResponse) => {
     path: '/healthNotice',
     query: {
       questionnaireType: rows.questionnaireType,
+      ...route.query,
     },
   });
 };

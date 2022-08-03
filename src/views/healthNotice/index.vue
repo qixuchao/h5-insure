@@ -95,7 +95,6 @@ const isLink = computed(() => {
 
 const onSubmitCurrentStatus = (status: number, questionContent?: any) => {
   const { id, objectType } = currentQuestion;
-
   saveMarketerNotices({
     content: questionContent || state.currentQuestionInfo[0]?.content,
     contentType: questionnaireType as any,
@@ -127,6 +126,7 @@ const orderDetail = () => {
 };
 
 onMounted(() => {
+  orderDetail();
   const { insurerCode, id, objectType, productCategory } = currentQuestion;
   getCustomerQuestionsDetail({
     insurerCode,
