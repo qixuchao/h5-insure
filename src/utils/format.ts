@@ -19,3 +19,38 @@ export const formatJsonToUrlParams = (data: instanceObject) => {
 export const transformToMoney = (num?: number | string) => {
   return num ? String(num).replace(/\B(?=(\d{3})+$)/g, ',') : '';
 };
+
+// 保障期间
+export const convertPeriod = (value: string): string => {
+  const currentData = value;
+  const [unit, years] = currentData.split('_');
+  const unitMap = {
+    year: '年',
+    month: '月',
+    day: '天',
+    to: '岁',
+  };
+  if (currentData === 'to_life') {
+    return '保终生';
+  }
+  return `${years}${unitMap[unit]}`;
+};
+
+// 缴费期间
+export const convertChargePeriod = (value: string): string => {
+  const currentData = value;
+  const [unit, years] = currentData.split('_');
+  const unitMap = {
+    year: '年交',
+    month: '月交',
+    day: '天',
+    to: '岁',
+  };
+  if (currentData === 'single') {
+    return '趸缴';
+  }
+  if (unitMap[unit] === 'to') {
+    return `交至${years}岁`;
+  }
+  return `${years}${unitMap[unit]}`;
+};

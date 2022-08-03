@@ -61,7 +61,7 @@ const props = defineProps({
       fixed?: boolean;
       dataIndex: string;
       width?: number;
-      render: (item: any) => string;
+      render?: (item: any, index?: number) => string;
     }>,
     default: () => [],
   },

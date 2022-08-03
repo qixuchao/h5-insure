@@ -33,6 +33,7 @@ import emptyImg from '@/assets/images/searchempty.png';
 import ProTable from '@/components/ProTable/index.vue';
 import { historyProposalList, deleteProposal } from '@/api/modules/proposalList';
 import { HistoryProposalListType } from '@/api/modules/proposalList.data';
+import { convertPeriod, convertChargePeriod } from '@/utils/format';
 
 const columns = [
   {
@@ -43,11 +44,17 @@ const columns = [
   {
     title: '保障期间',
     dataIndex: 'coveragePeriod',
+    render: (row: any) => {
+      return convertPeriod(row?.coveragePeriod);
+    },
   },
   {
     title: '缴费期间',
     dataIndex: 'chargePeriod',
     width: 110,
+    render: (row: any) => {
+      return convertChargePeriod(row?.chargePeriod);
+    },
   },
   {
     title: '保费',
@@ -106,8 +113,7 @@ const onSearch = (val: string) => {
 
 const delRisk = (id: number) => {
   Dialog.confirm({
-    title: '删除计划书',
-    message: '确认删除计划书',
+    message: '是否确定删除计划书？',
   })
     .then(() => {
       deleteProposal(id).then((res) => {
