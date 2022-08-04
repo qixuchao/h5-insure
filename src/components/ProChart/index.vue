@@ -1,42 +1,13 @@
 <!-- 漏斗图 -->
 <template>
-  <div class="com-chart">
-    <p class="box-title">
-      <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
-      保单年度<span>{{ state.sliderVal - min + 1 }}</span
-      >年度，被保人<span>{{ state.sliderVal }}</span
-      >岁时
-      <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
-    </p>
-    <div id="funnel" :style="{ width: '100%', height: '350px' }"></div>
-
-    <div class="slider">
-      <div class="add lf">
-        <img src="@/assets/images/compositionProposal/cut.png" alt="" @click="handleChangeSliderValue('minus')" />
-      </div>
-      <div style="flex: 1">
-        <van-slider v-if="min" v-model="state.sliderVal" :min="min" :max="max" bar-height="8px" @change="handleChange">
-          <template #button>
-            <div class="custom-button">{{ state.sliderVal }} 岁</div>
-          </template>
-        </van-slider>
-      </div>
-      <div class="add rg">
-        <img src="@/assets/images/compositionProposal/add.png" alt="" @click="handleChangeSliderValue('add')" />
-      </div>
-    </div>
+  <div id="com-chart" :style="{ width: '100%' }">
+    <div id="funnel" :style="{ height: '350px' }"></div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { withDefaults } from 'vue';
 import * as echarts from 'echarts';
 
-interface Props {
-  min: number;
-  max: number;
-  stepValue: number;
-}
 const props = defineProps({
   min: {
     type: Number,
@@ -48,19 +19,19 @@ const props = defineProps({
     required: false,
     default: 100,
   },
+  current: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
   data: {
     type: Array,
     required: false,
     default: () => [],
   },
-  stepValue: {
-    type: Number,
-    required: false,
-    default: 1,
-  },
 });
 
-const { min, max, stepValue, data } = toRefs(props);
+const { min, max, current, data } = toRefs(props);
 
 const state = reactive({
   sliderVal: 1,
@@ -96,24 +67,6 @@ const state = reactive({
 });
 let myChart: echarts.ECharts;
 
-const handleChangeSliderValue = (type: string) => {
-  if (state.sliderVal < max.value && type === 'add') {
-    state.sliderVal += stepValue.value;
-  } else if (state.sliderVal > min.value && type === 'minus') {
-    state.sliderVal -= stepValue.value;
-  }
-  let index = 0;
-  state.option.xAxis.data.forEach((item: number, i: number) => {
-    if (item === state.sliderVal) {
-      index = i;
-    }
-  });
-  myChart.dispatchAction({
-    type: 'showTip',
-    seriesIndex: 2, // 显示第几个series
-    dataIndex: index, // 显示第几个数据
-  });
-};
 const handleChange = (val: number) => {
   let index = 0;
   state.option.xAxis.data.forEach((item: number, i: number) => {
@@ -123,13 +76,15 @@ const handleChange = (val: number) => {
   });
   myChart.dispatchAction({
     type: 'showTip',
-    seriesIndex: 1, // 显示第几个series
+    seriesIndex: 0, // 显示第几个series
     dataIndex: index, // 显示第几个数据
   });
 };
 
-onMounted(() => {
+const initChart = () => {
+  const chartWapper = document.getElementById('com-chart');
   const chartDom: any = document.getElementById('funnel');
+  chartDom.style.width = `${chartWapper?.offsetWidth}px`;
   myChart = echarts.init(chartDom);
   let header = [];
   header = data.value.map((item: any) => item.name);
@@ -147,69 +102,22 @@ onMounted(() => {
   for (let index = min.value; index <= max.value; index++) {
     arr.push(index);
   }
-  console.log('>>>>>', header);
   state.option.legend.data = header;
   state.option.xAxis.data = arr;
   state.option && myChart.setOption(state.option);
 
   setTimeout(() => {
-    myChart.dispatchAction({
-      type: 'showTip',
-      seriesIndex: 2, // 显示第几个series
-      dataIndex: 0, // 显示第几个数据
-    });
+    handleChange(props.current);
   });
+};
+
+onMounted(() => {
+  setTimeout(() => {
+    initChart();
+  }, 0);
+});
+
+watch(current, (val) => {
+  handleChange(val);
 });
 </script>
-
-<style lang="scss" scoped>
-.com-chart {
-  .box-title {
-    margin: 40px 0 42px 0;
-    padding: 0 16px;
-    font-size: 32px;
-    font-weight: 500;
-    color: #333333;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    img {
-      width: 41px;
-      height: 29px;
-    }
-    span {
-      color: #ff5840;
-    }
-  }
-  .slider {
-    display: flex;
-    align-items: center;
-    margin-top: 30px;
-    .add {
-      img {
-        width: 48px;
-        height: 48;
-      }
-    }
-    .lf {
-      margin-right: 45px;
-    }
-    .rg {
-      margin-left: 45px;
-    }
-    .custom-button {
-      width: 104px;
-      height: 46px;
-      background: #0d6efe;
-      box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.1);
-      border-radius: 28px;
-      border: 5px solid #a2c7ff;
-      font-size: 24px;
-      font-weight: 600;
-      color: #ffffff;
-      text-align: center;
-    }
-  }
-}
-</style>
