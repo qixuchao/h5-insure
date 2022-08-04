@@ -87,7 +87,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant/es';
 import PersonalInfo from './components/PersonalInfo/index.vue';
 import RiskList from './components/RiskList/index.vue';
-import { insureProductDetail, premiumCalc } from '@/api/modules/trial';
+import { insureProductDetail, premiumCalc, insureProductDetailNew } from '@/api/modules/trial';
 import { getDic, nextStep } from '@/api';
 import { useCookie } from '@/hooks/useStorage';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
@@ -353,21 +353,20 @@ const queryDictList = () => {
     }
   });
 };
-
 const queryProductInfo = () => {
-  insureProductDetail({ productCode, source: 1 })
+  insureProductDetailNew({ productCode, source: 1 })
     .then(({ code, data }) => {
       if (code === '10000') {
-        state.riskBaseInfo = data?.productBasicInfoVO;
+        state.riskBaseInfo = data.productBasicInfoVO;
 
-        (data?.productRelationPlanVOList || data?.riskDetailVOList || []).forEach((plan, index) => {
+        (data.productRelationPlanVOList || data.riskDetailVOList || []).forEach((plan, index) => {
           if (index === 0) {
             state.currentPlan = plan.planCode || '0';
           }
           Object.assign(riskInfo.value, { [plan.planCode || index]: { liabilityVOList: [], riderRiskVOList: {} } });
         });
 
-        state.riskData = data.riskDetailVOList || [];
+        state.riskData = data.productRiskVoList[0].riskDetailVOList || [];
         state.riskPlanData = data.productRelationPlanVOList || [];
       }
     })

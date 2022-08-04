@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-02 18:43:11
+ * @LastEditTime: 2022-08-04 12:15:21
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -102,6 +102,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { useToggle } from '@vant/use';
 import { conditionalExpression } from '@babel/types';
+import { truncateSync } from 'fs';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 import { getInitFactor, nextStep, getTemplateInfo, getOrderDetail } from '@/api';
 import {
@@ -338,6 +339,19 @@ watch(
       state.addressList = addressList.filter((address: ContactInfo) => {
         return address.contactAddress && address.contactName && address.contactPhoneNo;
       });
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  () => formInfo.value.tenantOrderInsuredList[0].relationToHolder,
+  (newVal) => {
+    if (+newVal === 1) {
+      Object.assign(formInfo.value.tenantOrderInsuredList[0], formInfo.value.tenantOrderHolder);
     }
   },
   {

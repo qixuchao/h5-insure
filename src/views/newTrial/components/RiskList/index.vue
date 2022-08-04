@@ -2,27 +2,21 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 10:50:19
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-30 16:27:23
+ * @LastEditTime: 2022-08-04 12:24:05
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/trial/components/RiskList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <div class="risk-list-wrapper">
     <RiskItem
-      v-if="state.mainRiskData"
-      :enums="enums"
-      :form-info="state.mainRiskInfo"
-      :origin-data="state.mainRiskData"
-    />
-    <RiskItem
-      v-for="(riderRisk, index) in state.requiredRiderRiskData"
-      :key="riderRisk.id"
-      :form-info="state.riderRiskInfo[riderRisk.id]"
+      v-for="(riskItem, index) in originData"
+      :key="riskItem.id"
+      :form-info="state.riderRiskInfo[riskItem.id]"
       :index="index"
       :enums="enums"
       :main-risk-data="state.mainRiskData"
       :main-risk-info="state.mainRiskInfo"
-      :origin-data="riderRisk"
+      :origin-data="riskItem"
       :remove-risk="removeRiderRisk"
       :remove-risk-list="state.checkedList"
     />
@@ -196,10 +190,6 @@ watch(
     (newVal || []).forEach((risk) => {
       if (risk.riskType === 1) {
         state.mainRiskData = risk;
-        state.requiredRiderRiskData = risk.requiredRiderRiskVOList || [];
-        state.riderRiskList = risk.optionalRiderRiskVOList;
-      } else {
-        state.riderRiskList.push(risk);
       }
     });
   },
