@@ -103,6 +103,7 @@ const displayDataSource = computed(() => {
         tr:first-child {
           th:first-child {
             border-radius: 8px 0 0 0;
+            border-left: 1px solid #eeeff4;
           }
           th:last-child {
             border-radius: 0 8px 0 0;

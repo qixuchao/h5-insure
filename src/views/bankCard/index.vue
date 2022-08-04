@@ -59,7 +59,7 @@
             v-for="(item, index) in PAY_INFO_TYPE_LIST"
             :key="index"
             :class="['reprise-card-item', { selected: payInfoType === item.value }]"
-            @click="handleYearCardClick(item.value)"
+            @click="handlePayInfoTypeClick(item.value)"
           >
             {{ item.label }}
           </div>
@@ -99,6 +99,7 @@ import {
   PAY_INFO_TYPE_LIST,
   EXPIRY_METHOD_LIST,
   EXPIRY_METHOD_ENUM,
+  BANK_CARD_TYPE_ENUM,
 } from '@/common/constants/bankCard';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 import { nextStep, getOrderDetail, getInitFactor } from '@/api';
@@ -112,16 +113,19 @@ const {
   templateId = 1,
 } = route.query;
 
+const BANK_CARD_INIT_DATA = {
+  bankCardType: BANK_CARD_TYPE_ENUM.DEBIT,
+};
 let orderDetail = {};
 const holderName = ref('');
-const firstFormData = ref({ payMethod: PAY_METHOD_ENUM.REAL_TIME, bankData: { imagesId: [] } });
+const firstFormData = ref({ payMethod: PAY_METHOD_ENUM.REAL_TIME, bankData: { ...BANK_CARD_INIT_DATA, imagesId: [] } });
 const renewFormData = ref({
   payMethod: PAY_METHOD_ENUM.REAL_TIME,
   expiryMethod: EXPIRY_METHOD_ENUM.AUTOMATIC_PADDING,
-  bankData: { imagesId: [] },
+  bankData: { ...BANK_CARD_INIT_DATA, imagesId: [] },
   payInfoType: PAY_INFO_TYPE_ENUM.FIRST_SAME,
 });
-const repriseFormData = ref({ bankData: { imagesId: [] } });
+const repriseFormData = ref({ bankData: { ...BANK_CARD_INIT_DATA, imagesId: [] } });
 
 const payInfoType = ref(PAY_INFO_TYPE_ENUM.FIRST_SAME);
 const agree = ref(false);
@@ -129,7 +133,7 @@ const form1 = ref();
 const form2 = ref();
 const form3 = ref();
 
-const handleYearCardClick = (type: PAY_INFO_TYPE_ENUM) => {
+const handlePayInfoTypeClick = (type: PAY_INFO_TYPE_ENUM) => {
   payInfoType.value = type;
 };
 
@@ -250,7 +254,7 @@ onMounted(() => {
         data.tenantOrderPayInfoList.forEach((item) => {
           if (item.paymentType === PAYMENT_TYPE_ENUM.FIRST_TERM) {
             firstFormData.value = item;
-            firstFormData.value.bankData = { ...item, images: [], imagesId: [] };
+            firstFormData.value.bankData = { ...BANK_CARD_INIT_DATA, ...item, images: [], imagesId: [] };
           } else if (item.paymentType === PAYMENT_TYPE_ENUM.RENEW_TERM) {
             renewFormData.value = item;
             renewFormData.value.bankData = { ...item, images: [], imagesId: [] };

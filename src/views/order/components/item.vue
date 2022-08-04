@@ -5,8 +5,19 @@
       <div class="company-name">{{ detail.companyName }}</div>
       <div class="status">{{ ORDER_STATUS_MAP[detail.orderStatus] }}</div>
     </div>
-    <div class="holder">
-      投保人： {{ detail.policyHolder }} {{ dayjs(detail.orderStartDate).format('YYYY-MM-DD HH:mm:ss') }}
+    <div class="info">
+      <div class="info-item">
+        <div class="label">投保人</div>
+        <div class="desc">
+          {{ detail.policyHolder }}
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="label">创建时间</div>
+        <div class="desc">
+          {{ dayjs(detail.orderStartDate).format('YYYY-MM-DD HH:mm:ss') }}
+        </div>
+      </div>
     </div>
     <div class="footer">
       <div class="fee">
@@ -141,6 +152,27 @@ const handleProcess = () => {
     margin-top: 16px;
     padding-bottom: 30px;
     border-bottom: 1px dashed #eeeef4;
+  }
+  .info {
+    font-size: 24px;
+    color: #99a9c0;
+    line-height: 33px;
+    padding: 30px 0;
+    border-bottom: 1px dashed #eeeff4;
+    .info-item {
+      display: flex;
+      margin-top: 12px;
+      &:first-child {
+        margin-top: 0;
+      }
+      .label {
+        flex: 0 0 100px;
+      }
+      .desc {
+        flex: 1;
+        margin-left: 30px;
+      }
+    }
   }
   .footer {
     display: flex;
