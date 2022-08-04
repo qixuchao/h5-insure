@@ -16,7 +16,7 @@
           </template>
         </FieldInfo>
         <FieldInfo label="订单号" :content="detail?.orderNo" />
-        <FieldInfo label="投保时间" :content="dayjs(detail?.orderDate).format('YYYY-MM-DD HH:mm:ss')" />
+        <FieldInfo label="创建时间" :content="dayjs(detail?.gmtCreated).format('YYYY-MM-DD HH:mm:ss')" />
         <FieldInfo label="投保人" :content="detail?.tenantOrderHolder?.name" />
         <FieldInfo
           v-for="(item, index) in detail?.tenantOrderInsuredList || []"
