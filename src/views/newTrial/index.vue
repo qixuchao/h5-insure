@@ -123,6 +123,7 @@ interface PageState {
   ageRange: any;
   collapseName: string[];
   insuredRiskList: any[];
+  currentRiskList: RiskDetailVoItem[];
 }
 
 interface HolderPerson {
@@ -167,6 +168,7 @@ const state = reactive<PageState>({
   ageRange: [],
   collapseName: ['1'],
   insuredRiskList: [],
+  currentRiskList: [],
 });
 
 provide('premium', riskPremiumRef.value);
@@ -367,6 +369,11 @@ const queryProductInfo = () => {
         });
 
         state.riskData = data.productRiskVoList[0].riskDetailVOList || [];
+        state.currentRiskList = (data.productRiskVoList[0].riskDetailVOList || []).filter(
+          (riskItem: RiskDetailVoItem) => {
+            return riskItem.riskType === 1 || riskItem.collocationType === 2;
+          },
+        );
         state.riskPlanData = data.productRelationPlanVOList || [];
       }
     })
@@ -378,6 +385,8 @@ const pickFactor = (factorObj: { insuredFactorList: string[]; holderFactorList: 
   state.insuredFactor = factorObj.insuredFactorList;
   state.ageRange = factorObj.ageRange;
 };
+
+// watch(() =>  )
 
 watch(
   [() => riskInfo.value, () => holder.value, () => insured.value],
