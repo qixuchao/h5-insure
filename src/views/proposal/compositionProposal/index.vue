@@ -372,7 +372,7 @@ onMounted(() => {
   }
 
   if (isShare) {
-    queryPreviewProposalDetail(id as string).then((res: any) => {
+    queryPreviewProposalDetail(`${id}?tenantId=${router.query.tenantId}`).then((res: any) => {
       const { code, data } = res;
 
       if (code === '10000') {
