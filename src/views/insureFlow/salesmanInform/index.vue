@@ -39,11 +39,9 @@
 import { useRouter, useRoute } from 'vue-router';
 import { Toast } from 'vant';
 import ProCard from '@/components/ProCard/index.vue';
-import { getMarketerNotices, getMarketerNoticesDetail } from '@/api/modules/salesmanInform';
 import { listCustomerQuestions } from '@/api/modules/inform';
 import { nextStep, getOrderDetail } from '@/api';
 import { ListCustomerQuestionsResponse } from '@/api/modules/inform.data';
-import { NOTICE_OBJECT } from '@/common/constants/notice';
 import { sessionStore } from '@/hooks/useStorage';
 import { NextStepRequestData } from '@/api/index.data';
 import { saveSign } from '@/api/modules/verify';
@@ -100,12 +98,12 @@ onMounted(() => {
   orderDetail();
   listCustomerQuestions({
     insurerCode,
-    // 告知类型：1-投保告知，2-健康告知，3-特别约定，4-投保人问卷，5-被保人问卷，6-投保人声明，7-被保人声明，8-免责条款，9-营销员告知
-    // objectType: 1, // 适用角色 ：1-投保人，2-被保人，3-营销人员(代理人)
     orderNo,
     productCategory,
     tenantId,
+    // 告知类型：1-投保告知，2-健康告知，3-特别约定，4-投保人问卷，5-被保人问卷，6-投保人声明，7-被保人声明，8-免责条款，9-营销员告知
     noticeType: 9,
+    // objectType: 1, // 适用角色 ：1-投保人，2-被保人，3-营销人员(代理人)
     objectType: 3,
   }).then(({ code, data }) => {
     if (code === '10000') {
@@ -126,7 +124,7 @@ const handleClickInformDetails = (rows: ListCustomerQuestionsResponse) => {
 };
 
 const handleClickNextStep = () => {
-  const isAllRead = state.noticeList.every((i) => i.isDone === 1);
+  const isAllRead = state.noticeList && state.noticeList.every((i) => i.isDone === 1);
   if (!isAllRead) {
     Toast('请完成所有告知进行下一步');
     return;

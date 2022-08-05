@@ -47,6 +47,7 @@ import { getCustomerQuestionsDetail, updateOrderNoticeStatus, saveMarketerNotice
 import { sessionStore } from '@/hooks/useStorage';
 import { NextStepRequestData } from '@/api/index.data';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { NOTICE_OBJECT_TYPE } from '@/common/constants/notice';
 
 const router = useRouter();
 const route = useRoute();
@@ -61,12 +62,6 @@ const {
   orderId = 13005,
   tenantId = 9991000007,
 } = route.query;
-
-const mapNoticeMap = {
-  1: 4,
-  2: 5,
-  3: 9,
-};
 
 interface StateProps {
   pageData: Partial<NextStepRequestData>;
@@ -99,7 +94,7 @@ const onSubmitCurrentStatus = (status: number, questionContent?: any) => {
     content: questionContent || state.currentQuestionInfo[0]?.content,
     contentType: questionnaireType as any,
     isDone: status,
-    noticeType: mapNoticeMap[objectType],
+    noticeType: NOTICE_OBJECT_TYPE[objectType],
     objectId: id as any,
     objectType,
     orderId: state.pageData.id,

@@ -8,7 +8,7 @@
   </span>
 </template>
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { nanoid } from 'nanoid';
 import * as PDFJS from 'pdfjs-dist';
 import * as workerSrc from 'pdfjs-dist/build/pdf.worker.entry';

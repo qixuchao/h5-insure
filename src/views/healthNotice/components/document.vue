@@ -7,15 +7,7 @@
 <template>
   <ProPageWrap class="com-document">
     <div class="title">{{ props.currentPageInfo[0]?.title }}</div>
-    <div v-dompurify-html="props.currentPageInfo[0]?.content" class="content">
-      <!-- <div v-for="(i, idx) of mockTempData" :key="idx">
-        <p>{{ idx + 1 }}. 【{{ i.title }}】</p>
-        <p v-for="(child, childIxd) of i.content" :key="childIxd">
-          <span v-if="i.content.length > 1">（{{ childIxd + 1 }}）</span>
-          {{ child }}
-        </p>
-      </div> -->
-    </div>
+    <div v-dompurify-html="props.currentPageInfo[0]?.content" class="content"></div>
     <div class="footer-button">
       <van-button plain type="primary" @click="emits('onSubmitCurrentStatus', 2)">部分为是</van-button>
       <van-button type="primary" @click="emits('onSubmitCurrentStatus', 1)">以上皆否</van-button>

@@ -5,7 +5,7 @@
  * index.vue
 -->
 <template>
-  <ProPageWrap class="com-quersion">
+  <ProPageWrap class="com-question">
     <ProCard :title="`${titleMap[questionnaireType as any]}健康告知书`">
       <div v-for="(i, idx) of listQuestions" :key="idx" class="question-item">
         <div class="problem">{{ idx + 1 }}. {{ i.title }}</div>
@@ -82,18 +82,7 @@ const titleMap = {
 };
 const emits = defineEmits<(e: 'onSubmitCurrentStatus', code: number, questionContent: any) => void>();
 
-interface StateProps {
-  listQuestions: any;
-}
-const state = reactive<StateProps>({
-  // radioCheckedProblem: '',
-  // checked: [],
-  // modelValue: '',
-  // inputValue: '',
-  listQuestions: [],
-});
-// radioCheckedProblem, checked, modelValue, inputValue,
-const { listQuestions } = toRefs(state);
+const listQuestions = ref<any>([]);
 
 const toggle = (index: string | number) => {
   checkboxRefs.value[index].toggle();
@@ -129,6 +118,7 @@ watch(
           ...i,
         };
       }
+      // 单选时候默认赋值为0（否）
       return {
         singleAnswer: i.questionType === 3 ? 0 : '',
         ...i,
@@ -149,6 +139,7 @@ const handleSubmitCurrentQuestion = () => {
   if (isAllAnswer) {
     Toast('请完成所有题目进行下一步');
   } else {
+    // 1已完成
     emits('onSubmitCurrentStatus', 1, JSON.stringify(listQuestions.value));
   }
 };
@@ -159,7 +150,7 @@ onBeforeUpdate(() => {
 </script>
 
 <style scoped lang="scss">
-.com-quersion {
+.com-question {
   :deep(.body) {
     background-color: #f2f5fc;
     padding: 0 !important;
