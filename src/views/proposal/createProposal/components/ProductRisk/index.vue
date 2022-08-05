@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-16 13:39:05
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-05 18:58:25
+ * @LastEditTime: 2022-08-05 19:58:30
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductRisk/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -377,7 +377,7 @@ watch(
 watch(
   () => props.formInfo,
   (newVal = {}) => {
-    if (props.type !== 'add') {
+    if (!(props.type === 'add' || props.type === 'repeatAdd')) {
       const formInfo = {};
       newVal.proposalProductRiskList.forEach((risk) => {
         formInfo[risk.riskId] = risk;
@@ -395,7 +395,7 @@ watch(
 watch(
   () => props.productData,
   (newVal) => {
-    if (props.type !== 'add') {
+    if (!(props.type === 'add' || props.type === 'repeatAdd')) {
       state.riskBaseInfo = newVal.productBasicInfoVO;
       state.riskData = newVal.productRiskVoList?.[0].riskDetailVOList || [];
     }

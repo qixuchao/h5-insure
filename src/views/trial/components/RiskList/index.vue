@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 10:50:19
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-05 17:41:13
+ * @LastEditTime: 2022-08-05 20:03:22
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/trial/components/RiskList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -200,7 +200,7 @@ watch(
   (newVal) => {
     let currentRiskList: RiskDetailVoItem[] = [];
     const riderRiskList: RiskDetailVoItem[] = [];
-    if (trialType.origin === 'proposal' && trialType.type !== 'add') {
+    if (trialType.origin === 'proposal' && !(trialType.type === 'add' || trialType.type === 'repeatAdd')) {
       (newVal || []).forEach((risk: RiskDetailVoItem) => {
         if (risk.riskType === 1) {
           state.mainRiskData = risk;
