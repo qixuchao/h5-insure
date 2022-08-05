@@ -8,7 +8,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { Toast } from 'vant';
 import Storage from '@/utils/storage';
-import { REDIRECT_URI } from '@/utils';
 import showCodeMessage, { SUCCESS_CODE, SUCCESS_STATUS, UNLOGIN } from '@/api/code';
 import { formatJsonToUrlParams, instanceObject } from '@/utils/format';
 
