@@ -16,7 +16,7 @@
           </template>
         </FieldInfo>
         <FieldInfo label="订单号" :content="detail?.orderNo" />
-        <FieldInfo label="投保时间" :content="dayjs(detail?.orderDate).format('YYYY-MM-DD HH:mm:ss')" />
+        <FieldInfo label="创建时间" :content="dayjs(detail?.gmtCreated).format('YYYY-MM-DD HH:mm:ss')" />
         <FieldInfo label="投保人" :content="detail?.tenantOrderHolder?.name" />
         <FieldInfo
           v-for="(item, index) in detail?.tenantOrderInsuredList || []"
@@ -84,12 +84,14 @@ const handleDelete = () => {
     title: '确认',
     message: '确认删除订单？',
   }).then(() => {
-    deleteOrder(detail.value.id).then((res) => {
-      const { code, data } = res;
-      if (code === '10000') {
-        Toast.success('删除成功');
-      }
-    });
+    if (detail.value) {
+      deleteOrder(detail.value.id, detail.value.orderStatus).then((res) => {
+        const { code, data } = res;
+        if (code === '10000') {
+          Toast.success('删除成功');
+        }
+      });
+    }
   });
 };
 const handleProcess = () => {

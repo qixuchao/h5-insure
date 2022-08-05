@@ -21,7 +21,7 @@
             </div>
             <div>
               <p clase="p1">{{ info?.name }}</p>
-              <p class="p2">{{ GENDER[info?.gender] }}，{{ age }}岁</p>
+              <p class="p2">{{ GENDER[info?.gender] }}，{{ dayjs().diff(info?.birthday, 'y') }}岁</p>
             </div>
           </div>
           <div class="fe">
@@ -70,54 +70,55 @@
         >
           <van-tab v-for="(item, i) in info?.benefitRiskResultVOList" :key="i" :name="i" :title="item.riskName">
             <div class="benefit">
-              <!-- <div class="benefit-title">{{ item?.riskName }}</div> -->
-              <!-- <div class="line"></div> -->
+              <div class="benefit-title">{{ item?.riskName }}</div>
+              <div class="line"></div>
+              <p v-if="!showChart" class="box-title box-title-chart">
+                <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
+                保单年度<span>{{ benefitObj?.year?.[benefitObj?.index] }}</span
+                >年度，被保人<span>{{ benefitObj?.age?.[benefitObj?.index] }}</span
+                >岁时
+                <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
+              </p>
               <div v-if="showChart">
                 <div class="box">
                   <p class="box-title">
                     <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
-                    保单年度<span>{{ price[price.length - 2] }}</span
-                    >年度，被保人<span>{{ price[price.length - 1] }}</span
+                    保单年度<span>{{ benefitObj?.year?.[benefitObj?.index] }}</span
+                    >年度，被保人<span>{{ benefitObj?.age?.[benefitObj?.index] }}</span
                     >岁时
                     <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
                   </p>
                   <div class="box-price">
-                    <div v-for="(val, k) in item.benefitRiskItemResultVOList[0].headers" :key="k" style="width: 33%">
-                      <p class="text1">{{ toLocal(Number(price[k])) }}</p>
+                    <div v-for="(val, k) in benefitObj?.result?.headers" :key="k" style="width: 33%">
+                      <p class="text1">{{ toLocal(Number(benefitObj?.result?.dataList?.[benefitObj?.index]?.[k])) }}</p>
                       <p class="text2">{{ val }}(元）</p>
                     </div>
                   </div>
                 </div>
-                <div class="slider">
-                  <div class="add lf" @click="handleReduce">
-                    <img src="@/assets/images/compositionProposal/cut.png" alt="" />
-                  </div>
-                  <div style="flex: 1; margin: 0px 5px">
-                    <van-slider
-                      v-if="ageBegin"
-                      v-model="num"
-                      :min="ageBegin"
-                      :max="ageEnd"
-                      bar-height="8px"
-                      @drag-end="handleChange"
-                    >
-                      <template #button>
-                        <div class="custom-button">{{ num }} 岁</div>
-                      </template>
-                    </van-slider>
-                  </div>
-                  <div class="add rg" @click="handleAdd">
-                    <img src="@/assets/images/compositionProposal/add.png" alt="" />
-                  </div>
-                </div>
               </div>
 
-              <div v-else>
+              <div v-else style="width: 100%">
                 <ProChart
                   :min="ageBegin"
                   :max="ageEnd"
-                  :data="item.benefitRiskItemResultVOList[0].benefitRiskItemList"
+                  :current="num"
+                  :data="benefitObj?.result?.benefitRiskItemList"
                 />
+              </div>
+              <div class="slider">
+                <div class="add lf" @click="handleReduce">
+                  <img src="@/assets/images/compositionProposal/cut.png" alt="" />
+                </div>
+                <div style="flex: 1; margin: 0px 5px">
+                  <van-slider v-if="ageBegin" v-model="num" :min="ageBegin" :max="ageEnd" bar-height="8px">
+                    <template #button>
+                      <div class="custom-button">{{ num }} 岁</div>
+                    </template>
+                  </van-slider>
+                </div>
+                <div class="add rg" @click="handleAdd">
+                  <img src="@/assets/images/compositionProposal/add.png" alt="" />
+                </div>
               </div>
 
               <p class="slider-dec">拖动按钮查看不同年龄保障</p>
@@ -158,7 +159,7 @@
 import wx from 'weixin-js-sdk';
 import dayjs from 'dayjs';
 import { Toast } from 'vant';
-import { queryProposalDetail, generatePdf } from '@/api/modules/proposalList';
+import { queryProposalDetail, queryPreviewProposalDetail, generatePdf } from '@/api/modules/proposalList';
 import { toLocal, isApp, isWechat, ORIGIN } from '@/utils';
 import Storage from '@/utils/storage';
 import jsbridge from '@/utils/jsbridge';
@@ -173,26 +174,26 @@ const { isShare, id } = router.query;
 const columns = [
   {
     title: '险种名称',
-    dataIndex: 'key1',
+    dataIndex: 'riskName',
     width: 180,
   },
   {
     title: '保额',
-    dataIndex: 'key2',
+    dataIndex: 'amount',
   },
   {
     title: '保障期间',
-    dataIndex: 'key3',
+    dataIndex: 'coveragePeriod',
     width: 110,
   },
   {
     title: '缴费期间',
-    dataIndex: 'key4',
+    dataIndex: 'chargePeriod',
     width: 110,
   },
   {
     title: '保费',
-    dataIndex: 'key5',
+    dataIndex: 'premium',
     width: 120,
   },
 ];
@@ -201,12 +202,13 @@ const dataSource = ref([] as any);
 const active = ref(0);
 const info = ref();
 const age = ref(0);
-const price = ref<string[]>([]);
 const ageBegin = ref(0);
 const ageEnd = ref(0);
+const tenantId = ref('');
 const activeNames = ref('');
 const proposalName = ref('');
 const showOverLay = ref(false); // 分享遮罩层
+const benefitObj = ref(); // 利益演示结构
 
 const num = ref(0);
 const showChart = ref(true);
@@ -223,23 +225,37 @@ watch(
   () => info.value,
   (val) => {
     const { gender, name } = val;
-    if (isMale(1)) {
-      proposalName.value = `${name}先生的计划书`;
+    if (isMale(gender)) {
+      proposalName.value = `${name || ''}先生的计划书`;
     } else {
-      proposalName.value = `${name}女士的计划书`;
+      proposalName.value = `${name || ''}女士的计划书`;
     }
   },
 );
 
+const renderArray = (start: number, end: number) => {
+  const a = [];
+  const year = [];
+  for (let i = start, j = 0; i <= end; i++, j++) {
+    a.push(i.toString());
+    year.push(j + 1);
+  }
+  return { a, year };
+};
+
 const getData = () => {
-  info.value?.benefitRiskResultVOList?.[active.value]?.benefitRiskItemResultVOList?.[0]?.dataList?.map(
-    (item: string[]) => {
-      if (num.value.toString() === item[item.length - 1]) {
-        price.value = item;
-      }
-      return item;
-    },
-  );
+  // 根据num 取对应数组的值
+  const benefit = info.value?.benefitRiskResultVOList?.[active.value];
+
+  const { a, year } = renderArray(ageBegin.value, ageEnd.value);
+  const obj = {
+    index: a.indexOf(num.value.toString()),
+    age: a,
+    year,
+    result: benefit.benefitRiskItemResultVOList?.[0],
+  };
+
+  benefitObj.value = obj;
 };
 
 const getBenefit = () => {
@@ -292,14 +308,12 @@ const getChargePay = (val: string) => {
 };
 
 const shareConfigProps = () => {
-  const skipUrl = `${ORIGIN}/compositionProposal?id=${id}&isShare=1`;
-  const authUrl = `${ORIGIN}/api/app/officialAccount/outerUserAuth?systemCode=GOODS_CLOUD&skipUrl=${encodeURIComponent(
-    skipUrl,
-  )}`;
+  const link = `${ORIGIN}/compositionProposal?id=${id}&isShare=1&tenantId=${tenantId.value}`;
+
   return {
-    title: `${info.value.name}的计划书`, // 分享标题
+    title: `${info.value?.name}的计划书`, // 分享标题
     desc: '您的贴心保险管家', // 分享描述
-    link: authUrl, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+    link, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
   };
 };
 
@@ -318,7 +332,6 @@ const setWeixinShare = () => {
         },
       };
       console.log('ready');
-      console.log(p);
       // 分享给朋友｜分享到QQ
       wx.updateAppMessageShareData(p);
       // 分享到朋友圈｜分享到 QQ 空间
@@ -329,42 +342,68 @@ const setWeixinShare = () => {
   }
 };
 
+const setProposalProductRiskVOList = (dataList: Array<any>) => {
+  const list: Array<any> = [];
+  dataList?.forEach((item: any) => {
+    const { riskName, amount, coveragePeriod, chargePeriod, premium } = item;
+    list.push({
+      riskName,
+      amount,
+      coveragePeriod: getCover(coveragePeriod),
+      chargePeriod: getChargePay(chargePeriod),
+      premium,
+    });
+  });
+
+  dataSource.value = list;
+};
+
+const setAge = (realData: any) => {
+  const benefit = realData.benefitRiskResultVOList[active.value];
+  ageBegin.value = benefit.ageBegin + 1;
+  num.value = benefit.ageBegin + 1;
+  ageEnd.value = benefit.ageEnd;
+};
+
 onMounted(() => {
   if (router.query.token) {
     const storage = new Storage({ source: 'localStorage' });
     storage.set('token', router.query.token);
   }
 
-  queryProposalDetail(Number(id)).then((res) => {
-    // eslint-disable-next-line prefer-destructuring
-    info.value = res.data?.proposalInsuredVOList[0];
-    age.value = dayjs().diff(info.value.birthday, 'y');
+  if (isShare) {
+    queryPreviewProposalDetail(`${id}?tenantId=${router.query.tenantId}`).then((res: any) => {
+      const { code, data } = res;
 
-    ageBegin.value = info.value.benefitRiskResultVOList[0]?.ageBegin;
-    ageEnd.value = info.value.benefitRiskResultVOList[0]?.ageEnd;
-    num.value = age.value + 1;
-    getBenefit();
-    getData();
-    info.value?.proposalProductRiskVOList.map(
-      // eslint-disable-next-line array-callback-return
-      (item: any) => {
-        const { riskName, amount, coveragePeriod, chargePeriod, premium } = item;
-        dataSource.value.push({
-          key1: riskName,
-          key2: amount,
-          key3: getCover(coveragePeriod),
-          key4: getChargePay(chargePeriod),
-          key5: premium,
-        });
-      },
-    );
-    setWeixinShare();
-  });
+      if (code === '10000') {
+        const realData = data?.proposalInsuredVOList[0] || {};
+        info.value = realData;
+
+        setProposalProductRiskVOList(realData.proposalProductRiskVOList);
+        setAge(realData);
+        getData();
+      }
+
+      setWeixinShare();
+    });
+  } else {
+    queryProposalDetail(id as string).then((res: any) => {
+      const { code, data } = res;
+
+      if (code === '10000') {
+        const realData = data?.proposalInsuredVOList[0] || {};
+        info.value = realData;
+        tenantId.value = data?.tenantId;
+
+        setProposalProductRiskVOList(realData.proposalProductRiskVOList);
+        setAge(realData);
+        getData();
+      }
+
+      setWeixinShare();
+    });
+  }
 });
-
-const handleChange = (val: number) => {
-  getData();
-};
 
 const handleAdd = () => {
   if (num.value > ageEnd.value - 1) {
@@ -381,8 +420,7 @@ const handleReduce = () => {
 };
 const changeTab = (val: { name: number }) => {
   active.value = val.name;
-  ageBegin.value = info.value.benefitRiskResultVOList[val.name].ageBegin;
-  ageEnd.value = info.value.benefitRiskResultVOList[val.name].ageEnd;
+  getData();
 };
 
 const handleChangeChart = (val: string) => {
@@ -429,10 +467,19 @@ const getPdf = () => {
     const { code, message } = res;
     if (code === '10000') {
       Toast.clear();
-      history.push(`/openPdf?url=${encodeURIComponent(message)}`);
+      console.log(message);
+      if (message) {
+        history.push(`/openPdf?url=${encodeURIComponent(message)}&title=${proposalName.value}`);
+      } else {
+        Toast('计划书为空');
+      }
     }
   });
 };
+
+watch(num, () => {
+  getData();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -618,6 +665,9 @@ const getPdf = () => {
           }
           span {
             color: #ff5840;
+          }
+          &.box-title-chart {
+            margin: 40px 0;
           }
         }
         &-price {

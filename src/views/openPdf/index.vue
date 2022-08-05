@@ -63,7 +63,9 @@ const loadPdfCanvas = (url: string) => {
 };
 
 onMounted(() => {
-  const { url } = route.query;
+  const { title, url } = route.query;
+  document.title = title || '';
+
   if (!url) {
     Toast('pdf文件为空');
     return;
