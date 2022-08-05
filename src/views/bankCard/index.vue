@@ -327,7 +327,7 @@ onMounted(() => {
         color: #393d46;
         font-size: 26px;
         &.selected {
-          background: rgba(13, 110, ATTACHMENT_CATEGORY_ENUM.REVERSE_BANK_CARD4, 0.1);
+          background: rgba(13, 110, 254, 0.1);
           border: 1px solid #0d6efe;
           color: #0d6efe;
         }

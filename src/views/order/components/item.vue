@@ -78,7 +78,7 @@ const handleDelete = () => {
     title: '确认',
     message: '确认删除订单？',
   }).then(() => {
-    deleteOrder(props.detail.id).then((res) => {
+    deleteOrder(props.detail.id, props.detail.orderStatus).then((res) => {
       const { code, data } = res;
       if (code === '10000') {
         Toast.success('删除成功');

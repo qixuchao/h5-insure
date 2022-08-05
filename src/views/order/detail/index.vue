@@ -84,12 +84,14 @@ const handleDelete = () => {
     title: '确认',
     message: '确认删除订单？',
   }).then(() => {
-    deleteOrder(detail.value.id).then((res) => {
-      const { code, data } = res;
-      if (code === '10000') {
-        Toast.success('删除成功');
-      }
-    });
+    if (detail.value) {
+      deleteOrder(detail.value.id, detail.value.orderStatus).then((res) => {
+        const { code, data } = res;
+        if (code === '10000') {
+          Toast.success('删除成功');
+        }
+      });
+    }
   });
 };
 const handleProcess = () => {
