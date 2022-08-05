@@ -87,7 +87,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant/es';
 import PersonalInfo from './components/PersonalInfo/index.vue';
 import RiskList from './components/RiskList/index.vue';
-import { insureProductDetail, premiumCalc, insureProductDetailNew } from '@/api/modules/trial';
+import { insureProductDetail, premiumCalc } from '@/api/modules/trial';
 import { getDic, nextStep } from '@/api';
 import { useCookie } from '@/hooks/useStorage';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
@@ -324,7 +324,7 @@ const queryDictList = () => {
 };
 
 const queryProductInfo = () => {
-  insureProductDetailNew({ productCode, source: 1 })
+  insureProductDetail({ productCode, source: 1 })
     .then(({ code, data }) => {
       if (code === '10000') {
         state.riskBaseInfo = data.productBasicInfoVO;
