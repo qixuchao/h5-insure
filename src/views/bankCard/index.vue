@@ -101,7 +101,7 @@ import {
   EXPIRY_METHOD_ENUM,
   BANK_CARD_TYPE_ENUM,
 } from '@/common/constants/bankCard';
-import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { PAGE_ROUTE_ENUMS, ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import { nextStep, getOrderDetail, getInitFactor } from '@/api';
 
 const route = useRoute();
@@ -118,14 +118,17 @@ const BANK_CARD_INIT_DATA = {
 };
 let orderDetail = {};
 const holderName = ref('');
-const firstFormData = ref({ payMethod: PAY_METHOD_ENUM.REAL_TIME, bankData: { ...BANK_CARD_INIT_DATA, imagesId: [] } });
+const firstFormData = ref({
+  payMethod: PAY_METHOD_ENUM.REAL_TIME,
+  bankData: { ...BANK_CARD_INIT_DATA, imagesId: [], images: [] },
+});
 const renewFormData = ref({
   payMethod: PAY_METHOD_ENUM.REAL_TIME,
   expiryMethod: EXPIRY_METHOD_ENUM.AUTOMATIC_PADDING,
-  bankData: { ...BANK_CARD_INIT_DATA, imagesId: [] },
+  bankData: { ...BANK_CARD_INIT_DATA, imagesId: [], images: [] },
   payInfoType: PAY_INFO_TYPE_ENUM.FIRST_SAME,
 });
-const repriseFormData = ref({ bankData: { ...BANK_CARD_INIT_DATA, imagesId: [] } });
+const repriseFormData = ref({ bankData: { ...BANK_CARD_INIT_DATA, imagesId: [], images: [] } });
 
 const payInfoType = ref(PAY_INFO_TYPE_ENUM.FIRST_SAME);
 const agree = ref(false);
@@ -163,17 +166,17 @@ const handleSubmit = () => {
     ];
     const tenantOrderAttachmentList = [
       {
-        category: 24, // 银行卡正面
+        category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_BANK_CARD, // 银行卡正面
         name: '首期签约银行卡正面',
-        objectType: 5, // 首期签约
+        objectType: ATTACHMENT_OBJECT_TYPE_ENUM.INIT_SIGN, // 首期签约
         type: 'png',
         uri: results[0].images[0],
         id: firstFormData.value.bankData.imagesId[0],
       },
       {
-        category: 25, // 银行卡背面
+        category: ATTACHMENT_CATEGORY_ENUM.REVERSE_BANK_CARD, // 银行卡背面
         name: '首期签约银行卡背面',
-        objectType: 5, // 首期签约
+        objectType: ATTACHMENT_OBJECT_TYPE_ENUM.INIT_SIGN, // 首期签约
         type: 'png',
         uri: results[0].images[1],
         id: firstFormData.value.bankData.imagesId[1],
@@ -181,17 +184,17 @@ const handleSubmit = () => {
     ];
     if (renewFormData.value.payInfoType === PAY_INFO_TYPE_ENUM.OTHER) {
       tenantOrderAttachmentList.push({
-        category: 24, // 银行卡正面
+        category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_BANK_CARD, // 银行卡正面
         name: '续期签约银行卡正面',
-        objectType: 6, // 续期签约
+        objectType: ATTACHMENT_OBJECT_TYPE_ENUM.RENEWAL_SIGN, // 续期签约
         type: 'png',
         uri: results[1].images[0],
         id: renewFormData.value.bankData.imagesId[0],
       });
       tenantOrderAttachmentList.push({
-        category: 25, // 银行卡背面
+        category: ATTACHMENT_CATEGORY_ENUM.REVERSE_BANK_CARD, // 银行卡背面
         name: '续期签约银行卡正面',
-        objectType: 6, // 续期签约
+        objectType: ATTACHMENT_OBJECT_TYPE_ENUM.RENEWAL_SIGN, // 续期签约
         type: 'png',
         uri: results[1].images[1],
         id: renewFormData.value.bankData.imagesId[1],
@@ -199,17 +202,17 @@ const handleSubmit = () => {
     }
     if (payInfoType.value === PAY_INFO_TYPE_ENUM.OTHER) {
       tenantOrderAttachmentList.push({
-        category: 24, // 银行卡正面
+        category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_BANK_CARD, // 银行卡正面
         name: '年金签约银行卡正面',
-        objectType: 7, // 年金签约
+        objectType: ATTACHMENT_OBJECT_TYPE_ENUM.ANNUAL_SIGN, // 年金签约
         type: 'png',
         uri: results[2].images[0],
         id: repriseFormData.value.bankData.imagesId[0],
       });
       tenantOrderAttachmentList.push({
-        category: 25, // 银行卡背面
-        name: '年金签约银行卡正面',
-        objectType: 7, // 年金签约
+        category: ATTACHMENT_CATEGORY_ENUM.REVERSE_BANK_CARD, // 银行卡背面
+        name: '年金签约银行卡背面',
+        objectType: ATTACHMENT_OBJECT_TYPE_ENUM.ANNUAL_SIGN, // 年金签约
         type: 'png',
         uri: results[2].images[1],
         id: repriseFormData.value.bankData.imagesId[1],
@@ -219,7 +222,7 @@ const handleSubmit = () => {
       ...orderDetail,
       pageCode: 'payInfo',
       tenantOrderPayInfoList: payInfoList,
-      extInfo: { ...orderDetail.extInfo, templateId: '1', pageCode: 'payInfo' },
+      extInfo: { ...orderDetail.extInfo, templateId, pageCode: 'payInfo' },
       operateOption: {
         withPayInfo: true,
         withAttachmentInfo: true,
@@ -238,7 +241,7 @@ const handleSubmit = () => {
 };
 
 onMounted(() => {
-  getInitFactor({ pageCode: 'payInfo', templateId: 1 }).then((res) => {
+  getInitFactor({ pageCode: 'payInfo', templateId }).then((res) => {
     console.log('res', res);
   });
   getOrderDetail({
@@ -265,30 +268,30 @@ onMounted(() => {
           }
         });
         data.tenantOrderAttachmentList.forEach((item) => {
-          if (item.objectType === 5) {
-            if (item.category === 24) {
+          if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.INIT_SIGN) {
+            if (item.category === ATTACHMENT_CATEGORY_ENUM.OBVERSE_BANK_CARD) {
               firstFormData.value.bankData.images[0] = item.uri;
               firstFormData.value.bankData.imagesId[0] = item.id;
             }
-            if (item.category === 25) {
+            if (item.category === ATTACHMENT_CATEGORY_ENUM.REVERSE_BANK_CARD) {
               firstFormData.value.bankData.images[1] = item.uri;
               firstFormData.value.bankData.imagesId[1] = item.id;
             }
-          } else if (item.objectType === 6) {
-            if (item.category === 24) {
+          } else if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.RENEWAL_SIGN) {
+            if (item.category === ATTACHMENT_CATEGORY_ENUM.OBVERSE_BANK_CARD) {
               renewFormData.value.bankData.images[0] = item.uri;
               renewFormData.value.bankData.imagesId[0] = item.id;
             }
-            if (item.category === 25) {
+            if (item.category === ATTACHMENT_CATEGORY_ENUM.REVERSE_BANK_CARD) {
               renewFormData.value.bankData.images[1] = item.uri;
               renewFormData.value.bankData.imagesId[1] = item.id;
             }
-          } else if (item.objectType === 7) {
-            if (item.category === 24) {
+          } else if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.ANNUAL_SIGN) {
+            if (item.category === ATTACHMENT_CATEGORY_ENUM.OBVERSE_BANK_CARD) {
               repriseFormData.value.bankData.images[0] = item.uri;
               repriseFormData.value.bankData.imagesId[0] = item.id;
             }
-            if (item.category === 25) {
+            if (item.category === ATTACHMENT_CATEGORY_ENUM.REVERSE_BANK_CARD) {
               repriseFormData.value.bankData.images[1] = item.uri;
               repriseFormData.value.bankData.imagesId[1] = item.id;
             }
@@ -324,7 +327,7 @@ onMounted(() => {
         color: #393d46;
         font-size: 26px;
         &.selected {
-          background: rgba(13, 110, 254, 0.1);
+          background: rgba(13, 110, ATTACHMENT_CATEGORY_ENUM.REVERSE_BANK_CARD4, 0.1);
           border: 1px solid #0d6efe;
           color: #0d6efe;
         }
