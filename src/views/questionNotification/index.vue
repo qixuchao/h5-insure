@@ -55,7 +55,7 @@ import wx from 'weixin-js-sdk';
 import { useRouter, useRoute } from 'vue-router';
 import { Toast } from 'vant';
 import { listCustomerQuestions } from '@/api/modules/inform';
-import { NOTICE_OBJECT_TYPE } from '@/common/constants/notice';
+import { NOTICE_OBJECT_ENUM } from '@/common/constants/notice';
 import {
   ListCustomerQuestionsResponse,
   ListCustomerQuestionsProps,
