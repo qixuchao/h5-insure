@@ -123,6 +123,7 @@ interface PageState {
   ageRange: any;
   collapseName: string[];
   insuredRiskList: any[];
+  currentRiskList: RiskDetailVoItem[];
 }
 
 interface HolderPerson {
@@ -167,6 +168,7 @@ const state = reactive<PageState>({
   ageRange: [],
   collapseName: ['1'],
   insuredRiskList: [],
+  currentRiskList: [],
 });
 
 provide('premium', riskPremiumRef.value);
@@ -179,30 +181,21 @@ const closeTip = () => {
   state.retrialTip = false;
 };
 
-const transformData = (riskList, riskPremium) => {
-  const currentRiskList: any[] = [];
-  const transfer = (list) => {
-    list.forEach((risk) => {
-      const currentRisk = {
-        initialAmount: riskPremium[risk.riskCode]?.amount,
-        paymentFrequency: risk.paymentFrequency,
-        paymentPeriod: risk.chargePeriod.split('_')[1],
-        paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],
-        insurancePeriodType: INSURANCE_PERIOD_TYPE_ENUMS[risk.coveragePeriod.split('_')[0]],
-        insurancePeriodValue: risk.coveragePeriod.split('_')[1],
-        riskCode: risk.riskCode,
-        riskType: risk.riskType,
-        initialPremium: riskPremium[risk.riskCode]?.premium,
-      };
-      currentRiskList.push(currentRisk);
-      if (risk.riderRiskVOList?.length) {
-        transfer(risk.riderRiskVOList);
-      }
-    });
-  };
-
-  transfer(riskList);
-  state.insuredRiskList = currentRiskList;
+const transformData = (riskList: RiskVoItem[], riskPremium) => {
+  state.insuredRiskList = riskList.map((risk: RiskVoItem) => {
+    const currentRisk = {
+      initialAmount: riskPremium[risk.riskCode]?.amount,
+      paymentFrequency: risk.paymentFrequency,
+      paymentPeriod: risk.chargePeriod.split('_')[1],
+      paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],
+      insurancePeriodType: INSURANCE_PERIOD_TYPE_ENUMS[risk.coveragePeriod.split('_')[0]],
+      insurancePeriodValue: risk.coveragePeriod.split('_')[1],
+      riskCode: risk.riskCode,
+      riskType: risk.riskType,
+      initialPremium: riskPremium[risk.riskCode]?.premium,
+    };
+    return currentRisk;
+  });
 };
 
 const goNextPage = () => {
@@ -246,17 +239,19 @@ const goNextPage = () => {
 };
 
 const dealTrialData = () => {
-  const mainRisk = JSON.parse(JSON.stringify(riskInfo.value[state.currentPlan]));
-
-  const riderRiskVOList = Object.values(mainRisk.riderRiskVOList as RiskVoItem[]).map((riderRisk) => {
+  const riskObject = JSON.parse(JSON.stringify(riskInfo.value[state.currentPlan]));
+  const mainRiskInfo = Object.values(riskObject as RiskVoItem).find((risk) => risk.riskType === 1);
+  const riskVOList = Object.values(riskObject as RiskVoItem).map((riderRisk) => {
     const risk: RiskVoItem = riderRisk;
     if (risk.chargePeriod === '3') {
-      const paymentYear = (riskInfo.value[state.currentPlan].chargePeriod || '').split('_');
+      const paymentYear = (mainRiskInfo.chargePeriod || '').split('_');
       paymentYear[1] && (paymentYear[1] -= 1);
       risk.chargePeriod = paymentYear.join('_');
     }
     risk.liabilityVOList = (risk.liabilityVOList || [])
-      .filter((liab) => liab.liabilityAttributeValue && liab.liabilityAttributeValue !== '-1')
+      .filter(
+        (liab) => liab.optionalFlag === 1 || (liab.liabilityAttributeValue && liab.liabilityAttributeValue !== '-1'),
+      )
       .map((liab) => {
         const currentLiab = liab;
         if (currentLiab.liabilityAttributeValue === '0') {
@@ -267,40 +262,16 @@ const dealTrialData = () => {
     return risk;
   });
 
-  mainRisk.liabilityVOList = (mainRisk.liabilityVOList as LiabilityVoItem[])
-    .filter((liab) => !['-1'].includes(liab.liabilityAttributeValue))
-    .map((liab) => {
-      const currentLiab = liab;
-      if (currentLiab.liabilityAttributeValue === '0') {
-        currentLiab.liabilityAttributeValue = '';
-      }
-      return currentLiab;
-    });
-
   const trialData: premiumCalcData = {
-    holder: {
-      personVO: {
-        ...holder.value.personVO,
-        birthday: holder.value.personVO.birthday ? `${holder.value.personVO.birthday} 00:00:00` : '',
-      } as any,
-    },
+    holder: holder.value,
     productCode: state.riskBaseInfo.productCode as string,
     insuredVOList: [
       {
         ...insured.value,
-        personVO: {
-          ...insured.value.personVO,
-          birthday: insured.value.personVO.birthday && `${insured.value.personVO.birthday} 00:00:00`,
-        },
         productPlanVOList: [
           {
             planCode: state.currentPlan || '',
-            riskVOList: [
-              {
-                ...mainRisk,
-                riderRiskVOList,
-              },
-            ],
+            riskVOList,
           },
         ],
       },
@@ -315,7 +286,7 @@ const dealTrialData = () => {
       state.canTrial = false;
       const riskPremium = {};
       const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
-        premiumList.forEach((risk) => {
+        (premiumList || []).forEach((risk) => {
           riskPremium[risk.riskCode] = risk;
           if (risk.riskPremiumDetailVOList?.length) {
             flatRiskPremium(risk.riskPremiumDetailVOList);
@@ -325,8 +296,6 @@ const dealTrialData = () => {
       flatRiskPremium(data.riskPremiumDetailVOList);
       transformData(trialData.insuredVOList[0].productPlanVOList[0].riskVOList, riskPremium);
       Object.assign(riskPremiumRef.value, riskPremium);
-    } else {
-      // state.retrialTip = true;
     }
   });
 };
@@ -358,16 +327,16 @@ const queryProductInfo = () => {
   insureProductDetail({ productCode, source: 1 })
     .then(({ code, data }) => {
       if (code === '10000') {
-        state.riskBaseInfo = data?.productBasicInfoVO;
+        state.riskBaseInfo = data.productBasicInfoVO;
 
-        (data?.productRelationPlanVOList || data?.riskDetailVOList || []).forEach((plan, index) => {
+        (data.productRiskVoList[0].riskDetailVOList || []).forEach((plan, index) => {
           if (index === 0) {
             state.currentPlan = plan.planCode || '0';
           }
-          Object.assign(riskInfo.value, { [plan.planCode || index]: { liabilityVOList: [], riderRiskVOList: {} } });
+          Object.assign(riskInfo.value, { [plan.planCode || '0']: {} });
         });
 
-        state.riskData = data.riskDetailVOList || [];
+        state.riskData = data.productRiskVoList[0].riskDetailVOList || [];
         state.riskPlanData = data.productRelationPlanVOList || [];
       }
     })
@@ -379,6 +348,8 @@ const pickFactor = (factorObj: { insuredFactorList: string[]; holderFactorList: 
   state.insuredFactor = factorObj.insuredFactorList;
   state.ageRange = factorObj.ageRange;
 };
+
+// watch(() =>  )
 
 watch(
   [() => riskInfo.value, () => holder.value, () => insured.value],

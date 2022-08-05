@@ -201,3 +201,118 @@ export enum NOTICE_TYPE_ENUM {
   INSURED = 2,
   AGENT = 3,
 }
+
+/**
+ * 附件category
+ */
+// eslint-disable-next-line
+export enum ATTACHMENT_CATEGORY_ENUM {
+  /**
+   * 投保单
+   */
+  APPLICATION_FORM = 1,
+  /**
+   * 保险合同
+   */
+  INSURANCE_CONTRACT = 2,
+  /**
+   * 受理单
+   */
+  ACCEPTANCE_FORM = 3,
+  /**
+   * 客户告知书
+   */
+  CUSTOMER_NOTIFICATION = 4,
+  /**
+   * 回执
+   */
+  RECEIPT = 5,
+  /**
+   * 身份证
+   */
+  CERT = 6,
+  /**
+   * 银行卡
+   */
+  BANK_CARD = 7,
+  /**
+   * 照会
+   */
+  NOTE = 8,
+  /**
+   * 理赔
+   */
+  CLAIM = 9,
+  /**
+   * 保全
+   */
+  ENDORSE = 10,
+  /**
+   * 营业执照
+   */
+  BUSINESS_LICENSE = 18,
+  /**
+   * 缴费凭证
+   */
+  PAYMENT_VOUCHER = 19,
+  /**
+   * 发票
+   */
+  INVOICE = 20,
+  /**
+   * 电子签名
+   */
+  ELECTRIC_SIGN = 21,
+  /**
+   * 证件正面照
+   */
+  OBVERSE_CERT = 22,
+  /**
+   * 证件反面照
+   */
+  REVERSE_CERT = 23,
+  /**
+   * 银行卡正面照
+   */
+  OBVERSE_BANK_CARD = 24,
+  /**
+   * 银行卡反面照
+   */
+  REVERSE_BANK_CARD = 25,
+  /**
+   * 其他
+   */
+  OTHER = 99,
+}
+
+// eslint-disable-next-line
+export enum ATTACHMENT_OBJECT_TYPE_ENUM {
+  /**
+   * 投保人
+   */
+  HOLDER = 1,
+  /**
+   * 被保人
+   */
+  INSURED = 2,
+  /**
+   * 代理人
+   */
+  AGENT = 3,
+  /**
+   * 订单
+   */
+  ORDER = 4,
+  /**
+   * 首期签约
+   */
+  INIT_SIGN = 5,
+  /**
+   * 续期签约
+   */
+  RENEWAL_SIGN = 6,
+  /**
+   * 年金签约
+   */
+  ANNUAL_SIGN = 7,
+}

@@ -6,13 +6,13 @@
           v-for="(item, index) in PRODUCT_CATEGORY"
           :key="index"
           class="tag-item"
-          :class="{ checked: indexCheck == index }"
-          @click="onClickTag(item?.value, index)"
+          :class="{ checked: indexCheck == item.value }"
+          @click="onClickTag(item?.value, item.value)"
         >
-          <div class="tag-out" :class="{ checked: indexCheck == index }">
-            <div class="tag-item-text" :class="{ checked: indexCheck == index }">{{ item.label }}</div>
+          <div class="tag-out" :class="{ checked: indexCheck == item.value }">
+            <div class="tag-item-text" :class="{ checked: indexCheck == item.value }">{{ item.label }}</div>
           </div>
-          <div class="trianele-out"><div :class="{ triangle: indexCheck == index }"></div></div>
+          <div class="trianele-out"><div :class="{ triangle: indexCheck == item.value }"></div></div>
         </div>
       </div>
       <div v-if="filter" class="filter" @click="openPop">

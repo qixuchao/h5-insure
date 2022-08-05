@@ -3,8 +3,8 @@
  * @Date: 2022-08-01 18:00:00
  * @LastEditors: wangyuanli
  * @LastEditTime: 2022-08-01 18:00:00
- * @FilePath: /zat-planet-h5-cloud-insure/src/views/openPdf/index.vue
- * @Description: 链接传入url, 在线打开pdf
+ * @FilePath: /zat-planet-h5-cloud-insure/src/views/pdfViewer/index.vue
+ * @Description: 打开新页面，预览pdf, 链接传入url, 在线打开pdf
 -->
 <template>
   <div :id="id"></div>
@@ -63,7 +63,9 @@ const loadPdfCanvas = (url: string) => {
 };
 
 onMounted(() => {
-  const { url } = route.query;
+  const { title, url } = route.query;
+  document.title = title || '';
+
   if (!url) {
     Toast('pdf文件为空');
     return;

@@ -22,11 +22,15 @@ export const historyProposalList = (data: Partial<HistoryProposalListParams>) =>
 export const deleteProposal = (id: number) => request.post<any, ResponseData>(`${API_PREFIXED}/deleteProposal/${id}`);
 
 // 计划书详情
-export const queryProposalDetail = (id: number) => {
+export const queryProposalDetail = (id: string) => {
   return request.post(`${API_PREFIXED}/preview/${id}`);
 };
 
 // 生成计划书pdf
 export const generatePdf = (id: string) => {
   return request.post(`${API_PREFIXED}/generatePdf/${id}`);
+};
+
+export const queryPreviewProposalDetail = (id: string) => {
+  return request.get(`${API_PREFIXED}/sharePreview/${id}`);
 };

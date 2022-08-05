@@ -83,7 +83,7 @@
     <VanField
       v-if="
         (![1].includes(originData.riskCalcMethodInfoVO?.saleMethod || 0) || originData?.exemptFlag === 1) &&
-        (originData.riskCalcMethodInfoVO?.fixedAmount || riskPremium?.[originData?.riskCode])
+        (originData.riskCalcMethodInfoVO.fixedAmount || riskPremium?.[originData?.riskCode])
       "
       label="保额"
     >
@@ -151,7 +151,7 @@
       </template>
     </VanField>
     <VanField
-      v-if="!isEmpty(originData?.riskInsureLimitVO?.annuityDrawValueList)"
+      v-if="!isEmpty(originData?.riskInsureLimitVO?.annuityDrawTypeList)"
       v-model="state.formInfo.annuityDrawDate"
       label="领取时间"
       name="annuityDrawDate"
@@ -160,7 +160,7 @@
       <template #input>
         <ProRadioButton
           v-model="state.formInfo.annuityDrawDate"
-          :options="pickEnums(ANNUITY_DRAW_DATE, originData.riskInsureLimitVO?.annuityDrawValueList || [])"
+          :options="pickEnums(ANNUITY_DRAW_DATE, originData.riskInsureLimitVO?.annuityDrawTypeList || [])"
         ></ProRadioButton>
       </template>
     </VanField>
@@ -255,7 +255,8 @@ import {
   RULE_PAYMENT,
 } from '@/common/constants/trial';
 
-import { RiskDetailVoItem, RiskVoItem } from '@/api/modules/trial.data';
+import { RiskDetailVoItem } from '@/api/modules/newTrial.data';
+import { RiskVoItem } from '@/api/modules/trial.data';
 
 interface Props {
   originData: RiskDetailVoItem;
