@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 16:43:35
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-31 21:57:05
+ * @LastEditTime: 2022-08-05 11:58:31
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -13,11 +13,11 @@
         <ProTitle :risk-type="risk.riskType" :title="risk.riskName" />
         <div class="content">
           <div class="risk-premium">
-            保费:<span class="premium">￥{{ risk.premium.toLocaleString() }}</span>
+            保费:<span class="premium">￥{{ risk.premium?.toLocaleString() }}</span>
           </div>
           <div class="risk-factor">
             <div class="factor">
-              <span class="factor-value">{{ risk.amount.toLocaleString() }}</span>
+              <span class="factor-value">{{ risk.amount?.toLocaleString() }}</span>
               <span class="factor-name"> 保额(元) </span>
             </div>
             <div class="factor">
@@ -31,47 +31,10 @@
           </div>
           <div class="operate-bar">
             <ProCheckButton v-if="productNum" :round="32" class="border" @click="deleteRisk(risk)">删除</ProCheckButton>
-            <ProCheckButton
-              v-if="productData?.riskDetailVOList?.[0]?.optionalRiderRiskVOList?.length"
-              activated
-              :round="32"
-              @click="addRisk(risk)"
+            <ProCheckButton v-if="riderRiskList?.length" activated :round="32" @click="addRiderRisk(risk)"
               >+ 附加险</ProCheckButton
             >
             <ProCheckButton activated :round="32" @click="updateRisk(risk)">修改</ProCheckButton>
-          </div>
-        </div>
-      </div>
-      <div v-for="riderRisk in risk.riderRiskVOList" :key="riderRisk.riskCode" class="risk-item-wrapper">
-        <ProTitle :risk-type="riderRisk.riskType" :title="riderRisk.riskName" />
-        <div class="content">
-          <div class="risk-premium">
-            保费:<span class="premium">￥{{ riderRisk.premium.toLocaleString() }}</span>
-          </div>
-          <div class="risk-factor">
-            <div class="factor">
-              <span class="factor-value">{{ risk.amount.toLocaleString() }}</span>
-              <span class="factor-name"> 保额(元) </span>
-            </div>
-            <div class="factor">
-              <span class="factor-value">{{ pickNameInList(RISK_INSURANCE_PERIOD, riderRisk.coveragePeriod) }}</span>
-              <span class="factor-name"> 保障期间 </span>
-            </div>
-            <div class="factor">
-              <span class="factor-value">{{ pickNameInList(RISK_PAYMENT_PERIOD, riderRisk.chargePeriod) }}</span>
-              <span class="factor-name"> 缴费期间 </span>
-            </div>
-          </div>
-          <div class="operate-bar">
-            <ProCheckButton :round="32" class="border" @click="deleteRisk(riderRisk)">删除</ProCheckButton>
-            <ProCheckButton
-              v-if="productData?.riskDetailVOList?.[0]?.optionalRiderRiskVOList?.length"
-              activated
-              :round="32"
-              @click="addRisk(riderRisk)"
-              >+ 附加险</ProCheckButton
-            >
-            <ProCheckButton activated :round="32" @click="updateRisk(riderRisk)">修改</ProCheckButton>
           </div>
         </div>
       </div>
@@ -79,6 +42,16 @@
         保费: <span class="premium">￥{{ state.totalPremium.toLocaleString() }}</span>
       </div>
     </div>
+    <RiskRelationList
+      v-if="showRelationList"
+      v-model="state.checkedList"
+      :show="showRelationList"
+      :disabled="state.disabledList"
+      :risk-list="riderRiskList"
+      :collocation-list="collocationRiderList"
+      @finished="onFinished"
+      @close="toggleRelationList(false)"
+    ></RiskRelationList>
   </div>
 </template>
 
@@ -88,7 +61,7 @@ import { useToggle } from '@vant/use';
 import { ProposalProductRiskItem, ProposalInsuredProductItem } from '@/api/modules/createProposal.data';
 import { ProductData } from '@/api/modules/trial.data';
 import { pickNameInList } from '@/utils';
-import RiskRelationList from '../RiskRelationList/index.vue';
+import RiskRelationList from '@/views/trial/components/RiskRelationList/index.vue';
 import useDict from '@/hooks/useDicData';
 
 interface Props {
@@ -132,11 +105,16 @@ const RISK_PAYMENT_PERIOD = useDict('RISK_PAYMENT_PERIOD');
 const RISK_INSURANCE_PERIOD = useDict('RISK_INSURANCE_PERIOD');
 
 const riderRiskList = computed(() => {
-  return props.productData?.riskDetailVOList?.[0].optionalRiderRiskVOList || [];
+  return props.productData?.productRiskVoList?.[0].riskDetailVOList.filter((risk) => risk.collocationType === 1) || [];
+});
+
+const mainRiskData = computed(() => {
+  const mainRisk = props.productData?.productRiskVoList?.[0].riskDetailVOList.find((risk) => risk.riskType === 1) || {};
+  return mainRisk;
 });
 
 const collocationRiderList = computed(() => {
-  return props.productData?.riskDetailVOList?.[0].collocationVOList || [];
+  return mainRiskData.value.collocationVOList || [];
 });
 
 const deleteRisk = (riskRecord: ProposalProductRiskItem) => {
@@ -147,9 +125,16 @@ const updateRisk = (riskRecord: ProposalProductRiskItem) => {
   emits('updateRisk', riskRecord, props.productInfo);
 };
 
-const addRisk = (riskRecord: ProposalProductRiskItem) => {
+const addRiderRisk = (riskRecord: ProposalProductRiskItem) => {
+  toggleRelationList(true);
   state.value.currentRiskRecord = riskRecord;
-  emits('addRiderRisk', props.productInfo);
+};
+
+// 添加附加险信息
+const onFinished = (risk: any[], disabled: any[]) => {
+  // state.currentRiskList = state.currentRiskList.concat(risk);
+  state.value.disabledList = disabled;
+  emits('addRiderRisk', risk, props.productInfo);
 };
 
 watch(
