@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 16:43:35
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-05 14:43:22
+ * @LastEditTime: 2022-08-05 18:39:19
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -30,8 +30,10 @@
             </div>
           </div>
           <div class="operate-bar">
-            <ProCheckButton v-if="productNum" :round="32" class="border" @click="deleteRisk(risk)">删除</ProCheckButton>
-            <ProCheckButton v-if="riderRiskList?.length" activated :round="32" @click="addRiderRisk(risk)"
+            <ProCheckButton v-if="isCanDeleteRisk(risk.riskId)" :round="32" class="border" @click="deleteRisk(risk)"
+              >删除</ProCheckButton
+            >
+            <ProCheckButton v-if="isCanAddRiderRisk" activated :round="32" @click="addRiderRisk(risk)"
               >+ 附加险</ProCheckButton
             >
             <ProCheckButton activated :round="32" @click="updateRisk(risk)">修改</ProCheckButton>
@@ -59,7 +61,7 @@
 import { withDefaults } from 'vue';
 import { useToggle } from '@vant/use';
 import { ProposalProductRiskItem, ProposalInsuredProductItem } from '@/api/modules/createProposal.data';
-import { ProductData } from '@/api/modules/trial.data';
+import { ProductData, RiskDetailVoItem } from '@/api/modules/trial.data';
 import { pickNameInList } from '@/utils';
 import RiskRelationList from '@/views/trial/components/RiskRelationList/index.vue';
 import useDict from '@/hooks/useDicData';
@@ -105,11 +107,38 @@ const RISK_PAYMENT_PERIOD = useDict('RISK_PAYMENT_PERIOD');
 const RISK_INSURANCE_PERIOD = useDict('RISK_INSURANCE_PERIOD');
 
 const riderRiskList = computed(() => {
-  return props.productData?.productRiskVoList?.[0].riskDetailVOList.filter((risk) => risk.collocationType === 1) || [];
+  return (
+    props.productData?.productRiskVoList?.[0].riskDetailVOList.filter(
+      (risk: RiskDetailVoItem) => risk.collocationType !== 1,
+    ) || []
+  );
+});
+
+// 计算添加附加险按钮展示的逻辑
+const isCanAddRiderRisk = computed(() => {
+  const currentRiderRiskList = props.productRiskList.map((risk) => risk.riskType === 2);
+  return riderRiskList.value.length - currentRiderRiskList.length;
+});
+
+// 计算删除险种按钮展示的逻辑
+const isCanDeleteRisk = computed(() => (riskId: number) => {
+  const currentRisk =
+    props.productData?.productRiskVoList?.[0].riskDetailVOList.find((risk: RiskDetailVoItem) => risk.id !== riskId) ||
+    {};
+  if (props.productNum) {
+    return true;
+  }
+  if (currentRisk.collectionType === 1) {
+    return true;
+  }
+
+  return false;
 });
 
 const mainRiskData = computed(() => {
-  const mainRisk = props.productData?.productRiskVoList?.[0].riskDetailVOList.find((risk) => risk.riskType === 1) || {};
+  const mainRisk =
+    props.productData?.productRiskVoList?.[0].riskDetailVOList.find((risk: RiskDetailVoItem) => risk.riskType === 1) ||
+    {};
   return mainRisk;
 });
 
@@ -151,7 +180,7 @@ watch(
       });
     };
     calcProduct(newVal.proposalProductRiskList || []);
-    props?.pickProductPremium?.({ [`${newVal.productId}`]: productPremium });
+    props.pickProductPremium?.({ [`${newVal.productId}`]: productPremium });
     state.value.totalPremium = productPremium;
   },
   {

@@ -151,7 +151,7 @@
       </template>
     </VanField>
     <VanField
-      v-if="!isEmpty(originData?.riskInsureLimitVO?.annuityDrawTypeList)"
+      v-if="!isEmpty(originData?.riskInsureLimitVO?.annuityDrawValueList)"
       v-model="state.formInfo.annuityDrawDate"
       label="领取时间"
       name="annuityDrawDate"
@@ -160,7 +160,7 @@
       <template #input>
         <ProRadioButton
           v-model="state.formInfo.annuityDrawDate"
-          :options="pickEnums(ANNUITY_DRAW_DATE, originData.riskInsureLimitVO?.annuityDrawTypeList || [])"
+          :options="pickEnums(ANNUITY_DRAW_DATE, originData.riskInsureLimitVO?.annuityDrawValueList || [])"
         ></ProRadioButton>
       </template>
     </VanField>

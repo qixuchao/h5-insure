@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-16 13:39:05
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-05 14:13:24
+ * @LastEditTime: 2022-08-05 18:58:25
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductRisk/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -191,6 +191,7 @@ const formatData = (trialData: premiumCalcData, riskPremium: any) => {
     return {
       ...risk,
       premium: riskPremium[risk.riskCode].premium,
+      amount: riskPremium[risk.riskCode].amount,
     };
   });
   const proposalData = {
@@ -377,13 +378,12 @@ watch(
   () => props.formInfo,
   (newVal = {}) => {
     if (props.type !== 'add') {
-      const currentInfo = {
-        0: {
-          ...newVal.proposalProductRiskList[0],
-          riderRiskVOList: {} || newVal.proposalProductRiskList[0].proposalProductRiskVOList,
-        },
-      };
-      Object.assign(riskInfo.value, currentInfo);
+      const formInfo = {};
+      newVal.proposalProductRiskList.forEach((risk) => {
+        formInfo[risk.riskId] = risk;
+      });
+
+      Object.assign(riskInfo.value, { 0: formInfo });
     }
   },
   {
