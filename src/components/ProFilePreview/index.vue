@@ -7,13 +7,14 @@
 <template>
   <div class="com-file-preview">
     <!-- 富文本 -->
-    <div class="rich-text">
-      <slot name="title"></slot>
-      <div v-if="props.type === 'richText'" v-dompurify-html="props.content" class="content"></div>
-
-      <div v-if="props.type === 'pdf'" :id="id" :isee_pdf="pdfUrl" class="pdf-wapper"></div>
-      <slot name="footer-btn"></slot>
-    </div>
+    <slot name="title"></slot>
+    <!-- 富文本 -->
+    <div v-if="isRichText" v-dompurify-html="props.content" class="content"></div>
+    <!-- PDF -->
+    <div v-if="isPdf" :id="id" class="pdf-wapper"></div>
+    <!-- 图片 -->
+    <van-image v-if="isPicture" class="pic-wrap" fit="contain" :src="props.content" />
+    <slot name="footer-btn"></slot>
   </div>
 </template>
 
@@ -34,6 +35,15 @@ const props = defineProps({
     type: String,
   },
 });
+const isRichText = computed(() => {
+  return props.type === 'richText';
+});
+const isPdf = computed(() => {
+  return props.type === 'pdf';
+});
+const isPicture = computed(() => {
+  return props.type === 'picture';
+});
 
 PDFJS.GlobalWorkerOptions.workerSrc = workerSrc;
 
@@ -41,10 +51,6 @@ const id = nanoid();
 
 const show = ref(false);
 const loading = ref(true);
-
-const isPicture = computed(() => {
-  return ['png', 'jpg', 'jpeg'].some((i) => props.content.includes(i));
-});
 
 const loadPdfCanvas = () => {
   const container = document.getElementById(id) as HTMLElement;
@@ -72,13 +78,11 @@ const loadPdfCanvas = () => {
         container.append(canvas);
 
         const renderContext = {
-          // transform: [CSS_UNITS, 0, 0, CSS_UNITS, 0, 0],
           canvasContext: context,
           viewport: scaledViewport,
         };
         const renderTask = page.render(renderContext);
         loading.value = false;
-        // renderTask.then(() => {});
       });
     }
   });
@@ -91,7 +95,7 @@ const openPdf = async () => {
 };
 
 onMounted(() => {
-  openPdf();
+  props.type === 'pdf' && openPdf();
 });
 </script>
 
@@ -99,23 +103,38 @@ onMounted(() => {
 .com-file-preview {
   width: 100%;
   min-height: 100vh;
-  .rich-text {
+  .title {
+    font-size: 32px;
+    font-family: PingFangSC-Semibold, PingFang SC;
+    font-weight: 600;
+    color: #393d46;
+    line-height: 45px;
+    margin: 40px 0;
+  }
+  .content {
+    padding: 30px 30px 0 30px;
+    font-size: 28px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #393d46;
+    line-height: 48px;
+    margin-bottom: 200px;
+  }
+  .pdf-viewer {
+    word-break: break-all;
     .title {
-      font-size: 32px;
-      font-family: PingFangSC-Semibold, PingFang SC;
-      font-weight: 600;
-      color: #393d46;
-      line-height: 45px;
-      margin: 40px 0;
+      color: $primary-color;
     }
-    .content {
-      font-size: 28px;
-      font-family: PingFangSC-Regular, PingFang SC;
-      font-weight: 400;
-      color: #393d46;
-      line-height: 48px;
-      margin-bottom: 200px;
+    .loading {
+      height: 700px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
+  }
+  .pic-wrap {
+    width: 100%;
+    height: 80vh;
   }
 }
 </style>
