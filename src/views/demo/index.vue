@@ -1,5 +1,15 @@
 <template>
   <ProPageWrap>
+    <ProFilePreview type="richText" :content="fileContent">
+      <template #title>
+        <div class="title">标题</div>
+      </template>
+      <template #footer-btn>
+        <div class="footer-button">
+          <van-button type="primary">了解并继续</van-button>
+        </div>
+      </template>
+    </ProFilePreview>
     <ProForm ref="formRef">
       <ProField
         v-model="formInfo.birth"
@@ -142,6 +152,7 @@ import ProIDCardUpload from '@/components/ProIDCardUpload/index.vue';
 import ProTable from '@/components/ProTable/index.vue';
 import ProDatePicker from '@/components/ProDatePicker/index.vue';
 import ProPicker from '@/components/ProPicker/index.vue';
+import ProFilePreview from '@/components/ProFilePreview/index.vue';
 
 const [isShow, toggle] = useToggle(false);
 
@@ -177,6 +188,10 @@ const images = ref([]);
 const front = ref('');
 const back = ref('');
 
+const fileContent = ref(
+  'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/20220805155700747410a463c03734433b33a398ea9b4b036/vue3%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86Pinia.pdf?Expires=1660291021&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=9VlzAH%2Funj2kjD%2F4j8FYiBe7TaU%3D',
+);
+// '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>本次寄快递的计费规则是否清晰？</p>\n</body>\n</html>',
 const pdfList = [
   {
     title: 'pdfedgherth01',
