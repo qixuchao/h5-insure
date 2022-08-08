@@ -2,12 +2,12 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 20:07:46
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-02 18:42:02
+ * @LastEditTime: 2022-08-08 19:45:08
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/infoCollection/components/BeneficiaryInfo.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
-  <div class="com-beneficiary-wrapper">
+  <div v-if="Object.keys(factorObj).length" class="com-beneficiary-wrapper">
     <ProField
       v-if="factorObj.relationToInsured"
       v-model="state.formInfo.relationToInsured"
@@ -88,7 +88,7 @@ interface Props {
 }
 
 interface FactorObj {
-  [props: string]: ProductInsureFactorItem[];
+  [props: string]: ProductInsureFactorItem;
 }
 
 interface State {
@@ -114,7 +114,7 @@ const region = useDicData('NATIONAL_REGION_CODE'); // 全国区域编码
 const factorObj = computed(() => {
   const factor: FactorObj = {};
   props.factorList.forEach((factorItem) => {
-    (factor[factorItem.code] = factor[factorItem.code] || []).push(factorItem);
+    factor[factorItem.code] = factorItem;
   });
   return factor;
 });

@@ -1,39 +1,57 @@
 <template>
-  <div class="com-personal-wrapper">
+  <div v-if="Object.keys(factorObj).length" class="com-personal-wrapper">
     <ProPicker
-      v-if="factorObj.certType"
+      v-if="factorObj.certType?.isDisplay === 'YES'"
       v-model="state.formInfo.certType"
       label="证件类型"
       name="certType"
       readonly
       :data-source="certType"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
-      required
+      :required="factorObj.certType?.isMustInput === 'YES'"
     ></ProPicker>
-    <ProField v-if="state.formInfo.certType + '' === '1'" label="身份证上传" block required>
+    <ProField
+      v-if="factorObj.attachment?.isDisplay === 'YES' && state.formInfo.certType + '' === '1'"
+      label="身份证上传"
+      block
+      :required="factorObj.certType?.isMustInput === 'YES'"
+    >
       <template #input>
         <ProIDCardUpload v-model:front="tempImages[0]" v-model:back="tempImages[1]"></ProIDCardUpload>
       </template>
     </ProField>
-    <ProField v-if="state.formInfo.certType && state.formInfo.certType + '' !== '1'" label="证件上传" block required>
+    <ProField
+      v-if="
+        factorObj.attachment?.isDisplay === 'YES' && state.formInfo.certType && state.formInfo.certType + '' !== '1'
+      "
+      label="证件上传"
+      block
+      :required="factorObj.certType?.isMustInput === 'YES'"
+    >
       <template #input>
         <ProImageUpload v-model="tempImages" :max-count="1"></ProImageUpload>
       </template>
     </ProField>
     <ProField
-      v-if="factorObj.certNo"
+      v-if="factorObj.certNo?.isDisplay === 'YES'"
       v-model="state.formInfo.certNo"
       label="证件号码"
       name="certNo"
-      required
+      :required="factorObj.certNo?.isMustInput === 'YES'"
       placeholder="请输入"
       :validate-type="state.formInfo.certType === '1' ? ['idCard'] : []"
     ></ProField>
-    <ProField v-if="factorObj.name" v-model="state.formInfo.name" label="姓名" name="name" required></ProField>
     <ProField
-      v-if="factorObj.sex"
+      v-if="factorObj.name?.isDisplay === 'YES'"
+      v-model="state.formInfo.name"
+      label="姓名"
+      name="name"
+      :required="factorObj.name?.isMustInput === 'YES'"
+    ></ProField>
+    <ProField
+      v-if="factorObj.sex?.isDisplay === 'YES'"
       v-model="state.formInfo.gender"
-      required
+      :required="factorObj.sex?.isMustInput === 'YES'"
       label="性别"
       name="gender"
       placeholder="请选择"
@@ -44,50 +62,54 @@
       </template>
     </ProField>
     <ProDatePicker
-      v-if="factorObj.birthday"
+      v-if="factorObj.birthday?.isDisplay === 'YES'"
       v-model="state.formInfo.birthday"
       label="出生日期"
       name="birthday"
       :min="state.birth.min"
       :max="state.birth.max"
       type="date"
-      required
+      :required="factorObj.birthday?.isMustInput === 'YES'"
       :is-view="isIdCard"
     ></ProDatePicker>
     <ProDatePicker
-      v-if="factorObj.certEndDate"
+      v-if="factorObj.certEndDate?.isDisplay === 'YES'"
       v-model="state.formInfo.certEndDate"
       label="有效期至"
       name="certEndDate"
       type="date"
-      required
+      :required="factorObj.certEndDate?.isMustInput === 'YES'"
     ></ProDatePicker>
     <ProPicker
+      v-if="factorObj.houseHold?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.provinceCode"
       label="户籍所在地"
       name="provinceCode"
       placeholder="请选择"
       is-link
+      :required="factorObj.houseHold?.isMustInput === 'YES'"
       :data-source="region"
       :mapping="{ label: 'name', value: 'code', children: 'children' }"
     ></ProPicker>
     <ProField
-      v-if="factorObj.hasSocialInsurance"
+      v-if="factorObj.hasSocialInsurance?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.hasSocialInsurance"
       label="社保"
       name="hasSocialInsurance"
       placeholder="请选择"
+      :required="factorObj.hasSocialInsurance?.isMustInput === 'YES'"
     >
       <template #input>
         <ProRadioButton v-model="state.formInfo.extInfo.hasSocialInsurance" :options="FLAG_LIST"></ProRadioButton>
       </template>
     </ProField>
     <ProField
-      v-if="factorObj.occupation"
+      v-if="factorObj.occupation?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.occupationCode"
       label="职业"
       name="occupationCode"
       placeholder="请选择"
+      :required="factorObj.occupation?.isMustInput === 'YES'"
       :data-source="occupationCode"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
       is-link
@@ -95,7 +117,7 @@
     <!-- <ProField
       v-if="factorObj.occupation"
       v-model="state.formInfo.occupationalClass"
-      :rules="[{ required: true, message: '请选择职业类型' }]"
+      :rules="[{ :required="factorObj.certType?.isMustInput === 'YES'": true, message: '请选择职业类型' }]"
       name="occupationalClass"
       label="职业类型"
       is-link
@@ -109,21 +131,23 @@
       </template>
     </ProField> -->
     <ProField
-      v-if="factorObj.annualIncome"
+      v-if="factorObj.annualIncome?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.personalAnnualIncome"
       label="个人年收入"
       name="personalAnnualIncome"
+      :required="factorObj.annualIncome?.isMustInput === 'YES'"
       placeholder="请输入"
     ></ProField>
     <ProField
-      v-if="factorObj.familyAnnualIncome"
+      v-if="factorObj.familyAnnualIncome?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.familyAnnualIncome"
       label="家庭年收入"
       name="familyAnnualIncome"
       placeholder="请输入"
+      :required="factorObj.familyAnnualIncome?.isMustInput === 'YES'"
     ></ProField>
     <ProPicker
-      v-if="factorObj.nation"
+      v-if="factorObj.nation?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.nationalityCode"
       label="国籍"
       name="nationalityCode"
@@ -131,21 +155,23 @@
       :data-source="nationalityCode"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
       placeholder="请选择"
+      :required="factorObj.nation?.isMustInput === 'YES'"
       is-link
     ></ProPicker>
     <ProField
-      v-if="factorObj.marriage"
+      v-if="factorObj.USAGreenCard?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.hasUsCard"
       label="美国绿卡"
       name="hasUsCard"
       placeholder="请选择"
+      :required="factorObj.USAGreenCard?.isMustInput === 'YES'"
     >
       <template #input>
         <ProRadioButton v-model="state.formInfo.extInfo.hasUsCard" :options="FLAG_LIST"></ProRadioButton>
       </template>
     </ProField>
     <ProPicker
-      v-if="factorObj.marriage"
+      v-if="factorObj.marriage?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.marriageStatus"
       label="婚姻状况"
       name="marriageStatus"
@@ -154,9 +180,10 @@
       :data-source="marriageStatus"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
       is-link
+      :required="factorObj.marriage?.isMustInput === 'YES'"
     ></ProPicker>
     <ProPicker
-      v-if="factorObj.educationDegree"
+      v-if="factorObj.educationDegree?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.educationDegree"
       label="学历"
       readonly
@@ -164,95 +191,108 @@
       :data-source="degree"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
       placeholder="请选择"
+      :required="factorObj.educationDegree?.isMustInput === 'YES'"
       is-link
     ></ProPicker>
     <ProField
-      v-if="factorObj.mobile"
+      v-if="factorObj.mobile?.isDisplay === 'YES'"
       v-model="state.formInfo.mobile"
       label="手机号码"
       name="mobile"
       placeholder="请输入"
+      :required="factorObj.mobile?.isMustInput === 'YES'"
     ></ProField>
     <ProField
-      v-if="factorObj.email"
+      v-if="factorObj.email?.isDisplay === 'YES'"
       v-model="state.formInfo.email"
       label="电子邮箱"
       name="email"
       placeholder="请输入"
+      :required="factorObj.email?.isMustInput === 'YES'"
     ></ProField>
     <ProPicker
-      v-if="factorObj.familyAddress"
+      v-if="factorObj.familyAddress?.isDisplay === 'YES'"
       v-model="state.formInfo.familyProvinceCode"
       label="家庭地址"
       :data-source="region"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
       name="familyProvinceCode"
+      :required="factorObj.familyAddress?.isMustInput === 'YES'"
       placeholder="请选择"
     ></ProPicker>
     <ProField
-      v-if="factorObj.familyAddressDetail"
+      v-if="factorObj.familyAddressDetail?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.familyAddress"
       label="地址详情"
       name="familyAddress"
       placeholder="请输入"
+      :required="factorObj.familyAddressDetail?.isMustInput === 'YES'"
     ></ProField>
     <ProField
-      v-if="factorObj.familyPostCode"
+      v-if="factorObj.familyPostCode?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.familyZipCode"
       label="家庭邮编"
       name="familyZipCode"
       placeholder="请输入"
+      :required="factorObj.familyPostCode?.isMustInput === 'YES'"
     ></ProField>
     <ProField
-      v-if="factorObj.workAddress"
+      v-if="factorObj.workAddress?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.workProvinceCode"
       label="工作地址"
       name="workProvinceCode"
       :data-source="region"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
       placeholder="请选择"
+      :required="factorObj.workAddress?.isMustInput === 'YES'"
     ></ProField>
     <ProField
-      v-if="factorObj.workAddressDetail"
+      v-if="factorObj.workAddressDetail?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.workAddress"
       label="地址详情"
       name="workAddress"
       placeholder="请输入"
+      :required="factorObj.workAddressDetail?.isMustInput === 'YES'"
     ></ProField>
     <ProField
-      v-if="factorObj.workZipCode"
+      v-if="factorObj.workZipCode?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.workZipCode"
       label="工作邮编"
+      :required="factorObj.workZipCode?.isMustInput === 'YES'"
       name="workPostCode"
       placeholder="请输入"
     ></ProField>
     <ProField
-      v-if="factorObj.workPlace"
+      v-if="factorObj.workPlace?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.workStation"
       label="单位名称"
       name="workPostCode"
       placeholder="请输入"
+      :required="factorObj.workPlace?.isMustInput === 'YES'"
     ></ProField>
     <ProField
-      v-if="factorObj.workContent"
+      v-if="factorObj.workContent?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.workContent"
       label="工作内容"
       name="workContent"
+      :required="factorObj.workContent?.isMustInput === 'YES'"
       placeholder="请输入"
     ></ProField>
     <ProPicker
-      v-if="factorObj.taxCert"
+      v-if="factorObj.taxCert?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.taxResident"
       label="税收居民身份"
       name="taxResident"
       :data-source="TAX_RESIDENT"
+      :required="factorObj.taxCert?.isMustInput === 'YES'"
       placeholder="请输入"
     ></ProPicker>
     <ProField
-      v-if="factorObj.partTime"
+      v-if="factorObj.partTime?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.isPartTime"
       label="是否兼职"
       name="isPartTime"
+      :required="factorObj.partTime?.isMustInput === 'YES'"
       placeholder="请输入"
     >
       <template #input>
@@ -327,7 +367,7 @@ const state = ref({
 const factorObj = computed(() => {
   const factor: FactorObj = {};
   props.factorList.forEach((factorItem) => {
-    (factor[factorItem.code] = factor[factorItem.code] || []).push(factorItem);
+    factor[factorItem.code] = factorItem;
   });
   return factor;
 });

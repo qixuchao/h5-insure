@@ -391,7 +391,7 @@ const amount = computed(() => {
     }
   });
 
-  state.formInfo.amount = min;
+  state.formInfo.amount = state.formInfo.amount || min;
 
   return { min, max };
 });
@@ -413,7 +413,7 @@ const premium = computed(() => {
     }
   });
 
-  state.formInfo.premium = min;
+  state.formInfo.premium = state.formInfo.premium || min;
 
   return { min, max };
 });
@@ -422,7 +422,7 @@ const premium = computed(() => {
 const copy = computed(() => {
   const min = props.originData?.riskCalcMethodInfoVO?.minCopy || 1;
   const max = props.originData?.riskCalcMethodInfoVO?.maxCopy;
-  state.formInfo.copy = `${min || 1}`;
+  state.formInfo.copy = `${state.formInfo.copy || min || 1}`;
 
   return { min, max };
 });
