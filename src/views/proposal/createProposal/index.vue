@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:14:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-08 09:38:40
+ * @LastEditTime: 2022-08-08 14:47:02
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -40,8 +40,6 @@
             formate="YYYY-MM-DD"
             is-link
             readonly
-            :min-date="proposalInfo.proposalInsuredList[0]?.dateRange?.minAge"
-            :max-date="proposalInfo.proposalInsuredList[0]?.dateRange?.maxAge"
             placeholder="请选择"
             :rules="[{ required: true, message: '请选择' }]"
             @click="toggleDatePickVisible(true)"
@@ -92,6 +90,8 @@
     <van-popup v-model:show="showDatePick" position="bottom">
       <van-datetime-picker
         type="date"
+        :min-date="new Date(proposalInfo.proposalInsuredList[0]?.dateRange?.min)"
+        :max-date="new Date(proposalInfo.proposalInsuredList[0]?.dateRange?.max)"
         @confirm="
           (value) => {
             proposalInfo.proposalInsuredList[0].birthday = dayjs(value).format('YYYY-MM-DD');
@@ -170,7 +170,7 @@ const router = useRouter();
 const route = useRoute();
 const store = createProposalStore();
 
-const { id, type = 'add' } = route.query;
+const { id, type = 'add', isCreateProposal } = route.query;
 
 const state = ref<State>({
   productId: 0,
@@ -188,6 +188,13 @@ const formRef = ref();
 const selectedProduct = ref({});
 // 试算之后的产品险种列表
 const trialedProductList = ref<ProposalInsuredProductItem[]>([]);
+
+const dateRange = computed(() => {
+  return {
+    min: '',
+    max: '',
+  };
+});
 
 const validateName = (desc: string, value: string, rule: any) => {
   if (/^.{1,20}$/.test(value)) {
@@ -288,6 +295,7 @@ const queryProductInfo = (searchData: any) => {
 
 const addMainRisk = () => {
   store.setProposalInfo(proposalInfo.value);
+  store.setTrialData([]);
   store.setExcludeProduct(Object.keys(state.value.productCollection));
   router.push({
     path: '/proposalList',
@@ -305,7 +313,7 @@ const closeProductRisk = () => {
 onBeforeMount(() => {
   const currentProposalInfo = store.$state.trialData;
   const preProposalInfo: any = store.$state.proposalInfo;
-  if (id) {
+  if (id && !isCreateProposal) {
     queryProposalInfo();
   } else if (!Object.keys(preProposalInfo).length && currentProposalInfo.length) {
     Object.assign(proposalInfo.value, currentProposalInfo[0]);
@@ -313,6 +321,8 @@ onBeforeMount(() => {
     preProposalInfo.proposalInsuredList[0].proposalInsuredProductList.push(
       ...currentProposalInfo[0].proposalInsuredList[0].proposalInsuredProductList,
     );
+    proposalInfo.value = preProposalInfo;
+  } else if (Object.keys(preProposalInfo).length && !currentProposalInfo.length) {
     proposalInfo.value = preProposalInfo;
   }
 });

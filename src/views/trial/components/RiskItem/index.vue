@@ -458,8 +458,8 @@ onBeforeMount(() => {
     riskId: props.originData.id,
     riskName: props.originData.riskName,
     riskCode: props.originData.riskCode,
-    mainRiskCode: props?.mainRiskData?.riskCode,
-    mainRiskId: props?.mainRiskData?.id,
+    mainRiskCode: props.originData.riskType !== 1 ? props.mainRiskData?.riskCode : undefined,
+    mainRiskId: props.originData.riskType !== 1 ? props.mainRiskData?.id : undefined,
     riskCategory: props.originData.riskCategory,
     liabilityVOList: (props.originData.riskLiabilityInfoVOList || []).map((liab) => ({
       ...liab,

@@ -45,6 +45,10 @@ const isPicture = computed(() => {
   return props.type === 'picture';
 });
 
+const isLink = computed(() => {
+  return props.type === 'link';
+});
+
 PDFJS.GlobalWorkerOptions.workerSrc = workerSrc;
 
 const id = nanoid();
