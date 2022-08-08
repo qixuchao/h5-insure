@@ -2,13 +2,13 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 16:43:35
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-05 20:24:38
+ * @LastEditTime: 2022-08-07 22:26:26
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <div class="com-product-list-wrapper">
-    <div v-for="risk in productRiskList" :key="risk.riskId">
+    <div v-for="risk in state.productRiskList" :key="risk.riskId">
       <div class="risk-item-wrapper">
         <ProTitle :risk-type="risk.riskType" :title="risk.riskName" />
         <div class="content">
@@ -33,14 +33,16 @@
             <ProCheckButton v-if="isCanDeleteRisk(risk.riskId)" :round="32" class="border" @click="deleteRisk(risk)"
               >删除</ProCheckButton
             >
-            <ProCheckButton v-if="true" activated :round="32" @click="addRiderRisk(risk)">+ 附加险</ProCheckButton>
+            <ProCheckButton v-if="isCanAddRiderRisk" activated :round="32" @click="addRiderRisk(risk)"
+              >+ 附加险</ProCheckButton
+            >
             <ProCheckButton activated :round="32" @click="updateRisk(risk)">修改</ProCheckButton>
           </div>
         </div>
       </div>
-      <div class="premium-total">
-        保费: <span class="premium">￥{{ state.totalPremium.toLocaleString() }}</span>
-      </div>
+    </div>
+    <div class="premium-total">
+      保费: <span class="premium">￥{{ state.totalPremium.toLocaleString() }}</span>
     </div>
     <RiskRelationList
       v-if="showRelationList"
@@ -79,6 +81,7 @@ interface State {
   mainRiskData: ProductData;
   totalPremium: number;
   currentRiskRecord: ProposalProductRiskItem;
+  productRiskList: ProposalProductRiskItem[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -98,7 +101,9 @@ const state = ref<State>({
   mainRiskData: {} as ProductData,
   totalPremium: 0,
   currentRiskRecord: {} as ProposalProductRiskItem,
+  productRiskList: [],
 });
+// const isCanAddRiderRisk = ref<boolean>(false);
 
 const RISK_PAYMENT_PERIOD = useDict('RISK_PAYMENT_PERIOD');
 
@@ -115,7 +120,12 @@ const riderRiskList = computed(() => {
 
 // 计算添加附加险按钮展示的逻辑
 const isCanAddRiderRisk = computed(() => {
-  const currentRiderRiskList = props.productRiskList.map((risk) => risk.riskType === 2);
+  const riskIds = props.productRiskList.map((risk) => risk.riskId);
+  const currentRiderRiskList = (props.productData?.productRiskVoList?.[0].riskDetailVOList || []).filter(
+    (risk: RiskDetailVoItem) => {
+      return riskIds.includes(risk.id) && risk.collocationType === 1;
+    },
+  );
   return riderRiskList.value.length - currentRiderRiskList.length;
 });
 
@@ -124,14 +134,17 @@ const isCanDeleteRisk = computed(() => (riskId: number) => {
   const currentRisk =
     props.productData?.productRiskVoList?.[0].riskDetailVOList.find((risk: RiskDetailVoItem) => risk.id !== riskId) ||
     {};
+  let deleteFlag = false;
   if (props.productNum) {
-    return true;
+    deleteFlag = true;
+  } else {
+    if (currentRisk.collocationType !== 1) {
+      deleteFlag = true;
+    } else {
+      deleteFlag = false;
+    }
   }
-  if (currentRisk.collectionType === 1) {
-    return true;
-  }
-
-  return false;
+  return deleteFlag;
 });
 
 const mainRiskData = computed(() => {
@@ -161,8 +174,9 @@ const addRiderRisk = (riskRecord: ProposalProductRiskItem) => {
 // 添加附加险信息
 const onFinished = (riskList: any[], disabled: any[]) => {
   // state.currentRiskList = state.currentRiskList.concat(risk);
-  state.value.disabledList = disabled;
-  const riskIds = riskList.map((risk) => risk.id);
+  const riskIds = riskList.map((risk) => risk.id).filter((id: number) => !state.value.disabledList.includes(id));
+
+  // state.value.disabledList = disabled;
   emits('addRiderRisk', riskIds, props.productInfo);
 };
 
@@ -181,6 +195,34 @@ watch(
     calcProduct(newVal.proposalProductRiskList || []);
     props.pickProductPremium?.({ [`${newVal.productId}`]: productPremium });
     state.value.totalPremium = productPremium;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  () => props.productRiskList,
+  (newVal) => {
+    const newProductRiskList: ProposalProductRiskItem[] = [];
+    const disabledList: any[] = [];
+    const checkedList = [];
+    const riderList = [];
+    (newVal || []).forEach((risk: ProposalProductRiskItem) => {
+      if (risk.riskType === 1) {
+        newProductRiskList.unshift(risk);
+      } else {
+        disabledList.push(risk.riskId);
+        riderList.push(risk);
+        checkedList.push(risk.riskId);
+        newProductRiskList.push(risk);
+      }
+    });
+
+    state.value.disabledList = disabledList;
+    state.value.checkedList = checkedList;
+    state.value.productRiskList = newProductRiskList;
   },
   {
     deep: true,

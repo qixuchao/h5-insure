@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:14:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-05 14:49:28
+ * @LastEditTime: 2022-08-08 09:38:40
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -196,6 +196,13 @@ const validateName = (desc: string, value: string, rule: any) => {
   return `${desc}不能超过20个字符`;
 };
 
+const pickProductPremium = (premiumData = {}) => {
+  Object.assign(state.value.productPremium, premiumData);
+  proposalInfo.value.totalPremium = Object.values(state.value.productPremium).reduce((pre: any, next: any) => {
+    return pre + next;
+  }, 0);
+};
+
 const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsuredProductItem) => {
   const currentProduct = productInfo;
   Dialog.confirm({ message: '确认删除该险种？' }).then(() => {
@@ -203,11 +210,13 @@ const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
     if (riskInfo.riskType === 1) {
       proposalInfo.value.proposalInsuredList[0].proposalInsuredProductList =
         proposalInfo.value.proposalInsuredList[0].proposalInsuredProductList.filter(
-          (product: ProposalInsuredProductItem) => product.productId !== productInfo.productId,
+          (product: ProposalInsuredProductItem) => product.productId !== currentProduct.productId,
         );
+      pickProductPremium({ [currentProduct.productId]: 0 });
     } else {
-      currentProduct.proposalProductRiskList[0].riderRiskVOList =
-        currentProduct.proposalProductRiskList[0].riderRiskVOList.filter((risk) => risk.riskId !== riskInfo.riskId);
+      currentProduct.proposalProductRiskList = currentProduct.proposalProductRiskList.filter(
+        (risk) => risk.riskId !== riskInfo.riskId,
+      );
     }
   });
 };
@@ -228,13 +237,6 @@ const addRiderRisk = (riskIds: any[], productInfo: ProposalInsuredProductItem) =
   state.value.type = 'addRiderRisk';
   state.value.currentRisk = riskIds;
   toggleProductRisk(true);
-};
-
-const pickProductPremium = (premiumData = {}) => {
-  Object.assign(state.value.productPremium, premiumData);
-  proposalInfo.value.totalPremium = Object.values(state.value.productPremium).reduce((pre: any, next: any) => {
-    return pre + next;
-  }, 0);
 };
 
 const queryProposalInfo = () => {
@@ -291,6 +293,7 @@ const addMainRisk = () => {
     path: '/proposalList',
     query: {
       isCreateProposal: '1',
+      ...route.query,
     },
   });
 };
