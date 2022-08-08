@@ -9,11 +9,13 @@
     <!-- 富文本 -->
     <slot name="title"></slot>
     <!-- 富文本 -->
-    <div v-if="isRichText" v-dompurify-html="props.content" class="content"></div>
+    <div v-if="isRichText" v-dompurify-html="content" class="content"></div>
     <!-- PDF -->
-    <div v-if="isPdf" :id="id" class="pdf-wapper"></div>
+    <div v-else-if="isPdf" :id="id" class="pdf-wapper"></div>
     <!-- 图片 -->
-    <van-image v-if="isPicture" class="pic-wrap" fit="contain" :src="props.content" />
+    <van-image v-else-if="isPicture" class="pic-wrap" fit="contain" :src="props.content" />
+    <!-- 外联 -->
+    <iframe v-else :src="content" frameborder="0" width="100%" style="height: 100vh"></iframe>
     <slot name="footer-btn"></slot>
   </div>
 </template>
@@ -85,6 +87,7 @@ const loadPdfCanvas = () => {
           canvasContext: context,
           viewport: scaledViewport,
         };
+
         const renderTask = page.render(renderContext);
         loading.value = false;
       });
@@ -98,9 +101,18 @@ const openPdf = async () => {
   }, 0);
 };
 
-onMounted(() => {
-  props.type === 'pdf' && openPdf();
-});
+watch(
+  () => props.content,
+  (newVal) => {
+    if (newVal) {
+      props.type === 'pdf' && openPdf();
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 </script>
 
 <style scoped lang="scss">

@@ -2,15 +2,15 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-25 09:04:29
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-08 14:52:37
+ * @LastEditTime: 2022-08-08 17:15:59
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/customerNotice/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <ProPageWrap class="page-customer-notice-wrapper">
     <div class="notice-content">
-      <ProFilePreview type="" content="">
-        <template #footer-button>
+      <ProFilePreview :type="FILE_TYPE_ENUM[fileType]" :content="materialData.materialContent">
+        <template #footer-btn>
           <div class="footer-button" @click="goNextPage">
             <VanButton block type="primary">我已阅读</VanButton>
           </div>
@@ -30,9 +30,12 @@ import { NextStepRequestData, TemplatePageItem } from '@/api/index.data';
 import { getCustomerNotices } from '@/api/modules/customerNotice';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 
-interface State {
-  nextPage: string;
-}
+const FILE_TYPE_ENUM = {
+  1: 'pdf',
+  4: 'picture',
+  2: 'richText',
+  3: 'link',
+};
 
 const pageCode = 'customerNotice';
 const route = useRoute();
@@ -50,14 +53,22 @@ const loading = ref<boolean>(true);
 const show = ref<boolean>(true);
 const materialData = ref<any>({});
 
-const state = reactive<State>({
-  nextPage: '',
-});
+const fileType = ref<number>(1);
 
 const getNotices = () => {
   getCustomerNotices({ productCode, objectType: 3 }).then(({ code, data }) => {
     if (code === '10000') {
       materialData.value = data;
+
+      if (data.materialSource === 1) {
+        if (data.materialContent.indexOf('.pdf') !== -1) {
+          fileType.value = 1;
+        } else {
+          fileType.value = 4;
+        }
+      } else {
+        fileType.value = data.materialSource;
+      }
     }
   });
 };
