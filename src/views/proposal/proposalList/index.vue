@@ -217,10 +217,10 @@ const onFinished = (proposalInfo: ProposalInfo) => {
 
   store.setTrialData([proposalInfo]);
   toggleProductRisk(false);
-  router.back();
-  // router.push({
-  //   path: '/proposal/createProposal',
-  // });
+  router.push({
+    path: '/proposal/createProposal',
+    query: route.query,
+  });
 };
 
 const onRefresh = () => {
