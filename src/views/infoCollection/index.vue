@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-09 10:16:09
+ * @LastEditTime: 2022-08-09 17:27:46
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -36,7 +36,19 @@
           :form-info="formInfo.tenantOrderInsuredList[0]"
           :factor-list="pageFactor.INSURER || []"
         ></PersonalInfo>
-        <ProField label="投保地区" name="type" placeholder="请选择" is-link></ProField>
+        <ProCascader
+          v-model="formInfo.tenantOrderInsuredList[0].extInfo.insureProvinceCode"
+          v-model:field1="formInfo.tenantOrderInsuredList[0].extInfo.insureProvinceCode"
+          v-model:field2="formInfo.tenantOrderInsuredList[0].extInfo.insureCityCode"
+          v-model:field3="formInfo.tenantOrderInsuredList[0].extInfo.insureAreaCode"
+          label="投保地区"
+          name="insureProvinceCode"
+          placeholder="请选择"
+          is-link
+          required
+          :data-source="region"
+          :mapping="{ label: 'name', value: 'code', children: 'children' }"
+        ></ProCascader>
       </ProCard>
 
       <ProCard title="受益人">
@@ -68,7 +80,6 @@
               :form-info="beneficiary"
               :factor-list="pageFactor.BENEFICIARY || []"
             ></PersonalInfo>
-            <BeneficiaryInfo :form-info="beneficiary" :factor-list="pageFactor.BENEFICIARY" />
           </div>
           <VanButton @click="addBeneficiary">+添加受益人</VanButton>
         </div>
@@ -121,6 +132,7 @@ import {
   TemplatePageItem,
   ProductInsureFactorItem,
 } from '@/api/index.data';
+import useDicData from '@/hooks/useDicData';
 import { RELATION_HOLDER_LIST, BENEFICIARY_LIST } from '@/common/constants/infoCollection';
 import BeneficiaryInfo from './components/BeneficiaryInfo/index.vue';
 import PersonalInfo from './components/PersonalInfo/index.vue';
@@ -146,6 +158,7 @@ const route = useRoute();
 const { templateId = 1, orderNo = '2022072710380711215', tenantId = '9991000007' } = route.query;
 const [showAddress, toggleAddress] = useToggle();
 const pageCode = route.path === '/infoPreview' ? 'infoPreview' : 'infoCollection';
+const region = useDicData('NATIONAL_REGION_CODE');
 const pageFactor = ref<FactorEnums>({});
 // 表单信息
 const formInfo = ref<any>({
@@ -417,6 +430,7 @@ watch(
       font-family: PingFangSC-Semibold, PingFang SC, serif;
       color: #393d46;
       margin: 5px 0;
+      word-break: break-all;
     }
     .name {
       font-weight: 600;

@@ -52,7 +52,7 @@
                     v-if="plan.planCode === state.currentPlan"
                     :risk-info="riskInfo[plan.planCode]"
                     :enums="state.enumList"
-                    :origin-data="plan.riskDetailVOList"
+                    :origin-data="plan.productRiskVoList?.[0].riskDetailVOList"
                     :pick-factor="pickFactor"
                   />
                 </VanTab>
@@ -189,7 +189,9 @@ const transformData = (riskList: RiskVoItem[], riskPremium) => {
       paymentPeriod: risk.chargePeriod.split('_')[1],
       paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],
       insurancePeriodType: INSURANCE_PERIOD_TYPE_ENUMS[risk.coveragePeriod.split('_')[0]],
-      insurancePeriodValue: risk.coveragePeriod.split('_')[1],
+      insurancePeriodValue: Number.isNaN(+risk.coveragePeriod.split('_')[1])
+        ? undefined
+        : risk.coveragePeriod.split('_')[1],
       riskCode: risk.riskCode,
       riskType: risk.riskType,
       initialPremium: riskPremium[risk.riskCode]?.premium,
@@ -329,14 +331,17 @@ const queryProductInfo = () => {
       if (code === '10000') {
         state.riskBaseInfo = data.productBasicInfoVO;
 
-        (data.productRiskVoList[0].riskDetailVOList || []).forEach((plan, index) => {
+        (data.productRelationPlanVOList.length
+          ? data.productRelationPlanVOList
+          : data.productRiskVoList[0].riskDetailVOList || []
+        ).forEach((plan, index) => {
           if (index === 0) {
             state.currentPlan = plan.planCode || '0';
           }
           Object.assign(riskInfo.value, { [plan.planCode || '0']: {} });
         });
 
-        state.riskData = data.productRiskVoList[0].riskDetailVOList || [];
+        state.riskData = data.productRiskVoList[0]?.riskDetailVOList || [];
         state.riskPlanData = data.productRelationPlanVOList || [];
       }
     })

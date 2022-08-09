@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-09 09:49:24
+ * @LastEditTime: 2022-08-10 01:27:20
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -40,7 +40,19 @@
           :factor-list="pageFactor.INSURER || []"
           is-view
         ></PersonalInfo>
-        <ProField label="投保地区" name="type" placeholder="请选择" is-link></ProField>
+        <ProCascader
+          v-model="formInfo.tenantOrderInsuredList[0].extInfo.insureProvinceCode"
+          v-model:field1="formInfo.tenantOrderInsuredList[0].extInfo.insureProvinceCode"
+          v-model:field2="formInfo.tenantOrderInsuredList[0].extInfo.insureCityCode"
+          v-model:field3="formInfo.tenantOrderInsuredList[0].extInfo.insureAreaCode"
+          label="投保地区"
+          name="insureProvinceCode"
+          placeholder="请选择"
+          is-link
+          required
+          :data-source="region"
+          :mapping="{ label: 'name', value: 'code', children: 'children' }"
+        ></ProCascader>
       </ProCard>
       <ProCard title="受益人">
         <ProField
@@ -94,7 +106,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { useToggle } from '@vant/use';
 import { conditionalExpression } from '@babel/types';
-import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { PAGE_ROUTE_ENUMS, ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import { getInitFactor, nextStep, getTemplateInfo, getOrderDetail } from '@/api';
 import {
   FactorData,
@@ -111,6 +123,7 @@ import BeneficiaryInfo from '../infoCollection/components/BeneficiaryInfo/index.
 import PersonalInfo from '../infoCollection/components/PersonalInfo/index.vue';
 import AddressSelect from '../infoCollection/components/AddressSelect/index.vue';
 import InsuredPart from './components/InsuredPart.vue';
+import useDicData from '@/hooks/useDicData';
 
 interface State {
   beneficiaryId: number;
@@ -133,6 +146,7 @@ const { templateId = 1, orderNo = '2022072710380711215', tenantId = '9991000007'
 const [showAddress, toggleAddress] = useToggle();
 const pageCode = route.path === '/infoPreview' ? 'infoPreview' : 'infoCollection';
 const pageFactor = ref<FactorEnums>({});
+const region = useDicData('NATIONAL_REGION_CODE');
 // 表单信息
 const formInfo = ref<any>({
   extInfo: {
@@ -164,6 +178,8 @@ const formInfo = ref<any>({
 const formRef = ref<any>(null);
 const holderImages = ref<string[]>([]);
 const insuredImages = ref<string[]>([]);
+const holderImagesId = ref<number[]>([]);
+const insuredImagesId = ref<number[]>([]);
 const state = reactive<State>({
   beneficiaryId: 0,
   addressList: [],
@@ -213,19 +229,21 @@ const queryOrderDetail = () => {
             return currentList;
           });
         currentData.tenantOrderAttachmentList.forEach((item) => {
-          item.category === 2; // 正面
-          item.objectType;
-          if (item.category === 22) {
-            if (item.objectType === 2) {
-              holderImages[0] = item.uri;
-            } else if (item.objectType === 3) {
-              insuredImages[0] = item.uri;
+          if (item.category === ATTACHMENT_CATEGORY_ENUM.OBVERSE_CERT) {
+            if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER) {
+              holderImages.value[0] = item.uri;
+              holderImagesId.value[0] = item.id;
+            } else if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.INSURED) {
+              insuredImages.value[0] = item.uri;
+              insuredImagesId.value[0] = item.id;
             }
-          } else if (item.category === 23) {
-            if (item.objectType === 2) {
-              holderImages[1] = item.uri;
-            } else if (item.objectType === 3) {
-              insuredImages[1] = item.uri;
+          } else if (item.category === ATTACHMENT_CATEGORY_ENUM.REVERSE_CERT) {
+            if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER) {
+              holderImages.value[1] = item.uri;
+              holderImagesId.value[1] = item.id;
+            } else if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.INSURED) {
+              insuredImages.value[1] = item.uri;
+              holderImagesId.value[1] = item.id;
             }
           }
         });

@@ -33,7 +33,7 @@
       <ProCard v-if="showByFactor('guaranteeDetail')" title="保障详情" link="查看详情" @link-click="handleLinkClick">
         <div v-if="detail && detail?.tenantProductInsureVO" class="basic">
           <ProCell
-            v-for="(item, index) in detail?.tenantProductInsureVO?.guaranteeList[activePlan].titleAndDescVOS"
+            v-for="(item, index) in detail?.tenantProductInsureVO?.guaranteeList?.[activePlan]?.titleAndDescVOS"
             :key="index"
             :title="item.title"
             :content="item.desc"

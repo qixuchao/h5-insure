@@ -1,10 +1,10 @@
 <template>
   <div v-if="Object.keys(factorObj).length" class="com-personal-wrapper">
     <ProField
-      v-if="factorObj.relationToInsured?.isDisplay"
+      v-if="factorObj.insureRelation?.isDisplay"
       v-model="state.formInfo.relationToInsured"
       name="relationToInsured"
-      :required="factorObj.relationToInsured?.isMustInput === 'YES'"
+      :required="factorObj.insureRelation?.isMustInput === 'YES'"
       label="是被保人的"
     >
       <template #input>
@@ -24,6 +24,7 @@
       :data-source="certType"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
       :required="factorObj.certType?.isMustInput === 'YES'"
+      :rules="[{ validator: validateCertType }]"
     ></ProPicker>
     <ProField
       v-if="factorObj.attachment?.isDisplay === 'YES' && state.formInfo.certType + '' === '1'"
@@ -54,6 +55,7 @@
       name="certNo"
       :required="factorObj.certNo?.isMustInput === 'YES'"
       placeholder="请输入"
+      :rules="[{ validator: validateCertNo }]"
       :validate-type="state.formInfo.certType === '1' ? ['idCard'] : []"
     ></ProField>
     <ProField
@@ -148,25 +150,9 @@
       placeholder="请选择"
       :required="factorObj.occupation?.isMustInput === 'YES'"
       :data-source="occupationCode"
-      :mapping="{ label: 'name', value: 'code', children: 'children' }"
+      :mapping="{ label: 'value', value: 'code', children: 'children' }"
       is-link
     ></ProCascader>
-    <!-- <ProField
-      v-if="factorObj.occupation"
-      v-model="state.formInfo.occupationalClass"
-      :rules="[{ :required="factorObj.certType?.isMustInput === 'YES'": true, message: '请选择职业类型' }]"
-      name="occupationalClass"
-      label="职业类型"
-      is-link
-      readonly
-      placeholder="请选择"
-      @click="toggleOccupational(true)"
-    >
-      <template #input>
-        <span v-if="!state.occupationalText" class="placeholder">请选择</span>
-        <div v-else>{{ state.occupationalText }}</div>
-      </template>
-    </ProField> -->
     <ProField
       v-if="factorObj.annualIncome?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.personalAnnualIncome"
@@ -258,16 +244,20 @@
       :required="factorObj.email?.isMustInput === 'YES'"
       :validate-type="['mail']"
     ></ProField>
-    <ProPicker
+    <ProCascader
       v-if="factorObj.familyAddress?.isDisplay === 'YES'"
-      v-model="state.formInfo.familyProvinceCode"
+      v-model="state.formInfo.extInfo.familyProvinceCode"
+      v-model:field1="state.formInfo.extInfo.familyProvinceCode"
+      v-model:field2="state.formInfo.extInfo.familyCityCode"
+      v-model:field3="state.formInfo.extInfo.familyAreaCode"
       label="家庭地址"
-      :data-source="region"
-      :mapping="{ label: 'name', value: 'code', children: 'child' }"
       name="familyProvinceCode"
-      :required="factorObj.familyAddress?.isMustInput === 'YES'"
       placeholder="请选择"
-    ></ProPicker>
+      is-link
+      :required="factorObj.familyAddress?.isMustInput === 'YES'"
+      :data-source="region"
+      :mapping="{ label: 'name', value: 'code', children: 'children' }"
+    ></ProCascader>
     <ProField
       v-if="factorObj.familyAddressDetail?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.familyAddress"
@@ -286,16 +276,20 @@
       :required="factorObj.familyPostCode?.isMustInput === 'YES'"
       :validate-type="['zipCode']"
     ></ProField>
-    <ProField
+    <ProCascader
       v-if="factorObj.workAddress?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.workProvinceCode"
+      v-model:field1="state.formInfo.extInfo.workProvinceCode"
+      v-model:field2="state.formInfo.extInfo.workCityCode"
+      v-model:field3="state.formInfo.extInfo.workAreaCode"
       label="工作地址"
       name="workProvinceCode"
-      :data-source="region"
-      :mapping="{ label: 'name', value: 'code', children: 'child' }"
       placeholder="请选择"
+      is-link
       :required="factorObj.workAddress?.isMustInput === 'YES'"
-    ></ProField>
+      :data-source="region"
+      :mapping="{ label: 'name', value: 'code', children: 'children' }"
+    ></ProCascader>
     <ProField
       v-if="factorObj.workAddressDetail?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.workAddress"
@@ -371,25 +365,18 @@
       v-model="state.formInfo.benefitRate"
       :required="factorObj.benefitRate?.isMustInput === 'YES'"
       name="benefitRate"
+      :rules="[{ validator: validatePositiveInteger }]"
       label="受益比例"
     >
       <template #extra> <span class="input-extra">%</span> </template>
     </ProField>
-    <Occupational
-      v-if="isShowOccupational"
-      v-model="state.formInfo.occupationalClass"
-      :show="isShowOccupational"
-      :insured-code="insuredCode"
-      @finish="onFinish"
-      @close="onClose"
-    >
-    </Occupational>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import { useToggle } from '@vant/use';
 import { truncateSync } from 'fs';
 import { useRoute } from 'vue-router';
@@ -397,7 +384,6 @@ import { InsuredReqItem, HolderReq, ProductInsureFactorItem } from '@/api/index.
 import { SEX_LIMIT_LIST, FLAG_LIST } from '@/common/constants';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import useDicData from '@/hooks/useDicData';
-import ProCascader from '@/components/ProCascader/index.vue';
 import {
   TAX_RESIDENT,
   BENEFICIARY_ORDER,
@@ -455,6 +441,8 @@ const state = ref({
   occupationalText: '',
 });
 
+dayjs.extend(relativeTime);
+
 const certEndType = ref<boolean>(props.formInfo.certEndType === 2);
 
 const factorObj = computed(() => {
@@ -465,11 +453,12 @@ const factorObj = computed(() => {
   return factor;
 });
 
-// const certTypeEnum = computed(() => {
-//   if (state.value.formInfo.extInfo.nationalityCode === 'CHN') {
-//     return [];
-//   }
-// });
+const certTypeEnum = computed(() => {
+  if (state.value.formInfo.extInfo.nationalityCode === 'CHN') {
+    return [];
+  }
+  return [];
+});
 
 const onFinish = (text: string) => {
   state.value.occupationalText = text;
@@ -479,16 +468,72 @@ const onClose = () => {
   toggleOccupational(false);
 };
 
+// 验证10位整数两位小数
 const validateFloat = (value: string, rule: any) => {
   if (/^[+-]?(\d|[1-9]\d{1,5})(\.\d{1,2})?$/.test(value)) {
     return '';
   }
   return '年收入最多录入10位数字';
 };
+// 验证2位正整数
+const validatePositiveInteger = (value: string, rule: any) => {
+  if (/^\+?[1-9][0-9]*$/.test(value)) {
+    return '';
+  }
+  return '收益比例只能填写1-100的正数';
+};
 
+// 验证长度
 const validateLength = (len: number, value: string, rule: any) => {
   if (value.length > len) {
     return `最大不能超过${len}个字符`;
+  }
+  return '';
+};
+
+// 验证证件号码
+const validateCertNo = (value: string | number, rule: any) => {
+  if (state.value.formInfo?.certType === '4') {
+    if (!/^[a-zA-Z]\d{9}$/.test(`${value}`)) {
+      return `出生证证号码有误`;
+    }
+  } else if (state.value.formInfo?.certType === '2') {
+    if (`${value}`.length >= 5 && /^[^\u4e00-\u9fa5]+$/.test(`${value}`)) {
+      return '';
+    }
+    return '证件号码错误';
+  }
+  return '';
+};
+
+// 验证证件类型
+const validateCertType = (value: string | number, rule: any) => {
+  if (state.value.formInfo?.extInfo?.nationalityCode === 'CHN') {
+    // 国籍为中国支持的证件 身份证、户口本、出生证、军官证
+    if (!['1', '2', '3', '4'].includes(`${value}`)) {
+      return '国籍为中国时，证件类型只允许选择身份证、户口本、出生证、军官证';
+    }
+  } else if (['HKG', 'MAC'].includes(state.value.formInfo?.extInfo?.nationalityCode)) {
+    // 国籍为中国香港、中国澳门，证件类型需为：港澳居民往来大陆通行证、港澳居民居住证
+    if (!['15', '9'].includes(`${value}`)) {
+      return '国籍为中国香港、中国澳门时，证件类型只允许选择港澳通行证、港澳居民居住证';
+    }
+  } else if (state.value.formInfo?.extInfo?.nationalityCode === 'TWN') {
+    // 国籍为中国台湾时，客户的证件类型需为：台湾居民往来大陆通行证、台湾居民居住证
+    if (!['10'].includes(`${value}`)) {
+      return '国籍为中国台湾时，证件类型只允许选择台湾通行证、台湾居民居住证';
+    }
+  } else {
+    // 国籍为非中国、港澳台时，证件类型只允许选择护照、外国人永久居留身份证
+    if (!['2', '11'].includes(`${value}`)) {
+      return '国籍为非中国、港澳台时，证件类型只允许选择护照、外国人永久居留身份证';
+    }
+  }
+
+  if (+(dayjs(state.value.formInfo?.birthday).toNow(true) as string).split(' ')[0] > 2) {
+    if (`${value}` === '4') {
+      return '年龄大于等于2周岁时，证件类型不能选择出生证';
+    }
   }
   return '';
 };

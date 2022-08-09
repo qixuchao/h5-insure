@@ -494,7 +494,7 @@ watch(
   () => state.formInfo?.copy,
   (newVal) => {
     if (props.originData.riskCalcMethodInfoVO?.saleMethod === 4) {
-      state.formInfo.amount = +(newVal || 1) * (props.originData.riskCalcMethodInfoVO?.fixedAmount || 0);
+      state.formInfo.amount = props.originData.riskCalcMethodInfoVO?.fixedAmount;
     }
   },
 );

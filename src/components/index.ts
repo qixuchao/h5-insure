@@ -4,7 +4,7 @@ import { Component } from 'vue';
  * @Autor: kevin.liang
  * @Date: 2022-03-08 13:51:54
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-08 14:46:43
+ * @LastEditTime: 2022-08-09 17:27:18
  */
 /* eslint-disable prettier/prettier */
 import ZaAvatar from './ZaAvatar/index.vue';
@@ -22,7 +22,7 @@ import ProForm from './ProForm/index.vue'
 import ProField from './ProField/index.vue'
 import ProRadioButton from './ProRadioButton/index.vue'
 import ProCheckButton from './ProCheckButton/index.vue'
-import ProTabBButton from './ProCheckButton/TabButton.vue'
+import ProTabButton from './ProCheckButton/TabButton.vue'
 import ProCheckboxButton from './ProCheckboxButton/index.vue'
 import ProMessage from './ProMessage/index.vue'
 import ProCard from './ProCard/index.vue'
@@ -33,6 +33,7 @@ import ProPopup from './ProPopup/index.vue'
 import ProIDCardUpload from './ProIDCardUpload/index.vue'
 import ProImageUpload from './ProImageUpload/index.vue'
 import ProFilePreview from './ProFilePreview/index.vue'
+import ProCascader from './ProCascader/index.vue'
 
 
 interface ComponentMap {
@@ -57,7 +58,7 @@ export const globalComs: ComponentMap = {
   ProCheckButton,
   ProCheckboxButton,
   ProRadioButton,
-  ProTabBButton,
+  ProTabButton,
   ProMessage,
   ProCard,
   ProPicker,
@@ -66,7 +67,8 @@ export const globalComs: ComponentMap = {
   ProPopup,
   ProIDCardUpload,
   ProImageUpload,
-  ProFilePreview
+  ProFilePreview,
+  ProCascader
 };
 
 function install(app: any) {
