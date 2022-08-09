@@ -1,5 +1,20 @@
 <template>
   <div v-if="Object.keys(factorObj).length" class="com-personal-wrapper">
+    <ProField
+      v-if="factorObj.relationToInsured?.isDisplay"
+      v-model="state.formInfo.relationToInsured"
+      name="relationToInsured"
+      :required="factorObj.relationToInsured?.isMustInput === 'YES'"
+      label="是被保人的"
+    >
+      <template #input>
+        <ProRadioButton
+          v-model="state.formInfo.relationToInsured"
+          :is-view="isView"
+          :options="RELATION_INSURED_LIST"
+        ></ProRadioButton>
+      </template>
+    </ProField>
     <ProPicker
       v-if="factorObj.certType?.isDisplay === 'YES'"
       v-model="state.formInfo.certType"
@@ -58,7 +73,12 @@
       :is-view="isIdCard"
     >
       <template #input>
-        <ProRadioButton v-model="state.formInfo.gender" :options="SEX_LIMIT_LIST"></ProRadioButton>
+        <ProRadioButton
+          v-model="state.formInfo.gender"
+          :disabled="isIdCard"
+          :is-view="isView"
+          :options="SEX_LIMIT_LIST"
+        ></ProRadioButton>
       </template>
     </ProField>
     <ProDatePicker
@@ -78,6 +98,8 @@
       label="有效期至"
       name="certEndDate"
       type="date"
+      :min="state.certEndDate.min"
+      :max="state.certEndDate.max"
       :required="factorObj.certEndDate?.isMustInput === 'YES'"
     ></ProDatePicker>
     <ProPicker
@@ -100,7 +122,11 @@
       :required="factorObj.hasSocialInsurance?.isMustInput === 'YES'"
     >
       <template #input>
-        <ProRadioButton v-model="state.formInfo.extInfo.hasSocialInsurance" :options="FLAG_LIST"></ProRadioButton>
+        <ProRadioButton
+          v-model="state.formInfo.extInfo.hasSocialInsurance"
+          :is-view="isView"
+          :options="FLAG_LIST"
+        ></ProRadioButton>
       </template>
     </ProField>
     <ProField
@@ -137,7 +163,9 @@
       name="personalAnnualIncome"
       :required="factorObj.annualIncome?.isMustInput === 'YES'"
       placeholder="请输入"
-    ></ProField>
+    >
+      <template #extra> 万 </template>
+    </ProField>
     <ProField
       v-if="factorObj.familyAnnualIncome?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.familyAnnualIncome"
@@ -145,7 +173,9 @@
       name="familyAnnualIncome"
       placeholder="请输入"
       :required="factorObj.familyAnnualIncome?.isMustInput === 'YES'"
-    ></ProField>
+    >
+      <template #extra> 万 </template>
+    </ProField>
     <ProPicker
       v-if="factorObj.nation?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.nationalityCode"
@@ -167,7 +197,11 @@
       :required="factorObj.USAGreenCard?.isMustInput === 'YES'"
     >
       <template #input>
-        <ProRadioButton v-model="state.formInfo.extInfo.hasUsCard" :options="FLAG_LIST"></ProRadioButton>
+        <ProRadioButton
+          v-model="state.formInfo.extInfo.hasUsCard"
+          :is-view="isView"
+          :options="FLAG_LIST"
+        ></ProRadioButton>
       </template>
     </ProField>
     <ProPicker
@@ -201,6 +235,7 @@
       name="mobile"
       placeholder="请输入"
       :required="factorObj.mobile?.isMustInput === 'YES'"
+      :validate-type="['phone']"
     ></ProField>
     <ProField
       v-if="factorObj.email?.isDisplay === 'YES'"
@@ -209,6 +244,7 @@
       name="email"
       placeholder="请输入"
       :required="factorObj.email?.isMustInput === 'YES'"
+      :validate-type="['mail']"
     ></ProField>
     <ProPicker
       v-if="factorObj.familyAddress?.isDisplay === 'YES'"
@@ -235,6 +271,7 @@
       name="familyZipCode"
       placeholder="请输入"
       :required="factorObj.familyPostCode?.isMustInput === 'YES'"
+      :validate-type="['zipCode']"
     ></ProField>
     <ProField
       v-if="factorObj.workAddress?.isDisplay === 'YES'"
@@ -261,6 +298,7 @@
       :required="factorObj.workZipCode?.isMustInput === 'YES'"
       name="workPostCode"
       placeholder="请输入"
+      :validate-type="['zipCode']"
     ></ProField>
     <ProField
       v-if="factorObj.workPlace?.isDisplay === 'YES'"
@@ -296,8 +334,30 @@
       placeholder="请输入"
     >
       <template #input>
-        <ProRadioButton v-model="state.formInfo.extInfo.isPartTime" :options="FLAG_LIST"></ProRadioButton>
+        <ProRadioButton
+          v-model="state.formInfo.extInfo.isPartTime"
+          :is-view="isView"
+          :options="FLAG_LIST"
+        ></ProRadioButton>
       </template>
+    </ProField>
+    <ProPicker
+      v-if="factorObj.beneficiaryType?.isDisplay"
+      v-model="state.formInfo.benefitOrder"
+      label="受益人顺序"
+      name="benefitOrder"
+      :data-source="BENEFICIARY_ORDER"
+      :required="factorObj.beneficiaryType?.isMustInput === 'YES'"
+    >
+    </ProPicker>
+    <ProField
+      v-if="factorObj.benefitRate?.isDisplay"
+      v-model="state.formInfo.benefitRate"
+      :required="factorObj.benefitRate?.isMustInput === 'YES'"
+      name="benefitRate"
+      label="受益比例"
+    >
+      <template #extra> % </template>
     </ProField>
     <Occupational
       v-if="isShowOccupational"
@@ -315,17 +375,19 @@
 import { withDefaults } from 'vue';
 import dayjs from 'dayjs';
 import { useToggle } from '@vant/use';
+import { truncateSync } from 'fs';
 import { InsuredReqItem, HolderReq, ProductInsureFactorItem } from '@/api/index.data';
 import { SEX_LIMIT_LIST, FLAG_LIST } from '@/common/constants';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import useDicData from '@/hooks/useDicData';
-import { TAX_RESIDENT } from '@/common/constants/infoCollection';
+import { TAX_RESIDENT, BENEFICIARY_ORDER, RELATION_INSURED_LIST } from '@/common/constants/infoCollection';
 
 type FormInfo = InsuredReqItem | HolderReq;
 interface Props {
   formInfo: FormInfo;
   factorList: ProductInsureFactorItem[];
   images: string[];
+  isView?: boolean;
 }
 
 interface FactorObj {
@@ -351,13 +413,18 @@ const props = withDefaults(defineProps<Props>(), {
   formInfo: () => ({}),
   factorList: () => [],
   images: () => [],
+  isView: false,
 });
 
 const state = ref({
   formInfo: props.formInfo,
   birth: {
-    min: dayjs(new Date('1900-01-01')).format('YYYY-MM-DD'),
-    max: dayjs(new Date()).format('YYYY-MM-DD'),
+    min: new Date('1900-01-01'),
+    max: new Date(),
+  },
+  certEndDate: {
+    min: new Date('1900-01-01'),
+    max: new Date('2099-12-31'),
   },
   front: '',
   back: '',
@@ -379,6 +446,21 @@ const onFinish = (text: string) => {
 const onClose = () => {
   toggleOccupational(false);
 };
+
+watch(
+  () => state.value.formInfo.certType,
+  (newVal) => {
+    if (![1, 2].includes(+newVal)) {
+      isIdCard.value = false;
+    } else {
+      isIdCard.value = true;
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 watch(
   () => state.value.formInfo.certNo,

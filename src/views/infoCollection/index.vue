@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-08 19:03:03
+ * @LastEditTime: 2022-08-09 10:16:09
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -56,30 +56,35 @@
         <div v-if="formInfo.tenantOrderInsuredList[0].insuredBeneficiaryType == 2" class="beneficiary-part">
           <div
             v-for="(beneficiary, index) in formInfo.tenantOrderInsuredList[0].tenantOrderBeneficiaryList"
-            :key="beneficiary.beneficiaryId"
+            :key="beneficiary.beneficiaryId || beneficiary.id"
             class="beneficiary-item"
           >
             <div class="part-title">
               <span class="title">{{ `受益人${index + 1}` }}</span>
               <ProSvg name="delete" @click="removeBeneficiary(beneficiary)">删除</ProSvg>
             </div>
+            <PersonalInfo
+              v-model:images="beneficiaryImages"
+              :form-info="beneficiary"
+              :factor-list="pageFactor.BENEFICIARY || []"
+            ></PersonalInfo>
             <BeneficiaryInfo :form-info="beneficiary" :factor-list="pageFactor.BENEFICIARY" />
           </div>
           <VanButton @click="addBeneficiary">+添加受益人</VanButton>
         </div>
       </ProCard>
       <ProCard title="保单通讯信息">
-        <ProCheckButton v-if="!state.currentAddress" activated @click="toggleAddress(true)"
+        <ProCheckButton v-if="!Object.keys(currentAddressInfo).length" activated @click="toggleAddress(true)"
           >选择保单通讯信息</ProCheckButton
         >
-        <van-cell v-else title="单元格" is-link>
+        <van-cell v-else title="单元格" is-link @click="toggleAddress(true)">
           <template #title>
             <div class="radio-item-wrapper">
               <p>
-                <span class="name">{{ state.addressList[state.currentAddress - 1].contactName }}</span>
-                <span class="hone">{{ state.addressList[state.currentAddress - 1].contactPhoneNo }}</span>
+                <span class="name">{{ currentAddressInfo.contactName }}</span>
+                <span class="hone">{{ currentAddressInfo.contactPhoneNo }}</span>
               </p>
-              <p class="address">{{ state.addressList[state.currentAddress - 1].contactAddress }}</p>
+              <p class="address">{{ currentAddressInfo.contactAddress }}</p>
             </div>
           </template>
         </van-cell>
@@ -94,6 +99,7 @@
       :show="showAddress"
       :data-source="state.addressList"
       @submit="selectAddress"
+      @close="toggleAddress(false)"
     ></AddressSelect>
   </ProPageWrap>
 </template>
@@ -172,6 +178,7 @@ const formInfo = ref<any>({
 const formRef = ref<any>(null);
 const holderImages = ref<string[]>([]);
 const insuredImages = ref<string[]>([]);
+const beneficiaryImages = ref<string[]>([]);
 const state = reactive<State>({
   beneficiaryId: 0,
   addressList: [],
@@ -180,8 +187,17 @@ const state = reactive<State>({
   isLoading: true,
 });
 
+const currentAddressInfo = computed(() => {
+  if (state.currentAddress) {
+    return state.addressList[state.currentAddress];
+  }
+  return formInfo.value.extInfo?.contactInfo?.[0] || {};
+});
+
 const goNextPage = () => {
   const formData = { ...formInfo.value };
+  formData.extInfo = { ...formData.extInfo, contactInfo: [currentAddressInfo.value] };
+
   formData.tenantOrderAttachmentList = [
     {
       category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_CERT,
@@ -214,7 +230,6 @@ const goNextPage = () => {
   ];
 
   formRef.value.validate().then((validate: boolean) => {
-    console.log('validate', validate);
     nextStep(formData).then(({ code, data }) => {
       if (code === '10000') {
         if (data.pageAction.pageAction === 'jumpToPage') {
@@ -241,8 +256,8 @@ const addBeneficiary = () => {
 };
 
 const removeBeneficiary = (beneficiaryItem: BeneficiaryItem) => {
-  formInfo.value.tenantOrderInsuredList[0].beneficiaryReqList =
-    formInfo.value.tenantOrderInsuredList[0].beneficiaryReqList.filter((beneficiary: BeneficiaryItem) => {
+  formInfo.value.tenantOrderInsuredList[0].tenantOrderBeneficiaryList =
+    formInfo.value.tenantOrderInsuredList[0].tenantOrderBeneficiaryList.filter((beneficiary: BeneficiaryItem) => {
       return beneficiary.beneficiaryId !== beneficiaryItem.beneficiaryId;
     });
 };
@@ -310,9 +325,9 @@ watch(
     if (newVal) {
       const addressList = [
         {
-          contactAddress: newVal.tenantOrderHolder?.extInfo?.familyAddress || 1231123,
-          contactName: newVal.tenantOrderHolder.name || 123131,
-          contactPhoneNo: newVal.tenantOrderHolder.mobile || 123132,
+          contactAddress: newVal.tenantOrderHolder?.extInfo?.familyAddress,
+          contactName: newVal.tenantOrderHolder.name,
+          contactPhoneNo: newVal.tenantOrderHolder.mobile,
         },
         {
           contactAddress: newVal.tenantOrderHolder?.extInfo?.workAddress,
@@ -387,7 +402,7 @@ watch(
   }
 
   .radio-item-wrapper {
-    padding: 0 32px;
+    padding: 0;
     p {
       font-size: 30px;
       font-family: PingFangSC-Semibold, PingFang SC, serif;

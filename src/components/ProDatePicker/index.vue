@@ -18,8 +18,8 @@
       :type="type"
       :model-value="tempModelValue"
       :title="title || label"
-      :min="min"
-      :max="max"
+      :min-date="min"
+      :max-date="max"
       @confirm="handleConfirm"
       @cancel="handleCancel"
     />

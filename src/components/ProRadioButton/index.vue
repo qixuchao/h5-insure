@@ -2,20 +2,23 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-22 18:54:35
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-18 16:10:05
+ * @LastEditTime: 2022-08-08 21:23:36
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProRadioButton/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
-  <div class="com-radio-btn">
-    <div v-for="option in options" :key="option[prop.value]" class="btn-wrapper">
-      <ProCheckButton
-        :label="option[prop.label]"
-        :disabled="disabled"
-        :activated="state.currentValue == option[prop.value]"
-        @click="!disabled && selectBtn(option[prop.value])"
-      />
+  <div class="com-radio-btn-wrap">
+    <div v-if="!isView" class="radio-btn">
+      <div v-for="option in options" :key="option[prop.value]" class="btn-wrapper">
+        <ProCheckButton
+          :label="option[prop.label]"
+          :disabled="disabled"
+          :activated="state.currentValue == option[prop.value]"
+          @click="!disabled && selectBtn(option[prop.value])"
+        />
+      </div>
     </div>
+    <div v-else>{{ checkedValue }}</div>
   </div>
 </template>
 
@@ -50,6 +53,10 @@ const props = defineProps({
     type: Object,
     default: () => ({ value: 'value', label: 'label' }),
   },
+  isView: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emits = defineEmits(['update:modelValue']);
@@ -66,6 +73,12 @@ const selectBtn = (value) => {
   state.currentValue = value;
   emits('update:modelValue', value);
 };
+
+const checkedValue = computed(() => {
+  const currentValue: any =
+    props.options.find((option: any) => `${option[props.prop.value]}` === `${props.modelValue}`) || {};
+  return currentValue[props.prop.label];
+});
 
 onMounted(() => {
   if (!props.isSimply && props?.options?.length === 1) {
@@ -87,7 +100,7 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-.com-radio-btn {
+.radio-btn {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
