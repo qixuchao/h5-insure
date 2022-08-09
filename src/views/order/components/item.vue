@@ -97,10 +97,10 @@ const handlePay = () => {
 };
 
 const handleProcess = () => {
-  const { goodsCode: productCode, orderNo, id: orderId, saleUserId, templateId, tenantId } = props.detail;
+  const { goodsCode: productCode, orderNo, id: orderId, saleUserId: agentCode, templateId, tenantId } = props.detail;
   router.push({
     path: PAGE_ROUTE_ENUMS[props.detail.pageCode],
-    query: { productCode, orderNo, orderId, saleUserId, templateId, tenantId },
+    query: { productCode, orderNo, orderId, agentCode, templateId, tenantId },
   });
 };
 </script>

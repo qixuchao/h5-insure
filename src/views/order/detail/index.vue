@@ -99,14 +99,14 @@ const handleProcess = () => {
     const {
       orderNo,
       id: orderId,
-      saleUserId,
+      saleUserId: agentCode,
       tenantId,
       extInfo: { templateId, pageCode },
     } = detail.value;
     const productCode = detail.value.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productCode;
     router.push({
       path: PAGE_ROUTE_ENUMS[pageCode],
-      query: { productCode, orderNo, orderId, saleUserId, templateId, tenantId },
+      query: { productCode, orderNo, orderId, agentCode, templateId, tenantId },
     });
   }
 };

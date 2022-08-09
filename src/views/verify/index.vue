@@ -10,8 +10,10 @@
         <template #extra>
           <div class="people">
             <div class="name">{{ detail?.tenantOrderHolder?.name }}</div>
-            <div :class="['status', { verified: detail?.tenantOrderHolder?.extInfo?.isCert }]">
-              {{ detail?.tenantOrderHolder?.extInfo?.isCert ? '已认证' : '待认证' }}
+            <div
+              :class="['status', { verified: detail?.tenantOrderHolder?.extInfo?.isCert === CERT_STATUS_ENUM.CERT }]"
+            >
+              {{ detail?.tenantOrderHolder?.extInfo?.isCert === CERT_STATUS_ENUM.CERT ? '已认证' : '待认证' }}
             </div>
           </div>
         </template>
@@ -51,8 +53,8 @@
           <template #extra>
             <div class="people">
               <div class="name">{{ item.name }}</div>
-              <div :class="['status', { verified: item.extInfo?.isCert }]">
-                {{ item.extInfo?.isCert ? '已认证' : '待认证' }}
+              <div :class="['status', { verified: item.extInfo?.isCert === CERT_STATUS_ENUM.CERT }]">
+                {{ item.extInfo?.isCert === CERT_STATUS_ENUM.CERT ? '已认证' : '待认证' }}
               </div>
             </div>
           </template>
@@ -191,6 +193,14 @@ const handleSubmit = () => {
   }
   if (insuredSignRefs.some((x) => x.isEmpty())) {
     Toast.fail('请被保人签名');
+    return;
+  }
+  if (detail.value.tenantOrderHolder?.extInfo?.isCert !== CERT_STATUS_ENUM.CERT) {
+    Toast.fail('请投保人去认证');
+    return;
+  }
+  if (detail.value.tenantOrderInsuredList?.some((x) => x.extInfo?.isCert !== CERT_STATUS_ENUM.CERT)) {
+    Toast.fail('请被保人去认证');
     return;
   }
   Dialog.confirm({
