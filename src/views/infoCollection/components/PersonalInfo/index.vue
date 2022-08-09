@@ -62,15 +62,18 @@
       type="date"
       required
     ></ProDatePicker>
-    <ProPicker
-      v-model="state.formInfo.extInfo.provinceCode"
+    <ProCascader
+      v-model="state.formInfo.extInfo.areaCode"
+      v-model:field1="state.formInfo.extInfo.provinceCode"
+      v-model:field2="state.formInfo.extInfo.cityCode"
+      v-model:field3="state.formInfo.extInfo.areaCode"
       label="户籍所在地"
       name="provinceCode"
       placeholder="请选择"
       is-link
       :data-source="region"
       :mapping="{ label: 'name', value: 'code', children: 'children' }"
-    ></ProPicker>
+    ></ProCascader>
     <ProField
       v-if="factorObj.hasSocialInsurance"
       v-model="state.formInfo.extInfo.hasSocialInsurance"
@@ -82,16 +85,16 @@
         <ProRadioButton v-model="state.formInfo.extInfo.hasSocialInsurance" :options="FLAG_LIST"></ProRadioButton>
       </template>
     </ProField>
-    <ProField
+    <ProCascader
       v-if="factorObj.occupation"
       v-model="state.formInfo.extInfo.occupationCode"
       label="职业"
       name="occupationCode"
       placeholder="请选择"
       :data-source="occupationCode"
-      :mapping="{ label: 'name', value: 'code', children: 'child' }"
+      :mapping="{ label: 'name', value: 'code', children: 'children' }"
       is-link
-    ></ProField>
+    ></ProCascader>
     <!-- <ProField
       v-if="factorObj.occupation"
       v-model="state.formInfo.occupationalClass"
@@ -279,6 +282,7 @@ import { InsuredReqItem, HolderReq, ProductInsureFactorItem } from '@/api/index.
 import { SEX_LIMIT_LIST, FLAG_LIST } from '@/common/constants';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import useDicData from '@/hooks/useDicData';
+import ProCascader from '@/components/ProCascader/index.vue';
 import { TAX_RESIDENT } from '@/common/constants/infoCollection';
 
 type FormInfo = InsuredReqItem | HolderReq;

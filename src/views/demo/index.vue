@@ -11,7 +11,7 @@
         @click="toggle(true)"
       ></ProField>
       <ProPicker
-        v-model="formInfo.city"
+        v-model="formInfo.city1"
         label="城市"
         name="city"
         :data-source="selectList"
@@ -57,7 +57,16 @@
           <ProCheckboxButton v-model="formInfo.like" :options="options" />
         </template>
       </ProField>
-
+      <ProCascader
+        v-model="formInfo.area"
+        v-model:field0="formInfo.province"
+        v-model:field1="formInfo.city"
+        v-model:field2="formInfo.area"
+        name="address"
+        :data-source="region"
+        label="地址选择"
+        :mapping="{ label: 'name', value: 'code', children: 'children' }"
+      />
       <VanButton type="primary" @click="trial">试算</VanButton>
     </ProForm>
     <ProCard title="图片上传">
@@ -142,20 +151,25 @@ import ProIDCardUpload from '@/components/ProIDCardUpload/index.vue';
 import ProTable from '@/components/ProTable/index.vue';
 import ProDatePicker from '@/components/ProDatePicker/index.vue';
 import ProPicker from '@/components/ProPicker/index.vue';
+import ProCascader from '@/components/ProCascader/index.vue';
+import useDicData from '@/hooks/useDicData';
 
 const [isShow, toggle] = useToggle(false);
-
+const region = useDicData('NATIONAL_REGION_CODE'); // 全国区域编码
 const formInfo = ref({
   gender: '1',
   like: [],
   birth: '',
-  city: '',
+  city1: '',
   date: '',
   dateTime: '2020-02-02 02:02',
   time: '',
   yearMonth: '',
   monthDay: '',
   datehour: '',
+  province: '140000',
+  city: '140300',
+  area: '140303',
 });
 const formRef = ref();
 const options = [

@@ -115,6 +115,11 @@ import { NextStepRequestData } from '@/api/index.data';
 import { INotice } from '@/api/modules/verify.data';
 import Storage from '@/utils/storage';
 
+const CERT_STATUS_ENUM = {
+  CERT: 1,
+  NO_CERT: 2,
+};
+
 const route = useRoute();
 const router = useRouter();
 

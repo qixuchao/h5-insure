@@ -11,9 +11,9 @@
     <div v-for="option in options" :key="option[prop.value]" class="btn-wrapper">
       <ProCheckButton
         :label="option[prop.label]"
-        :disabled="disabled"
+        :disabled="isDisabled"
         :activated="state.currentValue == option[prop.value]"
-        @click="!disabled && selectBtn(option[prop.value])"
+        @click="!isDisabled && selectBtn(option[prop.value])"
       />
     </div>
   </div>
@@ -22,6 +22,8 @@
 <script lang="ts" setup>
 import { Toast } from 'vant/es';
 import ProCheckButton from '../ProCheckButton/index.vue';
+
+const formProps: { isView: boolean } | undefined = inject('formProps');
 
 const props = defineProps({
   modelValue: {
@@ -66,6 +68,10 @@ const selectBtn = (value) => {
   state.currentValue = value;
   emits('update:modelValue', value);
 };
+
+const isDisabled = computed(() => {
+  return props.disabled || (formProps && formProps.isView);
+});
 
 onMounted(() => {
   if (!props.isSimply && props?.options?.length === 1) {

@@ -105,7 +105,6 @@ const state = ref<State>({
 
 const emits = defineEmits(['update:images']);
 const certType = useDicData('CERT_TYPE'); // 证件类型
-const occupationCode = useDicData('HENGQIN_OCCUPATION'); // 职业
 const marriageStatus = useDicData('MARRIAGE_STATUS'); // 婚姻状况
 const degree = useDicData('DEGREE'); // 学历
 const nationalityCode = useDicData('NATIONALITY'); // 国籍

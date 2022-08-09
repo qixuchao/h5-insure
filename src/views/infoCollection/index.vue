@@ -172,6 +172,9 @@ const formInfo = ref<any>({
 const formRef = ref<any>(null);
 const holderImages = ref<string[]>([]);
 const insuredImages = ref<string[]>([]);
+const holderImagesId = ref<number[]>([]);
+const insuredImagesId = ref<number[]>([]);
+
 const state = reactive<State>({
   beneficiaryId: 0,
   addressList: [],
@@ -189,6 +192,7 @@ const goNextPage = () => {
       objectId: formInfo.value.tenantOrderHolder.id,
       name: '投保人证件正面',
       uri: holderImages.value[0],
+      id: holderImagesId.value[0],
     },
     {
       category: ATTACHMENT_CATEGORY_ENUM.REVERSE_CERT,
@@ -196,6 +200,7 @@ const goNextPage = () => {
       objectId: formInfo.value.tenantOrderHolder.id,
       name: '投保人证件背面',
       uri: holderImages.value[1],
+      id: holderImagesId.value[1],
     },
     {
       category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_CERT,
@@ -203,6 +208,7 @@ const goNextPage = () => {
       objectId: formInfo.value.tenantOrderInsuredList[0].id,
       name: '被保人证件正面',
       uri: insuredImages.value[0],
+      id: insuredImagesId.value[1],
     },
     {
       category: ATTACHMENT_CATEGORY_ENUM.REVERSE_CERT,
@@ -210,6 +216,7 @@ const goNextPage = () => {
       objectId: formInfo.value.tenantOrderInsuredList[0].id,
       name: '被保人证件背面',
       uri: insuredImages.value[1],
+      id: insuredImagesId.value[1],
     },
   ];
   nextStep(formData).then(({ code, data }) => {
@@ -268,19 +275,21 @@ const queryOrderDetail = () => {
             return currentList;
           });
         currentData.tenantOrderAttachmentList.forEach((item) => {
-          item.category === 2; // 正面
-          item.objectType;
-          if (item.category === 22) {
-            if (item.objectType === 2) {
-              holderImages[0] = item.uri;
-            } else if (item.objectType === 3) {
-              insuredImages[0] = item.uri;
+          if (item.category === ATTACHMENT_CATEGORY_ENUM.OBVERSE_CERT) {
+            if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER) {
+              holderImages.value[0] = item.uri;
+              holderImagesId.value[0] = item.id;
+            } else if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.INSURED) {
+              insuredImages.value[0] = item.uri;
+              insuredImagesId.value[0] = item.id;
             }
-          } else if (item.category === 23) {
-            if (item.objectType === 2) {
-              holderImages[1] = item.uri;
-            } else if (item.objectType === 3) {
-              insuredImages[1] = item.uri;
+          } else if (item.category === ATTACHMENT_CATEGORY_ENUM.REVERSE_CERT) {
+            if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER) {
+              holderImages.value[1] = item.uri;
+              holderImagesId.value[1] = item.id;
+            } else if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.INSURED) {
+              insuredImages.value[1] = item.uri;
+              holderImagesId.value[1] = item.id;
             }
           }
         });
