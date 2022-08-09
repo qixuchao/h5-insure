@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-04 09:25:35
+ * @LastEditTime: 2022-08-05 14:29:02
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -31,12 +31,6 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     path: '/trial',
     meta: { title: '保费试算' },
     component: () => import('@/views/trial/index.vue'),
-  },
-  {
-    name: 'trial1',
-    path: '/newTrial',
-    meta: { title: '保费试算' },
-    component: () => import('@/views/newTrial/index.vue'),
   },
   {
     name: 'demo',
@@ -147,9 +141,9 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/middlePage/index.vue'),
   },
   {
-    name: 'pdf',
-    path: '/openPdf',
-    meta: { title: 'pdf' },
+    name: 'PDF预览',
+    path: '/pdfViewer',
+    meta: { title: 'PDF预览' },
     component: () => import('@/views/openPdf/index.vue'),
   },
 ];

@@ -2,12 +2,12 @@
  * @Author: za-yuxiaowei yuxiaowei@zhongan.io
  * @Date: 2022-07-12 10:50:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-02 18:45:29
+ * @LastEditTime: 2022-08-09 09:21:29
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProSelect/index.vue
  * @Description:
 -->
 <template>
-  <ProPopup v-model:show="isShow" class="com-select" title="选择保单通讯信息">
+  <ProPopup v-model:show="isShow" class="com-select" title="选择保单通讯信息" @close="onClose">
     <div class="com-select-container">
       <van-radio-group v-model="checked">
         <van-radio v-for="(item, index) in dataSource" :key="index" :name="index + 1" class="radio-item">
@@ -31,7 +31,7 @@
 <script lang="ts" setup>
 import ProPopup from '@/components/ProPopup/index.vue';
 
-const emits = defineEmits(['update', 'submit']);
+const emits = defineEmits(['update', 'update:modelValue', 'submit', 'close']);
 
 const props = defineProps({
   dataSource: {
@@ -48,7 +48,7 @@ const props = defineProps({
   },
 });
 
-const checked = ref(null);
+const checked = ref(props.modelValue);
 const isShow = ref(props.show);
 
 const handleSubmit = () => {
@@ -56,17 +56,22 @@ const handleSubmit = () => {
   isShow.value = false;
 };
 
-// watch(
-//   () => props.show,
-//   (val) => {
-//     isShow.value = val;
-//   },
-// );
+const onClose = () => {
+  emits('close');
+};
 
 watch(
   () => props.modelValue,
   (newVal) => {
+    console.log('newVal', newVal);
     checked.value = newVal;
+  },
+);
+
+watch(
+  () => checked.value,
+  (newVal) => {
+    emits('update:modelValue', newVal);
   },
 );
 </script>

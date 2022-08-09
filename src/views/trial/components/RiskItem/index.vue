@@ -83,7 +83,7 @@
     <VanField
       v-if="
         (![1].includes(originData.riskCalcMethodInfoVO?.saleMethod || 0) || originData?.exemptFlag === 1) &&
-        (originData.riskCalcMethodInfoVO?.fixedAmount || riskPremium?.[originData?.riskCode])
+        (originData.riskCalcMethodInfoVO.fixedAmount || riskPremium?.[originData?.riskCode])
       "
       label="保额"
     >
@@ -255,7 +255,8 @@ import {
   RULE_PAYMENT,
 } from '@/common/constants/trial';
 
-import { RiskDetailVoItem, RiskVoItem } from '@/api/modules/trial.data';
+import { RiskDetailVoItem } from '@/api/modules/newTrial.data';
+import { RiskVoItem } from '@/api/modules/trial.data';
 
 interface Props {
   originData: RiskDetailVoItem;
@@ -390,7 +391,7 @@ const amount = computed(() => {
     }
   });
 
-  state.formInfo.amount = min;
+  state.formInfo.amount = state.formInfo.amount || min;
 
   return { min, max };
 });
@@ -412,7 +413,7 @@ const premium = computed(() => {
     }
   });
 
-  state.formInfo.premium = min;
+  state.formInfo.premium = state.formInfo.premium || min;
 
   return { min, max };
 });
@@ -421,7 +422,7 @@ const premium = computed(() => {
 const copy = computed(() => {
   const min = props.originData?.riskCalcMethodInfoVO?.minCopy || 1;
   const max = props.originData?.riskCalcMethodInfoVO?.maxCopy;
-  state.formInfo.copy = `${min || 1}`;
+  state.formInfo.copy = `${state.formInfo.copy || min || 1}`;
 
   return { min, max };
 });
@@ -457,8 +458,8 @@ onBeforeMount(() => {
     riskId: props.originData.id,
     riskName: props.originData.riskName,
     riskCode: props.originData.riskCode,
-    mainRiskCode: props?.mainRiskData?.riskCode,
-    mainRiskId: props?.mainRiskData?.id,
+    mainRiskCode: props.originData.riskType !== 1 ? props.mainRiskData?.riskCode : undefined,
+    mainRiskId: props.originData.riskType !== 1 ? props.mainRiskData?.id : undefined,
     riskCategory: props.originData.riskCategory,
     liabilityVOList: (props.originData.riskLiabilityInfoVOList || []).map((liab) => ({
       ...liab,

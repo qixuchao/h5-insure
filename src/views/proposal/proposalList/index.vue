@@ -219,6 +219,7 @@ const onFinished = (proposalInfo: ProposalInfo) => {
   toggleProductRisk(false);
   router.push({
     path: '/proposal/createProposal',
+    query: route.query,
   });
 };
 

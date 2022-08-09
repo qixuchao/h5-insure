@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-16 13:39:05
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-30 17:59:43
+ * @LastEditTime: 2022-08-08 14:19:22
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductRisk/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -43,7 +43,6 @@
                   :enums="state.enumList"
                   :origin-data="state.riskData"
                   :pick-factor="pickFactor"
-                  :rider-risk-list="riderRisk"
                 />
               </VanForm>
             </div>
@@ -188,34 +187,33 @@ const messageInfo = computed(() => {
 
 // 将试算的数据转换成计划书的数据
 const formatData = (trialData: premiumCalcData, riskPremium: any) => {
-  const riderRisk = (trialData.insuredVOList[0].productPlanVOList[0].riskVOList[0].riderRiskVOList || []).map(
-    (risk: RiskVoItem) => {
-      return {
-        ...risk,
-        premium: riskPremium[risk.riskCode].premium,
-      };
-    },
-  );
+  const riskList = (trialData.insuredVOList[0].productPlanVOList[0].riskVOList || []).map((risk: RiskVoItem) => {
+    return {
+      ...risk,
+      premium: riskPremium[risk.riskCode].premium,
+      amount: riskPremium[risk.riskCode].amount,
+    };
+  });
   const proposalData = {
     proposalHolder: {
       ...trialData.holder?.personVO,
-      dateRange: insuredRef?.value?.ageRangeObj,
     },
     proposalInsuredList: [
       {
         ...trialData.insuredVOList[0].personVO,
-        dateRange: insuredRef?.value?.ageRangeObj,
+        dateRange: {
+          min: insuredRef.value?.ageRangeObj?.minAge,
+          max: insuredRef.value?.ageRangeObj?.maxAge,
+        },
         proposalInsuredProductList: [
           {
             productId: state.riskBaseInfo.id,
             productName: state.riskBaseInfo.productName,
-            proposalProductRiskList: [
-              {
-                ...trialData.insuredVOList[0].productPlanVOList[0].riskVOList[0],
-                premium: riskPremium[trialData.insuredVOList[0].productPlanVOList[0].riskVOList[0].riskCode].premium,
-                riderRiskVOList: riderRisk,
-              },
-            ],
+            dateRange: {
+              min: insuredRef.value?.ageRangeObj?.minAge,
+              max: insuredRef.value?.ageRangeObj?.maxAge,
+            },
+            proposalProductRiskList: riskList,
           },
         ],
       },
@@ -225,19 +223,19 @@ const formatData = (trialData: premiumCalcData, riskPremium: any) => {
 };
 
 const dealTrialData = () => {
-  const mainRisk = JSON.parse(JSON.stringify(riskInfo.value[state.currentPlan]));
-
-  const riderRiskVOList = Object.values(mainRisk.riderRiskVOList || ([] as RiskVoItem[])).map((riderRisk) => {
+  const riskObject = JSON.parse(JSON.stringify(riskInfo.value[state.currentPlan]));
+  const mainRiskInfo = Object.values(riskObject as RiskVoItem).find((risk) => risk.riskType === 1);
+  const riskVOList = Object.values(riskObject as RiskVoItem).map((riderRisk) => {
     const risk: RiskVoItem = riderRisk;
-    // 如果交费期间规则是同主险期间减1，对交费期间值进行减1操作
     if (risk.chargePeriod === '3') {
-      const paymentYear = (riskInfo.value[state.currentPlan].chargePeriod || '').split('_');
+      const paymentYear = (mainRiskInfo.chargePeriod || '').split('_');
       paymentYear[1] && (paymentYear[1] -= 1);
       risk.chargePeriod = paymentYear.join('_');
     }
-    // 去除主险下不投保的责任
     risk.liabilityVOList = (risk.liabilityVOList || [])
-      .filter((liab) => liab.liabilityAttributeValue !== '-1')
+      .filter(
+        (liab) => liab.optionalFlag === 1 || (liab.liabilityAttributeValue && liab.liabilityAttributeValue !== '-1'),
+      )
       .map((liab) => {
         const currentLiab = liab;
         if (currentLiab.liabilityAttributeValue === '0') {
@@ -245,39 +243,20 @@ const dealTrialData = () => {
         }
         return currentLiab;
       });
-
     return risk;
   });
-  // 去除附加险下不投保的责任
-  mainRisk.liabilityVOList = (mainRisk.liabilityVOList as LiabilityVoItem[])
-    .filter((liab) => liab.liabilityAttributeValue !== '-1')
-    .map((liab) => {
-      const currentLiab = liab;
-      if (currentLiab.liabilityAttributeValue === '0') {
-        currentLiab.liabilityAttributeValue = '';
-      }
-      return currentLiab;
-    });
 
   // 整合试算需要的数据结构
   const trialData: premiumCalcData = {
-    holder: {
-      personVO: holder.value.personVO as PersonVo,
-    },
+    holder: holder.value,
     productCode: state.riskBaseInfo.productCode as string,
     insuredVOList: [
       {
         ...insured.value,
-        personVO: insured.value.personVO,
         productPlanVOList: [
           {
             planCode: state.currentPlan || '',
-            riskVOList: [
-              {
-                ...mainRisk,
-                riderRiskVOList,
-              },
-            ],
+            riskVOList,
           },
         ],
       },
@@ -293,7 +272,7 @@ const dealTrialData = () => {
       const riskPremium = {};
       // 将试算结果中的主附险嵌套结构拍平
       const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
-        premiumList.forEach((risk) => {
+        (premiumList || []).forEach((risk) => {
           riskPremium[risk.riskCode] = risk;
           if (risk.riskPremiumDetailVOList?.length) {
             flatRiskPremium(risk.riskPremiumDetailVOList);
@@ -347,14 +326,14 @@ const queryProductInfo = () => {
       if (code === '10000') {
         state.riskBaseInfo = data.productBasicInfoVO;
         // 根据险种或者计划数据生成默认的form数据
-        (data.productRelationPlanVOList || data.riskDetailVOList || []).forEach((plan, index) => {
+        (data.productRiskVoList[0].riskDetailVOList || []).forEach((plan, index) => {
           if (index === 0) {
             state.currentPlan = plan.planCode || '0';
           }
-          Object.assign(riskInfo.value, { [plan.planCode || index]: { liabilityVOList: [], riderRiskVOList: {} } });
+          Object.assign(riskInfo.value, { [plan.planCode || index]: {} });
         });
 
-        state.riskData = data.riskDetailVOList || [];
+        state.riskData = data.productRiskVoList[0].riskDetailVOList || [];
         state.riskPlanData = data.productRelationPlanVOList || [];
       }
     })
@@ -404,14 +383,13 @@ watch(
 watch(
   () => props.formInfo,
   (newVal = {}) => {
-    if (props.type !== 'add') {
-      const currentInfo = {
-        0: {
-          ...newVal.proposalProductRiskList[0],
-          riderRiskVOList: {} || newVal.proposalProductRiskList[0].proposalProductRiskVOList,
-        },
-      };
-      Object.assign(riskInfo.value, currentInfo);
+    if (!(props.type === 'add' || props.type === 'repeatAdd')) {
+      const formInfo = {};
+      newVal.proposalProductRiskList.forEach((risk) => {
+        formInfo[risk.riskId] = risk;
+      });
+
+      Object.assign(riskInfo.value, { 0: formInfo });
     }
   },
   {
@@ -423,10 +401,9 @@ watch(
 watch(
   () => props.productData,
   (newVal) => {
-    if (props.type !== 'add') {
-      const currentVal = newVal;
+    if (!(props.type === 'add' || props.type === 'repeatAdd')) {
       state.riskBaseInfo = newVal.productBasicInfoVO;
-      state.riskData = newVal.riskDetailVOList;
+      state.riskData = newVal.productRiskVoList?.[0].riskDetailVOList || [];
     }
   },
   {

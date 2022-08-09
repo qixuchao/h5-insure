@@ -6,11 +6,15 @@
     :model-value="modelValue"
     :is-view="isView"
     :required="required"
-    @click="handleClick"
   >
     <template #input>
-      <span v-if="displayValue" class="displayValue">{{ displayValue }}</span>
-      <span v-else class="placeholder">{{ placeholder }}</span>
+      <div style="width: 100%" @click="handleClick">
+        <span v-if="displayValue" class="displayValue">{{ displayValue }}</span>
+        <span v-else class="placeholder">{{ placeholder }}</span>
+      </div>
+    </template>
+    <template #extra>
+      <slot name="extra" />
     </template>
   </ProField>
   <ProPopup v-model:show="show" :height="40" :closeable="false">
@@ -18,8 +22,8 @@
       :type="type"
       :model-value="tempModelValue"
       :title="title || label"
-      :min="min"
-      :max="max"
+      :min-date="min"
+      :max-date="max"
       @confirm="handleConfirm"
       @cancel="handleCancel"
     />
@@ -91,7 +95,7 @@ const formatMap = {
 };
 
 const handleClick = () => {
-  toggle(true);
+  !props.isView && toggle(true);
 };
 
 const handleConfirm = (value: Date) => {

@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-03 17:31:02
+ * @LastEditTime: 2022-08-09 09:49:24
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -15,6 +15,7 @@
           v-model:images="holderImages"
           :form-info="formInfo.tenantOrderHolder"
           :factor-list="pageFactor.HOLDER"
+          is-view
         ></PersonalInfo>
       </ProCard>
       <ProCard title="被保人">
@@ -28,6 +29,7 @@
             <ProRadioButton
               v-model="formInfo.tenantOrderInsuredList[0].relationToHolder"
               :options="RELATION_HOLDER_LIST"
+              is-view
             ></ProRadioButton>
           </template>
         </ProField>
@@ -36,6 +38,7 @@
           v-model:images="insuredImages"
           :form-info="formInfo.tenantOrderInsuredList[0]"
           :factor-list="pageFactor.INSURER || []"
+          is-view
         ></PersonalInfo>
         <ProField label="投保地区" name="type" placeholder="请选择" is-link></ProField>
       </ProCard>
@@ -50,6 +53,7 @@
             <ProRadioButton
               v-model="formInfo.tenantOrderInsuredList[0].insuredBeneficiaryType"
               :options="BENEFICIARY_LIST"
+              is-view
             ></ProRadioButton>
           </template>
         </ProField>
@@ -62,19 +66,19 @@
             <div class="part-title">
               <span class="title">{{ `受益人${index + 1}` }}</span>
             </div>
-            <BeneficiaryInfo :form-info="beneficiary" :factor-list="pageFactor.BENEFICIARY" />
+            <BeneficiaryInfo is-view :form-info="beneficiary" :factor-list="pageFactor.BENEFICIARY" />
           </div>
         </div>
       </ProCard>
       <ProCard title="保单通讯信息">
-        <van-cell v-if="state.currentAddress" title="单元格" is-link>
+        <van-cell v-if="Object.keys(currentAddressInfo).length" title="单元格">
           <template #title>
             <div class="radio-item-wrapper">
               <p>
-                <span class="name">{{ state.addressList[state.currentAddress - 1].contactName }}</span>
-                <span class="hone">{{ state.addressList[state.currentAddress - 1].contactPhoneNo }}</span>
+                <span class="name">{{ currentAddressInfo.contactName }}</span>
+                <span class="hone">{{ currentAddressInfo.contactPhoneNo }}</span>
               </p>
-              <p class="address">{{ state.addressList[state.currentAddress - 1].contactAddress }}</p>
+              <p class="address">{{ currentAddressInfo.contactAddress }}</p>
             </div>
           </template>
         </van-cell>
@@ -83,12 +87,6 @@
     <div class="footer-button">
       <VanButton block type="primary" @click="goNextPage">下一步</VanButton>
     </div>
-    <AddressSelect
-      v-model="state.currentAddress"
-      :show="showAddress"
-      :data-source="state.addressList"
-      @submit="selectAddress"
-    ></AddressSelect>
   </ProPageWrap>
 </template>
 
@@ -174,39 +172,12 @@ const state = reactive<State>({
   isLoading: true,
 });
 
+const currentAddressInfo = computed(() => {
+  return formInfo.value.extInfo?.contactInfo?.[0] || {};
+});
+
 const goNextPage = () => {
-  const formData = { ...formInfo.value };
-  formData.tenantOrderAttachmentList = [
-    {
-      category: 22,
-      objectType: 2,
-      objectId: formInfo.value.tenantOrderHolder.id,
-      name: '投保人证件正面',
-      uri: holderImages.value[0],
-    },
-    {
-      category: 23,
-      objectType: 2,
-      objectId: formInfo.value.tenantOrderHolder.id,
-      name: '投保人证件背面',
-      uri: holderImages.value[1],
-    },
-    {
-      category: 22,
-      objectType: 3,
-      objectId: formInfo.value.tenantOrderInsuredList[0].id,
-      name: '被保人证件正面',
-      uri: insuredImages.value[0],
-    },
-    {
-      category: 23,
-      objectType: 3,
-      objectId: formInfo.value.tenantOrderInsuredList[0].id,
-      name: '被保人证件背面',
-      uri: insuredImages.value[1],
-    },
-  ];
-  nextStep(formData).then(({ code, data }) => {
+  nextStep(formInfo.value).then(({ code, data }) => {
     if (code === '10000') {
       if (data.pageAction.pageAction === 'jumpToPage') {
         router.push({
@@ -216,19 +187,6 @@ const goNextPage = () => {
       }
     }
   });
-  // formRef.value.validate((validate: boolean) => {
-  //   if (!validate) {
-  //     nextStep({ pageCode }).then(({ code, data }) => {
-  //       if (code === '10000') {
-  //         console.log('data', data);
-  //       }
-  //     });
-  //   }
-  // });
-};
-
-const selectAddress = (value) => {
-  console.log('value', value);
 };
 
 const addBeneficiary = () => {
@@ -237,13 +195,6 @@ const addBeneficiary = () => {
     id: state.beneficiaryId,
     extInfo: {},
   } as BeneficiaryItem);
-};
-
-const removeBeneficiary = (beneficiaryItem: BeneficiaryItem) => {
-  formInfo.value.tenantOrderInsuredList[0].beneficiaryReqList =
-    formInfo.value.tenantOrderInsuredList[0].beneficiaryReqList.filter((beneficiary: BeneficiaryItem) => {
-      return beneficiary.beneficiaryId !== beneficiaryItem.beneficiaryId;
-    });
 };
 
 const queryOrderDetail = () => {
@@ -302,44 +253,6 @@ onBeforeMount(() => {
     }
   });
 });
-
-watch(
-  () => formInfo.value,
-  (newVal) => {
-    if (newVal) {
-      const addressList = [
-        {
-          contactAddress: newVal.tenantOrderHolder?.extInfo?.familyAddress || 1231123,
-          contactName: newVal.tenantOrderHolder.name || 123131,
-          contactPhoneNo: newVal.tenantOrderHolder.mobile || 123132,
-        },
-        {
-          contactAddress: newVal.tenantOrderHolder?.extInfo?.workAddress,
-          contactName: newVal.tenantOrderHolder.name,
-          contactPhoneNo: newVal.tenantOrderHolder.mobile,
-        },
-        {
-          contactAddress: newVal.tenantOrderInsuredList[0]?.extInfo?.familyAddress,
-          contactName: newVal.tenantOrderInsuredList[0]?.name,
-          contactPhoneNo: newVal.tenantOrderInsuredList[0]?.mobile,
-        },
-        {
-          contactAddress: newVal.tenantOrderInsuredList[0]?.extInfo?.workAddress,
-          contactName: newVal.tenantOrderInsuredList[0].name,
-          contactPhoneNo: newVal.tenantOrderInsuredList[0].mobile,
-        },
-      ];
-
-      state.addressList = addressList.filter((address: ContactInfo) => {
-        return address.contactAddress && address.contactName && address.contactPhoneNo;
-      });
-    }
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
 </script>
 
 <style lang="scss" scope>
@@ -371,7 +284,7 @@ watch(
   }
 
   .radio-item-wrapper {
-    padding: 0 32px;
+    padding: 0;
     p {
       font-size: 30px;
       font-family: PingFangSC-Semibold, PingFang SC, serif;

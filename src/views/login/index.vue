@@ -43,16 +43,14 @@ const formInfo = ref({
   password: 'M5p8uqT3RS3u89B2',
   loginType: '1',
 });
-const onSubmit = (values) => {
+const onSubmit = () => {
   const storage = new Storage({ source: 'localStorage' });
-  console.log(storage.get('userInfo'));
   login(formInfo.value).then(({ code, data }) => {
     if (code === '10000') {
       Toast('登录成功');
-      console.log('data.token', data.token);
-
       storage.set('token', data.token);
       storage.set('userInfo', JSON.stringify(data));
+      window.location.href = '/';
     }
   });
 };

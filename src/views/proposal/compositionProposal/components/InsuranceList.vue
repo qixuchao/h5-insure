@@ -1,0 +1,201 @@
+<!--
+ * @Author: za-qixuchao qixuchao@zhongan.io
+ * @Date: 2022-07-14 10:15:06
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-07-31 21:29:37
+ * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/compositionProposal/index.vue
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<template>
+  <div class="container head-cover">
+    <div class="info-detail">
+      <div class="name">
+        <div class="img">
+          <img v-if="isMale(props.info?.gender)" src="@/assets/images/compositionProposal/male.png" />
+          <img v-if="!isMale(props.info?.gender)" src="@/assets/images/compositionProposal/female.png" />
+        </div>
+        <div>
+          <p clase="p1">{{ props.info?.name }}</p>
+          <p class="p2">{{ GENDER[props.info?.gender] }}，{{ dayjs().diff(info?.birthday, 'y') }}岁</p>
+        </div>
+      </div>
+      <div class="fe">
+        首年保费： <span>¥{{ toLocal(props.info?.totalPremium) }}</span>
+      </div>
+    </div>
+    <div class="line"></div>
+
+    <div class="tp">
+      <ProTable v-if="dataSource.length > 0" :columns="columns" class="table" :data-source="dataSource" />
+    </div>
+  </div>
+</template>
+<script lang="ts" setup>
+import dayjs from 'dayjs';
+import { toLocal } from '@/utils';
+import { ProposalProductRisk } from '../../type';
+import ProTable from '@/components/ProTable/index.vue';
+
+const props = defineProps({
+  info: {
+    type: Object,
+    default: () => {},
+  },
+});
+
+const columns = [
+  {
+    title: '险种名称',
+    dataIndex: 'riskName',
+    width: 180,
+  },
+  {
+    title: '保额',
+    dataIndex: 'amount',
+  },
+  {
+    title: '保障期间',
+    dataIndex: 'coveragePeriod',
+    width: 110,
+  },
+  {
+    title: '缴费期间',
+    dataIndex: 'chargePeriod',
+    width: 110,
+  },
+  {
+    title: '保费',
+    dataIndex: 'premium',
+    width: 120,
+  },
+];
+
+const dataSource = ref<Array<ProposalProductRisk>>([]);
+
+const GENDER = {
+  1: '男',
+  2: '女',
+};
+
+const isMale = (gender: number) => {
+  return gender === 1;
+};
+
+// 保障期间
+const getCover = (val: string) => {
+  const arr = val.split('_');
+  if (val === 'to_life') {
+    return '保终生';
+  }
+  switch (arr[0]) {
+    case 'year':
+      return `${arr[1]}年`;
+    case 'month':
+      return `${arr[1]}月`;
+    case 'day':
+      return `${arr[1]}天`;
+    case 'to':
+      return `保至${arr[1]}岁`;
+
+    default:
+      return '';
+  }
+};
+
+// 交费期间
+const getChargePay = (val: string) => {
+  const arr = val.split('_');
+  switch (arr[0]) {
+    case 'year':
+      return `${arr[1]}年交`;
+    case 'month':
+      return `${arr[1]}月交`;
+    case 'to':
+      return `交至${arr[1]}岁`;
+    case 'single':
+      return `趸缴`;
+
+    default:
+      return '';
+  }
+};
+
+const setProposalProductRiskVOList = (dataList: Array<any>) => {
+  const list: Array<any> = [];
+  dataList?.forEach((item: any) => {
+    const { riskName, amount, coveragePeriod, chargePeriod, premium } = item;
+    list.push({
+      riskName,
+      amount,
+      coveragePeriod: getCover(coveragePeriod),
+      chargePeriod: getChargePay(chargePeriod),
+      premium,
+    });
+  });
+
+  dataSource.value = list;
+};
+
+watch(
+  () => props.info,
+  (val) => {
+    setProposalProductRiskVOList(val?.proposalProductRiskVOList);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+</script>
+
+<style lang="scss" scoped>
+.page-composition-proposal {
+  .head-cover {
+    margin-top: -30px;
+  }
+  .info-detail {
+    padding-top: 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .name {
+      display: flex;
+    }
+    .p1 {
+      font-size: 32px;
+      font-weight: 500;
+      color: #393d46;
+    }
+    .p2 {
+      font-size: 24px;
+      font-weight: 400;
+      color: #727983;
+    }
+    .img {
+      width: 80px;
+      height: 80px;
+      background: #eeeeee;
+      margin-right: 16px;
+      border-radius: 50%;
+      img {
+        width: 80px;
+        height: 80px;
+      }
+    }
+    .fe {
+      font-size: 26px;
+      span {
+        color: #ff5840;
+      }
+    }
+  }
+  .line {
+    margin: 0 -20px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #eeeff4;
+  }
+  .tp {
+    margin-top: 30px;
+  }
+}
+</style>

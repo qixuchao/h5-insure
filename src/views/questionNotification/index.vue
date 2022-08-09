@@ -34,7 +34,7 @@
       <van-button type="primary" @click="handleClickNextStep">下一步</van-button>
     </div>
   </ProPageWrap>
-  <van-action-sheet v-model:show="state.showShare" cancel-text="取消" close-on-click-action>
+  <van-action-sheet v-model:show="showShare" cancel-text="取消" close-on-click-action>
     <div class="content">
       <div class="bx" @click="handleShare('1')">
         <div class="wechat"><img src="@/assets/images/compositionProposal/wechat.png" alt="" /></div>
@@ -55,7 +55,6 @@ import wx from 'weixin-js-sdk';
 import { useRouter, useRoute } from 'vue-router';
 import { Toast } from 'vant';
 import { listCustomerQuestions } from '@/api/modules/inform';
-import { NOTICE_OBJECT_TYPE } from '@/common/constants/notice';
 import {
   ListCustomerQuestionsResponse,
   ListCustomerQuestionsProps,
@@ -80,22 +79,13 @@ const {
   orderNo = '2022080217103534947',
 } = route.query;
 
-interface StateProps {
-  listQuestions: ListCustomerQuestionsResponse[];
-  pageData: Partial<NextStepRequestData>;
-  showShare: boolean;
-  tenantOrderNoticeList: Partial<tenantOrderNoticeProps[]>;
-}
-
-const state = reactive<StateProps>({
-  listQuestions: [],
-  pageData: {},
-  showShare: false,
-  tenantOrderNoticeList: [],
-});
+const listQuestions = ref<ListCustomerQuestionsResponse[]>([]);
+const pageData = ref<Partial<NextStepRequestData>>({});
+const showShare = ref(false);
+// const tenantOrderNoticeList = ref<Partial<tenantOrderNoticeProps[]>>([]);
 
 const isHolderQuestions = (objectType: number) => {
-  return state.listQuestions.filter((i) => i.objectType === objectType);
+  return listQuestions.value.filter((i) => i.objectType === objectType);
 };
 
 const handleShare = (type: string) => {
@@ -125,7 +115,7 @@ const orderDetail = () => {
     tenantId,
   }).then(({ code, data }) => {
     if (code === '10000') {
-      Object.assign(state.pageData, data);
+      Object.assign(pageData.value, data);
     }
   });
 };
@@ -133,7 +123,8 @@ const orderDetail = () => {
 const getQuestionList = () => {
   const data: Partial<ListCustomerQuestionsProps> = {
     insurerCode,
-    // 告知类型：1-投保告知，2-健康告知，3-特别约定，4-投保人问卷，5-被保人问卷，6-投保人声明，7-被保人声明，8-免责条款，9-营销员告知
+    //  告知类型：1-投保告知，2-健康告知，3-特别约定，4-投保人问卷，
+    // 5-被保人问卷，6-投保人声明，7-被保人声明，8-免责条款，9-营销员告知
     // objectId: '1',
     // objectType: 1, // 适用角色 ：1-投保人，2-被保人，3-营销人员(代理人)
     orderNo,
@@ -145,7 +136,7 @@ const getQuestionList = () => {
     listCustomerQuestions({ ...data, noticeType: 5, objectType: 2 }),
   ]).then(([{ code: code1, data: data1 }, { code: code2, data: data2 }]) => {
     if (code1 === '10000' && code2 === '10000') {
-      state.listQuestions = [...data1, ...data2];
+      listQuestions.value = [...data1, ...data2];
     }
   });
 };
@@ -156,24 +147,24 @@ const handleClickInformDetails = (rows: ListCustomerQuestionsResponse) => {
     path: '/healthNotice',
     query: {
       questionnaireType: rows.questionnaireType,
-      orderId: state.pageData?.id,
+      orderId: pageData.value?.id,
       ...route.query,
     },
   });
 };
 
 const handleClickNextStep = () => {
-  const isAllRead = state.listQuestions.every((i) => i.isDone === 1);
+  const isAllRead = listQuestions.value.every((i) => i.isDone === 1);
   if (!isAllRead) {
     Toast('请完成所有告知进行下一步');
     return;
   }
 
-  Object.assign(state.pageData, { pageCode: 'questionNotice', tenantOrderNoticeList: state.listQuestions });
+  Object.assign(pageData.value, { pageCode: 'questionNotice', tenantOrderNoticeList: listQuestions.value });
 
   nextStep({
-    ...state.pageData,
-    extInfo: { ...state.pageData.extInfo, templateId: '1', pageCode: 'questionNotice' },
+    ...pageData.value,
+    extInfo: { ...pageData.value.extInfo, templateId: '1', pageCode: 'questionNotice' },
     venderCode: insurerCode,
   }).then(({ code, data }) => {
     if (code === '10000') {

@@ -2,36 +2,27 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 10:50:19
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-30 16:27:23
+ * @LastEditTime: 2022-08-08 15:01:12
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/trial/components/RiskList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <div class="risk-list-wrapper">
     <RiskItem
-      v-if="state.mainRiskData"
-      :enums="enums"
-      :form-info="state.mainRiskInfo"
-      :origin-data="state.mainRiskData"
-    />
-    <RiskItem
-      v-for="(riderRisk, index) in state.requiredRiderRiskData"
-      :key="riderRisk.id"
-      :form-info="state.riderRiskInfo[riderRisk.id]"
+      v-for="(riskItem, index) in state.currentRiskList"
+      :key="riskItem.id"
+      :form-info="state.riskInfo[riskItem.id]"
       :index="index"
       :enums="enums"
       :main-risk-data="state.mainRiskData"
       :main-risk-info="state.mainRiskInfo"
-      :origin-data="riderRisk"
+      :origin-data="riskItem"
       :remove-risk="removeRiderRisk"
       :remove-risk-list="state.checkedList"
     />
 
     <div
-      v-if="
-        state.riderRiskList?.length - state.checkedList?.length &&
-        (trialType.origin !== 'proposal' || trialType.type === 'addRiderRisk')
-      "
+      v-if="state.riderRiskList?.length - state.checkedList?.length && trialType.origin !== 'proposal'"
       class="add-rider-risk"
     >
       <span class="left-part">{{
@@ -61,22 +52,22 @@ import RiskRelationList from '../RiskRelationList/index.vue';
 import { RiskDetailVoItem, RiskVoItem } from '@/api/modules/trial.data';
 
 interface Props {
-  riskInfo: Partial<RiskVoItem>;
+  riskInfo: { [propName: string]: RiskVoItem };
   originData: RiskDetailVoItem[];
   pickFactor: (factorObj: any) => void;
   enums: any;
-  riderRiskList?: RiskVoItem[];
 }
 
 interface PageState {
   mainRiskInfo: Partial<RiskVoItem>;
-  riderRiskInfo: RiskVoItem[];
+  riskInfo: { [propName: string]: RiskVoItem };
   requiredRiderRiskData: RiskDetailVoItem[];
   mainRiskData: Partial<RiskDetailVoItem>;
   riderRiskList: RiskDetailVoItem[];
   checkedList: any[];
   relationListNum: number;
   disabledList: any[];
+  currentRiskList: RiskDetailVoItem[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -84,10 +75,10 @@ const props = withDefaults(defineProps<Props>(), {
   originData: () => [],
   pickFactor: () => {},
   enums: () => {},
-  riderRiskList: () => [],
 });
 
 const trialType: any = inject('source') || {};
+
 const [showPopup, toggle] = useToggle(false);
 const instance = getCurrentInstance();
 
@@ -96,18 +87,19 @@ const riderRiskFormRef = ref(null);
 
 const state = reactive<PageState>({
   mainRiskInfo: props.riskInfo,
-  riderRiskInfo: props.riskInfo?.riderRiskVOList || [],
+  riskInfo: props.riskInfo,
   requiredRiderRiskData: [],
   mainRiskData: {},
   riderRiskList: [],
   checkedList: [],
   relationListNum: 0,
   disabledList: [],
+  currentRiskList: [],
 });
 
 // 添加附加险信息
 const onFinished = (risk: any[], disabled: any[]) => {
-  state.requiredRiderRiskData = state.requiredRiderRiskData.concat(risk);
+  state.currentRiskList = state.currentRiskList.concat(risk);
   state.disabledList = disabled;
 };
 
@@ -126,20 +118,21 @@ const removeRiderRisk = (riskId: number) => {
       });
 
       state.checkedList = state.checkedList.filter((id) => !removeRiskIds.includes(id));
-      state.requiredRiderRiskData = state.requiredRiderRiskData.filter((risk) => !removeRiskIds.includes(risk.id));
+      state.currentRiskList = state.currentRiskList.filter((risk) => {
+        if (!removeRiskIds.includes(risk.id)) {
+          return true;
+        }
+        Object.assign(state.riskInfo, { [risk.id]: undefined });
+        return false;
+      });
       state.disabledList = state.disabledList.filter((id) => !removeRiskIds.includes(id));
-      Object.assign(state.riderRiskInfo, { [riskId]: undefined });
     })
     .catch(() => {});
 };
 
-onBeforeMount(() => {
-  // state.requiredRiderRiskData.push;
-});
-
 // 计算出主险和附加险的投保人和被保人的因子
 watch(
-  () => state.requiredRiderRiskData,
+  () => state.currentRiskList,
   (newVal) => {
     const riskList = [state.mainRiskData, ...newVal];
     let insuredFactorList: string[] = [];
@@ -147,13 +140,13 @@ watch(
     const ageRange: any[] = [];
 
     riskList.forEach((risk, index) => {
-      const selectedFator: any[] = risk?.riskCalcMethodInfoVO?.riskFactorRelationList || [];
+      const selectedFactor: any[] = risk?.riskCalcMethodInfoVO?.riskFactorRelationList || [];
       insuredFactorList = insuredFactorList.concat(
-        selectedFator.filter((factor) => factor.factorObject === 'insured').map((factor: any) => factor.factorCode),
+        selectedFactor.filter((factor) => factor.factorObject === 'insured').map((factor: any) => factor.factorCode),
       );
 
       holderFactorList = holderFactorList.concat(
-        selectedFator.filter((factor) => factor.factorObject === 'holder').map((factor: any) => factor.factorCode),
+        selectedFactor.filter((factor) => factor.factorObject === 'holder').map((factor: any) => factor.factorCode),
       );
       ageRange.push(risk?.riskInsureLimitVO?.minHolderAge, risk?.riskInsureLimitVO?.maxHolderAge);
     });
@@ -164,8 +157,8 @@ watch(
         riskId: risk.id,
         riskCode: risk.riskCode,
         riskName: risk.riskName,
-        mainRiskCode: state.mainRiskData.riskCode,
-        mainRiskId: state.mainRiskData?.id,
+        mainRiskCode: risk.riskType !== 1 ? state.mainRiskData?.riskCode : undefined,
+        mainRiskId: risk.riskType !== 1 ? state.mainRiskData?.id : undefined,
         riskCategory: risk.riskCategory,
         liabilityVOList: (risk.riskLiabilityInfoVOList || []).map((liab) => ({
           ...liab,
@@ -174,8 +167,9 @@ watch(
           liabilityRateType: liab.liabilityRateType,
         })),
       };
-
-      Object.assign(state.riderRiskInfo, { [risk.id]: extraInfo });
+      if (!state.riskInfo[risk.id]) {
+        Object.assign(state.riskInfo, { [risk.id]: extraInfo });
+      }
     });
 
     props.pickFactor({
@@ -191,17 +185,44 @@ watch(
 );
 
 watch(
+  () => props.riskInfo,
+  (newVal) => {
+    state.mainRiskInfo = Object.values(newVal || {}).find((riskItem) => riskItem?.riskType === 1) || {};
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
   () => props.originData,
   (newVal) => {
-    (newVal || []).forEach((risk) => {
-      if (risk.riskType === 1) {
-        state.mainRiskData = risk;
-        state.requiredRiderRiskData = risk.requiredRiderRiskVOList || [];
-        state.riderRiskList = risk.optionalRiderRiskVOList;
-      } else {
-        state.riderRiskList.push(risk);
-      }
-    });
+    let currentRiskList: RiskDetailVoItem[] = [];
+    const riderRiskList: RiskDetailVoItem[] = [];
+    if (trialType.origin === 'proposal' && !(trialType.type === 'add' || trialType.type === 'repeatAdd')) {
+      (newVal || []).forEach((risk: RiskDetailVoItem) => {
+        if (risk.riskType === 1) {
+          state.mainRiskData = risk;
+        }
+        currentRiskList.push(risk);
+      });
+      currentRiskList = currentRiskList.filter((risk) => trialType.showRiskList.includes(risk.id));
+    } else {
+      (newVal || []).forEach((risk: RiskDetailVoItem) => {
+        if (risk.riskType === 1) {
+          state.mainRiskData = risk;
+          currentRiskList.push(risk);
+        } else if (risk.collocationType === 2) {
+          currentRiskList.push(risk);
+        } else {
+          riderRiskList.push(risk);
+        }
+      });
+    }
+
+    state.riderRiskList = riderRiskList;
+    state.currentRiskList = currentRiskList;
   },
   {
     deep: true,

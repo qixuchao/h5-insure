@@ -5,11 +5,13 @@
  * document.vue
 -->
 <template>
-  <ProPageWrap class="com-document">
-    <div class="title">{{ props.currentPageInfo[0]?.title }}</div>
-    <div v-dompurify-html="props.currentPageInfo[0]?.content" class="content"></div>
-    <div class="footer-button">
-      <van-button type="primary" @click="emits('onSubmitCurrentStatus', 1)">了解并继续</van-button>
+  <ProPageWrap>
+    <div class="com-document">
+      <div class="title">{{ props.currentPageInfo[0]?.title }}</div>
+      <div v-dompurify-html="props.currentPageInfo[0]?.content" class="content"></div>
+      <div class="footer-button">
+        <van-button type="primary" @click="emits('onSubmitCurrentStatus', 1)">了解并继续</van-button>
+      </div>
     </div>
   </ProPageWrap>
 </template>
@@ -31,6 +33,7 @@ const emits = defineEmits<(e: 'onSubmitCurrentStatus', code: number) => void>();
 <style scoped lang="scss">
 .com-document {
   padding: 0 40px;
+
   .title {
     font-size: 32px;
     font-family: PingFangSC-Semibold, PingFang SC;
@@ -45,7 +48,7 @@ const emits = defineEmits<(e: 'onSubmitCurrentStatus', code: number) => void>();
     font-weight: 400;
     color: #393d46;
     line-height: 48px;
-    margin-bottom: 200px;
+    padding-bottom: 200px;
   }
 }
 </style>

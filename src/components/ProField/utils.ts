@@ -1,3 +1,11 @@
+/*
+ * @Author: za-qixuchao qixuchao@zhongan.io
+ * @Date: 2022-08-01 15:59:43
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-08-09 10:00:06
+ * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProField/utils.ts
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import { SEX_LIMIT_ENUM } from '@/common/constants';
 
 export const validateIdCardNo = (idCard: string): boolean => {
@@ -73,6 +81,16 @@ export const formatRule = (type: string, label: string) => {
       return {
         pattern: /^(?:(?:\+|00)86)?1\d{10}$/,
         message: '请输入正确的手机号',
+      };
+    case 'mail':
+      return {
+        pattern: /^[A-Za-z0-9]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/,
+        message: '请输入正确的邮箱',
+      };
+    case 'zipCode':
+      return {
+        pattern: /^[0-9]{6,6}$/,
+        message: '请输入正确的邮编',
       };
     case 'idCard':
       return {

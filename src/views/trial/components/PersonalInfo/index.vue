@@ -36,20 +36,20 @@
       </VanField>
       <VanField
         v-if="factorList.includes('SOCIAL_INS')"
-        v-model="state.formInfo.socialSecurity"
-        name="socialSecurity"
+        v-model="state.formInfo.socialFlag"
+        name="socialFlag"
         label="社保"
         :rules="[{ required: true, message: '请选择社保' }]"
       >
         <template #input>
-          <ProRadioButton v-model="state.formInfo.socialSecurity" :options="SOCIAL_INSURANCE_LIMIT" />
+          <ProRadioButton v-model="state.formInfo.socialFlag" :options="SOCIAL_INSURANCE_LIMIT" />
         </template>
       </VanField>
       <VanField
         v-if="factorList.includes('OCCUPATION_CATEGORY')"
-        v-model="state.formInfo.occupationalClass"
+        v-model="state.formInfo.occupationClass"
         :rules="[{ required: true, message: '请选择职业类型' }]"
-        name="occupationalClass"
+        name="occupationClass"
         label="职业类型"
         is-link
         readonly
@@ -78,7 +78,7 @@
     </van-popup>
     <Occupational
       v-if="isShowOccupational"
-      v-model="state.formInfo.occupationalClass"
+      v-model="state.formInfo.occupationClass"
       :show="isShowOccupational"
       :insured-code="insuredCode"
       @finish="onFinish"
