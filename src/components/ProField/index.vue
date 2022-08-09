@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 15:06:48
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-08 21:45:44
+ * @LastEditTime: 2022-08-09 10:28:09
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProField/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -23,6 +23,9 @@
     </template>
     <template v-if="slot.input" #input>
       <slot name="input" />
+    </template>
+    <template #extra>
+      <slot name="extra" />
     </template>
   </VanField>
 </template>

@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-28 10:28:12
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-02 18:40:52
+ * @LastEditTime: 2022-08-09 10:50:16
  * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/infoCollection.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -32,6 +32,17 @@ export const BENEFICIARY_LIST = [
   },
   {
     label: '指定',
+    value: '2',
+  },
+];
+
+export const MARRIED_STATUS_LIST = [
+  {
+    label: '已婚',
+    value: '1',
+  },
+  {
+    label: '未婚',
     value: '2',
   },
 ];

@@ -226,8 +226,8 @@ export interface LiabilityVoItem {
 export interface PersonVo {
     birthday: string;
     gender: number;
-    occupationalClass: number;
-    socialSecurity: number;
+    occupationClass: number;
+    socialFlag: number;
 }
 
 export interface Holder {

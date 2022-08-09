@@ -100,8 +100,16 @@
       type="date"
       :min="state.certEndDate.min"
       :max="state.certEndDate.max"
+      :is-view="certEndType"
+      read
       :required="factorObj.certEndDate?.isMustInput === 'YES'"
-    ></ProDatePicker>
+    >
+      <template #extra>
+        <div class="date-extra">
+          <van-checkbox v-model="certEndType">长期</van-checkbox>
+        </div>
+      </template>
+    </ProDatePicker>
     <ProPicker
       v-if="factorObj.houseHold?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.provinceCode"
@@ -163,8 +171,9 @@
       name="personalAnnualIncome"
       :required="factorObj.annualIncome?.isMustInput === 'YES'"
       placeholder="请输入"
+      :rules="[{ validator: validateFloat }]"
     >
-      <template #extra> 万 </template>
+      <template #extra> <span class="input-extra">万</span> </template>
     </ProField>
     <ProField
       v-if="factorObj.familyAnnualIncome?.isDisplay === 'YES'"
@@ -172,9 +181,10 @@
       label="家庭年收入"
       name="familyAnnualIncome"
       placeholder="请输入"
+      :rules="[{ validator: validateFloat }]"
       :required="factorObj.familyAnnualIncome?.isMustInput === 'YES'"
     >
-      <template #extra> 万 </template>
+      <template #extra> <span class="input-extra">万</span> </template>
     </ProField>
     <ProPicker
       v-if="factorObj.nation?.isDisplay === 'YES'"
@@ -211,8 +221,7 @@
       name="marriageStatus"
       readonly
       placeholder="请选择"
-      :data-source="marriageStatus"
-      :mapping="{ label: 'name', value: 'code', children: 'child' }"
+      :data-source="MARRIED_STATUS_LIST"
       is-link
       :required="factorObj.marriage?.isMustInput === 'YES'"
     ></ProPicker>
@@ -262,6 +271,7 @@
       label="地址详情"
       name="familyAddress"
       placeholder="请输入"
+      :rules="[{ validator: (...params) => validateLength(100, ...params) }]"
       :required="factorObj.familyAddressDetail?.isMustInput === 'YES'"
     ></ProField>
     <ProField
@@ -289,6 +299,7 @@
       label="地址详情"
       name="workAddress"
       placeholder="请输入"
+      :rules="[{ validator: (...params) => validateLength(100, ...params) }]"
       :required="factorObj.workAddressDetail?.isMustInput === 'YES'"
     ></ProField>
     <ProField
@@ -306,6 +317,7 @@
       label="单位名称"
       name="workPostCode"
       placeholder="请输入"
+      :rules="[{ validator: (...params) => validateLength(20, ...params) }]"
       :required="factorObj.workPlace?.isMustInput === 'YES'"
     ></ProField>
     <ProField
@@ -315,6 +327,7 @@
       name="workContent"
       :required="factorObj.workContent?.isMustInput === 'YES'"
       placeholder="请输入"
+      :rules="[{ validator: (...params) => validateLength(100, ...params) }]"
     ></ProField>
     <ProPicker
       v-if="factorObj.taxCert?.isDisplay === 'YES'"
@@ -357,7 +370,7 @@
       name="benefitRate"
       label="受益比例"
     >
-      <template #extra> % </template>
+      <template #extra> <span class="input-extra">%</span> </template>
     </ProField>
     <Occupational
       v-if="isShowOccupational"
@@ -376,11 +389,17 @@ import { withDefaults } from 'vue';
 import dayjs from 'dayjs';
 import { useToggle } from '@vant/use';
 import { truncateSync } from 'fs';
+import { useRoute } from 'vue-router';
 import { InsuredReqItem, HolderReq, ProductInsureFactorItem } from '@/api/index.data';
 import { SEX_LIMIT_LIST, FLAG_LIST } from '@/common/constants';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import useDicData from '@/hooks/useDicData';
-import { TAX_RESIDENT, BENEFICIARY_ORDER, RELATION_INSURED_LIST } from '@/common/constants/infoCollection';
+import {
+  TAX_RESIDENT,
+  BENEFICIARY_ORDER,
+  RELATION_INSURED_LIST,
+  MARRIED_STATUS_LIST,
+} from '@/common/constants/infoCollection';
 
 type FormInfo = InsuredReqItem | HolderReq;
 interface Props {
@@ -399,9 +418,10 @@ interface State {
 }
 
 const [isShowOccupational, toggleOccupational] = useToggle();
+const { venderCode = '' } = useRoute().query;
 const emits = defineEmits(['update:images']);
 const certType = useDicData('CERT_TYPE'); // 证件类型
-const occupationCode = useDicData('HENGQIN_OCCUPATION'); // 职业
+const occupationCode = useDicData(`${(venderCode as string).toLocaleUpperCase()}_OCCUPATION`); // 职业
 const marriageStatus = useDicData('MARRIAGE_STATUS'); // 婚姻状况
 const degree = useDicData('DEGREE'); // 学历
 const nationalityCode = useDicData('NATIONALITY'); // 国籍
@@ -431,6 +451,8 @@ const state = ref({
   occupationalText: '',
 });
 
+const certEndType = ref<boolean>(props.formInfo.certEndType === 2);
+
 const factorObj = computed(() => {
   const factor: FactorObj = {};
   props.factorList.forEach((factorItem) => {
@@ -439,6 +461,12 @@ const factorObj = computed(() => {
   return factor;
 });
 
+// const certTypeEnum = computed(() => {
+//   if (state.value.formInfo.extInfo.nationalityCode === 'CHN') {
+//     return [];
+//   }
+// });
+
 const onFinish = (text: string) => {
   state.value.occupationalText = text;
 };
@@ -446,6 +474,35 @@ const onFinish = (text: string) => {
 const onClose = () => {
   toggleOccupational(false);
 };
+
+const validateFloat = (value: string, rule: any) => {
+  if (/^[+-]?(\d|[1-9]\d{1,5})(\.\d{1,2})?$/.test(value)) {
+    return '';
+  }
+  return '年收入最多录入10位数字';
+};
+
+const validateLength = (len: number, value: string, rule: any) => {
+  if (value.length > len) {
+    return `最大不能超过${len}个字符`;
+  }
+  return '';
+};
+
+watch(
+  () => certEndType.value,
+  (newVal) => {
+    if (newVal) {
+      state.value.formInfo.certEndType = 2;
+      state.value.formInfo.certEndDate = '';
+    } else {
+      state.value.formInfo.certEndType = 1;
+    }
+  },
+  {
+    immediate: true,
+  },
+);
 
 watch(
   () => state.value.formInfo.certType,
@@ -499,3 +556,16 @@ watch(
   },
 );
 </script>
+
+<style lang="scss" scope>
+.input-extra {
+  margin-left: 25px;
+}
+.date-extra {
+  padding-left: $zaui-card-border;
+  margin-left: $zaui-card-border;
+  border-left: 1px solid #eeeff4;
+}
+.com-personal-wrapper {
+}
+</style>
