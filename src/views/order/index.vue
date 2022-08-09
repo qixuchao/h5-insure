@@ -1,8 +1,8 @@
 <template>
-  <ProPageWrap>
+  <ProPageWrap main-class="page-order-list">
     <div class="page-order">
       <ProTab v-model:active="active" :list="tabList" small-gap class="tab" />
-      <div class="body">
+      <van-list class="body" :loading="loading" @load="handleLoad">
         <Item
           v-for="(item, index) in list"
           :key="index"
@@ -10,7 +10,7 @@
           @click="handleClick(item)"
           @after-delete="handleAfterDelete"
         />
-      </div>
+      </van-list>
     </div>
   </ProPageWrap>
 </template>
@@ -24,6 +24,8 @@ import { OrderItem } from '@/api/modules/order.data';
 
 const router = useRouter();
 const active = ref(0);
+const pageNum = ref(1);
+const loading = ref(false);
 const list = ref<Array<OrderItem>>([]);
 const tabList = [
   {
@@ -57,19 +59,35 @@ const handleClick = (item: OrderItem) => {
 };
 
 const getData = () => {
-  getOrderList({ condition: { orderTopStatus: currentStatus.value } }).then((res) => {
-    const { code, data } = res;
-    if (code === '10000') {
-      list.value = data.datas;
-    }
-  });
+  loading.value = true;
+  getOrderList({ condition: { orderTopStatus: currentStatus.value }, pageSize: 10, pageNum: pageNum.value }).then(
+    (res) => {
+      loading.value = false;
+      const { code, data } = res;
+      if (code === '10000') {
+        if (pageNum.value === 1) {
+          list.value = data.datas;
+        } else {
+          list.value = [...list.value, ...data.datas];
+        }
+      }
+    },
+  );
+};
+
+const handleLoad = () => {
+  pageNum.value += 1;
+  getData();
+  console.log('🚀 ~ handleLoad ~ pageNum.value', pageNum.value);
 };
 
 const handleAfterDelete = () => {
+  pageNum.value = 1;
   getData();
 };
 
 watch(currentStatus, () => {
+  pageNum.value = 1;
   getData();
 });
 
@@ -77,6 +95,12 @@ onMounted(() => {
   getData();
 });
 </script>
+
+<style lang="scss">
+.page-order-list {
+  height: 0;
+}
+</style>
 
 <style lang="scss" scoped>
 .page-order {
