@@ -20,7 +20,11 @@
         <div class="verify-item">
           <div class="label">身份证号码</div>
           <div class="no">{{ detail?.tenantOrderHolder?.certNo }}</div>
-          <div v-if="!detail?.tenantOrderHolder?.extInfo?.isCert" class="action" @click="handleVerify(-1)">
+          <div
+            v-if="detail?.tenantOrderHolder?.extInfo?.isCert !== CERT_STATUS_ENUM.CERT"
+            class="action"
+            @click="handleVerify(-1)"
+          >
             去认证
             <ProSvg name="right_arrow" class="icon" />
           </div>
@@ -61,7 +65,7 @@
           <div class="verify-item">
             <div class="label">身份证号码</div>
             <div class="no">{{ item.certNo }}</div>
-            <div v-if="!item.extInfo?.isCert" class="action" @click="handleVerify(index)">
+            <div v-if="item.extInfo?.isCert !== CERT_STATUS_ENUM.CERT" class="action" @click="handleVerify(index)">
               去认证
               <ProSvg name="right_arrow" class="icon" />
             </div>
