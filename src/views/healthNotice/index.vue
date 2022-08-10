@@ -99,7 +99,7 @@ const onSubmitCurrentStatus = (status: number, questionContent?: any) => {
     objectType,
     orderId: state.pageData.id,
     orderNo,
-    tenantId: 9991000007,
+    tenantId,
   }).then(({ code, data }) => {
     console.log(code);
     if (code === '10000') {
