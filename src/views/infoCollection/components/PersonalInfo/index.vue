@@ -176,7 +176,7 @@
       <template #extra> <span class="input-extra">万</span> </template>
     </ProField>
     <ProPicker
-      v-if="factorObj.nation?.isDisplay === 'YES'"
+      v-if="factorObj.nationality?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.nationalityCode"
       label="国籍"
       name="nationalityCode"
@@ -184,7 +184,7 @@
       :data-source="nationalityCode"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
       placeholder="请选择"
-      :required="factorObj.nation?.isMustInput === 'YES'"
+      :required="factorObj.nationality?.isMustInput === 'YES'"
       is-link
     ></ProPicker>
     <ProField
@@ -495,7 +495,7 @@ const validateLength = (len: number, value: string, rule: any) => {
 const validateCertNo = (value: string | number, rule: any) => {
   if (state.value.formInfo?.certType === '4') {
     if (!/^[a-zA-Z]\d{9}$/.test(`${value}`)) {
-      return `出生证证号码有误`;
+      return `出生证号码错误`;
     }
   } else if (state.value.formInfo?.certType === '2') {
     if (`${value}`.length >= 5 && /^[^\u4e00-\u9fa5]+$/.test(`${value}`)) {
