@@ -16,15 +16,11 @@
         </div>
       </div>
       <ProDivider />
-      <div v-if="(detail?.tenantProductInsureVO?.guaranteeList || []).length > 1" class="plan">
+      <div v-if="guaranteeList.length > 1" class="plan">
         <div
-          v-for="(item, index) in detail?.tenantProductInsureVO?.guaranteeList"
+          v-for="(item, index) in guaranteeList"
           :key="index"
-          :class="[
-            'plan-item',
-            `length-${(detail?.tenantProductInsureVO?.guaranteeList || []).length}`,
-            { active: activePlan === index },
-          ]"
+          :class="['plan-item', `length-${guaranteeList.length}`, { active: activePlan === index }]"
           @click="handlePlanItemClick(index)"
         >
           {{ item }}
@@ -33,7 +29,7 @@
       <ProCard v-if="showByFactor('guaranteeDetail')" title="保障详情" link="查看详情" @link-click="handleLinkClick">
         <div v-if="detail && detail?.tenantProductInsureVO" class="basic">
           <ProCell
-            v-for="(item, index) in detail?.tenantProductInsureVO?.guaranteeList?.[activePlan]?.titleAndDescVOS"
+            v-for="(item, index) in guaranteeList?.[activePlan]?.titleAndDescVOS"
             :key="index"
             :title="item.title"
             :content="item.desc"
@@ -55,9 +51,9 @@
             title="交费期间"
             :desc="formatPaymentPeriodLimit(detail?.tenantProductInsureVO?.paymentPeriodValues)"
           />
-          <FieldInfo v-if="showByFactor('paymentMethod')" title="交费方式" desc="年交" />
+          <!-- <FieldInfo v-if="showByFactor('paymentMethod')" title="交费方式" desc="年交" />
           <FieldInfo v-if="showByFactor('drawTime')" title="领取年龄" desc="55/60/55周岁" />
-          <FieldInfo v-if="showByFactor('drawType')" title="领取方式" desc="年领/月领" />
+          <FieldInfo v-if="showByFactor('drawType')" title="领取方式" desc="年领/月领" /> -->
 
           <FieldInfo
             v-if="showByFactor('sexLimit')"
@@ -136,9 +132,9 @@
   </ProPageWrap>
   <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
     <ProTab
-      v-if="(detail?.tenantProductInsureVO?.guaranteeList || []).length > 1"
+      v-if="guaranteeList.length > 1"
       :list="
-        (detail?.tenantProductInsureVO?.guaranteeList || []).map((item, index) => ({
+        guaranteeList.map((item, index) => ({
           title: item.guaranteeType,
           slotName: `guarantee-${index}`,
         }))
@@ -146,11 +142,7 @@
       class="tab"
     ></ProTab>
     <div class="guarantee-list">
-      <div
-        v-for="(item, index) in detail?.tenantProductInsureVO?.guaranteeList[activePlan].titleAndDescVOS"
-        :key="index"
-        class="guarantee-item"
-      >
+      <div v-for="(item, index) in guaranteeList[activePlan].titleAndDescVOS" :key="index" class="guarantee-item">
         <div class="title">{{ item.title }}</div>
         <div class="content">{{ item.content }}</div>
       </div>
@@ -222,6 +214,18 @@ const goPage = () => {
     },
   });
 };
+
+const guaranteeList = computed(() => {
+  if (detail.value?.tenantProductInsureVO?.guaranteeList?.length) {
+    return detail.value?.tenantProductInsureVO?.guaranteeList;
+  }
+  return [
+    {
+      guaranteeType: '单计划',
+      titleAndDescVOS: detail.value?.tenantProductInsureVO?.titleAndDescVOS,
+    },
+  ];
+});
 
 onMounted(() => {
   productDetail({ productCode, withInsureInfo: true }).then((res) => {

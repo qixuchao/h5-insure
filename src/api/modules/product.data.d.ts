@@ -189,6 +189,10 @@ export interface TenantProductInsureVO {
    * 等待期：day_30,age_60
    */
   waitPeriod: string;
+  /**
+   * 单计划保障详情
+   */
+  titleAndDescVOS: TitleAndDescVO[]
 }
 
 export interface ProductDetail {
