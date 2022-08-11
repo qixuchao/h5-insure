@@ -25,6 +25,12 @@ export const RELATION_HOLDER_LIST = [
   },
 ];
 
+export const BENEFICIARY_ENUM = {
+  法定: '1',
+  指定: '2',
+  测试: '13070118889',
+};
+
 export const BENEFICIARY_LIST = [
   {
     label: '法定',
