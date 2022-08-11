@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-09 17:27:46
+ * @LastEditTime: 2022-08-11 08:36:35
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -102,7 +102,14 @@
       </ProCard>
     </ProForm>
     <div class="footer-button">
-      <VanButton block type="primary" @click="goNextPage">下一步</VanButton>
+      <span class="trial-result"
+        >首期<span class="result-num"
+          >￥{{ formInfo.tenantOrderInsuredList?.[0]?.tenantOrderProductList?.[0].premium?.toLocaleString?.() }}</span
+        >
+      </span>
+      <div class="operate-btn">
+        <VanButton block type="primary" @click="goNextPage">下一步</VanButton>
+      </div>
     </div>
     <AddressSelect
       v-if="showAddress"
@@ -278,7 +285,7 @@ const addBeneficiary = () => {
 const removeBeneficiary = (beneficiaryItem: BeneficiaryItem) => {
   formInfo.value.tenantOrderInsuredList[0].tenantOrderBeneficiaryList =
     formInfo.value.tenantOrderInsuredList[0].tenantOrderBeneficiaryList.filter((beneficiary: BeneficiaryItem) => {
-      return beneficiary.beneficiaryId !== beneficiaryItem.beneficiaryId;
+      return beneficiary.beneficiaryId !== beneficiaryItem.beneficiaryId || beneficiaryItem.id !== beneficiary.id;
     });
 };
 
@@ -416,18 +423,33 @@ watch(
       height: 90px;
       .title {
         font-size: 30px;
-        font-family: PingFangSC-Semibold, PingFang SC, self;
         font-weight: 600;
         color: #393d46;
       }
     }
   }
 
+  .trial-result {
+    width: 440px;
+    font-weight: 400;
+    font-size: 34px;
+    color: #393d46;
+    .result-num {
+      margin-left: 13px;
+      color: #ff5840;
+      font-weight: bold;
+      margin-left: 16px;
+    }
+  }
+
+  .operate-btn {
+    width: 50%;
+  }
+
   .radio-item-wrapper {
     padding: 0;
     p {
       font-size: 30px;
-      font-family: PingFangSC-Semibold, PingFang SC, serif;
       color: #393d46;
       margin: 5px 0;
       word-break: break-all;

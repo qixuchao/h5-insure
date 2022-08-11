@@ -172,7 +172,6 @@ const state = reactive<PageState>({
 });
 
 provide('premium', riskPremiumRef.value);
-provide('source', '');
 
 const userInfo = useCookie().get('userInfo');
 const pageCode = 'premiumTrial';
@@ -202,7 +201,7 @@ const transformData = (riskList: RiskVoItem[], riskPremium) => {
 
 const goNextPage = () => {
   nextStep({
-    agencyId: agencyCode,
+    agencyId: agencyCode as string,
     saleUserId: agentCode,
     tenantId,
     venderCode,
