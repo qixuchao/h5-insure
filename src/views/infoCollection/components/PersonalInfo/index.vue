@@ -470,14 +470,13 @@ const onClose = () => {
 
 // 验证10位整数两位小数
 const validateFloat = (value: string, rule: any) => {
-  if (/^[+-]?(\d|[1-9]\d{1,9})(\.\d{1,2})?$/.test(value)) {
+  if (/^\d{1,10}(\.\d{1,2})?$/.test(value)) {
     return '';
   }
   return '年收入最多录入10位数字';
 };
 // 验证2位正整数
 const validatePositiveInteger = (value: string, rule: any) => {
-  console.log('🚀 ~ validatePositiveInteger ~ value', value);
   if (/^[1-9]$|^[1-9][0-9]$|^100$/.test(value)) {
     return '';
   }
