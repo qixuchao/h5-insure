@@ -103,6 +103,7 @@
         <van-button type="primary" class="submit-btn" @click="handleSubmit">提交</van-button>
       </div>
     </div>
+    <ProNavigator />
   </ProPageWrap>
 </template>
 
@@ -110,6 +111,7 @@
 import dayjs from 'dayjs';
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
+import ProNavigator from '@/components/ProNavigator/index.vue';
 import ProMessage from '@/components/ProMessage/index.vue';
 import ProCard from '@/components/ProCard/index.vue';
 import ProSvg from '@/components/ProSvg/index.vue';
@@ -138,6 +140,7 @@ const {
 } = route.query;
 let { orderNo } = route.query;
 
+// 从第三方人脸识别页面跳转回来后，url上会多一个orderNo，取第一个
 if (typeof orderNo === 'object') {
   // eslint-disable-next-line
   orderNo = (orderNo || [])[0];
