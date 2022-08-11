@@ -224,4 +224,5 @@ export interface OrderDetail {
   venderCode: string;
   venderName: string;
   abbreviation: string;
+  productCategory: string;
 }

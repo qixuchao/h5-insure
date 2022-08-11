@@ -2,7 +2,7 @@
   <ProPageWrap main-class="page-order-list">
     <div class="page-order">
       <ProTab v-model:active="active" :list="tabList" small-gap class="tab" />
-      <van-list class="body" :loading="loading" @load="handleLoad">
+      <van-list class="body" :loading="loading" :finished="finished" @load="handleLoad">
         <Item
           v-for="(item, index) in list"
           :key="index"
@@ -26,6 +26,7 @@ const router = useRouter();
 const active = ref(0);
 const pageNum = ref(1);
 const loading = ref(false);
+const finished = ref(false);
 const list = ref<Array<OrderItem>>([]);
 const tabList = [
   {
@@ -71,6 +72,7 @@ const getData = () => {
           list.value = [...list.value, ...data.datas];
         }
       }
+      finished.value = list.value.length >= data.total;
     },
   );
 };
