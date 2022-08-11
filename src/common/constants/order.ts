@@ -38,7 +38,7 @@ export enum ORDER_STATUS_ENUM {
   /**
    * 已承保
    */
-  UNDERWRITE = 'underwrite',
+  UNDERWRITE = 'acceptPolicy',
   /**
    * 申请退款
    */

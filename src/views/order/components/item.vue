@@ -2,7 +2,7 @@
   <div class="com-order-item">
     <div class="header">
       <div class="product-name">{{ detail.goodsName }}</div>
-      <div class="company-name">{{ detail.companyName }}</div>
+      <div class="company-name">{{ detail.abbreviation }}</div>
       <div class="status">{{ ORDER_STATUS_MAP[detail.orderStatus] }}</div>
     </div>
     <div class="info">
@@ -89,18 +89,48 @@ const handleDelete = () => {
 };
 
 const handlePay = () => {
-  const { goodsCode: productCode, orderNo, id: orderId, saleUserId, templateId, tenantId } = props.detail;
+  const {
+    goodsCode: productCode,
+    orderNo,
+    id: orderId,
+    saleUserId,
+    templateId,
+    tenantId,
+    insurerCode,
+    productCategory,
+    agencyId: agencyCode,
+  } = props.detail;
   router.push({
     path: PAGE_ROUTE_ENUMS.payInfo,
-    query: { productCode, orderNo, orderId, saleUserId, templateId, tenantId },
+    query: {
+      productCode,
+      orderNo,
+      orderId,
+      saleUserId,
+      templateId,
+      tenantId,
+      insurerCode,
+      productCategory,
+      agencyCode,
+    },
   });
 };
 
 const handleProcess = () => {
-  const { goodsCode: productCode, orderNo, id: orderId, saleUserId: agentCode, templateId, tenantId } = props.detail;
+  const {
+    goodsCode: productCode,
+    orderNo,
+    id: orderId,
+    saleUserId: agentCode,
+    templateId,
+    tenantId,
+    insurerCode,
+    productCategory,
+    agencyId: agencyCode,
+  } = props.detail;
   router.push({
     path: PAGE_ROUTE_ENUMS[props.detail.pageCode],
-    query: { productCode, orderNo, orderId, agentCode, templateId, tenantId },
+    query: { productCode, orderNo, orderId, agentCode, templateId, tenantId, insurerCode, productCategory, agencyCode },
   });
 };
 </script>

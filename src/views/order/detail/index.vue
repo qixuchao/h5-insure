@@ -8,7 +8,7 @@
               <div class="product-name">
                 {{ detail?.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productName }}
               </div>
-              <div class="company-name">{{ detail?.venderName }}</div>
+              <div class="company-name">{{ detail?.abbreviation }}</div>
             </div>
           </template>
           <template #content>
@@ -174,7 +174,7 @@ onMounted(() => {
         white-space: nowrap;
       }
       .company-name {
-        flex: 0 0 110px;
+        flex: 0 0 120px;
         height: 40px;
         line-height: 40px;
         text-align: center;

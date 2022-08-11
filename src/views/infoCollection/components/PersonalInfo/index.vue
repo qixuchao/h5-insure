@@ -477,10 +477,11 @@ const validateFloat = (value: string, rule: any) => {
 };
 // 验证2位正整数
 const validatePositiveInteger = (value: string, rule: any) => {
-  if (/^\+?[1-9][0-9]*$/.test(value)) {
+  console.log('🚀 ~ validatePositiveInteger ~ value', value);
+  if (/^[1-9]$|^[1-9][0-9]$|^100$/.test(value)) {
     return '';
   }
-  return '收益比例只能填写1-100的正数';
+  return '收益比例只能填写1-100的正整数';
 };
 
 // 验证长度

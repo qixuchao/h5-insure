@@ -127,6 +127,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useToggle } from '@vant/use';
 import { conditionalExpression } from '@babel/types';
 import { truncateSync } from 'fs';
+import { Toast } from 'vant/es';
 import { PAGE_ROUTE_ENUMS, ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import { getInitFactor, nextStep, getTemplateInfo, getOrderDetail } from '@/api';
 import {
@@ -140,7 +141,7 @@ import {
   ProductInsureFactorItem,
 } from '@/api/index.data';
 import useDicData from '@/hooks/useDicData';
-import { RELATION_HOLDER_LIST, BENEFICIARY_LIST } from '@/common/constants/infoCollection';
+import { RELATION_HOLDER_LIST, BENEFICIARY_LIST, BENEFICIARY_ENUM } from '@/common/constants/infoCollection';
 import BeneficiaryInfo from './components/BeneficiaryInfo/index.vue';
 import PersonalInfo from './components/PersonalInfo/index.vue';
 import AddressSelect from './components/AddressSelect/index.vue';
@@ -220,7 +221,7 @@ const currentAddressInfo = computed(() => {
 const goNextPage = () => {
   const formData = { ...formInfo.value };
   formData.extInfo = { ...formData.extInfo, contactInfo: [currentAddressInfo.value] };
-
+  console.log('🚀 ~ goNextPage ~ formData', formData);
   formData.tenantOrderAttachmentList = [
     {
       category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_CERT,
@@ -257,6 +258,20 @@ const goNextPage = () => {
   ];
 
   formRef.value.validate().then((validate: boolean) => {
+    if (formData.tenantOrderInsuredList[0].insuredBeneficiaryType === BENEFICIARY_ENUM.SPECIFY) {
+      const result = {};
+      formData.tenantOrderInsuredList[0].tenantOrderBeneficiaryList.forEach((item) => {
+        if (result[item.benefitOrder]) {
+          result[item.benefitOrder].sum += Number(item.benefitRate);
+        } else {
+          result[item.benefitOrder] = { sum: Number(item.benefitRate) };
+        }
+      });
+      if (Object.values(result).some((x) => x.sum !== 100)) {
+        Toast.fail('同一顺位的受益人比例之和必须为100');
+        return;
+      }
+    }
     nextStep(formData).then(({ code, data }) => {
       if (code === '10000') {
         if (data.pageAction.pageAction === 'jumpToPage') {

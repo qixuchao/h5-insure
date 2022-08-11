@@ -28,6 +28,9 @@ export interface OrderItem {
   saleUserId: string;
   templateId: number;
   tenantId: number;
+  abbreviation: string;
+  insurerCode: string;
+  productCategory: string;
 }
 
 export interface Sort {
@@ -220,4 +223,5 @@ export interface OrderDetail {
   thirdOrderNoType: number;
   venderCode: string;
   venderName: string;
+  abbreviation: string;
 }

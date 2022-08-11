@@ -13,7 +13,7 @@
       <span v-else class="placeholder">{{ placeholder }}</span>
     </template>
   </ProField>
-  <ProPopup v-model:show="show" :height="60" :closeable="false">
+  <ProPopup v-model:show="show" :height="60" :closeable="false" class="com-cascader-popup">
     <van-cascader
       :title="title || label"
       :options="dataSource"
@@ -177,7 +177,28 @@ const displayValue = computed(() => {
 });
 </script>
 
-<style lang="scss" scoped>
-.com-cascader {
+<style lang="scss">
+.com-cascader-popup {
+  .van-cascader {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    .van-tabs {
+      flex: 1;
+      height: 0;
+      display: flex;
+      flex-direction: column;
+      .van-tabs__content {
+        flex: 1;
+        height: 0;
+        .van-tab__panel {
+          height: 100%;
+          .van-cascader__options {
+            height: 100%;
+          }
+        }
+      }
+    }
+  }
 }
 </style>
