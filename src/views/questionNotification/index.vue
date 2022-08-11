@@ -67,17 +67,29 @@ import { sessionStore } from '@/hooks/useStorage';
 
 const router = useRouter();
 const route = useRoute();
+/** 页面query参数类型 */
+interface QueryData {
+  productCode: string; // 产品代码
+  tenantId: number; // 租户id
+  agentCode: string; // 代理人code
+  agencyCode: string; // 机构code
+  insurerCode: string; // 保险公司
+  productCategory: number; // 产品大类
+  templateId: number; // 模板id
+  orderNo: string; // 订单号
+  [key: string]: any;
+}
 
 const {
   productCode = 'MMBBSF',
   agentCode = '65434444',
-  tenantId = '9991000007',
+  tenantId = 9991000007,
   agencyCode = '3311222',
   insurerCode = 'zhongan',
-  productCategory = '1',
-  templateId = '1',
+  productCategory = 1,
+  templateId = 1,
   orderNo = '2022080217103534947',
-} = route.query;
+} = route.query as QueryData;
 
 const listQuestions = ref<ListCustomerQuestionsResponse[]>([]);
 const pageData = ref<Partial<NextStepRequestData>>({});
@@ -164,7 +176,7 @@ const handleClickNextStep = () => {
 
   nextStep({
     ...pageData.value,
-    extInfo: { ...pageData.value.extInfo, templateId: '1', pageCode: 'questionNotice' },
+    extInfo: { ...pageData.value.extInfo, templateId: 1, pageCode: 'questionNotice' },
     venderCode: insurerCode,
   }).then(({ code, data }) => {
     if (code === '10000') {
