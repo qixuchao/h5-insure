@@ -1,4 +1,12 @@
 <!--
+ * @Author: za-qixuchao qixuchao@zhongan.io
+ * @Date: 2022-07-28 10:28:12
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-08-11 09:46:53
+ * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProFixedButton/index.vue
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<!--
  * new page
  * @author: liyang
  * @since: 2022-07-14
@@ -16,14 +24,13 @@
 <script setup lang="ts">
 import { Toast } from 'vant';
 import { withDefaults } from 'vue';
-import fixedImage from '@/assets/images/customer/customer.png';
 
 interface Props {
   buttonImage?: string;
 }
 // 默认图片展示
 const props = withDefaults(defineProps<Props>(), {
-  buttonImage: fixedImage,
+  buttonImage: '',
 });
 
 const { buttonImage } = toRefs(props);
@@ -59,15 +66,16 @@ onBeforeMount(() => {
 <style scoped lang="scss">
 .fixed-box {
   position: fixed;
-  top: 50%;
-  right: 0;
+  bottom: 427px;
+  right: 21px;
+  width: 122px;
 }
 .is-screen-fade-in {
-  right: -13%;
+  right: -71px;
   transition: all 1s;
 }
 .is-screen-fade-out {
-  right: 0;
+  right: 21px;
   transition: all 1s;
 }
 </style>

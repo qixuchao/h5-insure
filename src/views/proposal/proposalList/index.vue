@@ -60,7 +60,7 @@ import createProposalStore from '@/store/proposal/createProposal';
 import { ProposalInfo } from '@/api/modules/createProposal.data';
 import ProFixedButton from '@/components/ProFixedButton/index.vue';
 import { queryProposalProductList } from '@/api/modules/proposalList';
-import ProFixedButtonDefaultImage from '@/assets/images/customer/da.png';
+import ProFixedButtonDefaultImage from '@/assets/images/lishijihuashu.png';
 import TrialProductPopup from './components/TrialProductPopup/index.vue';
 
 interface Props {
