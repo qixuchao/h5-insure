@@ -11,7 +11,7 @@
         <ProRadioButton
           v-model="state.formInfo.relationToInsured"
           :is-view="isView"
-          :options="RELATION_INSURED_LIST"
+          :options="RELATION_INSURED_LIST.slice(1, 4)"
         ></ProRadioButton>
       </template>
     </ProField>
@@ -470,7 +470,7 @@ const onClose = () => {
 
 // 验证10位整数两位小数
 const validateFloat = (value: string, rule: any) => {
-  if (/^[+-]?(\d|[1-9]\d{1,5})(\.\d{1,2})?$/.test(value)) {
+  if (/^[+-]?(\d|[1-9]\d{1,9})(\.\d{1,2})?$/.test(value)) {
     return '';
   }
   return '年收入最多录入10位数字';
