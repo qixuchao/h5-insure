@@ -67,6 +67,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  isView: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 useCustomFieldValue(() => props.modelValue);
@@ -79,6 +83,9 @@ const backImage = ref<Array<UploaderFileListItem>>([]);
 const temp = ref<Array<UploaderFileListItem>>([]);
 
 const handleFrontClick = () => {
+  if (props.isView) {
+    return;
+  }
   current = 'front';
   temp.value = [];
   setTimeout(() => {
@@ -87,6 +94,9 @@ const handleFrontClick = () => {
 };
 
 const handleBackClick = () => {
+  if (props.isView) {
+    return;
+  }
   current = 'back';
   temp.value = [];
   setTimeout(() => {

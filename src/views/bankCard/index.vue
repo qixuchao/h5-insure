@@ -74,7 +74,7 @@
       </ProCard>
       <div class="agree">
         <van-checkbox v-model="agree" class="checkbox" shape="square" :icon-size="16" /> 投保人阅读并接受
-        <div class="file">《银行转账授权》</div>
+        <ProPDFviewer class="file" title="《银行转账授权》" :url="tempPdf" />
       </div>
       <div class="footer-button footer">
         <van-button type="primary" @click="handleSubmit">下一步</van-button>
@@ -91,6 +91,7 @@ import ProForm from '@/components/ProForm/index.vue';
 import ProField from '@/components/ProField/index.vue';
 import ProPicker from '@/components/ProPicker/index.vue';
 import BankCardInfo from '@/components/BankCardInfo/index.vue';
+import ProPDFviewer from '@/components/ProPDFviewer/index.vue';
 import {
   PAY_METHOD_LIST,
   PAY_METHOD_ENUM,
@@ -103,6 +104,7 @@ import {
 } from '@/common/constants/bankCard';
 import { PAGE_ROUTE_ENUMS, ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import { nextStep, getOrderDetail, getInitFactor } from '@/api';
+import tempPdf from '@/assets/pdf/bank.pdf';
 
 const route = useRoute();
 const router = useRouter();

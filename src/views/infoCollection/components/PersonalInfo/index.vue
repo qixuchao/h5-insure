@@ -35,7 +35,7 @@
       :name="`${prefix}_idCard`"
     >
       <template #input>
-        <ProIDCardUpload v-model="tempImages"></ProIDCardUpload>
+        <ProIDCardUpload v-model="tempImages" :is-view="isView" />
       </template>
     </ProField>
     <ProField
@@ -104,13 +104,13 @@
       type="date"
       :min="state.certEndDate.min"
       :max="state.certEndDate.max"
-      :is-view="certEndType"
+      :is-view="certEndType || isView"
       read
       :required="factorObj.certEndDate?.isMustInput === 'YES'"
     >
       <template #extra>
         <div class="date-extra">
-          <van-checkbox v-model="certEndType">长期</van-checkbox>
+          <van-checkbox v-model="certEndType" :disabled="isView">长期</van-checkbox>
         </div>
       </template>
     </ProDatePicker>
