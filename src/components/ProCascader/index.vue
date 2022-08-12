@@ -108,7 +108,6 @@ const handleClose = () => {
 };
 
 const handleFinish = (selected: { value: number | string; selectedOptions: any[] }) => {
-  console.log('🚀 ~ handleFinish ~ value', selected);
   emits('update:modelValue', selected.value);
   selected.selectedOptions.forEach((item, index) => {
     emits(`update:field${index}`, item[props.mapping.value]);

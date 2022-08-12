@@ -6,7 +6,7 @@
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProField/utils.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
-import { SEX_LIMIT_ENUM } from '@/common/constants';
+import { SEX_LIMIT_ENUM, VALIDATE_TYPE_ENUM } from '@/common/constants';
 
 export const validateIdCardNo = (idCard: string): boolean => {
   // 15位和18位身份证号码的正则表达式
@@ -75,29 +75,44 @@ export function getBirth(idCard: string) {
   return birthday;
 }
 
-export const formatRule = (type: string, label: string) => {
+export const formatRule = (type: keyof typeof VALIDATE_TYPE_ENUM, label: string) => {
   switch (type) {
-    case 'phone':
+    case VALIDATE_TYPE_ENUM.PHONE:
       return {
         pattern: /^(?:(?:\+|00)86)?1\d{10}$/,
         message: '请输入正确的手机号',
       };
-    case 'mail':
+    case VALIDATE_TYPE_ENUM.EMAIL:
       return {
         pattern: /^[A-Za-z0-9]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/,
         message: '请输入正确的邮箱',
       };
-    case 'zipCode':
+    case VALIDATE_TYPE_ENUM.ZIP_CODE:
       return {
         pattern: /^[0-9]{6,6}$/,
         message: '请输入正确的邮编',
       };
-    case 'idCard':
+    case VALIDATE_TYPE_ENUM.ID_CARD:
       return {
         validator(value: string) {
           return validateIdCardNo(value);
         },
         message: '请输入正确的身份证号码',
+      };
+    case VALIDATE_TYPE_ENUM.BIRTH:
+      return {
+        pattern: /^[a-zA-Z]\d{9}$/,
+        message: '请输入正确的出生证号码',
+      };
+    case VALIDATE_TYPE_ENUM.PASSPORT:
+      return {
+        validator(value: string) {
+          if (`${value}`.length >= 5 && /^[^\u4e00-\u9fa5]+$/.test(`${value}`)) {
+            return true;
+          }
+          return false;
+        },
+        message: '请输入正确的护照号码',
       };
     default:
       return {};

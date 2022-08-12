@@ -44,13 +44,13 @@
           v-model:field2="formInfo.tenantOrderInsuredList[0].extInfo.insureCityCode"
           v-model:field3="formInfo.tenantOrderInsuredList[0].extInfo.insureAreaCode"
           label="投保地区"
-          name="insureProvinceCode"
+          name="insureAreaCode"
           placeholder="请选择"
           is-link
           required
           :data-source="region"
           :mapping="{ label: 'name', value: 'code', children: 'children' }"
-        ></ProCascader>
+        />
       </ProCard>
 
       <ProCard title="受益人">
@@ -82,6 +82,7 @@
               :form-info="beneficiary"
               :factor-list="pageFactor.BENEFICIARY || []"
               :prefix="`beneficiary-${index}`"
+              :beneficiary-list="formInfo.tenantOrderInsuredList[0].tenantOrderBeneficiaryList"
             ></PersonalInfo>
           </div>
           <VanButton @click="addBeneficiary">+添加受益人</VanButton>
@@ -224,7 +225,6 @@ const currentAddressInfo = computed(() => {
 const goNextPage = () => {
   const formData = { ...formInfo.value };
   formData.extInfo = { ...formData.extInfo, contactInfo: [currentAddressInfo.value] };
-  console.log('🚀 ~ goNextPage ~ formData', formData);
   formData.tenantOrderAttachmentList = [
     {
       category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_CERT,
@@ -312,6 +312,7 @@ const queryOrderDetail = () => {
     .then(({ code, data }) => {
       if (code === '10000') {
         const currentData = data;
+
         currentData.extInfo = { ...currentData.extInfo, pageCode, templateId };
         currentData.tenantOrderHolder = currentData.tenantOrderHolder || {};
         currentData.tenantOrderHolder.extInfo = currentData.tenantOrderHolder.extInfo || {};

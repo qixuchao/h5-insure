@@ -24,6 +24,42 @@ export const SEX_LIMIT_LIST = [
   },
 ];
 
+export const VALIDATE_TYPE_ENUM = {
+  PHONE: 'phone',
+  EMAIL: 'email',
+  ID_CARD: 'idCard',
+  ZIP_CODE: 'zipCode',
+  BIRTH: 'birth',
+  PASSPORT: 'passport',
+};
+
+export const CERT_TYPE_ENUM = {
+  /** 身份证 */
+  CERT: '1',
+  /** 户口本 */
+  HOUSE_HOLD: '3',
+  /** 军官证 */
+  MILITARY_CARD: '5',
+  /** 护照 */
+  PASSPORT: '2',
+  /** 大陆居民往来港澳通行证 */
+  HONGKONG_MACAO: '13',
+  /** 其他 */
+  OTHER: '127',
+  /** 士兵证 */
+  SOLIDER: '6',
+  /** 出生证 */
+  BIRTH: '4',
+  /** 大陆居民往来台湾通行证 */
+  TAIWAN_TRAVEL: '15',
+  /** 外国人永久居留证 */
+  FOREIGN_PERMANENT: '11',
+  /** 港澳居民居住证 */
+  HK_MACAO_RESIDENCE_PERMIT: '9',
+  /** 台湾居民居住证 */
+  TAIWAN_RESIDENCE_PERMIT: '10',
+};
+
 export const FLAG_LIST = [
   {
     label: '是',

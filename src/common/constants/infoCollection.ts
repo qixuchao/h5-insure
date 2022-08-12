@@ -52,22 +52,29 @@ export const MARRIED_STATUS_LIST = [
   },
 ];
 
+export const RELATION_INSURED_ENUM = {
+  SELF: '1',
+  SPOUSE: '2',
+  CHILD: '3',
+  PARENT: '4',
+};
+
 export const RELATION_INSURED_LIST = [
   {
     label: '本人',
-    value: '1',
+    value: RELATION_INSURED_ENUM.SELF,
   },
   {
     label: '配偶',
-    value: '2',
+    value: RELATION_INSURED_ENUM.SPOUSE,
   },
   {
     label: '子女',
-    value: '3',
+    value: RELATION_INSURED_ENUM.CHILD,
   },
   {
     label: '父母',
-    value: '4',
+    value: RELATION_INSURED_ENUM.PARENT,
   },
 ];
 export const TAX_RESIDENT = [

@@ -41,7 +41,7 @@
           is-view
         ></PersonalInfo>
         <ProCascader
-          v-model="formInfo.tenantOrderInsuredList[0].extInfo.insureProvinceCode"
+          v-model="formInfo.tenantOrderInsuredList[0].extInfo.insureAreaCode"
           v-model:field1="formInfo.tenantOrderInsuredList[0].extInfo.insureProvinceCode"
           v-model:field2="formInfo.tenantOrderInsuredList[0].extInfo.insureCityCode"
           v-model:field3="formInfo.tenantOrderInsuredList[0].extInfo.insureAreaCode"

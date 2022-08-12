@@ -6,13 +6,14 @@
       :name="`${prefix}_relationToInsured`"
       :required="factorObj.insureRelation?.isMustInput === 'YES'"
       label="是被保人的"
+      :rules="[{ validator: relationValidate }]"
     >
       <template #input>
         <ProRadioButton
           v-model="state.formInfo.relationToInsured"
           :is-view="isView"
           :options="RELATION_INSURED_LIST.slice(1, 4)"
-        ></ProRadioButton>
+        />
       </template>
     </ProField>
     <ProPicker
@@ -20,7 +21,6 @@
       v-model="state.formInfo.certType"
       label="证件类型"
       :name="`${prefix}_certType`"
-      readonly
       :data-source="certType"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
       :required="factorObj.certType?.isMustInput === 'YES'"
@@ -57,8 +57,7 @@
       :name="`${prefix}_certNo`"
       :required="factorObj.certNo?.isMustInput === 'YES'"
       placeholder="请输入"
-      :rules="[{ validator: validateCertNo }]"
-      :validate-type="state.formInfo.certType === '1' ? ['idCard'] : []"
+      :validate-type="validateType"
     ></ProField>
     <ProField
       v-if="factorObj.name?.isDisplay === 'YES'"
@@ -182,7 +181,6 @@
       v-model="state.formInfo.extInfo.nationalityCode"
       label="国籍"
       :name="`${prefix}_nationalityCode`"
-      readonly
       :data-source="nationalityCode"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
       placeholder="请选择"
@@ -210,7 +208,6 @@
       v-model="state.formInfo.extInfo.marriageStatus"
       label="婚姻状况"
       :name="`${prefix}_marriageStatus`"
-      readonly
       placeholder="请选择"
       :data-source="MARRIED_STATUS_LIST"
       is-link
@@ -220,7 +217,6 @@
       v-if="factorObj.educationDegree?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.educationDegree"
       label="学历"
-      readonly
       :name="`${prefix}_educationDegree`"
       :data-source="degree"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
@@ -235,7 +231,7 @@
       :name="`${prefix}_mobile`"
       placeholder="请输入"
       :required="factorObj.mobile?.isMustInput === 'YES'"
-      :validate-type="['phone']"
+      :validate-type="[VALIDATE_TYPE_ENUM.PHONE]"
     ></ProField>
     <ProField
       v-if="factorObj.email?.isDisplay === 'YES'"
@@ -244,7 +240,7 @@
       :name="`${prefix}_email`"
       placeholder="请输入"
       :required="factorObj.email?.isMustInput === 'YES'"
-      :validate-type="['mail']"
+      :validate-type="[VALIDATE_TYPE_ENUM.EMAIL]"
     ></ProField>
     <ProCascader
       v-if="factorObj.familyAddress?.isDisplay === 'YES'"
@@ -276,7 +272,7 @@
       :name="`${prefix}_familyZipCode`"
       placeholder="请输入"
       :required="factorObj.familyPostCode?.isMustInput === 'YES'"
-      :validate-type="['zipCode']"
+      :validate-type="[VALIDATE_TYPE_ENUM.ZIP_CODE]"
     ></ProField>
     <ProCascader
       v-if="factorObj.workAddress?.isDisplay === 'YES'"
@@ -308,7 +304,7 @@
       :required="factorObj.workZipCode?.isMustInput === 'YES'"
       :name="`${prefix}_workPostCode`"
       placeholder="请输入"
-      :validate-type="['zipCode']"
+      :validate-type="[VALIDATE_TYPE_ENUM.ZIP_CODE]"
     ></ProField>
     <ProField
       v-if="factorObj.workPlace?.isDisplay === 'YES'"
@@ -383,7 +379,7 @@ import { useToggle } from '@vant/use';
 import { truncateSync } from 'fs';
 import { useRoute } from 'vue-router';
 import { InsuredReqItem, HolderReq, ProductInsureFactorItem } from '@/api/index.data';
-import { SEX_LIMIT_LIST, FLAG_LIST } from '@/common/constants';
+import { SEX_LIMIT_LIST, FLAG_LIST, VALIDATE_TYPE_ENUM, CERT_TYPE_ENUM } from '@/common/constants';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import useDicData from '@/hooks/useDicData';
 import {
@@ -391,6 +387,7 @@ import {
   BENEFICIARY_ORDER,
   RELATION_INSURED_LIST,
   MARRIED_STATUS_LIST,
+  RELATION_INSURED_ENUM,
 } from '@/common/constants/infoCollection';
 
 type FormInfo = InsuredReqItem | HolderReq;
@@ -401,6 +398,7 @@ interface Props {
   isView?: boolean;
   // field的name前缀
   prefix: string;
+  beneficiaryList: Array<any>;
 }
 
 interface FactorObj {
@@ -429,6 +427,7 @@ const props = withDefaults(defineProps<Props>(), {
   images: () => [],
   isView: false,
   prefix: '',
+  beneficiaryList: () => [],
 });
 
 const state = ref({
@@ -456,20 +455,18 @@ const factorObj = computed(() => {
   return factor;
 });
 
-const certTypeEnum = computed(() => {
-  if (state.value.formInfo.extInfo.nationalityCode === 'CHN') {
-    return [];
+const validateType = computed(() => {
+  if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(state.value.formInfo.certType)) {
+    return [VALIDATE_TYPE_ENUM.ID_CARD];
+  }
+  if (state.value.formInfo.certType === CERT_TYPE_ENUM.BIRTH) {
+    return [VALIDATE_TYPE_ENUM.BIRTH];
+  }
+  if (state.value.formInfo.certType === CERT_TYPE_ENUM.PASSPORT) {
+    return [VALIDATE_TYPE_ENUM.PASSPORT];
   }
   return [];
 });
-
-const onFinish = (text: string) => {
-  state.value.occupationalText = text;
-};
-
-const onClose = () => {
-  toggleOccupational(false);
-};
 
 // 验证10位整数两位小数
 const validateFloat = (value: string, rule: any) => {
@@ -494,58 +491,56 @@ const validateLength = (len: number, value: string, rule: any) => {
   return '';
 };
 
-// 验证证件号码
-const validateCertNo = (value: string | number, rule: any) => {
-  if (state.value.formInfo?.certType === '4') {
-    if (!/^[a-zA-Z]\d{9}$/.test(`${value}`)) {
-      return `出生证号码错误`;
-    }
-  } else if (state.value.formInfo?.certType === '2') {
-    if (`${value}`.length >= 5 && /^[^\u4e00-\u9fa5]+$/.test(`${value}`)) {
-      return '';
-    }
-    return '证件号码错误';
-  }
-  return '';
-};
-
 // 验证证件类型
-const validateCertType = (value: string | number, rule: any) => {
+const validateCertType = (value: string, rule: any) => {
   if (state.value.formInfo?.extInfo?.nationalityCode === 'CHN') {
     // 国籍为中国支持的证件 身份证、户口本、出生证、军官证
-    if (!['1', '2', '3', '4'].includes(`${value}`)) {
+    if (
+      ![CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD, CERT_TYPE_ENUM.BIRTH, CERT_TYPE_ENUM.MILITARY_CARD].includes(
+        value,
+      )
+    ) {
       return '国籍为中国时，证件类型只允许选择身份证、户口本、出生证、军官证';
     }
   } else if (['HKG', 'MAC'].includes(state.value.formInfo?.extInfo?.nationalityCode)) {
-    // 国籍为中国香港、中国澳门，证件类型需为：港澳居民往来大陆通行证、港澳居民居住证
-    if (!['15', '9'].includes(`${value}`)) {
+    // 国籍为中国香港、中国澳门，证件类型只允许选择港澳通行证、港澳居民居住证
+    if (![CERT_TYPE_ENUM.HK_MACAO_RESIDENCE_PERMIT, CERT_TYPE_ENUM.HONGKONG_MACAO].includes(value)) {
       return '国籍为中国香港、中国澳门时，证件类型只允许选择港澳通行证、港澳居民居住证';
     }
   } else if (state.value.formInfo?.extInfo?.nationalityCode === 'TWN') {
-    // 国籍为中国台湾时，客户的证件类型需为：台湾居民往来大陆通行证、台湾居民居住证
-    if (!['10'].includes(`${value}`)) {
+    // '国籍为中国台湾时，证件类型只允许选择台湾通行证、台湾居民居住证
+    if (![CERT_TYPE_ENUM.TAIWAN_RESIDENCE_PERMIT, CERT_TYPE_ENUM.TAIWAN_TRAVEL].includes(value)) {
       return '国籍为中国台湾时，证件类型只允许选择台湾通行证、台湾居民居住证';
     }
   } else {
     // 国籍为非中国、港澳台时，证件类型只允许选择护照、外国人永久居留身份证
-    if (!['2', '11'].includes(`${value}`)) {
+    if (![CERT_TYPE_ENUM.PASSPORT, CERT_TYPE_ENUM.FOREIGN_PERMANENT].includes(`${value}`)) {
       return '国籍为非中国、港澳台时，证件类型只允许选择护照、外国人永久居留身份证';
     }
   }
 
   if (+(dayjs(state.value.formInfo?.birthday).toNow(true) as string).split(' ')[0] > 2) {
-    if (`${value}` === '4') {
+    if (value === CERT_TYPE_ENUM.BIRTH) {
       return '年龄大于等于2周岁时，证件类型不能选择出生证';
     }
   }
   return '';
 };
 
+// 验证身份证照片
 const idCardImagesValidate = (value: any) => {
   if (Array.isArray(value) && value.length === 2 && value[0] && value[1]) {
     return '';
   }
   return '请上传身份证正反面照片';
+};
+
+// 验证被保人关系
+const relationValidate = (value: any) => {
+  if (props.beneficiaryList.filter((x) => x.relationToInsured === RELATION_INSURED_ENUM.SPOUSE).length >= 2) {
+    return '已存在配偶关系的受益人';
+  }
+  return '';
 };
 
 watch(
@@ -566,7 +561,7 @@ watch(
 watch(
   () => state.value.formInfo.certType,
   (newVal) => {
-    if (![1, 2].includes(+newVal)) {
+    if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(newVal)) {
       isIdCard.value = false;
     } else {
       isIdCard.value = true;
