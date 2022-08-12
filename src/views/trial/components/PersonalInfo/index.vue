@@ -45,22 +45,16 @@
           <ProRadioButton v-model="state.formInfo.socialFlag" :options="SOCIAL_INSURANCE_LIMIT" />
         </template>
       </VanField>
-      <VanField
+      <ProCascader
         v-if="factorList.includes('OCCUPATION_CATEGORY')"
         v-model="state.formInfo.occupationClass"
-        :rules="[{ required: true, message: '请选择职业类型' }]"
+        required
         name="occupationClass"
         label="职业类型"
-        is-link
-        readonly
-        placeholder="请选择"
-        @click="toggleOccupational(true)"
-      >
-        <template #input>
-          <span v-if="!state.occupationalText" class="placeholder">请选择</span>
-          <div v-else>{{ state.occupationalText }}</div>
-        </template>
-      </VanField>
+        :data-source="OCCUPATION_LIST"
+        :mapping="{ label: 'value', value: 'code', children: 'children' }"
+        show-full-value
+      />
     </VanForm>
     <van-popup v-model:show="isShow" position="bottom">
       <van-datetime-picker
@@ -76,15 +70,6 @@
         @cancel="toggle(false)"
       />
     </van-popup>
-    <Occupational
-      v-if="isShowOccupational"
-      v-model="state.formInfo.occupationClass"
-      :show="isShowOccupational"
-      :insured-code="insuredCode"
-      @finish="onFinish"
-      @close="onClose"
-    >
-    </Occupational>
   </div>
 </template>
 
@@ -95,6 +80,8 @@ import dayjs from 'dayjs';
 import { SEX_LIMIT, SOCIAL_INSURANCE_LIMIT } from '@/common/constants/trial';
 import Occupational from '../Occupational/index.vue';
 import { PersonVo } from '@/api/modules/trial.data';
+import ProCascader from '@/components/ProCascader/index.vue';
+import useDicData from '@/hooks/useDicData';
 
 interface Props {
   formInfo: Partial<PersonVo>;
@@ -110,8 +97,8 @@ const props = withDefaults(defineProps<Props>(), {
   ageRange: () => [],
 });
 
+const OCCUPATION_LIST = useDicData(`${props.insuredCode?.toLocaleUpperCase?.()}_OCCUPATION`);
 const [isShow, toggle] = useToggle();
-const [isShowOccupational, toggleOccupational] = useToggle();
 const formRef = ref();
 const trialType: any = inject('source') || {};
 
@@ -119,14 +106,6 @@ const state = reactive({
   formInfo: props.formInfo,
   occupationalText: '',
 });
-
-const onFinish = (text: string) => {
-  state.occupationalText = text;
-};
-
-const onClose = () => {
-  toggleOccupational(false);
-};
 
 const validateForm = () => {
   return new Promise((resolve, reject) => {

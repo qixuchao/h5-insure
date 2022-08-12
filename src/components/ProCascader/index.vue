@@ -95,9 +95,14 @@ const props = defineProps({
       children: 'children',
     }),
   },
+  showFullValue: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const [show, toggle] = useToggle(false);
+let tempValue: string[] = [];
 
 const handleClick = () => {
   toggle(true);
@@ -112,6 +117,7 @@ const handleFinish = (selected: { value: number | string; selectedOptions: any[]
   selected.selectedOptions.forEach((item, index) => {
     emits(`update:field${index}`, item[props.mapping.value]);
   });
+  tempValue = selected.selectedOptions.map((item) => item[props.mapping.value]);
   toggle(false);
 };
 
@@ -163,10 +169,18 @@ const flatList = computed(() => {
 
 const findLabel = (value: any) => {
   const find = flatList.value.find((x) => x[props.mapping.value] === value);
-  return find ? find[props.mapping.label] : '';
+  return find ? find[props.mapping.label] : value;
 };
 
 const displayValue = computed(() => {
+  if (props.showFullValue) {
+    return (
+      tempValue
+        .filter((x) => !!x)
+        .map((x) => findLabel(x))
+        .join('/') || findLabel(props.modelValue)
+    );
+  }
   return (
     [props.field0, props.field1, props.field2, props.field3]
       .filter((x) => !!x)
