@@ -14,6 +14,7 @@
           v-model:images="holderImages"
           :form-info="formInfo.tenantOrderHolder"
           :factor-list="pageFactor.HOLDER"
+          prefix="holder"
         ></PersonalInfo>
       </ProCard>
       <ProCard title="被保人">
@@ -35,9 +36,10 @@
           v-model:images="insuredImages"
           :form-info="formInfo.tenantOrderInsuredList[0]"
           :factor-list="pageFactor.INSURER || []"
+          prefix="insure"
         ></PersonalInfo>
         <ProCascader
-          v-model="formInfo.tenantOrderInsuredList[0].extInfo.insureProvinceCode"
+          v-model="formInfo.tenantOrderInsuredList[0].extInfo.insureAreaCode"
           v-model:field1="formInfo.tenantOrderInsuredList[0].extInfo.insureProvinceCode"
           v-model:field2="formInfo.tenantOrderInsuredList[0].extInfo.insureCityCode"
           v-model:field3="formInfo.tenantOrderInsuredList[0].extInfo.insureAreaCode"
@@ -79,6 +81,7 @@
               v-model:images="beneficiaryImages"
               :form-info="beneficiary"
               :factor-list="pageFactor.BENEFICIARY || []"
+              :prefix="`beneficiary-${index}`"
             ></PersonalInfo>
           </div>
           <VanButton @click="addBeneficiary">+添加受益人</VanButton>

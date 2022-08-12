@@ -45,6 +45,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useCustomFieldValue } from '@vant/use';
 import { defineProps } from 'vue';
 import { UploaderFileListItem, UploaderInstance } from 'vant';
 import { fileUpload } from '@/api/modules/file';
@@ -54,6 +55,10 @@ import IDCardUploadBackImage from '@/assets/images/component/idcard-back.png';
 import { UPLOAD_TYPE_ENUM } from '@/common/constants';
 
 const props = defineProps({
+  modelValue: {
+    type: Array as () => string[],
+    default: () => [],
+  },
   front: {
     type: String,
     default: '',
@@ -64,7 +69,9 @@ const props = defineProps({
   },
 });
 
-const emits = defineEmits(['update:front', 'update:back']);
+useCustomFieldValue(() => props.modelValue);
+
+const emits = defineEmits(['update:front', 'update:back', 'update:modelValue']);
 let current: 'front' | 'back' = 'front';
 const instance = ref<UploaderInstance>();
 const frontImage = ref<Array<UploaderFileListItem>>([]);
@@ -91,6 +98,7 @@ const handleFrontRead = (e: { file: File }) => {
   fileUpload(e.file, UPLOAD_TYPE_ENUM.ID_CARD_FRONT).then((res) => {
     if (res.code === '10000') {
       emits('update:front', res.data.url);
+      emits('update:modelValue', [res.data.url, props.modelValue[1]]);
     }
   });
 };
@@ -99,6 +107,7 @@ const handleBackRead = (e: { file: File }) => {
   fileUpload(e.file, UPLOAD_TYPE_ENUM.ID_CARD_BACK).then((res) => {
     if (res.code === '10000') {
       emits('update:back', res.data.url);
+      emits('update:modelValue', [props.modelValue[0], res.data.url]);
     }
   });
 };
@@ -107,7 +116,13 @@ const handleTempRead = (e: { file: File }) => {
   fileUpload(e.file, current === 'front' ? UPLOAD_TYPE_ENUM.ID_CARD_FRONT : UPLOAD_TYPE_ENUM.ID_CARD_BACK).then(
     (res) => {
       if (res.code === '10000') {
-        emits(current === 'front' ? 'update:front' : 'update:back', res.data.url);
+        if (current === 'front') {
+          emits('update:front', res.data.url);
+          emits('update:modelValue', [res.data.url, props.modelValue[1]]);
+        } else {
+          emits('update:back', res.data.url);
+          emits('update:modelValue', [props.modelValue[0], res.data.url]);
+        }
       }
     },
   );
@@ -144,6 +159,22 @@ watch(temp, (val) => {
     }
   }
 });
+
+watch(
+  () => props.modelValue,
+  (val) => {
+    if (val[0]) {
+      frontImage.value = [{ url: val[0] }];
+    }
+    if (val[1]) {
+      backImage.value = [{ url: val[1] }];
+    }
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
 </script>
 
 <style lang="scss" scoped>

@@ -3,7 +3,7 @@
     <ProField
       v-if="factorObj.insureRelation?.isDisplay"
       v-model="state.formInfo.relationToInsured"
-      name="relationToInsured"
+      :name="`${prefix}_relationToInsured`"
       :required="factorObj.insureRelation?.isMustInput === 'YES'"
       label="是被保人的"
     >
@@ -19,7 +19,7 @@
       v-if="factorObj.certType?.isDisplay === 'YES'"
       v-model="state.formInfo.certType"
       label="证件类型"
-      name="certType"
+      :name="`${prefix}_certType`"
       readonly
       :data-source="certType"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
@@ -31,9 +31,11 @@
       label="身份证上传"
       block
       :required="factorObj.certType?.isMustInput === 'YES'"
+      :rules="[{ validator: idCardImagesValidate }]"
+      :name="`${prefix}_idCard`"
     >
       <template #input>
-        <ProIDCardUpload v-model:front="tempImages[0]" v-model:back="tempImages[1]"></ProIDCardUpload>
+        <ProIDCardUpload v-model="tempImages"></ProIDCardUpload>
       </template>
     </ProField>
     <ProField
@@ -52,7 +54,7 @@
       v-if="factorObj.certNo?.isDisplay === 'YES'"
       v-model="state.formInfo.certNo"
       label="证件号码"
-      name="certNo"
+      :name="`${prefix}_certNo`"
       :required="factorObj.certNo?.isMustInput === 'YES'"
       placeholder="请输入"
       :rules="[{ validator: validateCertNo }]"
@@ -62,7 +64,7 @@
       v-if="factorObj.name?.isDisplay === 'YES'"
       v-model="state.formInfo.name"
       label="姓名"
-      name="name"
+      :name="`${prefix}_name`"
       :required="factorObj.name?.isMustInput === 'YES'"
     ></ProField>
     <ProField
@@ -70,7 +72,7 @@
       v-model="state.formInfo.gender"
       :required="factorObj.sex?.isMustInput === 'YES'"
       label="性别"
-      name="gender"
+      :name="`${prefix}_gender`"
       placeholder="请选择"
       :is-view="isIdCard"
     >
@@ -87,7 +89,7 @@
       v-if="factorObj.birthday?.isDisplay === 'YES'"
       v-model="state.formInfo.birthday"
       label="出生日期"
-      name="birthday"
+      :name="`${prefix}_birthday`"
       :min="state.birth.min"
       :max="state.birth.max"
       type="date"
@@ -98,7 +100,7 @@
       v-if="factorObj.certEndDate?.isDisplay === 'YES'"
       v-model="state.formInfo.certEndDate"
       label="有效期至"
-      name="certEndDate"
+      :name="`${prefix}_certEndDate`"
       type="date"
       :min="state.certEndDate.min"
       :max="state.certEndDate.max"
@@ -119,7 +121,7 @@
       v-model:field2="state.formInfo.extInfo.cityCode"
       v-model:field3="state.formInfo.extInfo.areaCode"
       label="户籍所在地"
-      name="provinceCode"
+      :name="`${prefix}_provinceCode`"
       placeholder="请选择"
       is-link
       :required="factorObj.houseHold?.isMustInput === 'YES'"
@@ -130,7 +132,7 @@
       v-if="factorObj.hasSocialInsurance?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.hasSocialInsurance"
       label="社保"
-      name="hasSocialInsurance"
+      :name="`${prefix}_hasSocialInsurance`"
       placeholder="请选择"
       :required="factorObj.hasSocialInsurance?.isMustInput === 'YES'"
     >
@@ -146,7 +148,7 @@
       v-if="factorObj.occupation?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.occupationCode"
       label="职业"
-      name="occupationCode"
+      :name="`${prefix}_occupationCode`"
       placeholder="请选择"
       :required="factorObj.occupation?.isMustInput === 'YES'"
       :data-source="occupationCode"
@@ -157,7 +159,7 @@
       v-if="factorObj.annualIncome?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.personalAnnualIncome"
       label="个人年收入"
-      name="personalAnnualIncome"
+      :name="`${prefix}_personalAnnualIncome`"
       :required="factorObj.annualIncome?.isMustInput === 'YES'"
       placeholder="请输入"
       :rules="[{ validator: validateFloat }]"
@@ -168,7 +170,7 @@
       v-if="factorObj.familyAnnualIncome?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.familyAnnualIncome"
       label="家庭年收入"
-      name="familyAnnualIncome"
+      :name="`${prefix}_familyAnnualIncome`"
       placeholder="请输入"
       :rules="[{ validator: validateFloat }]"
       :required="factorObj.familyAnnualIncome?.isMustInput === 'YES'"
@@ -179,7 +181,7 @@
       v-if="factorObj.nationality?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.nationalityCode"
       label="国籍"
-      name="nationalityCode"
+      :name="`${prefix}_nationalityCode`"
       readonly
       :data-source="nationalityCode"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
@@ -191,7 +193,7 @@
       v-if="factorObj.USAGreenCard?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.hasUsCard"
       label="美国绿卡"
-      name="hasUsCard"
+      :name="`${prefix}_hasUsCard`"
       placeholder="请选择"
       :required="factorObj.USAGreenCard?.isMustInput === 'YES'"
     >
@@ -207,7 +209,7 @@
       v-if="factorObj.marriage?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.marriageStatus"
       label="婚姻状况"
-      name="marriageStatus"
+      :name="`${prefix}_marriageStatus`"
       readonly
       placeholder="请选择"
       :data-source="MARRIED_STATUS_LIST"
@@ -219,7 +221,7 @@
       v-model="state.formInfo.extInfo.educationDegree"
       label="学历"
       readonly
-      name="educationDegree"
+      :name="`${prefix}_educationDegree`"
       :data-source="degree"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
       placeholder="请选择"
@@ -230,7 +232,7 @@
       v-if="factorObj.mobile?.isDisplay === 'YES'"
       v-model="state.formInfo.mobile"
       label="手机号码"
-      name="mobile"
+      :name="`${prefix}_mobile`"
       placeholder="请输入"
       :required="factorObj.mobile?.isMustInput === 'YES'"
       :validate-type="['phone']"
@@ -239,19 +241,19 @@
       v-if="factorObj.email?.isDisplay === 'YES'"
       v-model="state.formInfo.email"
       label="电子邮箱"
-      name="email"
+      :name="`${prefix}_email`"
       placeholder="请输入"
       :required="factorObj.email?.isMustInput === 'YES'"
       :validate-type="['mail']"
     ></ProField>
     <ProCascader
       v-if="factorObj.familyAddress?.isDisplay === 'YES'"
-      v-model="state.formInfo.extInfo.familyProvinceCode"
+      v-model="state.formInfo.extInfo.familyAreaCode"
       v-model:field1="state.formInfo.extInfo.familyProvinceCode"
       v-model:field2="state.formInfo.extInfo.familyCityCode"
       v-model:field3="state.formInfo.extInfo.familyAreaCode"
       label="家庭地址"
-      name="familyProvinceCode"
+      :name="`${prefix}_familyProvinceCode`"
       placeholder="请选择"
       is-link
       :required="factorObj.familyAddress?.isMustInput === 'YES'"
@@ -262,7 +264,7 @@
       v-if="factorObj.familyAddressDetail?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.familyAddress"
       label="地址详情"
-      name="familyAddress"
+      :name="`${prefix}_familyAddress`"
       placeholder="请输入"
       :rules="[{ validator: (...params) => validateLength(100, ...params) }]"
       :required="factorObj.familyAddressDetail?.isMustInput === 'YES'"
@@ -271,19 +273,19 @@
       v-if="factorObj.familyPostCode?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.familyZipCode"
       label="家庭邮编"
-      name="familyZipCode"
+      :name="`${prefix}_familyZipCode`"
       placeholder="请输入"
       :required="factorObj.familyPostCode?.isMustInput === 'YES'"
       :validate-type="['zipCode']"
     ></ProField>
     <ProCascader
       v-if="factorObj.workAddress?.isDisplay === 'YES'"
-      v-model="state.formInfo.extInfo.workProvinceCode"
+      v-model="state.formInfo.extInfo.workAreaCode"
       v-model:field1="state.formInfo.extInfo.workProvinceCode"
       v-model:field2="state.formInfo.extInfo.workCityCode"
       v-model:field3="state.formInfo.extInfo.workAreaCode"
       label="工作地址"
-      name="workProvinceCode"
+      :name="`${prefix}_workProvinceCode`"
       placeholder="请选择"
       is-link
       :required="factorObj.workAddress?.isMustInput === 'YES'"
@@ -294,7 +296,7 @@
       v-if="factorObj.workAddressDetail?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.workAddress"
       label="地址详情"
-      name="workAddress"
+      :name="`${prefix}_workAddress`"
       placeholder="请输入"
       :rules="[{ validator: (...params) => validateLength(100, ...params) }]"
       :required="factorObj.workAddressDetail?.isMustInput === 'YES'"
@@ -304,7 +306,7 @@
       v-model="state.formInfo.extInfo.workZipCode"
       label="工作邮编"
       :required="factorObj.workZipCode?.isMustInput === 'YES'"
-      name="workPostCode"
+      :name="`${prefix}_workPostCode`"
       placeholder="请输入"
       :validate-type="['zipCode']"
     ></ProField>
@@ -312,7 +314,7 @@
       v-if="factorObj.workPlace?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.workStation"
       label="单位名称"
-      name="workPostCode"
+      :name="`${prefix}_workPostCode`"
       placeholder="请输入"
       :rules="[{ validator: (...params) => validateLength(20, ...params) }]"
       :required="factorObj.workPlace?.isMustInput === 'YES'"
@@ -321,7 +323,7 @@
       v-if="factorObj.workContent?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.workContent"
       label="工作内容"
-      name="workContent"
+      :name="`${prefix}_workContent`"
       :required="factorObj.workContent?.isMustInput === 'YES'"
       placeholder="请输入"
       :rules="[{ validator: (...params) => validateLength(100, ...params) }]"
@@ -330,7 +332,7 @@
       v-if="factorObj.taxCert?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.taxResident"
       label="税收居民身份"
-      name="taxResident"
+      :name="`${prefix}_taxResident`"
       :data-source="TAX_RESIDENT"
       :required="factorObj.taxCert?.isMustInput === 'YES'"
       placeholder="请输入"
@@ -339,7 +341,7 @@
       v-if="factorObj.partTime?.isDisplay === 'YES'"
       v-model="state.formInfo.extInfo.isPartTime"
       label="是否兼职"
-      name="isPartTime"
+      :name="`${prefix}_isPartTime`"
       :required="factorObj.partTime?.isMustInput === 'YES'"
       placeholder="请输入"
     >
@@ -355,7 +357,7 @@
       v-if="factorObj.beneficiaryType?.isDisplay"
       v-model="state.formInfo.benefitOrder"
       label="受益人顺序"
-      name="benefitOrder"
+      :name="`${prefix}_benefitOrder`"
       :data-source="BENEFICIARY_ORDER"
       :required="factorObj.beneficiaryType?.isMustInput === 'YES'"
     >
@@ -364,7 +366,7 @@
       v-if="factorObj.benefitRate?.isDisplay"
       v-model="state.formInfo.benefitRate"
       :required="factorObj.benefitRate?.isMustInput === 'YES'"
-      name="benefitRate"
+      :name="`${prefix}_benefitRate`"
       :rules="[{ validator: validatePositiveInteger }]"
       label="受益比例"
     >
@@ -397,6 +399,8 @@ interface Props {
   factorList: ProductInsureFactorItem[];
   images: string[];
   isView?: boolean;
+  // field的name前缀
+  prefix: string;
 }
 
 interface FactorObj {
@@ -424,6 +428,7 @@ const props = withDefaults(defineProps<Props>(), {
   factorList: () => [],
   images: () => [],
   isView: false,
+  prefix: '',
 });
 
 const state = ref({
@@ -436,8 +441,6 @@ const state = ref({
     min: new Date('1900-01-01'),
     max: new Date('2099-12-31'),
   },
-  front: '',
-  back: '',
   occupationalText: '',
 });
 
@@ -536,6 +539,13 @@ const validateCertType = (value: string | number, rule: any) => {
     }
   }
   return '';
+};
+
+const idCardImagesValidate = (value: any) => {
+  if (Array.isArray(value) && value.length === 2 && value[0] && value[1]) {
+    return '';
+  }
+  return '请上传身份证正反面照片';
 };
 
 watch(

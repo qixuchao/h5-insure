@@ -22,6 +22,7 @@
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
 import type { FormInstance } from 'vant';
+import { Toast } from 'vant';
 
 interface Props {
   labelAlign?: 'left' | 'right';
@@ -57,6 +58,10 @@ const validate = (name?: string | string[]): Promise<Record<string, any>> => {
         resolve(getValues());
       })
       .catch((err) => {
+        if (Array.isArray(err) && err[0]) {
+          formRef.value.scrollToField(err[0].name);
+          Toast.fail(err[0].message);
+        }
         reject(err);
       });
   });
