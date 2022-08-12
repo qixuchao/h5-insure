@@ -6,71 +6,60 @@
 .van-tabs__line {
   height: 8px;
 }
-.van-button{
+.van-button {
   // border: none;
 }
 .van-tab--active {
   font-weight: 600;
   color: $primary-color;
 }
-.van-list__finished-text{
+.van-list__finished-text {
   text-align: center;
-  line-height:normal;
-  font-size:$zaui-font-size-sm2;
+  line-height: normal;
+  font-size: $zaui-font-size-sm2;
   font-family: PingFangSC-Medium, PingFang SC;
   font-weight: 400;
-  color: #D7D7D7;
+  color: #d7d7d7;
   margin-top: 52px;
 }
 .van-button__text {
   font-size: 32px;
 }
-.van-button--default{
+.van-button--default {
   border: none;
   color: var(--van-button-default-color);
-    background: var(--van-button-default-background-color);
+  background: var(--van-button-default-background-color);
 }
 
 .van-cell {
   padding: 23px 30px;
   min-height: 106px;
-  align-items: center;
+  line-height: 60px;
 
-  .van-field__label {
-    width: 210px;
-    margin-right: 12px;
-    line-height: 60px;
-    font-size: 30px;
-    font-weight: 400;
-    color: #393D46;
-
-  }
-  .van-field__value{
-    line-height: 60px;
-    .van-field__error-message{
-      position: absolute;
-      bottom: -30px;
-      &.van-field__error-message--right{
-        right: 0;
-      }
+  .van-field__value {
+    .van-field__error-message {
+      line-height: 28px;
     }
   }
 
   .van-field__control {
-    input::input-placeholder {    /* Chrome/Opera/Safari */
+    input::input-placeholder {
+      /* Chrome/Opera/Safari */
       color: red;
     }
-    input::-moz-placeholder { /* Firefox 19+ */
-        color: red;
+    input::-moz-placeholder {
+      /* Firefox 19+ */
+      color: red;
     }
-    input:-ms-input-placeholder { /* IE 10+ */
-        color: red;
+    input:-ms-input-placeholder {
+      /* IE 10+ */
+      color: red;
     }
-    input:-moz-placeholder { /* Firefox 18- */
-        color: red;
+    input:-moz-placeholder {
+      /* Firefox 18- */
+      color: red;
     }
   }
-
 }
 
 // cell中右侧箭头行高
@@ -80,7 +69,7 @@
 
 // cell 箭头与文字对齐
 .van-cell__right-icon {
-  margin-right: -4px;
+  height: 60px;
   display: flex;
   align-items: center;
 }
@@ -129,7 +118,7 @@
 .van-checkbox__icon .van-icon {
   border-radius: 8px;
 }
-.van-field__left-icon{
+.van-field__left-icon {
   display: flex;
   align-items: center;
 }
