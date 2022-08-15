@@ -98,6 +98,23 @@ onBeforeMount(async () => {
 //   navBarArrowSize: '1.4rem',
 //   // primaryColor: 'green',
 // });
+const X_FLOW = 'https://xflowcloud.zhongan.io/sdk/dist/js/v0.0.1/ilog.js?id=qmkd17hfzorg55op&history=true';
+const I_SEE = 'https://static.zhongan.com/website/isee/zainfo/eye.js';
+
+const addScript = (url: string, isAsync = true) => {
+  console.log('加载脚本：', url);
+
+  const script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.async = isAsync;
+  script.src = url;
+  document.getElementsByTagName('head')[0].appendChild(script);
+};
+
+onMounted(() => {
+  // addScript(I_SEE);
+  addScript(X_FLOW);
+});
 </script>
 <style lang="scss">
 .router-view {

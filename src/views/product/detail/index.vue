@@ -202,7 +202,7 @@ const handleLinkClick = () => {
   popupShow.value = true;
 };
 
-const goPage = () => {
+const jumpPage = () => {
   router.push({
     path: '/trial',
     query: {
@@ -213,6 +213,30 @@ const goPage = () => {
       productCategory: detail.value?.categoryNo,
     },
   });
+};
+
+const goPage = () => {
+  // 进入页面获取成功iseeBiz后可跳转，否则调用一下
+  if (window.iseeBiz) {
+    jumpPage();
+  } else {
+    if (window.getIseeBiz) {
+      window
+        .getIseeBiz()
+        .then((res) => {
+          if (res) {
+            console.log(`成功获取biz:${res}`);
+            jumpPage();
+          }
+        })
+        .catch(() => {
+          console.error('千里眼插件获取失败');
+        });
+    } else {
+      jumpPage();
+      console.error('没有调用千里眼插件');
+    }
+  }
 };
 
 const guaranteeList = computed(() => {
@@ -249,6 +273,10 @@ onMounted(() => {
       });
     }
   });
+  // 调用千里眼插件获取一个iseeBiz
+  setTimeout(() => {
+    window.getIseeBiz && window.getIseeBiz();
+  }, 1500);
 });
 </script>
 
