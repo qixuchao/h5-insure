@@ -98,6 +98,7 @@ onBeforeMount(async () => {
 //   navBarArrowSize: '1.4rem',
 //   // primaryColor: 'green',
 // });
+
 const X_FLOW = 'https://xflowcloud.zhongan.io/sdk/dist/js/v0.0.1/ilog.js?id=qmkd17hfzorg55op&history=true';
 const I_SEE = 'https://static.zhongan.com/website/isee/zainfo/eye.js';
 
@@ -112,8 +113,8 @@ const addScript = (url: string, isAsync = true) => {
 };
 
 onMounted(() => {
-  // addScript(I_SEE);
-  addScript(X_FLOW);
+  addScript(I_SEE); // 千里眼SDK
+  addScript(X_FLOW); // 埋点SDK
 });
 </script>
 <style lang="scss">
