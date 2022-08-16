@@ -9,6 +9,9 @@
 import request from './request';
 import { DictData, FactorData, NextStepRequestData, TemplateInfo, TemplatePageItem } from './index.data';
 import { PAGE_API_ENUMS } from '@/common/constants/index';
+import useStore from '@/store/app';
+
+const store = useStore();
 
 // 通用字典接口
 export const getDic = (data = {}) =>
@@ -40,11 +43,25 @@ export const nextStep = (data = {} as NextStepRequestData) =>
   >(PAGE_API_ENUMS[data.extInfo.pageCode], data);
 
 // 获取订单详情
-export const getOrderDetail = (data = {}) =>
-  request.post<NextStepRequestData, ResponseData<NextStepRequestData>>(
-    '/api/app/insure/insurance/getTenantOrderDetail',
-    data,
-  );
+export const getOrderDetail = (data = {}) => {
+  return new Promise((resolve, reject) => {
+    request
+      .post<NextStepRequestData, ResponseData<NextStepRequestData>>(
+        '/api/app/insure/insurance/getTenantOrderDetail',
+        data,
+      )
+      .then((res) => {
+        const { code, data: resData } = res;
+        if (code === '10000') {
+          store.setOrderDetail(resData);
+        }
+        resolve(res);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
 
 // 获取模板信息
 export const getTemplateInfo = (data = {}) =>

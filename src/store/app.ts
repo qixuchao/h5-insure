@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import dayjs from 'dayjs';
+import { NextStepRequestData } from '@/api/index.data';
 
 export interface AppState {
   theme: string;
@@ -8,6 +9,7 @@ export interface AppState {
   dailyWeekRange: [string, string];
   playingUrl: string;
   playStatus: 'playing' | 'pause' | 'stop';
+  orderDetail: NextStepRequestData;
 }
 
 const useStore = defineStore<
@@ -19,6 +21,7 @@ const useStore = defineStore<
     dailyWeekRangeReset: () => void;
     setPlayUrl: (url: string) => void;
     setPlayStatus: (status: 'playing' | 'pause' | 'stop') => void;
+    setOrderDetail: (detail: NextStepRequestData) => void;
   }
 >({
   // 这里的id必须为唯一ID
@@ -34,6 +37,7 @@ const useStore = defineStore<
       ],
       playingUrl: '',
       playStatus: 'stop',
+      orderDetail: {} as NextStepRequestData,
     };
   },
   // 等同于vuex的getter
@@ -57,6 +61,9 @@ const useStore = defineStore<
     },
     setPlayStatus(status: 'playing' | 'pause' | 'stop') {
       this.playStatus = status;
+    },
+    setOrderDetail(detail: NextStepRequestData) {
+      this.orderDetail = detail;
     },
   },
 });
