@@ -24,6 +24,7 @@
 
 <script lang="ts" setup>
 import { useToggle } from '@vant/use';
+import { storeToRefs } from 'pinia';
 import { getTemplateInfo } from '@/api';
 import { TemplatePageItem } from '@/api/index.data';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
