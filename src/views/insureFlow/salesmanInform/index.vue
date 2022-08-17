@@ -22,6 +22,7 @@
         <div class="resign" @click="resetSign">重签</div>
       </template>
       <ProSign ref="agentSignRef" selector="sign2"></ProSign>
+      <div class="date">签名日期： {{ date }}</div>
     </ProCard>
 
     <div class="inform-file">
@@ -44,6 +45,7 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router';
 import { Toast } from 'vant';
+import dayjs from 'dayjs';
 import ProCard from '@/components/ProCard/index.vue';
 import { listCustomerQuestions } from '@/api/modules/inform';
 import { nextStep, getOrderDetail } from '@/api';
@@ -81,6 +83,7 @@ const {
 
 const agentSignRef = ref<any>(null);
 const checked = ref<boolean>(false);
+const date = dayjs().format('YYYY-MM-DD');
 
 const resetSign = () => {
   agentSignRef.value?.clear();
@@ -224,6 +227,12 @@ const handleClickNextStep = () => {
   .resign {
     font-size: 28px;
     color: $zaui-aide-text-stress;
+  }
+  .date {
+    margin-top: 24px;
+    font-size: 28px;
+    color: #99a9c0;
+    line-height: 40px;
   }
 
   .inform-file {
