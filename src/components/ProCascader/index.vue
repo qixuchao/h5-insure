@@ -37,6 +37,7 @@ const emits = defineEmits([
   'update:field1',
   'update:field2',
   'update:field3',
+  'onChange',
 ]);
 const props = defineProps({
   modelValue: {
@@ -99,6 +100,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  needKey: {
+    type: String,
+    default: '',
+  },
 });
 
 const [show, toggle] = useToggle(false);
@@ -109,15 +114,6 @@ const handleClick = () => {
 };
 
 const handleClose = () => {
-  toggle(false);
-};
-
-const handleFinish = (selected: { value: number | string; selectedOptions: any[] }) => {
-  emits('update:modelValue', selected.value);
-  selected.selectedOptions.forEach((item, index) => {
-    emits(`update:field${index}`, item[props.mapping.value]);
-  });
-  tempValue = selected.selectedOptions.map((item) => item[props.mapping.value]);
   toggle(false);
 };
 
@@ -188,6 +184,23 @@ const displayValue = computed(() => {
       .join('/') || findLabel(props.modelValue)
   );
 });
+
+const handleFinish = (selected: { value: number | string; selectedOptions: any[] }) => {
+  if (props.needKey) {
+    emits('update:modelValue', flatList.value.find((x) => x[props.mapping.value] === selected.value)?.[props.needKey]);
+  } else {
+    emits('update:modelValue', selected.value);
+  }
+  emits(
+    'onChange',
+    flatList.value.find((x) => x[props.mapping.value] === selected.value),
+  );
+  selected.selectedOptions.forEach((item, index) => {
+    emits(`update:field${index}`, item[props.mapping.value]);
+  });
+  tempValue = selected.selectedOptions.map((item) => item[props.mapping.value]);
+  toggle(false);
+};
 </script>
 
 <style lang="scss">
