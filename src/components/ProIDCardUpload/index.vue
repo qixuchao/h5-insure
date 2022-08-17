@@ -48,7 +48,7 @@
 import { useCustomFieldValue } from '@vant/use';
 import { defineProps } from 'vue';
 import { UploaderFileListItem, UploaderInstance } from 'vant';
-import { fileUpload } from '@/api/modules/file';
+import { fileUpload, ocr } from '@/api/modules/file';
 import IDCardUploadIconImage from '@/assets/images/component/idcard-upload.png';
 import IDCardUploadFrontImage from '@/assets/images/component/idcard-front.png';
 import IDCardUploadBackImage from '@/assets/images/component/idcard-back.png';
@@ -75,12 +75,13 @@ const props = defineProps({
 
 useCustomFieldValue(() => props.modelValue);
 
-const emits = defineEmits(['update:front', 'update:back', 'update:modelValue']);
+const emits = defineEmits(['update:front', 'update:back', 'update:modelValue', 'onOCR']);
 let current: 'front' | 'back' = 'front';
 const instance = ref<UploaderInstance>();
 const frontImage = ref<Array<UploaderFileListItem>>([]);
 const backImage = ref<Array<UploaderFileListItem>>([]);
 const temp = ref<Array<UploaderFileListItem>>([]);
+const ossKey = ref<string[]>([]);
 
 const handleFrontClick = () => {
   if (props.isView) {
@@ -109,6 +110,7 @@ const handleFrontRead = (e: { file: File }) => {
     if (res.code === '10000') {
       emits('update:front', res.data.url);
       emits('update:modelValue', [res.data.url, props.modelValue[1]]);
+      ossKey.value[0] = res.data.ossKey;
     }
   });
 };
@@ -118,6 +120,7 @@ const handleBackRead = (e: { file: File }) => {
     if (res.code === '10000') {
       emits('update:back', res.data.url);
       emits('update:modelValue', [props.modelValue[0], res.data.url]);
+      ossKey.value[1] = res.data.ossKey;
     }
   });
 };
@@ -129,9 +132,11 @@ const handleTempRead = (e: { file: File }) => {
         if (current === 'front') {
           emits('update:front', res.data.url);
           emits('update:modelValue', [res.data.url, props.modelValue[1]]);
+          ossKey.value[0] = res.data.ossKey;
         } else {
           emits('update:back', res.data.url);
           emits('update:modelValue', [props.modelValue[0], res.data.url]);
+          ossKey.value[1] = res.data.ossKey;
         }
       }
     },
@@ -182,6 +187,26 @@ watch(
   },
   {
     immediate: true,
+    deep: true,
+  },
+);
+
+watch(
+  ossKey,
+  (val) => {
+    if (val[0] && val[1]) {
+      ocr({
+        ossKey: val,
+        imageType: 1,
+      }).then((res) => {
+        const { data, code } = res;
+        if (code === '10000') {
+          emits('onOCR', data.idCardOcrVO);
+        }
+      });
+    }
+  },
+  {
     deep: true,
   },
 );
