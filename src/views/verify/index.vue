@@ -38,17 +38,14 @@
         <div class="sign-body">
           <div class="date">签名日期： {{ date }}</div>
           <div class="file">
-            签名将被用于以下文件：<span
-              v-for="(item, index) in fileList.filter((x) => x.noticeObject === NOTICE_TYPE_ENUM.HOLDER)"
-              :key="index"
-              class="file-name"
-              >{{ `《${item.materialName}》`
-              }}<span
-                v-if="index !== fileList.filter((x) => x.noticeObject === NOTICE_TYPE_ENUM.HOLDER).length - 1"
-                class="dun-hao"
-                >、</span
-              ></span
-            >
+            签名将被用于以下文件：
+            <ProPDFviewer
+              v-for="(noticeItem, noticeIndex) in fileList.filter((x) => x.noticeObject === NOTICE_TYPE_ENUM.HOLDER)"
+              :key="noticeIndex"
+              class="file"
+              :title="`《${noticeItem.materialName}》`"
+              :url="noticeItem.materialSource"
+            />
           </div>
         </div>
       </ProCard>
@@ -79,17 +76,14 @@
           <div class="sign-body">
             <div class="date">签名日期： {{ date }}</div>
             <div class="file">
-              签名将被用于以下文件：<span
-                v-for="(item, index) in fileList.filter((x) => x.noticeObject === NOTICE_TYPE_ENUM.INSURED)"
-                :key="index"
-                class="file-name"
-                >{{ `《${item.materialName}》`
-                }}<span
-                  v-if="index !== fileList.filter((x) => x.noticeObject === NOTICE_TYPE_ENUM.INSURED).length - 1"
-                  class="dun-hao"
-                  >、</span
-                ></span
-              >
+              签名将被用于以下文件：
+              <ProPDFviewer
+                v-for="(noticeItem, noticeIndex) in fileList.filter((x) => x.noticeObject === NOTICE_TYPE_ENUM.INSURED)"
+                :key="noticeIndex"
+                class="file"
+                :title="`《${noticeItem.materialName}》`"
+                :url="noticeItem.materialSource"
+              />
             </div>
           </div>
         </ProCard>

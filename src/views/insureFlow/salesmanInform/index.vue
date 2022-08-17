@@ -23,15 +23,21 @@
       </template>
       <ProSign ref="agentSignRef" selector="sign2"></ProSign>
     </ProCard>
-    <footer class="footer-btn">
-      <div class="inform-file">
-        <van-checkbox v-model="checked" shape="square"></van-checkbox>
-        <p class="tips">您的签名将被用于<span>《营销员告知书》</span>文件</p>
-      </div>
-      <div class="footer-button">
-        <van-button type="primary" block @click="handleClickNextStep">下一步</van-button>
-      </div>
-    </footer>
+
+    <div class="inform-file">
+      <van-checkbox v-model="checked" shape="square"></van-checkbox>
+      <p class="tips">
+        您的签名将被用于<ProPDFviewer
+          v-for="(item, index) in state.noticeList"
+          :key="index"
+          class="file"
+          :title="`《${item.title}》`"
+        />文件
+      </p>
+    </div>
+    <div class="footer-button">
+      <van-button type="primary" block @click="handleClickNextStep">下一步</van-button>
+    </div>
   </ProPageWrap>
 </template>
 
@@ -145,6 +151,10 @@ const handleClickNextStep = () => {
     Toast('请完成代理人签字进行下一步');
     return;
   }
+  if (!checked.value) {
+    Toast('请勾选同意签名');
+    return;
+  }
 
   const signData = agentSignRef.value?.save();
   saveSign('AGENT', signData, orderNo, tenantId).then((code) => {
@@ -207,26 +217,24 @@ const handleClickNextStep = () => {
     font-size: 28px;
     color: $zaui-aide-text-stress;
   }
-  .footer-btn {
-    width: calc(100% - 60px);
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    margin: 0 30px;
-    .inform-file {
-      display: flex;
-      .tips {
-        margin-left: 22px;
-        font-size: 28px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: #393d46;
-        line-height: 40px;
-        & > span {
-          color: $zaui-aide-text-stress;
-        }
+
+  .inform-file {
+    display: flex;
+    position: absolute;
+    bottom: 175px;
+    padding: 0 30px;
+    .tips {
+      margin-left: 22px;
+      font-size: 28px;
+      font-family: PingFangSC-Regular, PingFang SC;
+      font-weight: 400;
+      color: #393d46;
+      line-height: 40px;
+      & > span {
+        color: $zaui-aide-text-stress;
       }
     }
+
     .next-btn {
       padding: 30px 0;
 
