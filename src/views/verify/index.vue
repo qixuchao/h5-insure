@@ -11,6 +11,7 @@
           <div class="people">
             <div class="name">{{ detail?.tenantOrderHolder?.name }}</div>
             <div
+              v-if="needVerify(detail?.tenantOrderHolder?.certType)"
               :class="['status', { verified: detail?.tenantOrderHolder?.extInfo?.isCert === CERT_STATUS_ENUM.CERT }]"
             >
               {{ detail?.tenantOrderHolder?.extInfo?.isCert === CERT_STATUS_ENUM.CERT ? '已认证' : '待认证' }}
@@ -18,10 +19,13 @@
           </div>
         </template>
         <div class="verify-item">
-          <div class="label">身份证号码</div>
+          <div class="label">证件号码</div>
           <div class="no">{{ detail?.tenantOrderHolder?.certNo }}</div>
           <div
-            v-if="detail?.tenantOrderHolder?.extInfo?.isCert !== CERT_STATUS_ENUM.CERT"
+            v-if="
+              detail?.tenantOrderHolder?.extInfo?.isCert !== CERT_STATUS_ENUM.CERT &&
+              needVerify(detail?.tenantOrderHolder?.certType)
+            "
             class="action"
             @click="handleVerify(-1)"
           >
@@ -54,15 +58,22 @@
           <template #extra>
             <div class="people">
               <div class="name">{{ item.name }}</div>
-              <div :class="['status', { verified: item.extInfo?.isCert === CERT_STATUS_ENUM.CERT }]">
+              <div
+                v-if="needVerify(item.certType)"
+                :class="['status', { verified: item.extInfo?.isCert === CERT_STATUS_ENUM.CERT }]"
+              >
                 {{ item.extInfo?.isCert === CERT_STATUS_ENUM.CERT ? '已认证' : '待认证' }}
               </div>
             </div>
           </template>
           <div class="verify-item">
-            <div class="label">身份证号码</div>
+            <div class="label">证件号码</div>
             <div class="no">{{ item.certNo }}</div>
-            <div v-if="item.extInfo?.isCert !== CERT_STATUS_ENUM.CERT" class="action" @click="handleVerify(index)">
+            <div
+              v-if="item.extInfo?.isCert !== CERT_STATUS_ENUM.CERT && needVerify(item.certType)"
+              class="action"
+              @click="handleVerify(index)"
+            >
               去认证
               <ProSvg name="right_arrow" class="icon" />
             </div>
@@ -110,7 +121,7 @@ import ProSvg from '@/components/ProSvg/index.vue';
 import ProSign from '@/components/ProSign/index.vue';
 import { faceVerify, saveSign, getFile, faceVerifySave } from '@/api/modules/verify';
 import { nextStep, getOrderDetail } from '@/api';
-import { NOTICE_TYPE_ENUM, PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { NOTICE_TYPE_ENUM, PAGE_ROUTE_ENUMS, CERT_TYPE_ENUM } from '@/common/constants';
 import { NextStepRequestData } from '@/api/index.data';
 import { INotice } from '@/api/modules/verify.data';
 import Storage from '@/utils/storage';
@@ -170,6 +181,11 @@ const doVerify = (certNo: string, name: string) => {
   });
 };
 
+// 证件类型是身份证的才需要去认证
+const needVerify = (certType: keyof typeof CERT_TYPE_ENUM) => {
+  return certType === CERT_TYPE_ENUM.CERT;
+};
+
 const handleVerify = (index: number) => {
   if (index === -1) {
     doVerify(detail.value.tenantOrderHolder?.certNo, detail.value.tenantOrderHolder?.name);
@@ -194,11 +210,18 @@ const handleSubmit = () => {
     Toast.fail('请被保人签名');
     return;
   }
-  if (detail.value.tenantOrderHolder?.extInfo?.isCert !== CERT_STATUS_ENUM.CERT) {
+  if (
+    detail.value.tenantOrderHolder?.extInfo?.isCert !== CERT_STATUS_ENUM.CERT &&
+    needVerify(detail.value.tenantOrderHolder?.certType)
+  ) {
     Toast.fail('请投保人去认证');
     return;
   }
-  if (detail.value.tenantOrderInsuredList?.some((x) => x.extInfo?.isCert !== CERT_STATUS_ENUM.CERT)) {
+  if (
+    detail.value.tenantOrderInsuredList?.some(
+      (x) => x.extInfo?.isCert !== CERT_STATUS_ENUM.CERT && needVerify(x.certType),
+    )
+  ) {
     Toast.fail('请被保人去认证');
     return;
   }

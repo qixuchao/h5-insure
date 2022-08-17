@@ -54,6 +54,7 @@
         :data-source="OCCUPATION_LIST"
         :mapping="{ label: 'value', value: 'code', children: 'children' }"
         show-full-value
+        need-key="name"
       />
     </VanForm>
     <van-popup v-model:show="isShow" position="bottom">
