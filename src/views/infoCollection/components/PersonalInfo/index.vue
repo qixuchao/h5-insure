@@ -1,7 +1,7 @@
 <template>
   <div v-if="Object.keys(factorObj).length" class="com-personal-wrapper">
     <ProField
-      v-if="factorObj.insureRelation?.isDisplay"
+      v-if="showByFactor('insureRelation')"
       v-model="state.formInfo.relationToInsured"
       :name="`${prefix}_relationToInsured`"
       :required="factorObj.insureRelation?.isMustInput === 'YES'"
@@ -17,7 +17,7 @@
       </template>
     </ProField>
     <ProPicker
-      v-if="factorObj.certType?.isDisplay === 'YES'"
+      v-if="showByFactor('certType')"
       v-model="state.formInfo.certType"
       label="证件类型"
       :name="`${prefix}_certType`"
@@ -51,7 +51,7 @@
       </template>
     </ProField>
     <ProField
-      v-if="factorObj.certNo?.isDisplay === 'YES'"
+      v-if="showByFactor('certNo')"
       v-model="state.formInfo.certNo"
       label="证件号码"
       :name="`${prefix}_certNo`"
@@ -60,14 +60,14 @@
       :validate-type="validateType"
     ></ProField>
     <ProField
-      v-if="factorObj.name?.isDisplay === 'YES'"
+      v-if="showByFactor('name')"
       v-model="state.formInfo.name"
       label="姓名"
       :name="`${prefix}_name`"
       :required="factorObj.name?.isMustInput === 'YES'"
     ></ProField>
     <ProField
-      v-if="factorObj.sex?.isDisplay === 'YES'"
+      v-if="showByFactor('sex')"
       v-model="state.formInfo.gender"
       :required="factorObj.sex?.isMustInput === 'YES'"
       label="性别"
@@ -85,7 +85,7 @@
       </template>
     </ProField>
     <ProDatePicker
-      v-if="factorObj.birthday?.isDisplay === 'YES'"
+      v-if="showByFactor('birthday')"
       v-model="state.formInfo.birthday"
       label="出生日期"
       :name="`${prefix}_birthday`"
@@ -96,7 +96,7 @@
       :is-view="isIdCard"
     ></ProDatePicker>
     <ProDatePicker
-      v-if="factorObj.certEndDate?.isDisplay === 'YES'"
+      v-if="showByFactor('certEndDate')"
       v-model="state.formInfo.certEndDate"
       label="有效期至"
       :name="`${prefix}_certEndDate`"
@@ -114,7 +114,7 @@
       </template>
     </ProDatePicker>
     <ProCascader
-      v-if="factorObj.houseHold?.isDisplay === 'YES'"
+      v-if="showByFactor('houseHold')"
       v-model="state.formInfo.extInfo.provinceCode"
       v-model:field1="state.formInfo.extInfo.provinceCode"
       v-model:field2="state.formInfo.extInfo.cityCode"
@@ -128,7 +128,7 @@
       :mapping="{ label: 'name', value: 'code', children: 'children' }"
     ></ProCascader>
     <ProField
-      v-if="factorObj.hasSocialInsurance?.isDisplay === 'YES'"
+      v-if="showByFactor('hasSocialInsurance')"
       v-model="state.formInfo.extInfo.hasSocialInsurance"
       label="社保"
       :name="`${prefix}_hasSocialInsurance`"
@@ -144,7 +144,7 @@
       </template>
     </ProField>
     <ProCascader
-      v-if="factorObj.occupation?.isDisplay === 'YES'"
+      v-if="showByFactor('occupation')"
       v-model="state.formInfo.extInfo.occupationCode"
       label="职业"
       :name="`${prefix}_occupationCode`"
@@ -155,7 +155,7 @@
       is-link
     ></ProCascader>
     <ProField
-      v-if="factorObj.annualIncome?.isDisplay === 'YES'"
+      v-if="showByFactor('annualIncome')"
       v-model="state.formInfo.extInfo.personalAnnualIncome"
       label="个人年收入"
       :name="`${prefix}_personalAnnualIncome`"
@@ -166,7 +166,7 @@
       <template #extra> <span class="input-extra">万</span> </template>
     </ProField>
     <ProField
-      v-if="factorObj.familyAnnualIncome?.isDisplay === 'YES'"
+      v-if="showByFactor('familyAnnualIncome')"
       v-model="state.formInfo.extInfo.familyAnnualIncome"
       label="家庭年收入"
       :name="`${prefix}_familyAnnualIncome`"
@@ -177,7 +177,7 @@
       <template #extra> <span class="input-extra">万</span> </template>
     </ProField>
     <ProPicker
-      v-if="factorObj.nationality?.isDisplay === 'YES'"
+      v-if="showByFactor('nationality')"
       v-model="state.formInfo.extInfo.nationalityCode"
       label="国籍"
       :name="`${prefix}_nationalityCode`"
@@ -188,7 +188,7 @@
       is-link
     ></ProPicker>
     <ProField
-      v-if="factorObj.USAGreenCard?.isDisplay === 'YES'"
+      v-if="showByFactor('USAGreenCard')"
       v-model="state.formInfo.extInfo.hasUsCard"
       label="美国绿卡"
       :name="`${prefix}_hasUsCard`"
@@ -204,7 +204,7 @@
       </template>
     </ProField>
     <ProPicker
-      v-if="factorObj.marriage?.isDisplay === 'YES'"
+      v-if="showByFactor('marriage')"
       v-model="state.formInfo.extInfo.marriageStatus"
       label="婚姻状况"
       :name="`${prefix}_marriageStatus`"
@@ -214,7 +214,7 @@
       :required="factorObj.marriage?.isMustInput === 'YES'"
     ></ProPicker>
     <ProPicker
-      v-if="factorObj.educationDegree?.isDisplay === 'YES'"
+      v-if="showByFactor('educationDegree')"
       v-model="state.formInfo.extInfo.educationDegree"
       label="学历"
       :name="`${prefix}_educationDegree`"
@@ -225,7 +225,7 @@
       is-link
     ></ProPicker>
     <ProField
-      v-if="factorObj.mobile?.isDisplay === 'YES'"
+      v-if="showByFactor('mobile')"
       v-model="state.formInfo.mobile"
       label="手机号码"
       :name="`${prefix}_mobile`"
@@ -234,7 +234,7 @@
       :validate-type="[VALIDATE_TYPE_ENUM.PHONE]"
     ></ProField>
     <ProField
-      v-if="factorObj.email?.isDisplay === 'YES'"
+      v-if="showByFactor('email')"
       v-model="state.formInfo.email"
       label="电子邮箱"
       :name="`${prefix}_email`"
@@ -243,7 +243,7 @@
       :validate-type="[VALIDATE_TYPE_ENUM.EMAIL]"
     ></ProField>
     <ProCascader
-      v-if="factorObj.familyAddress?.isDisplay === 'YES'"
+      v-if="showByFactor('familyAddress')"
       v-model="state.formInfo.extInfo.familyAreaCode"
       v-model:field1="state.formInfo.extInfo.familyProvinceCode"
       v-model:field2="state.formInfo.extInfo.familyCityCode"
@@ -257,7 +257,7 @@
       :mapping="{ label: 'name', value: 'code', children: 'children' }"
     ></ProCascader>
     <ProField
-      v-if="factorObj.familyAddressDetail?.isDisplay === 'YES'"
+      v-if="showByFactor('familyAddressDetail')"
       v-model="state.formInfo.extInfo.familyAddress"
       label="地址详情"
       :name="`${prefix}_familyAddress`"
@@ -266,7 +266,7 @@
       :required="factorObj.familyAddressDetail?.isMustInput === 'YES'"
     ></ProField>
     <ProField
-      v-if="factorObj.familyPostCode?.isDisplay === 'YES'"
+      v-if="showByFactor('familyPostCode')"
       v-model="state.formInfo.extInfo.familyZipCode"
       label="家庭邮编"
       :name="`${prefix}_familyZipCode`"
@@ -275,7 +275,7 @@
       :validate-type="[VALIDATE_TYPE_ENUM.ZIP_CODE]"
     ></ProField>
     <ProCascader
-      v-if="factorObj.workAddress?.isDisplay === 'YES'"
+      v-if="showByFactor('workAddress')"
       v-model="state.formInfo.extInfo.workAreaCode"
       v-model:field1="state.formInfo.extInfo.workProvinceCode"
       v-model:field2="state.formInfo.extInfo.workCityCode"
@@ -289,7 +289,7 @@
       :mapping="{ label: 'name', value: 'code', children: 'children' }"
     ></ProCascader>
     <ProField
-      v-if="factorObj.workAddressDetail?.isDisplay === 'YES'"
+      v-if="showByFactor('workAddressDetail')"
       v-model="state.formInfo.extInfo.workAddress"
       label="地址详情"
       :name="`${prefix}_workAddress`"
@@ -298,7 +298,7 @@
       :required="factorObj.workAddressDetail?.isMustInput === 'YES'"
     ></ProField>
     <ProField
-      v-if="factorObj.workZipCode?.isDisplay === 'YES'"
+      v-if="showByFactor('workZipCode')"
       v-model="state.formInfo.extInfo.workZipCode"
       label="工作邮编"
       :required="factorObj.workZipCode?.isMustInput === 'YES'"
@@ -307,7 +307,7 @@
       :validate-type="[VALIDATE_TYPE_ENUM.ZIP_CODE]"
     ></ProField>
     <ProField
-      v-if="factorObj.workPlace?.isDisplay === 'YES'"
+      v-if="showByFactor('workPlace')"
       v-model="state.formInfo.extInfo.workStation"
       label="单位名称"
       :name="`${prefix}_workPostCode`"
@@ -316,7 +316,7 @@
       :required="factorObj.workPlace?.isMustInput === 'YES'"
     ></ProField>
     <ProField
-      v-if="factorObj.workContent?.isDisplay === 'YES'"
+      v-if="showByFactor('workContent')"
       v-model="state.formInfo.extInfo.workContent"
       label="工作内容"
       :name="`${prefix}_workContent`"
@@ -325,7 +325,7 @@
       :rules="[{ validator: (...params) => validateLength(100, ...params) }]"
     ></ProField>
     <ProPicker
-      v-if="factorObj.taxCert?.isDisplay === 'YES'"
+      v-if="showByFactor('taxCert')"
       v-model="state.formInfo.extInfo.taxResident"
       label="税收居民身份"
       :name="`${prefix}_taxResident`"
@@ -334,7 +334,7 @@
       placeholder="请输入"
     ></ProPicker>
     <ProField
-      v-if="factorObj.partTime?.isDisplay === 'YES'"
+      v-if="showByFactor('partTime')"
       v-model="state.formInfo.extInfo.isPartTime"
       label="是否兼职"
       :name="`${prefix}_isPartTime`"
@@ -379,7 +379,7 @@ import { useToggle } from '@vant/use';
 import { truncateSync } from 'fs';
 import { useRoute } from 'vue-router';
 import { InsuredReqItem, HolderReq, ProductInsureFactorItem } from '@/api/index.data';
-import { SEX_LIMIT_LIST, FLAG_LIST, VALIDATE_TYPE_ENUM, CERT_TYPE_ENUM } from '@/common/constants';
+import { SEX_LIMIT_LIST, FLAG_LIST, VALIDATE_TYPE_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import useDicData from '@/hooks/useDicData';
 import {
@@ -454,6 +454,10 @@ const factorObj = computed(() => {
   });
   return factor;
 });
+
+const showByFactor = (key: string) => {
+  return factorObj.value && factorObj.value[key] && factorObj.value[key].isDisplay === YES_NO_ENUM.YES;
+};
 
 const validateType = computed(() => {
   if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(state.value.formInfo.certType)) {

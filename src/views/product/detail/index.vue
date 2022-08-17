@@ -179,11 +179,7 @@ const router = useRouter();
 const route = useRoute();
 
 const { productCode = 'CQ75CQ76' } = route.query;
-const tabList = [
-  { title: '产品特色', slotName: 'tab1' },
-  { title: '理赔流程', slotName: 'tab2' },
-  { title: '常见问题', slotName: 'tab3' },
-];
+const tabList = ref([]);
 const activePlan = ref(0);
 const popupShow = ref(false);
 const detail = ref<ProductDetail>();
@@ -239,6 +235,7 @@ const goPage = () => {
   }
 };
 
+// 单计划产品 保障详情在titleAndDescVOS字段里
 const guaranteeList = computed(() => {
   if (detail.value?.tenantProductInsureVO?.guaranteeList?.length) {
     return detail.value?.tenantProductInsureVO?.guaranteeList;
@@ -267,6 +264,25 @@ onMounted(() => {
                 temp[item.code] = item;
               });
               factor.value = temp;
+              const tabListTemp = [];
+              if (showByFactor('productCharacteristic')) {
+                tabListTemp.push({
+                  title: '产品特色',
+                  slotName: 'tab1',
+                });
+              }
+              if (showByFactor('productCharacteristic')) {
+                tabListTemp.push({
+                  title: '理赔流程',
+                  slotName: 'tab2',
+                });
+              }
+              if (showByFactor('commonQuestion')) {
+                tabListTemp.push({
+                  title: '常见问题',
+                  slotName: 'tab1',
+                });
+              }
             }
           });
         }

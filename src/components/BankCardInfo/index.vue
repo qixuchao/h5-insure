@@ -1,16 +1,38 @@
 <template>
   <div class="com-bank-card-info">
     <ProPicker
+      v-if="showByFactor('cardType')"
       v-model="formData.bankCardType"
       label="卡片类型"
       name="bankCardType"
       :data-source="BANK_CARD_TYPE_LIST"
       is-view
     />
-    <ProField v-model="formData.bankCardNo" label="银行卡号" name="bankCardNo" type="number" required />
-    <ProField :model-value="holderName" label="持卡人" name="accountName" is-view />
-    <ProPicker v-model="formData.payBank" name="payBank" label="开户银行" :data-source="bankList" required />
-    <ProField label="银行卡照片" block label-width="100%" name="images" :rules="[{ validator: imagesValidator }]">
+    <ProField
+      v-if="showByFactor('bankCardNumber')"
+      v-model="formData.bankCardNo"
+      label="银行卡号"
+      name="bankCardNo"
+      type="number"
+      required
+    />
+    <ProField v-if="showByFactor('cardHolder')" :model-value="holderName" label="持卡人" name="accountName" is-view />
+    <ProPicker
+      v-if="showByFactor('bank')"
+      v-model="formData.payBank"
+      name="payBank"
+      label="开户银行"
+      :data-source="bankList"
+      required
+    />
+    <ProField
+      v-if="showByFactor('bankCardAttachment')"
+      label="银行卡照片"
+      block
+      label-width="100%"
+      name="images"
+      :rules="[{ validator: imagesValidator }]"
+    >
       <template #label>
         <span class="field-title">银行卡照片 <span class="sub-title">(需上传正反两面)</span></span>
       </template>
@@ -19,6 +41,7 @@
       </template>
     </ProField>
     <ProField
+      v-if="showByFactor('bankPreMobile')"
       v-model="formData.mobile"
       label="预留手机号"
       type="number"
@@ -35,7 +58,8 @@ import ProField from '@/components/ProField/index.vue';
 import ProImageUpload from '@/components/ProImageUpload/index.vue';
 import ProPicker from '@/components/ProPicker/index.vue';
 import { BANK_CARD_TYPE_LIST, BANK_CARD_TYPE_ENUM } from '@/common/constants/bankCard';
-import { UPLOAD_TYPE_ENUM } from '@/common/constants';
+import { YES_NO_ENUM, UPLOAD_TYPE_ENUM } from '@/common/constants';
+import { ProductInsureFactorItem } from '@/api/index.data';
 import useDicData from '@/hooks/useDicData';
 
 const emits = defineEmits(['update:modelValue']);
@@ -48,6 +72,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  factor: {
+    type: Object as () => { [key: string]: ProductInsureFactorItem },
+    default: () => {},
+  },
 });
 
 const bankDic = useDicData('BANK');
@@ -59,6 +87,10 @@ const formData = ref({
   mobile: '',
   images: [],
 });
+
+const showByFactor = (key: string) => {
+  return props.factor && props.factor[key] && props.factor[key].isDisplay === YES_NO_ENUM.YES;
+};
 
 const imagesValidator = (images: Array<string>) => {
   if (images && images.length === 2) {
