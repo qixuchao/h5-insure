@@ -36,25 +36,6 @@ const start = async () => {
     // eslint-disable-next-line new-cap
     new vconsole();
   }
-  try {
-    const cookies = await getNativeCookies();
-    console.log('cookies', cookies);
-    console.log('cookies.statusBarHeight', cookies.statusBarHeight);
-    console.log('cookies.device', cookies.device);
-    if (cookies.device) {
-      storage.set('device', cookies.device);
-      storage.set('statusBarHeight', cookies.statusBarHeight);
-    }
-    if (cookies.token) {
-      storage.set('token', cookies.token);
-      // const res = await queryUserInfo();
-      // if (res.data.code === '10000') {
-      //   storage.set('userInfo', res.data.data);
-      // }
-    }
-  } catch (e) {
-    console.log('获取cookies失败，或不是移动端');
-  }
 
   dayjs.locale({ ...zh, weekStart: 1 });
   const app = createApp(App);

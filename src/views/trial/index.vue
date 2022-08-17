@@ -210,6 +210,7 @@ const goNextPage = () => {
     extInfo: {
       templateId: +(templateId || 1),
       pageCode,
+      iseeBizNo: window.iseeBiz,
     },
     tenantOrderHolder: {},
     tenantOrderInsuredList: [

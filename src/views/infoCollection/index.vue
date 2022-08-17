@@ -106,11 +106,14 @@
       </ProCard>
     </ProForm>
     <div class="footer-button">
-      <span class="trial-result"
-        >首期<span class="result-num"
-          >￥{{ formInfo.tenantOrderInsuredList?.[0]?.tenantOrderProductList?.[0].premium?.toLocaleString?.() }}</span
-        >
-      </span>
+      <div class="left">
+        <div class="trial-result">
+          首期<span class="result-num"
+            >￥{{ formInfo.tenantOrderInsuredList?.[0]?.tenantOrderProductList?.[0].premium?.toLocaleString?.() }}</span
+          >
+        </div>
+        <div class="result-desc">实际保费以后续为准</div>
+      </div>
       <div class="operate-btn">
         <VanButton block type="primary" @click="goNextPage">下一步</VanButton>
       </div>
@@ -447,20 +450,23 @@ watch(
       }
     }
   }
-
-  .trial-result {
-    width: 440px;
-    font-weight: 400;
-    font-size: 34px;
-    color: #393d46;
-    .result-num {
-      margin-left: 13px;
-      color: #ff5840;
-      font-weight: bold;
-      margin-left: 16px;
+  .left {
+    flex: 0 0 50%;
+    .trial-result {
+      font-size: 34px;
+      color: #393d46;
+      .result-num {
+        margin-left: 13px;
+        color: #ff5840;
+        font-weight: bold;
+        margin-left: 16px;
+      }
+    }
+    .result-desc {
+      font-size: 24px;
+      color: #666;
     }
   }
-
   .operate-btn {
     width: 50%;
   }

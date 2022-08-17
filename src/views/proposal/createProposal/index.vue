@@ -33,17 +33,16 @@
             :rules="[{ validator: (...params) => validateName('姓名', ...params) }]"
             placeholder="请输入（选填）"
           ></VanField>
-          <VanField
+          <ProDatePicker
             v-model="proposalInfo.proposalInsuredList[0].birthday"
             name="birthday"
             label="出生日期"
-            formate="YYYY-MM-DD"
+            type="date"
             is-link
             readonly
             placeholder="请选择"
             :rules="[{ required: true, message: '请选择' }]"
-            @click="toggleDatePickVisible(true)"
-          ></VanField>
+          />
           <VanField
             v-model="proposalInfo.proposalInsuredList[0].gender"
             name="gender"
@@ -87,20 +86,6 @@
         <VanButton type="primary" @click="saveProposalData">保存并预览</VanButton>
       </div>
     </div>
-    <van-popup v-model:show="showDatePick" position="bottom">
-      <van-datetime-picker
-        type="date"
-        :min-date="new Date(proposalInfo.proposalInsuredList[0]?.dateRange?.min)"
-        :max-date="new Date(proposalInfo.proposalInsuredList[0]?.dateRange?.max)"
-        @confirm="
-          (value) => {
-            proposalInfo.proposalInsuredList[0].birthday = dayjs(value).format('YYYY-MM-DD');
-            toggleDatePickVisible(false);
-          }
-        "
-        @cancel="toggleDatePickVisible(false)"
-      />
-    </van-popup>
     <ProductRisk
       v-if="showProductRisk"
       :is-show="showProductRisk"
@@ -148,7 +133,6 @@ interface State {
   currentRisk: any[];
 }
 
-const [showDatePick, toggleDatePickVisible] = useToggle();
 const [showProductRisk, toggleProductRisk] = useToggle();
 
 const proposalInfo = ref<any>({

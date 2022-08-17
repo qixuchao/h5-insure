@@ -228,4 +228,5 @@ export interface ProductDetail {
    * 保司code
    */
   insurerCode: string;
+  baseProductCode?: string;
 }

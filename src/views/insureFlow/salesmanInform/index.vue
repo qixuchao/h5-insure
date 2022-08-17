@@ -22,22 +22,30 @@
         <div class="resign" @click="resetSign">重签</div>
       </template>
       <ProSign ref="agentSignRef" selector="sign2"></ProSign>
+      <div class="date">签名日期： {{ date }}</div>
     </ProCard>
-    <footer class="footer-btn">
-      <div class="inform-file">
-        <van-checkbox v-model="checked" shape="square"></van-checkbox>
-        <p class="tips">您的签名将被用于<span>《营销员告知书》</span>文件</p>
-      </div>
-      <div class="footer-button">
-        <van-button type="primary" block @click="handleClickNextStep">下一步</van-button>
-      </div>
-    </footer>
+
+    <div class="inform-file">
+      <van-checkbox v-model="checked" shape="square"></van-checkbox>
+      <p class="tips">
+        您的签名将被用于<ProPDFviewer
+          v-for="(item, index) in state.noticeList"
+          :key="index"
+          class="file"
+          :title="`《${item.title}》`"
+        />文件
+      </p>
+    </div>
+    <div class="footer-button">
+      <van-button type="primary" block @click="handleClickNextStep">下一步</van-button>
+    </div>
   </ProPageWrap>
 </template>
 
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router';
 import { Toast } from 'vant';
+import dayjs from 'dayjs';
 import ProCard from '@/components/ProCard/index.vue';
 import { listCustomerQuestions } from '@/api/modules/inform';
 import { nextStep, getOrderDetail } from '@/api';
@@ -45,7 +53,7 @@ import { ListCustomerQuestionsResponse } from '@/api/modules/inform.data';
 import { sessionStore } from '@/hooks/useStorage';
 import { NextStepRequestData } from '@/api/index.data';
 import { saveSign } from '@/api/modules/verify';
-import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM, PAGE_ROUTE_ENUMS } from '@/common/constants';
 
 const router = useRouter();
 const route = useRoute();
@@ -75,6 +83,7 @@ const {
 
 const agentSignRef = ref<any>(null);
 const checked = ref<boolean>(false);
+const date = dayjs().format('YYYY-MM-DD');
 
 const resetSign = () => {
   agentSignRef.value?.clear();
@@ -102,6 +111,14 @@ const orderDetail = () => {
   }).then(({ code, data }) => {
     if (code === '10000') {
       Object.assign(state.pageData, data);
+      data.tenantOrderAttachmentList.forEach((item) => {
+        if (
+          item.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN &&
+          item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.AGENT
+        ) {
+          agentSignRef.value.setDataURL(item.fileBase64);
+        }
+      });
     }
   });
 };
@@ -145,9 +162,13 @@ const handleClickNextStep = () => {
     Toast('请完成代理人签字进行下一步');
     return;
   }
+  if (!checked.value) {
+    Toast('请勾选同意签名');
+    return;
+  }
 
   const signData = agentSignRef.value?.save();
-  saveSign('AGENT', signData, orderNo, tenantId).then((code) => {
+  saveSign('AGENT', signData, state.pageData.id, tenantId).then((code) => {
     if (code) {
       nextStep({
         ...state.pageData,
@@ -207,26 +228,30 @@ const handleClickNextStep = () => {
     font-size: 28px;
     color: $zaui-aide-text-stress;
   }
-  .footer-btn {
-    width: calc(100% - 60px);
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    margin: 0 30px;
-    .inform-file {
-      display: flex;
-      .tips {
-        margin-left: 22px;
-        font-size: 28px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: #393d46;
-        line-height: 40px;
-        & > span {
-          color: $zaui-aide-text-stress;
-        }
+  .date {
+    margin-top: 24px;
+    font-size: 28px;
+    color: #99a9c0;
+    line-height: 40px;
+  }
+
+  .inform-file {
+    display: flex;
+    position: absolute;
+    bottom: 175px;
+    padding: 0 30px;
+    .tips {
+      margin-left: 22px;
+      font-size: 28px;
+      font-family: PingFangSC-Regular, PingFang SC;
+      font-weight: 400;
+      color: #393d46;
+      line-height: 40px;
+      & > span {
+        color: $zaui-aide-text-stress;
       }
     }
+
     .next-btn {
       padding: 30px 0;
 
