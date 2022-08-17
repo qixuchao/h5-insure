@@ -97,7 +97,6 @@
         <van-button type="primary" class="submit-btn" @click="handleSubmit">提交</van-button>
       </div>
     </div>
-    <ProNavigator />
   </ProPageWrap>
 </template>
 
@@ -105,7 +104,6 @@
 import dayjs from 'dayjs';
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
-import ProNavigator from '@/components/ProNavigator/index.vue';
 import ProMessage from '@/components/ProMessage/index.vue';
 import ProCard from '@/components/ProCard/index.vue';
 import ProSvg from '@/components/ProSvg/index.vue';

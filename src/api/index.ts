@@ -11,8 +11,6 @@ import { DictData, FactorData, NextStepRequestData, TemplateInfo, TemplatePageIt
 import { PAGE_API_ENUMS } from '@/common/constants/index';
 import useStore from '@/store/app';
 
-const store = useStore();
-
 // 通用字典接口
 export const getDic = (data = {}) =>
   request.post<DictData[], ResponseData<DictData[]>>('/api/app/insure/dict/queryDictInfo', data);
@@ -53,6 +51,7 @@ export const getOrderDetail = (data = {}) => {
       .then((res) => {
         const { code, data: resData } = res;
         if (code === '10000') {
+          const store = useStore();
           store.setOrderDetail(resData);
         }
         resolve(res);

@@ -1,5 +1,5 @@
 <template>
-  <div class="com-navigator">
+  <div v-if="show" class="com-navigator">
     <img class="btn" :src="sideNavImage" @click="handleClick" />
     <van-popup
       v-model:show="visible"
@@ -13,6 +13,7 @@
           v-for="(item, index) in list"
           :key="index"
           :class="['item', { active: item.pageCode === currentPageCode }]"
+          @click="handleNavClick(item)"
         >
           {{ item.pageName }}
         </div>
@@ -26,8 +27,11 @@ import { useToggle } from '@vant/use';
 import { getTemplateInfo } from '@/api';
 import { TemplatePageItem } from '@/api/index.data';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import useStore from '@/store/app';
+import pageJump from '@/utils/pageJump';
 import sideNavImage from '@/assets/images/component/sidenav.png';
 
+const store = useStore();
 const route = useRoute();
 const {
   saleUserId = 'D1234567-1',
@@ -38,11 +42,16 @@ const {
   productCategory = '1',
 } = route.query;
 
+const { orderDetail } = storeToRefs(store);
 const [visible, toggle] = useToggle(false);
 const list = ref<Array<TemplatePageItem>>([]);
 
 const handleClick = () => {
   toggle(true);
+};
+
+const handleNavClick = (item: TemplatePageItem) => {
+  pageJump(item.pageCode, route.query);
 };
 
 onMounted(() => {
@@ -56,6 +65,10 @@ onMounted(() => {
 
 const currentPageCode = computed(() => {
   return Object.keys(PAGE_ROUTE_ENUMS).find((x) => PAGE_ROUTE_ENUMS[x] === route.path.replace('/', ''));
+});
+
+const show = computed(() => {
+  return list.value.some((x) => x.pageCode === currentPageCode.value);
 });
 </script>
 
