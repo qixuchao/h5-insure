@@ -51,7 +51,7 @@ import { ListCustomerQuestionsResponse } from '@/api/modules/inform.data';
 import { sessionStore } from '@/hooks/useStorage';
 import { NextStepRequestData } from '@/api/index.data';
 import { saveSign } from '@/api/modules/verify';
-import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM, PAGE_ROUTE_ENUMS } from '@/common/constants';
 
 const router = useRouter();
 const route = useRoute();
@@ -108,6 +108,14 @@ const orderDetail = () => {
   }).then(({ code, data }) => {
     if (code === '10000') {
       Object.assign(state.pageData, data);
+      data.tenantOrderAttachmentList.forEach((item) => {
+        if (
+          item.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN &&
+          item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.AGENT
+        ) {
+          agentSignRef.value.setDataURL(item.fileBase64);
+        }
+      });
     }
   });
 };
@@ -157,7 +165,7 @@ const handleClickNextStep = () => {
   }
 
   const signData = agentSignRef.value?.save();
-  saveSign('AGENT', signData, orderNo, tenantId).then((code) => {
+  saveSign('AGENT', signData, state.pageData.id, tenantId).then((code) => {
     if (code) {
       nextStep({
         ...state.pageData,
