@@ -1,5 +1,6 @@
 import request from '@/api/request';
 import { UPLOAD_TYPE_ENUM } from '@/common/constants/index';
+import { OCRResponse } from './file.data';
 import { file2Base64 } from '@/utils/file';
 
 export const fileUpload = (file: File, uploadType: UPLOAD_TYPE_ENUM) => {
@@ -40,26 +41,5 @@ export const ocr = (data: any) => {
   Object.keys(data).forEach((key) => {
     formData.append(key, data[key]);
   });
-  return request.post<
-    ResponseData,
-    ResponseData<{
-      bankCardOcrVO: {
-        bankName: string;
-        bankNo: string;
-        cardName: string;
-        cardNo: string;
-        cardType: string;
-      };
-      idCardOcrVO: {
-        gender: string;
-        issueBy: string;
-        personAddress: string;
-        personIdCard: string;
-        personName: string;
-        race: string;
-        validDateEnd: string;
-        validDateStart: string;
-      };
-    }>
-  >('/api/app/ocrByFile', formData);
+  return request.post<ResponseData, ResponseData<OCRResponse>>('/api/app/ocrByFile', formData);
 };

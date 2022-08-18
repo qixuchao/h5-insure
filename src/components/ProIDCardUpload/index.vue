@@ -36,7 +36,7 @@
         <div class="upload-item cover" @click="handleBackClick">
           <div class="bg" />
           <img :src="IDCardUploadIconImage" class="icon" />
-          <div class="text">上传人像面</div>
+          <div class="text">上传国徽面</div>
         </div>
       </template>
     </van-uploader>
@@ -52,7 +52,7 @@ import { fileUpload, ocr } from '@/api/modules/file';
 import IDCardUploadIconImage from '@/assets/images/component/idcard-upload.png';
 import IDCardUploadFrontImage from '@/assets/images/component/idcard-front.png';
 import IDCardUploadBackImage from '@/assets/images/component/idcard-back.png';
-import { UPLOAD_TYPE_ENUM } from '@/common/constants';
+import { UPLOAD_TYPE_ENUM, OCR_TYPE_ENUM } from '@/common/constants';
 
 const props = defineProps({
   modelValue: {
@@ -197,10 +197,10 @@ watch(
     if (val[0] && val[1]) {
       ocr({
         ossKey: val,
-        imageType: 1,
+        imageType: OCR_TYPE_ENUM.ID_CARD,
       }).then((res) => {
         const { data, code } = res;
-        if (code === '10000') {
+        if (code === '10000' && data && data.idCardOcrVO) {
           emits('onOCR', data.idCardOcrVO);
         }
       });

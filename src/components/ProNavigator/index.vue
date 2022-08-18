@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show" class="com-navigator">
+  <div v-show="show" class="com-navigator">
     <img class="btn" :src="sideNavImage" @click="handleClick" />
     <van-popup
       v-model:show="visible"
@@ -12,8 +12,8 @@
         <div
           v-for="(item, index) in list"
           :key="index"
-          :class="['item', { active: item.pageCode === currentPageCode }]"
-          @click="handleNavClick(item)"
+          :class="['item', { active: item.pageCode === currentPageCode, enable: index <= enableIndex }]"
+          @click="handleNavClick(item, index)"
         >
           {{ item.pageName }}
         </div>
@@ -51,8 +51,17 @@ const handleClick = () => {
   toggle(true);
 };
 
-const handleNavClick = (item: TemplatePageItem) => {
-  pageJump(item.pageCode, route.query);
+// 可以点击的步骤index
+const enableIndex = computed(() => {
+  return list.value.findIndex((x) => x.pageCode === orderDetail.value?.extInfo?.pageCode);
+});
+
+const handleNavClick = (item: TemplatePageItem, index: number) => {
+  console.log('🚀 ~ handleNavClick ~ enableIndex.value', enableIndex.value);
+  console.log('🚀 ~ handleNavClick ~ index', index);
+  if (index <= enableIndex.value) {
+    pageJump(item.pageCode, route.query);
+  }
 };
 
 onMounted(() => {
@@ -75,6 +84,7 @@ const show = computed(() => {
 
 <style lang="scss" scoped>
 .com-navigator {
+  z-index: 999;
   .btn {
     position: fixed;
     width: 60px;
@@ -89,7 +99,10 @@ const show = computed(() => {
         line-height: 96px;
         padding-left: 32px;
         font-size: 28px;
-        color: #393d46;
+        color: #99a9c0;
+        &.enable {
+          color: #393d46;
+        }
         &.active {
           font-weight: 500;
           color: #006aff;
