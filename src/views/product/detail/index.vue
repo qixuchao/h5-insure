@@ -144,7 +144,7 @@
     <div class="guarantee-list">
       <div v-for="(item, index) in guaranteeList[activePlan].titleAndDescVOS" :key="index" class="guarantee-item">
         <div class="title">{{ item.title }}</div>
-        <div class="content" v-html="item.content" />
+        <div v-dompurify-html="item.content" class="content" />
       </div>
     </div>
   </ProPopup>
