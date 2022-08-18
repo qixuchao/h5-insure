@@ -100,7 +100,7 @@ onBeforeMount(async () => {
 // });
 
 const X_FLOW = 'https://xflowcloud.zhongan.io/sdk/dist/js/v0.0.1/ilog.js?id=qmkd17hfzorg55op&history=true';
-const I_SEE = 'https://static.zhongan.com/website/isee/zainfo/eye.js';
+const I_SEE = 'https://staticdaily.zhongan.com/website/isee-poc/eye.js'; // 'https://static.zhongan.com/website/isee/zainfo/eye.js';
 
 const addScript = (url: string, isAsync = true) => {
   console.log('加载脚本：', url);
