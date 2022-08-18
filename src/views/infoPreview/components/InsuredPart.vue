@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-08-01 18:11:52
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-01 21:59:00
+ * @LastEditTime: 2022-08-18 18:05:46
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/infoPreview/components/InsuredPart.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -19,7 +19,7 @@
           </ProCell>
           <ProCell
             title="交费期间"
-            :content="compositionDesc(risk.paymentPeriod, INSURANCE_PERIOD_TYPE_ENUMS[risk.paymentPeriodType])"
+            :content="compositionDesc(risk.paymentPeriod, PAYMENT_PERIOD_TYPE_ENUMS[risk.paymentPeriodType])"
           >
           </ProCell>
           <ProCell title="交费方式" :content="PAYMENT_FREQUENCY_MAP[risk.paymentFrequency]"></ProCell>
@@ -51,7 +51,7 @@ const compositionDesc = (value: number, desc: string) => {
   if (desc.indexOf('$') !== -1) {
     return desc.replace('$', `${value}`);
   }
-  return `${value}${desc}`;
+  return `${value || ''}${desc}`;
 };
 </script>
 <style lang="scss" scoped>
