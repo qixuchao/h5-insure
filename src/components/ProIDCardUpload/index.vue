@@ -36,7 +36,7 @@
         <div class="upload-item cover" @click="handleBackClick">
           <div class="bg" />
           <img :src="IDCardUploadIconImage" class="icon" />
-          <div class="text">上传人像面</div>
+          <div class="text">上传国徽面</div>
         </div>
       </template>
     </van-uploader>
