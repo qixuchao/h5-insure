@@ -9,6 +9,7 @@
 import wx from 'weixin-js-sdk';
 import { isApp, isWechat } from '@/utils';
 import jsbridge from '@/utils/jsbridge';
+import ZaShareOverlay from '@/components/ZaShareOverlay/index.vue';
 
 /**
  * @module ZaShare
@@ -89,7 +90,7 @@ const setWechatConfig = () => {
           console.log('分享成功');
         },
       };
-      console.log('ready');
+      console.log('setWechatConfig分享参数: ', shareParams);
       // 分享给朋友｜分享到QQ
       wx.updateAppMessageShareData(shareParams);
       // 分享到朋友圈｜分享到 QQ 空间
