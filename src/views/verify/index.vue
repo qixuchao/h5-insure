@@ -245,7 +245,7 @@ const handleSubmit = () => {
           pageCode: 'sign',
           templateId,
         },
-        venderCode: 'ancheng',
+        venderCode: insurerCode,
       }).then((res) => {
         const { code, data } = res;
         if (code === '10000' && data.success) {

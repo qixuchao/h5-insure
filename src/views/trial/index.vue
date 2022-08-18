@@ -187,7 +187,8 @@ const transformData = (riskList: RiskVoItem[], riskPremium) => {
       paymentFrequency: risk.paymentFrequency,
       paymentPeriod: risk.chargePeriod.split('_')[1],
       paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],
-      insurancePeriodType: INSURANCE_PERIOD_TYPE_ENUMS[risk.coveragePeriod.split('_')[0]],
+      insurancePeriodType:
+        INSURANCE_PERIOD_TYPE_ENUMS[risk.coveragePeriod === 'to_life' ? 'to_life' : risk.coveragePeriod.split('_')[0]],
       insurancePeriodValue: Number.isNaN(+risk.coveragePeriod.split('_')[1])
         ? undefined
         : risk.coveragePeriod.split('_')[1],
