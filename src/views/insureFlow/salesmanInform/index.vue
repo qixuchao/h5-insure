@@ -47,6 +47,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { Toast } from 'vant';
 import dayjs from 'dayjs';
 import ProCard from '@/components/ProCard/index.vue';
+import ProPDFviewer from '@/components/ProPDFviewer/index.vue';
 import { listCustomerQuestions } from '@/api/modules/inform';
 import { nextStep, getOrderDetail } from '@/api';
 import { ListCustomerQuestionsResponse } from '@/api/modules/inform.data';
