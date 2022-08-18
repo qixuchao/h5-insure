@@ -34,20 +34,6 @@
       <van-button type="primary" @click="handleClickNextStep">下一步</van-button>
     </div>
   </ProPageWrap>
-  <van-action-sheet v-model:show="showShare" cancel-text="取消" close-on-click-action>
-    <div class="content">
-      <div class="bx" @click="handleShare('1')">
-        <div class="wechat"><img src="@/assets/images/compositionProposal/wechat.png" alt="" /></div>
-        <div class="txt">微信好友</div>
-      </div>
-      <div class="bx">
-        <div class="friend" @click="handleShare('2')">
-          <img src="@/assets/images/compositionProposal/pengyouquan.png" alt="" />
-        </div>
-        <div class="txt">朋友圈</div>
-      </div>
-    </div>
-  </van-action-sheet>
 </template>
 
 <script setup lang="ts">
@@ -176,7 +162,7 @@ const handleClickNextStep = () => {
 
   nextStep({
     ...pageData.value,
-    extInfo: { ...pageData.value.extInfo, templateId: 1, pageCode: 'questionNotice' },
+    extInfo: { ...pageData.value.extInfo, pageCode: 'questionNotice' },
     venderCode: insurerCode,
   }).then(({ code, data }) => {
     if (code === '10000') {

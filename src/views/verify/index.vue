@@ -241,6 +241,7 @@ const handleSubmit = () => {
         pageCode: 'sign',
         operateOption: { withSignInfo: true },
         extInfo: {
+          ...detail.value.extInfo,
           pageCode: 'sign',
           templateId,
         },
