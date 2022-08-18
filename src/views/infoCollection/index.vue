@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-11 08:36:35
+ * @LastEditTime: 2022-08-18 22:40:17
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -182,6 +182,7 @@ const formInfo = ref<any>({
   },
   tenantOrderHolder: {
     extInfo: {},
+    holderType: 1,
   } as TenantOrderHolder,
   tenantOrderInsuredList: [
     {
@@ -250,7 +251,7 @@ const goNextPage = () => {
       objectType: ATTACHMENT_OBJECT_TYPE_ENUM.INSURED,
       objectId: formInfo.value.tenantOrderInsuredList[0].id,
       name: '被保人证件正面',
-      uri: insuredImages.value[0],
+      uri: insuredImages.value[0] || holderImages.value[0],
       id: insuredImagesId.value[1],
     },
     {
@@ -258,7 +259,7 @@ const goNextPage = () => {
       objectType: ATTACHMENT_OBJECT_TYPE_ENUM.INSURED,
       objectId: formInfo.value.tenantOrderInsuredList[0].id,
       name: '被保人证件背面',
-      uri: insuredImages.value[1],
+      uri: insuredImages.value[1] || holderImages.value[1],
       id: insuredImagesId.value[1],
     },
   ];
@@ -317,7 +318,7 @@ const queryOrderDetail = () => {
         const currentData = data;
 
         currentData.extInfo = { ...currentData.extInfo, pageCode, templateId };
-        currentData.tenantOrderHolder = currentData.tenantOrderHolder || {};
+        currentData.tenantOrderHolder = currentData.tenantOrderHolder || { holderType: 1 };
         currentData.tenantOrderHolder.extInfo = currentData.tenantOrderHolder.extInfo || {};
         currentData.tenantOrderInsuredList[0].extInfo = currentData.tenantOrderInsuredList[0].extInfo || {};
         currentData.tenantOrderInsuredList[0].tenantOrderBeneficiaryList =

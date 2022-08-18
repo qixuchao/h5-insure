@@ -66,7 +66,7 @@ router.beforeEach(async (to, from, next) => {
     if (storage.get('token')) {
       next();
     } else {
-      window.location.href = '/login';
+      // window.location.href = '/login';
     }
   }
 });
