@@ -2,14 +2,14 @@
   <span @click="handleShare">
     <slot />
   </span>
-  <ZaShareOverlay :show="showOverLay" @on-close="onCloseOverlay" />
+  <ProShareOverlay :show="showOverLay" @on-close="onCloseOverlay" />
 </template>
 
 <script lang="ts" setup>
 import wx from 'weixin-js-sdk';
 import { isApp, isWechat } from '@/utils';
 import jsbridge from '@/utils/jsbridge';
-import ZaShareOverlay from '@/components/ZaShareOverlay/index.vue';
+import ProShareOverlay from '@/components/ProShareOverlay/index.vue';
 
 /**
  * @module ZaShare

@@ -54,7 +54,7 @@
       </div>
       <div v-if="!isShare" class="footer-btn">
         <van-button plain type="primary" class="btn" @click="getPdf">生成PDF</van-button>
-        <ZaShare
+        <ProShare
           :title="shareConfig.title"
           :desc="shareConfig.desc"
           :link="shareConfig.link"
@@ -62,7 +62,7 @@
           :img-url="shareConfig.imgUrl"
         >
           <van-button type="primary" class="btn">分享计划书</van-button>
-        </ZaShare>
+        </ProShare>
       </div>
     </div>
   </ProPageWrap>
@@ -75,7 +75,7 @@ import { ORIGIN } from '@/utils';
 import Storage from '@/utils/storage';
 import InsuranceList from './components/InsuranceList.vue';
 import Benefit from './components/Benefit.vue';
-import ZaShare from '@/components/ZaShare/index.vue';
+import ProShare from '@/components/ProShare/index.vue';
 
 const router = useRoute();
 const history = useRouter();
