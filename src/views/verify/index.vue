@@ -100,11 +100,11 @@
         </ProCard>
       </div>
       <div class="footer-button footer">
-        <!-- <div class="refresh-btn">
+        <div class="refresh-btn">
           <div><ProSvg name="refresh" /></div>
           <div class="text">刷新</div>
-        </div> -->
-        <!-- <van-button plain type="primary">分享</van-button> -->
+        </div>
+        <van-button plain type="primary" class="share-btn">分享</van-button>
         <van-button type="primary" class="submit-btn" @click="handleSubmit">提交</van-button>
       </div>
     </div>
@@ -417,16 +417,20 @@ onMounted(() => {
     justify-content: space-between;
 
     .refresh-btn {
-      width: 50px;
+      width: 70px;
       border: none;
       color: #0d6efe;
-      font-size: 20px;
+      font-size: 30px;
       line-height: 28px;
       text-align: center;
 
       .text {
         margin-top: 10px;
+        font-size: 24px;
       }
+    }
+    .share-btn {
+      flex: 1;
     }
 
     .submit-btn {

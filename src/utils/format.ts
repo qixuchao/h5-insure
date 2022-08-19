@@ -54,3 +54,8 @@ export const convertChargePeriod = (value: string): string => {
   }
   return `${years}${unitMap[unit]}`;
 };
+
+// 手机号脱敏
+export const convertPhone = (phone: string): string => {
+  return phone.replace(/(\d{3})\d*(\d{4})/, '$1***$2');
+};

@@ -77,7 +77,12 @@
         <ProPDFviewer class="file" title="《银行转账授权》" :url="tempPdf" />
       </div>
       <div class="footer-button footer">
-        <van-button type="primary" @click="handleSubmit">下一步</van-button>
+        <div class="refresh-btn">
+          <div><ProSvg name="refresh" /></div>
+          <div class="text">刷新</div>
+        </div>
+        <van-button plain type="primary" class="share-btn">分享</van-button>
+        <van-button type="primary" class="submit-btn" @click="handleSubmit">下一步</van-button>
       </div>
     </div>
   </ProPageWrap>
@@ -353,6 +358,28 @@ onMounted(() => {
   }
   .footer {
     position: static;
+    justify-content: space-between;
+
+    .refresh-btn {
+      width: 70px;
+      border: none;
+      color: #0d6efe;
+      font-size: 30px;
+      line-height: 28px;
+      text-align: center;
+
+      .text {
+        margin-top: 10px;
+        font-size: 24px;
+      }
+    }
+    .share-btn {
+      flex: 1;
+    }
+
+    .submit-btn {
+      flex: 1;
+    }
   }
 }
 </style>

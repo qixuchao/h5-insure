@@ -41,7 +41,7 @@ export const nextStep = (data = {} as NextStepRequestData) =>
   >(PAGE_API_ENUMS[data.extInfo.pageCode], data);
 
 // 获取订单详情
-export const getOrderDetail = (data = {}) => {
+export const getOrderDetail = (data = {}): Promise<ResponseData<NextStepRequestData>> => {
   return new Promise((resolve, reject) => {
     request
       .post<NextStepRequestData, ResponseData<NextStepRequestData>>(
