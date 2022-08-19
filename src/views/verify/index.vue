@@ -127,9 +127,11 @@ import ProShare from '@/components/ProShare/index.vue';
 import { faceVerify, saveSign, getFile, faceVerifySave } from '@/api/modules/verify';
 import { nextStep, getOrderDetail } from '@/api';
 import { NOTICE_TYPE_ENUM, PAGE_ROUTE_ENUMS, CERT_TYPE_ENUM } from '@/common/constants';
+import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { NextStepRequestData } from '@/api/index.data';
 import { INotice } from '@/api/modules/verify.data';
 import Storage from '@/utils/storage';
+import pageJump from '@/utils/pageJump';
 
 const CERT_STATUS_ENUM = {
   CERT: 1,
@@ -207,59 +209,73 @@ const setRef = (el) => {
 };
 
 const handleSubmit = () => {
-  const empty = holderSign.value?.isEmpty();
-  if (empty) {
-    Toast.fail('请投保人签名');
-    return;
-  }
-  if (insuredSignRefs.some((x) => x.isEmpty())) {
-    Toast.fail('请被保人签名');
-    return;
-  }
-  if (
-    detail.value.tenantOrderHolder?.extInfo?.isCert !== CERT_STATUS_ENUM.CERT &&
-    needVerify(detail.value.tenantOrderHolder?.certType)
-  ) {
-    Toast.fail('请投保人去认证');
-    return;
-  }
-  if (
-    detail.value.tenantOrderInsuredList?.some(
-      (x) => x.extInfo?.isCert !== CERT_STATUS_ENUM.CERT && needVerify(x.certType),
-    )
-  ) {
-    Toast.fail('请被保人去认证');
-    return;
-  }
-  Dialog.confirm({
-    title: '提示',
-    message: '请确认信息填写无误后，再进行支付',
-  }).then(() => {
-    const signData = holderSign.value?.save();
-    Promise.all([
-      saveSign('HOLDER', signData, detail.value?.id, `${tenantId}`),
-      ...insuredSignRefs.map((x) => saveSign('INSURED', x.save(), detail.value?.id, `${tenantId}`)),
-    ]).then(() => {
-      nextStep({
-        ...detail.value,
-        pageCode: 'sign',
-        operateOption: { withSignInfo: true },
-        extInfo: {
-          ...detail.value.extInfo,
-          pageCode: 'sign',
-          templateId,
-        },
-        venderCode: insurerCode,
-      }).then((res) => {
-        const { code, data } = res;
-        if (code === '10000' && data.success) {
-          router.push({
-            path: PAGE_ROUTE_ENUMS[data.pageAction.data.nextPageCode],
-            query: { orderNo, saleUserId, tenantId },
-          });
+  getOrderDetail({
+    orderNo,
+    saleUserId,
+    tenantId,
+  }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      if (data.orderStatus !== ORDER_STATUS_ENUM.PENDING) {
+        Toast.fail('订单非待处理状态');
+        pageJump('paymentResult', route.query);
+      } else {
+        const empty = holderSign.value?.isEmpty();
+        if (empty) {
+          Toast.fail('请投保人签名');
+          return;
         }
-      });
-    });
+        if (insuredSignRefs.some((x) => x.isEmpty())) {
+          Toast.fail('请被保人签名');
+          return;
+        }
+        if (
+          detail.value.tenantOrderHolder?.extInfo?.isCert !== CERT_STATUS_ENUM.CERT &&
+          needVerify(detail.value.tenantOrderHolder?.certType)
+        ) {
+          Toast.fail('请投保人去认证');
+          return;
+        }
+        if (
+          detail.value.tenantOrderInsuredList?.some(
+            (x) => x.extInfo?.isCert !== CERT_STATUS_ENUM.CERT && needVerify(x.certType),
+          )
+        ) {
+          Toast.fail('请被保人去认证');
+          return;
+        }
+        Dialog.confirm({
+          title: '提示',
+          message: '请确认信息填写无误后，再进行支付',
+        }).then(() => {
+          const signData = holderSign.value?.save();
+          Promise.all([
+            saveSign('HOLDER', signData, detail.value?.id, `${tenantId}`),
+            ...insuredSignRefs.map((x) => saveSign('INSURED', x.save(), detail.value?.id, `${tenantId}`)),
+          ]).then(() => {
+            nextStep({
+              ...detail.value,
+              pageCode: 'sign',
+              operateOption: { withSignInfo: true },
+              extInfo: {
+                ...detail.value.extInfo,
+                pageCode: 'sign',
+                templateId,
+              },
+              venderCode: insurerCode,
+            }).then((nextRes) => {
+              const { code: nextCode, data: nextData } = nextRes;
+              if (code === '10000' && nextData.success) {
+                router.push({
+                  path: PAGE_ROUTE_ENUMS[nextData.pageAction.data.nextPageCode],
+                  query: { orderNo, saleUserId, tenantId },
+                });
+              }
+            });
+          });
+        });
+      }
+    }
   });
 };
 

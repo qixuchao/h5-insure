@@ -130,7 +130,19 @@ const handleProcess = () => {
   } = props.detail;
   router.push({
     path: PAGE_ROUTE_ENUMS[props.detail.pageCode],
-    query: { productCode, orderNo, orderId, agentCode, templateId, tenantId, insurerCode, productCategory, agencyCode },
+    query: {
+      productCode,
+      orderNo,
+      orderId,
+      agentCode,
+      templateId,
+      tenantId,
+      insurerCode,
+      productCategory,
+      agencyCode,
+      // 是否从订单列表来的，用来判断是否展示导航栏
+      isFromOrderList: '1',
+    },
   });
 };
 </script>

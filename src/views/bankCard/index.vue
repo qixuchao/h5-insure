@@ -125,6 +125,8 @@ import {
 import { nextStep, getOrderDetail, getInitFactor } from '@/api';
 import { ProductInsureFactorItem } from '@/api/index.data';
 import tempPdf from '@/assets/pdf/bank.pdf';
+import { ORDER_STATUS_ENUM } from '@/common/constants/order';
+import pageJump from '@/utils/pageJump';
 
 const route = useRoute();
 const router = useRouter();
@@ -175,102 +177,117 @@ const showByFactor = (key: string, type: string) => {
 };
 
 const handleSubmit = () => {
-  if (!agree.value) {
-    Toast.fail('请勾选同意银行转账授权');
-    return;
-  }
-  Promise.all([form1.value?.validate(), form2.value?.validate(), form3.value?.validate()]).then((results) => {
-    const payInfoList = [
-      {
-        ...results[0],
-        id: firstFormData.value.id,
-        paymentType: PAYMENT_TYPE_ENUM.FIRST_TERM,
-      },
-      {
-        ...results[1],
-        id: renewFormData.value.id,
-        paymentType: PAYMENT_TYPE_ENUM.RENEW_TERM,
-      },
-      {
-        ...results[2],
-        id: repriseFormData.value.id,
-        paymentType: PAYMENT_TYPE_ENUM.REPRISE,
-        payInfoType: payInfoType.value,
-      },
-    ];
-    const tenantOrderAttachmentList = [
-      {
-        category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_BANK_CARD, // 银行卡正面
-        name: '首期签约银行卡正面',
-        objectType: ATTACHMENT_OBJECT_TYPE_ENUM.INIT_SIGN, // 首期签约
-        type: 'png',
-        uri: results[0].images[0],
-        id: firstFormData.value.bankData.imagesId[0],
-      },
-      {
-        category: ATTACHMENT_CATEGORY_ENUM.REVERSE_BANK_CARD, // 银行卡背面
-        name: '首期签约银行卡背面',
-        objectType: ATTACHMENT_OBJECT_TYPE_ENUM.INIT_SIGN, // 首期签约
-        type: 'png',
-        uri: results[0].images[1],
-        id: firstFormData.value.bankData.imagesId[1],
-      },
-    ];
-    if (renewFormData.value.payInfoType === PAY_INFO_TYPE_ENUM.OTHER) {
-      tenantOrderAttachmentList.push({
-        category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_BANK_CARD, // 银行卡正面
-        name: '续期签约银行卡正面',
-        objectType: ATTACHMENT_OBJECT_TYPE_ENUM.RENEWAL_SIGN, // 续期签约
-        type: 'png',
-        uri: results[1].images[0],
-        id: renewFormData.value.bankData.imagesId[0],
-      });
-      tenantOrderAttachmentList.push({
-        category: ATTACHMENT_CATEGORY_ENUM.REVERSE_BANK_CARD, // 银行卡背面
-        name: '续期签约银行卡正面',
-        objectType: ATTACHMENT_OBJECT_TYPE_ENUM.RENEWAL_SIGN, // 续期签约
-        type: 'png',
-        uri: results[1].images[1],
-        id: renewFormData.value.bankData.imagesId[1],
-      });
-    }
-    if (payInfoType.value === PAY_INFO_TYPE_ENUM.OTHER) {
-      tenantOrderAttachmentList.push({
-        category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_BANK_CARD, // 银行卡正面
-        name: '年金签约银行卡正面',
-        objectType: ATTACHMENT_OBJECT_TYPE_ENUM.ANNUAL_SIGN, // 年金签约
-        type: 'png',
-        uri: results[2].images[0],
-        id: repriseFormData.value.bankData.imagesId[0],
-      });
-      tenantOrderAttachmentList.push({
-        category: ATTACHMENT_CATEGORY_ENUM.REVERSE_BANK_CARD, // 银行卡背面
-        name: '年金签约银行卡背面',
-        objectType: ATTACHMENT_OBJECT_TYPE_ENUM.ANNUAL_SIGN, // 年金签约
-        type: 'png',
-        uri: results[2].images[1],
-        id: repriseFormData.value.bankData.imagesId[1],
-      });
-    }
-    nextStep({
-      ...orderDetail,
-      pageCode: 'payInfo',
-      tenantOrderPayInfoList: payInfoList,
-      extInfo: { ...orderDetail.extInfo, templateId, pageCode: 'payInfo' },
-      operateOption: {
-        withPayInfo: true,
-        withAttachmentInfo: true,
-      },
-      tenantOrderAttachmentList,
-    }).then((res) => {
-      const { code, data } = res;
-      if (code === '10000' && data.success) {
-        router.push({
-          path: PAGE_ROUTE_ENUMS[data.pageAction.data.nextPageCode],
-          query: route.query,
+  // 判断订单状态当前状态
+  getOrderDetail({
+    orderNo,
+    saleUserId: agentCode,
+    tenantId,
+  }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      if (data.orderStatus !== ORDER_STATUS_ENUM.PENDING) {
+        Toast.fail('订单非待处理状态');
+        pageJump('paymentResult', route.query);
+      } else {
+        Promise.all([form1.value?.validate(), form2.value?.validate(), form3.value?.validate()]).then((results) => {
+          if (!agree.value) {
+            Toast.fail('请勾选同意银行转账授权');
+            return;
+          }
+          const payInfoList = [
+            {
+              ...results[0],
+              id: firstFormData.value.id,
+              paymentType: PAYMENT_TYPE_ENUM.FIRST_TERM,
+            },
+            {
+              ...results[1],
+              id: renewFormData.value.id,
+              paymentType: PAYMENT_TYPE_ENUM.RENEW_TERM,
+            },
+            {
+              ...results[2],
+              id: repriseFormData.value.id,
+              paymentType: PAYMENT_TYPE_ENUM.REPRISE,
+              payInfoType: payInfoType.value,
+            },
+          ];
+          const tenantOrderAttachmentList = [
+            {
+              category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_BANK_CARD, // 银行卡正面
+              name: '首期签约银行卡正面',
+              objectType: ATTACHMENT_OBJECT_TYPE_ENUM.INIT_SIGN, // 首期签约
+              type: 'png',
+              uri: results[0].images[0],
+              id: firstFormData.value.bankData.imagesId[0],
+            },
+            {
+              category: ATTACHMENT_CATEGORY_ENUM.REVERSE_BANK_CARD, // 银行卡背面
+              name: '首期签约银行卡背面',
+              objectType: ATTACHMENT_OBJECT_TYPE_ENUM.INIT_SIGN, // 首期签约
+              type: 'png',
+              uri: results[0].images[1],
+              id: firstFormData.value.bankData.imagesId[1],
+            },
+          ];
+          if (renewFormData.value.payInfoType === PAY_INFO_TYPE_ENUM.OTHER) {
+            tenantOrderAttachmentList.push({
+              category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_BANK_CARD, // 银行卡正面
+              name: '续期签约银行卡正面',
+              objectType: ATTACHMENT_OBJECT_TYPE_ENUM.RENEWAL_SIGN, // 续期签约
+              type: 'png',
+              uri: results[1].images[0],
+              id: renewFormData.value.bankData.imagesId[0],
+            });
+            tenantOrderAttachmentList.push({
+              category: ATTACHMENT_CATEGORY_ENUM.REVERSE_BANK_CARD, // 银行卡背面
+              name: '续期签约银行卡正面',
+              objectType: ATTACHMENT_OBJECT_TYPE_ENUM.RENEWAL_SIGN, // 续期签约
+              type: 'png',
+              uri: results[1].images[1],
+              id: renewFormData.value.bankData.imagesId[1],
+            });
+          }
+          if (payInfoType.value === PAY_INFO_TYPE_ENUM.OTHER) {
+            tenantOrderAttachmentList.push({
+              category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_BANK_CARD, // 银行卡正面
+              name: '年金签约银行卡正面',
+              objectType: ATTACHMENT_OBJECT_TYPE_ENUM.ANNUAL_SIGN, // 年金签约
+              type: 'png',
+              uri: results[2].images[0],
+              id: repriseFormData.value.bankData.imagesId[0],
+            });
+            tenantOrderAttachmentList.push({
+              category: ATTACHMENT_CATEGORY_ENUM.REVERSE_BANK_CARD, // 银行卡背面
+              name: '年金签约银行卡背面',
+              objectType: ATTACHMENT_OBJECT_TYPE_ENUM.ANNUAL_SIGN, // 年金签约
+              type: 'png',
+              uri: results[2].images[1],
+              id: repriseFormData.value.bankData.imagesId[1],
+            });
+          }
+          nextStep({
+            ...orderDetail,
+            pageCode: 'payInfo',
+            tenantOrderPayInfoList: payInfoList,
+            extInfo: { ...orderDetail.extInfo, templateId, pageCode: 'payInfo' },
+            operateOption: {
+              withPayInfo: true,
+              withAttachmentInfo: true,
+            },
+            tenantOrderAttachmentList,
+          }).then((nextRes) => {
+            const { code: nextCode, data: nextData } = nextRes;
+            if (nextCode === '10000' && nextData.success) {
+              router.push({
+                path: PAGE_ROUTE_ENUMS[nextData.pageAction.data.nextPageCode],
+                query: route.query,
+              });
+            }
+          });
         });
       }
-    });
+    }
   });
 };
 

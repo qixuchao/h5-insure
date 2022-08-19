@@ -119,6 +119,8 @@ const handleProcess = () => {
         productCategory,
         insurerCode,
         agencyCode,
+        // 是否从订单列表来的，用来判断是否展示导航栏
+        isFromOrderList: '1',
       },
     });
   }

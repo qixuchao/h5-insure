@@ -41,6 +41,7 @@ const {
   productCode = 'CQ75CQ76',
   insurerCode = 'ancheng',
   productCategory = '1',
+  isFromOrderList,
 } = route.query;
 
 const { orderDetail } = storeToRefs(store);
@@ -76,7 +77,7 @@ const currentPageCode = computed(() => {
 });
 
 const show = computed(() => {
-  return list.value.some((x) => x.pageCode === currentPageCode.value);
+  return isFromOrderList && list.value.some((x) => x.pageCode === currentPageCode.value);
 });
 </script>
 
