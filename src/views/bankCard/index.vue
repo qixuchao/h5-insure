@@ -86,8 +86,8 @@
           <div><ProSvg name="refresh" /></div>
           <div class="text">刷新</div>
         </div>
-        <ProShare title="邀请您填写银行卡信息" desc="邀请您填写银行卡信息" class="share-btn">
-          <van-button plain type="primary" class="share-btn">分享</van-button>
+        <ProShare title="邀请您填写银行卡信息" desc="邀请您填写银行卡信息" :link="shareLink">
+          <van-button plain type="primary">分享</van-button>
         </ProShare>
         <van-button type="primary" class="submit-btn" @click="handleSubmit">下一步</van-button>
       </div>
@@ -274,7 +274,8 @@ const handleSubmit = () => {
 };
 
 const shareLink = computed(() => {
-  return `${window.location.origin}/phoneVerify?`;
+  const query = { ...route.query, isShare: 1, sharePageCode: 'payInfo' };
+  return `${window.location.origin}/phoneVerify?${queryString.stringify(query)}`;
 });
 
 onMounted(() => {
@@ -413,8 +414,9 @@ onMounted(() => {
         font-size: 24px;
       }
     }
-    .share-btn {
+    :deep(.com-share) {
       flex: 1;
+      margin-left: 20px;
     }
 
     .submit-btn {

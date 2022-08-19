@@ -57,8 +57,6 @@ const enableIndex = computed(() => {
 });
 
 const handleNavClick = (item: TemplatePageItem, index: number) => {
-  console.log('🚀 ~ handleNavClick ~ enableIndex.value', enableIndex.value);
-  console.log('🚀 ~ handleNavClick ~ index', index);
   if (index <= enableIndex.value) {
     pageJump(item.pageCode, route.query);
   }
@@ -67,8 +65,8 @@ const handleNavClick = (item: TemplatePageItem, index: number) => {
 onMounted(() => {
   getTemplateInfo({ productCategory, venderCode: insurerCode, navbarFlag: 1 }).then((res) => {
     const { code, data } = res;
-    if (code === '10000') {
-      list.value = data.templatePageList;
+    if (code === '10000' && data) {
+      list.value = data.templatePageList || [];
     }
   });
 });

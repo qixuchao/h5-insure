@@ -1,7 +1,7 @@
 <template>
-  <div @click="handleShare">
+  <span class="com-share" @click="handleShare">
     <slot />
-  </div>
+  </span>
   <ProShareOverlay :show="showOverLay" @on-close="onCloseOverlay" />
 </template>
 
@@ -59,7 +59,7 @@ const onCloseOverlay = () => {
   showOverLay.value = false;
 };
 
-const handleShare = (type: string) => {
+const handleShare = () => {
   console.log('分享参数', props);
   if (isWechat()) {
     console.log('在微信内，弹起遮罩');
