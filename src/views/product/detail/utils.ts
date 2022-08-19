@@ -8,7 +8,7 @@ const formatAge = (age: string) => {
   if (arr[0] === 'day') {
     return `满${arr[1]}天`;
   }
-  return `${1}周岁`;
+  return `${arr[1]}周岁`;
 };
 
 /**

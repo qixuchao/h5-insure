@@ -184,7 +184,7 @@ const doVerify = (certNo: string, name: string) => {
 
 // 证件类型是身份证的才需要去认证
 const needVerify = (certType: keyof typeof CERT_TYPE_ENUM) => {
-  return certType === CERT_TYPE_ENUM.CERT;
+  return `${certType}` === CERT_TYPE_ENUM.CERT;
 };
 
 const handleVerify = (index: number) => {
@@ -244,7 +244,7 @@ const handleSubmit = () => {
           pageCode: 'sign',
           templateId,
         },
-        venderCode: 'ancheng',
+        venderCode: insurerCode,
       }).then((res) => {
         const { code, data } = res;
         if (code === '10000' && data.success) {

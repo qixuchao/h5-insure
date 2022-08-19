@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-20 15:48:15
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-10 14:29:48
+ * @LastEditTime: 2022-08-18 16:25:59
  * @FilePath: /zat-planet-h5-cloud-insure/src/store/proposal/createProposal.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -10,10 +10,10 @@ import { defineStore } from 'pinia';
 import { ProposalInfo } from '@/api/modules/createProposal.data';
 
 export interface State {
-  proposalInfo: Partial<ProposalInfo>;
-  trialData: ProposalInfo[];
-  excludeProduct: any[];
-  proposalId: number;
+  proposalInfo: Partial<ProposalInfo>; // 计划书信息
+  trialData: ProposalInfo[]; // 试算需要的条件信息
+  excludeProduct: any[]; // 计划书中添加产品时需要排除的产品id
+  proposalId: number; // 记录当前计划书id
 }
 
 const useStore = defineStore<

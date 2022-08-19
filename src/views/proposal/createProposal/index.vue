@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:14:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-10 10:27:38
+ * @LastEditTime: 2022-08-18 19:36:56
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -15,10 +15,7 @@
             v-model="proposalInfo.proposalName"
             name="proposalName"
             placeholder="请输入计划书名称"
-            :rules="[
-              { required: true, message: '请输入计划书名称' },
-              { validator: (...params) => validateName('计划书名称', ...params) },
-            ]"
+            :rules="[{ validator: (...params) => validateName('计划书名称', ...params) }]"
           >
             <template #label>
               <span>计划书名称</span>
@@ -99,11 +96,19 @@
       @close="closeProductRisk"
       @finished="onFinished"
     ></ProductRisk>
+    <VanActionSheet
+      v-model:show="showActionSheet"
+      :actions="SHEET_ACTIONS"
+      cancel-text="取消"
+      close-on-click-action
+      @cancel="toggleActionSheet(false)"
+      @select="selectAction"
+    />
   </ProPageWrap>
 </template>
 
 <script lang="ts" setup>
-import { Dialog, Toast } from 'vant';
+import { ActionSheetAction, Dialog, Toast } from 'vant';
 import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
 import { useRouter, useRoute } from 'vue-router';
@@ -133,7 +138,17 @@ interface State {
   currentRisk: any[];
 }
 
+const SHEET_ACTIONS = [
+  {
+    name: '保存修改',
+  },
+  {
+    name: '另存为新计划书',
+  },
+];
+
 const [showProductRisk, toggleProductRisk] = useToggle();
+const [showActionSheet, toggleActionSheet] = useToggle();
 
 const proposalInfo = ref<any>({
   proposalHolder: {},
@@ -180,11 +195,46 @@ const dateRange = computed(() => {
   };
 });
 
-const validateName = (desc: string, value: string, rule: any) => {
-  if (/^.{1,20}$/.test(value)) {
-    return '';
+const submitData = () => {
+  formRef.value.validate().then(() => {
+    addOrUpdateProposal(proposalInfo.value).then(({ code, data }) => {
+      if (code === '10000') {
+        store.$reset();
+        store.proposalId = data;
+        router.push({
+          path: '/compositionProposal',
+          query: {
+            id: data,
+          },
+        });
+      }
+    });
+  });
+};
+
+const saveProposalData = () => {
+  if (!id && store.proposalId) {
+    toggleActionSheet(true);
+  } else {
+    submitData();
   }
-  return `${desc}不能超过20个字符`;
+};
+
+const selectAction = (item: ActionSheetAction, index: number) => {
+  if (index) {
+    proposalInfo.value.id = null;
+  }
+  submitData();
+};
+
+const validateName = (desc: string, value: string, rule: any) => {
+  if (value) {
+    if (/^.{1,20}$/.test(value)) {
+      return '';
+    }
+    return `${desc}不能超过20个字符`;
+  }
+  return '';
 };
 
 const pickProductPremium = (premiumData = {}) => {
@@ -230,27 +280,11 @@ const addRiderRisk = (riskIds: any[], productInfo: ProposalInsuredProductItem) =
   toggleProductRisk(true);
 };
 
-const queryProposalInfo = () => {
-  queryProposalDetail({ id }).then(({ code, data }) => {
+const queryProposalInfo = (params = {}) => {
+  queryProposalDetail(params).then(({ code, data }) => {
     if (code === '10000') {
       Object.assign(proposalInfo.value, data);
     }
-  });
-};
-
-const saveProposalData = () => {
-  formRef.value.validate().then(() => {
-    addOrUpdateProposal(proposalInfo.value).then(({ code, data }) => {
-      if (code === '10000') {
-        store.$reset();
-        router.push({
-          path: '/compositionProposal',
-          query: {
-            id: data,
-          },
-        });
-      }
-    });
   });
 };
 
@@ -297,8 +331,10 @@ const closeProductRisk = () => {
 onBeforeMount(() => {
   const currentProposalInfo = store.$state.trialData;
   const preProposalInfo: any = store.$state.proposalInfo;
-  if (id && !isCreateProposal) {
-    queryProposalInfo();
+  const currentProposalId = store.$state.proposalId;
+  // 初始编辑计划书
+  if ((id && !isCreateProposal) || currentProposalId) {
+    queryProposalInfo({ id: id || currentProposalId });
   } else if (!Object.keys(preProposalInfo).length && currentProposalInfo.length) {
     Object.assign(proposalInfo.value, currentProposalInfo[0]);
   } else if (Object.keys(preProposalInfo).length && currentProposalInfo.length) {

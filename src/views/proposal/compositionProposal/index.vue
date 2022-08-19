@@ -54,9 +54,16 @@
       </div>
       <div v-if="!isShare" class="footer-btn">
         <van-button plain type="primary" class="btn" @click="getPdf">生成PDF</van-button>
-        <van-button type="primary" class="btn" @click="handleShare">分享计划书</van-button>
+        <ProShare
+          :title="shareConfig.title"
+          :desc="shareConfig.desc"
+          :link="shareConfig.link"
+          :img="shareConfig.img"
+          :img-url="shareConfig.imgUrl"
+        >
+          <van-button type="primary" class="btn">分享计划书</van-button>
+        </ProShare>
       </div>
-      <ZaShareOverlay :show="showOverLay" @on-close="onCloseOverlay" />
     </div>
   </ProPageWrap>
 </template>
@@ -64,12 +71,11 @@
 import wx from 'weixin-js-sdk';
 import { Toast } from 'vant';
 import { queryProposalDetail, queryPreviewProposalDetail, generatePdf } from '@/api/modules/proposalList';
-import { isApp, isWechat, ORIGIN } from '@/utils';
+import { ORIGIN } from '@/utils';
 import Storage from '@/utils/storage';
-import jsbridge from '@/utils/jsbridge';
 import InsuranceList from './components/InsuranceList.vue';
 import Benefit from './components/Benefit.vue';
-import ZaShareOverlay from '@/components/ZaShareOverlay/index.vue';
+import ProShare from '@/components/ProShare/index.vue';
 
 const router = useRoute();
 const history = useRouter();
@@ -78,7 +84,7 @@ const { isShare, id } = router.query;
 const info = ref();
 const tenantId = ref('');
 const proposalName = ref('');
-const showOverLay = ref(false); // 分享遮罩层
+const shareConfig = ref({});
 
 const isMale = (gender: number) => {
   return gender === 1;
@@ -96,37 +102,16 @@ watch(
   },
 );
 
-const shareConfigProps = () => {
+const setShareConfig = () => {
   const link = `${ORIGIN}/compositionProposal?id=${id}&isShare=1&tenantId=${tenantId.value}`;
 
-  return {
-    title: `${info.value?.name}的计划书`, // 分享标题
-    desc: '您的贴心保险管家', // 分享描述
-    link, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+  shareConfig.value = {
+    title: `${info.value?.name}的计划书`,
+    desc: '您的贴心保险管家',
+    link,
+    imgUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/4e9f65f5-1bfc-4062-959b-c3101cb9e763.jpg',
+    img: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/4e9f65f5-1bfc-4062-959b-c3101cb9e763.jpg',
   };
-};
-
-const setWeixinShare = () => {
-  const shareProps = shareConfigProps();
-
-  if (isWechat()) {
-    console.log('在微信内, 默认设置分享信息');
-    console.log(shareProps);
-    wx.ready(() => {
-      const p = {
-        ...shareProps,
-        imgUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/4e9f65f5-1bfc-4062-959b-c3101cb9e763.jpg',
-        success: () => {
-          console.log('分享成功回调');
-        },
-      };
-      console.log('ready');
-      // 分享给朋友｜分享到QQ
-      wx.updateAppMessageShareData(p);
-      // 分享到朋友圈｜分享到 QQ 空间
-      wx.updateTimelineShareData(p);
-    });
-  }
 };
 
 const getData = async () => {
@@ -146,7 +131,7 @@ const getData = async () => {
       tenantId.value = data?.tenantId;
     }
 
-    setWeixinShare();
+    setShareConfig();
   } catch (e) {
     Toast('接口请求失败');
   }
@@ -160,29 +145,6 @@ onMounted(() => {
 
   getData();
 });
-
-const handleShare = (type: string) => {
-  const shareProps = shareConfigProps();
-  console.log('点击了分享按钮');
-
-  if (isWechat()) {
-    console.log('在微信内，弹起遮罩');
-    showOverLay.value = true;
-    return;
-  }
-
-  if (isApp()) {
-    console.log('在app内');
-    jsbridge.shareConfig({
-      ...shareProps,
-      img: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/4e9f65f5-1bfc-4062-959b-c3101cb9e763.jpg',
-    });
-  }
-};
-
-const onCloseOverlay = () => {
-  showOverLay.value = false;
-};
 
 const getPdf = () => {
   if (!id) {

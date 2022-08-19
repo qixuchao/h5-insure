@@ -1,6 +1,6 @@
 使用
 
-<ZaShareOverlay :show="show" @on-close="onCloseOverlay" />
+<ProShareOverlay :show="show" @on-close="onCloseOverlay" />
 
 show 控制遮罩层展示
 

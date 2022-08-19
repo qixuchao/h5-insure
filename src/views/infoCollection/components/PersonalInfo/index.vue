@@ -109,7 +109,7 @@
     >
       <template #extra>
         <div class="date-extra">
-          <van-checkbox v-model="certEndType" :disabled="isView">长期</van-checkbox>
+          <van-checkbox v-model="certEndType" :icon-size="16" :disabled="isView">长期</van-checkbox>
         </div>
       </template>
     </ProDatePicker>
@@ -508,19 +508,19 @@ const validateCertType = (value: string, rule: any) => {
     // 国籍为中国支持的证件 身份证、户口本、出生证、军官证
     if (
       ![CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD, CERT_TYPE_ENUM.BIRTH, CERT_TYPE_ENUM.MILITARY_CARD].includes(
-        value,
+        `${value}`,
       )
     ) {
       return '国籍为中国时，证件类型只允许选择身份证、户口本、出生证、军官证';
     }
   } else if (['HKG', 'MAC'].includes(state.value.formInfo?.extInfo?.nationalityCode)) {
     // 国籍为中国香港、中国澳门，证件类型只允许选择港澳通行证、港澳居民居住证
-    if (![CERT_TYPE_ENUM.HK_MACAO_RESIDENCE_PERMIT, CERT_TYPE_ENUM.HONGKONG_MACAO].includes(value)) {
+    if (![CERT_TYPE_ENUM.HK_MACAO_RESIDENCE_PERMIT, CERT_TYPE_ENUM.HONGKONG_MACAO].includes(`${value}`)) {
       return '国籍为中国香港、中国澳门时，证件类型只允许选择港澳通行证、港澳居民居住证';
     }
   } else if (state.value.formInfo?.extInfo?.nationalityCode === 'TWN') {
     // '国籍为中国台湾时，证件类型只允许选择台湾通行证、台湾居民居住证
-    if (![CERT_TYPE_ENUM.TAIWAN_RESIDENCE_PERMIT, CERT_TYPE_ENUM.TAIWAN_TRAVEL].includes(value)) {
+    if (![CERT_TYPE_ENUM.TAIWAN_RESIDENCE_PERMIT, CERT_TYPE_ENUM.TAIWAN_TRAVEL].includes(`${value}`)) {
       return '国籍为中国台湾时，证件类型只允许选择台湾通行证、台湾居民居住证';
     }
   } else {
@@ -630,6 +630,7 @@ watch(
   padding-left: $zaui-card-border;
   margin-left: $zaui-card-border;
   border-left: 1px solid #eeeff4;
+  display: flex;
 }
 .com-personal-wrapper {
 }
