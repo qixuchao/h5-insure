@@ -179,7 +179,7 @@ const router = useRouter();
 const route = useRoute();
 
 const { productCode = 'CQ75CQ76' } = route.query;
-const tabList = ref([]);
+const tabList = ref<Array<{ title: string; slotName: string }>>([]);
 const activePlan = ref(0);
 const popupShow = ref(false);
 const detail = ref<ProductDetail>();
@@ -283,6 +283,7 @@ onMounted(() => {
                   slotName: 'tab1',
                 });
               }
+              tabList.value = tabListTemp;
             }
           });
         }
