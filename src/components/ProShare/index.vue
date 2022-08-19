@@ -1,7 +1,7 @@
 <template>
-  <span @click="handleShare">
+  <div @click="handleShare">
     <slot />
-  </span>
+  </div>
   <ProShareOverlay :show="showOverLay" @on-close="onCloseOverlay" />
 </template>
 

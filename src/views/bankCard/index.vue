@@ -86,7 +86,9 @@
           <div><ProSvg name="refresh" /></div>
           <div class="text">刷新</div>
         </div>
-        <van-button plain type="primary" class="share-btn">分享</van-button>
+        <ProShare title="邀请您填写银行卡信息" desc="邀请您填写银行卡信息" class="share-btn">
+          <van-button plain type="primary" class="share-btn">分享</van-button>
+        </ProShare>
         <van-button type="primary" class="submit-btn" @click="handleSubmit">下一步</van-button>
       </div>
     </div>
@@ -95,6 +97,7 @@
 
 <script lang="ts" setup>
 import { Toast } from 'vant';
+import queryString from 'query-string';
 import { useRouter, useRoute } from 'vue-router';
 import ProCard from '@/components/ProCard/index.vue';
 import ProForm from '@/components/ProForm/index.vue';
@@ -102,6 +105,7 @@ import ProField from '@/components/ProField/index.vue';
 import ProPicker from '@/components/ProPicker/index.vue';
 import BankCardInfo from '@/components/BankCardInfo/index.vue';
 import ProPDFviewer from '@/components/ProPDFviewer/index.vue';
+import ProShare from '@/components/ProShare/index.vue';
 import {
   PAY_METHOD_LIST,
   PAY_METHOD_ENUM,
@@ -268,6 +272,10 @@ const handleSubmit = () => {
     });
   });
 };
+
+const shareLink = computed(() => {
+  return `${window.location.origin}/phoneVerify?`;
+});
 
 onMounted(() => {
   getInitFactor({ pageCode: 'payInfo', templateId }).then((res) => {
