@@ -67,7 +67,18 @@ const handleShare = () => {
 
   if (isApp()) {
     console.log('在app内');
-    jsbridge.shareConfig(props);
+    console.log('参数：', {
+      img: props.img,
+      title: props.title,
+      desc: props.desc,
+      link: props.link,
+    });
+    jsbridge.shareConfig({
+      img: props.img,
+      title: props.title,
+      desc: props.desc,
+      link: props.link,
+    });
   }
 };
 
