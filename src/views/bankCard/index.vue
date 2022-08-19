@@ -4,6 +4,7 @@
       <ProCard title="首期支付">
         <ProForm ref="form1">
           <ProPicker
+            v-if="showByFactor('paymentMethod', 'INIT')"
             v-model="firstFormData.payMethod"
             name="payMethod"
             required
@@ -12,12 +13,12 @@
             placeholder="请选择"
             :data-source="PAY_METHOD_LIST"
           />
-          <BankCardInfo v-model="firstFormData.bankData" :holder-name="holderName" />
+          <BankCardInfo v-model="firstFormData.bankData" :holder-name="holderName" :factor="factor.INIT" />
         </ProForm>
       </ProCard>
       <ProCard title="续期支付">
         <ProForm ref="form2">
-          <ProField label="同首期" name="payInfoType">
+          <ProField v-if="showByFactor('sameAsInit', 'RENEWAL')" label="同首期" name="payInfoType">
             <template #input>
               <van-switch
                 v-model="renewFormData.payInfoType"
@@ -28,6 +29,7 @@
             </template>
           </ProField>
           <ProPicker
+            v-if="showByFactor('paymentMethod', 'RENEWAL')"
             v-model="renewFormData.payMethod"
             name="payMethod"
             label="支付方式"
@@ -37,6 +39,7 @@
             required
           />
           <ProPicker
+            v-if="showByFactor('overduePayment', 'RENEWAL')"
             v-model="renewFormData.expiryMethod"
             name="expiryMethod"
             label="保费逾期未支付"
@@ -50,6 +53,7 @@
             v-if="renewFormData.payInfoType !== PAY_INFO_TYPE_ENUM.FIRST_SAME"
             v-model="renewFormData.bankData"
             :holder-name="holderName"
+            :factor="factor.RENEWAL"
           />
         </ProForm>
       </ProCard>
@@ -69,6 +73,7 @@
             v-if="payInfoType === PAY_INFO_TYPE_ENUM.OTHER"
             v-model="repriseFormData.bankData"
             :holder-name="holderName"
+            :factor="factor.ANNUITY"
           />
         </ProForm>
       </ProCard>
@@ -107,8 +112,14 @@ import {
   EXPIRY_METHOD_ENUM,
   BANK_CARD_TYPE_ENUM,
 } from '@/common/constants/bankCard';
-import { PAGE_ROUTE_ENUMS, ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
+import {
+  PAGE_ROUTE_ENUMS,
+  ATTACHMENT_CATEGORY_ENUM,
+  ATTACHMENT_OBJECT_TYPE_ENUM,
+  YES_NO_ENUM,
+} from '@/common/constants';
 import { nextStep, getOrderDetail, getInitFactor } from '@/api';
+import { ProductInsureFactorItem } from '@/api/index.data';
 import tempPdf from '@/assets/pdf/bank.pdf';
 
 const route = useRoute();
@@ -138,6 +149,7 @@ const renewFormData = ref({
 const repriseFormData = ref({ bankData: { ...BANK_CARD_INIT_DATA, imagesId: [], images: [] } });
 
 const payInfoType = ref(PAY_INFO_TYPE_ENUM.FIRST_SAME);
+const factor = ref<{ [key: string]: { [key: string]: ProductInsureFactorItem } }>({});
 const agree = ref(false);
 const form1 = ref();
 const form2 = ref();
@@ -145,6 +157,16 @@ const form3 = ref();
 
 const handlePayInfoTypeClick = (type: PAY_INFO_TYPE_ENUM) => {
   payInfoType.value = type;
+};
+
+const showByFactor = (key: string, type: string) => {
+  console.log('factor', factor.value);
+  return (
+    factor.value &&
+    factor.value[type] &&
+    factor.value[type][key] &&
+    factor.value[type][key].isDisplay === YES_NO_ENUM.YES
+  );
 };
 
 const handleSubmit = () => {
@@ -249,7 +271,17 @@ const handleSubmit = () => {
 
 onMounted(() => {
   getInitFactor({ pageCode: 'payInfo', templateId }).then((res) => {
-    console.log('res', res);
+    const { code, data } = res;
+    if (code === '10000') {
+      const temp = {};
+      data.productInsureFactorList.forEach((item) => {
+        if (!temp[item.moduleType]) {
+          temp[item.moduleType] = {};
+        }
+        temp[item.moduleType][item.code] = item;
+      });
+      factor.value = temp;
+    }
   });
   getOrderDetail({
     orderNo,

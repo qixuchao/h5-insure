@@ -119,6 +119,7 @@ import ProMessage from '@/components/ProMessage/index.vue';
 import ProCard from '@/components/ProCard/index.vue';
 import ProSvg from '@/components/ProSvg/index.vue';
 import ProSign from '@/components/ProSign/index.vue';
+import ProPdfViewer from '@/components/ProPDFviewer/index.vue';
 import { faceVerify, saveSign, getFile, faceVerifySave } from '@/api/modules/verify';
 import { nextStep, getOrderDetail } from '@/api';
 import { NOTICE_TYPE_ENUM, PAGE_ROUTE_ENUMS, CERT_TYPE_ENUM } from '@/common/constants';
@@ -239,6 +240,7 @@ const handleSubmit = () => {
         pageCode: 'sign',
         operateOption: { withSignInfo: true },
         extInfo: {
+          ...detail.value.extInfo,
           pageCode: 'sign',
           templateId,
         },

@@ -1,1 +1,0 @@
-System.register([],(function(e){"use strict";return{execute:function(){e("c",(function(e=[],n={label:"label",value:"value"}){if(!(e=>Array.isArray(e)&&e.length>0)(e))return{};const{label:r,value:t}=n,l={};return e.forEach((e=>{const n=e[`${t}`];(e=>[void 0,null].includes(e))(n)||(l[`${n}`]=e[`${r}`])})),l}))}}}));
