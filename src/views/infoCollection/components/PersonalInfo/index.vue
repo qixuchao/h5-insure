@@ -109,7 +109,7 @@
     >
       <template #extra>
         <div class="date-extra">
-          <van-checkbox v-model="certEndType" :disabled="isView">长期</van-checkbox>
+          <van-checkbox v-model="certEndType" :icon-size="16" :disabled="isView">长期</van-checkbox>
         </div>
       </template>
     </ProDatePicker>
@@ -623,6 +623,7 @@ watch(
   padding-left: $zaui-card-border;
   margin-left: $zaui-card-border;
   border-left: 1px solid #eeeff4;
+  display: flex;
 }
 .com-personal-wrapper {
 }
