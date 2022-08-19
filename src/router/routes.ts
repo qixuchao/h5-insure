@@ -146,6 +146,12 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     meta: { title: 'PDF预览' },
     component: () => import('@/views/openPdf/index.vue'),
   },
+  {
+    name: '手机号验证',
+    path: '/phoneVerify',
+    meta: { title: '手机号验证' },
+    component: () => import('@/views/phoneVerify/index.vue'),
+  },
 ];
 
 export default asyncRoutes;

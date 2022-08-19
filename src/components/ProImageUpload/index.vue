@@ -21,7 +21,7 @@ import ProSvg from '@/components/ProSvg/index.vue';
 import { fileUpload } from '@/api/modules/file';
 import { UPLOAD_TYPE_ENUM } from '@/common/constants';
 
-const emits = defineEmits(['update:modelValue']);
+const emits = defineEmits(['update:modelValue', 'onUploadFinished']);
 const props = defineProps({
   modelValue: {
     type: Array as () => Array<string>,
@@ -45,6 +45,7 @@ const handleAfterRead = (e: { file: File; content: string }) => {
   fileUpload(e.file, props.uploadType).then((res) => {
     if (res.code === '10000') {
       emits('update:modelValue', [...props.modelValue, res.data.url]);
+      emits('onUploadFinished', res.data.ossKey);
     }
   });
 };

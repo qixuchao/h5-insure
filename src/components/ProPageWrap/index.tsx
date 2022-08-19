@@ -10,6 +10,7 @@ import { useEventListener, useWindowSize } from '@vueuse/core';
 import { Icon } from 'vant';
 import { defineComponent, nextTick, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import ProNavigation from '@/components/ProNavigator/index.vue';
 import './index.scss';
 
 const DefaultHeader = () => {
@@ -81,6 +82,7 @@ export default defineComponent<ZaPageWrapOptions>({
 
     return () => (
       <div class="page-container" style={{ minHeight: `${height.value}px` }}>
+        <ProNavigation />
         {slots.header ? (
           <header ref={header} class="page-header">
             {slots.header?.()}

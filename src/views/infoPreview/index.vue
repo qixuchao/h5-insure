@@ -125,6 +125,7 @@ import {
   TemplatePageItem,
   ProductInsureFactorItem,
 } from '@/api/index.data';
+import pageJump from '@/utils/pageJump';
 import { RELATION_HOLDER_LIST, BENEFICIARY_LIST } from '@/common/constants/infoCollection';
 import BeneficiaryInfo from '../infoCollection/components/BeneficiaryInfo/index.vue';
 import PersonalInfo from '../infoCollection/components/PersonalInfo/index.vue';
@@ -149,7 +150,13 @@ interface FactorEnums {
 const router = useRouter();
 const route = useRoute();
 
-const { templateId = 1, orderNo = '2022072710380711215', tenantId = '9991000007' } = route.query;
+const {
+  templateId = 1,
+  orderNo = '2022072710380711215',
+  tenantId = '9991000007',
+  isShare,
+  sharePageCode,
+} = route.query;
 const [showAddress, toggleAddress] = useToggle();
 const pageCode = route.path === '/infoPreview' ? 'infoPreview' : 'infoCollection';
 const pageFactor = ref<FactorEnums>({});
@@ -201,16 +208,22 @@ const currentAddressInfo = computed(() => {
 });
 
 const goNextPage = () => {
-  nextStep(formInfo.value).then(({ code, data }) => {
-    if (code === '10000') {
-      if (data.pageAction.pageAction === 'jumpToPage') {
-        router.push({
-          path: PAGE_ROUTE_ENUMS[data.pageAction.data.nextPageCode],
-          query: route.query,
-        });
+  // 分享流程  下一页是写死的分享来源页
+  if (isShare) {
+    pageJump(`${sharePageCode}`, route.query);
+  } else {
+    // 正常流程
+    nextStep(formInfo.value).then(({ code, data }) => {
+      if (code === '10000') {
+        if (data.pageAction.pageAction === 'jumpToPage') {
+          router.push({
+            path: PAGE_ROUTE_ENUMS[data.pageAction.data.nextPageCode],
+            query: route.query,
+          });
+        }
       }
-    }
-  });
+    });
+  }
 };
 
 const addBeneficiary = () => {

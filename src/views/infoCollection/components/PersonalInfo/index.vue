@@ -35,7 +35,7 @@
       :name="`${prefix}_idCard`"
     >
       <template #input>
-        <ProIDCardUpload v-model="tempImages" :is-view="isView" />
+        <ProIDCardUpload v-model="tempImages" :is-view="isView" @on-OCR="handleOCR" />
       </template>
     </ProField>
     <ProField
@@ -382,6 +382,7 @@ import { InsuredReqItem, HolderReq, ProductInsureFactorItem } from '@/api/index.
 import { SEX_LIMIT_LIST, FLAG_LIST, VALIDATE_TYPE_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import useDicData from '@/hooks/useDicData';
+import { OCRResponse } from '@/api/modules/file.data';
 import {
   TAX_RESIDENT,
   BENEFICIARY_ORDER,
@@ -454,6 +455,12 @@ const factorObj = computed(() => {
   });
   return factor;
 });
+
+const handleOCR = (res: OCRResponse['idCardOcrVO']) => {
+  state.value.formInfo.certNo = res.personIdCard;
+  state.value.formInfo.name = res.personName;
+  state.value.formInfo.certEndDate = dayjs(res.validDateEnd, 'YYYYMMDD').toDate();
+};
 
 const showByFactor = (key: string) => {
   return factorObj.value && factorObj.value[key] && factorObj.value[key].isDisplay === YES_NO_ENUM.YES;

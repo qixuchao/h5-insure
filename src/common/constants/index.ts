@@ -322,3 +322,10 @@ export enum ATTACHMENT_OBJECT_TYPE_ENUM {
    */
   ANNUAL_SIGN = 7,
 }
+
+export const OCR_TYPE_ENUM = {
+  /** 身份证 */
+  ID_CARD: 1,
+  /** 银行卡 */
+  BANK_CARD: 4,
+};

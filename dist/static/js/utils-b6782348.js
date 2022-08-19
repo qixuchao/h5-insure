@@ -1,1 +1,0 @@
-const r=l=>Array.isArray(l)&&l.length>0,u=l=>[void 0,null].includes(l);function c(l=[],a={label:"label",value:"value"}){if(!r(l))return{};const{label:e,value:o}=a,t={};return l.forEach(n=>{const s=n[`${o}`];u(s)||(t[`${s}`]=n[`${e}`])}),t}export{c};

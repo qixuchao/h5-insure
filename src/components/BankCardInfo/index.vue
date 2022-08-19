@@ -37,7 +37,12 @@
         <span class="field-title">银行卡照片 <span class="sub-title">(需上传正反两面)</span></span>
       </template>
       <template #input>
-        <ProImageUpload v-model="formData.images" :max-count="2" :upload-type="UPLOAD_TYPE_ENUM.BANK_CARD" />
+        <ProImageUpload
+          v-model="formData.images"
+          :max-count="2"
+          :upload-type="UPLOAD_TYPE_ENUM.BANK_CARD"
+          @onUploadFinished="handleGetOssKey"
+        />
       </template>
     </ProField>
     <ProField
@@ -58,7 +63,9 @@ import ProField from '@/components/ProField/index.vue';
 import ProImageUpload from '@/components/ProImageUpload/index.vue';
 import ProPicker from '@/components/ProPicker/index.vue';
 import { BANK_CARD_TYPE_LIST, BANK_CARD_TYPE_ENUM } from '@/common/constants/bankCard';
-import { YES_NO_ENUM, UPLOAD_TYPE_ENUM } from '@/common/constants';
+import { ocr } from '@/api/modules/file';
+import { OCRResponse } from '@/api/module/file.data';
+import { YES_NO_ENUM, UPLOAD_TYPE_ENUM, OCR_TYPE_ENUM } from '@/common/constants';
 import { ProductInsureFactorItem } from '@/api/index.data';
 import useDicData from '@/hooks/useDicData';
 
@@ -97,6 +104,18 @@ const imagesValidator = (images: Array<string>) => {
     return true;
   }
   return '请上传银行卡正反面照片';
+};
+
+const handleGetOssKey = (ossKey: string) => {
+  ocr({
+    ossKey: [ossKey],
+    imageType: OCR_TYPE_ENUM.BANK_CARD,
+  }).then((res) => {
+    const { data, code } = res;
+    if (code === '10000' && data && data.bankCardOcrVO) {
+      formData.value.bankCardNo = data.bankCardOcrVO.bankNo;
+    }
+  });
 };
 
 watch(

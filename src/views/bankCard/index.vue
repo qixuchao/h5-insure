@@ -82,7 +82,14 @@
         <ProPDFviewer class="file" title="《银行转账授权》" :url="tempPdf" />
       </div>
       <div class="footer-button footer">
-        <van-button type="primary" @click="handleSubmit">下一步</van-button>
+        <div v-if="!isShare" class="refresh-btn" @click="handleRefresh">
+          <div><ProSvg name="refresh" /></div>
+          <div class="text">刷新</div>
+        </div>
+        <ProShare v-if="!isShare" title="邀请您填写银行卡信息" desc="邀请您填写银行卡信息" :link="shareLink" ->
+          <van-button plain type="primary">分享</van-button>
+        </ProShare>
+        <van-button type="primary" class="submit-btn" @click="handleSubmit">下一步</van-button>
       </div>
     </div>
   </ProPageWrap>
@@ -90,6 +97,7 @@
 
 <script lang="ts" setup>
 import { Toast } from 'vant';
+import queryString from 'query-string';
 import { useRouter, useRoute } from 'vue-router';
 import ProCard from '@/components/ProCard/index.vue';
 import ProForm from '@/components/ProForm/index.vue';
@@ -97,6 +105,7 @@ import ProField from '@/components/ProField/index.vue';
 import ProPicker from '@/components/ProPicker/index.vue';
 import BankCardInfo from '@/components/BankCardInfo/index.vue';
 import ProPDFviewer from '@/components/ProPDFviewer/index.vue';
+import ProShare from '@/components/ProShare/index.vue';
 import {
   PAY_METHOD_LIST,
   PAY_METHOD_ENUM,
@@ -124,6 +133,7 @@ const {
   agentCode = 'D1234567-1',
   tenantId = '9991000007',
   templateId = 1,
+  isShare,
 } = route.query;
 
 const BANK_CARD_INIT_DATA = {
@@ -264,20 +274,12 @@ const handleSubmit = () => {
   });
 };
 
-onMounted(() => {
-  getInitFactor({ pageCode: 'payInfo', templateId }).then((res) => {
-    const { code, data } = res;
-    if (code === '10000') {
-      const temp = {};
-      data.productInsureFactorList.forEach((item) => {
-        if (!temp[item.moduleType]) {
-          temp[item.moduleType] = {};
-        }
-        temp[item.moduleType][item.code] = item;
-      });
-      factor.value = temp;
-    }
-  });
+const shareLink = computed(() => {
+  const query = { ...route.query, isShare: 1, sharePageCode: 'payInfo' };
+  return `${window.location.origin}/phoneVerify?${queryString.stringify(query)}`;
+});
+
+const getDetail = () => {
   getOrderDetail({
     orderNo,
     saleUserId: agentCode,
@@ -334,6 +336,27 @@ onMounted(() => {
       }
     }
   });
+};
+
+const handleRefresh = () => {
+  getDetail();
+};
+
+onMounted(() => {
+  getInitFactor({ pageCode: 'payInfo', templateId }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      const temp = {};
+      data.productInsureFactorList.forEach((item) => {
+        if (!temp[item.moduleType]) {
+          temp[item.moduleType] = {};
+        }
+        temp[item.moduleType][item.code] = item;
+      });
+      factor.value = temp;
+    }
+  });
+  getDetail();
 });
 </script>
 
@@ -385,6 +408,29 @@ onMounted(() => {
   }
   .footer {
     position: static;
+    justify-content: space-between;
+
+    .refresh-btn {
+      width: 70px;
+      border: none;
+      color: #0d6efe;
+      font-size: 30px;
+      line-height: 28px;
+      text-align: center;
+
+      .text {
+        margin-top: 10px;
+        font-size: 24px;
+      }
+    }
+    :deep(.com-share) {
+      flex: 1;
+      margin-left: 20px;
+    }
+
+    .submit-btn {
+      flex: 1;
+    }
   }
 }
 </style>

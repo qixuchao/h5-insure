@@ -100,28 +100,30 @@
         </ProCard>
       </div>
       <div class="footer-button footer">
-        <!-- <div class="refresh-btn">
+        <div v-if="!isShare" class="refresh-btn" @click="handleRefresh">
           <div><ProSvg name="refresh" /></div>
           <div class="text">刷新</div>
-        </div> -->
-        <!-- <van-button plain type="primary">分享</van-button> -->
+        </div>
+        <ProShare v-if="!isShare" title="邀请您进行身份认证" desc="邀请您进行身份认证" :link="shareLink">
+          <van-button plain type="primary" class="share-btn">分享</van-button>
+        </ProShare>
         <van-button type="primary" class="submit-btn" @click="handleSubmit">提交</van-button>
       </div>
     </div>
-    <ProNavigator />
   </ProPageWrap>
 </template>
 
 <script lang="ts" setup>
 import dayjs from 'dayjs';
 import { useRoute, useRouter } from 'vue-router';
+import queryString from 'query-string';
 import { Toast, Dialog } from 'vant';
-import ProNavigator from '@/components/ProNavigator/index.vue';
 import ProMessage from '@/components/ProMessage/index.vue';
 import ProCard from '@/components/ProCard/index.vue';
 import ProSvg from '@/components/ProSvg/index.vue';
 import ProSign from '@/components/ProSign/index.vue';
 import ProPdfViewer from '@/components/ProPDFviewer/index.vue';
+import ProShare from '@/components/ProShare/index.vue';
 import { faceVerify, saveSign, getFile, faceVerifySave } from '@/api/modules/verify';
 import { nextStep, getOrderDetail } from '@/api';
 import { NOTICE_TYPE_ENUM, PAGE_ROUTE_ENUMS, CERT_TYPE_ENUM } from '@/common/constants';
@@ -143,6 +145,7 @@ const {
   templateId = 1,
   productCode = 'CQ75CQ76',
   insurerCode = 'ancheng',
+  isShare,
 } = route.query;
 let { orderNo } = route.query;
 
@@ -290,6 +293,15 @@ const getDetail = () => {
   });
 };
 
+const handleRefresh = () => {
+  getDetail();
+};
+
+const shareLink = computed(() => {
+  const query = { ...route.query, isShare: 1, sharePageCode: 'sign' };
+  return `${window.location.origin}/phoneVerify?${queryString.stringify(query)}`;
+});
+
 onMounted(() => {
   getDetail();
   getFile({
@@ -421,16 +433,21 @@ onMounted(() => {
     justify-content: space-between;
 
     .refresh-btn {
-      width: 50px;
+      width: 70px;
       border: none;
       color: #0d6efe;
-      font-size: 20px;
+      font-size: 30px;
       line-height: 28px;
       text-align: center;
 
       .text {
         margin-top: 10px;
+        font-size: 24px;
       }
+    }
+    :deep(.com-share) {
+      flex: 1;
+      margin-left: 20px;
     }
 
     .submit-btn {
