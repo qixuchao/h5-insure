@@ -51,8 +51,6 @@ const props = defineProps({
   },
 });
 
-const { title, desc, link, img, imgUrl } = toRefs(props);
-
 const showOverLay = ref(false); // 分享遮罩层
 
 const onCloseOverlay = () => {
@@ -69,11 +67,17 @@ const handleShare = () => {
 
   if (isApp()) {
     console.log('在app内');
+    console.log('参数：', {
+      img: props.img,
+      title: props.title,
+      desc: props.desc,
+      link: props.link,
+    });
     jsbridge.shareConfig({
-      title,
-      desc,
-      link,
-      img,
+      img: props.img,
+      title: props.title,
+      desc: props.desc,
+      link: props.link,
     });
   }
 };
@@ -82,10 +86,7 @@ const setWechatConfig = () => {
   if (isWechat()) {
     wx.ready(() => {
       const shareParams = {
-        title,
-        desc,
-        link,
-        imgUrl,
+        ...props,
         success: () => {
           console.log('分享成功');
         },

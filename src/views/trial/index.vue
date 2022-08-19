@@ -184,14 +184,13 @@ const transformData = (riskList: RiskVoItem[], riskPremium) => {
   state.insuredRiskList = riskList.map((risk: RiskVoItem) => {
     const currentRisk = {
       initialAmount: riskPremium[risk.riskCode]?.amount,
+      amountUnit: 1,
       paymentFrequency: risk.paymentFrequency,
       paymentPeriod: risk.chargePeriod.split('_')[1],
       paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],
       insurancePeriodType:
         INSURANCE_PERIOD_TYPE_ENUMS[risk.coveragePeriod === 'to_life' ? 'to_life' : risk.coveragePeriod.split('_')[0]],
-      insurancePeriodValue: Number.isNaN(+risk.coveragePeriod.split('_')[1])
-        ? undefined
-        : risk.coveragePeriod.split('_')[1],
+      insurancePeriodValue: Number.isNaN(+risk.coveragePeriod.split('_')[1]) ? 0 : risk.coveragePeriod.split('_')[1],
       riskCode: risk.riskCode,
       riskType: risk.riskType,
       initialPremium: riskPremium[risk.riskCode]?.premium,

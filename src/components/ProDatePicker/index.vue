@@ -145,6 +145,6 @@ const displayValue = computed(() => {
 
 <style lang="scss" scoped>
 .placeholder {
-  color: var(--van-field-placeholder-text-color);
+  color: #969799;
 }
 </style>
