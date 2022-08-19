@@ -14,9 +14,11 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
+import { Toast } from 'vant/es';
 import { getOrderDetail } from '@/api';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import { convertPhone } from '@/utils/format';
+import pageJump from '@/utils/pageJump';
 
 const phone = ref('');
 const smsCode = ref('');
@@ -65,7 +67,12 @@ const handleSend = () => {
 };
 
 const handleSubmit = () => {
-  checkCode(phone.value, smsCode.value);
+  checkCode(phone.value, smsCode.value).then(({ code, data }) => {
+    if (code === '10000' && data) {
+      Toast.success('验证成功');
+      pageJump('infoPreview', route.query);
+    }
+  });
 };
 
 onMounted(() => {

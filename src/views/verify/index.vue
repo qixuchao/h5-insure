@@ -100,11 +100,11 @@
         </ProCard>
       </div>
       <div class="footer-button footer">
-        <div class="refresh-btn">
+        <div v-if="!isShare" class="refresh-btn" @click="handleRefresh">
           <div><ProSvg name="refresh" /></div>
           <div class="text">刷新</div>
         </div>
-        <ProShare title="邀请您进行身份认证" desc="邀请您进行身份认证" :link="shareLink">
+        <ProShare v-if="!isShare" title="邀请您进行身份认证" desc="邀请您进行身份认证" :link="shareLink">
           <van-button plain type="primary" class="share-btn">分享</van-button>
         </ProShare>
         <van-button type="primary" class="submit-btn" @click="handleSubmit">提交</van-button>
@@ -145,6 +145,7 @@ const {
   templateId = 1,
   productCode = 'CQ75CQ76',
   insurerCode = 'ancheng',
+  isShare,
 } = route.query;
 let { orderNo } = route.query;
 
@@ -290,6 +291,10 @@ const getDetail = () => {
       });
     }
   });
+};
+
+const handleRefresh = () => {
+  getDetail();
 };
 
 const shareLink = computed(() => {

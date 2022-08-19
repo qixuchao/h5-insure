@@ -82,11 +82,11 @@
         <ProPDFviewer class="file" title="《银行转账授权》" :url="tempPdf" />
       </div>
       <div class="footer-button footer">
-        <div class="refresh-btn">
+        <div v-if="!isShare" class="refresh-btn" @click="handleRefresh">
           <div><ProSvg name="refresh" /></div>
           <div class="text">刷新</div>
         </div>
-        <ProShare title="邀请您填写银行卡信息" desc="邀请您填写银行卡信息" :link="shareLink">
+        <ProShare v-if="!isShare" title="邀请您填写银行卡信息" desc="邀请您填写银行卡信息" :link="shareLink" ->
           <van-button plain type="primary">分享</van-button>
         </ProShare>
         <van-button type="primary" class="submit-btn" @click="handleSubmit">下一步</van-button>
@@ -133,6 +133,7 @@ const {
   agentCode = 'D1234567-1',
   tenantId = '9991000007',
   templateId = 1,
+  isShare,
 } = route.query;
 
 const BANK_CARD_INIT_DATA = {
@@ -278,20 +279,7 @@ const shareLink = computed(() => {
   return `${window.location.origin}/phoneVerify?${queryString.stringify(query)}`;
 });
 
-onMounted(() => {
-  getInitFactor({ pageCode: 'payInfo', templateId }).then((res) => {
-    const { code, data } = res;
-    if (code === '10000') {
-      const temp = {};
-      data.productInsureFactorList.forEach((item) => {
-        if (!temp[item.moduleType]) {
-          temp[item.moduleType] = {};
-        }
-        temp[item.moduleType][item.code] = item;
-      });
-      factor.value = temp;
-    }
-  });
+const getDetail = () => {
   getOrderDetail({
     orderNo,
     saleUserId: agentCode,
@@ -348,6 +336,27 @@ onMounted(() => {
       }
     }
   });
+};
+
+const handleRefresh = () => {
+  getDetail();
+};
+
+onMounted(() => {
+  getInitFactor({ pageCode: 'payInfo', templateId }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      const temp = {};
+      data.productInsureFactorList.forEach((item) => {
+        if (!temp[item.moduleType]) {
+          temp[item.moduleType] = {};
+        }
+        temp[item.moduleType][item.code] = item;
+      });
+      factor.value = temp;
+    }
+  });
+  getDetail();
 });
 </script>
 

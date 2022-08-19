@@ -10,5 +10,9 @@ export const sendCode = (mobile: string) => {
 };
 
 export const checkCode = (mobile: string, smsCode: string) => {
-  return request.post('/api/app/insure/insurance/checkSmsCode', {}, { params: { mobile, smsCode } });
+  return request.post<ResponseData, ResponseData<boolean>>(
+    '/api/app/insure/insurance/checkSmsCode',
+    {},
+    { params: { mobile, smsCode } },
+  );
 };
