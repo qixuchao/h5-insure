@@ -186,7 +186,6 @@ const handleSubmit = () => {
     const { code, data } = res;
     if (code === '10000') {
       if (data.orderStatus !== ORDER_STATUS_ENUM.PENDING) {
-        Toast.fail('订单非待处理状态');
         pageJump('paymentResult', route.query);
       } else {
         Promise.all([form1.value?.validate(), form2.value?.validate(), form3.value?.validate()]).then((results) => {
@@ -296,7 +295,8 @@ const shareLink = computed(() => {
   return `${window.location.origin}/phoneVerify?${queryString.stringify(query)}`;
 });
 
-const getDetail = () => {
+// 是否校验数据
+const getDetail = (check = false) => {
   getOrderDetail({
     orderNo,
     saleUserId: agentCode,
@@ -350,13 +350,21 @@ const getDetail = () => {
             }
           }
         });
+        if (check) {
+          // 判断首期卡号是否填写，填了就视为已经填写过
+          if (
+            !data.tenantOrderPayInfoList.find((x) => x.paymentType === PAYMENT_TYPE_ENUM.FIRST_TERM && x.bankCardNo)
+          ) {
+            Toast('用户未完成银行卡信息填写');
+          }
+        }
       }
     }
   });
 };
 
 const handleRefresh = () => {
-  getDetail();
+  getDetail(true);
 };
 
 onMounted(() => {

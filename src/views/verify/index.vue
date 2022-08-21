@@ -126,7 +126,13 @@ import ProPdfViewer from '@/components/ProPDFviewer/index.vue';
 import ProShare from '@/components/ProShare/index.vue';
 import { faceVerify, saveSign, getFile, faceVerifySave } from '@/api/modules/verify';
 import { nextStep, getOrderDetail } from '@/api';
-import { NOTICE_TYPE_ENUM, PAGE_ROUTE_ENUMS, CERT_TYPE_ENUM } from '@/common/constants';
+import {
+  NOTICE_TYPE_ENUM,
+  PAGE_ROUTE_ENUMS,
+  CERT_TYPE_ENUM,
+  ATTACHMENT_CATEGORY_ENUM,
+  ATTACHMENT_OBJECT_TYPE_ENUM,
+} from '@/common/constants';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { NextStepRequestData } from '@/api/index.data';
 import { INotice } from '@/api/modules/verify.data';
@@ -209,6 +215,30 @@ const setRef = (el) => {
 };
 
 const handleSubmit = () => {
+  const empty = holderSign.value?.isEmpty();
+  if (empty) {
+    Toast.fail('请投保人签名');
+    return;
+  }
+  if (insuredSignRefs.some((x) => x.isEmpty())) {
+    Toast.fail('请被保人签名');
+    return;
+  }
+  if (
+    detail.value.tenantOrderHolder?.extInfo?.isCert !== CERT_STATUS_ENUM.CERT &&
+    needVerify(detail.value.tenantOrderHolder?.certType)
+  ) {
+    Toast.fail('请投保人去认证');
+    return;
+  }
+  if (
+    detail.value.tenantOrderInsuredList?.some(
+      (x) => x.extInfo?.isCert !== CERT_STATUS_ENUM.CERT && needVerify(x.certType),
+    )
+  ) {
+    Toast.fail('请被保人去认证');
+    return;
+  }
   getOrderDetail({
     orderNo,
     saleUserId,
@@ -217,33 +247,8 @@ const handleSubmit = () => {
     const { code, data } = res;
     if (code === '10000') {
       if (data.orderStatus !== ORDER_STATUS_ENUM.PENDING) {
-        Toast.fail('订单非待处理状态');
         pageJump('paymentResult', route.query);
       } else {
-        const empty = holderSign.value?.isEmpty();
-        if (empty) {
-          Toast.fail('请投保人签名');
-          return;
-        }
-        if (insuredSignRefs.some((x) => x.isEmpty())) {
-          Toast.fail('请被保人签名');
-          return;
-        }
-        if (
-          detail.value.tenantOrderHolder?.extInfo?.isCert !== CERT_STATUS_ENUM.CERT &&
-          needVerify(detail.value.tenantOrderHolder?.certType)
-        ) {
-          Toast.fail('请投保人去认证');
-          return;
-        }
-        if (
-          detail.value.tenantOrderInsuredList?.some(
-            (x) => x.extInfo?.isCert !== CERT_STATUS_ENUM.CERT && needVerify(x.certType),
-          )
-        ) {
-          Toast.fail('请被保人去认证');
-          return;
-        }
         Dialog.confirm({
           title: '提示',
           message: '请确认信息填写无误后，再进行支付',
@@ -279,7 +284,8 @@ const handleSubmit = () => {
   });
 };
 
-const getDetail = () => {
+// check 是否校验数据
+const getDetail = (check = false) => {
   getOrderDetail({
     orderNo,
     saleUserId,
@@ -288,16 +294,37 @@ const getDetail = () => {
     const { code, data } = res;
     if (code === '10000') {
       detail.value = data;
+      if (check) {
+        if (
+          data?.tenantOrderHolder?.extInfo?.isCert === CERT_STATUS_ENUM.NO_CERT ||
+          data?.tenantOrderInsuredList.some((x) => x.extInfo?.isCert === CERT_STATUS_ENUM.NO_CERT)
+        ) {
+          Toast('用户未完身份认证及签字');
+        } else if (
+          !data?.tenantOrderAttachmentList.find(
+            (x) =>
+              x.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN &&
+              x.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER,
+          ) ||
+          !data?.tenantOrderAttachmentList.find(
+            (x) =>
+              x.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN &&
+              x.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.INSURED,
+          )
+        ) {
+          Toast('用户未完身份认证及签字');
+        }
+      }
       setTimeout(() => {
         let insuredIndex = 0;
         data.tenantOrderAttachmentList.forEach((item) => {
-          if (item.category === 21) {
+          if (item.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN) {
             // 电子签名
-            if (item.objectType === 2) {
+            if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER) {
               holderSign.value.clear();
 
               holderSign.value.setDataURL(item.fileBase64);
-            } else if (item.objectType === 1) {
+            } else if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.INSURED) {
               insuredSignRefs[insuredIndex].clear();
               insuredSignRefs[insuredIndex].setDataURL(item.fileBase64);
               insuredIndex += 1;
@@ -310,7 +337,7 @@ const getDetail = () => {
 };
 
 const handleRefresh = () => {
-  getDetail();
+  getDetail(true);
 };
 
 const shareLink = computed(() => {
