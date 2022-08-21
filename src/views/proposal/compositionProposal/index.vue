@@ -58,7 +58,6 @@
           :title="shareConfig.title"
           :desc="shareConfig.desc"
           :link="shareConfig.link"
-          :img="shareConfig.img"
           :img-url="shareConfig.imgUrl"
         >
           <van-button type="primary" class="btn">分享计划书</van-button>
