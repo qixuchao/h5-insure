@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-22 16:14:36
+ * @LastEditTime: 2022-08-22 17:15:42
  * @Description: 计划书
 -->
 <template>
@@ -156,12 +156,12 @@ const getProposalTransInsured = () => {
 
 // 计划书产品转投保
 const proposal2Insured = (product: InsuredProductData) => {
-  const { productCode, insurerCode } = product;
+  const { productCode, insurerCode, tenantProductCode } = product;
   // 检验产品是否支持转投保
   checkProposalInsurer({ productCode, proposalId: id }).then(({ code, data, message }) => {
     if (code === '10000') {
       if (data) {
-        redirectInsurePageLink({ insurerCode, productCode, proposalId: id }).then(
+        redirectInsurePageLink({ insurerCode, productCode: tenantProductCode, proposalId: id }).then(
           ({ code: newCode, data: newData }) => {
             if (newCode === '10000') {
               window.location.href = newData;
