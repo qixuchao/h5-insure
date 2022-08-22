@@ -566,9 +566,9 @@ watch(
   () => state.value.formInfo.certType,
   (newVal) => {
     if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(newVal)) {
-      isIdCard.value = false;
-    } else {
       isIdCard.value = true;
+    } else {
+      isIdCard.value = false;
     }
   },
   {
@@ -583,9 +583,6 @@ watch(
     if (validateIdCardNo(newVal)) {
       state.value.formInfo.gender = getSex(newVal);
       state.value.formInfo.birthday = new Date(getBirth(newVal));
-      isIdCard.value = true;
-    } else {
-      isIdCard.value = false;
     }
   },
   {

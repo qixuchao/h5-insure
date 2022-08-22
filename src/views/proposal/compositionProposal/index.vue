@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
  * @LastEditors: 王园丽
- * @LastEditTime: 2022-08-05
+ * @LastEditTime: 2022-08-21 14:35:00
  * @Description: 计划书
 -->
 <template>
@@ -12,30 +12,9 @@
         {{ proposalName }}
       </div>
       <InsuranceList :info="info" />
-      <div class="container">
-        <div v-for="(item, i) in info?.liabilityByRiskVOList" :key="i">
-          <div class="common-title">
-            <div class="title">
-              <img src="@/assets/images/compositionProposal/title.png" class="ig" /> {{ item.riskName }}
-            </div>
-          </div>
-          <div class="product-detail">
-            <van-collapse v-model="item.riskName1" accordion :is-link="false" :border="false" size="middle">
-              <van-collapse-item
-                v-for="(val, k) in item.proposalRiskLiabilityVOList"
-                :key="k"
-                :title="val.liabilityName"
-                :name="k"
-                value-class="price"
-                :value="val.liabilityIndemnityContent"
-              >
-                {{ val.liabilityDesc }}
-              </van-collapse-item>
-            </van-collapse>
-          </div>
-          <div class="line2"></div>
-        </div>
-      </div>
+      <div class="switch-btn" @click="changeLiabilityType">{{ isLiabilityByRisk ? '按责任显示' : '按险种显示' }}</div>
+      <LiabilityByRisk v-if="isLiabilityByRisk" :info="info" />
+      <LiabilityByRes v-else :info="info" />
 
       <!-- 利益演示 -->
       <Benefit :info="info" />
@@ -58,7 +37,6 @@
           :title="shareConfig.title"
           :desc="shareConfig.desc"
           :link="shareConfig.link"
-          :img="shareConfig.img"
           :img-url="shareConfig.imgUrl"
         >
           <van-button type="primary" class="btn">分享计划书</van-button>
@@ -75,7 +53,11 @@ import { ORIGIN } from '@/utils';
 import Storage from '@/utils/storage';
 import InsuranceList from './components/InsuranceList.vue';
 import Benefit from './components/Benefit.vue';
+import LiabilityByRisk from './components/LiabilityByRisk.vue';
+import LiabilityByRes from './components/LiabilityByRes.vue';
 import ProShare from '@/components/ProShare/index.vue';
+
+const isLiabilityByRisk = ref(true);
 
 const router = useRoute();
 const history = useRouter();
@@ -85,6 +67,10 @@ const info = ref();
 const tenantId = ref('');
 const proposalName = ref('');
 const shareConfig = ref({});
+
+const changeLiabilityType = () => {
+  isLiabilityByRisk.value = !isLiabilityByRisk.value;
+};
 
 const isMale = (gender: number) => {
   return gender === 1;
@@ -253,6 +239,25 @@ const getPdf = () => {
       background: #0d6efe;
       border-radius: 50%;
     }
+  }
+  .switch-btn {
+    width: 60px;
+    height: 210px;
+    padding: 25px 16px;
+    background: url('@/assets/images/side.png') no-repeat;
+    background-size: cover;
+
+    font-size: $zaui-font-size;
+    color: $zaui-button-primary-highlight-text;
+    font-weight: 600;
+    line-height: 32px;
+    word-wrap: break-word;
+    box-sizing: border-box;
+
+    position: fixed;
+    z-index: 9;
+    right: 0;
+    top: 30%;
   }
   .content {
     display: flex;

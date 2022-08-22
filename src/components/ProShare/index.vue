@@ -16,14 +16,12 @@ import ProShareOverlay from '@/components/ProShareOverlay/index.vue';
  * @vue-prop {Object} title: 分享标题
  * @vue-prop {Object} desc: 分享描述
  * @vue-prop {Object} link: 分享链接
- * @vue-prop {Object} img: app分享封面图
  * @vue-prop {Object} imgUrl: 微信分享封面图
  *
  * @example <ZaShare
  *  :title="分享标题"
  *  :desc="分享描述"
  *  :link="分享链接"
- *  :img="app分享封面图"
  *  :imgUrl="微信分享封面图"
  *  />
  */
@@ -41,10 +39,6 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  img: {
-    type: String,
-    default: '',
-  },
   imgUrl: {
     type: String,
     default: '',
@@ -58,7 +52,7 @@ const onCloseOverlay = () => {
 };
 
 const handleShare = () => {
-  console.log('分享参数', props);
+  console.log('分享url', props.link);
   if (isWechat()) {
     console.log('在微信内，弹起遮罩');
     showOverLay.value = true;
@@ -67,18 +61,14 @@ const handleShare = () => {
 
   if (isApp()) {
     console.log('在app内');
-    console.log('参数：', {
-      img: props.img,
+    const shareConfig = {
+      img: props.imgUrl,
       title: props.title,
       desc: props.desc,
       link: props.link,
-    });
-    jsbridge.shareConfig({
-      img: props.img,
-      title: props.title,
-      desc: props.desc,
-      link: props.link,
-    });
+    };
+    console.log('参数：', shareConfig);
+    jsbridge.shareConfig(shareConfig);
   }
 };
 

@@ -48,7 +48,7 @@ import { Toast } from 'vant';
 import dayjs from 'dayjs';
 import ProCard from '@/components/ProCard/index.vue';
 import ProPDFviewer from '@/components/ProPDFviewer/index.vue';
-import { listCustomerQuestions } from '@/api/modules/inform';
+import { listCustomerQuestions, listProductManuscripts } from '@/api/modules/inform';
 import { nextStep, getOrderDetail } from '@/api';
 import { ListCustomerQuestionsResponse } from '@/api/modules/inform.data';
 import { sessionStore } from '@/hooks/useStorage';
@@ -137,7 +137,17 @@ onMounted(() => {
     objectType: 3,
   }).then(({ code, data }) => {
     if (code === '10000') {
-      state.noticeList = data;
+      state.noticeList = [...state.noticeList, ...data];
+    }
+  });
+  listProductManuscripts({
+    objectType: 3,
+    orderNo,
+    tenantId,
+    productCode,
+  }).then(({ code, data }) => {
+    if (code === '10000') {
+      state.noticeList = [...state.noticeList, ...data];
     }
   });
 });
