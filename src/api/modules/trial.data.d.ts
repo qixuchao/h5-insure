@@ -228,6 +228,7 @@ export interface PersonVo {
     gender: number;
     occupationClass: number;
     socialFlag: number;
+    occupationCodeList: Array<any>
 }
 
 export interface Holder {

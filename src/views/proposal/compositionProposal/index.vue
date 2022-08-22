@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
- * @LastEditors: 王园丽
- * @LastEditTime: 2022-08-05
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-08-22 15:28:42
  * @Description: 计划书
 -->
 <template>
@@ -54,7 +54,7 @@
       </div>
       <div v-if="!isShare" class="footer-btn">
         <van-button plain type="primary" class="btn" @click="getPdf">生成PDF</van-button>
-        <ProShare
+        <!-- <ProShare
           :title="shareConfig.title"
           :desc="shareConfig.desc"
           :link="shareConfig.link"
@@ -62,20 +62,31 @@
           :img-url="shareConfig.imgUrl"
         >
           <van-button type="primary" class="btn">分享计划书</van-button>
-        </ProShare>
+        </ProShare> -->
+        <van-button v-if="isShowInsured" type="primary" class="btn" @click="onInsured">立即投保</van-button>
       </div>
     </div>
+    <InsuredProductList
+      v-if="showProductList"
+      :is-show="showProductList"
+      :data-source="insuredProductList"
+    ></InsuredProductList>
   </ProPageWrap>
 </template>
 <script lang="ts" setup>
 import wx from 'weixin-js-sdk';
 import { Toast } from 'vant';
+import { useToggle } from '@vant/use';
 import { queryProposalDetail, queryPreviewProposalDetail, generatePdf } from '@/api/modules/proposalList';
+import { checkProposalInsurer, proposalTransInsured } from '@/api/modules/compositionProposal';
 import { ORIGIN } from '@/utils';
 import Storage from '@/utils/storage';
 import InsuranceList from './components/InsuranceList.vue';
 import Benefit from './components/Benefit.vue';
 import ProShare from '@/components/ProShare/index.vue';
+import { InsuredProductData } from '@/api/modules/compositionProposal.data';
+import { redirectInsurePageLink } from '@/api';
+import InsuredProductList from './components/InsuredProductList/index.vue';
 
 const router = useRoute();
 const history = useRouter();
@@ -85,10 +96,21 @@ const info = ref();
 const tenantId = ref('');
 const proposalName = ref('');
 const shareConfig = ref({});
+const insuredProductList = ref<InsuredProductData[]>([]);
+const currentInsuredProduct = ref();
+
+const [showProductList, toggleProductList] = useToggle();
 
 const isMale = (gender: number) => {
   return gender === 1;
 };
+
+const isShowInsured = computed(() => {
+  const productList = insuredProductList.value.filter((product: InsuredProductData) => {
+    return product.authStatus === 1 && product.insureMethod === 1;
+  });
+  return !!productList.length;
+});
 
 watch(
   () => info.value,
@@ -137,12 +159,51 @@ const getData = async () => {
   }
 };
 
+// 获取计划书下所有产品的状态
+const getProposalTransInsured = () => {
+  proposalTransInsured({ proposalId: id }).then(({ code, data }) => {
+    if (code === '10000') {
+      insuredProductList.value = data;
+    }
+  });
+};
+
+// 计划书产品转投保
+const proposal2Insured = (product: InsuredProductData) => {
+  const { productCode, insurerCode } = product;
+  // 检验产品是否支持转投保
+  checkProposalInsurer({ productCode, proposalId: id }).then(({ code, data, message }) => {
+    if (code === '10000') {
+      if (data) {
+        redirectInsurePageLink({ insurerCode, productCode, proposalId: id }).then(
+          ({ code: newCode, data: newData }) => {
+            if (newCode === '10000') {
+              window.location.href = newData;
+            }
+          },
+        );
+      } else {
+        Toast(message);
+      }
+    }
+  });
+};
+
+// 立即投保
+const onInsured = () => {
+  if (insuredProductList.value?.length === 1) {
+    proposal2Insured(insuredProductList.value?.[0]);
+  } else {
+    toggleProductList(true);
+  }
+};
+
 onMounted(() => {
   if (router.query.token) {
     const storage = new Storage({ source: 'localStorage' });
     storage.set('token', router.query.token);
   }
-
+  getProposalTransInsured();
   getData();
 });
 
@@ -313,9 +374,12 @@ const getPdf = () => {
     padding: 30px;
     z-index: 99999999; // echart 覆盖了footer，提高层级
     .btn {
-      width: 335px;
+      width: 100%;
       height: 90px;
       border-radius: 8px;
+    }
+    .btn + .btn {
+      margin-left: 20px;
     }
   }
 }

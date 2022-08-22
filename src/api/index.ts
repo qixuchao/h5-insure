@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-25 23:36:12
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-28 18:05:01
+ * @LastEditTime: 2022-08-22 09:42:45
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -69,3 +69,7 @@ export const getTemplateInfo = (data = {}) =>
 // 签名认证
 export const validateSign = (data = {}) =>
   request.post<any, ResponseData>('/api/app/insure/insurance/validateSign', data);
+
+// 获取投保链接
+export const redirectInsurePageLink = (params = {}) =>
+  request.get<any, ResponseData>('/api/app/toApply/v2/redirectInsurePageLink', { params });
