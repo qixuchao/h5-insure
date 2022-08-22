@@ -146,7 +146,9 @@ const holder = ref<HolderPerson>({
 }); // 投保人
 const insured = ref<Omit<InsuredVoItem, 'productPlanVOList'>>({
   insuredCode: '',
-  personVO: {} as PersonVo,
+  personVO: {
+    occupationCodeList: [],
+  },
 }); // 被保人
 const riskInfo = ref<Partial<ProductPlanVoItem>>({}); // 险种信息
 const holderRef = ref({});

@@ -47,9 +47,12 @@
       </VanField>
       <ProCascader
         v-if="factorList.includes('OCCUPATION_CATEGORY')"
-        v-model="state.formInfo.occupationClass"
+        v-model="state.formInfo.occupationCodeList[0]"
+        v-model:field0="state.formInfo.occupationCodeList[0]"
+        v-model:field1="state.formInfo.occupationCodeList[1]"
+        v-model:field2="state.formInfo.occupationCodeList[2]"
         required
-        name="occupationClass"
+        name="occupationCodeList"
         label="职业类型"
         :data-source="OCCUPATION_LIST"
         :mapping="{ label: 'value', value: 'code', children: 'children' }"
@@ -85,7 +88,7 @@ import ProCascader from '@/components/ProCascader/index.vue';
 import useDicData from '@/hooks/useDicData';
 
 interface Props {
-  formInfo: Partial<PersonVo>;
+  formInfo: PersonVo;
   insuredCode: string;
   factorList: any[];
   ageRange: any[];
@@ -106,6 +109,7 @@ const trialType: any = inject('source') || {};
 const state = reactive({
   formInfo: props.formInfo,
   occupationalText: '',
+  occupationCodeList: [],
 });
 
 const validateForm = () => {
@@ -161,12 +165,22 @@ const ageRangeObj = computed(() => {
   const maxAge = dayjs()
     .subtract(max[0] as number, max[1] === 'age' ? 'year' : 'day')
     .format('YYYY-MM-DD');
-  console.log('ageRangeObj', new Date(maxAge), new Date(minAge));
   return {
     minAge: new Date(maxAge),
     maxAge: new Date(minAge),
   };
 });
+
+watch(
+  () => state.formInfo.occupationCodeList,
+  (newVal) => {
+    console.log('newVal', newVal);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 defineExpose({
   validateForm,
