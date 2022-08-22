@@ -167,7 +167,6 @@ const handlePayInfoTypeClick = (type: PAY_INFO_TYPE_ENUM) => {
 };
 
 const showByFactor = (key: string, type: string) => {
-  console.log('factor', factor.value);
   return (
     factor.value &&
     factor.value[type] &&
