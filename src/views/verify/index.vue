@@ -126,10 +126,18 @@ import ProPdfViewer from '@/components/ProPDFviewer/index.vue';
 import ProShare from '@/components/ProShare/index.vue';
 import { faceVerify, saveSign, getFile, faceVerifySave } from '@/api/modules/verify';
 import { nextStep, getOrderDetail } from '@/api';
-import { NOTICE_TYPE_ENUM, PAGE_ROUTE_ENUMS, CERT_TYPE_ENUM } from '@/common/constants';
+import {
+  NOTICE_TYPE_ENUM,
+  PAGE_ROUTE_ENUMS,
+  CERT_TYPE_ENUM,
+  ATTACHMENT_CATEGORY_ENUM,
+  ATTACHMENT_OBJECT_TYPE_ENUM,
+} from '@/common/constants';
+import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { NextStepRequestData } from '@/api/index.data';
 import { INotice } from '@/api/modules/verify.data';
 import Storage from '@/utils/storage';
+import pageJump from '@/utils/pageJump';
 
 const CERT_STATUS_ENUM = {
   CERT: 1,
@@ -231,39 +239,54 @@ const handleSubmit = () => {
     Toast.fail('请被保人去认证');
     return;
   }
-  Dialog.confirm({
-    title: '提示',
-    message: '请确认信息填写无误后，再进行支付',
-  }).then(() => {
-    const signData = holderSign.value?.save();
-    Promise.all([
-      saveSign('HOLDER', signData, detail.value?.id, `${tenantId}`),
-      ...insuredSignRefs.map((x) => saveSign('INSURED', x.save(), detail.value?.id, `${tenantId}`)),
-    ]).then(() => {
-      nextStep({
-        ...detail.value,
-        pageCode: 'sign',
-        operateOption: { withSignInfo: true },
-        extInfo: {
-          ...detail.value.extInfo,
-          pageCode: 'sign',
-          templateId,
-        },
-        venderCode: insurerCode,
-      }).then((res) => {
-        const { code, data } = res;
-        if (code === '10000' && data.success) {
-          router.push({
-            path: PAGE_ROUTE_ENUMS[data.pageAction.data.nextPageCode],
-            query: { orderNo, saleUserId, tenantId },
+  getOrderDetail({
+    orderNo,
+    saleUserId,
+    tenantId,
+  }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      if (data.orderStatus !== ORDER_STATUS_ENUM.PENDING) {
+        pageJump('paymentResult', route.query);
+      } else {
+        Dialog.confirm({
+          title: '提示',
+          message: '请确认信息填写无误后，再进行支付',
+        }).then(() => {
+          const signData = holderSign.value?.save();
+          Promise.all([
+            saveSign('HOLDER', signData, detail.value?.id, `${tenantId}`),
+            ...insuredSignRefs.map((x) => saveSign('INSURED', x.save(), detail.value?.id, `${tenantId}`)),
+          ]).then(() => {
+            nextStep({
+              ...detail.value,
+              pageCode: 'sign',
+              operateOption: { withSignInfo: true },
+              extInfo: {
+                ...detail.value.extInfo,
+                pageCode: 'sign',
+                templateId,
+                shareFlag: isShare ? 'Y' : 'N',
+              },
+              venderCode: insurerCode,
+            }).then((nextRes) => {
+              const { code: nextCode, data: nextData } = nextRes;
+              if (code === '10000' && nextData.success) {
+                router.push({
+                  path: PAGE_ROUTE_ENUMS[nextData.pageAction.data.nextPageCode],
+                  query: { orderNo, saleUserId, tenantId },
+                });
+              }
+            });
           });
-        }
-      });
-    });
+        });
+      }
+    }
   });
 };
 
-const getDetail = () => {
+// check 是否校验数据
+const getDetail = (check = false) => {
   getOrderDetail({
     orderNo,
     saleUserId,
@@ -272,16 +295,37 @@ const getDetail = () => {
     const { code, data } = res;
     if (code === '10000') {
       detail.value = data;
+      if (check) {
+        if (
+          data?.tenantOrderHolder?.extInfo?.isCert === CERT_STATUS_ENUM.NO_CERT ||
+          data?.tenantOrderInsuredList.some((x) => x.extInfo?.isCert === CERT_STATUS_ENUM.NO_CERT)
+        ) {
+          Toast('用户未完身份认证及签字');
+        } else if (
+          !data?.tenantOrderAttachmentList.find(
+            (x) =>
+              x.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN &&
+              x.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER,
+          ) ||
+          !data?.tenantOrderAttachmentList.find(
+            (x) =>
+              x.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN &&
+              x.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.INSURED,
+          )
+        ) {
+          Toast('用户未完身份认证及签字');
+        }
+      }
       setTimeout(() => {
         let insuredIndex = 0;
         data.tenantOrderAttachmentList.forEach((item) => {
-          if (item.category === 21) {
+          if (item.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN) {
             // 电子签名
-            if (item.objectType === 2) {
+            if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER) {
               holderSign.value.clear();
 
               holderSign.value.setDataURL(item.fileBase64);
-            } else if (item.objectType === 1) {
+            } else if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.INSURED) {
               insuredSignRefs[insuredIndex].clear();
               insuredSignRefs[insuredIndex].setDataURL(item.fileBase64);
               insuredIndex += 1;
@@ -294,7 +338,7 @@ const getDetail = () => {
 };
 
 const handleRefresh = () => {
-  getDetail();
+  getDetail(true);
 };
 
 const shareLink = computed(() => {

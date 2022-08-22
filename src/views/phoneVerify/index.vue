@@ -71,6 +71,8 @@ const handleSubmit = () => {
     if (code === '10000' && data) {
       Toast.success('验证成功');
       pageJump('infoPreview', route.query);
+    } else {
+      Toast.fail('验证失败');
     }
   });
 };
