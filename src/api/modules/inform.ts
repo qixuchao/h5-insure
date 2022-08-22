@@ -32,3 +32,7 @@ export const updateOrderNoticeStatus = (data: Partial<UpdateOrderNoticeStatusPro
 // 在线投保-问卷告知查询详情
 export const saveMarketerNotices = (data: Partial<SaveMarketerNoticesProps>) =>
   request.post<SaveMarketerNoticesProps, ResponseData>(`${API_PREFIXED}/saveMarketerNotices`, data);
+
+export const listProductManuscripts = (data: any) => {
+  return request.post('/api/app/insure/insurance/listProductManuscripts', data);
+};
