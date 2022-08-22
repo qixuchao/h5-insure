@@ -241,13 +241,19 @@ const getPdf = () => {
     }
   }
   .switch-btn {
-    font-size: $zaui-base-size;
-    width: 20px;
-    padding: 20px;
-    word-wrap: break-word;
-    box-sizing: content-box;
-    background: $zaui-button-primary;
+    width: 60px;
+    height: 210px;
+    padding: 25px 16px;
+    background: url('@/assets/images/side.png') no-repeat;
+    background-size: cover;
+
+    font-size: $zaui-font-size;
     color: $zaui-button-primary-highlight-text;
+    font-weight: 600;
+    line-height: 32px;
+    word-wrap: break-word;
+    box-sizing: border-box;
+
     position: fixed;
     z-index: 9;
     right: 0;
