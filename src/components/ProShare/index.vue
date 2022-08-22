@@ -52,6 +52,7 @@ const onCloseOverlay = () => {
 };
 
 const handleShare = () => {
+  console.log('分享url', props.link);
   if (isWechat()) {
     console.log('在微信内，弹起遮罩');
     showOverLay.value = true;
