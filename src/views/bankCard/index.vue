@@ -269,7 +269,7 @@ const handleSubmit = () => {
             ...orderDetail,
             pageCode: 'payInfo',
             tenantOrderPayInfoList: payInfoList,
-            extInfo: { ...orderDetail.extInfo, templateId, pageCode: 'payInfo' },
+            extInfo: { ...orderDetail.extInfo, templateId, pageCode: 'payInfo', shareFlag: isShare ? 'Y' : 'N' },
             operateOption: {
               withPayInfo: true,
               withAttachmentInfo: true,

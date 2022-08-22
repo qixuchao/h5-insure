@@ -266,6 +266,7 @@ const handleSubmit = () => {
                 ...detail.value.extInfo,
                 pageCode: 'sign',
                 templateId,
+                shareFlag: isShare ? 'Y' : 'N',
               },
               venderCode: insurerCode,
             }).then((nextRes) => {
