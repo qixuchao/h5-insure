@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-18 22:52:49
+ * @LastEditTime: 2022-08-22 22:38:24
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -233,7 +233,7 @@ const queryOrderDetail = () => {
         currentData.tenantOrderInsuredList[0].tenantOrderBeneficiaryList =
           currentData.tenantOrderInsuredList[0].tenantOrderBeneficiaryList.map((list: any) => {
             const currentList = list;
-            currentList.extInfo = {};
+            currentList.extInfo = currentList.extInfo || {};
             return currentList;
           });
         currentData.tenantOrderAttachmentList.forEach((item) => {

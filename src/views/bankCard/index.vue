@@ -79,7 +79,12 @@
       </ProCard>
       <div class="agree">
         <van-checkbox v-model="agree" class="checkbox" shape="square" :icon-size="16" /> 投保人阅读并接受
-        <ProPDFviewer class="file" title="《银行转账授权》" :url="tempPdf" />
+        <ProPDFviewer
+          class="file"
+          title="《银行转账授权》"
+          :content="materialData.materialContent"
+          :type="FILE_TYPE_ENUM[fileType]"
+        />
       </div>
       <div class="footer-button footer">
         <van-button type="primary" @click="handleSubmit">下一步</van-button>
@@ -113,9 +118,16 @@ import {
   ATTACHMENT_OBJECT_TYPE_ENUM,
   YES_NO_ENUM,
 } from '@/common/constants';
-import { nextStep, getOrderDetail, getInitFactor } from '@/api';
+import { nextStep, getOrderDetail, getInitFactor, queryInsuredMaterial } from '@/api';
 import { ProductInsureFactorItem } from '@/api/index.data';
 import tempPdf from '@/assets/pdf/bank.pdf';
+
+const FILE_TYPE_ENUM = {
+  1: 'pdf',
+  4: 'picture',
+  2: 'richText',
+  3: 'link',
+};
 
 const route = useRoute();
 const router = useRouter();
@@ -124,6 +136,7 @@ const {
   agentCode = 'D1234567-1',
   tenantId = '9991000007',
   templateId = 1,
+  insureCode = 'kunlunhealth',
 } = route.query;
 
 const BANK_CARD_INIT_DATA = {
@@ -150,6 +163,10 @@ const form1 = ref();
 const form2 = ref();
 const form3 = ref();
 
+const materialData = ref<any>({});
+
+const fileType = ref<number>(1);
+
 const handlePayInfoTypeClick = (type: PAY_INFO_TYPE_ENUM) => {
   payInfoType.value = type;
 };
@@ -162,6 +179,24 @@ const showByFactor = (key: string, type: string) => {
     factor.value[type][key] &&
     factor.value[type][key].isDisplay === YES_NO_ENUM.YES
   );
+};
+
+const getNotices = () => {
+  queryInsuredMaterial({ insureCode, objectType: 4, tenantId, orderNo }).then(({ code, data }) => {
+    if (code === '10000') {
+      materialData.value = data;
+
+      if (data.materialSource === 1) {
+        if (data.materialContent.indexOf('.pdf') !== -1) {
+          fileType.value = 1;
+        } else {
+          fileType.value = 4;
+        }
+      } else {
+        fileType.value = data.materialSource;
+      }
+    }
+  });
 };
 
 const handleSubmit = () => {
@@ -265,6 +300,7 @@ const handleSubmit = () => {
 };
 
 onMounted(() => {
+  getNotices();
   getInitFactor({ pageCode: 'payInfo', templateId }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {

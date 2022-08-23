@@ -95,7 +95,8 @@
                   :key="index"
                   class="file-name"
                   :title="`《${item.attachmentName}》`"
-                  :url="item.attachmentUri"
+                  :content="item.attachmentUri"
+                  type="pdf"
                 >
                   <span
                     v-if="index !== (detail?.tenantProductInsureVO?.attachmentVOList || []).length - 1"
@@ -160,7 +161,6 @@ import FieldInfo from '../components/fieldInfo.vue';
 import Question from '../components/question/index.vue';
 import ProTimeline from '@/components/ProTimeline/index.vue';
 import ProPopup from '@/components/ProPopup/index.vue';
-import ProPdfViewer from '@/components/ProPDFviewer/index.vue';
 import { productDetail, productList } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ProductInsureFactorItem } from '@/api/index.data';
@@ -177,6 +177,12 @@ import { YES_NO_ENUM, PAGE_ROUTE_ENUMS } from '@/common/constants';
 
 const router = useRouter();
 const route = useRoute();
+const FILE_TYPE_ENUM = {
+  1: 'pdf',
+  4: 'picture',
+  2: 'richText',
+  3: 'link',
+};
 
 const { productCode = 'CQ75CQ76' } = route.query;
 const tabList = ref<Array<{ title: string; slotName: string }>>([]);

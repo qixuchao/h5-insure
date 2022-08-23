@@ -105,7 +105,7 @@
       :max="state.certEndDate.max"
       :is-view="certEndType || isView"
       read
-      :required="factorObj.certEndDate?.isMustInput === 'YES'"
+      :rules="[{ validator: validatorEndDate }]"
     >
       <template #extra>
         <div class="date-extra">
@@ -471,6 +471,20 @@ const validateType = computed(() => {
   }
   return [];
 });
+
+// 校验有效期至字段
+const validatorEndDate = (value: string, rule: any) => {
+  if (factorObj.value.certEndDate?.isMustInput === 'YES') {
+    if (state.value.formInfo.certEndType === 2) {
+      return '';
+    }
+    if (state.value.formInfo.certEndDate) {
+      return '';
+    }
+    return '请选择有效期至';
+  }
+  return '';
+};
 
 // 验证10位整数两位小数
 const validateFloat = (value: string, rule: any) => {

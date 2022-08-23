@@ -4,7 +4,7 @@ import { Component } from 'vue';
  * @Autor: kevin.liang
  * @Date: 2022-03-08 13:51:54
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-09 17:27:18
+ * @LastEditTime: 2022-08-23 09:58:10
  */
 /* eslint-disable prettier/prettier */
 import ZaAvatar from './ZaAvatar/index.vue';
@@ -34,6 +34,7 @@ import ProIDCardUpload from './ProIDCardUpload/index.vue'
 import ProImageUpload from './ProImageUpload/index.vue'
 import ProFilePreview from './ProFilePreview/index.vue'
 import ProCascader from './ProCascader/index.vue'
+import ProPDFviewer from './ProPDFviewer/index.vue'
 
 
 interface ComponentMap {
@@ -68,7 +69,8 @@ export const globalComs: ComponentMap = {
   ProIDCardUpload,
   ProImageUpload,
   ProFilePreview,
-  ProCascader
+  ProCascader,
+  ProPDFviewer
 };
 
 function install(app: any) {

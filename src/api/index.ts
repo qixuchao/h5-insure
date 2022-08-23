@@ -2,12 +2,19 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-25 23:36:12
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-28 18:05:01
+ * @LastEditTime: 2022-08-23 11:08:53
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import request from './request';
-import { DictData, FactorData, NextStepRequestData, TemplateInfo, TemplatePageItem } from './index.data';
+import {
+  DictData,
+  FactorData,
+  NextStepRequestData,
+  TemplateInfo,
+  TemplatePageItem,
+  ProductInsureNoticeResVo,
+} from './index.data';
 import { PAGE_API_ENUMS } from '@/common/constants/index';
 
 // 通用字典接口
@@ -53,3 +60,7 @@ export const getTemplateInfo = (data = {}) =>
 // 签名认证
 export const validateSign = (data = {}) =>
   request.post<any, ResponseData>('/api/app/insure/insurance/validateSign', data);
+
+// 获取保司资料
+export const queryInsuredMaterial = (data = {}) =>
+  request.post<any, ResponseData<ProductInsureNoticeResVo>>('/api/app/insure/insurance/getProductInsureNotice', data);
