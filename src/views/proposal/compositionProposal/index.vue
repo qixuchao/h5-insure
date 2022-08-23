@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-23 12:33:15
+ * @LastEditTime: 2022-08-23 13:48:14
  * @Description: 计划书
 -->
 <template>
@@ -23,7 +23,7 @@
         <div class="common-title">保险公司简介</div>
 
         <van-collapse v-model="activeName" accordion :is-link="false" :border="false" size="middle">
-          <van-collapse-item v-for="(item, i) in info?.insurerInfoVOList" :key="i" name="1" value-class="price">
+          <van-collapse-item v-for="(item, i) in info?.insurerInfoVOList" :key="i" :name="i" value-class="price">
             <template #title>
               <div><span class="poiner"></span> {{ item.insurerName }}</div>
             </template>
