@@ -280,7 +280,7 @@ onMounted(() => {
               if (showByFactor('commonQuestion')) {
                 tabListTemp.push({
                   title: '常见问题',
-                  slotName: 'tab1',
+                  slotName: 'tab3',
                 });
               }
               tabList.value = tabListTemp;
