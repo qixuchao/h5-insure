@@ -479,15 +479,17 @@ const validateType = computed(() => {
   return [];
 });
 
-// 校验有效期至字段
-const validatorEndDate = (value, rule) => {
-  if (state.value.formInfo.certEndType === 2) {
-    return '';
+const validatorEndDate = (value: string, rule: any) => {
+  if (factorObj.value.certEndDate?.isMustInput === 'YES') {
+    if (state.value.formInfo.certEndType === 2) {
+      return '';
+    }
+    if (state.value.formInfo.certEndDate) {
+      return '';
+    }
+    return '请选择有效期至';
   }
-  if (state.value.formInfo.certEndDate) {
-    return '';
-  }
-  return '请选择有效期';
+  return '';
 };
 
 // 验证10位整数两位小数

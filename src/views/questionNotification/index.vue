@@ -50,6 +50,8 @@ import { nextStep, getOrderDetail } from '@/api';
 import { NextStepRequestData } from '@/api/index.data';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 import { sessionStore } from '@/hooks/useStorage';
+import { getFile } from '@/api/modules/verify';
+import { INotice } from '@/api/modules/verify.data';
 
 const router = useRouter();
 const route = useRoute();
@@ -80,6 +82,7 @@ const {
 const listQuestions = ref<ListCustomerQuestionsResponse[]>([]);
 const pageData = ref<Partial<NextStepRequestData>>({});
 const showShare = ref(false);
+const fileList = ref<Array<INotice>>([]);
 // const tenantOrderNoticeList = ref<Partial<tenantOrderNoticeProps[]>>([]);
 
 const isHolderQuestions = (objectType: number) => {
@@ -178,6 +181,16 @@ const handleClickNextStep = () => {
 
 onMounted(() => {
   getQuestionList();
+  getFile({
+    orderNo,
+    productCode,
+    tenantId,
+  }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      fileList.value = data || [];
+    }
+  });
   orderDetail();
 });
 </script>

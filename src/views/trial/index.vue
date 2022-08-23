@@ -88,6 +88,7 @@ import { Toast } from 'vant/es';
 import PersonalInfo from './components/PersonalInfo/index.vue';
 import RiskList from './components/RiskList/index.vue';
 import { insureProductDetail, premiumCalc } from '@/api/modules/trial';
+import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
 import { getDic, nextStep } from '@/api';
 import { useCookie } from '@/hooks/useStorage';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
@@ -106,6 +107,7 @@ import {
   ProductPlanVoItem,
 } from '@/api/modules/trial.data';
 import { PAYMENT_PERIOD_TYPE_ENUMS, INSURANCE_PERIOD_TYPE_ENUMS } from '@/common/constants/trial';
+import { ProposalProductRiskItem, ProposalInsuredProductItem } from '@/api/modules/createProposal.data';
 
 import { DictData } from '@/api/index.data';
 
@@ -133,16 +135,19 @@ interface HolderPerson {
 const router = useRouter();
 const route = useRoute();
 const {
-  productCode = 'MMBBSF',
   templateId = 1,
   agentCode = 'test',
   agencyCode = '',
   tenantId = 9991000007,
   venderCode = '99',
+  proposalId,
 } = route.query;
+let { productCode = 'MMBBSF' } = route.query;
 
 const holder = ref<HolderPerson>({
-  personVO: {},
+  personVO: {
+    occupationCodeList: [],
+  },
 }); // 投保人
 const insured = ref<Omit<InsuredVoItem, 'productPlanVOList'>>({
   insuredCode: '',
@@ -173,6 +178,15 @@ const state = reactive<PageState>({
   currentRiskList: [],
 });
 
+// 如果是计划书转投保,这里的productCode取产品中心的productCode
+if (proposalId) {
+  try {
+    productCode = JSON.parse(route.query?.extInfo || '{}')?.productCenterCode;
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 provide('premium', riskPremiumRef.value);
 
 const userInfo = useCookie().get('userInfo');
@@ -182,6 +196,7 @@ const closeTip = () => {
   state.retrialTip = false;
 };
 
+// 将试算的参数转化成订单中需要的结构
 const transformData = (riskList: RiskVoItem[], riskPremium) => {
   state.insuredRiskList = riskList.map((risk: RiskVoItem) => {
     const currentRisk = {
@@ -327,24 +342,43 @@ const queryDictList = () => {
   });
 };
 
+// 计划书转投保时，获取计划书下产品的试算信息
+const getProposalDetail = (id: number) => {
+  queryProposalDetailInsurer({ id: proposalId, tenantId }).then(({ code, data }) => {
+    if (code === '10000') {
+      const { proposalInsuredProductList = [], ...insuredPersonal } = data.proposalInsuredList?.[0] || {};
+      Object.assign(holder.value.personVO, data.proposalHolder);
+      Object.assign(insured.value.personVO, insuredPersonal);
+      const riskList = proposalInsuredProductList.find(
+        (product: ProposalInsuredProductItem) => product.productId === id,
+      )?.proposalProductRiskList;
+      const riskObject = {};
+      riskList.forEach((risk: ProposalProductRiskItem) => {
+        riskObject[risk.riskId] = risk;
+      });
+      Object.assign(riskInfo.value, { 0: riskObject });
+    }
+  });
+};
+
 const queryProductInfo = () => {
   insureProductDetail({ productCode, source: 1 })
     .then(({ code, data }) => {
       if (code === '10000') {
         state.riskBaseInfo = data.productBasicInfoVO;
-
         (data.productRelationPlanVOList.length
           ? data.productRelationPlanVOList
           : data.productRiskVoList[0].riskDetailVOList || []
-        ).forEach((plan, index) => {
+        ).forEach((plan, index: number) => {
           if (index === 0) {
             state.currentPlan = plan.planCode || '0';
           }
-          Object.assign(riskInfo.value, { [plan.planCode || '0']: {} });
+          Object.assign(riskInfo.value, { [plan.planCode || index]: {} });
         });
 
         state.riskData = data.productRiskVoList[0]?.riskDetailVOList || [];
         state.riskPlanData = data.productRelationPlanVOList || [];
+        getProposalDetail(data.productBasicInfoVO.id);
       }
     })
     .finally(() => {});
@@ -355,8 +389,6 @@ const pickFactor = (factorObj: { insuredFactorList: string[]; holderFactorList: 
   state.insuredFactor = factorObj.insuredFactorList;
   state.ageRange = factorObj.ageRange;
 };
-
-// watch(() =>  )
 
 watch(
   [() => riskInfo.value, () => holder.value, () => insured.value],

@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-25 09:04:29
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-08 17:15:59
+ * @LastEditTime: 2022-08-23 11:11:32
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/customerNotice/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -25,7 +25,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { STATUS_CODES } from 'http';
 import { dataToEsm } from '@rollup/pluginutils';
 import { nanoid } from 'nanoid';
-import { nextStep, getTemplateInfo, getInitFactor, getOrderDetail } from '@/api';
+import { nextStep, getTemplateInfo, getInitFactor, getOrderDetail, queryInsuredMaterial } from '@/api';
 import { NextStepRequestData, TemplatePageItem } from '@/api/index.data';
 import { getCustomerNotices } from '@/api/modules/customerNotice';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
@@ -45,6 +45,7 @@ const {
   productCode = 'CQ75CQ76',
   templateId = 1,
   tenantId = 9991000007,
+  insureCode = 'kunlunhealth',
 } = route.query;
 
 const pageData = ref<NextStepRequestData>({});
@@ -56,7 +57,7 @@ const materialData = ref<any>({});
 const fileType = ref<number>(1);
 
 const getNotices = () => {
-  getCustomerNotices({ productCode, objectType: 3 }).then(({ code, data }) => {
+  queryInsuredMaterial({ insureCode, objectType: 5, tenantId, orderNo }).then(({ code, data }) => {
     if (code === '10000') {
       materialData.value = data;
 

@@ -20,7 +20,6 @@ import { onMounted, ref } from 'vue';
 import { nanoid } from 'nanoid';
 import * as PDFJS from 'pdfjs-dist';
 import * as workerSrc from 'pdfjs-dist/build/pdf.worker.entry';
-import PdfViewer from '@/components/ProPDFviewer/index.vue';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
 PDFJS.GlobalWorkerOptions.workerSrc = workerSrc;

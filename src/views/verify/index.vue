@@ -44,11 +44,12 @@
           <div class="file">
             签名将被用于以下文件：
             <ProPDFviewer
-              v-for="(noticeItem, noticeIndex) in fileList.filter((x) => x.noticeObject === NOTICE_TYPE_ENUM.HOLDER)"
+              v-for="(noticeItem, noticeIndex) in fileList"
               :key="noticeIndex"
               class="file"
               :title="`《${noticeItem.materialName}》`"
-              :url="noticeItem.materialSource"
+              :content="noticeItem.materialContent"
+              :type="fileType(noticeItem)"
             />
           </div>
         </div>
@@ -89,11 +90,12 @@
             <div class="file">
               签名将被用于以下文件：
               <ProPDFviewer
-                v-for="(noticeItem, noticeIndex) in fileList.filter((x) => x.noticeObject === NOTICE_TYPE_ENUM.INSURED)"
+                v-for="(noticeItem, noticeIndex) in fileList"
                 :key="noticeIndex"
                 class="file"
                 :title="`《${noticeItem.materialName}》`"
-                :url="noticeItem.materialSource"
+                :content="noticeItem.materialContent"
+                :type="fileType(noticeItem)"
               />
             </div>
           </div>
@@ -122,7 +124,6 @@ import ProMessage from '@/components/ProMessage/index.vue';
 import ProCard from '@/components/ProCard/index.vue';
 import ProSvg from '@/components/ProSvg/index.vue';
 import ProSign from '@/components/ProSign/index.vue';
-import ProPdfViewer from '@/components/ProPDFviewer/index.vue';
 import ProShare from '@/components/ProShare/index.vue';
 import { faceVerify, saveSign, getFile, faceVerifySave } from '@/api/modules/verify';
 import { nextStep, getOrderDetail } from '@/api';
@@ -142,6 +143,13 @@ import pageJump from '@/utils/pageJump';
 const CERT_STATUS_ENUM = {
   CERT: 1,
   NO_CERT: 2,
+};
+
+const FILE_TYPE_ENUM = {
+  1: 'pdf',
+  4: 'picture',
+  2: 'richText',
+  3: 'link',
 };
 
 const route = useRoute();
@@ -169,6 +177,20 @@ const detail = ref();
 const holderSign = ref();
 const insuredSignRefs = [];
 const date = dayjs().format('YYYY-MM-DD');
+
+const fileType = computed(() => (data: INotice) => {
+  let currentFileType = 1;
+  if (data.materialSource === 1) {
+    if (data.materialContent.indexOf('.pdf') !== -1) {
+      currentFileType = 1;
+    } else {
+      currentFileType = 4;
+    }
+  } else {
+    currentFileType = data.materialSource;
+  }
+  return FILE_TYPE_ENUM[currentFileType];
+});
 
 const handleResign1 = () => {
   holderSign.value?.clear();

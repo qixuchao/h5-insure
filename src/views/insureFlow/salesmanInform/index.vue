@@ -33,6 +33,8 @@
           :key="index"
           class="file"
           :title="`《${item.title}》`"
+          content=""
+          type=""
         />文件
       </p>
     </div>
