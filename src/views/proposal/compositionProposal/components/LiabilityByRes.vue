@@ -15,18 +15,9 @@
           </div>
         </div>
         <div class="product-detail">
-          <van-collapse v-model="item.riskName1" accordion :is-link="false" :border="false" size="middle">
-            <van-collapse-item
-              v-for="(val, k) in item.proposalRiskLiabilityVOList"
-              :key="k"
-              :title="val.liabilityName"
-              :name="k"
-              value-class="price"
-              :value="val.liabilityIndemnityContent"
-            >
-              {{ val.liabilityDesc }}
-            </van-collapse-item>
-          </van-collapse>
+          <van-cell v-for="(val, k) in item.proposalRiskLiabilityVOList" :key="k">
+            {{ val.liabilityName }}
+          </van-cell>
         </div>
       </div>
 
