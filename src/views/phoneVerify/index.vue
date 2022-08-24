@@ -18,6 +18,7 @@ import { Toast } from 'vant/es';
 import { getOrderDetail } from '@/api';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import { convertPhone } from '@/utils/format';
+import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import pageJump from '@/utils/pageJump';
 
 const phone = ref('');
@@ -52,7 +53,11 @@ const getDetail = () => {
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
-      phone.value = data?.tenantOrderHolder?.mobile;
+      if (data.orderStatus !== ORDER_STATUS_ENUM.PENDING) {
+        pageJump('paymentResult', route.query);
+      } else {
+        phone.value = data?.tenantOrderHolder?.mobile;
+      }
     }
   });
 };
