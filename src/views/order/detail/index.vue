@@ -53,7 +53,7 @@
         <van-button type="primary" @click.stop="handlePay">去支付</van-button>
       </div>
       <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.PAYMENT_SUCCESS" class="footer-button"></div>
-      <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.UNDERWRITE" class="footer-button"></div>
+      <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY" class="footer-button"></div>
       <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.INSURER_REJECT" class="footer-button">
         <van-button type="primary" @click.stop="handleDelete">删除</van-button>
       </div>

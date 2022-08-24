@@ -53,6 +53,7 @@ const okText = computed(() => {
       case ORDER_STATUS_ENUM.PAYING:
         return '';
       case ORDER_STATUS_ENUM.PAYMENT_SUCCESS:
+      case ORDER_STATUS_ENUM.ACCEPT_POLICY:
         return '查看订单';
       default:
         return '';
