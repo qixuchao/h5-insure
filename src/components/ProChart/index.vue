@@ -117,6 +117,11 @@ onMounted(() => {
   }, 0);
 });
 
+onUnmounted(() => {
+  console.log('销毁');
+  myChart.dispose();
+});
+
 watch(current, (val) => {
   handleChange(val);
 });
