@@ -113,7 +113,7 @@ const handleGetOssKey = (ossKey: string) => {
   }).then((res) => {
     const { data, code } = res;
     if (code === '10000' && data && data.bankCardOcrVO) {
-      formData.value.bankCardNo = data.bankCardOcrVO.bankNo;
+      formData.value.bankCardNo = data.bankCardOcrVO.cardNo;
     }
   });
 };
