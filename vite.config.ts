@@ -39,12 +39,15 @@ export default defineConfig((env) => {
           // 本地 8000 前端代码的接口 代理到 8888 的服务端口
           // target: 'https://www.gconline.cn/acvmtest',
           // target: 'http://141604-zat-planet-gateway.test.za-tech.net',
-          target: 'http://154992-aquarius-commander.test.za-tech.net/',
-          // target: 'http://150039-zat-planet-gateway.test.za-tech.net',
+          // target: 'http://154992-aquarius-commander.test.za-tech.net/',
+          target: 'http://150039-zat-planet-gateway.test.za-tech.net',
           // target: 'http://zat-planet-gateway.test.za-tech.net',
           // target: 'http://141604-zat-planet-gateway.test.za-tech.net',
           // target: 'http://zat-planet-gateway.test.za-tech.net',
           changeOrigin: true, // 允许跨域
+        },
+        '/api/app/buriedPoint/': {
+          target: 'http://154992-aquarius-commander.test.za-tech.net',
         },
       },
     },
