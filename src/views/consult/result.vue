@@ -3,21 +3,26 @@
     <div class="page-consult-success">
       <div class="success"></div>
       <div class="code-card">
-        <img class="code" :src="qrcode" alt="QR Code" />
+        <img class="code" :src="qrCode" alt="QR Code" />
       </div>
     </div>
   </ProPageWrap>
 </template>
 
 <script lang="ts" setup>
-import { useQRCode } from '@vueuse/integrations/useQRCode';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
 
-const text = ref(route.query.url);
+/** 页面query参数类型 */
+interface QueryData {
+  url: string;
+  [key: string]: any;
+}
 
-const qrcode = useQRCode(text.value);
+const { url = '' } = route.query as QueryData;
+
+const qrCode = ref(url);
 </script>
 
 <style lang="scss" scoped>

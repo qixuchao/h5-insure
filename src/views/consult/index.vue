@@ -7,7 +7,7 @@
         <p v-show="userNameErrMsg" class="errName">
           <span>{{ userNameErrMsg }}</span>
         </p>
-        <input v-model="phoneNo" class="input phone" placeholder="请输入手机号" maxlength="11" @input="inputPhone" />
+        <input v-model="phone" class="input phone" placeholder="请输入手机号" maxlength="11" @input="inputPhone" />
         <p v-show="phoneErrMsg" class="errPhone">
           <span>{{ phoneErrMsg }}</span>
         </p>
@@ -28,9 +28,17 @@ import { getUserInfo } from '@/api/modules/consult';
 
 const route = useRoute();
 
+/** 页面query参数类型 */
+interface QueryData {
+  phoneNo: string;
+  [key: string]: any;
+}
+
+const { phoneNo = '' } = route.query as QueryData;
+
 const userName = ref('');
 
-const phoneNo = ref(route.query.phoneNo);
+const phone = ref(phoneNo);
 
 const userNameErrMsg = ref('');
 
@@ -42,8 +50,8 @@ const router = useRouter();
 const inputPhone = (e: any) => {
   phoneErrMsg.value = ''; // 输入电话时错误提示关闭
   const filtered = e.target.value.replace(/^0|[^\d]/g, '');
-  if (phoneNo.value !== filtered) {
-    phoneNo.value = filtered;
+  if (phone.value !== filtered) {
+    phone.value = filtered;
   }
 };
 
@@ -54,25 +62,25 @@ const inputName = (e: any) => {
 // 验证姓名手机号是否填写、手机号格式
 const isTrue = () => {
   const reg = /^1(3|4|5|6|7|8|9)\d{9}$/;
-  if (userName.value.length === 0 && phoneNo.value?.length === 0) {
+  if (userName.value.length === 0 && phone.value.length === 0) {
     userNameErrMsg.value = '请输入姓名';
     phoneErrMsg.value = '请输入手机号';
     return false;
   }
-  if (userName.value.length === 0 && phoneNo.value?.length !== 0 && reg.test(phoneNo.value)) {
+  if (userName.value.length === 0 && phone.value.length !== 0 && reg.test(phone.value)) {
     userNameErrMsg.value = '请输入姓名';
     return false;
   }
-  if (userName.value.length === 0 && phoneNo.value?.length !== 0 && !reg.test(phoneNo.value)) {
+  if (userName.value.length === 0 && phone.value.length !== 0 && !reg.test(phone.value)) {
     userNameErrMsg.value = '请输入姓名';
     phoneErrMsg.value = '请输入正确的手机号';
     return false;
   }
-  if (userName.value.length !== 0 && phoneNo.value?.length === 0) {
+  if (userName.value.length !== 0 && phone.value.length === 0) {
     phoneErrMsg.value = '请输入手机号';
     return false;
   }
-  if (userName.value.length !== 0 && phoneNo.value?.length !== 0 && !reg.test(phoneNo.value)) {
+  if (userName.value.length !== 0 && phone.value.length !== 0 && !reg.test(phone.value)) {
     phoneErrMsg.value = '请输入正确的手机号';
     return false;
   }
@@ -84,14 +92,11 @@ const isTrue = () => {
 // 点击登记领取
 const getRegister = () => {
   if (isTrue() === true) {
-    // const name = computed(() => {
-    //   return userName ? `userName=${userName.value}` : '';
-    // });
     const key = computed(() => {
-      return `phoneNo=${phoneNo.value}&userName=${userName.value}&key=chuangxin`;
+      return `phoneNo=${phone.value}&userName=${userName.value}&key=chuangxin`;
     });
     getUserInfo({
-      phoneNo: phoneNo.value,
+      phoneNo: phone.value,
       sign: sha256(key.value),
       userName: userName.value,
     }).then((res) => {
@@ -109,7 +114,7 @@ const getRegister = () => {
 .page-consult {
   background-image: url('@/assets/images/consult/bg.png');
   background-size: cover;
-  height: 100%;
+  height: 1624px;
   width: 100%;
   position: relative;
   .image {
