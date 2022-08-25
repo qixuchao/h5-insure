@@ -139,7 +139,7 @@ const {
   agentCode = 'test',
   agencyCode = '',
   tenantId = 9991000007,
-  venderCode = '99',
+  insurerCode = '99',
   proposalId,
 } = route.query;
 let { productCode = 'MMBBSF' } = route.query;
@@ -260,7 +260,7 @@ const goNextPage = () => {
         router.push({
           path: PAGE_ROUTE_ENUMS[data.pageAction.data.nextPageCode],
           query: {
-            venderCode: state.riskBaseInfo.insurerCode,
+            insurerCode: state.riskBaseInfo.insurerCode,
             ...route.query,
             orderNo: data.pageAction.data.orderNo,
           },
