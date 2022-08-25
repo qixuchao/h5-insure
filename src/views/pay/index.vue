@@ -98,7 +98,7 @@ const handleOk = () => {
   if (okText.value === '查看订单') {
     router.push({
       path: PAGE_ROUTE_ENUMS.orderDetail,
-      query: { id: detail.value?.id },
+      query: { orderNo, templateId, agentCode: saleUserId },
     });
   } else if (okText.value === '重新支付') {
     router.push({
