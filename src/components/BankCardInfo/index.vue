@@ -106,6 +106,10 @@ const imagesValidator = (images: Array<string>) => {
   return '请上传银行卡正反面照片';
 };
 
+const bankList = computed(() => {
+  return bankDic.value.map((item) => ({ label: item.name, value: item.code }));
+});
+
 const handleGetOssKey = (ossKey: string) => {
   ocr({
     ossKey: [ossKey],
@@ -114,6 +118,10 @@ const handleGetOssKey = (ossKey: string) => {
     const { data, code } = res;
     if (code === '10000' && data && data.bankCardOcrVO) {
       formData.value.bankCardNo = data.bankCardOcrVO.cardNo;
+      const matchBank = bankList.value.find((x) => x.label === data.bankCardOcrVO.bankName);
+      if (matchBank) {
+        formData.value.payBank = matchBank.value;
+      }
     }
   });
 };
@@ -130,10 +138,6 @@ watch(
 
 watch(formData, (val) => {
   emits('update:modelValue', val);
-});
-
-const bankList = computed(() => {
-  return bankDic.value.map((item) => ({ label: item.name, value: item.code }));
 });
 </script>
 

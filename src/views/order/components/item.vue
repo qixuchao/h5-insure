@@ -66,13 +66,6 @@ const props = defineProps({
   },
 });
 
-const handleDetail = () => {
-  router.push({
-    path: PAGE_ROUTE_ENUMS.orderDetail,
-    query: { id: props.detail.id },
-  });
-};
-
 const handleDelete = () => {
   Dialog.confirm({
     title: '确认',
