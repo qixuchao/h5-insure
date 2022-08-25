@@ -27,14 +27,7 @@ const second = ref(0);
 let timer: ReturnType<typeof setInterval>;
 
 const route = useRoute();
-const {
-  saleUserId = 'D1234567-1',
-  tenantId = '9991000007',
-  templateId = 1,
-  productCode = 'CQ75CQ76',
-  insurerCode = 'ancheng',
-  orderNo,
-} = route.query;
+const { agentCode, tenantId, templateId, productCode, insurerCode, orderNo } = route.query;
 
 const countDown = () => {
   timer = setInterval(() => {
@@ -48,7 +41,7 @@ const countDown = () => {
 const getDetail = () => {
   getOrderDetail({
     orderNo,
-    saleUserId,
+    saleUserId: agentCode,
     tenantId,
   }).then((res) => {
     const { code, data } = res;
