@@ -152,6 +152,18 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     meta: { title: '手机号验证' },
     component: () => import('@/views/phoneVerify/index.vue'),
   },
+  {
+    name: '咨询登记',
+    path: '/consult',
+    meta: { title: '咨询登记' },
+    component: () => import('@/views/consult/index.vue'),
+  },
+  {
+    name: '登记成功',
+    path: '/result',
+    meta: { title: '登记成功' },
+    component: () => import('@/views/consult/result.vue'),
+  },
 ];
 
 export default asyncRoutes;
