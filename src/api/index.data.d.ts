@@ -76,6 +76,7 @@ export interface NextStepRequestData {
   orderAmount: number;
   orderDataSource: string;
   orderDate: string;
+  gmtCreated: string;
   orderNo: string;
   orderRealAmount: number;
   orderStatus: string;
@@ -383,10 +384,10 @@ export interface ProductInsureFactorItem {
  * 保司支持资料
  * */
 export interface ProductInsureNoticeResVo {
-    insureCode: string;
-    materialContent: string;
-    materialSource: number;
-    noticeObject: number;
+  insureCode: string;
+  materialContent: string;
+  materialSource: number;
+  noticeObject: number;
 }
 
 

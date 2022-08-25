@@ -38,7 +38,7 @@ export enum ORDER_STATUS_ENUM {
   /**
    * 已承保
    */
-  UNDERWRITE = 'acceptPolicy',
+  ACCEPT_POLICY = 'acceptPolicy',
   /**
    * 申请退款
    */
@@ -143,7 +143,7 @@ export const ORDER_STATUS_LIST = [
     label: '支付失败',
   },
   {
-    value: ORDER_STATUS_ENUM.UNDERWRITE,
+    value: ORDER_STATUS_ENUM.ACCEPT_POLICY,
     label: '已承保',
   },
   {

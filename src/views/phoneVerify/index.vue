@@ -18,6 +18,7 @@ import { Toast } from 'vant/es';
 import { getOrderDetail } from '@/api';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import { convertPhone } from '@/utils/format';
+import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import pageJump from '@/utils/pageJump';
 
 const phone = ref('');
@@ -26,14 +27,7 @@ const second = ref(0);
 let timer: ReturnType<typeof setInterval>;
 
 const route = useRoute();
-const {
-  saleUserId = 'D1234567-1',
-  tenantId = '9991000007',
-  templateId = 1,
-  productCode = 'CQ75CQ76',
-  insurerCode = 'ancheng',
-  orderNo,
-} = route.query;
+const { agentCode, tenantId, templateId, productCode, insurerCode, orderNo } = route.query;
 
 const countDown = () => {
   timer = setInterval(() => {
@@ -47,12 +41,16 @@ const countDown = () => {
 const getDetail = () => {
   getOrderDetail({
     orderNo,
-    saleUserId,
+    saleUserId: agentCode,
     tenantId,
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
-      phone.value = data?.tenantOrderHolder?.mobile;
+      if (data.orderStatus !== ORDER_STATUS_ENUM.PENDING) {
+        pageJump('paymentResult', route.query);
+      } else {
+        phone.value = data?.tenantOrderHolder?.mobile;
+      }
     }
   });
 };

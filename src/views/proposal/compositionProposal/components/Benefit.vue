@@ -123,6 +123,7 @@ const getData = () => {
 };
 
 const setAge = (realData: any) => {
+  if (!realData?.benefitRiskResultVOList) return;
   const benefit = realData?.benefitRiskResultVOList[active.value];
   ageBegin.value = benefit.ageBegin + 1;
   num.value = benefit.ageBegin + 1;

@@ -21,6 +21,7 @@ import ProTab from '@/components/ProTab/index.vue';
 import Item from './components/item.vue';
 import { getOrderList } from '@/api/modules/order';
 import { OrderItem } from '@/api/modules/order.data';
+import pageJump from '@/utils/pageJump';
 
 const router = useRouter();
 const active = ref(0);
@@ -56,7 +57,8 @@ const currentStatus = computed(() => {
 });
 
 const handleClick = (item: OrderItem) => {
-  router.push(`/orderDetail?id=${item.id}`);
+  const { orderNo, saleUserId: agentCode, tenantId, abbreviation, productCategory } = item;
+  pageJump('orderDetail', { orderNo, agentCode, tenantId, abbreviation, productCategory });
 };
 
 const getData = () => {

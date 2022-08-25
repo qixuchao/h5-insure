@@ -8,7 +8,7 @@
               <div class="product-name">
                 {{ detail?.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productName }}
               </div>
-              <div class="company-name">{{ detail?.abbreviation }}</div>
+              <div class="company-name">{{ abbreviation }}</div>
             </div>
           </template>
           <template #content>
@@ -53,7 +53,7 @@
         <van-button type="primary" @click.stop="handlePay">去支付</van-button>
       </div>
       <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.PAYMENT_SUCCESS" class="footer-button"></div>
-      <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.UNDERWRITE" class="footer-button"></div>
+      <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY" class="footer-button"></div>
       <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.INSURER_REJECT" class="footer-button">
         <van-button type="primary" @click.stop="handleDelete">删除</van-button>
       </div>
@@ -68,16 +68,23 @@
 import { Dialog, Toast } from 'vant';
 import { useRoute, useRouter } from 'vue-router';
 import dayjs from 'dayjs';
-import FieldInfo from '../components/fieldInfo.vue';
-import { getOrderDetail, deleteOrder } from '@/api/modules/order';
+import { deleteOrder } from '@/api/modules/order';
+import { getOrderDetail } from '@/api';
+import { NextStepRequestData } from '@/api/index.data';
 import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
-import { OrderDetail } from '@/api/modules/order.data';
+// import { OrderDetail } from '@/api/modules/order.data';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import FieldInfo from '../components/fieldInfo.vue';
 import InsureInfo from '@/views/infoPreview/components/InsuredPart.vue';
+import pageJump from '@/utils/pageJump';
 
 const route = useRoute();
 const router = useRouter();
-const detail = ref<OrderDetail>();
+const detail = ref<NextStepRequestData>();
+
+const {
+  query: { orderNo, agentCode, tenantId, abbreviation, productCategory },
+} = route;
 
 const handleDelete = () => {
   Dialog.confirm({
@@ -97,70 +104,53 @@ const handleDelete = () => {
 const handleProcess = () => {
   if (detail.value) {
     const {
-      orderNo,
       id: orderId,
-      saleUserId: agentCode,
-      tenantId,
       extInfo: { templateId, pageCode },
       agencyId: agencyCode,
-      productCategory,
       venderCode: insurerCode,
     } = detail.value;
     const productCode = detail.value.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productCode;
-    router.push({
-      path: PAGE_ROUTE_ENUMS[pageCode],
-      query: {
-        productCode,
-        orderNo,
-        orderId,
-        agentCode,
-        templateId,
-        tenantId,
-        productCategory,
-        insurerCode,
-        agencyCode,
-        // 是否从订单列表来的，用来判断是否展示导航栏
-        isFromOrderList: '1',
-      },
+    pageJump(pageCode, {
+      productCode,
+      orderNo,
+      orderId,
+      agentCode,
+      templateId,
+      tenantId,
+      productCategory,
+      insurerCode,
+      agencyCode,
+      // 是否从订单列表来的，用来判断是否展示导航栏
+      isFromOrderList: '1',
     });
   }
 };
 const handlePay = () => {
   if (detail.value) {
     const {
-      orderNo,
       id: orderId,
       saleUserId,
-      tenantId,
       extInfo: { templateId },
       agencyId: agencyCode,
-      productCategory,
       venderCode: insurerCode,
     } = detail.value;
     const productCode = detail.value.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productCode;
-    router.push({
-      path: PAGE_ROUTE_ENUMS.payInfo,
-      query: {
-        productCode,
-        orderNo,
-        orderId,
-        saleUserId,
-        templateId,
-        tenantId,
-        productCategory,
-        insurerCode,
-        agencyCode,
-      },
+    pageJump('payInfo', {
+      productCode,
+      orderNo,
+      orderId,
+      saleUserId,
+      templateId,
+      tenantId,
+      productCategory,
+      insurerCode,
+      agencyCode,
     });
   }
 };
 
 onMounted(() => {
-  console.log(route);
-  const {
-    query: { id },
-  } = route;
-  getOrderDetail(id).then((res) => {
+  getOrderDetail({ orderNo, agentCode, tenantId }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
       detail.value = data;

@@ -44,6 +44,9 @@ const {
   isFromOrderList,
 } = route.query;
 
+// 需要展示侧边导航的页面code
+const showNavigatorPageCodeList = ['questionNotice', 'infoCollection', 'infoPreview', 'payInfo', 'salesNotice', 'sign'];
+
 const { orderDetail } = storeToRefs(store);
 const [visible, toggle] = useToggle(false);
 const list = ref<Array<TemplatePageItem>>([]);
@@ -63,17 +66,19 @@ const handleNavClick = (item: TemplatePageItem, index: number) => {
   }
 };
 
-onMounted(() => {
-  getTemplateInfo({ productCategory, venderCode: insurerCode, navbarFlag: 1 }).then((res) => {
-    const { code, data } = res;
-    if (code === '10000' && data) {
-      list.value = data.templatePageList || [];
-    }
-  });
+const currentPageCode = computed(() => {
+  return Object.keys(PAGE_ROUTE_ENUMS).find((x) => PAGE_ROUTE_ENUMS[x] === route.path.replace('/', '')) || '';
 });
 
-const currentPageCode = computed(() => {
-  return Object.keys(PAGE_ROUTE_ENUMS).find((x) => PAGE_ROUTE_ENUMS[x] === route.path.replace('/', ''));
+onMounted(() => {
+  if (showNavigatorPageCodeList.includes(currentPageCode.value)) {
+    getTemplateInfo({ productCategory, venderCode: insurerCode, navbarFlag: 1 }).then((res) => {
+      const { code, data } = res;
+      if (code === '10000' && data) {
+        list.value = data.templatePageList || [];
+      }
+    });
+  }
 });
 
 const show = computed(() => {

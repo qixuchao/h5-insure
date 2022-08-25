@@ -53,6 +53,7 @@ const okText = computed(() => {
       case ORDER_STATUS_ENUM.PAYING:
         return '';
       case ORDER_STATUS_ENUM.PAYMENT_SUCCESS:
+      case ORDER_STATUS_ENUM.ACCEPT_POLICY:
         return '查看订单';
       default:
         return '';
@@ -97,7 +98,7 @@ const handleOk = () => {
   if (okText.value === '查看订单') {
     router.push({
       path: PAGE_ROUTE_ENUMS.orderDetail,
-      query: { id: detail.value?.id },
+      query: { orderNo, tenantId, agentCode: saleUserId },
     });
   } else if (okText.value === '重新支付') {
     router.push({

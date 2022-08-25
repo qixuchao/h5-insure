@@ -84,7 +84,7 @@ const insuredProductList = ref<InsuredProductData[]>([]);
 const currentInsuredProduct = ref();
 
 const [showProductList, toggleProductList] = useToggle();
-const activeName = ref([]);
+const activeName = ref('');
 
 const changeLiabilityType = () => {
   isLiabilityByRisk.value = !isLiabilityByRisk.value;
