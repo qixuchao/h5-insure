@@ -44,7 +44,7 @@
           <div class="file">
             签名将被用于以下文件：
             <ProPDFviewer
-              v-for="(noticeItem, noticeIndex) in fileList"
+              v-for="(noticeItem, noticeIndex) in holderFileList"
               :key="noticeIndex"
               class="file"
               :title="`《${noticeItem.materialName}》`"
@@ -90,7 +90,7 @@
             <div class="file">
               签名将被用于以下文件：
               <ProPDFviewer
-                v-for="(noticeItem, noticeIndex) in fileList"
+                v-for="(noticeItem, noticeIndex) in insuredFileList"
                 :key="noticeIndex"
                 class="file"
                 :title="`《${noticeItem.materialName}》`"
@@ -172,7 +172,8 @@ if (typeof orderNo === 'object') {
 }
 const pageCode = 'sign';
 const storage = new Storage({ source: 'localStorage' });
-const fileList = ref<Array<INotice>>([]);
+const insuredFileList = ref<Array<INotice>>([]); // 被保人文件列表
+const holderFileList = ref<Array<INotice>>([]); // 投保人文件列表
 const detail = ref();
 const holderSign = ref();
 const insuredSignRefs = [];
@@ -368,18 +369,34 @@ const shareLink = computed(() => {
   return `${window.location.origin}/phoneVerify?${queryString.stringify(query)}`;
 });
 
-onMounted(() => {
-  getDetail();
-  getFile({
+// 获取产品上下架配置中费产品资料
+const getProductMaterials = () => {
+  const params = {
     orderNo,
     productCode,
     tenantId,
-  }).then((res) => {
-    const { code, data } = res;
+    objectType: 1, // 1-投保人，2-被保人，3-营销人员(代理人)
+  };
+  getFile({
+    ...params,
+  }).then(({ code, data }) => {
     if (code === '10000') {
-      fileList.value = data || [];
+      holderFileList.value = data || [];
     }
   });
+  getFile({
+    ...params,
+    objectType: 2,
+  }).then(({ code, data }) => {
+    if (code === '10000') {
+      insuredFileList.value = data || [];
+    }
+  });
+};
+
+onMounted(() => {
+  getDetail();
+  getProductMaterials();
   const verifyData = storage.get('verifyData');
   if (verifyData) {
     const { serialNo, certNo, name } = verifyData;

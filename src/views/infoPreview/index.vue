@@ -3,7 +3,7 @@
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
 <<<<<<< HEAD
- * @LastEditTime: 2022-08-22 16:22:12
+ * @LastEditTime: 2022-08-25 17:07:12
 =======
  * @LastEditTime: 2022-08-22 22:38:24
 >>>>>>> dev_730
@@ -245,8 +245,10 @@ const queryOrderDetail = () => {
         const currentData = data;
         currentData.extInfo = { ...currentData.extInfo, pageCode, templateId };
         currentData.tenantOrderHolder = currentData.tenantOrderHolder || {};
-        currentData.tenantOrderHolder.extInfo = currentData.tenantOrderHolder.extInfo || {};
-        currentData.tenantOrderInsuredList[0].extInfo = currentData.tenantOrderInsuredList[0].extInfo || {};
+        currentData.tenantOrderHolder.extInfo = currentData.tenantOrderHolder.extInfo || { occupationCodeList: [] };
+        currentData.tenantOrderInsuredList[0].extInfo = currentData.tenantOrderInsuredList[0].extInfo || {
+          occupationCodeList: [],
+        };
         currentData.tenantOrderInsuredList[0].tenantOrderBeneficiaryList =
           currentData.tenantOrderInsuredList[0].tenantOrderBeneficiaryList.map((list: any) => {
             const currentList = list;

@@ -190,36 +190,44 @@ export interface InsuredVoItem {
 }
 
 export interface ProductPlanVoItem {
+    insurerCode: string;
     planCode: string;
     riskVOList: RiskVoItem[];
 }
 
 export interface RiskVoItem {
+    amount: number;
     annuityDrawDate: number;
-    annuityDrawType: number;
+    annuityDrawFrequency: number;
+    chargePeriod: string;
     copy: string;
     coveragePeriod: string;
     insuredCode: string;
     liabilityVOList: LiabilityVoItem[];
+    mainRisk: boolean;
     mainRiskCode: string;
     mainRiskId: number;
     paymentFrequency: number;
-    chargePeriod: string;
     premium: number;
-    riderRiskVOList: RiskVoItem[];
+    riderRisk: boolean;
+    riderRiskVOList: object[];
     riskCategory: number;
     riskCode: string;
     riskId: number;
     riskType: number;
-    amount: number;
 }
 
 export interface LiabilityVoItem {
     liabilityAttributeCode: string;
     liabilityAttributeValue: string;
     liabilityCode: string;
+    liabilityDesc: string;
     liabilityId: number;
+    liabilityIndemnityContent: string;
+    liabilityIndemnityType: number;
+    liabilityName: string;
     liabilityRateType: number;
+    liabilityTopType: number;
     liabilityType: number;
 }
 
@@ -227,13 +235,15 @@ export interface PersonVo {
     birthday: string;
     gender: number;
     occupationClass: number;
+    occupationCodeList: string[];
     socialFlag: number;
-    occupationCodeList: Array<any>
 }
 
 export interface Holder {
     personVO: PersonVo;
 }
+
+
 
 export interface premiumCalcResponse{
     amount: number;

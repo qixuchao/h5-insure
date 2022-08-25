@@ -17,6 +17,7 @@
         class="isLink"
         readonly
         is-link
+        :formatter="(val) => (val ? dayjs(val).format('YYYY-MM-DD') : val)"
         placeholder="请选择"
         @click="toggle(true)"
       ></VanField>

@@ -91,6 +91,7 @@
       :name="`${prefix}_birthday`"
       :min="state.birth.min"
       :max="state.birth.max"
+      :formatter="(val: string) => dayjs(val).format('YYYY-MM-DD')"
       type="date"
       :required="factorObj.birthday?.isMustInput === 'YES'"
       :is-view="isIdCard"
@@ -145,9 +146,12 @@
     </ProField>
     <ProCascader
       v-if="showByFactor('occupation')"
-      v-model="state.formInfo.extInfo.occupationCode"
+      v-model="state.formInfo.extInfo.occupationCodeList[0]"
+      v-model:field0="state.formInfo.extInfo.occupationCodeList[0]"
+      v-model:field1="state.formInfo.extInfo.occupationCodeList[1]"
+      v-model:field2="state.formInfo.extInfo.occupationCodeList[2]"
       label="职业"
-      :name="`${prefix}_occupationCode`"
+      :name="`${prefix}_occupationCodeList`"
       placeholder="请选择"
       :required="factorObj.occupation?.isMustInput === 'YES'"
       :data-source="occupationCode"

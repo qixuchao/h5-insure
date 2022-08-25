@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-23 15:05:19
+ * @LastEditTime: 2022-08-25 18:27:57
  * @Description: 计划书
 -->
 <template>
@@ -32,15 +32,15 @@
         </van-collapse>
       </div>
       <div v-if="!isShare" class="footer-btn">
-        <van-button plain type="primary" class="btn" @click="getPdf">生成PDF</van-button>
-        <!-- <ProShare
+        <ProShare
           :title="shareConfig.title"
           :desc="shareConfig.desc"
           :link="shareConfig.link"
           :img-url="shareConfig.imgUrl"
         >
-          <van-button type="primary" class="btn">分享计划书</van-button>
-        </ProShare> -->
+          <van-button type="primary" class="share-btn">分享</van-button>
+        </ProShare>
+        <van-button plain type="primary" class="btn" @click="getPdf">生成PDF</van-button>
         <van-button v-if="isShowInsured" type="primary" class="btn" @click="onInsured">立即投保</van-button>
       </div>
     </div>
@@ -225,6 +225,11 @@ const getPdf = () => {
   padding: 0 30px 30px 30px;
   background-color: #3486ff;
   margin-bottom: 150px;
+
+  .share-btn {
+    width: 130px;
+    margin-right: 20px;
+  }
   .head-bg {
     background-image: url('@/assets/images/compositionProposal/head.png');
     background-repeat: no-repeat;

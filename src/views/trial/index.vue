@@ -26,7 +26,7 @@
           <template #title>
             <ProTitle title="投保方案"></ProTitle>
           </template>
-          <div v-if="state.riskData.length" class="risk">
+          <div v-if="state.riskData.length && riskInfo[0]" class="risk">
             <VanForm ref="riskFormRef" input-align="right" error-message-align="right">
               <RiskList
                 :risk-info="riskInfo[0]"
@@ -202,6 +202,8 @@ const transformData = (riskList: RiskVoItem[], riskPremium) => {
     const currentRisk = {
       initialAmount: riskPremium[risk.riskCode]?.amount,
       amountUnit: 1,
+      annuityDrawFrequency: risk.annuityDrawDate,
+      annuityDrawType: risk.annuityDrawType,
       paymentFrequency: risk.paymentFrequency,
       paymentPeriod: risk.chargePeriod.split('_')[1],
       paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],
@@ -210,7 +212,17 @@ const transformData = (riskList: RiskVoItem[], riskPremium) => {
       insurancePeriodValue: Number.isNaN(+risk.coveragePeriod.split('_')[1]) ? 0 : risk.coveragePeriod.split('_')[1],
       riskCode: risk.riskCode,
       riskType: risk.riskType,
+      extInfo: {
+        riskId: risk.riskId,
+        copy: risk.copy,
+      },
       initialPremium: riskPremium[risk.riskCode]?.premium,
+      liabilityDetails: risk.liabilityVOList.map((liab) => ({
+        liabilityCode: liab.liabilityCode,
+        liabilityName: liab.liabilityName,
+        refundMethod: liab.liabilityAttributeValue,
+      })),
+      productId: state.riskBaseInfo.id,
     };
     return currentRisk;
   });
@@ -221,9 +233,9 @@ const goNextPage = () => {
     agencyId: agencyCode as string,
     saleUserId: agentCode,
     tenantId,
-    venderCode,
+    venderCode: state.riskBaseInfo.insurerCode,
     orderDataSource: 1,
-    pageCode,
+    proposalId,
     extInfo: {
       templateId: +(templateId || 1),
       pageCode,
@@ -248,6 +260,7 @@ const goNextPage = () => {
         router.push({
           path: PAGE_ROUTE_ENUMS[data.pageAction.data.nextPageCode],
           query: {
+            venderCode: state.riskBaseInfo.insurerCode,
             ...route.query,
             orderNo: data.pageAction.data.orderNo,
           },
@@ -290,6 +303,7 @@ const dealTrialData = () => {
         productPlanVOList: [
           {
             planCode: state.currentPlan || '',
+            insurerCode: state.riskBaseInfo.insurerCode,
             riskVOList,
           },
         ],
@@ -319,6 +333,7 @@ const dealTrialData = () => {
   });
 };
 
+// 校验各个模块的表单规则
 const trial = () => {
   Promise.all([
     holderRef.value?.validateForm?.(),
@@ -348,12 +363,15 @@ const getProposalDetail = (id: number) => {
     if (code === '10000') {
       const { proposalInsuredProductList = [], ...insuredPersonal } = data.proposalInsuredList?.[0] || {};
       Object.assign(holder.value.personVO, data.proposalHolder);
-      Object.assign(insured.value.personVO, insuredPersonal);
-      const riskList = proposalInsuredProductList.find(
+      const currentProduct = proposalInsuredProductList.find(
         (product: ProposalInsuredProductItem) => product.productId === id,
-      )?.proposalProductRiskList;
+      );
+      Object.assign(insured.value.personVO, insuredPersonal, {
+        occupationCodeList: currentProduct?.occupationCodeList || [],
+      });
+
       const riskObject = {};
-      riskList.forEach((risk: ProposalProductRiskItem) => {
+      (currentProduct?.proposalProductRiskList || []).forEach((risk: ProposalProductRiskItem) => {
         riskObject[risk.riskId] = risk;
       });
       Object.assign(riskInfo.value, { 0: riskObject });
@@ -373,12 +391,14 @@ const queryProductInfo = () => {
           if (index === 0) {
             state.currentPlan = plan.planCode || '0';
           }
-          Object.assign(riskInfo.value, { [plan.planCode || index]: {} });
+          if (!proposalId) {
+            Object.assign(riskInfo.value, { [plan.planCode || index]: {} });
+          }
         });
 
         state.riskData = data.productRiskVoList[0]?.riskDetailVOList || [];
         state.riskPlanData = data.productRelationPlanVOList || [];
-        getProposalDetail(data.productBasicInfoVO.id);
+        proposalId && getProposalDetail(data.productBasicInfoVO.id);
       }
     })
     .finally(() => {});

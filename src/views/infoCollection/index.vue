@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-22 16:49:11
+ * @LastEditTime: 2022-08-25 17:01:51
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -115,7 +115,7 @@
         <div class="result-desc">实际保费以后续为准</div>
       </div>
       <div class="operate-btn">
-        <VanButton block type="primary" @click="goNextPage">下一步</VanButton>
+        <VanButton block type="primary" @click="reTrialPremium">下一步</VanButton>
       </div>
     </div>
     <AddressSelect
@@ -131,12 +131,16 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
+import dayjs from 'dayjs';
 import { useToggle } from '@vant/use';
 import { conditionalExpression } from '@babel/types';
 import { truncateSync } from 'fs';
 import { Toast } from 'vant/es';
 import { PAGE_ROUTE_ENUMS, ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import { getInitFactor, nextStep, getTemplateInfo, getOrderDetail } from '@/api';
+import { premiumCalc } from '@/api/modules/trial';
+import { PAYMENT_PERIOD_ENUMS, INSURANCE_PERIOD_ENUMS, RISK_TYPE_ENUMS } from '@/common/constants/trial';
+import { premiumCalcData, RiskVoItem } from '@/api/modules/trial.data';
 import {
   FactorData,
   NextStepRequestData,
@@ -146,6 +150,7 @@ import {
   ContactInfo,
   TemplatePageItem,
   ProductInsureFactorItem,
+  TenantOrderRiskItem,
 } from '@/api/index.data';
 import useDicData from '@/hooks/useDicData';
 import { RELATION_HOLDER_LIST, BENEFICIARY_LIST, BENEFICIARY_ENUM } from '@/common/constants/infoCollection';
@@ -170,7 +175,13 @@ interface FactorEnums {
 const router = useRouter();
 const route = useRoute();
 
-const { templateId = 1, orderNo = '2022072710380711215', tenantId = '9991000007' } = route.query;
+const {
+  templateId = 1,
+  orderNo = '2022072710380711215',
+  productCode,
+  tenantId = '9991000007',
+  proposalId,
+} = route.query;
 const [showAddress, toggleAddress] = useToggle();
 const pageCode = route.path === '/infoPreview' ? 'infoPreview' : 'infoCollection';
 const region = useDicData('NATIONAL_REGION_CODE');
@@ -181,18 +192,24 @@ const formInfo = ref<any>({
     pageCode,
   },
   tenantOrderHolder: {
-    extInfo: {},
+    extInfo: {
+      occupationCodeList: [],
+    },
     holderType: 1,
   } as TenantOrderHolder,
   tenantOrderInsuredList: [
     {
       relationToHolder: '0',
-      extInfo: {},
+      extInfo: {
+        occupationCodeList: [],
+      },
       insuredBeneficiaryType: '1',
       tenantOrderBeneficiaryList: [
         {
           beneficiaryId: 0,
-          extInfo: {},
+          extInfo: {
+            occupationCodeList: [],
+          },
         },
       ],
     },
@@ -226,6 +243,58 @@ const currentAddressInfo = computed(() => {
   return formInfo.value.extInfo?.contactInfo?.[0] || {};
 });
 
+// 将订单信息中的险种信息改成试算的险种信息
+const formateData = (riskList: TenantOrderRiskItem[]): any[] => {
+  const mainRisk: any = {};
+  return riskList.map((risk: TenantOrderRiskItem) => {
+    const {
+      initialAmount,
+      annuityDrawFrequency,
+      annuityDrawType,
+      paymentFrequency,
+      paymentPeriod,
+      paymentPeriodType,
+      insurancePeriodType,
+      insurancePeriodValue,
+      riskCode,
+      riskType,
+      initialPremium,
+      liabilityDetails,
+      extInfo,
+    } = risk;
+    const { riskId, copy } = extInfo;
+
+    const riskItem = {
+      amount: initialAmount,
+      annuityDrawDate: annuityDrawFrequency,
+      annuityDrawType,
+      paymentFrequency,
+      riskId,
+      copy,
+      chargePeriod: paymentPeriod
+        ? `${PAYMENT_PERIOD_ENUMS[paymentPeriodType]}_${paymentPeriod}`
+        : PAYMENT_PERIOD_ENUMS[paymentPeriodType],
+      coveragePeriod: insurancePeriodValue
+        ? `${INSURANCE_PERIOD_ENUMS[insurancePeriodType]}_${insurancePeriodValue}`
+        : INSURANCE_PERIOD_ENUMS[insurancePeriodType],
+      riskCode,
+      riskType,
+      premium: initialPremium,
+      liabilityVOList: liabilityDetails,
+    };
+
+    if (riskType === RISK_TYPE_ENUMS.mainRisk) {
+      mainRisk.mainRiskCode = riskCode;
+      mainRisk.mainRiskId = riskId;
+    } else {
+      Object.assign(riskItem, mainRisk);
+    }
+
+    return riskItem;
+  });
+};
+
+// 下一步
 const goNextPage = () => {
   const formData = { ...formInfo.value };
   formData.extInfo = { ...formData.extInfo, contactInfo: [currentAddressInfo.value] };
@@ -292,6 +361,59 @@ const goNextPage = () => {
   });
 };
 
+// 更新信息采集的数据重新进行保费试算
+const reTrialPremium = () => {
+  if (!proposalId) {
+    goNextPage();
+    return;
+  }
+  // 投保人信息
+  const { birthday, gender, extInfo: holderExtInfo } = formInfo.value.tenantOrderHolder;
+  const { hasSocialInsurance } = holderExtInfo;
+  // 被保人信息
+  const {
+    birthday: insuredBirthday,
+    gender: insuredGender,
+    extInfo: insuredExtInfo,
+    tenantOrderProductList,
+  } = formInfo.value.tenantOrderInsuredList[0];
+  const { hasSocialInsurance: insuredHasSocialInsurance } = insuredExtInfo;
+
+  // 试算参数
+  const trialData: premiumCalcData = {
+    holder: {
+      personVO: {
+        birthday,
+        gender,
+        socialFlag: hasSocialInsurance,
+      },
+    },
+    productCode: productCode as string,
+    insuredVOList: [
+      {
+        insuredCode: '',
+        personVO: {
+          birthday: dayjs(insuredBirthday).format('YYYY-MM-DD'),
+          gender: insuredGender,
+          socialFlag: insuredHasSocialInsurance,
+        },
+        productPlanVOList: [
+          {
+            insurerCode: '',
+            planCode: '',
+            riskVOList: formateData(tenantOrderProductList[0].tenantOrderRiskList) as RiskVoItem[],
+          },
+        ],
+      },
+    ],
+  };
+  premiumCalc({ ...trialData }).then(({ code, data }) => {
+    if (code === '10000') {
+      goNextPage();
+    }
+  });
+};
+
 const selectAddress = (value) => {
   console.log('value', value);
 };
@@ -311,22 +433,26 @@ const removeBeneficiary = (beneficiaryItem: BeneficiaryItem) => {
     });
 };
 
+// 获取订单详情
 const queryOrderDetail = () => {
   getOrderDetail({ orderNo, tenantId })
     .then(({ code, data }) => {
       if (code === '10000') {
         const currentData = data;
-
+        // 合并订单详情和form表单的初始数据
         currentData.extInfo = { ...currentData.extInfo, pageCode, templateId };
         currentData.tenantOrderHolder = currentData.tenantOrderHolder || { holderType: 1 };
-        currentData.tenantOrderHolder.extInfo = currentData.tenantOrderHolder.extInfo || {};
-        currentData.tenantOrderInsuredList[0].extInfo = currentData.tenantOrderInsuredList[0].extInfo || {};
+        currentData.tenantOrderHolder.extInfo = currentData.tenantOrderHolder.extInfo || { occupationCodeList: [] };
+        currentData.tenantOrderInsuredList[0].extInfo = currentData.tenantOrderInsuredList[0].extInfo || {
+          occupationCodeList: [],
+        };
         currentData.tenantOrderInsuredList[0].tenantOrderBeneficiaryList =
           currentData.tenantOrderInsuredList[0].tenantOrderBeneficiaryList.map((list: any) => {
             const currentList = list;
-            currentList.extInfo = currentList.extInfo || {};
+            currentList.extInfo = currentList.extInfo || { occupationCodeList: [] };
             return currentList;
           });
+        // 处理投被保人的证件展示
         currentData.tenantOrderAttachmentList.forEach((item) => {
           if (item.category === ATTACHMENT_CATEGORY_ENUM.OBVERSE_CERT) {
             if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER) {

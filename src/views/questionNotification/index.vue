@@ -6,7 +6,7 @@
 -->
 <template>
   <ProPageWrap class="page-question-notice">
-    <ProCard v-if="isHolderQuestions(1).length > 0" title="投保人">
+    <ProCard title="投保人">
       <van-cell
         v-for="i of isHolderQuestions(1)"
         :key="i.id"
@@ -16,13 +16,31 @@
         :value="`${i.isDone === 1 ? '已完成' : '去完成'}`"
         @click="handleClickInformDetails(i)"
       />
+      <van-cell
+        v-for="i of holderFileList"
+        :key="i.id"
+        :class="{ 'is-active': i.isDone === 2 }"
+        :title="`《${i.materialName}》`"
+        is-link
+        :value="`${i.isDone === 1 ? '已完成' : '去完成'}`"
+        @click="handleClickInformDetails(i)"
+      />
     </ProCard>
-    <ProCard v-if="isHolderQuestions(2).length > 0" title="被保人">
+    <ProCard title="被保人">
       <van-cell
         v-for="i of isHolderQuestions(2)"
         :key="i.id"
         :class="{ 'is-active': i.isDone === 2 }"
         :title="`《${i.title}》`"
+        is-link
+        :value="`${i.isDone === 1 ? '已完成' : '去完成'}`"
+        @click="handleClickInformDetails(i)"
+      />
+      <van-cell
+        v-for="i of insuredFileList"
+        :key="i.id"
+        :class="{ 'is-active': i.isDone === 2 }"
+        :title="`《${i.materialName}》`"
         is-link
         :value="`${i.isDone === 1 ? '已完成' : '去完成'}`"
         @click="handleClickInformDetails(i)"
@@ -82,31 +100,12 @@ const {
 const listQuestions = ref<ListCustomerQuestionsResponse[]>([]);
 const pageData = ref<Partial<NextStepRequestData>>({});
 const showShare = ref(false);
-const fileList = ref<Array<INotice>>([]);
+const insuredFileList = ref<Array<INotice>>([]); // 被保人文件列表
+const holderFileList = ref<Array<INotice>>([]); // 投保人文件列表
 // const tenantOrderNoticeList = ref<Partial<tenantOrderNoticeProps[]>>([]);
 
 const isHolderQuestions = (objectType: number) => {
   return listQuestions.value.filter((i) => i.objectType === objectType);
-};
-
-const handleShare = (type: string) => {
-  const shareProps = {
-    title: `告知书`, // 分享标题
-    desc: '客户告知书', // 分享描述
-    link: `${window.location.href}?isShare=1`, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-    imgUrl: '', // 分享图标
-    success() {
-      console.log('分享成功');
-    },
-  };
-
-  wx.ready(() => {
-    if (type === '1') {
-      wx.onMenuShareAppMessage(shareProps);
-    } else {
-      wx.onMenuShareTimeline(shareProps);
-    }
-  });
 };
 
 const orderDetail = () => {
@@ -117,6 +116,31 @@ const orderDetail = () => {
   }).then(({ code, data }) => {
     if (code === '10000') {
       Object.assign(pageData.value, data);
+    }
+  });
+};
+
+// 获取产品上下架配置中费产品资料
+const getProductMaterials = () => {
+  const params = {
+    orderNo,
+    productCode,
+    tenantId,
+    objectType: 1, // 1-投保人，2-被保人，3-营销人员(代理人)
+  };
+  getFile({
+    ...params,
+  }).then(({ code, data }) => {
+    if (code === '10000') {
+      holderFileList.value = data || [];
+    }
+  });
+  getFile({
+    ...params,
+    objectType: 2,
+  }).then(({ code, data }) => {
+    if (code === '10000') {
+      insuredFileList.value = data || [];
     }
   });
 };
@@ -147,7 +171,7 @@ const handleClickInformDetails = (rows: ListCustomerQuestionsResponse) => {
   router.push({
     path: '/healthNotice',
     query: {
-      questionnaireType: rows.questionnaireType,
+      questionnaireType: rows.questionnaireType || 2,
       orderId: pageData.value?.id,
       ...route.query,
     },
@@ -181,16 +205,7 @@ const handleClickNextStep = () => {
 
 onMounted(() => {
   getQuestionList();
-  getFile({
-    orderNo,
-    productCode,
-    tenantId,
-  }).then((res) => {
-    const { code, data } = res;
-    if (code === '10000') {
-      fileList.value = data || [];
-    }
-  });
+  getProductMaterials();
   orderDetail();
 });
 </script>

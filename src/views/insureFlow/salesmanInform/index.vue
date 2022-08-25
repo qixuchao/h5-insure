@@ -142,16 +142,6 @@ onMounted(() => {
       state.noticeList = [...state.noticeList, ...data];
     }
   });
-  listProductManuscripts({
-    objectType: 3,
-    orderNo,
-    tenantId,
-    productCode,
-  }).then(({ code, data }) => {
-    if (code === '10000') {
-      state.noticeList = [...state.noticeList, ...data];
-    }
-  });
 });
 
 const handleClickInformDetails = (rows: ListCustomerQuestionsResponse) => {

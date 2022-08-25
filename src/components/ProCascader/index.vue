@@ -220,6 +220,9 @@ watch(
     height: 100%;
     display: flex;
     flex-direction: column;
+    .displayValue {
+      line-height: 1.4;
+    }
     .van-tabs {
       flex: 1;
       height: 0;

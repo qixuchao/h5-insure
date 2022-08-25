@@ -180,7 +180,7 @@
     </VanField>
     <div v-for="(liab, num) in originData.riskLiabilityInfoVOList || []" :key="num">
       <VanField
-        v-if="liab.optionalFlag === 1"
+        v-if="liab.optionalFlag === 1 && !isEmpty(liab.liabilityAttributeValueList)"
         v-model="state.formInfo.liabilityVOList[num].liabilityAttributeValue"
         :label="liab.liabilityName"
         name="liabilityAttributeValue"
@@ -203,7 +203,7 @@
         </template>
       </VanField>
       <VanField
-        v-else
+        v-if="liab.optionalFlag !== 1"
         v-model="state.formInfo.liabilityVOList[num].liabilityAttributeValue"
         :label="liab.liabilityName"
         name="liabilityAttributeValue"

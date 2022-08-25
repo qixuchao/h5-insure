@@ -529,6 +529,14 @@ export const INSURE_FLAG = [
   },
 ];
 
+export const INSURANCE_PERIOD_ENUMS = {
+  1: 'day',
+  2: 'month',
+  3: 'year',
+  4: 'to',
+  5: 'to_life',
+};
+
 export const INSURANCE_PERIOD_TYPE_ENUMS = {
   1: '天',
   2: '月',
@@ -542,6 +550,12 @@ export const INSURANCE_PERIOD_TYPE_ENUMS = {
   to_life: 5,
 };
 
+export const PAYMENT_PERIOD_ENUMS = {
+  1: 'single',
+  2: 'year',
+  3: 'to',
+};
+
 export const PAYMENT_PERIOD_TYPE_ENUMS = {
   1: '趸交',
   2: '$年交',
@@ -549,4 +563,9 @@ export const PAYMENT_PERIOD_TYPE_ENUMS = {
   single: 1,
   year: 2,
   to: 3,
+};
+
+export const RISK_TYPE_ENUMS = {
+  mainRisk: 1,
+  riderRisk: 2,
 };
