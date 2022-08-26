@@ -66,6 +66,7 @@ export interface ProductInsureFactorItem {
 export interface NextStepRequestData {
   agencyId: string;
   applicationNo: string;
+  abbreviation: string;
   commencementTime: string;
   expiryDate: string;
   extInfo: ExtInfo;

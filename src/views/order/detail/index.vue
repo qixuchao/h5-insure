@@ -8,7 +8,7 @@
               <div class="product-name">
                 {{ detail?.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productName }}
               </div>
-              <div class="company-name">{{ abbreviation }}</div>
+              <div class="company-name">{{ detail?.abbreviation }}</div>
             </div>
           </template>
           <template #content>
