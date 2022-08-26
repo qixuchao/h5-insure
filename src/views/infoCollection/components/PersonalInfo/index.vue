@@ -4,7 +4,7 @@
       v-if="showByFactor('insureRelation')"
       v-model="state.formInfo.relationToInsured"
       :name="`${prefix}_relationToInsured`"
-      :required="factorObj.insureRelation?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('insureRelation')"
       label="是被保人的"
       :rules="[{ validator: relationValidate }]"
     >
@@ -23,14 +23,14 @@
       :name="`${prefix}_certType`"
       :data-source="certType"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
-      :required="factorObj.certType?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('certType')"
       :rules="[{ validator: validateCertType }]"
     ></ProPicker>
     <ProField
-      v-if="factorObj.attachment?.isDisplay === 'YES' && state.formInfo.certType + '' === '1'"
+      v-if="showByFactor('attachment') && state.formInfo.certType + '' === '1'"
       label="身份证上传"
       block
-      :required="factorObj.certType?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('attachment')"
       :rules="[{ validator: idCardImagesValidate }]"
       :name="`${prefix}_idCard`"
     >
@@ -39,12 +39,10 @@
       </template>
     </ProField>
     <ProField
-      v-if="
-        factorObj.attachment?.isDisplay === 'YES' && state.formInfo.certType && state.formInfo.certType + '' !== '1'
-      "
+      v-if="showByFactor('attachment') && state.formInfo.certType && state.formInfo.certType + '' !== '1'"
       label="证件上传"
       block
-      :required="factorObj.certType?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('attachment')"
     >
       <template #input>
         <ProImageUpload v-model="tempImages" :max-count="1"></ProImageUpload>
@@ -55,7 +53,7 @@
       v-model="state.formInfo.certNo"
       label="证件号码"
       :name="`${prefix}_certNo`"
-      :required="factorObj.certNo?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('certNo')"
       placeholder="请输入"
       :validate-type="validateType"
     ></ProField>
@@ -64,12 +62,12 @@
       v-model="state.formInfo.name"
       label="姓名"
       :name="`${prefix}_name`"
-      :required="factorObj.name?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('name')"
     ></ProField>
     <ProField
       v-if="showByFactor('sex')"
       v-model="state.formInfo.gender"
-      :required="factorObj.sex?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('sex')"
       label="性别"
       :name="`${prefix}_gender`"
       placeholder="请选择"
@@ -91,10 +89,9 @@
       :name="`${prefix}_birthday`"
       :min="state.birth.min"
       :max="state.birth.max"
-      :formatter="(val: string) => dayjs(val).format('YYYY-MM-DD')"
+      :formatter="(val) => dayjs(val).format('YYYY-MM-DD')"
       type="date"
-      :required="factorObj.birthday?.isMustInput === 'YES'"
-      :is-view="isIdCard"
+      :required="isRequiredByFactor('birthday')"
     ></ProDatePicker>
     <ProDatePicker
       v-if="showByFactor('certEndDate')"
@@ -124,7 +121,7 @@
       :name="`${prefix}_provinceCode`"
       placeholder="请选择"
       is-link
-      :required="factorObj.houseHold?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('houseHold')"
       :data-source="region"
       :mapping="{ label: 'name', value: 'code', children: 'children' }"
     ></ProCascader>
@@ -134,7 +131,7 @@
       label="社保"
       :name="`${prefix}_hasSocialInsurance`"
       placeholder="请选择"
-      :required="factorObj.hasSocialInsurance?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('hasSocialInsurance')"
     >
       <template #input>
         <ProRadioButton
@@ -153,7 +150,7 @@
       label="职业"
       :name="`${prefix}_occupationCodeList`"
       placeholder="请选择"
-      :required="factorObj.occupation?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('occupation')"
       :data-source="occupationCode"
       :mapping="{ label: 'value', value: 'code', children: 'children' }"
       is-link
@@ -163,7 +160,7 @@
       v-model="state.formInfo.extInfo.personalAnnualIncome"
       label="个人年收入"
       :name="`${prefix}_personalAnnualIncome`"
-      :required="factorObj.annualIncome?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('annualIncome')"
       placeholder="请输入"
       :rules="[{ validator: validateFloat }]"
     >
@@ -176,7 +173,7 @@
       :name="`${prefix}_familyAnnualIncome`"
       placeholder="请输入"
       :rules="[{ validator: validateFloat }]"
-      :required="factorObj.familyAnnualIncome?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('familyAnnualIncome')"
     >
       <template #extra> <span class="input-extra">万</span> </template>
     </ProField>
@@ -188,7 +185,7 @@
       :data-source="nationalityCode"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
       placeholder="请选择"
-      :required="factorObj.nationality?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('nationality')"
       is-link
     ></ProPicker>
     <ProField
@@ -197,7 +194,7 @@
       label="美国绿卡"
       :name="`${prefix}_hasUsCard`"
       placeholder="请选择"
-      :required="factorObj.USAGreenCard?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('USAGreenCard')"
     >
       <template #input>
         <ProRadioButton
@@ -215,7 +212,7 @@
       placeholder="请选择"
       :data-source="MARRIED_STATUS_LIST"
       is-link
-      :required="factorObj.marriage?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('marriage')"
     ></ProPicker>
     <ProPicker
       v-if="showByFactor('educationDegree')"
@@ -225,7 +222,7 @@
       :data-source="degree"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
       placeholder="请选择"
-      :required="factorObj.educationDegree?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('educationDegree')"
       is-link
     ></ProPicker>
     <ProField
@@ -234,7 +231,7 @@
       label="手机号码"
       :name="`${prefix}_mobile`"
       placeholder="请输入"
-      :required="factorObj.mobile?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('mobile')"
       :validate-type="[VALIDATE_TYPE_ENUM.PHONE]"
     ></ProField>
     <ProField
@@ -243,7 +240,7 @@
       label="电子邮箱"
       :name="`${prefix}_email`"
       placeholder="请输入"
-      :required="factorObj.email?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('email')"
       :validate-type="[VALIDATE_TYPE_ENUM.EMAIL]"
     ></ProField>
     <ProCascader
@@ -256,7 +253,7 @@
       :name="`${prefix}_familyProvinceCode`"
       placeholder="请选择"
       is-link
-      :required="factorObj.familyAddress?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('familyAddress')"
       :data-source="region"
       :mapping="{ label: 'name', value: 'code', children: 'children' }"
     ></ProCascader>
@@ -267,7 +264,7 @@
       :name="`${prefix}_familyAddress`"
       placeholder="请输入"
       :rules="[{ validator: (...params) => validateLength(100, ...params) }]"
-      :required="factorObj.familyAddressDetail?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('familyAddressDetail')"
     ></ProField>
     <ProField
       v-if="showByFactor('familyPostCode')"
@@ -275,7 +272,7 @@
       label="家庭邮编"
       :name="`${prefix}_familyZipCode`"
       placeholder="请输入"
-      :required="factorObj.familyPostCode?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('familyPostCode')"
       :validate-type="[VALIDATE_TYPE_ENUM.ZIP_CODE]"
     ></ProField>
     <ProCascader
@@ -288,7 +285,7 @@
       :name="`${prefix}_workProvinceCode`"
       placeholder="请选择"
       is-link
-      :required="factorObj.workAddress?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('workAddress')"
       :data-source="region"
       :mapping="{ label: 'name', value: 'code', children: 'children' }"
     ></ProCascader>
@@ -299,13 +296,13 @@
       :name="`${prefix}_workAddress`"
       placeholder="请输入"
       :rules="[{ validator: (...params) => validateLength(100, ...params) }]"
-      :required="factorObj.workAddressDetail?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('workAddressDetail')"
     ></ProField>
     <ProField
       v-if="showByFactor('workZipCode')"
       v-model="state.formInfo.extInfo.workZipCode"
       label="工作邮编"
-      :required="factorObj.workZipCode?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('workZipCode')"
       :name="`${prefix}_workPostCode`"
       placeholder="请输入"
       :validate-type="[VALIDATE_TYPE_ENUM.ZIP_CODE]"
@@ -317,14 +314,14 @@
       :name="`${prefix}_workPostCode`"
       placeholder="请输入"
       :rules="[{ validator: (...params) => validateLength(20, ...params) }]"
-      :required="factorObj.workPlace?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('workPlace')"
     ></ProField>
     <ProField
       v-if="showByFactor('workContent')"
       v-model="state.formInfo.extInfo.workContent"
       label="工作内容"
       :name="`${prefix}_workContent`"
-      :required="factorObj.workContent?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('workContent')"
       placeholder="请输入"
       :rules="[{ validator: (...params) => validateLength(100, ...params) }]"
     ></ProField>
@@ -334,7 +331,7 @@
       label="税收居民身份"
       :name="`${prefix}_taxResident`"
       :data-source="TAX_RESIDENT"
-      :required="factorObj.taxCert?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('taxCert')"
       placeholder="请输入"
     ></ProPicker>
     <ProField
@@ -342,7 +339,7 @@
       v-model="state.formInfo.extInfo.isPartTime"
       label="是否兼职"
       :name="`${prefix}_isPartTime`"
-      :required="factorObj.partTime?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('partTime')"
       placeholder="请输入"
     >
       <template #input>
@@ -359,13 +356,13 @@
       label="受益人顺序"
       :name="`${prefix}_benefitOrder`"
       :data-source="BENEFICIARY_ORDER"
-      :required="factorObj.beneficiaryType?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('beneficiaryType')"
     >
     </ProPicker>
     <ProField
       v-if="factorObj.benefitRate?.isDisplay"
       v-model="state.formInfo.benefitRate"
-      :required="factorObj.benefitRate?.isMustInput === 'YES'"
+      :required="isRequiredByFactor('benefitRate')"
       :name="`${prefix}_benefitRate`"
       :rules="[{ validator: validatePositiveInteger }]"
       label="受益比例"
@@ -382,7 +379,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { useToggle } from '@vant/use';
 import { truncateSync } from 'fs';
 import { useRoute } from 'vue-router';
-import { InsuredReqItem, HolderReq, ProductInsureFactorItem } from '@/api/index.data';
+import { ProductInsureFactorItem, TenantOrderHolder, TenantOrderInsuredItem } from '@/api/index.data';
 import { SEX_LIMIT_LIST, FLAG_LIST, VALIDATE_TYPE_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import useDicData from '@/hooks/useDicData';
@@ -395,7 +392,7 @@ import {
   RELATION_INSURED_ENUM,
 } from '@/common/constants/infoCollection';
 
-type FormInfo = InsuredReqItem | HolderReq;
+type FormInfo = TenantOrderInsuredItem | TenantOrderHolder;
 interface Props {
   formInfo: FormInfo;
   factorList: ProductInsureFactorItem[];
@@ -466,19 +463,28 @@ const handleOCR = (res: OCRResponse['idCardOcrVO']) => {
   state.value.formInfo.certEndDate = dayjs(res.validDateEnd, 'YYYYMMDD').toDate();
 };
 
+// 根据模板因子控制表单元素的展示
 const showByFactor = (key: string) => {
   return factorObj.value && factorObj.value[key] && factorObj.value[key].isDisplay === YES_NO_ENUM.YES;
 };
 
+// 根据模板因子控制表单元素的是否必填
+const isRequiredByFactor = (key: string) => {
+  return factorObj.value && factorObj.value[key] && factorObj.value[key].isMustInput === YES_NO_ENUM.YES;
+};
+
 // 验证证件类型
 const validateType = computed(() => {
-  if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(state.value.formInfo.certType)) {
+  // 身份证和户口本
+  if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(`${state.value.formInfo.certType}`)) {
     return [VALIDATE_TYPE_ENUM.ID_CARD];
   }
-  if (state.value.formInfo.certType === CERT_TYPE_ENUM.BIRTH) {
+  // 出生证
+  if (`${state.value.formInfo.certType}` === CERT_TYPE_ENUM.BIRTH) {
     return [VALIDATE_TYPE_ENUM.BIRTH];
   }
-  if (state.value.formInfo.certType === CERT_TYPE_ENUM.PASSPORT) {
+  // 通信证
+  if (`${state.value.formInfo.certType}` === CERT_TYPE_ENUM.PASSPORT) {
     return [VALIDATE_TYPE_ENUM.PASSPORT];
   }
   return [];
@@ -486,7 +492,7 @@ const validateType = computed(() => {
 
 // 验证有效期
 const validatorEndDate = (value: string, rule: any) => {
-  if (factorObj.value.certEndDate?.isMustInput === 'YES') {
+  if (isRequiredByFactor('attachment')) {
     if (state.value.formInfo.certEndType === 2) {
       return '';
     }
@@ -573,6 +579,7 @@ const relationValidate = (value: any) => {
   return '';
 };
 
+// 监听
 watch(
   () => certEndType.value,
   (newVal) => {

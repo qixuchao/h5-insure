@@ -241,9 +241,16 @@ const goNextPage = () => {
       pageCode,
       iseeBizNo: window.iseeBiz,
     },
-    tenantOrderHolder: {},
+    tenantOrderHolder: {
+      extInfo: {
+        occupationCodeList: insured.value.personVO.occupationCodeList,
+      },
+    },
     tenantOrderInsuredList: [
       {
+        extInfo: {
+          occupationCodeList: holder.value.personVO.occupationCodeList,
+        },
         tenantOrderProductList: [
           {
             productCode: state.riskBaseInfo.productCode || '',
