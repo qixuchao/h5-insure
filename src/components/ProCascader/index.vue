@@ -201,17 +201,6 @@ const handleFinish = (selected: { value: number | string; selectedOptions: any[]
   tempValue = selected.selectedOptions.map((item) => item[props.mapping.value]);
   toggle(false);
 };
-
-watch(
-  () => props,
-  () => {
-    console.log('props', props);
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
 </script>
 
 <style lang="scss">

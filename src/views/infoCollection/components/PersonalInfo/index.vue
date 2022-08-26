@@ -427,12 +427,12 @@ const tempImages = ref<string[]>([]);
 const isIdCard = ref(false);
 
 const props = withDefaults(defineProps<Props>(), {
-  formInfo: () => ({}),
-  factorList: () => [],
-  images: () => [],
-  isView: false,
-  prefix: '',
-  beneficiaryList: () => [],
+  formInfo: () => ({}), // 表单信息
+  factorList: () => [], // 页面对应的因子列表
+  images: () => [], // 证件照片
+  isView: false, // 页面状态是否为查看状态
+  prefix: '', // 对投保人、被保人、受益人的数据进行区分
+  beneficiaryList: () => [], // 受益人列表
 });
 
 const state = ref({
@@ -470,6 +470,7 @@ const showByFactor = (key: string) => {
   return factorObj.value && factorObj.value[key] && factorObj.value[key].isDisplay === YES_NO_ENUM.YES;
 };
 
+// 验证证件类型
 const validateType = computed(() => {
   if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(state.value.formInfo.certType)) {
     return [VALIDATE_TYPE_ENUM.ID_CARD];
@@ -483,6 +484,7 @@ const validateType = computed(() => {
   return [];
 });
 
+// 验证有效期
 const validatorEndDate = (value: string, rule: any) => {
   if (factorObj.value.certEndDate?.isMustInput === 'YES') {
     if (state.value.formInfo.certEndType === 2) {
@@ -547,7 +549,7 @@ const validateCertType = (value: string, rule: any) => {
     }
   }
 
-  if (+(dayjs(state.value.formInfo?.birthday).toNow(true) as string).split(' ')[0] > 2) {
+  if (dayjs().year() - dayjs(state.value.formInfo?.birthday).year() > 2) {
     if (value === CERT_TYPE_ENUM.BIRTH) {
       return '年龄大于等于2周岁时，证件类型不能选择出生证';
     }
