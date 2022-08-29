@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-29 18:39:36
+ * @LastEditTime: 2022-08-29 18:46:52
  * @Description: 计划书
 -->
 <template>
@@ -192,7 +192,7 @@ onMounted(() => {
     const storage = new Storage({ source: 'localStorage' });
     storage.set('token', router.query.token);
   }
-  isShare && getProposalTransInsured();
+  !isShare && getProposalTransInsured();
   getData();
 });
 
