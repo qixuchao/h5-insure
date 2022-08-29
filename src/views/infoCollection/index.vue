@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-26 19:06:24
+ * @LastEditTime: 2022-08-29 17:44:46
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -140,7 +140,7 @@ import { PAGE_ROUTE_ENUMS, ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM
 import { getInitFactor, nextStep, getTemplateInfo, getOrderDetail } from '@/api';
 import { premiumCalc } from '@/api/modules/trial';
 import { PAYMENT_PERIOD_ENUMS, INSURANCE_PERIOD_ENUMS, RISK_TYPE_ENUMS } from '@/common/constants/trial';
-import { premiumCalcData, RiskVoItem } from '@/api/modules/trial.data';
+import { premiumCalcData, RiskVoItem, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
 import {
   FactorData,
   NextStepRequestData,
@@ -410,6 +410,30 @@ const reTrialPremium = () => {
 
     premiumCalc({ ...trialData }).then(({ code, data }) => {
       if (code === '10000') {
+        const riskPremium = {};
+        const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
+          (premiumList || []).forEach((risk) => {
+            riskPremium[risk.riskCode] = risk;
+            if (risk.riskPremiumDetailVOList?.length) {
+              flatRiskPremium(risk.riskPremiumDetailVOList);
+            }
+          });
+        };
+        flatRiskPremium(data.riskPremiumDetailVOList);
+
+        // 更新订单中产品的试算信息
+        formInfo.value.tenantOrderInsuredList[0].tenantOrderProductList[0] = {
+          ...formInfo.value.tenantOrderInsuredList[0].tenantOrderProductList[0],
+          premium: data.premium,
+          tenantOrderRiskList:
+            formInfo.value.tenantOrderInsuredList[0].tenantOrderProductList[0].tenantOrderRiskList.map((risk) => {
+              return {
+                ...risk,
+                initialAmount: riskPremium[risk.riskCode].amount,
+                initialPremium: riskPremium[risk.riskCode].premium,
+              };
+            }),
+        };
         goNextPage();
       }
     });

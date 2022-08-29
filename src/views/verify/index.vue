@@ -139,6 +139,7 @@ import { NextStepRequestData } from '@/api/index.data';
 import { INotice } from '@/api/modules/verify.data';
 import Storage from '@/utils/storage';
 import pageJump from '@/utils/pageJump';
+import { formatJsonToUrlParams } from '@/utils/format';
 
 const CERT_STATUS_ENUM = {
   CERT: 1,
@@ -212,7 +213,10 @@ const doVerify = (certNo: string, name: string) => {
     const { code, data } = res;
     if (code === '10000') {
       const { originalUrl, serialNo } = data;
-      window.location.href = originalUrl;
+      const originalUrlOrigin = originalUrl.split('?')[0];
+      const urlParams = Object.fromEntries(new URLSearchParams(originalUrl.split('?')[1]));
+      urlParams.orderNo = urlParams.orderNo[0] || urlParams.orderNo;
+      window.location.href = `${originalUrlOrigin}?${formatJsonToUrlParams(urlParams)}`;
       storage.set('verifyData', { serialNo, certNo, name });
     }
   });

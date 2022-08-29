@@ -36,7 +36,7 @@
         </template>
       </VanField>
       <VanField
-        v-if="factorList.includes('SOCIAL_INS')"
+        v-if="factorList.includes('SOCIAL_INS') || factorList.includes('APPLICANT.SOCIAL_INS')"
         v-model="state.formInfo.socialFlag"
         name="socialFlag"
         label="社保"
@@ -47,7 +47,7 @@
         </template>
       </VanField>
       <ProCascader
-        v-if="factorList.includes('OCCUPATION_CATEGORY')"
+        v-if="factorList.includes('OCCUPATION_CATEGORY') || factorList.includes('APPLICANT.OCCUPATION_CATEGORY')"
         v-model="state.formInfo.occupationCodeList[0]"
         v-model:field0="state.formInfo.occupationCodeList[0]"
         v-model:field1="state.formInfo.occupationCodeList[1]"
