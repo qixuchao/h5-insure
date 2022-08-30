@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-30 15:47:02
+ * @LastEditTime: 2022-08-30 17:30:56
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -122,7 +122,7 @@
       v-if="showAddress"
       v-model="state.currentAddress"
       :show="showAddress"
-      :data-source="state.addressList"
+      :data-source="addressList"
       @submit="selectAddress"
       @close="toggleAddress(false)"
     ></AddressSelect>
@@ -153,14 +153,18 @@ import {
   TenantOrderRiskItem,
 } from '@/api/index.data';
 import useDicData from '@/hooks/useDicData';
-import { RELATION_HOLDER_LIST, BENEFICIARY_LIST, BENEFICIARY_ENUM } from '@/common/constants/infoCollection';
+import {
+  RELATION_HOLDER_LIST,
+  BENEFICIARY_LIST,
+  BENEFICIARY_ENUM,
+  RELATION_HOLDER_ENUM,
+} from '@/common/constants/infoCollection';
 import BeneficiaryInfo from './components/BeneficiaryInfo/index.vue';
 import PersonalInfo from './components/PersonalInfo/index.vue';
 import AddressSelect from './components/AddressSelect/index.vue';
 
 interface State {
   beneficiaryId: number;
-  addressList: ContactInfo[];
   nextPage: '';
   currentAddress: any;
   isLoading: boolean;
@@ -231,15 +235,46 @@ const insuredImagesId = ref<number[]>([]);
 const beneficiaryImages = ref<string[]>([]);
 const state = reactive<State>({
   beneficiaryId: 0,
-  addressList: [],
   nextPage: '',
   currentAddress: null,
   isLoading: true,
 });
 
+// 组装投被保人的通讯地址
+const addressList = computed<ContactInfo[]>(() => {
+  const currentAddressList = [
+    {
+      contactAddress: formInfo.value.tenantOrderHolder?.extInfo?.familyAddress,
+      contactName: formInfo.value.tenantOrderHolder.name,
+      contactPhoneNo: formInfo.value.tenantOrderHolder.mobile,
+    },
+    {
+      contactAddress: formInfo.value.tenantOrderHolder?.extInfo?.workAddress,
+      contactName: formInfo.value.tenantOrderHolder.name,
+      contactPhoneNo: formInfo.value.tenantOrderHolder.mobile,
+    },
+    {
+      contactAddress: formInfo.value.tenantOrderInsuredList[0]?.extInfo?.familyAddress,
+      contactName: formInfo.value.tenantOrderInsuredList[0]?.name,
+      contactPhoneNo: formInfo.value.tenantOrderInsuredList[0]?.mobile,
+    },
+    {
+      contactAddress: formInfo.value.tenantOrderInsuredList[0]?.extInfo?.workAddress,
+      contactName: formInfo.value.tenantOrderInsuredList[0].name,
+      contactPhoneNo: formInfo.value.tenantOrderInsuredList[0].mobile,
+    },
+  ];
+
+  return (
+    currentAddressList.filter((address: ContactInfo) => {
+      return address.contactAddress && address.contactName && address.contactPhoneNo;
+    }) || []
+  );
+});
+
 const currentAddressInfo = computed(() => {
   if (state.currentAddress) {
-    return state.addressList[state.currentAddress - 1] || {};
+    return addressList.value[state.currentAddress - 1] || {};
   }
   return formInfo.value.extInfo?.contactInfo?.[0] || {};
 });
@@ -507,10 +542,23 @@ const queryOrderDetail = () => {
     });
 };
 
+const holderInfo2InsuredInfo = () => {
+  Object.assign(formInfo.value.tenantOrderInsuredList[0], formInfo.value.tenantOrderHolder, {
+    id: formInfo.value.tenantOrderInsuredList[0].id,
+    extInfo: {
+      ...formInfo.value.tenantOrderHolder.extInfo,
+      insureProvinceCode: formInfo.value.tenantOrderInsuredList[0].extInfo.insureProvinceCode,
+      insureCityCode: formInfo.value.tenantOrderInsuredList[0].extInfo.insureCityCode,
+      insureAreaCode: formInfo.value.tenantOrderInsuredList[0].extInfo.insureAreaCode,
+    },
+  });
+};
+
 onBeforeMount(() => {
   queryOrderDetail();
   getInitFactor({ pageCode: 'infoCollection', templateId }).then(({ code, data }) => {
     if (code === '10000') {
+      // 将页面因子根据
       const factorObj = {
         BENEFICIARY: [] as ProductInsureFactorItem[],
         INSURER: [] as ProductInsureFactorItem[],
@@ -524,58 +572,12 @@ onBeforeMount(() => {
   });
 });
 
+// 监听被保人的与投保人关系，如果被保人同投保人则将
 watch(
-  () => formInfo.value,
-  (newVal) => {
-    if (newVal) {
-      const addressList = [
-        {
-          contactAddress: newVal.tenantOrderHolder?.extInfo?.familyAddress,
-          contactName: newVal.tenantOrderHolder.name,
-          contactPhoneNo: newVal.tenantOrderHolder.mobile,
-        },
-        {
-          contactAddress: newVal.tenantOrderHolder?.extInfo?.workAddress,
-          contactName: newVal.tenantOrderHolder.name,
-          contactPhoneNo: newVal.tenantOrderHolder.mobile,
-        },
-        {
-          contactAddress: newVal.tenantOrderInsuredList[0]?.extInfo?.familyAddress,
-          contactName: newVal.tenantOrderInsuredList[0]?.name,
-          contactPhoneNo: newVal.tenantOrderInsuredList[0]?.mobile,
-        },
-        {
-          contactAddress: newVal.tenantOrderInsuredList[0]?.extInfo?.workAddress,
-          contactName: newVal.tenantOrderInsuredList[0].name,
-          contactPhoneNo: newVal.tenantOrderInsuredList[0].mobile,
-        },
-      ];
-
-      state.addressList = addressList.filter((address: ContactInfo) => {
-        return address.contactAddress && address.contactName && address.contactPhoneNo;
-      });
-    }
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
-
-// 监听被保人的与投保人关系
-watch(
-  () => formInfo.value.tenantOrderInsuredList[0].relationToHolder,
-  (newVal) => {
-    if (+newVal === 1) {
-      Object.assign(formInfo.value.tenantOrderInsuredList[0], formInfo.value.tenantOrderHolder, {
-        id: formInfo.value.tenantOrderInsuredList[0].id,
-        extInfo: {
-          ...formInfo.value.tenantOrderHolder.extInfo,
-          insureProvinceCode: formInfo.value.tenantOrderInsuredList[0].extInfo.insureProvinceCode,
-          insureCityCode: formInfo.value.tenantOrderInsuredList[0].extInfo.insureCityCode,
-          insureAreaCode: formInfo.value.tenantOrderInsuredList[0].extInfo.insureAreaCode,
-        },
-      });
+  [() => formInfo.value.tenantOrderInsuredList[0].relationToHolder, () => formInfo.value.tenantOrderHolder],
+  () => {
+    if (`${formInfo.value.tenantOrderInsuredList[0].relationToHolder}` === RELATION_HOLDER_ENUM.SELF) {
+      holderInfo2InsuredInfo();
     }
   },
   {
