@@ -163,15 +163,15 @@ const {
   productCode = 'CQ75CQ76',
   insurerCode = 'ancheng',
   isShare,
-  orderId,
+  orderCode,
   orderNo,
 } = route.query;
 
 // 处理query中的orderNo重复的问题
 const dealQueryData = () => {
   const queryData = route.query;
-  if (queryData.orderId) {
-    queryData.orderNo = queryData.orderId;
+  if (queryData.orderCode) {
+    queryData.orderNo = queryData.orderCode;
   }
   return queryData;
 };
@@ -209,7 +209,7 @@ const handleResignInsured = (index: number) => {
 
 const doVerify = (certNo: string, name: string) => {
   let jumpUrl = window.location.href;
-  jumpUrl = jumpUrl.includes('orderId') ? jumpUrl : jumpUrl.replace('orderNo', 'orderId');
+  jumpUrl = jumpUrl.includes('orderCode') ? jumpUrl : jumpUrl.replace('orderNo', 'orderCode');
   faceVerify({
     callbackUrl: jumpUrl,
     certiNo: certNo,
@@ -271,7 +271,7 @@ const handleSubmit = () => {
     return;
   }
   getOrderDetail({
-    orderNo: orderId || orderNo,
+    orderNo: orderCode || orderNo,
     saleUserId,
     tenantId,
   }).then((res) => {
@@ -305,7 +305,7 @@ const handleSubmit = () => {
               if (code === '10000' && nextData.success) {
                 router.push({
                   path: PAGE_ROUTE_ENUMS[nextData.pageAction.data.nextPageCode],
-                  query: { orderNo: orderId || orderNo, saleUserId, tenantId },
+                  query: { orderNo: orderCode || orderNo, saleUserId, tenantId },
                 });
               }
             });
@@ -319,7 +319,7 @@ const handleSubmit = () => {
 // check 是否校验数据
 const getDetail = (check = false) => {
   getOrderDetail({
-    orderNo: orderId || orderNo,
+    orderNo: orderCode || orderNo,
     saleUserId,
     tenantId,
   }).then((res) => {
@@ -380,7 +380,7 @@ const shareLink = computed(() => {
 // 获取产品上下架配置中费产品资料
 const getProductMaterials = () => {
   const params = {
-    orderNo: orderId || orderNo,
+    orderNo: orderCode || orderNo,
     productCode,
     tenantId,
     objectType: 1, // 1-投保人，2-被保人，3-营销人员(代理人)
@@ -410,7 +410,7 @@ onMounted(() => {
     const { serialNo, certNo, name } = verifyData;
     faceVerifySave({
       certiNo: certNo,
-      orderNo: orderId || orderNo,
+      orderNo: orderCode || orderNo,
       serialNo,
       tenantId,
       userName: name,
