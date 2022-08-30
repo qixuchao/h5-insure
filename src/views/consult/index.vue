@@ -4,12 +4,26 @@
       <div class="image"></div>
       <div class="register">
         <input v-model="userName" class="input name" placeholder="请输入姓名" maxlength="30" @input="inputName" />
-        <p v-show="userNameErrMsg" class="errName">
+        <p class="message">
           <span>{{ userNameErrMsg }}</span>
         </p>
         <input v-model="phone" class="input phone" placeholder="请输入手机号" maxlength="11" @input="inputPhone" />
-        <p v-show="phoneErrMsg" class="errPhone">
+        <p class="message">
           <span>{{ phoneErrMsg }}</span>
+        </p>
+        <div class="codeBox">
+          <input
+            v-model="validCode"
+            class="input validCode"
+            placeholder="请输入验证码"
+            maxlength="11"
+            @input="inputCode"
+          />
+          <span v-if="!state.waitValidBtn" class="codeText" @click="veriCode">获取验证码</span>
+          <span v-else class="codeText">{{ state.timerCodeMsg }}</span>
+        </div>
+        <p class="message">
+          <span>{{ codeErrMsg }}</span>
         </p>
         <div class="registerBtn" style="" @click="getRegister"></div>
       </div>
@@ -24,7 +38,7 @@
 <script lang="ts" setup>
 import { useRouter, useRoute } from 'vue-router';
 import { sha256 } from 'js-sha256';
-import { getUserInfo } from '@/api/modules/consult';
+import { getUserInfo, buriedMobileVerifyCode, buriedVerifyMobileCode } from '@/api/modules/consult';
 
 const route = useRoute();
 
@@ -40,11 +54,21 @@ const userName = ref('');
 
 const phone = ref(phoneNo);
 
+const validCode = ref('');
+
 const userNameErrMsg = ref('');
 
 const phoneErrMsg = ref('');
 
+const codeErrMsg = ref('');
+
 const router = useRouter();
+
+const state = reactive({
+  waitValidBtn: false, // 是否出现等待验证码
+  timerCodeMsg: '等待验证码',
+  count: null,
+});
 
 // 手机号只允许输入正整数
 const inputPhone = (e: any) => {
@@ -57,6 +81,10 @@ const inputPhone = (e: any) => {
 
 const inputName = (e: any) => {
   userNameErrMsg.value = ''; // 输入姓名时错误提示关闭
+};
+
+const inputCode = (e: any) => {
+  codeErrMsg.value = ''; // 输入验证码时错误提示关闭
 };
 
 // 验证姓名手机号是否填写、手机号格式
@@ -89,21 +117,77 @@ const isTrue = () => {
   return true;
 };
 
+// 验证验证码必填
+const isCode = () => {
+  if (validCode.value.length === 0) {
+    codeErrMsg.value = '请输入验证码';
+    return false;
+  }
+  codeErrMsg.value = '';
+  return true;
+};
+
+// 等待验证码倒计时
+const countdown = () => {
+  let sec = 60;
+  state.count = setInterval(() => {
+    if (sec > 0) {
+      state.timerCodeMsg = `${sec}s`;
+      sec -= 1;
+    } else {
+      state.waitValidBtn = false;
+      state.timerCodeMsg = '等待验证码';
+      clearInterval(state.count);
+      sec = 59;
+    }
+  }, 1000);
+};
+
+// 获取验证码
+const veriCode = () => {
+  if (isTrue() === true) {
+    state.waitValidBtn = true;
+    buriedMobileVerifyCode(phone.value)
+      .then((res) => {
+        if (res.code === '10000') {
+          countdown();
+        } else {
+          codeErrMsg.value = res.message;
+          state.timerCodeMsg = '等待验证码';
+          state.waitValidBtn = false;
+        }
+      })
+      .catch((error) => {
+        state.waitValidBtn = false;
+        state.timerCodeMsg = '等待验证码';
+      });
+  }
+};
+
 // 点击登记领取
 const getRegister = () => {
-  if (isTrue() === true) {
-    const key = computed(() => {
-      return `phoneNo=${phone.value}&userName=${userName.value}&key=chuangxin`;
-    });
-    getUserInfo({
-      phoneNo: phone.value,
-      sign: sha256(key.value),
-      userName: userName.value,
-    }).then((res) => {
-      const { code, data } = res;
-      if (code === '10000') {
-        const address = data.url;
-        router.replace({ path: '/result', query: { url: address } });
+  if (isTrue() === true && isCode() === true) {
+    buriedVerifyMobileCode({
+      code: validCode.value,
+      mobile: phone.value,
+    }).then((ValidRes) => {
+      if (ValidRes.code === '10000') {
+        const key = computed(() => {
+          return `phoneNo=${phone.value}&userName=${userName.value}&key=chuangxin`;
+        });
+        getUserInfo({
+          phoneNo: phone.value,
+          sign: sha256(key.value),
+          userName: userName.value,
+        }).then((res) => {
+          const { code, data } = res;
+          if (code === '10000') {
+            const address = data.url;
+            router.push({ path: '/result', query: { url: address } });
+          }
+        });
+      } else {
+        codeErrMsg.value = ValidRes.message;
       }
     });
   }
@@ -113,6 +197,7 @@ const getRegister = () => {
 <style lang="scss" scoped>
 .page-consult {
   background-image: url('@/assets/images/consult/bg.png');
+  background-color: #00b6fa;
   background-size: cover;
   height: 1624px;
   width: 100%;
@@ -125,12 +210,13 @@ const getRegister = () => {
   }
   .register {
     background-image: url('@/assets/images/consult/img_input.png');
-    height: 442px;
+    height: 527px;
     width: 730px;
     background-size: cover;
     position: absolute;
     left: 10px;
-    top: 575px;
+    top: 510px;
+    padding: 38px;
     .input {
       padding-left: 40px;
       width: 658px;
@@ -139,49 +225,36 @@ const getRegister = () => {
       border: none;
       border-radius: 16px;
     }
-    .name {
-      margin-bottom: 30px;
-      position: absolute;
-      left: 35px;
-      top: 59px;
-    }
-    .phone {
-      position: absolute;
-      left: 35px;
-      top: 177px;
-    }
-    .errPhone {
-      position: absolute;
-      left: 60px;
-      top: 270px;
+    .message {
       font-size: 16px;
-      color: red;
+      color: $zaui-danger;
+      height: 32px;
+      padding-left: 40px;
     }
-    .errName {
+
+    .codeText {
       position: absolute;
-      left: 60px;
-      top: 147px;
-      font-size: 16px;
-      color: red;
+      left: 520px;
+      top: 300px;
+      cursor: pointer;
+      font-size: 30px;
+      color: $zaui-aide-text-stress;
     }
     .registerBtn {
       background-image: url('@/assets/images/consult/btn.png');
       height: 108px;
-      width: 678px;
-      background-size: cover;
-      position: absolute;
-      left: 26px;
-      top: 300px;
+      width: 658px;
+      background-size: 100%;
     }
   }
   .equity {
     background-image: url('@/assets/images/consult/img_quanyi.png');
     height: 472px;
     width: 731px;
-    background-size: cover;
+    background-size: 100%;
     position: absolute;
     left: 10px;
-    top: 1027px;
+    top: 1047px;
   }
   .describe {
     height: 100px;
@@ -192,7 +265,7 @@ const getRegister = () => {
     line-height: 28px;
     position: absolute;
     left: 23px;
-    top: 1512px;
+    top: 1522px;
   }
 }
 input::-webkit-input-placeholder {
