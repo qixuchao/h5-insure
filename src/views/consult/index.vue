@@ -1,5 +1,5 @@
 <template>
-  <ProPageWrap>
+  <ProPageWrap class="consult">
     <div class="page-consult">
       <div class="image"></div>
       <div class="register">
@@ -271,5 +271,8 @@ const getRegister = () => {
 input::-webkit-input-placeholder {
   color: #91b1c8;
   font-size: 30px;
+}
+.consult {
+  background-color: #00b6fa;
 }
 </style>
