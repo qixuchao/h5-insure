@@ -3,7 +3,7 @@
     <div class="page-consult">
       <div class="image"></div>
       <div class="register">
-        <input v-model="userName" class="input name" placeholder="请输入姓名" maxlength="30" @input="inputName" />
+        <input v-model="userName" class="input name" placeholder="请输入姓名" maxlength="5" @input="inputName" />
         <p class="message">
           <span>{{ userNameErrMsg }}</span>
         </p>
