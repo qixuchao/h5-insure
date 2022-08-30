@@ -163,14 +163,19 @@ const {
   productCode = 'CQ75CQ76',
   insurerCode = 'ancheng',
   isShare,
+  orderId,
+  orderNo,
 } = route.query;
-let { orderNo } = route.query;
 
-// 从第三方人脸识别页面跳转回来后，url上会多一个orderNo，取第一个
-if (typeof orderNo === 'object') {
-  // eslint-disable-next-line
-  orderNo = (orderNo || [])[0];
-}
+// 处理query中的orderNo重复的问题
+const dealQueryData = () => {
+  const queryData = route.query;
+  if (queryData.orderId) {
+    queryData.orderNo = queryData.orderId;
+  }
+  return queryData;
+};
+
 const pageCode = 'sign';
 const storage = new Storage({ source: 'localStorage' });
 const insuredFileList = ref<Array<INotice>>([]); // 被保人文件列表
@@ -203,8 +208,10 @@ const handleResignInsured = (index: number) => {
 };
 
 const doVerify = (certNo: string, name: string) => {
+  let jumpUrl = window.location.href;
+  jumpUrl = jumpUrl.includes('orderId') ? jumpUrl : jumpUrl.replace('orderNo', 'orderId');
   faceVerify({
-    callbackUrl: window.location.href,
+    callbackUrl: jumpUrl,
     certiNo: certNo,
     faceAuthMode: 'TENCENT',
     userName: name,
@@ -213,10 +220,7 @@ const doVerify = (certNo: string, name: string) => {
     const { code, data } = res;
     if (code === '10000') {
       const { originalUrl, serialNo } = data;
-      const originalUrlOrigin = originalUrl.split('?')[0];
-      const urlParams = Object.fromEntries(new URLSearchParams(originalUrl.split('?')[1]));
-      urlParams.orderNo = urlParams.orderNo[0] || urlParams.orderNo;
-      window.location.href = `${originalUrlOrigin}?${formatJsonToUrlParams(urlParams)}`;
+      window.location.href = originalUrl;
       storage.set('verifyData', { serialNo, certNo, name });
     }
   });
@@ -267,14 +271,14 @@ const handleSubmit = () => {
     return;
   }
   getOrderDetail({
-    orderNo,
+    orderNo: orderId || orderNo,
     saleUserId,
     tenantId,
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
       if (data.orderStatus !== ORDER_STATUS_ENUM.PENDING) {
-        pageJump('paymentResult', route.query);
+        pageJump('paymentResult', dealQueryData());
       } else {
         Dialog.confirm({
           title: '提示',
@@ -301,7 +305,7 @@ const handleSubmit = () => {
               if (code === '10000' && nextData.success) {
                 router.push({
                   path: PAGE_ROUTE_ENUMS[nextData.pageAction.data.nextPageCode],
-                  query: { orderNo, saleUserId, tenantId },
+                  query: { orderNo: orderId || orderNo, saleUserId, tenantId },
                 });
               }
             });
@@ -315,7 +319,7 @@ const handleSubmit = () => {
 // check 是否校验数据
 const getDetail = (check = false) => {
   getOrderDetail({
-    orderNo,
+    orderNo: orderId || orderNo,
     saleUserId,
     tenantId,
   }).then((res) => {
@@ -369,14 +373,14 @@ const handleRefresh = () => {
 };
 
 const shareLink = computed(() => {
-  const query = { ...route.query, isShare: 1, sharePageCode: 'sign' };
+  const query = { ...dealQueryData(), isShare: 1, sharePageCode: 'sign' };
   return `${window.location.origin}/phoneVerify?${queryString.stringify(query)}`;
 });
 
 // 获取产品上下架配置中费产品资料
 const getProductMaterials = () => {
   const params = {
-    orderNo,
+    orderNo: orderId || orderNo,
     productCode,
     tenantId,
     objectType: 1, // 1-投保人，2-被保人，3-营销人员(代理人)
@@ -406,7 +410,7 @@ onMounted(() => {
     const { serialNo, certNo, name } = verifyData;
     faceVerifySave({
       certiNo: certNo,
-      orderNo,
+      orderNo: orderId || orderNo,
       serialNo,
       tenantId,
       userName: name,

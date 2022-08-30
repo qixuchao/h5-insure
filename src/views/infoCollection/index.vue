@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-30 09:47:42
+ * @LastEditTime: 2022-08-30 14:41:35
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -568,6 +568,12 @@ watch(
     if (+newVal === 1) {
       Object.assign(formInfo.value.tenantOrderInsuredList[0], formInfo.value.tenantOrderHolder, {
         id: formInfo.value.tenantOrderInsuredList[0].id,
+        extInfo: {
+          ...formInfo.value.tenantOrderHolder.extInfo,
+          insureProvinceCode: formInfo.value.tenantOrderInsuredList[0].extInfo.insureProvinceCode,
+          insureCityCode: formInfo.value.tenantOrderInsuredList[0].extInfo.insureCityCode,
+          insureAreaCode: formInfo.value.tenantOrderInsuredList[0].extInfo.insureAreaCode,
+        },
       });
     }
   },
