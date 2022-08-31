@@ -2,13 +2,13 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-08-01 18:11:52
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-18 18:05:46
+ * @LastEditTime: 2022-08-31 10:45:04
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/infoPreview/components/InsuredPart.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <div class="com-insured-part-wrapper">
-    <ProCard title="保障详情">
+    <ProCard title="保障信息">
       <div class="content-wrapper">
         <div class="product-name">{{ productData.productName }}</div>
         <div v-for="risk in productData?.tenantOrderRiskList || []" :key="risk.id" class="risk-item">
@@ -23,8 +23,17 @@
           >
           </ProCell>
           <ProCell title="交费方式" :content="PAYMENT_FREQUENCY_MAP[risk.paymentFrequency]"></ProCell>
-          <ProCell title="保障金额" :content="risk.initialAmount.toLocaleString()"> </ProCell>
-          <ProCell title="首期保费" :content="risk.initialPremium.toLocaleString()"> </ProCell>
+          <ProCell
+            title="保障金额"
+            :content="risk.initialAmount.toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })"
+          >
+          </ProCell>
+          <ProCell
+            title="首期保费"
+            class="price"
+            :content="risk.initialPremium.toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })"
+          >
+          </ProCell>
         </div>
       </div>
     </ProCard>
@@ -58,6 +67,14 @@ const compositionDesc = (value: number, desc: string) => {
 .com-insured-part-wrapper {
   .content-wrapper {
     padding: 0 30px;
+
+    .product-name {
+      min-height: $zaui-cell-height;
+      line-height: $zaui-cell-height;
+      border-bottom: 1px solid $border-color;
+      font-size: $zaui-font-size-md2;
+      font-weight: 500;
+    }
   }
 }
 </style>

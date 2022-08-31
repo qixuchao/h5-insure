@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 15:45:09
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-13 20:20:15
+ * @LastEditTime: 2022-08-31 10:14:48
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProCell/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -19,17 +19,11 @@
 </template>
 
 <script lang="ts" setup>
-const props = defineProps({
-  title: {
-    type: String,
-    required: true,
-    default: '',
-  },
-  content: {
-    type: String,
-    required: true,
-    default: '',
-  },
+import { withDefaults } from 'vue';
+
+const props = withDefaults(defineProps<{ title: string; content: string }>(), {
+  title: '',
+  content: '',
 });
 
 const state = ref({
@@ -39,7 +33,7 @@ const state = ref({
 const computeStrLength = (str = '') => {
   let len = 0;
   for (let i = 0; i < str.length; i++) {
-    if (/[\u4e00-\u9fa5]/.test(i)) {
+    if (/[\u4e00-\u9fa5]/.test(str[i])) {
       len += 3;
     } else {
       len += 2;
@@ -61,18 +55,19 @@ onBeforeMount(() => {
 
 <style lang="scss" scoped>
 .com-cell-wrapper {
-  margin: 30px 0;
+  min-height: $zaui-cell-height;
+  line-height: $zaui-cell-height;
+  border-bottom: 1px solid $border-color;
   .cell-container {
     display: flex;
-    font-size: 28px;
-    line-height: 30px;
+    font-size: $zaui-font-size-md;
     .left-part {
       width: 30%;
-      color: #515865;
+      color: $zaui-text;
     }
     .right-part {
       width: 30%;
-      color: #393d46;
+      color: $zaui-text;
       text-align: right;
     }
     .divider {

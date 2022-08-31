@@ -28,3 +28,10 @@
     }
   }
 }
+
+// 金额颜色
+.price {
+  color: $zaui-price;
+  font-size: $zaui-font-size-md2;
+  font-weight: 600;
+}

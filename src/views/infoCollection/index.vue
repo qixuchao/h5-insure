@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-30 17:30:56
+ * @LastEditTime: 2022-08-31 11:35:06
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -480,6 +480,7 @@ const selectAddress = (value) => {
   console.log('value', value);
 };
 
+// 添加受益人信息
 const addBeneficiary = () => {
   state.beneficiaryId += 1;
   formInfo.value.tenantOrderInsuredList[0].tenantOrderBeneficiaryList.push({
@@ -488,6 +489,7 @@ const addBeneficiary = () => {
   } as BeneficiaryItem);
 };
 
+// 删除受益人信息
 const removeBeneficiary = (beneficiaryItem: BeneficiaryItem) => {
   formInfo.value.tenantOrderInsuredList[0].tenantOrderBeneficiaryList =
     formInfo.value.tenantOrderInsuredList[0].tenantOrderBeneficiaryList.filter((beneficiary: BeneficiaryItem) => {
