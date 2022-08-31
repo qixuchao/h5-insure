@@ -8,41 +8,41 @@
   <ProPageWrap class="page-question-notice">
     <ProCard title="投保人">
       <van-cell
-        v-for="i of isHolderQuestions(1)"
+        v-for="i of isHolderQuestions(QUESTION_IS_DONE_ENUM)"
         :key="i.id"
-        :class="{ 'is-active': i.isDone === 2 }"
+        :class="{ 'is-active': i.isDone === QUESTION_IS_NOT_DONE_ENUM }"
         :title="`《${i.title}》`"
         is-link
-        :value="`${i.isDone === 1 ? '已完成' : '去完成'}`"
+        :value="`${i.isDone === QUESTION_IS_DONE_ENUM ? '已完成' : '去完成'}`"
         @click="handleClickInformDetails(i)"
       />
       <van-cell
         v-for="i of holderFileList"
         :key="i.id"
-        :class="{ 'is-active': i.isDone === 2 }"
+        :class="{ 'is-active': i.isDone === QUESTION_IS_NOT_DONE_ENUM }"
         :title="`《${i.materialName}》`"
         is-link
-        :value="`${i.isDone === 1 ? '已完成' : '去完成'}`"
+        :value="`${i.isDone === QUESTION_IS_DONE_ENUM ? '已完成' : '去完成'}`"
         @click="handleClickInformDetails(i)"
       />
     </ProCard>
     <ProCard title="被保人">
       <van-cell
-        v-for="i of isHolderQuestions(2)"
+        v-for="i of isHolderQuestions(QUESTION_IS_NOT_DONE_ENUM)"
         :key="i.id"
-        :class="{ 'is-active': i.isDone === 2 }"
+        :class="{ 'is-active': i.isDone === QUESTION_IS_NOT_DONE_ENUM }"
         :title="`《${i.title}》`"
         is-link
-        :value="`${i.isDone === 1 ? '已完成' : '去完成'}`"
+        :value="`${i.isDone === QUESTION_IS_DONE_ENUM ? '已完成' : '去完成'}`"
         @click="handleClickInformDetails(i)"
       />
       <van-cell
         v-for="i of insuredFileList"
         :key="i.id"
-        :class="{ 'is-active': i.isDone === 2 }"
+        :class="{ 'is-active': i.isDone === QUESTION_IS_NOT_DONE_ENUM }"
         :title="`《${i.materialName}》`"
         is-link
-        :value="`${i.isDone === 1 ? '已完成' : '去完成'}`"
+        :value="`${i.isDone === QUESTION_IS_DONE_ENUM ? '已完成' : '去完成'}`"
         @click="handleClickInformDetails(i)"
       />
     </ProCard>
@@ -67,6 +67,13 @@ import {
 import { nextStep, getOrderDetail } from '@/api';
 import { NextStepRequestData } from '@/api/index.data';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import {
+  QUESTION_IS_DONE_ENUM,
+  QUESTION_IS_NOT_DONE_ENUM,
+  HOLDER_OBJECT_TYPE_ENUM,
+  INSURER_OBJECT_TYPE_ENUM,
+} from '@/common/constants/notice';
+
 import { sessionStore } from '@/hooks/useStorage';
 import { getFile } from '@/api/modules/verify';
 import { INotice } from '@/api/modules/verify.data';
@@ -126,7 +133,7 @@ const getProductMaterials = () => {
     orderNo,
     productCode,
     tenantId,
-    objectType: 1, // 1-投保人，2-被保人，3-营销人员(代理人)
+    objectType: HOLDER_OBJECT_TYPE_ENUM, // 1-投保人，2-被保人，3-营销人员(代理人)
   };
   getFile({
     ...params,
@@ -137,7 +144,7 @@ const getProductMaterials = () => {
   });
   getFile({
     ...params,
-    objectType: 2,
+    objectType: INSURER_OBJECT_TYPE_ENUM,
   }).then(({ code, data }) => {
     if (code === '10000') {
       insuredFileList.value = data || [];
@@ -171,7 +178,7 @@ const handleClickInformDetails = (rows: ListCustomerQuestionsResponse) => {
   router.push({
     path: '/healthNotice',
     query: {
-      questionnaireType: rows.questionnaireType || 2,
+      questionnaireType: rows?.materialSource ? 1 : rows.questionnaireType, // 区分产品资料或者问卷
       orderId: pageData.value?.id,
       ...route.query,
     },

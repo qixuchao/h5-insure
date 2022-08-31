@@ -52,16 +52,29 @@ import { NOTICE_OBJECT_TYPE } from '@/common/constants/notice';
 const router = useRouter();
 const route = useRoute();
 const currentQuestion: ListCustomerQuestionsResponse = sessionStore.get('questionData');
-const { questionnaireType } = route.query;
+
+interface QueryData {
+  questionnaireType: string; // 问卷类型
+  productCode: string; // 产品代码
+  tenantId: number; // 租户id
+  agentCode: string; // 代理人code
+  agencyCode: string; // 机构code
+  insurerCode: string; // 保险公司
+  productCategory: number; // 产品大类
+  templateId: number; // 模板id
+  orderNo: string; // 订单号
+  [key: string]: any;
+}
 
 const {
+  questionnaireType = '1',
   orderNo = '2022021815432987130620',
   productCode = 'CQ75CQ76',
   templateId = 1,
   agentCode = '65434444',
   orderId = 13005,
   tenantId = 9991000007,
-} = route.query;
+} = route.query && (route.query as QueryData);
 
 interface StateProps {
   pageData: Partial<NextStepRequestData>;
@@ -78,14 +91,23 @@ const isQuestion = computed(() => {
 });
 
 const isPDFOrPic = computed(() => {
-  return questionnaireType === '1' && [1].includes(state.currentQuestionInfo[0]?.textType as any);
+  return (
+    questionnaireType === '1' &&
+    ([1].includes(state.currentQuestionInfo[0]?.textType as any) || currentQuestion?.materialSource === 1)
+  );
 });
 
 const isRichText = computed(() => {
-  return questionnaireType === '1' && [2].includes(state.currentQuestionInfo[0]?.textType as any);
+  return (
+    questionnaireType === '1' &&
+    ([2].includes(state.currentQuestionInfo[0]?.textType as any) || currentQuestion?.materialSource === 2)
+  );
 });
 const isLink = computed(() => {
-  return questionnaireType === '1' && [3].includes(state.currentQuestionInfo[0]?.textType as any);
+  return (
+    questionnaireType === '1' &&
+    ([3].includes(state.currentQuestionInfo[0]?.textType as any) || currentQuestion?.materialSource === 3)
+  );
 });
 
 const onSubmitCurrentStatus = (status: number, questionContent?: any) => {
@@ -120,12 +142,11 @@ const orderDetail = () => {
   });
 };
 
-onMounted(() => {
-  orderDetail();
+// 当为投被保人问卷的时候调用
+const getQuestionsDetail = () => {
   const { insurerCode, id, objectType, productCategory } = currentQuestion;
   getCustomerQuestionsDetail({
     insurerCode,
-    // noticeType: 1,
     id,
     objectType,
     productCategory,
@@ -136,6 +157,23 @@ onMounted(() => {
       state.currentQuestionInfo = data;
     }
   });
+};
+
+onMounted(() => {
+  orderDetail();
+  // 当为产品资料时
+  if (currentQuestion?.materialSource) {
+    state.currentQuestionInfo = [
+      {
+        ...currentQuestion?.materialSource,
+        title: currentQuestion?.materialName,
+        content: currentQuestion?.materialContent,
+      },
+    ];
+    console.log('===>', state.currentQuestionInfo);
+  } else {
+    getQuestionsDetail(); // 当为文件资料时
+  }
 });
 </script>
 
