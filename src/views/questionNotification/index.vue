@@ -187,7 +187,9 @@ const handleClickInformDetails = (rows: ListCustomerQuestionsResponse) => {
 };
 
 const handleClickNextStep = () => {
-  const isAllRead = listQuestions.value.every((i) => i.isDone === 1);
+  const isAllRead = [...insuredFileList.value, ...holderFileList.value, ...listQuestions.value].every(
+    (i) => i.isDone === 1,
+  ); // 投被保人问卷
   if (!isAllRead) {
     Toast('请完成所有告知进行下一步');
     return;
