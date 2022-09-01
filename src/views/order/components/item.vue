@@ -68,8 +68,9 @@ const props = defineProps({
 
 const handleDelete = () => {
   Dialog.confirm({
-    title: '确认',
-    message: '确认删除订单？',
+    title: '',
+    message: '确认要删除该订单么？',
+    confirmButtonText: '删除',
   }).then(() => {
     deleteOrder(props.detail.id, props.detail.orderStatus).then((res) => {
       const { code, data } = res;

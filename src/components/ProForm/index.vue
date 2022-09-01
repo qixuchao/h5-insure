@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 15:06:14
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-22 15:45:55
+ * @LastEditTime: 2022-08-31 15:07:22
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProForm/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -60,7 +60,7 @@ const validate = (name?: string | string[]): Promise<Record<string, any>> => {
       .catch((err) => {
         if (Array.isArray(err) && err[0]) {
           formRef.value.scrollToField(err[0].name);
-          Toast.fail(err[0].message);
+          Toast({ message: err[0].message });
         }
         reject(err);
       });

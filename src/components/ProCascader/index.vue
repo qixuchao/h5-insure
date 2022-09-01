@@ -204,14 +204,18 @@ const handleFinish = (selected: { value: number | string; selectedOptions: any[]
 </script>
 
 <style lang="scss">
+.displayValue {
+  display: flex;
+  align-items: center;
+  line-height: 1.4;
+  padding: 30px 0;
+}
 .com-cascader-popup {
   .van-cascader {
     height: 100%;
     display: flex;
     flex-direction: column;
-    .displayValue {
-      line-height: 1.4;
-    }
+
     .van-tabs {
       flex: 1;
       height: 0;

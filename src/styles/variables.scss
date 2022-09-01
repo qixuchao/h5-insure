@@ -12,7 +12,6 @@ $btn-background: var(--van-button-primary-background-color); // 自定义主颜�
 $text-color: #393D46; // 标准黑色字 主要文字颜色
 $label-color: #616161; // 次一级的描述文字颜色
 $tip-color: #909090; // 不重要提示文字颜色
-$border-color: #EEEFF4; // 浅边框颜色
 $label-color2: #c1c1c1;
 
 $zaui-line: #EEEFF4;//边框颜色
@@ -51,7 +50,7 @@ $zaui-base-bg: var(--zaui-base-bg, #ffffff);
 // 分割线（用于内容与内容的分割）
 $zaui-dividing-line: var(--zaui-dividing-line, #eeeff4);
 // 品牌色（整个app的主题色）
-$zaui-brand: var(--zaui-dividing-line, #0d6efe);
+$zaui-brand: var(--zaui-brand, #0d6efe);
 // 金额色（产品价格的颜色）
 $zaui-price: var(--zaui-price, #ff5840);
 // 文本强调色（帮助信息里重点突出的强调色）

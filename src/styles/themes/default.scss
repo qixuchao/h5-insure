@@ -3,10 +3,16 @@
   $primary-color: var(--van-primary-color);
   --van-button-primary-background-color: var(--van-primary-color);
   --van-record-primary-background-color: linear-gradient(90deg, #ff5003 0%, #f70800 100%);
-  --van-field-placeholder-text-color: #b8b8b8;
+  --van-field-placeholder-text-color: #99A9C0;
   --van-tabs-bottom-bar-color: #0d6efe;
   --van-search-content-background-color: #f3f3f3;
   --van-popup-round-border-radius: 20px;
+  --van-cell-border-color: #EEEFF4;
+  --van-field-label-color: #393d46;
+  --van-toast-default-width: 560px;
+  --van-toast-text-min-width: 560px;
+  --van-dialog-border-radius: 12px;
+  --van-cell-font-size: 30px;
 
   --van-button-primary-background-color-shadow: #fc3102;
 

@@ -25,20 +25,6 @@
           :content="item.name"
         />
       </div>
-      <!-- <div class="card">
-        <FieldInfo>
-          <template #label>
-            <div class="detail">保障信息</div>
-          </template>
-        </FieldInfo>
-        <FieldInfo label="险种名称" content="横琴一号终身重大疾病保险" />
-        <FieldInfo label="保障期间" content="终身" />
-        <FieldInfo label="交费期间" content="20年" />
-        <FieldInfo label="交费方式" content="年交" />
-        <FieldInfo label="附加豁免保险费重大疾病保险" content="投保" />
-        <FieldInfo label="保障金额" content="¥100,000.00" />
-        <FieldInfo label="首期保费" content="¥10,000.00" />
-      </div> -->
       <InsureInfo :product-data="detail?.tenantOrderInsuredList[0]?.tenantOrderProductList?.[0]" class="insure-info" />
       <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.PENDING" class="footer-button">
         <van-button type="primary" @click.stop="handleDelete">删除</van-button>
