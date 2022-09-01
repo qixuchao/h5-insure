@@ -16,18 +16,21 @@
     <!-- <Document />富文本 -->
     <InsuranceNotice
       v-if="isRichText"
+      :material-type="materialType"
       :current-page-info="state.currentQuestionInfo"
       @on-submit-current-status="onSubmitCurrentStatus"
     />
     <!-- 图片或者pdf -->
     <Enclosure
       v-if="isPDFOrPic"
+      :material-type="materialType"
       :url="state.currentQuestionInfo[0]?.content"
       @on-submit-current-status="onSubmitCurrentStatus"
     />
     <!-- 链接 -->
     <IsLinkPage
       v-if="isLink"
+      :material-type="materialType"
       :url="state.currentQuestionInfo[0]?.content"
       @on-submit-current-status="onSubmitCurrentStatus"
     />
@@ -52,16 +55,31 @@ import { NOTICE_OBJECT_TYPE } from '@/common/constants/notice';
 const router = useRouter();
 const route = useRoute();
 const currentQuestion: ListCustomerQuestionsResponse = sessionStore.get('questionData');
-const { questionnaireType } = route.query;
+
+interface QueryData {
+  materialType: string; // 是否为产品资料
+  questionnaireType: string; // 问卷类型
+  productCode: string; // 产品代码
+  tenantId: number; // 租户id
+  agentCode: string; // 代理人code
+  agencyCode: string; // 机构code
+  insurerCode: string; // 保险公司
+  productCategory: number; // 产品大类
+  templateId: number; // 模板id
+  orderNo: string; // 订单号
+  [key: string]: any;
+}
 
 const {
+  materialType = 'question',
+  questionnaireType = '1',
   orderNo = '2022021815432987130620',
   productCode = 'CQ75CQ76',
   templateId = 1,
   agentCode = '65434444',
   orderId = 13005,
   tenantId = 9991000007,
-} = route.query;
+} = route.query && (route.query as QueryData);
 
 interface StateProps {
   pageData: Partial<NextStepRequestData>;
@@ -78,23 +96,34 @@ const isQuestion = computed(() => {
 });
 
 const isPDFOrPic = computed(() => {
-  return questionnaireType === '1' && [1].includes(state.currentQuestionInfo[0]?.textType as any);
+  return (
+    questionnaireType === '1' &&
+    ([1].includes(state.currentQuestionInfo[0]?.textType as any) || currentQuestion?.materialSource === 1)
+  );
 });
 
 const isRichText = computed(() => {
-  return questionnaireType === '1' && [2].includes(state.currentQuestionInfo[0]?.textType as any);
+  return (
+    questionnaireType === '1' &&
+    ([2].includes(state.currentQuestionInfo[0]?.textType as any) || currentQuestion?.materialSource === 2)
+  );
 });
 const isLink = computed(() => {
-  return questionnaireType === '1' && [3].includes(state.currentQuestionInfo[0]?.textType as any);
+  return (
+    questionnaireType === '1' &&
+    ([3].includes(state.currentQuestionInfo[0]?.textType as any) || currentQuestion?.materialSource === 3)
+  );
 });
 
 const onSubmitCurrentStatus = (status: number, questionContent?: any) => {
-  const { id, objectType } = currentQuestion;
+  const { id, objectType, noticeObject } = currentQuestion;
+  console.log('currentQuestion', currentQuestion);
+
   saveMarketerNotices({
     content: questionContent || state.currentQuestionInfo[0]?.content,
     contentType: questionnaireType as any,
     isDone: status,
-    noticeType: NOTICE_OBJECT_TYPE[objectType],
+    noticeType: NOTICE_OBJECT_TYPE[objectType] || noticeObject,
     objectId: id as any,
     objectType,
     orderId: state.pageData.id,
@@ -120,12 +149,11 @@ const orderDetail = () => {
   });
 };
 
-onMounted(() => {
-  orderDetail();
+// 当为投被保人问卷的时候调用
+const getQuestionsDetail = () => {
   const { insurerCode, id, objectType, productCategory } = currentQuestion;
   getCustomerQuestionsDetail({
     insurerCode,
-    // noticeType: 1,
     id,
     objectType,
     productCategory,
@@ -136,6 +164,23 @@ onMounted(() => {
       state.currentQuestionInfo = data;
     }
   });
+};
+
+onMounted(() => {
+  orderDetail();
+  // 当为产品资料时
+  if (currentQuestion?.materialSource) {
+    state.currentQuestionInfo = [
+      {
+        ...currentQuestion?.materialSource,
+        title: currentQuestion?.materialName,
+        content: currentQuestion?.materialContent,
+      },
+    ];
+    console.log('===>', state.currentQuestionInfo);
+  } else {
+    getQuestionsDetail(); // 当为文件资料时
+  }
 });
 </script>
 
