@@ -16,18 +16,21 @@
     <!-- <Document />富文本 -->
     <InsuranceNotice
       v-if="isRichText"
+      :material-type="materialType"
       :current-page-info="state.currentQuestionInfo"
       @on-submit-current-status="onSubmitCurrentStatus"
     />
     <!-- 图片或者pdf -->
     <Enclosure
       v-if="isPDFOrPic"
+      :material-type="materialType"
       :url="state.currentQuestionInfo[0]?.content"
       @on-submit-current-status="onSubmitCurrentStatus"
     />
     <!-- 链接 -->
     <IsLinkPage
       v-if="isLink"
+      :material-type="materialType"
       :url="state.currentQuestionInfo[0]?.content"
       @on-submit-current-status="onSubmitCurrentStatus"
     />
@@ -54,6 +57,7 @@ const route = useRoute();
 const currentQuestion: ListCustomerQuestionsResponse = sessionStore.get('questionData');
 
 interface QueryData {
+  materialType: string; // 是否为产品资料
   questionnaireType: string; // 问卷类型
   productCode: string; // 产品代码
   tenantId: number; // 租户id
@@ -67,6 +71,7 @@ interface QueryData {
 }
 
 const {
+  materialType = 'question',
   questionnaireType = '1',
   orderNo = '2022021815432987130620',
   productCode = 'CQ75CQ76',
@@ -111,12 +116,14 @@ const isLink = computed(() => {
 });
 
 const onSubmitCurrentStatus = (status: number, questionContent?: any) => {
-  const { id, objectType } = currentQuestion;
+  const { id, objectType, noticeObject } = currentQuestion;
+  console.log('currentQuestion', currentQuestion);
+
   saveMarketerNotices({
     content: questionContent || state.currentQuestionInfo[0]?.content,
     contentType: questionnaireType as any,
     isDone: status,
-    noticeType: NOTICE_OBJECT_TYPE[objectType],
+    noticeType: NOTICE_OBJECT_TYPE[objectType] || noticeObject,
     objectId: id as any,
     objectType,
     orderId: state.pageData.id,

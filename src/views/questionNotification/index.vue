@@ -178,6 +178,7 @@ const handleClickInformDetails = (rows: ListCustomerQuestionsResponse) => {
   router.push({
     path: '/healthNotice',
     query: {
+      materialType: rows?.materialSource ? 'product' : 'question',
       questionnaireType: rows?.materialSource ? 1 : rows.questionnaireType, // 区分产品资料或者问卷
       orderId: pageData.value?.id,
       ...route.query,

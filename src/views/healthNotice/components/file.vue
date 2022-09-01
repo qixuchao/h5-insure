@@ -8,9 +8,12 @@
   <div class="com-pdf-viewer">
     <van-image v-if="isPicture" width="100%" height="80vh" fit="contain" :src="props.url" />
     <div v-else :id="id" :isee_pdf="pdfUrl" class="pdf-wapper"></div>
-    <div class="footer-button">
+    <div v-if="props.materialType === 'question'" class="footer-button">
       <van-button plain type="primary" @click="emits('onSubmitCurrentStatus', 2)">部分为是</van-button>
       <van-button type="primary" @click="emits('onSubmitCurrentStatus', 1)">以上皆否</van-button>
+    </div>
+    <div v-else class="footer-button">
+      <van-button type="primary" @click="emits('onSubmitCurrentStatus', 1)">了解并继续</van-button>
     </div>
   </div>
 </template>
@@ -25,6 +28,10 @@ import 'pdfjs-dist/web/pdf_viewer.css';
 PDFJS.GlobalWorkerOptions.workerSrc = workerSrc;
 
 const props = defineProps({
+  materialType: {
+    type: String,
+    default: '',
+  },
   url: {
     type: String,
     default: '',
