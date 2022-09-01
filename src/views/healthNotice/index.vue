@@ -121,7 +121,7 @@ const onSubmitCurrentStatus = (status: number, questionContent?: any) => {
 
   saveMarketerNotices({
     content: questionContent || state.currentQuestionInfo[0]?.content,
-    contentType: questionnaireType as any,
+    contentType: (questionnaireType as any) || '3',
     isDone: status,
     noticeType: NOTICE_OBJECT_TYPE[objectType] || noticeObject,
     objectId: id as any,
