@@ -31,15 +31,31 @@
   background: var(--van-button-default-background-color);
 }
 
+// 单元格
 .van-cell {
-  padding: 23px 30px;
+  padding: 0 30px;
   min-height: 106px;
-  line-height: 60px;
+  &::after {
+    transform: scaleY(1);
+  }
 
   .van-field__value {
-    .van-field__error-message {
-      line-height: 28px;
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    justify-content: flex-start;
+    .van-field__body {
+      margin-top: 28px;
     }
+    .van-field__error-message {
+      // line-height: 28px;
+      // height: 30px;
+    }
+  }
+
+  .van-field__label {
+    line-height: 48px;
+    margin-top: 30px;
   }
 
   .van-field__control {
@@ -62,6 +78,15 @@
   }
 }
 
+.van-search__field {
+  .van-field__value {
+    align-items: center;
+    .van-field__body {
+      margin-top: 0;
+    }
+  }
+}
+
 // cell中右侧箭头行高
 .van-cell-group .van-cell--clickable .van-cell__right-icon::before {
   // vertical-align: sub;
@@ -69,7 +94,7 @@
 
 // cell 箭头与文字对齐
 .van-cell__right-icon {
-  height: 60px;
+  height: 106px;
   display: flex;
   align-items: center;
 }
@@ -77,34 +102,34 @@
 .van-dialog {
   width: 560px;
   .van-dialog__message {
-    font-size: 32px;
-    color: #343434;
+    font-size: $zaui-font-size-md2;
+    color: $zaui-text;
     text-align: center;
     width: 100%;
   }
   .van-dialog__footer {
-    padding: 0 40px;
-    padding-bottom: 40px;
+    display: flex;
     justify-content: space-between;
+    border-top: 1px solid $zaui-line;
 
     &:after {
       border: none;
     }
 
     .van-button {
-      width: 230px;
-      height: 76px;
-      border-radius: 38px;
+      width: 50%;
+      height: 96px;
       flex: none;
 
       &.van-dialog__cancel {
-        background: #eff1f7;
-        color: $label-color;
+        background: none;
+        color: $zaui-aide-text;
+        border-right: 1px solid $zaui-line;
       }
 
       &.van-dialog__confirm {
-        background: $primary-color;
-        color: #fff;
+        background: none;
+        color: $zaui-brand;
 
         &:after {
           border: none;

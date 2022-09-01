@@ -91,7 +91,7 @@
         <div>{{ originData.riskCalcMethodInfoVO?.fixedAmount || riskPremium?.[originData?.riskCode]?.amount }}</div>
       </template>
     </VanField>
-    <VanField
+    <ProField
       v-if="
         !isEmpty(originData?.riskInsureLimitVO?.insurancePeriodValueList) ||
         !isEmpty(originData?.riskInsureLimitVO?.insurancePeriodRule)
@@ -102,16 +102,18 @@
       :rules="[{ required: true, message: '请选择保障期间' }]"
     >
       <template #input>
-        <ProRadioButton
-          v-model="state.formInfo.coveragePeriod"
-          :disabled="disabledProperties.coveragePeriod.disabled"
-          :prevent="disabledProperties.coveragePeriod.prevent ? '请先选择主险保障期间' : ''"
-          :options="coverageYearOptions"
-          :prop="{ label: 'name', value: 'value' }"
-        ></ProRadioButton>
+        <div class="pro-radio-wrap">
+          <ProRadioButton
+            v-model="state.formInfo.coveragePeriod"
+            :disabled="disabledProperties.coveragePeriod.disabled"
+            :prevent="disabledProperties.coveragePeriod.prevent ? '请先选择主险保障期间' : ''"
+            :options="coverageYearOptions"
+            :prop="{ label: 'name', value: 'value' }"
+          ></ProRadioButton>
+        </div>
       </template>
-    </VanField>
-    <VanField
+    </ProField>
+    <ProField
       v-if="
         !isEmpty(originData?.riskInsureLimitVO?.paymentPeriodValueList) ||
         !isEmpty(originData?.riskInsureLimitVO?.paymentPeriodRule)
@@ -122,16 +124,18 @@
       :rules="[{ required: true, message: '请选择交费期间' }]"
     >
       <template #input>
-        <ProRadioButton
-          v-model="state.formInfo.chargePeriod"
-          :disabled="disabledProperties.chargePeriod.disabled"
-          :prevent="disabledProperties.chargePeriod.prevent ? '请先选择主险交费期间' : ''"
-          :options="paymentYearOptions"
-          :prop="{ label: 'name', value: 'value' }"
-        ></ProRadioButton>
+        <div class="pro-radio-wrap">
+          <ProRadioButton
+            v-model="state.formInfo.chargePeriod"
+            :disabled="disabledProperties.chargePeriod.disabled"
+            :prevent="disabledProperties.chargePeriod.prevent ? '请先选择主险交费期间' : ''"
+            :options="paymentYearOptions"
+            :prop="{ label: 'name', value: 'value' }"
+          ></ProRadioButton>
+        </div>
       </template>
-    </VanField>
-    <VanField
+    </ProField>
+    <ProField
       v-if="
         !isEmpty(originData.riskInsureLimitVO?.paymentFrequencyList) ||
         !isEmpty(originData.riskInsureLimitVO?.paymentPeriodRule)
@@ -142,15 +146,17 @@
       :rules="[{ required: true, message: '请选择交费方式' }]"
     >
       <template #input>
-        <ProRadioButton
-          v-model="state.formInfo.paymentFrequency"
-          :disabled="disabledProperties.paymentFrequency.disabled"
-          :prevent="disabledProperties.paymentFrequency.prevent ? '请先选择主险交费方式' : ''"
-          :options="paymentFrequencyOptions"
-        ></ProRadioButton>
+        <div class="pro-radio-wrap">
+          <ProRadioButton
+            v-model="state.formInfo.paymentFrequency"
+            :disabled="disabledProperties.paymentFrequency.disabled"
+            :prevent="disabledProperties.paymentFrequency.prevent ? '请先选择主险交费方式' : ''"
+            :options="paymentFrequencyOptions"
+          ></ProRadioButton>
+        </div>
       </template>
-    </VanField>
-    <VanField
+    </ProField>
+    <ProField
       v-if="!isEmpty(originData?.riskInsureLimitVO?.annuityDrawValueList)"
       v-model="state.formInfo.annuityDrawDate"
       label="领取时间"
@@ -158,13 +164,15 @@
       :rules="[{ required: true, message: '请选择领取时间' }]"
     >
       <template #input>
-        <ProRadioButton
-          v-model="state.formInfo.annuityDrawDate"
-          :options="pickEnums(ANNUITY_DRAW_DATE, originData.riskInsureLimitVO?.annuityDrawValueList || [])"
-        ></ProRadioButton>
+        <div class="pro-radio-wrap">
+          <ProRadioButton
+            v-model="state.formInfo.annuityDrawDate"
+            :options="pickEnums(ANNUITY_DRAW_DATE, originData.riskInsureLimitVO?.annuityDrawValueList || [])"
+          ></ProRadioButton>
+        </div>
       </template>
-    </VanField>
-    <VanField
+    </ProField>
+    <ProField
       v-if="!isEmpty(originData?.riskInsureLimitVO?.annuityDrawFrequencyList)"
       v-model="state.formInfo.annuityDrawType"
       label="领取方式"
@@ -172,12 +180,14 @@
       :rules="[{ required: true, message: '请选择领取方式' }]"
     >
       <template #input>
-        <ProRadioButton
-          v-model="state.formInfo.annuityDrawType"
-          :options="pickEnums(ANNUITY_DRAW_TYPE, originData.riskInsureLimitVO?.annuityDrawFrequencyList || [])"
-        ></ProRadioButton>
+        <div class="pro-radio-wrap">
+          <ProRadioButton
+            v-model="state.formInfo.annuityDrawType"
+            :options="pickEnums(ANNUITY_DRAW_TYPE, originData.riskInsureLimitVO?.annuityDrawFrequencyList || [])"
+          ></ProRadioButton>
+        </div>
       </template>
-    </VanField>
+    </ProField>
     <div v-for="(liab, num) in originData.riskLiabilityInfoVOList || []" :key="num">
       <VanField
         v-if="liab.optionalFlag === 1 && !isEmpty(liab.liabilityAttributeValueList)"
@@ -189,16 +199,17 @@
         <template #input>
           <div>
             <span v-if="isEmpty(liab.liabilityAttributeValueList)">50万</span>
-            <ProRadioButton
-              v-else
-              v-model="state.formInfo.liabilityVOList[num].liabilityAttributeValue"
-              :options="
-                pickEnums(
-                  LIABILITY_ATTRIBUTE_VALUE,
-                  originData.riskLiabilityInfoVOList?.[num]?.liabilityAttributeValueList,
-                )
-              "
-            ></ProRadioButton>
+            <div v-else class="pro-radio-wrap">
+              <ProRadioButton
+                v-model="state.formInfo.liabilityVOList[num].liabilityAttributeValue"
+                :options="
+                  pickEnums(
+                    LIABILITY_ATTRIBUTE_VALUE,
+                    originData.riskLiabilityInfoVOList?.[num]?.liabilityAttributeValueList,
+                  )
+                "
+              ></ProRadioButton>
+            </div>
           </div>
         </template>
       </VanField>

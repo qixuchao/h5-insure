@@ -32,7 +32,9 @@
         :rules="[{ required: true, message: '请选择性别' }]"
       >
         <template #input>
-          <ProRadioButton v-model="state.formInfo.gender" :options="SEX_LIMIT" />
+          <div class="pro-radio-wrap">
+            <ProRadioButton v-model="state.formInfo.gender" :options="SEX_LIMIT" />
+          </div>
         </template>
       </VanField>
       <VanField
@@ -43,7 +45,9 @@
         :rules="[{ required: true, message: '请选择社保' }]"
       >
         <template #input>
-          <ProRadioButton v-model="state.formInfo.socialFlag" :options="SOCIAL_INSURANCE_LIMIT" />
+          <div class="pro-radio-wrap">
+            <ProRadioButton v-model="state.formInfo.socialFlag" :options="SOCIAL_INSURANCE_LIMIT" />
+          </div>
         </template>
       </VanField>
       <ProCascader
