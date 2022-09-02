@@ -83,7 +83,7 @@
           class="file"
           title="《银行转账授权》"
           :content="materialData.materialContent"
-          :type="FILE_TYPE_ENUM[fileType]"
+          :type="getFileType(materialData.materialContent, materialData.materialSource + '')"
         />
       </div>
       <div class="footer-button footer">
@@ -132,13 +132,7 @@ import { ProductInsureFactorItem } from '@/api/index.data';
 import tempPdf from '@/assets/pdf/bank.pdf';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import pageJump from '@/utils/pageJump';
-
-const FILE_TYPE_ENUM = {
-  1: 'pdf',
-  4: 'picture',
-  2: 'richText',
-  3: 'link',
-};
+import { getFileType } from '@/utils';
 
 const route = useRoute();
 const router = useRouter();
@@ -177,8 +171,6 @@ const form3 = ref();
 
 const materialData = ref<any>({});
 
-const fileType = ref<number>(1);
-
 const handlePayInfoTypeClick = (type: PAY_INFO_TYPE_ENUM) => {
   payInfoType.value = type;
 };
@@ -196,16 +188,6 @@ const getNotices = () => {
   queryInsuredMaterial({ insureCode, objectType: 4, tenantId, orderNo }).then(({ code, data }) => {
     if (code === '10000') {
       materialData.value = data;
-
-      if (data.materialSource === 1) {
-        if (data.materialContent.indexOf('.pdf') !== -1) {
-          fileType.value = 1;
-        } else {
-          fileType.value = 4;
-        }
-      } else {
-        fileType.value = data.materialSource;
-      }
     }
   });
 };

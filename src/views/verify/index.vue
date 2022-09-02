@@ -141,6 +141,7 @@ import Storage from '@/utils/storage';
 import pageJump from '@/utils/pageJump';
 import { formatJsonToUrlParams } from '@/utils/format';
 import { getFileType } from '@/utils';
+import { listCustomerQuestions } from '@/api/modules/inform';
 
 const CERT_STATUS_ENUM = {
   CERT: 1,
@@ -159,6 +160,7 @@ const {
   isShare,
   orderCode,
   orderNo,
+  productCategory,
 } = route.query;
 
 // 处理query中的orderNo重复的问题
@@ -174,6 +176,8 @@ const pageCode = 'sign';
 const storage = new Storage({ source: 'localStorage' });
 const insuredFileList = ref<Array<INotice>>([]); // 被保人文件列表
 const holderFileList = ref<Array<INotice>>([]); // 投保人文件列表
+const insuredQuestionList = ref<Array<any>>([]); // 被保人问卷列表
+const holderQuestionList = ref<Array<any>>([]); // 被保人问卷列表
 const detail = ref();
 const holderSign = ref();
 const insuredSignRefs = [];
@@ -365,6 +369,21 @@ const getProductMaterials = () => {
     tenantId,
     objectType: 1, // 1-投保人，2-被保人，3-营销人员(代理人)
   };
+
+  const questionParams: any = {
+    insurerCode,
+    //  告知类型：1-投保告知，2-健康告知，3-特别约定，4-投保人问卷，
+    // 5-被保人问卷，6-投保人声明，7-被保人声明，8-免责条款，9-营销员告知
+    // objectId: '1',
+    // objectType: 1, // 适用角色 ：1-投保人，2-被保人，3-营销人员(代理人)
+    orderNo,
+    productCategory,
+    tenantId,
+    noticeType: 4,
+    objectType: 1,
+  };
+
+  // 投保人资料
   getFile({
     ...params,
   }).then(({ code, data }) => {
@@ -372,12 +391,27 @@ const getProductMaterials = () => {
       holderFileList.value = data || [];
     }
   });
+  // 被保人资料
   getFile({
     ...params,
     objectType: 2,
   }).then(({ code, data }) => {
     if (code === '10000') {
       insuredFileList.value = data || [];
+    }
+  });
+
+  // 投保人问卷
+  listCustomerQuestions({ ...questionParams }).then(({ code, data }) => {
+    if (code === '10000') {
+      holderQuestionList.value = data || [];
+    }
+  });
+
+  // 被保人问卷
+  listCustomerQuestions({ ...questionParams }).then(({ code, data }) => {
+    if (code === '10000') {
+      insuredQuestionList.value = data || [];
     }
   });
 };
