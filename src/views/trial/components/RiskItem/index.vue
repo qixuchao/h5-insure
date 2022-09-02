@@ -188,7 +188,7 @@
         </div>
       </template>
     </ProField>
-    <div v-for="(liab, num) in originData.riskLiabilityInfoVOList || []" :key="num">
+    <template v-for="(liab, num) in originData.riskLiabilityInfoVOList || []" :key="num">
       <VanField
         v-if="liab.optionalFlag === 1 && !isEmpty(liab.liabilityAttributeValueList)"
         v-model="state.formInfo.liabilityVOList[num].liabilityAttributeValue"
@@ -239,7 +239,7 @@
           </div>
         </template>
       </VanField>
-    </div>
+    </template>
 
     <div v-if="originData?.relationDesc" class="liab-desc">
       <ProExpand title="责任投保说明">

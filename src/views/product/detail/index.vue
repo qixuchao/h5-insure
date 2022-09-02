@@ -90,20 +90,20 @@
               </template>
               <div class="tab-1-content">
                 请查看
-                <ProPdfViewer
+                <ProPDFviewer
                   v-for="(item, index) in detail?.tenantProductInsureVO?.attachmentVOList || []"
                   :key="index"
                   class="file-name"
                   :title="`《${item.attachmentName}》`"
                   :content="item.attachmentUri"
-                  type="pdf"
+                  :type="getFileType(item.attachmentUri, item.attachmentType)"
                 >
                   <span
                     v-if="index !== (detail?.tenantProductInsureVO?.attachmentVOList || []).length - 1"
                     class="dun-hao"
                     >、</span
                   >
-                </ProPdfViewer>
+                </ProPDFviewer>
               </div>
             </ProCard>
           </div>
@@ -174,15 +174,10 @@ import {
 } from './utils';
 import { transformToMoney } from '@/utils/format';
 import { YES_NO_ENUM, PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { getFileType } from '@/utils';
 
 const router = useRouter();
 const route = useRoute();
-const FILE_TYPE_ENUM = {
-  1: 'pdf',
-  4: 'picture',
-  2: 'richText',
-  3: 'link',
-};
 
 const { productCode = 'CQ75CQ76' } = route.query;
 const tabList = ref<Array<{ title: string; slotName: string }>>([]);

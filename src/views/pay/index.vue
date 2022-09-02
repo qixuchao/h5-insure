@@ -103,7 +103,7 @@ const handleOk = () => {
   } else if (okText.value === '重新支付') {
     router.push({
       path: PAGE_ROUTE_ENUMS.payInfo,
-      query: { orderNo, saleUserId, tenantId },
+      query: route.query,
     });
   }
 };
@@ -112,7 +112,7 @@ const handleCancel = () => {
   if (cancelText.value === '退出交易') {
     router.push({
       path: PAGE_ROUTE_ENUMS.payInfo,
-      query: { orderNo, saleUserId, tenantId },
+      query: route.query,
     });
   }
 };

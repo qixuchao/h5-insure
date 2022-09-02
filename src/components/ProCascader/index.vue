@@ -208,7 +208,9 @@ const handleFinish = (selected: { value: number | string; selectedOptions: any[]
   display: flex;
   align-items: center;
   line-height: 1.4;
-  padding: 30px 0;
+}
+.placeholder {
+  color: $zaui-aide-text;
 }
 .com-cascader-popup {
   .van-cascader {

@@ -130,6 +130,7 @@ const validateForm = () => {
   });
 };
 
+// 比较产品下险种的最大最小投保年龄，进行排序
 const compareHolderAge = (ageList: any[]) => {
   const currentList = ageList || [];
   for (let i = 0; i < currentList.length; i++) {
@@ -154,6 +155,7 @@ const compareHolderAge = (ageList: any[]) => {
   return currentList;
 };
 
+// 找出最大最小投保年龄的并集
 const ageRangeObj = computed(() => {
   const ageList = compareHolderAge(props?.ageRange);
   const splitAge = (age = '') => {
@@ -167,9 +169,13 @@ const ageRangeObj = computed(() => {
   const minAge = dayjs()
     .subtract(min[0] as number, min[1] === 'age' ? 'year' : 'day')
     .format('YYYY-MM-DD');
-  const maxAge = dayjs()
+  let maxAge = dayjs()
     .subtract(max[0] as number, max[1] === 'age' ? 'year' : 'day')
     .format('YYYY-MM-DD');
+
+  if (dayjs(maxAge).subtract(1, 'year').isBefore(minAge)) {
+    maxAge = dayjs(maxAge).subtract(1, 'year').add(1, 'day').format('YYYY-MM-DD');
+  }
   return {
     minAge: new Date(maxAge),
     maxAge: new Date(minAge),

@@ -33,8 +33,12 @@
 
 // 单元格
 .van-cell {
-  padding: 0 30px;
-  min-height: 106px;
+  padding: 14px $zaui-card-border;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+
   &::after {
     transform: scaleY(1);
   }
@@ -45,17 +49,17 @@
     flex-direction: column;
     justify-content: flex-start;
     .van-field__body {
-      margin-top: 28px;
+      // margin-top: 28px;
     }
     .van-field__error-message {
-      // line-height: 28px;
+      line-height: 28px;
       // height: 30px;
     }
   }
 
   .van-field__label {
-    line-height: 48px;
-    margin-top: 30px;
+    line-height: 42px;
+    margin: 8px;
   }
 
   .van-field__control {
@@ -80,7 +84,7 @@
 
 .van-search__field {
   .van-field__value {
-    align-items: center;
+    align-items: flex-start;
     .van-field__body {
       margin-top: 0;
     }
@@ -94,7 +98,7 @@
 
 // cell 箭头与文字对齐
 .van-cell__right-icon {
-  height: 106px;
+  height: 60px;
   display: flex;
   align-items: center;
 }

@@ -94,8 +94,8 @@ const subTitle = computed(() => {
   .com-card-wrap {
     background-color: #ffffff;
     .header {
-      margin-left: 30px;
-      padding-right: 30px;
+      margin-left: $zaui-card-border;
+      padding-right: $zaui-card-border;
       &.showLine {
         border-bottom: 1px solid #eeeff4;
       }

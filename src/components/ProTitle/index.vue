@@ -57,25 +57,25 @@ const isShow = computed(() => {
   :deep(.van-cell__title) {
     display: flex;
     align-items: center;
+    min-height: 62px;
     .pic {
       margin-right: 16px;
       width: 8px;
       height: 28px;
-      background: #0d6efe;
+      background: $zaui-brand;
       border-radius: 4px;
     }
     .pic-title {
-      height: 40px;
-      font-size: 30px;
+      font-size: $zaui-font-size-md2;
       font-weight: bold;
-      color: #393d46;
-      line-height: 42px;
+      color: $zaui-text-title;
     }
     .risk-title {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      min-height: 60px;
       .left-content {
         display: flex;
         align-items: center;

@@ -1,8 +1,9 @@
+/* eslint-disable no-shadow */
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 16:05:16
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-31 11:03:40
+ * @LastEditTime: 2022-09-02 14:03:01
  * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -70,6 +71,14 @@ export const FLAG_LIST = [
     value: '2',
   },
 ];
+
+// 产品资料对应的文件类型
+export const FILE_TYPE_ENUM = {
+  1: 'pdf',
+  4: 'picture',
+  2: 'richText',
+  3: 'link',
+};
 
 export const PRODUCT_CATEGORY = [
   {

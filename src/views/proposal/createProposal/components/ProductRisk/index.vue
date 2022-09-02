@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-16 13:39:05
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-25 14:31:53
+ * @LastEditTime: 2022-09-02 16:38:44
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductRisk/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -13,8 +13,7 @@
         <div class="popup-title">请选择保障方案</div>
         <ProMessage v-if="messageInfo" :content="messageInfo"></ProMessage>
         <div class="risk-trial-wrapper">
-          <div v-if="state.holderFactor.length" class="part-card">
-            <ProTitle title="投保人"></ProTitle>
+          <ProCard v-if="state.holderFactor.length" title="投保人" class="part-card">
             <PersonalInfo
               ref="holderRef"
               :insured-code="state.riskBaseInfo?.insurerCode"
@@ -22,9 +21,9 @@
               :factor-list="state.holderFactor"
               :age-range="state.ageRange"
             ></PersonalInfo>
-          </div>
-          <div v-if="state.insuredFactor.length" class="part-card">
-            <ProTitle title="被保人"></ProTitle>
+          </ProCard>
+
+          <ProCard v-if="state.insuredFactor.length" title="被保人" class="part-card">
             <PersonalInfo
               ref="insuredRef"
               :insured-code="state.riskBaseInfo?.insurerCode"
@@ -32,20 +31,20 @@
               :factor-list="state.insuredFactor"
               :age-range="state.ageRange"
             ></PersonalInfo>
-          </div>
+          </ProCard>
           <div class="risk-content">
-            <ProTitle title="投保方案"></ProTitle>
-
-            <div v-if="state.riskData.length" class="risk">
-              <VanForm ref="riskFormRef" input-align="right" error-message-align="right">
-                <RiskList
-                  :risk-info="riskInfo[0]"
-                  :enums="state.enumList"
-                  :origin-data="state.riskData"
-                  :pick-factor="pickFactor"
-                />
-              </VanForm>
-            </div>
+            <ProCard title="投保方案" class="part-card">
+              <div v-if="state.riskData.length" class="risk">
+                <VanForm ref="riskFormRef" input-align="right" error-message-align="right">
+                  <RiskList
+                    :risk-info="riskInfo[0]"
+                    :enums="state.enumList"
+                    :origin-data="state.riskData"
+                    :pick-factor="pickFactor"
+                  />
+                </VanForm>
+              </div>
+            </ProCard>
           </div>
         </div>
         <div class="footer-bar">
@@ -450,7 +449,9 @@ onBeforeMount(() => {
 
   .part-card {
     background-color: #ffffff;
-    margin-bottom: 20px;
+    :deep(.body) {
+      padding: 0;
+    }
   }
 
   .risk-content {

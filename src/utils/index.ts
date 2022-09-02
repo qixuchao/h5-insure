@@ -2,13 +2,15 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-28 10:28:12
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-01 23:38:48
+ * @LastEditTime: 2022-09-02 14:01:57
  * @FilePath: /zat-planet-h5-cloud-insure/src/utils/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 // import md5 from 'md5';
 import dayjs from 'dayjs';
 import quarterOfYear from 'dayjs/plugin/quarterOfYear';
+import { INotice } from '@/api/modules/verify.data';
+import { FILE_TYPE_ENUM } from '@/common/constants';
 
 dayjs.extend(quarterOfYear);
 
@@ -52,4 +54,18 @@ export const constantListToMap = (arr: ConstantList): object => {
     }
     return result;
   }, {});
+};
+
+export const getFileType = (content: string, materialType: string) => {
+  let currentFileType = '1';
+  if (+materialType === 1) {
+    if (content.indexOf('.pdf') !== -1) {
+      currentFileType = '1';
+    } else {
+      currentFileType = '4';
+    }
+  } else {
+    currentFileType = materialType;
+  }
+  return FILE_TYPE_ENUM[currentFileType];
 };

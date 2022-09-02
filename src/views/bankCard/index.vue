@@ -219,7 +219,7 @@ const handleSubmit = () => {
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
-      if (data.orderStatus !== ORDER_STATUS_ENUM.PENDING) {
+      if (!(data.orderStatus === ORDER_STATUS_ENUM.PENDING || data.orderStatus === ORDER_STATUS_ENUM.PAYMENT_FAILED)) {
         pageJump('paymentResult', route.query);
       } else {
         Promise.all([form1.value?.validate(), form2.value?.validate(), form3.value?.validate()]).then((results) => {

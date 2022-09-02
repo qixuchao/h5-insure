@@ -49,7 +49,7 @@
               class="file"
               :title="`《${noticeItem.materialName}》`"
               :content="noticeItem.materialContent"
-              :type="fileType(noticeItem)"
+              :type="getFileType(noticeItem.materialContent, noticeItem.materialSource + '')"
             />
           </div>
         </div>
@@ -95,7 +95,7 @@
                 class="file"
                 :title="`《${noticeItem.materialName}》`"
                 :content="noticeItem.materialContent"
-                :type="fileType(noticeItem)"
+                :type="getFileType(noticeItem.materialContent, noticeItem.materialSource + '')"
               />
             </div>
           </div>
@@ -140,17 +140,11 @@ import { INotice } from '@/api/modules/verify.data';
 import Storage from '@/utils/storage';
 import pageJump from '@/utils/pageJump';
 import { formatJsonToUrlParams } from '@/utils/format';
+import { getFileType } from '@/utils';
 
 const CERT_STATUS_ENUM = {
   CERT: 1,
   NO_CERT: 2,
-};
-
-const FILE_TYPE_ENUM = {
-  1: 'pdf',
-  4: 'picture',
-  2: 'richText',
-  3: 'link',
 };
 
 const route = useRoute();
@@ -184,20 +178,6 @@ const detail = ref();
 const holderSign = ref();
 const insuredSignRefs = [];
 const date = dayjs().format('YYYY-MM-DD');
-
-const fileType = computed(() => (data: INotice) => {
-  let currentFileType = 1;
-  if (data.materialSource === 1) {
-    if (data.materialContent.indexOf('.pdf') !== -1) {
-      currentFileType = 1;
-    } else {
-      currentFileType = 4;
-    }
-  } else {
-    currentFileType = data.materialSource;
-  }
-  return FILE_TYPE_ENUM[currentFileType];
-});
 
 const handleResign1 = () => {
   holderSign.value?.clear();

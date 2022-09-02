@@ -37,12 +37,14 @@
         <span class="field-title">银行卡照片 <span class="sub-title">(需上传正反两面)</span></span>
       </template>
       <template #input>
-        <ProImageUpload
-          v-model="formData.images"
-          :max-count="2"
-          :upload-type="UPLOAD_TYPE_ENUM.BANK_CARD"
-          @onUploadFinished="handleGetOssKey"
-        />
+        <div class="image-wrap">
+          <ProImageUpload
+            v-model="formData.images"
+            :max-count="2"
+            :upload-type="UPLOAD_TYPE_ENUM.BANK_CARD"
+            @onUploadFinished="handleGetOssKey"
+          />
+        </div>
       </template>
     </ProField>
     <ProField
@@ -142,6 +144,11 @@ watch(formData, (val) => {
 </script>
 
 <style lang="scss" scoped>
+.image-wrap {
+  display: flex;
+  justify-content: flex-start;
+  width: 690px;
+}
 .com-bank-card-info {
   .field-title {
     .sub-title {
