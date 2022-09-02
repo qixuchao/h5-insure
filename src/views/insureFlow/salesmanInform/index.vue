@@ -33,8 +33,9 @@
           :key="index"
           class="file"
           :title="`《${item.title}》`"
-          content=""
-          type=""
+          :content="previewFileContent"
+          :type="previewFileType"
+          @click="getFileDetails(item)"
         />文件
       </p>
     </div>
@@ -50,9 +51,10 @@ import { Toast } from 'vant';
 import dayjs from 'dayjs';
 import ProCard from '@/components/ProCard/index.vue';
 import ProPDFviewer from '@/components/ProPDFviewer/index.vue';
-import { listCustomerQuestions, listProductManuscripts } from '@/api/modules/inform';
+import { listCustomerQuestions, listProductManuscripts, getCustomerQuestionsDetail } from '@/api/modules/inform';
 import { nextStep, getOrderDetail } from '@/api';
 import { ListCustomerQuestionsResponse } from '@/api/modules/inform.data';
+
 import { sessionStore } from '@/hooks/useStorage';
 import { NextStepRequestData } from '@/api/index.data';
 import { saveSign } from '@/api/modules/verify';
@@ -63,7 +65,7 @@ const route = useRoute();
 /** 页面query参数类型 */
 interface QueryData {
   productCode: string; // 产品代码
-  tenantId: number; // 租户id
+  tenantId: number | string; // 租户id
   agentCode: string; // 代理人code
   agencyCode: string; // 机构code
   insurerCode: string; // 保险公司
@@ -87,6 +89,9 @@ const {
 const agentSignRef = ref<any>(null);
 const checked = ref<boolean>(false);
 const date = dayjs().format('YYYY-MM-DD');
+
+const previewFileType = ref<string>('');
+const previewFileContent = ref<any>();
 
 const resetSign = () => {
   agentSignRef.value?.clear();
@@ -122,6 +127,42 @@ const orderDetail = () => {
           agentSignRef.value.setDataURL(item.fileBase64);
         }
       });
+    }
+  });
+};
+
+const getFileDetails = (item: any) => {
+  console.log(item);
+  const { id, objectType } = item;
+
+  const fileTypeMap = {
+    1: 'pdf',
+    2: 'richText',
+    3: 'link',
+  };
+
+  getCustomerQuestionsDetail({
+    insurerCode,
+    id,
+    objectType,
+    productCategory,
+    orderNo,
+    tenantId,
+  }).then(({ code, data }) => {
+    if (code === '10000') {
+      console.log(data);
+      if (data?.[0].questionType === 2) {
+        previewFileType.value = 'question';
+        previewFileContent.value = data;
+      } else {
+        if (data?.[0].textType === 1 && data?.[0].content.includes('png' || 'jpg' || 'jpeg')) {
+          previewFileType.value = 'picture';
+          console.log(111);
+        } else {
+          previewFileType.value = fileTypeMap[data?.[0].textType];
+        }
+        previewFileContent.value = data?.[0].content;
+      }
     }
   });
 };

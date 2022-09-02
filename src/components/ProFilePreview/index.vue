@@ -14,6 +14,8 @@
     <div v-else-if="isPdf" :id="id" class="pdf-wapper"></div>
     <!-- 图片 -->
     <van-image v-else-if="isPicture" class="pic-wrap" fit="contain" :src="props.content" />
+
+    <QuestionPreview v-else-if="isQuestion" :current-page-info="props.content" />
     <!-- 外联 -->
     <iframe v-else :src="content" frameborder="0" width="100%" style="height: 100vh"></iframe>
     <slot name="footer-btn"></slot>
@@ -25,6 +27,7 @@ import { nanoid } from 'nanoid';
 import * as PDFJS from 'pdfjs-dist';
 import * as workerSrc from 'pdfjs-dist/build/pdf.worker.entry';
 import PdfViewer from '@/components/ProPDFviewer/index.vue';
+import QuestionPreview from './question.vue';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
 const props = defineProps({
@@ -45,6 +48,10 @@ const isPdf = computed(() => {
 });
 const isPicture = computed(() => {
   return props.type === 'picture';
+});
+
+const isQuestion = computed(() => {
+  return props.type === 'question';
 });
 
 const isLink = computed(() => {

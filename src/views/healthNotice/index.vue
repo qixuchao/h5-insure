@@ -116,16 +116,14 @@ const isLink = computed(() => {
 });
 
 const onSubmitCurrentStatus = (status: number, questionContent?: any) => {
-  const { id, objectType, noticeObject } = currentQuestion;
-  console.log('currentQuestion', currentQuestion);
-
+  const { id, objectType, noticeObject, materialSource } = currentQuestion;
   saveMarketerNotices({
     content: questionContent || state.currentQuestionInfo[0]?.content,
-    contentType: questionnaireType as any,
+    contentType: (questionnaireType as any) || '3',
     isDone: status,
-    noticeType: NOTICE_OBJECT_TYPE[objectType] || noticeObject,
-    objectId: id as any,
-    objectType,
+    noticeType: NOTICE_OBJECT_TYPE[objectType] || '99',
+    objectId: id,
+    objectType: objectType || noticeObject,
     orderId: state.pageData.id,
     orderNo,
     tenantId,
