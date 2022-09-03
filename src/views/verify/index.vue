@@ -51,6 +51,15 @@
               :content="noticeItem.materialContent"
               :type="getFileType(noticeItem.materialContent, noticeItem.materialSource + '')"
             />
+            <ProPDFviewer
+              v-for="(noticeItem, noticeIndex) in holderQuestionList"
+              :key="noticeIndex + holderFileList.length"
+              class="file"
+              :title="`《${noticeItem.title}》`"
+              :content="previewFileContent"
+              :type="previewFileType"
+              @click="getFileDetails(noticeItem)"
+            />
           </div>
         </div>
       </ProCard>
@@ -97,6 +106,15 @@
                 :content="noticeItem.materialContent"
                 :type="getFileType(noticeItem.materialContent, noticeItem.materialSource + '')"
               />
+              <ProPDFviewer
+                v-for="(noticeItem, noticeIndex) in insuredQuestionList"
+                :key="noticeIndex + insuredFileList.length"
+                class="file"
+                :title="`《${noticeItem.title}》`"
+                :content="previewFileContent"
+                :type="previewFileType"
+                @click="getFileDetails(noticeItem)"
+              />
             </div>
           </div>
         </ProCard>
@@ -141,7 +159,7 @@ import Storage from '@/utils/storage';
 import pageJump from '@/utils/pageJump';
 import { formatJsonToUrlParams } from '@/utils/format';
 import { getFileType } from '@/utils';
-import { listCustomerQuestions } from '@/api/modules/inform';
+import { listCustomerQuestions, getCustomerQuestionsDetail } from '@/api/modules/inform';
 
 const CERT_STATUS_ENUM = {
   CERT: 1,
@@ -181,6 +199,8 @@ const holderQuestionList = ref<Array<any>>([]); // 被保人问卷列表
 const detail = ref();
 const holderSign = ref();
 const insuredSignRefs = [];
+const previewFileType = ref<string>('');
+const previewFileContent = ref<any>();
 const date = dayjs().format('YYYY-MM-DD');
 
 const handleResign1 = () => {
@@ -206,6 +226,41 @@ const doVerify = (certNo: string, name: string) => {
       const { originalUrl, serialNo } = data;
       window.location.href = originalUrl;
       storage.set('verifyData', { serialNo, certNo, name });
+    }
+  });
+};
+
+const getFileDetails = (item: any) => {
+  const { id, objectType } = item;
+  previewFileType.value = '';
+  previewFileContent.value = '';
+  const fileTypeMap = {
+    1: 'pdf',
+    2: 'richText',
+    3: 'link',
+  };
+
+  getCustomerQuestionsDetail({
+    insurerCode,
+    id,
+    objectType,
+    productCategory,
+    orderNo,
+    tenantId,
+  }).then(({ code, data }) => {
+    if (code === '10000') {
+      console.log(data);
+      if (data?.[0].questionType === 2) {
+        previewFileType.value = 'question';
+        previewFileContent.value = data;
+      } else {
+        if (data?.[0].textType === 1 && data?.[0].content.includes('png' || 'jpg' || 'jpeg')) {
+          previewFileType.value = 'picture';
+        } else {
+          previewFileType.value = fileTypeMap[data?.[0].textType];
+        }
+        previewFileContent.value = data?.[0].content;
+      }
     }
   });
 };
@@ -409,7 +464,7 @@ const getProductMaterials = () => {
   });
 
   // 被保人问卷
-  listCustomerQuestions({ ...questionParams }).then(({ code, data }) => {
+  listCustomerQuestions({ ...questionParams, noticeType: 5, objectType: 2 }).then(({ code, data }) => {
     if (code === '10000') {
       insuredQuestionList.value = data || [];
     }

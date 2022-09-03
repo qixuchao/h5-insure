@@ -243,13 +243,13 @@ const goNextPage = () => {
     },
     tenantOrderHolder: {
       extInfo: {
-        occupationCodeList: insured.value.personVO.occupationCodeList,
+        // occupationCodeList: insured.value.personVO.occupationCodeList,
       },
     },
     tenantOrderInsuredList: [
       {
         extInfo: {
-          occupationCodeList: holder.value.personVO.occupationCodeList,
+          // occupationCodeList: holder.value.personVO.occupationCodeList,
         },
         tenantOrderProductList: [
           {

@@ -72,6 +72,9 @@ watch(
 <style lang="scss" scoped>
 .com-image-upload {
   margin-top: 20px;
+  width: 690px;
+  display: flex;
+  justify-content: flex-start;
   .upload-item {
     width: 160px;
     height: 160px;

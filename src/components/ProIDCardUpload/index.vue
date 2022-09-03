@@ -214,7 +214,7 @@ watch(
 
 <style lang="scss" scoped>
 .com-id-card-upload {
-  width: 100%;
+  width: 690px;
   display: flex;
   padding: 30px 0;
   justify-content: space-between;
