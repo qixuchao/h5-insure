@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-31 14:54:22
+ * @LastEditTime: 2022-09-05 10:45:48
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -506,14 +506,21 @@ const queryOrderDetail = () => {
         // 合并订单详情和form表单的初始数据
         currentData.extInfo = { ...currentData.extInfo, pageCode, templateId };
         currentData.tenantOrderHolder = currentData.tenantOrderHolder || { holderType: 1 };
-        currentData.tenantOrderHolder.extInfo = currentData.tenantOrderHolder.extInfo || { occupationCodeList: [] };
-        currentData.tenantOrderInsuredList[0].extInfo = currentData.tenantOrderInsuredList[0].extInfo || {
-          occupationCodeList: [],
+        currentData.tenantOrderHolder.extInfo = {
+          ...currentData.tenantOrderHolder.extInfo,
+          occupationCodeList: currentData.tenantOrderHolder.extInfo?.occupationCodeList || [],
+        };
+        currentData.tenantOrderInsuredList[0].extInfo = {
+          ...currentData.tenantOrderInsuredList[0].extInfo,
+          occupationCodeList: currentData.tenantOrderInsuredList[0].extInfo?.occupationCodeList || [],
         };
         currentData.tenantOrderInsuredList[0].tenantOrderBeneficiaryList =
           currentData.tenantOrderInsuredList[0].tenantOrderBeneficiaryList.map((list: any) => {
             const currentList = list;
-            currentList.extInfo = currentList.extInfo || { occupationCodeList: [] };
+            currentList.extInfo = {
+              ...currentList.extInfo,
+              occupationCodeList: currentList.extInfo?.occupationCodeList || [],
+            };
             return currentList;
           });
         // 处理投被保人的证件展示

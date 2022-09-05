@@ -2,8 +2,8 @@
  * @Description: 移动端样式处理
  * @Autor: kevin.liang
  * @Date: 2022-02-15 10:55:32
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-02-16 13:53:39
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-09-05 10:26:42
  */
 module.exports = {
   plugins: {
@@ -27,7 +27,7 @@ module.exports = {
     //   selectorBlackList: ['.ignore', '.ignore-'], // 要忽略的选择器并保留为px。
     //   propList: ['*'], // 可以从px更改为rem的属性。
     //   minPixelValue: 2, // 设置要替换的最小像素值。
-    //   exclude: /node_modules/i,
+    //   // exclude: /node_modules/i,
     // },
     // 'postcss-px-to-viewport': { // 已经不推荐使用了 需要用 新插件 postcss-px-to-viewport-8-plugin
     //   unitToConvert: 'px', // 需要转换的单位，默认为"px"
