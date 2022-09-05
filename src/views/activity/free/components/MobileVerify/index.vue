@@ -44,6 +44,7 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'vant';
 import { defineProps } from 'vue';
+import { Toast } from 'vant/es';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 
 const props = defineProps({
@@ -78,19 +79,6 @@ const state = reactive({
   agree: '',
 });
 
-const validate = (name?: string | string[]) => {
-  return new Promise((resolve) => {
-    formRef.value
-      .validate(name)
-      .then(() => {
-        resolve(true);
-      })
-      .catch((err) => {
-        resolve(false);
-      });
-  });
-};
-
 const onCountDown = () => {
   if (countDownTimer.value > 0) return;
   countDownTimer.value = maxCountDown;
@@ -111,19 +99,28 @@ const onCountDown = () => {
 };
 
 const onCaptha = async () => {
-  const isValid = await validate('mobile');
-  if (isValid) {
+  if (countDownTimer.value > 0) {
+    return;
+  }
+  formRef?.value.validate('mobile').then(async () => {
     const res = await sendCode(state.mobile);
     onCountDown();
-  }
+  });
 };
 
 const onSubmit = async () => {
-  const isValid = await validate(['mobile', 'smsCode', 'agree']);
-  if (isValid) {
-    await checkCode(state.mobile, state.smsCode);
-  }
-  emits('on-verify', state);
+  formRef?.value.validate().then(async () => {
+    if (!state.agree) {
+      Toast('请勾选协议');
+      return;
+    }
+    // 手机号验证
+    const res = await checkCode(state.mobile, state.smsCode);
+    const { data } = res;
+    if (data) {
+      emits('on-verify', state);
+    }
+  });
 };
 </script>
 

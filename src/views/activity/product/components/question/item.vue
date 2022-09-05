@@ -57,7 +57,7 @@ const height = computed(() => {
       width: 30px;
       height: 30px;
       border-radius: 15px 15px 0 15px;
-      background: #0d6efe;
+      background: #ff6d23;
       color: #fff;
       font-size: 24px;
       line-height: 30px;
@@ -72,7 +72,7 @@ const height = computed(() => {
         width: 30px;
         height: 30px;
         border-radius: 15px 15px 0 15px;
-        background: #0d6efe;
+        background: #ff6d23;
         opacity: 0.2;
       }
     }

@@ -270,16 +270,15 @@ export interface LiabilityVoItem {
 }
 
 export interface PersonVo {
-    birthday: string;
-    certNo: string;
-    certType: number;
-    email: string;
-    gender: number;
-    mobile: string;
-    name: string;
-    occupationClass: number;
-    occupationCodeList: string[];
-    socialFlag: number;
+    birthday?: string;
+    gender?: number;
+    certType?: string;
+    certNo?: string;
+    occupationClass?: number;
+    occupationCodeList?: string[];
+    socialFlag?: string;
+    mobile?: string;
+    name?: string;
 }
 
 export interface Holder {

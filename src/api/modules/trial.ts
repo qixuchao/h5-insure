@@ -23,3 +23,9 @@ export const insureProductDetailNew = (data = {}) =>
 
 export const premiumCalcV2 = (data = {}) =>
   request.post<any, ResponseData>('/api/app/insure/insurance/premiumCalcV2', data);
+
+// 订单保存
+export const saveOrder = (data = {}) => request.post<any, ResponseData>('/api/app/insure/insurance/saveOrder', data);
+
+// 核保
+export const underwrite = (data = {}) => request.post<any, ResponseData>('/api/app/insure/insurance/underwrite', data);
