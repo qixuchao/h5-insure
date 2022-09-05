@@ -1,12 +1,22 @@
 <template>
   <ProPageWrap class="page-proposal">
     <div class="search-wrap">
-      <van-search v-model="searchValue" placeholder="请输入关键词" shape="round" class="search" @search="onSearch" />
-      <InsureFilter v-model:filter="isOpen" filter-class="filter-area" @on-select-insure="handleClickTag" />
+      <van-search v-model="searchValue" placeholder="搜索计划书" shape="round" class="search" @search="onSearch" />
+      <InsureFilter
+        v-if="hasProduct"
+        v-model:filter="isOpen"
+        filter-class="filter-area"
+        @on-select-insure="handleClickTag"
+      />
     </div>
     <div class="page-proposal-list">
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
-        <van-list v-model:loading="loading" :finished="finished" finished-text="已经到底了哦" @load="onLoad">
+        <van-list
+          v-model:loading="loading"
+          :finished="finished"
+          :finished-text="hasProduct ? '-&nbsp;已经到底了哦&nbsp;-' : ''"
+          @load="onLoad"
+        >
           <ProductItem v-for="i in productList" :key="i.id" :product-info="i?.showConfig" @click="selectProposal(i)">
             <template v-if="isCreateProposal" #checkedProduct>
               <div class="check-button">
@@ -18,8 +28,8 @@
           </ProductItem>
         </van-list>
       </van-pull-refresh>
-      <!-- <p class="is-end-tips">- 已经到底了哦 -</p> -->
     </div>
+    <ZaEmpty v-if="!hasProduct" :empty-img="emptyImg" title="没有找到相关内容~" empty-class="empty-select" />
     <div v-if="isCreateProposal && showFooter" class="van-sticky">
       <div class="add-plan">
         <p class="has-select" @click="toggleSelectProduct(true)">
@@ -53,6 +63,8 @@
 import { useToggle } from '@vant/use';
 import { useRouter, useRoute } from 'vue-router';
 import { withDefaults } from 'vue';
+import ZaEmpty from '@/components/ZaEmpty/index.vue';
+import emptyImg from '@/assets/images/empty.png';
 import ProductItem from './components/productItem.vue';
 import InsureFilter from './components/insureFilter.vue';
 import ProductRisk from '../createProposal/components/ProductRisk/index.vue';
@@ -182,6 +194,10 @@ const insured = computed(() => {
   return { birthday, gender };
 });
 
+const hasProduct = computed(() => {
+  return productList.value.length > 0;
+});
+
 /** ****** 创建计划书相关逻辑 ******** */
 const selectProposal = (proposalInfo: any) => {
   showFooter.value = false;
@@ -251,14 +267,28 @@ watch(
   top: 0;
   z-index: 999;
   background: #ffffff;
+  :deep(.van-search) {
+    .van-field__body {
+      width: 100%;
+      .van-field__control {
+        width: 100%;
+        height: 34px;
+      }
+    }
+  }
   :deep(.search) {
     width: 100%;
     min-height: 56px;
     line-height: 56px;
     .van-search__content {
       border-radius: 8px;
+      background: #f4f5f7;
       .van-cell {
         padding: 0;
+        .van-field__left-icon {
+          font-size: 18px;
+          font-weight: bold;
+        }
       }
     }
   }
@@ -266,14 +296,14 @@ watch(
 .page-proposal-list {
   padding: 0 30px;
   margin-bottom: 200px;
-  .is-end-tips {
+  :deep(.van-list__finished-text) {
     font-size: 26px;
     font-family: PingFangSC-Medium, PingFang SC;
     font-weight: 500;
     color: #99a9c0;
     line-height: 37px;
-    margin: 30px auto 120px;
     text-align: center;
+    margin: 27px 0 90px;
   }
 }
 .van-sticky {

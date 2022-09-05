@@ -17,7 +17,7 @@
       </div>
       <div v-if="filter" class="filter" @click="openPop">
         <span></span>
-        <div class="text">筛选</div>
+        <div class="text" :class="{ 'has-select-condition': checkedInsure.length > 0 }">筛选</div>
         <ZaSvg name="filter" />
       </div>
 
@@ -179,7 +179,9 @@ onMounted(() => {
       color: $primary-color;
       font-size: $zaui-font-size-sm;
       fill: 616161;
-
+      .has-select-condition {
+        font-weight: bold;
+      }
       .icon-filter {
         margin-left: 4px;
       }

@@ -40,3 +40,12 @@ const emit = defineEmits(['currentIndex']);
 // 判断slot是否有值
 const slotBtn = !!useSlots().emptyBtn;
 </script>
+<style scoped lang="scss">
+.empty-title {
+  font-size: 30px;
+  font-family: PingFangSC-Regular, PingFang SC;
+  font-weight: 400;
+  color: #99a9c0;
+  line-height: 39px;
+}
+</style>
