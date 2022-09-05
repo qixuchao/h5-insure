@@ -158,7 +158,7 @@ const insured = ref<Omit<InsuredVoItem, 'productPlanVOList'>>({
 const riskInfo = ref<Partial<ProductPlanVoItem>>({}); // 险种信息
 const holderRef = ref({});
 const insuredRef = ref({});
-const riskFormRef = ref({});
+const riskFormRef = ref(null);
 const riskPremiumRef = ref({});
 
 const state = reactive<PageState>({
@@ -346,9 +346,16 @@ const trial = () => {
     holderRef.value?.validateForm?.(),
     insuredRef.value?.validateForm?.(),
     riskFormRef.value?.validate(),
-  ]).then(() => {
-    dealTrialData();
-  });
+  ]).then(
+    () => {
+      dealTrialData();
+    },
+    (errors: any[]) => {
+      if (errors.length) {
+        riskFormRef?.value?.scrollToField(errors[0].name);
+      }
+    },
+  );
 };
 
 const queryDictList = () => {

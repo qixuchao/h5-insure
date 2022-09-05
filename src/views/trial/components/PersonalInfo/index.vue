@@ -119,11 +119,12 @@ const state = reactive({
 
 const validateForm = () => {
   return new Promise((resolve, reject) => {
-    formRef?.value.validate().then(
+    formRef.value?.validate().then(
       () => {
         resolve('');
       },
-      () => {
+      (errors: any[]) => {
+        formRef.value?.scrollToField(errors?.[0].name);
         reject();
       },
     );
@@ -181,17 +182,6 @@ const ageRangeObj = computed(() => {
     maxAge: new Date(minAge),
   };
 });
-
-watch(
-  () => state.formInfo.occupationCodeList,
-  (newVal) => {
-    console.log('newVal', newVal);
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
 
 defineExpose({
   validateForm,
