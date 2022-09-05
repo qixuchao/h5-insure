@@ -163,8 +163,14 @@ import { CERT_TYPE_ENUM } from '@/common/constants';
 import { SOCIAL_SECURITY_ENUM, RELATION_HOLDER_ENUM } from '@/common/constants/infoCollection';
 import HolderInsureForm from '../components/HolderInsureForm/index.vue';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
-import { premiumCalcData, RiskDetailVoItem } from '@/api/modules/trial.data';
-import { RISK_TYPE_ENUM, RULE_ENUM } from '@/common/constants/trial';
+
+import {
+  RISK_TYPE_ENUM,
+  RULE_ENUM,
+  PAYMENT_PERIOD_TYPE_ENUMS,
+  INSURANCE_PERIOD_TYPE_ENUMS,
+} from '@/common/constants/trial';
+import { premiumCalcData, RiskVoItem, RiskPremiumDetailVoItem, RiskDetailVoItem } from '@/api/modules/trial.data';
 
 const router = useRouter();
 const route = useRoute();
@@ -363,7 +369,39 @@ const onUnderWrite = async (id: number) => {
   const res = await underwrite(order);
 };
 
-const onSaveOrder = async () => {
+// 将试算的参数转化成订单中需要的结构
+const transformData = (riskList: RiskVoItem[], riskPremium) => {
+  return riskList.map((risk: RiskVoItem) => {
+    const currentRisk = {
+      initialAmount: riskPremium[risk.riskCode]?.amount,
+      amountUnit: 1,
+      annuityDrawFrequency: risk.annuityDrawDate,
+      annuityDrawType: risk.annuityDrawType,
+      paymentFrequency: risk.paymentFrequency,
+      paymentPeriod: risk.chargePeriod.split('_')[1],
+      paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],
+      insurancePeriodType:
+        INSURANCE_PERIOD_TYPE_ENUMS[risk.coveragePeriod === 'to_life' ? 'to_life' : risk.coveragePeriod.split('_')[0]],
+      insurancePeriodValue: Number.isNaN(+risk.coveragePeriod.split('_')[1]) ? 0 : risk.coveragePeriod.split('_')[1],
+      riskCode: risk.riskCode,
+      riskType: risk.riskType,
+      extInfo: {
+        riskId: risk.riskId,
+        copy: risk.copy,
+      },
+      initialPremium: riskPremium[risk.riskCode]?.premium,
+      liabilityDetails: risk.liabilityVOList.map((liab) => ({
+        liabilityCode: liab.liabilityCode,
+        liabilityName: liab.liabilityName,
+        refundMethod: liab.liabilityAttributeValue,
+      })),
+      productId: detail.value?.id,
+    };
+    return currentRisk;
+  });
+};
+
+const onSaveOrder = async (risk) => {
   const order = {
     tenantId,
     venderCode: detail.value?.insurerCode, // 供应商编码
@@ -401,47 +439,9 @@ const onSaveOrder = async () => {
             tenantId,
             productCode,
             productName: detail.value?.productName,
-            premium: 4.7, // 保费
+            premium: 4.7, // 保费, 保费试算返回
             // TOOD 根据实际数据组装
-            tenantOrderRiskList: [
-              {
-                tenantId: 9991000007,
-                riskType: 1,
-                riskCode: '7FZ',
-                paymentFrequency: 5,
-                currantAmount: 3000000,
-                initAmount: 3000000,
-                amountUnit: 1,
-                liabilityDetails: [
-                  {
-                    liabilityCode: 'ZXG027',
-                    liabilityName: '首次重大疾病保险金',
-                    sumInsured: 3000000,
-                  },
-                  {
-                    liabilityCode: 'ZXG129',
-                    liabilityName: '身故保险金',
-                    sumInsured: 6000000,
-                  },
-                ],
-              },
-              {
-                tenantId: 9991000007,
-                riskType: 2,
-                riskCode: '7Y7',
-                paymentFrequency: 5,
-                currantAmount: 6000000,
-                initAmount: 6000000,
-                amountUnit: 1,
-                liabilityDetails: [
-                  {
-                    liabilityCode: 'FXG054',
-                    liabilityName: '身故保险金',
-                    sumInsured: 6000000,
-                  },
-                ],
-              },
-            ],
+            tenantOrderRiskList: risk,
           },
         ],
       },
@@ -474,7 +474,8 @@ const onPremiumCalc = () => {
       },
       insuredVOList: [
         {
-          insuredCode: '',
+          insuredCode: detail.value?.insurerCode as string,
+          relationToHolder: trailData.insured.relationToHolder,
           personVO: {
             birthday: getBirth(trailData.insured.certNo),
             certType: trailData.insured.certType,
@@ -488,10 +489,26 @@ const onPremiumCalc = () => {
         },
       ],
       productCode: productCode as string,
+      tenantId,
     };
-    console.log('组好的参数:', calcData);
-    premiumCalc(calcData);
-    onSaveOrder();
+
+    const res = await premiumCalc(calcData);
+
+    const { code, data } = res;
+    if (code === '10000') {
+      const riskPremium = {};
+      const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
+        (premiumList || []).forEach((risk) => {
+          riskPremium[risk.riskCode] = risk;
+          if (risk.riskPremiumDetailVOList?.length) {
+            flatRiskPremium(risk.riskPremiumDetailVOList);
+          }
+        });
+      };
+      flatRiskPremium(data.riskPremiumDetailVOList);
+      const risk = transformData(calcData.insuredVOList[0].productPlanVOList[0].riskVOList, riskPremium);
+      onSaveOrder(risk);
+    }
   });
 };
 

@@ -216,14 +216,14 @@ export interface premiumCalcData {
     holder: Holder;
     insuredVOList: InsuredVoItem[];
     productCode: string;
-    tenantId: string;
+    tenantId?: string;
 }
 
 export interface InsuredVoItem {
     insuredCode: string;
     personVO: PersonVo;
     productPlanVOList: ProductPlanVoItem[];
-    relationToHolder: number;
+    relationToHolder?: string;
 }
 
 export interface ProductPlanVoItem {
