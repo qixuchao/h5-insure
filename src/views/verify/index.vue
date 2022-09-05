@@ -43,14 +43,14 @@
           <div class="date">签名日期： {{ date }}</div>
           <div class="file">
             签名将被用于以下文件：
-            <ProPDFviewer
+            <!-- <ProPDFviewer
               v-for="(noticeItem, noticeIndex) in holderFileList"
               :key="noticeIndex"
               class="file"
               :title="`《${noticeItem.materialName}》`"
               :content="noticeItem.materialContent"
               :type="getFileType(noticeItem.materialContent, noticeItem.materialSource + '')"
-            />
+            /> -->
             <ProPDFviewer
               v-for="(noticeItem, noticeIndex) in holderQuestionList"
               :key="noticeIndex + holderFileList.length"
