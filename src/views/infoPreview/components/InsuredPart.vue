@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-08-01 18:11:52
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-31 14:19:56
+ * @LastEditTime: 2022-09-05 16:57:21
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/infoPreview/components/InsuredPart.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -11,27 +11,35 @@
     <ProCard title="保障信息">
       <div class="content-wrapper">
         <div class="product-name">{{ productData.productName }}</div>
-        <div v-for="risk in productData?.tenantOrderRiskList || []" :key="risk.id" class="risk-item">
+        <div class="risk-item">
           <ProCell
             title="保障期间"
-            :content="compositionDesc(risk.insurancePeriodValue, INSURANCE_PERIOD_TYPE_ENUMS[risk.insurancePeriodType])"
+            :content="
+              compositionDesc(riskInfo.insurancePeriodValue, INSURANCE_PERIOD_TYPE_ENUMS[riskInfo.insurancePeriodType])
+            "
           >
           </ProCell>
           <ProCell
             title="交费期间"
-            :content="compositionDesc(risk.paymentPeriod, PAYMENT_PERIOD_TYPE_ENUMS[risk.paymentPeriodType])"
+            :content="compositionDesc(riskInfo.paymentPeriod, PAYMENT_PERIOD_TYPE_ENUMS[riskInfo.paymentPeriodType])"
           >
           </ProCell>
-          <ProCell title="交费方式" :content="PAYMENT_FREQUENCY_MAP[risk.paymentFrequency]"></ProCell>
+          <ProCell title="交费方式" :content="PAYMENT_FREQUENCY_MAP[riskInfo.paymentFrequency]"></ProCell>
+          <ProCell
+            v-for="(riderRisk, index) in riskInfo.riderRiskList"
+            :key="index"
+            :title="riderRisk"
+            content="投保"
+          ></ProCell>
           <ProCell
             title="保障金额"
-            :content="risk.initialAmount.toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })"
+            :content="riskInfo.amount.toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })"
           >
           </ProCell>
           <ProCell
             title="首期保费"
             class="price"
-            :content="risk.initialPremium.toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })"
+            :content="productData.premium.toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })"
           >
           </ProCell>
         </div>
@@ -46,6 +54,7 @@ import {
   PAYMENT_PERIOD_TYPE_ENUMS,
   INSURANCE_PERIOD_TYPE_ENUMS,
   PAYMENT_FREQUENCY_MAP,
+  RISK_TYPE_ENUM,
 } from '@/common/constants/trial';
 
 interface Props {
@@ -56,6 +65,23 @@ const props = withDefaults(defineProps<Props>(), {
   productData: () => ({}),
 });
 
+const riskInfo = computed(() => {
+  const currentRiskInfo: any = {
+    riderRiskList: [],
+    amount: 0,
+  };
+  props.productData?.tenantOrderRiskList.forEach((risk) => {
+    currentRiskInfo.amount += risk.initialAmount;
+    if (risk.riskType === RISK_TYPE_ENUM.MAIN_RISK) {
+      Object.assign(currentRiskInfo, risk);
+    } else {
+      currentRiskInfo.riderRiskList.push(risk.riskName || '');
+    }
+  });
+  return currentRiskInfo;
+});
+
+// 根据保障期间和交费期间的value+type拼接出描述
 const compositionDesc = (value: number, desc: string) => {
   if (desc.indexOf('$') !== -1) {
     return desc.replace('$', `${value}`);

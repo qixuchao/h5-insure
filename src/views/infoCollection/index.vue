@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-05 11:02:36
+ * @LastEditTime: 2022-09-05 16:10:21
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -139,7 +139,7 @@ import { Toast } from 'vant/es';
 import { PAGE_ROUTE_ENUMS, ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import { getInitFactor, nextStep, getTemplateInfo, getOrderDetail } from '@/api';
 import { premiumCalc } from '@/api/modules/trial';
-import { PAYMENT_PERIOD_ENUMS, INSURANCE_PERIOD_ENUMS, RISK_TYPE_ENUMS } from '@/common/constants/trial';
+import { PAYMENT_PERIOD_ENUMS, INSURANCE_PERIOD_ENUMS, RISK_TYPE_ENUM } from '@/common/constants/trial';
 import { premiumCalcData, RiskVoItem, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
 import {
   FactorData,
@@ -185,6 +185,7 @@ const {
   productCode,
   tenantId = '9991000007',
   proposalId,
+  insurerCode = 'kunlunhealth',
 } = route.query;
 const [showAddress, toggleAddress] = useToggle();
 const pageCode = route.path === '/infoPreview' ? 'infoPreview' : 'infoCollection';
@@ -319,7 +320,7 @@ const formateData = (riskList: TenantOrderRiskItem[]): any[] => {
       liabilityVOList: liabilityDetails,
     };
 
-    if (riskType === RISK_TYPE_ENUMS.mainRisk) {
+    if (riskType === RISK_TYPE_ENUM.MAIN_RISK) {
       mainRisk.mainRiskCode = riskCode;
       mainRisk.mainRiskId = riskId;
     } else {
@@ -426,7 +427,7 @@ const reTrialPremium = () => {
       productCode: productCode as string,
       insuredVOList: [
         {
-          insuredCode: '',
+          insurerCode,
           personVO: {
             birthday: dayjs(insuredBirthday).format('YYYY-MM-DD'),
             gender: insuredGender,
@@ -435,7 +436,7 @@ const reTrialPremium = () => {
           },
           productPlanVOList: [
             {
-              insurerCode: '',
+              insurerCode,
               planCode: '',
               riskVOList: formateData(tenantOrderProductList[0].tenantOrderRiskList) as RiskVoItem[],
             },

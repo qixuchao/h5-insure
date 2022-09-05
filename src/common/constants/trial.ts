@@ -565,7 +565,7 @@ export const PAYMENT_PERIOD_TYPE_ENUMS = {
   to: 3,
 };
 
-export const RISK_TYPE_ENUMS = {
-  mainRisk: 1,
-  riderRisk: 2,
+export const RISK_TYPE_ENUM = {
+  MAIN_RISK: 1, // 主险
+  RIDER_RISK: 2, // 附加险
 };

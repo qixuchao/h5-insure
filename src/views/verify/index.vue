@@ -43,17 +43,17 @@
           <div class="date">签名日期： {{ date }}</div>
           <div class="file">
             签名将被用于以下文件：
-            <!-- <ProPDFviewer
+            <ProPDFviewer
               v-for="(noticeItem, noticeIndex) in holderFileList"
-              :key="noticeIndex"
+              :key="`holderFileList-${noticeIndex}`"
               class="file"
               :title="`《${noticeItem.materialName}》`"
               :content="noticeItem.materialContent"
               :type="getFileType(noticeItem.materialContent, noticeItem.materialSource + '')"
-            /> -->
+            />
             <ProPDFviewer
               v-for="(noticeItem, noticeIndex) in holderQuestionList"
-              :key="noticeIndex + holderFileList.length"
+              :key="`holderQuestionList-${noticeIndex}`"
               class="file"
               :title="`《${noticeItem.title}》`"
               :content="previewFileContent"
@@ -100,7 +100,7 @@
               签名将被用于以下文件：
               <ProPDFviewer
                 v-for="(noticeItem, noticeIndex) in insuredFileList"
-                :key="noticeIndex"
+                :key="`insuredFileList-${noticeIndex}`"
                 class="file"
                 :title="`《${noticeItem.materialName}》`"
                 :content="noticeItem.materialContent"
@@ -108,7 +108,7 @@
               />
               <ProPDFviewer
                 v-for="(noticeItem, noticeIndex) in insuredQuestionList"
-                :key="noticeIndex + insuredFileList.length"
+                :key="`insuredQuestionList-${noticeIndex}`"
                 class="file"
                 :title="`《${noticeItem.title}》`"
                 :content="previewFileContent"
@@ -316,7 +316,7 @@ const handleSubmit = () => {
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
-      if (!(data.orderStatus === ORDER_STATUS_ENUM.PENDING || data.orderStatus === ORDER_STATUS_ENUM.PAYMENT_FAILED)) {
+      if (data.orderStatus !== ORDER_STATUS_ENUM.PENDING) {
         pageJump('paymentResult', dealQueryData());
       } else {
         Dialog.confirm({

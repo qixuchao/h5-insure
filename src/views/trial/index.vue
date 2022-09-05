@@ -212,6 +212,7 @@ const transformData = (riskList: RiskVoItem[], riskPremium) => {
       insurancePeriodValue: Number.isNaN(+risk.coveragePeriod.split('_')[1]) ? 0 : risk.coveragePeriod.split('_')[1],
       riskCode: risk.riskCode,
       riskType: risk.riskType,
+      riskName: risk.riskName,
       extInfo: {
         riskId: risk.riskId,
         copy: risk.copy,
