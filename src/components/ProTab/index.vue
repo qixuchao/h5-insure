@@ -64,5 +64,11 @@ const shrink = computed(() => {
       }
     }
   }
+  :deep(.van-tab--active) {
+    color: $zaui-primary-text;
+  }
+  :deep(.van-tab) {
+    color: $zaui-text;
+  }
 }
 </style>

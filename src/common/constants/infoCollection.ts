@@ -117,3 +117,14 @@ export const BENEFICIARY_ORDER = [
     value: '4',
   },
 ];
+
+export const SOCIAL_SECURITY = [
+  {
+    label: '有(含新农合)',
+    value: '1',
+  },
+  {
+    label: '无社保',
+    value: '2',
+  },
+];
