@@ -41,7 +41,7 @@ export default defineConfig((env) => {
           // target: 'http://141604-zat-planet-gateway.test.za-tech.net',
           // target: 'http://150039-zat-planet-gateway.test.za-tech.net',
           // target: 'http://zat-planet-gateway.test.za-tech.net',
-          target: 'http://142461-zat-planet-gateway.test.za-tech.net',
+          target: 'http://156435-zat-planet-gateway.test.za-tech.net',
           // target: 'http://zat-planet-gateway.test.za-tech.net',
           changeOrigin: true, // 允许跨域
         },

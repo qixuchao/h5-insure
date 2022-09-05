@@ -12,7 +12,7 @@ import { ProductDetail } from './newTrial.data';
 
 // 获取产品详情
 export const insureProductDetail = (params: any = {}) =>
-  request.post<ProductData, ResponseData<ProductData>>('/api/app/insure/product/insureProductDetail', params);
+  request.post<ProductData, ResponseData<ProductDetail>>('/api/app/insure/product/insureProductDetail', params);
 
 // 保费试算
 export const premiumCalc = (params: premiumCalcData) =>

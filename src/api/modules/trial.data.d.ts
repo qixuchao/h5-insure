@@ -232,11 +232,15 @@ export interface LiabilityVoItem {
 }
 
 export interface PersonVo {
-    birthday: string;
-    gender: number;
-    occupationClass: number;
-    occupationCodeList: string[];
-    socialFlag: number;
+    birthday?: string;
+    gender?: number;
+    certType?: number;
+    certNo?: string;
+    occupationClass?: number;
+    occupationCodeList?: string[];
+    socialFlag?: number;
+    mobile?: string;
+    name?: string;
 }
 
 export interface Holder {
