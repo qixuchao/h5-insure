@@ -118,6 +118,12 @@ export const BENEFICIARY_ORDER = [
   },
 ];
 
+// 是否有社保
+export const SOCIAL_SECURITY_ENUM = {
+  HAS: '1',
+  NO: '2',
+};
+
 export const SOCIAL_SECURITY = [
   {
     label: '有(含新农合)',

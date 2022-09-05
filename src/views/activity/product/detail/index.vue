@@ -27,7 +27,7 @@
           {{ item }}
         </div>
       </div>
-      <ProCard title="保障详情" link="查看详情" @link-click="handleLinkClick">
+      <ProCard title="保障详情" link="查看详情" @link-click="onShowDetail">
         <div v-if="detail && detail?.tenantProductInsureVO" class="basic">
           <ProCell
             v-for="(item, index) in guaranteeList?.[activePlan]?.titleAndDescVOS"
@@ -67,7 +67,7 @@
       </ProCard>
       <ProTab class="tabs" :list="tabList" sticky scrollspy>
         <template #tab1>
-          <Info ref="formRef" :form-info="trailData" />
+          <HolderInsureForm ref="formRef" :disabled="disabled" :form-info="trailData" />
         </template>
         <template #tab2>
           <div class="tab-1">
@@ -148,11 +148,9 @@ import FieldInfo from '../components/fieldInfo.vue';
 import Question from '../components/question/index.vue';
 import ProTimeline from '@/components/ProTimeline/index.vue';
 import ProPopup from '@/components/ProPopup/index.vue';
-import { premiumCalc, insureProductDetail } from '@/api/modules/trial';
-import { productDetail, productList } from '@/api/modules/product';
+import { premiumCalc, insureProductDetail, saveOrder, underwrite } from '@/api/modules/trial';
+import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
-import { ProductInsureFactorItem } from '@/api/index.data';
-import { getTemplateInfo, getInitFactor } from '@/api';
 import {
   formatHolderAgeLimit,
   formatPaymentPeriodLimit,
@@ -161,15 +159,37 @@ import {
   formatSocialInsuranceLimit,
 } from './utils';
 import { toLocal } from '@/utils';
-import { YES_NO_ENUM, PAGE_ROUTE_ENUMS } from '@/common/constants';
-import Info from '../components/info/index.vue';
+import { CERT_TYPE_ENUM } from '@/common/constants';
+import { SOCIAL_SECURITY_ENUM, RELATION_HOLDER_ENUM } from '@/common/constants/infoCollection';
+import HolderInsureForm from '../components/HolderInsureForm/index.vue';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import { premiumCalcData } from '@/api/modules/trial.data';
 
 const router = useRouter();
 const route = useRoute();
 
-const { productCode = 'CQ75CQ76' } = route.query;
+/** 页面query参数类型 */
+interface QueryData {
+  productCode: string; // 产品code
+  name: string; // 投保人姓名
+  certNo: string; // 投保人证件号
+  mobile: string; // 投保人手机号
+  tenantId: string;
+  saleUserId: string; // 销售人员
+  saleChannelId: string; // 销售渠道
+  agencyId: string; // 代理人id
+}
+
+const {
+  productCode,
+  name,
+  certNo,
+  mobile,
+  tenantId = '9991000007',
+  saleUserId = '65434444',
+  saleChannelId = '123131321231',
+  agencyId = '3311222',
+} = route.query as QueryData;
 const tabList = ref<Array<{ title: string; slotName: string }>>([
   {
     title: '我要投保',
@@ -184,48 +204,39 @@ const tabList = ref<Array<{ title: string; slotName: string }>>([
     slotName: 'tab3',
   },
 ]);
+
 const formRef = ref();
 const activePlan = ref(0);
 const popupShow = ref(false);
 const detail = ref<ProductDetail>();
 const insureDetail = ref<any>();
+
+// 投保人不可修改
+const disabled = !!(name && certNo && mobile);
+// 赠险进入，从链接上默认取投保人数据
 const trailData = reactive({
   holder: {
-    certNo: '',
-    certType: 1,
-    mobile: '',
-    name: '',
-    socialFlag: 1,
+    certNo,
+    certType: CERT_TYPE_ENUM.CERT, // 默认身份证
+    mobile,
+    name,
+    socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
   },
   insured: {
-    certNo: '',
-    certType: 1,
-    name: '',
-    socialFlag: 1,
-    relationToHolder: 1,
+    certNo,
+    certType: CERT_TYPE_ENUM.CERT,
+    name,
+    socialFlag: SOCIAL_SECURITY_ENUM.HAS,
+    relationToHolder: RELATION_HOLDER_ENUM.SELF, // 被保人默认自己
   },
 });
 
 const handlePlanItemClick = (index: number) => {
   activePlan.value = index;
 };
-const templateId = ref<number>(1);
 
-const handleLinkClick = () => {
+const onShowDetail = () => {
   popupShow.value = true;
-};
-
-const jumpPage = () => {
-  router.push({
-    path: '/trial',
-    query: {
-      ...route.query,
-      productCode: detail.value?.baseProductCode,
-      insurerCode: detail.value?.insurerCode,
-      templateId: templateId.value,
-      productCategory: detail.value?.categoryNo,
-    },
-  });
 };
 
 // 单计划产品 保障详情在titleAndDescVOS字段里
@@ -241,14 +252,152 @@ const guaranteeList = computed(() => {
   ];
 });
 
+// 核保 - 参数和保存订单一样
+const onUnderWrite = async (id: number) => {
+  const order = {
+    id,
+    // orderNo: '2022090421131966279',
+    tenantId,
+    venderCode: detail.value?.insurerCode, // 供应商编码
+    // abbreviation: '众安健康',
+    orderDataSource: '1',
+    saleChannelId,
+    saleUserId,
+    agencyId,
+    tenantOrderHolder: {
+      tenantId,
+      name: trailData.holder.name,
+      certType: 1,
+      certNo: trailData.holder.certNo,
+      mobile: trailData.holder.mobile,
+      birthday: getBirth(trailData.holder.certNo),
+      gender: getSex(trailData.holder.certNo),
+    },
+    extInfo: { extraInfo: { renewalDK: 'Y', paymentMethod: '5', successJumpUrl: 'www.baidu.com' } },
+    tenantOrderInsuredList: [
+      {
+        tenantId,
+        relationToHolder: trailData.insured.relationToHolder, // 与投保人关系
+        insuredBeneficiaryType: trailData.insured.relationToHolder, // 与主被保险人关系
+        name: trailData.insured.name,
+        hasSocialInsurance: trailData.insured.socialFlag,
+        certType: 1,
+        certNo: trailData.insured.certNo,
+        birthday: getBirth(trailData.insured.certNo),
+        gender: getSex(trailData.insured.certNo),
+        extInfo: {
+          hasSocialInsurance: trailData.insured.socialFlag,
+        },
+        tenantOrderProductList: [],
+      },
+    ],
+  };
+
+  const res = await underwrite(order);
+};
+
+const onSaveOrder = async () => {
+  const order = {
+    tenantId,
+    venderCode: detail.value?.insurerCode, // 供应商编码
+    // abbreviation: '众安健康',
+    orderDataSource: '1', // 订单来演
+    saleChannelId, // 销售渠道id
+    saleUserId, // 销售人员id
+    agencyId, // 机构id
+    tenantOrderHolder: {
+      tenantId,
+      name: trailData.holder.name,
+      certType: 1,
+      certNo: trailData.holder.certNo,
+      mobile: trailData.holder.mobile,
+      birthday: getBirth(trailData.holder.certNo),
+      gender: getSex(trailData.holder.certNo),
+    },
+    extInfo: { extraInfo: { renewalDK: 'Y', paymentMethod: '5', jumpUrl: 'www.baidu.com' } },
+    tenantOrderInsuredList: [
+      {
+        tenantId,
+        relationToHolder: trailData.insured.relationToHolder, // 与投保人关系
+        insuredBeneficiaryType: trailData.insured.relationToHolder, // 与主被保险人关系
+        name: trailData.insured.name,
+        hasSocialInsurance: trailData.insured.socialFlag,
+        certType: 1,
+        certNo: trailData.insured.certNo,
+        birthday: getBirth(trailData.insured.certNo),
+        gender: getSex(trailData.insured.certNo),
+        extInfo: {
+          hasSocialInsurance: trailData.insured.socialFlag,
+        },
+        tenantOrderProductList: [
+          {
+            tenantId,
+            productCode,
+            productName: detail.value?.productName,
+            premium: 4.7, // 保费
+            // TOOD 根据实际数据组装
+            tenantOrderRiskList: [
+              {
+                tenantId: 9991000007,
+                riskType: 1,
+                riskCode: '7FZ',
+                paymentFrequency: 5,
+                currantAmount: 3000000,
+                initAmount: 3000000,
+                amountUnit: 1,
+                liabilityDetails: [
+                  {
+                    liabilityCode: 'ZXG027',
+                    liabilityName: '首次重大疾病保险金',
+                    sumInsured: 3000000,
+                  },
+                  {
+                    liabilityCode: 'ZXG129',
+                    liabilityName: '身故保险金',
+                    sumInsured: 6000000,
+                  },
+                ],
+              },
+              {
+                tenantId: 9991000007,
+                riskType: 2,
+                riskCode: '7Y7',
+                paymentFrequency: 5,
+                currantAmount: 6000000,
+                initAmount: 6000000,
+                amountUnit: 1,
+                liabilityDetails: [
+                  {
+                    liabilityCode: 'FXG054',
+                    liabilityName: '身故保险金',
+                    sumInsured: 6000000,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+
+  const res = await saveOrder(order);
+  const { code, data } = res;
+
+  if (code === '10000') {
+    onUnderWrite(data);
+  }
+};
+
+// 保费试算 -> 订单保存 -> 核保
 const onPremiumCalc = () => {
-  formRef.value?.validateForm?.().then(() => {
+  formRef.value?.validateForm?.().then(async () => {
     // 试算参数
     const calcData: premiumCalcData = {
       holder: {
         personVO: {
           birthday: getBirth(trailData.holder.certNo),
-          certType: 1,
+          certType: trailData.holder.certType,
           certNo: trailData.holder.certNo,
           gender: Number(getSex(trailData.holder.certNo)),
           mobile: trailData.holder.mobile,
@@ -261,7 +410,7 @@ const onPremiumCalc = () => {
           insuredCode: '',
           personVO: {
             birthday: getBirth(trailData.insured.certNo),
-            certType: 1,
+            certType: trailData.insured.certType,
             certNo: trailData.insured.certNo,
             gender: Number(getSex(trailData.insured.certNo)),
             name: trailData.insured.name,
@@ -275,6 +424,7 @@ const onPremiumCalc = () => {
     };
     console.log('组好的参数:', calcData);
     premiumCalc(calcData);
+    onSaveOrder();
   });
 };
 

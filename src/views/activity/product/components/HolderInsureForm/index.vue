@@ -2,19 +2,28 @@
   <ProForm ref="formRef">
     <div>
       <div class="title">投保人</div>
-      <ProField v-model="state.formInfo.holder.name" label="姓名" name="name" required placeholder="请输入姓名" />
+      <ProField
+        v-model="state.formInfo.holder.name"
+        label="姓名"
+        name="name"
+        required
+        placeholder="请输入姓名"
+        :disabled="props.disabled"
+      />
       <ProField
         v-model="state.formInfo.holder.certNo"
         label="证件号码"
         name="certNo"
         required
         placeholder="请输入身份证号"
+        :disabled="props.disabled"
         :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
       />
       <ProField
         v-model="state.formInfo.holder.mobile"
         label="手机号"
         name="mobile"
+        :disabled="props.disabled"
         required
         placeholder="请输入手机号"
       />
@@ -36,6 +45,7 @@
       <ProField
         v-model="state.formInfo.insured.relationToHolder"
         class="relation-to-Holder"
+        label=""
         name="relationToHolder"
         placeholder="请选择"
       >
@@ -74,6 +84,7 @@
 import { withDefaults } from 'vue';
 import type { FormInstance } from 'vant';
 import {
+  RELATION_HOLDER_ENUM,
   RELATION_HOLDER_LIST, // 投被保人关系
   SOCIAL_SECURITY, // 有无社保
 } from '@/common/constants/infoCollection';
@@ -84,18 +95,30 @@ import { VALIDATE_TYPE_ENUM } from '@/common/constants';
 const formRef = ref<FormInstance>({} as FormInstance);
 
 interface Props {
+  disabled: boolean;
   formInfo: {
-    certNo: string;
-    name: string;
-    mobile: string;
+    holder: {
+      certNo: string;
+      mobile: string;
+      name: string;
+      socialFlag: number;
+    };
+    insured: {
+      certNo: string;
+      name: string;
+      socialFlag: number;
+      relationToHolder: number;
+    };
   };
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  disabled: false,
   formInfo: () => ({}),
 });
 
 const state = reactive({
+  disabled: props.disabled,
   formInfo: props.formInfo,
 });
 
@@ -111,6 +134,31 @@ const validateForm = () => {
     );
   });
 };
+
+watch(
+  () => state.formInfo.insured.relationToHolder,
+  (newVal, oldVal) => {
+    if (newVal !== oldVal) {
+      if (newVal.toString() === RELATION_HOLDER_ENUM.SELF) {
+        // 我自己
+        state.formInfo.insured = {
+          certNo: state.formInfo.holder.certNo,
+          name: state.formInfo.holder.name,
+          socialFlag: state.formInfo.holder.socialFlag,
+          relationToHolder: newVal,
+        };
+      } else {
+        // 其他
+        state.formInfo.insured = {
+          certNo: '',
+          name: '',
+          socialFlag: 1,
+          relationToHolder: newVal,
+        };
+      }
+    }
+  },
+);
 
 defineExpose({
   validateForm,

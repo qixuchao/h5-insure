@@ -13,7 +13,7 @@
           <img :src="state.title" />
         </div>
         <MobileVerify v-if="isVerifyMobile" :attachment-list="state.attachmentList" @on-verify="onVerify" />
-        <IdCard v-else :attachment-list="state.attachmentList" />
+        <InfoField v-else :attachment-list="state.attachmentList" @on-submit="onSubmit" />
       </div>
     </div>
   </div>
@@ -25,28 +25,56 @@ import { insureProductDetail } from '@/api/modules/trial';
 import { productDetail } from '@/api/modules/product';
 import { RiskDetailVoItem, RiskAttachmentVoItem } from '@/api/modules/newTrial.data';
 import MobileVerify from './components/MobileVerify/index.vue';
-import IdCard from './components/IdCard/index.vue';
-import TitleImg from '@/assets/images/chuangxin/title1.png';
-import TitleImg2 from '@/assets/images/chuangxin/title2.png';
+import InfoField from './components/InfoField/index.vue';
+import TitleImg from '@/assets/images/chuangxin/title-step1.png';
+import TitleImg2 from '@/assets/images/chuangxin/title-step2.png';
 
 const route = useRoute();
 const router = useRouter();
 
+interface infoProps {
+  mobile: string;
+  certNo: '';
+  name: '';
+}
+
 // 链接带入的productCode
-const { productCode, source = 1 } = route.query;
+const { productCode = '7X9', source = 1 } = route.query;
 
 const isVerifyMobile = ref(true);
 
 const state = reactive({
   title: TitleImg,
   attachmentList: [],
+
+  userInfo: {
+    mobile: '',
+    certNo: '',
+    name: '',
+  },
 });
 
-const onVerify = (e) => {
-  console.log('受到的信息');
-  console.log(e);
-  isVerifyMobile.value = false;
+const onVerify = (e: infoProps) => {
+  // 填写的手机号
+  state.userInfo.mobile = e.mobile;
+
   state.title = TitleImg2;
+  isVerifyMobile.value = false;
+};
+
+const onSubmit = (e: infoProps) => {
+  // 跳转到基础产品
+  state.userInfo.certNo = e.certNo;
+  state.userInfo.name = e.name;
+  router.push({
+    path: '/activity/productDetail',
+    query: {
+      productCode: 'BWYL2021',
+      name: state.userInfo.name,
+      certNo: state.userInfo.certNo,
+      mobile: state.userInfo.mobile,
+    },
+  });
 };
 
 const getData = async () => {

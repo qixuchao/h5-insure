@@ -234,11 +234,11 @@ export interface LiabilityVoItem {
 export interface PersonVo {
     birthday?: string;
     gender?: number;
-    certType?: number;
+    certType?: string;
     certNo?: string;
     occupationClass?: number;
     occupationCodeList?: string[];
-    socialFlag?: number;
+    socialFlag?: string;
     mobile?: string;
     name?: string;
 }
