@@ -49,7 +49,7 @@ const { checked } = toRefs(state);
 @import '@/styles/mixins.scss';
 .com-product-item {
   padding: 30px 0;
-  border-bottom: 1px solid #eeeff4;
+  border-bottom: 0.5px solid #eeeff4;
   .content-wrap {
     display: flex;
     .product-image {
@@ -57,7 +57,9 @@ const { checked } = toRefs(state);
       .van-image {
         width: 160px;
         height: 160px;
-        border-radius: 12px 12px 0 0;
+        :deep(.van-image__img) {
+          border-radius: 12px 12px 0 0;
+        }
       }
       .insure-name {
         width: 160px;
@@ -110,10 +112,12 @@ const { checked } = toRefs(state);
         font-size: 24px;
         font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
         color: #99a9c0;
         line-height: 33px;
         margin: 6px 0 12px;
-        @include oneline-ellipsis;
+        @include moreline-ellipsis;
       }
       .tags {
         .tag {

@@ -5,11 +5,22 @@
 -->
 <template>
   <ProPageWrap class="page-history-proposal">
-    <van-search v-model="searchValue" placeholder="请输入关键词" shape="round" class="search" @search="onSearch" />
+    <van-search
+      v-model="searchValue"
+      placeholder="请输入被保人姓名/计划书名称"
+      shape="round"
+      class="search"
+      @search="onSearch"
+    />
     <div class="proposal-content">
-      <van-list v-model:loading="loading" :finished="finished" finished-text="- 没有更多了 -" @load="onloadClick">
+      <van-list
+        v-model:loading="loading"
+        :finished="finished"
+        :finished-text="hasProduct ? '- 没有更多了 -' : ''"
+        @load="onloadClick"
+      >
         <div v-for="i of historyList" :key="i.id" class="proposal-item">
-          <div class="title">{{ i.proposalName }}</div>
+          <div class="title">{{ i.proposalName }}计划书</div>
           <p class="premium">
             保费：<span>¥{{ toLocal(i.totalPremium) }}</span>
           </p>
@@ -22,6 +33,7 @@
         </div>
       </van-list>
     </div>
+    <ZaEmpty v-if="!hasProduct" :empty-img="emptyImg" title="暂无历史计划书" empty-class="empty-select" />
   </ProPageWrap>
 </template>
 
@@ -29,11 +41,12 @@
 import { Dialog, Toast } from 'vant';
 import { useRouter } from 'vue-router';
 import { toLocal } from '@/utils';
-import emptyImg from '@/assets/images/searchempty.png';
+import ZaEmpty from '@/components/ZaEmpty/index.vue';
+import emptyImg from '@/assets/images/empty.png';
 import ProTable from '@/components/ProTable/index.vue';
 import { historyProposalList, deleteProposal } from '@/api/modules/proposalList';
 import { HistoryProposalListType } from '@/api/modules/proposalList.data';
-import { convertPeriod, convertChargePeriod } from '@/utils/format';
+import { convertPeriod, convertChargePeriod, transformToMoney } from '@/utils/format';
 
 const columns = [
   {
@@ -60,6 +73,9 @@ const columns = [
     title: '保费',
     dataIndex: 'premium',
     width: 120,
+    render: (row: any) => {
+      return transformToMoney(row?.premium);
+    },
   },
 ];
 
@@ -104,6 +120,10 @@ const getHistoryList = () => {
 const onloadClick = () => {
   getHistoryList();
 };
+
+const hasProduct = computed(() => {
+  return historyList.value.length > 0;
+});
 
 const onSearch = (val: string) => {
   searchValue.value = val;
@@ -151,6 +171,13 @@ const editProposal = (id: number) => {
 .page-history-proposal {
   :deep(.van-search) {
     margin: 30px 0;
+    .van-field__body {
+      width: 100%;
+      .van-field__control {
+        width: 100%;
+        height: 34px;
+      }
+    }
   }
   :deep(.search) {
     width: 100%;
@@ -158,8 +185,13 @@ const editProposal = (id: number) => {
     line-height: 56px;
     .van-search__content {
       border-radius: 8px;
+      background: #f4f5f7;
       .van-cell {
         padding: 0;
+        .van-field__left-icon {
+          font-size: 18px;
+          font-weight: bold;
+        }
       }
     }
   }
@@ -211,6 +243,7 @@ const editProposal = (id: number) => {
           height: 60px;
           font-size: 28px;
           border-radius: 32px;
+          padding: 10px 36px;
           border: 1px solid #0d6efe;
           &:not(:first-child) {
             margin-left: 16px;
@@ -218,7 +251,7 @@ const editProposal = (id: number) => {
         }
         .del-btn {
           color: #393d46;
-          border: 1px solid #e6e6eb;
+          border: 2px solid #e6e6eb;
         }
       }
     }
