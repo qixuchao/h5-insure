@@ -44,22 +44,22 @@
           <div class="file">
             签名将被用于以下文件：
             <ProPDFviewer
-              v-for="(noticeItem, noticeIndex) in holderFileList"
-              :key="`holderFileList-${noticeIndex}`"
+              v-for="(holderFileItem, holderFileIndex) in holderFileList"
+              :key="`holderFileList-${holderFileIndex}`"
               class="file"
-              :title="`《${noticeItem.materialName}》`"
-              :content="noticeItem.materialContent"
-              :type="getFileType(noticeItem.materialContent, noticeItem.materialSource + '')"
+              :title="`《${holderFileItem.materialName}》`"
+              :content="holderFileItem.materialContent"
+              :type="getFileType(holderFileItem.materialContent, holderFileItem.materialSource + '')"
               @click="() => ''"
             />
             <ProPDFviewer
-              v-for="(noticeItem, noticeIndex) in holderQuestionList"
-              :key="`holderQuestionList-${noticeIndex}`"
+              v-for="(insuredFileItem, insuredFileIndex) in holderQuestionList"
+              :key="`holderQuestionList-${insuredFileIndex}`"
               class="file"
-              :title="`《${noticeItem.title}》`"
+              :title="`《${insuredFileItem.title}》`"
               :content="previewFileContent"
               :type="previewFileType"
-              @click="getFileDetails(noticeItem)"
+              @click="() => getFileDetails(insuredFileItem)"
             />
           </div>
         </div>
@@ -100,12 +100,12 @@
             <div class="file">
               签名将被用于以下文件：
               <ProPDFviewer
-                v-for="(noticeItem, noticeIndex) in insuredFileList"
-                :key="`insuredFileList-${noticeIndex}`"
+                v-for="(insuredFileItem, insuredFileIndex) in insuredFileList"
+                :key="`insuredFileList-${insuredFileIndex}`"
                 class="file"
-                :title="`《${noticeItem.materialName}》`"
-                :content="noticeItem.materialContent"
-                :type="getFileType(noticeItem.materialContent, noticeItem.materialSource + '')"
+                :title="`《${insuredFileItem.materialName}》`"
+                :content="insuredFileItem.materialContent"
+                :type="getFileType(insuredFileItem.materialContent, insuredFileItem.materialSource + '')"
                 @click="() => ''"
               />
               <ProPDFviewer
@@ -115,7 +115,7 @@
                 :title="`《${noticeItem.title}》`"
                 :content="previewFileContent"
                 :type="previewFileType"
-                @click="getFileDetails(noticeItem)"
+                @click="() => getFileDetails(noticeItem)"
               />
             </div>
           </div>
