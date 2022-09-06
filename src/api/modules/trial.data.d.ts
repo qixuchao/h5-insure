@@ -259,6 +259,3 @@ export interface RiskPremiumDetailVoItem {
     riskPremiumDetailVOList: RiskPremiumDetailVoItem[];
     riskType: number;
 }
-
-
-
