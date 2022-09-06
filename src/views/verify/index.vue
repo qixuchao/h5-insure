@@ -50,6 +50,7 @@
               :title="`《${noticeItem.materialName}》`"
               :content="noticeItem.materialContent"
               :type="getFileType(noticeItem.materialContent, noticeItem.materialSource + '')"
+              @click="() => ''"
             />
             <ProPDFviewer
               v-for="(noticeItem, noticeIndex) in holderQuestionList"
@@ -105,6 +106,7 @@
                 :title="`《${noticeItem.materialName}》`"
                 :content="noticeItem.materialContent"
                 :type="getFileType(noticeItem.materialContent, noticeItem.materialSource + '')"
+                @click="() => ''"
               />
               <ProPDFviewer
                 v-for="(noticeItem, noticeIndex) in insuredQuestionList"
@@ -249,17 +251,17 @@ const getFileDetails = (item: any) => {
     tenantId,
   }).then(({ code, data }) => {
     if (code === '10000') {
-      console.log(data);
-      if (data?.[0].questionType === 2) {
+      const { textType, content, questionType } = data?.[0] || {};
+      if (questionType === 2) {
         previewFileType.value = 'question';
         previewFileContent.value = data;
       } else {
-        if (data?.[0].textType === 1 && data?.[0].content.includes('png' || 'jpg' || 'jpeg')) {
+        if (textType === 1 && content.includes('png' || 'jpg' || 'jpeg')) {
           previewFileType.value = 'picture';
         } else {
-          previewFileType.value = fileTypeMap[data?.[0].textType];
+          previewFileType.value = fileTypeMap[textType];
         }
-        previewFileContent.value = data?.[0].content;
+        previewFileContent.value = content;
       }
     }
   });
