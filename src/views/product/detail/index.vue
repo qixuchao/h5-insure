@@ -23,7 +23,7 @@
           :class="['plan-item', `length-${guaranteeList.length}`, { active: activePlan === index }]"
           @click="handlePlanItemClick(index)"
         >
-          {{ item }}
+          {{ item.guaranteeType }}
         </div>
       </div>
       <ProCard v-if="showByFactor('guaranteeDetail')" title="保障详情" link="查看详情" @link-click="handleLinkClick">

@@ -1,0 +1,1 @@
+System.register(["./index-legacy-dc8b4ca4.js"],(function(e){"use strict";var t;return{setters:[function(e){t=e.b}],execute:function(){e("g",(e=>t.post("/api/app/order/v1/pageQuery",e))),e("d",((e,r)=>t.post("/api/app/order/v1/delete",{id:e,status:r})))}}}));
