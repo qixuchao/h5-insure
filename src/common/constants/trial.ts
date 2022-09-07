@@ -450,6 +450,13 @@ export const CIRC_CATEGORY = [
   },
 ];
 
+export const RULE_ENUM = {
+  MAIN_RISK_SAME: 1,
+  NO_LIMIT: 2,
+  MAIN_RISK_1: 3,
+  ONE_YEAR: 4,
+};
+
 export const PAYMENT_PERIOD_RULE = [
   {
     label: '同主险',

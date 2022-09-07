@@ -138,6 +138,9 @@ export const PAGE_ROUTE_ENUMS = {
   orderDetail: 'orderDetail', // 订单详情
   orderList: 'order', // 订单列表
   paymentResult: 'pay',
+  activityFree: 'free',
+  activityProductDetail: 'productDetail',
+  activityGuaranteeUpgrade: 'guaranteeUpgrade',
 };
 
 // eslint-disable-next-line
