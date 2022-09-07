@@ -1,0 +1,140 @@
+// :root {
+//   // 主题颜色
+//   // --van-blue: var(--van-blue, $primary-color);
+//   --van-primary-color: var(--van-blue);
+//   // 自定义覆盖主按钮背景颜色
+//   --van-button-primary-background-color: var(--primary-background-color,
+//   linear-gradient(to right, #f70800, #ff5003));
+// }
+// // linear-gradient(to right, #f70800, #ff5003));
+$primary-color: var(--van-primary-color);
+$btn-background: var(--van-button-primary-background-color); // 自定义主颜色背景颜色
+$text-color: #393D46; // 标准黑色字 主要文字颜色
+$label-color: #616161; // 次一级的描述文字颜色
+$tip-color: #909090; // 不重要提示文字颜色
+$label-color2: #c1c1c1;
+
+$zaui-line: #EEEFF4;//边框颜色
+$zaui-base-size: 22px;
+// $zaui-base-size: 26.5px;
+// 卡片标题
+$zaui-font-size-card-title: $zaui-base-size + 12px;
+// 首页访客正文字体
+$zaui-font-size-spec: $zaui-base-size + 4px;
+// 页面正文
+$zaui-font-size: $zaui-base-size + 6px;
+// 弹窗标题、数字
+$zaui-font-size-modal-title: $zaui-base-size + 10px;
+// 小控件文字大小
+$zaui-font-size-sm: $zaui-base-size + 2px;
+$zaui-font-size-sm2: $zaui-base-size + 4px;
+$zaui-font-size-sm3: $zaui-base-size;
+// 中控件文字大小
+$zaui-font-size-md: $zaui-base-size + 6px;
+$zaui-font-size-md2: $zaui-base-size + 8px;
+// 大控件文字大小
+$zaui-font-size-lg: $zaui-base-size + 6px;
+
+// TODO 需要把交付 tokens删除替换
+// =================基线 design tokens========================================
+
+/* ==================   颜色 =================  */
+
+/***** ====== 基本变量 ===== *****/
+// 全局背景
+$zaui-global-bg: var(--zaui-global-bg, #f2f5fc);
+// 全局背景返白
+$zaui-global-bg-white: var(--zaui-global-bg-white, #ffffff);
+// 标准区块背景（除（首页、我的、名片等定制化页面外的）二三级页面的卡片背景）
+$zaui-base-bg: var(--zaui-base-bg, #ffffff);
+// 分割线（用于内容与内容的分割）
+$zaui-dividing-line: var(--zaui-dividing-line, #eeeff4);
+// 品牌色（整个app的主题色）
+$zaui-brand: var(--zaui-brand, #0d6efe);
+// 金额色（产品价格的颜色）
+$zaui-price: var(--zaui-price, #ff5840);
+// 文本强调色（帮助信息里重点突出的强调色）
+$zaui-aide-text-stress: var(--zaui-aide-text-stress, #0d6efe);
+// 主要按钮上的文字色
+$zaui-button-primary-highlight-text: var(--zaui-button-primary-highlight-text, #ffffff);
+// 主要按钮上的文字色
+$zaui-button-secondary-highlight-text: var(--zaui-button-secondary-highlight-text, #0d6efe);
+// 弹窗按钮未选中文字色
+$zaui-popup-button-text: var(--zaui-popup-button-text, #515865);
+// 标题文字色（第一层级）一般是卡片标题
+$zaui-text-title: var(--zaui-text-title, #393d46);
+// 正文文本（第二层级）一般是描述等
+$zaui-text: var(--zaui-text, #393d46);
+// 弱化的正文信息（第三层级）类似于阅读量、转发数、来访人员
+$zaui-text-weak: var(--zaui-text-weak, #99a9c0);
+// 辅助文本（第四层级）介绍补充说明类文案
+$zaui-aide-text: var(--zaui-aide-text, #99a9c0);
+// 强链接按钮（第五层级）强链接的文本颜色
+$zaui-link: var(--zaui-link, #bcc7da);
+
+/***** ====== icon ===== *****/
+// 按钮
+$zaui-icon-fill: var(--zaui-icon-fill, #0d6efe);
+// 填充色反白
+$zaui-icon-highlight-white: var(--zaui-icon-highlight-white, #ffffff);
+
+/***** ====== 按钮 ===== *****/
+// 主要按钮(页面的主要操作按钮)
+$zaui-button-primary: var(--zaui-button-primary, #0d6efe);
+// 次要按钮(页面的次要操作按钮)
+$zaui-button-secondary: var(--zaui-button-secondary, #ffffff);
+// 次要按钮边框色
+$zaui-button-secondary-line: var(--zaui-button-secondary-line, #0d6efe);
+// 主要文字按钮
+$zaui-primary-text: var(--zaui-primary-text, #0d6efe);
+// 弹窗按钮未选中背景色
+$zaui-popup-button: var(--zaui-popup-button, #f6f7fc);
+// 弹窗按钮选中背景色
+$zaui-popup-highlight-button: var(--zaui-popup-highlight-button, #0d6efe);
+// 弹窗按钮选中边框色
+$zaui-popup-highlight-button-line: var(--zaui-popup-highlight-button-line, #0d6efe);
+// 按钮disabled背景颜色
+$zaui-disabled-button: var(--zaui-disabled-button, #8fbbfc);
+// 按钮disabled文字颜色
+$zaui-disabled-button-text: var(--zaui-disabled-button-text, #ffffff);
+
+/***** ====== 状态 ===== *****/
+// 错误、告警色
+$zaui-danger: var(--zaui-danger, #ff5050);
+// 文本禁用色
+$zaui-disabled-text: var(--zaui-disabled-text, #393d46);
+
+/* ================== 圆角 =================  */
+// 标签圆角小(一般用于产品列表，获客爆文、客户标签、日程类型、团队目标类型、团队成员职级、家庭成员类型、保单生效状态等)
+$zaui-border-radius-tag-small: var(--zaui-border-radius-tag-small, 8px);
+// 标签圆角大(一般用于擅长领域、客户详情中的客户标签)
+$zaui-border-radius-tag-big: var(--zaui-border-radius-tag-big, 12px);
+// 图片圆角(一般用于产品图片、视频、海报、文章的图片框)
+$zaui-border-radius-picture: var(--zaui-border-radius-picture, 12px);
+// 弹窗筛选按钮圆角(一般用于弹窗的筛选按钮等)
+$zaui-border-radius-popup-button: var(--zaui-border-radius-popup-button, 8px);
+// 主要按钮圆角(页面底部吸底或垂直跟在模块下方的大的块级按钮)
+$zaui-border-radius-primary-button: var(--zaui-border-radius-primary-button, 8px);
+// 搜索框圆角
+$zaui-border-radius-searchBar: var(--zaui-border-radius-searchBar, 8px);
+// 区块圆角(一般是区块卡片)
+$zaui-border-radius-card: var(--zaui-border-radius-card, 20px);
+// 临时层圆角(一般是弹窗、反馈)
+$zaui-border-radius-feedback: var(--zaui-border-radius-feedback, 12px);
+
+/* ================== 间距 =================  */
+// 区块行间距
+$zaui-space-home-card: var(--zaui-space-home-card, 30px);
+// 内页区块行间距
+$zaui-space-card: var(--zaui-space-card, 20px);
+// 区块距页面边距
+$zaui-page-border: var(--zaui-page-border, 30px);
+// 内容距区块边距
+$zaui-card-border: var(--zaui-card-border, 30px);
+// 内页区块与内容间距大
+$zaui-space-border-big: var(--zaui-space-border-big, 30px);
+// 内页区块与内容间距小
+$zaui-space-border-small: var(--zaui-space-border-small, 20px);
+// 单元格的最小高度
+$zaui-cell-height: 106px;
+

@@ -1,0 +1,48 @@
+$header-height: 88px;
+.page-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  text-align: center;
+}
+
+// 默认在手机浏览器展示时显示，否则在APP或微信都不展示
+.default-page-header {
+  height: $header-height;
+  line-height: $header-height;
+  width: 100vw;
+  display: flex;
+  padding: 0 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #EEEFF4;
+
+  .header-left {
+    width: 100px;
+    position: absolute;
+    left: 20px;
+    top: 0;
+    height: $header-height;
+  }
+  .header-title {
+    width: 100%;
+    text-align: center;
+    color: $text-color;
+    font-weight: 500;
+  }
+}
+
+.page-main {
+  position: relative;
+  width: 100%;
+  flex: 1;
+}
+.page-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 200;
+}

@@ -1,0 +1,77 @@
+.com-za-table {
+     // height: 240px;
+     overflow-x: auto;
+     font-size: 24px;
+     .scroll-table {
+       border-spacing: 1px 1px;
+       table-layout: fixed;
+       width: 100%;
+       .table-header {
+         color: #343434;
+         tr:first-child{
+             th:first-child{
+                 border-radius:14px 0 0 0;
+             }
+             th:last-child{
+                 border-radius:0 14px 0 0;
+             }
+         }
+         .table-cell {
+           position: sticky;
+           top: 0;
+           z-index: 3 !important;
+           background: var(--target-person-head-table);
+           &:nth-child(1) {
+             z-index: 4 !important;
+           }
+         }
+       }
+       .table-row {
+         padding: 0 20px;
+         line-height: 48px;
+         justify-content: space-between;
+         .table-cell {
+             text-align: center;
+             &.fixedwidth{
+                 width:220px;
+                //  width:auto;  
+             }
+             &.fixed {
+                 position: sticky;
+                 left: 0;
+                 z-index: 2;
+                 box-shadow: 10px 0px 10px 0px rgb(0 0 0 / 12%);
+           }
+         }
+       }
+       .table-body {
+         color: #969696;
+         .table-row{
+           td:first-child{
+            color: #616161;
+           }
+         }
+         tr:last-child{
+             td:first-child{
+                 border-radius:  0 0 0 14px;
+             }
+             td:last-child{
+                 border-radius:0  0  14px 0;
+             }
+         }
+         .table-row {
+           &:nth-child(odd) {
+             .table-cell {
+               background: #fff;
+             }
+           }
+           &:nth-child(even) {
+             .table-cell {
+               background: var(--target-person-body-table);
+             }
+           }
+         }
+       }
+     }
+ 
+  }

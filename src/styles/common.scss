@@ -1,0 +1,12 @@
+/**
+ * 全局通用的样式
+ */
+
+// 主题颜色color
+.primary-color {
+  color: $primary-color;
+  fill: $primary-color;
+}
+body {
+  font-size: 32px !important;
+}

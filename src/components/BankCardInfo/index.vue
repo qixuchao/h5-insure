@@ -1,0 +1,160 @@
+<template>
+  <div class="com-bank-card-info">
+    <ProPicker
+      v-if="showByFactor('cardType')"
+      v-model="formData.bankCardType"
+      label="卡片类型"
+      name="bankCardType"
+      :data-source="BANK_CARD_TYPE_LIST"
+      is-view
+    />
+    <ProField
+      v-if="showByFactor('bankCardNumber')"
+      v-model="formData.bankCardNo"
+      label="银行卡号"
+      name="bankCardNo"
+      type="number"
+      required
+    />
+    <ProField v-if="showByFactor('cardHolder')" :model-value="holderName" label="持卡人" name="accountName" is-view />
+    <ProPicker
+      v-if="showByFactor('bank')"
+      v-model="formData.payBank"
+      name="payBank"
+      label="开户银行"
+      :data-source="bankList"
+      required
+    />
+    <ProField
+      v-if="showByFactor('bankCardAttachment')"
+      label="银行卡照片"
+      block
+      label-width="100%"
+      name="images"
+      :rules="[{ validator: imagesValidator }]"
+    >
+      <template #label>
+        <span class="field-title">银行卡照片 <span class="sub-title">(需上传正反两面)</span></span>
+      </template>
+      <template #input>
+        <div class="image-wrap">
+          <ProImageUpload
+            v-model="formData.images"
+            :max-count="2"
+            :upload-type="UPLOAD_TYPE_ENUM.BANK_CARD"
+            @onUploadFinished="handleGetOssKey"
+          />
+        </div>
+      </template>
+    </ProField>
+    <ProField
+      v-if="showByFactor('bankPreMobile')"
+      v-model="formData.mobile"
+      label="预留手机号"
+      type="number"
+      required
+      name="mobile"
+      :validate-type="['phone']"
+    />
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { Ref } from 'vue';
+import ProField from '@/components/ProField/index.vue';
+import ProImageUpload from '@/components/ProImageUpload/index.vue';
+import ProPicker from '@/components/ProPicker/index.vue';
+import { BANK_CARD_TYPE_LIST, BANK_CARD_TYPE_ENUM } from '@/common/constants/bankCard';
+import { ocr } from '@/api/modules/file';
+import { OCRResponse } from '@/api/module/file.data';
+import { YES_NO_ENUM, UPLOAD_TYPE_ENUM, OCR_TYPE_ENUM } from '@/common/constants';
+import { ProductInsureFactorItem } from '@/api/index.data';
+import useDicData from '@/hooks/useDicData';
+
+const emits = defineEmits(['update:modelValue']);
+const props = defineProps({
+  modelValue: {
+    type: Object,
+    default: () => {},
+  },
+  holderName: {
+    type: String,
+    default: '',
+  },
+  factor: {
+    type: Object as () => { [key: string]: ProductInsureFactorItem },
+    default: () => {},
+  },
+});
+
+const bankDic = useDicData('BANK');
+const formData = ref({
+  bankCardType: BANK_CARD_TYPE_ENUM.DEBIT,
+  bankCardNo: '',
+  accountName: '',
+  payBank: '',
+  mobile: '',
+  images: [],
+});
+
+const showByFactor = (key: string) => {
+  return props.factor && props.factor[key] && props.factor[key].isDisplay === YES_NO_ENUM.YES;
+};
+
+const imagesValidator = (images: Array<string>) => {
+  if (images && images.length === 2) {
+    return true;
+  }
+  return '请上传银行卡正反面照片';
+};
+
+const bankList = computed(() => {
+  return bankDic.value.map((item) => ({ label: item.name, value: item.code }));
+});
+
+const handleGetOssKey = (ossKey: string) => {
+  ocr({
+    ossKey: [ossKey],
+    imageType: OCR_TYPE_ENUM.BANK_CARD,
+  }).then((res) => {
+    const { data, code } = res;
+    if (code === '10000' && data && data.bankCardOcrVO) {
+      formData.value.bankCardNo = data.bankCardOcrVO.cardNo;
+      const matchBank = bankList.value.find((x) => x.label === data.bankCardOcrVO.bankName);
+      if (matchBank) {
+        formData.value.payBank = matchBank.value;
+      }
+    }
+  });
+};
+
+watch(
+  () => props.modelValue,
+  (val) => {
+    formData.value = val;
+  },
+  {
+    immediate: true,
+  },
+);
+
+watch(formData, (val) => {
+  emits('update:modelValue', val);
+});
+</script>
+
+<style lang="scss" scoped>
+.image-wrap {
+  display: flex;
+  justify-content: flex-start;
+  width: 690px;
+}
+.com-bank-card-info {
+  .field-title {
+    .sub-title {
+      font-size: 26px;
+      color: #99a9c0;
+    }
+  }
+}
+</style>

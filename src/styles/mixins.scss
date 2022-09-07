@@ -1,0 +1,32 @@
+/**
+ * 全局通用的mixins
+ */
+
+/**
+  @desc: 文字超出...
+  @example：  @include text-ellipsis;
+*/
+@mixin text-ellipsis() {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/**
+  @desc: 单行超长省略号（指定宽度）
+  @example：  @include oneline-ellipsis;
+*/
+@mixin oneline-ellipsis($width: 100%) {
+  width: $width;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+// 多行超长省略号（指定行数和宽度）
+@mixin moreline-ellipsis($line: 2, $width: 100%) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: $line;
+  overflow: hidden;
+  word-break: break-all;
+}

@@ -1,0 +1,213 @@
+/**
+ * vant 组件库需要全局覆盖的样式
+ */
+
+//  tab组件的下划线颜色和选中文字颜色
+.van-tabs__line {
+  height: 8px;
+}
+.van-button {
+  // border: none;
+}
+.van-tab--active {
+  font-weight: 600;
+  color: $primary-color;
+}
+.van-list__finished-text {
+  text-align: center;
+  line-height: normal;
+  font-size: $zaui-font-size-sm2;
+  font-family: PingFangSC-Medium, PingFang SC;
+  font-weight: 400;
+  color: #d7d7d7;
+  margin-top: 52px;
+}
+.van-button__text {
+  font-size: 32px;
+}
+.van-button--default {
+  border: none;
+  color: var(--van-button-default-color);
+  background: var(--van-button-default-background-color);
+}
+
+// 单元格
+.van-cell {
+  padding: 14px $zaui-card-border;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+
+  &::after {
+    transform: scaleY(1);
+    width: 720px;
+  }
+
+  .van-field__value {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    justify-content: flex-start;
+    .van-field__body {
+      // margin-top: 28px;
+    }
+    .van-field__error-message {
+      line-height: 28px;
+      margin-bottom: 8px;
+    }
+  }
+
+  .van-field__label {
+    line-height: 42px;
+    margin: 8px;
+  }
+
+  .van-field__control {
+    input::input-placeholder {
+      /* Chrome/Opera/Safari */
+      color: red;
+    }
+    input::-moz-placeholder {
+      /* Firefox 19+ */
+      color: red;
+    }
+    input:-ms-input-placeholder {
+      /* IE 10+ */
+      color: red;
+    }
+    input:-moz-placeholder {
+      /* Firefox 18- */
+      color: red;
+    }
+  }
+}
+
+.van-search__field {
+  .van-field__value {
+    align-items: flex-start;
+    .van-field__body {
+      margin-top: 0;
+    }
+  }
+}
+
+// cell中右侧箭头行高
+.van-cell-group .van-cell--clickable .van-cell__right-icon::before {
+  // vertical-align: sub;
+}
+
+// cell 箭头与文字对齐
+.van-cell__right-icon {
+  height: 60px;
+  display: flex;
+  align-items: center;
+}
+
+.van-icon-arrow {
+  &:before {
+    color: #99A9C0;
+    font-weight: 600;
+  }
+}
+
+.van-hairline--top-bottom {
+  &::after {
+    border-width: 0;
+  }
+
+}
+
+.van-dialog {
+  width: 560px;
+  .van-dialog__message {
+    font-size: $zaui-font-size-md2;
+    color: $zaui-text;
+    text-align: center;
+    width: 100%;
+  }
+  .van-dialog__footer {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid $zaui-line;
+
+    &:after {
+      border: none;
+    }
+
+    .van-button {
+      width: 50%;
+      height: 96px;
+      flex: none;
+
+      &.van-dialog__cancel {
+        background: none;
+        color: $zaui-aide-text;
+        border-right: 1px solid $zaui-line;
+      }
+
+      &.van-dialog__confirm {
+        background: none;
+        color: $zaui-brand;
+
+        &:after {
+          border: none;
+        }
+      }
+    }
+  }
+}
+
+// checkbox 样式
+.van-checkbox__icon .van-icon {
+  border-radius: 8px;
+}
+.van-field__left-icon {
+  display: flex;
+  align-items: center;
+}
+
+// toast
+.van-toast {
+  width: auto;
+  max-width: 450px;
+}
+
+// 步进器样式
+.van-stepper {
+  .van-stepper__input {
+    border: 2px solid $zaui-line;
+    border-radius: 8px;
+    padding: 9px 16px;
+    min-width: 104px;
+    margin: 0 8px;
+  }
+  button {
+    border: 2px solid $zaui-line;
+    border-radius: 8px;
+    width: 54px;
+    height: 56px;
+    &::after {
+      background-color: $text-color;
+      height: 18px;
+      width: 2px;
+      border-radius: 2px;
+
+    }
+    &::before {
+      background-color: $text-color;
+      width: 18px;
+      height: 2px;
+    }
+  }
+
+  .van-stepper__minus--disabled, .van-stepper__plus--disabled {
+    background-color: #ffffff;
+    &::after {
+      background-color: $zaui-text-weak;
+    }
+    &::before {
+      background-color: $zaui-text-weak;
+    }
+  }
+}
