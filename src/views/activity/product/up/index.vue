@@ -7,6 +7,7 @@
 -->
 <template>
   <div class="page-activity-upgrade">
+    <img class="logo" :src="logo" />
     <div class="container">
       <div class="main-form">
         <FieldInfo title="姓名" :desc="orderDetail?.tenantOrderInsuredList?.[0].name" />
@@ -52,6 +53,7 @@ import {
   RELATION_HOLDER_LIST, // 投被保人关系
   SOCIAL_SECURITY, // 有无社保
 } from '@/common/constants/infoCollection';
+import logo from '@/assets/images/chuangxin/logo.png';
 
 const route = useRoute();
 
@@ -360,6 +362,11 @@ $activity-primary-color: #ff6d23;
 .page-activity-upgrade {
   background: linear-gradient(180deg, #fea64a 0%, #fc7429 88%, #fc6d24 100%);
   position: relative;
+
+  .logo {
+    width: 50%;
+    margin: 30px;
+  }
 
   .container {
     position: absolute;

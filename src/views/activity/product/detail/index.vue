@@ -2,6 +2,7 @@
   <div>
     <div class="page-product-detail">
       <div class="info">
+        <img class="logo" :src="logo" />
         <img :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
         <div class="guarantee-list">
           <div v-if="guaranteeList.length > 1" class="plan">
@@ -143,6 +144,7 @@ import {
   INSURANCE_PERIOD_TYPE_ENUMS,
 } from '@/common/constants/trial';
 import { premiumCalcData, RiskVoItem, RiskPremiumDetailVoItem, RiskDetailVoItem } from '@/api/modules/trial.data';
+import logo from '@/assets/images/chuangxin/logo.png';
 
 const router = useRouter();
 const route = useRoute();
@@ -598,6 +600,12 @@ $activity-primary-color: #ff6d23;
   .info {
     background: linear-gradient(180deg, #fea64a 0%, #fc7429 88%, #eeeeee 100%);
     // padding-bottom: 20px;
+    .logo {
+      width: 50%;
+      margin: 30px;
+      margin-top: 10px;
+      position: absolute;
+    }
     .banner {
       width: 100%;
     }
