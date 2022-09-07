@@ -7,6 +7,7 @@
 -->
 <template>
   <div class="page-activity-invite">
+    <img class="logo" :src="logo" />
     <div class="container">
       <div class="main-form">
         <div class="title">
@@ -31,6 +32,7 @@ import MobileVerify from './components/MobileVerify/index.vue';
 import InfoField from './components/InfoField/index.vue';
 import TitleImg from '@/assets/images/chuangxin/title-step1.png';
 import TitleImg2 from '@/assets/images/chuangxin/title-step2.png';
+import logo from '@/assets/images/chuangxin/logo.png';
 
 const route = useRoute();
 const router = useRouter();
@@ -155,6 +157,10 @@ onMounted(() => {
 $activity-primary-color: #ff6d23;
 .page-activity-invite {
   background: linear-gradient(180deg, #fea64a 0%, #fc7429 88%, #fc6d24 100%);
+  .logo {
+    width: 50%;
+    margin: 30px;
+  }
   .container {
     position: absolute;
     width: 100%;

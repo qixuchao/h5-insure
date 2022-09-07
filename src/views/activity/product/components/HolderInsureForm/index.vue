@@ -56,7 +56,13 @@
           ></ProRadioButton>
         </template>
       </ProField>
-      <ProField v-model="state.formInfo.insured.name" label="姓名" name="name" required />
+      <ProField
+        v-model="state.formInfo.insured.name"
+        label="姓名"
+        name="name"
+        required
+        :is-view="state.insureDisable"
+      />
       <ProField
         v-model="state.formInfo.insured.certNo"
         label="证件号码"
@@ -64,6 +70,7 @@
         required
         placeholder="请输入身份证号"
         :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
+        :is-view="state.insureDisable"
       />
       <ProField v-model="state.formInfo.insured.socialFlag" label="有无社保" name="name" required placeholder="请选择">
         <template #input>
@@ -74,7 +81,9 @@
     <ProDivider />
     <div>
       <div class="title">保费支付</div>
-      <ProCell class="pay" title="每月保费" :content="`${state.formInfo.premium} /月 共12期`" :border="false" />
+      <ProField v-model="state.formInfo.premium" label="每月保费" :is-view="true">
+        <template #input> {{ state.formInfo.premium }} /月 共12期</template>
+      </ProField>
       <ProPicker
         v-model="state.formInfo.paymentMethod"
         name="paymentMethod"
@@ -151,7 +160,8 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const state = reactive({
-  disabled: props.disabled,
+  disabled: props.disabled, // 投保人不可修改
+  insureDisable: true, // 被保人不可修改
   formInfo: props.formInfo,
 });
 
@@ -168,6 +178,7 @@ const validateForm = () => {
   });
 };
 
+// 监听为投保，如果是本人，投保人信息填充被保人，并且信息不可修改
 watch(
   () => state.formInfo.insured.relationToHolder,
   (newVal, oldVal) => {
@@ -180,6 +191,8 @@ watch(
           socialFlag: state.formInfo.holder.socialFlag,
           relationToHolder: newVal,
         };
+        // 被保人信息不可修改
+        state.insureDisable = true;
       } else {
         // 其他
         state.formInfo.insured = {
@@ -188,6 +201,8 @@ watch(
           socialFlag: 1,
           relationToHolder: newVal,
         };
+        // 被保人信息可以修改
+        state.insureDisable = false;
       }
     }
   },
@@ -218,6 +233,10 @@ defineExpose({
 }
 :deep(.relation-to-Holder.van-cell .van-field__value .van-field__body) {
   width: 100%;
+}
+:deep(.relation-to-Holder.van-cell .van-field__control--right) {
+  justify-content: flex-start;
+  text-align: left;
 }
 :deep(.van-cell .van-field__label) {
   white-space: nowrap;
