@@ -1,26 +1,33 @@
+<!--
+ * @Author: wangyuanli@zhongan.io
+ * @Date: 2022-09-02
+ * @LastEditors:  wangyuanli@zhongan.io
+ * @LastEditTime: 2022-09-02
+ * @Description: 升级保障
+-->
 <template>
-  <div class="page-product-detail">
-    <ProCard>
-      <FieldInfo title="姓名" :desc="orderDetail?.tenantOrderInsuredList?.[0].name" />
-      <FieldInfo title="证件号码" :desc="orderDetail?.tenantOrderInsuredList?.[0].certNo" />
-      <FieldInfo title="手机号码" :desc="orderDetail?.tenantOrderInsuredList?.[0].mobile" />
-      <FieldInfo title="有无社保" :desc="orderDetail?.tenantOrderInsuredList?.[0].hasSocialInsurance" />
-    </ProCard>
-    <div class="footer-button">
-      <div class="price">
-        总保费<span>￥{{ toLocal(premium) }}/月</span>
+  <div class="page-activity-upgrade">
+    <div class="container">
+      <div class="main-form">
+        <FieldInfo title="姓名" :desc="orderDetail?.tenantOrderInsuredList?.[0].name" />
+        <FieldInfo title="证件号码" :desc="orderDetail?.tenantOrderInsuredList?.[0].certNo" />
+        <FieldInfo title="手机号码" :desc="orderDetail?.tenantOrderHolder?.mobile" />
+        <ProField label="有无社保" name="name" required placeholder="请选择">
+          <template #input>
+            <ProRadioButton v-model="hasSocialInsurance" :disabled="true" :options="SOCIAL_SECURITY"></ProRadioButton>
+          </template>
+        </ProField>
+        <VanButton class="upgrade-btn" type="primary" :block="true" @click="onUpgrade"
+          >升级保障({{ premium }})</VanButton
+        >
       </div>
-      <van-button type="primary" class="right" @click="onUp">升级保障</van-button>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Dialog, Toast } from 'vant';
-import ProDivider from '@/components/ProDivider/index.vue';
-import ProCard from '@/components/ProCard/index.vue';
-import ProCell from '@/components/ProCell/index.vue';
+import { Toast } from 'vant';
 import FieldInfo from '../components/fieldInfo.vue';
 import {
   insureProductDetail,
@@ -32,7 +39,6 @@ import {
 import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
 import { toLocal } from '@/utils';
-import { SOCIAL_SECURITY_ENUM } from '@/common/constants/infoCollection';
 
 import {
   RISK_TYPE_ENUM,
@@ -41,8 +47,12 @@ import {
   INSURANCE_PERIOD_TYPE_ENUMS,
 } from '@/common/constants/trial';
 import { RiskVoItem, RiskPremiumDetailVoItem, RiskDetailVoItem } from '@/api/modules/trial.data';
+import {
+  RELATION_HOLDER_ENUM,
+  RELATION_HOLDER_LIST, // 投被保人关系
+  SOCIAL_SECURITY, // 有无社保
+} from '@/common/constants/infoCollection';
 
-const router = useRouter();
 const route = useRoute();
 
 /** 页面query参数类型 */
@@ -54,11 +64,11 @@ interface QueryData {
 
 const { productCode, orderId, tenantId } = route.query as QueryData;
 
-const formRef = ref();
-const detail = ref<ProductDetail>();
-const insureDetail = ref<any>();
-const orderDetail = ref<any>();
-const premium = ref<number>();
+const detail = ref<ProductDetail>(); // 产品详情
+const insureDetail = ref<any>(); // 险种详情
+const orderDetail = ref<any>(); // 订单详情
+const premium = ref<number>(); // 保费试算
+const hasSocialInsurance = ref<boolean>(); // 有无社保
 
 // 试算参数转换
 const compositionTrailData = (riskList: RiskDetailVoItem[]) => {
@@ -76,11 +86,11 @@ const compositionTrailData = (riskList: RiskDetailVoItem[]) => {
       riskCalcMethodInfoVO,
     } = risk;
     const {
-      insurancePeriodType,
+      // insurancePeriodType,
       insurancePeriodValueList,
       paymentFrequencyList,
       paymentPeriodValueList,
-      paymentPeriodType,
+      // paymentPeriodType,
       annuityDrawFrequencyList,
       annuityDrawValueList,
       insurancePeriodRule,
@@ -263,11 +273,11 @@ const getReqData = () => {
         insuredBeneficiaryType: o.tenantOrderInsuredList[0].insuredBeneficiaryType,
         name: o.tenantOrderInsuredList[0].name,
         // 没有返回
-        hasSocialInsurance: o.tenantOrderInsuredList[0].hasSocialInsurance || 1,
+        hasSocialInsurance: o.tenantOrderInsuredList[0].hasSocialInsurance,
         certType: o.tenantOrderInsuredList[0].certType,
         certNo: o.tenantOrderInsuredList[0].certNo,
         // 没有返回
-        mobile: o.tenantOrderInsuredList[0].mobile || '13061958179',
+        mobile: o.tenantOrderInsuredList[0].mobile,
         birthday: o.tenantOrderInsuredList[0].birthday,
         gender: o.tenantOrderInsuredList[0].gender,
         tenantOrderProductList: [
@@ -310,7 +320,7 @@ const update = async (id) => {
 };
 
 // 升级保障 保费试算
-const onUp = async (o: any) => {
+const onUpgrade = async (o: any) => {
   // 保存订单
   await onPremiumCalc();
   const oId = await onSaveOrder();
@@ -333,6 +343,7 @@ const fetchData = () => {
 
     if (orderRes.code === '10000') {
       orderDetail.value = orderRes.data;
+      hasSocialInsurance.value = orderRes.data.tenantOrderInsuredList[0].extInfo.hasSocialInsurance;
     }
 
     onPremiumCalc();
@@ -344,4 +355,50 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+$activity-primary-color: #ff6d23;
+.page-activity-upgrade {
+  background: linear-gradient(180deg, #fea64a 0%, #fc7429 88%, #fc6d24 100%);
+  position: relative;
+
+  .container {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    padding: 20px;
+    bottom: 60px;
+    .main-form {
+      background: url('@/assets/images/chuangxin/bg.png') no-repeat;
+      background-size: 100% 100%;
+      position: relative;
+      padding: 20px;
+
+      .com-field-info:first-child {
+        border-top: none;
+      }
+
+      .upgrade-btn {
+        margin-bottom: 20px;
+        background-color: $activity-primary-color;
+        border-color: $activity-primary-color;
+      }
+    }
+  }
+  :deep(.com-check-btn.activated-disabled) {
+    background-color: #ff6d23;
+  }
+}
+:deep(.com-check-btn.activated-disabled) {
+  background-color: #ff6d23;
+}
+// 和fieldInfo保持一致
+:deep(.van-cell) {
+  padding: 20px 0;
+  border-top: 1px solid #eeeff4;
+}
+:deep(.van-field__label) {
+  font-size: 30px;
+  font-weight: 600;
+  color: #393d46;
+}
+</style>

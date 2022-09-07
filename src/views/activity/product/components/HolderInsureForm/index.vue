@@ -8,7 +8,7 @@
         name="name"
         required
         placeholder="请输入姓名"
-        :is-view="props.disabled"
+        :is-view="props.holderDisable || props.disable"
       />
       <ProField
         v-model="state.formInfo.holder.certNo"
@@ -16,16 +16,16 @@
         name="certNo"
         required
         placeholder="请输入身份证号"
-        :is-view="props.disabled"
         :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
+        :is-view="props.holderDisable || props.disable"
       />
       <ProField
         v-model="state.formInfo.holder.mobile"
         label="手机号"
         name="mobile"
-        :is-view="props.disabled"
         required
         placeholder="请输入手机号"
+        :is-view="props.holderDisable || props.disable"
       />
       <ProField
         v-model="state.formInfo.holder.socialFlag"
@@ -35,7 +35,11 @@
         placeholder="请选择"
       >
         <template #input>
-          <ProRadioButton v-model="state.formInfo.holder.socialFlag" :options="SOCIAL_SECURITY"></ProRadioButton>
+          <ProRadioButton
+            v-model="state.formInfo.holder.socialFlag"
+            :disabled="props.disable"
+            :options="SOCIAL_SECURITY"
+          ></ProRadioButton>
         </template>
       </ProField>
     </div>
@@ -52,6 +56,7 @@
         <template #input>
           <ProRadioButton
             v-model="state.formInfo.insured.relationToHolder"
+            :disabled="props.disable"
             :options="RELATION_HOLDER_LIST"
           ></ProRadioButton>
         </template>
@@ -61,7 +66,7 @@
         label="姓名"
         name="name"
         required
-        :is-view="state.insureDisable"
+        :is-view="state.insureDisable || props.disable"
       />
       <ProField
         v-model="state.formInfo.insured.certNo"
@@ -70,11 +75,15 @@
         required
         placeholder="请输入身份证号"
         :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
-        :is-view="state.insureDisable"
+        :is-view="state.insureDisable || props.disable"
       />
       <ProField v-model="state.formInfo.insured.socialFlag" label="有无社保" name="name" required placeholder="请选择">
         <template #input>
-          <ProRadioButton v-model="state.formInfo.insured.socialFlag" :options="SOCIAL_SECURITY"></ProRadioButton>
+          <ProRadioButton
+            v-model="state.formInfo.insured.socialFlag"
+            :disabled="props.disable"
+            :options="SOCIAL_SECURITY"
+          ></ProRadioButton>
         </template>
       </ProField>
     </div>
@@ -90,11 +99,20 @@
         label="支付方式"
         placeholder="请选择"
         :data-source="ACTIVITY_PAY_METHOD_LIST"
+        :is-view="props.disable"
         required
-      />
+      >
+        <!-- <template #input> {{ state.formInfo.premium }} /月 共12期</template> -->
+      </ProPicker>
+
       <ProField label="开通下一年自主重新投保" name="renewalDK" placeholder="请选择">
         <template #input>
-          <van-checkbox v-model="state.formInfo.renewalDK">免费开通</van-checkbox>
+          <ProTabButton
+            :disabled="props.allDisabled"
+            title="免费开通"
+            :active="state.formInfo.renewalDK"
+            @click="onRenewalDK"
+          ></ProTabButton>
         </template>
       </ProField>
     </div>
@@ -109,17 +127,7 @@ import {
   RELATION_HOLDER_LIST, // 投被保人关系
   SOCIAL_SECURITY, // 有无社保
 } from '@/common/constants/infoCollection';
-import {
-  PAY_METHOD_LIST,
-  PAY_METHOD_ENUM,
-  ACTIVITY_PAY_METHOD_LIST,
-  PAYMENT_TYPE_ENUM,
-  PAY_INFO_TYPE_ENUM,
-  PAY_INFO_TYPE_LIST,
-  EXPIRY_METHOD_LIST,
-  EXPIRY_METHOD_ENUM,
-  BANK_CARD_TYPE_ENUM,
-} from '@/common/constants/bankCard';
+import { ACTIVITY_PAY_METHOD_LIST } from '@/common/constants/bankCard';
 
 import ProDivider from '@/components/ProDivider/index.vue';
 import { VALIDATE_TYPE_ENUM } from '@/common/constants';
@@ -127,11 +135,12 @@ import { VALIDATE_TYPE_ENUM } from '@/common/constants';
 const formRef = ref<FormInstance>({} as FormInstance);
 
 interface Props {
-  disabled: boolean;
+  disable: boolean; // 全部信息不可修改
+  holderDisable: boolean; // 投保人信息不可修改
   formInfo: {
     paymentMethod: number;
     premium: number;
-    renewalDK: string;
+    renewalDK: boolean;
     holder: {
       certNo: string;
       mobile: string;
@@ -147,20 +156,13 @@ interface Props {
   };
 }
 
-const options = [
-  {
-    label: '男',
-    value: '1',
-  },
-];
-
 const props = withDefaults(defineProps<Props>(), {
-  disabled: false,
+  holderDisable: false,
+  disable: false,
   formInfo: () => ({}),
 });
 
 const state = reactive({
-  disabled: props.disabled, // 投保人不可修改
   insureDisable: true, // 被保人不可修改
   formInfo: props.formInfo,
 });
@@ -176,6 +178,12 @@ const validateForm = () => {
       },
     );
   });
+};
+
+const onRenewalDK = () => {
+  if (!props.disable) {
+    state.formInfo.renewalDK = !state.formInfo.renewalDK;
+  }
 };
 
 // 监听为投保，如果是本人，投保人信息填充被保人，并且信息不可修改
@@ -240,6 +248,10 @@ defineExpose({
 }
 :deep(.van-cell .van-field__label) {
   white-space: nowrap;
+}
+
+:deep(.com-check-btn.activated-disabled) {
+  background-color: #ff6d23;
 }
 
 .pay {

@@ -1,5 +1,4 @@
 <template>
-  <!-- ProPageWrap -->
   <div>
     <div class="page-product-detail">
       <div class="info">
@@ -31,7 +30,7 @@
       </div>
       <ProTab class="tabs" :list="tabList" sticky scrollspy>
         <template #tab1>
-          <HolderInsureForm ref="formRef" :disabled="disabled" :form-info="trailData" />
+          <HolderInsureForm ref="formRef" :holder-disable="holderDisable" :disable="disable" :form-info="trailData" />
         </template>
         <template #tab2>
           <div class="tab-1">
@@ -76,9 +75,9 @@
       </ProTab>
       <div class="footer-button">
         <div class="price">
-          总保费<span>￥{{ toLocal(premium) }}/月</span>
+          总保费<span>￥{{ toLocal(trailData.premium) }}/月</span>
         </div>
-        <van-button type="primary" class="right" @click="onNext">立即投保</van-button>
+        <van-button type="primary" class="right" @click="onNext">{{ orderId ? '升级保障' : '立即投保' }}</van-button>
       </div>
     </div>
   </div>
@@ -105,6 +104,7 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { Dialog } from 'vant';
+import { exit } from 'process';
 import { ORIGIN, toLocal } from '@/utils';
 import ProDivider from '@/components/ProDivider/index.vue';
 import ProCard from '@/components/ProCard/index.vue';
@@ -193,8 +193,10 @@ const detail = ref<ProductDetail>();
 const insureDetail = ref<any>();
 const premium = ref<number>();
 
-// 投保人不可修改
-const disabled = !!(name && certNo && mobile);
+// 投保人不可修改（赠险）
+const holderDisable = !!(name && certNo && mobile);
+// 订单进入的，全部信息都不可修改
+const disable = !!orderId;
 // 赠险进入，从链接上默认取投保人数据
 const trailData = reactive({
   holder: {
@@ -213,7 +215,7 @@ const trailData = reactive({
   },
   paymentMethod: PAY_METHOD_ENUM.ALIPAY,
   premium: 0,
-  renewalDK: 'Y',
+  renewalDK: true,
 });
 
 const handlePlanItemClick = (index: number) => {
@@ -317,7 +319,7 @@ const onUnderWrite = async (p) => {
     });
 
     const { data } = res1;
-    window.location.href = data;
+    // window.location.href = data;
   }
 };
 
@@ -358,7 +360,7 @@ const transformData = (riskList: RiskVoItem[], riskPremium) => {
 };
 
 const getPayCallbackUrl = (id: number) => {
-  const url = `${ORIGIN}/activity/guaranteeUpgrade?tenantId=${tenantId}&productCode=${productCode}&orderId=${id}`;
+  const url = `https://planet-h5-insure-test.zhongan.io/activity/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderId=${id}`;
   return url;
 };
 
@@ -385,7 +387,7 @@ const generateOrderParam = (risk) => {
         renewalDK: trailData.renewalDK || 'N',
         paymentMethod: trailData.paymentMethod,
         // 支付成功跳转
-        jumpUrl: '',
+        successJumpUrl: '',
       },
     },
     tenantOrderInsuredList: [
@@ -407,7 +409,7 @@ const generateOrderParam = (risk) => {
             tenantId,
             productCode,
             productName: detail.value?.productName,
-            premium: premium.value, // 保费, 保费试算返回
+            premium: trailData.premium, // 保费, 保费试算返回
             tenantOrderRiskList: risk,
           },
         ],
@@ -432,7 +434,7 @@ const onSaveOrder = async (risk: any) => {
         extraInfo: {
           renewalDK: trailData.renewalDK || 'N',
           paymentMethod: trailData.paymentMethod,
-          jumpUrl: payCallbackUrl,
+          successJumpUrl: payCallbackUrl,
         },
       },
     });
@@ -481,7 +483,6 @@ const onPremiumCalc = () => {
       const { code, data } = res;
 
       if (code === '10000') {
-        premium.value = data.premium;
         trailData.premium = data.premium;
         resolve({
           condition: riskVOList,
@@ -493,9 +494,18 @@ const onPremiumCalc = () => {
 };
 
 const onNext = async () => {
+  if (orderId) {
+    router.push({
+      path: '/activity/guaranteeUpgrade',
+      query: {
+        productCode: 'BWYL2022',
+        tenantId,
+        orderId,
+      },
+    });
+    return;
+  }
   const { condition, data } = await onPremiumCalc();
-
-  console.log(condition, data);
 
   const riskPremium = {};
   const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
@@ -523,31 +533,52 @@ const fetchData = async () => {
       insureDetail.value = insureRes.data;
     }
   });
-  onPremiumCalc();
 
   if (orderId) {
-    const res3 = await getTenantOrderDetail({ id: orderId, tenantId });
-    if (res3.code === '10000') {
-      console.log(res3.data.orderStatus);
-      if (res3.data.orderStatus === 'acceptPolicy') {
-        Dialog.confirm({
-          title: '标题',
-          message: '升级保障',
-        })
-          .then(() => {
-            router.push({
-              path: '/activity/productDetail',
-              query: {
-                productCode: 'BWYL2022',
-                name,
-                certNo,
-                mobile,
-              },
-            });
-          })
-          .catch(() => {});
+    const res = await getTenantOrderDetail({ id: orderId, tenantId });
+    const { code, data } = res;
+    if (code === '10000') {
+      if (data.orderStatus === 'acceptPolicy') {
+        const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
+        console.log(data);
+        Object.assign(trailData, {
+          holder: {
+            certNo: tenantOrderHolder.certNo,
+            certType: tenantOrderHolder.certType,
+            mobile: tenantOrderHolder.mobile,
+            name: tenantOrderHolder.name,
+            socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
+          },
+          insured: {
+            certNo: tenantOrderInsuredList[0]?.certNo,
+            certType: tenantOrderInsuredList[0]?.certType,
+            name: tenantOrderInsuredList[0]?.name,
+            socialFlag: tenantOrderInsuredList[0]?.extInfo?.hasSocialInsurance,
+            relationToHolder: tenantOrderInsuredList[0]?.relationToHolder,
+          },
+          paymentMethod: extInfo.extraInfo.paymentMethod,
+          premium: tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium,
+          renewalDK: extInfo.extraInfo.renewalDK === 'Y',
+        });
+        // Dialog.confirm({
+        //   title: '标题',
+        //   message: '升级保障',
+        // })
+        //   .then(() => {
+        //     router.push({
+        //       path: '/activity/guaranteeUpgrade',
+        //       query: {
+        //         productCode: 'BWYL2022',
+        //         tenantId,
+        //         orderId,
+        //       },
+        //     });
+        //   })
+        //   .catch(() => {});
       }
     }
+  } else {
+    onPremiumCalc();
   }
 };
 

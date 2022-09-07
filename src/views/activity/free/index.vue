@@ -22,7 +22,6 @@
 
 <script lang="ts" setup>
 import { useRouter, useRoute } from 'vue-router';
-import { inRange } from 'lodash';
 import { insureProductDetail, getOrderDetailByCondition, multiIssuePolicy } from '@/api/modules/trial';
 import { productDetail } from '@/api/modules/product';
 import { RiskDetailVoItem, RiskAttachmentVoItem } from '@/api/modules/newTrial.data';
