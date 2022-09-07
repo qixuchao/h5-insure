@@ -358,7 +358,7 @@ const transformData = (riskList: RiskVoItem[], riskPremium) => {
 };
 
 const getPayCallbackUrl = (id: number) => {
-  const url = `${ORIGIN}/activity/insureUp?tenantId=${tenantId}&productCode=${productCode}&orderId=${id}`;
+  const url = `${ORIGIN}/activity/guaranteeUpgrade?tenantId=${tenantId}&productCode=${productCode}&orderId=${id}`;
   return url;
 };
 

@@ -178,7 +178,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   },
   {
     name: '保障升级',
-    path: '/activity/insureUp',
+    path: '/activity/guaranteeUpgrade',
     meta: { title: '保障升级' },
     component: () => import('@/views/activity/product/up/index.vue'),
   },
