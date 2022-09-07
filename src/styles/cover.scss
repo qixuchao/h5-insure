@@ -41,6 +41,7 @@
 
   &::after {
     transform: scaleY(1);
+    width: 720px;
   }
 
   .van-field__value {
@@ -53,7 +54,7 @@
     }
     .van-field__error-message {
       line-height: 28px;
-      // height: 30px;
+      margin-bottom: 8px;
     }
   }
 
@@ -103,6 +104,20 @@
   align-items: center;
 }
 
+.van-icon-arrow {
+  &:before {
+    color: #99A9C0;
+    font-weight: 600;
+  }
+}
+
+.van-hairline--top-bottom {
+  &::after {
+    border-width: 0;
+  }
+
+}
+
 .van-dialog {
   width: 560px;
   .van-dialog__message {
@@ -150,4 +165,49 @@
 .van-field__left-icon {
   display: flex;
   align-items: center;
+}
+
+// toast
+.van-toast {
+  width: auto;
+  max-width: 450px;
+}
+
+// 步进器样式
+.van-stepper {
+  .van-stepper__input {
+    border: 2px solid $zaui-line;
+    border-radius: 8px;
+    padding: 9px 16px;
+    min-width: 104px;
+    margin: 0 8px;
+  }
+  button {
+    border: 2px solid $zaui-line;
+    border-radius: 8px;
+    width: 54px;
+    height: 56px;
+    &::after {
+      background-color: $text-color;
+      height: 18px;
+      width: 2px;
+      border-radius: 2px;
+
+    }
+    &::before {
+      background-color: $text-color;
+      width: 18px;
+      height: 2px;
+    }
+  }
+
+  .van-stepper__minus--disabled, .van-stepper__plus--disabled {
+    background-color: #ffffff;
+    &::after {
+      background-color: $zaui-text-weak;
+    }
+    &::before {
+      background-color: $zaui-text-weak;
+    }
+  }
 }

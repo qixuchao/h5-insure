@@ -131,9 +131,10 @@
       </div>
     </div>
   </ProPageWrap>
-  <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
+  <ProPopup :key="activePlan" v-model:show="popupShow" title="保障详情" class="guarantee-popup">
     <ProTab
       v-if="guaranteeList.length > 1"
+      v-model:active="currentInsuredInfo"
       :list="
         guaranteeList.map((item, index) => ({
           title: item.guaranteeType,
@@ -143,7 +144,11 @@
       class="tab"
     ></ProTab>
     <div class="guarantee-list">
-      <div v-for="(item, index) in guaranteeList[activePlan].titleAndDescVOS" :key="index" class="guarantee-item">
+      <div
+        v-for="(item, index) in guaranteeList[currentInsuredInfo].titleAndDescVOS"
+        :key="index"
+        class="guarantee-item"
+      >
         <div class="title">{{ item.title }}</div>
         <div v-dompurify-html="item.content" class="content" />
       </div>
@@ -182,12 +187,14 @@ const route = useRoute();
 const { productCode = 'CQ75CQ76' } = route.query;
 const tabList = ref<Array<{ title: string; slotName: string }>>([]);
 const activePlan = ref(0);
+const currentInsuredInfo = ref<number>(activePlan.value);
 const popupShow = ref(false);
 const detail = ref<ProductDetail>();
 const factor = ref<{ [key: string]: ProductInsureFactorItem }>({});
 
 const handlePlanItemClick = (index: number) => {
   activePlan.value = index;
+  currentInsuredInfo.value = index;
 };
 const templateId = ref<number>(1);
 

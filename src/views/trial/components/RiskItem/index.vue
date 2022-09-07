@@ -582,6 +582,8 @@ watch(
       font-size: 24px;
       font-weight: 400;
       color: #99a9c0;
+      line-height: 1;
+      margin: 8px 0;
     }
   }
 }

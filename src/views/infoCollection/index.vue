@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-05 16:10:21
+ * @LastEditTime: 2022-09-07 14:37:38
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -317,7 +317,13 @@ const formateData = (riskList: TenantOrderRiskItem[]): any[] => {
       riskCode,
       riskType,
       premium: initialPremium,
-      liabilityVOList: liabilityDetails,
+      liabilityVOList: liabilityDetails.map((liab) => {
+        return {
+          ...liab,
+          liabilityAttributeValue: liab.refundMethod,
+          liabilityAttributeCode: liab.refundMethod && 1,
+        };
+      }),
     };
 
     if (riskType === RISK_TYPE_ENUM.MAIN_RISK) {

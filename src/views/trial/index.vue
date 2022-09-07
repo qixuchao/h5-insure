@@ -63,7 +63,7 @@
       </van-collapse>
     </div>
 
-    <div class="footer-bar">
+    <div class="footer-bar van-safe-area-bottom">
       <span class="trial-result">
         <span class="result-num">{{
           (!state.retrialTip ? state.trialResult?.premium || '0' : '0').toLocaleString()

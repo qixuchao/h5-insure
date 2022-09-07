@@ -9,12 +9,20 @@
   --van-popup-round-border-radius: 20px;
   --van-cell-border-color: #EEEFF4;
   --van-field-label-color: #393d46;
-  --van-toast-default-width: 560px;
-  --van-toast-text-min-width: 560px;
+  --van-field-error-message-color: #ff5050;
+  --van-toast-default-width: auto;
+  --van-toast-default-padding: var(--van-padding-md) 36px;
+  --van-toast-max-width: 450px;
   --van-dialog-border-radius: 12px;
   --van-cell-font-size: 30px;
 
+  --van-button-default-height: 90px;
+  --van-button-border-radius: 8px;
+
+  --van-stepper-background-color: #ffffff;
+
   --van-button-primary-background-color-shadow: #fc3102;
+
 
   --van-tab-text-color: #969696;
 
