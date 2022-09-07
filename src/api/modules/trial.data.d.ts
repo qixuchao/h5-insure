@@ -234,6 +234,7 @@ export interface ProductPlanVoItem {
 
 export interface RiskVoItem {
     amount: number;
+    annuityDrawType: string;
     annuityDrawDate: number;
     annuityDrawFrequency: number;
     chargePeriod: string;

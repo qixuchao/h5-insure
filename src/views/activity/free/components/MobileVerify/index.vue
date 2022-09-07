@@ -28,11 +28,11 @@
       <div>
         我已阅读并同意
         <ProPDFviewer
-          v-for="(item, index) in attachmentList || []"
+          v-for="(item, index) in props.info?.attachmentList || []"
           :key="index"
           class="file-name"
           :title="`《${item.attachmentName}》`"
-          :content="item.attachmentUri"
+          :content="item.attachmentUrl"
           type="pdf"
         >
         </ProPDFviewer>
@@ -48,17 +48,9 @@ import { Toast } from 'vant/es';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 
 const props = defineProps({
-  title: {
-    type: String,
-    default: '',
-  },
-  desc: {
-    type: String,
-    default: '',
-  },
-  attachmentList: {
-    type: Array,
-    default: () => [],
+  info: {
+    type: Object,
+    default: () => {},
   },
 });
 
@@ -74,7 +66,7 @@ const mobileReg = /\d{9}/;
 const smsCodeReg = /^\d{6}$/;
 
 const state = reactive({
-  mobile: '',
+  mobile: props.info?.userInfo?.mobile,
   smsCode: '',
   agree: '',
 });
@@ -119,9 +111,9 @@ const onCheckCode = async () => {
 
 const onSubmit = async () => {
   formRef?.value.validate().then(async () => {
-    if (!state.agree) {
-      Toast('请勾选协议');
-    }
+    // if (!state.agree) {
+    //   Toast('请勾选协议');
+    // }
     onCheckCode();
   });
 };

@@ -25,11 +25,11 @@
       <div>
         我已阅读并同意
         <ProPDFviewer
-          v-for="(item, index) in attachmentList || []"
+          v-for="(item, index) in props.info?.attachmentList || []"
           :key="index"
           class="file-name"
           :title="`《${item.attachmentName}》`"
-          :content="item.attachmentUri"
+          :content="item.attachmentUrl"
           type="pdf"
         >
         </ProPDFviewer>
@@ -42,17 +42,12 @@
 import type { FormInstance } from 'vant';
 import { defineProps } from 'vue';
 import { Toast } from 'vant/es';
-import { VALIDATE_TYPE_ENUM } from '@/common/constants';
 import { validateIdCardNo } from '@/components/ProField/utils';
 
 const props = defineProps({
-  userInfo: {
+  info: {
     type: Object,
     default: () => {},
-  },
-  attachmentList: {
-    type: Array,
-    default: () => [],
   },
 });
 
@@ -64,8 +59,8 @@ const nameReg = /\W/;
 const smsCodeReg = /^\d{6}$/;
 
 const state = reactive({
-  name: props.userInfo.name,
-  certNo: props.userInfo.certNo,
+  name: props.info.userInfo.name,
+  certNo: props.info.userInfo.certNo,
   agree: '',
 });
 

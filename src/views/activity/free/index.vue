@@ -13,8 +13,8 @@
         <div class="title">
           <img :src="state.title" />
         </div>
-        <MobileVerify v-if="isVerifyMobile" :attachment-list="state.attachmentList" @on-verify="onVerify" />
-        <InfoField v-else :user-info="state.userInfo" :attachment-list="state.attachmentList" @on-submit="onSubmit" />
+        <MobileVerify v-if="isVerifyMobile" :info="state" @on-verify="onVerify" />
+        <InfoField v-else :info="state" @on-submit="onSubmit" />
       </div>
     </div>
   </div>
@@ -26,40 +26,55 @@ import { insureProductDetail, getOrderDetailByCondition, multiIssuePolicy } from
 import { productDetail } from '@/api/modules/product';
 import { RiskDetailVoItem, RiskAttachmentVoItem } from '@/api/modules/newTrial.data';
 import { RELATION_HOLDER_ENUM } from '@/common/constants/infoCollection';
-import { CERT_TYPE_ENUM } from '@/common/constants';
 import MobileVerify from './components/MobileVerify/index.vue';
 import InfoField from './components/InfoField/index.vue';
 import TitleImg from '@/assets/images/chuangxin/title-step1.png';
 import TitleImg2 from '@/assets/images/chuangxin/title-step2.png';
 import logo from '@/assets/images/chuangxin/logo.png';
+import { ProductDetail } from '@/api/modules/product.data';
+import { getExtInfo, genarateOrderParam } from '../utils';
 
 const route = useRoute();
 const router = useRouter();
 
-interface infoProps {
+/** 页面query参数类型 */
+interface QueryData {
+  productCode: string; // 产品code
+  tenantId: string; // 订单id
+  [key: string]: any; // 其他 extInfo
+}
+
+// 页面填写的信息
+interface UserInfoProps {
   mobile: string;
-  certNo: '';
-  name: '';
+  certNo: string;
+  name: string;
 }
 
 // 链接带入的productCode
-const { productCode = '7X9', tenantId, source = 1 } = route.query;
+const { productCode = '7X9', tenantId = '', extInfo } = route.query as QueryData;
+const extInfoObj = getExtInfo(extInfo);
 
+// 为true, 显示手机验证表单
 const isVerifyMobile = ref(true);
 
 const state = reactive({
   title: TitleImg,
   attachmentList: [{}],
 
+  // 填写的信息
   userInfo: {
-    mobile: '',
+    mobile: extInfoObj.phoneNo,
     certNo: '',
     name: '',
   },
 });
 
+const detail = ref<ProductDetail>();
+const insureDetail = ref<any>();
+
 // 第一步 验证手机号
-const onVerify = async (e: infoProps) => {
+const onVerify = async (e: UserInfoProps) => {
   // 填写的手机号
   state.userInfo.mobile = e.mobile;
   // 通过手机号查订单的信息
@@ -74,53 +89,60 @@ const onVerify = async (e: infoProps) => {
     state.userInfo.certNo = data.tenantOrderHolder?.certNo;
   }
 
+  // 到下一步填写姓名、身份证号
   state.title = TitleImg2;
   isVerifyMobile.value = false;
 };
 
 // 第二步 赠险出单
-const onSubmit = async (e: infoProps) => {
-  // 跳转到基础产品
+const onSubmit = async (e: UserInfoProps) => {
   state.userInfo.certNo = e.certNo;
   state.userInfo.name = e.name;
-  // 赠险领取
-  const res = await multiIssuePolicy({
+
+  const orderParam = genarateOrderParam({
     tenantId,
-    venderCode: 'zhongan',
-    tenantOrderHolder: {
-      certNo: state.userInfo.certNo,
-      certType: CERT_TYPE_ENUM.CERT, // 默认身份证
-      mobile: state.userInfo.mobile,
-      name: state.userInfo.name,
+    detail: detail.value,
+    ...extInfoObj,
+    holder: state.userInfo,
+    insured: {
+      ...state.userInfo,
+      relationToHolder: RELATION_HOLDER_ENUM.SELF, // 被保人默认自己
     },
-    tenantOrderInsuredList: [
-      {
-        certNo: state.userInfo.certNo,
-        certType: CERT_TYPE_ENUM.CERT, // 默认身份证
-        name: state.userInfo.name,
-        relationToHolder: RELATION_HOLDER_ENUM.SELF, // 被保人默认自己
-        tenantOrderProductList: [
-          {
-            productCode,
-          },
-        ],
-      },
-    ],
   });
+  // 赠险领取，跳转到基础产品
+  const res = await multiIssuePolicy(orderParam);
   const { code } = res;
+  // TODO 后端要调整参数
   if (code === '10000') {
-    // 跳转到基础险
+    // 跳转到基础险, 参数和短信发送的参数保持一致
     router.push({
       path: '/activity/productDetail',
       query: {
+        ...route.query,
         tenantId,
         productCode: 'BWYL2021',
-        name: state.userInfo.name,
-        certNo: state.userInfo.certNo,
-        mobile: state.userInfo.mobile,
+        extInfo: JSON.stringify({
+          ...extInfoObj,
+          phoneNo: state.userInfo.mobile,
+          certNo: state.userInfo.certNo,
+          name: state.userInfo.name,
+        }),
       },
     });
   }
+};
+
+// 解析条款
+const getAttachmentList = () => {
+  let attachmentList: RiskAttachmentVoItem[] = [];
+
+  insureDetail.value.productRiskVoList.forEach((i) => {
+    i.riskDetailVOList.forEach((j: RiskDetailVoItem) => {
+      attachmentList = attachmentList.concat(j.riskAttachmentVOList);
+    });
+  });
+
+  return attachmentList;
 };
 
 const getData = async () => {
@@ -128,21 +150,14 @@ const getData = async () => {
   const insureReq = insureProductDetail({ productCode });
 
   Promise.all([detailReq, insureReq]).then(([detailRes, insureRes]) => {
-    console.log(detailRes, insureRes);
     if (detailRes.code === '10000') {
-      console.log('');
+      detail.value = detailRes.data;
     }
 
     if (insureRes.code === '10000') {
-      let attachmentList: RiskAttachmentVoItem[] = [];
+      insureDetail.value = insureRes.data;
 
-      insureRes.data.productRiskVoList.forEach((i) => {
-        i.riskDetailVOList.forEach((j: RiskDetailVoItem) => {
-          attachmentList = attachmentList.concat(j.riskAttachmentVOList);
-        });
-      });
-
-      state.attachmentList = attachmentList;
+      state.attachmentList = getAttachmentList();
     }
   });
 };

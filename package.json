@@ -40,6 +40,7 @@
     "postcss-px-to-relative-unit": "^2.0.0",
     "prism-theme-vars": "^0.2.2",
     "qrcode": "^1.5.1",
+    "qs": "^6.11.0",
     "query-string": "^7.1.1",
     "recorder-core": "^1.2.22030501",
     "sha-256-js": "^1.0.3",

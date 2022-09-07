@@ -99,7 +99,7 @@
         label="支付方式"
         placeholder="请选择"
         :data-source="ACTIVITY_PAY_METHOD_LIST"
-        :is-view="props.disable"
+        :is-view="props.disable || state.formInfo.paymentMethodDisable"
         required
       >
         <!-- <template #input> {{ state.formInfo.premium }} /月 共12期</template> -->
@@ -137,6 +137,7 @@ const formRef = ref<FormInstance>({} as FormInstance);
 interface Props {
   disable: boolean; // 全部信息不可修改
   holderDisable: boolean; // 投保人信息不可修改
+  paymentMethodDisable: boolean; // 支付方式不能修改
   formInfo: {
     paymentMethod: number;
     premium: number;
@@ -159,6 +160,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   holderDisable: false,
   disable: false,
+  paymentMethodDisable: false,
   formInfo: () => ({}),
 });
 
@@ -252,6 +254,10 @@ defineExpose({
 
 :deep(.com-check-btn.activated-disabled) {
   background-color: #ff6d23;
+}
+:deep(button.active-button) {
+  background-color: #ff6d23;
+  background-image: url('@/assets/images/chuangxin/img-gouxuan.png');
 }
 
 .pay {
