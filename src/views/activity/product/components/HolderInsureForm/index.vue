@@ -8,7 +8,7 @@
         name="name"
         required
         placeholder="请输入姓名"
-        :disabled="props.disabled"
+        :is-view="props.disabled"
       />
       <ProField
         v-model="state.formInfo.holder.certNo"
@@ -16,14 +16,14 @@
         name="certNo"
         required
         placeholder="请输入身份证号"
-        :disabled="props.disabled"
+        :is-view="props.disabled"
         :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
       />
       <ProField
         v-model="state.formInfo.holder.mobile"
         label="手机号"
         name="mobile"
-        :disabled="props.disabled"
+        :is-view="props.disabled"
         required
         placeholder="请输入手机号"
       />
@@ -74,8 +74,20 @@
     <ProDivider />
     <div>
       <div class="title">保费支付</div>
-      <ProCell class="pay" title="每月保费" content="10" :border="false" />
-      <ProCell class="pay" title="支付方式" content="10" :border="false" />
+      <ProCell class="pay" title="每月保费" :content="`${state.formInfo.premium} /月 共12期`" :border="false" />
+      <ProPicker
+        v-model="state.formInfo.paymentMethod"
+        name="paymentMethod"
+        label="支付方式"
+        placeholder="请选择"
+        :data-source="ACTIVITY_PAY_METHOD_LIST"
+        required
+      />
+      <ProField label="开通下一年自主重新投保" name="renewalDK" placeholder="请选择">
+        <template #input>
+          <van-checkbox v-model="state.formInfo.renewalDK">免费开通</van-checkbox>
+        </template>
+      </ProField>
     </div>
     <ProDivider />
   </ProForm>
@@ -88,6 +100,17 @@ import {
   RELATION_HOLDER_LIST, // 投被保人关系
   SOCIAL_SECURITY, // 有无社保
 } from '@/common/constants/infoCollection';
+import {
+  PAY_METHOD_LIST,
+  PAY_METHOD_ENUM,
+  ACTIVITY_PAY_METHOD_LIST,
+  PAYMENT_TYPE_ENUM,
+  PAY_INFO_TYPE_ENUM,
+  PAY_INFO_TYPE_LIST,
+  EXPIRY_METHOD_LIST,
+  EXPIRY_METHOD_ENUM,
+  BANK_CARD_TYPE_ENUM,
+} from '@/common/constants/bankCard';
 
 import ProDivider from '@/components/ProDivider/index.vue';
 import { VALIDATE_TYPE_ENUM } from '@/common/constants';
@@ -97,6 +120,9 @@ const formRef = ref<FormInstance>({} as FormInstance);
 interface Props {
   disabled: boolean;
   formInfo: {
+    paymentMethod: number;
+    premium: number;
+    renewalDK: string;
     holder: {
       certNo: string;
       mobile: string;
@@ -111,6 +137,13 @@ interface Props {
     };
   };
 }
+
+const options = [
+  {
+    label: '男',
+    value: '1',
+  },
+];
 
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
@@ -173,11 +206,23 @@ defineExpose({
   line-height: 30px;
   padding: 30px 25px;
 }
-.relation-to-Holder {
-  :deep(.van-field__control--right) {
-    justify-content: space-between;
-  }
+
+:deep(.van-cell) {
+  padding: 20px 25px;
 }
+:deep(.van-cell .van-field__label) {
+  margin: 0;
+}
+:deep(.relation-to-Holder.van-cell .van-field__value) {
+  align-items: flex-start;
+}
+:deep(.relation-to-Holder.van-cell .van-field__value .van-field__body) {
+  width: 100%;
+}
+:deep(.van-cell .van-field__label) {
+  white-space: nowrap;
+}
+
 .pay {
   padding: 0 30px;
 }

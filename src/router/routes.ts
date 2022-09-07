@@ -176,6 +176,12 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     meta: { title: '付费险' },
     component: () => import('@/views/activity/product/detail/index.vue'),
   },
+  {
+    name: '保障升级',
+    path: '/activity/insureUp',
+    meta: { title: '保障升级' },
+    component: () => import('@/views/activity/product/up/index.vue'),
+  },
 ];
 
 export default asyncRoutes;

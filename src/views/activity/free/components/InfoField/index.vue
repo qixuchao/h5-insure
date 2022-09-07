@@ -46,6 +46,10 @@ import { VALIDATE_TYPE_ENUM } from '@/common/constants';
 import { validateIdCardNo } from '@/components/ProField/utils';
 
 const props = defineProps({
+  userInfo: {
+    type: Object,
+    default: () => {},
+  },
   attachmentList: {
     type: Array,
     default: () => [],
@@ -60,8 +64,8 @@ const nameReg = /\W/;
 const smsCodeReg = /^\d{6}$/;
 
 const state = reactive({
-  name: '',
-  certNo: '',
+  name: props.userInfo.name,
+  certNo: props.userInfo.certNo,
   agree: '',
 });
 
@@ -83,12 +87,4 @@ const onSubmit = () => {
 };
 </script>
 
-<style lang="scss" scoped>
-:deep(.van-checkbox) {
-  width: 100px;
-}
-
-:deep(.pdf-viewer .title) {
-  color: #ff6d23;
-}
-</style>
+<style lang="scss" scoped></style>

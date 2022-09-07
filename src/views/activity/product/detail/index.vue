@@ -2,69 +2,33 @@
   <!-- ProPageWrap -->
   <div>
     <div class="page-product-detail">
-      <van-swipe class="swipe">
-        <van-swipe-item v-for="(item, index) in detail?.tenantProductInsureVO?.banner || []" :key="index">
-          <img :src="item" class="swipe-img" />
-        </van-swipe-item>
-        <template #indicator="{ active, total }">
-          <div class="custom-indicator">{{ active + 1 }}/{{ total }}</div>
-        </template>
-      </van-swipe>
-      <div class="title">
-        <div class="text">{{ detail?.productFullName }}</div>
-        <div class="desc">
-          {{ detail?.showConfigVO.desc }}
+      <div class="info">
+        <img :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
+        <div class="guarantee-list">
+          <div v-if="guaranteeList.length > 1" class="plan">
+            <div
+              v-for="(item, index) in guaranteeList"
+              :key="index"
+              :class="['plan-item', `length-${guaranteeList.length}`, { active: activePlan === index }]"
+              @click="handlePlanItemClick(index)"
+            >
+              {{ item }}
+            </div>
+          </div>
+          <ProCard title="保障内容" link="查看详情" :show-divider="false" :show-icon="false" @link-click="onShowDetail">
+            <div v-if="detail && detail?.tenantProductInsureVO" class="basic">
+              <ProCell
+                v-for="(item, index) in guaranteeList?.[activePlan]?.titleAndDescVOS"
+                :key="index"
+                class="guarantee-item"
+                :title="item.title"
+                :content="item.desc"
+                :border="false"
+              />
+            </div>
+          </ProCard>
         </div>
       </div>
-      <ProDivider />
-      <div v-if="guaranteeList.length > 1" class="plan">
-        <div
-          v-for="(item, index) in guaranteeList"
-          :key="index"
-          :class="['plan-item', `length-${guaranteeList.length}`, { active: activePlan === index }]"
-          @click="handlePlanItemClick(index)"
-        >
-          {{ item }}
-        </div>
-      </div>
-      <ProCard title="保障详情" link="查看详情" @link-click="onShowDetail">
-        <div v-if="detail && detail?.tenantProductInsureVO" class="basic">
-          <ProCell
-            v-for="(item, index) in guaranteeList?.[activePlan]?.titleAndDescVOS"
-            :key="index"
-            class="guarantee-item"
-            :title="item.title"
-            :content="item.desc"
-            :border="false"
-          />
-        </div>
-        <div class="field">
-          <FieldInfo title="投保年龄" :desc="formatHolderAgeLimit(detail?.tenantProductInsureVO?.holderAgeLimit)" />
-          <FieldInfo
-            title="保障期间"
-            :desc="formatPaymentPeriodLimit(detail?.tenantProductInsureVO?.insurancePeriodValues)"
-          />
-          <FieldInfo
-            title="交费期间"
-            :desc="formatPaymentPeriodLimit(detail?.tenantProductInsureVO?.paymentPeriodValues)"
-          />
-          <FieldInfo
-            v-show="detail?.tenantProductInsureVO?.sexLimit !== '-1'"
-            title="性别限制"
-            :desc="formatSexLimit(detail?.tenantProductInsureVO?.sexLimit)"
-          />
-          <FieldInfo
-            v-show="detail?.tenantProductInsureVO?.socialInsuranceLimit !== '-1'"
-            title="社保限制"
-            :desc="formatSocialInsuranceLimit(detail?.tenantProductInsureVO?.socialInsuranceLimit)"
-          />
-          <FieldInfo
-            v-show="detail?.tenantProductInsureVO?.occupationLimit !== '-1'"
-            title="职业类别"
-            :desc="formatOccupationLimit(detail?.tenantProductInsureVO?.occupationLimit)"
-          />
-        </div>
-      </ProCard>
       <ProTab class="tabs" :list="tabList" sticky scrollspy>
         <template #tab1>
           <HolderInsureForm ref="formRef" :disabled="disabled" :form-info="trailData" />
@@ -83,7 +47,7 @@
               </template>
               <div class="tab-1-content">
                 请查看
-                <ProPdfViewer
+                <ProPDFviewer
                   v-for="(item, index) in detail?.tenantProductInsureVO?.attachmentVOList || []"
                   :key="index"
                   class="file-name"
@@ -96,7 +60,7 @@
                     class="dun-hao"
                     >、</span
                   >
-                </ProPdfViewer>
+                </ProPDFviewer>
               </div>
             </ProCard>
           </div>
@@ -112,9 +76,9 @@
       </ProTab>
       <div class="footer-button">
         <div class="price">
-          总保费<span>￥{{ toLocal(10000) }}/月</span>
+          总保费<span>￥{{ toLocal(premium) }}/月</span>
         </div>
-        <van-button type="primary" class="right" @click="onPremiumCalc">立即投保</van-button>
+        <van-button type="primary" class="right" @click="onNext">立即投保</van-button>
       </div>
     </div>
   </div>
@@ -140,6 +104,8 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
+import { Dialog } from 'vant';
+import { ORIGIN, toLocal } from '@/utils';
 import ProDivider from '@/components/ProDivider/index.vue';
 import ProCard from '@/components/ProCard/index.vue';
 import ProTab from '@/components/ProTab/index.vue';
@@ -148,7 +114,14 @@ import FieldInfo from '../components/fieldInfo.vue';
 import Question from '../components/question/index.vue';
 import ProTimeline from '@/components/ProTimeline/index.vue';
 import ProPopup from '@/components/ProPopup/index.vue';
-import { premiumCalc, insureProductDetail, saveOrder, underwrite } from '@/api/modules/trial';
+import {
+  premiumCalc,
+  insureProductDetail,
+  saveOrder,
+  underwrite,
+  getPayUrl,
+  getTenantOrderDetail,
+} from '@/api/modules/trial';
 import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
 import {
@@ -158,12 +131,11 @@ import {
   formatOccupationLimit,
   formatSocialInsuranceLimit,
 } from './utils';
-import { toLocal } from '@/utils';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { SOCIAL_SECURITY_ENUM, RELATION_HOLDER_ENUM } from '@/common/constants/infoCollection';
 import HolderInsureForm from '../components/HolderInsureForm/index.vue';
-import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
-
+import { getSex, getBirth } from '@/components/ProField/utils';
+import { PAY_METHOD_ENUM } from '@/common/constants/bankCard';
 import {
   RISK_TYPE_ENUM,
   RULE_ENUM,
@@ -184,6 +156,7 @@ interface QueryData {
   saleUserId: string; // 销售人员
   saleChannelId: string; // 销售渠道
   agencyId: string; // 代理人id
+  orderId: string; // 订单id
 }
 
 const {
@@ -195,6 +168,7 @@ const {
   saleUserId = '65434444',
   saleChannelId = '123131321231',
   agencyId = '3311222',
+  orderId,
 } = route.query as QueryData;
 
 const tabList = ref<Array<{ title: string; slotName: string }>>([
@@ -217,6 +191,7 @@ const activePlan = ref(0);
 const popupShow = ref(false);
 const detail = ref<ProductDetail>();
 const insureDetail = ref<any>();
+const premium = ref<number>();
 
 // 投保人不可修改
 const disabled = !!(name && certNo && mobile);
@@ -236,6 +211,9 @@ const trailData = reactive({
     socialFlag: SOCIAL_SECURITY_ENUM.HAS,
     relationToHolder: RELATION_HOLDER_ENUM.SELF, // 被保人默认自己
   },
+  paymentMethod: PAY_METHOD_ENUM.ALIPAY,
+  premium: 0,
+  renewalDK: 'Y',
 });
 
 const handlePlanItemClick = (index: number) => {
@@ -297,7 +275,10 @@ const compositionTrailData = (riskList: RiskDetailVoItem[]) => {
       copy: minCopy,
       coveragePeriod: insurancePeriodValueList?.[0],
       insuredCode: detail.value?.insurerCode,
-      liabilityVOList: riskLiabilityInfoVOList.filter((liab) => liab.optionalFlag === 1),
+      // 定制配置，责任去掉FXG086
+      liabilityVOList: riskLiabilityInfoVOList.filter(
+        (liab) => liab.optionalFlag === 1 && liab.liabilityCode !== 'FXG086',
+      ),
       paymentFrequency: paymentFrequencyList?.[0],
       riskCategory,
     };
@@ -326,54 +307,26 @@ const compositionTrailData = (riskList: RiskDetailVoItem[]) => {
 };
 
 // 核保 - 参数和保存订单一样
-const onUnderWrite = async (id: number) => {
-  const order = {
-    id,
-    // orderNo: '2022090421131966279',
-    tenantId,
-    venderCode: detail.value?.insurerCode, // 供应商编码
-    // abbreviation: '众安健康',
-    orderDataSource: '1',
-    saleChannelId,
-    saleUserId,
-    agencyId,
-    tenantOrderHolder: {
+const onUnderWrite = async (p) => {
+  const res = await underwrite(p);
+  const { code } = res;
+  if (code === '10000') {
+    const res1 = await getPayUrl({
+      id: p.id,
       tenantId,
-      name: trailData.holder.name,
-      certType: 1,
-      certNo: trailData.holder.certNo,
-      mobile: trailData.holder.mobile,
-      birthday: getBirth(trailData.holder.certNo),
-      gender: getSex(trailData.holder.certNo),
-    },
-    extInfo: { extraInfo: { renewalDK: 'Y', paymentMethod: '5', successJumpUrl: 'www.baidu.com' } },
-    tenantOrderInsuredList: [
-      {
-        tenantId,
-        relationToHolder: trailData.insured.relationToHolder, // 与投保人关系
-        insuredBeneficiaryType: trailData.insured.relationToHolder, // 与主被保险人关系
-        name: trailData.insured.name,
-        hasSocialInsurance: trailData.insured.socialFlag,
-        certType: 1,
-        certNo: trailData.insured.certNo,
-        birthday: getBirth(trailData.insured.certNo),
-        gender: getSex(trailData.insured.certNo),
-        extInfo: {
-          hasSocialInsurance: trailData.insured.socialFlag,
-        },
-        tenantOrderProductList: [],
-      },
-    ],
-  };
+    });
 
-  const res = await underwrite(order);
+    const { data } = res1;
+    window.location.href = data;
+  }
 };
 
 // 将试算的参数转化成订单中需要的结构
 const transformData = (riskList: RiskVoItem[], riskPremium) => {
   return riskList.map((risk: RiskVoItem) => {
     const currentRisk = {
-      initialAmount: riskPremium[risk.riskCode]?.amount,
+      tenantId,
+      // initialAmount: riskPremium[risk.riskCode]?.amount,
       amountUnit: 1,
       annuityDrawFrequency: risk.annuityDrawDate,
       annuityDrawType: risk.annuityDrawType,
@@ -394,14 +347,22 @@ const transformData = (riskList: RiskVoItem[], riskPremium) => {
         liabilityCode: liab.liabilityCode,
         liabilityName: liab.liabilityName,
         refundMethod: liab.liabilityAttributeValue,
+        // sumInsured: 300000,
       })),
       productId: detail.value?.id,
+      currantAmount: 30000,
+      initAmount: 30000,
     };
     return currentRisk;
   });
 };
 
-const onSaveOrder = async (risk) => {
+const getPayCallbackUrl = (id: number) => {
+  const url = `${ORIGIN}/activity/insureUp?tenantId=${tenantId}&productCode=${productCode}&orderId=${id}`;
+  return url;
+};
+
+const generateOrderParam = (risk) => {
   const order = {
     tenantId,
     venderCode: detail.value?.insurerCode, // 供应商编码
@@ -419,15 +380,22 @@ const onSaveOrder = async (risk) => {
       birthday: getBirth(trailData.holder.certNo),
       gender: getSex(trailData.holder.certNo),
     },
-    extInfo: { extraInfo: { renewalDK: 'Y', paymentMethod: '5', jumpUrl: 'www.baidu.com' } },
+    extInfo: {
+      extraInfo: {
+        renewalDK: trailData.renewalDK || 'N',
+        paymentMethod: trailData.paymentMethod,
+        // 支付成功跳转
+        jumpUrl: '',
+      },
+    },
     tenantOrderInsuredList: [
       {
         tenantId,
         relationToHolder: trailData.insured.relationToHolder, // 与投保人关系
         insuredBeneficiaryType: trailData.insured.relationToHolder, // 与主被保险人关系
         name: trailData.insured.name,
-        hasSocialInsurance: trailData.insured.socialFlag,
-        certType: 1,
+        // hasSocialInsurance: trailData.insured.socialFlag,
+        certType: CERT_TYPE_ENUM.CERT, // 默认身份证
         certNo: trailData.insured.certNo,
         birthday: getBirth(trailData.insured.certNo),
         gender: getSex(trailData.insured.certNo),
@@ -439,90 +407,147 @@ const onSaveOrder = async (risk) => {
             tenantId,
             productCode,
             productName: detail.value?.productName,
-            premium: 4.7, // 保费, 保费试算返回
-            // TOOD 根据实际数据组装
+            premium: premium.value, // 保费, 保费试算返回
             tenantOrderRiskList: risk,
           },
         ],
       },
     ],
   };
+  return order;
+};
+
+const onSaveOrder = async (risk: any) => {
+  const order = generateOrderParam(risk);
 
   const res = await saveOrder(order);
   const { code, data } = res;
 
   if (code === '10000') {
-    onUnderWrite(data);
+    const payCallbackUrl = getPayCallbackUrl(data.data);
+    onUnderWrite({
+      id: data.data,
+      ...order,
+      extInfo: {
+        extraInfo: {
+          renewalDK: trailData.renewalDK || 'N',
+          paymentMethod: trailData.paymentMethod,
+          jumpUrl: payCallbackUrl,
+        },
+      },
+    });
   }
 };
 
 // 保费试算 -> 订单保存 -> 核保
 const onPremiumCalc = () => {
-  formRef.value?.validateForm?.().then(async () => {
-    // 试算参数
-    const calcData: premiumCalcData = {
-      holder: {
-        personVO: {
-          birthday: getBirth(trailData.holder.certNo),
-          certType: trailData.holder.certType,
-          certNo: trailData.holder.certNo,
-          gender: Number(getSex(trailData.holder.certNo)),
-          mobile: trailData.holder.mobile,
-          name: trailData.holder.name,
-          socialFlag: trailData.holder.socialFlag,
-        },
-      },
-      insuredVOList: [
-        {
-          insuredCode: detail.value?.insurerCode as string,
-          relationToHolder: trailData.insured.relationToHolder,
+  return new Promise((resolve) => {
+    formRef.value?.validateForm?.().then(async () => {
+      const riskVOList = compositionTrailData(insureDetail.value.productRiskVoList[0].riskDetailVOList);
+      // 试算参数
+      const calcData: premiumCalcData = {
+        holder: {
           personVO: {
-            birthday: getBirth(trailData.insured.certNo),
-            certType: trailData.insured.certType,
-            certNo: trailData.insured.certNo,
-            gender: Number(getSex(trailData.insured.certNo)),
-            name: trailData.insured.name,
-            socialFlag: trailData.insured.socialFlag,
+            birthday: getBirth(trailData.holder.certNo),
+            certType: trailData.holder.certType,
+            certNo: trailData.holder.certNo,
+            gender: Number(getSex(trailData.holder.certNo)),
+            mobile: trailData.holder.mobile,
+            name: trailData.holder.name,
+            socialFlag: trailData.holder.socialFlag,
           },
-          // TODO 组装数据
-          productPlanVOList: [],
         },
-      ],
-      productCode: productCode as string,
-      tenantId,
-    };
-
-    const res = await premiumCalc(calcData);
-
-    const { code, data } = res;
-    if (code === '10000') {
-      const riskPremium = {};
-      const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
-        (premiumList || []).forEach((risk) => {
-          riskPremium[risk.riskCode] = risk;
-          if (risk.riskPremiumDetailVOList?.length) {
-            flatRiskPremium(risk.riskPremiumDetailVOList);
-          }
-        });
+        insuredVOList: [
+          {
+            insuredCode: detail.value?.insurerCode as string,
+            relationToHolder: trailData.insured.relationToHolder,
+            personVO: {
+              birthday: getBirth(trailData.insured.certNo),
+              certType: trailData.insured.certType,
+              certNo: trailData.insured.certNo,
+              gender: Number(getSex(trailData.insured.certNo)),
+              name: trailData.insured.name,
+              socialFlag: trailData.insured.socialFlag,
+            },
+            productPlanVOList: [{ riskVOList }],
+          },
+        ],
+        productCode: productCode as string,
+        tenantId,
       };
-      flatRiskPremium(data.riskPremiumDetailVOList);
-      const risk = transformData(calcData.insuredVOList[0].productPlanVOList[0].riskVOList, riskPremium);
-      onSaveOrder(risk);
-    }
+
+      const res = await premiumCalc(calcData);
+
+      const { code, data } = res;
+
+      if (code === '10000') {
+        premium.value = data.premium;
+        trailData.premium = data.premium;
+        resolve({
+          condition: riskVOList,
+          data,
+        });
+      }
+    });
   });
 };
 
+const onNext = async () => {
+  const { condition, data } = await onPremiumCalc();
+
+  console.log(condition, data);
+
+  const riskPremium = {};
+  const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
+    (premiumList || []).forEach((risk) => {
+      riskPremium[risk.riskCode] = risk;
+      if (risk.riskPremiumDetailVOList?.length) {
+        flatRiskPremium(risk.riskPremiumDetailVOList);
+      }
+    });
+  };
+  flatRiskPremium(data.riskPremiumDetailVOList);
+  const risk = transformData(condition, riskPremium);
+  onSaveOrder(risk);
+};
+
 const fetchData = async () => {
-  const res1 = await productDetail({ productCode, withInsureInfo: true });
+  const productReq = productDetail({ productCode, withInsureInfo: true });
+  const insureReq = insureProductDetail({ productCode });
+  await Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
+    if (productRes.code === '10000') {
+      detail.value = productRes.data;
+    }
 
-  if (res1.code === '10000') {
-    detail.value = res1.data;
-  }
+    if (insureRes.code === '10000') {
+      insureDetail.value = insureRes.data;
+    }
+  });
+  onPremiumCalc();
 
-  const res2 = await insureProductDetail({ productCode });
-  if (res2.code === '10000') {
-    console.log(compositionTrailData(res2.data.productRiskVoList[0].riskDetailVOList));
-    insureDetail.value = res2.data;
+  if (orderId) {
+    const res3 = await getTenantOrderDetail({ id: orderId, tenantId });
+    if (res3.code === '10000') {
+      console.log(res3.data.orderStatus);
+      if (res3.data.orderStatus === 'acceptPolicy') {
+        Dialog.confirm({
+          title: '标题',
+          message: '升级保障',
+        })
+          .then(() => {
+            router.push({
+              path: '/activity/productDetail',
+              query: {
+                productCode: 'BWYL2022',
+                name,
+                certNo,
+                mobile,
+              },
+            });
+          })
+          .catch(() => {});
+      }
+    }
   }
 };
 
@@ -539,41 +564,20 @@ onMounted(() => {
 $activity-primary-color: #ff6d23;
 .page-product-detail {
   padding-bottom: 180px;
-  .swipe {
-    width: 100%;
-    height: 400px;
-    position: relative;
-    .swipe-img {
+  .info {
+    background: linear-gradient(180deg, #fea64a 0%, #fc7429 88%, #eeeeee 100%);
+    // padding-bottom: 20px;
+    .banner {
       width: 100%;
-      height: 400px;
     }
-    .custom-indicator {
-      position: absolute;
-      width: 66px;
-      height: 44px;
-      line-height: 44px;
-      background: rgba(0, 0, 0, 0.4);
-      border-radius: 22px;
-      right: 30px;
-      bottom: 20px;
-      font-size: 24px;
-      color: #fff;
-      text-align: center;
+    .guarantee-list {
+      padding: 20px;
+      .com-card-wrap {
+        border-radius: 16px;
+      }
     }
-  }
-  .title {
-    padding: 30px;
-    .text {
-      font-size: 36px;
-      font-weight: 500;
-      color: #393d46;
-      line-height: 50px;
-    }
-    .desc {
-      margin-top: 15px;
-      font-size: 26px;
-      color: #99a9c0;
-      line-height: 37px;
+    :deep(.com-card .com-card-wrap) {
+      border-radius: 16px;
     }
   }
   .plan {
@@ -672,10 +676,10 @@ $activity-primary-color: #ff6d23;
   }
   .guarantee-item {
     border: none;
-    min-height: 76px;
-    line-height: 76px;
+    min-height: 64px;
+    line-height: 64px;
     .left-part {
-      color: #515865;
+      color: $zaui-text;
     }
   }
   // tab 样式覆盖

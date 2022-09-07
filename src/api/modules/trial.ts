@@ -29,3 +29,25 @@ export const saveOrder = (data = {}) => request.post<any, ResponseData>('/api/ap
 
 // 核保
 export const underwrite = (data = {}) => request.post<any, ResponseData>('/api/app/insure/insurance/underwrite', data);
+
+// 获取支付链接
+export const getPayUrl = (data = {}) => request.post<any, ResponseData>('/api/app/insure/insurance/getPayUrl', data);
+
+// 获取订单详情
+export const getTenantOrderDetail = (data = {}) =>
+  request.post<any, ResponseData>('/api/app/insure/insurance/getTenantOrderDetail', data);
+
+// 获取订单详情
+export const getOrderDetailByCondition = (data = {}) =>
+  request.post<any, ResponseData>('/api/app/insure/insurance/getOrderDetailByCondition', data);
+
+// 一步出单
+export const multiIssuePolicy = (data = {}) =>
+  request.post<any, ResponseData>('/api/app/insure/insurance/multiIssuePolicy', data);
+
+// 升级保障试算
+export const endorsementPremiumCalc = (data = {}) =>
+  request.post<any, ResponseData>('/api/app/insure/insurance/endorsementPremiumCalc', data);
+// 升级保障
+export const EndorsementUp = (data = {}) =>
+  request.post<any, ResponseData>('/api/app/insure/insurance/EndorsementUp', data);

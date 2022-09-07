@@ -108,28 +108,33 @@ const onCaptha = async () => {
   });
 };
 
+const onCheckCode = async () => {
+  // 手机号验证
+  const res = await checkCode(state.mobile, state.smsCode);
+  const { data } = res;
+  if (data) {
+    emits('on-verify', state);
+  }
+};
+
 const onSubmit = async () => {
   formRef?.value.validate().then(async () => {
     if (!state.agree) {
       Toast('请勾选协议');
-      return;
     }
-    // 手机号验证
-    const res = await checkCode(state.mobile, state.smsCode);
-    const { data } = res;
-    if (data) {
-      emits('on-verify', state);
-    }
+    onCheckCode();
   });
 };
+
+watch(
+  () => state,
+  () => {
+    if (mobileReg.test(state.mobile) && smsCodeReg.test(state.smsCode)) {
+      onCheckCode();
+    }
+  },
+  { deep: true, immediate: true },
+);
 </script>
 
-<style lang="scss" scoped>
-:deep(.van-checkbox) {
-  width: 100px;
-}
-
-:deep(.pdf-viewer .title) {
-  color: #ff6d23;
-}
-</style>
+<style lang="scss" scoped></style>
