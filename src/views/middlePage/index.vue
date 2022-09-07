@@ -19,6 +19,23 @@ const router = useRouter();
 const route = useRoute();
 const result = ref<string>('');
 
+const getActivityPath = () => {
+  try {
+    // 赠险、基础险、附费险跳转
+    const { extInfo } = route.query;
+    const { pageCode } = JSON.parse(extInfo) || {};
+
+    if (pageCode) {
+      console.log('这是赠险链接');
+      console.log(pageCode);
+      return `/activity/${pageCode}`;
+    }
+    return '';
+  } catch (e) {
+    return '';
+  }
+};
+
 onBeforeMount(() => {
   validateSign({ param: window.location.search.replace('?', '') }).then(({ code, data }) => {
     if (code === '10000' && data) {
@@ -26,6 +43,13 @@ onBeforeMount(() => {
       if ('proposalId' in route.query) {
         path = '/trial';
       }
+
+      const activityUrl = getActivityPath();
+
+      if (activityUrl) {
+        path = activityUrl;
+      }
+
       router.replace({
         path,
         query: route.query,
