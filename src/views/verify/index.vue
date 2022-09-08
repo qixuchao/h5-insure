@@ -446,7 +446,7 @@ const getProductMaterials = () => {
     ...params,
   }).then(({ code, data }) => {
     if (code === '10000') {
-      holderFileList.value.push(...(data || []));
+      // holderFileList.value.push(...(data || []));
     }
   });
   // 被保人资料
