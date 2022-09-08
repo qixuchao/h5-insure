@@ -53,7 +53,7 @@
               @click="() => ''"
             />
             <ProPDFviewer
-              v-for="(insuredFileItem, insuredFileIndex) in insuredQuestionList"
+              v-for="(insuredFileItem, insuredFileIndex) in holderQuestionList"
               :key="`holderQuestionList-${insuredFileIndex}`"
               class="file"
               :title="`《${insuredFileItem.title}》`"
@@ -64,7 +64,7 @@
           </div>
         </div>
       </ProCard>
-      <div v-for="(item, index) in detail?.tenantOrderInsuredList" :key="index">
+      <!-- <div v-for="(item, index) in detail?.tenantOrderInsuredList" :key="index">
         <ProCard title="被保人" class="card">
           <template #extra>
             <div class="people">
@@ -120,7 +120,7 @@
             </div>
           </div>
         </ProCard>
-      </div>
+      </div> -->
       <div class="footer-button footer">
         <div v-if="!isShare" class="refresh-btn" @click="handleRefresh">
           <div><ProSvg name="refresh" /></div>
@@ -171,6 +171,16 @@ const CERT_STATUS_ENUM = {
 const route = useRoute();
 const router = useRouter();
 
+// 处理query中的orderNo重复的问题
+const dealQueryData = (() => {
+  const queryData = route.query;
+  if (queryData.orderCode) {
+    queryData.orderNo = queryData.orderCode;
+    delete queryData.orderCode;
+  }
+  return queryData;
+})();
+
 const {
   saleUserId = 'D1234567-1',
   tenantId = '9991000007',
@@ -181,17 +191,7 @@ const {
   orderCode,
   orderNo,
   productCategory,
-} = route.query;
-
-// 处理query中的orderNo重复的问题
-const dealQueryData = () => {
-  const queryData = route.query;
-  if (queryData.orderCode) {
-    queryData.orderNo = queryData.orderCode;
-    delete queryData.orderCode;
-  }
-  return queryData;
-};
+} = dealQueryData;
 
 const pageCode = 'sign';
 const storage = new Storage({ source: 'localStorage' });
@@ -320,7 +320,7 @@ const handleSubmit = () => {
     const { code, data } = res;
     if (code === '10000') {
       if (data.orderStatus !== ORDER_STATUS_ENUM.PENDING) {
-        pageJump('paymentResult', dealQueryData());
+        pageJump('paymentResult', dealQueryData);
       } else {
         Dialog.confirm({
           title: '提示',
@@ -415,7 +415,7 @@ const handleRefresh = () => {
 };
 
 const shareLink = computed(() => {
-  const query = { ...dealQueryData(), isShare: 1, sharePageCode: 'sign' };
+  const query = { ...dealQueryData, isShare: 1, sharePageCode: 'sign' };
   return `${window.location.origin}/phoneVerify?${queryString.stringify(query)}`;
 });
 
