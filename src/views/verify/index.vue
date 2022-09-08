@@ -108,7 +108,7 @@
                 :type="getFileType(insuredFileItem.materialContent, insuredFileItem.materialSource + '')"
                 @click="() => ''"
               />
-              <ProPDFviewer
+              <!-- <ProPDFviewer
                 v-for="(noticeItem, noticeIndex) in insuredQuestionList"
                 :key="`insuredQuestionList-${noticeIndex}`"
                 class="file"
@@ -116,7 +116,7 @@
                 :content="previewFileContent"
                 :type="previewFileType"
                 @click="() => getFileDetails(noticeItem)"
-              />
+              /> -->
             </div>
           </div>
         </ProCard>
