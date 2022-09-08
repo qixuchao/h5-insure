@@ -286,7 +286,7 @@ const onUnderWrite = async (o: any) => {
 };
 
 const getPayCallbackUrl = (id: number) => {
-  const url = `https://planet-h5-insure-test.zhongan.io/activity/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderId=${id}`;
+  const url = `https://planet-h5-insure-test.zhongan.io/chuangxin/baigebao/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderId=${id}`;
   return url;
 };
 

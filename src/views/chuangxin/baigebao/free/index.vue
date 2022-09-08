@@ -216,6 +216,7 @@ $activity-primary-color: #ff6d23;
         font-weight: 500;
         color: #ff6d23;
         padding: 0;
+        white-space: nowrap;
         // &.count-down {
         //   color: black;
         // }
