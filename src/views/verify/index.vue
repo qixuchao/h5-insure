@@ -43,16 +43,19 @@
           <div class="date">签名日期： {{ date }}</div>
           <div class="file">
             签名将被用于以下文件：
+            <span>
+              <ProPDFviewer
+                v-for="(holderFileItem, holderFileIndex) in holderFileList"
+                :key="`holderFileList-${holderFileIndex}`"
+                class="file"
+                :title="`《${holderFileItem.materialName}》`"
+                :content="holderFileItem.materialContent"
+                :type="getFileType(holderFileItem.materialContent, holderFileItem.materialSource + '')"
+                @click="() => ''"
+              />
+            </span>
+
             <ProPDFviewer
-              v-for="(holderFileItem, holderFileIndex) in holderFileList"
-              :key="`holderFileList-${holderFileIndex}`"
-              class="file"
-              :title="`《${holderFileItem.materialName}》`"
-              :content="holderFileItem.materialContent"
-              :type="getFileType(holderFileItem.materialContent, holderFileItem.materialSource + '')"
-              @click="() => ''"
-            />
-            <!-- <ProPDFviewer
               v-for="(holderQuestionItem, holderQuestionIndex) in holderQuestionList"
               :key="`holderQuestionList-${holderQuestionIndex}`"
               class="file"
@@ -60,7 +63,7 @@
               :content="previewFileContent"
               :type="previewFileType"
               @click="() => getFileDetails(holderQuestionItem)"
-            /> -->
+            />
           </div>
         </div>
       </ProCard>
