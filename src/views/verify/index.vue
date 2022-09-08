@@ -52,7 +52,7 @@
               :type="getFileType(holderFileItem.materialContent, holderFileItem.materialSource + '')"
               @click="() => ''"
             />
-            <ProPDFviewer
+            <!-- <ProPDFviewer
               v-for="(insuredFileItem, insuredFileIndex) in holderQuestionList"
               :key="`holderQuestionList-${insuredFileIndex}`"
               class="file"
@@ -60,11 +60,11 @@
               :content="previewFileContent"
               :type="previewFileType"
               @click="() => getFileDetails(insuredFileItem)"
-            />
+            /> -->
           </div>
         </div>
       </ProCard>
-      <!-- <div v-for="(item, index) in detail?.tenantOrderInsuredList" :key="index">
+      <div v-for="(item, index) in detail?.tenantOrderInsuredList" :key="index">
         <ProCard title="被保人" class="card">
           <template #extra>
             <div class="people">
@@ -120,7 +120,7 @@
             </div>
           </div>
         </ProCard>
-      </div> -->
+      </div>
       <div class="footer-button footer">
         <div v-if="!isShare" class="refresh-btn" @click="handleRefresh">
           <div><ProSvg name="refresh" /></div>
@@ -207,11 +207,11 @@ const previewFileContent = ref<any>();
 const date = dayjs().format('YYYY-MM-DD');
 
 const handleResign1 = () => {
-  holderSign.value?.clear();
+  holderSign.value?.clear?.();
 };
 
 const handleResignInsured = (index: number) => {
-  insuredSignRefs[index].clear();
+  insuredSignRefs[index]?.clear?.();
 };
 
 const doVerify = (certNo: string, name: string) => {
@@ -319,7 +319,7 @@ const handleSubmit = () => {
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
-      if (data.orderStatus !== ORDER_STATUS_ENUM.PENDING) {
+      if (!(data.orderStatus === ORDER_STATUS_ENUM.PENDING || data.orderStatus === ORDER_STATUS_ENUM.PAYMENT_FAILED)) {
         pageJump('paymentResult', dealQueryData);
       } else {
         Dialog.confirm({
@@ -395,11 +395,11 @@ const getDetail = (check = false) => {
           if (item.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN) {
             // 电子签名
             if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER) {
-              holderSign.value.clear();
+              holderSign.value?.clear?.();
 
               holderSign.value.setDataURL(item.fileBase64);
             } else if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.INSURED) {
-              insuredSignRefs[insuredIndex].clear();
+              insuredSignRefs[insuredIndex]?.clear?.();
               insuredSignRefs[insuredIndex].setDataURL(item.fileBase64);
               insuredIndex += 1;
             }
