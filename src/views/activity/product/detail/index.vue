@@ -142,11 +142,11 @@ interface QueryData {
   [key: string]: any; // 其他 extInfo
 }
 
-const { productCode = 'BWYL2021', tenantId, extInfo: _extInfo } = route.query as QueryData;
+const { productCode = 'BWYL2021', tenantId, extInfo: _extInfo, orderId: payOrderId } = route.query as QueryData;
 
 const extInfoObj = getExtInfo(_extInfo);
-console.log(extInfoObj);
-const { phoneNo: mobile, saleChannelId, paymentMethod, certNo, name, orderId } = extInfoObj;
+const { phoneNo: mobile, saleChannelId, paymentMethod, certNo, name, orderId: extInfoObjOrderId } = extInfoObj;
+const orderId = payOrderId || extInfoObjOrderId;
 
 const tabList = ref<Array<{ title: string; slotName: string }>>([
   {
@@ -251,6 +251,8 @@ const onSaveOrder = async (risk: any) => {
     holder: trailData.holder,
     insured: trailData.insured,
     tenantOrderRiskList: risk,
+    orderStatus: ORDER_STATUS_ENUM.UP_PROCESSING,
+    orderTopStatus: '-1',
   });
 
   const res = await saveOrder(order);
@@ -349,31 +351,30 @@ const fetchData = async () => {
     const res = await getTenantOrderDetail({ id: orderId, tenantId });
     const { code, data } = res;
     if (code === '10000') {
+      const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
+      trailData.holder = {
+        certNo: tenantOrderHolder.certNo,
+        certType: tenantOrderHolder.certType,
+        mobile: tenantOrderHolder.mobile,
+        name: tenantOrderHolder.name,
+        socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
+      };
+
+      trailData.insured = {
+        certNo: tenantOrderInsuredList?.[0].certNo,
+        certType: tenantOrderInsuredList[0]?.certType,
+        name: tenantOrderInsuredList[0]?.name,
+        socialFlag: tenantOrderInsuredList[0]?.extInfo?.hasSocialInsurance,
+        relationToHolder: tenantOrderInsuredList[0]?.relationToHolder,
+      };
+      trailData.paymentMethod = extInfo.extraInfo.paymentMethod;
+      trailData.premium = tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium;
+      trailData.renewalDK = extInfo.extraInfo.renewalDK === 'Y';
       // 已承保/支付成功
       if (
         data.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY ||
         data.orderStatus === ORDER_STATUS_ENUM.PAYMENT_SUCCESS
       ) {
-        const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
-        Object.assign(trailData, {
-          holder: {
-            certNo: tenantOrderHolder.certNo,
-            certType: tenantOrderHolder.certType,
-            mobile: tenantOrderHolder.mobile,
-            name: tenantOrderHolder.name,
-            socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
-          },
-          insured: {
-            certNo: tenantOrderInsuredList[0]?.certNo,
-            certType: tenantOrderInsuredList[0]?.certType,
-            name: tenantOrderInsuredList[0]?.name,
-            socialFlag: tenantOrderInsuredList[0]?.extInfo?.hasSocialInsurance,
-            relationToHolder: tenantOrderInsuredList[0]?.relationToHolder,
-          },
-          paymentMethod: extInfo.extraInfo.paymentMethod,
-          premium: tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium,
-          renewalDK: extInfo.extraInfo.renewalDK === 'Y',
-        });
         Dialog.confirm({
           title: '标题',
           message: '升级保障吗',

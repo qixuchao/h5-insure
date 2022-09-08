@@ -27,6 +27,8 @@ interface orderParamType {
   renewalDK: string; // 开通下一年
   successJumpUrl: string; // 支付成功跳转
   premium: number; // 保费
+  orderStatus: string;
+  orderTopStatus: string;
   holder: {
     mobile: string;
     certNo: string;
@@ -48,6 +50,8 @@ export const genarateOrderParam = (o: orderParamType) => {
     venderCode: o.detail?.insurerCode,
     orderDataSource: '1', // 订单来源
     saleChannelId: o.saleChannelId, // 销售渠道id
+    orderStatus: o.orderStatus,
+    orderTopStatus: o.orderTopStatus,
     tenantOrderHolder: {
       tenantId: o.tenantId,
       name: o.holder.name,

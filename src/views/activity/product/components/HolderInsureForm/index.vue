@@ -192,6 +192,9 @@ const onRenewalDK = () => {
 watch(
   () => state.formInfo.insured.relationToHolder,
   (newVal, oldVal) => {
+    if (props.disable) {
+      return;
+    }
     if (newVal !== oldVal) {
       if (newVal.toString() === RELATION_HOLDER_ENUM.SELF) {
         // 我自己
