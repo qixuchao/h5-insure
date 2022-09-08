@@ -52,15 +52,15 @@
               :type="getFileType(holderFileItem.materialContent, holderFileItem.materialSource + '')"
               @click="() => ''"
             />
-            <ProPDFviewer
-              v-for="(insuredFileItem, insuredFileIndex) in holderQuestionList"
-              :key="`holderQuestionList-${insuredFileIndex}`"
+            <!-- <ProPDFviewer
+              v-for="(holderQuestionItem, holderQuestionIndex) in holderQuestionList"
+              :key="`holderQuestionList-${holderQuestionIndex}`"
               class="file"
-              :title="`《${insuredFileItem.title}》`"
+              :title="`《${holderQuestionItem.title}》`"
               :content="previewFileContent"
               :type="previewFileType"
-              @click="() => getFileDetails(insuredFileItem)"
-            />
+              @click="() => getFileDetails(holderQuestionItem)"
+            /> -->
           </div>
         </div>
       </ProCard>
@@ -446,7 +446,7 @@ const getProductMaterials = () => {
     ...params,
   }).then(({ code, data }) => {
     if (code === '10000') {
-      // holderFileList.value.push(...(data || []));
+      holderFileList.value = data || [];
     }
   });
   // 被保人资料
