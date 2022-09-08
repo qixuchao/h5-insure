@@ -1,1 +1,0 @@
-System.register(["./index-legacy-966c6b60.js"],(function(e){"use strict";var t;return{setters:[function(e){t=e.b}],execute:function(){e("i",((e={})=>t.post("/api/app/insure/product/insureProductDetail",e))),e("p",(e=>t.post("/api/app/insure/insurance/premiumCalc",e)))}}}));
