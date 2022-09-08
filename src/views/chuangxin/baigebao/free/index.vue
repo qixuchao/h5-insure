@@ -9,6 +9,7 @@
   <!-- <van-config-provider :theme-vars="themeVars"> -->
   <div class="page-activity-invite">
     <img class="logo" :src="logo" />
+    <img :src="blankImg" />
     <div class="container">
       <div class="main-form">
         <div class="title">
@@ -25,17 +26,18 @@
 <script lang="ts" setup>
 import { useRouter, useRoute } from 'vue-router';
 import { Toast } from 'vant';
-import { insureProductDetail, getOrderDetailByCondition, multiIssuePolicy } from '@/api/modules/trial';
-import { productDetail } from '@/api/modules/product';
-import { RiskDetailVoItem, RiskAttachmentVoItem } from '@/api/modules/newTrial.data';
 import { RELATION_HOLDER_ENUM } from '@/common/constants/infoCollection';
 import MobileVerify from './components/MobileVerify/index.vue';
 import InfoField from './components/InfoField/index.vue';
+import { insureProductDetail, getOrderDetailByCondition, multiIssuePolicy } from '@/api/modules/trial';
+import { productDetail } from '@/api/modules/product';
+import { RiskDetailVoItem, RiskAttachmentVoItem } from '@/api/modules/newTrial.data';
+import { themeVars, getExtInfo, genarateOrderParam } from '../utils';
 import TitleImg from '@/assets/images/chuangxin/title-step1.png';
 import TitleImg2 from '@/assets/images/chuangxin/title-step2.png';
 import logo from '@/assets/images/chuangxin/logo.png';
 import { ProductDetail } from '@/api/modules/product.data';
-import { themeVars, getExtInfo, genarateOrderParam } from '../utils';
+import blankImg from '@/assets/images/chuangxin/blank.jpg';
 
 const route = useRoute();
 const router = useRouter();
@@ -187,6 +189,7 @@ $activity-primary-color: #ff6d23;
   .logo {
     width: 50%;
     margin: 30px;
+    position: absolute;
   }
   .container {
     position: absolute;

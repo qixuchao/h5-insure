@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { FormInstance } from 'vant';
+import { FormInstance, Toast } from 'vant';
 import { defineProps } from 'vue';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 
@@ -95,7 +95,13 @@ const onCaptha = async () => {
   }
   formRef?.value.validate('mobile').then(async () => {
     const res = await sendCode(state.mobile);
-    onCountDown();
+    const { code, data } = res;
+    if (code === '10000') {
+      Toast({
+        message: '短信发送成功，请查收',
+      });
+      onCountDown();
+    }
   });
 };
 

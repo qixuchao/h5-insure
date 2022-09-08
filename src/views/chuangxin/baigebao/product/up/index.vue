@@ -8,11 +8,13 @@
 <template>
   <div class="page-activity-upgrade">
     <img class="logo" :src="logo" />
+    <img :src="blankImg" />
     <div class="container">
       <div class="main-form">
         <FieldInfo title="姓名" :desc="orderDetail?.tenantOrderInsuredList?.[0].name" />
         <FieldInfo title="证件号码" :desc="orderDetail?.tenantOrderInsuredList?.[0].certNo" />
         <FieldInfo title="手机号码" :desc="orderDetail?.tenantOrderHolder?.mobile" />
+        <FieldInfo title="每月保费" :desc="`${premium} / 每月`" />
         <ProField label="有无社保" name="name" required placeholder="请选择">
           <template #input>
             <ProRadioButton v-model="hasSocialInsurance" :disabled="true" :options="SOCIAL_SECURITY"></ProRadioButton>
@@ -21,25 +23,13 @@
         <div class="submit" @click="onUpgrade"></div>
       </div>
     </div>
-    <ProModal :is-show="showModal" :bg="modalBg" :btn-bg="upBtn" @on-close="onClose" />
+    <ProModal :is-show="showModal" :bg="modalBg" @on-close="onClose" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useRoute } from 'vue-router';
 import { Toast } from 'vant';
-import FieldInfo from '../components/fieldInfo.vue';
-import ProModal from '../../../components/ProModal/index.vue';
-import {
-  insureProductDetail,
-  saveOrder,
-  getTenantOrderDetail,
-  endorsementPremiumCalc,
-  EndorsementUp,
-} from '@/api/modules/trial';
-import { productDetail } from '@/api/modules/product';
-import { ProductDetail } from '@/api/modules/product.data';
-
 import {
   RISK_TYPE_ENUM,
   RULE_ENUM,
@@ -52,11 +42,21 @@ import {
   RELATION_HOLDER_LIST, // 投被保人关系
   SOCIAL_SECURITY, // 有无社保
 } from '@/common/constants/infoCollection';
-import logo from '@/assets/images/chuangxin/logo.png';
-import upImg from '@/assets/images/chuangxin/up.png';
-import modalBg from '@/assets/images/chuangxin/modal-bg.png';
-import upBtn from '@/assets/images/chuangxin/up-btn.png';
+import FieldInfo from '../components/fieldInfo.vue';
+import ProModal from '../../../components/ProModal/index.vue';
+import {
+  insureProductDetail,
+  saveOrder,
+  getTenantOrderDetail,
+  endorsementPremiumCalc,
+  EndorsementUp,
+} from '@/api/modules/trial';
 import { getExtInfo, getReqData, transformData, compositionTrailData, genarateOrderParam } from '../../utils';
+import { productDetail } from '@/api/modules/product';
+import { ProductDetail } from '@/api/modules/product.data';
+import logo from '@/assets/images/chuangxin/logo.png';
+import modalBg from '@/assets/images/chuangxin/modal-bg.png';
+import blankImg from '@/assets/images/chuangxin/blank.jpg';
 
 const route = useRoute();
 
@@ -211,6 +211,7 @@ $activity-primary-color: #ff6d23;
   .logo {
     width: 50%;
     margin: 30px;
+    position: absolute;
   }
 
   .container {
