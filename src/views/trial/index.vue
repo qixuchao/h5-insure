@@ -64,11 +64,13 @@
     </div>
 
     <div class="footer-bar van-safe-area-bottom">
-      <span class="trial-result">
-        <span class="result-num">{{
-          (!state.retrialTip ? state.trialResult?.premium || '0' : '0').toLocaleString()
+      <span class="trial-result"
+        >总保费<span class="result-num">{{
+          (!state.retrialTip ? state.trialResult?.premium || 0 : 0).toLocaleString('hanidec', {
+            style: 'currency',
+            currency: 'CNY',
+          })
         }}</span>
-        元起
       </span>
       <div class="trial-operate">
         <div v-if="state.retrialTip" class="retrial-tip">
@@ -482,13 +484,15 @@ onBeforeMount(() => {
 
     .trial-result {
       width: 440px;
-      color: #ff5840;
-      font-size: 24px;
-      font-weight: 600;
+
+      font-size: 34px;
+      font-weight: 400;
+      color: $zaui-text;
       .result-num {
-        font-size: 46px;
+        color: $zaui-price;
+        font-size: 34px;
         font-weight: 500;
-        margin-left: 13px;
+        margin-left: 16px;
       }
     }
     .trial-operate {

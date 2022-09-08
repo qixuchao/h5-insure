@@ -117,9 +117,9 @@ export const formatSocialInsuranceLimit = (social?: string) => {
     case '-1':
       return '无限制';
     case '1':
-      return '是';
+      return '有';
     case '2':
-      return '否';
+      return '无';
     default:
       return '';
   }

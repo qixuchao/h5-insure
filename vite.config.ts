@@ -2,7 +2,11 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-21 19:34:02
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-07 14:58:46
+<<<<<<< HEAD
+ * @LastEditTime: 2022-09-08 17:36:05
+=======
+ * @LastEditTime: 2022-09-08 10:11:27
+>>>>>>> v2.2.0
  * @FilePath: /zat-planet-h5-cloud-insure/vite.config.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */

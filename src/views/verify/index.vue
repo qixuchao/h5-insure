@@ -171,6 +171,16 @@ const CERT_STATUS_ENUM = {
 const route = useRoute();
 const router = useRouter();
 
+// 处理query中的orderNo重复的问题
+const dealQueryData = (() => {
+  const queryData = route.query;
+  if (queryData.orderCode) {
+    queryData.orderNo = queryData.orderCode;
+    delete queryData.orderCode;
+  }
+  return queryData;
+})();
+
 const {
   saleUserId = 'D1234567-1',
   tenantId = '9991000007',
@@ -181,16 +191,7 @@ const {
   orderCode,
   orderNo,
   productCategory,
-} = route.query;
-
-// 处理query中的orderNo重复的问题
-const dealQueryData = () => {
-  const queryData = route.query;
-  if (queryData.orderCode) {
-    queryData.orderNo = queryData.orderCode;
-  }
-  return queryData;
-};
+} = dealQueryData;
 
 const pageCode = 'sign';
 const storage = new Storage({ source: 'localStorage' });
@@ -206,11 +207,11 @@ const previewFileContent = ref<any>();
 const date = dayjs().format('YYYY-MM-DD');
 
 const handleResign1 = () => {
-  holderSign.value?.clear();
+  holderSign.value?.clear?.();
 };
 
 const handleResignInsured = (index: number) => {
-  insuredSignRefs[index].clear();
+  insuredSignRefs[index]?.clear?.();
 };
 
 const doVerify = (certNo: string, name: string) => {
@@ -318,8 +319,8 @@ const handleSubmit = () => {
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
-      if (data.orderStatus !== ORDER_STATUS_ENUM.PENDING) {
-        pageJump('paymentResult', dealQueryData());
+      if (!(data.orderStatus === ORDER_STATUS_ENUM.PENDING || data.orderStatus === ORDER_STATUS_ENUM.PAYMENT_FAILED)) {
+        pageJump('paymentResult', dealQueryData);
       } else {
         Dialog.confirm({
           title: '提示',
@@ -394,11 +395,11 @@ const getDetail = (check = false) => {
           if (item.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN) {
             // 电子签名
             if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER) {
-              holderSign.value.clear();
+              holderSign.value?.clear?.();
 
               holderSign.value.setDataURL(item.fileBase64);
             } else if (item.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.INSURED) {
-              insuredSignRefs[insuredIndex].clear();
+              insuredSignRefs[insuredIndex]?.clear?.();
               insuredSignRefs[insuredIndex].setDataURL(item.fileBase64);
               insuredIndex += 1;
             }
@@ -414,7 +415,7 @@ const handleRefresh = () => {
 };
 
 const shareLink = computed(() => {
-  const query = { ...dealQueryData(), isShare: 1, sharePageCode: 'sign' };
+  const query = { ...dealQueryData, isShare: 1, sharePageCode: 'sign' };
   return `${window.location.origin}/phoneVerify?${queryString.stringify(query)}`;
 });
 

@@ -200,7 +200,10 @@ export interface ProductMaterialVoItem {
 
 export interface ProductBasicInfoVo {
     combinationFlag: number;
+<<<<<<< HEAD
     extInfo: string;
+=======
+>>>>>>> v2.2.0
     id: number;
     insureMethod: string;
     insurerCode: string;
@@ -212,8 +215,16 @@ export interface ProductBasicInfoVo {
     productName: string;
 }
 
+<<<<<<< HEAD
 export interface premiumCalcData {
     holder: Holder;
+=======
+
+
+
+export interface PremiumCalcData {
+    holder?: Holder;
+>>>>>>> v2.2.0
     insuredVOList: InsuredVoItem[];
     productCode: string;
     tenantId?: string;
@@ -286,7 +297,11 @@ export interface Holder {
     personVO: PersonVo;
 }
 
+<<<<<<< HEAD
 // 保费试算结果
+=======
+
+>>>>>>> v2.2.0
 export interface premiumCalcResponse{
     amount: number;
     errorInfo: string;
