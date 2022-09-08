@@ -44,7 +44,6 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'vant';
 import { defineProps } from 'vue';
-import { Toast } from 'vant/es';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 
 const props = defineProps({

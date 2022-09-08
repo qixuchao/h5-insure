@@ -18,9 +18,7 @@
             <ProRadioButton v-model="hasSocialInsurance" :disabled="true" :options="SOCIAL_SECURITY"></ProRadioButton>
           </template>
         </ProField>
-        <VanButton class="upgrade-btn" type="primary" :block="true" @click="onUpgrade"
-          >升级保障({{ premium }})</VanButton
-        >
+        <div class="submit" @click="onUpgrade"></div>
       </div>
     </div>
   </div>
@@ -53,6 +51,7 @@ import {
   SOCIAL_SECURITY, // 有无社保
 } from '@/common/constants/infoCollection';
 import logo from '@/assets/images/chuangxin/logo.png';
+import upImg from '@/assets/images/chuangxin/up.png';
 import { getExtInfo, getReqData, transformData, compositionTrailData, genarateOrderParam } from '../../utils';
 
 const route = useRoute();
@@ -150,14 +149,20 @@ const upgrade = async (id: number) => {
 
 // 升级保障 保费试算
 const onUpgrade = async (o: any) => {
-  // 保存订单
-  await onPremiumCalc();
-  const oId = await onSaveOrder();
+  try {
+    Toast.loading({ forbidClick: true, message: '升级中' });
+    // 保存订单
+    await onPremiumCalc();
+    const oId = await onSaveOrder();
 
-  if (signUrl.value) {
-    window.location.href = signUrl.value;
-  } else {
-    upgrade(oId);
+    if (signUrl.value) {
+      window.location.href = signUrl.value;
+    } else {
+      upgrade(oId);
+    }
+  } catch (e) {
+    console.log(e);
+    Toast.clear();
   }
 };
 
@@ -220,6 +225,16 @@ $activity-primary-color: #ff6d23;
         margin-bottom: 20px;
         background-color: $activity-primary-color;
         border-color: $activity-primary-color;
+      }
+
+      .submit {
+        height: 100px;
+        margin-top: 40px;
+        margin-bottom: 35px;
+        background: url('@/assets/images/chuangxin/up.png') no-repeat;
+        background-size: contain;
+        background-position: center;
+        border: none;
       }
     }
   }

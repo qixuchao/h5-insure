@@ -26,9 +26,7 @@ const getActivityPath = () => {
     const { pageCode } = JSON.parse(extInfo) || {};
 
     if (pageCode) {
-      console.log('这是赠险链接');
-      console.log(pageCode);
-      return `/activity/${pageCode}`;
+      return `/chuangxin/baigebao/${pageCode}`;
     }
     return '';
   } catch (e) {

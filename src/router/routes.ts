@@ -166,21 +166,21 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   },
   {
     name: '赠险',
-    path: '/activity/free',
+    path: '/chuangxin/baigebao/free',
     meta: { title: '赠险' },
-    component: () => import('@/views/activity/free/index.vue'),
+    component: () => import('@/views/chuangxin/baigebao/free/index.vue'),
   },
   {
     name: '付费险',
-    path: '/activity/productDetail',
+    path: '/chuangxin/baigebao/productDetail',
     meta: { title: '付费险' },
-    component: () => import('@/views/activity/product/detail/index.vue'),
+    component: () => import('@/views/chuangxin/baigebao/product/detail/index.vue'),
   },
   {
     name: '保障升级',
-    path: '/activity/guaranteeUpgrade',
+    path: '/chuangxin/baigebao/guaranteeUpgrade',
     meta: { title: '保障升级' },
-    component: () => import('@/views/activity/product/up/index.vue'),
+    component: () => import('@/views/chuangxin/baigebao/product/up/index.vue'),
   },
 ];
 

@@ -81,7 +81,7 @@
         <template #input>
           <ProRadioButton
             v-model="state.formInfo.insured.socialFlag"
-            :disabled="props.disable"
+            :disabled="props.disable || state.insureDisable"
             :options="SOCIAL_SECURITY"
           ></ProRadioButton>
         </template>
@@ -137,6 +137,7 @@ const formRef = ref<FormInstance>({} as FormInstance);
 interface Props {
   disable: boolean; // 全部信息不可修改
   holderDisable: boolean; // 投保人信息不可修改
+
   paymentMethodDisable: boolean; // 支付方式不能修改
   premium: number;
   formInfo: {
@@ -222,6 +223,18 @@ watch(
   },
 );
 
+// 如果被保人是本人，投保人信息填写时，自动填充
+watch(
+  () => state.formInfo.holder,
+  () => {
+    if (state.formInfo.insured.relationToHolder !== RELATION_HOLDER_ENUM.SELF) {
+      return;
+    }
+    Object.assign(state.formInfo.insured, state.formInfo.holder);
+  },
+  { deep: true, immediate: true },
+);
+
 defineExpose({
   validateForm,
 });
@@ -257,7 +270,9 @@ defineExpose({
 }
 
 :deep(.com-check-btn.activated-disabled) {
-  background-color: #ff6d23;
+  border: 1px solid #ff6d23;
+  color: #ff6d23;
+  background: rgba(255, 109, 35, 0.2);
 }
 :deep(button.active-button) {
   background-color: #ff6d23;

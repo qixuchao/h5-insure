@@ -6,6 +6,7 @@
  * @Description: 页面包含2步：1、手机号验证完成后，2、输入姓名，身份证领取赠险
 -->
 <template>
+  <!-- <van-config-provider :theme-vars="themeVars"> -->
   <div class="page-activity-invite">
     <img class="logo" :src="logo" />
     <div class="container">
@@ -18,10 +19,12 @@
       </div>
     </div>
   </div>
+  <!-- </van-config-provider> -->
 </template>
 
 <script lang="ts" setup>
 import { useRouter, useRoute } from 'vue-router';
+import { Toast } from 'vant';
 import { insureProductDetail, getOrderDetailByCondition, multiIssuePolicy } from '@/api/modules/trial';
 import { productDetail } from '@/api/modules/product';
 import { RiskDetailVoItem, RiskAttachmentVoItem } from '@/api/modules/newTrial.data';
@@ -32,7 +35,7 @@ import TitleImg from '@/assets/images/chuangxin/title-step1.png';
 import TitleImg2 from '@/assets/images/chuangxin/title-step2.png';
 import logo from '@/assets/images/chuangxin/logo.png';
 import { ProductDetail } from '@/api/modules/product.data';
-import { getExtInfo, genarateOrderParam } from '../utils';
+import { themeVars, getExtInfo, genarateOrderParam } from '../utils';
 
 const route = useRoute();
 const router = useRouter();
@@ -50,7 +53,6 @@ interface UserInfoProps {
   certNo: string;
   name: string;
 }
-
 // 链接带入的productCode
 const { productCode = '7X9', tenantId = '', extInfo } = route.query as QueryData;
 const extInfoObj = getExtInfo(extInfo);
@@ -96,39 +98,50 @@ const onVerify = async (e: UserInfoProps) => {
 
 // 第二步 赠险出单
 const onSubmit = async (e: UserInfoProps) => {
-  state.userInfo.certNo = e.certNo;
-  state.userInfo.name = e.name;
+  try {
+    Toast({
+      message: '领取中...',
+      forbidClick: true,
+      loadingType: 'spinner',
+    });
+    state.userInfo.certNo = e.certNo;
+    state.userInfo.name = e.name;
 
-  const orderParam = genarateOrderParam({
-    tenantId,
-    detail: detail.value,
-    ...extInfoObj,
-    holder: state.userInfo,
-    insured: {
-      ...state.userInfo,
-      relationToHolder: RELATION_HOLDER_ENUM.SELF, // 被保人默认自己
-    },
-  });
-  // 赠险领取，跳转到基础产品
-  const res = await multiIssuePolicy(orderParam);
-  const { code } = res;
-  // TODO 后端要调整参数
-  if (code === '10000') {
-    // 跳转到基础险, 参数和短信发送的参数保持一致
-    router.push({
-      path: '/activity/productDetail',
-      query: {
-        ...route.query,
-        tenantId,
-        productCode: 'BWYL2021',
-        extInfo: JSON.stringify({
-          ...extInfoObj,
-          phoneNo: state.userInfo.mobile,
-          certNo: state.userInfo.certNo,
-          name: state.userInfo.name,
-        }),
+    const orderParam = genarateOrderParam({
+      tenantId,
+      detail: detail.value,
+      ...extInfoObj,
+      holder: state.userInfo,
+      insured: {
+        ...state.userInfo,
+        relationToHolder: RELATION_HOLDER_ENUM.SELF, // 被保人默认自己
       },
     });
+    // 赠险领取，跳转到基础产品
+    const res = await multiIssuePolicy(orderParam);
+    const { code } = res;
+    // TODO 后端要调整参数
+    if (code === '10000') {
+      // 跳转到基础险, 参数和短信发送的参数保持一致
+      router.push({
+        path: '/chuangxin/baigebao/productDetail',
+        query: {
+          ...route.query,
+          tenantId,
+          productCode: 'BWYL2021',
+          extInfo: JSON.stringify({
+            ...extInfoObj,
+            phoneNo: state.userInfo.mobile,
+            certNo: state.userInfo.certNo,
+            name: state.userInfo.name,
+          }),
+        },
+      });
+    }
+    Toast.clear();
+  } catch (error) {
+    console.log(error);
+    Toast.clear();
   }
 };
 

@@ -72,7 +72,7 @@
       </ProTab>
       <div class="footer-button">
         <div class="price">
-          总保费<span>￥{{ toLocal(premium) }}/月</span>
+          总保费<span>￥{{ toLocal(premium as number) }}/月</span>
         </div>
         <van-button type="primary" class="right" @click="onNext">{{ orderId ? '升级保障' : '立即投保' }}</van-button>
       </div>
@@ -103,11 +103,9 @@ import { useRoute, useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
 import { debounce } from 'lodash';
 import { ORIGIN, toLocal } from '@/utils';
-import ProDivider from '@/components/ProDivider/index.vue';
 import ProCard from '@/components/ProCard/index.vue';
 import ProTab from '@/components/ProTab/index.vue';
 import ProCell from '@/components/ProCell/index.vue';
-import FieldInfo from '../components/fieldInfo.vue';
 import Question from '../components/question/index.vue';
 import ProTimeline from '@/components/ProTimeline/index.vue';
 import ProPopup from '@/components/ProPopup/index.vue';
@@ -254,11 +252,11 @@ const onUnderWrite = async (o: any) => {
       });
 
       const { data } = res1;
-      window.location.href = data;
+      // window.location.href = data;
     }
-    Toast.clear();
+    // Toast.clear();
   } catch (e) {
-    Toast.clear();
+    // Toast.clear();
   }
 };
 
@@ -362,7 +360,7 @@ const onPremiumCalcWithValid = () => {
 const onNext = async () => {
   if (orderId) {
     router.push({
-      path: '/activity/guaranteeUpgrade',
+      path: '/chuangxin/baigebao/guaranteeUpgrade',
       query: {
         ...route.query,
         tenantId,
@@ -453,7 +451,7 @@ const fetchData = async () => {
         })
           .then(() => {
             router.push({
-              path: '/activity/guaranteeUpgrade',
+              path: '/chuangxin/baigebao/guaranteeUpgrade',
               query: {
                 ...route.query,
                 tenantId,

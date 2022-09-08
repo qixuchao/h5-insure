@@ -9,6 +9,10 @@ import {
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { getSex, getBirth } from '@/components/ProField/utils';
 
+export const themeVars = {
+  'primary-color': '#FF6D23',
+};
+
 // 链接参数extInfo 字符串转Object
 export const getExtInfo = (extInfo: string) => {
   try {
@@ -225,7 +229,7 @@ export const genaratePremiumCalcData = (o: premiumCalcParamType) => {
   };
 };
 
-// TODO any
+/** */
 interface transformDataType {
   tenantId: string;
   riskList: RiskVoItem[];
@@ -268,7 +272,7 @@ export const transformData = (o: transformDataType) => {
     return currentRisk;
   });
 };
-
+/** */
 interface upgradeParamType {
   tenantId: string;
   premium: number;
