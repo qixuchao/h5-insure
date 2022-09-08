@@ -252,7 +252,7 @@ const onUnderWrite = async (o: any) => {
       });
 
       const { data } = res1;
-      // window.location.href = data;
+      window.location.href = data;
     }
     // Toast.clear();
   } catch (e) {
