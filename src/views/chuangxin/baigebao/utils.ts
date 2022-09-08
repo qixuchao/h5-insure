@@ -190,7 +190,6 @@ export const compositionTrailData = (riskList: RiskDetailVoItem[], productDetail
 // premiumCalc 保费试算
 export const genaratePremiumCalcData = (o: premiumCalcParamType) => {
   const riskVOList = compositionTrailData(o.insureDetail.productRiskVoList[0].riskDetailVOList, o.productDetail);
-  console.log(riskVOList);
   const calcData: premiumCalcData = {
     holder: {
       personVO: {
@@ -284,8 +283,6 @@ interface upgradeParamType {
 // 升级保障保费试算/升级需要的参数
 export const getReqData = (o: upgradeParamType) => {
   const { orderDetail } = o;
-  console.log(orderDetail);
-  console.log(orderDetail.tenantOrderHolder);
   const calcData = {
     agencyId: orderDetail.agencyId,
     venderCode: orderDetail.venderCode,

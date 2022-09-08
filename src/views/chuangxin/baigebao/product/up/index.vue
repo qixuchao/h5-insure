@@ -21,6 +21,7 @@
         <div class="submit" @click="onUpgrade"></div>
       </div>
     </div>
+    <ProModal :is-show="showModal" :bg="modalBg" :btn-bg="upBtn" @on-close="onClose" />
   </div>
 </template>
 
@@ -28,6 +29,7 @@
 import { useRoute } from 'vue-router';
 import { Toast } from 'vant';
 import FieldInfo from '../components/fieldInfo.vue';
+import ProModal from '../../../components/ProModal/index.vue';
 import {
   insureProductDetail,
   saveOrder,
@@ -52,6 +54,8 @@ import {
 } from '@/common/constants/infoCollection';
 import logo from '@/assets/images/chuangxin/logo.png';
 import upImg from '@/assets/images/chuangxin/up.png';
+import modalBg from '@/assets/images/chuangxin/modal-bg.png';
+import upBtn from '@/assets/images/chuangxin/up-btn.png';
 import { getExtInfo, getReqData, transformData, compositionTrailData, genarateOrderParam } from '../../utils';
 
 const route = useRoute();
@@ -75,6 +79,11 @@ const orderDetail = ref<any>(); // 订单详情
 const premium = ref<number>(); // 保费试算
 const hasSocialInsurance = ref<boolean>(); // 有无社保
 const signUrl = ref<string>();
+const showModal = ref<boolean>(false);
+
+const onClose = () => {
+  showModal.value = false;
+};
 
 const onSaveOrder = async () => {
   const order = genarateOrderParam({
@@ -143,7 +152,7 @@ const upgrade = async (id: number) => {
   });
   const { code, data } = res;
   if (code === '10000') {
-    Toast('保障升级成功');
+    showModal.value = true;
   }
 };
 
@@ -171,7 +180,6 @@ const fetchData = () => {
   const insureReq = insureProductDetail({ productCode });
   const orderReq = getTenantOrderDetail({ id: orderId || extInfoObj.orderId, tenantId });
   Promise.all([productReq, insureReq, orderReq]).then(([productRes, insureRes, orderRes]) => {
-    console.log(productRes, insureRes, orderRes);
     if (productRes.code === '10000') {
       detail.value = productRes.data;
     }

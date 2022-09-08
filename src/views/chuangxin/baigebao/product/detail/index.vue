@@ -96,17 +96,19 @@
       </div>
     </div>
   </ProPopup>
+  <ProModal :is-show="showModal" :bg="modalBg" :btn-bg="upBtn" @on-confirm="onConfirm" @on-close="onClose" />
 </template>
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Dialog, Toast } from 'vant';
+import { Toast } from 'vant';
 import { debounce } from 'lodash';
 import { ORIGIN, toLocal } from '@/utils';
 import ProCard from '@/components/ProCard/index.vue';
 import ProTab from '@/components/ProTab/index.vue';
 import ProCell from '@/components/ProCell/index.vue';
 import Question from '../components/question/index.vue';
+import ProModal from '../../../components/ProModal/index.vue';
 import ProTimeline from '@/components/ProTimeline/index.vue';
 import ProPopup from '@/components/ProPopup/index.vue';
 import {
@@ -137,6 +139,8 @@ import { RiskPremiumDetailVoItem, RiskDetailVoItem } from '@/api/modules/trial.d
 import logo from '@/assets/images/chuangxin/logo.png';
 import { getExtInfo, genaratePremiumCalcData, transformData, genarateOrderParam } from '../../utils';
 import { validateMobile, validateName } from '@/utils/validator';
+import modalBg from '@/assets/images/chuangxin/modal-bg.png';
+import upBtn from '@/assets/images/chuangxin/up-btn.png';
 
 const router = useRouter();
 const route = useRoute();
@@ -200,6 +204,27 @@ const trailData = reactive({
   paymentMethodDisable: !!paymentMethod, // 支付方式不能修改
   renewalDK: true,
 });
+
+const showModal = ref<boolean>(false);
+
+const onClose = () => {
+  showModal.value = false;
+};
+
+const onConfirm = () => {
+  router.push({
+    path: '/chuangxin/baigebao/guaranteeUpgrade',
+    query: {
+      ...route.query,
+      tenantId,
+      productCode: 'BWYL2022',
+      extInfo: JSON.stringify({
+        ...extInfoObj,
+        orderId,
+      }),
+    },
+  });
+};
 
 const onShowDetail = () => {
   popupShow.value = true;
@@ -391,7 +416,7 @@ const onNext = async () => {
 watch(
   () => trailData,
   () => {
-    if (detail.value && insureDetail.value) {
+    if (detail.value && insureDetail.value && !orderId) {
       // 验证通过才去试算
       if (validCalcData()) {
         onPremiumCalc();
@@ -445,25 +470,7 @@ const fetchData = async () => {
         data.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY ||
         data.orderStatus === ORDER_STATUS_ENUM.PAYMENT_SUCCESS
       ) {
-        Dialog.confirm({
-          title: '标题',
-          message: '升级保障吗',
-        })
-          .then(() => {
-            router.push({
-              path: '/chuangxin/baigebao/guaranteeUpgrade',
-              query: {
-                ...route.query,
-                tenantId,
-                productCode: 'BWYL2022',
-                extInfo: JSON.stringify({
-                  ...extInfoObj,
-                  orderId,
-                }),
-              },
-            });
-          })
-          .catch(() => {});
+        showModal.value = true;
       }
     }
   } else {
