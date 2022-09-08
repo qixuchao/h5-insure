@@ -34,7 +34,7 @@
           </div>
         </div>
       </ProCard>
-      <ProCard title="投保人签名" :show-icon="false" class="sign-card" :show-line="false">
+      <ProCard key="-1" title="投保人签名" :show-icon="false" class="sign-card" :show-line="false">
         <template #extra>
           <div class="resign" @click="handleResign1">重签</div>
         </template>
@@ -52,7 +52,7 @@
               :type="getFileType(holderFileItem.materialContent, holderFileItem.materialSource + '')"
               @click="() => ''"
             />
-            <!-- <ProPDFviewer
+            <ProPDFviewer
               v-for="(insuredFileItem, insuredFileIndex) in holderQuestionList"
               :key="`holderQuestionList-${insuredFileIndex}`"
               class="file"
@@ -60,7 +60,7 @@
               :content="previewFileContent"
               :type="previewFileType"
               @click="() => getFileDetails(insuredFileItem)"
-            /> -->
+            />
           </div>
         </div>
       </ProCard>
