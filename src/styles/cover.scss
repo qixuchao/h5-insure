@@ -50,7 +50,9 @@
     flex-direction: column;
     justify-content: flex-start;
     .van-field__body {
-      // margin-top: 28px;
+      input {
+        margin: 14px;
+      }
     }
     .van-field__error-message {
       line-height: 28px;
@@ -118,6 +120,7 @@
 
 }
 
+// dialog
 .van-dialog {
   width: 560px;
   .van-dialog__message {
@@ -125,6 +128,7 @@
     color: $zaui-text;
     text-align: center;
     width: 100%;
+    padding: 24px;
   }
   .van-dialog__footer {
     display: flex;
@@ -209,5 +213,12 @@
     &::before {
       background-color: $zaui-text-weak;
     }
+  }
+}
+
+// popup
+.van-popup {
+  .van-popup__close-icon {
+    font-weight: 600;
   }
 }

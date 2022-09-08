@@ -40,3 +40,15 @@
   // margin-top: -28px;
   // padding: 14px 0;
 }
+
+.popup-title {
+  height: 104px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 64px;
+  font-size: 34px;
+  font-weight: 600;
+  color: #393d46;
+  border-bottom: 2px solid $zaui-line;
+}

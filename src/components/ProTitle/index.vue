@@ -54,10 +54,22 @@ const isShow = computed(() => {
 
 <style lang="scss" scoped>
 .card-title {
+  position: relative;
+  padding: 14px 0;
+  &::after {
+    content: ' ';
+    width: 720px;
+    height: 2px;
+    background-color: $zaui-line;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 30px;
+    z-index: 1;
+  }
   :deep(.van-cell__title) {
     display: flex;
     align-items: center;
-    min-height: 62px;
     .pic {
       margin-right: 16px;
       width: 8px;
@@ -75,34 +87,34 @@ const isShow = computed(() => {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      min-height: 60px;
       .left-content {
         display: flex;
         align-items: center;
         .main-risk {
           margin-right: 10px;
           width: 40px;
-          height: 40px;
-          background-color: #0d6efe;
+          line-height: 40px;
+          padding: 0 6px;
+          background-color: $zaui-brand;
           font-size: 28px;
           font-weight: 400;
           color: #ffffff;
-          line-height: 40px;
           text-align: center;
-          border-radius: 8px;
+          border-radius: 4px;
         }
         .minor-risk {
           margin-right: 10px;
           // margin-right: var(--zaui-space-card);
           width: 40px;
-          height: 40px;
-          background-color: #ff5840;
+          background-color: $zaui-price;
           font-size: 28px;
+          line-height: 40px;
+          padding: 0 6px;
           font-weight: 400;
           color: #ffffff;
           line-height: 40px;
           text-align: center;
-          border-radius: 8px;
+          border-radius: 4px;
         }
         .risk-name {
           width: 540px;

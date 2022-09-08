@@ -59,13 +59,19 @@
             v-if="showByFactor('sexLimit')"
             v-show="detail?.tenantProductInsureVO?.sexLimit !== '-1'"
             title="性别限制"
-            :desc="formatSexLimit(detail?.tenantProductInsureVO?.sexLimit)"
+            :desc="
+              detail?.tenantProductInsureVO?.sexLimit &&
+              `仅限${formatSexLimit(detail?.tenantProductInsureVO?.sexLimit)}性投保`
+            "
           />
           <FieldInfo
             v-if="showByFactor('socialInsuranceLimit')"
             v-show="detail?.tenantProductInsureVO?.socialInsuranceLimit !== '-1'"
             title="社保限制"
-            :desc="formatSocialInsuranceLimit(detail?.tenantProductInsureVO?.socialInsuranceLimit)"
+            :desc="
+              detail?.tenantProductInsureVO?.socialInsuranceLimit &&
+              `仅限${formatSocialInsuranceLimit(detail?.tenantProductInsureVO?.socialInsuranceLimit)}社保人群有投保`
+            "
           />
           <FieldInfo
             v-if="showByFactor('occupationType')"

@@ -1,12 +1,18 @@
 export interface ProductData {
     productBasicInfoVO: ProductBasicInfoVo;
+    productMaterialVOList: ProductMaterialVoItem[];
     productRelationPlanVOList: ProductRelationPlanVoItem[];
+    productRiskVoList: ProductRiskVoItem[];
+}
+
+export interface ProductRiskVoItem {
     riskDetailVOList: RiskDetailVoItem[];
 }
 
 export interface RiskDetailVoItem {
     circCategory: string;
     circCategoryDesc: string;
+    collocationType: number;
     collocationVOList: CollocationVoItem[];
     configStatus: number;
     exemptFlag: number;
@@ -17,11 +23,12 @@ export interface RiskDetailVoItem {
     insurerCode: string;
     insurerName: string;
     liabilityPlanOssUrl: string;
-    optionalRiderRiskVOList: RiskDetailVoItem[];
+    mainRiskCode: string;
+    mainRiskId: number;
     periodType: number;
     periodTypeDesc: string;
     relationDesc: string;
-    requiredRiderRiskVOList: RiskDetailVoItem[];
+    riskAttachmentVOList: RiskAttachmentVoItem[];
     riskCalcMethodInfoVO: RiskCalcMethodInfoVo;
     riskCategory: number;
     riskCategoryDesc: string;
@@ -55,8 +62,12 @@ export interface RiskLiabilityInfoVoItem {
     liabilityCode: string;
     liabilityDesc: string;
     liabilityId: number;
+    liabilityIndemnityContent: string;
+    liabilityIndemnityType: number;
     liabilityName: string;
     liabilityRateType: number;
+    liabilityTopType: number;
+    liabilityType: number;
     optionFlag: string;
     optionalFlag: number;
     optionalFlagDesc: string;
@@ -67,8 +78,9 @@ export interface RiskLiabilityInfoVoItem {
 }
 
 export interface RiskInsureLimitVo {
-    annuityDrawFrequencyList: number[];
-    annuityDrawValueList: number[];
+    annuityDrawFrequencyList: string[];
+    annuityDrawType: number;
+    annuityDrawValueList: string[];
     id: number;
     insurancePeriodRule: number;
     insurancePeriodType: number;
@@ -103,6 +115,7 @@ export interface RiskCalcMethodInfoVo {
     calculateType: number;
     calculateTypeDesc: string;
     dataTableList: string[];
+    fixedAmount: number;
     id: number;
     increaseDecreaseNum: number;
     maxCopy: number;
@@ -146,6 +159,13 @@ export interface PaymentMethodLimitItem {
     riskId: number;
 }
 
+export interface RiskAttachmentVoItem {
+    attachmentName: string;
+    attachmentType: string;
+    attachmentUrl: string;
+    businessType: string;
+}
+
 export interface CollocationVoItem {
     collocationRiskCode: string;
     collocationRiskId: number;
@@ -162,12 +182,26 @@ export interface ProductRelationPlanVoItem {
     id: number;
     planCode: string;
     planName: string;
-    riskDetailVOList: RiskDetailVoItem[];
+    productRiskVoList: ProductRiskVoItem[];
     riskNum: number;
 }
 
-export interface ProductBasicInfoVo {
+export interface ProductMaterialVoItem {
     id: number;
+    materialContent: string;
+    materialSource: number;
+    materialSourceDesc: string;
+    materialType: number;
+    materialTypeDesc: string;
+    noticeObject: number;
+    noticeObjectDesc: string;
+    productId: number;
+}
+
+export interface ProductBasicInfoVo {
+    combinationFlag: number;
+    id: number;
+    insureMethod: string;
     insurerCode: string;
     insurerName: string;
     productCategory: number;
@@ -177,7 +211,9 @@ export interface ProductBasicInfoVo {
 }
 
 
-export interface premiumCalcData {
+
+
+export interface PremiumCalcData {
     holder?: Holder;
     insuredVOList: InsuredVoItem[];
     productCode: string;
@@ -242,7 +278,6 @@ export interface PersonVo {
 export interface Holder {
     personVO: PersonVo;
 }
-
 
 
 export interface premiumCalcResponse{

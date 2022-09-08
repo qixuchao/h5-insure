@@ -52,15 +52,15 @@
               :type="getFileType(holderFileItem.materialContent, holderFileItem.materialSource + '')"
               @click="() => ''"
             />
-            <!-- <ProPDFviewer
-              v-for="(insuredFileItem, insuredFileIndex) in holderQuestionList"
+            <ProPDFviewer
+              v-for="(insuredFileItem, insuredFileIndex) in insuredQuestionList"
               :key="`holderQuestionList-${insuredFileIndex}`"
               class="file"
               :title="`《${insuredFileItem.title}》`"
               :content="previewFileContent"
               :type="previewFileType"
               @click="() => getFileDetails(insuredFileItem)"
-            /> -->
+            />
           </div>
         </div>
       </ProCard>
@@ -188,6 +188,7 @@ const dealQueryData = () => {
   const queryData = route.query;
   if (queryData.orderCode) {
     queryData.orderNo = queryData.orderCode;
+    delete queryData.orderCode;
   }
   return queryData;
 };

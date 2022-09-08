@@ -1,1 +1,0 @@
-System.register(["./index-legacy-20a0a9aa.js"],(function(e){"use strict";var t;return{setters:[function(e){t=e.b}],execute:function(){e("g",(e=>t.post("/api/app/order/v1/pageQuery",e))),e("d",((e,a)=>t.post("/api/app/order/v1/delete",{id:e,status:a})))}}}));
