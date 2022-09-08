@@ -21,7 +21,13 @@
       </div>
       <ProTab class="tabs" :list="tabList" sticky scrollspy>
         <template #tab1>
-          <HolderInsureForm ref="formRef" :holder-disable="holderDisable" :disable="disable" :form-info="trailData" />
+          <HolderInsureForm
+            ref="formRef"
+            :holder-disable="holderDisable"
+            :disable="disable"
+            :form-info="trailData"
+            :premium="premium"
+          />
         </template>
         <template #tab2>
           <div class="tab-1">
@@ -66,7 +72,7 @@
       </ProTab>
       <div class="footer-button">
         <div class="price">
-          总保费<span>￥{{ toLocal(trailData.premium) }}/月</span>
+          总保费<span>￥{{ toLocal(premium) }}/月</span>
         </div>
         <van-button type="primary" class="right" @click="onNext">{{ orderId ? '升级保障' : '立即投保' }}</van-button>
       </div>
@@ -95,7 +101,7 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
-import qs from 'qs';
+import { debounce } from 'lodash';
 import { ORIGIN, toLocal } from '@/utils';
 import ProDivider from '@/components/ProDivider/index.vue';
 import ProCard from '@/components/ProCard/index.vue';
@@ -126,12 +132,13 @@ import { CERT_TYPE_ENUM } from '@/common/constants';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { SOCIAL_SECURITY_ENUM, RELATION_HOLDER_ENUM } from '@/common/constants/infoCollection';
 import HolderInsureForm from '../components/HolderInsureForm/index.vue';
-import { getSex, getBirth } from '@/components/ProField/utils';
+import { validateIdCardNo } from '@/components/ProField/utils';
 import { PAY_METHOD_ENUM } from '@/common/constants/bankCard';
 import { RISK_TYPE_ENUM, RULE_ENUM } from '@/common/constants/trial';
 import { RiskPremiumDetailVoItem, RiskDetailVoItem } from '@/api/modules/trial.data';
 import logo from '@/assets/images/chuangxin/logo.png';
 import { getExtInfo, genaratePremiumCalcData, transformData, genarateOrderParam } from '../../utils';
+import { validateMobile, validateName } from '@/utils/validator';
 
 const router = useRouter();
 const route = useRoute();
@@ -193,7 +200,6 @@ const trailData = reactive({
   },
   paymentMethod,
   paymentMethodDisable: !!paymentMethod, // 支付方式不能修改
-  premium: 0,
   renewalDK: true,
 });
 
@@ -214,6 +220,28 @@ const guaranteeList = computed(() => {
   ];
 });
 
+// 校验所有输入参数
+const validCalcData = () => {
+  const {
+    holder: { certNo: holderCertNo, mobile: holderMobile, name: holderName, socialFlag: holderSocialFlag },
+    insured: {
+      certNo: insuredCertNo,
+      name: insuredName,
+      socialFlag: insuredSocialFlag,
+      relationToHolder: insuredRelationToHolder,
+    },
+    paymentMethod: insuredPaymentMethod,
+  } = trailData;
+  const holderValid =
+    validateIdCardNo(holderCertNo) && validateMobile(holderMobile) && validateName(holderName) && !!holderSocialFlag;
+  const insuredValid =
+    validateIdCardNo(insuredCertNo) && validateName(insuredName) && !!insuredSocialFlag && !!insuredRelationToHolder;
+  if (holderValid && insuredValid && !!insuredPaymentMethod) {
+    return true;
+  }
+  return false;
+};
+
 // 核保 - 参数和保存订单一样, TODO any
 const onUnderWrite = async (o: any) => {
   try {
@@ -226,7 +254,7 @@ const onUnderWrite = async (o: any) => {
       });
 
       const { data } = res1;
-      // window.location.href = data;
+      window.location.href = data;
     }
     Toast.clear();
   } catch (e) {
@@ -247,7 +275,7 @@ const onSaveOrder = async (risk: any) => {
     paymentMethod: trailData.paymentMethod,
     renewalDK: trailData.renewalDK ? 'Y' : 'N', // 开通下一年
     successJumpUrl: '',
-    premium: trailData.premium, // 保费
+    premium: premium.value as number, // 保费
     holder: trailData.holder,
     insured: trailData.insured,
     tenantOrderRiskList: risk,
@@ -275,7 +303,36 @@ const onSaveOrder = async (risk: any) => {
 };
 
 // 保费试算 -> 订单保存 -> 核保
-const onPremiumCalc = () => {
+const onPremiumCalc = async () => {
+  // 试算参数
+  const { calcData, riskVOList } = genaratePremiumCalcData({
+    holder: trailData.holder,
+    insured: trailData.insured,
+    tenantId,
+    productDetail: detail.value as ProductDetail,
+    insureDetail: insureDetail.value,
+  });
+  const func = async () => {
+    const res = await premiumCalc(calcData);
+
+    const { code, data } = res;
+
+    if (code === '10000') {
+      premium.value = data.premium;
+      return {
+        condition: riskVOList,
+        data,
+      };
+    }
+    return {};
+  };
+
+  func();
+
+  debounce(func, 500, { trailing: true });
+};
+
+const onPremiumCalcWithValid = () => {
   return new Promise((resolve) => {
     formRef.value?.validateForm?.().then(async () => {
       // 试算参数
@@ -286,18 +343,18 @@ const onPremiumCalc = () => {
         productDetail: detail.value as ProductDetail,
         insureDetail: insureDetail.value,
       });
-
       const res = await premiumCalc(calcData);
 
       const { code, data } = res;
 
       if (code === '10000') {
-        trailData.premium = data.premium;
+        premium.value = data.premium;
         resolve({
           condition: riskVOList,
           data,
         });
       }
+      resolve({});
     });
   });
 };
@@ -318,7 +375,7 @@ const onNext = async () => {
     });
     return;
   }
-  const { condition, data } = await onPremiumCalc();
+  const { condition, data } = await onPremiumCalcWithValid();
 
   const riskPremium = {};
   const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
@@ -333,6 +390,21 @@ const onNext = async () => {
   const risk = transformData({ tenantId, riskList: condition, riskPremium, productId: detail.value?.id as number });
   onSaveOrder(risk);
 };
+watch(
+  () => trailData,
+  () => {
+    if (detail.value && insureDetail.value) {
+      // 验证通过才去试算
+      if (validCalcData()) {
+        onPremiumCalc();
+      }
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 const fetchData = async () => {
   const productReq = productDetail({ productCode, withInsureInfo: true });
@@ -368,7 +440,7 @@ const fetchData = async () => {
         relationToHolder: tenantOrderInsuredList[0]?.relationToHolder,
       };
       trailData.paymentMethod = extInfo.extraInfo.paymentMethod;
-      trailData.premium = tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium;
+      premium.value = tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium;
       trailData.renewalDK = extInfo.extraInfo.renewalDK === 'Y';
       // 已承保/支付成功
       if (
@@ -397,7 +469,9 @@ const fetchData = async () => {
       }
     }
   } else {
-    onPremiumCalc();
+    if (validCalcData()) {
+      onPremiumCalc();
+    }
   }
 };
 

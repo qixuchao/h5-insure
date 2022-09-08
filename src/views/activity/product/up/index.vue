@@ -75,11 +75,14 @@ const insureDetail = ref<any>(); // 险种详情
 const orderDetail = ref<any>(); // 订单详情
 const premium = ref<number>(); // 保费试算
 const hasSocialInsurance = ref<boolean>(); // 有无社保
+const signUrl = ref<string>();
 
 const onSaveOrder = async () => {
   const order = genarateOrderParam({
     tenantId,
     saleChannelId,
+    orderStatus: '',
+    orderTopStatus: '',
     detail: detail.value as ProductDetail,
     paymentMethod: orderDetail.value.extInfo?.extraInfo?.paymentMethod,
     renewalDK: orderDetail.value.extInfo?.extraInfo?.renewalDK, // 开通下一年
@@ -123,6 +126,7 @@ const onPremiumCalc = async () => {
   const { code, data } = res;
   if (code === '10000') {
     premium.value = data.installmentPremium;
+    signUrl.value = data.signUrl;
   }
 };
 
@@ -149,7 +153,12 @@ const onUpgrade = async (o: any) => {
   // 保存订单
   await onPremiumCalc();
   const oId = await onSaveOrder();
-  // upgrade(oId);
+
+  if (signUrl.value) {
+    window.location.href = signUrl.value;
+  } else {
+    upgrade(oId);
+  }
 };
 
 const fetchData = () => {

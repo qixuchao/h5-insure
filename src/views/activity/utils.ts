@@ -46,6 +46,7 @@ interface orderParamType {
 // multiIssuePolicy 一键出单
 export const genarateOrderParam = (o: orderParamType) => {
   const param = {
+    orderAmount: o.premium,
     tenantId: o.tenantId,
     venderCode: o.detail?.insurerCode,
     orderDataSource: '1', // 订单来源

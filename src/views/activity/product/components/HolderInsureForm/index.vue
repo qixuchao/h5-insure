@@ -90,8 +90,8 @@
     <ProDivider />
     <div>
       <div class="title">保费支付</div>
-      <ProField v-model="state.formInfo.premium" label="每月保费" :is-view="true">
-        <template #input> {{ state.formInfo.premium }} /月 共12期</template>
+      <ProField label="每月保费" :is-view="true">
+        <template #input> {{ props.premium }} /月 共12期</template>
       </ProField>
       <ProPicker
         v-model="state.formInfo.paymentMethod"
@@ -138,9 +138,9 @@ interface Props {
   disable: boolean; // 全部信息不可修改
   holderDisable: boolean; // 投保人信息不可修改
   paymentMethodDisable: boolean; // 支付方式不能修改
+  premium: number;
   formInfo: {
     paymentMethod: number;
-    premium: number;
     renewalDK: boolean;
     holder: {
       certNo: string;
@@ -161,6 +161,7 @@ const props = withDefaults(defineProps<Props>(), {
   holderDisable: false,
   disable: false,
   paymentMethodDisable: false,
+  premium: 0,
   formInfo: () => ({}),
 });
 
