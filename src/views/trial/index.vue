@@ -102,7 +102,7 @@ import {
   RiskVoItem,
   InsuredVoItem,
   LiabilityVoItem,
-  premiumCalcData,
+  PremiumCalcData,
   RiskPremiumDetailVoItem,
   ProductRelationPlanVoItem,
   premiumCalcResponse,
@@ -304,7 +304,7 @@ const dealTrialData = () => {
     return risk;
   });
 
-  const trialData: premiumCalcData = {
+  const trialData: PremiumCalcData = {
     holder: holder.value,
     productCode: state.riskBaseInfo.productCode as string,
     insuredVOList: [

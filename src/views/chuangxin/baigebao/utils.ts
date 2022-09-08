@@ -1,5 +1,5 @@
 import { ProductDetail } from '@/api/modules/product.data';
-import { premiumCalcData, RiskVoItem, RiskDetailVoItem } from '@/api/modules/trial.data';
+import { PremiumCalcData, RiskVoItem, RiskDetailVoItem } from '@/api/modules/trial.data';
 import {
   RISK_TYPE_ENUM,
   RULE_ENUM,
@@ -190,7 +190,7 @@ export const compositionTrailData = (riskList: RiskDetailVoItem[], productDetail
 // premiumCalc 保费试算
 export const genaratePremiumCalcData = (o: premiumCalcParamType) => {
   const riskVOList = compositionTrailData(o.insureDetail.productRiskVoList[0].riskDetailVOList, o.productDetail);
-  const calcData: premiumCalcData = {
+  const calcData: PremiumCalcData = {
     holder: {
       personVO: {
         birthday: getBirth(o.holder.certNo),
@@ -288,8 +288,6 @@ export const getReqData = (o: upgradeParamType) => {
     venderCode: orderDetail.venderCode,
     applicationNo: orderDetail.applicationNo,
     orderDataSource: orderDetail.orderDataSource,
-    orderNo: orderDetail.orderNo,
-    orderStatus: orderDetail.orderStatus,
     policyNo: orderDetail.policyNo,
     tenantId: o.tenantId,
     orderAmount: o.premium,
