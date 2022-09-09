@@ -33,6 +33,7 @@ interface orderParamType {
   premium: number; // 保费
   orderStatus: string;
   orderTopStatus: string;
+  orderCategory: number;
   holder: {
     mobile: string;
     certNo: string;
@@ -55,6 +56,7 @@ export const genarateOrderParam = (o: orderParamType) => {
     venderCode: o.detail?.insurerCode,
     orderDataSource: '1', // 订单来源
     saleChannelId: o.saleChannelId, // 销售渠道id
+    orderCategory: o.orderCategory, // 订单类型
     orderStatus: o.orderStatus,
     orderTopStatus: o.orderTopStatus,
     tenantOrderHolder: {

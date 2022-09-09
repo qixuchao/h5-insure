@@ -71,8 +71,6 @@ const { productCode = 'BWYL2022', tenantId, orderId, extInfo: _extInfo } = route
 
 const extInfoObj = getExtInfo(_extInfo);
 
-const { phoneNo: mobile, saleChannelId, paymentMethod, certNo, name } = extInfoObj;
-
 const detail = ref<ProductDetail>(); // 产品详情
 const insureDetail = ref<any>(); // 险种详情
 const orderDetail = ref<any>(); // 订单详情
@@ -88,9 +86,10 @@ const onClose = () => {
 const onSaveOrder = async () => {
   const order = genarateOrderParam({
     tenantId,
-    saleChannelId,
+    saleChannelId: orderDetail.value.saleChannelId,
     orderStatus: '',
     orderTopStatus: '',
+    orderCategory: 2, // 批改类型
     detail: detail.value as ProductDetail,
     paymentMethod: orderDetail.value.extInfo?.extraInfo?.paymentMethod,
     renewalDK: orderDetail.value.extInfo?.extraInfo?.renewalDK, // 开通下一年
