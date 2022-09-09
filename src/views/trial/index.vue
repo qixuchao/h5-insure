@@ -468,6 +468,14 @@ onBeforeMount(() => {
     :deep(.van-tabs__line) {
       display: none;
     }
+    :deep(.van-tabs) {
+      .van-tabs__wrap {
+        height: auto;
+        .van-tabs__nav--line {
+          padding: 23px 0;
+        }
+      }
+    }
   }
   .footer-bar {
     position: fixed;

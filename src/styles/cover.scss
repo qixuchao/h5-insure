@@ -6,13 +6,12 @@
 .van-tabs__line {
   height: 8px;
 }
-.van-button {
-  // border: none;
-}
+
 .van-tab--active {
   font-weight: 600;
   color: $primary-color;
 }
+
 .van-list__finished-text {
   text-align: center;
   line-height: normal;
@@ -50,8 +49,8 @@
     flex-direction: column;
     justify-content: flex-start;
     .van-field__body {
-      input {
-        margin: 14px;
+      input, .input {
+        margin: 14px 0;
       }
     }
     .van-field__error-message {

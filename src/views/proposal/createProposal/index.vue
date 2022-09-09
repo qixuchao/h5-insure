@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:14:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-08 18:17:19
+ * @LastEditTime: 2022-09-09 13:46:02
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -10,15 +10,16 @@
   <ProPageWrap class="page-create-wrapper">
     <div class="container">
       <VanForm ref="formRef" input-align="right" error-message-align="right">
-        <ProCard>
+        <ProCard :show-line="false">
           <VanField
             v-model="proposalInfo.proposalName"
+            class="border-radius"
             name="proposalName"
             placeholder="请输入计划书名称"
             :rules="[{ validator: (...params) => validateName('计划书名称', ...params) }]"
           >
             <template #label>
-              <span>计划书名称</span>
+              <span class="plan-name">计划书名称</span>
             </template>
           </VanField>
         </ProCard>
@@ -44,6 +45,7 @@
             v-model="proposalInfo.proposalInsuredList[0].gender"
             name="gender"
             label="性别"
+            class="border-radius"
             :rules="[{ required: true, message: '请选择' }]"
           >
             <template #input>
@@ -58,6 +60,7 @@
       <ProCard
         v-for="product in proposalInfo.proposalInsuredList[0].proposalInsuredProductList || []"
         :key="product.productId"
+        :show-line="false"
       >
         <ProductList
           :product-risk-list="product.proposalProductRiskList"
@@ -75,9 +78,8 @@
       </div>
     </div>
     <div class="footer-bar">
-      <span class="trial-result">
-        总保费
-        <span class="result-num">￥{{ proposalInfo.totalPremium.toLocaleString() }}</span>
+      <span class="trial-result"
+        >总保费<span class="result-num">￥{{ proposalInfo.totalPremium.toLocaleString() }}</span>
       </span>
       <div class="trial-operate">
         <VanButton type="primary" @click="saveProposalData">保存并预览</VanButton>
@@ -368,6 +370,12 @@ watch(
 <style lang="scss" scoped>
 .page-create-wrapper {
   background-color: #f2f5fc;
+  .border-radius {
+    border-radius: $zaui-border-radius-card;
+    .plan-name {
+      font-weight: 600;
+    }
+  }
   :deep(.com-card-wrap) {
     border-radius: $zaui-border-radius-card;
     .body {
@@ -381,7 +389,7 @@ watch(
       width: 100%;
       justify-content: center;
       display: flex;
-      margin-top: 40px;
+      margin-top: 20px;
       :deep(.com-check-btn) {
         height: 68px;
         width: 240px;
@@ -395,21 +403,20 @@ watch(
     left: 0;
     background-color: #ffffff;
     height: 150px;
-    padding: 30px;
+    padding: $zaui-card-border;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid #efeff4;
+    border-top: 1px solid $zaui-line;
 
     .trial-result {
       width: 440px;
-      color: #ff5840;
-      font-size: 24px;
-      font-weight: 600;
+      font-size: 34px;
+      font-weight: 400;
       .result-num {
-        font-size: 46px;
-        font-weight: 500;
-        margin-left: 13px;
+        margin-left: 16px;
+        color: $zaui-price;
+        font-weight: 600;
       }
     }
     .trial-operate {

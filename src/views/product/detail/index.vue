@@ -17,14 +17,14 @@
       </div>
       <ProDivider />
       <div v-if="guaranteeList.length > 1" class="plan">
-        <div
+        <ProTabButton
           v-for="(item, index) in guaranteeList"
           :key="index"
-          :class="['plan-item', `length-${guaranteeList.length}`, { active: activePlan === index }]"
+          :title="item.guaranteeType"
+          :active="activePlan === index"
+          :class="['plan-item', `length-${guaranteeList.length}`]"
           @click="handlePlanItemClick(index)"
-        >
-          {{ item.guaranteeType }}
-        </div>
+        ></ProTabButton>
       </div>
       <ProCard v-if="showByFactor('guaranteeDetail')" title="保障详情" link="查看详情" @link-click="handleLinkClick">
         <div v-if="detail && detail?.tenantProductInsureVO" class="basic">

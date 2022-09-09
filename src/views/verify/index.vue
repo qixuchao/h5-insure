@@ -423,7 +423,7 @@ const shareLink = computed(() => {
 });
 
 // 获取产品上下架配置中费产品资料
-const getProductMaterials = () => {
+const getProductMaterials = async () => {
   const params = {
     orderNo: orderCode || orderNo,
     productCode,
@@ -445,36 +445,50 @@ const getProductMaterials = () => {
   };
 
   // 投保人资料
-  getFile({
-    ...params,
-  }).then(({ code, data }) => {
-    if (code === '10000') {
-      holderFileList.value = data || [];
-    }
-  });
-  // 被保人资料
-  getFile({
-    ...params,
+  const { code: holderFileCode, data: holderFileData } = await getFile(params);
+  const { code: insuredFileCode, data: insuredFileData } = await getFile({ ...params, objectType: 2 });
+  const { code: holderQuestionCode, data: holderQuestionData } = await listCustomerQuestions(questionParams);
+  const { code: insuredQuestionCode, data: insuredQuestionData } = await listCustomerQuestions({
+    ...questionParams,
+    noticeType: 5,
     objectType: 2,
-  }).then(({ code, data }) => {
-    if (code === '10000') {
-      insuredFileList.value = data || [];
-    }
   });
 
-  // 投保人问卷
-  listCustomerQuestions({ ...questionParams }).then(({ code, data }) => {
-    if (code === '10000') {
-      holderQuestionList.value = data || [];
-    }
-  });
+  if (holderFileCode === '10000') {
+    holderFileList.value = holderFileData || [];
+  }
+  if (insuredFileCode === '10000') {
+    insuredFileList.value = insuredFileData || [];
+  }
+  if (holderQuestionCode === '10000') {
+    holderQuestionList.value = holderQuestionData || [];
+  }
+  if (insuredQuestionCode === '10000') {
+    insuredQuestionList.value = insuredQuestionData || [];
+  }
+  // // 被保人资料
+  // getFile({
+  //   ...params,
+  //   objectType: 2,
+  // }).then(({ code, data }) => {
+  //   if (code === '10000') {
+  //     insuredFileList.value = data || [];
+  //   }
+  // });
 
-  // 被保人问卷
-  listCustomerQuestions({ ...questionParams, noticeType: 5, objectType: 2 }).then(({ code, data }) => {
-    if (code === '10000') {
-      insuredQuestionList.value = data || [];
-    }
-  });
+  // // 投保人问卷
+  // listCustomerQuestions({ ...questionParams }).then(({ code, data }) => {
+  //   if (code === '10000') {
+  //     holderQuestionList.value = data || [];
+  //   }
+  // });
+
+  // // 被保人问卷
+  // listCustomerQuestions({ ...questionParams, noticeType: 5, objectType: 2 }).then(({ code, data }) => {
+  //   if (code === '10000') {
+  //     insuredQuestionList.value = data || [];
+  //   }
+  // });
 };
 
 onMounted(() => {

@@ -9,8 +9,10 @@
     @click="handleClick"
   >
     <template #input>
-      <span v-if="displayValue" class="displayValue">{{ displayValue }}</span>
-      <span v-else class="placeholder">{{ placeholder }}</span>
+      <div class="input">
+        <span v-if="displayValue" class="displayValue">{{ displayValue }}</span>
+        <span v-else class="placeholder">{{ placeholder }}</span>
+      </div>
     </template>
   </ProField>
   <ProPopup v-model:show="show" :height="40" :closeable="false">
