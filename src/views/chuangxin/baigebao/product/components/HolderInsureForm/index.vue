@@ -327,6 +327,8 @@ defineExpose({
   font-weight: 400;
   color: #666666;
   line-height: 40px;
+  background: #fff;
+
   :deep(.pdf-viewer .title) {
     color: #ff6d23;
   }

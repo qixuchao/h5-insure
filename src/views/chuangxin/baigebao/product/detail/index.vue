@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <van-config-provider :theme-vars="themeVars">
     <div class="page-product-detail">
       <div class="info">
         <img class="logo" :src="logo" />
@@ -56,7 +56,7 @@
         <van-button type="primary" class="right" @click="onNext">{{ orderId ? '升级保障' : '立即投保' }}</van-button>
       </div>
     </div>
-  </div>
+  </van-config-provider>
   <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
     <ProTab
       v-if="guaranteeList.length > 1"
@@ -82,14 +82,21 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import { debounce } from 'lodash';
-import { ORIGIN, toLocal } from '@/utils';
 import ProCard from '@/components/ProCard/index.vue';
 import ProTab from '@/components/ProTab/index.vue';
 import ProCell from '@/components/ProCell/index.vue';
-import Question from '../components/question/index.vue';
-import ProModal from '../../../components/ProModal/index.vue';
 import ProTimeline from '@/components/ProTimeline/index.vue';
 import ProPopup from '@/components/ProPopup/index.vue';
+import { validateIdCardNo } from '@/components/ProField/utils';
+import Question from '../components/question/index.vue';
+import ProModal from '../../../components/ProModal/index.vue';
+import HolderInsureForm from '../components/HolderInsureForm/index.vue';
+import { CERT_TYPE_ENUM } from '@/common/constants';
+import { ORDER_STATUS_ENUM } from '@/common/constants/order';
+import { SOCIAL_SECURITY_ENUM, RELATION_HOLDER_ENUM } from '@/common/constants/infoCollection';
+import { PAY_METHOD_ENUM } from '@/common/constants/bankCard';
+import { RISK_TYPE_ENUM, RULE_ENUM } from '@/common/constants/trial';
+
 import {
   premiumCalc,
   insureProductDetail,
@@ -100,6 +107,9 @@ import {
 } from '@/api/modules/trial';
 import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
+import { ORIGIN, toLocal } from '@/utils';
+import { validateMobile, validateName } from '@/utils/validator';
+import { RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
 import {
   formatHolderAgeLimit,
   formatPaymentPeriodLimit,
@@ -107,19 +117,11 @@ import {
   formatOccupationLimit,
   formatSocialInsuranceLimit,
 } from './utils';
-import { CERT_TYPE_ENUM } from '@/common/constants';
-import { ORDER_STATUS_ENUM } from '@/common/constants/order';
-import { SOCIAL_SECURITY_ENUM, RELATION_HOLDER_ENUM } from '@/common/constants/infoCollection';
-import HolderInsureForm from '../components/HolderInsureForm/index.vue';
-import { validateIdCardNo } from '@/components/ProField/utils';
-import { PAY_METHOD_ENUM } from '@/common/constants/bankCard';
-import { RISK_TYPE_ENUM, RULE_ENUM } from '@/common/constants/trial';
-import { RiskPremiumDetailVoItem, RiskDetailVoItem } from '@/api/modules/trial.data';
-import logo from '@/assets/images/chuangxin/logo.png';
 import { getExtInfo, genaratePremiumCalcData, transformData, genarateOrderParam } from '../../utils';
-import { validateMobile, validateName } from '@/utils/validator';
+import themeVars from '../../theme';
 import modalBg from '@/assets/images/chuangxin/modal-bg.png';
 import upBtn from '@/assets/images/chuangxin/up-btn.png';
+import logo from '@/assets/images/chuangxin/logo.png';
 
 const router = useRouter();
 const route = useRoute();
@@ -154,9 +156,9 @@ const tabList = ref<Array<{ title: string; slotName: string }>>([
 const formRef = ref();
 const activePlan = ref(0);
 const popupShow = ref(false);
-const detail = ref<ProductDetail>();
-const insureDetail = ref<any>();
-const premium = ref<number>();
+const detail = ref<ProductDetail>(); // 产品信息
+const insureDetail = ref<any>(); // 险种信息
+const premium = ref<number>(); // 保费
 
 // 投保人不可修改（赠险）
 const holderDisable = !!(name && certNo && mobile);
@@ -265,7 +267,7 @@ const onUnderWrite = async (o: any) => {
 };
 
 const getPayCallbackUrl = (id: number) => {
-  const url = `https://planet-h5-insure-test.zhongan.io/chuangxin/baigebao/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderId=${id}`;
+  const url = `${ORIGIN}/chuangxin/baigebao/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderId=${id}`;
   return url;
 };
 
@@ -281,8 +283,8 @@ const onSaveOrder = async (risk: any) => {
     holder: trailData.holder,
     insured: trailData.insured,
     tenantOrderRiskList: risk,
-    orderStatus: ORDER_STATUS_ENUM.UP_PROCESSING,
-    orderTopStatus: '-1',
+    orderStatus: '',
+    orderTopStatus: '',
   });
 
   const res = await saveOrder(order);
@@ -588,10 +590,10 @@ $activity-primary-color: #ff6d23;
   }
   // 覆盖原来组件的样式
   :deep(.showIcon::before) {
-    background: $activity-primary-color !important;
+    background: $primary-color !important;
   }
   :deep(.link) {
-    color: $activity-primary-color !important;
+    color: $primary-color !important;
   }
   .guarantee-item {
     border: none;
@@ -603,24 +605,22 @@ $activity-primary-color: #ff6d23;
   }
   // tab 样式覆盖
   :deep(.van-tab--active) {
-    color: $activity-primary-color;
+    color: $primary-color;
   }
   :deep(.van-tabs__line) {
-    background: $activity-primary-color;
+    background: $primary-color;
   }
   // 多选样式覆盖
   :deep(.com-check-btn.activated) {
-    border-color: $activity-primary-color;
-    color: $activity-primary-color;
-    background: rgba($color: $activity-primary-color, $alpha: 0.2);
+    background: rgba($color: #ff6d23, $alpha: 0.2);
   }
   // 理赔流程样式覆盖
   :deep(.com-time-line .item .left .num) {
-    color: $activity-primary-color;
-    border-color: $activity-primary-color;
-    background: rgba($color: $activity-primary-color, $alpha: 0.15);
+    color: $primary-color;
+    border-color: $primary-color;
+    background: rgba($color: #ff6d23, $alpha: 0.15);
     &::after {
-      border-color: rgba($color: $activity-primary-color, $alpha: 0.15);
+      border-color: rgba($color: #ff6d23, $alpha: 0.15);
     }
   }
   // footer覆盖
@@ -629,14 +629,14 @@ $activity-primary-color: #ff6d23;
     font-size: 34px;
     font-weight: normal;
     span {
-      color: $activity-primary-color;
+      color: $primary-color;
       font-weight: bold;
     }
   }
   .right {
     width: 280px;
-    background: $activity-primary-color;
-    border-color: $activity-primary-color;
+    background: $primary-color;
+    border-color: $primary-color;
   }
 }
 </style>
