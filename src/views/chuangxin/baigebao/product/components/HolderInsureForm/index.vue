@@ -8,6 +8,8 @@
         name="name"
         required
         placeholder="请输入姓名"
+        maxlength="10"
+        :rules="[{ validator: nameValidator }]"
         :is-view="props.holderDisable || props.disable"
       />
       <ProField
@@ -16,6 +18,7 @@
         name="certNo"
         required
         placeholder="请输入身份证号"
+        maxlength="20"
         :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
         :is-view="props.holderDisable || props.disable"
       />
@@ -25,6 +28,8 @@
         name="mobile"
         required
         placeholder="请输入手机号"
+        maxlength="11"
+        :validate-type="[VALIDATE_TYPE_ENUM.PHONE]"
         :is-view="props.holderDisable || props.disable"
       />
       <ProField
@@ -66,6 +71,8 @@
         label="姓名"
         name="name"
         required
+        maxlength="10"
+        :rules="[{ validator: nameValidator }]"
         :is-view="state.insureDisable || props.disable"
       />
       <ProField
@@ -74,6 +81,7 @@
         name="certNo"
         required
         placeholder="请输入身份证号"
+        maxlength="20"
         :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
         :is-view="state.insureDisable || props.disable"
       />
@@ -105,7 +113,7 @@
         <!-- <template #input> {{ state.formInfo.premium }} /月 共12期</template> -->
       </ProPicker>
 
-      <ProField label="开通下一年自主重新投保" name="renewalDK" placeholder="请选择">
+      <ProField label="开通下一年自主重新投保" name="renewalDK" placeholder="请选择" :border="false">
         <template #input>
           <ProTabButton
             :disabled="props.allDisabled"
@@ -115,6 +123,42 @@
           ></ProTabButton>
         </template>
       </ProField>
+      <div class="attachment-list">
+        <div class="product-attachment-list">
+          请您重点阅读并知晓
+          <ProPDFviewer
+            v-for="(item, index) in productAttachmentList"
+            :key="index"
+            class="file-name"
+            :title="`《${item.attachmentName}》`"
+            :content="item.attachmentUri"
+            type="pdf"
+          >
+            <span
+              v-if="index !== (productDetail?.tenantProductInsureVO?.attachmentVOList || []).length - 1"
+              class="dun-hao"
+              >、</span
+            >
+          </ProPDFviewer>
+        </div>
+        <div class="rate-attachment-list">
+          *保费与被保人年龄、医保情况相关，详见
+          <ProPDFviewer
+            v-for="(item, index) in rateAttachmentList"
+            :key="index"
+            class="file-name"
+            :title="`《${item.attachmentName}》`"
+            :content="item.attachmentUri"
+            type="pdf"
+          >
+            <span
+              v-if="index !== (productDetail?.tenantProductInsureVO?.attachmentVOList || []).length - 1"
+              class="dun-hao"
+              >、</span
+            >
+          </ProPDFviewer>
+        </div>
+      </div>
     </div>
     <ProDivider />
   </ProForm>
@@ -131,6 +175,9 @@ import { ACTIVITY_PAY_METHOD_LIST } from '@/common/constants/bankCard';
 
 import ProDivider from '@/components/ProDivider/index.vue';
 import { VALIDATE_TYPE_ENUM } from '@/common/constants';
+import { ProductDetail } from '@/api/modules/product.data';
+import { RiskAttachmentVoItem } from '@/api/modules/trial.data';
+import { validateName } from '@/utils/validator';
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
@@ -140,6 +187,7 @@ interface Props {
 
   paymentMethodDisable: boolean; // 支付方式不能修改
   premium: number;
+  productDetail: ProductDetail;
   formInfo: {
     paymentMethod: number;
     renewalDK: boolean;
@@ -147,13 +195,13 @@ interface Props {
       certNo: string;
       mobile: string;
       name: string;
-      socialFlag: number;
+      socialFlag: string;
     };
     insured: {
       certNo: string;
       name: string;
-      socialFlag: number;
-      relationToHolder: number;
+      socialFlag: string;
+      relationToHolder: string;
     };
   };
 }
@@ -163,12 +211,36 @@ const props = withDefaults(defineProps<Props>(), {
   disable: false,
   paymentMethodDisable: false,
   premium: 0,
+  productDetail: {},
   formInfo: () => ({}),
 });
 
 const state = reactive({
   insureDisable: true, // 被保人不可修改
   formInfo: props.formInfo,
+});
+
+const nameValidator = (name: string) => {
+  if (validateName(name)) {
+    return true;
+  }
+  return '请输入正确的姓名';
+};
+
+// 费率表
+const rateAttachmentList = computed(() => {
+  return props.productDetail?.tenantProductInsureVO?.attachmentVOList.filter(
+    (item: RiskAttachmentVoItem) => item.attachmentName === '费率表',
+  );
+});
+
+// 产品资料
+const productAttachmentList = computed(() => {
+  return (
+    props.productDetail?.tenantProductInsureVO?.attachmentVOList.filter(
+      (item: RiskAttachmentVoItem) => item.attachmentName !== '费率表',
+    ) || []
+  );
 });
 
 const validateForm = () => {
@@ -247,6 +319,20 @@ defineExpose({
   color: #333333;
   line-height: 30px;
   padding: 30px 25px;
+}
+
+.attachment-list {
+  padding: 0 25px 25px 25px;
+  font-size: $zaui-font-size-md;
+  font-weight: 400;
+  color: #666666;
+  line-height: 40px;
+  :deep(.pdf-viewer .title) {
+    color: #ff6d23;
+  }
+  .rate-attachment-list {
+    margin-top: 10px;
+  }
 }
 
 :deep(.van-cell) {

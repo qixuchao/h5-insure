@@ -27,6 +27,7 @@
             :disable="disable"
             :form-info="trailData"
             :premium="premium"
+            :product-detail="detail"
           />
         </template>
         <template #tab2>
@@ -37,28 +38,6 @@
               :src="item"
               class="detail-img"
             />
-            <ProCard title="产品资料">
-              <template #subTitle>
-                <div class="sub-title">*产品资料文件详情可手动放大，以便您更清晰查阅内容。</div>
-              </template>
-              <div class="tab-1-content">
-                请查看
-                <ProPDFviewer
-                  v-for="(item, index) in detail?.tenantProductInsureVO?.attachmentVOList || []"
-                  :key="index"
-                  class="file-name"
-                  :title="`《${item.attachmentName}》`"
-                  :content="item.attachmentUri"
-                  type="pdf"
-                >
-                  <span
-                    v-if="index !== (detail?.tenantProductInsureVO?.attachmentVOList || []).length - 1"
-                    class="dun-hao"
-                    >、</span
-                  >
-                </ProPDFviewer>
-              </div>
-            </ProCard>
           </div>
         </template>
         <template #tab3>
@@ -429,6 +408,39 @@ watch(
   },
 );
 
+const getOrderById = async () => {
+  const res = await getTenantOrderDetail({ id: orderId, tenantId });
+  const { code, data } = res;
+  if (code === '10000') {
+    const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
+    trailData.holder = {
+      certNo: tenantOrderHolder.certNo,
+      certType: tenantOrderHolder.certType,
+      mobile: tenantOrderHolder.mobile,
+      name: tenantOrderHolder.name,
+      socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
+    };
+
+    trailData.insured = {
+      certNo: tenantOrderInsuredList?.[0].certNo,
+      certType: tenantOrderInsuredList[0]?.certType,
+      name: tenantOrderInsuredList[0]?.name,
+      socialFlag: tenantOrderInsuredList[0]?.extInfo?.hasSocialInsurance,
+      relationToHolder: tenantOrderInsuredList[0]?.relationToHolder,
+    };
+    trailData.paymentMethod = extInfo.extraInfo.paymentMethod;
+    premium.value = tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium;
+    trailData.renewalDK = extInfo.extraInfo.renewalDK === 'Y';
+    // 已承保/支付成功
+    if (
+      data.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY ||
+      data.orderStatus === ORDER_STATUS_ENUM.PAYMENT_SUCCESS
+    ) {
+      showModal.value = true;
+    }
+  }
+};
+
 const fetchData = async () => {
   const productReq = productDetail({ productCode, withInsureInfo: true });
   const insureReq = insureProductDetail({ productCode });
@@ -443,36 +455,8 @@ const fetchData = async () => {
   });
 
   if (orderId) {
-    const res = await getTenantOrderDetail({ id: orderId, tenantId });
-    const { code, data } = res;
-    if (code === '10000') {
-      const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
-      trailData.holder = {
-        certNo: tenantOrderHolder.certNo,
-        certType: tenantOrderHolder.certType,
-        mobile: tenantOrderHolder.mobile,
-        name: tenantOrderHolder.name,
-        socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
-      };
-
-      trailData.insured = {
-        certNo: tenantOrderInsuredList?.[0].certNo,
-        certType: tenantOrderInsuredList[0]?.certType,
-        name: tenantOrderInsuredList[0]?.name,
-        socialFlag: tenantOrderInsuredList[0]?.extInfo?.hasSocialInsurance,
-        relationToHolder: tenantOrderInsuredList[0]?.relationToHolder,
-      };
-      trailData.paymentMethod = extInfo.extraInfo.paymentMethod;
-      premium.value = tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium;
-      trailData.renewalDK = extInfo.extraInfo.renewalDK === 'Y';
-      // 已承保/支付成功
-      if (
-        data.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY ||
-        data.orderStatus === ORDER_STATUS_ENUM.PAYMENT_SUCCESS
-      ) {
-        showModal.value = true;
-      }
-    }
+    // 这里要轮询，支付完成后，跳转回来，订单状态可能没有及时更新
+    getOrderById();
   } else {
     if (validCalcData()) {
       onPremiumCalc();

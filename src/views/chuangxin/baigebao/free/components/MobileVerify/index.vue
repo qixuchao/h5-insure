@@ -1,5 +1,5 @@
 <template>
-  <VanForm ref="formRef">
+  <VanForm ref="formRef" label-width="60">
     <van-cell-group>
       <van-field
         v-model="state.mobile"
@@ -7,7 +7,8 @@
         label="手机号"
         clearable
         placeholder="请输入手机号"
-        :rules="[{ pattern: mobileReg, message: '请输入正确的手机号' }]"
+        maxlength="11"
+        :rules="[{ validator: validatorMobile }]"
       />
       <van-field
         v-model="state.smsCode"
@@ -15,6 +16,7 @@
         label="验证码"
         clearable
         placeholder="请输入验证码"
+        maxlength="6"
         :rules="[{ pattern: smsCodeReg, message: '请输入正确的验证码' }]"
       >
         <template #button>
@@ -45,6 +47,7 @@
 import { FormInstance, Toast } from 'vant';
 import { defineProps } from 'vue';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
+import { validateMobile } from '@/utils/validator';
 
 const props = defineProps({
   info: {
@@ -69,6 +72,13 @@ const state = reactive({
   smsCode: '',
   agree: '',
 });
+
+const validatorMobile = (value: string) => {
+  if (validateMobile(state.mobile)) {
+    return true;
+  }
+  return '请输入正确的手机号';
+};
 
 const onCountDown = () => {
   if (countDownTimer.value > 0) return;
@@ -126,7 +136,7 @@ const onSubmit = async () => {
 watch(
   () => state,
   () => {
-    if (mobileReg.test(state.mobile) && smsCodeReg.test(state.smsCode)) {
+    if (validateMobile(state.mobile) && smsCodeReg.test(state.smsCode)) {
       onCheckCode();
     }
   },

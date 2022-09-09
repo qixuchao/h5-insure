@@ -14,7 +14,7 @@
         <FieldInfo title="姓名" :desc="orderDetail?.tenantOrderInsuredList?.[0].name" />
         <FieldInfo title="证件号码" :desc="orderDetail?.tenantOrderInsuredList?.[0].certNo" />
         <FieldInfo title="手机号码" :desc="orderDetail?.tenantOrderHolder?.mobile" />
-        <FieldInfo title="每月保费" :desc="`${premium} / 每月`" />
+        <FieldInfo title="每月保费" :desc="`${premium || '0'} / 每月`" />
         <ProField label="有无社保" name="name" required placeholder="请选择">
           <template #input>
             <ProRadioButton v-model="hasSocialInsurance" :disabled="true" :options="SOCIAL_SECURITY"></ProRadioButton>

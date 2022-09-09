@@ -1,5 +1,5 @@
 <template>
-  <VanForm ref="formRef">
+  <VanForm ref="formRef" label-width="60">
     <van-cell-group>
       <van-field
         v-model="state.name"
@@ -7,7 +7,7 @@
         label="姓名"
         clearable
         placeholder="请输入姓名"
-        :rules="[{ pattern: nameReg, message: '请输入正确的姓名' }]"
+        :rules="[{ validator: nameValidator }]"
       />
       <van-field
         v-model="state.certNo"
@@ -42,6 +42,7 @@
 import type { FormInstance } from 'vant';
 import { defineProps } from 'vue';
 import { Toast } from 'vant/es';
+import { validateName } from '@/utils/validator';
 import { validateIdCardNo } from '@/components/ProField/utils';
 
 const props = defineProps({
@@ -69,6 +70,13 @@ const validCertNo = (images: Array<string>) => {
     return true;
   }
   return '请填写正确的证件号';
+};
+
+const nameValidator = (name: string) => {
+  if (validateName(name)) {
+    return true;
+  }
+  return '请输入正确的姓名';
 };
 
 const onSubmit = () => {

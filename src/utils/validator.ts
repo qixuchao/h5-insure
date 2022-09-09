@@ -3,5 +3,5 @@ export const validateMobile = (mobile: string): boolean => {
 };
 
 export const validateName = (name: string): boolean => {
-  return /\W/.test(name);
+  return /^[\u4E00-\u9FA5]{2,10}/.test(name);
 };
