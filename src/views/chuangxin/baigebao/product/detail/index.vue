@@ -297,7 +297,7 @@ const onSaveOrder = async (risk: any) => {
       id: data.data,
       extInfo: {
         extraInfo: {
-          renewalDK: trailData.renewalDK || 'N',
+          renewalDK: trailData.renewalDK,
           paymentMethod: trailData.paymentMethod,
           successJumpUrl: getPayCallbackUrl(data.data),
         },

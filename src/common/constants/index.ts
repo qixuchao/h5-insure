@@ -10,8 +10,8 @@
 
 // eslint-disable-next-line
 export enum SEX_LIMIT_ENUM {
-  MALE = '1',
-  FEMALE = '2',
+  FEMALE = '1', // 女
+  MALE = '2', // 男
 }
 
 export const SEX_LIMIT_LIST = [

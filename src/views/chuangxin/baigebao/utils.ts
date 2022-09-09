@@ -44,6 +44,7 @@ interface orderParamType {
     mobile: string;
     certNo: string;
     name: string;
+    socialFlag: string;
   };
   insured: {
     mobile?: string;
@@ -75,10 +76,13 @@ export const genarateOrderParam = (o: orderParamType) => {
       mobile: o.holder.mobile,
       birthday: getBirth(o.holder.certNo),
       gender: getSex(o.holder.certNo),
+      extInfo: {
+        hasSocialInsurance: o.holder.socialFlag,
+      },
     },
     extInfo: {
       extraInfo: {
-        renewalDK: o.renewalDK, // 签约
+        renewalDK: o.renewalDK ? 'Y' : 'N', // 签约
         paymentMethod: o.paymentMethod,
         successJumpUrl: o.successJumpUrl, // 支付成功跳转
       },
