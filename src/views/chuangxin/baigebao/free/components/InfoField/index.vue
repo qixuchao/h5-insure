@@ -7,6 +7,7 @@
         label="姓名"
         clearable
         placeholder="请输入姓名"
+        maxlength="10"
         :rules="[{ validator: nameValidator }]"
       />
       <van-field
@@ -15,6 +16,7 @@
         label="身份证"
         clearable
         placeholder="请输入身份证号"
+        maxlength="20"
         :rules="[{ validator: validCertNo }]"
       >
       </van-field>
