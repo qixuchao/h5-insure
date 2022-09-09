@@ -6,25 +6,27 @@
  * @Description: 升级保障
 -->
 <template>
-  <div class="page-activity-upgrade">
-    <img class="logo" :src="logo" />
-    <img :src="blankImg" />
-    <div class="container">
-      <div class="main-form">
-        <FieldInfo title="姓名" :desc="orderDetail?.tenantOrderInsuredList?.[0].name" />
-        <FieldInfo title="证件号码" :desc="orderDetail?.tenantOrderInsuredList?.[0].certNo" />
-        <FieldInfo title="手机号码" :desc="orderDetail?.tenantOrderHolder?.mobile" />
-        <FieldInfo title="每月保费" :desc="`${premium || '0'} / 每月`" />
-        <ProField label="有无社保" name="name" required placeholder="请选择">
-          <template #input>
-            <ProRadioButton v-model="hasSocialInsurance" :disabled="true" :options="SOCIAL_SECURITY"></ProRadioButton>
-          </template>
-        </ProField>
-        <div class="submit" @click="onUpgrade"></div>
+  <van-config-provider :theme-vars="themeVars">
+    <div class="page-activity-upgrade">
+      <img class="logo" :src="logo" />
+      <img class="banner" :src="blankImg" />
+      <div class="container">
+        <div class="main-form">
+          <FieldInfo title="姓名" :desc="orderDetail?.tenantOrderInsuredList?.[0].name" />
+          <FieldInfo title="证件号码" :desc="orderDetail?.tenantOrderInsuredList?.[0].certNo" />
+          <FieldInfo title="手机号码" :desc="orderDetail?.tenantOrderHolder?.mobile" />
+          <FieldInfo title="每月保费" :desc="`${premium || '0'} / 每月`" />
+          <ProField label="有无社保" name="name" required placeholder="请选择">
+            <template #input>
+              <ProRadioButton v-model="hasSocialInsurance" :disabled="true" :options="SOCIAL_SECURITY"></ProRadioButton>
+            </template>
+          </ProField>
+          <div class="submit" @click="onUpgrade"></div>
+        </div>
       </div>
+      <ProModal :is-show="showModal" :bg="modalBg" @on-close="onClose" />
     </div>
-    <ProModal :is-show="showModal" :bg="modalBg" @on-close="onClose" />
-  </div>
+  </van-config-provider>
 </template>
 
 <script lang="ts" setup>
@@ -44,6 +46,7 @@ import {
 } from '@/common/constants/infoCollection';
 import FieldInfo from '../components/fieldInfo.vue';
 import ProModal from '../../../components/ProModal/index.vue';
+import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import {
   insureProductDetail,
   saveOrder,
@@ -51,6 +54,7 @@ import {
   endorsementPremiumCalc,
   EndorsementUp,
 } from '@/api/modules/trial';
+import themeVars from '../../theme';
 import { getExtInfo, getReqData, transformData, compositionTrailData, genarateOrderParam } from '../../utils';
 import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
@@ -86,9 +90,11 @@ const onClose = () => {
 const onSaveOrder = async () => {
   const order = genarateOrderParam({
     tenantId,
+    applicationNo: orderDetail.value.applicationNo,
+    policyNo: orderDetail.value.policyNo,
     saleChannelId: orderDetail.value.saleChannelId,
-    orderStatus: '',
-    orderTopStatus: '',
+    orderStatus: ORDER_STATUS_ENUM.UP_PROCESSING,
+    orderTopStatus: '-1',
     orderCategory: 2, // 批改类型
     detail: detail.value as ProductDetail,
     paymentMethod: orderDetail.value.extInfo?.extraInfo?.paymentMethod,
@@ -202,15 +208,20 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-$activity-primary-color: #ff6d23;
 .page-activity-upgrade {
   background: linear-gradient(180deg, #fea64a 0%, #fc7429 88%, #fc6d24 100%);
   position: relative;
+  height: 100%;
+  width: 100%;
 
   .logo {
     width: 50%;
     margin: 30px;
     position: absolute;
+  }
+
+  .banner {
+    width: 100%;
   }
 
   .container {
@@ -231,8 +242,8 @@ $activity-primary-color: #ff6d23;
 
       .upgrade-btn {
         margin-bottom: 20px;
-        background-color: $activity-primary-color;
-        border-color: $activity-primary-color;
+        background-color: $primary-color;
+        border-color: $primary-color;
       }
 
       .submit {
