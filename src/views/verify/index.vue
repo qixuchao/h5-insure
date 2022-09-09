@@ -34,7 +34,7 @@
           </div>
         </div>
       </ProCard>
-      <ProCard title="投保人签名" :show-icon="false" class="sign-card" :show-line="false">
+      <ProCard key="-1" title="投保人签名" :show-icon="false" class="sign-card" :show-line="false">
         <template #extra>
           <div class="resign" @click="handleResign1">重签</div>
         </template>
@@ -43,24 +43,27 @@
           <div class="date">签名日期： {{ date }}</div>
           <div class="file">
             签名将被用于以下文件：
+            <span>
+              <ProPDFviewer
+                v-for="(holderFileItem, holderFileIndex) in holderFileList"
+                :key="`holderFileList-${holderFileIndex}`"
+                class="file"
+                :title="`《${holderFileItem.materialName}》`"
+                :content="holderFileItem.materialContent"
+                :type="getFileType(holderFileItem.materialContent, holderFileItem.materialSource + '')"
+                @click="() => ''"
+              />
+            </span>
+
             <ProPDFviewer
-              v-for="(holderFileItem, holderFileIndex) in holderFileList"
-              :key="`holderFileList-${holderFileIndex}`"
+              v-for="(holderQuestionItem, holderQuestionIndex) in holderQuestionList"
+              :key="`holderQuestionList-${holderQuestionIndex}`"
               class="file"
-              :title="`《${holderFileItem.materialName}》`"
-              :content="holderFileItem.materialContent"
-              :type="getFileType(holderFileItem.materialContent, holderFileItem.materialSource + '')"
-              @click="() => ''"
-            />
-            <!-- <ProPDFviewer
-              v-for="(insuredFileItem, insuredFileIndex) in holderQuestionList"
-              :key="`holderQuestionList-${insuredFileIndex}`"
-              class="file"
-              :title="`《${insuredFileItem.title}》`"
+              :title="`《${holderQuestionItem.title}》`"
               :content="previewFileContent"
               :type="previewFileType"
-              @click="() => getFileDetails(insuredFileItem)"
-            /> -->
+              @click="() => getFileDetails(holderQuestionItem)"
+            />
           </div>
         </div>
       </ProCard>
@@ -420,7 +423,7 @@ const shareLink = computed(() => {
 });
 
 // 获取产品上下架配置中费产品资料
-const getProductMaterials = () => {
+const getProductMaterials = async () => {
   const params = {
     orderNo: orderCode || orderNo,
     productCode,
@@ -442,36 +445,50 @@ const getProductMaterials = () => {
   };
 
   // 投保人资料
-  getFile({
-    ...params,
-  }).then(({ code, data }) => {
-    if (code === '10000') {
-      holderFileList.value = data || [];
-    }
-  });
-  // 被保人资料
-  getFile({
-    ...params,
+  const { code: holderFileCode, data: holderFileData } = await getFile(params);
+  const { code: insuredFileCode, data: insuredFileData } = await getFile({ ...params, objectType: 2 });
+  const { code: holderQuestionCode, data: holderQuestionData } = await listCustomerQuestions(questionParams);
+  const { code: insuredQuestionCode, data: insuredQuestionData } = await listCustomerQuestions({
+    ...questionParams,
+    noticeType: 5,
     objectType: 2,
-  }).then(({ code, data }) => {
-    if (code === '10000') {
-      insuredFileList.value = data || [];
-    }
   });
 
-  // 投保人问卷
-  listCustomerQuestions({ ...questionParams }).then(({ code, data }) => {
-    if (code === '10000') {
-      holderQuestionList.value = data || [];
-    }
-  });
+  if (holderFileCode === '10000') {
+    holderFileList.value = holderFileData || [];
+  }
+  if (insuredFileCode === '10000') {
+    insuredFileList.value = insuredFileData || [];
+  }
+  if (holderQuestionCode === '10000') {
+    holderQuestionList.value = holderQuestionData || [];
+  }
+  if (insuredQuestionCode === '10000') {
+    insuredQuestionList.value = insuredQuestionData || [];
+  }
+  // // 被保人资料
+  // getFile({
+  //   ...params,
+  //   objectType: 2,
+  // }).then(({ code, data }) => {
+  //   if (code === '10000') {
+  //     insuredFileList.value = data || [];
+  //   }
+  // });
 
-  // 被保人问卷
-  listCustomerQuestions({ ...questionParams, noticeType: 5, objectType: 2 }).then(({ code, data }) => {
-    if (code === '10000') {
-      insuredQuestionList.value = data || [];
-    }
-  });
+  // // 投保人问卷
+  // listCustomerQuestions({ ...questionParams }).then(({ code, data }) => {
+  //   if (code === '10000') {
+  //     holderQuestionList.value = data || [];
+  //   }
+  // });
+
+  // // 被保人问卷
+  // listCustomerQuestions({ ...questionParams, noticeType: 5, objectType: 2 }).then(({ code, data }) => {
+  //   if (code === '10000') {
+  //     insuredQuestionList.value = data || [];
+  //   }
+  // });
 };
 
 onMounted(() => {

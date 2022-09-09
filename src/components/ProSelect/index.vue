@@ -2,7 +2,7 @@
  * @Author: za-yuxiaowei yuxiaowei@zhongan.io
  * @Date: 2022-07-12 10:50:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-13 18:39:48
+ * @LastEditTime: 2022-09-09 11:38:57
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProSelect/index.vue
  * @Description:
 -->
@@ -65,7 +65,7 @@ watch(isShow, (val) => {
 <style lang="scss" scoped>
 .com-select {
   .com-select-container {
-    padding: 30px;
+    padding: $zaui-card-border;
     .radio-item {
       margin: 20px 0;
     }

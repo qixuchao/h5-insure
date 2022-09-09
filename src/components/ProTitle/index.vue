@@ -55,7 +55,7 @@ const isShow = computed(() => {
 <style lang="scss" scoped>
 .card-title {
   position: relative;
-  padding: 14px 0;
+  padding: 17px 0;
   &::after {
     content: ' ';
     width: 720px;

@@ -32,7 +32,7 @@
     <ZaEmpty v-if="!hasProduct" :empty-img="emptyImg" title="没有找到相关内容~" empty-class="empty-select" />
     <div v-if="isCreateProposal && showFooter" class="van-sticky">
       <div class="add-plan">
-        <p class="has-select" @click="toggleSelectProduct(true)">
+        <p class="has-select" @click="toggleSelectProduct(!showSelectProduct)">
           已选<span class="has-select-product">{{ selectProduct.length }}</span
           >款产品 <span class="icon"></span>
         </p>
@@ -227,6 +227,7 @@ const onFinished = (proposalInfo: ProposalInfo) => {
   if (isCreateProposal) {
     state.proposalList.push(proposalInfo);
     showFooter.value = true;
+    state.selectProduct.push(proposalInfo.proposalInsuredList[0].proposalInsuredProductList[0].productId);
     toggleProductRisk(false);
     return;
   }
@@ -315,22 +316,20 @@ watch(
   .add-plan {
     width: 100%;
     height: 150px;
-    padding: 0 30px;
+    padding: 0 $zaui-card-border;
     background-color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-top: 1px solid #efeff4;
+    border-top: 1px solid $zaui-line;
     .has-select {
-      font-size: 30px;
-      font-family: PingFangSC-Regular, PingFang SC;
+      font-size: 34px;
       font-weight: 400;
-      color: #393d46;
-      line-height: 42px;
+      color: $zaui-text;
       display: flex;
       align-items: center;
       .has-select-product {
-        color: #c40;
+        color: $zaui-price;
         font-weight: bold;
       }
       .icon {
@@ -338,16 +337,12 @@ watch(
         height: 33px;
         display: inline-block;
         background: #ecedf2;
-        margin-left: 10px;
+        margin-left: 12px;
         border-radius: 50%;
       }
     }
     .van-button {
       width: 280px;
-      height: 90px;
-      line-height: 90px;
-      background: #0d6efe;
-      border-radius: 8px;
     }
   }
 }
