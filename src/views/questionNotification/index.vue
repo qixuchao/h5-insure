@@ -72,6 +72,8 @@ import {
   QUESTION_IS_NOT_DONE_ENUM,
   HOLDER_OBJECT_TYPE_ENUM,
   INSURER_OBJECT_TYPE_ENUM,
+  HOLDER_NOTICE_TYPE_ENUM,
+  INSURER_NOTICE_TYPE_ENUM,
 } from '@/common/constants/notice';
 
 import { sessionStore } from '@/hooks/useStorage';
@@ -103,7 +105,8 @@ const {
   templateId = 1,
   orderNo = '2022080217103534947',
 } = route.query as QueryData;
-
+const IS_DONE = 1;
+const QUESTION_TYPE = 1;
 const listQuestions = ref<ListCustomerQuestionsResponse[]>([]);
 const pageData = ref<Partial<NextStepRequestData>>({});
 const showShare = ref(false);
@@ -164,8 +167,8 @@ const getQuestionList = () => {
     tenantId,
   };
   Promise.all([
-    listCustomerQuestions({ ...data, noticeType: 4, objectType: 1 }),
-    listCustomerQuestions({ ...data, noticeType: 5, objectType: 2 }),
+    listCustomerQuestions({ ...data, noticeType: HOLDER_NOTICE_TYPE_ENUM, objectType: HOLDER_OBJECT_TYPE_ENUM }),
+    listCustomerQuestions({ ...data, noticeType: INSURER_NOTICE_TYPE_ENUM, objectType: INSURER_OBJECT_TYPE_ENUM }),
   ]).then(([{ code: code1, data: data1 }, { code: code2, data: data2 }]) => {
     if (code1 === '10000' && code2 === '10000') {
       listQuestions.value = [...data1, ...data2];
@@ -179,7 +182,7 @@ const handleClickInformDetails = (rows: ListCustomerQuestionsResponse) => {
     path: '/healthNotice',
     query: {
       materialType: rows?.materialSource ? 'product' : 'question',
-      questionnaireType: rows?.materialSource ? 1 : rows.questionnaireType, // 区分产品资料或者问卷
+      questionnaireType: rows?.materialSource ? QUESTION_TYPE : rows.questionnaireType, // 区分产品资料或者问卷
       orderId: pageData.value?.id,
       ...route.query,
     },
@@ -188,7 +191,7 @@ const handleClickInformDetails = (rows: ListCustomerQuestionsResponse) => {
 
 const handleClickNextStep = () => {
   const isAllRead = [...insuredFileList.value, ...holderFileList.value, ...listQuestions.value].every(
-    (i) => i.isDone === 1,
+    (i) => i.isDone === IS_DONE,
   ); // 投被保人问卷
   if (!isAllRead) {
     Toast('请完成所有告知进行下一步');

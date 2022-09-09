@@ -54,11 +54,11 @@ import ProPDFviewer from '@/components/ProPDFviewer/index.vue';
 import { listCustomerQuestions, listProductManuscripts, getCustomerQuestionsDetail } from '@/api/modules/inform';
 import { nextStep, getOrderDetail } from '@/api';
 import { ListCustomerQuestionsResponse } from '@/api/modules/inform.data';
-
 import { sessionStore } from '@/hooks/useStorage';
 import { NextStepRequestData } from '@/api/index.data';
 import { saveSign } from '@/api/modules/verify';
 import { ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM, PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { AGENT_OBJECT_TYPE_ENUM, AGENT_NOTICE_TYPE_ENUM, QUESTION_TEXT_TYPE } from '@/common/constants/notice';
 
 const router = useRouter();
 const route = useRoute();
@@ -151,13 +151,12 @@ const getFileDetails = (item: any) => {
   }).then(({ code, data }) => {
     if (code === '10000') {
       console.log(data);
-      if (data?.[0].questionType === 2) {
+      if (data?.[0].questionType === QUESTION_TEXT_TYPE) {
         previewFileType.value = 'question';
         previewFileContent.value = data;
       } else {
         if (data?.[0].textType === 1 && data?.[0].content.includes('png' || 'jpg' || 'jpeg')) {
           previewFileType.value = 'picture';
-          console.log(111);
         } else {
           previewFileType.value = fileTypeMap[data?.[0].textType];
         }
@@ -175,9 +174,9 @@ onMounted(() => {
     productCategory,
     tenantId,
     // 告知类型：1-投保告知，2-健康告知，3-特别约定，4-投保人问卷，5-被保人问卷，6-投保人声明，7-被保人声明，8-免责条款，9-营销员告知
-    noticeType: 9,
+    noticeType: AGENT_NOTICE_TYPE_ENUM,
     // objectType: 1, // 适用角色 ：1-投保人，2-被保人，3-营销人员(代理人)
-    objectType: 3,
+    objectType: AGENT_OBJECT_TYPE_ENUM,
   }).then(({ code, data }) => {
     if (code === '10000') {
       state.noticeList = [...state.noticeList, ...data];
