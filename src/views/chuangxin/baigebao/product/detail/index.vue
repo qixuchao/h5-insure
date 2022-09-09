@@ -89,7 +89,7 @@ import ProTimeline from '@/components/ProTimeline/index.vue';
 import ProPopup from '@/components/ProPopup/index.vue';
 import { validateIdCardNo } from '@/components/ProField/utils';
 import Question from '../components/question/index.vue';
-import ProModal from '../../../components/ProModal/index.vue';
+import ProModal from '../../components/ProModal/index.vue';
 import HolderInsureForm from '../components/HolderInsureForm/index.vue';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';

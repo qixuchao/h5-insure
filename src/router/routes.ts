@@ -180,7 +180,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     name: '保障升级',
     path: '/chuangxin/baigebao/guaranteeUpgrade',
     meta: { title: '保障升级' },
-    component: () => import('@/views/chuangxin/baigebao/product/up/index.vue'),
+    component: () => import('@/views/chuangxin/baigebao/upgrade/index.vue'),
   },
 ];
 

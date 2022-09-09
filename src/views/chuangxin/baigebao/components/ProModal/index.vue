@@ -14,7 +14,6 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { withDefaults } from 'vue';
 import closeImg from '@/assets/images/chuangxin/close.png';
 
 interface Props {
@@ -23,10 +22,22 @@ interface Props {
   isShow: boolean; // 是否显示弹框
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  bg: '', // 背景
-  btnBg: '', // 按钮图
-  isShow: true, // 是否显示弹框
+const props = defineProps({
+  // 背景
+  bg: {
+    type: String,
+    default: '',
+  },
+  // 按钮图
+  btnBg: {
+    type: String,
+    default: '',
+  },
+  // 是否显示弹框
+  isShow: {
+    type: Boolean,
+    default: () => {},
+  },
 });
 
 const emits = defineEmits(['on-confirm', 'on-close']);

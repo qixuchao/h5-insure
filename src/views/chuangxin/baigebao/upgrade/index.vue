@@ -44,8 +44,8 @@ import {
   RELATION_HOLDER_LIST, // 投被保人关系
   SOCIAL_SECURITY, // 有无社保
 } from '@/common/constants/infoCollection';
-import FieldInfo from '../components/fieldInfo.vue';
-import ProModal from '../../../components/ProModal/index.vue';
+import FieldInfo from '../components/FieldInfo/index.vue';
+import ProModal from '../components/ProModal/index.vue';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import {
   insureProductDetail,
@@ -54,8 +54,8 @@ import {
   endorsementPremiumCalc,
   EndorsementUp,
 } from '@/api/modules/trial';
-import themeVars from '../../theme';
-import { getExtInfo, getReqData, transformData, compositionTrailData, genarateOrderParam } from '../../utils';
+import themeVars from '../theme';
+import { getExtInfo, getReqData, transformData, compositionTrailData, genarateOrderParam } from '../utils';
 import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
 import logo from '@/assets/images/chuangxin/logo.png';
