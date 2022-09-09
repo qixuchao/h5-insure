@@ -6,3 +6,8 @@ export const validateMobile = (mobile: string): boolean => {
 export const validateName = (name: string): boolean => {
   return /^[\u4e00-\u9fa5·•]+$/.test(name);
 };
+
+// 短信
+export const validateSmsCode = (code: string): boolean => {
+  return /^\d{6}$/.test(code);
+};

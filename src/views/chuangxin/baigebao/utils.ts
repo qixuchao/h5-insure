@@ -9,8 +9,12 @@ import {
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { getSex, getBirth } from '@/components/ProField/utils';
 
-export const themeVars = {
-  'primary-color': '#FF6D23',
+// 校验长度
+export const FIELD_LENGTH = {
+  NAME: '10',
+  ID_CARD: '20',
+  MOBILE: '11',
+  SMS_CODE: '6',
 };
 
 // 链接参数extInfo 字符串转Object
@@ -33,7 +37,9 @@ interface orderParamType {
   premium: number; // 保费
   orderStatus: string;
   orderTopStatus: string;
-  orderCategory: number;
+  orderCategory?: number; // 基础险默认1, 升级2
+  applicationNo?: string; // 投保单号
+  policyNo?: string; // 保单号;
   holder: {
     mobile: string;
     certNo: string;
@@ -54,6 +60,8 @@ export const genarateOrderParam = (o: orderParamType) => {
     orderAmount: o.premium,
     tenantId: o.tenantId,
     venderCode: o.detail?.insurerCode,
+    applicationNo: o.applicationNo,
+    policyNo: o.policyNo,
     orderDataSource: '1', // 订单来源
     saleChannelId: o.saleChannelId, // 销售渠道id
     orderCategory: o.orderCategory, // 订单类型

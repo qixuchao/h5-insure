@@ -7,7 +7,7 @@
         label="手机号"
         clearable
         placeholder="请输入手机号"
-        maxlength="11"
+        :maxlength="FIELD_LENGTH.MOBILE"
         :rules="[{ validator: validatorMobile }]"
       />
       <van-field
@@ -16,8 +16,8 @@
         label="验证码"
         clearable
         placeholder="请输入验证码"
-        maxlength="6"
-        :rules="[{ pattern: smsCodeReg, message: '请输入正确的验证码' }]"
+        :maxlength="FIELD_LENGTH.SMS_CODE"
+        :rules="[{ validator: validatorCode }]"
       >
         <template #button>
           <div :class="['sms-code', { 'count-down': countDownTimer > 0 }]" @click="onCaptha">{{ smsText }}</div>
@@ -25,21 +25,6 @@
       </van-field>
     </van-cell-group>
     <div class="submit" @click="onSubmit"></div>
-    <div class="agree">
-      <van-checkbox v-model="state.agree" name="agree" shape="square"> </van-checkbox>
-      <div>
-        我已阅读并同意
-        <ProPDFviewer
-          v-for="(item, index) in props.info?.attachmentList || []"
-          :key="index"
-          class="file-name"
-          :title="`《${item.attachmentName}》`"
-          :content="item.attachmentUrl"
-          type="pdf"
-        >
-        </ProPDFviewer>
-      </div>
-    </div>
   </VanForm>
 </template>
 
@@ -47,10 +32,11 @@
 import { FormInstance, Toast } from 'vant';
 import { defineProps } from 'vue';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
-import { validateMobile } from '@/utils/validator';
+import { validateMobile, validateSmsCode } from '@/utils/validator';
+import { FIELD_LENGTH } from '../../../utils';
 
 const props = defineProps({
-  info: {
+  userInfo: {
     type: Object,
     default: () => {},
   },
@@ -64,20 +50,23 @@ const maxCountDown = 30;
 const countDownTimer = ref<number>(0);
 const smsText = ref<string>('获取验证码');
 
-const mobileReg = /\d{9}/;
-const smsCodeReg = /^\d{6}$/;
-
 const state = reactive({
-  mobile: props.info?.userInfo?.mobile,
+  mobile: props.userInfo?.mobile,
   smsCode: '',
-  agree: '',
 });
 
 const validatorMobile = (value: string) => {
-  if (validateMobile(state.mobile)) {
+  if (validateMobile(value)) {
     return true;
   }
   return '请输入正确的手机号';
+};
+
+const validatorCode = (value: string) => {
+  if (validateSmsCode(value)) {
+    return true;
+  }
+  return '请输入正确的验证码';
 };
 
 const onCountDown = () => {
@@ -126,9 +115,6 @@ const onCheckCode = async () => {
 
 const onSubmit = async () => {
   formRef?.value.validate().then(async () => {
-    // if (!state.agree) {
-    //   Toast('请勾选协议');
-    // }
     onCheckCode();
   });
 };
@@ -136,7 +122,7 @@ const onSubmit = async () => {
 watch(
   () => state,
   () => {
-    if (validateMobile(state.mobile) && smsCodeReg.test(state.smsCode)) {
+    if (validateMobile(state.mobile) && validateSmsCode(state.smsCode)) {
       onCheckCode();
     }
   },

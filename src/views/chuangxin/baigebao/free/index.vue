@@ -6,21 +6,36 @@
  * @Description: 页面包含2步：1、手机号验证完成后，2、输入姓名，身份证领取赠险
 -->
 <template>
-  <!-- <van-config-provider :theme-vars="themeVars"> -->
-  <div class="page-activity-invite">
-    <img class="logo" :src="logo" />
-    <img :src="blankImg" />
-    <div class="container">
-      <div class="main-form">
-        <div class="title">
-          <img :src="state.title" />
+  <van-config-provider :theme-vars="themeVars">
+    <div class="page-activity-invite">
+      <img class="logo" :src="logo" />
+      <img class="banner" :src="blankImg" />
+      <div class="container">
+        <div class="main-form">
+          <div class="title">
+            <img :src="state.title" />
+          </div>
+          <MobileVerify v-if="isVerifyMobile" :user-info="state.userInfo" @on-verify="onVerify" />
+          <InfoField v-else :user-info="state.userInfo" @on-submit="onSubmit" />
+          <div class="agree">
+            <van-checkbox v-model="state.agree" name="agree" shape="square"> </van-checkbox>
+            <div>
+              我已阅读并同意
+              <ProPDFviewer
+                v-for="(item, index) in state.attachmentList || []"
+                :key="index"
+                class="file-name"
+                :title="`《${item.attachmentName}》`"
+                :content="item.attachmentUrl"
+                type="pdf"
+              >
+              </ProPDFviewer>
+            </div>
+          </div>
         </div>
-        <MobileVerify v-if="isVerifyMobile" :info="state" @on-verify="onVerify" />
-        <InfoField v-else :info="state" @on-submit="onSubmit" />
       </div>
     </div>
-  </div>
-  <!-- </van-config-provider> -->
+  </van-config-provider>
 </template>
 
 <script lang="ts" setup>
@@ -32,7 +47,8 @@ import InfoField from './components/InfoField/index.vue';
 import { insureProductDetail, getOrderDetailByCondition, multiIssuePolicy } from '@/api/modules/trial';
 import { productDetail } from '@/api/modules/product';
 import { RiskDetailVoItem, RiskAttachmentVoItem } from '@/api/modules/newTrial.data';
-import { themeVars, getExtInfo, genarateOrderParam } from '../utils';
+import { getExtInfo, genarateOrderParam } from '../utils';
+import themeVars from '../theme';
 import TitleImg from '@/assets/images/chuangxin/title-step1.png';
 import TitleImg2 from '@/assets/images/chuangxin/title-step2.png';
 import logo from '@/assets/images/chuangxin/logo.png';
@@ -64,7 +80,12 @@ const isVerifyMobile = ref(true);
 
 const state = reactive({
   title: TitleImg,
-  attachmentList: [{}],
+  attachmentList: [
+    {
+      attachmentName: '',
+      attachmentUrl: '',
+    },
+  ],
 
   // 填写的信息
   userInfo: {
@@ -72,6 +93,7 @@ const state = reactive({
     certNo: '',
     name: '',
   },
+  agree: false,
 });
 
 const detail = ref<ProductDetail>();
@@ -100,6 +122,11 @@ const onVerify = async (e: UserInfoProps) => {
 
 // 第二步 赠险出单
 const onSubmit = async (e: UserInfoProps) => {
+  if (!state.agree) {
+    Toast('请勾选协议');
+    return;
+  }
+
   try {
     Toast({
       message: '领取中...',
@@ -183,13 +210,17 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
-$activity-primary-color: #ff6d23;
 .page-activity-invite {
+  width: 100%;
+  height: 100%;
   background: linear-gradient(180deg, #fea64a 0%, #fc7429 88%, #fc6d24 100%);
   .logo {
     width: 50%;
     margin: 30px;
     position: absolute;
+  }
+  .banner {
+    width: 100%;
   }
   .container {
     position: absolute;
@@ -217,12 +248,9 @@ $activity-primary-color: #ff6d23;
         text-align: center;
         font-size: 30px;
         font-weight: 500;
-        color: #ff6d23;
+        color: $primary-color;
         padding: 0;
         white-space: nowrap;
-        // &.count-down {
-        //   color: black;
-        // }
       }
       .submit {
         height: 100px;
@@ -249,15 +277,6 @@ $activity-primary-color: #ff6d23;
       // checkbox 宽度
       .van-checkbox {
         width: 100px;
-      }
-      // 条款颜色
-      .pdf-viewer .title {
-        color: #ff6d23;
-      }
-      // checkbox选中颜色
-      .van-checkbox__icon--checked .van-icon {
-        background-color: $activity-primary-color;
-        border-color: $activity-primary-color;
       }
     }
   }
