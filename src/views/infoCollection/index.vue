@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-07 14:37:38
+ * @LastEditTime: 2022-09-13 00:39:35
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -621,7 +621,7 @@ watch(
       align-items: center;
       justify-content: space-between;
       padding: 0 $zaui-card-border;
-      background-color: #f2f5fc;
+      background-color: $zaui-global-bg;
       height: 90px;
       .title {
         font-size: 30px;
@@ -637,7 +637,7 @@ watch(
       color: #393d46;
       .result-num {
         margin-left: 13px;
-        color: #ff5840;
+        color: $zaui-price;
         font-weight: bold;
         margin-left: 16px;
       }

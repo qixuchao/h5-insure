@@ -255,14 +255,14 @@ const handleClickNextStep = () => {
       line-height: 42px;
     }
     .active {
-      color: #0d6efe;
+      color: $zaui-brand;
     }
   }
 
   :deep(.is-active) {
     .van-cell__value {
       span {
-        color: #0d6efe;
+        color: $zaui-brand;
       }
     }
   }
@@ -298,7 +298,7 @@ const handleClickNextStep = () => {
     .next-btn {
       padding: 30px 0;
 
-      // border-top: 1px solid #eeeff4;
+      // border-top: 1px solid $zaui-line;
       .van-button {
         border-radius: 8px;
       }

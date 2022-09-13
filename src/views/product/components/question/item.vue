@@ -47,7 +47,7 @@ const height = computed(() => {
 .com-question-item {
   margin-top: 40px;
   padding-bottom: 40px;
-  border-bottom: 1px solid #eeeff4;
+  border-bottom: 1px solid $zaui-line;
   .question {
     display: flex;
     // align-items: center;
@@ -57,7 +57,7 @@ const height = computed(() => {
       width: 30px;
       height: 30px;
       border-radius: 15px 15px 0 15px;
-      background: #0d6efe;
+      background: $zaui-brand;
       color: #fff;
       font-size: 24px;
       line-height: 30px;
@@ -72,7 +72,7 @@ const height = computed(() => {
         width: 30px;
         height: 30px;
         border-radius: 15px 15px 0 15px;
-        background: #0d6efe;
+        background: $zaui-brand;
         opacity: 0.2;
       }
     }

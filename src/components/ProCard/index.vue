@@ -97,7 +97,7 @@ const subTitle = computed(() => {
       margin-left: $zaui-card-border;
       padding-right: $zaui-card-border;
       &.showLine {
-        border-bottom: 1px solid #eeeff4;
+        border-bottom: 1px solid $zaui-line;
       }
       .title-wrapper {
         height: 90px;
@@ -117,7 +117,7 @@ const subTitle = computed(() => {
               width: 8px;
               height: 28px;
               border-radius: 4px;
-              background: #0d6efe;
+              background: $zaui-brand;
               margin-right: 16px;
             }
           }
@@ -129,7 +129,7 @@ const subTitle = computed(() => {
           }
         }
         .link {
-          color: #0d6efe;
+          color: $zaui-brand;
           font-size: 26px;
           display: flex;
           align-items: center;

@@ -115,7 +115,7 @@ onMounted(() => {
     flex: 1;
     height: 0;
     overflow-y: auto;
-    background: #f2f5fc;
+    background: $zaui-global-bg;
     padding: 30px;
   }
 }

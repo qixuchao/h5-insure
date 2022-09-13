@@ -371,7 +371,7 @@ onMounted(() => {
       text-overflow: ellipsis;
       text-align: center;
       &.active {
-        background: #0d6efe;
+        background: $zaui-brand;
         color: #fff;
         &::before {
           content: '';
@@ -388,7 +388,7 @@ onMounted(() => {
         }
         &::after {
           content: '\2714';
-          color: #0d6efe;
+          color: $zaui-brand;
           position: absolute;
           top: 5px;
           right: -5px;
@@ -416,7 +416,7 @@ onMounted(() => {
       }
       .sub-title {
         font-size: 26px;
-        color: #ff5840;
+        color: $zaui-price;
         line-height: 38px;
         margin-bottom: 10px;
       }
@@ -427,7 +427,7 @@ onMounted(() => {
         color: #393d46;
         line-height: 38px;
         .file-name {
-          color: #0d6efe;
+          color: $zaui-brand;
           .dun-hao {
             color: #393d46;
           }
@@ -445,7 +445,7 @@ onMounted(() => {
       font-size: 34px;
       font-family: DINAlternate-Bold, DINAlternate;
       font-weight: bold;
-      color: #ff5840;
+      color: $zaui-price;
       line-height: 40px;
     }
     .buttons {
@@ -458,13 +458,13 @@ onMounted(() => {
         width: 170px;
         border-radius: 8px 0 0 8px;
         border: 1px solid #0d6efe;
-        color: #0d6efe;
+        color: $zaui-brand;
       }
       .right {
         width: 340px;
         color: #fff;
         border-radius: 8px;
-        background: #0d6efe;
+        background: $zaui-brand;
       }
     }
   }

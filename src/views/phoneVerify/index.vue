@@ -122,10 +122,10 @@ onMounted(() => {
       flex: 0 0 210px;
       line-height: 60px;
       text-align: center;
-      border-left: 1px solid #eeeff4;
+      border-left: 1px solid $zaui-line;
       font-size: 30px;
       font-weight: 400;
-      color: #0d6efe;
+      color: $zaui-brand;
       &.second {
         color: #99a9c0;
       }
@@ -135,7 +135,7 @@ onMounted(() => {
     width: 100%;
     height: 90px;
     margin-top: 60px;
-    background: #0d6efe;
+    background: $zaui-brand;
     border-radius: 8px;
   }
 }

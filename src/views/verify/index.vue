@@ -541,8 +541,8 @@ onMounted(() => {
         color: #99a9c0;
 
         &.verified {
-          color: #0d6efe;
-          border-color: #0d6efe;
+          color: $zaui-brand;
+          border-color: $zaui-brand;
         }
       }
     }
@@ -578,7 +578,7 @@ onMounted(() => {
   .sign-card {
     .resign {
       font-size: 28px;
-      color: #0d6efe;
+      color: $zaui-brand;
     }
 
     .sign-body {
@@ -598,7 +598,7 @@ onMounted(() => {
         line-height: 40px;
 
         .file-name {
-          color: #0d6efe;
+          color: $zaui-brand;
 
           .dun-hao {
             color: #393d46;
@@ -615,7 +615,7 @@ onMounted(() => {
     .refresh-btn {
       width: 70px;
       border: none;
-      color: #0d6efe;
+      color: $zaui-brand;
       font-size: 30px;
       line-height: 28px;
       text-align: center;

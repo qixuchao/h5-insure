@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 10:50:19
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-07 17:47:09
+ * @LastEditTime: 2022-09-12 22:15:56
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/trial/components/RiskList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -33,6 +33,7 @@
         附加险</ProCheckButton
       >
     </div>
+
     <RiskRelationList
       v-if="showPopup"
       v-model="state.checkedList"
@@ -134,6 +135,27 @@ const removeRiderRisk = (riskId: number) => {
     .catch(() => {});
 };
 
+// 初始化责任的属性值
+const initLiabilityValue = (liab, riskId: number) => {
+  const currentLiability = (state.riskInfo?.[riskId]?.liabilityVOList || []).find(
+    (liabi) => liabi.liabilityCode === liab.liabilityCode,
+  );
+
+  console.log('currentLiability', currentLiability);
+
+  if (currentLiability) {
+    if (currentLiability.liabilityAttributeValue) {
+      return currentLiability.liabilityAttributeValue;
+    }
+    if (liab.optionalFlag !== 1) {
+      return '0'; // 投保
+    }
+    return '-1';
+  }
+
+  return '';
+};
+
 // 计算出主险和附加险的投保人和被保人的因子
 watch(
   () => state.currentRiskList,
@@ -169,6 +191,7 @@ watch(
           liabilityAttributeCode: liab.liabilityAttributeType,
           liabilityCode: liab.liabilityCode,
           liabilityRateType: liab.liabilityRateType,
+          liabilityAttributeValue: initLiabilityValue(liab, risk.id),
         })),
       };
       if (!state.riskInfo[risk.id]) {

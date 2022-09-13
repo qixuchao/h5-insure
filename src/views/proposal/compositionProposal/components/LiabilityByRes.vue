@@ -1,8 +1,8 @@
 <!--
  * @Author: wangyuanli
  * @Date: 2022-08-21 15:00:00
- * @LastEditors: wangyuanli
- * @LastEditTime: 2022-08-21 15:00:00
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-09-13 00:37:17
  * @Description: 组合计划书按险种展示
 -->
 <template>
@@ -53,11 +53,11 @@ const props = defineProps({
   .line {
     margin: 0 -20px;
     padding-bottom: 30px;
-    border-bottom: 1px solid #eeeff4;
+    border-bottom: 1px solid $zaui-line;
   }
   .line2 {
     padding-bottom: 30px;
-    border-bottom: 1px solid #eeeff4;
+    border-bottom: 1px solid $zaui-line;
   }
   .container {
     widows: 100%;
@@ -107,14 +107,14 @@ const props = defineProps({
       :deep(.price) {
         font-size: 28px;
         font-weight: 400;
-        color: #ff5840;
+        color: $zaui-price;
       }
     }
     .poiner {
       width: 14px;
       height: 14px;
       display: inline-block;
-      background: #0d6efe;
+      background: $zaui-brand;
       border-radius: 50%;
     }
 

@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-02 16:37:54
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-09 16:39:56
+ * @LastEditTime: 2022-09-13 00:38:17
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProCheckButton/TabButton.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -38,7 +38,7 @@ button {
   &.active-button {
     color: #f6f7fc !important;
     border: none !important;
-    background-color: #0d6efe;
+    background-color: $zaui-brand;
     background-image: url('@/assets/images/img-gouxuan.png');
     background-repeat: no-repeat;
     background-size: 40px 40px;
