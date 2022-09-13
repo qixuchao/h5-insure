@@ -350,3 +350,19 @@ export const getReqData = (o: upgradeParamType) => {
   };
   return calcData;
 };
+
+export const getFloat = (val: number) => {
+  let value = (Math.round(parseFloat(val.toString()) * 100) / 100).toString();
+  const xsd = value.toString().split('.');
+  if (xsd.length === 1) {
+    value = `${value.toString()}.00`;
+    return value;
+  }
+  if (xsd.length > 1) {
+    if (xsd[1].length < 2) {
+      value = `${value.toString()}0`;
+    }
+    return value;
+  }
+  return val;
+};

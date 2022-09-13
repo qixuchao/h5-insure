@@ -98,8 +98,8 @@
     <ProDivider />
     <div>
       <div class="title">保费支付</div>
-      <ProField label="每月保费" :is-view="true">
-        <template #input> {{ props.premium }} /月 共12期</template>
+      <ProField label="每月保费" class="pro-field" :is-view="true">
+        <template #input> {{ getFloat(props.premium) }} 元/月 共12期</template>
       </ProField>
       <ProPicker
         v-model="state.formInfo.paymentMethod"
@@ -113,7 +113,7 @@
         <!-- <template #input> {{ state.formInfo.premium }} /月 共12期</template> -->
       </ProPicker>
 
-      <ProField label="开通下一年自主重新投保" name="renewalDK" placeholder="请选择" :border="false">
+      <ProField label="开通下一年自主重新投保" class="pro-field" name="renewalDK" placeholder="请选择" :border="false">
         <template #input>
           <ProTabButton
             :disabled="props.allDisabled"
@@ -172,7 +172,7 @@ import {
   SOCIAL_SECURITY, // 有无社保
 } from '@/common/constants/infoCollection';
 import { ACTIVITY_PAY_METHOD_LIST } from '@/common/constants/bankCard';
-
+import { getFloat } from '../../../utils';
 import ProDivider from '@/components/ProDivider/index.vue';
 import { VALIDATE_TYPE_ENUM } from '@/common/constants';
 import { ProductDetail } from '@/api/modules/product.data';
@@ -338,7 +338,8 @@ defineExpose({
 }
 
 :deep(.van-cell) {
-  padding: 20px 25px;
+  padding: 10px 25px;
+  align-items: center;
 }
 :deep(.van-cell .van-field__label) {
   margin: 0;
@@ -369,5 +370,9 @@ defineExpose({
 
 .pay {
   padding: 0 30px;
+}
+
+.pro-field {
+  padding: 20px 25px;
 }
 </style>

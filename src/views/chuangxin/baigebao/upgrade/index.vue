@@ -14,7 +14,7 @@
           <FieldInfo title="姓名" :desc="orderDetail?.tenantOrderInsuredList?.[0].name" />
           <FieldInfo title="证件号码" :desc="orderDetail?.tenantOrderInsuredList?.[0].certNo" />
           <FieldInfo title="手机号码" :desc="orderDetail?.tenantOrderHolder?.mobile" />
-          <FieldInfo title="每月保费" :desc="`${premium || '0'} / 每月`" />
+          <FieldInfo title="每月保费" :desc="`${getFloat(premium || 0)}元 / 每月`" />
           <ProField label="有无社保" name="name" required placeholder="请选择">
             <template #input>
               <ProRadioButton v-model="hasSocialInsurance" :disabled="true" :options="SOCIAL_SECURITY"></ProRadioButton>
@@ -54,7 +54,7 @@ import {
   EndorsementUp,
 } from '@/api/modules/trial';
 import themeVars from '../theme';
-import { getExtInfo, getReqData, transformData, compositionTrailData, genarateOrderParam } from '../utils';
+import { getExtInfo, getReqData, transformData, compositionTrailData, genarateOrderParam, getFloat } from '../utils';
 import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
 import logo from '@/assets/images/chuangxin/logo.png';
@@ -99,7 +99,10 @@ const onSaveOrder = async () => {
     renewalDK: orderDetail.value.extInfo?.extraInfo?.renewalDK, // 开通下一年
     successJumpUrl: '',
     premium: premium.value as number, // 保费
-    holder: orderDetail.value.tenantOrderHolder,
+    holder: {
+      ...orderDetail.value.tenantOrderHolder,
+      socialFlag: orderDetail.value.tenantOrderHolder.extInfo.hasSocialInsurance,
+    },
     insured: {
       ...orderDetail.value.tenantOrderInsuredList[0],
       socialFlag: orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance,
