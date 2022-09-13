@@ -45,6 +45,7 @@ const props = defineProps({
 const emits = defineEmits(['on-verify']);
 
 const formRef = ref<FormInstance>({} as FormInstance);
+const isSendSmsCode = ref(false);
 
 const maxCountDown = 30;
 const countDownTimer = ref<number>(0);
@@ -96,6 +97,7 @@ const onCaptha = async () => {
     const res = await sendCode(state.mobile);
     const { code, data } = res;
     if (code === '10000') {
+      isSendSmsCode.value = true;
       Toast({
         message: '短信发送成功，请查收',
       });
@@ -123,7 +125,9 @@ watch(
   () => state,
   () => {
     if (validateMobile(state.mobile) && validateSmsCode(state.smsCode)) {
-      onCheckCode();
+      if (isSendSmsCode.value) {
+        onCheckCode();
+      }
     }
   },
   { deep: true, immediate: true },

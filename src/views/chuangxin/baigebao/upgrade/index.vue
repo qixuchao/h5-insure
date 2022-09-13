@@ -8,8 +8,7 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
     <div class="page-activity-upgrade">
-      <img class="logo" :src="logo" />
-      <img class="banner" :src="blankImg" />
+      <img :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
       <div class="container">
         <div class="main-form">
           <FieldInfo title="姓名" :desc="orderDetail?.tenantOrderInsuredList?.[0].name" />
@@ -24,7 +23,7 @@
           <div class="submit" @click="onUpgrade"></div>
         </div>
       </div>
-      <ProModal :is-show="showModal" :bg="modalBg" @on-close="onClose" />
+      <UpgradeBackModal :is-show="showModal" @on-close="onClose" />
     </div>
   </van-config-provider>
 </template>
@@ -45,7 +44,7 @@ import {
   SOCIAL_SECURITY, // 有无社保
 } from '@/common/constants/infoCollection';
 import FieldInfo from '../components/FieldInfo/index.vue';
-import ProModal from '../components/ProModal/index.vue';
+import UpgradeBackModal from '../components/UpgradeBackModal/index.vue';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import {
   insureProductDetail,
@@ -59,7 +58,6 @@ import { getExtInfo, getReqData, transformData, compositionTrailData, genarateOr
 import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
 import logo from '@/assets/images/chuangxin/logo.png';
-import modalBg from '@/assets/images/chuangxin/modal-bg.png';
 import blankImg from '@/assets/images/chuangxin/blank.jpg';
 
 const route = useRoute();

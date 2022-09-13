@@ -2,10 +2,13 @@
   <div v-if="props.isShow" class="pro-modal">
     <div class="pro-overlay"></div>
     <div class="pro-modal-wrapper">
-      <div class="pro-modal-body" :style="`background-image: url(${props.bg})`">
-        <div class="pro-modal-btn" @click="onConfirm">
-          <img class="btn-img" :src="props.btnBg" />
+      <div class="pro-modal-body">
+        <div class="pro-modal-content">
+          <p>恭喜您</p>
+          <p>保障升级成功</p>
         </div>
+
+        <div class="pro-modal-btn" @click="onClose">我知道了</div>
       </div>
       <div class="pro-modal-close" @click="onClose">
         <img :src="closeImg" />
@@ -18,7 +21,7 @@ import closeImg from '@/assets/images/chuangxin/close.png';
 
 interface Props {
   bg: string; // 背景
-  btnBg: string; // 按钮图
+  btn: string; // 按钮文字
   isShow: boolean; // 是否显示弹框
 }
 
@@ -28,8 +31,8 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  // 按钮图
-  btnBg: {
+  // 按钮文字
+  btn: {
     type: String,
     default: '',
   },
@@ -71,21 +74,43 @@ const onConfirm = () => {
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    padding: 100px;
+    padding: 90px;
+    text-align: center;
 
     .pro-modal-body {
-      width: 540px;
-      height: 436px;
-      padding: 30px;
-      background-repeat: no-repeat;
+      width: 100%;
+      height: 60%;
+      background: url('@/assets/images/chuangxin/upgrade_success.png') no-repeat;
       background-size: contain;
-      text-align: center;
-      display: flex;
-      align-items: flex-end;
+      padding: 30px;
 
-      .btn-img {
-        width: 80%;
+      .pro-modal-body-bg {
+        width: 100%;
+        img {
+          width: 100%;
+        }
       }
+
+      .pro-modal-btn {
+        width: 420px;
+        height: 88px;
+        background: $primary-color;
+        border-radius: 44px;
+        font-size: 34px;
+        font-weight: bold;
+        color: #ffffff;
+        line-height: 88px;
+        text-align: center;
+        margin: auto;
+      }
+    }
+
+    .pro-modal-content {
+      padding: 310px 0 60px 0;
+      font-size: 30px;
+      font-weight: 500;
+      color: #9f5012;
+      line-height: 46px;
     }
 
     .pro-modal-close {

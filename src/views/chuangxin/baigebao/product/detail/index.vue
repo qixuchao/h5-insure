@@ -53,7 +53,9 @@
         <div class="price">
           总保费<span>￥{{ toLocal(premium as number) }}/月</span>
         </div>
-        <van-button type="primary" class="right" @click="onNext">{{ orderId ? '升级保障' : '立即投保' }}</van-button>
+        <van-button type="primary" class="right" :disabled="isDisableNext" @click="onNext">{{
+          orderId ? '升级保障' : '立即投保'
+        }}</van-button>
       </div>
     </div>
   </van-config-provider>
@@ -75,7 +77,13 @@
       </div>
     </div>
   </ProPopup>
-  <ProModal :is-show="showModal" :bg="modalBg" :btn-bg="upBtn" @on-confirm="onConfirm" @on-close="onClose" />
+  <UpgradeModal
+    :is-show="showModal"
+    :premium="premium"
+    :attachment-list="detail?.tenantProductInsureVO?.attachmentVOList"
+    @on-confirm="onConfirm"
+    @on-close="onClose"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -89,7 +97,7 @@ import ProTimeline from '@/components/ProTimeline/index.vue';
 import ProPopup from '@/components/ProPopup/index.vue';
 import { validateIdCardNo } from '@/components/ProField/utils';
 import Question from '../components/question/index.vue';
-import ProModal from '../../components/ProModal/index.vue';
+import UpgradeModal from '../../components/UpgradeModal/index.vue';
 import HolderInsureForm from '../components/HolderInsureForm/index.vue';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
@@ -187,6 +195,7 @@ const trailData = reactive({
 });
 
 const showModal = ref<boolean>(false);
+const isDisableNext = ref<boolean>(false);
 
 const onClose = () => {
   showModal.value = false;
@@ -258,11 +267,14 @@ const onUnderWrite = async (o: any) => {
       });
 
       const { data } = res1;
-      window.location.href = data;
+      if (code === '10000') {
+        window.location.href = data;
+      } else {
+        isDisableNext.value = false;
+      }
     }
-    // Toast.clear();
   } catch (e) {
-    // Toast.clear();
+    isDisableNext.value = false;
   }
 };
 
@@ -287,22 +299,25 @@ const onSaveOrder = async (risk: any) => {
     orderTopStatus: '',
   });
 
-  const res = await saveOrder(order);
-  const { code, data } = res;
+  try {
+    const res = await saveOrder(order);
+    const { code, data } = res;
 
-  if (code === '10000') {
-    Toast.loading({ forbidClick: true, message: '核保中...' });
-    onUnderWrite({
-      ...order,
-      id: data.data,
-      extInfo: {
-        extraInfo: {
-          renewalDK: trailData.renewalDK,
-          paymentMethod: trailData.paymentMethod,
-          successJumpUrl: getPayCallbackUrl(data.data),
+    if (code === '10000') {
+      onUnderWrite({
+        ...order,
+        id: data.data,
+        extInfo: {
+          extraInfo: {
+            renewalDK: trailData.renewalDK,
+            paymentMethod: trailData.paymentMethod,
+            successJumpUrl: getPayCallbackUrl(data.data),
+          },
         },
-      },
-    });
+      });
+    }
+  } catch (e) {
+    isDisableNext.value = false;
   }
 };
 
@@ -337,7 +352,7 @@ const onPremiumCalc = async () => {
 };
 
 const onPremiumCalcWithValid = () => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     formRef.value?.validateForm?.().then(async () => {
       // 试算参数
       const { calcData, riskVOList } = genaratePremiumCalcData({
@@ -357,8 +372,9 @@ const onPremiumCalcWithValid = () => {
           condition: riskVOList,
           data,
         });
+      } else {
+        reject(new Error());
       }
-      resolve({});
     });
   });
 };
@@ -379,20 +395,25 @@ const onNext = async () => {
     });
     return;
   }
-  const { condition, data } = await onPremiumCalcWithValid();
+  isDisableNext.value = true;
+  try {
+    const { condition, data } = await onPremiumCalcWithValid();
 
-  const riskPremium = {};
-  const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
-    (premiumList || []).forEach((risk) => {
-      riskPremium[risk.riskCode] = risk;
-      if (risk.riskPremiumDetailVOList?.length) {
-        flatRiskPremium(risk.riskPremiumDetailVOList);
-      }
-    });
-  };
-  flatRiskPremium(data.riskPremiumDetailVOList);
-  const risk = transformData({ tenantId, riskList: condition, riskPremium, productId: detail.value?.id as number });
-  onSaveOrder(risk);
+    const riskPremium = {};
+    const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
+      (premiumList || []).forEach((risk) => {
+        riskPremium[risk.riskCode] = risk;
+        if (risk.riskPremiumDetailVOList?.length) {
+          flatRiskPremium(risk.riskPremiumDetailVOList);
+        }
+      });
+    };
+    flatRiskPremium(data.riskPremiumDetailVOList);
+    const risk = transformData({ tenantId, riskList: condition, riskPremium, productId: detail.value?.id as number });
+    onSaveOrder(risk);
+  } catch (e) {
+    isDisableNext.value = false;
+  }
 };
 watch(
   () => trailData,

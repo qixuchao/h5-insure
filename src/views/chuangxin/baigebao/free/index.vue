@@ -8,8 +8,7 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
     <div class="page-activity-invite">
-      <img class="logo" :src="logo" />
-      <img class="banner" :src="blankImg" />
+      <img :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
       <div class="container">
         <div class="main-form">
           <div class="title">
