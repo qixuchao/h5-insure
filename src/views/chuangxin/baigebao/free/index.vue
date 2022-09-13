@@ -279,5 +279,8 @@ onMounted(() => {
       }
     }
   }
+  .van-field__body {
+    width: 100%;
+  }
 }
 </style>

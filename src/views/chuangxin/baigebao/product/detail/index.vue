@@ -257,6 +257,10 @@ const validCalcData = () => {
 
 // 核保 - 参数和保存订单一样, TODO any
 const onUnderWrite = async (o: any) => {
+  Toast.loading({
+    message: '核保中...',
+    forbidClick: true,
+  });
   try {
     const res = await underwrite(o);
     const { code } = res;
@@ -272,6 +276,8 @@ const onUnderWrite = async (o: any) => {
       } else {
         isDisableNext.value = false;
       }
+    } else {
+      isDisableNext.value = false;
     }
   } catch (e) {
     isDisableNext.value = false;
