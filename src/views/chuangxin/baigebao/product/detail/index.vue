@@ -359,29 +359,34 @@ const onPremiumCalc = async () => {
 
 const onPremiumCalcWithValid = () => {
   return new Promise((resolve, reject) => {
-    formRef.value?.validateForm?.().then(async () => {
-      // 试算参数
-      const { calcData, riskVOList } = genaratePremiumCalcData({
-        holder: trailData.holder,
-        insured: trailData.insured,
-        tenantId,
-        productDetail: detail.value as ProductDetail,
-        insureDetail: insureDetail.value,
-      });
-      const res = await premiumCalc(calcData);
-
-      const { code, data } = res;
-
-      if (code === '10000') {
-        premium.value = data.premium;
-        resolve({
-          condition: riskVOList,
-          data,
+    formRef.value
+      ?.validateForm?.()
+      .then(async () => {
+        // 试算参数
+        const { calcData, riskVOList } = genaratePremiumCalcData({
+          holder: trailData.holder,
+          insured: trailData.insured,
+          tenantId,
+          productDetail: detail.value as ProductDetail,
+          insureDetail: insureDetail.value,
         });
-      } else {
-        reject(new Error());
-      }
-    });
+        const res = await premiumCalc(calcData);
+
+        const { code, data } = res;
+
+        if (code === '10000') {
+          premium.value = data.premium;
+          resolve({
+            condition: riskVOList,
+            data,
+          });
+        } else {
+          reject(new Error());
+        }
+      })
+      .catch(() => {
+        isDisableNext.value = false;
+      });
   });
 };
 
@@ -596,19 +601,6 @@ $activity-primary-color: #ff6d23;
         color: #ff5840;
         line-height: 38px;
         margin-bottom: 10px;
-      }
-      .tab-1-content {
-        margin-top: 26px;
-        margin-bottom: 40px;
-        font-size: 26px;
-        color: #393d46;
-        line-height: 38px;
-        .file-name {
-          color: #0d6efe;
-          .dun-hao {
-            color: #393d46;
-          }
-        }
       }
     }
   }
