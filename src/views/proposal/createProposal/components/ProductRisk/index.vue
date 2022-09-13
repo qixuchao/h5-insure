@@ -432,7 +432,7 @@ onBeforeMount(() => {
 <style lang="scss" scoped>
 .com-product-risk-wrapper {
   .popup-container {
-    background-color: #f2f5fc;
+    background-color: $zaui-global-bg;
 
     .popup-title {
       height: 104px;
@@ -484,7 +484,7 @@ onBeforeMount(() => {
 
     .trial-result {
       width: 440px;
-      color: #ff5840;
+      color: $zaui-price;
       font-size: 24px;
       font-weight: 600;
       .result-num {
@@ -503,7 +503,7 @@ onBeforeMount(() => {
         // width: 354px;
         height: 42px;
         border-radius: 100px;
-        background-color: #ff5840;
+        background-color: $zaui-price;
         font-size: 26px;
         font-family: PingFangSC-Regular, PingFang SC, sans-serif;
         font-weight: 400;

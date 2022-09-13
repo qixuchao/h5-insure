@@ -1,8 +1,8 @@
 <!--
  * @Author: 王园丽
  * @Date: 2022-08-05 18:00:00
- * @LastEditors: 王园丽
- * @LastEditTime: 2022-07-31 18:00:00
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-09-13 00:36:39
  * @Description: 计划书利益演示
 -->
 <template>
@@ -179,7 +179,7 @@ watch(num, () => {
   .line {
     margin: 0 -20px;
     padding-bottom: 30px;
-    border-bottom: 1px solid #eeeff4;
+    border-bottom: 1px solid $zaui-line;
   }
 
   .container {
@@ -195,7 +195,7 @@ watch(num, () => {
       color: #333333;
     }
     .benefit {
-      border-top: 1px solid #eeeff4;
+      border-top: 1px solid $zaui-line;
       &-title {
         margin-top: 36px;
         font-size: 28px;
@@ -224,7 +224,7 @@ watch(num, () => {
             height: 29px;
           }
           span {
-            color: #ff5840;
+            color: $zaui-price;
           }
           &.box-title-chart {
             margin: 40px 0;
@@ -240,7 +240,7 @@ watch(num, () => {
           .text1 {
             font-size: 28px;
             font-weight: 500;
-            color: #ff5840;
+            color: $zaui-price;
           }
           .text2 {
             font-size: 24px;
@@ -270,7 +270,7 @@ watch(num, () => {
         .custom-button {
           width: 104px;
           height: 46px;
-          background: #0d6efe;
+          background: $zaui-brand;
           box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.1);
           border-radius: 28px;
           border: 5px solid #a2c7ff;

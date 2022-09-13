@@ -75,7 +75,7 @@ const displayList = computed(() => {
         border: 1px solid #0d6efe;
         font-size: 28px;
         font-weight: 500;
-        color: #0d6efe;
+        color: $zaui-brand;
         border-radius: 20px;
         &::after {
           content: ' ';

@@ -652,7 +652,7 @@ watch(
 .date-extra {
   padding-left: $zaui-card-border;
   margin-left: $zaui-card-border;
-  border-left: 1px solid #eeeff4;
+  border-left: 1px solid $zaui-line;
   display: flex;
 }
 .com-personal-wrapper {

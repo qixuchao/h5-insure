@@ -49,7 +49,7 @@ const { checked } = toRefs(state);
 @import '@/styles/mixins.scss';
 .com-product-item {
   padding: 30px 0;
-  border-bottom: 0.5px solid #eeeff4;
+  border-bottom: 0.5px $zaui-line;
   .content-wrap {
     display: flex;
     .product-image {
@@ -64,7 +64,7 @@ const { checked } = toRefs(state);
       .insure-name {
         width: 160px;
         height: 44px;
-        background: #f2f5fc;
+        background: $zaui-global-bg;
         font-size: 22px;
         font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
@@ -126,7 +126,7 @@ const { checked } = toRefs(state);
           font-size: 22px;
           font-family: PingFangSC-Regular, PingFang SC;
           font-weight: 400;
-          color: #0d6efe;
+          color: $zaui-brand;
           line-height: 30px;
           background: rgba(13, 110, 254, 0.1);
           border-radius: 8px;

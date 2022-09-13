@@ -225,7 +225,7 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .page-question-notice {
-  background: #f2f5fc;
+  background: $zaui-global-bg;
   :deep(.com-card:last-child) {
     margin-bottom: 150px;
   }
@@ -251,7 +251,7 @@ onMounted(() => {
   :deep(.is-active) {
     .van-cell__value {
       span {
-        color: #0d6efe;
+        color: $zaui-brand;
       }
     }
   }

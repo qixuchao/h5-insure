@@ -463,7 +463,7 @@ const validateSumInsured = (value: string, rule: any, type: string) => {
   return `金额必须是${step}的倍数`;
 };
 
-// 初始化责任的属性值，主要用于
+// 初始化责任的属性值
 const initLiabilityValue = (liab) => {
   const currentLiability = (state.formInfo?.liabilityVOList || []).find(
     (liabi) => liabi.liabilityCode === liab.liabilityCode,
@@ -475,8 +475,10 @@ const initLiabilityValue = (liab) => {
     if (liab.optionalFlag !== 1) {
       return '0'; // 投保
     }
+    return '';
   }
-  return '-1';
+
+  return '';
 };
 
 onBeforeMount(() => {

@@ -428,7 +428,7 @@ onMounted(() => {
         &.selected {
           background: rgba(13, 110, 254, 0.1);
           border: 1px solid #0d6efe;
-          color: #0d6efe;
+          color: $zaui-brand;
         }
       }
     }
@@ -439,13 +439,13 @@ onMounted(() => {
     align-items: center;
     font-size: 28px;
     color: #393d46;
-    background: #f2f5fc;
+    background: $zaui-global-bg;
     padding: 0 30px;
     .checkbox {
       margin-right: 22px;
     }
     .file {
-      color: #0d6efe;
+      color: $zaui-brand;
     }
   }
   .footer {
@@ -455,7 +455,7 @@ onMounted(() => {
     .refresh-btn {
       width: 70px;
       border: none;
-      color: #0d6efe;
+      color: $zaui-brand;
       font-size: 30px;
       line-height: 28px;
       text-align: center;

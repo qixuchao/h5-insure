@@ -16,7 +16,7 @@ $header-height: 88px;
   display: flex;
   padding: 0 20px;
   background-color: #ffffff;
-  border-bottom: 1px solid #EEEFF4;
+  border-bottom: 1px solid $zaui-line;
 
   .header-left {
     width: 100px;

@@ -1,7 +1,15 @@
+<!--
+ * @Author: za-qixuchao qixuchao@zhongan.io
+ * @Date: 2022-07-28 10:28:12
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-09-13 00:39:12
+ * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProExpand/index.vue
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 <template>
   <div class="risk-responsibility">
     <div class="title">{{ title }}</div>
-    <div class="responsibility-content" :style="{ height: height }">
+    <div class="responsibility-content" :style="{ height }">
       <div class="content">
         <slot></slot>
       </div>
@@ -14,6 +22,8 @@
 </template>
 
 <script lang="ts" setup>
+const slots = useSlots();
+
 const props = defineProps({
   modelValue: Boolean,
   title: {

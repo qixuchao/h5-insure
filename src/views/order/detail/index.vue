@@ -148,7 +148,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .page-order-detail {
   height: 100%;
-  background: #f2f5fc;
+  background: $zaui-global-bg;
   padding: 30px;
   padding-bottom: 180px;
   overflow-y: auto;
@@ -186,7 +186,7 @@ onMounted(() => {
         background: rgba(13, 110, 254, 0.1);
         border-radius: 8px;
         font-size: 22px;
-        color: #0d6efe;
+        color: $zaui-brand;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -209,7 +209,7 @@ onMounted(() => {
         width: 8px;
         height: 28px;
         border-radius: 4px;
-        background: #0d6efe;
+        background: $zaui-brand;
         margin-right: 16px;
       }
     }

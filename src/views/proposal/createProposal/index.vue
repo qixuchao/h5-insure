@@ -369,7 +369,7 @@ watch(
 
 <style lang="scss" scoped>
 .page-create-wrapper {
-  background-color: #f2f5fc;
+  background-color: $zaui-global-bg;
   .border-radius {
     border-radius: $zaui-border-radius-card;
     .plan-name {

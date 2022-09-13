@@ -2,7 +2,7 @@
  * @Author: za-yuxiaowei yuxiaowei@zhongan.io
  * @Date: 2022-07-12 10:50:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-09 09:21:29
+ * @LastEditTime: 2022-09-13 00:36:50
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProSelect/index.vue
  * @Description:
 -->
@@ -63,7 +63,6 @@ const onClose = () => {
 watch(
   () => props.modelValue,
   (newVal) => {
-    console.log('newVal', newVal);
     checked.value = newVal;
   },
 );

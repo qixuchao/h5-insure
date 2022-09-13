@@ -447,7 +447,7 @@ onBeforeMount(() => {
 </script>
 <style lang="scss" scoped>
 .page-trial-wrapper {
-  background-color: #f2f5fc;
+  background-color: $zaui-global-bg;
 
   .part-card {
     background-color: #ffffff;
@@ -489,6 +489,7 @@ onBeforeMount(() => {
     justify-content: space-between;
     align-items: center;
     border-top: 1px solid #efeff4;
+    z-index: 2;
 
     .trial-result {
       width: 440px;
@@ -513,7 +514,7 @@ onBeforeMount(() => {
         // width: 354px;
         height: 42px;
         border-radius: 100px;
-        background-color: #ff5840;
+        background-color: $zaui-price;
         font-size: 26px;
         font-family: PingFangSC-Regular, PingFang SC, sans-serif;
         font-weight: 400;
