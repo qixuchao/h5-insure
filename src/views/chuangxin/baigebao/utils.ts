@@ -144,8 +144,9 @@ interface orderParamType {
   tenantId: string;
   detail: ProductDetail;
   insureDetail: any;
-  saleChannelId: string; // extInfo 带的saleChannelId
-  paymentMethod: string; // extInfo 带的 paymentMethod
+  saleUserId?: string; // 链接上带的，可能没有
+  saleChannelId: string; // 链接上带的saleChannelId
+  paymentMethod: string; // 链接上带的 paymentMethod
   renewalDK: string; // 开通下一年
   successJumpUrl: string; // 支付成功跳转
   premium: number; // 保费

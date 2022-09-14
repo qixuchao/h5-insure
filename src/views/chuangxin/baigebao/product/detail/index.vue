@@ -40,7 +40,6 @@
           </div>
         </template>
         <template #tab3>
-          <van-divider />
           <ProCard title="理赔流程">
             <ProTimeline :list="detail?.tenantProductInsureVO?.settlementProcessList" />
           </ProCard>
@@ -148,6 +147,7 @@ const {
   tenantId,
   orderId,
   phoneNo: mobile,
+  agentCode,
   saleChannelId,
   paymentMethod,
   certNo,
@@ -297,6 +297,7 @@ const getPayCallbackUrl = (id: number) => {
 const onSaveOrder = async (risk: any) => {
   const order = genarateOrderParam({
     tenantId,
+    saleUserId: agentCode,
     saleChannelId,
     detail: detail.value as ProductDetail,
     insureDetail: insureDetail.value,
@@ -594,18 +595,8 @@ $activity-primary-color: #ff6d23;
       }
     }
   }
-  .tabs {
-    .tab-1 {
-      .detail-img {
-        width: 100%;
-      }
-      .sub-title {
-        font-size: 26px;
-        color: #ff5840;
-        line-height: 38px;
-        margin-bottom: 10px;
-      }
-    }
+  .detail-img {
+    width: 100%;
   }
   .footer-button {
     justify-content: space-between;
@@ -624,13 +615,6 @@ $activity-primary-color: #ff6d23;
     .left-part {
       color: $zaui-text;
     }
-  }
-  // tab 样式覆盖
-  :deep(.van-tab--active) {
-    color: $primary-color;
-  }
-  :deep(.van-tabs__line) {
-    background: $primary-color;
   }
   // 多选样式覆盖
   :deep(.com-check-btn.activated) {

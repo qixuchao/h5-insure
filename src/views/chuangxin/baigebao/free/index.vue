@@ -72,7 +72,14 @@ interface UserInfoProps {
   name: string;
 }
 // 链接带入的productCode
-const { productCode = '7X9', tenantId = '', phoneNo } = route.query as QueryData;
+const {
+  productCode = '7X9',
+  tenantId = '',
+  phoneNo,
+  saleChannelId,
+  agentCode,
+  paymentMethod,
+} = route.query as QueryData;
 
 // 为true, 显示手机验证表单
 const isVerifyMobile = ref(true);
@@ -139,13 +146,14 @@ const onSubmit = async (e: UserInfoProps) => {
       tenantId,
       detail: detail.value as ProductDetail,
       insureDetail: insureDetail.value,
-      saleChannelId: '',
+      saleChannelId,
+      saleUserId: agentCode,
       holder: state.userInfo,
       insured: {
         ...state.userInfo,
         relationToHolder: RELATION_HOLDER_ENUM.SELF, // 被保人默认自己
       },
-      paymentMethod: '',
+      paymentMethod,
       renewalDK: '',
       successJumpUrl: '',
       premium: 0,
