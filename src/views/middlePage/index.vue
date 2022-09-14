@@ -22,8 +22,7 @@ const result = ref<string>('');
 const getActivityPath = () => {
   try {
     // 赠险、基础险、附费险跳转
-    const { extInfo } = route.query;
-    const { pageCode } = JSON.parse(extInfo) || {};
+    const { pageCode } = route.query || {};
 
     if (pageCode) {
       return `/chuangxin/baigebao/${pageCode}`;

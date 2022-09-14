@@ -2,7 +2,6 @@
   <van-config-provider :theme-vars="themeVars">
     <div class="page-product-detail">
       <div class="info">
-        <img class="logo" :src="logo" />
         <img :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
         <div class="guarantee-list">
           <ProCard title="保障内容" link="查看详情" :show-divider="false" :show-icon="false" @link-click="onShowDetail">
@@ -19,7 +18,7 @@
           </ProCard>
         </div>
       </div>
-      <ProTab class="tabs" :list="tabList" sticky scrollspy>
+      <ProScrollTab class="tabs" :list="tabList" sticky scrollspy>
         <template #tab1>
           <HolderInsureForm
             ref="formRef"
@@ -41,6 +40,7 @@
           </div>
         </template>
         <template #tab3>
+          <van-divider />
           <ProCard title="理赔流程">
             <ProTimeline :list="detail?.tenantProductInsureVO?.settlementProcessList" />
           </ProCard>
@@ -48,7 +48,7 @@
             <Question :list="detail?.tenantProductInsureVO?.questionList" />
           </ProCard>
         </template>
-      </ProTab>
+      </ProScrollTab>
       <div class="footer-button">
         <div class="price">
           总保费<span>￥{{ toLocal(premium as number) }}/月</span>
@@ -60,7 +60,7 @@
     </div>
   </van-config-provider>
   <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
-    <ProTab
+    <ProScrollTab
       v-if="guaranteeList.length > 1"
       :list="
         guaranteeList.map((item, index) => ({
@@ -69,7 +69,7 @@
         }))
       "
       class="tab"
-    ></ProTab>
+    ></ProScrollTab>
     <div class="guarantee-list">
       <div v-for="(item, index) in guaranteeList[activePlan].titleAndDescVOS" :key="index" class="guarantee-item">
         <div class="title">{{ item.title }}</div>
@@ -91,7 +91,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import { debounce } from 'lodash';
 import ProCard from '@/components/ProCard/index.vue';
-import ProTab from '@/components/ProTab/index.vue';
+import ProScrollTab from '@/components/ProScrollTab/index.vue';
 import ProCell from '@/components/ProCell/index.vue';
 import ProTimeline from '@/components/ProTimeline/index.vue';
 import ProPopup from '@/components/ProPopup/index.vue';
@@ -125,7 +125,7 @@ import {
   formatOccupationLimit,
   formatSocialInsuranceLimit,
 } from './utils';
-import { getExtInfo, genaratePremiumCalcData, transformData, genarateOrderParam } from '../../utils';
+import { genaratePremiumCalcData, transformData, genarateOrderParam } from '../../utils';
 import themeVars from '../../theme';
 import modalBg from '@/assets/images/chuangxin/modal-bg.png';
 import upBtn from '@/assets/images/chuangxin/up-btn.png';
@@ -137,14 +137,22 @@ const route = useRoute();
 interface QueryData {
   productCode: string; // 产品code
   tenantId: string; // 订单id
-  [key: string]: any; // 其他 extInfo
+  phoneNo: string; // 手机号
+  agentCode: string;
+  orderNo: string;
+  [key: string]: string;
 }
 
-const { productCode = 'BWYL2021', tenantId, extInfo: _extInfo, orderId: payOrderId } = route.query as QueryData;
-
-const extInfoObj = getExtInfo(_extInfo);
-const { phoneNo: mobile, saleChannelId, paymentMethod, certNo, name, orderId: extInfoObjOrderId } = extInfoObj;
-const orderId = payOrderId || extInfoObjOrderId;
+const {
+  productCode = 'BWYL2021',
+  tenantId,
+  orderId,
+  phoneNo: mobile,
+  saleChannelId,
+  paymentMethod,
+  certNo,
+  name,
+} = route.query as QueryData;
 
 const tabList = ref<Array<{ title: string; slotName: string }>>([
   {
@@ -208,10 +216,7 @@ const onConfirm = () => {
       ...route.query,
       tenantId,
       productCode: 'BWYL2022',
-      extInfo: JSON.stringify({
-        ...extInfoObj,
-        orderId,
-      }),
+      orderId,
     },
   });
 };
@@ -294,6 +299,7 @@ const onSaveOrder = async (risk: any) => {
     tenantId,
     saleChannelId,
     detail: detail.value as ProductDetail,
+    insureDetail: insureDetail.value,
     paymentMethod: trailData.paymentMethod,
     renewalDK: trailData.renewalDK ? 'Y' : 'N', // 开通下一年
     successJumpUrl: '',
@@ -398,10 +404,7 @@ const onNext = async () => {
         ...route.query,
         tenantId,
         productCode: 'BWYL2022',
-        extInfo: JSON.stringify({
-          ...extInfoObj,
-          orderId,
-        }),
+        orderId,
       },
     });
     return;
@@ -476,7 +479,7 @@ const getOrderById = async () => {
 };
 
 const fetchData = async () => {
-  const productReq = productDetail({ productCode, withInsureInfo: true });
+  const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
   const insureReq = insureProductDetail({ productCode });
   await Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
     if (productRes.code === '10000') {

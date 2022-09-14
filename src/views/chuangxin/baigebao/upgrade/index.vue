@@ -54,7 +54,7 @@ import {
   EndorsementUp,
 } from '@/api/modules/trial';
 import themeVars from '../theme';
-import { getExtInfo, getReqData, transformData, compositionTrailData, genarateOrderParam, getFloat } from '../utils';
+import { getReqData, transformData, compositionTrailData, genarateOrderParam, getFloat } from '../utils';
 import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
 import logo from '@/assets/images/chuangxin/logo.png';
@@ -66,12 +66,13 @@ const route = useRoute();
 interface QueryData {
   productCode: string; // 产品code
   tenantId: string; // 订单id
-  [key: string]: any; // 其他 extInfo
+  phoneNo: string; // 手机号
+  agentCode: string;
+  orderNo: string;
+  [key: string]: string;
 }
 
-const { productCode = 'BWYL2022', tenantId, orderId, extInfo: _extInfo } = route.query as QueryData;
-
-const extInfoObj = getExtInfo(_extInfo);
+const { productCode = 'BWYL2022', tenantId, orderId } = route.query as QueryData;
 
 const detail = ref<ProductDetail>(); // 产品详情
 const insureDetail = ref<any>(); // 险种详情
@@ -95,6 +96,7 @@ const onSaveOrder = async () => {
     orderTopStatus: '-1',
     orderCategory: 2, // 批改类型
     detail: detail.value as ProductDetail,
+    insureDetail: insureDetail.value,
     paymentMethod: orderDetail.value.extInfo?.extraInfo?.paymentMethod,
     renewalDK: orderDetail.value.extInfo?.extraInfo?.renewalDK, // 开通下一年
     successJumpUrl: '',
@@ -182,9 +184,9 @@ const onUpgrade = async (o: any) => {
 };
 
 const fetchData = () => {
-  const productReq = productDetail({ productCode, withInsureInfo: true });
+  const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
   const insureReq = insureProductDetail({ productCode });
-  const orderReq = getTenantOrderDetail({ id: orderId || extInfoObj.orderId, tenantId });
+  const orderReq = getTenantOrderDetail({ id: orderId, tenantId });
   Promise.all([productReq, insureReq, orderReq]).then(([productRes, insureRes, orderRes]) => {
     if (productRes.code === '10000') {
       detail.value = productRes.data;

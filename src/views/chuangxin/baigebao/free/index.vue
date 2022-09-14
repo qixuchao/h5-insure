@@ -46,13 +46,11 @@ import InfoField from './components/InfoField/index.vue';
 import { insureProductDetail, getOrderDetailByCondition, multiIssuePolicy } from '@/api/modules/trial';
 import { productDetail } from '@/api/modules/product';
 import { RiskDetailVoItem, RiskAttachmentVoItem } from '@/api/modules/newTrial.data';
-import { getExtInfo, genarateOrderParam } from '../utils';
+import { genarateOrderParam } from '../utils';
 import themeVars from '../theme';
 import TitleImg from '@/assets/images/chuangxin/title-step1.png';
 import TitleImg2 from '@/assets/images/chuangxin/title-step2.png';
-import logo from '@/assets/images/chuangxin/logo.png';
 import { ProductDetail } from '@/api/modules/product.data';
-import blankImg from '@/assets/images/chuangxin/blank.jpg';
 
 const route = useRoute();
 const router = useRouter();
@@ -61,7 +59,10 @@ const router = useRouter();
 interface QueryData {
   productCode: string; // 产品code
   tenantId: string; // 订单id
-  [key: string]: any; // 其他 extInfo
+  phoneNo: string; // 手机号
+  agentCode: string;
+  orderNo: string;
+  [key: string]: string;
 }
 
 // 页面填写的信息
@@ -71,8 +72,7 @@ interface UserInfoProps {
   name: string;
 }
 // 链接带入的productCode
-const { productCode = '7X9', tenantId = '', extInfo } = route.query as QueryData;
-const extInfoObj = getExtInfo(extInfo);
+const { productCode = '7X9', tenantId = '', phoneNo } = route.query as QueryData;
 
 // 为true, 显示手机验证表单
 const isVerifyMobile = ref(true);
@@ -88,7 +88,7 @@ const state = reactive({
 
   // 填写的信息
   userInfo: {
-    mobile: extInfoObj.phoneNo,
+    mobile: phoneNo,
     certNo: '',
     name: '',
   },
@@ -137,13 +137,21 @@ const onSubmit = async (e: UserInfoProps) => {
 
     const orderParam = genarateOrderParam({
       tenantId,
-      detail: detail.value,
-      ...extInfoObj,
+      detail: detail.value as ProductDetail,
+      insureDetail: insureDetail.value,
+      saleChannelId: '',
       holder: state.userInfo,
       insured: {
         ...state.userInfo,
         relationToHolder: RELATION_HOLDER_ENUM.SELF, // 被保人默认自己
       },
+      paymentMethod: '',
+      renewalDK: '',
+      successJumpUrl: '',
+      premium: 0,
+      orderStatus: '',
+      orderTopStatus: '',
+      tenantOrderRiskList: [], // TODO
     });
     // 赠险领取，跳转到基础产品
     const res = await multiIssuePolicy(orderParam);
@@ -156,13 +164,10 @@ const onSubmit = async (e: UserInfoProps) => {
         query: {
           ...route.query,
           tenantId,
+          phoneNo: state.userInfo.mobile,
+          certNo: state.userInfo.certNo,
+          name: state.userInfo.name,
           productCode: 'BWYL2021',
-          extInfo: JSON.stringify({
-            ...extInfoObj,
-            phoneNo: state.userInfo.mobile,
-            certNo: state.userInfo.certNo,
-            name: state.userInfo.name,
-          }),
         },
       });
     }
@@ -187,7 +192,7 @@ const getAttachmentList = () => {
 };
 
 const getData = async () => {
-  const detailReq = productDetail({ productCode, withInsureInfo: true });
+  const detailReq = productDetail({ productCode, withInsureInfo: true, tenantId });
   const insureReq = insureProductDetail({ productCode });
 
   Promise.all([detailReq, insureReq]).then(([detailRes, insureRes]) => {
@@ -213,11 +218,6 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   background: linear-gradient(180deg, #fea64a 0%, #fc7429 88%, #fc6d24 100%);
-  .logo {
-    width: 50%;
-    margin: 30px;
-    position: absolute;
-  }
   .banner {
     width: 100%;
   }

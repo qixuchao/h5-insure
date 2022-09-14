@@ -27,110 +27,49 @@ export const getExtInfo = (extInfo: string) => {
   }
 };
 
-interface orderParamType {
+/** */
+interface transformDataType {
   tenantId: string;
-  detail: ProductDetail;
-  saleChannelId: string; // extInfo 带的saleChannelId
-  paymentMethod: string; // extInfo 带的 paymentMethod
-  renewalDK: string; // 开通下一年
-  successJumpUrl: string; // 支付成功跳转
-  premium: number; // 保费
-  orderStatus: string;
-  orderTopStatus: string;
-  orderCategory?: number; // 基础险默认1, 升级2
-  applicationNo?: string; // 投保单号
-  policyNo?: string; // 保单号;
-  holder: {
-    mobile: string;
-    certNo: string;
-    name: string;
-    socialFlag: string;
-  };
-  insured: {
-    mobile?: string;
-    certNo: string;
-    name: string;
-    relationToHolder: string; // 投保人关系
-    socialFlag: string; // 有没有社保
-  };
-  tenantOrderRiskList: any; // TODO any
+  riskList: RiskVoItem[];
+  riskPremium: any;
+  productId: number;
 }
-// multiIssuePolicy 一键出单
-export const genarateOrderParam = (o: orderParamType) => {
-  const param = {
-    orderAmount: o.premium,
-    tenantId: o.tenantId,
-    venderCode: o.detail?.insurerCode,
-    applicationNo: o.applicationNo,
-    policyNo: o.policyNo,
-    orderDataSource: '1', // 订单来源
-    saleChannelId: o.saleChannelId, // 销售渠道id
-    orderCategory: o.orderCategory, // 订单类型
-    orderStatus: o.orderStatus,
-    orderTopStatus: o.orderTopStatus,
-    tenantOrderHolder: {
-      tenantId: o.tenantId,
-      name: o.holder.name,
-      certNo: o.holder.certNo,
-      certType: CERT_TYPE_ENUM.CERT, // 默认身份证
-      mobile: o.holder.mobile,
-      birthday: getBirth(o.holder.certNo),
-      gender: getSex(o.holder.certNo),
+// 将试算的参数转化成订单中需要的结构
+export const transformData = (o: transformDataType) => {
+  const { tenantId, riskList, riskPremium, productId } = o;
+  return riskList.map((risk: RiskVoItem) => {
+    const currentRisk = {
+      tenantId,
+      // initialAmount: riskPremium[risk.riskCode]?.amount,
+      amountUnit: 1,
+      annuityDrawFrequency: risk.annuityDrawDate,
+      annuityDrawType: risk.annuityDrawType,
+      paymentFrequency: risk.paymentFrequency,
+      paymentPeriod: risk.chargePeriod.split('_')[1],
+      paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],
+      insurancePeriodType:
+        INSURANCE_PERIOD_TYPE_ENUMS[risk.coveragePeriod === 'to_life' ? 'to_life' : risk.coveragePeriod.split('_')[0]],
+      insurancePeriodValue: Number.isNaN(+risk.coveragePeriod.split('_')[1]) ? 0 : risk.coveragePeriod.split('_')[1],
+      riskCode: risk.riskCode,
+      riskType: risk.riskType,
       extInfo: {
-        hasSocialInsurance: o.holder.socialFlag,
+        riskId: risk.riskId,
+        copy: risk.copy,
       },
-    },
-    extInfo: {
-      extraInfo: {
-        renewalDK: o.renewalDK ? 'Y' : 'N', // 签约
-        paymentMethod: o.paymentMethod,
-        successJumpUrl: o.successJumpUrl, // 支付成功跳转
-      },
-    },
-    tenantOrderInsuredList: [
-      {
-        tenantId: o.tenantId,
-        relationToHolder: o.insured.relationToHolder,
-        certNo: o.insured.certNo,
-        certType: CERT_TYPE_ENUM.CERT, // 默认身份证
-        name: o.insured.name,
-        birthday: getBirth(o.insured.certNo),
-        gender: getSex(o.insured.certNo),
-        extInfo: {
-          hasSocialInsurance: o.insured.socialFlag,
-        },
-        tenantOrderProductList: [
-          {
-            tenantId: o.tenantId,
-            productCode: o.detail?.productCode,
-            productName: o.detail?.productName,
-            premium: o.premium, // 保费, 保费试算返回
-            tenantOrderRiskList: o.tenantOrderRiskList,
-          },
-        ],
-      },
-    ],
-  };
-  return param;
+      initialPremium: riskPremium[risk.riskCode]?.premium,
+      liabilityDetails: risk.liabilityVOList.map((liab) => ({
+        liabilityCode: liab.liabilityCode,
+        liabilityName: liab.liabilityName,
+        refundMethod: liab.liabilityAttributeValue,
+        // sumInsured: 300000,
+      })),
+      productId,
+      currantAmount: 30000,
+      initAmount: 30000,
+    };
+    return currentRisk;
+  });
 };
-
-interface premiumCalcParamType {
-  tenantId: string;
-  holder: {
-    certNo: string;
-    mobile: string;
-    name: string;
-    socialFlag: string;
-  };
-  insured: {
-    certNo: string;
-    name: string;
-    socialFlag: string;
-    relationToHolder: string;
-  };
-  productDetail: ProductDetail;
-  insureDetail: any; // TODO 定义类型
-}
 
 export const compositionTrailData = (riskList: RiskDetailVoItem[], productDetail: ProductDetail) => {
   // 主险信息
@@ -201,6 +140,118 @@ export const compositionTrailData = (riskList: RiskDetailVoItem[], productDetail
   });
 };
 
+interface orderParamType {
+  tenantId: string;
+  detail: ProductDetail;
+  insureDetail: any;
+  saleChannelId: string; // extInfo 带的saleChannelId
+  paymentMethod: string; // extInfo 带的 paymentMethod
+  renewalDK: string; // 开通下一年
+  successJumpUrl: string; // 支付成功跳转
+  premium: number; // 保费
+  orderStatus: string;
+  orderTopStatus: string;
+  orderCategory?: number; // 基础险默认1, 升级2
+  applicationNo?: string; // 投保单号
+  policyNo?: string; // 保单号;
+  holder: {
+    mobile: string;
+    certNo: string;
+    name: string;
+    socialFlag?: string;
+  };
+  insured: {
+    mobile?: string;
+    certNo: string;
+    name: string;
+    relationToHolder: string; // 投保人关系
+    socialFlag?: string; // 有没有社保
+  };
+  tenantOrderRiskList: any; // TODO any
+}
+// multiIssuePolicy 一键出单
+export const genarateOrderParam = (o: orderParamType) => {
+  const param = {
+    orderAmount: o.premium,
+    tenantId: o.tenantId,
+    venderCode: o.detail?.insurerCode,
+    applicationNo: o.applicationNo,
+    policyNo: o.policyNo,
+    orderDataSource: '1', // 订单来源
+    saleChannelId: o.saleChannelId, // 销售渠道id
+    orderCategory: o.orderCategory, // 订单类型
+    orderStatus: o.orderStatus,
+    orderTopStatus: o.orderTopStatus,
+    tenantOrderHolder: {
+      tenantId: o.tenantId,
+      name: o.holder.name,
+      certNo: o.holder.certNo,
+      certType: CERT_TYPE_ENUM.CERT, // 默认身份证
+      mobile: o.holder.mobile,
+      birthday: getBirth(o.holder.certNo),
+      gender: getSex(o.holder.certNo),
+      extInfo: {
+        hasSocialInsurance: o.holder.socialFlag,
+      },
+    },
+    extInfo: {
+      extraInfo: {
+        renewalDK: o.renewalDK ? 'Y' : 'N', // 签约
+        paymentMethod: o.paymentMethod,
+        successJumpUrl: o.successJumpUrl, // 支付成功跳转
+      },
+    },
+    tenantOrderInsuredList: [
+      {
+        tenantId: o.tenantId,
+        relationToHolder: o.insured.relationToHolder,
+        certNo: o.insured.certNo,
+        certType: CERT_TYPE_ENUM.CERT, // 默认身份证
+        name: o.insured.name,
+        birthday: getBirth(o.insured.certNo),
+        gender: getSex(o.insured.certNo),
+        extInfo: {
+          hasSocialInsurance: o.insured.socialFlag,
+        },
+        tenantOrderProductList: [
+          {
+            tenantId: o.tenantId,
+            productCode: o.detail?.productCode,
+            productName: o.detail?.productName,
+            premium: o.premium, // 保费, 保费试算返回
+            tenantOrderRiskList: o.tenantOrderRiskList,
+            // transformData({
+            //   tenantId: o.tenantId,
+            //   riskList: compositionTrailData(o.insureDetail.productRiskVoList[0].riskDetailVOList, o.detail) as any,
+            //   riskPremium: {},
+            //   productId: o.detail?.id as number,
+            // }),
+          },
+        ],
+      },
+    ],
+  };
+  return param;
+};
+
+interface premiumCalcParamType {
+  tenantId: string;
+  holder: {
+    certNo: string;
+    mobile: string;
+    name: string;
+    socialFlag: string;
+  };
+  insured: {
+    certNo: string;
+    name: string;
+    socialFlag: string;
+    relationToHolder: string;
+  };
+  productDetail: ProductDetail;
+  insureDetail: any; // TODO 定义类型
+}
+
 // premiumCalc 保费试算
 export const genaratePremiumCalcData = (o: premiumCalcParamType) => {
   const riskVOList = compositionTrailData(o.insureDetail.productRiskVoList[0].riskDetailVOList, o.productDetail);
@@ -242,49 +293,6 @@ export const genaratePremiumCalcData = (o: premiumCalcParamType) => {
   };
 };
 
-/** */
-interface transformDataType {
-  tenantId: string;
-  riskList: RiskVoItem[];
-  riskPremium: any;
-  productId: number;
-}
-// 将试算的参数转化成订单中需要的结构
-export const transformData = (o: transformDataType) => {
-  const { tenantId, riskList, riskPremium, productId } = o;
-  return riskList.map((risk: RiskVoItem) => {
-    const currentRisk = {
-      tenantId,
-      // initialAmount: riskPremium[risk.riskCode]?.amount,
-      amountUnit: 1,
-      annuityDrawFrequency: risk.annuityDrawDate,
-      annuityDrawType: risk.annuityDrawType,
-      paymentFrequency: risk.paymentFrequency,
-      paymentPeriod: risk.chargePeriod.split('_')[1],
-      paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],
-      insurancePeriodType:
-        INSURANCE_PERIOD_TYPE_ENUMS[risk.coveragePeriod === 'to_life' ? 'to_life' : risk.coveragePeriod.split('_')[0]],
-      insurancePeriodValue: Number.isNaN(+risk.coveragePeriod.split('_')[1]) ? 0 : risk.coveragePeriod.split('_')[1],
-      riskCode: risk.riskCode,
-      riskType: risk.riskType,
-      extInfo: {
-        riskId: risk.riskId,
-        copy: risk.copy,
-      },
-      initialPremium: riskPremium[risk.riskCode]?.premium,
-      liabilityDetails: risk.liabilityVOList.map((liab) => ({
-        liabilityCode: liab.liabilityCode,
-        liabilityName: liab.liabilityName,
-        refundMethod: liab.liabilityAttributeValue,
-        // sumInsured: 300000,
-      })),
-      productId,
-      currantAmount: 30000,
-      initAmount: 30000,
-    };
-    return currentRisk;
-  });
-};
 /** */
 interface upgradeParamType {
   tenantId: string;

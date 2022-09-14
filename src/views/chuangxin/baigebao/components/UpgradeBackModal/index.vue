@@ -58,7 +58,7 @@ const onConfirm = () => {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: var(--van-overlay-z-index);
+    z-index: 99;
     width: 100%;
     height: 100%;
     background: var(--van-overlay-background-color);
@@ -67,7 +67,7 @@ const onConfirm = () => {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: var(--van-overlay-z-index);
+    z-index: 100;
     width: 100%;
     height: 100%;
     display: flex;

@@ -35,6 +35,7 @@ import ProImageUpload from './ProImageUpload/index.vue'
 import ProFilePreview from './ProFilePreview/index.vue'
 import ProCascader from './ProCascader/index.vue'
 import ProPDFviewer from './ProPDFviewer/index.vue'
+import ProScrollTab from './ProScrollTab/index.vue'
 
 
 interface ComponentMap {
@@ -70,7 +71,8 @@ export const globalComs: ComponentMap = {
   ProImageUpload,
   ProFilePreview,
   ProCascader,
-  ProPDFviewer
+  ProPDFviewer,
+  ProScrollTab
 };
 
 function install(app: any) {
