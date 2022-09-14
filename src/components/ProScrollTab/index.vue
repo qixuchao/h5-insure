@@ -50,8 +50,8 @@ const scrollHeight = ref<Array<number>>([]);
 
 const handleClickTab = (id: string) => {
   const toScroll = document.getElementById(id)?.offsetTop as number;
-  console.log(toScroll);
   document.documentElement.scrollTop = toScroll;
+  document.body.scrollTop = toScroll;
 };
 
 const getScrollHeight = () => {
