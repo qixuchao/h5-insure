@@ -57,8 +57,6 @@ import themeVars from '../theme';
 import { getReqData, transformData, compositionTrailData, genarateOrderParam, getFloat } from '../utils';
 import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
-import logo from '@/assets/images/chuangxin/logo.png';
-import blankImg from '@/assets/images/chuangxin/blank.jpg';
 
 const route = useRoute();
 
@@ -72,7 +70,7 @@ interface QueryData {
   [key: string]: string;
 }
 
-const { productCode = 'BWYL2022', tenantId, orderId } = route.query as QueryData;
+const { productCode = 'BWYL2022', tenantId, orderNo } = route.query as QueryData;
 
 const detail = ref<ProductDetail>(); // 产品详情
 const insureDetail = ref<any>(); // 险种详情
@@ -186,7 +184,7 @@ const onUpgrade = async (o: any) => {
 const fetchData = () => {
   const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
   const insureReq = insureProductDetail({ productCode });
-  const orderReq = getTenantOrderDetail({ id: orderId, tenantId });
+  const orderReq = getTenantOrderDetail({ orderNo, tenantId });
   Promise.all([productReq, insureReq, orderReq]).then(([productRes, insureRes, orderRes]) => {
     if (productRes.code === '10000') {
       detail.value = productRes.data;
@@ -216,12 +214,6 @@ onMounted(() => {
   position: relative;
   height: 100%;
   width: 100%;
-
-  .logo {
-    width: 50%;
-    margin: 30px;
-    position: absolute;
-  }
 
   .banner {
     width: 100%;

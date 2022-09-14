@@ -53,7 +53,7 @@
           总保费<span>￥{{ toLocal(premium as number) }}/月</span>
         </div>
         <van-button type="primary" class="right" :disabled="isDisableNext" @click="onNext">{{
-          orderId ? '升级保障' : '立即投保'
+          orderNo ? '升级保障' : '立即投保'
         }}</van-button>
       </div>
     </div>
@@ -145,7 +145,7 @@ interface QueryData {
 const {
   productCode = 'BWYL2021',
   tenantId,
-  orderId,
+  orderNo,
   phoneNo: mobile,
   agentCode,
   saleChannelId,
@@ -180,7 +180,7 @@ const premium = ref<number>(); // 保费
 const holderDisable = !!(name && certNo && mobile);
 // 订单进入的，全部信息都不可修改
 // TODO 根据订单状态判断，后端优化流程后改
-const disable = !!orderId;
+const disable = !!orderNo;
 // 赠险进入，从链接上默认取投保人数据
 const trailData = reactive({
   holder: {
@@ -216,7 +216,7 @@ const onConfirm = () => {
       ...route.query,
       tenantId,
       productCode: 'BWYL2022',
-      orderId,
+      orderNo,
     },
   });
 };
@@ -271,7 +271,7 @@ const onUnderWrite = async (o: any) => {
     const { code } = res;
     if (code === '10000') {
       const res1 = await getPayUrl({
-        id: o.id,
+        orderNo: o.orderNo,
         tenantId,
       });
 
@@ -289,8 +289,13 @@ const onUnderWrite = async (o: any) => {
   }
 };
 
-const getPayCallbackUrl = (id: number) => {
-  const url = `${ORIGIN}/chuangxin/baigebao/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderId=${id}`;
+const getPaySuccessCallbackUrl = (no: number) => {
+  const url = `${ORIGIN}/chuangxin/baigebao/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderNo=${no}`;
+  return url;
+};
+
+const getPayFailCallbackUrl = (no: number) => {
+  const url = `${ORIGIN}/chuangxin/baigebao/payFail?tenantId=${tenantId}&orderNo=${no}`;
   return url;
 };
 
@@ -319,12 +324,13 @@ const onSaveOrder = async (risk: any) => {
     if (code === '10000') {
       onUnderWrite({
         ...order,
-        id: data.data,
+        orderNo: data.data,
         extInfo: {
           extraInfo: {
             renewalDK: trailData.renewalDK,
             paymentMethod: trailData.paymentMethod,
-            successJumpUrl: getPayCallbackUrl(data.data),
+            successJumpUrl: getPaySuccessCallbackUrl(data.data),
+            failUrl: getPayFailCallbackUrl(data.data),
           },
         },
       });
@@ -398,14 +404,14 @@ const onPremiumCalcWithValid = () => {
 };
 
 const onNext = async () => {
-  if (orderId) {
+  if (orderNo) {
     router.push({
       path: '/chuangxin/baigebao/guaranteeUpgrade',
       query: {
         ...route.query,
         tenantId,
         productCode: 'BWYL2022',
-        orderId,
+        orderNo,
       },
     });
     return;
@@ -433,7 +439,7 @@ const onNext = async () => {
 watch(
   () => trailData,
   () => {
-    if (detail.value && insureDetail.value && !orderId) {
+    if (detail.value && insureDetail.value && !orderNo) {
       // 验证通过才去试算
       if (validCalcData()) {
         onPremiumCalc();
@@ -447,7 +453,7 @@ watch(
 );
 
 const getOrderById = async () => {
-  const res = await getTenantOrderDetail({ id: orderId, tenantId });
+  const res = await getTenantOrderDetail({ orderNo, tenantId });
   const { code, data } = res;
   if (code === '10000') {
     const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
@@ -492,7 +498,7 @@ const fetchData = async () => {
     }
   });
 
-  if (orderId) {
+  if (orderNo) {
     // 这里要轮询，支付完成后，跳转回来，订单状态可能没有及时更新
     getOrderById();
   } else {

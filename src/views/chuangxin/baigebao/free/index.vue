@@ -179,7 +179,6 @@ const onSubmit = async (e: UserInfoProps) => {
         },
       });
     }
-    Toast.clear();
   } catch (error) {
     console.log(error);
     Toast.clear();

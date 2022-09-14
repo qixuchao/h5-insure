@@ -182,6 +182,12 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     meta: { title: '保障升级' },
     component: () => import('@/views/chuangxin/baigebao/upgrade/index.vue'),
   },
+  {
+    name: '支付失败',
+    path: '/chuangxin/baigebao/payFail',
+    meta: { title: '支付失败' },
+    component: () => import('@/views/chuangxin/baigebao/payFail/index.vue'),
+  },
 ];
 
 export default asyncRoutes;

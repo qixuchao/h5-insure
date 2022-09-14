@@ -116,7 +116,7 @@ onBeforeUnmount(() => {
       &::after {
         content: '';
         position: absolute;
-        z-index: 9999999999;
+        z-index: 9;
         bottom: 0;
         left: 50%;
         width: 56px;
