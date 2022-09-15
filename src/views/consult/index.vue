@@ -29,7 +29,7 @@
       </div>
       <div class="equity"></div>
       <div class="describe">
-        以上仅供权益宣传简单说明，具体权益内容及使用规则由权益服务方——青岛医护之家解释及说明，权益用户需在权益卡激活时充分了解知悉，双方因此产生的争议与白鸽保经纪无关。
+        以上仅供权益宣传简单说明，具体权益内容及使用规则由权益服务方——青岛医护之家解释及说明，权益用户需在权益卡激活时充分了解知悉，双方因此产生的争议与白鸽宝保险经纪无关。
       </div>
     </div>
   </ProPageWrap>
@@ -38,6 +38,7 @@
 <script lang="ts" setup>
 import { useRouter, useRoute } from 'vue-router';
 import { sha256 } from 'js-sha256';
+import crypto from '@/utils/crypto';
 import { getUserInfo, buriedMobileVerifyCode, buriedVerifyMobileCode } from '@/api/modules/consult';
 
 const route = useRoute();
@@ -52,7 +53,7 @@ const { phoneNo = '' } = route.query as QueryData;
 
 const userName = ref('');
 
-const phone = ref(phoneNo);
+const phone = ref(crypto.decrypt(phoneNo));
 
 const validCode = ref('');
 
@@ -192,6 +193,13 @@ const getRegister = () => {
     });
   }
 };
+onMounted(() => {
+  // const p = crypto.decrypt(phoneNo);
+  // console.error('从URL拿phoneNo加密串', phoneNo);
+  // console.error('从URL拿phoneNo后解密', p);
+  // console.error('拿手机号再次加密', crypto.encrypt(p));
+  // console.error('自己加密自己解密', crypto.decrypt('efb3b190a12bdd832aacdec96b092cde'));
+});
 </script>
 
 <style lang="scss" scoped>
