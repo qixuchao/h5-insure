@@ -183,6 +183,7 @@ const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<any>(); // 险种信息
 const premium = ref<number>(); // 保费
 const isCheck = from === 'check';
+const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
 
 // 投保人不可修改（赠险）
 const holderDisable = !!(name && certNo && mobile) || !!orderNo;
@@ -413,6 +414,11 @@ const onPremiumCalcWithValid = () => {
 };
 
 const onNext = async () => {
+  const isAgree = formRef.value?.isAgreeFile;
+  if (isCheck && !isAgree) {
+    formRef.value?.previewFile(0);
+    return;
+  }
   if (disable) {
     router.push({
       path: '/chuangxin/baigebao/guaranteeUpgrade',

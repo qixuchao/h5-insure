@@ -2,12 +2,18 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-15 20:44:42
+ * @LastEditTime: 2022-09-15 21:33:45
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
-  <ProPopup :show="isShow" :height="80" class="file-preview-popup-wrap" :closeable="false">
+  <ProPopup
+    v-model:show="isShow"
+    :height="80"
+    class="file-preview-popup-wrap"
+    :closeable="false"
+    @close="emits('update:show', false)"
+  >
     <ProTab
       v-model:active="currentActiveIndex"
       :list="
@@ -39,12 +45,13 @@ const props = withDefaults(defineProps<{ show: boolean; activeIndex: number; con
   activeIndex: 0,
 });
 
-const emits = defineEmits(['update:show']);
+const emits = defineEmits(['update:show', 'submit']);
 const isShow = ref<boolean>(props.show);
 const currentActiveIndex = ref<number>(props.activeIndex);
 
 const agreeMent = () => {
   emits('update:show', false);
+  emits('submit');
 };
 
 watch(

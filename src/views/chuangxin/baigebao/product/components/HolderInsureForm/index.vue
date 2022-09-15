@@ -164,6 +164,7 @@
         v-model:show="showFilePreview"
         :content-list="productAttachmentList.concat(rateAttachmentList)"
         :active-index="activeIndex"
+        @submit="onSubmit"
       ></FilePreview>
 
       <div v-if="props.isCheck">
@@ -275,6 +276,7 @@ const state = reactive({
 
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
+const isAgreeFile = ref<boolean>(false);
 
 const nameValidator = (name: string) => {
   if (validateName(name)) {
@@ -298,6 +300,11 @@ const productAttachmentList = computed(() => {
     ) || []
   );
 });
+
+const onSubmit = () => {
+  isAgreeFile.value = true;
+  return isAgreeFile;
+};
 
 const previewFile = (index: number) => {
   activeIndex.value = index;
@@ -383,6 +390,9 @@ watch(
 
 defineExpose({
   validateForm,
+  previewFile,
+  isAgreeFile,
+  onSubmit,
 });
 </script>
 
