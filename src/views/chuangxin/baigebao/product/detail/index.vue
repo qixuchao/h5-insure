@@ -129,9 +129,6 @@ import {
 } from './utils';
 import { genaratePremiumCalcData, transformData, genarateOrderParam } from '../../utils';
 import themeVars from '../../theme';
-import modalBg from '@/assets/images/chuangxin/modal-bg.png';
-import upBtn from '@/assets/images/chuangxin/up-btn.png';
-import logo from '@/assets/images/chuangxin/logo.png';
 
 const router = useRouter();
 const route = useRoute();

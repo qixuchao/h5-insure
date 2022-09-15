@@ -7,17 +7,17 @@
 -->
 <template>
   <div class="page-activity-order">
-    <img class="header-img" :src="orderPng" />
     <div class="card">
-      <div class="product-name">{{ detail?.productName }}</div>
-      <div class="desc">被保险人：{{ orderDetail?.tenantOrderInsuredList[0].name }}</div>
-      <div class="desc">保单号：{{ orderDetail?.orderNo }}</div>
-      <!-- <div class="desc">下次扣款时间：{{ orderDetail?.orderNo }}</div> -->
-      <div class="desc">
-        后续每月保费：{{ getFloat(orderDetail?.tenantOrderInsuredList[0].tenantOrderProductList[0].premium || '') }} 元
+      <div class="title">{{ detail?.productName }}</div>
+      <div class="content">
+        <div class="desc">被保险人：{{ orderDetail?.tenantOrderInsuredList[0].name }}</div>
+        <div class="desc">保单号：{{ orderDetail?.orderNo }}</div>
+        <div class="desc">
+          后续每月保费：{{ getFloat(orderDetail?.tenantOrderInsuredList[0].tenantOrderProductList[0].premium || '') }}
+          元
+        </div>
       </div>
     </div>
-    <!-- <div class="product-name">升级生效时间：{{ orderDetail?.orderNo }}</div> -->
   </div>
 </template>
 
@@ -76,15 +76,36 @@ onMounted(() => {
 
 <style lang="scss">
 .page-activity-order {
-  .header-img {
-    width: 100%;
-  }
+  background: url('@/assets/images/chuangxin/order.png') no-repeat;
+  background-size: contain;
+  padding: 20px;
+
   .card {
-    margin: 25px;
-    padding: 20px;
+    margin-top: 270px;
+    background-color: #fff;
+    padding: 0 25px;
     border-radius: 16px;
-    box-shadow: 10px 0px 10px 0px rgb(0 0 0 / 12%);
-    margin-top: -10px;
+    .title {
+      padding: 30px 0;
+      font-size: 30px;
+      font-weight: 500;
+      color: $zaui-text;
+      line-height: 30px;
+      border-bottom: 1px solid #e1e1e1;
+    }
+    .content {
+      margin: 30px 0;
+    }
+    .desc {
+      font-size: 30px;
+      font-weight: 400;
+      color: $zaui-text;
+      line-height: 40px;
+      margin: 10px 0;
+      &:first-child {
+        margin-top: 20px;
+      }
+    }
   }
 }
 </style>
