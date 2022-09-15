@@ -75,7 +75,7 @@
       <div class="trial-operate">
         <div v-if="state.retrialTip" class="retrial-tip">
           条件更改后，需要重新试算
-          <span class="close-icon" @click="closeTip">X</span>
+          <span class="close-icon" @click="closeTip"></span>
         </div>
         <VanButton v-if="state.canTrial" type="primary" @click="trial">去试算</VanButton>
         <VanButton v-else type="primary" @click="goNextPage">立即投保</VanButton>
@@ -527,6 +527,11 @@ onBeforeMount(() => {
         align-items: center;
         .close-icon {
           margin-left: 13px;
+          background-image: url('@/assets/images/close-white.png');
+          background-repeat: no-repeat;
+          background-size: contain;
+          width: 18px;
+          height: 18px;
         }
         &:after {
           content: ' ';
