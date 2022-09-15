@@ -176,6 +176,7 @@ const onSubmit = async (e: UserInfoProps) => {
           certNo: state.userInfo.certNo,
           name: state.userInfo.name,
           productCode: 'BWYL2021',
+          agentCode,
         },
       });
     }
