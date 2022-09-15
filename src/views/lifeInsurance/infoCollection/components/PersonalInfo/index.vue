@@ -648,6 +648,7 @@ watch(
 <style lang="scss" scope>
 .input-extra {
   margin-left: 25px;
+  margin-top: 14px;
 }
 .date-extra {
   padding-left: $zaui-card-border;

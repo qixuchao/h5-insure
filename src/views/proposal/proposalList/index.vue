@@ -336,7 +336,9 @@ watch(
         width: 33px;
         height: 33px;
         display: inline-block;
-        background: #ecedf2;
+        background-image: url('@/assets/images/img-zhankai.png');
+        background-repeat: no-repeat;
+        background-size: contain;
         margin-left: 12px;
         border-radius: 50%;
       }

@@ -118,8 +118,30 @@
   &::after {
     border-width: 0;
   }
-
 }
+
+.van-icon-success {
+  &::before {
+    content: '';
+    background-image: url("@/assets/images/check-gouxuan.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.van-icon-cross {
+  &::before {
+    content: '';
+    width: 24px;
+    height: 24px;
+    background-image: url("@/assets/images/img-guanbi.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+  }
+}
+
 
 // dialog
 .van-dialog {
