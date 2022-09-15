@@ -57,32 +57,33 @@
         }}</van-button>
       </div>
     </div>
-  </van-config-provider>
-  <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
-    <ProScrollTab
-      v-if="guaranteeList.length > 1"
-      :list="
-        guaranteeList.map((item, index) => ({
-          title: item.guaranteeType,
-          slotName: `guarantee-${index}`,
-        }))
-      "
-      class="tab"
-    ></ProScrollTab>
-    <div class="guarantee-list">
-      <div v-for="(item, index) in guaranteeList[activePlan].titleAndDescVOS" :key="index" class="guarantee-item">
-        <div class="title">{{ item.title }}</div>
-        <div v-dompurify-html="item.content" class="content" />
+    <PreNotice></PreNotice>
+    <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
+      <ProScrollTab
+        v-if="guaranteeList.length > 1"
+        :list="
+          guaranteeList.map((item, index) => ({
+            title: item.guaranteeType,
+            slotName: `guarantee-${index}`,
+          }))
+        "
+        class="tab"
+      ></ProScrollTab>
+      <div class="guarantee-list">
+        <div v-for="(item, index) in guaranteeList[activePlan].titleAndDescVOS" :key="index" class="guarantee-item">
+          <div class="title">{{ item.title }}</div>
+          <div v-dompurify-html="item.content" class="content" />
+        </div>
       </div>
-    </div>
-  </ProPopup>
-  <UpgradeModal
-    :is-show="showModal"
-    :premium="premium"
-    :attachment-list="detail?.tenantProductInsureVO?.attachmentVOList"
-    @on-confirm="onConfirm"
-    @on-close="onClose"
-  />
+    </ProPopup>
+    <UpgradeModal
+      :is-show="showModal"
+      :premium="premium"
+      :attachment-list="detail?.tenantProductInsureVO?.attachmentVOList"
+      @on-confirm="onConfirm"
+      @on-close="onClose"
+    />
+  </van-config-provider>
 </template>
 
 <script lang="ts" setup>
@@ -103,6 +104,7 @@ import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { SOCIAL_SECURITY_ENUM, RELATION_HOLDER_ENUM } from '@/common/constants/infoCollection';
 import { PAY_METHOD_ENUM } from '@/common/constants/bankCard';
 import { RISK_TYPE_ENUM, RULE_ENUM } from '@/common/constants/trial';
+import PreNotice from '../components/PreNotice/index.vue';
 
 import {
   premiumCalc,

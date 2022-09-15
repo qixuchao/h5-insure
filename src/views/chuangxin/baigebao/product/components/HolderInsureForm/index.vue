@@ -1,171 +1,177 @@
 <template>
-  <ProForm ref="formRef">
-    <div>
-      <div class="title">投保人</div>
-      <ProField
-        v-model="state.formInfo.holder.name"
-        label="姓名"
-        name="name"
-        required
-        placeholder="请输入姓名"
-        maxlength="10"
-        :rules="[{ validator: nameValidator }]"
-        :is-view="props.holderDisable || props.disable"
-      />
-      <ProField
-        v-model="state.formInfo.holder.certNo"
-        label="证件号码"
-        name="certNo"
-        required
-        placeholder="请输入身份证号"
-        maxlength="20"
-        :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
-        :is-view="props.holderDisable || props.disable"
-      />
-      <ProField
-        v-model="state.formInfo.holder.mobile"
-        label="手机号"
-        name="mobile"
-        required
-        placeholder="请输入手机号"
-        maxlength="11"
-        :validate-type="[VALIDATE_TYPE_ENUM.PHONE]"
-        :is-view="props.holderDisable || props.disable"
-      />
-      <ProField
-        v-model="state.formInfo.holder.socialFlag"
-        label="有无社保"
-        name="socialFlag"
-        required
-        placeholder="请选择"
-      >
-        <template #input>
-          <ProRadioButton
-            v-model="state.formInfo.holder.socialFlag"
-            :disabled="props.disable"
-            :options="SOCIAL_SECURITY"
-          ></ProRadioButton>
-        </template>
-      </ProField>
-    </div>
-    <ProDivider />
-    <div>
-      <div class="title">为谁投保</div>
-      <ProField
-        v-model="state.formInfo.insured.relationToHolder"
-        class="relation-to-Holder"
-        label=""
-        name="relationToHolder"
-        placeholder="请选择"
-      >
-        <template #input>
-          <ProRadioButton
-            v-model="state.formInfo.insured.relationToHolder"
-            :disabled="props.disable"
-            :options="RELATION_HOLDER_LIST"
-          ></ProRadioButton>
-        </template>
-      </ProField>
-      <ProField
-        v-model="state.formInfo.insured.name"
-        label="姓名"
-        name="name"
-        required
-        maxlength="10"
-        :rules="[{ validator: nameValidator }]"
-        :is-view="state.insureDisable || props.disable"
-      />
-      <ProField
-        v-model="state.formInfo.insured.certNo"
-        label="证件号码"
-        name="certNo"
-        required
-        placeholder="请输入身份证号"
-        maxlength="20"
-        :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
-        :is-view="state.insureDisable || props.disable"
-      />
-      <ProField v-model="state.formInfo.insured.socialFlag" label="有无社保" name="name" required placeholder="请选择">
-        <template #input>
-          <ProRadioButton
-            v-model="state.formInfo.insured.socialFlag"
-            :disabled="props.disable || state.insureDisable"
-            :options="SOCIAL_SECURITY"
-          ></ProRadioButton>
-        </template>
-      </ProField>
-    </div>
-    <ProDivider />
-    <div>
-      <div class="title">保费支付</div>
-      <ProField label="每月保费" class="pro-field" :is-view="true">
-        <template #input> {{ getFloat(props.premium) }} 元/月 共12期</template>
-      </ProField>
-      <ProPicker
-        v-model="state.formInfo.paymentMethod"
-        name="paymentMethod"
-        label="支付方式"
-        placeholder="请选择"
-        :data-source="ACTIVITY_PAY_METHOD_LIST"
-        :is-view="props.disable || state.formInfo.paymentMethodDisable"
-        required
-      >
-        <!-- <template #input> {{ state.formInfo.premium }} /月 共12期</template> -->
-      </ProPicker>
+  <van-config-provider :theme-vars="themeVars">
+    <ProForm ref="formRef">
+      <div>
+        <div class="title">投保人</div>
+        <ProField
+          v-model="state.formInfo.holder.name"
+          label="姓名"
+          name="name"
+          required
+          placeholder="请输入姓名"
+          maxlength="10"
+          :rules="[{ validator: nameValidator }]"
+          :is-view="props.holderDisable || props.disable"
+        />
+        <ProField
+          v-model="state.formInfo.holder.certNo"
+          label="证件号码"
+          name="certNo"
+          required
+          placeholder="请输入身份证号"
+          maxlength="20"
+          :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
+          :is-view="props.holderDisable || props.disable"
+        />
+        <ProField
+          v-model="state.formInfo.holder.mobile"
+          label="手机号"
+          name="mobile"
+          required
+          placeholder="请输入手机号"
+          maxlength="11"
+          :validate-type="[VALIDATE_TYPE_ENUM.PHONE]"
+          :is-view="props.holderDisable || props.disable"
+        />
+        <ProField
+          v-model="state.formInfo.holder.socialFlag"
+          label="有无社保"
+          name="socialFlag"
+          required
+          placeholder="请选择"
+        >
+          <template #input>
+            <ProRadioButton
+              v-model="state.formInfo.holder.socialFlag"
+              :disabled="props.disable"
+              :options="SOCIAL_SECURITY"
+            ></ProRadioButton>
+          </template>
+        </ProField>
+      </div>
+      <ProDivider />
+      <div>
+        <div class="title">为谁投保</div>
+        <ProField
+          v-model="state.formInfo.insured.relationToHolder"
+          class="relation-to-Holder"
+          label=""
+          name="relationToHolder"
+          placeholder="请选择"
+        >
+          <template #input>
+            <ProRadioButton
+              v-model="state.formInfo.insured.relationToHolder"
+              :disabled="props.disable"
+              :options="RELATION_HOLDER_LIST"
+            ></ProRadioButton>
+          </template>
+        </ProField>
+        <ProField
+          v-model="state.formInfo.insured.name"
+          label="姓名"
+          name="name"
+          required
+          maxlength="10"
+          :rules="[{ validator: nameValidator }]"
+          :is-view="state.insureDisable || props.disable"
+        />
+        <ProField
+          v-model="state.formInfo.insured.certNo"
+          label="证件号码"
+          name="certNo"
+          required
+          placeholder="请输入身份证号"
+          maxlength="20"
+          :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
+          :is-view="state.insureDisable || props.disable"
+        />
+        <ProField
+          v-model="state.formInfo.insured.socialFlag"
+          label="有无社保"
+          name="name"
+          required
+          placeholder="请选择"
+        >
+          <template #input>
+            <ProRadioButton
+              v-model="state.formInfo.insured.socialFlag"
+              :disabled="props.disable || state.insureDisable"
+              :options="SOCIAL_SECURITY"
+            ></ProRadioButton>
+          </template>
+        </ProField>
+      </div>
+      <ProDivider />
+      <div>
+        <div class="title">保费支付</div>
+        <ProField label="每月保费" class="pro-field" :is-view="true">
+          <template #input> {{ getFloat(props.premium) }} 元/月 共12期</template>
+        </ProField>
+        <ProPicker
+          v-model="state.formInfo.paymentMethod"
+          name="paymentMethod"
+          label="支付方式"
+          placeholder="请选择"
+          :data-source="ACTIVITY_PAY_METHOD_LIST"
+          :is-view="props.disable || state.formInfo.paymentMethodDisable"
+          required
+        >
+          <!-- <template #input> {{ state.formInfo.premium }} /月 共12期</template> -->
+        </ProPicker>
 
-      <ProField label="开通下一年自主重新投保" class="pro-field" name="renewalDK" placeholder="请选择" :border="false">
-        <template #input>
-          <ProTabButton
-            :disabled="props.allDisabled"
-            title="免费开通"
-            :active="state.formInfo.renewalDK"
-            @click="onRenewalDK"
-          ></ProTabButton>
-        </template>
-      </ProField>
-      <div class="attachment-list">
-        <div class="product-attachment-list">
-          请您重点阅读并知晓
-          <ProPDFviewer
-            v-for="(item, index) in productAttachmentList"
-            :key="index"
-            class="file-name"
-            :title="`《${item.attachmentName}》`"
-            :content="item.attachmentUri"
-            type="pdf"
-          >
+        <ProField
+          label="开通下一年自主重新投保"
+          class="pro-field"
+          name="renewalDK"
+          placeholder="请选择"
+          :border="false"
+        >
+          <template #input>
+            <ProTabButton
+              :disabled="props.allDisabled"
+              title="免费开通"
+              :active="state.formInfo.renewalDK"
+              @click="onRenewalDK"
+            ></ProTabButton>
+          </template>
+        </ProField>
+        <div class="attachment-list">
+          <div class="product-attachment-list">
+            请您重点阅读并知晓
             <span
-              v-if="index !== (productDetail?.tenantProductInsureVO?.attachmentVOList || []).length - 1"
-              class="dun-hao"
-              >、</span
+              v-for="(item, index) in productAttachmentList"
+              :key="`attachment-${index}`"
+              class="file-name"
+              @click="previewFile(index)"
+              >{{ `《${item.attachmentName}》` }}</span
             >
-          </ProPDFviewer>
-        </div>
-        <div class="rate-attachment-list">
-          *保费与被保人年龄、医保情况相关，详见
-          <ProPDFviewer
-            v-for="(item, index) in rateAttachmentList"
-            :key="index"
-            class="file-name"
-            :title="`《${item.attachmentName}》`"
-            :content="item.attachmentUri"
-            type="pdf"
-          >
+          </div>
+          <div class="rate-attachment-list">
+            *保费与被保人年龄、医保情况相关，详见
             <span
-              v-if="index !== (productDetail?.tenantProductInsureVO?.attachmentVOList || []).length - 1"
-              class="dun-hao"
-              >、</span
+              v-for="(item, index) in rateAttachmentList"
+              :key="`rate-${index}`"
+              class="file-name"
+              @click="previewFile(productAttachmentList.length + index)"
+              >{{ `《${item.attachmentName}》` }}</span
             >
-          </ProPDFviewer>
+          </div>
         </div>
       </div>
-    </div>
-    <ProDivider />
-  </ProForm>
+      <ProDivider />
+      <FilePreview
+        v-model:show="showFilePreview"
+        :content-list="productAttachmentList.concat(rateAttachmentList)"
+        :active-index="activeIndex"
+      ></FilePreview>
+    </ProForm>
+  </van-config-provider>
 </template>
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
 import type { FormInstance } from 'vant';
+import themeVars from '../../../theme';
 import {
   RELATION_HOLDER_ENUM,
   RELATION_HOLDER_LIST, // 投被保人关系
@@ -178,6 +184,7 @@ import { VALIDATE_TYPE_ENUM } from '@/common/constants';
 import { ProductDetail } from '@/api/modules/product.data';
 import { RiskAttachmentVoItem } from '@/api/modules/trial.data';
 import { validateName } from '@/utils/validator';
+import FilePreview from '../FilePreview/index.vue';
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
@@ -220,6 +227,9 @@ const state = reactive({
   formInfo: props.formInfo,
 });
 
+const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
+const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
+
 const nameValidator = (name: string) => {
   if (validateName(name)) {
     return true;
@@ -242,6 +252,11 @@ const productAttachmentList = computed(() => {
     ) || []
   );
 });
+
+const previewFile = (index: number) => {
+  activeIndex.value = index;
+  showFilePreview.value = true;
+};
 
 const validateForm = () => {
   return new Promise((resolve, reject) => {
@@ -319,6 +334,10 @@ defineExpose({
   color: #333333;
   line-height: 30px;
   padding: 30px 25px;
+}
+
+.file-name {
+  color: $primary-color;
 }
 
 .attachment-list {
