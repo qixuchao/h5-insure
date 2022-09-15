@@ -194,11 +194,11 @@ const getRegister = () => {
   }
 };
 onMounted(() => {
-  // const p = crypto.decrypt(phoneNo);
-  // console.error('从URL拿phoneNo加密串', phoneNo);
-  // console.error('从URL拿phoneNo后解密', p);
-  // console.error('拿手机号再次加密', crypto.encrypt(p));
-  // console.error('自己加密自己解密', crypto.decrypt('efb3b190a12bdd832aacdec96b092cde'));
+  const p = crypto.decrypt(phoneNo);
+  console.error('从URL拿phoneNo加密串', phoneNo);
+  console.error('从URL拿phoneNo后解密', p);
+  console.error('拿手机号再次加密', crypto.encrypt(p));
+  console.error('自己加密自己解密', crypto.decrypt(crypto.encrypt(p)));
 });
 </script>
 

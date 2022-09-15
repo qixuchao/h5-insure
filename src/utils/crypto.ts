@@ -3,12 +3,12 @@
  * @Autor: kevin.liang
  * @Date: 2022-09-15 14:22:16
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-09-15 18:03:36
+ * @LastEditTime: 2022-09-15 19:05:28
  */
 // crypto.js 文件
 import CryptoJS from 'crypto-js';
 // 秘钥, 建议设置其他的字符, 这里只是为了演示，一般长度是16位
-const key = CryptoJS.enc.Latin1.parse('385f33cb91484b04a177828829081ab7');
+const key = CryptoJS.enc.Latin1.parse('02adc2368daf44c1864b721cc684fb7f');
 // 偏移量, 建议设置其他的字符, 这里只是为了演示，一般长度是16位
 const iv = CryptoJS.enc.Latin1.parse('37fa77f6a3b0462d');
 export default {

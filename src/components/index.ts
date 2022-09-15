@@ -4,7 +4,7 @@ import { Component } from 'vue';
  * @Autor: kevin.liang
  * @Date: 2022-03-08 13:51:54
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-23 09:58:10
+ * @LastEditTime: 2022-09-15 19:58:08
  */
 /* eslint-disable prettier/prettier */
 import ZaAvatar from './ZaAvatar/index.vue';
@@ -23,6 +23,7 @@ import ProField from './ProField/index.vue'
 import ProRadioButton from './ProRadioButton/index.vue'
 import ProCheckButton from './ProCheckButton/index.vue'
 import ProTabButton from './ProCheckButton/TabButton.vue'
+import ProTab from './ProTab/index.vue'
 import ProCheckboxButton from './ProCheckboxButton/index.vue'
 import ProMessage from './ProMessage/index.vue'
 import ProCard from './ProCard/index.vue'
@@ -72,7 +73,8 @@ export const globalComs: ComponentMap = {
   ProFilePreview,
   ProCascader,
   ProPDFviewer,
-  ProScrollTab
+  ProScrollTab,
+  ProTab
 };
 
 function install(app: any) {

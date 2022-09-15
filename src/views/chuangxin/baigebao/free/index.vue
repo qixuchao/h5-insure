@@ -62,6 +62,7 @@ interface QueryData {
   phoneNo: string; // 手机号
   agentCode: string;
   orderNo: string;
+  flag: string;
   [key: string]: string;
 }
 
@@ -79,6 +80,7 @@ const {
   saleChannelId,
   agentCode,
   paymentMethod,
+  flag,
 } = route.query as QueryData;
 
 // 为true, 显示手机验证表单
@@ -107,6 +109,23 @@ const insureDetail = ref<any>();
 
 // 第一步 验证手机号
 const onVerify = async (e: UserInfoProps) => {
+  // 审核的
+  if (flag === '1') {
+    if (!state.agree) {
+      Toast('请勾选协议');
+      return;
+    }
+    router.push({
+      path: '/chuangxin/baigebao/productDetail',
+      query: {
+        ...route.query,
+        tenantId,
+        phoneNo: state.userInfo.mobile,
+        productCode: 'BWYL2021',
+      },
+    });
+    return;
+  }
   // 填写的手机号
   state.userInfo.mobile = e.mobile;
   // 通过手机号查订单的信息
@@ -176,6 +195,7 @@ const onSubmit = async (e: UserInfoProps) => {
           certNo: state.userInfo.certNo,
           name: state.userInfo.name,
           productCode: 'BWYL2021',
+          agentCode,
         },
       });
     }

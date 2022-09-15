@@ -53,36 +53,37 @@
           总保费<span>￥{{ toLocal(premium as number) }}/月</span>
         </div>
         <van-button type="primary" class="right" :disabled="isDisableNext" @click="onNext">{{
-          orderNo ? '升级保障' : '立即投保'
+          disable ? '升级保障' : '立即投保'
         }}</van-button>
       </div>
     </div>
-  </van-config-provider>
-  <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
-    <ProScrollTab
-      v-if="guaranteeList.length > 1"
-      :list="
-        guaranteeList.map((item, index) => ({
-          title: item.guaranteeType,
-          slotName: `guarantee-${index}`,
-        }))
-      "
-      class="tab"
-    ></ProScrollTab>
-    <div class="guarantee-list">
-      <div v-for="(item, index) in guaranteeList[activePlan].titleAndDescVOS" :key="index" class="guarantee-item">
-        <div class="title">{{ item.title }}</div>
-        <div v-dompurify-html="item.content" class="content" />
+    <PreNotice></PreNotice>
+    <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
+      <ProScrollTab
+        v-if="guaranteeList.length > 1"
+        :list="
+          guaranteeList.map((item, index) => ({
+            title: item.guaranteeType,
+            slotName: `guarantee-${index}`,
+          }))
+        "
+        class="tab"
+      ></ProScrollTab>
+      <div class="guarantee-list">
+        <div v-for="(item, index) in guaranteeList[activePlan].titleAndDescVOS" :key="index" class="guarantee-item">
+          <div class="title">{{ item.title }}</div>
+          <div v-dompurify-html="item.content" class="content" />
+        </div>
       </div>
-    </div>
-  </ProPopup>
-  <UpgradeModal
-    :is-show="showModal"
-    :premium="premium"
-    :attachment-list="detail?.tenantProductInsureVO?.attachmentVOList"
-    @on-confirm="onConfirm"
-    @on-close="onClose"
-  />
+    </ProPopup>
+    <UpgradeModal
+      :is-show="showModal"
+      :premium="premium"
+      :attachment-list="detail?.tenantProductInsureVO?.attachmentVOList"
+      @on-confirm="onConfirm"
+      @on-close="onClose"
+    />
+  </van-config-provider>
 </template>
 
 <script lang="ts" setup>
@@ -103,6 +104,7 @@ import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { SOCIAL_SECURITY_ENUM, RELATION_HOLDER_ENUM } from '@/common/constants/infoCollection';
 import { PAY_METHOD_ENUM } from '@/common/constants/bankCard';
 import { RISK_TYPE_ENUM, RULE_ENUM } from '@/common/constants/trial';
+import PreNotice from '../components/PreNotice/index.vue';
 
 import {
   premiumCalc,
@@ -139,6 +141,7 @@ interface QueryData {
   phoneNo: string; // 手机号
   agentCode: string;
   orderNo: string;
+  pageCode: string;
   [key: string]: string;
 }
 
@@ -152,6 +155,7 @@ const {
   paymentMethod,
   certNo,
   name,
+  pageCode,
 } = route.query as QueryData;
 
 const tabList = ref<Array<{ title: string; slotName: string }>>([
@@ -177,10 +181,10 @@ const insureDetail = ref<any>(); // 险种信息
 const premium = ref<number>(); // 保费
 
 // 投保人不可修改（赠险）
-const holderDisable = !!(name && certNo && mobile);
+const holderDisable = !!(name && certNo && mobile) || !!orderNo;
 // 订单进入的，全部信息都不可修改
 // TODO 根据订单状态判断，后端优化流程后改
-const disable = !!orderNo;
+const disable = pageCode === 'payBack';
 // 赠险进入，从链接上默认取投保人数据
 const trailData = reactive({
   holder: {
@@ -199,7 +203,7 @@ const trailData = reactive({
   },
   paymentMethod,
   paymentMethodDisable: !!paymentMethod, // 支付方式不能修改
-  renewalDK: true,
+  renewalDK: 'Y',
 });
 
 const showModal = ref<boolean>(false);
@@ -217,6 +221,7 @@ const onConfirm = () => {
       tenantId,
       productCode: 'BWYL2022',
       orderNo,
+      agentCode,
     },
   });
 };
@@ -290,12 +295,12 @@ const onUnderWrite = async (o: any) => {
 };
 
 const getPaySuccessCallbackUrl = (no: number) => {
-  const url = `${ORIGIN}/chuangxin/baigebao/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderNo=${no}`;
+  const url = `${ORIGIN}/chuangxin/baigebao/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack`;
   return url;
 };
 
 const getPayFailCallbackUrl = (no: number) => {
-  const url = `${ORIGIN}/chuangxin/baigebao/payFail?tenantId=${tenantId}&orderNo=${no}`;
+  const url = `${ORIGIN}/chuangxin/baigebao/payFail?tenantId=${tenantId}&orderNo=${no}&agentCode=${agentCode}`;
   return url;
 };
 
@@ -307,7 +312,7 @@ const onSaveOrder = async (risk: any) => {
     detail: detail.value as ProductDetail,
     insureDetail: insureDetail.value,
     paymentMethod: trailData.paymentMethod,
-    renewalDK: trailData.renewalDK ? 'Y' : 'N', // 开通下一年
+    renewalDK: trailData.renewalDK, // 开通下一年
     successJumpUrl: '',
     premium: premium.value as number, // 保费
     holder: trailData.holder,
@@ -404,7 +409,7 @@ const onPremiumCalcWithValid = () => {
 };
 
 const onNext = async () => {
-  if (orderNo) {
+  if (disable) {
     router.push({
       path: '/chuangxin/baigebao/guaranteeUpgrade',
       query: {
@@ -412,6 +417,7 @@ const onNext = async () => {
         tenantId,
         productCode: 'BWYL2022',
         orderNo,
+        agentCode,
       },
     });
     return;
@@ -439,7 +445,7 @@ const onNext = async () => {
 watch(
   () => trailData,
   () => {
-    if (detail.value && insureDetail.value && !orderNo) {
+    if (detail.value && insureDetail.value && !disable) {
       // 验证通过才去试算
       if (validCalcData()) {
         onPremiumCalc();
@@ -474,7 +480,11 @@ const getOrderById = async () => {
     };
     trailData.paymentMethod = extInfo.extraInfo.paymentMethod;
     premium.value = tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium;
-    trailData.renewalDK = extInfo.extraInfo.renewalDK === 'Y';
+    trailData.renewalDK = extInfo.extraInfo.renewalDK ? 'Y' : 'N';
+    // TODO 卡流程，先这样处理
+    if (pageCode === 'productDetail') {
+      return;
+    }
     // 已承保/支付成功
     if (
       data.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY ||

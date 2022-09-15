@@ -57,6 +57,7 @@ import themeVars from '../theme';
 import { getReqData, transformData, compositionTrailData, genarateOrderParam, getFloat } from '../utils';
 import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
+import { ORIGIN } from '@/utils';
 
 const route = useRoute();
 
@@ -70,7 +71,7 @@ interface QueryData {
   [key: string]: string;
 }
 
-const { productCode = 'BWYL2022', tenantId, orderNo } = route.query as QueryData;
+const { productCode = 'BWYL2022', tenantId, orderNo, agentCode } = route.query as QueryData;
 
 const detail = ref<ProductDetail>(); // 产品详情
 const insureDetail = ref<any>(); // 险种详情
@@ -89,6 +90,7 @@ const onSaveOrder = async () => {
     tenantId,
     applicationNo: orderDetail.value.applicationNo,
     policyNo: orderDetail.value.policyNo,
+    saleUserId: agentCode,
     saleChannelId: orderDetail.value.saleChannelId,
     orderStatus: ORDER_STATUS_ENUM.UP_PROCESSING,
     orderTopStatus: '-1',
@@ -127,6 +129,10 @@ const onSaveOrder = async () => {
   return '';
 };
 
+const getOrderDetailUrl = (oNo: string) => {
+  return `${ORIGIN}/chuangxin/baigebao/orderDetail?orderNo=${oNo}&productCode=${productCode}&tenantId=${tenantId}`;
+};
+
 // 保费试算 -> 订单保存 -> 升级保障
 const onPremiumCalc = async () => {
   const reqData = getReqData({
@@ -135,6 +141,7 @@ const onPremiumCalc = async () => {
     orderDetail: orderDetail.value,
     productDetail: detail.value as ProductDetail,
     insureDetail: insureDetail.value,
+    successJumpUrl: '',
   });
   const res = await endorsementPremiumCalc(reqData);
   const { code, data } = res;
@@ -151,6 +158,7 @@ const upgrade = async (oNo: string) => {
     orderDetail: orderDetail.value,
     productDetail: detail.value as ProductDetail,
     insureDetail: insureDetail.value,
+    successJumpUrl: getOrderDetailUrl(oNo),
   });
   const res = await EndorsementUp({
     orderNo: oNo,
