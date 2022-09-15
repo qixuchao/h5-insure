@@ -70,7 +70,7 @@ interface QueryData {
   [key: string]: string;
 }
 
-const { productCode = 'BWYL2022', tenantId, orderNo } = route.query as QueryData;
+const { productCode = 'BWYL2022', tenantId, orderNo, agentCode } = route.query as QueryData;
 
 const detail = ref<ProductDetail>(); // 产品详情
 const insureDetail = ref<any>(); // 险种详情
@@ -89,6 +89,7 @@ const onSaveOrder = async () => {
     tenantId,
     applicationNo: orderDetail.value.applicationNo,
     policyNo: orderDetail.value.policyNo,
+    saleUserId: agentCode,
     saleChannelId: orderDetail.value.saleChannelId,
     orderStatus: ORDER_STATUS_ENUM.UP_PROCESSING,
     orderTopStatus: '-1',

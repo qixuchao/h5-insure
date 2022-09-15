@@ -179,6 +179,7 @@ export const genarateOrderParam = (o: orderParamType) => {
     applicationNo: o.applicationNo,
     policyNo: o.policyNo,
     orderDataSource: '1', // 订单来源
+    saleUserId: o.saleUserId,
     saleChannelId: o.saleChannelId, // 销售渠道id
     orderCategory: o.orderCategory, // 订单类型
     orderStatus: o.orderStatus,
