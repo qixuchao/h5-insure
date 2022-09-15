@@ -117,7 +117,6 @@
           :is-view="props.disable || state.formInfo.paymentMethodDisable"
           required
         >
-          <!-- <template #input> {{ state.formInfo.premium }} /月 共12期</template> -->
         </ProPicker>
 
         <ProField
@@ -139,6 +138,7 @@
         <div class="attachment-list">
           <div class="product-attachment-list">
             请您重点阅读并知晓
+
             <span
               v-for="(item, index) in productAttachmentList"
               :key="`attachment-${index}`"
@@ -165,6 +165,40 @@
         :content-list="productAttachmentList.concat(rateAttachmentList)"
         :active-index="activeIndex"
       ></FilePreview>
+
+      <div>
+        <ProDivider />
+        <div class="title">开通自主重新投保</div>
+        <div class="pro-radio">
+          <ProTabButton
+            v-for="(item, index) in renewalList"
+            :key="index"
+            :title="item.title"
+            :active="state.formInfo.renewalDK === item.value"
+            @click="handleRenewal(item.value)"
+          ></ProTabButton>
+        </div>
+        <div class="desc_arrow">
+          <div
+            :class="['arrow light', { show: state.formInfo.renewalDK === 'Y' || state.formInfo.renewalDK === '' }]"
+          ></div>
+          <div :class="['arrow dark', { show: state.formInfo.renewalDK === 'N' }]"></div>
+        </div>
+        <div v-if="state.formInfo.renewalDK === 'Y'" class="renewal-y-desc renewal-desc">
+          <div class="sub-title">开通后可享受：</div>
+          <div class="desc">安心！开通自动缴费可使保障不间断</div>
+          <div class="desc">省心！下一年重新投保，不用担心断保</div>
+          <div class="desc">放心！无额外费用，开通后可随时取消</div>
+          <div class="desc">提示:本产品为一年期非保证续保产品</div>
+        </div>
+        <div v-else class="renewal-n-desc renewal-desc">
+          <div class="sub-title">未开通，一旦断保将面临：</div>
+          <div class="desc">断保后将失去保障，断保期间出险不可理赔</div>
+          <div class="desc">断保后重新投保，等待期内出险无法理赔</div>
+          <div class="desc">断保后重新投保，需核实健康状况，可能无法投保</div>
+        </div>
+      </div>
+      <ProDivider />
     </ProForm>
   </van-config-provider>
 </template>
@@ -197,7 +231,7 @@ interface Props {
   productDetail: ProductDetail;
   formInfo: {
     paymentMethod: number;
-    renewalDK: boolean;
+    renewalDK: string;
     holder: {
       certNo: string;
       mobile: string;
@@ -221,6 +255,17 @@ const props = withDefaults(defineProps<Props>(), {
   productDetail: {},
   formInfo: () => ({}),
 });
+
+const renewalList = [
+  {
+    value: 'Y',
+    title: '申请开通',
+  },
+  {
+    value: 'N',
+    title: '暂不开通',
+  },
+];
 
 const state = reactive({
   insureDisable: true, // 被保人不可修改
@@ -271,6 +316,19 @@ const validateForm = () => {
   });
 };
 
+// 2个选择的
+const handleRenewal = (value: string) => {
+  if (!props.disable) {
+    if (state.formInfo.renewalDK === value) {
+      // 取消
+      // state.formInfo.renewalDK = '';
+    } else {
+      state.formInfo.renewalDK = value;
+    }
+  }
+};
+
+// 一个选择的
 const onRenewalDK = () => {
   if (!props.disable) {
     state.formInfo.renewalDK = !state.formInfo.renewalDK;
@@ -378,12 +436,12 @@ defineExpose({
 }
 
 :deep(.com-check-btn.activated-disabled) {
-  border: 1px solid #ff6d23;
-  color: #ff6d23;
+  border: 1px solid $primary-color;
+  color: $primary-color;
   background: rgba(255, 109, 35, 0.2);
 }
 :deep(button.active-button) {
-  background-color: #ff6d23;
+  background-color: $primary-color;
   background-image: url('@/assets/images/chuangxin/img-gouxuan.png');
 }
 
@@ -393,5 +451,96 @@ defineExpose({
 
 .pro-field {
   padding: 20px 25px;
+}
+
+.pro-radio {
+  padding: 0 25px;
+  display: flex;
+  justify-content: space-between;
+  button {
+    width: 48%;
+  }
+}
+
+.desc_arrow {
+  height: 30px;
+  display: flex;
+  padding: 0 25px;
+  .arrow {
+    position: relative;
+    flex: 1;
+    height: 30px;
+    visibility: hidden;
+    &::after {
+      content: '';
+      width: 30px;
+      height: 30px;
+      transform: rotate(45deg) translateY(0.08rem);
+      position: absolute;
+      border-left: 1px solid;
+      border-top: 1px solid;
+      left: 50%;
+      bottom: -10px;
+    }
+    &.show {
+      visibility: visible;
+    }
+  }
+  .light {
+    &::after {
+      background: #fffcf9;
+      border-color: #ffe6cc;
+    }
+  }
+  .dark {
+    &::after {
+      background: #fafafa;
+      border-color: #d9d9d9;
+    }
+  }
+}
+
+.renewal-desc {
+  margin: 0 25px 25px 25px;
+  padding: 25px;
+  font-size: 24px;
+  font-weight: 400;
+
+  border-radius: 8px;
+  .sub-title {
+    font-size: 26px;
+    font-weight: 600;
+    color: #4d453f;
+    margin-bottom: 20px;
+  }
+  .desc {
+    padding-left: 40px;
+    color: #909090;
+    margin-bottom: 10px;
+    font-size: 26px;
+    &:last-child {
+      margin-bottom: 0px;
+    }
+  }
+
+  &.renewal-y-desc {
+    background: #fffcf9;
+    border: 1px solid #ffe6cc;
+
+    .desc {
+      background: url('@/assets/images/chuangxin/check.png') no-repeat;
+      background-size: 28px;
+      background-position-y: center;
+    }
+  }
+  &.renewal-n-desc {
+    background: #fafafa;
+    border: 1px solid #d9d9d9;
+    .desc {
+      background: url('@/assets/images/chuangxin/no-check.png') no-repeat;
+      background-size: 28px;
+      background-position-y: center;
+    }
+  }
 }
 </style>

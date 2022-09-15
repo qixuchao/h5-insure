@@ -302,6 +302,7 @@ interface upgradeParamType {
   orderDetail: any; // TODO any
   productDetail: ProductDetail;
   insureDetail: any; // TODO any
+  successJumpUrl: string;
 }
 
 // 升级保障保费试算/升级需要的参数
@@ -315,7 +316,10 @@ export const getReqData = (o: upgradeParamType) => {
     policyNo: orderDetail.policyNo,
     tenantId: o.tenantId,
     orderAmount: o.premium,
-    extInfo: orderDetail.extInfo,
+    extInfo: {
+      ...orderDetail.extInfo.extraInfo,
+      successJumpUrl: o.successJumpUrl,
+    },
     tenantOrderHolder: {
       tenantId: orderDetail.tenantOrderHolder.tenantId,
       name: orderDetail.tenantOrderHolder.name,

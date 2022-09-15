@@ -139,6 +139,12 @@ const baigebaoRoutes = [
     meta: { title: '支付失败' },
     component: () => import('@/views/chuangxin/baigebao/payFail/index.vue'),
   },
+  {
+    name: '投保成功页',
+    path: '/chuangxin/baigebao/orderDetail',
+    meta: { title: '投保成功页' },
+    component: () => import('@/views/chuangxin/baigebao/orderDetail/index.vue'),
+  },
 ];
 
 const asyncRoutes: Array<RouteRecordRaw> = [

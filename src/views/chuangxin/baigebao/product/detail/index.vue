@@ -203,7 +203,7 @@ const trailData = reactive({
   },
   paymentMethod,
   paymentMethodDisable: !!paymentMethod, // 支付方式不能修改
-  renewalDK: true,
+  renewalDK: 'Y',
 });
 
 const showModal = ref<boolean>(false);
@@ -312,7 +312,7 @@ const onSaveOrder = async (risk: any) => {
     detail: detail.value as ProductDetail,
     insureDetail: insureDetail.value,
     paymentMethod: trailData.paymentMethod,
-    renewalDK: trailData.renewalDK ? 'Y' : 'N', // 开通下一年
+    renewalDK: trailData.renewalDK, // 开通下一年
     successJumpUrl: '',
     premium: premium.value as number, // 保费
     holder: trailData.holder,
@@ -480,7 +480,7 @@ const getOrderById = async () => {
     };
     trailData.paymentMethod = extInfo.extraInfo.paymentMethod;
     premium.value = tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium;
-    trailData.renewalDK = extInfo.extraInfo.renewalDK === 'Y';
+    trailData.renewalDK = extInfo.extraInfo.renewalDK ? 'Y' : 'N';
     // TODO 卡流程，先这样处理
     if (pageCode === 'productDetail') {
       return;
