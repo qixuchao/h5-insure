@@ -61,7 +61,7 @@ import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
 // import { OrderDetail } from '@/api/modules/order.data';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 import FieldInfo from '../components/fieldInfo.vue';
-import InsureInfo from '@/views/infoPreview/components/InsuredPart.vue';
+import InsureInfo from '@/views/lifeInsurance/infoPreview/components/InsuredPart.vue';
 import pageJump from '@/utils/pageJump';
 
 const route = useRoute();

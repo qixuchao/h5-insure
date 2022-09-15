@@ -1,0 +1,1 @@
+import{b as e}from"./index-934d035f.js";const o=s=>e.post("/api/app/insure/insurance/sendSmsCodeToC",{},{params:{mobile:s}}),r=(s,a)=>e.post("/api/app/insure/insurance/checkSmsCode",{},{params:{mobile:s,smsCode:a}});export{r as c,o as s};

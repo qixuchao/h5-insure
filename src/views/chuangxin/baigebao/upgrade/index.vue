@@ -144,7 +144,7 @@ const onPremiumCalc = async () => {
   }
 };
 
-const upgrade = async (id: number) => {
+const upgrade = async (oNo: string) => {
   const reqData = getReqData({
     tenantId,
     premium: premium.value as number,
@@ -153,7 +153,7 @@ const upgrade = async (id: number) => {
     insureDetail: insureDetail.value,
   });
   const res = await EndorsementUp({
-    id,
+    orderNo: oNo,
     ...reqData,
   });
   const { code, data } = res;
@@ -168,12 +168,12 @@ const onUpgrade = async (o: any) => {
     Toast.loading({ forbidClick: true, message: '升级中' });
     // 保存订单
     await onPremiumCalc();
-    const oId = await onSaveOrder();
+    const oNo = await onSaveOrder();
 
     if (signUrl.value) {
       window.location.href = signUrl.value;
     } else {
-      upgrade(oId);
+      upgrade(oNo);
     }
   } catch (e) {
     console.log(e);
