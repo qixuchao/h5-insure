@@ -198,7 +198,7 @@ export const genarateOrderParam = (o: orderParamType) => {
     },
     extInfo: {
       extraInfo: {
-        renewalDK: o.renewalDK ? 'Y' : 'N', // 签约
+        renewalDK: o.renewalDK, // 签约
         paymentMethod: o.paymentMethod,
         successJumpUrl: o.successJumpUrl, // 支付成功跳转
       },

@@ -22,6 +22,7 @@
         <template #tab1>
           <HolderInsureForm
             ref="formRef"
+            :is-check="isCheck"
             :holder-disable="holderDisable"
             :disable="disable"
             :form-info="trailData"
@@ -57,7 +58,7 @@
         }}</van-button>
       </div>
     </div>
-    <PreNotice></PreNotice>
+    <PreNotice v-if="isCheck"></PreNotice>
     <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
       <ProScrollTab
         v-if="guaranteeList.length > 1"
@@ -142,6 +143,7 @@ interface QueryData {
   agentCode: string;
   orderNo: string;
   pageCode: string;
+  from: string;
   [key: string]: string;
 }
 
@@ -156,6 +158,7 @@ const {
   certNo,
   name,
   pageCode,
+  from,
 } = route.query as QueryData;
 
 const tabList = ref<Array<{ title: string; slotName: string }>>([
@@ -179,6 +182,7 @@ const popupShow = ref(false);
 const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<any>(); // 险种信息
 const premium = ref<number>(); // 保费
+const isCheck = from === 'check';
 
 // 投保人不可修改（赠险）
 const holderDisable = !!(name && certNo && mobile) || !!orderNo;

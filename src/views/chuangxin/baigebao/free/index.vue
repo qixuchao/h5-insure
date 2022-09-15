@@ -62,7 +62,7 @@ interface QueryData {
   phoneNo: string; // 手机号
   agentCode: string;
   orderNo: string;
-  flag: string;
+  from: string;
   [key: string]: string;
 }
 
@@ -80,7 +80,7 @@ const {
   saleChannelId,
   agentCode,
   paymentMethod,
-  flag,
+  from,
 } = route.query as QueryData;
 
 // 为true, 显示手机验证表单
@@ -110,7 +110,7 @@ const insureDetail = ref<any>();
 // 第一步 验证手机号
 const onVerify = async (e: UserInfoProps) => {
   // 审核的
-  if (flag === '1') {
+  if (from === 'check') {
     if (!state.agree) {
       Toast('请勾选协议');
       return;

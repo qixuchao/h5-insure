@@ -120,6 +120,7 @@
         </ProPicker>
 
         <ProField
+          v-if="!props.isCheck"
           label="开通下一年自主重新投保"
           class="pro-field"
           name="renewalDK"
@@ -138,7 +139,6 @@
         <div class="attachment-list">
           <div class="product-attachment-list">
             请您重点阅读并知晓
-
             <span
               v-for="(item, index) in productAttachmentList"
               :key="`attachment-${index}`"
@@ -166,7 +166,7 @@
         :active-index="activeIndex"
       ></FilePreview>
 
-      <div>
+      <div v-if="props.isCheck">
         <ProDivider />
         <div class="title">开通自主重新投保</div>
         <div class="pro-radio">
@@ -223,9 +223,9 @@ import FilePreview from '../FilePreview/index.vue';
 const formRef = ref<FormInstance>({} as FormInstance);
 
 interface Props {
+  isCheck: boolean; // 监管
   disable: boolean; // 全部信息不可修改
   holderDisable: boolean; // 投保人信息不可修改
-
   paymentMethodDisable: boolean; // 支付方式不能修改
   premium: number;
   productDetail: ProductDetail;
@@ -248,6 +248,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  isCheck: false,
   holderDisable: false,
   disable: false,
   paymentMethodDisable: false,
