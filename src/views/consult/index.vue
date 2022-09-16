@@ -7,7 +7,16 @@
         <p class="message">
           <span>{{ userNameErrMsg }}</span>
         </p>
-        <input v-model="phone" class="input phone" placeholder="请输入手机号" maxlength="11" @input="inputPhone" />
+        <input
+          ref="phoneRef"
+          v-model="phone"
+          class="input phone"
+          placeholder="请输入手机号"
+          maxlength="11"
+          @input="inputPhone"
+          @blur="blurPhone"
+        />
+        <div v-if="showMask" class="mask" @click="focusPhone">{{ phoneStr }}</div>
         <p class="message">
           <span>{{ phoneErrMsg }}</span>
         </p>
@@ -71,6 +80,12 @@ const state = reactive({
   count: null,
 });
 
+const showMask = ref(true);
+const phoneRef = ref<HTMLInputElement>();
+const focusPhone = () => {
+  showMask.value = false;
+  phoneRef.value?.focus();
+};
 // 手机号只允许输入正整数
 const inputPhone = (e: any) => {
   phoneErrMsg.value = ''; // 输入电话时错误提示关闭
@@ -79,7 +94,13 @@ const inputPhone = (e: any) => {
     phone.value = filtered;
   }
 };
-
+const blurPhone = () => {
+  showMask.value = true;
+};
+// 手机号掩码
+const phoneStr = computed(() => {
+  return phone.value.replace(/(\d{3})(\d{4})(\d{4})/, `$1****$3`);
+});
 const inputName = (e: any) => {
   userNameErrMsg.value = ''; // 输入姓名时错误提示关闭
 };
@@ -225,7 +246,8 @@ onMounted(() => {
     left: 10px;
     top: 510px;
     padding: 38px;
-    .input {
+    .input,
+    .mask {
       padding-left: 40px;
       width: 658px;
       height: 88px;
@@ -274,6 +296,11 @@ onMounted(() => {
     position: absolute;
     left: 23px;
     top: 1522px;
+  }
+  .mask {
+    position: absolute;
+    top: 158px;
+    line-height: 88px;
   }
 }
 input::-webkit-input-placeholder {
