@@ -17,8 +17,8 @@
       </p>
     </div>
     <div class="footer">
-      <VanButton type="primary" block
-        >好的
+      <VanButton type="primary" block round>
+        好的
         <span v-if="currentTime">{{ currentTime }}s</span>
       </VanButton>
     </div>
@@ -36,7 +36,7 @@ const STORAGE_PREFIX = 'PRENOTICE';
 const sessionStorage = new Storage({ source: 'sessionStorage' });
 const show = ref<boolean>(false);
 const countDown = useCountDown({
-  time: 3000,
+  time: 4000,
   onFinish: () => {
     sessionStorage.set(`${STORAGE_PREFIX}-isShow`, '1');
     show.value = false;
@@ -67,6 +67,11 @@ onMounted(() => {
   }
   .content {
     padding: $zaui-card-border;
+    p {
+      margin-top: 20px;
+      font-size: 28px;
+      line-height: 44px;
+    }
   }
   .footer {
     margin-top: $zaui-card-border;

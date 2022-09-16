@@ -1,7 +1,7 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
     <ProForm ref="formRef">
-      <div>
+      <div class="holder container">
         <div class="title">投保人</div>
         <ProField
           v-model="state.formInfo.holder.name"
@@ -50,7 +50,7 @@
         </ProField>
       </div>
       <ProDivider />
-      <div>
+      <div class="insured container">
         <div class="title">为谁投保</div>
         <ProField
           v-model="state.formInfo.insured.relationToHolder"
@@ -103,7 +103,7 @@
         </ProField>
       </div>
       <ProDivider />
-      <div>
+      <div class="payment container">
         <div class="title">保费支付</div>
         <ProField label="每月保费" class="pro-field" :is-view="true">
           <template #input> {{ getFloat(props.premium) }} 元/月 共12期</template>
@@ -118,7 +118,6 @@
           required
         >
         </ProPicker>
-
         <ProField
           v-if="!props.isCheck"
           label="开通下一年自主重新投保"
@@ -139,36 +138,52 @@
         <div class="attachment-list">
           <div class="product-attachment-list">
             请您重点阅读并知晓
-            <span
-              v-for="(item, index) in productAttachmentList"
-              :key="`attachment-${index}`"
-              class="file-name"
-              @click="previewFile(index)"
-              >{{ `《${item.attachmentName}》` }}</span
-            >
+            <template v-if="props.isCheck">
+              <span
+                v-for="(item, index) in productAttachmentList"
+                :key="`attachment-${index}`"
+                class="file-name"
+                @click="previewFile(index)"
+                >{{ `《${item.attachmentName}》` }}</span
+              >
+            </template>
+            <template v-else>
+              <ProPDFviewer
+                v-for="(item, index) in productAttachmentList"
+                :key="index"
+                class="file-name"
+                :title="`《${item.attachmentName}》`"
+                :content="item.attachmentUri"
+                type="pdf"
+              />
+            </template>
           </div>
           <div class="rate-attachment-list">
             *保费与被保人年龄、医保情况相关，详见
-            <span
-              v-for="(item, index) in rateAttachmentList"
-              :key="`rate-${index}`"
-              class="file-name"
-              @click="previewFile(productAttachmentList.length + index)"
-              >{{ `《${item.attachmentName}》` }}</span
-            >
+            <template v-if="props.isCheck">
+              <span
+                v-for="(item, index) in rateAttachmentList"
+                :key="`rate-${index}`"
+                class="file-name"
+                @click="previewFile(productAttachmentList.length + index)"
+                >{{ `《${item.attachmentName}》` }}</span
+              >
+            </template>
+            <template v-else>
+              <ProPDFviewer
+                v-for="(item, index) in rateAttachmentList"
+                :key="index"
+                class="file-name"
+                :title="`《${item.attachmentName}》`"
+                :content="item.attachmentUri"
+                type="pdf"
+              />
+            </template>
           </div>
         </div>
       </div>
       <ProDivider />
-      <FilePreview
-        v-model:show="showFilePreview"
-        :content-list="productAttachmentList.concat(rateAttachmentList)"
-        :active-index="activeIndex"
-        @submit="onSubmit"
-      ></FilePreview>
-
-      <div v-if="props.isCheck">
-        <ProDivider />
+      <div v-if="props.isCheck" class="renewal conntainer">
         <div class="title">开通自主重新投保</div>
         <div class="pro-radio">
           <ProTabButton
@@ -200,6 +215,12 @@
         </div>
       </div>
       <ProDivider />
+      <FilePreview
+        v-model:show="showFilePreview"
+        :content-list="productAttachmentList.concat(rateAttachmentList)"
+        :active-index="activeIndex"
+        @submit="onSubmit"
+      ></FilePreview>
     </ProForm>
   </van-config-provider>
 </template>
@@ -410,7 +431,7 @@ defineExpose({
 }
 
 .attachment-list {
-  padding: 0 25px 25px 25px;
+  padding: 25px;
   font-size: $zaui-font-size-md;
   font-weight: 400;
   color: #666666;
