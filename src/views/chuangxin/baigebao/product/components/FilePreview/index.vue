@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-15 21:33:45
+ * @LastEditTime: 2022-09-16 16:24:48
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -26,7 +26,7 @@
     ></ProTab>
     <div class="list">
       <div class="item">
-        <ProFilePreview :content="contentList[currentActiveIndex].attachmentUri" type="pdf"></ProFilePreview>
+        <ProFilePreview :key="attachmentUri" :content="attachmentUri" type="pdf"></ProFilePreview>
       </div>
     </div>
     <div class="footer">
@@ -49,6 +49,10 @@ const emits = defineEmits(['update:show', 'submit']);
 const isShow = ref<boolean>(props.show);
 const currentActiveIndex = ref<number>(props.activeIndex);
 
+const attachmentUri = computed(() => {
+  return props.contentList[currentActiveIndex.value].attachmentUri;
+});
+
 const agreeMent = () => {
   emits('update:show', false);
   emits('submit');
@@ -58,6 +62,7 @@ watch(
   () => props,
   () => {
     isShow.value = props.show;
+    currentActiveIndex.value = props.activeIndex;
   },
   {
     deep: true,
