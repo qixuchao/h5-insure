@@ -183,35 +183,37 @@
         </div>
       </div>
       <ProDivider />
-      <div v-if="props.isCheck" class="renewal conntainer">
+      <div v-if="props.isCheck" class="renewal container">
         <div class="title">开通自主重新投保</div>
-        <div class="pro-radio">
-          <ProTabButton
-            v-for="(item, index) in renewalList"
-            :key="index"
-            :title="item.title"
-            :active="state.formInfo.renewalDK === item.value"
-            @click="handleRenewal(item.value)"
-          ></ProTabButton>
-        </div>
-        <div class="desc_arrow">
-          <div
-            :class="['arrow light', { show: state.formInfo.renewalDK === 'Y' || state.formInfo.renewalDK === '' }]"
-          ></div>
-          <div :class="['arrow dark', { show: state.formInfo.renewalDK === 'N' }]"></div>
-        </div>
-        <div v-if="state.formInfo.renewalDK === 'Y'" class="renewal-y-desc renewal-desc">
-          <div class="sub-title">开通后可享受：</div>
-          <div class="desc">安心！开通自动缴费可使保障不间断</div>
-          <div class="desc">省心！下一年重新投保，不用担心断保</div>
-          <div class="desc">放心！无额外费用，开通后可随时取消</div>
-          <div class="desc">提示:本产品为一年期非保证续保产品</div>
-        </div>
-        <div v-else class="renewal-n-desc renewal-desc">
-          <div class="sub-title">未开通，一旦断保将面临：</div>
-          <div class="desc">断保后将失去保障，断保期间出险不可理赔</div>
-          <div class="desc">断保后重新投保，等待期内出险无法理赔</div>
-          <div class="desc">断保后重新投保，需核实健康状况，可能无法投保</div>
+        <div class="content">
+          <div class="pro-radio">
+            <ProTabButton
+              v-for="(item, index) in renewalList"
+              :key="index"
+              :title="item.title"
+              :active="state.formInfo.renewalDK === item.value"
+              @click="handleRenewal(item.value)"
+            ></ProTabButton>
+          </div>
+          <div class="desc_arrow">
+            <div
+              :class="['arrow light', { show: state.formInfo.renewalDK === 'Y' || state.formInfo.renewalDK === '' }]"
+            ></div>
+            <div :class="['arrow dark', { show: state.formInfo.renewalDK === 'N' }]"></div>
+          </div>
+          <div v-if="state.formInfo.renewalDK === 'Y'" class="renewal-y-desc renewal-desc">
+            <div class="sub-title">开通后可享受：</div>
+            <div class="desc">安心！开通自动缴费可使保障不间断</div>
+            <div class="desc">省心！下一年重新投保，不用担心断保</div>
+            <div class="desc">放心！无额外费用，开通后可随时取消</div>
+            <div class="desc">提示:本产品为一年期非保证续保产品</div>
+          </div>
+          <div v-else class="renewal-n-desc renewal-desc">
+            <div class="sub-title">未开通，一旦断保将面临：</div>
+            <div class="desc">断保后将失去保障，断保期间出险不可理赔</div>
+            <div class="desc">断保后重新投保，等待期内出险无法理赔</div>
+            <div class="desc">断保后重新投保，需核实健康状况，可能无法投保</div>
+          </div>
         </div>
       </div>
       <ProDivider />
@@ -487,7 +489,6 @@ defineExpose({
 }
 
 .pro-radio {
-  padding: 0 25px;
   display: flex;
   justify-content: space-between;
   button {
@@ -498,7 +499,6 @@ defineExpose({
 .desc_arrow {
   height: 30px;
   display: flex;
-  padding: 0 25px;
   .arrow {
     position: relative;
     flex: 1;
@@ -535,10 +535,12 @@ defineExpose({
 
 .renewal.container {
   background: #ffffff;
+  .content {
+    padding: 0 25px 25px 25px;
+  }
 }
 
 .renewal-desc {
-  margin: 0 25px 25px 25px;
   padding: 25px;
   font-size: 24px;
   font-weight: 400;
