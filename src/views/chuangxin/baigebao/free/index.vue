@@ -17,7 +17,9 @@
           <MobileVerify v-if="isVerifyMobile" :user-info="state.userInfo" @on-verify="onVerify" />
           <InfoField v-else :user-info="state.userInfo" @on-submit="onSubmit" />
           <div class="agree">
-            <van-checkbox v-model="state.agree" name="agree" shape="square"> </van-checkbox>
+            <div class="check-wrap">
+              <van-checkbox v-model="state.agree" name="agree" shape="square"> </van-checkbox>
+            </div>
             <div>
               我已阅读并同意
               <ProPDFviewer
@@ -25,7 +27,7 @@
                 :key="index"
                 class="file-name"
                 :title="`《${item.attachmentName}》`"
-                :content="item.attachmentUrl"
+                :content="item.attachmentUri"
                 type="pdf"
               >
               </ProPDFviewer>
@@ -91,7 +93,7 @@ const state = reactive({
   attachmentList: [
     {
       attachmentName: '',
-      attachmentUrl: '',
+      attachmentUri: '',
     },
   ],
 
@@ -206,19 +208,6 @@ const onSubmit = async (e: UserInfoProps) => {
   }
 };
 
-// 解析条款
-const getAttachmentList = () => {
-  let attachmentList: RiskAttachmentVoItem[] = [];
-
-  insureDetail.value.productRiskVoList.forEach((i) => {
-    i.riskDetailVOList.forEach((j: RiskDetailVoItem) => {
-      attachmentList = attachmentList.concat(j.riskAttachmentVOList);
-    });
-  });
-
-  return attachmentList;
-};
-
 const getData = async () => {
   const detailReq = productDetail({ productCode, withInsureInfo: true, tenantId });
   const insureReq = insureProductDetail({ productCode });
@@ -226,12 +215,12 @@ const getData = async () => {
   Promise.all([detailReq, insureReq]).then(([detailRes, insureRes]) => {
     if (detailRes.code === '10000') {
       detail.value = detailRes.data;
+
+      state.attachmentList = detail.value?.tenantProductInsureVO?.attachmentVOList || [];
     }
 
     if (insureRes.code === '10000') {
       insureDetail.value = insureRes.data;
-
-      state.attachmentList = getAttachmentList();
     }
   });
 };
@@ -295,15 +284,14 @@ onMounted(() => {
         color: #666666;
         display: flex;
         align-items: flex-start;
+        .check-wrap {
+          margin-right: 20px;
+        }
       }
 
       // 覆盖全局样式
       .van-cell .van-field__value {
         align-items: flex-start;
-      }
-      // checkbox 宽度
-      .van-checkbox {
-        width: 100px;
       }
     }
   }
