@@ -419,6 +419,7 @@ defineExpose({
 
 <style lang="scss" scoped>
 .title {
+  background: #ffffff;
   font-size: 32px;
   font-weight: 500;
   color: #333333;
@@ -456,7 +457,7 @@ defineExpose({
 :deep(.relation-to-Holder.van-cell .van-field__value) {
   align-items: flex-start;
 }
-:deep(.relation-to-Holder.van-cell .van-field__value .van-field__body) {
+:deep(.van-field__body) {
   width: 100%;
 }
 :deep(.relation-to-Holder.van-cell .van-field__control--right) {
@@ -512,7 +513,7 @@ defineExpose({
       border-left: 1px solid;
       border-top: 1px solid;
       left: 50%;
-      bottom: -10px;
+      bottom: -12px;
     }
     &.show {
       visibility: visible;

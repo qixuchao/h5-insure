@@ -109,6 +109,8 @@ const insureDetail = ref<any>();
 
 // 第一步 验证手机号
 const onVerify = async (e: UserInfoProps) => {
+  // 填写的手机号
+  state.userInfo.mobile = e.mobile;
   // 审核的
   if (from === 'check') {
     if (!state.agree) {
@@ -126,8 +128,7 @@ const onVerify = async (e: UserInfoProps) => {
     });
     return;
   }
-  // 填写的手机号
-  state.userInfo.mobile = e.mobile;
+
   // 通过手机号查订单的信息
   const res = await getOrderDetailByCondition({
     holderPhone: state.userInfo.mobile,

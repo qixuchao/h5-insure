@@ -8,8 +8,8 @@
 -->
 <template>
   <!-- <van-config-provider :theme-vars="themeVars"> -->
-  <ProPopup class="pre-notice-wrap" :show="show" :closeable="false" :height="40">
-    <div class="header"></div>
+  <ProPopup class="pre-notice-wrap" :show="show" :closeable="false" :height="45">
+    <div class="header"><img :src="HeaderImg" /></div>
     <div class="content">
       <h4>温馨提示，您已进入投保流程：</h4>
       <p>
@@ -30,6 +30,7 @@
 import { useCountDown } from '@vant/use';
 import Storage from '@/utils/storage';
 import themeVars from '../../../theme';
+import HeaderImg from '@/assets/images/chuangxin/header-logo.png';
 
 const STORAGE_PREFIX = 'PRENOTICE';
 
@@ -59,11 +60,11 @@ onMounted(() => {
 <style scoped lang="scss">
 .pre-notice-wrap {
   .header {
-    width: 100%;
-    min-height: 106px;
-    background-image: url('@/assets/images/chuangxin/header-logo.png');
-    background-repeat: no-repeat;
-    background-size: cover;
+    line-height: 1;
+    border: none;
+    img {
+      width: 100%;
+    }
   }
   .content {
     padding: $zaui-card-border;
