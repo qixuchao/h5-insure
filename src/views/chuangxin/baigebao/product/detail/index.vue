@@ -53,7 +53,7 @@
         <div class="price">
           总保费<span>￥{{ toLocal(premium as number) }}/月</span>
         </div>
-        <van-button type="primary" class="right" :disabled="isDisableNext" @click="onNext">{{
+        <van-button type="primary" class="right" :disabled="isDisableNext" @click="preNext">{{
           disable ? '升级保障' : '立即投保'
         }}</van-button>
       </div>
@@ -84,6 +84,12 @@
       @on-confirm="onConfirm"
       @on-close="onClose"
     />
+    <FilePreview
+      v-model:show="showFilePreview"
+      :content-list="productAttachmentList.concat(rateAttachmentList)"
+      :active-index="activeIndex"
+      @submit="onSubmit"
+    ></FilePreview>
   </van-config-provider>
 </template>
 
@@ -106,6 +112,7 @@ import { SOCIAL_SECURITY_ENUM, RELATION_HOLDER_ENUM } from '@/common/constants/i
 import { PAY_METHOD_ENUM } from '@/common/constants/bankCard';
 import { RISK_TYPE_ENUM, RULE_ENUM } from '@/common/constants/trial';
 import PreNotice from '../components/PreNotice/index.vue';
+import FilePreview from '../components/FilePreview/index.vue';
 
 import {
   premiumCalc,
@@ -119,7 +126,7 @@ import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ORIGIN, toLocal } from '@/utils';
 import { validateMobile, validateName } from '@/utils/validator';
-import { RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
+import { RiskPremiumDetailVoItem, RiskAttachmentVoItem } from '@/api/modules/trial.data';
 import {
   formatHolderAgeLimit,
   formatPaymentPeriodLimit,
@@ -181,6 +188,8 @@ const insureDetail = ref<any>(); // 险种信息
 const premium = ref<number>(); // 保费
 const isCheck = from === 'check';
 const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
+const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
+const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 
 // 投保人不可修改（赠险）
 const holderDisable = !!(name && certNo && mobile) || !!orderNo;
@@ -231,6 +240,24 @@ const onConfirm = () => {
 const onShowDetail = () => {
   popupShow.value = true;
 };
+
+// 费率表
+const rateAttachmentList = computed(() => {
+  return (
+    detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
+      (item: RiskAttachmentVoItem) => item.attachmentName === '费率表',
+    ) || []
+  );
+});
+
+// 产品资料
+const productAttachmentList = computed(() => {
+  return (
+    detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
+      (item: RiskAttachmentVoItem) => item.attachmentName !== '费率表',
+    ) || []
+  );
+});
 
 // 单计划产品 保障详情在titleAndDescVOS字段里
 const guaranteeList = computed(() => {
@@ -411,11 +438,6 @@ const onPremiumCalcWithValid = () => {
 };
 
 const onNext = async () => {
-  const isAgree = formRef.value?.isAgreeFile;
-  if (isCheck && !isAgree) {
-    formRef.value?.previewFile(0);
-    return;
-  }
   if (disable) {
     router.push({
       path: '/chuangxin/baigebao/guaranteeUpgrade',
@@ -449,6 +471,26 @@ const onNext = async () => {
     isDisableNext.value = false;
   }
 };
+
+const onSubmit = () => {
+  isAgreeFile.value = true;
+  onNext();
+};
+
+const previewFile = (index: number) => {
+  activeIndex.value = index;
+  showFilePreview.value = true;
+};
+
+const preNext = () => {
+  const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
+  if (isCheck && !isAgree) {
+    previewFile(0);
+    return;
+  }
+  onNext();
+};
+
 watch(
   () => trailData,
   () => {
