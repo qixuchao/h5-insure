@@ -1,5 +1,5 @@
 <template>
-  <VanForm ref="formRef" label-width="60">
+  <VanForm ref="formRef" label-width="80">
     <van-cell-group>
       <van-field
         v-model="state.name"

@@ -8,8 +8,8 @@
 -->
 <template>
   <!-- <van-config-provider :theme-vars="themeVars"> -->
-  <ProPopup class="pre-notice-wrap" :show="show" :closeable="false" :height="40">
-    <div class="header"></div>
+  <ProPopup class="pre-notice-wrap" :show="show" :closeable="false" :height="45">
+    <div class="header"><img :src="HeaderImg" /></div>
     <div class="content">
       <h4>温馨提示，您已进入投保流程：</h4>
       <p>
@@ -17,8 +17,8 @@
       </p>
     </div>
     <div class="footer">
-      <VanButton type="primary" block
-        >好的
+      <VanButton type="primary" block round>
+        好的
         <span v-if="currentTime">{{ currentTime }}s</span>
       </VanButton>
     </div>
@@ -30,13 +30,14 @@
 import { useCountDown } from '@vant/use';
 import Storage from '@/utils/storage';
 import themeVars from '../../../theme';
+import HeaderImg from '@/assets/images/chuangxin/header-logo.png';
 
 const STORAGE_PREFIX = 'PRENOTICE';
 
 const sessionStorage = new Storage({ source: 'sessionStorage' });
 const show = ref<boolean>(false);
 const countDown = useCountDown({
-  time: 3000,
+  time: 4000,
   onFinish: () => {
     sessionStorage.set(`${STORAGE_PREFIX}-isShow`, '1');
     show.value = false;
@@ -59,14 +60,19 @@ onMounted(() => {
 <style scoped lang="scss">
 .pre-notice-wrap {
   .header {
-    width: 100%;
-    min-height: 106px;
-    background-image: url('@/assets/images/chuangxin/header-logo.png');
-    background-repeat: no-repeat;
-    background-size: cover;
+    line-height: 1;
+    border: none;
+    img {
+      width: 100%;
+    }
   }
   .content {
     padding: $zaui-card-border;
+    p {
+      margin-top: 20px;
+      font-size: 28px;
+      line-height: 44px;
+    }
   }
   .footer {
     margin-top: $zaui-card-border;

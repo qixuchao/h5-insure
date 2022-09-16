@@ -53,12 +53,12 @@
         <div class="price">
           总保费<span>￥{{ toLocal(premium as number) }}/月</span>
         </div>
-        <van-button type="primary" class="right" :disabled="isDisableNext" @click="preNext">{{
+        <van-button type="primary" class="right" :disabled="isDisableNext" @click="onNext">{{
           disable ? '升级保障' : '立即投保'
         }}</van-button>
       </div>
     </div>
-    <PreNotice v-if="isCheck"></PreNotice>
+    <PreNotice v-if="isCheck && pageCode !== 'payBack'"></PreNotice>
     <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
       <ProScrollTab
         v-if="guaranteeList.length > 1"
@@ -233,6 +233,7 @@ const onConfirm = () => {
       productCode: 'BWYL2022',
       orderNo,
       agentCode,
+      from,
     },
   });
 };
@@ -324,12 +325,12 @@ const onUnderWrite = async (o: any) => {
 };
 
 const getPaySuccessCallbackUrl = (no: number) => {
-  const url = `${ORIGIN}/chuangxin/baigebao/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack`;
+  const url = `${ORIGIN}/chuangxin/baigebao/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack&from=${from}`;
   return url;
 };
 
 const getPayFailCallbackUrl = (no: number) => {
-  const url = `${ORIGIN}/chuangxin/baigebao/payFail?tenantId=${tenantId}&orderNo=${no}&agentCode=${agentCode}`;
+  const url = `${ORIGIN}/chuangxin/baigebao/payFail?tenantId=${tenantId}&orderNo=${no}&agentCode=${agentCode}&from=${from}`;
   return url;
 };
 
@@ -404,11 +405,24 @@ const onPremiumCalc = async () => {
   debounce(func, 500, { trailing: true });
 };
 
+const previewFile = (index: number) => {
+  activeIndex.value = index;
+  showFilePreview.value = true;
+};
+
 const onPremiumCalcWithValid = () => {
   return new Promise((resolve, reject) => {
     formRef.value
       ?.validateForm?.()
       .then(async () => {
+        // 表单验证通过再检查是否逐条阅读
+        const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
+        if (isCheck && !isAgree) {
+          previewFile(0);
+          isDisableNext.value = false;
+          return;
+        }
+
         // 试算参数
         const { calcData, riskVOList } = genaratePremiumCalcData({
           holder: trailData.holder,
@@ -447,6 +461,7 @@ const onNext = async () => {
         productCode: 'BWYL2022',
         orderNo,
         agentCode,
+        from,
       },
     });
     return;
@@ -474,20 +489,6 @@ const onNext = async () => {
 
 const onSubmit = () => {
   isAgreeFile.value = true;
-  onNext();
-};
-
-const previewFile = (index: number) => {
-  activeIndex.value = index;
-  showFilePreview.value = true;
-};
-
-const preNext = () => {
-  const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
-  if (isCheck && !isAgree) {
-    previewFile(0);
-    return;
-  }
   onNext();
 };
 

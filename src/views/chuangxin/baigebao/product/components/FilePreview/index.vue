@@ -30,7 +30,7 @@
       </div>
     </div>
     <div class="footer">
-      <VanButton type="primary" block @click="agreeMent">我已逐页阅读并确认完全符合健康告知内容</VanButton>
+      <VanButton type="primary" block round @click="agreeMent">我已逐页阅读并确认完全符合健康告知内容</VanButton>
     </div>
   </ProPopup>
 </template>
@@ -57,7 +57,6 @@ const agreeMent = () => {
 watch(
   () => props,
   () => {
-    console.log('props', props);
     isShow.value = props.show;
   },
   {
@@ -87,7 +86,6 @@ watch(
     height: calc(100% - 212px);
   }
   .footer {
-    height: 106px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -97,9 +95,11 @@ watch(
     bottom: 0;
     background-color: #ffffff;
     z-index: 1;
+    padding: 20px;
     .van-button {
       background: $primary-color;
       border-color: $primary-color;
+      font-size: 24px;
     }
   }
 }

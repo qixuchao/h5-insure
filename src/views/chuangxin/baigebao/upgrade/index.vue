@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import {
   RISK_TYPE_ENUM,
@@ -59,6 +59,7 @@ import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ORIGIN } from '@/utils';
 
+const router = useRouter();
 const route = useRoute();
 
 /** 页面query参数类型 */
@@ -68,10 +69,11 @@ interface QueryData {
   phoneNo: string; // 手机号
   agentCode: string;
   orderNo: string;
+  from: string;
   [key: string]: string;
 }
 
-const { productCode = 'BWYL2022', tenantId, orderNo, agentCode } = route.query as QueryData;
+const { productCode = 'BWYL2022', tenantId, orderNo, agentCode, from } = route.query as QueryData;
 
 const detail = ref<ProductDetail>(); // 产品详情
 const insureDetail = ref<any>(); // 险种详情
@@ -80,6 +82,7 @@ const premium = ref<number>(); // 保费试算
 const hasSocialInsurance = ref<boolean>(); // 有无社保
 const signUrl = ref<string>();
 const showModal = ref<boolean>(false);
+const isCheck = from === 'check';
 
 const onClose = () => {
   showModal.value = false;
@@ -135,19 +138,24 @@ const getOrderDetailUrl = (oNo: string) => {
 
 // 保费试算 -> 订单保存 -> 升级保障
 const onPremiumCalc = async () => {
-  const reqData = getReqData({
-    tenantId,
-    premium: premium.value as number,
-    orderDetail: orderDetail.value,
-    productDetail: detail.value as ProductDetail,
-    insureDetail: insureDetail.value,
-    successJumpUrl: '',
-  });
-  const res = await endorsementPremiumCalc(reqData);
-  const { code, data } = res;
-  if (code === '10000') {
-    premium.value = data.installmentPremium;
-    signUrl.value = data.signUrl;
+  try {
+    const reqData = getReqData({
+      tenantId,
+      premium: premium.value as number,
+      orderDetail: orderDetail.value,
+      productDetail: detail.value as ProductDetail,
+      insureDetail: insureDetail.value,
+      successJumpUrl: '',
+    });
+    const res = await endorsementPremiumCalc(reqData);
+    const { code, data } = res;
+    if (code === '10000') {
+      premium.value = data.installmentPremium;
+      signUrl.value = data.signUrl;
+    }
+    Toast.clear();
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -166,7 +174,12 @@ const upgrade = async (oNo: string) => {
   });
   const { code, data } = res;
   if (code === '10000') {
-    showModal.value = true;
+    // 审核版本
+    if (isCheck) {
+      router.replace(`/chuangxin/baigebao/orderDetail?orderNo=${oNo}&productCode=${productCode}&tenantId=${tenantId}`);
+    } else {
+      showModal.value = true;
+    }
   }
 };
 
@@ -178,9 +191,18 @@ const onUpgrade = async (o: any) => {
     await onPremiumCalc();
     const oNo = await onSaveOrder();
 
+    // signUrl 有值，是微信支付流程
     if (signUrl.value) {
-      window.location.href = signUrl.value;
+      // 支付平台 successUrl encode 2次
+      const successUrl = encodeURIComponent(encodeURIComponent(getOrderDetailUrl(oNo)));
+      const newSignUrl = `${signUrl.value}&successUrl=${successUrl}`;
+      if (isCheck) {
+        window.location.href = newSignUrl;
+      } else {
+        window.location.href = signUrl.value;
+      }
     } else {
+      // 支付宝签约流程
       upgrade(oNo);
     }
   } catch (e) {
@@ -190,6 +212,7 @@ const onUpgrade = async (o: any) => {
 };
 
 const fetchData = () => {
+  Toast.loading({ forbidClick: true, duration: 20 * 1000, message: '试算中' });
   const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
   const insureReq = insureProductDetail({ productCode });
   const orderReq = getTenantOrderDetail({ orderNo, tenantId });
