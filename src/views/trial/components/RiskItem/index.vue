@@ -2,7 +2,7 @@
   <div class="com-risk-card-wrapper part-card">
     <ProTitle :risk-type="originData.riskType" :title="originData.riskName">
       <div v-if="removeRiskList.includes(originData.id)" class="delete-risk" @click="removeRisk(originData.id)">
-        <ProSvg name="delete" color="#0d6efe"></ProSvg>
+        <ProSvg name="img-lajitong" color="#0d6efe"></ProSvg>
       </div>
     </ProTitle>
     <VanField
@@ -463,6 +463,24 @@ const validateSumInsured = (value: string, rule: any, type: string) => {
   return `金额必须是${step}的倍数`;
 };
 
+// 初始化责任的属性值
+const initLiabilityValue = (liab) => {
+  const currentLiability = (state.formInfo?.liabilityVOList || []).find(
+    (liabi) => liabi.liabilityCode === liab.liabilityCode,
+  );
+  if (currentLiability) {
+    if (currentLiability.liabilityAttributeValue) {
+      return currentLiability.liabilityAttributeValue;
+    }
+    if (liab.optionalFlag !== 1) {
+      return '0'; // 投保
+    }
+    return '';
+  }
+
+  return '';
+};
+
 onBeforeMount(() => {
   const extralInfo = {
     riskType: props.originData.riskType,
@@ -477,6 +495,7 @@ onBeforeMount(() => {
       liabilityAttributeCode: liab.liabilityAttributeType,
       liabilityCode: liab.liabilityCode,
       liabilityRateType: liab.liabilityRateType,
+      liabilityAttributeValue: initLiabilityValue(liab),
     })),
   };
 
@@ -563,7 +582,7 @@ watch(
 .com-risk-card-wrapper {
   &.part-card {
     background-color: #ffffff;
-    margin-bottom: 20px;
+    border-bottom: 20px solid $zaui-global-bg;
   }
   .delete-risk {
     display: flex;
@@ -583,7 +602,7 @@ watch(
       font-weight: 400;
       color: #99a9c0;
       line-height: 1;
-      margin: 8px 0;
+      margin: 0 0 8px 0;
     }
   }
 }

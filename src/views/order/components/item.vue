@@ -170,7 +170,7 @@ const handleProcess = () => {
       background: rgba(13, 110, 254, 0.1);
       border-radius: 8px;
       font-size: 22px;
-      color: #0d6efe;
+      color: $zaui-brand;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
@@ -219,7 +219,7 @@ const handleProcess = () => {
       font-size: 26px;
       color: #333333;
       .money {
-        color: #ff5840;
+        color: $zaui-price;
       }
     }
     .buttons {
@@ -232,10 +232,10 @@ const handleProcess = () => {
         padding: 0 33px;
         min-width: 128px;
         font-size: 28px;
-        color: #0d6efe;
+        color: $zaui-brand;
         margin-right: 16px;
         &.primary {
-          background: #0d6efe;
+          background: $zaui-brand;
           color: #fff;
         }
         &:last-child {

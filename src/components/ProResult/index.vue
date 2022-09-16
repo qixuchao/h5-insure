@@ -105,10 +105,10 @@ const img = computed(() => {
     }
     .cancel {
       border: 1px solid #0d6efe;
-      color: #0d6efe;
+      color: $zaui-brand;
     }
     .ok {
-      background: #0d6efe;
+      background: $zaui-brand;
       color: #fff;
     }
   }

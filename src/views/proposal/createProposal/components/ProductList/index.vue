@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 16:43:35
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-08 19:54:13
+ * @LastEditTime: 2022-09-13 00:39:57
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -10,7 +10,7 @@
   <div class="com-product-list-wrapper">
     <div v-for="risk in state.productRiskList" :key="risk.riskId">
       <div class="risk-item-wrapper">
-        <ProTitle :risk-type="risk.riskType" :title="risk.riskName" />
+        <ProTitle :risk-type="risk.riskType" :title="risk.riskName" class="no-border" />
         <div class="content">
           <div class="risk-premium">
             保费:<span class="premium">￥{{ risk.premium?.toLocaleString() }}</span>
@@ -33,15 +33,22 @@
             <ProCheckButton v-if="isCanDeleteRisk(risk.riskId)" :round="32" class="border" @click="deleteRisk(risk)"
               >删除</ProCheckButton
             >
-            <ProCheckButton v-if="isCanAddRiderRisk" activated :round="32" @click="addRiderRisk(risk)"
-              >+ 附加险</ProCheckButton
+            <ProCheckButton
+              v-if="isCanAddRiderRisk"
+              activated
+              :round="32"
+              class="btn-rider-risk"
+              @click="addRiderRisk(risk)"
+            >
+              <span class="btn-plus">+</span>
+              附加险</ProCheckButton
             >
             <ProCheckButton activated :round="32" @click="updateRisk(risk)">修改</ProCheckButton>
           </div>
         </div>
       </div>
     </div>
-    <div class="premium-total">
+    <div v-if="state.productRiskList.length > 1" class="premium-total">
       保费: <span class="premium">￥{{ state.totalPremium.toLocaleString() }}</span>
     </div>
     <RiskRelationList
@@ -235,12 +242,11 @@ watch(
   .premium-total {
     padding: 0 $zaui-card-border;
     font-size: 26px;
-    font-family: PingFangSC-Regular, PingFang SC;
     font-weight: 400;
     color: #333333;
     margin: 20px 0 30px;
     .premium {
-      color: #ff5840;
+      color: $zaui-price;
       font-weight: 600;
     }
   }
@@ -254,9 +260,13 @@ watch(
         padding-bottom: 0;
         border-radius: 20px;
       }
+      &::after {
+        display: none;
+      }
     }
     .premium {
       color: $zaui-price;
+      font-weight: 600;
     }
     .risk-premium {
       color: #333333;
@@ -266,12 +276,14 @@ watch(
     .risk-factor {
       display: flex;
       justify-content: space-between;
+      margin-bottom: 20px;
+      border-bottom: 1px dashed $zaui-line;
 
       .factor {
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 28px 0 41px 0;
+        padding: 28px 0 20px 0;
         .factor-value {
           width: 100%;
           text-align: center;
@@ -302,6 +314,15 @@ watch(
       }
       :deep(.com-check-btn) {
         margin-left: 16px;
+        background-color: #ffffff;
+      }
+      .btn-rider-risk {
+        display: flex;
+        align-items: center;
+        .btn-plus {
+          font-size: 36px;
+          margin: 0 10px 10px;
+        }
       }
     }
   }

@@ -7,7 +7,16 @@
         <p class="message">
           <span>{{ userNameErrMsg }}</span>
         </p>
-        <input v-model="phone" class="input phone" placeholder="请输入手机号" maxlength="11" @input="inputPhone" />
+        <input
+          ref="phoneRef"
+          v-model="phone"
+          class="input phone"
+          placeholder="请输入手机号"
+          maxlength="11"
+          @input="inputPhone"
+          @blur="blurPhone"
+        />
+        <div v-if="showMask" class="mask" @click="focusPhone">{{ phoneStr }}</div>
         <p class="message">
           <span>{{ phoneErrMsg }}</span>
         </p>
@@ -29,7 +38,7 @@
       </div>
       <div class="equity"></div>
       <div class="describe">
-        以上仅供权益宣传简单说明，具体权益内容及使用规则由权益服务方——青岛医护之家解释及说明，权益用户需在权益卡激活时充分了解知悉，双方因此产生的争议与白鸽保经纪无关。
+        以上仅供权益宣传简单说明，具体权益内容及使用规则由权益服务方——青岛医护之家解释及说明，权益用户需在权益卡激活时充分了解知悉，双方因此产生的争议与白鸽宝保险经纪无关。
       </div>
     </div>
   </ProPageWrap>
@@ -38,6 +47,7 @@
 <script lang="ts" setup>
 import { useRouter, useRoute } from 'vue-router';
 import { sha256 } from 'js-sha256';
+import crypto from '@/utils/crypto';
 import { getUserInfo, buriedMobileVerifyCode, buriedVerifyMobileCode } from '@/api/modules/consult';
 
 const route = useRoute();
@@ -52,7 +62,7 @@ const { phoneNo = '' } = route.query as QueryData;
 
 const userName = ref('');
 
-const phone = ref(phoneNo);
+const phone = ref(crypto.decrypt(phoneNo));
 
 const validCode = ref('');
 
@@ -70,6 +80,12 @@ const state = reactive({
   count: null,
 });
 
+const showMask = ref(true);
+const phoneRef = ref<HTMLInputElement>();
+const focusPhone = () => {
+  showMask.value = false;
+  phoneRef.value?.focus();
+};
 // 手机号只允许输入正整数
 const inputPhone = (e: any) => {
   phoneErrMsg.value = ''; // 输入电话时错误提示关闭
@@ -78,7 +94,13 @@ const inputPhone = (e: any) => {
     phone.value = filtered;
   }
 };
-
+const blurPhone = () => {
+  showMask.value = true;
+};
+// 手机号掩码
+const phoneStr = computed(() => {
+  return phone.value.replace(/(\d{3})(\d{4})(\d{4})/, `$1****$3`);
+});
 const inputName = (e: any) => {
   userNameErrMsg.value = ''; // 输入姓名时错误提示关闭
 };
@@ -192,6 +214,13 @@ const getRegister = () => {
     });
   }
 };
+onMounted(() => {
+  const p = crypto.decrypt(phoneNo);
+  console.error('从URL拿phoneNo加密串', phoneNo);
+  console.error('从URL拿phoneNo后解密', p);
+  console.error('拿手机号再次加密', crypto.encrypt(p));
+  console.error('自己加密自己解密', crypto.decrypt(crypto.encrypt(p)));
+});
 </script>
 
 <style lang="scss" scoped>
@@ -217,7 +246,8 @@ const getRegister = () => {
     left: 10px;
     top: 510px;
     padding: 38px;
-    .input {
+    .input,
+    .mask {
       padding-left: 40px;
       width: 658px;
       height: 88px;
@@ -266,6 +296,11 @@ const getRegister = () => {
     position: absolute;
     left: 23px;
     top: 1522px;
+  }
+  .mask {
+    position: absolute;
+    top: 158px;
+    line-height: 88px;
   }
 }
 input::-webkit-input-placeholder {

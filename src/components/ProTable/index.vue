@@ -103,7 +103,7 @@ const displayDataSource = computed(() => {
         tr:first-child {
           th:first-child {
             border-radius: 8px 0 0 0;
-            border-left: 1px solid #eeeff4;
+            border-left: 1px solid $zaui-line;
           }
           th:last-child {
             border-radius: 0 8px 0 0;
@@ -111,7 +111,7 @@ const displayDataSource = computed(() => {
         }
         .table-row {
           .table-cell {
-            border-top: 1px solid #eeeff4;
+            border-top: 1px solid $zaui-line;
           }
         }
       }
@@ -128,7 +128,7 @@ const displayDataSource = computed(() => {
         .table-row {
           .table-cell {
             &:first-child {
-              border-left: 1px solid #eeeff4;
+              border-left: 1px solid $zaui-line;
             }
           }
         }
@@ -141,8 +141,8 @@ const displayDataSource = computed(() => {
           position: relative;
           text-align: center;
           width: 80px;
-          border-right: 1px solid #eeeff4;
-          border-bottom: 1px solid #eeeff4;
+          border-right: 1px solid $zaui-line;
+          border-bottom: 1px solid $zaui-line;
           // background: #fff;
           &.fixed {
             position: sticky;

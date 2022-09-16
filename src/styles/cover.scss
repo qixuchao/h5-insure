@@ -6,13 +6,12 @@
 .van-tabs__line {
   height: 8px;
 }
-.van-button {
-  // border: none;
-}
+
 .van-tab--active {
   font-weight: 600;
   color: $primary-color;
 }
+
 .van-list__finished-text {
   text-align: center;
   line-height: normal;
@@ -36,7 +35,7 @@
   padding: 14px $zaui-card-border;
   min-height: 60px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   box-sizing: border-box;
 
   &::after {
@@ -49,8 +48,11 @@
     align-items: flex-end;
     flex-direction: column;
     justify-content: flex-start;
+
     .van-field__body {
-      // margin-top: 28px;
+      input, .input {
+        margin: 14px 0;
+      }
     }
     .van-field__error-message {
       line-height: 28px;
@@ -60,7 +62,7 @@
 
   .van-field__label {
     line-height: 42px;
-    margin: 8px;
+    margin: 16px 0 8px;
   }
 
   .van-field__control {
@@ -102,6 +104,7 @@
   height: 60px;
   display: flex;
   align-items: center;
+  padding-top: 8px;
 }
 
 .van-icon-arrow {
@@ -115,9 +118,32 @@
   &::after {
     border-width: 0;
   }
-
 }
 
+.van-icon-success {
+  &::before {
+    content: '';
+    background-image: url("@/assets/images/check-gouxuan.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.van-icon-cross {
+  &::before {
+    content: '';
+    width: 24px;
+    height: 24px;
+    background-image: url("@/assets/images/img-guanbi.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+  }
+}
+
+
+// dialog
 .van-dialog {
   width: 560px;
   .van-dialog__message {
@@ -125,6 +151,7 @@
     color: $zaui-text;
     text-align: center;
     width: 100%;
+    padding: 24px;
   }
   .van-dialog__footer {
     display: flex;
@@ -175,12 +202,13 @@
 
 // 步进器样式
 .van-stepper {
+  margin: 8px 0;
   .van-stepper__input {
     border: 2px solid $zaui-line;
     border-radius: 8px;
     padding: 9px 16px;
     min-width: 104px;
-    margin: 0 8px;
+    margin: 0 8px !important;
   }
   button {
     border: 2px solid $zaui-line;
@@ -209,5 +237,12 @@
     &::before {
       background-color: $zaui-text-weak;
     }
+  }
+}
+
+// popup
+.van-popup {
+  .van-popup__close-icon {
+    font-weight: 600;
   }
 }

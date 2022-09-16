@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-29 18:46:52
+ * @LastEditTime: 2022-09-13 00:35:45
  * @Description: 计划书
 -->
 <template>
@@ -244,11 +244,11 @@ const getPdf = () => {
   .line {
     margin: 0 -20px;
     padding-bottom: 30px;
-    border-bottom: 1px solid #eeeff4;
+    border-bottom: 1px solid $zaui-line;
   }
   .line2 {
     padding-bottom: 30px;
-    border-bottom: 1px solid #eeeff4;
+    border-bottom: 1px solid $zaui-line;
   }
   .container {
     widows: 100%;
@@ -298,14 +298,14 @@ const getPdf = () => {
       :deep(.price) {
         font-size: 28px;
         font-weight: 400;
-        color: #ff5840;
+        color: $zaui-price;
       }
     }
     .poiner {
       width: 14px;
       height: 14px;
       display: inline-block;
-      background: #0d6efe;
+      background: $zaui-brand;
       border-radius: 50%;
     }
   }

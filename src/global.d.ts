@@ -106,6 +106,7 @@ declare module 'recorder-core' {
 declare module 'qrcode';
 declare module 'pdfjs-dist';
 declare module 'pdfjs-dist/build/pdf.worker.entry.js';
+declare module 'qs';
 
 interface Window {
   AppJSInterface?: () => void;

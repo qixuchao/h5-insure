@@ -9,8 +9,10 @@
     @click="handleClick"
   >
     <template #input>
-      <span v-if="displayValue" class="displayValue">{{ displayValue }}</span>
-      <span v-else class="placeholder">{{ placeholder }}</span>
+      <div class="input">
+        <span v-if="displayValue" class="displayValue">{{ displayValue }}</span>
+        <span v-else class="placeholder">{{ placeholder }}</span>
+      </div>
     </template>
   </ProField>
   <ProPopup v-model:show="show" :height="60" :closeable="false" class="com-cascader-popup">
@@ -203,11 +205,11 @@ const handleFinish = (selected: { value: number | string; selectedOptions: any[]
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scope>
 .displayValue {
   display: flex;
   align-items: center;
-  line-height: 1.4;
+  // line-height: 1.4;
 }
 .placeholder {
   color: $zaui-aide-text;

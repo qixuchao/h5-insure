@@ -40,7 +40,7 @@
           </van-cell-group>
         </van-checkbox-group>
       </div>
-      <div class="footer-bar">
+      <div class="footer-button">
         <VanButton type="primary" :disabled="!state.currentChecked.length" block @click="onFinished">确认</VanButton>
       </div>
     </VanPopup>
@@ -171,26 +171,31 @@ watch(
 
 <style lang="scss" scoped>
 .com-risk-list-wrapper {
-  .popup-title {
-    height: 104px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 64px;
-    font-size: 34px;
-    font-weight: 600;
-    color: #393d46;
-  }
   .risk-list {
     height: 1038px;
     padding-bottom: 150px;
   }
 
   :deep(.van-cell-group--inset) {
-    border-bottom: 1px solid #eeeff4;
+    border-bottom: 0;
+    border-radius: 0;
+    margin: 0;
 
     .van-cell {
-      padding: 23px 0;
+      padding: 32px 40px;
+      align-items: center;
+      &::after {
+        width: 720px;
+      }
+      .van-checkbox__icon {
+        .van-icon {
+          height: 32px;
+          width: 32px;
+          border-radius: 4px;
+          line-height: 32px;
+          font-size: 24px;
+        }
+      }
     }
   }
 
