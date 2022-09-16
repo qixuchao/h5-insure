@@ -533,6 +533,10 @@ defineExpose({
   }
 }
 
+.renewal.container {
+  background: #ffffff;
+}
+
 .renewal-desc {
   margin: 0 25px 25px 25px;
   padding: 25px;

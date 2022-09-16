@@ -317,8 +317,10 @@ export const getReqData = (o: upgradeParamType) => {
     tenantId: o.tenantId,
     orderAmount: o.premium,
     extInfo: {
-      ...orderDetail.extInfo.extraInfo,
-      successJumpUrl: o.successJumpUrl,
+      extraInfo: {
+        ...orderDetail.extInfo.extraInfo,
+        successJumpUrl: o.successJumpUrl,
+      },
     },
     tenantOrderHolder: {
       tenantId: orderDetail.tenantOrderHolder.tenantId,
