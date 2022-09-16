@@ -84,13 +84,13 @@
       @on-confirm="onConfirm"
       @on-close="onClose"
     />
-    <FilePreview
-      v-model:show="showFilePreview"
-      :content-list="productAttachmentList.concat(rateAttachmentList)"
-      :active-index="activeIndex"
-      @submit="onSubmit"
-    ></FilePreview>
   </van-config-provider>
+  <FilePreview
+    v-model:show="showFilePreview"
+    :content-list="productAttachmentList.concat(rateAttachmentList)"
+    :active-index="activeIndex"
+    @submit="onSubmit"
+  ></FilePreview>
 </template>
 
 <script lang="ts" setup>
