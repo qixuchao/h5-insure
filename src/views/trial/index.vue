@@ -64,16 +64,18 @@
     </div>
 
     <div class="footer-bar van-safe-area-bottom">
-      <span class="trial-result">
-        <span class="result-num">{{
-          (!state.retrialTip ? state.trialResult?.premium || '0' : '0').toLocaleString()
+      <span class="trial-result"
+        >总保费<span class="result-num">{{
+          (!state.retrialTip ? state.trialResult?.premium || 0 : 0).toLocaleString('hanidec', {
+            style: 'currency',
+            currency: 'CNY',
+          })
         }}</span>
-        元起
       </span>
       <div class="trial-operate">
         <div v-if="state.retrialTip" class="retrial-tip">
           条件更改后，需要重新试算
-          <span class="close-icon" @click="closeTip">X</span>
+          <span class="close-icon" @click="closeTip"></span>
         </div>
         <VanButton v-if="state.canTrial" type="primary" @click="trial">去试算</VanButton>
         <VanButton v-else type="primary" @click="goNextPage">立即投保</VanButton>
@@ -100,7 +102,7 @@ import {
   RiskVoItem,
   InsuredVoItem,
   LiabilityVoItem,
-  premiumCalcData,
+  PremiumCalcData,
   RiskPremiumDetailVoItem,
   ProductRelationPlanVoItem,
   premiumCalcResponse,
@@ -302,7 +304,7 @@ const dealTrialData = () => {
     return risk;
   });
 
-  const trialData: premiumCalcData = {
+  const trialData: PremiumCalcData = {
     holder: holder.value,
     productCode: state.riskBaseInfo.productCode as string,
     insuredVOList: [
@@ -445,7 +447,7 @@ onBeforeMount(() => {
 </script>
 <style lang="scss" scoped>
 .page-trial-wrapper {
-  background-color: #f2f5fc;
+  background-color: $zaui-global-bg;
 
   .part-card {
     background-color: #ffffff;
@@ -466,6 +468,14 @@ onBeforeMount(() => {
     :deep(.van-tabs__line) {
       display: none;
     }
+    :deep(.van-tabs) {
+      .van-tabs__wrap {
+        height: auto;
+        .van-tabs__nav--line {
+          padding: 23px 0;
+        }
+      }
+    }
   }
   .footer-bar {
     position: fixed;
@@ -479,16 +489,19 @@ onBeforeMount(() => {
     justify-content: space-between;
     align-items: center;
     border-top: 1px solid #efeff4;
+    z-index: 2;
 
     .trial-result {
       width: 440px;
-      color: #ff5840;
-      font-size: 24px;
-      font-weight: 600;
+
+      font-size: 34px;
+      font-weight: 400;
+      color: $zaui-text;
       .result-num {
-        font-size: 46px;
+        color: $zaui-price;
+        font-size: 34px;
         font-weight: 500;
-        margin-left: 13px;
+        margin-left: 16px;
       }
     }
     .trial-operate {
@@ -501,7 +514,7 @@ onBeforeMount(() => {
         // width: 354px;
         height: 42px;
         border-radius: 100px;
-        background-color: #ff5840;
+        background-color: $zaui-price;
         font-size: 26px;
         font-family: PingFangSC-Regular, PingFang SC, sans-serif;
         font-weight: 400;
@@ -514,6 +527,11 @@ onBeforeMount(() => {
         align-items: center;
         .close-icon {
           margin-left: 13px;
+          background-image: url('@/assets/images/close-white.png');
+          background-repeat: no-repeat;
+          background-size: contain;
+          width: 18px;
+          height: 18px;
         }
         &:after {
           content: ' ';

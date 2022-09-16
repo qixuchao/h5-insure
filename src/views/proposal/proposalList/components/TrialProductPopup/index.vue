@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-20 18:07:20
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-07-29 09:21:48
+ * @LastEditTime: 2022-09-15 10:41:53
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/proposalList/components/TrialProductPopup/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -13,7 +13,7 @@
         <div class="popup-header">
           <span class="clear-all" @click="clearAll"> 清空选项 </span>
           <span class="title"> 已选产品 </span>
-          <span @click="close">X</span>
+          <span class="close" @click="close"></span>
         </div>
         <div class="popup-body">
           <van-checkbox-group v-model="checked">
@@ -119,21 +119,55 @@ watch(
       padding: 0 $zaui-card-border;
       align-items: center;
       height: 104px;
+      border-bottom: 1px solid $zaui-line;
       .clear-all {
-        color: #99a9c0;
+        color: $zaui-text-weak;
         font-size: 30px;
         font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
+        width: 140px;
       }
       .title {
         font-size: 34px;
         font-family: PingFangSC-Semibold, PingFang SC;
         font-weight: 600;
-        color: #393d46;
+        color: $zaui-text-title;
+      }
+      .close {
+        text-align: right;
+        width: 140px;
+        height: 24px;
+        background-image: url('@/assets/images/img-guanbi.png');
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: right;
       }
     }
     .popup-body {
       margin-bottom: 150px;
+      :deep(.van-cell-group--inset) {
+        border-bottom: 0;
+        border-radius: 0;
+        margin: 0;
+
+        .van-cell {
+          padding: 28px 30px;
+          align-items: center;
+          &::after {
+            width: 720px;
+            left: $zaui-card-border;
+          }
+          .van-checkbox__icon {
+            .van-icon {
+              height: 32px;
+              width: 32px;
+              border-radius: 4px;
+              line-height: 32px;
+              font-size: 24px;
+            }
+          }
+        }
+      }
     }
   }
 }

@@ -8,7 +8,7 @@
     :required="required"
   >
     <template #input>
-      <div style="width: 100%" @click="handleClick">
+      <div style="width: 100%" class="input" @click="handleClick">
         <span v-if="displayValue" class="displayValue">{{ displayValue }}</span>
         <span v-else class="placeholder">{{ placeholder }}</span>
       </div>

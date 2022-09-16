@@ -219,7 +219,7 @@ const editProposal = (id: number) => {
         line-height: 37px;
         margin: 6px 0 14px;
         & > span {
-          color: #ff5840;
+          color: $zaui-price;
           font-weight: bold;
         }
       }

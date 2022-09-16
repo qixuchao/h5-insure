@@ -10,8 +10,8 @@
 
 // eslint-disable-next-line
 export enum SEX_LIMIT_ENUM {
-  MALE = '1',
-  FEMALE = '2',
+  FEMALE = '1', // 女
+  MALE = '2', // 男
 }
 
 export const SEX_LIMIT_LIST = [
@@ -138,6 +138,9 @@ export const PAGE_ROUTE_ENUMS = {
   orderDetail: 'orderDetail', // 订单详情
   orderList: 'order', // 订单列表
   paymentResult: 'pay',
+  activityFree: 'free',
+  activityProductDetail: 'productDetail',
+  activityGuaranteeUpgrade: 'guaranteeUpgrade',
 };
 
 // eslint-disable-next-line

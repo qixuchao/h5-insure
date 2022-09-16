@@ -174,7 +174,7 @@ onMounted(() => {
 <style scoped lang="scss">
 .com-question {
   :deep(.body) {
-    background-color: #f2f5fc;
+    background-color: $zaui-global-bg;
     padding: 0 !important;
     margin-bottom: 120px;
     .com-radio-btn {

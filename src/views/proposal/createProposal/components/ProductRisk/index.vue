@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-16 13:39:05
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-02 16:38:44
+ * @LastEditTime: 2022-09-08 17:21:27
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductRisk/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -48,7 +48,7 @@
           </div>
         </div>
         <div class="footer-bar">
-          <VanButton block type="primary" @click="trial">确认</VanButton>
+          <VanButton block type="primary" @click="trial">确定</VanButton>
         </div>
       </div>
     </VanPopup>
@@ -71,7 +71,7 @@ import {
   RiskVoItem,
   InsuredVoItem,
   LiabilityVoItem,
-  premiumCalcData,
+  PremiumCalcData,
   RiskPremiumDetailVoItem,
   ProductRelationPlanVoItem,
 } from '@/api/modules/trial.data';
@@ -190,7 +190,7 @@ const messageInfo = computed(() => {
 });
 
 // 将试算的数据转换成计划书的数据
-const formatData = (trialData: premiumCalcData, riskPremium: any) => {
+const formatData = (trialData: PremiumCalcData, riskPremium: any) => {
   const riskList = (trialData.insuredVOList[0].productPlanVOList[0].riskVOList || []).map((risk: RiskVoItem) => {
     return {
       ...risk,
@@ -252,7 +252,7 @@ const dealTrialData = () => {
   });
 
   // 整合试算需要的数据结构
-  const trialData: premiumCalcData = {
+  const trialData: PremiumCalcData = {
     holder: holder.value,
     productCode: state.riskBaseInfo.productCode as string,
     insuredVOList: [
@@ -432,7 +432,7 @@ onBeforeMount(() => {
 <style lang="scss" scoped>
 .com-product-risk-wrapper {
   .popup-container {
-    background-color: #f2f5fc;
+    background-color: $zaui-global-bg;
 
     .popup-title {
       height: 104px;
@@ -484,7 +484,7 @@ onBeforeMount(() => {
 
     .trial-result {
       width: 440px;
-      color: #ff5840;
+      color: $zaui-price;
       font-size: 24px;
       font-weight: 600;
       .result-num {
@@ -503,7 +503,7 @@ onBeforeMount(() => {
         // width: 354px;
         height: 42px;
         border-radius: 100px;
-        background-color: #ff5840;
+        background-color: $zaui-price;
         font-size: 26px;
         font-family: PingFangSC-Regular, PingFang SC, sans-serif;
         font-weight: 400;

@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 10:50:19
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-08 15:01:12
+ * @LastEditTime: 2022-09-12 22:15:56
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/trial/components/RiskList/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -28,8 +28,12 @@
       <span class="left-part">{{
         `共有${state.riderRiskList.length - state.checkedList.length}款附加险可以添加`
       }}</span>
-      <ProCheckButton activated @click="toggle(true)">+ 附加险</ProCheckButton>
+      <ProCheckButton activated class="btn-rider-risk" @click="toggle(true)">
+        <span class="btn-plus">+</span>
+        附加险</ProCheckButton
+      >
     </div>
+
     <RiskRelationList
       v-if="showPopup"
       v-model="state.checkedList"
@@ -107,6 +111,7 @@ const onFinished = (risk: any[], disabled: any[]) => {
 const removeRiderRisk = (riskId: number) => {
   Dialog.confirm({
     message: '确定要删除附加险么？',
+    confirmButtonText: '删除',
   })
     .then(() => {
       const removeRiskIds = [riskId];
@@ -128,6 +133,27 @@ const removeRiderRisk = (riskId: number) => {
       state.disabledList = state.disabledList.filter((id) => !removeRiskIds.includes(id));
     })
     .catch(() => {});
+};
+
+// 初始化责任的属性值
+const initLiabilityValue = (liab, riskId: number) => {
+  const currentLiability = (state.riskInfo?.[riskId]?.liabilityVOList || []).find(
+    (liabi) => liabi.liabilityCode === liab.liabilityCode,
+  );
+
+  console.log('currentLiability', currentLiability);
+
+  if (currentLiability) {
+    if (currentLiability.liabilityAttributeValue) {
+      return currentLiability.liabilityAttributeValue;
+    }
+    if (liab.optionalFlag !== 1) {
+      return '0'; // 投保
+    }
+    return '-1';
+  }
+
+  return '';
 };
 
 // 计算出主险和附加险的投保人和被保人的因子
@@ -165,6 +191,7 @@ watch(
           liabilityAttributeCode: liab.liabilityAttributeType,
           liabilityCode: liab.liabilityCode,
           liabilityRateType: liab.liabilityRateType,
+          liabilityAttributeValue: initLiabilityValue(liab, risk.id),
         })),
       };
       if (!state.riskInfo[risk.id]) {
@@ -247,6 +274,15 @@ watch(
       font-weight: 400;
       color: #99a9c0;
       font-size: 30px;
+    }
+    .btn-rider-risk {
+      border: none;
+      display: flex;
+      align-items: center;
+      .btn-plus {
+        font-size: 44px;
+        margin: 0 8px 10px;
+      }
     }
   }
 }
