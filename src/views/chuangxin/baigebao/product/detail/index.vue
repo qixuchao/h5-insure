@@ -5,11 +5,21 @@
         <img :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
         <div class="guarantee-list">
           <ProCard title="保障内容" link="查看详情" :show-divider="false" :show-icon="false" @link-click="onShowDetail">
-            <div v-if="detail && detail?.tenantProductInsureVO" class="basic">
+            <div v-if="detail && detail?.tenantProductInsureVO && !isCheck" class="basic">
               <ProCell
                 v-for="(item, index) in guaranteeList?.[activePlan]?.titleAndDescVOS"
                 :key="index"
                 class="guarantee-item"
+                :title="item.title"
+                :content="item.desc"
+                :border="false"
+              />
+            </div>
+            <div v-else class="basic">
+              <ProCell
+                v-for="(item, index) in checkTitleAndDescVOS"
+                :key="index"
+                :class="['guarantee-item', { left: item.align === 'left' }]"
                 :title="item.title"
                 :content="item.desc"
                 :border="false"
@@ -60,20 +70,21 @@
     </div>
     <PreNotice v-if="isCheck && pageCode !== 'payBack'" :product-detail="detail"></PreNotice>
     <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
-      <ProScrollTab
-        v-if="guaranteeList.length > 1"
-        :list="
-          guaranteeList.map((item, index) => ({
-            title: item.guaranteeType,
-            slotName: `guarantee-${index}`,
-          }))
-        "
-        class="tab"
-      ></ProScrollTab>
-      <div class="guarantee-list">
+      <div v-if="!isCheck" class="guarantee-list">
         <div v-for="(item, index) in guaranteeList[activePlan].titleAndDescVOS" :key="index" class="guarantee-item">
           <div class="title">{{ item.title }}</div>
           <div v-dompurify-html="item.content" class="content" />
+        </div>
+      </div>
+      <div v-else class="check-guarantee-list">
+        <div v-for="(item, index) in checkTitleAndDescDetail" :key="index" class="guarantee-item">
+          <div class="cell">
+            <div>{{ item.title }}</div>
+            <div>{{ item.desc }}</div>
+          </div>
+          <div v-if="item.content.length > 0" class="content">
+            <div v-for="(c, i) in item.content" :key="i">（{{ i + 1 }}） {{ c }}</div>
+          </div>
         </div>
       </div>
     </ProPopup>
@@ -136,6 +147,7 @@ import {
 } from './utils';
 import { genaratePremiumCalcData, transformData, genarateOrderParam } from '../../utils';
 import themeVars from '../../theme';
+import { checkTitleAndDescVOS, checkTitleAndDescDetail } from './data';
 
 const router = useRouter();
 const route = useRoute();
@@ -748,6 +760,23 @@ $activity-primary-color: #ff6d23;
           padding-bottom: 40px;
           border-bottom: 1px solid #eeeef4;
         }
+      }
+    }
+    .check-guarantee-list {
+      padding: 0 25px;
+      .cell {
+        display: flex;
+        justify-content: space-between;
+        padding: 25px 0;
+        color: $zaui-text;
+        font-size: 28px;
+        border-bottom: 1px solid #e6e6e6;
+      }
+      .content {
+        color: $zaui-aide-text;
+        padding: 20px 0;
+        font-size: 24px;
+        line-height: 48px;
       }
     }
   }
