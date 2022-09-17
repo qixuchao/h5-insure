@@ -149,7 +149,7 @@ import {
 import { genaratePremiumCalcData, transformData, genarateOrderParam } from '../../utils';
 import themeVars from '../../theme';
 import { checkTitleAndDescVOS, checkTitleAndDescDetail } from './data';
-import checkImg from '@/assets/images/chuangxin/check-img.png';
+import checkImg from '@/assets/images/chuangxin/check-detail.png';
 
 const router = useRouter();
 const route = useRoute();
