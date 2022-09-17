@@ -17,7 +17,7 @@
     <van-config-provider :theme-vars="themeVars">
       <ProTab
         v-if="isShow"
-        :active="currentActiveIndex"
+        v-model:active="currentActiveIndex"
         :list="
           contentList.map((item, index) => ({
             title: item.attachmentName,
