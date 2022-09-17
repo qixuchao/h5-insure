@@ -80,7 +80,7 @@ const {
   tenantId = '',
   phoneNo,
   saleChannelId,
-  agentCode,
+  agentCode = '',
   paymentMethod,
   from,
 } = route.query as QueryData;

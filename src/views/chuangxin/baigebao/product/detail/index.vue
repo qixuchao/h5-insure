@@ -156,7 +156,7 @@ const {
   tenantId,
   orderNo,
   phoneNo: mobile,
-  agentCode,
+  agentCode = '',
   saleChannelId,
   paymentMethod,
   certNo,

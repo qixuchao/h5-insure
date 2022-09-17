@@ -73,7 +73,7 @@ interface QueryData {
   [key: string]: string;
 }
 
-const { productCode = 'BWYL2022', tenantId, orderNo, agentCode, from } = route.query as QueryData;
+const { productCode = 'BWYL2022', tenantId, orderNo, agentCode = '', from } = route.query as QueryData;
 
 const detail = ref<ProductDetail>(); // 产品详情
 const insureDetail = ref<any>(); // 险种详情
