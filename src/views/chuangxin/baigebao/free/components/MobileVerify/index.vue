@@ -24,7 +24,7 @@
         </template>
       </van-field>
     </van-cell-group>
-    <div class="submit" @click="onSubmit"></div>
+    <div :class="[{ 'check-submit': props.isCheck }, { submit: !props.isCheck }]" @click="onSubmit"></div>
   </VanForm>
 </template>
 
@@ -36,6 +36,10 @@ import { validateMobile, validateSmsCode } from '@/utils/validator';
 import { FIELD_LENGTH } from '../../../utils';
 
 const props = defineProps({
+  isCheck: {
+    type: Boolean,
+    default: false,
+  },
   userInfo: {
     type: Object,
     default: () => {},

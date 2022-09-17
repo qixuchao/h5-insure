@@ -58,7 +58,7 @@
         }}</van-button>
       </div>
     </div>
-    <PreNotice v-if="isCheck && pageCode !== 'payBack'"></PreNotice>
+    <PreNotice v-if="isCheck && pageCode !== 'payBack'" :product-detail="detail"></PreNotice>
     <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
       <ProScrollTab
         v-if="guaranteeList.length > 1"
@@ -214,7 +214,7 @@ const trailData = reactive({
   },
   paymentMethod,
   paymentMethodDisable: !!paymentMethod, // 支付方式不能修改
-  renewalDK: 'Y',
+  renewalDK: isCheck ? '' : 'Y',
 });
 
 const showModal = ref<boolean>(false);
@@ -415,6 +415,14 @@ const onPremiumCalcWithValid = () => {
     formRef.value
       ?.validateForm?.()
       .then(async () => {
+        if (!trailData.renewalDK) {
+          Toast('请选择是否自助重新投保');
+          const toScroll = (document.getElementById('renewal')?.offsetTop as number) - 70;
+          document.documentElement.scrollTop = toScroll;
+          document.body.scrollTop = toScroll;
+          isDisableNext.value = false;
+          return;
+        }
         // 表单验证通过再检查是否逐条阅读
         const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
         if (isCheck && !isAgree) {
@@ -530,7 +538,7 @@ const getOrderById = async () => {
     };
     trailData.paymentMethod = extInfo.extraInfo.paymentMethod;
     premium.value = tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium;
-    trailData.renewalDK = extInfo.extraInfo.renewalDK ? 'Y' : 'N';
+    trailData.renewalDK = extInfo.extraInfo.renewalDK;
     // TODO 卡流程，先这样处理
     if (pageCode === 'productDetail') {
       return;

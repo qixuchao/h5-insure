@@ -10,11 +10,17 @@
     <div class="card">
       <div class="title">{{ detail?.productName }}</div>
       <div class="content">
-        <div class="desc">被保险人：{{ orderDetail?.tenantOrderInsuredList[0].name }}</div>
-        <div class="desc">保单号：{{ orderDetail?.orderNo }}</div>
         <div class="desc">
-          后续每月保费：{{ getFloat(orderDetail?.tenantOrderInsuredList[0].tenantOrderProductList[0].premium || '') }}
-          元
+          <div>被保险人：</div>
+          <div>{{ orderDetail?.tenantOrderInsuredList[0].name }}</div>
+        </div>
+        <div class="desc">
+          <div>保单号：</div>
+          <div>{{ orderDetail?.orderNo }}</div>
+        </div>
+        <div class="desc">
+          <div>后续每月保费：</div>
+          <div>{{ getFloat(orderDetail?.tenantOrderInsuredList[0].tenantOrderProductList[0].premium || '') }} 元</div>
         </div>
       </div>
     </div>
@@ -92,6 +98,9 @@ onMounted(() => {
       color: $zaui-text;
       line-height: 40px;
       margin: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       &:first-child {
         margin-top: 20px;
       }

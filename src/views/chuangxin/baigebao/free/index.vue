@@ -14,7 +14,7 @@
           <div class="title">
             <img :src="state.title" />
           </div>
-          <MobileVerify v-if="isVerifyMobile" :user-info="state.userInfo" @on-verify="onVerify" />
+          <MobileVerify v-if="isVerifyMobile" :is-check="isCheck" :user-info="state.userInfo" @on-verify="onVerify" />
           <InfoField v-else :user-info="state.userInfo" @on-submit="onSubmit" />
           <div class="agree">
             <div class="check-wrap">
@@ -87,6 +87,7 @@ const {
 
 // 为true, 显示手机验证表单
 const isVerifyMobile = ref(true);
+const isCheck = from === 'check';
 
 const state = reactive({
   title: TitleImg,
@@ -114,7 +115,7 @@ const onVerify = async (e: UserInfoProps) => {
   // 填写的手机号
   state.userInfo.mobile = e.mobile;
   // 审核的
-  if (from === 'check') {
+  if (isCheck) {
     if (!state.agree) {
       Toast('请勾选协议');
       return;
@@ -273,6 +274,14 @@ onMounted(() => {
         margin-top: 40px;
         margin-bottom: 35px;
         background: url('@/assets/images/chuangxin/button.png') no-repeat;
+        background-size: contain;
+        background-position: center;
+        border: none;
+      }
+      .check-submit {
+        height: 200px;
+        margin-top: 40px;
+        background: url('@/assets/images/chuangxin/check.gif') no-repeat;
         background-size: contain;
         background-position: center;
         border: none;

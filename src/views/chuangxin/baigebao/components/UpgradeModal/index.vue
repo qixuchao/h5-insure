@@ -121,9 +121,14 @@ const fetchData = () => {
   });
 };
 
-onMounted(() => {
-  fetchData();
-});
+watch(
+  () => props.isShow,
+  (val) => {
+    if (val) {
+      fetchData();
+    }
+  },
+);
 </script>
 
 <style lang="scss" scoped>

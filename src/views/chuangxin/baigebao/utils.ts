@@ -383,3 +383,15 @@ export const getFloat = (val: number) => {
   }
   return val;
 };
+
+export const nameMixin = (name: string) => {
+  return name?.replace(/(?<=.)./g, '*');
+};
+
+export const mobileMixin = (mobile: string) => {
+  return mobile?.replace(/^(.{3})(?:\d+)(.{4})$/, '$1****$2');
+};
+
+export const idCardMixin = (idCard: string) => {
+  return idCard?.replace(/^(.{6})(?:\d+)(.{2})$/, '$1**********$2');
+};

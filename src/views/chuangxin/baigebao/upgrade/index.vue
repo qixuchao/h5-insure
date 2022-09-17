@@ -11,9 +11,9 @@
       <img :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
       <div class="container">
         <div class="main-form">
-          <FieldInfo title="姓名" :desc="orderDetail?.tenantOrderInsuredList?.[0].name" />
-          <FieldInfo title="证件号码" :desc="orderDetail?.tenantOrderInsuredList?.[0].certNo" />
-          <FieldInfo title="手机号码" :desc="orderDetail?.tenantOrderHolder?.mobile" />
+          <FieldInfo title="姓名" :desc="nameMixin(orderDetail?.tenantOrderInsuredList?.[0].name)" />
+          <FieldInfo title="证件号码" :desc="idCardMixin(orderDetail?.tenantOrderInsuredList?.[0].certNo)" />
+          <FieldInfo title="手机号码" :desc="mobileMixin(orderDetail?.tenantOrderHolder?.mobile)" />
           <FieldInfo title="每月保费" :desc="`${getFloat(premium || 0)}元 / 每月`" />
           <ProField label="有无社保" name="name" required placeholder="请选择">
             <template #input>
@@ -45,7 +45,16 @@ import {
   EndorsementUp,
 } from '@/api/modules/trial';
 import themeVars from '../theme';
-import { getReqData, transformData, compositionTrailData, genarateOrderParam, getFloat } from '../utils';
+import {
+  getReqData,
+  transformData,
+  compositionTrailData,
+  genarateOrderParam,
+  getFloat,
+  nameMixin,
+  mobileMixin,
+  idCardMixin,
+} from '../utils';
 import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ORIGIN } from '@/utils';
