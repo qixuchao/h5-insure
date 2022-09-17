@@ -118,7 +118,7 @@ const baigebaoRoutes = [
   {
     name: '赠险',
     path: '/chuangxin/baigebao/free',
-    meta: { title: '赠险' },
+    meta: { title: '' },
     component: () => import('@/views/chuangxin/baigebao/free/index.vue'),
   },
   {
