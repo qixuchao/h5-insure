@@ -116,9 +116,15 @@ const proposalRoutes: Array<RouteRecordRaw> = [
 // 创新-白鸽宝路由
 const baigebaoRoutes = [
   {
+    name: '审核',
+    path: '/chuangxin/baigebao/check',
+    meta: { title: '' },
+    component: () => import('@/views/chuangxin/baigebao/check/index.vue'),
+  },
+  {
     name: '赠险',
     path: '/chuangxin/baigebao/free',
-    meta: { title: '' },
+    meta: { title: '赠险' },
     component: () => import('@/views/chuangxin/baigebao/free/index.vue'),
   },
   {

@@ -64,7 +64,6 @@ interface QueryData {
   phoneNo: string; // 手机号
   agentCode: string;
   orderNo: string;
-  from: string;
   [key: string]: string;
 }
 
@@ -82,12 +81,10 @@ const {
   saleChannelId,
   agentCode = '',
   paymentMethod,
-  from,
 } = route.query as QueryData;
 
 // 为true, 显示手机验证表单
 const isVerifyMobile = ref(true);
-const isCheck = from === 'check';
 
 const state = reactive({
   title: TitleImg,
@@ -114,24 +111,6 @@ const insureDetail = ref<any>();
 const onVerify = async (e: UserInfoProps) => {
   // 填写的手机号
   state.userInfo.mobile = e.mobile;
-  // 审核的
-  if (isCheck) {
-    if (!state.agree) {
-      Toast('请勾选协议');
-      return;
-    }
-    router.push({
-      path: '/chuangxin/baigebao/productDetail',
-      query: {
-        ...route.query,
-        tenantId,
-        phoneNo: state.userInfo.mobile,
-        productCode: 'BWYL2021',
-      },
-    });
-    return;
-  }
-
   // 通过手机号查订单的信息
   const res = await getOrderDetailByCondition({
     holderPhone: state.userInfo.mobile,
@@ -274,14 +253,6 @@ onMounted(() => {
         margin-top: 40px;
         margin-bottom: 35px;
         background: url('@/assets/images/chuangxin/button.png') no-repeat;
-        background-size: contain;
-        background-position: center;
-        border: none;
-      }
-      .check-submit {
-        height: 200px;
-        margin-top: 40px;
-        background: url('@/assets/images/chuangxin/check.gif') no-repeat;
         background-size: contain;
         background-position: center;
         border: none;
