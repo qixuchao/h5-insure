@@ -2,7 +2,8 @@
   <van-config-provider :theme-vars="themeVars">
     <div class="page-product-detail">
       <div class="info">
-        <img :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
+        <img v-if="isCheck" :src="checkImg" class="banner" />
+        <img v-else :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
         <div class="guarantee-list">
           <ProCard title="保障内容" link="查看详情" :show-divider="false" :show-icon="false" @link-click="onShowDetail">
             <div v-if="detail && detail?.tenantProductInsureVO && !isCheck" class="basic">
@@ -148,6 +149,7 @@ import {
 import { genaratePremiumCalcData, transformData, genarateOrderParam } from '../../utils';
 import themeVars from '../../theme';
 import { checkTitleAndDescVOS, checkTitleAndDescDetail } from './data';
+import checkImg from '@/assets/images/chuangxin/check-img.png';
 
 const router = useRouter();
 const route = useRoute();
@@ -700,6 +702,12 @@ $activity-primary-color: #ff6d23;
     line-height: 64px;
     .left-part {
       color: $zaui-text;
+    }
+    &.left {
+      :deep(.right-part) {
+        text-align: left;
+        line-height: 56px;
+      }
     }
   }
   // 多选样式覆盖

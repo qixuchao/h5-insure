@@ -7,21 +7,21 @@
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
-  <!-- <van-config-provider :theme-vars="themeVars"> -->
-  <ProPopup class="pre-notice-wrap" :show="show" :closeable="false" :height="45">
+  <ProPopup class="pre-notice-wrap" :show="noticeShow" :closeable="false" :height="45">
     <div class="header"><img :src="HeaderImg" /></div>
     <div class="content">
       <h4>温馨提示，您已进入投保流程：</h4>
       <p>
-        请仔细阅读免责条款、投保须知等信息，请您重点阅读并知晓<span
-          ><ProPDFviewer
-            v-for="(item, index) in personalAttachmentList"
-            :key="index"
-            class="file-name"
-            :title="`《${item.attachmentName}》`"
-            :content="item.attachmentUri"
-            type="pdf" /></span
-        >，为维护您的合法权益，您的操作轨迹将被记录。
+        请仔细阅读免责条款、投保须知等信息，请您重点阅读并知晓
+        <span
+          v-for="(item, index) in personalAttachmentList"
+          :key="index"
+          class="file-name"
+          @click="openPdf(item.attachmentUri)"
+        >
+          《{{ item.attachmentName }}》
+        </span>
+        ，为维护您的合法权益，您的操作轨迹将被记录。
       </p>
     </div>
     <div class="footer">
@@ -31,7 +31,15 @@
       </VanButton>
     </div>
   </ProPopup>
-  <!-- </van-config-provider> -->
+  <ProPopup
+    v-model:show="pdfShow"
+    class="pre-notice-wrap"
+    close-icon="close"
+    position="bottom"
+    :style="{ height: '600px', paddingTop: '40px' }"
+  >
+    <ProFilePreview :content="attachmentUri" type="pdf"></ProFilePreview>
+  </ProPopup>
 </template>
 
 <script lang="ts" setup name="preNotice">
@@ -44,12 +52,13 @@ import HeaderImg from '@/assets/images/chuangxin/header-logo.png';
 const STORAGE_PREFIX = 'PRENOTICE';
 
 const sessionStorage = new Storage({ source: 'sessionStorage' });
-const show = ref<boolean>(false);
+const noticeShow = ref<boolean>(false);
+const pdfShow = ref<boolean>(false);
 const countDown = useCountDown({
   time: 4000,
   onFinish: () => {
     sessionStorage.set(`${STORAGE_PREFIX}-isShow`, '1');
-    show.value = false;
+    noticeShow.value = false;
   },
 });
 
@@ -59,6 +68,8 @@ const props = defineProps({
     default: () => {},
   },
 });
+
+const attachmentUri = ref<string>();
 
 // 个人信息保护政策
 const personalAttachmentList = computed(() => {
@@ -71,10 +82,15 @@ const currentTime = computed<number>(() => {
   return countDown.current.value.seconds;
 });
 
+const openPdf = (url: string) => {
+  pdfShow.value = !pdfShow.value;
+  attachmentUri.value = url;
+};
+
 onMounted(() => {
   const isShow = sessionStorage.get(`${STORAGE_PREFIX}-isShow`);
   if (!isShow) {
-    show.value = true;
+    noticeShow.value = true;
     countDown.start();
   }
 });
@@ -95,6 +111,9 @@ onMounted(() => {
       margin-top: 20px;
       font-size: 28px;
       line-height: 44px;
+    }
+    span {
+      color: $primary-color;
     }
   }
   .footer {
