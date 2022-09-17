@@ -32,15 +32,6 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import {
-  RISK_TYPE_ENUM,
-  RULE_ENUM,
-  PAYMENT_PERIOD_TYPE_ENUMS,
-  INSURANCE_PERIOD_TYPE_ENUMS,
-} from '@/common/constants/trial';
-import { RiskVoItem, RiskPremiumDetailVoItem, RiskDetailVoItem } from '@/api/modules/trial.data';
-import {
-  RELATION_HOLDER_ENUM,
-  RELATION_HOLDER_LIST, // 投被保人关系
   SOCIAL_SECURITY, // 有无社保
 } from '@/common/constants/infoCollection';
 import FieldInfo from '../components/FieldInfo/index.vue';

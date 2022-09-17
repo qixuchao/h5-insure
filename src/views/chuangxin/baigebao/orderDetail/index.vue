@@ -22,23 +22,13 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter, useRoute } from 'vue-router';
-import { Toast } from 'vant';
-import {
-  premiumCalc,
-  insureProductDetail,
-  saveOrder,
-  underwrite,
-  getPayUrl,
-  getTenantOrderDetail,
-} from '@/api/modules/trial';
+import { useRoute } from 'vue-router';
+import { getTenantOrderDetail } from '@/api/modules/trial';
 import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
-import orderPng from '@/assets/images/chuangxin/order.png';
 import { getFloat } from '../utils';
 
 const route = useRoute();
-const router = useRouter();
 
 /** 页面query参数类型 */
 interface QueryData {

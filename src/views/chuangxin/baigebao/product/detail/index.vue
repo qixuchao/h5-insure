@@ -78,9 +78,9 @@
       </div>
     </ProPopup>
     <UpgradeModal
+      :order-no="orderNo"
+      :tenant-id="tenantId"
       :is-show="showModal"
-      :premium="premium"
-      :attachment-list="detail?.tenantProductInsureVO?.attachmentVOList"
       @on-confirm="onConfirm"
       @on-close="onClose"
     />
