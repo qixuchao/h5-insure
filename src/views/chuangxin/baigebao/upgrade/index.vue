@@ -43,6 +43,7 @@ import {
   getTenantOrderDetail,
   endorsementPremiumCalc,
   EndorsementUp,
+  deleteOrder,
 } from '@/api/modules/trial';
 import themeVars from '../theme';
 import {
@@ -190,6 +191,11 @@ const onUpgrade = async (o: any) => {
     // 保存订单
     await onPremiumCalc();
     const oNo = await onSaveOrder();
+    // 删除订单
+    const res = await deleteOrder({
+      tenantId,
+      applicationNo: orderDetail.value.applicationNo,
+    });
 
     // signUrl 有值，是微信支付流程
     if (signUrl.value) {

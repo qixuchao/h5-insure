@@ -51,3 +51,7 @@ export const endorsementPremiumCalc = (data = {}) =>
 // 升级保障
 export const EndorsementUp = (data = {}) =>
   request.post<any, ResponseData>('/api/app/insure/insurance/EndorsementUp', data);
+
+// 删除订单
+export const deleteOrder = (data = {}) =>
+  request.post<any, ResponseData>('/api/app/insure/insurance/deleteOrder', data);
