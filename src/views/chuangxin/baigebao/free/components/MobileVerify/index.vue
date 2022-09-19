@@ -12,12 +12,12 @@
       />
       <van-field
         v-model="state.smsCode"
+        type="digit"
         name="smsCode"
         label="验证码"
         clearable
         placeholder="请输入验证码"
         :maxlength="FIELD_LENGTH.SMS_CODE"
-        :rules="[{ validator: validatorCode }]"
       >
         <template #button>
           <div :class="['sms-code', { 'count-down': countDownTimer > 0 }]" @click="onCaptha">{{ smsText }}</div>
