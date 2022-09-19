@@ -14,7 +14,7 @@
           <div class="title">
             <img :src="state.title" />
           </div>
-          <MobileVerify v-if="isVerifyMobile" :is-check="isCheck" :user-info="state.userInfo" @on-verify="onVerify" />
+          <MobileVerify v-if="isVerifyMobile" :user-info="state.userInfo" @on-verify="onVerify" />
           <InfoField v-else :user-info="state.userInfo" @on-submit="onSubmit" />
           <div class="agree">
             <div class="check-wrap">
@@ -211,17 +211,17 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+// iphone 4 兼容
+.van-config-provider.router-view {
+  background: linear-gradient(180deg, #fea64a 0%, #fc7429 88%, #fc6d24 100%);
+}
 .page-activity-invite {
-  width: 100%;
   height: 100%;
   background: linear-gradient(180deg, #fea64a 0%, #fc7429 88%, #fc6d24 100%);
   .banner {
     width: 100%;
   }
   .container {
-    position: absolute;
-    width: 100%;
-    bottom: 60px;
     padding: 20px;
 
     .title {
