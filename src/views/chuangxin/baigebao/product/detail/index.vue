@@ -103,6 +103,7 @@
     :active-index="activeIndex"
     @submit="onSubmit"
   ></FilePreview>
+  <Waiting v-if="showWaiting" />
 </template>
 
 <script lang="ts" setup>
@@ -125,6 +126,7 @@ import { PAY_METHOD_ENUM } from '@/common/constants/bankCard';
 import { RISK_TYPE_ENUM, RULE_ENUM } from '@/common/constants/trial';
 import PreNotice from '../components/PreNotice/index.vue';
 import FilePreview from '../components/FilePreview/index.vue';
+import Waiting from '../../components/Waiting/index.vue';
 
 import {
   premiumCalc,
@@ -204,6 +206,7 @@ const isCheck = from === 'check';
 const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
+const showWaiting = ref<boolean>(false);
 
 // 投保人不可修改（赠险）
 const holderDisable = !!(name && certNo && mobile) || !!orderNo;
@@ -563,6 +566,14 @@ const getOrderById = async () => {
       data.orderStatus === ORDER_STATUS_ENUM.PAYMENT_SUCCESS
     ) {
       showModal.value = true;
+    }
+
+    // 正在支付中，显示等待页面, 3秒后重新加载订单
+    if (data.orderStatus === ORDER_STATUS_ENUM.PAYING) {
+      showWaiting.value = true;
+      setTimeout(() => {
+        getOrderById();
+      }, 3 * 1000);
     }
   }
 };

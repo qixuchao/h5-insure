@@ -386,15 +386,15 @@ export const getFloat = (val: number) => {
 
 export const nameMixin = (name: string) => {
   if (typeof name === 'string') {
-    const ruten = name.substring(1);
+    const ruten = name?.substring(1);
 
-    return name.replace(ruten, '**');
+    return name?.replace(ruten, '**');
   }
   return name;
 };
 
 export const mobileMixin = (mobile: string) => {
-  return mobile.replace(/(\d{3})\d*(\d{4})/, '$1****$2');
+  return mobile?.replace(/(\d{3})\d*(\d{4})/, '$1****$2');
 };
 
 export const idCardMixin = (idCard: string) => {
