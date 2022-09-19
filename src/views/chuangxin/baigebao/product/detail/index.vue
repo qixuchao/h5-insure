@@ -131,16 +131,17 @@ import Waiting from '../../components/Waiting/index.vue';
 import {
   premiumCalc,
   insureProductDetail,
+  getOrderDetailByCondition,
   saveOrder,
   underwrite,
   getPayUrl,
   getTenantOrderDetail,
 } from '@/api/modules/trial';
 import { productDetail } from '@/api/modules/product';
-import { ProductDetail } from '@/api/modules/product.data';
+import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
 import { ORIGIN, toLocal } from '@/utils';
 import { validateMobile, validateName } from '@/utils/validator';
-import { RiskPremiumDetailVoItem, RiskAttachmentVoItem } from '@/api/modules/trial.data';
+import { RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
 import {
   formatHolderAgeLimit,
   formatPaymentPeriodLimit,
@@ -209,7 +210,7 @@ const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件�
 const showWaiting = ref<boolean>(false);
 
 // 投保人不可修改（赠险）
-const holderDisable = !!(name && certNo && mobile) || !!orderNo;
+const holderDisable = ref<boolean>(!!(name && certNo && mobile) || !!orderNo);
 // 订单进入的，全部信息都不可修改
 // TODO 根据订单状态判断，后端优化流程后改
 const disable = pageCode === 'payBack';
@@ -263,7 +264,7 @@ const onShowDetail = () => {
 const rateAttachmentList = computed(() => {
   return (
     detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
-      (item: RiskAttachmentVoItem) => item.attachmentName === '费率表',
+      (item: AttachmentVOList) => item.attachmentName === '费率表',
     ) || []
   );
 });
@@ -272,7 +273,7 @@ const rateAttachmentList = computed(() => {
 const productAttachmentList = computed(() => {
   return (
     detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
-      (item: RiskAttachmentVoItem) => item.attachmentName !== '费率表',
+      (item: AttachmentVOList) => item.attachmentName !== '费率表',
     ) || []
   );
 });
@@ -595,6 +596,28 @@ const fetchData = async () => {
     // 这里要轮询，支付完成后，跳转回来，订单状态可能没有及时更新
     getOrderById();
   } else {
+    if (mobile) {
+      const res = await getOrderDetailByCondition({
+        holderPhone: mobile,
+        orderStatus: [ORDER_STATUS_ENUM.PAYING.toUpperCase(), ORDER_STATUS_ENUM.TIMEOUT.toUpperCase(), 'ACCEPT_POLICY'],
+        productCode,
+        tenantId,
+      });
+      const { code, data } = res;
+      if (code === '10000' && data?.tenantOrderHolder?.certNo) {
+        Object.assign(trailData, {
+          holder: {
+            certNo: data.tenantOrderHolder?.certNo,
+            certType: CERT_TYPE_ENUM.CERT, // 默认身份证
+            mobile: data.tenantOrderHolder?.mobile,
+            name: data.tenantOrderHolder?.name,
+            socialFlag: data.tenantOrderHolder?.extInfo?.hasSocialInsurance,
+          },
+        });
+        holderDisable.value = true;
+      }
+    }
+
     if (validCalcData()) {
       onPremiumCalc();
     }

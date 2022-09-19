@@ -269,7 +269,6 @@ interface Props {
   isCheck: boolean; // 监管
   disable: boolean; // 全部信息不可修改
   holderDisable: boolean; // 投保人信息不可修改
-  paymentMethodDisable: boolean; // 支付方式不能修改
   premium: number;
   productDetail: ProductDetail;
   formInfo: {
@@ -294,7 +293,6 @@ const props = withDefaults(defineProps<Props>(), {
   isCheck: false,
   holderDisable: false,
   disable: false,
-  paymentMethodDisable: false,
   premium: 0,
   productDetail: {},
   formInfo: () => ({}),
