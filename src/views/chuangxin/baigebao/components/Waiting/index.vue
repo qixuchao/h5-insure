@@ -2,8 +2,7 @@
   <div class="page-waiting">
     <img class="loading" :src="LoadingGif" />
     <div class="tips">
-      <p>支付成功，</p>
-      <p>升级结果正在加载…</p>
+      <p>支付成功，承保中...</p>
     </div>
   </div>
 </template>

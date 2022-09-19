@@ -65,7 +65,7 @@
           总保费<span>￥{{ toLocal(premium as number) }}/月</span>
         </div>
         <van-button type="primary" class="right" :disabled="isDisableNext" @click="onNext">{{
-          disable ? '升级保障' : '立即投保'
+          payBack ? '升级保障' : '立即投保'
         }}</van-button>
       </div>
     </div>
@@ -213,7 +213,8 @@ const showWaiting = ref<boolean>(false);
 const holderDisable = ref<boolean>(!!(name && certNo && mobile) || !!orderNo);
 // 订单进入的，全部信息都不可修改
 // TODO 根据订单状态判断，后端优化流程后改
-const disable = pageCode === 'payBack';
+const disable = ref<boolean>(pageCode === 'payBack');
+const payBack = pageCode === 'payBack';
 // 赠险进入，从链接上默认取投保人数据
 const trailData = reactive({
   holder: {
@@ -433,7 +434,7 @@ const onPremiumCalcWithValid = () => {
     formRef.value
       ?.validateForm?.()
       .then(async () => {
-        if (!trailData.renewalDK) {
+        if (!trailData.renewalDK && isCheck) {
           Toast('请选择是否自助重新投保');
           const toScroll = (document.getElementById('renewal')?.offsetTop as number) - 70;
           document.documentElement.scrollTop = toScroll;
@@ -478,7 +479,7 @@ const onPremiumCalcWithValid = () => {
 };
 
 const onNext = async () => {
-  if (disable) {
+  if (payBack) {
     router.push({
       path: '/chuangxin/baigebao/guaranteeUpgrade',
       query: {
@@ -606,16 +607,26 @@ const fetchData = async () => {
       });
       const { code, data } = res;
       if (code === '10000' && data?.tenantOrderHolder?.certNo) {
-        Object.assign(trailData, {
-          holder: {
-            certNo: data.tenantOrderHolder?.certNo,
-            certType: CERT_TYPE_ENUM.CERT, // 默认身份证
-            mobile: data.tenantOrderHolder?.mobile,
-            name: data.tenantOrderHolder?.name,
-            socialFlag: data.tenantOrderHolder?.extInfo?.hasSocialInsurance,
-          },
-        });
-        holderDisable.value = true;
+        disable.value = pageCode === 'productDetail';
+        const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
+        trailData.holder = {
+          certNo: tenantOrderHolder.certNo,
+          certType: tenantOrderHolder.certType,
+          mobile: tenantOrderHolder.mobile,
+          name: tenantOrderHolder.name,
+          socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
+        };
+
+        trailData.insured = {
+          certNo: tenantOrderInsuredList?.[0].certNo,
+          certType: tenantOrderInsuredList[0]?.certType,
+          name: tenantOrderInsuredList[0]?.name,
+          socialFlag: tenantOrderInsuredList[0]?.extInfo?.hasSocialInsurance,
+          relationToHolder: tenantOrderInsuredList[0]?.relationToHolder,
+        };
+        trailData.paymentMethod = extInfo.extraInfo.paymentMethod;
+        premium.value = tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium;
+        trailData.renewalDK = extInfo.extraInfo.renewalDK;
       }
     }
 
