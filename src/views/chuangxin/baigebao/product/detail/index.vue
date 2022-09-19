@@ -566,6 +566,7 @@ const getOrderById = async () => {
       data.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY ||
       data.orderStatus === ORDER_STATUS_ENUM.PAYMENT_SUCCESS
     ) {
+      showWaiting.value = false;
       showModal.value = true;
     }
 
