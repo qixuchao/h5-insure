@@ -188,8 +188,6 @@ const upgrade = async (oNo: string) => {
 const onUpgrade = async (o: any) => {
   try {
     Toast.loading({ forbidClick: true, message: '升级中' });
-    // 保存订单
-    await onPremiumCalc();
     const oNo = await onSaveOrder();
     // 删除订单
     const res = await deleteOrder({

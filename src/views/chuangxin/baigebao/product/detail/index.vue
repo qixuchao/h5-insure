@@ -369,7 +369,7 @@ const onSaveOrder = async (risk: any) => {
     detail: detail.value as ProductDetail,
     insureDetail: insureDetail.value,
     paymentMethod: trailData.paymentMethod,
-    renewalDK: trailData.renewalDK, // 开通下一年
+    renewalDK: isCheck ? trailData.renewalDK : 'N', // 开通下一年
     successJumpUrl: '',
     premium: premium.value as number, // 保费
     holder: trailData.holder,
@@ -389,7 +389,7 @@ const onSaveOrder = async (risk: any) => {
         orderNo: data.data,
         extInfo: {
           extraInfo: {
-            renewalDK: trailData.renewalDK,
+            renewalDK: isCheck ? trailData.renewalDK : 'N',
             paymentMethod: trailData.paymentMethod,
             successJumpUrl: getPaySuccessCallbackUrl(data.data),
             failUrl: getPayFailCallbackUrl(data.data),
