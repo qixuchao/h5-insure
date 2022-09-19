@@ -64,9 +64,12 @@
         <div class="price">
           总保费<span>￥{{ toLocal(premium as number) }}/月</span>
         </div>
-        <van-button type="primary" class="right" :disabled="isDisableNext" @click="onNext">{{
-          payBack ? '升级保障' : '立即投保'
-        }}</van-button>
+        <van-button v-if="payBack" type="primary" class="right" :disabled="!showUpgradeButton" @click="onNext"
+          >升级保障</van-button
+        >
+        <van-button v-else type="primary" class="right" :disabled="isDisableNext" @click="onNext">
+          立即投保
+        </van-button>
       </div>
     </div>
     <PreNotice v-if="isCheck && pageCode !== 'payBack'" :product-detail="detail"></PreNotice>
@@ -208,6 +211,7 @@ const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const showWaiting = ref<boolean>(false);
+const showUpgradeButton = ref<boolean>(false);
 
 // 投保人不可修改（赠险）
 const holderDisable = ref<boolean>(!!(name && certNo && mobile) || !!orderNo);
@@ -344,12 +348,16 @@ const onUnderWrite = async (o: any) => {
 };
 
 const getPaySuccessCallbackUrl = (no: number) => {
-  const url = `${ORIGIN}/chuangxin/baigebao/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack&from=${from}`;
+  const url = `${ORIGIN}/chuangxin/baigebao/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack&from=${
+    from || 'normal'
+  }`;
   return url;
 };
 
 const getPayFailCallbackUrl = (no: number) => {
-  const url = `${ORIGIN}/chuangxin/baigebao/payFail?tenantId=${tenantId}&orderNo=${no}&agentCode=${agentCode}&from=${from}`;
+  const url = `${ORIGIN}/chuangxin/baigebao/payFail?tenantId=${tenantId}&orderNo=${no}&agentCode=${agentCode}&from=${
+    from || 'normal'
+  }`;
   return url;
 };
 
@@ -567,8 +575,11 @@ const getOrderById = async () => {
       data.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY ||
       data.orderStatus === ORDER_STATUS_ENUM.PAYMENT_SUCCESS
     ) {
+      // 隐藏等待页面
       showWaiting.value = false;
+      // 显示升级弹框
       showModal.value = true;
+      showUpgradeButton.value = true;
     }
 
     // 正在支付中，显示等待页面, 3秒后重新加载订单
