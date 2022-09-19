@@ -624,7 +624,7 @@ const fetchData = async () => {
           socialFlag: tenantOrderInsuredList[0]?.extInfo?.hasSocialInsurance,
           relationToHolder: tenantOrderInsuredList[0]?.relationToHolder,
         };
-        trailData.paymentMethod = extInfo.extraInfo.paymentMethod;
+        trailData.paymentMethod = paymentMethod || extInfo.extraInfo.paymentMethod;
         premium.value = tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium;
         trailData.renewalDK = extInfo.extraInfo.renewalDK;
       }

@@ -11,6 +11,7 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
+import { Toast } from 'vant';
 import { getPayUrl } from '@/api/modules/trial';
 import themeVars from '../theme';
 import failImg from '@/assets/images/chuangxin/fail.png';
@@ -27,6 +28,7 @@ interface QueryData {
 const { tenantId, orderNo } = route.query as QueryData;
 
 const retry = async () => {
+  Toast.loading({ forbidClick: true, message: '获取支付链接' });
   const res = await getPayUrl({
     orderNo,
     tenantId,
