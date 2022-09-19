@@ -12,7 +12,7 @@ import { getSex, getBirth } from '@/components/ProField/utils';
 // 校验长度
 export const FIELD_LENGTH = {
   NAME: '10',
-  ID_CARD: '20',
+  ID_CARD: '18',
   MOBILE: '11',
   SMS_CODE: '6',
 };
