@@ -82,6 +82,10 @@ const onVerify = async (e: UserInfoProps) => {
 </script>
 
 <style lang="scss">
+// iphone 4 兼容
+.van-config-provider.router-view {
+  background: linear-gradient(180deg, #fea64a 0%, #fc7429 88%, #fc6d24 100%);
+}
 .page-activity-invite {
   width: 100%;
   height: 100%;
@@ -90,9 +94,7 @@ const onVerify = async (e: UserInfoProps) => {
     width: 100%;
   }
   .container {
-    position: absolute;
     width: 100%;
-    bottom: 60px;
     padding: 20px;
     .main-form {
       background: url('@/assets/images/chuangxin/bg.png') no-repeat;

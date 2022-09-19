@@ -60,7 +60,7 @@ const getScrollHeight = () => {
     offsetTop.push(document.getElementById(item.slotName)?.offsetTop as number);
   });
   // 页面滚动的时候，内容还没完全加载完成，如果获取到的不一样，在更新数据
-  if (scrollHeight.value[0] !== offsetTop[0]) {
+  if (scrollHeight.value.toString() !== offsetTop.toString()) {
     scrollHeight.value = offsetTop;
   }
 };
