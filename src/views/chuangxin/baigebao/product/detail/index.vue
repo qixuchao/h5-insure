@@ -6,11 +6,11 @@
         <img v-else :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
         <div class="guarantee-list">
           <ProCard title="保障内容" link="查看详情" :show-divider="false" :show-icon="false" @link-click="onShowDetail">
-            <div v-if="detail && detail?.tenantProductInsureVO && !isCheck" class="basic">
+            <div v-if="isCheck" class="basic">
               <ProCell
-                v-for="(item, index) in guaranteeList?.[activePlan]?.titleAndDescVOS"
+                v-for="(item, index) in checkTitleAndDescVOS"
                 :key="index"
-                class="guarantee-item"
+                :class="['guarantee-item', { left: item.align === 'left' }]"
                 :title="item.title"
                 :content="item.desc"
                 :border="false"
@@ -18,9 +18,9 @@
             </div>
             <div v-else class="basic">
               <ProCell
-                v-for="(item, index) in checkTitleAndDescVOS"
+                v-for="(item, index) in guaranteeList?.[activePlan]?.titleAndDescVOS"
                 :key="index"
-                :class="['guarantee-item', { left: item.align === 'left' }]"
+                class="guarantee-item"
                 :title="item.title"
                 :content="item.desc"
                 :border="false"
@@ -530,7 +530,7 @@ const onSubmit = () => {
 watch(
   () => trailData,
   () => {
-    if (detail.value && insureDetail.value && !disable) {
+    if (detail.value && insureDetail.value && !disable.value) {
       // 验证通过才去试算
       if (validCalcData()) {
         onPremiumCalc();
