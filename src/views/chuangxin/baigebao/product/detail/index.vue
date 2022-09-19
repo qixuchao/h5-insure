@@ -369,7 +369,7 @@ const onSaveOrder = async (risk: any) => {
     detail: detail.value as ProductDetail,
     insureDetail: insureDetail.value,
     paymentMethod: trailData.paymentMethod,
-    renewalDK: isCheck ? trailData.renewalDK : 'N', // 开通下一年
+    renewalDK: trailData.renewalDK, // 开通下一年
     successJumpUrl: '',
     premium: premium.value as number, // 保费
     holder: trailData.holder,
@@ -389,7 +389,7 @@ const onSaveOrder = async (risk: any) => {
         orderNo: data.data,
         extInfo: {
           extraInfo: {
-            renewalDK: isCheck ? trailData.renewalDK : 'N',
+            renewalDK: trailData.renewalDK,
             paymentMethod: trailData.paymentMethod,
             successJumpUrl: getPaySuccessCallbackUrl(data.data),
             failUrl: getPayFailCallbackUrl(data.data),
@@ -565,7 +565,7 @@ const getOrderById = async () => {
     };
     trailData.paymentMethod = extInfo.extraInfo.paymentMethod;
     premium.value = tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium;
-    trailData.renewalDK = extInfo.extraInfo.renewalDK;
+    trailData.renewalDK = extInfo.extraInfo.renewalDK || 'N';
     // TODO 卡流程，先这样处理
     if (pageCode === 'productDetail') {
       return;
