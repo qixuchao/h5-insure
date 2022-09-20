@@ -140,7 +140,7 @@ import { PAGE_ROUTE_ENUMS, ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM
 import { getInitFactor, nextStep, getTemplateInfo, getOrderDetail } from '@/api';
 import { premiumCalc } from '@/api/modules/trial';
 import { PAYMENT_PERIOD_ENUMS, INSURANCE_PERIOD_ENUMS, RISK_TYPE_ENUM } from '@/common/constants/trial';
-import { premiumCalcData, RiskVoItem, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
+import { PremiumCalcData, RiskVoItem, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
 import {
   FactorData,
   NextStepRequestData,
@@ -421,7 +421,7 @@ const reTrialPremium = () => {
       insuredExtInfo;
 
     // 试算参数
-    const trialData: premiumCalcData = {
+    const trialData: PremiumCalcData = {
       holder: {
         personVO: {
           birthday: dayjs(birthday).format('YYYY-MM-DD'),

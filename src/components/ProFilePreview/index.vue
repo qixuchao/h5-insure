@@ -24,6 +24,7 @@
 
 <script setup lang="ts">
 import { nanoid } from 'nanoid';
+import { Toast } from 'vant';
 import * as PDFJS from 'pdfjs-dist';
 import * as workerSrc from 'pdfjs-dist/build/pdf.worker.entry';
 import PdfViewer from '@/components/ProPDFviewer/index.vue';
@@ -65,41 +66,53 @@ const id = nanoid();
 const show = ref(false);
 const loading = ref(true);
 
-const loadPdfCanvas = () => {
+const loadPdfCanvas = async () => {
+  Toast.loading({ message: '加载中', duration: 20 * 1000 });
   const container = document.getElementById(id) as HTMLElement;
   if (container.hasChildNodes()) {
     // 说明已经加载过一次pdf了，那就走缓存
     loading.value = false;
     return;
   }
-  const loadingTask = PDFJS.getDocument({
-    url: props.content,
-  });
-  loadingTask.promise.then((pdf: any) => {
-    const pageNum = pdf.numPages;
-    for (let i = 1; i <= pageNum; i++) {
-      pdf.getPage(i).then((page: any) => {
-        const scaledViewport = page.getViewport({ scale: 1 });
-
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-
-        canvas.width = scaledViewport.width;
-        canvas.height = scaledViewport.height;
-        canvas.style.width = '100%';
-
-        container.append(canvas);
-
-        const renderContext = {
-          canvasContext: context,
-          viewport: scaledViewport,
-        };
-
-        const renderTask = page.render(renderContext);
-        loading.value = false;
-      });
+  let pdf;
+  try {
+    pdf = await PDFJS.getDocument({
+      url: props.content,
+    }).promise;
+  } catch (error) {
+    console.log(String(error));
+    // undefined is not an object ( evaluting 'response.body.getReader')
+    if (String(error).indexOf('body.getReader') > -1) {
+      const pdfData = await fetch(props.content);
+      const arrayBufferPdf = await pdfData.arrayBuffer();
+      pdf = await PDFJS.getDocument({ data: arrayBufferPdf }).promise;
     }
-  });
+  }
+
+  const pageNum = pdf.numPages;
+  for (let i = 1; i <= pageNum; i++) {
+    pdf.getPage(i).then((page: any) => {
+      const scaledViewport = page.getViewport({ scale: 1 });
+
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+
+      canvas.width = scaledViewport.width;
+      canvas.height = scaledViewport.height;
+      canvas.style.width = '100%';
+
+      container.append(canvas);
+
+      const renderContext = {
+        canvasContext: context,
+        viewport: scaledViewport,
+      };
+
+      const renderTask = page.render(renderContext);
+      loading.value = false;
+    });
+  }
+  Toast.clear();
 };
 const openPdf = async () => {
   show.value = true;

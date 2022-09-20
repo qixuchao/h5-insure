@@ -36,7 +36,7 @@ export default defineConfig((env) => {
       // 接口代理
       proxy: {
         '/api/app/buriedPoint/': {
-          target: 'http://154992-aquarius-commander.test.za-tech.net',
+          target: 'http://aquarius-commander.test.za-tech.net',
           changeOrigin: true, // 允许跨域
         },
         '/api': {

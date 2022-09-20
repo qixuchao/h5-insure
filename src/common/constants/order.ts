@@ -123,6 +123,10 @@ export enum ORDER_STATUS_ENUM {
    * 核保不通过
    */
   UNDERWRITING_FAILED = 'underWritingFailed',
+  /**
+   * 升级中
+   */
+  UP_PROCESSING = 'upProcessing',
 }
 
 export const ORDER_STATUS_LIST = [
