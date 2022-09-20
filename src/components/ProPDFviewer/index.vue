@@ -58,5 +58,8 @@ const openPdf = async () => {
     justify-content: center;
     align-items: center;
   }
+  :deep(.van-popup__close-icon) {
+    font-size: 48px;
+  }
 }
 </style>

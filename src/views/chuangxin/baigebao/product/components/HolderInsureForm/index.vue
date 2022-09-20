@@ -3,7 +3,11 @@
     <ProForm ref="formRef">
       <div class="holder container">
         <div class="title">投保人</div>
+        <ProField v-if="props.holderDisable || props.disable" label="姓名" class="pro-field" :is-view="true">
+          <template #input> {{ nameMixin(state.formInfo.holder.name) }}</template>
+        </ProField>
         <ProField
+          v-else
           v-model="state.formInfo.holder.name"
           label="姓名"
           name="name"
@@ -11,9 +15,12 @@
           placeholder="请输入姓名"
           maxlength="10"
           :rules="[{ validator: nameValidator }]"
-          :is-view="props.holderDisable || props.disable"
         />
+        <ProField v-if="props.holderDisable || props.disable" label="证件号码" class="pro-field" :is-view="true">
+          <template #input> {{ idCardMixin(state.formInfo.holder.certNo) }}</template>
+        </ProField>
         <ProField
+          v-else
           v-model="state.formInfo.holder.certNo"
           label="证件号码"
           name="certNo"
@@ -21,9 +28,17 @@
           placeholder="请输入身份证号"
           maxlength="20"
           :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
-          :is-view="props.holderDisable || props.disable"
         />
         <ProField
+          v-if="props.holderDisable || props.disable || props.isCheck"
+          label="手机号"
+          class="pro-field"
+          :is-view="true"
+        >
+          <template #input> {{ mobileMixin(state.formInfo.holder.mobile) }}</template>
+        </ProField>
+        <ProField
+          v-else
           v-model="state.formInfo.holder.mobile"
           label="手机号"
           name="mobile"
@@ -31,7 +46,6 @@
           placeholder="请输入手机号"
           maxlength="11"
           :validate-type="[VALIDATE_TYPE_ENUM.PHONE]"
-          :is-view="props.holderDisable || props.disable"
         />
         <ProField
           v-model="state.formInfo.holder.socialFlag"
@@ -67,16 +81,23 @@
             ></ProRadioButton>
           </template>
         </ProField>
+        <ProField v-if="state.insureDisable || props.disable" label="姓名" class="pro-field" :is-view="true">
+          <template #input> {{ nameMixin(state.formInfo.insured.name) }}</template>
+        </ProField>
         <ProField
+          v-else
           v-model="state.formInfo.insured.name"
           label="姓名"
           name="name"
           required
           maxlength="10"
           :rules="[{ validator: nameValidator }]"
-          :is-view="state.insureDisable || props.disable"
         />
+        <ProField v-if="state.insureDisable || props.disable" label="证件号码" class="pro-field" :is-view="true">
+          <template #input> {{ idCardMixin(state.formInfo.insured.certNo) }}</template>
+        </ProField>
         <ProField
+          v-else
           v-model="state.formInfo.insured.certNo"
           label="证件号码"
           name="certNo"
@@ -84,8 +105,8 @@
           placeholder="请输入身份证号"
           maxlength="20"
           :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
-          :is-view="state.insureDisable || props.disable"
         />
+
         <ProField
           v-model="state.formInfo.insured.socialFlag"
           label="有无社保"
@@ -130,7 +151,7 @@
             <ProTabButton
               :disabled="props.allDisabled"
               title="免费开通"
-              :active="state.formInfo.renewalDK"
+              :active="state.formInfo.renewalDK === 'Y'"
               @click="onRenewalDK"
             ></ProTabButton>
           </template>
@@ -183,35 +204,35 @@
         </div>
       </div>
       <ProDivider />
-      <div v-if="props.isCheck" class="renewal conntainer">
+      <div v-if="props.isCheck" id="renewal" class="renewal container">
         <div class="title">开通自主重新投保</div>
-        <div class="pro-radio">
-          <ProTabButton
-            v-for="(item, index) in renewalList"
-            :key="index"
-            :title="item.title"
-            :active="state.formInfo.renewalDK === item.value"
-            @click="handleRenewal(item.value)"
-          ></ProTabButton>
-        </div>
-        <div class="desc_arrow">
-          <div
-            :class="['arrow light', { show: state.formInfo.renewalDK === 'Y' || state.formInfo.renewalDK === '' }]"
-          ></div>
-          <div :class="['arrow dark', { show: state.formInfo.renewalDK === 'N' }]"></div>
-        </div>
-        <div v-if="state.formInfo.renewalDK === 'Y'" class="renewal-y-desc renewal-desc">
-          <div class="sub-title">开通后可享受：</div>
-          <div class="desc">安心！开通自动缴费可使保障不间断</div>
-          <div class="desc">省心！下一年重新投保，不用担心断保</div>
-          <div class="desc">放心！无额外费用，开通后可随时取消</div>
-          <div class="desc">提示:本产品为一年期非保证续保产品</div>
-        </div>
-        <div v-else class="renewal-n-desc renewal-desc">
-          <div class="sub-title">未开通，一旦断保将面临：</div>
-          <div class="desc">断保后将失去保障，断保期间出险不可理赔</div>
-          <div class="desc">断保后重新投保，等待期内出险无法理赔</div>
-          <div class="desc">断保后重新投保，需核实健康状况，可能无法投保</div>
+        <div class="content">
+          <div class="pro-radio">
+            <ProTabButton
+              v-for="(item, index) in renewalList"
+              :key="index"
+              :title="item.title"
+              :active="state.formInfo.renewalDK === item.value"
+              @click="handleRenewal(item.value)"
+            ></ProTabButton>
+          </div>
+          <div class="desc_arrow">
+            <div :class="['arrow light', { show: state.formInfo.renewalDK !== 'N' }]"></div>
+            <div :class="['arrow dark', { show: state.formInfo.renewalDK === 'N' }]"></div>
+          </div>
+          <div v-if="state.formInfo.renewalDK !== 'N'" class="renewal-y-desc renewal-desc">
+            <div class="sub-title">开通后可享受：</div>
+            <div class="desc">安心！开通自动缴费可使保障不间断</div>
+            <div class="desc">省心！下一年重新投保，不用担心断保</div>
+            <div class="desc">放心！无额外费用，开通后可随时取消</div>
+            <div class="desc">提示:本产品为一年期非保证续保产品</div>
+          </div>
+          <div v-else class="renewal-n-desc renewal-desc">
+            <div class="sub-title">未开通，一旦断保将面临：</div>
+            <div class="desc">断保后将失去保障，断保期间出险不可理赔</div>
+            <div class="desc">断保后重新投保，等待期内出险无法理赔</div>
+            <div class="desc">断保后重新投保，需核实健康状况，可能无法投保</div>
+          </div>
         </div>
       </div>
       <ProDivider />
@@ -234,7 +255,7 @@ import {
   SOCIAL_SECURITY, // 有无社保
 } from '@/common/constants/infoCollection';
 import { ACTIVITY_PAY_METHOD_LIST } from '@/common/constants/bankCard';
-import { getFloat } from '../../../utils';
+import { getFloat, nameMixin, mobileMixin, idCardMixin } from '../../../utils';
 import ProDivider from '@/components/ProDivider/index.vue';
 import { VALIDATE_TYPE_ENUM } from '@/common/constants';
 import { ProductDetail } from '@/api/modules/product.data';
@@ -248,7 +269,6 @@ interface Props {
   isCheck: boolean; // 监管
   disable: boolean; // 全部信息不可修改
   holderDisable: boolean; // 投保人信息不可修改
-  paymentMethodDisable: boolean; // 支付方式不能修改
   premium: number;
   productDetail: ProductDetail;
   formInfo: {
@@ -273,7 +293,6 @@ const props = withDefaults(defineProps<Props>(), {
   isCheck: false,
   holderDisable: false,
   disable: false,
-  paymentMethodDisable: false,
   premium: 0,
   productDetail: {},
   formInfo: () => ({}),
@@ -348,19 +367,14 @@ const validateForm = () => {
 // 2个选择的
 const handleRenewal = (value: string) => {
   if (!props.disable) {
-    if (state.formInfo.renewalDK === value) {
-      // 取消
-      // state.formInfo.renewalDK = '';
-    } else {
-      state.formInfo.renewalDK = value;
-    }
+    state.formInfo.renewalDK = value;
   }
 };
 
 // 一个选择的
 const onRenewalDK = () => {
   if (!props.disable) {
-    state.formInfo.renewalDK = !state.formInfo.renewalDK;
+    state.formInfo.renewalDK = state.formInfo.renewalDK === 'Y' ? 'N' : 'Y';
   }
 };
 
@@ -483,11 +497,10 @@ defineExpose({
 }
 
 .pro-field {
-  padding: 20px 25px;
+  padding: 24px 25px;
 }
 
 .pro-radio {
-  padding: 0 25px;
   display: flex;
   justify-content: space-between;
   button {
@@ -498,7 +511,6 @@ defineExpose({
 .desc_arrow {
   height: 30px;
   display: flex;
-  padding: 0 25px;
   .arrow {
     position: relative;
     flex: 1;
@@ -535,10 +547,12 @@ defineExpose({
 
 .renewal.container {
   background: #ffffff;
+  .content {
+    padding: 0 25px 25px 25px;
+  }
 }
 
 .renewal-desc {
-  margin: 0 25px 25px 25px;
   padding: 25px;
   font-size: 24px;
   font-weight: 400;

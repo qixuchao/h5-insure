@@ -11,9 +11,9 @@
       <img :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
       <div class="container">
         <div class="main-form">
-          <FieldInfo title="姓名" :desc="orderDetail?.tenantOrderInsuredList?.[0].name" />
-          <FieldInfo title="证件号码" :desc="orderDetail?.tenantOrderInsuredList?.[0].certNo" />
-          <FieldInfo title="手机号码" :desc="orderDetail?.tenantOrderHolder?.mobile" />
+          <FieldInfo title="姓名" :desc="nameMixin(orderDetail?.tenantOrderInsuredList?.[0].name)" />
+          <FieldInfo title="证件号码" :desc="idCardMixin(orderDetail?.tenantOrderInsuredList?.[0].certNo)" />
+          <FieldInfo title="手机号码" :desc="mobileMixin(orderDetail?.tenantOrderHolder?.mobile)" />
           <FieldInfo title="每月保费" :desc="`${getFloat(premium || 0)}元 / 每月`" />
           <ProField label="有无社保" name="name" required placeholder="请选择">
             <template #input>
@@ -32,15 +32,6 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import {
-  RISK_TYPE_ENUM,
-  RULE_ENUM,
-  PAYMENT_PERIOD_TYPE_ENUMS,
-  INSURANCE_PERIOD_TYPE_ENUMS,
-} from '@/common/constants/trial';
-import { RiskVoItem, RiskPremiumDetailVoItem, RiskDetailVoItem } from '@/api/modules/trial.data';
-import {
-  RELATION_HOLDER_ENUM,
-  RELATION_HOLDER_LIST, // 投被保人关系
   SOCIAL_SECURITY, // 有无社保
 } from '@/common/constants/infoCollection';
 import FieldInfo from '../components/FieldInfo/index.vue';
@@ -52,9 +43,19 @@ import {
   getTenantOrderDetail,
   endorsementPremiumCalc,
   EndorsementUp,
+  deleteOrder,
 } from '@/api/modules/trial';
 import themeVars from '../theme';
-import { getReqData, transformData, compositionTrailData, genarateOrderParam, getFloat } from '../utils';
+import {
+  getReqData,
+  transformData,
+  compositionTrailData,
+  genarateOrderParam,
+  getFloat,
+  nameMixin,
+  mobileMixin,
+  idCardMixin,
+} from '../utils';
 import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ORIGIN } from '@/utils';
@@ -73,7 +74,7 @@ interface QueryData {
   [key: string]: string;
 }
 
-const { productCode = 'BWYL2022', tenantId, orderNo, agentCode, from } = route.query as QueryData;
+const { productCode = 'BWYL2022', tenantId, orderNo, agentCode = '', from } = route.query as QueryData;
 
 const detail = ref<ProductDetail>(); // 产品详情
 const insureDetail = ref<any>(); // 险种详情
@@ -187,9 +188,12 @@ const upgrade = async (oNo: string) => {
 const onUpgrade = async (o: any) => {
   try {
     Toast.loading({ forbidClick: true, message: '升级中' });
-    // 保存订单
-    await onPremiumCalc();
     const oNo = await onSaveOrder();
+    // 删除订单
+    const res = await deleteOrder({
+      tenantId,
+      applicationNo: orderDetail.value.applicationNo,
+    });
 
     // signUrl 有值，是微信支付流程
     if (signUrl.value) {

@@ -32,7 +32,6 @@
 
 <script lang="ts" setup>
 import dayjs from 'dayjs';
-import { defineProps, defineEmits } from 'vue';
 import { DatetimePickerType } from 'vant';
 import { useToggle } from '@vant/use';
 import ProField from '@/components/ProField/index.vue';

@@ -654,6 +654,7 @@ watch(
   padding-left: $zaui-card-border;
   margin-left: $zaui-card-border;
   border-left: 1px solid $zaui-line;
+  margin-top: 16px;
   display: flex;
 }
 .com-personal-wrapper {

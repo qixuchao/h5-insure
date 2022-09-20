@@ -2,10 +2,21 @@
   <van-config-provider :theme-vars="themeVars">
     <div class="page-product-detail">
       <div class="info">
-        <img :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
+        <img v-if="isCheck" :src="checkImg" class="banner" />
+        <img v-else :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
         <div class="guarantee-list">
           <ProCard title="保障内容" link="查看详情" :show-divider="false" :show-icon="false" @link-click="onShowDetail">
-            <div v-if="detail && detail?.tenantProductInsureVO" class="basic">
+            <div v-if="isCheck" class="basic">
+              <ProCell
+                v-for="(item, index) in checkTitleAndDescVOS"
+                :key="index"
+                :class="['guarantee-item', { left: item.align === 'left' }]"
+                :title="item.title"
+                :content="item.desc"
+                :border="false"
+              />
+            </div>
+            <div v-else class="basic">
               <ProCell
                 v-for="(item, index) in guaranteeList?.[activePlan]?.titleAndDescVOS"
                 :key="index"
@@ -53,44 +64,49 @@
         <div class="price">
           总保费<span>￥{{ toLocal(premium as number) }}/月</span>
         </div>
-        <van-button type="primary" class="right" :disabled="isDisableNext" @click="onNext">{{
-          disable ? '升级保障' : '立即投保'
-        }}</van-button>
+        <van-button v-if="payBack" type="primary" class="right" :disabled="!showUpgradeButton" @click="onNext"
+          >升级保障</van-button
+        >
+        <van-button v-else type="primary" class="right" :disabled="isDisableNext" @click="onNext">
+          立即投保
+        </van-button>
       </div>
     </div>
-    <PreNotice v-if="isCheck && pageCode !== 'payBack'"></PreNotice>
+    <PreNotice v-if="isCheck && pageCode !== 'payBack'" :product-detail="detail"></PreNotice>
     <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
-      <ProScrollTab
-        v-if="guaranteeList.length > 1"
-        :list="
-          guaranteeList.map((item, index) => ({
-            title: item.guaranteeType,
-            slotName: `guarantee-${index}`,
-          }))
-        "
-        class="tab"
-      ></ProScrollTab>
-      <div class="guarantee-list">
+      <div v-if="!isCheck" class="guarantee-list">
         <div v-for="(item, index) in guaranteeList[activePlan].titleAndDescVOS" :key="index" class="guarantee-item">
           <div class="title">{{ item.title }}</div>
           <div v-dompurify-html="item.content" class="content" />
         </div>
       </div>
+      <div v-else class="check-guarantee-list">
+        <div v-for="(item, index) in checkTitleAndDescDetail" :key="index" class="guarantee-item">
+          <div class="cell">
+            <div>{{ item.title }}</div>
+            <div>{{ item.desc }}</div>
+          </div>
+          <div v-if="item.content.length > 0" class="content">
+            <div v-for="(c, i) in item.content" :key="i">（{{ i + 1 }}） {{ c }}</div>
+          </div>
+        </div>
+      </div>
     </ProPopup>
     <UpgradeModal
+      :order-no="orderNo"
+      :tenant-id="tenantId"
       :is-show="showModal"
-      :premium="premium"
-      :attachment-list="detail?.tenantProductInsureVO?.attachmentVOList"
       @on-confirm="onConfirm"
       @on-close="onClose"
     />
-    <FilePreview
-      v-model:show="showFilePreview"
-      :content-list="productAttachmentList.concat(rateAttachmentList)"
-      :active-index="activeIndex"
-      @submit="onSubmit"
-    ></FilePreview>
   </van-config-provider>
+  <FilePreview
+    v-model:show="showFilePreview"
+    :content-list="productAttachmentList.concat(rateAttachmentList)"
+    :active-index="activeIndex"
+    @submit="onSubmit"
+  ></FilePreview>
+  <Waiting v-if="showWaiting" />
 </template>
 
 <script lang="ts" setup>
@@ -113,20 +129,22 @@ import { PAY_METHOD_ENUM } from '@/common/constants/bankCard';
 import { RISK_TYPE_ENUM, RULE_ENUM } from '@/common/constants/trial';
 import PreNotice from '../components/PreNotice/index.vue';
 import FilePreview from '../components/FilePreview/index.vue';
+import Waiting from '../../components/Waiting/index.vue';
 
 import {
   premiumCalc,
   insureProductDetail,
+  getOrderDetailByCondition,
   saveOrder,
   underwrite,
   getPayUrl,
   getTenantOrderDetail,
 } from '@/api/modules/trial';
 import { productDetail } from '@/api/modules/product';
-import { ProductDetail } from '@/api/modules/product.data';
+import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
 import { ORIGIN, toLocal } from '@/utils';
 import { validateMobile, validateName } from '@/utils/validator';
-import { RiskPremiumDetailVoItem, RiskAttachmentVoItem } from '@/api/modules/trial.data';
+import { RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
 import {
   formatHolderAgeLimit,
   formatPaymentPeriodLimit,
@@ -136,6 +154,8 @@ import {
 } from './utils';
 import { genaratePremiumCalcData, transformData, genarateOrderParam } from '../../utils';
 import themeVars from '../../theme';
+import { checkTitleAndDescVOS, checkTitleAndDescDetail } from './data';
+import checkImg from '@/assets/images/chuangxin/check-detail.png';
 
 const router = useRouter();
 const route = useRoute();
@@ -156,7 +176,7 @@ const {
   tenantId,
   orderNo,
   phoneNo: mobile,
-  agentCode,
+  agentCode = '',
   saleChannelId,
   paymentMethod,
   certNo,
@@ -190,12 +210,15 @@ const isCheck = from === 'check';
 const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
+const showWaiting = ref<boolean>(false);
+const showUpgradeButton = ref<boolean>(false);
 
 // 投保人不可修改（赠险）
-const holderDisable = !!(name && certNo && mobile) || !!orderNo;
+const holderDisable = ref<boolean>(!!(name && certNo && mobile) || !!orderNo);
 // 订单进入的，全部信息都不可修改
 // TODO 根据订单状态判断，后端优化流程后改
-const disable = pageCode === 'payBack';
+const disable = ref<boolean>(pageCode === 'payBack');
+const payBack = pageCode === 'payBack';
 // 赠险进入，从链接上默认取投保人数据
 const trailData = reactive({
   holder: {
@@ -214,7 +237,7 @@ const trailData = reactive({
   },
   paymentMethod,
   paymentMethodDisable: !!paymentMethod, // 支付方式不能修改
-  renewalDK: 'Y',
+  renewalDK: isCheck ? '' : 'Y',
 });
 
 const showModal = ref<boolean>(false);
@@ -246,7 +269,7 @@ const onShowDetail = () => {
 const rateAttachmentList = computed(() => {
   return (
     detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
-      (item: RiskAttachmentVoItem) => item.attachmentName === '费率表',
+      (item: AttachmentVOList) => item.attachmentName === '费率表',
     ) || []
   );
 });
@@ -255,7 +278,7 @@ const rateAttachmentList = computed(() => {
 const productAttachmentList = computed(() => {
   return (
     detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
-      (item: RiskAttachmentVoItem) => item.attachmentName !== '费率表',
+      (item: AttachmentVOList) => item.attachmentName !== '费率表',
     ) || []
   );
 });
@@ -325,12 +348,16 @@ const onUnderWrite = async (o: any) => {
 };
 
 const getPaySuccessCallbackUrl = (no: number) => {
-  const url = `${ORIGIN}/chuangxin/baigebao/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack&from=${from}`;
+  const url = `${ORIGIN}/chuangxin/baigebao/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack&from=${
+    from || 'normal'
+  }`;
   return url;
 };
 
 const getPayFailCallbackUrl = (no: number) => {
-  const url = `${ORIGIN}/chuangxin/baigebao/payFail?tenantId=${tenantId}&orderNo=${no}&agentCode=${agentCode}&from=${from}`;
+  const url = `${ORIGIN}/chuangxin/baigebao/payFail?tenantId=${tenantId}&orderNo=${no}&agentCode=${agentCode}&from=${
+    from || 'normal'
+  }`;
   return url;
 };
 
@@ -415,6 +442,14 @@ const onPremiumCalcWithValid = () => {
     formRef.value
       ?.validateForm?.()
       .then(async () => {
+        if (!trailData.renewalDK && isCheck) {
+          Toast('请选择是否自助重新投保');
+          const toScroll = (document.getElementById('renewal')?.offsetTop as number) - 70;
+          document.documentElement.scrollTop = toScroll;
+          document.body.scrollTop = toScroll;
+          isDisableNext.value = false;
+          return;
+        }
         // 表单验证通过再检查是否逐条阅读
         const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
         if (isCheck && !isAgree) {
@@ -452,7 +487,7 @@ const onPremiumCalcWithValid = () => {
 };
 
 const onNext = async () => {
-  if (disable) {
+  if (payBack) {
     router.push({
       path: '/chuangxin/baigebao/guaranteeUpgrade',
       query: {
@@ -495,7 +530,7 @@ const onSubmit = () => {
 watch(
   () => trailData,
   () => {
-    if (detail.value && insureDetail.value && !disable) {
+    if (detail.value && insureDetail.value && !disable.value) {
       // 验证通过才去试算
       if (validCalcData()) {
         onPremiumCalc();
@@ -530,7 +565,7 @@ const getOrderById = async () => {
     };
     trailData.paymentMethod = extInfo.extraInfo.paymentMethod;
     premium.value = tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium;
-    trailData.renewalDK = extInfo.extraInfo.renewalDK ? 'Y' : 'N';
+    trailData.renewalDK = extInfo.extraInfo.renewalDK || 'N';
     // TODO 卡流程，先这样处理
     if (pageCode === 'productDetail') {
       return;
@@ -540,7 +575,19 @@ const getOrderById = async () => {
       data.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY ||
       data.orderStatus === ORDER_STATUS_ENUM.PAYMENT_SUCCESS
     ) {
+      // 隐藏等待页面
+      showWaiting.value = false;
+      // 显示升级弹框
       showModal.value = true;
+      showUpgradeButton.value = true;
+    }
+
+    // 正在支付中，显示等待页面, 3秒后重新加载订单
+    if (data.orderStatus === ORDER_STATUS_ENUM.PAYING) {
+      showWaiting.value = true;
+      setTimeout(() => {
+        getOrderById();
+      }, 3 * 1000);
     }
   }
 };
@@ -562,6 +609,38 @@ const fetchData = async () => {
     // 这里要轮询，支付完成后，跳转回来，订单状态可能没有及时更新
     getOrderById();
   } else {
+    if (mobile) {
+      const res = await getOrderDetailByCondition({
+        holderPhone: mobile,
+        orderStatus: [ORDER_STATUS_ENUM.PAYING.toUpperCase(), ORDER_STATUS_ENUM.TIMEOUT.toUpperCase(), 'ACCEPT_POLICY'],
+        productCode,
+        tenantId,
+      });
+      const { code, data } = res;
+      if (code === '10000' && data?.tenantOrderHolder?.certNo) {
+        disable.value = pageCode === 'productDetail';
+        const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
+        trailData.holder = {
+          certNo: tenantOrderHolder.certNo,
+          certType: tenantOrderHolder.certType,
+          mobile: tenantOrderHolder.mobile,
+          name: tenantOrderHolder.name,
+          socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
+        };
+
+        trailData.insured = {
+          certNo: tenantOrderInsuredList?.[0].certNo,
+          certType: tenantOrderInsuredList[0]?.certType,
+          name: tenantOrderInsuredList[0]?.name,
+          socialFlag: tenantOrderInsuredList[0]?.extInfo?.hasSocialInsurance,
+          relationToHolder: tenantOrderInsuredList[0]?.relationToHolder,
+        };
+        trailData.paymentMethod = paymentMethod || extInfo.extraInfo.paymentMethod;
+        premium.value = tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium;
+        trailData.renewalDK = extInfo.extraInfo.renewalDK;
+      }
+    }
+
     if (validCalcData()) {
       onPremiumCalc();
     }
@@ -681,6 +760,12 @@ $activity-primary-color: #ff6d23;
     .left-part {
       color: $zaui-text;
     }
+    &.left {
+      :deep(.right-part) {
+        text-align: left;
+        line-height: 56px;
+      }
+    }
   }
   // 多选样式覆盖
   :deep(.com-check-btn.activated) {
@@ -740,6 +825,23 @@ $activity-primary-color: #ff6d23;
           padding-bottom: 40px;
           border-bottom: 1px solid #eeeef4;
         }
+      }
+    }
+    .check-guarantee-list {
+      padding: 0 25px;
+      .cell {
+        display: flex;
+        justify-content: space-between;
+        padding: 25px 0;
+        color: $zaui-text;
+        font-size: 28px;
+        border-bottom: 1px solid #e6e6e6;
+      }
+      .content {
+        color: $zaui-aide-text;
+        padding: 20px 0;
+        font-size: 24px;
+        line-height: 48px;
       }
     }
   }
