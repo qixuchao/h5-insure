@@ -15,7 +15,6 @@
 
 <script lang="ts" setup>
 import { UploaderFileListItem } from 'vant';
-import { defineProps, defineEmits } from 'vue';
 import { useCustomFieldValue } from '@vant/use';
 import ProSvg from '@/components/ProSvg/index.vue';
 import { fileUpload } from '@/api/modules/file';
