@@ -11,7 +11,6 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, defineEmits } from 'vue';
 import successImage from '@/assets/images/component/success.png';
 import failImage from '@/assets/images/component/fail.png';
 import processImage from '@/assets/images/component/process.png';

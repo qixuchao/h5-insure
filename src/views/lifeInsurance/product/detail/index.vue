@@ -33,6 +33,7 @@
             :key="index"
             :title="item.title"
             :content="item.desc"
+            :border="false"
           />
         </div>
         <div class="field">

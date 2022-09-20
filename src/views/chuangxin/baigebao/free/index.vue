@@ -36,6 +36,7 @@
         </div>
       </div>
     </div>
+    <SuccessModal :is-show="isShow" @on-close="onClose" />
   </van-config-provider>
 </template>
 
@@ -53,6 +54,7 @@ import themeVars from '../theme';
 import TitleImg from '@/assets/images/chuangxin/title-step1.png';
 import TitleImg2 from '@/assets/images/chuangxin/title-step2.png';
 import { ProductDetail } from '@/api/modules/product.data';
+import SuccessModal from './components/SuccessModal/index.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -80,13 +82,14 @@ const {
   tenantId = '',
   phoneNo,
   saleChannelId,
-  agentCode,
+  agentCode = '',
   paymentMethod,
   from,
 } = route.query as QueryData;
 
 // 为true, 显示手机验证表单
 const isVerifyMobile = ref(true);
+const isCheck = from === 'check';
 
 const state = reactive({
   title: TitleImg,
@@ -108,29 +111,12 @@ const state = reactive({
 
 const detail = ref<ProductDetail>();
 const insureDetail = ref<any>();
+const isShow = ref<boolean>(false);
 
 // 第一步 验证手机号
 const onVerify = async (e: UserInfoProps) => {
   // 填写的手机号
   state.userInfo.mobile = e.mobile;
-  // 审核的
-  if (from === 'check') {
-    if (!state.agree) {
-      Toast('请勾选协议');
-      return;
-    }
-    router.push({
-      path: '/chuangxin/baigebao/productDetail',
-      query: {
-        ...route.query,
-        tenantId,
-        phoneNo: state.userInfo.mobile,
-        productCode: 'BWYL2021',
-      },
-    });
-    return;
-  }
-
   // 通过手机号查订单的信息
   const res = await getOrderDetailByCondition({
     holderPhone: state.userInfo.mobile,
@@ -188,6 +174,11 @@ const onSubmit = async (e: UserInfoProps) => {
     const { code } = res;
     // TODO 后端要调整参数
     if (code === '10000') {
+      // 审核版结束
+      if (isCheck) {
+        isShow.value = true;
+        return;
+      }
       // 跳转到基础险, 参数和短信发送的参数保持一致
       router.push({
         path: '/chuangxin/baigebao/productDetail',
@@ -206,6 +197,10 @@ const onSubmit = async (e: UserInfoProps) => {
     console.log(error);
     Toast.clear();
   }
+};
+
+const onClose = () => {
+  isShow.value = false;
 };
 
 const getData = async () => {
@@ -231,17 +226,17 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+// iphone 4 兼容
+.van-config-provider.router-view {
+  background: linear-gradient(180deg, #fea64a 0%, #fc7429 88%, #fc6d24 100%);
+}
 .page-activity-invite {
-  width: 100%;
   height: 100%;
   background: linear-gradient(180deg, #fea64a 0%, #fc7429 88%, #fc6d24 100%);
   .banner {
     width: 100%;
   }
   .container {
-    position: absolute;
-    width: 100%;
-    bottom: 60px;
     padding: 20px;
 
     .title {

@@ -13,7 +13,6 @@
 
 <script lang="ts" setup>
 import { useToggle } from '@vant/use';
-import { defineProps } from 'vue';
 import { getHiddenDomHeight } from '@/utils/dom';
 import ProSvg from '@/components/ProSvg/index.vue';
 

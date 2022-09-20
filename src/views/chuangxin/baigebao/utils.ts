@@ -12,7 +12,7 @@ import { getSex, getBirth } from '@/components/ProField/utils';
 // 校验长度
 export const FIELD_LENGTH = {
   NAME: '10',
-  ID_CARD: '20',
+  ID_CARD: '18',
   MOBILE: '11',
   SMS_CODE: '6',
 };
@@ -382,4 +382,21 @@ export const getFloat = (val: number) => {
     return value;
   }
   return val;
+};
+
+export const nameMixin = (name: string) => {
+  if (typeof name === 'string') {
+    const ruten = name?.substring(1);
+
+    return name?.replace(ruten, '**');
+  }
+  return name;
+};
+
+export const mobileMixin = (mobile: string) => {
+  return mobile?.replace(/(\d{3})\d*(\d{4})/, '$1****$2');
+};
+
+export const idCardMixin = (idCard: string) => {
+  return idCard?.replace(/^(.{6})(?:\d+)(.{2})$/, '$1**********$2');
 };

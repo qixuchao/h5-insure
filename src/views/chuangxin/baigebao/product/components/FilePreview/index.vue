@@ -14,24 +14,27 @@
     :closeable="false"
     @close="emits('update:show', false)"
   >
-    <ProTab
-      v-model:active="currentActiveIndex"
-      :list="
-        contentList.map((item, index) => ({
-          title: item.attachmentName,
-          slotName: `guarantee-${index}`,
-        }))
-      "
-      class="tab"
-    ></ProTab>
-    <div class="list">
-      <div class="item">
-        <ProFilePreview :key="attachmentUri" :content="attachmentUri" type="pdf"></ProFilePreview>
+    <van-config-provider :theme-vars="themeVars">
+      <ProTab
+        v-if="isShow"
+        v-model:active="currentActiveIndex"
+        :list="
+          contentList.map((item, index) => ({
+            title: item.attachmentName,
+            slotName: `guarantee-${index}`,
+          }))
+        "
+        class="tab"
+      ></ProTab>
+      <div class="list">
+        <div class="item">
+          <ProFilePreview :key="attachmentUri" :content="attachmentUri" type="pdf"></ProFilePreview>
+        </div>
       </div>
-    </div>
-    <div class="footer">
-      <VanButton type="primary" block round @click="agreeMent">我已逐页阅读并确认完全符合健康告知内容</VanButton>
-    </div>
+      <div class="footer">
+        <VanButton type="primary" block round @click="agreeMent">我已逐页阅读并确认完全符合健康告知内容</VanButton>
+      </div>
+    </van-config-provider>
   </ProPopup>
 </template>
 

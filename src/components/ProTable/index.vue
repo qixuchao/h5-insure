@@ -50,7 +50,6 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps } from 'vue';
 import { useToggle } from '@vant/use';
 import ProSvg from '@/components/ProSvg/index.vue';
 
