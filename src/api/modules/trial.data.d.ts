@@ -200,29 +200,30 @@ export interface ProductMaterialVoItem {
 
 export interface ProductBasicInfoVo {
     combinationFlag: number;
+    extInfo: string;
     id: number;
     insureMethod: string;
     insurerCode: string;
     insurerName: string;
+    premiumCalcType: number;
     productCategory: number;
     productCode: string;
     productFullName: string;
     productName: string;
 }
 
-
-
-
 export interface PremiumCalcData {
     holder?: Holder;
     insuredVOList: InsuredVoItem[];
     productCode: string;
+    tenantId?: string;
 }
 
 export interface InsuredVoItem {
     insuredCode: string;
     personVO: PersonVo;
     productPlanVOList: ProductPlanVoItem[];
+    relationToHolder?: string;
 }
 
 export interface ProductPlanVoItem {
@@ -233,6 +234,7 @@ export interface ProductPlanVoItem {
 
 export interface RiskVoItem {
     amount: number;
+    annuityDrawType: string;
     annuityDrawDate: number;
     annuityDrawFrequency: number;
     chargePeriod: string;
@@ -254,6 +256,7 @@ export interface RiskVoItem {
 }
 
 export interface LiabilityVoItem {
+    liabilityAmount: number;
     liabilityAttributeCode: string;
     liabilityAttributeValue: string;
     liabilityCode: string;
@@ -268,18 +271,22 @@ export interface LiabilityVoItem {
 }
 
 export interface PersonVo {
-    birthday: string;
-    gender: number;
-    occupationClass: number;
-    occupationCodeList: string[];
-    socialFlag: number;
+    birthday?: string;
+    gender?: number;
+    certType?: string;
+    certNo?: string;
+    occupationClass?: number;
+    occupationCodeList?: string[];
+    socialFlag?: string;
+    mobile?: string;
+    name?: string;
 }
 
 export interface Holder {
     personVO: PersonVo;
 }
 
-
+// 保费试算结果
 export interface premiumCalcResponse{
     amount: number;
     errorInfo: string;

@@ -48,6 +48,8 @@ export const validateIdCardNo = (idCard: string): boolean => {
  */
 export function getSex(idCard: string) {
   let sex = '';
+  // FEMALE = '1', // 女
+  // MALE = '2', // 男
   if (parseInt(idCard.slice(-2, -1), 10) % 2 === 1) {
     sex = SEX_LIMIT_ENUM.MALE;
   } else {

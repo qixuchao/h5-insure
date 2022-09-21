@@ -8,7 +8,7 @@
 <script lang="ts" setup>
 import wx from 'weixin-js-sdk';
 import { isApp, isWechat } from '@/utils';
-import jsbridge from '@/utils/jsbridge';
+import { wechatShare } from '@/utils/jsbridgePromise';
 import ProShareOverlay from '@/components/ProShareOverlay/index.vue';
 
 /**
@@ -68,7 +68,7 @@ const handleShare = () => {
       link: props.link,
     };
     console.log('参数：', shareConfig);
-    jsbridge.shareConfig(shareConfig);
+    wechatShare(shareConfig);
   }
 };
 

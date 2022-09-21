@@ -4,11 +4,19 @@ import { constantListToMap } from './utils';
 export enum PAY_METHOD_ENUM {
   REAL_TIME = 1,
   BATCH = 2,
+  ALIPAY = 5,
+  WECHAT = 6,
 }
 
 export const PAY_METHOD_LIST = [
   { value: PAY_METHOD_ENUM.REAL_TIME, label: '实时转账' },
   { value: PAY_METHOD_ENUM.BATCH, label: '批量扣款' },
+];
+
+// 活动支付方式
+export const ACTIVITY_PAY_METHOD_LIST = [
+  { value: PAY_METHOD_ENUM.ALIPAY, label: '支付宝' },
+  { value: PAY_METHOD_ENUM.WECHAT, label: '微信' },
 ];
 
 export const PAY_METHOD_MAP = constantListToMap(PAY_METHOD_LIST);

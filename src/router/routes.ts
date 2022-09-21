@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-14 11:22:21
+ * @LastEditTime: 2022-09-15 11:34:01
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -85,6 +85,7 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   },
 ];
 
+// 计划书路由
 const proposalRoutes: Array<RouteRecordRaw> = [
   {
     name: 'createProposal',
@@ -109,6 +110,46 @@ const proposalRoutes: Array<RouteRecordRaw> = [
     path: '/compositionProposal',
     meta: { title: '组合计划书', requireWxJs: true },
     component: () => import('@/views/proposal/compositionProposal/index.vue'),
+  },
+];
+
+// 创新-白鸽宝路由
+const baigebaoRoutes = [
+  {
+    name: '审核',
+    path: '/chuangxin/baigebao/check',
+    meta: { title: '' },
+    component: () => import('@/views/chuangxin/baigebao/check/index.vue'),
+  },
+  {
+    name: '赠险',
+    path: '/chuangxin/baigebao/free',
+    meta: { title: '赠险' },
+    component: () => import('@/views/chuangxin/baigebao/free/index.vue'),
+  },
+  {
+    name: '付费险',
+    path: '/chuangxin/baigebao/productDetail',
+    meta: { title: '付费险' },
+    component: () => import('@/views/chuangxin/baigebao/product/detail/index.vue'),
+  },
+  {
+    name: '保障升级',
+    path: '/chuangxin/baigebao/guaranteeUpgrade',
+    meta: { title: '保障升级' },
+    component: () => import('@/views/chuangxin/baigebao/upgrade/index.vue'),
+  },
+  {
+    name: '支付失败',
+    path: '/chuangxin/baigebao/payFail',
+    meta: { title: '支付失败' },
+    component: () => import('@/views/chuangxin/baigebao/payFail/index.vue'),
+  },
+  {
+    name: '投保成功页',
+    path: '/chuangxin/baigebao/orderDetail',
+    meta: { title: '投保成功页' },
+    component: () => import('@/views/chuangxin/baigebao/orderDetail/index.vue'),
   },
 ];
 
@@ -175,6 +216,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   },
   ...proposalRoutes,
   ...lifeInsuranceRoutes,
+  ...baigebaoRoutes,
 ];
 
 export default asyncRoutes;
