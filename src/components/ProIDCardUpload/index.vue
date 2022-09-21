@@ -46,7 +46,6 @@
 
 <script lang="ts" setup>
 import { useCustomFieldValue } from '@vant/use';
-import { defineProps } from 'vue';
 import { UploaderFileListItem, UploaderInstance } from 'vant';
 import { fileUpload, ocr } from '@/api/modules/file';
 import IDCardUploadIconImage from '@/assets/images/component/idcard-upload.png';

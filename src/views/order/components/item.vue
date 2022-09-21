@@ -49,7 +49,6 @@
 
 <script lang="ts" setup>
 import { Dialog, Toast } from 'vant';
-import { defineProps } from 'vue';
 import { useRouter } from 'vue-router';
 import dayjs from 'dayjs';
 import { OrderItem } from '@/api/modules/order.data';

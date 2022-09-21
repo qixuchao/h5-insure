@@ -21,7 +21,6 @@
 
 <script lang="ts" setup>
 import { useToggle } from '@vant/use';
-import { defineProps } from 'vue';
 import ProSvg from '@/components/ProSvg/index.vue';
 
 const [showMore, toggle] = useToggle(false);

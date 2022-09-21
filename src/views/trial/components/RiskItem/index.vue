@@ -404,7 +404,7 @@ const amount = computed(() => {
 
   state.formInfo.amount = state.formInfo.amount || min;
 
-  return { min, max };
+  return { min, max: max || Infinity };
 });
 
 // 保费的最大值和最小值
@@ -426,7 +426,7 @@ const premium = computed(() => {
 
   state.formInfo.premium = state.formInfo.premium || min;
 
-  return { min, max };
+  return { min, max: max || Infinity };
 });
 
 // 份数的最大值和最小值
