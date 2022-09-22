@@ -32,7 +32,7 @@
         </div>
       </div>
       <div class="footer">
-        <VanButton type="primary" block round @click="agreeMent">我已逐页阅读并确认完全符合健康告知内容</VanButton>
+        <VanButton type="primary" block round @click="agreeMent">{{ props.text }}</VanButton>
       </div>
     </van-config-provider>
   </ProPopup>
@@ -42,10 +42,11 @@
 import { withDefaults } from 'vue';
 import themeVars from '../../../theme';
 
-const props = withDefaults(defineProps<{ show: boolean; activeIndex: number; contentList: any[] }>(), {
+const props = withDefaults(defineProps<{ show: boolean; activeIndex: number; contentList: any[]; text: string }>(), {
   show: true,
   contentList: () => [],
   activeIndex: 0,
+  text: '',
 });
 
 const emits = defineEmits(['update:show', 'submit']);
