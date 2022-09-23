@@ -10,7 +10,7 @@ export const checkTitleAndDescVOS = [
     align: 'right',
   },
   {
-    title: '恶性肿瘤院外特定药品费用医疗保险金',
+    title: '附加恶性肿瘤特定药械费用医疗保险条款（互联网2022版A款）',
     desc: '最高600万',
     align: 'right',
   },
