@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-13 00:35:45
+ * @LastEditTime: 2022-09-23 15:26:19
  * @Description: 计划书
 -->
 <template>
@@ -31,19 +31,21 @@
           </van-collapse-item>
         </van-collapse>
       </div>
-      <div v-if="!isShare" class="footer-btn">
-        <ProShare
-          :title="shareConfig.title"
-          :desc="shareConfig.desc"
-          :link="shareConfig.link"
-          :img-url="shareConfig.imgUrl"
-        >
-          <van-button type="primary" class="share-btn">分享</van-button>
-        </ProShare>
-        <van-button plain type="primary" class="btn" @click="getPdf">生成PDF</van-button>
-        <van-button v-if="isShowInsured" type="primary" class="btn" @click="onInsured">立即投保</van-button>
-      </div>
     </div>
+    <div v-if="!isShare" class="footer-btn">
+      <ProShare
+        ref="shareButtonRef"
+        :title="shareConfig.title"
+        :desc="shareConfig.desc"
+        :link="shareConfig.link"
+        :img-url="shareConfig.imgUrl"
+      >
+        <van-button type="primary" class="share-btn" @click.stop="() => onShareProposal()">分享</van-button>
+      </ProShare>
+      <van-button plain type="primary" class="btn" @click="onCreatePdf">生成PDF</van-button>
+      <van-button v-if="isShowInsured" type="primary" class="btn" @click="onInsured">立即投保</van-button>
+    </div>
+
     <InsuredProductList
       v-if="showProductList"
       :is-show="showProductList"
@@ -51,6 +53,7 @@
       @finished="proposal2Insured"
       @close="toggleProductList(false)"
     ></InsuredProductList>
+    <ThemeSelect :key="+showThemeSelect" v-model:show="showThemeSelect" :theme-list="themeList" @submit="selectTheme" />
   </ProPageWrap>
 </template>
 <script lang="ts" setup>
@@ -58,7 +61,13 @@ import wx from 'weixin-js-sdk';
 import { Toast } from 'vant';
 import { useToggle } from '@vant/use';
 import { queryProposalDetail, queryPreviewProposalDetail, generatePdf } from '@/api/modules/proposalList';
-import { checkProposalInsurer, proposalTransInsured } from '@/api/modules/compositionProposal';
+import {
+  checkProposalInsurer,
+  proposalTransInsured,
+  queryProposalThemeList,
+  chooseProposalTheme,
+  queryProposalThemeHistoryDetail,
+} from '@/api/modules/compositionProposal';
 import { ORIGIN } from '@/utils';
 import Storage from '@/utils/storage';
 import InsuranceList from './components/InsuranceList.vue';
@@ -66,25 +75,30 @@ import Benefit from './components/Benefit.vue';
 import LiabilityByRisk from './components/LiabilityByRisk.vue';
 import LiabilityByRes from './components/LiabilityByRes.vue';
 import ProShare from '@/components/ProShare/index.vue';
-import { InsuredProductData } from '@/api/modules/compositionProposal.data';
+import { InsuredProductData, ThemeItem, ShowConfig } from '@/api/modules/compositionProposal.data';
 import { redirectInsurePageLink } from '@/api';
 import InsuredProductList from './components/InsuredProductList/index.vue';
+import ThemeSelect from './components/ThemeSelect/index.vue';
 
 const isLiabilityByRisk = ref(true);
 
 const router = useRoute();
 const history = useRouter();
-const { isShare, id } = router.query;
+const { isShare, id, themeId } = router.query;
 
 const info = ref();
 const tenantId = ref('');
 const proposalName = ref('');
-const shareConfig = ref({});
+const shareConfig = ref<any>({});
 const insuredProductList = ref<InsuredProductData[]>([]);
 const currentInsuredProduct = ref();
 
 const [showProductList, toggleProductList] = useToggle();
+const [showThemeSelect, toggleThemeSelect] = useToggle(); // 选择主题弹出
 const activeName = ref('');
+const themeList = ref<ThemeItem[]>([]); // 主题列表
+const shareButtonRef = ref(); // 分享按钮组件实例
+const operateType = ref<'share' | 'pdf'>('share'); // 按钮的操作类型
 
 const changeLiabilityType = () => {
   isLiabilityByRisk.value = !isLiabilityByRisk.value;
@@ -148,6 +162,14 @@ const getData = async () => {
   }
 };
 
+// 获取计划书列表
+const getThemeList = async () => {
+  const { code, data } = await queryProposalThemeList();
+  if (code === '10000') {
+    themeList.value = data || [];
+  }
+};
+
 // 获取计划书下所有产品的状态
 const getProposalTransInsured = () => {
   proposalTransInsured({ proposalId: id }).then(({ code, data }) => {
@@ -187,16 +209,19 @@ const onInsured = () => {
   }
 };
 
-onMounted(() => {
-  if (router.query.token) {
-    const storage = new Storage({ source: 'localStorage' });
-    storage.set('token', router.query.token);
-  }
-  !isShare && getProposalTransInsured();
-  getData();
-});
+// 分享计划书
+const onShareProposal = () => {
+  operateType.value = 'share';
 
-const getPdf = () => {
+  if (themeList.value.length) {
+    toggleThemeSelect(true);
+  } else {
+    shareButtonRef.value.handleShare();
+  }
+};
+
+const getPdf = (themeHistoryId?: number) => {
+  operateType.value = 'pdf';
   if (!id) {
     Toast('PDF生成失败');
     return;
@@ -205,11 +230,10 @@ const getPdf = () => {
     message: 'PDF生成中...',
     forbidClick: true,
   });
-  generatePdf(id.toString()).then((res: any) => {
+  generatePdf({ id, themeHistoryId }).then((res: any) => {
     const { code, message } = res;
     if (code === '10000') {
       Toast.clear();
-      console.log(message);
       if (message) {
         history.push(`/pdfViewer?url=${encodeURIComponent(message)}&title=${proposalName.value}`);
       } else {
@@ -218,18 +242,58 @@ const getPdf = () => {
     }
   });
 };
+
+// 选择计划书封面
+const selectTheme = async (selectedThemeId: number) => {
+  if (!selectedThemeId) {
+    toggleThemeSelect(false);
+    if (operateType.value === 'pdf') {
+      getPdf();
+    } else {
+      shareButtonRef.value.handleShare();
+    }
+  } else {
+    const { code, data } = await chooseProposalTheme({ themeId: selectedThemeId, proposalId: id });
+    if (code === '10000') {
+      toggleThemeSelect(false);
+      if (operateType.value === 'pdf') {
+        getPdf(data);
+      } else {
+        shareConfig.value.link = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}&themeId=${data}`;
+        shareButtonRef.value.handleShare();
+      }
+    }
+  }
+};
+
+// 创建pdf文件
+const onCreatePdf = () => {
+  operateType.value = 'pdf';
+
+  if (themeList.value.length) {
+    toggleThemeSelect(true);
+  } else {
+    getPdf();
+  }
+};
+
+onMounted(() => {
+  if (router.query.token) {
+    const storage = new Storage({ source: 'localStorage' });
+    storage.set('token', router.query.token);
+  }
+  !isShare && getProposalTransInsured();
+  getData();
+  getThemeList();
+});
 </script>
 
 <style lang="scss" scoped>
 .page-composition-proposal {
-  padding: 0 30px 30px 30px;
-  background-color: #3486ff;
   margin-bottom: 150px;
 
-  .share-btn {
-    width: 130px;
-    margin-right: 20px;
-  }
+  padding: 0 30px 30px 30px;
+  background-color: #3486ff;
   .head-bg {
     background-image: url('@/assets/images/compositionProposal/head.png');
     background-repeat: no-repeat;
@@ -372,28 +436,30 @@ const getPdf = () => {
       }
     }
   }
-  .footer-btn {
+}
+.footer-btn {
+  width: 100%;
+  height: 150px;
+  background: #ffffff;
+  border: 1px solid #efeff4;
+  position: fixed;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30px;
+  z-index: 99999999; // echart 覆盖了footer，提高层级
+  .share-btn {
+    width: 130px;
+    margin-right: 20px;
+  }
+  .btn {
     width: 100%;
-    height: 150px;
-    background: #ffffff;
-    border: 1px solid #efeff4;
-    margin-left: -30px;
-    margin-right: -30px;
-    position: fixed;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 30px;
-    z-index: 99999999; // echart 覆盖了footer，提高层级
-    .btn {
-      width: 100%;
-      height: 90px;
-      border-radius: 8px;
-    }
-    .btn + .btn {
-      margin-left: 20px;
-    }
+    height: 90px;
+    border-radius: 8px;
+  }
+  .btn + .btn {
+    margin-left: 20px;
   }
 }
 </style>

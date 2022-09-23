@@ -161,7 +161,6 @@
       v-model="state.formInfo.annuityDrawDate"
       label="领取时间"
       name="annuityDrawDate"
-      :rules="[{ required: true, message: '请选择领取时间' }]"
     >
       <template #input>
         <div class="pro-radio-wrap">
@@ -177,7 +176,6 @@
       v-model="state.formInfo.annuityDrawType"
       label="领取方式"
       name="annuityDrawType"
-      :rules="[{ required: true, message: '请选择领取方式' }]"
     >
       <template #input>
         <div class="pro-radio-wrap">
