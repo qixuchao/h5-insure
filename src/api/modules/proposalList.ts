@@ -1,3 +1,11 @@
+/*
+ * @Author: za-qixuchao qixuchao@zhongan.io
+ * @Date: 2022-08-05 14:27:20
+ * @LastEditors: za-qixuchao qixuchao@zhongan.io
+ * @LastEditTime: 2022-09-23 11:29:22
+ * @FilePath: /zat-planet-h5-cloud-insure/src/api/modules/proposalList.ts
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import request from '@/api/request';
 import {
   QueryProposalProductListType,
@@ -27,8 +35,10 @@ export const queryProposalDetail = (id: string) => {
 };
 
 // 生成计划书pdf
-export const generatePdf = (id: string) => {
-  return request.post(`${API_PREFIXED}/generatePdf/${id}`);
+export const generatePdf = (params = {}) => {
+  return request.get<any, ResponseData<any>>(`${API_PREFIXED}/generatePdf`, {
+    params,
+  });
 };
 
 export const queryPreviewProposalDetail = (id: string) => {
