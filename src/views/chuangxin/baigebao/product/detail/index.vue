@@ -67,17 +67,11 @@
     </div>
     <PreNotice v-if="isCheck && pageCode !== 'payBack'" :product-detail="detail"></PreNotice>
     <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
-      <div v-if="!isCheck" class="guarantee-list">
-        <div v-for="(item, index) in guaranteeList[activePlan].titleAndDescVOS" :key="index" class="guarantee-item">
-          <div class="title">{{ item.title }}</div>
-          <div v-dompurify-html="item.content" class="content" />
-        </div>
-      </div>
-      <div v-else class="check-guarantee-list">
+      <div class="check-guarantee-list">
         <div v-for="(item, index) in checkTitleAndDescDetail" :key="index" class="guarantee-item">
           <div class="cell">
             <div>{{ item.title }}</div>
-            <div>{{ item.desc }}</div>
+            <div class="desc">{{ item.desc }}</div>
           </div>
           <div v-if="item.content.length > 0" class="content">
             <div v-for="(c, i) in item.content" :key="i">（{{ i + 1 }}） {{ c }}</div>
@@ -869,6 +863,10 @@ $activity-primary-color: #ff6d23;
         color: $zaui-text;
         font-size: 28px;
         border-bottom: 1px solid #e6e6e6;
+      }
+      .desc {
+        white-space: nowrap;
+        margin-left: 30px;
       }
       .content {
         color: $zaui-aide-text;
