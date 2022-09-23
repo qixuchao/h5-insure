@@ -6,26 +6,14 @@
         <img v-else :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
         <div class="guarantee-list">
           <ProCard title="保障内容" link="查看详情" :show-divider="false" :show-icon="false" @link-click="onShowDetail">
-            <div v-if="isCheck" class="basic">
-              <ProCell
-                v-for="(item, index) in checkTitleAndDescVOS"
-                :key="index"
-                :class="['guarantee-item', { left: item.align === 'left' }]"
-                :title="item.title"
-                :content="item.desc"
-                :border="false"
-              />
-            </div>
-            <div v-else class="basic">
-              <ProCell
-                v-for="(item, index) in guaranteeList?.[activePlan]?.titleAndDescVOS"
-                :key="index"
-                class="guarantee-item"
-                :title="item.title"
-                :content="item.desc"
-                :border="false"
-              />
-            </div>
+            <ProCell
+              v-for="(item, index) in checkTitleAndDescVOS"
+              :key="index"
+              :class="['guarantee-item', { left: item.align === 'left' }]"
+              :title="item.title"
+              :content="item.desc"
+              :border="false"
+            />
           </ProCard>
         </div>
       </div>
@@ -49,6 +37,11 @@
               :src="item"
               class="detail-img"
             />
+            <div class="tips">
+              产品介绍页面仅供参考，具体责任描达以保险合同为准，责任内不限医保目录范围，就医少负担众安保险最近季度供付能力符合监管要求，详情请参见众安保险官网
+              (<a href="https://www.zhongan.com">www.zhongan.com</a
+              >）偿付能力信息披露该保险产品由众安在线财产保险股份有限公司承保并负责理赔。
+            </div>
           </div>
         </template>
         <template #tab3>
@@ -74,17 +67,11 @@
     </div>
     <PreNotice v-if="isCheck && pageCode !== 'payBack'" :product-detail="detail"></PreNotice>
     <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
-      <div v-if="!isCheck" class="guarantee-list">
-        <div v-for="(item, index) in guaranteeList[activePlan].titleAndDescVOS" :key="index" class="guarantee-item">
-          <div class="title">{{ item.title }}</div>
-          <div v-dompurify-html="item.content" class="content" />
-        </div>
-      </div>
-      <div v-else class="check-guarantee-list">
+      <div class="check-guarantee-list">
         <div v-for="(item, index) in checkTitleAndDescDetail" :key="index" class="guarantee-item">
           <div class="cell">
             <div>{{ item.title }}</div>
-            <div>{{ item.desc }}</div>
+            <div class="desc">{{ item.desc }}</div>
           </div>
           <div v-if="item.content.length > 0" class="content">
             <div v-for="(c, i) in item.content" :key="i">（{{ i + 1 }}） {{ c }}</div>
@@ -101,9 +88,17 @@
     />
   </van-config-provider>
   <FilePreview
-    v-model:show="showFilePreview"
-    :content-list="productAttachmentList.concat(rateAttachmentList)"
+    v-model:show="showHealthPreview"
     :active-index="activeIndex"
+    :content-list="healthAttachmentList"
+    text="我已确认完全符合健康告知内容"
+    @submit="onCloseHealth"
+  ></FilePreview>
+  <FilePreview
+    v-model:show="showFilePreview"
+    :content-list="filterHealthAttachmentList"
+    :active-index="activeIndex"
+    text="我已逐页阅读并确认告知内容"
     @submit="onSubmit"
   ></FilePreview>
   <Waiting v-if="showWaiting" />
@@ -208,6 +203,7 @@ const insureDetail = ref<any>(); // 险种信息
 const premium = ref<number>(); // 保费
 const isCheck = from === 'check';
 const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
+const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const showWaiting = ref<boolean>(false);
@@ -265,11 +261,28 @@ const onShowDetail = () => {
   popupShow.value = true;
 };
 
+// 健康告知
+const healthAttachmentList = computed(() => {
+  return (
+    detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
+      (item: AttachmentVOList) => item.attachmentName === '健康告知',
+    ) || []
+  );
+});
+
 // 费率表
 const rateAttachmentList = computed(() => {
   return (
     detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
       (item: AttachmentVOList) => item.attachmentName === '费率表',
+    ) || []
+  );
+});
+
+const filterHealthAttachmentList = computed(() => {
+  return (
+    detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
+      (item: AttachmentVOList) => item.attachmentName !== '健康告知',
     ) || []
   );
 });
@@ -453,8 +466,8 @@ const onPremiumCalcWithValid = () => {
         // 表单验证通过再检查是否逐条阅读
         const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
         if (isCheck && !isAgree) {
-          previewFile(0);
           isDisableNext.value = false;
+          showHealthPreview.value = true;
           return;
         }
 
@@ -520,6 +533,11 @@ const onNext = async () => {
   } catch (e) {
     isDisableNext.value = false;
   }
+};
+
+const onCloseHealth = () => {
+  showHealthPreview.value = false;
+  previewFile(0);
 };
 
 const onSubmit = () => {
@@ -609,7 +627,7 @@ const fetchData = async () => {
     // 这里要轮询，支付完成后，跳转回来，订单状态可能没有及时更新
     getOrderById();
   } else {
-    if (mobile) {
+    if (mobile && from !== 'check') {
       const res = await getOrderDetailByCondition({
         holderPhone: mobile,
         orderStatus: [ORDER_STATUS_ENUM.PAYING.toUpperCase(), ORDER_STATUS_ENUM.TIMEOUT.toUpperCase(), 'ACCEPT_POLICY'],
@@ -743,6 +761,15 @@ $activity-primary-color: #ff6d23;
   .detail-img {
     width: 100%;
   }
+
+  .tips {
+    padding: 25px;
+    font-size: $zaui-font-size-md;
+    font-weight: 400;
+    color: #666666;
+    line-height: 40px;
+    background: #fff;
+  }
   .footer-button {
     justify-content: space-between;
   }
@@ -836,6 +863,10 @@ $activity-primary-color: #ff6d23;
         color: $zaui-text;
         font-size: 28px;
         border-bottom: 1px solid #e6e6e6;
+      }
+      .desc {
+        white-space: nowrap;
+        margin-left: 30px;
       }
       .content {
         color: $zaui-aide-text;
