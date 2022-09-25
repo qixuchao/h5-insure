@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-23 15:26:19
+ * @LastEditTime: 2022-09-25 14:06:02
  * @Description: 计划书
 -->
 <template>
@@ -128,7 +128,7 @@ watch(
 );
 
 const setShareConfig = () => {
-  const link = `${ORIGIN}/compositionProposal?id=${id}&isShare=1&tenantId=${tenantId.value}`;
+  const link = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
 
   shareConfig.value = {
     title: `${info.value?.name}的计划书`,
