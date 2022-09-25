@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-23 14:59:28
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-23 15:16:20
+ * @LastEditTime: 2022-09-25 16:02:21
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/compositionProposal/cover.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -31,9 +31,10 @@ const getThemeHistory = async () => {
 };
 
 const goNextPage = () => {
+  console.log('23423');
   router.push({
-    path: '/proposalCover',
-    query: route.params,
+    path: '/compositionProposal',
+    query: route.query,
   });
 };
 
