@@ -2,12 +2,12 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-22 14:49:36
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-23 14:41:12
+ * @LastEditTime: 2022-09-26 14:41:07
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/compositionProposal/components/ThemeSelect/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
-  <ProPopup v-model:show="show" class="theme-select-wrap" title="选择计划书封面">
+  <ProPopup v-model:show="show" class="theme-select-wrap" title="选择计划书封面" @close="emits('update:show', false)">
     <div class="popup-body">
       <van-cell center title="封面图">
         <template #right-icon>
@@ -54,7 +54,7 @@ const props = withDefaults(defineProps<Props>(), {
   themeList: () => [],
 });
 
-const emits = defineEmits(['submit']);
+const emits = defineEmits(['submit', 'update:show']);
 
 const { show, themeList } = unref(props);
 const checked = ref<number>(themeList?.[0]?.id);
@@ -65,7 +65,7 @@ const onCheck = (value: number) => {
 };
 
 const submit = () => {
-  emits('submit', themeStatus.value ? checked.value : themeStatus.value);
+  emits('submit', themeStatus.value ? checked.value || themeList?.[0]?.id : themeStatus.value);
 };
 </script>
 
@@ -84,12 +84,14 @@ const submit = () => {
 
     .radio-item {
       text-align: center;
+      width: 216px;
+      margin: 16px 10px;
     }
     .radio-img {
-      width: 216px;
+      width: 100%;
       height: 304px;
       border-radius: $zaui-border-radius-tag-small;
-      margin: 16px 10px;
+
       background-repeat: no-repeat;
       background-size: contain;
       background-position: center top;
@@ -106,6 +108,7 @@ const submit = () => {
     width: 100%;
     height: 106px;
     padding: 0 $zaui-card-border;
+    background-color: #ffffff;
     bottom: 0;
   }
 }
