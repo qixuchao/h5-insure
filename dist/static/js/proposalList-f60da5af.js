@@ -1,0 +1,1 @@
+import{b as s}from"./index-13dbccc0.js";const e="/api/app/insure/proposal",t=o=>s.post(`${e}/queryProposalProductList`,o),a=o=>s.post(`${e}/historyProposalList`,o),p=o=>s.post(`${e}/deleteProposal/${o}`),P=o=>s.post(`${e}/preview/${o}`),i=(o={})=>s.get(`${e}/generatePdf`,{params:o}),n=o=>s.get(`${e}/sharePreview/${o}`);export{n as a,P as b,p as d,i as g,a as h,t as q};
