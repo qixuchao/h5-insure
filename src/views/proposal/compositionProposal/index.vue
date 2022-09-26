@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-25 14:06:02
+ * @LastEditTime: 2022-09-26 14:47:13
  * @Description: 计划书
 -->
 <template>
@@ -282,9 +282,11 @@ onMounted(() => {
     const storage = new Storage({ source: 'localStorage' });
     storage.set('token', router.query.token);
   }
-  !isShare && getProposalTransInsured();
+  if (!isShare) {
+    getProposalTransInsured();
+    getThemeList();
+  }
   getData();
-  getThemeList();
 });
 </script>
 
@@ -450,7 +452,7 @@ onMounted(() => {
   padding: 30px;
   z-index: 99999999; // echart 覆盖了footer，提高层级
   .share-btn {
-    width: 130px;
+    width: 140px;
     margin-right: 20px;
   }
   .btn {
