@@ -16,7 +16,7 @@ export const checkTitleAndDescVOS = [
   },
   {
     title: '投保年龄',
-    desc: '出生满30天-60周岁',
+    desc: '出生满30天-70周岁',
     align: 'right',
   },
   {
