@@ -1,1 +1,0 @@
-import{b as t}from"./index-c8256ef6.js";const e="/api/app/insure/insurance",a=s=>t.post(`${e}/listCustomerQuestions`,s),i=s=>t.post(`${e}/getCustomerQuestionsDetail`,s),n=s=>t.post(`${e}/saveMarketerNotices`,s);export{i as g,a as l,n as s};
