@@ -14,8 +14,8 @@
           <div class="title">
             <img :src="state.title" />
           </div>
-          <MobileVerify v-if="isVerifyMobile" :user-info="state.userInfo" @on-verify="onVerify" />
-          <InfoField v-else :user-info="state.userInfo" @on-submit="onSubmit" />
+          <MobileVerify v-if="isVerifyMobile" :is-check="isCheck" :user-info="state.userInfo" @on-verify="onVerify" />
+          <InfoField v-else :is-check="isCheck" :user-info="state.userInfo" @on-submit="onSubmit" />
           <div class="agree">
             <div class="check-wrap">
               <van-checkbox v-model="state.agree" name="agree" shape="square"> </van-checkbox>
@@ -33,10 +33,22 @@
               </ProPDFviewer>
             </div>
           </div>
+          <div v-if="isCheck" class="tips">
+            产品介绍页面仅供参考，具体责任描达以保险合同为准，责任内不限医保目录范围，就医少负担众安保险最近季度供付能力符合监管要求，详情请参见众安保险官网
+            (<a href="https://www.zhongan.com">www.zhongan.com</a
+            >）偿付能力信息披露该保险产品由众安在线财产保险股份有限公司承保并负责理赔。
+          </div>
         </div>
       </div>
     </div>
     <SuccessModal :is-show="isShow" @on-close="onClose" />
+    <FilePreview
+      v-model:show="showFile"
+      :content-list="state.attachmentList"
+      :active-index="activeIndex"
+      text="我已逐页阅读并确认告知内容"
+      @submit="onContinue"
+    ></FilePreview>
   </van-config-provider>
 </template>
 
@@ -55,6 +67,7 @@ import TitleImg from '@/assets/images/chuangxin/title-step1.png';
 import TitleImg2 from '@/assets/images/chuangxin/title-step2.png';
 import { ProductDetail } from '@/api/modules/product.data';
 import SuccessModal from './components/SuccessModal/index.vue';
+import FilePreview from '../product/components/FilePreview/index.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -90,6 +103,10 @@ const {
 // 为true, 显示手机验证表单
 const isVerifyMobile = ref(true);
 const isCheck = from === 'check';
+
+const isAgreeFile = ref<boolean>(false);
+const showFile = ref<boolean>(false); // 附件资料弹窗展示状态
+const activeIndex = ref<number>(0); //
 
 const state = reactive({
   title: TitleImg,
@@ -135,7 +152,14 @@ const onVerify = async (e: UserInfoProps) => {
 };
 
 // 第二步 赠险出单
-const onSubmit = async (e: UserInfoProps) => {
+const onSubmit = async (e?: UserInfoProps) => {
+  state.userInfo.certNo = e?.certNo as string;
+  state.userInfo.name = e?.name as string;
+
+  if (isCheck && !isAgreeFile.value) {
+    showFile.value = true;
+    return;
+  }
   if (!state.agree) {
     Toast('请勾选协议');
     return;
@@ -147,8 +171,6 @@ const onSubmit = async (e: UserInfoProps) => {
       forbidClick: true,
       loadingType: 'spinner',
     });
-    state.userInfo.certNo = e.certNo;
-    state.userInfo.name = e.name;
 
     const orderParam = genarateOrderParam({
       tenantId,
@@ -176,6 +198,7 @@ const onSubmit = async (e: UserInfoProps) => {
     if (code === '10000') {
       // 审核版结束
       if (isCheck) {
+        Toast.clear();
         isShow.value = true;
         return;
       }
@@ -197,6 +220,11 @@ const onSubmit = async (e: UserInfoProps) => {
     console.log(error);
     Toast.clear();
   }
+};
+
+const onContinue = () => {
+  isAgreeFile.value = true;
+  onSubmit();
 };
 
 const onClose = () => {
@@ -272,6 +300,15 @@ onMounted(() => {
         background-position: center;
         border: none;
       }
+      .check-submit {
+        height: 100px;
+        margin-top: 40px;
+        margin-bottom: 35px;
+        background: url('@/assets/images/chuangxin/button1.png') no-repeat;
+        background-size: contain;
+        background-position: center;
+        border: none;
+      }
       .agree {
         padding: 0 25px;
         font-size: 28px;
@@ -282,6 +319,14 @@ onMounted(() => {
         .check-wrap {
           margin-right: 20px;
         }
+      }
+      .tips {
+        padding: 30px;
+        font-size: $zaui-font-size-sm2;
+        font-weight: 400;
+        color: #666666;
+        line-height: 40px;
+        background: #fff;
       }
 
       // 覆盖全局样式
