@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-22 14:49:36
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-26 14:41:07
+ * @LastEditTime: 2022-09-29 15:31:27
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/compositionProposal/components/ThemeSelect/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -27,7 +27,7 @@
                 >
                   <VanRadio :name="item.id" />
                 </div>
-                <span>{{ item.name }}</span>
+                <span :class="`${checked === item.id ? 'checked' : ''}`">{{ item.name }}</span>
               </div>
             </div>
           </VanCellGroup>
@@ -81,11 +81,23 @@ const submit = () => {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
+    margin-bottom: 100px;
 
     .radio-item {
       text-align: center;
       width: 216px;
       margin: 16px 10px;
+      color: #393d46;
+      span {
+        width: 216px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+      }
+      .checked {
+        color: $zaui-brand;
+      }
     }
     .radio-img {
       width: 100%;

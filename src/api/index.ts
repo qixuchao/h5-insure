@@ -2,37 +2,30 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-25 23:36:12
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-23 14:09:46
+ * @LastEditTime: 2022-09-28 14:55:13
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
-import request from './request';
-import {
-  DictData,
-  FactorData,
-  NextStepRequestData,
-  TemplateInfo,
-  TemplatePageItem,
-  ProductInsureNoticeResVo,
-} from './index.data';
+import request from './request1';
+import { DictData, NextStepRequestData, TemplateInfo, TemplatePageItem, ProductInsureNoticeResVo } from './index.data';
 import { PAGE_API_ENUMS } from '@/common/constants/index';
 import useStore from '@/store/app';
 
 // 通用字典接口
 export const getDic = (data = {}) =>
-  request.post<DictData[], ResponseData<DictData[]>>('/api/app/insure/dict/queryDictInfo', data);
+  request<DictData[]>({ url: '/api/app/insure/dict/queryDictInfo', method: 'POST', data });
 
 // 获取保司列表
-export const queryInsurer = () => request.post<ResponseData<any>>(`/api/app/insure/proposal/queryInsurer`);
+export const queryInsurer = () =>
+  request<ResponseData<any>>({ url: '/api/app/insure/proposal/queryInsurer', method: 'POST' });
 
 // 获取页面因子
 export const getInitFactor = (data = {}) =>
-  request.post<TemplatePageItem, ResponseData<TemplatePageItem>>('/api/app/insure/insurance/getInitFactor', data);
+  request<ResponseData<TemplatePageItem>>({ url: '/api/app/insure/insurance/getInitFactor', method: 'POST', data });
 
 // 下一步操作
 export const nextStep = (data = {} as NextStepRequestData) =>
-  request.post<
-    any,
+  request<
     ResponseData<{
       pageAction: {
         data: {
@@ -45,23 +38,23 @@ export const nextStep = (data = {} as NextStepRequestData) =>
       };
       success: boolean;
     }>
-  >(PAGE_API_ENUMS[data.extInfo.pageCode], data);
+  >({ url: PAGE_API_ENUMS[data.extInfo.pageCode], method: 'POST', data });
 
 // 获取订单详情
 export const getOrderDetail = (data = {}): Promise<ResponseData<NextStepRequestData>> => {
   return new Promise((resolve, reject) => {
-    request
-      .post<NextStepRequestData, ResponseData<NextStepRequestData>>(
-        '/api/app/insure/insurance/getTenantOrderDetail',
-        data,
-      )
+    request<ResponseData<NextStepRequestData>>({
+      url: '/api/app/insure/insurance/getTenantOrderDetail',
+      method: 'POST',
+      data,
+    })
       .then((res) => {
         const { code, data: resData } = res;
         if (code === '10000') {
           const store = useStore();
-          store.setOrderDetail(resData);
+          store.setOrderDetail(resData as any);
         }
-        resolve(res);
+        resolve(res as any);
       })
       .catch((err) => {
         reject(err);
@@ -71,16 +64,20 @@ export const getOrderDetail = (data = {}): Promise<ResponseData<NextStepRequestD
 
 // 获取模板信息
 export const getTemplateInfo = (data = {}) =>
-  request.post<TemplateInfo, ResponseData<TemplateInfo>>('/api/app/insure/insurance/getTemplateInfo', data);
+  request<ResponseData<TemplateInfo>>({ url: '/api/app/insure/insurance/getTemplateInfo', method: 'POST', data });
 
 // 签名认证
 export const validateSign = (data = {}) =>
-  request.post<any, ResponseData>('/api/app/insure/insurance/validateSign', data);
+  request<ResponseData>({ url: '/api/app/insure/insurance/validateSign', method: 'POST', data });
 
 // 获取投保链接
 export const redirectInsurePageLink = (params = {}) =>
-  request.get<any, ResponseData>('/api/app/toApply/v2/redirectInsurePageLink', { params });
+  request<ResponseData>({ url: '/api/app/toApply/v2/redirectInsurePageLink', method: 'GET', params });
 
 // 获取保司资料
 export const queryInsuredMaterial = (data = {}) =>
-  request.post<any, ResponseData<ProductInsureNoticeResVo>>('/api/app/insure/insurance/getProductInsureNotice', data);
+  request<ResponseData<ProductInsureNoticeResVo>>({
+    url: '/api/app/insure/insurance/getProductInsureNotice',
+    method: 'POST',
+    data,
+  });

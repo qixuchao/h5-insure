@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-08-01 15:59:43
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-09 10:00:06
+ * @LastEditTime: 2022-09-28 15:42:20
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProField/utils.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -48,8 +48,8 @@ export const validateIdCardNo = (idCard: string): boolean => {
  */
 export function getSex(idCard: string) {
   let sex = '';
-  // FEMALE = '1', // 女
-  // MALE = '2', // 男
+  // FEMALE = '2', // 女
+  // MALE = '1', // 男
   if (parseInt(idCard.slice(-2, -1), 10) % 2 === 1) {
     sex = SEX_LIMIT_ENUM.MALE;
   } else {

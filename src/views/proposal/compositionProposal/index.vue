@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-26 14:47:13
+ * @LastEditTime: 2022-09-29 15:26:59
  * @Description: 计划书
 -->
 <template>
@@ -250,6 +250,7 @@ const selectTheme = async (selectedThemeId: number) => {
     if (operateType.value === 'pdf') {
       getPdf();
     } else {
+      shareConfig.value.link = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
       shareButtonRef.value.handleShare();
     }
   } else {

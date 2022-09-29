@@ -466,6 +466,7 @@ const initLiabilityValue = (liab) => {
   const currentLiability = (state.formInfo?.liabilityVOList || []).find(
     (liabi) => liabi.liabilityCode === liab.liabilityCode,
   );
+
   if (currentLiability) {
     if (currentLiability.liabilityAttributeValue) {
       return currentLiability.liabilityAttributeValue;
@@ -473,14 +474,14 @@ const initLiabilityValue = (liab) => {
     if (liab.optionalFlag !== 1) {
       return '0'; // 投保
     }
-    return '';
+    return '-1';
   }
 
   return '';
 };
 
 onBeforeMount(() => {
-  const extralInfo = {
+  const extraInfo = {
     riskType: props.originData.riskType,
     riskId: props.originData.id,
     riskName: props.originData.riskName,
@@ -497,7 +498,7 @@ onBeforeMount(() => {
     })),
   };
 
-  Object.assign(state?.formInfo, extralInfo);
+  Object.assign(state.formInfo, extraInfo);
 });
 
 // 交费方式
@@ -533,6 +534,17 @@ watch(
     if (newVal === 'single' && +(state.formInfo.paymentFrequency || 0) !== 1) {
       state.formInfo.paymentFrequency = 1;
     }
+  },
+);
+
+watch(
+  () => state.formInfo,
+  () => {
+    console.log('state.formInfo', state.formInfo);
+  },
+  {
+    deep: true,
+    immediate: true,
   },
 );
 
