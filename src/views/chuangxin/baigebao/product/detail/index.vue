@@ -87,13 +87,12 @@
       @on-close="onClose"
     />
   </van-config-provider>
-  <FilePreview
+  <HealthNoticePreview
     v-model:show="showHealthPreview"
-    :active-index="activeIndex"
     :content-list="healthAttachmentList"
-    text="我已确认完全符合健康告知内容"
-    @submit="onCloseHealth"
-  ></FilePreview>
+    :active-index="0"
+    @on-confirm-health="onCloseHealth"
+  ></HealthNoticePreview>
   <FilePreview
     v-model:show="showFilePreview"
     :content-list="filterHealthAttachmentList"
@@ -151,6 +150,7 @@ import { genaratePremiumCalcData, transformData, genarateOrderParam } from '../.
 import themeVars from '../../theme';
 import { checkTitleAndDescVOS, checkTitleAndDescDetail } from './data';
 import checkImg from '@/assets/images/chuangxin/check-detail.png';
+import HealthNoticePreview from '../components/HealthNoticePreview/index.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -535,9 +535,12 @@ const onNext = async () => {
   }
 };
 
-const onCloseHealth = () => {
-  showHealthPreview.value = false;
-  previewFile(0);
+const onCloseHealth = (type: string) => {
+  // 全部为否
+  if (type === 'allFalse') {
+    showHealthPreview.value = false;
+    previewFile(0);
+  }
 };
 
 const onSubmit = () => {
