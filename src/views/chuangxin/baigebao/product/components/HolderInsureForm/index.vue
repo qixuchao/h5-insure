@@ -161,7 +161,7 @@
             请您重点阅读并知晓
             <template v-if="props.isCheck">
               <span
-                v-for="(item, index) in productAttachmentList"
+                v-for="(item, index) in filterHealthAttachmentList"
                 :key="`attachment-${index}`"
                 class="file-name"
                 @click="previewFile(index)"
@@ -170,7 +170,7 @@
             </template>
             <template v-else>
               <ProPDFviewer
-                v-for="(item, index) in productAttachmentList"
+                v-for="(item, index) in filterHealthAttachmentList"
                 :key="index"
                 class="file-name"
                 :title="`《${item.attachmentName}》`"
@@ -186,7 +186,7 @@
                 v-for="(item, index) in rateAttachmentList"
                 :key="`rate-${index}`"
                 class="file-name"
-                @click="previewFile(productAttachmentList.length + index)"
+                @click="previewFile(filterHealthAttachmentList.length + index)"
                 >{{ `《${item.attachmentName}》` }}</span
               >
             </template>
@@ -238,7 +238,7 @@
       <ProDivider />
       <FilePreview
         v-model:show="showFilePreview"
-        :content-list="productAttachmentList.concat(rateAttachmentList)"
+        :content-list="filterHealthAttachmentList.concat(rateAttachmentList)"
         :active-index="activeIndex"
         text="我已逐页阅读并确认告知内容"
         @submit="onSubmit"
@@ -259,8 +259,7 @@ import { ACTIVITY_PAY_METHOD_LIST } from '@/common/constants/bankCard';
 import { getFloat, nameMixin, mobileMixin, idCardMixin } from '../../../utils';
 import ProDivider from '@/components/ProDivider/index.vue';
 import { VALIDATE_TYPE_ENUM } from '@/common/constants';
-import { ProductDetail } from '@/api/modules/product.data';
-import { RiskAttachmentVoItem } from '@/api/modules/trial.data';
+import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
 import { validateName } from '@/utils/validator';
 import FilePreview from '../FilePreview/index.vue';
 
@@ -329,16 +328,15 @@ const nameValidator = (name: string) => {
 // 费率表
 const rateAttachmentList = computed(() => {
   return props.productDetail?.tenantProductInsureVO?.attachmentVOList.filter(
-    (item: RiskAttachmentVoItem) => item.attachmentName === '费率表',
+    (item: AttachmentVOList) => item.attachmentName === '费率表',
   );
 });
 
-// 产品资料
-const productAttachmentList = computed(() => {
+const filterHealthAttachmentList = computed(() => {
   return (
-    props.productDetail?.tenantProductInsureVO?.attachmentVOList.filter(
-      (item: RiskAttachmentVoItem) => item.attachmentName !== '费率表',
-    ) || []
+    props.productDetail?.tenantProductInsureVO?.attachmentVOList.filter((item: AttachmentVOList) => {
+      return !['健康告知', '费率表'].includes(item.attachmentName);
+    }) || []
   );
 });
 
