@@ -240,6 +240,7 @@
         v-model:show="showFilePreview"
         :content-list="productAttachmentList.concat(rateAttachmentList)"
         :active-index="activeIndex"
+        text="我已逐页阅读并确认告知内容"
         @submit="onSubmit"
       ></FilePreview>
     </ProForm>

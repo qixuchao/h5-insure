@@ -23,7 +23,7 @@
             <div>
               我已阅读并同意
               <ProPDFviewer
-                v-for="(item, index) in state.attachmentList || []"
+                v-for="(item, index) in filterHealthAttachmentList || []"
                 :key="index"
                 class="file-name"
                 :title="`《${item.attachmentName}》`"
@@ -34,9 +34,9 @@
             </div>
           </div>
           <div v-if="isCheck" class="tips">
-            产品介绍页面仅供参考，具体责任描达以保险合同为准，责任内不限医保目录范围，就医少负担众安保险最近季度供付能力符合监管要求，详情请参见众安保险官网
+            产品介绍页面仅供参考，具体责任描达以保险合同为准，众安保险最近季度偿付能力符合监管要求，详情请参见众安保险官网
             (<a href="https://www.zhongan.com">www.zhongan.com</a
-            >）偿付能力信息披露该保险产品由众安在线财产保险股份有限公司承保并负责理赔。
+            >）偿付能力信息披露，该保险产品由众安在线财产保险股份有限公司承保并负责理赔。
           </div>
         </div>
       </div>
@@ -44,11 +44,17 @@
     <SuccessModal :is-show="isShow" @on-close="onClose" />
     <FilePreview
       v-model:show="showFile"
-      :content-list="state.attachmentList"
+      :content-list="filterHealthAttachmentList"
       :active-index="activeIndex"
       text="我已逐页阅读并确认告知内容"
       @submit="onContinue"
     ></FilePreview>
+    <HealthNoticePreview
+      v-model:show="showHealthNoticeFile"
+      :content-list="healthAttachmentList"
+      :active-index="0"
+      @on-confirm-health="onConfirmHealth"
+    ></HealthNoticePreview>
   </van-config-provider>
 </template>
 
@@ -60,14 +66,14 @@ import MobileVerify from './components/MobileVerify/index.vue';
 import InfoField from './components/InfoField/index.vue';
 import { insureProductDetail, getOrderDetailByCondition, multiIssuePolicy } from '@/api/modules/trial';
 import { productDetail } from '@/api/modules/product';
-import { RiskDetailVoItem, RiskAttachmentVoItem } from '@/api/modules/newTrial.data';
 import { genarateOrderParam } from '../utils';
 import themeVars from '../theme';
 import TitleImg from '@/assets/images/chuangxin/title-step1.png';
 import TitleImg2 from '@/assets/images/chuangxin/title-step2.png';
-import { ProductDetail } from '@/api/modules/product.data';
+import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
 import SuccessModal from './components/SuccessModal/index.vue';
 import FilePreview from '../product/components/FilePreview/index.vue';
+import HealthNoticePreview from '../product/components/HealthNoticePreview/index.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -106,16 +112,12 @@ const isCheck = from === 'check';
 
 const isAgreeFile = ref<boolean>(false);
 const showFile = ref<boolean>(false); // 附件资料弹窗展示状态
+const showHealthNoticeFile = ref<boolean>(false); // 展示健康告知弹框
 const activeIndex = ref<number>(0); //
 
 const state = reactive({
   title: TitleImg,
-  attachmentList: [
-    {
-      attachmentName: '',
-      attachmentUri: '',
-    },
-  ],
+  attachmentList: [],
 
   // 填写的信息
   userInfo: {
@@ -129,6 +131,23 @@ const state = reactive({
 const detail = ref<ProductDetail>();
 const insureDetail = ref<any>();
 const isShow = ref<boolean>(false);
+
+// 健康告知
+const healthAttachmentList = computed(() => {
+  return (
+    detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
+      (item: AttachmentVOList) => item.attachmentName === '健康告知',
+    ) || []
+  );
+});
+
+const filterHealthAttachmentList = computed(() => {
+  return (
+    detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
+      (item: AttachmentVOList) => item.attachmentName !== '健康告知',
+    ) || []
+  );
+});
 
 // 第一步 验证手机号
 const onVerify = async (e: UserInfoProps) => {
@@ -153,11 +172,16 @@ const onVerify = async (e: UserInfoProps) => {
 
 // 第二步 赠险出单
 const onSubmit = async (e?: UserInfoProps) => {
-  state.userInfo.certNo = e?.certNo as string;
-  state.userInfo.name = e?.name as string;
+  if (e?.certNo) {
+    state.userInfo.certNo = e?.certNo as string;
+  }
+
+  if (e?.name) {
+    state.userInfo.name = e?.name as string;
+  }
 
   if (isCheck && !isAgreeFile.value) {
-    showFile.value = true;
+    showHealthNoticeFile.value = true;
     return;
   }
   if (!state.agree) {
@@ -227,6 +251,13 @@ const onContinue = () => {
   onSubmit();
 };
 
+const onConfirmHealth = (type: string) => {
+  // 全部为否
+  if (type === 'allFalse') {
+    showFile.value = true;
+  }
+};
+
 const onClose = () => {
   isShow.value = false;
 };
@@ -238,8 +269,6 @@ const getData = async () => {
   Promise.all([detailReq, insureReq]).then(([detailRes, insureRes]) => {
     if (detailRes.code === '10000') {
       detail.value = detailRes.data;
-
-      state.attachmentList = detail.value?.tenantProductInsureVO?.attachmentVOList || [];
     }
 
     if (insureRes.code === '10000') {
