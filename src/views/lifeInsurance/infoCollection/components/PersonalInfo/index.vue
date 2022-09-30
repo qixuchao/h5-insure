@@ -614,8 +614,8 @@ watch(
   () => state.value.formInfo.certNo,
   (newVal) => {
     if (validateIdCardNo(newVal)) {
-      state.value.formInfo.gender = getSex(newVal);
-      state.value.formInfo.birthday = new Date(getBirth(newVal));
+      state.value.formInfo.gender = +getSex(newVal);
+      state.value.formInfo.birthday = dayjs(new Date(getBirth(newVal))).format('YYYY-MM-DD');
     }
   },
   {
