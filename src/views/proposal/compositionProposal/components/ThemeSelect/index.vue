@@ -2,11 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-22 14:49:36
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
-<<<<<<< HEAD
- * @LastEditTime: 2022-09-26 15:36:19
-=======
  * @LastEditTime: 2022-09-29 15:31:27
->>>>>>> 008d053e64b6c0ca07597debe5531c745fbac5f4
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/compositionProposal/components/ThemeSelect/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -85,10 +81,7 @@ const submit = () => {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
-<<<<<<< HEAD
-=======
     margin-bottom: 100px;
->>>>>>> 008d053e64b6c0ca07597debe5531c745fbac5f4
 
     .radio-item {
       text-align: center;
