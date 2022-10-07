@@ -635,8 +635,17 @@ const fetchData = async () => {
         tenantId,
       });
       const { code, data } = res;
+
+      // 订单状态为承保时，投保人信息不可修改
+      if (data.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY) {
+        holderDisable.value = true;
+      }
+      // 支付中，超时可以修改投保人信息
+      if (data.orderStatus === ORDER_STATUS_ENUM.PAYING || data.orderStatus === ORDER_STATUS_ENUM.TIMEOUT) {
+        // holderDisable.value = true;
+      }
+
       if (code === '10000' && data?.tenantOrderHolder?.certNo) {
-        disable.value = pageCode === 'productDetail';
         const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
         trailData.holder = {
           certNo: tenantOrderHolder.certNo,

@@ -6,7 +6,7 @@
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
-import request from './request1';
+import request from './request';
 import { DictData, NextStepRequestData, TemplateInfo, TemplatePageItem, ProductInsureNoticeResVo } from './index.data';
 import { PAGE_API_ENUMS } from '@/common/constants/index';
 import useStore from '@/store/app';
@@ -72,7 +72,7 @@ export const validateSign = (data = {}) =>
 
 // 获取投保链接
 export const redirectInsurePageLink = (params = {}) =>
-  request<ResponseData>({ url: '/api/app/toApply/v2/redirectInsurePageLink', method: 'GET', params });
+  request<ResponseData<string>>({ url: '/api/app/toApply/v2/redirectInsurePageLink', method: 'GET', params });
 
 // 获取保司资料
 export const queryInsuredMaterial = (data = {}) =>

@@ -33,6 +33,11 @@
               </ProPDFviewer>
             </div>
           </div>
+          <div v-if="isCheck" class="tips">
+            产品介绍页面仅供参考，具体责任描达以保险合同为准，责任内不限医保目录范围，就医少负担众安保险最近季度供付能力符合监管要求，详情请参见众安保险官网
+            (<a href="https://www.zhongan.com">www.zhongan.com</a
+            >）偿付能力信息披露该保险产品由众安在线财产保险股份有限公司承保并负责理赔。
+          </div>
         </div>
       </div>
     </div>
@@ -314,6 +319,14 @@ onMounted(() => {
         .check-wrap {
           margin-right: 20px;
         }
+      }
+      .tips {
+        padding: 30px;
+        font-size: $zaui-font-size-sm2;
+        font-weight: 400;
+        color: #666666;
+        line-height: 40px;
+        background: #fff;
       }
 
       // 覆盖全局样式
