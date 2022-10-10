@@ -168,6 +168,9 @@ watch(
       align-items: center;
     }
   }
+  .pdf-wapper {
+    background-color: rgb(82, 86, 89);
+  }
   .pic-wrap {
     width: 100%;
     height: 80vh;
