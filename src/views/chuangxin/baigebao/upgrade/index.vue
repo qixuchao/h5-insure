@@ -25,6 +25,13 @@
       </div>
       <UpgradeBackModal :is-show="showModal" @on-close="onClose" />
     </div>
+    <FilePreview
+      v-model:show="showFilePreview"
+      :content-list="detail?.tenantProductInsureVO?.attachmentVOList"
+      :active-index="activeIndex"
+      text="我已逐页阅读并确认告知内容"
+      @submit="onSubmit"
+    ></FilePreview>
   </van-config-provider>
 </template>
 
@@ -36,6 +43,7 @@ import {
 } from '@/common/constants/infoCollection';
 import FieldInfo from '../components/FieldInfo/index.vue';
 import UpgradeBackModal from '../components/UpgradeBackModal/index.vue';
+import FilePreview from '../product/components/FilePreview/index.vue';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import {
   insureProductDetail,
@@ -84,6 +92,8 @@ const hasSocialInsurance = ref<boolean>(); // 有无社保
 const signUrl = ref<string>();
 const showModal = ref<boolean>(false);
 const isCheck = from === 'check';
+const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
+const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 
 const onClose = () => {
   showModal.value = false;
@@ -184,8 +194,7 @@ const upgrade = async (oNo: string) => {
   }
 };
 
-// 升级保障 保费试算
-const onUpgrade = async (o: any) => {
+const onSubmit = async (o: any) => {
   try {
     Toast.loading({ forbidClick: true, message: '升级中' });
     const oNo = await onSaveOrder();
@@ -212,6 +221,15 @@ const onUpgrade = async (o: any) => {
   } catch (e) {
     console.log(e);
     Toast.clear();
+  }
+};
+
+// 升级保障 保费试算
+const onUpgrade = async (o: any) => {
+  if (isCheck) {
+    showFilePreview.value = true;
+  } else {
+    onSubmit(o);
   }
 };
 
