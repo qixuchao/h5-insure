@@ -94,6 +94,7 @@ const showModal = ref<boolean>(false);
 const isCheck = from === 'check';
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
+let iseeBizNo = '';
 
 const onClose = () => {
   showModal.value = false;
@@ -113,6 +114,7 @@ const onSaveOrder = async () => {
     insureDetail: insureDetail.value,
     paymentMethod: orderDetail.value.extInfo?.extraInfo?.paymentMethod,
     renewalDK: orderDetail.value.extInfo?.extraInfo?.renewalDK, // 开通下一年
+    iseeBizNo,
     successJumpUrl: '',
     premium: premium.value as number, // 保费
     holder: {
@@ -258,6 +260,10 @@ const fetchData = () => {
 
 onMounted(() => {
   fetchData();
+
+  setTimeout(async () => {
+    iseeBizNo = window.getIseeBiz && (await window.getIseeBiz());
+  }, 1500);
 });
 </script>
 

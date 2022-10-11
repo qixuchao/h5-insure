@@ -131,6 +131,7 @@ const state = reactive({
 const detail = ref<ProductDetail>();
 const insureDetail = ref<any>();
 const isShow = ref<boolean>(false);
+let iseeBizNo = '';
 
 // 健康告知
 const healthAttachmentList = computed(() => {
@@ -209,6 +210,7 @@ const onSubmit = async (e?: UserInfoProps) => {
       },
       paymentMethod,
       renewalDK: '',
+      iseeBizNo,
       successJumpUrl: '',
       premium: 0,
       orderStatus: '',
@@ -279,6 +281,9 @@ const getData = async () => {
 
 onMounted(() => {
   getData();
+  setTimeout(async () => {
+    iseeBizNo = window.getIseeBiz && (await window.getIseeBiz());
+  }, 1500);
 });
 </script>
 

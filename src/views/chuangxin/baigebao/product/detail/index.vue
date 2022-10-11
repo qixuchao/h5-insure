@@ -208,6 +208,7 @@ const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const showWaiting = ref<boolean>(false);
 const showUpgradeButton = ref<boolean>(false);
+let iseeBizNo = '';
 
 // 投保人不可修改（赠险）
 const holderDisable = ref<boolean>(!!(name && certNo && mobile) || !!orderNo);
@@ -383,6 +384,7 @@ const onSaveOrder = async (risk: any) => {
     insureDetail: insureDetail.value,
     paymentMethod: trailData.paymentMethod,
     renewalDK: trailData.renewalDK, // 开通下一年
+    iseeBizNo,
     successJumpUrl: '',
     premium: premium.value as number, // 保费
     holder: trailData.holder,
@@ -680,8 +682,8 @@ const fetchData = async () => {
 onMounted(() => {
   fetchData();
   // 调用千里眼插件获取一个iseeBiz
-  setTimeout(() => {
-    window.getIseeBiz && window.getIseeBiz();
+  setTimeout(async () => {
+    iseeBizNo = window.getIseeBiz && (await window.getIseeBiz());
   }, 1500);
 });
 </script>
