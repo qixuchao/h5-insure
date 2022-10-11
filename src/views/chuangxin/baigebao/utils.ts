@@ -305,6 +305,7 @@ interface upgradeParamType {
   productDetail: ProductDetail;
   insureDetail: any; // TODO any
   successJumpUrl: string;
+  iseeBizNo: string;
 }
 
 // 升级保障保费试算/升级需要的参数
@@ -323,6 +324,7 @@ export const getReqData = (o: upgradeParamType) => {
         ...orderDetail.extInfo.extraInfo,
         successJumpUrl: o.successJumpUrl,
       },
+      iseeBizNo: o.iseeBizNo,
     },
     tenantOrderHolder: {
       tenantId: orderDetail.tenantOrderHolder.tenantId,

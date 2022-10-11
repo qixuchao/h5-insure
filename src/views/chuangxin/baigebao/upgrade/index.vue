@@ -180,6 +180,7 @@ const upgrade = async (oNo: string) => {
     productDetail: detail.value as ProductDetail,
     insureDetail: insureDetail.value,
     successJumpUrl: getOrderDetailUrl(oNo),
+    iseeBizNo,
   });
   const res = await EndorsementUp({
     orderNo: oNo,
