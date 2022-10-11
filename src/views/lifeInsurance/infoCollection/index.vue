@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-13 00:39:35
+ * @LastEditTime: 2022-09-27 19:11:46
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -574,6 +574,7 @@ const holderInfo2InsuredInfo = () => {
 onBeforeMount(() => {
   queryOrderDetail();
   getInitFactor({ pageCode: 'infoCollection', templateId }).then(({ code, data }) => {
+    console.log('code', code);
     if (code === '10000') {
       // 将页面因子根据投保人、被保人、受益人进行分类
       const factorObj = {

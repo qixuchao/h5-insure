@@ -150,6 +150,10 @@ watch(
       deleteEmptyChildren(item);
     });
   },
+  {
+    deep: true,
+    immediate: true,
+  },
 );
 
 const fieldNames = computed(() => {

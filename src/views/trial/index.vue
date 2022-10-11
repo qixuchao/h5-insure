@@ -356,7 +356,7 @@ const trial = () => {
       dealTrialData();
     },
     (errors: any[]) => {
-      if (errors.length) {
+      if (errors?.length) {
         riskFormRef?.value?.scrollToField(errors[0].name);
       }
     },
