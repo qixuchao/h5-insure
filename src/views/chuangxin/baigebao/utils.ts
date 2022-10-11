@@ -202,8 +202,8 @@ export const genarateOrderParam = (o: orderParamType) => {
         renewalDK: o.renewalDK, // 签约
         paymentMethod: o.paymentMethod,
         successJumpUrl: o.successJumpUrl, // 支付成功跳转
-        iseeBizNo: o.iseeBizNo,
       },
+      iseeBizNo: o.iseeBizNo,
     },
     tenantOrderInsuredList: [
       {
