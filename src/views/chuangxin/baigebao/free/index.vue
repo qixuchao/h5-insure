@@ -271,6 +271,7 @@ const getData = async () => {
   Promise.all([detailReq, insureReq]).then(([detailRes, insureRes]) => {
     if (detailRes.code === '10000') {
       detail.value = detailRes.data;
+      document.title = detailRes.data?.productFullName || '';
     }
 
     if (insureRes.code === '10000') {

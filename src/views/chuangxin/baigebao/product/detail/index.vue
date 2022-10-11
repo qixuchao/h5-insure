@@ -409,6 +409,7 @@ const onSaveOrder = async (risk: any) => {
             successJumpUrl: getPaySuccessCallbackUrl(data.data),
             failUrl: getPayFailCallbackUrl(data.data),
           },
+          iseeBizNo,
         },
       });
     }
@@ -621,6 +622,7 @@ const fetchData = async () => {
   await Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
     if (productRes.code === '10000') {
       detail.value = productRes.data;
+      document.title = productRes.data?.productFullName || '';
     }
 
     if (insureRes.code === '10000') {

@@ -243,6 +243,7 @@ const fetchData = () => {
   Promise.all([productReq, insureReq, orderReq]).then(([productRes, insureRes, orderRes]) => {
     if (productRes.code === '10000') {
       detail.value = productRes.data;
+      document.title = productRes.data?.productFullName || '';
     }
 
     if (insureRes.code === '10000') {
