@@ -88,6 +88,7 @@ const onPremiumCalc = async () => {
       productDetail: detail.value as ProductDetail,
       insureDetail: insureDetail.value,
       successJumpUrl: '',
+      iseeBizNo: '',
     });
     const res = await endorsementPremiumCalc(reqData);
     const { code, data } = res;
