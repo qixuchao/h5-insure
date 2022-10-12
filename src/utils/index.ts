@@ -69,3 +69,11 @@ export const getFileType = (content: string, materialType: string) => {
   }
   return FILE_TYPE_ENUM[currentFileType];
 };
+
+export const isDevEnv = ORIGIN.includes('localhost');
+
+export const isTestEnv = ORIGIN.includes('test');
+
+export const isPreEnv = ORIGIN.includes('pre');
+
+export const isPrdEnv = !(isDevEnv || isTestEnv || isPreEnv);
