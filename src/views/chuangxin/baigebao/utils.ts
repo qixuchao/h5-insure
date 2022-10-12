@@ -149,6 +149,7 @@ interface orderParamType {
   paymentMethod: string; // 链接上带的 paymentMethod
   renewalDK: string; // 开通下一年
   successJumpUrl: string; // 支付成功跳转
+  iseeBizNo: string; // 千里眼回溯码
   premium: number; // 保费
   orderStatus: string;
   orderTopStatus: string;
@@ -202,6 +203,7 @@ export const genarateOrderParam = (o: orderParamType) => {
         paymentMethod: o.paymentMethod,
         successJumpUrl: o.successJumpUrl, // 支付成功跳转
       },
+      iseeBizNo: o.iseeBizNo,
     },
     tenantOrderInsuredList: [
       {
@@ -303,6 +305,7 @@ interface upgradeParamType {
   productDetail: ProductDetail;
   insureDetail: any; // TODO any
   successJumpUrl: string;
+  iseeBizNo: string;
 }
 
 // 升级保障保费试算/升级需要的参数
@@ -321,6 +324,7 @@ export const getReqData = (o: upgradeParamType) => {
         ...orderDetail.extInfo.extraInfo,
         successJumpUrl: o.successJumpUrl,
       },
+      iseeBizNo: o.iseeBizNo,
     },
     tenantOrderHolder: {
       tenantId: orderDetail.tenantOrderHolder.tenantId,
