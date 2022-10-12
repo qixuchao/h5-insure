@@ -124,19 +124,19 @@ const baigebaoRoutes = [
   {
     name: '赠险',
     path: '/chuangxin/baigebao/free',
-    meta: { title: '赠险' },
+    meta: { title: '' },
     component: () => import('@/views/chuangxin/baigebao/free/index.vue'),
   },
   {
     name: '付费险',
     path: '/chuangxin/baigebao/productDetail',
-    meta: { title: '付费险' },
+    meta: { title: '' },
     component: () => import('@/views/chuangxin/baigebao/product/detail/index.vue'),
   },
   {
     name: '保障升级',
     path: '/chuangxin/baigebao/guaranteeUpgrade',
-    meta: { title: '保障升级' },
+    meta: { title: '' },
     component: () => import('@/views/chuangxin/baigebao/upgrade/index.vue'),
   },
   {

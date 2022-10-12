@@ -131,6 +131,7 @@ const state = reactive({
 const detail = ref<ProductDetail>();
 const insureDetail = ref<any>();
 const isShow = ref<boolean>(false);
+let iseeBizNo = '';
 
 // 健康告知
 const healthAttachmentList = computed(() => {
@@ -209,6 +210,7 @@ const onSubmit = async (e?: UserInfoProps) => {
       },
       paymentMethod,
       renewalDK: '',
+      iseeBizNo,
       successJumpUrl: '',
       premium: 0,
       orderStatus: '',
@@ -269,6 +271,7 @@ const getData = async () => {
   Promise.all([detailReq, insureReq]).then(([detailRes, insureRes]) => {
     if (detailRes.code === '10000') {
       detail.value = detailRes.data;
+      document.title = detailRes.data?.productFullName || '';
     }
 
     if (insureRes.code === '10000') {
@@ -279,6 +282,9 @@ const getData = async () => {
 
 onMounted(() => {
   getData();
+  setTimeout(async () => {
+    iseeBizNo = window.getIseeBiz && (await window.getIseeBiz());
+  }, 1500);
 });
 </script>
 
