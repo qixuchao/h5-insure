@@ -82,7 +82,14 @@ interface QueryData {
   [key: string]: string;
 }
 
-const { productCode = 'BWYL2022', tenantId, orderNo, agentCode = '', from } = route.query as QueryData;
+const {
+  productCode = 'BWYL2022',
+  tenantId,
+  orderNo,
+  agentCode = '',
+  saleChannelId = '',
+  from,
+} = route.query as QueryData;
 
 const detail = ref<ProductDetail>(); // 产品详情
 const insureDetail = ref<any>(); // 险种详情
@@ -106,7 +113,7 @@ const onSaveOrder = async () => {
     applicationNo: orderDetail.value.applicationNo,
     policyNo: orderDetail.value.policyNo,
     saleUserId: agentCode,
-    saleChannelId: orderDetail.value.saleChannelId,
+    saleChannelId: saleChannelId || orderDetail.value.saleChannelId, // 默认去链接的saleChannelId
     orderStatus: ORDER_STATUS_ENUM.UP_PROCESSING,
     orderTopStatus: '-1',
     orderCategory: 2, // 批改类型
@@ -159,6 +166,7 @@ const onPremiumCalc = async () => {
       productDetail: detail.value as ProductDetail,
       insureDetail: insureDetail.value,
       successJumpUrl: '',
+      iseeBizNo,
     });
     const res = await endorsementPremiumCalc(reqData);
     const { code, data } = res;
@@ -273,11 +281,12 @@ onMounted(() => {
 .page-activity-upgrade {
   background: linear-gradient(180deg, #fea64a 0%, #fc7429 88%, #fc6d24 100%);
   position: relative;
-  min-height: 100%;
+  // min-height: 100%;
   width: 100%;
 
   .banner {
     width: 100%;
+    display: block;
   }
 
   .container {
