@@ -273,7 +273,7 @@ onMounted(() => {
 .page-activity-upgrade {
   background: linear-gradient(180deg, #fea64a 0%, #fc7429 88%, #fc6d24 100%);
   position: relative;
-  height: 100%;
+  // height: 100%;
   width: 100%;
 
   .banner {
@@ -281,11 +281,11 @@ onMounted(() => {
   }
 
   .container {
-    position: absolute;
-    left: 0;
+    // position: absolute;
+    // left: 0;
     width: 100%;
     padding: 20px;
-    bottom: 60px;
+    // bottom: 60px;
     .main-form {
       background: url('@/assets/images/chuangxin/bg.png') no-repeat;
       background-size: 100% 100%;
