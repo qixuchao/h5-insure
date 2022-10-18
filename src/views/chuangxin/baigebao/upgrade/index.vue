@@ -25,6 +25,13 @@
       </div>
       <UpgradeBackModal :is-show="showModal" @on-close="onClose" />
     </div>
+    <FilePreview
+      v-model:show="showFilePreview"
+      :content-list="detail?.tenantProductInsureVO?.attachmentVOList"
+      :active-index="activeIndex"
+      text="我已逐页阅读并确认告知内容"
+      @submit="onSubmit"
+    ></FilePreview>
   </van-config-provider>
 </template>
 
@@ -36,6 +43,7 @@ import {
 } from '@/common/constants/infoCollection';
 import FieldInfo from '../components/FieldInfo/index.vue';
 import UpgradeBackModal from '../components/UpgradeBackModal/index.vue';
+import FilePreview from '../product/components/FilePreview/index.vue';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import {
   insureProductDetail,
@@ -74,7 +82,14 @@ interface QueryData {
   [key: string]: string;
 }
 
-const { productCode = 'BWYL2022', tenantId, orderNo, agentCode = '', from } = route.query as QueryData;
+const {
+  productCode = 'BWYL2022',
+  tenantId,
+  orderNo,
+  agentCode = '',
+  saleChannelId = '',
+  from,
+} = route.query as QueryData;
 
 const detail = ref<ProductDetail>(); // 产品详情
 const insureDetail = ref<any>(); // 险种详情
@@ -84,6 +99,9 @@ const hasSocialInsurance = ref<boolean>(); // 有无社保
 const signUrl = ref<string>();
 const showModal = ref<boolean>(false);
 const isCheck = from === 'check';
+const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
+const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
+let iseeBizNo = '';
 
 const onClose = () => {
   showModal.value = false;
@@ -95,7 +113,7 @@ const onSaveOrder = async () => {
     applicationNo: orderDetail.value.applicationNo,
     policyNo: orderDetail.value.policyNo,
     saleUserId: agentCode,
-    saleChannelId: orderDetail.value.saleChannelId,
+    saleChannelId: saleChannelId || orderDetail.value.saleChannelId, // 默认去链接的saleChannelId
     orderStatus: ORDER_STATUS_ENUM.UP_PROCESSING,
     orderTopStatus: '-1',
     orderCategory: 2, // 批改类型
@@ -103,6 +121,7 @@ const onSaveOrder = async () => {
     insureDetail: insureDetail.value,
     paymentMethod: orderDetail.value.extInfo?.extraInfo?.paymentMethod,
     renewalDK: orderDetail.value.extInfo?.extraInfo?.renewalDK, // 开通下一年
+    iseeBizNo,
     successJumpUrl: '',
     premium: premium.value as number, // 保费
     holder: {
@@ -147,6 +166,7 @@ const onPremiumCalc = async () => {
       productDetail: detail.value as ProductDetail,
       insureDetail: insureDetail.value,
       successJumpUrl: '',
+      iseeBizNo,
     });
     const res = await endorsementPremiumCalc(reqData);
     const { code, data } = res;
@@ -168,6 +188,7 @@ const upgrade = async (oNo: string) => {
     productDetail: detail.value as ProductDetail,
     insureDetail: insureDetail.value,
     successJumpUrl: getOrderDetailUrl(oNo),
+    iseeBizNo,
   });
   const res = await EndorsementUp({
     orderNo: oNo,
@@ -184,8 +205,7 @@ const upgrade = async (oNo: string) => {
   }
 };
 
-// 升级保障 保费试算
-const onUpgrade = async (o: any) => {
+const onSubmit = async (o: any) => {
   try {
     Toast.loading({ forbidClick: true, message: '升级中' });
     const oNo = await onSaveOrder();
@@ -215,6 +235,15 @@ const onUpgrade = async (o: any) => {
   }
 };
 
+// 升级保障 保费试算
+const onUpgrade = async (o: any) => {
+  if (isCheck) {
+    showFilePreview.value = true;
+  } else {
+    onSubmit(o);
+  }
+};
+
 const fetchData = () => {
   Toast.loading({ forbidClick: true, duration: 20 * 1000, message: '试算中' });
   const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
@@ -223,6 +252,7 @@ const fetchData = () => {
   Promise.all([productReq, insureReq, orderReq]).then(([productRes, insureRes, orderRes]) => {
     if (productRes.code === '10000') {
       detail.value = productRes.data;
+      document.title = productRes.data?.productFullName || '';
     }
 
     if (insureRes.code === '10000') {
@@ -240,6 +270,10 @@ const fetchData = () => {
 
 onMounted(() => {
   fetchData();
+
+  setTimeout(async () => {
+    iseeBizNo = window.getIseeBiz && (await window.getIseeBiz());
+  }, 1500);
 });
 </script>
 
@@ -247,11 +281,12 @@ onMounted(() => {
 .page-activity-upgrade {
   background: linear-gradient(180deg, #fea64a 0%, #fc7429 88%, #fc6d24 100%);
   position: relative;
-  // height: 100%;
+  // min-height: 100%;
   width: 100%;
 
   .banner {
     width: 100%;
+    display: block;
   }
 
   .container {

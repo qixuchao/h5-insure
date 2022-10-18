@@ -2,7 +2,7 @@
   <van-config-provider :theme-vars="themeVars">
     <div class="page-product-detail">
       <div class="info">
-        <img v-if="isCheck" :src="checkImg" class="banner" />
+        <img v-if="isCheck || isOuter" :src="checkImg" class="banner" />
         <img v-else :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
         <div class="guarantee-list">
           <ProCard title="保障内容" link="查看详情" :show-divider="false" :show-icon="false" @link-click="onShowDetail">
@@ -38,9 +38,9 @@
               class="detail-img"
             />
             <div class="tips">
-              产品介绍页面仅供参考，具体责任描达以保险合同为准，责任内不限医保目录范围，就医少负担众安保险最近季度供付能力符合监管要求，详情请参见众安保险官网
+              产品介绍页面仅供参考，具体责任描述以保险合同为准，众安保险最近季度偿付能力符合监管要求，详情请参见众安保险官网
               (<a href="https://www.zhongan.com">www.zhongan.com</a
-              >）偿付能力信息披露该保险产品由众安在线财产保险股份有限公司承保并负责理赔。
+              >）偿付能力信息披露，该保险产品由众安在线财产保险股份有限公司承保并负责理赔。
             </div>
           </div>
         </template>
@@ -87,13 +87,12 @@
       @on-close="onClose"
     />
   </van-config-provider>
-  <FilePreview
+  <HealthNoticePreview
     v-model:show="showHealthPreview"
-    :active-index="activeIndex"
     :content-list="healthAttachmentList"
-    text="我已确认完全符合健康告知内容"
-    @submit="onCloseHealth"
-  ></FilePreview>
+    :active-index="0"
+    @on-confirm-health="onCloseHealth"
+  ></HealthNoticePreview>
   <FilePreview
     v-model:show="showFilePreview"
     :content-list="filterHealthAttachmentList"
@@ -151,6 +150,7 @@ import { genaratePremiumCalcData, transformData, genarateOrderParam } from '../.
 import themeVars from '../../theme';
 import { checkTitleAndDescVOS, checkTitleAndDescDetail } from './data';
 import checkImg from '@/assets/images/chuangxin/check-detail.png';
+import HealthNoticePreview from '../components/HealthNoticePreview/index.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -202,12 +202,14 @@ const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<any>(); // 险种信息
 const premium = ref<number>(); // 保费
 const isCheck = from === 'check';
+const isOuter = !!agentCode; // 外部链接
 const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
 const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const showWaiting = ref<boolean>(false);
 const showUpgradeButton = ref<boolean>(false);
+let iseeBizNo = '';
 
 // 投保人不可修改（赠险）
 const holderDisable = ref<boolean>(!!(name && certNo && mobile) || !!orderNo);
@@ -383,6 +385,7 @@ const onSaveOrder = async (risk: any) => {
     insureDetail: insureDetail.value,
     paymentMethod: trailData.paymentMethod,
     renewalDK: trailData.renewalDK, // 开通下一年
+    iseeBizNo,
     successJumpUrl: '',
     premium: premium.value as number, // 保费
     holder: trailData.holder,
@@ -407,6 +410,7 @@ const onSaveOrder = async (risk: any) => {
             successJumpUrl: getPaySuccessCallbackUrl(data.data),
             failUrl: getPayFailCallbackUrl(data.data),
           },
+          iseeBizNo,
         },
       });
     }
@@ -535,9 +539,12 @@ const onNext = async () => {
   }
 };
 
-const onCloseHealth = () => {
-  showHealthPreview.value = false;
-  previewFile(0);
+const onCloseHealth = (type: string) => {
+  // 全部为否
+  if (type === 'allFalse') {
+    showHealthPreview.value = false;
+    previewFile(0);
+  }
 };
 
 const onSubmit = () => {
@@ -616,6 +623,7 @@ const fetchData = async () => {
   await Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
     if (productRes.code === '10000') {
       detail.value = productRes.data;
+      document.title = productRes.data?.productFullName || '';
     }
 
     if (insureRes.code === '10000') {
@@ -677,8 +685,8 @@ const fetchData = async () => {
 onMounted(() => {
   fetchData();
   // 调用千里眼插件获取一个iseeBiz
-  setTimeout(() => {
-    window.getIseeBiz && window.getIseeBiz();
+  setTimeout(async () => {
+    iseeBizNo = window.getIseeBiz && (await window.getIseeBiz());
   }, 1500);
 });
 </script>
