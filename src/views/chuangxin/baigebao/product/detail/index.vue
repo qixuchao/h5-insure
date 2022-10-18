@@ -327,7 +327,8 @@ const validCalcData = () => {
     validateIdCardNo(holderCertNo) && validateMobile(holderMobile) && validateName(holderName) && !!holderSocialFlag;
   const insuredValid =
     validateIdCardNo(insuredCertNo) && validateName(insuredName) && !!insuredSocialFlag && !!insuredRelationToHolder;
-  if (holderValid && insuredValid && !!insuredPaymentMethod) {
+  // 不校验支付方式是否选择
+  if (holderValid && insuredValid) {
     return true;
   }
   return false;

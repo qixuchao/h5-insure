@@ -3,11 +3,10 @@
     <ProForm ref="formRef">
       <div class="holder container">
         <div class="title">投保人</div>
-        <ProField v-if="props.holderDisable || props.disable" label="姓名" class="pro-field" :is-view="true">
+        <!-- <ProField v-if="props.holderDisable || props.disable" label="姓名" class="pro-field" :is-view="true">
           <template #input> {{ nameMixin(state.formInfo.holder.name) }}</template>
-        </ProField>
+        </ProField> -->
         <ProField
-          v-else
           v-model="state.formInfo.holder.name"
           label="姓名"
           name="name"
@@ -16,11 +15,10 @@
           maxlength="10"
           :rules="[{ validator: nameValidator }]"
         />
-        <ProField v-if="props.holderDisable || props.disable" label="证件号码" class="pro-field" :is-view="true">
+        <!-- <ProField v-if="props.holderDisable || props.disable" label="证件号码" class="pro-field" :is-view="true">
           <template #input> {{ idCardMixin(state.formInfo.holder.certNo) }}</template>
-        </ProField>
+        </ProField> -->
         <ProField
-          v-else
           v-model="state.formInfo.holder.certNo"
           label="证件号码"
           name="certNo"
@@ -29,16 +27,15 @@
           maxlength="20"
           :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
         />
-        <ProField
+        <!-- <ProField
           v-if="props.holderDisable || props.disable || props.isCheck"
           label="手机号"
           class="pro-field"
           :is-view="true"
         >
           <template #input> {{ mobileMixin(state.formInfo.holder.mobile) }}</template>
-        </ProField>
+        </ProField> -->
         <ProField
-          v-else
           v-model="state.formInfo.holder.mobile"
           label="手机号"
           name="mobile"
@@ -135,9 +132,9 @@
           label="支付方式"
           placeholder="请选择"
           :data-source="ACTIVITY_PAY_METHOD_LIST"
-          :is-view="props.disable || state.formInfo.paymentMethodDisable"
           required
         >
+          <!-- :is-view="props.disable || state.formInfo.paymentMethodDisable" 嘉恒说去掉禁用 -->
         </ProPicker>
         <ProField
           v-if="!props.isCheck"
@@ -400,7 +397,7 @@ watch(
         state.formInfo.insured = {
           certNo: '',
           name: '',
-          socialFlag: 1,
+          socialFlag: '1',
           relationToHolder: newVal,
         };
         // 被保人信息可以修改
