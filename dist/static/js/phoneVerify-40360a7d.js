@@ -1,0 +1,1 @@
+import{r as a}from"./index-ca34b780.js";const n=e=>a({url:"/api/app/insure/insurance/sendSmsCodeToC",method:"POST",data:{params:{mobile:e}}}),o=(e,r)=>a({url:"/api/app/insure/insurance/checkSmsCode",method:"POST",data:{params:{mobile:e,smsCode:r}}});export{o as c,n as s};

@@ -554,7 +554,7 @@ const onSubmit = () => {
 };
 
 watch(
-  () => trailData,
+  () => trailData.insured,
   () => {
     if (detail.value && insureDetail.value && !disable.value) {
       // 验证通过才去试算
