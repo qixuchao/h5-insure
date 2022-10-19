@@ -329,7 +329,7 @@ const renewalList = [
 ];
 
 const state = reactive({
-  insureDisable: false, // 被保人不可修改
+  insureDisable: props.formInfo.insured.certType === RELATION_HOLDER_ENUM.SELF, // 被保人不可修改
   formInfo: props.formInfo,
 });
 
@@ -421,6 +421,16 @@ const onChangeRelationToHolder = () => {
     state.insureDisable = false;
   }
 };
+
+// 默认被保人自己，请求数据后更改被保人信息
+watch(
+  () => props.formInfo.insured.relationToHolder,
+  (val) => {
+    if (val !== RELATION_HOLDER_ENUM.SELF) {
+      state.insureDisable = false;
+    }
+  },
+);
 
 // 如果被保人是本人，投保人信息填写时，自动填充
 watch(
