@@ -71,9 +71,10 @@ export const transformData = (o: transformDataType) => {
   });
 };
 
-export const compositionTrailData = (riskList: RiskDetailVoItem[], productDetail: ProductDetail) => {
+export const compositionTrailData = (riskList: RiskDetailVoItem[], productDetail: ProductDetail, upgrade: boolean) => {
   // 主险信息
   const mainRiskData = riskList.find((risk) => risk.riskType === RISK_TYPE_ENUM.MAIN_RISK);
+
   return riskList.map((risk) => {
     const {
       riskInsureLimitVO,
@@ -110,8 +111,9 @@ export const compositionTrailData = (riskList: RiskDetailVoItem[], productDetail
       coveragePeriod: insurancePeriodValueList?.[0],
       insuredCode: productDetail?.insurerCode,
       // 定制配置，责任去掉FXG086
+      // 基础险不传FXG086这个责任，升级险要传FXG086这个责任
       liabilityVOList: riskLiabilityInfoVOList.filter(
-        (liab) => liab.optionalFlag === 1 && liab.liabilityCode !== 'FXG086',
+        (liab) => liab.optionalFlag === 1 && (upgrade ? true : liab.liabilityCode !== 'FXG086'),
       ),
       paymentFrequency: paymentFrequencyList?.[0],
       riskCategory,
@@ -258,7 +260,7 @@ interface premiumCalcParamType {
 
 // premiumCalc 保费试算
 export const genaratePremiumCalcData = (o: premiumCalcParamType) => {
-  const riskVOList = compositionTrailData(o.insureDetail.productRiskVoList[0].riskDetailVOList, o.productDetail);
+  const riskVOList = compositionTrailData(o.insureDetail.productRiskVoList[0].riskDetailVOList, o.productDetail, false);
   const calcData: PremiumCalcData = {
     holder: {
       personVO: {
@@ -360,6 +362,7 @@ export const getReqData = (o: upgradeParamType) => {
               riskList: compositionTrailData(
                 o.insureDetail.productRiskVoList[0].riskDetailVOList,
                 o.productDetail,
+                true,
               ) as any,
               riskPremium: {},
               productId: o.productDetail?.id as number,
