@@ -2,8 +2,8 @@
   <van-config-provider :theme-vars="themeVars">
     <div class="page-product-detail">
       <div class="info">
-        <img v-if="isCheck || isOuter" :src="checkImg" class="banner" />
-        <img v-else :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
+        <img v-if="isFreeSuccuss" :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
+        <img v-else :src="checkImg" class="banner" />
         <div class="guarantee-list">
           <ProCard title="保障内容" link="查看详情" :show-divider="false" :show-icon="false" @link-click="onShowDetail">
             <ProCell
@@ -163,6 +163,7 @@ interface QueryData {
   orderNo: string;
   pageCode: string;
   from: string;
+  freeFlag: string;
   [key: string]: string;
 }
 
@@ -178,6 +179,7 @@ const {
   name,
   pageCode,
   from,
+  freeFlag,
 } = route.query as QueryData;
 
 const tabList = ref<Array<{ title: string; slotName: string }>>([
@@ -202,7 +204,7 @@ const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<any>(); // 险种信息
 const premium = ref<number>(); // 保费
 const isCheck = from === 'check';
-const isOuter = !!agentCode; // 外部链接
+const isFreeSuccuss = freeFlag === '1'; // 展示已经成功购买了赠险
 const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
 const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
