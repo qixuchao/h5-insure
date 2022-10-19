@@ -137,6 +137,7 @@ const onSaveOrder = async () => {
       riskList: compositionTrailData(
         insureDetail.value.productRiskVoList[0].riskDetailVOList,
         detail.value as ProductDetail,
+        true,
       ) as any,
       riskPremium: {},
       productId: detail.value?.id as number,
