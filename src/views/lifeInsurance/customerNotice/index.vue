@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-25 09:04:29
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-23 11:11:32
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-10-19 18:36:49
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/customerNotice/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -45,7 +45,7 @@ const {
   productCode = 'CQ75CQ76',
   templateId = 1,
   tenantId = 9991000007,
-  insureCode = 'kunlunhealth',
+  insurerCode = 'kunlunhealth',
 } = route.query;
 
 const pageData = ref<NextStepRequestData>({});
@@ -57,7 +57,7 @@ const materialData = ref<any>({});
 const fileType = ref<number>(1);
 
 const getNotices = () => {
-  queryInsuredMaterial({ insureCode, objectType: 5, tenantId, orderNo }).then(({ code, data }) => {
+  queryInsuredMaterial({ insureCode: insurerCode, objectType: 5, tenantId, orderNo }).then(({ code, data }) => {
     if (code === '10000') {
       materialData.value = data;
 
