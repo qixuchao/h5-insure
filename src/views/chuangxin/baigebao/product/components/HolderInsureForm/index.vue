@@ -317,6 +317,8 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(['onResetPremium']);
+
 const renewalList = [
   {
     value: 'Y',
@@ -426,7 +428,10 @@ const onChangeRelationToHolder = () => {
 watch(
   () => props.formInfo.insured.relationToHolder,
   (val) => {
-    if (val !== RELATION_HOLDER_ENUM.SELF) {
+    emit('onResetPremium');
+    if (val === RELATION_HOLDER_ENUM.SELF) {
+      state.insureDisable = true;
+    } else {
       state.insureDisable = false;
     }
   },

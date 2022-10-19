@@ -27,6 +27,7 @@
             :form-info="trailData"
             :premium="premium"
             :product-detail="detail"
+            @on-reset-premium="onResetPremium"
           />
         </template>
         <template #tab2>
@@ -515,6 +516,10 @@ const onCloseHealth = (type: string) => {
     showHealthPreview.value = false;
     previewFile(0);
   }
+};
+
+const onResetPremium = () => {
+  premium.value = 0;
 };
 
 const onSubmit = () => {
