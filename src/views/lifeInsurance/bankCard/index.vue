@@ -142,7 +142,7 @@ const {
   tenantId = '9991000007',
   templateId = 1,
   isShare,
-  insureCode = 'kunlunhealth',
+  insurerCode = 'kunlunhealth',
 } = route.query;
 
 const BANK_CARD_INIT_DATA = {
@@ -185,7 +185,7 @@ const showByFactor = (key: string, type: string) => {
 };
 
 const getNotices = () => {
-  queryInsuredMaterial({ insureCode, objectType: 4, tenantId, orderNo }).then(({ code, data }) => {
+  queryInsuredMaterial({ insureCode: insurerCode, objectType: 4, tenantId, orderNo }).then(({ code, data }) => {
     if (code === '10000') {
       materialData.value = data;
     }
