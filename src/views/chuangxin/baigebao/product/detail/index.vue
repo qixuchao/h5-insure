@@ -274,43 +274,12 @@ const healthAttachmentList = computed(() => {
   );
 });
 
-// 费率表
-const rateAttachmentList = computed(() => {
-  return (
-    detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
-      (item: AttachmentVOList) => item.attachmentName === '费率表',
-    ) || []
-  );
-});
-
 const filterHealthAttachmentList = computed(() => {
   return (
     detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
       (item: AttachmentVOList) => item.attachmentName !== '健康告知',
     ) || []
   );
-});
-
-// 产品资料
-const productAttachmentList = computed(() => {
-  return (
-    detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
-      (item: AttachmentVOList) => item.attachmentName !== '费率表',
-    ) || []
-  );
-});
-
-// 单计划产品 保障详情在titleAndDescVOS字段里
-const guaranteeList = computed(() => {
-  if (detail.value?.tenantProductInsureVO?.guaranteeList?.length) {
-    return detail.value?.tenantProductInsureVO?.guaranteeList;
-  }
-  return [
-    {
-      guaranteeType: '单计划',
-      titleAndDescVOS: detail.value?.tenantProductInsureVO?.titleAndDescVOS,
-    },
-  ];
 });
 
 // 校验所有输入参数
@@ -323,13 +292,11 @@ const validCalcData = () => {
       socialFlag: insuredSocialFlag,
       relationToHolder: insuredRelationToHolder,
     },
-    paymentMethod: insuredPaymentMethod,
   } = trailData;
-  const holderValid =
-    validateIdCardNo(holderCertNo) && validateMobile(holderMobile) && validateName(holderName) && !!holderSocialFlag;
+  const holderValid = validateIdCardNo(holderCertNo) && validateName(holderName) && !!holderSocialFlag;
   const insuredValid =
     validateIdCardNo(insuredCertNo) && validateName(insuredName) && !!insuredSocialFlag && !!insuredRelationToHolder;
-  // 不校验支付方式是否选择
+  // 不校验手机号、支付方式是否选择
   if (holderValid && insuredValid) {
     return true;
   }
@@ -557,14 +524,14 @@ const onSubmit = () => {
 
 watch(
   () => trailData.insured,
-  () => {
+  debounce(() => {
     if (detail.value && insureDetail.value && !disable.value) {
       // 验证通过才去试算
       if (validCalcData()) {
         onPremiumCalc();
       }
     }
-  },
+  }, 800),
   {
     deep: true,
     immediate: true,
@@ -646,15 +613,16 @@ const fetchData = async () => {
         tenantId,
       });
       const { code, data } = res;
-
       // 订单状态为承保时，投保人信息不可修改
-      if (data.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY) {
-        holderDisable.value = true;
-      }
+      // if (data.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY) {
+      //   holderDisable.value = true;
+      // }
       // 支付中，超时可以修改投保人信息
-      if (data.orderStatus === ORDER_STATUS_ENUM.PAYING || data.orderStatus === ORDER_STATUS_ENUM.TIMEOUT) {
-        // holderDisable.value = true;
-      }
+      // if (data.orderStatus === ORDER_STATUS_ENUM.PAYING || data.orderStatus === ORDER_STATUS_ENUM.TIMEOUT) {
+      // holderDisable.value = true;
+      // }
+
+      holderDisable.value = false;
 
       if (code === '10000' && data?.tenantOrderHolder?.certNo) {
         const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
@@ -665,6 +633,9 @@ const fetchData = async () => {
           name: tenantOrderHolder.name,
           socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
         };
+        trailData.paymentMethod = paymentMethod || extInfo.extraInfo.paymentMethod;
+        premium.value = tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium;
+        trailData.renewalDK = extInfo.extraInfo.renewalDK;
 
         trailData.insured = {
           certNo: tenantOrderInsuredList?.[0].certNo,
@@ -673,15 +644,12 @@ const fetchData = async () => {
           socialFlag: tenantOrderInsuredList[0]?.extInfo?.hasSocialInsurance,
           relationToHolder: tenantOrderInsuredList[0]?.relationToHolder,
         };
-        trailData.paymentMethod = paymentMethod || extInfo.extraInfo.paymentMethod;
-        premium.value = tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium;
-        trailData.renewalDK = extInfo.extraInfo.renewalDK;
       }
     }
 
-    if (validCalcData()) {
-      onPremiumCalc();
-    }
+    // if (validCalcData()) {
+    //   onPremiumCalc();
+    // }
   }
 };
 

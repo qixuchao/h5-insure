@@ -3,10 +3,11 @@
     <ProForm ref="formRef">
       <div class="holder container">
         <div class="title">投保人</div>
-        <!-- <ProField v-if="props.holderDisable || props.disable" label="姓名" class="pro-field" :is-view="true">
+        <ProField v-if="props.holderDisable || props.disable" label="姓名" class="pro-field" :is-view="true">
           <template #input> {{ nameMixin(state.formInfo.holder.name) }}</template>
-        </ProField> -->
+        </ProField>
         <ProField
+          v-else
           v-model="state.formInfo.holder.name"
           label="姓名"
           name="name"
@@ -15,10 +16,11 @@
           maxlength="10"
           :rules="[{ validator: nameValidator }]"
         />
-        <!-- <ProField v-if="props.holderDisable || props.disable" label="证件号码" class="pro-field" :is-view="true">
+        <ProField v-if="props.holderDisable || props.disable" label="证件号码" class="pro-field" :is-view="true">
           <template #input> {{ idCardMixin(state.formInfo.holder.certNo) }}</template>
-        </ProField> -->
+        </ProField>
         <ProField
+          v-else
           v-model="state.formInfo.holder.certNo"
           label="证件号码"
           name="certNo"
@@ -27,15 +29,16 @@
           maxlength="20"
           :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
         />
-        <!-- <ProField
+        <ProField
           v-if="props.holderDisable || props.disable || props.isCheck"
           label="手机号"
           class="pro-field"
           :is-view="true"
         >
           <template #input> {{ mobileMixin(state.formInfo.holder.mobile) }}</template>
-        </ProField> -->
+        </ProField>
         <ProField
+          v-else
           v-model="state.formInfo.holder.mobile"
           label="手机号"
           name="mobile"
@@ -414,7 +417,12 @@ watch(
     if (state.formInfo.insured.relationToHolder !== RELATION_HOLDER_ENUM.SELF) {
       return;
     }
-    Object.assign(state.formInfo.insured, state.formInfo.holder);
+
+    Object.assign(state.formInfo.insured, {
+      name: state.formInfo.holder.name,
+      certNo: state.formInfo.holder.certNo,
+      socialFlag: state.formInfo.holder.socialFlag,
+    });
   },
   { deep: true, immediate: true },
 );
