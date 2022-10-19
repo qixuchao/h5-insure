@@ -622,9 +622,9 @@ const fetchData = async () => {
       // holderDisable.value = true;
       // }
 
-      holderDisable.value = false;
-
       if (code === '10000' && data?.tenantOrderHolder?.certNo) {
+        // 查出来的数据可以修改
+        holderDisable.value = false;
         const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
         trailData.holder = {
           certNo: tenantOrderHolder.certNo,
