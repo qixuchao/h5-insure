@@ -296,10 +296,10 @@ const handleSubmit = () => {
     Toast.fail('请投保人签名');
     return;
   }
-  if (insuredSignRefs.some((x) => x.isEmpty())) {
-    Toast.fail('请被保人签名');
-    return;
-  }
+  // if (insuredSignRefs.some((x) => x.isEmpty())) {
+  //   Toast.fail('请被保人签名');
+  //   return;
+  // }
   if (
     detail.value.tenantOrderHolder?.extInfo?.isCert !== CERT_STATUS_ENUM.CERT &&
     needVerify(detail.value.tenantOrderHolder?.certType)
@@ -307,14 +307,14 @@ const handleSubmit = () => {
     Toast.fail('请投保人去认证');
     return;
   }
-  if (
-    detail.value.tenantOrderInsuredList?.some(
-      (x) => x.extInfo?.isCert !== CERT_STATUS_ENUM.CERT && needVerify(x.certType),
-    )
-  ) {
-    Toast.fail('请被保人去认证');
-    return;
-  }
+  // if (
+  //   detail.value.tenantOrderInsuredList?.some(
+  //     (x) => x.extInfo?.isCert !== CERT_STATUS_ENUM.CERT && needVerify(x.certType),
+  //   )
+  // ) {
+  //   Toast.fail('请被保人去认证');
+  //   return;
+  // }
   getOrderDetail({
     orderNo: orderCode || orderNo,
     saleUserId,
@@ -332,7 +332,7 @@ const handleSubmit = () => {
           const signData = holderSign.value?.save();
           Promise.all([
             saveSign('HOLDER', signData, detail.value?.id, `${tenantId}`),
-            ...insuredSignRefs.map((x) => saveSign('INSURED', x.save(), detail.value?.id, `${tenantId}`)),
+            // ...insuredSignRefs.map((x) => saveSign('INSURED', x.save(), detail.value?.id, `${tenantId}`)),
           ]).then(() => {
             nextStep({
               ...detail.value,

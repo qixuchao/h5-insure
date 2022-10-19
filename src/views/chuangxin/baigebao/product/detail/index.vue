@@ -2,8 +2,8 @@
   <van-config-provider :theme-vars="themeVars">
     <div class="page-product-detail">
       <div class="info">
-        <img v-if="isCheck || isOuter" :src="checkImg" class="banner" />
-        <img v-else :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
+        <img v-if="isFreeSuccuss" :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
+        <img v-else :src="checkImg" class="banner" />
         <div class="guarantee-list">
           <ProCard title="保障内容" link="查看详情" :show-divider="false" :show-icon="false" @link-click="onShowDetail">
             <ProCell
@@ -27,6 +27,7 @@
             :form-info="trailData"
             :premium="premium"
             :product-detail="detail"
+            @on-reset-premium="onResetPremium"
           />
         </template>
         <template #tab2>
@@ -163,6 +164,7 @@ interface QueryData {
   orderNo: string;
   pageCode: string;
   from: string;
+  freeFlag: string;
   [key: string]: string;
 }
 
@@ -178,6 +180,7 @@ const {
   name,
   pageCode,
   from,
+  freeFlag,
 } = route.query as QueryData;
 
 const tabList = ref<Array<{ title: string; slotName: string }>>([
@@ -202,7 +205,7 @@ const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<any>(); // 险种信息
 const premium = ref<number>(); // 保费
 const isCheck = from === 'check';
-const isOuter = !!agentCode; // 外部链接
+const isFreeSuccuss = freeFlag === '1'; // 展示已经成功购买了赠险
 const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
 const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
@@ -272,43 +275,12 @@ const healthAttachmentList = computed(() => {
   );
 });
 
-// 费率表
-const rateAttachmentList = computed(() => {
-  return (
-    detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
-      (item: AttachmentVOList) => item.attachmentName === '费率表',
-    ) || []
-  );
-});
-
 const filterHealthAttachmentList = computed(() => {
   return (
     detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
       (item: AttachmentVOList) => item.attachmentName !== '健康告知',
     ) || []
   );
-});
-
-// 产品资料
-const productAttachmentList = computed(() => {
-  return (
-    detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
-      (item: AttachmentVOList) => item.attachmentName !== '费率表',
-    ) || []
-  );
-});
-
-// 单计划产品 保障详情在titleAndDescVOS字段里
-const guaranteeList = computed(() => {
-  if (detail.value?.tenantProductInsureVO?.guaranteeList?.length) {
-    return detail.value?.tenantProductInsureVO?.guaranteeList;
-  }
-  return [
-    {
-      guaranteeType: '单计划',
-      titleAndDescVOS: detail.value?.tenantProductInsureVO?.titleAndDescVOS,
-    },
-  ];
 });
 
 // 校验所有输入参数
@@ -321,13 +293,12 @@ const validCalcData = () => {
       socialFlag: insuredSocialFlag,
       relationToHolder: insuredRelationToHolder,
     },
-    paymentMethod: insuredPaymentMethod,
   } = trailData;
-  const holderValid =
-    validateIdCardNo(holderCertNo) && validateMobile(holderMobile) && validateName(holderName) && !!holderSocialFlag;
+  const holderValid = validateIdCardNo(holderCertNo) && validateName(holderName) && !!holderSocialFlag;
   const insuredValid =
     validateIdCardNo(insuredCertNo) && validateName(insuredName) && !!insuredSocialFlag && !!insuredRelationToHolder;
-  if (holderValid && insuredValid && !!insuredPaymentMethod) {
+  // 不校验手机号、支付方式是否选择
+  if (holderValid && insuredValid) {
     return true;
   }
   return false;
@@ -547,21 +518,25 @@ const onCloseHealth = (type: string) => {
   }
 };
 
+const onResetPremium = () => {
+  premium.value = 0;
+};
+
 const onSubmit = () => {
   isAgreeFile.value = true;
   onNext();
 };
 
 watch(
-  () => trailData,
-  () => {
+  () => trailData.insured,
+  debounce(() => {
     if (detail.value && insureDetail.value && !disable.value) {
       // 验证通过才去试算
       if (validCalcData()) {
         onPremiumCalc();
       }
     }
-  },
+  }, 800),
   {
     deep: true,
     immediate: true,
@@ -643,17 +618,18 @@ const fetchData = async () => {
         tenantId,
       });
       const { code, data } = res;
-
       // 订单状态为承保时，投保人信息不可修改
-      if (data.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY) {
-        holderDisable.value = true;
-      }
+      // if (data.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY) {
+      //   holderDisable.value = true;
+      // }
       // 支付中，超时可以修改投保人信息
-      if (data.orderStatus === ORDER_STATUS_ENUM.PAYING || data.orderStatus === ORDER_STATUS_ENUM.TIMEOUT) {
-        // holderDisable.value = true;
-      }
+      // if (data.orderStatus === ORDER_STATUS_ENUM.PAYING || data.orderStatus === ORDER_STATUS_ENUM.TIMEOUT) {
+      // holderDisable.value = true;
+      // }
 
       if (code === '10000' && data?.tenantOrderHolder?.certNo) {
+        // 查出来的数据可以修改
+        holderDisable.value = false;
         const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
         trailData.holder = {
           certNo: tenantOrderHolder.certNo,
@@ -662,6 +638,9 @@ const fetchData = async () => {
           name: tenantOrderHolder.name,
           socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
         };
+        trailData.paymentMethod = paymentMethod || extInfo.extraInfo.paymentMethod;
+        premium.value = tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium;
+        trailData.renewalDK = extInfo.extraInfo.renewalDK;
 
         trailData.insured = {
           certNo: tenantOrderInsuredList?.[0].certNo,
@@ -670,15 +649,12 @@ const fetchData = async () => {
           socialFlag: tenantOrderInsuredList[0]?.extInfo?.hasSocialInsurance,
           relationToHolder: tenantOrderInsuredList[0]?.relationToHolder,
         };
-        trailData.paymentMethod = paymentMethod || extInfo.extraInfo.paymentMethod;
-        premium.value = tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.premium;
-        trailData.renewalDK = extInfo.extraInfo.renewalDK;
       }
     }
 
-    if (validCalcData()) {
-      onPremiumCalc();
-    }
+    // if (validCalcData()) {
+    //   onPremiumCalc();
+    // }
   }
 };
 

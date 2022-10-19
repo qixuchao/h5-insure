@@ -88,17 +88,6 @@ export const EXEMPT_TYPE = [
   },
 ];
 
-export const SEX_LIMIT = [
-  {
-    label: '男',
-    value: '1',
-  },
-  {
-    label: '女',
-    value: '2',
-  },
-];
-
 export const SOCIAL_INSURANCE_LIMIT = [
   {
     label: '有',

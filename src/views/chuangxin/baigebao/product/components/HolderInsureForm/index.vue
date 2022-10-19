@@ -78,6 +78,7 @@
               v-model="state.formInfo.insured.relationToHolder"
               :disabled="props.disable"
               :options="RELATION_HOLDER_LIST"
+              @click="onChangeRelationToHolder"
             ></ProRadioButton>
           </template>
         </ProField>
@@ -289,14 +290,34 @@ interface Props {
   };
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  isCheck: false,
-  holderDisable: false,
-  disable: false,
-  premium: 0,
-  productDetail: {},
-  formInfo: () => ({}),
+const props = defineProps({
+  isCheck: {
+    type: Boolean,
+    default: false,
+  },
+  holderDisable: {
+    type: Boolean,
+    default: false,
+  },
+  disable: {
+    type: Boolean,
+    default: false,
+  },
+  premium: {
+    type: Number,
+    default: 0,
+  },
+  productDetail: {
+    type: Object,
+    default: () => {},
+  },
+  formInfo: {
+    type: Object,
+    default: () => {},
+  },
 });
+
+const emit = defineEmits(['onResetPremium']);
 
 const renewalList = [
   {
@@ -310,7 +331,7 @@ const renewalList = [
 ];
 
 const state = reactive({
-  insureDisable: true, // 被保人不可修改
+  insureDisable: props.formInfo.insured.certType === RELATION_HOLDER_ENUM.SELF, // 被保人不可修改
   formInfo: props.formInfo,
 });
 
@@ -378,34 +399,40 @@ const onRenewalDK = () => {
 };
 
 // 监听为投保，如果是本人，投保人信息填充被保人，并且信息不可修改
+const onChangeRelationToHolder = () => {
+  const { relationToHolder } = state.formInfo.insured;
+  if (relationToHolder === RELATION_HOLDER_ENUM.SELF) {
+    // 我自己
+    state.formInfo.insured = {
+      certNo: state.formInfo.holder.certNo,
+      name: state.formInfo.holder.name,
+      socialFlag: state.formInfo.holder.socialFlag,
+      relationToHolder: RELATION_HOLDER_ENUM.SELF,
+    };
+    // 被保人信息不可修改
+    state.insureDisable = true;
+  } else {
+    // 其他
+    state.formInfo.insured = {
+      certNo: '',
+      name: '',
+      socialFlag: '1',
+      relationToHolder,
+    };
+    // 被保人信息可以修改
+    state.insureDisable = false;
+  }
+};
+
+// 默认被保人自己，请求数据后更改被保人信息
 watch(
-  () => state.formInfo.insured.relationToHolder,
-  (newVal, oldVal) => {
-    if (props.disable) {
-      return;
-    }
-    if (newVal !== oldVal) {
-      if (newVal.toString() === RELATION_HOLDER_ENUM.SELF) {
-        // 我自己
-        state.formInfo.insured = {
-          certNo: state.formInfo.holder.certNo,
-          name: state.formInfo.holder.name,
-          socialFlag: state.formInfo.holder.socialFlag,
-          relationToHolder: newVal,
-        };
-        // 被保人信息不可修改
-        state.insureDisable = true;
-      } else {
-        // 其他
-        state.formInfo.insured = {
-          certNo: '',
-          name: '',
-          socialFlag: 1,
-          relationToHolder: newVal,
-        };
-        // 被保人信息可以修改
-        state.insureDisable = false;
-      }
+  () => props.formInfo.insured.relationToHolder,
+  (val) => {
+    emit('onResetPremium');
+    if (val === RELATION_HOLDER_ENUM.SELF) {
+      state.insureDisable = true;
+    } else {
+      state.insureDisable = false;
     }
   },
 );
@@ -417,7 +444,12 @@ watch(
     if (state.formInfo.insured.relationToHolder !== RELATION_HOLDER_ENUM.SELF) {
       return;
     }
-    Object.assign(state.formInfo.insured, state.formInfo.holder);
+
+    Object.assign(state.formInfo.insured, {
+      name: state.formInfo.holder.name,
+      certNo: state.formInfo.holder.certNo,
+      socialFlag: state.formInfo.holder.socialFlag,
+    });
   },
   { deep: true, immediate: true },
 );

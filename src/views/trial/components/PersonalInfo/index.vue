@@ -33,7 +33,7 @@
       >
         <template #input>
           <div class="pro-radio-wrap">
-            <ProRadioButton v-model="state.formInfo.gender" :options="SEX_LIMIT" />
+            <ProRadioButton v-model="state.formInfo.gender" :options="SEX_LIMIT_LIST" />
           </div>
         </template>
       </VanField>
@@ -86,7 +86,8 @@
 import { withDefaults } from 'vue';
 import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
-import { SEX_LIMIT, SOCIAL_INSURANCE_LIMIT } from '@/common/constants/trial';
+import { SOCIAL_INSURANCE_LIMIT } from '@/common/constants/trial';
+import { SEX_LIMIT_LIST } from '@/common/constants';
 import Occupational from '../Occupational/index.vue';
 import { PersonVo } from '@/api/modules/trial.data';
 import ProCascader from '@/components/ProCascader/index.vue';

@@ -143,6 +143,7 @@ const {
   tenantId = 9991000007,
   insurerCode = '99',
   proposalId,
+  saleChannelId, // 销售渠道id
 } = route.query;
 let { productCode = 'MMBBSF' } = route.query;
 
@@ -235,6 +236,7 @@ const goNextPage = () => {
   nextStep({
     agencyId: agencyCode as string,
     saleUserId: agentCode,
+    saleChannelId,
     tenantId,
     venderCode: state.riskBaseInfo.insurerCode,
     orderDataSource: 1,
@@ -354,7 +356,7 @@ const trial = () => {
       dealTrialData();
     },
     (errors: any[]) => {
-      if (errors.length) {
+      if (errors?.length) {
         riskFormRef?.value?.scrollToField(errors[0].name);
       }
     },
