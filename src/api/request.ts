@@ -15,6 +15,52 @@ import { formatJsonToUrlParams, instanceObject } from '@/utils/format';
 // URL前缀，默认为 /
 const BASE_PREFIX = import.meta.env.VITE_API_BASEURL;
 
+const pendingMap = new Map();
+
+/**
+ * 生成每个请求唯一的键
+ * @param AxiosRequestConfig config
+ * @returns string
+ */
+const getPendingKey = (config: AxiosRequestConfig = {}): any => {
+  const { url, method, params } = config;
+  let { data } = config;
+
+  if (typeof data === 'string') {
+    data = JSON.parse(data);
+  } // response里面返回的config.data是个字符串对象
+  return [url, method, JSON.stringify(params), JSON.stringify(data)].join('&');
+};
+
+/**
+ * 储存每个请求唯一值, 也就是cancel()方法, 用于取消请求
+ * @param {*} config
+ */
+const addPending = (config: any = {}) => {
+  const pendingKey = getPendingKey(config);
+  const currentConfig = config;
+  currentConfig.cancelToken =
+    currentConfig.cancelToken ||
+    new axios.CancelToken((cancel) => {
+      if (!pendingMap.has(pendingKey)) {
+        pendingMap.set(pendingKey, cancel);
+      }
+    });
+};
+
+/**
+ * 删除重复的请求
+ * @param {*} config
+ */
+const removePending = (config = {}) => {
+  const pendingKey = getPendingKey(config);
+  if (pendingMap.has(pendingKey)) {
+    const cancelToken = pendingMap.get(pendingKey);
+    cancelToken(pendingKey);
+    pendingMap.delete(pendingKey);
+  }
+};
+
 // 创建实例
 const axiosInstance: AxiosInstance = axios.create({
   // 前缀
@@ -26,8 +72,6 @@ const axiosInstance: AxiosInstance = axios.create({
   // 请求头，如果有特殊的，在请求时传入jie
   headers: {
     'Content-Type': 'application/json',
-    // token:
-    //   'eyJhbGciOiJIUzUxMiJ9.eyJ1c2VyIjoie1wiYWdlbmN5XCI6e1wiYWdlbmN5SWRcIjpcImFnZW5jeUlkMDIyMjExMzJcIixcImFnZW5jeUxldmVsXCI6XCJhZ2VuY3lMZXZlbFwiLFwiYWdlbmN5TmFtZVwiOlwiYWdlbmN5TmFtZVwiLFwibWVtYmVyTnVtYmVyXCI6MX0sXCJjaGFubmVsXCI6e1wiY2hhbm5lbElkXCI6XCJjaGFubmVsSWQwMjIyMTEzMlwiLFwiY2hhbm5lbE5hbWVcIjpcImNoYW5uZWxOYW1lXCJ9LFwiaGFzT25saW5lUXVhbGlmaWNhdGlvblwiOlwiWVwiLFwibGV2ZWxDblwiOlwibGV2ZWxDblwiLFwibGV2ZWxVc1wiOlwibGV2ZWxVc1wiLFwibmF0dXJlXCI6XCJuYXR1cmVcIixcInRlbmFudElkXCI6MCxcInVzZXJJZFwiOlwicGFuZ2hvbmduaW5nXCIsXCJ1c2VyTmFtZVwiOlwi5bqe57qi5a6BXCIsXCJ1c2VyUm9sZVwiOlwicm9sZVwifSJ9.S0Ib2zRpHxtDeTqDOdun4O0qQ8lSnDsty9glAxjaFNkuW9MiNsiGV2GWZ4lgJTyAE1q_fIB70IOLkQ3f4dP0aQ',
   },
 });
 
@@ -42,6 +86,8 @@ axiosInstance.interceptors.request.use(
     const storage = new Storage({ source: 'cookie' });
     const local = new Storage({ source: 'localStorage' });
     const token = storage.get('token') || local.get('token') || '';
+    removePending(config);
+    addPending(config);
     return {
       ...config,
       headers: token ? { token } : {},
@@ -64,6 +110,7 @@ axiosInstance.interceptors.response.use(
       return response;
     }
     Toast.fail((res && res.data) || (res && res.message) || '请求出错');
+    removePending(response.config);
     return response;
   },
   (error: AxiosError) => {
@@ -77,6 +124,14 @@ axiosInstance.interceptors.response.use(
   },
 );
 
-export default function request<T = ResponseData>(config: AxiosRequestConfig): ResponseDataPromise<T> {
+export default function request<T = ResponseData>(
+  config: AxiosRequestConfig,
+  customOptions = {},
+): ResponseDataPromise<T> {
+  // 自定义配置
+  // const custom_options = {
+  //   repeat_request_cancel: true, // 是否开启取消重复请求, 默认为 true
+  //   ...customOptions,
+  // };
   return axiosInstance(config).then((response: AxiosResponse): ResponseDataPromise<T> => response.data);
 }
