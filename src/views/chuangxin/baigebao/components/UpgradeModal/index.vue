@@ -33,9 +33,9 @@
 </template>
 <script lang="ts" setup>
 import closeImg from '@/assets/images/chuangxin/close.png';
-import { insureProductDetail, getTenantOrderDetail, endorsementPremiumCalc } from '@/api/modules/trial';
+import { insureProductDetail, endorsementPremiumCalc } from '@/api/modules/trial';
 
-import { getReqData, getFloat } from '../../utils';
+import { getReqData } from '../../utils';
 import { productDetail } from '@/api/modules/product';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
 import upgradeImg from '@/assets/images/chuangxin/upgrade_bg.png';
@@ -103,8 +103,8 @@ const onPremiumCalc = async () => {
 const fetchData = () => {
   const productReq = productDetail({ productCode, withInsureInfo: true, tenantId: props.tenantId });
   const insureReq = insureProductDetail({ productCode });
-  const orderReq = getTenantOrderDetail({ orderNo: props.orderNo, tenantId: props.tenantId });
-  Promise.all([productReq, insureReq, orderReq]).then(([productRes, insureRes, orderRes]) => {
+  // const orderReq = getTenantOrderDetail({ orderNo: props.orderNo, tenantId: props.tenantId });
+  Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
     if (productRes.code === '10000') {
       detail.value = productRes.data;
       attachmentList.value = productRes.data.tenantProductInsureVO.attachmentVOList;
@@ -114,9 +114,9 @@ const fetchData = () => {
       insureDetail.value = insureRes.data;
     }
 
-    if (orderRes.code === '10000') {
-      orderDetail.value = orderRes.data;
-    }
+    // if (orderRes.code === '10000') {
+    //   orderDetail.value = orderRes.data;
+    // }
 
     // onPremiumCalc();
   });
