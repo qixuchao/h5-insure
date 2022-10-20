@@ -28,11 +28,12 @@ import globalComps from '@/components/index';
 import clipboard from '@/common/directives/clipboard';
 import resize from '@/common/directives/resize';
 import Storage from '@/utils/storage';
+import { isTestEnv, isPreEnv } from './utils';
 
 const storage = new Storage({ source: 'localStorage' });
 const cookie = new Storage({ source: 'cookie' });
 const start = async () => {
-  if (window.location.origin.indexOf('test') !== -1 || window.location.origin.indexOf('pre') !== -1) {
+  if (isTestEnv || isPreEnv) {
     // eslint-disable-next-line new-cap
     new vconsole();
   }
