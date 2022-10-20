@@ -28,15 +28,15 @@ import globalComps from '@/components/index';
 import clipboard from '@/common/directives/clipboard';
 import resize from '@/common/directives/resize';
 import Storage from '@/utils/storage';
-import { isTestEnv, isPreEnv } from './utils';
+// import { isTestEnv, isPreEnv } from './utils';
 
 const storage = new Storage({ source: 'localStorage' });
 const cookie = new Storage({ source: 'cookie' });
 const start = async () => {
-  if (isTestEnv || isPreEnv) {
-    // eslint-disable-next-line new-cap
-    new vconsole();
-  }
+  // if (isTestEnv || isPreEnv) {
+  // eslint-disable-next-line new-cap
+  //   new vconsole();
+  // }
 
   try {
     const cookies = await getNativeCookies();
