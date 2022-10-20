@@ -5,8 +5,8 @@
       <img class="cover" :src="upgradeImg" />
       <div class="pro-modal-body">
         <div class="pro-modal-content">
-          <p>每月保费仅需{{ getFloat(premium || 0) }}元，无需重复投保</p>
-          <p class="tips">升级后的保障将于第二期保费扣费/缴费成功后生效</p>
+          <!-- <p>每月保费仅需{{ getFloat(premium || 0) }}元，无需重复投保</p> -->
+          <!-- <p class="tips">升级后的保障将于第二期保费扣费/缴费成功后生效</p> -->
         </div>
         <div class="pro-modal-btn" @click="onConfirm">一键升级</div>
         <div class="pro-modal-content">
@@ -118,7 +118,7 @@ const fetchData = () => {
       orderDetail.value = orderRes.data;
     }
 
-    onPremiumCalc();
+    // onPremiumCalc();
   });
 };
 
@@ -162,6 +162,7 @@ watch(
     }
 
     .pro-modal-body {
+      width: 100%;
       padding: 30px;
       background: #ffffff;
       border-radius: 0px 0px 25px 25px;
