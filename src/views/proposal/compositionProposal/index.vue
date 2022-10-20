@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-29 15:26:59
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-10-20 10:56:49
  * @Description: 计划书
 -->
 <template>
@@ -25,7 +25,7 @@
         <van-collapse v-model="activeName" accordion :is-link="false" :border="false" size="middle">
           <van-collapse-item v-for="(item, i) in info?.insurerInfoVOList" :key="i" :name="i" value-class="price">
             <template #title>
-              <div><span class="poiner"></span> {{ item.insurerName }}</div>
+              <div><span class="poiner"></span> {{ item?.insurerName }}</div>
             </template>
             {{ item.insurerDesc }}
           </van-collapse-item>

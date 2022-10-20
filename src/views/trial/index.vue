@@ -399,7 +399,7 @@ const getProposalDetail = (id: number) => {
 };
 
 const queryProductInfo = () => {
-  insureProductDetail({ productCode, source: 1 })
+  insureProductDetail({ productCode, source: proposalId ? 2 : 1 })
     .then(({ code, data }) => {
       if (code === '10000') {
         state.riskBaseInfo = data.productBasicInfoVO;
