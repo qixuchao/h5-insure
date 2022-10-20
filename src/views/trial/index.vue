@@ -272,6 +272,7 @@ const goNextPage = () => {
           path: PAGE_ROUTE_ENUMS[data.pageAction.data.nextPageCode],
           query: {
             insurerCode: state.riskBaseInfo.insurerCode,
+            templateId,
             ...route.query,
             orderNo: data.pageAction.data.orderNo,
           },
