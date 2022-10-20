@@ -282,8 +282,8 @@ const goNextPage = () => {
 };
 
 // 获取模板id
-const getTemplateId = (categoryNo?: number) => {
-  getTemplateInfo({ productCategory: categoryNo, venderCode: insurerCode }).then((templateRes) => {
+const getTemplateId = (categoryNo?: number, venderCode?: string) => {
+  getTemplateInfo({ productCategory: categoryNo, venderCode }).then((templateRes) => {
     if (templateRes.code === '10000') {
       templateId = templateRes.data?.id;
     }
@@ -423,7 +423,7 @@ const queryProductInfo = () => {
         });
 
         if (proposalId) {
-          getTemplateId(state.riskBaseInfo.productCategory);
+          getTemplateId(state.riskBaseInfo.productCategory, state.riskBaseInfo.insurerCode);
         }
 
         state.riskData = data.productRiskVoList[0]?.riskDetailVOList || [];
