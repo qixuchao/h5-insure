@@ -9,6 +9,10 @@ then
   # 优先级 GATEWAY_API_URL > GATEWAY_PROJECT_ID
   API_URL="$([ ${GATEWAY_API_URL} ] && echo ${GATEWAY_API_URL} || echo "http:\/\/$([ ${GATEWAY_PROJECT_ID} ] && echo "${GATEWAY_PROJECT_ID}-" || echo "")zat-planet-gateway.test.za-tech.net")"
   COMMANDER_URL="$([ ${COMMANDER_API_URL} ] && echo ${COMMANDER_API_URL} || echo "http:\/\/$([ ${COMMANDER_PROJECT_ID} ] && echo "${COMMANDER_PROJECT_ID}-" || echo "")aquarius-commander.test.za-tech.net")"
+elif [ $DEPLOY_ENV = 'ybxk' ]
+then
+  API_URL="http:\/\/zat-planet-gateway.ybv2.prd.za-ybx.net"
+  COMMANDER_URL="http:\/\/aquarius-commander.ybv2.prd.za-ybx.net"
 else
   # test/pre/prd 环境
   API_URL="http:\/\/zat-planet-gateway.${DEPLOY_ENV}.za-tech.net"

@@ -421,21 +421,10 @@ const onChangeRelationToHolder = () => {
     };
     // 被保人信息可以修改
     state.insureDisable = false;
+    // 清空保费
+    emit('onResetPremium');
   }
 };
-
-// 默认被保人自己，请求数据后更改被保人信息
-watch(
-  () => props.formInfo.insured.relationToHolder,
-  (val) => {
-    emit('onResetPremium');
-    if (val === RELATION_HOLDER_ENUM.SELF) {
-      state.insureDisable = true;
-    } else {
-      state.insureDisable = false;
-    }
-  },
-);
 
 // 如果被保人是本人，投保人信息填写时，自动填充
 watch(
