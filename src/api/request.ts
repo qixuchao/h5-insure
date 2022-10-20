@@ -2,8 +2,8 @@
  * @Description: 用户模块
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-28 14:20:56
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-10-20 18:21:19
  */
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
@@ -76,7 +76,7 @@ const axiosInstance: AxiosInstance = axios.create({
 });
 
 // 请求失败两次才算真正的失败
-axiosRetry(axiosInstance, { retries: 2 });
+// axiosRetry(axiosInstance, { retries: 2 });
 
 // 请求拦截器
 axiosInstance.interceptors.request.use(
@@ -86,8 +86,8 @@ axiosInstance.interceptors.request.use(
     const storage = new Storage({ source: 'cookie' });
     const local = new Storage({ source: 'localStorage' });
     const token = storage.get('token') || local.get('token') || '';
-    removePending(config);
-    addPending(config);
+    // removePending(config);
+    // addPending(config);
     return {
       ...config,
       headers: token ? { token } : {},
