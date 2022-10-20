@@ -91,7 +91,7 @@ import PersonalInfo from './components/PersonalInfo/index.vue';
 import RiskList from './components/RiskList/index.vue';
 import { insureProductDetail, premiumCalc } from '@/api/modules/trial';
 import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
-import { getDic, nextStep } from '@/api';
+import { getDic, nextStep, getTemplateInfo } from '@/api';
 import { useCookie } from '@/hooks/useStorage';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 import {
@@ -137,7 +137,6 @@ interface HolderPerson {
 const router = useRouter();
 const route = useRoute();
 const {
-  templateId = 1,
   agentCode = 'test',
   agencyCode = '',
   tenantId = 9991000007,
@@ -145,7 +144,7 @@ const {
   proposalId,
   saleChannelId, // 销售渠道id
 } = route.query;
-let { productCode = 'MMBBSF' } = route.query;
+let { productCode = 'MMBBSF', templateId = 1 } = route.query;
 
 const holder = ref<HolderPerson>({
   personVO: {
@@ -282,6 +281,15 @@ const goNextPage = () => {
   });
 };
 
+// 获取模板id
+const getTemplateId = (categoryNo?: number) => {
+  getTemplateInfo({ productCategory: categoryNo, venderCode: insurerCode }).then((templateRes) => {
+    if (templateRes.code === '10000') {
+      templateId = templateRes.data?.id;
+    }
+  });
+};
+
 const dealTrialData = () => {
   const riskObject = JSON.parse(JSON.stringify(riskInfo.value[state.currentPlan]));
   const mainRiskInfo = Object.values(riskObject as RiskVoItem).find((risk) => risk.riskType === 1);
@@ -326,7 +334,6 @@ const dealTrialData = () => {
   premiumCalc({ ...trialData }).then(({ code, data }) => {
     if (code === '10000') {
       state.retrialTip = false;
-
       state.trialResult = data;
       state.canTrial = false;
       const riskPremium = {};
@@ -414,6 +421,10 @@ const queryProductInfo = () => {
             Object.assign(riskInfo.value, { [plan.planCode || index]: {} });
           }
         });
+
+        if (proposalId) {
+          getTemplateId(state.riskBaseInfo.productCategory);
+        }
 
         state.riskData = data.productRiskVoList[0]?.riskDetailVOList || [];
         state.riskPlanData = data.productRelationPlanVOList || [];
