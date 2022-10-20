@@ -274,6 +274,7 @@ const goNextPage = () => {
             insurerCode: state.riskBaseInfo.insurerCode,
             templateId,
             ...route.query,
+            productCategory: state.riskBaseInfo.productCategory,
             orderNo: data.pageAction.data.orderNo,
           },
         });
