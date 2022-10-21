@@ -729,7 +729,7 @@ $activity-primary-color: #ff6d23;
       text-overflow: ellipsis;
       text-align: center;
       &.active {
-        background: #0d6efe;
+        background: green;
         color: #fff;
         &::before {
           content: '';
@@ -746,7 +746,7 @@ $activity-primary-color: #ff6d23;
         }
         &::after {
           content: '\2714';
-          color: #0d6efe;
+          color: green;
           position: absolute;
           top: 5px;
           right: -5px;

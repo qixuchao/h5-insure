@@ -458,7 +458,7 @@ onMounted(() => {
       .left {
         width: 170px;
         border-radius: 8px 0 0 8px;
-        border: 1px solid #0d6efe;
+        border: 1px solid green;
         color: $zaui-brand;
       }
       .right {

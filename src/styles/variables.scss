@@ -50,15 +50,15 @@ $zaui-base-bg: var(--zaui-base-bg, #ffffff);
 // 分割线（用于内容与内容的分割）
 $zaui-dividing-line: var(--zaui-dividing-line, #eeeff4);
 // 品牌色（整个app的主题色）
-$zaui-brand: var(--zaui-brand, #0d6efe);
+$zaui-brand: var(--zaui-brand, green);
 // 金额色（产品价格的颜色）
 $zaui-price: var(--zaui-price, #ff5840);
 // 文本强调色（帮助信息里重点突出的强调色）
-$zaui-aide-text-stress: var(--zaui-aide-text-stress, #0d6efe);
+$zaui-aide-text-stress: var(--zaui-aide-text-stress, green);
 // 主要按钮上的文字色
 $zaui-button-primary-highlight-text: var(--zaui-button-primary-highlight-text, #ffffff);
 // 主要按钮上的文字色
-$zaui-button-secondary-highlight-text: var(--zaui-button-secondary-highlight-text, #0d6efe);
+$zaui-button-secondary-highlight-text: var(--zaui-button-secondary-highlight-text, green);
 // 弹窗按钮未选中文字色
 $zaui-popup-button-text: var(--zaui-popup-button-text, #515865);
 // 标题文字色（第一层级）一般是卡片标题
@@ -74,25 +74,25 @@ $zaui-link: var(--zaui-link, #bcc7da);
 
 /***** ====== icon ===== *****/
 // 按钮
-$zaui-icon-fill: var(--zaui-icon-fill, #0d6efe);
+$zaui-icon-fill: var(--zaui-icon-fill, green);
 // 填充色反白
 $zaui-icon-highlight-white: var(--zaui-icon-highlight-white, #ffffff);
 
 /***** ====== 按钮 ===== *****/
 // 主要按钮(页面的主要操作按钮)
-$zaui-button-primary: var(--zaui-button-primary, #0d6efe);
+$zaui-button-primary: var(--zaui-button-primary, green);
 // 次要按钮(页面的次要操作按钮)
 $zaui-button-secondary: var(--zaui-button-secondary, #ffffff);
 // 次要按钮边框色
-$zaui-button-secondary-line: var(--zaui-button-secondary-line, #0d6efe);
+$zaui-button-secondary-line: var(--zaui-button-secondary-line, green);
 // 主要文字按钮
-$zaui-primary-text: var(--zaui-primary-text, #0d6efe);
+$zaui-primary-text: var(--zaui-primary-text, green);
 // 弹窗按钮未选中背景色
 $zaui-popup-button: var(--zaui-popup-button, #f6f7fc);
 // 弹窗按钮选中背景色
-$zaui-popup-highlight-button: var(--zaui-popup-highlight-button, #0d6efe);
+$zaui-popup-highlight-button: var(--zaui-popup-highlight-button, green);
 // 弹窗按钮选中边框色
-$zaui-popup-highlight-button-line: var(--zaui-popup-highlight-button-line, #0d6efe);
+$zaui-popup-highlight-button-line: var(--zaui-popup-highlight-button-line, green);
 // 按钮disabled背景颜色
 $zaui-disabled-button: var(--zaui-disabled-button, #8fbbfc);
 // 按钮disabled文字颜色
