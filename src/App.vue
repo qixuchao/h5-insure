@@ -23,8 +23,8 @@
 </template>
 <script lang="ts" setup>
 import { injectGlobal } from '@emotion/css';
+import { getConfig } from './utils/config';
 import themes from './themes';
-import { isPrdEnv } from '@/utils';
 import { useThemesStore } from './store/themes';
 
 const styleMap = {
@@ -38,12 +38,7 @@ onBeforeMount(async () => {
   injectGlobal(style);
 });
 
-const X_FLOW = 'https://xflowcloud.zhongan.io/sdk/dist/js/v0.0.1/ilog.js?id=qmkd17hfzorg55op&history=true';
-let I_SEE = 'https://staticdaily.zhongan.com/website/isee-poc/eye.js'; // 'https://static.zhongan.com/website/isee/zainfo/eye.js';
-
-if (isPrdEnv) {
-  I_SEE = 'https://static.zhongan.com/website/isee/zainfo/eye.js';
-}
+const X_FLOW = `https://xflowcloud.zhongan.io/sdk/dist/js/v0.0.1/ilog.js?id=${getConfig('xflow')}&history=true`;
 
 const addScript = (url: string, isAsync = true) => {
   console.log('加载脚本：', url);
@@ -56,7 +51,8 @@ const addScript = (url: string, isAsync = true) => {
 };
 
 onMounted(() => {
-  addScript(I_SEE); // 千里眼SDK
+  console.log('ISEE:', getConfig('isee'), '\nX_FLOW:', X_FLOW);
+  addScript(getConfig('isee')); // 千里眼SDK
   addScript(X_FLOW); // 埋点SDK
 });
 </script>
