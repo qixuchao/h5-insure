@@ -120,11 +120,11 @@ const parseData = (val: string) => {
 };
 
 const handleSubmitCurrentQuestion = () => {
-  const isAllAnswer = listQuestions.value.some(
-    (i: any) => ['undefined', ''].includes(i.singleAnswer) || i.multipleChoose?.length === 0,
+  const isAllAnswer = (listQuestions.value || []).filter(
+    (i: any) => i.singleAnswer === 0 || i.singleAnswer || i.multipleChoose?.length,
   );
 
-  if (isAllAnswer) {
+  if (isAllAnswer.length !== listQuestions.value.length) {
     Toast('请完成所有题目进行下一步');
   } else {
     // 1已完成
