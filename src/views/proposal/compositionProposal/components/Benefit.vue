@@ -8,13 +8,7 @@
 <template>
   <div class="container">
     <div class="common-title">利益演示</div>
-    <van-tabs
-      :active="active"
-      title-active-color="#0D6EFE"
-      title-inactive-color="#393D46"
-      shrink
-      @click-tab="changeTab"
-    >
+    <van-tabs :active="active" title-active-color="green" title-inactive-color="#393D46" shrink @click-tab="changeTab">
       <van-tab v-for="(item, i) in props.info?.benefitRiskResultVOList" :key="i" :name="i" :title="item.riskName">
         <div class="benefit">
           <div class="benefit-title">{{ item?.riskName }}</div>

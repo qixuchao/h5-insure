@@ -244,7 +244,7 @@ const editProposal = (id: number) => {
           font-size: 28px;
           border-radius: 32px;
           padding: 10px 36px;
-          border: 1px solid #0d6efe;
+          border: 1px solid green;
           &:not(:first-child) {
             margin-left: 16px;
           }

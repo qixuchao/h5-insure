@@ -55,6 +55,7 @@
       :name="`${prefix}_certNo`"
       :required="isRequiredByFactor('certNo')"
       placeholder="请输入"
+      :maxlength="18"
       :validate-type="validateType"
     ></ProField>
     <ProField
@@ -231,6 +232,7 @@
       label="手机号码"
       :name="`${prefix}_mobile`"
       placeholder="请输入"
+      :maxlength="11"
       :required="isRequiredByFactor('mobile')"
       :validate-type="[VALIDATE_TYPE_ENUM.PHONE]"
     ></ProField>
