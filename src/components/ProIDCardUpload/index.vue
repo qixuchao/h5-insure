@@ -244,7 +244,7 @@ watch(
     .text {
       font-size: 26px;
       margin-top: 9px;
-      color: green;
+      color: #0d6efe;
       z-index: 9;
     }
   }
