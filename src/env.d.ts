@@ -39,6 +39,7 @@ declare interface Window {
   // extend the window
   readonly history: History;
   location: Location;
+  ENV: string;
   BMapGL: any;
   callHandler: (fnName: string, params?: any, fn?: (res: { code: number, data: any, message: string }) => void) => void
   getIseeBiz: () => Promise<string>; // 千里眼插件注入的方法

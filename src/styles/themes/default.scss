@@ -1,10 +1,10 @@
 :root {
-  --van-primary-color: #0d6efe;
+  --van-primary-color: green;
   $primary-color: var(--van-primary-color);
   --van-button-primary-background-color: var(--van-primary-color);
   --van-record-primary-background-color: linear-gradient(90deg, #ff5003 0%, #f70800 100%);
   --van-field-placeholder-text-color: #99A9C0;
-  --van-tabs-bottom-bar-color: #0d6efe;
+  --van-tabs-bottom-bar-color: green;
   --van-search-content-background-color: #f3f3f3;
   --van-popup-round-border-radius: 20px;
   --van-cell-border-color: #EEEFF4;
@@ -45,11 +45,11 @@
   // 分割线（用于内容与内容的分割）
   --zaui-dividing-line: #eeeff4;
   // 品牌色（整个app的主题色）
-  --zaui-brand: #0d6efe;
+  --zaui-brand: green;
   // 金额色（产品价格的颜色）
   --zaui-price: #ff5840;
   // 文本强调色（帮助信息里重点突出的强调色）
-  --zaui-aide-text-stress: #0d6efe;
+  --zaui-aide-text-stress: green;
   // 主要按钮上的文字色
   --zaui-button-primary-highlight-text: #ffffff;
   // 弹窗按钮未选中文字色
@@ -67,25 +67,25 @@
 
   /***** ====== icon ===== *****/
   // 按钮
-  --zaui-icon-fill: #0d6efe;
+  --zaui-icon-fill: green;
   // 填充色反白
   --zaui-icon-highlight-white: #ffffff;
 
   /***** ====== 按钮 ===== *****/
   // 主要按钮(页面的主要操作按钮)
-  --zaui-button-primary: #0d6efe;
+  --zaui-button-primary: green;
   // 次要按钮(页面的次要操作按钮)
   --zaui-button-secondary: #ffffff;
   // 次要按钮边框色
-  --zaui-button-secondary-line: #0d6efe;
+  --zaui-button-secondary-line: green;
   // 主要文字按钮
-  --zaui-primary-text: #0d6efe;
+  --zaui-primary-text: green;
   // 弹窗按钮未选中背景色
   --zaui-popup-button: #f6f7fc;
   // 弹窗按钮选中背景色
-  --zaui-popup-highlight-button: #0d6efe;
+  --zaui-popup-highlight-button: green;
   // 弹窗按钮选中边框色
-  --zaui-popup-highlight-button-line: #0d6efe;
+  --zaui-popup-highlight-button-line: green;
   // 按钮disabled背景颜色
   --zaui-disabled-button: #8fbbfc;
   // 按钮disabled文字颜色
@@ -132,5 +132,5 @@
 $primary-color: var(--van-primary-color); //全局主题色
 // 导出变量，给代码中js使用
 :export {
-  primaryColor: #0d6efe;
+  primaryColor: green;
 }

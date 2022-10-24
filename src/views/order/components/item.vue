@@ -227,7 +227,7 @@ const handleProcess = () => {
         height: 60px;
         line-height: 60px;
         border-radius: 30px;
-        border: 1px solid #0d6efe;
+        border: 1px solid green;
         padding: 0 33px;
         min-width: 128px;
         font-size: 28px;
