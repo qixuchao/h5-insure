@@ -1,8 +1,8 @@
 <!--
  * @Author: 王园丽
  * @Date: 2022-08-05 18:00:00
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-13 00:36:39
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-10-25 15:33:56
  * @Description: 计划书利益演示
 -->
 <template>
@@ -218,7 +218,7 @@ watch(num, () => {
           text-align: center;
           display: flex;
           align-items: center;
-          justify-content: space-between;
+          justify-content: flex-start;
           img {
             width: 41px;
             height: 29px;
