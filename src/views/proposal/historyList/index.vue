@@ -244,7 +244,7 @@ const editProposal = (id: number) => {
           font-size: 28px;
           border-radius: 32px;
           padding: 10px 36px;
-          border: 1px solid green;
+          border: 1px solid $zaui-brand;
           &:not(:first-child) {
             margin-left: 16px;
           }

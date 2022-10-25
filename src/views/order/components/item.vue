@@ -227,7 +227,7 @@ const handleProcess = () => {
         height: 60px;
         line-height: 60px;
         border-radius: 30px;
-        border: 1px solid green;
+        border: 1px solid $zaui-brand;
         padding: 0 33px;
         min-width: 128px;
         font-size: 28px;

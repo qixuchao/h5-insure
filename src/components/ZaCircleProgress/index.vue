@@ -21,7 +21,7 @@
       :style="svgStyle"
     >
       <defs>
-        <linearGradient id="greenGradient">
+        <linearGradient id="#0d6efeGradient">
           <stop v-for="(c, index) in colors" :key="c" :offset="index" :stop-color="c" />
         </linearGradient>
       </defs>
@@ -41,7 +41,7 @@
         :cx="circleCenter"
         :cy="circleCenter"
         :r="radius"
-        stroke="url(#greenGradient)"
+        stroke="url(##0d6efeGradient)"
         :stroke-width="outerStrokeWidth"
         fill="none"
         :stroke-dasharray="dasharray"

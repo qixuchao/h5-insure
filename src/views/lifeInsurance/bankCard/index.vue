@@ -427,7 +427,7 @@ onMounted(() => {
         font-size: 26px;
         &.selected {
           background: rgba(13, 110, 254, 0.1);
-          border: 1px solid green;
+          border: 1px solid $zaui-brand;
           color: $zaui-brand;
         }
       }

@@ -2,7 +2,7 @@
   <div class="com-risk-card-wrapper part-card">
     <ProTitle :risk-type="originData.riskType" :title="originData.riskName">
       <div v-if="removeRiskList.includes(originData.id)" class="delete-risk" @click="removeRisk(originData.id)">
-        <ProSvg name="img-lajitong" color="green"></ProSvg>
+        <ProSvg name="img-lajitong" color="#0d6efe"></ProSvg>
       </div>
     </ProTitle>
     <VanField
