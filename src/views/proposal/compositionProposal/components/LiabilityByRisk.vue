@@ -1,8 +1,8 @@
 <!--
  * @Author: wangyuanli
  * @Date: 2022-08-21 15:00:00
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-13 00:37:30
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-10-25 15:38:11
  * @Description: 组合计划书按险种展示
 -->
 <template>
@@ -110,10 +110,14 @@ const props = defineProps({
         color: #393d46;
         border-radius: 8px;
       }
+      :deep(.van-cell__title) {
+        margin-top: 14px;
+      }
       :deep(.price) {
         font-size: 28px;
         font-weight: 400;
         color: $zaui-price;
+        margin-top: 14px;
       }
     }
     .poiner {
