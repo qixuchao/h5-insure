@@ -23,24 +23,14 @@
       <div class="fee">
         保费：<span class="money">￥{{ detail.prem }}</span>
       </div>
-      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.PENDING" class="buttons">
+      <div v-if="detail.orderTopStatus === ORDER_TOP_STATUS_ENUM.PENDING" class="buttons">
         <van-button class="button" @click.stop="handleDelete">删除</van-button>
         <van-button class="button primary" @click.stop="handleProcess">去处理</van-button>
       </div>
-      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.PAYING" class="buttons">
-        <van-button class="button" @click.stop="handleDelete">删除</van-button>
+      <div v-if="detail.orderTopStatus === ORDER_TOP_STATUS_ENUM.PAYING" class="buttons">
         <van-button class="button primary" @click.stop="handlePay">去支付</van-button>
       </div>
-      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.PAYMENT_FAILED" class="buttons">
-        <van-button class="button" @click.stop="handleDelete">删除</van-button>
-        <van-button class="button primary" @click.stop="handlePay">去支付</van-button>
-      </div>
-      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.PAYMENT_SUCCESS" class="buttons"></div>
-      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY" class="buttons"></div>
-      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.INSURER_REJECT" class="buttons">
-        <van-button class="button" @click.stop="handleDelete">删除</van-button>
-      </div>
-      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.TIMEOUT" class="buttons">
+      <div v-if="detail.orderTopStatus === ORDER_TOP_STATUS_ENUM.TIMEOUT" class="buttons">
         <van-button class="button" @click.stop="handleDelete">删除</van-button>
       </div>
     </div>
@@ -53,7 +43,7 @@ import { useRouter } from 'vue-router';
 import dayjs from 'dayjs';
 import { OrderItem } from '@/api/modules/order.data';
 import { deleteOrder } from '@/api/modules/order';
-import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
+import { ORDER_STATUS_MAP, ORDER_TOP_STATUS_ENUM } from '@/common/constants/order';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 
 const emits = defineEmits(['afterDelete']);
