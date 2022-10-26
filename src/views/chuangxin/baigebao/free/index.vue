@@ -1,8 +1,8 @@
 <!--
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-02
- * @LastEditors:  wangyuanli@zhongan.io
- * @LastEditTime: 2022-09-02
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-10-26 16:27:19
  * @Description: 页面包含2步：1、手机号验证完成后，2、输入姓名，身份证领取赠险
 -->
 <template>
@@ -60,7 +60,7 @@
 
 <script lang="ts" setup>
 import { useRouter, useRoute } from 'vue-router';
-import { Toast } from 'vant';
+import { Dialog, Toast } from 'vant';
 import { RELATION_HOLDER_ENUM } from '@/common/constants/infoCollection';
 import MobileVerify from './components/MobileVerify/index.vue';
 import InfoField from './components/InfoField/index.vue';

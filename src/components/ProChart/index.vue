@@ -36,7 +36,7 @@ const { min, max, current, data } = toRefs(props);
 const state = reactive({
   sliderVal: 1,
   option: {
-    color: ['green', '#2ABE21', '#FF5840', '#0DCCFE', '#8D40FF', '#8D40FF', '#C500CF', '#FF9A26'],
+    color: ['#0d6efe', '#2ABE21', '#FF5840', '#0DCCFE', '#8D40FF', '#8D40FF', '#C500CF', '#FF9A26'],
     tooltip: {
       trigger: 'axis',
       color: '#393D46',

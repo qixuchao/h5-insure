@@ -103,7 +103,7 @@ const img = computed(() => {
       }
     }
     .cancel {
-      border: 1px solid green;
+      border: 1px solid $zaui-brand;
       color: $zaui-brand;
     }
     .ok {

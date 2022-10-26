@@ -71,7 +71,7 @@ const displayList = computed(() => {
         justify-content: center;
         align-items: center;
         background: rgba(13, 110, 254, 0.16);
-        border: 1px solid green;
+        border: 1px solid #0d6efe;
         font-size: 28px;
         font-weight: 500;
         color: $zaui-brand;

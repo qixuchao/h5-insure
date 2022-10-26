@@ -9,7 +9,7 @@
           :show-header="false"
           placeholder="请选择"
           :options="state.options"
-          active-color="green"
+          active-color="#0d6efe"
           :field-names="{
             text: 'value',
             value: 'code',
