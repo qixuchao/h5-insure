@@ -159,6 +159,28 @@ const baigebaoRoutes = [
   },
 ];
 
+// 互联网在线投保
+const internetRoutes = [
+  {
+    name: '付费险',
+    path: '/internet/productDetail',
+    meta: { title: '' },
+    component: () => import('@/views/internet/product/detail/index.vue'),
+  },
+  {
+    name: '保障升级',
+    path: '/internet/guaranteeUpgrade',
+    meta: { title: '' },
+    component: () => import('@/views/internet/upgrade/index.vue'),
+  },
+  {
+    name: '支付失败',
+    path: '/internet/payFail',
+    meta: { title: '支付失败' },
+    component: () => import('@/views/internet/payFail/index.vue'),
+  },
+];
+
 const asyncRoutes: Array<RouteRecordRaw> = [
   {
     name: 'Home',
@@ -222,7 +244,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   },
   ...proposalRoutes,
   ...lifeInsuranceRoutes,
-  ...baigebaoRoutes,
+  ...internetRoutes,
 ];
 
 export default asyncRoutes;

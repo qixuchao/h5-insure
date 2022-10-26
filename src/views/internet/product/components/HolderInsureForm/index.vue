@@ -1,0 +1,477 @@
+<template>
+  <van-config-provider :theme-vars="themeVars">
+    <ProForm ref="formRef">
+      <ProDivider />
+      <div class="holder container">
+        <div class="title">投保人信息</div>
+        <!-- 投保人姓名 -->
+        <ProField v-if="props.formAuth?.holderNameDisable" label="姓名" class="pro-field" :is-view="true">
+          <template #input> {{ nameMixin(state.formInfo.holder.name) }}</template>
+        </ProField>
+        <ProField
+          v-else
+          v-model="state.formInfo.holder.name"
+          label="姓名"
+          name="name"
+          required
+          placeholder="请输入姓名"
+          maxlength="10"
+          :rules="[{ validator: nameValidator }]"
+        />
+        <!-- 投保人证件号 -->
+        <ProField v-if="props.formAuth?.holderCertDisable" label="证件号码" class="pro-field" :is-view="true">
+          <template #input> {{ idCardMixin(state.formInfo.holder.certNo) }}</template>
+        </ProField>
+        <ProField
+          v-else
+          v-model="state.formInfo.holder.certNo"
+          label="证件号码"
+          name="certNo"
+          required
+          placeholder="请输入身份证号"
+          maxlength="20"
+          :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
+        />
+        <!-- 投保人手机号 -->
+        <ProField v-if="props.formAuth?.holderMobileDisable" label="手机号" class="pro-field" :is-view="true">
+          <template #input> {{ mobileMixin(state.formInfo.holder.mobile) }}</template>
+        </ProField>
+        <ProField
+          v-else
+          v-model="state.formInfo.holder.mobile"
+          label="手机号"
+          name="mobile"
+          required
+          placeholder="请输入手机号"
+          maxlength="11"
+          :validate-type="[VALIDATE_TYPE_ENUM.PHONE]"
+        />
+        <!-- 投保人社保 -->
+        <ProField
+          v-model="state.formInfo.holder.socialFlag"
+          label="有无社保"
+          name="socialFlag"
+          required
+          placeholder="请选择"
+        >
+          <template #input>
+            <ProRadioButton
+              v-model="state.formInfo.holder.socialFlag"
+              :disabled="props.formAuth?.holderSocialDisable"
+              :options="SOCIAL_SECURITY"
+            ></ProRadioButton>
+          </template>
+        </ProField>
+      </div>
+      <ProDivider />
+      <div class="insured-relation container">
+        <div class="title">为谁投保</div>
+        <!-- 关系 -->
+        <ProField
+          v-model="state.formInfo.insured.relationToHolder"
+          class="relation-to-Holder"
+          label=""
+          name="relationToHolder"
+          placeholder="请选择"
+          @click="onChangeRelationToHolder"
+        >
+          <template #input>
+            <ProRadioButton
+              v-model="state.formInfo.insured.relationToHolder"
+              :disabled="props.formAuth?.relationToHolderDisable"
+              :options="RELATION_HOLDER_LIST"
+            ></ProRadioButton>
+          </template>
+        </ProField>
+      </div>
+      <ProDivider />
+      <div class="insured container">
+        <div class="title">被保人信息</div>
+        <!-- 被保人姓名 -->
+        <ProField v-if="props.formAuth?.insuredNameDisable" label="姓名" class="pro-field" :is-view="true">
+          <template #input> {{ nameMixin(state.formInfo.insured.name) }}</template>
+        </ProField>
+        <ProField
+          v-else
+          v-model="state.formInfo.insured.name"
+          label="姓名"
+          name="name"
+          required
+          maxlength="10"
+          :rules="[{ validator: nameValidator }]"
+        />
+        <!-- 被保人证件号码 -->
+        <ProField v-if="props.formAuth?.insuredCertDisable" label="证件号码" class="pro-field" :is-view="true">
+          <template #input> {{ idCardMixin(state.formInfo.insured.certNo) }}</template>
+        </ProField>
+        <ProField
+          v-else
+          v-model="state.formInfo.insured.certNo"
+          label="证件号码"
+          name="certNo"
+          required
+          placeholder="请输入身份证号"
+          maxlength="20"
+          :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
+        />
+        <!-- 被保人社保 -->
+        <ProField
+          v-model="state.formInfo.insured.socialFlag"
+          label="有无社保"
+          name="name"
+          required
+          placeholder="请选择"
+        >
+          <template #input>
+            <ProRadioButton
+              v-model="state.formInfo.insured.socialFlag"
+              :disabled="props.formAuth?.insuredSocialDisable"
+              :options="SOCIAL_SECURITY"
+            ></ProRadioButton>
+          </template>
+        </ProField>
+      </div>
+      <ProDivider />
+      <div class="payment container">
+        <!-- 交费方式 -->
+        <!-- 支付方式 -->
+        <ProField
+          v-model="state.formInfo.paymentMethod"
+          label="支付方式"
+          name="paymentMethod"
+          required
+          placeholder="请选择"
+        >
+          <template #input>
+            <ProRadioButton
+              v-model="state.formInfo.paymentMethod"
+              :disabled="props.formAuth?.paymentDisable"
+              :options="ACTIVITY_PAY_METHOD_LIST"
+            ></ProRadioButton>
+          </template>
+        </ProField>
+        <!-- 正常下一年自主重新投保 -->
+        <ProField
+          label="开通下一年自主重新投保"
+          class="pro-field"
+          name="renewalDK"
+          placeholder="请选择"
+          :border="false"
+        >
+          <template #input>
+            <ProTabButton
+              :disabled="props.formAuth?.renewalDKDisable"
+              title="免费开通"
+              :active="state.formInfo.renewalDK === 'Y'"
+              @click="onRenewalDK"
+            ></ProTabButton>
+          </template>
+        </ProField>
+        <div>保单到期自动重新投保，享受保障不间断 自从重新投保开启后，中途可随时取消</div>
+      </div>
+      <ProDivider />
+      <FilePreview
+        v-model:show="showFilePreview"
+        :content-list="filterHealthAttachmentList.concat(rateAttachmentList)"
+        :active-index="activeIndex"
+        text="我已逐页阅读并确认告知内容"
+        @submit="onSubmit"
+      ></FilePreview>
+    </ProForm>
+  </van-config-provider>
+</template>
+<script lang="ts" setup>
+import type { FormInstance } from 'vant';
+import themeVars from '../../../theme';
+import {
+  RELATION_HOLDER_ENUM,
+  RELATION_HOLDER_LIST, // 投被保人关系
+  SOCIAL_SECURITY, // 有无社保
+  SOCIAL_SECURITY_ENUM,
+} from '@/common/constants/infoCollection';
+import { ACTIVITY_PAY_METHOD_LIST } from '@/common/constants/bankCard';
+import { getFloat, nameMixin, mobileMixin, idCardMixin } from '../../../utils';
+import { AuthType } from '../../auth';
+import ProDivider from '@/components/ProDivider/index.vue';
+import { VALIDATE_TYPE_ENUM } from '@/common/constants';
+import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
+import { validateName } from '@/utils/validator';
+import FilePreview from '../FilePreview/index.vue';
+
+const formRef = ref<FormInstance>({} as FormInstance);
+
+interface FormInfoProps {
+  paymentMethod: string;
+  renewalDK: string;
+  holder: {
+    certNo: string;
+    mobile: string;
+    name: string;
+    socialFlag: string;
+  };
+  insured: {
+    certNo: string;
+    name: string;
+    socialFlag: string;
+    relationToHolder: string;
+    smoke: string;
+  };
+}
+
+const props = defineProps({
+  isCheck: {
+    type: Boolean,
+    default: () => {},
+  },
+  disable: {
+    type: Boolean,
+    default: false,
+  },
+  formAuth: {
+    type: Object as () => AuthType,
+    default: () => {},
+  },
+  formInfo: {
+    type: Object as () => FormInfoProps,
+    default: () => {},
+  },
+  premium: {
+    type: Number,
+    default: 0,
+  },
+  productDetail: {
+    type: Object as () => ProductDetail,
+    default: () => {},
+  },
+});
+
+const emits = defineEmits(['onReset', 'onUpdate']);
+
+const state = reactive({
+  formInfo: props.formInfo,
+});
+
+const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
+const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
+const isAgreeFile = ref<boolean>(false);
+
+const nameValidator = (name: string) => {
+  if (validateName(name)) {
+    return true;
+  }
+  return '请输入正确的姓名';
+};
+
+// 费率表
+const rateAttachmentList = computed(() => {
+  return props.productDetail?.tenantProductInsureVO?.attachmentVOList.filter(
+    (item: AttachmentVOList) => item.attachmentName === '费率表',
+  );
+});
+
+const filterHealthAttachmentList = computed(() => {
+  return (
+    props.productDetail?.tenantProductInsureVO?.attachmentVOList.filter((item: AttachmentVOList) => {
+      return !['健康告知', '费率表'].includes(item.attachmentName);
+    }) || []
+  );
+});
+
+const onSubmit = () => {
+  isAgreeFile.value = true;
+  return isAgreeFile;
+};
+
+const previewFile = (index: number) => {
+  activeIndex.value = index;
+  showFilePreview.value = true;
+};
+
+const validateForm = () => {
+  return new Promise((resolve, reject) => {
+    formRef?.value.validate().then(
+      () => {
+        resolve('');
+      },
+      () => {
+        reject();
+      },
+    );
+  });
+};
+
+// 2个选择的
+const handleRenewal = (value: string) => {
+  state.formInfo.renewalDK = value;
+};
+
+// 一个选择的
+const onRenewalDK = () => {
+  state.formInfo.renewalDK = state.formInfo.renewalDK === 'Y' ? 'N' : 'Y';
+};
+
+// 如果是本人，投保人信息填充被保人，并且信息不可修改
+const onChangeRelationToHolder = () => {
+  const { relationToHolder } = state.formInfo.insured;
+  // 本人，被保人信息自动填充，并且不能修改
+  if (relationToHolder === RELATION_HOLDER_ENUM.SELF) {
+    state.formInfo.insured = {
+      certNo: state.formInfo.holder.certNo,
+      name: state.formInfo.holder.name,
+      socialFlag: state.formInfo.holder.socialFlag,
+      relationToHolder,
+    };
+    emits('onReset');
+  } else {
+    // 不是本人，被保人信息清空，信息可以修改
+    state.formInfo.insured = {
+      certNo: '',
+      name: '',
+      socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
+      relationToHolder,
+    };
+    emits('onUpdate');
+  }
+};
+
+// 如果被保人是本人，投保人信息填写时，自动填充
+watch(
+  () => state.formInfo.holder,
+  () => {
+    if (state.formInfo.insured.relationToHolder !== RELATION_HOLDER_ENUM.SELF) {
+      return;
+    }
+    Object.assign(state.formInfo.insured, state.formInfo.holder);
+  },
+  { deep: true, immediate: true },
+);
+
+defineExpose({
+  validateForm,
+  previewFile,
+  isAgreeFile,
+  onSubmit,
+});
+</script>
+
+<style lang="scss" scoped>
+.title {
+  background: #ffffff;
+  font-size: 32px;
+  font-weight: 500;
+  color: #333333;
+  line-height: 30px;
+  padding: 30px 25px;
+}
+
+.file-name {
+  color: $primary-color;
+}
+
+.attachment-list {
+  padding: 25px;
+  font-size: $zaui-font-size-md;
+  font-weight: 400;
+  color: #666666;
+  line-height: 40px;
+  background: #fff;
+
+  :deep(.pdf-viewer .title) {
+    color: #ff6d23;
+  }
+  .rate-attachment-list {
+    margin-top: 10px;
+  }
+}
+
+:deep(.van-cell) {
+  padding: 10px 25px;
+  align-items: center;
+}
+:deep(.van-cell .van-field__label) {
+  margin: 0;
+}
+:deep(.relation-to-Holder.van-cell .van-field__value) {
+  align-items: flex-start;
+}
+:deep(.van-field__body) {
+  width: 100%;
+}
+:deep(.relation-to-Holder.van-cell .van-field__control--right) {
+  justify-content: flex-start;
+  text-align: left;
+}
+:deep(.van-cell .van-field__label) {
+  white-space: nowrap;
+}
+
+:deep(.com-check-btn.activated-disabled) {
+  border: 1px solid $primary-color;
+  color: $primary-color;
+  background: rgba($color: $primary-color, $alpha: 0.2);
+}
+:deep(button.active-button) {
+  background-color: $primary-color;
+  background-image: url('@/assets/images/chuangxin/img-gouxuan.png');
+}
+
+.pay {
+  padding: 0 30px;
+}
+
+.pro-field {
+  padding: 24px 25px;
+}
+
+.pro-radio {
+  display: flex;
+  justify-content: space-between;
+  button {
+    width: 48%;
+  }
+}
+
+.desc_arrow {
+  height: 30px;
+  display: flex;
+  .arrow {
+    position: relative;
+    flex: 1;
+    height: 30px;
+    visibility: hidden;
+    &::after {
+      content: '';
+      width: 30px;
+      height: 30px;
+      transform: rotate(45deg) translateY(0.08rem);
+      position: absolute;
+      border-left: 1px solid;
+      border-top: 1px solid;
+      left: 50%;
+      bottom: -12px;
+    }
+    &.show {
+      visibility: visible;
+    }
+  }
+  .light {
+    &::after {
+      background: #fffcf9;
+      border-color: #ffe6cc;
+    }
+  }
+  .dark {
+    &::after {
+      background: #fafafa;
+      border-color: #d9d9d9;
+    }
+  }
+}
+
+.renewal.container {
+  background: #ffffff;
+  .content {
+    padding: 0 25px 25px 25px;
+  }
+}
+</style>

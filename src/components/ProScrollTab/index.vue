@@ -11,7 +11,7 @@
   <div class="tabs">
     <van-sticky>
       <div class="van-tabs">
-        <div class="tab-list">
+        <div id="tab-list" class="tab-list">
           <a
             v-for="(item, index) in list"
             :key="index"
@@ -47,11 +47,12 @@ const props = defineProps({
 
 const active = ref<number>(0);
 const scrollHeight = ref<Array<number>>([]);
+const tabListHeight = ref<number>(0);
 
 const handleClickTab = (id: string) => {
   const toScroll = document.getElementById(id)?.offsetTop as number;
-  document.documentElement.scrollTop = toScroll;
-  document.body.scrollTop = toScroll;
+  document.documentElement.scrollTop = toScroll - tabListHeight.value;
+  document.body.scrollTop = toScroll - tabListHeight.value;
 };
 
 const getScrollHeight = () => {
@@ -70,7 +71,7 @@ const getActiveIndex = (current: number) => {
 
   scrollHeight.value.forEach((top: number, i: number) => {
     // 获取到的tab内容比实际少了些
-    if (current >= top - 5) {
+    if (current >= top - tabListHeight.value) {
       index = i;
     }
   });
@@ -91,6 +92,9 @@ const handleScroll = () => {
 
 onMounted(() => {
   window.addEventListener('scroll', handleScroll);
+  setTimeout(() => {
+    tabListHeight.value = (document.getElementById('tab-list')?.clientHeight as number) || 0;
+  }, 0);
 });
 
 onBeforeUnmount(() => {
