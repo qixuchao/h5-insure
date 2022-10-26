@@ -3,11 +3,11 @@
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-10-20 18:21:19
+ * @LastEditTime: 2022-10-26 16:30:35
  */
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
-import { Toast } from 'vant';
+import { Toast, Dialog } from 'vant';
 import Storage from '@/utils/storage';
 import showCodeMessage, { SUCCESS_CODE, SUCCESS_STATUS, UNLOGIN } from '@/api/code';
 import { formatJsonToUrlParams, instanceObject } from '@/utils/format';
@@ -107,6 +107,14 @@ axiosInstance.interceptors.response.use(
       return response;
     }
     if (res.code === SUCCESS_CODE || res.status === SUCCESS_STATUS) {
+      return response;
+    }
+    // 如果code是1000001,则表示错误信息需要一直展示在页面上
+    if (res.code === '1000001') {
+      Dialog({
+        message: res.message,
+        showConfirmButton: false,
+      });
       return response;
     }
     Toast.fail((res && res.data) || (res && res.message) || '请求出错');
