@@ -150,24 +150,25 @@
             ></ProRadioButton>
           </template>
         </ProField>
+        <ProDivider />
         <!-- 正常下一年自主重新投保 -->
-        <ProField
-          label="开通下一年自主重新投保"
-          class="pro-field"
-          name="renewalDK"
-          placeholder="请选择"
-          :border="false"
-        >
-          <template #input>
-            <ProTabButton
+        <div class="renewal-wrapper">
+          <ProField label="开通自主重新投保" class="pro-field" name="renewalDK" placeholder="请选择" :border="false">
+            <template #input>
+              <van-switch v-model="state.formInfo.renewalDK" :disabled="props.formAuth?.renewalDKDisable" />
+              <!-- <ProTabButton
               :disabled="props.formAuth?.renewalDKDisable"
               title="免费开通"
               :active="state.formInfo.renewalDK === 'Y'"
               @click="onRenewalDK"
-            ></ProTabButton>
-          </template>
-        </ProField>
-        <div>保单到期自动重新投保，享受保障不间断 自从重新投保开启后，中途可随时取消</div>
+            ></ProTabButton> -->
+            </template>
+          </ProField>
+          <div class="desc">
+            <p>保单到期自动重新投保，享受保障不间断</p>
+            <p>自从重新投保开启后，中途可随时取消</p>
+          </div>
+        </div>
       </div>
       <ProDivider />
       <FilePreview
@@ -219,10 +220,6 @@ interface FormInfoProps {
 }
 
 const props = defineProps({
-  isCheck: {
-    type: Boolean,
-    default: () => {},
-  },
   disable: {
     type: Boolean,
     default: false,
@@ -408,7 +405,7 @@ defineExpose({
 :deep(.com-check-btn.activated-disabled) {
   border: 1px solid $primary-color;
   color: $primary-color;
-  background: rgba($color: $primary-color, $alpha: 0.2);
+  background: var(--van-primary-background-color);
 }
 :deep(button.active-button) {
   background-color: $primary-color;
@@ -431,39 +428,16 @@ defineExpose({
   }
 }
 
-.desc_arrow {
-  height: 30px;
-  display: flex;
-  .arrow {
-    position: relative;
-    flex: 1;
-    height: 30px;
-    visibility: hidden;
-    &::after {
-      content: '';
-      width: 30px;
-      height: 30px;
-      transform: rotate(45deg) translateY(0.08rem);
-      position: absolute;
-      border-left: 1px solid;
-      border-top: 1px solid;
-      left: 50%;
-      bottom: -12px;
-    }
-    &.show {
-      visibility: visible;
-    }
-  }
-  .light {
-    &::after {
-      background: #fffcf9;
-      border-color: #ffe6cc;
-    }
-  }
-  .dark {
-    &::after {
-      background: #fafafa;
-      border-color: #d9d9d9;
+.renewal-wrapper {
+  background: #fff;
+  font-size: 26px;
+  font-weight: 400;
+  color: #99a9c0;
+  .desc {
+    padding: 0 30px 30px 30px;
+
+    p:not(:first-child) {
+      margin-top: 15px;
     }
   }
 }

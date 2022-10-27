@@ -118,4 +118,14 @@ const tabList = ref<Array<{ title: string; slotName: string }>>([
   margin-top: 25px;
   margin-bottom: 40px;
 }
+
+// 覆盖ProTimeline样式
+:deep(.com-time-line .item .left .num) {
+  background: var(--van-primary-background-color);
+  border: 1px solid $primary-color;
+  &::after {
+    border-left: 1px dashed var(--van-primary-background-color);
+    border-right: 1px dashed var(--van-primary-background-color);
+  }
+}
 </style>

@@ -314,11 +314,11 @@ onMounted(() => {
     }
   }
   :deep(.com-check-btn.activated-disabled) {
-    background-color: $primary-color;
+    background-color: var(--van-primary-background-color);
   }
 }
 :deep(.com-check-btn.activated-disabled) {
-  background-color: $primary-color;
+  background-color: var(--van-primary-background-color);
 }
 // 和fieldInfo保持一致
 :deep(.van-cell) {

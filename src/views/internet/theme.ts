@@ -1,5 +1,5 @@
 export default {
   primaryColor: '#0d6efe',
-  checkboxCheckedIconColor: '#0d6efe', // checkbox
-  checkboxBg: 'rgba(255, 109, 35, 0.2)',
+  primaryBackgroundColor: '#0d6efe20', // 自定义的的背景色
+  checkboxCheckedIconColor: '#0d6efe', // van-checkbox的背景色
 };

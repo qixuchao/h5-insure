@@ -1,6 +1,6 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
-    <div class="page-product-detail">
+    <div class="page-internet-product-detail">
       <div class="info">
         <Banner :url="detail?.tenantProductInsureVO?.banner[0]" />
         <Desc :product-name="detail?.productFullName" :product-desc="detail?.showConfigVO?.desc" />
@@ -11,7 +11,6 @@
           <HolderInsureForm
             ref="formRef"
             :disable="!buttonAuth.showInsure"
-            :is-check="isCheck"
             :form-auth="formAuth"
             :form-info="trialData"
             :premium="premium"
@@ -35,7 +34,7 @@
         </van-button>
       </div>
     </div>
-    <PreNotice v-if="isCheck && pageCode !== 'payBack'" :product-detail="detail"></PreNotice>
+    <PreNotice v-if="pageCode !== 'payBack'" :product-detail="detail"></PreNotice>
     <UpgradeModal
       :order-no="orderNo"
       :tenant-id="tenantId"
@@ -144,9 +143,7 @@ const formRef = ref();
 const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<ProductData>(); // 险种信息
 const premium = ref<number>(); // 保费
-const isCheck = from === 'check'; // 审核版
 const isPayBack = pageCode === 'payBack';
-const isOuter = !!agentCode; // 外部链接
 const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
 const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
@@ -172,7 +169,7 @@ const trialData = reactive({
     relationToHolder: RELATION_HOLDER_ENUM.SELF, // 被保人默认自己
   },
   paymentMethod,
-  renewalDK: isCheck ? '' : 'Y',
+  renewalDK: 'Y',
 });
 
 // 表单是否可修改, 默认先从链接取，然后再根据不同的入口修改
@@ -228,7 +225,7 @@ const validCalcData = () => {
 
 const onConfirm = () => {
   router.push({
-    path: '/chuangxin/baigebao/guaranteeUpgrade',
+    path: '/internet/guaranteeUpgrade',
     query: {
       ...route.query,
       tenantId,
@@ -281,28 +278,24 @@ const onUnderWrite = async (o: any) => {
 
       const { data } = res1;
       if (code === '10000') {
-        console.log(data);
-        // window.location.href = data;
-      } else {
-        buttonAuth.canInsure = true;
+        window.location.href = data;
       }
-    } else {
-      buttonAuth.canInsure = true;
     }
+    buttonAuth.canInsure = true;
   } catch (e) {
     buttonAuth.canInsure = true;
   }
 };
 
 const getPaySuccessCallbackUrl = (no: number) => {
-  const url = `${ORIGIN}/chuangxin/baigebao/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack&from=${
+  const url = `${ORIGIN}/internet/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack&from=${
     from || 'normal'
   }`;
   return url;
 };
 
 const getPayFailCallbackUrl = (no: number) => {
-  const url = `${ORIGIN}/chuangxin/baigebao/payFail?tenantId=${tenantId}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack&from=${
+  const url = `${ORIGIN}/internet/payFail?tenantId=${tenantId}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack&from=${
     from || 'normal'
   }`;
   return url;
@@ -386,17 +379,9 @@ const onPremiumCalcWithValid = () => {
     formRef.value
       ?.validateForm?.()
       .then(async () => {
-        if (!trialData.renewalDK && isCheck) {
-          Toast('请选择是否自助重新投保');
-          const toScroll = (document.getElementById('renewal')?.offsetTop as number) - 70;
-          document.documentElement.scrollTop = toScroll;
-          document.body.scrollTop = toScroll;
-          buttonAuth.canInsure = true;
-          return;
-        }
         // 表单验证通过再检查是否逐条阅读
         const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
-        if (isCheck && !isAgree) {
+        if (!isAgree) {
           showHealthPreview.value = true;
           return;
         }
@@ -510,7 +495,7 @@ const getOrderById = async () => {
           relationToHolder: RELATION_HOLDER_ENUM.SELF, // 被保人默认自己
         },
         paymentMethod,
-        renewalDK: isCheck ? '' : 'Y',
+        renewalDK: 'Y',
       });
       buttonAuth.canInsure = true;
 
@@ -642,7 +627,7 @@ const fetchData = async () => {
 const setFormAuth = () => {
   if (pageCode === 'free') {
     // 赠险进入，分审核版赠险和非审核版赠险
-    if (isCheck && !isPayBack) {
+    if (!isPayBack) {
       // 审核版
       formAuth.value = { ...checkAuth, paymentDisable: !!paymentMethod };
       defaultFormAuth.value = { ...checkAuth, paymentDisable: !!paymentMethod };
@@ -679,51 +664,21 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.page-product-detail {
+.page-internet-product-detail {
   padding-bottom: 150px;
   background: #f1f5fc;
 
-  .tips {
-    padding: 25px;
-    font-size: $zaui-font-size-md;
-    font-weight: 400;
-    color: #666666;
-    line-height: 40px;
-    background: #fff;
-  }
-
-  .tips {
-    padding: 25px;
-    font-size: $zaui-font-size-md;
-    font-weight: 400;
-    color: #666666;
-    line-height: 40px;
-    background: #fff;
-  }
   .footer-button {
     justify-content: space-between;
   }
   // 覆盖原来组件的样式
-  :deep(.showIcon::before) {
-    background: $primary-color !important;
-  }
-  :deep(.link) {
-    color: $primary-color !important;
-  }
+  // :deep(.showIcon::before) {
+  //   background: $primary-color !important;
+  // }
+  // :deep(.link) {
+  //   color: $primary-color !important;
+  // }
 
-  // 多选样式覆盖
-  :deep(.com-check-btn.activated) {
-    background: rgba($color: $primary-color, $alpha: 0.2);
-  }
-  // 理赔流程样式覆盖
-  :deep(.com-time-line .item .left .num) {
-    color: $primary-color;
-    border-color: $primary-color;
-    background: rgba($color: #ff6d23, $alpha: 0.15);
-    &::after {
-      border-color: rgba($color: #ff6d23, $alpha: 0.15);
-    }
-  }
   // footer覆盖
   .price {
     color: #393d46;
