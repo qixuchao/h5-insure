@@ -191,7 +191,7 @@ import { getFileType } from '@/utils';
 const router = useRouter();
 const route = useRoute();
 
-const { productCode = 'CQ75CQ76' } = route.query;
+const { productCode = 'CQ75CQ76', tenantId } = route.query;
 const tabList = ref<Array<{ title: string; slotName: string }>>([]);
 const activePlan = ref(0);
 const currentInsuredInfo = ref<number>(activePlan.value);
@@ -264,7 +264,7 @@ const guaranteeList = computed(() => {
 });
 
 onMounted(() => {
-  productDetail({ productCode, withInsureInfo: true }).then((res) => {
+  productDetail({ productCode, withInsureInfo: true, tenantId }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
       detail.value = data;
