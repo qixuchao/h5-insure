@@ -143,7 +143,7 @@
       </div>
       <ProDivider />
       <div class="container">
-        <RefuelingBag
+        <Package
           :product-list="[
             {
               value: '1',
@@ -219,7 +219,7 @@ import { VALIDATE_TYPE_ENUM } from '@/common/constants';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
 import { validateName } from '@/utils/validator';
 import FilePreview from '../FilePreview/index.vue';
-import RefuelingBag from '../RefuelingBag/index.vue';
+import Package from '../package/index.vue';
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
