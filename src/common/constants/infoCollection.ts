@@ -1,11 +1,13 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-28 10:28:12
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-30 17:02:08
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-01 14:32:01
  * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/infoCollection.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
+import { constantListToMap } from './utils';
+
 export const RELATION_HOLDER_ENUM = {
   SELF: '1',
   MATE: '2',
@@ -134,3 +136,39 @@ export const SOCIAL_SECURITY = [
     value: '2',
   },
 ];
+
+export const PAGE_CODE_ENUM = {
+  FREE: 'free',
+  INTERNET: 'internet',
+};
+
+export const PAGE_CODE_LIST = [
+  {
+    label: 'free',
+    value: 'free',
+  },
+  {
+    label: 'internet',
+    value: 'internet',
+  },
+];
+
+export const PAGE_CODE_MAP = constantListToMap(PAGE_CODE_LIST);
+
+export const INSURE_TYPE_ENUM = {
+  INSURE: '1',
+  UN_INSURE: '2',
+};
+
+export const INSURE_TYPE_LIST = [
+  {
+    label: '投保',
+    value: INSURE_TYPE_ENUM.INSURE,
+  },
+  {
+    label: '不投保',
+    value: INSURE_TYPE_ENUM.UN_INSURE,
+  },
+];
+
+export const INSURE_TYPE_MAP = constantListToMap(INSURE_TYPE_LIST);

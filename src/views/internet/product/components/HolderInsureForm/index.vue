@@ -88,7 +88,12 @@
       <div class="insured container">
         <div class="title">被保人信息</div>
         <!-- 被保人姓名 -->
-        <ProField v-if="props.formAuth?.insuredNameDisable" label="姓名" class="pro-field" :is-view="true">
+        <ProField
+          v-if="props.formAuth?.insuredNameDisable || isSelfInsurer"
+          label="姓名"
+          class="pro-field"
+          :is-view="true"
+        >
           <template #input> {{ nameMixin(state.formInfo.insured.name) }}</template>
         </ProField>
         <ProField
@@ -101,7 +106,12 @@
           :rules="[{ validator: nameValidator }]"
         />
         <!-- 被保人证件号码 -->
-        <ProField v-if="props.formAuth?.insuredCertDisable" label="证件号码" class="pro-field" :is-view="true">
+        <ProField
+          v-if="props.formAuth?.insuredCertDisable || isSelfInsurer"
+          label="证件号码"
+          class="pro-field"
+          :is-view="true"
+        >
           <template #input> {{ idCardMixin(state.formInfo.insured.certNo) }}</template>
         </ProField>
         <ProField
@@ -125,11 +135,22 @@
           <template #input>
             <ProRadioButton
               v-model="state.formInfo.insured.socialFlag"
-              :disabled="props.formAuth?.insuredSocialDisable"
+              :disabled="props.formAuth?.insuredSocialDisable || isSelfInsurer"
               :options="SOCIAL_SECURITY"
             ></ProRadioButton>
           </template>
         </ProField>
+      </div>
+      <ProDivider />
+      <div class="container">
+        <RefuelingBag
+          :product-list="[
+            {
+              value: '1',
+              label: '恶性肿瘤特别医疗加油包',
+            },
+          ]"
+        />
       </div>
       <ProDivider />
       <div class="payment container">
@@ -198,6 +219,7 @@ import { VALIDATE_TYPE_ENUM } from '@/common/constants';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
 import { validateName } from '@/utils/validator';
 import FilePreview from '../FilePreview/index.vue';
+import RefuelingBag from '../RefuelingBag/index.vue';
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
@@ -258,6 +280,11 @@ const nameValidator = (name: string) => {
   }
   return '请输入正确的姓名';
 };
+
+// 当被保人与投保人关系为本人时，被保人信息不允许编辑
+const isSelfInsurer = computed(() => {
+  return state.formInfo.insured.relationToHolder === RELATION_HOLDER_ENUM.SELF;
+});
 
 // 费率表
 const rateAttachmentList = computed(() => {
