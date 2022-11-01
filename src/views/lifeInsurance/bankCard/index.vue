@@ -201,7 +201,16 @@ const handleSubmit = () => {
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
-      if (!(data.orderStatus === ORDER_STATUS_ENUM.PENDING || data.orderStatus === ORDER_STATUS_ENUM.PAYMENT_FAILED)) {
+      // 订单状态为待处理,支付失败,核保成功时可进行下一步操作，否则跳入支付结果页
+      if (
+        !(
+          [
+            ORDER_STATUS_ENUM.PENDING,
+            ORDER_STATUS_ENUM.PAYMENT_FAILED,
+            ORDER_STATUS_ENUM.UNDER_WRITING_SUCCESS,
+          ] as string[]
+        ).includes(data.orderStatus)
+      ) {
         pageJump('paymentResult', route.query);
       } else {
         Promise.all([form1.value?.validate(), form2.value?.validate(), form3.value?.validate()]).then((results) => {
