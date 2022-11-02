@@ -1,5 +1,13 @@
+import { PAYMENT_FREQUENCY_ENUM, INSURE_TYPE_ENUM } from '../../common/constants/infoCollection';
 import { ProductDetail } from '@/api/modules/product.data';
-import { ProductData, PremiumCalcData, RiskVoItem, RiskDetailVoItem } from '@/api/modules/trial.data';
+import {
+  ProductData,
+  PremiumCalcData,
+  RiskVoItem,
+  RiskDetailVoItem,
+  PackageProductVoItem,
+  ProductRiskVoItem,
+} from '@/api/modules/trial.data';
 import {
   RISK_TYPE_ENUM,
   RULE_ENUM,
@@ -71,10 +79,30 @@ export const transformData = (o: transformDataType) => {
   });
 };
 
-export const compositionTrailData = (riskList: RiskDetailVoItem[], productDetail: ProductDetail) => {
+export const compositionTrailData = (
+  riskList: RiskDetailVoItem[],
+  productDetail: ProductDetail,
+  packageRiskIdList: number[] = [],
+  paymentFrequency: number = PAYMENT_FREQUENCY_ENUM.YEAR,
+) => {
+  const lastRiskList: RiskDetailVoItem[] = riskList.filter((item: any) => {
+    try {
+      if (item.extraInfo) {
+        const extraInfo = JSON.parse(item.extraInfo);
+        if (extraInfo.packageCode) {
+          if (packageRiskIdList.includes(item.id)) return true;
+          return false;
+        }
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    }
+  });
   // 主险信息
-  const mainRiskData = riskList.find((risk) => risk.riskType === RISK_TYPE_ENUM.MAIN_RISK);
-  return riskList.map((risk) => {
+  const mainRiskData = lastRiskList.find((risk) => risk.riskType === RISK_TYPE_ENUM.MAIN_RISK);
+  return lastRiskList.map((risk) => {
     const {
       riskInsureLimitVO,
       riskCategory,
@@ -82,6 +110,7 @@ export const compositionTrailData = (riskList: RiskDetailVoItem[], productDetail
       riskType,
       riskName,
       riskCode,
+      extraInfo,
       riskLiabilityInfoVOList,
       riskCalcMethodInfoVO,
     } = risk;
@@ -102,6 +131,8 @@ export const compositionTrailData = (riskList: RiskDetailVoItem[], productDetail
       riskCode,
       riskId: id,
       riskName,
+      paymentFrequency,
+      extraInfo,
       chargePeriod: paymentPeriodValueList?.[0],
       annuityDrawDate: annuityDrawValueList?.[0],
       riskType,
@@ -113,7 +144,7 @@ export const compositionTrailData = (riskList: RiskDetailVoItem[], productDetail
       liabilityVOList: riskLiabilityInfoVOList.filter(
         (liab) => liab.optionalFlag === 1 && liab.liabilityCode !== 'FXG086',
       ),
-      paymentFrequency: paymentFrequencyList?.[0],
+      // paymentFrequency: paymentFrequencyList?.[0],
       riskCategory,
     };
     if (riskType === RISK_TYPE_ENUM.MAIN_RISK) {
@@ -138,6 +169,21 @@ export const compositionTrailData = (riskList: RiskDetailVoItem[], productDetail
       mainRiskCode: mainRiskData?.riskCode,
     };
   });
+  // return resultList.filter((item: any) => {
+  //   try {
+  //     if (item.extraInfo) {
+  //       const extraInfo = JSON.parse(item.extraInfo);
+  //       if (extraInfo.packageCode) {
+  //         if (packageRiskIdList.includes(item.riskId)) return true;
+  //         return false;
+  //       }
+  //       return true;
+  //     }
+  //     return false;
+  //   } catch (error) {
+  //     return false;
+  //   }
+  // });
 };
 
 interface orderParamType {
@@ -254,14 +300,15 @@ interface premiumCalcParamType {
   };
   productDetail: ProductDetail;
   insureDetail: ProductData; // TODO 定义类型
+  paymentFrequency?: number; // 交费方式
+  packageRiskIdList?: number[];
 }
 
 // premiumCalc 保费试算
 export const genaratePremiumCalcData = (o: premiumCalcParamType) => {
-  const riskVOList = compositionTrailData(o.insureDetail.productRiskVoList[0].riskDetailVOList, o.productDetail);
-  // const riskVOList = o.insureDetail.productRiskVoList.map((item) => {
-  //   return { riskVOList: compositionTrailData(o.insureDetail.productRiskVoList[0].riskDetailVOList, o.productDetail) };
-  // });
+  const riskVOList = o.insureDetail.productRiskVoList.map((item: ProductRiskVoItem) => {
+    return compositionTrailData(item.riskDetailVOList, o.productDetail, o.packageRiskIdList, o.paymentFrequency);
+  });
   const calcData: PremiumCalcData = {
     holder: {
       personVO: {
@@ -287,7 +334,11 @@ export const genaratePremiumCalcData = (o: premiumCalcParamType) => {
           socialFlag: o.insured.socialFlag,
         },
         // TODO ts报错
-        productPlanVOList: riskVOList as any,
+        productPlanVOList: [
+          {
+            riskVOList: riskVOList.flat(),
+          },
+        ] as any,
       },
     ],
     productCode: o.productDetail.productCode as string,
@@ -373,6 +424,18 @@ export const getReqData = (o: upgradeParamType) => {
     ],
   };
   return calcData;
+};
+
+export const onCollectPackageRiskIdList = (packageProductList: PackageProductVoItem[]) => {
+  if (packageProductList && packageProductList.length) {
+    const list = packageProductList
+      .filter((item: PackageProductVoItem) => item.value === INSURE_TYPE_ENUM.INSURE)
+      .map((e: PackageProductVoItem) => {
+        return e.productRiskVoList.map((riskVoItem: RiskDetailVoItem) => riskVoItem.id);
+      });
+    return list.flat();
+  }
+  return [];
 };
 
 export const getFloat = (val: number) => {

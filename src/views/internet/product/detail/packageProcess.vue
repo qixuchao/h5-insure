@@ -91,7 +91,7 @@ import { productDetail } from '@/api/modules/product';
 import { ORIGIN, toLocal } from '@/utils';
 import { validateMobile, validateName } from '@/utils/validator';
 
-import { genaratePremiumCalcData, transformData, genarateOrderParam } from '../../utils';
+import { genaratePremiumCalcData, transformData, genarateOrderParam, onCollectPackageRiskIdList } from '../../utils';
 import themeVars from '../../theme';
 
 import Banner from '../components/Banner/index.vue';
@@ -355,13 +355,16 @@ const onSaveOrder = async (risk: any) => {
 
 // 保费试算 -> 订单保存 -> 核保
 const onPremiumCalc = async () => {
+  console.log('trialData', trialData);
   // 试算参数
   const { calcData, riskVOList } = genaratePremiumCalcData({
     holder: trialData.holder,
     insured: trialData.insured,
+    paymentFrequency: trialData.paymentFrequency,
     tenantId,
     productDetail: detail.value as ProductDetail,
     insureDetail: insureDetail.value as ProductData,
+    packageRiskIdList: onCollectPackageRiskIdList(trialData.packageProductList),
   });
   const res = await premiumCalc(calcData);
 
