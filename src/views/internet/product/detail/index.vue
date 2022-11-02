@@ -1,5 +1,6 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
+    <div v-if="payHtml.show" v-dompurify-html="payHtml.html"></div>
     <div class="page-internet-product-detail">
       <div class="info">
         <Banner :url="detail?.tenantProductInsureVO?.banner[0]" />
@@ -63,7 +64,6 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import { debounce } from 'lodash';
-
 import { validateIdCardNo } from '@/components/ProField/utils';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
@@ -125,6 +125,11 @@ interface QueryData {
   [key: string]: string;
 }
 
+interface PayHtml {
+  show: boolean;
+  html: string;
+}
+
 const {
   productCode = 'BWYL2021',
   tenantId,
@@ -138,6 +143,7 @@ const {
   pageCode,
   from,
 } = route.query as QueryData;
+console.log(route.query, 'route.query');
 
 const formRef = ref();
 const detail = ref<ProductDetail>(); // 产品信息
@@ -150,6 +156,7 @@ const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
+const payHtml = ref<PayHtml>({ show: false, html: '' });
 let iseeBizNo = '';
 
 // 试算数据， 赠险进入，从链接上默认取投保人数据
@@ -271,14 +278,29 @@ const onUnderWrite = async (o: any) => {
         message: '核保中...',
         forbidClick: true,
       });
-      const res1 = await getPayUrl({
+      const res1: { code: string; data: { type: 1 | 2; paymentUrl: string } } = await getPayUrl({
         orderNo: o.orderNo,
         tenantId,
       });
-
       const { data } = res1;
-      if (code === '10000') {
-        window.location.href = data;
+      if (res1.code === '10000') {
+        if (data.type === 2) {
+          payHtml.value = {
+            show: true,
+            html: data.paymentUrl,
+          };
+          console.log('data.paymentUrl', payHtml.value);
+          nextTick(() => {
+            console.log('document.forms', document.forms);
+            const forms: any = document.getElementById('cashierSubmit');
+            forms?.addEventListener('submit', (evt) => {
+              evt.preventDefault();
+            });
+            forms?.submit();
+          });
+        } else {
+          window.location.href = data.paymentUrl;
+        }
       }
     }
     buttonAuth.canInsure = true;
@@ -387,13 +409,16 @@ const onPremiumCalcWithValid = () => {
         }
 
         // 试算参数
-        const { calcData, riskVOList } = genaratePremiumCalcData({
-          holder: trialData.holder,
-          insured: trialData.insured,
-          tenantId,
-          productDetail: detail.value as ProductDetail,
-          insureDetail: insureDetail.value as ProductData,
-        });
+        const { calcData, riskVOList } = genaratePremiumCalcData(
+          {
+            holder: trialData.holder,
+            insured: trialData.insured,
+            tenantId,
+            productDetail: detail.value as ProductDetail,
+            insureDetail: insureDetail.value as ProductData,
+          },
+          true,
+        );
         const res = await premiumCalc(calcData);
 
         const { code, data } = res;

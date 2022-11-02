@@ -305,10 +305,15 @@ interface premiumCalcParamType {
 }
 
 // premiumCalc 保费试算
-export const genaratePremiumCalcData = (o: premiumCalcParamType) => {
-  const riskVOList = o.insureDetail.productRiskVoList.map((item: ProductRiskVoItem) => {
-    return compositionTrailData(item.riskDetailVOList, o.productDetail, o.packageRiskIdList, o.paymentFrequency);
-  });
+export const genaratePremiumCalcData = (o: premiumCalcParamType, flag = false) => {
+  let riskVOList: any[] = [];
+  if (flag) {
+    riskVOList = compositionTrailData(o.insureDetail.productRiskVoList[0].riskDetailVOList, o.productDetail);
+  } else {
+    riskVOList = o.insureDetail.productRiskVoList.map((item: ProductRiskVoItem) => {
+      return compositionTrailData(item.riskDetailVOList, o.productDetail, o.packageRiskIdList, o.paymentFrequency);
+    });
+  }
   const calcData: PremiumCalcData = {
     holder: {
       personVO: {
