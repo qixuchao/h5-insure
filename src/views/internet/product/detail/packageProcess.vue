@@ -10,6 +10,7 @@
         <template #form>
           <HolderInsureForm
             ref="formRef"
+            is-show-package
             :disable="!buttonAuth.showInsure"
             :form-auth="formAuth"
             :form-info="trialData"
@@ -67,9 +68,14 @@ import { debounce } from 'lodash';
 import { validateIdCardNo } from '@/components/ProField/utils';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
-import { SOCIAL_SECURITY_ENUM, RELATION_HOLDER_ENUM } from '@/common/constants/infoCollection';
+import {
+  INSURE_TYPE_ENUM,
+  SOCIAL_SECURITY_ENUM,
+  RELATION_HOLDER_ENUM,
+  PAYMENT_FREQUENCY_ENUM,
+} from '@/common/constants/infoCollection';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
-import { ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
+import { PackageProductVoItem, ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
 
 import {
   premiumCalc,
@@ -170,6 +176,9 @@ const trialData = reactive({
   },
   paymentMethod,
   renewalDK: 'Y',
+  paymentFrequency: PAYMENT_FREQUENCY_ENUM.YEAR,
+  packageProductList: [],
+  mobileSmsCode: '',
 });
 
 // 表单是否可修改, 默认先从链接取，然后再根据不同的入口修改
@@ -610,6 +619,10 @@ const fetchData = async () => {
     }
 
     if (insureRes.code === '10000') {
+      trialData.packageProductList = (insureRes.data?.packageProductVOList || []).map((item: PackageProductVoItem) => ({
+        ...item,
+        value: INSURE_TYPE_ENUM.UN_INSURE,
+      }));
       insureDetail.value = insureRes.data;
     }
   });

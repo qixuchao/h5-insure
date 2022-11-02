@@ -1,3 +1,10 @@
+/*
+ * @Author: zhaopu
+ * @Date: 2022-11-01 20:45:34
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-02 16:00:01
+ * @Description:
+ */
 export interface AuthType {
   holderNameDisable: boolean; // 投保人姓名不能修改
   holderCertDisable: boolean; // 投保人证件号不能修改
@@ -9,6 +16,7 @@ export interface AuthType {
   insuredSocialDisable: boolean; // 被保人社保不能修改
   paymentDisable: boolean; // 支付方式不能修改
   renewalDKDisable: boolean; // 下一年是否自主不能修改
+  paymentFrequencyDisable: boolean; // 交费方式 默认一次交清
 }
 
 // 默认都不可修改
@@ -23,6 +31,7 @@ export const defaultAuth = {
   insuredSocialDisable: true, // 被保人社保不能修改
   paymentDisable: true, // 支付方式不能修改
   renewalDKDisable: true, // 下一年是否自主不能修改
+  paymentFrequencyDisable: true, // 交费方式
 };
 
 // 1、从赠险进入，默认为本人投保，投被保人信息都不能修改
@@ -31,6 +40,7 @@ export const freeAuthDefault = {
   holderSocialDisable: false, // 投保人社保可以修改
   relationToHolderDisable: false, // 投被保人关系可以修改
   paymentDisable: false, // 支付方式可以修改
+  paymentFrequencyDisable: false, // 交费方式可以修改
   renewalDKDisable: false, // 下一年是否自主可以修改
 };
 
@@ -45,6 +55,7 @@ export const checkAuth = {
   insuredCertDisable: false, // 被保人证件号可以修改
   insuredSocialDisable: false, // 被保人社保可以修改
   paymentDisable: false, // 支付方式可以修改
+  paymentFrequencyDisable: false, // 交费方式可以修改
   renewalDKDisable: false, // 下一年是否自主可以修改
 };
 
@@ -59,6 +70,7 @@ export const noBuyAuth = {
   holderSocialDisable: false, // 投保人社保可以修改
   relationToHolderDisable: false, // 投被保人关系可以修改
   paymentDisable: false, // 支付方式可以修改
+  paymentFrequencyDisable: false, // 交费方式可以修改
   renewalDKDisable: false, // 下一年是否自主可以修改
 };
 
@@ -66,6 +78,7 @@ export const noBuyAuth = {
 export const noPayAuth = {
   ...defaultAuth,
   paymentDisable: false, // 支付方式可以修改
+  paymentFrequencyDisable: false, // 交费方式可以修改
   renewalDKDisable: false, // 下一年是否自主可以修改
 };
 
@@ -81,6 +94,7 @@ export const allAuth = {
   insuredCertDisable: false, // 被保人证件号可以修改
   insuredSocialDisable: false, // 被保人社保可以修改
   paymentDisable: false, // 支付方式可以修改
+  paymentFrequencyDisable: false, // 交费方式可以修改
   renewalDKDisable: false, // 下一年是否自主可以修改
 };
 
@@ -92,5 +106,6 @@ export const holderAuth = {
   insuredCertDisable: false, // 被保人证件号可以修改
   insuredSocialDisable: false, // 被保人社保可以修改
   paymentDisable: false, // 支付方式可以修改
+  paymentFrequencyDisable: false, // 交费方式可以修改
   renewalDKDisable: false, // 下一年是否自主可以修改
 };

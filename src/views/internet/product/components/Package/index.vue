@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-01 13:46:41
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-01 14:53:03
+ * @LastEditTime: 2022-11-02 11:09:34
  * @Description: 加油包
 -->
 <template>
@@ -10,10 +10,10 @@
     <div class="title">加油包</div>
     <ProForm ref="formRef">
       <ProField
-        v-for="(item, index) in productList"
+        v-for="(item, index) in props.packageProductList"
         :key="`${item.value}_${index}`"
         v-model="item.value"
-        :label="item.label"
+        :label="item.packageName"
         required
         placeholder="请选择"
       >
@@ -27,13 +27,15 @@
 
 <script lang="ts" setup>
 import { INSURE_TYPE_LIST } from '@/common/constants/infoCollection';
+import { PackageProductVoItem } from '@/api/modules/trial.data';
 
 const props = defineProps({
-  productList: {
-    type: Array,
+  packageProductList: {
+    type: Array as () => PackageProductVoItem[],
     default: () => [],
   },
 });
+console.log('packageProductList', props.packageProductList);
 </script>
 
 <style lang="scss" scoped>

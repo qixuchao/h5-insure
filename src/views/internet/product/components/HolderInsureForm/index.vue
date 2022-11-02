@@ -46,6 +46,22 @@
           maxlength="11"
           :validate-type="[VALIDATE_TYPE_ENUM.PHONE]"
         />
+        <!-- <ProField
+          v-if="!props.formAuth?.holderMobileDisable"
+          v-model="state.formInfo.holder.mobileSmsCode"
+          label="验证码"
+          name="mobileSmsCode"
+          required
+          placeholder="请输入验证码"
+          maxlength="6"
+          :validate-type="[VALIDATE_TYPE_ENUM.SMS_CODE]"
+        >
+          <template #extra>
+            <van-button type="primary" size="small" class="right">
+              {{ '获取验证码' }}
+            </van-button>
+          </template>
+        </ProField> -->
         <!-- 投保人社保 -->
         <ProField
           v-model="state.formInfo.holder.socialFlag"
@@ -88,16 +104,11 @@
       <div class="insured container">
         <div class="title">被保人信息</div>
         <!-- 被保人姓名 -->
-        <ProField
-          v-if="props.formAuth?.insuredNameDisable || isSelfInsurer"
-          label="姓名"
-          class="pro-field"
-          :is-view="true"
-        >
+        <ProField v-if="props.formAuth?.insuredNameDisable" label="姓名" class="pro-field" :is-view="true">
           <template #input> {{ nameMixin(state.formInfo.insured.name) }}</template>
         </ProField>
         <ProField
-          v-else
+          v-if="!props.formAuth?.insuredNameDisable && !isSelfInsurer"
           v-model="state.formInfo.insured.name"
           label="姓名"
           name="name"
@@ -106,16 +117,11 @@
           :rules="[{ validator: nameValidator }]"
         />
         <!-- 被保人证件号码 -->
-        <ProField
-          v-if="props.formAuth?.insuredCertDisable || isSelfInsurer"
-          label="证件号码"
-          class="pro-field"
-          :is-view="true"
-        >
+        <ProField v-if="props.formAuth?.insuredCertDisable" label="证件号码" class="pro-field" :is-view="true">
           <template #input> {{ idCardMixin(state.formInfo.insured.certNo) }}</template>
         </ProField>
         <ProField
-          v-else
+          v-if="!props.formAuth?.insuredCertDisable && !isSelfInsurer"
           v-model="state.formInfo.insured.certNo"
           label="证件号码"
           name="certNo"
@@ -142,19 +148,28 @@
         </ProField>
       </div>
       <ProDivider />
-      <div class="container">
-        <Package
-          :product-list="[
-            {
-              value: '1',
-              label: '恶性肿瘤特别医疗加油包',
-            },
-          ]"
-        />
+      <div v-if="isShowPackage" class="container">
+        <Package :package-product-list="formInfo?.packageProductList" />
       </div>
       <ProDivider />
       <div class="payment container">
         <!-- 交费方式 -->
+        <ProField
+          v-model="state.formInfo.paymentFrequency"
+          label="支付方式"
+          name="paymentFrequency"
+          required
+          placeholder="请选择"
+        >
+          <template #input>
+            <ProRadioButton
+              v-model="state.formInfo.paymentFrequency"
+              :disabled="props.formAuth?.paymentFrequencyDisable"
+              :options="PAYMENT_FREQUENCYE_LIST"
+            ></ProRadioButton>
+          </template>
+        </ProField>
+        <ProDivider />
         <!-- 支付方式 -->
         <ProField
           v-model="state.formInfo.paymentMethod"
@@ -210,6 +225,7 @@ import {
   RELATION_HOLDER_LIST, // 投被保人关系
   SOCIAL_SECURITY, // 有无社保
   SOCIAL_SECURITY_ENUM,
+  PAYMENT_FREQUENCYE_LIST, // 交费方式
 } from '@/common/constants/infoCollection';
 import { ACTIVITY_PAY_METHOD_LIST } from '@/common/constants/bankCard';
 import { getFloat, nameMixin, mobileMixin, idCardMixin } from '../../../utils';
@@ -217,28 +233,32 @@ import { AuthType } from '../../auth';
 import ProDivider from '@/components/ProDivider/index.vue';
 import { VALIDATE_TYPE_ENUM } from '@/common/constants';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
+import { PackageProductVoItem } from '@/api/modules/trial.data';
 import { validateName } from '@/utils/validator';
 import FilePreview from '../FilePreview/index.vue';
-import Package from '../package/index.vue';
+import Package from '../Package/index.vue';
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
 interface FormInfoProps {
   paymentMethod: string;
+  paymentFrequency: number;
   renewalDK: string;
   holder: {
     certNo: string;
     mobile: string;
     name: string;
     socialFlag: string;
+    mobileSmsCode: string;
   };
   insured: {
     certNo: string;
     name: string;
     socialFlag: string;
     relationToHolder: string;
-    smoke: string;
+    // smoke: string;
   };
+  packageProductList: PackageProductVoItem[];
 }
 
 const props = defineProps({
@@ -261,6 +281,10 @@ const props = defineProps({
   productDetail: {
     type: Object as () => ProductDetail,
     default: () => {},
+  },
+  isShowPackage: {
+    type: Boolean,
+    default: false,
   },
 });
 

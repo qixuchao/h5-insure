@@ -259,6 +259,9 @@ interface premiumCalcParamType {
 // premiumCalc 保费试算
 export const genaratePremiumCalcData = (o: premiumCalcParamType) => {
   const riskVOList = compositionTrailData(o.insureDetail.productRiskVoList[0].riskDetailVOList, o.productDetail);
+  // const riskVOList = o.insureDetail.productRiskVoList.map((item) => {
+  //   return { riskVOList: compositionTrailData(o.insureDetail.productRiskVoList[0].riskDetailVOList, o.productDetail) };
+  // });
   const calcData: PremiumCalcData = {
     holder: {
       personVO: {
@@ -284,7 +287,7 @@ export const genaratePremiumCalcData = (o: premiumCalcParamType) => {
           socialFlag: o.insured.socialFlag,
         },
         // TODO ts报错
-        productPlanVOList: [{ riskVOList }] as any,
+        productPlanVOList: riskVOList as any,
       },
     ],
     productCode: o.productDetail.productCode as string,
