@@ -138,9 +138,9 @@ const {
   phoneNo: mobile,
   agentCode = '',
   saleChannelId,
-  paymentMethod = 5,
-  certNo = '110101200703070819',
-  name = '王小小',
+  paymentMethod,
+  certNo,
+  name,
   pageCode,
   from,
 } = route.query as QueryData;
