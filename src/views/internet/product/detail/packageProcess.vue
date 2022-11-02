@@ -138,9 +138,9 @@ const {
   phoneNo: mobile,
   agentCode = '',
   saleChannelId,
-  paymentMethod,
-  certNo,
-  name,
+  paymentMethod = 5,
+  certNo = '110101200703070819',
+  name = '王小小',
   pageCode,
   from,
 } = route.query as QueryData;
@@ -311,6 +311,7 @@ const getPayFailCallbackUrl = (no: number) => {
 };
 
 const onSaveOrder = async (risk: any) => {
+  console.log('risk', risk);
   const order = genarateOrderParam({
     tenantId,
     saleUserId: agentCode,
@@ -360,10 +361,10 @@ const onPremiumCalc = async () => {
   const { calcData, riskVOList } = genaratePremiumCalcData({
     holder: trialData.holder,
     insured: trialData.insured,
-    paymentFrequency: trialData.paymentFrequency,
     tenantId,
     productDetail: detail.value as ProductDetail,
     insureDetail: insureDetail.value as ProductData,
+    paymentFrequency: trialData.paymentFrequency,
     packageRiskIdList: onCollectPackageRiskIdList(trialData.packageProductList),
   });
   const res = await premiumCalc(calcData);
@@ -405,6 +406,8 @@ const onPremiumCalcWithValid = () => {
           tenantId,
           productDetail: detail.value as ProductDetail,
           insureDetail: insureDetail.value as ProductData,
+          paymentFrequency: trialData.paymentFrequency,
+          packageRiskIdList: onCollectPackageRiskIdList(trialData.packageProductList),
         });
         const res = await premiumCalc(calcData);
 
@@ -421,12 +424,14 @@ const onPremiumCalcWithValid = () => {
         }
       })
       .catch(() => {
+        console.log('33333');
         buttonAuth.canInsure = true;
       });
   });
 };
 
 const onNext = async () => {
+  console.log('1111', isPayBack);
   if (isPayBack) {
     onConfirm();
     return;
@@ -434,6 +439,8 @@ const onNext = async () => {
   buttonAuth.canInsure = false;
   try {
     const { condition, data } = await onPremiumCalcWithValid();
+    console.log('condition', condition);
+    console.log('data', data);
 
     const riskPremium = {};
     const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
@@ -446,6 +453,7 @@ const onNext = async () => {
     };
     flatRiskPremium(data.riskPremiumDetailVOList);
     const risk = transformData({ tenantId, riskList: condition, riskPremium, productId: detail.value?.id as number });
+    console.log('risk', risk);
     onSaveOrder(risk);
   } catch (e) {
     buttonAuth.canInsure = true;

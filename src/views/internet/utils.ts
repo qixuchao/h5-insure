@@ -347,7 +347,7 @@ export const genaratePremiumCalcData = (o: premiumCalcParamType) => {
 
   return {
     calcData,
-    riskVOList,
+    riskVOList: riskVOList.flat(),
   };
 };
 

@@ -156,7 +156,7 @@
         <!-- 交费方式 -->
         <ProField
           v-model="state.formInfo.paymentFrequency"
-          label="支付方式"
+          label="交费方式"
           name="paymentFrequency"
           required
           placeholder="请选择"
