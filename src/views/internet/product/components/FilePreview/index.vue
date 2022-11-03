@@ -83,7 +83,8 @@ const readCount = ref<number>(0);
 const previewRef = ref(null);
 
 const attachmentUri = computed(() => {
-  return formatedContentList.value[currentActiveIndex.value].attachmentUri;
+  console.log(formatedContentList.value, 'formatedContentList.value', currentActiveIndex.value);
+  return formatedContentList.value?.[currentActiveIndex.value]?.attachmentUri;
 });
 
 const isAgreeBtnDisabled = computed(() => {

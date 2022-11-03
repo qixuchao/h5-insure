@@ -165,7 +165,7 @@
             <ProRadioButton
               v-model="state.formInfo.paymentFrequency"
               :disabled="props.formAuth?.paymentFrequencyDisable"
-              :options="PAYMENT_FREQUENCYE_LIST"
+              :options="paymentList"
             ></ProRadioButton>
           </template>
         </ProField>
@@ -182,7 +182,7 @@
             <ProRadioButton
               v-model="state.formInfo.paymentMethod"
               :disabled="props.formAuth?.paymentDisable"
-              :options="ACTIVITY_PAY_METHOD_LIST"
+              :options="paymentMethod"
             ></ProRadioButton>
           </template>
         </ProField>
@@ -278,6 +278,14 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  payments: {
+    type: Array,
+    default: () => [0, 1],
+  },
+  paymentMethod: {
+    type: Array,
+    default: () => [0, 1],
+  },
   productDetail: {
     type: Object as () => ProductDetail,
     default: () => {},
@@ -304,6 +312,20 @@ const nameValidator = (name: string) => {
   }
   return '请输入正确的姓名';
 };
+
+// 缴费方式
+const paymentList = computed(() => {
+  return PAYMENT_FREQUENCYE_LIST.filter((item, index) => {
+    return props.payments.includes(index);
+  });
+});
+
+// 支付方式
+const paymentMethod = computed(() => {
+  return ACTIVITY_PAY_METHOD_LIST.filter((item, index) => {
+    return props.paymentMethod.includes(index);
+  });
+});
 
 // 当被保人与投保人关系为本人时，被保人信息不允许编辑
 const isSelfInsurer = computed(() => {

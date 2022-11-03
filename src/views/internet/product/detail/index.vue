@@ -16,6 +16,8 @@
             :form-info="trialData"
             :premium="premium"
             :product-detail="detail"
+            :payments="[1]"
+            :payment-method="[0]"
             @on-reset="onReset"
             @on-update="onUpdate"
           />
