@@ -347,6 +347,12 @@ const coverageYearOptions = computed(() => {
   if (props.originData?.periodType === 2) {
     return pickEnums([{ value: 'year_1', name: '1年' }], ['year_1']);
   }
+
+  // 附加险-豁免险
+  if (props.originData?.exemptFlag === 1) {
+    return pickEnums(RULE_INSURANCE, [`${props?.originData?.riskInsureLimitVO?.insurancePeriodRule}`]);
+  }
+
   return pickEnums(
     props.enums?.RISK_INSURANCE_PERIOD,
     props.mainRiskData.riskInsureLimitVO?.insurancePeriodValueList || [],

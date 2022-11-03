@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-21 19:34:02
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-10-21 16:37:20
+ * @LastEditTime: 2022-11-03 20:24:25
  * @FilePath: /zat-planet-h5-cloud-insure/vite.config.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -45,10 +45,10 @@ export default defineConfig((env) => {
           // target: 'http://141604-zat-planet-gateway.test.za-tech.net',
           // target: 'http://154992-aquarius-commander.test.za-tech.net/',
           // target: 'http://150039-zat-planet-gateway.test.za-tech.net',
-          // target: 'http://zat-planet-gateway.test.za-tech.net',
+          target: 'http://zat-planet-gateway.test.za-tech.net',
           // target: 'http://142461-zat-planet-gateway.test.za-tech.net',
           // target: 'http://155382-zat-planet-gateway.test.za-tech.net',
-          target: 'http://142461-zat-planet-gateway.test.za-tech.net',
+          // target: 'http://142461-zat-planet-gateway.test.za-tech.net',
           changeOrigin: true, // 允许跨域
         },
       },
