@@ -69,7 +69,7 @@ import { debounce } from 'lodash';
 import { validateIdCardNo } from '@/components/ProField/utils';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
-import { SOCIAL_SECURITY_ENUM, RELATION_HOLDER_ENUM } from '@/common/constants/infoCollection';
+import { SOCIAL_SECURITY_ENUM, RELATION_HOLDER_ENUM, PAYMENT_FREQUENCY_ENUM } from '@/common/constants/infoCollection';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
 import { ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
 
@@ -179,6 +179,7 @@ const trialData = reactive({
   },
   paymentMethod,
   renewalDK: 'Y',
+  paymentFrequency: PAYMENT_FREQUENCY_ENUM.YEAR,
 });
 
 // 表单是否可修改, 默认先从链接取，然后再根据不同的入口修改
@@ -375,6 +376,7 @@ const onPremiumCalc = async () => {
     holder: trialData.holder,
     insured: trialData.insured,
     tenantId,
+    paymentFrequency: trialData.paymentFrequency,
     productDetail: detail.value as ProductDetail,
     insureDetail: insureDetail.value as ProductData,
   });
@@ -416,6 +418,7 @@ const onPremiumCalcWithValid = () => {
             holder: trialData.holder,
             insured: trialData.insured,
             tenantId,
+            paymentFrequency: trialData.paymentFrequency,
             productDetail: detail.value as ProductDetail,
             insureDetail: insureDetail.value as ProductData,
           },

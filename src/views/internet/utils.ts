@@ -308,7 +308,12 @@ interface premiumCalcParamType {
 export const genaratePremiumCalcData = (o: premiumCalcParamType, flag = false) => {
   let riskVOList: any[] = [];
   if (flag) {
-    riskVOList = compositionTrailData(o.insureDetail.productRiskVoList[0].riskDetailVOList, o.productDetail);
+    riskVOList = compositionTrailData(
+      o.insureDetail.productRiskVoList[0].riskDetailVOList,
+      o.productDetail,
+      [],
+      o.paymentFrequency,
+    );
   } else {
     riskVOList = o.insureDetail.productRiskVoList.map((item: ProductRiskVoItem) => {
       return compositionTrailData(item.riskDetailVOList, o.productDetail, o.packageRiskIdList, o.paymentFrequency);
