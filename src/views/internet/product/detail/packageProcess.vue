@@ -1,5 +1,6 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
+    <div v-if="payHtml.show" v-dompurify-html="payHtml.html"></div>
     <div class="page-internet-product-detail">
       <div class="info">
         <Banner :url="detail?.tenantProductInsureVO?.banner[0]" />
@@ -51,6 +52,7 @@
     @on-confirm-health="onCloseHealth"
   ></HealthNoticePreview>
   <FilePreview
+    v-if="showFilePreview"
     v-model:show="showFilePreview"
     :content-list="filterHealthAttachmentList"
     :active-index="activeIndex"
@@ -131,6 +133,11 @@ interface QueryData {
   [key: string]: string;
 }
 
+interface PayHtml {
+  show: boolean;
+  html: string;
+}
+
 const {
   productCode = 'BWYL2021',
   tenantId,
@@ -156,6 +163,7 @@ const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
+const payHtml = ref<PayHtml>({ show: false, html: '' });
 let iseeBizNo = '';
 
 // 试算数据， 赠险进入，从链接上默认取投保人数据
@@ -280,14 +288,34 @@ const onUnderWrite = async (o: any) => {
         message: '核保中...',
         forbidClick: true,
       });
-      const res1 = await getPayUrl({
+      // const res1 = await getPayUrl({
+      //   orderNo: o.orderNo,
+      //   tenantId,
+      // });
+      const res1: { code: string; data: { type: 1 | 2; paymentUrl: string } } = await getPayUrl({
         orderNo: o.orderNo,
         tenantId,
       });
 
       const { data } = res1;
-      if (code === '10000') {
-        window.location.href = data;
+      if (res1.code === '10000') {
+        if (data.type === 2) {
+          payHtml.value = {
+            show: true,
+            html: data.paymentUrl,
+          };
+          console.log('data.paymentUrl', payHtml.value);
+          nextTick(() => {
+            console.log('document.forms', document.forms);
+            const forms: any = document.getElementById('cashierSubmit');
+            forms?.addEventListener('submit', (evt) => {
+              evt.preventDefault();
+            });
+            forms?.submit();
+          });
+        } else {
+          window.location.href = data.paymentUrl;
+        }
       }
     }
     buttonAuth.canInsure = true;
@@ -395,7 +423,9 @@ const onPremiumCalcWithValid = () => {
         // 表单验证通过再检查是否逐条阅读
         const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
         if (!isAgree) {
-          showHealthPreview.value = true;
+          // showHealthPreview.value = true;
+          showFilePreview.value = true;
+          previewFile(0);
           return;
         }
 
@@ -424,14 +454,12 @@ const onPremiumCalcWithValid = () => {
         }
       })
       .catch(() => {
-        console.log('33333');
         buttonAuth.canInsure = true;
       });
   });
 };
 
 const onNext = async () => {
-  console.log('1111', isPayBack);
   if (isPayBack) {
     onConfirm();
     return;
@@ -439,8 +467,6 @@ const onNext = async () => {
   buttonAuth.canInsure = false;
   try {
     const { condition, data } = await onPremiumCalcWithValid();
-    console.log('condition', condition);
-    console.log('data', data);
 
     const riskPremium = {};
     const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
@@ -453,7 +479,6 @@ const onNext = async () => {
     };
     flatRiskPremium(data.riskPremiumDetailVOList);
     const risk = transformData({ tenantId, riskList: condition, riskPremium, productId: detail.value?.id as number });
-    console.log('risk', risk);
     onSaveOrder(risk);
   } catch (e) {
     buttonAuth.canInsure = true;
@@ -464,14 +489,16 @@ const onCloseHealth = (type: string) => {
   // 全部为否
   if (type === 'allFalse') {
     showHealthPreview.value = false;
-    previewFile(0);
+    onNext();
   }
   buttonAuth.canInsure = true;
 };
 
 const onSubmit = () => {
   isAgreeFile.value = true;
-  onNext();
+  showFilePreview.value = false;
+  showHealthPreview.value = true;
+  // onNext();
 };
 
 watch(

@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-16 16:24:48
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-03 13:44:12
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -12,6 +12,7 @@
     :height="80"
     class="file-preview-popup-wrap"
     :closeable="false"
+    @before-close="onBeforeClose"
     @close="emits('update:show', false)"
   >
     <van-config-provider :theme-vars="themeVars">
@@ -19,8 +20,9 @@
         v-if="isShow"
         v-model:active="currentActiveIndex"
         :list="
-          contentList.map((item, index) => ({
+          formatedContentList.map((item, index) => ({
             title: item.attachmentName,
+            disabled: item.disabled || false,
             slotName: `guarantee-${index}`,
           }))
         "
@@ -28,7 +30,13 @@
       ></ProTab>
       <div class="list">
         <div class="item">
-          <ProFilePreview :key="attachmentUri" :content="attachmentUri" type="pdf"></ProFilePreview>
+          <ProFilePreview
+            ref="previewRef"
+            :key="attachmentUri"
+            :content="attachmentUri"
+            type="pdf"
+            @scroll="handleScroll"
+          ></ProFilePreview>
         </div>
       </div>
       <div class="footer">
@@ -39,6 +47,7 @@
 </template>
 
 <script lang="ts" setup name="filePreview">
+import { AttachmentVOList } from '@/api/modules/product.data';
 import themeVars from '../../../theme';
 
 const props = defineProps({
@@ -58,14 +67,21 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  forceReadCound: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const emits = defineEmits(['update:show', 'submit']);
 const isShow = ref<boolean>(props.show);
+const formatedContentList = ref<Array<any>>(props.contentList);
+console.log('formatedContentList', formatedContentList);
 const currentActiveIndex = ref<number>(props.activeIndex);
+const previewRef = ref(null);
 
 const attachmentUri = computed(() => {
-  return props.contentList[currentActiveIndex.value].attachmentUri;
+  return formatedContentList.value[currentActiveIndex.value].attachmentUri;
 });
 
 const agreeMent = () => {
@@ -84,10 +100,55 @@ watch(
     immediate: true,
   },
 );
+
+const handleScroll = (el: any) => {
+  if (el) {
+    // console.log('====================');
+    // console.log('el.target.scrollHeight', el.target.scrollHeight);
+    // console.log('el.target.scrollTop', el.target.scrollTop);
+    // console.log('el.target.clientHeight', el.target.clientHeight);
+    if (Math.floor(el.target.scrollHeight - el.target.scrollTop) === el.target.clientHeight) {
+      console.log('1111');
+    }
+  }
+};
+
+watch(
+  () => currentActiveIndex.value,
+  () => {
+    if (previewRef.value) {
+      console.log('previewRef.value', previewRef.value.scrollTop);
+      setTimeout(() => {
+        previewRef.value.scrollTop = 0;
+      }, 1000);
+    }
+  },
+  {
+    immediate: true,
+  },
+);
+
+const onBeforeClose = () => {
+  console.log('removeEventListener');
+  window.removeEventListener('scroll', handleScroll, true);
+};
+
+onMounted(() => {
+  nextTick(() => {
+    if (props.show) {
+      window.addEventListener('scroll', handleScroll, true);
+    }
+  });
+});
+
+// onUnmounted(() => {
+//   window.removeEventListener('scroll', handleScroll, false);
+// });
 </script>
 
 <style lang="scss">
 .file-preview-popup-wrap {
+  overflow-y: auto;
   .tab {
     height: 106px;
     position: absolute;
@@ -104,6 +165,7 @@ watch(
   }
   .list {
     height: calc(100% - 212px);
+    overflow: auto;
   }
   .footer {
     display: flex;
