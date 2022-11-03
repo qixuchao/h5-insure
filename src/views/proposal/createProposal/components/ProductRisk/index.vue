@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-16 13:39:05
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-08 17:21:27
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-11-03 19:38:18
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductRisk/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -227,16 +227,37 @@ const formatData = (trialData: PremiumCalcData, riskPremium: any) => {
   return proposalData;
 };
 
+const dealExemptPeriod = (riderRisk: RiskVoItem, mainRiskInfo: RiskVoItem) => {
+  const riskItem = riderRisk;
+  if (riskItem.chargePeriod === '3') {
+    const paymentYear: Array<string | number> = (mainRiskInfo.chargePeriod || '').split('_');
+    // 豁免险
+    if (riskItem.exemptFlag === 1) {
+      if (paymentYear[0] === 'year') {
+        (paymentYear[1] as number) -= 1;
+      } else {
+        let age = 0;
+        if (insured.value.personVO?.birthday) {
+          age = +new Date() - +new Date(insured.value.personVO?.birthday) / (1000 * 60 * 60 * 24 * 365);
+        }
+        (paymentYear[1] as number) -= age + 1;
+      }
+      paymentYear[0] = 'year';
+      riskItem.coveragePeriod = paymentYear.join('_');
+    } else {
+      paymentYear[1] && ((paymentYear[1] as number) -= 1);
+    }
+    riskItem.chargePeriod = paymentYear.join('_');
+  }
+};
+
 const dealTrialData = () => {
   const riskObject = JSON.parse(JSON.stringify(riskInfo.value[state.currentPlan]));
   const mainRiskInfo = Object.values(riskObject as RiskVoItem).find((risk) => risk.riskType === 1);
   const riskVOList = Object.values(riskObject as RiskVoItem).map((riderRisk) => {
     const risk: RiskVoItem = riderRisk;
-    if (risk.chargePeriod === '3') {
-      const paymentYear = (mainRiskInfo.chargePeriod || '').split('_');
-      paymentYear[1] && (paymentYear[1] -= 1);
-      risk.chargePeriod = paymentYear.join('_');
-    }
+    // 同主险期间减一
+    dealExemptPeriod(risk, mainRiskInfo);
     risk.liabilityVOList = (risk.liabilityVOList || [])
       .filter(
         (liab) => liab.optionalFlag === 1 || (liab.liabilityAttributeValue && liab.liabilityAttributeValue !== '-1'),

@@ -343,6 +343,7 @@ const coverageYearOptions = computed(() => {
       props.originData.riskInsureLimitVO?.insurancePeriodValueList || [],
     );
   }
+  // 一年期
   if (props.originData?.periodType === 2) {
     return pickEnums([{ value: 'year_1', name: '1年' }], ['year_1']);
   }
@@ -365,6 +366,7 @@ const paymentYearOptions = computed(() => {
   if (props.originData?.exemptFlag === 1) {
     return pickEnums(RULE_PAYMENT, [`${props?.originData?.riskInsureLimitVO?.paymentPeriodRule}`]);
   }
+  // 一年期
   if (props.originData?.periodType === 2) {
     return pickEnums([{ value: 'year_1', name: '1年交' }], ['year_1']);
   }
@@ -488,6 +490,7 @@ onBeforeMount(() => {
     riskCode: props.originData.riskCode,
     mainRiskCode: props.originData.riskType !== 1 ? props.mainRiskData?.riskCode : undefined,
     mainRiskId: props.originData.riskType !== 1 ? props.mainRiskData?.id : undefined,
+    exemptFlag: props.originData.exemptFlag,
     riskCategory: props.originData.riskCategory,
     liabilityVOList: (props.originData.riskLiabilityInfoVOList || []).map((liab) => ({
       ...liab,

@@ -531,6 +531,9 @@ const validateLength = (len: number, value: string, rule: any) => {
 
 // 验证证件类型
 const validateCertType = (value: string, rule: any) => {
+  if (!showByFactor('nationality')) {
+    return '';
+  }
   if (state.value.formInfo?.extInfo?.nationalityCode === 'CHN') {
     // 国籍为中国支持的证件 身份证、户口本、出生证、军官证
     if (

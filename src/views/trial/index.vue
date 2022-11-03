@@ -292,16 +292,37 @@ const getTemplateId = (categoryNo?: number, venderCode?: string) => {
   });
 };
 
+const dealExemptPeriod = (riderRisk: RiskVoItem, mainRiskInfo: RiskVoItem) => {
+  const riskItem = riderRisk;
+  if (riskItem.chargePeriod === '3') {
+    const paymentYear: Array<string | number> = (mainRiskInfo.chargePeriod || '').split('_');
+    // 豁免险
+    if (riskItem.exemptFlag === 1) {
+      if (paymentYear[0] === 'year') {
+        (paymentYear[1] as number) -= 1;
+      } else {
+        let age = 0;
+        if (insured.value.personVO?.birthday) {
+          age = +new Date() - +new Date(insured.value.personVO?.birthday) / (1000 * 60 * 60 * 24 * 365);
+        }
+        (paymentYear[1] as number) -= age + 1;
+      }
+      paymentYear[0] = 'year';
+      riskItem.coveragePeriod = paymentYear.join('_');
+    } else {
+      paymentYear[1] && ((paymentYear[1] as number) -= 1);
+    }
+    riskItem.chargePeriod = paymentYear.join('_');
+  }
+};
+
 const dealTrialData = () => {
   const riskObject = JSON.parse(JSON.stringify(riskInfo.value[state.currentPlan]));
   const mainRiskInfo = Object.values(riskObject as RiskVoItem).find((risk) => risk.riskType === 1);
   const riskVOList = Object.values(riskObject as RiskVoItem).map((riderRisk) => {
     const risk: RiskVoItem = riderRisk;
-    if (risk.chargePeriod === '3') {
-      const paymentYear = (mainRiskInfo.chargePeriod || '').split('_');
-      paymentYear[1] && (paymentYear[1] -= 1);
-      risk.chargePeriod = paymentYear.join('_');
-    }
+    // 同主险期间减一
+    dealExemptPeriod(risk, mainRiskInfo);
     risk.liabilityVOList = (risk.liabilityVOList || [])
       .filter(
         (liab) => liab.optionalFlag === 1 || (liab.liabilityAttributeValue && liab.liabilityAttributeValue !== '-1'),
