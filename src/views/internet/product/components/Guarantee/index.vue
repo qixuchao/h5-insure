@@ -1,8 +1,8 @@
 <!--
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
- * @LastEditors:  wangyuanli@zhongan.io
- * @LastEditTime: 2022-09-21 21:00
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-03 17:47:20
  * @Description: 保障详情
 -->
 <template>
@@ -10,7 +10,7 @@
     <ProCard title="保障内容" link="查看详情" :show-divider="true" :show-icon="true" @link-click="onShowDetail">
       <div class="basic">
         <ProCell
-          v-for="(item, index) in props.guaranteeList"
+          v-for="(item, index) in displayList"
           :key="index"
           class="guarantee-item"
           :title="item.title"
@@ -18,11 +18,14 @@
           :border="false"
         />
       </div>
+      <div v-if="isShowOptBtn" class="show-more" @click="handleShowMore">
+        {{ showMore ? '收起' : '查看更多' }} <ProSvg name="down" :class="['icon', { showMore }]" />
+      </div>
     </ProCard>
   </div>
   <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
     <div class="guarantee-detail">
-      <div v-for="(item, index) in props.guaranteeList" :key="index" class="guarantee-item">
+      <div v-for="(item, index) in guaranteeList" :key="index" class="guarantee-item">
         <div class="title">{{ item.title }}</div>
         <div v-dompurify-html="item.content" class="content" />
       </div>
@@ -31,13 +34,47 @@
 </template>
 
 <script lang="ts" setup>
+import { useToggle } from '@vant/use';
 import { TitleAndDescVO } from '@/api/modules/product.data';
+import ProSvg from '@/components/ProSvg/index.vue';
 
 const props = defineProps({
   guaranteeList: {
     type: Array as () => Array<TitleAndDescVO>,
     default: () => [],
   },
+  isShowClose: {
+    type: Boolean,
+    default: false,
+  },
+  count: {
+    type: Number,
+    default: 7,
+  },
+});
+
+const [showMore, toggle] = useToggle(false);
+
+const isShowOptBtn = computed(() => {
+  if (props.guaranteeList.length > props.count) {
+    if (props.isShowClose) return true;
+    return !showMore.value;
+  }
+  return false;
+});
+
+const handleShowMore = () => {
+  toggle();
+};
+
+const displayList = computed(() => {
+  if (props.guaranteeList.length <= props.count) {
+    return props.guaranteeList;
+  }
+  if (showMore.value) {
+    return props.guaranteeList;
+  }
+  return props.guaranteeList.slice(0, props.count);
 });
 
 const popupShow = ref(false);
@@ -50,6 +87,24 @@ const onShowDetail = () => {
 <style lang="scss" scoped>
 .guarantee-list {
   margin-top: 20px;
+
+  .show-more {
+    padding: 30px 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 26px;
+    color: $zaui-brand;
+    .icon {
+      margin-left: 10px;
+      font-size: 20px;
+      transition: transform 0.5s;
+      &.showMore {
+        transform: rotate(180deg);
+      }
+    }
+  }
 }
 // 保障详情弹窗样式
 .guarantee-popup {
@@ -64,7 +119,7 @@ const onShowDetail = () => {
       .guarantee-item {
         margin-top: 40px;
         .title {
-          height: 52px;
+          // height: 52px;
           font-size: 28px;
           font-weight: 500;
           color: #393d46;

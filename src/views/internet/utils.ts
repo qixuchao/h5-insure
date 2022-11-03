@@ -376,6 +376,8 @@ export const getReqData = (o: upgradeParamType) => {
     applicationNo: orderDetail.applicationNo,
     orderDataSource: orderDetail.orderDataSource,
     policyNo: orderDetail.policyNo,
+    commencementTime: orderDetail.commencementTime,
+    orderNo: orderDetail.orderNo,
     tenantId: o.tenantId,
     orderAmount: o.premium,
     extInfo: {
