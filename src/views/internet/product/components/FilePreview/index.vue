@@ -2,19 +2,12 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-03 13:44:12
+ * @LastEditTime: 2022-11-03 15:59:09
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
-  <ProPopup
-    v-model:show="isShow"
-    :height="80"
-    class="file-preview-popup-wrap"
-    :closeable="false"
-    @before-close="onBeforeClose"
-    @close="emits('update:show', false)"
-  >
+  <ProPopup v-model:show="isShow" :height="80" class="file-preview-popup-wrap" :closeable="false">
     <van-config-provider :theme-vars="themeVars">
       <ProTab
         v-if="isShow"
@@ -22,25 +15,28 @@
         :list="
           formatedContentList.map((item, index) => ({
             title: item.attachmentName,
-            disabled: item.disabled || false,
+            disabled: index == currentActiveIndex ? false : item.disabled || false,
             slotName: `guarantee-${index}`,
           }))
         "
         class="tab"
       ></ProTab>
-      <div class="list">
+      <div ref="previewRef" class="list" @scroll="handleScroll">
         <div class="item">
-          <ProFilePreview
-            ref="previewRef"
-            :key="attachmentUri"
-            :content="attachmentUri"
-            type="pdf"
-            @scroll="handleScroll"
-          ></ProFilePreview>
+          <ProFilePreview :key="attachmentUri" :content="attachmentUri" type="pdf"></ProFilePreview>
         </div>
       </div>
       <div class="footer">
-        <VanButton type="primary" block round @click="agreeMent">{{ props.text }}</VanButton>
+        <VanButton
+          v-if="showReadBtn"
+          :disabled="isAgreeBtnDisabled"
+          type="primary"
+          block
+          round
+          @click="agreeForceReadFile"
+          >{{ `${beforeReadOverText}(${currentActiveIndex + 1}/${forceReadCound})` }}</VanButton
+        >
+        <VanButton v-else type="primary" block round @click="agreeMent">{{ props.text }}</VanButton>
       </div>
     </van-config-provider>
   </ProPopup>
@@ -67,6 +63,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  beforeReadOverText: {
+    type: String,
+    default: '同意，下一条',
+  },
   forceReadCound: {
     type: Number,
     default: 0,
@@ -75,14 +75,28 @@ const props = defineProps({
 
 const emits = defineEmits(['update:show', 'submit']);
 const isShow = ref<boolean>(props.show);
-const formatedContentList = ref<Array<any>>(props.contentList);
-console.log('formatedContentList', formatedContentList);
+const formatedContentList = ref<Array<any>>(
+  props.contentList.map((e: any, index) => ({ ...e, disabled: true, readDisabled: true })), // disabled: tab禁用， readDisabled: 阅读下一条按钮禁用
+);
 const currentActiveIndex = ref<number>(props.activeIndex);
+const readCount = ref<number>(0);
 const previewRef = ref(null);
 
 const attachmentUri = computed(() => {
   return formatedContentList.value[currentActiveIndex.value].attachmentUri;
 });
+
+const isAgreeBtnDisabled = computed(() => {
+  return formatedContentList.value[currentActiveIndex.value].readDisabled;
+});
+
+const showReadBtn = computed(() => {
+  return formatedContentList.value.filter((e) => e.readDisabled).length > 0;
+});
+
+const agreeForceReadFile = () => {
+  currentActiveIndex.value += 1;
+};
 
 const agreeMent = () => {
   emits('update:show', false);
@@ -103,12 +117,13 @@ watch(
 
 const handleScroll = (el: any) => {
   if (el) {
-    // console.log('====================');
-    // console.log('el.target.scrollHeight', el.target.scrollHeight);
-    // console.log('el.target.scrollTop', el.target.scrollTop);
-    // console.log('el.target.clientHeight', el.target.clientHeight);
     if (Math.floor(el.target.scrollHeight - el.target.scrollTop) === el.target.clientHeight) {
-      console.log('1111');
+      if (formatedContentList.value[currentActiveIndex.value].readDisabled) {
+        formatedContentList.value[currentActiveIndex.value].disabled = false;
+        formatedContentList.value[currentActiveIndex.value].readDisabled = false;
+        formatedContentList.value[currentActiveIndex.value + 1].disabled = false;
+        readCount.value += 1;
+      }
     }
   }
 };
@@ -116,10 +131,16 @@ const handleScroll = (el: any) => {
 watch(
   () => currentActiveIndex.value,
   () => {
-    if (previewRef.value) {
-      console.log('previewRef.value', previewRef.value.scrollTop);
+    if (props.show) {
+      if (readCount.value >= props.forceReadCound) {
+        formatedContentList.value.forEach((e: any) => {
+          e.disabled = false;
+          e.readDisabled = false;
+        });
+      }
+      window.removeEventListener('scroll', handleScroll, true);
       setTimeout(() => {
-        previewRef.value.scrollTop = 0;
+        window.addEventListener('scroll', handleScroll, true);
       }, 1000);
     }
   },
@@ -127,23 +148,6 @@ watch(
     immediate: true,
   },
 );
-
-const onBeforeClose = () => {
-  console.log('removeEventListener');
-  window.removeEventListener('scroll', handleScroll, true);
-};
-
-onMounted(() => {
-  nextTick(() => {
-    if (props.show) {
-      window.addEventListener('scroll', handleScroll, true);
-    }
-  });
-});
-
-// onUnmounted(() => {
-//   window.removeEventListener('scroll', handleScroll, false);
-// });
 </script>
 
 <style lang="scss">

@@ -57,6 +57,7 @@
     :content-list="filterHealthAttachmentList"
     :active-index="activeIndex"
     text="我已逐页阅读并确认告知内容"
+    :force-read-cound="2"
     @submit="onSubmit"
   ></FilePreview>
   <Waiting :is-show="showWaiting" />
