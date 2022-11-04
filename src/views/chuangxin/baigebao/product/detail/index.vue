@@ -1,5 +1,6 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
+    <div v-if="payHtml.show" v-dompurify-html="payHtml.html"></div>
     <div class="page-product-detail">
       <div class="info">
         <img v-if="isFreeSuccuss" :src="detail?.tenantProductInsureVO?.banner[0]" class="banner" />
@@ -168,6 +169,11 @@ interface QueryData {
   [key: string]: string;
 }
 
+interface PayHtml {
+  show: boolean;
+  html: string;
+}
+
 const {
   productCode = 'BWYL2021',
   tenantId,
@@ -212,6 +218,7 @@ const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const showWaiting = ref<boolean>(false);
 const showUpgradeButton = ref<boolean>(false);
+const payHtml = ref<PayHtml>({ show: false, html: '' });
 let iseeBizNo = '';
 
 // 投保人不可修改（赠险）
@@ -314,14 +321,29 @@ const onUnderWrite = async (o: any) => {
     const res = await underwrite(o);
     const { code } = res;
     if (code === '10000') {
-      const res1 = await getPayUrl({
+      const res1: { code: string; data: { type: 1 | 2; paymentUrl: string } } = await getPayUrl({
         orderNo: o.orderNo,
         tenantId,
       });
-
       const { data } = res1;
+      console.log('data.paymentUrl', data);
       if (code === '10000') {
-        window.location.href = data;
+        if (data.type === 2) {
+          payHtml.value = {
+            show: true,
+            html: data.paymentUrl,
+          };
+          nextTick(() => {
+            console.log('document.forms', document.forms);
+            const forms: any = document.getElementById('cashierSubmit');
+            forms?.addEventListener('submit', (evt) => {
+              evt.preventDefault();
+            });
+            forms?.submit();
+          });
+        } else {
+          window.location.href = data.paymentUrl;
+        }
       } else {
         isDisableNext.value = false;
       }
