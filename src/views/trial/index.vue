@@ -296,21 +296,21 @@ const dealExemptPeriod = (riderRisk: RiskVoItem, mainRiskInfo: RiskVoItem) => {
   const riskItem = riderRisk;
   if (riskItem.chargePeriod === '3') {
     const paymentYear: Array<string | number> = (mainRiskInfo.chargePeriod || '').split('_');
+    (paymentYear[1] as number) -= 1;
     // 豁免险
     if (riskItem.exemptFlag === 1) {
-      if (paymentYear[0] === 'year') {
-        (paymentYear[1] as number) -= 1;
-      } else {
+      if (paymentYear[0] === 'to') {
         let age = 0;
         if (insured.value.personVO?.birthday) {
-          age = parseInt(+new Date() - +new Date(insured.value.personVO?.birthday) / (1000 * 60 * 60 * 24 * 365), 10);
+          age = parseInt(
+            `${(+new Date() - new Date(insured.value.personVO?.birthday)) / (1000 * 60 * 60 * 24 * 365)}`,
+            10,
+          );
         }
-        (paymentYear[1] as number) -= age + 1;
+        (paymentYear[1] as number) = paymentYear[1] - age;
       }
       paymentYear[0] = 'year';
       riskItem.coveragePeriod = paymentYear.join('_');
-    } else {
-      paymentYear[1] && ((paymentYear[1] as number) -= 1);
     }
     riskItem.chargePeriod = paymentYear.join('_');
   }
