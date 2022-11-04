@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-16 13:39:05
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-03 19:38:18
+ * @LastEditTime: 2022-11-04 10:21:01
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductRisk/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -238,7 +238,7 @@ const dealExemptPeriod = (riderRisk: RiskVoItem, mainRiskInfo: RiskVoItem) => {
       } else {
         let age = 0;
         if (insured.value.personVO?.birthday) {
-          age = +new Date() - +new Date(insured.value.personVO?.birthday) / (1000 * 60 * 60 * 24 * 365);
+          age = parseInt(+new Date() - +new Date(insured.value.personVO?.birthday) / (1000 * 60 * 60 * 24 * 365), 10);
         }
         (paymentYear[1] as number) -= age + 1;
       }

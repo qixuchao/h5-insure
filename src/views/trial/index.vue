@@ -303,7 +303,7 @@ const dealExemptPeriod = (riderRisk: RiskVoItem, mainRiskInfo: RiskVoItem) => {
       } else {
         let age = 0;
         if (insured.value.personVO?.birthday) {
-          age = +new Date() - +new Date(insured.value.personVO?.birthday) / (1000 * 60 * 60 * 24 * 365);
+          age = parseInt(+new Date() - +new Date(insured.value.personVO?.birthday) / (1000 * 60 * 60 * 24 * 365), 10);
         }
         (paymentYear[1] as number) -= age + 1;
       }
