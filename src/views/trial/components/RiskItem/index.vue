@@ -497,6 +497,7 @@ onBeforeMount(() => {
     mainRiskCode: props.originData.riskType !== 1 ? props.mainRiskData?.riskCode : undefined,
     mainRiskId: props.originData.riskType !== 1 ? props.mainRiskData?.id : undefined,
     exemptFlag: props.originData.exemptFlag,
+    exemptType: props.originData.exemptType,
     riskCategory: props.originData.riskCategory,
     liabilityVOList: (props.originData.riskLiabilityInfoVOList || []).map((liab) => ({
       ...liab,
