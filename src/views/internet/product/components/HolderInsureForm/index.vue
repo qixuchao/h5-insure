@@ -46,22 +46,23 @@
           maxlength="11"
           :validate-type="[VALIDATE_TYPE_ENUM.PHONE]"
         />
-        <!-- <ProField
+        <ProField
           v-if="!props.formAuth?.holderMobileDisable"
           v-model="state.formInfo.holder.mobileSmsCode"
           label="验证码"
           name="mobileSmsCode"
           required
+          :rules="[{ validator: validatorCode }]"
+          input-align="left"
           placeholder="请输入验证码"
+          error-message-align="left"
           maxlength="6"
           :validate-type="[VALIDATE_TYPE_ENUM.SMS_CODE]"
         >
           <template #extra>
-            <van-button type="primary" size="small" class="right">
-              {{ '获取验证码' }}
-            </van-button>
+            <div :class="['sms-code', { 'count-down': countDownTimer > 0 }]" @click="onCaptha">{{ smsText }}</div>
           </template>
-        </ProField> -->
+        </ProField>
         <!-- 投保人社保 -->
         <ProField
           v-model="state.formInfo.holder.socialFlag"
@@ -219,6 +220,7 @@
 </template>
 <script lang="ts" setup>
 import type { FormInstance } from 'vant';
+import { Toast } from 'vant';
 import themeVars from '../../../theme';
 import {
   RELATION_HOLDER_ENUM,
@@ -228,13 +230,14 @@ import {
   PAYMENT_FREQUENCYE_LIST, // 交费方式
 } from '@/common/constants/infoCollection';
 import { ACTIVITY_PAY_METHOD_LIST } from '@/common/constants/bankCard';
-import { getFloat, nameMixin, mobileMixin, idCardMixin } from '../../../utils';
+import { getFloat, nameMixin, mobileMixin, idCardMixin, validateSmsCode } from '../../../utils';
 import { AuthType } from '../../auth';
 import ProDivider from '@/components/ProDivider/index.vue';
 import { VALIDATE_TYPE_ENUM } from '@/common/constants';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
 import { PackageProductVoItem } from '@/api/modules/trial.data';
 import { validateName } from '@/utils/validator';
+import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import FilePreview from '../FilePreview/index.vue';
 import Package from '../Package/index.vue';
 
@@ -296,7 +299,7 @@ const props = defineProps({
   },
 });
 
-const emits = defineEmits(['onReset', 'onUpdate']);
+const emits = defineEmits(['onReset', 'onUpdate', 'onVerify']);
 
 const state = reactive({
   formInfo: props.formInfo,
@@ -305,6 +308,11 @@ const state = reactive({
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const isAgreeFile = ref<boolean>(false);
+
+const maxCountDown = 60;
+const countDownTimer = ref<number>(0);
+const smsText = ref<string>('获取验证码');
+const isSendSmsCode = ref(false);
 
 const nameValidator = (name: string) => {
   if (validateName(name)) {
@@ -370,6 +378,49 @@ const validateForm = () => {
   });
 };
 
+const onCountDown = () => {
+  if (countDownTimer.value > 0) return;
+  countDownTimer.value = maxCountDown;
+  const countInterval = () => {
+    smsText.value = `${countDownTimer.value}s`;
+    countDownTimer.value -= 1;
+  };
+  countInterval();
+  const timer = setInterval(() => {
+    if (countDownTimer.value === 0) {
+      smsText.value = '获取验证码';
+      countDownTimer.value = 0;
+      clearInterval(timer);
+    } else {
+      countInterval();
+    }
+  }, 1000);
+};
+
+const onCheckCode = async () => {
+  // 手机号验证
+  const res = await checkCode(state.formInfo.holder.mobile, state.formInfo.holder.mobileSmsCode);
+  const { data } = res;
+  emits('onVerify', !!data);
+};
+
+const onCaptha = async () => {
+  if (countDownTimer.value > 0) {
+    return;
+  }
+  formRef?.value.validate('mobile').then(async () => {
+    const res = await sendCode(state.formInfo.holder.mobile);
+    const { code, data } = res;
+    if (code === '10000') {
+      isSendSmsCode.value = true;
+      Toast({
+        message: '短信发送成功，请查收',
+      });
+      onCountDown();
+    }
+  });
+};
+
 // 2个选择的
 const handleRenewal = (value: string) => {
   state.formInfo.renewalDK = value;
@@ -403,6 +454,26 @@ const onChangeRelationToHolder = () => {
     emits('onUpdate');
   }
 };
+
+const validatorCode = (value: string) => {
+  // emits('onVerify', false);
+  if (validateSmsCode(value)) {
+    return true;
+  }
+  return '请输入正确的验证码';
+};
+
+watch(
+  () => state.formInfo.holder.mobileSmsCode,
+  () => {
+    formRef.value?.validate(['mobile', 'mobileSmsCode']).then(async () => {
+      if (isSendSmsCode.value) {
+        onCheckCode();
+      }
+    });
+  },
+  { deep: true },
+);
 
 // 如果被保人是本人，投保人信息填写时，自动填充
 watch(
@@ -452,6 +523,29 @@ defineExpose({
   .rate-attachment-list {
     margin-top: 10px;
   }
+}
+
+.sms-code {
+  width: 200px;
+  height: 60px;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  font-size: 26px;
+  font-family: PingFangSC-Regular, PingFang SC;
+  font-weight: 400;
+  color: #393d46;
+  line-height: 60px;
+  text-align: center;
+
+  &.count-down {
+    border: 0;
+    text-align: right;
+  }
+}
+
+:deep(.van-cell .van-cell__value .van-field__error-message) {
+  display: inline-block;
+  width: 100%;
 }
 
 :deep(.van-cell) {

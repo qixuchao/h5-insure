@@ -482,3 +482,8 @@ export const mobileMixin = (mobile: string) => {
 export const idCardMixin = (idCard: string) => {
   return idCard?.replace(/^(.{6})(?:\d+)(.{2})$/, '$1**********$2');
 };
+
+// 短信
+export const validateSmsCode = (code: string): boolean => {
+  return /^\d{6}$/.test(code);
+};

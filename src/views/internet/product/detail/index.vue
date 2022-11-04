@@ -18,6 +18,7 @@
             :product-detail="detail"
             :payments="[1]"
             :payment-method="[0]"
+            @on-verify="onVerify"
             @on-reset="onReset"
             @on-update="onUpdate"
           />
@@ -30,7 +31,7 @@
         <van-button
           type="primary"
           class="right"
-          :disabled="!(buttonAuth.canInsure || buttonAuth.canUpgrade)"
+          :disabled="verify || !(buttonAuth.canInsure || buttonAuth.canUpgrade)"
           @click="onNext"
         >
           {{ buttonAuth.showInsure ? '立即投保' : '升级保障' }}
@@ -159,6 +160,7 @@ const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件�
 const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
 const payHtml = ref<PayHtml>({ show: false, html: '' });
+const verify = ref<boolean>(true);
 let iseeBizNo = '';
 
 // 试算数据， 赠险进入，从链接上默认取投保人数据
@@ -179,7 +181,7 @@ const trialData = reactive({
   },
   paymentMethod,
   renewalDK: 'Y',
-  paymentFrequency: PAYMENT_FREQUENCY_ENUM.YEAR,
+  paymentFrequency: PAYMENT_FREQUENCY_ENUM.MONTH,
 });
 
 // 表单是否可修改, 默认先从链接取，然后再根据不同的入口修改
@@ -192,6 +194,10 @@ const buttonAuth = reactive({
   canInsure: false, // 可以投保
   canUpgrade: false, // 可以升级
 });
+
+const onVerify = (ver: boolean) => {
+  verify.value = !ver;
+};
 
 // 健康告知
 const healthAttachmentList = computed(() => {
