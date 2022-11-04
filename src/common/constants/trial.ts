@@ -483,7 +483,7 @@ export const RULE_RISK_INSURANCE = [
 ];
 export const RULE_INSURANCE = [
   {
-    name: '同主险期间减1',
+    name: '同主险交费期间减1',
     value: '3',
   },
   {
