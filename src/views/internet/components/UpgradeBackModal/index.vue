@@ -8,7 +8,7 @@
           <p>保障升级成功</p>
         </div>
 
-        <div class="pro-modal-btn" @click="onClose">我知道了</div>
+        <div class="pro-modal-btn" @click="onConfirm">我知道了</div>
       </div>
       <div class="pro-modal-close" @click="onClose">
         <img :src="closeImg" />

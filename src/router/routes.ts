@@ -180,6 +180,12 @@ const internetRoutes = [
     component: () => import('@/views/internet/upgrade/index.vue'),
   },
   {
+    name: '投保成功页',
+    path: '/internet/orderDetail',
+    meta: { title: '投保成功页' },
+    component: () => import('@/views/internet/orderDetail/index.vue'),
+  },
+  {
     name: '支付失败',
     path: '/internet/payFail',
     meta: { title: '支付失败' },

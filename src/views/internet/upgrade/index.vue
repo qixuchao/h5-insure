@@ -23,7 +23,7 @@
           <div class="submit" @click="onUpgrade"></div>
         </div>
       </div>
-      <UpgradeBackModal :is-show="showModal" @on-close="onClose" />
+      <UpgradeBackModal :is-show="showModal" @on-confirm="upgradeHandler" @on-close="onClose" />
     </div>
     <FilePreview
       v-model:show="showFilePreview"
@@ -84,6 +84,7 @@ interface QueryData {
 }
 
 const { productCode = 'BWYL2022', tenantId, orderNo, agentCode = '', from } = route.query as QueryData;
+console.log('upload--route.query', route.query);
 
 const detail = ref<ProductDetail>(); // 产品详情
 const insureDetail = ref<ProductData>(); // 险种详情
@@ -95,6 +96,7 @@ const showModal = ref<boolean>(false);
 const isCheck = from === 'check';
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
+const orderNoUp = ref<string>('');
 let iseeBizNo = '';
 
 const onClose = () => {
@@ -147,7 +149,11 @@ const onSaveOrder = async () => {
 };
 
 const getOrderDetailUrl = (oNo: string) => {
-  return `${ORIGIN}/chuangxin/baigebao/orderDetail?orderNo=${oNo}&productCode=${productCode}&tenantId=${tenantId}`;
+  return `${ORIGIN}/internet/orderDetail?orderNo=${oNo}&productCode=${productCode}&tenantId=${tenantId}`;
+};
+
+const upgradeHandler = () => {
+  router.replace(`/internet/orderDetail?orderNo=${orderNoUp.value}&productCode=${productCode}&tenantId=${tenantId}`);
 };
 
 // 保费试算 -> 订单保存 -> 升级保障
@@ -191,7 +197,7 @@ const upgrade = async (oNo: string) => {
   if (code === '10000') {
     // 审核版本
     if (isCheck) {
-      router.replace(`/chuangxin/baigebao/orderDetail?orderNo=${oNo}&productCode=${productCode}&tenantId=${tenantId}`);
+      router.replace(`/internet/orderDetail?orderNo=${oNo}&productCode=${productCode}&tenantId=${tenantId}`);
     } else {
       Toast.clear();
       showModal.value = true;
@@ -208,7 +214,8 @@ const onSubmit = async (o: any) => {
       tenantId,
       applicationNo: orderDetail.value.applicationNo,
     });
-
+    orderNoUp.value = oNo;
+    console.log(orderNoUp.value, 'orderNoUp.value===', oNo);
     // signUrl 有值，是微信支付流程
     if (signUrl.value) {
       // 支付平台 successUrl encode 2次
