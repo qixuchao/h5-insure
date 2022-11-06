@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { PAYMENT_FREQUENCY_ENUM, INSURE_TYPE_ENUM } from '../../common/constants/infoCollection';
 import { ProductDetail } from '@/api/modules/product.data';
 import {
@@ -486,4 +487,28 @@ export const idCardMixin = (idCard: string) => {
 // 短信
 export const validateSmsCode = (code: string): boolean => {
   return /^\d{6}$/.test(code);
+};
+
+// 更具age day 算时间
+export const getDayByStr = (str: string): number => {
+  if (!str) return 0;
+  const [type, number] = str.split('_');
+  return type === 'day' ? parseInt(number, 10) : parseInt(number, 10) * 365;
+};
+
+const getBirthday = (idcard: string): string => {
+  if (!idcard) return '';
+  // 获取出生日期
+  const birthday = `${idcard.substring(6, 10)}-${idcard.substring(10, 12)}-${idcard.substring(12, 14)}`;
+  return birthday;
+};
+
+// 保费计算投保险种是否在年级区间
+// age_70 or day_30
+export const validateHolderAge = (minStr: string, maxStr: string, idcard: string): boolean => {
+  const min: number = getDayByStr(minStr);
+  const max: number = getDayByStr(maxStr);
+  const age = dayjs().diff(getBirthday(idcard), 'day');
+  console.log(min, max, age, getBirthday(idcard));
+  return min <= age && max >= age;
 };
