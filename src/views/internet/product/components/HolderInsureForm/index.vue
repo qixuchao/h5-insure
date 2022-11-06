@@ -409,9 +409,7 @@ const onCountDown = () => {
 
 const onCheckCode = async () => {
   // 手机号验证
-  const res = await checkCode(state.formInfo.holder.mobile, state.formInfo.holder.mobileSmsCode);
-  const { data } = res;
-  emits('onVerify', !!data);
+  await checkCode(state.formInfo.holder.mobile, state.formInfo.holder.mobileSmsCode);
 };
 
 const onCaptha = async () => {
@@ -469,6 +467,7 @@ const validatorCode = (value: string) => {
   return new Promise((resolve, reject) => {
     if (!value || !validateSmsCode(value) || !state.formInfo.holder.mobile) {
       resolve(false);
+      return;
     }
     checkCode(state.formInfo.holder.mobile, state.formInfo.holder.mobileSmsCode).then((res) => {
       const { data } = res;
