@@ -52,7 +52,7 @@
           label="验证码"
           name="mobileSmsCode"
           required
-          :rules="[{ validator: validatorCode }]"
+          :rules="[{ validator: validatorCode, message: '请输入正确内容' }]"
           input-align="left"
           placeholder="请输入验证码"
           error-message-align="left"
@@ -64,7 +64,7 @@
           </template>
         </ProField>
         <!-- 投保人社保 -->
-        <ProField
+        <!-- <ProField
           v-model="state.formInfo.holder.socialFlag"
           label="有无社保"
           name="socialFlag"
@@ -78,7 +78,7 @@
               :options="SOCIAL_SECURITY"
             ></ProRadioButton>
           </template>
-        </ProField>
+        </ProField> -->
       </div>
       <ProDivider />
       <div class="insured-relation container">
@@ -156,6 +156,7 @@
       <div class="payment container">
         <!-- 交费方式 -->
         <ProField
+          v-if="!props.formAuth?.paymentFrequencyDisable"
           v-model="state.formInfo.paymentFrequency"
           label="交费方式"
           name="paymentFrequency"
@@ -456,24 +457,20 @@ const onChangeRelationToHolder = () => {
 };
 
 const validatorCode = (value: string) => {
-  // emits('onVerify', false);
-  if (validateSmsCode(value)) {
-    return true;
-  }
-  return '请输入正确的验证码';
-};
-
-watch(
-  () => state.formInfo.holder.mobileSmsCode,
-  () => {
-    formRef.value?.validate(['mobile', 'mobileSmsCode']).then(async () => {
-      if (isSendSmsCode.value) {
-        onCheckCode();
+  return new Promise((resolve, reject) => {
+    if (!value || !validateSmsCode(value)) {
+      resolve(false);
+    }
+    checkCode(state.formInfo.holder.mobile, state.formInfo.holder.mobileSmsCode).then((res) => {
+      const { data } = res;
+      if (data) {
+        resolve(true);
+      } else {
+        resolve(false);
       }
     });
-  },
-  { deep: true },
-);
+  });
+};
 
 // 如果被保人是本人，投保人信息填写时，自动填充
 watch(

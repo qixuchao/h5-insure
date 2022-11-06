@@ -18,7 +18,6 @@
             :product-detail="detail"
             :payments="[1]"
             :payment-method="[0]"
-            @on-verify="onVerify"
             @on-reset="onReset"
             @on-update="onUpdate"
           />
@@ -31,7 +30,7 @@
         <van-button
           type="primary"
           class="right"
-          :disabled="verify || !(buttonAuth.canInsure || buttonAuth.canUpgrade)"
+          :disabled="!(buttonAuth.canInsure || buttonAuth.canUpgrade)"
           @click="onNext"
         >
           {{ buttonAuth.showInsure ? '立即投保' : '升级保障' }}
@@ -88,7 +87,7 @@ import { productDetail } from '@/api/modules/product';
 import { ORIGIN, toLocal } from '@/utils';
 import { validateMobile, validateName } from '@/utils/validator';
 
-import { genaratePremiumCalcData, transformData, genarateOrderParam } from '../../utils';
+import { genaratePremiumCalcData, transformData, genarateOrderParam, validateHolderAge } from '../../utils';
 import themeVars from '../../theme';
 
 import Banner from '../components/Banner/index.vue';
@@ -160,7 +159,6 @@ const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件�
 const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
 const payHtml = ref<PayHtml>({ show: false, html: '' });
-const verify = ref<boolean>(true);
 let iseeBizNo = '';
 
 // 试算数据， 赠险进入，从链接上默认取投保人数据
@@ -194,10 +192,6 @@ const buttonAuth = reactive({
   canInsure: false, // 可以投保
   canUpgrade: false, // 可以升级
 });
-
-const onVerify = (ver: boolean) => {
-  verify.value = !ver;
-};
 
 // 健康告知
 const healthAttachmentList = computed(() => {
@@ -682,7 +676,7 @@ const setFormAuth = () => {
   } else if (!(mobile || orderNo)) {
     // 投保链接
     console.log('投保链接');
-    formAuth.value = allAuth;
+    formAuth.value = { ...allAuth, paymentFrequencyDisable: true };
     defaultFormAuth.value = allAuth;
     buttonAuth.canInsure = true;
   }
