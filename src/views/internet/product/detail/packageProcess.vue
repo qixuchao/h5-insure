@@ -530,7 +530,12 @@ const onSubmit = () => {
 };
 
 watch(
-  [() => trialData.insured.certNo, () => trialData.insured.socialFlag, () => trialData.packageProductList],
+  [
+    () => trialData.insured.certNo,
+    () => trialData.insured.socialFlag,
+    () => trialData.packageProductList,
+    () => trialData.paymentFrequency,
+  ],
   debounce(() => {
     // if (detail.value && insureDetail.value && pageCode !== 'payBack') {
     //   // 验证通过才去试算
