@@ -352,12 +352,8 @@ export const validatorRisk2021 = (param: ValidatorRiskParam) => {
 
 // 7Y7  FXG086
 export const validatorRiskZXYS = (param: ValidatorRiskParam) => {
-  console.log('param', param);
   const { riskCode, liabilityCode, age, sex } = param;
   if (riskCode === '7Y7' && liabilityCode === 'FXG086') {
-    return sex === SEX_LIMIT_ENUM.FEMALE;
-  }
-  if (riskCode === '7Y7' && liabilityCode === 'FXG054') {
     return sex === SEX_LIMIT_ENUM.FEMALE;
   }
   return true;
