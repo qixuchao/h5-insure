@@ -406,7 +406,7 @@ export const genaratePremiumCalcData = (o: premiumCalcParamType, flag = false, v
     console.log('result', result);
     riskVOList = result.map((item: ProductRiskVoItem) => {
       // return compositionTrailData(item.riskDetailVOList, o.productDetail, o.packageRiskIdList, o.paymentFrequency);
-      return compositionTrailData(item.riskDetailVOList, o.productDetail, [], o.paymentFrequency);
+      return compositionTrailData(item.riskDetailVOList, o.productDetail, o.packageRiskIdList, o.paymentFrequency);
     });
   }
   const calcData: PremiumCalcData = {
