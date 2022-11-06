@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-03 15:59:09
+ * @LastEditTime: 2022-11-06 15:06:24
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -36,7 +36,9 @@
           @click="agreeForceReadFile"
           >{{ `${beforeReadOverText}(${currentActiveIndex + 1}/${forceReadCound})` }}</VanButton
         >
-        <VanButton v-else type="primary" block round @click="agreeMent">{{ props.text }}</VanButton>
+        <VanButton v-else :disabled="isAgreeBtnDisabled" type="primary" block round @click="agreeMent">{{
+          props.text
+        }}</VanButton>
       </div>
     </van-config-provider>
   </ProPopup>
@@ -83,7 +85,6 @@ const readCount = ref<number>(0);
 const previewRef = ref(null);
 
 const attachmentUri = computed(() => {
-  console.log(formatedContentList.value, 'formatedContentList.value', currentActiveIndex.value);
   return formatedContentList.value?.[currentActiveIndex.value]?.attachmentUri;
 });
 
@@ -92,7 +93,18 @@ const isAgreeBtnDisabled = computed(() => {
 });
 
 const showReadBtn = computed(() => {
-  return formatedContentList.value.filter((e) => e.readDisabled).length > 0;
+  if (currentActiveIndex.value >= props.forceReadCound - 1) {
+    return false;
+  }
+  if (readCount.value >= props.forceReadCound) {
+    return false;
+  }
+  if (readCount.value < props.forceReadCound) {
+    if (currentActiveIndex.value === props.forceReadCound - 1) return false;
+    return true;
+  }
+  return false;
+  // return formatedContentList.value.slice(0, props.forceReadCound).filter((e) => e.readDisabled).length > 0;
 });
 
 const agreeForceReadFile = () => {

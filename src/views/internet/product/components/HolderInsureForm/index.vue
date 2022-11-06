@@ -142,7 +142,7 @@
           <template #input>
             <ProRadioButton
               v-model="state.formInfo.insured.socialFlag"
-              :disabled="props.formAuth?.insuredSocialDisable || isSelfInsurer"
+              :disabled="props.formAuth?.insuredSocialDisable"
               :options="SOCIAL_SECURITY"
             ></ProRadioButton>
           </template>

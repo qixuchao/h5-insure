@@ -17,7 +17,6 @@
             :form-info="trialData"
             :premium="premium"
             :product-detail="detail"
-            @on-verify="onVerify"
             @on-reset="onReset"
             @on-update="onUpdate"
           />
@@ -69,7 +68,7 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Toast } from 'vant';
+import { Toast, Dialog } from 'vant';
 import { debounce } from 'lodash';
 
 import { validateIdCardNo } from '@/components/ProField/utils';
@@ -169,7 +168,6 @@ const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件�
 const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
 const payHtml = ref<PayHtml>({ show: false, html: '' });
-const verify = ref<boolean>(true);
 let iseeBizNo = '';
 
 // 试算数据， 赠险进入，从链接上默认取投保人数据
@@ -205,10 +203,6 @@ const buttonAuth = reactive({
   canInsure: false, // 可以投保
   canUpgrade: false, // 可以升级
 });
-
-const onVerify = (ver: boolean) => {
-  verify.value = !ver;
-};
 
 // 健康告知
 const healthAttachmentList = computed(() => {
@@ -339,10 +333,11 @@ const onUnderWrite = async (o: any) => {
 };
 
 const getPaySuccessCallbackUrl = (no: number) => {
-  const url = `${ORIGIN}/internet/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack&from=${
-    from || 'normal'
-  }`;
-  return url;
+  // const url = `${ORIGIN}/internet/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack&from=${
+  //   from || 'normal'
+  // }`;
+  // return url;
+  return `${ORIGIN}/internet/orderDetail?orderNo=${no}&productCode=${productCode}&tenantId=${tenantId}`;
 };
 
 const getPayFailCallbackUrl = (no: number) => {
@@ -504,8 +499,13 @@ const onCloseHealth = (type: string) => {
   if (type === 'allFalse') {
     showHealthPreview.value = false;
     onNext();
+    buttonAuth.canInsure = true;
+  } else {
+    Dialog.confirm({
+      message: '您当前的健康状况不符合该产品',
+      confirmButtonText: '确定',
+    });
   }
-  buttonAuth.canInsure = true;
 };
 
 const onSubmit = () => {
