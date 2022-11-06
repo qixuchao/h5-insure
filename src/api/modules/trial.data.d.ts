@@ -10,6 +10,7 @@ export interface PackageProductVoItem {
   packageCode: string;
   packageName: string;
   value?: string;
+  disabled?: boolean;
   productRiskVoList: RiskDetailVoItem[]
 }
 

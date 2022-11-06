@@ -228,10 +228,11 @@ import {
   RELATION_HOLDER_LIST, // 投被保人关系
   SOCIAL_SECURITY, // 有无社保
   SOCIAL_SECURITY_ENUM,
-  PAYMENT_FREQUENCYE_LIST, // 交费方式
+  PAYMENT_FREQUENCYE_LIST,
+  INSURE_TYPE_ENUM, // 交费方式
 } from '@/common/constants/infoCollection';
 import { ACTIVITY_PAY_METHOD_LIST } from '@/common/constants/bankCard';
-import { getFloat, nameMixin, mobileMixin, idCardMixin, validateSmsCode } from '../../../utils';
+import { getFloat, nameMixin, mobileMixin, idCardMixin, validateSmsCode, checkPackage } from '../../../utils';
 import { AuthType } from '../../auth';
 import ProDivider from '@/components/ProDivider/index.vue';
 import { VALIDATE_TYPE_ENUM } from '@/common/constants';
@@ -241,6 +242,7 @@ import { validateName } from '@/utils/validator';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import FilePreview from '../FilePreview/index.vue';
 import Package from '../Package/index.vue';
+import { validateIdCardNo } from '@/components/ProField/utils';
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
@@ -335,6 +337,13 @@ const paymentMethod = computed(() => {
     return props.paymentMethod.includes(index);
   });
 });
+
+// ALIPAY = 5,
+// WECHAT = 6,
+const PAYMENT_SVG_MAP = {
+  5: 'ali',
+  6: 'wechat',
+};
 
 // 当被保人与投保人关系为本人时，被保人信息不允许编辑
 const isSelfInsurer = computed(() => {
@@ -482,6 +491,29 @@ watch(
     Object.assign(state.formInfo.insured, state.formInfo.holder);
   },
   { deep: true, immediate: true },
+);
+
+// 根据被保人身份证号，处理加油包是否可选
+watch(
+  () => state.formInfo.insured.certNo,
+  () => {
+    let check = false;
+    if (validateIdCardNo(state.formInfo.insured.certNo)) check = true;
+    state.formInfo.packageProductList.forEach((item: PackageProductVoItem) => {
+      if (check) {
+        const result = checkPackage(item, state.formInfo.insured.certNo);
+        if (!result) {
+          // eslint-disable-next-line no-param-reassign
+          item.disabled = true;
+          // eslint-disable-next-line no-param-reassign
+          item.value = INSURE_TYPE_ENUM.UN_INSURE;
+        }
+      } else {
+        // eslint-disable-next-line no-param-reassign
+        item.disabled = false;
+      }
+    });
+  },
 );
 
 defineExpose({

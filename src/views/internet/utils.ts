@@ -439,6 +439,7 @@ export const getReqData = (o: upgradeParamType) => {
   return calcData;
 };
 
+// 获取已投保加油包中的险种id
 export const onCollectPackageRiskIdList = (packageProductList: PackageProductVoItem[]) => {
   if (packageProductList && packageProductList.length) {
     const list = packageProductList
@@ -449,6 +450,18 @@ export const onCollectPackageRiskIdList = (packageProductList: PackageProductVoI
     return list.flat();
   }
   return [];
+};
+
+export const checkPackage = (item: PackageProductVoItem, idCard: string): boolean => {
+  // 若有一个险种不符合规则，则该加油包校验失败
+  const result = item.productRiskVoList.some((risk) => {
+    const minStr: string = risk.riskInsureLimitVO.minHolderAge;
+    const maxStr: string = risk.riskInsureLimitVO.maxHolderAge;
+    // eslint-disable-next-line no-use-before-define
+    if (!validateHolderAge(minStr, maxStr, getAge(idCard))) return true;
+    return false;
+  });
+  return !result;
 };
 
 export const getFloat = (val: number) => {
@@ -496,12 +509,16 @@ export const getDayByStr = (str: string): number => {
   return type === 'day' ? parseInt(number, 10) : parseInt(number, 10) * 365;
 };
 
+export const getAge = (idCard: string): number => {
+  if (!idCard) return 0;
+  return dayjs().diff(getBirth(idCard), 'day');
+};
+
 // 保费计算投保险种是否在年级区间
 // age_70 or day_30
-export const validateHolderAge = (minStr: string, maxStr: string, idcard: string): boolean => {
+export const validateHolderAge = (minStr: string, maxStr: string, age: number): boolean => {
   const min: number = getDayByStr(minStr);
   const max: number = getDayByStr(maxStr);
-  const age = dayjs().diff(getBirth(idcard), 'day');
-  console.log(min, max, age, getBirth(idcard));
+  console.log(min, max, age);
   return min <= age && max >= age;
 };

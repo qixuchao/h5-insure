@@ -516,7 +516,7 @@ const onSubmit = () => {
 };
 
 watch(
-  [() => trialData.insured.certNo, () => trialData.insured.socialFlag],
+  [() => trialData.insured.certNo, () => trialData.insured.socialFlag, () => trialData.packageProductList],
   debounce(() => {
     // if (detail.value && insureDetail.value && pageCode !== 'payBack') {
     //   // 验证通过才去试算
@@ -524,7 +524,6 @@ watch(
     //     onPremiumCalc();
     //   }
     // }
-    console.log('111111', trialData);
     if (trialData.insured.certNo && trialData.insured.socialFlag) {
       // 验证通过才去试算
       if (validCalcData()) {
@@ -681,6 +680,7 @@ const fetchData = async () => {
       trialData.packageProductList = (insureRes.data?.packageProductVOList || []).map((item: PackageProductVoItem) => ({
         ...item,
         value: INSURE_TYPE_ENUM.UN_INSURE,
+        disabled: false,
       }));
       insureDetail.value = insureRes.data;
     }

@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-01 13:46:41
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-03 17:51:47
+ * @LastEditTime: 2022-11-06 14:20:04
  * @Description: 加油包
 -->
 <template>
@@ -18,7 +18,7 @@
         placeholder="请选择"
       >
         <template #input>
-          <ProRadioButton v-model="item.value" :options="INSURE_TYPE_LIST" @change="onChange"></ProRadioButton>
+          <ProRadioButton v-model="item.value" :options="INSURE_TYPE_LIST" :disabled="item.disabled" />
         </template>
       </ProField>
       <div v-if="isShowOptBtn" class="show-more" @click="handleShowMore">
