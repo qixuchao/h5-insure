@@ -6,7 +6,7 @@
         <Banner :url="detail?.tenantProductInsureVO?.banner[0]" />
         <Desc :product-name="detail?.productFullName" :product-desc="detail?.showConfigVO?.desc" />
       </div>
-      <Guarantee :guarantee-list="detail?.tenantProductInsureVO?.titleAndDescVOS" />
+      <Guarantee show-service-config :guarantee-list="detail?.tenantProductInsureVO?.titleAndDescVOS" />
       <ScrollInfo :detail="detail">
         <template #form>
           <HolderInsureForm
@@ -17,6 +17,7 @@
             :form-info="trialData"
             :premium="premium"
             :product-detail="detail"
+            @on-verify="onVerify"
             @on-reset="onReset"
             @on-update="onUpdate"
           />
@@ -24,7 +25,10 @@
       </ScrollInfo>
       <div class="footer-button">
         <div class="price">
-          总保费<span>￥{{ toLocal(premium as number) }}/月</span>
+          总保费<span>
+            ￥{{ toLocal(premium as number)}}
+            {{ trialData.paymentFrequency == PAYMENT_FREQUENCY_ENUM.YEAR ? '元' : '元/月' }}
+          </span>
         </div>
         <van-button
           type="primary"
@@ -165,6 +169,7 @@ const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件�
 const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
 const payHtml = ref<PayHtml>({ show: false, html: '' });
+const verify = ref<boolean>(true);
 let iseeBizNo = '';
 
 // 试算数据， 赠险进入，从链接上默认取投保人数据
@@ -201,6 +206,10 @@ const buttonAuth = reactive({
   canUpgrade: false, // 可以升级
 });
 
+const onVerify = (ver: boolean) => {
+  verify.value = !ver;
+};
+
 // 健康告知
 const healthAttachmentList = computed(() => {
   return (
@@ -231,11 +240,15 @@ const validCalcData = () => {
     },
     paymentMethod: insuredPaymentMethod,
   } = trialData;
-  const holderValid =
-    validateIdCardNo(holderCertNo) && validateMobile(holderMobile) && validateName(holderName) && !!holderSocialFlag;
-  const insuredValid =
-    validateIdCardNo(insuredCertNo) && validateName(insuredName) && !!insuredSocialFlag && !!insuredRelationToHolder;
-  if (holderValid && insuredValid && !!insuredPaymentMethod) {
+  // const holderValid =
+  //   validateIdCardNo(holderCertNo) && validateMobile(holderMobile) && validateName(holderName) && !!holderSocialFlag;
+  // const insuredValid =
+  //   validateIdCardNo(insuredCertNo) && validateName(insuredName) && !!insuredSocialFlag && !!insuredRelationToHolder;
+  const insuredValid = validateIdCardNo(insuredCertNo) && !!insuredSocialFlag;
+  // if (holderValid && insuredValid && !!insuredPaymentMethod) {
+  //   return true;
+  // }
+  if (insuredValid) {
     return true;
   }
   return false;
@@ -503,9 +516,16 @@ const onSubmit = () => {
 };
 
 watch(
-  () => trialData,
+  [() => trialData.insured.certNo, () => trialData.insured.socialFlag],
   debounce(() => {
-    if (detail.value && insureDetail.value && pageCode !== 'payBack') {
+    // if (detail.value && insureDetail.value && pageCode !== 'payBack') {
+    //   // 验证通过才去试算
+    //   if (validCalcData()) {
+    //     onPremiumCalc();
+    //   }
+    // }
+    console.log('111111', trialData);
+    if (trialData.insured.certNo && trialData.insured.socialFlag) {
       // 验证通过才去试算
       if (validCalcData()) {
         onPremiumCalc();

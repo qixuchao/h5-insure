@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-03 17:47:20
+ * @LastEditTime: 2022-11-06 10:53:35
  * @Description: 保障详情
 -->
 <template>
@@ -21,6 +21,9 @@
       <div v-if="isShowOptBtn" class="show-more" @click="handleShowMore">
         {{ showMore ? '收起' : '查看更多' }} <ProSvg name="down" :class="['icon', { showMore }]" />
       </div>
+      <div class="service-config" @click="onClose">
+        <img :src="serviceConfig" />
+      </div>
     </ProCard>
   </div>
   <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
@@ -37,11 +40,16 @@
 import { useToggle } from '@vant/use';
 import { TitleAndDescVO } from '@/api/modules/product.data';
 import ProSvg from '@/components/ProSvg/index.vue';
+import serviceConfig from '@/assets/images/chuangxin/serviceConfig.png';
 
 const props = defineProps({
   guaranteeList: {
     type: Array as () => Array<TitleAndDescVO>,
     default: () => [],
+  },
+  showServiceConfig: {
+    type: Boolean,
+    default: false,
   },
   isShowClose: {
     type: Boolean,
@@ -104,6 +112,10 @@ const onShowDetail = () => {
         transform: rotate(180deg);
       }
     }
+  }
+
+  .service-config img {
+    width: 100%;
   }
 }
 // 保障详情弹窗样式
