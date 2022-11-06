@@ -35,7 +35,7 @@
 import closeImg from '@/assets/images/chuangxin/close.png';
 import { insureProductDetail, getTenantOrderDetail, endorsementPremiumCalc } from '@/api/modules/trial';
 
-import { getReqData, getFloat } from '../../utils';
+import { getReqData, getFloat, validatorRisk2022 } from '../../utils';
 import { productDetail } from '@/api/modules/product';
 import { ProductData } from '@/api/modules/trial.data';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
@@ -82,15 +82,18 @@ const onConfirm = () => {
 // 保费试算 -> 订单保存 -> 升级保障
 const onPremiumCalc = async () => {
   try {
-    const reqData = getReqData({
-      tenantId: props.tenantId,
-      premium: premium.value as number,
-      orderDetail: orderDetail.value,
-      productDetail: detail.value as ProductDetail,
-      insureDetail: insureDetail.value as ProductData,
-      successJumpUrl: '',
-      iseeBizNo: '',
-    });
+    const reqData = getReqData(
+      {
+        tenantId: props.tenantId,
+        premium: premium.value as number,
+        orderDetail: orderDetail.value,
+        productDetail: detail.value as ProductDetail,
+        insureDetail: insureDetail.value as ProductData,
+        successJumpUrl: '',
+        iseeBizNo: '',
+      },
+      validatorRisk2022,
+    );
     const res = await endorsementPremiumCalc(reqData);
     const { code, data } = res;
     if (code === '10000') {

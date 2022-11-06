@@ -318,7 +318,6 @@ export const getDayByStr = (str: string): number => {
 export const validateHolderAge = (minStr: string, maxStr: string, age: number): boolean => {
   const min: number = getDayByStr(minStr);
   const max: number = getDayByStr(maxStr);
-  console.log(min, max, age);
   return min <= age && max >= age;
 };
 
@@ -344,9 +343,11 @@ interface ValidatorRiskParam {
   sex: '1' | '2';
 }
 
-export const validatorRisk2021 = (param: ValidatorRiskParam) => {
+export const validatorRisk2022 = (param: ValidatorRiskParam) => {
   const { riskCode, liabilityCode, age, sex } = param;
-  console.log(riskCode, liabilityCode, age, sex);
+  if (riskCode === '7Y7' && liabilityCode === 'FXG086' && !(sex === SEX_LIMIT_ENUM.FEMALE && age >= 18 * 365)) {
+    return false;
+  }
   return true;
 };
 
@@ -459,9 +460,16 @@ interface upgradeParamType {
 }
 
 // 升级保障保费试算/升级需要的参数
-export const getReqData = (o: upgradeParamType) => {
+export const getReqData = (o: upgradeParamType, validatorRisk = (args: any) => true) => {
   const { orderDetail } = o;
   console.log(o, 'slslsl');
+  console.log(
+    productRiskVoListFilter(
+      o.insureDetail.productRiskVoList,
+      o.orderDetail?.tenantOrderInsuredList?.[0]?.certNo,
+      validatorRisk,
+    ),
+  );
   const calcData = {
     agencyId: orderDetail.agencyId,
     venderCode: orderDetail.venderCode,
@@ -511,7 +519,11 @@ export const getReqData = (o: upgradeParamType) => {
             tenantOrderRiskList: transformData({
               tenantId: o.tenantId,
               riskList: compositionTrailData(
-                o.insureDetail.productRiskVoList[0].riskDetailVOList,
+                productRiskVoListFilter(
+                  o.insureDetail.productRiskVoList,
+                  o.orderDetail?.tenantOrderInsuredList?.[0]?.certNo,
+                  validatorRisk,
+                )?.[0]?.riskDetailVOList,
                 o.productDetail,
               ) as any,
               riskPremium: {},

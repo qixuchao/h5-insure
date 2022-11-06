@@ -87,13 +87,7 @@ import { productDetail } from '@/api/modules/product';
 import { ORIGIN, toLocal } from '@/utils';
 import { validateMobile, validateName } from '@/utils/validator';
 
-import {
-  genaratePremiumCalcData,
-  transformData,
-  genarateOrderParam,
-  validateHolderAge,
-  validatorRisk2021,
-} from '../../utils';
+import { genaratePremiumCalcData, transformData, genarateOrderParam, validateHolderAge } from '../../utils';
 import themeVars from '../../theme';
 
 import Banner from '../components/Banner/index.vue';

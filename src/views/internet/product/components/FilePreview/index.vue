@@ -89,7 +89,7 @@ const attachmentUri = computed(() => {
 });
 
 const isAgreeBtnDisabled = computed(() => {
-  return formatedContentList.value[currentActiveIndex.value].readDisabled;
+  return formatedContentList.value[currentActiveIndex.value]?.readDisabled;
 });
 
 const showReadBtn = computed(() => {
