@@ -64,7 +64,7 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Toast } from 'vant';
+import { Toast, Dialog } from 'vant';
 import { debounce } from 'lodash';
 import { validateIdCardNo } from '@/components/ProField/utils';
 import { CERT_TYPE_ENUM } from '@/common/constants';
@@ -411,7 +411,9 @@ const onPremiumCalcWithValid = () => {
         // 表单验证通过再检查是否逐条阅读
         const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
         if (!isAgree) {
-          showHealthPreview.value = true;
+          // showHealthPreview.value = true;
+          showFilePreview.value = true;
+          previewFile(0);
           return;
         }
 
@@ -477,14 +479,21 @@ const onCloseHealth = (type: string) => {
   // 全部为否
   if (type === 'allFalse') {
     showHealthPreview.value = false;
-    previewFile(0);
+    onNext();
+    buttonAuth.canInsure = true;
+  } else {
+    Dialog.confirm({
+      message: '您当前的健康状况不符合该产品',
+      confirmButtonText: '确定',
+    });
   }
-  buttonAuth.canInsure = true;
 };
 
 const onSubmit = () => {
   isAgreeFile.value = true;
-  onNext();
+  showFilePreview.value = false;
+  showHealthPreview.value = true;
+  // onNext();
 };
 
 watch(
