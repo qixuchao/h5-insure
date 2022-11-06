@@ -61,6 +61,10 @@ const props = defineProps({
     type: Boolean,
     default: () => {},
   },
+  upgradeCode: {
+    type: String,
+    default: '',
+  },
 });
 
 const detail = ref<ProductDetail>(); // 产品详情
@@ -69,7 +73,7 @@ const orderDetail = ref<any>(); // 订单详情
 
 const premium = ref<number>();
 const attachmentList = ref<AttachmentVOList[]>([]);
-const productCode = 'BWYL2022';
+const productCode = ref<string>(props.upgradeCode);
 
 const emits = defineEmits(['on-confirm', 'on-close']);
 const onClose = () => {
@@ -105,8 +109,8 @@ const onPremiumCalc = async () => {
 };
 
 const fetchData = () => {
-  const productReq = productDetail({ productCode, withInsureInfo: true, tenantId: props.tenantId });
-  const insureReq = insureProductDetail({ productCode });
+  const productReq = productDetail({ productCode: productCode.value, withInsureInfo: true, tenantId: props.tenantId });
+  const insureReq = insureProductDetail({ productCode: productCode.value });
   const orderReq = getTenantOrderDetail({ orderNo: props.orderNo, tenantId: props.tenantId });
   Promise.all([productReq, insureReq, orderReq]).then(([productRes, insureRes, orderRes]) => {
     if (productRes.code === '10000') {
@@ -129,6 +133,7 @@ const fetchData = () => {
 watch(
   () => props.isShow,
   (val) => {
+    productCode.value = props.upgradeCode;
     if (val) {
       document.body.style.overflow = 'hidden';
       fetchData();

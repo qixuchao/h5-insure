@@ -41,6 +41,7 @@
     <UpgradeModal
       :order-no="orderNo"
       :tenant-id="tenantId"
+      :upgrade-code="upgradeCode"
       :is-show="showModal"
       @on-confirm="onConfirm"
       @on-close="onClose"
@@ -143,6 +144,7 @@ const {
   certNo,
   name,
   pageCode,
+  upgradeCode,
   from,
 } = route.query as QueryData;
 console.log(route.query, 'route.query');
@@ -313,7 +315,12 @@ const onUnderWrite = async (o: any) => {
 };
 
 const getPaySuccessCallbackUrl = (no: number) => {
-  const url = `${ORIGIN}/internet/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack&from=${
+  const extInfo = JSON.parse(insureDetail.value?.productBasicInfoVO?.extInfo);
+  let str = '';
+  if (extInfo.endorsementFlag === 1) {
+    str = `&upgradeCode=${extInfo.endorsementCode}`;
+  }
+  const url = `${ORIGIN}/internet/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack${str}&from=${
     from || 'normal'
   }`;
   return url;
@@ -661,7 +668,6 @@ const fetchData = async () => {
       insureDetail.value = insureRes.data;
     }
   });
-
   if (orderNo) {
     // 这里要轮询，支付完成后，跳转回来，订单状态可能没有及时更新
     getOrderById();
