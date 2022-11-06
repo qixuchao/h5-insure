@@ -97,7 +97,13 @@ import { productDetail } from '@/api/modules/product';
 import { ORIGIN, toLocal } from '@/utils';
 import { validateMobile, validateName } from '@/utils/validator';
 
-import { genaratePremiumCalcData, transformData, genarateOrderParam, onCollectPackageRiskIdList } from '../../utils';
+import {
+  genaratePremiumCalcData,
+  transformData,
+  genarateOrderParam,
+  onCollectPackageRiskIdList,
+  validatorRiskZXYS,
+} from '../../utils';
 import themeVars from '../../theme';
 
 import Banner from '../components/Banner/index.vue';
@@ -395,15 +401,19 @@ const onSaveOrder = async (risk: any) => {
 const onPremiumCalc = async () => {
   console.log('trialData', trialData);
   // 试算参数
-  const { calcData, riskVOList } = genaratePremiumCalcData({
-    holder: trialData.holder,
-    insured: trialData.insured,
-    tenantId,
-    productDetail: detail.value as ProductDetail,
-    insureDetail: insureDetail.value as ProductData,
-    paymentFrequency: trialData.paymentFrequency,
-    packageRiskIdList: onCollectPackageRiskIdList(trialData.packageProductList),
-  });
+  const { calcData, riskVOList } = genaratePremiumCalcData(
+    {
+      holder: trialData.holder,
+      insured: trialData.insured,
+      tenantId,
+      productDetail: detail.value as ProductDetail,
+      insureDetail: insureDetail.value as ProductData,
+      paymentFrequency: trialData.paymentFrequency,
+      packageRiskIdList: onCollectPackageRiskIdList(trialData.packageProductList),
+    },
+    false,
+    validatorRiskZXYS,
+  );
   const res = await premiumCalc(calcData);
 
   const { code, data } = res;
@@ -439,15 +449,19 @@ const onPremiumCalcWithValid = () => {
         }
 
         // 试算参数
-        const { calcData, riskVOList } = genaratePremiumCalcData({
-          holder: trialData.holder,
-          insured: trialData.insured,
-          tenantId,
-          productDetail: detail.value as ProductDetail,
-          insureDetail: insureDetail.value as ProductData,
-          paymentFrequency: trialData.paymentFrequency,
-          packageRiskIdList: onCollectPackageRiskIdList(trialData.packageProductList),
-        });
+        const { calcData, riskVOList } = genaratePremiumCalcData(
+          {
+            holder: trialData.holder,
+            insured: trialData.insured,
+            tenantId,
+            productDetail: detail.value as ProductDetail,
+            insureDetail: insureDetail.value as ProductData,
+            paymentFrequency: trialData.paymentFrequency,
+            packageRiskIdList: onCollectPackageRiskIdList(trialData.packageProductList),
+          },
+          false,
+          validatorRiskZXYS,
+        );
         const res = await premiumCalc(calcData);
 
         const { code, data } = res;

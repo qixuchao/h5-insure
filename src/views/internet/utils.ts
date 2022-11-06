@@ -16,7 +16,7 @@ import {
   PAYMENT_PERIOD_TYPE_ENUMS,
   INSURANCE_PERIOD_TYPE_ENUMS,
 } from '@/common/constants/trial';
-import { CERT_TYPE_ENUM } from '@/common/constants';
+import { CERT_TYPE_ENUM, SEX_LIMIT_ENUM } from '@/common/constants';
 import { getSex, getBirth } from '@/components/ProField/utils';
 
 // 校验长度
@@ -350,6 +350,19 @@ export const validatorRisk2021 = (param: ValidatorRiskParam) => {
   return true;
 };
 
+// 7Y7  FXG086
+export const validatorRiskZXYS = (param: ValidatorRiskParam) => {
+  console.log('param', param);
+  const { riskCode, liabilityCode, age, sex } = param;
+  if (riskCode === '7Y7' && liabilityCode === 'FXG086') {
+    return sex === SEX_LIMIT_ENUM.FEMALE;
+  }
+  if (riskCode === '7Y7' && liabilityCode === 'FXG054') {
+    return sex === SEX_LIMIT_ENUM.FEMALE;
+  }
+  return true;
+};
+
 const productRiskVoListFilter = (productRiskVoList: any[], idCard: string, validatorRisk = (args: any) => true) => {
   const age = dayjs().diff(getBirth(idCard), 'day');
   const sex: string = getSex(idCard); // '1' 女 ｜ '2' 男
@@ -368,7 +381,12 @@ const productRiskVoListFilter = (productRiskVoList: any[], idCard: string, valid
       });
       return node;
     });
-    newProductRisk.push({ riskDetailVOList: tempArr.filter((n: any) => n) });
+    newProductRisk.push({
+      riskDetailVOList: tempArr.filter((n: any) => {
+        if (n && n.riskLiabilityInfoVOList.length > 0) return true;
+        return false;
+      }),
+    });
   });
   return newProductRisk;
 };
@@ -377,11 +395,6 @@ const productRiskVoListFilter = (productRiskVoList: any[], idCard: string, valid
 export const genaratePremiumCalcData = (o: premiumCalcParamType, flag = false, validatorRisk = (args: any) => true) => {
   let riskVOList: any[] = [];
   if (flag) {
-    console.log(
-      productRiskVoListFilter(o.insureDetail.productRiskVoList, o.insured.certNo, validatorRisk),
-      'slsl==000',
-      o.insureDetail.productRiskVoList[0].riskDetailVOList,
-    );
     riskVOList = compositionTrailData(
       productRiskVoListFilter(o.insureDetail.productRiskVoList, o.insured.certNo, validatorRisk)?.[0]?.riskDetailVOList,
       o.productDetail,
@@ -389,8 +402,11 @@ export const genaratePremiumCalcData = (o: premiumCalcParamType, flag = false, v
       o.paymentFrequency,
     );
   } else {
-    riskVOList = o.insureDetail.productRiskVoList.map((item: ProductRiskVoItem) => {
-      return compositionTrailData(item.riskDetailVOList, o.productDetail, o.packageRiskIdList, o.paymentFrequency);
+    const result = productRiskVoListFilter(o.insureDetail.productRiskVoList, o.insured.certNo, validatorRisk);
+    console.log('result', result);
+    riskVOList = result.map((item: ProductRiskVoItem) => {
+      // return compositionTrailData(item.riskDetailVOList, o.productDetail, o.packageRiskIdList, o.paymentFrequency);
+      return compositionTrailData(item.riskDetailVOList, o.productDetail, [], o.paymentFrequency);
     });
   }
   const calcData: PremiumCalcData = {
