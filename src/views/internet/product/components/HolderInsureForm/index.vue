@@ -499,7 +499,7 @@ watch(
   () => {
     let check = false;
     if (validateIdCardNo(state.formInfo.insured.certNo)) check = true;
-    state.formInfo.packageProductList.forEach((item: PackageProductVoItem) => {
+    state.formInfo?.packageProductList?.forEach((item: PackageProductVoItem) => {
       if (check) {
         const result = checkPackage(item, state.formInfo.insured.certNo);
         if (!result) {

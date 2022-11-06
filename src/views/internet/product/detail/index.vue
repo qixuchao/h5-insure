@@ -87,7 +87,13 @@ import { productDetail } from '@/api/modules/product';
 import { ORIGIN, toLocal } from '@/utils';
 import { validateMobile, validateName } from '@/utils/validator';
 
-import { genaratePremiumCalcData, transformData, genarateOrderParam, validateHolderAge } from '../../utils';
+import {
+  genaratePremiumCalcData,
+  transformData,
+  genarateOrderParam,
+  validateHolderAge,
+  validatorRisk2021,
+} from '../../utils';
 import themeVars from '../../theme';
 
 import Banner from '../components/Banner/index.vue';
@@ -223,14 +229,14 @@ const validCalcData = () => {
     },
     paymentMethod: insuredPaymentMethod,
   } = trialData;
-  const holderValid =
-    validateIdCardNo(holderCertNo) && validateMobile(holderMobile) && validateName(holderName) && !!holderSocialFlag;
-  const insuredValid =
-    validateIdCardNo(insuredCertNo) && validateName(insuredName) && !!insuredSocialFlag && !!insuredRelationToHolder;
-  if (holderValid && insuredValid && !!insuredPaymentMethod) {
-    return true;
-  }
-  return false;
+  // const holderValid =
+  //   validateIdCardNo(holderCertNo) && validateMobile(holderMobile) && validateName(holderName) && !!holderSocialFlag;
+  // const insuredValid =
+  //   validateIdCardNo(insuredCertNo) && validateName(insuredName) && !!insuredSocialFlag && !!insuredRelationToHolder;
+  // if (holderValid && insuredValid && !!insuredPaymentMethod) {
+  //   return true;
+  // }
+  return validateIdCardNo(insuredCertNo) && !!insuredSocialFlag;
 };
 
 const onConfirm = () => {
@@ -372,14 +378,17 @@ const onSaveOrder = async (risk: any) => {
 // 保费试算 -> 订单保存 -> 核保
 const onPremiumCalc = async () => {
   // 试算参数
-  const { calcData, riskVOList } = genaratePremiumCalcData({
-    holder: trialData.holder,
-    insured: trialData.insured,
-    tenantId,
-    paymentFrequency: trialData.paymentFrequency,
-    productDetail: detail.value as ProductDetail,
-    insureDetail: insureDetail.value as ProductData,
-  });
+  const { calcData, riskVOList } = genaratePremiumCalcData(
+    {
+      holder: trialData.holder,
+      insured: trialData.insured,
+      tenantId,
+      paymentFrequency: trialData.paymentFrequency,
+      productDetail: detail.value as ProductDetail,
+      insureDetail: insureDetail.value as ProductData,
+    },
+    true,
+  );
   const res = await premiumCalc(calcData);
 
   const { code, data } = res;
@@ -485,14 +494,20 @@ const onSubmit = () => {
 };
 
 watch(
-  () => trialData,
+  [() => trialData.insured.certNo, () => trialData.insured.socialFlag],
   debounce(() => {
-    if (detail.value && insureDetail.value && pageCode !== 'payBack') {
+    if (trialData.insured.certNo && trialData.insured.socialFlag && pageCode !== 'payBack') {
       // 验证通过才去试算
       if (validCalcData()) {
         onPremiumCalc();
       }
     }
+    // if (detail.value && insureDetail.value && pageCode !== 'payBack') {
+    //   // 验证通过才去试算
+    //   if (validCalcData()) {
+    //     onPremiumCalc();
+    //   }
+    // }
   }, 500),
   {
     deep: true,

@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { type } from 'os';
 import { PAYMENT_FREQUENCY_ENUM, INSURE_TYPE_ENUM } from '../../common/constants/infoCollection';
 import { ProductDetail } from '@/api/modules/product.data';
 import {
@@ -305,12 +306,84 @@ interface premiumCalcParamType {
   packageRiskIdList?: number[];
 }
 
+// 更具age day 算时间
+export const getDayByStr = (str: string): number => {
+  if (!str) return 0;
+  const [dateType, number] = str.split('_');
+  return dateType === 'day' ? parseInt(number, 10) : parseInt(number, 10) * 365;
+};
+
+// 保费计算投保险种是否在年级区间
+// age_70 or day_30
+export const validateHolderAge = (minStr: string, maxStr: string, age: number): boolean => {
+  const min: number = getDayByStr(minStr);
+  const max: number = getDayByStr(maxStr);
+  console.log(min, max, age);
+  return min <= age && max >= age;
+};
+
+interface riskLiabilityInfoVO {
+  liabilityCode: string;
+  liabilityDesc: string;
+  liabilityName: string;
+}
+
+interface riskDetailVO {
+  riskLiabilityInfoVOList: riskLiabilityInfoVO[];
+  riskCode: string;
+  riskInsureLimitVO: {
+    maxHolderAge: string;
+    minHolderAge: string;
+  };
+}
+
+interface ValidatorRiskParam {
+  riskCode: string;
+  liabilityCode: string;
+  age: number;
+  sex: '1' | '2';
+}
+
+export const validatorRisk2021 = (param: ValidatorRiskParam) => {
+  const { riskCode, liabilityCode, age, sex } = param;
+  console.log(riskCode, liabilityCode, age, sex);
+  return true;
+};
+
+const productRiskVoListFilter = (productRiskVoList: any[], idCard: string, validatorRisk = (args: any) => true) => {
+  const age = dayjs().diff(getBirth(idCard), 'day');
+  const sex: string = getSex(idCard); // '1' 女 ｜ '2' 男
+  const newProductRisk: any[] = [];
+  productRiskVoList.forEach((item) => {
+    const { riskDetailVOList } = item;
+    const tempArr = riskDetailVOList.map((node: riskDetailVO) => {
+      const { maxHolderAge, minHolderAge } = node.riskInsureLimitVO;
+      // 过滤年纪不达标的
+      if (!validateHolderAge(minHolderAge, maxHolderAge, age)) {
+        return null;
+      }
+      // eslint-disable-next-line no-param-reassign
+      node.riskLiabilityInfoVOList = node.riskLiabilityInfoVOList.filter((ite: riskLiabilityInfoVO) => {
+        return validatorRisk({ riskCode: node.riskCode, liabilityCode: ite.liabilityCode, age, sex });
+      });
+      return node;
+    });
+    newProductRisk.push({ riskDetailVOList: tempArr.filter((n: any) => n) });
+  });
+  return newProductRisk;
+};
+
 // premiumCalc 保费试算
-export const genaratePremiumCalcData = (o: premiumCalcParamType, flag = false) => {
+export const genaratePremiumCalcData = (o: premiumCalcParamType, flag = false, validatorRisk = (args: any) => true) => {
   let riskVOList: any[] = [];
   if (flag) {
-    riskVOList = compositionTrailData(
+    console.log(
+      productRiskVoListFilter(o.insureDetail.productRiskVoList, o.insured.certNo, validatorRisk),
+      'slsl==000',
       o.insureDetail.productRiskVoList[0].riskDetailVOList,
+    );
+    riskVOList = compositionTrailData(
+      productRiskVoListFilter(o.insureDetail.productRiskVoList, o.insured.certNo, validatorRisk)?.[0]?.riskDetailVOList,
       o.productDetail,
       [],
       o.paymentFrequency,
@@ -376,6 +449,7 @@ interface upgradeParamType {
 // 升级保障保费试算/升级需要的参数
 export const getReqData = (o: upgradeParamType) => {
   const { orderDetail } = o;
+  console.log(o, 'slslsl');
   const calcData = {
     agencyId: orderDetail.agencyId,
     venderCode: orderDetail.venderCode,
@@ -457,8 +531,8 @@ export const checkPackage = (item: PackageProductVoItem, idCard: string): boolea
   const result = item.productRiskVoList.some((risk) => {
     const minStr: string = risk.riskInsureLimitVO.minHolderAge;
     const maxStr: string = risk.riskInsureLimitVO.maxHolderAge;
-    // eslint-disable-next-line no-use-before-define
-    if (!validateHolderAge(minStr, maxStr, getAge(idCard))) return true;
+    const age = dayjs().diff(getBirth(idCard), 'day');
+    if (!validateHolderAge(minStr, maxStr, age)) return true;
     return false;
   });
   return !result;
@@ -500,25 +574,4 @@ export const idCardMixin = (idCard: string) => {
 // 短信
 export const validateSmsCode = (code: string): boolean => {
   return /^\d{6}$/.test(code);
-};
-
-// 更具age day 算时间
-export const getDayByStr = (str: string): number => {
-  if (!str) return 0;
-  const [type, number] = str.split('_');
-  return type === 'day' ? parseInt(number, 10) : parseInt(number, 10) * 365;
-};
-
-export const getAge = (idCard: string): number => {
-  if (!idCard) return 0;
-  return dayjs().diff(getBirth(idCard), 'day');
-};
-
-// 保费计算投保险种是否在年级区间
-// age_70 or day_30
-export const validateHolderAge = (minStr: string, maxStr: string, age: number): boolean => {
-  const min: number = getDayByStr(minStr);
-  const max: number = getDayByStr(maxStr);
-  console.log(min, max, age);
-  return min <= age && max >= age;
 };
