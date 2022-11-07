@@ -86,6 +86,7 @@ export const compositionTrailData = (
   productDetail: ProductDetail,
   packageRiskIdList: number[] = [],
   paymentFrequency: number = PAYMENT_FREQUENCY_ENUM.YEAR,
+  flag = false,
 ) => {
   const lastRiskList: RiskDetailVoItem[] = riskList.filter((item: any) => {
     try {
@@ -144,7 +145,9 @@ export const compositionTrailData = (
       coveragePeriod: insurancePeriodValueList?.[0],
       insuredCode: productDetail?.insurerCode,
       // 定制配置，责任去掉FXG086
-      liabilityVOList: riskLiabilityInfoVOList,
+      liabilityVOList: flag
+        ? riskLiabilityInfoVOList.filter((liab) => liab.optionalFlag === 1 && liab.liabilityCode !== 'FXG086')
+        : riskLiabilityInfoVOList,
       // paymentFrequency: paymentFrequencyList?.[0],
       riskCategory,
     };
@@ -397,13 +400,20 @@ export const genaratePremiumCalcData = (o: premiumCalcParamType, flag = false, v
       o.productDetail,
       [],
       o.paymentFrequency,
+      flag,
     );
   } else {
     const result = productRiskVoListFilter(o.insureDetail.productRiskVoList, o.insured.certNo, validatorRisk);
     console.log('result', result);
     riskVOList = result.map((item: ProductRiskVoItem) => {
       // return compositionTrailData(item.riskDetailVOList, o.productDetail, o.packageRiskIdList, o.paymentFrequency);
-      return compositionTrailData(item.riskDetailVOList, o.productDetail, o.packageRiskIdList, o.paymentFrequency);
+      return compositionTrailData(
+        item.riskDetailVOList,
+        o.productDetail,
+        o.packageRiskIdList,
+        o.paymentFrequency,
+        flag,
+      );
     });
   }
   const calcData: PremiumCalcData = {
@@ -525,6 +535,9 @@ export const getReqData = (o: upgradeParamType, validatorRisk = (args: any) => t
                   validatorRisk,
                 )?.[0]?.riskDetailVOList,
                 o.productDetail,
+                [],
+                PAYMENT_FREQUENCY_ENUM.YEAR,
+                true,
               ) as any,
               riskPremium: {},
               productId: o.productDetail?.id as number,
