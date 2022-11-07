@@ -245,7 +245,7 @@ import ProDivider from '@/components/ProDivider/index.vue';
 import { VALIDATE_TYPE_ENUM } from '@/common/constants';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
 import { PackageProductVoItem } from '@/api/modules/trial.data';
-import { validateName } from '@/utils/validator';
+import { validateCustomName } from '@/utils/validator';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import FilePreview from '../FilePreview/index.vue';
 import Package from '../Package/index.vue';
@@ -325,7 +325,7 @@ const smsText = ref<string>('获取验证码');
 const isSendSmsCode = ref(false);
 
 const nameValidator = (name: string) => {
-  if (validateName(name)) {
+  if (validateCustomName(name)) {
     return true;
   }
   return '请输入正确的姓名';
@@ -373,7 +373,7 @@ const filterHealthAttachmentList = computed(() => {
 });
 
 const isHolderMobileRight = computed(() => {
-  return /^(?:(?:\+|00)86)?1\d{10}$/.test(state.formInfo.holder.mobile);
+  return /^1(3|4|5|6|7|8|9)\d{9}$/.test(state.formInfo.holder.mobile);
 });
 
 const onSubmit = () => {

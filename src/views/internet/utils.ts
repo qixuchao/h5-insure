@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+import dayjs, { UnitType } from 'dayjs';
 import { type } from 'os';
 import { PAYMENT_FREQUENCY_ENUM, INSURE_TYPE_ENUM } from '../../common/constants/infoCollection';
 import { ProductDetail } from '@/api/modules/product.data';
@@ -598,4 +598,8 @@ export const idCardMixin = (idCard: string) => {
 // 短信
 export const validateSmsCode = (code: string): boolean => {
   return /^\d{6}$/.test(code);
+};
+
+export const getAgeByCard = (idCard: string, format: UnitType = 'year'): number => {
+  return dayjs().diff(getBirth(idCard), format, true);
 };

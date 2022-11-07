@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-08-01 15:59:43
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-06 11:25:25
+ * @LastEditTime: 2022-11-07 14:25:07
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProField/utils.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -83,7 +83,7 @@ export const formatRule = (type: keyof typeof VALIDATE_TYPE_ENUM, label: string)
   switch (type) {
     case VALIDATE_TYPE_ENUM.PHONE:
       return {
-        pattern: /^(?:(?:\+|00)86)?1\d{10}$/,
+        pattern: /^1(3|4|5|6|7|8|9)\d{9}$/,
         message: '请输入正确的手机号',
       };
     case VALIDATE_TYPE_ENUM.EMAIL:
