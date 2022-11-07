@@ -1,5 +1,0 @@
-<<<<<<< HEAD:dist/static/js/proposalList-e398a81d.js
-import{r as e}from"./index-eaf5a301.js";const o="/api/app/insure/proposal",s=r=>e({url:`${o}/queryProposalProductList`,method:"POST",data:r}),a=r=>e({url:`${o}/historyProposalList`,method:"POST",data:r}),P=r=>e({url:`${o}/deleteProposal/${r}`,method:"POST"}),l=r=>e({url:`${o}/preview/${r}`,method:"POST"}),u=(r={})=>e({url:`${o}/generatePdf`,method:"GET",params:r}),p=r=>e({url:`${o}/sharePreview/${r}`,method:"GET"});export{p as a,l as b,P as d,u as g,a as h,s as q};
-=======
-import{r as e}from"./index-160a821b.js";const o="/api/app/insure/proposal",s=r=>e({url:`${o}/queryProposalProductList`,method:"POST",data:r}),a=r=>e({url:`${o}/historyProposalList`,method:"POST",data:r}),P=r=>e({url:`${o}/deleteProposal/${r}`,method:"POST"}),l=r=>e({url:`${o}/preview/${r}`,method:"POST"}),u=(r={})=>e({url:`${o}/generatePdf`,method:"GET",params:r}),p=r=>e({url:`${o}/sharePreview/${r}`,method:"GET"});export{p as a,l as b,P as d,u as g,a as h,s as q};
->>>>>>> c7a2c7d86ba161c8af0e5ffde82a2f15731514d4:dist/static/js/proposalList-5f5d7515.js

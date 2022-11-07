@@ -1,5 +1,0 @@
-<<<<<<< HEAD:dist/static/js/createProposal-0147cada.js
-import{r as o}from"./index-eaf5a301.js";const e=r=>o({url:"/api/app/insure/proposal/addOrUpdateProposal",method:"POST",data:r}),p=(r={})=>o({url:`/api/app/insure/proposal/queryProposalDetail/${r.id}`,method:"GET",params:r}),s=(r={})=>o({url:`/api/app/insure/proposal/queryProposalDetailInsurer/${r.id}`,params:r,method:"GET"}),t=(r={})=>o({url:"/api/app/insure/product/listInsureProductDetail",method:"POST",data:r});export{t as a,e as b,s as c,p as q};
-=======
-import{r as o}from"./index-160a821b.js";const e=r=>o({url:"/api/app/insure/proposal/addOrUpdateProposal",method:"POST",data:r}),p=(r={})=>o({url:`/api/app/insure/proposal/queryProposalDetail/${r.id}`,method:"GET",params:r}),s=(r={})=>o({url:`/api/app/insure/proposal/queryProposalDetailInsurer/${r.id}`,params:r,method:"GET"}),t=(r={})=>o({url:"/api/app/insure/product/listInsureProductDetail",method:"POST",data:r});export{t as a,e as b,s as c,p as q};
->>>>>>> c7a2c7d86ba161c8af0e5ffde82a2f15731514d4:dist/static/js/createProposal-212c3eca.js
