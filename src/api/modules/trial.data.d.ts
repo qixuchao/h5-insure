@@ -3,6 +3,15 @@ export interface ProductData {
     productMaterialVOList: ProductMaterialVoItem[];
     productRelationPlanVOList: ProductRelationPlanVoItem[];
     productRiskVoList: ProductRiskVoItem[];
+    packageProductVOList: PackageProductVoItem[];
+}
+
+export interface PackageProductVoItem {
+  packageCode: string;
+  packageName: string;
+  value?: string;
+  disabled?: boolean;
+  productRiskVoList: RiskDetailVoItem[]
 }
 
 export interface ProductRiskVoItem {

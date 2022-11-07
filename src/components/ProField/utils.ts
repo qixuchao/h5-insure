@@ -1,8 +1,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-08-01 15:59:43
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-28 15:42:20
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-07 14:25:07
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProField/utils.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -47,6 +47,7 @@ export const validateIdCardNo = (idCard: string): boolean => {
  * @returns  sex 性别
  */
 export function getSex(idCard: string) {
+  if (!idCard) return '';
   let sex = '';
   // FEMALE = '2', // 女
   // MALE = '1', // 男
@@ -64,6 +65,7 @@ export function getSex(idCard: string) {
  * @returns  birthday 出生日期
  */
 export function getBirth(idCard: string) {
+  if (!idCard) return '';
   let birthday = '';
   if (idCard !== null && idCard !== '') {
     if (idCard.length === 15) {
@@ -81,7 +83,7 @@ export const formatRule = (type: keyof typeof VALIDATE_TYPE_ENUM, label: string)
   switch (type) {
     case VALIDATE_TYPE_ENUM.PHONE:
       return {
-        pattern: /^(?:(?:\+|00)86)?1\d{10}$/,
+        pattern: /^1(3|4|5|6|7|8|9)\d{9}$/,
         message: '请输入正确的手机号',
       };
     case VALIDATE_TYPE_ENUM.EMAIL:
