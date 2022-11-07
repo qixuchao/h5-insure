@@ -74,8 +74,8 @@ export const transformData = (o: transformDataType) => {
         // sumInsured: 300000,
       })),
       productId,
-      currantAmount: 30000,
-      initAmount: 30000,
+      currentAmount: 30000,
+      initialAmount: 30000,
     };
     return currentRisk;
   });

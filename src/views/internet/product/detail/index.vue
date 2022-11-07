@@ -54,6 +54,7 @@
     @on-confirm-health="onCloseHealth"
   ></HealthNoticePreview>
   <FilePreview
+    v-if="showFilePreview"
     v-model:show="showFilePreview"
     :content-list="filterHealthAttachmentList"
     :active-index="activeIndex"
@@ -419,7 +420,7 @@ const onPremiumCalcWithValid = () => {
         const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
         if (!isAgree) {
           // showHealthPreview.value = true;
-          showFilePreview.value = true;
+          // showFilePreview.value = true;
           previewFile(0);
           return;
         }
