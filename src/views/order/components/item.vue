@@ -71,6 +71,43 @@ const handleDelete = () => {
   });
 };
 
+const redirectProductDetail = (): boolean => {
+  const {
+    goodsCode: productCode,
+    orderNo,
+    id: orderId,
+    saleUserId: agentCode,
+    templateId,
+    tenantId,
+    insurerCode,
+    productCategory,
+    agencyId: agencyCode,
+    saleChannelId,
+    orderStatus,
+  } = props.detail;
+  if (ORDER_STATUS_ENUM.PENDING === orderStatus || ORDER_STATUS_ENUM.PAYING === orderStatus) {
+    if (productCode === PRODUCT_LIST_ENUM.ZXYS || productCode === PRODUCT_LIST_ENUM.BWYL) {
+      const productUrlMap = {
+        [PRODUCT_LIST_ENUM.ZXYS]: '/internet/productDetail/package',
+        [PRODUCT_LIST_ENUM.BWYL]: '/internet/productDetail',
+      };
+      router.push({
+        path: productUrlMap[productCode],
+        query: {
+          productCode,
+          saleChannelId,
+          agentCode,
+          tenantId,
+          agencyCode,
+          orderNo,
+        },
+      });
+      return true;
+    }
+  }
+  return false;
+};
+
 const handlePay = () => {
   const {
     goodsCode: productCode,
@@ -83,6 +120,7 @@ const handlePay = () => {
     productCategory,
     agencyId: agencyCode,
   } = props.detail;
+  if (redirectProductDetail()) return;
   router.push({
     path: PAGE_ROUTE_ENUMS.payInfo,
     query: {
@@ -113,26 +151,7 @@ const handleProcess = () => {
     saleChannelId,
     orderStatus,
   } = props.detail;
-  if (ORDER_STATUS_ENUM.PENDING === orderStatus || ORDER_STATUS_ENUM.PAYING === orderStatus) {
-    if (productCode === PRODUCT_LIST_ENUM.ZXYS || productCode === PRODUCT_LIST_ENUM.BWYL) {
-      const productUrlMap = {
-        [PRODUCT_LIST_ENUM.ZXYS]: 'internet/productDetail/package',
-        [PRODUCT_LIST_ENUM.BWYL]: 'internet/productDetail',
-      };
-      router.push({
-        path: productUrlMap[productCode],
-        query: {
-          productCode,
-          saleChannelId,
-          agentCode,
-          tenantId,
-          agencyCode,
-          orderNo,
-        },
-      });
-      return;
-    }
-  }
+  if (redirectProductDetail()) return;
   router.push({
     path: PAGE_ROUTE_ENUMS[props.detail.pageCode],
     query: {

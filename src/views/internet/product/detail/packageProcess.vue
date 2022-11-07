@@ -417,6 +417,7 @@ const onSaveOrder = async (risk: any) => {
           extraInfo: {
             renewalDK: trialData.renewalDK,
             paymentMethod: trialData.paymentMethod,
+            paymentFrequency: trialData.paymentFrequency,
             successJumpUrl: getPaySuccessCallbackUrl(data.data),
             failUrl: getPayFailCallbackUrl(data.data),
           },
@@ -627,8 +628,8 @@ const getOrderById = async () => {
       });
       buttonAuth.canInsure = true;
 
-      formAuth.value = noBuyAuth;
-      defaultFormAuth.value = noBuyAuth;
+      // formAuth.value = noBuyAuth;
+      // defaultFormAuth.value = noBuyAuth;
 
       return;
     }
@@ -649,6 +650,7 @@ const getOrderById = async () => {
         relationToHolder: tenantOrderInsuredList[0]?.relationToHolder,
       },
       paymentMethod: extInfo.extraInfo.paymentMethod,
+      paymentFrequency: extInfo.extraInfo.paymentFrequency,
       renewalDK: extInfo.extraInfo.renewalDK || 'N',
     });
     premium.value = tenantOrderInsuredList[0]?.tenantOrderProductList?.[0]?.premium;
@@ -750,39 +752,16 @@ const fetchData = async () => {
   if (orderNo) {
     // 这里要轮询，支付完成后，跳转回来，订单状态可能没有及时更新
     getOrderById();
-  } else if (mobile && pageCode === 'productDetail') {
-    // 短信进入，带了手机号，pageCode
-    getOrderByMobile();
   }
 };
 
 // 从链接上去参数，设置表单权限
 const setFormAuth = () => {
-  if (pageCode === 'free') {
-    // 赠险进入，分审核版赠险和非审核版赠险
-    if (!isPayBack) {
-      // 审核版
-      formAuth.value = { ...checkAuth, paymentDisable: !!paymentMethod };
-      defaultFormAuth.value = { ...checkAuth, paymentDisable: !!paymentMethod };
-      buttonAuth.canInsure = true;
-    } else {
-      // 非审核版
-      formAuth.value = { ...freeAuthDefault, paymentDisable: !!paymentMethod };
-      defaultFormAuth.value = { ...freeAuthDefault, paymentDisable: !!paymentMethod };
-      buttonAuth.canInsure = true;
-    }
-  } else if (isPayBack) {
-    // 支付完进入
-    formAuth.value = orderAuth;
-    defaultFormAuth.value = orderAuth;
-    console.log('支付完成进入');
-  } else if (!(mobile || orderNo)) {
-    // 投保链接
-    console.log('投保链接');
-    formAuth.value = allAuth;
-    defaultFormAuth.value = allAuth;
-    buttonAuth.canInsure = true;
-  }
+  // 投保链接
+  console.log('投保链接');
+  formAuth.value = allAuth;
+  defaultFormAuth.value = allAuth;
+  buttonAuth.canInsure = true;
   // 短信进入，查数据，再设置是否可以修改
 };
 

@@ -353,6 +353,7 @@ export const validatorRisk2022 = (param: ValidatorRiskParam) => {
 
 // 7Y7  FXG086
 export const validatorRiskZXYS = (param: ValidatorRiskParam) => {
+  console.log('param', param);
   const { riskCode, liabilityCode, age, sex } = param;
   if (riskCode === '7Y7' && liabilityCode === 'FXG086') {
     return sex === SEX_LIMIT_ENUM.FEMALE;
@@ -362,6 +363,7 @@ export const validatorRiskZXYS = (param: ValidatorRiskParam) => {
 
 const productRiskVoListFilter = (productRiskVoList: any[], idCard: string, validatorRisk = (args: any) => true) => {
   const age = dayjs().diff(getBirth(idCard), 'day');
+  console.log('age', dayjs().diff(getBirth(idCard), 'year'));
   const sex: string = getSex(idCard); // '1' 女 ｜ '2' 男
   const newProductRisk: any[] = [];
   productRiskVoList.forEach((item) => {

@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-01 20:45:34
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-02 16:00:01
+ * @LastEditTime: 2022-11-07 22:45:17
  * @Description:
  */
 export interface AuthType {
@@ -62,6 +62,17 @@ export const checkAuth = {
 // 3、支付完成，返回保单，所有信息不能修改
 export const orderAuth = {
   ...defaultAuth,
+  holderNameDisable: false, // 投保人姓名可以修改
+  holderCertDisable: false, // 投保人证件号可以修改
+  holderMobileDisable: false, // 投保人手机号可以修改
+  holderSocialDisable: false, // 投保人社保可以修改
+  relationToHolderDisable: false, // 投被保人关系可以修改
+  insuredNameDisable: false, // 被保人姓名可以修改
+  insuredCertDisable: false, // 被保人证件号可以修改
+  insuredSocialDisable: false, // 被保人社保可以修改
+  paymentDisable: false, // 支付方式可以修改
+  paymentFrequencyDisable: false, // 交费方式可以修改
+  renewalDKDisable: false, // 下一年是否自主可以修改
 };
 
 // 4、短信进入，带了orderNo，领了赠险没买付费险，除了被保人信息，其他都可以修改
