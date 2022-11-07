@@ -386,6 +386,10 @@ const previewFile = (index: number) => {
   showFilePreview.value = true;
 };
 
+const reEditForm = () => {
+  isAgreeFile.value = false;
+};
+
 const validateForm = () => {
   return new Promise((resolve, reject) => {
     formRef?.value.validate().then(
@@ -529,6 +533,7 @@ watch(
 defineExpose({
   validateForm,
   previewFile,
+  reEditForm,
   isAgreeFile,
   onSubmit,
 });

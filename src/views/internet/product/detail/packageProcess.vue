@@ -373,12 +373,9 @@ const onUnderWrite = async (o: any) => {
   }
 };
 
+// 跳转支付成功页
 const getPaySuccessCallbackUrl = (no: number) => {
-  // const url = `${ORIGIN}/internet/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack&from=${
-  //   from || 'normal'
-  // }`;
-  // return url;
-  return `${ORIGIN}/internet/orderDetail?orderNo=${no}&productCode=${productCode}&tenantId=${tenantId}`;
+  return `${ORIGIN}/pay?orderNo=${no}&saleUserId=${agentCode}&tenantId=${tenantId}`;
 };
 
 const getPayFailCallbackUrl = (no: number) => {
@@ -555,9 +552,15 @@ const onCloseHealth = (type: string) => {
     Dialog.confirm({
       message: '您当前的健康状况不符合该产品',
       confirmButtonText: '确定',
-    }).then(() => {
-      window.history.back();
-    });
+    })
+      .then(() => {
+        window.history.back();
+      })
+      .catch(() => {
+        formRef.value?.reEditForm();
+        isAgreeFile.value = false;
+        buttonAuth.canInsure = true;
+      });
   }
 };
 
