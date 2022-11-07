@@ -25,7 +25,7 @@
       </ScrollInfo>
       <div class="footer-button">
         <div class="price">
-          总保费<span>￥{{ toLocal(premium as number) }}/月</span>
+          总保费<span v-if="premium">￥{{ toLocal(premium as number) }}/月</span>
         </div>
         <van-button
           type="primary"
@@ -220,7 +220,7 @@ const filterHealthAttachmentList = computed(() => {
   );
 });
 
-// 投被保人信息校验： 1、投保人必须大于18岁。2、被保人为子女不能小于30天。3、被保人为父母不能大于60岁。4、被保人为配偶性别不能相同。
+// 投被保人信息校验： 1、投保人必须大于18岁。2、被保人为子女不能小于30天。3、被保人为父母不能大于70岁。4、被保人为配偶性别不能相同。
 const checkCustomerResult = computed(() => {
   if (trialData.holder.certNo) {
     const age = getAgeByCard(trialData.holder.certNo, 'year');
@@ -246,8 +246,8 @@ const checkCustomerResult = computed(() => {
       Toast('被保人为子女时，年龄必须大于等于30天！');
       return false;
     }
-    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && age >= 61) {
-      Toast('被保人为父母时，年龄必须小于等于60岁！');
+    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && age >= 71) {
+      Toast('被保人为父母时，年龄必须小于等于70岁！');
       return false;
     }
   }
@@ -459,13 +459,13 @@ const onPremiumCalcWithValid = () => {
       .then(async () => {
         // 表单验证通过再检查是否逐条阅读
         if (!checkCustomerResult.value) return;
-        const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
-        if (!isAgree) {
-          // showHealthPreview.value = true;
-          // showFilePreview.value = true;
-          previewFile(0);
-          return;
-        }
+        // const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
+        // if (!isAgree) {
+        //   // showHealthPreview.value = true;
+        //   // showFilePreview.value = true;
+        //   previewFile(0);
+        //   return;
+        // }
 
         // 试算参数
         const { calcData, riskVOList } = genaratePremiumCalcData(
@@ -535,6 +535,8 @@ const onCloseHealth = (type: string) => {
     Dialog.confirm({
       message: '您当前的健康状况不符合该产品',
       confirmButtonText: '确定',
+    }).then(() => {
+      window.history.back();
     });
   }
 };

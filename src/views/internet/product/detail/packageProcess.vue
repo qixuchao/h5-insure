@@ -555,6 +555,8 @@ const onCloseHealth = (type: string) => {
     Dialog.confirm({
       message: '您当前的健康状况不符合该产品',
       confirmButtonText: '确定',
+    }).then(() => {
+      window.history.back();
     });
   }
 };
