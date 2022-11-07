@@ -102,6 +102,7 @@ export const compositionTrailData = (
       return false;
     }
   });
+  console.log('lastRiskList', lastRiskList);
   // 主险信息
   const mainRiskData = lastRiskList.find((risk) => risk.riskType === RISK_TYPE_ENUM.MAIN_RISK);
   return lastRiskList.map((risk) => {
@@ -143,9 +144,7 @@ export const compositionTrailData = (
       coveragePeriod: insurancePeriodValueList?.[0],
       insuredCode: productDetail?.insurerCode,
       // 定制配置，责任去掉FXG086
-      liabilityVOList: riskLiabilityInfoVOList.filter(
-        (liab) => liab.optionalFlag === 1 && liab.liabilityCode !== 'FXG086',
-      ),
+      liabilityVOList: riskLiabilityInfoVOList,
       // paymentFrequency: paymentFrequencyList?.[0],
       riskCategory,
     };
@@ -353,7 +352,6 @@ export const validatorRisk2022 = (param: ValidatorRiskParam) => {
 
 // 7Y7  FXG086
 export const validatorRiskZXYS = (param: ValidatorRiskParam) => {
-  console.log('param', param);
   const { riskCode, liabilityCode, age, sex } = param;
   if (riskCode === '7Y7' && liabilityCode === 'FXG086') {
     return sex === SEX_LIMIT_ENUM.FEMALE;
