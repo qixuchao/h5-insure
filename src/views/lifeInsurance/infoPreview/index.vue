@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-13 00:37:48
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-11-07 11:24:08
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -113,7 +113,12 @@
 import { useRoute, useRouter } from 'vue-router';
 import { useToggle } from '@vant/use';
 import { conditionalExpression } from '@babel/types';
-import { PAGE_ROUTE_ENUMS, ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
+import {
+  PAGE_ROUTE_ENUMS,
+  ATTACHMENT_CATEGORY_ENUM,
+  ATTACHMENT_OBJECT_TYPE_ENUM,
+  NEXT_BUTTON_CODE_ENUMS,
+} from '@/common/constants';
 import { getInitFactor, nextStep, getTemplateInfo, getOrderDetail } from '@/api';
 import {
   FactorData,
@@ -239,7 +244,12 @@ const queryOrderDetail = () => {
     .then(({ code, data }) => {
       if (code === '10000') {
         const currentData = data;
-        currentData.extInfo = { ...currentData.extInfo, pageCode, templateId };
+        currentData.extInfo = {
+          ...currentData.extInfo,
+          pageCode,
+          templateId,
+          buttonCode: NEXT_BUTTON_CODE_ENUMS.infoPreview,
+        };
         currentData.tenantOrderHolder = currentData.tenantOrderHolder || {};
         currentData.tenantOrderHolder.extInfo = currentData.tenantOrderHolder.extInfo || { occupationCodeList: [] };
         currentData.tenantOrderInsuredList[0].extInfo = currentData.tenantOrderInsuredList[0].extInfo || {

@@ -126,6 +126,7 @@ import {
   ATTACHMENT_CATEGORY_ENUM,
   ATTACHMENT_OBJECT_TYPE_ENUM,
   YES_NO_ENUM,
+  NEXT_BUTTON_CODE_ENUMS,
 } from '@/common/constants';
 import { nextStep, getOrderDetail, getInitFactor, queryInsuredMaterial } from '@/api';
 import { ProductInsureFactorItem } from '@/api/index.data';
@@ -294,7 +295,13 @@ const handleSubmit = () => {
             ...orderDetail,
             pageCode: 'payInfo',
             tenantOrderPayInfoList: payInfoList,
-            extInfo: { ...orderDetail.extInfo, templateId, pageCode: 'payInfo', shareFlag: isShare ? 'Y' : 'N' },
+            extInfo: {
+              ...orderDetail.extInfo,
+              templateId,
+              pageCode: 'payInfo',
+              shareFlag: isShare ? 'Y' : 'N',
+              buttonCode: NEXT_BUTTON_CODE_ENUMS.payInfo,
+            },
             operateOption: {
               withPayInfo: true,
               withAttachmentInfo: true,

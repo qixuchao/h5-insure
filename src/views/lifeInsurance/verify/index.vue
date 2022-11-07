@@ -156,6 +156,7 @@ import {
   CERT_TYPE_ENUM,
   ATTACHMENT_CATEGORY_ENUM,
   ATTACHMENT_OBJECT_TYPE_ENUM,
+  NEXT_BUTTON_CODE_ENUMS,
 } from '@/common/constants';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { NextStepRequestData } from '@/api/index.data';
@@ -352,6 +353,7 @@ const handleSubmit = () => {
                 pageCode: 'sign',
                 templateId,
                 shareFlag: isShare ? 'Y' : 'N',
+                buttonCode: NEXT_BUTTON_CODE_ENUMS.sign,
               },
               venderCode: insurerCode,
             }).then((nextRes) => {

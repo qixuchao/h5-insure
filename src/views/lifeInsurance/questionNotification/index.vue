@@ -66,7 +66,7 @@ import {
 } from '@/api/modules/inform.data';
 import { nextStep, getOrderDetail } from '@/api';
 import { NextStepRequestData } from '@/api/index.data';
-import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { NEXT_BUTTON_CODE_ENUMS, PAGE_ROUTE_ENUMS } from '@/common/constants';
 import {
   QUESTION_IS_DONE_ENUM,
   QUESTION_IS_NOT_DONE_ENUM,
@@ -202,7 +202,11 @@ const handleClickNextStep = () => {
 
   nextStep({
     ...pageData.value,
-    extInfo: { ...pageData.value.extInfo, pageCode: 'questionNotice' },
+    extInfo: {
+      ...pageData.value.extInfo,
+      pageCode: 'questionNotice',
+      buttonCode: NEXT_BUTTON_CODE_ENUMS.questionNotice,
+    },
     venderCode: insurerCode,
   }).then(({ code, data }) => {
     if (code === '10000') {

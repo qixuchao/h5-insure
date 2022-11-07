@@ -2,8 +2,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 16:05:16
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-28 15:20:04
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-11-07 11:08:04
  * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -143,6 +143,17 @@ export const PAGE_ROUTE_ENUMS = {
   activityFree: 'free',
   activityProductDetail: 'productDetail',
   activityGuaranteeUpgrade: 'guaranteeUpgrade',
+};
+
+export const NEXT_BUTTON_CODE_ENUMS = {
+  premiumTrial: 'premiumCalc', // 保费试算
+  customerNotice: 'nextStepByPageCustomerNotice', // 客户告知书
+  questionNotice: 'nextStepByPageNotice', // 问卷告知书
+  infoCollection: 'nextStepByPageInfoCollection', // 信息采集
+  infoPreview: 'nextStepByPagePreview', // 信息采集预览
+  payInfo: 'nextStepByPagePayInfo', // 添加银行卡信息
+  salesNotice: 'nextStepByPageSalesNotice', // 营销员告知
+  sign: 'nextStepByPageSign', // 人脸识别
 };
 
 // eslint-disable-next-line

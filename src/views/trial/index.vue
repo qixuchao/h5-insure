@@ -93,7 +93,7 @@ import { insureProductDetail, premiumCalc } from '@/api/modules/trial';
 import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
 import { getDic, nextStep, getTemplateInfo } from '@/api';
 import { useCookie } from '@/hooks/useStorage';
-import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { PAGE_ROUTE_ENUMS, NEXT_BUTTON_CODE_ENUMS } from '@/common/constants';
 import {
   ProductBasicInfoVo,
   RiskDetailVoItem,
@@ -244,6 +244,7 @@ const goNextPage = () => {
       templateId: +(templateId || 1),
       pageCode,
       iseeBizNo: window.iseeBiz,
+      buttonCode: NEXT_BUTTON_CODE_ENUMS.premiumTrial,
     },
     tenantOrderHolder: {
       extInfo: {
