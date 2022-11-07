@@ -2,8 +2,8 @@
  * @Description: 用户模块
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-10-26 16:30:35
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-07 21:07:45
  */
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
@@ -66,7 +66,7 @@ const axiosInstance: AxiosInstance = axios.create({
   // 前缀
   baseURL: BASE_PREFIX,
   // 超时
-  timeout: 1000 * 30,
+  timeout: 1000 * 300,
   // 是否允许跨域请求带cookie
   withCredentials: false,
   // 请求头，如果有特殊的，在请求时传入jie

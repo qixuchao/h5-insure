@@ -255,8 +255,8 @@ const checkCustomerResult = computed(() => {
       Toast('被保人为子女时，年龄必须大于等于30天！');
       return false;
     }
-    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && age >= 61) {
-      Toast('被保人为父母时，年龄必须小于等于60岁！');
+    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && age >= 71) {
+      Toast('被保人为父母时，年龄必须小于等于70岁！');
       return false;
     }
   }
