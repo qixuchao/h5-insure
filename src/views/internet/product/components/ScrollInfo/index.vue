@@ -29,8 +29,9 @@
           <ProPDFviewer
             v-for="(item, index) in detail?.tenantProductInsureVO?.attachmentVOList || []"
             :key="index"
+            :type="queryFilePerfix(item.attachmentUri)"
             class="file-name"
-            :title="`《${item.attachmentName}》`"
+            :title="getFileName(item.attachmentName)"
             :content="item.attachmentUri"
           >
             >
@@ -75,7 +76,6 @@ const props = defineProps({
     default: () => {},
   },
 });
-
 const tabList = ref<Array<{ title: string; slotName: string }>>([
   {
     title: '我要投保',
@@ -94,6 +94,26 @@ const tabList = ref<Array<{ title: string; slotName: string }>>([
     slotName: 'tab4',
   },
 ]);
+
+const queryFilePerfix = (fileUrl: string) => {
+  const fileType: string = fileUrl.split('?')[0];
+  const index = fileType.lastIndexOf('.');
+  return fileType.substring(index + 1);
+};
+
+// const queryFileType = (fileUrl: string) => {
+//   const fileType = queryFilePerfix(fileUrl);
+//   if ('pdf' || 'Pdf') return 'pdf';
+//   if('')
+// };
+
+const getFileName = (fileName: string): string => {
+  if (!fileName) return '';
+  let newName = fileName;
+  if (newName.indexOf('《') === -1) newName = `《${newName}`;
+  if (newName.indexOf('》') === -1) newName = `${newName}》`;
+  return newName;
+};
 </script>
 
 <style lang="scss" scoped>
