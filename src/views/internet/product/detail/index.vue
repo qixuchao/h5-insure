@@ -68,7 +68,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import { debounce } from 'lodash';
-import { validateIdCardNo } from '@/components/ProField/utils';
+import { validateIdCardNo, getSex } from '@/components/ProField/utils';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { SOCIAL_SECURITY_ENUM, RELATION_HOLDER_ENUM, PAYMENT_FREQUENCY_ENUM } from '@/common/constants/infoCollection';
@@ -89,7 +89,13 @@ import { productDetail } from '@/api/modules/product';
 import { ORIGIN, toLocal } from '@/utils';
 import { validateMobile, validateName } from '@/utils/validator';
 
-import { genaratePremiumCalcData, transformData, genarateOrderParam, validateHolderAge } from '../../utils';
+import {
+  genaratePremiumCalcData,
+  transformData,
+  genarateOrderParam,
+  validateHolderAge,
+  getAgeByCard,
+} from '../../utils';
 import themeVars from '../../theme';
 
 import Banner from '../components/Banner/index.vue';
@@ -212,6 +218,40 @@ const filterHealthAttachmentList = computed(() => {
       (item: AttachmentVOList) => item.attachmentName !== '健康告知',
     ) || []
   );
+});
+
+// 投被保人信息校验： 1、投保人必须大于18岁。2、被保人为子女不能小于30天。3、被保人为父母不能大于60岁。4、被保人为配偶性别不能相同。
+const checkCustomerResult = computed(() => {
+  if (trialData.holder.certNo) {
+    const age = getAgeByCard(trialData.holder.certNo, 'year');
+    const sex = getSex(trialData.holder.certNo);
+    // 投保人必须大于18岁
+    if (age < 18) {
+      Toast('投保人年龄必须大于18岁！');
+      return false;
+    }
+    // 被保人为配偶性别不能相同
+    if (trialData.insured.certNo && trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.MATE) {
+      const insuredSex = getSex(trialData.insured.certNo);
+      if (sex === insuredSex) {
+        Toast('被保人为配偶时，性别不可相同！');
+        return false;
+      }
+    }
+  }
+  if (trialData.insured.certNo) {
+    const days = getAgeByCard(trialData.holder.certNo, 'day');
+    const age = getAgeByCard(trialData.holder.certNo, 'year');
+    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.CHILD && days < 30) {
+      Toast('被保人为子女时，年龄必须大于等于30天！');
+      return false;
+    }
+    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && age >= 61) {
+      Toast('被保人为父母时，年龄必须小于等于60岁！');
+      return false;
+    }
+  }
+  return true;
 });
 
 // 校验所有输入参数
@@ -379,6 +419,7 @@ const onSaveOrder = async (risk: any) => {
 
 // 保费试算 -> 订单保存 -> 核保
 const onPremiumCalc = async () => {
+  if (!checkCustomerResult.value) return {};
   // 试算参数
   const { calcData, riskVOList } = genaratePremiumCalcData(
     {
@@ -417,6 +458,7 @@ const onPremiumCalcWithValid = () => {
       ?.validateForm?.()
       .then(async () => {
         // 表单验证通过再检查是否逐条阅读
+        if (!checkCustomerResult.value) return;
         const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
         if (!isAgree) {
           // showHealthPreview.value = true;
