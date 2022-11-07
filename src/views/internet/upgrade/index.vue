@@ -200,7 +200,8 @@ const upgrade = async (oNo: string) => {
       router.replace(`/internet/orderDetail?orderNo=${oNo}&productCode=${productCode}&tenantId=${tenantId}`);
     } else {
       Toast.clear();
-      showModal.value = true;
+      upgradeHandler();
+      // showModal.value = true;
     }
   }
 };
