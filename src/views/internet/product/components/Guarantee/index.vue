@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-06 10:53:35
+ * @LastEditTime: 2022-11-07 10:57:19
  * @Description: 保障详情
 -->
 <template>
@@ -57,7 +57,7 @@ const props = defineProps({
   },
   count: {
     type: Number,
-    default: 7,
+    default: 10,
   },
 });
 

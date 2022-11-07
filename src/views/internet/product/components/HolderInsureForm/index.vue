@@ -29,7 +29,7 @@
           name="certNo"
           required
           placeholder="请输入身份证号"
-          maxlength="20"
+          maxlength="18"
           :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
         />
         <!-- 投保人手机号 -->
@@ -60,7 +60,14 @@
           :validate-type="[VALIDATE_TYPE_ENUM.SMS_CODE]"
         >
           <template #extra>
-            <div :class="['sms-code', { 'count-down': countDownTimer > 0 }]" @click="onCaptha">{{ smsText }}</div>
+            <van-button
+              :class="['sms-code', { 'count-down': countDownTimer > 0 }]"
+              size="small"
+              type="primary"
+              :disabled="!isHolderMobileRight"
+              @click="onCaptha"
+              >{{ smsText }}</van-button
+            >
           </template>
         </ProField>
         <!-- 投保人社保 -->
@@ -365,6 +372,10 @@ const filterHealthAttachmentList = computed(() => {
   );
 });
 
+const isHolderMobileRight = computed(() => {
+  return /^(?:(?:\+|00)86)?1\d{10}$/.test(state.formInfo.holder.mobile);
+});
+
 const onSubmit = () => {
   isAgreeFile.value = true;
   return isAgreeFile;
@@ -553,23 +564,23 @@ defineExpose({
   }
 }
 
-.sms-code {
-  width: 200px;
-  height: 60px;
-  border-radius: 8px;
-  border: 2px solid #e0e0e0;
-  font-size: 26px;
-  font-family: PingFangSC-Regular, PingFang SC;
-  font-weight: 400;
-  color: #393d46;
-  line-height: 60px;
-  text-align: center;
+// .sms-code {
+//   width: 200px;
+//   height: 60px;
+//   border-radius: 8px;
+//   border: 2px solid #e0e0e0;
+//   font-size: 14px;
+//   font-family: PingFangSC-Regular, PingFang SC;
+//   font-weight: 400;
+//   color: #393d46;
+//   line-height: 60px;
+//   text-align: center;
 
-  &.count-down {
-    border: 0;
-    text-align: right;
-  }
-}
+//   &.count-down {
+//     border: 0;
+//     text-align: right;
+//   }
+// }
 
 :deep(.van-cell .van-cell__value .van-field__error-message) {
   display: inline-block;

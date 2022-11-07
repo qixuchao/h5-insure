@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-06 18:54:54
+ * @LastEditTime: 2022-11-07 13:36:49
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -21,7 +21,7 @@
         "
         class="tab"
       ></ProTab>
-      <div ref="previewRef" class="list">
+      <div ref="previewRef" class="list" @scroll="handleScroll">
         <div class="item">
           <ProFilePreview :key="attachmentUri" :content="attachmentUri" type="pdf"></ProFilePreview>
         </div>
@@ -151,10 +151,9 @@ watch(
           e.readDisabled = false;
         });
       }
-      window.removeEventListener('scroll', handleScroll, true);
-      setTimeout(() => {
-        window.addEventListener('scroll', handleScroll, true);
-      }, 1000);
+      if (previewRef.value) {
+        previewRef.value.scrollTop = 0;
+      }
     }
   },
   {
@@ -181,8 +180,8 @@ watch(
     }
   }
   .list {
-    height: calc(100% - 212px);
-    overflow: scroll;
+    height: calc(100vh - 212px);
+    overflow-y: scroll;
   }
   .footer {
     display: flex;

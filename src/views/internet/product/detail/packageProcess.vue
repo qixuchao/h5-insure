@@ -26,7 +26,7 @@
         <div class="price">
           总保费<span>
             ￥{{ toLocal(premium as number)}}
-            {{ trialData.paymentFrequency == PAYMENT_FREQUENCY_ENUM.YEAR ? '元' : '元/月' }}
+            {{ trialData.paymentFrequency == PAYMENT_FREQUENCY_ENUM.YEAR ? '元/年' : '元/月' }}
           </span>
         </div>
         <van-button
