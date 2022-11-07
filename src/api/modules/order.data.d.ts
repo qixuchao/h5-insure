@@ -31,6 +31,7 @@ export interface OrderItem {
   abbreviation: string;
   insurerCode: string;
   productCategory: string;
+  saleChannelId?: number;
 }
 
 export interface Sort {

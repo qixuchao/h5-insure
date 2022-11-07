@@ -43,8 +43,8 @@ import { useRouter } from 'vue-router';
 import dayjs from 'dayjs';
 import { OrderItem } from '@/api/modules/order.data';
 import { deleteOrder } from '@/api/modules/order';
-import { ORDER_STATUS_MAP, ORDER_TOP_STATUS_ENUM } from '@/common/constants/order';
-import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP, ORDER_TOP_STATUS_ENUM } from '@/common/constants/order';
+import { PAGE_ROUTE_ENUMS, PRODUCT_LIST_ENUM } from '@/common/constants';
 
 const emits = defineEmits(['afterDelete']);
 const router = useRouter();
@@ -110,7 +110,29 @@ const handleProcess = () => {
     insurerCode,
     productCategory,
     agencyId: agencyCode,
+    saleChannelId,
+    orderStatus,
   } = props.detail;
+  if (ORDER_STATUS_ENUM.PENDING === orderStatus || ORDER_STATUS_ENUM.PAYING === orderStatus) {
+    if (productCode === PRODUCT_LIST_ENUM.ZXYS || productCode === PRODUCT_LIST_ENUM.BWYL) {
+      const productUrlMap = {
+        [PRODUCT_LIST_ENUM.ZXYS]: 'internet/productDetail/package',
+        [PRODUCT_LIST_ENUM.BWYL]: 'internet/productDetail',
+      };
+      router.push({
+        path: productUrlMap[productCode],
+        query: {
+          productCode,
+          saleChannelId,
+          agentCode,
+          tenantId,
+          agencyCode,
+          orderNo,
+        },
+      });
+      return;
+    }
+  }
   router.push({
     path: PAGE_ROUTE_ENUMS[props.detail.pageCode],
     query: {
