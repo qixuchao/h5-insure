@@ -618,14 +618,15 @@ const getOrderById = async () => {
           socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
         },
         insured: {
-          certNo: tenantOrderHolder.certNo,
-          certType: tenantOrderHolder.certType,
-          name: tenantOrderHolder.name,
-          socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
-          relationToHolder: RELATION_HOLDER_ENUM.SELF, // 被保人默认自己
+          certNo: tenantOrderInsuredList?.[0].certNo,
+          certType: tenantOrderInsuredList[0]?.certType,
+          name: tenantOrderInsuredList[0]?.name,
+          socialFlag: tenantOrderInsuredList[0]?.extInfo?.hasSocialInsurance,
+          relationToHolder: tenantOrderInsuredList[0]?.relationToHolder,
         },
-        paymentMethod,
-        renewalDK: 'Y',
+        paymentMethod: extInfo.extraInfo.paymentMethod,
+        paymentFrequency: extInfo.extraInfo.paymentFrequency,
+        renewalDK: extInfo.extraInfo.renewalDK || 'N',
       });
       buttonAuth.canInsure = true;
 
