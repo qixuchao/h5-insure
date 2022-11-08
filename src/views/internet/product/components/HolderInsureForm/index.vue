@@ -15,7 +15,6 @@
           name="name"
           required
           placeholder="请输入姓名"
-          maxlength="10"
           :rules="[{ validator: nameValidator }]"
         />
         <!-- 投保人证件号 -->
@@ -121,7 +120,6 @@
           label="姓名"
           name="name"
           required
-          maxlength="10"
           :rules="[{ validator: nameValidator }]"
         />
         <!-- 被保人证件号码 -->
