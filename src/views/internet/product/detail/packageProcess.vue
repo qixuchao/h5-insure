@@ -39,7 +39,7 @@
         </van-button>
       </div>
     </div>
-    <PreNotice v-if="pageCode !== 'payBack'" :product-detail="detail"></PreNotice>
+    <PreNotice v-if="!orderNo" :product-detail="detail"></PreNotice>
     <UpgradeModal
       :order-no="orderNo"
       :tenant-id="tenantId"
@@ -230,7 +230,7 @@ const filterHealthAttachmentList = computed(() => {
 });
 
 // 投被保人信息校验： 1、投保人必须大于18岁。2、被保人为子女不能小于30天。3、被保人为父母不能大于60岁。4、被保人为配偶性别不能相同。
-const checkCustomerResult = computed(() => {
+const onCheckCustomer = () => {
   if (trialData.holder.certNo) {
     const age = getAgeByCard(trialData.holder.certNo, 'year');
     const sex = getSex(trialData.holder.certNo);
@@ -261,7 +261,7 @@ const checkCustomerResult = computed(() => {
     }
   }
   return true;
-});
+};
 
 // 校验所有输入参数
 const validCalcData = () => {
@@ -432,10 +432,6 @@ const onSaveOrder = async (risk: any) => {
 
 // 保费试算 -> 订单保存 -> 核保
 const onPremiumCalc = async () => {
-  if (!checkCustomerResult.value) {
-    buttonAuth.canInsure = true;
-    return {};
-  }
   // 试算参数
   const { calcData, riskVOList } = genaratePremiumCalcData(
     {
@@ -475,7 +471,7 @@ const onPremiumCalcWithValid = () => {
     formRef.value
       ?.validateForm?.()
       .then(async () => {
-        if (!checkCustomerResult.value) {
+        if (!onCheckCustomer()) {
           buttonAuth.canInsure = true;
           return;
         }
@@ -527,7 +523,7 @@ const onNext = async () => {
     onConfirm();
     return;
   }
-  buttonAuth.canInsure = false;
+  // buttonAuth.canInsure = false;
   try {
     const { condition, data } = await onPremiumCalcWithValid();
 

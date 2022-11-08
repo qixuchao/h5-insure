@@ -2,12 +2,18 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-07 13:36:49
+ * @LastEditTime: 2022-11-08 16:11:01
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
-  <ProPopup v-model:show="isShow" :height="80" class="file-preview-popup-wrap" :closeable="false">
+  <ProPopup
+    v-model:show="isShow"
+    :height="80"
+    class="file-preview-popup-wrap"
+    :closeable="false"
+    @close="emits('update:show', false)"
+  >
     <van-config-provider :theme-vars="themeVars">
       <ProTab
         v-if="isShow"
@@ -116,6 +122,10 @@ const agreeMent = () => {
   emits('submit');
 };
 
+const onClose = () => {
+  emits('update:show', false);
+};
+
 watch(
   () => props,
   () => {
@@ -164,7 +174,6 @@ watch(
 
 <style lang="scss">
 .file-preview-popup-wrap {
-  overflow-y: scroll;
   .tab {
     height: 106px;
     position: absolute;
@@ -182,6 +191,8 @@ watch(
   .list {
     height: calc(100vh - 212px);
     overflow-y: scroll;
+    margin-top: 80px;
+    margin-bottom: 110px;
   }
   .footer {
     display: flex;

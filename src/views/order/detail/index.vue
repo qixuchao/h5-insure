@@ -48,9 +48,9 @@ import dayjs from 'dayjs';
 import { deleteOrder } from '@/api/modules/order';
 import { getOrderDetail } from '@/api';
 import { NextStepRequestData } from '@/api/index.data';
-import { ORDER_TOP_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
+import { ORDER_TOP_STATUS_ENUM, ORDER_STATUS_MAP, ORDER_STATUS_ENUM } from '@/common/constants/order';
 // import { OrderDetail } from '@/api/modules/order.data';
-import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { PAGE_ROUTE_ENUMS, PRODUCT_LIST_ENUM } from '@/common/constants';
 import FieldInfo from '../components/fieldInfo.vue';
 import InsureInfo from '@/views/lifeInsurance/infoPreview/components/InsuredPart.vue';
 import pageJump from '@/utils/pageJump';
@@ -78,8 +78,37 @@ const handleDelete = () => {
     }
   });
 };
+
+const redirectProductDetail = (): boolean => {
+  if (!detail.value) return false;
+  const { agencyId: agencyCode, saleChannelId, orderStatus } = detail.value;
+  const productCode = detail.value.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productCode;
+  if (ORDER_STATUS_ENUM.PENDING === orderStatus || ORDER_STATUS_ENUM.PAYING === orderStatus) {
+    if (productCode === PRODUCT_LIST_ENUM.ZXYS || productCode === PRODUCT_LIST_ENUM.BWYL) {
+      const productUrlMap = {
+        [PRODUCT_LIST_ENUM.ZXYS]: '/internet/productDetail/package',
+        [PRODUCT_LIST_ENUM.BWYL]: '/internet/productDetail',
+      };
+      router.push({
+        path: productUrlMap[productCode],
+        query: {
+          productCode,
+          saleChannelId,
+          agentCode,
+          tenantId,
+          agencyCode,
+          orderNo,
+        },
+      });
+      return true;
+    }
+  }
+  return false;
+};
+
 const handleProcess = () => {
   if (detail.value) {
+    if (redirectProductDetail()) return;
     const {
       id: orderId,
       extInfo: { templateId, pageCode },
@@ -104,6 +133,7 @@ const handleProcess = () => {
 };
 const handlePay = () => {
   if (detail.value) {
+    if (redirectProductDetail()) return;
     const {
       id: orderId,
       saleUserId,
