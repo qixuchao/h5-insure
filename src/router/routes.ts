@@ -74,7 +74,7 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'middlePage',
     path: '/middlePage',
-    meta: { title: '签名认证' },
+    meta: { title: ' ' },
     component: () => import('@/views/middlePage/index.vue'),
   },
   {
