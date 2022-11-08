@@ -18,6 +18,7 @@ import {
 } from '@/common/constants/trial';
 import { CERT_TYPE_ENUM, SEX_LIMIT_ENUM } from '@/common/constants';
 import { getSex, getBirth } from '@/components/ProField/utils';
+import { deepCopy } from '@/utils';
 
 // 校验长度
 export const FIELD_LENGTH = {
@@ -366,6 +367,7 @@ const productRiskVoListFilter = (productRiskVoList: any[], idCard: string, valid
   const age = dayjs().diff(getBirth(idCard), 'day');
   console.log('age', dayjs().diff(getBirth(idCard), 'year'));
   const sex: string = getSex(idCard); // '1' 女 ｜ '2' 男
+  console.log('sex', sex);
   const newProductRisk: any[] = [];
   productRiskVoList.forEach((item) => {
     const { riskDetailVOList } = item;
@@ -396,15 +398,16 @@ export const genaratePremiumCalcData = (o: premiumCalcParamType, flag = false, v
   let riskVOList: any[] = [];
   if (flag) {
     riskVOList = compositionTrailData(
-      productRiskVoListFilter(o.insureDetail.productRiskVoList, o.insured.certNo, validatorRisk)?.[0]?.riskDetailVOList,
+      productRiskVoListFilter(deepCopy(o.insureDetail.productRiskVoList), o.insured.certNo, validatorRisk)?.[0]
+        ?.riskDetailVOList,
       o.productDetail,
       [],
       o.paymentFrequency,
       flag,
     );
   } else {
-    const result = productRiskVoListFilter(o.insureDetail.productRiskVoList, o.insured.certNo, validatorRisk);
-    console.log('result', result);
+    const result = productRiskVoListFilter(deepCopy(o.insureDetail.productRiskVoList), o.insured.certNo, validatorRisk);
+    console.log('===result', [...result]);
     riskVOList = result.map((item: ProductRiskVoItem) => {
       // return compositionTrailData(item.riskDetailVOList, o.productDetail, o.packageRiskIdList, o.paymentFrequency);
       return compositionTrailData(

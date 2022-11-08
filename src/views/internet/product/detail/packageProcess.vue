@@ -432,7 +432,10 @@ const onSaveOrder = async (risk: any) => {
 
 // 保费试算 -> 订单保存 -> 核保
 const onPremiumCalc = async () => {
-  if (!checkCustomerResult.value) return {};
+  if (!checkCustomerResult.value) {
+    buttonAuth.canInsure = true;
+    return {};
+  }
   // 试算参数
   const { calcData, riskVOList } = genaratePremiumCalcData(
     {
@@ -472,8 +475,10 @@ const onPremiumCalcWithValid = () => {
     formRef.value
       ?.validateForm?.()
       .then(async () => {
-        console.log('checkCustomerResult.value', checkCustomerResult.value);
-        if (!checkCustomerResult.value) return;
+        if (!checkCustomerResult.value) {
+          buttonAuth.canInsure = true;
+          return;
+        }
         // 表单验证通过再检查是否逐条阅读
         const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
         if (!isAgree) {
