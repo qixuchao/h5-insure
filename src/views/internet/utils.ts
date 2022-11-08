@@ -1,6 +1,6 @@
 import dayjs, { UnitType } from 'dayjs';
 import { type } from 'os';
-import { PAYMENT_FREQUENCY_ENUM, INSURE_TYPE_ENUM } from '../../common/constants/infoCollection';
+import { PAYMENT_FREQUENCY_ENUM, INSURE_TYPE_ENUM, RELATION_HOLDER_ENUM } from '../../common/constants/infoCollection';
 import { ProductDetail } from '@/api/modules/product.data';
 import {
   ProductData,
@@ -263,6 +263,7 @@ export const genarateOrderParam = (o: orderParamType) => {
         certNo: o.insured.certNo,
         certType: CERT_TYPE_ENUM.CERT, // 默认身份证
         name: o.insured.name,
+        mobile: o.insured.relationToHolder === RELATION_HOLDER_ENUM.SELF ? o.holder.mobile : '',
         birthday: getBirth(o.insured.certNo),
         gender: getSex(o.insured.certNo),
         extInfo: {
@@ -365,9 +366,7 @@ export const validatorRiskZXYS = (param: ValidatorRiskParam) => {
 
 const productRiskVoListFilter = (productRiskVoList: any[], idCard: string, validatorRisk = (args: any) => true) => {
   const age = dayjs().diff(getBirth(idCard), 'day');
-  console.log('age', dayjs().diff(getBirth(idCard), 'year'));
   const sex: string = getSex(idCard); // '1' 女 ｜ '2' 男
-  console.log('sex', sex);
   const newProductRisk: any[] = [];
   productRiskVoList.forEach((item) => {
     const { riskDetailVOList } = item;
@@ -475,14 +474,6 @@ interface upgradeParamType {
 // 升级保障保费试算/升级需要的参数
 export const getReqData = (o: upgradeParamType, validatorRisk = (args: any) => true) => {
   const { orderDetail } = o;
-  console.log(o, 'slslsl');
-  console.log(
-    productRiskVoListFilter(
-      o.insureDetail.productRiskVoList,
-      o.orderDetail?.tenantOrderInsuredList?.[0]?.certNo,
-      validatorRisk,
-    ),
-  );
   const calcData = {
     agencyId: orderDetail.agencyId,
     venderCode: orderDetail.venderCode,
