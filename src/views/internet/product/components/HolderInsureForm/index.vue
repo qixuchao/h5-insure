@@ -43,6 +43,7 @@
           name="mobile"
           required
           placeholder="请输入手机号"
+          type="digit"
           maxlength="11"
           :validate-type="[VALIDATE_TYPE_ENUM.PHONE]"
         />
@@ -51,6 +52,7 @@
           v-model="state.formInfo.holder.mobileSmsCode"
           label="验证码"
           name="mobileSmsCode"
+          type="digit"
           required
           :rules="[{ validator: validatorCode, message: '请输入正确内容' }]"
           input-align="left"

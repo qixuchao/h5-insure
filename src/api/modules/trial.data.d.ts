@@ -262,6 +262,7 @@ export interface RiskVoItem {
     riskCode: string;
     riskId: number;
     riskType: number;
+    riskName:string;
 }
 
 export interface LiabilityVoItem {

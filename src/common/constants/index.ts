@@ -361,4 +361,5 @@ export const OCR_TYPE_ENUM = {
 export const PRODUCT_LIST_ENUM = {
   ZXYS: 'ZXYS2022',
   BWYL: 'BWYL2021',
+  BWYLUP: 'BWYL2022',
 };
