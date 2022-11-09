@@ -36,7 +36,46 @@
             :border="false"
           />
         </div>
-        <div class="field">
+        <div v-if="guaranteeList.length" class="field">
+          <FieldInfo
+            v-if="showByFactor('guaranteeAge')"
+            title="投保年龄"
+            :desc="formatHolderAgeLimit(guaranteeList?.[activePlan]?.holderAgeLimit)"
+          />
+          <FieldInfo
+            v-if="showByFactor('guaranteeTime')"
+            title="保障期间"
+            :desc="formatPaymentPeriodLimit(guaranteeList?.[activePlan]?.insurancePeriodValues)"
+          />
+          <FieldInfo
+            v-if="showByFactor('paymentTime')"
+            title="交费期间"
+            :desc="formatPaymentPeriodLimit(guaranteeList?.[activePlan]?.paymentPeriodValues)"
+          />
+          <!-- <FieldInfo v-if="showByFactor('paymentMethod')" title="交费方式" desc="年交" />
+          <FieldInfo v-if="showByFactor('drawTime')" title="领取年龄" desc="55/60/55周岁" />
+          <FieldInfo v-if="showByFactor('drawType')" title="领取方式" desc="年领/月领" /> -->
+
+          <FieldInfo
+            v-if="showByFactor('sexLimit')"
+            v-show="guaranteeList?.[activePlan]?.sexLimit !== '-1'"
+            title="性别限制"
+            :desc="`仅限${formatSexLimit(guaranteeList?.[activePlan]?.sexLimit)}性投保`"
+          />
+          <FieldInfo
+            v-if="showByFactor('socialInsuranceLimit')"
+            v-show="guaranteeList?.[activePlan]?.socialInsuranceLimit !== '-1'"
+            title="社保限制"
+            :desc="`仅限${formatSocialInsuranceLimit(guaranteeList?.[activePlan]?.socialInsuranceLimit)}社保人群有投保`"
+          />
+          <FieldInfo
+            v-if="showByFactor('occupationType')"
+            v-show="guaranteeList?.[activePlan]?.occupationLimit !== '-1'"
+            title="职业类别"
+            :desc="formatOccupationLimit(guaranteeList?.[activePlan]?.occupationLimit)"
+          />
+        </div>
+        <div v-else class="field">
           <FieldInfo
             v-if="showByFactor('guaranteeAge')"
             title="投保年龄"

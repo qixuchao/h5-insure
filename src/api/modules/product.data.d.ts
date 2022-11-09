@@ -104,6 +104,7 @@ export interface GuaranteeList {
    * 保障详情描述
    */
   titleAndDescVOS: TitleAndDescVO[];
+  [props: string]: any
 }
 
 export interface TenantProductInsureVO {

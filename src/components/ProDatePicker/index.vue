@@ -98,8 +98,8 @@ const handleClick = () => {
 };
 
 const handleConfirm = (value: Date) => {
-  console.log('dayjs(value).format(formatMap[props.type])', dayjs(value).format(formatMap[props.type]));
   tempModelValue.value = dayjs(value).format(formatMap[props.type]);
+  emits('update:modelValue', tempModelValue.value);
   toggle(false);
 };
 
@@ -128,9 +128,9 @@ watch(
   { immediate: true },
 );
 
-watch(tempModelValue, (val) => {
-  emits('update:modelValue', val);
-});
+// watch(tempModelValue, (val) => {
+//   emits('update:modelValue', val.value);
+// });
 
 const displayValue = computed(() => {
   if (props.type !== 'time') {

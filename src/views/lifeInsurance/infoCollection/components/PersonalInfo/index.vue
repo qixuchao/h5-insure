@@ -90,7 +90,6 @@
       :name="`${prefix}_birthday`"
       :min="state.birth.min"
       :max="state.birth.max"
-      :formatter="(val) => dayjs(val).format('YYYY-MM-DD')"
       type="date"
       :required="isRequiredByFactor('birthday')"
     ></ProDatePicker>
