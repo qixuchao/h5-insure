@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-09 00:05:13
+ * @LastEditTime: 2022-11-09 13:55:06
  * @Description: 计划书
 -->
 <template>
@@ -250,7 +250,7 @@ const selectTheme = async (selectedThemeId: number) => {
     } else {
       shareLink = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
       setShareConfig(shareLink);
-      shareButtonRef.value.handleShare();
+      setTimeout(shareButtonRef.value.handleShare, 100);
     }
   } else {
     const { code, data } = await chooseProposalTheme({ themeId: selectedThemeId, proposalId: id });
@@ -261,7 +261,7 @@ const selectTheme = async (selectedThemeId: number) => {
       } else {
         shareLink = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}&themeId=${data}`;
         setShareConfig(shareLink);
-        shareButtonRef.value.handleShare();
+        setTimeout(shareButtonRef.value.handleShare, 100);
       }
     }
   }
