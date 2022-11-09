@@ -640,6 +640,17 @@ watch(
 );
 
 watch(
+  () => props.formInfo,
+  () => {
+    state.value.formInfo = props.formInfo;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
   tempImages,
   (val) => {
     emits('update:images', val);

@@ -46,7 +46,15 @@ const getDetail = () => {
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
-      if (data.orderStatus !== ORDER_STATUS_ENUM.PENDING) {
+      if (
+        !(
+          [
+            ORDER_STATUS_ENUM.PENDING,
+            ORDER_STATUS_ENUM.PAYMENT_FAILED,
+            ORDER_STATUS_ENUM.UNDER_WRITING_SUCCESS,
+          ] as string[]
+        ).includes(data.orderStatus)
+      ) {
         pageJump('paymentResult', route.query);
       } else {
         phone.value = data?.tenantOrderHolder?.mobile;
