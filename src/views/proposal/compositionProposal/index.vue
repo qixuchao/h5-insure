@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-09 13:55:06
+ * @LastEditTime: 2022-11-09 14:06:10
  * @Description: 计划书
 -->
 <template>
@@ -153,6 +153,8 @@ const getData = async () => {
       const realData = data?.proposalInsuredVOList[0] || {};
       info.value = realData;
       tenantId.value = data?.tenantId;
+      shareLink = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
+      setShareConfig(shareLink);
     }
   } catch (e) {
     Toast('接口请求失败');
@@ -213,7 +215,6 @@ const onShareProposal = () => {
   if (themeList.value.length) {
     toggleThemeSelect(true);
   } else {
-    const link = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
     shareButtonRef.value.handleShare();
   }
 };
