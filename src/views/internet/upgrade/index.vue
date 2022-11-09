@@ -149,11 +149,11 @@ const onSaveOrder = async () => {
 };
 
 const getOrderDetailUrl = (oNo: string) => {
-  return `${ORIGIN}/internet/orderDetail?orderNo=${oNo}&productCode=${productCode}&tenantId=${tenantId}`;
+  return `${ORIGIN}/pay?orderNo=${oNo}&saleUserId=${agentCode}&tenantId=${tenantId}`;
 };
 
 const upgradeHandler = () => {
-  router.replace(`/internet/orderDetail?orderNo=${orderNoUp.value}&productCode=${productCode}&tenantId=${tenantId}`);
+  router.replace(`/pay?orderNo=${orderNoUp.value}&saleUserId=${agentCode}&tenantId=${tenantId}`);
 };
 
 // 保费试算 -> 订单保存 -> 升级保障

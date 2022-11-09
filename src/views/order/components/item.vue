@@ -85,11 +85,16 @@ const redirectProductDetail = (): boolean => {
     saleChannelId,
     orderStatus,
   } = props.detail;
-  if (ORDER_STATUS_ENUM.PENDING === orderStatus || ORDER_STATUS_ENUM.PAYING === orderStatus) {
-    if (productCode === PRODUCT_LIST_ENUM.ZXYS || productCode === PRODUCT_LIST_ENUM.BWYL) {
+  if (
+    ORDER_STATUS_ENUM.PENDING === orderStatus ||
+    ORDER_STATUS_ENUM.PAYING === orderStatus ||
+    ORDER_STATUS_ENUM.UP_PROCESSING === orderStatus
+  ) {
+    if ([PRODUCT_LIST_ENUM.ZXYS, PRODUCT_LIST_ENUM.BWYL, PRODUCT_LIST_ENUM.BWYLUP].includes(productCode)) {
       const productUrlMap = {
         [PRODUCT_LIST_ENUM.ZXYS]: '/internet/productDetail/package',
         [PRODUCT_LIST_ENUM.BWYL]: '/internet/productDetail',
+        [PRODUCT_LIST_ENUM.BWYLUP]: '/internet/guaranteeUpgrade',
       };
       router.push({
         path: productUrlMap[productCode],
