@@ -1,0 +1,1 @@
+System.register(["./index-legacy-c7113a6f.js"],(function(t){"use strict";var e;return{setters:[function(t){e=t.r}],execute:function(){t("p",(t=>e({url:"/api/app/insure/product/getProductDetail",method:"POST",data:t})))}}}));
