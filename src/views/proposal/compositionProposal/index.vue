@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-10-20 10:56:49
+ * @LastEditTime: 2022-11-09 00:05:13
  * @Description: 计划书
 -->
 <template>
@@ -99,6 +99,7 @@ const activeName = ref('');
 const themeList = ref<ThemeItem[]>([]); // 主题列表
 const shareButtonRef = ref(); // 分享按钮组件实例
 const operateType = ref<'share' | 'pdf'>('share'); // 按钮的操作类型
+let shareLink = '';
 
 const changeLiabilityType = () => {
   isLiabilityByRisk.value = !isLiabilityByRisk.value;
@@ -127,9 +128,7 @@ watch(
   },
 );
 
-const setShareConfig = () => {
-  const link = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
-
+const setShareConfig = (link: string) => {
   shareConfig.value = {
     title: `${info.value?.name}的计划书`,
     desc: '您的贴心保险管家',
@@ -155,8 +154,6 @@ const getData = async () => {
       info.value = realData;
       tenantId.value = data?.tenantId;
     }
-
-    setShareConfig();
   } catch (e) {
     Toast('接口请求失败');
   }
@@ -216,6 +213,7 @@ const onShareProposal = () => {
   if (themeList.value.length) {
     toggleThemeSelect(true);
   } else {
+    const link = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
     shareButtonRef.value.handleShare();
   }
 };
@@ -250,7 +248,8 @@ const selectTheme = async (selectedThemeId: number) => {
     if (operateType.value === 'pdf') {
       getPdf();
     } else {
-      shareConfig.value.link = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
+      shareLink = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
+      setShareConfig(shareLink);
       shareButtonRef.value.handleShare();
     }
   } else {
@@ -260,7 +259,8 @@ const selectTheme = async (selectedThemeId: number) => {
       if (operateType.value === 'pdf') {
         getPdf(data);
       } else {
-        shareConfig.value.link = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}&themeId=${data}`;
+        shareLink = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}&themeId=${data}`;
+        setShareConfig(shareLink);
         shareButtonRef.value.handleShare();
       }
     }

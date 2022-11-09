@@ -182,11 +182,7 @@ const state = reactive<PageState>({
 
 // 如果是计划书转投保,这里的productCode取产品中心的productCode
 if (proposalId) {
-  try {
-    productCode = JSON.parse(route.query?.extInfo || '{}')?.productCenterCode;
-  } catch (e) {
-    console.log(e);
-  }
+  productCode = (route.query || {})?.productCenterCode;
 }
 
 provide('premium', riskPremiumRef.value);
