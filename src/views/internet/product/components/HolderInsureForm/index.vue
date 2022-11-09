@@ -497,6 +497,21 @@ const validatorCode = (value: string) => {
   });
 };
 
+watch(
+  [() => state.formInfo.holder.certNo, () => state.formInfo.insured.certNo],
+  () => {
+    state.formInfo.holder.certNo = state.formInfo.holder.certNo?.replace(
+      /[\u4e00-\u9fa5/\s+/]|[^Xx0-9\u4E00-\u9FA5]/g,
+      '',
+    );
+    state.formInfo.insured.certNo = state.formInfo.insured.certNo?.replace(
+      /[\u4e00-\u9fa5/\s+/]|[^Xx0-9\u4E00-\u9FA5]/g,
+      '',
+    );
+  },
+  { deep: true, immediate: true },
+);
+
 // 如果被保人是本人，投保人信息填写时，自动填充
 watch(
   () => state.formInfo.holder,
