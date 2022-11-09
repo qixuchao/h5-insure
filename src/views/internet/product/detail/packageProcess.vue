@@ -249,14 +249,26 @@ const onCheckCustomer = () => {
     }
   }
   if (trialData.insured.certNo) {
-    const days = getAgeByCard(trialData.holder.certNo, 'day');
-    const age = getAgeByCard(trialData.holder.certNo, 'year');
+    const days = getAgeByCard(trialData.insured.certNo, 'day');
+    const age = getAgeByCard(trialData.insured.certNo, 'year');
     if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.CHILD && days < 30) {
       Toast('被保人为子女时，年龄必须大于等于30天！');
       return false;
     }
     if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && age >= 71) {
       Toast('被保人为父母时，年龄必须小于等于70岁！');
+      return false;
+    }
+  }
+  if ([RELATION_HOLDER_ENUM.CHILD, RELATION_HOLDER_ENUM.PARENT].includes(trialData.insured.relationToHolder)) {
+    const ageH = getAgeByCard(trialData.holder.certNo, 'year');
+    const ageI = getAgeByCard(trialData.insured.certNo, 'year');
+    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.CHILD && ageH - ageI < 18) {
+      Toast('投保人和子女年龄必须相差18岁！');
+      return false;
+    }
+    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && ageI - ageH < 18) {
+      Toast('投保人和父母年龄必须相差18岁！');
       return false;
     }
   }

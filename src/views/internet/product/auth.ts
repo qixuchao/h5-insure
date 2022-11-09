@@ -120,3 +120,8 @@ export const holderAuth = {
   paymentFrequencyDisable: false, // 交费方式可以修改
   renewalDKDisable: false, // 下一年是否自主可以修改
 };
+
+// 8、支付完成，返回保单，所有信息不能修改
+export const payAuth = {
+  ...defaultAuth,
+};

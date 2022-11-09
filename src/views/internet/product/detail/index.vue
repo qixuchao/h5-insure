@@ -71,7 +71,12 @@ import { debounce } from 'lodash';
 import { validateIdCardNo, getSex } from '@/components/ProField/utils';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
-import { SOCIAL_SECURITY_ENUM, RELATION_HOLDER_ENUM, PAYMENT_FREQUENCY_ENUM } from '@/common/constants/infoCollection';
+import {
+  SOCIAL_SECURITY_ENUM,
+  RELATION_HOLDER_ENUM,
+  PAYMENT_FREQUENCY_ENUM,
+  RELATION_HOLDER_LIST,
+} from '@/common/constants/infoCollection';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
 import { ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
 
@@ -114,7 +119,7 @@ import {
   defaultAuth,
   freeAuthDefault,
   checkAuth,
-  orderAuth,
+  payAuth,
   noPayAuth,
   noBuyAuth,
   allAuth,
@@ -240,14 +245,26 @@ const checkCustomerResult = computed(() => {
     }
   }
   if (trialData.insured.certNo) {
-    const days = getAgeByCard(trialData.holder.certNo, 'day');
-    const age = getAgeByCard(trialData.holder.certNo, 'year');
+    const days = getAgeByCard(trialData.insured.certNo, 'day');
+    const age = getAgeByCard(trialData.insured.certNo, 'year');
     if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.CHILD && days < 30) {
       Toast('被保人为子女时，年龄必须大于等于30天！');
       return false;
     }
     if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && age >= 71) {
       Toast('被保人为父母时，年龄必须小于等于70岁！');
+      return false;
+    }
+  }
+  if ([RELATION_HOLDER_ENUM.CHILD, RELATION_HOLDER_ENUM.PARENT].includes(trialData.insured.relationToHolder)) {
+    const ageH = getAgeByCard(trialData.holder.certNo, 'year');
+    const ageI = getAgeByCard(trialData.insured.certNo, 'year');
+    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.CHILD && ageH - ageI < 18) {
+      Toast('投保人和子女年龄必须相差18岁！');
+      return false;
+    }
+    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && ageI - ageH < 18) {
+      Toast('投保人和父母年龄必须相差18岁！');
       return false;
     }
   }
@@ -744,8 +761,8 @@ const setFormAuth = () => {
   // } else
   if (isPayBack) {
     // 支付完进入
-    formAuth.value = orderAuth;
-    defaultFormAuth.value = orderAuth;
+    formAuth.value = payAuth;
+    defaultFormAuth.value = payAuth;
     console.log('支付完成进入');
   } else if (orderNo) {
     console.log('投保链接-来付钱');

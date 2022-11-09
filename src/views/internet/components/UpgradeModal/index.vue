@@ -182,7 +182,7 @@ watch(
       .pro-modal-btn {
         width: 420px;
         height: 88px;
-        background: #ff6d23;
+        background: #006aff;
         border-radius: 44px;
         font-size: 34px;
         font-weight: bold;
@@ -210,9 +210,9 @@ watch(
         font-weight: 400;
         color: #7b6a61;
         line-height: 34px;
-        :deep(.pdf-viewer .title) {
-          color: #ff6d23;
-        }
+        // :deep(.pdf-viewer .title) {
+        //   color: #ff6d23;
+        // }
       }
     }
 
