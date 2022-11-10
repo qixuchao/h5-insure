@@ -309,6 +309,7 @@ const onConfirm = () => {
 // 关闭是否升级弹窗
 const onClose = () => {
   showModal.value = false;
+  router.replace(`/pay?orderNo=${orderNo}&saleUserId=${agentCode}&tenantId=${tenantId}`);
 };
 
 // 重置、表格回到默认权限
