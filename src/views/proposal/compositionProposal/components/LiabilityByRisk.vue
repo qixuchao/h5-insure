@@ -1,8 +1,8 @@
 <!--
  * @Author: wangyuanli
  * @Date: 2022-08-21 15:00:00
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-10-25 15:38:11
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-11-10 15:38:34
  * @Description: 组合计划书按险种展示
 -->
 <template>
@@ -28,7 +28,6 @@
         </van-collapse>
       </div>
     </div>
-    <div class="line2"></div>
   </div>
 </template>
 <script lang="ts" setup>
@@ -140,70 +139,6 @@ const props = defineProps({
       z-index: 9;
       right: 0;
       top: 30%;
-    }
-  }
-  .content {
-    display: flex;
-    padding: 74px 0 50px 0;
-
-    .bx {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      flex: 1;
-      .txt {
-        font-size: 26px;
-        font-weight: 500;
-        color: #343434;
-        margin-top: 14px;
-      }
-      .wechat {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 104px;
-        height: 104px;
-        background: #00bc70;
-        border-radius: 50%;
-        img {
-          width: 54px;
-          height: 44px;
-        }
-      }
-      .friend {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 104px;
-        height: 104px;
-        background: #f2f7f8;
-        border-radius: 50%;
-        img {
-          width: 48px;
-          height: 48px;
-        }
-      }
-    }
-  }
-  .footer-btn {
-    width: 100%;
-    height: 150px;
-    background: #ffffff;
-    border: 1px solid #efeff4;
-    margin-left: -30px;
-    margin-right: -30px;
-    position: fixed;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 30px;
-    z-index: 99999999; // echart 覆盖了footer，提高层级
-    .btn {
-      width: 335px;
-      height: 90px;
-      border-radius: 8px;
     }
   }
 }

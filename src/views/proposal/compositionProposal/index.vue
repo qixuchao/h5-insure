@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-09 14:06:10
+ * @LastEditTime: 2022-11-10 20:43:10
  * @Description: 计划书
 -->
 <template>
@@ -60,6 +60,7 @@
 import wx from 'weixin-js-sdk';
 import { Toast } from 'vant';
 import { useToggle } from '@vant/use';
+import dayjs from 'dayjs';
 import { queryProposalDetail, queryPreviewProposalDetail, generatePdf } from '@/api/modules/proposalList';
 import {
   checkProposalInsurer,
@@ -79,6 +80,7 @@ import { InsuredProductData, ThemeItem, ShowConfig } from '@/api/modules/composi
 import { redirectInsurePageLink } from '@/api';
 import InsuredProductList from './components/InsuredProductList/index.vue';
 import ThemeSelect from './components/ThemeSelect/index.vue';
+import { SEX_LIMIT_ENUM } from '@/common/constants';
 
 const isLiabilityByRisk = ref(true);
 
@@ -106,7 +108,7 @@ const changeLiabilityType = () => {
 };
 
 const isMale = (gender: number) => {
-  return gender === 1;
+  return gender === +SEX_LIMIT_ENUM.MALE;
 };
 
 const isShowInsured = computed(() => {
@@ -119,11 +121,12 @@ const isShowInsured = computed(() => {
 watch(
   () => info.value,
   (val) => {
-    const { gender, name } = val;
+    const { gender, name, birthday } = val;
+    const age = dayjs().diff(birthday, 'y');
     if (isMale(gender)) {
-      proposalName.value = `${name || ''}先生的计划书`;
+      proposalName.value = `${name || age}岁先生的计划书`;
     } else {
-      proposalName.value = `${name || ''}女士的计划书`;
+      proposalName.value = `${name || age}岁女士的计划书`;
     }
   },
 );

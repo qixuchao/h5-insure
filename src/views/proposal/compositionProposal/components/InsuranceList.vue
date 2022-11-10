@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-13 00:37:23
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-11-10 20:40:28
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/compositionProposal/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -16,7 +16,7 @@
         </div>
         <div>
           <p clase="p1">{{ props.info?.name }}</p>
-          <p class="p2">{{ GENDER[props.info?.gender] }}，{{ dayjs().diff(info?.birthday, 'y') }}岁</p>
+          <p class="p2">{{ SEX_LIMIT_MAP[props.info?.gender] }}，{{ dayjs().diff(info?.birthday, 'y') }}岁</p>
         </div>
       </div>
       <div class="fe">
@@ -35,6 +35,7 @@ import dayjs from 'dayjs';
 import { toLocal } from '@/utils';
 import { ProposalProductRisk } from '../../type';
 import ProTable from '@/components/ProTable/index.vue';
+import { SEX_LIMIT_ENUM, SEX_LIMIT_MAP } from '@/common/constants';
 
 const props = defineProps({
   info: {
@@ -72,13 +73,8 @@ const columns = [
 
 const dataSource = ref<Array<ProposalProductRisk>>([]);
 
-const GENDER = {
-  1: '男',
-  2: '女',
-};
-
 const isMale = (gender: number) => {
-  return gender === 1;
+  return gender === +SEX_LIMIT_ENUM.MALE;
 };
 
 // 保障期间

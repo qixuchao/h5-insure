@@ -36,7 +36,7 @@
             :border="false"
           />
         </div>
-        <div v-if="guaranteeList.length" class="field">
+        <div v-if="guaranteeList.length > 1" class="field">
           <FieldInfo
             v-if="showByFactor('guaranteeAge')"
             title="投保年龄"
@@ -110,7 +110,7 @@
             title="社保限制"
             :desc="
               detail?.tenantProductInsureVO?.socialInsuranceLimit &&
-              `仅限${formatSocialInsuranceLimit(detail?.tenantProductInsureVO?.socialInsuranceLimit)}社保人群有投保`
+              `仅限${formatSocialInsuranceLimit(detail?.tenantProductInsureVO?.socialInsuranceLimit)}社保人群投保`
             "
           />
           <FieldInfo
