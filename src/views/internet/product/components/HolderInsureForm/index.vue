@@ -54,7 +54,7 @@
           name="mobileSmsCode"
           type="digit"
           required
-          :rules="[{ validator: validatorCode, message: '请输入正确内容' }]"
+          :rules="[{ validator: validatorCode, message: '请输入正确的验证码' }]"
           input-align="left"
           placeholder="请输入验证码"
           error-message-align="left"
@@ -289,10 +289,6 @@ const props = defineProps({
     type: Object as () => FormInfoProps,
     default: () => {},
   },
-  premium: {
-    type: Number,
-    default: 0,
-  },
   payments: {
     type: Array,
     default: () => [0, 1],
@@ -496,6 +492,21 @@ const validatorCode = (value: string) => {
     });
   });
 };
+
+watch(
+  [() => state.formInfo.holder.certNo, () => state.formInfo.insured.certNo],
+  () => {
+    state.formInfo.holder.certNo = state.formInfo.holder.certNo?.replace(
+      /[\u4e00-\u9fa5/\s+/]|[^Xx0-9\u4E00-\u9FA5]/g,
+      '',
+    );
+    state.formInfo.insured.certNo = state.formInfo.insured.certNo?.replace(
+      /[\u4e00-\u9fa5/\s+/]|[^Xx0-9\u4E00-\u9FA5]/g,
+      '',
+    );
+  },
+  { deep: true, immediate: true },
+);
 
 // 如果被保人是本人，投保人信息填写时，自动填充
 watch(

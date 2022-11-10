@@ -15,7 +15,6 @@
             :disable="!buttonAuth.showInsure"
             :form-auth="formAuth"
             :form-info="trialData"
-            :premium="premium"
             :product-detail="detail"
             @on-reset="onReset"
             @on-update="onUpdate"
@@ -25,7 +24,7 @@
       <div class="footer-button">
         <div class="price">
           总保费<span>
-            {{ premium ? '￥' : '' }}{{ toLocal(premium as number)}}
+            {{ premium ? '￥' : '' }}{{ toLocal(premium) }}
             {{ premium ? (trialData.paymentFrequency == PAYMENT_FREQUENCY_ENUM.YEAR ? '元/年' : '元/月') : '' }}
           </span>
         </div>
@@ -53,6 +52,7 @@
     :content-list="healthAttachmentList"
     :active-index="0"
     @on-confirm-health="onCloseHealth"
+    @on-close-health="onCloseHealthPopup"
   ></HealthNoticePreview>
   <FilePreview
     v-if="showFilePreview"
@@ -61,7 +61,9 @@
     :active-index="activeIndex"
     text="我已逐页阅读并确认告知内容"
     :force-read-cound="2"
+    on-close-file-preview
     @submit="onSubmit"
+    @on-close-file-preview="onCloseFilePreview"
   ></FilePreview>
   <Waiting :is-show="showWaiting" />
 </template>
@@ -166,7 +168,7 @@ const {
 const formRef = ref();
 const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<ProductData>(); // 险种信息
-const premium = ref<number>(); // 保费
+const premium = ref<number | null>(); // 保费
 const isPayBack = pageCode === 'payBack';
 const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
 const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
@@ -249,14 +251,26 @@ const onCheckCustomer = () => {
     }
   }
   if (trialData.insured.certNo) {
-    const days = getAgeByCard(trialData.holder.certNo, 'day');
-    const age = getAgeByCard(trialData.holder.certNo, 'year');
+    const days = getAgeByCard(trialData.insured.certNo, 'day');
+    const age = getAgeByCard(trialData.insured.certNo, 'year');
     if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.CHILD && days < 30) {
       Toast('被保人为子女时，年龄必须大于等于30天！');
       return false;
     }
     if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && age >= 71) {
       Toast('被保人为父母时，年龄必须小于等于70岁！');
+      return false;
+    }
+  }
+  if ([RELATION_HOLDER_ENUM.CHILD, RELATION_HOLDER_ENUM.PARENT].includes(trialData.insured.relationToHolder)) {
+    const ageH = getAgeByCard(trialData.holder.certNo, 'year');
+    const ageI = getAgeByCard(trialData.insured.certNo, 'year');
+    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.CHILD && ageH - ageI < 18) {
+      Toast('投保人和子女年龄必须相差18岁！');
+      return false;
+    }
+    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && ageI - ageH < 18) {
+      Toast('投保人和父母年龄必须相差18岁！');
       return false;
     }
   }
@@ -275,14 +289,7 @@ const validCalcData = () => {
     },
     paymentMethod: insuredPaymentMethod,
   } = trialData;
-  // const holderValid =
-  //   validateIdCardNo(holderCertNo) && validateMobile(holderMobile) && validateName(holderName) && !!holderSocialFlag;
-  // const insuredValid =
-  //   validateIdCardNo(insuredCertNo) && validateName(insuredName) && !!insuredSocialFlag && !!insuredRelationToHolder;
   const insuredValid = validateIdCardNo(insuredCertNo) && !!insuredSocialFlag;
-  // if (holderValid && insuredValid && !!insuredPaymentMethod) {
-  //   return true;
-  // }
   if (insuredValid) {
     return true;
   }
@@ -394,6 +401,7 @@ const onSaveOrder = async (risk: any) => {
     detail: detail.value as ProductDetail,
     insureDetail: insureDetail.value,
     paymentMethod: trialData.paymentMethod,
+    paymentFrequency: trialData.paymentFrequency,
     renewalDK: trialData.renewalDK, // 开通下一年
     iseeBizNo,
     successJumpUrl: '',
@@ -446,6 +454,11 @@ const onPremiumCalc = async () => {
     false,
     validatorRiskZXYS,
   );
+  if (!Array.isArray(riskVOList) || riskVOList.length < 1) {
+    Toast('被保人年龄需在30天(含) - 70岁(含)之间！');
+    premium.value = null;
+    return {};
+  }
   const res = await premiumCalc(calcData);
 
   const { code, data } = res;
@@ -457,6 +470,7 @@ const onPremiumCalc = async () => {
       data,
     };
   }
+  premium.value = null;
   return {};
 };
 
@@ -476,8 +490,9 @@ const onPremiumCalcWithValid = () => {
           return;
         }
         // 表单验证通过再检查是否逐条阅读
-        const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
+        const isAgree = isAgreeFile.value;
         if (!isAgree) {
+          isAgreeFile.value = false;
           // showHealthPreview.value = true;
           showFilePreview.value = true;
           previewFile(0);
@@ -498,6 +513,11 @@ const onPremiumCalcWithValid = () => {
           false,
           validatorRiskZXYS,
         );
+        if (!Array.isArray(riskVOList) || riskVOList.length < 1) {
+          Toast('被保人年龄需在30天(含) - 70岁(含)之间！');
+          premium.value = null;
+          reject(new Error());
+        }
         const res = await premiumCalc(calcData);
 
         const { code, data } = res;
@@ -509,6 +529,7 @@ const onPremiumCalcWithValid = () => {
             data,
           });
         } else {
+          premium.value = null;
           reject(new Error());
         }
       })
@@ -523,7 +544,7 @@ const onNext = async () => {
     onConfirm();
     return;
   }
-  // buttonAuth.canInsure = false;
+  buttonAuth.canInsure = false;
   try {
     const { condition, data } = await onPremiumCalcWithValid();
 
@@ -548,6 +569,7 @@ const onCloseHealth = (type: string) => {
   // 全部为否
   if (type === 'allFalse') {
     showHealthPreview.value = false;
+    isAgreeFile.value = true;
     onNext();
     buttonAuth.canInsure = true;
   } else {
@@ -566,8 +588,25 @@ const onCloseHealth = (type: string) => {
   }
 };
 
+const resetCanInsureBtn = () => {
+  formRef.value?.reEditForm();
+  isAgreeFile.value = false;
+  buttonAuth.canInsure = true;
+};
+
+const onCloseHealthPopup = () => {
+  console.log('onCloseHealthPopup========');
+  showHealthPreview.value = false;
+  resetCanInsureBtn();
+};
+
+const onCloseFilePreview = () => {
+  console.log('onCloseFilePreview========');
+  showFilePreview.value = false;
+  resetCanInsureBtn();
+};
+
 const onSubmit = () => {
-  isAgreeFile.value = true;
   showFilePreview.value = false;
   showHealthPreview.value = true;
   // onNext();
@@ -597,6 +636,13 @@ watch(
   {
     deep: true,
     immediate: true,
+  },
+);
+
+watch(
+  () => trialData.insured.certNo,
+  () => {
+    if (!trialData.insured.certNo) premium.value = null;
   },
 );
 

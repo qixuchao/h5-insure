@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-28 10:28:12
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-08 15:18:35
+ * @LastEditTime: 2022-11-10 13:50:43
  * @FilePath: /zat-planet-h5-cloud-insure/src/utils/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -35,7 +35,8 @@ export const isApp = () => {
   return Boolean(window?.AppJSInterface || window?.webkit?.messageHandlers);
 };
 
-export const toLocal = (number: number) => {
+export const toLocal = (number: number | null | undefined) => {
+  if (!number) return null;
   return number && number.toLocaleString();
 };
 

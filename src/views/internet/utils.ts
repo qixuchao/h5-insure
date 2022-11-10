@@ -195,10 +195,11 @@ export const compositionTrailData = (
 interface orderParamType {
   tenantId: string;
   detail: ProductDetail;
-  insureDetail: ProductData;
+  insureDetail: ProductData | undefined;
   saleUserId?: string; // 链接上带的，可能没有
   saleChannelId: string; // 链接上带的saleChannelId
   paymentMethod: string; // 链接上带的 paymentMethod
+  paymentFrequency?: number;
   renewalDK: string; // 开通下一年
   successJumpUrl: string; // 支付成功跳转
   iseeBizNo: string; // 千里眼回溯码
@@ -253,6 +254,7 @@ export const genarateOrderParam = (o: orderParamType) => {
       extraInfo: {
         renewalDK: o.renewalDK, // 签约
         paymentMethod: o.paymentMethod,
+        paymentFrequency: o.paymentFrequency,
         successJumpUrl: o.successJumpUrl, // 支付成功跳转
       },
       iseeBizNo: o.iseeBizNo,
@@ -312,18 +314,26 @@ interface premiumCalcParamType {
 }
 
 // 更具age day 算时间
-export const getDayByStr = (str: string): number => {
-  if (!str) return 0;
+export const getDayByStr = (str: string, birth: string): string => {
+  if (!str) return '';
   const [dateType, number] = str.split('_');
-  return dateType === 'day' ? parseInt(number, 10) : parseInt(number, 10) * 365;
+  const ruleTime = parseInt(number, 10);
+  if (dateType === 'day') {
+    return dayjs(birth).add(ruleTime, 'day').format('YYYY-MM-DD');
+  }
+  return dayjs(birth).add(ruleTime, 'year').format('YYYY-MM-DD');
+};
+
+export const diffDate = (startDate: string, endDate: string = dayjs().format('YYYY-MM-DD')): number => {
+  return dayjs(startDate).diff(endDate, 'day');
 };
 
 // 保费计算投保险种是否在年级区间
 // age_70 or day_30
-export const validateHolderAge = (minStr: string, maxStr: string, age: number): boolean => {
-  const min: number = getDayByStr(minStr);
-  const max: number = getDayByStr(maxStr);
-  return min <= age && max >= age;
+export const validateHolderAge = (minStr: string, maxStr: string, birth: string): boolean => {
+  const min: string = getDayByStr(minStr, birth);
+  const max: string = getDayByStr(maxStr, birth);
+  return diffDate(min) <= 1 && diffDate(max) >= 1;
 };
 
 interface riskLiabilityInfoVO {
@@ -344,13 +354,14 @@ interface riskDetailVO {
 interface ValidatorRiskParam {
   riskCode: string;
   liabilityCode: string;
-  age: number;
+  birth: string;
   sex: '1' | '2';
 }
 
 export const validatorRisk2022 = (param: ValidatorRiskParam) => {
-  const { riskCode, liabilityCode, age, sex } = param;
-  if (riskCode === '7Y7' && liabilityCode === 'FXG086' && !(sex === SEX_LIMIT_ENUM.FEMALE && age >= 18 * 365)) {
+  const { riskCode, liabilityCode, birth, sex } = param;
+  const lastDate = getDayByStr('max_18', birth);
+  if (riskCode === '7Y7' && liabilityCode === 'FXG086' && !(sex === SEX_LIMIT_ENUM.FEMALE && diffDate(lastDate) <= 1)) {
     return false;
   }
   return true;
@@ -358,15 +369,17 @@ export const validatorRisk2022 = (param: ValidatorRiskParam) => {
 
 // 7Y7  FXG086
 export const validatorRiskZXYS = (param: ValidatorRiskParam) => {
-  const { riskCode, liabilityCode, age, sex } = param;
-  if (riskCode === '7Y7' && liabilityCode === 'FXG086') {
-    return sex === SEX_LIMIT_ENUM.FEMALE;
+  const { riskCode, liabilityCode, birth, sex } = param;
+  const lastDate = getDayByStr('max_18', birth);
+  if (riskCode === '7Y7' && liabilityCode === 'FXG086' && !(sex === SEX_LIMIT_ENUM.FEMALE && diffDate(lastDate) <= 1)) {
+    return false;
   }
   return true;
 };
 
 const productRiskVoListFilter = (productRiskVoList: any[], idCard: string, validatorRisk = (args: any) => true) => {
-  const age = dayjs().diff(getBirth(idCard), 'day');
+  // const age = dayjs().diff(getBirth(idCard), 'day');
+  const birth = getBirth(idCard);
   const sex: string = getSex(idCard); // '1' 女 ｜ '2' 男
   const newProductRisk: any[] = [];
   productRiskVoList.forEach((item) => {
@@ -374,12 +387,12 @@ const productRiskVoListFilter = (productRiskVoList: any[], idCard: string, valid
     const tempArr = riskDetailVOList.map((node: riskDetailVO) => {
       const { maxHolderAge, minHolderAge } = node.riskInsureLimitVO;
       // 过滤年纪不达标的
-      if (!validateHolderAge(minHolderAge, maxHolderAge, age)) {
+      if (!validateHolderAge(minHolderAge, maxHolderAge, birth)) {
         return null;
       }
       // eslint-disable-next-line no-param-reassign
       node.riskLiabilityInfoVOList = node.riskLiabilityInfoVOList.filter((ite: riskLiabilityInfoVO) => {
-        return validatorRisk({ riskCode: node.riskCode, liabilityCode: ite.liabilityCode, age, sex });
+        return validatorRisk({ riskCode: node.riskCode, liabilityCode: ite.liabilityCode, birth, sex });
       });
       return node;
     });
@@ -560,8 +573,8 @@ export const checkPackage = (item: PackageProductVoItem, idCard: string): boolea
   const result = item.productRiskVoList.some((risk) => {
     const minStr: string = risk.riskInsureLimitVO.minHolderAge;
     const maxStr: string = risk.riskInsureLimitVO.maxHolderAge;
-    const age = dayjs().diff(getBirth(idCard), 'day');
-    if (!validateHolderAge(minStr, maxStr, age)) return true;
+    const birth = getBirth(idCard);
+    if (!validateHolderAge(minStr, maxStr, birth)) return true;
     return false;
   });
   return !result;

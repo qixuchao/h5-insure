@@ -63,6 +63,7 @@ import {
   nameMixin,
   mobileMixin,
   idCardMixin,
+  validatorRisk2022,
 } from '../utils';
 import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
@@ -159,14 +160,17 @@ const upgradeHandler = () => {
 // 保费试算 -> 订单保存 -> 升级保障
 const onPremiumCalc = async () => {
   try {
-    const reqData = getReqData({
-      tenantId,
-      premium: premium.value as number,
-      orderDetail: orderDetail.value,
-      productDetail: detail.value as ProductDetail,
-      insureDetail: insureDetail.value as ProductData,
-      successJumpUrl: '',
-    });
+    const reqData = getReqData(
+      {
+        tenantId,
+        premium: premium.value as number,
+        orderDetail: orderDetail.value,
+        productDetail: detail.value as ProductDetail,
+        insureDetail: insureDetail.value as ProductData,
+        successJumpUrl: '',
+      },
+      validatorRisk2022,
+    );
     const res = await endorsementPremiumCalc(reqData);
     const { code, data } = res;
     if (code === '10000') {

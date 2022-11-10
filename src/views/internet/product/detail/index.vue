@@ -6,7 +6,7 @@
         <Banner :url="detail?.tenantProductInsureVO?.banner[0]" />
         <Desc :product-name="detail?.productFullName" :product-desc="detail?.showConfigVO?.desc" />
       </div>
-      <Guarantee :guarantee-list="detail?.tenantProductInsureVO?.titleAndDescVOS" />
+      <Guarantee v-if="detail?.tenantProductInsureVO?.titleAndDescVOS" :guarantee-list="titleAndDescVOSList" />
       <ScrollInfo :detail="detail">
         <template #form>
           <HolderInsureForm
@@ -25,7 +25,7 @@
       </ScrollInfo>
       <div class="footer-button">
         <div class="price">
-          总保费<span v-if="premium">￥{{ toLocal(premium as number) }}/月</span>
+          总保费<span v-if="premium">￥{{ toLocal(premium) }}/月</span>
         </div>
         <van-button
           type="primary"
@@ -71,7 +71,12 @@ import { debounce } from 'lodash';
 import { validateIdCardNo, getSex } from '@/components/ProField/utils';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
-import { SOCIAL_SECURITY_ENUM, RELATION_HOLDER_ENUM, PAYMENT_FREQUENCY_ENUM } from '@/common/constants/infoCollection';
+import {
+  SOCIAL_SECURITY_ENUM,
+  RELATION_HOLDER_ENUM,
+  PAYMENT_FREQUENCY_ENUM,
+  RELATION_HOLDER_LIST,
+} from '@/common/constants/infoCollection';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
 import { ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
 
@@ -96,6 +101,7 @@ import {
   validateHolderAge,
   getAgeByCard,
 } from '../../utils';
+import { formatPaymentPeriodLimit, formatHolderAgeLimit } from '@/views/lifeInsurance/product/detail/utils';
 import themeVars from '../../theme';
 
 import Banner from '../components/Banner/index.vue';
@@ -114,7 +120,7 @@ import {
   defaultAuth,
   freeAuthDefault,
   checkAuth,
-  orderAuth,
+  payAuth,
   noPayAuth,
   noBuyAuth,
   allAuth,
@@ -159,7 +165,7 @@ console.log(route.query, 'route.query');
 const formRef = ref();
 const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<ProductData>(); // 险种信息
-const premium = ref<number>(); // 保费
+const premium = ref<number | null>(); // 保费
 const isPayBack = pageCode === 'payBack';
 const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
 const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
@@ -211,6 +217,25 @@ const healthAttachmentList = computed(() => {
   );
 });
 
+// 保证详情补充条款
+const titleAndDescVOSList = computed(() => {
+  return [
+    ...(detail.value?.tenantProductInsureVO?.titleAndDescVOS || []),
+    {
+      desc: `出生${formatHolderAgeLimit(detail.value?.tenantProductInsureVO?.holderAgeLimit)}`,
+      title: '投保年龄',
+    },
+    {
+      desc: formatPaymentPeriodLimit(detail.value?.tenantProductInsureVO?.insurancePeriodValues),
+      title: '保障期限',
+    },
+    {
+      desc: formatPaymentPeriodLimit(detail.value?.tenantProductInsureVO?.waitPeriod) || '',
+      title: '等待期',
+    },
+  ];
+});
+
 // 除健康告知的其他资料
 const filterHealthAttachmentList = computed(() => {
   return (
@@ -240,14 +265,26 @@ const checkCustomerResult = computed(() => {
     }
   }
   if (trialData.insured.certNo) {
-    const days = getAgeByCard(trialData.holder.certNo, 'day');
-    const age = getAgeByCard(trialData.holder.certNo, 'year');
+    const days = getAgeByCard(trialData.insured.certNo, 'day');
+    const age = getAgeByCard(trialData.insured.certNo, 'year');
     if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.CHILD && days < 30) {
       Toast('被保人为子女时，年龄必须大于等于30天！');
       return false;
     }
     if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && age >= 71) {
       Toast('被保人为父母时，年龄必须小于等于70岁！');
+      return false;
+    }
+  }
+  if ([RELATION_HOLDER_ENUM.CHILD, RELATION_HOLDER_ENUM.PARENT].includes(trialData.insured.relationToHolder)) {
+    const ageH = getAgeByCard(trialData.holder.certNo, 'year');
+    const ageI = getAgeByCard(trialData.insured.certNo, 'year');
+    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.CHILD && ageH - ageI < 18) {
+      Toast('投保人和子女年龄必须相差18岁！');
+      return false;
+    }
+    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && ageI - ageH < 18) {
+      Toast('投保人和父母年龄必须相差18岁！');
       return false;
     }
   }
@@ -292,6 +329,7 @@ const onConfirm = () => {
 // 关闭是否升级弹窗
 const onClose = () => {
   showModal.value = false;
+  router.replace(`/pay?orderNo=${orderNo}&saleUserId=${agentCode}&tenantId=${tenantId}`);
 };
 
 // 重置、表格回到默认权限
@@ -433,6 +471,11 @@ const onPremiumCalc = async () => {
     },
     true,
   );
+  if (!Array.isArray(riskVOList) || riskVOList.length < 1) {
+    Toast('被保人年龄需在30天(含) - 70岁(含)之间！');
+    premium.value = null;
+    return {};
+  }
   const res = await premiumCalc(calcData);
 
   const { code, data } = res;
@@ -568,6 +611,13 @@ watch(
   {
     deep: true,
     immediate: true,
+  },
+);
+
+watch(
+  () => trialData.insured.certNo,
+  () => {
+    if (!trialData.insured.certNo) premium.value = null;
   },
 );
 
@@ -744,8 +794,8 @@ const setFormAuth = () => {
   // } else
   if (isPayBack) {
     // 支付完进入
-    formAuth.value = orderAuth;
-    defaultFormAuth.value = orderAuth;
+    formAuth.value = payAuth;
+    defaultFormAuth.value = payAuth;
     console.log('支付完成进入');
   } else if (orderNo) {
     console.log('投保链接-来付钱');
