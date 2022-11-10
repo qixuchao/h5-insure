@@ -25,7 +25,7 @@
       </ScrollInfo>
       <div class="footer-button">
         <div class="price">
-          总保费<span v-if="premium">￥{{ toLocal(premium as number) }}/月</span>
+          总保费<span v-if="premium">￥{{ toLocal(premium) }}/月</span>
         </div>
         <van-button
           type="primary"
@@ -165,7 +165,7 @@ console.log(route.query, 'route.query');
 const formRef = ref();
 const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<ProductData>(); // 险种信息
-const premium = ref<number>(); // 保费
+const premium = ref<number | null>(); // 保费
 const isPayBack = pageCode === 'payBack';
 const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
 const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
@@ -471,6 +471,11 @@ const onPremiumCalc = async () => {
     },
     true,
   );
+  if (!Array.isArray(riskVOList) || riskVOList.length < 1) {
+    Toast('被保人年龄需在30天(含) - 70岁(含)之间！');
+    premium.value = null;
+    return {};
+  }
   const res = await premiumCalc(calcData);
 
   const { code, data } = res;
@@ -606,6 +611,13 @@ watch(
   {
     deep: true,
     immediate: true,
+  },
+);
+
+watch(
+  () => trialData.insured.certNo,
+  () => {
+    if (!trialData.insured.certNo) premium.value = null;
   },
 );
 

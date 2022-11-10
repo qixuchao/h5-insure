@@ -490,7 +490,7 @@ const onPremiumCalcWithValid = () => {
           return;
         }
         // 表单验证通过再检查是否逐条阅读
-        const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
+        const isAgree = isAgreeFile.value;
         if (!isAgree) {
           isAgreeFile.value = false;
           // showHealthPreview.value = true;
@@ -636,6 +636,13 @@ watch(
   {
     deep: true,
     immediate: true,
+  },
+);
+
+watch(
+  () => trialData.insured.certNo,
+  () => {
+    if (!trialData.insured.certNo) premium.value = null;
   },
 );
 

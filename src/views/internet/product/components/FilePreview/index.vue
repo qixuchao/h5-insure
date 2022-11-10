@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-10 15:33:49
+ * @LastEditTime: 2022-11-10 20:41:25
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -82,6 +82,7 @@ const props = defineProps({
 
 const emits = defineEmits(['update:show', 'submit', 'onCloseFilePreview']);
 const isShow = ref<boolean>(props.show);
+const calcuateFlg = ref<boolean>(true);
 const formatedContentList = ref<Array<any>>(
   props.contentList.map((e: any, index) => ({ ...e, disabled: true, readDisabled: true })), // disabled: tab禁用， readDisabled: 阅读下一条按钮禁用
 );
@@ -139,7 +140,12 @@ watch(
 
 const handleScroll = (el: any) => {
   if (el) {
-    if (Math.floor(el.target.scrollHeight - el.target.scrollTop) === el.target.clientHeight) {
+    // console.log('el.target.scrollHeight', el.target.scrollHeight);
+    // console.log('el.target.scrollTop', el.target.scrollTop);
+    // console.log('el.target.clientHeight', el.target.clientHeight);
+    console.log('calcuateFlg', calcuateFlg.value);
+    if (Math.floor(el.target.scrollHeight - el.target.scrollTop - 15) <= el.target.clientHeight && calcuateFlg.value) {
+      console.log('111111');
       if (formatedContentList.value[currentActiveIndex.value].readDisabled) {
         formatedContentList.value[currentActiveIndex.value].disabled = false;
         formatedContentList.value[currentActiveIndex.value].readDisabled = false;
@@ -153,6 +159,7 @@ const handleScroll = (el: any) => {
 watch(
   () => currentActiveIndex.value,
   () => {
+    calcuateFlg.value = false;
     if (props.show) {
       if (readCount.value >= props.forceReadCound) {
         formatedContentList.value.forEach((e: any) => {
@@ -162,6 +169,9 @@ watch(
       }
       if (previewRef.value) {
         previewRef.value.scrollTop = 0;
+        setTimeout(() => {
+          calcuateFlg.value = true;
+        }, 1000);
       }
     }
   },
@@ -189,7 +199,7 @@ watch(
     }
   }
   .list {
-    height: calc(100% - 212px);
+    height: calc(100% - 240px);
     overflow-y: scroll;
   }
   .footer {
