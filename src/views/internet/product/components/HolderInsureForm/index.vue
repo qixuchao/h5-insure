@@ -54,7 +54,7 @@
           name="mobileSmsCode"
           type="digit"
           required
-          :rules="[{ validator: validatorCode, message: '请输入正确内容' }]"
+          :rules="[{ validator: validatorCode, message: '请输入正确的验证码' }]"
           input-align="left"
           placeholder="请输入验证码"
           error-message-align="left"
@@ -288,10 +288,6 @@ const props = defineProps({
   formInfo: {
     type: Object as () => FormInfoProps,
     default: () => {},
-  },
-  premium: {
-    type: Number,
-    default: 0,
   },
   payments: {
     type: Array,

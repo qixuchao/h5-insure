@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-08 15:55:49
+ * @LastEditTime: 2022-11-10 15:52:20
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -12,9 +12,9 @@
     :height="80"
     class="health-notice-preview-popup-wrap"
     :closeable="false"
-    @close="emits('update:show', false)"
+    @close="onClosePopup()"
   >
-    <van-config-provider :theme-vars="themeVars">
+    <van-config-provider :theme-vars="themeVars" class="custom-provider">
       <ProTab
         v-if="isShow"
         v-model:active="currentActiveIndex"
@@ -49,7 +49,7 @@ const props = withDefaults(defineProps<{ show: boolean; activeIndex: number; con
   activeIndex: 0,
 });
 
-const emits = defineEmits(['update:show', 'onConfirmHealth']);
+const emits = defineEmits(['update:show', 'onConfirmHealth', 'onCloseHealth']);
 const isShow = ref<boolean>(props.show);
 const currentActiveIndex = ref<number>(props.activeIndex);
 
@@ -57,9 +57,18 @@ const attachmentUri = computed(() => {
   return props.contentList[currentActiveIndex.value]?.attachmentUri;
 });
 
+const isCoverClose = ref<boolean>(true);
+
 const onConfirmHealth = (flag: string) => {
+  isCoverClose.value = false;
   emits('update:show', false);
   emits('onConfirmHealth', flag);
+};
+
+const onClosePopup = () => {
+  if (isCoverClose.value) {
+    emits('onCloseHealth');
+  }
 };
 
 watch(
@@ -77,10 +86,13 @@ watch(
 
 <style lang="scss">
 .health-notice-preview-popup-wrap {
+  .custom-provider {
+    height: 100%;
+  }
   .tab {
     height: 106px;
-    position: absolute;
-    top: 0;
+    // position: absolute;
+    // top: 0;
     width: 100%;
 
     .van-tab {
@@ -93,6 +105,7 @@ watch(
   }
   .list {
     height: calc(100% - 212px);
+    overflow-y: scroll;
   }
   .footer {
     display: flex;

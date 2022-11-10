@@ -2,19 +2,18 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-08 16:11:01
+ * @LastEditTime: 2022-11-10 15:33:49
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <ProPopup
     v-model:show="isShow"
-    :height="80"
     class="file-preview-popup-wrap"
     :closeable="false"
-    @close="emits('update:show', false)"
+    @close="emits('onCloseFilePreview')"
   >
-    <van-config-provider :theme-vars="themeVars">
+    <van-config-provider :theme-vars="themeVars" class="custom-provider">
       <ProTab
         v-if="isShow"
         v-model:active="currentActiveIndex"
@@ -29,7 +28,7 @@
       ></ProTab>
       <div ref="previewRef" class="list" @scroll="handleScroll">
         <div class="item">
-          <ProFilePreview :key="attachmentUri" :content="attachmentUri" type="pdf"></ProFilePreview>
+          <ProFilePreview :key="attachmentUri" :content="attachmentUri" type="pdf" :forbid-click="true" />
         </div>
       </div>
       <div class="footer">
@@ -81,7 +80,7 @@ const props = defineProps({
   },
 });
 
-const emits = defineEmits(['update:show', 'submit']);
+const emits = defineEmits(['update:show', 'submit', 'onCloseFilePreview']);
 const isShow = ref<boolean>(props.show);
 const formatedContentList = ref<Array<any>>(
   props.contentList.map((e: any, index) => ({ ...e, disabled: true, readDisabled: true })), // disabled: tab禁用， readDisabled: 阅读下一条按钮禁用
@@ -174,10 +173,11 @@ watch(
 
 <style lang="scss">
 .file-preview-popup-wrap {
+  .custom-provider {
+    height: 100%;
+  }
   .tab {
     height: 106px;
-    position: absolute;
-    top: 0;
     width: 100%;
 
     .van-tab {
@@ -189,10 +189,8 @@ watch(
     }
   }
   .list {
-    height: calc(100vh - 212px);
+    height: calc(100% - 212px);
     overflow-y: scroll;
-    margin-top: 80px;
-    margin-bottom: 110px;
   }
   .footer {
     display: flex;
