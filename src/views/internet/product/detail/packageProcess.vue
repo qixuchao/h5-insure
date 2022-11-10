@@ -455,6 +455,7 @@ const onPremiumCalc = async () => {
     validatorRiskZXYS,
   );
   if (!Array.isArray(riskVOList) || riskVOList.length < 1) {
+    Toast('被保人年龄需在30天(含) - 70岁(含)之间！');
     premium.value = null;
     return {};
   }
@@ -513,6 +514,7 @@ const onPremiumCalcWithValid = () => {
           validatorRiskZXYS,
         );
         if (!Array.isArray(riskVOList) || riskVOList.length < 1) {
+          Toast('被保人年龄需在30天(含) - 70岁(含)之间！');
           premium.value = null;
           reject(new Error());
         }

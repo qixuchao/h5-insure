@@ -333,7 +333,7 @@ export const diffDate = (startDate: string, endDate: string = dayjs().format('YY
 export const validateHolderAge = (minStr: string, maxStr: string, birth: string): boolean => {
   const min: string = getDayByStr(minStr, birth);
   const max: string = getDayByStr(maxStr, birth);
-  return diffDate(min) <= 1 && diffDate(max) >= 0;
+  return diffDate(min) <= 1 && diffDate(max) >= 1;
 };
 
 interface riskLiabilityInfoVO {
@@ -361,7 +361,7 @@ interface ValidatorRiskParam {
 export const validatorRisk2022 = (param: ValidatorRiskParam) => {
   const { riskCode, liabilityCode, birth, sex } = param;
   const lastDate = getDayByStr('max_18', birth);
-  if (riskCode === '7Y7' && liabilityCode === 'FXG086' && !(sex === SEX_LIMIT_ENUM.FEMALE && diffDate(lastDate) <= 0)) {
+  if (riskCode === '7Y7' && liabilityCode === 'FXG086' && !(sex === SEX_LIMIT_ENUM.FEMALE && diffDate(lastDate) <= 1)) {
     return false;
   }
   return true;
@@ -371,9 +371,7 @@ export const validatorRisk2022 = (param: ValidatorRiskParam) => {
 export const validatorRiskZXYS = (param: ValidatorRiskParam) => {
   const { riskCode, liabilityCode, birth, sex } = param;
   const lastDate = getDayByStr('max_18', birth);
-  console.log('lastDate', lastDate);
-  console.log('diffDate(lastDate)', diffDate(lastDate));
-  if (riskCode === '7Y7' && liabilityCode === 'FXG086' && !(sex === SEX_LIMIT_ENUM.FEMALE && diffDate(lastDate) <= 0)) {
+  if (riskCode === '7Y7' && liabilityCode === 'FXG086' && !(sex === SEX_LIMIT_ENUM.FEMALE && diffDate(lastDate) <= 1)) {
     return false;
   }
   return true;
