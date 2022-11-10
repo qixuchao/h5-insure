@@ -6,7 +6,7 @@
         <Banner :url="detail?.tenantProductInsureVO?.banner[0]" />
         <Desc :product-name="detail?.productFullName" :product-desc="detail?.showConfigVO?.desc" />
       </div>
-      <Guarantee :guarantee-list="detail?.tenantProductInsureVO?.titleAndDescVOS" />
+      <Guarantee v-if="detail?.tenantProductInsureVO?.titleAndDescVOS" :guarantee-list="titleAndDescVOSList" />
       <ScrollInfo :detail="detail">
         <template #form>
           <HolderInsureForm
@@ -101,6 +101,7 @@ import {
   validateHolderAge,
   getAgeByCard,
 } from '../../utils';
+import { formatPaymentPeriodLimit, formatHolderAgeLimit } from '@/views/lifeInsurance/product/detail/utils';
 import themeVars from '../../theme';
 
 import Banner from '../components/Banner/index.vue';
@@ -214,6 +215,25 @@ const healthAttachmentList = computed(() => {
       (item: AttachmentVOList) => item.attachmentName === '健康告知',
     ) || []
   );
+});
+
+// 保证详情补充条款
+const titleAndDescVOSList = computed(() => {
+  return [
+    ...(detail.value?.tenantProductInsureVO?.titleAndDescVOS || []),
+    {
+      desc: `出生${formatHolderAgeLimit(detail.value?.tenantProductInsureVO?.holderAgeLimit)}`,
+      title: '投保年龄',
+    },
+    {
+      desc: formatPaymentPeriodLimit(detail.value?.tenantProductInsureVO?.insurancePeriodValues),
+      title: '保障期限',
+    },
+    {
+      desc: formatPaymentPeriodLimit(detail.value?.tenantProductInsureVO?.waitPeriod) || '',
+      title: '等待期',
+    },
+  ];
 });
 
 // 除健康告知的其他资料
