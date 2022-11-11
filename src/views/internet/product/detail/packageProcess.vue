@@ -53,7 +53,7 @@
     :content-list="healthAttachmentList"
     :active-index="0"
     @on-confirm-health="onCloseHealth"
-    @on-close-health="onCloseHealthPopup"
+    @on-close-health="resetCanInsureBtn"
   ></HealthNoticePreview>
   <FilePreview
     v-if="showFilePreview"
@@ -64,7 +64,7 @@
     :force-read-cound="2"
     on-close-file-preview
     @submit="onSubmit"
-    @on-close-file-preview="onCloseFilePreview"
+    @on-close-file-preview="resetCanInsureBtn"
   ></FilePreview>
   <Waiting :is-show="showWaiting" />
 </template>
@@ -428,12 +428,15 @@ const onSaveOrder = async (risk: any) => {
     const res = await saveOrder(order);
     const { code, data } = res;
 
+    showFilePreview.value = false;
+    showHealthPreview.value = false;
     if (code === '10000') {
       Toast.clear();
       tempOrderData.value = {
         orderNo: data.data,
         order,
       };
+      console.log('11111');
       showFilePreview.value = true;
       previewFile(0);
     }
@@ -544,7 +547,7 @@ const onNext = async () => {
     onConfirm();
     return;
   }
-  buttonAuth.canInsure = false;
+  // buttonAuth.canInsure = false;
   try {
     Toast.loading({
       message: '订单生成中...',
@@ -606,16 +609,8 @@ const onCloseHealth = (type: string) => {
 };
 
 const resetCanInsureBtn = () => {
-  formRef.value?.reEditForm();
-  isAgreeFile.value = false;
-  buttonAuth.canInsure = true;
-};
-
-const onCloseHealthPopup = () => {
-  buttonAuth.canInsure = true;
-};
-
-const onCloseFilePreview = () => {
+  showFilePreview.value = false;
+  showHealthPreview.value = false;
   buttonAuth.canInsure = true;
 };
 
