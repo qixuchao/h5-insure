@@ -338,7 +338,7 @@ export const getAgeByCard = (idCard: string, format: UnitType = 'year'): number 
 export const validateTimeBefore = (idCard: string, timer: number, format: UnitType = 'year') => {
   let targetDays = '';
   if (format === 'year') {
-    targetDays = dayjs(getBirth(idCard)).add(timer, format).format('YYYY-MM-DD');
+    targetDays = dayjs(getBirth(idCard)).add(timer, format).add(1, 'day').format('YYYY-MM-DD');
   } else {
     targetDays = dayjs(getBirth(idCard)).add(timer, format).subtract(1, 'day').format('YYYY-MM-DD');
   }

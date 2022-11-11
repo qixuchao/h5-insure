@@ -161,9 +161,7 @@ const {
   upgradeCode,
   from,
 } = route.query as QueryData;
-console.log(route.query, 'route.query');
-// console.log(validateTimeBefore('110101200503075703', 17, 'year'));
-// console.log(validateTimeBefore('34240120221011491X', 30, 'day'));
+
 const formRef = ref();
 const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<ProductData>(); // 险种信息
@@ -278,7 +276,7 @@ const checkCustomerResult = computed(() => {
     }
     if (
       trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT &&
-      !validateTimeBefore(trialData.insured.certNo, 70, 'year')
+      !validateTimeBefore(trialData.insured.certNo, 71, 'year')
     ) {
       Toast('被保人为父母时，年龄必须小于等于70岁！');
       return false;
@@ -381,9 +379,7 @@ const onUnderWrite = async (o: any) => {
             show: true,
             html: data.paymentUrl,
           };
-          console.log('data.paymentUrl', payHtml.value);
           nextTick(() => {
-            console.log('document.forms', document.forms);
             const forms: any = document.getElementById('cashierSubmit');
             forms?.addEventListener('submit', (evt) => {
               evt.preventDefault();
@@ -717,7 +713,6 @@ const getOrderById = async () => {
 // 订单状态为承保时，投保人信息不可修改
 // 支付中，超时可以修改投保人信息
 const getOrderByMobile = async () => {
-  console.log('短信进入，带了orderNo, mobile');
   const res = await getOrderDetailByCondition({
     holderPhone: mobile,
     orderStatus: [ORDER_STATUS_ENUM.PAYING.toUpperCase(), ORDER_STATUS_ENUM.TIMEOUT.toUpperCase(), 'ACCEPT_POLICY'],

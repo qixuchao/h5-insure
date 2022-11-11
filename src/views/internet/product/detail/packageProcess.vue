@@ -261,7 +261,7 @@ const onCheckCustomer = () => {
     }
     if (
       trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT &&
-      !validateTimeBefore(trialData.insured.certNo, 70, 'year')
+      !validateTimeBefore(trialData.insured.certNo, 71, 'year')
     ) {
       Toast('被保人为父母时，年龄必须小于等于70岁！');
       return false;
