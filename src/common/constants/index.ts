@@ -9,6 +9,7 @@
  */
 
 // 1: 男
+import { constantListToMap } from './utils';
 
 // eslint-disable-next-line
 export enum SEX_LIMIT_ENUM {
@@ -26,6 +27,8 @@ export const SEX_LIMIT_LIST = [
     value: SEX_LIMIT_ENUM.FEMALE,
   },
 ];
+
+export const SEX_LIMIT_MAP = constantListToMap(SEX_LIMIT_LIST);
 
 export const VALIDATE_TYPE_ENUM = {
   SMS_CODE: 'smsCode',

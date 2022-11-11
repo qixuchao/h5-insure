@@ -1,31 +1,44 @@
 <!--
  * @Author: wangyuanli
  * @Date: 2022-08-21 15:00:00
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-13 00:37:17
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-11-10 20:28:00
  * @Description: 组合计划书按险种展示
 -->
 <template>
   <div class="container">
     <div v-for="(item, i) in props.info?.liabilityByTopTypeVOList" :key="i">
-      <div v-for="j in item.proposalRiskLiabilityVOList" :key="j.liabilityId">
+      <div>
         <div class="common-title">
           <div class="title">
-            <img src="@/assets/images/compositionProposal/title.png" class="ig" /> {{ j.liabilityName }}
+            <img src="@/assets/images/compositionProposal/title.png" class="ig" /> {{ item.liabilityTopTypeName }}
           </div>
         </div>
         <div class="product-detail">
-          <van-cell v-for="(val, k) in item.proposalRiskLiabilityVOList" :key="k">
-            {{ val.liabilityName }}
-          </van-cell>
+          <van-collapse v-model="item.riskName1" accordion :is-link="false" :border="false" size="middle">
+            <van-collapse-item
+              v-for="(val, k) in Object.keys(item.proposalRiskLiabilityVOMap)"
+              :key="k"
+              :title="val"
+              :name="k"
+              value-class="price"
+            >
+              <ProCell
+                v-for="liability in item.proposalRiskLiabilityVOMap[val]"
+                :key="liability.liabilityId"
+                :title="liability.liabilityName"
+                :content="liability.liabilityIndemnityContent || ''"
+              ></ProCell>
+            </van-collapse-item>
+          </van-collapse>
         </div>
       </div>
-
-      <div class="line2"></div>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
+import ProField from '@/components/ProField/index.vue';
+
 const props = defineProps({
   info: {
     type: Object,
@@ -91,6 +104,10 @@ const props = defineProps({
       background-color: #f6f6fa;
       border-radius: 8px;
 
+      :deep(.right-part) {
+        color: $zaui-price;
+      }
+
       :deep(.van-collapse-item__content) {
         background-color: #f6f6fa;
         border-radius: 8px;
@@ -104,10 +121,14 @@ const props = defineProps({
         color: #393d46;
         border-radius: 8px;
       }
+      :deep(.van-cell__title) {
+        margin-top: 14px;
+      }
       :deep(.price) {
         font-size: 28px;
         font-weight: 400;
         color: $zaui-price;
+        margin-top: 14px;
       }
     }
     .poiner {
@@ -130,70 +151,6 @@ const props = defineProps({
       z-index: 9;
       right: 0;
       top: 30%;
-    }
-  }
-  .content {
-    display: flex;
-    padding: 74px 0 50px 0;
-
-    .bx {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      flex: 1;
-      .txt {
-        font-size: 26px;
-        font-weight: 500;
-        color: #343434;
-        margin-top: 14px;
-      }
-      .wechat {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 104px;
-        height: 104px;
-        background: #00bc70;
-        border-radius: 50%;
-        img {
-          width: 54px;
-          height: 44px;
-        }
-      }
-      .friend {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 104px;
-        height: 104px;
-        background: #f2f7f8;
-        border-radius: 50%;
-        img {
-          width: 48px;
-          height: 48px;
-        }
-      }
-    }
-  }
-  .footer-btn {
-    width: 100%;
-    height: 150px;
-    background: #ffffff;
-    border: 1px solid #efeff4;
-    margin-left: -30px;
-    margin-right: -30px;
-    position: fixed;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 30px;
-    z-index: 99999999; // echart 覆盖了footer，提高层级
-    .btn {
-      width: 335px;
-      height: 90px;
-      border-radius: 8px;
     }
   }
 }
