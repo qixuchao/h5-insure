@@ -28,7 +28,7 @@
   </div>
   <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
     <div class="guarantee-detail">
-      <div v-for="(item, index) in guaranteeList" :key="index" class="guarantee-item">
+      <div v-for="(item, index) in guaranteeArr" :key="index" class="guarantee-item">
         <div class="title">{{ item.title }}</div>
         <div v-dompurify-html="item.content" class="content" />
       </div>
@@ -83,6 +83,10 @@ const displayList = computed(() => {
     return props.guaranteeList;
   }
   return props.guaranteeList.slice(0, props.count);
+});
+
+const guaranteeArr = computed(() => {
+  return props.guaranteeList.filter((item) => !item?.noDetail);
 });
 
 const popupShow = ref(false);

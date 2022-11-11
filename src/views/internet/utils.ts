@@ -321,11 +321,24 @@ export const getDayByStr = (str: string, birth: string): string => {
   if (dateType === 'day') {
     return dayjs(birth).add(ruleTime, 'day').format('YYYY-MM-DD');
   }
-  return dayjs(birth).add(ruleTime, 'year').format('YYYY-MM-DD');
+  return dayjs(birth)
+    .add(ruleTime + 1, 'year')
+    .format('YYYY-MM-DD');
 };
 
 export const diffDate = (startDate: string, endDate: string = dayjs().format('YYYY-MM-DD')): number => {
   return dayjs(startDate).diff(endDate, 'day');
+};
+
+export const getAgeByCard = (idCard: string, format: UnitType = 'year'): number => {
+  return dayjs().diff(getBirth(idCard), format, true);
+};
+
+// 符合返回 true , 不符合 false
+export const validateTimeBefore = (idCard: string, timer: number, format: UnitType = 'year') => {
+  const targetDays = dayjs(getBirth(idCard)).add(timer, format).format('YYYY-MM-DD');
+  // console.log(targetDays, getBirth(idCard), dayjs().format('YYYY-MM-DD'));
+  return targetDays <= dayjs().format('YYYY-MM-DD');
 };
 
 // 保费计算投保险种是否在年级区间
@@ -616,8 +629,4 @@ export const idCardMixin = (idCard: string) => {
 // 短信
 export const validateSmsCode = (code: string): boolean => {
   return /^\d{6}$/.test(code);
-};
-
-export const getAgeByCard = (idCard: string, format: UnitType = 'year'): number => {
-  return dayjs().diff(getBirth(idCard), format, true);
 };

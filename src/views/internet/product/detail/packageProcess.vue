@@ -106,6 +106,7 @@ import {
   onCollectPackageRiskIdList,
   validatorRiskZXYS,
   getAgeByCard,
+  validateTimeBefore,
 } from '../../utils';
 import themeVars from '../../theme';
 
@@ -234,10 +235,9 @@ const filterHealthAttachmentList = computed(() => {
 // 投被保人信息校验： 1、投保人必须大于18岁。2、被保人为子女不能小于30天。3、被保人为父母不能大于60岁。4、被保人为配偶性别不能相同。
 const onCheckCustomer = () => {
   if (trialData.holder.certNo) {
-    const age = getAgeByCard(trialData.holder.certNo, 'year');
     const sex = getSex(trialData.holder.certNo);
     // 投保人必须大于18岁
-    if (age < 18) {
+    if (validateTimeBefore(trialData.holder.certNo, 18, 'year')) {
       Toast('投保人年龄必须大于18岁！');
       return false;
     }
@@ -251,13 +251,17 @@ const onCheckCustomer = () => {
     }
   }
   if (trialData.insured.certNo) {
-    const days = getAgeByCard(trialData.insured.certNo, 'day');
-    const age = getAgeByCard(trialData.insured.certNo, 'year');
-    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.CHILD && days < 30) {
+    if (
+      trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.CHILD &&
+      validateTimeBefore(trialData.insured.certNo, 30, 'day')
+    ) {
       Toast('被保人为子女时，年龄必须大于等于30天！');
       return false;
     }
-    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && age >= 71) {
+    if (
+      trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT &&
+      !validateTimeBefore(trialData.insured.certNo, 70, 'year')
+    ) {
       Toast('被保人为父母时，年龄必须小于等于70岁！');
       return false;
     }
