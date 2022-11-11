@@ -23,10 +23,11 @@
       </ScrollInfo>
       <div class="footer-button">
         <div class="price">
-          总保费<span>
+          总保费<span v-if="!loading">
             {{ premium ? '￥' : '' }}{{ toLocal(premium) }}
             {{ premium ? (trialData.paymentFrequency == PAYMENT_FREQUENCY_ENUM.YEAR ? '元/年' : '元/月') : '' }}
           </span>
+          <van-loading v-else class="premium-loading" type="spinner" />
         </div>
         <van-button
           type="primary"
@@ -179,6 +180,7 @@ const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
 const payHtml = ref<PayHtml>({ show: false, html: '' });
 const tempOrderData = ref<{ orderNo?: ''; order?: any }>({});
+const loading = ref<boolean>(false);
 let iseeBizNo = '';
 
 // 试算数据， 赠险进入，从链接上默认取投保人数据
@@ -340,15 +342,12 @@ const onUnderWrite = async (o: any) => {
   Toast.loading({
     message: '核保中...',
     forbidClick: true,
+    duration: 0,
   });
   try {
     const res = await underwrite(o);
     const { code } = res;
     if (code === '10000') {
-      Toast.loading({
-        message: '核保中...',
-        forbidClick: true,
-      });
       // const res1 = await getPayUrl({
       //   orderNo: o.orderNo,
       //   tenantId,
@@ -382,6 +381,8 @@ const onUnderWrite = async (o: any) => {
     buttonAuth.canInsure = true;
   } catch (e) {
     buttonAuth.canInsure = true;
+  } finally {
+    Toast.clear();
   }
 };
 
@@ -463,7 +464,9 @@ const onPremiumCalc = async () => {
     premium.value = null;
     return {};
   }
+  loading.value = true;
   const res = await premiumCalc(calcData);
+  loading.value = false;
 
   const { code, data } = res;
 
@@ -546,6 +549,7 @@ const onNext = async () => {
     Toast.loading({
       message: '订单生成中...',
       forbidClick: true,
+      duration: 0,
     });
     const { condition, data } = await onPremiumCalcWithValid();
 
@@ -562,8 +566,9 @@ const onNext = async () => {
     const risk = transformData({ tenantId, riskList: condition, riskPremium, productId: detail.value?.id as number });
     onSaveOrder(risk);
   } catch (e) {
-    Toast.clear();
     buttonAuth.canInsure = true;
+  } finally {
+    Toast.clear();
   }
 };
 
@@ -848,6 +853,11 @@ onMounted(() => {
     span {
       color: $primary-color;
       font-weight: bold;
+    }
+    .premium-loading {
+      display: inline-block;
+      line-height: 52px;
+      margin-left: 8px;
     }
   }
   .right {

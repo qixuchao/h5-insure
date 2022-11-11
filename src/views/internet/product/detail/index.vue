@@ -25,7 +25,8 @@
       </ScrollInfo>
       <div class="footer-button">
         <div class="price">
-          总保费<span v-if="premium">￥{{ toLocal(premium) }}/月</span>
+          总保费<span v-if="premium && !loading">￥{{ toLocal(premium) }}/月</span>
+          <van-loading v-else class="premium-loading" type="spinner" />
         </div>
         <van-button
           type="primary"
@@ -174,6 +175,7 @@ const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件�
 const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
 const payHtml = ref<PayHtml>({ show: false, html: '' });
+const loading = ref<boolean>(false);
 let iseeBizNo = '';
 
 // 试算数据， 赠险进入，从链接上默认取投保人数据
@@ -359,15 +361,12 @@ const onUnderWrite = async (o: any) => {
   Toast.loading({
     message: '核保中...',
     forbidClick: true,
+    duration: 0,
   });
   try {
     const res = await underwrite(o);
     const { code } = res;
     if (code === '10000') {
-      Toast.loading({
-        message: '核保中...',
-        forbidClick: true,
-      });
       const res1: { code: string; data: { type: 1 | 2; paymentUrl: string } } = await getPayUrl({
         orderNo: o.orderNo,
         tenantId,
@@ -394,6 +393,8 @@ const onUnderWrite = async (o: any) => {
     buttonAuth.canInsure = true;
   } catch (e) {
     buttonAuth.canInsure = true;
+  } finally {
+    Toast.clear();
   }
 };
 
@@ -480,7 +481,9 @@ const onPremiumCalc = async () => {
     premium.value = null;
     return {};
   }
+  loading.value = true;
   const res = await premiumCalc(calcData);
+  loading.value = false;
 
   const { code, data } = res;
 
@@ -856,6 +859,11 @@ onMounted(() => {
     span {
       color: $primary-color;
       font-weight: bold;
+    }
+    .premium-loading {
+      display: inline-block;
+      line-height: 52px;
+      margin-left: 8px;
     }
   }
   .right {
