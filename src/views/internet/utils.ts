@@ -336,9 +336,13 @@ export const getAgeByCard = (idCard: string, format: UnitType = 'year'): number 
 
 // 符合返回 true , 不符合 false
 export const validateTimeBefore = (idCard: string, timer: number, format: UnitType = 'year') => {
-  const targetDays = dayjs(getBirth(idCard)).add(timer, format).format('YYYY-MM-DD');
-  // console.log(targetDays, getBirth(idCard), dayjs().format('YYYY-MM-DD'));
-  return targetDays <= dayjs().format('YYYY-MM-DD');
+  let targetDays = '';
+  if (format === 'year') {
+    targetDays = dayjs(getBirth(idCard)).add(timer, format).format('YYYY-MM-DD');
+  } else {
+    targetDays = dayjs(getBirth(idCard)).add(timer, format).subtract(1, 'day').format('YYYY-MM-DD');
+  }
+  return targetDays > dayjs().format('YYYY-MM-DD');
 };
 
 // 保费计算投保险种是否在年级区间
