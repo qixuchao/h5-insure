@@ -360,7 +360,7 @@ interface ValidatorRiskParam {
 
 export const validatorRisk2022 = (param: ValidatorRiskParam) => {
   const { riskCode, liabilityCode, birth, sex } = param;
-  const lastDate = getDayByStr('max_18', birth);
+  const lastDate = getDayByStr('age_18', birth);
   if (riskCode === '7Y7' && liabilityCode === 'FXG086' && !(sex === SEX_LIMIT_ENUM.FEMALE && diffDate(lastDate) <= 1)) {
     return false;
   }
@@ -370,7 +370,7 @@ export const validatorRisk2022 = (param: ValidatorRiskParam) => {
 // 7Y7  FXG086
 export const validatorRiskZXYS = (param: ValidatorRiskParam) => {
   const { riskCode, liabilityCode, birth, sex } = param;
-  const lastDate = getDayByStr('max_18', birth);
+  const lastDate = getDayByStr('age_18', birth);
   if (riskCode === '7Y7' && liabilityCode === 'FXG086' && !(sex === SEX_LIMIT_ENUM.FEMALE && diffDate(lastDate) <= 1)) {
     return false;
   }
