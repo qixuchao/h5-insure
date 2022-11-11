@@ -489,6 +489,13 @@ const onPremiumCalc = async () => {
   const { code, data } = res;
 
   if (code === '10000') {
+    if (!trialData.insured.certNo) {
+      premium.value = null;
+      return {
+        condition: riskVOList,
+        data,
+      };
+    }
     premium.value = data.premium;
     return {
       condition: riskVOList,

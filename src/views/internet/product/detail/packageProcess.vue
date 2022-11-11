@@ -178,6 +178,7 @@ const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件�
 const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
 const payHtml = ref<PayHtml>({ show: false, html: '' });
+const tempOrderData = ref<{ orderNo?: ''; order?: any }>({});
 let iseeBizNo = '';
 
 // 试算数据， 赠险进入，从链接上默认取投保人数据
@@ -385,15 +386,20 @@ const onUnderWrite = async (o: any) => {
 };
 
 // 跳转支付成功页
-const getPaySuccessCallbackUrl = (no: number) => {
+const getPaySuccessCallbackUrl = (no: string) => {
   return `${ORIGIN}/pay?orderNo=${no}&saleUserId=${agentCode}&tenantId=${tenantId}`;
 };
 
-const getPayFailCallbackUrl = (no: number) => {
+const getPayFailCallbackUrl = (no: string) => {
   const url = `${ORIGIN}/internet/payFail?tenantId=${tenantId}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack&from=${
     from || 'normal'
   }`;
   return url;
+};
+
+const previewFile = (index: number) => {
+  activeIndex.value = index;
+  showFilePreview.value = true;
 };
 
 const onSaveOrder = async (risk: any) => {
@@ -422,22 +428,16 @@ const onSaveOrder = async (risk: any) => {
     const { code, data } = res;
 
     if (code === '10000') {
-      onUnderWrite({
-        ...order,
+      Toast.clear();
+      tempOrderData.value = {
         orderNo: data.data,
-        extInfo: {
-          extraInfo: {
-            renewalDK: trialData.renewalDK,
-            paymentMethod: trialData.paymentMethod,
-            paymentFrequency: trialData.paymentFrequency,
-            successJumpUrl: getPaySuccessCallbackUrl(data.data),
-            failUrl: getPayFailCallbackUrl(data.data),
-          },
-          iseeBizNo,
-        },
-      });
+        order,
+      };
+      showFilePreview.value = true;
+      previewFile(0);
     }
   } catch (e) {
+    Toast.clear();
     buttonAuth.canInsure = true;
   }
 };
@@ -468,6 +468,13 @@ const onPremiumCalc = async () => {
   const { code, data } = res;
 
   if (code === '10000') {
+    if (!trialData.insured.certNo) {
+      premium.value = null;
+      return {
+        condition: riskVOList,
+        data,
+      };
+    }
     premium.value = data.premium;
     return {
       condition: riskVOList,
@@ -478,11 +485,6 @@ const onPremiumCalc = async () => {
   return {};
 };
 
-const previewFile = (index: number) => {
-  activeIndex.value = index;
-  showFilePreview.value = true;
-};
-
 // 点击立即投保才校验信息，显示错误信息
 const onPremiumCalcWithValid = () => {
   return new Promise((resolve, reject) => {
@@ -491,15 +493,6 @@ const onPremiumCalcWithValid = () => {
       .then(async () => {
         if (!onCheckCustomer()) {
           buttonAuth.canInsure = true;
-          return;
-        }
-        // 表单验证通过再检查是否逐条阅读
-        const isAgree = isAgreeFile.value;
-        if (!isAgree) {
-          isAgreeFile.value = false;
-          // showHealthPreview.value = true;
-          showFilePreview.value = true;
-          previewFile(0);
           return;
         }
 
@@ -550,6 +543,10 @@ const onNext = async () => {
   }
   buttonAuth.canInsure = false;
   try {
+    Toast.loading({
+      message: '订单生成中...',
+      forbidClick: true,
+    });
     const { condition, data } = await onPremiumCalcWithValid();
 
     const riskPremium = {};
@@ -565,6 +562,7 @@ const onNext = async () => {
     const risk = transformData({ tenantId, riskList: condition, riskPremium, productId: detail.value?.id as number });
     onSaveOrder(risk);
   } catch (e) {
+    Toast.clear();
     buttonAuth.canInsure = true;
   }
 };
@@ -573,9 +571,21 @@ const onCloseHealth = (type: string) => {
   // 全部为否
   if (type === 'allFalse') {
     showHealthPreview.value = false;
-    isAgreeFile.value = true;
-    onNext();
     buttonAuth.canInsure = true;
+    onUnderWrite({
+      ...tempOrderData.value.order,
+      orderNo: tempOrderData.value.orderNo,
+      extInfo: {
+        extraInfo: {
+          renewalDK: trialData.renewalDK,
+          paymentMethod: trialData.paymentMethod,
+          paymentFrequency: trialData.paymentFrequency,
+          successJumpUrl: getPaySuccessCallbackUrl(tempOrderData.value.orderNo as string),
+          failUrl: getPayFailCallbackUrl(tempOrderData.value.orderNo as string),
+        },
+        iseeBizNo,
+      },
+    });
   } else {
     Dialog.confirm({
       message: '您当前的健康状况不符合该产品',
@@ -585,8 +595,6 @@ const onCloseHealth = (type: string) => {
         window.history.back();
       })
       .catch(() => {
-        formRef.value?.reEditForm();
-        isAgreeFile.value = false;
         buttonAuth.canInsure = true;
       });
   }
@@ -599,21 +607,16 @@ const resetCanInsureBtn = () => {
 };
 
 const onCloseHealthPopup = () => {
-  console.log('onCloseHealthPopup========');
-  showHealthPreview.value = false;
-  resetCanInsureBtn();
+  buttonAuth.canInsure = true;
 };
 
 const onCloseFilePreview = () => {
-  console.log('onCloseFilePreview========');
-  showFilePreview.value = false;
-  resetCanInsureBtn();
+  buttonAuth.canInsure = true;
 };
 
 const onSubmit = () => {
   showFilePreview.value = false;
   showHealthPreview.value = true;
-  // onNext();
 };
 
 watch(
@@ -624,12 +627,6 @@ watch(
     () => trialData.paymentFrequency,
   ],
   debounce(() => {
-    // if (detail.value && insureDetail.value && pageCode !== 'payBack') {
-    //   // 验证通过才去试算
-    //   if (validCalcData()) {
-    //     onPremiumCalc();
-    //   }
-    // }
     if (trialData.insured.certNo && trialData.insured.socialFlag) {
       // 验证通过才去试算
       if (validCalcData()) {

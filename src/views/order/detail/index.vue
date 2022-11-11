@@ -217,6 +217,7 @@ onMounted(() => {
       margin-left: 30px;
       font-size: 26px;
       color: #99a9c0;
+      line-height: 106px;
     }
     .detail {
       font-size: 30px;

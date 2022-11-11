@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-08-01 18:11:52
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-10 20:30:32
+ * @LastEditTime: 2022-11-11 17:54:08
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/infoPreview/components/InsuredPart.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -70,13 +70,20 @@ const riskInfo = computed(() => {
     riderRiskList: [],
     amount: 0,
   };
+  // props.productData?.tenantOrderRiskList.forEach((risk) => {
+  //   currentRiskInfo.riderRiskList.push(risk.riskName || '');
+  // });
+  // return currentRiskInfo;
+  const mainRisk = props.productData?.tenantOrderRiskList.find((risk) => risk.riskType === RISK_TYPE_ENUM.MAIN_RISK);
+  Object.assign(currentRiskInfo, mainRisk);
   props.productData?.tenantOrderRiskList.forEach((risk) => {
-    currentRiskInfo.amount += risk.initialAmount;
-    if (risk.riskType === RISK_TYPE_ENUM.MAIN_RISK) {
-      Object.assign(currentRiskInfo, risk);
-    } else {
-      currentRiskInfo.riderRiskList.push(risk.riskName || '');
-    }
+    // currentRiskInfo.amount += risk.initialAmount;
+    currentRiskInfo.riderRiskList.push(risk.riskName || '');
+    // if (risk.riskType === RISK_TYPE_ENUM.MAIN_RISK) {
+    //   Object.assign(currentRiskInfo, risk);
+    // } else {
+    //   currentRiskInfo.riderRiskList.push(risk.riskName || '');
+    // }
   });
   return currentRiskInfo;
 });
