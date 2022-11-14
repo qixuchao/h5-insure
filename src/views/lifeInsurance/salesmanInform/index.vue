@@ -137,7 +137,6 @@ const orderDetail = () => {
 };
 
 const getFileDetails = (item: any) => {
-  console.log(item);
   const { id, objectType } = item;
 
   const fileTypeMap = {
@@ -155,7 +154,6 @@ const getFileDetails = (item: any) => {
     tenantId,
   }).then(({ code, data }) => {
     if (code === '10000') {
-      console.log(data);
       if (data?.[0].questionType === QUESTION_TEXT_TYPE) {
         previewFileType.value = 'question';
         previewFileContent.value = data;

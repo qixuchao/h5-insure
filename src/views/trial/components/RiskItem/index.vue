@@ -547,17 +547,6 @@ watch(
   },
 );
 
-watch(
-  () => state.formInfo,
-  () => {
-    console.log('state.formInfo', state.formInfo);
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
-
 // 监听主险的数据变化
 watch(
   () => props?.mainRiskInfo,

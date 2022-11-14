@@ -153,7 +153,6 @@ const getProducts = () => {
   }).then((res: any) => {
     const { code, data, total } = res;
     if (code === '10000') {
-      console.log(data);
       productList.value = data?.datas;
       productTotal.value = total;
     }
@@ -249,17 +248,6 @@ const onRefresh = () => {
   loading.value = true;
   onLoad();
 };
-
-watch(
-  () => selectProduct,
-  (newVal) => {
-    console.log('newVal', newVal);
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
 </script>
 
 <style scoped lang="scss">

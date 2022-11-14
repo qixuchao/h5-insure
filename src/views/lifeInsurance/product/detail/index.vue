@@ -266,27 +266,28 @@ const jumpPage = () => {
 };
 
 const goPage = () => {
+  jumpPage();
   // 进入页面获取成功iseeBiz后可跳转，否则调用一下
-  if (window.iseeBiz) {
-    jumpPage();
-  } else {
-    if (window.getIseeBiz) {
-      window
-        .getIseeBiz()
-        .then((res) => {
-          if (res) {
-            console.log(`成功获取biz:${res}`);
-            jumpPage();
-          }
-        })
-        .catch(() => {
-          console.error('千里眼插件获取失败');
-        });
-    } else {
-      jumpPage();
-      console.error('没有调用千里眼插件');
-    }
-  }
+  // if (window.iseeBiz) {
+  //   jumpPage();
+  // } else {
+  //   if (window.getIseeBiz) {
+  //     window
+  //       .getIseeBiz()
+  //       .then((res) => {
+  //         if (res) {
+  //           console.log(`成功获取biz:${res}`);
+  //           jumpPage();
+  //         }
+  //       })
+  //       .catch(() => {
+  //         console.error('千里眼插件获取失败');
+  //       });
+  //   } else {
+  //     jumpPage();
+  //     console.error('没有调用千里眼插件');
+  //   }
+  // }
 };
 
 // 单计划产品 保障详情在titleAndDescVOS字段里

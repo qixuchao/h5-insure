@@ -32,7 +32,7 @@ const formatPaymentPeriod = (payment: string) => {
     return '';
   }
   if (payment === 'single') {
-    return '趸缴';
+    return '趸交';
   }
   const arr = payment.split('_');
   if (arr[0] === 'year') {
@@ -43,7 +43,7 @@ const formatPaymentPeriod = (payment: string) => {
   }
   if (arr[0] === 'to') {
     if (arr[1] === 'life') {
-      return '保终生';
+      return '保终身';
     }
     return `至${arr[1]}岁`;
   }
