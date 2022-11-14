@@ -2,7 +2,7 @@
  * @Author: 王园丽
  * @Date: 2022-08-05 18:00:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-14 16:35:35
+ * @LastEditTime: 2022-11-14 17:56:02
  * @Description: 计划书利益演示
 -->
 <template>
@@ -16,7 +16,7 @@
       @click-tab="changeTab"
     >
       <van-tab v-for="(item, i) in props.info?.benefitRiskResultVOList" :key="i" :name="i" :title="item.riskName">
-        <div class="benefit">
+        <div v-if="i == active" class="benefit">
           <div class="benefit-title">{{ item?.riskName }}</div>
           <div class="line"></div>
           <p v-if="!showChart" class="box-title box-title-chart">
@@ -44,7 +44,7 @@
             </div>
           </div>
 
-          <div v-else style="width: 100%">
+          <div v-if="!showChart" style="width: 100%, minWidth: 338px">
             <ProChart :min="ageBegin" :max="ageEnd" :current="num" :data="benefitObj?.result?.benefitRiskItemList" />
           </div>
           <div class="slider">
@@ -88,7 +88,7 @@ const props = defineProps({
   },
 });
 
-const active = ref(0);
+const active = ref(1);
 const ageBegin = ref(0);
 const ageEnd = ref(0);
 const benefitObj = ref(); // 利益演示结构
