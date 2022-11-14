@@ -434,6 +434,7 @@ const onSaveOrder = async (risk: any) => {
     showHealthPreview.value = false;
     if (code === '10000') {
       Toast.clear();
+      delete order.id;
       tempOrderData.value = {
         orderNo: data.data,
         order,

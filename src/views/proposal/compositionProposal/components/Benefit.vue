@@ -2,7 +2,7 @@
  * @Author: 王园丽
  * @Date: 2022-08-05 18:00:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-10-25 15:33:56
+ * @LastEditTime: 2022-11-14 14:30:24
  * @Description: 计划书利益演示
 -->
 <template>
@@ -106,6 +106,14 @@ const renderArray = (start: number, end: number) => {
   return { a, year };
 };
 
+const setAge = (realData: any) => {
+  if (!realData?.benefitRiskResultVOList) return;
+  const benefit = realData?.benefitRiskResultVOList[active.value];
+  ageBegin.value = benefit.ageBegin + 1;
+  num.value = benefit.ageBegin + 1;
+  ageEnd.value = benefit.ageEnd;
+};
+
 const getData = () => {
   // 根据num 取对应数组的值
   const benefit = props.info?.benefitRiskResultVOList?.[active.value];
@@ -120,14 +128,6 @@ const getData = () => {
   };
 
   benefitObj.value = obj;
-};
-
-const setAge = (realData: any) => {
-  if (!realData?.benefitRiskResultVOList) return;
-  const benefit = realData?.benefitRiskResultVOList[active.value];
-  ageBegin.value = benefit.ageBegin + 1;
-  num.value = benefit.ageBegin + 1;
-  ageEnd.value = benefit.ageEnd;
 };
 
 const handleAdd = () => {
@@ -169,6 +169,14 @@ watch(
     immediate: true,
   },
 );
+
+watch(
+  () => active.value,
+  () => {
+    setAge(props.info);
+  },
+);
+
 watch(num, () => {
   getData();
 });
