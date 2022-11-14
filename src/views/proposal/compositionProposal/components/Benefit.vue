@@ -2,7 +2,7 @@
  * @Author: 王园丽
  * @Date: 2022-08-05 18:00:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-14 17:56:02
+ * @LastEditTime: 2022-11-14 20:45:56
  * @Description: 计划书利益演示
 -->
 <template>
@@ -88,7 +88,7 @@ const props = defineProps({
   },
 });
 
-const active = ref(1);
+const active = ref(0);
 const ageBegin = ref(0);
 const ageEnd = ref(0);
 const benefitObj = ref(); // 利益演示结构
