@@ -246,7 +246,7 @@ import { AuthType } from '../../auth';
 import ProDivider from '@/components/ProDivider/index.vue';
 import { VALIDATE_TYPE_ENUM } from '@/common/constants';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
-import { PackageProductVoItem } from '@/api/modules/trial.data';
+import { PackageProductVoItem, RiskDetailVoItem } from '@/api/modules/trial.data';
 import { validateCustomName } from '@/utils/validator';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import FilePreview from '../FilePreview/index.vue';
@@ -274,6 +274,7 @@ interface FormInfoProps {
     // smoke: string;
   };
   packageProductList: PackageProductVoItem[];
+  selectRiskIds: number[];
 }
 
 const props = defineProps({

@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-11 17:24:05
+ * @LastEditTime: 2022-11-14 12:35:32
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -140,8 +140,10 @@ watch(
 
 const handleScroll = (el: any) => {
   if (el) {
-    console.log('calcuateFlg', calcuateFlg.value);
-    if (Math.floor(el.target.scrollHeight - el.target.scrollTop - 15) <= el.target.clientHeight && calcuateFlg.value) {
+    const scrollHeight = el.target?.scrollHeight || el.scrollHeight;
+    const scrollTop = el.target?.scrollTop || el.scrollTop;
+    const clientHeight = el.target?.clientHeight || el.clientHeight;
+    if (Math.floor(scrollHeight - scrollTop - 15) <= clientHeight && calcuateFlg.value) {
       if (formatedContentList.value[currentActiveIndex.value].readDisabled) {
         formatedContentList.value[currentActiveIndex.value].disabled = false;
         formatedContentList.value[currentActiveIndex.value].readDisabled = false;
@@ -167,6 +169,11 @@ watch(
         calcuateFlg.value = true;
       }, 800);
     }
+    nextTick(() => {
+      setTimeout(() => {
+        handleScroll(previewRef.value);
+      }, 2000);
+    });
   },
   {
     immediate: true,

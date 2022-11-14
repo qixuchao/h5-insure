@@ -84,7 +84,7 @@ import {
   PAYMENT_FREQUENCY_ENUM,
 } from '@/common/constants/infoCollection';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
-import { PackageProductVoItem, ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
+import { PackageProductVoItem, ProductData, RiskDetailVoItem, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
 
 import {
   premiumCalc,
@@ -404,7 +404,6 @@ const previewFile = (index: number) => {
 };
 
 const onSaveOrder = async (risk: any) => {
-  console.log('risk', risk);
   const order = genarateOrderParam({
     tenantId,
     saleUserId: agentCode,
@@ -422,6 +421,7 @@ const onSaveOrder = async (risk: any) => {
     tenantOrderRiskList: risk,
     orderStatus: '',
     orderTopStatus: '',
+    orderNo,
   });
 
   try {
@@ -436,7 +436,6 @@ const onSaveOrder = async (risk: any) => {
         orderNo: data.data,
         order,
       };
-      console.log('11111');
       showFilePreview.value = true;
       previewFile(0);
     }
@@ -656,6 +655,19 @@ const getOrderById = async () => {
     const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
     // 领了赠险没买付费，被保人默认本人
     if (!isPayBack) {
+      // 加油包回显
+      const riskIds = (tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.tenantOrderRiskList || []).map(
+        (e: any) => {
+          return e.extInfo?.riskId || '';
+        },
+      );
+      trialData.packageProductList.forEach((item: PackageProductVoItem) => {
+        // eslint-disable-next-line no-param-reassign
+        item.value =
+          item.productRiskVoList.filter((e: RiskDetailVoItem) => riskIds.includes(e.id)).length > 0
+            ? INSURE_TYPE_ENUM.INSURE
+            : INSURE_TYPE_ENUM.UN_INSURE;
+      });
       Object.assign(trialData, {
         holder: {
           certNo: tenantOrderHolder.certNo,
