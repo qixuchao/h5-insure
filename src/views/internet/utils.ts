@@ -1,5 +1,6 @@
 import dayjs, { UnitType } from 'dayjs';
 import { type } from 'os';
+import { OriginOrderIds } from '../../api/modules/trial.data.d';
 import { PAYMENT_FREQUENCY_ENUM, INSURE_TYPE_ENUM, RELATION_HOLDER_ENUM } from '../../common/constants/infoCollection';
 import { ProductDetail } from '@/api/modules/product.data';
 import {
@@ -224,13 +225,13 @@ interface orderParamType {
   };
   tenantOrderRiskList: any; // TODO any
   orderNo?: string | number;
-  id?: number;
+  originOrderIds?: OriginOrderIds;
 }
 // multiIssuePolicy 一键出单
 export const genarateOrderParam = (o: orderParamType) => {
   const param = {
-    id: o.id || null,
-    orderNo: o.orderNo || '',
+    id: o.originOrderIds?.id || null,
+    orderNo: o.orderNo || null,
     orderAmount: o.premium,
     tenantId: o.tenantId,
     venderCode: o.detail?.insurerCode,
@@ -243,6 +244,7 @@ export const genarateOrderParam = (o: orderParamType) => {
     orderStatus: o.orderStatus,
     orderTopStatus: o.orderTopStatus,
     tenantOrderHolder: {
+      id: o.originOrderIds?.holderId || null,
       tenantId: o.tenantId,
       name: o.holder.name,
       certNo: o.holder.certNo,
@@ -265,6 +267,7 @@ export const genarateOrderParam = (o: orderParamType) => {
     },
     tenantOrderInsuredList: [
       {
+        id: o.originOrderIds?.insuredId || null,
         tenantId: o.tenantId,
         relationToHolder: o.insured.relationToHolder,
         certNo: o.insured.certNo,

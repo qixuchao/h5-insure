@@ -84,7 +84,13 @@ import {
   PAYMENT_FREQUENCY_ENUM,
 } from '@/common/constants/infoCollection';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
-import { PackageProductVoItem, ProductData, RiskDetailVoItem, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
+import {
+  OriginOrderIds,
+  PackageProductVoItem,
+  ProductData,
+  RiskDetailVoItem,
+  RiskPremiumDetailVoItem,
+} from '@/api/modules/trial.data';
 
 import {
   premiumCalc,
@@ -180,7 +186,7 @@ const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
 const payHtml = ref<PayHtml>({ show: false, html: '' });
 const tempOrderData = ref<{ orderNo?: ''; order?: any }>({});
-const orderDetailId = ref<number>();
+const originOrderIds = ref<OriginOrderIds>();
 const loading = ref<boolean>(false);
 let iseeBizNo = '';
 
@@ -423,7 +429,7 @@ const onSaveOrder = async (risk: any) => {
     orderStatus: '',
     orderTopStatus: '',
     orderNo,
-    id: orderDetailId.value,
+    originOrderIds: originOrderIds.value,
   });
 
   try {
@@ -656,9 +662,13 @@ const getOrderById = async () => {
   const { code, data } = res;
   if (code === '10000') {
     const { id, tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
-    orderDetailId.value = id;
     // 领了赠险没买付费，被保人默认本人
     if (!isPayBack) {
+      originOrderIds.value = {
+        id,
+        holderId: tenantOrderHolder?.id,
+        insuredId: tenantOrderInsuredList?.[0].id,
+      };
       // 加油包回显
       const riskIds = (tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.tenantOrderRiskList || []).map(
         (e: any) => {
