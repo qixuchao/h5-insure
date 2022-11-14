@@ -2,7 +2,7 @@
  * @Author: 王园丽
  * @Date: 2022-08-05 18:00:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-14 14:30:24
+ * @LastEditTime: 2022-11-14 16:35:35
  * @Description: 计划书利益演示
 -->
 <template>
@@ -145,6 +145,7 @@ const handleReduce = () => {
 };
 const changeTab = (val: { name: number }) => {
   active.value = val.name;
+  setAge(props.info);
   getData();
 };
 
@@ -167,13 +168,6 @@ watch(
   {
     deep: true,
     immediate: true,
-  },
-);
-
-watch(
-  () => active.value,
-  () => {
-    setAge(props.info);
   },
 );
 

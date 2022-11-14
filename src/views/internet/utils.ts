@@ -293,6 +293,12 @@ export const genarateOrderParam = (o: orderParamType) => {
         ],
       },
     ],
+    // 更新订单时需要更新的项目
+    operateOption: {
+      withHolderInfo: true,
+      withInsuredInfo: true,
+      withProductInfo: true,
+    },
   };
   return param;
 };
