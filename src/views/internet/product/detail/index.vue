@@ -25,7 +25,8 @@
       </ScrollInfo>
       <div class="footer-button">
         <div class="price">
-          总保费<span v-if="premium">￥{{ toLocal(premium) }}/月</span>
+          总保费<span v-if="premium && !loading">￥{{ toLocal(premium) }}/月</span>
+          <van-loading v-else class="premium-loading" type="spinner" />
         </div>
         <van-button
           type="primary"
@@ -100,6 +101,7 @@ import {
   genarateOrderParam,
   validateHolderAge,
   getAgeByCard,
+  validateTimeBefore,
 } from '../../utils';
 import { formatPaymentPeriodLimit, formatHolderAgeLimit } from '@/views/lifeInsurance/product/detail/utils';
 import themeVars from '../../theme';
@@ -160,7 +162,6 @@ const {
   upgradeCode,
   from,
 } = route.query as QueryData;
-console.log(route.query, 'route.query');
 
 const formRef = ref();
 const detail = ref<ProductDetail>(); // 产品信息
@@ -174,6 +175,7 @@ const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件�
 const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
 const payHtml = ref<PayHtml>({ show: false, html: '' });
+const loading = ref<boolean>(false);
 let iseeBizNo = '';
 
 // 试算数据， 赠险进入，从链接上默认取投保人数据
@@ -224,14 +226,17 @@ const titleAndDescVOSList = computed(() => {
     {
       desc: `出生${formatHolderAgeLimit(detail.value?.tenantProductInsureVO?.holderAgeLimit)}`,
       title: '投保年龄',
+      noDetail: true,
     },
     {
       desc: formatPaymentPeriodLimit(detail.value?.tenantProductInsureVO?.insurancePeriodValues),
       title: '保障期限',
+      noDetail: true,
     },
     {
       desc: formatPaymentPeriodLimit(detail.value?.tenantProductInsureVO?.waitPeriod) || '',
       title: '等待期',
+      noDetail: true,
     },
   ];
 });
@@ -248,10 +253,9 @@ const filterHealthAttachmentList = computed(() => {
 // 投被保人信息校验： 1、投保人必须大于18岁。2、被保人为子女不能小于30天。3、被保人为父母不能大于70岁。4、被保人为配偶性别不能相同。
 const checkCustomerResult = computed(() => {
   if (trialData.holder.certNo) {
-    const age = getAgeByCard(trialData.holder.certNo, 'year');
     const sex = getSex(trialData.holder.certNo);
     // 投保人必须大于18岁
-    if (age < 18) {
+    if (validateTimeBefore(trialData.holder.certNo, 18, 'year')) {
       Toast('投保人年龄必须大于18岁！');
       return false;
     }
@@ -265,13 +269,17 @@ const checkCustomerResult = computed(() => {
     }
   }
   if (trialData.insured.certNo) {
-    const days = getAgeByCard(trialData.insured.certNo, 'day');
-    const age = getAgeByCard(trialData.insured.certNo, 'year');
-    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.CHILD && days < 30) {
+    if (
+      trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.CHILD &&
+      validateTimeBefore(trialData.insured.certNo, 30, 'day')
+    ) {
       Toast('被保人为子女时，年龄必须大于等于30天！');
       return false;
     }
-    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && age >= 71) {
+    if (
+      trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT &&
+      !validateTimeBefore(trialData.insured.certNo, 71, 'year')
+    ) {
       Toast('被保人为父母时，年龄必须小于等于70岁！');
       return false;
     }
@@ -353,15 +361,12 @@ const onUnderWrite = async (o: any) => {
   Toast.loading({
     message: '核保中...',
     forbidClick: true,
+    duration: 0,
   });
   try {
     const res = await underwrite(o);
     const { code } = res;
     if (code === '10000') {
-      Toast.loading({
-        message: '核保中...',
-        forbidClick: true,
-      });
       const res1: { code: string; data: { type: 1 | 2; paymentUrl: string } } = await getPayUrl({
         orderNo: o.orderNo,
         tenantId,
@@ -373,9 +378,7 @@ const onUnderWrite = async (o: any) => {
             show: true,
             html: data.paymentUrl,
           };
-          console.log('data.paymentUrl', payHtml.value);
           nextTick(() => {
-            console.log('document.forms', document.forms);
             const forms: any = document.getElementById('cashierSubmit');
             forms?.addEventListener('submit', (evt) => {
               evt.preventDefault();
@@ -390,6 +393,8 @@ const onUnderWrite = async (o: any) => {
     buttonAuth.canInsure = true;
   } catch (e) {
     buttonAuth.canInsure = true;
+  } finally {
+    Toast.clear();
   }
 };
 
@@ -476,11 +481,20 @@ const onPremiumCalc = async () => {
     premium.value = null;
     return {};
   }
+  loading.value = true;
   const res = await premiumCalc(calcData);
+  loading.value = false;
 
   const { code, data } = res;
 
   if (code === '10000') {
+    if (!trialData.insured.certNo) {
+      premium.value = null;
+      return {
+        condition: riskVOList,
+        data,
+      };
+    }
     premium.value = data.premium;
     return {
       condition: riskVOList,
@@ -702,7 +716,6 @@ const getOrderById = async () => {
 // 订单状态为承保时，投保人信息不可修改
 // 支付中，超时可以修改投保人信息
 const getOrderByMobile = async () => {
-  console.log('短信进入，带了orderNo, mobile');
   const res = await getOrderDetailByCondition({
     holderPhone: mobile,
     orderStatus: [ORDER_STATUS_ENUM.PAYING.toUpperCase(), ORDER_STATUS_ENUM.TIMEOUT.toUpperCase(), 'ACCEPT_POLICY'],
@@ -846,6 +859,11 @@ onMounted(() => {
     span {
       color: $primary-color;
       font-weight: bold;
+    }
+    .premium-loading {
+      display: inline-block;
+      line-height: 52px;
+      margin-left: 8px;
     }
   }
   .right {

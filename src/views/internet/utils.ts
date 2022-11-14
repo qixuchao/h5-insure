@@ -1,5 +1,6 @@
 import dayjs, { UnitType } from 'dayjs';
 import { type } from 'os';
+import { OriginOrderIds } from '../../api/modules/trial.data.d';
 import { PAYMENT_FREQUENCY_ENUM, INSURE_TYPE_ENUM, RELATION_HOLDER_ENUM } from '../../common/constants/infoCollection';
 import { ProductDetail } from '@/api/modules/product.data';
 import {
@@ -223,10 +224,14 @@ interface orderParamType {
     socialFlag?: string; // 有没有社保
   };
   tenantOrderRiskList: any; // TODO any
+  orderNo?: string | number;
+  originOrderIds?: OriginOrderIds;
 }
 // multiIssuePolicy 一键出单
 export const genarateOrderParam = (o: orderParamType) => {
   const param = {
+    id: o.originOrderIds?.id || null,
+    orderNo: o.orderNo || null,
     orderAmount: o.premium,
     tenantId: o.tenantId,
     venderCode: o.detail?.insurerCode,
@@ -239,6 +244,7 @@ export const genarateOrderParam = (o: orderParamType) => {
     orderStatus: o.orderStatus,
     orderTopStatus: o.orderTopStatus,
     tenantOrderHolder: {
+      id: o.originOrderIds?.holderId || null,
       tenantId: o.tenantId,
       name: o.holder.name,
       certNo: o.holder.certNo,
@@ -261,6 +267,7 @@ export const genarateOrderParam = (o: orderParamType) => {
     },
     tenantOrderInsuredList: [
       {
+        id: o.originOrderIds?.insuredId || null,
         tenantId: o.tenantId,
         relationToHolder: o.insured.relationToHolder,
         certNo: o.insured.certNo,
@@ -289,6 +296,12 @@ export const genarateOrderParam = (o: orderParamType) => {
         ],
       },
     ],
+    // 更新订单时需要更新的项目
+    operateOption: {
+      withHolderInfo: true,
+      withInsuredInfo: true,
+      withProductInfo: true,
+    },
   };
   return param;
 };
@@ -321,11 +334,28 @@ export const getDayByStr = (str: string, birth: string): string => {
   if (dateType === 'day') {
     return dayjs(birth).add(ruleTime, 'day').format('YYYY-MM-DD');
   }
-  return dayjs(birth).add(ruleTime, 'year').format('YYYY-MM-DD');
+  return dayjs(birth)
+    .add(ruleTime + 1, 'year')
+    .format('YYYY-MM-DD');
 };
 
 export const diffDate = (startDate: string, endDate: string = dayjs().format('YYYY-MM-DD')): number => {
   return dayjs(startDate).diff(endDate, 'day');
+};
+
+export const getAgeByCard = (idCard: string, format: UnitType = 'year'): number => {
+  return dayjs().diff(getBirth(idCard), format, true);
+};
+
+// 符合返回 true , 不符合 false
+export const validateTimeBefore = (idCard: string, timer: number, format: UnitType = 'year') => {
+  let targetDays = '';
+  if (format === 'year') {
+    targetDays = dayjs(getBirth(idCard)).add(timer, format).add(1, 'day').format('YYYY-MM-DD');
+  } else {
+    targetDays = dayjs(getBirth(idCard)).add(timer, format).subtract(1, 'day').format('YYYY-MM-DD');
+  }
+  return targetDays > dayjs().format('YYYY-MM-DD');
 };
 
 // 保费计算投保险种是否在年级区间
@@ -360,7 +390,7 @@ interface ValidatorRiskParam {
 
 export const validatorRisk2022 = (param: ValidatorRiskParam) => {
   const { riskCode, liabilityCode, birth, sex } = param;
-  const lastDate = getDayByStr('max_18', birth);
+  const lastDate = getDayByStr('age_18', birth);
   if (riskCode === '7Y7' && liabilityCode === 'FXG086' && !(sex === SEX_LIMIT_ENUM.FEMALE && diffDate(lastDate) <= 1)) {
     return false;
   }
@@ -370,7 +400,7 @@ export const validatorRisk2022 = (param: ValidatorRiskParam) => {
 // 7Y7  FXG086
 export const validatorRiskZXYS = (param: ValidatorRiskParam) => {
   const { riskCode, liabilityCode, birth, sex } = param;
-  const lastDate = getDayByStr('max_18', birth);
+  const lastDate = getDayByStr('age_18', birth);
   if (riskCode === '7Y7' && liabilityCode === 'FXG086' && !(sex === SEX_LIMIT_ENUM.FEMALE && diffDate(lastDate) <= 1)) {
     return false;
   }
@@ -616,8 +646,4 @@ export const idCardMixin = (idCard: string) => {
 // 短信
 export const validateSmsCode = (code: string): boolean => {
   return /^\d{6}$/.test(code);
-};
-
-export const getAgeByCard = (idCard: string, format: UnitType = 'year'): number => {
-  return dayjs().diff(getBirth(idCard), format, true);
 };

@@ -311,3 +311,9 @@ export interface RiskPremiumDetailVoItem {
     riskPremiumDetailVOList: RiskPremiumDetailVoItem[];
     riskType: number;
 }
+
+export interface OriginOrderIds {
+  id?: number;
+  holderId?: number;
+  insuredId?: number;
+}
