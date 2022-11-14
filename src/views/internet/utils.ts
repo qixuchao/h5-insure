@@ -224,10 +224,12 @@ interface orderParamType {
   };
   tenantOrderRiskList: any; // TODO any
   orderNo?: string | number;
+  id?: number;
 }
 // multiIssuePolicy 一键出单
 export const genarateOrderParam = (o: orderParamType) => {
   const param = {
+    id: o.id || null,
     orderNo: o.orderNo || '',
     orderAmount: o.premium,
     tenantId: o.tenantId,

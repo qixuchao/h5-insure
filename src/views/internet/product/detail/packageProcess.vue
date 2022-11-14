@@ -180,6 +180,7 @@ const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
 const payHtml = ref<PayHtml>({ show: false, html: '' });
 const tempOrderData = ref<{ orderNo?: ''; order?: any }>({});
+const orderDetailId = ref<number>();
 const loading = ref<boolean>(false);
 let iseeBizNo = '';
 
@@ -422,6 +423,7 @@ const onSaveOrder = async (risk: any) => {
     orderStatus: '',
     orderTopStatus: '',
     orderNo,
+    id: orderDetailId.value,
   });
 
   try {
@@ -652,7 +654,8 @@ const getOrderById = async () => {
   const res = await getTenantOrderDetail({ orderNo, tenantId });
   const { code, data } = res;
   if (code === '10000') {
-    const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
+    const { id, tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
+    orderDetailId.value = id;
     // 领了赠险没买付费，被保人默认本人
     if (!isPayBack) {
       // 加油包回显
