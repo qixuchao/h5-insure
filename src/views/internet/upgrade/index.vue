@@ -177,7 +177,7 @@ const onPremiumCalc = async () => {
       premium.value = data.installmentPremium;
       signUrl.value = data.signUrl;
     }
-    Toast.clear();
+    // Toast.clear();
   } catch (e) {
     console.log(e);
   }
