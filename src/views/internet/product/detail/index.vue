@@ -79,7 +79,7 @@ import {
   RELATION_HOLDER_LIST,
 } from '@/common/constants/infoCollection';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
-import { ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
+import { ProductData, RiskPremiumDetailVoItem, OriginOrderIds } from '@/api/modules/trial.data';
 
 import {
   premiumCalc,
@@ -176,6 +176,7 @@ const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
 const payHtml = ref<PayHtml>({ show: false, html: '' });
 const loading = ref<boolean>(false);
+const originOrderIds = ref<OriginOrderIds>();
 let iseeBizNo = '';
 
 // 试算数据， 赠险进入，从链接上默认取投保人数据
@@ -234,7 +235,7 @@ const titleAndDescVOSList = computed(() => {
       noDetail: true,
     },
     {
-      desc: formatPaymentPeriodLimit(detail.value?.tenantProductInsureVO?.waitPeriod) || '',
+      desc: `${detail.value?.tenantProductInsureVO?.waitPeriod}天，上一张保单期满后指定期限内重新投保、因遭受意外伤害导致的医疗无等待期`,
       title: '等待期',
       noDetail: true,
     },
@@ -434,6 +435,7 @@ const onSaveOrder = async (risk: any) => {
     tenantOrderRiskList: risk,
     orderStatus: '',
     orderTopStatus: '',
+    originOrderIds: originOrderIds.value,
   });
 
   try {
@@ -645,9 +647,14 @@ const getOrderById = async () => {
   const res = await getTenantOrderDetail({ orderNo, tenantId });
   const { code, data } = res;
   if (code === '10000') {
-    const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
+    const { id, tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
     // 领了赠险没买付费，被保人默认本人
     if (!isPayBack) {
+      originOrderIds.value = {
+        id,
+        holderId: tenantOrderHolder?.id,
+        insuredId: tenantOrderInsuredList?.[0].id,
+      };
       Object.assign(trialData, {
         holder: {
           certNo: tenantOrderHolder.certNo,
