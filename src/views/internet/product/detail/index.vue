@@ -875,7 +875,12 @@ onMounted(() => {
     .premium-loading {
       display: inline-block;
       line-height: 52px;
-      margin-left: 8px;
+      margin-left: 30px;
+
+      :deep(.van-loading__spinner) {
+        width: 34px !important;
+        height: 34px !important;
+      }
     }
   }
   .right {
