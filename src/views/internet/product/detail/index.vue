@@ -25,7 +25,7 @@
       </ScrollInfo>
       <div class="footer-button">
         <div class="price">
-          总保费<span v-if="premium && !loading">￥{{ toLocal(premium) }}/月</span>
+          总保费<span v-if="!loading">{{ premium ? '￥' : '' }}{{ toLocal(premium) }}{{ premium ? '元/月' : '' }}</span>
           <van-loading v-else class="premium-loading" type="spinner" />
         </div>
         <van-button
@@ -38,7 +38,7 @@
         </van-button>
       </div>
     </div>
-    <PreNotice v-if="pageCode !== 'payBack'" :product-detail="detail"></PreNotice>
+    <PreNotice v-if="!orderNo" :product-detail="detail"></PreNotice>
     <UpgradeModal
       :order-no="orderNo"
       :tenant-id="tenantId"
