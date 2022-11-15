@@ -251,7 +251,7 @@ const filterHealthAttachmentList = computed(() => {
 });
 
 // 投被保人信息校验： 1、投保人必须大于18岁。2、被保人为子女不能小于30天。3、被保人为父母不能大于70岁。4、被保人为配偶性别不能相同。
-const checkCustomerResult = computed(() => {
+const checkCustomerResult = () => {
   if (trialData.holder.certNo) {
     const sex = getSex(trialData.holder.certNo);
     // 投保人必须大于18岁
@@ -297,7 +297,7 @@ const checkCustomerResult = computed(() => {
     }
   }
   return true;
-});
+};
 
 // 校验所有输入参数
 const validCalcData = () => {
@@ -463,7 +463,8 @@ const onSaveOrder = async (risk: any) => {
 
 // 保费试算 -> 订单保存 -> 核保
 const onPremiumCalc = async () => {
-  if (!checkCustomerResult.value) return {};
+  buttonAuth.canInsure = true;
+  if (!checkCustomerResult()) return {};
   // 试算参数
   const { calcData, riskVOList } = genaratePremiumCalcData(
     {
@@ -516,7 +517,10 @@ const onPremiumCalcWithValid = () => {
       ?.validateForm?.()
       .then(async () => {
         // 表单验证通过再检查是否逐条阅读
-        if (!checkCustomerResult.value) return;
+        if (!checkCustomerResult()) {
+          reject(new Error());
+          return;
+        }
         // const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
         // if (!isAgree) {
         //   // showHealthPreview.value = true;
