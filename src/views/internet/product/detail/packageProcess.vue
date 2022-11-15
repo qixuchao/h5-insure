@@ -884,6 +884,8 @@ onMounted(() => {
     color: #393d46;
     font-size: 34px;
     font-weight: normal;
+    display: flex;
+    align-items: center;
     span {
       color: $primary-color;
       font-weight: bold;
