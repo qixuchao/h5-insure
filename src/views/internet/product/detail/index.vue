@@ -435,6 +435,7 @@ const onSaveOrder = async (risk: any) => {
     tenantOrderRiskList: risk,
     orderStatus: '',
     orderTopStatus: '',
+    orderNo,
     originOrderIds: originOrderIds.value,
   });
 
