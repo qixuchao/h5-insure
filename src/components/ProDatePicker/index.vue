@@ -118,7 +118,6 @@ watch(
           tempModelValue.value = '';
         }
       } else {
-        console.log('modelValue', val);
         tempModelValue.value = val;
       }
     } else {

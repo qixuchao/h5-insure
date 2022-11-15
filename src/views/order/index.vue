@@ -82,7 +82,6 @@ const getData = () => {
 const handleLoad = () => {
   pageNum.value += 1;
   getData();
-  console.log('🚀 ~ handleLoad ~ pageNum.value', pageNum.value);
 };
 
 const handleAfterDelete = () => {

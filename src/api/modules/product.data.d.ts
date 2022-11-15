@@ -138,7 +138,7 @@ export interface TenantProductInsureVO {
 按月保：以month开头，例如month_10
 按天保：以day开头，例如day_10
 保至多少岁：以to开头，例如to_60
-保终生：to_life
+保终身：to_life
    */
   insurancePeriodValues: string;
   /**

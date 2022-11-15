@@ -17,7 +17,6 @@ const formatAge = (age: string) => {
  * @returns 投保年龄限制
  */
 export const formatHolderAgeLimit = (age?: string) => {
-  console.log('age', age);
   if (!age) {
     return '';
   }

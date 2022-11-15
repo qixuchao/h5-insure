@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-10 20:40:28
+ * @LastEditTime: 2022-11-14 17:18:18
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/compositionProposal/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -81,7 +81,7 @@ const isMale = (gender: number) => {
 const getCover = (val: string) => {
   const arr = val.split('_');
   if (val === 'to_life') {
-    return '保终生';
+    return '保终身';
   }
   switch (arr[0]) {
     case 'year':

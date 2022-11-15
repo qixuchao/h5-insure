@@ -54,7 +54,7 @@ router.beforeEach(async (to, from, next) => {
       return;
     }
   }
-  console.log(window.location.href, `${ORIGIN}${to.path}`, window.location.pathname);
+  console.log(window.location.href, `${ORIGIN}${to.path}`);
   // set title 给App或浏览器标题栏显示
   useTitle(to.meta?.title as string); // || (VITE_TITLE as string));
   if (to.path === '/login' || to.query.flag === 'N') {
