@@ -81,9 +81,9 @@ const handleDelete = () => {
 
 const redirectProductDetail = (): boolean => {
   if (!detail.value) return false;
-  const { agencyId: agencyCode, saleChannelId, orderStatus } = detail.value;
+  const { agencyId: agencyCode, saleChannelId, orderTopStatus } = detail.value;
   const productCode = detail.value.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productCode;
-  if (ORDER_STATUS_ENUM.PENDING === orderStatus || ORDER_STATUS_ENUM.PAYING === orderStatus) {
+  if (ORDER_TOP_STATUS_ENUM.PENDING === orderTopStatus || ORDER_TOP_STATUS_ENUM.PAYING === orderTopStatus) {
     if (productCode === PRODUCT_LIST_ENUM.ZXYS || productCode === PRODUCT_LIST_ENUM.BWYL) {
       const productUrlMap = {
         [PRODUCT_LIST_ENUM.ZXYS]: '/internet/productDetail/package',
