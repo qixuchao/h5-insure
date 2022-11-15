@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 15:06:48
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-25 10:21:21
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-15 17:41:50
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProField/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -14,7 +14,7 @@
     :is-link="showLink"
     :placeholder="placeholder"
     :rules="currentRules"
-    :class="['com-pro-field', { block }]"
+    :class="['com-pro-field', { block }, customClass]"
     :readonly="formProps.isView || isView"
     :formatter="formatter"
     @click="handleClick"
@@ -46,6 +46,7 @@ interface Props {
   isView?: boolean;
   validateType?: Array<string>;
   formatter?: (val: string) => string;
+  customClass?: string;
 }
 
 const slot = useSlots();
@@ -61,6 +62,7 @@ const props = withDefaults(defineProps<Props>(), {
   isView: false,
   validateType: () => [],
   formatter: (val) => val,
+  customClass: '',
 });
 
 const formProps: any = inject('formProps') || {};

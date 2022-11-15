@@ -317,3 +317,8 @@ export interface OriginOrderIds {
   holderId?: number;
   insuredId?: number;
 }
+
+export interface ErrorInfo {
+  name: string;
+  message: string;
+}

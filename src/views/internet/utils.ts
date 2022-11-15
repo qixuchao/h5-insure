@@ -1,6 +1,6 @@
 import dayjs, { UnitType } from 'dayjs';
 import { type } from 'os';
-import { OriginOrderIds } from '../../api/modules/trial.data.d';
+import { OriginOrderIds, ErrorInfo } from '../../api/modules/trial.data.d';
 import { PAYMENT_FREQUENCY_ENUM, INSURE_TYPE_ENUM, RELATION_HOLDER_ENUM } from '../../common/constants/infoCollection';
 import { ProductDetail } from '@/api/modules/product.data';
 import {
@@ -646,4 +646,12 @@ export const idCardMixin = (idCard: string) => {
 // 短信
 export const validateSmsCode = (code: string): boolean => {
   return /^\d{6}$/.test(code);
+};
+
+export const scrollIntoErrorField = (errorInfo: ErrorInfo[]) => {
+  const className = `.custom-class-${errorInfo[0].name}`;
+  const errorNode = document.querySelector(className);
+  if (errorNode && errorNode.parentNode && (errorNode.parentNode as any)?.scrollIntoView) {
+    (errorNode.parentNode as any)?.scrollIntoView({ behavior: 'smooth' });
+  }
 };

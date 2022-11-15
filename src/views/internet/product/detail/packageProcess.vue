@@ -91,6 +91,7 @@ import {
   ProductData,
   RiskDetailVoItem,
   RiskPremiumDetailVoItem,
+  ErrorInfo,
 } from '@/api/modules/trial.data';
 
 import {
@@ -115,6 +116,7 @@ import {
   validatorRiskZXYS,
   getAgeByCard,
   validateTimeBefore,
+  scrollIntoErrorField,
 } from '../../utils';
 import themeVars from '../../theme';
 
@@ -557,8 +559,9 @@ const onPremiumCalcWithValid = () => {
           reject(new Error());
         }
       })
-      .catch(() => {
+      .catch((errorInfo: ErrorInfo[]) => {
         buttonAuth.canInsure = true;
+        scrollIntoErrorField(errorInfo);
       });
   });
 };

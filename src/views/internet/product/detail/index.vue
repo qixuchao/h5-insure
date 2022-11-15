@@ -79,7 +79,7 @@ import {
   RELATION_HOLDER_LIST,
 } from '@/common/constants/infoCollection';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
-import { ProductData, RiskPremiumDetailVoItem, OriginOrderIds } from '@/api/modules/trial.data';
+import { ProductData, RiskPremiumDetailVoItem, OriginOrderIds, ErrorInfo } from '@/api/modules/trial.data';
 
 import {
   premiumCalc,
@@ -102,6 +102,7 @@ import {
   validateHolderAge,
   getAgeByCard,
   validateTimeBefore,
+  scrollIntoErrorField,
 } from '../../utils';
 import { formatPaymentPeriodLimit, formatHolderAgeLimit } from '@/views/lifeInsurance/product/detail/utils';
 import themeVars from '../../theme';
@@ -558,8 +559,9 @@ const onPremiumCalcWithValid = () => {
           reject(new Error());
         }
       })
-      .catch(() => {
+      .catch((errorInfo: ErrorInfo[]) => {
         buttonAuth.canInsure = true;
+        scrollIntoErrorField(errorInfo);
       });
   });
 };
