@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 15:06:48
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-15 17:41:50
+ * @LastEditTime: 2022-11-16 10:52:05
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProField/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -47,6 +47,7 @@ interface Props {
   validateType?: Array<string>;
   formatter?: (val: string) => string;
   customClass?: string;
+  errorMessage?: string;
 }
 
 const slot = useSlots();
@@ -63,6 +64,7 @@ const props = withDefaults(defineProps<Props>(), {
   validateType: () => [],
   formatter: (val) => val,
   customClass: '',
+  errorMessage: '',
 });
 
 const formProps: any = inject('formProps') || {};
@@ -75,7 +77,13 @@ const currentRules = computed(() => {
     rules = [...props.rules];
   }
   if (props.required) {
-    rules = [...rules, { required: true, message: `${props.isLink ? '请选择' : '请输入'}${props.label}` }];
+    rules = [
+      ...rules,
+      {
+        required: true,
+        message: props.errorMessage ? props.errorMessage : `${props.isLink ? '请选择' : '请输入'}${props.label}`,
+      },
+    ];
   }
   if (props.validateType && props.validateType.length > 0) {
     rules = [...rules, ...props.validateType.map((type) => formatRule(type, props.label))];

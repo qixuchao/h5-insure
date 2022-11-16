@@ -175,6 +175,7 @@
           name="paymentFrequency"
           required
           placeholder="请选择"
+          error-message="请选择交费方式"
         >
           <template #input>
             <ProRadioButton
@@ -193,6 +194,7 @@
           required
           placeholder="请选择"
           custom-class="custom-class-paymentMethod"
+          error-message="请选择支付方式"
         >
           <template #input>
             <ProRadioButton
