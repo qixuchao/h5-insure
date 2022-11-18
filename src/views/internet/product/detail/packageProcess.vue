@@ -822,23 +822,20 @@ const getOrderByMobile = async () => {
 };
 
 const fetchData = async () => {
-  const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
-  const insureReq = insureProductDetail({ productCode });
-  await Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
-    if (productRes.code === '10000') {
-      detail.value = productRes.data;
-      document.title = productRes.data?.productFullName || '';
-    }
-
-    if (insureRes.code === '10000') {
-      trialData.packageProductList = (insureRes.data?.packageProductVOList || []).map((item: PackageProductVoItem) => ({
-        ...item,
-        value: INSURE_TYPE_ENUM.UN_INSURE,
-        disabled: false,
-      }));
-      insureDetail.value = insureRes.data;
-    }
-  });
+  const productRes = await productDetail({ productCode, withInsureInfo: true, tenantId });
+  if (productRes.code === '10000') {
+    detail.value = productRes.data;
+    document.title = productRes.data?.productFullName || '';
+  }
+  const insureRes = await insureProductDetail({ productCode });
+  if (insureRes.code === '10000') {
+    trialData.packageProductList = (insureRes.data?.packageProductVOList || []).map((item: PackageProductVoItem) => ({
+      ...item,
+      value: INSURE_TYPE_ENUM.UN_INSURE,
+      disabled: false,
+    }));
+    insureDetail.value = insureRes.data;
+  }
 
   if (orderNo) {
     // 这里要轮询，支付完成后，跳转回来，订单状态可能没有及时更新
