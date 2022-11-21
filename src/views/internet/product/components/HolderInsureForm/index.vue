@@ -505,6 +505,15 @@ const validatorCode = (value: string) => {
 };
 
 watch(
+  () => state.formInfo.insured.socialFlag,
+  () => {
+    if (state.formInfo.insured.relationToHolder === RELATION_HOLDER_ENUM.SELF) {
+      state.formInfo.holder.socialFlag = state.formInfo.insured.socialFlag;
+    }
+  },
+);
+
+watch(
   [() => state.formInfo.holder.certNo, () => state.formInfo.insured.certNo],
   () => {
     state.formInfo.holder.certNo = state.formInfo.holder.certNo?.replace(
