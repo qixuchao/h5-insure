@@ -494,6 +494,7 @@ onBeforeMount(() => {
     riskId: props.originData.id,
     riskName: props.originData.riskName,
     riskCode: props.originData.riskCode,
+    amount: state.formInfo.amount,
     mainRiskCode: props.originData.riskType !== 1 ? props.mainRiskData?.riskCode : undefined,
     mainRiskId: props.originData.riskType !== 1 ? props.mainRiskData?.id : undefined,
     exemptFlag: props.originData.exemptFlag,
@@ -507,6 +508,14 @@ onBeforeMount(() => {
       liabilityAttributeValue: initLiabilityValue(liab),
     })),
   };
+
+  // 固定保额
+  if (
+    (![1].includes(props.originData.riskCalcMethodInfoVO?.saleMethod || 0) || props.originData?.exemptFlag === 1) &&
+    props.originData.riskCalcMethodInfoVO.fixedAmount
+  ) {
+    extraInfo.amount = props.originData.riskCalcMethodInfoVO.fixedAmount;
+  }
 
   Object.assign(state.formInfo, extraInfo);
 });

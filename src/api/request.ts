@@ -3,7 +3,7 @@
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-14 10:43:26
+ * @LastEditTime: 2022-11-16 18:41:45
  */
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
@@ -112,7 +112,7 @@ const axiosInstance: AxiosInstance = axios.create({
  * 判断失败的标准
  * http请求的状态是5xx
  */
-// axiosRetry(axiosInstance, { retries: 2 });
+axiosRetry(axiosInstance, { retries: 2 });
 
 // 请求拦截器
 axiosInstance.interceptors.request.use(
