@@ -63,7 +63,6 @@ const isLink = computed(() => {
   return props.type === 'link';
 });
 
-console.log('padf:workerSrc', workerSrc);
 PDFJS.GlobalWorkerOptions.workerSrc = workerSrc;
 
 const id = nanoid();
@@ -73,32 +72,25 @@ const loading = ref(true);
 
 const loadPdfCanvas = async () => {
   Toast.loading({ message: '加载中', duration: 20 * 1000, forbidClick: props.forbidClick });
-  console.log('padf:333', id);
   const container = document.getElementById(id) as HTMLElement;
   if (container.hasChildNodes()) {
     // 说明已经加载过一次pdf了，那就走缓存
-    console.log('padf:4444', container);
     loading.value = false;
     return;
   }
   let pdf;
   try {
-    console.log(props.content, 'padf:5555', pdf);
     pdf = await PDFJS.getDocument({
       url: props.content,
     }).promise;
-    console.log('padf:666', pdf);
   } catch (error) {
-    console.log('7777', String(error), container);
     // undefined is not an object ( evaluting 'response.body.getReader')
     // if (String(error).indexOf('body.getReader') > -1) {
     const pdfData = await fetch(props.content);
     const arrayBufferPdf = await pdfData.arrayBuffer();
     pdf = await PDFJS.getDocument({ data: arrayBufferPdf }).promise;
-    console.log('pdf===000111', pdf);
     // }
   }
-  console.log('88888', pdf);
   if (!pdf || !pdf.numPages) {
     Toast.clear();
     return;
@@ -131,7 +123,6 @@ const loadPdfCanvas = async () => {
 const openPdf = async () => {
   show.value = true;
   setTimeout(() => {
-    console.log('padf:222', show.value);
     loadPdfCanvas();
   }, 0);
 };
@@ -140,7 +131,6 @@ watch(
   () => props.content,
   (newVal) => {
     if (newVal) {
-      console.log('padf:1111', newVal, isPdf.value);
       props.type === 'pdf' && openPdf();
     }
   },
