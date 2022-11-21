@@ -83,13 +83,9 @@ const redirectProductDetail = (): boolean => {
     productCategory,
     agencyId: agencyCode,
     saleChannelId,
-    orderStatus,
+    orderTopStatus,
   } = props.detail;
-  if (
-    ORDER_STATUS_ENUM.PENDING === orderStatus ||
-    ORDER_STATUS_ENUM.PAYING === orderStatus ||
-    ORDER_STATUS_ENUM.UP_PROCESSING === orderStatus
-  ) {
+  if (ORDER_TOP_STATUS_ENUM.PENDING === orderTopStatus || ORDER_TOP_STATUS_ENUM.PAYING === orderTopStatus) {
     if ([PRODUCT_LIST_ENUM.ZXYS, PRODUCT_LIST_ENUM.BWYL, PRODUCT_LIST_ENUM.BWYLUP].includes(productCode)) {
       const productUrlMap = {
         [PRODUCT_LIST_ENUM.ZXYS]: '/internet/productDetail/package',

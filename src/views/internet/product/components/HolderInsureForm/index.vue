@@ -17,6 +17,7 @@
           placeholder="请输入姓名"
           maxlength="50"
           :rules="[{ validator: nameValidator }]"
+          custom-class="custom-class-name"
         />
         <!-- 投保人证件号 -->
         <ProField v-if="props.formAuth?.holderCertDisable" label="证件号码" class="pro-field" :is-view="true">
@@ -31,6 +32,7 @@
           placeholder="请输入身份证号"
           maxlength="18"
           :validate-type="[VALIDATE_TYPE_ENUM.ID_CARD]"
+          custom-class="custom-class-certNo"
         />
         <!-- 投保人手机号 -->
         <ProField v-if="props.formAuth?.holderMobileDisable" label="手机号" class="pro-field" :is-view="true">
@@ -46,6 +48,7 @@
           type="digit"
           maxlength="11"
           :validate-type="[VALIDATE_TYPE_ENUM.PHONE]"
+          custom-class="custom-class-mobile"
         />
         <ProField
           v-if="!props.formAuth?.holderMobileDisable"
@@ -60,6 +63,7 @@
           error-message-align="left"
           maxlength="6"
           :validate-type="[VALIDATE_TYPE_ENUM.SMS_CODE]"
+          custom-class="custom-class-mobileSmsCode"
         >
           <template #extra>
             <van-button
@@ -171,6 +175,7 @@
           name="paymentFrequency"
           required
           placeholder="请选择"
+          error-message="请选择交费方式"
         >
           <template #input>
             <ProRadioButton
@@ -188,6 +193,8 @@
           name="paymentMethod"
           required
           placeholder="请选择"
+          custom-class="custom-class-paymentMethod"
+          error-message="请选择支付方式"
         >
           <template #input>
             <ProRadioButton
@@ -395,8 +402,11 @@ const validateForm = () => {
       () => {
         resolve('');
       },
-      () => {
-        reject();
+      (errorInfo) => {
+        // if (errorInfo?.length) {
+        //   formRef?.value?.scrollToField(errorInfo[0].name, false);
+        // }
+        reject(errorInfo);
       },
     );
   });

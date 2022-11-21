@@ -23,9 +23,10 @@
       </ScrollInfo>
       <div class="footer-button">
         <div class="price">
-          总保费<span v-if="!loading">
+          <span>总保费</span>
+          <span v-if="!loading">
             {{ premium ? '￥' : '' }}{{ toLocal(premium) }}
-            {{ premium ? (trialData.paymentFrequency == PAYMENT_FREQUENCY_ENUM.YEAR ? '元/年' : '元/月') : '' }}
+            {{ computedPremiumUnit }}
           </span>
           <van-loading v-else class="premium-loading" type="spinner" />
         </div>
@@ -90,6 +91,7 @@ import {
   ProductData,
   RiskDetailVoItem,
   RiskPremiumDetailVoItem,
+  ErrorInfo,
 } from '@/api/modules/trial.data';
 
 import {
@@ -114,6 +116,7 @@ import {
   validatorRiskZXYS,
   getAgeByCard,
   validateTimeBefore,
+  scrollIntoErrorField,
 } from '../../utils';
 import themeVars from '../../theme';
 
@@ -188,6 +191,7 @@ const payHtml = ref<PayHtml>({ show: false, html: '' });
 const tempOrderData = ref<{ orderNo?: ''; order?: any }>({});
 const originOrderIds = ref<OriginOrderIds>();
 const loading = ref<boolean>(false);
+const computedPremiumUnit = ref<string>('');
 let iseeBizNo = '';
 
 // 试算数据， 赠险进入，从链接上默认取投保人数据
@@ -241,6 +245,15 @@ const filterHealthAttachmentList = computed(() => {
     ) || []
   );
 });
+
+const setPremiumUnit = () => {
+  computedPremiumUnit.value = premium.value
+    ? // eslint-disable-next-line eqeqeq
+      trialData.paymentFrequency == PAYMENT_FREQUENCY_ENUM.YEAR
+      ? '元/年'
+      : '元/月'
+    : '';
+};
 
 // 投被保人信息校验： 1、投保人必须大于18岁。2、被保人为子女不能小于30天。3、被保人为父母不能大于60岁。4、被保人为配偶性别不能相同。
 const onCheckCustomer = () => {
@@ -484,12 +497,14 @@ const onPremiumCalc = async () => {
   if (code === '10000') {
     if (!trialData.insured.certNo) {
       premium.value = null;
+      setPremiumUnit();
       return {
         condition: riskVOList,
         data,
       };
     }
     premium.value = data.premium;
+    setPremiumUnit();
     return {
       condition: riskVOList,
       data,
@@ -544,8 +559,9 @@ const onPremiumCalcWithValid = () => {
           reject(new Error());
         }
       })
-      .catch(() => {
+      .catch((errorInfo: ErrorInfo[]) => {
         buttonAuth.canInsure = true;
+        scrollIntoErrorField(errorInfo);
       });
   });
 };
@@ -806,23 +822,20 @@ const getOrderByMobile = async () => {
 };
 
 const fetchData = async () => {
-  const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
-  const insureReq = insureProductDetail({ productCode });
-  await Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
-    if (productRes.code === '10000') {
-      detail.value = productRes.data;
-      document.title = productRes.data?.productFullName || '';
-    }
-
-    if (insureRes.code === '10000') {
-      trialData.packageProductList = (insureRes.data?.packageProductVOList || []).map((item: PackageProductVoItem) => ({
-        ...item,
-        value: INSURE_TYPE_ENUM.UN_INSURE,
-        disabled: false,
-      }));
-      insureDetail.value = insureRes.data;
-    }
-  });
+  const productRes = await productDetail({ productCode, withInsureInfo: true, tenantId });
+  if (productRes.code === '10000') {
+    detail.value = productRes.data;
+    document.title = productRes.data?.productFullName || '';
+  }
+  const insureRes = await insureProductDetail({ productCode });
+  if (insureRes.code === '10000') {
+    trialData.packageProductList = (insureRes.data?.packageProductVOList || []).map((item: PackageProductVoItem) => ({
+      ...item,
+      value: INSURE_TYPE_ENUM.UN_INSURE,
+      disabled: false,
+    }));
+    insureDetail.value = insureRes.data;
+  }
 
   if (orderNo) {
     // 这里要轮询，支付完成后，跳转回来，订单状态可能没有及时更新
@@ -871,6 +884,8 @@ onMounted(() => {
     color: #393d46;
     font-size: 34px;
     font-weight: normal;
+    display: flex;
+    align-items: center;
     span {
       color: $primary-color;
       font-weight: bold;
@@ -878,7 +893,12 @@ onMounted(() => {
     .premium-loading {
       display: inline-block;
       line-height: 52px;
-      margin-left: 8px;
+      margin-left: 30px;
+
+      :deep(.van-loading__spinner) {
+        width: 34px !important;
+        height: 34px !important;
+      }
     }
   }
   .right {

@@ -25,7 +25,7 @@
       </ScrollInfo>
       <div class="footer-button">
         <div class="price">
-          总保费<span v-if="premium && !loading">￥{{ toLocal(premium) }}/月</span>
+          总保费<span v-if="!loading">{{ premium ? '￥' : '' }}{{ toLocal(premium) }}{{ premium ? '元/月' : '' }}</span>
           <van-loading v-else class="premium-loading" type="spinner" />
         </div>
         <van-button
@@ -38,7 +38,7 @@
         </van-button>
       </div>
     </div>
-    <PreNotice v-if="pageCode !== 'payBack'" :product-detail="detail"></PreNotice>
+    <PreNotice v-if="!orderNo" :product-detail="detail"></PreNotice>
     <UpgradeModal
       :order-no="orderNo"
       :tenant-id="tenantId"
@@ -79,7 +79,7 @@ import {
   RELATION_HOLDER_LIST,
 } from '@/common/constants/infoCollection';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
-import { ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
+import { ProductData, RiskPremiumDetailVoItem, OriginOrderIds, ErrorInfo } from '@/api/modules/trial.data';
 
 import {
   premiumCalc,
@@ -102,6 +102,7 @@ import {
   validateHolderAge,
   getAgeByCard,
   validateTimeBefore,
+  scrollIntoErrorField,
 } from '../../utils';
 import { formatPaymentPeriodLimit, formatHolderAgeLimit } from '@/views/lifeInsurance/product/detail/utils';
 import themeVars from '../../theme';
@@ -176,6 +177,7 @@ const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
 const payHtml = ref<PayHtml>({ show: false, html: '' });
 const loading = ref<boolean>(false);
+const originOrderIds = ref<OriginOrderIds>();
 let iseeBizNo = '';
 
 // 试算数据， 赠险进入，从链接上默认取投保人数据
@@ -234,7 +236,7 @@ const titleAndDescVOSList = computed(() => {
       noDetail: true,
     },
     {
-      desc: formatPaymentPeriodLimit(detail.value?.tenantProductInsureVO?.waitPeriod) || '',
+      desc: `${detail.value?.tenantProductInsureVO?.waitPeriod}天，上一张保单期满后指定期限内重新投保、因遭受意外伤害导致的医疗无等待期`,
       title: '等待期',
       noDetail: true,
     },
@@ -251,7 +253,7 @@ const filterHealthAttachmentList = computed(() => {
 });
 
 // 投被保人信息校验： 1、投保人必须大于18岁。2、被保人为子女不能小于30天。3、被保人为父母不能大于70岁。4、被保人为配偶性别不能相同。
-const checkCustomerResult = computed(() => {
+const checkCustomerResult = () => {
   if (trialData.holder.certNo) {
     const sex = getSex(trialData.holder.certNo);
     // 投保人必须大于18岁
@@ -297,7 +299,7 @@ const checkCustomerResult = computed(() => {
     }
   }
   return true;
-});
+};
 
 // 校验所有输入参数
 const validCalcData = () => {
@@ -434,6 +436,8 @@ const onSaveOrder = async (risk: any) => {
     tenantOrderRiskList: risk,
     orderStatus: '',
     orderTopStatus: '',
+    orderNo,
+    originOrderIds: originOrderIds.value,
   });
 
   try {
@@ -463,7 +467,8 @@ const onSaveOrder = async (risk: any) => {
 
 // 保费试算 -> 订单保存 -> 核保
 const onPremiumCalc = async () => {
-  if (!checkCustomerResult.value) return {};
+  buttonAuth.canInsure = true;
+  if (!checkCustomerResult()) return {};
   // 试算参数
   const { calcData, riskVOList } = genaratePremiumCalcData(
     {
@@ -516,7 +521,10 @@ const onPremiumCalcWithValid = () => {
       ?.validateForm?.()
       .then(async () => {
         // 表单验证通过再检查是否逐条阅读
-        if (!checkCustomerResult.value) return;
+        if (!checkCustomerResult()) {
+          reject(new Error());
+          return;
+        }
         // const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
         // if (!isAgree) {
         //   // showHealthPreview.value = true;
@@ -551,8 +559,9 @@ const onPremiumCalcWithValid = () => {
           reject(new Error());
         }
       })
-      .catch(() => {
+      .catch((errorInfo: ErrorInfo[]) => {
         buttonAuth.canInsure = true;
+        scrollIntoErrorField(errorInfo);
       });
   });
 };
@@ -641,9 +650,14 @@ const getOrderById = async () => {
   const res = await getTenantOrderDetail({ orderNo, tenantId });
   const { code, data } = res;
   if (code === '10000') {
-    const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
+    const { id, tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
     // 领了赠险没买付费，被保人默认本人
     if (!isPayBack) {
+      originOrderIds.value = {
+        id,
+        holderId: tenantOrderHolder?.id,
+        insuredId: tenantOrderInsuredList?.[0].id,
+      };
       Object.assign(trialData, {
         holder: {
           certNo: tenantOrderHolder.certNo,
@@ -767,18 +781,15 @@ const getOrderByMobile = async () => {
 };
 
 const fetchData = async () => {
-  const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
-  const insureReq = insureProductDetail({ productCode });
-  await Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
-    if (productRes.code === '10000') {
-      detail.value = productRes.data;
-      document.title = productRes.data?.productFullName || '';
-    }
-
-    if (insureRes.code === '10000') {
-      insureDetail.value = insureRes.data;
-    }
-  });
+  const productRes = await productDetail({ productCode, withInsureInfo: true, tenantId });
+  if (productRes.code === '10000') {
+    detail.value = productRes.data;
+    document.title = productRes.data?.productFullName || '';
+  }
+  const insureRes = await insureProductDetail({ productCode });
+  if (insureRes.code === '10000') {
+    insureDetail.value = insureRes.data;
+  }
   if (orderNo) {
     // 这里要轮询，支付完成后，跳转回来，订单状态可能没有及时更新
     getOrderById();
@@ -856,6 +867,8 @@ onMounted(() => {
     color: #393d46;
     font-size: 34px;
     font-weight: normal;
+    display: flex;
+    align-items: center;
     span {
       color: $primary-color;
       font-weight: bold;
@@ -863,7 +876,12 @@ onMounted(() => {
     .premium-loading {
       display: inline-block;
       line-height: 52px;
-      margin-left: 8px;
+      margin-left: 30px;
+
+      :deep(.van-loading__spinner) {
+        width: 34px !important;
+        height: 34px !important;
+      }
     }
   }
   .right {
