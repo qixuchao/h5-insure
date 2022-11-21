@@ -89,13 +89,14 @@ const loadPdfCanvas = async () => {
     }).promise;
     console.log('padf:666', pdf);
   } catch (error) {
-    console.log('7777', String(error));
+    console.log('7777', String(error), container);
     // undefined is not an object ( evaluting 'response.body.getReader')
-    if (String(error).indexOf('body.getReader') > -1) {
-      const pdfData = await fetch(props.content);
-      const arrayBufferPdf = await pdfData.arrayBuffer();
-      pdf = await PDFJS.getDocument({ data: arrayBufferPdf }).promise;
-    }
+    // if (String(error).indexOf('body.getReader') > -1) {
+    const pdfData = await fetch(props.content);
+    const arrayBufferPdf = await pdfData.arrayBuffer();
+    pdf = await PDFJS.getDocument({ data: arrayBufferPdf }).promise;
+    console.log('pdf===000111', pdf);
+    // }
   }
   console.log('88888', pdf);
   if (!pdf || !pdf.numPages) {
@@ -139,7 +140,7 @@ watch(
   () => props.content,
   (newVal) => {
     if (newVal) {
-      console.log('padf:1111', newVal);
+      console.log('padf:1111', newVal, isPdf.value);
       props.type === 'pdf' && openPdf();
     }
   },
