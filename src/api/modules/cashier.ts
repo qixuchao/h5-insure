@@ -3,11 +3,11 @@
  * @Autor: kevin.liang
  * @Date: 2022-11-21 12:53:01
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-11-21 13:51:00
+ * @LastEditTime: 2022-11-22 12:08:42
  */
 
 import request from '../request';
-import type { GetPayUrlParam, PayParam } from './cashier.data';
+import type { GetPayUrlParam, PayParam, OrderInfo } from './cashier.data';
 
 // 在线投保-银行卡签约确认
 export const getPayUrl = (data: GetPayUrlParam) => {
@@ -15,8 +15,8 @@ export const getPayUrl = (data: GetPayUrlParam) => {
 };
 
 // 获取收银台订单信息
-export const loadPayment = (data: GetPayUrlParam) => {
-  return request<ResponseData<PayParam>>({ url: '/api/app/insure/insurance/loadPayment', method: 'GET', data });
+export const loadPayment = (params: GetPayUrlParam) => {
+  return request<ResponseData<OrderInfo>>({ url: '/api/app/insure/insurance/loadPayment', method: 'GET', params });
 };
 // 根据选择的支付方式支付订单
 export const pay = (data: PayParam) => {

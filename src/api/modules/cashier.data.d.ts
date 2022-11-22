@@ -3,6 +3,16 @@ export interface GetPayUrlParam {
   orderNo: string;
   tenantId: string;
 }
+
+/** 订单信息 */
+export interface OrderInfo {
+  orderNo: string;
+  orderAmt: number;
+  orderName: string;
+  srcType: string;
+  businessTradeNo: string;
+}
+/** 支付参数 */
 export interface PayParam {
   balance: number;
   businessTradeNo: string;
