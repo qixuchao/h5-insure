@@ -16,7 +16,7 @@
         <Radio :name="way.name"></Radio>
       </div>
     </RadioGroup>
-    <VanButton type="primary" round size="large" block @click="goPay">确认付款 ￥269.00</VanButton>
+    <VanButton type="primary" round size="large" block @click="goPay">确认付款 ￥{{ orderInfo?.orderAmt }}</VanButton>
   </ProPageWrap>
 </template>
 
@@ -53,7 +53,7 @@ const goPay = () => {
     ...(orderInfo.value as PayParam),
     payWay: payWay.value,
     srcType: 'JS',
-    redirectUrl: `${window.location.protocol}${window.location.host}/cashier/payResult`,
+    redirectUrl: `${window.location.protocol}//${window.location.host}/cashier/payResult`,
   }).then((resp) => {
     console.log('支付结果', resp);
   });
