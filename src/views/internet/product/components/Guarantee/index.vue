@@ -22,7 +22,7 @@
         {{ showMore ? '收起' : '查看更多' }} <ProSvg name="down" :class="['icon', { showMore }]" />
       </div>
       <div class="service-config" @click="onClose">
-        <img :src="serviceConfig" />
+        <img :src="serviceConfigImg" />
       </div>
     </ProCard>
   </div>
@@ -41,6 +41,7 @@ import { useToggle } from '@vant/use';
 import { TitleAndDescVO } from '@/api/modules/product.data';
 import ProSvg from '@/components/ProSvg/index.vue';
 import serviceConfig from '@/assets/images/chuangxin/serviceConfig.png';
+import serviceConfigBW from '@/assets/images/chuangxin/serviceConfigBW.png';
 
 const props = defineProps({
   guaranteeList: {
@@ -59,6 +60,10 @@ const props = defineProps({
     type: Number,
     default: 10,
   },
+  imgType: {
+    type: String,
+    default: 'ZYE',
+  },
 });
 
 const [showMore, toggle] = useToggle(false);
@@ -69,6 +74,14 @@ const isShowOptBtn = computed(() => {
     return !showMore.value;
   }
   return false;
+});
+
+const serviceConfigImg = computed(() => {
+  const reflect = {
+    BW: serviceConfigBW,
+    ZYE: serviceConfig,
+  };
+  return reflect?.[props.imgType] || serviceConfig;
 });
 
 const handleShowMore = () => {

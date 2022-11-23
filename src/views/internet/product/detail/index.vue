@@ -6,7 +6,11 @@
         <Banner :url="detail?.tenantProductInsureVO?.banner[0]" />
         <Desc :product-name="detail?.productFullName" :product-desc="detail?.showConfigVO?.desc" />
       </div>
-      <Guarantee v-if="detail?.tenantProductInsureVO?.titleAndDescVOS" :guarantee-list="titleAndDescVOSList" />
+      <Guarantee
+        v-if="detail?.tenantProductInsureVO?.titleAndDescVOS"
+        img-type="BW"
+        :guarantee-list="titleAndDescVOSList"
+      />
       <ScrollInfo :detail="detail">
         <template #form>
           <HolderInsureForm
@@ -258,7 +262,7 @@ const checkCustomerResult = () => {
     const sex = getSex(trialData.holder.certNo);
     // 投保人必须大于18岁
     if (validateTimeBefore(trialData.holder.certNo, 18, 'year')) {
-      Toast('投保人年龄必须大于18岁！');
+      Toast('投保人年龄必须大于等于18岁！');
       return false;
     }
     // 被保人为配偶性别不能相同
