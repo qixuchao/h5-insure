@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-24 23:16:48
+ * @LastEditTime: 2022-11-25 17:41:48
  * @Description: 保障详情
 -->
 <template>

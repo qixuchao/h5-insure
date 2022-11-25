@@ -4,10 +4,22 @@
     <div class="page-internet-product-detail">
       <div class="info">
         <Banner :url="detail?.tenantProductInsureVO?.banner[0]" />
+        <Banner
+          v-if="detail?.tenantProductInsureVO?.bannerMove"
+          :url="detail?.tenantProductInsureVO?.bannerMove[0]"
+          @click="onClickToInsure"
+        />
         <Desc :product-name="detail?.productFullName" :product-desc="detail?.showConfigVO?.desc" />
       </div>
-      <Guarantee show-service-config :guarantee-list="detail?.tenantProductInsureVO?.titleAndDescVOS" />
-      <ScrollInfo :detail="detail">
+      <Guarantee
+        show-service-config
+        :data-source="detail?.tenantProductInsureVO"
+        :show-config="detail?.showConfigVO"
+        :is-multiple-plan="isMultiplePlan"
+        :active-plan-code="trialData.activePlanCode"
+        @update-active-plan="updateActivePlan"
+      />
+      <ScrollInfo ref="detailScrollRef" :detail="detail">
         <template #form>
           <HolderInsureForm
             ref="formRef"
@@ -19,6 +31,10 @@
             @on-reset="onReset"
             @on-update="onUpdate"
           />
+          <PaymentType :form-info="trialData" :product-detail="detail" :show-config="detail?.showConfigVO" />
+          <div class="inscribedContent-content">
+            <div v-dompurify-html="detail?.tenantProductInsureVO.inscribedContent" class="content"></div>
+          </div>
         </template>
       </ScrollInfo>
       <div class="footer-button">
@@ -28,12 +44,8 @@
             {{ premium ? (trialData.paymentFrequency == PAYMENT_FREQUENCY_ENUM.YEAR ? '元/年' : '元/月') : '' }}
           </span>
         </div>
-        <van-button
-          type="primary"
-          class="right"
-          :disabled="!(buttonAuth.canInsure || buttonAuth.canUpgrade)"
-          @click="onNext"
-        >
+        <!-- @click="onNext" -->
+        <van-button type="primary" class="right" :disabled="!(buttonAuth.canInsure || buttonAuth.canUpgrade)">
           {{ buttonAuth.showInsure ? '立即投保' : '升级保障' }}
         </van-button>
       </div>
@@ -54,17 +66,17 @@
     @on-confirm-health="onCloseHealth"
     @on-close-health="onCloseHealthPopup"
   ></HealthNoticePreview>
-  <FilePreview
+  <FileTabPreview
     v-if="showFilePreview"
     v-model:show="showFilePreview"
     :content-list="filterHealthAttachmentList"
     :active-index="activeIndex"
     text="我已逐页阅读并确认告知内容"
-    :force-read-cound="2"
+    :force-read-cound="0"
     on-close-file-preview
     @submit="onSubmit"
     @on-close-file-preview="onCloseFilePreview"
-  ></FilePreview>
+  ></FileTabPreview>
   <Waiting :is-show="showWaiting" />
 </template>
 
@@ -117,8 +129,9 @@ import HolderInsureForm from '../components/HolderInsureForm/index.vue';
 import Waiting from '../components/Waiting/index.vue';
 import UpgradeModal from '../../components/UpgradeModal/index.vue';
 import PreNotice from '../components/PreNotice/index.vue';
-import FilePreview from '../components/FilePreview/index.vue';
+import FileTabPreview from '../components/FileTabPreview/index.vue';
 import HealthNoticePreview from '../components/HealthNoticePreview/index.vue';
+import PaymentType from '../components/PaymentType/index.vue';
 
 import {
   AuthType,
@@ -166,6 +179,7 @@ const {
 } = route.query as QueryData;
 
 const formRef = ref();
+const detailScrollRef = ref();
 const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<ProductData>(); // 险种信息
 const premium = ref<number | null>(); // 保费
@@ -178,6 +192,7 @@ const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
 const payHtml = ref<PayHtml>({ show: false, html: '' });
 let iseeBizNo = '';
+const activePlanIndex = ref<number>(0);
 
 // 试算数据， 赠险进入，从链接上默认取投保人数据
 const trialData = reactive({
@@ -200,6 +215,7 @@ const trialData = reactive({
   paymentFrequency: PAYMENT_FREQUENCY_ENUM.YEAR,
   packageProductList: [],
   mobileSmsCode: '',
+  activePlanCode: '',
 });
 
 // 表单是否可修改, 默认先从链接取，然后再根据不同的入口修改
@@ -213,10 +229,40 @@ const buttonAuth = reactive({
   canUpgrade: false, // 可以升级
 });
 
+// 是否多计划
+const isMultiplePlan = computed(() => {
+  if (!detail.value) return false;
+  if (
+    detail.value?.tenantProductInsureVO?.planList &&
+    Array.isArray(detail.value?.tenantProductInsureVO?.planList) &&
+    detail.value?.tenantProductInsureVO?.planList.length > 0
+  ) {
+    return true;
+  }
+  return false;
+});
+
+watch(
+  () => isMultiplePlan.value,
+  () => {
+    if (isMultiplePlan.value) {
+      trialData.activePlanCode = detail.value?.tenantProductInsureVO?.planList[0].planCode;
+    }
+  },
+  {
+    immediate: true,
+  },
+);
+
+// 切换计划
+const updateActivePlan = (planCode: string) => {
+  trialData.activePlanCode = planCode;
+};
+
 // 健康告知
 const healthAttachmentList = computed(() => {
   return (
-    detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
+    (detail.value?.tenantProductInsureVO?.attachmentVOList || []).filter(
       (item: AttachmentVOList) => item.attachmentName === '健康告知',
     ) || []
   );
@@ -225,11 +271,17 @@ const healthAttachmentList = computed(() => {
 // 除健康告知的其他资料
 const filterHealthAttachmentList = computed(() => {
   return (
-    detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
+    (detail.value?.tenantProductInsureVO?.attachmentVOList || []).filter(
       (item: AttachmentVOList) => item.attachmentName !== '健康告知',
     ) || []
   );
 });
+
+// 滑动到投保信息
+const onClickToInsure = () => {
+  console.log('detailScrollRef.value', detailScrollRef.value);
+  detailScrollRef.value.handleClickTab()('tab3');
+};
 
 // 投被保人信息校验： 1、投保人必须大于18岁。2、被保人为子女不能小于30天。3、被保人为父母不能大于60岁。4、被保人为配偶性别不能相同。
 const onCheckCustomer = () => {
@@ -774,7 +826,9 @@ const fetchData = async () => {
   const insureReq = insureProductDetail({ productCode });
   await Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
     if (productRes.code === '10000') {
-      detail.value = productRes.data;
+      detail.value = {
+        ...productRes.data,
+      };
       document.title = productRes.data?.productFullName || '';
     }
 
@@ -844,6 +898,16 @@ onMounted(() => {
     width: 280px;
     background: $primary-color;
     border-color: $primary-color;
+  }
+
+  .inscribedContent-content {
+    background: rgb(244 244 244);
+    padding: 50px 40px;
+    font-size: 24px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #b7bec4;
+    line-height: 38px;
   }
 }
 </style>
