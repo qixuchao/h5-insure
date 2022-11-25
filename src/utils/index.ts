@@ -1,8 +1,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-28 10:28:12
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-02 14:01:57
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-10 13:50:43
  * @FilePath: /zat-planet-h5-cloud-insure/src/utils/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -35,7 +35,8 @@ export const isApp = () => {
   return Boolean(window?.AppJSInterface || window?.webkit?.messageHandlers);
 };
 
-export const toLocal = (number: number) => {
+export const toLocal = (number: number | null | undefined) => {
+  if (!number) return null;
   return number && number.toLocaleString();
 };
 
@@ -77,3 +78,10 @@ export const isTestEnv = ORIGIN.includes('test');
 export const isPreEnv = ORIGIN.includes('pre');
 
 export const isPrdEnv = !(isDevEnv || isTestEnv || isPreEnv);
+
+/**
+ * 深拷贝 （不能处理有函数等特殊对象的值）
+ * @param {*} source 被拷贝对象
+ * @returns 返回新的对象
+ */
+export const deepCopy = (source: any) => JSON.parse(JSON.stringify(source));

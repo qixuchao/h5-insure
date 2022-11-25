@@ -343,9 +343,16 @@ const coverageYearOptions = computed(() => {
       props.originData.riskInsureLimitVO?.insurancePeriodValueList || [],
     );
   }
+  // 一年期
   if (props.originData?.periodType === 2) {
     return pickEnums([{ value: 'year_1', name: '1年' }], ['year_1']);
   }
+
+  // 附加险-豁免险
+  if (props.originData?.exemptFlag === 1) {
+    return pickEnums(RULE_INSURANCE, [`${props?.originData?.riskInsureLimitVO?.insurancePeriodRule}`]);
+  }
+
   return pickEnums(
     props.enums?.RISK_INSURANCE_PERIOD,
     props.mainRiskData.riskInsureLimitVO?.insurancePeriodValueList || [],
@@ -365,6 +372,7 @@ const paymentYearOptions = computed(() => {
   if (props.originData?.exemptFlag === 1) {
     return pickEnums(RULE_PAYMENT, [`${props?.originData?.riskInsureLimitVO?.paymentPeriodRule}`]);
   }
+  // 一年期
   if (props.originData?.periodType === 2) {
     return pickEnums([{ value: 'year_1', name: '1年交' }], ['year_1']);
   }
@@ -486,8 +494,11 @@ onBeforeMount(() => {
     riskId: props.originData.id,
     riskName: props.originData.riskName,
     riskCode: props.originData.riskCode,
+    amount: state.formInfo.amount,
     mainRiskCode: props.originData.riskType !== 1 ? props.mainRiskData?.riskCode : undefined,
     mainRiskId: props.originData.riskType !== 1 ? props.mainRiskData?.id : undefined,
+    exemptFlag: props.originData.exemptFlag,
+    exemptType: props.originData.exemptType,
     riskCategory: props.originData.riskCategory,
     liabilityVOList: (props.originData.riskLiabilityInfoVOList || []).map((liab) => ({
       ...liab,
@@ -497,6 +508,14 @@ onBeforeMount(() => {
       liabilityAttributeValue: initLiabilityValue(liab),
     })),
   };
+
+  // 固定保额
+  if (
+    (![1].includes(props.originData.riskCalcMethodInfoVO?.saleMethod || 0) || props.originData?.exemptFlag === 1) &&
+    props.originData.riskCalcMethodInfoVO.fixedAmount
+  ) {
+    extraInfo.amount = props.originData.riskCalcMethodInfoVO.fixedAmount;
+  }
 
   Object.assign(state.formInfo, extraInfo);
 });
@@ -534,17 +553,6 @@ watch(
     if (newVal === 'single' && +(state.formInfo.paymentFrequency || 0) !== 1) {
       state.formInfo.paymentFrequency = 1;
     }
-  },
-);
-
-watch(
-  () => state.formInfo,
-  () => {
-    console.log('state.formInfo', state.formInfo);
-  },
-  {
-    deep: true,
-    immediate: true,
   },
 );
 

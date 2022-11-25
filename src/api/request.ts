@@ -3,7 +3,7 @@
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-10-26 16:30:35
+ * @LastEditTime: 2022-11-16 18:41:45
  */
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
@@ -16,6 +16,40 @@ import { formatJsonToUrlParams, instanceObject } from '@/utils/format';
 const BASE_PREFIX = import.meta.env.VITE_API_BASEURL;
 
 const pendingMap = new Map();
+
+// 自定义配置
+const customOption = {
+  // TODO
+  repeat_request_cancel: true, // 是否开启取消重复请求, 默认为 true
+  loading: false, // 默认展示loading
+};
+
+/**
+ * TODO
+ * 一定时间内取消后面的请求,超过指定时间取消前面的请求
+ * 非loading请求取消
+ *
+ */
+
+// loading实例
+const loadingInstance = {
+  target: {} as any,
+  count: 0,
+};
+
+/**
+ * 关闭Loading层实例
+ * @param {*} _options
+ */
+const closeLoading = (_options: any) => {
+  if (_options.loading && loadingInstance.count > 0) {
+    loadingInstance.count -= 1;
+  }
+  if (loadingInstance.count === 0) {
+    loadingInstance.target.clear?.();
+    loadingInstance.target = null;
+  }
+};
 
 /**
  * 生成每个请求唯一的键
@@ -74,9 +108,11 @@ const axiosInstance: AxiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
 });
-
-// 请求失败两次才算真正的失败
-// axiosRetry(axiosInstance, { retries: 2 });
+/** 请求失败两次才算真正的失败
+ * 判断失败的标准
+ * http请求的状态是5xx
+ */
+axiosRetry(axiosInstance, { retries: 2 });
 
 // 请求拦截器
 axiosInstance.interceptors.request.use(

@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-10-21 15:08:13
+ * @LastEditTime: 2022-11-14 13:42:52
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -136,7 +136,12 @@ import { useToggle } from '@vant/use';
 import { conditionalExpression } from '@babel/types';
 import { truncateSync } from 'fs';
 import { Toast } from 'vant/es';
-import { PAGE_ROUTE_ENUMS, ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
+import {
+  PAGE_ROUTE_ENUMS,
+  ATTACHMENT_CATEGORY_ENUM,
+  ATTACHMENT_OBJECT_TYPE_ENUM,
+  NEXT_BUTTON_CODE_ENUMS,
+} from '@/common/constants';
 import { getInitFactor, nextStep, getTemplateInfo, getOrderDetail } from '@/api';
 import { premiumCalc } from '@/api/modules/trial';
 import { PAYMENT_PERIOD_ENUMS, INSURANCE_PERIOD_ENUMS, RISK_TYPE_ENUM } from '@/common/constants/trial';
@@ -340,7 +345,11 @@ const formateData = (riskList: TenantOrderRiskItem[]): any[] => {
 // 下一步
 const goNextPage = () => {
   const formData = { ...formInfo.value };
-  formData.extInfo = { ...formData.extInfo, contactInfo: [currentAddressInfo.value] };
+  formData.extInfo = {
+    ...formData.extInfo,
+    contactInfo: [currentAddressInfo.value],
+    buttonCode: NEXT_BUTTON_CODE_ENUMS.infoCollection,
+  };
   formData.tenantOrderAttachmentList = [
     {
       category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_CERT,
@@ -483,9 +492,7 @@ const reTrialPremium = () => {
   });
 };
 
-const selectAddress = (value) => {
-  console.log('value', value);
-};
+const selectAddress = (value) => {};
 
 // 添加受益人信息
 const addBeneficiary = () => {
@@ -574,7 +581,6 @@ const holderInfo2InsuredInfo = () => {
 onBeforeMount(() => {
   queryOrderDetail();
   getInitFactor({ pageCode: 'infoCollection', templateId }).then(({ code, data }) => {
-    console.log('code', code);
     if (code === '10000') {
       // 将页面因子根据投保人、被保人、受益人进行分类
       const factorObj = {

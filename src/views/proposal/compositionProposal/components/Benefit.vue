@@ -1,8 +1,8 @@
 <!--
  * @Author: 王园丽
  * @Date: 2022-08-05 18:00:00
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-13 00:36:39
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-14 20:45:56
  * @Description: 计划书利益演示
 -->
 <template>
@@ -16,7 +16,7 @@
       @click-tab="changeTab"
     >
       <van-tab v-for="(item, i) in props.info?.benefitRiskResultVOList" :key="i" :name="i" :title="item.riskName">
-        <div class="benefit">
+        <div v-if="i == active" class="benefit">
           <div class="benefit-title">{{ item?.riskName }}</div>
           <div class="line"></div>
           <p v-if="!showChart" class="box-title box-title-chart">
@@ -44,7 +44,7 @@
             </div>
           </div>
 
-          <div v-else style="width: 100%">
+          <div v-if="!showChart" style="width: 100%, minWidth: 338px">
             <ProChart :min="ageBegin" :max="ageEnd" :current="num" :data="benefitObj?.result?.benefitRiskItemList" />
           </div>
           <div class="slider">
@@ -106,6 +106,14 @@ const renderArray = (start: number, end: number) => {
   return { a, year };
 };
 
+const setAge = (realData: any) => {
+  if (!realData?.benefitRiskResultVOList) return;
+  const benefit = realData?.benefitRiskResultVOList[active.value];
+  ageBegin.value = benefit.ageBegin + 1;
+  num.value = benefit.ageBegin + 1;
+  ageEnd.value = benefit.ageEnd;
+};
+
 const getData = () => {
   // 根据num 取对应数组的值
   const benefit = props.info?.benefitRiskResultVOList?.[active.value];
@@ -120,14 +128,6 @@ const getData = () => {
   };
 
   benefitObj.value = obj;
-};
-
-const setAge = (realData: any) => {
-  if (!realData?.benefitRiskResultVOList) return;
-  const benefit = realData?.benefitRiskResultVOList[active.value];
-  ageBegin.value = benefit.ageBegin + 1;
-  num.value = benefit.ageBegin + 1;
-  ageEnd.value = benefit.ageEnd;
 };
 
 const handleAdd = () => {
@@ -145,6 +145,7 @@ const handleReduce = () => {
 };
 const changeTab = (val: { name: number }) => {
   active.value = val.name;
+  setAge(props.info);
   getData();
 };
 
@@ -169,6 +170,7 @@ watch(
     immediate: true,
   },
 );
+
 watch(num, () => {
   getData();
 });
@@ -218,7 +220,7 @@ watch(num, () => {
           text-align: center;
           display: flex;
           align-items: center;
-          justify-content: space-between;
+          justify-content: flex-start;
           img {
             width: 41px;
             height: 29px;

@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-21 15:06:54
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-25 14:31:42
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-11-08 23:25:04
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProShare/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -80,7 +80,6 @@ const handleShare = () => {
 };
 
 const setWechatConfig = () => {
-  console.log('shareParams', props);
   if (isWechat()) {
     wx.ready(() => {
       const shareParams = {
@@ -89,7 +88,7 @@ const setWechatConfig = () => {
           console.log('分享成功');
         },
       };
-      console.log('setWechatConfig分享参数: ', shareParams);
+
       // 分享给朋友｜分享到QQ
       wx.updateAppMessageShareData(shareParams);
       // 分享到朋友圈｜分享到 QQ 空间

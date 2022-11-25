@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 10:15:06
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-10-20 10:56:49
+ * @LastEditTime: 2022-11-10 20:43:10
  * @Description: 计划书
 -->
 <template>
@@ -60,6 +60,7 @@
 import wx from 'weixin-js-sdk';
 import { Toast } from 'vant';
 import { useToggle } from '@vant/use';
+import dayjs from 'dayjs';
 import { queryProposalDetail, queryPreviewProposalDetail, generatePdf } from '@/api/modules/proposalList';
 import {
   checkProposalInsurer,
@@ -79,6 +80,7 @@ import { InsuredProductData, ThemeItem, ShowConfig } from '@/api/modules/composi
 import { redirectInsurePageLink } from '@/api';
 import InsuredProductList from './components/InsuredProductList/index.vue';
 import ThemeSelect from './components/ThemeSelect/index.vue';
+import { SEX_LIMIT_ENUM } from '@/common/constants';
 
 const isLiabilityByRisk = ref(true);
 
@@ -99,13 +101,14 @@ const activeName = ref('');
 const themeList = ref<ThemeItem[]>([]); // 主题列表
 const shareButtonRef = ref(); // 分享按钮组件实例
 const operateType = ref<'share' | 'pdf'>('share'); // 按钮的操作类型
+let shareLink = '';
 
 const changeLiabilityType = () => {
   isLiabilityByRisk.value = !isLiabilityByRisk.value;
 };
 
 const isMale = (gender: number) => {
-  return gender === 1;
+  return gender === +SEX_LIMIT_ENUM.MALE;
 };
 
 const isShowInsured = computed(() => {
@@ -118,18 +121,17 @@ const isShowInsured = computed(() => {
 watch(
   () => info.value,
   (val) => {
-    const { gender, name } = val;
+    const { gender, name, birthday } = val;
+    const age = dayjs().diff(birthday, 'y');
     if (isMale(gender)) {
-      proposalName.value = `${name || ''}先生的计划书`;
+      proposalName.value = `${name || age}岁先生的计划书`;
     } else {
-      proposalName.value = `${name || ''}女士的计划书`;
+      proposalName.value = `${name || age}岁女士的计划书`;
     }
   },
 );
 
-const setShareConfig = () => {
-  const link = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
-
+const setShareConfig = (link: string) => {
   shareConfig.value = {
     title: `${info.value?.name}的计划书`,
     desc: '您的贴心保险管家',
@@ -154,9 +156,9 @@ const getData = async () => {
       const realData = data?.proposalInsuredVOList[0] || {};
       info.value = realData;
       tenantId.value = data?.tenantId;
+      shareLink = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
+      setShareConfig(shareLink);
     }
-
-    setShareConfig();
   } catch (e) {
     Toast('接口请求失败');
   }
@@ -250,8 +252,9 @@ const selectTheme = async (selectedThemeId: number) => {
     if (operateType.value === 'pdf') {
       getPdf();
     } else {
-      shareConfig.value.link = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
-      shareButtonRef.value.handleShare();
+      shareLink = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
+      setShareConfig(shareLink);
+      setTimeout(shareButtonRef.value.handleShare, 100);
     }
   } else {
     const { code, data } = await chooseProposalTheme({ themeId: selectedThemeId, proposalId: id });
@@ -260,8 +263,9 @@ const selectTheme = async (selectedThemeId: number) => {
       if (operateType.value === 'pdf') {
         getPdf(data);
       } else {
-        shareConfig.value.link = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}&themeId=${data}`;
-        shareButtonRef.value.handleShare();
+        shareLink = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}&themeId=${data}`;
+        setShareConfig(shareLink);
+        setTimeout(shareButtonRef.value.handleShare, 100);
       }
     }
   }

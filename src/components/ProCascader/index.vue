@@ -121,7 +121,7 @@ const handleClose = () => {
 
 const deleteEmptyChildren = (item: any) => {
   if (item.children) {
-    if (item.children.length === 0) {
+    if (!item.children.length) {
       // eslint-disable-next-line
       delete item.children;
     } else {
@@ -146,7 +146,7 @@ const flat = (list: any[]) => {
 watch(
   () => props.dataSource,
   () => {
-    props.dataSource.forEach((item) => {
+    (props?.dataSource || []).forEach((item) => {
       deleteEmptyChildren(item);
     });
   },

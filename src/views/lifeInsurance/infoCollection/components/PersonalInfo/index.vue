@@ -90,7 +90,6 @@
       :name="`${prefix}_birthday`"
       :min="state.birth.min"
       :max="state.birth.max"
-      :formatter="(val) => dayjs(val).format('YYYY-MM-DD')"
       type="date"
       :required="isRequiredByFactor('birthday')"
     ></ProDatePicker>
@@ -531,6 +530,9 @@ const validateLength = (len: number, value: string, rule: any) => {
 
 // 验证证件类型
 const validateCertType = (value: string, rule: any) => {
+  if (!showByFactor('nationality')) {
+    return '';
+  }
   if (state.value.formInfo?.extInfo?.nationalityCode === 'CHN') {
     // 国籍为中国支持的证件 身份证、户口本、出生证、军官证
     if (
@@ -632,6 +634,17 @@ watch(
     tempImages.value = val;
   },
   {
+    immediate: true,
+  },
+);
+
+watch(
+  () => props.formInfo,
+  () => {
+    state.value.formInfo = props.formInfo;
+  },
+  {
+    deep: true,
     immediate: true,
   },
 );

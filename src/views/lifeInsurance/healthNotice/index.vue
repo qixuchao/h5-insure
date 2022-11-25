@@ -128,7 +128,6 @@ const onSubmitCurrentStatus = (status: number, questionContent?: any) => {
     orderNo,
     tenantId,
   }).then(({ code, data }) => {
-    console.log(code);
     if (code === '10000') {
       router.go(-1);
     }

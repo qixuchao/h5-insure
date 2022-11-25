@@ -57,7 +57,12 @@ import { ListCustomerQuestionsResponse } from '@/api/modules/inform.data';
 import { sessionStore } from '@/hooks/useStorage';
 import { NextStepRequestData } from '@/api/index.data';
 import { saveSign } from '@/api/modules/verify';
-import { ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM, PAGE_ROUTE_ENUMS } from '@/common/constants';
+import {
+  ATTACHMENT_CATEGORY_ENUM,
+  ATTACHMENT_OBJECT_TYPE_ENUM,
+  NEXT_BUTTON_CODE_ENUMS,
+  PAGE_ROUTE_ENUMS,
+} from '@/common/constants';
 import { AGENT_OBJECT_TYPE_ENUM, AGENT_NOTICE_TYPE_ENUM, QUESTION_TEXT_TYPE } from '@/common/constants/notice';
 
 const router = useRouter();
@@ -132,7 +137,6 @@ const orderDetail = () => {
 };
 
 const getFileDetails = (item: any) => {
-  console.log(item);
   const { id, objectType } = item;
 
   const fileTypeMap = {
@@ -150,7 +154,6 @@ const getFileDetails = (item: any) => {
     tenantId,
   }).then(({ code, data }) => {
     if (code === '10000') {
-      console.log(data);
       if (data?.[0].questionType === QUESTION_TEXT_TYPE) {
         previewFileType.value = 'question';
         previewFileContent.value = data;
@@ -215,7 +218,12 @@ const handleClickNextStep = () => {
     if (code) {
       nextStep({
         ...state.pageData,
-        extInfo: { ...state.pageData.extInfo, templateId, pageCode: 'salesNotice' },
+        extInfo: {
+          ...state.pageData.extInfo,
+          templateId,
+          pageCode: 'salesNotice',
+          buttonCode: NEXT_BUTTON_CODE_ENUMS.salesNotice,
+        },
         venderCode: insurerCode,
       }).then(({ code: code2, data }) => {
         if (code2 === '10000') {

@@ -156,6 +156,7 @@ import {
   CERT_TYPE_ENUM,
   ATTACHMENT_CATEGORY_ENUM,
   ATTACHMENT_OBJECT_TYPE_ENUM,
+  NEXT_BUTTON_CODE_ENUMS,
 } from '@/common/constants';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { NextStepRequestData } from '@/api/index.data';
@@ -322,7 +323,16 @@ const handleSubmit = () => {
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
-      if (!(data.orderStatus === ORDER_STATUS_ENUM.PENDING || data.orderStatus === ORDER_STATUS_ENUM.PAYMENT_FAILED)) {
+      // 订单状态为待处理,支付失败,核保成功时可进行下一步操作，否则跳入支付结果页
+      if (
+        !(
+          [
+            ORDER_STATUS_ENUM.PENDING,
+            ORDER_STATUS_ENUM.PAYMENT_FAILED,
+            ORDER_STATUS_ENUM.UNDER_WRITING_SUCCESS,
+          ] as string[]
+        ).includes(data.orderStatus)
+      ) {
         pageJump('paymentResult', dealQueryData);
       } else {
         Dialog.confirm({
@@ -343,6 +353,7 @@ const handleSubmit = () => {
                 pageCode: 'sign',
                 templateId,
                 shareFlag: isShare ? 'Y' : 'N',
+                buttonCode: NEXT_BUTTON_CODE_ENUMS.sign,
               },
               venderCode: insurerCode,
             }).then((nextRes) => {

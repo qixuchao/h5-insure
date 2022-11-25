@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-25 09:04:29
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-10-20 18:13:39
+ * @LastEditTime: 2022-11-07 11:30:15
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/customerNotice/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -28,7 +28,7 @@ import { nanoid } from 'nanoid';
 import { nextStep, getTemplateInfo, getInitFactor, getOrderDetail, queryInsuredMaterial } from '@/api';
 import { NextStepRequestData, TemplatePageItem } from '@/api/index.data';
 import { getCustomerNotices } from '@/api/modules/customerNotice';
-import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { PAGE_ROUTE_ENUMS, NEXT_BUTTON_CODE_ENUMS } from '@/common/constants';
 
 const FILE_TYPE_ENUM = {
   1: 'pdf',
@@ -88,6 +88,7 @@ const goNextPage = () => {
     isReadCustomerNotice: 1,
     pageCode,
     templateId,
+    buttonCode: NEXT_BUTTON_CODE_ENUMS.customerNotice,
   };
 
   nextStep(pageData.value).then(({ code, data }) => {

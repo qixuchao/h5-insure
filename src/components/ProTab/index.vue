@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-20 11:21:45
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-21 15:12:37
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-03 15:07:07
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProTab/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -27,7 +27,7 @@
 <script lang="ts" setup>
 import { Tabs, Tab } from 'vant';
 
-const emits = defineEmits(['update:active']);
+const emits = defineEmits(['update:active', 'click-tab']);
 
 const props = defineProps({
   list: {
@@ -43,11 +43,21 @@ const props = defineProps({
 
 const activeIndex = ref(props.active);
 
+watch(
+  () => props.active,
+  () => {
+    activeIndex.value = props.active;
+  },
+);
+
 watch(activeIndex, (val) => {
+  console.log('val', val);
   emits('update:active', val);
 });
 
-const handleClickTab = () => {};
+const handleClickTab = () => {
+  emits('click-tab');
+};
 
 const shrink = computed(() => {
   return props.list.length >= 5;

@@ -1,6 +1,6 @@
 <template>
   <ProPageWrap>
-    <div class="page-order-detail">
+    <div v-if="detail" class="page-order-detail">
       <div class="card">
         <FieldInfo>
           <template #label>
@@ -15,7 +15,7 @@
             <div class="status">{{ !!detail ? ORDER_STATUS_MAP[detail?.orderStatus] : '' }}</div>
           </template>
         </FieldInfo>
-        <FieldInfo label="订单号" :content="detail?.orderNo" />
+        <FieldInfo label="投保单号" :content="detail?.orderNo" />
         <FieldInfo label="创建时间" :content="dayjs(detail?.gmtCreated).format('YYYY-MM-DD HH:mm:ss')" />
         <FieldInfo label="投保人" :content="detail?.tenantOrderHolder?.name" />
         <FieldInfo
@@ -26,24 +26,15 @@
         />
       </div>
       <InsureInfo :product-data="detail?.tenantOrderInsuredList[0]?.tenantOrderProductList?.[0]" class="insure-info" />
-      <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.PENDING" class="footer-button">
+      <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.PENDING" class="footer-button">
         <van-button type="primary" @click.stop="handleDelete">删除</van-button>
         <van-button type="primary" @click.stop="handleProcess">去处理</van-button>
       </div>
-      <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.PAYING" class="footer-button">
+      <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.PAYING" class="footer-button">
         <van-button type="primary" @click.stop="handleDelete">删除</van-button>
         <van-button type="primary" @click.stop="handlePay">去支付</van-button>
       </div>
-      <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.PAYMENT_FAILED" class="footer-button">
-        <van-button type="primary" @click.stop="handleDelete">删除</van-button>
-        <van-button type="primary" @click.stop="handlePay">去支付</van-button>
-      </div>
-      <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.PAYMENT_SUCCESS" class="footer-button"></div>
-      <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY" class="footer-button"></div>
-      <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.INSURER_REJECT" class="footer-button">
-        <van-button type="primary" @click.stop="handleDelete">删除</van-button>
-      </div>
-      <div v-if="detail?.orderStatus === ORDER_STATUS_ENUM.TIMEOUT" class="footer-button">
+      <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.TIMEOUT" class="footer-button">
         <van-button type="primary" @click.stop="handleDelete">删除</van-button>
       </div>
     </div>
@@ -57,9 +48,9 @@ import dayjs from 'dayjs';
 import { deleteOrder } from '@/api/modules/order';
 import { getOrderDetail } from '@/api';
 import { NextStepRequestData } from '@/api/index.data';
-import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
+import { ORDER_TOP_STATUS_ENUM, ORDER_STATUS_MAP, ORDER_STATUS_ENUM } from '@/common/constants/order';
 // import { OrderDetail } from '@/api/modules/order.data';
-import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { PAGE_ROUTE_ENUMS, PRODUCT_LIST_ENUM } from '@/common/constants';
 import FieldInfo from '../components/fieldInfo.vue';
 import InsureInfo from '@/views/lifeInsurance/infoPreview/components/InsuredPart.vue';
 import pageJump from '@/utils/pageJump';
@@ -87,8 +78,37 @@ const handleDelete = () => {
     }
   });
 };
+
+const redirectProductDetail = (): boolean => {
+  if (!detail.value) return false;
+  const { agencyId: agencyCode, saleChannelId, orderTopStatus } = detail.value;
+  const productCode = detail.value.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productCode;
+  if (ORDER_TOP_STATUS_ENUM.PENDING === orderTopStatus || ORDER_TOP_STATUS_ENUM.PAYING === orderTopStatus) {
+    if (productCode === PRODUCT_LIST_ENUM.ZXYS || productCode === PRODUCT_LIST_ENUM.BWYL) {
+      const productUrlMap = {
+        [PRODUCT_LIST_ENUM.ZXYS]: '/internet/productDetail/package',
+        [PRODUCT_LIST_ENUM.BWYL]: '/internet/productDetail',
+      };
+      router.push({
+        path: productUrlMap[productCode],
+        query: {
+          productCode,
+          saleChannelId,
+          agentCode,
+          tenantId,
+          agencyCode,
+          orderNo,
+        },
+      });
+      return true;
+    }
+  }
+  return false;
+};
+
 const handleProcess = () => {
   if (detail.value) {
+    if (redirectProductDetail()) return;
     const {
       id: orderId,
       extInfo: { templateId, pageCode },
@@ -113,6 +133,7 @@ const handleProcess = () => {
 };
 const handlePay = () => {
   if (detail.value) {
+    if (redirectProductDetail()) return;
     const {
       id: orderId,
       saleUserId,
@@ -196,6 +217,7 @@ onMounted(() => {
       margin-left: 30px;
       font-size: 26px;
       color: #99a9c0;
+      line-height: 106px;
     }
     .detail {
       font-size: 30px;

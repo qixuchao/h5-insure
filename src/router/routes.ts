@@ -1,8 +1,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-23 15:15:58
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-07 15:32:56
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -74,7 +74,7 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'middlePage',
     path: '/middlePage',
-    meta: { title: '签名认证' },
+    meta: { title: ' ' },
     component: () => import('@/views/middlePage/index.vue'),
   },
   {
@@ -159,6 +159,40 @@ const baigebaoRoutes = [
   },
 ];
 
+// 互联网在线投保
+const internetRoutes = [
+  {
+    name: '付费险',
+    path: '/internet/productDetail',
+    meta: { title: '' },
+    component: () => import('@/views/internet/product/detail/index.vue'),
+  },
+  {
+    name: '付费险123',
+    path: '/internet/productDetail/package',
+    meta: { title: '' },
+    component: () => import('@/views/internet/product/detail/packageProcess.vue'),
+  },
+  {
+    name: '保障升级',
+    path: '/internet/guaranteeUpgrade',
+    meta: { title: '' },
+    component: () => import('@/views/internet/upgrade/index.vue'),
+  },
+  {
+    name: '投保成功页',
+    path: '/internet/orderDetail',
+    meta: { title: '投保成功页' },
+    component: () => import('@/views/internet/orderDetail/index.vue'),
+  },
+  {
+    name: '支付失败',
+    path: '/internet/payFail',
+    meta: { title: '支付失败' },
+    component: () => import('@/views/internet/payFail/index.vue'),
+  },
+];
+
 const asyncRoutes: Array<RouteRecordRaw> = [
   {
     name: 'Home',
@@ -192,13 +226,13 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   {
     name: 'order',
     path: '/order',
-    meta: { title: '订单列表' },
+    meta: { title: '投保单列表' },
     component: () => import('@/views/order/index.vue'),
   },
   {
     name: 'orderDetail',
     path: '/orderDetail',
-    meta: { title: '订单详情' },
+    meta: { title: '投保单详情' },
     component: () => import('@/views/order/detail/index.vue'),
   },
   {
@@ -222,7 +256,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   },
   ...proposalRoutes,
   ...lifeInsuranceRoutes,
-  ...baigebaoRoutes,
+  ...internetRoutes,
 ];
 
 export default asyncRoutes;

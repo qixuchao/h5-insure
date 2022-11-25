@@ -3,6 +3,15 @@ export interface ProductData {
     productMaterialVOList: ProductMaterialVoItem[];
     productRelationPlanVOList: ProductRelationPlanVoItem[];
     productRiskVoList: ProductRiskVoItem[];
+    packageProductVOList: PackageProductVoItem[];
+}
+
+export interface PackageProductVoItem {
+  packageCode: string;
+  packageName: string;
+  value?: string;
+  disabled?: boolean;
+  productRiskVoList: RiskDetailVoItem[]
 }
 
 export interface ProductRiskVoItem {
@@ -253,6 +262,7 @@ export interface RiskVoItem {
     riskCode: string;
     riskId: number;
     riskType: number;
+    riskName:string;
 }
 
 export interface LiabilityVoItem {
@@ -300,4 +310,15 @@ export interface RiskPremiumDetailVoItem {
     riskCode: string;
     riskPremiumDetailVOList: RiskPremiumDetailVoItem[];
     riskType: number;
+}
+
+export interface OriginOrderIds {
+  id?: number;
+  holderId?: number;
+  insuredId?: number;
+}
+
+export interface ErrorInfo {
+  name: string;
+  message: string;
 }

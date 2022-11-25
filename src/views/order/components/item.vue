@@ -23,24 +23,14 @@
       <div class="fee">
         保费：<span class="money">￥{{ detail.prem }}</span>
       </div>
-      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.PENDING" class="buttons">
+      <div v-if="detail.orderTopStatus === ORDER_TOP_STATUS_ENUM.PENDING" class="buttons">
         <van-button class="button" @click.stop="handleDelete">删除</van-button>
         <van-button class="button primary" @click.stop="handleProcess">去处理</van-button>
       </div>
-      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.PAYING" class="buttons">
-        <van-button class="button" @click.stop="handleDelete">删除</van-button>
+      <div v-if="detail.orderTopStatus === ORDER_TOP_STATUS_ENUM.PAYING" class="buttons">
         <van-button class="button primary" @click.stop="handlePay">去支付</van-button>
       </div>
-      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.PAYMENT_FAILED" class="buttons">
-        <van-button class="button" @click.stop="handleDelete">删除</van-button>
-        <van-button class="button primary" @click.stop="handlePay">去支付</van-button>
-      </div>
-      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.PAYMENT_SUCCESS" class="buttons"></div>
-      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY" class="buttons"></div>
-      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.INSURER_REJECT" class="buttons">
-        <van-button class="button" @click.stop="handleDelete">删除</van-button>
-      </div>
-      <div v-if="detail.orderStatus === ORDER_STATUS_ENUM.TIMEOUT" class="buttons">
+      <div v-if="detail.orderTopStatus === ORDER_TOP_STATUS_ENUM.TIMEOUT" class="buttons">
         <van-button class="button" @click.stop="handleDelete">删除</van-button>
       </div>
     </div>
@@ -53,8 +43,8 @@ import { useRouter } from 'vue-router';
 import dayjs from 'dayjs';
 import { OrderItem } from '@/api/modules/order.data';
 import { deleteOrder } from '@/api/modules/order';
-import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
-import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP, ORDER_TOP_STATUS_ENUM } from '@/common/constants/order';
+import { PAGE_ROUTE_ENUMS, PRODUCT_LIST_ENUM } from '@/common/constants';
 
 const emits = defineEmits(['afterDelete']);
 const router = useRouter();
@@ -81,6 +71,44 @@ const handleDelete = () => {
   });
 };
 
+const redirectProductDetail = (): boolean => {
+  const {
+    goodsCode: productCode,
+    orderNo,
+    id: orderId,
+    saleUserId: agentCode,
+    templateId,
+    tenantId,
+    insurerCode,
+    productCategory,
+    agencyId: agencyCode,
+    saleChannelId,
+    orderTopStatus,
+  } = props.detail;
+  if (ORDER_TOP_STATUS_ENUM.PENDING === orderTopStatus || ORDER_TOP_STATUS_ENUM.PAYING === orderTopStatus) {
+    if ([PRODUCT_LIST_ENUM.ZXYS, PRODUCT_LIST_ENUM.BWYL, PRODUCT_LIST_ENUM.BWYLUP].includes(productCode)) {
+      const productUrlMap = {
+        [PRODUCT_LIST_ENUM.ZXYS]: '/internet/productDetail/package',
+        [PRODUCT_LIST_ENUM.BWYL]: '/internet/productDetail',
+        [PRODUCT_LIST_ENUM.BWYLUP]: '/internet/guaranteeUpgrade',
+      };
+      router.push({
+        path: productUrlMap[productCode],
+        query: {
+          productCode,
+          saleChannelId,
+          agentCode,
+          tenantId,
+          agencyCode,
+          orderNo,
+        },
+      });
+      return true;
+    }
+  }
+  return false;
+};
+
 const handlePay = () => {
   const {
     goodsCode: productCode,
@@ -93,6 +121,7 @@ const handlePay = () => {
     productCategory,
     agencyId: agencyCode,
   } = props.detail;
+  if (redirectProductDetail()) return;
   router.push({
     path: PAGE_ROUTE_ENUMS.payInfo,
     query: {
@@ -120,7 +149,10 @@ const handleProcess = () => {
     insurerCode,
     productCategory,
     agencyId: agencyCode,
+    saleChannelId,
+    orderStatus,
   } = props.detail;
+  if (redirectProductDetail()) return;
   router.push({
     path: PAGE_ROUTE_ENUMS[props.detail.pageCode],
     query: {

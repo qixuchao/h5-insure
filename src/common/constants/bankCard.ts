@@ -15,8 +15,8 @@ export const PAY_METHOD_LIST = [
 
 // 活动支付方式
 export const ACTIVITY_PAY_METHOD_LIST = [
-  { value: PAY_METHOD_ENUM.ALIPAY, label: '支付宝' },
-  { value: PAY_METHOD_ENUM.WECHAT, label: '微信' },
+  { value: PAY_METHOD_ENUM.ALIPAY, label: '支付宝', iconName: 'ali' },
+  { value: PAY_METHOD_ENUM.WECHAT, label: '微信', iconName: 'wechat' },
 ];
 
 export const PAY_METHOD_MAP = constantListToMap(PAY_METHOD_LIST);

@@ -2,13 +2,14 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 16:05:16
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-28 15:20:04
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-07 18:28:14
  * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 
 // 1: 男
+import { constantListToMap } from './utils';
 
 // eslint-disable-next-line
 export enum SEX_LIMIT_ENUM {
@@ -27,7 +28,10 @@ export const SEX_LIMIT_LIST = [
   },
 ];
 
+export const SEX_LIMIT_MAP = constantListToMap(SEX_LIMIT_LIST);
+
 export const VALIDATE_TYPE_ENUM = {
+  SMS_CODE: 'smsCode',
   PHONE: 'phone',
   EMAIL: 'email',
   ID_CARD: 'idCard',
@@ -143,6 +147,17 @@ export const PAGE_ROUTE_ENUMS = {
   activityFree: 'free',
   activityProductDetail: 'productDetail',
   activityGuaranteeUpgrade: 'guaranteeUpgrade',
+};
+
+export const NEXT_BUTTON_CODE_ENUMS = {
+  premiumTrial: 'premiumCalc', // 保费试算
+  customerNotice: 'nextStepByPageCustomerNotice', // 客户告知书
+  questionNotice: 'nextStepByPageNotice', // 问卷告知书
+  infoCollection: 'nextStepByPageInfoCollection', // 信息采集
+  infoPreview: 'nextStepByPagePreview', // 信息采集预览
+  payInfo: 'nextStepByPagePayInfo', // 添加银行卡信息
+  salesNotice: 'nextStepByPageSalesNotice', // 营销员告知
+  sign: 'nextStepByPageSign', // 人脸识别
 };
 
 // eslint-disable-next-line
@@ -344,4 +359,10 @@ export const OCR_TYPE_ENUM = {
   ID_CARD: 1,
   /** 银行卡 */
   BANK_CARD: 4,
+};
+
+export const PRODUCT_LIST_ENUM = {
+  ZXYS: 'ZXYS2022',
+  BWYL: 'BWYL2021',
+  BWYLUP: 'BWYL2022',
 };

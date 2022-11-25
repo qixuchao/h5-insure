@@ -118,7 +118,6 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  console.log('销毁');
   myChart.dispose();
 });
 

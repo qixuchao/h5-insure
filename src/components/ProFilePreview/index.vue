@@ -40,6 +40,10 @@ const props = defineProps({
     required: true,
     type: String,
   },
+  forbidClick: {
+    type: Boolean,
+    default: false,
+  },
 });
 const isRichText = computed(() => {
   return props.type === 'richText';
@@ -67,7 +71,7 @@ const show = ref(false);
 const loading = ref(true);
 
 const loadPdfCanvas = async () => {
-  Toast.loading({ message: '加载中', duration: 20 * 1000 });
+  Toast.loading({ message: '加载中', duration: 20 * 1000, forbidClick: props.forbidClick });
   const container = document.getElementById(id) as HTMLElement;
   if (container.hasChildNodes()) {
     // 说明已经加载过一次pdf了，那就走缓存
@@ -80,15 +84,17 @@ const loadPdfCanvas = async () => {
       url: props.content,
     }).promise;
   } catch (error) {
-    console.log(String(error));
     // undefined is not an object ( evaluting 'response.body.getReader')
-    if (String(error).indexOf('body.getReader') > -1) {
-      const pdfData = await fetch(props.content);
-      const arrayBufferPdf = await pdfData.arrayBuffer();
-      pdf = await PDFJS.getDocument({ data: arrayBufferPdf }).promise;
-    }
+    // if (String(error).indexOf('body.getReader') > -1) {
+    const pdfData = await fetch(props.content);
+    const arrayBufferPdf = await pdfData.arrayBuffer();
+    pdf = await PDFJS.getDocument({ data: arrayBufferPdf }).promise;
+    // }
   }
-
+  if (!pdf || !pdf.numPages) {
+    Toast.clear();
+    return;
+  }
   const pageNum = pdf.numPages;
   for (let i = 1; i <= pageNum; i++) {
     pdf.getPage(i).then((page: any) => {
@@ -138,7 +144,8 @@ watch(
 <style scoped lang="scss">
 .com-file-preview {
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
+  // min-height: 100vh;
   .title {
     font-size: 32px;
     font-family: PingFangSC-Semibold, PingFang SC;
