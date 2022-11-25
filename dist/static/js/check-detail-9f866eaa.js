@@ -1,0 +1,1 @@
+const s=a=>/^[\u4E00-\u9FA5．·]{2,50}$/.test(a);var t="/static/assets/upgrade_bg.4a771537.png",e="/static/assets/header-logo.fcc5844b.png",g="/static/assets/loading.bb5f54fd.gif",c="/static/assets/check-detail.9716a221.png";export{e as H,g as L,c,t as u,s as v};

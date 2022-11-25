@@ -1,0 +1,1 @@
+import{r}from"./index-2ffcb916.js";const n=a=>r({url:"/api/app/insure/insurance/loadPayment",method:"GET",params:a}),p=a=>r({url:"/api/app/insure/insurance/pay",method:"POST",data:a});export{n as l,p};
