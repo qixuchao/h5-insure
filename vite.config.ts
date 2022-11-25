@@ -35,10 +35,10 @@ export default defineConfig((env) => {
       strictPort: false, // 如果端口已占用直接退出
       // 接口代理
       proxy: {
-        '/api/app/buriedPoint/': {
-          target: 'http://aquarius-commander.test.za-tech.net',
-          changeOrigin: true, // 允许跨域
-        },
+        // '/api/app/buriedPoint/': {
+        //   target: 'http://aquarius-commander.test.za-tech.net',
+        //   changeOrigin: true, // 允许跨域
+        // },
         '/api': {
           // 本地 8000 前端代码的接口 代理到 8888 的服务端口
           // target: 'https://www.gconline.cn/acvmtest',
