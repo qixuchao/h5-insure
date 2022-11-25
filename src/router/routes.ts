@@ -1,8 +1,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-11-25 14:22:10
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-25 15:46:44
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -194,36 +194,60 @@ const internetRoutes = [
 ];
 
 // 互联网在线投保
-const xinaoRoutes = [
+const templateRoutes = [
   {
-    name: '付费险',
-    path: '/xinao/productDetail',
+    name: '赠险',
+    path: '/template/free',
     meta: { title: '' },
-    component: () => import('@/views/xinao/product/detail/index.vue'),
+    component: () => import('@/views/template/product/detail/free.vue'),
   },
   {
-    name: '付费险',
-    path: '/xinao/productDetail/package',
+    name: '一年期',
+    path: '/template/short',
     meta: { title: '' },
-    component: () => import('@/views/xinao/product/detail/packageProcess.vue'),
+    component: () => import('@/views/template/product/detail/short.vue'),
+  },
+  {
+    name: '网电销',
+    path: '/template/netsale',
+    meta: { title: '' },
+    component: () => import('@/views/template/product/detail/netsale.vue'),
+  },
+  {
+    name: '赠险',
+    path: '/template/preview/free',
+    meta: { title: '' },
+    component: () => import('@/views/template/product/preview/free.vue'),
+  },
+  {
+    name: '一年期',
+    path: '/template/preview/short',
+    meta: { title: '' },
+    component: () => import('@/views/template/product/preview/short.vue'),
+  },
+  {
+    name: '网电销',
+    path: '/template/preview/netsale',
+    meta: { title: '' },
+    component: () => import('@/views/template/product/preview/netsale.vue'),
   },
   {
     name: '保障升级',
-    path: '/xinao/guaranteeUpgrade',
+    path: '/template/guaranteeUpgrade',
     meta: { title: '' },
-    component: () => import('@/views/xinao/upgrade/index.vue'),
+    component: () => import('@/views/template/upgrade/index.vue'),
   },
   {
     name: '投保成功页',
-    path: '/xinao/orderDetail',
+    path: '/template/orderDetail',
     meta: { title: '投保成功页' },
-    component: () => import('@/views/xinao/orderDetail/index.vue'),
+    component: () => import('@/views/template/orderDetail/index.vue'),
   },
   {
     name: '支付失败',
-    path: '/xinao/payFail',
+    path: '/template/payFail',
     meta: { title: '支付失败' },
-    component: () => import('@/views/xinao/payFail/index.vue'),
+    component: () => import('@/views/template/payFail/index.vue'),
   },
 ];
 
@@ -309,7 +333,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   ...proposalRoutes,
   ...lifeInsuranceRoutes,
   ...internetRoutes,
-  ...xinaoRoutes,
+  ...templateRoutes,
 ];
 
 export default asyncRoutes;

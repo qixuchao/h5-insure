@@ -1,7 +1,6 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
     <ProForm ref="formRef">
-      <ProDivider />
       <div class="holder container">
         <div class="title">投保人信息</div>
         <!-- 投保人姓名 -->
@@ -157,14 +156,18 @@
           </template>
         </ProField>
       </div>
-      <ProDivider />
-      <div v-if="isShowPackage" class="container">
+      <div
+        v-if="isShowPackage && Array.isArray(formInfo?.packageProductList) && formInfo?.packageProductList?.length > 0"
+        class="container"
+      >
+        <ProDivider />
+
         <Package :package-product-list="formInfo?.packageProductList" />
       </div>
-      <ProDivider />
+      <!-- <ProDivider /> -->
       <div class="payment container">
         <!-- 交费方式 -->
-        <ProField
+        <!-- <ProField
           v-if="!props.formAuth?.paymentFrequencyDisable"
           v-model="state.formInfo.paymentFrequency"
           label="交费方式"
@@ -180,9 +183,9 @@
             ></ProRadioButton>
           </template>
         </ProField>
-        <ProDivider />
+        <ProDivider /> -->
         <!-- 支付方式 -->
-        <ProField
+        <!-- <ProField
           v-model="state.formInfo.paymentMethod"
           label="支付方式"
           name="paymentMethod"
@@ -197,27 +200,27 @@
             ></ProRadioButton>
           </template>
         </ProField>
-        <ProDivider />
+        <ProDivider /> -->
         <!-- 正常下一年自主重新投保 -->
-        <div class="renewal-wrapper">
+        <!-- <div class="renewal-wrapper">
           <ProField label="开通自主重新投保" class="pro-field" name="renewalDK" placeholder="请选择" :border="false">
             <template #input>
               <van-switch v-model="state.formInfo.renewalDK" :disabled="props.formAuth?.renewalDKDisable" />
-              <!-- <ProTabButton
-              :disabled="props.formAuth?.renewalDKDisable"
-              title="免费开通"
-              :active="state.formInfo.renewalDK === 'Y'"
-              @click="onRenewalDK"
-            ></ProTabButton> -->
+              <ProTabButton
+                :disabled="props.formAuth?.renewalDKDisable"
+                title="免费开通"
+                :active="state.formInfo.renewalDK === 'Y'"
+                @click="onRenewalDK"
+              ></ProTabButton>
             </template>
           </ProField>
           <div class="desc">
             <p>保单到期自动重新投保，享受保障不间断</p>
             <p>自从重新投保开启后，中途可随时取消</p>
           </div>
-        </div>
+        </div> -->
       </div>
-      <ProDivider />
+      <!-- <ProDivider /> -->
       <FilePreview
         v-model:show="showFilePreview"
         :content-list="filterHealthAttachmentList.concat(rateAttachmentList)"
@@ -244,6 +247,7 @@ import { ACTIVITY_PAY_METHOD_LIST } from '@/common/constants/bankCard';
 import { getFloat, nameMixin, mobileMixin, idCardMixin, validateSmsCode, checkPackage } from '../../../utils';
 import { AuthType } from '../../auth';
 import ProDivider from '@/components/ProDivider/index.vue';
+import ProCard from '@/components/ProCard/index.vue';
 import { VALIDATE_TYPE_ENUM } from '@/common/constants';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
 import { PackageProductVoItem } from '@/api/modules/trial.data';
@@ -274,6 +278,7 @@ interface FormInfoProps {
     // smoke: string;
   };
   packageProductList: PackageProductVoItem[];
+  activePlanCode: string;
 }
 
 const props = defineProps({
@@ -357,14 +362,14 @@ const isSelfInsurer = computed(() => {
 
 // 费率表
 const rateAttachmentList = computed(() => {
-  return props.productDetail?.tenantProductInsureVO?.attachmentVOList.filter(
+  return (props.productDetail?.tenantProductInsureVO?.attachmentVOList || []).filter(
     (item: AttachmentVOList) => item.attachmentName === '费率表',
   );
 });
 
 const filterHealthAttachmentList = computed(() => {
   return (
-    props.productDetail?.tenantProductInsureVO?.attachmentVOList.filter((item: AttachmentVOList) => {
+    (props.productDetail?.tenantProductInsureVO?.attachmentVOList || []).filter((item: AttachmentVOList) => {
       return !['健康告知', '费率表'].includes(item.attachmentName);
     }) || []
   );

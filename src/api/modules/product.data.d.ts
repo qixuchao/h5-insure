@@ -1,3 +1,67 @@
+export interface PlanInsureVO {
+  planName: string;
+  planCode: string;
+  extInfoVOList: ExtInfoVoItem[];
+  guaranteeItemVOS: GuaranteeItemVo[];
+  productPremiumVOList: ProductPremiumVoItem[];
+  premiumExplain: string;
+  premiumExplainName: string;
+  premiumExplainUri: string;
+  tabName: string[];
+  attachmentVOList: AttachmentVoItem;
+  productPlanInsureConditionVO: ProductPlanInsureConditionVo;
+  planPicList: string;
+}
+
+export interface ProductPlanInsureConditionVo {
+  waitPeriod: string;
+  waitPeriodFlag: number;
+  sexLimit: string;
+  sexLimitFlag: number;
+  socialInsuranceLimit: string;
+  socialInsuranceLimitFlag: number;
+  occupationLimit: string;
+  occupationLimitFlag: number;
+  occupationLimitPic: string;
+  holderAgeLimit: string;
+  renewalGracePeriod: string;
+  holderAgeLimitFlag: number;
+  insurancePeriodValues: string;
+  insurancePeriodValuesFlag: number;
+  paymentPeriodValues: string;
+  paymentPeriodValuesFlag: number;
+  paymentFrequency: string;
+  paymentFrequencyFlag: number;
+  annuityDrawValues: string;
+  annuityDrawValuesFlag: number;
+  annuityDrawFrequency: string;
+  annuityDrawFrequencyFlag: number;
+  hesitatePeriod: string;
+  hesitatePeriodFlag: string;
+  paymentFrequencyList: string;
+}
+
+export interface AttachmentVoItem {
+}
+
+export interface ProductPremiumVoItem {
+  paymentFrequency: string;
+  paymentFrequencyValue: string;
+  premiumUnit: string;
+}
+
+export interface GuaranteeItemVo {
+  title: string;
+  desc: string;
+  content: string;
+}
+
+export interface ExtInfoVoItem {
+  name: string;
+  description: string;
+}
+
+
 export interface ShowConfigVO {
   /**
    * 展示类别
@@ -117,6 +181,12 @@ export interface TenantProductInsureVO {
    */
   banner: string[];
   /**
+   * banner动图
+   */
+   bannerMove: string[];
+   planList: PlanInsureVO[];
+   planInsureVO: PlanInsureVO;
+  /**
    * 配置状态 1.暂存 2.完成
    */
   configStatus: number;
@@ -231,3 +301,5 @@ export interface ProductDetail {
   insurerCode: string;
   baseProductCode?: string;
 }
+
+
