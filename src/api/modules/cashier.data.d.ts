@@ -42,3 +42,10 @@ export interface PayParam {
   tenantId: number;
   tradeType: string;
 }
+
+/**
+ *
+ */
+interface PayResult extends PayParam {
+  redirect_url: string;
+}
