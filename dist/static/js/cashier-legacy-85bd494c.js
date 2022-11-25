@@ -1,1 +1,0 @@
-System.register(["./index-legacy-d90add57.js"],(function(e){"use strict";var a;return{setters:[function(e){a=e.r}],execute:function(){e("l",(e=>a({url:"/api/app/insure/insurance/loadPayment",method:"GET",params:e}))),e("p",(e=>a({url:"/api/app/insure/insurance/pay",method:"POST",data:e})))}}}));
