@@ -3,7 +3,7 @@
     <div class="com-card-wrap">
       <div :class="['header', { showLine }]">
         <div v-if="title" class="title-wrapper">
-          <div :class="['title', { showIcon }]">{{ title }}</div>
+          <div :class="['title', { showIcon }]">{{ title }}333</div>
           <ProSvg
             v-if="showFold"
             name="down"
@@ -114,11 +114,11 @@ const subTitle = computed(() => {
           &.showIcon {
             &:before {
               content: ' ';
-              width: 8px;
-              height: 28px;
-              border-radius: 4px;
-              background: $zaui-brand;
+              width: 6px;
+              height: 30px;
+              background: $primary-color;
               margin-right: 16px;
+              border-radius: 0px 4px 4px 0px;
             }
           }
         }

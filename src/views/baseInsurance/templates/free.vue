@@ -95,7 +95,7 @@ import { ORIGIN, toLocal } from '@/utils';
 import { validateMobile, validateName } from '@/utils/validator';
 
 import { genaratePremiumCalcData, transformData, genarateOrderParam, validateHolderAge, getAgeByCard } from '../utils';
-import themeVars from '../theme';
+import { useTheme } from '../theme';
 
 import Banner from './components/Banner/index.vue';
 import Desc from './components/Desc/index.vue';
@@ -119,6 +119,9 @@ import {
   allAuth,
   holderAuth,
 } from './auth';
+// 调用主题
+const themeVars = useTheme();
+console.log('-----themeVars', themeVars);
 
 const router = useRouter();
 const route = useRoute();

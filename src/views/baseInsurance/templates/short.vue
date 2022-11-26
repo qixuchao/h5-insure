@@ -107,7 +107,7 @@ import {
   validatorRiskZXYS,
   getAgeByCard,
 } from '../utils';
-import themeVars from '../theme';
+import { useTheme } from '../theme';
 
 import Banner from './components/Banner/index.vue';
 import Desc from './components/Desc/index.vue';
@@ -131,7 +131,8 @@ import {
   allAuth,
   holderAuth,
 } from './auth';
-
+// 调用主题
+const themeVars = useTheme();
 const router = useRouter();
 const route = useRoute();
 /** 页面query参数类型 */
