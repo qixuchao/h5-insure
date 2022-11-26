@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-26 12:12:05
+ * @LastEditTime: 2022-11-26 13:32:00
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -257,19 +257,19 @@ const baseInsurance = [
     name: '赠险',
     path: '/baseInsurance/free',
     meta: { title: '' },
-    component: () => import('@/views/baseInsurance/template/free.vue'),
+    component: () => import('@/views/baseInsurance/templates/free.vue'),
   },
   {
     name: '一年期',
     path: '/baseInsurance/short',
     meta: { title: '' },
-    component: () => import('@/views/baseInsurance/template/short.vue'),
+    component: () => import('@/views/baseInsurance/templates/short.vue'),
   },
   {
     name: '网电销',
     path: '/baseInsurance/netsale',
     meta: { title: '' },
-    component: () => import('@/views/baseInsurance/template/netsale.vue'),
+    component: () => import('@/views/baseInsurance/templates/netsale.vue'),
   },
   {
     name: '投保成功页',
