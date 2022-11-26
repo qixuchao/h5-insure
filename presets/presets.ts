@@ -1,3 +1,10 @@
+/*
+ * @Author: zhaopu
+ * @Date: 2022-08-24 16:59:13
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-26 16:07:58
+ * @Description:
+ */
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import svgLoader from 'vite-svg-loader';
@@ -58,17 +65,24 @@ export default (env: ConfigEnv) => {
     //   // dirs: ['src/components/*'],
     //   resolvers: [VantResolver(), IconsResolver(), VueUseComponentsResolver()],
     // }),
+    // styleImport({
+    //   resolves: [VantResolve()],
+    // }),
     styleImport({
       resolves: [VantResolve()],
+      libs: [
+        {
+          libraryName: 'vant',
+          esModule: true,
+          resolveStyle: (name) => {
+            return `../es/${name}/style/index`;
+          },
+        },
+      ],
     }),
     Icons({
       compiler: 'vue3',
       autoInstall: true,
-    }),
-    ViteFonts({
-      google: {
-        families: ['Open Sans', 'Montserrat', 'Fira Sans'],
-      },
     }),
     VueI18n({
       include: [resolve(__dirname, '../locales/**')],
@@ -77,15 +91,15 @@ export default (env: ConfigEnv) => {
     env.mode === 'production'
       ? null
       : checker({
-        enableBuild: false,
-        typescript: true,
-        vueTsc: true,
-        eslint: {
-          lintCommand: 'eslint "./src/**/*.{ts,tsx,vue}"',
-          dev: {
-            logLevel: ['error'],
+          enableBuild: false,
+          typescript: true,
+          vueTsc: true,
+          eslint: {
+            lintCommand: 'eslint "./src/**/*.{ts,tsx,vue}"',
+            dev: {
+              logLevel: ['error'],
+            },
           },
-        },
-      }),
+        }),
   ];
 };

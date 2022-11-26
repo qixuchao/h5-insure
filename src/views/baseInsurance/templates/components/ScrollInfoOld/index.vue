@@ -1,13 +1,16 @@
 <!--
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-17 16:00
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-26 20:42:54
+ * @LastEditors:  wangyuanli@zhongan.io
+ * @LastEditTime: 2022-09-17 16:00
  * @Description: 审核版首页
 -->
 <template>
-  <ProScrollTab ref="scrollRef" class="tabs" :list="tabList" sticky scrollspy>
+  <ProScrollTab class="tabs" :list="tabList" sticky scrollspy>
     <template #tab1>
+      <slot name="form" />
+    </template>
+    <template #tab2>
       <div class="spec">
         <img
           v-for="(item, index) in props.detail?.tenantProductInsureVO?.spec || []"
@@ -17,37 +20,42 @@
         />
         <ProDivider />
       </div>
-    </template>
-    <template #tab2>
-      <ProCard title="理赔流程">
-        <ProTimeline
-          v-if="props.detail?.tenantProductInsureVO?.settlementProcessVO.settlementProcessType === CLAIM_TYPE_ENUM.WORD"
-          :list="props.detail?.tenantProductInsureVO?.settlementProcessVO?.settlementProcessList"
-        />
-        <div v-else class="spec">
-          <img
-            v-for="(item, index) in props.detail?.tenantProductInsureVO?.settlementProcessVO
-              ?.settlementProcessPicList || []"
+      <ProCard title="产品资料">
+        <template #subTitle>
+          <div class="sub-title">产品资料文件详情可手动放大，以便您更清晰查阅内容。</div>
+        </template>
+        <div class="tab-1-content">
+          请查看
+          <ProPDFviewer
+            v-for="(item, index) in detail?.tenantProductInsureVO?.attachmentVOList || []"
             :key="index"
-            :src="item"
-            class="detail-img"
-          />
-          <ProDivider />
+            :type="queryFilePerfix(item.attachmentUri)"
+            class="file-name"
+            :title="getFileName(item.attachmentName)"
+            :content="item.attachmentUri"
+          >
+            >
+            <span v-if="index !== (detail?.tenantProductInsureVO?.attachmentVOList || []).length - 1" class="dun-hao"
+              >、</span
+            >
+          </ProPDFviewer>
         </div>
-      </ProCard>
-      <ProCard title="常见问题">
-        <Question :list="props.detail?.tenantProductInsureVO?.questionList" />
       </ProCard>
     </template>
     <template #tab3>
-      <slot name="form" />
+      <ProCard title="理赔流程">
+        <ProTimeline :list="props.detail?.tenantProductInsureVO?.settlementProcessList" />
+      </ProCard>
+    </template>
+    <template #tab4>
+      <ProCard title="常见问题">
+        <Question :list="props.detail?.tenantProductInsureVO?.questionList" />
+      </ProCard>
     </template>
   </ProScrollTab>
 </template>
 
 <script lang="ts" setup>
-import { Ref } from 'vue-demi';
-import { CLAIM_TYPE_ENUM } from '@/common/constants/infoCollection';
 import ProCard from '@/components/ProCard/index.vue';
 import ProDivider from '@/components/ProDivider/index.vue';
 import ProScrollTab from '@/components/ProScrollTab/index.vue';
@@ -68,26 +76,23 @@ const props = defineProps({
     default: () => {},
   },
 });
-
-const scrollRef = ref<Ref>();
-
 const tabList = ref<Array<{ title: string; slotName: string }>>([
   {
-    title: '产品亮点',
+    title: '我要投保',
     slotName: 'tab1',
   },
   {
-    title: '理赔说明',
+    title: '产品特色',
     slotName: 'tab2',
   },
   {
-    title: '我要投保',
+    title: '理赔流程',
     slotName: 'tab3',
   },
-  // {
-  //   title: '常见问题',
-  //   slotName: 'tab4',
-  // },
+  {
+    title: '常见问题',
+    slotName: 'tab4',
+  },
 ]);
 
 const queryFilePerfix = (fileUrl: string) => {
@@ -109,35 +114,12 @@ const getFileName = (fileName: string): string => {
   if (newName.indexOf('》') === -1) newName = `${newName}》`;
   return newName;
 };
-
-const handleClickTab = () => {
-  return scrollRef.value?.handleClickTab;
-};
-
-defineExpose({
-  handleClickTab,
-});
 </script>
 
 <style lang="scss" scoped>
-.tabs {
-  :deep(.tab-title) {
-    font-size: 32px;
-    font-family: PingFangSC-Medium, PingFang SC;
-    font-weight: 500;
-  }
-  :deep(.active) {
-    &::after {
-      width: 48px !important;
-      height: 6px !important;
-      border-radius: 4px !important;
-    }
-  }
-}
 .spec {
   img {
     width: 100%;
-    display: block;
   }
 }
 
