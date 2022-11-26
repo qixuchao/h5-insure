@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-11-26 15:42:31
+ * @LastEditTime: 2022-11-26 19:58:53
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -256,13 +256,13 @@ const baseInsurance = [
   {
     name: 'base赠险',
     path: '/baseInsurance/free',
-    meta: { title: '' },
+    meta: { title: '', requireWxJs: true },
     component: () => import('@/views/baseInsurance/templates/free.vue'),
   },
   {
     name: 'base一年期',
     path: '/baseInsurance/short',
-    meta: { title: '' },
+    meta: { title: '', requireWxJs: true },
     component: () => import('@/views/baseInsurance/templates/short.vue'),
   },
   {
@@ -349,7 +349,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   {
     name: '收银台',
     path: '/cashier/pay',
-    meta: { title: '收银台' },
+    meta: { title: '收银台', requireWxJs: false },
     component: () => import('@/views/cashier/index.vue'),
   },
   {
@@ -361,7 +361,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   {
     name: '支付',
     path: '/cashier/signPay',
-    meta: { title: '支付签约' },
+    meta: { title: '支付签约', requireWxJs: true },
     component: () => import('@/views/cashier/signPay.vue'),
   },
   ...proposalRoutes,

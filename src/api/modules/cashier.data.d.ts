@@ -10,6 +10,7 @@ export interface OrderInfo {
   orderAmt: number;
   orderName: string;
   srcType: string;
+  payWay: string;
   businessTradeNo: string;
 }
 /** 支付参数 */
