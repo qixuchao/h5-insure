@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-25 20:44:14
+ * @LastEditTime: 2022-11-26 12:12:05
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -251,6 +251,40 @@ const templateRoutes = [
   },
 ];
 
+// 基线在线投保模板
+const baseInsurance = [
+  {
+    name: '赠险',
+    path: '/baseInsurance/free',
+    meta: { title: '' },
+    component: () => import('@/views/baseInsurance/template/free.vue'),
+  },
+  {
+    name: '一年期',
+    path: '/baseInsurance/short',
+    meta: { title: '' },
+    component: () => import('@/views/baseInsurance/template/short.vue'),
+  },
+  {
+    name: '网电销',
+    path: '/baseInsurance/netsale',
+    meta: { title: '' },
+    component: () => import('@/views/baseInsurance/template/netsale.vue'),
+  },
+  {
+    name: '投保成功页',
+    path: '/baseInsurance/orderDetail',
+    meta: { title: '投保成功页' },
+    component: () => import('@/views/baseInsurance/orderDetail/index.vue'),
+  },
+  {
+    name: '支付失败',
+    path: '/baseInsurance/payFail',
+    meta: { title: '支付失败' },
+    component: () => import('@/views/baseInsurance/payFail/index.vue'),
+  },
+];
+
 const asyncRoutes: Array<RouteRecordRaw> = [
   {
     name: 'Home',
@@ -334,6 +368,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   ...lifeInsuranceRoutes,
   ...internetRoutes,
   ...templateRoutes,
+  ...baseInsurance,
 ];
 
 export default asyncRoutes;
