@@ -1,3 +1,10 @@
+/*
+ * @Author: zhaopu
+ * @Date: 2022-11-26 21:01:39
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-26 21:03:50
+ * @Description:
+ */
 import { GetPayUrlParam, PayParam, PayResult } from '@/api/modules/cashier.data';
 import { getPayUrl, loadPayment, pay } from '@/api/modules/cashier';
 
@@ -5,7 +12,7 @@ export const isWeiXin = navigator.userAgent.indexOf('MicroMessenger') > -1;
 
 // 获取 wxCode，去调用支付接口
 export const getWxAuthCode = (params: { appId: string; url: string }) => {
-  return `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${appId}&redirect_uri=${url}&response_type=code&scope=snsapi_base&state=0#wechat_redirect`;
+  return `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${params.appId}&redirect_uri=${params.url}&response_type=code&scope=snsapi_base&state=0#wechat_redirect`;
 };
 
 export const usePay = () => {
