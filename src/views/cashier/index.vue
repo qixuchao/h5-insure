@@ -16,6 +16,15 @@
         <Radio :name="way.name"></Radio>
       </div>
     </RadioGroup>
+    <div style="margin-bottom: 50px">
+      <RadioGroup v-model="srcType">
+        <div v-for="way in ['h5', 'js']" :key="way" style="margin-bottom: 20px">
+          <Radio :name="way"
+            ><span>微信{{ way }}签约</span></Radio
+          >
+        </div>
+      </RadioGroup>
+    </div>
     <VanButton type="primary" round size="large" block @click="goPay">确认付款 ￥{{ orderInfo?.orderAmt }}</VanButton>
   </ProPageWrap>
 </template>
@@ -33,6 +42,7 @@ import { isWeiXin } from './core';
  */
 
 interface QueryData extends GetPayUrlParam {
+  code: string;
   [key: string]: string;
 }
 
@@ -54,9 +64,9 @@ const payWay = ref(PAY_WAY_ENUM.WX_SIGN); // 支付方式
 
 const weixinH5 = {
   tenantId: 9991000001,
-  orderNo: 'P2211220947519991000001750022182',
+  orderNo: 'P22112209475199910000017500221916',
   orderName: '测试产品',
-  businessTradeNo: '11111112',
+  businessTradeNo: '11111111',
   payTradeNo: null,
   orderTime: '2022-11-22T09:47:44',
   orderAmt: 0.01,
@@ -72,10 +82,10 @@ const weixinH5 = {
   operateTime: null,
   systemCurrentTime: '2022-11-22T14:32:07.298',
   notifyUrl: null,
-  notifyInfo: '{"out_trade_no":"11111112"}',
+  notifyInfo: '{"out_trade_no":"11111126"}',
   errorMessage: null,
   redirectUrl: null,
-  extraInfo: '{}',
+  extraInfo: '{"spBillCreateIp":"111.112.34.56"}',
   isDeleted: 'N',
   spBillCreateIp: null,
   openid: null,
@@ -83,9 +93,9 @@ const weixinH5 = {
 };
 const weixinSign = {
   tenantId: 9991000001,
-  orderNo: 'P2211220947519991000001750022183',
-  orderName: '测试产品',
-  businessTradeNo: '11111113',
+  orderNo: 'P22112209475199910000017500221915',
+  orderName: 'JS15',
+  businessTradeNo: '11111125',
   payTradeNo: null,
   orderTime: '2022-11-22T09:47:44',
   orderAmt: 0.01,
@@ -101,21 +111,21 @@ const weixinSign = {
   operateTime: null,
   systemCurrentTime: '2022-11-22T14:32:07.298',
   notifyUrl: null,
-  notifyInfo: '{"out_trade_no":"11111113"}',
+  notifyInfo: '{"out_trade_no":"11111125"}',
   errorMessage: null,
   redirectUrl: null,
-  extraInfo: '{}',
+  extraInfo: '{"spBillCreateIp":"111.112.34.56"}',
   isDeleted: 'N',
   spBillCreateIp: null,
   openid: null,
   code: null,
 };
+const srcType = ref('h5');
 const goPay = () => {
   pay({
     ...(orderInfo.value as PayParam),
-    payWay: payWay.value,
-    srcType: 'JS',
-    ...weixinSign,
+    ...(srcType.value === 'h5' ? weixinH5 : weixinSign),
+    srcType: srcType.value,
     returnWeb: `${window.location.protocol}//${window.location.host}/cashier/payResult`,
   }).then((resp) => {
     console.log('支付结果', resp.data.redirect_url);
