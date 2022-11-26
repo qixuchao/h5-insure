@@ -2,10 +2,6 @@
 # yarn lockfile v1
 
 
-"@amap/amap-jsapi-loader@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.npmjs.org/@amap/amap-jsapi-loader/-/amap-jsapi-loader-1.0.1.tgz"
-
 "@ampproject/remapping@^2.0.0":
   version "2.1.1"
   resolved "https://registry.npmjs.org/@ampproject/remapping/-/remapping-2.1.1.tgz"
@@ -253,7 +249,6 @@
 "@babel/runtime@^7.15.4":
   version "7.19.4"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.19.4.tgz#a42f814502ee467d55b38dd1c256f53a7b885c78"
-  integrity sha512-EXpLCrk55f+cYqmHsSR+yD/0gAIMxxA9QK9lnQWzhMCvt+YmoBN7Zx94s++Kv0+unHk39vxNO8t+CMA2WSS3wA==
   dependencies:
     regenerator-runtime "^0.13.4"
 
@@ -1679,7 +1674,6 @@ axe-core@^4.3.5:
 axios-retry@^3.3.1:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/axios-retry/-/axios-retry-3.3.1.tgz#47624646138aedefbad2ac32f226f4ee94b6dcab"
-  integrity sha512-RohAUQTDxBSWLFEnoIG/6bvmy8l3TfpkclgStjl5MDCMBDgapAWCmr1r/9harQfWC8bzLC8job6UcL1A1Yc+/Q==
   dependencies:
     "@babel/runtime" "^7.15.4"
     is-retry-allowed "^2.2.0"
@@ -3866,7 +3860,6 @@ is-regex@^1.0.3, is-regex@^1.1.4:
 is-retry-allowed@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/is-retry-allowed/-/is-retry-allowed-2.2.0.tgz#88f34cbd236e043e71b6932d09b0c65fb7b4d71d"
-  integrity sha512-XVm7LOeLpTW4jV19QSH38vkswxoLud8sQ57YwJVTPWdiaI9I8keEhGFpBlslyVsgdQy4Opg8QOLb8YRgsyZiQg==
 
 is-shared-array-buffer@^1.0.1:
   version "1.0.1"
@@ -5149,10 +5142,6 @@ readdirp@~3.6.0:
   dependencies:
     picomatch "^2.2.1"
 
-recorder-core@^1.2.22030501:
-  version "1.2.22030501"
-  resolved "https://registry.npmjs.org/recorder-core/-/recorder-core-1.2.22030501.tgz"
-
 redent@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/redent/-/redent-3.0.0.tgz"
@@ -6432,10 +6421,6 @@ wcwidth@^1.0.1:
   resolved "https://registry.npmmirror.com/wcwidth/-/wcwidth-1.0.1.tgz"
   dependencies:
     defaults "^1.0.3"
-
-web-amr@0.0.6:
-  version "0.0.6"
-  resolved "https://registry.npmjs.org/web-amr/-/web-amr-0.0.6.tgz"
 
 webpack-virtual-modules@^0.4.3:
   version "0.4.3"

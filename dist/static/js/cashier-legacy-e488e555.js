@@ -1,0 +1,1 @@
+System.register(["./index-legacy-dab9cee2.js"],(function(e){"use strict";var a;return{setters:[function(e){a=e.r}],execute:function(){e("l",(e=>a({url:"/api/app/insure/insurance/loadPayment",method:"GET",params:e}))),e("p",(e=>a({url:"/api/app/insure/insurance/pay",method:"POST",data:e})))}}}));

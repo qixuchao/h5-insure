@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-07 15:32:56
+ * @LastEditTime: 2022-11-25 20:44:14
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -193,6 +193,64 @@ const internetRoutes = [
   },
 ];
 
+// 互联网在线投保
+const templateRoutes = [
+  {
+    name: '赠险',
+    path: '/template/free',
+    meta: { title: '' },
+    component: () => import('@/views/template/product/detail/free.vue'),
+  },
+  {
+    name: '一年期',
+    path: '/template/short',
+    meta: { title: '' },
+    component: () => import('@/views/template/product/detail/short.vue'),
+  },
+  {
+    name: '网电销',
+    path: '/template/netsale',
+    meta: { title: '' },
+    component: () => import('@/views/template/product/detail/netsale.vue'),
+  },
+  {
+    name: '赠险预览',
+    path: '/template/preview/free',
+    meta: { title: '' },
+    component: () => import('@/views/template/product/preview/free.vue'),
+  },
+  {
+    name: '一年期预览',
+    path: '/template/preview/short',
+    meta: { title: '' },
+    component: () => import('@/views/template/product/preview/short.vue'),
+  },
+  {
+    name: '网电销预览',
+    path: '/template/preview/netsale',
+    meta: { title: '' },
+    component: () => import('@/views/template/product/preview/netsale.vue'),
+  },
+  {
+    name: '保障升级',
+    path: '/template/guaranteeUpgrade',
+    meta: { title: '' },
+    component: () => import('@/views/template/upgrade/index.vue'),
+  },
+  {
+    name: '投保成功页',
+    path: '/template/orderDetail',
+    meta: { title: '投保成功页' },
+    component: () => import('@/views/template/orderDetail/index.vue'),
+  },
+  {
+    name: '支付失败',
+    path: '/template/payFail',
+    meta: { title: '支付失败' },
+    component: () => import('@/views/template/payFail/index.vue'),
+  },
+];
+
 const asyncRoutes: Array<RouteRecordRaw> = [
   {
     name: 'Home',
@@ -254,9 +312,28 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     meta: { title: '登记成功' },
     component: () => import('@/views/consult/result.vue'),
   },
+  {
+    name: '收银台',
+    path: '/cashier/pay',
+    meta: { title: '收银台' },
+    component: () => import('@/views/cashier/index.vue'),
+  },
+  {
+    name: '支付结果',
+    path: '/cashier/payResult',
+    meta: { title: '支付结果' },
+    component: () => import('@/views/cashier/payResult.vue'),
+  },
+  {
+    name: '支付',
+    path: '/cashier/signPay',
+    meta: { title: '支付签约' },
+    component: () => import('@/views/cashier/signPay.vue'),
+  },
   ...proposalRoutes,
   ...lifeInsuranceRoutes,
   ...internetRoutes,
+  ...templateRoutes,
 ];
 
 export default asyncRoutes;

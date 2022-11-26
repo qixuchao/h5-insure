@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-28 10:28:12
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-02 15:55:42
+ * @LastEditTime: 2022-11-25 16:19:31
  * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/infoCollection.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -146,6 +146,24 @@ export const PAGE_CODE_ENUM = {
   PACKAGE: 'package',
 };
 
+export const TEMPLATE_TYPE_ENUM = {
+  // 短险
+  SHORT: '1',
+  // 赠险
+  FREE: '2',
+  // 网电销
+  NETSALE: '3',
+};
+
+export const TEMPLATE_TYPE_MAP = {
+  // 赠险
+  [TEMPLATE_TYPE_ENUM.FREE]: 'free',
+  // 短险
+  [TEMPLATE_TYPE_ENUM.SHORT]: 'short',
+  // 网电销
+  [TEMPLATE_TYPE_ENUM.NETSALE]: 'netsale',
+};
+
 export const PAGE_CODE_LIST = [
   {
     label: 'free',
@@ -201,3 +219,16 @@ export const PAYMENT_FREQUENCYE_LIST = [
 ];
 
 export const PAYMENT_FREQUENCY_MAP = constantListToMap(PAYMENT_FREQUENCYE_LIST);
+
+// 理赔流程类型
+export const CLAIM_TYPE_ENUM = {
+  WORD: '1', // 文字
+  IMAGE: '2', // 图片
+};
+
+export const CLAIM_TYPE_LIST = [
+  { value: CLAIM_TYPE_ENUM.WORD, label: '文字' },
+  { value: CLAIM_TYPE_ENUM.IMAGE, label: '图片' },
+];
+
+export const CLAIM_TYPE_MAP = constantListToMap(CLAIM_TYPE_LIST);

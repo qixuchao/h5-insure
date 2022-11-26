@@ -1,8 +1,8 @@
 <!--
  * @Author: za-wangyuanli wangyuanli@zhongan.io
  * @Date: 2022-09-14 16:50:33
- * @LastEditors: za-wangyuanli wangyuanli@zhongan.io
- * @LastEditTime: 2022-09-14 16:50:33
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-24 23:20:18
  * @Description: 为了解决，VanTab 滚动导航, 切换tab时，选中的tab闪烁问题
  * 主要实现：监听页面滚动，高亮tab
 -->
@@ -99,6 +99,10 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   window.removeEventListener('scroll', handleScroll);
+});
+
+defineExpose({
+  handleClickTab,
 });
 </script>
 
