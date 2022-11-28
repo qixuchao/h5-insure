@@ -1,0 +1,1 @@
+const e={orange:"#FF6600",blue:"#0d6efe"},o=(r=e.orange)=>({primaryColor:r,primaryBackgroundColor:`${r}20`,buttonPrimaryBackgroundColor:r,buttonPrimaryBorderColor:r,checkboxCheckedBgColor:`${r}20`,switchOnBackgroundColor:r});var a={};export{a as t,o as u};

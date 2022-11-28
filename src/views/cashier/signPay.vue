@@ -13,10 +13,11 @@
 
 <script lang="ts" setup>
 import { Dialog } from 'vant';
+import { PayParam } from '@/api/modules/cashier.data';
 import { useSign, isWeiXin } from './core';
 
-interface QueryData {
-  [key: string]: string | number;
+interface QueryData extends PayParam {
+  [key: string]: string;
 }
 const query = useRoute().query as QueryData;
 
@@ -31,7 +32,7 @@ onMounted(async () => {
       title: '去微信开通按月缴费',
       confirmButtonText: '好的，我知道了',
     }).then(() => {
-      goPay();
+      useSign(query, () => {});
     });
   }
 });

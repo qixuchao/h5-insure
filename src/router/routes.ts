@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-28 12:39:48
+ * @LastEditTime: 2022-11-28 17:43:58
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -196,24 +196,6 @@ const internetRoutes = [
 // 互联网在线投保
 const templateRoutes = [
   {
-    name: '赠险',
-    path: '/template/free',
-    meta: { title: '' },
-    component: () => import('@/views/template/product/detail/free.vue'),
-  },
-  {
-    name: '一年期',
-    path: '/template/short',
-    meta: { title: '' },
-    component: () => import('@/views/template/product/detail/short.vue'),
-  },
-  {
-    name: '网电销',
-    path: '/template/netsale',
-    meta: { title: '' },
-    component: () => import('@/views/template/product/detail/netsale.vue'),
-  },
-  {
     name: '赠险预览',
     path: '/template/preview/free',
     meta: { title: '' },
@@ -361,7 +343,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   {
     name: '支付',
     path: '/cashier/signPay',
-    meta: { title: '支付签约', requireWxJs: true },
+    meta: { title: '支付签约', requireWxJs: false },
     component: () => import('@/views/cashier/signPay.vue'),
   },
   ...proposalRoutes,

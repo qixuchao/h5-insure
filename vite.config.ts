@@ -1,18 +1,8 @@
 /*
- * @Author: za-qixuchao qixuchao@zhongan.io
- * @Date: 2022-06-21 19:34:02
-<<<<<<< HEAD
-<<<<<<< HEAD
+ * @Author: za-qixuchao qixuchao@zhongan.com
+ * @Date: 2022-11-28 17:42:39
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-28 16:10:56
-=======
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-11-22 10:25:41
->>>>>>> 63972af0c16454374cd0e38d3e15811155d209fa
-=======
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-26 16:23:37
->>>>>>> 190465ed0fd081d6f3495a117107cfdc2da83926
+ * @LastEditTime: 2022-11-28 17:44:29
  * @FilePath: /zat-planet-h5-cloud-insure/vite.config.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
