@@ -151,7 +151,7 @@ onMounted(() => {
   //  微信环境，跳转微信授权
   if (isWeiXin) {
     const { appId } = appStore;
-    const url = encodeURIComponent(`${window.location.href}`);
+    const url = `${window.location.href}`;
     console.log('当前url', url);
     if (!query.code) {
       window.location.href = getWxAuthCode({ appId, url });
