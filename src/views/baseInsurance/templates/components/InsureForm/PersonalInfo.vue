@@ -355,7 +355,18 @@
       :label="queryFactorAttr('verificationCode', 'title')"
       :name="`${prefix}_verificationCode`"
       :required="isRequiredByFactor('verificationCode')"
-    ></ProField>
+    >
+      <template #extra>
+        <van-button
+          :class="['sms-code', { 'count-down': countDownTimer > 0 }]"
+          size="small"
+          type="primary"
+          :disabled="!isHolderMobileRight"
+          @click="onCaptha"
+          >{{ smsText }}</van-button
+        >
+      </template>
+    </ProField>
     <ProField
       v-if="showByFactor('isSmoke')"
       v-model="state.formInfo.isSmoke"
@@ -546,6 +557,7 @@
 
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
+import { Toast } from 'vant';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useToggle } from '@vant/use';
@@ -616,6 +628,11 @@ const state = ref({
 dayjs.extend(relativeTime);
 
 const certEndType = ref<boolean>(props.formInfo.certEndType === 2);
+// 验证码相关逻辑
+const maxCountDown = 60;
+const countDownTimer = ref<number>(0);
+const smsText = ref<string>('获取验证码');
+const isSendSmsCode = ref(false);
 
 const factorObj = computed(() => {
   const factor: FactorObj = {};
@@ -625,6 +642,38 @@ const factorObj = computed(() => {
   console.log('factorObj', factorObj);
   return factor;
 });
+
+const onCountDown = () => {
+  if (countDownTimer.value > 0) return;
+  countDownTimer.value = maxCountDown;
+  const countInterval = () => {
+    smsText.value = `${countDownTimer.value}s`;
+    countDownTimer.value -= 1;
+  };
+  countInterval();
+  const timer = setInterval(() => {
+    if (countDownTimer.value === 0) {
+      smsText.value = '获取验证码';
+      countDownTimer.value = 0;
+      clearInterval(timer);
+    } else {
+      countInterval();
+    }
+  }, 1000);
+};
+
+// 发送验证码
+const onCaptha = async () => {
+  if (countDownTimer.value > 0) {
+    return;
+  }
+
+  isSendSmsCode.value = true;
+  Toast({
+    message: '短信发送成功，请查收',
+  });
+  onCountDown();
+};
 
 const handleOCR = (res: OCRResponse['idCardOcrVO']) => {
   state.value.formInfo.certNo = res.personIdCard;
@@ -659,7 +708,7 @@ const validateType = computed(() => {
   if (`${state.value.formInfo.certType}` === CERT_TYPE_ENUM.PASSPORT) {
     return [VALIDATE_TYPE_ENUM.PASSPORT];
   }
-  return [];
+  return [VALIDATE_TYPE_ENUM.ID_CARD];
 });
 
 // 验证有效期

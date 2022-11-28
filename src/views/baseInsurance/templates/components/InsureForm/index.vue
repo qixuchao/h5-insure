@@ -2,13 +2,13 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-28 10:33:19
+ * @LastEditTime: 2022-11-28 17:39:50
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <div class="page-info-wrapper">
-    <ProForm ref="formRef">
+    <ProForm ref="formRef" show-error :show-error-message="false" input-align="left">
       <ProCard v-if="pageFactor.HOLDER?.length" :show-divider="false" title="本人信息（投保人）">
         <PersonalInfo
           v-model:images="holderImages"
@@ -121,6 +121,9 @@ const props = withDefaults(defineProps<Props>(), {
 const pageFactor = ref<FactorEnums>({});
 // 表单信息
 const formInfo = ref<any>({
+  tenantOrderHolder: {
+    extInfo: {},
+  },
   tenantOrderInsuredList: [
     {
       relationToHolder: '0',
@@ -191,6 +194,23 @@ const holderInfo2InsuredInfo = () => {
   });
 };
 
+const validateForm = () => {
+  return new Promise((resolve, reject) => {
+    formRef.value?.validate().then(
+      () => {
+        resolve(formInfo.value);
+      },
+      () => {
+        reject();
+      },
+    );
+  });
+};
+
+defineExpose({
+  validateForm,
+});
+
 onBeforeMount(() => {
   // 将页面因子根据投保人、被保人、受益人进行分类
   const factorObj = {
@@ -219,6 +239,9 @@ watch(
 <style lang="scss" scope>
 .page-info-wrapper {
   padding-bottom: 150px;
+  .van-cell .van-field__value {
+    align-items: flex-start;
+  }
   .com-card {
     .com-card-wrap {
       .body {

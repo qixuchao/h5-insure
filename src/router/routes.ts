@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-28 11:48:20
+ * @LastEditTime: 2022-11-28 12:39:48
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -211,7 +211,7 @@ const templateRoutes = [
     name: '网电销',
     path: '/template/netsale',
     meta: { title: '' },
-    component: () => import('@/views/templates/netsale/index.vue'),
+    component: () => import('@/views/template/product/detail/netsale.vue'),
   },
   {
     name: '赠险预览',

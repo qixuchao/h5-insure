@@ -4,7 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-26 11:54:40
+ * @LastEditTime: 2022-11-28 16:10:56
 =======
  * @LastEditors: kevin.liang
  * @LastEditTime: 2022-11-22 10:25:41
@@ -57,8 +57,8 @@ export default defineConfig((env) => {
           // target: 'http://150039-zat-planet-gateway.test.za-tech.net',
           // target: 'http://zat-planet-gateway.test.za-tech.net',
           // target: 'http://142461-zat-planet-gateway.test.za-tech.net',
-          // target: 'http://155382-zat-planet-gateway.test.za-tech.net',
-          target: 'http://142418-zat-planet-gateway.test.za-tech.net',
+          target: 'http://168429-zat-planet-gateway.test.za-tech.net',
+          // target: 'http://142418-zat-planet-gateway.test.za-tech.net',
           changeOrigin: true, // 允许跨域
         },
       },

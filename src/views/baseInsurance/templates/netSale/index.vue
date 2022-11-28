@@ -2,6 +2,9 @@
   <van-config-provider :theme-vars="themeVars">
     <ProPageWrap class="net-sale-wrap">
       <InsureForm ref="formRef" :form-info="detail" :factor-object="factorObj"></InsureForm>
+      <div class="footer-button">
+        <van-button type="primary" block @click="insured">分享用户确认投保</van-button>
+      </div>
     </ProPageWrap>
   </van-config-provider>
   <HealthNoticePreview
@@ -31,17 +34,16 @@ import { debounce } from 'lodash';
 
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
 import { PackageProductVoItem, ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
-
+import { productDetail } from '@/api/modules/product';
 import {
-  premiumCalc,
   insureProductDetail,
+  premiumCalc,
   getOrderDetailByCondition,
   saveOrder,
   underwrite,
   getPayUrl,
   getTenantOrderDetail,
 } from '@/api/modules/trial';
-import { productDetail } from '@/api/modules/product';
 import InsureForm from '../components/InsureForm/index.vue';
 
 import { ORIGIN, toLocal } from '@/utils';
@@ -64,28 +66,9 @@ import {
   RELATION_HOLDER_ENUM,
   PAYMENT_FREQUENCY_ENUM,
 } from '@/common/constants/infoCollection';
-import Banner from '../components/Banner/index.vue';
-import Desc from '../components/Desc/index.vue';
-import Guarantee from '../components/Guarantee/index.vue';
-import ScrollInfo from '../components/ScrollInfo/index.vue';
-import HolderInsureForm from '../components/HolderInsureForm/index.vue';
-import Waiting from '../components/Waiting/index.vue';
-// import UpgradeModal from '../components/UpgradeModal/index.vue';
 import PreNotice from '../components/PreNotice/index.vue';
 import FilePreview from '../components/FilePreview/index.vue';
 import HealthNoticePreview from '../components/HealthNoticePreview/index.vue';
-
-import {
-  AuthType,
-  defaultAuth,
-  freeAuthDefault,
-  checkAuth,
-  orderAuth,
-  noPayAuth,
-  noBuyAuth,
-  allAuth,
-  holderAuth,
-} from '../auth';
 // 调用主题
 const themeVars = useTheme();
 const router = useRouter();
@@ -108,8 +91,8 @@ interface PayHtml {
 }
 
 const {
-  productCode = 'BWYL2021',
-  tenantId,
+  productCode = '03O4',
+  tenantId = '0',
   orderNo,
   phoneNo: mobile,
   agentCode = '',
@@ -125,7 +108,7 @@ const factorObj = {
   1: [
     {
       attributeValues: null,
-      code: 'certNo',
+      code: 'mobile',
       datasource: null,
       defaultValue: null,
       displayType: null,
@@ -143,11 +126,35 @@ const factorObj = {
       position: null,
       productCode: 'lin23323',
       productId: null,
-      title: '证件号码',
+      title: '手机号',
     },
     {
       attributeValues: null,
-      code: 'name',
+      code: 'verificationCode',
+      datasource: null,
+      defaultValue: null,
+      displayType: null,
+      factorId: null,
+      factorScript: null,
+      hasDefaultValue: 1,
+      id: 8249,
+      isDisplay: 1,
+      isHidden: 1,
+      isMustInput: 1,
+      isReadOnly: null,
+      moduleType: 1,
+      placeholder: null,
+      planCode: null,
+      position: null,
+      productCode: 'lin23323',
+      productId: null,
+      title: '验证码',
+    },
+  ], // 投保人
+  2: [
+    {
+      attributeValues: null,
+      code: 'mobile',
       datasource: null,
       defaultValue: null,
       displayType: null,
@@ -165,15 +172,36 @@ const factorObj = {
       position: null,
       productCode: 'lin23323',
       productId: null,
-      title: '姓名',
+      title: '手机号',
     },
-  ], // 投保人
-  2: [], // 被保人
+    {
+      attributeValues: null,
+      code: 'verificationCode',
+      datasource: null,
+      defaultValue: null,
+      displayType: null,
+      factorId: null,
+      factorScript: null,
+      hasDefaultValue: 1,
+      id: 8249,
+      isDisplay: 1,
+      isHidden: 1,
+      isMustInput: 1,
+      isReadOnly: null,
+      moduleType: 1,
+      placeholder: null,
+      planCode: null,
+      position: null,
+      productCode: 'lin23323',
+      productId: null,
+      title: '验证码',
+    },
+  ], // 被保人
   3: [], // 受益人
 };
 
 const formRef = ref();
-const detail = ref<ProductDetail>(); // 产品信息
+const detail = ref<ProductDetail>({}); // 产品信息
 const insureDetail = ref<ProductData>(); // 险种信息
 const premium = ref<number | null>(); // 保费
 const isPayBack = pageCode === 'payBack';
@@ -209,16 +237,13 @@ const trialData = reactive({
   mobileSmsCode: '',
 });
 
-// 表单是否可修改, 默认先从链接取，然后再根据不同的入口修改
-const defaultFormAuth = ref<AuthType>(defaultAuth);
-const formAuth = ref<AuthType>(defaultAuth);
-
-// 按钮是否可点击
-const buttonAuth = reactive({
-  showInsure: !isPayBack, // 按钮文字，显示‘立即投保’
-  canInsure: false, // 可以投保
-  canUpgrade: false, // 可以升级
-});
+const insured = () => {
+  if (formRef.value) {
+    formRef.value.validateForm().then((data) => {
+      console.log('formData', data);
+    });
+  }
+};
 
 // 健康告知
 const healthAttachmentList = computed(() => {
@@ -321,22 +346,6 @@ const onClose = () => {
   showModal.value = false;
 };
 
-// 重置、表格回到默认权限
-const onReset = () => {
-  formAuth.value = defaultFormAuth.value;
-};
-
-// 在formAuth的基础上，被保险人可以修改
-const onUpdate = () => {
-  formAuth.value = {
-    ...formAuth.value,
-    relationToHolderDisable: false, // 投被保人关系可以修改
-    insuredNameDisable: false, // 被保人姓名可以修改
-    insuredCertDisable: false, // 被保人证件号可以修改
-    insuredSocialDisable: false, // 被保人社保可以修改
-  };
-};
-
 // 核保 - 参数和保存订单一样, TODO any
 const onUnderWrite = async (o: any) => {
   Toast.loading({
@@ -381,9 +390,8 @@ const onUnderWrite = async (o: any) => {
         }
       }
     }
-    buttonAuth.canInsure = true;
   } catch (e) {
-    buttonAuth.canInsure = true;
+    console.log(e);
   }
 };
 
@@ -441,7 +449,7 @@ const onSaveOrder = async (risk: any) => {
       });
     }
   } catch (e) {
-    buttonAuth.canInsure = true;
+    console.log(e);
   }
 };
 
@@ -492,7 +500,6 @@ const onPremiumCalcWithValid = () => {
       ?.validateForm?.()
       .then(async () => {
         if (!onCheckCustomer()) {
-          buttonAuth.canInsure = true;
           return;
         }
         // 表单验证通过再检查是否逐条阅读
@@ -538,9 +545,7 @@ const onPremiumCalcWithValid = () => {
           reject(new Error());
         }
       })
-      .catch(() => {
-        buttonAuth.canInsure = true;
-      });
+      .catch(() => {});
   });
 };
 
@@ -549,7 +554,6 @@ const onNext = async () => {
     onConfirm();
     return;
   }
-  buttonAuth.canInsure = false;
   try {
     const { condition, data } = await onPremiumCalcWithValid();
 
@@ -566,7 +570,7 @@ const onNext = async () => {
     const risk = transformData({ tenantId, riskList: condition, riskPremium, productId: detail.value?.id as number });
     onSaveOrder(risk);
   } catch (e) {
-    buttonAuth.canInsure = true;
+    console.log(e);
   }
 };
 
@@ -576,7 +580,6 @@ const onCloseHealth = (type: string) => {
     showHealthPreview.value = false;
     isAgreeFile.value = true;
     onNext();
-    buttonAuth.canInsure = true;
   } else {
     Dialog.confirm({
       message: '您当前的健康状况不符合该产品',
@@ -588,7 +591,6 @@ const onCloseHealth = (type: string) => {
       .catch(() => {
         formRef.value?.reEditForm();
         isAgreeFile.value = false;
-        buttonAuth.canInsure = true;
       });
   }
 };
@@ -596,7 +598,6 @@ const onCloseHealth = (type: string) => {
 const resetCanInsureBtn = () => {
   formRef.value?.reEditForm();
   isAgreeFile.value = false;
-  buttonAuth.canInsure = true;
 };
 
 const onCloseHealthPopup = () => {
@@ -672,7 +673,6 @@ const getOrderById = async () => {
         paymentFrequency: extInfo.extraInfo.paymentFrequency,
         renewalDK: extInfo.extraInfo.renewalDK || 'N',
       });
-      buttonAuth.canInsure = true;
 
       // formAuth.value = noBuyAuth;
       // defaultFormAuth.value = noBuyAuth;
@@ -705,7 +705,6 @@ const getOrderById = async () => {
       data.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY ||
       data.orderStatus === ORDER_STATUS_ENUM.PAYMENT_SUCCESS
     ) {
-      buttonAuth.canUpgrade = true;
       // 隐藏等待页面
       showWaiting.value = false;
       // 显示升级弹框
@@ -734,46 +733,6 @@ const getOrderByMobile = async () => {
   });
   const { code, data } = res;
   // 订单状态为承保时，投保人信息不可修改
-  if (data.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY) {
-    console.log('已承保，被保人信息不能修改');
-    formAuth.value = { ...holderAuth, paymentDisable: !!paymentMethod };
-    defaultFormAuth.value = { ...holderAuth, paymentDisable: !!paymentMethod };
-  }
-  // 支付中，超时可以修改投保人信息
-  if (data.orderStatus === ORDER_STATUS_ENUM.PAYING || data.orderStatus === ORDER_STATUS_ENUM.TIMEOUT) {
-    console.log('支付中，超时可以修改投保人信息');
-    formAuth.value = { ...allAuth, paymentDisable: !!paymentMethod };
-    defaultFormAuth.value = { ...allAuth, paymentDisable: !!paymentMethod };
-  }
-
-  if (code === '10000' && data?.tenantOrderHolder?.certNo) {
-    buttonAuth.canInsure = true;
-
-    const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
-    Object.assign(trialData, {
-      holder: {
-        certNo: tenantOrderHolder.certNo,
-        certType: tenantOrderHolder.certType,
-        mobile: tenantOrderHolder.mobile,
-        name: tenantOrderHolder.name,
-        socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
-      },
-      insured: {
-        certNo: tenantOrderInsuredList?.[0].certNo,
-        certType: tenantOrderInsuredList[0]?.certType,
-        name: tenantOrderInsuredList[0]?.name,
-        socialFlag: tenantOrderInsuredList[0]?.extInfo?.hasSocialInsurance,
-        relationToHolder: tenantOrderInsuredList[0]?.relationToHolder,
-      },
-      paymentMethod: paymentMethod || extInfo.extraInfo.paymentMethod,
-      renewalDK: extInfo.extraInfo.renewalDK,
-    });
-  } else {
-    // 没有订单，除了手机号都可以修改
-    formAuth.value = { ...checkAuth, paymentDisable: !!paymentMethod };
-    defaultFormAuth.value = { ...checkAuth, paymentDisable: !!paymentMethod };
-    buttonAuth.canInsure = true;
-  }
 };
 
 const fetchData = async () => {
@@ -801,19 +760,9 @@ const fetchData = async () => {
   }
 };
 
-// 从链接上去参数，设置表单权限
-const setFormAuth = () => {
-  // 投保链接
-  console.log('投保链接');
-  formAuth.value = allAuth;
-  defaultFormAuth.value = allAuth;
-  buttonAuth.canInsure = true;
-  // 短信进入，查数据，再设置是否可以修改
-};
-
 onMounted(() => {
   // setFormAuth();
-  // fetchData();
+  fetchData();
   // 调用千里眼插件获取一个iseeBiz
   setTimeout(async () => {
     iseeBizNo = window.getIseeBiz && (await window.getIseeBiz());
