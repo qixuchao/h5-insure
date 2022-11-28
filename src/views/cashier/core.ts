@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-11-28 17:18:44
+ * @LastEditTime: 2022-11-28 21:36:49
  * @Description:
  */
 import wx from 'weixin-js-sdk';
@@ -31,6 +31,7 @@ export const usePay = (payParam: PayParam) => {
     ...payParam,
     extraInfo: JSON.stringify({
       wxCode: payParam.code,
+      redirectUrl: `${window.location.origin}/cashier/payResult`,
     }),
   }).then((res) => {
     const { code, message, data } = res;
@@ -55,7 +56,7 @@ export const usePay = (payParam: PayParam) => {
         });
       } else {
         console.log('H5支付结果----', res.data);
-        window.location.replace(res.data.mweb_url);
+        window.location.href = res.data.mweb_url;
 
         // window.location.href = `/cashier/pay?orderNo=${payParam.orderNo}&ISEE_BIZ=${payParam.ISEE_BIZ}`;
         // console.log('跳转收银台页面');

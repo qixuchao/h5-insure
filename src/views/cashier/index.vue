@@ -142,22 +142,12 @@ const goPay = () => {
     payWay: payWay.value,
     srcType: srcType.value,
     code: query.code,
+    extraInfo: JSON.stringify({
+      redirectRrl: `${window.location.protocol}//${window.location.host}/cashier/payResult`,
+      wxCode: query.code,
+    }),
     redirectUrl: `${window.location.protocol}//${window.location.host}/cashier/payResult`,
   });
-  // pay({
-  //   ...(orderInfo.value as PayParam),
-  //   ...(srcType.value === 'h5' ? weixinH5 : js),
-  //   srcType: srcType.value,
-  //   redirectUrl: `${window.location.protocol}//${window.location.host}/cashier/payResult`,
-  // }).then((resp) => {
-  //   console.log('支付结果', resp.data.redirect_url);
-  //   if (resp.code === '10000') {
-  //     const { redirect_url: redirectUrl } = resp.data;
-  //     // window.document.referrer = 'h5-test.ennejb.cn';
-  //     console.log('---------', resp.data);
-  //     // window.location.href = redirectUrl;
-  //   }
-  // });
 };
 const { copy, copied, isSupported } = useClipboard({ source: '' });
 const onCopy = () => {
@@ -190,7 +180,7 @@ onMounted(() => {
     const url = `${window.location.href}`;
     console.log('当前url', url);
     if (!query.code) {
-      window.location.href = getWxAuthCode({ appId, url });
+      window.location.href = getWxAuthCode({ appId, url: encodeURIComponent(url) });
     } else {
       console.log('获取订单信息');
       getOrderDetail();
