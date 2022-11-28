@@ -1,7 +1,7 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
     <ProPageWrap class="net-sale-wrap">
-      <InsureForm ref="formRef" :form-info="detail" :factor-object="factorObj"></InsureForm>
+      <InsureForm ref="formRef" :form-info="detail" :send-sms-code="() => {}" :factor-object="factorObj"></InsureForm>
       <div class="footer-button">
         <van-button type="primary" block @click="insured">分享用户确认投保</van-button>
       </div>
@@ -104,106 +104,11 @@ const {
   from,
 } = route.query as QueryData;
 
-const factorObj = {
-  1: [
-    {
-      attributeValues: null,
-      code: 'mobile',
-      datasource: null,
-      defaultValue: null,
-      displayType: null,
-      factorId: null,
-      factorScript: null,
-      hasDefaultValue: 1,
-      id: 8249,
-      isDisplay: 1,
-      isHidden: 1,
-      isMustInput: 2,
-      isReadOnly: null,
-      moduleType: 1,
-      placeholder: null,
-      planCode: null,
-      position: null,
-      productCode: 'lin23323',
-      productId: null,
-      title: '手机号',
-    },
-    {
-      attributeValues: null,
-      code: 'verificationCode',
-      datasource: null,
-      defaultValue: null,
-      displayType: null,
-      factorId: null,
-      factorScript: null,
-      hasDefaultValue: 1,
-      id: 8249,
-      isDisplay: 1,
-      isHidden: 1,
-      isMustInput: 1,
-      isReadOnly: null,
-      moduleType: 1,
-      placeholder: null,
-      planCode: null,
-      position: null,
-      productCode: 'lin23323',
-      productId: null,
-      title: '验证码',
-    },
-  ], // 投保人
-  2: [
-    {
-      attributeValues: null,
-      code: 'mobile',
-      datasource: null,
-      defaultValue: null,
-      displayType: null,
-      factorId: null,
-      factorScript: null,
-      hasDefaultValue: 1,
-      id: 8249,
-      isDisplay: 1,
-      isHidden: 1,
-      isMustInput: 2,
-      isReadOnly: null,
-      moduleType: 1,
-      placeholder: null,
-      planCode: null,
-      position: null,
-      productCode: 'lin23323',
-      productId: null,
-      title: '手机号',
-    },
-    {
-      attributeValues: null,
-      code: 'verificationCode',
-      datasource: null,
-      defaultValue: null,
-      displayType: null,
-      factorId: null,
-      factorScript: null,
-      hasDefaultValue: 1,
-      id: 8249,
-      isDisplay: 1,
-      isHidden: 1,
-      isMustInput: 1,
-      isReadOnly: null,
-      moduleType: 1,
-      placeholder: null,
-      planCode: null,
-      position: null,
-      productCode: 'lin23323',
-      productId: null,
-      title: '验证码',
-    },
-  ], // 被保人
-  3: [], // 受益人
-};
-
 const formRef = ref();
 const detail = ref<ProductDetail>({}); // 产品信息
 const insureDetail = ref<ProductData>(); // 险种信息
 const premium = ref<number | null>(); // 保费
+const factorObj = ref<any>({});
 const isPayBack = pageCode === 'payBack';
 const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
 const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
@@ -736,23 +641,23 @@ const getOrderByMobile = async () => {
 };
 
 const fetchData = async () => {
-  const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
-  const insureReq = insureProductDetail({ productCode });
-  await Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
-    if (productRes.code === '10000') {
-      detail.value = productRes.data;
-      document.title = productRes.data?.productFullName || '';
-    }
+  // const { code, data } = await productDetail({ productCode, withInsureInfo: true, tenantId });
+  // if (code === '10000') {
+  //   detail.value = data;
+  //   document.title = data.productFullName || '';
+  // }
 
-    if (insureRes.code === '10000') {
-      trialData.packageProductList = (insureRes.data?.packageProductVOList || []).map((item: PackageProductVoItem) => ({
-        ...item,
-        value: INSURE_TYPE_ENUM.UN_INSURE,
-        disabled: false,
-      }));
-      insureDetail.value = insureRes.data;
-    }
-  });
+  const { code: resCode, data: resData } = await insureProductDetail({ productCode });
+
+  if (resCode === '10000') {
+    trialData.packageProductList = (resData.data?.packageProductVOList || []).map((item: PackageProductVoItem) => ({
+      ...item,
+      value: INSURE_TYPE_ENUM.UN_INSURE,
+      disabled: false,
+    }));
+    insureDetail.value = resData.data;
+    factorObj.value = resData.productFactor;
+  }
 
   if (orderNo) {
     // 这里要轮询，支付完成后，跳转回来，订单状态可能没有及时更新

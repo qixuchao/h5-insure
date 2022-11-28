@@ -12,7 +12,7 @@
         <ProRadioButton
           v-model="state.formInfo.relationToInsured"
           :is-view="isView"
-          :options="queryFactorAttr('relationToHolder', 'attributeValueList')"
+          :options="queryFactorAttr('relationToHolder', 'attributeValueList') || []"
         />
       </template>
     </ProField>
@@ -26,7 +26,7 @@
       <template #input>
         <ProRadioButton
           v-model="state.formInfo.insuredBeneficiaryType"
-          :options="queryFactorAttr('insuredBeneficiaryType', 'attributeValueList')"
+          :options="queryFactorAttr('insuredBeneficiaryType', 'attributeValueList') || []"
         ></ProRadioButton>
       </template>
     </ProField>
@@ -40,7 +40,7 @@
       <template #input>
         <ProRadioButton
           v-model="state.formInfo.insuredRelation"
-          :options="queryFactorAttr('insuredRelation', 'attributeValueList')"
+          :options="queryFactorAttr('insuredRelation', 'attributeValueList') || []"
         ></ProRadioButton>
       </template>
     </ProField>
@@ -65,7 +65,7 @@
           v-model="state.formInfo.gender"
           :disabled="isIdCard"
           :is-view="isView"
-          :options="queryFactorAttr('sex', 'attributeValueList')"
+          :options="queryFactorAttr('sex', 'attributeValueList') || []"
         ></ProRadioButton>
       </template>
     </ProField>
@@ -84,7 +84,7 @@
       v-model="state.formInfo.certType"
       :label="queryFactorAttr('certType', 'title')"
       :name="`${prefix}_certType`"
-      :data-source="queryFactorAttr('certType', 'attributeValueList')"
+      :data-source="queryFactorAttr('certType', 'attributeValueList') || []"
       :required="isRequiredByFactor('certType')"
       :rules="[{ validator: validateCertType }]"
     ></ProPicker>
@@ -172,7 +172,7 @@
         <ProRadioButton
           v-model="state.formInfo.extInfo.hasSocialInsurance"
           :is-view="isView"
-          :options="queryFactorAttr('social', 'attributeValueList')"
+          :options="queryFactorAttr('social', 'attributeValueList') || []"
         ></ProRadioButton>
       </template>
     </ProField>
@@ -209,7 +209,7 @@
         <ProRadioButton
           v-model="state.formInfo.extInfo.hasSocialInsurance"
           :is-view="isView"
-          :options="queryFactorAttr('insuredRiskManagementLevel', 'attributeValueList')"
+          :options="queryFactorAttr('insuredRiskManagementLevel', 'attributeValueList') || []"
         ></ProRadioButton>
       </template>
     </ProField>
@@ -225,7 +225,7 @@
         <ProRadioButton
           v-model="state.formInfo.extInfo.hasSocialInsurance"
           :is-view="isView"
-          :options="queryFactorAttr('purchaseOtherInsurance', 'attributeValueList')"
+          :options="queryFactorAttr('purchaseOtherInsurance', 'attributeValueList') || []"
         ></ProRadioButton>
       </template>
     </ProField>
@@ -241,7 +241,7 @@
         <ProRadioButton
           v-model="state.formInfo.extInfo.injuryInsurance"
           :is-view="isView"
-          :options="queryFactorAttr('injuryInsurance', 'attributeValueList')"
+          :options="queryFactorAttr('injuryInsurance', 'attributeValueList') || []"
         ></ProRadioButton>
       </template>
     </ProField>
@@ -296,7 +296,7 @@
       v-model="state.formInfo.extInfo.nationalityCode"
       :label="queryFactorAttr('country', 'title')"
       :name="`${prefix}_nationalityCode`"
-      :data-source="queryFactorAttr('country', 'attributeValueList')"
+      :data-source="queryFactorAttr('country', 'attributeValueList') || []"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
       placeholder="请选择"
       :required="isRequiredByFactor('country')"
@@ -314,7 +314,7 @@
         <ProRadioButton
           v-model="state.formInfo.extInfo.hasUsCard"
           :is-view="isView"
-          :options="queryFactorAttr('hasUsCard', 'attributeValueList')"
+          :options="queryFactorAttr('hasUsCard', 'attributeValueList') || []"
         ></ProRadioButton>
       </template>
     </ProField>
@@ -324,7 +324,7 @@
       :label="queryFactorAttr('marritalStatus', 'title')"
       :name="`${prefix}_marriageStatus`"
       placeholder="请选择"
-      :data-source="queryFactorAttr('marritalStatus', 'attributeValueList')"
+      :data-source="queryFactorAttr('marritalStatus', 'attributeValueList') || []"
       is-link
       :required="isRequiredByFactor('marritalStatus')"
     ></ProPicker>
@@ -333,7 +333,7 @@
       v-model="state.formInfo.extInfo.educationDegree"
       :label="queryFactorAttr('degree', 'title')"
       :name="`${prefix}_educationDegree`"
-      :data-source="queryFactorAttr('degree', 'attributeValueList')"
+      :data-source="queryFactorAttr('degree', 'attributeValueList') || []"
       :mapping="{ label: 'name', value: 'code', children: 'child' }"
       placeholder="请选择"
       :required="isRequiredByFactor('degree')"
@@ -380,7 +380,7 @@
         <ProRadioButton
           v-model="state.formInfo.isSmoke"
           :is-view="isView"
-          :options="queryFactorAttr('isSmoke', 'attributeValueList')"
+          :options="queryFactorAttr('isSmoke', 'attributeValueList') || []"
         ></ProRadioButton>
       </template>
     </ProField>
@@ -495,7 +495,7 @@
         <ProRadioButton
           v-model="state.formInfo.extInfo.chineseTaxResident"
           :is-view="isView"
-          :options="queryFactorAttr('chineseTaxResident', 'attributeValueList')"
+          :options="queryFactorAttr('chineseTaxResident', 'attributeValueList') || []"
         ></ProRadioButton>
       </template>
     </ProField>
@@ -504,7 +504,7 @@
       v-model="state.formInfo.taxResident"
       :label="queryFactorAttr('taxResident', 'title')"
       :name="`${prefix}_benefitOrder`"
-      :data-source="queryFactorAttr('taxResident', 'attributeValueList')"
+      :data-source="queryFactorAttr('taxResident', 'attributeValueList') || []"
       :required="isRequiredByFactor('taxResident')"
     >
     </ProPicker>
@@ -520,7 +520,7 @@
         <ProRadioButton
           v-model="state.formInfo.extInfo.isPartTime"
           :is-view="isView"
-          :options="queryFactorAttr('partTimeJob', 'attributeValueList')"
+          :options="queryFactorAttr('partTimeJob', 'attributeValueList') || []"
         ></ProRadioButton>
       </template>
     </ProField>
@@ -538,7 +538,7 @@
       v-model="state.formInfo.benefitOrder"
       :label="queryFactorAttr('benefitOrder', 'title')"
       :name="`${prefix}_benefitOrder`"
-      :data-source="queryFactorAttr('benefitOrder', 'attributeValueList')"
+      :data-source="queryFactorAttr('benefitOrder', 'attributeValueList') || []"
       :required="isRequiredByFactor('benefitOrder')"
     >
     </ProPicker>
@@ -585,6 +585,7 @@ interface Props {
   // field的name前缀
   prefix: string;
   beneficiaryList: Array<any>;
+  sendSmsCode: (cb: () => void) => void;
 }
 
 interface FactorObj {
@@ -610,6 +611,7 @@ const props = withDefaults(defineProps<Props>(), {
   isView: false, // 页面状态是否为查看状态
   prefix: '', // 对投保人、被保人、受益人的数据进行区分
   beneficiaryList: () => [], // 受益人列表
+  sendSmsCode: (cb: () => {}) => {}, // 发送验证码
 });
 
 const state = ref({
@@ -643,6 +645,10 @@ const factorObj = computed(() => {
   return factor;
 });
 
+const isHolderMobileRight = computed(() => {
+  return /^1(3|4|5|6|7|8|9)\d{9}$/.test(state.value.formInfo.mobile);
+});
+
 const onCountDown = () => {
   if (countDownTimer.value > 0) return;
   countDownTimer.value = maxCountDown;
@@ -667,12 +673,13 @@ const onCaptha = async () => {
   if (countDownTimer.value > 0) {
     return;
   }
-
-  isSendSmsCode.value = true;
-  Toast({
-    message: '短信发送成功，请查收',
+  props.isSendSmsCode(() => {
+    isSendSmsCode.value = true;
+    Toast({
+      message: '短信发送成功，请查收',
+    });
+    onCountDown();
   });
-  onCountDown();
 };
 
 const handleOCR = (res: OCRResponse['idCardOcrVO']) => {

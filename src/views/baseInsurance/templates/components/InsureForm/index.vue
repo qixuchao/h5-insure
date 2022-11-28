@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-28 17:39:50
+ * @LastEditTime: 2022-11-28 21:32:54
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -16,6 +16,7 @@
           :factor-list="pageFactor.HOLDER"
           prefix="holder"
           :is-view="isView"
+          :send-sms-code="sendSmsCode"
         ></PersonalInfo>
       </ProCard>
       <ProCard v-if="pageFactor.INSURER?.length" :show-divider="false" title="为谁投保（被保人）">
@@ -25,6 +26,7 @@
           :form-info="formInfo.tenantOrderInsuredList[0]"
           :factor-list="pageFactor.INSURER || []"
           prefix="insure"
+          :send-sms-code="sendSmsCode"
           :is-view="isView"
         ></PersonalInfo>
       </ProCard>
@@ -46,6 +48,7 @@
               :factor-list="pageFactor.BENEFICIARY || []"
               :prefix="`beneficiary-${index}`"
               :is-view="isView"
+              :send-sms-code="sendSmsCode"
               :beneficiary-list="formInfo.tenantOrderInsuredList[0].tenantOrderBeneficiaryList"
             ></PersonalInfo>
           </div>
@@ -101,6 +104,7 @@ interface Props {
   factorObject: any; // 投保要素集合
   formData: {};
   isView?: boolean;
+  sendSmsCode?: (cb: () => void) => void;
 }
 
 type BeneficiaryItem = TenantOrderBeneficiaryItem & { beneficiaryId?: number };
@@ -116,6 +120,7 @@ const props = withDefaults(defineProps<Props>(), {
   factorList: () => [],
   formData: () => ({}),
   isView: false,
+  sendSmsCode: (cb) => {},
 });
 
 const pageFactor = ref<FactorEnums>({});
@@ -211,15 +216,22 @@ defineExpose({
   validateForm,
 });
 
-onBeforeMount(() => {
-  // 将页面因子根据投保人、被保人、受益人进行分类
-  const factorObj = {
-    BENEFICIARY: props.factorObject[3] as ProductInsureFactorItem[],
-    INSURER: props.factorObject[2] as ProductInsureFactorItem[],
-    HOLDER: props.factorObject[1] as ProductInsureFactorItem[],
-  };
-  pageFactor.value = factorObj;
-});
+watch(
+  () => props.factorObject,
+  () => {
+    // 将页面因子根据投保人、被保人、受益人进行分类
+    const factorObj = {
+      BENEFICIARY: props.factorObject[3] as ProductInsureFactorItem[],
+      INSURER: props.factorObject[2] as ProductInsureFactorItem[],
+      HOLDER: props.factorObject[1] as ProductInsureFactorItem[],
+    };
+    pageFactor.value = factorObj;
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
 
 // 监听被保人的与投保人关系，如果被保人同投保人则将
 watch(
