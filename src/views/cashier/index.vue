@@ -11,16 +11,20 @@
       </div>
     </div>
     <RadioGroup v-model="payWay">
-      <div v-for="way in payWayList" :key="way.name" class="pay-wrapper">
+      <!-- <div v-for="way in payWayList" :key="way.name" class="pay-wrapper">
         <span><img :src="way.img" />微信签约</span>
         <Radio :name="way.name"></Radio>
+      </div> -->
+      <div v-for="way in ['wxSign', 'wxPay']" :key="way" class="pay-wrapper">
+        <span>微信{{ way }}</span>
+        <Radio :name="way"></Radio>
       </div>
     </RadioGroup>
     <div style="margin-bottom: 50px">
       <RadioGroup v-model="srcType">
         <div v-for="way in ['h5', 'js']" :key="way" style="margin-bottom: 20px">
           <Radio :name="way"
-            ><span>微信{{ way }}签约</span></Radio
+            ><span>{{ way }}</span></Radio
           >
         </div>
       </RadioGroup>
@@ -30,16 +34,19 @@
 </template>
 
 <script lang="ts" setup name="Cashier">
-import { Radio, RadioGroup, Toast } from 'vant';
+import { Loading, Radio, RadioGroup, Toast } from 'vant';
 import { useClipboard } from '@vueuse/core';
 import useAppStore from '@/store/app';
 import { GetPayUrlParam, PayParam } from '@/api/modules/cashier.data';
 import { getPayUrl, loadPayment, pay } from '@/api/modules/cashier';
 import { PAY_WAY_ENUM, getPayWayList } from './constant';
-import { isWeiXin, getWxAuthCode } from './core';
+import { isWeiXin, getWxAuthCode, sendPay } from './core';
 /**
  * 本页面主要给H5或公众号页面使用
  * 可以选择支付方式【微信、支付宝(微信内打开不展示)】
+ * payChannel: 'weixin', 支付渠道  weixin微信 或  alipay支付宝
+ * payWay: 'wxsign', 支付方式 微信签约或微信支付   支付宝支付或支付宝签约
+ * srcType: 'h5',  签约
  */
 
 // 页面参数
@@ -66,9 +73,11 @@ const payWayList = getPayWayList(query.payWay || PAY_WAY_ENUM.WXPAY);
 
 const orderInfo = ref<OrderInfo>();
 const payParam = ref<PayParam>();
+const loading = ref(false);
 const payWay = ref(PAY_WAY_ENUM.WX_SIGN); // 支付方式
+const srcType = ref('h5');
 
-const weixinH5 = {
+const h5 = {
   tenantId: 9991000001,
   orderNo: 'P22112209475199910000017500221916',
   orderName: '测试产品',
@@ -79,8 +88,8 @@ const weixinH5 = {
   currency: 'CNY',
   balance: null,
   payChannel: 'weixin',
-  payWay: 'wxsign',
-  srcType: 'h5',
+  payWay: 'wxSign',
+  srcType: 'H5',
   tradeType: null,
   status: '等待支付',
   expireTime: '2022-11-22T23:59:59',
@@ -97,7 +106,7 @@ const weixinH5 = {
   openid: null,
   code: null,
 };
-const weixinSign = {
+const js = {
   tenantId: 9991000001,
   orderNo: 'P22112209475199910000017500221915',
   orderName: 'JS15',
@@ -108,7 +117,7 @@ const weixinSign = {
   currency: 'CNY',
   balance: null,
   payChannel: 'weixin',
-  payWay: 'wxsign',
+  payWay: 'wxSign',
   srcType: 'js',
   tradeType: null,
   status: '等待支付',
@@ -126,26 +135,53 @@ const weixinSign = {
   openid: null,
   code: null,
 };
-const srcType = ref('h5');
+
 const goPay = () => {
-  pay({
+  sendPay({
     ...(orderInfo.value as PayParam),
-    ...(srcType.value === 'h5' ? weixinH5 : weixinSign),
+    payWay: payWay.value,
     srcType: srcType.value,
-    returnWeb: `${window.location.protocol}//${window.location.host}/cashier/payResult`,
-  }).then((resp) => {
-    console.log('支付结果', resp.data.redirect_url);
-    if (resp.code === '10000') {
-      const { redirect_url: redirectUrl } = resp.data;
-      // window.document.referrer = 'h5-test.ennejb.cn';
-      window.location.href = redirectUrl;
-    }
+    code: query.code,
+    redirectUrl: `${window.location.protocol}//${window.location.host}/cashier/payResult`,
   });
+  // pay({
+  //   ...(orderInfo.value as PayParam),
+  //   ...(srcType.value === 'h5' ? weixinH5 : js),
+  //   srcType: srcType.value,
+  //   redirectUrl: `${window.location.protocol}//${window.location.host}/cashier/payResult`,
+  // }).then((resp) => {
+  //   console.log('支付结果', resp.data.redirect_url);
+  //   if (resp.code === '10000') {
+  //     const { redirect_url: redirectUrl } = resp.data;
+  //     // window.document.referrer = 'h5-test.ennejb.cn';
+  //     console.log('---------', resp.data);
+  //     // window.location.href = redirectUrl;
+  //   }
+  // });
 };
 const { copy, copied, isSupported } = useClipboard({ source: '' });
 const onCopy = () => {
   copy(orderInfo.value?.orderNo);
   Toast('已拷贝到您的粘贴板');
+};
+
+const getOrderDetail = () => {
+  // todo 处理URL参数不对的情况
+  loading.value = true;
+  loadPayment({
+    orderNo: query.orderNo || 'P2211220947519991000001750022183',
+    tenantId: query.tenantId || '9991000001',
+    // ...query,
+  })
+    .then((res) => {
+      console.log('获取订单信息', res);
+      if (res.code === '10000') {
+        orderInfo.value = res.data;
+      }
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 onMounted(() => {
   //  微信环境，跳转微信授权
@@ -155,18 +191,12 @@ onMounted(() => {
     console.log('当前url', url);
     if (!query.code) {
       window.location.href = getWxAuthCode({ appId, url });
+    } else {
+      console.log('获取订单信息');
+      getOrderDetail();
     }
   } else {
-    loadPayment({
-      orderNo: query.orderNo || 'P2211220947519991000001750022183',
-      tenantId: query.tenantId || '9991000001',
-      // ...query,
-    }).then((res) => {
-      console.log('获取订单信息', res);
-      if (res.code === '10000') {
-        orderInfo.value = res.data;
-      }
-    });
+    getOrderDetail();
   }
 });
 </script>
@@ -190,6 +220,10 @@ onMounted(() => {
   .order-info {
     color: #8e8e8e;
     line-height: 40px;
+    font-size: 28px;
+  }
+  .order-name {
+    font-size: 32px;
   }
 }
 .pay-wrapper {
@@ -198,7 +232,8 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 70px auto 216px;
+  // margin: 70px auto 216px;
+  margin: 20px auto 20px;
   background: #ffffff;
   border-radius: 20px;
   padding: 20px;

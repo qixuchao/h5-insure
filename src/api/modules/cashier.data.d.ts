@@ -40,8 +40,9 @@ export interface PayParam {
   srcType: string;
   status: string;
   systemCurrentTime: Date;
-  tenantId: number;
+  tenantId: string;
   tradeType: string;
+  ISEE_BIZ: string;
 }
 
 /**
@@ -49,4 +50,10 @@ export interface PayParam {
  */
 interface PayResult extends PayParam {
   redirect_url: string;
+  timeStamp: string;
+   nonceStr: string;
+   prepayId: string;
+   sign_type: 'SHA1' | 'MD5';
+   sign: string;
+   mweb_url: string;
 }
