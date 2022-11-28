@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-29 00:21:57
+ * @LastEditTime: 2022-11-29 00:50:29
  * @Description:
 -->
 <template>
@@ -48,10 +48,6 @@
         >
           <img v-if="state.formInfo.paymentFrequency == item.paymentFrequency" :src="item.selectedPic" />
           <img v-else :src="item.unSelectedPic" />
-          <!-- <div class="pay-method">
-            <span class="method">{{ '按月交费' }}</span>
-            <span class="acount">{{ '共12期' }}</span>
-          </div> -->
         </div>
       </div>
       <div class="guarantee-date">
