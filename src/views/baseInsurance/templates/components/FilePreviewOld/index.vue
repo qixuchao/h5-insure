@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-28 17:14:01
+ * @LastEditTime: 2022-11-10 15:33:49
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -27,26 +27,8 @@
         class="tab"
       ></ProTab>
       <div ref="previewRef" class="list" @scroll="handleScroll">
-        <div v-if="attachmentActiveList.length === 1" class="item">
-          <ProFilePreview
-            :key="attachmentActiveList[0].attachmentName"
-            :content="attachmentActiveList[0].attachmentUri"
-            :type="attachmentActiveList[0].attachmentType"
-            :forbid-click="true"
-          />
-        </div>
-        <div v-else class="attachment-list">
-          <div
-            v-for="(item, index) in attachmentActiveList"
-            :key="index"
-            class="attachment-list-item"
-            @click="onClickFileItem(item)"
-          >
-            <div class="attachment-list-item-name">{{ item.attachmentName }}</div>
-            <div class="attachment-list-item-icon">
-              <ProSvg name="arrow-right"></ProSvg>
-            </div>
-          </div>
+        <div class="item">
+          <ProFilePreview :key="attachmentUri" :content="attachmentUri" type="pdf" :forbid-click="true" />
         </div>
       </div>
       <div class="footer">
@@ -107,13 +89,9 @@ const currentActiveIndex = ref<number>(props.activeIndex);
 const readCount = ref<number>(0);
 const previewRef = ref(null);
 
-const attachmentActiveList = computed(() => {
-  return formatedContentList.value?.[currentActiveIndex.value]?.attachmentList;
+const attachmentUri = computed(() => {
+  return formatedContentList.value?.[currentActiveIndex.value]?.attachmentUri;
 });
-
-// const attachmentUri = computed(() => {
-//   return formatedContentList.value?.[currentActiveIndex.value]?.attachmentUri;
-// });
 
 const isAgreeBtnDisabled = computed(() => {
   return formatedContentList.value[currentActiveIndex.value]?.readDisabled;
@@ -133,13 +111,6 @@ const showReadBtn = computed(() => {
   return false;
   // return formatedContentList.value.slice(0, props.forceReadCound).filter((e) => e.readDisabled).length > 0;
 });
-
-const onClickFileItem = (item: AttachmentVOList) => {
-  const { origin } = window.location;
-  console.log('item', item);
-  const url = `${origin}/template/filePreview?fileType=${item.attachmentType}&fileUri=${item.attachmentUri}`;
-  window.open(url);
-};
 
 const agreeForceReadFile = () => {
   currentActiveIndex.value += 1;
@@ -204,38 +175,6 @@ watch(
 .file-preview-popup-wrap {
   .custom-provider {
     height: 100%;
-
-    .attachment-list {
-      margin: 10px 32px 58px;
-
-      .attachment-list-item {
-        border-bottom: 1px solid #eeeeee;
-        line-height: 45px;
-        padding: 32px 0px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        .attachment-list-item-name {
-          font-size: 32px;
-          font-family: PingFangSC-Regular, PingFang SC;
-          font-weight: 400;
-          color: #333333;
-        }
-
-        .attachment-list-item-icon {
-          min-width: 86px;
-          text-align: right;
-
-          .svg-icon {
-            display: inline-block;
-            width: 32px;
-            height: 32px;
-            font-size: 32px;
-          }
-        }
-      }
-    }
   }
   .tab {
     height: 106px;

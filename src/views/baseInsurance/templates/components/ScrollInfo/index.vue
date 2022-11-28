@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-17 16:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-26 20:42:54
+ * @LastEditTime: 2022-11-28 11:50:45
  * @Description: 审核版首页
 -->
 <template>
@@ -19,7 +19,7 @@
       </div>
     </template>
     <template #tab2>
-      <ProCard title="理赔流程">
+      <CustomCard title="理赔流程">
         <ProTimeline
           v-if="props.detail?.tenantProductInsureVO?.settlementProcessVO.settlementProcessType === CLAIM_TYPE_ENUM.WORD"
           :list="props.detail?.tenantProductInsureVO?.settlementProcessVO?.settlementProcessList"
@@ -32,12 +32,12 @@
             :src="item"
             class="detail-img"
           />
-          <ProDivider />
         </div>
-      </ProCard>
-      <ProCard title="常见问题">
+      </CustomCard>
+      <ProDivider />
+      <CustomCard title="常见问题">
         <Question :list="props.detail?.tenantProductInsureVO?.questionList" />
-      </ProCard>
+      </CustomCard>
     </template>
     <template #tab3>
       <slot name="form" />
@@ -49,6 +49,7 @@
 import { Ref } from 'vue-demi';
 import { CLAIM_TYPE_ENUM } from '@/common/constants/infoCollection';
 import ProCard from '@/components/ProCard/index.vue';
+import CustomCard from '../CustomCard/index.vue';
 import ProDivider from '@/components/ProDivider/index.vue';
 import ProScrollTab from '@/components/ProScrollTab/index.vue';
 import ProTimeline from '@/components/ProTimeline/index.vue';

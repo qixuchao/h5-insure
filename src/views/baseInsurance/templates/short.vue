@@ -29,12 +29,31 @@
             @on-reset="onReset"
             @on-update="onUpdate"
           />
-          <PaymentType :form-info="trialData" :product-detail="detail" :show-config="detail?.showConfigVO" />
-          <div class="inscribedContent-content">
-            <div v-dompurify-html="detail?.tenantProductInsureVO.inscribedContent" class="content"></div>
-          </div>
+          <PaymentType
+            :form-info="trialData"
+            :product-detail="insureDetail"
+            :config-detail="detail"
+            :is-multiple-plan="isMultiplePlan"
+            :show-config="detail?.showConfigVO"
+          />
+          <GuaranteeForm
+            show-service-config
+            :data-source="detail?.tenantProductInsureVO"
+            :show-config="detail?.showConfigVO"
+            :is-multiple-plan="isMultiplePlan"
+            :active-plan-code="trialData.activePlanCode"
+            @update-active-plan="updateActivePlan"
+          />
         </template>
       </ScrollInfo>
+      <van-date-picker v-model="currentDate" title="选择年月" />
+
+      <InscribedContent :inscribed-content="detail?.tenantProductInsureVO.inscribedContent" />
+      <AttachmentList
+        :attachement-list="filterHealthAttachmentList"
+        pre-text="请阅读"
+        @preview-file="(index) => previewFile(index)"
+      />
       <div class="footer-button">
         <div class="price">
           总保费<span>
@@ -43,12 +62,18 @@
           </span>
         </div>
         <!-- @click="onNext" -->
-        <van-button type="primary" class="right" :disabled="!(buttonAuth.canInsure || buttonAuth.canUpgrade)">
+        <ProShadowButton
+          :shadow="false"
+          type="primary"
+          class="right"
+          :disabled="!(buttonAuth.canInsure || buttonAuth.canUpgrade)"
+          @click="onNext"
+        >
           {{ buttonAuth.showInsure ? '立即投保' : '升级保障' }}
-        </van-button>
+        </ProShadowButton>
       </div>
     </div>
-    <PreNotice v-if="!orderNo" :product-detail="detail"></PreNotice>
+    <!-- <PreNotice v-if="!orderNo" :product-detail="detail"></PreNotice> -->
   </van-config-provider>
   <HealthNoticePreview
     v-model:show="showHealthPreview"
@@ -84,8 +109,9 @@ import {
   SOCIAL_SECURITY_ENUM,
   RELATION_HOLDER_ENUM,
   PAYMENT_FREQUENCY_ENUM,
+  PAYMENT_COMMON_FREQUENCY_ENUM,
 } from '@/common/constants/infoCollection';
-import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
+import { ProductDetail, AttachmentVOList, PlanInsureVO } from '@/api/modules/product.data';
 import { PackageProductVoItem, ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
 
 import {
@@ -115,6 +141,7 @@ import { useTheme } from '../theme';
 import Banner from './components/Banner/index.vue';
 import Desc from './components/Desc/index.vue';
 import Guarantee from './components/Guarantee/index.vue';
+import GuaranteeForm from './components/GuaranteeForm/index.vue';
 import ScrollInfo from './components/ScrollInfo/index.vue';
 import HolderInsureForm from './components/HolderInsureForm/index.vue';
 import Waiting from './components/Waiting/index.vue';
@@ -122,6 +149,9 @@ import PreNotice from './components/PreNotice/index.vue';
 import FilePreview from './components/FilePreview/index.vue';
 import HealthNoticePreview from './components/HealthNoticePreview/index.vue';
 import PaymentType from './components/PaymentType/index.vue';
+import InscribedContent from './components/InscribedContent/index.vue';
+import AttachmentList from './components/AttachmentList/index.vue';
+import ProShadowButton from './components/ProShadowButton/index.vue';
 
 import {
   AuthType,
@@ -164,6 +194,8 @@ const {
   from,
 } = route.query as QueryData;
 
+const currentDate = ref(null);
+
 const formRef = ref();
 const detailScrollRef = ref();
 const detail = ref<ProductDetail>(); // 产品信息
@@ -197,7 +229,7 @@ const trialData = reactive({
   },
   paymentMethod,
   renewalDK: 'Y',
-  paymentFrequency: PAYMENT_FREQUENCY_ENUM.YEAR,
+  paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.MONTH,
   packageProductList: [],
   mobileSmsCode: '',
   activePlanCode: '',
@@ -246,20 +278,68 @@ const updateActivePlan = (planCode: string) => {
 
 // 健康告知
 const healthAttachmentList = computed(() => {
-  return (
-    (detail.value?.tenantProductInsureVO?.attachmentVOList || []).filter(
-      (item: AttachmentVOList) => item.attachmentName === '健康告知',
-    ) || []
-  );
+  return [];
+  // return (
+  //   (detail.value?.tenantProductInsureVO?.attachmentVOList || []).filter(
+  //     (item: AttachmentVOList) => item.attachmentName === '健康告知',
+  //   ) || []
+  // );
 });
 
 // 除健康告知的其他资料
 const filterHealthAttachmentList = computed(() => {
-  return (
-    (detail.value?.tenantProductInsureVO?.attachmentVOList || []).filter(
-      (item: AttachmentVOList) => item.attachmentName !== '健康告知',
-    ) || []
-  );
+  // return [];
+  let tempList: any = {};
+
+  if (isMultiplePlan) {
+    const planData = detail.value?.tenantProductInsureVO.planList.find(
+      (e: PlanInsureVO) => e.planCode === (trialData.activePlanCode || ''),
+    );
+    tempList = planData?.attachmentVOList;
+  } else {
+    tempList = detail.value?.tenantProductInsureVO.planInsureVO.attachmentVOList;
+  }
+
+  if (!tempList) return {};
+
+  // 1: 附件, 2: 富文本, 3: 链接
+  const fileMap = {
+    '2': 'richText',
+    '3': 'link',
+  };
+
+  console.log('tempList=============', tempList);
+
+  return Object.keys(tempList).map((e) => {
+    tempList[e].forEach((attachmentItem: AttachmentVOList) => {
+      if (attachmentItem.attachmentType === '1') {
+        const urlList = attachmentItem.attachmentUri.split('?');
+        const type = urlList[0].substr(urlList[0].lastIndexOf('.') + 1);
+        console.log('type', type);
+        // eslint-disable-next-line no-param-reassign
+        if (type === 'pdf') {
+          // eslint-disable-next-line no-param-reassign
+          attachmentItem.attachmentType = 'pdf';
+        } else {
+          // eslint-disable-next-line no-param-reassign
+          attachmentItem.attachmentType = 'picture';
+        }
+      } else {
+        // eslint-disable-next-line no-param-reassign
+        attachmentItem.attachmentType = fileMap[attachmentItem.attachmentType];
+      }
+    });
+    return {
+      attachmentName: e,
+      attachmentList: tempList[e],
+    };
+  });
+
+  // return (
+  //   (detail.value?.tenantProductInsureVO?.attachmentVOList || []).filter(
+  //     (item: AttachmentVOList) => item.attachmentName !== '健康告知',
+  //   ) || []
+  // );
 });
 
 // 滑动到投保信息
@@ -559,29 +639,28 @@ const onPremiumCalcWithValid = () => {
 };
 
 const onNext = async () => {
-  if (isPayBack) {
-    onConfirm();
-    return;
-  }
-  buttonAuth.canInsure = false;
-  try {
-    const { condition, data } = await onPremiumCalcWithValid();
+  showFilePreview.value = true;
+  previewFile(0);
 
-    const riskPremium = {};
-    const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
-      (premiumList || []).forEach((risk) => {
-        riskPremium[risk.riskCode] = risk;
-        if (risk.riskPremiumDetailVOList?.length) {
-          flatRiskPremium(risk.riskPremiumDetailVOList);
-        }
-      });
-    };
-    flatRiskPremium(data.riskPremiumDetailVOList);
-    const risk = transformData({ tenantId, riskList: condition, riskPremium, productId: detail.value?.id as number });
-    onSaveOrder(risk);
-  } catch (e) {
-    buttonAuth.canInsure = true;
-  }
+  // buttonAuth.canInsure = false;
+  // try {
+  //   const { condition, data } = await onPremiumCalcWithValid();
+
+  //   const riskPremium = {};
+  //   const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
+  //     (premiumList || []).forEach((risk) => {
+  //       riskPremium[risk.riskCode] = risk;
+  //       if (risk.riskPremiumDetailVOList?.length) {
+  //         flatRiskPremium(risk.riskPremiumDetailVOList);
+  //       }
+  //     });
+  //   };
+  //   flatRiskPremium(data.riskPremiumDetailVOList);
+  //   const risk = transformData({ tenantId, riskList: condition, riskPremium, productId: detail.value?.id as number });
+  //   onSaveOrder(risk);
+  // } catch (e) {
+  //   buttonAuth.canInsure = true;
+  // }
 };
 
 const onCloseHealth = (type: string) => {
@@ -843,6 +922,55 @@ const fetchData = async () => {
           ],
           planList: [
             {
+              attachmentVOList: {
+                test01: [
+                  {
+                    attachmentUri: 'attachmentUri',
+                    attachmentName: 'attachmentName',
+                    attachmentType: '2',
+                  },
+                  {
+                    attachmentUri: 'attachmentUri',
+                    attachmentName: 'attachmentName',
+                    attachmentType: '2',
+                  },
+                  {
+                    attachmentUri: 'attachmentUri',
+                    attachmentName: 'attachmentName',
+                    attachmentType: '2',
+                  },
+                ],
+                test02: [
+                  {
+                    attachmentUri:
+                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211281716479849efe6398bfaf46ae9b1398d8231e9f3a/%E6%B5%8B%E8%AF%95%E6%96%87%E4%BB%B6%E8%BD%ACpdf.pdf?Expires=1670231808&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=ggkR868z8tC09kUpHCfPoIj6Q4Q%3D',
+                    attachmentName:
+                      '华泰财险境内旅行人身意外伤害保华泰财险附加个人行李及随身物品保险条款华泰财险附加个人行李及随身物品保险条款险（互联网专属）条款',
+                    attachmentType: '1',
+                  },
+                  {
+                    attachmentUri:
+                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211281716479849efe6398bfaf46ae9b1398d8231e9f3a/%E6%B5%8B%E8%AF%95%E6%96%87%E4%BB%B6%E8%BD%ACpdf.pdf?Expires=1670231808&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=ggkR868z8tC09kUpHCfPoIj6Q4Q%3D',
+                    attachmentName:
+                      '华泰财险交通工具意外伤害保险（互联网华泰财险附加个人行李及随身物品保险条款专属）条款',
+                    attachmentType: '1',
+                  },
+                  {
+                    attachmentUri:
+                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211281716479849efe6398bfaf46ae9b1398d8231e9f3a/%E6%B5%8B%E8%AF%95%E6%96%87%E4%BB%B6%E8%BD%ACpdf.pdf?Expires=1670231808&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=ggkR868z8tC09kUpHCfPoIj6Q4Q%3D',
+                    attachmentName: '华泰财险附加个人行李及随身物品保险条款',
+                    attachmentType: '2',
+                  },
+                ],
+                test03: [
+                  {
+                    attachmentUri:
+                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/20221128162354430dbc9985444884d3d84ec003ef4ef5243/%E6%B5%8B%E8%AF%95%E6%96%87%E4%BB%B6%E8%BD%ACpdf.pdf?Expires=1670228634&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=XvDjImsW2A1KIHHW0UiqRty9fus%3D',
+                    attachmentName: 'attachmentName',
+                    attachmentType: '1',
+                  },
+                ],
+              },
               planName: '30万',
               planCode: 'z01',
               riskId: null,
@@ -938,7 +1066,7 @@ const fetchData = async () => {
               productPremiumVOList: [
                 {
                   paymentFrequency: '1',
-                  paymentFrequencyValue: '123',
+                  paymentFrequencyValue: '12334',
                   premiumUnit: '元起',
                 },
               ],
@@ -947,7 +1075,6 @@ const fetchData = async () => {
               premiumExplainName: null,
               premiumExplainUri: null,
               tabName: [],
-              attachmentVOList: {},
               productPlanInsureConditionVO: {
                 riskId: null,
                 waitPeriod: '12',
@@ -967,7 +1094,7 @@ const fetchData = async () => {
                 insurancePeriodValuesFlag: 1,
                 paymentPeriodValues: 'year_1',
                 paymentPeriodValuesFlag: 1,
-                paymentFrequency: '1',
+                paymentFrequency: '1,5',
                 paymentFrequencyFlag: 1,
                 annuityDrawValues: null,
                 annuityDrawValuesFlag: 1,
@@ -975,11 +1102,93 @@ const fetchData = async () => {
                 annuityDrawFrequencyFlag: 1,
                 hesitatePeriod: null,
                 hesitatePeriodFlag: null,
-                paymentFrequencyList: null,
+                paymentFrequencyList: [
+                  {
+                    selectedPic:
+                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282038575594289f4ac06414a7d9961338d1111fcef/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg%403x.png?Expires=1670243938&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=Bsem34IN0LdFd3NCotoXbO7tLJw%3D',
+                    skinName: '趸交',
+                    skinValue: '1',
+                    unSelectedPic:
+                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112820385374286567155d95149b5a7ed3297746e1149/%E8%83%8C%E6%99%AF%402x.png?Expires=1670243933&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=SM4RfxI04seVLQ5v7w7gepWTKQ8%3D',
+                  },
+                  {
+                    selectedPic:
+                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282038575594289f4ac06414a7d9961338d1111fcef/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg%403x.png?Expires=1670243938&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=Bsem34IN0LdFd3NCotoXbO7tLJw%3D',
+                    skinName: '月交',
+                    skinValue: '5',
+                    unSelectedPic:
+                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112820385374286567155d95149b5a7ed3297746e1149/%E8%83%8C%E6%99%AF%402x.png?Expires=1670243933&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=SM4RfxI04seVLQ5v7w7gepWTKQ8%3D',
+                  },
+                  {
+                    selectedPic:
+                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282038575594289f4ac06414a7d9961338d1111fcef/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg%403x.png?Expires=1670243938&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=Bsem34IN0LdFd3NCotoXbO7tLJw%3D',
+                    skinName: '趸交',
+                    skinValue: '1',
+                    unSelectedPic:
+                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112820385374286567155d95149b5a7ed3297746e1149/%E8%83%8C%E6%99%AF%402x.png?Expires=1670243933&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=SM4RfxI04seVLQ5v7w7gepWTKQ8%3D',
+                  },
+                  {
+                    selectedPic:
+                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282038575594289f4ac06414a7d9961338d1111fcef/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg%403x.png?Expires=1670243938&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=Bsem34IN0LdFd3NCotoXbO7tLJw%3D',
+                    skinName: '月交',
+                    skinValue: '5',
+                    unSelectedPic:
+                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112820385374286567155d95149b5a7ed3297746e1149/%E8%83%8C%E6%99%AF%402x.png?Expires=1670243933&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=SM4RfxI04seVLQ5v7w7gepWTKQ8%3D',
+                  },
+                  {
+                    selectedPic:
+                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282038575594289f4ac06414a7d9961338d1111fcef/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg%403x.png?Expires=1670243938&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=Bsem34IN0LdFd3NCotoXbO7tLJw%3D',
+                    skinName: '趸交',
+                    skinValue: '1',
+                    unSelectedPic:
+                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112820385374286567155d95149b5a7ed3297746e1149/%E8%83%8C%E6%99%AF%402x.png?Expires=1670243933&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=SM4RfxI04seVLQ5v7w7gepWTKQ8%3D',
+                  },
+                  {
+                    selectedPic:
+                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282038575594289f4ac06414a7d9961338d1111fcef/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg%403x.png?Expires=1670243938&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=Bsem34IN0LdFd3NCotoXbO7tLJw%3D',
+                    skinName: '月交',
+                    skinValue: '5',
+                    unSelectedPic:
+                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112820385374286567155d95149b5a7ed3297746e1149/%E8%83%8C%E6%99%AF%402x.png?Expires=1670243933&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=SM4RfxI04seVLQ5v7w7gepWTKQ8%3D',
+                  },
+                ],
               },
               planPicList: null,
             },
             {
+              attachmentVOList: {
+                test01: [
+                  {
+                    attachmentUri: 'attachmentUri',
+                    attachmentName: 'attachmentName',
+                    attachmentType: '2',
+                  },
+                  {
+                    attachmentUri: 'attachmentUri',
+                    attachmentName: 'attachmentName',
+                    attachmentType: '2',
+                  },
+                  {
+                    attachmentUri: 'attachmentUri',
+                    attachmentName: 'attachmentName',
+                    attachmentType: '2',
+                  },
+                ],
+                test02: [
+                  {
+                    attachmentUri:
+                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211281716479849efe6398bfaf46ae9b1398d8231e9f3a/%E6%B5%8B%E8%AF%95%E6%96%87%E4%BB%B6%E8%BD%ACpdf.pdf?Expires=1670231808&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=ggkR868z8tC09kUpHCfPoIj6Q4Q%3D',
+                    attachmentName: 'attachmentName',
+                    attachmentType: '1',
+                  },
+                  {
+                    attachmentUri:
+                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211281716479849efe6398bfaf46ae9b1398d8231e9f3a/%E6%B5%8B%E8%AF%95%E6%96%87%E4%BB%B6%E8%BD%ACpdf.pdf?Expires=1670231808&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=ggkR868z8tC09kUpHCfPoIj6Q4Q%3D',
+                    attachmentName: 'attachmentName',
+                    attachmentType: '1',
+                  },
+                ],
+              },
               planName: '30万',
               planCode: 'z02',
               riskId: null,
@@ -1014,7 +1223,6 @@ const fetchData = async () => {
               premiumExplainName: null,
               premiumExplainUri: null,
               tabName: [],
-              attachmentVOList: {},
               productPlanInsureConditionVO: {
                 riskId: null,
                 waitPeriod: '12',
@@ -1120,6 +1328,7 @@ onMounted(() => {
 
   .footer-button {
     justify-content: space-between;
+    border-radius: 30px 30px 0px 0px;
   }
   // 覆盖原来组件的样式
   // :deep(.showIcon::before) {
@@ -1143,16 +1352,6 @@ onMounted(() => {
     width: 280px;
     background: $primary-color;
     border-color: $primary-color;
-  }
-
-  .inscribedContent-content {
-    background: rgb(244 244 244);
-    padding: 50px 40px;
-    font-size: 24px;
-    font-family: PingFangSC-Regular, PingFang SC;
-    font-weight: 400;
-    color: #b7bec4;
-    line-height: 38px;
   }
 }
 </style>

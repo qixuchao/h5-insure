@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 15:01:12
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-08 16:19:40
+ * @LastEditTime: 2022-11-28 15:39:54
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/PreNotice/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -73,9 +73,10 @@ const attachmentUri = ref<string>();
 
 // 个人信息保护政策
 const personalAttachmentList = computed(() => {
-  return props.productDetail?.tenantProductInsureVO?.attachmentVOList.filter(
-    (item: AttachmentVOList) => item.attachmentName === '个人信息保护政策',
-  );
+  // return props.productDetail?.tenantProductInsureVO?.attachmentVOList.filter(
+  //   (item: AttachmentVOList) => item.attachmentName === '个人信息保护政策',
+  // );
+  return [];
 });
 
 const currentTime = computed<number>(() => {

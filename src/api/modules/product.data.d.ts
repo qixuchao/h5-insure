@@ -38,7 +38,7 @@ export interface ProductPlanInsureConditionVo {
   annuityDrawFrequencyFlag: number;
   hesitatePeriod: string;
   hesitatePeriodFlag: string;
-  paymentFrequencyList: string;
+  paymentFrequencyList: any;
 }
 
 export interface AttachmentVoItem {
@@ -175,7 +175,9 @@ export interface TenantProductInsureVO {
   /**
    * 产品资料
    */
-  attachmentVOList: AttachmentVOList[];
+  attachmentVOList: {
+    [props: string]: AttachmentVOList[]
+  };
   /**
    * banner图
    */

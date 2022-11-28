@@ -1,8 +1,15 @@
+<!--
+ * @Author: zhaopu
+ * @Date: 2022-11-26 12:09:26
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-28 15:04:20
+ * @Description:
+-->
 <template>
   <van-collapse-item :name="name" class="com-question-item">
     <template #title>
       <div class="question">
-        <div class="icon">{{ '?' }}</div>
+        <ProSvg name="question"></ProSvg>
         <div class="title">{{ question }}</div>
       </div>
     </template>
@@ -40,32 +47,28 @@ const props = defineProps({
   :deep(.van-cell--clickable:active) {
     background: #ffffff;
   }
+  :deep(.van-collapse-item__title) {
+    font-size: 30px;
+    font-family: PingFangSC-Medium, PingFang SC;
+    font-weight: 500;
+    color: #333333;
+  }
+  :deep(.van-collapse-item__content) {
+    font-size: 26px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #999999;
+    line-height: 37px;
+  }
 
   .question {
     display: flex;
     align-items: center;
-    .icon {
-      position: relative;
-      width: 30px;
-      height: 30px;
-      border-radius: 15px 15px 0 15px;
-      background: $primary-color;
-      color: #fff;
-      font-size: 24px;
-      border: 1px solid #fff;
-      text-align: center;
-      font-weight: 500;
-      &::after {
-        position: absolute;
-        content: ' ';
-        left: 9px;
-        top: 0;
-        width: 30px;
-        height: 30px;
-        border-radius: 15px 15px 0 15px;
-        background: $primary-color;
-        opacity: 0.2;
-      }
+    .svg-icon {
+      width: 32px;
+      height: 32px;
+      font-size: 32px;
+      fill: $primary-color;
     }
     .title {
       flex: 1;

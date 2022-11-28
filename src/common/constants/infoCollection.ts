@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-28 10:28:12
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-25 16:19:31
+ * @LastEditTime: 2022-11-29 00:26:37
  * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/infoCollection.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -232,3 +232,59 @@ export const CLAIM_TYPE_LIST = [
 ];
 
 export const CLAIM_TYPE_MAP = constantListToMap(CLAIM_TYPE_LIST);
+
+export const PAYMENT_COMMON_FREQUENCY_ENUM = {
+  SINGLE: '1',
+  YEAR: '2',
+  HALF_YEAR: '3',
+  QUARTER: '4',
+  MONTH: '5',
+};
+
+// 交费方式
+export const PAYMENT_COMMON_FREQUENCY = [
+  {
+    label: '趸交',
+    value: PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE,
+  },
+  {
+    label: '年交',
+    value: PAYMENT_COMMON_FREQUENCY_ENUM.YEAR,
+  },
+  {
+    label: '半年交',
+    value: PAYMENT_COMMON_FREQUENCY_ENUM.HALF_YEAR,
+  },
+  {
+    label: '季交',
+    value: PAYMENT_COMMON_FREQUENCY_ENUM.QUARTER,
+  },
+  {
+    label: '月交',
+    value: PAYMENT_COMMON_FREQUENCY_ENUM.MONTH,
+  },
+];
+
+export const PAYMENT_COMMON_FREQUENCY_MAP = constantListToMap(PAYMENT_COMMON_FREQUENCY);
+
+// 保障生效时间
+export const INSURANCE_START_TYPE_ENUM = {
+  CURRENT_DAY: '1',
+  NEXT_DAY: '2',
+  CUSTOM_DAY: '3',
+};
+
+export const INSURANCE_START_TYPE_LIST = [
+  {
+    label: '当日生效',
+    value: INSURANCE_START_TYPE_ENUM.CURRENT_DAY,
+  },
+  {
+    label: '次日生效',
+    value: INSURANCE_START_TYPE_ENUM.NEXT_DAY,
+  },
+  {
+    label: '指定日期生效',
+    value: INSURANCE_START_TYPE_ENUM.CUSTOM_DAY,
+  },
+];

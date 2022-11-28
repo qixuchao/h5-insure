@@ -357,17 +357,19 @@ const isSelfInsurer = computed(() => {
 
 // 费率表
 const rateAttachmentList = computed(() => {
-  return props.productDetail?.tenantProductInsureVO?.attachmentVOList.filter(
-    (item: AttachmentVOList) => item.attachmentName === '费率表',
-  );
+  // return props.productDetail?.tenantProductInsureVO?.attachmentVOList.filter(
+  //   (item: AttachmentVOList) => item.attachmentName === '费率表',
+  // );
+  return [];
 });
 
 const filterHealthAttachmentList = computed(() => {
-  return (
-    props.productDetail?.tenantProductInsureVO?.attachmentVOList.filter((item: AttachmentVOList) => {
-      return !['健康告知', '费率表'].includes(item.attachmentName);
-    }) || []
-  );
+  return [];
+  // return (
+  //   props.productDetail?.tenantProductInsureVO?.attachmentVOList.filter((item: AttachmentVOList) => {
+  //     return !['健康告知', '费率表'].includes(item.attachmentName);
+  //   }) || []
+  // );
 });
 
 const isHolderMobileRight = computed(() => {

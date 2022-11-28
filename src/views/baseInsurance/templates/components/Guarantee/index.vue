@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-26 20:33:05
+ * @LastEditTime: 2022-11-28 20:09:33
  * @Description: 保障详情
 -->
 <template>
@@ -33,8 +33,8 @@
       {{ showMore ? '收起' : '查看更多' }} <ProSvg name="down" :class="['icon', { showMore }]" />
     </div>
     <div class="feerate-view">
-      <span>{{ props.showConfig?.price }}</span>
-      <span>查看保费</span>
+      <span>{{ `${productPremiumVOItem?.paymentFrequencyValue}${productPremiumVOItem?.premiumUnit}` }}</span>
+      <span @click="onClickFeeRate">查看保费</span>
     </div>
   </div>
   <ProDivider />
@@ -79,6 +79,7 @@ import {
   GuaranteeItemVo,
   ExtInfoVoItem,
   ShowConfigVO,
+  ProductPremiumVoItem,
 } from '@/api/modules/product.data';
 import ProSvg from '@/components/ProSvg/index.vue';
 import ProDivider from '@/components/ProDivider/index.vue';
@@ -135,6 +136,7 @@ watch(
 
 const guaranteeList = ref<GuaranteeItemVo[]>([]);
 const extInfoVOList = ref<ExtInfoVoItem[]>([]);
+const productPremiumVOItem = ref<ProductPremiumVoItem>();
 
 watch(
   [() => props.dataSource, () => props.activePlanCode],
@@ -143,6 +145,7 @@ watch(
     if (!props.isMultiplePlan) {
       guaranteeList.value = props.dataSource?.planInsureVO.guaranteeItemVOS;
       extInfoVOList.value = props.dataSource?.planInsureVO.extInfoVOList;
+      productPremiumVOItem.value = props.dataSource?.planInsureVO.productPremiumVOList[0];
     } else if (planList.value && planList.value.length > 0) {
       let index = 0;
       const idx = planList.value.findIndex((e: PlanInsureVO) => e.planCode === activePlanCode.value);
@@ -151,6 +154,7 @@ watch(
       }
       guaranteeList.value = planList.value[index].guaranteeItemVOS;
       extInfoVOList.value = planList.value[index].extInfoVOList;
+      productPremiumVOItem.value = planList.value[index]?.productPremiumVOList[0];
     }
   },
   {
@@ -200,6 +204,14 @@ const popupShow = ref(false);
 
 const onShowDetail = () => {
   popupShow.value = true;
+};
+
+const onClickFeeRate = () => {
+  console.log('feeFileUri', feeFileUri.value);
+  const { origin } = window.location;
+  // 暂时默认pdf
+  const url = `${origin}/template/filePreview?fileType=pdf&fileUri=${feeFileUri.value}`;
+  window.open(url);
 };
 </script>
 

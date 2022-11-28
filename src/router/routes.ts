@@ -346,6 +346,12 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     meta: { title: '支付签约', requireWxJs: false },
     component: () => import('@/views/cashier/signPay.vue'),
   },
+  {
+    name: '文件预览',
+    path: '/template/filePreview',
+    meta: { title: '文件预览', requireWxJs: false },
+    component: () => import('@/views/baseInsurance/filePreview/index.vue'),
+  },
   ...proposalRoutes,
   ...lifeInsuranceRoutes,
   ...internetRoutes,

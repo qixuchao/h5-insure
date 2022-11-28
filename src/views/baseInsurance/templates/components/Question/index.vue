@@ -1,3 +1,10 @@
+<!--
+ * @Author: zhaopu
+ * @Date: 2022-11-26 12:09:26
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-28 16:31:21
+ * @Description:
+-->
 <template>
   <div class="com-question">
     <van-collapse v-model="activeNames">
@@ -49,6 +56,7 @@ const displayList = computed(() => {
 
 <style lang="scss" scoped>
 .com-question {
+  margin-top: -7px;
   .show-more {
     padding: 30px 0;
     width: 100%;
