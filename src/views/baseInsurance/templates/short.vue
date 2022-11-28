@@ -1,13 +1,23 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
-    <div v-if="payHtml.show" v-dompurify-html="payHtml.html"></div>
     <div class="page-internet-product-detail">
       <div class="info">
         <Banner :url="detail?.tenantProductInsureVO?.banner[0]" />
-        <Desc :product-name="detail?.productFullName" :product-desc="detail?.showConfigVO?.desc" />
+        <Banner
+          v-if="detail?.tenantProductInsureVO?.bannerMove"
+          :url="detail?.tenantProductInsureVO?.bannerMove[0]"
+          @click="onClickToInsure"
+        />
       </div>
-      <Guarantee show-service-config :guarantee-list="detail?.tenantProductInsureVO?.titleAndDescVOS" />
-      <ScrollInfo :detail="detail">
+      <Guarantee
+        show-service-config
+        :data-source="detail?.tenantProductInsureVO"
+        :show-config="detail?.showConfigVO"
+        :is-multiple-plan="isMultiplePlan"
+        :active-plan-code="trialData.activePlanCode"
+        @update-active-plan="updateActivePlan"
+      />
+      <ScrollInfo ref="detailScrollRef" :detail="detail">
         <template #form>
           <HolderInsureForm
             ref="formRef"
@@ -19,6 +29,10 @@
             @on-reset="onReset"
             @on-update="onUpdate"
           />
+          <PaymentType :form-info="trialData" :product-detail="detail" :show-config="detail?.showConfigVO" />
+          <div class="inscribedContent-content">
+            <div v-dompurify-html="detail?.tenantProductInsureVO.inscribedContent" class="content"></div>
+          </div>
         </template>
       </ScrollInfo>
       <div class="footer-button">
@@ -28,24 +42,13 @@
             {{ premium ? (trialData.paymentFrequency == PAYMENT_FREQUENCY_ENUM.YEAR ? '元/年' : '元/月') : '' }}
           </span>
         </div>
-        <van-button
-          type="primary"
-          class="right"
-          :disabled="!(buttonAuth.canInsure || buttonAuth.canUpgrade)"
-          @click="onNext"
-        >
+        <!-- @click="onNext" -->
+        <van-button type="primary" class="right" :disabled="!(buttonAuth.canInsure || buttonAuth.canUpgrade)">
           {{ buttonAuth.showInsure ? '立即投保' : '升级保障' }}
         </van-button>
       </div>
     </div>
     <PreNotice v-if="!orderNo" :product-detail="detail"></PreNotice>
-    <!-- <UpgradeModal
-      :order-no="orderNo"
-      :tenant-id="tenantId"
-      :is-show="showModal"
-      @on-confirm="onConfirm"
-      @on-close="onClose"
-    /> -->
   </van-config-provider>
   <HealthNoticePreview
     v-model:show="showHealthPreview"
@@ -60,7 +63,7 @@
     :content-list="filterHealthAttachmentList"
     :active-index="activeIndex"
     text="我已逐页阅读并确认告知内容"
-    :force-read-cound="2"
+    :force-read-cound="0"
     on-close-file-preview
     @submit="onSubmit"
     @on-close-file-preview="onCloseFilePreview"
@@ -115,10 +118,10 @@ import Guarantee from './components/Guarantee/index.vue';
 import ScrollInfo from './components/ScrollInfo/index.vue';
 import HolderInsureForm from './components/HolderInsureForm/index.vue';
 import Waiting from './components/Waiting/index.vue';
-// import UpgradeModal from '../components/UpgradeModal/index.vue';
 import PreNotice from './components/PreNotice/index.vue';
 import FilePreview from './components/FilePreview/index.vue';
 import HealthNoticePreview from './components/HealthNoticePreview/index.vue';
+import PaymentType from './components/PaymentType/index.vue';
 
 import {
   AuthType,
@@ -131,7 +134,7 @@ import {
   allAuth,
   holderAuth,
 } from './auth';
-// 调用主题
+
 const themeVars = useTheme();
 const router = useRouter();
 const route = useRoute();
@@ -145,11 +148,6 @@ interface QueryData {
   pageCode: string;
   from: string; // from = 'check' 审核版
   [key: string]: string;
-}
-
-interface PayHtml {
-  show: boolean;
-  html: string;
 }
 
 const {
@@ -167,6 +165,7 @@ const {
 } = route.query as QueryData;
 
 const formRef = ref();
+const detailScrollRef = ref();
 const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<ProductData>(); // 险种信息
 const premium = ref<number | null>(); // 保费
@@ -177,8 +176,8 @@ const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
-const payHtml = ref<PayHtml>({ show: false, html: '' });
 let iseeBizNo = '';
+const activePlanIndex = ref<number>(0);
 
 // 试算数据， 赠险进入，从链接上默认取投保人数据
 const trialData = reactive({
@@ -201,6 +200,7 @@ const trialData = reactive({
   paymentFrequency: PAYMENT_FREQUENCY_ENUM.YEAR,
   packageProductList: [],
   mobileSmsCode: '',
+  activePlanCode: '',
 });
 
 // 表单是否可修改, 默认先从链接取，然后再根据不同的入口修改
@@ -214,10 +214,40 @@ const buttonAuth = reactive({
   canUpgrade: false, // 可以升级
 });
 
+// 是否多计划
+const isMultiplePlan = computed(() => {
+  if (!detail.value) return false;
+  if (
+    detail.value?.tenantProductInsureVO?.planList &&
+    Array.isArray(detail.value?.tenantProductInsureVO?.planList) &&
+    detail.value?.tenantProductInsureVO?.planList.length > 0
+  ) {
+    return true;
+  }
+  return false;
+});
+
+watch(
+  () => isMultiplePlan.value,
+  () => {
+    if (isMultiplePlan.value) {
+      trialData.activePlanCode = detail.value?.tenantProductInsureVO?.planList[0].planCode;
+    }
+  },
+  {
+    immediate: true,
+  },
+);
+
+// 切换计划
+const updateActivePlan = (planCode: string) => {
+  trialData.activePlanCode = planCode;
+};
+
 // 健康告知
 const healthAttachmentList = computed(() => {
   return (
-    detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
+    (detail.value?.tenantProductInsureVO?.attachmentVOList || []).filter(
       (item: AttachmentVOList) => item.attachmentName === '健康告知',
     ) || []
   );
@@ -226,11 +256,17 @@ const healthAttachmentList = computed(() => {
 // 除健康告知的其他资料
 const filterHealthAttachmentList = computed(() => {
   return (
-    detail.value?.tenantProductInsureVO?.attachmentVOList.filter(
+    (detail.value?.tenantProductInsureVO?.attachmentVOList || []).filter(
       (item: AttachmentVOList) => item.attachmentName !== '健康告知',
     ) || []
   );
 });
+
+// 滑动到投保信息
+const onClickToInsure = () => {
+  console.log('detailScrollRef.value', detailScrollRef.value);
+  detailScrollRef.value.handleClickTab()('tab3');
+};
 
 // 投被保人信息校验： 1、投保人必须大于18岁。2、被保人为子女不能小于30天。3、被保人为父母不能大于60岁。4、被保人为配偶性别不能相同。
 const onCheckCustomer = () => {
@@ -356,23 +392,7 @@ const onUnderWrite = async (o: any) => {
 
       const { data } = res1;
       if (res1.code === '10000') {
-        if (data.type === 2) {
-          payHtml.value = {
-            show: true,
-            html: data.paymentUrl,
-          };
-          console.log('data.paymentUrl', payHtml.value);
-          nextTick(() => {
-            console.log('document.forms', document.forms);
-            const forms: any = document.getElementById('cashierSubmit');
-            forms?.addEventListener('submit', (evt) => {
-              evt.preventDefault();
-            });
-            forms?.submit();
-          });
-        } else {
-          window.location.href = data.paymentUrl;
-        }
+        // TODO
       }
     }
     buttonAuth.canInsure = true;
@@ -775,7 +795,285 @@ const fetchData = async () => {
   const insureReq = insureProductDetail({ productCode });
   await Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
     if (productRes.code === '10000') {
-      detail.value = productRes.data;
+      detail.value = {
+        ...productRes.data,
+        tenantProductInsureVO: {
+          id: 10187,
+          templateId: 1,
+          productCode: 'z01',
+          productName: '[勿动]z意外险',
+          backgroundInsureVO: {
+            type: '1',
+            colorStart: '#ff7007',
+            colorEnd: '#fff4ed',
+          },
+          productDesc: 'test',
+          insureConfigStatus: null,
+          banner: [
+            'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/20221126172814291246d8b27e06b4098a6e329de374bd39c/banner.png?Expires=1670062255&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=PSufTP%2BflZGRPUwRIi1AZkEto4I%3D',
+          ],
+          bannerMove: [
+            'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211261728529261a1ffaa17af6430da83a495e4d2e2f68/bannerMove.gif?Expires=1670062255&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=%2BXIk7xUOqilryJXQqr%2FtyZcDomI%3D',
+          ],
+          spec: [
+            'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/20221126174026691b2dc56ee4214447997fc3bd18ddf6b61/spce01.png?Expires=1670062255&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=AjLqrUeNpD7gJbq8tG6hcjQS6k8%3D',
+            'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/20221126174029790cf10f8c50a844a93943548d4fac052de/spce02.png?Expires=1670062255&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=iOVqucsOgEjKVtGu4MrkAIRY0mY%3D',
+            'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211261740320777793bc8c05c44541bb42c4b67535c3fb/spce05.png?Expires=1670062255&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=iy2w8pmc%2BHFSLms3WiTXBsklDiU%3D',
+            'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112617403502421fff53f342a4265b81a5f67e5e055c9/spce04.png?Expires=1670062255&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=kHHfhxDFA%2BFXGRszo6Uqg2bY4bA%3D',
+            'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/20221126174038571b85a69231c3b4c529c56def32523f7a9/spce03.png?Expires=1670062255&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=9VLYO1RwhMXe3Sps88PJwyXKP94%3D',
+            'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/20221126174043164225674e7e02146b89abb2ec8a5cd213e/spce06.png?Expires=1670062255&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=0uVPX0%2FSk%2FxdhHPwbgNPlI4T274%3D',
+          ],
+          questionList: [
+            {
+              title: '什么是意外伤害事故？猝死算么？',
+              desc: '意外伤害事故是指遭受外来的、突发的、非本意的、非疾病的使被保险人身体受到伤害的客观事件。细菌性食物中毒、猝死等此类意外伤害事故属于无明确外来意外伤害原因导致的后果，不在意外伤害事故的保险范围内。',
+            },
+            {
+              title: '保险期间内出门后的意外都保障吗？',
+              desc: '此产品保障客户在保险有效期内离开其居住地旅行时，所发生的意外及意外导致的医疗费用，不包括发生在居住地的意外风险。（但从家中去往机场等公共交通站点的合理路线中发生的意外事故也是可以保障的。）',
+            },
+            {
+              title: '购买后怎么申请保单变更？',
+              desc: '购买成功后，可拨打“400-609-5509”申请保单变更',
+            },
+            {
+              title: '购买后如何获取发票？',
+              desc: '购买成功后，可拨打“400-609-5509”申请发票',
+            },
+          ],
+          planList: [
+            {
+              planName: '30万',
+              planCode: 'z01',
+              riskId: null,
+              extInfoVOList: [
+                {
+                  name: '保障期限保障期限保障期限保障期限保障期限保障期限保障期限',
+                  description: '1年1年1年1年1年1年1年1年1年1年1年',
+                },
+                {
+                  name: '被保人年龄',
+                  description: '出生满30天-60周岁',
+                },
+              ],
+              guaranteeItemVOS: [
+                {
+                  liabilityId: null,
+                  title: '意外身故',
+                  desc: '20万',
+                  content:
+                    '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>1.在保险期间内，被保险人持有有效证件在中华人民共和国境内（不含港澳台地区，下同）旅行时遭受意外伤害事故，并自事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成身故的，保险人按本保险合同约定的保险金额给付身故保险金，对该被保险人的保险责任终止；在保险期间内，被保险人持有有效证件在境内旅行时遭受意外伤害事故，并自该事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成《人身保险伤残评定标准及代码》（标准编号为JR/T 0083－2013，以下简称&ldquo;《伤残评定标准》&rdquo;）所列伤残项目，保险人按本保险合同及伤残评定标准规定的评定原则对相应伤残项目进行评定，并按评定结果所对应的《伤残评定标准》中规定的给付比例乘以保险金额给付伤残保险金。</p>\n<p>2.本产品拓展承保户外运动意外/伤残责任。户外运动及娱乐：指各项具有一定风险性的非竞技户外运动，需由具有正规营业执照或资质的公司或单位组织的，非比赛性、非职业性及非商业性的运动。</p>\n</body>\n</html>',
+                },
+                {
+                  liabilityId: null,
+                  title: '意外身故',
+                  desc: '20万',
+                  content:
+                    '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>1.在保险期间内，被保险人持有有效证件在中华人民共和国境内（不含港澳台地区，下同）旅行时遭受意外伤害事故，并自事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成身故的，保险人按本保险合同约定的保险金额给付身故保险金，对该被保险人的保险责任终止；在保险期间内，被保险人持有有效证件在境内旅行时遭受意外伤害事故，并自该事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成《人身保险伤残评定标准及代码》（标准编号为JR/T 0083－2013，以下简称&ldquo;《伤残评定标准》&rdquo;）所列伤残项目，保险人按本保险合同及伤残评定标准规定的评定原则对相应伤残项目进行评定，并按评定结果所对应的《伤残评定标准》中规定的给付比例乘以保险金额给付伤残保险金。</p>\n<p>2.本产品拓展承保户外运动意外/伤残责任。户外运动及娱乐：指各项具有一定风险性的非竞技户外运动，需由具有正规营业执照或资质的公司或单位组织的，非比赛性、非职业性及非商业性的运动。</p>\n</body>\n</html>',
+                },
+                {
+                  liabilityId: null,
+                  title: '意外身故',
+                  desc: '20万',
+                  content:
+                    '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>1.在保险期间内，被保险人持有有效证件在中华人民共和国境内（不含港澳台地区，下同）旅行时遭受意外伤害事故，并自事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成身故的，保险人按本保险合同约定的保险金额给付身故保险金，对该被保险人的保险责任终止；在保险期间内，被保险人持有有效证件在境内旅行时遭受意外伤害事故，并自该事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成《人身保险伤残评定标准及代码》（标准编号为JR/T 0083－2013，以下简称&ldquo;《伤残评定标准》&rdquo;）所列伤残项目，保险人按本保险合同及伤残评定标准规定的评定原则对相应伤残项目进行评定，并按评定结果所对应的《伤残评定标准》中规定的给付比例乘以保险金额给付伤残保险金。</p>\n<p>2.本产品拓展承保户外运动意外/伤残责任。户外运动及娱乐：指各项具有一定风险性的非竞技户外运动，需由具有正规营业执照或资质的公司或单位组织的，非比赛性、非职业性及非商业性的运动。</p>\n</body>\n</html>',
+                },
+                {
+                  liabilityId: null,
+                  title: '意外身故',
+                  desc: '20万',
+                  content:
+                    '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>1.在保险期间内，被保险人持有有效证件在中华人民共和国境内（不含港澳台地区，下同）旅行时遭受意外伤害事故，并自事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成身故的，保险人按本保险合同约定的保险金额给付身故保险金，对该被保险人的保险责任终止；在保险期间内，被保险人持有有效证件在境内旅行时遭受意外伤害事故，并自该事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成《人身保险伤残评定标准及代码》（标准编号为JR/T 0083－2013，以下简称&ldquo;《伤残评定标准》&rdquo;）所列伤残项目，保险人按本保险合同及伤残评定标准规定的评定原则对相应伤残项目进行评定，并按评定结果所对应的《伤残评定标准》中规定的给付比例乘以保险金额给付伤残保险金。</p>\n<p>2.本产品拓展承保户外运动意外/伤残责任。户外运动及娱乐：指各项具有一定风险性的非竞技户外运动，需由具有正规营业执照或资质的公司或单位组织的，非比赛性、非职业性及非商业性的运动。</p>\n</body>\n</html>',
+                },
+                {
+                  liabilityId: null,
+                  title: '意外身故',
+                  desc: '20万',
+                  content:
+                    '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>1.在保险期间内，被保险人持有有效证件在中华人民共和国境内（不含港澳台地区，下同）旅行时遭受意外伤害事故，并自事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成身故的，保险人按本保险合同约定的保险金额给付身故保险金，对该被保险人的保险责任终止；在保险期间内，被保险人持有有效证件在境内旅行时遭受意外伤害事故，并自该事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成《人身保险伤残评定标准及代码》（标准编号为JR/T 0083－2013，以下简称&ldquo;《伤残评定标准》&rdquo;）所列伤残项目，保险人按本保险合同及伤残评定标准规定的评定原则对相应伤残项目进行评定，并按评定结果所对应的《伤残评定标准》中规定的给付比例乘以保险金额给付伤残保险金。</p>\n<p>2.本产品拓展承保户外运动意外/伤残责任。户外运动及娱乐：指各项具有一定风险性的非竞技户外运动，需由具有正规营业执照或资质的公司或单位组织的，非比赛性、非职业性及非商业性的运动。</p>\n</body>\n</html>',
+                },
+                {
+                  liabilityId: null,
+                  title: '意外身故',
+                  desc: '20万',
+                  content:
+                    '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>1.在保险期间内，被保险人持有有效证件在中华人民共和国境内（不含港澳台地区，下同）旅行时遭受意外伤害事故，并自事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成身故的，保险人按本保险合同约定的保险金额给付身故保险金，对该被保险人的保险责任终止；在保险期间内，被保险人持有有效证件在境内旅行时遭受意外伤害事故，并自该事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成《人身保险伤残评定标准及代码》（标准编号为JR/T 0083－2013，以下简称&ldquo;《伤残评定标准》&rdquo;）所列伤残项目，保险人按本保险合同及伤残评定标准规定的评定原则对相应伤残项目进行评定，并按评定结果所对应的《伤残评定标准》中规定的给付比例乘以保险金额给付伤残保险金。</p>\n<p>2.本产品拓展承保户外运动意外/伤残责任。户外运动及娱乐：指各项具有一定风险性的非竞技户外运动，需由具有正规营业执照或资质的公司或单位组织的，非比赛性、非职业性及非商业性的运动。</p>\n</body>\n</html>',
+                },
+                {
+                  liabilityId: null,
+                  title: '意外身故',
+                  desc: '20万20万20万20万20万20万20万20万20万20万20万20万',
+                  content:
+                    '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>1.在保险期间内，被保险人持有有效证件在中华人民共和国境内（不含港澳台地区，下同）旅行时遭受意外伤害事故，并自事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成身故的，保险人按本保险合同约定的保险金额给付身故保险金，对该被保险人的保险责任终止；在保险期间内，被保险人持有有效证件在境内旅行时遭受意外伤害事故，并自该事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成《人身保险伤残评定标准及代码》（标准编号为JR/T 0083－2013，以下简称&ldquo;《伤残评定标准》&rdquo;）所列伤残项目，保险人按本保险合同及伤残评定标准规定的评定原则对相应伤残项目进行评定，并按评定结果所对应的《伤残评定标准》中规定的给付比例乘以保险金额给付伤残保险金。</p>\n<p>2.本产品拓展承保户外运动意外/伤残责任。户外运动及娱乐：指各项具有一定风险性的非竞技户外运动，需由具有正规营业执照或资质的公司或单位组织的，非比赛性、非职业性及非商业性的运动。</p>\n</body>\n</html>',
+                },
+                {
+                  liabilityId: null,
+                  title: '意外身故意外身故意外身故意外身故意外身故意外身故意外身故意外身故',
+                  desc: '20万',
+                  content:
+                    '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>1.在保险期间内，被保险人持有有效证件在中华人民共和国境内（不含港澳台地区，下同）旅行时遭受意外伤害事故，并自事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成身故的，保险人按本保险合同约定的保险金额给付身故保险金，对该被保险人的保险责任终止；在保险期间内，被保险人持有有效证件在境内旅行时遭受意外伤害事故，并自该事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成《人身保险伤残评定标准及代码》（标准编号为JR/T 0083－2013，以下简称&ldquo;《伤残评定标准》&rdquo;）所列伤残项目，保险人按本保险合同及伤残评定标准规定的评定原则对相应伤残项目进行评定，并按评定结果所对应的《伤残评定标准》中规定的给付比例乘以保险金额给付伤残保险金。</p>\n<p>2.本产品拓展承保户外运动意外/伤残责任。户外运动及娱乐：指各项具有一定风险性的非竞技户外运动，需由具有正规营业执照或资质的公司或单位组织的，非比赛性、非职业性及非商业性的运动。</p>\n</body>\n</html>',
+                },
+                {
+                  liabilityId: null,
+                  title: '意外身故',
+                  desc: '20万',
+                  content:
+                    '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>1.在保险期间内，被保险人持有有效证件在中华人民共和国境内（不含港澳台地区，下同）旅行时遭受意外伤害事故，并自事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成身故的，保险人按本保险合同约定的保险金额给付身故保险金，对该被保险人的保险责任终止；在保险期间内，被保险人持有有效证件在境内旅行时遭受意外伤害事故，并自该事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成《人身保险伤残评定标准及代码》（标准编号为JR/T 0083－2013，以下简称&ldquo;《伤残评定标准》&rdquo;）所列伤残项目，保险人按本保险合同及伤残评定标准规定的评定原则对相应伤残项目进行评定，并按评定结果所对应的《伤残评定标准》中规定的给付比例乘以保险金额给付伤残保险金。</p>\n<p>2.本产品拓展承保户外运动意外/伤残责任。户外运动及娱乐：指各项具有一定风险性的非竞技户外运动，需由具有正规营业执照或资质的公司或单位组织的，非比赛性、非职业性及非商业性的运动。</p>\n</body>\n</html>',
+                },
+                {
+                  liabilityId: null,
+                  title: '意外身故',
+                  desc: '20万',
+                  content:
+                    '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>1.在保险期间内，被保险人持有有效证件在中华人民共和国境内（不含港澳台地区，下同）旅行时遭受意外伤害事故，并自事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成身故的，保险人按本保险合同约定的保险金额给付身故保险金，对该被保险人的保险责任终止；在保险期间内，被保险人持有有效证件在境内旅行时遭受意外伤害事故，并自该事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成《人身保险伤残评定标准及代码》（标准编号为JR/T 0083－2013，以下简称&ldquo;《伤残评定标准》&rdquo;）所列伤残项目，保险人按本保险合同及伤残评定标准规定的评定原则对相应伤残项目进行评定，并按评定结果所对应的《伤残评定标准》中规定的给付比例乘以保险金额给付伤残保险金。</p>\n<p>2.本产品拓展承保户外运动意外/伤残责任。户外运动及娱乐：指各项具有一定风险性的非竞技户外运动，需由具有正规营业执照或资质的公司或单位组织的，非比赛性、非职业性及非商业性的运动。</p>\n</body>\n</html>',
+                },
+                {
+                  liabilityId: null,
+                  title: '意外身故',
+                  desc: '20万',
+                  content:
+                    '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>1.在保险期间内，被保险人持有有效证件在中华人民共和国境内（不含港澳台地区，下同）旅行时遭受意外伤害事故，并自事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成身故的，保险人按本保险合同约定的保险金额给付身故保险金，对该被保险人的保险责任终止；在保险期间内，被保险人持有有效证件在境内旅行时遭受意外伤害事故，并自该事故发生之日起180日内（含第180日）因该事故为直接且单独原因造成《人身保险伤残评定标准及代码》（标准编号为JR/T 0083－2013，以下简称&ldquo;《伤残评定标准》&rdquo;）所列伤残项目，保险人按本保险合同及伤残评定标准规定的评定原则对相应伤残项目进行评定，并按评定结果所对应的《伤残评定标准》中规定的给付比例乘以保险金额给付伤残保险金。</p>\n<p>2.本产品拓展承保户外运动意外/伤残责任。户外运动及娱乐：指各项具有一定风险性的非竞技户外运动，需由具有正规营业执照或资质的公司或单位组织的，非比赛性、非职业性及非商业性的运动。</p>\n</body>\n</html>',
+                },
+              ],
+              productPremiumVOList: [
+                {
+                  paymentFrequency: '1',
+                  paymentFrequencyValue: '123',
+                  premiumUnit: '元起',
+                },
+              ],
+              premiumExplain: null,
+              premiumExplainViewName: null,
+              premiumExplainName: null,
+              premiumExplainUri: null,
+              tabName: [],
+              attachmentVOList: {},
+              productPlanInsureConditionVO: {
+                riskId: null,
+                waitPeriod: '12',
+                waitPeriodFlag: 1,
+                sexLimit: '1',
+                sexLimitFlag: 1,
+                socialInsuranceLimit: '1',
+                socialInsuranceLimitFlag: 1,
+                occupationLimit: '1,2,3,',
+                occupationLimitFlag: 1,
+                occupationLimitUri: null,
+                occupationLimitName: null,
+                holderAgeLimit: 'day_12,age_87',
+                renewalGracePeriod: null,
+                holderAgeLimitFlag: 1,
+                insurancePeriodValues: 'year_1',
+                insurancePeriodValuesFlag: 1,
+                paymentPeriodValues: 'year_1',
+                paymentPeriodValuesFlag: 1,
+                paymentFrequency: '1',
+                paymentFrequencyFlag: 1,
+                annuityDrawValues: null,
+                annuityDrawValuesFlag: 1,
+                annuityDrawFrequency: null,
+                annuityDrawFrequencyFlag: 1,
+                hesitatePeriod: null,
+                hesitatePeriodFlag: null,
+                paymentFrequencyList: null,
+              },
+              planPicList: null,
+            },
+            {
+              planName: '30万',
+              planCode: 'z02',
+              riskId: null,
+              extInfoVOList: [
+                {
+                  name: '保障期限',
+                  description: '1年',
+                },
+                {
+                  name: '被保人年龄',
+                  description: '出生满30天 - 60周岁',
+                },
+              ],
+              guaranteeItemVOS: [
+                {
+                  liabilityId: null,
+                  title: '一般医疗保险金',
+                  desc: '300万元',
+                  content:
+                    '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>以下内容仅为保险责任的简明解释，具体内容以保险条款为准。 保险期间内，被保险人因遭受意外伤害事故或等待期届满后，在卫生部门审核认定的二级或以上公立医院或保险人认可的医疗机构的普通部，经专科医生初次确诊患有疾病且在我们指定医疗机构接受治疗的，对被保险人因接受前述治疗发生必需且合理的医疗费用，扣除免赔额后按比例承担给付一般医疗保险金的责任： 1、住院医疗费用：含床位费、膳食费、护理费、重症监护室床位费、诊疗费、检查检验费、治疗费、药品费、手术费。保险期间届满未结束治疗的，承担保险期间届满之日起30日（含）内因本次住院治疗的必需且合理的住院医疗费用。 2、特殊门诊医疗费用：含门诊肾透析费；门诊恶性肿瘤治疗费，包括化学疗法、放射疗法、肿瘤免疫疗法、肿瘤内分泌疗法、肿瘤靶向疗法的治疗费用；器官移植后的门诊抗排异治疗费。 3、门诊手术医疗费用：被保险人接受门诊手术治疗期间发生的必需且合理的门诊手术费用。 4、住院前后门急诊医疗费：被保险人在住院前7日（含住院当日）和出院后30日（含出院当日）内，因与本次住院相同原因而接受门急诊治疗期间发生的应当由被保险人支付的、必需且合理的门急诊医疗费用。</p>\n</body>\n</html>',
+                },
+              ],
+              productPremiumVOList: [
+                {
+                  paymentFrequency: '1',
+                  paymentFrequencyValue: null,
+                  premiumUnit: null,
+                },
+              ],
+              premiumExplain: null,
+              premiumExplainViewName: null,
+              premiumExplainName: null,
+              premiumExplainUri: null,
+              tabName: [],
+              attachmentVOList: {},
+              productPlanInsureConditionVO: {
+                riskId: null,
+                waitPeriod: '12',
+                waitPeriodFlag: 1,
+                sexLimit: '1',
+                sexLimitFlag: 1,
+                socialInsuranceLimit: '1',
+                socialInsuranceLimitFlag: 1,
+                occupationLimit: '1,2,3,',
+                occupationLimitFlag: 1,
+                occupationLimitUri: null,
+                occupationLimitName: null,
+                holderAgeLimit: 'day_12,age_87',
+                renewalGracePeriod: null,
+                holderAgeLimitFlag: 1,
+                insurancePeriodValues: 'year_1',
+                insurancePeriodValuesFlag: 1,
+                paymentPeriodValues: 'year_1',
+                paymentPeriodValuesFlag: 1,
+                paymentFrequency: '1',
+                paymentFrequencyFlag: 1,
+                annuityDrawValues: null,
+                annuityDrawValuesFlag: 1,
+                annuityDrawFrequency: null,
+                annuityDrawFrequencyFlag: 1,
+                hesitatePeriod: null,
+                hesitatePeriodFlag: null,
+                paymentFrequencyList: null,
+              },
+              planPicList: null,
+            },
+          ],
+          planInsureVO: null,
+          settlementProcessVO: {
+            settlementProcessType: '1',
+            settlementProcessList: [
+              {
+                title: '第一步：报案',
+                desc: '拨打“400-609-5509”申请理赔，根据指引提交理赔申请材料',
+              },
+              {
+                title: '第二步：审核材料',
+                desc: '保险公司将及时进行审核、调查、反馈结果，并根据情况通知寄送纸质材料',
+              },
+              {
+                title: '第三步：获得理赔金',
+                desc: '对属于保险责任的，保险公司会将理赔金直接转账至被保险人/受益人名下的指定账户',
+              },
+            ],
+            settlementProcessPicList: [],
+          },
+          rateUri:
+            'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/20221126173647822799c7db559fb485296f6fdd77a599ae1/%E9%AD%94%E6%96%B9%E4%BA%A7%E5%93%81_%E9%9C%80%E6%B1%82%E8%A7%84%E6%A0%BC%E8%AF%B4%E6%98%8E%E4%B9%A6_V1.1.pdf?Expires=1670062255&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=zR373GY3ZDk4tOGtbTtsO8TEku8%3D',
+          rateName: '魔方产品_需求规格说明书_V1.1.pdf',
+          inscribedContent:
+            '该保险产品由华泰财产保险有限公司承保并负责理赔。产品介绍页面仅供参考，具体责任描述以保险合同为准。华泰财险最新季度偿付能力符合监管要求。\n\n版权所有©2022 新奥保险经纪有限公司\n客服电话：400  605 8000',
+          goodsCenterLink: 'http://142820-zat-planet-h5-cloud-insure.test.za-tech.net/middlePage/',
+        },
+      };
       document.title = productRes.data?.productFullName || '';
     }
 
@@ -845,6 +1143,16 @@ onMounted(() => {
     width: 280px;
     background: $primary-color;
     border-color: $primary-color;
+  }
+
+  .inscribedContent-content {
+    background: rgb(244 244 244);
+    padding: 50px 40px;
+    font-size: 24px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #b7bec4;
+    line-height: 38px;
   }
 }
 </style>

@@ -32,30 +32,36 @@
 <script lang="ts" setup name="Cashier">
 import { Radio, RadioGroup, Toast } from 'vant';
 import { useClipboard } from '@vueuse/core';
+import useAppStore from '@/store/app';
 import { GetPayUrlParam, PayParam } from '@/api/modules/cashier.data';
 import { getPayUrl, loadPayment, pay } from '@/api/modules/cashier';
 import { PAY_WAY_ENUM, getPayWayList } from './constant';
-import { isWeiXin } from './core';
+import { isWeiXin, getWxAuthCode } from './core';
 /**
  * 本页面主要给H5或公众号页面使用
  * 可以选择支付方式【微信、支付宝(微信内打开不展示)】
  */
 
+// 页面参数
 interface QueryData extends GetPayUrlParam {
-  code: string;
-  [key: string]: string;
+  orderNo: string; // 支付订单号
+  tenantId: string; // 租户id
+  templateId: number; // 模板id
+  payWay: string; // 可支付的方式选项(支付宝 或 微信)
+  code: string; // 微信code(微信环境下--进入页面后去跳微信授权)
+  [key: string]: string | number;
 }
 
 interface OrderInfo {
-  orderNo: string;
-  orderAmt: number;
-  orderName: string;
-  srcType: string;
-  businessTradeNo: string;
+  orderNo: string; // 支付订单号
+  orderAmt: number; // 支付订单金额
+  orderName: string; // 要支付的订单名
+  payWay: string; // 可支付的方式选项(支付宝 或 微信)
+  businessTradeNo: string; // 业务订单
 }
 const route = useRoute();
 const query = route.query as QueryData;
-
+const appStore = useAppStore();
 const payWayList = getPayWayList(query.payWay || PAY_WAY_ENUM.WXPAY);
 
 const orderInfo = ref<OrderInfo>();
@@ -142,17 +148,26 @@ const onCopy = () => {
   Toast('已拷贝到您的粘贴板');
 };
 onMounted(() => {
-  // orderInfo.value.orderNo = query.orderNo;
-  loadPayment({
-    orderNo: 'P2211220947519991000001750022183',
-    tenantId: 9991000001,
-    ...query,
-  }).then((res) => {
-    console.log('获取订单信息', res);
-    if (res.code === '10000') {
-      orderInfo.value = res.data;
+  //  微信环境，跳转微信授权
+  if (isWeiXin) {
+    const { appId } = appStore;
+    const url = encodeURIComponent(`${window.location.href}`);
+    console.log('当前url', url);
+    if (!query.code) {
+      window.location.href = getWxAuthCode({ appId, url });
     }
-  });
+  } else {
+    loadPayment({
+      orderNo: query.orderNo || 'P2211220947519991000001750022183',
+      tenantId: query.tenantId || '9991000001',
+      // ...query,
+    }).then((res) => {
+      console.log('获取订单信息', res);
+      if (res.code === '10000') {
+        orderInfo.value = res.data;
+      }
+    });
+  }
 });
 </script>
 

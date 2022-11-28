@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-28 11:29:43
+ * @LastEditTime: 2022-11-28 11:48:20
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -211,7 +211,7 @@ const templateRoutes = [
     name: '网电销',
     path: '/template/netsale',
     meta: { title: '' },
-    component: () => import('@/views/template/product/detail/netsale.vue'),
+    component: () => import('@/views/templates/netsale/index.vue'),
   },
   {
     name: '赠险预览',
@@ -256,20 +256,20 @@ const baseInsurance = [
   {
     name: 'base赠险',
     path: '/baseInsurance/free',
-    meta: { title: '' },
+    meta: { title: '', requireWxJs: true },
     component: () => import('@/views/baseInsurance/templates/free.vue'),
   },
   {
     name: 'base一年期',
     path: '/baseInsurance/short',
-    meta: { title: '' },
+    meta: { title: '', requireWxJs: true },
     component: () => import('@/views/baseInsurance/templates/short.vue'),
   },
   {
     name: 'base网电销',
     path: '/baseInsurance/netsale',
     meta: { title: '' },
-    component: () => import('@/views/baseInsurance/templates/netSale/netsale.vue'),
+    component: () => import('@/views/baseInsurance/templates/netSale/index.vue'),
   },
   {
     name: '投保成功页',
@@ -278,10 +278,10 @@ const baseInsurance = [
     component: () => import('@/views/baseInsurance/orderDetail/index.vue'),
   },
   {
-    name: '支付失败',
-    path: '/baseInsurance/payFail',
-    meta: { title: '支付失败' },
-    component: () => import('@/views/baseInsurance/payFail/index.vue'),
+    name: '',
+    path: '/baseInsurance/payResult',
+    meta: { title: '' },
+    component: () => import('@/views/baseInsurance/payResult/index.vue'),
   },
 ];
 
@@ -349,7 +349,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   {
     name: '收银台',
     path: '/cashier/pay',
-    meta: { title: '收银台' },
+    meta: { title: '收银台', requireWxJs: false },
     component: () => import('@/views/cashier/index.vue'),
   },
   {
@@ -361,7 +361,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   {
     name: '支付',
     path: '/cashier/signPay',
-    meta: { title: '支付签约' },
+    meta: { title: '支付签约', requireWxJs: true },
     component: () => import('@/views/cashier/signPay.vue'),
   },
   ...proposalRoutes,
