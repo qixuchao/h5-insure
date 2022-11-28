@@ -278,10 +278,10 @@ const baseInsurance = [
     component: () => import('@/views/baseInsurance/orderDetail/index.vue'),
   },
   {
-    name: '支付失败',
-    path: '/baseInsurance/payFail',
-    meta: { title: '支付失败' },
-    component: () => import('@/views/baseInsurance/payFail/index.vue'),
+    name: '',
+    path: '/baseInsurance/payResult',
+    meta: { title: '' },
+    component: () => import('@/views/baseInsurance/payResult/index.vue'),
   },
 ];
 
