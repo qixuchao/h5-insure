@@ -1,51 +1,8 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
-    <div v-if="payHtml.show" v-dompurify-html="payHtml.html"></div>
-    <div class="page-internet-product-detail">
-      <div class="info">
-        <Banner :url="detail?.tenantProductInsureVO?.banner[0]" />
-        <Desc :product-name="detail?.productFullName" :product-desc="detail?.showConfigVO?.desc" />
-      </div>
-      <Guarantee show-service-config :guarantee-list="detail?.tenantProductInsureVO?.titleAndDescVOS" />
-      <ScrollInfo :detail="detail">
-        <template #form>
-          <HolderInsureForm
-            ref="formRef"
-            is-show-package
-            :disable="!buttonAuth.showInsure"
-            :form-auth="formAuth"
-            :form-info="trialData"
-            :product-detail="detail"
-            @on-reset="onReset"
-            @on-update="onUpdate"
-          />
-        </template>
-      </ScrollInfo>
-      <div class="footer-button">
-        <div class="price">
-          总保费<span>
-            {{ premium ? '￥' : '' }}{{ toLocal(premium) }}
-            {{ premium ? (trialData.paymentFrequency == PAYMENT_FREQUENCY_ENUM.YEAR ? '元/年' : '元/月') : '' }}
-          </span>
-        </div>
-        <van-button
-          type="primary"
-          class="right"
-          :disabled="!(buttonAuth.canInsure || buttonAuth.canUpgrade)"
-          @click="onNext"
-        >
-          {{ buttonAuth.showInsure ? '立即投保' : '升级保障' }}
-        </van-button>
-      </div>
-    </div>
-    <PreNotice v-if="!orderNo" :product-detail="detail"></PreNotice>
-    <!-- <UpgradeModal
-      :order-no="orderNo"
-      :tenant-id="tenantId"
-      :is-show="showModal"
-      @on-confirm="onConfirm"
-      @on-close="onClose"
-    /> -->
+    <ProPageWrap class="net-sale-wrap">
+      <InsureForm ref="formRef" :form-info="detail" :factor-object="factorObj"></InsureForm>
+    </ProPageWrap>
   </van-config-provider>
   <HealthNoticePreview
     v-model:show="showHealthPreview"
@@ -65,7 +22,6 @@
     @submit="onSubmit"
     @on-close-file-preview="onCloseFilePreview"
   ></FilePreview>
-  <Waiting :is-show="showWaiting" />
 </template>
 
 <script lang="ts" setup>
@@ -73,15 +29,6 @@ import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import { debounce } from 'lodash';
 
-import { validateIdCardNo, getSex } from '@/components/ProField/utils';
-import { CERT_TYPE_ENUM } from '@/common/constants';
-import { ORDER_STATUS_ENUM } from '@/common/constants/order';
-import {
-  INSURE_TYPE_ENUM,
-  SOCIAL_SECURITY_ENUM,
-  RELATION_HOLDER_ENUM,
-  PAYMENT_FREQUENCY_ENUM,
-} from '@/common/constants/infoCollection';
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
 import { PackageProductVoItem, ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
 
@@ -95,9 +42,9 @@ import {
   getTenantOrderDetail,
 } from '@/api/modules/trial';
 import { productDetail } from '@/api/modules/product';
+import InsureForm from '../components/InsureForm/index.vue';
 
 import { ORIGIN, toLocal } from '@/utils';
-import { validateMobile, validateName } from '@/utils/validator';
 
 import {
   genaratePremiumCalcData,
@@ -106,19 +53,27 @@ import {
   onCollectPackageRiskIdList,
   validatorRiskZXYS,
   getAgeByCard,
-} from '../utils';
-import { useTheme } from '../theme';
-
-import Banner from './components/Banner/index.vue';
-import Desc from './components/Desc/index.vue';
-import Guarantee from './components/Guarantee/index.vue';
-import ScrollInfo from './components/ScrollInfo/index.vue';
-import HolderInsureForm from './components/HolderInsureForm/index.vue';
-import Waiting from './components/Waiting/index.vue';
+} from '../../utils';
+import { useTheme } from '../../theme';
+import { validateIdCardNo, getSex } from '@/components/ProField/utils';
+import { CERT_TYPE_ENUM } from '@/common/constants';
+import { ORDER_STATUS_ENUM } from '@/common/constants/order';
+import {
+  INSURE_TYPE_ENUM,
+  SOCIAL_SECURITY_ENUM,
+  RELATION_HOLDER_ENUM,
+  PAYMENT_FREQUENCY_ENUM,
+} from '@/common/constants/infoCollection';
+import Banner from '../components/Banner/index.vue';
+import Desc from '../components/Desc/index.vue';
+import Guarantee from '../components/Guarantee/index.vue';
+import ScrollInfo from '../components/ScrollInfo/index.vue';
+import HolderInsureForm from '../components/HolderInsureForm/index.vue';
+import Waiting from '../components/Waiting/index.vue';
 // import UpgradeModal from '../components/UpgradeModal/index.vue';
-import PreNotice from './components/PreNotice/index.vue';
-import FilePreview from './components/FilePreview/index.vue';
-import HealthNoticePreview from './components/HealthNoticePreview/index.vue';
+import PreNotice from '../components/PreNotice/index.vue';
+import FilePreview from '../components/FilePreview/index.vue';
+import HealthNoticePreview from '../components/HealthNoticePreview/index.vue';
 
 import {
   AuthType,
@@ -130,7 +85,7 @@ import {
   noBuyAuth,
   allAuth,
   holderAuth,
-} from './auth';
+} from '../auth';
 // 调用主题
 const themeVars = useTheme();
 const router = useRouter();
@@ -165,6 +120,57 @@ const {
   pageCode,
   from,
 } = route.query as QueryData;
+
+const factorObj = {
+  1: [
+    {
+      attributeValues: null,
+      code: 'certNo',
+      datasource: null,
+      defaultValue: null,
+      displayType: null,
+      factorId: null,
+      factorScript: null,
+      hasDefaultValue: 1,
+      id: 8249,
+      isDisplay: 1,
+      isHidden: 1,
+      isMustInput: 2,
+      isReadOnly: null,
+      moduleType: 1,
+      placeholder: null,
+      planCode: null,
+      position: null,
+      productCode: 'lin23323',
+      productId: null,
+      title: '证件号码',
+    },
+    {
+      attributeValues: null,
+      code: 'name',
+      datasource: null,
+      defaultValue: null,
+      displayType: null,
+      factorId: null,
+      factorScript: null,
+      hasDefaultValue: 1,
+      id: 8249,
+      isDisplay: 1,
+      isHidden: 1,
+      isMustInput: 2,
+      isReadOnly: null,
+      moduleType: 1,
+      placeholder: null,
+      planCode: null,
+      position: null,
+      productCode: 'lin23323',
+      productId: null,
+      title: '姓名',
+    },
+  ], // 投保人
+  2: [], // 被保人
+  3: [], // 受益人
+};
 
 const formRef = ref();
 const detail = ref<ProductDetail>(); // 产品信息
@@ -806,8 +812,8 @@ const setFormAuth = () => {
 };
 
 onMounted(() => {
-  setFormAuth();
-  fetchData();
+  // setFormAuth();
+  // fetchData();
   // 调用千里眼插件获取一个iseeBiz
   setTimeout(async () => {
     iseeBizNo = window.getIseeBiz && (await window.getIseeBiz());

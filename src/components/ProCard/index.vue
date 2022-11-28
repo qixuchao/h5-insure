@@ -3,7 +3,7 @@
     <div class="com-card-wrap">
       <div :class="['header', { showLine }]">
         <div v-if="title" class="title-wrapper">
-          <div :class="['title', { showIcon }]">{{ title }}333</div>
+          <div :class="['title', { showIcon }]">{{ title }}</div>
           <ProSvg
             v-if="showFold"
             name="down"
