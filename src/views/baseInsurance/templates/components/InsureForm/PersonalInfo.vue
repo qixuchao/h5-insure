@@ -355,7 +355,6 @@
           :class="['sms-code', { 'count-down': countDownTimer > 0 }]"
           size="small"
           type="primary"
-          :disabled="!isHolderMobileRight"
           @click="onCaptha"
           >{{ smsText }}</van-button
         >

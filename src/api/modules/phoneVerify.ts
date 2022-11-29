@@ -17,6 +17,15 @@ export const sendCode = (mobile: string) => {
   });
 };
 
+// 发送短信
+export const sendCodeLogin = (mobile: string) => {
+  return request<ResponseData>({
+    url: `/api/mall/app/v2/login/toCSendSmsCode`,
+    method: 'POST',
+    params: { mobile },
+  });
+};
+
 export const checkCode = (mobile: string, smsCode: string) => {
   return request<ResponseData<boolean>>({
     url: '/api/app/insure/insurance/checkSmsCode',

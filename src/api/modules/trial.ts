@@ -58,3 +58,7 @@ export const EndorsementUp = (data = {}) =>
 // 删除订单
 export const deleteOrder = (data = {}) =>
   request<ResponseData<any>>({ url: '/api/app/insure/insurance/deleteOrder', method: 'POST', data });
+
+// 新用户登陆注册
+export const toClogin = (data = {}) =>
+  request<ResponseData<any>>({ url: '/api/mall/app/v2/login/toClogin', method: 'POST', data });

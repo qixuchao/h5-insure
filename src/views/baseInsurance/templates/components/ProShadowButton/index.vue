@@ -8,15 +8,22 @@
 -->
 <template>
   <div class="pro-shadow-button">
-    <van-button :class="{ 'shadow-button': true, shadow: props.shadow }" type="primary" :color="btnColor" round block>{{
-      text
-    }}</van-button>
+    <van-button
+      :class="{ 'shadow-button': true, shadow: props.shadow }"
+      type="primary"
+      :color="btnColor"
+      round
+      block
+      @click="emit('click')"
+      >{{ text }}</van-button
+    >
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 
+const emit = defineEmits(['click']);
 const noticeShow = ref<boolean>(false);
 const pdfShow = ref<boolean>(false);
 
@@ -54,7 +61,7 @@ const btnColor = computed(() => {
     color: 96px;
 
     &.shadow {
-      box-shadow: 0px 30px 50px -30px var(--van-primary-color);
+      box-shadow: 0px 20px 50px -25px var(--van-primary-color);
     }
   }
 }

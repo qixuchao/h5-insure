@@ -304,7 +304,6 @@ watch(
 
 <style lang="scss" scope>
 .page-info-wrapper {
-  padding-bottom: 150px;
   .van-cell .van-field__value {
     align-items: flex-start;
   }
