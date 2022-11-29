@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-11-29 13:44:06
+ * @LastEditTime: 2022-11-29 15:29:45
  * @Description:
  */
 import wx from 'weixin-js-sdk';
@@ -15,6 +15,7 @@ export const isWeiXin = navigator.userAgent.indexOf('MicroMessenger') > -1;
 
 // 获取 wxCode，去调用支付接口
 export const getWxAuthCode = (params: { appId: string; url: string }) => {
+  console.log('微信oauth2授权---appId:', params.appId);
   return `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${params.appId}&redirect_uri=${params.url}&response_type=code&scope=snsapi_base&state=0#wechat_redirect`;
 };
 
@@ -26,17 +27,24 @@ let WeixinJSBridge: { invoke: (c: string, opt: any, cb: (r: { err_msg: string })
 const isSignWay = (payWay: string) => {
   return payWay.toLocaleLowerCase().indexOf('sign') > 0;
 };
-const onBridgeReady = ({ timeStamp, nonceStr, prepayId, signType, sign, appId }) => {
+const onBridgeReady = (params: {
+  timeStamp: string;
+  nonceStr: string;
+  prepayId: string;
+  signType: string;
+  sign: string;
+  appId: string;
+}) => {
   WeixinJSBridge &&
     WeixinJSBridge.invoke(
       'getBrandWCPayRequest',
       {
-        appId,
-        timestamp: timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
-        nonceStr, // 支付签名随机串，不长于 32 位
-        package: prepayId, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
-        signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
-        paySign: sign, // 支付签名
+        appId: params.appId,
+        timeStamp: params.timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+        nonceStr: params.nonceStr, // 支付签名随机串，不长于 32 位
+        package: params.prepayId, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
+        signType: params.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+        paySign: params.sign, // 支付签名
       },
       (res: { err_msg: string }) => {
         console.log('WeixinJSBridge支付结果----', res);

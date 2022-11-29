@@ -30,6 +30,7 @@
       </RadioGroup>
     </div>
     <VanButton type="primary" round size="large" block @click="goPay">确认付款 ￥{{ orderInfo?.orderAmt }}</VanButton>
+    =======
     <VanButton type="primary" round size="large" block @click="goBrandPay">jsBridge付款</VanButton>
   </ProPageWrap>
 </template>
@@ -123,6 +124,9 @@ const getOrderDetail = () => {
       console.log('获取订单信息', res);
       if (res.code === '10000') {
         orderInfo.value = res.data;
+        // getPayUrl({ ...orderInfo.value }).then((resa) => {
+        //   console.log('支付链接：：', resa);
+        // });
       }
     })
     .finally(() => {
@@ -132,18 +136,16 @@ const getOrderDetail = () => {
 onMounted(() => {
   //  微信环境，跳转微信授权
   if (isWeiXin) {
-    const { appId } = appStore;
     wx.checkJsApi({
       jsApiList: ['chooseWXPay'], // 需要检测的 JS 接口列表，所有 JS 接口列表见附录2,
       success(res) {
         console.log('checkJsApi--chooseWXPay', res);
-        console.log('checkJsApi--appId', appId);
       },
     });
     const url = `${window.location.href}`;
-    console.log('当前url', url);
+    console.log('当前url', url, 'appId--', sessionStorage.appId);
     if (!query.code) {
-      window.location.href = getWxAuthCode({ appId, url: encodeURIComponent(url) });
+      window.location.href = getWxAuthCode({ appId: sessionStorage.appId, url: encodeURIComponent(url) });
     } else {
       console.log('获取订单信息');
       getOrderDetail();
