@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-11-28 21:36:49
+ * @LastEditTime: 2022-11-29 11:40:45
  * @Description:
  */
 import wx from 'weixin-js-sdk';
@@ -36,10 +36,11 @@ export const usePay = (payParam: PayParam) => {
   }).then((res) => {
     const { code, message, data } = res;
     if (code === '10000') {
-      const { timeStamp, nonceStr, prepayId, sign_type: signType, sign } = data;
+      const { timeStamp, nonceStr, prepayId, sign_type: signType, sign, appId } = data;
       if (isWeiXin) {
         console.log('直接调用微信支付');
         wx.chooseWXPay({
+          appId,
           timestamp: timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
           nonceStr, // 支付签名随机串，不长于 32 位
           package: prepayId, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
