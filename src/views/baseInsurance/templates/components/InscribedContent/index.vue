@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-28 12:56:44
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-28 13:27:34
+ * @LastEditTime: 2022-11-29 15:45:27
  * @Description:
 -->
 <template>
@@ -24,7 +24,11 @@ const lastContent = ref<string>();
 watch(
   () => props.inscribedContent,
   (val) => {
-    lastContent.value = val.replaceAll('\n', '<br />');
+    if (!val) {
+      lastContent.value = '';
+    } else {
+      lastContent.value = val.replaceAll('\n', '<br />');
+    }
   },
 );
 </script>

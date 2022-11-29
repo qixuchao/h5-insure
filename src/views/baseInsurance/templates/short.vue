@@ -19,35 +19,34 @@
       />
       <ScrollInfo ref="detailScrollRef" :detail="detail">
         <template #form>
-          <HolderInsureForm
+          <InsureForm
             ref="formRef"
-            is-show-package
-            :disable="!buttonAuth.showInsure"
-            :form-auth="formAuth"
+            :title-collection="{
+              HOLDER: '本人信息（投保人）',
+              INSURER: '为谁投保（被保人）',
+            }"
+            :form-info="formDeatilInfo"
+            :send-sms-code="() => {}"
+            :factor-object="factorObj || {}"
+          ></InsureForm>
+          <!-- <GuaranteeForm
+            v-if="isMultiplePlan"
             :form-info="trialData"
-            :product-detail="detail"
-            @on-reset="onReset"
-            @on-update="onUpdate"
-          />
-          <PaymentType
-            :form-info="trialData"
-            :product-detail="insureDetail"
+            :insure-detail="insureDetail"
             :config-detail="detail"
             :is-multiple-plan="isMultiplePlan"
-            :show-config="detail?.showConfigVO"
-          />
-          <GuaranteeForm
-            show-service-config
-            :data-source="detail?.tenantProductInsureVO"
-            :show-config="detail?.showConfigVO"
+            :risk-info-period-list="riskInfoPeriodList"
+          /> -->
+          <PaymentType
+            :form-info="trialData"
+            :insure-detail="insureDetail"
+            :config-detail="detail"
             :is-multiple-plan="isMultiplePlan"
-            :active-plan-code="trialData.activePlanCode"
-            @update-active-plan="updateActivePlan"
+            :risk-info-period-list="riskInfoPeriodList"
+            :premium="premium"
           />
         </template>
       </ScrollInfo>
-      <van-date-picker v-model="currentDate" title="选择年月" />
-
       <InscribedContent :inscribed-content="detail?.tenantProductInsureVO.inscribedContent" />
       <AttachmentList
         :attachement-list="filterHealthAttachmentList"
@@ -62,14 +61,8 @@
           </span>
         </div>
         <!-- @click="onNext" -->
-        <ProShadowButton
-          :shadow="false"
-          type="primary"
-          class="right"
-          :disabled="!(buttonAuth.canInsure || buttonAuth.canUpgrade)"
-          @click="onNext"
-        >
-          {{ buttonAuth.showInsure ? '立即投保' : '升级保障' }}
+        <ProShadowButton :shadow="false" type="primary" class="right" @click="onNext">
+          {{ '立即投保' }}
         </ProShadowButton>
       </div>
     </div>
@@ -119,6 +112,7 @@ import {
   insureProductDetail,
   getOrderDetailByCondition,
   saveOrder,
+  nextStep,
   underwrite,
   getPayUrl,
   getTenantOrderDetail,
@@ -136,6 +130,7 @@ import {
   validatorRiskZXYS,
   getAgeByCard,
 } from '../utils';
+import { formatDate } from '@/utils/date';
 import { useTheme } from '../theme';
 
 import Banner from './components/Banner/index.vue';
@@ -152,6 +147,7 @@ import PaymentType from './components/PaymentType/index.vue';
 import InscribedContent from './components/InscribedContent/index.vue';
 import AttachmentList from './components/AttachmentList/index.vue';
 import ProShadowButton from './components/ProShadowButton/index.vue';
+import InsureForm from './components/InsureForm/index.vue';
 
 import {
   AuthType,
@@ -164,6 +160,7 @@ import {
   allAuth,
   holderAuth,
 } from './auth';
+import useDicData from '@/hooks/useDicData';
 
 const themeVars = useTheme();
 const router = useRouter();
@@ -196,6 +193,8 @@ const {
 
 const currentDate = ref(null);
 
+const riskInfoPeriodList = useDicData('RISK_INSURANCE_PERIOD'); // 保障期间字典
+
 const formRef = ref();
 const detailScrollRef = ref();
 const detail = ref<ProductDetail>(); // 产品信息
@@ -209,7 +208,6 @@ const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件�
 const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
 let iseeBizNo = '';
-const activePlanIndex = ref<number>(0);
 
 // 试算数据， 赠险进入，从链接上默认取投保人数据
 const trialData = reactive({
@@ -233,17 +231,76 @@ const trialData = reactive({
   packageProductList: [],
   mobileSmsCode: '',
   activePlanCode: '',
+  insurancePeriodValue: '', // 保障期限
+  commencementTime: formatDate(new Date()), // 生效日期
 });
 
-// 表单是否可修改, 默认先从链接取，然后再根据不同的入口修改
-const defaultFormAuth = ref<AuthType>(defaultAuth);
-const formAuth = ref<AuthType>(defaultAuth);
+// tenantId,
+// saleUserId: agentCode,
+// saleChannelId,
+// detail: detail.value as ProductDetail,
+// insureDetail: insureDetail.value,
+// paymentMethod: trialData.paymentMethod,
+// paymentFrequency: trialData.paymentFrequency,
+// iseeBizNo,
+// successJumpUrl: '',
+// premium: (premium.value as number) || 0, // 保费
+// holder: formDeatilInfo.value.,
+// insured: trialData.insured,
+// tenantOrderRiskList: risk,
+// orderStatus: '',
+// orderTopStatus: '',
 
-// 按钮是否可点击
-const buttonAuth = reactive({
-  showInsure: !isPayBack, // 按钮文字，显示‘立即投保’
-  canInsure: false, // 可以投保
-  canUpgrade: false, // 可以升级
+const formDeatilInfo = ref<any>({
+  tenantId,
+  saleUserId: agentCode,
+  saleChannelId,
+  venderCode: detail.value?.insurerCode,
+  tenantOrderHolder: {
+    extInfo: {},
+    certNo: '110101199003074039',
+    certType: CERT_TYPE_ENUM.CERT, // 默认身份证
+    mobile: '15092278220',
+    name: '王大宝',
+    socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
+  },
+  tenantOrderInsuredList: [
+    {
+      relationToHolder: RELATION_HOLDER_ENUM.SELF,
+      extInfo: {
+        occupationCodeList: [],
+      },
+      insuredBeneficiaryType: '1',
+      tenantOrderBeneficiaryList: [
+        {
+          beneficiaryId: 0,
+          extInfo: {
+            occupationCodeList: [],
+          },
+        },
+      ],
+      tenantOrderProductList: [
+        {
+          tenantId,
+          productCode: detail.value?.productCode,
+          productName: detail.value?.productName,
+          premium: (premium.value as number) || 0, // 保费, 保费试算返回
+        },
+      ],
+    },
+  ],
+  extInfo: {
+    buttonCode: 'EVENT_SHORT_saveOrder',
+    paymentFrequency: trialData.paymentFrequency,
+    successJumpUrl: '', // 支付成功跳转
+  },
+  operateOption: {
+    withBeneficiaryInfo: true,
+    withHolderInfo: true,
+    withInsuredInfo: true,
+    withAttachmentInfo: true,
+    withProductInfo: true,
+  },
 });
 
 // 是否多计划
@@ -259,6 +316,19 @@ const isMultiplePlan = computed(() => {
   return false;
 });
 
+// 投保要素
+const factorObj = computed(() => {
+  if (isMultiplePlan.value) {
+    if (trialData.activePlanCode) {
+      return insureDetail.value?.planFactor[trialData.activePlanCode] || {};
+    }
+  } else if (insureDetail.value?.productFactor) {
+    return insureDetail.value?.productFactor;
+  }
+  return {};
+});
+
+// 多计划时添加默认值
 watch(
   () => isMultiplePlan.value,
   () => {
@@ -308,8 +378,6 @@ const filterHealthAttachmentList = computed(() => {
     '3': 'link',
   };
 
-  console.log('tempList=============', tempList);
-
   return Object.keys(tempList).map((e) => {
     tempList[e].forEach((attachmentItem: AttachmentVOList) => {
       if (attachmentItem.attachmentType === '1') {
@@ -334,64 +402,12 @@ const filterHealthAttachmentList = computed(() => {
       attachmentList: tempList[e],
     };
   });
-
-  // return (
-  //   (detail.value?.tenantProductInsureVO?.attachmentVOList || []).filter(
-  //     (item: AttachmentVOList) => item.attachmentName !== '健康告知',
-  //   ) || []
-  // );
 });
 
 // 滑动到投保信息
 const onClickToInsure = () => {
   console.log('detailScrollRef.value', detailScrollRef.value);
   detailScrollRef.value.handleClickTab()('tab3');
-};
-
-// 投被保人信息校验： 1、投保人必须大于18岁。2、被保人为子女不能小于30天。3、被保人为父母不能大于60岁。4、被保人为配偶性别不能相同。
-const onCheckCustomer = () => {
-  if (trialData.holder.certNo) {
-    const age = getAgeByCard(trialData.holder.certNo, 'year');
-    const sex = getSex(trialData.holder.certNo);
-    // 投保人必须大于18岁
-    if (age < 18) {
-      Toast('投保人年龄必须大于18岁！');
-      return false;
-    }
-    // 被保人为配偶性别不能相同
-    if (trialData.insured.certNo && trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.MATE) {
-      const insuredSex = getSex(trialData.insured.certNo);
-      if (sex === insuredSex) {
-        Toast('被保人为配偶时，性别不可相同！');
-        return false;
-      }
-    }
-  }
-  if (trialData.insured.certNo) {
-    const days = getAgeByCard(trialData.insured.certNo, 'day');
-    const age = getAgeByCard(trialData.insured.certNo, 'year');
-    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.CHILD && days < 30) {
-      Toast('被保人为子女时，年龄必须大于等于30天！');
-      return false;
-    }
-    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && age >= 71) {
-      Toast('被保人为父母时，年龄必须小于等于70岁！');
-      return false;
-    }
-  }
-  if ([RELATION_HOLDER_ENUM.CHILD, RELATION_HOLDER_ENUM.PARENT].includes(trialData.insured.relationToHolder)) {
-    const ageH = getAgeByCard(trialData.holder.certNo, 'year');
-    const ageI = getAgeByCard(trialData.insured.certNo, 'year');
-    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.CHILD && ageH - ageI < 18) {
-      Toast('投保人和子女年龄必须相差18岁！');
-      return false;
-    }
-    if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && ageI - ageH < 18) {
-      Toast('投保人和父母年龄必须相差18岁！');
-      return false;
-    }
-  }
-  return true;
 };
 
 // 校验所有输入参数
@@ -411,40 +427,6 @@ const validCalcData = () => {
     return true;
   }
   return false;
-};
-
-const onConfirm = () => {
-  router.push({
-    path: '/internet/guaranteeUpgrade',
-    query: {
-      ...route.query,
-      tenantId,
-      productCode: 'BWYL2022',
-      orderNo,
-      agentCode,
-    },
-  });
-};
-
-// 关闭是否升级弹窗
-const onClose = () => {
-  showModal.value = false;
-};
-
-// 重置、表格回到默认权限
-const onReset = () => {
-  formAuth.value = defaultFormAuth.value;
-};
-
-// 在formAuth的基础上，被保险人可以修改
-const onUpdate = () => {
-  formAuth.value = {
-    ...formAuth.value,
-    relationToHolderDisable: false, // 投被保人关系可以修改
-    insuredNameDisable: false, // 被保人姓名可以修改
-    insuredCertDisable: false, // 被保人证件号可以修改
-    insuredSocialDisable: false, // 被保人社保可以修改
-  };
 };
 
 // 核保 - 参数和保存订单一样, TODO any
@@ -475,9 +457,8 @@ const onUnderWrite = async (o: any) => {
         // TODO
       }
     }
-    buttonAuth.canInsure = true;
   } catch (e) {
-    buttonAuth.canInsure = true;
+    //
   }
 };
 
@@ -503,10 +484,9 @@ const onSaveOrder = async (risk: any) => {
     insureDetail: insureDetail.value,
     paymentMethod: trialData.paymentMethod,
     paymentFrequency: trialData.paymentFrequency,
-    renewalDK: trialData.renewalDK, // 开通下一年
     iseeBizNo,
     successJumpUrl: '',
-    premium: premium.value as number, // 保费
+    premium: (premium.value as number) || 0, // 保费
     holder: trialData.holder,
     insured: trialData.insured,
     tenantOrderRiskList: risk,
@@ -515,10 +495,11 @@ const onSaveOrder = async (risk: any) => {
   });
 
   try {
-    const res = await saveOrder(order);
+    const res = await nextStep(formDeatilInfo);
     const { code, data } = res;
 
     if (code === '10000') {
+      Toast('保存订单成功！');
       onUnderWrite({
         ...order,
         orderNo: data.data,
@@ -535,7 +516,7 @@ const onSaveOrder = async (risk: any) => {
       });
     }
   } catch (e) {
-    buttonAuth.canInsure = true;
+    //
   }
 };
 
@@ -582,13 +563,10 @@ const previewFile = (index: number) => {
 // 点击立即投保才校验信息，显示错误信息
 const onPremiumCalcWithValid = () => {
   return new Promise((resolve, reject) => {
+    // 表单验证通过再检查是否逐条阅读
     formRef.value
       ?.validateForm?.()
       .then(async () => {
-        if (!onCheckCustomer()) {
-          buttonAuth.canInsure = true;
-          return;
-        }
         // 表单验证通过再检查是否逐条阅读
         const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
         if (!isAgree) {
@@ -598,7 +576,6 @@ const onPremiumCalcWithValid = () => {
           previewFile(0);
           return;
         }
-
         // 试算参数
         const { calcData, riskVOList } = genaratePremiumCalcData(
           {
@@ -633,34 +610,30 @@ const onPremiumCalcWithValid = () => {
         }
       })
       .catch(() => {
-        buttonAuth.canInsure = true;
+        //
       });
   });
 };
 
 const onNext = async () => {
-  showFilePreview.value = true;
-  previewFile(0);
-
-  // buttonAuth.canInsure = false;
-  // try {
-  //   const { condition, data } = await onPremiumCalcWithValid();
-
-  //   const riskPremium = {};
-  //   const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
-  //     (premiumList || []).forEach((risk) => {
-  //       riskPremium[risk.riskCode] = risk;
-  //       if (risk.riskPremiumDetailVOList?.length) {
-  //         flatRiskPremium(risk.riskPremiumDetailVOList);
-  //       }
-  //     });
-  //   };
-  //   flatRiskPremium(data.riskPremiumDetailVOList);
-  //   const risk = transformData({ tenantId, riskList: condition, riskPremium, productId: detail.value?.id as number });
-  //   onSaveOrder(risk);
-  // } catch (e) {
-  //   buttonAuth.canInsure = true;
-  // }
+  try {
+    // const { condition, data } = await onPremiumCalcWithValid();
+    // const riskPremium = {};
+    // const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
+    //   (premiumList || []).forEach((risk) => {
+    //     riskPremium[risk.riskCode] = risk;
+    //     if (risk.riskPremiumDetailVOList?.length) {
+    //       flatRiskPremium(risk.riskPremiumDetailVOList);
+    //     }
+    //   });
+    // };
+    // flatRiskPremium(data.riskPremiumDetailVOList);
+    // const risk = transformData({ tenantId, riskList: condition, riskPremium, productId: detail.value?.id as number });
+    // onSaveOrder(risk);
+    onSaveOrder({});
+  } catch (e) {
+    //
+  }
 };
 
 const onCloseHealth = (type: string) => {
@@ -669,7 +642,6 @@ const onCloseHealth = (type: string) => {
     showHealthPreview.value = false;
     isAgreeFile.value = true;
     onNext();
-    buttonAuth.canInsure = true;
   } else {
     Dialog.confirm({
       message: '您当前的健康状况不符合该产品',
@@ -681,7 +653,6 @@ const onCloseHealth = (type: string) => {
       .catch(() => {
         formRef.value?.reEditForm();
         isAgreeFile.value = false;
-        buttonAuth.canInsure = true;
       });
   }
 };
@@ -689,17 +660,14 @@ const onCloseHealth = (type: string) => {
 const resetCanInsureBtn = () => {
   formRef.value?.reEditForm();
   isAgreeFile.value = false;
-  buttonAuth.canInsure = true;
 };
 
 const onCloseHealthPopup = () => {
-  console.log('onCloseHealthPopup========');
   showHealthPreview.value = false;
   resetCanInsureBtn();
 };
 
 const onCloseFilePreview = () => {
-  console.log('onCloseFilePreview========');
   showFilePreview.value = false;
   resetCanInsureBtn();
 };
@@ -736,138 +704,6 @@ watch(
     immediate: true,
   },
 );
-
-// 领了赠险，没买付费险，带orderNo
-// 付费完，返回，带orderNo
-const getOrderById = async () => {
-  const res = await getTenantOrderDetail({ orderNo, tenantId });
-  const { code, data } = res;
-  if (code === '10000') {
-    const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
-    // 领了赠险没买付费，被保人默认本人
-    if (!isPayBack) {
-      Object.assign(trialData, {
-        holder: {
-          certNo: tenantOrderHolder.certNo,
-          certType: tenantOrderHolder.certType,
-          mobile: tenantOrderHolder.mobile,
-          name: tenantOrderHolder.name,
-          socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
-        },
-        insured: {
-          certNo: tenantOrderInsuredList?.[0].certNo,
-          certType: tenantOrderInsuredList[0]?.certType,
-          name: tenantOrderInsuredList[0]?.name,
-          socialFlag: tenantOrderInsuredList[0]?.extInfo?.hasSocialInsurance,
-          relationToHolder: tenantOrderInsuredList[0]?.relationToHolder,
-        },
-        paymentMethod: extInfo.extraInfo.paymentMethod,
-        paymentFrequency: extInfo.extraInfo.paymentFrequency,
-        renewalDK: extInfo.extraInfo.renewalDK || 'N',
-      });
-      buttonAuth.canInsure = true;
-
-      // formAuth.value = noBuyAuth;
-      // defaultFormAuth.value = noBuyAuth;
-
-      return;
-    }
-    // 从payBack回来，展示实际订单信息
-    Object.assign(trialData, {
-      holder: {
-        certNo: tenantOrderHolder.certNo,
-        certType: tenantOrderHolder.certType,
-        mobile: tenantOrderHolder.mobile,
-        name: tenantOrderHolder.name,
-        socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
-      },
-      insured: {
-        certNo: tenantOrderInsuredList?.[0].certNo,
-        certType: tenantOrderInsuredList[0]?.certType,
-        name: tenantOrderInsuredList[0]?.name,
-        socialFlag: tenantOrderInsuredList[0]?.extInfo?.hasSocialInsurance,
-        relationToHolder: tenantOrderInsuredList[0]?.relationToHolder,
-      },
-      paymentMethod: extInfo.extraInfo.paymentMethod,
-      paymentFrequency: extInfo.extraInfo.paymentFrequency,
-      renewalDK: extInfo.extraInfo.renewalDK || 'N',
-    });
-    premium.value = tenantOrderInsuredList[0]?.tenantOrderProductList?.[0]?.premium;
-    // 已承保/支付成功
-    if (
-      data.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY ||
-      data.orderStatus === ORDER_STATUS_ENUM.PAYMENT_SUCCESS
-    ) {
-      buttonAuth.canUpgrade = true;
-      // 隐藏等待页面
-      showWaiting.value = false;
-      // 显示升级弹框
-      showModal.value = true;
-    }
-
-    // 正在支付中，显示等待页面, 3秒后重新刷新订单
-    if (data.orderStatus === ORDER_STATUS_ENUM.PAYING) {
-      showWaiting.value = true;
-      setTimeout(() => {
-        getOrderById();
-      }, 3 * 1000);
-    }
-  }
-};
-
-// 订单状态为承保时，投保人信息不可修改
-// 支付中，超时可以修改投保人信息
-const getOrderByMobile = async () => {
-  console.log('短信进入，带了orderNo, mobile');
-  const res = await getOrderDetailByCondition({
-    holderPhone: mobile,
-    orderStatus: [ORDER_STATUS_ENUM.PAYING.toUpperCase(), ORDER_STATUS_ENUM.TIMEOUT.toUpperCase(), 'ACCEPT_POLICY'],
-    productCode,
-    tenantId,
-  });
-  const { code, data } = res;
-  // 订单状态为承保时，投保人信息不可修改
-  if (data.orderStatus === ORDER_STATUS_ENUM.ACCEPT_POLICY) {
-    console.log('已承保，被保人信息不能修改');
-    formAuth.value = { ...holderAuth, paymentDisable: !!paymentMethod };
-    defaultFormAuth.value = { ...holderAuth, paymentDisable: !!paymentMethod };
-  }
-  // 支付中，超时可以修改投保人信息
-  if (data.orderStatus === ORDER_STATUS_ENUM.PAYING || data.orderStatus === ORDER_STATUS_ENUM.TIMEOUT) {
-    console.log('支付中，超时可以修改投保人信息');
-    formAuth.value = { ...allAuth, paymentDisable: !!paymentMethod };
-    defaultFormAuth.value = { ...allAuth, paymentDisable: !!paymentMethod };
-  }
-
-  if (code === '10000' && data?.tenantOrderHolder?.certNo) {
-    buttonAuth.canInsure = true;
-
-    const { tenantOrderHolder, tenantOrderInsuredList, extInfo } = data;
-    Object.assign(trialData, {
-      holder: {
-        certNo: tenantOrderHolder.certNo,
-        certType: tenantOrderHolder.certType,
-        mobile: tenantOrderHolder.mobile,
-        name: tenantOrderHolder.name,
-        socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
-      },
-      insured: {
-        certNo: tenantOrderInsuredList?.[0].certNo,
-        certType: tenantOrderInsuredList[0]?.certType,
-        name: tenantOrderInsuredList[0]?.name,
-        socialFlag: tenantOrderInsuredList[0]?.extInfo?.hasSocialInsurance,
-        relationToHolder: tenantOrderInsuredList[0]?.relationToHolder,
-      },
-      paymentMethod: paymentMethod || extInfo.extraInfo.paymentMethod,
-      renewalDK: extInfo.extraInfo.renewalDK,
-    });
-  } else {
-    // 没有订单，除了手机号都可以修改
-    formAuth.value = { ...checkAuth, paymentDisable: !!paymentMethod };
-    defaultFormAuth.value = { ...checkAuth, paymentDisable: !!paymentMethod };
-    buttonAuth.canInsure = true;
-  }
-};
 
 const fetchData = async () => {
   const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
@@ -1242,7 +1078,7 @@ const fetchData = async () => {
                 insurancePeriodValuesFlag: 1,
                 paymentPeriodValues: 'year_1',
                 paymentPeriodValuesFlag: 1,
-                paymentFrequency: '1',
+                paymentFrequency: '1,2,1,2,1,2,1,2',
                 paymentFrequencyFlag: 1,
                 annuityDrawValues: null,
                 annuityDrawValuesFlag: 1,
@@ -1294,25 +1130,9 @@ const fetchData = async () => {
       insureDetail.value = insureRes.data;
     }
   });
-
-  if (orderNo) {
-    // 这里要轮询，支付完成后，跳转回来，订单状态可能没有及时更新
-    getOrderById();
-  }
-};
-
-// 从链接上去参数，设置表单权限
-const setFormAuth = () => {
-  // 投保链接
-  console.log('投保链接');
-  formAuth.value = allAuth;
-  defaultFormAuth.value = allAuth;
-  buttonAuth.canInsure = true;
-  // 短信进入，查数据，再设置是否可以修改
 };
 
 onMounted(() => {
-  setFormAuth();
   fetchData();
   // 调用千里眼插件获取一个iseeBiz
   setTimeout(async () => {

@@ -2,14 +2,38 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-29 00:50:29
+ * @LastEditTime: 2022-11-29 21:06:08
  * @Description:
 -->
 <template>
   <van-config-provider :theme-vars="themeVars">
     <div class="com-payment-type">
-      <div class="title">交费方式</div>
-      <div v-if="showDefaultPayment && !showPictureBtn" class="content">
+      <div class="title">{{ isShowPaymentSelect ? '交费方式' : '保障计划' }}</div>
+      <div v-if="isMultiplePlan" class="plan-content">
+        <div class="cell">
+          <div class="label">保障方案</div>
+          <div
+            v-for="(item, index) in planList"
+            :key="`${item.planCode}_${index}`"
+            :class="`content-item ${item.planCode === state.formInfo.activePlanCode ? 'content-item-active' : ''}`"
+            @click="onPlanItemClick(item.planCode)"
+          >
+            <span>{{ item.planName }}</span>
+          </div>
+        </div>
+      </div>
+      <div v-if="showPictureBtn" class="picture-payment-content">
+        <div
+          v-for="item in skinValue"
+          :key="item.paymentFrequency"
+          :class="`picture-payment-item`"
+          @click="onClickPaymethod(item.paymentFrequency)"
+        >
+          <img v-if="state.formInfo.paymentFrequency == item.paymentFrequency" :src="item.selectedPic" />
+          <img v-else :src="item.unSelectedPic" />
+        </div>
+      </div>
+      <div v-else-if="showDefaultPayment" class="default-payment-content">
         <div
           :class="`com-payment-type-item ${
             state.formInfo.paymentFrequency == PAYMENT_COMMON_FREQUENCY_ENUM.MONTH ? 'active' : ''
@@ -39,24 +63,26 @@
           </div>
         </div>
       </div>
-      <div v-if="showPictureBtn" class="picture-payment-content">
+      <div v-else class="multiple-payment-content">
         <div
-          v-for="item in skinValue"
-          :key="item.paymentFrequency"
-          :class="`picture-payment-item`"
-          @click="onClickPaymethod(item.paymentFrequency)"
+          v-for="(item, index) in peymentBtnList"
+          :key="`${item.value}_${index}`"
+          :class="`content-item ${item.value === state.formInfo.paymentFrequency ? 'content-item-active' : ''}`"
+          @click="onClickPaymethod(item.value)"
         >
-          <img v-if="state.formInfo.paymentFrequency == item.paymentFrequency" :src="item.selectedPic" />
-          <img v-else :src="item.unSelectedPic" />
+          <span>{{ item.label }}</span>
         </div>
       </div>
-      <div class="guarantee-date">
-        <span>保障期限</span>
-        <span>{{ startDate }} - {{ endDate }}</span>
-      </div>
-      <div class="guarantee-date">
-        <span>实付保费</span>
-        <span class="fee-text">{{ props.showConfig?.price }}</span>
+      <InsurancePeriodCell
+        :form-info="state.formInfo"
+        :insure-detail="insureDetail"
+        :config-detail="configDetail"
+        :is-multiple-plan="isMultiplePlan"
+        :risk-info-period-list="props.riskInfoPeriodList"
+      />
+      <div class="premium-cell">
+        <div class="premium-label">实付保费</div>
+        <div class="premium">{{ actualPremium }}</div>
       </div>
     </div>
     <ProDivider />
@@ -68,12 +94,13 @@ import dayjs from 'dayjs';
 import themeVars from '../../../theme';
 import {
   PAYMENT_COMMON_FREQUENCY_ENUM,
+  PAYMENT_COMMON_FREQUENCY_MAP,
   PAYMENT_FREQUENCYE_LIST,
   PAYMENT_FREQUENCY_ENUM, // 交费方式
 } from '@/common/constants/infoCollection';
-import ProCard from '@/components/ProCard/index.vue';
 import { PlanInsureVO, ProductDetail, ProductPlanInsureConditionVo, ShowConfigVO } from '@/api/modules/product.data';
 import { ProductData } from '@/api/modules/trial.data';
+import InsurancePeriodCell from '../InsurancePeriodCell/index.vue';
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
@@ -96,6 +123,8 @@ interface FormInfoProps {
     // smoke: string;
   };
   activePlanCode: string;
+  insurancePeriodValue: string; // 保障期限
+  commencementTime: string; // 生效日期
 }
 
 const props = defineProps({
@@ -119,25 +148,52 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  riskInfoPeriodList: {
+    type: Array as () => { name: string; value: string }[],
+    default: () => [],
+  },
+  premium: {
+    type: [Number || null],
+    default: null,
+  },
 });
 
 const emits = defineEmits(['onReset', 'onUpdate', 'onVerify']);
-
-const show = ref<boolean>(true);
 
 const state = reactive({
   formInfo: props.formInfo,
 });
 
-const startDate = computed(() => {
-  return dayjs(new Date()).add(1, 'day').format('YYYY.MM.DD');
-});
-
-const endDate = computed(() => {
-  return dayjs(new Date()).add(1, 'year').format('YYYY.MM.DD');
-});
-
+const planList = ref<PlanInsureVO[]>([]);
 const insureCondition = ref<ProductPlanInsureConditionVo>();
+
+const planInsure = ref<PlanInsureVO>();
+
+const actualPremium = computed(() => {
+  const premiumItem = planInsure.value?.productPremiumVOList.find(
+    (e) => e.paymentFrequencyValue === state.formInfo.paymentFrequency,
+  );
+  if (props.premium && premiumItem) {
+    return `${props.premium}${premiumItem.premiumUnit}`;
+  }
+  if (premiumItem) {
+    return `${premiumItem.paymentFrequencyValue}${premiumItem.premiumUnit}`;
+  }
+  return '';
+});
+
+watch(
+  () => props.configDetail,
+  () => {
+    if (props.isMultiplePlan && props.configDetail) {
+      planList.value = props.configDetail.tenantProductInsureVO?.planList;
+    }
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
 
 watch(
   [() => props.configDetail, () => props.isMultiplePlan, () => state.formInfo.activePlanCode],
@@ -150,8 +206,10 @@ watch(
         );
         if (index > -1) idx = index;
         insureCondition.value = props.configDetail.tenantProductInsureVO.planList[idx].productPlanInsureConditionVO;
+        planInsure.value = props.configDetail.tenantProductInsureVO.planList[idx];
       } else {
         insureCondition.value = props.configDetail.tenantProductInsureVO.planInsureVO.productPlanInsureConditionVO;
+        planInsure.value = props.configDetail.tenantProductInsureVO.planInsureVO;
       }
     }
   },
@@ -161,8 +219,15 @@ watch(
   },
 );
 
+const isShowPaymentSelect = computed(() => {
+  if (insureCondition.value) {
+    const paymentFrequencyList = insureCondition.value.paymentFrequency.split(',');
+    return paymentFrequencyList.length > 1;
+  }
+  return false;
+});
+
 const showDefaultPayment = computed(() => {
-  console.log('insureCondition', insureCondition.value);
   if (insureCondition.value) {
     const paymentFrequencyList = insureCondition.value.paymentFrequency.split(',');
     if (paymentFrequencyList.length === 1) {
@@ -195,6 +260,21 @@ const skinValue = computed(() => {
 const showPictureBtn = computed(() => {
   return skinValue.value.length > 0;
 });
+
+const peymentBtnList = computed(() => {
+  if (insureCondition.value) {
+    const paymentFrequencyList = insureCondition.value.paymentFrequency.split(',');
+    return (paymentFrequencyList || [])?.map((e: any) => ({
+      label: PAYMENT_COMMON_FREQUENCY_MAP[e],
+      value: e,
+    }));
+  }
+  return [];
+});
+
+const onPlanItemClick = (val: string) => {
+  state.formInfo.activePlanCode = val;
+};
 
 const onClickPaymethod = (type: string) => {
   console.log('type', type);
@@ -233,7 +313,53 @@ defineExpose({});
     }
   }
 
-  .content {
+  .plan-content {
+    width: 100%;
+    padding: 30px 40px 17px;
+
+    .cell {
+      display: flex;
+      align-items: center;
+      margin-bottom: 32px;
+      .label {
+        height: 42px;
+        font-size: 30px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #333333;
+        line-height: 42px;
+        margin-right: 55px;
+      }
+
+      .content-item {
+        height: 60px;
+        line-height: 60px;
+        border-radius: 30px;
+        background: #f6f6f6;
+        border-radius: 30px;
+        margin-right: 24px;
+
+        span {
+          height: 42px;
+          font-size: 30px;
+          font-family: PingFangSC-Regular, PingFang SC;
+          font-weight: 400;
+          color: #666666;
+          line-height: 42px;
+          margin: 0px 33px;
+        }
+      }
+      .content-item-active {
+        background: #fff3eb;
+        border: 1px solid $primary-color;
+        span {
+          color: $primary-color;
+        }
+      }
+    }
+  }
+
+  .default-payment-content {
     padding: 0px 40px 32px;
     display: flex;
     justify-content: space-between;
@@ -255,7 +381,6 @@ defineExpose({});
         top: -32px;
         left: 80px;
         border: 18px solid transparent;
-
         border-top: 18px solid #ff6b00;
       }
       .tip {
@@ -265,7 +390,7 @@ defineExpose({});
         width: 280px;
         height: 42px;
         background: #ff6b00;
-        border-radius: 44px 44px 44px 44px;
+        border-radius: 44px;
         display: flex;
         color: #ffffff;
         justify-content: space-between;
@@ -337,38 +462,36 @@ defineExpose({});
     }
   }
 
-  .guarantee-date {
+  .multiple-payment-content {
     padding: 0px 40px 32px;
     display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    .content-item {
+      height: 60px;
+      line-height: 60px;
+      border-radius: 30px;
+      background: #f6f6f6;
+      border-radius: 30px;
+      margin-right: 32px;
+      margin-bottom: 32px;
 
-    span {
-      display: inline-block;
-      height: 42px;
-      font-size: 30px;
-      font-family: PingFangSC-Regular, PingFang SC;
-      font-weight: 400;
-      color: #333333;
-      line-height: 42px;
-
-      &:first-child {
-        margin-right: 55px;
-      }
-
-      &:last-child {
+      span {
         height: 42px;
         font-size: 30px;
         font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
-        color: #333333;
+        color: #666666;
         line-height: 42px;
+        margin: 0px 33px;
       }
     }
-
-    .fee-text {
-      font-size: 30px !important;
-      font-weight: 500 !important;
-      font-family: PingFangSC-Medium, PingFang SC !important;
-      color: #ff6600 !important;
+    .content-item-active {
+      background: #fff3eb;
+      border: 1px solid $primary-color;
+      span {
+        color: $primary-color;
+      }
     }
   }
 }
