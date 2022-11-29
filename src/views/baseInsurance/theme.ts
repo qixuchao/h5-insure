@@ -16,6 +16,7 @@ export const useTheme = (color: string = THEME_MAP.orange) => {
     buttonPrimaryBorderColor: color, // 主题按钮边框
     checkboxCheckedBgColor: `${color}20`, // van-checkbox的背景色
     switchOnBackgroundColor: color, // switch 开时的背景
+    toastDefaultPadding: '14px',
     // ..其他组件的颜色覆盖
   };
 };

@@ -23,9 +23,11 @@
 </template>
 <script lang="ts" setup>
 import { injectGlobal } from '@emotion/css';
+
 import { getConfig } from './utils/config';
 import themes from './themes';
 import { useThemesStore } from './store/themes';
+import useLoading from '@/hooks/useLoading';
 
 const styleMap = {
   default: () => import('@/styles/themes/default.scss'),
@@ -49,11 +51,16 @@ const addScript = (url: string, isAsync = true) => {
   script.src = url;
   document.getElementsByTagName('head')[0].appendChild(script);
 };
-
+const l = ref(true);
 onMounted(() => {
   console.log('ISEE:', getConfig('isee'), '\nX_FLOW:', X_FLOW);
   addScript(getConfig('isee')); // 千里眼SDK
   addScript(X_FLOW); // 埋点SDK
+
+  // useLoading(l);
+  // setTimeout(() => {
+  //   l.value = false;
+  // }, 4000);
 });
 </script>
 <style lang="scss">
