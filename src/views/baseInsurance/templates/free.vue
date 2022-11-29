@@ -28,9 +28,11 @@ import ProShadowButton from './components/ProShadowButton/index.vue';
 import Banner from './components/Banner/index.vue';
 import FreeHolderForm from './components/FreeHolderForm/index.vue';
 import { productDetail, getAppUser } from '@/api/modules/product';
-import { insureProductDetail, toClogin } from '@/api/modules/trial';
+import { insureProductDetail, toClogin, nextStep } from '@/api/modules/trial';
+// import { nextStep } from '@/api/index';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ProductData } from '@/api/modules/trial.data';
+import { freeTransform } from '../utils';
 import { useTheme } from '../theme';
 // 调用主题
 const themeVars = useTheme();
@@ -41,10 +43,16 @@ interface QueryData {
   productCode: string; // 产品code
   tenantId: string; // 订单id
   openid: string; // 手机号
+  indirectCode: string;
   [key: string]: string;
 }
 
-const { productCode = 'BWYL2021', openId = 'oKugN52glZx_hhg7liu0WpWcmD5o', tenantId } = route.query as QueryData;
+const {
+  productCode = 'BWYL2021',
+  openId = 'oKugN52glZx_hhg7liu0WpWcmD5o',
+  tenantId = '9991000001',
+  indirectCode = '123',
+} = route.query as QueryData;
 console.log('-----themeVars', themeVars);
 
 let iseeBizNo = '';
@@ -110,25 +118,45 @@ const fetchData = async () => {
 
     if (insureRes.code === '10000') {
       state.insureDetail = insureRes.data as any;
+      state.insureDetail.productFactor[2] = state.insureDetail.productFactor?.[2].map((item: any) => {
+        if (item.code === 'relationToHolder' && item.isDisplay === 1) {
+          // eslint-disable-next-line no-param-reassign
+          item.title = '被保人';
+          // eslint-disable-next-line no-param-reassign
+          state.order.tenantOrderInsuredList[0].relationToHolder = item.attributeValueList?.[0]?.code || '';
+        }
+        return item;
+      });
     }
     if (userRes.code === '10000') {
-      state.newAuth = !!userRes.data;
+      state.newAuth = !userRes.data;
     }
   });
 };
 
 const clickHandler = async () => {
-  console.log(state.detail, 'ssslsl');
-  const req: any = state.newAuth ? toClogin : '';
-  try {
-    const { code, data } = await req({
-      loginName: '15317327379',
-      loginType: '2',
-      openId,
-      thirdUserType: 'XINAO_WECHAT',
-      indirectCode: '123',
-      password: '123456',
+  const req: any = state.newAuth ? toClogin : nextStep;
+  let params: any = {
+    loginType: '2',
+    openId,
+    thirdUserType: 'XINAO_WECHAT',
+    indirectCode,
+  };
+  if (state.newAuth) {
+    params.loginName = state.order.tenantOrderHolder.mobile;
+    params.password = state.order.tenantOrderHolder.verificationCode;
+  } else {
+    params = freeTransform({
+      order: state.order,
+      tenantId,
+      detail: state.detail,
+      insureDetail: state.insureDetail,
+      iseeBizNo,
+      buttonCode: 'EVENT_FREE_multiIssuePolicy',
     });
+  }
+  try {
+    const { code, data } = await req(params);
     if (code === '10000') {
       state.newAuth = false;
     }
@@ -157,6 +185,9 @@ onMounted(() => {
     }
   }
   .page-free-footer {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
     padding: 0 70px 70px;
     box-sizing: border-box;
   }

@@ -62,3 +62,7 @@ export const deleteOrder = (data = {}) =>
 // 新用户登陆注册
 export const toClogin = (data = {}) =>
   request<ResponseData<any>>({ url: '/api/mall/app/v2/login/toClogin', method: 'POST', data });
+
+// 在线投保-通用下一步
+export const nextStep = (data = {}) =>
+  request<ResponseData<any>>({ url: '/api/app/insure/insurance/nextStep', method: 'POST', data });

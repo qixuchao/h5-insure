@@ -105,7 +105,7 @@
       :name="`${prefix}_certNo`"
       :required="isRequiredByFactor('certNo')"
       placeholder="请输入"
-      :maxlength="18"
+      :maxlength="19"
       :validate-type="validateType"
     ></ProField>
 

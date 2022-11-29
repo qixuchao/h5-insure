@@ -45,6 +45,7 @@ interface transformDataType {
   riskPremium: any;
   productId: number;
 }
+
 // 将试算的参数转化成订单中需要的结构
 export const transformData = (o: transformDataType) => {
   const { tenantId, riskList, riskPremium, productId } = o;
@@ -147,9 +148,7 @@ export const compositionTrailData = (
       coveragePeriod: insurancePeriodValueList?.[0],
       insuredCode: productDetail?.insurerCode,
       // 定制配置，责任去掉FXG086
-      liabilityVOList: flag
-        ? riskLiabilityInfoVOList.filter((liab) => liab.optionalFlag === 1 && liab.liabilityCode !== 'FXG086')
-        : riskLiabilityInfoVOList,
+      liabilityVOList: riskLiabilityInfoVOList,
       // paymentFrequency: paymentFrequencyList?.[0],
       riskCategory,
     };
@@ -622,4 +621,119 @@ export const validateSmsCode = (code: string): boolean => {
 
 export const getAgeByCard = (idCard: string, format: UnitType = 'year'): number => {
   return dayjs().diff(getBirth(idCard), format, true);
+};
+
+const getIsNaN = (val: any) => {
+  if (!val || Number.isNaN(+val.split('_')[1])) return 0;
+  return val?.split('_')[1];
+};
+
+export const freeTransformData = (o: transformDataType) => {
+  const { tenantId, riskList, riskPremium, productId } = o;
+  return riskList.map((risk: RiskVoItem) => {
+    const currentRisk = {
+      tenantId,
+      amountUnit: 1,
+      annuityDrawFrequency: risk.annuityDrawDate,
+      annuityDrawType: risk.annuityDrawType,
+      paymentFrequency: risk.paymentFrequency,
+      paymentPeriod: 0,
+      paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS?.[risk.chargePeriod],
+      insurancePeriodType:
+        INSURANCE_PERIOD_TYPE_ENUMS[
+          risk.coveragePeriod === 'to_life' ? 'to_life' : risk.coveragePeriod?.split('_')?.[0]
+        ],
+      insurancePeriodValue: getIsNaN(risk.coveragePeriod),
+      riskCode: risk.riskCode,
+      riskType: risk.riskType,
+      riskName: risk.riskName,
+      extInfo: {
+        riskId: risk.riskId,
+        copy: risk.copy,
+      },
+      initialPremium: riskPremium[risk.riskCode]?.premium,
+      liabilityDetails: risk.liabilityVOList?.map((liab) => ({
+        liabilityCode: liab.liabilityCode,
+        liabilityName: liab.liabilityName,
+        refundMethod: liab.liabilityAttributeValue,
+      })),
+      productId,
+      currentAmount: risk.amount,
+      initialAmount: risk.amount,
+    };
+    return currentRisk;
+  });
+};
+
+export const freeTransform = (o: any) => {
+  console.log(o, 'sksksk');
+  const params = {
+    buttonCode: o.buttonCode,
+    templateId: 1,
+    orderAmount: 0, // '1'
+    tenantId: o.tenantId, // '1'
+    venderCode: o.insureDetail.productBasicInfoVO.insurerCode, // '1'
+    orderDataSource: '1', // 1 // 订单来源
+    saleUserId: o.saleUserId, // 1 'url'
+    saleChannelId: o.saleChannelId, // 1  'url'// 销售渠道id
+    orderCategory: '1', // 1 '1' // 订单类型
+    tenantOrderHolder: {
+      tenantId: o.tenantId,
+      name: o.order.tenantOrderHolder.name,
+      certNo: o.order.tenantOrderHolder.certNo,
+      certType: o.order.tenantOrderHolder.certEndType, // 默认身份证
+      mobile: o.order.tenantOrderHolder.mobile,
+      birthday: getBirth(o.order.tenantOrderHolder.certNo),
+      gender: getSex(o.order.tenantOrderHolder.certNo),
+    },
+    extInfo: {
+      // 1
+      extraInfo: {
+        renewalDK: o.renewalDK, // 签约
+        paymentMethod: o.paymentMethod,
+        paymentFrequency: o.paymentFrequency,
+        successJumpUrl: o.successJumpUrl, // 支付成功跳转
+      },
+      buttonCode: o.buttonCode,
+      // ...o.extInfo;
+      iseeBizNo: o.iseeBizNo,
+    },
+    tenantOrderInsuredList: [
+      {
+        tenantId: o.tenantId,
+        relationToHolder: o.order.tenantOrderInsuredList[0].relationToHolder,
+        certNo: o.order.tenantOrderInsuredList[0].certNo,
+        certType: o.order.tenantOrderInsuredList[0].certEndType, // 默认身份证
+        name: o.order.tenantOrderInsuredList[0].name,
+        mobile:
+          o.order.tenantOrderInsuredList[0].relationToHolder === RELATION_HOLDER_ENUM.SELF
+            ? o.order.tenantOrderHolder.mobile
+            : '',
+        birthday: getBirth(o.order.tenantOrderInsuredList[0].certNo),
+        gender: getSex(o.order.tenantOrderInsuredList[0].certNo),
+        tenantOrderProductList: [
+          // 1
+          {
+            tenantId: o.tenantId, // 1
+            productCode: o.insureDetail?.productBasicInfoVO.productCode, // 1
+            productName: o.insureDetail?.productBasicInfoVO.productName, // 1
+            premium: 0, // 1 // 保费, 保费试算返回
+            tenantOrderRiskList: freeTransformData({
+              tenantId: o.tenantId,
+              riskList: compositionTrailData(o.insureDetail.productRiskVoList[0].riskDetailVOList, o.detail) as any,
+              riskPremium: {},
+              productId: o.detail?.id as number,
+            }),
+          },
+        ],
+      },
+    ],
+    // 更新订单时需要更新的项目
+    operateOption: {
+      withHolderInfo: true,
+      withInsuredInfo: true,
+      withProductInfo: true,
+    },
+  };
+  return params;
 };
