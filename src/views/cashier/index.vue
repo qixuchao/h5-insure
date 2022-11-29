@@ -35,6 +35,7 @@
 
 <script lang="ts" setup name="Cashier">
 import { Loading, Radio, RadioGroup, Toast } from 'vant';
+import wx from 'weixin-js-sdk';
 import { useClipboard } from '@vueuse/core';
 import useAppStore from '@/store/app';
 import { GetPayUrlParam, PayParam } from '@/api/modules/cashier.data';
@@ -176,6 +177,12 @@ const getOrderDetail = () => {
 onMounted(() => {
   //  微信环境，跳转微信授权
   if (isWeiXin) {
+    wx.checkJsApi({
+      jsApiList: ['chooseWXPay'], // 需要检测的 JS 接口列表，所有 JS 接口列表见附录2,
+      success(res) {
+        console.log('checkJsApi--chooseWXPay', res);
+      },
+    });
     const { appId } = appStore;
     const url = `${window.location.href}`;
     console.log('当前url', url);

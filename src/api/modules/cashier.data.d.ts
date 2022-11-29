@@ -49,6 +49,7 @@ export interface PayParam {
  *
  */
 interface PayResult extends PayParam {
+  appId: string;
   redirect_url: string;
   timeStamp: string;
    nonceStr: string;
