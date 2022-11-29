@@ -1,7 +1,17 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
     <ProPageWrap class="net-sale-wrap">
-      <InsureForm ref="formRef" :form-info="detail" :send-sms-code="() => {}" :factor-object="factorObj"></InsureForm>
+      <InsureForm
+        ref="formRef"
+        :title-collection="{
+          HOLDER: '本人信息（投保人）',
+          INSURER: '为谁投保（被保人）',
+          BENEFICIARY: '收益人',
+        }"
+        :form-info="detail"
+        :send-sms-code="() => {}"
+        :factor-object="factorObj"
+      ></InsureForm>
       <div class="footer-button">
         <van-button type="primary" block @click="insured">分享用户确认投保</van-button>
       </div>
@@ -105,7 +115,35 @@ const {
 } = route.query as QueryData;
 
 const formRef = ref();
-const detail = ref<ProductDetail>({}); // 产品信息
+const detail = ref<any>({
+  tenantOrderHolder: {
+    extInfo: {},
+  },
+  tenantOrderInsuredList: [
+    {
+      relationToHolder: '0',
+      extInfo: {
+        occupationCodeList: [],
+      },
+      insuredBeneficiaryType: '1',
+      tenantOrderBeneficiaryList: [
+        {
+          beneficiaryId: 0,
+          extInfo: {
+            occupationCodeList: [],
+          },
+        },
+      ],
+    },
+  ],
+  operateOption: {
+    withBeneficiaryInfo: true,
+    withHolderInfo: true,
+    withInsuredInfo: true,
+    withAttachmentInfo: true,
+    withProductInfo: true,
+  },
+}); // 产品信息
 const insureDetail = ref<ProductData>(); // 险种信息
 const premium = ref<number | null>(); // 保费
 const factorObj = ref<any>({});
@@ -522,6 +560,16 @@ const onSubmit = () => {
   showHealthPreview.value = true;
   // onNext();
 };
+
+watch(
+  () => detail.value,
+  () => {
+    console.log('123123');
+  },
+  {
+    deep: true,
+  },
+);
 
 watch(
   [

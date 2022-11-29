@@ -2,14 +2,14 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-28 21:32:54
+ * @LastEditTime: 2022-11-29 12:44:12
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <div class="page-info-wrapper">
     <ProForm ref="formRef" show-error :show-error-message="false" input-align="left">
-      <ProCard v-if="pageFactor.HOLDER?.length" :show-divider="false" title="本人信息（投保人）">
+      <ProCard v-if="pageFactor.HOLDER?.length" :show-divider="false" :title="titleCollection?.HOLDER">
         <PersonalInfo
           v-model:images="holderImages"
           :form-info="formInfo.tenantOrderHolder"
@@ -19,7 +19,24 @@
           :send-sms-code="sendSmsCode"
         ></PersonalInfo>
       </ProCard>
-      <ProCard v-if="pageFactor.INSURER?.length" :show-divider="false" title="为谁投保（被保人）">
+      <ProCard v-if="pageFactor.INSURER?.length" :show-divider="false" :title="titleCollection?.INSURER">
+        <ProField
+          v-if="showByFactor('relationToHolder')"
+          v-model="formInfo.tenantOrderInsuredList[0].relationToHolder"
+          class="relation-holder"
+          :name="`insure_relationToHolder`"
+          :required="isRequiredByFactor('relationToHolder')"
+          :label="queryFactorAttr('relationToHolder', 'title')"
+        >
+          <template #input>
+            <ProRadioButton
+              v-model="formInfo.tenantOrderInsuredList[0].relationToHolder"
+              :is-view="isView"
+              :prop="{ label: 'value', value: 'code' }"
+              :options="queryFactorAttr('relationToHolder', 'attributeValueList') || []"
+            />
+          </template>
+        </ProField>
         <PersonalInfo
           v-if="+formInfo.tenantOrderInsuredList[0].relationToHolder !== 1"
           v-model:images="insuredImages"
@@ -31,7 +48,7 @@
         ></PersonalInfo>
       </ProCard>
 
-      <ProCard v-if="pageFactor.BENEFICIARY?.length" :show-divider="false" title="受益人">
+      <ProCard v-if="pageFactor.BENEFICIARY?.length" :show-divider="false" :title="titleCollection?.BENEFICIARY">
         <div v-if="formInfo.tenantOrderInsuredList[0].insuredBeneficiaryType == 2" class="beneficiary-part">
           <div
             v-for="(beneficiary, index) in formInfo.tenantOrderInsuredList[0].tenantOrderBeneficiaryList"
@@ -69,6 +86,7 @@ import {
   ATTACHMENT_CATEGORY_ENUM,
   ATTACHMENT_OBJECT_TYPE_ENUM,
   NEXT_BUTTON_CODE_ENUMS,
+  YES_NO_ENUM,
 } from '@/common/constants';
 import { getInitFactor, nextStep, getTemplateInfo, getOrderDetail } from '@/api';
 import { premiumCalc } from '@/api/modules/trial';
@@ -102,9 +120,10 @@ interface State {
 
 interface Props {
   factorObject: any; // 投保要素集合
-  formData: {};
+  formInfo: {};
   isView?: boolean;
-  sendSmsCode?: (cb: () => void) => void;
+  sendSmsCode?: (mobile: string, cb: () => void) => void;
+  titleCollection?: any;
 }
 
 type BeneficiaryItem = TenantOrderBeneficiaryItem & { beneficiaryId?: number };
@@ -118,9 +137,10 @@ const route = useRoute();
 
 const props = withDefaults(defineProps<Props>(), {
   factorList: () => [],
-  formData: () => ({}),
+  formInfo: () => ({}),
   isView: false,
-  sendSmsCode: (cb) => {},
+  sendSmsCode: (mobile, cb) => {},
+  titleCollection: () => ({}),
 });
 
 const pageFactor = ref<FactorEnums>({});
@@ -168,6 +188,27 @@ const state = reactive<State>({
   currentAddress: null,
   isLoading: true,
 });
+
+const factorObj = computed(() => {
+  const factor: any = {};
+  (pageFactor.value?.INSURER || []).forEach((factorItem) => {
+    factor[factorItem.code] = factorItem;
+  });
+  return factor;
+});
+
+// 根据模板因子控制表单元素的展示
+const showByFactor = (key: string) => {
+  return factorObj.value?.[key].isDisplay === YES_NO_ENUM.YES;
+};
+
+// 根据模板因子控制表单元素的是否必填
+const isRequiredByFactor = (key: string) => {
+  return factorObj.value?.[key].isMustInput === YES_NO_ENUM.YES;
+};
+
+// 获取表单项的属性
+const queryFactorAttr = (key: string, attr: string) => factorObj.value?.[key]?.[attr] || '';
 
 // 添加受益人信息
 const addBeneficiary = () => {
@@ -220,12 +261,12 @@ watch(
   () => props.factorObject,
   () => {
     // 将页面因子根据投保人、被保人、受益人进行分类
-    const factorObj = {
+    const currentFactorObj = {
       BENEFICIARY: props.factorObject[3] as ProductInsureFactorItem[],
       INSURER: props.factorObject[2] as ProductInsureFactorItem[],
       HOLDER: props.factorObject[1] as ProductInsureFactorItem[],
     };
-    pageFactor.value = factorObj;
+    pageFactor.value = currentFactorObj;
   },
   {
     immediate: true,
@@ -239,6 +280,19 @@ watch(
   () => {
     if (`${formInfo.value.tenantOrderInsuredList[0].relationToHolder}` === RELATION_HOLDER_ENUM.SELF) {
       holderInfo2InsuredInfo();
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  () => props.formInfo,
+  () => {
+    if (props.formInfo) {
+      formInfo.value = props.formInfo;
     }
   },
   {
