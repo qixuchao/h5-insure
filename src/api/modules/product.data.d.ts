@@ -276,7 +276,6 @@ export interface TenantProductInsureVO {
    * 单计划保障详情
    */
   titleAndDescVOS: TitleAndDescVO[]
-  rateUri?: string // 费率表
 }
 
 export interface ProductDetail {

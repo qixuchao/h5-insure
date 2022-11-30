@@ -2,35 +2,14 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 01:03:10
+ * @LastEditTime: 2022-11-29 00:50:29
  * @Description:
 -->
 <template>
   <van-config-provider :theme-vars="themeVars">
     <div class="com-payment-type">
-      <div class="title">{{ isShowPaymentSelect ? '交费方式' : '保障计划' }}</div>
-      <div v-if="isMultiplePlan" class="custom-cell check-btn-cell">
-        <div class="cell-label">保障方案</div>
-        <div class="cell-content">
-          <ProRadioButton
-            v-model="state.formInfo.activePlanCode"
-            :options="planList"
-            :prop="{ value: 'planCode', label: 'planName' }"
-          ></ProRadioButton>
-        </div>
-      </div>
-      <div v-if="showPictureBtn" class="picture-payment-content">
-        <div
-          v-for="item in skinValue"
-          :key="item.paymentFrequency"
-          :class="`picture-payment-item`"
-          @click="onClickPaymethod(item.paymentFrequency)"
-        >
-          <img v-if="state.formInfo.paymentFrequency == item.paymentFrequency" :src="item.selectedPic" />
-          <img v-else :src="item.unSelectedPic" />
-        </div>
-      </div>
-      <div v-else-if="showDefaultPayment" class="default-payment-content">
+      <div class="title">交费方式</div>
+      <div v-if="showDefaultPayment && !showPictureBtn" class="content">
         <div
           :class="`com-payment-type-item ${
             state.formInfo.paymentFrequency == PAYMENT_COMMON_FREQUENCY_ENUM.MONTH ? 'active' : ''
@@ -60,22 +39,24 @@
           </div>
         </div>
       </div>
-      <div v-else class="custom-cell check-btn-cell">
-        <div class="cell-label">交费方式</div>
-        <div class="cell-content">
-          <ProRadioButton v-model="state.formInfo.paymentFrequency" :options="peymentBtnList"></ProRadioButton>
+      <div v-if="showPictureBtn" class="picture-payment-content">
+        <div
+          v-for="item in skinValue"
+          :key="item.paymentFrequency"
+          :class="`picture-payment-item`"
+          @click="onClickPaymethod(item.paymentFrequency)"
+        >
+          <img v-if="state.formInfo.paymentFrequency == item.paymentFrequency" :src="item.selectedPic" />
+          <img v-else :src="item.unSelectedPic" />
         </div>
       </div>
-      <InsurancePeriodCell
-        :form-info="state.formInfo"
-        :insure-detail="insureDetail"
-        :config-detail="configDetail"
-        :is-multiple-plan="isMultiplePlan"
-        :risk-info-period-list="props.riskInfoPeriodList"
-      />
-      <div class="custom-cell common-cell">
-        <div class="cell-label">实付保费</div>
-        <div class="cell-content">{{ actualPremium }}</div>
+      <div class="guarantee-date">
+        <span>保障期限</span>
+        <span>{{ startDate }} - {{ endDate }}</span>
+      </div>
+      <div class="guarantee-date">
+        <span>实付保费</span>
+        <span class="fee-text">{{ props.showConfig?.price }}</span>
       </div>
     </div>
     <ProDivider />
@@ -87,13 +68,12 @@ import dayjs from 'dayjs';
 import themeVars from '../../../theme';
 import {
   PAYMENT_COMMON_FREQUENCY_ENUM,
-  PAYMENT_COMMON_FREQUENCY_MAP,
   PAYMENT_FREQUENCYE_LIST,
   PAYMENT_FREQUENCY_ENUM, // 交费方式
 } from '@/common/constants/infoCollection';
+import ProCard from '@/components/ProCard/index.vue';
 import { PlanInsureVO, ProductDetail, ProductPlanInsureConditionVo, ShowConfigVO } from '@/api/modules/product.data';
 import { ProductData } from '@/api/modules/trial.data';
-import InsurancePeriodCell from '../InsurancePeriodCell/index.vue';
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
@@ -116,8 +96,6 @@ interface FormInfoProps {
     // smoke: string;
   };
   activePlanCode: string;
-  insurancePeriodValue: string; // 保障期限
-  commencementTime: string; // 生效日期
 }
 
 const props = defineProps({
@@ -141,52 +119,25 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  riskInfoPeriodList: {
-    type: Array as () => { name: string; value: string }[],
-    default: () => [],
-  },
-  premium: {
-    type: [Number || null],
-    default: null,
-  },
 });
 
 const emits = defineEmits(['onReset', 'onUpdate', 'onVerify']);
+
+const show = ref<boolean>(true);
 
 const state = reactive({
   formInfo: props.formInfo,
 });
 
-const planList = ref<PlanInsureVO[]>([]);
-const insureCondition = ref<ProductPlanInsureConditionVo>();
-
-const planInsure = ref<PlanInsureVO>();
-
-const actualPremium = computed(() => {
-  const premiumItem = planInsure.value?.productPremiumVOList.find(
-    (e) => e.paymentFrequency === state.formInfo.paymentFrequency,
-  );
-  if (props.premium && premiumItem) {
-    return `${props.premium}${premiumItem.premiumUnit || ''}`;
-  }
-  if (premiumItem) {
-    return `${premiumItem.paymentFrequencyValue || ''}${premiumItem.premiumUnit || ''}`;
-  }
-  return '';
+const startDate = computed(() => {
+  return dayjs(new Date()).add(1, 'day').format('YYYY.MM.DD');
 });
 
-watch(
-  () => props.configDetail,
-  () => {
-    if (props.isMultiplePlan && props.configDetail) {
-      planList.value = props.configDetail.tenantProductInsureVO?.planList;
-    }
-  },
-  {
-    immediate: true,
-    deep: true,
-  },
-);
+const endDate = computed(() => {
+  return dayjs(new Date()).add(1, 'year').format('YYYY.MM.DD');
+});
+
+const insureCondition = ref<ProductPlanInsureConditionVo>();
 
 watch(
   [() => props.configDetail, () => props.isMultiplePlan, () => state.formInfo.activePlanCode],
@@ -199,10 +150,8 @@ watch(
         );
         if (index > -1) idx = index;
         insureCondition.value = props.configDetail.tenantProductInsureVO.planList[idx].productPlanInsureConditionVO;
-        planInsure.value = props.configDetail.tenantProductInsureVO.planList[idx];
       } else {
         insureCondition.value = props.configDetail.tenantProductInsureVO.planInsureVO.productPlanInsureConditionVO;
-        planInsure.value = props.configDetail.tenantProductInsureVO.planInsureVO;
       }
     }
   },
@@ -212,15 +161,8 @@ watch(
   },
 );
 
-const isShowPaymentSelect = computed(() => {
-  if (insureCondition.value) {
-    const paymentFrequencyList = insureCondition.value.paymentFrequency.split(',');
-    return paymentFrequencyList.length > 1;
-  }
-  return false;
-});
-
 const showDefaultPayment = computed(() => {
+  console.log('insureCondition', insureCondition.value);
   if (insureCondition.value) {
     const paymentFrequencyList = insureCondition.value.paymentFrequency.split(',');
     if (paymentFrequencyList.length === 1) {
@@ -253,21 +195,6 @@ const skinValue = computed(() => {
 const showPictureBtn = computed(() => {
   return skinValue.value.length > 0;
 });
-
-const peymentBtnList = computed(() => {
-  if (insureCondition.value) {
-    const paymentFrequencyList = insureCondition.value.paymentFrequency.split(',');
-    return (paymentFrequencyList || [])?.map((e: any) => ({
-      label: PAYMENT_COMMON_FREQUENCY_MAP[e],
-      value: e,
-    }));
-  }
-  return [];
-});
-
-const onPlanItemClick = (val: string) => {
-  state.formInfo.activePlanCode = val;
-};
 
 const onClickPaymethod = (type: string) => {
   console.log('type', type);
@@ -306,41 +233,8 @@ defineExpose({});
     }
   }
 
-  .cell-label {
-    min-width: 120px;
-    height: 60px;
-    font-size: 30px;
-    font-family: PingFangSC-Regular, PingFang SC;
-    font-weight: 400;
-    color: #333333;
-    line-height: 60px;
-    margin-right: 55px;
-  }
-
-  .custom-cell {
-    width: 100%;
+  .content {
     padding: 0px 40px 32px;
-  }
-
-  .check-btn-cell {
-    display: flex;
-    .cell-label {
-      margin-top: 5px;
-    }
-    .cell-content {
-      :deep(.radio-btn) {
-        justify-content: flex-start;
-      }
-      :deep(.btn-wrapper) {
-        &:nth-child(3n + 1) {
-          margin-left: 0px !important;
-        }
-      }
-    }
-  }
-
-  .default-payment-content {
-    padding: 45px 40px 32px;
     display: flex;
     justify-content: space-between;
     text-align: center;
@@ -361,6 +255,7 @@ defineExpose({});
         top: -32px;
         left: 80px;
         border: 18px solid transparent;
+
         border-top: 18px solid #ff6b00;
       }
       .tip {
@@ -370,9 +265,9 @@ defineExpose({});
         width: 280px;
         height: 42px;
         background: #ff6b00;
-        border-radius: 44px;
+        border-radius: 44px 44px 44px 44px;
         display: flex;
-        color: #ffffff !important;
+        color: #ffffff;
         justify-content: space-between;
         vertical-align: center;
         padding: 5px 20px;
@@ -442,33 +337,38 @@ defineExpose({});
     }
   }
 
-  .common-cell {
+  .guarantee-date {
+    padding: 0px 40px 32px;
     display: flex;
-    justify-content: flex-start;
 
-    .cell-label {
+    span {
+      display: inline-block;
       height: 42px;
-      line-height: 42px;
-    }
-
-    .cell-content {
-      height: 42px;
-      line-height: 42px;
       font-size: 30px;
       font-family: PingFangSC-Regular, PingFang SC;
       font-weight: 400;
       color: #333333;
-    }
-  }
+      line-height: 42px;
 
-  .active {
-    background: var(--van-checkbox-checked-bg-color) !important;
-    border: 1px solid $primary-color;
-    span {
-      color: $primary-color !important;
+      &:first-child {
+        margin-right: 55px;
+      }
+
+      &:last-child {
+        height: 42px;
+        font-size: 30px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #333333;
+        line-height: 42px;
+      }
     }
-    .tip span {
-      color: #ffffff !important;
+
+    .fee-text {
+      font-size: 30px !important;
+      font-weight: 500 !important;
+      font-family: PingFangSC-Medium, PingFang SC !important;
+      color: #ff6600 !important;
     }
   }
 }

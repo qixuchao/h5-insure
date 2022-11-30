@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-11-29 22:09:55
+ * @LastEditTime: 2022-11-29 14:59:26
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -261,9 +261,9 @@ const baseInsurance = [
   },
   {
     name: '',
-    path: '/baseInsurance/payResult',
+    path: '/baseInsurance/orderResult',
     meta: { title: '' },
-    component: () => import('@/views/baseInsurance/payResult/index.vue'),
+    component: () => import('@/views/baseInsurance/orderResult/index.vue'),
   },
 ];
 
@@ -274,14 +274,6 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/home/index.vue'),
     meta: {
       title: '主页',
-    },
-  },
-  {
-    name: 'Menu',
-    path: '/menu',
-    component: () => import('@/views/home/menu.vue'),
-    meta: {
-      title: '导航',
     },
   },
   {

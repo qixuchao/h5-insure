@@ -1,14 +1,6 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
     <ProPageWrap class="net-sale-wrap">
-      <ProCard v-if="isShowInsurePeriod" title="保障年期">
-        <ProRadioButton
-          v-model="currentPlan"
-          class="radio-group"
-          :prop="{ label: 'planName', value: 'planCode' }"
-          :options="insureDetail?.productRelationPlanVOList"
-        ></ProRadioButton>
-      </ProCard>
       <InsureForm
         ref="formRef"
         :title-collection="{
@@ -16,7 +8,7 @@
           INSURER: '为谁投保（被保人）',
           BENEFICIARY: '收益人',
         }"
-        :form-info="orderDetail"
+        :form-info="detail"
         :send-sms-code="() => {}"
         :factor-object="factorObj"
       ></InsureForm>
@@ -46,19 +38,9 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import { debounce } from 'lodash';
-import {
-  transformData,
-  genaratePremiumCalcData,
-  genarateOrderParam,
-  onCollectPackageRiskIdList,
-  validatorRiskZXYS,
-  getAgeByCard,
-  riskToOrder,
-} from '../../utils';
 
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
 import { PackageProductVoItem, ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
@@ -72,10 +54,18 @@ import {
   getPayUrl,
   getTenantOrderDetail,
 } from '@/api/modules/trial';
-import { nextStep } from '@/api';
 import InsureForm from '../components/InsureForm/index.vue';
+
 import { ORIGIN, toLocal } from '@/utils';
 
+import {
+  genaratePremiumCalcData,
+  transformData,
+  genarateOrderParam,
+  onCollectPackageRiskIdList,
+  validatorRiskZXYS,
+  getAgeByCard,
+} from '../../utils';
 import { useTheme } from '../../theme';
 import { validateIdCardNo, getSex } from '@/components/ProField/utils';
 import { CERT_TYPE_ENUM } from '@/common/constants';
@@ -89,7 +79,6 @@ import {
 import PreNotice from '../components/PreNotice/index.vue';
 import FilePreview from '../components/FilePreview/index.vue';
 import HealthNoticePreview from '../components/HealthNoticePreview/index.vue';
-import { RISK_TYPE_ENUM } from '@/common/constants/trial';
 // 调用主题
 const themeVars = useTheme();
 const router = useRouter();
@@ -112,7 +101,7 @@ interface PayHtml {
 }
 
 const {
-  productCode = 'HTEJBX',
+  productCode = '03O4',
   tenantId = '0',
   orderNo,
   phoneNo: mobile,
@@ -125,23 +114,8 @@ const {
   from,
 } = route.query as QueryData;
 
-const formRef = ref<Ref>();
-const currentPlan = ref<string>();
-const orderDetail = ref<any>({
-  // 订单数据模板
-  agencyId: agentCode,
-  commencementTime: '',
-  expiryDate: '',
-  extInfo: {
-    buttonCode: 'EVENT_NETSALE_underWrite',
-    pageCode: 'infoCollection',
-    templateId: 3,
-    iseeBizNo: '',
-  },
-  orderCategory: 1,
-  saleUserId: saleChannelId,
-  tenantId,
-  venderCode: '',
+const formRef = ref();
+const detail = ref<any>({
   tenantOrderHolder: {
     extInfo: {},
   },
@@ -160,7 +134,6 @@ const orderDetail = ref<any>({
           },
         },
       ],
-      tenantOrderProductList: [{}],
     },
   ],
   operateOption: {
@@ -174,7 +147,6 @@ const orderDetail = ref<any>({
 const insureDetail = ref<ProductData>(); // 险种信息
 const premium = ref<number | null>(); // 保费
 const factorObj = ref<any>({});
-const detail = ref<any>({});
 const isPayBack = pageCode === 'payBack';
 const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
 const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
@@ -208,97 +180,13 @@ const trialData = reactive({
   mobileSmsCode: '',
 });
 
-const isShowInsurePeriod = computed(() => {
-  return !!insureDetail.value?.productRelationPlanVOList?.length;
-});
-
-// 险种信息
-const currentRiskInfo = computed(() => {
-  let riskInfo = [];
-  if (isShowInsurePeriod.value) {
-    riskInfo =
-      insureDetail.value?.productRelationPlanVOList.find((plan) => plan.planCode === currentPlan.value)
-        ?.productRiskVoList || [];
-  } else {
-    riskInfo = insureDetail.value?.productRiskVoList || [];
-  }
-
-  return riskInfo[0];
-});
-
-const trialPremium = async (orderInfo, currentProductDetail, productRiskList) => {
-  const trialParams = {
-    holder: {
-      personVO: orderInfo.tenantOrderHolder,
-    },
-    insuredVOList: orderInfo.tenantOrderInsuredList.map((person) => {
-      return {
-        insuredCode: '',
-        personVO: person,
-        productPlanVOList: [
-          {
-            insurerCode: currentProductDetail.productBasicInfoVO.insurerCode,
-            planCode: currentPlan.value || 0,
-            riskVOList: riskToOrder(productRiskList),
-          },
-        ],
-      };
-    }),
-  };
-  const { code, data } = await premiumCalc(trialParams);
-  orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList[0] =
-    trialParams.insuredVOList[0]?.productPlanVOList;
-};
-
-const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrderDetail = {}) => {
-  const nextStepParams = { ...currentOrderDetail };
-  const transformDataReq = {
-    tenantId,
-    riskList: nextStepParams.tenantOrderInsuredList[0]?.tenantOrderProductList[0].riskVOList || [],
-    riskPremium,
-    productId: currentProductDetail?.productBasicInfoVO.id,
-  };
-  nextStepParams.tenantOrderInsuredList[0].tenantOrderProductList[0] = {
-    premium: '',
-    productCode: currentProductDetail.productBasicInfoVO.productCode,
-    productName: currentProductDetail.productBasicInfoVO.productName,
-    tenantOrderRiskList: transformData(transformDataReq),
-  };
-  return nextStepParams;
-};
-
-const nextStepOperate = async () => {
-  const { code, data } = await nextStep(trialData2Order(insureDetail.value, {}, orderDetail.value));
-  if (code === '10000') {
-    console.log('123123', data);
+const insured = () => {
+  if (formRef.value) {
+    formRef.value.validateForm().then((data) => {
+      console.log('formData', data);
+    });
   }
 };
-
-const insured = async () => {
-  trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value.riskDetailVOList);
-  Dialog.confirm({
-    title: '分享',
-    message: `即将向客户【${orderDetail.value.tenantOrderHolder.name}】发送投保确认信息,请确认是否继续？`,
-  }).then(() => {
-    nextStepOperate();
-  });
-
-  // if (formRef.value) {
-  //   formRef.value?.validateForm().then((data) => {});
-  // }
-};
-
-// watch(
-//   () => orderDetail.value,
-//   () => {
-//     if () {
-
-//     }
-//   },
-//   {
-//     deep: true,
-//   },
-// );
 
 // 健康告知
 const healthAttachmentList = computed(() => {
@@ -815,13 +703,8 @@ const fetchData = async () => {
       value: INSURE_TYPE_ENUM.UN_INSURE,
       disabled: false,
     }));
-    insureDetail.value = resData;
+    insureDetail.value = resData.data;
     factorObj.value = resData.productFactor;
-
-    // 如果是多计划
-    if (resData?.productRelationPlanVOList?.length) {
-      currentPlan.value = resData.productRelationPlanVOList[0].planCode;
-    }
   }
 
   if (orderNo) {
@@ -848,14 +731,6 @@ onMounted(() => {
   .footer-button {
     justify-content: space-between;
   }
-
-  .radio-group {
-    width: 100%;
-    .radio-btn {
-      justify-content: space-between;
-    }
-  }
-
   // 覆盖原来组件的样式
   // :deep(.showIcon::before) {
   //   background: $primary-color !important;

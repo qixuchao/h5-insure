@@ -1,6 +1,12 @@
 <template>
   <ProPageWrap main-class="page-home">
-    <img src="./xinao.jpg" alt="logo" style="margin: 100px auto; width: 200px; display: block" />
+    <VanGrid>
+      <VanGridItem v-for="route in routes" :key="route.path" link-type="navigateTo">
+        <RouterLink :to="route.path">
+          {{ route?.meta.title || route.name }}
+        </RouterLink>
+      </VanGridItem>
+    </VanGrid>
   </ProPageWrap>
 </template>
 
