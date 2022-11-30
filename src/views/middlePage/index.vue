@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-27 21:01:33
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-11-30 13:50:04
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-11-30 20:41:41
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/middle/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -13,6 +13,7 @@
 </template>
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
+import qs from 'qs';
 import { validateSign } from '@/api';
 import { PAGE_CODE_ENUM, TEMPLATE_TYPE_MAP } from '@/common/constants/infoCollection';
 
@@ -32,15 +33,27 @@ const router = useRouter();
 const route = useRoute();
 const result = ref<string>('');
 
+const { extraInfo } = route.query as QueryData;
+
+let extInfo = {};
+
+try {
+  extInfo = JSON.parse(extraInfo as string);
+} catch (error) {
+  //
+}
+
+const { pageCode, templateId, preview } = extInfo as any;
+
 const getActivityPath = () => {
   try {
     // 赠险、基础险、附费险跳转
-    const { pageCode, previewId, templateId } = route.query as QueryData;
+    // const { pageCode, previewId, templateId } = route.query as QueryData;
     if (templateId) {
-      return `/template/${TEMPLATE_TYPE_MAP[templateId as string]}`;
+      return `/baseInsurance/${TEMPLATE_TYPE_MAP[templateId as string]}`;
     }
-    if (previewId) {
-      return `/template/preview/${TEMPLATE_TYPE_MAP[previewId as string]}`;
+    if (preview) {
+      return `/baseInsurance/preview/${TEMPLATE_TYPE_MAP[templateId as string]}`;
     }
 
     switch (pageCode) {
@@ -72,8 +85,9 @@ const jumpRouter = (url?: string) => {
 };
 
 onBeforeMount(() => {
-  const { previewId, templateId } = route.query || {};
-  if (previewId || templateId) {
+  console.log('route.query', route.query);
+
+  if (preview) {
     jumpRouter();
     return;
   }

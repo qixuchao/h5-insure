@@ -12,7 +12,6 @@
       <Guarantee
         show-service-config
         :data-source="detail?.tenantProductInsureVO"
-        :show-config="detail?.showConfigVO"
         :is-multiple-plan="isMultiplePlan"
         :active-plan-code="orderDetail.activePlanCode"
         @update-active-plan="updateActivePlan"
@@ -187,16 +186,22 @@ const {
   templateId,
   pageCode,
   from,
+  extraInfo,
 } = route.query as QueryData;
 
-const currentDate = ref(null);
+let extInfo = {};
+
+try {
+  extInfo = JSON.parse(extraInfo as string);
+} catch (error) {
+  //
+}
 
 const formRef = ref();
 const detailScrollRef = ref();
 const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<ProductData>(); // 险种信息
 const premium = ref<number | null>(); // 保费
-const isPayBack = pageCode === 'payBack';
 const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
 const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
@@ -235,8 +240,6 @@ const trialData = reactive({
 
 const orderDetail = ref<any>({
   tenantId,
-  templateId,
-  pageCode,
   agencyId: agentCode,
   orderCategory: 1,
   saleUserId: saleChannelId,
@@ -280,8 +283,8 @@ const orderDetail = ref<any>({
   ],
   extInfo: {
     buttonCode: 'EVENT_SHORT_saveOrder',
-    paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.MONTH,
     successJumpUrl: '', // 支付成功跳转
+    ...extInfo,
   },
   operateOption: {
     withBeneficiaryInfo: true,
