@@ -166,6 +166,11 @@ const clickHandler = async () => {
   try {
     const { code, data } = await req(params);
     if (code === '10000') {
+      if (!state.newAuth && data.pageAction?.data?.orderNo) {
+        router.push(
+          `/baseInsurance/orderDetail?source=free&tenantId=${tenantId}&orderNo=${data.pageAction?.data?.orderNo}`,
+        );
+      }
       state.newAuth = false;
     }
   } catch (e) {

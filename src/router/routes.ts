@@ -254,16 +254,10 @@ const baseInsurance = [
     component: () => import('@/views/baseInsurance/templates/netSale/index.vue'),
   },
   {
-    name: '投保成功页',
-    path: '/baseInsurance/orderDetail',
-    meta: { title: '投保成功页' },
-    component: () => import('@/views/baseInsurance/orderDetail/index.vue'),
-  },
-  {
     name: '',
-    path: '/baseInsurance/orderResult',
+    path: '/baseInsurance/orderDetail',
     meta: { title: '' },
-    component: () => import('@/views/baseInsurance/orderResult/index.vue'),
+    component: () => import('@/views/baseInsurance/orderDetail/index.vue'),
   },
 ];
 
