@@ -83,45 +83,52 @@ export const transformData = (o: transformDataType) => {
     return currentRisk;
   });
 };
+export const riskToOrder = (productRiskVoList: any) => {
+  return deepCopy(productRiskVoList)
+    .map((productRiskVoListItem: any) => {
+      const mainRisk = productRiskVoListItem.riskDetailVOList.find(
+        (risk: any) => risk.riskType === RISK_TYPE_ENUM.MAIN_RISK,
+      );
+      const riderRiskList = productRiskVoListItem.riskDetailVOList.filter(
+        (risk: any) => risk.riskType === RISK_TYPE_ENUM.RIDER_RISK,
+      );
+      const transformRisk = (currentRiskList: any) => {
+        return currentRiskList.map((risk: any) => {
+          const { riskCategory, riskCode, riskType, id, riskInsureLimitVO, riskCalcMethodInfoVO } = risk;
+          const {
+            annuityDrawFrequencyList,
+            annuityDrawValueList,
+            insurancePeriodValueList,
+            paymentFrequencyList,
+            paymentPeriodValueList,
+          } = riskInsureLimitVO;
 
-export const riskToOrder = (riskList: any) => {
-  const mainRisk = riskList.find((risk: any) => risk.riskType === RISK_TYPE_ENUM.MAIN_RISK);
-  const riderRiskList = riskList.filter((risk: any) => risk.riskType === RISK_TYPE_ENUM.RIDER_RISK);
-  const transformRisk = (currentRiskList: any) => {
-    return currentRiskList.map((risk: any) => {
-      const { riskCategory, riskCode, riskType, id, riskInsureLimitVO, riskCalcMethodInfoVO } = risk;
-      const {
-        annuityDrawFrequencyList,
-        annuityDrawValueList,
-        insurancePeriodValueList,
-        paymentFrequencyList,
-        paymentPeriodValueList,
-      } = riskInsureLimitVO;
-
-      const { minCopy, maxCopy, fixedAmount, singeAmount } = riskCalcMethodInfoVO;
-      return {
-        amount: fixedAmount || singeAmount,
-        annuityDrawDate: annuityDrawValueList?.[0],
-        annuityDrawFrequency: annuityDrawFrequencyList?.[0],
-        chargePeriod: paymentPeriodValueList?.[0],
-        copy: minCopy || maxCopy || 0,
-        coveragePeriod: insurancePeriodValueList?.[0],
-        liabilityVOList: risk.riskLiabilityInfoVOList,
-        mainRisk: risk.riskCode === mainRisk.riskCode,
-        mainRiskCode: risk.riskCode === mainRisk.riskCode ? mainRisk.riskCode : undefined,
-        mainRiskId: risk.riskCode === mainRisk.riskCode ? mainRisk.riskId : undefined,
-        paymentFrequency: paymentFrequencyList?.[0],
-        riderRisk: true,
-        riderRiskVOList: transformRisk(riderRiskList),
-        riskCategory,
-        riskCode,
-        riskId: id,
-        riskType,
+          const { minCopy, maxCopy, fixedAmount, singeAmount } = riskCalcMethodInfoVO;
+          return {
+            amount: fixedAmount || singeAmount,
+            annuityDrawDate: annuityDrawValueList?.[0],
+            annuityDrawFrequency: annuityDrawFrequencyList?.[0],
+            chargePeriod: paymentPeriodValueList?.[0],
+            copy: minCopy || maxCopy || 0,
+            coveragePeriod: insurancePeriodValueList?.[0],
+            liabilityVOList: risk.riskLiabilityInfoVOList,
+            mainRisk: risk.riskCode === mainRisk.riskCode,
+            mainRiskCode: risk.riskCode === mainRisk.riskCode ? mainRisk.riskCode : undefined,
+            mainRiskId: risk.riskCode === mainRisk.riskCode ? mainRisk.riskId : undefined,
+            paymentFrequency: paymentFrequencyList?.[0],
+            riderRisk: true,
+            riderRiskVOList: riskType === 1 ? transformRisk(riderRiskList) : [],
+            riskCategory,
+            riskCode,
+            riskId: id,
+            riskType,
+          };
+        });
       };
-    });
-  };
 
-  return transformRisk([mainRisk]);
+      return transformRisk([mainRisk]);
+    })
+    .flat();
 };
 
 export const compositionTrailData = (

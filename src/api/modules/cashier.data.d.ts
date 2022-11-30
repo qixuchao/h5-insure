@@ -19,19 +19,15 @@ export interface PayParam {
   businessTradeNo: string;
   code: string;
   currency: string;
-  endTime: Date;
   errorMessage: string;
-  expireTime: Date;
   extraInfo: string;
   isDeleted: string;
   notifyInfo: string;
   notifyUrl: string;
   openid: string;
-  operateTime: Date;
   orderAmt: number;
   orderName: string;
   orderNo: string;
-  orderTime: Date;
   payChannel: string;
   payTradeNo: string;
   payWay: string;
@@ -39,7 +35,6 @@ export interface PayParam {
   spBillCreateIp: string;
   srcType: string;
   status: string;
-  systemCurrentTime: Date;
   tenantId: string;
   tradeType: string;
   ISEE_BIZ: string;

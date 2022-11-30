@@ -1,39 +1,88 @@
 <template>
   <ProPageWrap main-class="page-sign-pay">
-    <div class="content-box">
-      <img
-        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAn1BMVEUAAAAA/1UAyQEAygIAygMAyQEAyQEAyAEAyQEAyAEAyQEAzxIA3jMAyQEAygIAyQIA0hYAyQEAywQAygQAzQcAyQEAyAEAyQEAyQIAygIAyQMAzAkAzw4AyQEAyQEAyQEAyQIAygIAygQAzAYA4B8AyQIAyQIAygIAygMAywUAywUAywgAzQsAyQEAyQIAygIAyQMAyQEAygMAyAIAyAGOmXm3AAAANHRSTlMAA/1vVe369d7Nsw0FynRnC9hEOCXo5KyFgE4ZEe/Et4t7PycIpJxpWjAtHxfQoJRgvkqV9P7eSwAAAhFJREFUWMPtl9eamzAQhYfeDJhiAwYb3Nu67Ebv/2xJbKokBEoud//LGR9/mnIEwA9Mphd/cTp9bS5T4Cc8RjNUIep5Eggcav8wRwTL/WacWpAN1IMn7QblE9dDDObuZKB0Gw1wO7P0Tw0Noq5725lFaBRmz1gtA43ESKlrs0Kj8TJSv/tEHNgW4Jg8eiUmjiBxyHWJ7GKojT+93IyRvwDRrAyRSm39ZpxcPWyrjXeWKOA9gBJ/1Hb9axiz0V9Frs5do3c5V6hY83Rul1QNd6DCbhv2Ru1czUJv/rU2QbuCAlyN6FzNNm9nquslQC1ygK2Bda7CKlTUop6D2w5qFsAkUWk7d8JvSrdMJJ3oa0EukYrQqrNzZ9Kt6zJVdOf1Vk3TjuGyX5RRF2Xy0Q0vgEBwFUThUabjbviT0AcGohKXeQeLY/duuieU2CbJWPxQxmvb9CFXu43Ftdbov1jPmRBKlJ7xQGgy7VlPGS9yNnkvXqwiFvvGINTinjPERm4ahdegXzLqM5o8Z3Mh8JNAg6Xw65WM/7FAmK5BWPHqbexNY6vx6bUQMBYij16lWNbh0IsyUHDG659A5SiO1LvQgz8bo9cD6CWdD+vvFjBQBg0gA4uPAbnn7oCJz5Qb3XcTxiRXvmRixSyjYwjD3F+/Pb7ccZaKe27rc8/IH9LYrwXjjz5K4d/R0M2H/yE5CfDDd+Q3mQCIWfNGplQAAAAASUVORK5CYII="
-      />
-      <div class="content">您已选择按月支付，请开通自动续费</div>
-      <div class="tip">确保您的保障按月生效</div>
+    <div v-if="showResult" class="result-view">
+      <div class="content-box">
+        <van-icon name="checked" class="large-icon" />
+        <div class="content">开通成功，正在为您生成保单...</div>
+        <div class="tip">请勿返回或退出</div>
+      </div>
     </div>
-    <VanButton size="large" block class="btn-go-wx" @click="goPay"> 前往微信开通 </VanButton>
+    <div v-else class="sign-view">
+      <div class="content-box">
+        <van-icon name="wechat-pay" class="large-icon" />
+        <div class="content">您已选择按月支付，请开通自动续费</div>
+        <div class="tip">确保您的保障按月生效</div>
+      </div>
+      <VanButton size="large" block class="btn-go-wx" @click="goPay"> 前往微信开通 </VanButton>
+    </div>
   </ProPageWrap>
 </template>
 
 <script lang="ts" setup>
 import { Dialog } from 'vant';
-import { PayParam } from '@/api/modules/cashier.data';
+import type { PayParam } from '@/api/modules/cashier.data';
+import { getPaymentResult } from '@/api/modules/cashier';
 import { useSign, isWeiXin } from './core';
+import useLoading from '@/hooks/useLoading';
+import useThread, { ThreadType } from '@/hooks/useThread';
 
 interface QueryData extends PayParam {
-  [key: string]: string;
+  from_wxpay: number; // 是否从支付页回来
+  [key: string]: string | number;
 }
 const query = useRoute().query as QueryData;
+
+// 是否展示支付结果（默认进入签约）
+const showResult = ref(false);
 
 // 将所有url上的参数全部传递给签约接口
 const goPay = async () => {
   useSign(query, () => {});
 };
+let thread: ThreadType;
+const loopOrderStatus = () => {
+  getPaymentResult({
+    tenantId: query.tenantId,
+    orderNo: query.orderNo,
+  })
+    .then((res) => {
+      const { code, data } = res;
+      if (code === '10000' && +data.status === 1) {
+        thread.stop();
+        window.location.href = `/baseInsurance/orderDetail?orderNo=${query.businessTradeNo || query.orderNo}&tenantId=${
+          query.tenantId
+        }`;
+      }
+    })
+    .catch();
+};
+thread = useThread({
+  start: () => {
+    console.log('开始轮询');
+    loopOrderStatus();
+  },
+  stop: () => {
+    console.log('结束轮询');
+  },
+  time: 1000,
+  number: 10,
+});
 
 onMounted(async () => {
-  if (isWeiXin) {
-    Dialog.alert({
-      title: '去微信开通按月缴费',
-      confirmButtonText: '好的，我知道了',
-    }).then(() => {
-      useSign(query, () => {});
-    });
+  if (+query.from_wxpay === 1) {
+    showResult.value = true;
+    // useLoading(showResult);
+    thread.run();
+  } else {
+    // 微信里面弹提示
+    if (isWeiXin) {
+      Dialog.alert({
+        title: '去微信开通按月缴费',
+        confirmButtonText: '好的，我知道了',
+      }).then(() => {
+        useSign(query, () => {});
+      });
+    }
   }
 });
 </script>
@@ -51,10 +100,14 @@ onMounted(async () => {
       width: 96px;
     }
     .content {
-      color: #1aac1a;
+      color: #00c802;
       margin-top: 56px;
       font-size: 36px;
       font-weight: 600;
+    }
+    .large-icon {
+      font-size: 96px;
+      color: #00c802;
     }
     .tip {
       color: #888;
@@ -66,7 +119,7 @@ onMounted(async () => {
     width: 640px;
     margin: 70px auto;
     color: #fff;
-    background-color: #07c160 !important;
+    background-color: #00c802 !important;
   }
 }
 .van-dialog__footer .van-button.van-button.van-dialog__confirm {

@@ -93,9 +93,8 @@ watch(
   height: 130px;
   .shadow-button {
     color: 96px;
-
+    background: linear-gradient(to right, var(--van-primary-color), v-bind('state.color'));
     &.shadow {
-      background: linear-gradient(to right, var(--van-primary-color), v-bind('state.color'));
       box-shadow: 0px 20px 50px -25px var(--van-primary-color);
     }
 

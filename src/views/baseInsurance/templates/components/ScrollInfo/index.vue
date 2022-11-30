@@ -2,12 +2,12 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-17 16:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-29 23:45:02
+ * @LastEditTime: 2022-11-30 15:24:26
  * @Description: 审核版首页
 -->
 <template>
   <ProScrollTab ref="scrollRef" class="tabs" :list="tabList" sticky scrollspy>
-    <template #tab1>
+    <template v-if="isShowTab1" #tab1>
       <div class="spec">
         <img
           v-for="(item, index) in props.detail?.tenantProductInsureVO?.spec || []"
@@ -18,27 +18,31 @@
         <ProDivider />
       </div>
     </template>
-    <template #tab2>
-      <CustomCard
-        v-if="props.detail?.tenantProductInsureVO?.settlementProcessVO.settlementProcessType === CLAIM_TYPE_ENUM.WORD"
-        title="理赔流程"
-      >
-        <ProTimeline :list="props.detail?.tenantProductInsureVO?.settlementProcessVO?.settlementProcessList" />
-      </CustomCard>
-      <div v-else class="spec">
-        <img
-          v-for="(item, index) in props.detail?.tenantProductInsureVO?.settlementProcessVO?.settlementProcessPicList ||
-          []"
-          :key="index"
-          :src="item"
-          class="detail-img"
-        />
-      </div>
-      <ProDivider />
-      <CustomCard title="常见问题">
-        <Question :list="props.detail?.tenantProductInsureVO?.questionList" />
-      </CustomCard>
-      <ProDivider />
+    <template v-if="isShowTab2_1 || isShowTab2_2" #tab2>
+      <template v-if="isShowTab2_1">
+        <CustomCard
+          v-if="props.detail?.tenantProductInsureVO?.settlementProcessVO.settlementProcessType === CLAIM_TYPE_ENUM.WORD"
+          title="理赔流程"
+        >
+          <ProTimeline :list="props.detail?.tenantProductInsureVO?.settlementProcessVO?.settlementProcessList" />
+        </CustomCard>
+        <div v-else class="spec">
+          <img
+            v-for="(item, index) in props.detail?.tenantProductInsureVO?.settlementProcessVO
+              ?.settlementProcessPicList || []"
+            :key="index"
+            :src="item"
+            class="detail-img"
+          />
+        </div>
+        <ProDivider />
+      </template>
+      <template v-if="isShowTab2_2">
+        <CustomCard title="常见问题">
+          <Question :list="props.detail?.tenantProductInsureVO?.questionList" />
+        </CustomCard>
+        <ProDivider />
+      </template>
     </template>
     <template #tab3>
       <slot name="form" />
@@ -73,7 +77,7 @@ const props = defineProps({
 
 const scrollRef = ref<Ref>();
 
-const tabList = ref<Array<{ title: string; slotName: string }>>([
+const initTabList = ref<Array<{ title: string; slotName: string }>>([
   {
     title: '产品亮点',
     slotName: 'tab1',
@@ -86,23 +90,39 @@ const tabList = ref<Array<{ title: string; slotName: string }>>([
     title: '我要投保',
     slotName: 'tab3',
   },
-  // {
-  //   title: '常见问题',
-  //   slotName: 'tab4',
-  // },
 ]);
 
-const queryFilePerfix = (fileUrl: string) => {
-  const fileType: string = fileUrl.split('?')[0];
-  const index = fileType.lastIndexOf('.');
-  return fileType.substring(index + 1);
-};
+const isShowTab1 = computed(() => {
+  return props.detail?.tenantProductInsureVO?.spec && props.detail?.tenantProductInsureVO?.spec.length > 0;
+});
 
-// const queryFileType = (fileUrl: string) => {
-//   const fileType = queryFilePerfix(fileUrl);
-//   if ('pdf' || 'Pdf') return 'pdf';
-//   if('')
-// };
+const isShowTab2_1 = computed(() => {
+  const type = props.detail?.tenantProductInsureVO?.settlementProcessVO.settlementProcessType;
+  if (
+    (type === CLAIM_TYPE_ENUM.WORD &&
+      props.detail?.tenantProductInsureVO?.settlementProcessVO?.settlementProcessList &&
+      props.detail?.tenantProductInsureVO?.settlementProcessVO?.settlementProcessList.length > 0) ||
+    (type === CLAIM_TYPE_ENUM.IMAGE &&
+      props.detail?.tenantProductInsureVO?.settlementProcessVO?.settlementProcessPicList &&
+      props.detail?.tenantProductInsureVO?.settlementProcessVO?.settlementProcessPicList.length > 0)
+  ) {
+    return true;
+  }
+  return false;
+});
+
+const isShowTab2_2 = computed(() => {
+  return (
+    props.detail?.tenantProductInsureVO?.questionList && props.detail?.tenantProductInsureVO?.questionList.length > 0
+  );
+});
+
+const tabList = computed(() => {
+  let tempTabList = [...initTabList.value];
+  if (!isShowTab1.value) tempTabList = tempTabList.filter((e) => e.slotName !== 'tab1');
+  if (!isShowTab2_1.value && !isShowTab2_2.value) tempTabList = tempTabList.filter((e) => e.slotName !== 'tab2');
+  return tempTabList;
+});
 
 const getFileName = (fileName: string): string => {
   if (!fileName) return '';

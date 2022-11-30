@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-11-29 22:14:57
+ * @LastEditTime: 2022-11-30 12:52:44
  * @Description:
  */
 import wx from 'weixin-js-sdk';
@@ -57,11 +57,14 @@ const onBridgeReady = (params: {
 };
 
 export const usePay = (payParam: PayParam) => {
+  const redirectUrl = `${window.location.protocol}//${window.location.host}/baseInsurance/orderDetail?orderNo=${
+    payParam.businessTradeNo || payParam.orderNo
+  }&tenantId=${payParam.tenantId}&ISEE_BIZ=${payParam.ISEE_BIZ}`;
   pay({
     ...payParam,
     extraInfo: JSON.stringify({
       wxCode: payParam.code,
-      redirectUrl: `${window.location.origin}/cashier/payResult`,
+      redirectUrl,
     }),
   }).then((res) => {
     const { code, message, data } = res;
@@ -137,11 +140,14 @@ export const sendPay = (payParam: PayParam) => {
 };
 
 export const wxBrandWCPayRequest = (payParam: PayParam) => {
+  const redirectUrl = `${window.location.protocol}//${window.location.host}/baseInsurance/orderDetail?orderNo=${
+    payParam.businessTradeNo || payParam.orderNo
+  }&tenantId=${payParam.tenantId}&ISEE_BIZ=${payParam.ISEE_BIZ}`;
   pay({
     ...payParam,
     extraInfo: JSON.stringify({
       wxCode: payParam.code,
-      redirectUrl: `${window.location.origin}/cashier/payResult`,
+      redirectUrl,
     }),
   }).then((res) => {
     const { code, message, data } = res;

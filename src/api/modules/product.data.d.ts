@@ -7,10 +7,11 @@ export interface PlanInsureVO {
   premiumExplain: string;
   premiumExplainName: string;
   premiumExplainUri: string;
+  premiumExplainViewName: string;
   tabName: string[];
   attachmentVOList: AttachmentVoItem;
   productPlanInsureConditionVO: ProductPlanInsureConditionVo;
-  planPicList: string;
+  planPicList: any;
 }
 
 export interface ProductPlanInsureConditionVo {

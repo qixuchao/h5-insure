@@ -3,7 +3,7 @@
  * @Autor: kevin.liang
  * @Date: 2022-11-21 12:53:01
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-11-24 17:38:51
+ * @LastEditTime: 2022-11-30 11:14:32
  */
 
 import request from '../request';
@@ -21,6 +21,15 @@ export const loadPayment = (params: GetPayUrlParam) => {
 // 根据选择的支付方式支付订单
 export const pay = (data: PayParam) => {
   return request<PayResult>({ url: '/api/app/insure/insurance/pay', method: 'POST', data });
+};
+// 获取订单支付状态
+export const getPaymentResult = (params: { orderNo: string; tenantId: string }) => {
+  return request<{ status: string | number }>({
+    url: '/api/app/insure/insurance/getPaymentResult',
+    method: 'GET',
+    params,
+    headers: { laoding: false },
+  });
 };
 
 export default {};

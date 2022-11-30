@@ -81,29 +81,35 @@ const payWay = ref(PAY_WAY_ENUM.WX_SIGN); // 支付方式
 const srcType = ref('h5');
 
 const goPay = () => {
+  const redirectUrl = `${window.location.protocol}//${window.location.host}/baseInsurance/orderDetail?orderNo=${
+    query.businessTradeNo || query.orderNo
+  }&tenantId=${query.tenantId}`;
   sendPay({
     ...(orderInfo.value as PayParam),
     payWay: payWay.value,
     srcType: srcType.value,
     code: query.code,
     extraInfo: JSON.stringify({
-      redirectRrl: `${window.location.protocol}//${window.location.host}/cashier/payResult`,
+      redirectRrl: redirectUrl,
       wxCode: query.code,
     }),
-    redirectUrl: `${window.location.protocol}//${window.location.host}/cashier/payResult`,
+    redirectUrl,
   });
 };
 const goBrandPay = () => {
+  const redirectUrl = `${window.location.protocol}//${window.location.host}/baseInsurance/orderDetail?orderNo=${
+    query.businessTradeNo || query.orderNo
+  }&tenantId=${query.tenantId}`;
   wxBrandWCPayRequest({
     ...(orderInfo.value as PayParam),
     payWay: payWay.value,
     srcType: srcType.value,
     code: query.code,
     extraInfo: JSON.stringify({
-      redirectRrl: `${window.location.protocol}//${window.location.host}/cashier/payResult`,
+      redirectUrl,
       wxCode: query.code,
     }),
-    redirectUrl: `${window.location.protocol}//${window.location.host}/cashier/payResult`,
+    redirectUrl,
   });
 };
 const { copy, copied, isSupported } = useClipboard({ source: '' });
