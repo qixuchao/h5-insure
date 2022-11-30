@@ -84,11 +84,11 @@ export const transformData = (o: transformDataType) => {
   });
 };
 
-export const riskToOrder = (riskList) => {
+export const riskToOrder = (riskList: any[]) => {
   const mainRisk = riskList.find((risk) => risk.riskType === RISK_TYPE_ENUM.MAIN_RISK);
   const riderRiskList = riskList.filter((risk) => risk.riskType === RISK_TYPE_ENUM.RIDER_RISK);
-  const transformRisk = (currentRiskList) => {
-    return currentRiskList.map((risk) => {
+  const transformRisk = (currentRiskList: any) => {
+    return currentRiskList.map((risk: any) => {
       const { riskCategory, riskCode, riskType, id, riskInsureLimitVO, riskCalcMethodInfoVO } = risk;
       const {
         annuityDrawFrequencyList,

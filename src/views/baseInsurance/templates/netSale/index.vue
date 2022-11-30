@@ -1,6 +1,7 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
     <ProPageWrap class="net-sale-wrap">
+      <div class="product-name">{{ insureDetail?.productBasicInfoVO?.productFullName }}</div>
       <ProCard v-if="isShowInsurePeriod" title="保障年期">
         <ProRadioButton
           v-model="currentPlan"
