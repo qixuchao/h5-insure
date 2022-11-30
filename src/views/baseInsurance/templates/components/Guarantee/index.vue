@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 20:03:10
+ * @LastEditTime: 2022-11-30 21:34:04
  * @Description: 保障详情
 -->
 <template>
@@ -99,6 +99,7 @@ import {
 import ProSvg from '@/components/ProSvg/index.vue';
 import ProDivider from '@/components/ProDivider/index.vue';
 import serviceConfig from '@/assets/images/chuangxin/serviceConfig.png';
+import { openPreviewFilePage } from '@/views/baseInsurance/utils';
 
 const props = defineProps({
   dataSource: {
@@ -243,11 +244,7 @@ const onShowDetail = () => {
 };
 
 const onClickFeeRate = () => {
-  console.log('feeFileUri', feeFileUri.value);
-  const { origin } = window.location;
-  // 暂时默认pdf
-  const url = `${origin}/template/filePreview?fileType=pdf&fileUri=${feeFileUri.value}`;
-  window.open(url);
+  openPreviewFilePage({ fileType: 'pdf', feeFileUri: feeFileUri.value });
 };
 </script>
 

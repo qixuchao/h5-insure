@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 20:09:06
+ * @LastEditTime: 2022-11-30 21:34:57
  * @Description:
 -->
 <template>
@@ -120,6 +120,7 @@ import {
 import { PlanInsureVO, ProductDetail, ProductPlanInsureConditionVo, ShowConfigVO } from '@/api/modules/product.data';
 import { ProductData } from '@/api/modules/trial.data';
 import InsurancePeriodCell from '../InsurancePeriodCell/index.vue';
+import { openPreviewFilePage } from '@/views/baseInsurance/utils';
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
@@ -319,10 +320,7 @@ const onPreviewFeerateFile = () => {
     Toast('无费率文件！');
     return;
   }
-  const { origin } = window.location;
-  // 暂时默认pdf
-  const url = `${origin}/template/filePreview?fileType=pdf&fileUri=${explainInfo.value?.premiumExplainUri}`;
-  window.open(url);
+  openPreviewFilePage({ fileType: 'pdf', fileUri: explainInfo.value?.premiumExplainUri });
 };
 
 defineExpose({});
