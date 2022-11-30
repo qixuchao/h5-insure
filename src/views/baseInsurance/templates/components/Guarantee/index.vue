@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-29 23:28:44
+ * @LastEditTime: 2022-11-30 15:07:23
  * @Description: 保障详情
 -->
 <template>
@@ -32,9 +32,11 @@
     <div v-if="isShowOptBtn" class="show-more" @click="handleShowMore">
       {{ showMore ? '收起' : '查看更多' }} <ProSvg name="down" :class="['icon', { showMore }]" />
     </div>
-    <div class="feerate-view">
-      <span>{{ `${productPremiumVOItem?.paymentFrequencyValue}${productPremiumVOItem?.premiumUnit}` }}</span>
-      <span @click="onClickFeeRate">查看保费</span>
+    <div v-if="isShowFeerateView" class="feerate-view">
+      <span>{{
+        `${productPremiumVOItem?.paymentFrequencyValue || ''}${productPremiumVOItem?.premiumUnit || ''}`
+      }}</span>
+      <span v-if="!!feeFileUri" @click="onClickFeeRate">查看保费</span>
     </div>
   </div>
   <ProDivider />
@@ -104,7 +106,7 @@ const props = defineProps({
   },
   count: {
     type: Number,
-    default: 10,
+    default: 5,
   },
   activePlanCode: {
     type: String,
@@ -166,6 +168,17 @@ watch(
 
 const feeFileUri = computed(() => {
   return props.dataSource?.rateUri || '';
+});
+
+const isShowFeerateView = computed(() => {
+  if (
+    productPremiumVOItem.value &&
+    productPremiumVOItem.value.paymentFrequencyValue &&
+    productPremiumVOItem.value.premiumUnit &&
+    !!feeFileUri
+  )
+    return true;
+  return false;
 });
 
 const [showMore, toggle] = useToggle(false);

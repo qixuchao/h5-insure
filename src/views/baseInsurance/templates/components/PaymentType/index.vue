@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 01:03:10
+ * @LastEditTime: 2022-11-30 15:56:20
  * @Description:
 -->
 <template>
@@ -19,63 +19,73 @@
           ></ProRadioButton>
         </div>
       </div>
-      <div v-if="showPictureBtn" class="picture-payment-content">
-        <div
-          v-for="item in skinValue"
-          :key="item.paymentFrequency"
-          :class="`picture-payment-item`"
-          @click="onClickPaymethod(item.paymentFrequency)"
-        >
-          <img v-if="state.formInfo.paymentFrequency == item.paymentFrequency" :src="item.selectedPic" />
-          <img v-else :src="item.unSelectedPic" />
-        </div>
-      </div>
-      <div v-else-if="showDefaultPayment" class="default-payment-content">
-        <div
-          :class="`com-payment-type-item ${
-            state.formInfo.paymentFrequency == PAYMENT_COMMON_FREQUENCY_ENUM.MONTH ? 'active' : ''
-          }`"
-          @click="onClickPaymethod(PAYMENT_COMMON_FREQUENCY_ENUM.MONTH)"
-        >
-          <div class="pay-method">
-            <span class="method">{{ '按月交费' }}</span>
-            <span class="acount">{{ '共12期' }}</span>
+      <templat v-if="isShowPaymentFrequency">
+        <div v-if="showPictureBtn" class="picture-payment-content">
+          <div
+            v-for="item in skinValue"
+            :key="item.paymentFrequency"
+            :class="`picture-payment-item`"
+            @click="onClickPaymethod(item.paymentFrequency)"
+          >
+            <img v-if="state.formInfo.paymentFrequency == item.paymentFrequency" :src="item.selectedPic" />
+            <img v-else :src="item.unSelectedPic" />
           </div>
         </div>
-        <div
-          :class="`com-payment-type-item ${
-            state.formInfo.paymentFrequency == PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE ? 'active' : ''
-          }`"
-          @click="onClickPaymethod(PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE)"
-        >
-          <div>
-            <div class="tip">
-              <span>{{ '比按月支付最高省' }}</span> <span>16%</span>
-            </div>
-            <div class="triangle"></div>
+        <div v-else-if="showDefaultPayment" class="default-payment-content">
+          <div
+            :class="`com-payment-type-item ${
+              state.formInfo.paymentFrequency == PAYMENT_COMMON_FREQUENCY_ENUM.MONTH ? 'active' : ''
+            }`"
+            @click="onClickPaymethod(PAYMENT_COMMON_FREQUENCY_ENUM.MONTH)"
+          >
             <div class="pay-method">
-              <span class="method">{{ '一次交清' }}</span>
-              <span class="acount">{{ '比月交保费省最高2014元' }}</span>
+              <span class="method">{{ '按月交费' }}</span>
+              <span class="acount">{{ '共12期' }}</span>
+            </div>
+          </div>
+          <div
+            :class="`com-payment-type-item ${
+              state.formInfo.paymentFrequency == PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE ? 'active' : ''
+            }`"
+            @click="onClickPaymethod(PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE)"
+          >
+            <div>
+              <div class="tip">
+                <span>{{ '比按月支付最高省' }}</span> <span>16%</span>
+              </div>
+              <div class="triangle"></div>
+              <div class="pay-method">
+                <span class="method">{{ '一次交清' }}</span>
+                <span class="acount">{{ '比月交保费省最高2014元' }}</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div v-else class="custom-cell check-btn-cell">
-        <div class="cell-label">交费方式</div>
-        <div class="cell-content">
-          <ProRadioButton v-model="state.formInfo.paymentFrequency" :options="peymentBtnList"></ProRadioButton>
+        <div v-else-if="peymentBtnList.length > 1" class="custom-cell check-btn-cell">
+          <div class="cell-label">交费方式</div>
+          <div class="cell-content">
+            <ProRadioButton v-model="state.formInfo.paymentFrequency" :options="peymentBtnList"></ProRadioButton>
+          </div>
         </div>
-      </div>
-      <InsurancePeriodCell
-        :form-info="state.formInfo"
-        :insure-detail="insureDetail"
-        :config-detail="configDetail"
-        :is-multiple-plan="isMultiplePlan"
-        :risk-info-period-list="props.riskInfoPeriodList"
-      />
+      </templat>
+      <InsurancePeriodCell :form-info="state.formInfo" :insure-detail="insureDetail" :config-detail="configDetail" />
       <div class="custom-cell common-cell">
         <div class="cell-label">实付保费</div>
-        <div class="cell-content">{{ actualPremium }}</div>
+        <div class="cell-content actual-premium">{{ actualPremium }}</div>
+      </div>
+      <div
+        v-if="explainInfo && explainInfo.premiumExplain && explainInfo.premiumExplainViewName"
+        class="feerate-explain"
+      >
+        <div class="content">
+          <div class="triangle-top"></div>
+          <div>
+            <span>{{ explainInfo.premiumExplain || '' }}</span>
+            <span class="file-name" @click="onPreviewFeerateFile"
+              >《{{ explainInfo.premiumExplainViewName || '' }}》</span
+            >
+          </div>
+        </div>
       </div>
     </div>
     <ProDivider />
@@ -84,6 +94,7 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'vant';
 import dayjs from 'dayjs';
+import { Toast } from 'vant/es';
 import themeVars from '../../../theme';
 import {
   PAYMENT_COMMON_FREQUENCY_ENUM,
@@ -98,23 +109,7 @@ import InsurancePeriodCell from '../InsurancePeriodCell/index.vue';
 const formRef = ref<FormInstance>({} as FormInstance);
 
 interface FormInfoProps {
-  paymentMethod: string;
   paymentFrequency: string;
-  renewalDK: string;
-  holder: {
-    certNo: string;
-    mobile: string;
-    name: string;
-    socialFlag: string;
-    mobileSmsCode: string;
-  };
-  insured: {
-    certNo: string;
-    name: string;
-    socialFlag: string;
-    relationToHolder: string;
-    // smoke: string;
-  };
   activePlanCode: string;
   insurancePeriodValue: string; // 保障期限
   commencementTime: string; // 生效日期
@@ -141,10 +136,6 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  riskInfoPeriodList: {
-    type: Array as () => { name: string; value: string }[],
-    default: () => [],
-  },
   premium: {
     type: [Number || null],
     default: null,
@@ -162,6 +153,10 @@ const insureCondition = ref<ProductPlanInsureConditionVo>();
 
 const planInsure = ref<PlanInsureVO>();
 
+const isShowPaymentFrequency = computed(() => {
+  return String(insureCondition.value?.paymentFrequencyFlag) === '1';
+});
+
 const actualPremium = computed(() => {
   const premiumItem = planInsure.value?.productPremiumVOList.find(
     (e) => e.paymentFrequency === state.formInfo.paymentFrequency,
@@ -173,6 +168,18 @@ const actualPremium = computed(() => {
     return `${premiumItem.paymentFrequencyValue || ''}${premiumItem.premiumUnit || ''}`;
   }
   return '';
+});
+
+const explainInfo = computed(() => {
+  if (planInsure) {
+    const { premiumExplain, premiumExplainViewName, premiumExplainUri } = planInsure.value || {};
+    return {
+      premiumExplain,
+      premiumExplainUri,
+      premiumExplainViewName,
+    };
+  }
+  return null;
 });
 
 watch(
@@ -274,6 +281,17 @@ const onClickPaymethod = (type: string) => {
   state.formInfo.paymentFrequency = type;
 };
 
+const onPreviewFeerateFile = () => {
+  if (!explainInfo.value?.premiumExplainUri) {
+    Toast('无费率文件！');
+    return;
+  }
+  const { origin } = window.location;
+  // 暂时默认pdf
+  const url = `${origin}/template/filePreview?fileType=pdf&fileUri=${explainInfo.value?.premiumExplainUri}`;
+  window.open(url);
+};
+
 defineExpose({});
 </script>
 
@@ -361,7 +379,7 @@ defineExpose({});
         top: -32px;
         left: 80px;
         border: 18px solid transparent;
-        border-top: 18px solid #ff6b00;
+        border-top: 18px solid $primary-color;
       }
       .tip {
         position: absolute;
@@ -369,7 +387,7 @@ defineExpose({});
         left: 47px;
         width: 280px;
         height: 42px;
-        background: #ff6b00;
+        background: $primary-color;
         border-radius: 44px;
         display: flex;
         color: #ffffff !important;
@@ -469,6 +487,46 @@ defineExpose({});
     }
     .tip span {
       color: #ffffff !important;
+    }
+  }
+
+  .actual-premium {
+    font-size: 30px !important;
+    font-family: PingFangSC-Medium, PingFang SC !important;
+    font-weight: 500 !important;
+    color: $primary-color !important;
+  }
+
+  .feerate-explain {
+    padding: 0px 40px 50px;
+
+    .content {
+      background: #f6f6f6;
+      position: relative;
+      padding: 16px 24px;
+      border-radius: 8px;
+
+      .triangle-top {
+        position: absolute;
+        width: 0px;
+        height: 0px;
+        top: -30px;
+        left: 50px;
+        border: 18px solid transparent;
+        border-bottom: 18px solid #f6f6f6;
+      }
+
+      span {
+        font-size: 24px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #888888;
+        line-height: 38px;
+      }
+
+      .file-name {
+        color: #006afc;
+      }
     }
   }
 }

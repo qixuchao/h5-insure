@@ -7,6 +7,7 @@ export interface PlanInsureVO {
   premiumExplain: string;
   premiumExplainName: string;
   premiumExplainUri: string;
+  premiumExplainViewName: string;
   tabName: string[];
   attachmentVOList: AttachmentVoItem;
   productPlanInsureConditionVO: ProductPlanInsureConditionVo;

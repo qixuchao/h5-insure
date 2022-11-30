@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 01:48:07
+ * @LastEditTime: 2022-11-30 13:28:04
  * @Description:
 -->
 <template>
@@ -88,10 +88,6 @@ const props = defineProps({
     type: Object as () => ProductData,
     default: () => {},
   },
-  riskInfoPeriodList: {
-    type: Array as () => { name: string; value: string }[],
-    default: () => [],
-  },
 });
 
 const formatter = (type: string, val: string) => {
@@ -128,172 +124,43 @@ watch(
   },
 );
 
-const lastMainRiskInfo = ref<any>({
-  id: 10133,
-  insurerCode: 'huatai',
-  insurerName: '华泰财产保险有限公司',
-  riskCode: 'HTLXYW',
-  riskName: '华泰-旅行意外险',
-  riskCategory: 1,
-  riskCategoryDesc: '意外险',
-  circCategory: '2',
-  circCategoryDesc: '意外伤害保险',
-  liabilityPlanOssUrl: null,
-  riskType: 1,
-  mainRiskId: null,
-  mainRiskCode: null,
-  riskTypeDesc: '主险',
-  periodType: 3,
-  periodTypeDesc: '极短期',
-  exemptFlag: 2,
-  exemptType: null,
-  exemptTypeDesc: null,
-  configStatus: 2,
-  relationDesc: null,
-  extraInfo: '{}',
-  riskInsureLimitVO: {
-    id: 10133,
-    riskId: 10133,
-    sexLimit: '-1',
-    socialInsuranceLimit: '-1',
-    occupationLimitList: ['-1'],
-    minHolderAge: 'day_30',
-    maxHolderAge: 'age_80',
-    toLifeAge: null,
-    paymentFrequencyList: ['1'],
-    paymentPeriodType: 2,
-    paymentPeriodValueList: ['single'],
-    insurancePeriodType: 2,
-    insurancePeriodValueList: ['day_7', 'day_14', 'day_30', 'year_20'],
-    insuredNum: null,
-    insurancePeriodRule: null,
-    paymentPeriodRule: null,
-    paymentTypeRule: null,
-    annuityDrawType: 2,
-    annuityDrawValueList: null,
-    annuityDrawFrequencyList: null,
-    guaranteeStartDate: '3',
-    maxInsuranceDay: 30,
-    productRiskRelationId: null,
-    productId: null,
-    planCode: null,
-    planName: null,
-    riskName: null,
-    riskCode: null,
-    riskType: null,
-    insurancePeriodValues: 'day_7,day_14,day_30',
-    paymentFrequency: '1',
-    paymentPeriodValues: 'single',
-    annuityDrawValues: '',
-    annuityDrawFrequency: '',
-    extInfo: '{}',
-    insuranceStartType: null,
-    amountPremiumConfigDTO: null,
-    riskDTO: null,
-  },
-  riskCalcMethodInfoVO: {
-    id: 10087,
-    riskId: 10133,
-    saleMethod: 1,
-    saleMethodDesc: null,
-    calculateType: null,
-    calculateTypeDesc: null,
-    singePremium: null,
-    singeAmount: null,
-    minCopy: null,
-    maxCopy: null,
-    increaseDecreaseNum: 1,
-    fixedAmount: 0,
-    paymentMethodLimitList: [
-      {
-        riskId: 10133,
-        paymentFrequency: 1,
-        minAmount: 200000,
-        maxAmount: null,
-        minPremium: null,
-        maxPremium: null,
-        perCopyAmount: null,
-        perCopyPremium: null,
-      },
-    ],
-    dataTableList: [],
-    riskFormulaRelationList: [],
-    riskFactorRelationList: [],
-  },
-  riskFactorLinkAgeInfoVOList: [
-    {
-      id: 10926,
-      riskId: 10133,
-      paymentPeriod: 'single',
-      insurancePeriod: 'day_7',
-      minHolderAge: 'day_30',
-      maxHolderAge: 'age_80',
-      annuityDrawDate: null,
-      annuityDrawDateDesc: null,
-    },
-    {
-      id: 10927,
-      riskId: 10133,
-      paymentPeriod: 'single',
-      insurancePeriod: 'day_14',
-      minHolderAge: 'day_30',
-      maxHolderAge: 'age_80',
-      annuityDrawDate: null,
-      annuityDrawDateDesc: null,
-    },
-    {
-      id: 10928,
-      riskId: 10133,
-      paymentPeriod: 'single',
-      insurancePeriod: 'day_30',
-      minHolderAge: 'day_30',
-      maxHolderAge: 'age_80',
-      annuityDrawDate: null,
-      annuityDrawDateDesc: null,
-    },
-  ],
-  riskRuleInfoVOList: null,
-  riskLiabilityInfoVOList: null,
-  collocationVOList: null,
-  collocationType: null,
-  riskAttachmentVOList: null,
-});
+const lastMainRiskInfo = ref<any>();
 
 // 保障期限枚举值
 const periodList = ref<any[]>([]);
 
 // 根据是否多计划，获取相应主险信息，从而获取保障期限
-// watch(
-//   [() => props.insureDetail, () => state.formInfo.activePlanCode],
-//   () => {
-//     state.formInfo.insurancePeriodValue = '';
-//     state.formInfo.commencementTime = '';
-//     if (props.insureDetail) {
-//       if (props.insureDetail.productRelationPlanVOList && props.insureDetail.productRelationPlanVOList.length > 0) {
-//         let idx = 0;
-//         const index = props.insureDetail.productRelationPlanVOList.findIndex(
-//           (e: ProductRelationPlanVoItem) => e.planCode === state.formInfo.activePlanCode,
-//         );
-//         if (index > -1) idx = index;
-//         const riskList = props.insureDetail.productRelationPlanVOList[idx]?.productRiskVoList[0].riskDetailVOList || [];
-//         const riskItem = riskList.find((e: RiskDetailVoItem) => e.riskType === 1);
-//         if (riskItem) lastMainRiskInfo.value = riskItem;
-//       } else {
-//         const riskList = props.insureDetail.productRiskVoList[0].riskDetailVOList || [];
-//         const riskItem = riskList.find((e: RiskDetailVoItem) => e.riskType === 1);
-//         if (riskItem) lastMainRiskInfo.value = riskItem;
-//       }
-//     }
-//   },
-//   {
-//     deep: true,
-//     immediate: true,
-//   },
-// );
+watch(
+  [() => props.insureDetail, () => state.formInfo.activePlanCode],
+  () => {
+    state.formInfo.insurancePeriodValue = '';
+    state.formInfo.commencementTime = '';
+    if (props.insureDetail) {
+      if (props.insureDetail.productRelationPlanVOList && props.insureDetail.productRelationPlanVOList.length > 0) {
+        let idx = 0;
+        const index = props.insureDetail.productRelationPlanVOList.findIndex(
+          (e: ProductRelationPlanVoItem) => e.planCode === state.formInfo.activePlanCode,
+        );
+        if (index > -1) idx = index;
+        const riskList = props.insureDetail.productRelationPlanVOList[idx]?.productRiskVoList[0].riskDetailVOList || [];
+        const riskItem = riskList.find((e: RiskDetailVoItem) => e.riskType === 1);
+        if (riskItem) lastMainRiskInfo.value = riskItem;
+      } else {
+        const riskList = props.insureDetail.productRiskVoList[0].riskDetailVOList || [];
+        const riskItem = riskList.find((e: RiskDetailVoItem) => e.riskType === 1);
+        if (riskItem) lastMainRiskInfo.value = riskItem;
+      }
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 // 根据险种以及字典数据，获取枚举值
 watch(
-  [() => lastMainRiskInfo.value],
+  [() => lastMainRiskInfo.value, () => riskInfoPeriodList.value],
   () => {
     periodList.value = [];
     if (Array.isArray(riskInfoPeriodList.value) && riskInfoPeriodList.value.length > 1 && lastMainRiskInfo.value) {
