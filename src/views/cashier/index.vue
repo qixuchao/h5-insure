@@ -30,6 +30,8 @@
       </RadioGroup>
     </div>
     <VanButton type="primary" round size="large" block @click="goPay">确认付款 ￥{{ orderInfo?.orderAmt }}</VanButton>
+    =======
+    <VanButton type="primary" round size="large" block @click="goBrandPay">jsBridge付款</VanButton>
   </ProPageWrap>
 </template>
 
@@ -41,7 +43,7 @@ import useAppStore from '@/store/app';
 import { GetPayUrlParam, PayParam } from '@/api/modules/cashier.data';
 import { getPayUrl, loadPayment, pay } from '@/api/modules/cashier';
 import { PAY_WAY_ENUM, getPayWayList } from './constant';
-import { isWeiXin, getWxAuthCode, sendPay } from './core';
+import { isWeiXin, getWxAuthCode, sendPay, wxBrandWCPayRequest } from './core';
 /**
  * 本页面主要给H5或公众号页面使用
  * 可以选择支付方式【微信、支付宝(微信内打开不展示)】
@@ -78,67 +80,21 @@ const loading = ref(false);
 const payWay = ref(PAY_WAY_ENUM.WX_SIGN); // 支付方式
 const srcType = ref('h5');
 
-const h5 = {
-  tenantId: 9991000001,
-  orderNo: 'P22112209475199910000017500221916',
-  orderName: '测试产品',
-  businessTradeNo: '11111111',
-  payTradeNo: null,
-  orderTime: '2022-11-22T09:47:44',
-  orderAmt: 0.01,
-  currency: 'CNY',
-  balance: null,
-  payChannel: 'weixin',
-  payWay: 'wxSign',
-  srcType: 'H5',
-  tradeType: null,
-  status: '等待支付',
-  expireTime: '2022-11-22T23:59:59',
-  endTime: null,
-  operateTime: null,
-  systemCurrentTime: '2022-11-22T14:32:07.298',
-  notifyUrl: null,
-  notifyInfo: '{"out_trade_no":"11111126"}',
-  errorMessage: null,
-  redirectUrl: null,
-  extraInfo: '{"spBillCreateIp":"111.112.34.56"}',
-  isDeleted: 'N',
-  spBillCreateIp: null,
-  openid: null,
-  code: null,
-};
-const js = {
-  tenantId: 9991000001,
-  orderNo: 'P22112209475199910000017500221915',
-  orderName: 'JS15',
-  businessTradeNo: '11111125',
-  payTradeNo: null,
-  orderTime: '2022-11-22T09:47:44',
-  orderAmt: 0.01,
-  currency: 'CNY',
-  balance: null,
-  payChannel: 'weixin',
-  payWay: 'wxSign',
-  srcType: 'js',
-  tradeType: null,
-  status: '等待支付',
-  expireTime: '2022-11-22T23:59:59',
-  endTime: null,
-  operateTime: null,
-  systemCurrentTime: '2022-11-22T14:32:07.298',
-  notifyUrl: null,
-  notifyInfo: '{"out_trade_no":"11111125"}',
-  errorMessage: null,
-  redirectUrl: null,
-  extraInfo: '{"spBillCreateIp":"111.112.34.56"}',
-  isDeleted: 'N',
-  spBillCreateIp: null,
-  openid: null,
-  code: null,
-};
-
 const goPay = () => {
   sendPay({
+    ...(orderInfo.value as PayParam),
+    payWay: payWay.value,
+    srcType: srcType.value,
+    code: query.code,
+    extraInfo: JSON.stringify({
+      redirectRrl: `${window.location.protocol}//${window.location.host}/cashier/payResult`,
+      wxCode: query.code,
+    }),
+    redirectUrl: `${window.location.protocol}//${window.location.host}/cashier/payResult`,
+  });
+};
+const goBrandPay = () => {
+  wxBrandWCPayRequest({
     ...(orderInfo.value as PayParam),
     payWay: payWay.value,
     srcType: srcType.value,
@@ -168,6 +124,9 @@ const getOrderDetail = () => {
       console.log('获取订单信息', res);
       if (res.code === '10000') {
         orderInfo.value = res.data;
+        // getPayUrl({ ...orderInfo.value }).then((resa) => {
+        //   console.log('支付链接：：', resa);
+        // });
       }
     })
     .finally(() => {
@@ -183,11 +142,10 @@ onMounted(() => {
         console.log('checkJsApi--chooseWXPay', res);
       },
     });
-    const { appId } = appStore;
     const url = `${window.location.href}`;
-    console.log('当前url', url);
+    console.log('当前url', url, 'appId--', sessionStorage.appId);
     if (!query.code) {
-      window.location.href = getWxAuthCode({ appId, url: encodeURIComponent(url) });
+      window.location.href = getWxAuthCode({ appId: sessionStorage.appId, url: encodeURIComponent(url) });
     } else {
       console.log('获取订单信息');
       getOrderDetail();

@@ -8,26 +8,37 @@
 -->
 <template>
   <div class="pro-shadow-button">
-    <van-button :class="{ 'shadow-button': true, shadow: props.shadow }" type="primary" :color="btnColor" round block>{{
-      text
-    }}</van-button>
+    <van-button
+      :class="{ 'shadow-button': true, shadow: props.shadow }"
+      type="primary"
+      round
+      block
+      @click="emit('click')"
+      >{{ text }}</van-button
+    >
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
-
-const noticeShow = ref<boolean>(false);
-const pdfShow = ref<boolean>(false);
+// // 调用主题
+const emit = defineEmits(['click']);
 
 const props = defineProps({
-  colors: {
-    type: Array,
-    default: () => [],
+  themeVars: {
+    type: Object,
+    default: () => ({
+      primaryColor: '#FF6600',
+    }),
   },
   text: {
     type: String,
     default: () => '立即领取',
+  },
+  isGradient: {
+    // 是否有渐变
+    type: Boolean,
+    default: true,
   },
   shadow: {
     // 是否有阴影
@@ -35,16 +46,46 @@ const props = defineProps({
     default: true,
   },
 });
+const state = reactive({ color: '' });
 
-const btnColor = computed(() => {
-  if (props.colors.length === 0) {
-    return null;
+const getColor = (_color: string, _opacity = 1) => {
+  let sColor = _color.toLowerCase();
+  // 十六进制颜色值的正则表达式
+  const reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+  // 如果是16进制颜色
+  if (sColor && reg.test(sColor)) {
+    if (sColor.length === 4) {
+      let sColorNew = '#';
+      for (let i = 1; i < 4; i += 1) {
+        sColorNew += sColor.slice(i, i + 1).concat(sColor.slice(i, i + 1));
+      }
+      sColor = sColorNew;
+    }
+    // 处理六位的颜色值
+    const sColorChange = [];
+    for (let i = 1; i < 7; i += 2) {
+      sColorChange.push(parseInt(`0x${sColor.slice(i, i + 2)}`, 16));
+    }
+    sColorChange[1] += 35;
+    return `rgba(${sColorChange.join(',')},${_opacity})`;
   }
-  if (props.colors.length === 1) {
-    return props.colors[0];
-  }
-  return `linear-gradient(to right,${props.colors[0]},${props.colors[1]})`;
-});
+  return sColor;
+};
+
+console.log(props.themeVars);
+
+watch(
+  [() => props.themeVars, () => props.isGradient],
+  () => {
+    if (props.themeVars) {
+      state.color = props.isGradient ? getColor(props.themeVars.primaryColor) : props.themeVars.primaryColor;
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 </script>
 
 <style scoped lang="scss">
@@ -54,7 +95,12 @@ const btnColor = computed(() => {
     color: 96px;
 
     &.shadow {
-      box-shadow: 0px 30px 50px -30px var(--van-primary-color);
+      background: linear-gradient(to right, var(--van-primary-color), v-bind('state.color'));
+      box-shadow: 0px 20px 50px -25px var(--van-primary-color);
+    }
+
+    :deep(.van-button__text) {
+      font-weight: bolder;
     }
   }
 }

@@ -171,7 +171,17 @@ export interface GuaranteeList {
   [props: string]: any
 }
 
+interface BackgroundInsureVO {
+  colorEnd:string,
+  colorStart:string,
+  type:string
+}
+
 export interface TenantProductInsureVO {
+  /**
+   * 背景颜色
+   */
+  backgroundInsureVO:BackgroundInsureVO,
   /**
    * 产品资料
    */
@@ -266,6 +276,7 @@ export interface TenantProductInsureVO {
    * 单计划保障详情
    */
   titleAndDescVOS: TitleAndDescVO[]
+  rateUri?: string // 费率表
 }
 
 export interface ProductDetail {

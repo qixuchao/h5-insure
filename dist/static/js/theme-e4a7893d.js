@@ -1,0 +1,1 @@
+const e={orange:"#FF6600",blue:"#0d6efe"},a=(r=e.orange)=>({primaryColor:r,primaryBackgroundColor:`${r}20`,buttonPrimaryBackgroundColor:r,buttonPrimaryBorderColor:r,checkboxCheckedBgColor:`${r}20`,switchOnBackgroundColor:r,toastDefaultPadding:"14px"});var o={};export{o as t,a as u};

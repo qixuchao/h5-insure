@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-28 20:09:33
+ * @LastEditTime: 2022-11-29 23:28:44
  * @Description: 保障详情
 -->
 <template>
@@ -136,6 +136,7 @@ watch(
 
 const guaranteeList = ref<GuaranteeItemVo[]>([]);
 const extInfoVOList = ref<ExtInfoVoItem[]>([]);
+// TODO 根据交费方式，获取初始保费
 const productPremiumVOItem = ref<ProductPremiumVoItem>();
 
 watch(

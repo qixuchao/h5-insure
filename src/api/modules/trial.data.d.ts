@@ -1,9 +1,16 @@
 export interface ProductData {
+    productFactor:ProductFactor;
     productBasicInfoVO: ProductBasicInfoVo;
     productMaterialVOList: ProductMaterialVoItem[];
     productRelationPlanVOList: ProductRelationPlanVoItem[];
     productRiskVoList: ProductRiskVoItem[];
     packageProductVOList: PackageProductVoItem[];
+}
+
+interface ProductFactor {
+  1:[],
+  2:[],
+  3:[]
 }
 
 export interface PackageProductVoItem {
@@ -263,6 +270,7 @@ export interface RiskVoItem {
     riskId: number;
     riskType: number;
     riskName:string;
+    riskInsureLimitVO:any;
 }
 
 export interface LiabilityVoItem {

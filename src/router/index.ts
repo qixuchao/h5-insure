@@ -80,12 +80,12 @@ router.beforeResolve(async (to, from) => {
     const res = await getWxJsSdkSignature({ url: encodeURIComponent(realAuthUrl), tenantId });
     const store = useAppStore();
     const {
-      data: { appid, timestamp, nonceStr, signature },
+      data: { appId, timestamp, nonceStr, signature },
     } = res;
-    store.appId = appid;
+    sessionStorage.appId = appId;
     wx.config({
       debug: false,
-      appId: appid,
+      appId,
       timestamp,
       nonceStr,
       signature,

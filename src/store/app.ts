@@ -39,7 +39,7 @@ const useStore = defineStore<
       playingUrl: '',
       playStatus: 'stop',
       orderDetail: {} as NextStepRequestData,
-      appId: 'wxd47d36cc8936bd0c', // 当前页面运行的微信公众号（只有需要授权的页面才调）
+      appId: '', // 当前页面运行的微信公众号（只有需要授权的页面才调）
     };
   },
   // 等同于vuex的getter

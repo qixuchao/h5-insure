@@ -33,3 +33,11 @@ export const getFactor = (data: any) => {
     data,
   });
 };
+
+export const getAppUser = (data: any) => {
+  return request({
+    url: `/api/query/user/getAppUser`,
+    method: 'POST',
+    data,
+  });
+};
