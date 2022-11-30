@@ -9,14 +9,16 @@ export const THEME_MAP = {
  * @returns 基于该主题颜色值的一系列主题变量
  */
 export const useTheme = (color: string = THEME_MAP.orange) => {
+  const theme20 = `${color}20`;
   return {
     primaryColor: color,
-    primaryBackgroundColor: `${color}20`, // 自定义主题20%透明度的颜色
+    primaryBackgroundColor: `${theme20}`, // 自定义主题20%透明度的颜色
     buttonPrimaryBackgroundColor: color, // 主题按钮背景
     buttonPrimaryBorderColor: color, // 主题按钮边框
-    checkboxCheckedBgColor: `${color}20`, // van-checkbox的背景色
+    checkboxCheckedBgColor: `${theme20}`, // van-checkbox的背景色
     switchOnBackgroundColor: color, // switch 开时的背景
     toastDefaultPadding: '14px',
+    linearBg: `linear-gradient(to right, ${color}, ${theme20})`,
     // ..其他组件的颜色覆盖
   };
 };
