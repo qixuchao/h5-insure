@@ -83,6 +83,46 @@ export const transformData = (o: transformDataType) => {
   });
 };
 
+export const riskToOrder = (riskList) => {
+  const mainRisk = riskList.find((risk) => risk.riskType === RISK_TYPE_ENUM.MAIN_RISK);
+  const riderRiskList = riskList.filter((risk) => risk.riskType === RISK_TYPE_ENUM.RIDER_RISK);
+  const transformRisk = (currentRiskList) => {
+    return currentRiskList.map((risk) => {
+      const { riskCategory, riskCode, riskType, id, riskInsureLimitVO, riskCalcMethodInfoVO } = risk;
+      const {
+        annuityDrawFrequencyList,
+        annuityDrawValueList,
+        insurancePeriodValueList,
+        paymentFrequencyList,
+        paymentPeriodValueList,
+      } = riskInsureLimitVO;
+
+      const { minCopy, maxCopy, fixedAmount, singeAmount } = riskCalcMethodInfoVO;
+      return {
+        amount: fixedAmount || singeAmount,
+        annuityDrawDate: annuityDrawValueList?.[0],
+        annuityDrawFrequency: annuityDrawFrequencyList?.[0],
+        chargePeriod: paymentPeriodValueList?.[0],
+        copy: minCopy || maxCopy || 0,
+        coveragePeriod: insurancePeriodValueList?.[0],
+        liabilityVOList: risk.riskLiabilityInfoVOList,
+        mainRisk: risk.riskCode === mainRisk.riskCode,
+        mainRiskCode: risk.riskCode === mainRisk.riskCode ? mainRisk.riskCode : undefined,
+        mainRiskId: risk.riskCode === mainRisk.riskCode ? mainRisk.riskId : undefined,
+        paymentFrequency: paymentFrequencyList?.[0],
+        riderRisk: true,
+        riderRiskVOList: transformRisk(riderRiskList),
+        riskCategory,
+        riskCode,
+        riskId: id,
+        riskType,
+      };
+    });
+  };
+
+  return transformRisk([mainRisk]);
+};
+
 export const compositionTrailData = (
   riskList: RiskDetailVoItem[],
   productDetail: ProductDetail,
