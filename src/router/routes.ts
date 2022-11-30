@@ -261,9 +261,9 @@ const baseInsurance = [
   },
   {
     name: '',
-    path: '/baseInsurance/payResult',
+    path: '/baseInsurance/orderResult',
     meta: { title: '' },
-    component: () => import('@/views/baseInsurance/payResult/index.vue'),
+    component: () => import('@/views/baseInsurance/orderResult/index.vue'),
   },
 ];
 
