@@ -16,11 +16,13 @@ export default (loading: Ref<boolean>) => {
       toastInstance = Toast({
         message: '加载中...',
         icon: loadingGif,
-        duration: 0,
+        iconSize: '120px',
+        duration: 10 * 1000,
       });
       console.log('toastInstance', toastInstance);
     } else {
       toastInstance.clear();
     }
   });
+  return toastInstance;
 };
