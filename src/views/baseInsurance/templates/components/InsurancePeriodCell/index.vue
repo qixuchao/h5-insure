@@ -2,14 +2,14 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 13:28:04
+ * @LastEditTime: 2022-11-30 20:05:42
  * @Description:
 -->
 <template>
   <van-config-provider :theme-vars="themeVars">
     <div class="com-period-cell">
       <div v-if="periodList.length > 1" class="custom-cell check-btn-cell">
-        <div class="cell-label">保障期限</div>
+        <div class="cell-label">保障期间</div>
         <div class="cell-content">
           <ProRadioButton v-model="state.formInfo.insurancePeriodValue" :options="periodList"></ProRadioButton>
         </div>

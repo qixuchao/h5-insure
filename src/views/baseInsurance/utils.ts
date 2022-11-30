@@ -765,3 +765,10 @@ export const freeTransform = (o: any) => {
   };
   return params;
 };
+
+export const compositionDesc = (value: number, desc: string) => {
+  if (desc.indexOf('$') !== -1) {
+    return desc.replace('$', `${value}`);
+  }
+  return `${value || ''}${desc}`;
+};

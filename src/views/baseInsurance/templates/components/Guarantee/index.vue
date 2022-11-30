@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 15:07:23
+ * @LastEditTime: 2022-11-30 20:03:10
  * @Description: 保障详情
 -->
 <template>
@@ -11,16 +11,29 @@
       <span>保障计划</span>
       <span @click="onShowDetail">查看详情</span>
     </div>
-    <div v-if="isMultiplePlan" class="plan-list">
-      <div
-        v-for="(item, index) in planList"
-        :key="`${item.planCode}_${index}`"
-        :class="`plan-list-item ${item.planCode === activePlanCode ? 'plan-list-item-active' : ''}`"
-        @click="onPlanItemClick(item.planCode)"
-      >
-        <span>{{ item.planName }}</span>
+    <template v-if="isMultiplePlan">
+      <div v-if="planSkinVlaue.length > 0" class="picture-payment-content">
+        <div
+          v-for="item in planSkinVlaue"
+          :key="item.planCode"
+          :class="`picture-payment-item`"
+          @click="onPlanItemClick(item.planCode)"
+        >
+          <img v-if="activePlanCode == item.planCode" :src="item.selectedPic" />
+          <img v-else :src="item.unSelectedPic" />
+        </div>
       </div>
-    </div>
+      <div v-else class="plan-list">
+        <div
+          v-for="(item, index) in planList"
+          :key="`${item.planCode}_${index}`"
+          :class="`plan-list-item ${item.planCode === activePlanCode ? 'plan-list-item-active' : ''}`"
+          @click="onPlanItemClick(item.planCode)"
+        >
+          <span>{{ item.planName }}</span>
+        </div>
+      </div>
+    </template>
     <ProCell
       v-for="(item, index) in displayList"
       :key="index"
@@ -92,10 +105,6 @@ const props = defineProps({
     type: Object as () => TenantProductInsureVO,
     default: () => {},
   },
-  showConfig: {
-    type: Object as () => ShowConfigVO,
-    default: () => {},
-  },
   showServiceConfig: {
     type: Boolean,
     default: false,
@@ -140,6 +149,19 @@ const guaranteeList = ref<GuaranteeItemVo[]>([]);
 const extInfoVOList = ref<ExtInfoVoItem[]>([]);
 // TODO 根据交费方式，获取初始保费
 const productPremiumVOItem = ref<ProductPremiumVoItem>();
+
+const planSkinVlaue = computed(() => {
+  if (props.isMultiplePlan) {
+    return props.dataSource.planList.map((e: PlanInsureVO) => {
+      return {
+        ...e.planPicList,
+        planCode: e.planCode,
+        planName: e.planName,
+      };
+    });
+  }
+  return [];
+});
 
 watch(
   [() => props.dataSource, () => props.activePlanCode],
@@ -378,6 +400,21 @@ const onClickFeeRate = () => {
 
     span {
       color: #ff6600;
+    }
+  }
+}
+
+.picture-payment-content {
+  padding: 0px 40px 32px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+
+  .picture-payment-item {
+    width: calc((50% - 16px));
+    margin-top: 32px;
+    img {
+      width: 100%;
     }
   }
 }

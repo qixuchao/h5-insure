@@ -66,3 +66,7 @@ export const toClogin = (data = {}) =>
 // 在线投保-通用下一步
 export const nextStep = (data = {}) =>
   request<ResponseData<any>>({ url: '/api/app/insure/insurance/nextStep', method: 'POST', data });
+
+// 在线投保-通用下一步
+export const queryStandardInsurerLink = (data = {}) =>
+  request<ResponseData<any>>({ url: '/api/app/insure/insurance/standardInsurerLink', method: 'POST', data });

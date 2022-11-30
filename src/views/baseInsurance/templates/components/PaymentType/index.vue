@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 17:58:44
+ * @LastEditTime: 2022-11-30 20:09:06
  * @Description:
 -->
 <template>
@@ -10,7 +10,18 @@
     <div class="com-payment-type">
       <div class="title">{{ isShowPaymentSelect ? '交费方式' : '保障计划' }}</div>
       <template v-if="isMultiplePlan">
-        <div class="custom-cell check-btn-cell">
+        <div v-if="planSkinVlaue.length > 0" class="picture-payment-content">
+          <div
+            v-for="item in planSkinVlaue"
+            :key="item.planCode"
+            :class="`picture-payment-item`"
+            @click="onClickPlanCode(item.planCode)"
+          >
+            <img v-if="state.formInfo.activePlanCode == item.planCode" :src="item.selectedPic" />
+            <img v-else :src="item.unSelectedPic" />
+          </div>
+        </div>
+        <div v-else class="custom-cell check-btn-cell">
           <div class="cell-label">保障方案</div>
           <div class="cell-content">
             <ProRadioButton
@@ -71,24 +82,26 @@
         </div>
       </templat>
       <InsurancePeriodCell :form-info="state.formInfo" :insure-detail="insureDetail" :config-detail="configDetail" />
-      <div class="custom-cell common-cell">
-        <div class="cell-label">实付保费</div>
-        <div class="cell-content actual-premium">{{ actualPremium }}</div>
-      </div>
-      <div
-        v-if="explainInfo && explainInfo.premiumExplain && explainInfo.premiumExplainViewName"
-        class="feerate-explain"
-      >
-        <div class="content">
-          <div class="triangle-top"></div>
-          <div>
-            <span>{{ explainInfo.premiumExplain || '' }}</span>
-            <span class="file-name" @click="onPreviewFeerateFile"
-              >《{{ explainInfo.premiumExplainViewName || '' }}》</span
-            >
+      <template v-if="premiumItem && premiumItem.premiumUnit">
+        <div class="custom-cell common-cell">
+          <div class="cell-label">实付保费</div>
+          <div class="cell-content actual-premium">{{ actualPremium }}</div>
+        </div>
+        <div
+          v-if="explainInfo && explainInfo.premiumExplain && explainInfo.premiumExplainViewName"
+          class="feerate-explain"
+        >
+          <div class="content">
+            <div class="triangle-top"></div>
+            <div>
+              <span>{{ explainInfo.premiumExplain || '' }}</span>
+              <span class="file-name" @click="onPreviewFeerateFile"
+                >《{{ explainInfo.premiumExplainViewName || '' }}》</span
+              >
+            </div>
           </div>
         </div>
-      </div>
+      </template>
     </div>
     <ProDivider />
   </van-config-provider>
@@ -159,15 +172,16 @@ const isShowPaymentFrequency = computed(() => {
   return String(insureCondition.value?.paymentFrequencyFlag) === '1';
 });
 
+const premiumItem = computed(() => {
+  return planInsure.value?.productPremiumVOList.find((e) => e.paymentFrequency === state.formInfo.paymentFrequency);
+});
+
 const actualPremium = computed(() => {
-  const premiumItem = planInsure.value?.productPremiumVOList.find(
-    (e) => e.paymentFrequency === state.formInfo.paymentFrequency,
-  );
-  if (props.premium && premiumItem) {
-    return `${props.premium}${premiumItem.premiumUnit || ''}`;
+  if (props.premium && premiumItem.value) {
+    return `${props.premium}${premiumItem.value.premiumUnit || ''}`;
   }
-  if (premiumItem) {
-    return `${premiumItem.paymentFrequencyValue || ''}${premiumItem.premiumUnit || ''}`;
+  if (premiumItem.value) {
+    return `${premiumItem.value.paymentFrequencyValue || ''}${premiumItem.value.premiumUnit || ''}`;
   }
   return '';
 });
@@ -294,6 +308,10 @@ const onPlanItemClick = (val: string) => {
 const onClickPaymethod = (type: string) => {
   console.log('type', type);
   state.formInfo.paymentFrequency = type;
+};
+
+const onClickPlanCode = (pageCode: string) => {
+  state.formInfo.activePlanCode = pageCode;
 };
 
 const onPreviewFeerateFile = () => {
