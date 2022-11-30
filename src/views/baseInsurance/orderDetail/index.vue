@@ -2,18 +2,19 @@
   <van-config-provider :theme-vars="themeVars">
     <div class="page-pay-result">
       <div class="header">
-        <div class="product-status">投保成功</div>
-        <div class="desc">恭喜 您已成功购买保障</div>
+        <div class="product-status">{{ state.pageInfo.title }}</div>
+        <div class="desc">{{ state.pageInfo.desc }}</div>
       </div>
       <div class="prodouct-container">
         <div class="product-card">
-          <div class="product-name">10万居家安全意外险10万居家安全意外险10万居家安全意外险</div>
-          <div v-for="(item, index) in state.productList" :key="index" class="list">
-            <span class="label">{{ item.name }}</span>
+          <div class="product-name">{{ state.insureDetail?.productBasicInfoVO?.productName || '' }}</div>
+          <div v-for="(item, index) in state.pageInfo.insureList" :key="index" class="list">
+            <span class="label">{{ item.label }}</span>
             <span class="value">{{ item.value }}</span>
           </div>
           <ProShadowButton :theme-vars="themeVars" class="btn" text="下载保单" />
         </div>
+        <img class="product-img" :src="state.pageInfo.images[0]" />
         <div class="footer-desc">
           <div>客服电话</div>
           <div>400 605 8000</div>
@@ -26,9 +27,10 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
-import { getTenantOrderDetail } from '@/api/modules/trial';
+import { getTenantOrderDetail, insureProductDetail } from '@/api/modules/trial';
 import ProShadowButton from '../templates/components/ProShadowButton/index.vue';
-
+import { ProductData } from '@/api/modules/trial.data';
+import { ORDER_STATUS_MAP, ORDER_STATUS_DESC } from './const';
 import { useTheme } from '../theme';
 // 调用主题
 const themeVars = useTheme();
@@ -38,28 +40,57 @@ const route = useRoute();
 interface QueryData {
   tenantId: string; // 订单id
   orderNo: string;
+  from: string;
+  productCode: string;
   [key: string]: string;
 }
 
-const { tenantId, orderNo } = route.query as QueryData;
+const { tenantId, from = 'other', orderNo, productCode } = route.query as QueryData;
 
 const state = reactive<{
-  productList: any;
+  insureDetail: ProductData;
   orderDetail: any;
+  pageInfo: {
+    title: string;
+    desc: string;
+    insureList: any;
+    images: string[];
+  };
 }>({
-  productList: [
-    { name: '被保人', value: '张三三' },
-    { name: '保障期间', value: '30天' },
-  ],
+  insureDetail: {} as ProductData,
   orderDetail: {},
+  pageInfo: {
+    title: '',
+    desc: '',
+    insureList: [],
+    images: [],
+  },
 });
 
-const getData = async () => {
-  const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
-
-  if (code === '10000') {
-    state.orderDetail = data;
+const initPageInfo = () => {
+  if (from === 'free') {
+    state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
+    state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
+    state.pageInfo.insureList = [
+      { label: '被保人', value: state.orderDetail?.tenantOrderInsuredList?.[0]?.name },
+      { label: '保障期间', value: '' },
+    ];
+    state.pageInfo.images = state.insureDetail.productBasicInfoVO.upgradeGuaranteeConfigVO.image || [];
   }
+};
+
+const getData = async () => {
+  const orderReq = getTenantOrderDetail({ orderNo, tenantId });
+  const insureReq = insureProductDetail({ productCode });
+  Promise.all([orderReq, insureReq]).then(([orderRes, insureRes]) => {
+    if (insureRes.code === '10000') {
+      state.insureDetail = insureRes.data as any;
+    }
+    if (orderRes.code === '10000') {
+      state.orderDetail = orderRes.data;
+    }
+    initPageInfo();
+  });
 };
 
 onMounted(() => {
@@ -100,6 +131,8 @@ onMounted(() => {
   .prodouct-container {
     background: #f9f9f9;
     min-height: calc(100% - 500px);
+    padding: 0 40px 0;
+
     position: relative;
     .product-card {
       width: 670px;
@@ -123,6 +156,7 @@ onMounted(() => {
         text-overflow: ellipsis;
         white-space: nowrap;
         margin-bottom: 32px;
+        text-align: left;
       }
 
       .list {
@@ -151,6 +185,13 @@ onMounted(() => {
         margin-top: 35px;
         padding: 0 35px;
       }
+    }
+
+    .product-img {
+      width: 100%;
+      position: relative;
+      transform: translateY(-200px);
+      margin-top: 40px;
     }
 
     .footer-desc {

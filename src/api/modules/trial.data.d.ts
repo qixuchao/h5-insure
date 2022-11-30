@@ -214,6 +214,13 @@ export interface ProductMaterialVoItem {
     productId: number;
 }
 
+export interface UpgradeGuaranteeConfigVO {
+  image:string[];
+  parameterMap:any;
+  productCode:string;
+  productName:string;
+}
+
 export interface ProductBasicInfoVo {
     combinationFlag: number;
     extInfo: string;
@@ -226,6 +233,7 @@ export interface ProductBasicInfoVo {
     productCode: string;
     productFullName: string;
     productName: string;
+    upgradeGuaranteeConfigVO:UpgradeGuaranteeConfigVO;
 }
 
 export interface PremiumCalcData {

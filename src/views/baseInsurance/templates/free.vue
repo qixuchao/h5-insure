@@ -168,7 +168,7 @@ const clickHandler = async () => {
     if (code === '10000') {
       if (!state.newAuth && data.pageAction?.data?.orderNo) {
         router.push(
-          `/baseInsurance/orderDetail?source=free&tenantId=${tenantId}&orderNo=${data.pageAction?.data?.orderNo}`,
+          `/baseInsurance/orderDetail?from=free&tenantId=${tenantId}&orderNo=${data.pageAction?.data?.orderNo}&productCode=${productCode}`,
         );
       }
       state.newAuth = false;
