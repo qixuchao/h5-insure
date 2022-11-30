@@ -11,7 +11,7 @@ export interface PlanInsureVO {
   tabName: string[];
   attachmentVOList: AttachmentVoItem;
   productPlanInsureConditionVO: ProductPlanInsureConditionVo;
-  planPicList: string;
+  planPicList: any;
 }
 
 export interface ProductPlanInsureConditionVo {

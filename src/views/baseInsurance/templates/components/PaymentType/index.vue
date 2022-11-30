@@ -2,23 +2,25 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 15:56:20
+ * @LastEditTime: 2022-11-30 17:58:44
  * @Description:
 -->
 <template>
   <van-config-provider :theme-vars="themeVars">
     <div class="com-payment-type">
       <div class="title">{{ isShowPaymentSelect ? '交费方式' : '保障计划' }}</div>
-      <div v-if="isMultiplePlan" class="custom-cell check-btn-cell">
-        <div class="cell-label">保障方案</div>
-        <div class="cell-content">
-          <ProRadioButton
-            v-model="state.formInfo.activePlanCode"
-            :options="planList"
-            :prop="{ value: 'planCode', label: 'planName' }"
-          ></ProRadioButton>
+      <template v-if="isMultiplePlan">
+        <div class="custom-cell check-btn-cell">
+          <div class="cell-label">保障方案</div>
+          <div class="cell-content">
+            <ProRadioButton
+              v-model="state.formInfo.activePlanCode"
+              :options="planList"
+              :prop="{ value: 'planCode', label: 'planName' }"
+            ></ProRadioButton>
+          </div>
         </div>
-      </div>
+      </template>
       <templat v-if="isShowPaymentFrequency">
         <div v-if="showPictureBtn" class="picture-payment-content">
           <div
@@ -259,6 +261,19 @@ const skinValue = computed(() => {
 
 const showPictureBtn = computed(() => {
   return skinValue.value.length > 0;
+});
+
+const planSkinVlaue = computed(() => {
+  if (props.isMultiplePlan) {
+    return props.configDetail.tenantProductInsureVO.planList.map((e: PlanInsureVO) => {
+      return {
+        ...e.planPicList,
+        planCode: e.planCode,
+        planName: e.planName,
+      };
+    });
+  }
+  return [];
 });
 
 const peymentBtnList = computed(() => {

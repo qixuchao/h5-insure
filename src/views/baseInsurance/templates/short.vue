@@ -184,6 +184,7 @@ const {
   paymentMethod,
   certNo,
   name,
+  templateId,
   pageCode,
   from,
 } = route.query as QueryData;
@@ -234,6 +235,8 @@ const trialData = reactive({
 
 const orderDetail = ref<any>({
   tenantId,
+  templateId,
+  pageCode,
   agencyId: agentCode,
   orderCategory: 1,
   saleUserId: saleChannelId,
@@ -329,16 +332,13 @@ watch(
 
 // 险种信息
 const currentRiskInfo = computed(() => {
-  let riskInfo = [];
   if (isMultiplePlan.value) {
-    riskInfo =
+    return (
       insureDetail.value?.productRelationPlanVOList.find((plan) => plan.planCode === orderDetail.value.activePlanCode)
-        ?.productRiskVoList || [];
-  } else {
-    riskInfo = insureDetail.value?.productRiskVoList || [];
+        ?.productRiskVoList || []
+    );
   }
-
-  return riskInfo[0];
+  return insureDetail.value?.productRiskVoList || [];
 });
 
 // 切换计划
@@ -476,7 +476,10 @@ const getPayFailCallbackUrl = (no: number) => {
 
 const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrderDetail = {}) => {
   const nextStepParams = { ...currentOrderDetail };
-  console.log('currentRiskInfo');
+  console.log(
+    'currentOrderDetail==========',
+    nextStepParams.tenantOrderInsuredList[0]?.tenantOrderProductList[0].riskVOList,
+  );
   const transformDataReq = {
     tenantId,
     riskList: nextStepParams.tenantOrderInsuredList[0]?.tenantOrderProductList[0].riskVOList || [],
@@ -643,12 +646,16 @@ const onPremiumCalcWithValid = () => {
 };
 
 const trialPremium = async (orderInfo, currentProductDetail, productRiskList) => {
-  const tempRiskVOList = riskToOrder(productRiskList).map((e: any) => ({
-    ...e,
-    paymentFrequency: orderInfo.paymentFrequency,
-    insurancePeriodValue: orderInfo.insurancePeriodValue, // 保障期限
-  }));
+  const tempRiskVOList = riskToOrder(productRiskList).map((riskVOList: any) => {
+    return {
+      ...riskVOList,
+      paymentFrequency: orderInfo.paymentFrequency,
+      insurancePeriodValue: orderInfo.insurancePeriodValue, // 保障期限
+    };
+  });
   const trialParams = {
+    tenantId,
+    productCode: detail.value?.productCode,
     holder: {
       personVO: orderInfo.tenantOrderHolder,
     },
@@ -667,13 +674,14 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList) =>
     }),
   };
   const { code, data } = await premiumCalc(trialParams);
-  orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList[0] =
-    trialParams.insuredVOList[0]?.productPlanVOList;
+  orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList = trialParams.insuredVOList[0]?.productPlanVOList;
 };
 
 const onNext = async () => {
   try {
-    trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value.riskDetailVOList);
+    console.log('currentRiskInfo.value', currentRiskInfo.value);
+    await trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
+    console.log('orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList[0]', orderDetail.value);
     // const { condition, data } = await onPremiumCalcWithValid();
     // const riskPremium = {};
     // const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
