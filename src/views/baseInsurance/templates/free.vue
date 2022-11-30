@@ -107,14 +107,14 @@ const state = reactive<{
 });
 
 const fetchData = async () => {
-  const productReq = productDetail({ productCode, withInsureInfo: true, tenantId: 0 });
+  const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
   const insureReq = insureProductDetail({ productCode });
   const userReq = getAppUser({ openId });
   await Promise.all([productReq, insureReq, userReq]).then(([productRes, insureRes, userRes]) => {
     if (productRes.code === '10000') {
       state.detail = productRes.data as any;
       state.banner = state.detail.tenantProductInsureVO?.banner[0];
-      const { colorEnd, colorStart } = state.detail.tenantProductInsureVO.backgroundInsureVO;
+      const { colorEnd, colorStart } = state.detail.tenantProductInsureVO?.backgroundInsureVO || {};
       state.colors = [colorStart, colorEnd];
       state.productDesc = state.detail.tenantProductInsureVO.spec || [];
       document.title = state.detail.productFullName || '';
@@ -162,7 +162,7 @@ const clickHandler = async () => {
       buttonCode: 'EVENT_FREE_multiIssuePolicy',
     });
   }
-  console.log('params', params);
+
   try {
     const { code, data } = await req(params);
     if (code === '10000') {

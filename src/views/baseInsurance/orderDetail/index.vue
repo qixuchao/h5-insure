@@ -14,23 +14,28 @@
           </div>
           <ProShadowButton :theme-vars="themeVars" class="btn" text="下载保单" />
         </div>
-        <img class="product-img" :src="state.pageInfo.images[0]" />
+        <img class="product-img" :src="state.pageInfo.images[0]" @click="goToInsurerPage" />
         <div class="footer-desc">
           <div>客服电话</div>
           <div>400 605 8000</div>
         </div>
       </div>
     </div>
+    <Curtain v-model:show="show" @close="show = false">
+      <img class="jump-img" :src="state.pageInfo.images[1]" style="display: block" @click="goToInsurerPage" />
+    </Curtain>
   </van-config-provider>
 </template>
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Toast } from 'vant';
-import { getTenantOrderDetail, insureProductDetail } from '@/api/modules/trial';
+import { getTenantOrderDetail, insureProductDetail, queryStandardInsurerLink } from '@/api/modules/trial';
 import ProShadowButton from '../templates/components/ProShadowButton/index.vue';
 import { ProductData } from '@/api/modules/trial.data';
+import { INSURANCE_PERIOD_TYPE_ENUMS } from '@/common/constants/trial';
+import { compositionDesc } from '../utils';
 import { ORDER_STATUS_MAP, ORDER_STATUS_DESC } from './const';
+import Curtain from '../templates/components/Curtain/index.vue';
 import { useTheme } from '../theme';
 // 调用主题
 const themeVars = useTheme();
@@ -55,6 +60,7 @@ const state = reactive<{
     desc: string;
     insureList: any;
     images: string[];
+    show: boolean;
   };
 }>({
   insureDetail: {} as ProductData,
@@ -64,18 +70,55 @@ const state = reactive<{
     desc: '',
     insureList: [],
     images: [],
+    show: false,
   },
 });
+const show = ref(false);
+
+const goToInsurerPage = async () => {
+  try {
+    const { insurerCode } = state.insureDetail.productBasicInfoVO;
+    const { code, data } = await queryStandardInsurerLink({
+      insurerCode,
+      productCode,
+      tenantId,
+    });
+    if (code === '10000') {
+      window.location.href = data || '';
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 const initPageInfo = () => {
   if (from === 'free') {
     state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
     state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
+    let insurancePeriodDesc = '';
+    state.orderDetail.tenantOrderInsuredList[0].tenantOrderProductList.forEach((item: any) => {
+      if (insurancePeriodDesc) return null;
+      item.tenantOrderRiskList.forEach((node: any) => {
+        if (node.riskType === 1 && !insurancePeriodDesc) {
+          insurancePeriodDesc = compositionDesc(
+            node.insurancePeriodValue,
+            INSURANCE_PERIOD_TYPE_ENUMS[node.insurancePeriodType],
+          );
+        }
+      });
+      return false;
+    });
     state.pageInfo.insureList = [
       { label: '被保人', value: state.orderDetail?.tenantOrderInsuredList?.[0]?.name },
-      { label: '保障期间', value: '' },
+      { label: '保障期间', value: insurancePeriodDesc || '' },
     ];
     state.pageInfo.images = state.insureDetail.productBasicInfoVO.upgradeGuaranteeConfigVO.image || [];
+
+    if (state.pageInfo.images.length > 1) {
+      state.pageInfo.show = true;
+      show.value = true;
+      console.log(show.value, state.pageInfo.images.length, state.pageInfo.show);
+    }
   }
 };
 
@@ -99,9 +142,13 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.jump-img {
+  width: 100%;
+}
 .page-pay-result {
   text-align: center;
   height: 100%;
+
   .header {
     height: 500px;
     background: 0 0 url('@/assets/images/baseInsurance/cardbg.png') no-repeat;
