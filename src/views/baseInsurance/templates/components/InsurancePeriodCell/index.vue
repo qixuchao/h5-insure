@@ -2,39 +2,47 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-29 20:50:46
+ * @LastEditTime: 2022-11-30 01:48:07
  * @Description:
 -->
 <template>
   <van-config-provider :theme-vars="themeVars">
     <div class="com-period-cell">
-      <div v-if="periodList.length > 1" class="period-cell-check-item">
-        <div class="period-cell-item-label">保障期限</div>
-        <div class="period-cell-item-content">
+      <div v-if="periodList.length > 1" class="custom-cell check-btn-cell">
+        <div class="cell-label">保障期限</div>
+        <div class="cell-content">
           <ProRadioButton v-model="state.formInfo.insurancePeriodValue" :options="periodList"></ProRadioButton>
         </div>
       </div>
-      <div v-if="dateType === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY" class="period-cell-item">
+      <div v-if="riskGuaranteeStartDateType === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY" class="custom-cell common-cell">
         <!-- 选择生效日期 -->
-        <div>生效日期</div>
-        <div>{{ formatDate(new Date()) }}</div>
+        <div class="cell-label">生效日期</div>
+        <div class="cell-content" @click="onSelectCommencementTime">{{ state.formInfo.commencementTime }}</div>
       </div>
-      <div v-if="dateType === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY" class="period-cell-item">
-        <!-- 选择生效日期 -->
-        <div>生效日期</div>
-        <div>{{ formatDate(new Date()) }}</div>
-      </div>
-      <div v-if="dateType !== INSURANCE_START_TYPE_ENUM.CUSTOM_DAY" class="period-cell-item">
-        <div class="period-cell-item-label">保障期限</div>
-        <div class="period-cell-item-content">{{ insurancePeriodValueDateText }}</div>
+      <div v-if="riskGuaranteeStartDateType !== INSURANCE_START_TYPE_ENUM.CUSTOM_DAY" class="custom-cell common-cell">
+        <div class="cell-label">保障期限</div>
+        <div class="cell-content">{{ insurancePeriodValueDateText }}</div>
       </div>
     </div>
-    <ProDivider />
   </van-config-provider>
+  <ProPopup v-model:show="show" :height="40" :closeable="false">
+    <van-datetime-picker
+      v-model="currentDate"
+      type="date"
+      title="选择年月"
+      :min-date="minDate"
+      :max-date="maxDate"
+      :formatter="formatter"
+      @confirm="handleConfirm"
+      @cancel="handleCancel"
+    />
+  </ProPopup>
 </template>
 <script lang="ts" setup>
 import type { FormInstance } from 'vant';
 import dayjs from 'dayjs';
+import { useToggle } from '@vant/use';
+import { PickerOption } from 'vant/es';
 import themeVars from '../../../theme';
 import {
   INSURANCE_START_TYPE_ENUM,
@@ -45,6 +53,7 @@ import {
 import { PlanInsureVO, ProductDetail, ProductPlanInsureConditionVo, ShowConfigVO } from '@/api/modules/product.data';
 import { ProductData, ProductRelationPlanVoItem, ProductRiskVoItem, RiskDetailVoItem } from '@/api/modules/trial.data';
 import { formatDate, computedAddDate } from '@/utils/date';
+import useDicData from '@/hooks/useDicData';
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
@@ -79,25 +88,45 @@ const props = defineProps({
     type: Object as () => ProductData,
     default: () => {},
   },
-  configDetail: {
-    type: Object as () => ProductDetail,
-    default: () => {},
-  },
-  isMultiplePlan: {
-    type: Boolean,
-    default: false,
-  },
   riskInfoPeriodList: {
     type: Array as () => { name: string; value: string }[],
     default: () => [],
   },
 });
 
+const formatter = (type: string, val: string) => {
+  if (type === 'year') {
+    return `${val}年`;
+  }
+  if (type === 'month') {
+    return `${val}月`;
+  }
+  if (type === 'day') {
+    return `${val}日`;
+  }
+  return val;
+};
+
+const currentDate = ref<Date>(new Date());
+
 const emits = defineEmits(['onReset', 'onUpdate', 'onVerify']);
+
+const riskInfoPeriodList = useDicData('RISK_INSURANCE_PERIOD'); // 保障期间字典
 
 const state = reactive({
   formInfo: props.formInfo,
 });
+
+watch(
+  () => state.formInfo.commencementTime,
+  (val) => {
+    if (val) {
+      if (typeof val === 'string') {
+        currentDate.value = new Date(val);
+      }
+    }
+  },
+);
 
 const lastMainRiskInfo = ref<any>({
   id: 10133,
@@ -234,43 +263,43 @@ const lastMainRiskInfo = ref<any>({
 const periodList = ref<any[]>([]);
 
 // 根据是否多计划，获取相应主险信息，从而获取保障期限
-watch(
-  [() => props.insureDetail, () => props.isMultiplePlan, () => state.formInfo.activePlanCode],
-  () => {
-    state.formInfo.insurancePeriodValue = '';
-    state.formInfo.commencementTime = '';
-    if (props.insureDetail) {
-      if (props.isMultiplePlan) {
-        let idx = 0;
-        const index = props.insureDetail.productRelationPlanVOList.findIndex(
-          (e: ProductRelationPlanVoItem) => e.planCode === state.formInfo.activePlanCode,
-        );
-        if (index > -1) idx = index;
-        const riskList = props.insureDetail.productRelationPlanVOList[idx]?.productRiskVoList[0].riskDetailVOList || [];
-        const riskItem = riskList.find((e: RiskDetailVoItem) => e.riskType === 1);
-        if (riskItem) lastMainRiskInfo.value = riskItem;
-      } else {
-        const riskList = props.insureDetail.productRiskVoList[0].riskDetailVOList || [];
-        const riskItem = riskList.find((e: RiskDetailVoItem) => e.riskType === 1);
-        if (riskItem) lastMainRiskInfo.value = riskItem;
-      }
-    }
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
+// watch(
+//   [() => props.insureDetail, () => state.formInfo.activePlanCode],
+//   () => {
+//     state.formInfo.insurancePeriodValue = '';
+//     state.formInfo.commencementTime = '';
+//     if (props.insureDetail) {
+//       if (props.insureDetail.productRelationPlanVOList && props.insureDetail.productRelationPlanVOList.length > 0) {
+//         let idx = 0;
+//         const index = props.insureDetail.productRelationPlanVOList.findIndex(
+//           (e: ProductRelationPlanVoItem) => e.planCode === state.formInfo.activePlanCode,
+//         );
+//         if (index > -1) idx = index;
+//         const riskList = props.insureDetail.productRelationPlanVOList[idx]?.productRiskVoList[0].riskDetailVOList || [];
+//         const riskItem = riskList.find((e: RiskDetailVoItem) => e.riskType === 1);
+//         if (riskItem) lastMainRiskInfo.value = riskItem;
+//       } else {
+//         const riskList = props.insureDetail.productRiskVoList[0].riskDetailVOList || [];
+//         const riskItem = riskList.find((e: RiskDetailVoItem) => e.riskType === 1);
+//         if (riskItem) lastMainRiskInfo.value = riskItem;
+//       }
+//     }
+//   },
+//   {
+//     deep: true,
+//     immediate: true,
+//   },
+// );
 
 // 根据险种以及字典数据，获取枚举值
 watch(
-  [() => props.riskInfoPeriodList, () => lastMainRiskInfo.value],
+  [() => lastMainRiskInfo.value],
   () => {
     periodList.value = [];
-    if (Array.isArray(props.riskInfoPeriodList) && props.riskInfoPeriodList.length > 1 && lastMainRiskInfo.value) {
+    if (Array.isArray(riskInfoPeriodList.value) && riskInfoPeriodList.value.length > 1 && lastMainRiskInfo.value) {
       periodList.value = (lastMainRiskInfo.value.riskInsureLimitVO.insurancePeriodValueList || [])
         .map((item: string) => {
-          const periodItem = props.riskInfoPeriodList.find((e) => e.value === item);
+          const periodItem = riskInfoPeriodList.value.find((e) => e.value === item);
           if (periodItem) {
             return {
               label: periodItem.name,
@@ -289,12 +318,22 @@ watch(
   },
 );
 
-const dateType = computed(() => {
+// 险种保障开始日期类型
+const riskGuaranteeStartDateType = computed(() => {
   return lastMainRiskInfo.value?.riskInsureLimitVO.guaranteeStartDate || INSURANCE_START_TYPE_ENUM.CURRENT_DAY;
 });
 
+const [show, toggle] = useToggle(false);
+
+const onSelectCommencementTime = () => {
+  toggle(true);
+};
+
+const minDate = new Date(computedAddDate(new Date(), 1, 'day'));
+
+// 日期选择框最大可选天数
 const maxDate = computed(() => {
-  if (dateType.value === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) {
+  if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) {
     const tempDate = lastMainRiskInfo.value?.riskInsureLimitVO.maxInsuranceDay;
     if (!tempDate) return new Date();
     // 注意看下当天是否可选
@@ -304,13 +343,22 @@ const maxDate = computed(() => {
   return new Date();
 });
 
+const handleConfirm = (value: Date) => {
+  state.formInfo.commencementTime = formatDate(value);
+  toggle(false);
+};
+
+const handleCancel = () => {
+  toggle(false);
+};
+
 const insurancePeriodValueDateText = computed(() => {
-  if (dateType.value === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) return '';
+  if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) return '';
   if (!state.formInfo.insurancePeriodValue) return '';
   const [unit, num] = state.formInfo.insurancePeriodValue.split('_');
   if (unit !== 'to') {
     let startDate = formatDate(new Date());
-    if (dateType.value === INSURANCE_START_TYPE_ENUM.NEXT_DAY) {
+    if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.NEXT_DAY) {
       startDate = computedAddDate(new Date(), 1, 'day');
       return '';
     }
@@ -337,83 +385,56 @@ defineExpose({});
   background: white;
   padding-top: 40px;
 
-  .period-cell-check-item {
+  .custom-cell {
+    width: 100%;
     padding: 0px 40px 32px;
-    display: flex;
-    // align-items: center;
+  }
 
-    .period-cell-item-label {
-      margin-top: 9px;
-      min-width: 120px;
-      height: 42px;
-      line-height: 42px;
-      font-size: 30px;
-      font-family: PingFangSC-Regular, PingFang SC;
-      font-weight: 400;
-      color: #333333;
-      margin-right: 37px;
+  .cell-label {
+    min-width: 120px;
+    height: 60px;
+    font-size: 30px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #333333;
+    line-height: 60px;
+    margin-right: 55px;
+  }
+
+  .check-btn-cell {
+    display: flex;
+    .cell-label {
+      margin-top: 5px;
     }
 
-    .period-cell-item-content {
-      font-size: 30px;
-      font-family: PingFangSC-Regular, PingFang SC;
-      font-weight: 400;
-      color: #333333;
-
-      :deep(.com-check-btn) {
-        border-radius: 44px !important;
-        background: #f6f6f6;
-
-        font-size: 30px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: #666666;
-        line-height: 42px;
-      }
-
+    .cell-content {
       :deep(.radio-btn) {
-        justify-content: flex-start !important;
+        justify-content: flex-start;
+      }
+      :deep(.btn-wrapper) {
+        &:nth-child(3n + 1) {
+          margin-left: 0px !important;
+        }
       }
     }
   }
-  .period-cell-item {
-    padding: 0px 40px 23px;
-    display: flex;
-    align-items: center;
 
-    .period-cell-item-label {
-      margin-top: 9px;
-      min-width: 120px;
+  .common-cell {
+    display: flex;
+    justify-content: flex-start;
+
+    .cell-label {
       height: 42px;
       line-height: 42px;
-      font-size: 30px;
-      font-family: PingFangSC-Regular, PingFang SC;
-      font-weight: 400;
-      color: #333333;
-      margin-right: 55px;
     }
 
-    .period-cell-item-content {
+    .cell-content {
+      height: 42px;
+      line-height: 42px;
       font-size: 30px;
       font-family: PingFangSC-Regular, PingFang SC;
       font-weight: 400;
-      height: 42px;
-      line-height: 42px;
       color: #333333;
-
-      :deep(.com-check-btn) {
-        border-radius: 44px !important;
-        background: #f6f6f6 !important;
-        font-size: 30px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: #666666;
-        line-height: 42px;
-      }
-
-      :deep(.radio-btn) {
-        justify-content: flex-start !important;
-      }
     }
   }
 }

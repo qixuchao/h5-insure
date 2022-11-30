@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-17 16:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-29 16:09:42
+ * @LastEditTime: 2022-11-29 23:45:02
  * @Description: 审核版首页
 -->
 <template>
@@ -38,6 +38,7 @@
       <CustomCard title="常见问题">
         <Question :list="props.detail?.tenantProductInsureVO?.questionList" />
       </CustomCard>
+      <ProDivider />
     </template>
     <template #tab3>
       <slot name="form" />
@@ -49,7 +50,7 @@
 import { Ref } from 'vue-demi';
 import { CLAIM_TYPE_ENUM } from '@/common/constants/infoCollection';
 import ProCard from '@/components/ProCard/index.vue';
-import CustomCard from '../CustomCard/index.vue';
+import CustomCard from '../../../components/CustomCard/index.vue';
 import ProDivider from '@/components/ProDivider/index.vue';
 import ProScrollTab from '@/components/ProScrollTab/index.vue';
 import ProTimeline from '@/components/ProTimeline/index.vue';

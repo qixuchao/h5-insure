@@ -2,24 +2,21 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-29 21:06:08
+ * @LastEditTime: 2022-11-30 01:03:10
  * @Description:
 -->
 <template>
   <van-config-provider :theme-vars="themeVars">
     <div class="com-payment-type">
       <div class="title">{{ isShowPaymentSelect ? '交费方式' : '保障计划' }}</div>
-      <div v-if="isMultiplePlan" class="plan-content">
-        <div class="cell">
-          <div class="label">保障方案</div>
-          <div
-            v-for="(item, index) in planList"
-            :key="`${item.planCode}_${index}`"
-            :class="`content-item ${item.planCode === state.formInfo.activePlanCode ? 'content-item-active' : ''}`"
-            @click="onPlanItemClick(item.planCode)"
-          >
-            <span>{{ item.planName }}</span>
-          </div>
+      <div v-if="isMultiplePlan" class="custom-cell check-btn-cell">
+        <div class="cell-label">保障方案</div>
+        <div class="cell-content">
+          <ProRadioButton
+            v-model="state.formInfo.activePlanCode"
+            :options="planList"
+            :prop="{ value: 'planCode', label: 'planName' }"
+          ></ProRadioButton>
         </div>
       </div>
       <div v-if="showPictureBtn" class="picture-payment-content">
@@ -63,14 +60,10 @@
           </div>
         </div>
       </div>
-      <div v-else class="multiple-payment-content">
-        <div
-          v-for="(item, index) in peymentBtnList"
-          :key="`${item.value}_${index}`"
-          :class="`content-item ${item.value === state.formInfo.paymentFrequency ? 'content-item-active' : ''}`"
-          @click="onClickPaymethod(item.value)"
-        >
-          <span>{{ item.label }}</span>
+      <div v-else class="custom-cell check-btn-cell">
+        <div class="cell-label">交费方式</div>
+        <div class="cell-content">
+          <ProRadioButton v-model="state.formInfo.paymentFrequency" :options="peymentBtnList"></ProRadioButton>
         </div>
       </div>
       <InsurancePeriodCell
@@ -80,9 +73,9 @@
         :is-multiple-plan="isMultiplePlan"
         :risk-info-period-list="props.riskInfoPeriodList"
       />
-      <div class="premium-cell">
-        <div class="premium-label">实付保费</div>
-        <div class="premium">{{ actualPremium }}</div>
+      <div class="custom-cell common-cell">
+        <div class="cell-label">实付保费</div>
+        <div class="cell-content">{{ actualPremium }}</div>
       </div>
     </div>
     <ProDivider />
@@ -171,13 +164,13 @@ const planInsure = ref<PlanInsureVO>();
 
 const actualPremium = computed(() => {
   const premiumItem = planInsure.value?.productPremiumVOList.find(
-    (e) => e.paymentFrequencyValue === state.formInfo.paymentFrequency,
+    (e) => e.paymentFrequency === state.formInfo.paymentFrequency,
   );
   if (props.premium && premiumItem) {
-    return `${props.premium}${premiumItem.premiumUnit}`;
+    return `${props.premium}${premiumItem.premiumUnit || ''}`;
   }
   if (premiumItem) {
-    return `${premiumItem.paymentFrequencyValue}${premiumItem.premiumUnit}`;
+    return `${premiumItem.paymentFrequencyValue || ''}${premiumItem.premiumUnit || ''}`;
   }
   return '';
 });
@@ -313,54 +306,41 @@ defineExpose({});
     }
   }
 
-  .plan-content {
+  .cell-label {
+    min-width: 120px;
+    height: 60px;
+    font-size: 30px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #333333;
+    line-height: 60px;
+    margin-right: 55px;
+  }
+
+  .custom-cell {
     width: 100%;
-    padding: 30px 40px 17px;
+    padding: 0px 40px 32px;
+  }
 
-    .cell {
-      display: flex;
-      align-items: center;
-      margin-bottom: 32px;
-      .label {
-        height: 42px;
-        font-size: 30px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: #333333;
-        line-height: 42px;
-        margin-right: 55px;
+  .check-btn-cell {
+    display: flex;
+    .cell-label {
+      margin-top: 5px;
+    }
+    .cell-content {
+      :deep(.radio-btn) {
+        justify-content: flex-start;
       }
-
-      .content-item {
-        height: 60px;
-        line-height: 60px;
-        border-radius: 30px;
-        background: #f6f6f6;
-        border-radius: 30px;
-        margin-right: 24px;
-
-        span {
-          height: 42px;
-          font-size: 30px;
-          font-family: PingFangSC-Regular, PingFang SC;
-          font-weight: 400;
-          color: #666666;
-          line-height: 42px;
-          margin: 0px 33px;
-        }
-      }
-      .content-item-active {
-        background: #fff3eb;
-        border: 1px solid $primary-color;
-        span {
-          color: $primary-color;
+      :deep(.btn-wrapper) {
+        &:nth-child(3n + 1) {
+          margin-left: 0px !important;
         }
       }
     }
   }
 
   .default-payment-content {
-    padding: 0px 40px 32px;
+    padding: 45px 40px 32px;
     display: flex;
     justify-content: space-between;
     text-align: center;
@@ -392,7 +372,7 @@ defineExpose({});
         background: #ff6b00;
         border-radius: 44px;
         display: flex;
-        color: #ffffff;
+        color: #ffffff !important;
         justify-content: space-between;
         vertical-align: center;
         padding: 5px 20px;
@@ -462,36 +442,33 @@ defineExpose({});
     }
   }
 
-  .multiple-payment-content {
-    padding: 0px 40px 32px;
+  .common-cell {
     display: flex;
-    flex-wrap: wrap;
     justify-content: flex-start;
-    .content-item {
-      height: 60px;
-      line-height: 60px;
-      border-radius: 30px;
-      background: #f6f6f6;
-      border-radius: 30px;
-      margin-right: 32px;
-      margin-bottom: 32px;
 
-      span {
-        height: 42px;
-        font-size: 30px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: #666666;
-        line-height: 42px;
-        margin: 0px 33px;
-      }
+    .cell-label {
+      height: 42px;
+      line-height: 42px;
     }
-    .content-item-active {
-      background: #fff3eb;
-      border: 1px solid $primary-color;
-      span {
-        color: $primary-color;
-      }
+
+    .cell-content {
+      height: 42px;
+      line-height: 42px;
+      font-size: 30px;
+      font-family: PingFangSC-Regular, PingFang SC;
+      font-weight: 400;
+      color: #333333;
+    }
+  }
+
+  .active {
+    background: var(--van-checkbox-checked-bg-color) !important;
+    border: 1px solid $primary-color;
+    span {
+      color: $primary-color !important;
+    }
+    .tip span {
+      color: #ffffff !important;
     }
   }
 }

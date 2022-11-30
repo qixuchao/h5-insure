@@ -160,7 +160,6 @@ import {
   allAuth,
   holderAuth,
 } from './auth';
-import useDicData from '@/hooks/useDicData';
 
 const themeVars = useTheme();
 const router = useRouter();
@@ -192,8 +191,6 @@ const {
 } = route.query as QueryData;
 
 const currentDate = ref(null);
-
-const riskInfoPeriodList = useDicData('RISK_INSURANCE_PERIOD'); // 保障期间字典
 
 const formRef = ref();
 const detailScrollRef = ref();
@@ -938,56 +935,57 @@ const fetchData = async () => {
                 annuityDrawFrequencyFlag: 1,
                 hesitatePeriod: null,
                 hesitatePeriodFlag: null,
-                paymentFrequencyList: [
-                  {
-                    selectedPic:
-                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282038575594289f4ac06414a7d9961338d1111fcef/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg%403x.png?Expires=1670243938&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=Bsem34IN0LdFd3NCotoXbO7tLJw%3D',
-                    skinName: '趸交',
-                    skinValue: '1',
-                    unSelectedPic:
-                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112820385374286567155d95149b5a7ed3297746e1149/%E8%83%8C%E6%99%AF%402x.png?Expires=1670243933&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=SM4RfxI04seVLQ5v7w7gepWTKQ8%3D',
-                  },
-                  {
-                    selectedPic:
-                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282038575594289f4ac06414a7d9961338d1111fcef/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg%403x.png?Expires=1670243938&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=Bsem34IN0LdFd3NCotoXbO7tLJw%3D',
-                    skinName: '月交',
-                    skinValue: '5',
-                    unSelectedPic:
-                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112820385374286567155d95149b5a7ed3297746e1149/%E8%83%8C%E6%99%AF%402x.png?Expires=1670243933&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=SM4RfxI04seVLQ5v7w7gepWTKQ8%3D',
-                  },
-                  {
-                    selectedPic:
-                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282038575594289f4ac06414a7d9961338d1111fcef/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg%403x.png?Expires=1670243938&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=Bsem34IN0LdFd3NCotoXbO7tLJw%3D',
-                    skinName: '趸交',
-                    skinValue: '1',
-                    unSelectedPic:
-                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112820385374286567155d95149b5a7ed3297746e1149/%E8%83%8C%E6%99%AF%402x.png?Expires=1670243933&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=SM4RfxI04seVLQ5v7w7gepWTKQ8%3D',
-                  },
-                  {
-                    selectedPic:
-                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282038575594289f4ac06414a7d9961338d1111fcef/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg%403x.png?Expires=1670243938&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=Bsem34IN0LdFd3NCotoXbO7tLJw%3D',
-                    skinName: '月交',
-                    skinValue: '5',
-                    unSelectedPic:
-                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112820385374286567155d95149b5a7ed3297746e1149/%E8%83%8C%E6%99%AF%402x.png?Expires=1670243933&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=SM4RfxI04seVLQ5v7w7gepWTKQ8%3D',
-                  },
-                  {
-                    selectedPic:
-                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282038575594289f4ac06414a7d9961338d1111fcef/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg%403x.png?Expires=1670243938&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=Bsem34IN0LdFd3NCotoXbO7tLJw%3D',
-                    skinName: '趸交',
-                    skinValue: '1',
-                    unSelectedPic:
-                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112820385374286567155d95149b5a7ed3297746e1149/%E8%83%8C%E6%99%AF%402x.png?Expires=1670243933&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=SM4RfxI04seVLQ5v7w7gepWTKQ8%3D',
-                  },
-                  {
-                    selectedPic:
-                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282038575594289f4ac06414a7d9961338d1111fcef/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg%403x.png?Expires=1670243938&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=Bsem34IN0LdFd3NCotoXbO7tLJw%3D',
-                    skinName: '月交',
-                    skinValue: '5',
-                    unSelectedPic:
-                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112820385374286567155d95149b5a7ed3297746e1149/%E8%83%8C%E6%99%AF%402x.png?Expires=1670243933&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=SM4RfxI04seVLQ5v7w7gepWTKQ8%3D',
-                  },
-                ],
+                paymentFrequencyList: null,
+                // paymentFrequencyList: [
+                //   {
+                //     selectedPic:
+                //       'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282038575594289f4ac06414a7d9961338d1111fcef/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg%403x.png?Expires=1670243938&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=Bsem34IN0LdFd3NCotoXbO7tLJw%3D',
+                //     skinName: '趸交',
+                //     skinValue: '1',
+                //     unSelectedPic:
+                //       'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112820385374286567155d95149b5a7ed3297746e1149/%E8%83%8C%E6%99%AF%402x.png?Expires=1670243933&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=SM4RfxI04seVLQ5v7w7gepWTKQ8%3D',
+                //   },
+                //   {
+                //     selectedPic:
+                //       'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282038575594289f4ac06414a7d9961338d1111fcef/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg%403x.png?Expires=1670243938&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=Bsem34IN0LdFd3NCotoXbO7tLJw%3D',
+                //     skinName: '月交',
+                //     skinValue: '5',
+                //     unSelectedPic:
+                //       'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112820385374286567155d95149b5a7ed3297746e1149/%E8%83%8C%E6%99%AF%402x.png?Expires=1670243933&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=SM4RfxI04seVLQ5v7w7gepWTKQ8%3D',
+                //   },
+                //   {
+                //     selectedPic:
+                //       'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282038575594289f4ac06414a7d9961338d1111fcef/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg%403x.png?Expires=1670243938&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=Bsem34IN0LdFd3NCotoXbO7tLJw%3D',
+                //     skinName: '趸交',
+                //     skinValue: '1',
+                //     unSelectedPic:
+                //       'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112820385374286567155d95149b5a7ed3297746e1149/%E8%83%8C%E6%99%AF%402x.png?Expires=1670243933&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=SM4RfxI04seVLQ5v7w7gepWTKQ8%3D',
+                //   },
+                //   {
+                //     selectedPic:
+                //       'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282038575594289f4ac06414a7d9961338d1111fcef/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg%403x.png?Expires=1670243938&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=Bsem34IN0LdFd3NCotoXbO7tLJw%3D',
+                //     skinName: '月交',
+                //     skinValue: '5',
+                //     unSelectedPic:
+                //       'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112820385374286567155d95149b5a7ed3297746e1149/%E8%83%8C%E6%99%AF%402x.png?Expires=1670243933&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=SM4RfxI04seVLQ5v7w7gepWTKQ8%3D',
+                //   },
+                //   {
+                //     selectedPic:
+                //       'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282038575594289f4ac06414a7d9961338d1111fcef/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg%403x.png?Expires=1670243938&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=Bsem34IN0LdFd3NCotoXbO7tLJw%3D',
+                //     skinName: '趸交',
+                //     skinValue: '1',
+                //     unSelectedPic:
+                //       'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112820385374286567155d95149b5a7ed3297746e1149/%E8%83%8C%E6%99%AF%402x.png?Expires=1670243933&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=SM4RfxI04seVLQ5v7w7gepWTKQ8%3D',
+                //   },
+                //   {
+                //     selectedPic:
+                //       'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282038575594289f4ac06414a7d9961338d1111fcef/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg%403x.png?Expires=1670243938&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=Bsem34IN0LdFd3NCotoXbO7tLJw%3D',
+                //     skinName: '月交',
+                //     skinValue: '5',
+                //     unSelectedPic:
+                //       'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112820385374286567155d95149b5a7ed3297746e1149/%E8%83%8C%E6%99%AF%402x.png?Expires=1670243933&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=SM4RfxI04seVLQ5v7w7gepWTKQ8%3D',
+                //   },
+                // ],
               },
               planPicList: null,
             },
