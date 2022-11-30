@@ -83,6 +83,7 @@ export const transformData = (o: transformDataType) => {
     return currentRisk;
   });
 };
+
 export const riskToOrder = (riskList: any) => {
   const mainRisk = riskList.find((risk: any) => risk.riskType === RISK_TYPE_ENUM.MAIN_RISK);
   const riderRiskList = riskList.filter((risk: any) => risk.riskType === RISK_TYPE_ENUM.RIDER_RISK);

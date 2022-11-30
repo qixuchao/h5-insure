@@ -19,8 +19,16 @@
         }"
         :form-info="orderDetail"
         :send-sms-code="() => {}"
+        input-align="left"
         :factor-object="factorObj"
-      ></InsureForm>
+      >
+        <template #holderName>
+          <span>223</span>
+        </template>
+        <template #insurerName>
+          <span>222</span>
+        </template>
+      </InsureForm>
       <div class="footer-button">
         <van-button type="primary" block @click="insured">分享用户确认投保</van-button>
       </div>
@@ -114,7 +122,7 @@ interface PayHtml {
 
 const {
   productCode = 'HTEJBX',
-  tenantId = '0',
+  tenantId = '9991000001',
   orderNo,
   phoneNo: mobile,
   agentCode = '',
@@ -128,6 +136,19 @@ const {
 
 const formRef = ref<Ref>();
 const currentPlan = ref<string>();
+const insureDetail = ref<ProductData>(); // 险种信息
+const premium = ref<number | null>(); // 保费
+const factorObj = ref<any>({});
+const detail = ref<any>({});
+const isPayBack = pageCode === 'payBack';
+const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
+const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
+const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
+const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
+const showWaiting = ref<boolean>(false); // 支付状态等待
+const showModal = ref<boolean>(false);
+const payHtml = ref<PayHtml>({ show: false, html: '' });
+let iseeBizNo = '';
 const orderDetail = ref<any>({
   // 订单数据模板
   agencyId: agentCode,
@@ -172,19 +193,6 @@ const orderDetail = ref<any>({
     withProductInfo: true,
   },
 }); // 产品信息
-const insureDetail = ref<ProductData>(); // 险种信息
-const premium = ref<number | null>(); // 保费
-const factorObj = ref<any>({});
-const detail = ref<any>({});
-const isPayBack = pageCode === 'payBack';
-const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
-const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
-const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
-const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
-const showWaiting = ref<boolean>(false); // 支付状态等待
-const showModal = ref<boolean>(false);
-const payHtml = ref<PayHtml>({ show: false, html: '' });
-let iseeBizNo = '';
 
 // 试算数据， 赠险进入，从链接上默认取投保人数据
 const trialData = reactive({
@@ -247,8 +255,7 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList) =>
     }),
   };
   const { code, data } = await premiumCalc(trialParams);
-  orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList[0] =
-    trialParams.insuredVOList[0]?.productPlanVOList;
+  orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList = trialParams.insuredVOList[0]?.productPlanVOList;
 };
 
 const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrderDetail = {}) => {
@@ -269,6 +276,7 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
 };
 
 const nextStepOperate = async () => {
+  orderDetail.value.venderCode = insureDetail.value?.productBasicInfoVO.insurerCode;
   const { code, data } = await nextStep(trialData2Order(insureDetail.value, {}, orderDetail.value));
   if (code === '10000') {
     console.log('123123', data);

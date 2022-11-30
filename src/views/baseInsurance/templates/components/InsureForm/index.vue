@@ -2,13 +2,13 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-29 21:32:22
+ * @LastEditTime: 2022-11-30 15:08:37
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <div class="page-info-wrapper">
-    <ProForm ref="formRef" show-error :show-error-message="false" input-align="left">
+    <ProForm ref="formRef" show-error :show-error-message="false" :input-align="inputAlign">
       <ProCard v-if="pageFactor.HOLDER?.length" :show-divider="false" :title="titleCollection?.HOLDER">
         <PersonalInfo
           v-model:images="holderImages"
@@ -17,7 +17,11 @@
           prefix="holder"
           :is-view="isView"
           :send-sms-code="sendSmsCode"
-        ></PersonalInfo>
+        >
+          <template #name>
+            <slot name="holderName"></slot>
+          </template>
+        </PersonalInfo>
       </ProCard>
       <ProCard v-if="pageFactor.INSURER?.length" :show-divider="false" :title="titleCollection?.INSURER">
         <ProField
@@ -45,10 +49,18 @@
           prefix="insure"
           :send-sms-code="sendSmsCode"
           :is-view="isView"
-        ></PersonalInfo>
+        >
+          <template #name>
+            <slot name="insurerName"></slot>
+          </template>
+        </PersonalInfo>
       </ProCard>
 
-      <ProCard v-if="pageFactor.BENEFICIARY?.length" :show-divider="false" :title="titleCollection?.BENEFICIARY">
+      <ProCard
+        v-if="false && pageFactor.BENEFICIARY?.length"
+        :show-divider="false"
+        :title="titleCollection?.BENEFICIARY"
+      >
         <div v-if="formInfo.tenantOrderInsuredList[0].insuredBeneficiaryType == 2" class="beneficiary-part">
           <div
             v-for="(beneficiary, index) in formInfo.tenantOrderInsuredList[0].tenantOrderBeneficiaryList"
@@ -124,6 +136,7 @@ interface Props {
   isView?: boolean;
   sendSmsCode?: (mobile: string, cb: () => void) => void;
   titleCollection?: any;
+  inputAlign: 'left' | 'center' | 'right';
 }
 
 type BeneficiaryItem = TenantOrderBeneficiaryItem & { beneficiaryId?: number };
@@ -141,11 +154,13 @@ const props = withDefaults(defineProps<Props>(), {
   isView: false,
   sendSmsCode: (mobile, cb) => {},
   titleCollection: () => ({}),
+  inputAlign: 'left',
 });
 
 const pageFactor = ref<FactorEnums>({});
 // 表单信息
 const formInfo = ref<any>({
+  extInfo: {},
   tenantOrderHolder: {
     extInfo: {},
   },
@@ -291,7 +306,7 @@ watch(
 watch(
   () => props.formInfo,
   () => {
-    if (props.formInfo) {
+    if (Object.keys(props.formInfo).length) {
       formInfo.value = props.formInfo;
     }
   },

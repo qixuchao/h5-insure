@@ -10,6 +10,7 @@
       <template #input>
         <ProRadioButton
           v-model="state.formInfo.insuredBeneficiaryType"
+          :is-view="isView"
           :prop="{ label: 'value', value: 'code' }"
           :options="queryFactorAttr('insuredBeneficiaryType', 'attributeValueList') || []"
         ></ProRadioButton>
@@ -25,6 +26,7 @@
       <template #input>
         <ProRadioButton
           v-model="state.formInfo.insuredRelation"
+          :is-view="isView"
           :prop="{ label: 'value', value: 'code' }"
           :options="queryFactorAttr('insuredRelation', 'attributeValueList') || []"
         ></ProRadioButton>
@@ -35,8 +37,13 @@
       v-model="state.formInfo.name"
       :label="queryFactorAttr('name', 'title')"
       :name="`${prefix}_name`"
+      :is-view="isView"
       :required="isRequiredByFactor('name')"
-    ></ProField>
+    >
+      <template #right-icon>
+        <slot name="name"></slot>
+      </template>
+    </ProField>
     <ProField
       v-if="showByFactor('sex')"
       v-model="state.formInfo.gender"
@@ -64,6 +71,7 @@
       :min="state.birth.min"
       :max="state.birth.max"
       type="date"
+      :is-view="isView"
       :required="isRequiredByFactor('birthDate')"
     ></ProDatePicker>
     <ProPicker
@@ -75,6 +83,7 @@
       :mapping="{ label: 'value', value: 'code', children: 'child' }"
       :required="isRequiredByFactor('certType')"
       :rules="[{ validator: validateCertType }]"
+      :is-view="isView"
     ></ProPicker>
     <ProField
       v-if="showByFactor('certImage') && state.formInfo.certType + '' === '1'"
@@ -95,7 +104,7 @@
       :required="isRequiredByFactor('certImage')"
     >
       <template #input>
-        <ProImageUpload v-model="tempImages" :max-count="1"></ProImageUpload>
+        <ProImageUpload v-model="tempImages" :is-view="isView" :max-count="1"></ProImageUpload>
       </template>
     </ProField>
     <ProField
@@ -106,6 +115,7 @@
       :required="isRequiredByFactor('certNo')"
       placeholder="请输入"
       :maxlength="19"
+      :is-view="isView"
       :validate-type="validateType"
     ></ProField>
 
@@ -132,6 +142,7 @@
       v-model="state.formInfo.name"
       :label="queryFactorAttr('age', 'title')"
       :name="`${prefix}_age`"
+      :is-view="isView"
       :required="isRequiredByFactor('age')"
     ></ProField>
     <ProCascader
@@ -144,6 +155,7 @@
       :name="`${prefix}_provinceCode`"
       placeholder="请选择"
       is-link
+      :is-view="isView"
       :required="isRequiredByFactor('residence')"
       :data-source="region"
       :mapping="{ label: 'name', value: 'code', children: 'children' }"
@@ -169,6 +181,7 @@
       v-if="showByFactor('height')"
       v-model="state.formInfo.name"
       :label="queryFactorAttr('height', 'title')"
+      :is-view="isView"
       :name="`${prefix}_height`"
       :required="isRequiredByFactor('height')"
     ></ProField>
@@ -177,6 +190,7 @@
       v-model="state.formInfo.name"
       :label="queryFactorAttr('weight', 'title')"
       :name="`${prefix}_weight`"
+      :is-view="isView"
       :required="isRequiredByFactor('weight')"
     ></ProField>
     <ProField
@@ -184,6 +198,7 @@
       v-model="state.formInfo.name"
       :label="queryFactorAttr('BMI', 'title')"
       :name="`${prefix}_BMI`"
+      :is-view="isView"
       :required="isRequiredByFactor('BMI')"
     ></ProField>
     <ProField
@@ -243,6 +258,7 @@
       name="insureAreaCode"
       placeholder="请选择"
       is-link
+      :is-view="isView"
       :required="isRequiredByFactor('insureArea')"
       :data-source="region"
       :mapping="{ label: 'name', value: 'code', children: 'children' }"
@@ -256,6 +272,7 @@
       :label="queryFactorAttr('occupation', 'title')"
       :name="`${prefix}_occupationCodeList`"
       placeholder="请选择"
+      :is-view="isView"
       :required="isRequiredByFactor('occupation')"
       :data-source="occupationCode"
       :mapping="{ label: 'name', value: 'code', children: 'children' }"
@@ -268,6 +285,7 @@
       :name="`${prefix}_personalAnnualIncome`"
       :required="isRequiredByFactor('personalAnnualIncome')"
       placeholder="请输入"
+      :is-view="isView"
       :rules="[{ validator: validateFloat }]"
     >
       <template #extra> <span class="input-extra">万</span> </template>
@@ -278,6 +296,7 @@
       :label="queryFactorAttr('familyAnnualIncome', 'title')"
       :name="`${prefix}_familyAnnualIncome`"
       placeholder="请输入"
+      :is-view="isView"
       :rules="[{ validator: validateFloat }]"
       :required="isRequiredByFactor('familyAnnualIncome')"
     >
@@ -293,6 +312,7 @@
       placeholder="请选择"
       :required="isRequiredByFactor('country')"
       is-link
+      :is-view="isView"
     ></ProPicker>
     <ProField
       v-if="showByFactor('hasUsCard')"
@@ -320,6 +340,7 @@
       :data-source="queryFactorAttr('marritalStatus', 'attributeValueList') || []"
       :mapping="{ label: 'value', value: 'code', children: 'child' }"
       is-link
+      :is-view="isView"
       :required="isRequiredByFactor('marritalStatus')"
     ></ProPicker>
     <ProPicker
@@ -332,6 +353,7 @@
       placeholder="请选择"
       :required="isRequiredByFactor('degree')"
       is-link
+      :is-view="isView"
     ></ProPicker>
     <ProField
       v-if="showByFactor('mobile')"
@@ -340,6 +362,7 @@
       :name="`${prefix}_mobile`"
       placeholder="请输入"
       :maxlength="11"
+      :is-view="isView"
       :required="isRequiredByFactor('mobile')"
       :validate-type="[VALIDATE_TYPE_ENUM.PHONE]"
     ></ProField>
@@ -348,9 +371,10 @@
       v-model="state.formInfo.verificationCode"
       :label="queryFactorAttr('verificationCode', 'title')"
       :name="`${prefix}_verificationCode`"
+      :is-view="isView"
       :required="isRequiredByFactor('verificationCode')"
     >
-      <template #extra>
+      <template v-if="!isView" #extra>
         <van-button
           :class="['sms-code', { 'count-down': countDownTimer > 0 }]"
           size="small"
@@ -383,6 +407,7 @@
       v-model="state.formInfo.contactNo"
       :label="queryFactorAttr('contactNo', 'title')"
       :name="`${prefix}_contactNo`"
+      :is-view="isView"
       :required="isRequiredByFactor('contactNo')"
     ></ProField>
 
@@ -392,6 +417,7 @@
       :label="queryFactorAttr('email', 'title')"
       :name="`${prefix}_email`"
       placeholder="请输入"
+      :is-view="isView"
       :required="isRequiredByFactor('email')"
       :validate-type="[VALIDATE_TYPE_ENUM.EMAIL]"
     ></ProField>
@@ -405,6 +431,7 @@
       :name="`${prefix}_familyProvinceCode`"
       placeholder="请选择"
       is-link
+      :is-view="isView"
       :required="isRequiredByFactor('homeAddress')"
       :data-source="region"
       :mapping="{ label: 'name', value: 'code', children: 'children' }"
@@ -415,6 +442,7 @@
       :label="queryFactorAttr('homeAddressDetail', 'title')"
       :name="`${prefix}_familyAddress`"
       placeholder="请输入"
+      :is-view="isView"
       :rules="[{ validator: (...params) => validateLength(100, ...params) }]"
       :required="isRequiredByFactor('homeAddressDetail')"
     ></ProField>
@@ -424,6 +452,7 @@
       :label="queryFactorAttr('homePostalCode', 'title')"
       :name="`${prefix}_familyZipCode`"
       placeholder="请输入"
+      :is-view="isView"
       :required="isRequiredByFactor('homePostalCode')"
       :validate-type="[VALIDATE_TYPE_ENUM.ZIP_CODE]"
     ></ProField>
@@ -437,6 +466,7 @@
       :name="`${prefix}_workProvinceCode`"
       placeholder="请选择"
       is-link
+      :is-view="isView"
       :required="isRequiredByFactor('workAddress')"
       :data-source="region"
       :mapping="{ label: 'name', value: 'code', children: 'children' }"
@@ -447,6 +477,7 @@
       :label="queryFactorAttr('workAddressDetail', 'title')"
       :name="`${prefix}_workAddress`"
       placeholder="请输入"
+      :is-view="isView"
       :rules="[{ validator: (...params) => validateLength(100, ...params) }]"
       :required="isRequiredByFactor('workAddressDetail')"
     ></ProField>
@@ -457,6 +488,7 @@
       :required="isRequiredByFactor('workZipCode')"
       :name="`${prefix}_workPostCode`"
       placeholder="请输入"
+      :is-view="isView"
       :validate-type="[VALIDATE_TYPE_ENUM.ZIP_CODE]"
     ></ProField>
     <ProField
@@ -465,6 +497,7 @@
       :label="queryFactorAttr('companyName', 'title')"
       :name="`${prefix}_workPostCode`"
       placeholder="请输入"
+      :is-view="isView"
       :rules="[{ validator: (...params) => validateLength(20, ...params) }]"
       :required="isRequiredByFactor('companyName')"
     ></ProField>
@@ -475,6 +508,7 @@
       :name="`${prefix}_workContent`"
       :required="isRequiredByFactor('workContent')"
       placeholder="请输入"
+      :is-view="isView"
       :rules="[{ validator: (...params) => validateLength(100, ...params) }]"
     ></ProField>
     <ProField
@@ -497,6 +531,7 @@
     <ProPicker
       v-if="showByFactor('taxResident')"
       v-model="state.formInfo.taxResident"
+      :is-view="isView"
       :label="queryFactorAttr('taxResident', 'title')"
       :name="`${prefix}_benefitOrder`"
       :data-source="queryFactorAttr('taxResident', 'attributeValueList') || []"
@@ -528,6 +563,7 @@
       :name="`${prefix}_gasNumberCollection`"
       :required="isRequiredByFactor('gasNumberCollection')"
       placeholder="请输入"
+      :is-view="isView"
       :rules="[{ validator: (...params) => validateLength(100, ...params) }]"
     ></ProField>
     <ProPicker
@@ -535,6 +571,7 @@
       v-model="state.formInfo.benefitOrder"
       :label="queryFactorAttr('benefitOrder', 'title')"
       :name="`${prefix}_benefitOrder`"
+      :is-view="isView"
       :data-source="queryFactorAttr('benefitOrder', 'attributeValueList') || []"
       :mapping="{ label: 'value', value: 'code', children: 'child' }"
       :required="isRequiredByFactor('benefitOrder')"
@@ -545,6 +582,7 @@
       v-model="state.formInfo.benefitRate"
       :required="isRequiredByFactor('benefitRate')"
       :name="`${prefix}_benefitRate`"
+      :is-view="isView"
       :rules="[{ validator: validatePositiveInteger }]"
       :label="queryFactorAttr('benefitRate', 'title')"
     >
