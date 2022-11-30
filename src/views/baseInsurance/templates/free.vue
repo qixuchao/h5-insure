@@ -44,8 +44,6 @@ interface QueryData {
   tenantId: string; // 订单id
   openid: string; // 手机号
   indirectCode: string;
-  saleUserId: string;
-  saleChannelId: string;
   [key: string]: string;
 }
 
@@ -54,8 +52,6 @@ const {
   openId = 'oKugN52glZx_hhg7liu0WpWcmD5o',
   tenantId = '9991000001',
   indirectCode = '123',
-  saleUserId = '',
-  saleChannelId = '',
 } = route.query as QueryData;
 console.log('-----themeVars', themeVars);
 
@@ -156,13 +152,9 @@ const clickHandler = async () => {
       detail: state.detail,
       insureDetail: state.insureDetail,
       iseeBizNo,
-      saleUserId,
-      saleChannelId,
-      pageCode: 'infoCollection',
       buttonCode: 'EVENT_FREE_multiIssuePolicy',
     });
   }
-  console.log('params', params);
   try {
     const { code, data } = await req(params);
     if (code === '10000') {

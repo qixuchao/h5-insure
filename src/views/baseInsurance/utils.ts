@@ -84,6 +84,46 @@ export const transformData = (o: transformDataType) => {
   });
 };
 
+export const riskToOrder = (riskList) => {
+  const mainRisk = riskList.find((risk) => risk.riskType === RISK_TYPE_ENUM.MAIN_RISK);
+  const riderRiskList = riskList.filter((risk) => risk.riskType === RISK_TYPE_ENUM.RIDER_RISK);
+  const transformRisk = (currentRiskList) => {
+    return currentRiskList.map((risk) => {
+      const { riskCategory, riskCode, riskType, id, riskInsureLimitVO, riskCalcMethodInfoVO } = risk;
+      const {
+        annuityDrawFrequencyList,
+        annuityDrawValueList,
+        insurancePeriodValueList,
+        paymentFrequencyList,
+        paymentPeriodValueList,
+      } = riskInsureLimitVO;
+
+      const { minCopy, maxCopy, fixedAmount, singeAmount } = riskCalcMethodInfoVO;
+      return {
+        amount: fixedAmount || singeAmount,
+        annuityDrawDate: annuityDrawValueList?.[0],
+        annuityDrawFrequency: annuityDrawFrequencyList?.[0],
+        chargePeriod: paymentPeriodValueList?.[0],
+        copy: minCopy || maxCopy || 0,
+        coveragePeriod: insurancePeriodValueList?.[0],
+        liabilityVOList: risk.riskLiabilityInfoVOList,
+        mainRisk: risk.riskCode === mainRisk.riskCode,
+        mainRiskCode: risk.riskCode === mainRisk.riskCode ? mainRisk.riskCode : undefined,
+        mainRiskId: risk.riskCode === mainRisk.riskCode ? mainRisk.riskId : undefined,
+        paymentFrequency: paymentFrequencyList?.[0],
+        riderRisk: true,
+        riderRiskVOList: transformRisk(riderRiskList),
+        riskCategory,
+        riskCode,
+        riskId: id,
+        riskType,
+      };
+    });
+  };
+
+  return transformRisk([mainRisk]);
+};
+
 export const compositionTrailData = (
   riskList: RiskDetailVoItem[],
   productDetail: ProductDetail,
@@ -138,7 +178,7 @@ export const compositionTrailData = (
       riskCode,
       riskId: id,
       riskName,
-      paymentFrequency: paymentFrequencyList?.[0] || PAYMENT_FREQUENCY_ENUM.YEAR,
+      paymentFrequency,
       extraInfo,
       chargePeriod: paymentPeriodValueList?.[0],
       annuityDrawDate: annuityDrawValueList?.[0],
@@ -666,8 +706,10 @@ export const freeTransformData = (o: transformDataType) => {
 };
 
 export const freeTransform = (o: any) => {
-  console.log(o, 'freeTransform');
+  console.log(o, 'sksksk');
   const params = {
+    buttonCode: o.buttonCode,
+    templateId: 1,
     orderAmount: 0, // '1'
     tenantId: o.tenantId, // '1'
     venderCode: o.insureDetail.productBasicInfoVO.insurerCode, // '1'
@@ -677,25 +719,38 @@ export const freeTransform = (o: any) => {
     orderCategory: '1', // 1 '1' // 订单类型
     tenantOrderHolder: {
       tenantId: o.tenantId,
+      name: o.order.tenantOrderHolder.name,
+      certNo: o.order.tenantOrderHolder.certNo,
       certType: o.order.tenantOrderHolder.certEndType, // 默认身份证
-      ...o.order.tenantOrderHolder,
+      mobile: o.order.tenantOrderHolder.mobile,
+      birthday: getBirth(o.order.tenantOrderHolder.certNo),
+      gender: getSex(o.order.tenantOrderHolder.certNo),
     },
     extInfo: {
-      ...o.extInfo,
-      templateId: 2,
+      // 1
+      extraInfo: {
+        renewalDK: o.renewalDK, // 签约
+        paymentMethod: o.paymentMethod,
+        paymentFrequency: o.paymentFrequency,
+        successJumpUrl: o.successJumpUrl, // 支付成功跳转
+      },
       buttonCode: o.buttonCode,
-      pageCode: o.pageCode,
+      // ...o.extInfo;
       iseeBizNo: o.iseeBizNo,
     },
     tenantOrderInsuredList: [
       {
-        ...o.order.tenantOrderInsuredList[0],
         tenantId: o.tenantId,
+        relationToHolder: o.order.tenantOrderInsuredList[0].relationToHolder,
+        certNo: o.order.tenantOrderInsuredList[0].certNo,
         certType: o.order.tenantOrderInsuredList[0].certEndType, // 默认身份证
+        name: o.order.tenantOrderInsuredList[0].name,
         mobile:
           o.order.tenantOrderInsuredList[0].relationToHolder === RELATION_HOLDER_ENUM.SELF
             ? o.order.tenantOrderHolder.mobile
             : '',
+        birthday: getBirth(o.order.tenantOrderInsuredList[0].certNo),
+        gender: getSex(o.order.tenantOrderInsuredList[0].certNo),
         tenantOrderProductList: [
           // 1
           {
@@ -714,7 +769,11 @@ export const freeTransform = (o: any) => {
       },
     ],
     // 更新订单时需要更新的项目
-    operateOption: o.order?.operateOption,
+    operateOption: {
+      withHolderInfo: true,
+      withInsuredInfo: true,
+      withProductInfo: true,
+    },
   };
   return params;
 };
