@@ -37,7 +37,7 @@ export interface PayParam {
   status: string;
   tenantId: string;
   tradeType: string;
-  ISEE_BIZ: string;
+  iseeBizNo: string;
 }
 
 /**

@@ -1,6 +1,6 @@
 <template>
   <ProPageWrap main-class="page-home">
-    <img src="./xinao.jpg" alt="logo" style="margin: 100px auto; width: 200px; display: block" />
+    <img src="./xinao.png" alt="logo" style="margin: 100px auto; width: 200px; display: block" />
   </ProPageWrap>
 </template>
 
