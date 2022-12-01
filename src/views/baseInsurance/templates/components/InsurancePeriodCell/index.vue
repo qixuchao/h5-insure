@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 20:05:42
+ * @LastEditTime: 2022-12-01 13:43:12
  * @Description:
 -->
 <template>
@@ -53,7 +53,9 @@ import {
 import { PlanInsureVO, ProductDetail, ProductPlanInsureConditionVo, ShowConfigVO } from '@/api/modules/product.data';
 import { ProductData, ProductRelationPlanVoItem, ProductRiskVoItem, RiskDetailVoItem } from '@/api/modules/trial.data';
 import { formatDate, computedAddDate } from '@/utils/date';
+import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import useDicData from '@/hooks/useDicData';
+import { CERT_TYPE_ENUM } from '@/common/constants';
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
@@ -74,9 +76,12 @@ interface FormInfoProps {
     socialFlag: string;
     relationToHolder: string;
   };
+  tenantOrderInsuredList: any;
   activePlanCode: string;
   insurancePeriodValue: string; // 保障期限
   commencementTime: string; // 生效日期
+  insuranceStartDate: string;
+  insuranceEndDate: string;
 }
 
 const props = defineProps({
@@ -237,6 +242,52 @@ const insurancePeriodValueDateText = computed(() => {
   }
   return '';
 });
+
+watch(
+  [
+    () => riskGuaranteeStartDateType.value,
+    () => insurancePeriodValueDateText.value,
+    () => state.formInfo.commencementTime,
+    () => state.formInfo.insurancePeriodValue,
+  ],
+  () => {
+    const [unit, num] = state.formInfo.insurancePeriodValue.split('_');
+    if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) {
+      state.formInfo.insuranceStartDate = `${formatDate(state.formInfo.commencementTime)} 00:00:00`;
+    } else if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.NEXT_DAY) {
+      state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), 1, 'day')} 00:00:00`;
+    } else {
+      state.formInfo.insuranceStartDate = `${formatDate(new Date())} 00:00:00`;
+    }
+    if (unit !== 'to') {
+      state.formInfo.insuranceEndDate = `${computedAddDate(
+        state.formInfo.insuranceStartDate,
+        Number(num),
+        unit,
+      )} 23:59:59`;
+    } else {
+      let birth = state.formInfo.tenantOrderInsuredList[0].birthday;
+      if (
+        state.formInfo.tenantOrderInsuredList[0].certType === CERT_TYPE_ENUM.CERT &&
+        state.formInfo.tenantOrderInsuredList[0].certNo &&
+        validateIdCardNo(state.formInfo.tenantOrderInsuredList[0].certNo)
+      ) {
+        birth = getBirth(state.formInfo.tenantOrderInsuredList[0].certNo);
+      }
+      if (num === 'single') {
+        state.formInfo.insuranceEndDate = `9999-99-99 23:59:59`;
+      }
+      state.formInfo.insuranceEndDate = `${computedAddDate(
+        state.formInfo.insuranceStartDate,
+        Number(num),
+        unit,
+      )} 23:59:59`;
+    }
+  },
+  {
+    immediate: true,
+  },
+);
 
 const onClickPaymethod = (type: string) => {
   console.log('type', type);

@@ -90,7 +90,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import { debounce } from 'lodash';
 
-import { validateIdCardNo, getSex } from '@/components/ProField/utils';
+import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import {
@@ -192,7 +192,7 @@ const {
 let extInfo = {};
 
 try {
-  extInfo = JSON.parse(extraInfo as string);
+  extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
 } catch (error) {
   //
 }
@@ -245,7 +245,9 @@ const orderDetail = ref<any>({
   saleUserId: saleChannelId,
   saleChannelId,
   venderCode: detail.value?.insurerCode,
-
+  // 保障期限开始|结束日期
+  insuranceStartDate: null,
+  insuranceEndDate: null,
   activePlanCode: '',
   paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.MONTH,
   insurancePeriodValue: '', // 保障期限
@@ -503,8 +505,6 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
 const onSaveOrder = async (risk: any) => {
   const { code, data } = await nextStep(trialData2Order(insureDetail.value, {}, orderDetail.value));
   if (code === '10000') {
-    console.log('123123', data);
-
     // todo 弹窗文件和健告
     isOnlyView.value = false;
   }
@@ -659,6 +659,8 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList) =>
   const trialParams = {
     tenantId,
     productCode: detail.value?.productCode,
+    insuranceStartDate: orderInfo.insuranceStartDate,
+    insuranceEndDate: orderInfo.insuranceEndDate,
     holder: {
       personVO: orderInfo.tenantOrderHolder,
     },
@@ -780,273 +782,6 @@ const fetchData = async () => {
     if (productRes.code === '10000') {
       detail.value = {
         ...productRes.data,
-        tenantProductInsureVO: {
-          id: 10274,
-          templateId: 1,
-          productCode: 'HTLXYW',
-          productName: '华泰-旅行意外险',
-          backgroundInsureVO: {
-            type: '2',
-            colorStart: '#FFFFFF',
-            colorEnd: '#FFFFFF',
-          },
-          productDesc: null,
-          insureConfigStatus: null,
-          banner: [
-            'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282203389420f163615d13e45bcbc60922597d616ac/banner.png?Expires=1670418318&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=oy%2F0137zeqTx3x%2FkO0xWtCz7W2c%3D',
-          ],
-          bannerMove: [
-            'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211282203425816dfaebb13f264ff796a80baabd33c9d5/banner%E5%8A%A8%E5%9B%BE.gif?Expires=1670418318&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=oNSvVX9a9JutQJKM9wOOcMaIe%2F8%3D',
-          ],
-          spec: [
-            'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/20221128220443053c81a81645e4f49a5b7a38e33b4f186b6/%E4%BA%A7%E5%93%81%E4%BA%AE%E7%82%B91.png?Expires=1670418318&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=iZOWfRRLXAOMMIYRRoC%2BiONX%2FRU%3D',
-            'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022112822044649137c11c55c2c14fd7a673699b9204f5a0/%E4%BA%A7%E5%93%81%E4%BA%AE%E7%82%B92.png?Expires=1670418318&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=sEBNW6J4oSECIS0zVvhY9p51Lc4%3D',
-          ],
-          questionList: [],
-          planList: [
-            {
-              planName: '20万',
-              planCode: 'JH1',
-              riskId: null,
-              extInfoVOList: [],
-              guaranteeItemVOS: [
-                {
-                  liabilityId: null,
-                  title: '意外身故、伤残',
-                  desc: '20万',
-                  content:
-                    '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>意外身故、伤残赔偿20万</p>\n</body>\n</html>',
-                },
-              ],
-              productPremiumVOList: [
-                {
-                  paymentFrequency: '1',
-                  paymentFrequencyValue: '123',
-                  premiumUnit: '元起',
-                },
-              ],
-              premiumExplain: '保费与被保人年龄、医保情况相关、详见',
-              premiumExplainViewName: '费率表',
-              premiumExplainName: '测试文件转pdf.pdf',
-              premiumExplainUri:
-                'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/20221130105735156f0faca801fc44c09a5e672b3dc0ed0f7/%E6%B5%8B%E8%AF%95%E6%96%87%E4%BB%B6%E8%BD%ACpdf.pdf?Expires=1670418318&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=IRbsbWbYrTUCg1%2FyDqctCHrrVuw%3D',
-              tabName: ['w3e456t234', '产品条款'],
-              attachmentVOList: {
-                w3e456t234: [
-                  {
-                    attachmentName: '3443',
-                    attachmentType: '2',
-                    attachmentCategory: null,
-                    attachmentRemarks: null,
-                    attachmentUri:
-                      '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>3452345234</p>\n</body>\n</html>',
-                    gmtCreated: null,
-                  },
-                ],
-                产品条款: [
-                  {
-                    attachmentName: '测试资料',
-                    attachmentType: '1',
-                    attachmentCategory: null,
-                    attachmentRemarks: null,
-                    attachmentUri:
-                      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022113010522777557ac0a6889924140bec5c31352a6855d/%E6%B5%8B%E8%AF%95%E6%96%87%E4%BB%B6%E8%BD%ACpdf.pdf?Expires=1670418318&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=OGb5V2XAfiN7Q%2B63sfqNoU4wUYI%3D',
-                    gmtCreated: null,
-                  },
-                  {
-                    attachmentName: 'test',
-                    attachmentType: '2',
-                    attachmentCategory: null,
-                    attachmentRemarks: null,
-                    attachmentUri:
-                      '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>teswtqwetqwet</p>\n</body>\n</html>',
-                    gmtCreated: null,
-                  },
-                ],
-              },
-              productPlanInsureConditionVO: {
-                riskId: 10133,
-                waitPeriod: null,
-                waitPeriodFlag: 1,
-                sexLimit: '-1',
-                sexLimitFlag: 1,
-                socialInsuranceLimit: '-1',
-                socialInsuranceLimitFlag: 1,
-                occupationLimit: '-1,',
-                occupationLimitFlag: 2,
-                occupationLimitUri: null,
-                occupationLimitName: null,
-                holderAgeLimit: 'day_30,age_80',
-                renewalGracePeriod: null,
-                holderAgeLimitFlag: 2,
-                insurancePeriodValues: 'day_7,day_14,day_30',
-                insurancePeriodValuesFlag: 2,
-                paymentPeriodValues: 'single',
-                paymentPeriodValuesFlag: 2,
-                paymentFrequency: '1',
-                paymentFrequencyFlag: 2,
-                annuityDrawValues: '',
-                annuityDrawValuesFlag: 1,
-                annuityDrawFrequency: '',
-                annuityDrawFrequencyFlag: 1,
-                gracePeriod: null,
-                gracePeriodFlag: 1,
-                hesitatePeriod: null,
-                hesitatePeriodFlag: 1,
-                paymentFrequencyList: null,
-              },
-              planPicList: {
-                selectedPic:
-                  'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211301754112693d48a97cf8544d8fa363249530fb495e/%E6%89%A3%E8%B4%B9%E5%A4%B1%E8%B4%A5bg.png?Expires=1670418318&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=BuJy4kwXq9gCfig8FgLVWpC6tWY%3D',
-                unSelectedPic:
-                  'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211301754019801e7335236f8d419caa67867109d4706b/%E8%83%8C%E6%99%AF.png?Expires=1670418318&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=bmlt9K7zSakPqMCit5sspkj88TA%3D',
-              },
-            },
-            {
-              planName: '30万',
-              planCode: 'JH2',
-              riskId: null,
-              extInfoVOList: [],
-              guaranteeItemVOS: [
-                {
-                  liabilityId: null,
-                  title: '意外身故、伤残',
-                  desc: '30万',
-                  content:
-                    '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>意外身故、伤残赔偿30万</p>\n</body>\n</html>',
-                },
-              ],
-              productPremiumVOList: [
-                {
-                  paymentFrequency: '1',
-                  paymentFrequencyValue: null,
-                  premiumUnit: null,
-                },
-              ],
-              premiumExplain: null,
-              premiumExplainViewName: null,
-              premiumExplainName: null,
-              premiumExplainUri: null,
-              tabName: [],
-              attachmentVOList: {},
-              productPlanInsureConditionVO: {
-                riskId: 10133,
-                waitPeriod: null,
-                waitPeriodFlag: 1,
-                sexLimit: '-1',
-                sexLimitFlag: 1,
-                socialInsuranceLimit: '-1',
-                socialInsuranceLimitFlag: 1,
-                occupationLimit: '-1,',
-                occupationLimitFlag: 2,
-                occupationLimitUri: null,
-                occupationLimitName: null,
-                holderAgeLimit: 'day_30,age_80',
-                renewalGracePeriod: null,
-                holderAgeLimitFlag: 2,
-                insurancePeriodValues: 'day_7,day_14,day_30',
-                insurancePeriodValuesFlag: 2,
-                paymentPeriodValues: 'single',
-                paymentPeriodValuesFlag: 2,
-                paymentFrequency: '1',
-                paymentFrequencyFlag: 2,
-                annuityDrawValues: '',
-                annuityDrawValuesFlag: 1,
-                annuityDrawFrequency: '',
-                annuityDrawFrequencyFlag: 1,
-                gracePeriod: null,
-                gracePeriodFlag: 1,
-                hesitatePeriod: null,
-                hesitatePeriodFlag: 1,
-                paymentFrequencyList: null,
-              },
-              planPicList: {
-                selectedPic:
-                  'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211301754167595c25b76e3d9349738591d17aa7f8c0c4/%E6%81%AD%E5%96%9C%E4%BD%A0%E6%8A%95%E4%BF%9D%E6%88%90%E5%8A%9Fbg.png?Expires=1670418318&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=VUwddOSFScemGl8cU%2F9IHPhHHNg%3D',
-                unSelectedPic:
-                  'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/202211301754141409002964988e84124bb358cd805095eab/%E8%83%8C%E6%99%AF.png?Expires=1670418318&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=%2FwobrdqMS6KYPjH6ModxyuREA0M%3D',
-              },
-            },
-            {
-              planName: '50万',
-              planCode: 'JH3',
-              riskId: null,
-              extInfoVOList: [],
-              guaranteeItemVOS: [
-                {
-                  liabilityId: null,
-                  title: '意外身故、伤残',
-                  desc: '50万',
-                  content:
-                    '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>意外身故、伤残赔偿50万</p>\n</body>\n</html>',
-                },
-              ],
-              productPremiumVOList: [
-                {
-                  paymentFrequency: '1',
-                  paymentFrequencyValue: null,
-                  premiumUnit: null,
-                },
-              ],
-              premiumExplain: null,
-              premiumExplainViewName: null,
-              premiumExplainName: null,
-              premiumExplainUri: null,
-              tabName: [],
-              attachmentVOList: {},
-              productPlanInsureConditionVO: {
-                riskId: 10133,
-                waitPeriod: null,
-                waitPeriodFlag: 1,
-                sexLimit: '-1',
-                sexLimitFlag: 1,
-                socialInsuranceLimit: '-1',
-                socialInsuranceLimitFlag: 1,
-                occupationLimit: '-1,',
-                occupationLimitFlag: 2,
-                occupationLimitUri: null,
-                occupationLimitName: null,
-                holderAgeLimit: 'day_30,age_80',
-                renewalGracePeriod: null,
-                holderAgeLimitFlag: 2,
-                insurancePeriodValues: 'day_7,day_14,day_30',
-                insurancePeriodValuesFlag: 2,
-                paymentPeriodValues: 'single',
-                paymentPeriodValuesFlag: 2,
-                paymentFrequency: '1',
-                paymentFrequencyFlag: 2,
-                annuityDrawValues: '',
-                annuityDrawValuesFlag: 1,
-                annuityDrawFrequency: '',
-                annuityDrawFrequencyFlag: 1,
-                gracePeriod: null,
-                gracePeriodFlag: 1,
-                hesitatePeriod: null,
-                hesitatePeriodFlag: 1,
-                paymentFrequencyList: null,
-              },
-              planPicList: {
-                selectedPic:
-                  'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/20221130175424084e5535d4fcbba45f9830cee1080a5ef16/%E8%83%8C%E6%99%AF2%403x.png?Expires=1670418318&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=vuk63X2B70M6eUFXYzVWtGU%2FVlk%3D',
-                unSelectedPic:
-                  'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/2022113017541936376ac2b8e30174b548572d9a5713942b6/%E8%83%8C%E6%99%AF.png?Expires=1670418318&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=r6zIlCmR%2BCVlq17%2BM7cQCWEFO2g%3D',
-              },
-            },
-          ],
-          planInsureVO: null,
-          settlementProcessVO: {
-            settlementProcessType: '2',
-            settlementProcessList: [],
-            settlementProcessPicList: [
-              'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/planetOssFile/20221128220455244769abadb619e428fb83bc5d6758dede7/%E7%90%86%E8%B5%94%E8%AF%B4%E6%98%8E.png?Expires=1670418318&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=8SVTybbigXBpmPXf16nF%2BaasF7I%3D',
-            ],
-          },
-          rateUri: null,
-          rateName: null,
-          inscribedContent:
-            '该保险产品由众安在线财产保险股份有限公司承保并负责理赔。产品介绍页面仅供参考，具体责任描述以保险合同为准。\n\n众安保险最新季度偿付能力符合监管要求。 \n版权所有©2022 新奥保险经纪有限公司 \n客服电话：400 605 8000',
-          goodsCenterLink: 'http://168889-zat-planet-h5-cloud-insure.test.za-tech.net/middlePage/',
-        },
       };
       document.title = productRes.data?.productFullName || '';
     }
