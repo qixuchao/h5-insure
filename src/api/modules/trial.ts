@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-24 13:44:22
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-01 11:45:16
+ * @LastEditTime: 2022-12-01 14:11:39
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/modules/trial.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -12,7 +12,7 @@ import { ProductDetail } from './newTrial.data';
 
 // 获取产品详情
 export const insureProductDetail = (data: any = {}) =>
-  request<ResponseData<ProductDetail>>({ url: '/api/app/insure/product/insureProductDetail', method: 'POST', data });
+  request<ProductDetail>({ url: '/api/app/insure/product/insureProductDetail', method: 'POST', data });
 
 // 保费试算
 export const premiumCalc = (data: PremiumCalcData) =>
@@ -38,7 +38,7 @@ export const getPayUrl = (data = {}) =>
 
 // 获取订单详情
 export const getTenantOrderDetail = (data = {}) =>
-  request<ResponseData>({ url: '/api/app/insure/insurance/getTenantOrderDetail', method: 'POST', data });
+  request<any>({ url: '/api/app/insure/insurance/getTenantOrderDetail', method: 'POST', data });
 
 // 获取订单详情
 export const getOrderDetailByCondition = (data = {}) =>

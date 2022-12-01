@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-16 19:38:49
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-01 11:30:44
+ * @LastEditTime: 2022-12-01 14:21:47
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/index.data.d.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -393,12 +393,9 @@ export interface NextStepResponseData {
 }
 
 export interface PageAction {
-    data: Data;
+    data: any;
     message: string;
     pageAction: string;
-}
-
-export interface Data {
 }
 
 /**

@@ -14,8 +14,8 @@
         <InsureForm
           ref="formRef"
           :title-collection="{
-            HOLDER: '本人信息（投保人）',
-            INSURER: '为谁投保（被保人）',
+            HOLDER: '投保人',
+            INSURER: '被保人',
             BENEFICIARY: '收益人',
           }"
           :form-info="orderDetail"
@@ -30,6 +30,8 @@
             <span></span>
           </template>
         </InsureForm>
+        <ProCell title="保费" :content="productPremium"></ProCell>
+        <!-- <ProCell title="保障期间" :content=""></ProCell> -->
         <div class="footer-button">
           <van-button type="primary" block @click="insured">分享用户确认投保</van-button>
         </div>
@@ -47,21 +49,13 @@ import { transformData, getAgeByCard, riskToOrder } from '../../utils';
 
 import { PackageProductVoItem, ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
 import { productDetail } from '@/api/modules/product';
-import { insureProductDetail, premiumCalc } from '@/api/modules/trial';
-import { nextStep } from '@/api';
+import { insureProductDetail, premiumCalc, underWriteRule } from '@/api/modules/trial';
 import InsureForm from '../components/InsureForm/index.vue';
 import { ORIGIN, toLocal } from '@/utils';
-
 import { useTheme } from '../../theme';
-import { validateIdCardNo, getSex } from '@/components/ProField/utils';
-import {
-  INSURE_TYPE_ENUM,
-  SOCIAL_SECURITY_ENUM,
-  RELATION_HOLDER_ENUM,
-  PAYMENT_FREQUENCY_ENUM,
-} from '@/common/constants/infoCollection';
-import FilePreview from '../components/FilePreview/index.vue';
-import HealthNoticePreview from '../components/HealthNoticePreview/index.vue';
+import { nextStepOperate as nextStep } from '@/utils/nextStep';
+import InsurancePeriodCell from '../components/InsurancePeriodCell/index.vue';
+
 // 调用主题
 const themeVars = useTheme();
 const router = useRouter();
@@ -94,13 +88,10 @@ const {
 
 const formRef = ref<Ref>();
 const currentPlan = ref<string>();
-const insureDetail = ref<ProductData>(); // 险种信息
+const insureDetail = ref<ProductData>(); // 产品中心产品详情
+const tenantProductDetail = ref<any>(); // 租户平台产品详情
 const premiumObj = ref<any>(); // 保费
 const factorObj = ref<any>({});
-const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
-const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
-const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
-const payHtml = ref<PayHtml>({ show: false, html: '' });
 let iseeBizNo = '';
 const orderDetail = ref<any>({
   // 订单数据模板
@@ -126,7 +117,6 @@ const orderDetail = ref<any>({
       extInfo: {
         occupationCodeList: [],
       },
-      insuredBeneficiaryType: '1',
       tenantOrderBeneficiaryList: [
         {
           beneficiaryId: 0,
@@ -141,7 +131,7 @@ const orderDetail = ref<any>({
   tenantOrderSubjectList: [
     {
       extInfo: {
-        subjectRelatedFirm: '',
+        subjectRelatedFirm: 'xinao',
         subjectRelatedUserId: '',
       },
       subjectName: '',
@@ -163,6 +153,24 @@ const isShowInsurePeriod = computed(() => {
   return !!insureDetail.value?.productRelationPlanVOList?.length;
 });
 
+// 保费展示的逻辑
+const productPremium = computed(() => {
+  let { premium } = premiumObj.value || {};
+  if (!premium) {
+    const { tenantProductInsureVO } = tenantProductDetail.value || {};
+    let selectedPlan = {};
+    if (tenantProductInsureVO?.planList?.length) {
+      selectedPlan = tenantProductInsureVO?.planList.find((plan) => plan.plaCode === currentPlan.value);
+    } else {
+      selectedPlan = tenantProductInsureVO?.planInsureVO;
+    }
+    const { paymentFrequencyValue, premiumUnit } = selectedPlan?.productPremiumVOList?.[0] || {};
+    premium = paymentFrequencyValue + premiumUnit;
+  }
+
+  return premium || '';
+});
+
 // 险种信息
 const currentRiskInfo = computed(() => {
   let riskInfo = [];
@@ -175,6 +183,12 @@ const currentRiskInfo = computed(() => {
   }
 
   return riskInfo;
+});
+
+// 计算保障期间
+const insurancePeriod = computed(() => {
+  const riskInfo = currentRiskInfo.value?.[0]?.riskDetailVOList?.[0];
+  // const {} = riskInfo;
 });
 
 const trialPremium = async (orderInfo, currentProductDetail, productRiskList) => {
@@ -196,10 +210,17 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList) =>
       };
     }),
   };
-  const { code, data } = await premiumCalc(trialParams);
+  // 对试算的参数进行验证
+  const { code } = await underWriteRule(trialParams);
   if (code === '10000') {
-    premiumObj.value = data;
+    const { code: trialCode, data: trialData } = await premiumCalc(trialParams);
+    if (trialCode === '10000') {
+      premiumObj.value = trialData;
+    } else {
+      premiumObj.value = null;
+    }
   }
+
   orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList = trialParams.insuredVOList[0]?.productPlanVOList;
 };
 
@@ -224,14 +245,10 @@ const nextStepOperate = async () => {
   orderDetail.value.venderCode = insureDetail.value?.productBasicInfoVO.insurerCode;
   orderDetail.value.orderAmount = premiumObj.value.premium;
   orderDetail.value.orderRealAmount = premiumObj.value.premium;
-  const { code, data } = await nextStep(trialData2Order(insureDetail.value, premiumObj.value, orderDetail.value));
-  if (code === '10000') {
-    console.log('123123', data);
-  }
+  nextStep(trialData2Order(insureDetail.value, premiumObj.value, orderDetail.value), () => {});
 };
 
 const insured = async () => {
-  trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
   Dialog.confirm({
     title: '分享',
     message: `即将向客户【${orderDetail.value.tenantOrderHolder.name}】发送投保确认信息,请确认是否继续？`,
@@ -302,33 +319,28 @@ const getPayFailCallbackUrl = (no: number) => {
   return url;
 };
 
-// watch(
-//   [
-//     () => trialData.insured.certNo,
-//     () => trialData.insured.socialFlag,
-//     () => trialData.packageProductList,
-//     () => trialData.paymentFrequency,
-//   ],
-//   debounce(() => {
-//     // if (detail.value && insureDetail.value && pageCode !== 'payBack') {
-//     //   // 验证通过才去试算
-//     //   if (validCalcData()) {
-//     //     onPremiumCalc();
-//     //   }
-//     // }
-//   }, 500),
-//   {
-//     deep: true,
-//     immediate: true,
-//   },
-// );
+// 监听表单数据的变化，进行试算
+watch(
+  [
+    () => orderDetail.value.tenantOrderHolder.gender,
+    () => orderDetail.value.tenantOrderHolder.birthday,
+    () => orderDetail.value.tenantOrderInsuredList?.[0].gender,
+    () => orderDetail.value.tenantOrderInsuredList?.[0].birthday,
+    () => currentPlan.value,
+  ],
+  debounce(([newGender, newBirthday, newIGender, newIBirthday]) => {
+    if (newGender && newBirthday && newIGender && newIBirthday) {
+      trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
+    }
+  }, 500),
+);
 
 const fetchData = async () => {
-  // const { code, data } = await productDetail({ productCode, withInsureInfo: true, tenantId });
-  // if (code === '10000') {
-  //   detail.value = data;
-  //   document.title = data.productFullName || '';
-  // }
+  const { code, data } = await productDetail({ productCode, withInsureInfo: true, tenantId });
+  if (code === '10000') {
+    tenantProductDetail.value = data;
+    document.title = data.productFullName || '';
+  }
 
   const { code: resCode, data: resData } = await insureProductDetail({ productCode });
 
@@ -344,7 +356,6 @@ const fetchData = async () => {
 };
 
 onMounted(() => {
-  // setFormAuth();
   fetchData();
   // 调用千里眼插件获取一个iseeBiz
   setTimeout(async () => {
