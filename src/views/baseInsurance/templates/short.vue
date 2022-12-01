@@ -27,7 +27,14 @@
             :form-info="orderDetail"
             :send-sms-code="() => {}"
             :factor-object="factorObj || {}"
-          ></InsureForm>
+          >
+            <template #holderName>
+              <CustomerList :user-info="customerConfig" />
+            </template>
+            <template #insurerName>
+              <CustomerList title="选择被保人" :user-info="customerConfig" />
+            </template>
+          </InsureForm>
           <PaymentType
             :form-info="orderDetail"
             :insure-detail="insureDetail"
@@ -89,7 +96,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import { debounce } from 'lodash';
-
+import CustomerList from './components/CustomerList/index.vue';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
@@ -169,11 +176,13 @@ interface QueryData {
   agentCode: string;
   orderNo: string;
   pageCode: string;
+  openId: string;
   from: string; // from = 'check' 审核版
   [key: string]: string;
 }
 
 const {
+  openId,
   productCode = 'BWYL2021',
   tenantId,
   orderNo,
@@ -198,6 +207,12 @@ try {
   //
 }
 
+const customerConfig = ref({
+  certNo,
+  openId,
+  tenantId,
+  mobile,
+});
 const formRef = ref();
 const detailScrollRef = ref();
 const detail = ref<ProductDetail>(); // 产品信息
