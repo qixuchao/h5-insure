@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-11-30 12:52:44
+ * @LastEditTime: 2022-11-30 17:45:52
  * @Description:
  */
 import wx from 'weixin-js-sdk';
@@ -10,9 +10,11 @@ import qs from 'qs';
 import router from '@/router/index';
 import { GetPayUrlParam, PayParam, PayResult } from '@/api/modules/cashier.data';
 import { getPayUrl, loadPayment, pay } from '@/api/modules/cashier';
+import { SRC_TYPE } from './constant';
 
 export const isWeiXin = navigator.userAgent.indexOf('MicroMessenger') > -1;
 
+export const getSrcType = () => (isWeiXin ? SRC_TYPE.JS : SRC_TYPE.H5);
 // 获取 wxCode，去调用支付接口
 export const getWxAuthCode = (params: { appId: string; url: string }) => {
   console.log('微信oauth2授权---appId:', params.appId);
@@ -57,11 +59,10 @@ const onBridgeReady = (params: {
 };
 
 export const usePay = (payParam: PayParam) => {
-  const redirectUrl = `${window.location.protocol}//${window.location.host}/baseInsurance/orderDetail?orderNo=${
-    payParam.businessTradeNo || payParam.orderNo
-  }&tenantId=${payParam.tenantId}&ISEE_BIZ=${payParam.ISEE_BIZ}`;
+  const redirectUrl = `${window.location.protocol}//${window.location.host}/baseInsurance/orderDetail?orderNo=${payParam.businessTradeNo}&tenantId=${payParam.tenantId}&iseeBizNo=${payParam.iseeBizNo}`;
   pay({
     ...payParam,
+    srcType: getSrcType(),
     extraInfo: JSON.stringify({
       wxCode: payParam.code,
       redirectUrl,
@@ -89,7 +90,7 @@ export const usePay = (payParam: PayParam) => {
             // 支付成功后的回调函数
           },
           cancel() {
-            router.push(`/cashier/payOrder?orderNo=${payParam.orderNo}&ISEE_BIZ=${payParam.ISEE_BIZ}`);
+            router.push(`/cashier/payOrder?orderNo=${payParam.orderNo}&iseeBizNo=${payParam.iseeBizNo}`);
           },
         });
       } else {
@@ -100,7 +101,7 @@ export const usePay = (payParam: PayParam) => {
         // a.href = url;
         // a.click();
         // a.remove();
-        // window.location.href = `/cashier/pay?orderNo=${payParam.orderNo}&ISEE_BIZ=${payParam.ISEE_BIZ}`;
+        // window.location.href = `/cashier/pay?orderNo=${payParam.orderNo}&iseeBizNo=${payParam.iseeBizNo}`;
         // console.log('跳转收银台页面');
       }
     }
@@ -114,6 +115,7 @@ export const usePay = (payParam: PayParam) => {
 export const useSign = (payParam: PayParam, callback?: (result: PayResult) => void) => {
   pay({
     ...payParam,
+    srcType: getSrcType(),
     extraInfo: JSON.stringify({
       wxCode: payParam.code,
     }),
@@ -142,9 +144,10 @@ export const sendPay = (payParam: PayParam) => {
 export const wxBrandWCPayRequest = (payParam: PayParam) => {
   const redirectUrl = `${window.location.protocol}//${window.location.host}/baseInsurance/orderDetail?orderNo=${
     payParam.businessTradeNo || payParam.orderNo
-  }&tenantId=${payParam.tenantId}&ISEE_BIZ=${payParam.ISEE_BIZ}`;
+  }&tenantId=${payParam.tenantId}&iseeBizNo=${payParam.iseeBizNo}`;
   pay({
     ...payParam,
+    srcType: getSrcType(),
     extraInfo: JSON.stringify({
       wxCode: payParam.code,
       redirectUrl,
@@ -160,7 +163,7 @@ export const wxBrandWCPayRequest = (payParam: PayParam) => {
         console.log('H5支付结果----', res.data);
         window.location.href = res.data.mweb_url;
 
-        // window.location.href = `/cashier/pay?orderNo=${payParam.orderNo}&ISEE_BIZ=${payParam.ISEE_BIZ}`;
+        // window.location.href = `/cashier/pay?orderNo=${payParam.orderNo}&iseeBizNo=${payParam.iseeBizNo}`;
         // console.log('跳转收银台页面');
       }
     }

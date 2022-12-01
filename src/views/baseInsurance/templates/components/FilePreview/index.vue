@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-28 17:14:01
+ * @LastEditTime: 2022-11-30 22:05:37
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -50,26 +50,34 @@
         </div>
       </div>
       <div class="footer">
-        <VanButton
+        <ProShadowButton
           v-if="showReadBtn"
+          :shadow="false"
+          :theme-vars="themeVars"
           :disabled="isAgreeBtnDisabled"
-          type="primary"
-          block
-          round
+          class="right"
+          :text="`${beforeReadOverText}(${currentActiveIndex + 1}/${forceReadCound})`"
           @click="agreeForceReadFile"
-          >{{ `${beforeReadOverText}(${currentActiveIndex + 1}/${forceReadCound})` }}</VanButton
         >
-        <VanButton v-else :disabled="isAgreeBtnDisabled" type="primary" block round @click="agreeMent">{{
-          props.text
-        }}</VanButton>
+        </ProShadowButton>
+        <ProShadowButton
+          v-else
+          :disabled="isAgreeBtnDisabled"
+          :shadow="false"
+          :theme-vars="themeVars"
+          :text="props.text"
+          @click="agreeMent"
+        ></ProShadowButton>
       </div>
     </van-config-provider>
   </ProPopup>
 </template>
 
 <script lang="ts" setup name="filePreview">
+import { useTheme } from '../../../theme';
 import { AttachmentVOList } from '@/api/modules/product.data';
-import themeVars from '../../../theme';
+import ProShadowButton from '../ProShadowButton/index.vue';
+import { openPreviewFilePage } from '@/views/baseInsurance/utils';
 
 const props = defineProps({
   show: {
@@ -96,9 +104,14 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  isOnlyView: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emits = defineEmits(['update:show', 'submit', 'onCloseFilePreview']);
+const themeVars = useTheme();
 const isShow = ref<boolean>(props.show);
 const formatedContentList = ref<Array<any>>(
   props.contentList.map((e: any, index) => ({ ...e, disabled: true, readDisabled: true })), // disabled: tab禁用， readDisabled: 阅读下一条按钮禁用
@@ -135,10 +148,11 @@ const showReadBtn = computed(() => {
 });
 
 const onClickFileItem = (item: AttachmentVOList) => {
-  const { origin } = window.location;
-  console.log('item', item);
-  const url = `${origin}/template/filePreview?fileType=${item.attachmentType}&fileUri=${item.attachmentUri}`;
-  window.open(url);
+  const fileInfo = {
+    fileType: item.attachmentType,
+    fileUri: item.attachmentUri,
+  };
+  openPreviewFilePage(fileInfo);
 };
 
 const agreeForceReadFile = () => {
@@ -146,6 +160,10 @@ const agreeForceReadFile = () => {
 };
 
 const agreeMent = () => {
+  if (props.isOnlyView) {
+    emits('update:show', false);
+    return;
+  }
   emits('update:show', false);
   emits('submit');
 };
@@ -264,10 +282,15 @@ watch(
     background-color: #ffffff;
     z-index: 1;
     padding: 20px;
+    .pro-shadow-button {
+      width: 100%;
+    }
     .van-button {
-      background: $primary-color;
-      border-color: $primary-color;
-      font-size: 24px;
+      font-size: 34px;
+      font-family: PingFangSC-Medium, PingFang SC;
+      font-weight: 500;
+      color: #ffffff;
+      line-height: 48px;
     }
   }
 }

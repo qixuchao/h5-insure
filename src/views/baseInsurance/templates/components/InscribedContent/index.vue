@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-28 12:56:44
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-29 15:45:27
+ * @LastEditTime: 2022-11-30 20:13:03
  * @Description:
 -->
 <template>
@@ -29,6 +29,10 @@ watch(
     } else {
       lastContent.value = val.replaceAll('\n', '<br />');
     }
+  },
+  {
+    immediate: true,
+    deep: true,
   },
 );
 </script>

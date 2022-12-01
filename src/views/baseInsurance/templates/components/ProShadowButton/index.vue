@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 15:01:12
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-08 16:19:40
+ * @LastEditTime: 2022-11-30 21:15:03
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/PreNotice/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -11,6 +11,7 @@
     <van-button
       :class="{ 'shadow-button': true, shadow: props.shadow }"
       type="primary"
+      :disabled="disabled"
       round
       block
       @click="emit('click')"
@@ -45,7 +46,12 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
+
 const state = reactive({ color: '' });
 
 const getColor = (_color: string, _opacity = 1) => {
@@ -91,6 +97,7 @@ watch(
 <style scoped lang="scss">
 .pro-shadow-button {
   height: 130px;
+  width: 100%;
   .shadow-button {
     color: 96px;
     background: linear-gradient(to right, var(--van-primary-color), v-bind('state.color'));

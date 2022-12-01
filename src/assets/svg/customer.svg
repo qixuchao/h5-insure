@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="30px" height="30px" viewBox="0 0 30 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>编组 5</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="百万综合意外险-展开" transform="translate(-680.000000, -7438.000000)">
+            <g id="编组-24" transform="translate(0.000000, 7219.000000)">
+                <g id="编组-12" transform="translate(0.000000, 128.000000)">
+                    <g id="编组-38" transform="translate(40.000000, 85.000000)">
+                        <g id="通讯录" transform="translate(640.000000, 6.000000)">
+                            <path d="M25,1.25 C26.0355339,1.25 26.9730339,1.66973305 27.6516504,2.34834957 C28.330267,3.02696609 28.75,3.96446609 28.75,5 L28.75,5 L28.75,25 C28.75,26.0355339 28.330267,26.9730339 27.6516504,27.6516504 C26.9730339,28.330267 26.0355339,28.75 25,28.75 L25,28.75 L9,28.75 C7.96446609,28.75 7.02696609,28.330267 6.34834957,27.6516504 C5.66973305,26.9730339 5.25,26.0355339 5.25,25 L5.25,25 L5.25,1.25 Z" id="矩形" stroke="#000000" stroke-width="2.5"></path>
+                            <rect id="矩形" fill="#000000" x="1" y="8" width="8" height="2.5" rx="1.25"></rect>
+                            <rect id="矩形" fill="#000000" x="1" y="14" width="8" height="2.5" rx="1.25"></rect>
+                            <rect id="矩形" fill="#000000" x="1" y="20" width="8" height="2.5" rx="1.25"></rect>
+                            <circle id="椭圆形" stroke="#000000" stroke-width="2.5" cx="17.5" cy="13" r="3.75"></circle>
+                            <path d="M12,20.5 C13.3070132,18.8333333 15.1403465,18 17.5,18 C19.8596535,18 21.6929868,18.8333333 23,20.5" id="路径-158" stroke="#000000" stroke-width="2.5" stroke-linecap="round"></path>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -2,22 +2,26 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 13:28:04
+ * @LastEditTime: 2022-12-01 18:32:39
  * @Description:
 -->
 <template>
   <van-config-provider :theme-vars="themeVars">
     <div class="com-period-cell">
       <div v-if="periodList.length > 1" class="custom-cell check-btn-cell">
-        <div class="cell-label">保障期限</div>
+        <div class="cell-label">保障期间</div>
         <div class="cell-content">
           <ProRadioButton v-model="state.formInfo.insurancePeriodValue" :options="periodList"></ProRadioButton>
         </div>
       </div>
-      <div v-if="riskGuaranteeStartDateType === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY" class="custom-cell common-cell">
+      <div
+        v-if="riskGuaranteeStartDateType === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY"
+        class="custom-cell common-cell"
+        @click="onSelectCommencementTime"
+      >
         <!-- 选择生效日期 -->
         <div class="cell-label">生效日期</div>
-        <div class="cell-content" @click="onSelectCommencementTime">{{ state.formInfo.commencementTime }}</div>
+        <div class="cell-content">{{ state.formInfo.insuranceStartDate }}</div>
       </div>
       <div v-if="riskGuaranteeStartDateType !== INSURANCE_START_TYPE_ENUM.CUSTOM_DAY" class="custom-cell common-cell">
         <div class="cell-label">保障期限</div>
@@ -53,7 +57,9 @@ import {
 import { PlanInsureVO, ProductDetail, ProductPlanInsureConditionVo, ShowConfigVO } from '@/api/modules/product.data';
 import { ProductData, ProductRelationPlanVoItem, ProductRiskVoItem, RiskDetailVoItem } from '@/api/modules/trial.data';
 import { formatDate, computedAddDate } from '@/utils/date';
+import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import useDicData from '@/hooks/useDicData';
+import { CERT_TYPE_ENUM } from '@/common/constants';
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
@@ -74,9 +80,11 @@ interface FormInfoProps {
     socialFlag: string;
     relationToHolder: string;
   };
+  tenantOrderInsuredList: any;
   activePlanCode: string;
   insurancePeriodValue: string; // 保障期限
-  commencementTime: string; // 生效日期
+  insuranceStartDate: string;
+  insuranceEndDate: string;
 }
 
 const props = defineProps({
@@ -114,7 +122,7 @@ const state = reactive({
 });
 
 watch(
-  () => state.formInfo.commencementTime,
+  () => state.formInfo.insuranceStartDate,
   (val) => {
     if (val) {
       if (typeof val === 'string') {
@@ -134,7 +142,8 @@ watch(
   [() => props.insureDetail, () => state.formInfo.activePlanCode],
   () => {
     state.formInfo.insurancePeriodValue = '';
-    state.formInfo.commencementTime = '';
+    state.formInfo.insuranceStartDate = '';
+    state.formInfo.insuranceEndDate = '';
     if (props.insureDetail) {
       if (props.insureDetail.productRelationPlanVOList && props.insureDetail.productRelationPlanVOList.length > 0) {
         let idx = 0;
@@ -187,7 +196,9 @@ watch(
 
 // 险种保障开始日期类型
 const riskGuaranteeStartDateType = computed(() => {
-  return lastMainRiskInfo.value?.riskInsureLimitVO.guaranteeStartDate || INSURANCE_START_TYPE_ENUM.CURRENT_DAY;
+  return lastMainRiskInfo.value?.riskInsureLimitVO.guaranteeStartDate
+    ? String(lastMainRiskInfo.value?.riskInsureLimitVO.guaranteeStartDate)
+    : INSURANCE_START_TYPE_ENUM.CURRENT_DAY;
 });
 
 const [show, toggle] = useToggle(false);
@@ -211,7 +222,8 @@ const maxDate = computed(() => {
 });
 
 const handleConfirm = (value: Date) => {
-  state.formInfo.commencementTime = formatDate(value);
+  // state.formInfo.commencementTime = formatDate(value);
+  state.formInfo.insuranceStartDate = `${formatDate(value)} 00:00:00`;
   toggle(false);
 };
 
@@ -229,7 +241,7 @@ const insurancePeriodValueDateText = computed(() => {
       startDate = computedAddDate(new Date(), 1, 'day');
       return '';
     }
-    const endDate = computedAddDate(startDate, Number(num), unit);
+    const endDate = computedAddDate(startDate, Number(num) - 1, unit);
     return `${startDate} - ${endDate}`;
   }
   if (state.formInfo.insured.certNo) {
@@ -237,6 +249,54 @@ const insurancePeriodValueDateText = computed(() => {
   }
   return '';
 });
+
+watch(
+  [
+    () => riskGuaranteeStartDateType.value,
+    () => insurancePeriodValueDateText.value,
+    () => state.formInfo.insurancePeriodValue,
+    () => state.formInfo.insuranceStartDate,
+  ],
+  () => {
+    const [unit, num] = state.formInfo.insurancePeriodValue.split('_');
+    if (!state.formInfo.insuranceStartDate) {
+      if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) {
+        state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), 1, 'day')} 00:00:00`;
+      } else if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.NEXT_DAY) {
+        state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), 1, 'day')} 00:00:00`;
+      } else {
+        state.formInfo.insuranceStartDate = `${formatDate(new Date())} 23:59:59`;
+      }
+    }
+    if (unit !== 'to') {
+      state.formInfo.insuranceEndDate = `${computedAddDate(
+        state.formInfo.insuranceStartDate,
+        Number(num) - 1,
+        unit,
+      )} 23:59:59`;
+    } else {
+      let birth = state.formInfo.tenantOrderInsuredList[0].birthday;
+      if (
+        state.formInfo.tenantOrderInsuredList[0].certType === CERT_TYPE_ENUM.CERT &&
+        state.formInfo.tenantOrderInsuredList[0].certNo &&
+        validateIdCardNo(state.formInfo.tenantOrderInsuredList[0].certNo)
+      ) {
+        birth = getBirth(state.formInfo.tenantOrderInsuredList[0].certNo);
+      }
+      if (num === 'single') {
+        state.formInfo.insuranceEndDate = `9999-99-99 23:59:59`;
+      }
+      state.formInfo.insuranceEndDate = `${computedAddDate(
+        state.formInfo.insuranceStartDate,
+        Number(num) - 1,
+        unit,
+      )} 23:59:59`;
+    }
+  },
+  {
+    immediate: true,
+  },
+);
 
 const onClickPaymethod = (type: string) => {
   console.log('type', type);

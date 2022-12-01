@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 17:58:44
+ * @LastEditTime: 2022-12-01 17:38:33
  * @Description:
 -->
 <template>
@@ -10,7 +10,18 @@
     <div class="com-payment-type">
       <div class="title">{{ isShowPaymentSelect ? '交费方式' : '保障计划' }}</div>
       <template v-if="isMultiplePlan">
-        <div class="custom-cell check-btn-cell">
+        <div v-if="planSkinVlaue.length > 0" class="picture-payment-content">
+          <div
+            v-for="item in planSkinVlaue"
+            :key="item.planCode"
+            :class="`picture-payment-item`"
+            @click="onClickPlanCode(item.planCode)"
+          >
+            <img v-if="state.formInfo.activePlanCode == item.planCode" :src="item.selectedPic" />
+            <img v-else :src="item.unSelectedPic" />
+          </div>
+        </div>
+        <div v-else class="custom-cell check-btn-cell">
           <div class="cell-label">保障方案</div>
           <div class="cell-content">
             <ProRadioButton
@@ -71,24 +82,26 @@
         </div>
       </templat>
       <InsurancePeriodCell :form-info="state.formInfo" :insure-detail="insureDetail" :config-detail="configDetail" />
-      <div class="custom-cell common-cell">
-        <div class="cell-label">实付保费</div>
-        <div class="cell-content actual-premium">{{ actualPremium }}</div>
-      </div>
-      <div
-        v-if="explainInfo && explainInfo.premiumExplain && explainInfo.premiumExplainViewName"
-        class="feerate-explain"
-      >
-        <div class="content">
-          <div class="triangle-top"></div>
-          <div>
-            <span>{{ explainInfo.premiumExplain || '' }}</span>
-            <span class="file-name" @click="onPreviewFeerateFile"
-              >《{{ explainInfo.premiumExplainViewName || '' }}》</span
-            >
+      <template v-if="premiumItem && premiumItem.premiumUnit">
+        <div class="custom-cell common-cell">
+          <div class="cell-label">实付保费</div>
+          <div class="cell-content actual-premium">{{ actualPremium }}</div>
+        </div>
+        <div
+          v-if="explainInfo && explainInfo.premiumExplain && explainInfo.premiumExplainViewName"
+          class="feerate-explain"
+        >
+          <div class="content">
+            <div class="triangle-top"></div>
+            <div>
+              <span>{{ explainInfo.premiumExplain || '' }}</span>
+              <span class="file-name" @click="onPreviewFeerateFile"
+                >《{{ explainInfo.premiumExplainViewName || '' }}》</span
+              >
+            </div>
           </div>
         </div>
-      </div>
+      </template>
     </div>
     <ProDivider />
   </van-config-provider>
@@ -107,6 +120,7 @@ import {
 import { PlanInsureVO, ProductDetail, ProductPlanInsureConditionVo, ShowConfigVO } from '@/api/modules/product.data';
 import { ProductData } from '@/api/modules/trial.data';
 import InsurancePeriodCell from '../InsurancePeriodCell/index.vue';
+import { openPreviewFilePage } from '@/views/baseInsurance/utils';
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
@@ -159,15 +173,16 @@ const isShowPaymentFrequency = computed(() => {
   return String(insureCondition.value?.paymentFrequencyFlag) === '1';
 });
 
+const premiumItem = computed(() => {
+  return planInsure.value?.productPremiumVOList.find((e) => e.paymentFrequency === state.formInfo.paymentFrequency);
+});
+
 const actualPremium = computed(() => {
-  const premiumItem = planInsure.value?.productPremiumVOList.find(
-    (e) => e.paymentFrequency === state.formInfo.paymentFrequency,
-  );
-  if (props.premium && premiumItem) {
-    return `${props.premium}${premiumItem.premiumUnit || ''}`;
+  if (props.premium && premiumItem.value) {
+    return `${props.premium}${premiumItem.value.premiumUnit || ''}`;
   }
-  if (premiumItem) {
-    return `${premiumItem.paymentFrequencyValue || ''}${premiumItem.premiumUnit || ''}`;
+  if (premiumItem.value) {
+    return `${premiumItem.value.paymentFrequencyValue || ''}${premiumItem.value.premiumUnit || ''}`;
   }
   return '';
 });
@@ -221,9 +236,18 @@ watch(
   },
 );
 
+// watch(
+//   () => planInsure.value,
+//   () => {},
+//   {
+//     immediate: true,
+//     deep: true,
+//   },
+// );
+
 const isShowPaymentSelect = computed(() => {
-  if (insureCondition.value) {
-    const paymentFrequencyList = insureCondition.value.paymentFrequency.split(',');
+  if (insureCondition.value && insureCondition.value.paymentFrequency) {
+    const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
     return paymentFrequencyList.length > 1;
   }
   return false;
@@ -231,7 +255,7 @@ const isShowPaymentSelect = computed(() => {
 
 const showDefaultPayment = computed(() => {
   if (insureCondition.value) {
-    const paymentFrequencyList = insureCondition.value.paymentFrequency.split(',');
+    const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
     if (paymentFrequencyList.length === 1) {
       state.formInfo.paymentFrequency = insureCondition.value.paymentFrequency;
       return false;
@@ -265,20 +289,28 @@ const showPictureBtn = computed(() => {
 
 const planSkinVlaue = computed(() => {
   if (props.isMultiplePlan) {
-    return props.configDetail.tenantProductInsureVO.planList.map((e: PlanInsureVO) => {
-      return {
-        ...e.planPicList,
-        planCode: e.planCode,
-        planName: e.planName,
-      };
-    });
+    return props.configDetail.tenantProductInsureVO.planList
+      .map((e: PlanInsureVO) => {
+        if (!e.planPicList) return null;
+        return {
+          ...e.planPicList,
+          planCode: e.planCode,
+          planName: e.planName,
+        };
+      })
+      .filter((e) => !!e);
   }
   return [];
 });
 
 const peymentBtnList = computed(() => {
   if (insureCondition.value) {
-    const paymentFrequencyList = insureCondition.value.paymentFrequency.split(',');
+    const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
+    if (paymentFrequencyList.length === 1) {
+      console.log('paymentFrequencyList======', paymentFrequencyList);
+      // eslint-disable-next-line prefer-destructuring
+      state.formInfo.paymentFrequency = paymentFrequencyList[0];
+    }
     return (paymentFrequencyList || [])?.map((e: any) => ({
       label: PAYMENT_COMMON_FREQUENCY_MAP[e],
       value: e,
@@ -296,15 +328,16 @@ const onClickPaymethod = (type: string) => {
   state.formInfo.paymentFrequency = type;
 };
 
+const onClickPlanCode = (pageCode: string) => {
+  state.formInfo.activePlanCode = pageCode;
+};
+
 const onPreviewFeerateFile = () => {
   if (!explainInfo.value?.premiumExplainUri) {
     Toast('无费率文件！');
     return;
   }
-  const { origin } = window.location;
-  // 暂时默认pdf
-  const url = `${origin}/template/filePreview?fileType=pdf&fileUri=${explainInfo.value?.premiumExplainUri}`;
-  window.open(url);
+  openPreviewFilePage({ fileType: 'pdf', fileUri: explainInfo.value?.premiumExplainUri });
 };
 
 defineExpose({});

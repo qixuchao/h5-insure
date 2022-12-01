@@ -1,5 +1,6 @@
 import dayjs, { UnitType } from 'dayjs';
 import { type } from 'os';
+import { localStore } from '../../hooks/useStorage';
 import { PAYMENT_FREQUENCY_ENUM, INSURE_TYPE_ENUM, RELATION_HOLDER_ENUM } from '../../common/constants/infoCollection';
 import { ProductDetail } from '@/api/modules/product.data';
 import {
@@ -70,12 +71,13 @@ export const transformData = (o: transformDataType) => {
         copy: risk.copy,
       },
       initialPremium: riskPremium[risk.riskCode]?.premium,
-      liabilityDetails: risk.liabilityVOList.map((liab) => ({
-        liabilityCode: liab.liabilityCode,
-        liabilityName: liab.liabilityName,
-        refundMethod: liab.liabilityAttributeValue,
-        // sumInsured: 300000,
-      })),
+      liabilityDetails:
+        risk.liabilityVOList?.map((liab) => ({
+          liabilityCode: liab.liabilityCode,
+          liabilityName: liab.liabilityName,
+          refundMethod: liab.liabilityAttributeValue,
+          // sumInsured: 300000,
+        })) || [],
       productId,
       currentAmount: risk.amount,
       initialAmount: risk.amount,
@@ -89,9 +91,9 @@ export const riskToOrder = (productRiskVoList: any) => {
       const mainRisk = productRiskVoListItem.riskDetailVOList.find(
         (risk: any) => risk.riskType === RISK_TYPE_ENUM.MAIN_RISK,
       );
-      const riderRiskList = productRiskVoListItem.riskDetailVOList.filter(
-        (risk: any) => risk.riskType === RISK_TYPE_ENUM.RIDER_RISK,
-      );
+      // const riderRiskList = productRiskVoListItem.riskDetailVOList.filter(
+      //   (risk: any) => risk.riskType === RISK_TYPE_ENUM.RIDER_RISK,
+      // );
       const transformRisk = (currentRiskList: any) => {
         return currentRiskList.map((risk: any) => {
           const { riskCategory, riskCode, riskType, id, riskInsureLimitVO, riskCalcMethodInfoVO } = risk;
@@ -112,12 +114,13 @@ export const riskToOrder = (productRiskVoList: any) => {
             copy: minCopy || maxCopy || 0,
             coveragePeriod: insurancePeriodValueList?.[0],
             liabilityVOList: risk.riskLiabilityInfoVOList,
-            mainRisk: risk.riskCode === mainRisk.riskCode,
-            mainRiskCode: risk.riskCode === mainRisk.riskCode ? mainRisk.riskCode : undefined,
-            mainRiskId: risk.riskCode === mainRisk.riskCode ? mainRisk.riskId : undefined,
+            // mainRisk: risk.riskCode === mainRisk.riskCode,
+            // mainRiskCode: risk.riskCode === mainRisk.riskCode ? mainRisk.riskCode : undefined,
+            // mainRiskId: risk.riskCode === mainRisk.riskCode ? mainRisk.riskId : undefined,
             paymentFrequency: paymentFrequencyList?.[0],
             riderRisk: true,
-            riderRiskVOList: riskType === 1 ? transformRisk(riderRiskList) : [],
+            // riderRiskVOList: riskType === 1 ? transformRisk(riderRiskList) : [],
+            riderRiskVOList: [],
             riskCategory,
             riskCode,
             riskId: id,
@@ -126,7 +129,7 @@ export const riskToOrder = (productRiskVoList: any) => {
         });
       };
 
-      return transformRisk([mainRisk]);
+      return transformRisk(productRiskVoListItem.riskDetailVOList || []);
     })
     .flat();
 };
@@ -764,4 +767,21 @@ export const freeTransform = (o: any) => {
     operateOption: o.order?.operateOption,
   };
   return params;
+};
+
+export const compositionDesc = (value: number, desc: string) => {
+  if (desc.indexOf('$') !== -1) {
+    return desc.replace('$', `${value}`);
+  }
+  return `${value || ''}${desc}`;
+};
+
+export const PREVIEW_FILE_KEY = 'PREVIEW_FILE_INFO';
+
+export const openPreviewFilePage = (fileInfo: any) => {
+  const { origin } = window.location;
+  localStore.set(PREVIEW_FILE_KEY, JSON.stringify(fileInfo));
+  const url = `${origin}/template/filePreview`;
+  console.log('url', url);
+  window.open(url);
 };

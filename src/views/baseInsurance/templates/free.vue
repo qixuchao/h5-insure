@@ -8,27 +8,34 @@
         :detail="state.order"
         :colors="state.colors"
       >
-        <ProShadowButton :text="state.newAuth ? '立即领取' : '激活保障'" @click="clickHandler" />
+        <ProShadowButton
+          ref="root"
+          class="submit-btn"
+          :is-gradient="false"
+          :text="state.newAuth ? '立即领取' : '激活保障'"
+          @click="clickHandler"
+        />
       </FreeHolderForm>
       <div class="product-desc">
         <img v-for="(item, index) in state.productDesc" :key="index" :src="item" />
       </div>
-      <footer class="page-free-footer">
-        <ProShadowButton :text="state.newAuth ? '立即领取' : '激活保障'" />
+      <footer v-if="state.showBtn" class="page-free-footer">
+        <ProShadowButton :is-gradient="false" :text="state.newAuth ? '立即领取' : '激活保障'" />
       </footer>
     </div>
-
-    <!-- <PreNotice :product-detail="detail"></PreNotice> -->
+    <PreNotice v-if="!state.loading" :product-detail="state.detail"></PreNotice>
   </van-config-provider>
 </template>
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
+import { useIntersectionObserver } from '@vueuse/core';
 import ProShadowButton from './components/ProShadowButton/index.vue';
 import Banner from './components/Banner/index.vue';
 import FreeHolderForm from './components/FreeHolderForm/index.vue';
 import { productDetail, getAppUser } from '@/api/modules/product';
 import { insureProductDetail, toClogin, nextStep } from '@/api/modules/trial';
+import PreNotice from './components/PreNotice/index.vue';
 // import { nextStep } from '@/api/index';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ProductData } from '@/api/modules/trial.data';
@@ -57,9 +64,9 @@ const {
   saleUserId = '',
   saleChannelId = '',
 } = route.query as QueryData;
-console.log('-----themeVars', themeVars);
 
 let iseeBizNo = '';
+const root = ref();
 const state = reactive<{
   colors: string[];
   detail: ProductDetail;
@@ -68,6 +75,8 @@ const state = reactive<{
   newAuth: boolean;
   insureDetail: ProductData;
   order: any;
+  loading: boolean;
+  showBtn: boolean;
 }>({
   colors: ['#fff'],
   detail: {} as ProductDetail,
@@ -104,17 +113,20 @@ const state = reactive<{
   productDesc: [],
   newAuth: true,
   insureDetail: {} as ProductData,
+  loading: true,
+  showBtn: false,
 });
 
 const fetchData = async () => {
-  const productReq = productDetail({ productCode, withInsureInfo: true, tenantId: 0 });
+  state.loading = true;
+  const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
   const insureReq = insureProductDetail({ productCode });
   const userReq = getAppUser({ openId });
   await Promise.all([productReq, insureReq, userReq]).then(([productRes, insureRes, userRes]) => {
     if (productRes.code === '10000') {
       state.detail = productRes.data as any;
       state.banner = state.detail.tenantProductInsureVO?.banner[0];
-      const { colorEnd, colorStart } = state.detail.tenantProductInsureVO.backgroundInsureVO;
+      const { colorEnd, colorStart } = state.detail.tenantProductInsureVO?.backgroundInsureVO || {};
       state.colors = [colorStart, colorEnd];
       state.productDesc = state.detail.tenantProductInsureVO.spec || [];
       document.title = state.detail.productFullName || '';
@@ -135,6 +147,7 @@ const fetchData = async () => {
     if (userRes.code === '10000') {
       state.newAuth = !userRes.data;
     }
+    state.loading = false;
   });
 };
 
@@ -162,7 +175,7 @@ const clickHandler = async () => {
       buttonCode: 'EVENT_FREE_multiIssuePolicy',
     });
   }
-  console.log('params', params);
+
   try {
     const { code, data } = await req(params);
     if (code === '10000') {
@@ -185,11 +198,20 @@ onMounted(() => {
     iseeBizNo = window.getIseeBiz && (await window.getIseeBiz());
   }, 1500);
 });
+
+useIntersectionObserver(root, ([{ isIntersecting }], observerElement) => {
+  state.showBtn = !isIntersecting;
+});
 </script>
 
 <style lang="scss" scoped>
 .page-free-product-detail {
   background: v-bind('state.colors[1]');
+  padding-bottom: 236px;
+
+  .submit-btn {
+    margin-top: 30px;
+  }
 
   .product-desc {
     margin-top: 32px;

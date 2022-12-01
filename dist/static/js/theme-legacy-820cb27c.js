@@ -1,1 +1,0 @@
-System.register([],(function(r){"use strict";return{execute:function(){const o="#FF6600";r("u",((r=o)=>({primaryColor:r,primaryBackgroundColor:`${r}20`,buttonPrimaryBackgroundColor:r,buttonPrimaryBorderColor:r,checkboxCheckedBgColor:`${r}20`,switchOnBackgroundColor:r,toastDefaultPadding:"14px"}))),r("t",{})}}}));
