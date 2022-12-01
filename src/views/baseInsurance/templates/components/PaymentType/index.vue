@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 21:34:57
+ * @LastEditTime: 2022-12-01 15:19:02
  * @Description:
 -->
 <template>
@@ -236,6 +236,15 @@ watch(
   },
 );
 
+// watch(
+//   () => planInsure.value,
+//   () => {},
+//   {
+//     immediate: true,
+//     deep: true,
+//   },
+// );
+
 const isShowPaymentSelect = computed(() => {
   if (insureCondition.value) {
     const paymentFrequencyList = insureCondition.value.paymentFrequency.split(',');
@@ -280,13 +289,16 @@ const showPictureBtn = computed(() => {
 
 const planSkinVlaue = computed(() => {
   if (props.isMultiplePlan) {
-    return props.configDetail.tenantProductInsureVO.planList.map((e: PlanInsureVO) => {
-      return {
-        ...e.planPicList,
-        planCode: e.planCode,
-        planName: e.planName,
-      };
-    });
+    return props.configDetail.tenantProductInsureVO.planList
+      .map((e: PlanInsureVO) => {
+        if (!e.planPicList) return null;
+        return {
+          ...e.planPicList,
+          planCode: e.planCode,
+          planName: e.planName,
+        };
+      })
+      .filter((e) => !!e);
   }
   return [];
 });
@@ -294,6 +306,11 @@ const planSkinVlaue = computed(() => {
 const peymentBtnList = computed(() => {
   if (insureCondition.value) {
     const paymentFrequencyList = insureCondition.value.paymentFrequency.split(',');
+    if (paymentFrequencyList.length === 1) {
+      console.log('paymentFrequencyList======', paymentFrequencyList);
+      // eslint-disable-next-line prefer-destructuring
+      state.formInfo.paymentFrequency = paymentFrequencyList[0];
+    }
     return (paymentFrequencyList || [])?.map((e: any) => ({
       label: PAYMENT_COMMON_FREQUENCY_MAP[e],
       value: e,

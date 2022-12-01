@@ -71,12 +71,13 @@ export const transformData = (o: transformDataType) => {
         copy: risk.copy,
       },
       initialPremium: riskPremium[risk.riskCode]?.premium,
-      liabilityDetails: risk.liabilityVOList.map((liab) => ({
-        liabilityCode: liab.liabilityCode,
-        liabilityName: liab.liabilityName,
-        refundMethod: liab.liabilityAttributeValue,
-        // sumInsured: 300000,
-      })),
+      liabilityDetails:
+        risk.liabilityVOList?.map((liab) => ({
+          liabilityCode: liab.liabilityCode,
+          liabilityName: liab.liabilityName,
+          refundMethod: liab.liabilityAttributeValue,
+          // sumInsured: 300000,
+        })) || [],
       productId,
       currentAmount: risk.amount,
       initialAmount: risk.amount,

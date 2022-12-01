@@ -187,6 +187,7 @@ const {
   pageCode,
   from,
   extraInfo,
+  insurerCode,
 } = route.query as QueryData;
 
 let extInfo = {};
@@ -244,14 +245,14 @@ const orderDetail = ref<any>({
   orderCategory: 1,
   saleUserId: saleChannelId,
   saleChannelId,
-  venderCode: detail.value?.insurerCode,
+  venderCode: insurerCode,
   // 保障期限开始|结束日期
   insuranceStartDate: null,
   insuranceEndDate: null,
   activePlanCode: '',
   paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.MONTH,
   insurancePeriodValue: '', // 保障期限
-  commencementTime: formatDate(new Date()), // 生效日期
+  commencementTime: '', // 生效日期
 
   tenantOrderHolder: {
     extInfo: {},
@@ -286,6 +287,7 @@ const orderDetail = ref<any>({
   extInfo: {
     buttonCode: 'EVENT_SHORT_saveOrder',
     successJumpUrl: '', // 支付成功跳转
+    pageCode: 'productInfo',
     ...extInfo,
   },
   operateOption: {
@@ -370,10 +372,14 @@ const filterHealthAttachmentList = computed(() => {
     const planData = detail.value?.tenantProductInsureVO.planList.find(
       (e: PlanInsureVO) => e.planCode === (orderDetail.value.activePlanCode || ''),
     );
-    tempList = planData?.attachmentVOList;
+    if (planData) {
+      tempList = planData?.attachmentVOList;
+    }
   } else {
     tempList = detail.value?.tenantProductInsureVO.planInsureVO.attachmentVOList;
   }
+
+  console.log('tempList', tempList);
 
   if (!tempList) return {};
 
@@ -409,6 +415,8 @@ const filterHealthAttachmentList = computed(() => {
   });
 });
 
+// watch(() => props.isMultiplePlan)
+
 // 滑动到投保信息
 const onClickToInsure = () => {
   console.log('detailScrollRef.value', detailScrollRef.value);
@@ -434,38 +442,38 @@ const validCalcData = () => {
   return false;
 };
 
-// 核保 - 参数和保存订单一样, TODO any
-const onUnderWrite = async (o: any) => {
-  Toast.loading({
-    message: '核保中...',
-    forbidClick: true,
-  });
-  try {
-    const res = await underwrite(o);
-    const { code } = res;
-    if (code === '10000') {
-      Toast.loading({
-        message: '核保中...',
-        forbidClick: true,
-      });
-      // const res1 = await getPayUrl({
-      //   orderNo: o.orderNo,
-      //   tenantId,
-      // });
-      const res1: { code: string; data: { type: 1 | 2; paymentUrl: string } } = await getPayUrl({
-        orderNo: o.orderNo,
-        tenantId,
-      });
+// // 核保 - 参数和保存订单一样, TODO any
+// const onUnderWrite = async (o: any) => {
+//   Toast.loading({
+//     message: '核保中...',
+//     forbidClick: true,
+//   });
+//   try {
+//     const res = await underwrite(o);
+//     const { code } = res;
+//     if (code === '10000') {
+//       Toast.loading({
+//         message: '核保中...',
+//         forbidClick: true,
+//       });
+//       // const res1 = await getPayUrl({
+//       //   orderNo: o.orderNo,
+//       //   tenantId,
+//       // });
+//       const res1: { code: string; data: { type: 1 | 2; paymentUrl: string } } = await getPayUrl({
+//         orderNo: o.orderNo,
+//         tenantId,
+//       });
 
-      const { data } = res1;
-      if (res1.code === '10000') {
-        // TODO
-      }
-    }
-  } catch (e) {
-    //
-  }
-};
+//       const { data } = res1;
+//       if (res1.code === '10000') {
+//         // TODO
+//       }
+//     }
+//   } catch (e) {
+//     //
+//   }
+// };
 
 // 跳转支付成功页
 const getPaySuccessCallbackUrl = (no: number) => {
@@ -492,101 +500,49 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
     productId: currentProductDetail?.productBasicInfoVO.id,
   };
   nextStepParams.extInfo.iseeBizNo = iseeBizNo;
-  nextStepParams.commencementTime = formatDate(nextStepParams.commencementTime || new Date(), 'YYYY-MM-DD HH:mm:ss');
+  nextStepParams.commencementTime = formatDate(nextStepParams.insuranceStartDate || new Date(), 'YYYY-MM-DD HH:mm:ss');
+  nextStepParams.tenantOrderInsuredList = nextStepParams.tenantOrderInsuredList.map((insurer: any) => {
+    return {
+      ...insurer,
+      planCode: orderDetail.value.activePlanCode || 0,
+    };
+  });
   nextStepParams.tenantOrderInsuredList[0].tenantOrderProductList[0] = {
     premium: '',
     productCode: currentProductDetail.productBasicInfoVO.productCode,
     productName: currentProductDetail.productBasicInfoVO.productName,
+    planCode: orderDetail.value.activePlanCode || 0,
     tenantOrderRiskList: transformData(transformDataReq),
   };
   return nextStepParams;
 };
 
+const onUnderWrite = async (orderDetailNo: string) => {
+  const { code, data } = await getTenantOrderDetail({ orderNo: orderDetailNo, tenantId });
+  if (code === '10000') {
+    data.extInfo = { ...data.extInfo, buttonCode: 'EVENT_SHORT_underWrite' };
+    const { code: redCode, data: res } = await nextStep(data);
+    if (redCode === '10000') {
+      console.log('res=====', res);
+    }
+    Object.assign(orderDetail.value, data);
+  }
+};
+
 const onSaveOrder = async (risk: any) => {
   const { code, data } = await nextStep(trialData2Order(insureDetail.value, {}, orderDetail.value));
-  if (code === '10000') {
-    // todo 弹窗文件和健告
-    isOnlyView.value = false;
+  // todo 弹窗文件和健告
+  // isOnlyView.value = false;
+
+  console.log('data', data);
+  if (data.pageAction?.data?.orderNo) {
+    console.log('23233322332');
+    await onUnderWrite(data.pageAction?.data?.orderNo);
   }
-  // console.log('risk', risk);
-  // const order = genarateOrderParam({
-  //   tenantId,
-  //   saleUserId: agentCode,
-  //   saleChannelId,
-  //   detail: detail.value as ProductDetail,
-  //   insureDetail: insureDetail.value,
-  //   paymentMethod: trialData.paymentMethod,
-  //   paymentFrequency: trialData.paymentFrequency,
-  //   iseeBizNo,
-  //   successJumpUrl: '',
-  //   premium: (premium.value as number) || 0, // 保费
-  //   holder: trialData.holder,
-  //   insured: trialData.insured,
-  //   tenantOrderRiskList: risk,
-  //   orderStatus: '',
-  //   orderTopStatus: '',
-  // });
-
-  // try {
-  //   const res = await nextStep(orderDetail);
-  //   const { code, data } = res;
-
-  //   if (code === '10000') {
-  //     Toast('保存订单成功！');
-  //     onUnderWrite({
-  //       ...order,
-  //       orderNo: data.data,
-  //       extInfo: {
-  //         extraInfo: {
-  //           renewalDK: trialData.renewalDK,
-  //           paymentMethod: trialData.paymentMethod,
-  //           paymentFrequency: trialData.paymentFrequency,
-  //           successJumpUrl: getPaySuccessCallbackUrl(data.data),
-  //           failUrl: getPayFailCallbackUrl(data.data),
-  //         },
-  //         iseeBizNo,
-  //       },
-  //     });
-  //   }
-  // } catch (e) {
-  //   //
-  // }
 };
 
 // 保费试算 -> 订单保存 -> 核保
-const onPremiumCalc = async () => {
-  // 试算参数
-  const { calcData, riskVOList } = genaratePremiumCalcData(
-    {
-      holder: trialData.holder,
-      insured: trialData.insured,
-      tenantId,
-      productDetail: detail.value as ProductDetail,
-      insureDetail: insureDetail.value as ProductData,
-      paymentFrequency: trialData.paymentFrequency,
-      packageRiskIdList: onCollectPackageRiskIdList(trialData.packageProductList),
-    },
-    false,
-    validatorRiskZXYS,
-  );
-  if (!Array.isArray(riskVOList) || riskVOList.length < 1) {
-    premium.value = null;
-    return {};
-  }
-  const res = await premiumCalc(calcData);
-
-  const { code, data } = res;
-
-  if (code === '10000') {
-    premium.value = data.premium;
-    return {
-      condition: riskVOList,
-      data,
-    };
-  }
-  premium.value = null;
-  return {};
-};
+const onPremiumCalc = async () => {};
 
 const previewFile = (index: number) => {
   activeIndex.value = index;
@@ -599,49 +555,7 @@ const onPremiumCalcWithValid = () => {
     // 表单验证通过再检查是否逐条阅读
     formRef.value
       ?.validateForm?.()
-      .then(async () => {
-        // 表单验证通过再检查是否逐条阅读
-        const isAgree = formRef.value?.isAgreeFile || isAgreeFile.value;
-        if (!isAgree) {
-          isAgreeFile.value = false;
-          // showHealthPreview.value = true;
-          showFilePreview.value = true;
-          previewFile(0);
-          return;
-        }
-        // 试算参数
-        const { calcData, riskVOList } = genaratePremiumCalcData(
-          {
-            holder: trialData.holder,
-            insured: trialData.insured,
-            tenantId,
-            productDetail: detail.value as ProductDetail,
-            insureDetail: insureDetail.value as ProductData,
-            paymentFrequency: trialData.paymentFrequency,
-            packageRiskIdList: onCollectPackageRiskIdList(trialData.packageProductList),
-          },
-          false,
-          validatorRiskZXYS,
-        );
-        if (!Array.isArray(riskVOList) || riskVOList.length < 1) {
-          premium.value = null;
-          reject(new Error());
-        }
-        const res = await premiumCalc(calcData);
-
-        const { code, data } = res;
-
-        if (code === '10000') {
-          premium.value = data.premium;
-          resolve({
-            condition: riskVOList,
-            data,
-          });
-        } else {
-          premium.value = null;
-          reject(new Error());
-        }
-      })
+      .then(async () => {})
       .catch(() => {
         //
       });
@@ -656,10 +570,13 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList) =>
       insurancePeriodValue: orderInfo.insurancePeriodValue, // 保障期限
     };
   });
+  console.log('orderDetail.value.activePlanCode', orderDetail.value.activePlanCode);
+
   const trialParams = {
     tenantId,
     productCode: detail.value?.productCode,
     insuranceStartDate: orderInfo.insuranceStartDate,
+    commencementTime: orderInfo.insuranceStartDate,
     insuranceEndDate: orderInfo.insuranceEndDate,
     holder: {
       personVO: orderInfo.tenantOrderHolder,
@@ -680,26 +597,13 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList) =>
   };
   const { code, data } = await premiumCalc(trialParams);
   orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList = trialParams.insuredVOList[0]?.productPlanVOList;
+  orderDetail.value.premium = data.premium;
 };
 
 const onNext = async () => {
   try {
     console.log('currentRiskInfo.value', currentRiskInfo.value);
     await trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
-    console.log('orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList[0]', orderDetail.value);
-    // const { condition, data } = await onPremiumCalcWithValid();
-    // const riskPremium = {};
-    // const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
-    //   (premiumList || []).forEach((risk) => {
-    //     riskPremium[risk.riskCode] = risk;
-    //     if (risk.riskPremiumDetailVOList?.length) {
-    //       flatRiskPremium(risk.riskPremiumDetailVOList);
-    //     }
-    //   });
-    // };
-    // flatRiskPremium(data.riskPremiumDetailVOList);
-    // const risk = transformData({ tenantId, riskList: condition, riskPremium, productId: detail.value?.id as number });
-    // onSaveOrder(risk);
     onSaveOrder({});
   } catch (e) {
     //

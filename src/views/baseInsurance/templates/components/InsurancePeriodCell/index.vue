@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-01 13:43:12
+ * @LastEditTime: 2022-12-01 17:32:48
  * @Description:
 -->
 <template>
@@ -14,10 +14,14 @@
           <ProRadioButton v-model="state.formInfo.insurancePeriodValue" :options="periodList"></ProRadioButton>
         </div>
       </div>
-      <div v-if="riskGuaranteeStartDateType === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY" class="custom-cell common-cell">
+      <div
+        v-if="riskGuaranteeStartDateType === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY"
+        class="custom-cell common-cell"
+        @click="onSelectCommencementTime"
+      >
         <!-- 选择生效日期 -->
         <div class="cell-label">生效日期</div>
-        <div class="cell-content" @click="onSelectCommencementTime">{{ state.formInfo.commencementTime }}</div>
+        <div class="cell-content">{{ state.formInfo.insuranceStartDate }}</div>
       </div>
       <div v-if="riskGuaranteeStartDateType !== INSURANCE_START_TYPE_ENUM.CUSTOM_DAY" class="custom-cell common-cell">
         <div class="cell-label">保障期限</div>
@@ -79,7 +83,6 @@ interface FormInfoProps {
   tenantOrderInsuredList: any;
   activePlanCode: string;
   insurancePeriodValue: string; // 保障期限
-  commencementTime: string; // 生效日期
   insuranceStartDate: string;
   insuranceEndDate: string;
 }
@@ -119,7 +122,7 @@ const state = reactive({
 });
 
 watch(
-  () => state.formInfo.commencementTime,
+  () => state.formInfo.insuranceStartDate,
   (val) => {
     if (val) {
       if (typeof val === 'string') {
@@ -139,7 +142,6 @@ watch(
   [() => props.insureDetail, () => state.formInfo.activePlanCode],
   () => {
     state.formInfo.insurancePeriodValue = '';
-    state.formInfo.commencementTime = '';
     if (props.insureDetail) {
       if (props.insureDetail.productRelationPlanVOList && props.insureDetail.productRelationPlanVOList.length > 0) {
         let idx = 0;
@@ -192,7 +194,9 @@ watch(
 
 // 险种保障开始日期类型
 const riskGuaranteeStartDateType = computed(() => {
-  return lastMainRiskInfo.value?.riskInsureLimitVO.guaranteeStartDate || INSURANCE_START_TYPE_ENUM.CURRENT_DAY;
+  return lastMainRiskInfo.value?.riskInsureLimitVO.guaranteeStartDate
+    ? String(lastMainRiskInfo.value?.riskInsureLimitVO.guaranteeStartDate)
+    : INSURANCE_START_TYPE_ENUM.CURRENT_DAY;
 });
 
 const [show, toggle] = useToggle(false);
@@ -216,7 +220,8 @@ const maxDate = computed(() => {
 });
 
 const handleConfirm = (value: Date) => {
-  state.formInfo.commencementTime = formatDate(value);
+  // state.formInfo.commencementTime = formatDate(value);
+  state.formInfo.insuranceStartDate = `${formatDate(value)} 00:00:00`;
   toggle(false);
 };
 
@@ -234,7 +239,7 @@ const insurancePeriodValueDateText = computed(() => {
       startDate = computedAddDate(new Date(), 1, 'day');
       return '';
     }
-    const endDate = computedAddDate(startDate, Number(num), unit);
+    const endDate = computedAddDate(startDate, Number(num) - 1, unit);
     return `${startDate} - ${endDate}`;
   }
   if (state.formInfo.insured.certNo) {
@@ -247,22 +252,24 @@ watch(
   [
     () => riskGuaranteeStartDateType.value,
     () => insurancePeriodValueDateText.value,
-    () => state.formInfo.commencementTime,
     () => state.formInfo.insurancePeriodValue,
+    () => state.formInfo.insuranceStartDate,
   ],
   () => {
     const [unit, num] = state.formInfo.insurancePeriodValue.split('_');
-    if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) {
-      state.formInfo.insuranceStartDate = `${formatDate(state.formInfo.commencementTime)} 00:00:00`;
-    } else if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.NEXT_DAY) {
-      state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), 1, 'day')} 00:00:00`;
-    } else {
-      state.formInfo.insuranceStartDate = `${formatDate(new Date())} 00:00:00`;
+    if (!state.formInfo.insuranceStartDate) {
+      if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) {
+        state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), 1, 'day')} 00:00:00`;
+      } else if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.NEXT_DAY) {
+        state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), 1, 'day')} 00:00:00`;
+      } else {
+        state.formInfo.insuranceStartDate = `${formatDate(new Date())} 00:00:00`;
+      }
     }
     if (unit !== 'to') {
       state.formInfo.insuranceEndDate = `${computedAddDate(
         state.formInfo.insuranceStartDate,
-        Number(num),
+        Number(num) - 1,
         unit,
       )} 23:59:59`;
     } else {
@@ -279,7 +286,7 @@ watch(
       }
       state.formInfo.insuranceEndDate = `${computedAddDate(
         state.formInfo.insuranceStartDate,
-        Number(num),
+        Number(num) - 1,
         unit,
       )} 23:59:59`;
     }

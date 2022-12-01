@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 21:34:04
+ * @LastEditTime: 2022-12-01 15:18:04
  * @Description: 保障详情
 -->
 <template>
@@ -135,7 +135,7 @@ const planList = ref<PlanInsureVO[]>(props.dataSource?.planList);
 const activePlanCode = ref<string>(props.activePlanCode);
 
 watch(
-  () => props.dataSource,
+  [() => props.dataSource, () => props.activePlanCode],
   () => {
     if (props.isMultiplePlan) {
       planList.value = props.dataSource?.planList;
@@ -153,13 +153,16 @@ const productPremiumVOItem = ref<ProductPremiumVoItem>();
 
 const planSkinVlaue = computed(() => {
   if (props.isMultiplePlan) {
-    return props.dataSource.planList.map((e: PlanInsureVO) => {
-      return {
-        ...e.planPicList,
-        planCode: e.planCode,
-        planName: e.planName,
-      };
-    });
+    return props.dataSource.planList
+      .map((e: PlanInsureVO) => {
+        if (!e.planPicList) return null;
+        return {
+          ...e.planPicList,
+          planCode: e.planCode,
+          planName: e.planName,
+        };
+      })
+      .filter((e) => !!e);
   }
   return [];
 });
