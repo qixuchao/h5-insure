@@ -1,1 +1,0 @@
-import{r as e}from"./index-124ac2ce.js";const p=r=>e({url:"/api/app/insure/product/getProductDetail",method:"POST",data:r}),u=r=>e({url:"/api/query/user/getAppUser",method:"POST",data:r});export{u as g,p};
