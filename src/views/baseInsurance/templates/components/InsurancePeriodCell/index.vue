@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-01 20:31:04
+ * @LastEditTime: 2022-12-01 21:10:16
  * @Description:
 -->
 <template>
@@ -87,6 +87,7 @@ interface FormInfoProps {
   insurancePeriodValue: string; // 保障期限
   insuranceStartDate: string;
   insuranceEndDate: string;
+  commencementTime: string;
 }
 
 const props = defineProps({
@@ -143,9 +144,11 @@ const periodList = ref<any[]>([]);
 watch(
   [() => props.insureDetail, () => state.formInfo.activePlanCode],
   () => {
+    console.log('===========================planChange==================');
     state.formInfo.insurancePeriodValue = '';
     state.formInfo.insuranceStartDate = '';
     state.formInfo.insuranceEndDate = '';
+    state.formInfo.commencementTime = '';
     if (props.insureDetail) {
       if (props.insureDetail.productRelationPlanVOList && props.insureDetail.productRelationPlanVOList.length > 0) {
         let idx = 0;
@@ -275,15 +278,7 @@ watch(
       }
     }
     if (unit !== 'to') {
-      let tempStartDate = state.formInfo.insuranceStartDate;
-      if (
-        riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY ||
-        riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.NEXT_DAY
-      ) {
-        tempStartDate = `${computedSubtractDate(state.formInfo.insuranceStartDate, 1, 'day')} 00:00:00`;
-      } else {
-        tempStartDate = `${computedSubtractDate(state.formInfo.insuranceStartDate, 1, 'day')} 23:59:59`;
-      }
+      const tempStartDate = `${computedSubtractDate(state.formInfo.insuranceStartDate, 1, 'day')} 00:00:00`;
       state.formInfo.insuranceEndDate = `${computedAddDate(tempStartDate, Number(num), unit)} 23:59:59`;
     } else {
       let birth = state.formInfo.tenantOrderInsuredList[0].birthday;
