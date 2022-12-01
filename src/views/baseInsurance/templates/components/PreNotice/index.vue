@@ -11,7 +11,9 @@
     <div class="pre-body">
       <div class="header">
         <img :src="HeaderImg" />
-        <div class="company-name">由新奥保险经纪有限公司提供保险经纪服务，华泰财产保险有限公司承保</div>
+        <div class="company-name">
+          由{{ state.insureConfig.tenantName }}提供保险经纪服务，{{ state.insureConfig.insureName }}承保
+        </div>
       </div>
       <div class="content">
         为了更好地保护您的个人信息，请在使用前点击阅读、充分理解<span
@@ -61,7 +63,10 @@ const props = defineProps({
   },
 });
 const state = reactive({
-  insureConfig: {},
+  insureConfig: {
+    insureName: '',
+    tenantName: '',
+  },
 });
 
 const attachmentUri = ref({

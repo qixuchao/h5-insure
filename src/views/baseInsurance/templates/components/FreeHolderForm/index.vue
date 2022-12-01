@@ -121,6 +121,74 @@ watch(
   },
 );
 </script>
+<style lang="scss">
+.free-crad {
+  .page-info-wrapper .com-card-wrap {
+    .header.showLine {
+      display: none;
+    }
+    .com-personal-wrapper {
+      .van-cell {
+        background: #f6f6f6;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        height: 88px;
+        padding: 0 32px;
+        display: flex;
+        align-items: center;
+
+        .van-field__label {
+          width: 122px;
+          margin-top: 0;
+          margin-bottom: 0;
+        }
+        .van-cell__value .van-field__body {
+          width: 100%;
+        }
+      }
+      .van-cell:after {
+        border-bottom: 0;
+      }
+    }
+
+    .van-cell:after {
+      border-bottom: 0;
+    }
+    .van-cell {
+      .van-field__label {
+        width: 122px;
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+      .van-cell__value .van-field__body {
+        width: 100%;
+      }
+
+      &.relation-holder {
+        padding-right: 0;
+      }
+
+      .van-cell__value .van-field__body .van-field__control .com-radio-btn-wrap {
+        width: 100%;
+        .radio-btn {
+          display: flex;
+          justify-content: space-around;
+          .btn-wrapper {
+            margin: 0;
+            .com-check-btn {
+              min-width: 100px;
+              border-radius: 25px !important;
+            }
+          }
+        }
+      }
+      .van-cell:after {
+        border-bottom: 0;
+      }
+    }
+  }
+}
+</style>
 
 <style lang="scss" scoped>
 .free-crad {
@@ -134,7 +202,7 @@ watch(
 
     .title {
       height: 33px;
-
+      margin-bottom: 40px;
       display: flex;
       align-items: center;
       justify-content: center;

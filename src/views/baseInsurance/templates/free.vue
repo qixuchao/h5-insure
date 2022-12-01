@@ -8,13 +8,19 @@
         :detail="state.order"
         :colors="state.colors"
       >
-        <ProShadowButton ref="root" :text="state.newAuth ? '立即领取' : '激活保障'" @click="clickHandler" />
+        <ProShadowButton
+          ref="root"
+          class="submit-btn"
+          :is-gradient="false"
+          :text="state.newAuth ? '立即领取' : '激活保障'"
+          @click="clickHandler"
+        />
       </FreeHolderForm>
       <div class="product-desc">
         <img v-for="(item, index) in state.productDesc" :key="index" :src="item" />
       </div>
       <footer v-if="state.showBtn" class="page-free-footer">
-        <ProShadowButton :text="state.newAuth ? '立即领取' : '激活保障'" />
+        <ProShadowButton :is-gradient="false" :text="state.newAuth ? '立即领取' : '激活保障'" />
       </footer>
     </div>
     <PreNotice v-if="!state.loading" :product-detail="state.detail"></PreNotice>
@@ -202,6 +208,10 @@ useIntersectionObserver(root, ([{ isIntersecting }], observerElement) => {
 .page-free-product-detail {
   background: v-bind('state.colors[1]');
   padding-bottom: 236px;
+
+  .submit-btn {
+    margin-top: 30px;
+  }
 
   .product-desc {
     margin-top: 32px;
