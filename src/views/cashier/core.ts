@@ -2,11 +2,13 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-11-30 17:45:52
+ * @LastEditTime: 2022-12-01 20:48:14
  * @Description:
  */
 import wx from 'weixin-js-sdk';
 import qs from 'qs';
+import { onBeforeMount } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import router from '@/router/index';
 import { GetPayUrlParam, PayParam, PayResult } from '@/api/modules/cashier.data';
 import { getPayUrl, loadPayment, pay } from '@/api/modules/cashier';
@@ -19,6 +21,20 @@ export const getSrcType = () => (isWeiXin ? SRC_TYPE.JS : SRC_TYPE.H5);
 export const getWxAuthCode = (params: { appId: string; url: string }) => {
   console.log('微信oauth2授权---appId:', params.appId);
   return `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${params.appId}&redirect_uri=${params.url}&response_type=code&scope=snsapi_base&state=0#wechat_redirect`;
+};
+/**
+ * 调用本函数后，可以获取到微信授权
+ */
+export const useWXCode = () => {
+  onBeforeMount(() => {
+    const route = useRoute();
+    const query = route.query as { code: string; [key: string]: string };
+    const url = `${window.location.href}`;
+    if (isWeiXin && !query.code) {
+      console.log('微信授权');
+      window.location.href = getWxAuthCode({ appId: sessionStorage.appId, url: encodeURIComponent(url) });
+    }
+  });
 };
 
 let WeixinJSBridge: { invoke: (c: string, opt: any, cb: (r: { err_msg: string }) => void) => {} };
@@ -73,7 +89,7 @@ export const usePay = (payParam: PayParam) => {
       const { timeStamp, nonceStr, prepayId, sign_type: signType, sign, appId } = data;
       if (isWeiXin) {
         console.log('直接调用微信支付-参数', data);
-        onBridgeReady({ timeStamp, nonceStr, prepayId, signType, sign, appId });
+        // onBridgeReady({ timeStamp, nonceStr, prepayId, signType, sign, appId });
         wx.chooseWXPay({
           timestamp: timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
           nonceStr, // 支付签名随机串，不长于 32 位
@@ -90,7 +106,7 @@ export const usePay = (payParam: PayParam) => {
             // 支付成功后的回调函数
           },
           cancel() {
-            router.push(`/cashier/payOrder?orderNo=${payParam.orderNo}&iseeBizNo=${payParam.iseeBizNo}`);
+            useRouter().push(`/cashier/payOrder?orderNo=${payParam.orderNo}&iseeBizNo=${payParam.iseeBizNo}`);
           },
         });
       } else {

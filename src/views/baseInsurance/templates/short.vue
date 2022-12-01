@@ -88,7 +88,7 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
-import { debounce } from 'lodash';
+import debounce from 'lodash-es/debounce';
 
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import { CERT_TYPE_ENUM } from '@/common/constants';

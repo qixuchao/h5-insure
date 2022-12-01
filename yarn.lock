@@ -791,6 +791,16 @@
   version "3.0.2"
   resolved "https://registry.npmjs.org/@types/linkify-it/-/linkify-it-3.0.2.tgz"
 
+"@types/lodash-es@4.17.6":
+  version "4.17.6"
+  resolved "https://registry.npmjs.org/@types/lodash-es/-/lodash-es-4.17.6.tgz#c2ed4c8320ffa6f11b43eb89e9eaeec65966a0a0"
+  dependencies:
+    "@types/lodash" "*"
+
+"@types/lodash@*":
+  version "4.14.191"
+  resolved "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.191.tgz#09511e7f7cba275acd8b419ddac8da9a6a79e2fa"
+
 "@types/lodash@^4.14.181":
   version "4.14.181"
   resolved "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.181.tgz"
@@ -829,12 +839,6 @@
 "@types/parse-json@^4.0.0":
   version "4.0.0"
   resolved "https://registry.npmjs.org/@types/parse-json/-/parse-json-4.0.0.tgz"
-
-"@types/query-string@^6.3.0":
-  version "6.3.0"
-  resolved "https://registry.npmjs.org/@types/query-string/-/query-string-6.3.0.tgz"
-  dependencies:
-    query-string "*"
 
 "@types/svgo@^2.6.1":
   version "2.6.1"
@@ -2100,13 +2104,9 @@ colorette@^2.0.16:
   version "2.0.19"
   resolved "https://registry.npmjs.org/colorette/-/colorette-2.0.19.tgz"
 
-colors@^1.1.2, colors@latest:
+colors@latest:
   version "1.4.0"
   resolved "https://registry.npmjs.org/colors/-/colors-1.4.0.tgz"
-
-commander@^2.11.0:
-  version "2.20.3"
-  resolved "https://registry.npmjs.org/commander/-/commander-2.20.3.tgz"
 
 commander@^7.2.0:
   version "7.2.0"
@@ -2702,7 +2702,7 @@ esbuild-windows-arm64@0.14.54:
   version "0.14.54"
   resolved "https://registry.npmjs.org/esbuild-windows-arm64/-/esbuild-windows-arm64-0.14.54.tgz#937d15675a15e4b0e4fafdbaa3a01a776a2be982"
 
-esbuild@^0.14.14, esbuild@^0.14.27, esbuild@^0.14.29:
+esbuild@^0.14.27, esbuild@^0.14.29:
   version "0.14.54"
   resolved "https://registry.npmjs.org/esbuild/-/esbuild-0.14.54.tgz"
   optionalDependencies:
@@ -3108,10 +3108,6 @@ fill-range@^7.0.1:
   resolved "https://registry.npmjs.org/fill-range/-/fill-range-7.0.1.tgz"
   dependencies:
     to-regex-range "^5.0.1"
-
-filter-obj@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.npmjs.org/filter-obj/-/filter-obj-1.1.0.tgz"
 
 finalhandler@1.1.2:
   version "1.1.2"
@@ -4152,16 +4148,6 @@ markdown-it-emoji@^2.0.0:
   version "2.0.2"
   resolved "https://registry.npmjs.org/markdown-it-emoji/-/markdown-it-emoji-2.0.2.tgz"
 
-markdown-it-link-attributes@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.npmjs.org/markdown-it-link-attributes/-/markdown-it-link-attributes-4.0.0.tgz"
-
-markdown-it-prism@^2.2.3:
-  version "2.2.3"
-  resolved "https://registry.npmjs.org/markdown-it-prism/-/markdown-it-prism-2.2.3.tgz"
-  dependencies:
-    prismjs "1.27.0"
-
 markdown-it@^12.3.2:
   version "12.3.2"
   resolved "https://registry.npmjs.org/markdown-it/-/markdown-it-12.3.2.tgz"
@@ -4735,7 +4721,7 @@ postcss@^5.2.17:
     source-map "^0.5.6"
     supports-color "^3.2.3"
 
-postcss@^8.1.10, postcss@^8.4.5, postcss@^8.4.6:
+postcss@^8.1.10, postcss@^8.4.6:
   version "8.4.6"
   resolved "https://registry.npmjs.org/postcss/-/postcss-8.4.6.tgz"
   dependencies:
@@ -4798,11 +4784,7 @@ prettier@^2.5.1:
   version "2.5.1"
   resolved "https://registry.npmjs.org/prettier/-/prettier-2.5.1.tgz"
 
-prism-theme-vars@^0.2.2:
-  version "0.2.2"
-  resolved "https://registry.npmjs.org/prism-theme-vars/-/prism-theme-vars-0.2.2.tgz"
-
-prismjs@1.27.0, prismjs@^1.27.0:
+prismjs@^1.27.0:
   version "1.27.0"
   resolved "https://registry.npmjs.org/prismjs/-/prismjs-1.27.0.tgz"
 
@@ -4933,15 +4915,6 @@ qs@^6.11.0:
   resolved "https://registry.npmjs.org/qs/-/qs-6.11.0.tgz"
   dependencies:
     side-channel "^1.0.4"
-
-query-string@*, query-string@^7.1.1:
-  version "7.1.1"
-  resolved "https://registry.npmjs.org/query-string/-/query-string-7.1.1.tgz"
-  dependencies:
-    decode-uri-component "^0.2.0"
-    filter-obj "^1.1.0"
-    split-on-first "^1.0.0"
-    strict-uri-encode "^2.0.0"
 
 query-string@^4.3.2:
   version "4.3.4"
@@ -5128,7 +5101,7 @@ rimraf@^3.0.2:
   optionalDependencies:
     fsevents "~2.3.2"
 
-rollup@^2.59.0, rollup@^2.70.1:
+rollup@^2.70.1:
   version "2.79.1"
   resolved "https://registry.npmjs.org/rollup/-/rollup-2.79.1.tgz"
   optionalDependencies:
@@ -5275,14 +5248,6 @@ setprototypeof@1.2.0:
   version "1.2.0"
   resolved "https://registry.npmjs.org/setprototypeof/-/setprototypeof-1.2.0.tgz"
 
-sha-256-js@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.npmjs.org/sha-256-js/-/sha-256-js-1.0.3.tgz"
-  dependencies:
-    colors "^1.1.2"
-    commander "^2.11.0"
-    utf8 "^2.1.2"
-
 shebang-command@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/shebang-command/-/shebang-command-2.0.0.tgz"
@@ -5422,10 +5387,6 @@ spdx-license-ids@^3.0.0:
   version "3.0.12"
   resolved "https://registry.npmjs.org/spdx-license-ids/-/spdx-license-ids-3.0.12.tgz"
 
-split-on-first@^1.0.0:
-  version "1.1.0"
-  resolved "https://registry.npmjs.org/split-on-first/-/split-on-first-1.1.0.tgz"
-
 split-string@^3.0.1, split-string@^3.0.2:
   version "3.1.0"
   resolved "https://registry.npmjs.org/split-string/-/split-string-3.1.0.tgz"
@@ -5476,10 +5437,6 @@ stream-combiner@~0.0.4:
 strict-uri-encode@^1.0.0:
   version "1.1.0"
   resolved "https://registry.npmjs.org/strict-uri-encode/-/strict-uri-encode-1.1.0.tgz"
-
-strict-uri-encode@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/strict-uri-encode/-/strict-uri-encode-2.0.0.tgz"
 
 string-argv@^0.3.1:
   version "0.3.1"
@@ -5930,10 +5887,6 @@ use@^3.1.0:
   version "3.1.1"
   resolved "https://registry.npmjs.org/use/-/use-3.1.1.tgz"
 
-utf8@^2.1.2:
-  version "2.1.2"
-  resolved "https://registry.npmjs.org/utf8/-/utf8-2.1.2.tgz"
-
 util-deprecate@^1.0.1, util-deprecate@~1.0.1:
   version "1.0.2"
   resolved "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz"
@@ -6008,6 +5961,14 @@ vite-plugin-checker@^0.4.0:
     vscode-languageserver-textdocument "^1.0.1"
     vscode-uri "^3.0.2"
 
+vite-plugin-compression@^0.5.1:
+  version "0.5.1"
+  resolved "https://registry.npmjs.org/vite-plugin-compression/-/vite-plugin-compression-0.5.1.tgz#a75b0d8f48357ebb377b65016da9f20885ef39b6"
+  dependencies:
+    chalk "^4.1.2"
+    debug "^4.3.3"
+    fs-extra "^10.0.0"
+
 vite-plugin-fonts@^0.2.2:
   version "0.2.2"
   resolved "https://registry.npmjs.org/vite-plugin-fonts/-/vite-plugin-fonts-0.2.2.tgz"
@@ -6059,20 +6020,9 @@ vite-svg-loader@^3.1.2:
     "@vue/compiler-sfc" "^3.2.20"
     svgo "^2.7.0"
 
-vite@^2.7.2:
-  version "2.8.0"
-  resolved "https://registry.npmjs.org/vite/-/vite-2.8.0.tgz"
-  dependencies:
-    esbuild "^0.14.14"
-    postcss "^8.4.5"
-    resolve "^1.22.0"
-    rollup "^2.59.0"
-  optionalDependencies:
-    fsevents "~2.3.2"
-
-vite@~2.9.1:
+vite@^2.9.12, vite@~2.9.1:
   version "2.9.15"
-  resolved "https://registry.npmjs.org/vite/-/vite-2.9.15.tgz"
+  resolved "https://registry.npmjs.org/vite/-/vite-2.9.15.tgz#2858dd5b2be26aa394a283e62324281892546f0b"
   dependencies:
     esbuild "^0.14.27"
     postcss "^8.4.13"

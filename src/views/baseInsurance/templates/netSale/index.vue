@@ -58,7 +58,7 @@
 import { Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
-import { debounce } from 'lodash';
+import debounce from 'lodash-es/debounce';
 import {
   transformData,
   genaratePremiumCalcData,

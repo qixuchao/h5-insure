@@ -43,7 +43,7 @@ import useAppStore from '@/store/app';
 import { GetPayUrlParam, PayParam } from '@/api/modules/cashier.data';
 import { getPayUrl, loadPayment, pay } from '@/api/modules/cashier';
 import { PAY_WAY_ENUM, getPayWayList } from './constant';
-import { isWeiXin, getWxAuthCode, sendPay, wxBrandWCPayRequest } from './core';
+import { isWeiXin, useWXCode, getWxAuthCode, sendPay, wxBrandWCPayRequest } from './core';
 /**
  * 本页面主要给H5或公众号页面使用
  * 可以选择支付方式【微信、支付宝(微信内打开不展示)】
@@ -139,26 +139,28 @@ const getOrderDetail = () => {
       loading.value = false;
     });
 };
+useWXCode();
 onMounted(() => {
   //  微信环境，跳转微信授权
-  if (isWeiXin) {
-    wx.checkJsApi({
-      jsApiList: ['chooseWXPay'], // 需要检测的 JS 接口列表，所有 JS 接口列表见附录2,
-      success(res) {
-        console.log('checkJsApi--chooseWXPay', res);
-      },
-    });
-    const url = `${window.location.href}`;
-    console.log('当前url', url, 'appId--', sessionStorage.appId);
-    if (!query.code) {
-      window.location.href = getWxAuthCode({ appId: sessionStorage.appId, url: encodeURIComponent(url) });
-    } else {
-      console.log('获取订单信息');
-      getOrderDetail();
-    }
-  } else {
-    getOrderDetail();
-  }
+  // if (isWeiXin) {
+  //   wx.checkJsApi({
+  //     jsApiList: ['chooseWXPay'], // 需要检测的 JS 接口列表，所有 JS 接口列表见附录2,
+  //     success(res) {
+  //       console.log('checkJsApi--chooseWXPay', res);
+  //     },
+  //   });
+  //   const url = `${window.location.href}`;
+  //   console.log('当前url', url, 'appId--', sessionStorage.appId);
+  //   if (!query.code) {
+  //     window.location.href = getWxAuthCode({ appId: sessionStorage.appId, url: encodeURIComponent(url) });
+  //   } else {
+  //     console.log('获取订单信息');
+  //     getOrderDetail();
+  //   }
+  // } else {
+  //   getOrderDetail();
+  // }
+  getOrderDetail();
 });
 </script>
 

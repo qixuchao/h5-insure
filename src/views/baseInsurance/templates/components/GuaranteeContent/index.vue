@@ -1,8 +1,8 @@
 <!--
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-28 20:09:33
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-01 20:24:53
  * @Description: 保障详情
 -->
 <template>
@@ -177,7 +177,7 @@ const displayList = computed(() => {
         margin-top: 40px;
         padding: 0 40px;
         :deep(.right-part) {
-          color: #ff6600 !important;
+          color: $primary-color !important;
         }
         .content {
           margin-top: 14px;
@@ -229,11 +229,11 @@ const displayList = computed(() => {
   }
 
   .plan-list-item-active {
-    border: 1px solid #ff6600;
+    border: 1px solid $primary-color;
     background: #fff3eb;
 
     span {
-      color: #ff6600;
+      color: $primary-color;
     }
   }
 }

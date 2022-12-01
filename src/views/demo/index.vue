@@ -156,7 +156,7 @@ import ProDivider from '@/components/ProDivider/index.vue';
 import ProSelect from '@/components/ProSelect/index.vue';
 import pdfPreview from '@/utils/pdfPreview';
 import ProFixedButton from '@/components/ProFixedButton/index.vue';
-import ProFixedButtonDefaultImage from '@/assets/images/customer/da.png';
+import ProFixedButtonDefaultImage from '@/assets/images/demo/da.png';
 import ProIDCardUpload from '@/components/ProIDCardUpload/index.vue';
 import ProTable from '@/components/ProTable/index.vue';
 import ProDatePicker from '@/components/ProDatePicker/index.vue';

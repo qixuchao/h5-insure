@@ -12,7 +12,7 @@
 <script lang="ts" setup>
 import './index.scss';
 
-import jiantouImg from '@/assets/images/article/jiantou.png';
+import jiantouImg from '@/assets/images/component/jiantou.png';
 
 const props = defineProps({
   show: {

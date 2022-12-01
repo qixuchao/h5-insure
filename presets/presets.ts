@@ -1,11 +1,12 @@
 /*
  * @Author: zhaopu
  * @Date: 2022-08-24 16:59:13
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-26 16:07:58
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-01 19:42:38
  * @Description:
  */
 import vue from '@vitejs/plugin-vue';
+import { splitVendorChunkPlugin } from 'vite';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import svgLoader from 'vite-svg-loader';
 import legacy from '@vitejs/plugin-legacy';
@@ -25,6 +26,7 @@ import { resolve } from 'path';
 // TODO: 何时问题解决，何时移除插件
 import styleImport, { VantResolve } from 'vite-plugin-style-import';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
+import viteCompression from 'vite-plugin-compression'; // gzip压缩
 const path = require('path');
 const defaultClasses = 'prose prose-sm m-auto text-left';
 
@@ -80,17 +82,22 @@ export default (env: ConfigEnv) => {
         },
       ],
     }),
-    Icons({
-      compiler: 'vue3',
-      autoInstall: true,
-    }),
-    VueI18n({
-      include: [resolve(__dirname, '../locales/**')],
+    // Icons({
+    //   compiler: 'vue3',
+    //   autoInstall: true,
+    // }),
+    // VueI18n({
+    //   include: [resolve(__dirname, '../locales/**')],
+    // }),
+    splitVendorChunkPlugin(),
+    viteCompression({
+      threshold: 1025 * 100,
     }),
     PkgConfig(),
     env.mode === 'production'
       ? null
       : checker({
+          // 校验ts
           enableBuild: false,
           typescript: true,
           vueTsc: true,

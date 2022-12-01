@@ -141,7 +141,7 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs';
 import { useRoute, useRouter } from 'vue-router';
-import queryString from 'query-string';
+import qs from 'qs';
 import { Toast, Dialog } from 'vant';
 import ProMessage from '@/components/ProMessage/index.vue';
 import ProCard from '@/components/ProCard/index.vue';
@@ -430,7 +430,7 @@ const handleRefresh = () => {
 
 const shareLink = computed(() => {
   const query = { ...dealQueryData, isShare: 1, sharePageCode: 'sign' };
-  return `${window.location.origin}/phoneVerify?${queryString.stringify(query)}`;
+  return `${window.location.origin}/phoneVerify?${qs.stringify(query)}`;
 });
 
 // 获取产品上下架配置中费产品资料
