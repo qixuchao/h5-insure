@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-01 17:38:33
+ * @LastEditTime: 2022-12-01 21:09:28
  * @Description:
 -->
 <template>
@@ -236,15 +236,6 @@ watch(
   },
 );
 
-// watch(
-//   () => planInsure.value,
-//   () => {},
-//   {
-//     immediate: true,
-//     deep: true,
-//   },
-// );
-
 const isShowPaymentSelect = computed(() => {
   if (insureCondition.value && insureCondition.value.paymentFrequency) {
     const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
@@ -253,25 +244,56 @@ const isShowPaymentSelect = computed(() => {
   return false;
 });
 
-const showDefaultPayment = computed(() => {
-  if (insureCondition.value) {
-    const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
-    if (paymentFrequencyList.length === 1) {
-      state.formInfo.paymentFrequency = insureCondition.value.paymentFrequency;
-      return false;
-    }
+const showDefaultPayment = ref<boolean>(false);
 
-    if (
-      paymentFrequencyList.length === 2 &&
-      paymentFrequencyList.filter(
-        (e: string) => ![PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE, PAYMENT_COMMON_FREQUENCY_ENUM.MONTH].includes(e),
-      ).length < 1
-    ) {
-      return true;
+watch(
+  () => insureCondition.value,
+  () => {
+    if (insureCondition.value) {
+      const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
+      if (paymentFrequencyList.length === 1) {
+        state.formInfo.paymentFrequency = insureCondition.value.paymentFrequency;
+        showDefaultPayment.value = false;
+        return;
+      }
+
+      if (
+        paymentFrequencyList.length === 2 &&
+        paymentFrequencyList.filter(
+          (e: string) => ![PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE, PAYMENT_COMMON_FREQUENCY_ENUM.MONTH].includes(e),
+        ).length < 1
+      ) {
+        showDefaultPayment.value = true;
+        return;
+      }
+      showDefaultPayment.value = false;
     }
-  }
-  return false;
-});
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
+
+// const showDefaultPayment = computed(() => {
+//   if (insureCondition.value) {
+//     const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
+//     if (paymentFrequencyList.length === 1) {
+//       state.formInfo.paymentFrequency = insureCondition.value.paymentFrequency;
+//       return false;
+//     }
+
+//     if (
+//       paymentFrequencyList.length === 2 &&
+//       paymentFrequencyList.filter(
+//         (e: string) => ![PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE, PAYMENT_COMMON_FREQUENCY_ENUM.MONTH].includes(e),
+//       ).length < 1
+//     ) {
+//       return true;
+//     }
+//   }
+//   return false;
+// });
 
 const skinValue = computed(() => {
   if (insureCondition.value) {
