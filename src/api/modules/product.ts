@@ -50,3 +50,12 @@ export const queryInsurePopupConfig = (data: any) => {
     data,
   });
 };
+
+// 查询传入客户关联的其他客户
+export const queryListRelationCustomer = (data: any) => {
+  return request({
+    url: `/api/query/customer/listRelationCustomer`,
+    method: 'POST',
+    data,
+  });
+};

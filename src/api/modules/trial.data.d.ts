@@ -313,7 +313,7 @@ export interface Holder {
 }
 
 // 保费试算结果
-export interface premiumCalcResponse{
+export interface PremiumCalcResponse{
     amount: number;
     errorInfo: string;
     premium: number;

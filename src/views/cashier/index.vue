@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-parsing-error -->
 <template>
   <ProPageWrap title="收银台" main-class="page-cashier">
     <div class="pay-amount">
@@ -140,6 +141,7 @@ const getOrderDetail = () => {
     });
 };
 useWXCode();
+
 onMounted(() => {
   //  微信环境，跳转微信授权
   // if (isWeiXin) {

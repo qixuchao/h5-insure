@@ -2,12 +2,19 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-25 23:36:12
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-29 18:32:56
+ * @LastEditTime: 2022-12-01 14:10:15
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import request from './request';
-import { DictData, NextStepRequestData, TemplateInfo, TemplatePageItem, ProductInsureNoticeResVo } from './index.data';
+import {
+  DictData,
+  NextStepRequestData,
+  TemplateInfo,
+  TemplatePageItem,
+  NextStepResponseData,
+  ProductInsureNoticeResVo,
+} from './index.data';
 import { PAGE_API_ENUMS } from '@/common/constants/index';
 import useStore from '@/store/app';
 
@@ -24,26 +31,13 @@ export const getInitFactor = (data = {}) =>
   request<ResponseData<TemplatePageItem>>({ url: '/api/app/insure/insurance/getInitFactor', method: 'POST', data });
 
 // 下一步操作
-export const nextStep = (data = {} as NextStepRequestData) =>
-  request<
-    ResponseData<{
-      pageAction: {
-        data: {
-          nextPageCode: string;
-          orderId: number;
-          orderNo: string;
-        };
-        message: string;
-        pageAction: string;
-      };
-      success: boolean;
-    }>
-  >({ url: '/api/app/insure/insurance/nextStep', method: 'POST', data });
+export const nextStep = (data = {}) =>
+  request<NextStepResponseData>({ url: '/api/app/insure/insurance/nextStep', method: 'POST', data });
 
 // 获取订单详情
 export const getOrderDetail = (data = {}): Promise<ResponseData<NextStepRequestData>> => {
   return new Promise((resolve, reject) => {
-    request<ResponseData<NextStepRequestData>>({
+    request<NextStepRequestData>({
       url: '/api/app/insure/insurance/getTenantOrderDetail',
       method: 'POST',
       data,

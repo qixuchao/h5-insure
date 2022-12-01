@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-01 20:48:14
+ * @LastEditTime: 2022-12-01 22:09:29
  * @Description:
  */
 import wx from 'weixin-js-sdk';
@@ -73,7 +73,10 @@ const onBridgeReady = (params: {
       },
     );
 };
-
+/**
+ * 直接调起微信支付或H5支付
+ * @param payParam 支付参数
+ */
 export const usePay = (payParam: PayParam) => {
   const redirectUrl = `${window.location.protocol}//${window.location.host}/baseInsurance/orderDetail?orderNo=${payParam.businessTradeNo}&tenantId=${payParam.tenantId}&iseeBizNo=${payParam.iseeBizNo}`;
   pay({
@@ -123,6 +126,24 @@ export const usePay = (payParam: PayParam) => {
     }
   });
 };
+
+/**
+ * form表单支付
+ */
+export const useFormPay = (html: string) => {
+  const div = document.createElement('div');
+  div.id = 'wozijideid';
+  div.style.visibility = 'hidden';
+  div.innerHTML = html;
+  document.body.prepend(div);
+  const form = document.querySelector('#wozijideid form') as HTMLFormElement;
+  if (form) {
+    form.submit();
+  } else {
+    console.error('支付表单错误，请检查');
+  }
+};
+window.useFormPay = useFormPay;
 /**
  * 处理签约，微信就直接签约，H5则先调signPay页面，手动调接口
  * @param payParam 支付参数
@@ -140,21 +161,6 @@ export const useSign = (payParam: PayParam, callback?: (result: PayResult) => vo
     console.log('签约里面调用pay返回=====', res.data);
     window.location.href = redirectUrl;
   });
-};
-
-/**
- * 发起支付(所有要发起支付的地方都调这个，由这里分发处理)
- * @param payParam 支付参数
- */
-export const sendPay = (payParam: PayParam) => {
-  // 微信环境
-  if (isSignWay(payParam.payWay)) {
-    console.log('走微签约逻辑');
-    window.location.href = `/cashier/signPay?${qs.stringify(payParam)}`;
-  } else {
-    usePay(payParam);
-    console.log('走支付逻辑');
-  }
 };
 
 export const wxBrandWCPayRequest = (payParam: PayParam) => {
@@ -178,10 +184,51 @@ export const wxBrandWCPayRequest = (payParam: PayParam) => {
       } else {
         console.log('H5支付结果----', res.data);
         window.location.href = res.data.mweb_url;
-
-        // window.location.href = `/cashier/pay?orderNo=${payParam.orderNo}&iseeBizNo=${payParam.iseeBizNo}`;
-        // console.log('跳转收银台页面');
       }
     }
   });
 };
+
+/**
+ * 发起支付(所有要发起支付的地方都调这个，由这里分发处理)
+ * @param {object} payParam 支付参数
+ *  {
+ *   orderNo: 支付订单
+ *   businessTradeNo: 业务订单号
+ *   tenantId: 租户id
+ *   payWay: 支付方式(wxSign|wxPay|aliSign|aliPay)
+ * }
+ */
+function sendPay(payParam: PayParam): void;
+function sendPay(payParam: PayParam | string) {
+  // payUrl支付链接过来的
+  if (typeof payParam === 'string') {
+    if (/https?:.*\?/.test(payParam)) {
+      console.error('支付参数错误');
+    }
+    if ('<html>'.indexOf(payParam)) {
+      useFormPay(payParam);
+      return;
+    }
+    const search = payParam.split('?')[1];
+    const params = qs.parse(search) as PayParam;
+    // 微信环境
+    if (isSignWay(params.payWay)) {
+      console.log('走微签约逻辑');
+      window.location.href = `/cashier/signPay?${qs.stringify(params)}`;
+    } else {
+      usePay(params);
+      console.log('走支付逻辑');
+    }
+  } else {
+    // 微信环境
+    if (isSignWay(payParam.payWay)) {
+      console.log('走微签约逻辑');
+      window.location.href = `/cashier/signPay?${qs.stringify(payParam)}`;
+    } else {
+      usePay(payParam);
+      console.log('走支付逻辑');
+    }
+  }
+}
+export { sendPay };

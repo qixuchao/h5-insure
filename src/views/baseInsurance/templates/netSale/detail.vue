@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-30 17:13:50
+ * @LastEditTime: 2022-12-01 19:06:27
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -45,22 +45,79 @@ import { useTheme } from '../../theme';
 import { insureProductDetail, getTenantOrderDetail } from '@/api/modules/trial';
 import InsureForm from '../components/InsureForm/index.vue';
 import Sign from '../components/Sign/index.vue';
+import { nextStep } from '@/api';
+import { saveSign } from '@/api/modules/verify';
+import { nextStepOperate } from '@/utils/nextStep';
 
 const themeVars = useTheme();
 const route = useRoute();
 const router = useRouter();
 
-const { orderNo = '2022113010521827316', tenantId = '9991000001', productCode = 'HTEJBX' } = route.query;
+const { orderNo = '2022120119060692150', tenantId = '9991000001', productCode = 'HTEJBX' } = route.query;
 
 const formData = ref<any>();
 const factorObj = ref<any>({});
-const orderDetail = ref<any>();
+const orderDetail = ref<any>({
+  // 订单数据模板
+  commencementTime: '',
+  expiryDate: '',
+  extInfo: {
+    buttonCode: 'EVENT_NETSALE_airSignature',
+    pageCode: 'infoCollection',
+    templateId: 3,
+    iseeBizNo: '',
+  },
+  orderCategory: 1,
+  tenantId,
+  venderCode: '',
+  tenantOrderHolder: {
+    extInfo: {},
+  },
+  tenantOrderInsuredList: [
+    {
+      relationToHolder: '0',
+      extInfo: {
+        occupationCodeList: [],
+      },
+      insuredBeneficiaryType: '1',
+      tenantOrderBeneficiaryList: [
+        {
+          beneficiaryId: 0,
+          extInfo: {
+            occupationCodeList: [],
+          },
+        },
+      ],
+      tenantOrderProductList: [{}],
+    },
+  ],
+  tenantOrderSubjectList: [
+    {
+      extInfo: {
+        subjectRelatedFirm: '',
+        subjectRelatedUserId: '',
+      },
+      subjectName: '',
+      subjectObjectType: 'HOLDER',
+      subjectType: 'GENERAL',
+      tenantId,
+    },
+  ],
+  operateOption: {
+    withBeneficiaryInfo: true,
+    withHolderInfo: true,
+    withInsuredInfo: true,
+    withAttachmentInfo: true,
+    withProductInfo: true,
+  },
+});
 const productDetail = ref<any>();
 
 const queryOrderDetail = async () => {
   const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
   if (code === '10000') {
-    Object.assign(orderDetail.value, data);
+    data.extInfo.buttonCode = 'EVENT_NETSALE_airSignature';
+    orderDetail.value = data;
   }
 };
 
@@ -72,7 +129,10 @@ const queryProductDetail = async () => {
   }
 };
 
-const submit = () => {};
+const submit = async () => {
+  await saveSign('HOLDER', '213123123213131', orderDetail.value.id, `${tenantId}`);
+  nextStepOperate(orderDetail.value);
+};
 
 onMounted(() => {
   queryProductDetail();

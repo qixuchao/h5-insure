@@ -105,7 +105,7 @@ import {
   PremiumCalcData,
   RiskPremiumDetailVoItem,
   ProductRelationPlanVoItem,
-  premiumCalcResponse,
+  PremiumCalcResponse,
   ProductPlanVoItem,
 } from '@/api/modules/trial.data';
 import { PAYMENT_PERIOD_TYPE_ENUMS, INSURANCE_PERIOD_TYPE_ENUMS } from '@/common/constants/trial';
@@ -120,7 +120,7 @@ interface PageState {
   insuredFactor: string[];
   riskData: RiskDetailVoItem[];
   riskPlanData: ProductRelationPlanVoItem[];
-  trialResult: Partial<premiumCalcResponse>;
+  trialResult: Partial<PremiumCalcResponse>;
   canTrial: boolean;
   retrialTip: boolean;
   enumList: any;

@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-29 13:53:26
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-29 15:23:43
+ * @LastEditTime: 2022-12-01 20:22:54
  * @Description:
  */
 import dayjs from 'dayjs';
@@ -13,4 +13,8 @@ export const formatDate = (date: string | Date, format = 'YYYY-MM-DD') => {
 
 export const computedAddDate = (date: string | Date, num = 0, unit = 'day', format = 'YYYY-MM-DD') => {
   return dayjs(date).add(num, unit).format(format);
+};
+
+export const computedSubtractDate = (date: string | Date, num = 0, unit = 'day', format = 'YYYY-MM-DD') => {
+  return dayjs(date).subtract(num, unit).format(format);
 };
