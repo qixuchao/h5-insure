@@ -91,9 +91,9 @@ export const riskToOrder = (productRiskVoList: any) => {
       const mainRisk = productRiskVoListItem.riskDetailVOList.find(
         (risk: any) => risk.riskType === RISK_TYPE_ENUM.MAIN_RISK,
       );
-      const riderRiskList = productRiskVoListItem.riskDetailVOList.filter(
-        (risk: any) => risk.riskType === RISK_TYPE_ENUM.RIDER_RISK,
-      );
+      // const riderRiskList = productRiskVoListItem.riskDetailVOList.filter(
+      //   (risk: any) => risk.riskType === RISK_TYPE_ENUM.RIDER_RISK,
+      // );
       const transformRisk = (currentRiskList: any) => {
         return currentRiskList.map((risk: any) => {
           const { riskCategory, riskCode, riskType, id, riskInsureLimitVO, riskCalcMethodInfoVO } = risk;
@@ -114,12 +114,13 @@ export const riskToOrder = (productRiskVoList: any) => {
             copy: minCopy || maxCopy || 0,
             coveragePeriod: insurancePeriodValueList?.[0],
             liabilityVOList: risk.riskLiabilityInfoVOList,
-            mainRisk: risk.riskCode === mainRisk.riskCode,
-            mainRiskCode: risk.riskCode === mainRisk.riskCode ? mainRisk.riskCode : undefined,
-            mainRiskId: risk.riskCode === mainRisk.riskCode ? mainRisk.riskId : undefined,
+            // mainRisk: risk.riskCode === mainRisk.riskCode,
+            // mainRiskCode: risk.riskCode === mainRisk.riskCode ? mainRisk.riskCode : undefined,
+            // mainRiskId: risk.riskCode === mainRisk.riskCode ? mainRisk.riskId : undefined,
             paymentFrequency: paymentFrequencyList?.[0],
             riderRisk: true,
-            riderRiskVOList: riskType === 1 ? transformRisk(riderRiskList) : [],
+            // riderRiskVOList: riskType === 1 ? transformRisk(riderRiskList) : [],
+            riderRiskVOList: [],
             riskCategory,
             riskCode,
             riskId: id,
@@ -128,7 +129,7 @@ export const riskToOrder = (productRiskVoList: any) => {
         });
       };
 
-      return transformRisk([mainRisk]);
+      return transformRisk(productRiskVoListItem.riskDetailVOList || []);
     })
     .flat();
 };

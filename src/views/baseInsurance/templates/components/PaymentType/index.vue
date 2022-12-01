@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-01 15:19:02
+ * @LastEditTime: 2022-12-01 17:38:33
  * @Description:
 -->
 <template>
@@ -246,8 +246,8 @@ watch(
 // );
 
 const isShowPaymentSelect = computed(() => {
-  if (insureCondition.value) {
-    const paymentFrequencyList = insureCondition.value.paymentFrequency.split(',');
+  if (insureCondition.value && insureCondition.value.paymentFrequency) {
+    const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
     return paymentFrequencyList.length > 1;
   }
   return false;
@@ -255,7 +255,7 @@ const isShowPaymentSelect = computed(() => {
 
 const showDefaultPayment = computed(() => {
   if (insureCondition.value) {
-    const paymentFrequencyList = insureCondition.value.paymentFrequency.split(',');
+    const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
     if (paymentFrequencyList.length === 1) {
       state.formInfo.paymentFrequency = insureCondition.value.paymentFrequency;
       return false;
@@ -305,7 +305,7 @@ const planSkinVlaue = computed(() => {
 
 const peymentBtnList = computed(() => {
   if (insureCondition.value) {
-    const paymentFrequencyList = insureCondition.value.paymentFrequency.split(',');
+    const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
     if (paymentFrequencyList.length === 1) {
       console.log('paymentFrequencyList======', paymentFrequencyList);
       // eslint-disable-next-line prefer-destructuring

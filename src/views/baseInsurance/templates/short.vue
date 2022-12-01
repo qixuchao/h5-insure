@@ -364,58 +364,66 @@ const healthAttachmentList = computed(() => {
 });
 
 // 除健康告知的其他资料
-const filterHealthAttachmentList = computed(() => {
-  // return [];
-  let tempList: any = {};
+const filterHealthAttachmentList = ref();
 
-  if (isMultiplePlan) {
-    const planData = detail.value?.tenantProductInsureVO.planList.find(
-      (e: PlanInsureVO) => e.planCode === (orderDetail.value.activePlanCode || ''),
-    );
-    if (planData) {
-      tempList = planData?.attachmentVOList;
+watch(
+  [() => isMultiplePlan.value, () => orderDetail.value.activePlanCode, () => detail.value],
+  () => {
+    let tempList: any = {};
+    console.log('isMultiplePlan', isMultiplePlan.value);
+
+    if (isMultiplePlan.value) {
+      const planData = detail.value?.tenantProductInsureVO.planList.find(
+        (e: PlanInsureVO) => e.planCode === (orderDetail.value.activePlanCode || ''),
+      );
+      if (planData) {
+        tempList = planData?.attachmentVOList;
+      }
+    } else {
+      console.log('detail.value?.tenantProductInsureVO.planInsureVO', detail.value);
+      tempList = detail.value?.tenantProductInsureVO.planInsureVO.attachmentVOList;
     }
-  } else {
-    tempList = detail.value?.tenantProductInsureVO.planInsureVO.attachmentVOList;
-  }
 
-  console.log('tempList', tempList);
+    if (!tempList) {
+      filterHealthAttachmentList.value = [];
+      return;
+    }
 
-  if (!tempList) return {};
+    // 1: 附件, 2: 富文本, 3: 链接
+    const fileMap = {
+      '2': 'richText',
+      '3': 'link',
+    };
 
-  // 1: 附件, 2: 富文本, 3: 链接
-  const fileMap = {
-    '2': 'richText',
-    '3': 'link',
-  };
-
-  return Object.keys(tempList).map((e) => {
-    tempList[e].forEach((attachmentItem: AttachmentVOList) => {
-      if (attachmentItem.attachmentType === '1') {
-        const urlList = attachmentItem.attachmentUri.split('?');
-        const type = urlList[0].substr(urlList[0].lastIndexOf('.') + 1);
-        console.log('type', type);
-        // eslint-disable-next-line no-param-reassign
-        if (type === 'pdf') {
+    filterHealthAttachmentList.value = Object.keys(tempList).map((e) => {
+      tempList[e].forEach((attachmentItem: AttachmentVOList) => {
+        if (attachmentItem.attachmentType === '1') {
+          const urlList = attachmentItem.attachmentUri.split('?');
+          const type = urlList[0].substr(urlList[0].lastIndexOf('.') + 1);
+          console.log('type', type);
           // eslint-disable-next-line no-param-reassign
-          attachmentItem.attachmentType = 'pdf';
+          if (type === 'pdf') {
+            // eslint-disable-next-line no-param-reassign
+            attachmentItem.attachmentType = 'pdf';
+          } else {
+            // eslint-disable-next-line no-param-reassign
+            attachmentItem.attachmentType = 'picture';
+          }
         } else {
           // eslint-disable-next-line no-param-reassign
-          attachmentItem.attachmentType = 'picture';
+          attachmentItem.attachmentType = fileMap[attachmentItem.attachmentType];
         }
-      } else {
-        // eslint-disable-next-line no-param-reassign
-        attachmentItem.attachmentType = fileMap[attachmentItem.attachmentType];
-      }
+      });
+      return {
+        attachmentName: e,
+        attachmentList: tempList[e],
+      };
     });
-    return {
-      attachmentName: e,
-      attachmentList: tempList[e],
-    };
-  });
-});
-
-// watch(() => props.isMultiplePlan)
+  },
+  {
+    immediate: true,
+  },
+);
 
 // 滑动到投保信息
 const onClickToInsure = () => {
@@ -442,51 +450,6 @@ const validCalcData = () => {
   return false;
 };
 
-// // 核保 - 参数和保存订单一样, TODO any
-// const onUnderWrite = async (o: any) => {
-//   Toast.loading({
-//     message: '核保中...',
-//     forbidClick: true,
-//   });
-//   try {
-//     const res = await underwrite(o);
-//     const { code } = res;
-//     if (code === '10000') {
-//       Toast.loading({
-//         message: '核保中...',
-//         forbidClick: true,
-//       });
-//       // const res1 = await getPayUrl({
-//       //   orderNo: o.orderNo,
-//       //   tenantId,
-//       // });
-//       const res1: { code: string; data: { type: 1 | 2; paymentUrl: string } } = await getPayUrl({
-//         orderNo: o.orderNo,
-//         tenantId,
-//       });
-
-//       const { data } = res1;
-//       if (res1.code === '10000') {
-//         // TODO
-//       }
-//     }
-//   } catch (e) {
-//     //
-//   }
-// };
-
-// 跳转支付成功页
-const getPaySuccessCallbackUrl = (no: number) => {
-  return `${ORIGIN}/pay?orderNo=${no}&saleUserId=${agentCode}&tenantId=${tenantId}`;
-};
-
-const getPayFailCallbackUrl = (no: number) => {
-  const url = `${ORIGIN}/internet/payFail?tenantId=${tenantId}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack&from=${
-    from || 'normal'
-  }`;
-  return url;
-};
-
 const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrderDetail = {}) => {
   const nextStepParams = { ...currentOrderDetail };
   console.log(
@@ -500,18 +463,19 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
     productId: currentProductDetail?.productBasicInfoVO.id,
   };
   nextStepParams.extInfo.iseeBizNo = iseeBizNo;
-  nextStepParams.commencementTime = formatDate(nextStepParams.insuranceStartDate || new Date(), 'YYYY-MM-DD HH:mm:ss');
+  nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
+  nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
   nextStepParams.tenantOrderInsuredList = nextStepParams.tenantOrderInsuredList.map((insurer: any) => {
     return {
       ...insurer,
-      planCode: orderDetail.value.activePlanCode || 0,
+      planCode: orderDetail.value.activePlanCode ? orderDetail.value.activePlanCode : null,
     };
   });
   nextStepParams.tenantOrderInsuredList[0].tenantOrderProductList[0] = {
     premium: '',
     productCode: currentProductDetail.productBasicInfoVO.productCode,
     productName: currentProductDetail.productBasicInfoVO.productName,
-    planCode: orderDetail.value.activePlanCode || 0,
+    planCode: orderDetail.value.activePlanCode ? orderDetail.value.activePlanCode : null,
     tenantOrderRiskList: transformData(transformDataReq),
   };
   return nextStepParams;
@@ -576,19 +540,21 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList) =>
     tenantId,
     productCode: detail.value?.productCode,
     insuranceStartDate: orderInfo.insuranceStartDate,
-    commencementTime: orderInfo.insuranceStartDate,
     insuranceEndDate: orderInfo.insuranceEndDate,
+    commencementTime: orderInfo.insuranceStartDate,
+    expiryDate: orderInfo.insuranceEndDate,
     holder: {
       personVO: orderInfo.tenantOrderHolder,
     },
     insuredVOList: orderInfo.tenantOrderInsuredList.map((person) => {
       return {
         insuredCode: '',
+        relationToHolder: person.relationToHolder,
         personVO: person,
         productPlanVOList: [
           {
             insurerCode: currentProductDetail.productBasicInfoVO.insurerCode,
-            planCode: orderDetail.value.activePlanCode || 0,
+            planCode: orderDetail.value.activePlanCode ? orderDetail.value.activePlanCode : null,
             riskVOList: tempRiskVOList,
           },
         ],
@@ -597,7 +563,9 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList) =>
   };
   const { code, data } = await premiumCalc(trialParams);
   orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList = trialParams.insuredVOList[0]?.productPlanVOList;
-  orderDetail.value.premium = data.premium;
+  // orderDetail.value.premium = data.premium;
+  orderDetail.value.orderAmount = data.premium;
+  orderDetail.value.orderRealAmount = data.premium;
 };
 
 const onNext = async () => {

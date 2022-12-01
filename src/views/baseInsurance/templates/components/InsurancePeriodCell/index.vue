@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-01 17:32:48
+ * @LastEditTime: 2022-12-01 18:32:39
  * @Description:
 -->
 <template>
@@ -142,6 +142,8 @@ watch(
   [() => props.insureDetail, () => state.formInfo.activePlanCode],
   () => {
     state.formInfo.insurancePeriodValue = '';
+    state.formInfo.insuranceStartDate = '';
+    state.formInfo.insuranceEndDate = '';
     if (props.insureDetail) {
       if (props.insureDetail.productRelationPlanVOList && props.insureDetail.productRelationPlanVOList.length > 0) {
         let idx = 0;
@@ -263,7 +265,7 @@ watch(
       } else if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.NEXT_DAY) {
         state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), 1, 'day')} 00:00:00`;
       } else {
-        state.formInfo.insuranceStartDate = `${formatDate(new Date())} 00:00:00`;
+        state.formInfo.insuranceStartDate = `${formatDate(new Date())} 23:59:59`;
       }
     }
     if (unit !== 'to') {
