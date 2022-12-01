@@ -1,1 +1,0 @@
-import{r as e}from"./index-119d3d1b.js";const t=r=>e({url:"/api/app/insure/product/getProductDetail",method:"POST",data:r}),u=r=>e({url:"/api/query/user/getAppUser",method:"POST",data:r}),o=r=>e({url:"/api/app/insure/product/queryInsurePopupConfig",method:"POST",data:r});export{u as g,t as p,o as q};
