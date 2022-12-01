@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-30 15:08:37
+ * @LastEditTime: 2022-12-01 12:59:07
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -18,6 +18,16 @@
           :is-view="isView"
           :send-sms-code="sendSmsCode"
         >
+          <ProField
+            v-if="showByFactor('gasNumberCollection', 'HOLDER') && formInfo.tenantOrderSubjectList[0].extInfo"
+            v-model="formInfo.tenantOrderSubjectList[0].extInfo.subjectRelatedUserId"
+            :label="queryFactorAttr('gasNumberCollection', 'title', 'HOLDER')"
+            name="subjectRelatedUserId"
+            :required="isRequiredByFactor('gasNumberCollection', 'HOLDER')"
+            placeholder="请输入"
+            :is-view="isView"
+            :maxlength="100"
+          ></ProField>
           <template #name>
             <slot name="holderName"></slot>
           </template>
@@ -25,19 +35,19 @@
       </ProCard>
       <ProCard v-if="pageFactor.INSURER?.length" :show-divider="false" :title="titleCollection?.INSURER">
         <ProField
-          v-if="showByFactor('relationToHolder')"
+          v-if="showByFactor('relationToHolder', 'INSURER')"
           v-model="formInfo.tenantOrderInsuredList[0].relationToHolder"
           class="relation-holder"
           :name="`insure_relationToHolder`"
-          :required="isRequiredByFactor('relationToHolder')"
-          :label="queryFactorAttr('relationToHolder', 'title')"
+          :required="isRequiredByFactor('relationToHolder', 'INSURER')"
+          :label="queryFactorAttr('relationToHolder', 'title', 'INSURER')"
         >
           <template #input>
             <ProRadioButton
               v-model="formInfo.tenantOrderInsuredList[0].relationToHolder"
               :is-view="isView"
               :prop="{ label: 'value', value: 'code' }"
-              :options="queryFactorAttr('relationToHolder', 'attributeValueList') || []"
+              :options="queryFactorAttr('relationToHolder', 'attributeValueList', 'INSURER') || []"
             />
           </template>
         </ProField>
@@ -181,6 +191,17 @@ const formInfo = ref<any>({
       ],
     },
   ],
+  tenantOrderSubjectList: [
+    {
+      extInfo: {
+        subjectRelatedFirm: '',
+        subjectRelatedUserId: '',
+      },
+      subjectName: '',
+      subjectObjectType: 'HOLDER',
+      subjectType: 'GENERAL',
+    },
+  ],
   operateOption: {
     withBeneficiaryInfo: true,
     withHolderInfo: true,
@@ -205,25 +226,31 @@ const state = reactive<State>({
 });
 
 const factorObj = computed(() => {
-  const factor: any = {};
+  const factor: any = {
+    INSURER: {},
+    HOLDER: {},
+  };
   (pageFactor.value?.INSURER || []).forEach((factorItem) => {
-    factor[factorItem.code] = factorItem;
+    factor.INSURER[factorItem.code] = factorItem;
+  });
+  (pageFactor.value?.HOLDER || []).forEach((factorItem) => {
+    factor.HOLDER[factorItem.code] = factorItem;
   });
   return factor;
 });
 
 // 根据模板因子控制表单元素的展示
-const showByFactor = (key: string) => {
-  return factorObj.value?.[key].isDisplay === YES_NO_ENUM.YES;
+const showByFactor = (key: string, type: string) => {
+  return factorObj.value?.[type]?.[key].isDisplay === YES_NO_ENUM.YES;
 };
 
 // 根据模板因子控制表单元素的是否必填
-const isRequiredByFactor = (key: string) => {
-  return factorObj.value?.[key].isMustInput === YES_NO_ENUM.YES;
+const isRequiredByFactor = (key: string, type: string) => {
+  return factorObj.value?.[type]?.[key].isMustInput === YES_NO_ENUM.YES;
 };
 
 // 获取表单项的属性
-const queryFactorAttr = (key: string, attr: string) => factorObj.value?.[key]?.[attr] || '';
+const queryFactorAttr = (key: string, attr: string, type: string) => factorObj.value?.[type]?.[key]?.[attr] || '';
 
 // 添加受益人信息
 const addBeneficiary = () => {

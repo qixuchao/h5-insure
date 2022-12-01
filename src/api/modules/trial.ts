@@ -1,13 +1,13 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-24 13:44:22
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-28 14:47:32
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-12-01 11:45:16
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/modules/trial.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import request from '@/api/request';
-import { ProductData, PremiumCalcData, premiumCalcResponse } from './trial.data';
+import { ProductData, PremiumCalcData, PremiumCalcResponse } from './trial.data';
 import { ProductDetail } from './newTrial.data';
 
 // 获取产品详情
@@ -16,7 +16,7 @@ export const insureProductDetail = (data: any = {}) =>
 
 // 保费试算
 export const premiumCalc = (data: PremiumCalcData) =>
-  request<ResponseData<premiumCalcResponse>>({ url: '/api/app/insure/insurance/premiumCalc', method: 'POST', data });
+  request<ResponseData<PremiumCalcResponse>>({ url: '/api/app/insure/insurance/premiumCalc', method: 'POST', data });
 
 export const insureProductDetailNew = (data = {}) =>
   request<ResponseData>({ url: '/api/app/insure/product/insureProductDetailNew', method: 'POST', data });
@@ -66,3 +66,11 @@ export const toClogin = (data = {}) =>
 // 在线投保-通用下一步
 export const nextStep = (data = {}) =>
   request<ResponseData<any>>({ url: '/api/app/insure/insurance/nextStep', method: 'POST', data });
+
+// 试算前对数据进行校验
+export const underWriteRule = (data = {}) =>
+  request<ResponseData<PremiumCalcResponse>>({
+    url: '/api/app/insure/insurance/underWriteRule',
+    method: 'POST',
+    data,
+  });

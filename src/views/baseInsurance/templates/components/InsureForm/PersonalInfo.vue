@@ -114,7 +114,7 @@
       :name="`${prefix}_certNo`"
       :required="isRequiredByFactor('certNo')"
       placeholder="请输入"
-      :maxlength="19"
+      :maxlength="18"
       :is-view="isView"
       :validate-type="validateType"
     ></ProField>
@@ -556,16 +556,6 @@
         ></ProRadioButton>
       </template>
     </ProField>
-    <ProField
-      v-if="showByFactor('gasNumberCollection')"
-      v-model="state.formInfo.extInfo.gasNumberCollection"
-      :label="queryFactorAttr('gasNumberCollection', 'title')"
-      :name="`${prefix}_gasNumberCollection`"
-      :required="isRequiredByFactor('gasNumberCollection')"
-      placeholder="请输入"
-      :is-view="isView"
-      :rules="[{ validator: (...params) => validateLength(100, ...params) }]"
-    ></ProField>
     <ProPicker
       v-if="showByFactor('benefitOrder')"
       v-model="state.formInfo.benefitOrder"
@@ -588,6 +578,7 @@
     >
       <template #extra> <span class="input-extra">%</span> </template>
     </ProField>
+    <slot name="default"></slot>
   </div>
 </template>
 

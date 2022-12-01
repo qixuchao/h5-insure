@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 11:26:50
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-30 18:55:05
+ * @LastEditTime: 2022-11-30 21:12:31
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/components/SIgn/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -19,7 +19,7 @@
     }"
   >
     <div class="popup-body">
-      <div class="sign-container">
+      <div class="sign-container-wrap">
         <ProSign ref="signRef" :option="option"></ProSign>
         <div class="operate-bar">
           <span>请投保人正楷签署您的签名: 高富友</span>
@@ -64,7 +64,7 @@ const confirm = () => {};
   width: 100vw;
   height: 100vh;
 }
-.sign-container {
+.sign-container-wrap {
   transform: rotateZ(90deg);
   transform-origin: center;
   width: 100%;
@@ -73,11 +73,12 @@ const confirm = () => {};
   flex-direction: column;
   justify-content: space-between;
 
-  :deep(.com-sign-wrap) {
-    width: 100%;
-    .canvas {
-      transform: rotateZ(-90deg);
-    }
+  // :deep(.com-sign-wrap) {
+  //   width: 100%;
+  .canvas {
+    transform: rotateZ(-90deg);
+    transform-origin: center;
   }
+  // }
 }
 </style>
