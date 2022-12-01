@@ -765,7 +765,7 @@ let mork = [
 mork = [...mork, ...mork, ...mork];
 
 const state = reactive({
-  loading: true,
+  loading: false,
   select: mork[0],
   list: mork,
 });
