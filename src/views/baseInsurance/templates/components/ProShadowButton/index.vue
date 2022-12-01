@@ -97,6 +97,7 @@ watch(
 <style scoped lang="scss">
 .pro-shadow-button {
   height: 130px;
+  width: 100%;
   .shadow-button {
     color: 96px;
     background: linear-gradient(to right, var(--van-primary-color), v-bind('state.color'));

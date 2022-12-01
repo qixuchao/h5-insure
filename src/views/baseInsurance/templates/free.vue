@@ -17,8 +17,7 @@
         <ProShadowButton :text="state.newAuth ? '立即领取' : '激活保障'" />
       </footer>
     </div>
-
-    <!-- <PreNotice :product-detail="detail"></PreNotice> -->
+    <PreNotice v-if="!state.loading" :product-detail="state.detail"></PreNotice>
   </van-config-provider>
 </template>
 
@@ -29,6 +28,7 @@ import Banner from './components/Banner/index.vue';
 import FreeHolderForm from './components/FreeHolderForm/index.vue';
 import { productDetail, getAppUser } from '@/api/modules/product';
 import { insureProductDetail, toClogin, nextStep } from '@/api/modules/trial';
+import PreNotice from './components/PreNotice/index.vue';
 // import { nextStep } from '@/api/index';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ProductData } from '@/api/modules/trial.data';
@@ -68,6 +68,7 @@ const state = reactive<{
   newAuth: boolean;
   insureDetail: ProductData;
   order: any;
+  loading: boolean;
 }>({
   colors: ['#fff'],
   detail: {} as ProductDetail,
@@ -104,9 +105,11 @@ const state = reactive<{
   productDesc: [],
   newAuth: true,
   insureDetail: {} as ProductData,
+  loading: true,
 });
 
 const fetchData = async () => {
+  state.loading = true;
   const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
   const insureReq = insureProductDetail({ productCode });
   const userReq = getAppUser({ openId });
@@ -135,6 +138,7 @@ const fetchData = async () => {
     if (userRes.code === '10000') {
       state.newAuth = !userRes.data;
     }
+    state.loading = false;
   });
 };
 

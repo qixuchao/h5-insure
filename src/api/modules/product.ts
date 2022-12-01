@@ -41,3 +41,12 @@ export const getAppUser = (data: any) => {
     data,
   });
 };
+
+// 获取投保流程弹窗配置信息
+export const queryInsurePopupConfig = (data: any) => {
+  return request({
+    url: `/api/app/insure/product/queryInsurePopupConfig`,
+    method: 'POST',
+    data,
+  });
+};

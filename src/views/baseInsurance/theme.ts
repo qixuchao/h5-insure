@@ -19,6 +19,7 @@ export const useTheme = (color: string = THEME_MAP.orange) => {
     switchOnBackgroundColor: color, // switch 开时的背景
     toastDefaultPadding: '14px',
     linearBg: `linear-gradient(to right, ${color}, ${theme20})`,
+    popupRoundBorderRadius: '20px',
     // ..其他组件的颜色覆盖
   };
 };
