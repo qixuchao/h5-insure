@@ -8,12 +8,12 @@
         :detail="state.order"
         :colors="state.colors"
       >
-        <ProShadowButton :text="state.newAuth ? '立即领取' : '激活保障'" @click="clickHandler" />
+        <ProShadowButton ref="root" :text="state.newAuth ? '立即领取' : '激活保障'" @click="clickHandler" />
       </FreeHolderForm>
       <div class="product-desc">
         <img v-for="(item, index) in state.productDesc" :key="index" :src="item" />
       </div>
-      <footer class="page-free-footer">
+      <footer v-if="state.showBtn" class="page-free-footer">
         <ProShadowButton :text="state.newAuth ? '立即领取' : '激活保障'" />
       </footer>
     </div>
@@ -23,6 +23,7 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
+import { useIntersectionObserver } from '@vueuse/core';
 import ProShadowButton from './components/ProShadowButton/index.vue';
 import Banner from './components/Banner/index.vue';
 import FreeHolderForm from './components/FreeHolderForm/index.vue';
@@ -57,9 +58,9 @@ const {
   saleUserId = '',
   saleChannelId = '',
 } = route.query as QueryData;
-console.log('-----themeVars', themeVars);
 
 let iseeBizNo = '';
+const root = ref();
 const state = reactive<{
   colors: string[];
   detail: ProductDetail;
@@ -69,6 +70,7 @@ const state = reactive<{
   insureDetail: ProductData;
   order: any;
   loading: boolean;
+  showBtn: boolean;
 }>({
   colors: ['#fff'],
   detail: {} as ProductDetail,
@@ -106,6 +108,7 @@ const state = reactive<{
   newAuth: true,
   insureDetail: {} as ProductData,
   loading: true,
+  showBtn: false,
 });
 
 const fetchData = async () => {
@@ -189,11 +192,16 @@ onMounted(() => {
     iseeBizNo = window.getIseeBiz && (await window.getIseeBiz());
   }, 1500);
 });
+
+useIntersectionObserver(root, ([{ isIntersecting }], observerElement) => {
+  state.showBtn = !isIntersecting;
+});
 </script>
 
 <style lang="scss" scoped>
 .page-free-product-detail {
   background: v-bind('state.colors[1]');
+  padding-bottom: 236px;
 
   .product-desc {
     margin-top: 32px;

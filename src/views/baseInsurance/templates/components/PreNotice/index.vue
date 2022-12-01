@@ -88,6 +88,7 @@ const initData = async () => {
 };
 
 onMounted(() => {
+  noticeShow.value = false;
   initData();
 });
 </script>
