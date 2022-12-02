@@ -1,0 +1,1 @@
+System.register([],(function(t){"use strict";return{execute:function(){t("v",(t=>/^[\u4E00-\u9FA5．·]{2,50}$/.test(t))),t("u","/static/assets/upgrade_bg.b65c44d4.png"),t("H","/static/assets/header-logo.fadf5dcd.png"),t("c","/static/assets/check-detail.24065a01.png")}}}));
