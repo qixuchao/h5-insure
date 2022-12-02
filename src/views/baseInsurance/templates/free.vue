@@ -160,7 +160,16 @@ const state = reactive<{
   showFilePreview: false,
   isOnlyView: true,
 });
+
 const filterHealthAttachmentList = ref();
+
+let extInfo = {};
+
+try {
+  extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
+} catch (error) {
+  //
+}
 
 const previewFile = (index: number) => {
   state.activeIndex = index;
@@ -278,7 +287,7 @@ const onSaveOrder = async () => {
       params = freeTransform({
         order: state.order,
         tenantId,
-        extraInfo: JSON.parse(decodeURIComponent(extraInfo)),
+        extraInfo: extInfo,
         detail: state.detail,
         insureDetail: state.insureDetail,
         iseeBizNo,

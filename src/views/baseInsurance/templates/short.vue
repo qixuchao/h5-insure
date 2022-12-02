@@ -310,7 +310,7 @@ const orderDetail = ref<any>({
     buttonCode: 'EVENT_SHORT_saveOrder',
     successJumpUrl: '', // 支付成功跳转
     pageCode: 'productInfo',
-    ...extInfo,
+    extraInfo: extInfo,
   },
   operateOption: {
     withBeneficiaryInfo: true,

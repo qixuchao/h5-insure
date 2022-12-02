@@ -115,7 +115,7 @@ const orderDetail = ref<any>({
     pageCode: 'infoCollection',
     templateId: 3,
     iseeBizNo: '',
-    ...extInfo,
+    extraInfo: extInfo,
   },
   orderCategory: 1,
   saleUserId: saleChannelId,
