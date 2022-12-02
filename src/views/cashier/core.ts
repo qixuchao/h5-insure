@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-02 19:26:10
+ * @LastEditTime: 2022-12-02 20:18:23
  * @Description:
  */
 import wx from 'weixin-js-sdk';
@@ -159,7 +159,7 @@ window.useFormPay = useFormPay;
  * @param payParam 支付参数
  * @param callback 回调
  */
-export const useSign = (payParam: PayParam, callback?: (result: PayResult) => void) => {
+export const useSign = (payParam: PayParam) => {
   const loading = ref(false);
   useLoading(loading);
   pay({

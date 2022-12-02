@@ -1,24 +1,9 @@
 <template>
   <router-view v-slot="{ Component, route }" class="router-view">
-    <template v-if="Component">
-      <keep-alive v-if="route.meta.keepAlive">
-        <suspense>
-          <component :is="Component" :key="route.meta.usePathKey ? route.fullPath : undefined" />
-          <template #fallback>
-            <div v-if="route.meta && route.meta.skeleton == 'primary'"><Van-skeleton title :row="3" /></div>
-            <div v-else><Van-skeleton title :row="8" /></div>
-          </template>
-        </suspense>
-      </keep-alive>
-      <suspense v-else>
-        <component :is="Component" :key="route.meta.usePathKey ? route.fullPath : undefined" />
-
-        <template #fallback>
-          <div v-if="route.meta && route.meta.skeleton == 'primary'"><Van-skeleton title :row="3" /></div>
-          <div v-else><Van-skeleton title :row="8" /></div>
-        </template>
-      </suspense>
-    </template>
+    <keep-alive>
+      <component :is="Component" v-if="route.meta.keepAlive"></component>
+    </keep-alive>
+    <component :is="Component" v-if="!route.meta.keepAlive"></component>
   </router-view>
 </template>
 <script lang="ts" setup>

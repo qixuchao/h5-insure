@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-22 16:53:19
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-11-26 16:17:35
+ * @LastEditTime: 2022-12-02 20:58:33
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProCheckButton/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -64,7 +64,8 @@ const props = withDefaults(defineProps<Props>(), {
   }
   &.activated-disabled {
     border: none;
-    background-color: #8fbbfc;
+    background-color: $primary-color;
+    opacity: calc(var(--van-button-disabled-opacity) * 0.6);
     font-weight: 400;
     color: #ffffff;
   }
