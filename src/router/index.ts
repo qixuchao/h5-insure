@@ -6,7 +6,7 @@ import wx from 'weixin-js-sdk';
 import Storage from '@/utils/storage';
 import { ORIGIN } from '@/utils';
 import routes from '@/router/routes';
-
+import { useWXCode } from '@/views/cashier/core';
 import useAppStore from '@/store/app';
 import { getWxJsSdkSignature } from '@/api/modules/wechat';
 import { isWechat } from '@/utils/index';
@@ -72,13 +72,12 @@ router.beforeEach(async (to, from, next) => {
 });
 
 const IS_WECHAT = isWechat();
-router.beforeResolve(async (to, from) => {
+router.beforeResolve(async (to) => {
   console.log('IS_WECHAT', IS_WECHAT);
-  if (to.meta.requireWxJs && IS_WECHAT) {
+  if (IS_WECHAT && to.meta.requireWxJs) {
     const tenantId = to.query?.tenantId as string;
     console.log('在微信环境，开始鉴权, tenantId:', tenantId);
     const res = await getWxJsSdkSignature({ url: encodeURIComponent(realAuthUrl), tenantId });
-    const store = useAppStore();
     const {
       data: { appId, timestamp, nonceStr, signature },
     } = res;
@@ -107,6 +106,10 @@ router.beforeResolve(async (to, from) => {
     wx.ready(() => {
       console.log('wechat js sdk 注入成功');
       console.log(realAuthUrl);
+      // 提前获取wxCode
+      if (to.meta.wxCode) {
+        useWXCode();
+      }
     });
     wx.error((err: any) => {
       console.warn('jssdk 注入失败', err);

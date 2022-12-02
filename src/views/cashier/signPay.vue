@@ -37,7 +37,7 @@ const showResult = ref(false);
 
 // 将所有url上的参数全部传递给签约接口
 const goPay = async () => {
-  useSign(query, () => {});
+  useSign(query);
 };
 let thread: ThreadType;
 const loopOrderStatus = () => {
@@ -49,7 +49,9 @@ const loopOrderStatus = () => {
       const { code, data } = res;
       if (code === '10000' && +data.status === 1) {
         thread.stop();
-        window.location.href = `/baseInsurance/orderDetail?orderNo=${query.businessTradeNo}&tenantId=${query.tenantId}`;
+        window.location.href =
+          data.redirectUrl ||
+          `/baseInsurance/orderDetail?orderNo=${query.businessTradeNo}&tenantId=${query.tenantId}&productCode=${query.productCode}`;
       }
     })
     .catch();

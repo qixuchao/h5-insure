@@ -131,7 +131,7 @@ const getOrderDetail = () => {
 };
 
 // 微信授权
-useWXCode();
+// useWXCode();
 
 onMounted(() => {
   getOrderDetail();

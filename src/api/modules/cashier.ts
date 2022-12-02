@@ -3,7 +3,7 @@
  * @Autor: kevin.liang
  * @Date: 2022-11-21 12:53:01
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-11-30 11:14:32
+ * @LastEditTime: 2022-12-02 20:18:05
  */
 
 import request from '../request';
@@ -24,7 +24,7 @@ export const pay = (data: PayParam) => {
 };
 // 获取订单支付状态
 export const getPaymentResult = (params: { orderNo: string; tenantId: string }) => {
-  return request<{ status: string | number }>({
+  return request<{ status: string | number; redirectUrl: string }>({
     url: '/api/app/insure/insurance/getPaymentResult',
     method: 'GET',
     params,

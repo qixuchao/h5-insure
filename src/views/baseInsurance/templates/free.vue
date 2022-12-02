@@ -40,7 +40,7 @@
       </footer>
     </div>
     <FilePreview
-      v-if="state.showFilePreview"
+      v-if="state.showFilePreview && filterHealthAttachmentList.length !== 0"
       v-model:show="state.showFilePreview"
       :content-list="filterHealthAttachmentList"
       :is-only-view="state.isOnlyView"
@@ -83,7 +83,6 @@ const route = useRoute();
 interface QueryData {
   productCode: string; // 产品code
   tenantId: string; // 订单id
-  openid: string; // 手机号
   indirectCode: string;
   saleUserId: string;
   saleChannelId: string;
@@ -91,15 +90,16 @@ interface QueryData {
   [key: string]: string;
 }
 // oKugN52glZx_hhg7liu0WpWcmD5o
-const {
-  productCode = '',
-  openId = '',
-  tenantId = '',
-  indirectCode = '123',
-  saleUserId = '',
-  saleChannelId = '',
-  extraInfo,
-} = route.query as QueryData;
+const { productCode = '', tenantId = '', extraInfo } = route.query as QueryData;
+
+let extInfo: any = {};
+
+try {
+  extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
+} catch (error) {
+  console.log(error);
+}
+const { openId, indirectCode = '123', saleUserId = '', saleChannelId = '' } = extInfo;
 let iseeBizNo = '';
 const root = ref();
 const formRef = ref();
@@ -163,13 +163,7 @@ const state = reactive<{
 
 const filterHealthAttachmentList = ref();
 
-let extInfo = {};
-
-try {
-  extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
-} catch (error) {
-  //
-}
+console.log(extInfo, 'extInfo');
 
 const previewFile = (index: number) => {
   state.activeIndex = index;
@@ -189,30 +183,31 @@ const setfileList = () => {
     '2': 'richText',
     '3': 'link',
   };
-  filterHealthAttachmentList.value = Object.keys(tempList).map((e) => {
-    tempList[e].forEach((attachmentItem: any) => {
-      if (attachmentItem.attachmentType === '1') {
-        const urlList = attachmentItem.attachmentUri.split('?');
-        const type = urlList[0].substr(urlList[0].lastIndexOf('.') + 1);
-        console.log('type', type);
-        // eslint-disable-next-line no-param-reassign
-        if (type === 'pdf') {
+  filterHealthAttachmentList.value =
+    Object.keys(tempList).map((e) => {
+      tempList[e].forEach((attachmentItem: any) => {
+        if (attachmentItem.attachmentType === '1') {
+          const urlList = attachmentItem.attachmentUri.split('?');
+          const type = urlList[0].substr(urlList[0].lastIndexOf('.') + 1);
+          console.log('type', type);
           // eslint-disable-next-line no-param-reassign
-          attachmentItem.attachmentType = 'pdf';
+          if (type === 'pdf') {
+            // eslint-disable-next-line no-param-reassign
+            attachmentItem.attachmentType = 'pdf';
+          } else {
+            // eslint-disable-next-line no-param-reassign
+            attachmentItem.attachmentType = 'picture';
+          }
         } else {
           // eslint-disable-next-line no-param-reassign
-          attachmentItem.attachmentType = 'picture';
+          attachmentItem.attachmentType = fileMap[attachmentItem.attachmentType];
         }
-      } else {
-        // eslint-disable-next-line no-param-reassign
-        attachmentItem.attachmentType = fileMap[attachmentItem.attachmentType];
-      }
-    });
-    return {
-      attachmentName: e,
-      attachmentList: tempList[e],
-    };
-  });
+      });
+      return {
+        attachmentName: e,
+        attachmentList: tempList[e],
+      };
+    }) || [];
 };
 
 const fetchData = async () => {
@@ -322,7 +317,7 @@ const clickHandler = async () => {
   if (!res) {
     return null;
   }
-  if (state.newAuth) {
+  if (state.newAuth || filterHealthAttachmentList.value.length === 0) {
     onSaveOrder();
   } else {
     state.isOnlyView = false;
