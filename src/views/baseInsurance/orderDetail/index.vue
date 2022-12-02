@@ -3,7 +3,7 @@
     <div class="page-pay-result">
       <div class="header">
         <div class="product-status">{{ state.pageInfo.title }}</div>
-        <div class="desc">{{ state.pageInfo.desc }}</div>
+        <div class="desc" v-html="orderDesc" />
       </div>
       <div class="prodouct-container">
         <div class="product-card">
@@ -43,6 +43,8 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant/es';
+import { useCountDown } from '@vant/use';
+import dayjs from 'dayjs';
 import { productDetail } from '@/api/modules/product';
 import { getPayUrl, getTenantOrderDetail, insureProductDetail, queryStandardInsurerLink } from '@/api/modules/trial';
 import ProShadowButton from '../templates/components/ProShadowButton/index.vue';
@@ -85,6 +87,7 @@ const state = reactive<{
     productImage: string;
     notificationImage: string;
   };
+  timeDown: any;
 }>({
   insureDetail: {} as ProductData,
   detail: {} as ProductDetail,
@@ -98,6 +101,7 @@ const state = reactive<{
     productImage: '',
     notificationImage: '',
   },
+  timeDown: {},
 });
 const show = ref(false);
 
@@ -171,7 +175,7 @@ const initPageInfo = () => {
     });
   } else {
     state.pageInfo.insureList = [{ label: '本期缴费金额', value: `${state.orderDetail.orderAmount}元` }];
-    insurancePeriodDesc = '2022.04.30到2022.05.29';
+    insurancePeriodDesc = '';
   }
   state.pageInfo.insureList = [
     ...state.pageInfo.insureList,
@@ -192,6 +196,13 @@ const initPageInfo = () => {
     show.value = true;
   } else {
     state.showOrderDetail = true;
+  }
+  if (ORDER_STATUS_ENUM.PAYING === state.orderDetail.orderStatus) {
+    const expiryDate = state.orderDetail.tenantOrderPaymentInfoList?.[0]?.paymentExpiryDate;
+    state.timeDown = useCountDown({
+      time: dayjs(expiryDate).diff(new Date(), 'millisecond'),
+    });
+    state.timeDown.start();
   }
   try {
     const planCode = state.orderDetail.tenantOrderInsuredList?.[0].planCode;
@@ -226,6 +237,17 @@ const getData = async () => {
     initPageInfo();
   });
 };
+
+const orderDesc = computed(() => {
+  if (ORDER_STATUS_ENUM.PAYING === state.orderDetail.orderStatus) {
+    if (state.timeDown.current.total <= 0) {
+      getData();
+      state.timeDown.pause();
+    }
+    return `剩余支付时间：${state.timeDown.current.hours}:${state.timeDown.current.minutes}:${state.timeDown.current.seconds}`;
+  }
+  return state.pageInfo.desc;
+});
 
 onMounted(() => {
   getData();

@@ -78,8 +78,6 @@ const getColor = (_color: string, _opacity = 1) => {
   return sColor;
 };
 
-console.log(props.themeVars);
-
 watch(
   [() => props.themeVars, () => props.isGradient],
   () => {

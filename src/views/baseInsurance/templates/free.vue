@@ -59,10 +59,11 @@
 import { useRoute, useRouter } from 'vue-router';
 import { useIntersectionObserver } from '@vueuse/core';
 import { Toast } from 'vant/es';
+import { isEmpty } from 'lodash';
 import ProShadowButton from './components/ProShadowButton/index.vue';
 import Banner from './components/Banner/index.vue';
 import FreeHolderForm from './components/FreeHolderForm/index.vue';
-import { productDetail, getAppUser } from '@/api/modules/product';
+import { productDetail, getAppUser, queryListRelationCustomer } from '@/api/modules/product';
 import { insureProductDetail, toClogin, nextStep } from '@/api/modules/trial';
 import PreNotice from './components/PreNotice/index.vue';
 import AttachmentList from './components/AttachmentList/index.vue';
@@ -72,6 +73,7 @@ import { checkCode } from '@/api/modules/phoneVerify';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ProductData } from '@/api/modules/trial.data';
 import { nextStepOperate } from '@/utils/nextStep';
+import { RELATIONENUM } from '@/common/constants/trial';
 import { freeTransform, validateSmsCode } from '../utils';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 import { useTheme } from '../theme';
@@ -99,7 +101,9 @@ try {
 } catch (error) {
   console.log(error);
 }
-const { openId, indirectCode = '123', saleUserId = '', saleChannelId = '' } = extInfo;
+const { indirectCode = '123', saleUserId = '', saleChannelId = '' } = extInfo;
+
+const openId = 'oKugN52glZx_hhg7liu0WpWcmD3o';
 let iseeBizNo = '';
 const root = ref();
 const formRef = ref();
@@ -117,6 +121,7 @@ const state = reactive<{
   activeIndex: number;
   showFilePreview: boolean;
   isOnlyView: boolean;
+  relationList: any;
 }>({
   colors: ['#fff'],
   detail: {} as ProductDetail,
@@ -149,6 +154,7 @@ const state = reactive<{
       withProductInfo: true,
     },
   },
+  relationList: {},
   banner: '',
   productDesc: [],
   newAuth: true,
@@ -177,7 +183,6 @@ const setfileList = () => {
     filterHealthAttachmentList.value = [];
     return;
   }
-  console.log(tempList, 'tempList====');
   // 1: 附件, 2: 富文本, 3: 链接
   const fileMap = {
     '2': 'richText',
@@ -189,7 +194,6 @@ const setfileList = () => {
         if (attachmentItem.attachmentType === '1') {
           const urlList = attachmentItem.attachmentUri.split('?');
           const type = urlList[0].substr(urlList[0].lastIndexOf('.') + 1);
-          console.log('type', type);
           // eslint-disable-next-line no-param-reassign
           if (type === 'pdf') {
             // eslint-disable-next-line no-param-reassign
@@ -215,45 +219,67 @@ const fetchData = async () => {
   const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
   const insureReq = insureProductDetail({ productCode });
   const userReq = getAppUser({ openId });
-  await Promise.all([productReq, insureReq, userReq]).then(([productRes, insureRes, userRes]) => {
-    if (productRes.code === '10000') {
-      state.detail = productRes.data as any;
-      state.banner = state.detail.tenantProductInsureVO?.banner[0];
-      const { colorEnd, colorStart } = state.detail.tenantProductInsureVO?.backgroundInsureVO || {};
-      state.colors = [colorStart, colorEnd];
-      state.productDesc = state.detail.tenantProductInsureVO.spec || [];
-      document.title = state.detail.productFullName || '';
-    }
+  const relationReq = queryListRelationCustomer({ openId });
+  await Promise.all([productReq, insureReq, userReq, relationReq]).then(
+    ([productRes, insureRes, userRes, relationRes]) => {
+      if (productRes.code === '10000') {
+        state.detail = productRes.data as any;
+        state.banner = state.detail.tenantProductInsureVO?.banner[0];
+        const { colorEnd, colorStart } = state.detail.tenantProductInsureVO?.backgroundInsureVO || {};
+        state.colors = [colorStart, colorEnd];
+        state.productDesc = state.detail.tenantProductInsureVO.spec || [];
+        document.title = state.detail.productFullName || '';
+      }
 
-    if (insureRes.code === '10000') {
-      state.insureDetail = insureRes.data as any;
-      state.insureDetail.productFactor[1].forEach((item: any) => {
-        if (item.code === 'verificationCode' && item.isDisplay === 1) {
-          state.isValidateCode = true;
+      if (insureRes.code === '10000') {
+        state.insureDetail = insureRes.data as any;
+        state.insureDetail.productFactor[1].forEach((item: any) => {
+          if (item.code === 'verificationCode' && item.isDisplay === 1) {
+            state.isValidateCode = true;
+          }
+        });
+        state.insureDetail.productFactor[2] = state.insureDetail.productFactor?.[2].map((item: any) => {
+          if (item.code === 'relationToHolder' && item.isDisplay === 1) {
+            // eslint-disable-next-line no-param-reassign
+            item.title = '被保人';
+            // eslint-disable-next-line no-param-reassign
+            state.order.tenantOrderInsuredList[0].relationToHolder = item.attributeValueList?.[0]?.code || '';
+          }
+          return item;
+        });
+      }
+      if (userRes.code === '10000') {
+        state.newAuth = !userRes.data;
+        if (userRes.data) {
+          const res: any = userRes.data;
+          state.order.tenantOrderHolder = {
+            certNo: res?.certiNo,
+            extInfo: {},
+            mobile: res?.mobile,
+            name: res?.name,
+          };
         }
-      });
-      state.insureDetail.productFactor[2] = state.insureDetail.productFactor?.[2].map((item: any) => {
-        if (item.code === 'relationToHolder' && item.isDisplay === 1) {
-          // eslint-disable-next-line no-param-reassign
-          item.title = '被保人';
-          // eslint-disable-next-line no-param-reassign
-          state.order.tenantOrderInsuredList[0].relationToHolder = item.attributeValueList?.[0]?.code || '';
-        }
-        return item;
-      });
-    }
-    if (userRes.code === '10000') {
-      state.newAuth = !userRes.data;
-    }
-    setfileList();
-    state.loading = false;
-  });
+      }
+      if (relationRes.code === '10000') {
+        const relation = {};
+        relationRes.data.forEach((item: any) => {
+          if (!relation[item.relationCode]) {
+            relation[item.relationCode] = [];
+          }
+          relation[item.relationCode].push(item);
+        });
+        state.relationList = relation;
+      }
+      setfileList();
+      state.loading = false;
+    },
+  );
 };
 
 const validateSmsCodew = async () => {
   const res = await formRef.value.validateForm();
   const smsCode = state.order.tenantOrderHolder?.verificationCode;
-  if (!smsCode || !validateSmsCode(smsCode)) {
+  if (state.isValidateCode && (!smsCode || !validateSmsCode(smsCode))) {
     Toast({
       message: '请输入正确的验证码',
     });
@@ -317,6 +343,7 @@ const clickHandler = async () => {
   if (!res) {
     return null;
   }
+
   if (state.newAuth || filterHealthAttachmentList.value.length === 0) {
     onSaveOrder();
   } else {
@@ -344,6 +371,27 @@ onMounted(() => {
     iseeBizNo = window.getIseeBiz && (await window.getIseeBiz());
   }, 1500);
 });
+
+const setInsureInfo = () => {};
+
+watch(
+  () => state.order.tenantOrderInsuredList[0],
+  (e) => {
+    if (isEmpty(state.relationList)) return null;
+    const targets = state.relationList[e.relationToHolder] || [];
+    if (targets.length === 1) {
+      if (RELATIONENUM.SELF !== e.relationToHolder) {
+        state.order.tenantOrderInsuredList[0].certNo = targets[0].cert[0].certNo;
+        state.order.tenantOrderInsuredList[0].name = targets[0].cert[0].certName;
+      }
+    }
+    return false;
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
 
 useIntersectionObserver(root, ([{ isIntersecting }], observerElement) => {
   state.showBtn = !isIntersecting;
