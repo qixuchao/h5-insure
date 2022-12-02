@@ -258,7 +258,7 @@ const fetchData = async () => {
 const validateSmsCodew = async () => {
   const res = await formRef.value.validateForm();
   const smsCode = state.order.tenantOrderHolder?.verificationCode;
-  if (state.isValidateCode && (!smsCode || !validateSmsCode(smsCode))) {
+  if (!smsCode || !validateSmsCode(smsCode)) {
     Toast({
       message: '请输入正确的验证码',
     });

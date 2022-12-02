@@ -360,6 +360,7 @@
         <van-button
           :class="['sms-code', { 'count-down': countDownTimer > 0 }]"
           size="small"
+          plain
           type="primary"
           @click="onCaptha"
           >{{ smsText }}</van-button
@@ -630,7 +631,7 @@ const certEndType = ref<boolean>(props.formInfo.certEndType === 2);
 // 验证码相关逻辑
 const maxCountDown = 60;
 const countDownTimer = ref<number>(0);
-const smsText = ref<string>('获取验证码');
+const smsText = ref<string>('验证码');
 const isSendSmsCode = ref(false);
 
 const factorObj = computed(() => {
@@ -655,7 +656,7 @@ const onCountDown = () => {
   countInterval();
   const timer = setInterval(() => {
     if (countDownTimer.value === 0) {
-      smsText.value = '获取验证码';
+      smsText.value = '验证码';
       countDownTimer.value = 0;
       clearInterval(timer);
     } else {
@@ -894,6 +895,10 @@ watch(
   border-left: 1px solid $zaui-line;
   margin-top: 16px;
   display: flex;
+}
+.sms-code {
+  border: none;
+  background: transparent;
 }
 .com-personal-wrapper {
 }

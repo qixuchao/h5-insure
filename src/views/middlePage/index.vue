@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-27 21:01:33
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-02 17:34:29
+ * @LastEditTime: 2022-12-02 19:14:25
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/middle/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -27,6 +27,7 @@ interface QueryData {
   previewId: string;
   templateId: string;
   pageCode: string;
+  productCode: string;
   [key: string]: string | number;
 }
 
@@ -37,7 +38,7 @@ const route = useRoute();
 const result = ref<string>('');
 
 // 从公众号进入需从extraInfo外获取templateId
-const { extraInfo, templateId: wxTemplateId, insurerCode } = route.query as QueryData;
+const { extraInfo, templateId: wxTemplateId, insurerCode, productCode } = route.query as QueryData;
 
 console.log('route.query-------', route.query);
 
@@ -51,7 +52,7 @@ try {
 
 console.log('extraInfo', extInfo);
 
-const { pageCode, templateId, openId, tenantId, productCode } = extInfo as any;
+const { pageCode, templateId, openId, tenantId } = extInfo as any;
 
 const getActivityPath = () => {
   try {

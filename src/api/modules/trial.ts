@@ -34,7 +34,7 @@ export const underwrite = (data = {}) =>
 
 // 获取支付链接
 export const getPayUrl = (data = {}) =>
-  request<ResponseData<any>>({ url: '/api/app/insure/insurance/getPayUrl', method: 'POST', data });
+  request<{ type: number; paymentUrl: string }>({ url: '/api/app/insure/insurance/getPayUrl', method: 'POST', data });
 
 // 获取订单详情
 export const getTenantOrderDetail = (data = {}) =>
