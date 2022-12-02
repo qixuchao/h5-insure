@@ -59,7 +59,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { useIntersectionObserver } from '@vueuse/core';
 import { Toast } from 'vant/es';
-import { isEmpty } from 'lodash';
+import { isEmpty } from '@/utils';
 import ProShadowButton from './components/ProShadowButton/index.vue';
 import Banner from './components/Banner/index.vue';
 import FreeHolderForm from './components/FreeHolderForm/index.vue';
@@ -101,9 +101,7 @@ try {
 } catch (error) {
   console.log(error);
 }
-const { indirectCode = '123', saleUserId = '', saleChannelId = '' } = extInfo;
-
-const openId = 'oKugN52glZx_hhg7liu0WpWcmD3o';
+const { openId, indirectCode = '123', saleUserId = '', saleChannelId = '' } = extInfo;
 let iseeBizNo = '';
 const root = ref();
 const formRef = ref();
@@ -383,6 +381,9 @@ watch(
       if (RELATIONENUM.SELF !== e.relationToHolder) {
         state.order.tenantOrderInsuredList[0].certNo = targets[0].cert[0].certNo;
         state.order.tenantOrderInsuredList[0].name = targets[0].cert[0].certName;
+      } else {
+        state.order.tenantOrderHolder.certNo = targets[0].cert[0].certNo;
+        state.order.tenantOrderHolder.name = targets[0].cert[0].certName;
       }
     }
     return false;
