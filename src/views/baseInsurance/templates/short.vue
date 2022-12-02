@@ -50,7 +50,7 @@
         :inscribed-content="detail?.tenantProductInsureVO.inscribedContent"
       />
       <AttachmentList
-        v-if="filterHealthAttachmentList && filterHealthAttachmentList.length > 1"
+        v-if="filterHealthAttachmentList && filterHealthAttachmentList.length > 0"
         :attachement-list="filterHealthAttachmentList"
         pre-text="请阅读"
         @preview-file="(index) => previewFile(index)"
@@ -98,6 +98,7 @@ import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
 import CustomerList from './components/CustomerList/index.vue';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
+import { useWXCode, sendPay } from '../../cashier/core';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import {
@@ -115,7 +116,7 @@ import {
   insureProductDetail,
   getOrderDetailByCondition,
   saveOrder,
-  nextStep,
+  // nextStep,
   underwrite,
   getPayUrl,
   getTenantOrderDetail,
@@ -125,6 +126,7 @@ import { productDetail } from '@/api/modules/product';
 import { toLocal } from '@/utils';
 
 import { transformData, riskToOrder } from '../utils';
+import { nextStepOperate as nextStep } from '@/utils/nextStep';
 import { formatDate } from '@/utils/date';
 import { useTheme } from '../theme';
 
@@ -165,7 +167,7 @@ interface QueryData {
   tenantId: string; // 订单id
   phoneNo: string; // 手机号
   agentCode: string;
-  orderNo: string;
+  // orderNo: string;
   pageCode: string;
   openId: string;
   from: string; // from = 'check' 审核版
@@ -176,7 +178,6 @@ const {
   openId,
   productCode = 'BWYL2021',
   tenantId,
-  orderNo,
   phoneNo: mobile,
   agentCode = '',
   saleChannelId,
@@ -215,9 +216,17 @@ const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
+const orderNo = ref();
 let iseeBizNo = '';
 
 const isOnlyView = ref<boolean>(true);
+
+const PAGE_ACTION_TYPE_ENUM = {
+  ALERT: 'alert',
+  JUMP_URL: 'jumpToUrl',
+  JUMP_PAGE: 'jumpToPage',
+  JUMP_ALERT: 'jumpToAlert',
+};
 
 // 试算数据， 赠险进入，从链接上默认取投保人数据
 const trialData = reactive({
@@ -456,12 +465,13 @@ const validCalcData = () => {
   return false;
 };
 
+const previewFile = (index: number) => {
+  activeIndex.value = index;
+  showFilePreview.value = true;
+};
+
 const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrderDetail = {}) => {
   const nextStepParams = { ...currentOrderDetail };
-  console.log(
-    'currentOrderDetail==========',
-    nextStepParams.tenantOrderInsuredList[0]?.tenantOrderProductList[0].riskVOList,
-  );
   const transformDataReq = {
     tenantId,
     riskList: nextStepParams.tenantOrderInsuredList[0]?.tenantOrderProductList[0].riskVOList || [],
@@ -491,33 +501,25 @@ const onUnderWrite = async (orderDetailNo: string) => {
   const { code, data } = await getTenantOrderDetail({ orderNo: orderDetailNo, tenantId });
   if (code === '10000') {
     data.extInfo = { ...data.extInfo, buttonCode: 'EVENT_SHORT_underWrite' };
-    const { code: redCode, data: res } = await nextStep(data);
-    if (redCode === '10000') {
-      console.log('res=====', res);
-    }
-    Object.assign(orderDetail.value, data);
+    await nextStep(data);
   }
 };
 
-const onSaveOrder = async (risk: any) => {
-  const { code, data } = await nextStep(trialData2Order(insureDetail.value, {}, orderDetail.value));
-  // todo 弹窗文件和健告
-  // isOnlyView.value = false;
-
-  console.log('data', data);
-  if (data.pageAction?.data?.orderNo) {
-    console.log('23233322332');
-    await onUnderWrite(data.pageAction?.data?.orderNo);
-  }
+const onSaveOrder = async () => {
+  await nextStep(trialData2Order(insureDetail.value, {}, orderDetail.value), async (data: any, pageAction: string) => {
+    if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+      if (data?.orderNo) {
+        // orderNo.value = resData?.orderNo;
+        // isOnlyView.value = false;
+        // previewFile(0);
+        await onUnderWrite(data?.orderNo);
+      }
+    }
+  });
 };
 
 // 保费试算 -> 订单保存 -> 核保
 const onPremiumCalc = async () => {};
-
-const previewFile = (index: number) => {
-  activeIndex.value = index;
-  showFilePreview.value = true;
-};
 
 // 点击立即投保才校验信息，显示错误信息
 const onPremiumCalcWithValid = () => {
@@ -540,8 +542,6 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList) =>
       insurancePeriodValue: orderInfo.insurancePeriodValue, // 保障期限
     };
   });
-  console.log('orderDetail.value.activePlanCode', orderDetail.value.activePlanCode);
-
   const trialParams = {
     tenantId,
     productCode: detail.value?.productCode,
@@ -568,17 +568,31 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList) =>
     }),
   };
   const { code, data } = await premiumCalc(trialParams);
-  orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList = trialParams.insuredVOList[0]?.productPlanVOList;
-  // orderDetail.value.premium = data.premium;
-  orderDetail.value.orderAmount = data.premium;
-  orderDetail.value.orderRealAmount = data.premium;
+  if (code === '10000') {
+    const { pageAction, message, data: resData } = data.pageAction || {};
+    // 接口报错了
+    if (pageAction === PAGE_ACTION_TYPE_ENUM.ALERT) {
+      Toast(message);
+      return;
+    }
+    orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList =
+      trialParams.insuredVOList[0]?.productPlanVOList;
+    premium.value = data.premium;
+    orderDetail.value.orderAmount = data.premium;
+    orderDetail.value.orderRealAmount = data.premium;
+    onSaveOrder();
+    // isOnlyView.value = false;
+    // previewFile(0);
+  }
 };
 
 const onNext = async () => {
   try {
+    // sendPay(
+    //   'https://168889-zat-planet-h5-cloud-insure.test.za-tech.net/cashier/pay?orderNo=P22120210165415012049410&tenantId=9991000001&payWay=wxSign&businessTradeNo=2022120210165250647',
+    // );
     console.log('currentRiskInfo.value', currentRiskInfo.value);
     await trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
-    onSaveOrder({});
   } catch (e) {
     //
   }
@@ -669,6 +683,8 @@ const fetchData = async () => {
     }
   });
 };
+
+useWXCode();
 
 onMounted(() => {
   fetchData();

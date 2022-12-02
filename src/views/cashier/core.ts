@@ -1,8 +1,8 @@
 /*
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-01 22:09:29
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-02 10:53:53
  * @Description:
  */
 import wx from 'weixin-js-sdk';
@@ -206,7 +206,7 @@ function sendPay(payParam: PayParam | string) {
     if (/https?:.*\?/.test(payParam)) {
       console.error('支付参数错误');
     }
-    if ('<html>'.indexOf(payParam)) {
+    if (payParam.indexOf('<html>') > -1) {
       useFormPay(payParam);
       return;
     }
