@@ -17,7 +17,15 @@
         />
       </FreeHolderForm>
       <div class="product-desc">
-        <img v-for="(item, index) in state.productDesc" :key="index" :src="item" />
+        <van-image
+          v-for="(item, index) in state.productDesc"
+          :key="index"
+          width="100%"
+          lazy-load
+          :src="item"
+          class=""
+        />
+        <!-- <img v-for="(item, index) in state.productDesc" :key="index" :src="item" /> -->
       </div>
       <footer v-if="state.showBtn" class="page-free-footer">
         <ProShadowButton :is-gradient="false" :text="state.newAuth ? '立即领取' : '激活保障'" />
@@ -216,7 +224,6 @@ useIntersectionObserver(root, ([{ isIntersecting }], observerElement) => {
   }
 
   .product-desc {
-    margin-top: 32px;
     img {
       width: 100%;
     }

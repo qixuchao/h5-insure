@@ -1,5 +1,7 @@
 import wxPay from './images/wxPay.png';
 import aliPay from './images/aliPay.jpeg';
+
+export const ORDER_DETAIL_ROUTE = '/baseInsurance/orderDetail';
 /**
  * 支付渠道（微信和支付宝）
  */

@@ -37,7 +37,8 @@ export interface PayParam {
   status: string;
   tenantId: string;
   tradeType: string;
-  iseeBizNo: string;
+  iseeBizNo: string; // 千里眼
+  productCode: string; // 产品code
 }
 
 /**

@@ -1,20 +1,28 @@
 <!--
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-17 16:00
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 15:24:26
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-02 18:01:24
  * @Description: 审核版首页
 -->
 <template>
   <ProScrollTab ref="scrollRef" class="tabs" :list="tabList" sticky scrollspy>
     <template v-if="isShowTab1" #tab1>
       <div class="spec">
-        <img
+        <van-image
+          v-for="(item, index) in props.detail?.tenantProductInsureVO?.spec || []"
+          :key="index"
+          class="detail-img"
+          width="100%"
+          lazy-load
+          :src="item"
+        />
+        <!-- <img
           v-for="(item, index) in props.detail?.tenantProductInsureVO?.spec || []"
           :key="index"
           :src="item"
           class="detail-img"
-        />
+        /> -->
         <ProDivider />
       </div>
     </template>

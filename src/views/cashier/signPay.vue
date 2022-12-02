@@ -49,9 +49,7 @@ const loopOrderStatus = () => {
       const { code, data } = res;
       if (code === '10000' && +data.status === 1) {
         thread.stop();
-        window.location.href = `/baseInsurance/orderDetail?orderNo=${query.businessTradeNo || query.orderNo}&tenantId=${
-          query.tenantId
-        }`;
+        window.location.href = `/baseInsurance/orderDetail?orderNo=${query.businessTradeNo}&tenantId=${query.tenantId}`;
       }
     })
     .catch();
@@ -64,8 +62,8 @@ thread = useThread({
   stop: () => {
     console.log('结束轮询');
   },
-  time: 1000,
-  number: 10,
+  time: 2000,
+  number: 20,
 });
 
 onMounted(async () => {
