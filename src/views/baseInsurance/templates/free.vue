@@ -292,6 +292,7 @@ const onSaveOrder = async () => {
         insureDetail: state.insureDetail,
         iseeBizNo,
         saleUserId,
+        templateId: extInfo?.templateId,
         saleChannelId,
         pageCode: 'infoCollection',
         buttonCode: 'EVENT_FREE_multiIssuePolicy',

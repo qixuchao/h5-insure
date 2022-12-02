@@ -113,7 +113,7 @@ const orderDetail = ref<any>({
   extInfo: {
     buttonCode: 'EVENT_NETSALE_underWrite',
     pageCode: 'infoCollection',
-    templateId: 3,
+    templateId: extInfo?.templateId,
     iseeBizNo: '',
     extraInfo: extInfo,
   },

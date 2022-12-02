@@ -311,6 +311,7 @@ const orderDetail = ref<any>({
     successJumpUrl: '', // 支付成功跳转
     pageCode: 'productInfo',
     extraInfo: extInfo,
+    templateId: extInfo?.templateId,
   },
   operateOption: {
     withBeneficiaryInfo: true,

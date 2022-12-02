@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-02 18:13:57
+ * @LastEditTime: 2022-12-02 19:02:21
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -64,6 +64,7 @@
 </template>
 <script lang="ts" setup name="netSaleDetail">
 import { useRoute, useRouter } from 'vue-router';
+import { Toast } from 'vant';
 import { useTheme } from '../../theme';
 import { insureProductDetail, getTenantOrderDetail } from '@/api/modules/trial';
 import InsureForm from '../components/InsureForm/index.vue';
@@ -137,7 +138,7 @@ const orderDetail = ref<any>({
 });
 const productDetail = ref<any>();
 const tenantProductDetail = ref<any>();
-const signString = ref<string>();
+const signString = ref<string>('');
 
 const queryOrderDetail = async () => {
   const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
@@ -163,8 +164,12 @@ const queryTenantProductDetail = async () => {
 };
 
 const submit = async () => {
-  await saveSign('HOLDER', '213123123213131', orderDetail.value.id, `${tenantId}`);
-  nextStepOperate(orderDetail.value);
+  if (signString.value) {
+    await saveSign('HOLDER', signString.value, orderDetail.value.id, `${tenantId}`);
+    nextStepOperate(orderDetail.value);
+  } else {
+    Toast('请先签字');
+  }
 };
 
 onMounted(() => {
@@ -186,6 +191,11 @@ onMounted(() => {
       align-items: flex-start;
       justify-content: center;
     }
+  }
+  .sign-cell {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
   :deep(.van-field__value) {
     align-items: flex-end;
