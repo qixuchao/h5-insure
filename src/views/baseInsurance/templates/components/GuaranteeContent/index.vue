@@ -7,36 +7,29 @@
 -->
 <template>
   <div class="guarantee-list">
+    <div class="title">保障内容</div>
     <ProCell
       v-for="(item, index) in displayList"
       :key="index"
-      class="guarantee-item"
       :title="item.title"
       :content="item.desc"
       :border="false"
     />
     <div v-if="isShowOptBtn" class="show-more" @click="handleShowMore">
-      {{ showMore ? '收起' : '查看更多' }} <ProSvg name="down" :class="['icon', { showMore }]" />
+      {{ showMore ? '收起' : '查看更多' }} <img :src="downIcon" :class="['icon', { showMore }]" />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useToggle } from '@vant/use';
-import { TenantProductInsureVO, GuaranteeItemVo, ShowConfigVO } from '@/api/modules/product.data';
+import downIcon from '@/assets/images/baseInsurance/down.png';
+import { GuaranteeItemVo } from '@/api/modules/product.data';
 
 const props = defineProps({
   dataSource: {
-    type: Object as () => TenantProductInsureVO,
-    default: () => {},
-  },
-  showConfig: {
-    type: Object as () => ShowConfigVO,
-    default: () => {},
-  },
-  showServiceConfig: {
-    type: Boolean,
-    default: false,
+    type: Array,
+    default: () => [],
   },
   isShowClose: {
     type: Boolean,
@@ -46,15 +39,8 @@ const props = defineProps({
     type: Number,
     default: 10,
   },
-  isMultiplePlan: {
-    type: Boolean,
-    default: false,
-  },
 });
-
-const emits = defineEmits(['update-active-plan']);
-
-const guaranteeList = ref<GuaranteeItemVo[]>([]);
+const guaranteeList = ref<GuaranteeItemVo[]>(props.dataSource || []);
 
 const [showMore, toggle] = useToggle(false);
 
@@ -83,157 +69,59 @@ const displayList = computed(() => {
   }
   return guaranteeList.value.slice(0, props.count);
 });
+
+watch(
+  () => props.dataSource,
+  () => {
+    guaranteeList.value = props.dataSource as any;
+  },
+);
 </script>
 
 <style lang="scss" scoped>
 .guarantee-list {
-  background: #ffffff;
-  padding: 50px 40px 0px;
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    span {
-      display: inline-block;
+  position: relative;
+  transform: translateY(-200px);
+  text-align: initial;
+  background: linear-gradient(162deg, #fce6d0 0%, #fff9f2 100%);
+  border-radius: 30px;
+  border: 1px solid #fae2d0;
+  padding: 40px 40px 12px;
 
-      color: #333333;
-
-      &:first-child {
-        height: 56px;
-        line-height: 56px;
-        font-size: 40px;
-        font-family: PingFangSC-Medium, PingFang SC;
-        font-weight: 500;
-      }
-
-      &:last-child {
-        height: 37px;
-        font-size: 26px;
-        font-family: PingFangSC-Medium, PingFang SC;
-        font-weight: 500;
-        color: #006afc;
-        line-height: 37px;
-      }
-    }
+  .title {
+    height: 45px;
+    font-size: 32px;
+    font-family: PingFangSC-Medium, PingFang SC;
+    font-weight: 500;
+    color: var(--van-card-title); // cardCellColor
+    line-height: 45px;
   }
 
-  .feerate-view {
-    padding: 32px 0px;
-    border-top: 1px solid #eeeeee;
-    display: flex;
-    justify-content: space-between;
-    span {
-      display: inline-block;
-      height: 40px;
+  :deep(.common-cell-wrapper .cell-container) {
+    .left-part,
+    .right-part {
+      color: var(--van-card-cell-color);
       font-size: 28px;
       font-family: PingFangSC-Regular, PingFang SC;
       font-weight: 400;
-      color: #666666;
-      line-height: 40px;
-
-      &:last-child {
-        color: $zaui-brand;
-      }
     }
   }
 
   .show-more {
-    padding: 16px 0 32px;
+    padding: 0px 0 30px;
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 24px;
-    font-family: PingFangSC-Regular, PingFang SC;
-    font-weight: 400;
-    color: #999999;
+    font-size: 26px;
+    color: var(--van-card-title);
     .icon {
       margin-left: 10px;
-      font-size: 20px;
+      width: 20px;
       transition: transform 0.5s;
       &.showMore {
         transform: rotate(180deg);
       }
-    }
-  }
-
-  .service-config img {
-    width: 100%;
-  }
-}
-// 保障详情弹窗样式
-.guarantee-popup {
-  .body {
-    display: flex;
-    flex-direction: column;
-    .guarantee-detail {
-      flex: 1;
-      height: 0;
-
-      .plan-list {
-        padding: 40px 40px 0px;
-      }
-      .guarantee-item {
-        margin-top: 40px;
-        padding: 0 40px;
-        :deep(.right-part) {
-          color: $primary-color !important;
-        }
-        .content {
-          margin-top: 14px;
-          font-size: 26px;
-          color: #393d46;
-          line-height: 44px;
-          padding-bottom: 40px;
-          border-bottom: 1px solid #eeeef4;
-        }
-      }
-    }
-
-    .extinfo-info-list {
-      padding: 16px 40px;
-    }
-  }
-}
-
-.plan-list {
-  display: flex;
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 30px 0px;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  .plan-list-item {
-    min-width: 210px;
-    height: 76px;
-    line-height: 76px;
-    text-align: center;
-    border-radius: 8px;
-    background: #f6f6f6;
-    margin-right: 20px;
-
-    &:last-child {
-      margin-right: 0px;
-    }
-
-    span {
-      font-size: 30px;
-      font-family: PingFangSC-Regular, PingFang SC;
-      font-weight: 400;
-      color: #666666;
-    }
-  }
-
-  .plan-list-item-active {
-    border: 1px solid $primary-color;
-    background: #fff3eb;
-
-    span {
-      color: $primary-color;
     }
   }
 }

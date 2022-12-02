@@ -85,3 +85,10 @@ export const isPrdEnv = !(isDevEnv || isTestEnv || isPreEnv);
  * @returns 返回新的对象
  */
 export const deepCopy = (source: any) => JSON.parse(JSON.stringify(source));
+
+export function downLoadFile(url: string) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.click();
+  return a;
+}

@@ -241,7 +241,7 @@ const factorObj = computed(() => {
 
 // 根据模板因子控制表单元素的展示
 const showByFactor = (key: string, type: string) => {
-  return factorObj.value?.[type]?.[key].isDisplay === YES_NO_ENUM.YES;
+  return factorObj.value?.[type]?.[key]?.isDisplay === YES_NO_ENUM.YES;
 };
 
 // 根据模板因子控制表单元素的是否必填
