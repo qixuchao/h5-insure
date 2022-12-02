@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 11:26:50
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-01 21:19:51
+ * @LastEditTime: 2022-12-01 21:38:08
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/components/SIgn/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -71,10 +71,15 @@ const confirm = () => {};
   display: flex;
   flex-direction: row-reverse;
   justify-content: space-between;
+  overflow: hidden;
 
   .operate-bar {
     position: absolute;
-    transform: rotateZ(90deg);
+    width: 100vh;
+    display: flex;
+    align-items: center;
+    transform: rotateZ(90deg) translateX(600px);
+    padding-left: 100px;
   }
 
   .com-sign-wrap {
