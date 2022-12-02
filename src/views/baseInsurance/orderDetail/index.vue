@@ -51,6 +51,7 @@ import GuaranteeContent from '../templates/components/GuaranteeContent/index.vue
 import { ProductData } from '@/api/modules/trial.data';
 import { INSURANCE_PERIOD_TYPE_ENUMS } from '@/common/constants/trial';
 import { compositionDesc } from '../utils';
+import { sendPay } from '@/views/cashier/core';
 import { ORDER_STATUS_MAP, ORDER_STATUS_DESC } from './const';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
@@ -140,8 +141,10 @@ const orderBtnHandler = () => {
         ...state.orderDetail.extInfo,
         redirectUrl: window.location.href,
       },
-    }).then((res) => {
-      console.log(res, 'slslslsl');
+    }).then(({ code, data }) => {
+      if (code === '10000') {
+        sendPay(data?.paymentUrl);
+      }
     });
     console.log('立即支付');
   } else if (orderBtnText.value === '重下一单') {
