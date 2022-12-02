@@ -15,7 +15,12 @@
           <ProShadowButton :theme-vars="themeVars" class="btn" :text="orderBtnText" @click="orderBtnHandler" />
           <div v-if="state.showOrderDetail" class="desc">已有<span>29,182</span>位用户已投保</div>
         </div>
-        <img class="product-img" :src="state.pageInfo.images[0]" @click="goToInsurerPage" />
+        <img
+          v-if="state.pageInfo.productImage"
+          class="product-img"
+          :src="state.pageInfo.productImage"
+          @click="goToInsurerPage(true)"
+        />
         <GuaranteeContent v-if="state.showOrderDetail" is-show-close :count="5" :data-source="state.guaranteeItemVOS" />
         <div class="footer-desc">
           <div>客服电话</div>
@@ -25,15 +30,21 @@
     </div>
 
     <Curtain v-model:show="show" @close="show = false">
-      <img class="jump-img" :src="state.pageInfo.images[1]" style="display: block" @click="goToInsurerPage" />
+      <img
+        class="jump-img"
+        :src="state.pageInfo.notificationImage"
+        style="display: block"
+        @click="goToInsurerPage(true)"
+      />
     </Curtain>
   </van-config-provider>
 </template>
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
+import { Toast } from 'vant/es';
 import { productDetail } from '@/api/modules/product';
-import { getTenantOrderDetail, insureProductDetail, queryStandardInsurerLink } from '@/api/modules/trial';
+import { getPayUrl, getTenantOrderDetail, insureProductDetail, queryStandardInsurerLink } from '@/api/modules/trial';
 import ProShadowButton from '../templates/components/ProShadowButton/index.vue';
 import Curtain from '../templates/components/Curtain/index.vue';
 import GuaranteeContent from '../templates/components/GuaranteeContent/index.vue';
@@ -70,7 +81,8 @@ const state = reactive<{
     title: string;
     desc: string;
     insureList: any;
-    images: string[];
+    productImage: string;
+    notificationImage: string;
   };
 }>({
   insureDetail: {} as ProductData,
@@ -82,7 +94,8 @@ const state = reactive<{
     title: '',
     desc: '',
     insureList: [],
-    images: [],
+    productImage: '',
+    notificationImage: '',
   },
 });
 const show = ref(false);
@@ -101,20 +114,12 @@ const orderBtnText = computed(() => {
   return '';
 });
 
-const orderBtnHandler = () => {
-  if (orderBtnText.value === '下载保单') {
-    downLoadFile(state.orderDetail.extInfo?.policyUrl);
-  }
-  //  else if (orderBtnText.value === '立即支付') {
-  // }
-};
-
-const goToInsurerPage = async () => {
+const goToInsurerPage = async (reOrder = false) => {
   try {
     const { insurerCode } = state.insureDetail.productBasicInfoVO;
     const { code, data } = await queryStandardInsurerLink({
       insurerCode,
-      productCode,
+      productCode: reOrder ? state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO.productCode : productCode,
       tenantId,
     });
     if (code === '10000') {
@@ -122,6 +127,25 @@ const goToInsurerPage = async () => {
     }
   } catch (e) {
     console.log(e);
+  }
+};
+
+const orderBtnHandler = () => {
+  if (orderBtnText.value === '下载保单') {
+    downLoadFile(state.orderDetail.extInfo?.policyUrl);
+  } else if (orderBtnText.value === '立即支付') {
+    getPayUrl({
+      ...state.orderDetail,
+      extInfo: {
+        ...state.orderDetail.extInfo,
+        redirectUrl: window.location.href,
+      },
+    }).then((res) => {
+      console.log(res, 'slslslsl');
+    });
+    console.log('立即支付');
+  } else if (orderBtnText.value === '重下一单') {
+    goToInsurerPage(false);
   }
 };
 
@@ -154,13 +178,15 @@ const initPageInfo = () => {
 
   // 只有投保成功和已失效才有图片
   if (
-    from === 'free' ||
-    ![ORDER_STATUS_ENUM.PAYING, ORDER_STATUS_ENUM.CANCELED].includes(state.orderDetail.orderStatus)
+    (from === 'free' ||
+      ![ORDER_STATUS_ENUM.PAYING, ORDER_STATUS_ENUM.CANCELED].includes(state.orderDetail.orderStatus)) &&
+    state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO.productCode
   ) {
-    state.pageInfo.images = state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.image || [];
-    if (state.pageInfo.images.length > 1) {
-      show.value = true;
-    }
+    state.pageInfo.notificationImage =
+      state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.notificationImage?.[0] || '';
+    state.pageInfo.productImage =
+      state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.productImage?.[0] || '';
+    show.value = true;
   } else {
     state.showOrderDetail = true;
   }
@@ -178,8 +204,6 @@ const initPageInfo = () => {
   } catch (e) {
     console.log(e);
   }
-
-  console.log(state.guaranteeItemVOS, 'state.guaranteeItemVOS');
 };
 
 const getData = async () => {
