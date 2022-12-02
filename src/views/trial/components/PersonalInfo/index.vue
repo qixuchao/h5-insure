@@ -135,8 +135,8 @@ const validateForm = () => {
 // 比较产品下险种的最大最小投保年龄，进行排序
 const compareHolderAge = (ageList: any[]) => {
   const currentList = ageList || [];
-  for (let i = 0; i < currentList.length; i++) {
-    for (let j = i + 1; j < currentList.length; j++) {
+  for (let i = 0, len = currentList.length; i < len; i++) {
+    for (let j = i + 1; j < len; j++) {
       const preAge = currentList[i].split('_');
       const nexAge = currentList[j].split('_');
       const temp = currentList[i];

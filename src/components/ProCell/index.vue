@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 15:45:09
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-26 20:11:22
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-01 12:08:09
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProCell/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -38,10 +38,13 @@ const customWrapper = computed(() => {
   }
   return 'com-cell-wrapper';
 });
-
+/**
+ * 计算字符串占的字节数
+ * @param str 外部字符串
+ */
 const computeStrLength = (str = '') => {
   let len = 0;
-  for (let i = 0; i < str.length; i++) {
+  for (let i = 0, sLen = str.length; i < sLen; i++) {
     if (/[\u4e00-\u9fa5]/.test(str[i])) {
       len += 3;
     } else {

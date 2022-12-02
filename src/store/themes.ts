@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import get from 'lodash-es/get';
 import { defineStore } from 'pinia';
 
 interface StoreThemes {

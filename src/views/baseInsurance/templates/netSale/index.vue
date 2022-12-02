@@ -44,8 +44,10 @@
 import { Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
-import { debounce } from 'lodash';
+import debounce from 'lodash-es/debounce';
 import { transformData, getAgeByCard, riskToOrder } from '../../utils';
+
+import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
 
 import { PackageProductVoItem, ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
 import { productDetail } from '@/api/modules/product';

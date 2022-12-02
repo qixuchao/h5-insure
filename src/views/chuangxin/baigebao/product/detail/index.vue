@@ -108,7 +108,7 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
-import { debounce } from 'lodash';
+import debounce from 'lodash-es/debounce';
 import ProCard from '@/components/ProCard/index.vue';
 import ProScrollTab from '@/components/ProScrollTab/index.vue';
 import ProCell from '@/components/ProCell/index.vue';

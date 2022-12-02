@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-10-25 14:12:45
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-10-25 14:21:02
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-01 21:07:22
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ZaShareWechat/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -33,8 +33,8 @@
 <script lang="ts" setup>
 import './index.scss';
 
-import wxImg from '@/assets/images/article/green-wx.png';
-import pyqImg from '@/assets/images/article/pyq.png';
+import wxImg from '@/assets/images/component/green-wx.png';
+import pyqImg from '@/assets/images/component/pyq.png';
 
 const props = defineProps({
   showSharePopup: {

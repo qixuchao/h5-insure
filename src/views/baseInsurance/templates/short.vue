@@ -95,7 +95,7 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
-import { debounce } from 'lodash';
+import debounce from 'lodash-es/debounce';
 import CustomerList from './components/CustomerList/index.vue';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import { CERT_TYPE_ENUM } from '@/common/constants';
@@ -122,18 +122,9 @@ import {
 } from '@/api/modules/trial';
 import { productDetail } from '@/api/modules/product';
 
-import { ORIGIN, toLocal } from '@/utils';
-import { validateMobile, validateName } from '@/utils/validator';
+import { toLocal } from '@/utils';
 
-import {
-  genaratePremiumCalcData,
-  transformData,
-  genarateOrderParam,
-  onCollectPackageRiskIdList,
-  validatorRiskZXYS,
-  getAgeByCard,
-  riskToOrder,
-} from '../utils';
+import { transformData, riskToOrder } from '../utils';
 import { formatDate } from '@/utils/date';
 import { useTheme } from '../theme';
 

@@ -1,8 +1,8 @@
 <!--
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-01 15:18:04
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-01 20:23:05
  * @Description: 保障详情
 -->
 <template>
