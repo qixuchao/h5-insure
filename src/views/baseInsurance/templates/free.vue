@@ -16,14 +16,33 @@
           :text="state.newAuth ? '立即领取' : '激活保障'"
           @click="clickHandler"
         />
+        <AttachmentList
+          v-if="filterHealthAttachmentList && filterHealthAttachmentList.length > 0"
+          :attachement-list="filterHealthAttachmentList"
+          :has-bg-color="false"
+          pre-text="请阅读"
+          @preview-file="(index:number) => previewFile(index)"
+        />
       </FreeHolderForm>
       <div class="product-desc">
         <img v-for="(item, index) in state.productDesc" :key="index" :src="item" />
       </div>
       <footer v-if="state.showBtn" class="page-free-footer">
-        <ProShadowButton :is-gradient="false" :text="state.newAuth ? '立即领取' : '激活保障'" />
+        <ProShadowButton :is-gradient="false" :text="state.newAuth ? '立即领取' : '激活保障'" @click="clickHandler" />
       </footer>
     </div>
+    <FilePreview
+      v-if="state.showFilePreview"
+      v-model:show="state.showFilePreview"
+      :content-list="filterHealthAttachmentList"
+      :is-only-view="state.isOnlyView"
+      :active-index="state.activeIndex"
+      :text="state.isOnlyView ? '关闭' : '我已逐页阅读上述内容并同意'"
+      :force-read-cound="0"
+      on-close-file-preview
+      @submit="onSubmit"
+      @on-close-file-preview="onCloseFilePreview"
+    ></FilePreview>
     <PreNotice v-if="!state.loading" :product-detail="state.detail"></PreNotice>
   </van-config-provider>
 </template>
@@ -38,6 +57,8 @@ import FreeHolderForm from './components/FreeHolderForm/index.vue';
 import { productDetail, getAppUser } from '@/api/modules/product';
 import { insureProductDetail, toClogin, nextStep } from '@/api/modules/trial';
 import PreNotice from './components/PreNotice/index.vue';
+import AttachmentList from './components/AttachmentList/index.vue';
+import FilePreview from './components/FilePreview/index.vue';
 import { checkCode } from '@/api/modules/phoneVerify';
 // import { nextStep } from '@/api/index';
 import { ProductDetail } from '@/api/modules/product.data';
@@ -85,6 +106,9 @@ const state = reactive<{
   loading: boolean;
   showBtn: boolean;
   isValidateCode: boolean;
+  activeIndex: number;
+  showFilePreview: boolean;
+  isOnlyView: boolean;
 }>({
   colors: ['#fff'],
   detail: {} as ProductDetail,
@@ -124,7 +148,56 @@ const state = reactive<{
   insureDetail: {} as ProductData,
   loading: true,
   showBtn: false,
+  activeIndex: 0,
+  showFilePreview: false,
+  isOnlyView: true,
 });
+const filterHealthAttachmentList = ref();
+
+const previewFile = (index: number) => {
+  state.activeIndex = index;
+  state.showFilePreview = true;
+};
+
+const setfileList = () => {
+  let tempList: any = {};
+  tempList = state.detail.tenantProductInsureVO.planInsureVO.attachmentVOList || [];
+  if (!tempList) {
+    filterHealthAttachmentList.value = [];
+    return;
+  }
+  console.log(tempList, 'tempList====');
+  // 1: 附件, 2: 富文本, 3: 链接
+  const fileMap = {
+    '2': 'richText',
+    '3': 'link',
+  };
+  filterHealthAttachmentList.value = Object.keys(tempList).map((e) => {
+    tempList[e].forEach((attachmentItem: any) => {
+      if (attachmentItem.attachmentType === '1') {
+        const urlList = attachmentItem.attachmentUri.split('?');
+        const type = urlList[0].substr(urlList[0].lastIndexOf('.') + 1);
+        console.log('type', type);
+        // eslint-disable-next-line no-param-reassign
+        if (type === 'pdf') {
+          // eslint-disable-next-line no-param-reassign
+          attachmentItem.attachmentType = 'pdf';
+        } else {
+          // eslint-disable-next-line no-param-reassign
+          attachmentItem.attachmentType = 'picture';
+        }
+      } else {
+        // eslint-disable-next-line no-param-reassign
+        attachmentItem.attachmentType = fileMap[attachmentItem.attachmentType];
+      }
+    });
+    return {
+      attachmentName: e,
+      attachmentList: tempList[e],
+    };
+  });
+};
+
 const fetchData = async () => {
   state.loading = true;
   const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
@@ -158,8 +231,9 @@ const fetchData = async () => {
       });
     }
     if (userRes.code === '10000') {
-      state.newAuth = !userRes.data;
+      state.newAuth = !!userRes.data;
     }
+    setfileList();
     state.loading = false;
   });
 };
@@ -180,11 +254,7 @@ const validateSmsCodew = async () => {
   return !!data;
 };
 
-const clickHandler = async () => {
-  const res = await validateSmsCodew();
-  if (!res) {
-    return;
-  }
+const onSaveOrder = async () => {
   let params: any = {
     loginType: '2',
     openId,
@@ -227,6 +297,31 @@ const clickHandler = async () => {
   } catch (e) {
     console.log('e');
   }
+};
+
+const clickHandler = async () => {
+  const res = await validateSmsCodew();
+  if (!res) {
+    return null;
+  }
+  if (state.newAuth) {
+    onSaveOrder();
+  } else {
+    state.isOnlyView = false;
+    state.showFilePreview = true;
+  }
+  return false;
+};
+
+const onCloseFilePreview = () => {
+  state.showFilePreview = false;
+  state.isOnlyView = false;
+};
+
+const onSubmit = () => {
+  state.showFilePreview = false;
+  state.isOnlyView = true;
+  onSaveOrder();
 };
 
 onMounted(() => {

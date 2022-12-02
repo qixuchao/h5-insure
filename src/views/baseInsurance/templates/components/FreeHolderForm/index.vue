@@ -105,7 +105,6 @@ const sendSmsCode = async (mobile: string, cb: () => {}) => {
   const sendReq = props.isFirst ? sendCodeLogin : sendCode;
   const res = await sendReq(mobile);
   const { code, data } = res;
-  console.log(formRef.value.validateForm(), 'slslslw==');
   if (code === '10000') {
     cb?.();
   }
@@ -188,12 +187,13 @@ defineExpose({
         width: 100%;
         .radio-btn {
           display: flex;
-          justify-content: space-around;
+          justify-content: flex-start;
           .btn-wrapper {
             margin: 0;
             .com-check-btn {
               min-width: 100px;
               border-radius: 25px !important;
+              margin: 0 8px 10px 0;
             }
           }
         }
