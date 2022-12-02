@@ -2,8 +2,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 16:05:16
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-27 20:47:01
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-02 10:43:56
  * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -365,4 +365,11 @@ export const PRODUCT_LIST_ENUM = {
   ZXYS: 'ZXYS2022',
   BWYL: 'BWYL2021',
   BWYLUP: 'BWYL2022',
+};
+
+export const PAGE_ACTION_TYPE_ENUM = {
+  ALERT: 'alert',
+  JUMP_URL: 'jumpToUrl',
+  JUMP_PAGE: 'jumpToPage',
+  JUMP_ALERT: 'jumpToAlert',
 };
