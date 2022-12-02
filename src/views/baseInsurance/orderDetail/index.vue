@@ -143,7 +143,7 @@ const orderBtnHandler = () => {
       },
     }).then(({ code, data }) => {
       if (code === '10000') {
-        sendPay(data?.paymentUrl);
+        sendPay(data.paymentUrl);
       }
     });
     console.log('立即支付');

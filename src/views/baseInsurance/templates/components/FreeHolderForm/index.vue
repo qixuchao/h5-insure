@@ -192,7 +192,7 @@ defineExpose({
             margin: 0;
             .com-check-btn {
               min-width: 100px;
-              border-radius: 25px !important;
+              border-radius: 40px !important;
               margin: 0 8px 10px 0;
             }
           }

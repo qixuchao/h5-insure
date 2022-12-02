@@ -1,0 +1,1 @@
+import{r as a}from"./index-e8cb5dba.js";const r=r=>a({url:"/api/app/insure/product/getProductDetail",method:"POST",data:r}),e=r=>a({url:"/api/query/user/getAppUser",method:"POST",data:r}),p=r=>a({url:"/api/app/insure/product/queryInsurePopupConfig",method:"POST",data:r});export{e as g,r as p,p as q};

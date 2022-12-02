@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-02 17:13:59
+ * @LastEditTime: 2022-12-02 18:36:20
  * @Description:
  */
 import wx from 'weixin-js-sdk';
@@ -210,7 +210,7 @@ export const wxBrandWCPayRequest = (payParam: PayParam) => {
  *   payWay: 支付方式(wxSign|wxPay|aliSign|aliPay)
  * }
  */
-function sendPay(payParam: PayParam): void;
+// function sendPay(payParam: string): void;
 function sendPay(payParam: PayParam | string) {
   let params: PayParam | string = '';
   // payUrl过来的
