@@ -2,12 +2,13 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-12-01 11:06:22
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-01 22:08:50
+ * @LastEditTime: 2022-12-02 10:16:42
  * @FilePath: /zat-planet-h5-cloud-insure/src/utils/nextStep.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import { Toast, Dialog } from 'vant';
 import { nextStep } from '@/api';
+import { sendPay } from '@/views/cashier/core';
 
 const PAGE_ACTION_TYPE_ENUM = {
   ALERT: 'alert',
@@ -33,9 +34,7 @@ export const nextStepOperate = async (params: any, cb?: (data: any) => void) => 
     }
     // 支付跳转
     if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_URL) {
-      if (resData?.type === PAY_JUMP_TYPE_ENUM.LINK) {
-        window.location.href = resData?.payUrl;
-      }
+      sendPay(resData?.payUrl);
     }
     // 去支付待支付的订单
     if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_ALERT) {
@@ -45,7 +44,7 @@ export const nextStepOperate = async (params: any, cb?: (data: any) => void) => 
           message: `该被保人已存在一笔待支付的订单`,
           confirmButtonText: '去支付',
         }).then(() => {
-          window.location.href = resData?.payUrl;
+          sendPay(resData?.payUrl);
         });
       }
     }
