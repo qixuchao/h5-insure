@@ -12,15 +12,18 @@
             <span class="label">{{ item.label }}</span>
             <span class="value">{{ item.value }}</span>
           </div>
-          <ProShadowButton :theme-vars="themeVars" class="btn" text="下载保单" />
+          <ProShadowButton :theme-vars="themeVars" class="btn" :text="orderBtnText" @click="orderBtnHandler" />
+          <div v-if="state.showOrderDetail" class="desc">已有<span>29,182</span>位用户已投保</div>
         </div>
         <img class="product-img" :src="state.pageInfo.images[0]" @click="goToInsurerPage" />
+        <GuaranteeContent v-if="state.showOrderDetail" is-show-close :count="5" :data-source="state.guaranteeItemVOS" />
         <div class="footer-desc">
           <div>客服电话</div>
           <div>400 605 8000</div>
         </div>
       </div>
     </div>
+
     <Curtain v-model:show="show" @close="show = false">
       <img class="jump-img" :src="state.pageInfo.images[1]" style="display: block" @click="goToInsurerPage" />
     </Curtain>
@@ -29,13 +32,18 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
+import { productDetail } from '@/api/modules/product';
 import { getTenantOrderDetail, insureProductDetail, queryStandardInsurerLink } from '@/api/modules/trial';
 import ProShadowButton from '../templates/components/ProShadowButton/index.vue';
+import Curtain from '../templates/components/Curtain/index.vue';
+import GuaranteeContent from '../templates/components/GuaranteeContent/index.vue';
 import { ProductData } from '@/api/modules/trial.data';
 import { INSURANCE_PERIOD_TYPE_ENUMS } from '@/common/constants/trial';
 import { compositionDesc } from '../utils';
 import { ORDER_STATUS_MAP, ORDER_STATUS_DESC } from './const';
-import Curtain from '../templates/components/Curtain/index.vue';
+import { ProductDetail } from '@/api/modules/product.data';
+import { ORDER_STATUS_ENUM } from '@/common/constants/order';
+import { downLoadFile } from '@/utils';
 import { useTheme } from '../theme';
 // 调用主题
 const themeVars = useTheme();
@@ -55,25 +63,51 @@ const { tenantId, from = 'other', orderNo, productCode } = route.query as QueryD
 const state = reactive<{
   insureDetail: ProductData;
   orderDetail: any;
+  detail: ProductDetail;
+  showOrderDetail: boolean;
+  guaranteeItemVOS: { title: string; desc: string }[];
   pageInfo: {
     title: string;
     desc: string;
     insureList: any;
     images: string[];
-    show: boolean;
   };
 }>({
   insureDetail: {} as ProductData,
+  detail: {} as ProductDetail,
   orderDetail: {},
+  showOrderDetail: false,
+  guaranteeItemVOS: [],
   pageInfo: {
     title: '',
     desc: '',
     insureList: [],
     images: [],
-    show: false,
   },
 });
 const show = ref(false);
+
+const orderBtnText = computed(() => {
+  // 投保成功 和 保单过期
+  if ([ORDER_STATUS_ENUM.ACCEPT_POLICY, ORDER_STATUS_ENUM.TIMEOUT].includes(state.orderDetail.orderStatus)) {
+    return '下载保单';
+  }
+  if (ORDER_STATUS_ENUM.PAYING === state.orderDetail.orderStatus) {
+    return '立即支付';
+  }
+  if (ORDER_STATUS_ENUM.CANCELED === state.orderDetail.orderStatus) {
+    return '重下一单';
+  }
+  return '';
+});
+
+const orderBtnHandler = () => {
+  if (orderBtnText.value === '下载保单') {
+    downLoadFile(state.orderDetail.extInfo?.policyUrl);
+  }
+  //  else if (orderBtnText.value === '立即支付') {
+  // }
+};
 
 const goToInsurerPage = async () => {
   try {
@@ -92,10 +126,10 @@ const goToInsurerPage = async () => {
 };
 
 const initPageInfo = () => {
+  state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
+  state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
+  let insurancePeriodDesc = '';
   if (from === 'free') {
-    state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
-    state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
-    let insurancePeriodDesc = '';
     state.orderDetail.tenantOrderInsuredList[0].tenantOrderProductList.forEach((item: any) => {
       if (insurancePeriodDesc) return null;
       item.tenantOrderRiskList.forEach((node: any) => {
@@ -108,24 +142,54 @@ const initPageInfo = () => {
       });
       return false;
     });
-    state.pageInfo.insureList = [
-      { label: '被保人', value: state.orderDetail?.tenantOrderInsuredList?.[0]?.name },
-      { label: '保障期间', value: insurancePeriodDesc || '' },
-    ];
-    state.pageInfo.images = state.insureDetail.productBasicInfoVO.upgradeGuaranteeConfigVO.image || [];
-
-    if (state.pageInfo.images.length > 1) {
-      state.pageInfo.show = true;
-      show.value = true;
-      console.log(show.value, state.pageInfo.images.length, state.pageInfo.show);
-    }
+  } else {
+    state.pageInfo.insureList = [{ label: '本期缴费金额', value: `${state.orderDetail.orderAmount}元` }];
+    insurancePeriodDesc = '2022.04.30到2022.05.29';
   }
+  state.pageInfo.insureList = [
+    ...state.pageInfo.insureList,
+    { label: '被保人', value: state.orderDetail?.tenantOrderInsuredList?.[0]?.name },
+    { label: '保障期间', value: insurancePeriodDesc || '' },
+  ];
+
+  // 只有投保成功和已失效才有图片
+  if (
+    from === 'free' ||
+    ![ORDER_STATUS_ENUM.PAYING, ORDER_STATUS_ENUM.TIMEOUT].includes(state.orderDetail.orderStatus)
+  ) {
+    state.pageInfo.images = state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.image || [];
+    if (state.pageInfo.images.length > 1) {
+      show.value = true;
+    }
+  } else {
+    state.showOrderDetail = true;
+  }
+  try {
+    const planCode = state.orderDetail.tenantOrderInsuredList?.[0].planCode;
+    if (!state.detail?.tenantProductInsureVO?.planInsureVO) {
+      // 多计划
+      state.guaranteeItemVOS =
+        state.detail?.tenantProductInsureVO?.planList.filter((item) => {
+          return item.planCode === planCode;
+        })?.[0]?.guaranteeItemVOS || [];
+    } else {
+      state.guaranteeItemVOS = state.detail?.tenantProductInsureVO?.planInsureVO?.guaranteeItemVOS || [];
+    }
+  } catch (e) {
+    console.log(e);
+  }
+
+  console.log(state.guaranteeItemVOS, 'state.guaranteeItemVOS');
 };
 
 const getData = async () => {
+  const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
   const orderReq = getTenantOrderDetail({ orderNo, tenantId });
   const insureReq = insureProductDetail({ productCode });
-  Promise.all([orderReq, insureReq]).then(([orderRes, insureRes]) => {
+  Promise.all([productReq, orderReq, insureReq]).then(([productRes, orderRes, insureRes]) => {
+    if (productRes.code === '10000') {
+      state.detail = productRes.data as any;
+    }
     if (insureRes.code === '10000') {
       state.insureDetail = insureRes.data as any;
     }
@@ -191,12 +255,24 @@ onMounted(() => {
       transform: translateY(-200px);
       padding: 40px 40px 12px 40px;
 
+      .desc {
+        height: 26px;
+        font-size: 26px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #9b9997;
+        line-height: 26px;
+        span {
+          color: #fa6400;
+          margin: 0 6px;
+        }
+        margin-bottom: 38px;
+      }
+
       .product-name {
         height: 34px;
-        font-size: 34px;
         font-family: PingFangSC-Semibold, PingFang SC;
-        font-weight: 600;
-        color: #333333;
+        font-size: 26px;
         line-height: 34px;
         width: 80%;
         overflow: hidden;
@@ -220,7 +296,7 @@ onMounted(() => {
           color: #888;
         }
 
-        .name {
+        .value {
           font-size: 26px;
           font-family: PingFangSC-Medium, PingFang SC;
           font-weight: 500;

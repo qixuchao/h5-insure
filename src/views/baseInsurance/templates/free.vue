@@ -53,18 +53,19 @@ interface QueryData {
   indirectCode: string;
   saleUserId: string;
   saleChannelId: string;
+  extraInfo: any;
   [key: string]: string;
 }
-
+// oKugN52glZx_hhg7liu0WpWcmD5o
 const {
-  productCode = 'BWYL2021',
-  openId = 'oKugN52glZx_hhg7liu0WpWcmD5o',
-  tenantId = '9991000001',
+  productCode = '',
+  openId = '',
+  tenantId = '',
   indirectCode = '123',
   saleUserId = '',
   saleChannelId = '',
+  extraInfo,
 } = route.query as QueryData;
-
 let iseeBizNo = '';
 const root = ref();
 const state = reactive<{
@@ -116,7 +117,6 @@ const state = reactive<{
   loading: true,
   showBtn: false,
 });
-
 const fetchData = async () => {
   state.loading = true;
   const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
@@ -153,6 +153,7 @@ const fetchData = async () => {
 
 const clickHandler = async () => {
   const req: any = state.newAuth ? toClogin : nextStep;
+
   let params: any = {
     loginType: '2',
     openId,
@@ -166,6 +167,7 @@ const clickHandler = async () => {
     params = freeTransform({
       order: state.order,
       tenantId,
+      extraInfo: JSON.parse(extraInfo),
       detail: state.detail,
       insureDetail: state.insureDetail,
       iseeBizNo,

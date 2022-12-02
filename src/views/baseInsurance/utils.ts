@@ -731,8 +731,7 @@ export const freeTransform = (o: any) => {
       ...o.order.tenantOrderHolder,
     },
     extInfo: {
-      ...o.extInfo,
-      templateId: 2,
+      ...o.extraInfo,
       buttonCode: o.buttonCode,
       pageCode: o.pageCode,
       iseeBizNo: o.iseeBizNo,

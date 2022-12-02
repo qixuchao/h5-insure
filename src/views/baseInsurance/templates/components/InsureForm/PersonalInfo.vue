@@ -716,7 +716,7 @@ const handleOCR = (res: OCRResponse['idCardOcrVO']) => {
 
 // 根据模板因子控制表单元素的展示
 const showByFactor = (key: string) => {
-  return factorObj.value && factorObj.value[key] && factorObj.value[key].isDisplay === YES_NO_ENUM.YES;
+  return factorObj.value && factorObj.value[key] && factorObj.value[key]?.isDisplay === YES_NO_ENUM.YES;
 };
 
 // 根据模板因子控制表单元素的是否必填
