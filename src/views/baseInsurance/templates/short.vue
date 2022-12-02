@@ -25,7 +25,7 @@
               INSURER: '为谁投保（被保人）',
             }"
             :form-info="orderDetail"
-            :send-sms-code="() => {}"
+            :send-sms-code="sendSmsCode"
             :factor-object="factorObj || {}"
           >
             <template #holderName>
@@ -68,7 +68,7 @@
         </ProShadowButton>
       </div>
     </div>
-    <!-- <PreNotice v-if="!orderNo" :product-detail="detail"></PreNotice> -->
+    <PreNotice v-if="preNoticeLoading" :product-detail="detail"></PreNotice>
   </van-config-provider>
   <HealthNoticePreview
     v-model:show="showHealthPreview"
@@ -123,10 +123,8 @@ import {
   underWriteRule,
 } from '@/api/modules/trial';
 import { productDetail } from '@/api/modules/product';
-
 import { toLocal } from '@/utils';
-
-import { transformData, riskToOrder } from '../utils';
+import { transformData, riskToOrder, validateSmsCode } from '../utils';
 import { nextStepOperate as nextStep } from '@/utils/nextStep';
 import { formatDate } from '@/utils/date';
 import { useTheme } from '../theme';
@@ -158,6 +156,7 @@ import {
   allAuth,
   holderAuth,
 } from './auth';
+import { sendCode, sendCodeLogin, checkCode } from '@/api/modules/phoneVerify';
 
 const themeVars = useTheme();
 const router = useRouter();
@@ -217,6 +216,7 @@ const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
+const preNoticeLoading = ref<boolean>(false);
 const orderNo = ref();
 let iseeBizNo = '';
 
@@ -336,6 +336,7 @@ const isMultiplePlan = computed(() => {
 
 // 投保要素
 const factorObj = computed(() => {
+  // TODO 二次用户信息不要验证码
   if (isMultiplePlan.value) {
     if (orderDetail.value.activePlanCode) {
       return insureDetail.value?.planFactor[orderDetail.value.activePlanCode] || {};
@@ -344,6 +345,14 @@ const factorObj = computed(() => {
     return insureDetail.value?.productFactor;
   }
   return {};
+});
+
+const isCheckSmsCode = computed(() => {
+  if (factorObj.value) {
+    const item = factorObj.value.find((e) => e.code === 'verificationCode' && e.isDisplay === 1);
+    return !!item;
+  }
+  return false;
 });
 
 // 多计划时添加默认值
@@ -446,6 +455,14 @@ watch(
     immediate: true,
   },
 );
+
+const sendSmsCode = async (phone: string, cb: () => {}) => {
+  const res = await sendCode(phone);
+  const { code, data } = res;
+  if (code === '10000') {
+    cb?.();
+  }
+};
 
 // 滑动到投保信息
 const onClickToInsure = () => {
@@ -588,8 +605,22 @@ const onNext = async () => {
   try {
     await trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value, false);
     // if (formRef.value) {
-    //   formRef.value?.validateForm().then(async (data) => {
-    //     console.log('validated');
+    //   formRef.value?.validateForm().then(async () => {
+    //     if (!isCheckSmsCode) {
+    //       await trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value, false);
+    //     } else {
+    //       const smsCode = orderDetail.value.tenantOrderHolder?.verificationCode;
+    //       if (!smsCode || !validateSmsCode(smsCode)) {
+    //         Toast({
+    //           message: '请输入正确的验证码',
+    //         });
+    //         return;
+    //       }
+    //       const { code, data } = await checkCode(orderDetail.value.tenantOrderHolder.mobile, smsCode);
+    //       if (code === '10000') {
+    //         await trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value, false);
+    //       }
+    //     }
     //   });
     // }
   } catch (e) {
@@ -662,20 +693,34 @@ watch(
 );
 
 const fetchData = async () => {
-  const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
-  const insureReq = insureProductDetail({ productCode });
-  await Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
-    if (productRes.code === '10000') {
-      detail.value = {
-        ...productRes.data,
-      };
-      document.title = productRes.data?.productFullName || '';
-    }
+  const productRes = await productDetail({ productCode, withInsureInfo: true, tenantId });
+  if (productRes.code === '10000') {
+    preNoticeLoading.value = true;
+    detail.value = {
+      ...productRes.data,
+    };
+    document.title = productRes.data?.productFullName || '';
+  }
 
-    if (insureRes.code === '10000') {
-      insureDetail.value = insureRes.data;
-    }
-  });
+  const insureRes = await insureProductDetail({ productCode });
+  if (insureRes.code === '10000') {
+    insureDetail.value = insureRes.data;
+  }
+
+  // const productReq = await productDetail({ productCode, withInsureInfo: true, tenantId });
+  // const insureReq = insureProductDetail({ productCode });
+  // await Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
+  //   if (productRes.code === '10000') {
+  //     detail.value = {
+  //       ...productRes.data,
+  //     };
+  //     document.title = productRes.data?.productFullName || '';
+  //   }
+
+  //   if (insureRes.code === '10000') {
+  //     insureDetail.value = insureRes.data;
+  //   }
+  // });
 };
 
 useWXCode();
