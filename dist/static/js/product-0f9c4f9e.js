@@ -1,1 +1,0 @@
-import{r}from"./index-12c50db1.js";const a=a=>r({url:"/api/app/insure/product/getProductDetail",method:"POST",data:a}),p=a=>r({url:"/api/query/user/getAppUser",method:"POST",data:a}),e=a=>r({url:"/api/app/insure/product/queryInsurePopupConfig",method:"POST",data:a});export{p as g,a as p,e as q};

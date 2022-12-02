@@ -1,0 +1,1 @@
+import{i as a,l as s,m as t,n as e,p as o,B as l}from"./vendor-6e9e6128.js";const n=l("img",{src:"/static/assets/xinao.2853603b.png",alt:"logo",style:{margin:"100px auto",width:"200px",display:"block"}},null,-1),p=a({setup:a=>(a,l)=>{const p=s("ProPageWrap");return t(),e(p,{"main-class":"page-home"},{default:o((()=>[n])),_:1})}});export{p as default};
