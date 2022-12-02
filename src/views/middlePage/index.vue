@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-27 21:01:33
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-02 19:14:25
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-02 19:35:44
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/middle/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -30,8 +30,6 @@ interface QueryData {
   productCode: string;
   [key: string]: string | number;
 }
-
-useWXCode();
 
 const router = useRouter();
 const route = useRoute();

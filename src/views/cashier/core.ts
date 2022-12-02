@@ -2,12 +2,12 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-02 18:36:20
+ * @LastEditTime: 2022-12-02 19:26:10
  * @Description:
  */
 import wx from 'weixin-js-sdk';
 import qs from 'qs';
-import { onBeforeMount, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { GetPayUrlParam, PayParam, PayResult } from '@/api/modules/cashier.data';
 import { getPayUrl, loadPayment, pay } from '@/api/modules/cashier';
@@ -26,7 +26,7 @@ export const getWxAuthCode = (params: { appId: string; url: string }) => {
  * 调用本函数后，可以获取到微信授权
  */
 export const useWXCode = () => {
-  onBeforeMount(() => {
+  onMounted(() => {
     const route = useRoute();
     const query = route.query as { code: string; [key: string]: string };
     const url = `${window.location.href}`;
