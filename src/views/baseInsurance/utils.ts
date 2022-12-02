@@ -1,5 +1,6 @@
 import dayjs, { UnitType } from 'dayjs';
 import { type } from 'os';
+import router from '@/router';
 import { localStore } from '../../hooks/useStorage';
 import { PAYMENT_FREQUENCY_ENUM, INSURE_TYPE_ENUM, RELATION_HOLDER_ENUM } from '../../common/constants/infoCollection';
 import { ProductDetail } from '@/api/modules/product.data';
@@ -778,9 +779,7 @@ export const compositionDesc = (value: number, desc: string) => {
 export const PREVIEW_FILE_KEY = 'PREVIEW_FILE_INFO';
 
 export const openPreviewFilePage = (fileInfo: any) => {
-  const { origin } = window.location;
   localStore.set(PREVIEW_FILE_KEY, JSON.stringify(fileInfo));
-  const url = `${origin}/template/filePreview`;
-  console.log('url', url);
-  window.open(url);
+  console.log('router', router);
+  router.push('/template/filePreview');
 };

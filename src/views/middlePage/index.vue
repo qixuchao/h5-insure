@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-27 21:01:33
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-01 14:28:41
+ * @LastEditTime: 2022-12-02 17:34:29
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/middle/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -13,9 +13,10 @@
 </template>
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import qs from 'qs';
 import { validateSign } from '@/api';
 import { PAGE_CODE_ENUM, TEMPLATE_TYPE_MAP } from '@/common/constants/infoCollection';
+import { useWXCode } from '../cashier/core';
+import { queryStandardInsurerLink } from '@/api/modules/trial';
 
 /**
  * @param {string} previewId 预览id
@@ -29,11 +30,14 @@ interface QueryData {
   [key: string]: string | number;
 }
 
+useWXCode();
+
 const router = useRouter();
 const route = useRoute();
 const result = ref<string>('');
 
-const { extraInfo } = route.query as QueryData;
+// 从公众号进入需从extraInfo外获取templateId
+const { extraInfo, templateId: wxTemplateId, insurerCode } = route.query as QueryData;
 
 console.log('route.query-------', route.query);
 
@@ -47,17 +51,14 @@ try {
 
 console.log('extraInfo', extInfo);
 
-const { pageCode, templateId, preview } = extInfo as any;
+const { pageCode, templateId, openId, tenantId, productCode } = extInfo as any;
 
 const getActivityPath = () => {
   try {
+    const template = openId ? wxTemplateId : templateId;
     // 赠险、基础险、附费险跳转
-    // const { pageCode, previewId, templateId } = route.query as QueryData;
-    if (templateId) {
-      return `/baseInsurance/${TEMPLATE_TYPE_MAP[templateId as string]}`;
-    }
-    if (preview === 'true') {
-      return `/baseInsurance/preview/${TEMPLATE_TYPE_MAP[templateId as string]}`;
+    if (template) {
+      return `/baseInsurance/${TEMPLATE_TYPE_MAP[template as string]}`;
     }
 
     switch (pageCode) {
@@ -88,21 +89,43 @@ const jumpRouter = (url?: string) => {
   });
 };
 
-onBeforeMount(() => {
-  if (preview) {
-    jumpRouter();
-    return;
-  }
-  validateSign({ param: window.location.search.replace('?', '') }).then(({ code, data }) => {
+const onValidateSign = (param: string) => {
+  validateSign({ param }).then(({ code, data }) => {
     if (code === '10000' && data) {
       let path = '/productDetail';
       if ('proposalId' in route.query) {
         path = '/trial';
       }
-      jumpRouter(path);
+      if (openId) {
+        const activityUrl = getActivityPath();
+        router.replace(`${activityUrl}?${param}`);
+      } else {
+        jumpRouter(path);
+      }
     } else {
       result.value = '验证失败';
     }
   });
+};
+
+const onGetInsureLink = async () => {
+  const { code, data } = await queryStandardInsurerLink({
+    insurerCode,
+    productCode,
+    tenantId,
+    extraMap: { ...extInfo, templateId: wxTemplateId },
+  });
+  if (code === '10000') {
+    console.log('data', data);
+    onValidateSign((data || '').split('?')[1]);
+  }
+};
+
+onBeforeMount(() => {
+  if (!openId) {
+    onValidateSign(window.location.search.replace('?', ''));
+  } else {
+    onGetInsureLink();
+  }
 });
 </script>
