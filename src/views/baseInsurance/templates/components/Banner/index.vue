@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-17 16:00
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-02 17:58:55
+ * @LastEditTime: 2022-12-02 18:19:03
  * @Description: 审核版首页
 -->
 <template>
@@ -27,5 +27,6 @@ const props = defineProps({
   width: 100%;
   min-height: 200px;
   display: block;
+  background-color: #fff;
 }
 </style>
