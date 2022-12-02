@@ -215,10 +215,11 @@ export interface ProductMaterialVoItem {
 }
 
 export interface UpgradeGuaranteeConfigVO {
-  image:string[];
+  notificationImage:string[];
   parameterMap:any;
   productCode:string;
   productName:string;
+  productImage:string[];
 }
 
 export interface ProductBasicInfoVo {

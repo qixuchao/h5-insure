@@ -239,7 +239,7 @@ const fetchData = async () => {
       });
     }
     if (userRes.code === '10000') {
-      state.newAuth = !!userRes.data;
+      state.newAuth = !userRes.data;
     }
     setfileList();
     state.loading = false;
