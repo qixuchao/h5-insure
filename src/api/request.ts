@@ -3,11 +3,11 @@
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-01 14:08:34
+ * @LastEditTime: 2022-12-02 21:11:05
  */
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import axios, { type AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
-import { Toast, Dialog } from 'vant';
+import { Toast } from 'vant';
 import Storage from '@/utils/storage';
 import showCodeMessage, { SUCCESS_CODE, SUCCESS_STATUS, UNLOGIN } from '@/api/code';
 import { formatJsonToUrlParams, instanceObject } from '@/utils/format';
@@ -18,7 +18,7 @@ const BASE_PREFIX = import.meta.env.VITE_API_BASEURL;
 const pendingMap = new Map();
 
 // 自定义配置
-const customOption = {
+let customOption = {
   // TODO
   repeat_request_cancel: true, // 是否开启取消重复请求, 默认为 true
   loading: false, // 默认展示loading
@@ -108,6 +108,7 @@ const axiosInstance: AxiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
 /** 请求失败两次才算真正的失败
  * 判断失败的标准
  * http请求的状态是5xx
@@ -118,12 +119,24 @@ axiosRetry(axiosInstance, { retries: 2 });
 axiosInstance.interceptors.request.use(
   (config: AxiosRequestConfig) => {
     // TODO 在这里可以加上想要在请求发送前处理的逻辑
-    // TODO 比如 loading 等
+
+    removePending(config);
+    customOption.repeat_request_cancel && addPending(config);
+
     const storage = new Storage({ source: 'cookie' });
     const local = new Storage({ source: 'localStorage' });
     const token = storage.get('token') || local.get('token') || '';
-    // removePending(config);
-    // addPending(config);
+
+    if (customOption.loading) {
+      loadingInstance.count += 1;
+      if (loadingInstance.count === 1) {
+        loadingInstance.target = Toast.loading({
+          message: '加载中',
+          forbidClick: true,
+          duration: 0,
+        });
+      }
+    }
     return {
       ...config,
       headers: token ? { token } : {},
@@ -138,19 +151,12 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data;
+    customOption.loading && closeLoading(customOption);
     if (res.code === UNLOGIN || res.status === UNLOGIN) {
       // window.location.href = '/login';
       return response;
     }
     if (res.code === SUCCESS_CODE || res.status === SUCCESS_STATUS) {
-      return response;
-    }
-    // 如果code是1000001,则表示错误信息需要一直展示在页面上
-    if (res.code === '1000001') {
-      Dialog({
-        message: res.message,
-        showConfirmButton: false,
-      });
       return response;
     }
     Toast.fail((res && res.data) || (res && res.message) || '请求出错');
@@ -173,9 +179,10 @@ export default function request<T = ResponseData>(
   customOptions = {},
 ): ResponseDataPromise<T> {
   // 自定义配置
-  // const custom_options = {
-  //   repeat_request_cancel: true, // 是否开启取消重复请求, 默认为 true
-  //   ...customOptions,
-  // };
+  customOption = {
+    ...customOption,
+    ...customOptions,
+  };
+  console.log('customOption', customOption);
   return axiosInstance(config).then((response: AxiosResponse): ResponseDataPromise<T> => response.data);
 }

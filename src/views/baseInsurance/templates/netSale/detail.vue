@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-02 19:02:21
+ * @LastEditTime: 2022-12-02 20:57:47
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -56,7 +56,8 @@
           </div>
         </ProCard>
         <div class="footer-button">
-          <van-button type="primary" block @click="submit">提交</van-button>
+          <ProShadowButton>提交</ProShadowButton>
+          <!-- <van-button type="primary" block @click="submit">提交</van-button> -->
         </div>
       </div>
     </ProPageWrap>
@@ -66,13 +67,16 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import { useTheme } from '../../theme';
-import { insureProductDetail, getTenantOrderDetail } from '@/api/modules/trial';
+import { insureProductDetail, getTenantOrderDetail, getPayUrl } from '@/api/modules/trial';
 import InsureForm from '../components/InsureForm/index.vue';
 import Sign from '../components/Sign/index.vue';
 import { nextStep } from '@/api';
 import { saveSign } from '@/api/modules/verify';
 import { nextStepOperate } from '@/utils/nextStep';
 import { productDetail as getProductDetail } from '@/api/modules/product';
+import { ORDER_STATUS_ENUM } from '@/common/constants/order';
+import { sendPay } from '../../../cashier/core';
+import ProShadowButton from '../components/ProShadowButton/index.vue';
 
 const themeVars = useTheme();
 const route = useRoute();
@@ -145,6 +149,14 @@ const queryOrderDetail = async () => {
   if (code === '10000') {
     data.extInfo.buttonCode = 'EVENT_NETSALE_airSignature';
     orderDetail.value = data;
+    if (data.orderStatus === ORDER_STATUS_ENUM.PAYING) {
+      orderDetail.value.extInfo.redirectUrl = '';
+      const { code: payCode, data: payData } = await getPayUrl(orderDetail.value);
+      if (payCode === '10000') {
+        console.log('data', payData);
+        sendPay(payData.paymentUrl);
+      }
+    }
   }
 };
 
@@ -181,15 +193,25 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .net-sale-wrap {
-  padding-bottom: 150px;
+  padding: 0 $zaui-page-border 150px;
+  background-color: #f4f4f4;
+
+  .part {
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
   .common-cell-wrapper {
     height: 104px;
     align-items: center;
     width: 100%;
-    .cell-container {
+    display: inline-flex;
+    :deep(.cell-container) {
       width: 100%;
       align-items: flex-start;
       justify-content: center;
+      width: 100%;
+      color: var(--van-field-label-color);
+      font-size: 30px;
     }
   }
   .sign-cell {
