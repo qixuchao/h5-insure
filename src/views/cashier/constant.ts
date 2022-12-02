@@ -1,5 +1,13 @@
 import wxPay from './images/wxPay.png';
 import aliPay from './images/aliPay.jpeg';
+/**
+ * 支付渠道（微信和支付宝）
+ */
+export const PAY_CHANNEL_ENUM = {
+  WX_PAY: 'weixin',
+  ALI_PAY: 'weixin',
+};
+
 /**  支付方式(只需要处理前面四种) */
 export const PAY_WAY_ENUM = {
   ALIPAY: 'alipay', // "调用支付宝H5页面支付"
@@ -15,9 +23,9 @@ export const PAY_WAY_ENUM = {
 };
 export const PAY_WAY_LIST = [
   { name: PAY_WAY_ENUM.WXPAY, title: '微信支付', img: wxPay },
-  { name: PAY_WAY_ENUM.WXPAY_SIGN, title: '微信App签约', img: wxPay },
-  { name: PAY_WAY_ENUM.WX_SIGN, title: '微信H5签约', img: wxPay },
+  { name: PAY_WAY_ENUM.WX_SIGN, title: '微信签约', img: wxPay },
   { name: PAY_WAY_ENUM.ALIPAY, title: '支付宝', img: aliPay },
+  { name: PAY_WAY_ENUM.ALI_SIGN, title: '支付宝签约', img: aliPay },
 ];
 export const getPayWayList = (canPayWayStr = '') => {
   const showList = canPayWayStr.split(',');

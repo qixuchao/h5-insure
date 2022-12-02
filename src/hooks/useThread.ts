@@ -1,11 +1,9 @@
-import { number } from '@intlify/core-base';
-
 /*
  * @Description: 轮询工具
  * @Autor: kevin.liang
  * @Date: 2022-11-30 11:49:23
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-11-30 12:13:23
+ * @LastEditTime: 2022-12-02 11:14:32
  */
 interface ThreadConfig {
   start: () => void;

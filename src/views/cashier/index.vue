@@ -7,21 +7,23 @@
     <div class="order-info">
       <div class="order-name">{{ orderInfo?.orderName }}</div>
       <div class="order-no">
-        订单号： {{ orderInfo?.orderNo }}
+        订单号： {{ orderInfo?.orderNo + ' ' }}
         <span v-if="isSupported"><ProSvg name="copy" @click="onCopy"></ProSvg></span>
       </div>
     </div>
-    <RadioGroup v-model="payWay">
-      <!-- <div v-for="way in payWayList" :key="way.name" class="pay-wrapper">
-        <span><img :src="way.img" />微信签约</span>
-        <Radio :name="way.name"></Radio>
-      </div> -->
-      <div v-for="way in ['wxSign', 'wxPay']" :key="way" class="pay-wrapper">
-        <span>微信{{ way }}</span>
-        <Radio :name="way"></Radio>
-      </div>
-    </RadioGroup>
-    <div style="margin-bottom: 50px">
+    <div class="pay-wrapper">
+      <RadioGroup v-model="payWay">
+        <div v-for="way in payWayList" :key="way.name" class="pay-item">
+          <span><img :src="way.img" />{{ way.title }}</span>
+          <Radio :name="way.name"></Radio>
+        </div>
+        <!-- <div v-for="way in ['wxSign', 'wxPay']" :key="way">
+          <span>微信{{ way }}</span>
+          <Radio :name="way"></Radio>
+        </div> -->
+      </RadioGroup>
+    </div>
+    <!-- <div style="margin-bottom: 50px">
       <RadioGroup v-model="srcType">
         <div v-for="way in ['h5', 'js']" :key="way" style="margin-bottom: 20px">
           <Radio :name="way"
@@ -29,10 +31,10 @@
           >
         </div>
       </RadioGroup>
-    </div>
+    </div> -->
     <VanButton type="primary" round size="large" block @click="goPay">确认付款 ￥{{ orderInfo?.orderAmt }}</VanButton>
-    =======
-    <VanButton type="primary" round size="large" block @click="goBrandPay">jsBridge付款</VanButton>
+    <!-- =======
+    <VanButton type="primary" round size="large" block @click="goBrandPay">jsBridge付款</VanButton> -->
   </ProPageWrap>
 </template>
 
@@ -72,11 +74,9 @@ interface OrderInfo {
 }
 const route = useRoute();
 const query = route.query as QueryData;
-const appStore = useAppStore();
 const payWayList = getPayWayList(query.payWay || PAY_WAY_ENUM.WXPAY);
-
+console.log(query.payWay, '-----', payWayList);
 const orderInfo = ref<OrderInfo>();
-const payParam = ref<PayParam>();
 const loading = ref(false);
 const payWay = ref(PAY_WAY_ENUM.WX_SIGN); // 支付方式
 const srcType = ref('h5');
@@ -116,7 +116,7 @@ const goBrandPay = () => {
 const { copy, copied, isSupported } = useClipboard({ source: '' });
 const onCopy = () => {
   copy(orderInfo.value?.orderNo);
-  Toast('已拷贝到您的粘贴板');
+  Toast('复制成功');
 };
 
 const getOrderDetail = () => {
@@ -168,7 +168,7 @@ onMounted(() => {
 
 <style lang="scss">
 .page-cashier {
-  padding: 30px;
+  padding: 40px 30px;
   text-align: center;
   background-color: #f4f4f4;
   .pay-amount {
@@ -192,25 +192,40 @@ onMounted(() => {
   }
 }
 .pay-wrapper {
-  width: 690px;
-  height: 128px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  // margin: 70px auto 216px;
-  margin: 20px auto 20px;
+  margin: 70px auto 216px;
   background: #ffffff;
-  border-radius: 20px;
-  padding: 20px;
-  font-size: 34px;
-  img {
-    width: 44px;
-    margin-right: 30px;
-    vertical-align: sub;
-  }
-  .van-icon-success::before {
-    width: 30px;
-    height: 26px;
+  border-radius: 24px;
+  .pay-item {
+    width: 686px;
+    height: 128px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 30px;
+    font-size: 34px;
+    &::after {
+      content: '';
+      position: absolute;
+      height: 1px;
+      background-color: #e7e7e7;
+      transform: scaleY(0.7);
+      width: 594px;
+      bottom: 0;
+      right: 0px;
+    }
+    &:last-child::after {
+      display: none;
+    }
+    img {
+      width: 44px;
+      margin-right: 30px;
+      vertical-align: sub;
+    }
+    .van-icon-success::before {
+      width: 30px;
+      height: 26px;
+    }
   }
 }
 </style>

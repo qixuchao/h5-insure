@@ -1,8 +1,8 @@
 /*
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-02 10:53:53
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-02 12:59:16
  * @Description:
  */
 import wx from 'weixin-js-sdk';
@@ -128,7 +128,7 @@ export const usePay = (payParam: PayParam) => {
 };
 
 /**
- * form表单支付
+ * form表单支付html模板
  */
 export const useFormPay = (html: string) => {
   const div = document.createElement('div');
@@ -201,34 +201,29 @@ export const wxBrandWCPayRequest = (payParam: PayParam) => {
  */
 function sendPay(payParam: PayParam): void;
 function sendPay(payParam: PayParam | string) {
-  // payUrl支付链接过来的
+  let params: PayParam | string = '';
+  // payUrl过来的
   if (typeof payParam === 'string') {
-    if (/https?:.*\?/.test(payParam)) {
-      console.error('支付参数错误');
+    if (/https?:.*/.test(payParam)) {
+      console.warn('支付参数错误');
     }
+    // payUrl返回form表单的html
     if (payParam.indexOf('<html>') > -1) {
       useFormPay(payParam);
       return;
     }
+    // 否则就是支付链接，取得参数
     const search = payParam.split('?')[1];
-    const params = qs.parse(search) as PayParam;
-    // 微信环境
-    if (isSignWay(params.payWay)) {
-      console.log('走微签约逻辑');
-      window.location.href = `/cashier/signPay?${qs.stringify(params)}`;
-    } else {
-      usePay(params);
-      console.log('走支付逻辑');
-    }
+    params = qs.parse(search) as PayParam;
   } else {
-    // 微信环境
-    if (isSignWay(payParam.payWay)) {
-      console.log('走微签约逻辑');
-      window.location.href = `/cashier/signPay?${qs.stringify(payParam)}`;
-    } else {
-      usePay(payParam);
-      console.log('走支付逻辑');
-    }
+    params = { ...payParam };
+  }
+  if (isSignWay(params.payWay)) {
+    console.log('走微签约逻辑');
+    window.location.href = `/cashier/signPay?${qs.stringify(params)}`;
+  } else {
+    usePay(params);
+    console.log('走支付逻辑');
   }
 }
 export { sendPay };
