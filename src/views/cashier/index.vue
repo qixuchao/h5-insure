@@ -1,27 +1,30 @@
 <!-- eslint-disable vue/no-parsing-error -->
 <template>
   <ProPageWrap title="收银台" main-class="page-cashier">
-    <div class="pay-amount">
-      ￥<span class="amount">{{ orderInfo?.orderAmt }}</span>
-    </div>
-    <div class="order-info">
-      <div class="order-name">{{ orderInfo?.orderName }}</div>
-      <div class="order-no">
-        订单号： {{ orderInfo?.orderNo }}
-        <span v-if="isSupported"><ProSvg name="copy" @click="onCopy"></ProSvg></span>
+    <van-config-provider :theme-vars="themeVars">
+      <div class="pay-amount">
+        ￥<span class="amount">{{ orderInfo?.orderAmt }}</span>
       </div>
-    </div>
-    <RadioGroup v-model="payWay">
-      <!-- <div v-for="way in payWayList" :key="way.name" class="pay-wrapper">
-        <span><img :src="way.img" />微信签约</span>
-        <Radio :name="way.name"></Radio>
-      </div> -->
-      <div v-for="way in ['wxSign', 'wxPay']" :key="way" class="pay-wrapper">
-        <span>微信{{ way }}</span>
-        <Radio :name="way"></Radio>
+      <div class="order-info">
+        <div class="order-name">{{ orderInfo?.orderName }}</div>
+        <div class="order-no">
+          订单号： {{ orderInfo?.orderNo + ' ' }}
+          <span v-if="isSupported"><ProSvg name="copy" @click="onCopy"></ProSvg></span>
+        </div>
       </div>
-    </RadioGroup>
-    <div style="margin-bottom: 50px">
+      <div class="pay-wrapper">
+        <RadioGroup v-model="payWay">
+          <div v-for="way in payWayList" :key="way.name" class="pay-item">
+            <span><img :src="way.img" />{{ way.title }}</span>
+            <Radio :name="way.name"></Radio>
+          </div>
+          <!-- <div v-for="way in ['wxSign', 'wxPay']" :key="way">
+          <span>微信{{ way }}</span>
+          <Radio :name="way"></Radio>
+        </div> -->
+        </RadioGroup>
+      </div>
+      <!-- <div style="margin-bottom: 50px">
       <RadioGroup v-model="srcType">
         <div v-for="way in ['h5', 'js']" :key="way" style="margin-bottom: 20px">
           <Radio :name="way"
@@ -29,22 +32,24 @@
           >
         </div>
       </RadioGroup>
-    </div>
-    <VanButton type="primary" round size="large" block @click="goPay">确认付款 ￥{{ orderInfo?.orderAmt }}</VanButton>
-    =======
-    <VanButton type="primary" round size="large" block @click="goBrandPay">jsBridge付款</VanButton>
+    </div> -->
+      <VanButton type="primary" :disabled="!payWay" round size="large" block @click="goPay"
+        >确认付款 ￥{{ orderInfo?.orderAmt }}</VanButton
+      >
+      <!-- =======
+    <VanButton type="primary" round size="large" block @click="goBrandPay">jsBridge付款</VanButton> -->
+    </van-config-provider>
   </ProPageWrap>
 </template>
 
 <script lang="ts" setup name="Cashier">
 import { Loading, Radio, RadioGroup, Toast } from 'vant';
-import wx from 'weixin-js-sdk';
 import { useClipboard } from '@vueuse/core';
-import useAppStore from '@/store/app';
 import { GetPayUrlParam, PayParam } from '@/api/modules/cashier.data';
 import { getPayUrl, loadPayment, pay } from '@/api/modules/cashier';
 import { PAY_WAY_ENUM, getPayWayList } from './constant';
-import { isWeiXin, useWXCode, getWxAuthCode, sendPay, wxBrandWCPayRequest } from './core';
+import { useWXCode, sendPay, wxBrandWCPayRequest } from './core';
+import { useTheme } from '@/views/baseInsurance/theme';
 /**
  * 本页面主要给H5或公众号页面使用
  * 可以选择支付方式【微信、支付宝(微信内打开不展示)】
@@ -52,7 +57,7 @@ import { isWeiXin, useWXCode, getWxAuthCode, sendPay, wxBrandWCPayRequest } from
  * payWay: 'wxsign', 支付方式 微信签约或微信支付   支付宝支付或支付宝签约
  * srcType: 'h5',  签约
  */
-
+const themeVars = useTheme();
 // 页面参数
 interface QueryData extends GetPayUrlParam {
   orderNo: string; // 支付订单号
@@ -72,51 +77,38 @@ interface OrderInfo {
 }
 const route = useRoute();
 const query = route.query as QueryData;
-const appStore = useAppStore();
 const payWayList = getPayWayList(query.payWay || PAY_WAY_ENUM.WXPAY);
-
+console.log(query.payWay, '-----', payWayList);
 const orderInfo = ref<OrderInfo>();
-const payParam = ref<PayParam>();
 const loading = ref(false);
-const payWay = ref(PAY_WAY_ENUM.WX_SIGN); // 支付方式
+const payWay = ref(payWayList[0]?.name); // 支付方式
 const srcType = ref('h5');
 
 const goPay = () => {
-  const redirectUrl = `${window.location.protocol}//${window.location.host}/baseInsurance/orderDetail?orderNo=${
-    query.businessTradeNo || query.orderNo
-  }&tenantId=${query.tenantId}`;
   sendPay({
     ...(orderInfo.value as PayParam),
     payWay: payWay.value,
-    srcType: srcType.value,
     code: query.code,
     extraInfo: JSON.stringify({
-      redirectRrl: redirectUrl,
       wxCode: query.code,
     }),
-    redirectUrl,
   });
 };
 const goBrandPay = () => {
-  const redirectUrl = `${window.location.protocol}//${window.location.host}/baseInsurance/orderDetail?orderNo=${
-    query.businessTradeNo || query.orderNo
-  }&tenantId=${query.tenantId}`;
   wxBrandWCPayRequest({
     ...(orderInfo.value as PayParam),
     payWay: payWay.value,
     srcType: srcType.value,
     code: query.code,
     extraInfo: JSON.stringify({
-      redirectUrl,
       wxCode: query.code,
     }),
-    redirectUrl,
   });
 };
 const { copy, copied, isSupported } = useClipboard({ source: '' });
 const onCopy = () => {
   copy(orderInfo.value?.orderNo);
-  Toast('已拷贝到您的粘贴板');
+  Toast('复制成功');
 };
 
 const getOrderDetail = () => {
@@ -131,44 +123,24 @@ const getOrderDetail = () => {
       console.log('获取订单信息', res);
       if (res.code === '10000') {
         orderInfo.value = res.data;
-        // getPayUrl({ ...orderInfo.value }).then((resa) => {
-        //   console.log('支付链接：：', resa);
-        // });
       }
     })
     .finally(() => {
       loading.value = false;
     });
 };
+
+// 微信授权
 useWXCode();
 
 onMounted(() => {
-  //  微信环境，跳转微信授权
-  // if (isWeiXin) {
-  //   wx.checkJsApi({
-  //     jsApiList: ['chooseWXPay'], // 需要检测的 JS 接口列表，所有 JS 接口列表见附录2,
-  //     success(res) {
-  //       console.log('checkJsApi--chooseWXPay', res);
-  //     },
-  //   });
-  //   const url = `${window.location.href}`;
-  //   console.log('当前url', url, 'appId--', sessionStorage.appId);
-  //   if (!query.code) {
-  //     window.location.href = getWxAuthCode({ appId: sessionStorage.appId, url: encodeURIComponent(url) });
-  //   } else {
-  //     console.log('获取订单信息');
-  //     getOrderDetail();
-  //   }
-  // } else {
-  //   getOrderDetail();
-  // }
   getOrderDetail();
 });
 </script>
 
 <style lang="scss">
 .page-cashier {
-  padding: 30px;
+  padding: 40px 30px;
   text-align: center;
   background-color: #f4f4f4;
   .pay-amount {
@@ -192,25 +164,40 @@ onMounted(() => {
   }
 }
 .pay-wrapper {
-  width: 690px;
-  height: 128px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  // margin: 70px auto 216px;
-  margin: 20px auto 20px;
+  margin: 70px auto 216px;
   background: #ffffff;
-  border-radius: 20px;
-  padding: 20px;
-  font-size: 34px;
-  img {
-    width: 44px;
-    margin-right: 30px;
-    vertical-align: sub;
-  }
-  .van-icon-success::before {
-    width: 30px;
-    height: 26px;
+  border-radius: 24px;
+  .pay-item {
+    width: 686px;
+    height: 128px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 30px;
+    font-size: 34px;
+    &::after {
+      content: '';
+      position: absolute;
+      height: 1px;
+      background-color: #e7e7e7;
+      transform: scaleY(0.7);
+      width: 594px;
+      bottom: 0;
+      right: 0px;
+    }
+    &:last-child::after {
+      display: none;
+    }
+    img {
+      width: 44px;
+      margin-right: 30px;
+      vertical-align: sub;
+    }
+    .van-icon-success::before {
+      width: 30px;
+      height: 26px;
+    }
   }
 }
 </style>

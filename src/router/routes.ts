@@ -1,8 +1,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-30 19:03:48
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-02 16:27:37
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -74,8 +74,14 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'middlePage',
     path: '/middlePage',
-    meta: { title: ' ' },
+    meta: { title: ' ', requireWxJs: true },
     component: () => import('@/views/middlePage/index.vue'),
+  },
+  {
+    name: 'previewMiddlePage',
+    path: '/previewMiddlePage',
+    meta: { title: ' ' },
+    component: () => import('@/views/previewMiddlePage/index.vue'),
   },
   {
     name: '手机号验证',
@@ -238,32 +244,26 @@ const baseInsurance = [
   {
     name: 'base赠险',
     path: '/baseInsurance/free',
-    meta: { title: '', requireWxJs: true },
+    meta: { title: '', keepAlive: true },
     component: () => import('@/views/baseInsurance/templates/free.vue'),
   },
   {
     name: 'base一年期',
     path: '/baseInsurance/short',
-    meta: { title: '', requireWxJs: true },
+    meta: { title: '', keepAlive: true },
     component: () => import('@/views/baseInsurance/templates/short.vue'),
   },
   {
     name: 'base网电销',
     path: '/baseInsurance/netsale',
-    meta: { title: '' },
+    meta: { title: '', keepAlive: true },
     component: () => import('@/views/baseInsurance/templates/netSale/index.vue'),
   },
   {
     name: 'base网电销详情',
     path: '/baseInsurance/netsaleDetail',
-    meta: { title: '' },
+    meta: { title: '', keepAlive: true },
     component: () => import('@/views/baseInsurance/templates/netSale/detail.vue'),
-  },
-  {
-    name: '投保成功页',
-    path: '/baseInsurance/orderDetail',
-    meta: { title: '投保成功页' },
-    component: () => import('@/views/baseInsurance/orderDetail/index.vue'),
   },
   {
     name: '',

@@ -6,7 +6,7 @@
  * @Description:
 -->
 <template>
-  <div class="com-attachment-list">
+  <div :class="{ 'com-attachment-list': true, 'has-bg': hasBgColor }">
     <span>{{ preText }}</span>
     <span
       v-for="(item, index) in attachementList || []"
@@ -25,6 +25,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  hasBgColor: {
+    type: Boolean,
+    default: true,
+  },
   attachementList: {
     type: Object,
     default: () => {},
@@ -41,8 +45,12 @@ const onClickReadAttachment = (index: number) => {
 <style lang="scss" scoped>
 .com-attachment-list {
   width: 100%;
-  padding: 16px 39px 25px;
-  background: #fff8f3;
+  text-align: left;
+  padding: 0 10px 25px;
+  &.has-bg {
+    background: #fff8f3;
+    padding: 16px 39px 25px;
+  }
 
   span {
     font-size: 24px;

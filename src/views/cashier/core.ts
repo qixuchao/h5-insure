@@ -1,18 +1,18 @@
 /*
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-02 10:53:53
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-02 17:13:59
  * @Description:
  */
 import wx from 'weixin-js-sdk';
 import qs from 'qs';
-import { onBeforeMount } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import router from '@/router/index';
 import { GetPayUrlParam, PayParam, PayResult } from '@/api/modules/cashier.data';
 import { getPayUrl, loadPayment, pay } from '@/api/modules/cashier';
-import { SRC_TYPE } from './constant';
+import { SRC_TYPE, ORDER_DETAIL_ROUTE } from './constant';
+import useLoading from '@/hooks/useLoading';
 
 export const isWeiXin = navigator.userAgent.indexOf('MicroMessenger') > -1;
 
@@ -34,6 +34,9 @@ export const useWXCode = () => {
       console.log('微信授权');
       window.location.href = getWxAuthCode({ appId: sessionStorage.appId, url: encodeURIComponent(url) });
     }
+    if (query.code) {
+      sessionStorage.wxCode = query.code;
+    }
   });
 };
 
@@ -52,6 +55,7 @@ const onBridgeReady = (params: {
   signType: string;
   sign: string;
   appId: string;
+  redirectUrl: string;
 }) => {
   WeixinJSBridge &&
     WeixinJSBridge.invoke(
@@ -67,68 +71,74 @@ const onBridgeReady = (params: {
       (res: { err_msg: string }) => {
         console.log('WeixinJSBridge支付结果----', res);
         if (res.err_msg === 'get_brand_wcpay_request:ok') {
+          window.location.href = params.redirectUrl;
           // 使用以上方式判断前端返回,微信团队郑重提示：
           // res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
         }
       },
     );
 };
+
 /**
  * 直接调起微信支付或H5支付
  * @param payParam 支付参数
  */
 export const usePay = (payParam: PayParam) => {
-  const redirectUrl = `${window.location.protocol}//${window.location.host}/baseInsurance/orderDetail?orderNo=${payParam.businessTradeNo}&tenantId=${payParam.tenantId}&iseeBizNo=${payParam.iseeBizNo}`;
+  const loading = ref(true);
+  useLoading(loading);
   pay({
     ...payParam,
     srcType: getSrcType(),
     extraInfo: JSON.stringify({
-      wxCode: payParam.code,
-      redirectUrl,
+      wxCode: payParam.code || sessionStorage.wxCode,
     }),
-  }).then((res) => {
-    const { code, message, data } = res;
-    if (code === '10000') {
-      const { timeStamp, nonceStr, prepayId, sign_type: signType, sign, appId } = data;
-      if (isWeiXin) {
-        console.log('直接调用微信支付-参数', data);
-        // onBridgeReady({ timeStamp, nonceStr, prepayId, signType, sign, appId });
-        wx.chooseWXPay({
-          timestamp: timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
-          nonceStr, // 支付签名随机串，不长于 32 位
-          package: prepayId, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
-          signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
-          paySign: sign, // 支付签名
-          success(wxRes) {
-            console.log('微信公众支付结果----', wxRes);
-            window.location.href = payParam.redirectUrl;
-            // 支付成功后的回调函数
-          },
-          fail(err) {
-            console.log('微信公众支付失败结果----', err);
-            // 支付成功后的回调函数
-          },
-          cancel() {
-            useRouter().push(`/cashier/payOrder?orderNo=${payParam.orderNo}&iseeBizNo=${payParam.iseeBizNo}`);
-          },
-        });
-      } else {
-        console.log('H5支付结果----', res.data);
-        window.location.href = res.data.mweb_url;
-        // const url = window.URL.createObjectURL(res.data.mweb_url);
-        // const a = document.createElement('a');
-        // a.href = url;
-        // a.click();
-        // a.remove();
-        // window.location.href = `/cashier/pay?orderNo=${payParam.orderNo}&iseeBizNo=${payParam.iseeBizNo}`;
-        // console.log('跳转收银台页面');
+  })
+    .then((res) => {
+      const { code, message, data } = res;
+      if (code === '10000') {
+        const { timeStamp, nonceStr, prepayId, sign_type: signType, sign, appId, redirectUrl } = data;
+        if (isWeiXin) {
+          console.log('直接调用微信支付-参数', data);
+          // onBridgeReady({ timeStamp, nonceStr, prepayId, signType, sign, appId });
+          wx.chooseWXPay({
+            timestamp: timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+            nonceStr, // 支付签名随机串，不长于 32 位
+            package: prepayId, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
+            signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+            paySign: sign, // 支付签名
+            success(wxRes) {
+              console.log('微信公众支付结果----', wxRes);
+              window.location.href = redirectUrl;
+              // 支付成功后的回调函数
+            },
+            fail(err) {
+              console.log('微信公众支付失败结果----', err);
+              // 支付成功后的回调函数
+            },
+            cancel() {
+              window.location.href = redirectUrl;
+            },
+          });
+        } else {
+          console.log('H5支付结果----', res.data);
+          window.location.href = res.data.mweb_url;
+          // const url = window.URL.createObjectURL(res.data.mweb_url);
+          // const a = document.createElement('a');
+          // a.href = url;
+          // a.click();
+          // a.remove();
+          // window.location.href = `/cashier/pay?orderNo=${payParam.orderNo}&iseeBizNo=${payParam.iseeBizNo}`;
+          // console.log('跳转收银台页面');
+        }
       }
-    }
-  });
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 /**
- * form表单支付
+ * form表单支付html模板
  */
 export const useFormPay = (html: string) => {
   const div = document.createElement('div');
@@ -150,37 +160,38 @@ window.useFormPay = useFormPay;
  * @param callback 回调
  */
 export const useSign = (payParam: PayParam, callback?: (result: PayResult) => void) => {
+  const loading = ref(false);
+  useLoading(loading);
   pay({
     ...payParam,
     srcType: getSrcType(),
     extraInfo: JSON.stringify({
       wxCode: payParam.code,
     }),
-  }).then((res) => {
-    const { redirect_url: redirectUrl } = res.data;
-    console.log('签约里面调用pay返回=====', res.data);
-    window.location.href = redirectUrl;
-  });
+  })
+    .then((res) => {
+      console.log('签约里面调用pay返回=====', res.data);
+      window.location.href = res.data.redirect_url || res.data.redirectUrl;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 export const wxBrandWCPayRequest = (payParam: PayParam) => {
-  const redirectUrl = `${window.location.protocol}//${window.location.host}/baseInsurance/orderDetail?orderNo=${
-    payParam.businessTradeNo || payParam.orderNo
-  }&tenantId=${payParam.tenantId}&iseeBizNo=${payParam.iseeBizNo}`;
   pay({
     ...payParam,
     srcType: getSrcType(),
     extraInfo: JSON.stringify({
       wxCode: payParam.code,
-      redirectUrl,
     }),
   }).then((res) => {
     const { code, message, data } = res;
     if (code === '10000') {
-      const { timeStamp, nonceStr, prepayId, sign_type: signType, sign, appId } = data;
+      const { timeStamp, nonceStr, prepayId, sign_type: signType, sign, appId, redirectUrl } = data;
       if (isWeiXin) {
         console.log('直接调用微信支付-参数', data);
-        onBridgeReady({ timeStamp, nonceStr, prepayId, signType, sign, appId });
+        onBridgeReady({ timeStamp, nonceStr, prepayId, signType, sign, appId, redirectUrl });
       } else {
         console.log('H5支付结果----', res.data);
         window.location.href = res.data.mweb_url;
@@ -201,34 +212,29 @@ export const wxBrandWCPayRequest = (payParam: PayParam) => {
  */
 function sendPay(payParam: PayParam): void;
 function sendPay(payParam: PayParam | string) {
-  // payUrl支付链接过来的
+  let params: PayParam | string = '';
+  // payUrl过来的
   if (typeof payParam === 'string') {
-    if (/https?:.*\?/.test(payParam)) {
-      console.error('支付参数错误');
+    if (/https?:.*/.test(payParam)) {
+      console.warn('支付参数错误');
     }
+    // payUrl返回form表单的html
     if (payParam.indexOf('<html>') > -1) {
       useFormPay(payParam);
       return;
     }
+    // 否则就是支付链接，取得参数
     const search = payParam.split('?')[1];
-    const params = qs.parse(search) as PayParam;
-    // 微信环境
-    if (isSignWay(params.payWay)) {
-      console.log('走微签约逻辑');
-      window.location.href = `/cashier/signPay?${qs.stringify(params)}`;
-    } else {
-      usePay(params);
-      console.log('走支付逻辑');
-    }
+    params = qs.parse(search) as PayParam;
   } else {
-    // 微信环境
-    if (isSignWay(payParam.payWay)) {
-      console.log('走微签约逻辑');
-      window.location.href = `/cashier/signPay?${qs.stringify(payParam)}`;
-    } else {
-      usePay(payParam);
-      console.log('走支付逻辑');
-    }
+    params = { ...payParam };
+  }
+  if (isSignWay(params.payWay)) {
+    console.log('走微签约逻辑');
+    window.location.href = `/cashier/signPay?${qs.stringify(params)}`;
+  } else {
+    usePay(params);
+    console.log('走支付逻辑');
   }
 }
 export { sendPay };

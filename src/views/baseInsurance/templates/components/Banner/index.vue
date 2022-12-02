@@ -1,18 +1,15 @@
 <!--
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-17 16:00
- * @LastEditors:  wangyuanli@zhongan.io
- * @LastEditTime: 2022-09-17 16:00
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-02 18:19:03
  * @Description: 审核版首页
 -->
 <template>
-  <img v-if="props.isCheck" :src="checkImg" class="banner" />
-  <img v-else :src="props.url" class="banner" />
+  <van-image width="100%" class="banner" lazy-load :src="props.url" />
 </template>
 
 <script lang="ts" setup>
-import checkImg from '@/assets/images/chuangxin/check-detail.png';
-
 const props = defineProps({
   isCheck: {
     type: Boolean,
@@ -28,6 +25,8 @@ const props = defineProps({
 <style lang="scss" scoped>
 .banner {
   width: 100%;
+  min-height: 200px;
   display: block;
+  background-color: #fff;
 }
 </style>

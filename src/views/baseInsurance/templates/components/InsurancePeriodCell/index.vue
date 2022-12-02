@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-01 21:10:16
+ * @LastEditTime: 2022-12-02 14:30:20
  * @Description:
 -->
 <template>
@@ -26,7 +26,8 @@
       <div v-if="riskGuaranteeStartDateType !== INSURANCE_START_TYPE_ENUM.CUSTOM_DAY" class="custom-cell common-cell">
         <div class="cell-label">保障期限</div>
         <div class="cell-content">
-          {{ formatDate(state.formInfo.insuranceStartDate) }} - {{ formatDate(state.formInfo.insuranceEndDate) }}
+          {{ state.formInfo.insuranceStartDate ? formatDate(state.formInfo.insuranceStartDate) : '' }} -
+          {{ state.formInfo.insuranceEndDate ? formatDate(state.formInfo.insuranceEndDate) : '' }}
         </div>
       </div>
     </div>

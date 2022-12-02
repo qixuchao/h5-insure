@@ -102,7 +102,7 @@ watch(
     color: 96px;
     background: linear-gradient(to right, var(--van-primary-color), v-bind('state.color'));
     &.shadow {
-      box-shadow: 0px 20px 50px -25px var(--van-primary-color);
+      box-shadow: 0px 20px 50px -20px var(--van-primary-color);
     }
 
     :deep(.van-button__text) {
