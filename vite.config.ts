@@ -1,8 +1,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 17:42:39
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-28 21:52:38
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-02 13:27:01
  * @FilePath: /zat-planet-h5-cloud-insure/vite.config.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -57,6 +57,7 @@ export default defineConfig((env) => {
       brotliSize: false,
       // 消除打包大小超过500kb警告
       chunkSizeWarningLimit: 2000,
+      minify: 'terser',
       // 在生产环境移除console.log
       terserOptions: {
         compress: {
