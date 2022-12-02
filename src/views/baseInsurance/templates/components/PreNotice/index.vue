@@ -7,7 +7,13 @@
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
-  <ProPopup class="pre-notice-wrap" :show="noticeShow" :closeable="false" height="395px">
+  <ProPopup
+    class="pre-notice-wrap"
+    :close-on-click-overlay="false"
+    :show="noticeShow"
+    :closeable="false"
+    height="395px"
+  >
     <div class="pre-body">
       <div class="header">
         <img :src="HeaderImg" />

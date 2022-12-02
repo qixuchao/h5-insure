@@ -3,6 +3,7 @@
     <div class="page-free-product-detail">
       <Banner :url="state.banner" />
       <FreeHolderForm
+        ref="formRef"
         :is-first="state.newAuth"
         :insure-detail="state.insureDetail"
         :detail="state.order"
@@ -30,16 +31,20 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { useIntersectionObserver } from '@vueuse/core';
+import { Toast } from 'vant/es';
 import ProShadowButton from './components/ProShadowButton/index.vue';
 import Banner from './components/Banner/index.vue';
 import FreeHolderForm from './components/FreeHolderForm/index.vue';
 import { productDetail, getAppUser } from '@/api/modules/product';
 import { insureProductDetail, toClogin, nextStep } from '@/api/modules/trial';
 import PreNotice from './components/PreNotice/index.vue';
+import { checkCode } from '@/api/modules/phoneVerify';
 // import { nextStep } from '@/api/index';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ProductData } from '@/api/modules/trial.data';
-import { freeTransform } from '../utils';
+import { nextStepOperate } from '@/utils/nextStep';
+import { freeTransform, validateSmsCode } from '../utils';
+import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 import { useTheme } from '../theme';
 // 调用主题
 const themeVars = useTheme();
@@ -68,6 +73,7 @@ const {
 } = route.query as QueryData;
 let iseeBizNo = '';
 const root = ref();
+const formRef = ref();
 const state = reactive<{
   colors: string[];
   detail: ProductDetail;
@@ -78,6 +84,7 @@ const state = reactive<{
   order: any;
   loading: boolean;
   showBtn: boolean;
+  isValidateCode: boolean;
 }>({
   colors: ['#fff'],
   detail: {} as ProductDetail,
@@ -113,6 +120,7 @@ const state = reactive<{
   banner: '',
   productDesc: [],
   newAuth: true,
+  isValidateCode: false,
   insureDetail: {} as ProductData,
   loading: true,
   showBtn: false,
@@ -134,6 +142,11 @@ const fetchData = async () => {
 
     if (insureRes.code === '10000') {
       state.insureDetail = insureRes.data as any;
+      state.insureDetail.productFactor[1].forEach((item: any) => {
+        if (item.code === 'verificationCode' && item.isDisplay === 1) {
+          state.isValidateCode = true;
+        }
+      });
       state.insureDetail.productFactor[2] = state.insureDetail.productFactor?.[2].map((item: any) => {
         if (item.code === 'relationToHolder' && item.isDisplay === 1) {
           // eslint-disable-next-line no-param-reassign
@@ -151,42 +164,65 @@ const fetchData = async () => {
   });
 };
 
-const clickHandler = async () => {
-  const req: any = state.newAuth ? toClogin : nextStep;
+const validateSmsCodew = async () => {
+  const res = await formRef.value.validateForm();
+  const smsCode = state.order.tenantOrderHolder?.verificationCode;
+  if (state.isValidateCode && (!smsCode || !validateSmsCode(smsCode))) {
+    Toast({
+      message: '请输入正确的验证码',
+    });
+    return false;
+  }
+  if (state.newAuth || !state.isValidateCode) {
+    return true;
+  }
+  const { code, data } = await checkCode(state.order.tenantOrderHolder.mobile, smsCode);
+  return !!data;
+};
 
+const clickHandler = async () => {
+  const res = await validateSmsCodew();
+  if (!res) {
+    return;
+  }
   let params: any = {
     loginType: '2',
     openId,
     thirdUserType: 'XINAO_WECHAT',
     indirectCode,
   };
-  if (state.newAuth) {
-    params.loginName = state.order.tenantOrderHolder.mobile;
-    params.password = state.order.tenantOrderHolder.verificationCode;
-  } else {
-    params = freeTransform({
-      order: state.order,
-      tenantId,
-      extraInfo: JSON.parse(extraInfo),
-      detail: state.detail,
-      insureDetail: state.insureDetail,
-      iseeBizNo,
-      saleUserId,
-      saleChannelId,
-      pageCode: 'infoCollection',
-      buttonCode: 'EVENT_FREE_multiIssuePolicy',
-    });
-  }
 
   try {
-    const { code, data } = await req(params);
-    if (code === '10000') {
-      if (!state.newAuth && data.pageAction?.data?.orderNo) {
-        router.push(
-          `/baseInsurance/orderDetail?from=free&tenantId=${tenantId}&orderNo=${data.pageAction?.data?.orderNo}&productCode=${productCode}`,
-        );
+    if (state.newAuth) {
+      params.loginName = state.order.tenantOrderHolder.mobile;
+      params.password = state.order.tenantOrderHolder.verificationCode;
+    } else {
+      params = freeTransform({
+        order: state.order,
+        tenantId,
+        extraInfo: JSON.parse(decodeURIComponent(extraInfo)),
+        detail: state.detail,
+        insureDetail: state.insureDetail,
+        iseeBizNo,
+        saleUserId,
+        saleChannelId,
+        pageCode: 'infoCollection',
+        buttonCode: 'EVENT_FREE_multiIssuePolicy',
+      });
+    }
+    if (state.newAuth) {
+      const { code, data } = await toClogin(params);
+      if (code === '10000') {
+        state.newAuth = false;
       }
-      state.newAuth = false;
+    } else {
+      nextStepOperate(params, (resData: any, pageAction: string) => {
+        if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE && resData.orderNo) {
+          router.push(
+            `/baseInsurance/orderDetail?from=free&tenantId=${tenantId}&orderNo=${resData.orderNo}&productCode=${productCode}`,
+          );
+        }
+      });
     }
   } catch (e) {
     console.log('e');

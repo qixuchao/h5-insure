@@ -99,7 +99,6 @@ const state = reactive<{
 
 const getFactorObj = () => {
   state.factorObj = props.insureDetail?.productFactor;
-  console.log(props.insureDetail, 'detail====');
 };
 
 const sendSmsCode = async (mobile: string, cb: () => {}) => {
@@ -120,6 +119,23 @@ watch(
     }
   },
 );
+
+defineExpose({
+  validateForm: () => {
+    return new Promise((resolve, reject) => {
+      formRef.value
+        .validateForm()
+        .then((res: any) => {
+          console.log(res);
+          resolve(true);
+        })
+        .catch(() => {
+          console.log('失败');
+          reject();
+        });
+    });
+  },
+});
 </script>
 <style lang="scss">
 .free-crad {
@@ -195,7 +211,7 @@ watch(
   padding: 0 32px;
   background: linear-gradient(v-bind('props.colors[0]'), v-bind('props.colors[1]'));
   .container {
-    padding: 46px 40px;
+    padding: 46px 40px 20px;
     background: #ffffff;
     text-align: center;
     border-radius: 40px;
