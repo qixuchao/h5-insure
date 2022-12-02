@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-01 19:06:27
+ * @LastEditTime: 2022-12-02 18:13:57
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -10,8 +10,27 @@
   <van-config-provider :theme-vars="themeVars">
     <ProPageWrap>
       <div class="net-sale-wrap">
-        <ProCard title="投保信息">
-          <div class="product-name">{{ productDetail?.productBasicInfoVO.productFullName }}</div>
+        <ProCard v-if="orderDetail.id" :show-line="false" title="投保信息">
+          <div class="part">
+            <div class="product-name">{{ productDetail?.productBasicInfoVO.productFullName }}</div>
+          </div>
+
+          <div class="part">
+            <ProCell title="保费" :content="orderDetail.orderAmount"></ProCell>
+            <ProCell title="保险期限" :content="orderDetail.tenantOrderInsuredList[0]?.planName"></ProCell>
+            <ProCell title="起保日期" :content="orderDetail.commencementTime"></ProCell>
+            <ProCell title="终保日期" :content="orderDetail.expiryDate"></ProCell>
+            <ProCell title="保单状态" :content="orderDetail.orderStatus"></ProCell>
+          </div>
+          <div class="part">
+            <ProCell title="订单编号" :content="orderDetail.orderNo"></ProCell>
+            <ProCell title="销售人名称" content=""></ProCell>
+            <ProCell title="房屋地址" :content="orderDetail.tenantOrderHolder?.extInfo?.familyAddress"></ProCell>
+            <ProCell
+              title="燃气编号"
+              :content="orderDetail.tenantOrderInsuredList?.[0]?.extInfo.subjectRelatedUserId"
+            ></ProCell>
+          </div>
         </ProCard>
         <InsureForm
           ref="formRef"
@@ -25,11 +44,15 @@
           :factor-object="factorObj"
           input-align="right"
         ></InsureForm>
-        <ProCard title="阅读条款合同"> </ProCard>
+        <ProCard title="阅读条款合同">
+          <div class="part">
+            <van-cell title="客户告知书" is-link></van-cell>
+          </div>
+        </ProCard>
         <ProCard title="客户签名">
           <div class="sign-cell">
             <div class="sign-label">签名</div>
-            <Sign />
+            <Sign v-model="signString" />
           </div>
         </ProCard>
         <div class="footer-button">
@@ -48,6 +71,7 @@ import Sign from '../components/Sign/index.vue';
 import { nextStep } from '@/api';
 import { saveSign } from '@/api/modules/verify';
 import { nextStepOperate } from '@/utils/nextStep';
+import { productDetail as getProductDetail } from '@/api/modules/product';
 
 const themeVars = useTheme();
 const route = useRoute();
@@ -112,6 +136,8 @@ const orderDetail = ref<any>({
   },
 });
 const productDetail = ref<any>();
+const tenantProductDetail = ref<any>();
+const signString = ref<string>();
 
 const queryOrderDetail = async () => {
   const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
@@ -129,6 +155,13 @@ const queryProductDetail = async () => {
   }
 };
 
+const queryTenantProductDetail = async () => {
+  const { data, code } = await getProductDetail({ productCode, tenantId });
+  if (code === '10000') {
+    tenantProductDetail.value = data;
+  }
+};
+
 const submit = async () => {
   await saveSign('HOLDER', '213123123213131', orderDetail.value.id, `${tenantId}`);
   nextStepOperate(orderDetail.value);
@@ -136,6 +169,7 @@ const submit = async () => {
 
 onMounted(() => {
   queryProductDetail();
+  queryTenantProductDetail();
   queryOrderDetail();
 });
 </script>
@@ -143,5 +177,18 @@ onMounted(() => {
 <style lang="scss" scoped>
 .net-sale-wrap {
   padding-bottom: 150px;
+  .common-cell-wrapper {
+    height: 104px;
+    align-items: center;
+    width: 100%;
+    .cell-container {
+      width: 100%;
+      align-items: flex-start;
+      justify-content: center;
+    }
+  }
+  :deep(.van-field__value) {
+    align-items: flex-end;
+  }
 }
 </style>

@@ -2,14 +2,19 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-01 13:44:31
+ * @LastEditTime: 2022-12-02 16:42:43
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <div class="page-info-wrapper">
     <ProForm ref="formRef" show-error :show-error-message="false" :input-align="inputAlign">
-      <ProCard v-if="pageFactor.HOLDER?.length" :show-divider="false" :title="titleCollection?.HOLDER">
+      <ProCard
+        v-if="pageFactor.HOLDER?.length"
+        :show-line="false"
+        :show-divider="false"
+        :title="titleCollection?.HOLDER"
+      >
         <PersonalInfo
           v-model:images="holderImages"
           :form-info="formInfo.tenantOrderHolder"
@@ -24,7 +29,6 @@
             :label="queryFactorAttr('gasNumberCollection', 'title', 'HOLDER')"
             name="subjectRelatedUserId"
             :required="isRequiredByFactor('gasNumberCollection', 'HOLDER')"
-            placeholder="请输入"
             :is-view="isView"
             :maxlength="100"
           ></ProField>
@@ -33,7 +37,12 @@
           </template>
         </PersonalInfo>
       </ProCard>
-      <ProCard v-if="pageFactor.INSURER?.length" :show-divider="false" :title="titleCollection?.INSURER">
+      <ProCard
+        v-if="pageFactor.INSURER?.length"
+        :show-line="false"
+        :show-divider="false"
+        :title="titleCollection?.INSURER"
+      >
         <ProField
           v-if="showByFactor('relationToHolder', 'INSURER')"
           v-model="formInfo.tenantOrderInsuredList[0].relationToHolder"
@@ -69,6 +78,7 @@
       <ProCard
         v-if="false && pageFactor.BENEFICIARY?.length"
         :show-divider="false"
+        :show-line="false"
         :title="titleCollection?.BENEFICIARY"
       >
         <div v-if="formInfo.tenantOrderInsuredList[0].insuredBeneficiaryType == 2" class="beneficiary-part">
@@ -295,6 +305,14 @@ const validateForm = () => {
   });
 };
 
+// const clearInsurerData = (insurerData: any, excludes: string[]) => {
+//   Object.keys(insurerData).forEach((key) => {
+//     if (!excludes.includes(key)) {
+//       insurerData[key] = '';
+//     }
+//   });
+// };
+
 defineExpose({
   validateForm,
 });
@@ -322,6 +340,11 @@ watch(
   () => {
     if (`${formInfo.value.tenantOrderInsuredList[0].relationToHolder}` === RELATION_HOLDER_ENUM.SELF) {
       holderInfo2InsuredInfo();
+    } else {
+      Object.assign(formInfo.value.tenantOrderInsuredList[0], {
+        relationToHolder: formInfo.value.tenantOrderInsuredList[0]?.relationToHolder,
+        extInfo: {},
+      });
     }
   },
   {
@@ -345,6 +368,11 @@ watch(
 </script>
 
 <style lang="scss" scope>
+.van-cell {
+  &:after {
+    width: unset;
+  }
+}
 .page-info-wrapper {
   .van-cell .van-field__value {
     align-items: flex-start;

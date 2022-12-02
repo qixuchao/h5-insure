@@ -85,6 +85,7 @@ const {
   orderNo,
   agentCode = '',
   saleChannelId,
+  extraInfo,
   from,
 } = route.query as QueryData;
 
@@ -95,6 +96,15 @@ const tenantProductDetail = ref<any>(); // 租户平台产品详情
 const premiumObj = ref<any>(); // 保费
 const factorObj = ref<any>({});
 let iseeBizNo = '';
+
+let extInfo = {};
+
+try {
+  extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
+} catch (error) {
+  //
+}
+
 const orderDetail = ref<any>({
   // 订单数据模板
   agencyId: agentCode,
@@ -105,6 +115,7 @@ const orderDetail = ref<any>({
     pageCode: 'infoCollection',
     templateId: 3,
     iseeBizNo: '',
+    ...extInfo,
   },
   orderCategory: 1,
   saleUserId: saleChannelId,
@@ -115,7 +126,7 @@ const orderDetail = ref<any>({
   },
   tenantOrderInsuredList: [
     {
-      relationToHolder: '0',
+      relationToHolder: '1',
       extInfo: {
         occupationCodeList: [],
       },
@@ -211,6 +222,8 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList) =>
         ],
       };
     }),
+    productCode: currentProductDetail.productBasicInfoVO.productCode,
+    tenantId,
   };
   // 对试算的参数进行验证
   const { code } = await underWriteRule(trialParams);
@@ -247,6 +260,10 @@ const nextStepOperate = async () => {
   orderDetail.value.venderCode = insureDetail.value?.productBasicInfoVO.insurerCode;
   orderDetail.value.orderAmount = premiumObj.value.premium;
   orderDetail.value.orderRealAmount = premiumObj.value.premium;
+  orderDetail.value.tenantOrderInsuredList[0].planCode = currentPlan.value;
+  orderDetail.value.tenantOrderInsuredList[0].planName = insureDetail.value?.productRelationPlanVOList.find(
+    (plan) => plan.planCode === currentPlan.value,
+  )?.planName;
   nextStep(trialData2Order(insureDetail.value, premiumObj.value, orderDetail.value), () => {});
 };
 
@@ -308,18 +325,6 @@ const insured = async () => {
 //   }
 //   return true;
 // };
-
-// 跳转支付成功页
-const getPaySuccessCallbackUrl = (no: number) => {
-  return `${ORIGIN}/pay?orderNo=${no}&saleUserId=${agentCode}&tenantId=${tenantId}`;
-};
-
-const getPayFailCallbackUrl = (no: number) => {
-  const url = `${ORIGIN}/internet/payFail?tenantId=${tenantId}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack&from=${
-    from || 'normal'
-  }`;
-  return url;
-};
 
 // 监听表单数据的变化，进行试算
 watch(

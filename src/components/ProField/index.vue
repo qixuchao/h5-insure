@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 15:06:48
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-30 14:24:51
+ * @LastEditTime: 2022-12-02 13:40:53
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProField/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -11,7 +11,7 @@
     :="$attrs"
     :label="label"
     :is-link="showLink"
-    :placeholder="placeholder"
+    :placeholder="currentPlaceholder"
     :rules="currentRules"
     :class="['com-pro-field', { block }, customClass]"
     :readonly="formProps.isView || isView"
@@ -55,7 +55,7 @@ interface Props {
 const slot = useSlots();
 const emits = defineEmits(['click']);
 const props = withDefaults(defineProps<Props>(), {
-  placeholder: '请输入',
+  placeholder: '',
   label: '',
   title: '',
   block: false,
@@ -72,6 +72,10 @@ const props = withDefaults(defineProps<Props>(), {
 const formProps: any = inject('formProps') || {};
 
 const dealData = () => {};
+
+const currentPlaceholder = computed(() => {
+  return props.placeholder || `请输入${props.label}`;
+});
 
 const currentRules = computed(() => {
   let rules: any[] = [];

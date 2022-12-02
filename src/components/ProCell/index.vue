@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 15:45:09
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-01 12:08:09
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-12-02 17:45:15
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProCell/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -55,8 +55,8 @@ const computeStrLength = (str = '') => {
 };
 
 onBeforeMount(() => {
-  const leftLen = computeStrLength(props.title);
-  const rightLen = computeStrLength(props.content);
+  const leftLen = computeStrLength(props.title || '');
+  const rightLen = computeStrLength(props.content || '');
   if (leftLen < rightLen) {
     state.value.status = 'right';
   } else {
