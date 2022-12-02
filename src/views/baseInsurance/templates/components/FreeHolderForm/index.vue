@@ -99,14 +99,12 @@ const state = reactive<{
 
 const getFactorObj = () => {
   state.factorObj = props.insureDetail?.productFactor;
-  console.log(props.insureDetail, 'detail====');
 };
 
 const sendSmsCode = async (mobile: string, cb: () => {}) => {
   const sendReq = props.isFirst ? sendCodeLogin : sendCode;
   const res = await sendReq(mobile);
   const { code, data } = res;
-  console.log(formRef.value.validateForm(), 'slslslw==');
   if (code === '10000') {
     cb?.();
   }
@@ -120,6 +118,23 @@ watch(
     }
   },
 );
+
+defineExpose({
+  validateForm: () => {
+    return new Promise((resolve, reject) => {
+      formRef.value
+        .validateForm()
+        .then((res: any) => {
+          console.log(res);
+          resolve(true);
+        })
+        .catch(() => {
+          console.log('失败');
+          reject();
+        });
+    });
+  },
+});
 </script>
 <style lang="scss">
 .free-crad {
@@ -172,12 +187,13 @@ watch(
         width: 100%;
         .radio-btn {
           display: flex;
-          justify-content: space-around;
+          justify-content: flex-start;
           .btn-wrapper {
             margin: 0;
             .com-check-btn {
               min-width: 100px;
               border-radius: 25px !important;
+              margin: 0 8px 10px 0;
             }
           }
         }
@@ -195,7 +211,7 @@ watch(
   padding: 0 32px;
   background: linear-gradient(v-bind('props.colors[0]'), v-bind('props.colors[1]'));
   .container {
-    padding: 46px 40px;
+    padding: 46px 40px 20px;
     background: #ffffff;
     text-align: center;
     border-radius: 40px;

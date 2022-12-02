@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-01 21:09:28
+ * @LastEditTime: 2022-12-02 14:41:00
  * @Description:
 -->
 <template>
@@ -33,7 +33,7 @@
         </div>
       </template>
       <templat v-if="isShowPaymentFrequency">
-        <div v-if="showPictureBtn" class="picture-payment-content">
+        <div v-if="showPictureBtn && skinValue.length > 1" class="picture-payment-content">
           <div
             v-for="item in skinValue"
             :key="item.paymentFrequency"
@@ -526,6 +526,14 @@ defineExpose({});
       margin-top: 32px;
       img {
         width: 100%;
+      }
+
+      // &:first-child {
+      //   margin-top: 0px !important;
+      // }
+
+      &:nth-child(-n + 2) {
+        margin-top: 0px !important;
       }
     }
   }

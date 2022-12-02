@@ -89,7 +89,7 @@ const show = ref(false);
 
 const orderBtnText = computed(() => {
   // 投保成功 和 保单过期
-  if ([ORDER_STATUS_ENUM.ACCEPT_POLICY, ORDER_STATUS_ENUM.TIMEOUT].includes(state.orderDetail.orderStatus)) {
+  if ([ORDER_STATUS_ENUM.ACCEPT_POLICY, ORDER_STATUS_ENUM.CANCELED].includes(state.orderDetail.orderStatus)) {
     return '下载保单';
   }
   if (ORDER_STATUS_ENUM.PAYING === state.orderDetail.orderStatus) {
@@ -155,7 +155,7 @@ const initPageInfo = () => {
   // 只有投保成功和已失效才有图片
   if (
     from === 'free' ||
-    ![ORDER_STATUS_ENUM.PAYING, ORDER_STATUS_ENUM.TIMEOUT].includes(state.orderDetail.orderStatus)
+    ![ORDER_STATUS_ENUM.PAYING, ORDER_STATUS_ENUM.CANCELED].includes(state.orderDetail.orderStatus)
   ) {
     state.pageInfo.images = state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.image || [];
     if (state.pageInfo.images.length > 1) {
