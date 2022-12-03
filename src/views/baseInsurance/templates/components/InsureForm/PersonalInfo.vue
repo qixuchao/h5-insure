@@ -76,7 +76,7 @@
       v-model="state.formInfo.certType"
       :label="queryFactorAttr('certType', 'title')"
       :name="`${prefix}_certType`"
-      :data-source="certTypeOption"
+      :data-source="queryFactorAttr('certType', 'attributeValueList')"
       :mapping="{ label: 'value', value: 'code', children: 'child' }"
       :required="isRequiredByFactor('certType')"
       :rules="[{ validator: validateCertType }]"
@@ -645,7 +645,7 @@ const phoneNo = computed(() => {
 const certNoStatus = ref<boolean>(false);
 const certNo = computed(() => {
   if (certNoStatus.value) {
-    return (state.value.formInfo.certNo || '').replace(/^(.{6})(?:\d+)(.{2})$/, '$1****$2');
+    return (state.value.formInfo.certNo || '').replace(/^(.{6})(?:\d+)(.{2})$/, '$1**********$2');
   }
   return props.formInfo.certNo;
 });
@@ -903,6 +903,9 @@ watch(
     if (validateIdCardNo(newVal)) {
       state.value.formInfo.gender = +getSex(newVal);
       state.value.formInfo.birthday = dayjs(new Date(getBirth(newVal))).format('YYYY-MM-DD');
+    } else {
+      state.value.formInfo.gender = null;
+      state.value.formInfo.birthday = '';
     }
   },
   {

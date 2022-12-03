@@ -177,23 +177,30 @@ const isShowInsurePeriod = computed(() => {
 });
 
 // 保费展示的逻辑
-const productPremium = computed(() => {
-  const { premium } = premiumObj.value || {};
-  if (!premium) {
-    const { tenantProductInsureVO } = tenantProductDetail.value || {};
-    let selectedPlan = {};
-    if (tenantProductInsureVO?.planList?.length) {
-      selectedPlan = tenantProductInsureVO?.planList.find((plan) => plan.plaCode === currentPlan.value);
-    } else {
-      selectedPlan = tenantProductInsureVO?.planInsureVO;
+const productPremium = ref<string>();
+
+watch(
+  [() => premiumObj.value, () => tenantProductDetail.value],
+  () => {
+    const { premium } = premiumObj.value || {};
+    if (!premium) {
+      const { tenantProductInsureVO } = tenantProductDetail.value || {};
+      let selectedPlan = {};
+      if (tenantProductInsureVO?.planList?.length) {
+        console.log('tenantProductInsureVO', tenantProductInsureVO);
+
+        selectedPlan = (tenantProductInsureVO?.planList || []).find((plan) => plan.planCode === currentPlan.value);
+      } else {
+        selectedPlan = tenantProductInsureVO?.planInsureVO;
+      }
+      const { paymentFrequencyValue, premiumUnit } = selectedPlan?.productPremiumVOList?.[0] || {};
+
+      productPremium.value = paymentFrequencyValue && `${paymentFrequencyValue}${premiumUnit || '元'}`;
     }
-    const { paymentFrequencyValue, premiumUnit } = selectedPlan?.productPremiumVOList?.[0] || {};
-
-    return paymentFrequencyValue && `${paymentFrequencyValue}${premiumUnit}`;
-  }
-
-  return '';
-});
+    productPremium.value = premium;
+  },
+  { deep: true, immediate: true },
+);
 
 // 险种信息
 const currentRiskInfo = computed(() => {
@@ -379,8 +386,8 @@ const insured = async () => {
 // 监听表单数据的变化，进行试算
 watch(
   [
-    // () => orderDetail.value.tenantOrderHolder.gender,
-    // () => orderDetail.value.tenantOrderHolder.birthday,
+    () => orderDetail.value.tenantOrderHolder.gender,
+    () => orderDetail.value.tenantOrderHolder.birthday,
     () => orderDetail.value.tenantOrderInsuredList?.[0].gender,
     () => orderDetail.value.tenantOrderInsuredList?.[0].birthday,
     () => currentPlan.value,
