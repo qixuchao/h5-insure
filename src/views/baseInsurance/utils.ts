@@ -729,7 +729,7 @@ export const freeTransform = (o: any) => {
     orderCategory: '1', // 1 '1' // 订单类型
     tenantOrderHolder: {
       tenantId: o.tenantId,
-      certType: o.order.tenantOrderHolder.certEndType, // 默认身份证
+      certType: o.order.tenantOrderHolder?.certEndType || '1', // 默认身份证
       ...o.order.tenantOrderHolder,
     },
     extInfo: {
@@ -743,7 +743,7 @@ export const freeTransform = (o: any) => {
       {
         ...o.order.tenantOrderInsuredList[0],
         tenantId: o.tenantId,
-        certType: o.order.tenantOrderInsuredList[0].certEndType, // 默认身份证
+        certType: o.order.tenantOrderInsuredList?.[0]?.certEndType || '1', // 默认身份证
         mobile:
           o.order.tenantOrderInsuredList[0].relationToHolder === RELATION_HOLDER_ENUM.SELF
             ? o.order.tenantOrderHolder.mobile
