@@ -17,7 +17,7 @@
           @click="clickHandler"
         />
         <AttachmentList
-          v-if="filterHealthAttachmentList && filterHealthAttachmentList.length > 0"
+          v-if="!state.newAuth && filterHealthAttachmentList && filterHealthAttachmentList.length > 0"
           :attachement-list="filterHealthAttachmentList"
           :has-bg-color="false"
           pre-text="请阅读"
@@ -66,15 +66,14 @@ import { isEmpty } from '@/utils';
 import ProShadowButton from './components/ProShadowButton/index.vue';
 import Banner from './components/Banner/index.vue';
 import FreeHolderForm from './components/FreeHolderForm/index.vue';
-import { productDetail, getAppUser, queryListRelationCustomer } from '@/api/modules/product';
-import { insureProductDetail, toClogin, nextStep } from '@/api/modules/trial';
+import { productDetail, getAppUser } from '@/api/modules/product';
+import { insureProductDetail, toClogin } from '@/api/modules/trial';
 import PreNotice from './components/PreNotice/index.vue';
 import AttachmentList from './components/AttachmentList/index.vue';
 import FilePreview from './components/FilePreview/index.vue';
 import InscribedContent from './components/InscribedContent/index.vue';
 import { checkCode } from '@/api/modules/phoneVerify';
 import useAddressList from '@/hooks/useAddressList';
-// import { nextStep } from '@/api/index';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ProductData } from '@/api/modules/trial.data';
 import { nextStepOperate } from '@/views/baseInsurance/nextStep';

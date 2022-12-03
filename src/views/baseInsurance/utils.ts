@@ -701,7 +701,9 @@ export const freeTransformData = (o: transformDataType) => {
         riskId: risk.riskId,
         copy: risk.copy,
       },
-      initialPremium: riskPremium[risk.riskCode]?.premium,
+      regularPremium: 0, // 期缴保费
+      totalPremium: 0, // "总保费
+      initialPremium: 0, // 首期保费
       liabilityDetails: risk.liabilityVOList?.map((liab) => ({
         liabilityCode: liab.liabilityCode,
         liabilityName: liab.liabilityName,
