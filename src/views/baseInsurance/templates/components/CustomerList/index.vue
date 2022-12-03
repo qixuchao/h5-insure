@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 15:01:12
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-03 16:38:57
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-03 17:36:53
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/PreNotice/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -106,6 +106,12 @@ const clickHandler = () => {
 </script>
 
 <style scoped lang="scss">
+.icon-customer {
+  position: absolute;
+  right: 8px;
+  top: 24px;
+  font-size: 32px;
+}
 .customer-body {
   padding: 32px 40px;
   .header {

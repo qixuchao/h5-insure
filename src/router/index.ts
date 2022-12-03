@@ -108,7 +108,7 @@ router.beforeResolve(async (to) => {
       console.log(realAuthUrl);
       // 提前获取wxCode
       if (to.meta.wxCode) {
-        useWXCode();
+        // useWXCode();
       }
     });
     wx.error((err: any) => {

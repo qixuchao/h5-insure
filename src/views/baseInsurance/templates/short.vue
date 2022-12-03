@@ -14,6 +14,7 @@
         :data-source="detail?.tenantProductInsureVO"
         :is-multiple-plan="isMultiplePlan"
         :active-plan-code="orderDetail.activePlanCode"
+        :payment-frequency="orderDetail.paymentFrequency"
         @update-active-plan="updateActivePlan"
       />
       <ScrollInfo ref="detailScrollRef" :detail="detail">
@@ -66,9 +67,12 @@
       />
       <div class="footer-area">
         <div class="price">
-          总保费<span>
-            {{ premium ? '￥' : '' }}{{ toLocal(premium) }}
-            {{ premium ? (orderDetail.paymentFrequency == PAYMENT_FREQUENCY_ENUM.YEAR ? '元/年' : '元/月') : '' }}
+          <span> {{ toLocal(premium) }}</span>
+          <span
+            >{{
+              // premium ? (orderDetail.paymentFrequency == PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE ? '元/年' : '元/月') : ''
+              premium ? unit : ''
+            }}
           </span>
         </div>
         <!-- @click="onNext" -->
@@ -105,7 +109,7 @@ import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
 import CustomerList from './components/CustomerList/index.vue';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
-import { sendPay } from '../../cashier/core';
+import { sendPay, useWXCode } from '../../cashier/core';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import useAddressList from '@/hooks/useAddressList';
 import useLoading from '@/hooks/useLoading';
@@ -243,7 +247,7 @@ const orderDetail = ref<any>({
   insuranceStartDate: null,
   insuranceEndDate: null,
   activePlanCode: '',
-  paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.YEAR,
+  paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE,
   insurancePeriodValue: '', // 保障期限
   commencementTime: '', // 生效日期
 
@@ -310,9 +314,11 @@ const isMultiplePlan = computed(() => {
   return false;
 });
 
-useAddressList({ openId }, (data: any) => {
-  relationList.value = data;
-});
+if (openId) {
+  useAddressList({ openId }, (data: any) => {
+    relationList.value = data;
+  });
+}
 
 const isOldUser = computed(() => {
   return relationList.value[RELATIONENUM.SELF] && relationList.value[RELATIONENUM.SELF].length > 0;
@@ -352,6 +358,16 @@ const factorObj = computed(() => {
   return factorObjList;
 });
 
+const isCheckHolderSmsCode = computed(() => {
+  if (factorObj.value[1]) {
+    const index = factorObj.value[1].findIndex((e: any) => e.code === 'verificationCode' && e.isDisplay === 1);
+    if (index > -1) {
+      return true;
+    }
+  }
+  return false;
+});
+
 // 多计划时添加默认值
 watch(
   () => isMultiplePlan.value,
@@ -376,6 +392,30 @@ const currentRiskInfo = computed(() => {
   return insureDetail.value?.productRiskVoList || [];
 });
 
+const currentPlanInsure = computed(() => {
+  if (!detail.value) return {};
+  if (isMultiplePlan.value) {
+    const item = detail.value?.tenantProductInsureVO.planList.find(
+      (plan) => plan.planCode === orderDetail.value.activePlanCode,
+    );
+    if (item) return item;
+    return {};
+  }
+  return detail.value.tenantProductInsureVO.planInsureVO;
+});
+
+const unit = computed(() => {
+  console.log('currentPlanInsure', currentPlanInsure.value);
+  if (currentPlanInsure.value && currentPlanInsure.value?.productPremiumVOList) {
+    const item = currentPlanInsure.value?.productPremiumVOList.find(
+      (e) => e.paymentFrequency === orderDetail.value.paymentFrequency,
+    );
+    console.log('item', item);
+    if (item) return item.premiumUnit || '元';
+  }
+  return '元';
+});
+
 // 切换计划
 const updateActivePlan = (planCode: string) => {
   orderDetail.value.activePlanCode = planCode;
@@ -392,7 +432,7 @@ const healthAttachmentList = computed(() => {
         questions,
       } = questionnaireItem.questionnaireDetailResponseVO || {};
       // 1: 文本 2、问答
-      if (questionnaireType === 2) {
+      if (String(questionnaireType) === '2') {
         return [
           {
             attachmentName: questionnaireItem?.questionnaireName,
@@ -405,7 +445,7 @@ const healthAttachmentList = computed(() => {
         {
           attachmentName: questionnaireItem?.questionnaireName,
           attachmentUri: questions[0].content,
-          attachmentType: getFileType(String(questionnaireType), questions[0].content),
+          attachmentType: getFileType(String(questions[0].textType), questions[0].content),
         },
       ];
     }
@@ -631,7 +671,7 @@ const onNext = async () => {
   try {
     if (formRef.value) {
       formRef.value?.validateForm().then(async () => {
-        if (isOldUser.value) {
+        if (isOldUser.value || !isCheckHolderSmsCode.value) {
           await trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value, false);
         } else {
           const smsCode = orderDetail.value.tenantOrderHolder?.verificationCode;
@@ -699,7 +739,6 @@ watch(
   [
     () => orderDetail.value.tenantOrderInsuredList[0].birthday,
     () => orderDetail.value.tenantOrderInsuredList[0].gender,
-    () => orderDetail.value.tenantOrderInsuredList[0].mobile,
     () => orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance,
     () => orderDetail.value.activePlanCode,
     () => orderDetail.value.paymentFrequency,
@@ -771,7 +810,8 @@ const fetchData = async () => {
     insureDetail.value = insureRes.data;
   }
 };
-
+// 需要支付的页面发起微信授权
+useWXCode();
 onMounted(() => {
   fetchData();
   // 调用千里眼插件获取一个iseeBiz
@@ -817,6 +857,12 @@ onMounted(() => {
     span {
       color: $primary-color;
       font-weight: bold;
+
+      &:last-child {
+        font-size: 26px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+      }
     }
   }
   .right {

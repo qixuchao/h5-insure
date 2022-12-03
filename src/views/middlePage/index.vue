@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-27 21:01:33
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-02 19:35:44
+ * @LastEditTime: 2022-12-03 18:56:18
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/middle/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -15,7 +15,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { validateSign } from '@/api';
 import { PAGE_CODE_ENUM, TEMPLATE_TYPE_MAP } from '@/common/constants/infoCollection';
-import { useWXCode } from '../cashier/core';
+
 import { queryStandardInsurerLink } from '@/api/modules/trial';
 
 /**

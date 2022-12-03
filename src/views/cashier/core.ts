@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-02 20:18:23
+ * @LastEditTime: 2022-12-03 18:58:08
  * @Description:
  */
 import wx from 'weixin-js-sdk';
@@ -26,7 +26,7 @@ export const getWxAuthCode = (params: { appId: string; url: string }) => {
  * 调用本函数后，可以获取到微信授权
  */
 export const useWXCode = () => {
-  onMounted(() => {
+  onBeforeMount(() => {
     const route = useRoute();
     const query = route.query as { code: string; [key: string]: string };
     const url = `${window.location.href}`;
@@ -34,9 +34,9 @@ export const useWXCode = () => {
       console.log('微信授权');
       window.location.href = getWxAuthCode({ appId: sessionStorage.appId, url: encodeURIComponent(url) });
     }
-    if (query.code) {
-      sessionStorage.wxCode = query.code;
-    }
+    // if (query.code) {
+    //   sessionStorage.wxCode = query.code;
+    // }
   });
 };
 
@@ -127,8 +127,6 @@ export const usePay = (payParam: PayParam) => {
           // a.href = url;
           // a.click();
           // a.remove();
-          // window.location.href = `/cashier/pay?orderNo=${payParam.orderNo}&iseeBizNo=${payParam.iseeBizNo}`;
-          // console.log('跳转收银台页面');
         }
       }
     })
@@ -171,7 +169,7 @@ export const useSign = (payParam: PayParam) => {
   })
     .then((res) => {
       console.log('签约里面调用pay返回=====', res.data);
-      window.location.href = res.data.redirect_url || res.data.redirectUrl;
+      window.location.replace(res.data.redirect_url);
     })
     .finally(() => {
       loading.value = false;
