@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-03 19:59:27
+ * @LastEditTime: 2022-12-03 20:16:41
  * @Description:
  */
 import wx from 'weixin-js-sdk';
@@ -86,13 +86,11 @@ const onBridgeReady = (params: {
 export const usePay = (payParam: PayParam) => {
   const loading = ref(true);
   useLoading(loading);
-  const route = useRoute();
-  const query = route.query as { code: string; [key: string]: string };
   pay({
     ...payParam,
     srcType: getSrcType(),
     extraInfo: JSON.stringify({
-      wxCode: payParam.code || query.code || sessionStorage.wxCode,
+      wxCode: payParam.code || sessionStorage.wxCode,
     }),
   })
     .then((res) => {
