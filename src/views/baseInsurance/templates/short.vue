@@ -123,7 +123,7 @@ import {
 import { productDetail } from '@/api/modules/product';
 import { toLocal } from '@/utils';
 import { transformData, riskToOrder, validateSmsCode, getFileType } from '../utils';
-import { nextStepOperate as nextStep } from '@/utils/nextStep';
+import { nextStepOperate as nextStep } from '@/views/baseInsurance/nextStep';
 import { formatDate } from '@/utils/date';
 import { useTheme } from '../theme';
 

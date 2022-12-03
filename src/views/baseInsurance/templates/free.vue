@@ -77,7 +77,7 @@ import useAddressList from '@/hooks/useAddressList';
 // import { nextStep } from '@/api/index';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ProductData } from '@/api/modules/trial.data';
-import { nextStepOperate } from '@/utils/nextStep';
+import { nextStepOperate } from '@/views/baseInsurance/nextStep';
 import { RELATIONENUM } from '@/common/constants/trial';
 import { freeTransform, validateSmsCode } from '../utils';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';

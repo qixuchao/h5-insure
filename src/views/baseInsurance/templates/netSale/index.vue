@@ -56,7 +56,7 @@ import { insureProductDetail, premiumCalc, underWriteRule } from '@/api/modules/
 import InsureForm from '../components/InsureForm/index.vue';
 import { ORIGIN, toLocal } from '@/utils';
 import { useTheme } from '../../theme';
-import { nextStepOperate as nextStep } from '@/utils/nextStep';
+import { nextStepOperate as nextStep } from '@/views/baseInsurance/nextStep';
 import InsurancePeriodCell from '../components/InsurancePeriodCell/index.vue';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 
@@ -212,7 +212,7 @@ const insuranceStartDate = computed(() => {
   // const riskInfo = currentRiskInfo.value || [];
   // const dateType = riskInfo?.[0].riskDetailVOList?.[0]?.insuranceStartType || '1';
 
-  return `${dayjs(new Date()).format('YYYY-MM-DD')}00:00:00`;
+  return `${dayjs(new Date()).add(1, 'day').format('YYYY-MM-DD')}00:00:00`;
 });
 
 const insuranceEndDate = computed(() => {

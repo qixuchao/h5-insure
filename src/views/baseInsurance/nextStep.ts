@@ -1,8 +1,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-12-01 11:06:22
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-02 18:41:58
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-12-03 16:06:29
  * @FilePath: /zat-planet-h5-cloud-insure/src/utils/nextStep.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -18,9 +18,7 @@ export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: 
     const { extInfo, orderNo, tenantOrderInsuredList, tenantId } = currentParams || {};
     const { iseeBizNo } = extInfo || {};
     const { productCode } = tenantOrderInsuredList?.[0]?.tenantOrderProductList?.[0] || {};
-    const redirectUrl = `${
-      window.location.origin + window.location.pathname
-    }?orderNo=${orderNo}&tenantId=${tenantId}&iseeBizNo=${iseeBizNo}&productCode=${productCode}`;
+    const redirectUrl = `${`${window.location.origin}/baseInsurance/orderDetail`}?orderNo=${orderNo}&tenantId=${tenantId}&iseeBizNo=${iseeBizNo}&productCode=${productCode}`;
     currentParams.extInfo.redirectUrl = redirectUrl;
   }
   const { code, data } = await nextStep(currentParams);
