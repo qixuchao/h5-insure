@@ -186,7 +186,7 @@ interface QueryData {
   phoneNo: string; // 手机号
   agentCode: string;
   agencyCode: string;
-  // orderNo: string;
+  orderNo: string;
   pageCode: string;
   from: string; // from = 'check' 审核版
   [key: string]: string;
@@ -207,6 +207,7 @@ const {
   from,
   extraInfo,
   insurerCode,
+  orderNo: oldOrderNo,
 } = route.query as QueryData;
 
 let extInfo: any = {};
@@ -236,6 +237,8 @@ const showModal = ref<boolean>(false);
 const preNoticeLoading = ref<boolean>(false);
 const orderNo = ref('');
 const relationList = ref<any>({});
+const loading = ref(true);
+
 let iseeBizNo = '';
 
 const isOnlyView = ref<boolean>(true);
@@ -255,6 +258,7 @@ const orderDetail = ref<any>({
   // saleUserId: saleChannelId,
   saleChannelId,
   venderCode: insurerCode,
+  productCode,
   // 保障期限开始|结束日期
   insuranceStartDate: null,
   insuranceEndDate: null,
@@ -554,6 +558,7 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
     productId: currentProductDetail?.productBasicInfoVO.id,
   };
   nextStepParams.extInfo.iseeBizNo = iseeBizNo;
+  nextStepParams.productCode = currentProductDetail.productBasicInfoVO.productCode;
   nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
   nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
   nextStepParams.tenantOrderInsuredList = nextStepParams.tenantOrderInsuredList.map((insurer: any) => {
@@ -563,7 +568,7 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
     };
   });
   nextStepParams.tenantOrderInsuredList[0].tenantOrderProductList[0] = {
-    premium: '',
+    premium: premium.value,
     productCode: currentProductDetail.productBasicInfoVO.productCode,
     productName: currentProductDetail.productBasicInfoVO.productName,
     planCode: orderDetail.value.activePlanCode ? orderDetail.value.activePlanCode : null,
@@ -580,28 +585,29 @@ const onUnderWrite = async () => {
   }
 };
 
-const onSaveOrder = async () => {
-  await nextStep(trialData2Order(insureDetail.value, {}, orderDetail.value), async (data: any, pageAction: string) => {
-    if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-      if (data?.orderNo) {
-        orderNo.value = data?.orderNo;
-        if (filterHealthAttachmentList.value.length > 0) {
-          isOnlyView.value = false;
-          previewFile(0);
-        } else if (healthAttachmentList.value.length > 0) {
-          showHealthPreview.value = true;
-        } else {
-          await onUnderWrite();
+const onSaveOrder = async (premiumMap: any) => {
+  await nextStep(
+    trialData2Order(insureDetail.value, premiumMap, orderDetail.value),
+    async (data: any, pageAction: string) => {
+      if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+        if (data?.orderNo) {
+          orderNo.value = data?.orderNo;
+          if (filterHealthAttachmentList.value.length > 0) {
+            isOnlyView.value = false;
+            previewFile(0);
+          } else if (healthAttachmentList.value.length > 0) {
+            showHealthPreview.value = true;
+          } else {
+            await onUnderWrite();
+          }
         }
       }
-    }
-  });
+    },
+  );
 };
 
 // 保费试算
 const trialPremium = async (orderInfo, currentProductDetail, productRiskList, isOnlypremiumCalc = true) => {
-  const loading = ref(true);
-
   try {
     const tempRiskVOList = riskToOrder(productRiskList).map((riskVOList: any) => {
       return {
@@ -650,19 +656,24 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
         loading.value = false;
         premiumLoadingText.value = '';
 
-        const { pageAction, message } = data.pageAction || {};
-        // 接口报错了
-        if (pageAction === PAGE_ACTION_TYPE_ENUM.ALERT) {
-          Toast(message);
-          return;
-        }
         orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList =
           trialParams.insuredVOList[0]?.productPlanVOList;
         premium.value = data.premium;
+        orderDetail.value.premium = data.premium;
         orderDetail.value.orderAmount = data.premium;
         orderDetail.value.orderRealAmount = data.premium;
         if (!isOnlypremiumCalc) {
-          onSaveOrder();
+          const premiumMap = {};
+          if (data.riskPremiumDetailVOList && data.riskPremiumDetailVOList.length) {
+            data.riskPremiumDetailVOList.forEach((riskDetail: any) => {
+              premiumMap[riskDetail.riskCode] = {
+                premium: riskDetail.premium,
+                amount: riskDetail.amount,
+              };
+            });
+          }
+          console.log('premiumMap', premiumMap);
+          onSaveOrder(premiumMap);
         }
       } else {
         premiumLoadingText.value = '';
@@ -834,6 +845,10 @@ onMounted(() => {
   setTimeout(async () => {
     iseeBizNo = window.getIseeBiz && (await window.getIseeBiz());
   }, 1500);
+});
+
+onUnmounted(() => {
+  loading.value = false;
 });
 </script>
 

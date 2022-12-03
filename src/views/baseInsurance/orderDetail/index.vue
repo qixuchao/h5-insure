@@ -134,6 +134,9 @@ const goToInsurerPage = async (reOrder = false) => {
       insurerCode,
       productCode: reOrder ? state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO.productCode : productCode,
       tenantId,
+      agencyCode: state.orderDetail.agencyId,
+      agentCode: state.orderDetail.agentCode,
+      extraMap: reOrder ? {} : { ...state.orderDetail.extInfo.extraInfo, orderNo },
     });
     if (code === '10000') {
       window.location.href = data || '';
@@ -165,6 +168,8 @@ const orderBtnHandler = () => {
 };
 
 const initPageInfo = () => {
+  console.log('state.orderDetail.orderStatus', state.orderDetail.orderStatus);
+  console.log('state.orderDetail.orderStatus', ORDER_STATUS_MAP[state.orderDetail.orderStatus]);
   state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
   state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
   let insurancePeriodDesc = '';
