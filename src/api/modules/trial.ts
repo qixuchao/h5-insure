@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-24 13:44:22
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-01 20:21:03
+ * @LastEditTime: 2022-12-03 11:32:29
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/modules/trial.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -38,7 +38,7 @@ export const getPayUrl = (data = {}) =>
 
 // 获取订单详情
 export const getTenantOrderDetail = (data = {}) =>
-  request<any>({ url: '/api/app/insure/insurance/getTenantOrderDetail', method: 'POST', data });
+  request<any>({ url: '/api/app/insure/insurance/getTenantOrderDetail', method: 'POST', data }, { loading: true });
 
 // 获取订单详情
 export const getOrderDetailByCondition = (data = {}) =>
@@ -69,11 +69,16 @@ export const nextStep = (data = {}) =>
 
 // 试算前对数据进行校验
 export const underWriteRule = (data = {}) =>
-  request<ResponseData<PremiumCalcResponse>>({
-    url: '/api/app/insure/insurance/underWriteRule',
-    method: 'POST',
-    data,
-  });
+  request<ResponseData<PremiumCalcResponse>>(
+    {
+      url: '/api/app/insure/insurance/underWriteRule',
+      method: 'POST',
+      data,
+    },
+    {
+      loading: true,
+    },
+  );
 
 // 获取投保链接
 export const queryStandardInsurerLink = (data = {}) =>

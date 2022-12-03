@@ -33,7 +33,7 @@
         <ProCell title="保费" :content="productPremium"></ProCell>
         <!-- <ProCell title="保障期间" :content=""></ProCell> -->
         <div class="footer-button">
-          <van-button type="primary" block @click="insured">分享用户确认投保</van-button>
+          <ProShadowButton text="分享用户确认投保" @click="insured"></ProShadowButton>
         </div>
       </div>
     </ProPageWrap>

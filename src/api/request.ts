@@ -3,14 +3,14 @@
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-02 21:11:05
+ * @LastEditTime: 2022-12-02 21:34:24
  */
 import axios, { type AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
 import { Toast } from 'vant';
+import useLoading from '@/hooks/useLoading';
 import Storage from '@/utils/storage';
 import showCodeMessage, { SUCCESS_CODE, SUCCESS_STATUS, UNLOGIN } from '@/api/code';
-import { formatJsonToUrlParams, instanceObject } from '@/utils/format';
 
 // URL前缀，默认为 /
 const BASE_PREFIX = import.meta.env.VITE_API_BASEURL;
@@ -113,7 +113,7 @@ const axiosInstance: AxiosInstance = axios.create({
  * 判断失败的标准
  * http请求的状态是5xx
  */
-axiosRetry(axiosInstance, { retries: 2 });
+// axiosRetry(axiosInstance, { retries: 2 });
 
 // 请求拦截器
 axiosInstance.interceptors.request.use(
