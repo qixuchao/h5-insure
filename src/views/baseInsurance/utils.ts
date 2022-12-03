@@ -71,6 +71,7 @@ export const transformData = (o: transformDataType) => {
         copy: risk.copy,
       },
       initialPremium: riskPremium[risk.riskCode]?.premium,
+      totalPremium: riskPremium[risk.riskCode]?.premium,
       liabilityDetails:
         risk.liabilityVOList?.map((liab) => ({
           liabilityCode: liab.liabilityCode,

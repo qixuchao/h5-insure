@@ -1,13 +1,14 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-12-01 11:06:22
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-03 16:06:29
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-04 01:25:15
  * @FilePath: /zat-planet-h5-cloud-insure/src/utils/nextStep.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import { Toast, Dialog } from 'vant';
 import { nextStep } from '@/api';
+import router from '@/router';
 import { sendPay } from '@/views/cashier/core';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 
@@ -40,7 +41,12 @@ export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: 
         message: `该被保人已存在一笔待支付的订单`,
         confirmButtonText: '去支付',
       }).then(() => {
-        sendPay(resData?.paymentUrl);
+        if (resData.orderNo) {
+          router.push(
+            `/baseInsurance/orderDetail?orderNo=${resData.orderNo}&tenantId=${params.tenantId}&iseeBizNo=${params.extInfo.iseeBizNo}&productCode=${params.productCode}`,
+          );
+        }
+        // sendPay(resData?.paymentUrl);
       });
     }
   }
