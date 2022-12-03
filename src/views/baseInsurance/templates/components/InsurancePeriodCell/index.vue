@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-02 14:30:20
+ * @LastEditTime: 2022-12-03 14:07:28
  * @Description:
 -->
 <template>
@@ -295,7 +295,7 @@ watch(
       }
       state.formInfo.insuranceEndDate = `${computedAddDate(
         state.formInfo.insuranceStartDate,
-        Number(num) - 1,
+        Number(num),
         unit,
       )} 23:59:59`;
     }

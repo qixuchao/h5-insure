@@ -28,11 +28,20 @@
             :send-sms-code="sendSmsCode"
             :factor-object="factorObj || {}"
           >
-            <template #holderName>
-              <CustomerList :user-info="customerConfig" />
+            <template v-if="holderCustomerList.length > 1" #holderName>
+              <CustomerList
+                :user-info="orderDetail.tenantOrderHolder"
+                :data="holderCustomerList"
+                @change="onUpdateHolderData"
+              />
             </template>
-            <template #insurerName>
-              <CustomerList title="选择被保人" :user-info="customerConfig" />
+            <template v-if="insurerListCustomeList.length > 1" #insurerName>
+              <CustomerList
+                title="选择被保人"
+                :user-info="orderDetail.tenantOrderInsuredList[0]"
+                :data="insurerListCustomeList"
+                @change="onUpdateInsurerData"
+              />
             </template>
           </InsureForm>
           <PaymentType
@@ -96,9 +105,10 @@ import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
 import CustomerList from './components/CustomerList/index.vue';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
-import { useWXCode, sendPay } from '../../cashier/core';
+import { sendPay } from '../../cashier/core';
 import { CERT_TYPE_ENUM } from '@/common/constants';
-import { ORDER_STATUS_ENUM } from '@/common/constants/order';
+import useAddressList from '@/hooks/useAddressList';
+import useLoading from '@/hooks/useLoading';
 import {
   INSURE_TYPE_ENUM,
   SOCIAL_SECURITY_ENUM,
@@ -108,6 +118,7 @@ import {
 } from '@/common/constants/infoCollection';
 import { ProductDetail, AttachmentVOList, PlanInsureVO } from '@/api/modules/product.data';
 import { PackageProductVoItem, ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
+import { RELATIONENUM } from '@/common/constants/trial';
 
 import {
   premiumCalc,
@@ -121,9 +132,9 @@ import {
   underWriteRule,
 } from '@/api/modules/trial';
 import { productDetail } from '@/api/modules/product';
-import { toLocal } from '@/utils';
+import { isEmpty, toLocal } from '@/utils';
 import { transformData, riskToOrder, validateSmsCode, getFileType } from '../utils';
-import { nextStepOperate as nextStep } from '@/views/baseInsurance/nextStep';
+import { nextStepOperate as nextStep } from '../nextStep';
 import { formatDate } from '@/utils/date';
 import { useTheme } from '../theme';
 
@@ -167,13 +178,11 @@ interface QueryData {
   agentCode: string;
   // orderNo: string;
   pageCode: string;
-  openId: string;
   from: string; // from = 'check' 审核版
   [key: string]: string;
 }
 
 const {
-  openId,
   productCode = 'BWYL2021',
   tenantId,
   phoneNo: mobile,
@@ -189,7 +198,7 @@ const {
   insurerCode,
 } = route.query as QueryData;
 
-let extInfo = {};
+let extInfo: any = {};
 
 try {
   extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
@@ -197,12 +206,8 @@ try {
   //
 }
 
-const customerConfig = ref({
-  certNo,
-  openId,
-  tenantId,
-  mobile,
-});
+const { openId } = extInfo;
+
 const formRef = ref();
 const detailScrollRef = ref();
 const detail = ref<ProductDetail>(); // 产品信息
@@ -214,7 +219,8 @@ const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件�
 const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
 const preNoticeLoading = ref<boolean>(false);
-const orderNo = ref();
+const orderNo = ref('');
+const relationList = ref<any>({});
 let iseeBizNo = '';
 
 const isOnlyView = ref<boolean>(true);
@@ -225,35 +231,6 @@ const PAGE_ACTION_TYPE_ENUM = {
   JUMP_PAGE: 'jumpToPage',
   JUMP_ALERT: 'jumpToAlert',
 };
-
-// 试算数据， 赠险进入，从链接上默认取投保人数据
-const trialData = reactive({
-  holder: {
-    certNo,
-    certType: CERT_TYPE_ENUM.CERT, // 默认身份证
-    mobile,
-    name,
-    socialFlag: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
-    extInfo: {
-      hasSocialInsurance: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
-    },
-  },
-  insured: {
-    certNo,
-    certType: CERT_TYPE_ENUM.CERT,
-    name,
-    socialFlag: SOCIAL_SECURITY_ENUM.HAS,
-    relationToHolder: RELATION_HOLDER_ENUM.SELF, // 被保人默认自己
-  },
-  paymentMethod,
-  renewalDK: 'Y',
-  packageProductList: [],
-  mobileSmsCode: '',
-  activePlanCode: '',
-  paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.YEAR,
-  insurancePeriodValue: '', // 保障期限
-  commencementTime: formatDate(new Date()), // 生效日期
-});
 
 const orderDetail = ref<any>({
   tenantId,
@@ -278,6 +255,7 @@ const orderDetail = ref<any>({
   },
   tenantOrderInsuredList: [
     {
+      dontFetchDefaultInfo: false,
       socialFlag: SOCIAL_SECURITY_ENUM.HAS,
       relationToHolder: RELATION_HOLDER_ENUM.SELF,
       extInfo: {
@@ -332,25 +310,46 @@ const isMultiplePlan = computed(() => {
   return false;
 });
 
-// 投保要素
-const factorObj = computed(() => {
-  // TODO 二次用户信息不要验证码
-  if (isMultiplePlan.value) {
-    if (orderDetail.value.activePlanCode) {
-      return insureDetail.value?.planFactor[orderDetail.value.activePlanCode] || {};
-    }
-  } else if (insureDetail.value?.productFactor) {
-    return insureDetail.value?.productFactor;
-  }
-  return {};
+useAddressList({ openId }, (data: any) => {
+  relationList.value = data;
 });
 
-const isCheckSmsCode = computed(() => {
-  if (factorObj.value) {
-    const item = factorObj.value.find((e) => e.code === 'verificationCode' && e.isDisplay === 1);
-    return !!item;
+const isOldUser = computed(() => {
+  return relationList.value[RELATIONENUM.SELF] && relationList.value[RELATIONENUM.SELF].length > 0;
+});
+
+const holderCustomerList = computed(() => {
+  if (isOldUser.value) {
+    return relationList.value[RELATIONENUM.SELF] || [];
   }
-  return false;
+  return [];
+});
+
+const insurerListCustomeList = computed(() => {
+  if (isOldUser.value && orderDetail.value.tenantOrderInsuredList[0]) {
+    return relationList.value[orderDetail.value.tenantOrderInsuredList[0].relationToHolder] || [];
+  }
+  return [];
+});
+
+// 投保要素
+const factorObj = computed(() => {
+  let factorObjList = {};
+  if (isMultiplePlan.value) {
+    if (orderDetail.value.activePlanCode) {
+      factorObjList = insureDetail.value?.planFactor[orderDetail.value.activePlanCode] || {};
+    }
+  } else if (insureDetail.value?.productFactor) {
+    factorObjList = insureDetail.value?.productFactor;
+  }
+  if (isOldUser.value && factorObjList[1]) {
+    const index = factorObjList[1].findIndex((e: any) => e.code === 'verificationCode' && e.isDisplay === 1);
+    if (index > -1) {
+      console.log('index', index);
+      factorObjList[1][index].isDisplay = 2;
+    }
+  }
+  return factorObjList;
 });
 
 // 多计划时添加默认值
@@ -472,6 +471,16 @@ const onClickToInsure = () => {
   detailScrollRef.value.handleClickTab()('tab3');
 };
 
+const onUpdateHolderData = (data: any) => {
+  console.log('data', data);
+  Object.assign(orderDetail.value.tenantOrderHolder, data);
+};
+
+const onUpdateInsurerData = (data: any) => {
+  console.log('data', data);
+  Object.assign(orderDetail.value.tenantOrderInsuredList[0], data);
+};
+
 const previewFile = (index: number) => {
   activeIndex.value = index;
   showFilePreview.value = true;
@@ -547,85 +556,98 @@ const onPremiumCalcWithValid = () => {
 };
 
 const trialPremium = async (orderInfo, currentProductDetail, productRiskList, isOnlypremiumCalc = true) => {
-  const tempRiskVOList = riskToOrder(productRiskList).map((riskVOList: any) => {
-    return {
-      ...riskVOList,
-      paymentFrequency: orderInfo.paymentFrequency,
-      insurancePeriodValue: orderInfo.insurancePeriodValue, // 保障期限
-    };
-  });
-  const trialParams = {
-    tenantId,
-    productCode: detail.value?.productCode,
-    insuranceStartDate: orderInfo.insuranceStartDate,
-    insuranceEndDate: orderInfo.insuranceEndDate,
-    commencementTime: orderInfo.insuranceStartDate,
-    expiryDate: orderInfo.insuranceEndDate,
-    holder: {
-      personVO: { ...orderInfo.tenantOrderHolder, socialFlag: orderInfo.tenantOrderHolder.extInfo.hasSocialInsurance },
-    },
-    insuredVOList: orderInfo.tenantOrderInsuredList.map((person) => {
-      return {
-        insuredCode: '',
-        relationToHolder: person.relationToHolder,
-        personVO: { ...person, socialFlag: person.extInfo.hasSocialInsurance },
-        productPlanVOList: [
-          {
-            insurerCode: currentProductDetail.productBasicInfoVO.insurerCode,
-            planCode: orderDetail.value.activePlanCode ? orderDetail.value.activePlanCode : null,
-            riskVOList: tempRiskVOList,
-          },
-        ],
-      };
-    }),
-  };
-  const { code: ruleCode, message: ruleMessage } = await underWriteRule(trialParams);
+  const loading = ref(true);
 
-  if (ruleCode === '10000') {
-    const { code, data } = await premiumCalc(trialParams);
-    if (code === '10000') {
-      const { pageAction, message, data: resData } = data.pageAction || {};
-      // 接口报错了
-      if (pageAction === PAGE_ACTION_TYPE_ENUM.ALERT) {
-        Toast(message);
-        return;
+  try {
+    const tempRiskVOList = riskToOrder(productRiskList).map((riskVOList: any) => {
+      return {
+        ...riskVOList,
+        paymentFrequency: orderInfo.paymentFrequency,
+        insurancePeriodValue: orderInfo.insurancePeriodValue, // 保障期限
+      };
+    });
+    const trialParams = {
+      tenantId,
+      productCode: detail.value?.productCode,
+      insuranceStartDate: orderInfo.insuranceStartDate,
+      insuranceEndDate: orderInfo.insuranceEndDate,
+      commencementTime: orderInfo.insuranceStartDate,
+      expiryDate: orderInfo.insuranceEndDate,
+      holder: {
+        personVO: {
+          ...orderInfo.tenantOrderHolder,
+          socialFlag: orderInfo.tenantOrderHolder.extInfo.hasSocialInsurance,
+        },
+      },
+      insuredVOList: orderInfo.tenantOrderInsuredList.map((person) => {
+        return {
+          insuredCode: '',
+          relationToHolder: person.relationToHolder,
+          personVO: { ...person, socialFlag: person.extInfo.hasSocialInsurance },
+          productPlanVOList: [
+            {
+              insurerCode: currentProductDetail.productBasicInfoVO.insurerCode,
+              planCode: orderDetail.value.activePlanCode ? orderDetail.value.activePlanCode : null,
+              riskVOList: tempRiskVOList,
+            },
+          ],
+        };
+      }),
+    };
+
+    const { code: ruleCode, message: ruleMessage } = await underWriteRule(trialParams);
+
+    if (ruleCode === '10000') {
+      useLoading(loading, '保费试算中');
+
+      const { code, data } = await premiumCalc(trialParams);
+      if (code === '10000') {
+        loading.value = false;
+
+        const { pageAction, message, data: resData } = data.pageAction || {};
+        // 接口报错了
+        if (pageAction === PAGE_ACTION_TYPE_ENUM.ALERT) {
+          Toast(message);
+          return;
+        }
+        orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList =
+          trialParams.insuredVOList[0]?.productPlanVOList;
+        premium.value = data.premium;
+        orderDetail.value.orderAmount = data.premium;
+        orderDetail.value.orderRealAmount = data.premium;
+        if (!isOnlypremiumCalc) {
+          onSaveOrder();
+        }
       }
-      orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList =
-        trialParams.insuredVOList[0]?.productPlanVOList;
-      premium.value = data.premium;
-      orderDetail.value.orderAmount = data.premium;
-      orderDetail.value.orderRealAmount = data.premium;
-      if (!isOnlypremiumCalc) {
-        onSaveOrder();
-      }
+    } else {
+      Toast(ruleMessage);
     }
-  } else {
-    Toast(ruleMessage);
+  } catch (error) {
+    loading.value = false;
   }
 };
 
 const onNext = async () => {
   try {
-    await trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value, false);
-    // if (formRef.value) {
-    //   formRef.value?.validateForm().then(async () => {
-    //     if (!isCheckSmsCode) {
-    //       await trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value, false);
-    //     } else {
-    //       const smsCode = orderDetail.value.tenantOrderHolder?.verificationCode;
-    //       if (!smsCode || !validateSmsCode(smsCode)) {
-    //         Toast({
-    //           message: '请输入正确的验证码',
-    //         });
-    //         return;
-    //       }
-    //       const { code, data } = await checkCode(orderDetail.value.tenantOrderHolder.mobile, smsCode);
-    //       if (code === '10000') {
-    //         await trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value, false);
-    //       }
-    //     }
-    //   });
-    // }
+    if (formRef.value) {
+      formRef.value?.validateForm().then(async () => {
+        if (isOldUser.value) {
+          await trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value, false);
+        } else {
+          const smsCode = orderDetail.value.tenantOrderHolder?.verificationCode;
+          if (!smsCode || !validateSmsCode(smsCode)) {
+            Toast({
+              message: '请输入正确的验证码',
+            });
+            return;
+          }
+          const { code, data } = await checkCode(orderDetail.value.tenantOrderHolder.mobile, smsCode);
+          if (code === '10000') {
+            await trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value, false);
+          }
+        }
+      });
+    }
   } catch (e) {
     //
   }
@@ -661,25 +683,76 @@ const onSubmit = () => {
   }
 };
 
+// 表单组件切换被保人时不会赋值默认社保
 watch(
-  [
-    () => orderDetail.value.tenantOrderInsuredList[0].birth,
-    () => orderDetail.value.tenantOrderInsuredList[0].gender,
-    () => orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance,
-  ],
-  debounce(async () => {
-    const {
-      birth,
-      gender,
-      extInfo: { hasSocialInsurance },
-    } = orderDetail.value.tenantOrderInsuredList[0];
-    if (birth && gender && hasSocialInsurance) {
-      await trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
-    }
-  }, 500),
+  () => orderDetail.value.tenantOrderInsuredList[0].relationToHolder,
+  () => {
+    orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance = RELATION_HOLDER_ENUM.SELF;
+  },
   {
     deep: true,
     immediate: true,
+  },
+);
+
+watch(
+  [
+    () => orderDetail.value.tenantOrderInsuredList[0].birthday,
+    () => orderDetail.value.tenantOrderInsuredList[0].gender,
+    () => orderDetail.value.tenantOrderInsuredList[0].mobile,
+    () => orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance,
+    () => orderDetail.value.activePlanCode,
+    () => orderDetail.value.paymentFrequency,
+    () => orderDetail.value.insurancePeriodValue,
+  ],
+  debounce(() => {
+    const {
+      birthday,
+      gender,
+      extInfo: { hasSocialInsurance },
+    } = orderDetail.value.tenantOrderInsuredList[0];
+    console.log('birthday', birthday);
+    console.log('gender', gender);
+
+    if (birthday && gender && orderDetail.value.paymentFrequency) {
+      trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
+    }
+  }, 500),
+);
+
+watch(
+  () => orderDetail.value.tenantOrderInsuredList[0],
+  (e) => {
+    if (isEmpty(relationList.value)) return null;
+    const targets = relationList.value[e.relationToHolder] || [];
+    if (targets.length === 1) {
+      if (RELATIONENUM.SELF !== e.relationToHolder) {
+        if (!orderDetail.value.tenantOrderInsuredList[0].dontFetchDefaultInfo) {
+          orderDetail.value.tenantOrderInsuredList[0].dontFetchDefaultInfo = true;
+          orderDetail.value.tenantOrderInsuredList[0].certNo = orderDetail.value.tenantOrderInsuredList[0].certNo
+            ? orderDetail.value.tenantOrderInsuredList[0].certNo
+            : targets[0].cert[0].certNo;
+          orderDetail.value.tenantOrderInsuredList[0].name = orderDetail.value.tenantOrderInsuredList[0].name
+            ? orderDetail.value.tenantOrderInsuredList[0].name
+            : targets[0].cert[0].certName;
+        }
+      } else {
+        if (!orderDetail.value.tenantOrderHolder.dontFetchDefaultInfo) {
+          orderDetail.value.tenantOrderHolder.dontFetchDefaultInfo = true;
+          orderDetail.value.tenantOrderHolder.certNo = orderDetail.value.tenantOrderHolder.certNo
+            ? orderDetail.value.tenantOrderHolder.certNo
+            : targets[0].cert[0].certNo;
+          orderDetail.value.tenantOrderHolder.name = orderDetail.value.tenantOrderHolder.name
+            ? orderDetail.value.tenantOrderHolder.name
+            : targets[0].cert[0].certName;
+        }
+      }
+    }
+    return false;
+  },
+  {
+    immediate: true,
+    deep: true,
   },
 );
 
@@ -697,24 +770,7 @@ const fetchData = async () => {
   if (insureRes.code === '10000') {
     insureDetail.value = insureRes.data;
   }
-
-  // const productReq = await productDetail({ productCode, withInsureInfo: true, tenantId });
-  // const insureReq = insureProductDetail({ productCode });
-  // await Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
-  //   if (productRes.code === '10000') {
-  //     detail.value = {
-  //       ...productRes.data,
-  //     };
-  //     document.title = productRes.data?.productFullName || '';
-  //   }
-
-  //   if (insureRes.code === '10000') {
-  //     insureDetail.value = insureRes.data;
-  //   }
-  // });
 };
-
-useWXCode();
 
 onMounted(() => {
   fetchData();
