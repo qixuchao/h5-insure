@@ -2,8 +2,8 @@
   <van-config-provider :theme-vars="themeVars">
     <ProPageWrap>
       <div class="net-sale-wrap">
-        <div class="product-name">{{ insureDetail?.productBasicInfoVO?.productFullName }}</div>
-        <ProCard v-if="isShowInsurePeriod" title="保障年期">
+        <div class="part product-name">{{ insureDetail?.productBasicInfoVO?.productFullName }}</div>
+        <ProCard v-if="isShowInsurePeriod" :show-line="false" title="保障年期">
           <ProRadioButton
             v-model="currentPlan"
             class="radio-group"
@@ -30,8 +30,14 @@
             <span></span>
           </template>
         </InsureForm>
-        <ProCell title="保费" :content="productPremium"></ProCell>
-        <ProCell title="保障期间" :content="`${insuranceStartDate}~${insuranceEndDate}`"></ProCell>
+        <div class="part">
+          <ProCell title="保费" :content="productPremium"></ProCell>
+          <ProCell
+            title="保障期间"
+            :content="`${insuranceStartDate.split(' ')[0]}~${insuranceEndDate.split(' ')[0]}`"
+          ></ProCell>
+        </div>
+
         <div class="footer-button">
           <ProShadowButton text="分享用户确认投保" @click="insured"></ProShadowButton>
         </div>
@@ -170,7 +176,7 @@ const isShowInsurePeriod = computed(() => {
 
 // 保费展示的逻辑
 const productPremium = computed(() => {
-  let { premium } = premiumObj.value || {};
+  const { premium } = premiumObj.value || {};
   if (!premium) {
     const { tenantProductInsureVO } = tenantProductDetail.value || {};
     let selectedPlan = {};
@@ -180,10 +186,11 @@ const productPremium = computed(() => {
       selectedPlan = tenantProductInsureVO?.planInsureVO;
     }
     const { paymentFrequencyValue, premiumUnit } = selectedPlan?.productPremiumVOList?.[0] || {};
-    premium = paymentFrequencyValue + premiumUnit;
+
+    return paymentFrequencyValue && `${paymentFrequencyValue}${premiumUnit}`;
   }
 
-  return premium || '';
+  return '';
 });
 
 // 险种信息
@@ -200,26 +207,30 @@ const currentRiskInfo = computed(() => {
   return riskInfo;
 });
 
-// 计算保障期间
-const insurancePeriod = computed(() => {
-  const riskInfo = currentRiskInfo.value?.[0]?.riskDetailVOList?.[0];
-  // const {} = riskInfo;
-});
-
 /* --------------计算保障开始、结束日期 ----------- */
 
 const insuranceStartDate = computed(() => {
-  // const riskInfo = currentRiskInfo.value || [];
-  // const dateType = riskInfo?.[0].riskDetailVOList?.[0]?.insuranceStartType || '1';
-
-  return `${dayjs(new Date()).add(1, 'day').format('YYYY-MM-DD')}00:00:00`;
+  const riskInfo = currentRiskInfo.value || [];
+  const startDateType = riskInfo?.[0]?.riskDetailVOList?.[0]?.insuranceStartType || 1;
+  if (startDateType === 1) {
+    return `${dayjs(new Date()).format('YYYY-MM-DD')} 00:00:00`;
+  }
+  return `${dayjs(new Date()).add(1, 'day').format('YYYY-MM-DD')} 00:00:00`;
 });
 
 const insuranceEndDate = computed(() => {
-  // const riskInfo = currentRiskInfo.value || [];
-  // const dateType = riskInfo?.[0].riskDetailVOList?.[0]?.insuranceEndType || '1';
-
-  return `${dayjs(new Date()).add(1, 'year').format('YYYY-MM-DD')}00:00:00`;
+  const riskInfo = currentRiskInfo.value || [];
+  const { insuranceEndType, riskInsureLimitVO } = riskInfo?.[0]?.riskDetailVOList?.[0] || {};
+  const { insurancePeriodValueList } = riskInsureLimitVO || {};
+  const [unit, num] = (insurancePeriodValueList?.[0] || '').split('_');
+  // 当日23:59:59失效
+  if (insuranceEndType === 1) {
+    return `${dayjs(new Date())
+      .add(num || 0, unit)
+      .format('YYYY-MM-DD')} 23:59:59`;
+  }
+  // 次日00:00:00失效
+  return `${dayjs(new Date()).add(num, unit).format('YYYY-MM-DD')} 00:00:00`;
 });
 
 const trialPremium = async (orderInfo, currentProductDetail, productRiskList) => {
@@ -288,11 +299,13 @@ const nextStepOperate = async () => {
 };
 
 const insured = async () => {
-  Dialog.confirm({
-    title: '分享',
-    message: `即将向客户【${orderDetail.value.tenantOrderHolder.name}】发送投保确认信息,请确认是否继续？`,
-  }).then(() => {
-    nextStepOperate();
+  formRef.value?.validateForm().then(() => {
+    Dialog.confirm({
+      title: '分享',
+      message: `即将向客户【${orderDetail.value.tenantOrderHolder.name}】发送投保确认信息,请确认是否继续？`,
+    }).then(() => {
+      nextStepOperate();
+    });
   });
 
   // if (formRef.value) {
@@ -398,6 +411,31 @@ onMounted(() => {
 
   .footer-button {
     justify-content: space-between;
+  }
+
+  .product-name {
+    font-size: 36px;
+    font-weight: 500;
+    line-height: 80px;
+  }
+
+  .part {
+    background-color: #ffffff;
+    padding: 0 $zaui-page-border;
+    .common-cell-wrapper {
+      height: 104px;
+      align-items: center;
+      width: 100%;
+      display: inline-flex;
+      :deep(.cell-container) {
+        width: 100%;
+        align-items: flex-start;
+        justify-content: center;
+        width: 100%;
+        color: var(--van-field-label-color);
+        font-size: 30px;
+      }
+    }
   }
 
   .radio-group {
