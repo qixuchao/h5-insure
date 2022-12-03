@@ -340,7 +340,7 @@
     ></ProPicker>
     <ProField
       v-if="showByFactor('mobile')"
-      v-model="state.formInfo.mobile"
+      v-model="phoneNo"
       :label="queryFactorAttr('mobile', 'title')"
       :name="`${prefix}_mobile`"
       :maxlength="11"
@@ -585,6 +585,7 @@ interface Props {
   prefix: string;
   beneficiaryList: Array<any>;
   sendSmsCode: (mobile: string, cb: () => void) => void;
+  needDesensitize?: boolean;
 }
 
 interface FactorObj {
@@ -611,6 +612,7 @@ const props = withDefaults(defineProps<Props>(), {
   prefix: '', // 对投保人、被保人、受益人的数据进行区分
   beneficiaryList: () => [], // 受益人列表
   sendSmsCode: (mobile, cb) => {}, // 发送验证码
+  needDesensitize: false, // 关键信息是否需要脱敏
 });
 
 const state = ref({
@@ -626,7 +628,13 @@ const state = ref({
   occupationalText: '',
 });
 
-const phoneNo = '';
+// 数据脱敏显示
+// const;
+const phoneNo = computed(() => {
+  return props.formInfo.mobile;
+});
+const certNo = ref<string>('');
+const isNeedDesensitize = computed(() => props.needDesensitize);
 
 dayjs.extend(relativeTime);
 

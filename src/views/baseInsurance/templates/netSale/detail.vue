@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-03 16:09:43
+ * @LastEditTime: 2022-12-03 18:51:54
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -46,7 +46,13 @@
         ></InsureForm>
         <ProCard title="阅读条款合同">
           <div class="part">
-            <van-cell title="客户告知书" is-link></van-cell>
+            <van-cell
+              v-for="(attachment, index) in Object.keys(attachmentList)"
+              :key="index"
+              :title="attachment"
+              is-link
+              @click="previewFile(attachmentList[attachment])"
+            ></van-cell>
           </div>
         </ProCard>
         <ProCard title="客户签名">
@@ -57,7 +63,6 @@
         </ProCard>
         <div class="footer-button">
           <ProShadowButton text="提交" @click="submit"></ProShadowButton>
-          <!-- <van-button type="primary" block @click="submit">提交</van-button> -->
         </div>
       </div>
     </ProPageWrap>
@@ -82,7 +87,7 @@ const themeVars = useTheme();
 const route = useRoute();
 const router = useRouter();
 
-const { orderNo = '2022120119060692150', tenantId = '9991000001', productCode = 'HTEJBX' } = route.query;
+const { orderNo = '2022113021181894998', tenantId = '9991000001', productCode = 'HTEJBX' } = route.query;
 
 const formData = ref<any>();
 const factorObj = ref<any>({});
@@ -144,6 +149,18 @@ const productDetail = ref<any>();
 const tenantProductDetail = ref<any>();
 const signString = ref<string>('');
 
+const attachmentList = computed(() => {
+  const { planCode } = orderDetail.value.tenantOrderInsuredList?.[0] || {};
+  if (planCode) {
+    return (
+      (tenantProductDetail.value?.planList || []).find((plan) => plan.plaCode === planCode)?.attachmentVOList || []
+    );
+  }
+  return [];
+});
+
+const previewFile = () => {};
+
 const queryOrderDetail = async () => {
   const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
   if (code === '10000') {
@@ -169,7 +186,7 @@ const queryProductDetail = async () => {
 };
 
 const queryTenantProductDetail = async () => {
-  const { data, code } = await getProductDetail({ productCode, tenantId });
+  const { data, code } = await getProductDetail({ productCode, tenantId, withInsureInfo: true });
   if (code === '10000') {
     tenantProductDetail.value = data;
   }

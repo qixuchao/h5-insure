@@ -18,6 +18,7 @@
             INSURER: '被保人',
             BENEFICIARY: '收益人',
           }"
+          need-desensitize
           :form-info="orderDetail"
           :send-sms-code="() => {}"
           input-align="left"
@@ -115,7 +116,7 @@ try {
 
 const orderDetail = ref<any>({
   // 订单数据模板
-  agencyId: agentCode,
+  agentCode,
   commencementTime: '',
   expiryDate: '',
   extInfo: {
@@ -127,10 +128,12 @@ const orderDetail = ref<any>({
   },
   orderCategory: 1,
   saleUserId: saleChannelId,
+  saleChannelId,
   tenantId,
   venderCode: '',
   tenantOrderHolder: {
     extInfo: {},
+    mobile: '13262279090',
   },
   tenantOrderInsuredList: [
     {
@@ -277,7 +280,7 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
     productId: currentProductDetail?.productBasicInfoVO.id,
   };
   nextStepParams.tenantOrderInsuredList[0].tenantOrderProductList[0] = {
-    premium: '',
+    premium: premiumObj.value.premium,
     productCode: currentProductDetail.productBasicInfoVO.productCode,
     productName: currentProductDetail.productBasicInfoVO.productName,
     tenantOrderRiskList: transformData(transformDataReq),
