@@ -72,7 +72,7 @@ router.beforeEach(async (to, from, next) => {
 });
 
 const IS_WECHAT = isWechat();
-router.beforeResolve(async (to, from, next) => {
+router.beforeResolve(async (to, from) => {
   console.log('IS_WECHAT', IS_WECHAT);
   if (IS_WECHAT && to.meta.requireWxJs) {
     const tenantId = to.query?.tenantId as string;
@@ -106,11 +106,6 @@ router.beforeResolve(async (to, from, next) => {
     wx.ready(() => {
       console.log('wechat js sdk 注入成功');
       console.log(realAuthUrl);
-      // 提前获取wxCode
-      if (to.meta.wxCode) {
-        // useWXCode();
-      }
-      next();
     });
     wx.error((err: any) => {
       console.warn('jssdk 注入失败', err);
