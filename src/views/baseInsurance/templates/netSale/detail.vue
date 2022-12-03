@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-04 01:25:51
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-12-04 03:39:35
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -15,33 +15,31 @@
         </ProCard>
         <ProCard v-if="orderDetail.id" :show-line="false" title="投保信息">
           <ProCell title="保费" :content="orderDetail.orderAmount"></ProCell>
-          <ProCell title="保险期限" :content="orderDetail.tenantOrderInsuredList[0]?.planName"></ProCell>
+          <ProCell title="保险期限" :content="planName"></ProCell>
           <ProCell title="起保日期" :content="orderDetail.commencementTime"></ProCell>
           <ProCell title="终保日期" :content="orderDetail.expiryDate"></ProCell>
-          <ProCell title="保单状态" :content="orderDetail.orderStatus"></ProCell>
+          <ProCell title="保单状态" :content="ORDER_STATUS_MAP[orderDetail.orderStatus]"></ProCell>
           <ProCell title="订单编号" :content="orderDetail.orderNo"></ProCell>
           <!-- <ProCell title="销售人名称" content=""></ProCell> -->
           <ProCell title="房屋地址" :content="orderDetail.tenantOrderHolder?.extInfo?.familyAddress"></ProCell>
           <ProCell
             title="燃气编号"
-            :content="orderDetail.tenantOrderInsuredList?.[0]?.extInfo.subjectRelatedUserId"
+            :content="orderDetail.tenantOrderSubjectList?.[0]?.extInfo?.subjectRelatedUserId"
           ></ProCell>
         </ProCard>
-        <ProCard>
-          <InsureForm
-            ref="formRef"
-            :title-collection="{
-              HOLDER: '投保人信息',
-              INSURER: '被保人信息',
-              BENEFICIARY: '受益人',
-            }"
-            :is-view="true"
-            :form-info="orderDetail"
-            :factor-object="factorObj"
-            input-align="right"
-          ></InsureForm>
-        </ProCard>
-        <ProCard title="阅读条款合同">
+        <InsureForm
+          ref="formRef"
+          :title-collection="{
+            HOLDER: '投保人信息',
+            INSURER: '被保人信息',
+            BENEFICIARY: '受益人',
+          }"
+          :is-view="true"
+          :form-info="orderDetail"
+          :factor-object="factorObj"
+          input-align="right"
+        ></InsureForm>
+        <ProCard title="阅读条款合同" class="file-list-card">
           <van-cell
             v-for="(attachment, index) in Object.keys(attachmentList)"
             :key="index"
@@ -56,8 +54,8 @@
             <Sign v-model="signString" />
           </div>
         </ProCard>
-        <div class="footer-button">
-          <VanButton type="primary" class="shadow-btn" large block round @click="submit">提 交</VanButton>
+        <div class="footer">
+          <ProShadowButton :shadow="false" text="提 交" @click="submit" />
         </div>
       </div>
     </ProPageWrap>
@@ -73,11 +71,23 @@
         <ProShadowButton :shadow="false" text="关闭" @click="fileShow = false" />
       </div>
     </ProPopup>
+    <FilePreview
+      v-if="showFilePreview && filterHealthAttachmentList.length !== 0"
+      v-model:show="showFilePreview"
+      :content-list="filterHealthAttachmentList"
+      :is-only-view="isOnlyView"
+      :active-index="activeIndex"
+      :text="isOnlyView ? '关闭' : '我已逐页阅读上述内容并同意'"
+      :force-read-cound="0"
+      on-close-file-preview
+      @submit="onSubmit"
+      @on-close-file-preview="onCloseFilePreview"
+    ></FilePreview>
   </van-config-provider>
 </template>
 <script lang="ts" setup name="netSaleDetail">
 import { useRoute, useRouter } from 'vue-router';
-import { Toast } from 'vant';
+import { Toast, ImagePreview } from 'vant';
 import { useTheme } from '../../theme';
 import { insureProductDetail, getTenantOrderDetail, getPayUrl } from '@/api/modules/trial';
 import InsureForm from '../components/InsureForm/index.vue';
@@ -90,6 +100,7 @@ import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
 import { sendPay, useWXCode } from '../../../cashier/core';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 import pdfPreview from '@/utils/pdfPreview';
+import FilePreview from '../components/FilePreview/index.vue';
 
 const themeVars = useTheme();
 const route = useRoute();
@@ -159,6 +170,11 @@ const productDetail = ref<any>();
 const tenantProductDetail = ref<any>();
 const signString = ref<string>('');
 const planCode = ref<string>('');
+const showFilePreview = ref<boolean>(false);
+const isOnlyView = ref<boolean>(false);
+const activeIndex = ref<number>(0);
+const filterHealthAttachmentList = ref<any[]>([]);
+const planName = ref<string>('');
 
 const attachmentList = ref<any>({});
 
@@ -186,6 +202,57 @@ const queryOrderDetail = async () => {
   }
 };
 
+const onCloseFilePreview = () => {
+  showFilePreview.value = false;
+  isOnlyView.value = false;
+};
+
+const setFileList = () => {
+  let tempList: any = {};
+  tempList =
+    (tenantProductDetail.value?.tenantProductInsureVO?.planList || []).find((plan) => plan.planCode === planCode.value)
+      ?.attachmentVOList || [];
+  if (!tempList) {
+    filterHealthAttachmentList.value = [];
+    return;
+  }
+  // 1: 附件, 2: 富文本, 3: 链接
+  const fileMap = {
+    '2': 'richText',
+    '3': 'link',
+  };
+  filterHealthAttachmentList.value =
+    Object.keys(tempList).map((e) => {
+      tempList[e].forEach((attachmentItem: any) => {
+        if (attachmentItem.attachmentType === '1') {
+          const urlList = attachmentItem.attachmentUri.split('?');
+          const type = urlList[0].substr(urlList[0].lastIndexOf('.') + 1);
+          // eslint-disable-next-line no-param-reassign
+          if (type === 'pdf') {
+            // eslint-disable-next-line no-param-reassign
+            attachmentItem.attachmentType = 'pdf';
+          } else {
+            // eslint-disable-next-line no-param-reassign
+            attachmentItem.attachmentType = 'picture';
+          }
+        } else {
+          // eslint-disable-next-line no-param-reassign
+          attachmentItem.attachmentType = fileMap[attachmentItem.attachmentType];
+        }
+      });
+      return {
+        attachmentName: e,
+        attachmentList: tempList[e],
+      };
+    }) || [];
+};
+
+const onSubmit = () => {
+  showFilePreview.value = false;
+  isOnlyView.value = true;
+  nextStepOperate(orderDetail.value);
+};
+
 const queryProductDetail = async () => {
   const { code, data } = await insureProductDetail({ productCode, tenantId });
   if (code === '10000') {
@@ -198,13 +265,15 @@ const queryTenantProductDetail = async () => {
   const { data, code } = await getProductDetail({ productCode, tenantId, withInsureInfo: true });
   if (code === '10000') {
     tenantProductDetail.value = data;
+    setFileList();
   }
 };
 
 const submit = async () => {
   if (signString.value) {
     await saveSign('HOLDER', signString.value, orderDetail.value.id, `${tenantId}`);
-    nextStepOperate(orderDetail.value);
+    isOnlyView.value = false;
+    showFilePreview.value = true;
   } else {
     Toast('请先签字');
   }
@@ -221,9 +290,12 @@ watch(
   () => {
     if (planCode.value) {
       attachmentList.value =
-        (tenantProductDetail.value?.tenantProductInsureVO?.planList || []).find(
-          (plan) => plan.planCode === planCode.value,
-        )?.attachmentVOList || [];
+        (tenantProductDetail.value?.tenantProductInsureVO?.planList || []).find((plan) => {
+          if (plan.planCode === planCode.value) {
+            planName.value = plan.planName;
+          }
+          return plan.planCode === planCode.value;
+        })?.attachmentVOList || [];
     }
   },
   {
@@ -235,21 +307,32 @@ watch(
 
 <style lang="scss">
 .net-sale-detail-wrap {
-  padding: 0 $zaui-page-border 150px;
+  padding: 0 $zaui-page-border 100px;
   background-color: #f4f4f4;
   .product-name {
     padding: 20px 0 6px;
+  }
+  .file-list-card {
+    width: 100%;
+    .body {
+      padding: 0 !important;
+
+      .van-cell {
+        align-items: center;
+      }
+    }
   }
   .com-card {
     border-radius: 8px;
     // margin-bottom: 20px;
     overflow: hidden;
+    .header {
+      background-color: #f4f4f4;
+      margin: 0 !important;
+    }
     .com-cell-wrapper.border:last-child {
       border: none !important;
     }
-    // .relation-holder {
-    //   border-radius: 8px;
-    // }
   }
 
   .common-cell-wrapper {
@@ -295,9 +378,19 @@ watch(
   }
 }
 .pre-notice-wrap {
+  width: 100%;
   .body {
-    height: calc(100% - 220px);
+    // height: calc(100% - 220px) !important;
     overflow: scroll;
+    .footer {
+      margin-top: 50px;
+      position: absolute;
+      bottom: 0;
+      width: 90%;
+      margin: 0 auto;
+      left: 0;
+      right: 0;
+    }
   }
 
   .pre-body {
@@ -336,10 +429,10 @@ watch(
       border: 1px solid #fff1de;
       border-top-color: #fee6dd;
     }
-
-    .footer {
-      margin-top: 50px;
-    }
   }
+}
+
+.footer {
+  margin-top: 50px;
 }
 </style>
