@@ -27,6 +27,7 @@
               INSURER: '为谁投保（被保人）',
             }"
             :form-info="orderDetail"
+            need-desensitize
             :send-sms-code="sendSmsCode"
             :factor-object="factorObj || {}"
           >
