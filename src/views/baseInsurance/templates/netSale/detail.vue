@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-03 19:10:00
+ * @LastEditTime: 2022-12-03 19:41:02
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -148,16 +148,9 @@ const orderDetail = ref<any>({
 const productDetail = ref<any>();
 const tenantProductDetail = ref<any>();
 const signString = ref<string>('');
+const planCode = ref<string>('');
 
-const attachmentList = computed(() => {
-  const { planCode } = orderDetail.value.tenantOrderInsuredList?.[0] || {};
-  if (planCode) {
-    return (
-      (tenantProductDetail.value?.planList || []).find((plan) => plan.plaCode === planCode)?.attachmentVOList || []
-    );
-  }
-  return [];
-});
+const attachmentList = ref<any>({});
 
 const previewFile = () => {};
 
@@ -166,11 +159,11 @@ const queryOrderDetail = async () => {
   if (code === '10000') {
     data.extInfo.buttonCode = 'EVENT_NETSALE_airSignature';
     orderDetail.value = data;
+    planCode.value = data.tenantOrderInsuredList[0]?.planCode;
     if (data.orderStatus === ORDER_STATUS_ENUM.PAYING) {
       orderDetail.value.extInfo.redirectUrl = '';
       const { code: payCode, data: payData } = await getPayUrl(orderDetail.value);
       if (payCode === '10000') {
-        console.log('data', payData);
         sendPay(payData.paymentUrl);
       }
     }
@@ -189,6 +182,9 @@ const queryTenantProductDetail = async () => {
   const { data, code } = await getProductDetail({ productCode, tenantId, withInsureInfo: true });
   if (code === '10000') {
     tenantProductDetail.value = data;
+    attachmentList.value =
+      (data.tenantProductDetail?.planList || []).find((plan) => plan.plaCode === planCode.value)?.attachmentVOList ||
+      [];
   }
 };
 
@@ -206,6 +202,8 @@ onMounted(() => {
   queryTenantProductDetail();
   queryOrderDetail();
 });
+
+// watch([() => planCode.value, () => ])
 </script>
 
 <style lang="scss" scoped>

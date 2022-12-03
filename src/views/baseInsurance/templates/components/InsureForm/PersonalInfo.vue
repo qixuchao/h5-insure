@@ -340,7 +340,7 @@
     ></ProPicker>
     <ProField
       v-if="showByFactor('mobile')"
-      v-model="phoneNo"
+      v-model="state.formInfo.mobile"
       :label="queryFactorAttr('mobile', 'title')"
       :name="`${prefix}_mobile`"
       :maxlength="11"
