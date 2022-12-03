@@ -1,1 +1,0 @@
-import{S as o}from"./index-a6412fca.js";const e=new o({source:"sessionStorage"}),s=new o({source:"localStorage"}),a=new o({source:"cookie"}),c=()=>a||new o({source:"cookie"});export{s as l,e as s,c as u};
