@@ -91,12 +91,20 @@ interface QueryData {
   tenantId: string; // 订单id
   indirectCode: string;
   saleUserId: string;
+  agencyCode: string;
   saleChannelId: string;
   extraInfo: any;
   [key: string]: string;
 }
 // oKugN52glZx_hhg7liu0WpWcmD5o
-const { productCode = '', tenantId = '', saleUserId = '', saleChannelId = '', extraInfo } = route.query as QueryData;
+const {
+  productCode = '',
+  agencyCode = '',
+  tenantId = '',
+  saleUserId = '',
+  saleChannelId = '',
+  extraInfo,
+} = route.query as QueryData;
 
 let extInfo: any = {};
 
@@ -309,6 +317,7 @@ const onSaveOrder = async () => {
         insureDetail: state.insureDetail,
         iseeBizNo,
         agentCode,
+        agencyCode,
         saleUserId,
         templateId: extInfo?.templateId,
         saleChannelId,

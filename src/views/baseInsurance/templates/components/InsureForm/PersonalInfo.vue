@@ -76,7 +76,7 @@
       v-model="state.formInfo.certType"
       :label="queryFactorAttr('certType', 'title')"
       :name="`${prefix}_certType`"
-      :data-source="certTypeOption"
+      :data-source="queryFactorAttr('certType', 'attributeValueList')"
       :mapping="{ label: 'value', value: 'code', children: 'child' }"
       :required="isRequiredByFactor('certType')"
       :rules="[{ validator: validateCertType }]"
@@ -112,7 +112,7 @@
       :required="isRequiredByFactor('certNo')"
       :maxlength="18"
       :is-view="isView"
-      :validate-type="validateType"
+      :validate-type="!certNoStatus ? validateType : undefined"
       @focus="onfocus('certNo')"
       @update:model-value="(e) => changeNo(e, 'certNo')"
     ></ProField>
@@ -345,7 +345,6 @@
       v-model="phoneNo"
       :label="queryFactorAttr('mobile', 'title')"
       :name="`${prefix}_mobile`"
-      type="digit"
       :maxlength="11"
       :is-view="isView"
       :required="isRequiredByFactor('mobile')"
@@ -638,16 +637,16 @@ const state = ref({
 // replace(/^(.{3})(?:\d+)(.{4})$/, "$1****$2")
 const phoneNoStatus = ref<boolean>(false);
 const phoneNo = computed(() => {
-  if (phoneNoStatus.value && state.value.formInfo.mobile) {
+  if (phoneNoStatus.value) {
     return (state.value.formInfo.mobile || '').replace(/^(.{3})(?:\d+)(.{4})$/, '$1****$2');
   }
-  return state.value.formInfo.mobile;
+  return props.formInfo.mobile;
 });
 
 const certNoStatus = ref<boolean>(false);
 const certNo = computed(() => {
   if (certNoStatus.value) {
-    return (state.value.formInfo.certNo || '').replace(/^(.{6})(?:\d+)(.{2})$/, '$1****$2');
+    return (state.value.formInfo.certNo || '').replace(/^(.{6})(?:\d+)(.{2})$/, '$1**********$2');
   }
   return props.formInfo.certNo;
 });
@@ -874,6 +873,14 @@ watch(
 );
 
 watch(
+  () => state.value.formInfo.mobile,
+  () => {
+    state.value.formInfo.mobile = state.value.formInfo.mobile?.replace(/[\u4e00-\u9fa5/\s+/]|[^0-9\u4E00-\u9FA5]/g, '');
+  },
+  { deep: true, immediate: true },
+);
+
+watch(
   [() => state.value.formInfo.certNo, () => state.value.formInfo.certNo],
   () => {
     state.value.formInfo.certNo = state.value.formInfo.certNo?.replace(
@@ -920,6 +927,9 @@ watch(
     if (validateIdCardNo(newVal)) {
       state.value.formInfo.gender = +getSex(newVal);
       state.value.formInfo.birthday = dayjs(new Date(getBirth(newVal))).format('YYYY-MM-DD');
+    } else {
+      state.value.formInfo.gender = null;
+      state.value.formInfo.birthday = '';
     }
   },
   {

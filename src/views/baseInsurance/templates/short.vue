@@ -16,6 +16,7 @@
         :is-multiple-plan="isMultiplePlan"
         :active-plan-code="orderDetail.activePlanCode"
         :payment-frequency="orderDetail.paymentFrequency"
+        :premium-info="{ premium, unit, premiumLoadingText }"
         @update-active-plan="updateActivePlan"
       />
       <ScrollInfo ref="detailScrollRef" :detail="detail">
@@ -53,7 +54,8 @@
             :config-detail="detail"
             :is-multiple-plan="isMultiplePlan"
             :risk-info-period-list="riskInfoPeriodList"
-            :premium="premium"
+            :premium-info="{ premium, unit, premiumLoadingText }"
+            @update-active-plan="updateActivePlan"
           />
         </template>
       </ScrollInfo>
@@ -69,13 +71,13 @@
       />
       <div v-if="showBtn" class="footer-area">
         <div class="price">
-          <span> {{ toLocal(premium) }}</span>
-          <span
-            >{{
-              // premium ? (orderDetail.paymentFrequency == PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE ? '元/年' : '元/月') : ''
-              premium ? unit : ''
-            }}
-          </span>
+          <template v-if="premiumLoadingText">
+            <span>{{ premiumLoadingText }}</span>
+          </template>
+          <template v-else>
+            <span> {{ toLocal(premium) }}</span>
+            <span>{{ unit }} </span>
+          </template>
         </div>
         <!-- @click="onNext" -->
         <ProShadowButton :shadow="false" :theme-vars="themeVars" class="right" text="立即投保" @click="onNext">
@@ -183,6 +185,7 @@ interface QueryData {
   tenantId: string; // 订单id
   phoneNo: string; // 手机号
   agentCode: string;
+  agencyCode: string;
   // orderNo: string;
   pageCode: string;
   from: string; // from = 'check' 审核版
@@ -194,6 +197,7 @@ const {
   tenantId,
   phoneNo: mobile,
   agentCode = '',
+  agencyCode,
   saleChannelId,
   paymentMethod,
   certNo,
@@ -222,6 +226,8 @@ const showBtn = ref<boolean>(false);
 const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<ProductData>(); // 险种信息
 const premium = ref<number | null>(); // 保费
+const unit = ref(''); // 保费
+const premiumLoadingText = ref(''); // 保费试算中
 const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
@@ -243,9 +249,10 @@ const PAGE_ACTION_TYPE_ENUM = {
 
 const orderDetail = ref<any>({
   tenantId,
-  agencyId: agentCode,
+  agencyId: agencyCode,
+  agentCode,
   orderCategory: 1,
-  saleUserId: saleChannelId,
+  // saleUserId: saleChannelId,
   saleChannelId,
   venderCode: insurerCode,
   // 保障期限开始|结束日期
@@ -406,17 +413,27 @@ const currentPlanInsure = computed(() => {
   return detail.value.tenantProductInsureVO.planInsureVO;
 });
 
-const unit = computed(() => {
-  console.log('currentPlanInsure', currentPlanInsure.value);
-  if (currentPlanInsure.value && currentPlanInsure.value?.productPremiumVOList) {
-    const item = currentPlanInsure.value?.productPremiumVOList.find(
-      (e) => e.paymentFrequency === orderDetail.value.paymentFrequency,
-    );
-    console.log('item', item);
-    if (item) return item.premiumUnit || '元';
-  }
-  return '元';
-});
+watch(
+  [() => currentPlanInsure.value, () => orderDetail.value.activePlanCode, () => orderDetail.value.paymentFrequency],
+  () => {
+    // 加定时器延迟计划切换时，最低保费展示时间，用来衔接保费试算逻辑
+    setTimeout(() => {
+      if (currentPlanInsure.value && currentPlanInsure.value?.productPremiumVOList) {
+        const item = currentPlanInsure.value?.productPremiumVOList.find(
+          (e) => e.paymentFrequency === orderDetail.value.paymentFrequency,
+        );
+        if (item) {
+          premium.value = item.paymentFrequencyValue ? Number(item.paymentFrequencyValue) : null;
+          unit.value = item.premiumUnit;
+        }
+      }
+    }, 800);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 // 切换计划
 const updateActivePlan = (planCode: string) => {
@@ -581,22 +598,7 @@ const onSaveOrder = async () => {
   });
 };
 
-// 保费试算 -> 订单保存 -> 核保
-const onPremiumCalc = async () => {};
-
-// 点击立即投保才校验信息，显示错误信息
-const onPremiumCalcWithValid = () => {
-  return new Promise((resolve, reject) => {
-    // 表单验证通过再检查是否逐条阅读
-    formRef.value
-      ?.validateForm?.()
-      .then(async () => {})
-      .catch(() => {
-        //
-      });
-  });
-};
-
+// 保费试算
 const trialPremium = async (orderInfo, currentProductDetail, productRiskList, isOnlypremiumCalc = true) => {
   const loading = ref(true);
 
@@ -640,13 +642,15 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
     const { code: ruleCode, message: ruleMessage } = await underWriteRule(trialParams);
 
     if (ruleCode === '10000') {
-      useLoading(loading, '保费试算中');
+      useLoading(loading, '正在保费试算请稍候');
+      premiumLoadingText.value = '保费试算中...';
 
       const { code, data } = await premiumCalc(trialParams);
       if (code === '10000') {
         loading.value = false;
+        premiumLoadingText.value = '';
 
-        const { pageAction, message, data: resData } = data.pageAction || {};
+        const { pageAction, message } = data.pageAction || {};
         // 接口报错了
         if (pageAction === PAGE_ACTION_TYPE_ENUM.ALERT) {
           Toast(message);
@@ -660,11 +664,14 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
         if (!isOnlypremiumCalc) {
           onSaveOrder();
         }
+      } else {
+        premiumLoadingText.value = '';
       }
     } else {
       Toast(ruleMessage);
     }
   } catch (error) {
+    premiumLoadingText.value = '';
     loading.value = false;
   }
 };

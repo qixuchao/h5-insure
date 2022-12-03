@@ -2,28 +2,23 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-04 01:20:10
+ * @LastEditTime: 2022-12-04 01:25:51
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <van-config-provider :theme-vars="themeVars">
     <ProPageWrap>
-      <div class="net-sale-wrap">
+      <div class="net-sale-detail-wrap">
         <ProCard>
-          <div class="part">
-            <ProCell title="产品名称" :content="productDetail?.productBasicInfoVO.productFullName"></ProCell>
-          </div>
+          <ProCell title="产品名称" :content="productDetail?.productBasicInfoVO.productFullName"></ProCell>
         </ProCard>
         <ProCard v-if="orderDetail.id" :show-line="false" title="投保信息">
-          <!-- <div class="part"> -->
           <ProCell title="保费" :content="orderDetail.orderAmount"></ProCell>
           <ProCell title="保险期限" :content="orderDetail.tenantOrderInsuredList[0]?.planName"></ProCell>
           <ProCell title="起保日期" :content="orderDetail.commencementTime"></ProCell>
           <ProCell title="终保日期" :content="orderDetail.expiryDate"></ProCell>
           <ProCell title="保单状态" :content="orderDetail.orderStatus"></ProCell>
-          <!-- </div> -->
-          <!-- <div class="part"> -->
           <ProCell title="订单编号" :content="orderDetail.orderNo"></ProCell>
           <!-- <ProCell title="销售人名称" content=""></ProCell> -->
           <ProCell title="房屋地址" :content="orderDetail.tenantOrderHolder?.extInfo?.familyAddress"></ProCell>
@@ -31,7 +26,6 @@
             title="燃气编号"
             :content="orderDetail.tenantOrderInsuredList?.[0]?.extInfo.subjectRelatedUserId"
           ></ProCell>
-          <!-- </div> -->
         </ProCard>
         <ProCard>
           <InsureForm
@@ -48,15 +42,13 @@
           ></InsureForm>
         </ProCard>
         <ProCard title="阅读条款合同">
-          <div class="part">
-            <van-cell
-              v-for="(attachment, index) in Object.keys(attachmentList)"
-              :key="index"
-              :title="attachment"
-              is-link
-              @click="previewFile(attachment, attachmentList[attachment])"
-            ></van-cell>
-          </div>
+          <van-cell
+            v-for="(attachment, index) in Object.keys(attachmentList)"
+            :key="index"
+            :title="attachment"
+            is-link
+            @click="previewFile(attachment, attachmentList[attachment])"
+          ></van-cell>
         </ProCard>
         <ProCard title="客户签名">
           <div class="sign-cell">
@@ -94,7 +86,7 @@ import { nextStep } from '@/api';
 import { saveSign } from '@/api/modules/verify';
 import { nextStepOperate } from '@/views/baseInsurance/nextStep';
 import { productDetail as getProductDetail } from '@/api/modules/product';
-import { ORDER_STATUS_ENUM } from '@/common/constants/order';
+import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
 import { sendPay, useWXCode } from '../../../cashier/core';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 import pdfPreview from '@/utils/pdfPreview';
@@ -242,7 +234,7 @@ watch(
 </script>
 
 <style lang="scss">
-.net-sale-wrap {
+.net-sale-detail-wrap {
   padding: 0 $zaui-page-border 150px;
   background-color: #f4f4f4;
   .product-name {
@@ -301,53 +293,52 @@ watch(
       font-weight: 500;
     }
   }
+}
+.pre-notice-wrap {
+  .body {
+    height: calc(100% - 220px);
+    overflow: scroll;
+  }
 
-  .pre-notice-wrap {
-    .body {
-      height: calc(100% - 220px);
-      overflow: scroll;
+  .pre-body {
+    padding: 50px 32px 0;
+    height: 100%;
+    .header {
+      line-height: 1;
+      border: none;
+      img {
+        height: 44px;
+      }
+
+      .company-name {
+        margin-top: 20px;
+        font-size: 24px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 500;
+        color: #333;
+        line-height: 33px;
+      }
     }
 
-    .pre-body {
-      padding: 50px 32px 0;
-      height: 100%;
-      .header {
-        line-height: 1;
-        border: none;
-        img {
-          height: 44px;
-        }
-
-        .company-name {
-          margin-top: 20px;
-          font-size: 24px;
-          font-family: PingFangSC-Regular, PingFang SC;
-          font-weight: 500;
-          color: #333;
-          line-height: 33px;
-        }
+    .content {
+      margin-top: 32px;
+      padding: 32px;
+      background: #fcf4f0;
+      border-radius: 20px;
+      font-size: 28px;
+      font-family: PingFangSC-Regular, PingFang SC;
+      font-weight: 400;
+      color: #333333;
+      line-height: 42px;
+      span {
+        color: #006afc;
       }
+      border: 1px solid #fff1de;
+      border-top-color: #fee6dd;
+    }
 
-      .content {
-        margin-top: 32px;
-        padding: 32px;
-        background: #fcf4f0;
-        border-radius: 20px;
-        font-size: 28px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: #333333;
-        line-height: 42px;
-        span {
-          color: #006afc;
-        }
-        border: 1px solid #fff1de;
-        border-top-color: #fee6dd;
-      }
-
-      .footer {
-        margin-top: 50px;
-      }
+    .footer {
+      margin-top: 50px;
     }
   }
 }
