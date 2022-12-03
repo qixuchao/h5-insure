@@ -1,5 +1,4 @@
 import dayjs, { UnitType } from 'dayjs';
-import { type } from 'os';
 import router from '@/router';
 import { localStore } from '../../hooks/useStorage';
 import { PAYMENT_FREQUENCY_ENUM, INSURE_TYPE_ENUM, RELATION_HOLDER_ENUM } from '../../common/constants/infoCollection';
@@ -782,4 +781,21 @@ export const openPreviewFilePage = (fileInfo: any) => {
   localStore.set(PREVIEW_FILE_KEY, JSON.stringify(fileInfo));
   console.log('router', router);
   router.push('/template/filePreview');
+};
+
+// 1: 附件, 2: 富文本, 3: 链接
+const fileMap = {
+  '2': 'richText',
+  '3': 'link',
+};
+
+export const getFileType = (attachmentType: string, url?: string) => {
+  if (attachmentType === '1' && url) {
+    const urlList = url?.split('?');
+    const type = urlList[0].substr(urlList[0].lastIndexOf('.') + 1);
+    console.log('type======', type);
+    if (type === 'pdf') return 'pdf';
+    return 'picture';
+  }
+  return fileMap[attachmentType];
 };

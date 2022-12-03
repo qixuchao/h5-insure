@@ -75,7 +75,6 @@
     :content-list="healthAttachmentList"
     :active-index="0"
     @on-confirm-health="onCloseHealth"
-    @on-close-health="onCloseHealthPopup"
   ></HealthNoticePreview>
   <FilePreview
     v-if="showFilePreview"
@@ -87,7 +86,6 @@
     :force-read-cound="0"
     on-close-file-preview
     @submit="onSubmit"
-    @on-close-file-preview="onCloseFilePreview"
   ></FilePreview>
   <Waiting :is-show="showWaiting" />
 </template>
@@ -124,7 +122,7 @@ import {
 } from '@/api/modules/trial';
 import { productDetail } from '@/api/modules/product';
 import { toLocal } from '@/utils';
-import { transformData, riskToOrder, validateSmsCode } from '../utils';
+import { transformData, riskToOrder, validateSmsCode, getFileType } from '../utils';
 import { nextStepOperate as nextStep } from '@/utils/nextStep';
 import { formatDate } from '@/utils/date';
 import { useTheme } from '../theme';
@@ -210,7 +208,6 @@ const detailScrollRef = ref();
 const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<ProductData>(); // 险种信息
 const premium = ref<number | null>(); // 保费
-const isAgreeFile = ref<boolean>(false); // 是否已逐条阅读完文件
 const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
@@ -253,7 +250,7 @@ const trialData = reactive({
   packageProductList: [],
   mobileSmsCode: '',
   activePlanCode: '',
-  paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.MONTH,
+  paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.YEAR,
   insurancePeriodValue: '', // 保障期限
   commencementTime: formatDate(new Date()), // 生效日期
 });
@@ -269,7 +266,7 @@ const orderDetail = ref<any>({
   insuranceStartDate: null,
   insuranceEndDate: null,
   activePlanCode: '',
-  paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.MONTH,
+  paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.YEAR,
   insurancePeriodValue: '', // 保障期限
   commencementTime: '', // 生效日期
 
@@ -387,12 +384,34 @@ const updateActivePlan = (planCode: string) => {
 
 // 健康告知
 const healthAttachmentList = computed(() => {
+  if (insureDetail.value?.productQuestionnaireVOList && insureDetail.value?.productQuestionnaireVOList.length > 0) {
+    const questionnaireItem = insureDetail.value?.productQuestionnaireVOList[0];
+    console.log('questionnaireItem', questionnaireItem);
+    if (questionnaireItem) {
+      const {
+        basicInfo: { questionnaireType },
+        questions,
+      } = questionnaireItem.questionnaireDetailResponseVO || {};
+      // 1: 文本 2、问答
+      if (questionnaireType === 2) {
+        return [
+          {
+            attachmentName: questionnaireItem?.questionnaireName,
+            attachmentUri: questions,
+            attachmentType: 'question',
+          },
+        ];
+      }
+      return [
+        {
+          attachmentName: questionnaireItem?.questionnaireName,
+          attachmentUri: questions[0].content,
+          attachmentType: getFileType(String(questionnaireType), questions[0].content),
+        },
+      ];
+    }
+  }
   return [];
-  // return (
-  //   (detail.value?.tenantProductInsureVO?.attachmentVOList || []).filter(
-  //     (item: AttachmentVOList) => item.attachmentName === '健康告知',
-  //   ) || []
-  // );
 });
 
 // 除健康告知的其他资料
@@ -401,18 +420,17 @@ const filterHealthAttachmentList = ref();
 watch(
   [() => isMultiplePlan.value, () => orderDetail.value.activePlanCode, () => detail.value],
   () => {
-    let tempList: any = {};
+    let tempList: any = null;
     console.log('isMultiplePlan', isMultiplePlan.value);
 
-    if (isMultiplePlan.value) {
+    if (isMultiplePlan.value && detail.value) {
       const planData = detail.value?.tenantProductInsureVO.planList.find(
         (e: PlanInsureVO) => e.planCode === (orderDetail.value.activePlanCode || ''),
       );
       if (planData) {
         tempList = planData?.attachmentVOList;
       }
-    } else {
-      console.log('detail.value?.tenantProductInsureVO.planInsureVO', detail.value);
+    } else if (detail.value) {
       tempList = detail.value?.tenantProductInsureVO.planInsureVO.attachmentVOList;
     }
 
@@ -421,30 +439,13 @@ watch(
       return;
     }
 
-    // 1: 附件, 2: 富文本, 3: 链接
-    const fileMap = {
-      '2': 'richText',
-      '3': 'link',
-    };
-
     filterHealthAttachmentList.value = Object.keys(tempList).map((e) => {
       tempList[e].forEach((attachmentItem: AttachmentVOList) => {
-        if (attachmentItem.attachmentType === '1') {
-          const urlList = attachmentItem.attachmentUri.split('?');
-          const type = urlList[0].substr(urlList[0].lastIndexOf('.') + 1);
-          console.log('type', type);
-          // eslint-disable-next-line no-param-reassign
-          if (type === 'pdf') {
-            // eslint-disable-next-line no-param-reassign
-            attachmentItem.attachmentType = 'pdf';
-          } else {
-            // eslint-disable-next-line no-param-reassign
-            attachmentItem.attachmentType = 'picture';
-          }
-        } else {
-          // eslint-disable-next-line no-param-reassign
-          attachmentItem.attachmentType = fileMap[attachmentItem.attachmentType];
-        }
+        // eslint-disable-next-line no-param-reassign
+        attachmentItem.attachmentType = getFileType(
+          String(attachmentItem.attachmentType),
+          attachmentItem.attachmentUri,
+        );
       });
       return {
         attachmentName: e,
@@ -516,13 +517,14 @@ const onSaveOrder = async () => {
     if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
       if (data?.orderNo) {
         orderNo.value = data?.orderNo;
-        await onUnderWrite();
-        // if (filterHealthAttachmentList.value.length > 0) {
-        //   isOnlyView.value = false;
-        //   previewFile(0);
-        // } else {
-        //   await onUnderWrite();
-        // }
+        if (filterHealthAttachmentList.value.length > 0) {
+          isOnlyView.value = false;
+          previewFile(0);
+        } else if (healthAttachmentList.value.length > 0) {
+          showHealthPreview.value = true;
+        } else {
+          await onUnderWrite();
+        }
       }
     }
   });
@@ -633,42 +635,30 @@ const onCloseHealth = (type: string) => {
   // 全部为否
   if (type === 'allFalse') {
     showHealthPreview.value = false;
-    isAgreeFile.value = true;
-    onNext();
+    onUnderWrite();
   } else {
     Dialog.confirm({
-      message: '您当前的健康状况不符合该产品',
-      confirmButtonText: '确定',
+      message: '被保人不符合健康要求，很抱歉暂时无法投保该产品',
+      confirmButtonText: '选错了',
+      cancelButtonText: '为其他人投保',
     })
       .then(() => {
-        window.history.back();
+        // showHealthPreview.value = false;
+        // window.history.back();
       })
       .catch(() => {
-        formRef.value?.reEditForm();
-        isAgreeFile.value = false;
+        showHealthPreview.value = false;
       });
   }
 };
 
-const resetCanInsureBtn = () => {
-  formRef.value?.reEditForm();
-  isAgreeFile.value = false;
-};
-
-const onCloseHealthPopup = () => {
-  showHealthPreview.value = false;
-  resetCanInsureBtn();
-};
-
-const onCloseFilePreview = () => {
-  showFilePreview.value = false;
-  resetCanInsureBtn();
-};
-
 const onSubmit = () => {
   showFilePreview.value = false;
-  showHealthPreview.value = true;
-  // onNext();
+  if (healthAttachmentList.value.length < 1) {
+    onUnderWrite();
+  } else {
+    showHealthPreview.value = true;
+  }
 };
 
 watch(
