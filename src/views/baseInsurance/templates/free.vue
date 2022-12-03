@@ -69,6 +69,7 @@ import PreNotice from './components/PreNotice/index.vue';
 import AttachmentList from './components/AttachmentList/index.vue';
 import FilePreview from './components/FilePreview/index.vue';
 import { checkCode } from '@/api/modules/phoneVerify';
+import useAddressList from '@/hooks/useAddressList';
 // import { nextStep } from '@/api/index';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ProductData } from '@/api/modules/trial.data';
@@ -102,6 +103,7 @@ try {
   console.log(error);
 }
 const { openId, indirectCode = '123', saleUserId = '', saleChannelId = '' } = extInfo;
+
 let iseeBizNo = '';
 const root = ref();
 const formRef = ref();
@@ -119,6 +121,7 @@ const state = reactive<{
   activeIndex: number;
   showFilePreview: boolean;
   isOnlyView: boolean;
+  isSelfInsured: boolean;
   relationList: any;
 }>({
   colors: ['#fff'],
@@ -159,6 +162,7 @@ const state = reactive<{
   isValidateCode: false,
   insureDetail: {} as ProductData,
   loading: true,
+  isSelfInsured: true,
   showBtn: false,
   activeIndex: 0,
   showFilePreview: false,
@@ -167,7 +171,9 @@ const state = reactive<{
 
 const filterHealthAttachmentList = ref();
 
-console.log(extInfo, 'extInfo');
+useAddressList({ openId }, (data: any) => {
+  state.relationList = data;
+});
 
 const previewFile = (index: number) => {
   state.activeIndex = index;
@@ -217,61 +223,50 @@ const fetchData = async () => {
   const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
   const insureReq = insureProductDetail({ productCode });
   const userReq = getAppUser({ openId });
-  const relationReq = queryListRelationCustomer({ openId });
-  await Promise.all([productReq, insureReq, userReq, relationReq]).then(
-    ([productRes, insureRes, userRes, relationRes]) => {
-      if (productRes.code === '10000') {
-        state.detail = productRes.data as any;
-        state.banner = state.detail.tenantProductInsureVO?.banner[0];
-        const { colorEnd, colorStart } = state.detail.tenantProductInsureVO?.backgroundInsureVO || {};
-        state.colors = [colorStart, colorEnd];
-        state.productDesc = state.detail.tenantProductInsureVO.spec || [];
-        document.title = state.detail.productFullName || '';
-      }
 
-      if (insureRes.code === '10000') {
-        state.insureDetail = insureRes.data as any;
-        state.insureDetail.productFactor[1].forEach((item: any) => {
-          if (item.code === 'verificationCode' && item.isDisplay === 1) {
-            state.isValidateCode = true;
-          }
-        });
-        state.insureDetail.productFactor[2] = state.insureDetail.productFactor?.[2].map((item: any) => {
-          if (item.code === 'relationToHolder' && item.isDisplay === 1) {
-            // eslint-disable-next-line no-param-reassign
-            item.title = '被保人';
-            // eslint-disable-next-line no-param-reassign
-            state.order.tenantOrderInsuredList[0].relationToHolder = item.attributeValueList?.[0]?.code || '';
-          }
-          return item;
-        });
-      }
-      if (userRes.code === '10000') {
-        state.newAuth = !userRes.data;
-        if (userRes.data) {
-          const res: any = userRes.data;
-          state.order.tenantOrderHolder = {
-            certNo: res?.certiNo,
-            extInfo: {},
-            mobile: res?.mobile,
-            name: res?.name,
-          };
+  await Promise.all([productReq, insureReq, userReq]).then(([productRes, insureRes, userRes]) => {
+    if (productRes.code === '10000') {
+      state.detail = productRes.data as any;
+      state.banner = state.detail.tenantProductInsureVO?.banner[0];
+      const { colorEnd, colorStart } = state.detail.tenantProductInsureVO?.backgroundInsureVO || {};
+      state.colors = [colorStart, colorEnd];
+      state.productDesc = state.detail.tenantProductInsureVO.spec || [];
+      document.title = state.detail.productFullName || '';
+    }
+
+    if (insureRes.code === '10000') {
+      state.insureDetail = insureRes.data as any;
+      state.insureDetail.productFactor[1].forEach((item: any) => {
+        if (item.code === 'verificationCode' && item.isDisplay === 1) {
+          state.isValidateCode = true;
         }
+      });
+      state.insureDetail.productFactor[2] = state.insureDetail.productFactor?.[2].map((item: any) => {
+        if (item.code === 'relationToHolder' && item.isDisplay === 1) {
+          // eslint-disable-next-line no-param-reassign
+          item.title = '被保人';
+          // eslint-disable-next-line no-param-reassign
+          state.order.tenantOrderInsuredList[0].relationToHolder = item.attributeValueList?.[0]?.code || '';
+        }
+        return item;
+      });
+    }
+    if (userRes.code === '10000') {
+      state.newAuth = !userRes.data;
+      state.isSelfInsured = !!userRes.data;
+      if (userRes.data) {
+        const res: any = userRes.data;
+        state.order.tenantOrderHolder = {
+          certNo: res?.certiNo,
+          extInfo: {},
+          mobile: res?.mobile,
+          name: res?.name,
+        };
       }
-      if (relationRes.code === '10000') {
-        const relation = {};
-        relationRes.data.forEach((item: any) => {
-          if (!relation[item.relationCode]) {
-            relation[item.relationCode] = [];
-          }
-          relation[item.relationCode].push(item);
-        });
-        state.relationList = relation;
-      }
-      setfileList();
-      state.loading = false;
-    },
-  );
+    }
+    setfileList();
+    state.loading = false;
+  });
 };
 
 const validateSmsCodew = async () => {
@@ -375,13 +370,14 @@ const setInsureInfo = () => {};
 watch(
   () => state.order.tenantOrderInsuredList[0],
   (e) => {
-    if (isEmpty(state.relationList)) return null;
+    if (isEmpty(state.relationList) || state.newAuth) return null;
     const targets = state.relationList[e.relationToHolder] || [];
     if (targets.length === 1) {
       if (RELATIONENUM.SELF !== e.relationToHolder) {
         state.order.tenantOrderInsuredList[0].certNo = targets[0].cert[0].certNo;
         state.order.tenantOrderInsuredList[0].name = targets[0].cert[0].certName;
-      } else {
+      } else if (state.isSelfInsured) {
+        state.isSelfInsured = false;
         state.order.tenantOrderHolder.certNo = targets[0].cert[0].certNo;
         state.order.tenantOrderHolder.name = targets[0].cert[0].certName;
       }
