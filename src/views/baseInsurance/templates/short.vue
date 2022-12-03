@@ -8,6 +8,7 @@
           :url="detail?.tenantProductInsureVO?.bannerMove[0]"
           @click="onClickToInsure"
         />
+        <div ref="observeRef"></div>
       </div>
       <Guarantee
         show-service-config
@@ -65,7 +66,7 @@
         pre-text="请阅读"
         @preview-file="(index) => previewFile(index)"
       />
-      <div class="footer-area">
+      <div v-if="showBtn" class="footer-area">
         <div class="price">
           <span> {{ toLocal(premium) }}</span>
           <span
@@ -107,6 +108,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
+import { useIntersectionObserver } from '@vueuse/core';
 import CustomerList from './components/CustomerList/index.vue';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import { sendPay, useWXCode } from '../../cashier/core';
@@ -214,6 +216,8 @@ const { openId } = extInfo;
 
 const formRef = ref();
 const detailScrollRef = ref();
+const observeRef = ref();
+const showBtn = ref<boolean>(false);
 const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<ProductData>(); // 险种信息
 const premium = ref<number | null>(); // 保费
@@ -810,6 +814,13 @@ const fetchData = async () => {
     insureDetail.value = insureRes.data;
   }
 };
+
+nextTick(() => {
+  useIntersectionObserver(observeRef, ([{ isIntersecting }], observerElement) => {
+    showBtn.value = !isIntersecting;
+  });
+});
+
 // 需要支付的页面发起微信授权
 useWXCode();
 onMounted(() => {
