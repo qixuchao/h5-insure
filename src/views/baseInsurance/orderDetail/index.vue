@@ -12,7 +12,13 @@
             <span class="label">{{ item.label }}</span>
             <span class="value">{{ item.value }}</span>
           </div>
-          <ProShadowButton :theme-vars="themeVars" class="btn" :text="orderBtnText" @click="orderBtnHandler" />
+          <ProShadowButton
+            v-if="!(orderBtnText === '重下一单' && state.templateId.toString() === '3')"
+            :theme-vars="themeVars"
+            class="btn"
+            :text="orderBtnText"
+            @click="orderBtnHandler"
+          />
           <div v-if="state.showOrderDetail" class="desc">已有<span>29,182</span>位用户已投保</div>
         </div>
         <img
@@ -88,6 +94,7 @@ const state = reactive<{
     notificationImage: string;
   };
   timeDown: any;
+  templateId: '1' | '2' | '3';
 }>({
   insureDetail: {} as ProductData,
   detail: {} as ProductDetail,
@@ -102,6 +109,7 @@ const state = reactive<{
     notificationImage: '',
   },
   timeDown: {},
+  templateId: '2',
 });
 const show = ref(false);
 
@@ -137,7 +145,7 @@ const goToInsurerPage = async (reOrder = false) => {
 
 const orderBtnHandler = () => {
   if (orderBtnText.value === '下载保单') {
-    downLoadFile(state.orderDetail.extInfo?.policyUrl);
+    state.orderDetail.extInfo?.policyUrl && downLoadFile(state.orderDetail.extInfo?.policyUrl);
   } else if (orderBtnText.value === '立即支付') {
     getPayUrl({
       ...state.orderDetail,
@@ -182,7 +190,7 @@ const initPageInfo = () => {
     { label: '被保人', value: state.orderDetail?.tenantOrderInsuredList?.[0]?.name },
     { label: '保障期间', value: insurancePeriodDesc || '' },
   ];
-
+  state.templateId = state.orderDetail.extInfo.templateId;
   // 只有投保成功和已失效才有图片
   if (
     (from === 'free' ||
@@ -241,7 +249,9 @@ const getData = async () => {
 const orderDesc = computed(() => {
   if (ORDER_STATUS_ENUM.PAYING === state.orderDetail.orderStatus) {
     if (state.timeDown.current.total <= 0) {
-      getData();
+      // setTimeout(() => {
+      // getData();
+      // }, 5000);
       state.timeDown.pause();
     }
     return `剩余支付时间：${state.timeDown.current.hours}:${state.timeDown.current.minutes}:${state.timeDown.current.seconds}`;

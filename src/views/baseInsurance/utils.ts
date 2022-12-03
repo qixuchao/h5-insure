@@ -732,6 +732,7 @@ export const freeTransform = (o: any) => {
     },
     extInfo: {
       ...o.extraInfo,
+      extraInfo: o.extraInfo,
       buttonCode: o.buttonCode,
       pageCode: o.pageCode,
       iseeBizNo: o.iseeBizNo,

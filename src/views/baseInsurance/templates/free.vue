@@ -33,8 +33,11 @@
           :src="item"
           class=""
         />
-        <!-- <img v-for="(item, index) in state.productDesc" :key="index" :src="item" /> -->
       </div>
+      <InscribedContent
+        v-if="state.detail?.tenantProductInsureVO?.inscribedContent"
+        :inscribed-content="state.detail?.tenantProductInsureVO?.inscribedContent"
+      />
       <footer v-if="state.showBtn" class="page-free-footer">
         <ProShadowButton :is-gradient="false" :text="state.newAuth ? '立即领取' : '激活保障'" @click="clickHandler" />
       </footer>
@@ -68,6 +71,7 @@ import { insureProductDetail, toClogin, nextStep } from '@/api/modules/trial';
 import PreNotice from './components/PreNotice/index.vue';
 import AttachmentList from './components/AttachmentList/index.vue';
 import FilePreview from './components/FilePreview/index.vue';
+import InscribedContent from './components/InscribedContent/index.vue';
 import { checkCode } from '@/api/modules/phoneVerify';
 import useAddressList from '@/hooks/useAddressList';
 // import { nextStep } from '@/api/index';
@@ -120,6 +124,7 @@ const state = reactive<{
   isValidateCode: boolean;
   activeIndex: number;
   showFilePreview: boolean;
+  isSelfInsure: boolean;
   isOnlyView: boolean;
   relationList: any;
 }>({
@@ -161,6 +166,7 @@ const state = reactive<{
   isValidateCode: false,
   insureDetail: {} as ProductData,
   loading: true,
+  isSelfInsure: true,
   showBtn: false,
   activeIndex: 0,
   showFilePreview: false,
@@ -251,6 +257,7 @@ const fetchData = async () => {
     }
     if (userRes.code === '10000') {
       state.newAuth = !userRes.data;
+      state.isSelfInsure = !!userRes.data;
       if (userRes.data) {
         const res: any = userRes.data;
         state.order.tenantOrderHolder = {
@@ -377,7 +384,8 @@ watch(
         state.order.tenantOrderInsuredList[0].name = state.order.tenantOrderInsuredList[0].name
           ? state.order.tenantOrderInsuredList[0].name
           : targets[0].cert[0].certName;
-      } else {
+      } else if (state.isSelfInsure) {
+        state.isSelfInsure = false;
         state.order.tenantOrderHolder.certNo = state.order.tenantOrderHolder.certNo
           ? state.order.tenantOrderHolder.certNo
           : targets[0].cert[0].certNo;
@@ -404,11 +412,16 @@ useIntersectionObserver(root, ([{ isIntersecting }], observerElement) => {
   background: v-bind('state.colors[1]');
   padding-bottom: 236px;
 
+  .inscribedContent-content {
+    background-color: transparent;
+  }
+
   .submit-btn {
     margin-top: 30px;
   }
 
   .product-desc {
+    margin-top: 32px;
     img {
       width: 100%;
     }

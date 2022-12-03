@@ -181,10 +181,25 @@ defineExpose({
 
       &.relation-holder {
         padding-right: 0;
+        padding-left: 0;
+        &:before {
+          content: ' ';
+          margin-top: 10px;
+          width: 8px;
+          height: 36px;
+          background: var(--van-primary-color);
+          margin-right: 16px;
+          border-radius: 0px 9px 9px 0px;
+        }
+
+        .van-cell__title {
+          margin-top: 8px;
+        }
       }
 
       .van-cell__value .van-field__body .van-field__control .com-radio-btn-wrap {
         width: 100%;
+
         .radio-btn {
           display: flex;
           justify-content: flex-start;
