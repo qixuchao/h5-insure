@@ -224,6 +224,7 @@ export interface TenantProductInsureVO {
 保终身：to_life
    */
   insurancePeriodValues: string;
+  inscribedContent: any;
   /**
    * 职业限制 -1.无限制,1.职业等级一，2.职业等级二，3.职业等级三
 4.职业等级四，5.职业等级五，6.职业等级六（以英文逗号分隔）
