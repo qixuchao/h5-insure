@@ -2,8 +2,8 @@
  * @Description: 用户模块
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-03 23:17:48
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-04 03:34:02
  */
 import axios, { type AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
@@ -46,7 +46,7 @@ const closeLoading = (_options: any) => {
     loadingInstance.count -= 1;
   }
   if (loadingInstance.count === 0) {
-    loadingInstance.target.clear?.();
+    loadingInstance.target?.clear();
     loadingInstance.target = null;
   }
 };

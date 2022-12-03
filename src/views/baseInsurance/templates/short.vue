@@ -124,6 +124,7 @@ import {
   RELATION_HOLDER_ENUM,
   PAYMENT_FREQUENCY_ENUM,
   PAYMENT_COMMON_FREQUENCY_ENUM,
+  ORDER_DETAIL_KEY,
 } from '@/common/constants/infoCollection';
 import { ProductDetail, AttachmentVOList, PlanInsureVO } from '@/api/modules/product.data';
 import { PackageProductVoItem, ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
@@ -175,6 +176,7 @@ import {
   holderAuth,
 } from './auth';
 import { sendCode, sendCodeLogin, checkCode } from '@/api/modules/phoneVerify';
+import { sessionStore } from '@/hooks/useStorage';
 
 const themeVars = useTheme();
 const router = useRouter();
@@ -237,7 +239,7 @@ const showModal = ref<boolean>(false);
 const preNoticeLoading = ref<boolean>(false);
 const orderNo = ref('');
 const relationList = ref<any>({});
-const loading = ref(true);
+const loading = ref(false);
 
 let iseeBizNo = '';
 
@@ -648,7 +650,9 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
     const { code: ruleCode, message: ruleMessage } = await underWriteRule(trialParams);
 
     if (ruleCode === '10000') {
-      useLoading(loading, '正在保费试算请稍候');
+      if (!preNoticeLoading.value) {
+        useLoading(loading, '正在保费试算请稍候');
+      }
       premiumLoadingText.value = '保费试算中...';
 
       const { code, data } = await premiumCalc(trialParams);
@@ -773,6 +777,8 @@ watch(
     console.log('birthday', birthday);
     console.log('gender', gender);
 
+    console.log('orderDetail.value', orderDetail.value);
+
     if (birthday && gender && orderDetail.value.paymentFrequency) {
       trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
     }
@@ -839,6 +845,39 @@ nextTick(() => {
 
 // 需要支付的页面发起微信授权
 useWXCode();
+
+onBeforeMount(() => {
+  const oldOrderDetailInfo = sessionStore.get(ORDER_DETAIL_KEY);
+  sessionStore.remove(ORDER_DETAIL_KEY);
+  if (oldOrderDetailInfo) {
+    const { tenantOrderHolder, tenantOrderInsuredList } = oldOrderDetailInfo;
+    if (tenantOrderHolder) {
+      orderDetail.value.tenantOrderHolder = {
+        ...tenantOrderHolder,
+        socialFlag: tenantOrderHolder.extInfo?.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+      };
+    }
+    if (Array(tenantOrderInsuredList) && tenantOrderInsuredList[0]) {
+      const insurer = tenantOrderInsuredList[0] || {};
+      orderDetail.value.activePlanCode = insurer.planCode;
+      if (
+        insurer.tenantOrderProductList &&
+        insurer.tenantOrderProductList[0] &&
+        insurer.tenantOrderProductList[0].tenantOrderRiskList
+      ) {
+        const item = insurer.tenantOrderProductList[0].tenantOrderRiskList?.find(
+          (e: any) => String(e.riskType) === '1',
+        );
+        if (item) {
+          orderDetail.value.paymentFrequency = item?.paymentFrequency
+            ? String(item?.paymentFrequency)
+            : PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE;
+        }
+      }
+    }
+  }
+});
+
 onMounted(() => {
   fetchData();
   // 调用千里眼插件获取一个iseeBiz

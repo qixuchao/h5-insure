@@ -80,8 +80,8 @@ export const transformData = (o: transformDataType) => {
           // sumInsured: 300000,
         })) || [],
       productId,
-      currentAmount: risk.amount,
-      initialAmount: risk.amount,
+      currentAmount: risk.amount || 0,
+      initialAmount: risk.amount || 0,
     };
     return currentRisk;
   });
