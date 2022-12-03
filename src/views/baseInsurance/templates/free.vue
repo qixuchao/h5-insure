@@ -121,7 +121,6 @@ const state = reactive<{
   activeIndex: number;
   showFilePreview: boolean;
   isOnlyView: boolean;
-  isSelfInsured: boolean;
   relationList: any;
 }>({
   colors: ['#fff'],
@@ -162,7 +161,6 @@ const state = reactive<{
   isValidateCode: false,
   insureDetail: {} as ProductData,
   loading: true,
-  isSelfInsured: true,
   showBtn: false,
   activeIndex: 0,
   showFilePreview: false,
@@ -253,7 +251,6 @@ const fetchData = async () => {
     }
     if (userRes.code === '10000') {
       state.newAuth = !userRes.data;
-      state.isSelfInsured = !!userRes.data;
       if (userRes.data) {
         const res: any = userRes.data;
         state.order.tenantOrderHolder = {
@@ -374,12 +371,19 @@ watch(
     const targets = state.relationList[e.relationToHolder] || [];
     if (targets.length === 1) {
       if (RELATIONENUM.SELF !== e.relationToHolder) {
-        state.order.tenantOrderInsuredList[0].certNo = targets[0].cert[0].certNo;
-        state.order.tenantOrderInsuredList[0].name = targets[0].cert[0].certName;
-      } else if (state.isSelfInsured) {
-        state.isSelfInsured = false;
-        state.order.tenantOrderHolder.certNo = targets[0].cert[0].certNo;
-        state.order.tenantOrderHolder.name = targets[0].cert[0].certName;
+        state.order.tenantOrderInsuredList[0].certNo = state.order.tenantOrderInsuredList[0].certNo
+          ? state.order.tenantOrderInsuredList[0].certNo
+          : targets[0].cert[0].certNo;
+        state.order.tenantOrderInsuredList[0].name = state.order.tenantOrderInsuredList[0].name
+          ? state.order.tenantOrderInsuredList[0].name
+          : targets[0].cert[0].certName;
+      } else {
+        state.order.tenantOrderHolder.certNo = state.order.tenantOrderHolder.certNo
+          ? state.order.tenantOrderHolder.certNo
+          : targets[0].cert[0].certNo;
+        state.order.tenantOrderHolder.name = state.order.tenantOrderHolder.name
+          ? state.order.tenantOrderHolder.name
+          : targets[0].cert[0].certName;
       }
     }
     return false;

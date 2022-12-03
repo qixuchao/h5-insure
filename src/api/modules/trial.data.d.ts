@@ -5,6 +5,7 @@ export interface ProductData {
     productRelationPlanVOList: ProductRelationPlanVoItem[];
     productRiskVoList: ProductRiskVoItem[];
     packageProductVOList: PackageProductVoItem[];
+    productQuestionnaireVOList: any;
 }
 
 interface ProductFactor {

@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-10 15:52:20
+ * @LastEditTime: 2022-12-03 10:44:55
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -15,7 +15,7 @@
     @close="onClosePopup()"
   >
     <van-config-provider :theme-vars="themeVars" class="custom-provider">
-      <ProTab
+      <!-- <ProTab
         v-if="isShow"
         v-model:active="currentActiveIndex"
         :list="
@@ -25,15 +25,22 @@
           }))
         "
         class="tab"
-      ></ProTab>
+      ></ProTab> -->
       <div class="list">
+        <div class="tip">
+          <span>
+            <span class="important-text">重要</span>
+            请确认被保险人是否存在下列问题，请如实告知，否则将对您的理赔权益或合同效力产生影响
+          </span>
+        </div>
+        <div class="title">{{ contentList[0].attachmentName }}</div>
         <div class="item">
-          <ProFilePreview :key="attachmentUri" :content="attachmentUri" type="pdf"></ProFilePreview>
+          <ProFilePreview :key="attachmentUri" :content="attachmentUri" :type="attachmentType"></ProFilePreview>
         </div>
       </div>
       <div class="footer">
-        <VanButton type="primary" block round @click="onConfirmHealth('N')">部分为是</VanButton>
-        <VanButton type="primary" plain block round @click="onConfirmHealth('allFalse')">全部为否</VanButton>
+        <VanButton block round class="left" @click="onConfirmHealth('N')">不符合</VanButton>
+        <VanButton type="primary" plain block round @click="onConfirmHealth('allFalse')">符合，立即投保</VanButton>
       </div>
     </van-config-provider>
   </ProPopup>
@@ -41,7 +48,7 @@
 
 <script lang="ts" setup name="filePreview">
 import { withDefaults } from 'vue';
-import themeVars from '../../../theme';
+import { useTheme } from '@/views/baseInsurance/theme';
 
 const props = withDefaults(defineProps<{ show: boolean; activeIndex: number; contentList: any[] }>(), {
   show: true,
@@ -49,6 +56,7 @@ const props = withDefaults(defineProps<{ show: boolean; activeIndex: number; con
   activeIndex: 0,
 });
 
+const themeVars = useTheme();
 const emits = defineEmits(['update:show', 'onConfirmHealth', 'onCloseHealth']);
 const isShow = ref<boolean>(props.show);
 const currentActiveIndex = ref<number>(props.activeIndex);
@@ -57,11 +65,17 @@ const attachmentUri = computed(() => {
   return props.contentList[currentActiveIndex.value]?.attachmentUri;
 });
 
+const attachmentType = computed(() => {
+  return props.contentList[currentActiveIndex.value]?.attachmentType;
+});
+
 const isCoverClose = ref<boolean>(true);
 
 const onConfirmHealth = (flag: string) => {
-  isCoverClose.value = false;
-  emits('update:show', false);
+  if (flag === 'allFalse') {
+    isCoverClose.value = false;
+    emits('update:show', false);
+  }
   emits('onConfirmHealth', flag);
 };
 
@@ -106,6 +120,46 @@ watch(
   .list {
     height: calc(100% - 212px);
     overflow-y: scroll;
+
+    .tip {
+      margin: 40px 32px;
+      padding: 32px;
+      background: #fff8f3;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+
+      span {
+        display: inline-block;
+        font-size: 28px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: #333333;
+        line-height: 40px;
+      }
+
+      .important-text {
+        height: 40px;
+        padding: 0px 8px;
+        border-radius: 8px;
+        margin-top: -6px;
+        font-size: 20px !important;
+        font-family: PingFangSC-Medium, PingFang SC;
+        background-color: $primary-color;
+        color: #ffffff !important;
+        line-height: 40px !important;
+      }
+    }
+
+    .title {
+      text-align: center;
+      height: 56px;
+      font-size: 40px;
+      font-family: PingFangSC-Medium, PingFang SC;
+      font-weight: 500;
+      color: #333333;
+      line-height: 56px;
+    }
   }
   .footer {
     display: flex;
@@ -128,6 +182,10 @@ watch(
       color: $primary-color;
       background-color: #ffffff;
       margin-left: 30px;
+    }
+
+    .left {
+      width: 50% !important;
     }
   }
 }
