@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-03 19:04:25
+ * @LastEditTime: 2022-12-03 23:46:41
  * @Description: 保障详情
 -->
 <template>
@@ -17,7 +17,7 @@
           v-for="item in planSkinVlaue"
           :key="item.planCode"
           :class="`picture-payment-item`"
-          @click="onPlanItemClick(item.planCode)"
+          @click="onPlanItemClickEmit(item.planCode)"
         >
           <img v-if="currentActivePlanCode == item.planCode" :src="item.selectedPic" />
           <img v-else :src="item.unSelectedPic" />
@@ -28,7 +28,7 @@
           v-for="(item, index) in planList"
           :key="`${item.planCode}_${index}`"
           :class="`plan-list-item ${item.planCode === currentActivePlanCode ? 'plan-list-item-active' : ''}`"
-          @click="onPlanItemClick(item.planCode)"
+          @click="onPlanItemClickEmit(item.planCode)"
         >
           <span>{{ item.planName }}</span>
         </div>
@@ -47,7 +47,9 @@
     </div>
     <div v-if="isShowFeerateView" class="feerate-view">
       <span>{{
-        `${productPremiumVOItem?.paymentFrequencyValue || ''}${productPremiumVOItem?.premiumUnit || ''}`
+        premiumInfo.premiumLoadingText
+          ? premiumInfo.premiumLoadingText
+          : `${premiumInfo?.premium || ''}${premiumInfo?.unit || ''}`
       }}</span>
       <span v-if="!!feeFileUri" @click="onClickFeeRate">查看保费</span>
     </div>
@@ -129,6 +131,10 @@ const props = defineProps({
   paymentFrequency: {
     type: String,
     default: '',
+  },
+  premiumInfo: {
+    type: Object as any,
+    default: () => {},
   },
 });
 
@@ -257,6 +263,12 @@ const onPlanItemClick = (val: string) => {
   // activePlanCode.value = val;
   currentActivePlanCode.value = val;
   // emits('update-active-plan', val);
+};
+
+const onPlanItemClickEmit = (val: string) => {
+  // activePlanCode.value = val;
+  currentActivePlanCode.value = val;
+  emits('update-active-plan', val);
 };
 
 const popupShow = ref(false);
