@@ -70,8 +70,8 @@ export const transformData = (o: transformDataType) => {
         riskId: risk.riskId,
         copy: risk.copy,
       },
-      initialPremium: riskPremium[risk.riskCode]?.premium,
-      totalPremium: riskPremium[risk.riskCode]?.premium,
+      initialPremium: riskPremium[risk.riskCode]?.premium || 0,
+      totalPremium: riskPremium[risk.riskCode]?.premium || 0,
       liabilityDetails:
         risk.liabilityVOList?.map((liab) => ({
           liabilityCode: liab.liabilityCode,

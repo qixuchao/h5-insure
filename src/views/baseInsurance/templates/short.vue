@@ -186,7 +186,7 @@ interface QueryData {
   phoneNo: string; // 手机号
   agentCode: string;
   agencyCode: string;
-  // orderNo: string;
+  orderNo: string;
   pageCode: string;
   from: string; // from = 'check' 审核版
   [key: string]: string;
@@ -207,6 +207,7 @@ const {
   from,
   extraInfo,
   insurerCode,
+  orderNo: oldOrderNo,
 } = route.query as QueryData;
 
 let extInfo: any = {};
