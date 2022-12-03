@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-28 10:28:12
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-29 00:26:37
+ * @LastEditTime: 2022-12-03 17:25:12
  * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/infoCollection.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -203,6 +203,7 @@ export const INSURE_TYPE_MAP = constantListToMap(INSURE_TYPE_LIST);
 // YEAR(2, "年缴"),
 // MONTH(5, "月缴"),
 export const PAYMENT_FREQUENCY_ENUM = {
+  SINGLE: 1,
   YEAR: 2,
   MONTH: 5,
 };
@@ -288,3 +289,9 @@ export const INSURANCE_START_TYPE_LIST = [
     value: INSURANCE_START_TYPE_ENUM.CUSTOM_DAY,
   },
 ];
+
+// 保障失效时间
+export const INSURANCE_END_TYPE_ENUM = {
+  CURRENT_DAY: 1,
+  NEXT_DAY: 2,
+};

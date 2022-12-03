@@ -1,8 +1,8 @@
 <!--
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-01 20:23:05
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-03 17:38:53
  * @Description: 保障详情
 -->
 <template>
@@ -126,6 +126,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  paymentFrequency: {
+    type: String,
+    default: '',
+  },
 });
 
 const emits = defineEmits(['update-active-plan']);
@@ -168,13 +172,20 @@ const planSkinVlaue = computed(() => {
 });
 
 watch(
-  [() => props.dataSource, () => props.activePlanCode],
+  [() => props.dataSource, () => props.activePlanCode, () => props.paymentFrequency],
   () => {
     activePlanCode.value = props.activePlanCode;
     if (!props.isMultiplePlan) {
       guaranteeList.value = props.dataSource?.planInsureVO.guaranteeItemVOS;
       extInfoVOList.value = props.dataSource?.planInsureVO.extInfoVOList;
-      productPremiumVOItem.value = props.dataSource?.planInsureVO.productPremiumVOList[0];
+      const item = props.dataSource?.planInsureVO.productPremiumVOList.find(
+        (e) => e.paymentFrequency === props.paymentFrequency,
+      );
+      if (item) {
+        productPremiumVOItem.value = item;
+      } else {
+        productPremiumVOItem.value = props.dataSource?.planInsureVO.productPremiumVOList[0];
+      }
     } else if (planList.value && planList.value.length > 0) {
       let index = 0;
       const idx = planList.value.findIndex((e: PlanInsureVO) => e.planCode === activePlanCode.value);
@@ -183,7 +194,14 @@ watch(
       }
       guaranteeList.value = planList.value[index].guaranteeItemVOS;
       extInfoVOList.value = planList.value[index].extInfoVOList;
-      productPremiumVOItem.value = planList.value[index]?.productPremiumVOList[0];
+      const item = planList.value[index].productPremiumVOList.find(
+        (e) => e.paymentFrequency === props.paymentFrequency,
+      );
+      if (item) {
+        productPremiumVOItem.value = item;
+      } else {
+        productPremiumVOItem.value = planList.value[index]?.productPremiumVOList[0];
+      }
     }
   },
   {

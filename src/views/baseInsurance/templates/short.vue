@@ -14,6 +14,7 @@
         :data-source="detail?.tenantProductInsureVO"
         :is-multiple-plan="isMultiplePlan"
         :active-plan-code="orderDetail.activePlanCode"
+        :payment-frequency="orderDetail.paymentFrequency"
         @update-active-plan="updateActivePlan"
       />
       <ScrollInfo ref="detailScrollRef" :detail="detail">
@@ -66,9 +67,11 @@
       />
       <div class="footer-area">
         <div class="price">
-          总保费<span>
+          <span>
             {{ premium ? '￥' : '' }}{{ toLocal(premium) }}
-            {{ premium ? (orderDetail.paymentFrequency == PAYMENT_FREQUENCY_ENUM.YEAR ? '元/年' : '元/月') : '' }}
+            {{
+              premium ? (orderDetail.paymentFrequency == PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE ? '元/年' : '元/月') : ''
+            }}
           </span>
         </div>
         <!-- @click="onNext" -->
@@ -243,7 +246,7 @@ const orderDetail = ref<any>({
   insuranceStartDate: null,
   insuranceEndDate: null,
   activePlanCode: '',
-  paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.YEAR,
+  paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE,
   insurancePeriodValue: '', // 保障期限
   commencementTime: '', // 生效日期
 
@@ -350,6 +353,16 @@ const factorObj = computed(() => {
     }
   }
   return factorObjList;
+});
+
+const isCheckHolderSmsCode = computed(() => {
+  if (factorObj.value[1]) {
+    const index = factorObj.value[1].findIndex((e: any) => e.code === 'verificationCode' && e.isDisplay === 1);
+    if (index > -1) {
+      return true;
+    }
+  }
+  return false;
 });
 
 // 多计划时添加默认值
@@ -635,7 +648,7 @@ const onNext = async () => {
           await trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value, false);
         } else {
           const smsCode = orderDetail.value.tenantOrderHolder?.verificationCode;
-          if (!smsCode || !validateSmsCode(smsCode)) {
+          if (isCheckHolderSmsCode.value && (!smsCode || !validateSmsCode(smsCode))) {
             Toast({
               message: '请输入正确的验证码',
             });
@@ -699,7 +712,6 @@ watch(
   [
     () => orderDetail.value.tenantOrderInsuredList[0].birthday,
     () => orderDetail.value.tenantOrderInsuredList[0].gender,
-    () => orderDetail.value.tenantOrderInsuredList[0].mobile,
     () => orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance,
     () => orderDetail.value.activePlanCode,
     () => orderDetail.value.paymentFrequency,
