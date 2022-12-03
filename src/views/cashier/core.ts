@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-03 16:21:34
+ * @LastEditTime: 2022-12-03 18:58:08
  * @Description:
  */
 import wx from 'weixin-js-sdk';
@@ -26,7 +26,7 @@ export const getWxAuthCode = (params: { appId: string; url: string }) => {
  * 调用本函数后，可以获取到微信授权
  */
 export const useWXCode = () => {
-  onMounted(() => {
+  onBeforeMount(() => {
     const route = useRoute();
     const query = route.query as { code: string; [key: string]: string };
     const url = `${window.location.href}`;
@@ -34,9 +34,9 @@ export const useWXCode = () => {
       console.log('微信授权');
       window.location.href = getWxAuthCode({ appId: sessionStorage.appId, url: encodeURIComponent(url) });
     }
-    if (query.code) {
-      sessionStorage.wxCode = query.code;
-    }
+    // if (query.code) {
+    //   sessionStorage.wxCode = query.code;
+    // }
   });
 };
 

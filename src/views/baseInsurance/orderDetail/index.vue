@@ -59,7 +59,7 @@ import GuaranteeContent from '../templates/components/GuaranteeContent/index.vue
 import { ProductData } from '@/api/modules/trial.data';
 import { INSURANCE_PERIOD_TYPE_ENUMS } from '@/common/constants/trial';
 import { compositionDesc } from '../utils';
-import { sendPay } from '@/views/cashier/core';
+import { sendPay, useWXCode } from '@/views/cashier/core';
 import { ORDER_STATUS_MAP, ORDER_STATUS_DESC } from './const';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
@@ -258,7 +258,8 @@ const orderDesc = computed(() => {
   }
   return state.pageInfo.desc;
 });
-
+// 微信授权
+useWXCode();
 onMounted(() => {
   getData();
 });

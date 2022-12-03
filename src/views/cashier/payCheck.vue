@@ -15,7 +15,7 @@
 import { Dialog } from 'vant';
 import type { PayParam } from '@/api/modules/cashier.data';
 import { getPaymentResult } from '@/api/modules/cashier';
-import { useSign, isWeiXin } from './core';
+import { useSign, useWXCode } from './core';
 import useThread, { ThreadType } from '@/hooks/useThread';
 
 interface QueryData extends PayParam {
@@ -86,6 +86,7 @@ thread = useThread({
   number: 5,
 });
 
+useWXCode();
 onMounted(() => {
   loopOrderStatus();
   if (+query.from_wxpay === 1) {

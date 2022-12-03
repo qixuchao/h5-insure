@@ -108,7 +108,7 @@ import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
 import CustomerList from './components/CustomerList/index.vue';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
-import { sendPay } from '../../cashier/core';
+import { sendPay, useWXCode } from '../../cashier/core';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import useAddressList from '@/hooks/useAddressList';
 import useLoading from '@/hooks/useLoading';
@@ -783,7 +783,8 @@ const fetchData = async () => {
     insureDetail.value = insureRes.data;
   }
 };
-
+// 需要支付的页面发起微信授权
+useWXCode();
 onMounted(() => {
   fetchData();
   // 调用千里眼插件获取一个iseeBiz
