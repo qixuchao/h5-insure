@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-03 18:58:08
+ * @LastEditTime: 2022-12-03 19:59:27
  * @Description:
  */
 import wx from 'weixin-js-sdk';
@@ -34,9 +34,9 @@ export const useWXCode = () => {
       console.log('微信授权');
       window.location.href = getWxAuthCode({ appId: sessionStorage.appId, url: encodeURIComponent(url) });
     }
-    // if (query.code) {
-    //   sessionStorage.wxCode = query.code;
-    // }
+    if (query.code) {
+      sessionStorage.wxCode = query.code;
+    }
   });
 };
 
@@ -86,11 +86,13 @@ const onBridgeReady = (params: {
 export const usePay = (payParam: PayParam) => {
   const loading = ref(true);
   useLoading(loading);
+  const route = useRoute();
+  const query = route.query as { code: string; [key: string]: string };
   pay({
     ...payParam,
     srcType: getSrcType(),
     extraInfo: JSON.stringify({
-      wxCode: payParam.code || sessionStorage.wxCode,
+      wxCode: payParam.code || query.code || sessionStorage.wxCode,
     }),
   })
     .then((res) => {
