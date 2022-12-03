@@ -431,7 +431,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .net-sale-wrap {
-  padding-bottom: 150px;
+  padding-bottom: 180px;
   background: #f1f5fc;
 
   .footer-button {

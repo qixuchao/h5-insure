@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-03 23:57:02
+ * @LastEditTime: 2022-12-04 01:13:39
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -78,6 +78,18 @@
         <ProShadowButton :shadow="false" text="关闭" @click="fileShow = false" />
       </div>
     </ProPopup>
+    <FilePreview
+      v-if="showFilePreview && filterHealthAttachmentList.length !== 0"
+      v-model:show="showFilePreview"
+      :content-list="filterHealthAttachmentList"
+      :is-only-view="isOnlyView"
+      :active-index="activeIndex"
+      :text="isOnlyView ? '关闭' : '我已逐页阅读上述内容并同意'"
+      :force-read-cound="0"
+      on-close-file-preview
+      @submit="onSubmit"
+      @on-close-file-preview="onCloseFilePreview"
+    ></FilePreview>
   </van-config-provider>
 </template>
 <script lang="ts" setup name="netSaleDetail">
@@ -95,6 +107,7 @@ import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
 import { sendPay, useWXCode } from '../../../cashier/core';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 import pdfPreview from '@/utils/pdfPreview';
+import FilePreview from '../components/FilePreview/index.vue';
 
 const themeVars = useTheme();
 const route = useRoute();
@@ -164,6 +177,11 @@ const productDetail = ref<any>();
 const tenantProductDetail = ref<any>();
 const signString = ref<string>('');
 const planCode = ref<string>('');
+const showFilePreview = ref<boolean>(false);
+const isOnlyView = ref<boolean>(false);
+const activeIndex = ref<number>(0);
+const filterHealthAttachmentList = ref<any[]>([]);
+const planName = ref<string>('');
 
 const attachmentList = ref<any>({});
 
@@ -191,6 +209,57 @@ const queryOrderDetail = async () => {
   }
 };
 
+const onCloseFilePreview = () => {
+  showFilePreview.value = false;
+  isOnlyView.value = false;
+};
+
+const setFileList = () => {
+  let tempList: any = {};
+  tempList =
+    (tenantProductDetail.value?.tenantProductInsureVO?.planList || []).find((plan) => plan.planCode === planCode.value)
+      ?.attachmentVOList || [];
+  if (!tempList) {
+    filterHealthAttachmentList.value = [];
+    return;
+  }
+  // 1: 附件, 2: 富文本, 3: 链接
+  const fileMap = {
+    '2': 'richText',
+    '3': 'link',
+  };
+  filterHealthAttachmentList.value =
+    Object.keys(tempList).map((e) => {
+      tempList[e].forEach((attachmentItem: any) => {
+        if (attachmentItem.attachmentType === '1') {
+          const urlList = attachmentItem.attachmentUri.split('?');
+          const type = urlList[0].substr(urlList[0].lastIndexOf('.') + 1);
+          // eslint-disable-next-line no-param-reassign
+          if (type === 'pdf') {
+            // eslint-disable-next-line no-param-reassign
+            attachmentItem.attachmentType = 'pdf';
+          } else {
+            // eslint-disable-next-line no-param-reassign
+            attachmentItem.attachmentType = 'picture';
+          }
+        } else {
+          // eslint-disable-next-line no-param-reassign
+          attachmentItem.attachmentType = fileMap[attachmentItem.attachmentType];
+        }
+      });
+      return {
+        attachmentName: e,
+        attachmentList: tempList[e],
+      };
+    }) || [];
+};
+
+const onSubmit = () => {
+  showFilePreview.value = false;
+  isOnlyView.value = true;
+  nextStepOperate(orderDetail.value);
+};
+
 const queryProductDetail = async () => {
   const { code, data } = await insureProductDetail({ productCode, tenantId });
   if (code === '10000') {
@@ -203,13 +272,15 @@ const queryTenantProductDetail = async () => {
   const { data, code } = await getProductDetail({ productCode, tenantId, withInsureInfo: true });
   if (code === '10000') {
     tenantProductDetail.value = data;
+    setFileList();
   }
 };
 
 const submit = async () => {
   if (signString.value) {
     await saveSign('HOLDER', signString.value, orderDetail.value.id, `${tenantId}`);
-    nextStepOperate(orderDetail.value);
+    isOnlyView.value = false;
+    showFilePreview.value = true;
   } else {
     Toast('请先签字');
   }
@@ -240,7 +311,7 @@ watch(
 
 <style lang="scss" scoped>
 .net-sale-detail-wrap {
-  padding: 0 $zaui-page-border 150px;
+  padding: 0 $zaui-page-border 180px;
   background-color: #f4f4f4;
 
   .part {
