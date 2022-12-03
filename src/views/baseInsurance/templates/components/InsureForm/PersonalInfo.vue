@@ -626,6 +626,8 @@ const state = ref({
   occupationalText: '',
 });
 
+const phoneNo = '';
+
 dayjs.extend(relativeTime);
 
 const certEndType = ref<boolean>(props.formInfo.certEndType === 2);

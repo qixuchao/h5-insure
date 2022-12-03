@@ -31,7 +31,7 @@
           </template>
         </InsureForm>
         <ProCell title="保费" :content="productPremium"></ProCell>
-        <!-- <ProCell title="保障期间" :content=""></ProCell> -->
+        <ProCell title="保障期间" :content="`${insuranceStartDate}~${insuranceEndDate}`"></ProCell>
         <div class="footer-button">
           <ProShadowButton text="分享用户确认投保" @click="insured"></ProShadowButton>
         </div>
@@ -45,6 +45,7 @@ import { Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
+import dayjs from 'dayjs';
 import { transformData, getAgeByCard, riskToOrder } from '../../utils';
 
 import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
@@ -205,6 +206,22 @@ const insurancePeriod = computed(() => {
   // const {} = riskInfo;
 });
 
+/* --------------计算保障开始、结束日期 ----------- */
+
+const insuranceStartDate = computed(() => {
+  // const riskInfo = currentRiskInfo.value || [];
+  // const dateType = riskInfo?.[0].riskDetailVOList?.[0]?.insuranceStartType || '1';
+
+  return `${dayjs(new Date()).format('YYYY-MM-DD')}00:00:00`;
+});
+
+const insuranceEndDate = computed(() => {
+  // const riskInfo = currentRiskInfo.value || [];
+  // const dateType = riskInfo?.[0].riskDetailVOList?.[0]?.insuranceEndType || '1';
+
+  return `${dayjs(new Date()).add(1, 'year').format('YYYY-MM-DD')}00:00:00`;
+});
+
 const trialPremium = async (orderInfo, currentProductDetail, productRiskList) => {
   const trialParams = {
     holder: {
@@ -261,6 +278,8 @@ const nextStepOperate = async () => {
   orderDetail.value.venderCode = insureDetail.value?.productBasicInfoVO.insurerCode;
   orderDetail.value.orderAmount = premiumObj.value.premium;
   orderDetail.value.orderRealAmount = premiumObj.value.premium;
+  orderDetail.value.commencementTime = insuranceStartDate.value;
+  orderDetail.value.expiryDate = insuranceEndDate.value;
   orderDetail.value.tenantOrderInsuredList[0].planCode = currentPlan.value;
   orderDetail.value.tenantOrderInsuredList[0].planName = insureDetail.value?.productRelationPlanVOList.find(
     (plan) => plan.planCode === currentPlan.value,
@@ -330,14 +349,14 @@ const insured = async () => {
 // 监听表单数据的变化，进行试算
 watch(
   [
-    () => orderDetail.value.tenantOrderHolder.gender,
-    () => orderDetail.value.tenantOrderHolder.birthday,
+    // () => orderDetail.value.tenantOrderHolder.gender,
+    // () => orderDetail.value.tenantOrderHolder.birthday,
     () => orderDetail.value.tenantOrderInsuredList?.[0].gender,
     () => orderDetail.value.tenantOrderInsuredList?.[0].birthday,
     () => currentPlan.value,
   ],
-  debounce(([newGender, newBirthday, newIGender, newIBirthday]) => {
-    if (newGender && newBirthday && newIGender && newIBirthday) {
+  debounce(([newIGender, newIBirthday]) => {
+    if (newIGender && newIBirthday) {
       trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
     }
   }, 500),
