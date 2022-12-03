@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-03 21:22:18
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-04 01:20:10
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -10,40 +10,43 @@
   <van-config-provider :theme-vars="themeVars">
     <ProPageWrap>
       <div class="net-sale-wrap">
-        <ProCard v-if="orderDetail.id" :show-line="false" title="投保信息">
+        <ProCard>
           <div class="part">
-            <div class="product-name">{{ productDetail?.productBasicInfoVO.productFullName }}</div>
-          </div>
-
-          <div class="part">
-            <ProCell title="保费" :content="orderDetail.orderAmount"></ProCell>
-            <ProCell title="保险期限" :content="orderDetail.tenantOrderInsuredList[0]?.planName"></ProCell>
-            <ProCell title="起保日期" :content="orderDetail.commencementTime"></ProCell>
-            <ProCell title="终保日期" :content="orderDetail.expiryDate"></ProCell>
-            <ProCell title="保单状态" :content="orderDetail.orderStatus"></ProCell>
-          </div>
-          <div class="part">
-            <ProCell title="订单编号" :content="orderDetail.orderNo"></ProCell>
-            <ProCell title="销售人名称" content=""></ProCell>
-            <ProCell title="房屋地址" :content="orderDetail.tenantOrderHolder?.extInfo?.familyAddress"></ProCell>
-            <ProCell
-              title="燃气编号"
-              :content="orderDetail.tenantOrderInsuredList?.[0]?.extInfo.subjectRelatedUserId"
-            ></ProCell>
+            <ProCell title="产品名称" :content="productDetail?.productBasicInfoVO.productFullName"></ProCell>
           </div>
         </ProCard>
-        <InsureForm
-          ref="formRef"
-          :title-collection="{
-            HOLDER: '投保人信息',
-            INSURER: '被保人信息',
-            BENEFICIARY: '受益人',
-          }"
-          :is-view="true"
-          :form-info="orderDetail"
-          :factor-object="factorObj"
-          input-align="right"
-        ></InsureForm>
+        <ProCard v-if="orderDetail.id" :show-line="false" title="投保信息">
+          <!-- <div class="part"> -->
+          <ProCell title="保费" :content="orderDetail.orderAmount"></ProCell>
+          <ProCell title="保险期限" :content="orderDetail.tenantOrderInsuredList[0]?.planName"></ProCell>
+          <ProCell title="起保日期" :content="orderDetail.commencementTime"></ProCell>
+          <ProCell title="终保日期" :content="orderDetail.expiryDate"></ProCell>
+          <ProCell title="保单状态" :content="orderDetail.orderStatus"></ProCell>
+          <!-- </div> -->
+          <!-- <div class="part"> -->
+          <ProCell title="订单编号" :content="orderDetail.orderNo"></ProCell>
+          <!-- <ProCell title="销售人名称" content=""></ProCell> -->
+          <ProCell title="房屋地址" :content="orderDetail.tenantOrderHolder?.extInfo?.familyAddress"></ProCell>
+          <ProCell
+            title="燃气编号"
+            :content="orderDetail.tenantOrderInsuredList?.[0]?.extInfo.subjectRelatedUserId"
+          ></ProCell>
+          <!-- </div> -->
+        </ProCard>
+        <ProCard>
+          <InsureForm
+            ref="formRef"
+            :title-collection="{
+              HOLDER: '投保人信息',
+              INSURER: '被保人信息',
+              BENEFICIARY: '受益人',
+            }"
+            :is-view="true"
+            :form-info="orderDetail"
+            :factor-object="factorObj"
+            input-align="right"
+          ></InsureForm>
+        </ProCard>
         <ProCard title="阅读条款合同">
           <div class="part">
             <van-cell
@@ -62,7 +65,7 @@
           </div>
         </ProCard>
         <div class="footer-button">
-          <ProShadowButton text="提交" @click="submit"></ProShadowButton>
+          <VanButton type="primary" class="shadow-btn" large block round @click="submit">提 交</VanButton>
         </div>
       </div>
     </ProPageWrap>
@@ -238,36 +241,65 @@ watch(
 );
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .net-sale-wrap {
   padding: 0 $zaui-page-border 150px;
   background-color: #f4f4f4;
-
-  .part {
-    border-radius: 4px;
-    margin-bottom: 10px;
+  .product-name {
+    padding: 20px 0 6px;
   }
+  .com-card {
+    border-radius: 8px;
+    // margin-bottom: 20px;
+    overflow: hidden;
+    .com-cell-wrapper.border:last-child {
+      border: none !important;
+    }
+    // .relation-holder {
+    //   border-radius: 8px;
+    // }
+  }
+
   .common-cell-wrapper {
     height: 104px;
     align-items: center;
     width: 100%;
     display: inline-flex;
-    :deep(.cell-container) {
+    .cell-container {
       width: 100%;
       align-items: flex-start;
       justify-content: center;
       width: 100%;
-      color: var(--van-field-label-color);
-      font-size: 30px;
+      font-size: 32px;
+      .left-part {
+        color: var(--zaui-text) !important;
+      }
+      .right-part {
+        color: #9f9c9f;
+        font-weight: 500;
+      }
     }
   }
   .sign-cell {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 20px 0;
+    .sign-wrap {
+      display: flex;
+      align-items: center;
+    }
   }
-  :deep(.van-field__value) {
+  .van-cell .van-field__value {
     align-items: flex-end;
+    align-self: center;
+    input,
+    .van-field__body input,
+    .van-field__body .com-radio-btn-wrap,
+    .van-field__body .displayValue {
+      color: #9f9c9f;
+      font-weight: 500;
+    }
   }
 
   .pre-notice-wrap {

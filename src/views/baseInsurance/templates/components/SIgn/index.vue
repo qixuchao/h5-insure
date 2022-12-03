@@ -1,15 +1,17 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 11:26:50
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-02 19:36:34
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-04 01:01:13
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/components/SIgn/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <div class="sign-wrap">
     <img v-if="signString" class="previewSign" :src="signString" alt="" />
-    <van-button type="primary" size="small" @click="openSign">点击签字</van-button>
+    <van-button type="primary" round size="small" @click="openSign">{{
+      signString ? '重新签名' : '点击签字'
+    }}</van-button>
   </div>
   <van-popup
     v-model:show="isShowSign"
@@ -20,12 +22,14 @@
   >
     <div class="popup-body">
       <div class="sign-container-wrap">
-        <ProSign ref="signRef"></ProSign>
+        <ProSign ref="signRef" placeholder="请在此处签名"></ProSign>
         <div class="operate-bar">
-          <span>请投保人正楷签署您的签名:</span>
-          <van-button type="default" @click="goBack">返回</van-button>
-          <van-button type="default" @click="rewrite">重写</van-button>
-          <van-button type="default" :disabled="!signString" @click="confirm">确定签字</van-button>
+          <span><van-icon name="info" color="#ffaf22" /> 请投保人正楷签署您的签名:</span>
+          <div class="btns">
+            <van-button type="default" class="btn" @click="goBack">返回</van-button>
+            <van-button type="default" class="btn" @click="rewrite">重写</van-button>
+            <van-button type="primary" class="btn" :disabled="!signString" @click="confirm">确定签字</van-button>
+          </div>
         </div>
       </div>
     </div>
@@ -96,9 +100,19 @@ const confirm = () => {
     position: absolute;
     width: 100vh;
     display: flex;
+    margin: 20px;
     align-items: center;
-    transform: rotateZ(90deg) translateX(600px);
+    transform: rotateZ(90deg);
     padding-left: 100px;
+    justify-content: space-between;
+    align-items: center;
+    transform: rotateZ(90deg) translate3d(95vh, 660px, 0px);
+    padding: 20px;
+    transform-origin: right;
+    .btn {
+      width: 240px;
+      margin-right: 20px;
+    }
   }
 
   .com-sign-wrapper {

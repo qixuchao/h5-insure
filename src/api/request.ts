@@ -2,8 +2,8 @@
  * @Description: 用户模块
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-03 13:26:40
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-03 23:17:48
  */
 import axios, { type AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
@@ -11,7 +11,7 @@ import { Toast } from 'vant';
 import useLoading from '@/hooks/useLoading';
 import Storage from '@/utils/storage';
 import showCodeMessage, { SUCCESS_CODE, SUCCESS_STATUS, UNLOGIN } from '@/api/code';
-
+import loadingGif from '@/assets/images/loading.gif';
 // URL前缀，默认为 /
 const BASE_PREFIX = import.meta.env.VITE_API_BASEURL;
 
@@ -131,7 +131,9 @@ axiosInstance.interceptors.request.use(
       loadingInstance.count += 1;
       if (loadingInstance.count === 1) {
         loadingInstance.target = Toast.loading({
-          message: '加载中',
+          message: '加载中...',
+          icon: loadingGif,
+          iconSize: '120px',
           forbidClick: true,
           duration: 0,
         });
