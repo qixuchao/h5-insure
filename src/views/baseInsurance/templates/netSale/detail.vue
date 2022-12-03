@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-03 19:41:02
+ * @LastEditTime: 2022-12-03 21:22:18
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -51,7 +51,7 @@
               :key="index"
               :title="attachment"
               is-link
-              @click="previewFile(attachmentList[attachment])"
+              @click="previewFile(attachment, attachmentList[attachment])"
             ></van-cell>
           </div>
         </ProCard>
@@ -66,6 +66,18 @@
         </div>
       </div>
     </ProPageWrap>
+    <ProPopup
+      v-model:show="fileShow"
+      class="pre-notice-wrap"
+      :title="currentAttachment?.title"
+      position="bottom"
+      :style="{ height: '600px' }"
+    >
+      <ProFilePreview :content="currentAttachment?.fileContent?.attachmentUri" type="richText"></ProFilePreview>
+      <div class="footer">
+        <ProShadowButton :shadow="false" text="关闭" @click="fileShow = false" />
+      </div>
+    </ProPopup>
   </van-config-provider>
 </template>
 <script lang="ts" setup name="netSaleDetail">
@@ -82,6 +94,7 @@ import { productDetail as getProductDetail } from '@/api/modules/product';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { sendPay, useWXCode } from '../../../cashier/core';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
+import pdfPreview from '@/utils/pdfPreview';
 
 const themeVars = useTheme();
 const route = useRoute();
@@ -145,6 +158,8 @@ const orderDetail = ref<any>({
     withProductInfo: true,
   },
 });
+const fileShow = ref<boolean>(false);
+const currentAttachment = ref<any>({});
 const productDetail = ref<any>();
 const tenantProductDetail = ref<any>();
 const signString = ref<string>('');
@@ -152,7 +167,13 @@ const planCode = ref<string>('');
 
 const attachmentList = ref<any>({});
 
-const previewFile = () => {};
+const previewFile = (title, fileContent) => {
+  fileShow.value = true;
+  currentAttachment.value = {
+    title,
+    fileContent: fileContent?.[0],
+  };
+};
 
 const queryOrderDetail = async () => {
   const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
@@ -182,9 +203,6 @@ const queryTenantProductDetail = async () => {
   const { data, code } = await getProductDetail({ productCode, tenantId, withInsureInfo: true });
   if (code === '10000') {
     tenantProductDetail.value = data;
-    attachmentList.value =
-      (data.tenantProductDetail?.planList || []).find((plan) => plan.plaCode === planCode.value)?.attachmentVOList ||
-      [];
   }
 };
 
@@ -203,7 +221,21 @@ onMounted(() => {
   queryOrderDetail();
 });
 
-// watch([() => planCode.value, () => ])
+watch(
+  [() => planCode.value, () => tenantProductDetail.value],
+  () => {
+    if (planCode.value) {
+      attachmentList.value =
+        (tenantProductDetail.value?.tenantProductInsureVO?.planList || []).find(
+          (plan) => plan.planCode === planCode.value,
+        )?.attachmentVOList || [];
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 </script>
 
 <style lang="scss" scoped>
@@ -236,6 +268,55 @@ onMounted(() => {
   }
   :deep(.van-field__value) {
     align-items: flex-end;
+  }
+
+  .pre-notice-wrap {
+    .body {
+      height: calc(100% - 220px);
+      overflow: scroll;
+    }
+
+    .pre-body {
+      padding: 50px 32px 0;
+      height: 100%;
+      .header {
+        line-height: 1;
+        border: none;
+        img {
+          height: 44px;
+        }
+
+        .company-name {
+          margin-top: 20px;
+          font-size: 24px;
+          font-family: PingFangSC-Regular, PingFang SC;
+          font-weight: 500;
+          color: #333;
+          line-height: 33px;
+        }
+      }
+
+      .content {
+        margin-top: 32px;
+        padding: 32px;
+        background: #fcf4f0;
+        border-radius: 20px;
+        font-size: 28px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #333333;
+        line-height: 42px;
+        span {
+          color: #006afc;
+        }
+        border: 1px solid #fff1de;
+        border-top-color: #fee6dd;
+      }
+
+      .footer {
+        margin-top: 50px;
+      }
+    }
   }
 }
 </style>

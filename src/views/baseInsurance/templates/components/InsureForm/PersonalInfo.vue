@@ -106,13 +106,15 @@
     </ProField>
     <ProField
       v-if="showByFactor('certNo')"
-      v-model="state.formInfo.certNo"
-      :label="queryFactorAttr('certNo', 'title')"
+      v-model="certNo"
+      :label="certNoName"
       :name="`${prefix}_certNo`"
       :required="isRequiredByFactor('certNo')"
       :maxlength="18"
       :is-view="isView"
       :validate-type="validateType"
+      @focus="onfocus('certNo')"
+      @update:model-value="(e) => changeNo(e, 'certNo')"
     ></ProField>
 
     <ProDatePicker
@@ -340,13 +342,15 @@
     ></ProPicker>
     <ProField
       v-if="showByFactor('mobile')"
-      v-model="state.formInfo.mobile"
+      v-model="phoneNo"
       :label="queryFactorAttr('mobile', 'title')"
       :name="`${prefix}_mobile`"
       :maxlength="11"
       :is-view="isView"
       :required="isRequiredByFactor('mobile')"
-      :validate-type="[VALIDATE_TYPE_ENUM.PHONE]"
+      :validate-type="!phoneNoStatus ? [VALIDATE_TYPE_ENUM.PHONE] : undefined"
+      @focus="onfocus('mobile')"
+      @update:model-value="(e) => changeNo(e, 'mobile')"
     ></ProField>
     <ProField
       v-if="showByFactor('verificationCode')"
@@ -555,7 +559,7 @@
 
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
-import { Toast } from 'vant';
+import { Form, Toast } from 'vant';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useToggle } from '@vant/use';
@@ -629,12 +633,22 @@ const state = ref({
 });
 
 // 数据脱敏显示
-// const;
+// replace(/^(.{3})(?:\d+)(.{4})$/, "$1****$2")
+const phoneNoStatus = ref<boolean>(false);
 const phoneNo = computed(() => {
-  return props.formInfo.mobile;
+  if (phoneNoStatus.value && state.value.formInfo.mobile) {
+    return (state.value.formInfo.mobile || '').replace(/^(.{3})(?:\d+)(.{4})$/, '$1****$2');
+  }
+  return state.value.formInfo.mobile;
 });
-const certNo = ref<string>('');
-const isNeedDesensitize = computed(() => props.needDesensitize);
+
+const certNoStatus = ref<boolean>(false);
+const certNo = computed(() => {
+  if (certNoStatus.value) {
+    return (state.value.formInfo.certNo || '').replace(/^(.{6})(?:\d+)(.{2})$/, '$1****$2');
+  }
+  return props.formInfo.certNo;
+});
 
 dayjs.extend(relativeTime);
 
@@ -652,6 +666,10 @@ const factorObj = computed(() => {
   });
   return factor;
 });
+
+const changeNo = (e, name) => {
+  state.value.formInfo[name] = e;
+};
 
 const isHolderMobileRight = computed(() => {
   return /^1(3|4|5|6|7|8|9)\d{9}$/.test(state.value.formInfo.mobile);
@@ -674,6 +692,16 @@ const onCountDown = () => {
       countInterval();
     }
   }, 1000);
+};
+
+const onfocus = (name: string) => {
+  if (name === 'mobile') {
+    phoneNoStatus.value = false;
+  }
+
+  if (name === 'certNo') {
+    certNoStatus.value = false;
+  }
 };
 
 // 发送验证码
@@ -710,20 +738,12 @@ const isRequiredByFactor = (key: string) => {
 const queryFactorAttr = (key: string, attr: string) => factorObj.value?.[key]?.[attr] || '';
 
 // 被保人子女的身份证表述加上户口本
-const certTypeOption = computed(() => {
-  let certTypeList = queryFactorAttr('certType', 'attributeValueList') || [];
+const certNoName = computed(() => {
   if (props.prefix === 'insure' && state.value.formInfo?.relationToHolder === RELATION_HOLDER_ENUM.CHILD) {
-    certTypeList = certTypeList.map((certType: { value: string; code: string }) => {
-      if (certType.code === '1') {
-        return {
-          ...certType,
-          value: `${certType.value}(户口本)`,
-        };
-      }
-      return certType;
-    });
+    return '身份证(出生证)号';
   }
-  return certTypeList;
+
+  return '身份证号';
 });
 
 // 验证证件类型
@@ -845,6 +865,17 @@ watch(
     } else {
       state.value.formInfo.certEndType = 1;
     }
+  },
+  {
+    immediate: true,
+  },
+);
+
+watch(
+  () => props.needDesensitize,
+  (value = false) => {
+    phoneNoStatus.value = value;
+    certNoStatus.value = value;
   },
   {
     immediate: true,

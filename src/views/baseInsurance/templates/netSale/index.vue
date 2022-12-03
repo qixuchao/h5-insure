@@ -133,7 +133,6 @@ const orderDetail = ref<any>({
   venderCode: '',
   tenantOrderHolder: {
     extInfo: {},
-    mobile: '13262279090',
   },
   tenantOrderInsuredList: [
     {
@@ -272,11 +271,22 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList) =>
 };
 
 const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrderDetail = {}) => {
+  const currentRiskPremium = {};
+  const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
+    (premiumList || []).forEach((risk) => {
+      currentRiskPremium[risk.riskCode] = risk;
+      if (risk.riskPremiumDetailVOList?.length) {
+        flatRiskPremium(risk.riskPremiumDetailVOList);
+      }
+    });
+  };
+  flatRiskPremium(riskPremium.riskPremiumDetailVOList);
+
   const nextStepParams = { ...currentOrderDetail };
   const transformDataReq = {
     tenantId,
     riskList: nextStepParams.tenantOrderInsuredList[0]?.tenantOrderProductList[0].riskVOList || [],
-    riskPremium,
+    riskPremium: currentRiskPremium,
     productId: currentProductDetail?.productBasicInfoVO.id,
   };
   nextStepParams.tenantOrderInsuredList[0].tenantOrderProductList[0] = {
@@ -298,7 +308,11 @@ const nextStepOperate = async () => {
   orderDetail.value.tenantOrderInsuredList[0].planName = insureDetail.value?.productRelationPlanVOList.find(
     (plan) => plan.planCode === currentPlan.value,
   )?.planName;
-  nextStep(trialData2Order(insureDetail.value, premiumObj.value, orderDetail.value), () => {});
+  nextStep(trialData2Order(insureDetail.value, premiumObj.value, orderDetail.value), (resData, pageAction) => {
+    if (pageAction === 'jumpToPage') {
+      window.history.back();
+    }
+  });
 };
 
 const insured = async () => {
