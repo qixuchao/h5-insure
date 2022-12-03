@@ -11,11 +11,14 @@ import { ProductDetail } from './product.data';
 import { TemplatePageItem } from '../index.data';
 
 export const productDetail = (data: any) => {
-  return request<ResponseData<ProductDetail>>({
-    url: '/api/app/insure/product/getProductDetail',
-    method: 'POST',
-    data,
-  });
+  return request<ResponseData<ProductDetail>>(
+    {
+      url: '/api/app/insure/product/getProductDetail',
+      method: 'POST',
+      data,
+    },
+    { loading: true },
+  );
 };
 
 export const productList = () => {
@@ -35,11 +38,14 @@ export const getFactor = (data: any) => {
 };
 
 export const getAppUser = (data: any) => {
-  return request({
-    url: `/api/query/user/getAppUser`,
-    method: 'POST',
-    data,
-  });
+  return request(
+    {
+      url: `/api/query/user/getAppUser`,
+      method: 'POST',
+      data,
+    },
+    { loading: true },
+  );
 };
 
 // 获取投保流程弹窗配置信息
