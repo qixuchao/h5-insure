@@ -3,7 +3,7 @@
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-02 21:34:24
+ * @LastEditTime: 2022-12-03 12:11:01
  */
 import axios, { type AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
@@ -183,6 +183,5 @@ export default function request<T = ResponseData>(
     ...customOption,
     ...customOptions,
   };
-  console.log('customOption', customOption);
   return axiosInstance(config).then((response: AxiosResponse): ResponseDataPromise<T> => response.data);
 }

@@ -57,6 +57,7 @@ import { ORIGIN, toLocal } from '@/utils';
 import { useTheme } from '../../theme';
 import { nextStepOperate as nextStep } from '@/utils/nextStep';
 import InsurancePeriodCell from '../components/InsurancePeriodCell/index.vue';
+import ProShadowButton from '../components/ProShadowButton/index.vue';
 
 // 调用主题
 const themeVars = useTheme();

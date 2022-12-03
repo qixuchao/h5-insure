@@ -76,7 +76,7 @@
       v-model="state.formInfo.certType"
       :label="queryFactorAttr('certType', 'title')"
       :name="`${prefix}_certType`"
-      :data-source="queryFactorAttr('certType', 'attributeValueList') || []"
+      :data-source="certTypeOption"
       :mapping="{ label: 'value', value: 'code', children: 'child' }"
       :required="isRequiredByFactor('certType')"
       :rules="[{ validator: validateCertType }]"
@@ -571,6 +571,7 @@ import {
   BENEFICIARY_ORDER,
   RELATION_INSURED_LIST,
   MARRIED_STATUS_LIST,
+  RELATION_HOLDER_ENUM,
   RELATION_INSURED_ENUM,
 } from '@/common/constants/infoCollection';
 
@@ -697,6 +698,23 @@ const isRequiredByFactor = (key: string) => {
 
 // 获取表单项的属性
 const queryFactorAttr = (key: string, attr: string) => factorObj.value?.[key]?.[attr] || '';
+
+// 被保人子女的身份证表述加上户口本
+const certTypeOption = computed(() => {
+  let certTypeList = queryFactorAttr('certType', 'attributeValueList') || [];
+  if (props.prefix === 'insure' && state.value.formInfo?.relationToHolder === RELATION_HOLDER_ENUM.CHILD) {
+    certTypeList = certTypeList.map((certType: { value: string; code: string }) => {
+      if (certType.code === '1') {
+        return {
+          ...certType,
+          value: `${certType.value}(户口本)`,
+        };
+      }
+      return certType;
+    });
+  }
+  return certTypeList;
+});
 
 // 验证证件类型
 const validateType = computed(() => {
