@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-03 17:38:53
+ * @LastEditTime: 2022-12-03 19:04:25
  * @Description: 保障详情
 -->
 <template>
@@ -19,7 +19,7 @@
           :class="`picture-payment-item`"
           @click="onPlanItemClick(item.planCode)"
         >
-          <img v-if="activePlanCode == item.planCode" :src="item.selectedPic" />
+          <img v-if="currentActivePlanCode == item.planCode" :src="item.selectedPic" />
           <img v-else :src="item.unSelectedPic" />
         </div>
       </div>
@@ -27,7 +27,7 @@
         <div
           v-for="(item, index) in planList"
           :key="`${item.planCode}_${index}`"
-          :class="`plan-list-item ${item.planCode === activePlanCode ? 'plan-list-item-active' : ''}`"
+          :class="`plan-list-item ${item.planCode === currentActivePlanCode ? 'plan-list-item-active' : ''}`"
           @click="onPlanItemClick(item.planCode)"
         >
           <span>{{ item.planName }}</span>
@@ -59,7 +59,7 @@
         <div
           v-for="(item, index) in planList"
           :key="`${item.planCode}_${index}`"
-          :class="`plan-list-item ${item.planCode === activePlanCode ? 'plan-list-item-active' : ''}`"
+          :class="`plan-list-item ${item.planCode === currentActivePlanCode ? 'plan-list-item-active' : ''}`"
           @click="onPlanItemClick(item.planCode)"
         >
           <span>{{ item.planName }}</span>
@@ -136,13 +136,14 @@ const emits = defineEmits(['update-active-plan']);
 
 const planList = ref<PlanInsureVO[]>(props.dataSource?.planList);
 
-const activePlanCode = ref<string>(props.activePlanCode);
+const currentActivePlanCode = ref<string>(props.activePlanCode);
 
 watch(
   [() => props.dataSource, () => props.activePlanCode],
   () => {
     if (props.isMultiplePlan) {
       planList.value = props.dataSource?.planList;
+      currentActivePlanCode.value = props.activePlanCode;
     }
   },
   {
@@ -172,9 +173,8 @@ const planSkinVlaue = computed(() => {
 });
 
 watch(
-  [() => props.dataSource, () => props.activePlanCode, () => props.paymentFrequency],
+  [() => props.dataSource, () => props.activePlanCode, () => props.paymentFrequency, () => currentActivePlanCode.value],
   () => {
-    activePlanCode.value = props.activePlanCode;
     if (!props.isMultiplePlan) {
       guaranteeList.value = props.dataSource?.planInsureVO.guaranteeItemVOS;
       extInfoVOList.value = props.dataSource?.planInsureVO.extInfoVOList;
@@ -188,7 +188,7 @@ watch(
       }
     } else if (planList.value && planList.value.length > 0) {
       let index = 0;
-      const idx = planList.value.findIndex((e: PlanInsureVO) => e.planCode === activePlanCode.value);
+      const idx = planList.value.findIndex((e: PlanInsureVO) => e.planCode === currentActivePlanCode.value);
       if (idx > -1) {
         index = idx;
       }
@@ -254,8 +254,9 @@ const displayList = computed(() => {
 });
 
 const onPlanItemClick = (val: string) => {
-  activePlanCode.value = val;
-  emits('update-active-plan', val);
+  // activePlanCode.value = val;
+  currentActivePlanCode.value = val;
+  // emits('update-active-plan', val);
 };
 
 const popupShow = ref(false);
