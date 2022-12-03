@@ -86,6 +86,7 @@ watch(
   background: linear-gradient(162deg, #fce6d0 0%, #fff9f2 100%);
   border-radius: 30px;
   border: 1px solid #fae2d0;
+  margin-top: 40px;
   padding: 40px 40px 12px;
 
   .title {

@@ -92,3 +92,10 @@ export function downLoadFile(url: string) {
   a.click();
   return a;
 }
+
+export function isEmpty(value: any) {
+  if (value === null || value === undefined || value === '') return true;
+  if (Array.isArray(value)) return value.length === 0;
+  if (typeof value === 'string') return value.length === 0;
+  return Object.keys(value).length === 0;
+}

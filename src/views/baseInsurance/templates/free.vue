@@ -59,19 +59,22 @@
 import { useRoute, useRouter } from 'vue-router';
 import { useIntersectionObserver } from '@vueuse/core';
 import { Toast } from 'vant/es';
+import { isEmpty } from '@/utils';
 import ProShadowButton from './components/ProShadowButton/index.vue';
 import Banner from './components/Banner/index.vue';
 import FreeHolderForm from './components/FreeHolderForm/index.vue';
-import { productDetail, getAppUser } from '@/api/modules/product';
+import { productDetail, getAppUser, queryListRelationCustomer } from '@/api/modules/product';
 import { insureProductDetail, toClogin, nextStep } from '@/api/modules/trial';
 import PreNotice from './components/PreNotice/index.vue';
 import AttachmentList from './components/AttachmentList/index.vue';
 import FilePreview from './components/FilePreview/index.vue';
 import { checkCode } from '@/api/modules/phoneVerify';
+import useAddressList from '@/hooks/useAddressList';
 // import { nextStep } from '@/api/index';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ProductData } from '@/api/modules/trial.data';
 import { nextStepOperate } from '@/utils/nextStep';
+import { RELATIONENUM } from '@/common/constants/trial';
 import { freeTransform, validateSmsCode } from '../utils';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 import { useTheme } from '../theme';
@@ -100,6 +103,7 @@ try {
   console.log(error);
 }
 const { openId, indirectCode = '123', saleUserId = '', saleChannelId = '' } = extInfo;
+
 let iseeBizNo = '';
 const root = ref();
 const formRef = ref();
@@ -117,6 +121,8 @@ const state = reactive<{
   activeIndex: number;
   showFilePreview: boolean;
   isOnlyView: boolean;
+  isSelfInsured: boolean;
+  relationList: any;
 }>({
   colors: ['#fff'],
   detail: {} as ProductDetail,
@@ -149,12 +155,14 @@ const state = reactive<{
       withProductInfo: true,
     },
   },
+  relationList: {},
   banner: '',
   productDesc: [],
   newAuth: true,
   isValidateCode: false,
   insureDetail: {} as ProductData,
   loading: true,
+  isSelfInsured: true,
   showBtn: false,
   activeIndex: 0,
   showFilePreview: false,
@@ -163,7 +171,9 @@ const state = reactive<{
 
 const filterHealthAttachmentList = ref();
 
-console.log(extInfo, 'extInfo');
+useAddressList({ openId }, (data: any) => {
+  state.relationList = data;
+});
 
 const previewFile = (index: number) => {
   state.activeIndex = index;
@@ -177,7 +187,6 @@ const setfileList = () => {
     filterHealthAttachmentList.value = [];
     return;
   }
-  console.log(tempList, 'tempList====');
   // 1: 附件, 2: 富文本, 3: 链接
   const fileMap = {
     '2': 'richText',
@@ -189,7 +198,6 @@ const setfileList = () => {
         if (attachmentItem.attachmentType === '1') {
           const urlList = attachmentItem.attachmentUri.split('?');
           const type = urlList[0].substr(urlList[0].lastIndexOf('.') + 1);
-          console.log('type', type);
           // eslint-disable-next-line no-param-reassign
           if (type === 'pdf') {
             // eslint-disable-next-line no-param-reassign
@@ -215,6 +223,7 @@ const fetchData = async () => {
   const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
   const insureReq = insureProductDetail({ productCode });
   const userReq = getAppUser({ openId });
+
   await Promise.all([productReq, insureReq, userReq]).then(([productRes, insureRes, userRes]) => {
     if (productRes.code === '10000') {
       state.detail = productRes.data as any;
@@ -244,6 +253,16 @@ const fetchData = async () => {
     }
     if (userRes.code === '10000') {
       state.newAuth = !userRes.data;
+      state.isSelfInsured = !!userRes.data;
+      if (userRes.data) {
+        const res: any = userRes.data;
+        state.order.tenantOrderHolder = {
+          certNo: res?.certiNo,
+          extInfo: {},
+          mobile: res?.mobile,
+          name: res?.name,
+        };
+      }
     }
     setfileList();
     state.loading = false;
@@ -253,7 +272,7 @@ const fetchData = async () => {
 const validateSmsCodew = async () => {
   const res = await formRef.value.validateForm();
   const smsCode = state.order.tenantOrderHolder?.verificationCode;
-  if (!smsCode || !validateSmsCode(smsCode)) {
+  if (state.isValidateCode && (!smsCode || !validateSmsCode(smsCode))) {
     Toast({
       message: '请输入正确的验证码',
     });
@@ -317,6 +336,7 @@ const clickHandler = async () => {
   if (!res) {
     return null;
   }
+
   if (state.newAuth || filterHealthAttachmentList.value.length === 0) {
     onSaveOrder();
   } else {
@@ -344,6 +364,31 @@ onMounted(() => {
     iseeBizNo = window.getIseeBiz && (await window.getIseeBiz());
   }, 1500);
 });
+
+const setInsureInfo = () => {};
+
+watch(
+  () => state.order.tenantOrderInsuredList[0],
+  (e) => {
+    if (isEmpty(state.relationList) || state.newAuth) return null;
+    const targets = state.relationList[e.relationToHolder] || [];
+    if (targets.length === 1) {
+      if (RELATIONENUM.SELF !== e.relationToHolder) {
+        state.order.tenantOrderInsuredList[0].certNo = targets[0].cert[0].certNo;
+        state.order.tenantOrderInsuredList[0].name = targets[0].cert[0].certName;
+      } else if (state.isSelfInsured) {
+        state.isSelfInsured = false;
+        state.order.tenantOrderHolder.certNo = targets[0].cert[0].certNo;
+        state.order.tenantOrderHolder.name = targets[0].cert[0].certName;
+      }
+    }
+    return false;
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
 
 useIntersectionObserver(root, ([{ isIntersecting }], observerElement) => {
   state.showBtn = !isIntersecting;
