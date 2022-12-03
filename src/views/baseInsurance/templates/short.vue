@@ -8,6 +8,7 @@
           :url="detail?.tenantProductInsureVO?.bannerMove[0]"
           @click="onClickToInsure"
         />
+        <div ref="observeRef"></div>
       </div>
       <Guarantee
         show-service-config
@@ -29,18 +30,18 @@
             :send-sms-code="sendSmsCode"
             :factor-object="factorObj || {}"
           >
-            <template v-if="holderCustomerList.length > 1" #holderName>
+            <template v-if="relationCustomerList.length > 1" #holderName>
               <CustomerList
                 :user-info="orderDetail.tenantOrderHolder"
-                :data="holderCustomerList"
+                :data="relationCustomerList"
                 @change="onUpdateHolderData"
               />
             </template>
-            <template v-if="insurerListCustomeList.length > 1" #insurerName>
+            <template v-if="relationCustomerList.length > 1" #insurerName>
               <CustomerList
                 title="选择被保人"
                 :user-info="orderDetail.tenantOrderInsuredList[0]"
-                :data="insurerListCustomeList"
+                :data="relationCustomerList"
                 @change="onUpdateInsurerData"
               />
             </template>
@@ -65,7 +66,7 @@
         pre-text="请阅读"
         @preview-file="(index) => previewFile(index)"
       />
-      <div class="footer-area">
+      <div v-if="showBtn" class="footer-area">
         <div class="price">
           <span> {{ toLocal(premium) }}</span>
           <span
@@ -107,6 +108,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
+import { useIntersectionObserver } from '@vueuse/core';
 import CustomerList from './components/CustomerList/index.vue';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import { sendPay, useWXCode } from '../../cashier/core';
@@ -214,6 +216,8 @@ const { openId } = extInfo;
 
 const formRef = ref();
 const detailScrollRef = ref();
+const observeRef = ref();
+const showBtn = ref<boolean>(false);
 const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<ProductData>(); // 险种信息
 const premium = ref<number | null>(); // 保费
@@ -320,22 +324,19 @@ if (openId) {
   });
 }
 
+const relationCustomerList = computed(() => {
+  if (relationList.value) {
+    const result: any = [];
+    Object.keys(relationList.value).forEach((key) => {
+      result.push(...relationList.value[key]);
+    });
+    return result;
+  }
+  return [];
+});
+
 const isOldUser = computed(() => {
-  return relationList.value[RELATIONENUM.SELF] && relationList.value[RELATIONENUM.SELF].length > 0;
-});
-
-const holderCustomerList = computed(() => {
-  if (isOldUser.value) {
-    return relationList.value[RELATIONENUM.SELF] || [];
-  }
-  return [];
-});
-
-const insurerListCustomeList = computed(() => {
-  if (isOldUser.value && orderDetail.value.tenantOrderInsuredList[0]) {
-    return relationList.value[orderDetail.value.tenantOrderInsuredList[0].relationToHolder] || [];
-  }
-  return [];
+  return relationCustomerList.value.length > 0;
 });
 
 // 投保要素
@@ -810,6 +811,13 @@ const fetchData = async () => {
     insureDetail.value = insureRes.data;
   }
 };
+
+nextTick(() => {
+  useIntersectionObserver(observeRef, ([{ isIntersecting }], observerElement) => {
+    showBtn.value = !isIntersecting;
+  });
+});
+
 // 需要支付的页面发起微信授权
 useWXCode();
 onMounted(() => {

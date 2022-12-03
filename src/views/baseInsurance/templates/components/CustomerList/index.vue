@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 15:01:12
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-03 17:36:53
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-03 20:42:23
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/PreNotice/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -22,7 +22,7 @@
           @click="onSelectUserItem(item)"
         >
           <span class="name">{{ item.cert[0].certName }}</span>
-          <span>{{ item.cert[0].certNo }}</span>
+          <span>{{ star(item.cert[0].certNo) }}</span>
           <van-icon v-show="state.select.certNo === item.cert[0]?.certNo" class="check-icon" :name="checkedIcon" />
         </div>
       </div>
@@ -37,6 +37,7 @@ import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import checkedIcon from '@/assets/images/baseInsurance/checked.png';
 import ProShadowButton from '../ProShadowButton/index.vue';
 import { queryListRelationCustomer } from '@/api/modules/product';
+import { star } from '@/utils/index';
 // // 调用主题
 const emit = defineEmits(['change']);
 

@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-03 18:58:08
+ * @LastEditTime: 2022-12-03 20:16:41
  * @Description:
  */
 import wx from 'weixin-js-sdk';
@@ -34,9 +34,9 @@ export const useWXCode = () => {
       console.log('微信授权');
       window.location.href = getWxAuthCode({ appId: sessionStorage.appId, url: encodeURIComponent(url) });
     }
-    // if (query.code) {
-    //   sessionStorage.wxCode = query.code;
-    // }
+    if (query.code) {
+      sessionStorage.wxCode = query.code;
+    }
   });
 };
 

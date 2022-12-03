@@ -72,11 +72,11 @@ router.beforeEach(async (to, from, next) => {
 });
 
 const IS_WECHAT = isWechat();
-router.beforeResolve(async (to) => {
+router.beforeResolve(async (to, from) => {
   console.log('IS_WECHAT', IS_WECHAT);
   if (IS_WECHAT && to.meta.requireWxJs) {
     const tenantId = to.query?.tenantId as string;
-    console.log('在微信环境，开始鉴权, tenantId:', tenantId);
+    console.log('在微信环境，开始鉴权, tenantId:', tenantId, 'from:', from);
     const res = await getWxJsSdkSignature({ url: encodeURIComponent(realAuthUrl), tenantId });
     const {
       data: { appId, timestamp, nonceStr, signature },
@@ -106,10 +106,6 @@ router.beforeResolve(async (to) => {
     wx.ready(() => {
       console.log('wechat js sdk 注入成功');
       console.log(realAuthUrl);
-      // 提前获取wxCode
-      if (to.meta.wxCode) {
-        // useWXCode();
-      }
     });
     wx.error((err: any) => {
       console.warn('jssdk 注入失败', err);
