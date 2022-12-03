@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-02 14:41:00
+ * @LastEditTime: 2022-12-04 00:19:00
  * @Description:
 -->
 <template>
@@ -28,6 +28,7 @@
               v-model="state.formInfo.activePlanCode"
               :options="planList"
               :prop="{ value: 'planCode', label: 'planName' }"
+              @change="onClickPlanCode"
             ></ProRadioButton>
           </div>
         </div>
@@ -86,6 +87,7 @@
         <div class="custom-cell common-cell">
           <div class="cell-label">实付保费</div>
           <div class="cell-content actual-premium">{{ actualPremium }}</div>
+          <div v-if="state.formInfo.paymentFrequency === '5'" class="actual-premium">共12期</div>
         </div>
         <div
           v-if="explainInfo && explainInfo.premiumExplain && explainInfo.premiumExplainViewName"
@@ -152,13 +154,13 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  premium: {
-    type: [Number || null],
-    default: null,
+  premiumInfo: {
+    type: Object as any,
+    default: () => {},
   },
 });
 
-const emits = defineEmits(['onReset', 'onUpdate', 'onVerify']);
+const emits = defineEmits(['update-active-plan']);
 
 const state = reactive({
   formInfo: props.formInfo,
@@ -178,13 +180,8 @@ const premiumItem = computed(() => {
 });
 
 const actualPremium = computed(() => {
-  if (props.premium && premiumItem.value) {
-    return `${props.premium}${premiumItem.value.premiumUnit || ''}`;
-  }
-  if (premiumItem.value) {
-    return `${premiumItem.value.paymentFrequencyValue || ''}${premiumItem.value.premiumUnit || ''}`;
-  }
-  return '';
+  if (props.premiumInfo.premiumLoadingText) return props.premiumInfo.premiumLoadingText;
+  return `${props.premiumInfo.premium}${props.premiumInfo.unit}`;
 });
 
 const explainInfo = computed(() => {
@@ -275,26 +272,6 @@ watch(
   },
 );
 
-// const showDefaultPayment = computed(() => {
-//   if (insureCondition.value) {
-//     const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
-//     if (paymentFrequencyList.length === 1) {
-//       state.formInfo.paymentFrequency = insureCondition.value.paymentFrequency;
-//       return false;
-//     }
-
-//     if (
-//       paymentFrequencyList.length === 2 &&
-//       paymentFrequencyList.filter(
-//         (e: string) => ![PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE, PAYMENT_COMMON_FREQUENCY_ENUM.MONTH].includes(e),
-//       ).length < 1
-//     ) {
-//       return true;
-//     }
-//   }
-//   return false;
-// });
-
 const skinValue = computed(() => {
   if (insureCondition.value) {
     return (insureCondition.value.paymentFrequencyList || [])?.map((e: any) => ({
@@ -341,17 +318,13 @@ const peymentBtnList = computed(() => {
   return [];
 });
 
-const onPlanItemClick = (val: string) => {
-  state.formInfo.activePlanCode = val;
-};
-
 const onClickPaymethod = (type: string) => {
   console.log('type', type);
   state.formInfo.paymentFrequency = type;
 };
 
-const onClickPlanCode = (pageCode: string) => {
-  state.formInfo.activePlanCode = pageCode;
+const onClickPlanCode = (planCode: string) => {
+  state.formInfo.activePlanCode = planCode;
 };
 
 const onPreviewFeerateFile = () => {
@@ -573,6 +546,10 @@ defineExpose({});
     font-family: PingFangSC-Medium, PingFang SC !important;
     font-weight: 500 !important;
     color: $primary-color !important;
+
+    &:last-child {
+      margin-left: 20px;
+    }
   }
 
   .feerate-explain {

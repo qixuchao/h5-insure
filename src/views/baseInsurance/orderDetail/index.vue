@@ -121,7 +121,7 @@ const orderBtnText = computed(() => {
   if (ORDER_STATUS_ENUM.PAYING === state.orderDetail.orderStatus) {
     return '立即支付';
   }
-  if (ORDER_STATUS_ENUM.CANCELED === state.orderDetail.orderStatus) {
+  if (ORDER_STATUS_ENUM.TIMEOUT === state.orderDetail.orderStatus) {
     return '重下一单';
   }
   return '';
@@ -251,10 +251,11 @@ const getData = async () => {
 const orderDesc = computed(() => {
   if (ORDER_STATUS_ENUM.PAYING === state.orderDetail.orderStatus) {
     if (state.timeDown.current.total <= 0) {
-      // setTimeout(() => {
-      // getData();
-      // }, 5000);
+      state.orderDetail.orderStatus = ORDER_STATUS_ENUM.TIMEOUT;
+      state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
+      state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
       state.timeDown.pause();
+      return state.pageInfo.desc;
     }
     return `剩余支付时间：${state.timeDown.current.hours}:${state.timeDown.current.minutes}:${state.timeDown.current.seconds}`;
   }
