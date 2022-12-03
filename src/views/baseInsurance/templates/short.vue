@@ -67,10 +67,11 @@
       />
       <div class="footer-area">
         <div class="price">
-          <span>
-            {{ premium ? '￥' : '' }}{{ toLocal(premium) }}
-            {{
-              premium ? (orderDetail.paymentFrequency == PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE ? '元/年' : '元/月') : ''
+          <span> {{ toLocal(premium) }}</span>
+          <span
+            >{{
+              // premium ? (orderDetail.paymentFrequency == PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE ? '元/年' : '元/月') : ''
+              premium ? unit : ''
             }}
           </span>
         </div>
@@ -313,9 +314,11 @@ const isMultiplePlan = computed(() => {
   return false;
 });
 
-useAddressList({ openId }, (data: any) => {
-  relationList.value = data;
-});
+if (openId) {
+  useAddressList({ openId }, (data: any) => {
+    relationList.value = data;
+  });
+}
 
 const isOldUser = computed(() => {
   return relationList.value[RELATIONENUM.SELF] && relationList.value[RELATIONENUM.SELF].length > 0;
@@ -389,6 +392,30 @@ const currentRiskInfo = computed(() => {
   return insureDetail.value?.productRiskVoList || [];
 });
 
+const currentPlanInsure = computed(() => {
+  if (!detail.value) return {};
+  if (isMultiplePlan.value) {
+    const item = detail.value?.tenantProductInsureVO.planList.find(
+      (plan) => plan.planCode === orderDetail.value.activePlanCode,
+    );
+    if (item) return item;
+    return {};
+  }
+  return detail.value.tenantProductInsureVO.planInsureVO;
+});
+
+const unit = computed(() => {
+  console.log('currentPlanInsure', currentPlanInsure.value);
+  if (currentPlanInsure.value && currentPlanInsure.value?.productPremiumVOList) {
+    const item = currentPlanInsure.value?.productPremiumVOList.find(
+      (e) => e.paymentFrequency === orderDetail.value.paymentFrequency,
+    );
+    console.log('item', item);
+    if (item) return item.premiumUnit || '元';
+  }
+  return '元';
+});
+
 // 切换计划
 const updateActivePlan = (planCode: string) => {
   orderDetail.value.activePlanCode = planCode;
@@ -405,7 +432,7 @@ const healthAttachmentList = computed(() => {
         questions,
       } = questionnaireItem.questionnaireDetailResponseVO || {};
       // 1: 文本 2、问答
-      if (questionnaireType === 2) {
+      if (String(questionnaireType) === '2') {
         return [
           {
             attachmentName: questionnaireItem?.questionnaireName,
@@ -418,7 +445,7 @@ const healthAttachmentList = computed(() => {
         {
           attachmentName: questionnaireItem?.questionnaireName,
           attachmentUri: questions[0].content,
-          attachmentType: getFileType(String(questionnaireType), questions[0].content),
+          attachmentType: getFileType(String(questions[0].textType), questions[0].content),
         },
       ];
     }
@@ -829,6 +856,12 @@ onMounted(() => {
     span {
       color: $primary-color;
       font-weight: bold;
+
+      &:last-child {
+        font-size: 26px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+      }
     }
   }
   .right {
