@@ -183,7 +183,9 @@ const initPageInfo = () => {
     });
   } else {
     state.pageInfo.insureList = [{ label: '本期缴费金额', value: `${state.orderDetail.orderAmount}元` }];
-    insurancePeriodDesc = '';
+    insurancePeriodDesc = `${dayjs(state.orderDetail.commencementTime).format('YYYY.MM.DD')}到${dayjs(
+      state.orderDetail.expiryDate,
+    ).format('YYYY.MM.DD')}`;
   }
   state.pageInfo.insureList = [
     ...state.pageInfo.insureList,
