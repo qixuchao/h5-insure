@@ -345,6 +345,7 @@
       v-model="phoneNo"
       :label="queryFactorAttr('mobile', 'title')"
       :name="`${prefix}_mobile`"
+      type="digit"
       :maxlength="11"
       :is-view="isView"
       :required="isRequiredByFactor('mobile')"
@@ -357,6 +358,7 @@
       v-model="state.formInfo.verificationCode"
       :label="queryFactorAttr('verificationCode', 'title')"
       :name="`${prefix}_verificationCode`"
+      type="digit"
       :is-view="isView"
       :required="isRequiredByFactor('verificationCode')"
     >
@@ -869,6 +871,21 @@ watch(
   {
     immediate: true,
   },
+);
+
+watch(
+  [() => state.value.formInfo.certNo, () => state.value.formInfo.certNo],
+  () => {
+    state.value.formInfo.certNo = state.value.formInfo.certNo?.replace(
+      /[\u4e00-\u9fa5/\s+/]|[^Xx0-9\u4E00-\u9FA5]/g,
+      '',
+    );
+    state.value.formInfo.certNo = state.value.formInfo.certNo?.replace(
+      /[\u4e00-\u9fa5/\s+/]|[^Xx0-9\u4E00-\u9FA5]/g,
+      '',
+    );
+  },
+  { deep: true, immediate: true },
 );
 
 watch(
