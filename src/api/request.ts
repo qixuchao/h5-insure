@@ -3,7 +3,7 @@
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-03 12:11:01
+ * @LastEditTime: 2022-12-03 13:26:40
  */
 import axios, { type AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
@@ -20,7 +20,7 @@ const pendingMap = new Map();
 // 自定义配置
 let customOption = {
   // TODO
-  repeat_request_cancel: true, // 是否开启取消重复请求, 默认为 true
+  repeat_request_cancel: false, // 是否开启取消重复请求, 默认为 true
   loading: false, // 默认展示loading
 };
 
