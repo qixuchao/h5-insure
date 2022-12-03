@@ -644,11 +644,11 @@ const onNext = async () => {
   try {
     if (formRef.value) {
       formRef.value?.validateForm().then(async () => {
-        if (isOldUser.value) {
+        if (isOldUser.value || !isCheckHolderSmsCode.value) {
           await trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value, false);
         } else {
           const smsCode = orderDetail.value.tenantOrderHolder?.verificationCode;
-          if (isCheckHolderSmsCode.value && (!smsCode || !validateSmsCode(smsCode))) {
+          if (!smsCode || !validateSmsCode(smsCode)) {
             Toast({
               message: '请输入正确的验证码',
             });
