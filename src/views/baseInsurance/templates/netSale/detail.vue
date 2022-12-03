@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-04 03:39:35
+ * @LastEditTime: 2022-12-04 04:59:38
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -14,7 +14,7 @@
           <ProCell title="产品名称" :content="productDetail?.productBasicInfoVO.productFullName"></ProCell>
         </ProCard>
         <ProCard v-if="orderDetail.id" :show-line="false" title="投保信息">
-          <ProCell title="保费" :content="orderDetail.orderAmount"></ProCell>
+          <ProCell title="保费" :content="orderDetail.orderAmount + '元'"></ProCell>
           <ProCell title="保险期限" :content="planName"></ProCell>
           <ProCell title="起保日期" :content="orderDetail.commencementTime"></ProCell>
           <ProCell title="终保日期" :content="orderDetail.expiryDate"></ProCell>
@@ -41,11 +41,11 @@
         ></InsureForm>
         <ProCard title="阅读条款合同" class="file-list-card">
           <van-cell
-            v-for="(attachment, index) in Object.keys(attachmentList)"
+            v-for="(attachment, index) in filterHealthAttachmentList"
             :key="index"
-            :title="attachment"
+            :title="attachment.attachmentName"
             is-link
-            @click="previewFile(attachment, attachmentList[attachment])"
+            @click="previewFile(attachment.attachmentName, attachment.attachmentList)"
           ></van-cell>
         </ProCard>
         <ProCard title="客户签名">
@@ -66,7 +66,10 @@
       position="bottom"
       :style="{ height: '600px' }"
     >
-      <ProFilePreview :content="currentAttachment?.fileContent?.attachmentUri" type="richText"></ProFilePreview>
+      <ProFilePreview
+        :content="currentAttachment?.fileContent?.attachmentUri"
+        :type="currentAttachment?.fileContent?.attachmentType"
+      ></ProFilePreview>
       <div class="footer">
         <ProShadowButton :shadow="false" text="关闭" @click="fileShow = false" />
       </div>
@@ -106,7 +109,7 @@ const themeVars = useTheme();
 const route = useRoute();
 const router = useRouter();
 
-const { orderNo = '2022113021181894998', tenantId = '9991000001', productCode = 'HTEJBX' } = route.query;
+const { orderNo = '2022113021181894998', tenantId = '9991000001' } = route.query;
 
 const formData = ref<any>();
 const factorObj = ref<any>({});
@@ -175,6 +178,7 @@ const isOnlyView = ref<boolean>(false);
 const activeIndex = ref<number>(0);
 const filterHealthAttachmentList = ref<any[]>([]);
 const planName = ref<string>('');
+const productCode = ref<string>('');
 
 const attachmentList = ref<any>({});
 
@@ -184,22 +188,6 @@ const previewFile = (title, fileContent) => {
     title,
     fileContent: fileContent?.[0],
   };
-};
-
-const queryOrderDetail = async () => {
-  const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
-  if (code === '10000') {
-    data.extInfo.buttonCode = 'EVENT_NETSALE_airSignature';
-    orderDetail.value = data;
-    planCode.value = data.tenantOrderInsuredList[0]?.planCode;
-    if (data.orderStatus === ORDER_STATUS_ENUM.PAYING) {
-      orderDetail.value.extInfo.redirectUrl = '';
-      const { code: payCode, data: payData } = await getPayUrl(orderDetail.value);
-      if (payCode === '10000') {
-        sendPay(payData.paymentUrl);
-      }
-    }
-  }
 };
 
 const onCloseFilePreview = () => {
@@ -247,14 +235,16 @@ const setFileList = () => {
     }) || [];
 };
 
-const onSubmit = () => {
+const onSubmit = async () => {
   showFilePreview.value = false;
   isOnlyView.value = true;
+  await saveSign('HOLDER', signString.value, orderDetail.value.id, `${tenantId}`);
+
   nextStepOperate(orderDetail.value);
 };
 
 const queryProductDetail = async () => {
-  const { code, data } = await insureProductDetail({ productCode, tenantId });
+  const { code, data } = await insureProductDetail({ productCode: productCode.value, tenantId });
   if (code === '10000') {
     productDetail.value = data;
     factorObj.value = data.productFactor;
@@ -262,16 +252,34 @@ const queryProductDetail = async () => {
 };
 
 const queryTenantProductDetail = async () => {
-  const { data, code } = await getProductDetail({ productCode, tenantId, withInsureInfo: true });
+  const { data, code } = await getProductDetail({ productCode: productCode.value, tenantId, withInsureInfo: true });
   if (code === '10000') {
     tenantProductDetail.value = data;
     setFileList();
   }
 };
 
+const queryOrderDetail = async () => {
+  const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
+  if (code === '10000') {
+    data.extInfo.buttonCode = 'EVENT_NETSALE_airSignature';
+    orderDetail.value = data;
+    planCode.value = data.tenantOrderInsuredList[0]?.planCode;
+    productCode.value = data.tenantOrderInsuredList[0].tenantOrderProductList[0].productCode;
+    queryProductDetail();
+    queryTenantProductDetail();
+    if (data.orderStatus === ORDER_STATUS_ENUM.PAYING) {
+      orderDetail.value.extInfo.redirectUrl = '';
+      const { code: payCode, data: payData } = await getPayUrl(orderDetail.value);
+      if (payCode === '10000') {
+        sendPay(payData.paymentUrl);
+      }
+    }
+  }
+};
+
 const submit = async () => {
   if (signString.value) {
-    await saveSign('HOLDER', signString.value, orderDetail.value.id, `${tenantId}`);
     isOnlyView.value = false;
     showFilePreview.value = true;
   } else {
@@ -280,8 +288,6 @@ const submit = async () => {
 };
 useWXCode();
 onMounted(() => {
-  queryProductDetail();
-  queryTenantProductDetail();
   queryOrderDetail();
 });
 
