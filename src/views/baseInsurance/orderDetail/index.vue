@@ -65,6 +65,8 @@ import { ProductDetail } from '@/api/modules/product.data';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { downLoadFile } from '@/utils';
 import { useTheme } from '../theme';
+import { sessionStore } from '@/hooks/useStorage';
+import { ORDER_DETAIL_KEY } from '@/common/constants/infoCollection';
 // 调用主题
 const themeVars = useTheme();
 const router = useRouter();
@@ -139,6 +141,10 @@ const goToInsurerPage = async (reOrder = false) => {
       extraMap: reOrder ? {} : { ...state.orderDetail.extInfo.extraInfo, orderNo },
     });
     if (code === '10000') {
+      if (!reOrder) {
+        const { tenantOrderHolder, tenantOrderInsuredList } = state.orderDetail;
+        sessionStore.set(ORDER_DETAIL_KEY, { tenantOrderHolder, tenantOrderInsuredList });
+      }
       window.location.href = data || '';
     }
   } catch (e) {

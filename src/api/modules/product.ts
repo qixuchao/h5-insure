@@ -1,8 +1,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-08-10 16:45:37
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-03 19:27:09
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-04 03:23:05
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/modules/product.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -11,14 +11,11 @@ import { ProductDetail } from './product.data';
 import { TemplatePageItem } from '../index.data';
 
 export const productDetail = (data: any) => {
-  return request<ProductDetail>(
-    {
-      url: '/api/app/insure/product/getProductDetail',
-      method: 'POST',
-      data,
-    },
-    { loading: true },
-  );
+  return request<ProductDetail>({
+    url: '/api/app/insure/product/getProductDetail',
+    method: 'POST',
+    data,
+  });
 };
 
 export const productList = () => {
