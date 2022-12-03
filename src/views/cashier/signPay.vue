@@ -1,13 +1,13 @@
 <template>
   <ProPageWrap main-class="page-sign-pay">
-    <div v-if="showResult" class="result-view">
+    <!-- <div v-if="showResult" class="result-view">
       <div class="content-box">
         <van-icon name="checked" class="large-icon" />
         <div class="content">开通成功，正在为您生成保单...</div>
         <div class="tip">请勿返回或退出</div>
       </div>
-    </div>
-    <div v-else class="sign-view">
+    </div> -->
+    <div class="sign-view">
       <div class="content-box">
         <van-icon name="wechat-pay" class="large-icon" />
         <div class="content">您已选择按月支付，请开通自动续费</div>
@@ -20,6 +20,7 @@
 
 <script lang="ts" setup>
 import { Dialog } from 'vant';
+import { useRouter } from 'vue-router';
 import type { PayParam } from '@/api/modules/cashier.data';
 import { getPaymentResult } from '@/api/modules/cashier';
 import { useSign, isWeiXin } from './core';
@@ -31,58 +32,28 @@ interface QueryData extends PayParam {
   [key: string]: string | number;
 }
 const query = useRoute().query as QueryData;
-
+const router = useRouter();
 // 是否展示支付结果（默认进入签约）
 const showResult = ref(false);
+const payResult = ref(false);
+const redirectUrl = ref('');
 
-// 将所有url上的参数全部传递给签约接口
-const goPay = async () => {
-  useSign(query);
+// 将所有url上的参数全部传递下一个页面
+const goPay = () => {
+  router.replace({ path: '/cashier/payCheck', query });
 };
-let thread: ThreadType;
-const loopOrderStatus = () => {
-  getPaymentResult({
-    tenantId: query.tenantId,
-    orderNo: query.orderNo,
-  })
-    .then((res) => {
-      const { code, data } = res;
-      if (code === '10000' && +data.status === 1) {
-        thread.stop();
-        window.location.href =
-          data.redirectUrl ||
-          `/baseInsurance/orderDetail?orderNo=${query.businessTradeNo}&tenantId=${query.tenantId}&productCode=${query.productCode}`;
-      }
-    })
-    .catch();
-};
-thread = useThread({
-  start: () => {
-    console.log('开始轮询');
-    loopOrderStatus();
-  },
-  stop: () => {
-    console.log('结束轮询');
-  },
-  time: 2000,
-  number: 20,
-});
 
-onMounted(async () => {
-  if (+query.from_wxpay === 1) {
-    showResult.value = true;
-    // useLoading(showResult);
-    thread.run();
-  } else {
-    // 微信里面弹提示
-    if (isWeiXin) {
-      Dialog.alert({
-        title: '去微信开通按月缴费',
-        confirmButtonText: '好的，我知道了',
-      }).then(() => {
-        useSign(query, () => {});
-      });
-    }
+onMounted(() => {
+  // 微信里面弹提示
+  if (isWeiXin) {
+    Dialog.alert({
+      title: '去微信开通按月缴费',
+      confirmButtonText: '好的，我知道了',
+    }).then(() => {
+      goPay();
+      // router.replace({ path: '/cashier/payCheck', query });
+      // useSign(query);
+    });
   }
 });
 </script>

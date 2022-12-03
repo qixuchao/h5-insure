@@ -1,8 +1,8 @@
 <!--
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-03 17:27:46
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-03 18:30:17
  * @Description:
 -->
 <template>
@@ -32,7 +32,7 @@
       </div>
     </div>
   </van-config-provider>
-  <ProPopup v-model:show="show" :height="40" :closeable="false">
+  <ProPopup v-model:show="show" height="320" :closeable="true">
     <van-datetime-picker
       v-model="currentDate"
       type="date"
@@ -40,9 +40,16 @@
       :min-date="minDate"
       :max-date="maxDate"
       :formatter="formatter"
+      :visible-item-count="5"
       @confirm="handleConfirm"
       @cancel="handleCancel"
-    />
+    >
+      <template #cancel></template>
+      <template #title><div class="picker-custom-title">选择年月</div></template>
+      <template #confirm>
+        <ProShadowButton class="custom-picker-btn" :shadow="false" text="确定" @click="show = false" />
+      </template>
+    </van-datetime-picker>
   </ProPopup>
 </template>
 <script lang="ts" setup>
@@ -63,6 +70,7 @@ import { ProductData, ProductRelationPlanVoItem, ProductRiskVoItem, RiskDetailVo
 import { formatDate, computedAddDate, computedSubtractDate } from '@/utils/date';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import useDicData from '@/hooks/useDicData';
+import ProShadowButton from '../ProShadowButton/index.vue';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 
 const formRef = ref<FormInstance>({} as FormInstance);
@@ -360,5 +368,19 @@ defineExpose({});
       color: #333333;
     }
   }
+}
+.picker-custom-title {
+  width: 500px;
+  position: absolute;
+  left: 30px;
+  font-weight: 500;
+}
+.custom-picker-btn {
+  position: absolute;
+  bottom: -120px;
+  left: 5%;
+  z-index: 100;
+  width: 90%;
+  margin: 10px auto;
 }
 </style>

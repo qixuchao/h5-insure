@@ -2,21 +2,21 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-17 16:00
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-02 18:01:24
+ * @LastEditTime: 2022-12-03 17:06:29
  * @Description: 审核版首页
 -->
 <template>
   <ProScrollTab ref="scrollRef" class="tabs" :list="tabList" sticky scrollspy>
     <template v-if="isShowTab1" #tab1>
       <div class="spec">
-        <van-image
-          v-for="(item, index) in props.detail?.tenantProductInsureVO?.spec || []"
-          :key="index"
-          class="detail-img"
-          width="100%"
-          lazy-load
-          :src="item"
-        />
+        <template v-for="(item, index) in props.detail?.tenantProductInsureVO?.spec || []" :key="index">
+          <Suspense>
+            <van-image :key="index" class="detail-img" width="100%" lazy-load :src="item" />
+            <template #fallback>
+              <ProSvg name="img" style="font-size: 40px; margin: 10px auto; display: block" />
+            </template>
+          </Suspense>
+        </template>
         <!-- <img
           v-for="(item, index) in props.detail?.tenantProductInsureVO?.spec || []"
           :key="index"
@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref } from 'vue-demi';
+import { Ref, Suspense } from 'vue';
 import { CLAIM_TYPE_ENUM } from '@/common/constants/infoCollection';
 import ProCard from '@/components/ProCard/index.vue';
 import CustomCard from '../../../components/CustomCard/index.vue';
@@ -168,6 +168,9 @@ defineExpose({
   img {
     width: 100%;
     display: block;
+  }
+  .van-image__error {
+    font-size: 60px;
   }
 }
 

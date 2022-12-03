@@ -23,6 +23,7 @@ export const useTheme = (color: string = THEME_MAP.orange) => {
     cardTitle: '#9e5c28', // 保障内容title的颜色
     cardCellColor: '#C6814A', // 保障内容每一行颜色的颜色
     radioCheckedIconColor: color,
+    proCheckRadius: '40px', // proCheckButton的圆角
     // ..其他组件的颜色覆盖
   };
 };
