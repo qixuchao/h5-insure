@@ -39,8 +39,8 @@
           ></ProCell>
         </div>
 
-        <div class="footer-button">
-          <ProShadowButton text="分享用户确认投保" @click="insured"></ProShadowButton>
+        <div class="footer">
+          <ProShadowButton :shadow="false" text="分享用户确认投保" @click="insured"></ProShadowButton>
         </div>
       </div>
     </ProPageWrap>
@@ -431,7 +431,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .net-sale-wrap {
-  padding-bottom: 180px;
+  padding-bottom: 100px;
   background: #f1f5fc;
 
   .footer-button {
@@ -492,6 +492,11 @@ onMounted(() => {
     width: 280px;
     background: $primary-color;
     border-color: $primary-color;
+  }
+
+  .footer {
+    margin-top: 50px;
+    padding: 0 $zaui-page-border;
   }
 }
 </style>

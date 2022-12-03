@@ -93,6 +93,7 @@ const subTitle = computed(() => {
 .com-card {
   .com-card-wrap {
     background-color: #ffffff;
+    border-radius: 16px;
     .header {
       margin-left: $zaui-card-border;
       padding-right: $zaui-card-border;

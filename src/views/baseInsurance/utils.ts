@@ -724,6 +724,7 @@ export const freeTransform = (o: any) => {
     tenantId: o.tenantId, // '1'
     venderCode: o.insureDetail.productBasicInfoVO.insurerCode, // '1'
     orderDataSource: '1', // 1 // 订单来源
+    agencyId: o.agencyCode,
     agentCode: o.agentCode,
     saleUserId: o.saleUserId, // 1 'url'
     saleChannelId: o.saleChannelId, // 1  'url'// 销售渠道id

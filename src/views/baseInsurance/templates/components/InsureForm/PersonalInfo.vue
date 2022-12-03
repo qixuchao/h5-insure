@@ -873,6 +873,14 @@ watch(
 );
 
 watch(
+  () => state.value.formInfo.mobile,
+  () => {
+    state.value.formInfo.mobile = state.value.formInfo.mobile?.replace(/[\u4e00-\u9fa5/\s+/]|[^0-9\u4E00-\u9FA5]/g, '');
+  },
+  { deep: true, immediate: true },
+);
+
+watch(
   [() => state.value.formInfo.certNo, () => state.value.formInfo.certNo],
   () => {
     state.value.formInfo.certNo = state.value.formInfo.certNo?.replace(
