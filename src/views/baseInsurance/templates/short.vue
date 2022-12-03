@@ -183,6 +183,7 @@ interface QueryData {
   tenantId: string; // 订单id
   phoneNo: string; // 手机号
   agentCode: string;
+  agencyCode: string;
   // orderNo: string;
   pageCode: string;
   from: string; // from = 'check' 审核版
@@ -194,6 +195,7 @@ const {
   tenantId,
   phoneNo: mobile,
   agentCode = '',
+  agencyCode,
   saleChannelId,
   paymentMethod,
   certNo,
@@ -243,9 +245,10 @@ const PAGE_ACTION_TYPE_ENUM = {
 
 const orderDetail = ref<any>({
   tenantId,
-  agencyId: agentCode,
+  agencyId: agencyCode,
+  agentCode,
   orderCategory: 1,
-  saleUserId: saleChannelId,
+  // saleUserId: saleChannelId,
   saleChannelId,
   venderCode: insurerCode,
   // 保障期限开始|结束日期

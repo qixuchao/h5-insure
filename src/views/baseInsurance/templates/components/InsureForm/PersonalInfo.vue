@@ -112,7 +112,7 @@
       :required="isRequiredByFactor('certNo')"
       :maxlength="18"
       :is-view="isView"
-      :validate-type="validateType"
+      :validate-type="!certNoStatus ? validateType : undefined"
       @focus="onfocus('certNo')"
       @update:model-value="(e) => changeNo(e, 'certNo')"
     ></ProField>
@@ -345,7 +345,6 @@
       v-model="phoneNo"
       :label="queryFactorAttr('mobile', 'title')"
       :name="`${prefix}_mobile`"
-      type="digit"
       :maxlength="11"
       :is-view="isView"
       :required="isRequiredByFactor('mobile')"
@@ -638,10 +637,10 @@ const state = ref({
 // replace(/^(.{3})(?:\d+)(.{4})$/, "$1****$2")
 const phoneNoStatus = ref<boolean>(false);
 const phoneNo = computed(() => {
-  if (phoneNoStatus.value && state.value.formInfo.mobile) {
+  if (phoneNoStatus.value) {
     return (state.value.formInfo.mobile || '').replace(/^(.{3})(?:\d+)(.{4})$/, '$1****$2');
   }
-  return state.value.formInfo.mobile;
+  return props.formInfo.mobile;
 });
 
 const certNoStatus = ref<boolean>(false);

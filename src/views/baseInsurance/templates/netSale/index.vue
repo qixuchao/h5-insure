@@ -93,6 +93,7 @@ const {
   tenantId = '9991000001',
   orderNo,
   agentCode = '',
+  agencyCode,
   saleChannelId,
   extraInfo,
   from,
@@ -116,6 +117,7 @@ try {
 
 const orderDetail = ref<any>({
   // 订单数据模板
+  agencyId: agencyCode,
   agentCode,
   commencementTime: '',
   expiryDate: '',
@@ -127,7 +129,7 @@ const orderDetail = ref<any>({
     extraInfo: extInfo,
   },
   orderCategory: 1,
-  saleUserId: saleChannelId,
+  // saleUserId: saleChannelId,
   saleChannelId,
   tenantId,
   venderCode: '',
@@ -180,24 +182,23 @@ const isShowInsurePeriod = computed(() => {
 const productPremium = ref<string>();
 
 watch(
-  [() => premiumObj.value, () => tenantProductDetail.value],
+  [() => premiumObj.value, () => tenantProductDetail.value, () => currentPlan.value],
   () => {
     const { premium } = premiumObj.value || {};
     if (!premium) {
       const { tenantProductInsureVO } = tenantProductDetail.value || {};
       let selectedPlan = {};
       if (tenantProductInsureVO?.planList?.length) {
-        console.log('tenantProductInsureVO', tenantProductInsureVO);
-
         selectedPlan = (tenantProductInsureVO?.planList || []).find((plan) => plan.planCode === currentPlan.value);
       } else {
         selectedPlan = tenantProductInsureVO?.planInsureVO;
       }
       const { paymentFrequencyValue, premiumUnit } = selectedPlan?.productPremiumVOList?.[0] || {};
 
-      productPremium.value = paymentFrequencyValue && `${paymentFrequencyValue}${premiumUnit || '元'}`;
+      productPremium.value = paymentFrequencyValue && `￥${paymentFrequencyValue}${premiumUnit || '元'}`;
+    } else {
+      productPremium.value = premium && `￥${premium}元`;
     }
-    productPremium.value = premium;
   },
   { deep: true, immediate: true },
 );
@@ -239,7 +240,7 @@ const insuranceEndDate = computed(() => {
       .format('YYYY-MM-DD')} 23:59:59`;
   }
   // 次日00:00:00失效
-  return `${dayjs(new Date()).add(num, unit).format('YYYY-MM-DD')} 00:00:00`;
+  return insuranceEndType ? `${dayjs(new Date()).add(num, unit).format('YYYY-MM-DD')} 00:00:00` : '';
 });
 
 const trialPremium = async (orderInfo, currentProductDetail, productRiskList) => {
@@ -317,7 +318,7 @@ const nextStepOperate = async () => {
   )?.planName;
   nextStep(trialData2Order(insureDetail.value, premiumObj.value, orderDetail.value), (resData, pageAction) => {
     if (pageAction === 'jumpToPage') {
-      window.history.back();
+      Toast('提交成功');
     }
   });
 };

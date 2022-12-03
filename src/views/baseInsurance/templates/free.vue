@@ -309,7 +309,7 @@ const onSaveOrder = async () => {
         insureDetail: state.insureDetail,
         iseeBizNo,
         agentCode,
-        saleUserId,
+        // saleUserId,
         templateId: extInfo?.templateId,
         saleChannelId,
         pageCode: 'infoCollection',

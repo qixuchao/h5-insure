@@ -2,14 +2,14 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-03 23:15:12
+ * @LastEditTime: 2022-12-03 23:57:02
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <van-config-provider :theme-vars="themeVars">
     <ProPageWrap>
-      <div class="net-sale-wrap">
+      <div class="net-sale-detail-wrap">
         <ProCard v-if="orderDetail.id" :show-line="false" title="投保信息">
           <div class="part">
             <div class="product-name">{{ productDetail?.productBasicInfoVO.productFullName }}</div>
@@ -20,7 +20,7 @@
             <ProCell title="保险期限" :content="orderDetail.tenantOrderInsuredList[0]?.planName"></ProCell>
             <ProCell title="起保日期" :content="orderDetail.commencementTime"></ProCell>
             <ProCell title="终保日期" :content="orderDetail.expiryDate"></ProCell>
-            <ProCell title="保单状态" :content="orderDetail.orderStatus"></ProCell>
+            <ProCell title="保单状态" :content="ORDER_STATUS_MAP[orderDetail.orderStatus]"></ProCell>
           </div>
           <div class="part">
             <ProCell title="订单编号" :content="orderDetail.orderNo"></ProCell>
@@ -91,7 +91,7 @@ import { nextStep } from '@/api';
 import { saveSign } from '@/api/modules/verify';
 import { nextStepOperate } from '@/views/baseInsurance/nextStep';
 import { productDetail as getProductDetail } from '@/api/modules/product';
-import { ORDER_STATUS_ENUM } from '@/common/constants/order';
+import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
 import { sendPay, useWXCode } from '../../../cashier/core';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 import pdfPreview from '@/utils/pdfPreview';
@@ -239,7 +239,7 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-.net-sale-wrap {
+.net-sale-detail-wrap {
   padding: 0 $zaui-page-border 150px;
   background-color: #f4f4f4;
 
