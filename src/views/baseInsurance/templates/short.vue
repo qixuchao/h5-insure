@@ -848,7 +848,7 @@ useWXCode();
 
 onBeforeMount(() => {
   const oldOrderDetailInfo = sessionStore.get(ORDER_DETAIL_KEY);
-  // sessionStore.remove(ORDER_DETAIL_KEY);
+  sessionStore.remove(ORDER_DETAIL_KEY);
   if (oldOrderDetailInfo) {
     const { tenantOrderHolder, tenantOrderInsuredList } = oldOrderDetailInfo;
     if (tenantOrderHolder) {
