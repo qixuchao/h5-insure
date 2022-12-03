@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 15:01:12
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 21:15:03
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-03 22:50:01
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/PreNotice/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -30,6 +30,7 @@ const props = defineProps({
     type: Object,
     default: () => ({
       primaryColor: '#FF6600',
+      linearBg: '#FF6600',
     }),
   },
   text: {
@@ -54,7 +55,7 @@ const props = defineProps({
 
 const state = reactive({ color: '' });
 
-const getColor = (_color: string, _opacity = 1) => {
+const getColor = (_color: string, _opacity = 0.9) => {
   let sColor = _color.toLowerCase();
   // 十六进制颜色值的正则表达式
   const reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
@@ -72,7 +73,9 @@ const getColor = (_color: string, _opacity = 1) => {
     for (let i = 1; i < 7; i += 2) {
       sColorChange.push(parseInt(`0x${sColor.slice(i, i + 2)}`, 16));
     }
-    sColorChange[1] += 35;
+    sColorChange[1] += 40;
+    sColorChange[0] += 10;
+    sColorChange[2] += 10;
     return `rgba(${sColorChange.join(',')},${_opacity})`;
   }
   return sColor;
@@ -97,8 +100,8 @@ watch(
   height: 130px;
   width: 100%;
   .shadow-button {
-    color: 96px;
-    background: linear-gradient(to right, var(--van-primary-color), v-bind('state.color'));
+    background: var(--van-linear-bg);
+    border: none;
     &.shadow {
       box-shadow: 0px 20px 50px -20px var(--van-primary-color);
     }

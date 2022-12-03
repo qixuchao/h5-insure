@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-03 18:30:17
+ * @LastEditTime: 2022-12-03 22:58:48
  * @Description:
 -->
 <template>
@@ -32,7 +32,7 @@
       </div>
     </div>
   </van-config-provider>
-  <ProPopup v-model:show="show" height="320" :closeable="true">
+  <ProPopup v-model:show="show" height="340" :closeable="true">
     <van-datetime-picker
       v-model="currentDate"
       type="date"
@@ -47,7 +47,10 @@
       <template #cancel></template>
       <template #title><div class="picker-custom-title">选择年月</div></template>
       <template #confirm>
-        <ProShadowButton class="custom-picker-btn" :shadow="false" text="确定" @click="show = false" />
+        <!-- <ProShadowButton class="custom-picker-btn" :shadow="false" text="确定" @click="show = false" /> -->
+        <VanButton type="primary" round block class="linear-btn custom-picker-btn" @click="show = false"
+          >确 定</VanButton
+        >
       </template>
     </van-datetime-picker>
   </ProPopup>
@@ -372,15 +375,18 @@ defineExpose({});
 .picker-custom-title {
   width: 500px;
   position: absolute;
-  left: 30px;
+  left: 40px;
   font-weight: 500;
 }
 .custom-picker-btn {
   position: absolute;
-  bottom: -120px;
-  left: 5%;
+  bottom: -150px;
+  left: 30px;
   z-index: 100;
-  width: 90%;
-  margin: 10px auto;
+  width: 690px;
+  margin: 0px auto 30px;
+}
+:deep(.van-popup__close-icon) {
+  color: #000;
 }
 </style>

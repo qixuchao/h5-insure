@@ -4,9 +4,26 @@
 
 // 主题颜色color
 .primary-color {
-  color: $primary-color;
-  fill: $primary-color;
+  color: var(--primary-color);
+  fill: var(--primary-color);
 }
 body {
   font-size: 32px !important;
+}
+
+// 带渐变背景的按钮
+.linear-btn {
+  background: var(--van-linear-bg, linear-gradient(to right, var(--primary-color), var(--van-primary-color-light8)))!important;
+  border: none;
+}
+// 带阴影的按钮
+.shadow-btn {
+  height: 90px;
+  @extend .linear-btn;
+  margin-bottom: 40px;
+  box-shadow: 0px 20px 50px -20px var(--van-primary-color);
+
+  .van-button__text {
+    font-weight: bolder;
+  }
 }
