@@ -96,7 +96,7 @@ interface QueryData {
   [key: string]: string;
 }
 // oKugN52glZx_hhg7liu0WpWcmD5o
-const { productCode = '', tenantId = '', extraInfo } = route.query as QueryData;
+const { productCode = '', tenantId = '', saleUserId = '', saleChannelId = '', extraInfo } = route.query as QueryData;
 
 let extInfo: any = {};
 
@@ -105,7 +105,7 @@ try {
 } catch (error) {
   console.log(error);
 }
-const { openId, indirectCode = '123', saleUserId = '', saleChannelId = '' } = extInfo;
+const { openId, indirectCode = '', agentCode } = extInfo;
 
 let iseeBizNo = '';
 const root = ref();
@@ -308,6 +308,7 @@ const onSaveOrder = async () => {
         detail: state.detail,
         insureDetail: state.insureDetail,
         iseeBizNo,
+        agentCode,
         saleUserId,
         templateId: extInfo?.templateId,
         saleChannelId,
