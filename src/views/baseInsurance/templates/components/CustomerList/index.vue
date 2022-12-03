@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 15:01:12
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-03 20:42:23
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-03 22:55:27
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/PreNotice/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -26,7 +26,7 @@
           <van-icon v-show="state.select.certNo === item.cert[0]?.certNo" class="check-icon" :name="checkedIcon" />
         </div>
       </div>
-      <ProShadowButton :shadow="false" text="确定" @click="save" />
+      <VanButton type="primary" round block class="linear-btn" @click="save">确 定</VanButton>
     </div>
   </ProPopup>
 </template>
@@ -111,6 +111,7 @@ const clickHandler = () => {
   position: absolute;
   right: 8px;
   top: 24px;
+  color: #020001;
   font-size: 32px;
 }
 .customer-body {
@@ -131,7 +132,7 @@ const clickHandler = () => {
 
   .conatiner {
     height: 520px;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     overflow-y: auto;
     .item {
       height: 112px;

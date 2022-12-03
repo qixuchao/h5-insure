@@ -5,6 +5,7 @@
       <InsureForm
         ref="formRef"
         :send-sms-code="sendSmsCode"
+        need-desensitize
         :form-info="detail"
         :factor-object="state.factorObj"
       ></InsureForm>
@@ -147,7 +148,7 @@ defineExpose({
         background: #f6f6f6;
         border-radius: 16px;
         margin-bottom: 24px;
-        height: 88px;
+        min-height: 88px;
         padding: 0 32px;
         display: flex;
         align-items: center;
