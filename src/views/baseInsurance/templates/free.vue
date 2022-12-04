@@ -242,7 +242,7 @@ const fetchData = async () => {
       const { colorEnd, colorStart } = state.detail.tenantProductInsureVO?.backgroundInsureVO || {};
       state.colors = [colorStart, colorEnd];
       state.productDesc = state.detail.tenantProductInsureVO.spec || [];
-      document.title = state.detail.productFullName || '';
+      document.title = state.detail?.tenantProductInsureVO?.productName || '';
     }
 
     if (insureRes.code === '10000') {

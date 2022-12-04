@@ -260,7 +260,7 @@ const getData = async () => {
 };
 
 const orderDesc = computed(() => {
-  if (ORDER_STATUS_ENUM.PAYING === state.orderDetail.orderStatus) {
+  if (ORDER_STATUS_ENUM.PAYING === state.orderDetail?.orderStatus) {
     if (state.timeDown.current.total <= 0) {
       state.orderDetail.orderStatus = ORDER_STATUS_ENUM.TIMEOUT;
       state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];

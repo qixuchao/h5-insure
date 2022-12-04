@@ -828,7 +828,7 @@ const fetchData = async () => {
     detail.value = {
       ...productRes.data,
     };
-    document.title = productRes.data?.productFullName || '';
+    document.title = productRes.data?.tenantProductInsureVO?.productName || '';
   }
 
   const insureRes = await insureProductDetail({ productCode });

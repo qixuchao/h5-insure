@@ -404,7 +404,7 @@ const fetchData = async () => {
   const { code, data } = await productDetail({ productCode, withInsureInfo: true, tenantId });
   if (code === '10000') {
     tenantProductDetail.value = data;
-    document.title = data.productFullName || '';
+    document.title = data.tenantProductInsureVO?.productNam || '';
   }
 
   const { code: resCode, data: resData } = await insureProductDetail({ productCode });
