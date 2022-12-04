@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-28 10:28:12
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-04 02:58:09
+ * @LastEditTime: 2022-12-04 20:03:01
  * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/infoCollection.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -292,8 +292,8 @@ export const INSURANCE_START_TYPE_LIST = [
 
 // 保障失效时间
 export const INSURANCE_END_TYPE_ENUM = {
-  CURRENT_DAY: 1,
-  NEXT_DAY: 2,
+  CURRENT_DAY: '1',
+  NEXT_DAY: '2',
 };
 
 export const ORDER_DETAIL_KEY = 'ORDER_DETAIL_KEY';

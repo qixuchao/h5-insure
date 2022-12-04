@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-04 00:19:00
+ * @LastEditTime: 2022-12-04 20:06:14
  * @Description:
 -->
 <template>
@@ -86,8 +86,19 @@
       <template v-if="premiumItem && premiumItem.premiumUnit">
         <div class="custom-cell common-cell">
           <div class="cell-label">实付保费</div>
-          <div class="cell-content actual-premium">{{ actualPremium }}</div>
-          <div v-if="state.formInfo.paymentFrequency === '5'" class="actual-premium">共12期</div>
+          <template v-if="props.premiumInfo.premiumLoadingText">
+            <div class="cell-content actual-premium">
+              {{ actualPremium }}
+            </div>
+          </template>
+          <template v-else>
+            <div class="cell-content actual-premium">
+              {{ actualPremium }}{{ state.formInfo.paymentFrequency === '5' ? '/月' : '' }}
+            </div>
+            <div v-if="state.formInfo.paymentFrequency === '5'" class="actual-premium actual-premium-month-tip">
+              共12期
+            </div>
+          </template>
         </div>
         <div
           v-if="explainInfo && explainInfo.premiumExplain && explainInfo.premiumExplainViewName"
@@ -547,7 +558,7 @@ defineExpose({});
     font-weight: 500 !important;
     color: $primary-color !important;
 
-    &:last-child {
+    &.actual-premium-month-tip {
       margin-left: 20px;
     }
   }

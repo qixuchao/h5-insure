@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-03 23:46:41
+ * @LastEditTime: 2022-12-04 20:09:44
  * @Description: 保障详情
 -->
 <template>
@@ -47,10 +47,13 @@
     </div>
     <div v-if="isShowFeerateView" class="feerate-view">
       <span>{{
+        `${productPremiumVOItem?.paymentFrequencyValue || ''}${productPremiumVOItem?.premiumUnit || ''}`
+      }}</span>
+      <!-- <span>{{
         premiumInfo.premiumLoadingText
           ? premiumInfo.premiumLoadingText
           : `${premiumInfo?.premium || ''}${premiumInfo?.unit || ''}`
-      }}</span>
+      }}</span> -->
       <span v-if="!!feeFileUri" @click="onClickFeeRate">查看保费</span>
     </div>
   </div>
@@ -268,7 +271,7 @@ const onPlanItemClick = (val: string) => {
 const onPlanItemClickEmit = (val: string) => {
   // activePlanCode.value = val;
   currentActivePlanCode.value = val;
-  emits('update-active-plan', val);
+  // emits('update-active-plan', val);
 };
 
 const popupShow = ref(false);
