@@ -547,7 +547,6 @@ const onUpdateInsurerData = (data: any) => {
 };
 
 const previewFile = (index: number) => {
-  isOnlyView.value = true;
   activeIndex.value = index;
   showFilePreview.value = true;
 };
