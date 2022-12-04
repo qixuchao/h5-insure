@@ -174,10 +174,9 @@ const orderBtnHandler = () => {
 };
 
 const initPageInfo = () => {
-  console.log('state.orderDetail.orderStatus', state.orderDetail.orderStatus);
-  console.log('state.orderDetail.orderStatus', ORDER_STATUS_MAP[state.orderDetail.orderStatus]);
   state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
   state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
+  document.title = state.detail?.tenantProductInsureVO?.productName || '';
   let insurancePeriodDesc = '';
   if (from === 'free') {
     state.orderDetail.tenantOrderInsuredList[0].tenantOrderProductList.forEach((item: any) => {
