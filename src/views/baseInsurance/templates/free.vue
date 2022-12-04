@@ -187,6 +187,7 @@ useAddressList({ openId }, (data: any) => {
 });
 
 const previewFile = (index: number) => {
+  state.isOnlyView = true;
   state.activeIndex = index;
   state.showFilePreview = true;
 };
@@ -361,7 +362,7 @@ const clickHandler = async () => {
 
 const onCloseFilePreview = () => {
   state.showFilePreview = false;
-  state.isOnlyView = false;
+  state.isOnlyView = true;
 };
 
 const onSubmit = () => {

@@ -1,7 +1,7 @@
 <template>
   <div class="free-crad">
     <div class="container">
-      <div class="title"><img :src="acrrowIcon" /><span>最后一步 填写信息</span><img :src="acrrowIcon" /></div>
+      <div class="title"><img :src="acrrowIcon" /><span>凭手机号 免费领取</span><img :src="acrrowIcon" /></div>
       <InsureForm
         ref="formRef"
         :send-sms-code="sendSmsCode"
