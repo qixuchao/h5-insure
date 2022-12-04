@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-04 04:59:38
+ * @LastEditTime: 2022-12-04 17:22:37
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -28,6 +28,7 @@
           ></ProCell>
         </ProCard>
         <InsureForm
+          v-if="loadForm"
           ref="formRef"
           :title-collection="{
             HOLDER: '投保人信息',
@@ -113,6 +114,7 @@ const { orderNo = '2022113021181894998', tenantId = '9991000001' } = route.query
 
 const formData = ref<any>();
 const factorObj = ref<any>({});
+const loadForm = ref<boolean>(false);
 const orderDetail = ref<any>({
   // 订单数据模板
   commencementTime: '',
@@ -266,6 +268,7 @@ const queryOrderDetail = async () => {
     orderDetail.value = data;
     planCode.value = data.tenantOrderInsuredList[0]?.planCode;
     productCode.value = data.tenantOrderInsuredList[0].tenantOrderProductList[0].productCode;
+    loadForm.value = true;
     queryProductDetail();
     queryTenantProductDetail();
     if (data.orderStatus === ORDER_STATUS_ENUM.PAYING) {
@@ -372,7 +375,7 @@ watch(
     }
   }
   .van-cell .van-field__value {
-    align-items: flex-end;
+    align-items: flex-end !important;
     align-self: center;
     input,
     .van-field__body input,
