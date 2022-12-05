@@ -2,8 +2,8 @@
  * @Description: 用户模块
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-04 03:34:02
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-12-05 10:34:21
  */
 import axios, { type AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
@@ -161,14 +161,14 @@ axiosInstance.interceptors.response.use(
     if (res.code === SUCCESS_CODE || res.status === SUCCESS_STATUS) {
       return response;
     }
-    Toast.fail((res && res.data) || (res && res.message) || '请求出错');
+    Toast((res && res.data) || (res && res.message) || '请求出错');
     removePending(response.config);
     return response;
   },
   (error: AxiosError) => {
     const { response } = error;
     if (response) {
-      Toast.fail(showCodeMessage(response.status));
+      Toast(showCodeMessage(response.status));
       return Promise.reject(response.data);
     }
     Toast('网络连接异常,请稍后再试!');

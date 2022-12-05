@@ -60,19 +60,8 @@
         ></ProRadioButton>
       </template>
     </ProField>
-    <ProDatePicker
-      v-if="showByFactor('birthDate')"
-      v-model="state.formInfo.birthday"
-      :label="queryFactorAttr('birthDate', 'title')"
-      :name="`${prefix}_birthday`"
-      :min="state.birth.min"
-      :max="state.birth.max"
-      type="date"
-      :is-view="isView"
-      :required="isRequiredByFactor('birthDate')"
-    ></ProDatePicker>
     <ProPicker
-      v-if="showByFactor('certType')"
+      v-if="isShowCertType"
       v-model="state.formInfo.certType"
       :label="queryFactorAttr('certType', 'title')"
       :name="`${prefix}_certType`"
@@ -116,7 +105,17 @@
       @focus="onfocus('certNo')"
       @update:model-value="(e) => changeNo(e, 'certNo')"
     ></ProField>
-
+    <ProDatePicker
+      v-if="showByFactor('birthDate')"
+      v-model="state.formInfo.birthday"
+      :label="queryFactorAttr('birthDate', 'title')"
+      :name="`${prefix}_birthday`"
+      :min="state.birth.min"
+      :max="state.birth.max"
+      type="date"
+      :is-view="isView"
+      :required="isRequiredByFactor('birthDate')"
+    ></ProDatePicker>
     <ProDatePicker
       v-if="showByFactor('certExpiry')"
       v-model="state.formInfo.certEndDate"
@@ -358,6 +357,7 @@
       :label="queryFactorAttr('verificationCode', 'title')"
       :name="`${prefix}_verificationCode`"
       type="digit"
+      :maxlength="6"
       :is-view="isView"
       :required="isRequiredByFactor('verificationCode')"
     >
@@ -738,13 +738,31 @@ const isRequiredByFactor = (key: string) => {
 // 获取表单项的属性
 const queryFactorAttr = (key: string, attr: string) => factorObj.value?.[key]?.[attr] || '';
 
-// 被保人子女的身份证表述加上户口本
-const certNoName = computed(() => {
-  if (props.prefix === 'insure' && state.value.formInfo?.relationToHolder === RELATION_HOLDER_ENUM.CHILD) {
-    return '身份证(出生证)号';
+const isShowCertType = computed(() => {
+  if (!showByFactor('certType')) {
+    return false;
   }
 
-  return '身份证号';
+  const currentTypeList = queryFactorAttr('certType', 'attributeValueList') || [];
+  if (currentTypeList.length === 1 && currentTypeList[0]?.code === CERT_TYPE_ENUM.CERT) {
+    return false;
+  }
+
+  return true;
+});
+// 被保人子女的身份证表述加上户口本
+const certNoName = computed(() => {
+  if (queryFactorAttr('certType', 'attributeValueList')?.length > 1) {
+    return '证件号码';
+  }
+  if (queryFactorAttr('certType', 'attributeValueList')?.[0].code === CERT_TYPE_ENUM.CERT) {
+    return '身份证号';
+  }
+  if (props.prefix === 'insure' && state.value.formInfo?.relationToHolder === RELATION_HOLDER_ENUM.CHILD) {
+    return '身份证号(户口簿)';
+  }
+
+  return queryFactorAttr('certType', 'title');
 });
 
 // 验证证件类型
