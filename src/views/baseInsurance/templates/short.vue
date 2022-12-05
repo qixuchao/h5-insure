@@ -150,6 +150,7 @@ import { isEmpty, toLocal } from '@/utils';
 import { transformData, riskToOrder, validateSmsCode, getFileType } from '../utils';
 import { nextStepOperate as nextStep } from '../nextStep';
 import { formatDate } from '@/utils/date';
+import { validateCustomName } from '@/utils/validator';
 import { useTheme } from '../theme';
 
 import Banner from './components/Banner/index.vue';
@@ -207,7 +208,6 @@ const {
   saleChannelId,
   paymentMethod,
   certNo,
-  name,
   templateId,
   pageCode,
   from,
@@ -624,6 +624,7 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
         insurancePeriodValue: orderInfo.insurancePeriodValue, // 保障期限
       };
     });
+    console.log('tempRiskVOList', tempRiskVOList);
     const trialParams = {
       tenantId,
       productCode: detail.value?.productCode,
@@ -652,6 +653,8 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
         };
       }),
     };
+
+    console.log('232233223322332');
 
     const { code: ruleCode, message: ruleMessage } = await underWriteRule(trialParams);
 
@@ -773,6 +776,7 @@ watch(
 watch(
   [
     () => orderDetail.value.tenantOrderInsuredList[0].birthday,
+    () => orderDetail.value.tenantOrderInsuredList[0].name,
     () => orderDetail.value.tenantOrderInsuredList[0].gender,
     () => orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance,
     () => orderDetail.value.activePlanCode,
@@ -781,16 +785,20 @@ watch(
   ],
   debounce(() => {
     const {
+      name,
       birthday,
       gender,
       extInfo: { hasSocialInsurance },
     } = orderDetail.value.tenantOrderInsuredList[0];
     console.log('birthday', birthday);
     console.log('gender', gender);
+    console.log('name', name);
+    console.log('validateCustomName(name)', validateCustomName(name));
 
     console.log('orderDetail.value', orderDetail.value);
 
-    if (birthday && gender && orderDetail.value.paymentFrequency) {
+    if (birthday && gender && orderDetail.value.paymentFrequency && name && validateCustomName(name)) {
+      console.log('1111');
       trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
     }
   }, 500),

@@ -1,7 +1,13 @@
 import dayjs, { UnitType } from 'dayjs';
+import {
+  PREMIUM_DISPLAY_TYPE_ENUM,
+  PREMIUM_UNIT_TYPE_ENUM,
+  PAYMENT_FREQUENCY_ENUM,
+  INSURE_TYPE_ENUM,
+  RELATION_HOLDER_ENUM,
+} from '../../common/constants/infoCollection';
 import router from '@/router';
 import { localStore } from '../../hooks/useStorage';
-import { PAYMENT_FREQUENCY_ENUM, INSURE_TYPE_ENUM, RELATION_HOLDER_ENUM } from '../../common/constants/infoCollection';
 import { ProductDetail } from '@/api/modules/product.data';
 import {
   ProductData,
@@ -87,7 +93,7 @@ export const transformData = (o: transformDataType) => {
   });
 };
 export const riskToOrder = (productRiskVoList: any) => {
-  return deepCopy(productRiskVoList)
+  const result = deepCopy(productRiskVoList)
     .map((productRiskVoListItem: any) => {
       const mainRisk = productRiskVoListItem.riskDetailVOList.find(
         (risk: any) => risk.riskType === RISK_TYPE_ENUM.MAIN_RISK,
@@ -97,7 +103,15 @@ export const riskToOrder = (productRiskVoList: any) => {
       // );
       const transformRisk = (currentRiskList: any) => {
         return currentRiskList.map((risk: any) => {
-          const { riskCategory, riskCode, riskType, id, riskInsureLimitVO, riskCalcMethodInfoVO } = risk;
+          const {
+            riskCategory,
+            riskCode,
+            riskType,
+            id,
+            riskInsureLimitVO,
+            riskCalcMethodInfoVO,
+            amountPremiumConfigVO,
+          } = risk;
           const {
             annuityDrawFrequencyList,
             annuityDrawValueList,
@@ -106,13 +120,28 @@ export const riskToOrder = (productRiskVoList: any) => {
             paymentPeriodValueList,
           } = riskInsureLimitVO;
 
-          const { minCopy, maxCopy, fixedAmount, singeAmount } = riskCalcMethodInfoVO;
+          // const { minCopy, maxCopy, fixedAmount, singeAmount } = riskCalcMethodInfoVO;
+          let tempAmount = 0;
+          const { displayType, displayUnit, fixedValue, eachCopyPrice } = amountPremiumConfigVO || {};
+          const strDisplayType = String(displayType);
+          const strDisplayUnit = String(displayUnit);
+          // todo 份数默认为1
+          const copyes = 1;
+          if (strDisplayType && strDisplayType === PREMIUM_DISPLAY_TYPE_ENUM.FIXED) {
+            if (strDisplayUnit === PREMIUM_UNIT_TYPE_ENUM.YUAN) {
+              tempAmount = fixedValue || 0;
+            } else if (strDisplayUnit === PREMIUM_UNIT_TYPE_ENUM.MILLION) {
+              tempAmount = fixedValue ? Number(fixedValue * 10000) : 0;
+            } else if (strDisplayUnit === PREMIUM_UNIT_TYPE_ENUM.COPY) {
+              tempAmount = copyes && eachCopyPrice ? copyes * eachCopyPrice : 0;
+            }
+          }
           return {
-            amount: fixedAmount || singeAmount,
+            amount: tempAmount,
             annuityDrawDate: annuityDrawValueList?.[0],
             annuityDrawFrequency: annuityDrawFrequencyList?.[0],
             chargePeriod: paymentPeriodValueList?.[0],
-            copy: minCopy || maxCopy || 0,
+            copy: copyes,
             coveragePeriod: insurancePeriodValueList?.[0],
             liabilityVOList: risk.riskLiabilityInfoVOList,
             // mainRisk: risk.riskCode === mainRisk.riskCode,
@@ -133,6 +162,16 @@ export const riskToOrder = (productRiskVoList: any) => {
       return transformRisk(productRiskVoListItem.riskDetailVOList || []);
     })
     .flat();
+
+  const riskCodeMap = {};
+  const lastResult: any = [];
+  result.forEach((risk: any) => {
+    if (!riskCodeMap[risk.riskCode]) {
+      lastResult.push(risk);
+      riskCodeMap[risk.riskCode] = true;
+    }
+  });
+  return lastResult;
 };
 
 export const compositionTrailData = (

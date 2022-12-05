@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-05 17:51:57
+ * @LastEditTime: 2022-12-05 20:03:31
  * @Description:
 -->
 <template>
@@ -83,7 +83,7 @@
         </div>
       </templat>
       <InsurancePeriodCell :form-info="state.formInfo" :insure-detail="insureDetail" :config-detail="configDetail" />
-      <template v-if="premiumItem && premiumItem.premiumUnit">
+      <template v-if="actualPremium && isShowExplainInfo">
         <div class="custom-cell common-cell">
           <div class="cell-label">实付保费</div>
           <template v-if="props.premiumInfo.premiumLoadingText">
@@ -100,10 +100,7 @@
             </div>
           </template>
         </div>
-        <div
-          v-if="explainInfo && explainInfo.premiumExplain && explainInfo.premiumExplainViewName"
-          class="feerate-explain"
-        >
+        <div v-if="isShowExplainInfo" class="feerate-explain">
           <div class="content">
             <div class="triangle-top"></div>
             <div>
@@ -205,6 +202,10 @@ const explainInfo = computed(() => {
     };
   }
   return null;
+});
+
+const isShowExplainInfo = computed(() => {
+  return explainInfo.value && explainInfo.value.premiumExplain && explainInfo.value.premiumExplainViewName;
 });
 
 watch(
