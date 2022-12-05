@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-04 20:06:14
+ * @LastEditTime: 2022-12-05 17:51:57
  * @Description:
 -->
 <template>
@@ -65,7 +65,7 @@
           >
             <div>
               <div class="tip">
-                <span>{{ '比按月支付最高省' }}</span> <span>16%</span>
+                <span>{{ '比按月支付最高省16%' }}</span>
               </div>
               <div class="triangle"></div>
               <div class="pay-method">
@@ -380,12 +380,10 @@ defineExpose({});
 
   .cell-label {
     min-width: 120px;
-    height: 60px;
     font-size: 30px;
     font-family: PingFangSC-Regular, PingFang SC;
     font-weight: 400;
     color: #333333;
-    line-height: 60px;
     margin-right: 55px;
   }
 
@@ -395,9 +393,10 @@ defineExpose({});
   }
 
   .check-btn-cell {
+    padding-bottom: 22px !important;
     display: flex;
     .cell-label {
-      margin-top: 5px;
+      margin-top: 17px;
     }
     .cell-content {
       :deep(.radio-btn) {
@@ -438,7 +437,7 @@ defineExpose({});
       .tip {
         position: absolute;
         top: -66px;
-        left: 47px;
+        left: 40px;
         width: 280px;
         height: 42px;
         background: $primary-color;
@@ -456,15 +455,14 @@ defineExpose({});
           font-weight: 400;
           line-height: 33px;
 
-          &:first-child {
-            width: 192px;
-          }
-          &:last-child {
-            width: 40px;
-            font-size: 28px;
-            font-weight: 500;
-            margin-top: 1px;
-          }
+          // &:first-child {
+          //   width: 192px;
+          // }
+          // &:last-child {
+          //   width: 45px;
+          //   font-size: 28px;
+          //   font-weight: 500;
+          // }
         }
       }
 
@@ -526,14 +524,14 @@ defineExpose({});
     display: flex;
     justify-content: flex-start;
 
-    .cell-label {
-      height: 42px;
-      line-height: 42px;
-    }
+    // .cell-label {
+    //   height: 42px;
+    //   line-height: 42px;
+    // }
 
     .cell-content {
-      height: 42px;
-      line-height: 42px;
+      // height: 42px;
+      // line-height: 42px;
       font-size: 30px;
       font-family: PingFangSC-Regular, PingFang SC;
       font-weight: 400;

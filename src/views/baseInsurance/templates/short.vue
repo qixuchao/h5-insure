@@ -94,6 +94,7 @@
     :content-list="healthAttachmentList"
     :active-index="0"
     @on-confirm-health="onCloseHealth"
+    @on-close-health-by-mask="onResetFileFlag"
   ></HealthNoticePreview>
   <FilePreview
     v-if="showFilePreview"
@@ -105,6 +106,7 @@
     :force-read-cound="0"
     on-close-file-preview
     @submit="onSubmit"
+    @on-close-file-preview-by-mask="onResetFileFlag"
   ></FilePreview>
   <Waiting :is-show="showWaiting" />
 </template>
@@ -273,6 +275,7 @@ const orderDetail = ref<any>({
 
   tenantOrderHolder: {
     socialFlag: SOCIAL_SECURITY_ENUM.HAS,
+    certType: CERT_TYPE_ENUM.CERT,
     extInfo: {
       hasSocialInsurance: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
     },
@@ -282,6 +285,7 @@ const orderDetail = ref<any>({
       dontFetchDefaultInfo: false,
       socialFlag: SOCIAL_SECURITY_ENUM.HAS,
       relationToHolder: RELATION_HOLDER_ENUM.SELF,
+      certType: CERT_TYPE_ENUM.CERT,
       extInfo: {
         occupationCodeList: [],
         hasSocialInsurance: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
@@ -719,6 +723,11 @@ const onNext = async () => {
   }
 };
 
+const onResetFileFlag = () => {
+  showHealthPreview.value = false;
+  showFilePreview.value = false;
+};
+
 const onCloseHealth = (type: string) => {
   // 全部为否
   if (type === 'allFalse') {
@@ -902,7 +911,17 @@ onUnmounted(() => {
     :deep(.com-card-wrap) {
       .header {
         margin-left: 0px !important;
+
+        .title-wrapper .title {
+          &::before {
+            margin-right: 28px !important;
+          }
+        }
       }
+    }
+
+    :deep(.radio-btn) {
+      justify-content: flex-start;
     }
   }
 

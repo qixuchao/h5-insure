@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-03 18:23:18
+ * @LastEditTime: 2022-12-05 17:53:46
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -57,7 +57,7 @@ const props = withDefaults(defineProps<{ show: boolean; activeIndex: number; con
 });
 
 const themeVars = useTheme();
-const emits = defineEmits(['update:show', 'onConfirmHealth', 'onCloseHealth']);
+const emits = defineEmits(['update:show', 'onConfirmHealth', 'onCloseHealthByMask']);
 const isShow = ref<boolean>(props.show);
 const currentActiveIndex = ref<number>(props.activeIndex);
 
@@ -81,7 +81,7 @@ const onConfirmHealth = (flag: string) => {
 
 const onClosePopup = () => {
   if (isCoverClose.value) {
-    emits('onCloseHealth');
+    emits('onCloseHealthByMask');
   }
 };
 
