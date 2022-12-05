@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-03 23:26:13
+ * @LastEditTime: 2022-12-04 21:10:25
  * @Description:
 -->
 <template>
@@ -22,15 +22,20 @@
         <!-- 选择生效日期 -->
         <div class="cell-label">生效日期</div>
         <div class="cell-content custom-cell-content">
-          <span>{{ state.formInfo.insuranceStartDate }}</span>
+          <span>{{
+            state.formInfo.insuranceStartDate
+              ? formatDate(state.formInfo.insuranceStartDate, 'YYYY.MM.DD HH:mm:ss')
+              : ''
+          }}</span>
           <ProSvg class="custom--arrow-right" name="arrow-right"></ProSvg>
         </div>
       </div>
       <div v-if="riskGuaranteeStartDateType !== INSURANCE_START_TYPE_ENUM.CUSTOM_DAY" class="custom-cell common-cell">
         <div class="cell-label">保障期限</div>
         <div class="cell-content">
-          {{ state.formInfo.insuranceStartDate ? formatDate(state.formInfo.insuranceStartDate) : '' }} -
-          {{ state.formInfo.insuranceEndDate ? formatDate(state.formInfo.insuranceEndDate) : '' }}
+          {{ state.formInfo.insuranceStartDate ? formatDate(state.formInfo.insuranceStartDate, 'YYYY.MM.DD') : '' }}-{{
+            state.formInfo.insuranceEndDate ? formatDate(state.formInfo.insuranceEndDate, 'YYYY.MM.DD') : ''
+          }}
         </div>
       </div>
     </div>

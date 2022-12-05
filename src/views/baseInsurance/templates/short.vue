@@ -21,33 +21,35 @@
       />
       <ScrollInfo ref="detailScrollRef" :detail="detail">
         <template #form>
-          <InsureForm
-            ref="formRef"
-            :title-collection="{
-              HOLDER: '本人信息（投保人）',
-              INSURER: '为谁投保（被保人）',
-            }"
-            :form-info="orderDetail"
-            need-desensitize
-            :send-sms-code="sendSmsCode"
-            :factor-object="factorObj || {}"
-          >
-            <template v-if="relationCustomerList.length > 1" #holderName>
-              <CustomerList
-                :user-info="orderDetail.tenantOrderHolder"
-                :data="relationCustomerList"
-                @change="onUpdateHolderData"
-              />
-            </template>
-            <template v-if="relationCustomerList.length > 1" #insurerName>
-              <CustomerList
-                title="选择被保人"
-                :user-info="orderDetail.tenantOrderInsuredList[0]"
-                :data="relationCustomerList"
-                @change="onUpdateInsurerData"
-              />
-            </template>
-          </InsureForm>
+          <div class="custom-page-form">
+            <InsureForm
+              ref="formRef"
+              :title-collection="{
+                HOLDER: '本人信息（投保人）',
+                INSURER: '为谁投保（被保人）',
+              }"
+              :form-info="orderDetail"
+              need-desensitize
+              :send-sms-code="sendSmsCode"
+              :factor-object="factorObj || {}"
+            >
+              <template v-if="relationCustomerList.length > 1" #holderName>
+                <CustomerList
+                  :user-info="orderDetail.tenantOrderHolder"
+                  :data="relationCustomerList"
+                  @change="onUpdateHolderData"
+                />
+              </template>
+              <template v-if="relationCustomerList.length > 1" #insurerName>
+                <CustomerList
+                  title="选择被保人"
+                  :user-info="orderDetail.tenantOrderInsuredList[0]"
+                  :data="relationCustomerList"
+                  @change="onUpdateInsurerData"
+                />
+              </template>
+            </InsureForm>
+          </div>
           <PaymentType
             :form-info="orderDetail"
             :insure-detail="insureDetail"
@@ -547,7 +549,6 @@ const onUpdateInsurerData = (data: any) => {
 };
 
 const previewFile = (index: number) => {
-  isOnlyView.value = true;
   activeIndex.value = index;
   showFilePreview.value = true;
 };
@@ -896,6 +897,14 @@ onUnmounted(() => {
 .page-internet-product-detail {
   padding-bottom: 150px;
   background: #f1f5fc;
+
+  .custom-page-form {
+    :deep(.com-card-wrap) {
+      .header {
+        margin-left: 0px !important;
+      }
+    }
+  }
 
   .footer-area {
     width: 100%;
