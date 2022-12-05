@@ -757,11 +757,11 @@ const certNoName = computed(() => {
   if (queryFactorAttr('certType', 'attributeValueList')?.length > 1) {
     return '证件号码';
   }
-  if (queryFactorAttr('certType', 'attributeValueList')?.[0].code === CERT_TYPE_ENUM.CERT) {
-    return '身份证号';
-  }
   if (props.prefix === 'insure' && state.value.formInfo?.relationToHolder === RELATION_HOLDER_ENUM.CHILD) {
     return '身份证号(户口簿)';
+  }
+  if (queryFactorAttr('certType', 'attributeValueList')?.[0].code === CERT_TYPE_ENUM.CERT) {
+    return '身份证号';
   }
 
   return queryFactorAttr('certType', 'title');
