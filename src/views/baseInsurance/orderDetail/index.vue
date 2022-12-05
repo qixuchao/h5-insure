@@ -117,7 +117,11 @@ const show = ref(false);
 
 const orderBtnText = computed(() => {
   // 投保成功 和 保单过期
-  if ([ORDER_STATUS_ENUM.ACCEPT_POLICY, ORDER_STATUS_ENUM.CANCELED].includes(state.orderDetail.orderStatus)) {
+  if (
+    [ORDER_STATUS_ENUM.ACCEPT_POLICY, ORDER_STATUS_ENUM.CANCELED, ORDER_STATUS_ENUM.PAYMENT_SUCCESS].includes(
+      state.orderDetail.orderStatus,
+    )
+  ) {
     return '下载保单';
   }
   if (ORDER_STATUS_ENUM.PAYING === state.orderDetail.orderStatus) {
@@ -138,7 +142,8 @@ const goToInsurerPage = async (reOrder = false) => {
       tenantId,
       agencyCode: state.orderDetail.agencyId,
       agentCode: state.orderDetail.agentCode,
-      extraMap: reOrder ? {} : { ...state.orderDetail.extInfo.extraInfo, orderNo },
+      saleChannelId: state.orderDetail.extInfo.extraInfo.saleChannelId,
+      extraMap: { ...state.orderDetail.extInfo.extraInfo },
     });
     if (code === '10000') {
       if (!reOrder) {
@@ -152,9 +157,21 @@ const goToInsurerPage = async (reOrder = false) => {
   }
 };
 
-const orderBtnHandler = () => {
+const orderBtnHandler = async () => {
   if (orderBtnText.value === '下载保单') {
-    state.orderDetail.extInfo?.policyUrl && downLoadFile(state.orderDetail.extInfo?.policyUrl);
+    if (!state.orderDetail.extInfo?.policyUrl) {
+      const orderReq = await getTenantOrderDetail({ orderNo, tenantId });
+      if (orderReq.code === '10000') {
+        state.orderDetail = orderReq.data;
+        if (state.orderDetail.extInfo?.policyUrl) {
+          downLoadFile(state.orderDetail.extInfo?.policyUrl);
+        } else {
+          Toast('下载保单地址待定');
+        }
+      }
+    } else {
+      state.orderDetail.extInfo?.policyUrl && downLoadFile(state.orderDetail.extInfo?.policyUrl);
+    }
   } else if (orderBtnText.value === '立即支付') {
     getPayUrl({
       ...state.orderDetail,
@@ -174,6 +191,10 @@ const orderBtnHandler = () => {
 };
 
 const initPageInfo = () => {
+  // 支付成功 和 已承包
+  if ([ORDER_STATUS_ENUM.PAYMENT_SUCCESS, ORDER_STATUS_ENUM.ACCEPT_POLICY].includes(state.orderDetail.orderStatus)) {
+    state.orderDetail.orderStatus = ORDER_STATUS_ENUM.ACCEPT_POLICY;
+  }
   state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
   state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
   document.title = state.detail?.tenantProductInsureVO?.productName || '';
