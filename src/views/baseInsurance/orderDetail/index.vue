@@ -3,7 +3,11 @@
     <div class="page-pay-result">
       <div class="header">
         <div class="product-status">{{ state.pageInfo.title }}</div>
-        <div class="desc" v-html="orderDesc" />
+        <div
+          v-if="!(orderBtnText === '重下一单' && state.templateId.toString() === '3')"
+          class="desc"
+          v-html="orderDesc"
+        />
       </div>
       <div class="prodouct-container">
         <div class="product-card">
@@ -142,7 +146,8 @@ const goToInsurerPage = async (reOrder = false) => {
       tenantId,
       agencyCode: state.orderDetail.agencyId,
       agentCode: state.orderDetail.agentCode,
-      saleChannelId: state.orderDetail.extInfo.extraInfo.saleChannelId,
+      templateId: state.orderDetail.extInfo?.extraInfo?.templateId,
+      saleChannelId: state.orderDetail.extInfo?.extraInfo?.saleChannelId,
       extraMap: { ...state.orderDetail.extInfo.extraInfo },
     });
     if (code === '10000') {
@@ -227,7 +232,7 @@ const initPageInfo = () => {
   // 只有投保成功和已失效才有图片
   if (
     (from === 'free' ||
-      ![ORDER_STATUS_ENUM.PAYING, ORDER_STATUS_ENUM.CANCELED].includes(state.orderDetail.orderStatus)) &&
+      ![ORDER_STATUS_ENUM.PAYING, ORDER_STATUS_ENUM.TIMEOUT].includes(state.orderDetail.orderStatus)) &&
     state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO.productCode
   ) {
     state.pageInfo.notificationImage =

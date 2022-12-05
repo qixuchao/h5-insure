@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 22:05:37
+ * @LastEditTime: 2022-12-05 17:55:12
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -11,7 +11,7 @@
     v-model:show="isShow"
     class="file-preview-popup-wrap"
     :closeable="false"
-    @close="emits('onCloseFilePreview')"
+    @close="emits('onCloseFilePreviewByMask')"
   >
     <van-config-provider :theme-vars="themeVars" class="custom-provider">
       <ProTab
@@ -110,7 +110,7 @@ const props = defineProps({
   },
 });
 
-const emits = defineEmits(['update:show', 'submit', 'onCloseFilePreview']);
+const emits = defineEmits(['update:show', 'submit', 'onCloseFilePreviewByMask']);
 const themeVars = useTheme();
 const isShow = ref<boolean>(props.show);
 const formatedContentList = ref<Array<any>>(

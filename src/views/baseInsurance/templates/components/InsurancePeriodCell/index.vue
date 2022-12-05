@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-04 21:10:25
+ * @LastEditTime: 2022-12-05 17:52:11
  * @Description:
 -->
 <template>
@@ -326,55 +326,30 @@ defineExpose({});
   background: white;
   padding-top: 40px;
 
-  .custom-cell {
-    width: 100%;
-    padding: 0px 40px 32px;
-  }
-
   .cell-label {
     min-width: 120px;
-    height: 60px;
     font-size: 30px;
     font-family: PingFangSC-Regular, PingFang SC;
     font-weight: 400;
     color: #333333;
-    line-height: 60px;
     margin-right: 55px;
-  }
-
-  .check-btn-cell {
-    display: flex;
-    .cell-label {
-      margin-top: 5px;
-    }
-
-    .cell-content {
-      :deep(.radio-btn) {
-        justify-content: flex-start;
-      }
-      :deep(.btn-wrapper) {
-        &:nth-child(3n + 1) {
-          margin-left: 0px !important;
-        }
-      }
-    }
   }
 
   .common-cell {
     display: flex;
     justify-content: flex-start;
     width: 100%;
+    padding: 0px 40px 32px;
 
-    .cell-label {
-      width: 120px;
-      height: 42px;
-      line-height: 42px;
-    }
+    // .cell-label {
+    //   height: 42px;
+    //   line-height: 42px;
+    // }
 
     .cell-content {
       width: calc(100% - 175px);
-      height: 42px;
-      line-height: 42px;
+      // height: 42px;
+      // line-height: 42px;
       font-size: 30px;
       font-family: PingFangSC-Regular, PingFang SC;
       font-weight: 400;
@@ -388,6 +363,25 @@ defineExpose({});
 
       .custom--arrow-right {
         display: inline-block;
+      }
+    }
+  }
+
+  .check-btn-cell {
+    display: flex;
+    padding-bottom: 22px !important;
+    .cell-label {
+      margin-top: 17px;
+    }
+
+    .cell-content {
+      :deep(.radio-btn) {
+        justify-content: flex-start;
+      }
+      :deep(.btn-wrapper) {
+        &:nth-child(3n + 1) {
+          margin-left: 0px !important;
+        }
       }
     }
   }

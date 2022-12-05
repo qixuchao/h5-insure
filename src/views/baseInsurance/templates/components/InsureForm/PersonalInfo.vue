@@ -37,6 +37,7 @@
       :name="`${prefix}_name`"
       :is-view="isView"
       :required="isRequiredByFactor('name')"
+      :rules="[{ validator: validateName }]"
     >
       <template #right-icon>
         <slot name="name"></slot>
@@ -569,6 +570,7 @@ import { useRoute } from 'vue-router';
 import { ProductInsureFactorItem, TenantOrderHolder, TenantOrderInsuredItem } from '@/api/index.data';
 import { SEX_LIMIT_LIST, FLAG_LIST, VALIDATE_TYPE_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
+import { validateCustomName } from '@/utils/validator';
 import { OCRResponse } from '@/api/modules/file.data';
 import useDicData from '@/hooks/useDicData';
 import {
@@ -764,6 +766,14 @@ const certNoName = computed(() => {
 
   return queryFactorAttr('certType', 'title');
 });
+
+// 验证长度
+const validateName = (value: string, rule: any) => {
+  if (validateCustomName(value)) {
+    return ``;
+  }
+  return '请输入正确的姓名';
+};
 
 // 验证证件类型
 const validateType = computed(() => {

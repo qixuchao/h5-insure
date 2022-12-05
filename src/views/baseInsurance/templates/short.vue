@@ -94,6 +94,7 @@
     :content-list="healthAttachmentList"
     :active-index="0"
     @on-confirm-health="onCloseHealth"
+    @on-close-health-by-mask="onResetFileFlag"
   ></HealthNoticePreview>
   <FilePreview
     v-if="showFilePreview"
@@ -105,6 +106,7 @@
     :force-read-cound="0"
     on-close-file-preview
     @submit="onSubmit"
+    @on-close-file-preview-by-mask="onResetFileFlag"
   ></FilePreview>
   <Waiting :is-show="showWaiting" />
 </template>
@@ -148,6 +150,7 @@ import { isEmpty, toLocal } from '@/utils';
 import { transformData, riskToOrder, validateSmsCode, getFileType } from '../utils';
 import { nextStepOperate as nextStep } from '../nextStep';
 import { formatDate } from '@/utils/date';
+import { validateCustomName } from '@/utils/validator';
 import { useTheme } from '../theme';
 
 import Banner from './components/Banner/index.vue';
@@ -205,7 +208,6 @@ const {
   saleChannelId,
   paymentMethod,
   certNo,
-  name,
   templateId,
   pageCode,
   from,
@@ -239,7 +241,7 @@ const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件�
 const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
 const preNoticeLoading = ref<boolean>(false);
-const orderNo = ref('');
+const premiumMap = ref<any>({}); // 试算后保费
 const relationList = ref<any>({});
 const loading = ref(false);
 
@@ -273,6 +275,7 @@ const orderDetail = ref<any>({
 
   tenantOrderHolder: {
     socialFlag: SOCIAL_SECURITY_ENUM.HAS,
+    certType: CERT_TYPE_ENUM.CERT,
     extInfo: {
       hasSocialInsurance: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
     },
@@ -282,6 +285,7 @@ const orderDetail = ref<any>({
       dontFetchDefaultInfo: false,
       socialFlag: SOCIAL_SECURITY_ENUM.HAS,
       relationToHolder: RELATION_HOLDER_ENUM.SELF,
+      certType: CERT_TYPE_ENUM.CERT,
       extInfo: {
         occupationCodeList: [],
         hasSocialInsurance: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
@@ -581,29 +585,21 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
   return nextStepParams;
 };
 
-const onUnderWrite = async () => {
-  const { code, data } = await getTenantOrderDetail({ orderNo: orderNo.value, tenantId });
+const onUnderWrite = async (orderNo: any) => {
+  const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
   if (code === '10000') {
     data.extInfo = { ...data.extInfo, buttonCode: 'EVENT_SHORT_underWrite' };
     await nextStep(data);
   }
 };
 
-const onSaveOrder = async (premiumMap: any) => {
+const onSaveOrder = async () => {
   await nextStep(
-    trialData2Order(insureDetail.value, premiumMap, orderDetail.value),
+    trialData2Order(insureDetail.value, premiumMap.value, orderDetail.value),
     async (data: any, pageAction: string) => {
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
         if (data?.orderNo) {
-          orderNo.value = data?.orderNo;
-          if (filterHealthAttachmentList.value.length > 0) {
-            isOnlyView.value = false;
-            previewFile(0);
-          } else if (healthAttachmentList.value.length > 0) {
-            showHealthPreview.value = true;
-          } else {
-            await onUnderWrite();
-          }
+          await onUnderWrite(data?.orderNo);
         }
       }
     },
@@ -669,17 +665,24 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
         orderDetail.value.orderAmount = data.premium;
         orderDetail.value.orderRealAmount = data.premium;
         if (!isOnlypremiumCalc) {
-          const premiumMap = {};
+          const riskPremiumMap = {};
           if (data.riskPremiumDetailVOList && data.riskPremiumDetailVOList.length) {
             data.riskPremiumDetailVOList.forEach((riskDetail: any) => {
-              premiumMap[riskDetail.riskCode] = {
+              riskPremiumMap[riskDetail.riskCode] = {
                 premium: riskDetail.premium,
                 amount: riskDetail.amount,
               };
             });
           }
-          console.log('premiumMap', premiumMap);
-          onSaveOrder(premiumMap);
+          premiumMap.value = riskPremiumMap;
+          if (filterHealthAttachmentList.value.length > 0) {
+            isOnlyView.value = false;
+            previewFile(0);
+          } else if (healthAttachmentList.value.length > 0) {
+            showHealthPreview.value = true;
+          } else {
+            await onSaveOrder();
+          }
         }
       } else {
         premiumLoadingText.value = '';
@@ -719,11 +722,16 @@ const onNext = async () => {
   }
 };
 
+const onResetFileFlag = () => {
+  showHealthPreview.value = false;
+  showFilePreview.value = false;
+};
+
 const onCloseHealth = (type: string) => {
   // 全部为否
   if (type === 'allFalse') {
     showHealthPreview.value = false;
-    onUnderWrite();
+    onSaveOrder();
   } else {
     Dialog.confirm({
       message: '被保人不符合健康要求，很抱歉暂时无法投保该产品',
@@ -743,7 +751,7 @@ const onCloseHealth = (type: string) => {
 const onSubmit = () => {
   showFilePreview.value = false;
   if (healthAttachmentList.value.length < 1) {
-    onUnderWrite();
+    onSaveOrder();
   } else {
     showHealthPreview.value = true;
   }
@@ -764,6 +772,7 @@ watch(
 watch(
   [
     () => orderDetail.value.tenantOrderInsuredList[0].birthday,
+    () => orderDetail.value.tenantOrderInsuredList[0].name,
     () => orderDetail.value.tenantOrderInsuredList[0].gender,
     () => orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance,
     () => orderDetail.value.activePlanCode,
@@ -772,16 +781,20 @@ watch(
   ],
   debounce(() => {
     const {
+      name,
       birthday,
       gender,
       extInfo: { hasSocialInsurance },
     } = orderDetail.value.tenantOrderInsuredList[0];
     console.log('birthday', birthday);
     console.log('gender', gender);
+    console.log('name', name);
+    console.log('validateCustomName(name)', validateCustomName(name));
 
     console.log('orderDetail.value', orderDetail.value);
 
-    if (birthday && gender && orderDetail.value.paymentFrequency) {
+    if (birthday && gender && orderDetail.value.paymentFrequency && name && validateCustomName(name)) {
+      console.log('1111');
       trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
     }
   }, 500),
@@ -902,7 +915,17 @@ onUnmounted(() => {
     :deep(.com-card-wrap) {
       .header {
         margin-left: 0px !important;
+
+        .title-wrapper .title {
+          &::before {
+            margin-right: 28px !important;
+          }
+        }
       }
+    }
+
+    :deep(.radio-btn) {
+      justify-content: flex-start;
     }
   }
 
