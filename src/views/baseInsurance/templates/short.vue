@@ -241,7 +241,7 @@ const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件�
 const showWaiting = ref<boolean>(false); // 支付状态等待
 const showModal = ref<boolean>(false);
 const preNoticeLoading = ref<boolean>(false);
-const orderNo = ref('');
+const premiumMap = ref<any>({}); // 试算后保费
 const relationList = ref<any>({});
 const loading = ref(false);
 
@@ -585,29 +585,21 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
   return nextStepParams;
 };
 
-const onUnderWrite = async () => {
-  const { code, data } = await getTenantOrderDetail({ orderNo: orderNo.value, tenantId });
+const onUnderWrite = async (orderNo: any) => {
+  const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
   if (code === '10000') {
     data.extInfo = { ...data.extInfo, buttonCode: 'EVENT_SHORT_underWrite' };
     await nextStep(data);
   }
 };
 
-const onSaveOrder = async (premiumMap: any) => {
+const onSaveOrder = async () => {
   await nextStep(
-    trialData2Order(insureDetail.value, premiumMap, orderDetail.value),
+    trialData2Order(insureDetail.value, premiumMap.value, orderDetail.value),
     async (data: any, pageAction: string) => {
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
         if (data?.orderNo) {
-          orderNo.value = data?.orderNo;
-          if (filterHealthAttachmentList.value.length > 0) {
-            isOnlyView.value = false;
-            previewFile(0);
-          } else if (healthAttachmentList.value.length > 0) {
-            showHealthPreview.value = true;
-          } else {
-            await onUnderWrite();
-          }
+          await onUnderWrite(data?.orderNo);
         }
       }
     },
@@ -624,7 +616,6 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
         insurancePeriodValue: orderInfo.insurancePeriodValue, // 保障期限
       };
     });
-    console.log('tempRiskVOList', tempRiskVOList);
     const trialParams = {
       tenantId,
       productCode: detail.value?.productCode,
@@ -654,8 +645,6 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
       }),
     };
 
-    console.log('232233223322332');
-
     const { code: ruleCode, message: ruleMessage } = await underWriteRule(trialParams);
 
     if (ruleCode === '10000') {
@@ -676,17 +665,24 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
         orderDetail.value.orderAmount = data.premium;
         orderDetail.value.orderRealAmount = data.premium;
         if (!isOnlypremiumCalc) {
-          const premiumMap = {};
+          const riskPremiumMap = {};
           if (data.riskPremiumDetailVOList && data.riskPremiumDetailVOList.length) {
             data.riskPremiumDetailVOList.forEach((riskDetail: any) => {
-              premiumMap[riskDetail.riskCode] = {
+              riskPremiumMap[riskDetail.riskCode] = {
                 premium: riskDetail.premium,
                 amount: riskDetail.amount,
               };
             });
           }
-          console.log('premiumMap', premiumMap);
-          onSaveOrder(premiumMap);
+          premiumMap.value = riskPremiumMap;
+          if (filterHealthAttachmentList.value.length > 0) {
+            isOnlyView.value = false;
+            previewFile(0);
+          } else if (healthAttachmentList.value.length > 0) {
+            showHealthPreview.value = true;
+          } else {
+            await onSaveOrder();
+          }
         }
       } else {
         premiumLoadingText.value = '';
@@ -735,7 +731,7 @@ const onCloseHealth = (type: string) => {
   // 全部为否
   if (type === 'allFalse') {
     showHealthPreview.value = false;
-    onUnderWrite();
+    onSaveOrder();
   } else {
     Dialog.confirm({
       message: '被保人不符合健康要求，很抱歉暂时无法投保该产品',
@@ -755,7 +751,7 @@ const onCloseHealth = (type: string) => {
 const onSubmit = () => {
   showFilePreview.value = false;
   if (healthAttachmentList.value.length < 1) {
-    onUnderWrite();
+    onSaveOrder();
   } else {
     showHealthPreview.value = true;
   }

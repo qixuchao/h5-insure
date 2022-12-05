@@ -59,7 +59,6 @@ export const transformData = (o: transformDataType) => {
   return riskList.map((risk: RiskVoItem) => {
     const currentRisk = {
       tenantId,
-      // initialAmount: riskPremium[risk.riskCode]?.amount,
       amountUnit: 1,
       annuityDrawFrequency: risk.annuityDrawDate,
       annuityDrawType: risk.annuityDrawType,
@@ -87,7 +86,7 @@ export const transformData = (o: transformDataType) => {
         })) || [],
       productId,
       currentAmount: risk.amount || 0,
-      initialAmount: risk.amount || 0,
+      initialAmount: riskPremium[risk.riskCode]?.amount || risk.amount,
     };
     return currentRisk;
   });

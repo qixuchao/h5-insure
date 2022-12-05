@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-05 20:03:31
+ * @LastEditTime: 2022-12-05 20:33:16
  * @Description:
 -->
 <template>
@@ -189,7 +189,7 @@ const premiumItem = computed(() => {
 
 const actualPremium = computed(() => {
   if (props.premiumInfo.premiumLoadingText) return props.premiumInfo.premiumLoadingText;
-  return `${props.premiumInfo.premium}${props.premiumInfo.unit}`;
+  return `${props.premiumInfo.premium || ''}${props.premiumInfo.unit || ''}`;
 });
 
 const explainInfo = computed(() => {
