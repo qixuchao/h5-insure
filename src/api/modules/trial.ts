@@ -1,8 +1,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-24 13:44:22
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-28 14:47:32
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-05 14:12:22
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/modules/trial.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -50,7 +50,11 @@ export const multiIssuePolicy = (data = {}) =>
 
 // 升级保障试算
 export const endorsementPremiumCalc = (data = {}) =>
-  request<ResponseData<any>>({ url: '/api/app/insure/insurance/endorsementPremiumCalc', method: 'POST', data });
+  request<{ installmentPremium: number; signUrl: string }>({
+    url: '/api/app/insure/insurance/endorsementPremiumCalc',
+    method: 'POST',
+    data,
+  });
 // 升级保障
 export const EndorsementUp = (data = {}) =>
   request<ResponseData<any>>({ url: '/api/app/insure/insurance/EndorsementUp', method: 'POST', data });
