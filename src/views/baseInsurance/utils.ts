@@ -729,6 +729,8 @@ export const freeTransform = (o: any) => {
     agentCode: o.agentCode,
     saleUserId: o.saleUserId, // 1 'url'
     saleChannelId: o.saleChannelId, // 1  'url'// 销售渠道id
+    commencementTime: o.commencementTime,
+    expiryDate: o.expiryDate,
     orderCategory: '1', // 1 '1' // 订单类型
     tenantOrderHolder: {
       tenantId: o.tenantId,

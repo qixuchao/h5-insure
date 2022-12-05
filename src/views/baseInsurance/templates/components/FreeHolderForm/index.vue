@@ -1,7 +1,10 @@
 <template>
   <div class="free-crad">
     <div class="container">
-      <div class="title"><img :src="acrrowIcon" /><span>凭手机号 免费领取</span><img :src="acrrowIcon" /></div>
+      <div class="title">
+        <img :src="acrrowIcon" /><span>{{ isFirst ? '凭手机号 免费领取' : '最后一步 填写信息' }}</span
+        ><img :src="acrrowIcon" />
+      </div>
       <InsureForm
         ref="formRef"
         :send-sms-code="sendSmsCode"
@@ -154,7 +157,7 @@ defineExpose({
         align-items: center;
 
         .van-field__label {
-          width: 122px;
+          width: 132px;
           margin-top: 0;
           margin-bottom: 0;
         }

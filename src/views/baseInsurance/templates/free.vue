@@ -62,6 +62,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { useIntersectionObserver } from '@vueuse/core';
 import { Toast } from 'vant/es';
+import dayjs from 'dayjs';
 import { isEmpty } from '@/utils';
 import ProShadowButton from './components/ProShadowButton/index.vue';
 import Banner from './components/Banner/index.vue';
@@ -230,6 +231,32 @@ const setfileList = () => {
     }) || [];
 };
 
+/* --------------计算保障开始、结束日期 ----------- */
+
+const insuranceStartDate = () => {
+  const riskInfo = state.insureDetail.productRiskVoList || [];
+  const startDateType = riskInfo?.[0]?.riskDetailVOList?.[0]?.insuranceStartType || 1;
+  if (startDateType === 1) {
+    return `${dayjs(new Date()).format('YYYY-MM-DD')} 00:00:00`;
+  }
+  return `${dayjs(new Date()).add(1, 'day').format('YYYY-MM-DD')} 00:00:00`;
+};
+
+const insuranceEndDate = () => {
+  const riskInfo = state.insureDetail.productRiskVoList || [];
+  const { insuranceEndType, riskInsureLimitVO } = riskInfo?.[0]?.riskDetailVOList?.[0] || {};
+  const { insurancePeriodValueList } = riskInsureLimitVO || {};
+  const [unit, num] = (insurancePeriodValueList?.[0] || '').split('_');
+  // 当日23:59:59失效
+  if (insuranceEndType === 1) {
+    return `${dayjs(new Date())
+      .add(num || 0, unit)
+      .format('YYYY-MM-DD')} 23:59:59`;
+  }
+  // 次日00:00:00失效
+  return insuranceEndType ? `${dayjs(new Date()).add(num, unit).format('YYYY-MM-DD')} 00:00:00` : '';
+};
+
 const fetchData = async () => {
   state.loading = true;
   const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
@@ -314,6 +341,8 @@ const onSaveOrder = async () => {
         order: state.order,
         tenantId,
         extraInfo: extInfo,
+        commencementTime: insuranceStartDate(),
+        expiryDate: insuranceEndDate(),
         detail: state.detail,
         insureDetail: state.insureDetail,
         iseeBizNo,
