@@ -696,8 +696,14 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
   }
 };
 
+const onResetFileFlag = () => {
+  showHealthPreview.value = false;
+  showFilePreview.value = false;
+};
+
 const onNext = async () => {
   try {
+    onResetFileFlag();
     if (formRef.value) {
       formRef.value?.validateForm().then(async () => {
         if (isOldUser.value || !isCheckHolderSmsCode.value) {
@@ -720,11 +726,6 @@ const onNext = async () => {
   } catch (e) {
     //
   }
-};
-
-const onResetFileFlag = () => {
-  showHealthPreview.value = false;
-  showFilePreview.value = false;
 };
 
 const onCloseHealth = (type: string) => {
