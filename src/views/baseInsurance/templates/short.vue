@@ -139,7 +139,7 @@ import {
 } from '@/common/constants/infoCollection';
 import { ProductDetail, AttachmentVOList, PlanInsureVO } from '@/api/modules/product.data';
 import { PackageProductVoItem, ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
-import { RELATIONENUM } from '@/common/constants/trial';
+import { INSURANCE_PERIOD_ENUM, RELATIONENUM } from '@/common/constants/trial';
 
 import {
   premiumCalc,
@@ -278,7 +278,7 @@ const orderDetail = ref<any>({
   insuranceEndDate: null,
   activePlanCode: '',
   paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE,
-  insurancePeriodValue: '', // 保障期限
+  insurancePeriodValue: INSURANCE_PERIOD_ENUM.YEAR_1, // 保障期间
   commencementTime: '', // 生效日期
 
   tenantOrderHolder: {

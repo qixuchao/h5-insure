@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-06 15:14:01
+ * @LastEditTime: 2022-12-06 18:09:44
  * @Description:
 -->
 <template>
@@ -86,6 +86,7 @@ import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils'
 import useDicData from '@/hooks/useDicData';
 import ProShadowButton from '../ProShadowButton/index.vue';
 import { CERT_TYPE_ENUM } from '@/common/constants';
+import { INSURANCE_PERIOD_ENUM } from '@/common/constants/trial';
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
@@ -168,7 +169,7 @@ const periodList = ref<any[]>([]);
 watch(
   [() => props.insureDetail, () => state.formInfo.activePlanCode],
   () => {
-    state.formInfo.insurancePeriodValue = '';
+    // state.formInfo.insurancePeriodValue = '';
     state.formInfo.insuranceStartDate = '';
     state.formInfo.insuranceEndDate = '';
     state.formInfo.commencementTime = '';
@@ -214,7 +215,15 @@ watch(
         })
         .filter((e) => !!e);
     }
-    if (periodList.value.length > 0) state.formInfo.insurancePeriodValue = periodList.value[0].value;
+    console.log('periodListperiodListperiodListperiodList', periodList.value);
+    console.log('state.formInfo.insurancePeriodValue', state.formInfo.insurancePeriodValue);
+    if (periodList.value.length > 0) {
+      if (periodList.value.findIndex((e: any) => e.value === state.formInfo.insurancePeriodValue) < 0) {
+        state.formInfo.insurancePeriodValue = periodList.value[0].value;
+      }
+    } else {
+      state.formInfo.insurancePeriodValue = INSURANCE_PERIOD_ENUM.YEAR_1;
+    }
   },
   {
     deep: true,
