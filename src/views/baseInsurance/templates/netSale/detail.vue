@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-06 17:11:37
+ * @LastEditTime: 2022-12-06 19:10:00
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -277,13 +277,7 @@ const queryOrderDetail = async () => {
     loadForm.value = true;
     queryProductDetail();
     queryTenantProductDetail();
-    if (data.orderStatus === ORDER_STATUS_ENUM.PAYING) {
-      orderDetail.value.extInfo.redirectUrl = '';
-      const { code: payCode, data: payData } = await getPayUrl(orderDetail.value);
-      if (payCode === '10000') {
-        sendPay(payData.paymentUrl);
-      }
-    } else if (data.orderStatus !== ORDER_STATUS_ENUM.UNDER_WRITING_SUCCESS) {
+    if (data.orderStatus !== ORDER_STATUS_ENUM.UNDER_WRITING_SUCCESS) {
       router.replace({
         path: '/baseInsurance/orderDetail',
         query: {
