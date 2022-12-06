@@ -246,3 +246,59 @@
     font-weight: 600;
   }
 }
+
+.xinao-custom-dialog {
+  width: calc(100% - 120px);
+  padding: 0px 40px;
+  border-radius: 40px;
+
+  .van-dialog__header {
+    padding-top: 40px !important;
+    padding-bottom: 24px !important;
+    font-size: 42px;
+    font-family: PingFangSC-Medium, PingFang SC;
+    font-weight: 500;
+    color: #333333;
+  }
+
+  .van-dialog__content .van-dialog__message {
+    font-size: 32px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #666666;
+    line-height: 45px;
+    text-align: left;
+    padding: 0px !important;
+  }
+
+  .van-dialog__footer {
+    padding: 50px 0px 40px;
+    border-top: none;
+    .van-dialog__cancel {
+      width: 260px;
+      height: 88px;
+      background: #f4f4f4 !important;
+      border-radius: 44px;
+
+      .van-button__text {
+        font-size: 38px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #333333;
+      }
+    }
+
+    .van-dialog__confirm {
+      width: 260px;
+      height: 88px;
+      background: var(--van-linear-bg) !important;
+      border-radius: 44px;
+      .van-button__text {
+        font-size: 38px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: #ffffff;
+      }
+    }
+  }
+}

@@ -55,7 +55,6 @@
             :insure-detail="insureDetail"
             :config-detail="detail"
             :is-multiple-plan="isMultiplePlan"
-            :risk-info-period-list="riskInfoPeriodList"
             :premium-info="{ premium, unit, premiumLoadingText }"
             @update-active-plan="updateActivePlan"
           />
@@ -82,12 +81,20 @@
           </template>
         </div>
         <!-- @click="onNext" -->
-        <ProShadowButton :shadow="false" :theme-vars="themeVars" class="right" text="立即投保" @click="onNext">
+        <ProShadowButton
+          :disabled="proShadowBtnDisabled"
+          :shadow="false"
+          :theme-vars="themeVars"
+          class="right"
+          text="立即投保"
+          @click="onNext"
+        >
           {{ '立即投保' }}
         </ProShadowButton>
       </div>
     </div>
     <PreNotice v-if="preNoticeLoading" :product-detail="detail"></PreNotice>
+    <div id="xinaoDialog"></div>
   </van-config-provider>
   <HealthNoticePreview
     v-model:show="showHealthPreview"
@@ -244,6 +251,7 @@ const preNoticeLoading = ref<boolean>(false);
 const premiumMap = ref<any>({}); // 试算后保费
 const relationList = ref<any>({});
 const loading = ref(false);
+const proShadowBtnDisabled = ref<boolean>(false);
 
 let iseeBizNo = '';
 
@@ -425,20 +433,24 @@ const currentPlanInsure = computed(() => {
   return detail.value.tenantProductInsureVO.planInsureVO;
 });
 
+const setDefaultPremium = () => {
+  if (currentPlanInsure.value && currentPlanInsure.value?.productPremiumVOList) {
+    const item = currentPlanInsure.value?.productPremiumVOList.find(
+      (e) => e.paymentFrequency === orderDetail.value.paymentFrequency,
+    );
+    if (item) {
+      premium.value = item.paymentFrequencyValue ? Number(item.paymentFrequencyValue) : null;
+      unit.value = item.premiumUnit;
+    }
+  }
+};
+
 watch(
   [() => currentPlanInsure.value, () => orderDetail.value.activePlanCode, () => orderDetail.value.paymentFrequency],
   () => {
     // 加定时器延迟计划切换时，最低保费展示时间，用来衔接保费试算逻辑
     setTimeout(() => {
-      if (currentPlanInsure.value && currentPlanInsure.value?.productPremiumVOList) {
-        const item = currentPlanInsure.value?.productPremiumVOList.find(
-          (e) => e.paymentFrequency === orderDetail.value.paymentFrequency,
-        );
-        if (item) {
-          premium.value = item.paymentFrequencyValue ? Number(item.paymentFrequencyValue) : null;
-          unit.value = item.premiumUnit;
-        }
-      }
+      setDefaultPremium();
     }, 800);
   },
   {
@@ -586,24 +598,37 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
 };
 
 const onUnderWrite = async (orderNo: any) => {
-  const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
-  if (code === '10000') {
-    data.extInfo = { ...data.extInfo, buttonCode: 'EVENT_SHORT_underWrite' };
-    await nextStep(data);
+  try {
+    const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
+    if (code === '10000') {
+      data.extInfo = { ...data.extInfo, buttonCode: 'EVENT_SHORT_underWrite' };
+      await nextStep(data, () => {
+        proShadowBtnDisabled.value = false;
+      });
+    }
+  } catch (error) {
+    proShadowBtnDisabled.value = false;
   }
 };
 
 const onSaveOrder = async () => {
-  await nextStep(
-    trialData2Order(insureDetail.value, premiumMap.value, orderDetail.value),
-    async (data: any, pageAction: string) => {
-      if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-        if (data?.orderNo) {
-          await onUnderWrite(data?.orderNo);
+  try {
+    proShadowBtnDisabled.value = true;
+    await nextStep(
+      trialData2Order(insureDetail.value, premiumMap.value, orderDetail.value),
+      async (data: any, pageAction: string) => {
+        if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+          if (data?.orderNo) {
+            await onUnderWrite(data?.orderNo);
+          }
+        } else {
+          proShadowBtnDisabled.value = false;
         }
-      }
-    },
-  );
+      },
+    );
+  } catch (error) {
+    proShadowBtnDisabled.value = false;
+  }
 };
 
 // 保费试算
@@ -614,6 +639,7 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
         ...riskVOList,
         paymentFrequency: orderInfo.paymentFrequency,
         insurancePeriodValue: orderInfo.insurancePeriodValue, // 保障期限
+        coveragePeriod: orderInfo.insurancePeriodValue,
       };
     });
     const trialParams = {
@@ -644,7 +670,7 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
         };
       }),
     };
-
+    proShadowBtnDisabled.value = true;
     const { code: ruleCode, message: ruleMessage } = await underWriteRule(trialParams);
 
     if (ruleCode === '10000') {
@@ -657,7 +683,6 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
       if (code === '10000') {
         loading.value = false;
         premiumLoadingText.value = '';
-
         orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList =
           trialParams.insuredVOList[0]?.productPlanVOList;
         premium.value = data.premium;
@@ -683,27 +708,28 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
           } else {
             await onSaveOrder();
           }
+        } else {
+          proShadowBtnDisabled.value = false;
         }
       } else {
+        proShadowBtnDisabled.value = false;
         premiumLoadingText.value = '';
       }
     } else {
+      proShadowBtnDisabled.value = false;
       Toast(ruleMessage);
     }
   } catch (error) {
     premiumLoadingText.value = '';
     loading.value = false;
+    proShadowBtnDisabled.value = false;
   }
-};
-
-const onResetFileFlag = () => {
-  showHealthPreview.value = false;
-  showFilePreview.value = false;
 };
 
 const onNext = async () => {
   try {
-    onResetFileFlag();
+    showHealthPreview.value = false;
+    showFilePreview.value = false;
     if (formRef.value) {
       formRef.value?.validateForm().then(async () => {
         if (isOldUser.value || !isCheckHolderSmsCode.value) {
@@ -735,6 +761,9 @@ const onCloseHealth = (type: string) => {
     onSaveOrder();
   } else {
     Dialog.confirm({
+      className: 'xinao-custom-dialog',
+      title: '提示',
+      teleport: '#xinaoDialog',
       message: '被保人不符合健康要求，很抱歉暂时无法投保该产品',
       confirmButtonText: '选错了',
       cancelButtonText: '为其他人投保',
@@ -744,6 +773,7 @@ const onCloseHealth = (type: string) => {
         // window.history.back();
       })
       .catch(() => {
+        proShadowBtnDisabled.value = false;
         showHealthPreview.value = false;
       });
   }
@@ -756,6 +786,12 @@ const onSubmit = () => {
   } else {
     showHealthPreview.value = true;
   }
+};
+
+const onResetFileFlag = () => {
+  showHealthPreview.value = false;
+  showFilePreview.value = false;
+  proShadowBtnDisabled.value = false;
 };
 
 // 表单组件切换被保人时不会赋值默认社保
@@ -797,6 +833,8 @@ watch(
     if (birthday && gender && orderDetail.value.paymentFrequency && name && validateCustomName(name)) {
       console.log('1111');
       trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
+    } else {
+      setDefaultPremium();
     }
   }, 500),
 );
@@ -921,6 +959,12 @@ onUnmounted(() => {
           &::before {
             margin-right: 28px !important;
           }
+        }
+      }
+
+      .relation-holder {
+        .van-cell__title {
+          display: none;
         }
       }
     }
