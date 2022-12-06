@@ -999,6 +999,10 @@ watch(
 </script>
 
 <style lang="scss" scope>
+.van-field--error .van-field__control--error .placeholder {
+  color: var(--van-danger-color, green);
+}
+
 .input-extra {
   margin-left: 25px;
   margin-top: 14px;

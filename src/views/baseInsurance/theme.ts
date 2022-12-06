@@ -35,15 +35,17 @@ const getColor = (_color: string, _opacity = 1) => {
  * @returns 基于该主题颜色值的一系列主题变量
  */
 export const useTheme = (color: string = THEME_MAP.orange) => {
+  const theme10 = `${color}10`;
   const theme20 = `${color}20`;
   const theme80 = `${color}80`;
   return {
     primaryColor: color,
     primaryColorLight8: theme80,
+    dangerColor: '#FF3C10', // 错误颜色
     primaryBackgroundColor: `${theme20}`, // 自定义主题20%透明度的颜色
     buttonPrimaryBackgroundColor: color, // 主题按钮背景
     buttonPrimaryBorderColor: color, // 主题按钮边框
-    checkboxCheckedBgColor: `${theme20}`, // van-checkbox的背景色
+    checkboxCheckedBgColor: `${theme10}`, // van-checkbox的背景色
     switchOnBackgroundColor: color, // switch 开时的背景
     toastDefaultPadding: '14px',
     linearBg: `linear-gradient(to right, ${color}, ${getColor(color)})`,
