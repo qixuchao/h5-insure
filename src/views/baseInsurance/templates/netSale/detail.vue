@@ -2,14 +2,14 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-05 16:07:19
+ * @LastEditTime: 2022-12-06 17:11:37
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <van-config-provider :theme-vars="themeVars">
     <ProPageWrap>
-      <div class="net-sale-detail-wrap">
+      <div v-if="productDetail?.productBasicInfoVO" class="net-sale-detail-wrap">
         <ProCard>
           <ProCell title="产品名称" :content="productDetail?.productBasicInfoVO.productFullName"></ProCell>
         </ProCard>
@@ -199,9 +199,15 @@ const onCloseFilePreview = () => {
 
 const setFileList = () => {
   let tempList: any = {};
-  tempList =
-    (tenantProductDetail.value?.tenantProductInsureVO?.planList || []).find((plan) => plan.planCode === planCode.value)
-      ?.attachmentVOList || [];
+  if (planCode.value) {
+    tempList =
+      (tenantProductDetail.value?.tenantProductInsureVO?.planList || []).find(
+        (plan) => plan.planCode === planCode.value,
+      )?.attachmentVOList || [];
+  } else {
+    tempList = tenantProductDetail.value?.tenantProductInsureVO?.planInsureVO?.attachmentVOList || [];
+  }
+
   if (!tempList) {
     filterHealthAttachmentList.value = [];
     return;
@@ -302,24 +308,24 @@ onMounted(() => {
   queryOrderDetail();
 });
 
-watch(
-  [() => planCode.value, () => tenantProductDetail.value],
-  () => {
-    if (planCode.value) {
-      attachmentList.value =
-        (tenantProductDetail.value?.tenantProductInsureVO?.planList || []).find((plan) => {
-          if (plan.planCode === planCode.value) {
-            planName.value = plan.planName;
-          }
-          return plan.planCode === planCode.value;
-        })?.attachmentVOList || [];
-    }
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
+// watch(
+//   [() => planCode.value, () => tenantProductDetail.value],
+//   () => {
+//     if (planCode.value) {
+//       attachmentList.value =
+//         (tenantProductDetail.value?.tenantProductInsureVO?.planList || []).find((plan) => {
+//           if (plan.planCode === planCode.value) {
+//             planName.value = plan.planName;
+//           }
+//           return plan.planCode === planCode.value;
+//         })?.attachmentVOList || [];
+//     }
+//   },
+//   {
+//     deep: true,
+//     immediate: true,
+//   },
+// );
 </script>
 
 <style lang="scss">

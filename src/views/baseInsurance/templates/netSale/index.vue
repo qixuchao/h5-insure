@@ -314,9 +314,6 @@ const nextStepOperate = async () => {
   orderDetail.value.commencementTime = insuranceStartDate.value;
   orderDetail.value.expiryDate = insuranceEndDate.value;
   orderDetail.value.tenantOrderInsuredList[0].planCode = currentPlan.value;
-  orderDetail.value.tenantOrderInsuredList[0].planName = insureDetail.value?.productRelationPlanVOList.find(
-    (plan) => plan.planCode === currentPlan.value,
-  )?.planName;
   nextStep(trialData2Order(insureDetail.value, premiumObj.value, orderDetail.value), (resData, pageAction) => {
     if (pageAction === 'jumpToPage') {
       Toast('提交成功');
