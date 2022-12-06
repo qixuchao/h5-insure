@@ -245,6 +245,10 @@ export const PAYMENT_FREQUENCY = [
 ];
 export const PAYMENT_FREQUENCY_MAP = constantListToMap(PAYMENT_FREQUENCY);
 
+export const INSURANCE_PERIOD_ENUM = {
+  YEAR_1: 'year_1', // 一年期
+};
+
 // 缴费期间值
 export const PAYMENT_PERIOD_VALUE = [
   {

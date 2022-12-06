@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-28 16:57:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 21:41:07
+ * @LastEditTime: 2022-12-06 18:27:40
  * @Description:
 -->
 <template>
@@ -20,7 +20,6 @@ let fileInfo = null;
 
 try {
   fileInfo = JSON.parse(localStore.get(PREVIEW_FILE_KEY) as string);
-
   localStore.remove(PREVIEW_FILE_KEY);
 } catch (error) {
   //

@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-04 20:09:44
+ * @LastEditTime: 2022-12-06 18:27:10
  * @Description: 保障详情
 -->
 <template>
@@ -281,7 +281,7 @@ const onShowDetail = () => {
 };
 
 const onClickFeeRate = () => {
-  openPreviewFilePage({ fileType: 'pdf', feeFileUri: feeFileUri.value });
+  openPreviewFilePage({ fileType: 'pdf', fileUri: feeFileUri.value });
 };
 </script>
 
