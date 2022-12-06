@@ -2,8 +2,8 @@ import { Toast, Dialog } from 'vant';
 /*
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-12-01 11:06:22
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-06 15:53:46
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-06 17:46:16
  * @FilePath: /zat-planet-h5-cloud-insure/src/utils/nextStep.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -40,12 +40,16 @@ export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: 
       if (extInfo.templateId === '3') {
         Dialog.confirm({
           title: '提示',
+          className: 'xinao-custom-dialog',
+          teleport: '#xinaoDialog',
           message: `该被保人已存在一笔待支付的订单`,
           confirmButtonText: '取消',
         }).then(() => {});
       } else {
         Dialog.confirm({
           title: '提示',
+          className: 'xinao-custom-dialog',
+          teleport: '#xinaoDialog',
           message: `该被保人已存在一笔待支付的订单`,
           confirmButtonText: '去支付',
         }).then(() => {

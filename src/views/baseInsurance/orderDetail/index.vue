@@ -140,16 +140,20 @@ const orderBtnText = computed(() => {
 const goToInsurerPage = async (reOrder = false) => {
   try {
     const { insurerCode } = state.insureDetail.productBasicInfoVO;
-    const { code, data } = await queryStandardInsurerLink({
+    delete state.orderDetail.extInfo.extraInfo.templateId;
+    const params = {
       insurerCode,
       productCode: reOrder ? state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO.productCode : productCode,
       tenantId,
       agencyCode: state.orderDetail.agencyId,
       agentCode: state.orderDetail.agentCode,
-      templateId: state.orderDetail.extInfo?.extraInfo?.templateId,
       saleChannelId: state.orderDetail.extInfo?.extraInfo?.saleChannelId,
-      extraMap: { ...state.orderDetail.extInfo.extraInfo },
-    });
+      extraMap: {
+        ...state.orderDetail.extInfo.extraInfo,
+      },
+    };
+    delete params.extraMap.templateId;
+    const { code, data } = await queryStandardInsurerLink(params);
     if (code === '10000') {
       if (!reOrder) {
         const { tenantOrderHolder, tenantOrderInsuredList } = state.orderDetail;
@@ -229,20 +233,25 @@ const initPageInfo = () => {
     { label: '保障期间', value: insurancePeriodDesc || '' },
   ];
   state.templateId = state.orderDetail.extInfo.templateId;
-  // 只有投保成功和已失效才有图片
+
+  // 赠险+ 非（支付中和支付超期）
   if (
-    (from === 'free' ||
-      ![ORDER_STATUS_ENUM.PAYING, ORDER_STATUS_ENUM.TIMEOUT].includes(state.orderDetail.orderStatus)) &&
-    state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO.productCode
+    from === 'free' ||
+    ![ORDER_STATUS_ENUM.PAYING, ORDER_STATUS_ENUM.TIMEOUT].includes(state.orderDetail.orderStatus)
   ) {
-    state.pageInfo.notificationImage =
-      state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.notificationImage?.[0] || '';
-    state.pageInfo.productImage =
-      state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.productImage?.[0] || '';
-    show.value = true;
+    // 只有 投保成功 和 已失效才有图片
+    if (state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO.productCode) {
+      state.pageInfo.notificationImage =
+        state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.notificationImage?.[0] || '';
+      state.pageInfo.productImage =
+        state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.productImage?.[0] || '';
+      show.value = true;
+    }
   } else {
+    // 显示保障内容
     state.showOrderDetail = true;
   }
+  // 支付中需要倒计时
   if (ORDER_STATUS_ENUM.PAYING === state.orderDetail.orderStatus) {
     const expiryDate = state.orderDetail.tenantOrderPaymentInfoList?.[0]?.paymentExpiryDate;
     state.timeDown = useCountDown({
@@ -251,6 +260,7 @@ const initPageInfo = () => {
     state.timeDown.start();
   }
   try {
+    // 保障内容的获取
     const planCode = state.orderDetail.tenantOrderInsuredList?.[0].planCode;
     if (!state.detail?.tenantProductInsureVO?.planInsureVO) {
       // 多计划

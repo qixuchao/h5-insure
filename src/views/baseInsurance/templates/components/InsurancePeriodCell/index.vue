@@ -2,26 +2,26 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-06 10:04:09
+ * @LastEditTime: 2022-12-06 15:14:01
  * @Description:
 -->
 <template>
   <van-config-provider :theme-vars="themeVars">
     <div class="com-period-cell">
-      <div v-if="periodList.length > 1" class="custom-cell check-btn-cell">
-        <div class="cell-label">保障期间</div>
-        <div class="cell-content">
+      <div v-if="periodList.length > 1" class="period-custom-cell period-check-btn-cell">
+        <div class="period-cell-label">保障期间</div>
+        <div class="period-cell-content">
           <ProRadioButton v-model="state.formInfo.insurancePeriodValue" :options="periodList"></ProRadioButton>
         </div>
       </div>
       <div
         v-if="riskGuaranteeStartDateType === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY"
-        class="custom-cell common-cell"
+        class="period-custom-cell period-common-cell"
         @click="onSelectCommencementTime"
       >
         <!-- 选择生效日期 -->
-        <div class="cell-label">生效日期</div>
-        <div class="cell-content custom-cell-content">
+        <div class="period-cell-label">生效日期</div>
+        <div class="period-cell-content period-custom-cell-content">
           <span>{{
             state.formInfo.insuranceStartDate
               ? formatDate(state.formInfo.insuranceStartDate, 'YYYY.MM.DD HH:mm:ss')
@@ -30,9 +30,12 @@
           <ProSvg class="custom--arrow-right" name="arrow-right"></ProSvg>
         </div>
       </div>
-      <div v-if="riskGuaranteeStartDateType !== INSURANCE_START_TYPE_ENUM.CUSTOM_DAY" class="custom-cell common-cell">
-        <div class="cell-label">保障期限</div>
-        <div class="cell-content">
+      <div
+        v-if="riskGuaranteeStartDateType !== INSURANCE_START_TYPE_ENUM.CUSTOM_DAY"
+        class="period-custom-cell period-common-cell"
+      >
+        <div class="period-cell-label">保障期限</div>
+        <div class="period-cell-content">
           {{ state.formInfo.insuranceStartDate ? formatDate(state.formInfo.insuranceStartDate, 'YYYY.MM.DD') : '' }}-{{
             state.formInfo.insuranceEndDate ? formatDate(state.formInfo.insuranceEndDate, 'YYYY.MM.DD') : ''
           }}
@@ -321,12 +324,11 @@ defineExpose({});
 </script>
 
 <style lang="scss" scoped>
-.com-payment-type {
+.com-period-cell {
   width: 100%;
   background: white;
-  padding-top: 40px;
 
-  .cell-label {
+  .period-cell-label {
     min-width: 120px;
     font-size: 30px;
     font-family: PingFangSC-Regular, PingFang SC;
@@ -335,13 +337,13 @@ defineExpose({});
     margin-right: 55px;
   }
 
-  .common-cell {
+  .period-common-cell {
     display: flex;
     justify-content: flex-start;
     width: 100%;
     padding: 0px 40px 32px;
 
-    .cell-content {
+    .period-cell-content {
       width: calc(100% - 175px);
       font-size: 30px;
       font-family: PingFangSC-Regular, PingFang SC;
@@ -349,7 +351,7 @@ defineExpose({});
       color: #333333;
     }
 
-    .custom-cell-content {
+    .period-custom-cell-content {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -360,19 +362,19 @@ defineExpose({});
     }
   }
 
-  .custom-cell {
+  .period-custom-cell {
     width: 100%;
     padding: 0px 40px 32px;
   }
 
-  .check-btn-cell {
+  .period-check-btn-cell {
     display: flex;
     padding-bottom: 22px !important;
-    .cell-label {
+    .period-cell-label {
       margin-top: 17px;
     }
 
-    .cell-content {
+    .period-cell-content {
       :deep(.radio-btn) {
         justify-content: flex-start;
       }
