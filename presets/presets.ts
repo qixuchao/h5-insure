@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-08-24 16:59:13
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-01 19:42:38
+ * @LastEditTime: 2022-12-06 19:57:41
  * @Description:
  */
 import vue from '@vitejs/plugin-vue';
@@ -90,9 +90,9 @@ export default (env: ConfigEnv) => {
     //   include: [resolve(__dirname, '../locales/**')],
     // }),
     splitVendorChunkPlugin(),
-    viteCompression({
-      threshold: 1025 * 100,
-    }),
+    // viteCompression({
+    //   threshold: 1025 * 100,
+    // }),
     PkgConfig(),
     env.mode === 'production'
       ? null
