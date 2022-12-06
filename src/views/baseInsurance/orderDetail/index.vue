@@ -316,7 +316,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .jump-img {
-  width: 100%;
+  width: 670px;
 }
 .page-pay-result {
   text-align: center;
@@ -420,7 +420,7 @@ onMounted(() => {
     }
 
     .product-img {
-      width: 100%;
+      width: 670px;
       position: relative;
       transform: translateY(-200px);
       margin-top: 40px;

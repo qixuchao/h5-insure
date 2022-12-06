@@ -88,14 +88,12 @@ thread = useThread({
 
 useWXCode();
 onMounted(() => {
-  loopOrderStatus();
   if (+query.from_wxpay === 1) {
     showResult.value = true;
-    // thread.run();
+    thread.run();
+  } else {
+    loopOrderStatus();
   }
-  // else {
-  //   loopOrderStatus();
-  // }
 });
 </script>
 
