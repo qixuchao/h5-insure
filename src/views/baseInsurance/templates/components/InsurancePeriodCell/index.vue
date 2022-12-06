@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-05 17:52:11
+ * @LastEditTime: 2022-12-06 10:04:09
  * @Description:
 -->
 <template>
@@ -341,15 +341,8 @@ defineExpose({});
     width: 100%;
     padding: 0px 40px 32px;
 
-    // .cell-label {
-    //   height: 42px;
-    //   line-height: 42px;
-    // }
-
     .cell-content {
       width: calc(100% - 175px);
-      // height: 42px;
-      // line-height: 42px;
       font-size: 30px;
       font-family: PingFangSC-Regular, PingFang SC;
       font-weight: 400;
@@ -365,6 +358,11 @@ defineExpose({});
         display: inline-block;
       }
     }
+  }
+
+  .custom-cell {
+    width: 100%;
+    padding: 0px 40px 32px;
   }
 
   .check-btn-cell {
