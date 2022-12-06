@@ -83,19 +83,22 @@ const getData = () => {
     forbidClick: true,
   });
   loading.value = true;
-  console.error('currentStatus:', currentStatus.value);
-  getOrderList({ condition: { orderTopStatus: currentStatus.value }, pageSize: 10, pageNum: pageNum.value })
+  getOrderList({
+    condition: { orderTopStatus: currentStatus.value },
+    pageSize: 10,
+    pageNum: pageNum.value,
+  })
     .then((res) => {
       loading.value = false;
       const { code, data } = res;
-      if (code === '10000') {
+      if (code === '10000' && data) {
         if (pageNum.value === 1) {
-          list.value = data.datas;
+          list.value = data.datas || [];
         } else {
-          list.value = [...list.value, ...data.datas];
+          list.value = [...list.value, ...(data.datas || [])];
         }
       }
-      finished.value = list.value.length >= data.total;
+      finished.value = !data || list.value.length >= data?.total;
     })
     .then(() => {
       Toast.clear();
