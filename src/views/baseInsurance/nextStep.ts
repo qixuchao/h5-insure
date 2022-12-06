@@ -38,7 +38,7 @@ export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: 
     // 去支付待支付的订单
     if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_ALERT) {
       if (extInfo.templateId === '3') {
-        Dialog.confirm({
+        Dialog.alert({
           title: '提示',
           className: 'xinao-custom-dialog',
           teleport: '#xinaoDialog',
