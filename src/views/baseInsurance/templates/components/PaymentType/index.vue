@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-05 20:33:16
+ * @LastEditTime: 2022-12-06 10:05:58
  * @Description:
 -->
 <template>
@@ -525,14 +525,7 @@ defineExpose({});
     display: flex;
     justify-content: flex-start;
 
-    // .cell-label {
-    //   height: 42px;
-    //   line-height: 42px;
-    // }
-
     .cell-content {
-      // height: 42px;
-      // line-height: 42px;
       font-size: 30px;
       font-family: PingFangSC-Regular, PingFang SC;
       font-weight: 400;
