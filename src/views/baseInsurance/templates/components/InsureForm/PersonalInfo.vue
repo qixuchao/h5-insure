@@ -752,6 +752,7 @@ const isShowCertType = computed(() => {
 
   return true;
 });
+
 // 被保人子女的身份证表述加上户口本
 const certNoName = computed(() => {
   if (queryFactorAttr('certType', 'attributeValueList')?.length > 1) {
