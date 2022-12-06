@@ -7,6 +7,7 @@
       </div>
       <InsureForm
         ref="formRef"
+        :key="isFirst ? 1 : 2"
         :send-sms-code="sendSmsCode"
         need-desensitize
         :form-info="detail"

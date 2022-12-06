@@ -36,7 +36,7 @@ const route = useRoute();
 const result = ref<string>('');
 
 // 从公众号进入需从extraInfo外获取templateId
-const { extraInfo, templateId: wxTemplateId, insurerCode, productCode } = route.query as QueryData;
+const { extraInfo, agencyCode, templateId: wxTemplateId, insurerCode, productCode } = route.query as QueryData;
 
 console.log('route.query-------', route.query);
 
@@ -47,8 +47,6 @@ try {
 } catch (error) {
   //
 }
-
-console.log('extraInfo', extInfo);
 
 const { pageCode, templateId, openId, tenantId } = extInfo as any;
 
@@ -112,10 +110,10 @@ const onGetInsureLink = async () => {
     insurerCode,
     productCode,
     tenantId,
+    agencyCode,
     extraMap: { ...extInfo, templateId: wxTemplateId },
   });
   if (code === '10000') {
-    console.log('data', data);
     onValidateSign((data || '').split('?')[1]);
   }
 };
