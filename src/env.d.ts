@@ -45,6 +45,7 @@ declare interface Window {
   getIseeBiz: () => Promise<string>; // 千里眼插件注入的方法
   iseeBiz?: string; // 千里眼的数据
   WeixinJSBridge: any;
+  iseeBizNo?: string;
   useFormPay: (form: string) => void;
 }
 

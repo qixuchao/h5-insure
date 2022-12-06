@@ -125,7 +125,7 @@ const orderDetail = ref<any>({
     buttonCode: 'EVENT_NETSALE_underWrite',
     pageCode: 'infoCollection',
     templateId: extInfo?.templateId,
-    iseeBizNo: '',
+    iseeBizNo,
     extraInfo: extInfo,
   },
   orderCategory: 1,
