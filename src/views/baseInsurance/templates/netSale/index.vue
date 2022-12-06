@@ -22,7 +22,7 @@
           :form-info="orderDetail"
           :send-sms-code="() => {}"
           input-align="left"
-          :factor-object="factorObj"
+          :factor-object="currentFactor"
         >
           <template #holderName>
             <span></span>
@@ -54,9 +54,6 @@ import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
 import dayjs from 'dayjs';
 import { transformData, getAgeByCard, riskToOrder } from '../../utils';
-
-import { ProductDetail, AttachmentVOList } from '@/api/modules/product.data';
-
 import { PackageProductVoItem, ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
 import { productDetail } from '@/api/modules/product';
 import { insureProductDetail, premiumCalc, underWriteRule } from '@/api/modules/trial';
@@ -106,6 +103,7 @@ const tenantProductDetail = ref<any>(); // 租户平台产品详情
 const premiumObj = ref<any>(); // 保费
 const factorObj = ref<any>({});
 const trialPremiumData = ref<any>({});
+const currentFactor = ref<any>({});
 let iseeBizNo = '';
 
 let extInfo = {};
@@ -276,7 +274,6 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList) =>
       premiumObj.value = null;
     }
   }
-  // orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList = trialPremiumData.value;
 };
 
 const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrderDetail = {}) => {
@@ -330,57 +327,7 @@ const insured = async () => {
       nextStepOperate();
     });
   });
-
-  // if (formRef.value) {
-  //   formRef.value?.validateForm().then((data) => {});
-  // }
 };
-
-// 投被保人信息校验： 1、投保人必须大于18岁。2、被保人为子女不能小于30天。3、被保人为父母不能大于60岁。4、被保人为配偶性别不能相同。
-// const onCheckCustomer = () => {
-//   if (trialData.holder.certNo) {
-//     const age = getAgeByCard(trialData.holder.certNo, 'year');
-//     const sex = getSex(trialData.holder.certNo);
-//     // 投保人必须大于18岁
-//     if (age < 18) {
-//       Toast('投保人年龄必须大于18岁！');
-//       return false;
-//     }
-//     // 被保人为配偶性别不能相同
-//     if (trialData.insured.certNo && trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.MATE) {
-//       const insuredSex = getSex(trialData.insured.certNo);
-//       if (sex === insuredSex) {
-//         Toast('被保人为配偶时，性别不可相同！');
-//         return false;
-//       }
-//     }
-//   }
-//   if (trialData.insured.certNo) {
-//     const days = getAgeByCard(trialData.insured.certNo, 'day');
-//     const age = getAgeByCard(trialData.insured.certNo, 'year');
-//     if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.CHILD && days < 30) {
-//       Toast('被保人为子女时，年龄必须大于等于30天！');
-//       return false;
-//     }
-//     if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && age >= 71) {
-//       Toast('被保人为父母时，年龄必须小于等于70岁！');
-//       return false;
-//     }
-//   }
-//   if ([RELATION_HOLDER_ENUM.CHILD, RELATION_HOLDER_ENUM.PARENT].includes(trialData.insured.relationToHolder)) {
-//     const ageH = getAgeByCard(trialData.holder.certNo, 'year');
-//     const ageI = getAgeByCard(trialData.insured.certNo, 'year');
-//     if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.CHILD && ageH - ageI < 18) {
-//       Toast('投保人和子女年龄必须相差18岁！');
-//       return false;
-//     }
-//     if (trialData.insured.relationToHolder === RELATION_HOLDER_ENUM.PARENT && ageI - ageH < 18) {
-//       Toast('投保人和父母年龄必须相差18岁！');
-//       return false;
-//     }
-//   }
-//   return true;
-// };
 
 // 监听表单数据的变化，进行试算
 watch(
@@ -409,14 +356,28 @@ const fetchData = async () => {
 
   if (resCode === '10000') {
     insureDetail.value = resData;
-    factorObj.value = resData.productFactor;
+    factorObj.value = resData.planFactor;
 
     // 如果是多计划
     if (resData?.productRelationPlanVOList?.length) {
       currentPlan.value = resData.productRelationPlanVOList[0].planCode;
     }
+    if (resData.productFactor) {
+      currentFactor.value = resData.productFactor;
+    } else if (resData.planFactor) {
+      currentFactor.value = resData.planFactor[currentPlan.value];
+    }
   }
 };
+
+watch(
+  () => currentPlan.value,
+  () => {
+    if (factorObj.value) {
+      currentFactor.value = factorObj.value[currentPlan.value];
+    }
+  },
+);
 
 onMounted(() => {
   fetchData();
