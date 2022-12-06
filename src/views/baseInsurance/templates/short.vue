@@ -789,6 +789,7 @@ const onSubmit = () => {
 };
 
 const onResetFileFlag = () => {
+  console.log('=========reset==========');
   showHealthPreview.value = false;
   showFilePreview.value = false;
   proShadowBtnDisabled.value = false;
@@ -902,7 +903,6 @@ useWXCode();
 
 onBeforeMount(() => {
   const oldOrderDetailInfo = sessionStore.get(ORDER_DETAIL_KEY);
-  sessionStore.remove(ORDER_DETAIL_KEY);
   if (oldOrderDetailInfo) {
     const { tenantOrderHolder, tenantOrderInsuredList } = oldOrderDetailInfo;
     if (tenantOrderHolder) {
@@ -942,6 +942,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   loading.value = false;
+  // 清除再来一单的缓存值
+  sessionStore.remove(ORDER_DETAIL_KEY);
 });
 </script>
 

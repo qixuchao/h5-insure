@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-06 18:09:44
+ * @LastEditTime: 2022-12-06 19:58:15
  * @Description:
 -->
 <template>
@@ -344,6 +344,7 @@ defineExpose({});
     font-weight: 400;
     color: #333333;
     margin-right: 55px;
+    white-space: nowrap;
   }
 
   .period-common-cell {

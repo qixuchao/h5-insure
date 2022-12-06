@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-06 10:05:58
+ * @LastEditTime: 2022-12-06 19:57:49
  * @Description:
 -->
 <template>
@@ -380,6 +380,7 @@ defineExpose({});
   }
 
   .cell-label {
+    white-space: nowrap;
     min-width: 120px;
     font-size: 30px;
     font-family: PingFangSC-Regular, PingFang SC;
