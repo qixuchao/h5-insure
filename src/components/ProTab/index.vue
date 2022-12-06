@@ -55,8 +55,8 @@ watch(activeIndex, (val) => {
   emits('update:active', val);
 });
 
-const handleClickTab = () => {
-  emits('click-tab');
+const handleClickTab = (val: any) => {
+  emits('click-tab', val);
 };
 
 const shrink = computed(() => {

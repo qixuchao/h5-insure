@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-06 18:27:10
+ * @LastEditTime: 2022-12-06 20:09:41
  * @Description: 保障详情
 -->
 <template>
@@ -60,7 +60,7 @@
   <ProDivider />
   <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
     <div class="guarantee-detail">
-      <div v-if="isMultiplePlan" class="plan-list">
+      <!-- <div v-if="isMultiplePlan" class="plan-list">
         <div
           v-for="(item, index) in planList"
           :key="`${item.planCode}_${index}`"
@@ -69,7 +69,7 @@
         >
           <span>{{ item.planName }}</span>
         </div>
-      </div>
+      </div> -->
       <div v-if="extInfoVOList && extInfoVOList.length > 0">
         <div class="extinfo-info-list">
           <ProCell
@@ -83,6 +83,18 @@
         </div>
         <ProDivider />
       </div>
+      <ProTab
+        v-if="isMultiplePlan"
+        v-model:active="currentActivePlanCodeIndex"
+        :list="
+          planList.map((item, index) => ({
+            title: item.planName,
+          }))
+        "
+        class="custom-plan-tab"
+        @click-tab="onClickTab"
+      ></ProTab>
+
       <div v-for="(item, index) in guaranteeList" :key="index" class="guarantee-item">
         <ProCell :title="item.title" :content="item.desc" :border="false" size="small" />
         <div v-dompurify-html="item.content" class="content" />
@@ -147,12 +159,17 @@ const planList = ref<PlanInsureVO[]>(props.dataSource?.planList);
 
 const currentActivePlanCode = ref<string>(props.activePlanCode);
 
+const currentActivePlanCodeIndex = ref<number>();
+
 watch(
   [() => props.dataSource, () => props.activePlanCode],
   () => {
     if (props.isMultiplePlan) {
       planList.value = props.dataSource?.planList;
       currentActivePlanCode.value = props.activePlanCode;
+      currentActivePlanCodeIndex.value = props.dataSource?.planList.findIndex(
+        (e) => e.planCode === currentActivePlanCode.value,
+      );
     }
   },
   {
@@ -162,7 +179,6 @@ watch(
 
 const guaranteeList = ref<GuaranteeItemVo[]>([]);
 const extInfoVOList = ref<ExtInfoVoItem[]>([]);
-// TODO 根据交费方式，获取初始保费
 const productPremiumVOItem = ref<ProductPremiumVoItem>();
 
 const planSkinVlaue = computed(() => {
@@ -283,6 +299,10 @@ const onShowDetail = () => {
 const onClickFeeRate = () => {
   openPreviewFilePage({ fileType: 'pdf', fileUri: feeFileUri.value });
 };
+
+const onClickTab = (val: any) => {
+  currentActivePlanCode.value = planList.value[val.name].planCode;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -363,12 +383,29 @@ const onClickFeeRate = () => {
 }
 // 保障详情弹窗样式
 .guarantee-popup {
+  position: relative;
+
   .body {
     display: flex;
     flex-direction: column;
     .guarantee-detail {
       flex: 1;
       height: 0;
+
+      :deep(.van-tab__text) {
+        font-size: 32px !important;
+        font-family: PingFangSC-Medium, PingFang SC !important;
+        font-weight: 500;
+      }
+      :deep(.van-tab--active) {
+        .van-tab__text {
+          color: $primary-color !important;
+        }
+      }
+
+      :deep(.van-tabs__line) {
+        background: $primary-color !important;
+      }
 
       .plan-list {
         padding: 40px 40px 0px;
