@@ -105,6 +105,7 @@ const insureDetail = ref<ProductData>(); // 产品中心产品详情
 const tenantProductDetail = ref<any>(); // 租户平台产品详情
 const premiumObj = ref<any>(); // 保费
 const factorObj = ref<any>({});
+const trialPremiumData = ref<any>({});
 let iseeBizNo = '';
 
 let extInfo = {};
@@ -270,12 +271,12 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList) =>
     const { code: trialCode, data: trialData } = await premiumCalc(trialParams);
     if (trialCode === '10000') {
       premiumObj.value = trialData;
+      trialPremiumData.value = trialParams.insuredVOList[0]?.productPlanVOList;
     } else {
       premiumObj.value = null;
     }
   }
-
-  orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList = trialParams.insuredVOList[0]?.productPlanVOList;
+  // orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList = trialPremiumData.value;
 };
 
 const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrderDetail = {}) => {
@@ -293,7 +294,7 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
   const nextStepParams = { ...currentOrderDetail };
   const transformDataReq = {
     tenantId,
-    riskList: nextStepParams.tenantOrderInsuredList[0]?.tenantOrderProductList[0].riskVOList || [],
+    riskList: trialPremiumData.value?.[0].riskVOList || [],
     riskPremium: currentRiskPremium,
     productId: currentProductDetail?.productBasicInfoVO.id,
   };
