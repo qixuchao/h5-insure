@@ -82,7 +82,7 @@
         </div>
         <!-- @click="onNext" -->
         <ProShadowButton
-          :disabled="proShadowBtnDisabled"
+          :disabled="peviewMode"
           :shadow="false"
           :theme-vars="themeVars"
           class="right"
@@ -203,6 +203,7 @@ interface QueryData {
   orderNo: string;
   pageCode: string;
   from: string; // from = 'check' 审核版
+  peview: string;
   [key: string]: string;
 }
 
@@ -221,6 +222,7 @@ const {
   extraInfo,
   insurerCode,
   orderNo: oldOrderNo,
+  peview,
 } = route.query as QueryData;
 
 let extInfo: any = {};
@@ -333,6 +335,9 @@ const orderDetail = ref<any>({
   },
 });
 
+// 是否是preview模式
+const peviewMode = computed(() => !!peview);
+
 // 是否多计划
 const isMultiplePlan = computed(() => {
   if (!detail.value) return false;
@@ -395,6 +400,30 @@ const isCheckHolderSmsCode = computed(() => {
     }
   }
   return false;
+});
+
+const isSetDefaultSocial = computed(() => {
+  if (factorObj.value[2]) {
+    const index = factorObj.value[2].findIndex((e: any) => e.code === 'social' && e.isDisplay === 1);
+    if (index > -1) {
+      return false;
+    }
+  }
+  return true;
+});
+
+const isSetDefaultCertType = computed(() => {
+  if (factorObj.value[2]) {
+    const index = factorObj.value[2].findIndex((e: any) => e.code === 'certType' && e.isDisplay === 1);
+    if (index > -1) {
+      const item = factorObj.value[2][index];
+      if (item && item.attributeValueList.length === 1 && item.attributeValueList[0]?.code === CERT_TYPE_ENUM.CERT) {
+        return true;
+      }
+      return false;
+    }
+  }
+  return true;
 });
 
 // 多计划时添加默认值
@@ -822,6 +851,7 @@ watch(
       name,
       birthday,
       gender,
+      certType,
       extInfo: { hasSocialInsurance },
     } = orderDetail.value.tenantOrderInsuredList[0];
     console.log('birthday', birthday);
@@ -830,9 +860,24 @@ watch(
     console.log('validateCustomName(name)', validateCustomName(name));
 
     console.log('orderDetail.value', orderDetail.value);
+    if (peviewMode.value) return;
+    if (!isSetDefaultSocial.value) {
+      orderDetail.value.tenantOrderInsuredList[0].socialFlag = hasSocialInsurance;
+      if (!hasSocialInsurance) {
+        return;
+      }
+    }
+    if (isSetDefaultSocial.value) {
+      orderDetail.value.tenantOrderInsuredList[0].socialFlag = SOCIAL_SECURITY_ENUM.HAS;
+      orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance = SOCIAL_SECURITY_ENUM.HAS;
+    }
+
+    if (!isSetDefaultCertType.value && !certType) return;
+    if (isSetDefaultCertType.value && !certType) {
+      orderDetail.value.tenantOrderInsuredList[0].certType = CERT_TYPE_ENUM.CERT;
+    }
 
     if (birthday && gender && orderDetail.value.paymentFrequency && name && validateCustomName(name)) {
-      console.log('1111');
       trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
     } else {
       setDefaultPremium();
