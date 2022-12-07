@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-07 17:27:12
+ * @LastEditTime: 2022-12-07 18:31:04
  * @Description: 保障详情
 -->
 <template>
@@ -97,9 +97,6 @@
 
       <div v-for="(item, index) in guaranteeList" :key="index" class="guarantee-item">
         <ProCell :title="item.title" :content="item.desc" :border="false" size="small" />
-        <div v-dompurify-html="item.content" class="content" />
-        <div v-dompurify-html="item.content" class="content" />
-        <div v-dompurify-html="item.content" class="content" />
         <div v-dompurify-html="item.content" class="content" />
       </div>
     </div>
