@@ -70,7 +70,7 @@
         pre-text="请阅读"
         @preview-file="(index) => previewFile(index)"
       />
-      <div v-if="showBtn" class="footer-area">
+      <div v-if="showFooterBtn" class="footer-area">
         <div class="price">
           <template v-if="premiumLoadingText">
             <span>{{ premiumLoadingText }}</span>
@@ -80,7 +80,6 @@
             <span>{{ unit }} </span>
           </template>
         </div>
-        <!-- @click="onNext" -->
         <ProShadowButton
           :disabled="peviewMode"
           :shadow="false"
@@ -115,7 +114,6 @@
     @submit="onSubmit"
     @on-close-file-preview-by-mask="onResetFileFlag"
   ></FilePreview>
-  <Waiting :is-show="showWaiting" />
 </template>
 
 <script lang="ts" setup>
@@ -123,50 +121,34 @@ import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
 import { useIntersectionObserver } from '@vueuse/core';
-import CustomerList from './components/CustomerList/index.vue';
-import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
-import { sendPay, useWXCode } from '../../cashier/core';
-import { CERT_TYPE_ENUM } from '@/common/constants';
-import useAddressList from '@/hooks/useAddressList';
-import useLoading from '@/hooks/useLoading';
+
+import { ProductDetail, AttachmentVOList, PlanInsureVO } from '@/api/modules/product.data';
+import { PackageProductVoItem, ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
+import { premiumCalc, insureProductDetail, getTenantOrderDetail, underWriteRule } from '@/api/modules/trial';
+import { productDetail } from '@/api/modules/product';
+import { nextStepOperate as nextStep } from '../nextStep';
+
 import {
-  INSURE_TYPE_ENUM,
   SOCIAL_SECURITY_ENUM,
   RELATION_HOLDER_ENUM,
-  PAYMENT_FREQUENCY_ENUM,
   PAYMENT_COMMON_FREQUENCY_ENUM,
   ORDER_DETAIL_KEY,
 } from '@/common/constants/infoCollection';
-import { ProductDetail, AttachmentVOList, PlanInsureVO } from '@/api/modules/product.data';
-import { PackageProductVoItem, ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
 import { INSURANCE_PERIOD_ENUM, RELATIONENUM } from '@/common/constants/trial';
+import { CERT_TYPE_ENUM } from '@/common/constants';
 
-import {
-  premiumCalc,
-  insureProductDetail,
-  getOrderDetailByCondition,
-  saveOrder,
-  // nextStep,
-  underwrite,
-  getPayUrl,
-  getTenantOrderDetail,
-  underWriteRule,
-} from '@/api/modules/trial';
-import { productDetail } from '@/api/modules/product';
+import { useWXCode } from '../../cashier/core';
+import useAddressList from '@/hooks/useAddressList';
+import useLoading from '@/hooks/useLoading';
+import { useTheme } from '../theme';
 import { isEmpty, toLocal } from '@/utils';
 import { transformData, riskToOrder, validateSmsCode, getFileType } from '../utils';
-import { nextStepOperate as nextStep } from '../nextStep';
-import { formatDate } from '@/utils/date';
 import { validateCustomName } from '@/utils/validator';
-import { useTheme } from '../theme';
 
 import Banner from './components/Banner/index.vue';
 import Desc from './components/Desc/index.vue';
 import Guarantee from './components/Guarantee/index.vue';
-import GuaranteeForm from './components/GuaranteeForm/index.vue';
 import ScrollInfo from './components/ScrollInfo/index.vue';
-import HolderInsureForm from './components/HolderInsureForm/index.vue';
-import Waiting from './components/Waiting/index.vue';
 import PreNotice from './components/PreNotice/index.vue';
 import FilePreview from './components/FilePreview/index.vue';
 import HealthNoticePreview from './components/HealthNoticePreview/index.vue';
@@ -175,24 +157,15 @@ import InscribedContent from './components/InscribedContent/index.vue';
 import AttachmentList from './components/AttachmentList/index.vue';
 import ProShadowButton from './components/ProShadowButton/index.vue';
 import InsureForm from './components/InsureForm/index.vue';
+import CustomerList from './components/CustomerList/index.vue';
 
-import {
-  AuthType,
-  defaultAuth,
-  freeAuthDefault,
-  checkAuth,
-  orderAuth,
-  noPayAuth,
-  noBuyAuth,
-  allAuth,
-  holderAuth,
-} from './auth';
-import { sendCode, sendCodeLogin, checkCode } from '@/api/modules/phoneVerify';
+import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import { sessionStore } from '@/hooks/useStorage';
 
 const themeVars = useTheme();
 const router = useRouter();
 const route = useRoute();
+
 /** 页面query参数类型 */
 interface QueryData {
   productCode: string; // 产品code
@@ -208,20 +181,13 @@ interface QueryData {
 }
 
 const {
-  productCode = 'BWYL2021',
+  productCode = '',
   tenantId,
-  phoneNo: mobile,
   agentCode = '',
   agencyCode,
   saleChannelId,
-  paymentMethod,
-  certNo,
-  templateId,
-  pageCode,
-  from,
   extraInfo,
   insurerCode,
-  orderNo: oldOrderNo,
   peview,
 } = route.query as QueryData;
 
@@ -238,26 +204,28 @@ const { openId } = extInfo;
 const formRef = ref();
 const detailScrollRef = ref();
 const observeRef = ref();
-const showBtn = ref<boolean>(false);
+const showFooterBtn = ref<boolean>(false);
 const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<ProductData>(); // 险种信息
 const premium = ref<number | null>(); // 保费
-const unit = ref(''); // 保费
+const unit = ref(''); // 保费单位
 const premiumLoadingText = ref(''); // 保费试算中
 const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
-const showWaiting = ref<boolean>(false); // 支付状态等待
-const showModal = ref<boolean>(false);
-const preNoticeLoading = ref<boolean>(false);
+const preNoticeLoading = ref<boolean>(false); // 首页弹窗
 const premiumMap = ref<any>({}); // 试算后保费
 const relationList = ref<any>({});
 const loading = ref(false);
-const proShadowBtnDisabled = ref<boolean>(false);
+const isOnlyView = ref<boolean>(true); // 资料查看模式
 
-let iseeBizNo = '';
+const iseeBizNo = ref('');
 
-const isOnlyView = ref<boolean>(true);
+if (openId) {
+  useAddressList({ openId }, (data: any) => {
+    relationList.value = data;
+  });
+}
 
 const PAGE_ACTION_TYPE_ENUM = {
   ALERT: 'alert',
@@ -284,8 +252,8 @@ const orderDetail = ref<any>({
   commencementTime: '', // 生效日期
 
   tenantOrderHolder: {
-    socialFlag: SOCIAL_SECURITY_ENUM.HAS,
-    certType: CERT_TYPE_ENUM.CERT,
+    // socialFlag: SOCIAL_SECURITY_ENUM.HAS,
+    // certType: CERT_TYPE_ENUM.CERT,
     extInfo: {
       hasSocialInsurance: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
     },
@@ -293,9 +261,9 @@ const orderDetail = ref<any>({
   tenantOrderInsuredList: [
     {
       dontFetchDefaultInfo: false,
-      socialFlag: SOCIAL_SECURITY_ENUM.HAS,
+      // socialFlag: SOCIAL_SECURITY_ENUM.HAS,
+      // certType: CERT_TYPE_ENUM.CERT,
       relationToHolder: RELATION_HOLDER_ENUM.SELF,
-      certType: CERT_TYPE_ENUM.CERT,
       extInfo: {
         occupationCodeList: [],
         hasSocialInsurance: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
@@ -351,12 +319,7 @@ const isMultiplePlan = computed(() => {
   return false;
 });
 
-if (openId) {
-  useAddressList({ openId }, (data: any) => {
-    relationList.value = data;
-  });
-}
-
+// 用户信息反显以及通讯录信息
 const relationCustomerList = computed(() => {
   if (relationList.value) {
     const result: any = [];
@@ -368,6 +331,7 @@ const relationCustomerList = computed(() => {
   return [];
 });
 
+// 是否是老客户
 const isOldUser = computed(() => {
   return relationCustomerList.value.length > 0;
 });
@@ -392,6 +356,7 @@ const factorObj = computed(() => {
   return factorObjList;
 });
 
+// 根据是否是老用户，判断是否展示获取验证码
 const isCheckHolderSmsCode = computed(() => {
   if (factorObj.value[1]) {
     const index = factorObj.value[1].findIndex((e: any) => e.code === 'verificationCode' && e.isDisplay === 1);
@@ -402,6 +367,7 @@ const isCheckHolderSmsCode = computed(() => {
   return false;
 });
 
+// 是否设置默认社保
 const isSetDefaultSocial = computed(() => {
   if (factorObj.value[2]) {
     const index = factorObj.value[2].findIndex((e: any) => e.code === 'social' && e.isDisplay === 1);
@@ -412,6 +378,7 @@ const isSetDefaultSocial = computed(() => {
   return true;
 });
 
+// 是否设置默认身份证
 const isSetDefaultCertType = computed(() => {
   if (factorObj.value[2]) {
     const index = factorObj.value[2].findIndex((e: any) => e.code === 'certType' && e.isDisplay === 1);
@@ -431,7 +398,9 @@ watch(
   () => isMultiplePlan.value,
   () => {
     if (isMultiplePlan.value) {
-      orderDetail.value.activePlanCode = detail.value?.tenantProductInsureVO?.planList[0].planCode;
+      orderDetail.value.activePlanCode = orderDetail.value.activePlanCode
+        ? orderDetail.value.activePlanCode
+        : detail.value?.tenantProductInsureVO?.planList[0].planCode;
     }
   },
   {
@@ -450,6 +419,7 @@ const currentRiskInfo = computed(() => {
   return insureDetail.value?.productRiskVoList || [];
 });
 
+// 获取当前计划配置信息
 const currentPlanInsure = computed(() => {
   if (!detail.value) return {};
   if (isMultiplePlan.value) {
@@ -462,10 +432,11 @@ const currentPlanInsure = computed(() => {
   return detail.value.tenantProductInsureVO.planInsureVO;
 });
 
+// 设置当前保费默认值
 const setDefaultPremium = () => {
   if (currentPlanInsure.value && currentPlanInsure.value?.productPremiumVOList) {
     const item = currentPlanInsure.value?.productPremiumVOList.find(
-      (e) => e.paymentFrequency === orderDetail.value.paymentFrequency,
+      (e: any) => e.paymentFrequency === orderDetail.value.paymentFrequency,
     );
     if (item) {
       premium.value = item.paymentFrequencyValue ? Number(item.paymentFrequencyValue) : null;
@@ -532,7 +503,6 @@ watch(
   [() => isMultiplePlan.value, () => orderDetail.value.activePlanCode, () => detail.value],
   () => {
     let tempList: any = null;
-    console.log('isMultiplePlan', isMultiplePlan.value);
 
     if (isMultiplePlan.value && detail.value) {
       const planData = detail.value?.tenantProductInsureVO.planList.find(
@@ -584,12 +554,10 @@ const onClickToInsure = () => {
 };
 
 const onUpdateHolderData = (data: any) => {
-  console.log('data', data);
   Object.assign(orderDetail.value.tenantOrderHolder, data);
 };
 
 const onUpdateInsurerData = (data: any) => {
-  console.log('data', data);
   Object.assign(orderDetail.value.tenantOrderInsuredList[0], data);
 };
 
@@ -606,7 +574,7 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
     riskPremium,
     productId: currentProductDetail?.productBasicInfoVO.id,
   };
-  nextStepParams.extInfo.iseeBizNo = iseeBizNo;
+  nextStepParams.extInfo.iseeBizNo = iseeBizNo.value;
   nextStepParams.productCode = currentProductDetail.productBasicInfoVO.productCode;
   nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
   nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
@@ -631,18 +599,15 @@ const onUnderWrite = async (orderNo: any) => {
     const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
     if (code === '10000') {
       data.extInfo = { ...data.extInfo, buttonCode: 'EVENT_SHORT_underWrite' };
-      await nextStep(data, () => {
-        proShadowBtnDisabled.value = false;
-      });
+      await nextStep(data);
     }
   } catch (error) {
-    proShadowBtnDisabled.value = false;
+    //
   }
 };
 
 const onSaveOrder = async () => {
   try {
-    proShadowBtnDisabled.value = true;
     await nextStep(
       trialData2Order(insureDetail.value, premiumMap.value, orderDetail.value),
       async (data: any, pageAction: string) => {
@@ -650,13 +615,11 @@ const onSaveOrder = async () => {
           if (data?.orderNo) {
             await onUnderWrite(data?.orderNo);
           }
-        } else {
-          proShadowBtnDisabled.value = false;
         }
       },
     );
   } catch (error) {
-    proShadowBtnDisabled.value = false;
+    //
   }
 };
 
@@ -681,14 +644,25 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
       holder: {
         personVO: {
           ...orderInfo.tenantOrderHolder,
-          socialFlag: orderInfo.tenantOrderHolder.extInfo.hasSocialInsurance,
+          socialFlag: orderInfo.tenantOrderHolder.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+          extInfo: {
+            ...orderInfo.tenantOrderHolder.extInfo,
+            hasSocialInsurance: orderInfo.tenantOrderHolder.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+          },
         },
       },
       insuredVOList: orderInfo.tenantOrderInsuredList.map((person) => {
         return {
           insuredCode: '',
           relationToHolder: person.relationToHolder,
-          personVO: { ...person, socialFlag: person.extInfo.hasSocialInsurance },
+          personVO: {
+            ...person,
+            socialFlag: person.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+            extInfo: {
+              ...person.extInfo,
+              hasSocialInsurance: person.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+            },
+          },
           productPlanVOList: [
             {
               insurerCode: currentProductDetail.productBasicInfoVO.insurerCode,
@@ -699,7 +673,6 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
         };
       }),
     };
-    proShadowBtnDisabled.value = true;
     const { code: ruleCode, message: ruleMessage } = await underWriteRule(trialParams);
 
     if (ruleCode === '10000') {
@@ -737,21 +710,16 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
           } else {
             await onSaveOrder();
           }
-        } else {
-          proShadowBtnDisabled.value = false;
         }
       } else {
-        proShadowBtnDisabled.value = false;
         premiumLoadingText.value = '';
       }
     } else {
-      proShadowBtnDisabled.value = false;
       Toast(ruleMessage);
     }
   } catch (error) {
     premiumLoadingText.value = '';
     loading.value = false;
-    proShadowBtnDisabled.value = false;
   }
 };
 
@@ -802,7 +770,6 @@ const onCloseHealth = (type: string) => {
         // window.history.back();
       })
       .catch(() => {
-        proShadowBtnDisabled.value = false;
         showHealthPreview.value = false;
       });
   }
@@ -818,23 +785,25 @@ const onSubmit = () => {
 };
 
 const onResetFileFlag = () => {
-  console.log('=========reset==========');
   showHealthPreview.value = false;
   showFilePreview.value = false;
-  proShadowBtnDisabled.value = false;
 };
 
-// 表单组件切换被保人时不会赋值默认社保
-watch(
-  () => orderDetail.value.tenantOrderInsuredList[0].relationToHolder,
-  () => {
-    orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance = RELATION_HOLDER_ENUM.SELF;
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
+// 表单组件切换被保人时不会赋值默认社保以及身份证类型，需手动赋值
+// watch(
+//   () => orderDetail.value.tenantOrderInsuredList[0].relationToHolder,
+//   () => {
+//     nextTick(() => {
+//       orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance = SOCIAL_SECURITY_ENUM.HAS;
+//       orderDetail.value.tenantOrderInsuredList[0].socialFlag = SOCIAL_SECURITY_ENUM.HAS;
+//       orderDetail.value.tenantOrderInsuredList[0].certType = CERT_TYPE_ENUM.CERT;
+//     });
+//   },
+//   {
+//     deep: true,
+//     immediate: true,
+//   },
+// );
 
 watch(
   [
@@ -854,30 +823,39 @@ watch(
       certType,
       extInfo: { hasSocialInsurance },
     } = orderDetail.value.tenantOrderInsuredList[0];
+
     console.log('birthday', birthday);
     console.log('gender', gender);
     console.log('name', name);
     console.log('validateCustomName(name)', validateCustomName(name));
-
     console.log('orderDetail.value', orderDetail.value);
+    console.log('orderDetail.value.tenantOrderInsuredList[0]', orderDetail.value.tenantOrderInsuredList[0]);
     if (peviewMode.value) return;
-    if (!isSetDefaultSocial.value) {
-      orderDetail.value.tenantOrderInsuredList[0].socialFlag = hasSocialInsurance;
-      if (!hasSocialInsurance) {
-        return;
-      }
-    }
-    if (isSetDefaultSocial.value) {
-      orderDetail.value.tenantOrderInsuredList[0].socialFlag = SOCIAL_SECURITY_ENUM.HAS;
-      orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance = SOCIAL_SECURITY_ENUM.HAS;
-    }
 
-    if (!isSetDefaultCertType.value && !certType) return;
-    if (isSetDefaultCertType.value && !certType) {
-      orderDetail.value.tenantOrderInsuredList[0].certType = CERT_TYPE_ENUM.CERT;
-    }
+    // if (!isSetDefaultSocial.value) {
+    //   orderDetail.value.tenantOrderInsuredList[0].socialFlag = hasSocialInsurance;
+    //   if (!hasSocialInsurance) {
+    //     return;
+    //   }
+    // }
+    // if (isSetDefaultSocial.value) {
+    //   orderDetail.value.tenantOrderInsuredList[0].socialFlag = SOCIAL_SECURITY_ENUM.HAS;
+    //   orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance = SOCIAL_SECURITY_ENUM.HAS;
+    // }
 
-    if (birthday && gender && orderDetail.value.paymentFrequency && name && validateCustomName(name)) {
+    // if (!isSetDefaultCertType.value && !certType) return;
+    // if (isSetDefaultCertType.value && !certType) {
+    //   orderDetail.value.tenantOrderInsuredList[0].certType = CERT_TYPE_ENUM.CERT;
+    // }
+
+    if (
+      birthday &&
+      gender &&
+      orderDetail.value.paymentFrequency &&
+      name &&
+      validateCustomName(name) &&
+      hasSocialInsurance
+    ) {
       trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
     } else {
       setDefaultPremium();
@@ -939,7 +917,7 @@ const fetchData = async () => {
 
 nextTick(() => {
   useIntersectionObserver(observeRef, ([{ isIntersecting }], observerElement) => {
-    showBtn.value = !isIntersecting;
+    showFooterBtn.value = !isIntersecting;
   });
 });
 
@@ -981,7 +959,8 @@ onMounted(() => {
   fetchData();
   // 调用千里眼插件获取一个iseeBiz
   setTimeout(async () => {
-    iseeBizNo = window.getIseeBiz && (await window.getIseeBiz());
+    iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
+    console.log('iseeBizNo', iseeBizNo.value);
   }, 1500);
 });
 
@@ -1036,13 +1015,6 @@ onUnmounted(() => {
     justify-content: space-between;
     border-radius: 30px 30px 0px 0px;
   }
-  // 覆盖原来组件的样式
-  // :deep(.showIcon::before) {
-  //   background: $primary-color !important;
-  // }
-  // :deep(.link) {
-  //   color: $primary-color !important;
-  // }
 
   // footer覆盖
   .price {

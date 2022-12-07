@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-05 17:53:46
+ * @LastEditTime: 2022-12-07 17:15:48
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -26,14 +26,16 @@
         "
         class="tab"
       ></ProTab> -->
-      <div class="list">
-        <div class="tip">
+      <div class="tip">
+        <div class="content">
           <span>
             <span class="important-text">重要</span>
             请确认被保险人是否存在下列问题，请如实告知，否则将对您的理赔权益或合同效力产生影响
           </span>
         </div>
-        <div class="title">{{ contentList[0].attachmentName }}</div>
+      </div>
+      <div class="title">{{ contentList[0].attachmentName }}</div>
+      <div class="list">
         <div class="item">
           <ProFilePreview :key="attachmentUri" :content="attachmentUri" :type="attachmentType"></ProFilePreview>
         </div>
@@ -117,12 +119,10 @@ watch(
       background: $primary-color;
     }
   }
-  .list {
-    height: calc(100% - 212px);
-    overflow-y: scroll;
-
-    .tip {
-      margin: 40px 32px;
+  .tip {
+    margin: 0px 32px 40px;
+    padding-top: 40px;
+    .content {
       padding: 32px;
       background: #fff8f3;
       border-radius: 20px;
@@ -137,41 +137,44 @@ watch(
         color: #333333;
         line-height: 40px;
       }
-
-      .important-text {
-        height: 40px;
-        padding: 0px 8px;
-        border-radius: 8px;
-        margin-top: -6px;
-        font-size: 20px !important;
-        font-family: PingFangSC-Medium, PingFang SC;
-        background-color: $primary-color;
-        color: #ffffff !important;
-        line-height: 40px !important;
-      }
     }
 
-    .title {
-      text-align: center;
-      height: 56px;
-      font-size: 40px;
+    .important-text {
+      height: 40px;
+      padding: 0px 8px;
+      border-radius: 8px;
+      margin-top: -6px;
+      font-size: 20px !important;
       font-family: PingFangSC-Medium, PingFang SC;
-      font-weight: 500;
-      color: #333333;
-      line-height: 56px;
+      background: var(--van-linear-bg) !important;
+      color: #ffffff !important;
+      line-height: 40px !important;
     }
+  }
+
+  .title {
+    text-align: center;
+    height: 56px;
+    font-size: 40px;
+    font-family: PingFangSC-Medium, PingFang SC;
+    font-weight: 500;
+    color: #333333;
+    line-height: 56px;
+  }
+  .list {
+    height: calc(100% - 420px);
+    overflow-y: scroll;
   }
   .footer {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 $zaui-card-border;
     position: absolute;
     width: 100%;
     bottom: 0;
     background-color: #ffffff;
     z-index: 1;
-    padding: 20px;
+    padding: 16px 20px;
     .van-button--primary {
       background: $primary-color;
       border-color: $primary-color;
