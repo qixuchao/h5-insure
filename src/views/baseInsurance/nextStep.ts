@@ -40,8 +40,6 @@ export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: 
       if (extInfo.templateId === '3') {
         Dialog.alert({
           title: '提示',
-          className: 'xinao-custom-dialog',
-          teleport: '#xinaoDialog',
           message: `该被保人已存在一笔待支付的订单`,
           confirmButtonText: '取消',
         }).then(() => {});
