@@ -219,7 +219,7 @@ const relationList = ref<any>({});
 const loading = ref(false);
 const isOnlyView = ref<boolean>(true); // 资料查看模式
 
-let iseeBizNo = '';
+const iseeBizNo = ref('');
 
 if (openId) {
   useAddressList({ openId }, (data: any) => {
@@ -574,7 +574,7 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
     riskPremium,
     productId: currentProductDetail?.productBasicInfoVO.id,
   };
-  nextStepParams.extInfo.iseeBizNo = iseeBizNo;
+  nextStepParams.extInfo.iseeBizNo = iseeBizNo.value;
   nextStepParams.productCode = currentProductDetail.productBasicInfoVO.productCode;
   nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
   nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
@@ -959,8 +959,8 @@ onMounted(() => {
   fetchData();
   // 调用千里眼插件获取一个iseeBiz
   setTimeout(async () => {
-    iseeBizNo = window.getIseeBiz && (await window.getIseeBiz());
-    console.log('iseeBizNo', iseeBizNo);
+    iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
+    console.log('iseeBizNo', iseeBizNo.value);
   }, 1500);
 });
 
