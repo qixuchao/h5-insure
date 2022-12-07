@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-07 17:06:01
+ * @LastEditTime: 2022-12-07 17:27:12
  * @Description: 保障详情
 -->
 <template>
@@ -531,6 +531,9 @@ watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
   }
   .body {
     height: calc(100% - 110px) !important;
+  }
+  .van-popup__close-icon--top-right {
+    top: 40px !important;
   }
 }
 </style>
