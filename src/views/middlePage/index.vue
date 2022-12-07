@@ -36,7 +36,14 @@ const route = useRoute();
 const result = ref<string>('');
 
 // 从公众号进入需从extraInfo外获取templateId
-const { extraInfo, agencyCode, templateId: wxTemplateId, insurerCode, productCode } = route.query as QueryData;
+const {
+  extraInfo,
+  agencyCode,
+  templateId: wxTemplateId,
+  pageCode,
+  insurerCode,
+  productCode,
+} = route.query as QueryData;
 
 console.log('route.query-------', route.query);
 
@@ -48,7 +55,7 @@ try {
   //
 }
 
-const { pageCode, templateId, openId, tenantId } = extInfo as any;
+const { templateId, openId, tenantId } = extInfo as any;
 
 const getActivityPath = () => {
   try {
@@ -57,7 +64,6 @@ const getActivityPath = () => {
     if (template) {
       return `/baseInsurance/${TEMPLATE_TYPE_MAP[template as string]}`;
     }
-
     switch (pageCode) {
       case PAGE_CODE_ENUM.FREE:
         return `/chuangxin/baigebao/${pageCode}`;
