@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-06 19:10:00
+ * @LastEditTime: 2022-12-07 15:12:39
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -399,11 +399,14 @@ onMounted(() => {
   .body {
     // height: calc(100% - 220px) !important;
     overflow: scroll;
+    margin-bottom: 150px;
     .footer {
       margin-top: 50px;
       position: absolute;
       bottom: 0;
-      width: 90%;
+      width: 100%;
+      background-color: #ffffff;
+      padding: 0 5%;
       margin: 0 auto;
       left: 0;
       right: 0;
