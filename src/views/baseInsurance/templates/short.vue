@@ -339,12 +339,15 @@ const isOldUser = computed(() => {
 // 投保要素
 const factorObj = computed(() => {
   let factorObjList = {};
-  if (isMultiplePlan.value) {
-    if (orderDetail.value.activePlanCode) {
-      factorObjList = insureDetail.value?.planFactor[orderDetail.value.activePlanCode] || {};
-    }
-  } else if (insureDetail.value?.productFactor) {
+  // if (isMultiplePlan.value) {
+  //   if (orderDetail.value.activePlanCode) {
+  //     factorObjList = insureDetail.value?.planFactor[orderDetail.value.activePlanCode] || {};
+  //   }
+  // }
+  if (insureDetail.value?.productFactor) {
     factorObjList = insureDetail.value?.productFactor;
+  } else if (orderDetail.value.activePlanCode) {
+    factorObjList = insureDetail.value?.planFactor[orderDetail.value.activePlanCode] || {};
   }
   if (isOldUser.value && factorObjList[1]) {
     const index = factorObjList[1].findIndex((e: any) => e.code === 'verificationCode' && e.isDisplay === 1);
