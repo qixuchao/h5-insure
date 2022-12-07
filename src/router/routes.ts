@@ -78,7 +78,7 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/middlePage/index.vue'),
   },
   {
-    name: '手机号验证',
+    name: 'phoneVerify',
     path: '/phoneVerify',
     meta: { title: '手机号验证' },
     component: () => import('@/views/lifeInsurance/phoneVerify/index.vue'),
@@ -122,37 +122,37 @@ const proposalRoutes: Array<RouteRecordRaw> = [
 // 创新-白鸽宝路由
 const baigebaoRoutes = [
   {
-    name: '审核',
+    name: 'baigebaoCheck',
     path: '/chuangxin/baigebao/check',
-    meta: { title: '' },
+    meta: { title: '审核' },
     component: () => import('@/views/chuangxin/baigebao/check/index.vue'),
   },
   {
-    name: '赠险',
+    name: 'baigebaoFree',
     path: '/chuangxin/baigebao/free',
-    meta: { title: '' },
+    meta: { title: '赠险' },
     component: () => import('@/views/chuangxin/baigebao/free/index.vue'),
   },
   {
-    name: '付费险',
+    name: 'baigebaoProductDetail',
     path: '/chuangxin/baigebao/productDetail',
-    meta: { title: '' },
+    meta: { title: '付费险' },
     component: () => import('@/views/chuangxin/baigebao/product/detail/index.vue'),
   },
   {
-    name: '保障升级',
+    name: 'baigebaoGuaranteeUpgrade',
     path: '/chuangxin/baigebao/guaranteeUpgrade',
-    meta: { title: '' },
+    meta: { title: '保障升级' },
     component: () => import('@/views/chuangxin/baigebao/upgrade/index.vue'),
   },
   {
-    name: '支付失败',
+    name: 'baigebaoPayFail',
     path: '/chuangxin/baigebao/payFail',
     meta: { title: '支付失败' },
     component: () => import('@/views/chuangxin/baigebao/payFail/index.vue'),
   },
   {
-    name: '投保成功页',
+    name: 'baigebaoOrderDetail',
     path: '/chuangxin/baigebao/orderDetail',
     meta: { title: '投保成功页' },
     component: () => import('@/views/chuangxin/baigebao/orderDetail/index.vue'),
@@ -162,31 +162,31 @@ const baigebaoRoutes = [
 // 互联网在线投保
 const internetRoutes = [
   {
-    name: '付费险',
+    name: 'internetProductDetail',
     path: '/internet/productDetail',
-    meta: { title: '' },
+    meta: { title: '付费险' },
     component: () => import('@/views/internet/product/detail/index.vue'),
   },
   {
-    name: '付费险123',
+    name: 'productDetailPackage',
     path: '/internet/productDetail/package',
-    meta: { title: '' },
+    meta: { title: '付费险' },
     component: () => import('@/views/internet/product/detail/packageProcess.vue'),
   },
   {
-    name: '保障升级',
+    name: 'internetGuaranteeUpgrade',
     path: '/internet/guaranteeUpgrade',
-    meta: { title: '' },
+    meta: { title: '保障升级' },
     component: () => import('@/views/internet/upgrade/index.vue'),
   },
   {
-    name: '投保成功页',
+    name: 'internetOrderDetail',
     path: '/internet/orderDetail',
     meta: { title: '投保成功页' },
     component: () => import('@/views/internet/orderDetail/index.vue'),
   },
   {
-    name: '支付失败',
+    name: 'internetPayFail',
     path: '/internet/payFail',
     meta: { title: '支付失败' },
     component: () => import('@/views/internet/payFail/index.vue'),
@@ -236,20 +236,20 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/order/detail/index.vue'),
   },
   {
-    name: 'PDF预览',
+    name: 'pdfViewer',
     path: '/pdfViewer',
     meta: { title: 'PDF预览' },
     component: () => import('@/views/openPdf/index.vue'),
   },
 
   {
-    name: '咨询登记',
+    name: 'consult',
     path: '/consult',
     meta: { title: '咨询登记' },
     component: () => import('@/views/consult/index.vue'),
   },
   {
-    name: '登记成功',
+    name: 'result',
     path: '/result',
     meta: { title: '登记成功' },
     component: () => import('@/views/consult/result.vue'),
