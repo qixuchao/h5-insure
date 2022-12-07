@@ -81,7 +81,14 @@
           </template>
         </div>
         <!-- @click="onNext" -->
-        <ProShadowButton :shadow="false" :theme-vars="themeVars" class="right" text="立即投保" @click="onNext">
+        <ProShadowButton
+          :disabled="peviewMode"
+          :shadow="false"
+          :theme-vars="themeVars"
+          class="right"
+          text="立即投保"
+          @click="onNext"
+        >
           {{ '立即投保' }}
         </ProShadowButton>
       </div>
@@ -196,6 +203,7 @@ interface QueryData {
   orderNo: string;
   pageCode: string;
   from: string; // from = 'check' 审核版
+  peview: string;
   [key: string]: string;
 }
 
@@ -214,6 +222,7 @@ const {
   extraInfo,
   insurerCode,
   orderNo: oldOrderNo,
+  peview,
 } = route.query as QueryData;
 
 let extInfo: any = {};
@@ -325,6 +334,9 @@ const orderDetail = ref<any>({
     withProductInfo: true,
   },
 });
+
+// 是否是preview模式
+const peviewMode = computed(() => !!peview);
 
 // 是否多计划
 const isMultiplePlan = computed(() => {
@@ -848,6 +860,7 @@ watch(
     console.log('validateCustomName(name)', validateCustomName(name));
 
     console.log('orderDetail.value', orderDetail.value);
+    if (peviewMode.value) return;
     if (!isSetDefaultSocial.value) {
       orderDetail.value.tenantOrderInsuredList[0].socialFlag = hasSocialInsurance;
       if (!hasSocialInsurance) {
