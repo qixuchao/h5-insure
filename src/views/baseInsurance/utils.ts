@@ -122,6 +122,7 @@ export const riskToOrder = (productRiskVoList: any) => {
           // const { minCopy, maxCopy, fixedAmount, singeAmount } = riskCalcMethodInfoVO;
           let tempAmount = 0;
           const { displayType, displayUnit, fixedValue, eachCopyPrice } = amountPremiumConfigVO || {};
+          console.log('amountPremiumConfigVO', amountPremiumConfigVO);
           const strDisplayType = String(displayType);
           const strDisplayUnit = String(displayUnit);
           // todo 份数默认为1
@@ -135,6 +136,7 @@ export const riskToOrder = (productRiskVoList: any) => {
               tempAmount = copyes && eachCopyPrice ? copyes * eachCopyPrice : 0;
             }
           }
+          console.log('tempAmount', tempAmount);
           return {
             amount: tempAmount,
             annuityDrawDate: annuityDrawValueList?.[0],

@@ -116,7 +116,7 @@ try {
 }
 const { openId, indirectCode = '', agentCode } = extInfo;
 
-let iseeBizNo = '';
+const iseeBizNo = ref();
 const root = ref();
 const formRef = ref();
 const state = reactive<{
@@ -345,7 +345,7 @@ const onSaveOrder = async () => {
         expiryDate: insuranceEndDate(),
         detail: state.detail,
         insureDetail: state.insureDetail,
-        iseeBizNo,
+        iseeBizNo: iseeBizNo.value,
         agentCode,
         agencyCode,
         saleUserId,
@@ -404,7 +404,7 @@ onMounted(() => {
   fetchData();
   // 调用千里眼插件获取一个iseeBiz
   setTimeout(async () => {
-    iseeBizNo = window.getIseeBiz && (await window.getIseeBiz());
+    iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
   }, 1500);
 });
 
