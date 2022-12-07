@@ -132,9 +132,12 @@ export const riskToOrder = (productRiskVoList: any) => {
               tempAmount = fixedValue || 0;
             } else if (strDisplayUnit === PREMIUM_UNIT_TYPE_ENUM.MILLION) {
               tempAmount = fixedValue ? Number(fixedValue * 10000) : 0;
-            } else if (strDisplayUnit === PREMIUM_UNIT_TYPE_ENUM.COPY) {
-              tempAmount = copyes && eachCopyPrice ? copyes * eachCopyPrice : 0;
             }
+            //  else if (strDisplayUnit === PREMIUM_UNIT_TYPE_ENUM.COPY) {
+            //   tempAmount = copyes && eachCopyPrice ? copyes * eachCopyPrice : 0;
+            // }
+          } else if (strDisplayType && strDisplayType === PREMIUM_DISPLAY_TYPE_ENUM.COPY) {
+            tempAmount = copyes && eachCopyPrice ? copyes * eachCopyPrice : 0;
           }
           console.log('tempAmount', tempAmount);
           return {
