@@ -11,7 +11,7 @@
       <div class="spec">
         <template v-for="(item, index) in props.detail?.tenantProductInsureVO?.spec || []" :key="index">
           <Suspense>
-            <van-image :key="index" class="detail-img" width="100%" lazy-load :src="item" />
+            <van-image :key="index" class="detail-img" width="100%" :src="item" />
             <template #fallback>
               <ProSvg name="img" style="font-size: 40px; margin: 10px auto; display: block" />
             </template>
@@ -41,7 +41,6 @@
                 ?.settlementProcessPicList || []"
               :key="index"
               width="100%"
-              lazy-load
               :src="item"
               class="detail-img"
             />
