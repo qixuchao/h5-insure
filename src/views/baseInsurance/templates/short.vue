@@ -404,6 +404,10 @@ const isSetDefaultCertType = computed(() => {
   if (factorObj.value[2]) {
     const index = factorObj.value[2].findIndex((e: any) => e.code === 'certType' && e.isDisplay === 1);
     if (index > -1) {
+      const item = factorObj.value[2][index];
+      if (item && item.attributeValueList.length === 1 && item.attributeValueList[0]?.code === CERT_TYPE_ENUM.CERT) {
+        return true;
+      }
       return false;
     }
   }
