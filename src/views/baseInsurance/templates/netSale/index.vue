@@ -104,7 +104,7 @@ const premiumObj = ref<any>(); // 保费
 const factorObj = ref<any>({});
 const trialPremiumData = ref<any>({});
 const currentFactor = ref<any>({});
-let iseeBizNo = '';
+const iseeBizNo = ref<string>();
 
 let extInfo = {};
 
@@ -310,6 +310,7 @@ const nextStepOperate = async () => {
   orderDetail.value.orderRealAmount = premiumObj.value.premium;
   orderDetail.value.commencementTime = insuranceStartDate.value;
   orderDetail.value.expiryDate = insuranceEndDate.value;
+  orderDetail.value.extInfo.iseeBizNo = iseeBizNo.value;
   orderDetail.value.tenantOrderInsuredList[0].planCode = currentPlan.value;
   nextStep(trialData2Order(insureDetail.value, premiumObj.value, orderDetail.value), (resData, pageAction) => {
     if (pageAction === 'jumpToPage') {
@@ -385,7 +386,7 @@ onMounted(() => {
   fetchData();
   // 调用千里眼插件获取一个iseeBiz
   setTimeout(async () => {
-    iseeBizNo = window.getIseeBiz && (await window.getIseeBiz());
+    iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
   }, 1500);
 });
 </script>
