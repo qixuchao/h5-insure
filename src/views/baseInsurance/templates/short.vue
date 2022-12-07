@@ -81,14 +81,7 @@
           </template>
         </div>
         <!-- @click="onNext" -->
-        <ProShadowButton
-          :disabled="proShadowBtnDisabled"
-          :shadow="false"
-          :theme-vars="themeVars"
-          class="right"
-          text="立即投保"
-          @click="onNext"
-        >
+        <ProShadowButton :shadow="false" :theme-vars="themeVars" class="right" text="立即投保" @click="onNext">
           {{ '立即投保' }}
         </ProShadowButton>
       </div>
@@ -395,6 +388,26 @@ const isCheckHolderSmsCode = computed(() => {
     }
   }
   return false;
+});
+
+const isSetDefaultSocial = computed(() => {
+  if (factorObj.value[2]) {
+    const index = factorObj.value[2].findIndex((e: any) => e.code === 'social' && e.isDisplay === 1);
+    if (index > -1) {
+      return false;
+    }
+  }
+  return true;
+});
+
+const isSetDefaultCertType = computed(() => {
+  if (factorObj.value[2]) {
+    const index = factorObj.value[2].findIndex((e: any) => e.code === 'certType' && e.isDisplay === 1);
+    if (index > -1) {
+      return false;
+    }
+  }
+  return true;
 });
 
 // 多计划时添加默认值
@@ -822,6 +835,7 @@ watch(
       name,
       birthday,
       gender,
+      certType,
       extInfo: { hasSocialInsurance },
     } = orderDetail.value.tenantOrderInsuredList[0];
     console.log('birthday', birthday);
@@ -830,9 +844,23 @@ watch(
     console.log('validateCustomName(name)', validateCustomName(name));
 
     console.log('orderDetail.value', orderDetail.value);
+    if (!isSetDefaultSocial.value) {
+      orderDetail.value.tenantOrderInsuredList[0].socialFlag = hasSocialInsurance;
+      if (!hasSocialInsurance) {
+        return;
+      }
+    }
+    if (isSetDefaultSocial.value) {
+      orderDetail.value.tenantOrderInsuredList[0].socialFlag = SOCIAL_SECURITY_ENUM.HAS;
+      orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance = SOCIAL_SECURITY_ENUM.HAS;
+    }
+
+    if (!isSetDefaultCertType.value && !certType) return;
+    if (isSetDefaultCertType.value && !certType) {
+      orderDetail.value.tenantOrderInsuredList[0].certType = CERT_TYPE_ENUM.CERT;
+    }
 
     if (birthday && gender && orderDetail.value.paymentFrequency && name && validateCustomName(name)) {
-      console.log('1111');
       trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
     } else {
       setDefaultPremium();
