@@ -333,13 +333,15 @@ const insured = async () => {
 watch(
   [
     () => orderDetail.value.tenantOrderHolder.gender,
+    () => orderDetail.value.tenantOrderHolder.name,
     () => orderDetail.value.tenantOrderHolder.birthday,
+    () => orderDetail.value.tenantOrderInsuredList?.[0].name,
     () => orderDetail.value.tenantOrderInsuredList?.[0].gender,
     () => orderDetail.value.tenantOrderInsuredList?.[0].birthday,
     () => currentPlan.value,
   ],
-  debounce(([newIGender, newIBirthday]) => {
-    if (newIGender && newIBirthday) {
+  debounce(([newHGender, newHName, newHBirthday, newIName, newIGender, newIBirthday]) => {
+    if (newHName && newIName && newIGender && newIBirthday) {
       trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
     }
   }, 500),
