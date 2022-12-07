@@ -1,8 +1,8 @@
 <!--
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-06 20:09:41
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-06 21:20:47
  * @Description: 保障详情
 -->
 <template>
@@ -414,7 +414,7 @@ const onClickTab = (val: any) => {
         margin-top: 40px;
         padding: 0 40px;
         :deep(.right-part) {
-          color: #ff6600 !important;
+          color: var(--van-primary-color) !important;
         }
         .content {
           margin-top: 14px;
@@ -438,6 +438,7 @@ const onClickTab = (val: any) => {
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
+  justify-content: center;
   padding: 30px 0px;
 
   &::-webkit-scrollbar {
@@ -466,11 +467,11 @@ const onClickTab = (val: any) => {
   }
 
   .plan-list-item-active {
-    border: 1px solid #ff6600;
+    border: 1px solid $primary-color;
     background: #fff3eb;
 
     span {
-      color: #ff6600;
+      color: $primary-color;
     }
   }
 }

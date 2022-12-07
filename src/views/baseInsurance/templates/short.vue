@@ -118,7 +118,7 @@
   <Waiting :is-show="showWaiting" />
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="InsuranceShort">
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';

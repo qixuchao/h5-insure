@@ -1,8 +1,8 @@
 <!--
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-06 19:57:49
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-06 21:22:03
  * @Description:
 -->
 <template>
@@ -492,10 +492,10 @@ defineExpose({});
     .active {
       .method,
       .acount {
-        color: #ff6600 !important;
+        color: $primary-color !important;
       }
       background: #fff3eb;
-      border: 1px solid #ff6600;
+      border: 1px solid $primary-color;
     }
   }
 

@@ -1000,7 +1000,7 @@ watch(
 
 <style lang="scss" scope>
 .van-field--error .van-field__control--error .placeholder {
-  color: var(--van-danger-color, green);
+  color: var(--van-danger-color, var(--zaui-danger));
 }
 
 .input-extra {
