@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-07 18:27:40
+ * @LastEditTime: 2022-12-07 19:10:20
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -283,6 +283,7 @@ const queryOrderDetail = async () => {
         query: {
           ...route.query,
           productCode: productCode.value,
+          ISEE_BIZ: data.extInfo.iseeBizNo,
         },
       });
     }
@@ -301,25 +302,6 @@ useWXCode();
 onMounted(() => {
   queryOrderDetail();
 });
-
-// watch(
-//   [() => planCode.value, () => tenantProductDetail.value],
-//   () => {
-//     if (planCode.value) {
-//       attachmentList.value =
-//         (tenantProductDetail.value?.tenantProductInsureVO?.planList || []).find((plan) => {
-//           if (plan.planCode === planCode.value) {
-//             planName.value = plan.planName;
-//           }
-//           return plan.planCode === planCode.value;
-//         })?.attachmentVOList || [];
-//     }
-//   },
-//   {
-//     deep: true,
-//     immediate: true,
-//   },
-// );
 </script>
 
 <style lang="scss">

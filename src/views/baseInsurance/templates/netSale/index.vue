@@ -58,10 +58,8 @@ import { PackageProductVoItem, ProductData, RiskPremiumDetailVoItem } from '@/ap
 import { productDetail } from '@/api/modules/product';
 import { insureProductDetail, premiumCalc, underWriteRule } from '@/api/modules/trial';
 import InsureForm from '../components/InsureForm/index.vue';
-import { ORIGIN, toLocal } from '@/utils';
 import { useTheme } from '../../theme';
 import { nextStepOperate as nextStep } from '@/views/baseInsurance/nextStep';
-import InsurancePeriodCell from '../components/InsurancePeriodCell/index.vue';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 
 // 调用主题
@@ -295,12 +293,14 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
     riskPremium: currentRiskPremium,
     productId: currentProductDetail?.productBasicInfoVO.id,
   };
-  nextStepParams.tenantOrderInsuredList[0].tenantOrderProductList[0] = {
-    premium: premiumObj.value.premium,
-    productCode: currentProductDetail.productBasicInfoVO.productCode,
-    productName: currentProductDetail.productBasicInfoVO.productName,
-    tenantOrderRiskList: transformData(transformDataReq),
-  };
+  nextStepParams.tenantOrderInsuredList[0].tenantOrderProductList = [
+    {
+      premium: premiumObj.value.premium,
+      productCode: currentProductDetail.productBasicInfoVO.productCode,
+      productName: currentProductDetail.productBasicInfoVO.productName,
+      tenantOrderRiskList: transformData(transformDataReq),
+    },
+  ];
   return nextStepParams;
 };
 
