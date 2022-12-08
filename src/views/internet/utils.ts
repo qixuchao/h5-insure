@@ -138,7 +138,7 @@ export const compositionTrailData = (
       riskCode,
       riskId: id,
       riskName,
-      paymentFrequency,
+      paymentFrequency: paymentFrequencyList?.[0] || PAYMENT_FREQUENCY_ENUM.YEAR,
       extraInfo,
       chargePeriod: paymentPeriodValueList?.[0],
       annuityDrawDate: annuityDrawValueList?.[0],
