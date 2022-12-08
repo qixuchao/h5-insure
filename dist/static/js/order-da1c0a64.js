@@ -1,0 +1,1 @@
+import{r as e}from"./index-ee8ceb03.js";const a=(a={})=>e({url:"/api/app/order/v1/pageQuery",method:"POST",data:a}),r=(a,r)=>e({url:"/api/app/order/v1/delete",method:"POST",data:{id:a,status:r}});export{r as d,a as g};
