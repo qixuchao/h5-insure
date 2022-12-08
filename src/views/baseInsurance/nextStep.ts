@@ -2,8 +2,8 @@ import { Toast, Dialog } from 'vant';
 /*
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-12-01 11:06:22
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-06 17:46:16
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-12-07 18:52:15
  * @FilePath: /zat-planet-h5-cloud-insure/src/utils/nextStep.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -16,13 +16,13 @@ export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: 
   const currentParams = params;
   // 判断订单是否生成,增加订单详情的跳转连接
   const { extInfo, orderNo, tenantOrderInsuredList, tenantId } = currentParams || {};
-  if (currentParams.orderNo) {
-    const { iseeBizNo } = extInfo || {};
+  const { iseeBizNo } = extInfo || {};
+  if (orderNo) {
     const { productCode } = tenantOrderInsuredList?.[0]?.tenantOrderProductList?.[0] || {};
-    const redirectUrl = `${`${window.location.origin}/baseInsurance/orderDetail`}?orderNo=${orderNo}&tenantId=${tenantId}&iseeBizNo=${iseeBizNo}&productCode=${productCode}`;
+    const redirectUrl = `${`${window.location.origin}/baseInsurance/orderDetail`}?orderNo=${orderNo}&tenantId=${tenantId}&ISEE_BIZ=${iseeBizNo}&productCode=${productCode}`;
     currentParams.extInfo.redirectUrl = redirectUrl;
   }
-  currentParams.extInfo.iseeBizNo = window.iseeBizNo;
+
   const { code, data } = await nextStep(currentParams);
   if (code === '10000') {
     const { pageAction, message, data: resData } = data.pageAction || {};
@@ -53,7 +53,7 @@ export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: 
         }).then(() => {
           if (resData.orderNo) {
             router.push(
-              `/baseInsurance/orderDetail?orderNo=${resData.orderNo}&tenantId=${params.tenantId}&iseeBizNo=${params.extInfo.iseeBizNo}&productCode=${params.productCode}`,
+              `/baseInsurance/orderDetail?orderNo=${resData.orderNo}&tenantId=${params.tenantId}&ISEE_BIZ=${params.extInfo.iseeBizNo}&productCode=${params.productCode}`,
             );
           }
           // sendPay(resData?.paymentUrl);

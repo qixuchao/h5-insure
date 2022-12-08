@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-06 21:20:47
+ * @LastEditTime: 2022-12-08 18:49:11
  * @Description: 保障详情
 -->
 <template>
@@ -43,7 +43,7 @@
       :border="false"
     />
     <div v-if="isShowOptBtn" class="show-more" @click="handleShowMore">
-      {{ showMore ? '收起' : '查看更多' }} <ProSvg name="down" :class="['icon', { showMore }]" />
+      {{ showMore ? '收起' : '查看更多' }} <ProSvg name="arrow-down-dobule" :class="['icon', { showMore }]" />
     </div>
     <div v-if="isShowFeerateView" class="feerate-view">
       <span>{{
@@ -59,6 +59,30 @@
   </div>
   <ProDivider />
   <ProPopup v-model:show="popupShow" title="保障详情" class="guarantee-popup">
+    <div v-if="extInfoVOList && extInfoVOList.length > 0">
+      <div class="extinfo-info-list">
+        <ProCell
+          v-for="(item, index) in extInfoVOList"
+          :key="index"
+          :title="item.name"
+          :content="item.description"
+          :border="false"
+          size="small"
+        />
+      </div>
+      <ProDivider />
+    </div>
+    <ProTab
+      v-if="isMultiplePlan"
+      v-model:active="currentActivePlanCodeIndex"
+      :list="
+        planList.map((item, index) => ({
+          title: item.planName,
+        }))
+      "
+      class="custom-plan-tab"
+      @click-tab="onClickTab"
+    ></ProTab>
     <div class="guarantee-detail">
       <!-- <div v-if="isMultiplePlan" class="plan-list">
         <div
@@ -70,30 +94,6 @@
           <span>{{ item.planName }}</span>
         </div>
       </div> -->
-      <div v-if="extInfoVOList && extInfoVOList.length > 0">
-        <div class="extinfo-info-list">
-          <ProCell
-            v-for="(item, index) in extInfoVOList"
-            :key="index"
-            :title="item.name"
-            :content="item.description"
-            :border="false"
-            size="small"
-          />
-        </div>
-        <ProDivider />
-      </div>
-      <ProTab
-        v-if="isMultiplePlan"
-        v-model:active="currentActivePlanCodeIndex"
-        :list="
-          planList.map((item, index) => ({
-            title: item.planName,
-          }))
-        "
-        class="custom-plan-tab"
-        @click-tab="onClickTab"
-      ></ProTab>
 
       <div v-for="(item, index) in guaranteeList" :key="index" class="guarantee-item">
         <ProCell :title="item.title" :content="item.desc" :border="false" size="small" />
@@ -281,12 +281,18 @@ const displayList = computed(() => {
 const onPlanItemClick = (val: string) => {
   // activePlanCode.value = val;
   currentActivePlanCode.value = val;
+  currentActivePlanCodeIndex.value = props.dataSource?.planList.findIndex(
+    (e) => e.planCode === currentActivePlanCode.value,
+  );
   // emits('update-active-plan', val);
 };
 
 const onPlanItemClickEmit = (val: string) => {
   // activePlanCode.value = val;
   currentActivePlanCode.value = val;
+  currentActivePlanCodeIndex.value = props.dataSource?.planList.findIndex(
+    (e) => e.planCode === currentActivePlanCode.value,
+  );
   // emits('update-active-plan', val);
 };
 
@@ -303,6 +309,24 @@ const onClickFeeRate = () => {
 const onClickTab = (val: any) => {
   currentActivePlanCode.value = planList.value[val.name].planCode;
 };
+
+const guaranteeDetailHeight = ref('');
+
+const setGuaranteeListHeight = () => {
+  const extinfoInfoListHeight = (document.querySelector('.guarantee-popup .extinfo-info-list')?.clientHeight || 0) + 1;
+  const customaPlanTabHeight = document.querySelector('.guarantee-popup .custom-plan-tab')?.clientHeight || 0;
+  console.log('extinfoInfoListHeight', extinfoInfoListHeight);
+  console.log('customaPlanTabHeight', customaPlanTabHeight);
+  const height = extinfoInfoListHeight + customaPlanTabHeight + (extinfoInfoListHeight ? 5 : 0);
+  guaranteeDetailHeight.value = `calc( 100% - ${height}px )`;
+  console.log('guaranteeDetailHeight', guaranteeDetailHeight.value);
+};
+
+watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
+  nextTick(() => {
+    setGuaranteeListHeight();
+  });
+});
 </script>
 
 <style lang="scss" scoped>
@@ -388,10 +412,11 @@ const onClickTab = (val: any) => {
   .body {
     display: flex;
     flex-direction: column;
-    .guarantee-detail {
-      flex: 1;
-      height: 0;
+    .extinfo-info-list {
+      padding: 16px 40px;
+    }
 
+    .custom-plan-tab {
       :deep(.van-tab__text) {
         font-size: 32px !important;
         font-family: PingFangSC-Medium, PingFang SC !important;
@@ -406,29 +431,33 @@ const onClickTab = (val: any) => {
       :deep(.van-tabs__line) {
         background: $primary-color !important;
       }
+    }
+
+    .guarantee-detail {
+      flex: 1;
+      height: v-bind('guaranteeDetailHeight');
+      overflow-y: scroll;
 
       .plan-list {
         padding: 40px 40px 0px;
       }
       .guarantee-item {
-        margin-top: 40px;
+        margin-top: 8px;
         padding: 0 40px;
         :deep(.right-part) {
           color: var(--van-primary-color) !important;
         }
+        &:first-child {
+          margin-top: 16px !important;
+        }
         .content {
-          margin-top: 14px;
           font-size: 26px;
           color: #393d46;
           line-height: 44px;
-          padding-bottom: 40px;
-          border-bottom: 1px solid #eeeef4;
+          padding-bottom: 16px;
+          // border-bottom: 1px solid #eeeef4;
         }
       }
-    }
-
-    .extinfo-info-list {
-      padding: 16px 40px;
     }
   }
 }
@@ -488,6 +517,20 @@ const onClickTab = (val: any) => {
     img {
       width: 100%;
     }
+  }
+}
+</style>
+
+<style lang="scss">
+.guarantee-popup {
+  .header {
+    border-bottom: none !important;
+  }
+  .body {
+    height: calc(100% - 110px) !important;
+  }
+  .van-popup__close-icon--top-right {
+    top: 40px !important;
   }
 }
 </style>

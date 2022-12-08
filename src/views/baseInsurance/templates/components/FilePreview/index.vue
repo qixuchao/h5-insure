@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-05 17:55:12
+ * @LastEditTime: 2022-12-07 20:59:43
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -260,15 +260,27 @@ watch(
     width: 100%;
 
     .van-tab {
-      padding: 0 $zaui-card-border;
+      padding: 10px $zaui-card-border 0px;
+    }
+    .van-tab__text {
+      font-size: 30px !important;
+      font-family: PingFangSC-Medium, PingFang SC !important;
+      font-weight: 500;
+    }
+    .van-tab--active {
+      .van-tab__text {
+        color: $primary-color !important;
+      }
     }
 
     .van-tabs__line {
-      background: $primary-color;
+      background: $primary-color !important;
     }
   }
+
   .list {
-    height: calc(100% - 212px);
+    width: 100%;
+    height: calc(100% - 228px);
     overflow-y: scroll;
   }
   .footer {
@@ -281,9 +293,10 @@ watch(
     bottom: 0;
     background-color: #ffffff;
     z-index: 1;
-    padding: 20px;
+    padding: 16px 20px;
     .pro-shadow-button {
       width: 100%;
+      height: 88px;
     }
     .van-button {
       font-size: 34px;

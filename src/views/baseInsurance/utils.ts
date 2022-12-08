@@ -122,6 +122,7 @@ export const riskToOrder = (productRiskVoList: any) => {
           // const { minCopy, maxCopy, fixedAmount, singeAmount } = riskCalcMethodInfoVO;
           let tempAmount = 0;
           const { displayType, displayUnit, fixedValue, eachCopyPrice } = amountPremiumConfigVO || {};
+          console.log('amountPremiumConfigVO', amountPremiumConfigVO);
           const strDisplayType = String(displayType);
           const strDisplayUnit = String(displayUnit);
           // todo 份数默认为1
@@ -131,10 +132,14 @@ export const riskToOrder = (productRiskVoList: any) => {
               tempAmount = fixedValue || 0;
             } else if (strDisplayUnit === PREMIUM_UNIT_TYPE_ENUM.MILLION) {
               tempAmount = fixedValue ? Number(fixedValue * 10000) : 0;
-            } else if (strDisplayUnit === PREMIUM_UNIT_TYPE_ENUM.COPY) {
-              tempAmount = copyes && eachCopyPrice ? copyes * eachCopyPrice : 0;
             }
+            //  else if (strDisplayUnit === PREMIUM_UNIT_TYPE_ENUM.COPY) {
+            //   tempAmount = copyes && eachCopyPrice ? copyes * eachCopyPrice : 0;
+            // }
+          } else if (strDisplayType && strDisplayType === PREMIUM_DISPLAY_TYPE_ENUM.COPY) {
+            tempAmount = copyes && eachCopyPrice ? copyes * eachCopyPrice : 0;
           }
+          console.log('tempAmount', tempAmount);
           return {
             amount: tempAmount,
             annuityDrawDate: annuityDrawValueList?.[0],
@@ -772,7 +777,7 @@ export const freeTransform = (o: any) => {
     orderCategory: '1', // 1 '1' // 订单类型
     tenantOrderHolder: {
       tenantId: o.tenantId,
-      certType: o.order.tenantOrderHolder?.certEndType || '1', // 默认身份证
+      certType: o.order.tenantOrderHolder?.certType || CERT_TYPE_ENUM.CERT, // 默认身份证
       ...o.order.tenantOrderHolder,
     },
     extInfo: {
@@ -786,7 +791,7 @@ export const freeTransform = (o: any) => {
       {
         ...o.order.tenantOrderInsuredList[0],
         tenantId: o.tenantId,
-        certType: o.order.tenantOrderInsuredList?.[0]?.certEndType || '1', // 默认身份证
+        certType: o.order.tenantOrderInsuredList?.[0]?.certType || CERT_TYPE_ENUM.CERT, // 默认身份证
         mobile:
           o.order.tenantOrderInsuredList[0].relationToHolder === RELATION_HOLDER_ENUM.SELF
             ? o.order.tenantOrderHolder.mobile

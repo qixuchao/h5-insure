@@ -58,10 +58,8 @@ import { PackageProductVoItem, ProductData, RiskPremiumDetailVoItem } from '@/ap
 import { productDetail } from '@/api/modules/product';
 import { insureProductDetail, premiumCalc, underWriteRule } from '@/api/modules/trial';
 import InsureForm from '../components/InsureForm/index.vue';
-import { ORIGIN, toLocal } from '@/utils';
 import { useTheme } from '../../theme';
 import { nextStepOperate as nextStep } from '@/views/baseInsurance/nextStep';
-import InsurancePeriodCell from '../components/InsurancePeriodCell/index.vue';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 
 // 调用主题
@@ -104,7 +102,7 @@ const premiumObj = ref<any>(); // 保费
 const factorObj = ref<any>({});
 const trialPremiumData = ref<any>({});
 const currentFactor = ref<any>({});
-let iseeBizNo = '';
+const iseeBizNo = ref<string>();
 
 let extInfo = {};
 
@@ -295,12 +293,14 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
     riskPremium: currentRiskPremium,
     productId: currentProductDetail?.productBasicInfoVO.id,
   };
-  nextStepParams.tenantOrderInsuredList[0].tenantOrderProductList[0] = {
-    premium: premiumObj.value.premium,
-    productCode: currentProductDetail.productBasicInfoVO.productCode,
-    productName: currentProductDetail.productBasicInfoVO.productName,
-    tenantOrderRiskList: transformData(transformDataReq),
-  };
+  nextStepParams.tenantOrderInsuredList[0].tenantOrderProductList = [
+    {
+      premium: premiumObj.value.premium,
+      productCode: currentProductDetail.productBasicInfoVO.productCode,
+      productName: currentProductDetail.productBasicInfoVO.productName,
+      tenantOrderRiskList: transformData(transformDataReq),
+    },
+  ];
   return nextStepParams;
 };
 
@@ -310,6 +310,7 @@ const nextStepOperate = async () => {
   orderDetail.value.orderRealAmount = premiumObj.value.premium;
   orderDetail.value.commencementTime = insuranceStartDate.value;
   orderDetail.value.expiryDate = insuranceEndDate.value;
+  orderDetail.value.extInfo.iseeBizNo = iseeBizNo.value;
   orderDetail.value.tenantOrderInsuredList[0].planCode = currentPlan.value;
   nextStep(trialData2Order(insureDetail.value, premiumObj.value, orderDetail.value), (resData, pageAction) => {
     if (pageAction === 'jumpToPage') {
@@ -333,13 +334,15 @@ const insured = async () => {
 watch(
   [
     () => orderDetail.value.tenantOrderHolder.gender,
+    () => orderDetail.value.tenantOrderHolder.name,
     () => orderDetail.value.tenantOrderHolder.birthday,
+    () => orderDetail.value.tenantOrderInsuredList?.[0].name,
     () => orderDetail.value.tenantOrderInsuredList?.[0].gender,
     () => orderDetail.value.tenantOrderInsuredList?.[0].birthday,
     () => currentPlan.value,
   ],
-  debounce(([newIGender, newIBirthday]) => {
-    if (newIGender && newIBirthday) {
+  debounce(([newHGender, newHName, newHBirthday, newIName, newIGender, newIBirthday]) => {
+    if (newHName && newIName && newIGender && newIBirthday) {
       trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
     }
   }, 500),
@@ -383,7 +386,7 @@ onMounted(() => {
   fetchData();
   // 调用千里眼插件获取一个iseeBiz
   setTimeout(async () => {
-    iseeBizNo = window.getIseeBiz && (await window.getIseeBiz());
+    iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
   }, 1500);
 });
 </script>

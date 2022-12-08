@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-20 11:21:45
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-05 15:13:28
+ * @LastEditTime: 2022-12-07 15:05:17
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProTab/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -12,6 +12,7 @@
     :offset-top="offsetTop"
     :shrink="shrink"
     :sticky="sticky"
+    :ellipsis="false"
     :scrollspy="scrollspy"
     :line-height="4"
     :line-width="28"
@@ -87,8 +88,8 @@ const shrink = computed(() => {
   :deep(.van-tab) {
     color: $zaui-text;
   }
-  :deep(.van-tab__text) {
-    white-space: nowrap;
-  }
+  // :deep(.van-tab__text) {
+  //   white-space: nowrap;
+  // }
 }
 </style>

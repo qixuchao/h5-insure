@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-06 19:10:00
+ * @LastEditTime: 2022-12-08 11:31:12
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -86,6 +86,7 @@
       on-close-file-preview
       @submit="onSubmit"
       @on-close-file-preview="onCloseFilePreview"
+      @on-close-file-preview-by-mask="showFilePreview = false"
     ></FilePreview>
   </van-config-provider>
 </template>
@@ -181,8 +182,7 @@ const activeIndex = ref<number>(0);
 const filterHealthAttachmentList = ref<any[]>([]);
 const planName = ref<string>('');
 const productCode = ref<string>('');
-
-const attachmentList = ref<any>({});
+const iseeBizNo = ref<string>('');
 
 const previewFile = (title, fileContent) => {
   fileShow.value = true;
@@ -283,6 +283,7 @@ const queryOrderDetail = async () => {
         query: {
           ...route.query,
           productCode: productCode.value,
+          ISEE_BIZ: data.extInfo.iseeBizNo,
         },
       });
     }
@@ -301,25 +302,6 @@ useWXCode();
 onMounted(() => {
   queryOrderDetail();
 });
-
-// watch(
-//   [() => planCode.value, () => tenantProductDetail.value],
-//   () => {
-//     if (planCode.value) {
-//       attachmentList.value =
-//         (tenantProductDetail.value?.tenantProductInsureVO?.planList || []).find((plan) => {
-//           if (plan.planCode === planCode.value) {
-//             planName.value = plan.planName;
-//           }
-//           return plan.planCode === planCode.value;
-//         })?.attachmentVOList || [];
-//     }
-//   },
-//   {
-//     deep: true,
-//     immediate: true,
-//   },
-// );
 </script>
 
 <style lang="scss">
@@ -399,11 +381,14 @@ onMounted(() => {
   .body {
     // height: calc(100% - 220px) !important;
     overflow: scroll;
+    margin-bottom: 150px;
     .footer {
       margin-top: 50px;
       position: absolute;
       bottom: 0;
-      width: 90%;
+      width: 100%;
+      background-color: #ffffff;
+      padding: 0 5%;
       margin: 0 auto;
       left: 0;
       right: 0;

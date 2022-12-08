@@ -1,8 +1,8 @@
 <!--
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-17 16:00
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-03 17:06:29
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-07 18:46:40
  * @Description: 审核版首页
 -->
 <template>
@@ -11,7 +11,7 @@
       <div class="spec">
         <template v-for="(item, index) in props.detail?.tenantProductInsureVO?.spec || []" :key="index">
           <Suspense>
-            <van-image :key="index" class="detail-img" width="100%" lazy-load :src="item" />
+            <van-image :key="index" class="detail-img" width="100%" :src="item" />
             <template #fallback>
               <ProSvg name="img" style="font-size: 40px; margin: 10px auto; display: block" />
             </template>
@@ -30,18 +30,24 @@
       <template v-if="isShowTab2_1">
         <CustomCard
           v-if="props.detail?.tenantProductInsureVO?.settlementProcessVO.settlementProcessType === CLAIM_TYPE_ENUM.WORD"
-          title="理赔流程"
+          title="理赔说明"
         >
           <ProTimeline :list="props.detail?.tenantProductInsureVO?.settlementProcessVO?.settlementProcessList" />
         </CustomCard>
         <div v-else class="spec">
-          <img
-            v-for="(item, index) in props.detail?.tenantProductInsureVO?.settlementProcessVO
-              ?.settlementProcessPicList || []"
-            :key="index"
-            :src="item"
-            class="detail-img"
-          />
+          <Suspense>
+            <van-image
+              v-for="(item, index) in props.detail?.tenantProductInsureVO?.settlementProcessVO
+                ?.settlementProcessPicList || []"
+              :key="index"
+              width="100%"
+              :src="item"
+              class="detail-img"
+            />
+            <template #fallback>
+              <ProSvg name="img" style="font-size: 40px; margin: 10px auto; display: block" />
+            </template>
+          </Suspense>
         </div>
         <ProDivider />
       </template>
