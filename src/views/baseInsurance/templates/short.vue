@@ -582,6 +582,15 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
   nextStepParams.productCode = currentProductDetail.productBasicInfoVO.productCode;
   nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
   nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
+  nextStepParams.tenantOrderHolder = {
+    ...nextStepParams.tenantOrderHolder,
+    socialFlag: nextStepParams.tenantOrderHolder.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+    certType: nextStepParams.tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
+    extInfo: {
+      ...nextStepParams.tenantOrderHolder.extInfo,
+      hasSocialInsurance: nextStepParams.tenantOrderHolder.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+    },
+  };
   nextStepParams.tenantOrderInsuredList = nextStepParams.tenantOrderInsuredList.map((insurer: any) => {
     return {
       ...insurer,
