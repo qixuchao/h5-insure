@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-07 18:31:04
+ * @LastEditTime: 2022-12-08 11:42:49
  * @Description: 保障详情
 -->
 <template>
@@ -43,7 +43,7 @@
       :border="false"
     />
     <div v-if="isShowOptBtn" class="show-more" @click="handleShowMore">
-      {{ showMore ? '收起' : '查看更多' }} <ProSvg name="down" :class="['icon', { showMore }]" />
+      {{ showMore ? '收起' : '查看更多' }} <ProSvg name="arrow-down-dobule" :class="['icon', { showMore }]" />
     </div>
     <div v-if="isShowFeerateView" class="feerate-view">
       <span>{{

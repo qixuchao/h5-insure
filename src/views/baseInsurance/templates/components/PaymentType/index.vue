@@ -2,11 +2,11 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-06 19:57:49
+ * @LastEditTime: 2022-12-08 11:08:59
  * @Description:
 -->
 <template>
-  <van-config-provider :theme-vars="themeVars">
+  <van-config-provider>
     <div class="com-payment-type">
       <div class="title">{{ isShowPaymentSelect ? '交费方式' : '保障计划' }}</div>
       <template v-if="isMultiplePlan">
@@ -118,15 +118,8 @@
 </template>
 <script lang="ts" setup>
 import type { FormInstance } from 'vant';
-import dayjs from 'dayjs';
 import { Toast } from 'vant/es';
-import themeVars from '../../../theme';
-import {
-  PAYMENT_COMMON_FREQUENCY_ENUM,
-  PAYMENT_COMMON_FREQUENCY_MAP,
-  PAYMENT_FREQUENCYE_LIST,
-  PAYMENT_FREQUENCY_ENUM, // 交费方式
-} from '@/common/constants/infoCollection';
+import { PAYMENT_COMMON_FREQUENCY_ENUM, PAYMENT_COMMON_FREQUENCY_MAP } from '@/common/constants/infoCollection';
 import { PlanInsureVO, ProductDetail, ProductPlanInsureConditionVo, ShowConfigVO } from '@/api/modules/product.data';
 import { ProductData } from '@/api/modules/trial.data';
 import InsurancePeriodCell from '../InsurancePeriodCell/index.vue';
@@ -142,10 +135,6 @@ interface FormInfoProps {
 }
 
 const props = defineProps({
-  showConfig: {
-    type: Object as () => ShowConfigVO,
-    default: () => {},
-  },
   formInfo: {
     type: Object as () => FormInfoProps,
     default: () => {},

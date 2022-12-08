@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-06 19:58:15
+ * @LastEditTime: 2022-12-08 11:06:37
  * @Description:
 -->
 <template>
@@ -215,8 +215,6 @@ watch(
         })
         .filter((e) => !!e);
     }
-    console.log('periodListperiodListperiodListperiodList', periodList.value);
-    console.log('state.formInfo.insurancePeriodValue', state.formInfo.insurancePeriodValue);
     if (periodList.value.length > 0) {
       if (periodList.value.findIndex((e: any) => e.value === state.formInfo.insurancePeriodValue) < 0) {
         state.formInfo.insurancePeriodValue = periodList.value[0].value;
