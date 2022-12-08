@@ -571,7 +571,7 @@ const previewFile = (index: number) => {
 };
 
 const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrderDetail = {}) => {
-  const nextStepParams = { ...currentOrderDetail };
+  const nextStepParams: any = { ...currentOrderDetail };
   const transformDataReq = {
     tenantId,
     riskList: nextStepParams.tenantOrderInsuredList[0]?.tenantOrderProductList[0].riskVOList || [],
@@ -649,6 +649,7 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
         personVO: {
           ...orderInfo.tenantOrderHolder,
           socialFlag: orderInfo.tenantOrderHolder.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+          certType: orderInfo.tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
           extInfo: {
             ...orderInfo.tenantOrderHolder.extInfo,
             hasSocialInsurance: orderInfo.tenantOrderHolder.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
@@ -662,6 +663,7 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
           personVO: {
             ...person,
             socialFlag: person.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+            certType: person.certType || CERT_TYPE_ENUM.CERT,
             extInfo: {
               ...person.extInfo,
               hasSocialInsurance: person.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
@@ -904,6 +906,7 @@ onBeforeMount(() => {
       orderDetail.value.tenantOrderHolder = {
         ...tenantOrderHolder,
         socialFlag: tenantOrderHolder.extInfo?.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+        certType: tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
       };
     }
     if (Array(tenantOrderInsuredList) && tenantOrderInsuredList[0]) {
