@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-08 11:42:49
+ * @LastEditTime: 2022-12-08 14:32:50
  * @Description: 保障详情
 -->
 <template>
@@ -442,21 +442,20 @@ watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
         padding: 40px 40px 0px;
       }
       .guarantee-item {
-        margin-top: 40px;
+        margin-top: 8px;
         padding: 0 40px;
         :deep(.right-part) {
           color: #ff6600 !important;
         }
         &:first-child {
-          margin-top: 0px !important;
+          margin-top: 16px !important;
         }
         .content {
-          margin-top: 14px;
           font-size: 26px;
           color: #393d46;
           line-height: 44px;
-          padding-bottom: 40px;
-          border-bottom: 1px solid #eeeef4;
+          padding-bottom: 16px;
+          // border-bottom: 1px solid #eeeef4;
         }
       }
     }
