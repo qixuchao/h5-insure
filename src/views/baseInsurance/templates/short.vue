@@ -22,6 +22,7 @@
       <ScrollInfo ref="detailScrollRef" :detail="detail">
         <template #form>
           <div class="custom-page-form">
+            <div class="form-title">请填写投保信息</div>
             <InsureForm
               ref="formRef"
               :title-collection="{
@@ -792,22 +793,6 @@ const onResetFileFlag = () => {
   showFilePreview.value = false;
 };
 
-// 表单组件切换被保人时不会赋值默认社保以及身份证类型，需手动赋值
-// watch(
-//   () => orderDetail.value.tenantOrderInsuredList[0].relationToHolder,
-//   () => {
-//     nextTick(() => {
-//       orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance = SOCIAL_SECURITY_ENUM.HAS;
-//       orderDetail.value.tenantOrderInsuredList[0].socialFlag = SOCIAL_SECURITY_ENUM.HAS;
-//       orderDetail.value.tenantOrderInsuredList[0].certType = CERT_TYPE_ENUM.CERT;
-//     });
-//   },
-//   {
-//     deep: true,
-//     immediate: true,
-//   },
-// );
-
 watch(
   [
     () => orderDetail.value.tenantOrderInsuredList[0].birthday,
@@ -834,22 +819,6 @@ watch(
     console.log('orderDetail.value', orderDetail.value);
     console.log('orderDetail.value.tenantOrderInsuredList[0]', orderDetail.value.tenantOrderInsuredList[0]);
     if (peviewMode.value) return;
-
-    // if (!isSetDefaultSocial.value) {
-    //   orderDetail.value.tenantOrderInsuredList[0].socialFlag = hasSocialInsurance;
-    //   if (!hasSocialInsurance) {
-    //     return;
-    //   }
-    // }
-    // if (isSetDefaultSocial.value) {
-    //   orderDetail.value.tenantOrderInsuredList[0].socialFlag = SOCIAL_SECURITY_ENUM.HAS;
-    //   orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance = SOCIAL_SECURITY_ENUM.HAS;
-    // }
-
-    // if (!isSetDefaultCertType.value && !certType) return;
-    // if (isSetDefaultCertType.value && !certType) {
-    //   orderDetail.value.tenantOrderInsuredList[0].certType = CERT_TYPE_ENUM.CERT;
-    // }
 
     if (
       birthday &&
@@ -980,6 +949,15 @@ onUnmounted(() => {
   background: #f1f5fc;
 
   .custom-page-form {
+    background: #ffffff;
+    .form-title {
+      padding: 40px 0px 10px;
+      text-align: center;
+      font-size: 40px;
+      font-family: PingFangSC-Medium, PingFang SC;
+      font-weight: 500;
+      color: #333333;
+    }
     :deep(.com-card-wrap) {
       .header {
         margin-left: 0px !important;
