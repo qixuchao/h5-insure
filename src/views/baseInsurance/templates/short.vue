@@ -585,6 +585,8 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
   nextStepParams.tenantOrderInsuredList = nextStepParams.tenantOrderInsuredList.map((insurer: any) => {
     return {
       ...insurer,
+      certType: insurer.certType || CERT_TYPE_ENUM.CERT,
+      socialFlag: insurer.socialFlag || SOCIAL_SECURITY_ENUM.HAS,
       planCode: orderDetail.value.activePlanCode ? orderDetail.value.activePlanCode : null,
     };
   });
