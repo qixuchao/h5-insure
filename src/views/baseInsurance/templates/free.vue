@@ -195,7 +195,7 @@ const previewFile = (index: number) => {
 
 const setfileList = () => {
   let tempList: any = {};
-  tempList = state.detail.tenantProductInsureVO.planInsureVO.attachmentVOList || [];
+  tempList = state.detail.tenantProductInsureVO.planInsureVO?.attachmentVOList || [];
   if (!tempList) {
     filterHealthAttachmentList.value = [];
     return;
