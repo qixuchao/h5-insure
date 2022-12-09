@@ -82,7 +82,7 @@
           </template>
         </div>
         <ProShadowButton
-          :disabled="peviewMode"
+          :disabled="previewMode"
           :shadow="false"
           :theme-vars="themeVars"
           class="right"
@@ -177,7 +177,7 @@ interface QueryData {
   orderNo: string;
   pageCode: string;
   from: string; // from = 'check' 审核版
-  peview: string;
+  preview: string;
   [key: string]: string;
 }
 
@@ -189,7 +189,7 @@ const {
   saleChannelId,
   extraInfo,
   insurerCode,
-  peview,
+  preview,
 } = route.query as QueryData;
 
 let extInfo: any = {};
@@ -305,7 +305,7 @@ const orderDetail = ref<any>({
 });
 
 // 是否是preview模式
-const peviewMode = computed(() => !!peview);
+const previewMode = computed(() => !!preview);
 
 // 是否多计划
 const isMultiplePlan = computed(() => {
@@ -833,7 +833,7 @@ watch(
     console.log('validateCustomName(name)', validateCustomName(name));
     console.log('orderDetail.value', orderDetail.value);
     console.log('orderDetail.value.tenantOrderInsuredList[0]', orderDetail.value.tenantOrderInsuredList[0]);
-    if (peviewMode.value) return;
+    if (previewMode.value) return;
 
     if (birthday && gender && orderDetail.value.paymentFrequency && name && validateCustomName(name)) {
       trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
