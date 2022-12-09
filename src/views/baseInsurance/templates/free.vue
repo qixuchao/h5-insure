@@ -122,7 +122,7 @@ try {
   console.log(error);
 }
 const { openId, indirectCode = '', agentCode } = extInfo;
-
+console.log('extInfo', extInfo);
 const iseeBizNo = ref();
 const root = ref();
 const formRef = ref();

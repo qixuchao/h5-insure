@@ -762,7 +762,7 @@ export const freeTransformData = (o: transformDataType) => {
 };
 
 export const freeTransform = (o: any) => {
-  console.log(o, 'freeTransform');
+  const { indirectCode, officialAccountUserId, visitorId } = o.extraInfo;
   const params = {
     orderAmount: 0, // '1'
     tenantId: o.tenantId, // '1'
@@ -786,6 +786,9 @@ export const freeTransform = (o: any) => {
       buttonCode: o.buttonCode,
       pageCode: o.pageCode,
       iseeBizNo: o.iseeBizNo,
+      indirectCode,
+      officialAccountUserId,
+      visitorId,
     },
     tenantOrderInsuredList: [
       {
