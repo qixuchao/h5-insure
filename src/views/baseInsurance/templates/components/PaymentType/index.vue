@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-08 20:48:57
+ * @LastEditTime: 2022-12-09 18:37:01
  * @Description:
 -->
 <template>
@@ -93,7 +93,7 @@
           </template>
           <template v-else>
             <div class="cell-content actual-premium">
-              {{ actualPremium }}{{ state.formInfo.paymentFrequency === '5' ? '/月' : '' }}
+              {{ actualPremium }}
             </div>
             <div v-if="state.formInfo.paymentFrequency === '5'" class="actual-premium actual-premium-month-tip">
               共12期
