@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-27 21:01:33
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-02 16:32:48
+ * @LastEditTime: 2022-12-09 14:09:52
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/middle/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -54,7 +54,7 @@ const jumpRouter = () => {
     path,
     query: {
       ...route.query,
-      peview: '1', // 区别投保流程预览
+      preview: '1', // 区别投保流程预览
     },
   });
 };
