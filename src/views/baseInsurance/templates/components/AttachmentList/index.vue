@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-28 17:37:17
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-28 18:57:24
+ * @LastEditTime: 2022-12-09 18:40:07
  * @Description:
 -->
 <template>
@@ -47,9 +47,10 @@ const onClickReadAttachment = (index: number) => {
   width: 100%;
   text-align: left;
   padding: 0 10px 25px;
+  margin-bottom: -15px;
   &.has-bg {
     background: #fff8f3;
-    padding: 16px 39px 25px;
+    padding: 16px 39px 40px;
   }
 
   span {
