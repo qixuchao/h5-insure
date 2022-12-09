@@ -61,6 +61,7 @@ import InsureForm from '../components/InsureForm/index.vue';
 import { useTheme } from '../../theme';
 import { nextStepOperate as nextStep } from '@/views/baseInsurance/nextStep';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
+import { CERT_TYPE_ENUM } from '@/common/constants';
 
 // 调用主题
 const themeVars = useTheme();
@@ -242,12 +243,15 @@ const insuranceEndDate = computed(() => {
 const trialPremium = async (orderInfo, currentProductDetail, productRiskList) => {
   const trialParams = {
     holder: {
-      personVO: orderInfo.tenantOrderHolder,
+      personVO: {
+        certType: 1,
+        ...orderInfo.tenantOrderHolder,
+      },
     },
     insuredVOList: orderInfo.tenantOrderInsuredList.map((person) => {
       return {
         insuredCode: '',
-        personVO: person,
+        personVO: { ...person, certType: 1 },
         productPlanVOList: [
           {
             insurerCode: currentProductDetail.productBasicInfoVO.insurerCode,
@@ -292,6 +296,10 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
     riskPremium: currentRiskPremium,
     productId: currentProductDetail?.productBasicInfoVO.id,
   };
+  nextStepParams.tenantOrderHolder.certType = nextStepParams.tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT;
+  nextStepParams.tenantOrderInsuredList[0].certType =
+    nextStepParams.tenantOrderInsuredList[0].certType || CERT_TYPE_ENUM.CERT;
+
   nextStepParams.tenantOrderInsuredList[0].tenantOrderProductList = [
     {
       premium: premiumObj.value.premium,

@@ -766,11 +766,13 @@ const queryFactorAttr = (key: string, attr: string) => factorObj.value?.[key]?.[
 
 const isShowCertType = computed(() => {
   if (!showByFactor('certType')) {
+    state.value.formInfo.certType = +CERT_TYPE_ENUM.CERT;
     return false;
   }
 
   const currentTypeList = queryFactorAttr('certType', 'attributeValueList') || [];
   if (currentTypeList.length === 1 && currentTypeList[0]?.code === CERT_TYPE_ENUM.CERT) {
+    state.value.formInfo.certType = +CERT_TYPE_ENUM.CERT;
     return false;
   }
 
@@ -934,13 +936,13 @@ watch(
 );
 
 watch(
-  [() => state.value.formInfo.certNo, () => state.value.formInfo.certNo],
+  [() => state.value.formInfo.certNo, () => state.value.formInfo.mobile],
   () => {
     state.value.formInfo.certNo = state.value.formInfo.certNo?.replace(
       /[\u4e00-\u9fa5/\s+/]|[^Xx0-9\u4E00-\u9FA5]/g,
       '',
     );
-    state.value.formInfo.certNo = state.value.formInfo.certNo?.replace(
+    state.value.formInfo.mobile = state.value.formInfo.mobile?.replace(
       /[\u4e00-\u9fa5/\s+/]|[^Xx0-9\u4E00-\u9FA5]/g,
       '',
     );
