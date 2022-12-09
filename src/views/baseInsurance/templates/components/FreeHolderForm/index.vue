@@ -106,12 +106,16 @@ const getFactorObj = () => {
   state.factorObj = props.insureDetail?.productFactor;
 };
 
-const sendSmsCode = async (mobile: string, cb: () => {}) => {
-  const sendReq = props.isFirst ? sendCodeLogin : sendCode;
-  const res = await sendReq(mobile);
-  const { code, data } = res;
-  if (code === '10000') {
-    cb?.();
+const sendSmsCode = async ({ mobile, type }: { mobile: string; type: string }, cb: () => {}) => {
+  if (formRef.value) {
+    formRef.value?.validateForm(`${type}_mobile`).then(async () => {
+      const sendReq = props.isFirst ? sendCodeLogin : sendCode;
+      const res = await sendReq(mobile);
+      const { code, data } = res;
+      if (code === '10000') {
+        cb?.();
+      }
+    });
   }
 };
 

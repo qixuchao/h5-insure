@@ -543,11 +543,15 @@ watch(
   },
 );
 
-const sendSmsCode = async (phone: string, cb: () => {}) => {
-  const res = await sendCode(phone);
-  const { code, data } = res;
-  if (code === '10000') {
-    cb?.();
+const sendSmsCode = async ({ mobile, type }: { mobile: string; type: string }, cb: () => {}) => {
+  if (formRef.value) {
+    formRef.value?.validateForm(`${type}_mobile`).then(async () => {
+      const res = await sendCode(mobile);
+      const { code, data } = res;
+      if (code === '10000') {
+        cb?.();
+      }
+    });
   }
 };
 
