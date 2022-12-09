@@ -253,7 +253,7 @@ const orderDetail = ref<any>({
   commencementTime: '', // 生效日期
 
   tenantOrderHolder: {
-    // socialFlag: SOCIAL_SECURITY_ENUM.HAS,
+    socialFlag: SOCIAL_SECURITY_ENUM.HAS,
     // certType: CERT_TYPE_ENUM.CERT,
     extInfo: {
       hasSocialInsurance: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
@@ -262,7 +262,7 @@ const orderDetail = ref<any>({
   tenantOrderInsuredList: [
     {
       dontFetchDefaultInfo: false,
-      // socialFlag: SOCIAL_SECURITY_ENUM.HAS,
+      socialFlag: SOCIAL_SECURITY_ENUM.HAS,
       // certType: CERT_TYPE_ENUM.CERT,
       relationToHolder: RELATION_HOLDER_ENUM.SELF,
       extInfo: {
