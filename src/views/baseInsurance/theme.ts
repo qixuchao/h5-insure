@@ -1,7 +1,7 @@
 // 支持的颜色表
 export const THEME_MAP = {
-  orange: '#FF6600',
-  blue: '#0d6efe',
+  orange: '#FF6600', // 新奥橙
+  blue: '#0d6efe', // 众安蓝
 };
 
 const getColor = (_color: string, _opacity = 1) => {

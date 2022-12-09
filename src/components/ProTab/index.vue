@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-20 11:21:45
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-07 15:05:17
+ * @LastEditTime: 2022-12-09 10:18:11
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProTab/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -69,7 +69,7 @@ const shrink = computed(() => {
 .pro-tab {
   :deep(.van-tabs__nav--shrink) {
     .van-tab {
-      margin-right: 60px;
+      // margin-right: 60px;
       &:last-child {
         margin-right: 0;
       }
@@ -78,7 +78,7 @@ const shrink = computed(() => {
   &.smallGap {
     :deep(.van-tabs__nav--shrink) {
       .van-tab {
-        margin-right: 45px;
+        // margin-right: 45px;
       }
     }
   }

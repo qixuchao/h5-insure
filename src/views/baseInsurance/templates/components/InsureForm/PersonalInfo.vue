@@ -96,6 +96,7 @@
     </ProField>
     <ProField
       v-if="showByFactor('certNo')"
+      ref="certNoRef"
       v-model="certNo"
       :label="certNoName"
       :name="`${prefix}_certNo`"
@@ -342,6 +343,7 @@
     ></ProPicker>
     <ProField
       v-if="showByFactor('mobile')"
+      ref="phoneRef"
       v-model="phoneNo"
       :label="queryFactorAttr('mobile', 'title')"
       :name="`${prefix}_mobile`"
@@ -565,7 +567,6 @@ import { Form, Toast } from 'vant';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useToggle } from '@vant/use';
-import { truncateSync } from 'fs';
 import { useRoute } from 'vue-router';
 import { ProductInsureFactorItem, TenantOrderHolder, TenantOrderInsuredItem } from '@/api/index.data';
 import { SEX_LIMIT_LIST, FLAG_LIST, VALIDATE_TYPE_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
@@ -610,6 +611,8 @@ const occupationCode = useDicData(`${(venderCode as string).toLocaleUpperCase()}
 const region = useDicData('NATIONAL_REGION_CODE'); // 全国区域编码
 const tempImages = ref<string[]>([]);
 const isIdCard = ref(false);
+const certNoRef = ref<HTMLElement>();
+const phoneRef = ref<HTMLElement>();
 
 const props = withDefaults(defineProps<Props>(), {
   formInfo: () => ({}), // 表单信息
@@ -696,14 +699,33 @@ const onCountDown = () => {
     }
   }, 1000);
 };
-
+// 判断dom节点是否在可视区域
+function isContain(dom: HTMLElement) {
+  // 获取可视窗口的盖度。
+  const screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+  // 获取滚动条滚动的高度
+  const { scrollTop } = document.documentElement;
+  // 获取元素偏移的高度。就是距离可视窗口的偏移量。
+  const { offsetTop } = dom;
+  return offsetTop - scrollTop <= screenHeight;
+}
 const onfocus = (name: string) => {
   if (name === 'mobile') {
     phoneNoStatus.value = false;
+    // setTimeout(() => {
+    //   if (phoneRef.value && isContain(phoneRef.value)) {
+    //     phoneRef.value.scrollIntoView();
+    //   }
+    // }, 300);
   }
 
   if (name === 'certNo') {
     certNoStatus.value = false;
+    // setTimeout(() => {
+    //   if (certNoRef.value && isContain(certNoRef.value)) {
+    //     certNoRef.value.scrollIntoView();
+    //   }
+    // }, 300);
   }
 };
 
@@ -1001,7 +1023,7 @@ watch(
 
 <style lang="scss" scope>
 .van-field--error .van-field__control--error .placeholder {
-  color: var(--van-danger-color, green);
+  color: var(--van-danger-color, var(--zaui-danger));
 }
 
 .input-extra {

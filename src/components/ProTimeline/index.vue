@@ -10,9 +10,6 @@
           <ProSvg name="time-step"></ProSvg>
           <span class="num-text">{{ index + 1 }}</span>
         </div>
-        <!-- <div>
-          <div class="num">{{ index + 1 }}</div>
-        </div> -->
       </div>
 
       <div class="right">
@@ -78,6 +75,8 @@ const displayList = computed(() => {
         color: $zaui-brand;
         border: none !important;
         background: none !important;
+        display: flex;
+        align-items: center;
 
         .svg-icon {
           display: inline-block;
@@ -103,7 +102,7 @@ const displayList = computed(() => {
       &::after {
         content: ' ';
         position: absolute;
-        top: 40px;
+        top: 44px;
         left: 16px;
         width: 0;
         height: calc(100% - 50px);

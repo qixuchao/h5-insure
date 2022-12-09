@@ -1,8 +1,8 @@
 <!--
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-08 11:42:49
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-08 18:49:11
  * @Description: 保障详情
 -->
 <template>
@@ -442,21 +442,20 @@ watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
         padding: 40px 40px 0px;
       }
       .guarantee-item {
-        margin-top: 40px;
+        margin-top: 8px;
         padding: 0 40px;
         :deep(.right-part) {
-          color: #ff6600 !important;
+          color: var(--van-primary-color) !important;
         }
         &:first-child {
-          margin-top: 0px !important;
+          margin-top: 16px !important;
         }
         .content {
-          margin-top: 14px;
           font-size: 26px;
           color: #393d46;
           line-height: 44px;
-          padding-bottom: 40px;
-          border-bottom: 1px solid #eeeef4;
+          padding-bottom: 16px;
+          // border-bottom: 1px solid #eeeef4;
         }
       }
     }
@@ -468,6 +467,7 @@ watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
+  justify-content: center;
   padding: 30px 0px;
 
   &::-webkit-scrollbar {
@@ -496,11 +496,11 @@ watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
   }
 
   .plan-list-item-active {
-    border: 1px solid #ff6600;
+    border: 1px solid $primary-color;
     background: #fff3eb;
 
     span {
-      color: #ff6600;
+      color: $primary-color;
     }
   }
 }

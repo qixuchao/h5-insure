@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-08 11:08:59
+ * @LastEditTime: 2022-12-08 20:48:57
  * @Description:
 -->
 <template>
@@ -262,7 +262,14 @@ watch(
         ).length < 1
       ) {
         showDefaultPayment.value = true;
+        if (!state.formInfo.paymentFrequency) {
+          state.formInfo.paymentFrequency = PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE;
+        }
         return;
+      }
+      console.log('paymentFrequencyList=================', paymentFrequencyList);
+      if (paymentFrequencyList.length > 1 && !state.formInfo.paymentFrequency) {
+        state.formInfo.paymentFrequency = paymentFrequencyList?.[0];
       }
       showDefaultPayment.value = false;
     }
@@ -481,10 +488,10 @@ defineExpose({});
     .active {
       .method,
       .acount {
-        color: #ff6600 !important;
+        color: $primary-color !important;
       }
       background: #fff3eb;
-      border: 1px solid #ff6600;
+      border: 1px solid $primary-color;
     }
   }
 

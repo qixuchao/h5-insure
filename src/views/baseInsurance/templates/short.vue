@@ -117,7 +117,7 @@
   ></FilePreview>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="InsuranceShort">
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
@@ -248,12 +248,12 @@ const orderDetail = ref<any>({
   insuranceStartDate: null,
   insuranceEndDate: null,
   activePlanCode: '',
-  paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE,
+  // paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE,
   insurancePeriodValue: INSURANCE_PERIOD_ENUM.YEAR_1, // 保障期间
   commencementTime: '', // 生效日期
 
   tenantOrderHolder: {
-    // socialFlag: SOCIAL_SECURITY_ENUM.HAS,
+    socialFlag: SOCIAL_SECURITY_ENUM.HAS,
     // certType: CERT_TYPE_ENUM.CERT,
     extInfo: {
       hasSocialInsurance: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
@@ -262,7 +262,7 @@ const orderDetail = ref<any>({
   tenantOrderInsuredList: [
     {
       dontFetchDefaultInfo: false,
-      // socialFlag: SOCIAL_SECURITY_ENUM.HAS,
+      socialFlag: SOCIAL_SECURITY_ENUM.HAS,
       // certType: CERT_TYPE_ENUM.CERT,
       relationToHolder: RELATION_HOLDER_ENUM.SELF,
       extInfo: {
@@ -571,7 +571,7 @@ const previewFile = (index: number) => {
 };
 
 const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrderDetail = {}) => {
-  const nextStepParams = { ...currentOrderDetail };
+  const nextStepParams: any = { ...currentOrderDetail };
   const transformDataReq = {
     tenantId,
     riskList: nextStepParams.tenantOrderInsuredList[0]?.tenantOrderProductList[0].riskVOList || [],
@@ -582,9 +582,21 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
   nextStepParams.productCode = currentProductDetail.productBasicInfoVO.productCode;
   nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
   nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
+  nextStepParams.paymentFrequency = nextStepParams.paymentFrequency || PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE;
+  nextStepParams.tenantOrderHolder = {
+    ...nextStepParams.tenantOrderHolder,
+    socialFlag: nextStepParams.tenantOrderHolder.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+    certType: nextStepParams.tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
+    extInfo: {
+      ...nextStepParams.tenantOrderHolder.extInfo,
+      hasSocialInsurance: nextStepParams.tenantOrderHolder.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+    },
+  };
   nextStepParams.tenantOrderInsuredList = nextStepParams.tenantOrderInsuredList.map((insurer: any) => {
     return {
       ...insurer,
+      certType: insurer.certType || CERT_TYPE_ENUM.CERT,
+      socialFlag: insurer.socialFlag || SOCIAL_SECURITY_ENUM.HAS,
       planCode: orderDetail.value.activePlanCode ? orderDetail.value.activePlanCode : null,
     };
   });
@@ -633,7 +645,7 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
     const tempRiskVOList = riskToOrder(productRiskList).map((riskVOList: any) => {
       return {
         ...riskVOList,
-        paymentFrequency: orderInfo.paymentFrequency,
+        paymentFrequency: orderInfo.paymentFrequency || PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE,
         insurancePeriodValue: orderInfo.insurancePeriodValue, // 保障期限
         coveragePeriod: orderInfo.insurancePeriodValue,
       };
@@ -645,10 +657,12 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
       insuranceEndDate: orderInfo.insuranceEndDate,
       commencementTime: orderInfo.insuranceStartDate,
       expiryDate: orderInfo.insuranceEndDate,
+      paymentFrequency: orderInfo.paymentFrequency || PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE,
       holder: {
         personVO: {
           ...orderInfo.tenantOrderHolder,
           socialFlag: orderInfo.tenantOrderHolder.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+          certType: orderInfo.tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
           extInfo: {
             ...orderInfo.tenantOrderHolder.extInfo,
             hasSocialInsurance: orderInfo.tenantOrderHolder.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
@@ -662,6 +676,7 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
           personVO: {
             ...person,
             socialFlag: person.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+            certType: person.certType || CERT_TYPE_ENUM.CERT,
             extInfo: {
               ...person.extInfo,
               hasSocialInsurance: person.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
@@ -820,14 +835,7 @@ watch(
     console.log('orderDetail.value.tenantOrderInsuredList[0]', orderDetail.value.tenantOrderInsuredList[0]);
     if (peviewMode.value) return;
 
-    if (
-      birthday &&
-      gender &&
-      orderDetail.value.paymentFrequency &&
-      name &&
-      validateCustomName(name) &&
-      hasSocialInsurance
-    ) {
+    if (birthday && gender && orderDetail.value.paymentFrequency && name && validateCustomName(name)) {
       trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
     } else {
       setDefaultPremium();
@@ -872,19 +880,21 @@ watch(
 );
 
 const fetchData = async () => {
-  const productRes = await productDetail({ productCode, withInsureInfo: true, tenantId });
-  if (productRes.code === '10000') {
-    preNoticeLoading.value = true;
-    detail.value = {
-      ...productRes.data,
-    };
-    document.title = productRes.data?.tenantProductInsureVO?.productName || '';
-  }
+  await productDetail({ productCode, withInsureInfo: true, tenantId }).then((productRes) => {
+    if (productRes.code === '10000') {
+      detail.value = {
+        ...productRes.data,
+      };
+      document.title = productRes.data?.tenantProductInsureVO?.productName || '';
+    }
+  });
 
-  const insureRes = await insureProductDetail({ productCode });
-  if (insureRes.code === '10000') {
-    insureDetail.value = insureRes.data;
-  }
+  await insureProductDetail({ productCode }).then((insureRes) => {
+    if (insureRes.code === '10000') {
+      preNoticeLoading.value = true;
+      insureDetail.value = insureRes.data;
+    }
+  });
 };
 
 nextTick(() => {
@@ -904,6 +914,7 @@ onBeforeMount(() => {
       orderDetail.value.tenantOrderHolder = {
         ...tenantOrderHolder,
         socialFlag: tenantOrderHolder.extInfo?.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+        certType: tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
       };
     }
     if (Array(tenantOrderInsuredList) && tenantOrderInsuredList[0]) {

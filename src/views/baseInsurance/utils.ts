@@ -777,7 +777,7 @@ export const freeTransform = (o: any) => {
     orderCategory: '1', // 1 '1' // 订单类型
     tenantOrderHolder: {
       tenantId: o.tenantId,
-      certType: o.order.tenantOrderHolder?.certEndType || '1', // 默认身份证
+      certType: o.order.tenantOrderHolder?.certType || CERT_TYPE_ENUM.CERT, // 默认身份证
       ...o.order.tenantOrderHolder,
     },
     extInfo: {
@@ -791,26 +791,26 @@ export const freeTransform = (o: any) => {
       {
         ...o.order.tenantOrderInsuredList[0],
         tenantId: o.tenantId,
-        certType: o.order.tenantOrderInsuredList?.[0]?.certEndType || '1', // 默认身份证
+        certType: o.order.tenantOrderInsuredList?.[0]?.certType || CERT_TYPE_ENUM.CERT, // 默认身份证
         mobile:
           o.order.tenantOrderInsuredList[0].relationToHolder === RELATION_HOLDER_ENUM.SELF
             ? o.order.tenantOrderHolder.mobile
             : '',
-        tenantOrderProductList: [
-          // 1
-          {
-            tenantId: o.tenantId, // 1
-            productCode: o.insureDetail?.productBasicInfoVO.productCode, // 1
-            productName: o.insureDetail?.productBasicInfoVO.productName, // 1
-            premium: 0, // 1 // 保费, 保费试算返回
-            tenantOrderRiskList: freeTransformData({
-              tenantId: o.tenantId,
-              riskList: compositionTrailData(o.insureDetail.productRiskVoList[0].riskDetailVOList, o.detail) as any,
-              riskPremium: {},
-              productId: o.detail?.id as number,
-            }),
-          },
-        ],
+        tenantOrderProductList:
+          o.insureDetail?.productRiskVoList?.map((node: any) => {
+            return {
+              tenantId: o.tenantId, // 1
+              productCode: o.insureDetail?.productBasicInfoVO.productCode, // 1
+              productName: o.insureDetail?.productBasicInfoVO.productName, // 1
+              premium: 0, // 1 // 保费, 保费试算返回
+              tenantOrderRiskList: freeTransformData({
+                tenantId: o.tenantId,
+                riskList: compositionTrailData(node.riskDetailVOList, o.detail) as any,
+                riskPremium: {},
+                productId: o.detail?.id as number,
+              }),
+            };
+          }) || [],
       },
     ],
     // 更新订单时需要更新的项目
