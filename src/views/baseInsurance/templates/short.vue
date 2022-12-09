@@ -248,7 +248,7 @@ const orderDetail = ref<any>({
   insuranceStartDate: null,
   insuranceEndDate: null,
   activePlanCode: '',
-  paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE,
+  // paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE,
   insurancePeriodValue: INSURANCE_PERIOD_ENUM.YEAR_1, // 保障期间
   commencementTime: '', // 生效日期
 
@@ -582,6 +582,7 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
   nextStepParams.productCode = currentProductDetail.productBasicInfoVO.productCode;
   nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
   nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
+  nextStepParams.paymentFrequency = nextStepParams.paymentFrequency || PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE;
   nextStepParams.tenantOrderHolder = {
     ...nextStepParams.tenantOrderHolder,
     socialFlag: nextStepParams.tenantOrderHolder.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
@@ -644,7 +645,7 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
     const tempRiskVOList = riskToOrder(productRiskList).map((riskVOList: any) => {
       return {
         ...riskVOList,
-        paymentFrequency: orderInfo.paymentFrequency,
+        paymentFrequency: orderInfo.paymentFrequency || PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE,
         insurancePeriodValue: orderInfo.insurancePeriodValue, // 保障期限
         coveragePeriod: orderInfo.insurancePeriodValue,
       };
@@ -656,6 +657,7 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
       insuranceEndDate: orderInfo.insuranceEndDate,
       commencementTime: orderInfo.insuranceStartDate,
       expiryDate: orderInfo.insuranceEndDate,
+      paymentFrequency: orderInfo.paymentFrequency || PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE,
       holder: {
         personVO: {
           ...orderInfo.tenantOrderHolder,
@@ -833,14 +835,7 @@ watch(
     console.log('orderDetail.value.tenantOrderInsuredList[0]', orderDetail.value.tenantOrderInsuredList[0]);
     if (peviewMode.value) return;
 
-    if (
-      birthday &&
-      gender &&
-      orderDetail.value.paymentFrequency &&
-      name &&
-      validateCustomName(name) &&
-      hasSocialInsurance
-    ) {
+    if (birthday && gender && orderDetail.value.paymentFrequency && name && validateCustomName(name)) {
       trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
     } else {
       setDefaultPremium();
@@ -885,19 +880,21 @@ watch(
 );
 
 const fetchData = async () => {
-  const productRes = await productDetail({ productCode, withInsureInfo: true, tenantId });
-  if (productRes.code === '10000') {
-    preNoticeLoading.value = true;
-    detail.value = {
-      ...productRes.data,
-    };
-    document.title = productRes.data?.tenantProductInsureVO?.productName || '';
-  }
+  await productDetail({ productCode, withInsureInfo: true, tenantId }).then((productRes) => {
+    if (productRes.code === '10000') {
+      detail.value = {
+        ...productRes.data,
+      };
+      document.title = productRes.data?.tenantProductInsureVO?.productName || '';
+    }
+  });
 
-  const insureRes = await insureProductDetail({ productCode });
-  if (insureRes.code === '10000') {
-    insureDetail.value = insureRes.data;
-  }
+  await insureProductDetail({ productCode }).then((insureRes) => {
+    if (insureRes.code === '10000') {
+      preNoticeLoading.value = true;
+      insureDetail.value = insureRes.data;
+    }
+  });
 };
 
 nextTick(() => {
