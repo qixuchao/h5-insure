@@ -592,7 +592,7 @@ interface Props {
   // field的name前缀
   prefix: string;
   beneficiaryList: Array<any>;
-  sendSmsCode: (mobile: string, cb: () => void) => void;
+  sendSmsCode: (params: { mobile: string; type: string }, cb: () => void) => void;
   needDesensitize?: boolean;
 }
 
@@ -621,7 +621,7 @@ const props = withDefaults(defineProps<Props>(), {
   isView: false, // 页面状态是否为查看状态
   prefix: '', // 对投保人、被保人、受益人的数据进行区分
   beneficiaryList: () => [], // 受益人列表
-  sendSmsCode: (mobile, cb) => {}, // 发送验证码
+  sendSmsCode: (param, cb) => {}, // 发送验证码
   needDesensitize: false, // 关键信息是否需要脱敏
 });
 
@@ -734,7 +734,7 @@ const onCaptha = async () => {
   if (countDownTimer.value > 0) {
     return;
   }
-  props.sendSmsCode(state.value.formInfo.mobile, () => {
+  props.sendSmsCode({ mobile: state.value.formInfo.mobile, type: props.prefix }, () => {
     isSendSmsCode.value = true;
     Toast({
       message: '短信发送成功，请查收',

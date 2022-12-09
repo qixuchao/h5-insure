@@ -342,6 +342,7 @@ watch(
   ],
   debounce(([newHGender, newHName, newHBirthday, newIName, newIGender, newIBirthday]) => {
     if (newHName && newIName && newIGender && newIBirthday) {
+      console.log('preview', preview);
       preview || trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
     }
   }, 500),
