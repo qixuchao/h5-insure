@@ -8,6 +8,7 @@
         :insure-detail="state.insureDetail"
         :detail="state.order"
         :colors="state.colors"
+        :preview-mode="previewMode"
       >
         <ProShadowButton
           ref="root"

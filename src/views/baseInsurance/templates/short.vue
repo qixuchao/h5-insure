@@ -545,6 +545,10 @@ watch(
 
 const sendSmsCode = async ({ mobile, type }: { mobile: string; type: string }, cb: () => {}) => {
   if (formRef.value) {
+    if (previewMode.value) {
+      cb?.();
+      return;
+    }
     formRef.value?.validateForm(`${type}_mobile`).then(async () => {
       const res = await sendCode(mobile);
       const { code, data } = res;

@@ -43,6 +43,10 @@ const props = defineProps({
     type: Object,
     default: () => {},
   },
+  previewMode: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const state = reactive<{
@@ -108,6 +112,10 @@ const getFactorObj = () => {
 
 const sendSmsCode = async ({ mobile, type }: { mobile: string; type: string }, cb: () => {}) => {
   if (formRef.value) {
+    if (props.previewMode) {
+      cb?.();
+      return;
+    }
     formRef.value?.validateForm(`${type}_mobile`).then(async () => {
       const sendReq = props.isFirst ? sendCodeLogin : sendCode;
       const res = await sendReq(mobile);
