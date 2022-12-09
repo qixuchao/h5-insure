@@ -86,12 +86,11 @@ interface PayHtml {
 const {
   productCode = 'HTEJBX',
   tenantId = '9991000001',
-  orderNo,
   agentCode = '',
   agencyCode,
   saleChannelId,
   extraInfo,
-  from,
+  preview,
 } = route.query as QueryData;
 
 const formRef = ref<Ref>();
@@ -325,7 +324,7 @@ const insured = async () => {
       title: '分享',
       message: `即将向客户【${orderDetail.value.tenantOrderHolder.name}】发送投保确认信息,请确认是否继续？`,
     }).then(() => {
-      nextStepOperate();
+      preview || nextStepOperate();
     });
   });
 };
@@ -343,34 +342,35 @@ watch(
   ],
   debounce(([newHGender, newHName, newHBirthday, newIName, newIGender, newIBirthday]) => {
     if (newHName && newIName && newIGender && newIBirthday) {
-      trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
+      preview || trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
     }
   }, 500),
 );
 
-const fetchData = async () => {
-  const { code, data } = await productDetail({ productCode, withInsureInfo: true, tenantId });
-  if (code === '10000') {
-    tenantProductDetail.value = data;
-    document.title = data.tenantProductInsureVO?.productNam || '';
-  }
-
-  const { code: resCode, data: resData } = await insureProductDetail({ productCode });
-
-  if (resCode === '10000') {
-    insureDetail.value = resData;
-    factorObj.value = resData.planFactor;
-
-    // 如果是多计划
-    if (resData?.productRelationPlanVOList?.length) {
-      currentPlan.value = resData.productRelationPlanVOList[0].planCode;
+const fetchData = () => {
+  productDetail({ productCode, withInsureInfo: true, tenantId }).then(({ code, data }) => {
+    if (code === '10000') {
+      tenantProductDetail.value = data;
+      document.title = data.tenantProductInsureVO?.productNam || '';
     }
-    if (resData.productFactor) {
-      currentFactor.value = resData.productFactor;
-    } else if (resData.planFactor) {
-      currentFactor.value = resData.planFactor[currentPlan.value];
+  });
+
+  insureProductDetail({ productCode }).then(({ code, data }) => {
+    if (code === '10000') {
+      insureDetail.value = data;
+      factorObj.value = data.planFactor;
+
+      // 如果是多计划
+      if (data.productRelationPlanVOList?.length) {
+        currentPlan.value = data.productRelationPlanVOList[0].planCode;
+      }
+      if (data.productFactor) {
+        currentFactor.value = data.productFactor;
+      } else if (data.planFactor) {
+        currentFactor.value = data.planFactor[currentPlan.value];
+      }
     }
-  }
+  });
 };
 
 watch(
