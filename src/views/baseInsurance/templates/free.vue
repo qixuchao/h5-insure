@@ -12,6 +12,7 @@
         <ProShadowButton
           ref="root"
           class="submit-btn"
+          :disabled="!state.newAuth && peviewMode"
           :is-gradient="false"
           :text="state.newAuth ? '立即领取' : '激活保障'"
           @click="clickHandler"
@@ -39,7 +40,12 @@
         :inscribed-content="state.detail?.tenantProductInsureVO?.inscribedContent"
       />
       <footer v-if="state.showBtn" class="page-free-footer">
-        <ProShadowButton :is-gradient="false" :text="state.newAuth ? '立即领取' : '激活保障'" @click="clickHandler" />
+        <ProShadowButton
+          :disabled="!state.newAuth && peviewMode"
+          :is-gradient="false"
+          :text="state.newAuth ? '立即领取' : '激活保障'"
+          @click="clickHandler"
+        />
       </footer>
     </div>
     <FilePreview
@@ -105,6 +111,7 @@ const {
   saleUserId = '',
   saleChannelId = '',
   extraInfo,
+  peview,
 } = route.query as QueryData;
 
 let extInfo: any = {};
@@ -183,9 +190,14 @@ const state = reactive<{
 
 const filterHealthAttachmentList = ref();
 
-useAddressList({ openId }, (data: any) => {
-  state.relationList = data;
-});
+if (openId) {
+  useAddressList({ openId }, (data: any) => {
+    state.relationList = data;
+  });
+}
+
+// 是否是preview模式
+const peviewMode = computed(() => !!peview);
 
 const previewFile = (index: number) => {
   state.isOnlyView = true;
@@ -309,6 +321,7 @@ const fetchData = async () => {
 };
 
 const validateSmsCodew = async () => {
+  if (peviewMode.value) return true;
   const res = await formRef.value.validateForm();
   const smsCode = state.order.tenantOrderHolder?.verificationCode;
   if ((state.isValidateCode || state.newAuth) && (!smsCode || !validateSmsCode(smsCode))) {
@@ -356,9 +369,13 @@ const onSaveOrder = async () => {
       });
     }
     if (state.newAuth) {
-      const { code, data } = await toClogin(params);
-      if (code === '10000') {
+      if (peviewMode.value) {
         state.newAuth = false;
+      } else {
+        const { code, data } = await toClogin(params);
+        if (code === '10000') {
+          state.newAuth = false;
+        }
       }
     } else {
       nextStepOperate(params, (resData: any, pageAction: string) => {
