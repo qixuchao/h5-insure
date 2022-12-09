@@ -365,14 +365,16 @@
       :required="isRequiredByFactor('verificationCode')"
     >
       <template v-if="!isView" #extra>
-        <van-button
-          :class="['sms-code', { 'count-down': countDownTimer > 0 }]"
-          size="small"
-          plain
-          type="primary"
-          @click="onCaptha"
-          >{{ smsText }}</van-button
-        >
+        <div class="button-extra">
+          <van-button
+            :class="['sms-code', { 'count-down': countDownTimer > 0 }]"
+            size="small"
+            plain
+            type="primary"
+            @click="onCaptha"
+            >{{ smsText }}</van-button
+          >
+        </div>
       </template>
     </ProField>
     <ProField
@@ -1036,6 +1038,9 @@ watch(
   border-left: 1px solid $zaui-line;
   margin-top: 16px;
   display: flex;
+}
+.button-extra {
+  padding-top: 4px;
 }
 .sms-code {
   border: none;
