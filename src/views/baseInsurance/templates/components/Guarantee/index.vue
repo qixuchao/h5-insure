@@ -1,8 +1,8 @@
 <!--
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-08 18:49:11
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-09 17:11:51
  * @Description: 保障详情
 -->
 <template>
@@ -465,9 +465,10 @@ watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
 .plan-list {
   display: flex;
   width: 100%;
-  overflow-x: auto;
+  overflow-x: scroll;
   overflow-y: hidden;
-  justify-content: center;
+  flex-wrap: nowrap;
+  justify-content: space-between;
   padding: 30px 0px;
 
   &::-webkit-scrollbar {
@@ -506,16 +507,28 @@ watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
 }
 
 .picture-payment-content {
-  padding: 0px 40px 32px;
+  padding: 0px 0px 32px;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow: scroll;
   justify-content: space-between;
 
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
   .picture-payment-item {
-    width: calc((50% - 16px));
+    width: 319px;
+    height: 95px;
     margin-top: 32px;
+    margin-right: 32px;
+
+    &:last-child {
+      margin-right: 0px !important;
+    }
     img {
-      width: 100%;
+      width: 319px;
+      height: 95px;
     }
   }
 }

@@ -253,7 +253,7 @@ const orderDetail = ref<any>({
   commencementTime: '', // 生效日期
 
   tenantOrderHolder: {
-    socialFlag: SOCIAL_SECURITY_ENUM.HAS,
+    // socialFlag: SOCIAL_SECURITY_ENUM.HAS,
     // certType: CERT_TYPE_ENUM.CERT,
     extInfo: {
       hasSocialInsurance: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
@@ -262,7 +262,7 @@ const orderDetail = ref<any>({
   tenantOrderInsuredList: [
     {
       dontFetchDefaultInfo: false,
-      socialFlag: SOCIAL_SECURITY_ENUM.HAS,
+      // socialFlag: SOCIAL_SECURITY_ENUM.HAS,
       // certType: CERT_TYPE_ENUM.CERT,
       relationToHolder: RELATION_HOLDER_ENUM.SELF,
       extInfo: {
@@ -340,11 +340,6 @@ const isOldUser = computed(() => {
 // 投保要素
 const factorObj = computed(() => {
   let factorObjList = {};
-  // if (isMultiplePlan.value) {
-  //   if (orderDetail.value.activePlanCode) {
-  //     factorObjList = insureDetail.value?.planFactor[orderDetail.value.activePlanCode] || {};
-  //   }
-  // }
   if (insureDetail.value?.productFactor) {
     factorObjList = insureDetail.value?.productFactor;
   } else if (orderDetail.value.activePlanCode) {
@@ -369,32 +364,6 @@ const isCheckHolderSmsCode = computed(() => {
     }
   }
   return false;
-});
-
-// 是否设置默认社保
-const isSetDefaultSocial = computed(() => {
-  if (factorObj.value[2]) {
-    const index = factorObj.value[2].findIndex((e: any) => e.code === 'social' && e.isDisplay === 1);
-    if (index > -1) {
-      return false;
-    }
-  }
-  return true;
-});
-
-// 是否设置默认身份证
-const isSetDefaultCertType = computed(() => {
-  if (factorObj.value[2]) {
-    const index = factorObj.value[2].findIndex((e: any) => e.code === 'certType' && e.isDisplay === 1);
-    if (index > -1) {
-      const item = factorObj.value[2][index];
-      if (item && item.attributeValueList.length === 1 && item.attributeValueList[0]?.code === CERT_TYPE_ENUM.CERT) {
-        return true;
-      }
-      return false;
-    }
-  }
-  return true;
 });
 
 // 多计划时添加默认值
@@ -816,6 +785,26 @@ const onResetFileFlag = () => {
   showFilePreview.value = false;
 };
 
+// 表单组件切换被保人时不会赋值默认社保以及身份证类型，需手动赋值
+watch(
+  () => orderDetail.value.tenantOrderInsuredList[0].relationToHolder,
+  () => {
+    nextTick(() => {
+      if (
+        orderDetail.value.tenantOrderInsuredList[0] &&
+        orderDetail.value.tenantOrderInsuredList[0].extInfo &&
+        !orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance
+      ) {
+        orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance = SOCIAL_SECURITY_ENUM.HAS;
+      }
+    });
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
 watch(
   [
     () => orderDetail.value.tenantOrderInsuredList[0].birthday,
@@ -840,10 +829,16 @@ watch(
     console.log('name', name);
     console.log('validateCustomName(name)', validateCustomName(name));
     console.log('orderDetail.value', orderDetail.value);
-    console.log('orderDetail.value.tenantOrderInsuredList[0]', orderDetail.value.tenantOrderInsuredList[0]);
     if (previewMode.value) return;
 
-    if (birthday && gender && orderDetail.value.paymentFrequency && name && validateCustomName(name)) {
+    if (
+      birthday &&
+      gender &&
+      orderDetail.value.paymentFrequency &&
+      name &&
+      validateCustomName(name) &&
+      hasSocialInsurance
+    ) {
       trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
     } else {
       setDefaultPremium();
@@ -921,7 +916,7 @@ onBeforeMount(() => {
     if (tenantOrderHolder) {
       orderDetail.value.tenantOrderHolder = {
         ...tenantOrderHolder,
-        socialFlag: tenantOrderHolder.extInfo?.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+        // socialFlag: tenantOrderHolder.extInfo?.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
         certType: tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
       };
     }
