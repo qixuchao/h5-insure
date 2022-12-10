@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-09 16:38:49
+ * @LastEditTime: 2022-12-10 18:02:10
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -351,6 +351,7 @@ watch(
           'extInfo',
           'relationToHolder',
           'tenantOrderBeneficiaryList',
+          'tenantOrderProductList',
         ]),
         extInfo: {},
       });
@@ -361,6 +362,7 @@ watch(
           'extInfo',
           'relationToHolder',
           'tenantOrderBeneficiaryList',
+          'tenantOrderProductList',
         ]),
         extInfo: {},
       });
