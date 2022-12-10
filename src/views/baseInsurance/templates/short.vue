@@ -405,33 +405,6 @@ const currentPlanInsure = computed(() => {
   return detail.value.tenantProductInsureVO.planInsureVO;
 });
 
-// 设置当前保费默认值
-const setDefaultPremium = () => {
-  if (currentPlanInsure.value && currentPlanInsure.value?.productPremiumVOList) {
-    const item = currentPlanInsure.value?.productPremiumVOList.find(
-      (e: any) => e.paymentFrequency === orderDetail.value.paymentFrequency,
-    );
-    if (item) {
-      premium.value = item.paymentFrequencyValue ? Number(item.paymentFrequencyValue) : null;
-      unit.value = item.premiumUnit;
-    }
-  }
-};
-
-watch(
-  [() => currentPlanInsure.value, () => orderDetail.value.activePlanCode, () => orderDetail.value.paymentFrequency],
-  () => {
-    // 加定时器延迟计划切换时，最低保费展示时间，用来衔接保费试算逻辑
-    setTimeout(() => {
-      setDefaultPremium();
-    }, 800);
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
-
 // 切换计划
 const updateActivePlan = (planCode: string) => {
   orderDetail.value.activePlanCode = planCode;
@@ -619,6 +592,7 @@ const onSaveOrder = async () => {
 // 保费试算
 const trialPremium = async (orderInfo, currentProductDetail, productRiskList, isOnlypremiumCalc = true) => {
   try {
+    premiumLoadingText.value = '保费试算中...';
     const tempRiskVOList = riskToOrder(productRiskList).map((riskVOList: any) => {
       return {
         ...riskVOList,
@@ -675,7 +649,6 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
       if (!preNoticeLoading.value) {
         useLoading(loading, '正在保费试算请稍候');
       }
-      premiumLoadingText.value = '保费试算中...';
 
       const { code, data } = await premiumCalc(trialParams);
       if (code === '10000') {
@@ -711,6 +684,7 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList, is
         premiumLoadingText.value = '';
       }
     } else {
+      premiumLoadingText.value = '';
       Toast(ruleMessage);
     }
   } catch (error) {
@@ -805,6 +779,62 @@ watch(
   },
 );
 
+const onCalcCheck = (): boolean => {
+  const {
+    name,
+    birthday,
+    gender,
+    certType,
+    extInfo: { hasSocialInsurance },
+  } = orderDetail.value.tenantOrderInsuredList[0];
+
+  console.log('birthday', birthday);
+  console.log('gender', gender);
+  console.log('name', name);
+  console.log('validateCustomName(name)', validateCustomName(name));
+  console.log('orderDetail.value', orderDetail.value);
+
+  if (
+    birthday &&
+    gender &&
+    orderDetail.value.paymentFrequency &&
+    name &&
+    validateCustomName(name) &&
+    hasSocialInsurance
+  ) {
+    return true;
+  }
+  return false;
+};
+
+// 设置当前保费默认值
+const setDefaultPremium = () => {
+  if (onCalcCheck()) {
+    premiumLoadingText.value = '保费试算中...';
+  }
+  if (currentPlanInsure.value && currentPlanInsure.value?.productPremiumVOList) {
+    const item = currentPlanInsure.value?.productPremiumVOList.find(
+      (e: any) => e.paymentFrequency === orderDetail.value.paymentFrequency,
+    );
+    if (item) {
+      premium.value = item.paymentFrequencyValue ? Number(item.paymentFrequencyValue) : null;
+      unit.value = item.premiumUnit;
+    }
+  }
+};
+
+watch(
+  [() => currentPlanInsure.value, () => orderDetail.value.activePlanCode, () => orderDetail.value.paymentFrequency],
+  () => {
+    // 加定时器延迟计划切换时，最低保费展示时间，用来衔接保费试算逻辑
+    setDefaultPremium();
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
 watch(
   [
     () => orderDetail.value.tenantOrderInsuredList[0].birthday,
@@ -816,33 +846,40 @@ watch(
     () => orderDetail.value.insurancePeriodValue,
   ],
   debounce(() => {
-    const {
-      name,
-      birthday,
-      gender,
-      certType,
-      extInfo: { hasSocialInsurance },
-    } = orderDetail.value.tenantOrderInsuredList[0];
-
-    console.log('birthday', birthday);
-    console.log('gender', gender);
-    console.log('name', name);
-    console.log('validateCustomName(name)', validateCustomName(name));
-    console.log('orderDetail.value', orderDetail.value);
-    if (previewMode.value) return;
-
-    if (
-      birthday &&
-      gender &&
-      orderDetail.value.paymentFrequency &&
-      name &&
-      validateCustomName(name) &&
-      hasSocialInsurance
-    ) {
+    if (onCalcCheck()) {
+      if (previewMode.value) return;
       trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
     } else {
       setDefaultPremium();
     }
+    // const {
+    //   name,
+    //   birthday,
+    //   gender,
+    //   certType,
+    //   extInfo: { hasSocialInsurance },
+    // } = orderDetail.value.tenantOrderInsuredList[0];
+
+    // console.log('birthday', birthday);
+    // console.log('gender', gender);
+    // console.log('name', name);
+    // console.log('validateCustomName(name)', validateCustomName(name));
+    // console.log('orderDetail.value', orderDetail.value);
+    // premiumLoadingText.value = '';
+    // if (previewMode.value) return;
+
+    // if (
+    //   birthday &&
+    //   gender &&
+    //   orderDetail.value.paymentFrequency &&
+    //   name &&
+    //   validateCustomName(name) &&
+    //   hasSocialInsurance
+    // ) {
+    //   trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
+    // } else {
+    //   setDefaultPremium();
+    // }
   }, 500),
 );
 
