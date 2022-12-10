@@ -84,6 +84,23 @@ export const transformData = (o: transformDataType) => {
   });
 };
 
+export const setRiskOrMainRisk = (risks: any) => {
+  const mainRisk = risks.filter((item: any) => {
+    return item.riskType === 1;
+  })?.[0];
+
+  return risks.map((item: any) => {
+    if (mainRisk && item.riskType !== 1) {
+      // eslint-disable-next-line no-param-reassign
+      item.riskInsureLimitVO.paymentFrequencyList =
+        item.riskInsureLimitVO.paymentTypeRule === 1
+          ? mainRisk.riskInsureLimitVO.paymentFrequencyList
+          : item.riskInsureLimitVO.paymentFrequencyList;
+    }
+    return item;
+  });
+};
+
 export const compositionTrailData = (
   riskList: RiskDetailVoItem[],
   productDetail: ProductDetail,
@@ -441,8 +458,10 @@ export const genaratePremiumCalcData = (o: premiumCalcParamType, flag = false, v
   let riskVOList: any[] = [];
   if (flag) {
     riskVOList = compositionTrailData(
-      productRiskVoListFilter(deepCopy(o.insureDetail.productRiskVoList), o.insured.certNo, validatorRisk)?.[0]
-        ?.riskDetailVOList,
+      setRiskOrMainRisk(
+        productRiskVoListFilter(deepCopy(o.insureDetail.productRiskVoList), o.insured.certNo, validatorRisk)?.[0]
+          ?.riskDetailVOList,
+      ),
       o.productDetail,
       [],
       o.paymentFrequency,
@@ -450,7 +469,6 @@ export const genaratePremiumCalcData = (o: premiumCalcParamType, flag = false, v
     );
   } else {
     const result = productRiskVoListFilter(deepCopy(o.insureDetail.productRiskVoList), o.insured.certNo, validatorRisk);
-    console.log('===result', [...result]);
     riskVOList = result.map((item: ProductRiskVoItem) => {
       // return compositionTrailData(item.riskDetailVOList, o.productDetail, o.packageRiskIdList, o.paymentFrequency);
       return compositionTrailData(

@@ -1,1 +1,0 @@
-import{r}from"./index-3eb7c939.js";const d=(e={})=>r({url:"/api/app/order/v1/pageQuery",method:"POST",data:e}),o=(e,t)=>r({url:"/api/app/order/v1/delete",method:"POST",data:{id:e,status:t}});export{o as d,d as g};

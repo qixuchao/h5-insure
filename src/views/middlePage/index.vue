@@ -30,6 +30,8 @@ const getActivityPath = () => {
         return `/chuangxin/baigebao/${pageCode}`;
       case PAGE_CODE_ENUM.COMMON:
         return `/internet/productDetail`;
+      case PAGE_CODE_ENUM.UPGRADE:
+        return `/internet/guaranteeUpgrade`;
       case PAGE_CODE_ENUM.PACKAGE:
         return `/internet/productDetail/package`;
       default:

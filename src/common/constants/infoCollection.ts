@@ -142,6 +142,8 @@ export const PAGE_CODE_ENUM = {
   FREE: 'free',
   // 魔方
   COMMON: 'common',
+  // 魔方
+  UPGRADE: 'upgrade',
   // 尊享e生 包含加油包产品
   PACKAGE: 'package',
 };

@@ -64,6 +64,7 @@ import {
   mobileMixin,
   idCardMixin,
   validatorRisk2022,
+  setRiskOrMainRisk,
 } from '../utils';
 import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
@@ -132,14 +133,13 @@ const onSaveOrder = async () => {
     tenantOrderRiskList: transformData({
       tenantId,
       riskList: compositionTrailData(
-        insureDetail.value.productRiskVoList[0].riskDetailVOList,
+        setRiskOrMainRisk(insureDetail.value.productRiskVoList[0].riskDetailVOList),
         detail.value as ProductDetail,
       ) as any,
       riskPremium: {},
       productId: detail.value?.id as number,
     }),
   });
-
   const res = await saveOrder(order);
   const { code, data } = res;
 
