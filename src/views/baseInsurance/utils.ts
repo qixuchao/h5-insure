@@ -56,40 +56,44 @@ interface transformDataType {
 // 将试算的参数转化成订单中需要的结构
 export const transformData = (o: transformDataType) => {
   const { tenantId, riskList, riskPremium, productId } = o;
-  return riskList.map((risk: RiskVoItem) => {
-    const currentRisk = {
-      tenantId,
-      amountUnit: 1,
-      annuityDrawFrequency: risk.annuityDrawDate,
-      annuityDrawType: risk.annuityDrawType,
-      paymentFrequency: risk.paymentFrequency,
-      paymentPeriod: risk.chargePeriod.split('_')[1],
-      paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],
-      insurancePeriodType:
-        INSURANCE_PERIOD_TYPE_ENUMS[risk.coveragePeriod === 'to_life' ? 'to_life' : risk.coveragePeriod.split('_')[0]],
-      insurancePeriodValue: Number.isNaN(+risk.coveragePeriod.split('_')[1]) ? 0 : risk.coveragePeriod.split('_')[1],
-      riskCode: risk.riskCode,
-      riskType: risk.riskType,
-      riskName: risk.riskName,
-      extInfo: {
-        riskId: risk.riskId,
-        copy: risk.copy,
-      },
-      initialPremium: riskPremium[risk.riskCode]?.premium || 0,
-      totalPremium: riskPremium[risk.riskCode]?.premium || 0,
-      liabilityDetails:
-        risk.liabilityVOList?.map((liab) => ({
-          liabilityCode: liab.liabilityCode,
-          liabilityName: liab.liabilityName,
-          refundMethod: liab.liabilityAttributeValue,
-          // sumInsured: 300000,
-        })) || [],
-      productId,
-      currentAmount: risk.amount || 0,
-      initialAmount: riskPremium[risk.riskCode]?.amount || risk.amount,
-    };
-    return currentRisk;
-  });
+  return riskList
+    .filter((risk) => riskPremium[risk.riskCode])
+    .map((risk: RiskVoItem) => {
+      const currentRisk = {
+        tenantId,
+        amountUnit: 1,
+        annuityDrawFrequency: risk.annuityDrawDate,
+        annuityDrawType: risk.annuityDrawType,
+        paymentFrequency: risk.paymentFrequency,
+        paymentPeriod: risk.chargePeriod.split('_')[1],
+        paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],
+        insurancePeriodType:
+          INSURANCE_PERIOD_TYPE_ENUMS[
+            risk.coveragePeriod === 'to_life' ? 'to_life' : risk.coveragePeriod.split('_')[0]
+          ],
+        insurancePeriodValue: Number.isNaN(+risk.coveragePeriod.split('_')[1]) ? 0 : risk.coveragePeriod.split('_')[1],
+        riskCode: risk.riskCode,
+        riskType: risk.riskType,
+        riskName: risk.riskName,
+        extInfo: {
+          riskId: risk.riskId,
+          copy: risk.copy,
+        },
+        initialPremium: riskPremium[risk.riskCode]?.premium || 0,
+        totalPremium: riskPremium[risk.riskCode]?.premium || 0,
+        liabilityDetails:
+          risk.liabilityVOList?.map((liab) => ({
+            liabilityCode: liab.liabilityCode,
+            liabilityName: liab.liabilityName,
+            refundMethod: liab.liabilityAttributeValue,
+            // sumInsured: 300000,
+          })) || [],
+        productId,
+        currentAmount: risk.amount || 0,
+        initialAmount: riskPremium[risk.riskCode]?.amount || risk.amount,
+      };
+      return currentRisk;
+    });
 };
 export const riskToOrder = (productRiskVoList: any) => {
   const result = deepCopy(productRiskVoList)
