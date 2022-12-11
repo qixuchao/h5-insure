@@ -3,7 +3,7 @@
  * @Autor: kevin.liang
  * @Date: 2022-10-11 14:52:20
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-11 14:52:24
+ * @LastEditTime: 2022-12-11 15:46:53
  */
 
 export default {
@@ -14,8 +14,8 @@ export default {
     prd: 'ciu0ivv8jm3jfc0n', // 生产环境
   },
   isee: {
-    default: 'https://plugins-tst.ennejb.cn/eye.js', // 默认值
-    local: 'https://plugins-tst.ennejb.cn/eye.js', // 本地环境
-    prd: 'https://plugins.ennejb.cn/eye.js', // 生产环境
+    default: 'https://staticdaily.zhongan.com/website/isee-poc/eye.js', // 默认值
+    local: 'https://staticdaily.zhongan.com/website/isee-poc/eye.js', // 本地环境
+    prd: 'https://static.zhongan.com/website/isee/zainfo/eye.js', // 生产环境
   },
 };
