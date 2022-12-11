@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 15:01:12
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-08 19:10:03
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-12-11 16:25:50
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/PreNotice/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -41,7 +41,7 @@
     position="bottom"
     :style="{ height: '600px' }"
   >
-    <ProFilePreview :content="attachmentUri?.link" type="link"></ProFilePreview>
+    <ProFilePreview :content="attachmentUri?.link" :type="fileType"></ProFilePreview>
   </ProPopup>
 </template>
 
@@ -78,6 +78,21 @@ const state = reactive({
 const attachmentUri = ref({
   title: '',
   link: '',
+});
+
+const fileType = computed(() => {
+  if (attachmentUri.value.link) {
+    const urlList = (attachmentUri.value.link || '').split('?');
+    const type = (attachmentUri.value.link || '').substr(urlList[0].lastIndexOf('.') + 1);
+    // eslint-disable-next-line no-param-reassign
+    if (type === 'pdf') {
+      // eslint-disable-next-line no-param-reassign
+      return 'pdf';
+    }
+    // eslint-disable-next-line no-param-reassign
+    return 'picture';
+  }
+  return 'link';
 });
 
 const clickHandler = (e: any, field: string) => {
