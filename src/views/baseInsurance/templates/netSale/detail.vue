@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-11 18:43:39
+ * @LastEditTime: 2022-12-11 21:56:42
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -397,27 +397,19 @@ onMounted(() => {
 .pre-notice-wrap {
   width: 100%;
   .body {
-    // height: calc(100% - 220px) !important;
+    // height: calc(100% - 320px) !important;
     overflow: scroll;
-    margin-bottom: 150px;
+    // margin-bottom: 150px;
     .footer {
       margin-top: 50px;
       position: absolute;
-      z-index: 99999999999999999999;
       bottom: 0;
       width: 100%;
       background-color: #ffffff;
-      padding: 0 5%;
+      padding: 20px 5% 0;
       margin: 0 auto;
       left: 0;
       right: 0;
-      // .pro-shadow-button .shadow-button {
-      //   background: red !important;
-      //   z-index: 123123231231313;
-      //   &:before {
-      //     z-index: 9999999;
-      //   }
-      // }
     }
   }
 

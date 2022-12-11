@@ -322,7 +322,6 @@ const nextStepOperate = async () => {
   nextStep(trialData2Order(insureDetail.value, premiumObj.value, orderDetail.value), (resData, pageAction) => {
     if (pageAction === 'jumpToPage') {
       Toast('提交成功');
-      window.history.back();
     }
   });
 };

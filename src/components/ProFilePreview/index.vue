@@ -162,7 +162,7 @@ watch(
     font-weight: 400;
     color: #393d46;
     line-height: 48px;
-    margin-bottom: 200px;
+    padding-bottom: 200px;
   }
   .pdf-viewer {
     word-break: break-all;
