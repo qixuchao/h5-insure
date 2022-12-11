@@ -1030,6 +1030,14 @@ watch(
   color: var(--van-danger-color, var(--zaui-danger));
 }
 
+.van-cell {
+  align-items: center;
+  .van-field__label {
+    margin: unset;
+    padding-right: 40px;
+  }
+}
+
 .input-extra {
   margin-left: 25px;
   margin-top: 14px;
