@@ -172,7 +172,7 @@ const orderDetail = ref<any>({
 }); // 产品信息
 
 const isShowInsurePeriod = computed(() => {
-  return !!insureDetail.value?.productRelationPlanVOList?.length;
+  return (insureDetail.value?.productRelationPlanVOList?.length || 0) > 1;
 });
 
 // 保费展示的逻辑
@@ -322,6 +322,7 @@ const nextStepOperate = async () => {
   nextStep(trialData2Order(insureDetail.value, premiumObj.value, orderDetail.value), (resData, pageAction) => {
     if (pageAction === 'jumpToPage') {
       Toast('提交成功');
+      window.history.back();
     }
   });
 };

@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-09 19:40:35
+ * @LastEditTime: 2022-12-11 15:42:29
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -97,7 +97,6 @@ import { useTheme } from '../../theme';
 import { insureProductDetail, getTenantOrderDetail, getPayUrl } from '@/api/modules/trial';
 import InsureForm from '../components/InsureForm/index.vue';
 import Sign from '../components/Sign/index.vue';
-import { nextStep } from '@/api';
 import { saveSign } from '@/api/modules/verify';
 import { nextStepOperate } from '@/views/baseInsurance/nextStep';
 import { productDetail as getProductDetail } from '@/api/modules/product';
@@ -106,6 +105,7 @@ import { sendPay, useWXCode } from '../../../cashier/core';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 import pdfPreview from '@/utils/pdfPreview';
 import FilePreview from '../components/FilePreview/index.vue';
+import { INSURANCE_PERIOD_TYPE_ENUMS } from '@/common/constants/trial';
 
 const themeVars = useTheme();
 const route = useRoute();
@@ -267,6 +267,21 @@ const queryTenantProductDetail = async () => {
   }
 };
 
+const compositionDesc = (value: number, desc: string) => {
+  if (desc.indexOf('$') !== -1) {
+    return desc.replace('$', `${value}`);
+  }
+  return `${value || ''}${desc}`;
+};
+
+const pickInsurancePeriod = (riskList: any[]) => {
+  const mainRiskInfo = riskList.find((risk) => risk.riskType === 1);
+  planName.value = compositionDesc(
+    mainRiskInfo.insurancePeriodValue,
+    INSURANCE_PERIOD_TYPE_ENUMS[mainRiskInfo.insurancePeriodType],
+  );
+};
+
 const queryOrderDetail = async () => {
   const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
   if (code === '10000') {
@@ -275,6 +290,7 @@ const queryOrderDetail = async () => {
     planCode.value = data.tenantOrderInsuredList[0]?.planCode;
     productCode.value = data.tenantOrderInsuredList[0].tenantOrderProductList[0].productCode;
     loadForm.value = true;
+    pickInsurancePeriod(data.tenantOrderInsuredList[0].tenantOrderProductList[0].tenantOrderRiskList || []);
     queryProductDetail();
     queryTenantProductDetail();
     if (data.orderStatus !== ORDER_STATUS_ENUM.UNDER_WRITING_SUCCESS) {

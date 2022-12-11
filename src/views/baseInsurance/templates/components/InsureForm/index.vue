@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-10 18:02:10
+ * @LastEditTime: 2022-12-11 15:02:53
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -393,6 +393,14 @@ watch(
     width: unset;
   }
 }
+
+.relation-holder {
+  align-items: flex-start;
+  .van-field__label {
+    margin: 16px 0 8px;
+  }
+}
+
 .page-info-wrapper {
   .van-cell .van-field__value {
     align-items: flex-start;
@@ -419,26 +427,6 @@ watch(
         color: #393d46;
       }
     }
-  }
-  .left {
-    flex: 0 0 50%;
-    .trial-result {
-      font-size: 34px;
-      color: #393d46;
-      .result-num {
-        margin-left: 13px;
-        color: $zaui-price;
-        font-weight: bold;
-        margin-left: 16px;
-      }
-    }
-    .result-desc {
-      font-size: 24px;
-      color: #666;
-    }
-  }
-  .operate-btn {
-    width: 50%;
   }
 
   .radio-item-wrapper {
