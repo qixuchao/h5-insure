@@ -99,7 +99,7 @@ const loadPdfCanvas = async () => {
   const pageNum = pdf.numPages;
   for (let i = 1; i <= pageNum; i++) {
     pdf.getPage(i).then((page: any) => {
-      const scaledViewport = page.getViewport({ scale: 1 });
+      const scaledViewport = page.getViewport({ scale: 1.5 });
 
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
