@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-08 11:06:37
+ * @LastEditTime: 2022-12-11 15:07:50
  * @Description:
 -->
 <template>
@@ -47,16 +47,17 @@
     <van-datetime-picker
       v-model="currentDate"
       type="date"
-      title="选择年月"
+      title="保险开始生效日期"
       :min-date="minDate"
       :max-date="maxDate"
       :formatter="formatter"
       :visible-item-count="5"
+      class="custom-date-picker"
       @confirm="handleConfirm"
       @cancel="handleCancel"
     >
       <template #cancel></template>
-      <template #title><div class="picker-custom-title">选择年月</div></template>
+      <template #title><div class="picker-custom-title">保险开始生效日期</div></template>
       <template #confirm>
         <!-- <ProShadowButton class="custom-picker-btn" :shadow="false" text="确定" @click="show = false" /> -->
         <VanButton type="primary" round block class="linear-btn custom-picker-btn" @click="show = false"
@@ -392,6 +393,11 @@ defineExpose({});
         }
       }
     }
+  }
+}
+.custom-date-picker {
+  :deep(.van-picker__columns) {
+    padding: 0px 40px;
   }
 }
 .picker-custom-title {
