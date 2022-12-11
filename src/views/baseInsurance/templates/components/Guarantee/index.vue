@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-09 17:11:51
+ * @LastEditTime: 2022-12-11 16:24:24
  * @Description: 保障详情
 -->
 <template>
@@ -468,7 +468,7 @@ watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
   overflow-x: scroll;
   overflow-y: hidden;
   flex-wrap: nowrap;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 30px 0px;
 
   &::-webkit-scrollbar {
