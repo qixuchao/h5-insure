@@ -203,7 +203,7 @@ watch(
 // 险种信息
 const currentRiskInfo = computed(() => {
   let riskInfo = [];
-  if (isShowInsurePeriod.value) {
+  if (insureDetail.value?.productRelationPlanVOList?.length) {
     riskInfo =
       insureDetail.value?.productRelationPlanVOList.find((plan) => plan.planCode === currentPlan.value)
         ?.productRiskVoList || [];
@@ -351,7 +351,6 @@ watch(
   ],
   debounce(([newHGender, newHName, newHBirthday, newIName, newIGender, newIBirthday]) => {
     if (newHName && newIName && newIGender && newIBirthday) {
-      console.log('preview', preview);
       preview || trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
     }
   }, 500),

@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-11 17:15:13
+ * @LastEditTime: 2022-12-11 18:43:39
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -276,10 +276,12 @@ const compositionDesc = (value: number, desc: string) => {
 
 const pickInsurancePeriod = (riskList: any[]) => {
   const mainRiskInfo = riskList.find((risk) => risk.riskType === 1);
-  planName.value = compositionDesc(
-    mainRiskInfo.insurancePeriodValue,
-    INSURANCE_PERIOD_TYPE_ENUMS[mainRiskInfo.insurancePeriodType],
-  );
+  if (mainRiskInfo) {
+    planName.value = compositionDesc(
+      mainRiskInfo.insurancePeriodValue,
+      INSURANCE_PERIOD_TYPE_ENUMS[mainRiskInfo.insurancePeriodType],
+    );
+  }
 };
 
 const queryOrderDetail = async () => {

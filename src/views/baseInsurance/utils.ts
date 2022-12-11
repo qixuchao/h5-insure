@@ -57,7 +57,6 @@ interface transformDataType {
 export const transformData = (o: transformDataType) => {
   const { tenantId, riskList, riskPremium, productId } = o;
   let currentRiskList = [];
-
   // 如果有险种保费，则只拿有保费的险种，否则就是全部险种
   if (Object.keys(riskPremium).length) {
     currentRiskList = riskList.filter((risk) => riskPremium[risk.riskCode]);
