@@ -47,6 +47,8 @@ declare interface Window {
   WeixinJSBridge: any;
   iseeBizNo?: string;
   useFormPay: (form: string) => void;
+  _XFLOW_: any;
+  XFlowAnalysisSetting: any;
 }
 
 // 不明具体结构的对象类型
@@ -55,4 +57,6 @@ declare type AnyObject = {
 }
 
 declare module 'clipic'
-
+// declare class XFlow {
+//   constructor (option: any)
+// };
