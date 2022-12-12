@@ -1,8 +1,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 17:42:39
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-11 18:42:23
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-12 14:07:22
  * @FilePath: /zat-planet-h5-cloud-insure/vite.config.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -14,7 +14,7 @@ import presets from './presets/presets';
 // https://vitejs.dev/config/
 export default defineConfig((env) => {
   // env 环境变量
-  const viteEnv = loadEnv(env.mode, `.env.${env.mode}`);
+  const viteEnv = loadEnv(env.mode, process.cwd());
 
   return {
     base: viteEnv.VITE_BASE,
@@ -74,6 +74,11 @@ export default defineConfig((env) => {
           chunkFileNames: 'static/js/[name]-[hash].js',
           entryFileNames: 'static/js/[name]-[hash].js',
           assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
+          manualChunks: {
+            echarts: ['echarts'],
+            pdfh5: ['pdfh5'],
+            pdfdist: ['pdfjs-dist'],
+          },
         },
       },
     },
