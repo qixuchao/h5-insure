@@ -850,7 +850,7 @@ export const freeTransformData = (o: transformDataType) => {
       annuityDrawFrequency: risk.annuityDrawDate,
       annuityDrawType: risk.annuityDrawType,
       paymentFrequency: risk.paymentFrequency,
-      paymentPeriod: 0,
+      paymentPeriod: risk.chargePeriod.split('_')[1],
       paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS?.[risk.chargePeriod.split('_')[0]],
       insurancePeriodType:
         INSURANCE_PERIOD_TYPE_ENUMS[
