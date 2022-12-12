@@ -170,9 +170,10 @@ defineExpose({
         align-items: center;
 
         .van-field__label {
-          width: 132px;
+          width: 137px;
           margin-top: 0;
           margin-bottom: 0;
+          padding-right: 10px;
         }
         .van-cell__value .van-field__body {
           width: 100%;
@@ -188,9 +189,10 @@ defineExpose({
     }
     .van-cell {
       .van-field__label {
-        width: 122px;
+        width: 132px;
         margin-top: 0;
         margin-bottom: 0;
+        padding-right: 10px;
       }
       .van-cell__value .van-field__body {
         width: 100%;

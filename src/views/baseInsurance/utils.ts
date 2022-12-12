@@ -729,6 +729,118 @@ const getIsNaN = (val: any) => {
   return val?.split('_')[1];
 };
 
+export const freeCompositionTrailData = (
+  riskList: RiskDetailVoItem[],
+  productDetail: ProductDetail,
+  packageRiskIdList: number[] = [],
+  paymentFrequency: number = PAYMENT_FREQUENCY_ENUM.YEAR,
+  flag = false,
+) => {
+  const lastRiskList: RiskDetailVoItem[] = riskList.filter((item: any) => {
+    try {
+      if (item.extraInfo) {
+        const extraInfo = JSON.parse(item.extraInfo);
+        if (extraInfo.packageCode) {
+          if (packageRiskIdList.includes(item.id)) return true;
+          return false;
+        }
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    }
+  });
+  console.log('lastRiskList', lastRiskList);
+  // 主险信息
+  const mainRiskData = lastRiskList.find((risk) => risk.riskType === RISK_TYPE_ENUM.MAIN_RISK);
+  return lastRiskList.map((risk: any) => {
+    const {
+      riskInsureLimitVO,
+      riskCategory,
+      id,
+      riskType,
+      riskName,
+      riskCode,
+      extraInfo,
+      riskLiabilityInfoVOList,
+      riskCalcMethodInfoVO,
+      amountPremiumConfigVO,
+    } = risk;
+    const {
+      insurancePeriodType,
+      insurancePeriodValueList,
+      paymentFrequencyList,
+      paymentPeriodValueList,
+      paymentPeriodType,
+      annuityDrawFrequencyList,
+      annuityDrawValueList,
+      insurancePeriodRule,
+      paymentPeriodRule,
+    } = riskInsureLimitVO;
+    // const { fixedAmount, minCopy } = riskCalcMethodInfoVO;
+    let tempAmount = 0;
+    const { displayType, displayUnit, fixedValue, eachCopyPrice } = amountPremiumConfigVO || {};
+
+    const strDisplayType = String(displayType);
+    const strDisplayUnit = String(displayUnit);
+    // todo 份数默认为1
+    const copyes = 1;
+    if (strDisplayType && strDisplayType === PREMIUM_DISPLAY_TYPE_ENUM.FIXED) {
+      if (strDisplayUnit === PREMIUM_UNIT_TYPE_ENUM.YUAN) {
+        tempAmount = fixedValue || 0;
+      } else if (strDisplayUnit === PREMIUM_UNIT_TYPE_ENUM.MILLION) {
+        tempAmount = fixedValue ? Number(fixedValue * 10000) : 0;
+      }
+      //  else if (strDisplayUnit === PREMIUM_UNIT_TYPE_ENUM.COPY) {
+      //   tempAmount = copyes && eachCopyPrice ? copyes * eachCopyPrice : 0;
+      // }
+    } else if (strDisplayType && strDisplayType === PREMIUM_DISPLAY_TYPE_ENUM.COPY) {
+      tempAmount = copyes && eachCopyPrice ? copyes * eachCopyPrice : 0;
+    }
+    const trailRiskData = {
+      amount: tempAmount || 0,
+      riskCode,
+      riskId: id,
+      riskName,
+      paymentFrequency: paymentFrequencyList?.[0] || PAYMENT_FREQUENCY_ENUM.YEAR,
+      extraInfo,
+      chargePeriod: paymentPeriodValueList?.[0],
+      annuityDrawDate: annuityDrawValueList?.[0],
+      riskType,
+      annuityDrawFrequency: annuityDrawFrequencyList?.[0],
+      copy: copyes,
+      coveragePeriod: insurancePeriodValueList?.[0],
+      insuredCode: productDetail?.insurerCode,
+      // 定制配置，责任去掉FXG086
+      liabilityVOList: riskLiabilityInfoVOList,
+      // paymentFrequency: paymentFrequencyList?.[0],
+      riskCategory,
+    };
+    if (riskType === RISK_TYPE_ENUM.MAIN_RISK) {
+      return trailRiskData;
+    }
+
+    // 附加险保障期间
+    if (insurancePeriodRule === RULE_ENUM.ONE_YEAR) {
+      // 1年期
+      trailRiskData.coveragePeriod = 'year_1';
+    }
+
+    // 附加险交费期间
+    if (paymentPeriodRule === RULE_ENUM.ONE_YEAR) {
+      // 1年期
+      trailRiskData.chargePeriod = 'year_1';
+    }
+
+    return {
+      ...trailRiskData,
+      mainRiskId: mainRiskData?.id,
+      mainRiskCode: mainRiskData?.riskCode,
+    };
+  });
+};
+
 export const freeTransformData = (o: transformDataType) => {
   const { tenantId, riskList, riskPremium, productId } = o;
   return riskList.map((risk: RiskVoItem) => {
@@ -761,8 +873,8 @@ export const freeTransformData = (o: transformDataType) => {
         refundMethod: liab.liabilityAttributeValue,
       })),
       productId,
-      currentAmount: risk.amount,
-      initialAmount: risk.amount,
+      currentAmount: risk.amount || 0,
+      initialAmount: risk.amount || 0,
     };
     return currentRisk;
   });
@@ -829,7 +941,7 @@ export const freeTransform = (o: any) => {
             premium: 0, // 1 // 保费, 保费试算返回
             tenantOrderRiskList: freeTransformData({
               tenantId: o.tenantId,
-              riskList: compositionTrailData(
+              riskList: freeCompositionTrailData(
                 o.insureDetail?.productRiskVoList.map((node: any) => node.riskDetailVOList || []).flat(),
                 o.detail,
               ) as any,

@@ -175,7 +175,7 @@ const orderBtnHandler = async () => {
         if (state.orderDetail.extInfo?.policyUrl) {
           downLoadFile(state.orderDetail.extInfo?.policyUrl);
         } else {
-          Toast('下载保单地址待定');
+          Toast('电子保单单生成中，请稍后再试');
         }
       }
     } else {
@@ -193,7 +193,6 @@ const orderBtnHandler = async () => {
         sendPay(data.paymentUrl);
       }
     });
-    console.log('立即支付');
   } else if (orderBtnText.value === '重下一单') {
     goToInsurerPage(false);
   }
@@ -204,6 +203,7 @@ const initPageInfo = () => {
   if ([ORDER_STATUS_ENUM.PAYMENT_SUCCESS, ORDER_STATUS_ENUM.ACCEPT_POLICY].includes(state.orderDetail.orderStatus)) {
     state.orderDetail.orderStatus = ORDER_STATUS_ENUM.ACCEPT_POLICY;
   }
+
   state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
   state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
   document.title = state.detail?.tenantProductInsureVO?.productName || '';
@@ -251,9 +251,11 @@ const initPageInfo = () => {
     // 显示保障内容
     state.showOrderDetail = true;
   }
+
   // 支付中需要倒计时
   if (ORDER_STATUS_ENUM.PAYING === state.orderDetail.orderStatus) {
-    const expiryDate = state.orderDetail.tenantOrderPaymentInfoList?.[0]?.paymentExpiryDate;
+    // 假如没有传过期时间给个8.5小时
+    const expiryDate = state.orderDetail.tenantOrderPaymentInfoList?.[0]?.paymentExpiryDate || dayjs().add(8.5, 'hour');
     state.timeDown = useCountDown({
       time: dayjs(expiryDate).diff(new Date(), 'millisecond'),
     });
@@ -294,6 +296,15 @@ const getData = async () => {
   });
 };
 
+const addZero = (num: number) => {
+  const t = `${num}`.length;
+  let s = '';
+  for (let i = 0; i < 2 - t; i++) {
+    s += '0';
+  }
+  return s + num;
+};
+
 const orderDesc = computed(() => {
   if (ORDER_STATUS_ENUM.PAYING === state.orderDetail?.orderStatus) {
     if (state.timeDown.current.total <= 0) {
@@ -303,7 +314,9 @@ const orderDesc = computed(() => {
       state.timeDown.pause();
       return state.pageInfo.desc;
     }
-    return `剩余支付时间：${state.timeDown.current.hours}:${state.timeDown.current.minutes}:${state.timeDown.current.seconds}`;
+    return `剩余支付时间：${addZero(state.timeDown.current.hours)}:${addZero(state.timeDown.current.minutes)}:${addZero(
+      state.timeDown.current.seconds,
+    )}`;
   }
   return state.pageInfo.desc;
 });
