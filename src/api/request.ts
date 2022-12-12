@@ -2,8 +2,8 @@
  * @Description: 用户模块
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-05 10:34:21
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-12 16:57:10
  */
 import axios, { type AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';

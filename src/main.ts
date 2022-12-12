@@ -2,8 +2,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-21 19:34:02
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-11 21:49:03
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-12 16:53:54
  * @FilePath: /zat-planet-h5-cloud-insure/src/main.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -53,7 +53,6 @@ const start = async () => {
 
   dayjs.locale({ ...zh, weekStart: 1 });
   const app = createApp(App);
-  const BASE_PREFIX = import.meta.env.VITE_API_BASEURL;
 
   app.use(VueDOMPurifyHTML);
   app.use(vue3PhotoPreview);
