@@ -27,9 +27,11 @@ import { nanoid } from 'nanoid';
 import { Toast } from 'vant';
 import * as PDFJS from 'pdfjs-dist';
 import * as workerSrc from 'pdfjs-dist/build/pdf.worker.entry';
+import Pdfh5 from 'pdfh5';
 import PdfViewer from '@/components/ProPDFviewer/index.vue';
 import QuestionPreview from './question.vue';
-import 'pdfjs-dist/web/pdf_viewer.css';
+// import 'pdfjs-dist/web/pdf_viewer.css';
+import 'pdfh5/css/pdfh5.css';
 
 const props = defineProps({
   type: {
@@ -69,6 +71,8 @@ const id = nanoid();
 
 const show = ref(false);
 const loading = ref(true);
+
+const pdfh5 = ref<any>(null);
 
 const loadPdfCanvas = async () => {
   Toast.loading({ message: '加载中', duration: 20 * 1000, forbidClick: props.forbidClick });
@@ -121,11 +125,31 @@ const loadPdfCanvas = async () => {
   }
   Toast.clear();
 };
+
+const loadPdfH5Viewer = () => {
+  try {
+    pdfh5.value = new Pdfh5(`#${id}`, {
+      pdfurl: props.content,
+      renderType: 'svg',
+      lazy: true,
+    });
+    // 监听完成事件
+    pdfh5.value?.on('complete', (status: string, msg: string, time: number) => {
+      console.log(`状态：${status}，信息：${msg}，耗时：${time}毫秒`);
+    });
+  } catch (error) {
+    //
+  }
+};
+
 const openPdf = async () => {
   show.value = true;
-  setTimeout(() => {
-    loadPdfCanvas();
-  }, 0);
+  // setTimeout(() => {
+  //   loadPdfCanvas();
+  // }, 0);
+  nextTick(() => {
+    loadPdfH5Viewer();
+  });
 };
 
 watch(
@@ -178,6 +202,14 @@ watch(
   }
   .pdf-wapper {
     background-color: rgb(82, 86, 89);
+    height: 100%;
+
+    :deep(.viewerContainer) {
+      height: 100vh;
+      .pinch-zoom-container {
+        height: 50% !important;
+      }
+    }
   }
   .pic-wrap {
     width: 100%;

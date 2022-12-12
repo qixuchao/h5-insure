@@ -34,6 +34,7 @@
     "mitt": "^3.0.0",
     "nanoid": "^4.0.0",
     "nprogress": "^0.2.0",
+    "pdfh5": "^1.4.2",
     "pdfjs-dist": "2.11.338",
     "pinia": "^2.0.9",
     "postcss-px-to-relative-unit": "^2.0.0",
