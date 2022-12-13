@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-03 20:16:41
+ * @LastEditTime: 2022-12-13 13:09:04
  * @Description:
  */
 import wx from 'weixin-js-sdk';
@@ -13,6 +13,7 @@ import { GetPayUrlParam, PayParam, PayResult } from '@/api/modules/cashier.data'
 import { getPayUrl, loadPayment, pay } from '@/api/modules/cashier';
 import { SRC_TYPE, ORDER_DETAIL_ROUTE } from './constant';
 import useLoading from '@/hooks/useLoading';
+import router from '@/router/index';
 
 export const isWeiXin = navigator.userAgent.indexOf('MicroMessenger') > -1;
 
@@ -83,7 +84,7 @@ const onBridgeReady = (params: {
  * 直接调起微信支付或H5支付
  * @param payParam 支付参数
  */
-export const usePay = (payParam: PayParam) => {
+export const usePay = async (payParam: PayParam) => {
   const loading = ref(true);
   useLoading(loading);
   pay({
@@ -93,7 +94,7 @@ export const usePay = (payParam: PayParam) => {
       wxCode: payParam.code || sessionStorage.wxCode,
     }),
   })
-    .then((res) => {
+    .then((res): Promise<string> | null => {
       const { code, message, data } = res;
       if (code === '10000') {
         const { timeStamp, nonceStr, prepayId, sign_type: signType, sign, appId, redirectUrl } = data;
@@ -121,14 +122,18 @@ export const usePay = (payParam: PayParam) => {
           });
         } else {
           console.log('H5支付结果----', res.data);
-          window.location.href = res.data.mweb_url;
-          // const url = window.URL.createObjectURL(res.data.mweb_url);
+          setTimeout(() => {
+            return Promise.resolve('');
+          }, 100);
+          window.open(res.data.mweb_url);
+          // const url = res.data.mweb_url;
           // const a = document.createElement('a');
           // a.href = url;
           // a.click();
           // a.remove();
         }
       }
+      return null;
     })
     .finally(() => {
       loading.value = false;
@@ -210,10 +215,11 @@ export const wxBrandWCPayRequest = (payParam: PayParam) => {
  */
 // function sendPay(payParam: string): void;
 function sendPay(payParam: PayParam | string) {
+  // const router = useRouter();
   let params: PayParam | string = '';
   // payUrl过来的
   if (typeof payParam === 'string') {
-    if (/https?:.*/.test(payParam)) {
+    if (!/https?:.*/.test(payParam)) {
       console.warn('支付参数错误');
     }
     // payUrl返回form表单的html
@@ -229,10 +235,17 @@ function sendPay(payParam: PayParam | string) {
   }
   if (isSignWay(params.payWay)) {
     console.log('走微签约逻辑');
-    window.location.href = `/cashier/signPay?${qs.stringify(params)}`;
+    // window.location.href = `/cashier/signPay?${qs.stringify(params)}`;
+    router.push({ path: `/cashier/signPay`, query: { ...params } });
   } else {
-    usePay(params);
     console.log('走支付逻辑');
+    if (isWeiXin) {
+      usePay(params);
+    } else {
+      params.srcType = getSrcType();
+      // 跳转收银台页面
+      router.push({ path: `/cashier/pay`, query: { ...params } });
+    }
   }
 }
 export { sendPay };
