@@ -1,8 +1,13 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 17:42:39
+<<<<<<< HEAD
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
  * @LastEditTime: 2022-12-13 13:52:21
+=======
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-13 13:14:32
+>>>>>>> cc9ea8a47d4951cc4d874b19022a27fc30b27be6
  * @FilePath: /zat-planet-h5-cloud-insure/vite.config.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -35,10 +40,10 @@ export default defineConfig((env) => {
       strictPort: false, // 如果端口已占用直接退出
       // 接口代理
       proxy: {
-        '/api/app/buriedPoint/': {
-          target: 'http://aquarius-commander.test.za-tech.net',
-          changeOrigin: true, // 允许跨域
-        },
+        // '/api/app/buriedPoint/': {
+        //   target: 'http://aquarius-commander.test.za-tech.net',
+        //   changeOrigin: true, // 允许跨域
+        // },
         '/h5-cloud-insure/api': {
           // 本地 8000 前端代码的接口 代理到 8888 的服务端口
           // target: 'https://www.gconline.cn/acvmtest',
@@ -48,8 +53,8 @@ export default defineConfig((env) => {
           // target: 'http://zat-planet-gateway.test.za-tech.net',
           // target: 'http://h5-cloud-insure-tst.ennejb.cn',
           // target: 'http://168429-zat-planet-gateway.test.za-tech.net',
-          // target: 'http://142418-zat-planet-gateway.test.za-tech.net',
-          target: 'https://h5-cloud-insure.ennejb.cn',
+          target: 'http://142418-zat-planet-gateway.test.za-tech.net',
+          // target: 'https://h5-cloud-insure.ennejb.cn',
           // target: 'http://zat-planet-gateway.test.za-tech.net',
           changeOrigin: true, // 允许跨域
           rewrite: (path) => path.replace('/h5-cloud-insure', ''),
@@ -77,7 +82,7 @@ export default defineConfig((env) => {
           assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
           manualChunks: {
             echarts: ['echarts'],
-            pdfh5: ['pdfh5'],
+            // pdfh5: ['pdfh5'],
             pdfdist: ['pdfjs-dist'],
           },
         },

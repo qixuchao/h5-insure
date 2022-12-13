@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-parsing-error -->
 <template>
-  <ProPageWrap title="收银台" main-class="page-cashier">
-    <van-config-provider :theme-vars="themeVars">
+  <van-config-provider :theme-vars="themeVars">
+    <ProPageWrap title="收银台" main-class="page-cashier-pay">
       <div class="pay-amount">
         ￥<span class="amount">{{ orderInfo?.orderAmt }}</span>
       </div>
@@ -38,17 +38,17 @@
       >
       <!-- =======
     <VanButton type="primary" round size="large" block @click="goBrandPay">jsBridge付款</VanButton> -->
-    </van-config-provider>
-  </ProPageWrap>
+    </ProPageWrap>
+  </van-config-provider>
 </template>
 
 <script lang="ts" setup name="Cashier">
-import { Loading, Radio, RadioGroup, Toast } from 'vant';
+import { Dialog, Loading, Radio, RadioGroup, Toast } from 'vant';
 import { useClipboard } from '@vueuse/core';
 import { GetPayUrlParam, PayParam } from '@/api/modules/cashier.data';
 import { getPayUrl, loadPayment, pay } from '@/api/modules/cashier';
 import { PAY_WAY_ENUM, getPayWayList } from './constant';
-import { useWXCode, sendPay, wxBrandWCPayRequest } from './core';
+import { useWXCode, usePay, wxBrandWCPayRequest } from './core';
 import { useTheme } from '@/views/baseInsurance/theme';
 /**
  * 本页面主要给H5或公众号页面使用
@@ -73,7 +73,8 @@ interface OrderInfo {
   orderAmt: number; // 支付订单金额
   orderName: string; // 要支付的订单名
   payWay: string; // 可支付的方式选项(支付宝 或 微信)
-  businessTradeNo: string; // 业务订单
+  businessTradeNo: string; // 业务订单\
+  redirectUrl: string;
 }
 const route = useRoute();
 const query = route.query as QueryData;
@@ -85,13 +86,34 @@ const payWay = ref(payWayList[0]?.name); // 支付方式
 const srcType = ref('h5');
 
 const goPay = () => {
-  sendPay({
+  usePay({
     ...(orderInfo.value as PayParam),
     payWay: payWay.value,
     code: query.code,
     extraInfo: JSON.stringify({
       wxCode: query.code,
     }),
+  }).then((res) => {
+    Dialog.confirm({
+      message: '请确认是否已完成支付',
+      showCancelButton: true,
+      confirmButtonText: '支付成功',
+      cancelButtonText: '遇到问题',
+      theme: 'round-button',
+      className: 'custom-dialog',
+      teleport: '.page-cashier-pay',
+    })
+      .then(() => {
+        if (orderInfo.value) {
+          window.location.href = orderInfo.value.redirectUrl;
+        }
+        console.log('订单信息', orderInfo.value);
+      })
+      .catch(() => {
+        if (orderInfo.value) {
+          window.location.href = orderInfo.value.redirectUrl;
+        }
+      });
   });
 };
 const goBrandPay = () => {
@@ -139,7 +161,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
-.page-cashier {
+.page-cashier-pay {
   padding: 40px 30px;
   text-align: center;
   background-color: #f4f4f4;
@@ -198,6 +220,20 @@ onMounted(() => {
       width: 30px;
       height: 26px;
     }
+  }
+}
+.custom-dialog {
+  .van-dialog__content--isolated {
+    min-height: 160px;
+  }
+  .van-dialog--round-button .van-dialog__footer {
+    padding: 12px 40px;
+  }
+  .van-dialog__footer .van-button {
+    height: 64px;
+  }
+  .van-dialog__footer .van-button.van-dialog__confirm {
+    color: v-bind('themeVars.primaryColor');
   }
 }
 </style>

@@ -12,6 +12,7 @@ export interface OrderInfo {
   srcType: string;
   payWay: string;
   businessTradeNo: string;
+  redirectUrl: string;
 }
 /** 支付参数 */
 export interface PayParam {

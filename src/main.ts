@@ -2,8 +2,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-21 19:34:02
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-12 16:53:54
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-12-13 14:07:16
  * @FilePath: /zat-planet-h5-cloud-insure/src/main.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -33,7 +33,7 @@ import { isTestEnv, isPreEnv } from './utils';
 const storage = new Storage({ source: 'localStorage' });
 const cookie = new Storage({ source: 'cookie' });
 const start = async () => {
-  if (isTestEnv || isPreEnv) {
+  if (isTestEnv) {
     // eslint-disable-next-line new-cap
     new vconsole();
   }
