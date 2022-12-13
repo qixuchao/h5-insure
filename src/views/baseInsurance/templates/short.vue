@@ -852,34 +852,6 @@ watch(
     } else {
       setDefaultPremium();
     }
-    // const {
-    //   name,
-    //   birthday,
-    //   gender,
-    //   certType,
-    //   extInfo: { hasSocialInsurance },
-    // } = orderDetail.value.tenantOrderInsuredList[0];
-
-    // console.log('birthday', birthday);
-    // console.log('gender', gender);
-    // console.log('name', name);
-    // console.log('validateCustomName(name)', validateCustomName(name));
-    // console.log('orderDetail.value', orderDetail.value);
-    // premiumLoadingText.value = '';
-    // if (previewMode.value) return;
-
-    // if (
-    //   birthday &&
-    //   gender &&
-    //   orderDetail.value.paymentFrequency &&
-    //   name &&
-    //   validateCustomName(name) &&
-    //   hasSocialInsurance
-    // ) {
-    //   trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
-    // } else {
-    //   setDefaultPremium();
-    // }
   }, 500),
 );
 
@@ -898,6 +870,9 @@ watch(
           orderDetail.value.tenantOrderInsuredList[0].name = orderDetail.value.tenantOrderInsuredList[0].name
             ? orderDetail.value.tenantOrderInsuredList[0].name
             : targets[0].cert[0].certName;
+          orderDetail.value.tenantOrderInsuredList[0].mobile = orderDetail.value.tenantOrderInsuredList[0].mobile
+            ? orderDetail.value.tenantOrderInsuredList[0].mobile
+            : targets[0].contact[0].mobile;
         }
       } else {
         if (!orderDetail.value.tenantOrderHolder.dontFetchDefaultInfo) {
@@ -908,6 +883,9 @@ watch(
           orderDetail.value.tenantOrderHolder.name = orderDetail.value.tenantOrderHolder.name
             ? orderDetail.value.tenantOrderHolder.name
             : targets[0].cert[0].certName;
+          orderDetail.value.tenantOrderHolder.mobile = orderDetail.value.tenantOrderHolder.mobile
+            ? orderDetail.value.tenantOrderHolder.mobile
+            : targets[0].contact[0].mobile;
         }
       }
     }

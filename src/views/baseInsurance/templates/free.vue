@@ -441,6 +441,9 @@ watch(
         state.order.tenantOrderInsuredList[0].name = state.order.tenantOrderInsuredList[0].name
           ? state.order.tenantOrderInsuredList[0].name
           : targets[0].cert[0].certName;
+        state.order.tenantOrderInsuredList[0].mobile = state.order.tenantOrderInsuredList[0].mobile
+          ? state.order.tenantOrderInsuredList[0].mobile
+          : targets[0].contact[0].mobile;
       } else if (state.isSelfInsure) {
         state.isSelfInsure = false;
         state.order.tenantOrderHolder.certNo = state.order.tenantOrderHolder.certNo
@@ -449,6 +452,9 @@ watch(
         state.order.tenantOrderHolder.name = state.order.tenantOrderHolder.name
           ? state.order.tenantOrderHolder.name
           : targets[0].cert[0].certName;
+        state.order.tenantOrderHolder.mobile = state.order.tenantOrderHolder.mobile
+          ? state.order.tenantOrderHolder.mobile
+          : targets[0].contact[0].mobile;
       }
     }
     return false;
