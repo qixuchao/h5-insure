@@ -206,9 +206,6 @@ watch(
 
     :deep(.viewerContainer) {
       height: 100vh;
-      .pinch-zoom-container {
-        height: 50% !important;
-      }
     }
   }
   .pic-wrap {
