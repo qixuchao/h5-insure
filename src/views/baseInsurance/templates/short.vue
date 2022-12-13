@@ -779,7 +779,7 @@ watch(
   },
 );
 
-const onCalcCheck = (): boolean => {
+const onTrialCheck = (): boolean => {
   const {
     name,
     birthday,
@@ -807,9 +807,10 @@ const onCalcCheck = (): boolean => {
   return false;
 };
 
-// 设置当前保费默认值
-const setDefaultPremium = () => {
-  if (onCalcCheck()) {
+// 设置产品保费 =》 试算保费 | 默认保费
+const setPremium = () => {
+  if (onTrialCheck()) {
+    // 试算的话，优先在这里将保费文字改为加载中，因为watch触发试算有延迟，导致文案切换过慢
     premiumLoadingText.value = '保费试算中...';
   }
   if (currentPlanInsure.value && currentPlanInsure.value?.productPremiumVOList) {
@@ -823,11 +824,11 @@ const setDefaultPremium = () => {
   }
 };
 
+// 当计划和交费方式切换时，需重置产品保费为默认值
 watch(
   [() => currentPlanInsure.value, () => orderDetail.value.activePlanCode, () => orderDetail.value.paymentFrequency],
   () => {
-    // 加定时器延迟计划切换时，最低保费展示时间，用来衔接保费试算逻辑
-    setDefaultPremium();
+    setPremium();
   },
   {
     deep: true,
@@ -846,11 +847,14 @@ watch(
     () => orderDetail.value.insurancePeriodValue,
   ],
   debounce(() => {
-    if (onCalcCheck()) {
+    if (onTrialCheck()) {
+      // 预览模式，不需要试算
       if (previewMode.value) return;
+      // 产品试算
       trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
     } else {
-      setDefaultPremium();
+      // 设置产品保费
+      setPremium();
     }
   }, 500),
 );
@@ -931,7 +935,6 @@ onBeforeMount(() => {
     if (tenantOrderHolder) {
       orderDetail.value.tenantOrderHolder = {
         ...tenantOrderHolder,
-        // socialFlag: tenantOrderHolder.extInfo?.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
         certType: tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
       };
     }
