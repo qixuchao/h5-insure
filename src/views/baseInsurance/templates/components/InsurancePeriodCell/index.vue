@@ -2,11 +2,11 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-11 15:07:50
+ * @LastEditTime: 2022-12-13 18:32:10
  * @Description:
 -->
 <template>
-  <van-config-provider :theme-vars="themeVars">
+  <van-config-provider>
     <div class="com-period-cell">
       <div v-if="periodList.length > 1" class="period-custom-cell period-check-btn-cell">
         <div class="period-cell-label">保障期间</div>
@@ -71,8 +71,6 @@
 import type { FormInstance } from 'vant';
 import dayjs from 'dayjs';
 import { useToggle } from '@vant/use';
-import { PickerOption } from 'vant/es';
-import themeVars from '../../../theme';
 import {
   INSURANCE_END_TYPE_ENUM,
   INSURANCE_START_TYPE_ENUM,
