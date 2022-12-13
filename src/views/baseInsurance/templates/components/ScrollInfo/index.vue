@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-17 16:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-07 18:46:40
+ * @LastEditTime: 2022-12-13 18:29:26
  * @Description: 审核版首页
 -->
 <template>
@@ -17,12 +17,6 @@
             </template>
           </Suspense>
         </template>
-        <!-- <img
-          v-for="(item, index) in props.detail?.tenantProductInsureVO?.spec || []"
-          :key="index"
-          :src="item"
-          class="detail-img"
-        /> -->
         <ProDivider />
       </div>
     </template>
@@ -67,7 +61,6 @@
 <script lang="ts" setup>
 import { Ref, Suspense } from 'vue';
 import { CLAIM_TYPE_ENUM } from '@/common/constants/infoCollection';
-import ProCard from '@/components/ProCard/index.vue';
 import CustomCard from '../../../components/CustomCard/index.vue';
 import ProDivider from '@/components/ProDivider/index.vue';
 import ProScrollTab from '@/components/ProScrollTab/index.vue';

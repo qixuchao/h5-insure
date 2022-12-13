@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-27 21:01:33
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-13 20:52:32
+ * @LastEditTime: 2022-12-13 21:24:41
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/middle/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -28,6 +28,7 @@ interface QueryData {
   templateId: string;
   pageCode: string;
   productCode: string;
+  code: string;
   [key: string]: string | number;
 }
 
@@ -43,10 +44,21 @@ const {
   pageCode,
   insurerCode,
   productCode,
+  code: wxCode,
 } = route.query as QueryData;
 
-console.log('route.query-------', route.query);
-
+console.log('middlePage route.query-------', route.query);
+/**
+ * 拼接code到具体投保页面
+ * @param url 访问的链接
+ */
+const pinJieCode = (url: string) => {
+  const tempUrl = decodeURIComponent(url);
+  if (tempUrl.includes('code=')) {
+    return url;
+  }
+  return `${url}&code=${wxCode}`;
+};
 let extInfo = {};
 
 try {
@@ -101,17 +113,13 @@ const jumpRouter = (url?: string) => {
 const onValidateSign = (param: string) => {
   validateSign({ param }).then(({ code, data }) => {
     if (code === '10000' && data) {
-      let path = '/productDetail';
-      if ('proposalId' in route.query) {
-        path = '/trial';
-      }
       if (openId) {
         const activityUrl = getActivityPath();
         const params = qs.parse(param);
         params.extraInfo = encodeURIComponent(JSON.stringify(extInfo));
-        router.replace(`${activityUrl}?${qs.stringify(params)}`);
+        router.replace(pinJieCode(`${activityUrl}?${qs.stringify(params)}`));
       } else {
-        jumpRouter(path);
+        jumpRouter();
       }
     } else {
       result.value = '验证失败';
