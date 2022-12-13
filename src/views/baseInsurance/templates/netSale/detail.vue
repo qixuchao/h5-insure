@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-11 21:56:42
+ * @LastEditTime: 2022-12-13 21:20:00
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -21,7 +21,20 @@
           <ProCell title="保单状态" :content="ORDER_STATUS_MAP[orderDetail.orderStatus]"></ProCell>
           <ProCell title="订单编号" :content="orderDetail.orderNo"></ProCell>
           <!-- <ProCell title="销售人名称" content=""></ProCell> -->
-          <ProCell title="房屋地址" :content="orderDetail.tenantOrderHolder?.extInfo?.familyAddress"></ProCell>
+          <ProCascader
+            v-model="orderDetail.tenantOrderHolder.extInfo.familyAreaCode"
+            v-model:field1="orderDetail.tenantOrderHolder.extInfo.familyProvinceCode"
+            v-model:field2="orderDetail.tenantOrderHolder.extInfo.familyCityCode"
+            v-model:field3="orderDetail.tenantOrderHolder.extInfo.familyAreaCode"
+            label="房产所在地"
+            name="familyProvinceCode"
+            is-link
+            is-view
+            class="insured-info"
+            :data-source="region"
+            :mapping="{ label: 'name', value: 'code', children: 'children' }"
+          ></ProCascader>
+          <ProCell title="详细地址" :content="orderDetail.tenantOrderHolder?.extInfo?.familyAddress"></ProCell>
           <ProCell
             title="燃气编号"
             :content="orderDetail.tenantOrderSubjectList?.[0]?.extInfo?.subjectRelatedUserId"
@@ -105,6 +118,7 @@ import { sendPay, useWXCode } from '../../../cashier/core';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 import pdfPreview from '@/utils/pdfPreview';
 import FilePreview from '../components/FilePreview/index.vue';
+import useDicData from '@/hooks/useDicData';
 import { INSURANCE_PERIOD_TYPE_ENUMS } from '@/common/constants/trial';
 
 const themeVars = useTheme();
@@ -116,6 +130,7 @@ const { orderNo = '2022113021181894998', tenantId = '9991000001' } = route.query
 const formData = ref<any>();
 const factorObj = ref<any>({});
 const loadForm = ref<boolean>(false);
+const region = useDicData('NATIONAL_REGION_CODE');
 const orderDetail = ref<any>({
   // 订单数据模板
   commencementTime: '',
@@ -328,6 +343,9 @@ onMounted(() => {
   background-color: #f4f4f4;
   .product-name {
     padding: 20px 0 6px;
+  }
+  .insured-info {
+    padding: 15px 0;
   }
   .file-list-card {
     width: 100%;

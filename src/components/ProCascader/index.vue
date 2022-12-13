@@ -10,7 +10,7 @@
   >
     <template #input>
       <div class="input">
-        <span v-if="displayValue" class="displayValue">{{ displayValue }}</span>
+        <span v-if="displayValue || isView" class="displayValue">{{ displayValue }}</span>
         <span v-else class="placeholder">{{ currentPlaceholder }}</span>
       </div>
     </template>
