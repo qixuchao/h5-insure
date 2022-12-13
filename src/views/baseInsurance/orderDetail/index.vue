@@ -81,10 +81,11 @@ interface QueryData {
   orderNo: string;
   from: string;
   productCode: string;
+  code: string; // 微信授权code
   [key: string]: string;
 }
 
-const { tenantId, from = 'other', orderNo, productCode } = route.query as QueryData;
+const { tenantId, from = 'other', orderNo, productCode, code } = route.query as QueryData;
 
 const state = reactive<{
   insureDetail: ProductData;
@@ -153,13 +154,13 @@ const goToInsurerPage = async (reOrder = false) => {
       },
     };
     delete params.extraMap.templateId;
-    const { code, data } = await queryStandardInsurerLink(params);
-    if (code === '10000') {
+    const res = await queryStandardInsurerLink(params);
+    if (res.code === '10000') {
       if (!reOrder) {
         const { tenantOrderHolder, tenantOrderInsuredList } = state.orderDetail;
         sessionStore.set(ORDER_DETAIL_KEY, { tenantOrderHolder, tenantOrderInsuredList });
       }
-      window.location.href = data || '';
+      window.location.href = res.data || '';
     }
   } catch (e) {
     console.log(e);
@@ -168,19 +169,24 @@ const goToInsurerPage = async (reOrder = false) => {
 
 const orderBtnHandler = async () => {
   if (orderBtnText.value === '下载保单') {
-    if (!state.orderDetail.extInfo?.policyUrl) {
-      const orderReq = await getTenantOrderDetail({ orderNo, tenantId });
-      if (orderReq.code === '10000') {
-        state.orderDetail = orderReq.data;
-        if (state.orderDetail.extInfo?.policyUrl) {
-          downLoadFile(state.orderDetail.extInfo?.policyUrl);
-        } else {
-          Toast('电子保单单生成中，请稍后再试');
-        }
-      }
-    } else {
-      state.orderDetail.extInfo?.policyUrl && downLoadFile(state.orderDetail.extInfo?.policyUrl);
-    }
+    console.log('配的保单下载地址', state.orderDetail.extInfo.extraInfo.xinaoMyUrl);
+    // 拿到客户配置的下载保单地址
+    const customerDownloadUrl = `${state.orderDetail.extInfo.extraInfo.xinaoMyUrl}?code=${code}&state=STATE`;
+    console.log('拼接后的保单下载地址', customerDownloadUrl);
+    window.location.href = customerDownloadUrl;
+    // if (!state.orderDetail.extInfo?.policyUrl) {
+    //   const orderReq = await getTenantOrderDetail({ orderNo, tenantId });
+    //   if (orderReq.code === '10000') {
+    //     state.orderDetail = orderReq.data;
+    //     if (state.orderDetail.extInfo?.policyUrl) {
+    //       downLoadFile(state.orderDetail.extInfo?.policyUrl);
+    //     } else {
+    //       Toast('电子保单单生成中，请稍后再试');
+    //     }
+    //   }
+    // } else {
+    //   state.orderDetail.extInfo?.policyUrl && downLoadFile(state.orderDetail.extInfo?.policyUrl);
+    // }
   } else if (orderBtnText.value === '立即支付') {
     getPayUrl({
       ...state.orderDetail,
@@ -188,9 +194,9 @@ const orderBtnHandler = async () => {
         ...state.orderDetail.extInfo,
         redirectUrl: window.location.href,
       },
-    }).then(({ code, data }) => {
-      if (code === '10000') {
-        sendPay(data.paymentUrl);
+    }).then((res) => {
+      if (res.code === '10000') {
+        sendPay(res.data.paymentUrl);
       }
     });
   } else if (orderBtnText.value === '重下一单') {

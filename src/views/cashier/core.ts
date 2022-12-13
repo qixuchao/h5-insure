@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-13 13:09:04
+ * @LastEditTime: 2022-12-13 14:59:37
  * @Description:
  */
 import wx from 'weixin-js-sdk';
@@ -125,7 +125,7 @@ export const usePay = async (payParam: PayParam) => {
           setTimeout(() => {
             return Promise.resolve('');
           }, 100);
-          window.open(res.data.mweb_url);
+          window.location.href = res.data.mweb_url;
           // const url = res.data.mweb_url;
           // const a = document.createElement('a');
           // a.href = url;

@@ -28,6 +28,7 @@ interface QueryData {
   templateId: string;
   pageCode: string;
   productCode: string;
+  code: string;
   [key: string]: string | number;
 }
 
@@ -45,7 +46,7 @@ const {
   productCode,
 } = route.query as QueryData;
 
-console.log('route.query-------', route.query);
+console.log('middlePage route.query-------', route.query);
 
 let extInfo = {};
 
