@@ -54,8 +54,14 @@ import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
 import dayjs from 'dayjs';
 import { transformData, getAgeByCard, riskToOrder } from '../../utils';
-import { PackageProductVoItem, ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
+import {
+  PackageProductVoItem,
+  ProductData,
+  RiskPremiumDetailVoItem,
+  PremiumCalcResponse,
+} from '@/api/modules/trial.data';
 import { productDetail } from '@/api/modules/product';
+import { ProductDetail } from '@/api/modules/product.data';
 import { insureProductDetail, premiumCalc, underWriteRule } from '@/api/modules/trial';
 import InsureForm from '../components/InsureForm/index.vue';
 import { useTheme } from '../../theme';
@@ -65,7 +71,6 @@ import { CERT_TYPE_ENUM } from '@/common/constants';
 
 // 调用主题
 const themeVars = useTheme();
-const router = useRouter();
 const route = useRoute();
 /** 页面query参数类型 */
 interface QueryData {
@@ -94,12 +99,16 @@ const {
   preview,
 } = route.query as QueryData;
 
-const formRef = ref<Ref>();
+const formRef = ref<InstanceType<typeof InsureForm>>();
 const currentPlan = ref<string>();
 const insureDetail = ref<ProductData>(); // 产品中心产品详情
-const tenantProductDetail = ref<any>(); // 租户平台产品详情
-const premiumObj = ref<any>(); // 保费
-const factorObj = ref<any>({});
+const tenantProductDetail = ref<ProductDetail>(); // 租户平台产品详情
+const premiumObj = ref<PremiumCalcResponse>(); // 保费
+const factorObj = ref<Pick<ProductData, 'productFactor'>>({
+  1: [],
+  2: [],
+  3: [],
+});
 const trialPremiumData = ref<any>({});
 const currentFactor = ref<any>({});
 const iseeBizNo = ref<string>();
