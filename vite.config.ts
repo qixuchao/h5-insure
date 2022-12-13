@@ -1,8 +1,13 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 17:42:39
+<<<<<<< HEAD
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-13 11:10:22
+ * @LastEditTime: 2022-12-13 13:12:03
+=======
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-13 11:26:33
+>>>>>>> a5b826cdf624bd89ad180e7a7096db2574195fe3
  * @FilePath: /zat-planet-h5-cloud-insure/vite.config.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -52,7 +57,7 @@ export default defineConfig((env) => {
           // target: 'https://h5-cloud-insure.ennejb.cn',
           // target: 'http://zat-planet-gateway.test.za-tech.net',
           changeOrigin: true, // 允许跨域
-          rewrite: (api) => api.replace('/h5-cloud-insure', ''),
+          rewrite: (path) => path.replace('/h5-cloud-insure', ''),
         },
       },
     },
@@ -77,7 +82,7 @@ export default defineConfig((env) => {
           assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
           manualChunks: {
             echarts: ['echarts'],
-            pdfh5: ['pdfh5'],
+            // pdfh5: ['pdfh5'],
             pdfdist: ['pdfjs-dist'],
           },
         },

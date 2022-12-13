@@ -3,7 +3,7 @@ import { Toast, Dialog } from 'vant';
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-12-01 11:06:22
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-07 18:52:15
+ * @LastEditTime: 2022-12-12 19:38:29
  * @FilePath: /zat-planet-h5-cloud-insure/src/utils/nextStep.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -12,6 +12,8 @@ import router from '@/router';
 import { sendPay } from '@/views/cashier/core';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 
+const { VITE_BASE } = import.meta.env;
+
 export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: string) => void) => {
   const currentParams = params;
   // 判断订单是否生成,增加订单详情的跳转连接
@@ -19,7 +21,7 @@ export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: 
   const { iseeBizNo } = extInfo || {};
   if (orderNo) {
     const { productCode } = tenantOrderInsuredList?.[0]?.tenantOrderProductList?.[0] || {};
-    const redirectUrl = `${`${window.location.origin}/baseInsurance/orderDetail`}?orderNo=${orderNo}&tenantId=${tenantId}&ISEE_BIZ=${iseeBizNo}&productCode=${productCode}`;
+    const redirectUrl = `${`${window.location.origin}${VITE_BASE}baseInsurance/orderDetail`}?orderNo=${orderNo}&tenantId=${tenantId}&ISEE_BIZ=${iseeBizNo}&productCode=${productCode}`;
     currentParams.extInfo.redirectUrl = redirectUrl;
   }
 
