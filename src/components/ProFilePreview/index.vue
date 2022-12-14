@@ -17,7 +17,7 @@
 
     <QuestionPreview v-else-if="isQuestion" :current-page-info="props.content" />
     <!-- 外联 -->
-    <iframe v-else :src="content" frameborder="0" width="100%" style="height: 100vh"></iframe>
+    <!-- <iframe v-else :src="content" frameborder="0" width="100%" style="height: 100vh"></iframe> -->
     <slot name="footer-btn"></slot>
   </div>
 </template>
@@ -62,7 +62,10 @@ const isQuestion = computed(() => {
 });
 
 const isLink = computed(() => {
-  return props.type === 'link';
+  if (props.type === 'link') {
+    return true;
+  }
+  return false;
 });
 
 PDFJS.GlobalWorkerOptions.workerSrc = workerSrc;
@@ -165,6 +168,18 @@ watch(
   },
   {
     deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  () => props.type,
+  (newVal) => {
+    if (newVal === 'link') {
+      window.open(props.content);
+    }
+  },
+  {
     immediate: true,
   },
 );

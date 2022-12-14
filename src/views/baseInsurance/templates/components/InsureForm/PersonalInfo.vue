@@ -975,8 +975,8 @@ watch(
 );
 
 watch(
-  () => state.value.formInfo.certNo,
-  (newVal) => {
+  [() => state.value.formInfo.certNo, () => state.value.formInfo.certType],
+  ([newVal]) => {
     if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.BIRTH].includes(`${state.value.formInfo.certType}`)) {
       if (validateIdCardNo(newVal)) {
         state.value.formInfo.gender = +getSex(newVal);
