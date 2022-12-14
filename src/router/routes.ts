@@ -1,13 +1,14 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-13 11:44:49
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-12-14 15:18:44
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 // 需要鉴权的业务路由
 import { RouteRecordRaw } from 'vue-router';
+import exceptionRoutes from './route.exception';
 
 // 人身险路由
 const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
@@ -226,7 +227,7 @@ const baseInsurance = [
     component: () => import('@/views/baseInsurance/templates/netSale/detail.vue'),
   },
   {
-    name: '',
+    name: 'baseInsurance-orderDetail',
     path: '/baseInsurance/orderDetail',
     meta: { title: '', requireWxJs: true, keepAlive: true },
     component: () => import('@/views/baseInsurance/orderDetail/index.vue'),
@@ -330,6 +331,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   ...lifeInsuranceRoutes,
   ...internetRoutes,
   ...baseInsurance,
+  ...exceptionRoutes,
 ];
 
 export default asyncRoutes;

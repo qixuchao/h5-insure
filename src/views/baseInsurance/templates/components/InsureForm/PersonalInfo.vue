@@ -115,7 +115,7 @@
       :min="state.birth.min"
       :max="state.birth.max"
       type="date"
-      :is-view="isView"
+      :is-view="isIdCard || isView"
       :required="isRequiredByFactor('birthDate')"
     ></ProDatePicker>
     <ProDatePicker
@@ -714,20 +714,10 @@ function isContain(dom: HTMLElement) {
 const onfocus = (name: string) => {
   if (name === 'mobile') {
     phoneNoStatus.value = false;
-    // setTimeout(() => {
-    //   if (phoneRef.value && isContain(phoneRef.value)) {
-    //     phoneRef.value.scrollIntoView();
-    //   }
-    // }, 300);
   }
 
   if (name === 'certNo') {
     certNoStatus.value = false;
-    // setTimeout(() => {
-    //   if (certNoRef.value && isContain(certNoRef.value)) {
-    //     certNoRef.value.scrollIntoView();
-    //   }
-    // }, 300);
   }
 };
 
@@ -816,6 +806,15 @@ const validateType = computed(() => {
   if (`${state.value.formInfo.certType}` === CERT_TYPE_ENUM.PASSPORT) {
     return [VALIDATE_TYPE_ENUM.PASSPORT];
   }
+  // 社会统一信用代码
+  if (`${state.value.formInfo.certType}` === CERT_TYPE_ENUM.SOCIAL_CREDIT_CODE) {
+    return [VALIDATE_TYPE_ENUM.SOCIAL_CREDIT_CODE];
+  }
+  // 其他
+  if (`${state.value.formInfo.certType}` === CERT_TYPE_ENUM.OTHER) {
+    return [VALIDATE_TYPE_ENUM.OTHER];
+  }
+
   return [VALIDATE_TYPE_ENUM.ID_CARD];
 });
 
@@ -938,10 +937,7 @@ watch(
 watch(
   [() => state.value.formInfo.certNo, () => state.value.formInfo.mobile],
   () => {
-    state.value.formInfo.certNo = state.value.formInfo.certNo?.replace(
-      /[\u4e00-\u9fa5/\s+/]|[^Xx0-9\u4E00-\u9FA5]/g,
-      '',
-    );
+    state.value.formInfo.certNo = state.value.formInfo.certNo?.replace(/[\u4e00-\u9fa5/\s+/]/g, '');
     state.value.formInfo.mobile = state.value.formInfo.mobile?.replace(
       /[\u4e00-\u9fa5/\s+/]|[^Xx0-9\u4E00-\u9FA5]/g,
       '',

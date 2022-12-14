@@ -209,7 +209,7 @@ const {
 let extInfo: any = {};
 
 try {
-  console.log('extInfo', extraInfo);
+  console.log('extInfo', decodeURIComponent(extraInfo));
 
   extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
 } catch (error) {

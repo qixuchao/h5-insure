@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-08-01 15:59:43
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-06 20:27:10
+ * @LastEditTime: 2022-12-14 15:59:38
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProField/utils.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -106,6 +106,16 @@ export const formatRule = (type: keyof typeof VALIDATE_TYPE_ENUM, label: string)
     case VALIDATE_TYPE_ENUM.BIRTH:
       return {
         pattern: /^[a-zA-Z]\d{9}$/,
+        message: `请输入正确的${label}`,
+      };
+    case VALIDATE_TYPE_ENUM.SOCIAL_CREDIT_CODE:
+      return {
+        pattern: /^[a-zA-Z1-9-]{18}$/,
+        message: `请输入正确的${label}`,
+      };
+    case VALIDATE_TYPE_ENUM.OTHER:
+      return {
+        pattern: /^.{1,18}$/,
         message: `请输入正确的${label}`,
       };
     case VALIDATE_TYPE_ENUM.PASSPORT:
