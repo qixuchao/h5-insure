@@ -443,7 +443,7 @@ watch(
           : targets[0].cert[0].certName;
         state.order.tenantOrderInsuredList[0].mobile = state.order.tenantOrderInsuredList[0].mobile
           ? state.order.tenantOrderInsuredList[0].mobile
-          : targets[0].contact[0].mobile;
+          : targets[0].contact[0].contactNo;
       } else if (state.isSelfInsure) {
         state.isSelfInsure = false;
         state.order.tenantOrderHolder.certNo = state.order.tenantOrderHolder.certNo
@@ -454,7 +454,7 @@ watch(
           : targets[0].cert[0].certName;
         state.order.tenantOrderHolder.mobile = state.order.tenantOrderHolder.mobile
           ? state.order.tenantOrderHolder.mobile
-          : targets[0].contact[0].mobile;
+          : targets[0].contact[0].contactNo;
       }
     }
     return false;

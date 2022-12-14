@@ -342,3 +342,124 @@ export interface ErrorInfo {
   name: string;
   message: string;
 }
+
+
+export interface OrderDetail {
+    tenantId: string;
+    agencyId?: string;
+    agentCode: string;
+    orderCategory: number;
+    saleChannelId: string;
+    venderCode: string;
+    productCode: string;
+    insuranceStartDate: string | null;
+    insuranceEndDate: string | null;
+    activePlanCode: string;
+    insurancePeriodValue: string;
+    commencementTime: string;
+    tenantOrderHolder: TenantOrderHolder;
+    tenantOrderInsuredList: TenantOrderInsuredItem[];
+    extInfo: OrderExtInfo;
+    operateOption: OperateOption;
+    paymentFrequency: string;
+    premium?: number;
+    orderAmount?: number;
+    orderRealAmount?: number;
+    expiryDate?: string;
+    activePlanCode?: string;
+    [prop: string]: any;
+}
+
+export interface OperateOption {
+    withBeneficiaryInfo: boolean;
+    withHolderInfo: boolean;
+    withInsuredInfo: boolean;
+    withAttachmentInfo: boolean;
+    withProductInfo: boolean;
+}
+
+export interface OrderExtInfo {
+    buttonCode?: string;
+    successJumpUrl?: string;
+    pageCode?: string;
+    extraInfo: any;
+    templateId: string;
+    iseeBizNo: string;
+}
+
+export interface TenantOrderInsuredItem {
+    dontFetchDefaultInfo?: boolean;
+    relationToHolder: string;
+    extInfo: any;
+    insuredBeneficiaryType: string;
+    tenantOrderBeneficiaryList: TenantOrderBeneficiaryItem[];
+    tenantOrderProductList: TenantOrderProductItem[];
+    id?: string;
+    certEndType?: number;
+    mobile?: string;
+    certNo?: string;
+    gender?: number;
+    birthday?: string;
+    certType?: number;
+    name?: string;
+    socialFlag?: string;
+    planCode?: string;
+}
+
+export interface TenantOrderProductItem {
+    tenantId?: string;
+    premium: number;
+    productCode: string;
+    productName: string;
+    planCode: string;
+    tenantOrderRiskList: TenantOrderRiskItem[];
+}
+
+export interface TenantOrderRiskItem {
+    tenantId: string;
+    amountUnit: number;
+    paymentFrequency: string;
+    paymentPeriod: string;
+    paymentPeriodType: number;
+    insurancePeriodType: number;
+    insurancePeriodValue: string;
+    riskCode: string;
+    riskType: number;
+    extInfo: any;
+    initialPremium: number;
+    totalPremium: number;
+    liabilityDetails: LiabilityDetail[];
+    productId: number;
+    currentAmount: string;
+    initialAmount: number;
+}
+
+export interface LiabilityDetail {
+    liabilityCode: string;
+    liabilityName: string;
+}
+
+export interface TenantOrderBeneficiaryItem {
+    beneficiaryId: number;
+    extInfo: any;
+}
+
+export interface ExtInfo {
+    hasSocialInsurance: string;
+    [key: string]: any
+}
+
+export interface TenantOrderHolder {
+    extInfo: ExtInfo;
+    certEndType?: number;
+    mobile?: string;
+    certNo?: string;
+    gender?: number;
+    birthday?: string;
+    certType?: number;
+    name?: string;
+    socialFlag?: string;
+    verificationCode?: string;
+    dontFetchDefaultInfo?: boolean
+}
+

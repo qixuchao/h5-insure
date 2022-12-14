@@ -136,9 +136,13 @@ const loadPdfH5Viewer = () => {
     // 监听完成事件
     pdfh5.value?.on('complete', (status: string, msg: string, time: number) => {
       console.log(`状态：${status}，信息：${msg}，耗时：${time}毫秒`);
+      if (status === 'error') {
+        Toast('文件损坏，无法打开！');
+      }
     });
   } catch (error) {
     //
+    console.log('error', error);
   }
 };
 

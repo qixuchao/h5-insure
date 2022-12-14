@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-09 20:21:55
+ * @LastEditTime: 2022-12-14 11:17:07
  * @Description:
 -->
 <template>
@@ -121,7 +121,7 @@ import type { FormInstance } from 'vant';
 import { Toast } from 'vant/es';
 import { PAYMENT_COMMON_FREQUENCY_ENUM, PAYMENT_COMMON_FREQUENCY_MAP } from '@/common/constants/infoCollection';
 import { PlanInsureVO, ProductDetail, ProductPlanInsureConditionVo, ShowConfigVO } from '@/api/modules/product.data';
-import { ProductData } from '@/api/modules/trial.data';
+import { OrderDetail, ProductData } from '@/api/modules/trial.data';
 import InsurancePeriodCell from '../InsurancePeriodCell/index.vue';
 import { openPreviewFilePage } from '@/views/baseInsurance/utils';
 
@@ -136,7 +136,7 @@ interface FormInfoProps {
 
 const props = defineProps({
   formInfo: {
-    type: Object as () => FormInfoProps,
+    type: Object as () => OrderDetail,
     default: () => {},
   },
   insureDetail: {
