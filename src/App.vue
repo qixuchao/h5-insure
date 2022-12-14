@@ -1,9 +1,9 @@
 <template>
   <router-view v-slot="{ Component, route }" class="router-view">
     <keep-alive>
-      <component :is="Component" v-if="route.meta.keepAlive"></component>
+      <component :is="Component" v-if="route.meta.keepAlive" :key="route.path"></component>
     </keep-alive>
-    <component :is="Component" v-if="!route.meta.keepAlive"></component>
+    <component :is="Component" v-if="!route.meta.keepAlive" :key="route.path"></component>
   </router-view>
 </template>
 <script lang="ts" setup>
