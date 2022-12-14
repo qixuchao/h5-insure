@@ -127,16 +127,23 @@ import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
 import { useIntersectionObserver } from '@vueuse/core';
 
-import { min } from 'lodash';
-import { ProductDetail, AttachmentVOList, PlanInsureVO } from '@/api/modules/product.data';
+import {
+  ProductDetail,
+  AttachmentVOList,
+  PlanInsureVO,
+  ProductPremiumVoItem,
+  ProductFactorItem,
+} from '@/api/modules/product.data';
+import { ProductDetail as ProductData } from '@/api/modules/newTrial.data';
 import {
   OrderDetail,
   PackageProductVoItem,
-  ProductData,
   RiskPremiumDetailVoItem,
   TenantOrderRiskItem,
   TenantOrderHolder,
   TenantOrderInsuredItem,
+  PremiumCalcData,
+  RelationCustomer,
 } from '@/api/modules/trial.data';
 import { premiumCalc, insureProductDetail, getTenantOrderDetail, underWriteRule } from '@/api/modules/trial';
 import { productDetail } from '@/api/modules/product';
@@ -175,6 +182,7 @@ import AttachmentList from './components/AttachmentList/index.vue';
 
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import { sessionStore } from '@/hooks/useStorage';
+import { TenantOrderProductItem } from '@/api/index.data';
 
 const themeVars = useTheme();
 const router = useRouter();
@@ -229,7 +237,6 @@ const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件�
 const preNoticeLoading = ref<boolean>(false); // 首页弹窗
 const premiumMap = ref<any>({}); // 试算后保费
 const relationList = ref<any>({});
-const loading = ref(false);
 const isOnlyView = ref<boolean>(true); // 资料查看模式
 const needDesensitize = ref<boolean>(true); // 投被保人身份证手机号是否需要掩码
 
@@ -368,7 +375,9 @@ const factorObj = computed(() => {
     factorObjList = insureDetail.value?.planFactor[orderDetail.value.activePlanCode] || {};
   }
   if (isOldUser.value && factorObjList[1]) {
-    const index = factorObjList[1].findIndex((e: any) => e.code === 'verificationCode' && e.isDisplay === 1);
+    const index = factorObjList[1].findIndex(
+      (e: ProductFactorItem) => e.code === 'verificationCode' && e.isDisplay === 1,
+    );
     if (index > -1) {
       console.log('index', index);
       factorObjList[1][index].isDisplay = 2;
@@ -380,7 +389,9 @@ const factorObj = computed(() => {
 // 根据是否是老用户，判断是否展示获取验证码
 const isCheckHolderSmsCode = computed(() => {
   if (factorObj.value[1]) {
-    const index = factorObj.value[1].findIndex((e: any) => e.code === 'verificationCode' && e.isDisplay === 1);
+    const index = factorObj.value[1].findIndex(
+      (e: ProductFactorItem) => e.code === 'verificationCode' && e.isDisplay === 1,
+    );
     if (index > -1) {
       return true;
     }
@@ -529,7 +540,7 @@ const onClickToInsure = () => {
   detailScrollRef.value.handleClickTab()('tab3');
 };
 
-const onUpdateHolderData = (data: any) => {
+const onUpdateHolderData = (data: RelationCustomer) => {
   needDesensitize.value = false;
   Object.assign(orderDetail.value.tenantOrderHolder, data);
   nextTick(() => {
@@ -537,7 +548,7 @@ const onUpdateHolderData = (data: any) => {
   });
 };
 
-const onUpdateInsurerData = (data: any) => {
+const onUpdateInsurerData = (data: RelationCustomer) => {
   needDesensitize.value = false;
   Object.assign(orderDetail.value.tenantOrderInsuredList[0], data);
   nextTick(() => {
@@ -594,7 +605,7 @@ const trialData2Order = (
   return nextStepParams;
 };
 
-const onUnderWrite = async (orderNo: any) => {
+const onUnderWrite = async (orderNo: string) => {
   try {
     const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
     if (code === '10000') {
@@ -685,17 +696,12 @@ const trialPremium = async (
     const { code: ruleCode, message: ruleMessage } = await underWriteRule(trialParams);
 
     if (ruleCode === '10000') {
-      if (!preNoticeLoading.value) {
-        useLoading(loading, '正在保费试算请稍候');
-      }
-
-      const { code, data } = await premiumCalc(trialParams);
+      const { code, data } = await premiumCalc(trialParams as PremiumCalcData);
       if (code === '10000') {
-        loading.value = false;
         premiumLoadingText.value = '';
         orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList =
-          trialParams.insuredVOList[0]?.productPlanVOList;
-        premium.value = data.premium;
+          trialParams.insuredVOList[0].productPlanVOList;
+        premium.value = data?.premium;
         orderDetail.value.premium = data.premium;
         orderDetail.value.orderAmount = data.premium;
         orderDetail.value.orderRealAmount = data.premium;
@@ -728,7 +734,6 @@ const trialPremium = async (
     }
   } catch (error) {
     premiumLoadingText.value = '';
-    loading.value = false;
   }
 };
 
@@ -739,7 +744,7 @@ const onNext = async () => {
     if (formRef.value) {
       formRef.value?.validateForm().then(async () => {
         if (isOldUser.value || !isCheckHolderSmsCode.value) {
-          await trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value, false);
+          await trialPremium(orderDetail.value as OrderDetail, insureDetail.value, currentRiskInfo.value, false);
         } else {
           const smsCode = orderDetail.value.tenantOrderHolder?.verificationCode;
           if (!smsCode || !validateSmsCode(smsCode)) {
@@ -750,7 +755,7 @@ const onNext = async () => {
           }
           const { code, data } = await checkCode(orderDetail.value.tenantOrderHolder.mobile as string, smsCode);
           if (code === '10000') {
-            await trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value, false);
+            await trialPremium(orderDetail.value as OrderDetail, insureDetail.value, currentRiskInfo.value, false);
           }
         }
       });
@@ -852,9 +857,9 @@ const setPremium = () => {
     // 试算的话，优先在这里将保费文字改为加载中，因为watch触发试算有延迟，导致文案切换过慢
     premiumLoadingText.value = '保费试算中...';
   }
-  if (currentPlanInsure.value && currentPlanInsure.value?.productPremiumVOList) {
-    const item = currentPlanInsure.value?.productPremiumVOList.find(
-      (e: any) => e.paymentFrequency === orderDetail.value.paymentFrequency,
+  if (currentPlanInsure.value && (currentPlanInsure.value as PlanInsureVO).productPremiumVOList) {
+    const item = (currentPlanInsure.value as PlanInsureVO).productPremiumVOList.find(
+      (e: ProductPremiumVoItem) => e.paymentFrequency === orderDetail.value.paymentFrequency,
     );
     if (item) {
       premium.value = null;
@@ -892,7 +897,7 @@ watch(
       // 预览模式，不需要试算
       if (previewMode.value) return;
       // 产品试算
-      trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
+      trialPremium(orderDetail.value as OrderDetail, insureDetail.value, currentRiskInfo.value);
     } else {
       // 设置产品保费
       setPremium();
@@ -955,7 +960,7 @@ const fetchData = async () => {
   await insureProductDetail({ productCode }).then((insureRes) => {
     if (insureRes.code === '10000') {
       preNoticeLoading.value = true;
-      insureDetail.value = insureRes.data;
+      insureDetail.value = insureRes.data as ProductData;
     }
   });
 };
@@ -983,12 +988,12 @@ onBeforeMount(() => {
       const insurer = tenantOrderInsuredList[0] || {};
       orderDetail.value.activePlanCode = insurer.planCode;
       if (
-        insurer.tenantOrderProductList &&
+        insurer.tenantOrderProductListtenantOrderProductList &&
         insurer.tenantOrderProductList[0] &&
         insurer.tenantOrderProductList[0].tenantOrderRiskList
       ) {
         const item = insurer.tenantOrderProductList[0].tenantOrderRiskList?.find(
-          (e: any) => String(e.riskType) === '1',
+          (e: TenantOrderRiskItem) => String(e.riskType) === '1',
         );
         if (item) {
           orderDetail.value.paymentFrequency = item?.paymentFrequency
@@ -1010,7 +1015,6 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  loading.value = false;
   // 清除再来一单的缓存值
   sessionStore.remove(ORDER_DETAIL_KEY);
 });

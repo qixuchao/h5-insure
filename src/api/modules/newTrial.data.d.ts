@@ -5,6 +5,7 @@ export interface ProductDetail {
     productRelationPlanVOList: ProductRelationPlanVoItem[];
     productRiskVoList: ProductRiskVoItem[];
     riskDetailVOList: RiskDetailVoItem[];
+    [prop: string]: any;
 }
 
 export interface RiskDetailVoItem {

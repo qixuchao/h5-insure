@@ -1,5 +1,5 @@
 export interface ProductData {
-    productFactor:ProductFactor;
+    productFactor?: ProductFactor;
     productBasicInfoVO: ProductBasicInfoVo;
     productMaterialVOList: ProductMaterialVoItem[];
     productRelationPlanVOList: ProductRelationPlanVoItem[];
@@ -461,5 +461,63 @@ export interface TenantOrderHolder {
     socialFlag?: string;
     verificationCode?: string;
     dontFetchDefaultInfo?: boolean
+}
+
+export interface RelationCustomer {
+    customerId: object;
+    customerName: string;
+    type: object;
+    customerNo: object;
+    birthday: object;
+    gender: object;
+    country: object;
+    occupation: object;
+    occupationType: object;
+    occupationDesc: object;
+    occupationDuty: object;
+    marriage: object;
+    workPlace: object;
+    salary: object;
+    degree: object;
+    relationCode: string;
+    healthCondition: object;
+    memo: object;
+    hasSocialInsurance: object;
+    cert: Cert[];
+    addr: object;
+    contact: Contact[];
+    att: object;
+    relation: object;
+    payInfo: object;
+    companyContact: object;
+    customerTagDTO: object;
+    customerTagRandomDTO: object;
+    customerAttrDTO: object;
+    customerMaterialDTO: object;
+    companyType: object;
+    companyExtInfoDTO: object;
+}
+
+export interface Contact {
+    contactId: object;
+    customerId: object;
+    contactTool: object;
+    contactNo: string;
+    contactType: object;
+    isDefault: object;
+    contactRemark: object;
+    createTime: object;
+    tenantId: object;
+}
+
+export interface Cert {
+    certId: object;
+    certType: object;
+    certNo: string;
+    certValidity: object;
+    createTime: object;
+    customerType: object;
+    certStart: object;
+    certName: string;
 }
 
