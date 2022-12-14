@@ -79,7 +79,7 @@
           </template>
           <template v-else-if="premium">
             <span> {{ toLocal(premium) }}</span>
-            <span>{{ actualUnit }} </span>
+            <span>{{ actualUnit || '元' }} </span>
           </template>
           <template v-else>
             <span> {{ minPremiun }}</span>
