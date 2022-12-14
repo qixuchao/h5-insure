@@ -1051,6 +1051,11 @@ onUnmounted(() => {
 
     :deep(.radio-btn) {
       justify-content: flex-start;
+
+      .btn-wrapper {
+        margin-left: 0px !important;
+        margin-right: 8px !important;
+      }
     }
   }
 
