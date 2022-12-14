@@ -3,7 +3,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-21 19:34:02
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-13 14:07:16
+ * @LastEditTime: 2022-12-14 18:11:01
  * @FilePath: /zat-planet-h5-cloud-insure/src/main.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -29,6 +29,7 @@ import clipboard from '@/common/directives/clipboard';
 import resize from '@/common/directives/resize';
 import Storage from '@/utils/storage';
 import { isTestEnv, isPreEnv } from './utils';
+import '@vant/touch-emulator';
 
 const storage = new Storage({ source: 'localStorage' });
 const cookie = new Storage({ source: 'cookie' });

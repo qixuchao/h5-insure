@@ -107,6 +107,7 @@
       @focus="onfocus('certNo')"
       @update:model-value="(e) => changeNo(e, 'certNo')"
     ></ProField>
+
     <ProDatePicker
       v-if="showByFactor('birthDate')"
       v-model="state.formInfo.birthday"
@@ -118,6 +119,7 @@
       :is-view="isIdCard || isView"
       :required="isRequiredByFactor('birthDate')"
     ></ProDatePicker>
+
     <ProDatePicker
       v-if="showByFactor('certExpiry')"
       v-model="state.formInfo.certEndDate"

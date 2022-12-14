@@ -349,16 +349,12 @@ const insured = async () => {
 // 监听表单数据的变化，进行试算
 watch(
   [
-    () => orderDetail.value.tenantOrderHolder.gender,
-    () => orderDetail.value.tenantOrderHolder.name,
-    () => orderDetail.value.tenantOrderHolder.birthday,
     () => orderDetail.value.tenantOrderInsuredList?.[0].name,
-    () => orderDetail.value.tenantOrderInsuredList?.[0].gender,
     () => orderDetail.value.tenantOrderInsuredList?.[0].birthday,
     () => currentPlan.value,
   ],
-  debounce(([newHGender, newHName, newHBirthday, newIName, newIGender, newIBirthday]) => {
-    if (newHName && newIName && newIGender && newIBirthday) {
+  debounce(([newIName, newIBirthday]) => {
+    if (newIName && newIBirthday) {
       preview || trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value);
     }
   }, 500),

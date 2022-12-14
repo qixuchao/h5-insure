@@ -6,11 +6,10 @@
     :model-value="modelValue"
     :is-view="isView"
     :required="required"
-    @click="handleClick"
   >
     <template #input>
       <div style="width: 100%" class="input" @click="handleClick">
-        <span v-if="displayValue || isView" class="displayValue">{{ displayValue }}</span>
+        <span v-if="displayValue" class="displayValue">{{ displayValue }}</span>
         <span v-else class="placeholder">{{ currentPlaceholder }}</span>
       </div>
     </template>
@@ -18,17 +17,15 @@
       <slot name="extra" />
     </template>
   </ProField>
-  <ProPopup v-model:show="show" :height="40" :closeable="false">
-    <van-datetime-picker
-      :type="type"
-      :model-value="tempModelValue"
-      :title="title || label"
-      :min-date="min"
-      :max-date="max"
-      @confirm="handleConfirm"
-      @cancel="handleCancel"
-    />
-  </ProPopup>
+  <van-calendar
+    v-model:show="show"
+    :min-date="min"
+    :max-date="max"
+    :default-date="new Date()"
+    safe-area-inset-bottom
+    color=""
+    @confirm="handleConfirm"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -74,11 +71,11 @@ const props = defineProps({
     default: false,
   },
   min: {
-    type: String,
+    type: Date,
     default: new Date('1900-01-01'),
   },
   max: {
-    type: String,
+    type: Date,
     default: new Date(),
   },
 });

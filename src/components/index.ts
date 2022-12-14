@@ -3,8 +3,8 @@ import { Component } from 'vue';
  * @Description: 需要全局注册的组件统一注册
  * @Autor: kevin.liang
  * @Date: 2022-03-08 13:51:54
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-15 19:58:08
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-12-14 17:29:41
  */
 /* eslint-disable prettier/prettier */
 import ZaAvatar from './ZaAvatar/index.vue';
@@ -37,6 +37,7 @@ import ProFilePreview from './ProFilePreview/index.vue'
 import ProCascader from './ProCascader/index.vue'
 import ProPDFviewer from './ProPDFviewer/index.vue'
 import ProScrollTab from './ProScrollTab/index.vue'
+import ProCalendar from './ProCalendar/index.vue'
 
 
 interface ComponentMap {
@@ -74,7 +75,8 @@ export const globalComs: ComponentMap = {
   ProCascader,
   ProPDFviewer,
   ProScrollTab,
-  ProTab
+  ProTab,
+  ProCalendar
 };
 
 function install(app: any) {
