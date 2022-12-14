@@ -41,7 +41,9 @@
     position="bottom"
     :style="{ height: '600px' }"
   >
-    <ProFilePreview :content="attachmentUri?.link" :type="fileType"></ProFilePreview>
+    <div class="review-pdf">
+      <ProFilePreview :content="attachmentUri?.link" :type="fileType"></ProFilePreview>
+    </div>
   </ProPopup>
 </template>
 
@@ -117,6 +119,19 @@ onMounted(() => {
   initData();
 });
 </script>
+<style lang="scss">
+.review-pdf {
+  height: 100%;
+  .com-file-preview {
+    .pdf-wapper {
+      height: 100%;
+      .viewerContainer {
+        height: 100%;
+      }
+    }
+  }
+}
+</style>
 <style scoped lang="scss">
 .pre-notice-wrap {
   .pre-body {

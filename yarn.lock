@@ -785,12 +785,12 @@
   "resolved" "https://registry.npmjs.org/@intlify/shared/-/shared-9.1.9.tgz"
   "version" "9.1.9"
 
-"@intlify/shared@9.3.0-beta.10", "@intlify/shared@next":
+"@intlify/shared@9.3.0-beta.10", "@intlify/shared@beta":
   "integrity" "sha512-h93uAanbAt/XgjDHclrVB7xix6r7Uz11wx0iGNOCdHP7aA2LCJjUT3uNbekJjjbo+Fl5jzTSJZdm2SexzoqhRA=="
   "resolved" "https://registry.npmjs.org/@intlify/shared/-/shared-9.3.0-beta.10.tgz"
   "version" "9.3.0-beta.10"
 
-"@intlify/shared@beta":
+"@intlify/shared@next":
   "integrity" "sha512-h93uAanbAt/XgjDHclrVB7xix6r7Uz11wx0iGNOCdHP7aA2LCJjUT3uNbekJjjbo+Fl5jzTSJZdm2SexzoqhRA=="
   "resolved" "https://registry.npmjs.org/@intlify/shared/-/shared-9.3.0-beta.10.tgz"
   "version" "9.3.0-beta.10"
@@ -969,7 +969,7 @@
 
 "@types/lodash-es@4.17.6":
   "integrity" "sha512-R+zTeVUKDdfoRxpAryaQNRKk3105Rrgx2CFRClIgRGaqDTdjsm8h6IYA8ir584W3ePzkZfst5xIgDwYrlh9HLg=="
-  "resolved" "http://npm.zhonganinfo.com/@types%2flodash-es/-/lodash-es-4.17.6.tgz"
+  "resolved" "https://registry.npmjs.org/@types/lodash-es/-/lodash-es-4.17.6.tgz"
   "version" "4.17.6"
   dependencies:
     "@types/lodash" "*"
@@ -5995,7 +5995,7 @@
 
 "rollup@>=2.59.0 <2.78.0":
   "integrity" "sha512-/qxNTG7FbmefJWoeeYJFbHehJ2HNWnjkAFRKzWN/45eNBBF/r8lo992CwcJXEzyVxs5FmfId+vTSTQDb+bxA+g=="
-  "resolved" "http://npm.zhonganinfo.com/rollup/-/rollup-2.77.3.tgz"
+  "resolved" "https://registry.npmjs.org/rollup/-/rollup-2.77.3.tgz"
   "version" "2.77.3"
   optionalDependencies:
     "fsevents" "~2.3.2"
@@ -7007,7 +7007,7 @@
 
 "vite-plugin-compression@^0.5.1":
   "integrity" "sha512-5QJKBDc+gNYVqL/skgFAP81Yuzo9R+EAf19d+EtsMF/i8kFUpNi3J/H01QD3Oo8zBQn+NzoCIFkpPLynoOzaJg=="
-  "resolved" "http://npm.zhonganinfo.com/vite-plugin-compression/-/vite-plugin-compression-0.5.1.tgz"
+  "resolved" "https://registry.npmjs.org/vite-plugin-compression/-/vite-plugin-compression-0.5.1.tgz"
   "version" "0.5.1"
   dependencies:
     "chalk" "^4.1.2"
@@ -7073,7 +7073,7 @@
 
 "vite@^2.0.0", "vite@^2.3.0", "vite@^2.5.10", "vite@^2.7.8", "vite@^2.9.12", "vite@>=2.0.0", "vite@~2.9.1":
   "integrity" "sha512-fzMt2jK4vQ3yK56te3Kqpkaeq9DkcZfBbzHwYpobasvgYmP2SoAr6Aic05CsB4CzCZbsDv4sujX3pkEGhLabVQ=="
-  "resolved" "http://npm.zhonganinfo.com/vite/-/vite-2.9.15.tgz"
+  "resolved" "https://registry.npmjs.org/vite/-/vite-2.9.15.tgz"
   "version" "2.9.15"
   dependencies:
     "esbuild" "^0.14.27"

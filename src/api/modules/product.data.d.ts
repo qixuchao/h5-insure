@@ -217,11 +217,11 @@ export interface TenantProductInsureVO {
   id: number;
   /**
    * 保障期间值 固定：固定数字，枚举：英文逗号隔开，范围：最小值，最大值
-按年缴：以year开头，例如year_10
-按月保：以month开头，例如month_10
-按天保：以day开头，例如day_10
-保至多少岁：以to开头，例如to_60
-保终身：to_life
+      按年缴：以year开头，例如year_10
+      按月保：以month开头，例如month_10
+      按天保：以day开头，例如day_10
+      保至多少岁：以to开头，例如to_60
+      保终身：to_life
    */
   insurancePeriodValues: string;
   inscribedContent: any;

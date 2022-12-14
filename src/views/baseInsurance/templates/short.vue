@@ -24,6 +24,7 @@
           <div class="custom-page-form">
             <div class="form-title">请填写投保信息</div>
             <InsureForm
+              :key="formKey"
               ref="formRef"
               :title-collection="{
                 HOLDER: '本人信息（投保人）',
@@ -56,7 +57,7 @@
             :insure-detail="insureDetail"
             :config-detail="detail"
             :is-multiple-plan="isMultiplePlan"
-            :premium-info="{ premium, unit, premiumLoadingText }"
+            :premium-info="{ premium, unit, minPremiun, actualUnit, premiumLoadingText }"
             @update-active-plan="updateActivePlan"
           />
         </template>
@@ -76,8 +77,12 @@
           <template v-if="premiumLoadingText">
             <span>{{ premiumLoadingText }}</span>
           </template>
-          <template v-else>
+          <template v-else-if="premium">
             <span> {{ toLocal(premium) }}</span>
+            <span>{{ actualUnit || '元' }} </span>
+          </template>
+          <template v-else>
+            <span> {{ minPremiun }}</span>
             <span>{{ unit }} </span>
           </template>
         </div>
@@ -123,8 +128,17 @@ import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
 import { useIntersectionObserver } from '@vueuse/core';
 
+import { min } from 'lodash';
 import { ProductDetail, AttachmentVOList, PlanInsureVO } from '@/api/modules/product.data';
-import { PackageProductVoItem, ProductData, RiskPremiumDetailVoItem } from '@/api/modules/trial.data';
+import {
+  OrderDetail,
+  PackageProductVoItem,
+  ProductData,
+  RiskPremiumDetailVoItem,
+  TenantOrderRiskItem,
+  TenantOrderHolder,
+  TenantOrderInsuredItem,
+} from '@/api/modules/trial.data';
 import { premiumCalc, insureProductDetail, getTenantOrderDetail, underWriteRule } from '@/api/modules/trial';
 import { productDetail } from '@/api/modules/product';
 import { nextStepOperate as nextStep } from '../nextStep';
@@ -154,11 +168,11 @@ import PreNotice from './components/PreNotice/index.vue';
 import FilePreview from './components/FilePreview/index.vue';
 import HealthNoticePreview from './components/HealthNoticePreview/index.vue';
 import PaymentType from './components/PaymentType/index.vue';
-import InscribedContent from './components/InscribedContent/index.vue';
-import AttachmentList from './components/AttachmentList/index.vue';
 import ProShadowButton from './components/ProShadowButton/index.vue';
 import InsureForm from './components/InsureForm/index.vue';
 import CustomerList from './components/CustomerList/index.vue';
+import InscribedContent from './components/InscribedContent/index.vue';
+import AttachmentList from './components/AttachmentList/index.vue';
 
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import { sessionStore } from '@/hooks/useStorage';
@@ -210,9 +224,6 @@ const observeRef = ref();
 const showFooterBtn = ref<boolean>(false);
 const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<ProductData>(); // 险种信息
-const premium = ref<number | null>(); // 保费
-const unit = ref(''); // 保费单位
-const premiumLoadingText = ref(''); // 保费试算中
 const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
@@ -221,8 +232,16 @@ const premiumMap = ref<any>({}); // 试算后保费
 const relationList = ref<any>({});
 const loading = ref(false);
 const isOnlyView = ref<boolean>(true); // 资料查看模式
+const formKey = ref(0);
 
 const iseeBizNo = ref('');
+
+// 默认保费及保费单位 | 试算保费和实际保费单位
+const premium = ref<number | null>(); // 保费
+const minPremiun = ref<number | null>(); // 默认最低保费
+const unit = ref(''); // 保费单位
+const actualUnit = ref(''); // 实际保费单位
+const premiumLoadingText = ref(''); // 保费试算中
 
 if (openId) {
   useAddressList({ openId }, (data: any) => {
@@ -237,7 +256,7 @@ const PAGE_ACTION_TYPE_ENUM = {
   JUMP_ALERT: 'jumpToAlert',
 };
 
-const orderDetail = ref<any>({
+const orderDetail = ref<OrderDetail>({
   tenantId,
   agencyId: agencyCode,
   agentCode,
@@ -250,7 +269,8 @@ const orderDetail = ref<any>({
   insuranceStartDate: null,
   insuranceEndDate: null,
   activePlanCode: '',
-  // paymentFrequency: PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE,
+  paymentFrequency: '',
+  premium: 0,
   insurancePeriodValue: INSURANCE_PERIOD_ENUM.YEAR_1, // 保障期间
   commencementTime: '', // 生效日期
 
@@ -268,7 +288,6 @@ const orderDetail = ref<any>({
       // certType: CERT_TYPE_ENUM.CERT,
       relationToHolder: RELATION_HOLDER_ENUM.SELF,
       extInfo: {
-        occupationCodeList: [],
         hasSocialInsurance: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
       },
       insuredBeneficiaryType: '1',
@@ -283,19 +302,21 @@ const orderDetail = ref<any>({
       tenantOrderProductList: [
         {
           tenantId,
-          productCode: detail.value?.productCode,
-          productName: detail.value?.productName,
+          productCode: detail.value?.productCode || '',
+          planCode: '',
+          productName: detail.value?.productName || '',
           premium: (premium.value as number) || 0, // 保费, 保费试算返回
+          tenantOrderRiskList: [] as TenantOrderRiskItem[],
         },
       ],
     },
   ],
   extInfo: {
     buttonCode: 'EVENT_SHORT_saveOrder',
-    successJumpUrl: '', // 支付成功跳转
     pageCode: 'productInfo',
     extraInfo: extInfo,
-    templateId: extInfo?.templateId,
+    templateId: extInfo?.templateId || '1',
+    iseeBizNo: '',
   },
   operateOption: {
     withBeneficiaryInfo: true,
@@ -511,10 +532,12 @@ const onClickToInsure = () => {
 
 const onUpdateHolderData = (data: any) => {
   Object.assign(orderDetail.value.tenantOrderHolder, data);
+  formKey.value += 1;
 };
 
 const onUpdateInsurerData = (data: any) => {
   Object.assign(orderDetail.value.tenantOrderInsuredList[0], data);
+  formKey.value += 1;
 };
 
 const previewFile = (index: number) => {
@@ -711,7 +734,7 @@ const onNext = async () => {
             });
             return;
           }
-          const { code, data } = await checkCode(orderDetail.value.tenantOrderHolder.mobile, smsCode);
+          const { code, data } = await checkCode(orderDetail.value.tenantOrderHolder.mobile as string, smsCode);
           if (code === '10000') {
             await trialPremium(orderDetail.value, insureDetail.value, currentRiskInfo.value, false);
           }
@@ -793,7 +816,7 @@ const onTrialCheck = (): boolean => {
   console.log('birthday', birthday);
   console.log('gender', gender);
   console.log('name', name);
-  console.log('validateCustomName(name)', validateCustomName(name));
+  console.log('validateCustomName(name)', validateCustomName(name as string));
   console.log('orderDetail.value', orderDetail.value);
 
   if (
@@ -820,8 +843,10 @@ const setPremium = () => {
       (e: any) => e.paymentFrequency === orderDetail.value.paymentFrequency,
     );
     if (item) {
-      premium.value = item.paymentFrequencyValue ? Number(item.paymentFrequencyValue) : null;
+      premium.value = null;
+      minPremiun.value = item.paymentFrequencyValue ? Number(item.paymentFrequencyValue) : null;
       unit.value = item.premiumUnit;
+      actualUnit.value = item.actualPremiumUnit;
     }
   }
 };
@@ -866,6 +891,7 @@ watch(
   (e) => {
     if (isEmpty(relationList.value)) return null;
     const targets = relationList.value[e.relationToHolder] || [];
+    console.log('targets', targets);
     if (targets.length === 1) {
       if (RELATIONENUM.SELF !== e.relationToHolder) {
         if (!orderDetail.value.tenantOrderInsuredList[0].dontFetchDefaultInfo) {
@@ -878,7 +904,7 @@ watch(
             : targets[0].cert[0].certName;
           orderDetail.value.tenantOrderInsuredList[0].mobile = orderDetail.value.tenantOrderInsuredList[0].mobile
             ? orderDetail.value.tenantOrderInsuredList[0].mobile
-            : targets[0].contact[0].mobile;
+            : targets[0].contact[0].contactNo;
         }
       } else {
         if (!orderDetail.value.tenantOrderHolder.dontFetchDefaultInfo) {
@@ -891,7 +917,7 @@ watch(
             : targets[0].cert[0].certName;
           orderDetail.value.tenantOrderHolder.mobile = orderDetail.value.tenantOrderHolder.mobile
             ? orderDetail.value.tenantOrderHolder.mobile
-            : targets[0].contact[0].mobile;
+            : targets[0].contact[0].contactNo;
         }
       }
     }
