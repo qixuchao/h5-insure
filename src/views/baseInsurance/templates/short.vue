@@ -545,7 +545,11 @@ const previewFile = (index: number) => {
   showFilePreview.value = true;
 };
 
-const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrderDetail = {}) => {
+const trialData2Order = (
+  currentProductDetail: ProductData = {} as ProductData,
+  riskPremium = {},
+  currentOrderDetail = {},
+) => {
   const nextStepParams: any = { ...currentOrderDetail };
   const transformDataReq = {
     tenantId,
@@ -615,7 +619,12 @@ const onSaveOrder = async () => {
 };
 
 // 保费试算
-const trialPremium = async (orderInfo, currentProductDetail, productRiskList, isOnlypremiumCalc = true) => {
+const trialPremium = async (
+  orderInfo: OrderDetail,
+  currentProductDetail: any,
+  productRiskList: any,
+  isOnlypremiumCalc = true,
+) => {
   try {
     premiumLoadingText.value = '保费试算中...';
     const tempRiskVOList = riskToOrder(productRiskList).map((riskVOList: any) => {
