@@ -24,14 +24,13 @@
           <div class="custom-page-form">
             <div class="form-title">请填写投保信息</div>
             <InsureForm
-              :key="formKey"
               ref="formRef"
               :title-collection="{
                 HOLDER: '本人信息（投保人）',
                 INSURER: '为谁投保（被保人）',
               }"
               :form-info="orderDetail"
-              need-desensitize
+              :need-desensitize="needDesensitize"
               :send-sms-code="sendSmsCode"
               :factor-object="factorObj || {}"
             >
@@ -232,7 +231,7 @@ const premiumMap = ref<any>({}); // 试算后保费
 const relationList = ref<any>({});
 const loading = ref(false);
 const isOnlyView = ref<boolean>(true); // 资料查看模式
-const formKey = ref(0);
+const needDesensitize = ref<boolean>(true); // 投被保人身份证手机号是否需要掩码
 
 const iseeBizNo = ref('');
 
@@ -531,13 +530,19 @@ const onClickToInsure = () => {
 };
 
 const onUpdateHolderData = (data: any) => {
+  needDesensitize.value = false;
   Object.assign(orderDetail.value.tenantOrderHolder, data);
-  formKey.value += 1;
+  nextTick(() => {
+    needDesensitize.value = true;
+  });
 };
 
 const onUpdateInsurerData = (data: any) => {
+  needDesensitize.value = false;
   Object.assign(orderDetail.value.tenantOrderInsuredList[0], data);
-  formKey.value += 1;
+  nextTick(() => {
+    needDesensitize.value = true;
+  });
 };
 
 const previewFile = (index: number) => {
@@ -900,7 +905,6 @@ watch(
   (e) => {
     if (isEmpty(relationList.value)) return null;
     const targets = relationList.value[e.relationToHolder] || [];
-    console.log('targets', targets);
     if (targets.length === 1) {
       if (RELATIONENUM.SELF !== e.relationToHolder) {
         if (!orderDetail.value.tenantOrderInsuredList[0].dontFetchDefaultInfo) {

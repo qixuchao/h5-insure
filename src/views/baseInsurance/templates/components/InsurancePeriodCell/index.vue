@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-13 18:32:10
+ * @LastEditTime: 2022-12-14 18:26:59
  * @Description:
 -->
 <template>
@@ -277,8 +277,18 @@ watch(
     () => riskGuaranteeStartDateType.value,
     () => state.formInfo.insurancePeriodValue,
     () => state.formInfo.insuranceStartDate,
+    () => lastMainRiskInfo.value,
   ],
   () => {
+    if (props.insureDetail) {
+      const { productBasicInfoVO } = props.insureDetail;
+      if (productBasicInfoVO && productBasicInfoVO.productCode === 'CX48') {
+        state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), 7, 'day')} 00:00:00`;
+        const tempDate = `${computedAddDate(state.formInfo.insuranceStartDate, 1, 'day')} 00:00:00`;
+        state.formInfo.insuranceEndDate = `${computedAddDate(tempDate, 1, 'year')} 23:59:59`;
+        return;
+      }
+    }
     if (!state.formInfo.insurancePeriodValue) return;
     const [unit, num] = state.formInfo.insurancePeriodValue.split('_');
     if (!state.formInfo.insuranceStartDate) {
