@@ -977,12 +977,14 @@ watch(
 watch(
   () => state.value.formInfo.certNo,
   (newVal) => {
-    if (validateIdCardNo(newVal)) {
-      state.value.formInfo.gender = +getSex(newVal);
-      state.value.formInfo.birthday = dayjs(new Date(getBirth(newVal))).format('YYYY-MM-DD');
-    } else {
-      state.value.formInfo.gender = null;
-      state.value.formInfo.birthday = '';
+    if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.BIRTH].includes(`${state.value.formInfo.certType}`)) {
+      if (validateIdCardNo(newVal)) {
+        state.value.formInfo.gender = +getSex(newVal);
+        state.value.formInfo.birthday = dayjs(new Date(getBirth(newVal))).format('YYYY-MM-DD');
+      } else {
+        state.value.formInfo.gender = null;
+        state.value.formInfo.birthday = '';
+      }
     }
   },
   {
