@@ -1,3 +1,10 @@
+/*
+ * @Author: zhaopu
+ * @Date: 2022-08-24 16:59:13
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-14 16:55:42
+ * @Description:
+ */
 // 跟鉴权无关的特殊路由
 import { RouteRecordRaw } from 'vue-router';
 
@@ -18,11 +25,11 @@ const exceptionRoutes: Array<RouteRecordRaw> = [
     },
     component: () => import('@/views/exception/404.vue'),
   },
-  {
-    path: '/:pathMatch(.*)',
-    meta: {},
-    redirect: '/404',
-  },
+  // {
+  //   path: '/:pathMatch(.*)',
+  //   meta: {},
+  //   redirect: '/404',
+  // },
 ];
 
 export default exceptionRoutes;
