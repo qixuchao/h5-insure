@@ -204,6 +204,8 @@ const {
 let extInfo: any = {};
 
 try {
+  console.log('extInfo', extraInfo);
+
   extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
 } catch (error) {
   //
