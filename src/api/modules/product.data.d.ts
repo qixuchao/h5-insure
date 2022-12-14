@@ -49,6 +49,7 @@ export interface ProductPremiumVoItem {
   paymentFrequency: string;
   paymentFrequencyValue: string;
   premiumUnit: string;
+  actualPremiumUnit: string;
 }
 
 export interface GuaranteeItemVo {
@@ -317,4 +318,28 @@ export interface ProductDetail {
   baseProductCode?: string;
 }
 
+
+export interface ProductFactorItem {
+  id: number;
+  productId: object;
+  productCode: string;
+  planCode: object;
+  factorId: object;
+  moduleType: number;
+  code: string;
+  title: string;
+  hasDefaultValue: number;
+  defaultValue: object;
+  placeholder: object;
+  isHidden: number;
+  isDisplay: number;
+  isReadOnly: object;
+  isMustInput: number;
+  displayType: object;
+  datasource: object;
+  factorScript: object;
+  attributeValues: object;
+  attributeValueList: object;
+  position: object;
+}
 
