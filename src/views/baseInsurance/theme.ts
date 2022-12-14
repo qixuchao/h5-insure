@@ -49,6 +49,7 @@ export const useTheme = (color: string = THEME_MAP.orange) => {
     switchOnBackgroundColor: color, // switch 开时的背景
     toastDefaultPadding: '14px',
     linearBg: `linear-gradient(to right, ${color}, ${getColor(color)})`,
+    popupCloseIconMargin: '20px',
     popupRoundBorderRadius: '20px',
     cardTitle: '#9e5c28', // 保障内容title的颜色
     cardCellColor: '#C6814A', // 保障内容每一行颜色的颜色
