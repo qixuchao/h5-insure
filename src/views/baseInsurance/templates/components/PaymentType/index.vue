@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-14 11:17:07
+ * @LastEditTime: 2022-12-14 15:52:13
  * @Description:
 -->
 <template>
@@ -178,7 +178,10 @@ const premiumItem = computed(() => {
 
 const actualPremium = computed(() => {
   if (props.premiumInfo.premiumLoadingText) return props.premiumInfo.premiumLoadingText;
-  return `${props.premiumInfo.premium || ''}${props.premiumInfo.unit || ''}`;
+  if (props.premiumInfo.premium) {
+    return `${props.premiumInfo.premium || ''}${props.premiumInfo.actualUnit || ''}`;
+  }
+  return `${props.premiumInfo.minPremiun || ''}${props.premiumInfo.unit || ''}`;
 });
 
 const explainInfo = computed(() => {

@@ -57,7 +57,7 @@
             :insure-detail="insureDetail"
             :config-detail="detail"
             :is-multiple-plan="isMultiplePlan"
-            :premium-info="{ premium, unit, premiumLoadingText }"
+            :premium-info="{ premium, unit, minPremiun, actualUnit, premiumLoadingText }"
             @update-active-plan="updateActivePlan"
           />
         </template>
@@ -77,8 +77,12 @@
           <template v-if="premiumLoadingText">
             <span>{{ premiumLoadingText }}</span>
           </template>
-          <template v-else>
+          <template v-else-if="premium">
             <span> {{ toLocal(premium) }}</span>
+            <span>{{ actualUnit }} </span>
+          </template>
+          <template v-else>
+            <span> {{ minPremiun }}</span>
             <span>{{ unit }} </span>
           </template>
         </div>
@@ -124,6 +128,7 @@ import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
 import { useIntersectionObserver } from '@vueuse/core';
 
+import { min } from 'lodash';
 import { ProductDetail, AttachmentVOList, PlanInsureVO } from '@/api/modules/product.data';
 import {
   OrderDetail,
@@ -219,9 +224,6 @@ const observeRef = ref();
 const showFooterBtn = ref<boolean>(false);
 const detail = ref<ProductDetail>(); // 产品信息
 const insureDetail = ref<ProductData>(); // 险种信息
-const premium = ref<number | null>(); // 保费
-const unit = ref(''); // 保费单位
-const premiumLoadingText = ref(''); // 保费试算中
 const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
@@ -233,6 +235,13 @@ const isOnlyView = ref<boolean>(true); // 资料查看模式
 const formKey = ref(0);
 
 const iseeBizNo = ref('');
+
+// 默认保费及保费单位 | 试算保费和实际保费单位
+const premium = ref<number | null>(); // 保费
+const minPremiun = ref<number | null>(); // 默认最低保费
+const unit = ref(''); // 保费单位
+const actualUnit = ref(''); // 实际保费单位
+const premiumLoadingText = ref(''); // 保费试算中
 
 if (openId) {
   useAddressList({ openId }, (data: any) => {
@@ -834,8 +843,10 @@ const setPremium = () => {
       (e: any) => e.paymentFrequency === orderDetail.value.paymentFrequency,
     );
     if (item) {
-      premium.value = item.paymentFrequencyValue ? Number(item.paymentFrequencyValue) : null;
+      premium.value = null;
+      minPremiun.value = item.paymentFrequencyValue ? Number(item.paymentFrequencyValue) : null;
       unit.value = item.premiumUnit;
+      actualUnit.value = item.actualPremiumUnit;
     }
   }
 };
