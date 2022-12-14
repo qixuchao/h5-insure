@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-11 15:02:53
+ * @LastEditTime: 2022-12-14 16:52:35
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -59,6 +59,22 @@
               :prop="{ label: 'value', value: 'code' }"
               :options="queryFactorAttr('relationToHolder', 'attributeValueList', 'INSURER') || []"
             />
+          </template>
+        </ProField>
+        <ProField
+          v-if="showByFactor('social')"
+          v-model="state.formInfo.extInfo.hasSocialInsurance"
+          :label="queryFactorAttr('social', 'title')"
+          :name="`${prefix}_hasSocialInsurance`"
+          :required="isRequiredByFactor('social')"
+        >
+          <template #input>
+            <ProRadioButton
+              v-model="state.formInfo.extInfo.hasSocialInsurance"
+              :is-view="isView"
+              :prop="{ label: 'value', value: 'code' }"
+              :options="queryFactorAttr('social', 'attributeValueList') || []"
+            ></ProRadioButton>
           </template>
         </ProField>
         <PersonalInfo
