@@ -44,6 +44,7 @@
     </div>
     <PreNotice v-if="!orderNo" :product-detail="detail"></PreNotice>
     <UpgradeModal
+      v-if="upgradeCode"
       :order-no="orderNo"
       :tenant-id="tenantId"
       :upgrade-code="upgradeCode"
@@ -144,6 +145,7 @@ interface QueryData {
   agentCode: string;
   orderNo: string;
   pageCode: string;
+  upgradeCode: string;
   from: string; // from = 'check' 审核版
   [key: string]: string;
 }
@@ -164,7 +166,7 @@ const {
   certNo,
   name,
   pageCode,
-  upgradeCode,
+  upgradeCode = '',
   from,
 } = route.query as QueryData;
 
@@ -407,8 +409,10 @@ const onUnderWrite = async (o: any) => {
 const getPaySuccessCallbackUrl = (no: number) => {
   const extInfo = JSON.parse(insureDetail.value?.productBasicInfoVO?.extInfo);
   let str = '';
-  if (extInfo.endorsementFlag === 1) {
+  if (extInfo.endorsementFlag === 1 && extInfo.endorsementCode) {
     str = `&upgradeCode=${extInfo.endorsementCode}`;
+  } else {
+    return `${ORIGIN}/pay?orderNo=${no}&saleUserId=${agentCode}&tenantId=${tenantId}`;
   }
   const url = `${ORIGIN}/internet/productDetail?tenantId=${tenantId}&productCode=${productCode}&orderNo=${no}&agentCode=${agentCode}&pageCode=payBack${str}&from=${
     from || 'normal'
@@ -806,38 +810,24 @@ const fetchData = async () => {
 
 // 从链接上去参数，设置表单权限
 const setFormAuth = () => {
-  // if (pageCode === 'free') {
-  //   // 赠险进入，分审核版赠险和非审核版赠险
-  //   if (!isPayBack) {
-  //     // 审核版
-  //     formAuth.value = { ...checkAuth, paymentDisable: !!paymentMethod };
-  //     defaultFormAuth.value = { ...checkAuth, paymentDisable: !!paymentMethod };
-  //     buttonAuth.canInsure = true;
-  //   } else {
-  //     // 非审核版
-  //     formAuth.value = { ...freeAuthDefault, paymentDisable: !!paymentMethod };
-  //     defaultFormAuth.value = { ...freeAuthDefault, paymentDisable: !!paymentMethod };
-  //     buttonAuth.canInsure = true;
-  //   }
-  // } else
-  if (isPayBack) {
-    // 支付完进入
-    formAuth.value = payAuth;
-    defaultFormAuth.value = payAuth;
-    console.log('支付完成进入');
-  } else if (orderNo) {
-    console.log('投保链接-来付钱');
-    formAuth.value = { ...allAuth, paymentFrequencyDisable: true };
-    defaultFormAuth.value = allAuth;
-    buttonAuth.canInsure = true;
-  } else if (!(mobile || orderNo)) {
-    // 投保链接
+  if (!orderNo) {
+    // 投保链接 upgradeCode
     console.log('投保链接');
     formAuth.value = { ...allAuth, paymentFrequencyDisable: true };
     defaultFormAuth.value = allAuth;
     buttonAuth.canInsure = true;
+  } else if (isPayBack && upgradeCode) {
+    console.log('投保完成来升级保障的');
+    // 支付完进入
+    formAuth.value = payAuth;
+    defaultFormAuth.value = payAuth;
+    console.log('支付完成进入');
+  } else if (!upgradeCode) {
+    console.log('投保链接-来付钱');
+    formAuth.value = { ...allAuth, paymentFrequencyDisable: true };
+    defaultFormAuth.value = allAuth;
+    buttonAuth.canInsure = true;
   }
-  // 短信进入，查数据，再设置是否可以修改
 };
 
 onMounted(() => {
