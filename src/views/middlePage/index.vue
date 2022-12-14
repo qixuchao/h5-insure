@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-27 21:01:33
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-14 20:17:02
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-14 21:43:25
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/middle/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -13,9 +13,9 @@
 </template>
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import qs from 'qs';
 import { validateSign } from '@/api';
 import { PAGE_CODE_ENUM, TEMPLATE_TYPE_MAP } from '@/common/constants/infoCollection';
+
 import { queryStandardInsurerLink } from '@/api/modules/trial';
 
 /**
@@ -48,17 +48,6 @@ const {
 } = route.query as QueryData;
 
 console.log('middlePage route.query-------', route.query);
-/**
- * 拼接code到具体投保页面
- * @param url 访问的链接
- */
-const pinJieCode = (url: string) => {
-  const tempUrl = decodeURIComponent(url);
-  if (tempUrl.includes('code=')) {
-    return url;
-  }
-  return `${url}&code=${wxCode}`;
-};
 
 let extInfo = {};
 
@@ -99,15 +88,9 @@ const jumpRouter = (url?: string) => {
     path = activityUrl;
   }
 
-  const queryData = route.query;
-
-  if (queryData.extraInfo) {
-    queryData.extraInfo = encodeURIComponent(JSON.stringify(extInfo));
-  }
-
   router.replace({
     path,
-    query: queryData,
+    query: route.query,
   });
 };
 
@@ -116,9 +99,7 @@ const onValidateSign = (param: string) => {
     if (code === '10000' && data) {
       if (openId) {
         const activityUrl = getActivityPath();
-        const params = qs.parse(param);
-        params.extraInfo = encodeURIComponent(JSON.stringify(extInfo));
-        router.replace(pinJieCode(`${activityUrl}?${param}`));
+        router.replace(`${activityUrl}?${param}`);
       } else {
         jumpRouter();
       }
