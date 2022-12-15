@@ -321,24 +321,12 @@ const addZero = (num: number) => {
   return s + num;
 };
 
-// const goBack = (e: any) => {
-//   console.log('window resize', e);
-//   setTimeout(() => {
-//     console.log('xllllll===');
-//   }, 2000);
-// };
-
-// window.history.pushState(null, null, document.URL);
-// window.addEventListener('popstate', (e) => {
-//   debugger;
-//   console.log('wwuuwuwuuwuwu======', e);
-//   window.history.pushState(null, null, document.URL);
-// });
 useEventListener(window, 'popstate', (e) => {
-  // debugger;
   console.log('sklskskskskskkskskksks200292882828282929929', e);
-  window.history.pushState(null, '', document.URL);
-  goToInsurerPage(true, 'FHGGW');
+  if (state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.productCode) {
+    window.history.pushState(null, '', document.URL);
+    goToInsurerPage(true, 'FHGGW');
+  }
 });
 
 const orderDesc = computed(() => {
@@ -357,40 +345,16 @@ const orderDesc = computed(() => {
   return state.pageInfo.desc;
 });
 
-// const backChange = () => {
-//   Dialog.confirm({
-//     message: '你是否要退出本次考试？',
-//     confirmButtonText: '继续',
-//     confirmButtonColor: '#B92D36',
-//     cancelButtonText: '退出',
-//   })
-//     .then(() => {
-//       if (window.history && window.history.pushState) {
-//         // 手机点击了物理返回 然后又选择了继续 这时需要在添加一条记录
-//         window.history.pushState(null, '', document.URL);
-//       }
-//     })
-//     .catch(() => {
-//       // this.$router.push({
-//       //   path: '/exam/fillPerson',
-//       //   query: { examId: this.$route.query.examId, examName: this.$route.query.examName },
-//       // });
-//     });
-// };
-
 // 微信授权
 useWXCode();
 onMounted(() => {
   getData();
   // 如果支持 popstate 一般移动端都支持了
-  // if (window.history && window.history.pushState) {
-  //   console.log('skskkskww===w---');
-  //   // 往历史记录里面添加一条新的当前页面的url
-  //   window.history.pushState('forward', '', '#');
-  //   window.history.forward(1);
-  //   // 给 popstate 绑定一个方法 监听页面刷新
-  //   window.addEventListener('popstate', backChange, false); // false阻止默认事件
-  // }
+  if (window.history && window.history.pushState) {
+    // 往历史记录里面添加一条新的当前页面的url
+    window.history.pushState('forward', '', '#');
+    window.history.forward(1);
+  }
 });
 </script>
 
