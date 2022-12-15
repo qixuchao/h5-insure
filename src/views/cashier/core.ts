@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 21:01:39
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-13 14:59:37
+ * @LastEditTime: 2022-12-15 12:49:33
  * @Description:
  */
 import wx from 'weixin-js-sdk';
@@ -14,6 +14,7 @@ import { getPayUrl, loadPayment, pay } from '@/api/modules/cashier';
 import { SRC_TYPE, ORDER_DETAIL_ROUTE } from './constant';
 import useLoading from '@/hooks/useLoading';
 import router from '@/router/index';
+import { sessionStore } from '@/hooks/useStorage';
 
 export const isWeiXin = navigator.userAgent.indexOf('MicroMessenger') > -1;
 
@@ -35,8 +36,9 @@ export const useWXCode = () => {
       console.log('微信授权');
       window.location.href = getWxAuthCode({ appId: sessionStorage.appId, url: encodeURIComponent(url) });
     }
-    if (query.code) {
-      sessionStorage.wxCode = query.code;
+    // 每次进入页面，看一下已有的code和新拿到的code是不是一样，不一样则存存一下最新的code
+    if (query.code && sessionStore.get('wxCode') !== query.code) {
+      sessionStore.set('wxCode', query.code, 0.08); // 存5分钟
     }
   });
 };
@@ -91,7 +93,7 @@ export const usePay = async (payParam: PayParam) => {
     ...payParam,
     srcType: getSrcType(),
     extraInfo: JSON.stringify({
-      wxCode: payParam.code || sessionStorage.wxCode,
+      wxCode: sessionStore.get('wxCode') || payParam.code,
     }),
   })
     .then((res): Promise<string> | null => {
@@ -115,6 +117,7 @@ export const usePay = async (payParam: PayParam) => {
             fail(err) {
               console.log('微信公众支付失败结果----', err);
               // 支付成功后的回调函数
+              sessionStore.remove('wxCode');
             },
             cancel() {
               window.location.href = redirectUrl;
@@ -169,7 +172,7 @@ export const useSign = (payParam: PayParam) => {
     ...payParam,
     srcType: getSrcType(),
     extraInfo: JSON.stringify({
-      wxCode: payParam.code,
+      wxCode: payParam.code || sessionStore.get('wxCode'),
     }),
   })
     .then((res) => {
@@ -186,7 +189,7 @@ export const wxBrandWCPayRequest = (payParam: PayParam) => {
     ...payParam,
     srcType: getSrcType(),
     extraInfo: JSON.stringify({
-      wxCode: payParam.code,
+      wxCode: payParam.code || sessionStore.get('wxCode'),
     }),
   }).then((res) => {
     const { code, message, data } = res;

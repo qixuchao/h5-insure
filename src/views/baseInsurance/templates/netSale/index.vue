@@ -53,6 +53,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
 import dayjs from 'dayjs';
+import '@vant/touch-emulator';
 import { transformData, getAgeByCard, riskToOrder } from '../../utils';
 import {
   PackageProductVoItem,
