@@ -816,6 +816,7 @@ const onResetFileFlag = () => {
 watch(
   () => orderDetail.value.tenantOrderInsuredList[0].relationToHolder,
   () => {
+    needDesensitize.value = false;
     nextTick(() => {
       if (
         orderDetail.value.tenantOrderInsuredList[0] &&
@@ -824,6 +825,7 @@ watch(
       ) {
         orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance = SOCIAL_SECURITY_ENUM.HAS;
       }
+      needDesensitize.value = true;
     });
   },
   {
@@ -929,6 +931,9 @@ watch(
           orderDetail.value.tenantOrderInsuredList[0].name = orderDetail.value.tenantOrderInsuredList[0].name
             ? orderDetail.value.tenantOrderInsuredList[0].name
             : targets[0].cert[0].certName;
+          orderDetail.value.tenantOrderInsuredList[0].certType = orderDetail.value.tenantOrderInsuredList[0].certType
+            ? orderDetail.value.tenantOrderInsuredList[0].certType
+            : targets[0].cert[0].certType || CERT_TYPE_ENUM.CERT;
           orderDetail.value.tenantOrderInsuredList[0].mobile = orderDetail.value.tenantOrderInsuredList[0].mobile
             ? orderDetail.value.tenantOrderInsuredList[0].mobile
             : targets[0].contact[0].contactNo;
@@ -945,6 +950,9 @@ watch(
           orderDetail.value.tenantOrderHolder.mobile = orderDetail.value.tenantOrderHolder.mobile
             ? orderDetail.value.tenantOrderHolder.mobile
             : targets[0].contact[0].contactNo;
+          orderDetail.value.tenantOrderHolder.certType = orderDetail.value.tenantOrderHolder.certType
+            ? orderDetail.value.tenantOrderHolder.certType
+            : targets[0].contact[0].certType || CERT_TYPE_ENUM.CERT;
         }
       }
     }

@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 15:01:12
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-13 15:31:22
+ * @LastEditTime: 2022-12-15 17:47:43
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/PreNotice/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -44,6 +44,7 @@ import checkedIcon from '@/assets/images/baseInsurance/checked.png';
 import ProShadowButton from '../ProShadowButton/index.vue';
 import { queryListRelationCustomer } from '@/api/modules/product';
 import { star } from '@/utils/index';
+import { CERT_TYPE_ENUM } from '@/common/constants';
 // // 调用主题
 const emit = defineEmits(['change']);
 
@@ -96,6 +97,7 @@ watch(
 const onSelectUserItem = (item: any) => {
   state.select.name = item.cert[0].certName;
   state.select.certNo = item.cert[0].certNo;
+  state.select.certType = item.cert[0].certType || CERT_TYPE_ENUM.CERT;
   state.select.mobile = item.contact[0].contactNo;
 };
 
