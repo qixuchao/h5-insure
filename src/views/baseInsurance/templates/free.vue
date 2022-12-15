@@ -71,15 +71,8 @@ import { useIntersectionObserver } from '@vueuse/core';
 import { Toast } from 'vant/es';
 import dayjs from 'dayjs';
 import { isEmpty } from '@/utils';
-import ProShadowButton from './components/ProShadowButton/index.vue';
-import Banner from './components/Banner/index.vue';
-import FreeHolderForm from './components/FreeHolderForm/index.vue';
 import { productDetail, getAppUser } from '@/api/modules/product';
 import { insureProductDetail, toClogin } from '@/api/modules/trial';
-import PreNotice from './components/PreNotice/index.vue';
-import AttachmentList from './components/AttachmentList/index.vue';
-import FilePreview from './components/FilePreview/index.vue';
-import InscribedContent from './components/InscribedContent/index.vue';
 import { checkCode } from '@/api/modules/phoneVerify';
 import useAddressList from '@/hooks/useAddressList';
 import { ProductDetail } from '@/api/modules/product.data';
@@ -89,6 +82,19 @@ import { RELATIONENUM } from '@/common/constants/trial';
 import { freeTransform, validateSmsCode } from '../utils';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 import { useTheme } from '../theme';
+
+import Banner from './components/Banner/index.vue';
+import ProShadowButton from './components/ProShadowButton/index.vue';
+import FreeHolderForm from './components/FreeHolderForm/index.vue';
+import PreNotice from './components/PreNotice/index.vue';
+// import AttachmentList from './components/AttachmentList/index.vue';
+// import FilePreview from './components/FilePreview/index.vue';
+// import InscribedContent from './components/InscribedContent/index.vue';
+
+const InscribedContent = defineAsyncComponent(() => import('./components/InscribedContent/index.vue'));
+const AttachmentList = defineAsyncComponent(() => import('./components/AttachmentList/index.vue'));
+const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
+
 // 调用主题
 const themeVars = useTheme();
 const router = useRouter();

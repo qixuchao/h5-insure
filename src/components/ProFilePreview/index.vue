@@ -25,12 +25,9 @@
 <script setup lang="ts">
 import { nanoid } from 'nanoid';
 import { Toast } from 'vant';
-import * as PDFJS from 'pdfjs-dist';
-import * as workerSrc from 'pdfjs-dist/build/pdf.worker.entry';
 import Pdfh5 from 'pdfh5';
 import PdfViewer from '@/components/ProPDFviewer/index.vue';
 import QuestionPreview from './question.vue';
-// import 'pdfjs-dist/web/pdf_viewer.css';
 import 'pdfh5/css/pdfh5.css';
 
 const props = defineProps({
@@ -68,66 +65,11 @@ const isLink = computed(() => {
   return false;
 });
 
-PDFJS.GlobalWorkerOptions.workerSrc = workerSrc;
-
 const id = nanoid();
 
 const show = ref(false);
-const loading = ref(true);
 
 const pdfh5 = ref<any>(null);
-
-const loadPdfCanvas = async () => {
-  Toast.loading({ message: '加载中', duration: 20 * 1000, forbidClick: props.forbidClick });
-  const container = document.getElementById(id) as HTMLElement;
-  if (container.hasChildNodes()) {
-    // 说明已经加载过一次pdf了，那就走缓存
-    loading.value = false;
-    return;
-  }
-  let pdf;
-  try {
-    pdf = await PDFJS.getDocument({
-      url: props.content,
-    }).promise;
-  } catch (error) {
-    console.log(String(error));
-    // undefined is not an object ( evaluting 'response.body.getReader')
-    if (String(error).indexOf('body.getReader') > -1) {
-      const pdfData = await fetch(props.content);
-      const arrayBufferPdf = await pdfData.arrayBuffer();
-      pdf = await PDFJS.getDocument({ data: arrayBufferPdf }).promise;
-    }
-  }
-  if (!pdf || !pdf.numPages) {
-    Toast.clear();
-    return;
-  }
-  const pageNum = pdf.numPages;
-  for (let i = 1; i <= pageNum; i++) {
-    pdf.getPage(i).then((page: any) => {
-      const scaledViewport = page.getViewport({ scale: 1.5 });
-
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-
-      canvas.width = scaledViewport.width;
-      canvas.height = scaledViewport.height;
-      canvas.style.width = '100%';
-
-      container.append(canvas);
-
-      const renderContext = {
-        canvasContext: context,
-        viewport: scaledViewport,
-      };
-
-      const renderTask = page.render(renderContext);
-      loading.value = false;
-    });
-  }
-  Toast.clear();
-};
 
 const loadPdfH5Viewer = () => {
   try {
@@ -151,9 +93,6 @@ const loadPdfH5Viewer = () => {
 
 const openPdf = async () => {
   show.value = true;
-  // setTimeout(() => {
-  //   loadPdfCanvas();
-  // }, 0);
   nextTick(() => {
     loadPdfH5Viewer();
   });

@@ -167,22 +167,31 @@ import { transformData, riskToOrder, validateSmsCode, getFileType } from '../uti
 import { validateCustomName } from '@/utils/validator';
 
 import Banner from './components/Banner/index.vue';
-import Desc from './components/Desc/index.vue';
 import Guarantee from './components/Guarantee/index.vue';
-import ScrollInfo from './components/ScrollInfo/index.vue';
 import PreNotice from './components/PreNotice/index.vue';
-import FilePreview from './components/FilePreview/index.vue';
-import HealthNoticePreview from './components/HealthNoticePreview/index.vue';
-import PaymentType from './components/PaymentType/index.vue';
-import ProShadowButton from './components/ProShadowButton/index.vue';
-import InsureForm from './components/InsureForm/index.vue';
-import CustomerList from './components/CustomerList/index.vue';
-import InscribedContent from './components/InscribedContent/index.vue';
-import AttachmentList from './components/AttachmentList/index.vue';
+
+import ScrollInfo from './components/ScrollInfo/index.vue';
+// import FilePreview from './components/FilePreview/index.vue';
+// import HealthNoticePreview from './components/HealthNoticePreview/index.vue';
+// import PaymentType from './components/PaymentType/index.vue';
+// import ProShadowButton from './components/ProShadowButton/index.vue';
+// import InsureForm from './components/InsureForm/index.vue';
+// import CustomerList from './components/CustomerList/index.vue';
+// import InscribedContent from './components/InscribedContent/index.vue';
+// import AttachmentList from './components/AttachmentList/index.vue';
 
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import { sessionStore } from '@/hooks/useStorage';
 import { TenantOrderProductItem } from '@/api/index.data';
+
+// const ScrollInfo = defineAsyncComponent(() => import('./components/ScrollInfo/index.vue'));
+const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
+const PaymentType = defineAsyncComponent(() => import('./components/PaymentType/index.vue'));
+const ProShadowButton = defineAsyncComponent(() => import('./components/ProShadowButton/index.vue'));
+const InsureForm = defineAsyncComponent(() => import('./components/InsureForm/index.vue'));
+const CustomerList = defineAsyncComponent(() => import('./components/CustomerList/index.vue'));
+const InscribedContent = defineAsyncComponent(() => import('./components/InscribedContent/index.vue'));
+const AttachmentList = defineAsyncComponent(() => import('./components/AttachmentList/index.vue'));
 
 const themeVars = useTheme();
 const router = useRouter();

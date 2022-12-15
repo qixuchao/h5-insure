@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-17 16:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-13 18:29:26
+ * @LastEditTime: 2022-12-15 16:11:33
  * @Description: 审核版首页
 -->
 <template>
@@ -61,11 +61,17 @@
 <script lang="ts" setup>
 import { Ref, Suspense } from 'vue';
 import { CLAIM_TYPE_ENUM } from '@/common/constants/infoCollection';
-import CustomCard from '../../../components/CustomCard/index.vue';
-import ProDivider from '@/components/ProDivider/index.vue';
-import ProScrollTab from '@/components/ProScrollTab/index.vue';
-import ProTimeline from '@/components/ProTimeline/index.vue';
-import Question from '../Question/index.vue';
+// import CustomCard from '../../../components/CustomCard/index.vue';
+// import ProDivider from '@/components/ProDivider/index.vue';
+// import ProScrollTab from '@/components/ProScrollTab/index.vue';
+// import ProTimeline from '@/components/ProTimeline/index.vue';
+// import Question from '../Question/index.vue';
+
+const ProScrollTab = defineAsyncComponent(() => import('@/components/ProScrollTab/index.vue'));
+const ProTimeline = defineAsyncComponent(() => import('@/components/ProTimeline/index.vue'));
+const ProDivider = defineAsyncComponent(() => import('@/components/ProDivider/index.vue'));
+const CustomCard = defineAsyncComponent(() => import('../../../components/CustomCard/index.vue'));
+const Question = defineAsyncComponent(() => import('../Question/index.vue'));
 
 const props = defineProps({
   isCheck: {
