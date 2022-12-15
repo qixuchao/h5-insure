@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-26 12:09:26
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-28 16:31:21
+ * @LastEditTime: 2022-12-15 15:57:22
  * @Description:
 -->
 <template>
@@ -25,8 +25,11 @@
 <script lang="ts" setup>
 import { useToggle } from '@vant/use';
 import { defineProps } from 'vue';
-import ProSvg from '@/components/ProSvg/index.vue';
-import Item from './item.vue';
+// import ProSvg from '@/components/ProSvg/index.vue';
+// import Item from './item.vue';
+
+const ProSvg = defineAsyncComponent(() => import('@/components/ProSvg/index.vue'));
+const Item = defineAsyncComponent(() => import('./item.vue'));
 
 const props = defineProps({
   list: {

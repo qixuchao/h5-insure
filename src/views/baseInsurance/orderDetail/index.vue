@@ -29,7 +29,7 @@
           v-if="state.pageInfo.productImage"
           class="product-img"
           :src="state.pageInfo.productImage"
-          @click="goToInsurerPage(true)"
+          @click="goToInsurerPage(true, 'GDGGW')"
         />
         <GuaranteeContent v-if="state.showOrderDetail" is-show-close :count="5" :data-source="state.guaranteeItemVOS" />
         <div class="footer-desc">
@@ -44,7 +44,7 @@
         class="jump-img"
         :src="state.pageInfo.notificationImage"
         style="display: block"
-        @click="goToInsurerPage(true)"
+        @click="goToInsurerPage(true, 'TCGGW')"
       />
     </Curtain>
   </van-config-provider>
@@ -52,7 +52,8 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Toast } from 'vant/es';
+import { Toast, Dialog } from 'vant/es';
+import { useEventListener } from '@vueuse/core';
 import { useCountDown } from '@vant/use';
 import dayjs from 'dayjs';
 import { productDetail } from '@/api/modules/product';
@@ -82,10 +83,11 @@ interface QueryData {
   from: string;
   productCode: string;
   code: string; // 微信授权code
+  channelCode: string; // 渠道code
   [key: string]: string;
 }
 
-const { tenantId, from = 'other', orderNo, productCode, code } = route.query as QueryData;
+const { tenantId, from = 'other', orderNo, productCode, code, channelCode = '' } = route.query as QueryData;
 
 const state = reactive<{
   insureDetail: ProductData;
@@ -138,7 +140,11 @@ const orderBtnText = computed(() => {
   return '';
 });
 
-const goToInsurerPage = async (reOrder = false) => {
+const getChannelCode = computed(() => {
+  return channelCode || state.orderDetail.extInfo.extraInfo.channelCode;
+});
+
+const goToInsurerPage = async (reOrder = false, promotion = '') => {
   try {
     const { insurerCode } = state.insureDetail.productBasicInfoVO;
     delete state.orderDetail.extInfo.extraInfo.templateId;
@@ -151,8 +157,12 @@ const goToInsurerPage = async (reOrder = false) => {
       saleChannelId: state.orderDetail.extInfo?.extraInfo?.saleChannelId,
       extraMap: {
         ...state.orderDetail.extInfo.extraInfo,
+        channelCode: getChannelCode.value,
       },
     };
+    if (reOrder) {
+      params.extraMap.promotion = promotion;
+    }
     delete params.extraMap.templateId;
     const res = await queryStandardInsurerLink(params);
     if (res.code === '10000') {
@@ -311,6 +321,14 @@ const addZero = (num: number) => {
   return s + num;
 };
 
+useEventListener(window, 'popstate', (e) => {
+  console.log('sklskskskskskkskskksks200292882828282929929', e);
+  if (state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.productCode) {
+    window.history.pushState(null, '', document.URL);
+    goToInsurerPage(true, 'FHGGW');
+  }
+});
+
 const orderDesc = computed(() => {
   if (ORDER_STATUS_ENUM.PAYING === state.orderDetail?.orderStatus) {
     if (state.timeDown.current.total <= 0) {
@@ -326,10 +344,17 @@ const orderDesc = computed(() => {
   }
   return state.pageInfo.desc;
 });
+
 // 微信授权
 useWXCode();
 onMounted(() => {
   getData();
+  // 如果支持 popstate 一般移动端都支持了
+  if (window.history && window.history.pushState) {
+    // 往历史记录里面添加一条新的当前页面的url
+    window.history.pushState('forward', '', '#');
+    window.history.forward(1);
+  }
 });
 </script>
 

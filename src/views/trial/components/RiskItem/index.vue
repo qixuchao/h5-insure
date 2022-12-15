@@ -267,6 +267,8 @@ import {
 import { RiskDetailVoItem } from '@/api/modules/newTrial.data';
 import { RiskVoItem } from '@/api/modules/trial.data';
 
+import ProExpand from '@/components/ProExpand/index.vue';
+
 interface Props {
   originData: RiskDetailVoItem;
   formInfo: Partial<RiskVoItem>;

@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-13 14:37:51
+ * @LastEditTime: 2022-12-15 16:03:32
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -28,7 +28,7 @@
       ></ProTab>
       <div ref="previewRef" class="list" @scroll="handleScroll">
         <div v-if="attachmentActiveList.length === 1" class="item">
-          <ProFilePreview
+          <AsyncProFilePreview
             :key="attachmentActiveList[0].attachmentName"
             :content="attachmentActiveList[0].attachmentUri"
             :type="attachmentActiveList[0].attachmentType"
@@ -78,6 +78,8 @@ import { useTheme } from '../../../theme';
 import { AttachmentVOList } from '@/api/modules/product.data';
 import ProShadowButton from '../ProShadowButton/index.vue';
 import { openPreviewFilePage } from '@/views/baseInsurance/utils';
+
+const AsyncProFilePreview = defineAsyncComponent(() => import('@/components/ProFilePreview/index.vue'));
 
 const props = defineProps({
   show: {

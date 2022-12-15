@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-14 20:32:54
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-15 16:46:47
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -116,7 +116,6 @@ import { productDetail as getProductDetail } from '@/api/modules/product';
 import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
 import { sendPay, useWXCode } from '../../../cashier/core';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
-import pdfPreview from '@/utils/pdfPreview';
 import FilePreview from '../components/FilePreview/index.vue';
 import useDicData from '@/hooks/useDicData';
 import { INSURANCE_PERIOD_TYPE_ENUMS } from '@/common/constants/trial';
