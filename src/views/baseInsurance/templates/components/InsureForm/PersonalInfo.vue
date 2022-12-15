@@ -161,7 +161,7 @@
       :mapping="{ label: 'name', value: 'code', children: 'children' }"
     ></ProCascader>
     <ProField
-      v-if="showByFactor('social') && prefix === 'insure'"
+      v-if="showByFactor('social') && prefix !== 'insure'"
       v-model="state.formInfo.extInfo.hasSocialInsurance"
       :label="queryFactorAttr('social', 'title')"
       :name="`${prefix}_hasSocialInsurance`"
