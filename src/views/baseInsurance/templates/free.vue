@@ -387,9 +387,7 @@ const onSaveOrder = async () => {
     } else {
       nextStepOperate(params, (resData: any, pageAction: string) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE && resData.orderNo) {
-          router.push(
-            `/baseInsurance/orderDetail?from=free&tenantId=${tenantId}&orderNo=${resData.orderNo}&productCode=${productCode}`,
-          );
+          router.push(`/baseInsurance/orderDetail?from=free&tenantId=${tenantId}&orderNo=${resData.orderNo}`);
         }
       });
     }
