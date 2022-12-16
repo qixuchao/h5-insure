@@ -186,6 +186,7 @@ import { TenantOrderProductItem } from '@/api/index.data';
 
 // const ScrollInfo = defineAsyncComponent(() => import('./components/ScrollInfo/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
+const HealthNoticePreview = defineAsyncComponent(() => import('./components/HealthNoticePreview/index.vue'));
 const PaymentType = defineAsyncComponent(() => import('./components/PaymentType/index.vue'));
 const ProShadowButton = defineAsyncComponent(() => import('./components/ProShadowButton/index.vue'));
 const InsureForm = defineAsyncComponent(() => import('./components/InsureForm/index.vue'));
