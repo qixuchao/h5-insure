@@ -18,7 +18,6 @@
             INSURER: '被保人',
             BENEFICIARY: '收益人',
           }"
-          need-desensitize
           :form-info="orderDetail"
           :send-sms-code="() => {}"
           input-align="left"

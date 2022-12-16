@@ -434,7 +434,8 @@
       :label="queryFactorAttr('homeAddressDetail', 'title')"
       :name="`${prefix}_familyAddress`"
       :is-view="isView"
-      :rules="[{ validator: (...params) => validateLength(100, ...params) }]"
+      :maxlength="99"
+      :rules="[{ validator: validateAddressLen }]"
       :required="isRequiredByFactor('homeAddressDetail')"
     ></ProField>
     <ProField
@@ -466,7 +467,7 @@
       :label="queryFactorAttr('workAddressDetail', 'title')"
       :name="`${prefix}_workAddress`"
       :is-view="isView"
-      :rules="[{ validator: (...params) => validateLength(100, ...params) }]"
+      :rules="[{ validator: validateAddressLen }]"
       :required="isRequiredByFactor('workAddressDetail')"
     ></ProField>
     <ProField
@@ -852,6 +853,14 @@ const validatePositiveInteger = (value: string, rule: any) => {
     return '';
   }
   return '收益比例只能填写1-100的正整数';
+};
+
+const validateAddressLen = (value: string, rule: any) => {
+  console.log('value', value);
+  if (value.length >= 5 && value.length <= 99) {
+    return '';
+  }
+  return '最多99个字符最少5个字符';
 };
 
 // 验证长度
