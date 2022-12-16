@@ -54,17 +54,25 @@ import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
 import dayjs from 'dayjs';
 import '@vant/touch-emulator';
-import { transformData, riskToOrder } from '../../utils';
-import { ProductData, RiskPremiumDetailVoItem, PremiumCalcResponse } from '@/api/modules/trial.data';
+import { transformData, riskToOrder, type transformDataType } from '../../utils';
+import {
+  ProductData,
+  RiskPremiumDetailVoItem,
+  PremiumCalcData,
+  ProductPlanVoItem,
+  ProductRiskVoItem,
+  PremiumCalcResponse,
+  RiskVoItem,
+} from '@/api/modules/trial.data';
 import { productDetail } from '@/api/modules/product';
-import { ProductDetail } from '@/api/modules/product.data';
+import { ProductDetail, PlanInsureVO } from '@/api/modules/product.data';
 import { insureProductDetail, premiumCalc, underWriteRule } from '@/api/modules/trial';
 import InsureForm from '../components/InsureForm/index.vue';
 import { useTheme } from '../../theme';
 import { nextStepOperate as nextStep } from '@/views/baseInsurance/nextStep';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 import { CERT_TYPE_ENUM } from '@/common/constants';
-import { NextStepRequestData } from '@/api/index.data';
+import { NextStepRequestData, ExtInfo } from '@/api/index.data';
 
 // 调用主题
 const themeVars = useTheme();
@@ -89,22 +97,16 @@ const {
 } = route.query as QueryData;
 
 const formRef = ref<InstanceType<typeof InsureForm>>();
-const currentPlan = ref<string>(); // 多计划时存储计划code
+const currentPlan = ref<string>('0'); // 多计划时存储计划code
 const insureDetail = ref<ProductData>(); // 产品中心产品详情
 const tenantProductDetail = ref<ProductDetail>(); // 租户平台产品详情
 const premiumObj = ref<PremiumCalcResponse>(); // 试算结果
-const factorObj = ref<Array<Partial<Pick<ProductData, 'productFactor'>>>>([
-  {
-    1: [], // 投保人要素
-    2: [], // 被保人要素
-    3: [], // 受益人要素
-  },
-]); // 投保要素
-const trialPremiumData = ref<any>({}); // 试算接口入参
-const currentFactor = ref<any>({}); // 存贮需要使用的投保要素(productFactor、planFactor)
+const factorObj = ref<Array<Partial<Pick<ProductData, 'productFactor'>>>>([{}]); // 投保要素
+const trialPremiumData = ref<Array<Partial<ProductPlanVoItem>>>([]);
+const currentFactor = ref<Partial<Pick<ProductData, 'productFactor'>>>({}); // 存贮需要使用的投保要素(productFactor、planFactor)
 const iseeBizNo = ref<string>(''); // 千里眼code
 
-let extInfo = {} as keyof Pick<NextStepRequestData, 'extInfo'>;
+let extInfo: Partial<ExtInfo> = {};
 
 try {
   extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
@@ -112,8 +114,9 @@ try {
   //
 }
 
+// 订单数据模板
+// ToDo 提取公共模板
 const orderDetail = ref<Partial<NextStepRequestData>>({
-  // 订单数据模板
   agencyId: agencyCode,
   agentCode,
   commencementTime: '',
@@ -121,7 +124,7 @@ const orderDetail = ref<Partial<NextStepRequestData>>({
   extInfo: {
     buttonCode: 'EVENT_NETSALE_underWrite',
     pageCode: 'infoCollection',
-    templateId: extInfo?.templateId,
+    templateId: extInfo.templateId,
     iseeBizNo: iseeBizNo.value,
     extraInfo: extInfo,
   },
@@ -131,9 +134,11 @@ const orderDetail = ref<Partial<NextStepRequestData>>({
   tenantId,
   venderCode: '',
   tenantOrderHolder: {
+    // 投保人
     extInfo: {},
   },
   tenantOrderInsuredList: [
+    // 被保人信息
     {
       relationToHolder: '1',
       extInfo: {
@@ -151,6 +156,7 @@ const orderDetail = ref<Partial<NextStepRequestData>>({
     },
   ],
   tenantOrderSubjectList: [
+    // 标的物信息
     {
       extInfo: {
         subjectRelatedFirm: 'xinao',
@@ -159,6 +165,7 @@ const orderDetail = ref<Partial<NextStepRequestData>>({
       subjectName: '',
       subjectObjectType: 'HOLDER',
       subjectType: 'GENERAL',
+      subjectNo: '',
       tenantId,
     },
   ],
@@ -171,20 +178,22 @@ const orderDetail = ref<Partial<NextStepRequestData>>({
   },
 }); // 产品信息
 
+// 多计划并且计划数大于1时展示保障计划
 const isShowInsurePeriod = computed(() => {
   return (insureDetail.value?.productRelationPlanVOList?.length || 0) > 1;
 });
 
 // 保费展示的逻辑
-const productPremium = ref<string>();
+const productPremium = ref<string | number>();
 
+// 根据试算或者试算前根据产品配置信息显示产品保费
 watch(
   [() => premiumObj.value, () => tenantProductDetail.value, () => currentPlan.value],
   () => {
     const { premium } = premiumObj.value || {};
     if (!premium) {
       const { tenantProductInsureVO } = tenantProductDetail.value || {};
-      let selectedPlan = {} as any;
+      let selectedPlan = {} as PlanInsureVO | undefined;
       if (tenantProductInsureVO?.planList?.length) {
         selectedPlan = (tenantProductInsureVO?.planList || []).find((plan) => plan.planCode === currentPlan.value);
       } else {
@@ -200,9 +209,9 @@ watch(
   { deep: true, immediate: true },
 );
 
-// 险种信息
-const currentRiskInfo = computed(() => {
-  let riskInfo = [];
+// 根据产品是多计划还是非多计划筛选出产品下的险种信息
+const currentRiskInfo = computed<ProductRiskVoItem[]>(() => {
+  let riskInfo = [] as ProductRiskVoItem[];
   if (insureDetail.value?.productRelationPlanVOList?.length) {
     riskInfo =
       insureDetail.value?.productRelationPlanVOList.find((plan) => plan.planCode === currentPlan.value)
@@ -216,7 +225,7 @@ const currentRiskInfo = computed(() => {
 
 /* --------------计算保障开始、结束日期 ----------- */
 
-const insuranceStartDate = computed(() => {
+const insuranceStartDate = computed<string>(() => {
   const riskInfo = currentRiskInfo.value || [];
   const startDateType = riskInfo?.[0]?.riskDetailVOList?.[0]?.insuranceStartType || 1;
   if (startDateType === 1) {
@@ -229,7 +238,11 @@ const insuranceEndDate = computed(() => {
   const riskInfo = currentRiskInfo.value || [];
   const { insuranceEndType, riskInsureLimitVO } = riskInfo?.[0]?.riskDetailVOList?.[0] || {};
   const { insurancePeriodValueList } = riskInsureLimitVO || {};
-  const [unit, num] = (insurancePeriodValueList?.[0] || '').split('_');
+  if (!insurancePeriodValueList) {
+    // ToDo 抛出异常信息
+    console.warn('insurancePeriodValueList', '保障信息不存在');
+  }
+  const [unit, num] = (insurancePeriodValueList?.[0] || '').split('_') as [string, number];
   // 当日23:59:59失效
   if (insuranceEndType === 1) {
     return `${dayjs(new Date())
@@ -240,28 +253,32 @@ const insuranceEndDate = computed(() => {
   return insuranceEndType ? `${dayjs(new Date()).add(num, unit).format('YYYY-MM-DD')} 00:00:00` : '';
 });
 
-const trialPremium = async (orderInfo, currentProductDetail, productRiskList) => {
-  const trialParams = {
+const trialPremium = async (
+  orderInfo: Partial<NextStepRequestData>,
+  currentProductDetail: ProductData | undefined,
+  productRiskList: ProductRiskVoItem[],
+) => {
+  const trialParams: Partial<PremiumCalcData> = {
     holder: {
       personVO: {
-        certType: 1,
+        certType: CERT_TYPE_ENUM.CERT,
         ...orderInfo.tenantOrderHolder,
       },
     },
-    insuredVOList: orderInfo.tenantOrderInsuredList.map((person) => {
+    insuredVOList: (orderInfo?.tenantOrderInsuredList || []).map((person) => {
       return {
         insuredCode: '',
-        personVO: { ...person, certType: 1 },
+        personVO: { ...person, certType: CERT_TYPE_ENUM.CERT },
         productPlanVOList: [
           {
-            insurerCode: currentProductDetail.productBasicInfoVO.insurerCode,
-            planCode: currentPlan.value || 0,
+            insurerCode: currentProductDetail?.productBasicInfoVO.insurerCode,
+            planCode: currentPlan.value || '0',
             riskVOList: riskToOrder(productRiskList),
           },
         ],
       };
     }),
-    productCode: currentProductDetail.productBasicInfoVO.productCode,
+    productCode: currentProductDetail?.productBasicInfoVO.productCode,
     tenantId,
   };
   // 对试算的参数进行验证
@@ -270,15 +287,21 @@ const trialPremium = async (orderInfo, currentProductDetail, productRiskList) =>
     const { code: trialCode, data: trialData } = await premiumCalc(trialParams);
     if (trialCode === '10000') {
       premiumObj.value = trialData;
-      trialPremiumData.value = trialParams.insuredVOList[0]?.productPlanVOList;
+      trialPremiumData.value = trialParams?.insuredVOList?.[0]?.productPlanVOList || [];
     } else {
-      premiumObj.value = null;
+      premiumObj.value = undefined;
     }
   }
 };
 
-const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrderDetail = {}) => {
+// 将试算的结果拼接到订单信息中
+const trialData2Order = (
+  currentProductDetail: ProductData | undefined,
+  riskPremium: PremiumCalcResponse | undefined,
+  currentOrderDetail: Partial<NextStepRequestData>,
+) => {
   const currentRiskPremium = {};
+  // 将试算的结果拍平
   const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
     (premiumList || []).forEach((risk) => {
       currentRiskPremium[risk.riskCode] = risk;
@@ -287,38 +310,52 @@ const trialData2Order = (currentProductDetail = {}, riskPremium = {}, currentOrd
       }
     });
   };
-  flatRiskPremium(riskPremium.riskPremiumDetailVOList);
+  flatRiskPremium(riskPremium?.riskPremiumDetailVOList);
 
   const nextStepParams = { ...currentOrderDetail };
-  const transformDataReq = {
+  const transformDataReq: transformDataType = {
     tenantId,
-    riskList: trialPremiumData.value?.[0].riskVOList || [],
+    riskList: (trialPremiumData.value?.[0].riskVOList || []) as RiskVoItem[],
     riskPremium: currentRiskPremium,
-    productId: currentProductDetail?.productBasicInfoVO.id,
+    productId: currentProductDetail?.productBasicInfoVO.id || 0,
   };
-  nextStepParams.tenantOrderHolder.certType = nextStepParams.tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT;
-  nextStepParams.tenantOrderInsuredList[0].certType =
-    nextStepParams.tenantOrderInsuredList[0].certType || CERT_TYPE_ENUM.CERT;
+  // 设置投被保人的默认证件类型为身份证
+  if (nextStepParams.tenantOrderHolder) {
+    nextStepParams.tenantOrderHolder.certType = nextStepParams.tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT;
+  }
 
-  nextStepParams.tenantOrderInsuredList[0].tenantOrderProductList = [
-    {
-      premium: premiumObj.value.premium,
-      productCode: currentProductDetail.productBasicInfoVO.productCode,
-      productName: currentProductDetail.productBasicInfoVO.productName,
-      tenantOrderRiskList: transformData(transformDataReq),
-    },
-  ];
+  if (nextStepParams.tenantOrderInsuredList) {
+    // TODO 处理数组取0的方式
+    nextStepParams.tenantOrderInsuredList[0].certType =
+      nextStepParams.tenantOrderInsuredList[0].certType || CERT_TYPE_ENUM.CERT;
+
+    nextStepParams.tenantOrderInsuredList[0].tenantOrderProductList = [
+      {
+        premium: premiumObj.value?.premium,
+        productCode: currentProductDetail?.productBasicInfoVO.productCode,
+        productName: currentProductDetail?.productBasicInfoVO.productName,
+        tenantOrderRiskList: transformData(transformDataReq) as any[],
+      },
+    ];
+  }
+
   return nextStepParams;
 };
 
 const nextStepOperate = async () => {
   orderDetail.value.venderCode = insureDetail.value?.productBasicInfoVO.insurerCode;
-  orderDetail.value.orderAmount = premiumObj.value.premium;
-  orderDetail.value.orderRealAmount = premiumObj.value.premium;
+  orderDetail.value.orderAmount = premiumObj.value?.premium;
+  orderDetail.value.orderRealAmount = premiumObj.value?.premium;
+
   orderDetail.value.commencementTime = insuranceStartDate.value;
   orderDetail.value.expiryDate = insuranceEndDate.value;
-  orderDetail.value.extInfo.iseeBizNo = iseeBizNo.value;
-  orderDetail.value.tenantOrderInsuredList[0].planCode = currentPlan.value;
+  if (orderDetail.value.extInfo) {
+    orderDetail.value.extInfo.iseeBizNo = iseeBizNo.value;
+  }
+  if (orderDetail.value.tenantOrderInsuredList) {
+    orderDetail.value.tenantOrderInsuredList[0].planCode = currentPlan.value;
+  }
+
   nextStep(trialData2Order(insureDetail.value, premiumObj.value, orderDetail.value), (resData, pageAction) => {
     if (pageAction === 'jumpToPage') {
       Toast('提交成功');
@@ -326,11 +363,12 @@ const nextStepOperate = async () => {
   });
 };
 
+// 统一步骤，统一方法名称，梳理全一点模板和简单的模板和流程
 const insured = async () => {
   formRef.value?.validateForm().then(() => {
     Dialog.confirm({
       title: '分享',
-      message: `即将向客户【${orderDetail.value.tenantOrderHolder.name}】发送投保确认信息,请确认是否继续？`,
+      message: `即将向客户【${orderDetail.value?.tenantOrderHolder?.name}】发送投保确认信息,请确认是否继续？`,
     }).then(() => {
       preview || nextStepOperate();
     });
@@ -350,12 +388,12 @@ watch(
     }
   }, 500),
 );
-
+// initProductData
 const fetchData = () => {
   productDetail({ productCode, withInsureInfo: true, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       tenantProductDetail.value = data;
-      document.title = data.tenantProductInsureVO?.productNam || '';
+      document.title = data.tenantProductInsureVO?.productName || '';
     }
   });
 
@@ -366,7 +404,7 @@ const fetchData = () => {
 
       // 如果是多计划
       if (data.productRelationPlanVOList?.length) {
-        currentPlan.value = data.productRelationPlanVOList[0].planCode;
+        currentPlan.value = data.productRelationPlanVOList[0].planCode || '';
       }
       if (data.productFactor) {
         currentFactor.value = data.productFactor;
@@ -377,6 +415,7 @@ const fetchData = () => {
   });
 };
 
+// 切换
 watch(
   () => currentPlan.value,
   () => {

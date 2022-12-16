@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-16 19:38:49
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-16 11:43:24
+ * @LastEditTime: 2022-12-16 14:55:57
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/index.data.d.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -134,7 +134,7 @@ export interface TenantOrderInsuredItem {
   certEndType: number;
   certNo: string;
   certStartDate: string;
-  certType: number;
+  certType: number | string;
   email: string;
   extInfo: Partial<InsuredExtInfo>;
   gender: number;
@@ -175,7 +175,7 @@ export interface TenantOrderProductItem {
   premium: number;
   productCode: string;
   productName: string;
-  tenantOrderRiskList: TenantOrderRiskItem[];
+  tenantOrderRiskList: Array<Partial<TenantOrderRiskItem>>;
 }
 
 export interface TenantOrderRiskItem {
@@ -222,7 +222,7 @@ export interface TenantOrderBeneficiaryItem {
   certEndType: number;
   certNo: string;
   certStartDate: string;
-  certType: number;
+  certType: number | string;
   email: string;
   extInfo: Partial<BeneficiaryExtInfo>;
   gender: number;
@@ -280,7 +280,7 @@ export interface TenantOrderHolder {
   certEndType: number;
   certNo: string;
   certStartDate: string;
-  certType: number;
+  certType: number | string;
   email: string;
   extInfo: Partial<HolderExtInfo>;
   gender: number;

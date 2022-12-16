@@ -798,25 +798,30 @@ const validateName = (value: string, rule: any) => {
 const validateType = computed(() => {
   // 身份证和户口本
   if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(`${state.value.formInfo.certType}`)) {
+    isIdCard.value = true;
     return [VALIDATE_TYPE_ENUM.ID_CARD];
   }
   // 出生证
   if (`${state.value.formInfo.certType}` === CERT_TYPE_ENUM.BIRTH) {
+    isIdCard.value = true;
     return [VALIDATE_TYPE_ENUM.BIRTH];
   }
   // 通信证
   if (`${state.value.formInfo.certType}` === CERT_TYPE_ENUM.PASSPORT) {
+    isIdCard.value = false;
     return [VALIDATE_TYPE_ENUM.PASSPORT];
   }
   // 社会统一信用代码
   if (`${state.value.formInfo.certType}` === CERT_TYPE_ENUM.SOCIAL_CREDIT_CODE) {
+    isIdCard.value = false;
     return [VALIDATE_TYPE_ENUM.SOCIAL_CREDIT_CODE];
   }
   // 其他
   if (`${state.value.formInfo.certType}` === CERT_TYPE_ENUM.OTHER) {
+    isIdCard.value = false;
     return [VALIDATE_TYPE_ENUM.OTHER];
   }
-
+  isIdCard.value = true;
   return [VALIDATE_TYPE_ENUM.ID_CARD];
 });
 

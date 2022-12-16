@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-15 17:50:45
+ * @LastEditTime: 2022-12-16 18:32:57
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -26,9 +26,9 @@
         >
           <ProField
             v-if="showByFactor('gasNumberCollection', 'HOLDER') && formInfo.tenantOrderSubjectList?.[0]?.extInfo"
-            v-model="formInfo.tenantOrderSubjectList[0].extInfo.subjectRelatedUserId"
+            v-model="formInfo.tenantOrderSubjectList[0].subjectNo"
             :label="queryFactorAttr('gasNumberCollection', 'title', 'HOLDER')"
-            name="subjectRelatedUserId"
+            name="subjectNo"
             :required="isRequiredByFactor('gasNumberCollection', 'HOLDER')"
             :is-view="isView"
             :maxlength="100"
@@ -231,6 +231,7 @@ const formInfo = ref<any>({
       subjectName: '',
       subjectObjectType: 'HOLDER',
       subjectType: 'GENERAL',
+      subjectNo: '',
     },
   ],
   operateOption: {

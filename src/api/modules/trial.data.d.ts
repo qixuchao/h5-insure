@@ -37,6 +37,8 @@ export interface RiskDetailVoItem {
     extraInfo: string;
     id: number;
     insurerCode: string;
+    insuranceStartType: number;
+    insuranceEndType: number;
     insurerName: string;
     liabilityPlanOssUrl: string;
     mainRiskCode: string;
@@ -239,7 +241,7 @@ export interface ProductBasicInfoVo {
 
 export interface PremiumCalcData {
     holder?: Holder;
-    insuredVOList: InsuredVoItem[];
+    insuredVOList: Array<Partial<InsuredVoItem>>;
     productCode: string;
     tenantId?: string;
 }
@@ -247,14 +249,14 @@ export interface PremiumCalcData {
 export interface InsuredVoItem {
     insuredCode: string;
     personVO: PersonVo;
-    productPlanVOList: ProductPlanVoItem[];
+    productPlanVOList: Array<Partial<ProductPlanVoItem>>;
     relationToHolder?: string;
 }
 
 export interface ProductPlanVoItem {
     insurerCode: string;
     planCode: string;
-    riskVOList: RiskVoItem[];
+    riskVOList: Array<Partial<RiskVoItem>>;
 }
 
 export interface RiskVoItem {
@@ -301,7 +303,7 @@ export interface LiabilityVoItem {
 export interface PersonVo {
     birthday?: string;
     gender?: number;
-    certType?: string;
+    certType?: string | number;
     certNo?: string;
     occupationClass?: number;
     occupationCodeList?: string[];

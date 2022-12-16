@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-15 16:46:47
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-12-16 17:53:16
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -35,10 +35,7 @@
             :mapping="{ label: 'name', value: 'code', children: 'children' }"
           ></ProCascader>
           <ProCell title="详细地址" :content="orderDetail.tenantOrderHolder?.extInfo?.familyAddress"></ProCell>
-          <ProCell
-            title="燃气编号"
-            :content="orderDetail.tenantOrderSubjectList?.[0]?.extInfo?.subjectRelatedUserId"
-          ></ProCell>
+          <ProCell title="燃气编号" :content="orderDetail.tenantOrderSubjectList?.[0]?.subjectNo"></ProCell>
         </ProCard>
         <InsureForm
           v-if="loadForm"
@@ -126,11 +123,9 @@ const router = useRouter();
 
 const { orderNo = '2022113021181894998', tenantId = '9991000001' } = route.query;
 
-const formData = ref<any>();
 const factorObj = ref<any>({});
 const loadForm = ref<boolean>(false);
 const region = useDicData('NATIONAL_REGION_CODE');
-const isShow = ref<boolean>(true);
 const orderDetail = ref<any>({
   // 订单数据模板
   commencementTime: '',
@@ -174,6 +169,7 @@ const orderDetail = ref<any>({
       subjectName: '',
       subjectObjectType: 'HOLDER',
       subjectType: 'GENERAL',
+      subjectNo: '',
       tenantId,
     },
   ],
@@ -228,6 +224,7 @@ const setFileList = () => {
     return;
   }
   // 1: 附件, 2: 富文本, 3: 链接
+  // TODO 抽離公共
   const fileMap = {
     '2': 'richText',
     '3': 'link',

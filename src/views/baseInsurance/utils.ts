@@ -46,7 +46,7 @@ export const getExtInfo = (extInfo: string) => {
 };
 
 /** */
-interface transformDataType {
+export interface transformDataType {
   tenantId: string;
   riskList: RiskVoItem[];
   riskPremium: any;
