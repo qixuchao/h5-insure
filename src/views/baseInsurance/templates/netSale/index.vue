@@ -54,13 +54,8 @@ import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
 import dayjs from 'dayjs';
 import '@vant/touch-emulator';
-import { transformData, getAgeByCard, riskToOrder } from '../../utils';
-import {
-  PackageProductVoItem,
-  ProductData,
-  RiskPremiumDetailVoItem,
-  PremiumCalcResponse,
-} from '@/api/modules/trial.data';
+import { transformData, riskToOrder } from '../../utils';
+import { ProductData, RiskPremiumDetailVoItem, PremiumCalcResponse } from '@/api/modules/trial.data';
 import { productDetail } from '@/api/modules/product';
 import { ProductDetail } from '@/api/modules/product.data';
 import { insureProductDetail, premiumCalc, underWriteRule } from '@/api/modules/trial';
@@ -69,6 +64,7 @@ import { useTheme } from '../../theme';
 import { nextStepOperate as nextStep } from '@/views/baseInsurance/nextStep';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 import { CERT_TYPE_ENUM } from '@/common/constants';
+import { NextStepRequestData } from '@/api/index.data';
 
 // 调用主题
 const themeVars = useTheme();
@@ -79,15 +75,7 @@ interface QueryData {
   tenantId: string; // 订单id
   phoneNo: string; // 手机号
   agentCode: string;
-  orderNo: string;
-  pageCode: string;
-  from: string; // from = 'check' 审核版
-  [key: string]: string;
-}
-
-interface PayHtml {
-  show: boolean;
-  html: string;
+  [propName: string]: string;
 }
 
 const {
@@ -101,20 +89,22 @@ const {
 } = route.query as QueryData;
 
 const formRef = ref<InstanceType<typeof InsureForm>>();
-const currentPlan = ref<string>();
+const currentPlan = ref<string>(); // 多计划时存储计划code
 const insureDetail = ref<ProductData>(); // 产品中心产品详情
 const tenantProductDetail = ref<ProductDetail>(); // 租户平台产品详情
-const premiumObj = ref<PremiumCalcResponse>(); // 保费
-const factorObj = ref<Pick<ProductData, 'productFactor'>>({
-  1: [],
-  2: [],
-  3: [],
-});
-const trialPremiumData = ref<any>({});
-const currentFactor = ref<any>({});
-const iseeBizNo = ref<string>();
+const premiumObj = ref<PremiumCalcResponse>(); // 试算结果
+const factorObj = ref<Array<Partial<Pick<ProductData, 'productFactor'>>>>([
+  {
+    1: [], // 投保人要素
+    2: [], // 被保人要素
+    3: [], // 受益人要素
+  },
+]); // 投保要素
+const trialPremiumData = ref<any>({}); // 试算接口入参
+const currentFactor = ref<any>({}); // 存贮需要使用的投保要素(productFactor、planFactor)
+const iseeBizNo = ref<string>(''); // 千里眼code
 
-let extInfo = {};
+let extInfo = {} as keyof Pick<NextStepRequestData, 'extInfo'>;
 
 try {
   extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
@@ -122,7 +112,7 @@ try {
   //
 }
 
-const orderDetail = ref<any>({
+const orderDetail = ref<Partial<NextStepRequestData>>({
   // 订单数据模板
   agencyId: agencyCode,
   agentCode,
@@ -132,7 +122,7 @@ const orderDetail = ref<any>({
     buttonCode: 'EVENT_NETSALE_underWrite',
     pageCode: 'infoCollection',
     templateId: extInfo?.templateId,
-    iseeBizNo,
+    iseeBizNo: iseeBizNo.value,
     extraInfo: extInfo,
   },
   orderCategory: 1,
@@ -194,7 +184,7 @@ watch(
     const { premium } = premiumObj.value || {};
     if (!premium) {
       const { tenantProductInsureVO } = tenantProductDetail.value || {};
-      let selectedPlan = {};
+      let selectedPlan = {} as any;
       if (tenantProductInsureVO?.planList?.length) {
         selectedPlan = (tenantProductInsureVO?.planList || []).find((plan) => plan.planCode === currentPlan.value);
       } else {

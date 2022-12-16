@@ -1,5 +1,5 @@
 export interface ProductData {
-    productFactor?: ProductFactor;
+    productFactor: ProductFactor;
     productBasicInfoVO: ProductBasicInfoVo;
     productMaterialVOList: ProductMaterialVoItem[];
     productRelationPlanVOList: ProductRelationPlanVoItem[];
@@ -10,9 +10,7 @@ export interface ProductData {
 }
 
 interface ProductFactor {
-  1:[],
-  2:[],
-  3:[]
+  [propName: string]: any[],
 }
 
 export interface PackageProductVoItem {
