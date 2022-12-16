@@ -39,7 +39,7 @@
     class="pre-notice-wrap"
     :title="attachmentUri?.title"
     position="bottom"
-    :style="{ height: '600px' }"
+    :style="{ overflow: 'hidden' }"
   >
     <div class="review-pdf">
       <ProFilePreview :content="attachmentUri?.link" :type="fileType"></ProFilePreview>
