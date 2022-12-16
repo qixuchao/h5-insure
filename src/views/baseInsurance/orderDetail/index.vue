@@ -81,13 +81,13 @@ interface QueryData {
   tenantId: string; // 订单id
   orderNo: string;
   from: string;
-  productCode: string;
   code: string; // 微信授权code
   channelCode: string; // 渠道code
   [key: string]: string;
 }
 
-const { tenantId, from = 'other', orderNo, productCode, code, channelCode = '' } = route.query as QueryData;
+const { tenantId, from = 'other', orderNo, code, channelCode = '' } = route.query as QueryData;
+let productCode = '';
 
 const state = reactive<{
   insureDetail: ProductData;
@@ -261,7 +261,7 @@ const initPageInfo = () => {
         state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.notificationImage?.[0] || '';
       state.pageInfo.productImage =
         state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.productImage?.[0] || '';
-      show.value = true;
+      show.value = !!state.pageInfo.notificationImage;
     }
   } else {
     // 显示保障内容
@@ -295,21 +295,24 @@ const initPageInfo = () => {
 };
 
 const getData = async () => {
-  const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
-  const orderReq = getTenantOrderDetail({ orderNo, tenantId });
-  const insureReq = insureProductDetail({ productCode });
-  Promise.all([productReq, orderReq, insureReq]).then(([productRes, orderRes, insureRes]) => {
-    if (productRes.code === '10000') {
-      state.detail = productRes.data as any;
-    }
-    if (insureRes.code === '10000') {
-      state.insureDetail = insureRes.data as any;
-    }
-    if (orderRes.code === '10000') {
-      state.orderDetail = orderRes.data;
-    }
-    initPageInfo();
-  });
+  const orderRes = await getTenantOrderDetail({ orderNo, tenantId, withProductInfo: true });
+  if (orderRes.code === '10000') {
+    state.orderDetail = orderRes.data;
+    productCode = orderRes.data.tenantOrderInsuredList?.[0]?.tenantOrderProductList?.[0]?.productCode || '';
+    if (!productCode) return '';
+    const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
+    const insureReq = insureProductDetail({ productCode });
+    Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
+      if (productRes.code === '10000') {
+        state.detail = productRes.data as any;
+      }
+      if (insureRes.code === '10000') {
+        state.insureDetail = insureRes.data as any;
+      }
+      initPageInfo();
+    });
+  }
+  return '';
 };
 
 const addZero = (num: number) => {
@@ -322,7 +325,6 @@ const addZero = (num: number) => {
 };
 
 useEventListener(window, 'popstate', (e) => {
-  console.log('sklskskskskskkskskksks200292882828282929929', e);
   if (state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.productCode) {
     window.history.pushState(null, '', document.URL);
     goToInsurerPage(true, 'FHGGW');
