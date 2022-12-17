@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-14 16:19:13
+ * @LastEditTime: 2022-12-15 11:37:15
  * @Description:
 -->
 <template>
@@ -43,36 +43,6 @@
           >
             <img v-if="state.formInfo.paymentFrequency == item.paymentFrequency" :src="item.selectedPic" />
             <img v-else :src="item.unSelectedPic" />
-          </div>
-        </div>
-        <div v-else-if="showDefaultPayment" class="default-payment-content">
-          <div
-            :class="`com-payment-type-item ${
-              state.formInfo.paymentFrequency == PAYMENT_COMMON_FREQUENCY_ENUM.MONTH ? 'active' : ''
-            }`"
-            @click="onClickPaymethod(PAYMENT_COMMON_FREQUENCY_ENUM.MONTH)"
-          >
-            <div class="pay-method">
-              <span class="method">{{ '按月交费' }}</span>
-              <span class="acount">{{ '共12期' }}</span>
-            </div>
-          </div>
-          <div
-            :class="`com-payment-type-item ${
-              state.formInfo.paymentFrequency == PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE ? 'active' : ''
-            }`"
-            @click="onClickPaymethod(PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE)"
-          >
-            <div>
-              <div class="tip">
-                <span>{{ '比按月支付最高省16%' }}</span>
-              </div>
-              <div class="triangle"></div>
-              <div class="pay-method">
-                <span class="method">{{ '一次交清' }}</span>
-                <span class="acount">{{ '比月交保费省最高2014元' }}</span>
-              </div>
-            </div>
           </div>
         </div>
         <div v-else-if="peymentBtnList.length > 1" class="custom-cell check-btn-cell">
@@ -245,8 +215,6 @@ const isShowPaymentSelect = computed(() => {
   return false;
 });
 
-const showDefaultPayment = ref<boolean>(false);
-
 watch(
   () => insureCondition.value,
   () => {
@@ -254,7 +222,6 @@ watch(
       const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
       if (paymentFrequencyList.length === 1) {
         state.formInfo.paymentFrequency = insureCondition.value.paymentFrequency;
-        showDefaultPayment.value = false;
         return;
       }
 
@@ -264,7 +231,6 @@ watch(
           (e: string) => ![PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE, PAYMENT_COMMON_FREQUENCY_ENUM.MONTH].includes(e),
         ).length < 1
       ) {
-        showDefaultPayment.value = true;
         if (!state.formInfo.paymentFrequency) {
           state.formInfo.paymentFrequency = PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE;
         }
@@ -274,7 +240,6 @@ watch(
       if (paymentFrequencyList.length > 1 && !state.formInfo.paymentFrequency) {
         state.formInfo.paymentFrequency = paymentFrequencyList?.[0];
       }
-      showDefaultPayment.value = false;
     }
   },
   {
@@ -408,93 +373,6 @@ defineExpose({});
           margin-left: 0px !important;
         }
       }
-    }
-  }
-
-  .default-payment-content {
-    padding: 45px 40px 32px;
-    display: flex;
-    justify-content: space-between;
-    text-align: center;
-    align-items: center;
-
-    .com-payment-type-item {
-      width: 319px;
-      height: 110px;
-      line-height: 110px;
-      background: #f6f6f6;
-      border-radius: 55px;
-      padding: 16px 0px;
-      position: relative;
-      .triangle {
-        position: absolute;
-        width: 0px;
-        height: 0px;
-        top: -32px;
-        left: 80px;
-        border: 18px solid transparent;
-        border-top: 18px solid $primary-color;
-      }
-      .tip {
-        position: absolute;
-        top: -66px;
-        left: 40px;
-        width: 280px;
-        height: 42px;
-        background: $primary-color;
-        border-radius: 44px;
-        display: flex;
-        color: #ffffff !important;
-        justify-content: space-between;
-        vertical-align: center;
-        padding: 5px 20px;
-        span {
-          display: inline-block;
-          height: 33px;
-          font-size: 24px;
-          font-family: PingFangSC-Regular, PingFang SC;
-          font-weight: 400;
-          line-height: 33px;
-
-          // &:first-child {
-          //   width: 192px;
-          // }
-          // &:last-child {
-          //   width: 45px;
-          //   font-size: 28px;
-          //   font-weight: 500;
-          // }
-        }
-      }
-
-      .pay-method {
-        .method,
-        .acount {
-          display: block;
-          font-family: PingFangSC-Regular, PingFang SC;
-          font-weight: 400;
-          color: #666666;
-        }
-
-        .method {
-          font-size: 30px;
-          line-height: 42px;
-        }
-
-        .acount {
-          font-size: 24px;
-          line-height: 33px;
-        }
-      }
-    }
-
-    .active {
-      .method,
-      .acount {
-        color: $primary-color !important;
-      }
-      background: #fff3eb;
-      border: 1px solid $primary-color;
     }
   }
 

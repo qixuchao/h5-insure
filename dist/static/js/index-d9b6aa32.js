@@ -1,0 +1,1 @@
+import{d as s,b as a,c as t,e,w as o,i as c}from"./index-ede465c8.js";import"./pdfdist-c7cc8cdf.js";const i=c("img",{src:"/static/assets/xinao.2853603b.png",alt:"logo",style:{margin:"100px auto",width:"200px",display:"block"}},null,-1),p=s({setup:s=>(s,c)=>{const p=a("ProPageWrap");return t(),e(p,{"main-class":"page-home"},{default:o((()=>[i])),_:1})}});export{p as default};

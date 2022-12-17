@@ -1,8 +1,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 17:42:39
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-14 20:19:08
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-15 14:13:17
  * @FilePath: /zat-planet-h5-cloud-insure/vite.config.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -39,7 +39,7 @@ export default defineConfig((env) => {
         //   target: 'http://aquarius-commander.test.za-tech.net',
         //   changeOrigin: true, // 允许跨域
         // },
-        '/h5-cloud-insure/api': {
+        '/api': {
           // 本地 8000 前端代码的接口 代理到 8888 的服务端口
           // target: 'https://www.gconline.cn/acvmtest',
           // target: 'http://141604-zat-planet-gateway.test.za-tech.net',
@@ -52,7 +52,6 @@ export default defineConfig((env) => {
           target: 'https://h5-cloud-insure.ennejb.cn',
           // target: 'http://zat-planet-gateway.test.za-tech.net',
           changeOrigin: true, // 允许跨域
-          rewrite: (path) => path.replace('/h5-cloud-insure', ''),
         },
       },
     },

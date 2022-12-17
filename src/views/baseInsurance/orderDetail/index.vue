@@ -23,7 +23,7 @@
             :text="orderBtnText"
             @click="orderBtnHandler"
           />
-          <div v-if="state.showOrderDetail" class="desc">已有<span>29,182</span>位用户已投保</div>
+          <!-- <div v-if="state.showOrderDetail" class="desc">已有<span>29,182</span>位用户已投保</div> -->
         </div>
         <img
           v-if="state.pageInfo.productImage"
@@ -32,10 +32,10 @@
           @click="goToInsurerPage(true, 'GDGGW')"
         />
         <GuaranteeContent v-if="state.showOrderDetail" is-show-close :count="5" :data-source="state.guaranteeItemVOS" />
-        <div class="footer-desc">
+        <!-- <div class="footer-desc">
           <div>客服电话</div>
           <div>400 605 8000</div>
-        </div>
+        </div> -->
       </div>
     </div>
 
@@ -179,24 +179,24 @@ const goToInsurerPage = async (reOrder = false, promotion = '') => {
 
 const orderBtnHandler = async () => {
   if (orderBtnText.value === '下载保单') {
-    console.log('配的保单下载地址', state.orderDetail.extInfo.extraInfo.xinaoMyUrl);
+    // console.log('配的保单下载地址', state.orderDetail.extInfo.extraInfo.xinaoMyUrl);
     // 拿到客户配置的下载保单地址
-    const customerDownloadUrl = `${state.orderDetail.extInfo.extraInfo.xinaoMyUrl}?code=${code}&state=STATE`;
-    console.log('拼接后的保单下载地址', customerDownloadUrl);
-    window.location.href = customerDownloadUrl;
-    // if (!state.orderDetail.extInfo?.policyUrl) {
-    //   const orderReq = await getTenantOrderDetail({ orderNo, tenantId });
-    //   if (orderReq.code === '10000') {
-    //     state.orderDetail = orderReq.data;
-    //     if (state.orderDetail.extInfo?.policyUrl) {
-    //       downLoadFile(state.orderDetail.extInfo?.policyUrl);
-    //     } else {
-    //       Toast('电子保单单生成中，请稍后再试');
-    //     }
-    //   }
-    // } else {
-    //   state.orderDetail.extInfo?.policyUrl && downLoadFile(state.orderDetail.extInfo?.policyUrl);
-    // }
+    // const customerDownloadUrl = `${state.orderDetail.extInfo.extraInfo.xinaoMyUrl}?code=${code}&state=STATE`;
+    // console.log('拼接后的保单下载地址', customerDownloadUrl);
+    // window.location.href = customerDownloadUrl;
+    if (!state.orderDetail.extInfo?.policyUrl) {
+      const orderReq = await getTenantOrderDetail({ orderNo, tenantId });
+      if (orderReq.code === '10000') {
+        state.orderDetail = orderReq.data;
+        if (state.orderDetail.extInfo?.policyUrl) {
+          downLoadFile(state.orderDetail.extInfo?.policyUrl);
+        } else {
+          Toast('电子保单单生成中，请稍后再试');
+        }
+      }
+    } else {
+      state.orderDetail.extInfo?.policyUrl && downLoadFile(state.orderDetail.extInfo?.policyUrl);
+    }
   } else if (orderBtnText.value === '立即支付') {
     getPayUrl({
       ...state.orderDetail,
