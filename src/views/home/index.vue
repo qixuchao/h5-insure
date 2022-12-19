@@ -1,12 +1,10 @@
 <template>
   <ProPageWrap main-class="page-home">
-    <VanGrid>
-      <VanGridItem v-for="route in routes" :key="route.path" link-type="navigateTo">
-        <RouterLink :to="route.path">
-          {{ route?.meta.title || route.name }}
-        </RouterLink>
-      </VanGridItem>
-    </VanGrid>
+    <img
+      src="@/assets/images/baseInsurance/logo.png"
+      alt="logo"
+      style="margin: 100px auto; width: 200px; display: block"
+    />
   </ProPageWrap>
 </template>
 

@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-06 14:43:03
+ * @LastEditTime: 2022-12-19 15:54:10
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -78,7 +78,13 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/middlePage/index.vue'),
   },
   {
-    name: 'phoneVerify',
+    name: 'previewMiddlePage',
+    path: '/previewMiddlePage',
+    meta: { title: '预览' },
+    component: () => import('@/views/previewMiddlePage/index.vue'),
+  },
+  {
+    name: '手机号验证',
     path: '/phoneVerify',
     meta: { title: '手机号验证' },
     component: () => import('@/views/lifeInsurance/phoneVerify/index.vue'),
@@ -193,6 +199,40 @@ const internetRoutes = [
   },
 ];
 
+// 基线在线投保模板
+const baseInsurance = [
+  {
+    name: 'base赠险',
+    path: '/baseInsurance/free',
+    meta: { title: '', keepAlive: true },
+    component: () => import('@/views/baseInsurance/templates/free.vue'),
+  },
+  {
+    name: 'base一年期',
+    path: '/baseInsurance/short',
+    meta: { title: '', keepAlive: true, requireWxJs: true },
+    component: () => import('@/views/baseInsurance/templates/short.vue'),
+  },
+  {
+    name: 'base网电销',
+    path: '/baseInsurance/netsale',
+    meta: { title: '', keepAlive: true },
+    component: () => import('@/views/baseInsurance/templates/netSale/index.vue'),
+  },
+  {
+    name: 'base网电销详情',
+    path: '/baseInsurance/netDetail',
+    meta: { title: '', keepAlive: true, requireWxJs: true },
+    component: () => import('@/views/baseInsurance/templates/netSale/detail.vue'),
+  },
+  {
+    name: 'baseInsurance-orderDetail',
+    path: '/baseInsurance/orderDetail',
+    meta: { title: '', requireWxJs: true },
+    component: () => import('@/views/baseInsurance/orderDetail/index.vue'),
+  },
+];
+
 const asyncRoutes: Array<RouteRecordRaw> = [
   {
     name: 'Home',
@@ -200,6 +240,14 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/home/index.vue'),
     meta: {
       title: '主页',
+    },
+  },
+  {
+    name: 'Menu',
+    path: '/menu',
+    component: () => import('@/views/home/menu.vue'),
+    meta: {
+      title: '导航',
     },
   },
   {
@@ -254,10 +302,34 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     meta: { title: '登记成功' },
     component: () => import('@/views/consult/result.vue'),
   },
+  {
+    name: '收银台',
+    path: '/cashier/pay',
+    meta: { title: '收银台', requireWxJs: true },
+    component: () => import('@/views/cashier/index.vue'),
+  },
+  {
+    name: '支付',
+    path: '/cashier/signPay',
+    meta: { title: '支付签约' },
+    component: () => import('@/views/cashier/signPay.vue'),
+  },
+  {
+    name: '微信签约',
+    path: '/cashier/payCheck',
+    meta: { title: '支付签约中转', requireWxJs: true },
+    component: () => import('@/views/cashier/payCheck.vue'),
+  },
+  {
+    name: '文件预览',
+    path: '/template/filePreview',
+    meta: { title: '文件预览' },
+    component: () => import('@/views/baseInsurance/filePreview/index.vue'),
+  },
   ...proposalRoutes,
   ...lifeInsuranceRoutes,
   ...internetRoutes,
-  ...baigebaoRoutes,
+  ...baseInsurance,
 ];
 
 export default asyncRoutes;

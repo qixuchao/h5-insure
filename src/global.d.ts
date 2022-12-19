@@ -114,4 +114,13 @@ interface Window {
   webkit: {
     messageHandlers: () => void
   }
+  wx: {
+    config: (config: unknown) => void,
+    checkJsApi: (config: unknown) => void,
+    ready: (config: unknown) => void,
+    updateAppMessageShareData: (config: unknown) => void,
+    updateTimelineShareData: (config: unknown) => void,
+    chooseWXPay: (config: unknown) => void,
+  }
+
 }

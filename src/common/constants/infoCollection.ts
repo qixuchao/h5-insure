@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-28 10:28:12
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-02 15:55:42
+ * @LastEditTime: 2022-12-07 21:15:31
  * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/infoCollection.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -148,6 +148,24 @@ export const PAGE_CODE_ENUM = {
   PACKAGE: 'package',
 };
 
+export const TEMPLATE_TYPE_ENUM = {
+  // 短险
+  SHORT: '1',
+  // 赠险
+  FREE: '2',
+  // 网电销
+  NETSALE: '3',
+};
+
+export const TEMPLATE_TYPE_MAP = {
+  // 赠险
+  [TEMPLATE_TYPE_ENUM.FREE]: 'free',
+  // 短险
+  [TEMPLATE_TYPE_ENUM.SHORT]: 'short',
+  // 网电销
+  [TEMPLATE_TYPE_ENUM.NETSALE]: 'netsale',
+};
+
 export const PAGE_CODE_LIST = [
   {
     label: 'free',
@@ -187,6 +205,7 @@ export const INSURE_TYPE_MAP = constantListToMap(INSURE_TYPE_LIST);
 // YEAR(2, "年缴"),
 // MONTH(5, "月缴"),
 export const PAYMENT_FREQUENCY_ENUM = {
+  SINGLE: 1,
   YEAR: 2,
   MONTH: 5,
 };
@@ -203,3 +222,96 @@ export const PAYMENT_FREQUENCYE_LIST = [
 ];
 
 export const PAYMENT_FREQUENCY_MAP = constantListToMap(PAYMENT_FREQUENCYE_LIST);
+
+// 理赔流程类型
+export const CLAIM_TYPE_ENUM = {
+  WORD: '1', // 文字
+  IMAGE: '2', // 图片
+};
+
+export const CLAIM_TYPE_LIST = [
+  { value: CLAIM_TYPE_ENUM.WORD, label: '文字' },
+  { value: CLAIM_TYPE_ENUM.IMAGE, label: '图片' },
+];
+
+export const CLAIM_TYPE_MAP = constantListToMap(CLAIM_TYPE_LIST);
+
+export const PAYMENT_COMMON_FREQUENCY_ENUM = {
+  SINGLE: '1',
+  YEAR: '2',
+  HALF_YEAR: '3',
+  QUARTER: '4',
+  MONTH: '5',
+};
+
+// 交费方式
+export const PAYMENT_COMMON_FREQUENCY = [
+  {
+    label: '趸交',
+    value: PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE,
+  },
+  {
+    label: '年交',
+    value: PAYMENT_COMMON_FREQUENCY_ENUM.YEAR,
+  },
+  {
+    label: '半年交',
+    value: PAYMENT_COMMON_FREQUENCY_ENUM.HALF_YEAR,
+  },
+  {
+    label: '季交',
+    value: PAYMENT_COMMON_FREQUENCY_ENUM.QUARTER,
+  },
+  {
+    label: '月交',
+    value: PAYMENT_COMMON_FREQUENCY_ENUM.MONTH,
+  },
+];
+
+export const PAYMENT_COMMON_FREQUENCY_MAP = constantListToMap(PAYMENT_COMMON_FREQUENCY);
+
+// 保障生效时间
+export const INSURANCE_START_TYPE_ENUM = {
+  CURRENT_DAY: '1',
+  NEXT_DAY: '2',
+  CUSTOM_DAY: '3',
+};
+
+export const INSURANCE_START_TYPE_LIST = [
+  {
+    label: '当日生效',
+    value: INSURANCE_START_TYPE_ENUM.CURRENT_DAY,
+  },
+  {
+    label: '次日生效',
+    value: INSURANCE_START_TYPE_ENUM.NEXT_DAY,
+  },
+  {
+    label: '指定日期生效',
+    value: INSURANCE_START_TYPE_ENUM.CUSTOM_DAY,
+  },
+];
+
+// 保障失效时间
+export const INSURANCE_END_TYPE_ENUM = {
+  CURRENT_DAY: '1',
+  NEXT_DAY: '2',
+};
+
+export const ORDER_DETAIL_KEY = 'ORDER_DETAIL_KEY';
+
+// 保额类型
+export const PREMIUM_DISPLAY_TYPE_ENUM = {
+  INPUT: '1', // 录入值
+  STEP: '2', // 步进值
+  FIXED: '3', // 固定值
+  COPY: '4', // 份数
+};
+
+// 保障单位
+export const PREMIUM_UNIT_TYPE_ENUM = {
+  YUAN: '1', // 元
+  COPY: '2', // 份数
+  MONTH_SALARY: '3', // 倍月薪
+  MILLION: '4', // 万元
+};

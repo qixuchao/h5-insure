@@ -6,9 +6,9 @@ import wx from 'weixin-js-sdk';
 import Storage from '@/utils/storage';
 import { ORIGIN } from '@/utils';
 import routes from '@/router/routes';
-
-import useStore from '@/store/app';
-import { getJssdkSignature } from '@/api/modules/wechat';
+import { useWXCode } from '@/views/cashier/core';
+import useAppStore from '@/store/app';
+import { getWxJsSdkSignature } from '@/api/modules/wechat';
 import { isWechat } from '@/utils/index';
 
 const router: Router = createRouter({
@@ -44,7 +44,7 @@ router.beforeEach(async (to, from, next) => {
   if (!realAuthUrl) {
     realAuthUrl = ORIGIN + (to.redirectedFrom || to.fullPath);
   }
-  const store = useStore();
+  const store = useAppStore();
   if (store.checkBack && to.hash !== '#validForm' && from.hash !== '#validForm') {
     try {
       await Dialog.confirm({ message: '当前数据未保存，是否离开？', closeOnPopstate: false });
@@ -74,15 +74,17 @@ router.beforeEach(async (to, from, next) => {
 const IS_WECHAT = isWechat();
 router.beforeResolve(async (to, from) => {
   console.log('IS_WECHAT', IS_WECHAT);
-  if (to.meta.requireWxJs && IS_WECHAT) {
-    console.log('在微信环境，开始鉴权');
-    const res = await getJssdkSignature({ url: encodeURIComponent(realAuthUrl) });
+  if (IS_WECHAT && to.meta.requireWxJs) {
+    const tenantId = to.query?.tenantId as string;
+    console.log('在微信环境，开始鉴权, tenantId:', tenantId, 'from:', from);
+    const res = await getWxJsSdkSignature({ url: encodeURIComponent(realAuthUrl), tenantId });
     const {
-      data: { appid, timestamp, nonceStr, signature },
+      data: { appId, timestamp, nonceStr, signature },
     } = res;
+    sessionStorage.appId = appId;
     wx.config({
       debug: false,
-      appId: appid,
+      appId,
       timestamp,
       nonceStr,
       signature,
@@ -98,6 +100,7 @@ router.beforeResolve(async (to, from) => {
         'onMenuShareTimeline',
         'chooseImage',
         'uploadImage',
+        'chooseWXPay', // 微信支付
       ],
     });
     wx.ready(() => {

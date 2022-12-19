@@ -1,3 +1,69 @@
+export interface PlanInsureVO {
+  planName: string;
+  planCode: string;
+  extInfoVOList: ExtInfoVoItem[];
+  guaranteeItemVOS: GuaranteeItemVo[];
+  productPremiumVOList: ProductPremiumVoItem[];
+  premiumExplain: string;
+  premiumExplainName: string;
+  premiumExplainUri: string;
+  premiumExplainViewName: string;
+  tabName: string[];
+  attachmentVOList: AttachmentVoItem;
+  productPlanInsureConditionVO: ProductPlanInsureConditionVo;
+  planPicList: any;
+}
+
+export interface ProductPlanInsureConditionVo {
+  waitPeriod: string;
+  waitPeriodFlag: number;
+  sexLimit: string;
+  sexLimitFlag: number;
+  socialInsuranceLimit: string;
+  socialInsuranceLimitFlag: number;
+  occupationLimit: string;
+  occupationLimitFlag: number;
+  occupationLimitPic: string;
+  holderAgeLimit: string;
+  renewalGracePeriod: string;
+  holderAgeLimitFlag: number;
+  insurancePeriodValues: string;
+  insurancePeriodValuesFlag: number;
+  paymentPeriodValues: string;
+  paymentPeriodValuesFlag: number;
+  paymentFrequency: string;
+  paymentFrequencyFlag: number;
+  annuityDrawValues: string;
+  annuityDrawValuesFlag: number;
+  annuityDrawFrequency: string;
+  annuityDrawFrequencyFlag: number;
+  hesitatePeriod: string;
+  hesitatePeriodFlag: string;
+  paymentFrequencyList: any;
+}
+
+export interface AttachmentVoItem {
+}
+
+export interface ProductPremiumVoItem {
+  paymentFrequency: string;
+  paymentFrequencyValue: string;
+  premiumUnit: string;
+  actualPremiumUnit: string;
+}
+
+export interface GuaranteeItemVo {
+  title: string;
+  desc: string;
+  content: string;
+}
+
+export interface ExtInfoVoItem {
+  name: string;
+  description: string;
+}
+
+
 export interface ShowConfigVO {
   /**
    * 展示类别
@@ -107,15 +173,33 @@ export interface GuaranteeList {
   [props: string]: any
 }
 
+interface BackgroundInsureVO {
+  colorEnd:string,
+  colorStart:string,
+  type:string
+}
+
 export interface TenantProductInsureVO {
+  /**
+   * 背景颜色
+   */
+  backgroundInsureVO:BackgroundInsureVO,
   /**
    * 产品资料
    */
-  attachmentVOList: AttachmentVOList[];
+  attachmentVOList: {
+    [props: string]: AttachmentVOList[]
+  };
   /**
    * banner图
    */
   banner: string[];
+  /**
+   * banner动图
+   */
+   bannerMove: string[];
+   planList: PlanInsureVO[];
+   planInsureVO: PlanInsureVO;
   /**
    * 配置状态 1.暂存 2.完成
    */
@@ -134,13 +218,14 @@ export interface TenantProductInsureVO {
   id: number;
   /**
    * 保障期间值 固定：固定数字，枚举：英文逗号隔开，范围：最小值，最大值
-按年缴：以year开头，例如year_10
-按月保：以month开头，例如month_10
-按天保：以day开头，例如day_10
-保至多少岁：以to开头，例如to_60
-保终身：to_life
+      按年缴：以year开头，例如year_10
+      按月保：以month开头，例如month_10
+      按天保：以day开头，例如day_10
+      保至多少岁：以to开头，例如to_60
+      保终身：to_life
    */
   insurancePeriodValues: string;
+  inscribedContent: any;
   /**
    * 职业限制 -1.无限制,1.职业等级一，2.职业等级二，3.职业等级三
 4.职业等级四，5.职业等级五，6.职业等级六（以英文逗号分隔）
@@ -194,6 +279,7 @@ export interface TenantProductInsureVO {
    * 单计划保障详情
    */
   titleAndDescVOS: TitleAndDescVO[]
+  rateUri?: string // 费率表
 }
 
 export interface ProductDetail {
@@ -231,3 +317,29 @@ export interface ProductDetail {
   insurerCode: string;
   baseProductCode?: string;
 }
+
+
+export interface ProductFactorItem {
+  id: number;
+  productId: object;
+  productCode: string;
+  planCode: object;
+  factorId: object;
+  moduleType: number;
+  code: string;
+  title: string;
+  hasDefaultValue: number;
+  defaultValue: object;
+  placeholder: object;
+  isHidden: number;
+  isDisplay: number;
+  isReadOnly: object;
+  isMustInput: number;
+  displayType: object;
+  datasource: object;
+  factorScript: object;
+  attributeValues: object;
+  attributeValueList: object;
+  position: object;
+}
+

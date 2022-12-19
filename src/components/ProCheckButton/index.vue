@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-22 16:53:19
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-06 14:13:20
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-03 16:59:03
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProCheckButton/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -14,8 +14,8 @@
       disabled: !activated && disabled,
       'activated-disabled': activated && disabled,
     }"
-    :style="{ borderRadius: `${round / 2}px` }"
   >
+    <!-- :style="{ borderRadius: `${round / 2}px` }" -->
     <slot>
       <ProSvg v-if="!!iconName" class="com-icon" :name="iconName" />
       {{ label }}
@@ -46,7 +46,7 @@ const props = withDefaults(defineProps<Props>(), {
   height: 60px;
   background-color: #f6f7fc;
   padding: 0 16px;
-  // border-radius: 8px;
+  border-radius: var(--van-pro-check-radius, 18px);
   font-size: 26px;
   display: flex;
   align-items: center;
@@ -56,7 +56,7 @@ const props = withDefaults(defineProps<Props>(), {
   &.activated {
     border: 2px solid $primary-color;
     color: $primary-color;
-    background-color: rgba(13, 110, 254, 0.1);
+    background-color: var(--van-checkbox-checked-bg-color);
   }
   &.disabled {
     opacity: 0.4;
@@ -64,7 +64,8 @@ const props = withDefaults(defineProps<Props>(), {
   }
   &.activated-disabled {
     border: none;
-    background-color: #8fbbfc;
+    background-color: $primary-color;
+    opacity: calc(var(--van-button-disabled-opacity) * 0.6);
     font-weight: 400;
     color: #ffffff;
   }

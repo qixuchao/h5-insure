@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 15:55:56
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-14 13:40:50
+ * @LastEditTime: 2022-12-04 02:11:19
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProSign/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -33,6 +33,8 @@ const props = defineProps({
     default: '请输入',
   },
 });
+
+const emits = defineEmits(['stroke']);
 
 const signatureIns = ref<SignaturePad>();
 const canvas = ref<HTMLCanvasElement>();
@@ -90,6 +92,7 @@ onMounted(() => {
     signatureIns.value = new SignaturePad(canvas.value);
     signatureIns.value.addEventListener('beginStroke', () => {
       empty.value = false;
+      emits('stroke');
     });
   }
 });
@@ -107,24 +110,25 @@ defineExpose({
 <style lang="scss" scoped>
 .com-sign-wrapper {
   width: 100%;
-  height: 400px;
+  height: 100%;
   .sign-container {
     width: 100%;
     height: 100%;
     position: relative;
-    background: #f7f9fd;
+    background: #fff;
     border-radius: 20px;
     border: 1px solid #eaeaea;
     .placeholder {
       position: absolute;
-      width: 100%;
+      width: 100vw;
       height: 40px;
-      line-height: 40px;
+      line-height: 140px;
       top: 50%;
       margin-top: -20px;
       text-align: center;
-      font-size: 28px;
-      color: #99a9c0;
+      font-size: 120px;
+      color: #e9e9e9;
+      pointer-events: none;
     }
   }
 }

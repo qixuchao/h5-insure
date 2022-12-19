@@ -1,9 +1,16 @@
 export interface ProductData {
+    productFactor: ProductFactor;
     productBasicInfoVO: ProductBasicInfoVo;
     productMaterialVOList: ProductMaterialVoItem[];
     productRelationPlanVOList: ProductRelationPlanVoItem[];
     productRiskVoList: ProductRiskVoItem[];
     packageProductVOList: PackageProductVoItem[];
+    productQuestionnaireVOList: any;
+    planFactor: any;
+}
+
+interface ProductFactor {
+  [propName: string]: any[],
 }
 
 export interface PackageProductVoItem {
@@ -30,6 +37,8 @@ export interface RiskDetailVoItem {
     extraInfo: string;
     id: number;
     insurerCode: string;
+    insuranceStartType: number;
+    insuranceEndType: number;
     insurerName: string;
     liabilityPlanOssUrl: string;
     mainRiskCode: string;
@@ -207,6 +216,14 @@ export interface ProductMaterialVoItem {
     productId: number;
 }
 
+export interface UpgradeGuaranteeConfigVO {
+  notificationImage:string[];
+  parameterMap:any;
+  productCode:string;
+  productName:string;
+  productImage:string[];
+}
+
 export interface ProductBasicInfoVo {
     combinationFlag: number;
     extInfo: string;
@@ -219,11 +236,12 @@ export interface ProductBasicInfoVo {
     productCode: string;
     productFullName: string;
     productName: string;
+    upgradeGuaranteeConfigVO:UpgradeGuaranteeConfigVO;
 }
 
 export interface PremiumCalcData {
     holder?: Holder;
-    insuredVOList: InsuredVoItem[];
+    insuredVOList: Array<Partial<InsuredVoItem>>;
     productCode: string;
     tenantId?: string;
 }
@@ -231,18 +249,19 @@ export interface PremiumCalcData {
 export interface InsuredVoItem {
     insuredCode: string;
     personVO: PersonVo;
-    productPlanVOList: ProductPlanVoItem[];
+    productPlanVOList: Array<Partial<ProductPlanVoItem>>;
     relationToHolder?: string;
 }
 
 export interface ProductPlanVoItem {
     insurerCode: string;
     planCode: string;
-    riskVOList: RiskVoItem[];
+    riskVOList: Array<Partial<RiskVoItem>>;
 }
 
 export interface RiskVoItem {
     amount: number;
+    amountPremiumConfigVO:any;
     annuityDrawType: string;
     annuityDrawDate: number;
     annuityDrawFrequency: number;
@@ -263,6 +282,7 @@ export interface RiskVoItem {
     riskId: number;
     riskType: number;
     riskName:string;
+    riskInsureLimitVO:any;
 }
 
 export interface LiabilityVoItem {
@@ -283,7 +303,7 @@ export interface LiabilityVoItem {
 export interface PersonVo {
     birthday?: string;
     gender?: number;
-    certType?: string;
+    certType?: string | number;
     certNo?: string;
     occupationClass?: number;
     occupationCodeList?: string[];
@@ -297,7 +317,7 @@ export interface Holder {
 }
 
 // 保费试算结果
-export interface premiumCalcResponse{
+export interface PremiumCalcResponse{
     amount: number;
     errorInfo: string;
     premium: number;
@@ -322,3 +342,182 @@ export interface ErrorInfo {
   name: string;
   message: string;
 }
+
+
+export interface OrderDetail {
+    tenantId: string;
+    agencyId?: string;
+    agentCode: string;
+    orderCategory: number;
+    saleChannelId: string;
+    venderCode: string;
+    productCode: string;
+    insuranceStartDate: string | null;
+    insuranceEndDate: string | null;
+    activePlanCode: string;
+    insurancePeriodValue: string;
+    commencementTime: string;
+    tenantOrderHolder: TenantOrderHolder;
+    tenantOrderInsuredList: TenantOrderInsuredItem[];
+    extInfo: OrderExtInfo;
+    operateOption: OperateOption;
+    paymentFrequency: string;
+    premium?: number;
+    orderAmount?: number;
+    orderRealAmount?: number;
+    expiryDate?: string;
+    activePlanCode?: string;
+    [prop: string]: any;
+}
+
+export interface OperateOption {
+    withBeneficiaryInfo: boolean;
+    withHolderInfo: boolean;
+    withInsuredInfo: boolean;
+    withAttachmentInfo: boolean;
+    withProductInfo: boolean;
+}
+
+export interface OrderExtInfo {
+    buttonCode?: string;
+    successJumpUrl?: string;
+    pageCode?: string;
+    extraInfo: any;
+    templateId: string;
+    iseeBizNo: string;
+}
+
+export interface TenantOrderInsuredItem {
+    dontFetchDefaultInfo?: boolean;
+    relationToHolder: string;
+    extInfo: any;
+    insuredBeneficiaryType: string;
+    tenantOrderBeneficiaryList: TenantOrderBeneficiaryItem[];
+    tenantOrderProductList: TenantOrderProductItem[];
+    id?: string;
+    certEndType?: number;
+    mobile?: string;
+    certNo?: string;
+    gender?: number;
+    birthday?: string;
+    certType?: number;
+    name?: string;
+    socialFlag?: string;
+    planCode?: string;
+}
+
+export interface TenantOrderProductItem {
+    tenantId?: string;
+    premium: number;
+    productCode: string;
+    productName: string;
+    planCode: string;
+    tenantOrderRiskList: TenantOrderRiskItem[];
+}
+
+export interface TenantOrderRiskItem {
+    tenantId: string;
+    amountUnit: number;
+    paymentFrequency: string;
+    paymentPeriod: string;
+    paymentPeriodType: number;
+    insurancePeriodType: number;
+    insurancePeriodValue: string;
+    riskCode: string;
+    riskType: number;
+    extInfo: any;
+    initialPremium: number;
+    totalPremium: number;
+    liabilityDetails: LiabilityDetail[];
+    productId: number;
+    currentAmount: string;
+    initialAmount: number;
+}
+
+export interface LiabilityDetail {
+    liabilityCode: string;
+    liabilityName: string;
+}
+
+export interface TenantOrderBeneficiaryItem {
+    beneficiaryId: number;
+    extInfo: any;
+}
+
+export interface ExtInfo {
+    hasSocialInsurance: string;
+    [key: string]: any
+}
+
+export interface TenantOrderHolder {
+    extInfo: ExtInfo;
+    certEndType?: number;
+    mobile?: string;
+    certNo?: string;
+    gender?: number;
+    birthday?: string;
+    certType?: number;
+    name?: string;
+    socialFlag?: string;
+    verificationCode?: string;
+    dontFetchDefaultInfo?: boolean
+}
+
+export interface RelationCustomer {
+    customerId: object;
+    customerName: string;
+    type: object;
+    customerNo: object;
+    birthday: object;
+    gender: object;
+    country: object;
+    occupation: object;
+    occupationType: object;
+    occupationDesc: object;
+    occupationDuty: object;
+    marriage: object;
+    workPlace: object;
+    salary: object;
+    degree: object;
+    relationCode: string;
+    healthCondition: object;
+    memo: object;
+    hasSocialInsurance: object;
+    cert: Cert[];
+    addr: object;
+    contact: Contact[];
+    att: object;
+    relation: object;
+    payInfo: object;
+    companyContact: object;
+    customerTagDTO: object;
+    customerTagRandomDTO: object;
+    customerAttrDTO: object;
+    customerMaterialDTO: object;
+    companyType: object;
+    companyExtInfoDTO: object;
+}
+
+export interface Contact {
+    contactId: object;
+    customerId: object;
+    contactTool: object;
+    contactNo: string;
+    contactType: object;
+    isDefault: object;
+    contactRemark: object;
+    createTime: object;
+    tenantId: object;
+}
+
+export interface Cert {
+    certId: object;
+    certType: object;
+    certNo: string;
+    certValidity: object;
+    createTime: object;
+    customerType: object;
+    certStart: object;
+    certName: string;
+}
+

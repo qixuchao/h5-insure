@@ -249,18 +249,19 @@ export const genarateOrderParam = (o: orderParamType) => {
   const param = {
     id: o.originOrderIds?.id || null,
     orderNo: o.orderNo || null,
-    orderAmount: o.premium,
-    tenantId: o.tenantId,
-    venderCode: o.detail?.insurerCode,
+    orderAmount: o.premium, // '1'
+    tenantId: o.tenantId, // '1'
+    venderCode: o.detail?.insurerCode, // '1'
     applicationNo: o.applicationNo,
     policyNo: o.policyNo,
-    orderDataSource: '1', // 订单来源
-    saleUserId: o.saleUserId,
-    saleChannelId: o.saleChannelId, // 销售渠道id
-    orderCategory: o.orderCategory, // 订单类型
+    orderDataSource: '1', // 1 // 订单来源
+    saleUserId: o.saleUserId, // 1 'url'
+    saleChannelId: o.saleChannelId, // 1  'url'// 销售渠道id
+    orderCategory: o.orderCategory, // 1 '1' // 订单类型
     orderStatus: o.orderStatus,
     orderTopStatus: o.orderTopStatus,
     tenantOrderHolder: {
+      // '1'
       id: o.originOrderIds?.holderId || null,
       tenantId: o.tenantId,
       name: o.holder.name,
@@ -274,6 +275,7 @@ export const genarateOrderParam = (o: orderParamType) => {
       },
     },
     extInfo: {
+      // 1
       extraInfo: {
         renewalDK: o.renewalDK, // 签约
         paymentMethod: o.paymentMethod,
@@ -297,11 +299,12 @@ export const genarateOrderParam = (o: orderParamType) => {
           hasSocialInsurance: o.insured.socialFlag,
         },
         tenantOrderProductList: [
+          // 1
           {
-            tenantId: o.tenantId,
-            productCode: o.detail?.productCode,
-            productName: o.detail?.productName,
-            premium: o.premium, // 保费, 保费试算返回
+            tenantId: o.tenantId, // 1
+            productCode: o.detail?.productCode, // 1
+            productName: o.detail?.productName, // 1
+            premium: o.premium, // 1 // 保费, 保费试算返回
             tenantOrderRiskList: o.tenantOrderRiskList,
             // transformData({
             //   tenantId: o.tenantId,

@@ -17,7 +17,7 @@
 
     <QuestionPreview v-else-if="isQuestion" :current-page-info="props.content" />
     <!-- 外联 -->
-    <iframe v-else :src="content" frameborder="0" width="100%" style="height: 100vh"></iframe>
+    <!-- <iframe v-else :src="content" frameborder="0" width="100%" style="height: 100vh"></iframe> -->
     <slot name="footer-btn"></slot>
   </div>
 </template>
@@ -25,11 +25,10 @@
 <script setup lang="ts">
 import { nanoid } from 'nanoid';
 import { Toast } from 'vant';
-import * as PDFJS from 'pdfjs-dist';
-import * as workerSrc from 'pdfjs-dist/build/pdf.worker.entry';
+import Pdfh5 from 'pdfh5';
 import PdfViewer from '@/components/ProPDFviewer/index.vue';
 import QuestionPreview from './question.vue';
-import 'pdfjs-dist/web/pdf_viewer.css';
+import 'pdfh5/css/pdfh5.css';
 
 const props = defineProps({
   type: {
@@ -60,71 +59,43 @@ const isQuestion = computed(() => {
 });
 
 const isLink = computed(() => {
-  return props.type === 'link';
+  if (props.type === 'link') {
+    return true;
+  }
+  return false;
 });
-
-PDFJS.GlobalWorkerOptions.workerSrc = workerSrc;
 
 const id = nanoid();
 
 const show = ref(false);
-const loading = ref(true);
 
-const loadPdfCanvas = async () => {
-  Toast.loading({ message: '加载中', duration: 20 * 1000, forbidClick: props.forbidClick });
-  const container = document.getElementById(id) as HTMLElement;
-  if (container.hasChildNodes()) {
-    // 说明已经加载过一次pdf了，那就走缓存
-    loading.value = false;
-    return;
-  }
-  let pdf;
+const pdfh5 = ref<any>(null);
+
+const loadPdfH5Viewer = () => {
   try {
-    pdf = await PDFJS.getDocument({
-      url: props.content,
-    }).promise;
-  } catch (error) {
-    // undefined is not an object ( evaluting 'response.body.getReader')
-    // if (String(error).indexOf('body.getReader') > -1) {
-    const pdfData = await fetch(props.content);
-    const arrayBufferPdf = await pdfData.arrayBuffer();
-    pdf = await PDFJS.getDocument({ data: arrayBufferPdf }).promise;
-    // }
-  }
-  if (!pdf || !pdf.numPages) {
-    Toast.clear();
-    return;
-  }
-  const pageNum = pdf.numPages;
-  for (let i = 1; i <= pageNum; i++) {
-    pdf.getPage(i).then((page: any) => {
-      const scaledViewport = page.getViewport({ scale: 1 });
-
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-
-      canvas.width = scaledViewport.width;
-      canvas.height = scaledViewport.height;
-      canvas.style.width = '100%';
-
-      container.append(canvas);
-
-      const renderContext = {
-        canvasContext: context,
-        viewport: scaledViewport,
-      };
-
-      const renderTask = page.render(renderContext);
-      loading.value = false;
+    pdfh5.value = new Pdfh5(`#${id}`, {
+      pdfurl: props.content,
+      renderType: 'svg',
+      lazy: true,
     });
+    // 监听完成事件
+    pdfh5.value?.on('complete', (status: string, msg: string, time: number) => {
+      console.log(`状态：${status}，信息：${msg}，耗时：${time}毫秒`);
+      if (status === 'error') {
+        Toast('文件损坏，无法打开！');
+      }
+    });
+  } catch (error) {
+    //
+    console.log('error', error);
   }
-  Toast.clear();
 };
+
 const openPdf = async () => {
   show.value = true;
-  setTimeout(() => {
-    loadPdfCanvas();
-  }, 0);
+  nextTick(() => {
+    loadPdfH5Viewer();
+  });
 };
 
 watch(
@@ -136,6 +107,18 @@ watch(
   },
   {
     deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  () => props.type,
+  (newVal) => {
+    if (newVal === 'link') {
+      window.open(props.content);
+    }
+  },
+  {
     immediate: true,
   },
 );
@@ -161,7 +144,7 @@ watch(
     font-weight: 400;
     color: #393d46;
     line-height: 48px;
-    margin-bottom: 200px;
+    padding-bottom: 200px;
   }
   .pdf-viewer {
     word-break: break-all;
@@ -177,6 +160,11 @@ watch(
   }
   .pdf-wapper {
     background-color: rgb(82, 86, 89);
+    height: 100%;
+
+    :deep(.viewerContainer) {
+      height: 100vh;
+    }
   }
   .pic-wrap {
     width: 100%;

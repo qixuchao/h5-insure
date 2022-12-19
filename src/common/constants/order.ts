@@ -119,6 +119,10 @@ export const ORDER_STATUS_LIST = [
     label: '支付成功',
   },
   {
+    value: ORDER_STATUS_ENUM.CANCELED,
+    label: '已失效',
+  },
+  {
     value: ORDER_STATUS_ENUM.PAYMENT_FAILED,
     label: '支付失败',
   },

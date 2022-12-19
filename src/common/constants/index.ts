@@ -2,8 +2,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 16:05:16
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-07 18:28:14
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-12-14 15:48:44
  * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -38,6 +38,8 @@ export const VALIDATE_TYPE_ENUM = {
   ZIP_CODE: 'zipCode',
   BIRTH: 'birth',
   PASSPORT: 'passport',
+  OTHER: 'other',
+  SOCIAL_CREDIT_CODE: 'socialCreditCode',
 };
 
 export const CERT_TYPE_ENUM = {
@@ -65,6 +67,8 @@ export const CERT_TYPE_ENUM = {
   HK_MACAO_RESIDENCE_PERMIT: '9',
   /** 台湾居民居住证 */
   TAIWAN_RESIDENCE_PERMIT: '10',
+  /** 社会信用代码 */
+  SOCIAL_CREDIT_CODE: '26',
 };
 
 export const FLAG_LIST = [
@@ -222,8 +226,8 @@ export enum UPLOAD_TYPE_ENUM {
 
 // eslint-disable-next-line
 export enum YES_NO_ENUM {
-  YES = 'YES',
-  NO = 'NO',
+  YES = 1,
+  NO = 2,
 }
 
 // eslint-disable-next-line
@@ -365,4 +369,11 @@ export const PRODUCT_LIST_ENUM = {
   ZXYS: 'ZXYS2022',
   BWYL: 'BWYL2021',
   BWYLUP: 'BWYL2022',
+};
+
+export const PAGE_ACTION_TYPE_ENUM = {
+  ALERT: 'alert',
+  JUMP_URL: 'jumpToUrl',
+  JUMP_PAGE: 'jumpToPage',
+  JUMP_ALERT: 'jumpToAlert',
 };

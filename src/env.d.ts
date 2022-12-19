@@ -44,6 +44,11 @@ declare interface Window {
   callHandler: (fnName: string, params?: any, fn?: (res: { code: number, data: any, message: string }) => void) => void
   getIseeBiz: () => Promise<string>; // 千里眼插件注入的方法
   iseeBiz?: string; // 千里眼的数据
+  WeixinJSBridge: any;
+  iseeBizNo?: string;
+  useFormPay: (form: string) => void;
+  _XFLOW_: any;
+  XFlowAnalysisSetting: any;
 }
 
 // 不明具体结构的对象类型
@@ -52,4 +57,6 @@ declare type AnyObject = {
 }
 
 declare module 'clipic'
-
+// declare class XFlow {
+//   constructor (option: any)
+// };

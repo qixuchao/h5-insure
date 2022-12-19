@@ -42,6 +42,7 @@ module.exports = {
     'no-lonely-if': 'off', // if else if
     'prefer-default-export': 'off', // 导出不能没有默认导出而只有单独导出
     'no-nested-ternary': 'off',
+    camelcase: 'off',
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-explicit-any': ['off'],
     '@typescript-eslint/no-unused-vars': ['off'],

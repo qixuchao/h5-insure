@@ -1,0 +1,114 @@
+<!--
+ * @Author: za-qixuchao qixuchao@zhongan.io
+ * @Date: 2022-09-15 15:01:12
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-06 20:21:36
+ * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/PreNotice/index.vue
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<template>
+  <div class="pro-shadow-button">
+    <van-button
+      :class="{ 'shadow-button': true, shadow: props.shadow }"
+      type="primary"
+      :disabled="disabled"
+      round
+      block
+      @click="emit('click')"
+      >{{ text }}</van-button
+    >
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { computed, ref } from 'vue';
+// // 调用主题
+const emit = defineEmits(['click']);
+
+const props = defineProps({
+  themeVars: {
+    type: Object,
+    default: () => ({
+      primaryColor: '#FF6600',
+      linearBg: '#FF6600',
+    }),
+  },
+  text: {
+    type: String,
+    default: () => '立即领取',
+  },
+  isGradient: {
+    // 是否有渐变
+    type: Boolean,
+    default: true,
+  },
+  shadow: {
+    // 是否有阴影
+    type: Boolean,
+    default: true,
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const state = reactive({ color: '' });
+
+const getColor = (_color: string, _opacity = 0.9) => {
+  let sColor = _color.toLowerCase();
+  // 十六进制颜色值的正则表达式
+  const reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+  // 如果是16进制颜色
+  if (sColor && reg.test(sColor)) {
+    if (sColor.length === 4) {
+      let sColorNew = '#';
+      for (let i = 1; i < 4; i += 1) {
+        sColorNew += sColor.slice(i, i + 1).concat(sColor.slice(i, i + 1));
+      }
+      sColor = sColorNew;
+    }
+    // 处理六位的颜色值
+    const sColorChange = [];
+    for (let i = 1; i < 7; i += 2) {
+      sColorChange.push(parseInt(`0x${sColor.slice(i, i + 2)}`, 16));
+    }
+    sColorChange[1] += 40;
+    sColorChange[0] += 10;
+    sColorChange[2] += 10;
+    return `rgba(${sColorChange.join(',')},${_opacity})`;
+  }
+  return sColor;
+};
+
+watch(
+  [() => props.themeVars, () => props.isGradient],
+  () => {
+    if (props.themeVars) {
+      state.color = props.isGradient ? getColor(props.themeVars.primaryColor) : props.themeVars.primaryColor;
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+</script>
+
+<style scoped lang="scss">
+.pro-shadow-button {
+  height: 130px;
+  width: 100%;
+  .shadow-button {
+    background: var(--van-linear-bg);
+    border: none;
+    &.shadow {
+      box-shadow: 0px 20px 50px -20px var(--van-primary-color);
+    }
+
+    :deep(.van-button__text) {
+      font-weight: bolder;
+    }
+  }
+}
+</style>

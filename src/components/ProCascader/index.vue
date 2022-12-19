@@ -10,8 +10,8 @@
   >
     <template #input>
       <div class="input">
-        <span v-if="displayValue" class="displayValue">{{ displayValue }}</span>
-        <span v-else class="placeholder">{{ placeholder }}</span>
+        <span v-if="displayValue || isView" class="displayValue">{{ displayValue }}</span>
+        <span v-else class="placeholder">{{ currentPlaceholder }}</span>
       </div>
     </template>
   </ProField>
@@ -80,7 +80,7 @@ const props = defineProps({
   },
   placeholder: {
     type: String,
-    default: '请选择',
+    default: '',
   },
   isView: {
     type: Boolean,
@@ -110,6 +110,10 @@ const props = defineProps({
 
 const [show, toggle] = useToggle(false);
 let tempValue: string[] = [];
+
+const currentPlaceholder = computed(() => {
+  return props.placeholder || `请选择${props.label}`;
+});
 
 const handleClick = () => {
   toggle(true);

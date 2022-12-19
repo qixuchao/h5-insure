@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-28 10:28:12
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-10 13:50:43
+ * @LastEditTime: 2022-12-03 20:41:24
  * @FilePath: /zat-planet-h5-cloud-insure/src/utils/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -85,3 +85,36 @@ export const isPrdEnv = !(isDevEnv || isTestEnv || isPreEnv);
  * @returns 返回新的对象
  */
 export const deepCopy = (source: any) => JSON.parse(JSON.stringify(source));
+
+export function downLoadFile(url: string) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.click();
+  return a;
+}
+
+export function isEmpty(value: any) {
+  if (value === null || value === undefined || value === '') return true;
+  if (Array.isArray(value)) return value.length === 0;
+  if (typeof value === 'string') return value.length === 0;
+  return Object.keys(value).length === 0;
+}
+
+/**
+ * 隐藏姓名 手机号 身份证 银行卡 等中间字符信息
+ * @param str
+ * @returns {*}
+ */
+export function star(value: string) {
+  const str = value.toString();
+  if (str.length > 0 && str.length < 3) {
+    return `*${str.substring(1)}`;
+  }
+  if (str.length > 5 && str.length < 12) {
+    return `${str.substr(0, 3)}****${str.substr(-4)}`;
+  }
+  if (str.length > 14) {
+    return `${str.substr(0, 6)}***********${str.substr(-4)}`;
+  }
+  return str;
+}
