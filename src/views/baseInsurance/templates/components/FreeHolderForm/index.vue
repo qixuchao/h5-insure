@@ -1,9 +1,9 @@
 <template>
-  <div class="free-crad">
+  <div class="free-card">
     <div class="container">
       <div class="title">
-        <img :src="acrrowIcon" /><span>{{ isFirst ? '凭手机号 免费领取' : '最后一步 填写信息' }}</span
-        ><img :src="acrrowIcon" />
+        <ProSvg name="free-arrow" /><span>{{ isFirst ? '凭手机号 免费领取' : '最后一步 填写信息' }}</span
+        ><ProSvg name="free-arrow" />
       </div>
       <InsureForm
         ref="formRef"
@@ -154,7 +154,7 @@ defineExpose({
 });
 </script>
 <style lang="scss">
-.free-crad {
+.free-card {
   .page-info-wrapper .com-card-wrap {
     .header.showLine {
       display: none;
@@ -241,7 +241,7 @@ defineExpose({
 </style>
 
 <style lang="scss" scoped>
-.free-crad {
+.free-card {
   padding: 0 32px;
   background: linear-gradient(v-bind('props.colors[0]'), v-bind('props.colors[1]'));
   .container {
@@ -256,7 +256,10 @@ defineExpose({
       display: flex;
       align-items: center;
       justify-content: center;
-
+      .svg-icon {
+        font-size: 84px;
+        color: var(--van-primary-color);
+      }
       span {
         font-size: 32px;
         font-family: PingFangSC-Semibold, PingFang SC;

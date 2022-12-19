@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-01 20:24:53
+ * @LastEditTime: 2022-12-19 15:32:38
  * @Description: 保障详情
 -->
 <template>
@@ -83,9 +83,9 @@ watch(
   position: relative;
   transform: translateY(-200px);
   text-align: initial;
-  background: linear-gradient(162deg, #fce6d0 0%, #fff9f2 100%);
+  background: linear-gradient(162deg, var(--van-primary-color-light2) 0%, var(--van-primary-color-light1) 100%);
   border-radius: 30px;
-  border: 1px solid #fae2d0;
+  border: 1px solid var(--van-primary-color-light2);
   margin-top: 40px;
   padding: 40px 40px 12px;
 

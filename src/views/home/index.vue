@@ -1,6 +1,10 @@
 <template>
   <ProPageWrap main-class="page-home">
-    <img src="./xinao.png" alt="logo" style="margin: 100px auto; width: 200px; display: block" />
+    <img
+      src="@/assets/images/baseInsurance/logo.png"
+      alt="logo"
+      style="margin: 100px auto; width: 200px; display: block"
+    />
   </ProPageWrap>
 </template>
 

@@ -373,6 +373,17 @@ onMounted(() => {
     background: 0 0 url('@/assets/images/baseInsurance/cardbg.png') no-repeat;
     background-size: contain;
     padding-top: 80px;
+    position: relative;
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: linear-gradient(165deg, var(--van-primary-color), var(--van-primary-color-light1));
+    }
 
     .product-status {
       height: 48px;

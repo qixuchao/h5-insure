@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 15:01:12
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-15 17:47:43
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-19 15:48:46
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/PreNotice/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -18,6 +18,7 @@
     <div class="customer-body">
       <div class="header">
         <span>{{ title }}</span>
+        <!-- <van-icon name="cross" style="color: black" @click="state.loading = false" /> -->
         <van-icon :name="cancelIcon" @click="state.loading = false" />
       </div>
       <div class="conatiner">
@@ -29,7 +30,8 @@
         >
           <span class="name">{{ item.cert[0].certName }}</span>
           <span>{{ star(item.cert[0].certNo) }}</span>
-          <van-icon v-show="state.select.certNo === item.cert[0]?.certNo" class="check-icon" :name="checkedIcon" />
+          <!-- <van-icon v-show="state.select.certNo === item.cert[0]?.certNo" class="check-icon" :name="checkedIcon" /> -->
+          <van-icon v-show="state.select.certNo === item.cert[0]?.certNo" class="check-icon" name="success" />
         </div>
       </div>
       <VanButton type="primary" round block class="linear-btn" @click="save">确 定</VanButton>
@@ -165,6 +167,7 @@ const clickHandler = () => {
         .check-icon {
           position: absolute;
           right: 0;
+          color: var(--van-primary-color);
         }
       }
 
