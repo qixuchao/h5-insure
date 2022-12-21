@@ -990,7 +990,7 @@ nextTick(() => {
 });
 
 // 需要支付的页面发起微信授权
-useWXCode();
+// useWXCode();
 
 onBeforeMount(() => {
   const oldOrderDetailInfo = sessionStore.get(ORDER_DETAIL_KEY);

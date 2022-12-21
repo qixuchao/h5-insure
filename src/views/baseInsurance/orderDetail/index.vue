@@ -349,14 +349,14 @@ const orderDesc = computed(() => {
 });
 
 // 微信授权
-useWXCode();
+// useWXCode();
 onMounted(() => {
   getData();
   // 如果支持 popstate 一般移动端都支持了
   if (window.history && window.history.pushState) {
     // 往历史记录里面添加一条新的当前页面的url
     window.history.pushState('forward', '', '#');
-    window.history.forward(1);
+    window.history.forward();
   }
 });
 </script>
