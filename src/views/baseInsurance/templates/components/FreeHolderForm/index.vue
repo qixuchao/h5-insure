@@ -19,11 +19,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useRoute, useRouter } from 'vue-router';
-import ProShadowButton from '../ProShadowButton/index.vue';
 import InsureForm from '../InsureForm/index.vue';
-import { sendCode, sendCodeLogin, checkCode } from '@/api/modules/phoneVerify';
-import acrrowIcon from '@/assets/images/baseInsurance/arrow.png';
+import { sendCode, sendCodeLogin } from '@/api/modules/phoneVerify';
 
 const formRef = ref();
 const props = defineProps({

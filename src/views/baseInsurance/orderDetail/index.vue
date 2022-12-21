@@ -223,8 +223,9 @@ const initPageInfo = () => {
   state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
   state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
   document.title = state.detail?.tenantProductInsureVO?.productName || '';
+  state.templateId = state.orderDetail.extInfo.templateId;
   let insurancePeriodDesc = '';
-  if (from === 'free') {
+  if (state.templateId.toString() === '2') {
     state.orderDetail.tenantOrderInsuredList[0].tenantOrderProductList.forEach((item: any) => {
       if (insurancePeriodDesc) return null;
       item.tenantOrderRiskList.forEach((node: any) => {

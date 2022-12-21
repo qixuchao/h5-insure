@@ -953,7 +953,7 @@ watch(
             : targets[0].contact[0].contactNo;
           orderDetail.value.tenantOrderHolder.certType = orderDetail.value.tenantOrderHolder.certType
             ? orderDetail.value.tenantOrderHolder.certType
-            : targets[0].contact[0].certType || CERT_TYPE_ENUM.CERT;
+            : targets[0].cert[0].certType || CERT_TYPE_ENUM.CERT;
         }
       }
     }

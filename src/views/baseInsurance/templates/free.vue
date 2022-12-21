@@ -82,14 +82,11 @@ import { RELATIONENUM } from '@/common/constants/trial';
 import { freeTransform, validateSmsCode } from '../utils';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 import { useTheme } from '../theme';
-
+import { CERT_TYPE_ENUM } from '@/common/constants';
 import Banner from './components/Banner/index.vue';
 import ProShadowButton from './components/ProShadowButton/index.vue';
 import FreeHolderForm from './components/FreeHolderForm/index.vue';
 import PreNotice from './components/PreNotice/index.vue';
-// import AttachmentList from './components/AttachmentList/index.vue';
-// import FilePreview from './components/FilePreview/index.vue';
-// import InscribedContent from './components/InscribedContent/index.vue';
 
 const InscribedContent = defineAsyncComponent(() => import('./components/InscribedContent/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('./components/AttachmentList/index.vue'));
@@ -430,8 +427,6 @@ onMounted(() => {
   }, 1500);
 });
 
-const setInsureInfo = () => {};
-
 watch(
   () => state.order.tenantOrderInsuredList[0],
   (e) => {
@@ -439,26 +434,18 @@ watch(
     const targets = state.relationList[e.relationToHolder] || [];
     if (targets.length === 1) {
       if (RELATIONENUM.SELF !== e.relationToHolder) {
-        state.order.tenantOrderInsuredList[0].certNo = state.order.tenantOrderInsuredList[0].certNo
-          ? state.order.tenantOrderInsuredList[0].certNo
-          : targets[0].cert[0].certNo;
-        state.order.tenantOrderInsuredList[0].name = state.order.tenantOrderInsuredList[0].name
-          ? state.order.tenantOrderInsuredList[0].name
-          : targets[0].cert[0].certName;
-        state.order.tenantOrderInsuredList[0].mobile = state.order.tenantOrderInsuredList[0].mobile
-          ? state.order.tenantOrderInsuredList[0].mobile
-          : targets[0].contact[0].contactNo;
+        const { certNo, name, mobile, certType } = state.order.tenantOrderInsuredList[0];
+        state.order.tenantOrderInsuredList[0].certNo = certNo || targets[0].cert[0].certNo;
+        state.order.tenantOrderInsuredList[0].name = name || targets[0].cert[0].certName;
+        state.order.tenantOrderInsuredList[0].mobile = mobile || targets[0].contact[0].contactNo;
+        state.order.tenantOrderInsuredList[0].certType = certType || targets[0].cert[0].certType || CERT_TYPE_ENUM.CERT;
       } else if (state.isSelfInsure) {
         state.isSelfInsure = false;
-        state.order.tenantOrderHolder.certNo = state.order.tenantOrderHolder.certNo
-          ? state.order.tenantOrderHolder.certNo
-          : targets[0].cert[0].certNo;
-        state.order.tenantOrderHolder.name = state.order.tenantOrderHolder.name
-          ? state.order.tenantOrderHolder.name
-          : targets[0].cert[0].certName;
-        state.order.tenantOrderHolder.mobile = state.order.tenantOrderHolder.mobile
-          ? state.order.tenantOrderHolder.mobile
-          : targets[0].contact[0].contactNo;
+        const { certNo, name, mobile, certType } = state.order.tenantOrderHolder;
+        state.order.tenantOrderHolder.certNo = certNo || targets[0].cert[0].certNo;
+        state.order.tenantOrderHolder.name = name || targets[0].cert[0].certName;
+        state.order.tenantOrderHolder.mobile = mobile || targets[0].contact[0].contactNo;
+        state.order.tenantOrderHolder[0].certType = certType || targets[0].cert[0].certType || CERT_TYPE_ENUM.CERT;
       }
     }
     return false;

@@ -45,7 +45,7 @@ export default defineConfig((env) => {
           // target: 'http://141604-zat-planet-gateway.test.za-tech.net',
           // target: 'http://154992-aquarius-commander.test.za-tech.net/',
           // target: 'http://150039-zat-planet-gateway.test.za-tech.net',
-          target: 'http://zat-planet-gateway.test.za-tech.net',
+          target: 'https://h5-cloud-insure.ennejb.cn',
           // target: 'http://142461-zat-planet-gateway.test.za-tech.net',
           // target: 'https://zat-planet-h5-cloud-insure-pre.zhongan.io',
           // target: 'http://zat-planet-gateway.test.za-tech.net',
