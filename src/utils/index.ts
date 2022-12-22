@@ -1,8 +1,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-28 10:28:12
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-03 20:41:24
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2022-12-22 17:32:52
  * @FilePath: /zat-planet-h5-cloud-insure/src/utils/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -14,8 +14,10 @@ import { FILE_TYPE_ENUM } from '@/common/constants';
 
 dayjs.extend(quarterOfYear);
 
+// 微信浏览器，且非企业微信
 export const isWechat = () => {
-  return /MicroMessenger/i.test(window.navigator.userAgent);
+  const ua = window.navigator.userAgent;
+  return /MicroMessenger/i.test(ua) && !ua.includes('wxwork');
 };
 
 const BASE_PREFIX = import.meta.env.VITE_API_BASEURL;

@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-19 15:54:10
+ * @LastEditTime: 2022-12-22 17:26:28
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -114,13 +114,13 @@ const proposalRoutes: Array<RouteRecordRaw> = [
   {
     name: 'compositionProposal',
     path: '/compositionProposal',
-    meta: { title: '组合计划书', requireWxJs: true },
+    meta: { title: '组合计划书', requireWxJs: false },
     component: () => import('@/views/proposal/compositionProposal/index.vue'),
   },
   {
     name: 'proposalCover',
     path: '/proposalCover',
-    meta: { title: '计划书封面', requireWxJs: true },
+    meta: { title: '计划书封面', requireWxJs: false },
     component: () => import('@/views/proposal/compositionProposal/cover.vue'),
   },
 ];
@@ -210,7 +210,7 @@ const baseInsurance = [
   {
     name: 'base一年期',
     path: '/baseInsurance/short',
-    meta: { title: '', keepAlive: true, requireWxJs: true },
+    meta: { title: '', keepAlive: true, requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/short.vue'),
   },
   {
@@ -222,13 +222,13 @@ const baseInsurance = [
   {
     name: 'base网电销详情',
     path: '/baseInsurance/netDetail',
-    meta: { title: '', keepAlive: true, requireWxJs: true },
+    meta: { title: '', keepAlive: true, requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/netSale/detail.vue'),
   },
   {
     name: 'baseInsurance-orderDetail',
     path: '/baseInsurance/orderDetail',
-    meta: { title: '', requireWxJs: true },
+    meta: { title: '', requireWxJs: false },
     component: () => import('@/views/baseInsurance/orderDetail/index.vue'),
   },
 ];
@@ -305,7 +305,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   {
     name: '收银台',
     path: '/cashier/pay',
-    meta: { title: '收银台', requireWxJs: true },
+    meta: { title: '收银台', requireWxJs: false },
     component: () => import('@/views/cashier/index.vue'),
   },
   {
@@ -317,7 +317,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   {
     name: '微信签约',
     path: '/cashier/payCheck',
-    meta: { title: '支付签约中转', requireWxJs: true },
+    meta: { title: '支付签约中转', requireWxJs: false },
     component: () => import('@/views/cashier/payCheck.vue'),
   },
   {

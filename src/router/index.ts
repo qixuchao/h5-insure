@@ -6,7 +6,6 @@ import wx from 'weixin-js-sdk';
 import Storage from '@/utils/storage';
 import { ORIGIN } from '@/utils';
 import routes from '@/router/routes';
-import { useWXCode } from '@/views/cashier/core';
 import useAppStore from '@/store/app';
 import { getWxJsSdkSignature } from '@/api/modules/wechat';
 import { isWechat } from '@/utils/index';
