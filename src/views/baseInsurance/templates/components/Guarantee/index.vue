@@ -6,7 +6,7 @@
  * @Description: 保障详情
 -->
 <template>
-  <div class="guarantee-list">
+  <div class="base-insurance-guarantee guarantee-list">
     <div class="header">
       <span>保障计划</span>
       <span @click="onShowDetail">查看详情</span>
@@ -329,82 +329,85 @@ watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
 });
 </script>
 
-<style lang="scss" scoped>
-.guarantee-list {
-  background: #ffffff;
-  padding: 50px 40px 0px;
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    span {
-      display: inline-block;
+<style lang="scss">
+.base-insurance-guarantee {
+  &.guarantee-list {
+    background: #ffffff;
+    padding: 50px 40px 0px;
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      span {
+        display: inline-block;
 
-      color: #333333;
+        color: #333333;
 
-      &:first-child {
-        height: 56px;
-        line-height: 56px;
-        font-size: 40px;
-        font-family: PingFangSC-Medium, PingFang SC;
-        font-weight: 500;
-      }
+        &:first-child {
+          height: 56px;
+          line-height: 56px;
+          font-size: 40px;
+          font-family: PingFangSC-Medium, PingFang SC;
+          font-weight: 500;
+        }
 
-      &:last-child {
-        height: 37px;
-        font-size: 26px;
-        font-family: PingFangSC-Medium, PingFang SC;
-        font-weight: 500;
-        color: #006afc;
-        line-height: 37px;
+        &:last-child {
+          height: 37px;
+          font-size: 26px;
+          font-family: PingFangSC-Medium, PingFang SC;
+          font-weight: 500;
+          color: #006afc;
+          line-height: 37px;
+        }
       }
     }
-  }
 
-  .feerate-view {
-    padding: 32px 0px;
-    border-top: 1px solid #eeeeee;
-    display: flex;
-    justify-content: space-between;
-    span {
-      display: inline-block;
-      height: 40px;
-      font-size: 28px;
+    .feerate-view {
+      padding: 32px 0px;
+      border-top: 1px solid #eeeeee;
+      display: flex;
+      justify-content: space-between;
+      span {
+        display: inline-block;
+        height: 40px;
+        font-size: 28px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #666666;
+        line-height: 40px;
+
+        &:last-child {
+          color: $zaui-brand;
+        }
+      }
+    }
+
+    .show-more {
+      padding: 16px 0 32px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
       font-family: PingFangSC-Regular, PingFang SC;
       font-weight: 400;
-      color: #666666;
-      line-height: 40px;
-
-      &:last-child {
-        color: $zaui-brand;
+      color: #999999;
+      .icon {
+        margin-left: 10px;
+        font-size: 20px;
+        transition: transform 0.5s;
+        &.showMore {
+          transform: rotate(180deg);
+        }
       }
     }
-  }
 
-  .show-more {
-    padding: 16px 0 32px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
-    font-family: PingFangSC-Regular, PingFang SC;
-    font-weight: 400;
-    color: #999999;
-    .icon {
-      margin-left: 10px;
-      font-size: 20px;
-      transition: transform 0.5s;
-      &.showMore {
-        transform: rotate(180deg);
-      }
+    .service-config img {
+      width: 100%;
     }
-  }
-
-  .service-config img {
-    width: 100%;
   }
 }
+
 // 保障详情弹窗样式
 .guarantee-popup {
   position: relative;

@@ -1,8 +1,9 @@
 <template>
-  <van-config-provider :theme-vars="themeVars">
+  <div v-if="loading">__SKELETON_SHORT_CONTENT__</div>
+  <van-config-provider v-else data-skeleton-root="SHORT" :theme-vars="themeVars">
     <div class="page-internet-product-detail">
       <div class="info">
-        <Banner :url="detail?.tenantProductInsureVO?.banner[0]" />
+        <Banner data-skeleton-type="img" :url="detail?.tenantProductInsureVO?.banner[0]" />
         <Banner
           v-if="detail?.tenantProductInsureVO?.bannerMove"
           :url="detail?.tenantProductInsureVO?.bannerMove[0]"
@@ -249,7 +250,7 @@ const premiumMap = ref<any>({}); // 试算后保费
 const relationList = ref<any>({});
 const isOnlyView = ref<boolean>(true); // 资料查看模式
 const needDesensitize = ref<boolean>(true); // 投被保人身份证手机号是否需要掩码
-
+const loading = ref<boolean>(true);
 const iseeBizNo = ref('');
 
 // 默认保费及保费单位 | 试算保费和实际保费单位
@@ -981,6 +982,8 @@ const fetchData = async () => {
       insureDetail.value = insureRes.data as ProductData;
     }
   });
+
+  loading.value = false;
 };
 
 nextTick(() => {
@@ -1024,6 +1027,7 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {
+  loading.value = true;
   fetchData();
   // 调用千里眼插件获取一个iseeBiz
   setTimeout(async () => {

@@ -30,10 +30,12 @@ import resize from '@/common/directives/resize';
 import Storage from '@/utils/storage';
 import { isTestEnv, isPreEnv } from './utils';
 import '@vant/touch-emulator';
+// import { initInject } from '../skeleton/client/index';
 
 const storage = new Storage({ source: 'sessionStorage' });
 const cookie = new Storage({ source: 'cookie' });
 const start = async () => {
+  // initInject();
   if (isTestEnv) {
     // eslint-disable-next-line new-cap
     new vconsole();

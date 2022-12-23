@@ -237,7 +237,7 @@ defineExpose({
 }
 </style>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .free-card {
   padding: 0 32px;
   background: linear-gradient(v-bind('props.colors[0]'), v-bind('props.colors[1]'));

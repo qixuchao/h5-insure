@@ -39,16 +39,21 @@ export default defineConfig((env) => {
         //   target: 'http://aquarius-commander.test.za-tech.net',
         //   changeOrigin: true, // 允许跨域
         // },
+        '/update_skeleton': {
+          target: 'http://localhost:5208',
+          changeOrigin: true, // 允许跨域
+          rewrite: (path) => path.replace('/', ''),
+        },
         '/api': {
           // 本地 8000 前端代码的接口 代理到 8888 的服务端口
           // target: 'https://www.gconline.cn/acvmtest',
           // target: 'http://141604-zat-planet-gateway.test.za-tech.net',
           // target: 'http://154992-aquarius-commander.test.za-tech.net/',
           // target: 'http://150039-zat-planet-gateway.test.za-tech.net',
-          target: 'https://h5-cloud-insure.ennejb.cn',
+          // target: 'https://h5-cloud-insure.ennejb.cn',
           // target: 'http://142461-zat-planet-gateway.test.za-tech.net',
           // target: 'https://zat-planet-h5-cloud-insure-pre.zhongan.io',
-          // target: 'http://zat-planet-gateway.test.za-tech.net',
+          target: 'http://zat-planet-gateway.test.za-tech.net',
           changeOrigin: true, // 允许跨域
         },
       },

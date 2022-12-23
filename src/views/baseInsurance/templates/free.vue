@@ -1,7 +1,8 @@
 <template>
-  <van-config-provider :theme-vars="themeVars">
+  <div v-if="state.loading">__SKELETON_FREE_CONTENT__</div>
+  <van-config-provider v-else data-skeleton-root="FREE" :theme-vars="themeVars">
     <div class="page-free-product-detail">
-      <Banner :url="state.banner" />
+      <Banner data-skeleton-type="img" :url="state.banner" />
       <FreeHolderForm
         ref="formRef"
         :is-first="state.newAuth"
@@ -461,7 +462,7 @@ useIntersectionObserver(root, ([{ isIntersecting }], observerElement) => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .page-free-product-detail {
   background: v-bind('state.colors[1]');
   padding-bottom: 236px;

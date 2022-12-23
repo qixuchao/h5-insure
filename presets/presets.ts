@@ -29,9 +29,11 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import viteCompression from 'vite-plugin-compression'; // gzip压缩
 const path = require('path');
 const defaultClasses = 'prose prose-sm m-auto text-left';
+import { SkeletonPlaceholderPlugin } from '../skeleton/plugins/vitePlugin';
 
 export default (env: ConfigEnv) => {
   return [
+    SkeletonPlaceholderPlugin(),
     vue({
       include: [/\.vue$/],
     }),
