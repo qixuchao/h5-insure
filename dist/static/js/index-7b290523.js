@@ -1,0 +1,1 @@
+import{_ as a}from"./logo-e4245f5a.js";import{d as s,b as o,c as t,e,w as r,i}from"./index-f7b0041e.js";import"./pdfdist-3849db64.js";const l=i("img",{src:a,alt:"logo",style:{margin:"100px auto",width:"200px",display:"block"}},null,-1),p=s({setup:a=>(a,s)=>{const i=o("ProPageWrap");return t(),e(i,{"main-class":"page-home"},{default:r((()=>[l])),_:1})}});export{p as default};
