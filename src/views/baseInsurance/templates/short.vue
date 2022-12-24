@@ -278,7 +278,7 @@ const orderDetail = ref<OrderDetail>({
   agencyId: agencyCode,
   agentCode,
   orderCategory: 1,
-  // saleUserId: saleChannelId,
+  saleUserId: agentCode,
   saleChannelId,
   venderCode: insurerCode,
   productCode,

@@ -366,7 +366,7 @@ const onSaveOrder = async () => {
         iseeBizNo: iseeBizNo.value,
         agentCode,
         agencyCode,
-        saleUserId,
+        saleUserId: agentCode,
         templateId: extInfo?.templateId,
         saleChannelId,
         pageCode: 'infoCollection',

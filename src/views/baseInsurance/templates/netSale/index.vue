@@ -128,7 +128,7 @@ const orderDetail = ref<Partial<NextStepRequestData>>({
     extraInfo: extInfo,
   },
   orderCategory: 1,
-  // saleUserId: saleChannelId,
+  saleUserId: agentCode,
   saleChannelId,
   tenantId,
   venderCode: '',
