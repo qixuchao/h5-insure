@@ -124,6 +124,7 @@ export const riskToOrder = (productRiskVoList: any) => {
             insurancePeriodValueList,
             paymentFrequencyList,
             paymentPeriodValueList,
+            paymentPeriodRule,
           } = riskInsureLimitVO;
 
           // const { minCopy, maxCopy, fixedAmount, singeAmount } = riskCalcMethodInfoVO;
@@ -151,9 +152,9 @@ export const riskToOrder = (productRiskVoList: any) => {
             amount: tempAmount,
             annuityDrawDate: annuityDrawValueList?.[0],
             annuityDrawFrequency: annuityDrawFrequencyList?.[0],
-            chargePeriod: paymentPeriodValueList?.[0],
+            chargePeriod: paymentPeriodRule === 4 ? 'year_1' : paymentPeriodValueList?.[0],
             copy: copyes,
-            coveragePeriod: insurancePeriodValueList?.[0],
+            coveragePeriod: paymentPeriodRule === 4 ? 'year_1' : insurancePeriodValueList?.[0],
             liabilityVOList: risk.riskLiabilityInfoVOList,
             // mainRisk: risk.riskCode === mainRisk.riskCode,
             // mainRiskCode: risk.riskCode === mainRisk.riskCode ? mainRisk.riskCode : undefined,
