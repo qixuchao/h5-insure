@@ -2,8 +2,8 @@
  * @Description: 用户模块
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-12 16:57:10
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-12-26 11:05:45
  */
 import axios, { type AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
@@ -125,7 +125,8 @@ axiosInstance.interceptors.request.use(
 
     const storage = new Storage({ source: 'cookie' });
     const local = new Storage({ source: 'localStorage' });
-    const token = storage.get('token') || local.get('token') || '';
+    const session = new Storage({ source: 'sessionStorage' });
+    const token = storage.get('token') || local.get('token') || session.get('token') || '';
 
     if (customOption.loading) {
       loadingInstance.count += 1;

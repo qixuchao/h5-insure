@@ -1,8 +1,8 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-11-28 10:22:03
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-21 17:02:33
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-12-26 09:42:54
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -116,17 +116,42 @@ import ProShadowButton from '../components/ProShadowButton/index.vue';
 import FilePreview from '../components/FilePreview/index.vue';
 import useDicData from '@/hooks/useDicData';
 import { INSURANCE_PERIOD_TYPE_ENUMS } from '@/common/constants/trial';
+import { NextStepRequestData, TenantOrderRiskItem } from '@/api/index.data';
+import {
+  ProductData,
+  RiskPremiumDetailVoItem,
+  PremiumCalcData,
+  ProductPlanVoItem,
+  ProductRiskVoItem,
+  PremiumCalcResponse,
+  RiskVoItem,
+} from '@/api/modules/trial.data';
+import { ProductDetail, PlanInsureVO } from '@/api/modules/product.data';
+
+/** 页面query参数类型 */
+interface QueryData {
+  productCode: string; // 产品code
+  tenantId: string; // 订单id
+  phoneNo: string; // 手机号
+  agentCode: string;
+  [propName: string]: string;
+}
+
+interface AttachmentItem {
+  fileContent: {};
+  title: string;
+}
 
 const themeVars = useTheme();
 const route = useRoute();
 const router = useRouter();
 
-const { orderNo = '2022113021181894998', tenantId = '9991000001' } = route.query;
+const { orderNo = '2022113021181894998', tenantId = '9991000001' } = route.query as QueryData;
 
-const factorObj = ref<any>({});
+const factorObj = ref<Partial<Pick<ProductData, 'productFactor'>>>({});
 const loadForm = ref<boolean>(false);
 const region = useDicData('NATIONAL_REGION_CODE');
-const orderDetail = ref<any>({
+const orderDetail = ref<Partial<NextStepRequestData>>({
   // 订单数据模板
   commencementTime: '',
   expiryDate: '',
@@ -148,7 +173,6 @@ const orderDetail = ref<any>({
       extInfo: {
         occupationCodeList: [],
       },
-      insuredBeneficiaryType: '1',
       tenantOrderBeneficiaryList: [
         {
           beneficiaryId: 0,
@@ -182,9 +206,9 @@ const orderDetail = ref<any>({
   },
 });
 const fileShow = ref<boolean>(false);
-const currentAttachment = ref<any>({});
-const productDetail = ref<any>();
-const tenantProductDetail = ref<any>();
+const currentAttachment = ref<AttachmentItem>();
+const productDetail = ref<ProductData>();
+const tenantProductDetail = ref<ProductDetail>();
 const signString = ref<string>('');
 const planCode = ref<string>('');
 const showFilePreview = ref<boolean>(false);
@@ -286,7 +310,7 @@ const compositionDesc = (value: number, desc: string) => {
   return `${value || ''}${desc}`;
 };
 
-const pickInsurancePeriod = (riskList: any[]) => {
+const pickInsurancePeriod = (riskList: TenantOrderRiskItem[]) => {
   const mainRiskInfo = riskList.find((risk) => risk.riskType === 1);
   if (mainRiskInfo) {
     planName.value = compositionDesc(
