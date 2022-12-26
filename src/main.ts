@@ -2,8 +2,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-21 19:34:02
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-15 14:29:10
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-12-26 11:29:31
  * @FilePath: /zat-planet-h5-cloud-insure/src/main.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -47,6 +47,7 @@ const start = async () => {
       storage.set('device', cookies.device);
       storage.set('statusBarHeight', cookies.statusBarHeight);
     }
+    console.log('cookies.', cookies);
     if (cookies.token) {
       storage.set('token', cookies.token);
     }

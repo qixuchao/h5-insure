@@ -3,7 +3,7 @@
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-26 11:05:45
+ * @LastEditTime: 2022-12-26 11:28:33
  */
 import axios, { type AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
@@ -127,7 +127,7 @@ axiosInstance.interceptors.request.use(
     const local = new Storage({ source: 'localStorage' });
     const session = new Storage({ source: 'sessionStorage' });
     const token = storage.get('token') || local.get('token') || session.get('token') || '';
-
+    console.log('token', token);
     if (customOption.loading) {
       loadingInstance.count += 1;
       if (loadingInstance.count === 1) {
