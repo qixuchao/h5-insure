@@ -2,11 +2,11 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-11 16:24:24
+ * @LastEditTime: 2022-12-26 10:29:31
  * @Description: 保障详情
 -->
 <template>
-  <div class="base-insurance-guarantee guarantee-list">
+  <div class="guarantee-list">
     <div class="header">
       <span>保障计划</span>
       <span @click="onShowDetail">查看详情</span>
@@ -329,85 +329,7 @@ watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
 });
 </script>
 
-<style lang="scss">
-.base-insurance-guarantee {
-  &.guarantee-list {
-    background: #ffffff;
-    padding: 50px 40px 0px;
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      span {
-        display: inline-block;
-
-        color: #333333;
-
-        &:first-child {
-          height: 56px;
-          line-height: 56px;
-          font-size: 40px;
-          font-family: PingFangSC-Medium, PingFang SC;
-          font-weight: 500;
-        }
-
-        &:last-child {
-          height: 37px;
-          font-size: 26px;
-          font-family: PingFangSC-Medium, PingFang SC;
-          font-weight: 500;
-          color: #006afc;
-          line-height: 37px;
-        }
-      }
-    }
-
-    .feerate-view {
-      padding: 32px 0px;
-      border-top: 1px solid #eeeeee;
-      display: flex;
-      justify-content: space-between;
-      span {
-        display: inline-block;
-        height: 40px;
-        font-size: 28px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: #666666;
-        line-height: 40px;
-
-        &:last-child {
-          color: $zaui-brand;
-        }
-      }
-    }
-
-    .show-more {
-      padding: 16px 0 32px;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 24px;
-      font-family: PingFangSC-Regular, PingFang SC;
-      font-weight: 400;
-      color: #999999;
-      .icon {
-        margin-left: 10px;
-        font-size: 20px;
-        transition: transform 0.5s;
-        &.showMore {
-          transform: rotate(180deg);
-        }
-      }
-    }
-
-    .service-config img {
-      width: 100%;
-    }
-  }
-}
-
+<style lang="scss" scoped>
 // 保障详情弹窗样式
 .guarantee-popup {
   position: relative;
@@ -465,6 +387,111 @@ watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
   }
 }
 
+.picture-payment-content {
+  padding: 0px 0px 32px;
+  display: flex;
+  flex-wrap: nowrap;
+  overflow: scroll;
+  justify-content: space-between;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .picture-payment-item {
+    width: 319px;
+    height: 95px;
+    margin-top: 32px;
+    margin-right: 32px;
+
+    &:last-child {
+      margin-right: 0px !important;
+    }
+    img {
+      width: 319px;
+      height: 95px;
+    }
+  }
+}
+</style>
+
+<style lang="scss">
+.guarantee-list {
+  background: #ffffff;
+  padding: 50px 40px 0px;
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    span {
+      display: inline-block;
+
+      color: #333333;
+
+      &:first-child {
+        height: 56px;
+        line-height: 56px;
+        font-size: 40px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+      }
+
+      &:last-child {
+        height: 37px;
+        font-size: 26px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: #006afc;
+        line-height: 37px;
+      }
+    }
+  }
+
+  .feerate-view {
+    padding: 32px 0px;
+    border-top: 1px solid #eeeeee;
+    display: flex;
+    justify-content: space-between;
+    span {
+      display: inline-block;
+      height: 40px;
+      font-size: 28px;
+      font-family: PingFangSC-Regular, PingFang SC;
+      font-weight: 400;
+      color: #666666;
+      line-height: 40px;
+
+      &:last-child {
+        color: $zaui-brand;
+      }
+    }
+  }
+
+  .show-more {
+    padding: 16px 0 32px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #999999;
+    .icon {
+      margin-left: 10px;
+      font-size: 20px;
+      transition: transform 0.5s;
+      &.showMore {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  .service-config img {
+    width: 100%;
+  }
+}
+
 .plan-list {
   display: flex;
   width: 100%;
@@ -508,36 +535,6 @@ watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
     }
   }
 }
-
-.picture-payment-content {
-  padding: 0px 0px 32px;
-  display: flex;
-  flex-wrap: nowrap;
-  overflow: scroll;
-  justify-content: space-between;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  .picture-payment-item {
-    width: 319px;
-    height: 95px;
-    margin-top: 32px;
-    margin-right: 32px;
-
-    &:last-child {
-      margin-right: 0px !important;
-    }
-    img {
-      width: 319px;
-      height: 95px;
-    }
-  }
-}
-</style>
-
-<style lang="scss">
 .guarantee-popup {
   .header {
     border-bottom: none !important;
