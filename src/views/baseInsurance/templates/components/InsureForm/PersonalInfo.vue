@@ -259,7 +259,7 @@
       :mapping="{ label: 'name', value: 'code', children: 'children' }"
     />
     <ProCascader
-      v-if="showByFactor('occupation')"
+      v-if="showByFactor('occupation') && prefix !== 'insure'"
       v-model="state.formInfo.extInfo.occupationCodeList[0]"
       v-model:field0="state.formInfo.extInfo.occupationCodeList[0]"
       v-model:field1="state.formInfo.extInfo.occupationCodeList[1]"

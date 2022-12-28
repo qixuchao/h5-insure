@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-21 14:08:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-28 16:05:12
+ * @LastEditTime: 2022-12-28 19:04:35
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/InfoCollection/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -91,6 +91,20 @@
             ></ProRadioButton>
           </template>
         </ProField>
+        <ProCascader
+          v-if="showByFactor('occupation', 'INSURER')"
+          v-model="formInfo.tenantOrderInsuredList[0].extInfo.occupationCodeList[0]"
+          v-model:field0="formInfo.tenantOrderInsuredList[0].extInfo.occupationCodeList[0]"
+          v-model:field1="formInfo.tenantOrderInsuredList[0].extInfo.occupationCodeList[1]"
+          v-model:field2="formInfo.tenantOrderInsuredList[0].extInfo.occupationCodeList[2]"
+          :label="queryFactorAttr('occupation', 'title', 'INSURER')"
+          name="insure_occupationCodeList"
+          :is-view="isView"
+          :required="isRequiredByFactor('occupation', 'INSURER')"
+          :data-source="occupationCode"
+          :mapping="{ label: 'value', value: 'code', children: 'children' }"
+          is-link
+        ></ProCascader>
       </ProCard>
 
       <ProCard
@@ -161,6 +175,9 @@ import {
   RELATION_HOLDER_ENUM,
 } from '@/common/constants/infoCollection';
 import PersonalInfo from './PersonalInfo.vue';
+import useDicData from '@/hooks/useDicData';
+
+const { insurerCode = '' } = useRoute().query;
 
 interface State {
   beneficiaryId: number;
@@ -197,6 +214,8 @@ const props = withDefaults(defineProps<Props>(), {
   inputAlign: 'left',
   needDesensitize: false,
 });
+
+const occupationCode = useDicData(`${(insurerCode as string).toLocaleUpperCase()}_OCCUPATION`); // 职业
 
 const pageFactor = ref<FactorEnums>({});
 // 表单信息
