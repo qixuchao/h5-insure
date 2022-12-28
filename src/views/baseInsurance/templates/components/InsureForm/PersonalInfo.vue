@@ -269,7 +269,7 @@
       :is-view="isView"
       :required="isRequiredByFactor('occupation')"
       :data-source="occupationCode"
-      :mapping="{ label: 'name', value: 'code', children: 'children' }"
+      :mapping="{ label: 'value', value: 'code', children: 'children' }"
       is-link
     ></ProCascader>
     <ProField
@@ -610,9 +610,9 @@ interface State {
 }
 
 const [isShowOccupational, toggleOccupational] = useToggle();
-const { venderCode = '' } = useRoute().query;
+const { insurerCode = '' } = useRoute().query;
 const emits = defineEmits(['update:images']);
-const occupationCode = useDicData(`${(venderCode as string).toLocaleUpperCase()}_OCCUPATION`); // 职业
+const occupationCode = useDicData(`${(insurerCode as string).toLocaleUpperCase()}_OCCUPATION`); // 职业
 const region = useDicData('NATIONAL_REGION_CODE'); // 全国区域编码
 const tempImages = ref<string[]>([]);
 const isIdCard = ref(false);
