@@ -296,6 +296,7 @@ const orderDetail = ref<OrderDetail>({
     // certType: CERT_TYPE_ENUM.CERT,
     extInfo: {
       hasSocialInsurance: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
+      occupationCodeList: [],
     },
   },
   tenantOrderInsuredList: [
@@ -306,14 +307,13 @@ const orderDetail = ref<OrderDetail>({
       relationToHolder: RELATION_HOLDER_ENUM.SELF,
       extInfo: {
         hasSocialInsurance: SOCIAL_SECURITY_ENUM.HAS, // 默认有社保
+        occupationCodeList: [],
       },
       insuredBeneficiaryType: '1',
       tenantOrderBeneficiaryList: [
         {
           beneficiaryId: 0,
-          extInfo: {
-            occupationCodeList: [],
-          },
+          extInfo: {},
         },
       ],
       tenantOrderProductList: [
