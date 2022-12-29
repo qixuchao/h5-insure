@@ -4,7 +4,7 @@ import { Component } from 'vue';
  * @Autor: kevin.liang
  * @Date: 2022-03-08 13:51:54
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-15 16:52:26
+ * @LastEditTime: 2022-12-29 17:38:54
  */
 /* eslint-disable prettier/prettier */
 // import ZaAvatar from './ZaAvatar/index.vue';
@@ -38,6 +38,7 @@ import ProFilePreview from './ProFilePreview/index.vue';
 import ProCascader from './ProCascader/index.vue';
 import ProPDFviewer from './ProPDFviewer/index.vue';
 import ProScrollTab from './ProScrollTab/index.vue';
+import ProLazyComponent from './ProLazyComponent/index.vue';
 
 interface ComponentMap {
   [key: string]: Component;
@@ -76,6 +77,7 @@ export const globalComs: ComponentMap = {
   ProPDFviewer,
   ProScrollTab,
   ProTab,
+  ProLazyComponent,
 };
 
 function install(app: any) {

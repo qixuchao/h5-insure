@@ -1,8 +1,8 @@
 /*
  * @Author: zhaopu
  * @Date: 2022-08-24 16:59:13
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-06 19:57:41
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-29 19:10:30
  * @Description:
  */
 import vue from '@vitejs/plugin-vue';
@@ -27,6 +27,7 @@ import { resolve } from 'path';
 import styleImport, { VantResolve } from 'vite-plugin-style-import';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import viteCompression from 'vite-plugin-compression'; // gzip压缩
+import legacyPlugin from '@vitejs/plugin-legacy';
 const path = require('path');
 const defaultClasses = 'prose prose-sm m-auto text-left';
 import { SkeletonPlaceholderPlugin } from '../skeleton/plugins/vitePlugin';
@@ -91,10 +92,18 @@ export default (env: ConfigEnv) => {
     // VueI18n({
     //   include: [resolve(__dirname, '../locales/**')],
     // }),
-    splitVendorChunkPlugin(),
-    // viteCompression({
-    //   threshold: 1025 * 100,
+    // legacyPlugin({
+    //   targets: ['chrome 52'], // 需要兼容的目标列表，可以设置多个
+    //   additionalLegacyPolyfills: ['regenerator-runtime/runtime'], // 面向IE11时需要此插件
     // }),
+    splitVendorChunkPlugin(),
+    viteCompression({
+      threshold: 1025 * 100,
+      verbose: true,
+      disable: false,
+      algorithm: 'gzip',
+      ext: '.gz',
+    }),
     PkgConfig(),
     env.mode === 'production'
       ? null

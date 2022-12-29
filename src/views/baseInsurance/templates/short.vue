@@ -62,16 +62,20 @@
           />
         </template>
       </ScrollInfo>
-      <InscribedContent
-        v-if="detail?.tenantProductInsureVO.inscribedContent"
-        :inscribed-content="detail?.tenantProductInsureVO.inscribedContent"
-      />
-      <AttachmentList
-        v-if="filterHealthAttachmentList && filterHealthAttachmentList.length > 0"
-        :attachement-list="filterHealthAttachmentList"
-        pre-text="请阅读"
-        @preview-file="(index) => previewFile(index)"
-      />
+      <ProLazyComponent>
+        <InscribedContent
+          v-if="detail?.tenantProductInsureVO.inscribedContent"
+          :inscribed-content="detail?.tenantProductInsureVO.inscribedContent"
+        />
+      </ProLazyComponent>
+      <ProLazyComponent>
+        <AttachmentList
+          v-if="filterHealthAttachmentList && filterHealthAttachmentList.length > 0"
+          :attachement-list="filterHealthAttachmentList"
+          pre-text="请阅读"
+          @preview-file="(index) => previewFile(index)"
+        />
+      </ProLazyComponent>
       <div v-if="showFooterBtn" class="footer-area">
         <div class="price">
           <template v-if="premiumLoadingText">
@@ -101,25 +105,30 @@
     <PreNotice v-if="preNoticeLoading" :product-detail="detail"></PreNotice>
     <div id="xinaoDialog"></div>
   </van-config-provider>
-  <HealthNoticePreview
-    v-model:show="showHealthPreview"
-    :content-list="healthAttachmentList"
-    :active-index="0"
-    @on-confirm-health="onCloseHealth"
-    @on-close-health-by-mask="onResetFileFlag"
-  ></HealthNoticePreview>
-  <FilePreview
-    v-if="showFilePreview"
-    v-model:show="showFilePreview"
-    :content-list="filterHealthAttachmentList"
-    :is-only-view="isOnlyView"
-    :active-index="activeIndex"
-    :text="isOnlyView ? '关闭' : '我已逐页阅读并确认告知内容'"
-    :force-read-cound="0"
-    on-close-file-preview
-    @submit="onSubmit"
-    @on-close-file-preview-by-mask="onResetFileFlag"
-  ></FilePreview>
+  <ProLazyComponent>
+    <HealthNoticePreview
+      v-model:show="showHealthPreview"
+      :content-list="healthAttachmentList"
+      :active-index="0"
+      @on-confirm-health="onCloseHealth"
+      @on-close-health-by-mask="onResetFileFlag"
+    ></HealthNoticePreview>
+  </ProLazyComponent>
+  <ProLazyComponent>
+    <FilePreview
+      v-if="showFilePreview"
+      v-model:show="showFilePreview"
+      :content-list="filterHealthAttachmentList"
+      :is-only-view="isOnlyView"
+      :active-index="activeIndex"
+      :text="isOnlyView ? '关闭' : '我已逐页阅读并确认告知内容'"
+      :force-read-cound="0"
+      on-close-file-preview
+      @submit="onSubmit"
+      @on-close-file-preview-by-mask="onResetFileFlag"
+    ></FilePreview>
+  </ProLazyComponent>
+  <ProShare v-bind="shareInfo"></ProShare>
 </template>
 
 <script lang="ts" setup name="InsuranceShort">

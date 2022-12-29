@@ -26,7 +26,6 @@
 import { nanoid } from 'nanoid';
 import { Toast } from 'vant';
 import Pdfh5 from 'pdfh5';
-import PdfViewer from '@/components/ProPDFviewer/index.vue';
 import QuestionPreview from './question.vue';
 import 'pdfh5/css/pdfh5.css';
 
