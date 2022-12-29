@@ -1,0 +1,1 @@
+import{_ as s,d as t,c as a,g as d,i as e,t as i,a8 as o}from"./index-d97281b6.js";import"./pdfh5-e5c0db2a.js";const c={class:"com-custom-card"},l={class:"title"};var r=s(t({props:{title:{type:String,required:!0}},setup:s=>(t,r)=>(a(),d("div",c,[e("div",l,i(s.title),1),e("div",null,[o(t.$slots,"default",{},void 0,!0)])]))}),[["__scopeId","data-v-059c21ee"]]);export{r as default};
