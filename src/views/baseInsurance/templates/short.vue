@@ -24,42 +24,46 @@
         <template #form>
           <div class="custom-page-form">
             <div class="form-title">请填写投保信息</div>
-            <InsureForm
-              ref="formRef"
-              :title-collection="{
-                HOLDER: '本人信息（投保人）',
-                INSURER: '为谁投保（被保人）',
-              }"
-              :form-info="orderDetail"
-              :need-desensitize="needDesensitize"
-              :send-sms-code="sendSmsCode"
-              :factor-object="factorObj || {}"
-            >
-              <template v-if="relationCustomerList.length > 1" #holderName>
-                <CustomerList
-                  :user-info="orderDetail.tenantOrderHolder"
-                  :data="relationCustomerList"
-                  @change="onUpdateHolderData"
-                />
-              </template>
-              <template v-if="relationCustomerList.length > 1" #insurerName>
-                <CustomerList
-                  title="选择被保人"
-                  :user-info="orderDetail.tenantOrderInsuredList[0]"
-                  :data="relationCustomerList"
-                  @change="onUpdateInsurerData"
-                />
-              </template>
-            </InsureForm>
+            <ProLazyComponent>
+              <InsureForm
+                ref="formRef"
+                :title-collection="{
+                  HOLDER: '本人信息（投保人）',
+                  INSURER: '为谁投保（被保人）',
+                }"
+                :form-info="orderDetail"
+                :need-desensitize="needDesensitize"
+                :send-sms-code="sendSmsCode"
+                :factor-object="factorObj || {}"
+              >
+                <template v-if="relationCustomerList.length > 1" #holderName>
+                  <CustomerList
+                    :user-info="orderDetail.tenantOrderHolder"
+                    :data="relationCustomerList"
+                    @change="onUpdateHolderData"
+                  />
+                </template>
+                <template v-if="relationCustomerList.length > 1" #insurerName>
+                  <CustomerList
+                    title="选择被保人"
+                    :user-info="orderDetail.tenantOrderInsuredList[0]"
+                    :data="relationCustomerList"
+                    @change="onUpdateInsurerData"
+                  />
+                </template>
+              </InsureForm>
+            </ProLazyComponent>
           </div>
-          <PaymentType
-            :form-info="orderDetail"
-            :insure-detail="insureDetail"
-            :config-detail="detail"
-            :is-multiple-plan="isMultiplePlan"
-            :premium-info="{ premium, unit, minPremiun, actualUnit, premiumLoadingText }"
-            @update-active-plan="updateActivePlan"
-          />
+          <ProLazyComponent>
+            <PaymentType
+              :form-info="orderDetail"
+              :insure-detail="insureDetail"
+              :config-detail="detail"
+              :is-multiple-plan="isMultiplePlan"
+              :premium-info="{ premium, unit, minPremiun, actualUnit, premiumLoadingText }"
+              @update-active-plan="updateActivePlan"
+            />
+          </ProLazyComponent>
         </template>
       </ScrollInfo>
       <ProLazyComponent>
@@ -985,7 +989,7 @@ const fetchData = async () => {
     }
   });
 
-  await insureProductDetail({ productCode }).then((insureRes) => {
+  insureProductDetail({ productCode }).then((insureRes) => {
     if (insureRes.code === '10000') {
       preNoticeLoading.value = true;
       insureDetail.value = insureRes.data as ProductData;

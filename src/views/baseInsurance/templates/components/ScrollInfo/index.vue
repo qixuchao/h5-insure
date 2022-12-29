@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-17 16:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-15 16:11:33
+ * @LastEditTime: 2022-12-29 20:13:28
  * @Description: 审核版首页
 -->
 <template>
@@ -22,34 +22,40 @@
     </template>
     <template v-if="isShowTab2_1 || isShowTab2_2" #tab2>
       <template v-if="isShowTab2_1">
-        <CustomCard
-          v-if="props.detail?.tenantProductInsureVO?.settlementProcessVO.settlementProcessType === CLAIM_TYPE_ENUM.WORD"
-          title="理赔说明"
-        >
-          <ProTimeline :list="props.detail?.tenantProductInsureVO?.settlementProcessVO?.settlementProcessList" />
-        </CustomCard>
-        <div v-else class="spec">
-          <Suspense>
-            <van-image
-              v-for="(item, index) in props.detail?.tenantProductInsureVO?.settlementProcessVO
-                ?.settlementProcessPicList || []"
-              :key="index"
-              width="100%"
-              :src="item"
-              class="detail-img"
-            />
-            <template #fallback>
-              <ProSvg name="img" style="font-size: 40px; margin: 10px auto; display: block" />
-            </template>
-          </Suspense>
-        </div>
-        <ProDivider />
+        <ProLazyComponent>
+          <CustomCard
+            v-if="
+              props.detail?.tenantProductInsureVO?.settlementProcessVO.settlementProcessType === CLAIM_TYPE_ENUM.WORD
+            "
+            title="理赔说明"
+          >
+            <ProTimeline :list="props.detail?.tenantProductInsureVO?.settlementProcessVO?.settlementProcessList" />
+          </CustomCard>
+          <div v-else class="spec">
+            <Suspense>
+              <van-image
+                v-for="(item, index) in props.detail?.tenantProductInsureVO?.settlementProcessVO
+                  ?.settlementProcessPicList || []"
+                :key="index"
+                width="100%"
+                :src="item"
+                class="detail-img"
+              />
+              <template #fallback>
+                <ProSvg name="img" style="font-size: 40px; margin: 10px auto; display: block" />
+              </template>
+            </Suspense>
+          </div>
+          <ProDivider />
+        </ProLazyComponent>
       </template>
       <template v-if="isShowTab2_2">
-        <CustomCard title="常见问题">
-          <Question :list="props.detail?.tenantProductInsureVO?.questionList" />
-        </CustomCard>
-        <ProDivider />
+        <ProLazyComponent>
+          <CustomCard title="常见问题">
+            <Question :list="props.detail?.tenantProductInsureVO?.questionList" />
+          </CustomCard>
+          <ProDivider />
+        </ProLazyComponent>
       </template>
     </template>
     <template #tab3>
