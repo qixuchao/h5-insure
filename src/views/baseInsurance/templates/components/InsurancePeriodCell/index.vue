@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-15 13:43:43
+ * @LastEditTime: 2022-12-30 18:20:10
  * @Description:
 -->
 <template>
@@ -14,12 +14,12 @@
           <ProRadioButton v-model="state.formInfo.insurancePeriodValue" :options="periodList"></ProRadioButton>
         </div>
       </div>
-      <div
+      <!-- 选择生效日期 -->
+      <!-- <div
         v-if="riskGuaranteeStartDateType === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY"
         class="period-custom-cell period-common-cell"
         @click="onSelectCommencementTime"
       >
-        <!-- 选择生效日期 -->
         <div class="period-cell-label">生效日期</div>
         <div class="period-cell-content period-custom-cell-content">
           <span>{{
@@ -29,11 +29,9 @@
           }}</span>
           <ProSvg class="custom--arrow-right" name="arrow-right"></ProSvg>
         </div>
-      </div>
-      <div
-        v-if="riskGuaranteeStartDateType !== INSURANCE_START_TYPE_ENUM.CUSTOM_DAY"
-        class="period-custom-cell period-common-cell"
-      >
+      </div> -->
+      <!-- v-if="riskGuaranteeStartDateType !== INSURANCE_START_TYPE_ENUM.CUSTOM_DAY" -->
+      <div class="period-custom-cell period-common-cell">
         <div class="period-cell-label">保障期限</div>
         <div class="period-cell-content">
           {{ state.formInfo.insuranceStartDate ? formatDate(state.formInfo.insuranceStartDate, 'YYYY.MM.DD') : '' }}-{{
@@ -284,7 +282,12 @@ watch(
     const [unit, num] = state.formInfo.insurancePeriodValue.split('_');
     if (!state.formInfo.insuranceStartDate) {
       if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) {
-        state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), 1, 'day')} 00:00:00`;
+        const tempDate = lastMainRiskInfo.value?.riskInsureLimitVO.maxInsuranceDay;
+        if (!tempDate) {
+          state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), 1, 'day')} 00:00:00`;
+        } else {
+          state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), tempDate, 'day')} 00:00:00`;
+        }
       } else if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.NEXT_DAY) {
         state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), 1, 'day')} 00:00:00`;
       } else {
