@@ -766,23 +766,31 @@ const onNext = async () => {
     showHealthPreview.value = false;
     showFilePreview.value = false;
     if (formRef.value) {
-      formRef.value?.validateForm().then(async () => {
-        if (isOldUser.value || !isCheckHolderSmsCode.value) {
-          await trialPremium(orderDetail.value as OrderDetail, insureDetail.value, currentRiskInfo.value, false);
-        } else {
-          const smsCode = orderDetail.value.tenantOrderHolder?.verificationCode;
-          if (!smsCode || !validateSmsCode(smsCode)) {
-            Toast({
-              message: '请输入正确的验证码',
-            });
-            return;
-          }
-          const { code, data } = await checkCode(orderDetail.value.tenantOrderHolder.mobile as string, smsCode);
-          if (code === '10000') {
+      formRef.value
+        ?.validateForm()
+        .then(async () => {
+          if (isOldUser.value || !isCheckHolderSmsCode.value) {
             await trialPremium(orderDetail.value as OrderDetail, insureDetail.value, currentRiskInfo.value, false);
+          } else {
+            const smsCode = orderDetail.value.tenantOrderHolder?.verificationCode;
+            if (!smsCode || !validateSmsCode(smsCode)) {
+              Toast({
+                message: '请输入正确的验证码',
+              });
+              return;
+            }
+            const { code, data } = await checkCode(orderDetail.value.tenantOrderHolder.mobile as string, smsCode);
+            if (code === '10000') {
+              await trialPremium(orderDetail.value as OrderDetail, insureDetail.value, currentRiskInfo.value, false);
+            }
           }
-        }
-      });
+        })
+        .catch(() => {
+          const dom = document.querySelector('.form-title');
+          if (dom) {
+            dom.scrollIntoView();
+          }
+        });
     }
   } catch (e) {
     //
