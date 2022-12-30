@@ -2,8 +2,8 @@
  * @Description: 用户模块
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-26 11:28:33
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-30 14:00:38
  */
 import axios, { type AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
@@ -179,7 +179,7 @@ axiosInstance.interceptors.response.use(
 
 export default function request<T = ResponseData>(
   config: AxiosRequestConfig,
-  customOptions = {},
+  customOptions = { loading: false },
 ): ResponseDataPromise<T> {
   // 自定义配置
   customOption = {
