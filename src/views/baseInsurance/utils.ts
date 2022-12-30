@@ -63,7 +63,9 @@ export const transformData = (o: transformDataType) => {
   } else {
     currentRiskList = riskList;
   }
+  console.log('=============22222', currentRiskList);
   return currentRiskList.map((risk: RiskVoItem) => {
+    console.log('risk.chargePeriod=====', risk.chargePeriod);
     const currentRisk = {
       tenantId,
       amountUnit: 1,

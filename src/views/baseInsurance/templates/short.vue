@@ -109,29 +109,25 @@
     <PreNotice v-if="preNoticeLoading" :product-detail="detail"></PreNotice>
     <div id="xinaoDialog"></div>
   </van-config-provider>
-  <ProLazyComponent>
-    <HealthNoticePreview
-      v-model:show="showHealthPreview"
-      :content-list="healthAttachmentList"
-      :active-index="0"
-      @on-confirm-health="onCloseHealth"
-      @on-close-health-by-mask="onResetFileFlag"
-    ></HealthNoticePreview>
-  </ProLazyComponent>
-  <ProLazyComponent>
-    <FilePreview
-      v-if="showFilePreview"
-      v-model:show="showFilePreview"
-      :content-list="filterHealthAttachmentList"
-      :is-only-view="isOnlyView"
-      :active-index="activeIndex"
-      :text="isOnlyView ? '关闭' : '我已逐页阅读并确认告知内容'"
-      :force-read-cound="0"
-      on-close-file-preview
-      @submit="onSubmit"
-      @on-close-file-preview-by-mask="onResetFileFlag"
-    ></FilePreview>
-  </ProLazyComponent>
+  <HealthNoticePreview
+    v-model:show="showHealthPreview"
+    :content-list="healthAttachmentList"
+    :active-index="0"
+    @on-confirm-health="onCloseHealth"
+    @on-close-health-by-mask="onResetFileFlag"
+  ></HealthNoticePreview>
+  <FilePreview
+    v-if="showFilePreview"
+    v-model:show="showFilePreview"
+    :content-list="filterHealthAttachmentList"
+    :is-only-view="isOnlyView"
+    :active-index="activeIndex"
+    :text="isOnlyView ? '关闭' : '我已逐页阅读并确认告知内容'"
+    :force-read-cound="0"
+    on-close-file-preview
+    @submit="onSubmit"
+    @on-close-file-preview-by-mask="onResetFileFlag"
+  ></FilePreview>
   <ProShare v-bind="shareInfo"></ProShare>
 </template>
 
@@ -403,7 +399,6 @@ const factorObj = computed(() => {
       (e: ProductFactorItem) => e.code === 'verificationCode' && e.isDisplay === 1,
     );
     if (index > -1) {
-      console.log('index', index);
       factorObjList[1][index].isDisplay = 2;
     }
   }
@@ -471,7 +466,6 @@ const updateActivePlan = (planCode: string) => {
 const healthAttachmentList = computed(() => {
   if (insureDetail.value?.productQuestionnaireVOList && insureDetail.value?.productQuestionnaireVOList.length > 0) {
     const questionnaireItem = insureDetail.value?.productQuestionnaireVOList[0];
-    console.log('questionnaireItem', questionnaireItem);
     if (questionnaireItem) {
       const {
         basicInfo: { questionnaireType },
@@ -560,7 +554,6 @@ const sendSmsCode = async ({ mobile, type }: { mobile: string; type: string }, c
 
 // 滑动到投保信息
 const onClickToInsure = () => {
-  console.log('detailScrollRef.value', detailScrollRef.value);
   detailScrollRef.value.handleClickTab()('tab3');
 };
 
