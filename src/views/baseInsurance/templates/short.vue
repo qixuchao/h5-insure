@@ -938,36 +938,26 @@ watch(
     const targets = relationList.value[e.relationToHolder] || [];
     if (targets.length === 1) {
       if (RELATIONENUM.SELF !== e.relationToHolder) {
-        if (!orderDetail.value.tenantOrderInsuredList[0].dontFetchDefaultInfo) {
-          orderDetail.value.tenantOrderInsuredList[0].dontFetchDefaultInfo = true;
-          orderDetail.value.tenantOrderInsuredList[0].certNo = orderDetail.value.tenantOrderInsuredList[0].certNo
-            ? orderDetail.value.tenantOrderInsuredList[0].certNo
-            : targets[0].cert[0].certNo;
-          orderDetail.value.tenantOrderInsuredList[0].name = orderDetail.value.tenantOrderInsuredList[0].name
-            ? orderDetail.value.tenantOrderInsuredList[0].name
-            : targets[0].cert[0].certName;
-          orderDetail.value.tenantOrderInsuredList[0].certType = orderDetail.value.tenantOrderInsuredList[0].certType
-            ? orderDetail.value.tenantOrderInsuredList[0].certType
-            : targets[0].cert[0].certType || CERT_TYPE_ENUM.CERT;
-          orderDetail.value.tenantOrderInsuredList[0].mobile = orderDetail.value.tenantOrderInsuredList[0].mobile
-            ? orderDetail.value.tenantOrderInsuredList[0].mobile
-            : targets[0].contact[0].contactNo;
+        const { dontFetchDefaultInfo, certNo, name, certType, mobile } = orderDetail.value.tenantOrderInsuredList[0];
+        if (!dontFetchDefaultInfo) {
+          Object.assign(orderDetail.value.tenantOrderInsuredList[0], {
+            dontFetchDefaultInfo: true,
+            certNo: certNo || targets[0].cert[0].certNo,
+            name: name || targets[0].cert[0].certName,
+            certType: certType || targets[0].cert[0].certType || CERT_TYPE_ENUM.CERT,
+            mobile: mobile || targets[0].contact[0].contactNo,
+          });
         }
       } else {
-        if (!orderDetail.value.tenantOrderHolder.dontFetchDefaultInfo) {
-          orderDetail.value.tenantOrderHolder.dontFetchDefaultInfo = true;
-          orderDetail.value.tenantOrderHolder.certNo = orderDetail.value.tenantOrderHolder.certNo
-            ? orderDetail.value.tenantOrderHolder.certNo
-            : targets[0].cert[0].certNo;
-          orderDetail.value.tenantOrderHolder.name = orderDetail.value.tenantOrderHolder.name
-            ? orderDetail.value.tenantOrderHolder.name
-            : targets[0].cert[0].certName;
-          orderDetail.value.tenantOrderHolder.mobile = orderDetail.value.tenantOrderHolder.mobile
-            ? orderDetail.value.tenantOrderHolder.mobile
-            : targets[0].contact[0].contactNo;
-          orderDetail.value.tenantOrderHolder.certType = orderDetail.value.tenantOrderHolder.certType
-            ? orderDetail.value.tenantOrderHolder.certType
-            : targets[0].cert[0].certType || CERT_TYPE_ENUM.CERT;
+        const { dontFetchDefaultInfo, certNo, name, certType, mobile } = orderDetail.value.tenantOrderHolder;
+        if (!dontFetchDefaultInfo) {
+          Object.assign(orderDetail.value.tenantOrderHolder, {
+            dontFetchDefaultInfo: true,
+            certNo: certNo || targets[0].cert[0].certNo,
+            name: name || targets[0].cert[0].certName,
+            certType: certType || targets[0].cert[0].certType || CERT_TYPE_ENUM.CERT,
+            mobile: mobile || targets[0].contact[0].contactNo,
+          });
         }
       }
     }
