@@ -25,6 +25,7 @@
           <div class="custom-page-form">
             <div class="form-title">请填写投保信息</div>
             <InsureForm
+              v-if="insureDetail"
               ref="formRef"
               :title-collection="{
                 HOLDER: '本人信息（投保人）',
@@ -976,7 +977,7 @@ const fetchData = async () => {
     }
   });
 
-  insureProductDetail({ productCode }).then((insureRes) => {
+  await insureProductDetail({ productCode }).then((insureRes) => {
     if (insureRes.code === '10000') {
       preNoticeLoading.value = true;
       insureDetail.value = insureRes.data as ProductData;
