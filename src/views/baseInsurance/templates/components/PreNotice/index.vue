@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 15:01:12
  * @LastEditors: zhaopu
- * @LastEditTime: 2023-01-03 11:06:20
+ * @LastEditTime: 2023-01-03 15:15:24
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/PreNotice/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -20,7 +20,7 @@
       </p>
     </div>
     <div class="footer">
-      <VanButton type="primary" block round>
+      <VanButton type="primary" block round @click="closePopup">
         好的
         <span v-if="currentTime">{{ currentTime }}s</span>
       </VanButton>
@@ -79,7 +79,7 @@ const countDown = useCountDown({
   time: 4000,
   onFinish: () => {
     sessionStorage.set(`${STORAGE_PREFIX}-isShow`, '1');
-    noticeShow.value = false;
+    // noticeShow.value = false;
   },
 });
 
@@ -114,6 +114,10 @@ const clickHandler = (e: any, field: string) => {
   attachmentUri.value.title = e.target.innerText;
 };
 
+const closePopup = () => {
+  noticeShow.value = false;
+};
+
 const initData = async () => {
   const { code, data } = await queryInsurePopupConfig({
     insureCode: props.productDetail.insurerCode,
@@ -121,7 +125,9 @@ const initData = async () => {
   });
   if (code === '10000') {
     state.insureConfig = data;
-    countDown.start();
+    nextTick(() => {
+      countDown.start();
+    });
   }
   noticeShow.value = true;
 };
