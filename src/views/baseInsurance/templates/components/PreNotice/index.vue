@@ -1,37 +1,29 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 15:01:12
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-11 19:40:52
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2023-01-03 11:06:20
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/PreNotice/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
-  <ProPopup
-    class="pre-notice-wrap"
-    :close-on-click-overlay="false"
-    :show="noticeShow"
-    :closeable="false"
-    height="395px"
-  >
-    <div class="pre-body">
-      <div class="header">
-        <img :src="HeaderImg" />
-        <div class="company-name">
-          由{{ state.insureConfig.tenantName }}提供保险经纪服务，{{ state.insureConfig.insureName }}承保
-        </div>
-      </div>
-      <div class="content">
-        为了更好地保护您的个人信息，请在使用前点击阅读、充分理解<span
-          @click="(e) => clickHandler(e, 'privacyAgreement')"
-          >《用户隐私协议》</span
-        >相关内容，我们对您使用过程中可能出现的个人信息收集、使用、共享和保护等情况进行了详细说明。
-        您已进入投保流程，请仔细阅读<span @click="(e) => clickHandler(e, 'notification')">《客户告知书》</span
-        >、投保须知、保险条款等信息，为维护您的合法权益，您的操作轨迹将被记录。
-      </div>
-      <div class="footer">
-        <ProShadowButton :shadow="false" text="我知道了" @click="noticeShow = false" />
-      </div>
+  <ProPopup class="pre-notice-wrap" :show="noticeShow" :closeable="false" :height="45">
+    <div class="header"><img :src="HeaderImg" /></div>
+    <div class="content">
+      <h4>温馨提示，您已进入投保流程：</h4>
+      <p>
+        请仔细阅读免责条款、投保须知等信息，请您重点阅读并知晓
+        <span class="file-name" @click="(e) => clickHandler(e, 'privacyAgreement')">
+          《{{ state.insureConfig?.privacyAgreement.title || '用户隐私协议' }}》
+        </span>
+        ，为维护您的合法权益，您的操作轨迹将被记录。
+      </p>
+    </div>
+    <div class="footer">
+      <VanButton type="primary" block round>
+        好的
+        <span v-if="currentTime">{{ currentTime }}s</span>
+      </VanButton>
     </div>
   </ProPopup>
   <ProPopup
@@ -48,9 +40,18 @@
 </template>
 
 <script lang="ts" setup name="preNotice">
+import { useCountDown } from '@vant/use';
 import { queryInsurePopupConfig } from '@/api/modules/product';
+import Storage from '@/utils/storage';
 import ProShadowButton from '../ProShadowButton/index.vue';
-import HeaderImg from '@/assets/images/baseInsurance/logo.png';
+import HeaderImg from '@/assets/images/baseInsurance/header-logo.png';
+
+const props = defineProps({
+  productDetail: {
+    type: Object,
+    default: () => {},
+  },
+});
 
 const route = useRoute();
 /** 页面query参数类型 */
@@ -61,15 +62,6 @@ interface QueryData {
 
 const { tenantId = '' } = route.query as QueryData;
 
-const noticeShow = ref<boolean>(false);
-const pdfShow = ref<boolean>(false);
-
-const props = defineProps({
-  productDetail: {
-    type: Object,
-    default: () => {},
-  },
-});
 const state = reactive({
   insureConfig: {
     insureName: '',
@@ -77,9 +69,27 @@ const state = reactive({
   },
 });
 
+const STORAGE_PREFIX = 'PRENOTICE';
+
+const noticeShow = ref<boolean>(false);
+const pdfShow = ref<boolean>(false);
+
+const sessionStorage = new Storage({ source: 'sessionStorage' });
+const countDown = useCountDown({
+  time: 4000,
+  onFinish: () => {
+    sessionStorage.set(`${STORAGE_PREFIX}-isShow`, '1');
+    noticeShow.value = false;
+  },
+});
+
 const attachmentUri = ref({
   title: '',
   link: '',
+});
+
+const currentTime = computed<number>(() => {
+  return countDown.current.value.seconds;
 });
 
 const fileType = computed(() => {
@@ -111,6 +121,7 @@ const initData = async () => {
   });
   if (code === '10000') {
     state.insureConfig = data;
+    countDown.start();
   }
   noticeShow.value = true;
 };
@@ -119,6 +130,38 @@ onMounted(() => {
   initData();
 });
 </script>
+
+<style scoped lang="scss">
+.pre-notice-wrap {
+  .header {
+    line-height: 1;
+    border: none;
+    img {
+      width: 100%;
+    }
+  }
+  .content {
+    padding: $zaui-card-border;
+    p {
+      margin-top: 20px;
+      font-size: 28px;
+      line-height: 44px;
+    }
+    span {
+      color: $primary-color;
+    }
+  }
+  .footer {
+    margin-top: $zaui-card-border;
+    padding: 0 $zaui-card-border;
+    :deep(.van-button) {
+      background: $primary-color;
+      border-color: $primary-color;
+    }
+  }
+}
+</style>
+
 <style lang="scss">
 .review-pdf {
   height: 100%;
@@ -132,7 +175,7 @@ onMounted(() => {
   }
 }
 </style>
-<style scoped lang="scss">
+<!-- <style scoped lang="scss">
 .pre-notice-wrap {
   .pre-body {
     padding: 50px 32px 0;
@@ -176,4 +219,4 @@ onMounted(() => {
     }
   }
 }
-</style>
+</style> -->
