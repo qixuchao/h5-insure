@@ -8,7 +8,7 @@
               <div class="product-name">
                 {{ detail?.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productName }}
               </div>
-              <div class="company-name">{{ detail?.abbreviation }}</div>
+              <div class="company-name">{{ (detail?.abbreviation || '').substring(0, 6) }}</div>
             </div>
           </template>
           <template #content>
@@ -199,7 +199,7 @@ onMounted(() => {
         white-space: nowrap;
       }
       .company-name {
-        flex: 0 0 120px;
+        flex: 0 0 150px;
         height: 40px;
         line-height: 40px;
         text-align: center;
@@ -208,9 +208,6 @@ onMounted(() => {
         border-radius: 8px;
         font-size: 22px;
         color: $zaui-brand;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
       }
     }
     .status {

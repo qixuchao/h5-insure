@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 export interface Sort {
   asc: boolean;
   name: string;
@@ -12,6 +13,27 @@ export interface ProductInfoVoItem {
   text: string;
   title: number;
   insurerName: string;
+}
+
+export interface ProposalItem {
+  id: number;
+  insurerCode: string;
+  insurerName: string;
+  productCategory: number;
+  productCode: string;
+  productId: number;
+  productName: string;
+  showCategory: number;
+  showConfig: ShowConfig;
+}
+
+export interface ShowConfig {
+  fileName: string;
+  fileType: string;
+  fileUrl: string;
+  tags: string[];
+  text: string;
+  title: string;
 }
 
 export interface QueryProposalProductListType {

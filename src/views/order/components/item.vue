@@ -2,7 +2,7 @@
   <div class="com-order-item">
     <div class="header">
       <div class="product-name">{{ detail.goodsName }}</div>
-      <div class="company-name">{{ detail.abbreviation }}</div>
+      <div class="company-name">{{ ('众安保险科技有限' || detail.abbreviation || '').substring(0, 6) }}</div>
       <div class="status">{{ ORDER_STATUS_MAP[detail.orderStatus] }}</div>
     </div>
     <div class="info">
@@ -193,7 +193,7 @@ const handleProcess = () => {
       color: #393d46;
     }
     .company-name {
-      flex: 0 0 120px;
+      flex: 0 0 160px;
       height: 40px;
       line-height: 40px;
       text-align: center;
@@ -202,9 +202,6 @@ const handleProcess = () => {
       border-radius: 8px;
       font-size: 22px;
       color: $zaui-brand;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
     }
     .status {
       margin-left: 30px;
