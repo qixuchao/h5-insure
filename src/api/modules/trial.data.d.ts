@@ -400,7 +400,7 @@ export interface TenantOrderInsuredItem {
     certNo?: string;
     gender?: number;
     birthday?: string;
-    certType?: number;
+    certType?: number | string;
     name?: string;
     socialFlag?: string;
     planCode?: string;

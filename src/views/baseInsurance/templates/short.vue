@@ -402,6 +402,21 @@ const factorObj = computed(() => {
   return factorObjList;
 });
 
+const isSetDefaultCertNo = computed(() => {
+  const factorList = factorObj.value?.[2] || [];
+  const idx = factorList.findIndex((e: ProductFactorItem) => e.code === 'certType');
+  if (idx > -1) {
+    const { attributeValues, isDisplay } = factorList[idx] || {};
+    if (isDisplay === 1) {
+      const attributeValuesList = JSON.parse(attributeValues);
+      if (attributeValuesList.length > 1) return false;
+      if (attributeValuesList.length === 1 && attributeValuesList[0].code !== '1') return false;
+    }
+    return true;
+  }
+  return false;
+});
+
 // 根据是否是老用户，判断是否展示获取验证码
 const isCheckHolderSmsCode = computed(() => {
   if (factorObj.value[1]) {
@@ -831,12 +846,13 @@ watch(
   () => {
     needDesensitize.value = false;
     nextTick(() => {
-      if (
-        orderDetail.value.tenantOrderInsuredList[0] &&
-        orderDetail.value.tenantOrderInsuredList[0].extInfo &&
-        !orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance
-      ) {
+      const { certType, extInfo: insuredExtInfo } = orderDetail.value.tenantOrderInsuredList[0];
+
+      if (insuredExtInfo && !insuredExtInfo.hasSocialInsurance) {
         orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance = SOCIAL_SECURITY_ENUM.HAS;
+      }
+      if (isSetDefaultCertNo.value && !certType) {
+        orderDetail.value.tenantOrderInsuredList[0].certType = CERT_TYPE_ENUM.CERT;
       }
       needDesensitize.value = true;
     });
