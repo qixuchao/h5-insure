@@ -426,22 +426,22 @@ const isSocialLimit = computed(() => {
     insured: false,
   };
 
-  // 被保人
+  // 投保人
   if (factorObj.value[1]) {
     const index = factorObj.value[1].findIndex(
       (e: ProductFactorItem) => e.code === 'social' && e.isDisplay === YES_NO_ENUM.YES,
     );
     if (index > -1) {
-      socialObject.insured = true;
+      socialObject.holder = true;
     }
   }
-  // 投保人
-  if (factorObj.value[0]) {
-    const index = factorObj.value[0].findIndex(
+  // 被保人
+  if (factorObj.value[2]) {
+    const index = factorObj.value[2].findIndex(
       (e: ProductFactorItem) => e.code === 'social' && e.isDisplay === YES_NO_ENUM.YES,
     );
     if (index > -1) {
-      socialObject.holder = true;
+      socialObject.insured = true;
     }
   }
   return socialObject;
