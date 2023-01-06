@@ -91,7 +91,7 @@
             <span>{{ unit }} </span>
           </template>
         </div>
-        <ProShare v-bind="shareInfo">分享</ProShare>
+        <ProShare v-if="isTestEnv" v-bind="shareInfo">分享</ProShare>
         <ProShadowButton
           :disabled="previewMode"
           :shadow="false"
@@ -177,6 +177,7 @@ import Banner from './components/Banner/index.vue';
 import Guarantee from './components/Guarantee/index.vue';
 import PreNotice from './components/PreNotice/index.vue';
 import { YES_NO_ENUM } from '@/common/constants/index';
+import { isTestEnv } from '@/utils/index';
 
 import ScrollInfo from './components/ScrollInfo/index.vue';
 // import FilePreview from './components/FilePreview/index.vue';
@@ -1187,7 +1188,7 @@ onUnmounted(() => {
     }
   }
   .right {
-    width: 320px;
+    width: 280px;
     height: 88px;
     border-radius: 44px;
   }

@@ -3,8 +3,8 @@ import { Component } from 'vue';
  * @Description: 需要全局注册的组件统一注册
  * @Autor: kevin.liang
  * @Date: 2022-03-08 13:51:54
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-29 17:38:54
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2023-01-06 20:44:41
  */
 /* eslint-disable prettier/prettier */
 // import ZaAvatar from './ZaAvatar/index.vue';
@@ -39,6 +39,7 @@ import ProCascader from './ProCascader/index.vue';
 import ProPDFviewer from './ProPDFviewer/index.vue';
 import ProScrollTab from './ProScrollTab/index.vue';
 import ProLazyComponent from './ProLazyComponent/index.vue';
+import ProShare from './ProShare/index.vue'
 
 interface ComponentMap {
   [key: string]: Component;
@@ -77,6 +78,7 @@ export const globalComs: ComponentMap = {
   ProPDFviewer,
   ProScrollTab,
   ProTab,
+  ProShare,
   ProLazyComponent,
 };
 
