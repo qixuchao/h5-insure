@@ -91,6 +91,7 @@
             <span>{{ unit }} </span>
           </template>
         </div>
+        <ProShare v-bind="shareInfo">分享</ProShare>
         <ProShadowButton
           :disabled="previewMode"
           :shadow="false"
@@ -125,7 +126,6 @@
     @submit="onSubmit"
     @on-close-file-preview-by-mask="onResetFileFlag"
   ></FilePreview>
-  <ProShare v-bind="shareInfo"></ProShare>
 </template>
 
 <script lang="ts" setup name="InsuranceShort">
@@ -176,6 +176,7 @@ import { validateCustomName } from '@/utils/validator';
 import Banner from './components/Banner/index.vue';
 import Guarantee from './components/Guarantee/index.vue';
 import PreNotice from './components/PreNotice/index.vue';
+import { YES_NO_ENUM } from '@/common/constants/index';
 
 import ScrollInfo from './components/ScrollInfo/index.vue';
 // import FilePreview from './components/FilePreview/index.vue';
@@ -277,6 +278,22 @@ const PAGE_ACTION_TYPE_ENUM = {
   JUMP_URL: 'jumpToUrl',
   JUMP_PAGE: 'jumpToPage',
   JUMP_ALERT: 'jumpToAlert',
+};
+
+// 分享信息
+const shareInfo = ref({
+  imgUrl: '',
+  desc: '',
+  title: '',
+  link: window.location.href,
+});
+const setShareLink = (config: { image: string; desc: string; title: string }) => {
+  shareInfo.value = {
+    desc: config.desc || '你好，这里是描述',
+    imgUrl: config.image,
+    title: config.title,
+    link: window.location.href,
+  };
 };
 
 const orderDetail = ref<OrderDetail>({
@@ -400,6 +417,34 @@ const factorObj = computed(() => {
     }
   }
   return factorObjList;
+});
+
+// 是否有社保的投保要素
+const isSocialLimit = computed(() => {
+  const socialObject = {
+    holder: false,
+    insured: false,
+  };
+
+  // 被保人
+  if (factorObj.value[1]) {
+    const index = factorObj.value[1].findIndex(
+      (e: ProductFactorItem) => e.code === 'social' && e.isDisplay === YES_NO_ENUM.YES,
+    );
+    if (index > -1) {
+      socialObject.insured = true;
+    }
+  }
+  // 投保人
+  if (factorObj.value[0]) {
+    const index = factorObj.value[0].findIndex(
+      (e: ProductFactorItem) => e.code === 'social' && e.isDisplay === YES_NO_ENUM.YES,
+    );
+    if (index > -1) {
+      socialObject.holder = true;
+    }
+  }
+  return socialObject;
 });
 
 const isSetDefaultCertNo = computed(() => {
@@ -609,19 +654,25 @@ const trialData2Order = (
   nextStepParams.paymentFrequency = nextStepParams.paymentFrequency || PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE;
   nextStepParams.tenantOrderHolder = {
     ...nextStepParams.tenantOrderHolder,
-    socialFlag: nextStepParams.tenantOrderHolder.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+    socialFlag: isSocialLimit.value.holder ? nextStepParams.tenantOrderHolder.extInfo.hasSocialInsurance : null,
     certType: nextStepParams.tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
     extInfo: {
       ...nextStepParams.tenantOrderHolder.extInfo,
-      hasSocialInsurance: nextStepParams.tenantOrderHolder.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+      hasSocialInsurance: isSocialLimit.value.holder
+        ? nextStepParams.tenantOrderHolder.extInfo.hasSocialInsurance
+        : null,
     },
   };
   nextStepParams.tenantOrderInsuredList = nextStepParams.tenantOrderInsuredList.map((insurer: any) => {
     return {
       ...insurer,
       certType: insurer.certType || CERT_TYPE_ENUM.CERT,
-      socialFlag: insurer.socialFlag || SOCIAL_SECURITY_ENUM.HAS,
+      socialFlag: isSocialLimit.value.insured ? insurer.socialFlag : null,
       planCode: orderDetail.value.activePlanCode ? orderDetail.value.activePlanCode : null,
+      extInfo: {
+        ...insurer.extInfo,
+        hasSocialInsurance: isSocialLimit.value.insured ? insurer.extInfo.hasSocialInsurance : null,
+      },
     };
   });
   nextStepParams.tenantOrderInsuredList[0].tenantOrderProductList[0] = {
@@ -631,6 +682,8 @@ const trialData2Order = (
     planCode: orderDetail.value.activePlanCode ? orderDetail.value.activePlanCode : null,
     tenantOrderRiskList: transformData(transformDataReq),
   };
+
+  console.log('nextStepParams', nextStepParams, isSocialLimit.value);
   return nextStepParams;
 };
 
@@ -691,11 +744,13 @@ const trialPremium = async (
       holder: {
         personVO: {
           ...orderInfo.tenantOrderHolder,
-          socialFlag: orderInfo.tenantOrderHolder.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+          socialFlag: isSocialLimit.value.holder ? orderInfo.tenantOrderHolder.extInfo.hasSocialInsurance : null,
           certType: orderInfo.tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
           extInfo: {
             ...orderInfo.tenantOrderHolder.extInfo,
-            hasSocialInsurance: orderInfo.tenantOrderHolder.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+            hasSocialInsurance: isSocialLimit.value.holder
+              ? orderInfo.tenantOrderHolder.extInfo.hasSocialInsurance
+              : null,
           },
         },
       },
@@ -705,11 +760,11 @@ const trialPremium = async (
           relationToHolder: person.relationToHolder,
           personVO: {
             ...person,
-            socialFlag: person.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+            socialFlag: isSocialLimit.value.insured ? person.extInfo.hasSocialInsurance : null,
             certType: person.certType || CERT_TYPE_ENUM.CERT,
             extInfo: {
               ...person.extInfo,
-              hasSocialInsurance: person.extInfo.hasSocialInsurance || SOCIAL_SECURITY_ENUM.HAS,
+              hasSocialInsurance: isSocialLimit.value.insured ? person.extInfo.hasSocialInsurance : null,
             },
           },
           productPlanVOList: [
@@ -872,12 +927,6 @@ const onTrialCheck = (): boolean => {
     extInfo: { hasSocialInsurance },
   } = orderDetail.value.tenantOrderInsuredList[0];
 
-  console.log('birthday', birthday);
-  console.log('gender', gender);
-  console.log('name', name);
-  console.log('validateCustomName(name)', validateCustomName(name as string));
-  console.log('orderDetail.value', orderDetail.value);
-
   if (
     birthday &&
     gender &&
@@ -990,6 +1039,9 @@ const fetchData = async () => {
         ...productRes.data,
       };
       document.title = productRes.data?.tenantProductInsureVO?.productName || '';
+      const { title, desc, image } = productRes.data?.showConfigVO || {};
+      // 设置分享参数
+      setShareLink({ title, desc, image });
     }
   });
 

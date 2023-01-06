@@ -115,6 +115,7 @@ export const riskToOrder = (productRiskVoList: any) => {
             riskCategory,
             riskCode,
             riskType,
+            riskName,
             id,
             riskInsureLimitVO,
             riskCalcMethodInfoVO,
@@ -132,7 +133,6 @@ export const riskToOrder = (productRiskVoList: any) => {
           // const { minCopy, maxCopy, fixedAmount, singeAmount } = riskCalcMethodInfoVO;
           let tempAmount = 0;
           const { displayType, displayUnit, fixedValue, eachCopyPrice } = amountPremiumConfigVO || {};
-          console.log('amountPremiumConfigVO', amountPremiumConfigVO);
           const strDisplayType = String(displayType);
           const strDisplayUnit = String(displayUnit);
           // todo 份数默认为1
@@ -167,6 +167,7 @@ export const riskToOrder = (productRiskVoList: any) => {
             riderRiskVOList: [],
             riskCategory,
             riskCode,
+            riskName,
             riskId: id,
             riskType,
           };
@@ -474,8 +475,7 @@ export const validatorRisk2022 = (param: ValidatorRiskParam) => {
 export const validatorRiskZXYS = (param: ValidatorRiskParam) => {
   const { riskCode, liabilityCode, birth, sex } = param;
   const lastDate = getDayByStr('max_18', birth);
-  console.log('lastDate', lastDate);
-  console.log('diffDate(lastDate)', diffDate(lastDate));
+
   if (riskCode === '7Y7' && liabilityCode === 'FXG086' && !(sex === SEX_LIMIT_ENUM.FEMALE && diffDate(lastDate) <= 0)) {
     return false;
   }
@@ -525,7 +525,7 @@ export const genaratePremiumCalcData = (o: premiumCalcParamType, flag = false, v
     );
   } else {
     const result = productRiskVoListFilter(deepCopy(o.insureDetail.productRiskVoList), o.insured.certNo, validatorRisk);
-    console.log('===result', [...result]);
+
     riskVOList = result.map((item: ProductRiskVoItem) => {
       // return compositionTrailData(item.riskDetailVOList, o.productDetail, o.packageRiskIdList, o.paymentFrequency);
       return compositionTrailData(
@@ -754,7 +754,7 @@ export const freeCompositionTrailData = (
       return false;
     }
   });
-  console.log('lastRiskList', lastRiskList);
+
   // 主险信息
   const mainRiskData = lastRiskList.find((risk) => risk.riskType === RISK_TYPE_ENUM.MAIN_RISK);
   return lastRiskList.map((risk: any) => {
@@ -972,7 +972,7 @@ export const PREVIEW_FILE_KEY = 'PREVIEW_FILE_INFO';
 
 export const openPreviewFilePage = (fileInfo: any) => {
   localStore.set(PREVIEW_FILE_KEY, JSON.stringify(fileInfo));
-  console.log('router', router);
+
   router.push('/template/filePreview');
 };
 
@@ -986,7 +986,7 @@ export const getFileType = (attachmentType: string, url?: string) => {
   if (attachmentType === '1' && url) {
     const urlList = url?.split('?');
     const type = urlList[0].substr(urlList[0].lastIndexOf('.') + 1);
-    console.log('type======', type);
+
     if (type === 'pdf') return 'pdf';
     return 'picture';
   }
