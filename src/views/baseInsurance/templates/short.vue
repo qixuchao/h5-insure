@@ -78,7 +78,7 @@
         />
       </ProLazyComponent>
       <div v-if="showFooterBtn" class="footer-area">
-        <ProShare v-if="isTestEnv && isApp" v-bind="shareInfo" class="share-btn">
+        <ProShare v-if="isApp" v-bind="shareInfo" class="share-btn">
           <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
           <span>分享</span>
         </ProShare>
