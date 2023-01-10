@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2023-01-10 10:55:28
+ * @LastEditTime: 2023-01-10 14:45:38
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -176,14 +176,13 @@ watch(
     z-index: 1;
     padding: 16px 20px;
     .van-button--primary {
-      background: $primary-color;
+      background: var(--van-linear-bg) !important;
       border-color: $primary-color;
       font-size: 24px;
     }
 
     .van-button--plain.van-button--primary {
-      color: $primary-color;
-      background-color: #ffffff;
+      color: #ffffff;
       margin-left: 30px;
       width: 50%;
     }
