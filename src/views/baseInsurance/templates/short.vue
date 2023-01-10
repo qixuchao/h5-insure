@@ -78,6 +78,11 @@
         />
       </ProLazyComponent>
       <div v-if="showFooterBtn" class="footer-area">
+        <ProShare v-if="isTestEnv && isApp" v-bind="shareInfo" class="share-btn">
+          <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
+          <span>分享</span>
+        </ProShare>
+
         <div class="price">
           <template v-if="premiumLoadingText">
             <span>{{ premiumLoadingText }}</span>
@@ -91,7 +96,6 @@
             <span>{{ unit }} </span>
           </template>
         </div>
-        <ProShare v-if="isTestEnv && isApp" v-bind="shareInfo">分享</ProShare>
         <ProShadowButton
           :disabled="previewMode"
           :shadow="false"
@@ -1169,6 +1173,18 @@ onUnmounted(() => {
     z-index: 10;
     justify-content: space-between;
     border-radius: 30px 30px 0px 0px;
+
+    :deep(.com-share) {
+      width: 77px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      span {
+        font-size: 24px;
+        color: $zaui-text;
+      }
+    }
   }
 
   // footer覆盖
@@ -1176,6 +1192,9 @@ onUnmounted(() => {
     color: #393d46;
     font-size: 34px;
     font-weight: normal;
+    width: 270px;
+    margin: 0 20px;
+
     span {
       color: $primary-color;
       font-weight: bold;
@@ -1187,8 +1206,9 @@ onUnmounted(() => {
       }
     }
   }
+
   .right {
-    width: 280px;
+    width: 300px;
     height: 88px;
     border-radius: 44px;
   }
