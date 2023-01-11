@@ -1,3 +1,10 @@
+/*
+ * @Author: zhaopu
+ * @Date: 2023-01-11 10:08:38
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2023-01-11 10:08:52
+ * @Description:
+ */
 import { constantListToMap } from '@/common/constants/utils';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 
@@ -40,7 +47,7 @@ export const ORDER_STATUS_LIST = [
   },
   {
     value: ORDER_STATUS_ENUM.NOTE,
-    label: '照会',
+    label: '核保中',
   },
   {
     value: ORDER_STATUS_ENUM.INSURANCE_PROCESSING,
