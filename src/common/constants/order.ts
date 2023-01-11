@@ -96,7 +96,7 @@ export enum ORDER_STATUS_ENUM {
    */
   INSURANCE_PROCESSING = 'insuranceProcessing',
   /**
-   * 照会
+   * 核保中
    */
   NOTE = 'note',
   /**
