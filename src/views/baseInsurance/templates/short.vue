@@ -1106,7 +1106,6 @@ onMounted(() => {
   // 调用千里眼插件获取一个iseeBiz
   setTimeout(async () => {
     iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
-    console.log('iseeBizNo', iseeBizNo.value);
   }, 1500);
 });
 
