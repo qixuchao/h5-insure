@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2023-01-10 14:48:21
+ * @LastEditTime: 2023-01-12 12:38:12
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -42,7 +42,7 @@
       </div>
       <div class="footer">
         <VanButton block round class="left" @click="onConfirmHealth('N')">部分为是</VanButton>
-        <VanButton type="primary" plain block round @click="onConfirmHealth('allFalse')">以上全否</VanButton>
+        <VanButton type="primary" plain block round @click="onConfirmHealth('allFalse')">以上全否，立即投保</VanButton>
       </div>
     </van-config-provider>
   </ProPopup>
@@ -183,7 +183,6 @@ watch(
     .van-button--plain.van-button--primary {
       color: #ffffff;
       margin-left: 30px;
-      width: 50%;
     }
 
     .left {
