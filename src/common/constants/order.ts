@@ -102,7 +102,7 @@ export enum ORDER_STATUS_ENUM {
   /**
    * 人核中
    */
-  MANUAL_UNDERWRITING = 'manual_underwriting',
+  MANUAL_UNDERWRITING = 'manualUnderWriting',
   /**
    * 核保通过
    */
