@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2023-01-11 10:08:38
  * @LastEditors: zhaopu
- * @LastEditTime: 2023-01-13 10:42:23
+ * @LastEditTime: 2023-01-13 11:45:11
  * @Description:
  */
 import { constantListToMap } from '@/common/constants/utils';
@@ -51,7 +51,7 @@ export const ORDER_STATUS_LIST = [
   },
   {
     value: ORDER_STATUS_ENUM.MANUAL_UNDERWRITING,
-    label: '人核中',
+    label: '人工核保',
   },
   {
     value: ORDER_STATUS_ENUM.INSURANCE_PROCESSING,
