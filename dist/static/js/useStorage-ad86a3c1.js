@@ -1,1 +1,0 @@
-import{S as e}from"./index-47b8fe54.js";const o=new e({source:"sessionStorage"}),s=new e({source:"localStorage"}),r=new e({source:"cookie"}),c=()=>r||new e({source:"cookie"});export{s as l,o as s,c as u};
