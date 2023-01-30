@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-15 16:03:32
+ * @LastEditTime: 2023-01-30 17:41:12
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -26,7 +26,7 @@
         "
         class="tab"
       ></ProTab>
-      <div ref="previewRef" class="list" @scroll="handleScroll">
+      <div ref="previewRef" class="list">
         <div v-if="attachmentActiveList.length === 1" class="item">
           <AsyncProFilePreview
             :key="attachmentActiveList[0].attachmentName"
@@ -114,6 +114,7 @@ const props = defineProps({
 
 const emits = defineEmits(['update:show', 'submit', 'onCloseFilePreviewByMask']);
 const themeVars = useTheme();
+const calcuateFlg = ref<boolean>(true);
 const isShow = ref<boolean>(props.show);
 const formatedContentList = ref<Array<any>>(
   props.contentList.map((e: any, index) => ({ ...e, disabled: true, readDisabled: true })), // disabled: tab禁用， readDisabled: 阅读下一条按钮禁用
@@ -187,8 +188,15 @@ watch(
 );
 
 const handleScroll = (el: any) => {
+  console.log('el', el);
   if (el) {
-    if (Math.floor(el.target.scrollHeight - el.target.scrollTop) === el.target.clientHeight) {
+    const scrollHeight = el.target?.scrollHeight || el.scrollHeight;
+    const scrollTop = el.target?.scrollTop || el.scrollTop;
+    const clientHeight = el.target?.clientHeight || el.clientHeight;
+    console.log('scrollHeight', scrollHeight);
+    console.log('scrollTop', scrollTop);
+    console.log('clientHeight', clientHeight);
+    if (Math.floor(scrollHeight - scrollTop - 15) <= clientHeight && calcuateFlg.value) {
       if (formatedContentList.value[currentActiveIndex.value].readDisabled) {
         formatedContentList.value[currentActiveIndex.value].disabled = false;
         formatedContentList.value[currentActiveIndex.value].readDisabled = false;
@@ -202,6 +210,7 @@ const handleScroll = (el: any) => {
 watch(
   () => currentActiveIndex.value,
   () => {
+    calcuateFlg.value = false;
     if (props.show) {
       if (readCount.value >= props.forceReadCound) {
         formatedContentList.value.forEach((e: any) => {
@@ -209,10 +218,20 @@ watch(
           e.readDisabled = false;
         });
       }
-      if (previewRef.value) {
-        previewRef.value.scrollTop = 0;
-      }
+      setTimeout(() => {
+        calcuateFlg.value = true;
+      }, 800);
     }
+    nextTick(() => {
+      setTimeout(() => {
+        const el = document.querySelector('.viewerContainer');
+        if (el) {
+          el.removeEventListener('scroll', handleScroll);
+          handleScroll(el);
+          el.addEventListener('scroll', handleScroll);
+        }
+      }, 2000);
+    });
   },
   {
     immediate: true,
