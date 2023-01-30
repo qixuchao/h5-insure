@@ -888,6 +888,7 @@ const onCloseHealth = (type: string) => {
 
 const onSubmit = () => {
   showFilePreview.value = false;
+  isOnlyView.value = true;
   if (healthAttachmentList.value.length < 1) {
     onSaveOrder();
   } else {
@@ -898,6 +899,7 @@ const onSubmit = () => {
 const onResetFileFlag = () => {
   showHealthPreview.value = false;
   showFilePreview.value = false;
+  isOnlyView.value = true;
 };
 
 // 表单组件切换被保人时不会赋值默认社保以及身份证类型，需手动赋值
