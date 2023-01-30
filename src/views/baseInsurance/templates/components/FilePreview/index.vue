@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 17:44:21
  * @LastEditors: zhaopu
- * @LastEditTime: 2023-01-30 16:09:57
+ * @LastEditTime: 2023-01-30 17:41:12
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -26,7 +26,7 @@
         "
         class="tab"
       ></ProTab>
-      <div ref="previewRef" class="list" @scroll="handleScroll">
+      <div ref="previewRef" class="list">
         <div v-if="attachmentActiveList.length === 1" class="item">
           <AsyncProFilePreview
             :key="attachmentActiveList[0].attachmentName"
@@ -188,6 +188,7 @@ watch(
 );
 
 const handleScroll = (el: any) => {
+  console.log('el', el);
   if (el) {
     const scrollHeight = el.target?.scrollHeight || el.scrollHeight;
     const scrollTop = el.target?.scrollTop || el.scrollTop;
@@ -223,7 +224,12 @@ watch(
     }
     nextTick(() => {
       setTimeout(() => {
-        handleScroll(previewRef.value);
+        const el = document.querySelector('.viewerContainer');
+        if (el) {
+          el.removeEventListener('scroll', handleScroll);
+          handleScroll(el);
+          el.addEventListener('scroll', handleScroll);
+        }
       }, 2000);
     });
   },
@@ -299,14 +305,14 @@ watch(
     overflow-y: scroll;
 
     .item {
-      // min-height: 100%;
+      height: 100%;
 
       .com-file-preview {
         .pdf-wapper {
-          // min-height: 100%;
+          height: 100%;
 
           .viewerContainer {
-            min-height: calc(100vh - 228px);
+            height: 100%;
             // .pinch-zoom-container {
             //   height: 50% !important;
             // }
