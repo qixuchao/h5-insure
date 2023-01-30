@@ -69,6 +69,7 @@ const tabList = [
 ];
 
 const currentStatus = computed(() => {
+  list.value = [];
   return tabList[active.value].status;
 });
 
