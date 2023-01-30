@@ -159,10 +159,10 @@ watch(
   }
   .pdf-wapper {
     background-color: rgb(82, 86, 89);
-    height: 100%;
+    height: max-content;
 
     :deep(.viewerContainer) {
-      height: 100vh;
+      height: max-content;
     }
   }
   .pic-wrap {
