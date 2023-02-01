@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
  * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-22 17:26:28
+ * @LastEditTime: 2023-01-30 10:41:14
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -269,6 +269,12 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     path: '/demo',
     meta: { title: 'demo' },
     component: () => import('@/views/demo/index.vue'),
+  },
+  {
+    name: 'table',
+    path: '/tableDemo',
+    meta: { title: '表格' },
+    component: () => import('@/views/demo/table.vue'),
   },
 
   {

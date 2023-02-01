@@ -1,10 +1,3 @@
-/*
- * @Author: zhaopu
- * @Date: 2022-08-24 16:59:13
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-29 19:10:30
- * @Description:
- */
 import vue from '@vitejs/plugin-vue';
 import { splitVendorChunkPlugin } from 'vite';
 import vueJsx from '@vitejs/plugin-vue-jsx';
@@ -98,7 +91,7 @@ export default (env: ConfigEnv) => {
     // }),
     splitVendorChunkPlugin(),
     viteCompression({
-      threshold: 1025 * 100,
+      threshold: 1025 * 10,
       verbose: true,
       disable: false,
       algorithm: 'gzip',

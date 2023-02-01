@@ -2,8 +2,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-21 19:34:02
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-26 11:29:31
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2023-01-11 18:07:16
  * @FilePath: /zat-planet-h5-cloud-insure/src/main.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -54,7 +54,7 @@ const start = async () => {
   } catch (e) {
     console.log('获取cookies失败，或不是移动端');
   }
-
+  console.log('import.meta.env ', import.meta.env);
   dayjs.locale({ ...zh, weekStart: 1 });
   const app = createApp(App);
 

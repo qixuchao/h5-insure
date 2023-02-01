@@ -1,28 +1,33 @@
 <template>
-  <router-view v-slot="{ Component, route }" class="router-view">
-    <keep-alive>
-      <component :is="Component" v-if="route.meta.keepAlive" :key="route.path"></component>
-    </keep-alive>
-    <component :is="Component" v-if="!route.meta.keepAlive" :key="route.path"></component>
-  </router-view>
+  <van-config-provider :theme-vars="themeVars">
+    <router-view v-slot="{ Component, route }" class="router-view">
+      <keep-alive>
+        <component :is="Component" v-if="route.meta.keepAlive" :key="route.path"></component>
+      </keep-alive>
+      <component :is="Component" v-if="!route.meta.keepAlive" :key="route.path"></component>
+    </router-view>
+  </van-config-provider>
 </template>
 <script lang="ts" setup>
 import { injectGlobal } from '@emotion/css';
 
 import { getConfig } from './utils/config';
-import themes from './themes';
+import useTheme from '@/hooks/useTheme';
+import { addScript } from '@/utils/index';
 import { useThemesStore } from './store/themes';
 import useLoading from '@/hooks/useLoading';
 
-const styleMap = {
-  default: () => import('@/styles/themes/default.scss'),
-  blue: () => import('@/styles/themes/blue.scss'),
-};
+const themeVars = ref({});
+// const styleMap = {
+//   default: () => import('@/styles/themes/default.scss'),
+//   blue: () => import('@/styles/themes/blue.scss'),
+// };
 onBeforeMount(async () => {
-  const type = 'default';
-  const style = (await styleMap[type]()).default;
-  useThemesStore().setThemes(themes, type);
-  injectGlobal(style);
+  // const type = 'default';
+  // const style = (await styleMap[type]()).default;
+  // useThemesStore().setThemes(themes, type);
+  // injectGlobal(style);
+  themeVars.value = useTheme(); // 默认蓝色
 });
 
 const X_FLOW = `https://xflowcloud.zhongan.io/sdk/dist/js/v0.0.1/ilog.js?id=${getConfig('xflow')}&history=true`;
@@ -53,25 +58,11 @@ const loadXFlow = () => {
     serverUrl: getConfig('xflowServerUrl'), // 例如：https://xflowcloud.zhongan.io/nginx/cloud_web_sdk.gif
   });
 };
-const addScript = (url: string, isAsync = true) => {
-  console.log('加载脚本：', url);
 
-  const script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.async = isAsync;
-  script.src = url;
-  script.onload = () => {
-    if (url.includes('ilog')) {
-      loadXFlow();
-    }
-  };
-  document.getElementsByTagName('head')[0].appendChild(script);
-};
 // const ld = ref(true);
 onMounted(() => {
-  console.log('ISEE:', getConfig('isee'), '\nX_FLOW:', X_FLOW);
   addScript(getConfig('isee')); // 千里眼SDK
-  addScript(X_FLOW); // 埋点SDK
+  loadXFlow(); // 埋点SDK
 
   // useLoading(l);
   // setTimeout(() => {
