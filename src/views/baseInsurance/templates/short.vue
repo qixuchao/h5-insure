@@ -737,6 +737,7 @@ const trialPremium = async (
     const trialParams = {
       tenantId,
       productCode: detail.value?.productCode,
+      productId: detail.value?.id,
       insuranceStartDate: orderInfo.insuranceStartDate,
       insuranceEndDate: orderInfo.insuranceEndDate,
       commencementTime: orderInfo.insuranceStartDate,

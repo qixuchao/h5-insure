@@ -243,6 +243,7 @@ export interface PremiumCalcData {
     holder?: Holder;
     insuredVOList: Array<Partial<InsuredVoItem>>;
     productCode: string;
+    productId?: number;
     tenantId?: string;
 }
 

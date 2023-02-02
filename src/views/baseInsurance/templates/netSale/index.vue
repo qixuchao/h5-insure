@@ -278,6 +278,7 @@ const trialPremium = async (
       };
     }),
     productCode: currentProductDetail?.productBasicInfoVO.productCode,
+    productId: currentProductDetail?.productBasicInfoVO.id,
     tenantId,
   };
   // 对试算的参数进行验证
