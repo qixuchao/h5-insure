@@ -85,7 +85,7 @@
           <template #input>
             <ProRadioButton
               v-model="formInfo.tenantOrderInsuredList[0].extInfo.hasSocialInsurance"
-              :is-view="isView"
+              :disabled="isView"
               :prop="{ label: 'value', value: 'code' }"
               :options="queryFactorAttr('social', 'attributeValueList', 'INSURER') || []"
             ></ProRadioButton>

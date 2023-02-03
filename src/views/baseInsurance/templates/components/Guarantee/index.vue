@@ -155,6 +155,7 @@ const props = defineProps({
   },
 });
 
+const guaranteeDetailHeight = ref('');
 const emits = defineEmits(['update-active-plan']);
 
 const planList = ref<PlanInsureVO[]>(props.dataSource?.planList);
@@ -311,8 +312,6 @@ const onClickFeeRate = () => {
 const onClickTab = (val: any) => {
   currentActivePlanCode.value = planList.value[val.name].planCode;
 };
-
-const guaranteeDetailHeight = ref('');
 
 const setGuaranteeListHeight = () => {
   const extinfoInfoListHeight = (document.querySelector('.guarantee-popup .extinfo-info-list')?.clientHeight || 0) + 1;

@@ -9,11 +9,12 @@
           INSURER: '投保信息',
         }"
         need-desensitize
-        :is-view="false"
+        is-view
         input-align="right"
         :form-info="orderDetail"
         :factor-object="insureDetail?.productFactor"
       ></InsureForm>
+      <ProField v-model="premium" input-align="right" label="每月保费" name="insuredBeneficiaryType"> </ProField>
       <AttachmentList
         v-if="filterHealthAttachmentList && filterHealthAttachmentList.length > 0"
         class="attachment-bg"
@@ -27,7 +28,14 @@
           <span class="num">{{ premium }}</span>
           <span class="unit">元/月</span>
         </div>
-        <ProShadowButton :shadow="false" :theme-vars="themeVars" class="right" text="升级保障" @click="onUpgrade">
+        <ProShadowButton
+          :shadow="false"
+          :disabled="upgradeBtn"
+          :theme-vars="themeVars"
+          class="right"
+          text="升级保障"
+          @click="onUpgrade"
+        >
           {{ '升级保障' }}
         </ProShadowButton>
       </div>
@@ -50,6 +58,7 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import dayjs from 'dayjs';
+import cloneDeep from 'lodash-es/cloneDeep';
 import { Toast } from 'vant';
 import { productDetail } from '@/api/modules/product';
 import {
@@ -125,13 +134,14 @@ const formRef = ref();
 const detail = ref<ProductDetail>(); // 产品详情
 const insureDetail = ref<ProductData>(); // 险种详情
 const orderDetail = ref<any>(); // 订单详情
-const premium = ref<number>(); // 保费试算
-const hasSocialInsurance = ref<boolean>(); // 有无社保
+const premium = ref<number>(0.0); // 保费试算
 const signUrl = ref<string>();
 const showModal = ref<boolean>(false);
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const orderNoUp = ref<string>('');
+const upgradeBtn = ref<boolean>(false);
+const tenantOrderHolderExtInfo = ref<any>();
 const state = reactive<{
   isOnlyView: boolean;
   activeIndex: number;
@@ -220,7 +230,8 @@ const onSaveOrder = async () => {
     premium: premium.value as number, // 保费
     holder: {
       ...orderDetail.value.tenantOrderHolder,
-      socialFlag: orderDetail.value.tenantOrderHolder.extInfo.hasSocialInsurance,
+      extInfo: tenantOrderHolderExtInfo.value,
+      socialFlag: tenantOrderHolderExtInfo.value.hasSocialInsurance,
     },
     insured: {
       ...orderDetail.value.tenantOrderInsuredList[0],
@@ -268,15 +279,19 @@ const onPremiumCalc = async () => {
       validatorRisk2022,
     );
     const res = await endorsementPremiumCalc(reqData);
-    const { code, data } = res;
+    const { code, data, message } = res;
     if (code === '10000') {
       premium.value = data.installmentPremium;
       signUrl.value = data.signUrl;
+    } else if (message === '已升级成功') {
+      upgradeBtn.value = true;
     }
   } catch (e) {
     console.log(e);
   } finally {
-    Toast.clear();
+    setTimeout(() => {
+      Toast.clear();
+    }, 2000);
   }
 };
 
@@ -349,7 +364,11 @@ const fetchData = () => {
 
     if (orderRes.code === '10000') {
       orderDetail.value = orderRes.data;
+      // 暂存投保人信息
+      tenantOrderHolderExtInfo.value = cloneDeep(orderDetail.value.tenantOrderHolder.extInfo);
+      orderDetail.value.tenantOrderHolder.extInfo = orderDetail.value.tenantOrderInsuredList[0].extInfo;
     }
+
     loading.value = false;
     onPremiumCalc();
     setfileList();
@@ -416,6 +435,23 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .page-upgrade-product-detail {
+  // :deep(.tenant-order-insured-wrapper) {
+  // .van-cell:after {
+  //   // & {
+  // background: red;
+  // position: absolute;
+  // box-sizing: border-box;
+  // content: ' ';
+  // pointer-events: none;
+  // right: var(--van-padding-md);
+  // bottom: 0;
+  // left: var(--van-padding-md);
+  // border-bottom: 1px solid var(--van-cell-border-color);
+  // transform: scaleY(1);
+  // width: unset;
+  //   // }
+  // }
+  // }
   :deep(.com-card-wrap) {
     .header {
       margin-left: 0px !important;
