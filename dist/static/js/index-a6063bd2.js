@@ -1,1 +1,0 @@
-import{_ as a,d as e,b as s,c as r,e as t,j as l}from"./index-fce952e7.js";var n=a(e({props:{isCheck:{type:Boolean,default:!1},url:{type:String,default:""}},setup(a){const e=a;return(a,n)=>{const c=s("van-image");return e.url?(r(),t(c,{key:0,width:"100%",class:"banner","lazy-load":"",src:e.url},null,8,["src"])):l("",!0)}}}),[["__scopeId","data-v-34cbd784"]]);export{n as B};

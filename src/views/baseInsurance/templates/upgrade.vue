@@ -24,20 +24,26 @@
         @preview-file="(index:number) => previewFile(index)"
       />
       <div class="footer-area">
-        <div class="price">
-          <span class="num">{{ premium }}</span>
-          <span class="unit">元/月</span>
+        <ProShare v-if="isApp" v-bind="shareInfo" class="share-btn">
+          <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
+          <span>分享</span>
+        </ProShare>
+        <div class="upgrade-submit">
+          <div class="price">
+            <span class="num">{{ premium }}</span>
+            <span class="unit">元/月</span>
+          </div>
+          <ProShadowButton
+            :shadow="false"
+            :disabled="upgradeBtn"
+            :theme-vars="themeVars"
+            class="right"
+            text="升级保障"
+            @click="onUpgrade"
+          >
+            {{ '升级保障' }}
+          </ProShadowButton>
         </div>
-        <ProShadowButton
-          :shadow="false"
-          :disabled="upgradeBtn"
-          :theme-vars="themeVars"
-          class="right"
-          text="升级保障"
-          @click="onUpgrade"
-        >
-          {{ '升级保障' }}
-        </ProShadowButton>
       </div>
     </div>
     <FilePreview
@@ -85,13 +91,14 @@ import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 import InsureForm from './components/InsureForm/index.vue';
 import { useTheme } from '../theme';
-import { ORIGIN } from '@/utils';
+import { ORIGIN, isAppFkq } from '@/utils';
 import Banner from './components/Banner/index.vue';
 import ProShadowButton from './components/ProShadowButton/index.vue';
 
 const AttachmentList = defineAsyncComponent(() => import('./components/AttachmentList/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
 
+const isApp = isAppFkq();
 // 调用主题
 const themeVars = useTheme();
 const router = useRouter();
@@ -151,6 +158,13 @@ const state = reactive<{
   activeIndex: 0,
   showFilePreview: false,
 });
+// 分享信息
+const shareInfo = ref({
+  imgUrl: '',
+  desc: '',
+  title: '',
+  link: window.location.href,
+});
 
 const onClose = () => {
   showModal.value = false;
@@ -165,6 +179,15 @@ const previewFile = (index: number) => {
 const onCloseFilePreview = () => {
   state.showFilePreview = false;
   state.isOnlyView = true;
+};
+
+const setShareLink = (config: { image: string; desc: string; title: string }) => {
+  shareInfo.value = {
+    desc: config.desc || '你好，这里是描述',
+    imgUrl: config.image,
+    title: config.title,
+    link: window.location.href,
+  };
 };
 
 const setfileList = () => {
@@ -214,6 +237,7 @@ const getPaymentMethod = (data) => {
 const onSaveOrder = async () => {
   const order = genarateOrderParam({
     tenantId,
+    templateId: orderDetail.value.tenantOrderInsuredList[0].templateId, // 升级款
     applicationNo: orderDetail.value.applicationNo,
     policyNo: orderDetail.value.policyNo,
     saleUserId: agentCode,
@@ -226,6 +250,7 @@ const onSaveOrder = async () => {
     paymentMethod: getPaymentMethod(orderDetail.value),
     renewalDK: orderDetail.value.extInfo?.extraInfo?.renewalDK, // 开通下一年
     iseeBizNo: iseeBizNo.value,
+    expiryDate: orderDetail.value.expiryDate,
     successJumpUrl: '',
     premium: premium.value as number, // 保费
     holder: {
@@ -266,6 +291,7 @@ const upgradeHandler = () => {
 
 // 保费试算 -> 订单保存 -> 升级保障
 const onPremiumCalc = async () => {
+  Toast.loading({ forbidClick: true, duration: 0, message: '试算中' });
   try {
     const reqData = getReqData(
       {
@@ -348,7 +374,6 @@ const onUpgrade = async (o: any) => {
 };
 
 const fetchData = () => {
-  Toast.loading({ forbidClick: true, duration: 20 * 1000, message: '试算中' });
   const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
   const insureReq = insureProductDetail({ productCode });
   const orderReq = getTenantOrderDetail({ orderNo, tenantId });
@@ -356,6 +381,9 @@ const fetchData = () => {
     if (productRes.code === '10000') {
       detail.value = productRes.data;
       document.title = productRes.data?.productFullName || '';
+      const { title, desc, image } = productRes.data?.showConfigVO || {};
+      // 设置分享参数
+      setShareLink({ title, desc, image });
     }
 
     if (insureRes.code === '10000') {
@@ -410,24 +438,31 @@ onMounted(() => {
     z-index: 10;
     justify-content: space-between;
     border-radius: 30px 30px 0px 0px;
-    // footer覆盖
-    .price {
-      color: #ff5840;
-      font-size: 48px;
-      font-weight: 600;
-      span {
-        &:last-child {
-          font-size: 26px;
-          font-family: PingFangSC-Regular, PingFang SC;
-          font-weight: 400;
+
+    .upgrade-submit {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      // footer覆盖
+      .price {
+        color: #ff5840;
+        font-size: 48px;
+        font-weight: 600;
+        span {
+          &:last-child {
+            font-size: 26px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+          }
         }
       }
-    }
 
-    .right {
-      width: 400px;
-      height: 88px;
-      border-radius: 44px;
+      .right {
+        width: 400px;
+        height: 88px;
+        border-radius: 44px;
+      }
     }
   }
 }
@@ -452,6 +487,17 @@ onMounted(() => {
   //   // }
   // }
   // }
+  :deep(.com-share) {
+    width: 77px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 20px;
+    span {
+      font-size: 24px;
+      color: $zaui-text;
+    }
+  }
   :deep(.com-card-wrap) {
     .header {
       margin-left: 0px !important;

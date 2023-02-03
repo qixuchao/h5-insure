@@ -104,7 +104,7 @@ const state = reactive<{
     notificationImage: string;
   };
   timeDown: any;
-  templateId: '1' | '2' | '3';
+  templateId: '1' | '2' | '3' | '4';
 }>({
   insureDetail: {} as ProductData,
   detail: {} as ProductDetail,
@@ -238,7 +238,7 @@ const initPageInfo = () => {
   state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
   state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
   document.title = state.detail?.tenantProductInsureVO?.productName || '';
-  state.templateId = state.orderDetail.extInfo.templateId;
+  state.templateId = '4' || state.orderDetail.extInfo.templateId;
   let insurancePeriodDesc = '';
   if (state.templateId.toString() === '2') {
     state.orderDetail.tenantOrderInsuredList[0].tenantOrderProductList.forEach((item: any) => {
@@ -254,7 +254,9 @@ const initPageInfo = () => {
       return false;
     });
   } else {
-    state.pageInfo.insureList = [{ label: '本期缴费金额', value: `${state.orderDetail.orderAmount}元` }];
+    state.pageInfo.insureList = [
+      { label: `${state.templateId === '4' ? '下' : '本'}期缴费金额`, value: `${state.orderDetail.orderAmount}元` },
+    ];
     insurancePeriodDesc = `${dayjs(state.orderDetail.commencementTime).format('YYYY.MM.DD')}到${dayjs(
       state.orderDetail.expiryDate,
     ).format('YYYY.MM.DD')}`;

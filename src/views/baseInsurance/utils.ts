@@ -298,6 +298,8 @@ export const compositionTrailData = (
 
 interface orderParamType {
   tenantId: string;
+  templateId: string;
+  expiryDate: string;
   detail: ProductDetail;
   insureDetail: ProductData | undefined;
   saleUserId?: string; // 链接上带的，可能没有
@@ -333,6 +335,7 @@ export const genarateOrderParam = (o: orderParamType) => {
   const param = {
     orderAmount: o.premium,
     tenantId: o.tenantId,
+    expiryDate: o.expiryDate,
     venderCode: o.detail?.insurerCode,
     applicationNo: o.applicationNo,
     policyNo: o.policyNo,
@@ -358,10 +361,12 @@ export const genarateOrderParam = (o: orderParamType) => {
       extraInfo: {
         renewalDK: o.renewalDK, // 签约
         paymentMethod: o.paymentMethod,
+        templateId: o.templateId,
         paymentFrequency: o.paymentFrequency,
         successJumpUrl: o.successJumpUrl, // 支付成功跳转
       },
       iseeBizNo: o.iseeBizNo,
+      templateId: o.templateId,
     },
     tenantOrderInsuredList: [
       {
