@@ -53,6 +53,7 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant/es';
+import qs from 'qs';
 import { useEventListener } from '@vueuse/core';
 import { useCountDown } from '@vant/use';
 import dayjs from 'dayjs';
@@ -147,18 +148,32 @@ const getChannelCode = computed(() => {
 const goToInsurerPage = async (reOrder = false, promotion = '') => {
   try {
     const { insurerCode } = state.insureDetail.productBasicInfoVO;
+    const { templateId } = state.orderDetail.extInfo.extraInfo;
     delete state.orderDetail.extInfo.extraInfo.templateId;
-    const params = {
+    const params: any = {
       insurerCode,
       productCode: reOrder ? state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO.productCode : productCode,
       tenantId,
       agencyCode: state.orderDetail.agencyId,
       agentCode: state.orderDetail.agentCode,
       saleChannelId: state.orderDetail.extInfo?.extraInfo?.saleChannelId,
-      extraMap: {
-        ...state.orderDetail.extInfo.extraInfo,
-        channelCode: getChannelCode.value,
-      },
+    };
+    // 魔方升级款
+    if (templateId === '4') {
+      params.extraInfo = decodeURIComponent(
+        JSON.stringify({
+          ...state.orderDetail.extInfo.extraInfo,
+          channelCode: getChannelCode.value,
+          templateId,
+        }),
+      );
+      params.orderNo = orderNo;
+      router.push(`/baseInsurance/upgrade?${qs.stringify(params)}`);
+      return;
+    }
+    params.extraMap = {
+      ...state.orderDetail.extInfo.extraInfo,
+      channelCode: getChannelCode.value,
     };
     if (reOrder) {
       params.extraMap.promotion = promotion;

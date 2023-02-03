@@ -992,3 +992,20 @@ export const getFileType = (attachmentType: string, url?: string) => {
   }
   return fileMap[attachmentType];
 };
+
+export const setRiskOrMainRisk = (risks: any) => {
+  const mainRisk = risks.filter((item: any) => {
+    return item.riskType === 1;
+  })?.[0];
+
+  return risks.map((item: any) => {
+    if (mainRisk && item.riskType !== 1) {
+      // eslint-disable-next-line no-param-reassign
+      item.riskInsureLimitVO.paymentFrequencyList =
+        item.riskInsureLimitVO.paymentTypeRule === 1
+          ? mainRisk.riskInsureLimitVO.paymentFrequencyList
+          : item.riskInsureLimitVO.paymentFrequencyList;
+    }
+    return item;
+  });
+};
