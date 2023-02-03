@@ -388,6 +388,7 @@ const fetchData = () => {
 
     if (insureRes.code === '10000') {
       insureDetail.value = insureRes.data;
+      insureDetail.value.productFactor[1] = [];
     }
 
     if (orderRes.code === '10000') {
@@ -414,6 +415,7 @@ onMounted(() => {
 
 <style lang="scss">
 .page-upgrade-product-detail {
+  padding-bottom: 160px;
   .com-card-wrap .van-field__body {
     width: 100%;
   }
@@ -510,6 +512,8 @@ onMounted(() => {
     }
 
     .relation-holder {
+      display: none;
+
       .van-cell__title {
         display: none;
       }
