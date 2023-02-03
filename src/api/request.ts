@@ -3,7 +3,7 @@
  * @Autor: kevin.liang
  * @Date: 2022-02-15 17:58:02
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-01-06 20:42:02
+ * @LastEditTime: 2023-02-03 16:47:53
  */
 import axios, { type AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
@@ -135,7 +135,7 @@ axiosInstance.interceptors.request.use(
           icon: loadingGif,
           iconSize: '120px',
           forbidClick: true,
-          duration: 0,
+          duration: 6 * 1000,
         });
       }
     }
