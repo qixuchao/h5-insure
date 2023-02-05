@@ -71,8 +71,8 @@ export const transformData = (o: transformDataType, flag = false) => {
       amountUnit: 1,
       annuityDrawFrequency: risk.annuityDrawDate,
       annuityDrawType: risk.annuityDrawType,
-      paymentFrequency: risk.paymentFrequency,
-      paymentPeriod: flag ? 5 : risk.chargePeriod.split('_')[1],
+      paymentFrequency: flag ? 5 : risk.paymentFrequency,
+      paymentPeriod: risk.chargePeriod.split('_')[1],
       paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],
       insurancePeriodType:
         INSURANCE_PERIOD_TYPE_ENUMS[risk.coveragePeriod === 'to_life' ? 'to_life' : risk.coveragePeriod.split('_')[0]],
