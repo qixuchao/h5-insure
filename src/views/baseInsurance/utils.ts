@@ -54,7 +54,7 @@ export interface transformDataType {
 }
 
 // 将试算的参数转化成订单中需要的结构
-export const transformData = (o: transformDataType) => {
+export const transformData = (o: transformDataType, flag = false) => {
   const { tenantId, riskList, riskPremium, productId } = o;
   let currentRiskList = [];
   // 如果有险种保费，则只拿有保费的险种，否则就是全部险种
@@ -65,14 +65,14 @@ export const transformData = (o: transformDataType) => {
   }
   console.log('=============22222', currentRiskList);
   return currentRiskList.map((risk: RiskVoItem) => {
-    console.log('risk.chargePeriod=====', risk.chargePeriod);
+    console.log(flag, 'risk.chargePeriod=====', risk.chargePeriod);
     const currentRisk = {
       tenantId,
       amountUnit: 1,
       annuityDrawFrequency: risk.annuityDrawDate,
       annuityDrawType: risk.annuityDrawType,
       paymentFrequency: risk.paymentFrequency,
-      paymentPeriod: risk.chargePeriod.split('_')[1],
+      paymentPeriod: flag ? 5 : risk.chargePeriod.split('_')[1],
       paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],
       insurancePeriodType:
         INSURANCE_PERIOD_TYPE_ENUMS[risk.coveragePeriod === 'to_life' ? 'to_life' : risk.coveragePeriod.split('_')[0]],
@@ -644,19 +644,22 @@ export const getReqData = (o: upgradeParamType, validatorRisk = (args: any) => t
             tenantId: orderDetail.tenantOrderInsuredList[0].tenantOrderProductList[0].tenantId,
             productCode: o.productDetail.productCode,
             productName: o.productDetail.productName,
-            tenantOrderRiskList: transformData({
-              tenantId: o.tenantId,
-              riskList: compositionTrailData(
-                productRiskVoListFilter(
-                  o.insureDetail.productRiskVoList,
-                  o.orderDetail?.tenantOrderInsuredList?.[0]?.certNo,
-                  validatorRisk,
-                )?.[0]?.riskDetailVOList,
-                o.productDetail,
-              ) as any,
-              riskPremium: {},
-              productId: o.productDetail?.id as number,
-            }),
+            tenantOrderRiskList: transformData(
+              {
+                tenantId: o.tenantId,
+                riskList: compositionTrailData(
+                  productRiskVoListFilter(
+                    o.insureDetail.productRiskVoList,
+                    o.orderDetail?.tenantOrderInsuredList?.[0]?.certNo,
+                    validatorRisk,
+                  )?.[0]?.riskDetailVOList,
+                  o.productDetail,
+                ) as any,
+                riskPremium: {},
+                productId: o.productDetail?.id as number,
+              },
+              true,
+            ),
           },
         ],
       },

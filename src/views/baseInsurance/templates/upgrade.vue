@@ -14,7 +14,7 @@
         :form-info="orderDetail"
         :factor-object="insureDetail?.productFactor"
       ></InsureForm>
-      <ProField v-model="premium" input-align="right" label="每月保费" name="insuredBeneficiaryType"> </ProField>
+      <ProField v-model="premiumText" input-align="right" label="每月保费" name="insuredBeneficiaryType"> </ProField>
       <AttachmentList
         v-if="filterHealthAttachmentList && filterHealthAttachmentList.length > 0"
         class="attachment-bg"
@@ -181,6 +181,11 @@ const onCloseFilePreview = () => {
   state.isOnlyView = true;
 };
 
+const premiumText = computed(() => {
+  // if (premium) return 0;
+  return `${premium.value}元/月`;
+});
+
 const setShareLink = (config: { image: string; desc: string; title: string }) => {
   shareInfo.value = {
     desc: config.desc || '你好，这里是描述',
@@ -262,15 +267,18 @@ const onSaveOrder = async () => {
       ...orderDetail.value.tenantOrderInsuredList[0],
       socialFlag: orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance,
     },
-    tenantOrderRiskList: transformData({
-      tenantId,
-      riskList: compositionTrailData(
-        setRiskOrMainRisk(insureDetail.value.productRiskVoList[0].riskDetailVOList),
-        detail.value as ProductDetail,
-      ) as any,
-      riskPremium: {},
-      productId: detail.value?.id as number,
-    }),
+    tenantOrderRiskList: transformData(
+      {
+        tenantId,
+        riskList: compositionTrailData(
+          setRiskOrMainRisk(insureDetail.value.productRiskVoList[0].riskDetailVOList),
+          detail.value as ProductDetail,
+        ) as any,
+        riskPremium: {},
+        productId: detail.value?.id as number,
+      },
+      true,
+    ),
   });
   const res = await saveOrder(order);
   const { code, data } = res;
@@ -401,6 +409,7 @@ const fetchData = () => {
     loading.value = false;
     onPremiumCalc();
     setfileList();
+    onSaveOrder();
   });
 };
 
