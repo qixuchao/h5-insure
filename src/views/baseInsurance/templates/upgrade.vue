@@ -1,6 +1,6 @@
 <template>
-  <div v-if="loading">__SKELETON_FREE_CONTENT__</div>
-  <van-config-provider v-else data-skeleton-root="FREE" :theme-vars="themeVars">
+  <div v-if="loading">__SKELETON_UPGRADE_CONTENT__</div>
+  <van-config-provider v-else data-skeleton-root="UPGRADE" :theme-vars="themeVars">
     <div class="page-upgrade-product-detail">
       <Banner data-skeleton-type="img" :url="detail?.tenantProductInsureVO?.banner[0]" />
       <InsureForm
@@ -402,6 +402,7 @@ const fetchData = () => {
     if (orderRes.code === '10000') {
       orderDetail.value = orderRes.data;
       // 暂存投保人信息
+      // 确认是升级产品
       tenantOrderHolderExtInfo.value = cloneDeep(orderDetail.value.tenantOrderHolder.extInfo);
       orderDetail.value.tenantOrderHolder.extInfo = orderDetail.value.tenantOrderInsuredList[0].extInfo;
     }
@@ -409,7 +410,6 @@ const fetchData = () => {
     loading.value = false;
     onPremiumCalc();
     setfileList();
-    onSaveOrder();
   });
 };
 

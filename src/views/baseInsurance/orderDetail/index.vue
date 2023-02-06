@@ -255,7 +255,12 @@ const initPageInfo = () => {
     });
   } else {
     state.pageInfo.insureList = [
-      { label: `${state.templateId === '4' ? '下' : '本'}期缴费金额`, value: `${state.orderDetail.orderAmount}元` },
+      {
+        label: `${
+          state.templateId === '4' && state.orderDetail?.extInfo?.extraInfo?.isUpgrade === '1' ? '下' : '本'
+        }期缴费金额`,
+        value: `${state.orderDetail.orderAmount}元`,
+      },
     ];
     insurancePeriodDesc = `${dayjs(state.orderDetail.commencementTime).format('YYYY.MM.DD')}到${dayjs(
       state.orderDetail.expiryDate,
@@ -342,12 +347,12 @@ const addZero = (num: number) => {
   return s + num;
 };
 
-useEventListener(window, 'popstate', (e) => {
-  if (state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.productCode) {
-    window.history.pushState(null, '', document.URL);
-    goToInsurerPage(true, 'FHGGW');
-  }
-});
+// useEventListener(window, 'popstate', (e) => {
+//   if (state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.productCode) {
+//     window.history.pushState(null, '', document.URL);
+//     goToInsurerPage(true, 'FHGGW');
+//   }
+// });
 
 const orderDesc = computed(() => {
   if (ORDER_STATUS_ENUM.PAYING === state.orderDetail?.orderStatus) {
@@ -370,11 +375,11 @@ const orderDesc = computed(() => {
 onMounted(() => {
   getData();
   // 如果支持 popstate 一般移动端都支持了
-  if (window.history && window.history.pushState) {
-    // 往历史记录里面添加一条新的当前页面的url
-    window.history.pushState('forward', '', '#');
-    window.history.forward();
-  }
+  // if (window.history && window.history.pushState) {
+  //   // 往历史记录里面添加一条新的当前页面的url
+  //   window.history.pushState('forward', '', '#');
+  //   window.history.forward();
+  // }
 });
 </script>
 
