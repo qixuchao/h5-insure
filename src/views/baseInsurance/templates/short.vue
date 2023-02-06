@@ -61,6 +61,7 @@
             :premium-info="{ premium, unit, minPremiun, actualUnit, premiumLoadingText }"
             @update-active-plan="updateActivePlan"
           />
+          <Package v-if="currentPackageConfigVOList.length > 0" :package-product-list="currentPackageConfigVOList" />
         </template>
       </ScrollInfo>
       <ProLazyComponent>
@@ -165,6 +166,7 @@ import {
   RELATION_HOLDER_ENUM,
   PAYMENT_COMMON_FREQUENCY_ENUM,
   ORDER_DETAIL_KEY,
+  INSURE_TYPE_ENUM,
 } from '@/common/constants/infoCollection';
 import { INSURANCE_PERIOD_ENUM, RELATIONENUM } from '@/common/constants/trial';
 import { CERT_TYPE_ENUM } from '@/common/constants';
@@ -180,6 +182,7 @@ import { validateCustomName } from '@/utils/validator';
 import Banner from './components/Banner/index.vue';
 import Guarantee from './components/Guarantee/index.vue';
 import PreNotice from './components/PreNotice/index.vue';
+import Package from './components/Package/index.vue';
 import { YES_NO_ENUM } from '@/common/constants/index';
 import { isTestEnv, isAppFkq } from '@/utils/index';
 
@@ -520,6 +523,17 @@ const currentPlanInsure = computed(() => {
   return detail.value.tenantProductInsureVO.planInsureVO;
 });
 
+const currentPackageConfigVOList = computed(() => {
+  let result = [];
+  if (detail.value && insureDetail.value) {
+    if (isMultiplePlan.value) {
+      result = currentPlanInsure.value?.packageProductVOList || [];
+    }
+    result = insureDetail.value.packageProductVOList;
+  }
+  return result.map((e) => ({ ...e, value: INSURE_TYPE_ENUM.UN_INSURE }));
+});
+
 // 切换计划
 const updateActivePlan = (planCode: string) => {
   orderDetail.value.activePlanCode = planCode;
@@ -579,6 +593,8 @@ watch(
       filterHealthAttachmentList.value = [];
       return;
     }
+
+    console.log('===============tempList', tempList);
 
     filterHealthAttachmentList.value = Object.keys(tempList).map((e) => {
       tempList[e].forEach((attachmentItem: AttachmentVOList) => {
@@ -828,6 +844,19 @@ const trialPremium = async (
   }
 };
 
+const getPackageRiskList = () => {
+  const packageRiskList = [];
+
+  currentPackageConfigVOList.value
+    .filter((packageItem) => packageItem.value === INSURE_TYPE_ENUM.INSURE)
+    .forEach((e) => {
+      packageRiskList.push(...e.productRiskVoList.map((item) => ({ riskDetailVOList: [item] })));
+    });
+
+  console.log('packageRiskList', packageRiskList);
+  return packageRiskList;
+};
+
 const onNext = async () => {
   try {
     showHealthPreview.value = false;
@@ -837,7 +866,12 @@ const onNext = async () => {
         ?.validateForm()
         .then(async () => {
           if (isOldUser.value || !isCheckHolderSmsCode.value) {
-            await trialPremium(orderDetail.value as OrderDetail, insureDetail.value, currentRiskInfo.value, false);
+            await trialPremium(
+              orderDetail.value as OrderDetail,
+              insureDetail.value,
+              [...currentRiskInfo.value, ...getPackageRiskList()],
+              false,
+            );
           } else {
             const smsCode = orderDetail.value.tenantOrderHolder?.verificationCode;
             if (!smsCode || !validateSmsCode(smsCode)) {
@@ -848,7 +882,12 @@ const onNext = async () => {
             }
             const { code, data } = await checkCode(orderDetail.value.tenantOrderHolder.mobile as string, smsCode);
             if (code === '10000') {
-              await trialPremium(orderDetail.value as OrderDetail, insureDetail.value, currentRiskInfo.value, false);
+              await trialPremium(
+                orderDetail.value as OrderDetail,
+                insureDetail.value,
+                [...currentRiskInfo.value, ...getPackageRiskList()],
+                false,
+              );
             }
           }
         })
@@ -995,7 +1034,10 @@ watch(
       // 预览模式，不需要试算
       if (previewMode.value) return;
       // 产品试算
-      trialPremium(orderDetail.value as OrderDetail, insureDetail.value, currentRiskInfo.value);
+      trialPremium(orderDetail.value as OrderDetail, insureDetail.value, [
+        ...currentRiskInfo.value,
+        ...getPackageRiskList(),
+      ]);
     } else {
       // 设置产品保费
       setPremium();
