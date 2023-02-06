@@ -1,0 +1,1 @@
+import{_ as a,d as s,b as e,c as r,e as t,j as l}from"./index-dafa4b73.js";var n=a(s({props:{isCheck:{type:Boolean,default:!1},url:{type:String,default:""}},setup(a){const s=a;return(a,n)=>{const d=e("van-image");return s.url?(r(),t(d,{key:0,width:"100%",class:"banner","lazy-load":"",src:s.url},null,8,["src"])):l("",!0)}}}),[["__scopeId","data-v-34cbd784"]]);export{n as B};
