@@ -52,7 +52,7 @@ export function initInject() {
   const div: HTMLDivElement = document.createElement('div');
   div.setAttribute(
     'style',
-    'position:fixed;right:0;bottom:20px;width:50px;height:50px;background:red; color:#fff;opacity:0.5;',
+    'position:fixed;right:0;z-index:99999;bottom:20px;width:50px;height:50px;background:red; color:#fff;opacity:0.5;',
   );
   div.innerText = '点击生成骨架';
   div.addEventListener('click', function () {

@@ -364,9 +364,11 @@ export const genarateOrderParam = (o: orderParamType) => {
         templateId: o.templateId,
         paymentFrequency: o.paymentFrequency,
         successJumpUrl: o.successJumpUrl, // 支付成功跳转
+        isUpgrade: '1',
       },
       iseeBizNo: o.iseeBizNo,
       templateId: o.templateId,
+      isUpgrade: '1',
     },
     tenantOrderInsuredList: [
       {
