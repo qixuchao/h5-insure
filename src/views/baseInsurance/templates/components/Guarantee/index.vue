@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-26 10:29:31
+ * @LastEditTime: 2023-01-31 11:51:51
  * @Description: 保障详情
 -->
 <template>
@@ -27,7 +27,9 @@
         <div
           v-for="(item, index) in planList"
           :key="`${item.planCode}_${index}`"
-          :class="`plan-list-item ${item.planCode === currentActivePlanCode ? 'plan-list-item-active' : ''}`"
+          :class="`plan-list-item ${item.planCode === currentActivePlanCode ? 'plan-list-item-active' : ''} ${
+            planList.length === 2 ? 'paln-list-item-half' : ''
+          }`"
           @click="onPlanItemClickEmit(item.planCode)"
         >
           <span>{{ item.planName }}</span>
@@ -153,6 +155,7 @@ const props = defineProps({
   },
 });
 
+const guaranteeDetailHeight = ref('');
 const emits = defineEmits(['update-active-plan']);
 
 const planList = ref<PlanInsureVO[]>(props.dataSource?.planList);
@@ -309,8 +312,6 @@ const onClickFeeRate = () => {
 const onClickTab = (val: any) => {
   currentActivePlanCode.value = planList.value[val.name].planCode;
 };
-
-const guaranteeDetailHeight = ref('');
 
 const setGuaranteeListHeight = () => {
   const extinfoInfoListHeight = (document.querySelector('.guarantee-popup .extinfo-info-list')?.clientHeight || 0) + 1;
@@ -506,7 +507,7 @@ watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
   }
 
   .plan-list-item {
-    min-width: 210px;
+    min-width: 250px;
     height: 76px;
     line-height: 76px;
     text-align: center;
@@ -533,6 +534,10 @@ watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
     span {
       color: $primary-color;
     }
+  }
+
+  .paln-list-item-half {
+    min-width: 325px !important;
   }
 }
 .guarantee-popup {

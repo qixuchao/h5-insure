@@ -155,6 +155,8 @@ export const TEMPLATE_TYPE_ENUM = {
   FREE: '2',
   // 网电销
   NETSALE: '3',
+  // 魔方升级
+  UPGRADE: '4',
 };
 
 export const TEMPLATE_TYPE_MAP = {
@@ -164,6 +166,8 @@ export const TEMPLATE_TYPE_MAP = {
   [TEMPLATE_TYPE_ENUM.SHORT]: 'short',
   // 网电销
   [TEMPLATE_TYPE_ENUM.NETSALE]: 'netsale',
+  // 魔方升级
+  [TEMPLATE_TYPE_ENUM.UPGRADE]: 'short',
 };
 
 export const PAGE_CODE_LIST = [

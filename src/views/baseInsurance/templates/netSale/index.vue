@@ -134,7 +134,9 @@ const orderDetail = ref<Partial<NextStepRequestData>>({
   venderCode: '',
   tenantOrderHolder: {
     // 投保人
-    extInfo: {},
+    extInfo: {
+      occupationCodeList: [],
+    },
   },
   tenantOrderInsuredList: [
     // 被保人信息
@@ -146,9 +148,7 @@ const orderDetail = ref<Partial<NextStepRequestData>>({
       tenantOrderBeneficiaryList: [
         {
           beneficiaryId: 0,
-          extInfo: {
-            occupationCodeList: [],
-          },
+          extInfo: {},
         },
       ],
       tenantOrderProductList: [{}],
@@ -278,6 +278,7 @@ const trialPremium = async (
       };
     }),
     productCode: currentProductDetail?.productBasicInfoVO.productCode,
+    productId: currentProductDetail?.productBasicInfoVO.id,
     tenantId,
   };
   // 对试算的参数进行验证
@@ -388,8 +389,8 @@ watch(
   }, 500),
 );
 // initProductData
-const fetchData = () => {
-  productDetail({ productCode, withInsureInfo: true, tenantId }).then(({ code, data }) => {
+const fetchData = async () => {
+  await productDetail({ productCode, withInsureInfo: true, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       tenantProductDetail.value = data;
       document.title = data.tenantProductInsureVO?.productName || '';

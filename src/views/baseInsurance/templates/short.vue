@@ -78,6 +78,11 @@
         />
       </ProLazyComponent>
       <div v-if="showFooterBtn" class="footer-area">
+        <ProShare v-if="isApp" v-bind="shareInfo" class="share-btn">
+          <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
+          <span>分享</span>
+        </ProShare>
+
         <div class="price">
           <template v-if="premiumLoadingText">
             <span>{{ premiumLoadingText }}</span>
@@ -91,7 +96,6 @@
             <span>{{ unit }} </span>
           </template>
         </div>
-        <ProShare v-if="isTestEnv && isApp" v-bind="shareInfo">分享</ProShare>
         <ProShadowButton
           :disabled="previewMode"
           :shadow="false"
@@ -121,7 +125,7 @@
     :is-only-view="isOnlyView"
     :active-index="activeIndex"
     :text="isOnlyView ? '关闭' : '我已逐页阅读并确认告知内容'"
-    :force-read-cound="0"
+    :force-read-cound="isOnlyView ? 0 : 2"
     on-close-file-preview
     @submit="onSubmit"
     @on-close-file-preview-by-mask="onResetFileFlag"
@@ -177,7 +181,7 @@ import Banner from './components/Banner/index.vue';
 import Guarantee from './components/Guarantee/index.vue';
 import PreNotice from './components/PreNotice/index.vue';
 import { YES_NO_ENUM } from '@/common/constants/index';
-import { isTestEnv, isApp } from '@/utils/index';
+import { isTestEnv, isAppFkq } from '@/utils/index';
 
 import ScrollInfo from './components/ScrollInfo/index.vue';
 // import FilePreview from './components/FilePreview/index.vue';
@@ -193,6 +197,7 @@ import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import { sessionStore } from '@/hooks/useStorage';
 import { TenantOrderProductItem } from '@/api/index.data';
 
+const isApp = isAppFkq();
 // const ScrollInfo = defineAsyncComponent(() => import('./components/ScrollInfo/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
 const HealthNoticePreview = defineAsyncComponent(() => import('./components/HealthNoticePreview/index.vue'));
@@ -737,6 +742,7 @@ const trialPremium = async (
     const trialParams = {
       tenantId,
       productCode: detail.value?.productCode,
+      productId: detail.value?.id,
       insuranceStartDate: orderInfo.insuranceStartDate,
       insuranceEndDate: orderInfo.insuranceEndDate,
       commencementTime: orderInfo.insuranceStartDate,
@@ -884,6 +890,7 @@ const onCloseHealth = (type: string) => {
 
 const onSubmit = () => {
   showFilePreview.value = false;
+  isOnlyView.value = true;
   if (healthAttachmentList.value.length < 1) {
     onSaveOrder();
   } else {
@@ -894,6 +901,7 @@ const onSubmit = () => {
 const onResetFileFlag = () => {
   showHealthPreview.value = false;
   showFilePreview.value = false;
+  isOnlyView.value = true;
 };
 
 // 表单组件切换被保人时不会赋值默认社保以及身份证类型，需手动赋值
@@ -1102,7 +1110,6 @@ onMounted(() => {
   // 调用千里眼插件获取一个iseeBiz
   setTimeout(async () => {
     iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
-    console.log('iseeBizNo', iseeBizNo.value);
   }, 1500);
 });
 
@@ -1169,6 +1176,18 @@ onUnmounted(() => {
     z-index: 10;
     justify-content: space-between;
     border-radius: 30px 30px 0px 0px;
+
+    :deep(.com-share) {
+      width: 77px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      span {
+        font-size: 24px;
+        color: $zaui-text;
+      }
+    }
   }
 
   // footer覆盖
@@ -1176,6 +1195,9 @@ onUnmounted(() => {
     color: #393d46;
     font-size: 34px;
     font-weight: normal;
+    width: 270px;
+    margin: 0 20px;
+
     span {
       color: $primary-color;
       font-weight: bold;
@@ -1187,8 +1209,9 @@ onUnmounted(() => {
       }
     }
   }
+
   .right {
-    width: 280px;
+    width: 300px;
     height: 88px;
     border-radius: 44px;
   }
