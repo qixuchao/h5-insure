@@ -262,16 +262,23 @@ const trialPremium = async (
       personVO: {
         certType: CERT_TYPE_ENUM.CERT,
         ...orderInfo.tenantOrderHolder,
+        socialFlag: `${orderInfo.tenantOrderHolder?.extInfo?.hasSocialInsurance || ''}`,
+        occupationCodeList: orderInfo.tenantOrderHolder?.extInfo?.occupationCodeList,
       },
     },
     insuredVOList: (orderInfo?.tenantOrderInsuredList || []).map((person) => {
       return {
         insuredCode: '',
-        personVO: { ...person, certType: CERT_TYPE_ENUM.CERT },
+        personVO: {
+          ...person,
+          certType: CERT_TYPE_ENUM.CERT,
+          socialFlag: `${person?.extInfo?.hasSocialInsurance || ''}`,
+          occupationCodeList: person?.extInfo?.occupationCodeList,
+        },
         productPlanVOList: [
           {
             insurerCode: currentProductDetail?.productBasicInfoVO.insurerCode,
-            planCode: currentPlan.value || '0',
+            planCode: currentPlan.value || '',
             riskVOList: riskToOrder(productRiskList),
           },
         ],
