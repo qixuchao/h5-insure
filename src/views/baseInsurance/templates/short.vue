@@ -181,7 +181,7 @@ import Banner from './components/Banner/index.vue';
 import Guarantee from './components/Guarantee/index.vue';
 import PreNotice from './components/PreNotice/index.vue';
 import { YES_NO_ENUM } from '@/common/constants/index';
-import { isTestEnv, isApp } from '@/utils/index';
+import { isTestEnv, isAppFkq } from '@/utils/index';
 
 import ScrollInfo from './components/ScrollInfo/index.vue';
 // import FilePreview from './components/FilePreview/index.vue';
@@ -197,6 +197,7 @@ import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import { sessionStore } from '@/hooks/useStorage';
 import { TenantOrderProductItem } from '@/api/index.data';
 
+const isApp = isAppFkq();
 // const ScrollInfo = defineAsyncComponent(() => import('./components/ScrollInfo/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
 const HealthNoticePreview = defineAsyncComponent(() => import('./components/HealthNoticePreview/index.vue'));

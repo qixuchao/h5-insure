@@ -9,11 +9,12 @@
           INSURER: '投保信息',
         }"
         need-desensitize
-        :is-view="false"
+        is-view
         input-align="right"
         :form-info="orderDetail"
         :factor-object="insureDetail?.productFactor"
       ></InsureForm>
+      <ProField v-model="premiumText" input-align="right" label="每月保费" name="insuredBeneficiaryType"> </ProField>
       <AttachmentList
         v-if="filterHealthAttachmentList && filterHealthAttachmentList.length > 0"
         class="attachment-bg"
@@ -23,13 +24,26 @@
         @preview-file="(index:number) => previewFile(index)"
       />
       <div class="footer-area">
-        <div class="price">
-          <span class="num">{{ premium }}</span>
-          <span class="unit">元/月</span>
+        <ProShare v-if="isApp" v-bind="shareInfo" class="share-btn">
+          <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
+          <span>分享</span>
+        </ProShare>
+        <div class="upgrade-submit">
+          <div class="price">
+            <span class="num">{{ premium }}</span>
+            <span class="unit">元/月</span>
+          </div>
+          <ProShadowButton
+            :shadow="false"
+            :disabled="upgradeBtn"
+            :theme-vars="themeVars"
+            class="right"
+            text="升级保障"
+            @click="onUpgrade"
+          >
+            {{ '升级保障' }}
+          </ProShadowButton>
         </div>
-        <ProShadowButton :shadow="false" :theme-vars="themeVars" class="right" text="升级保障" @click="onUpgrade">
-          {{ '升级保障' }}
-        </ProShadowButton>
       </div>
     </div>
     <FilePreview
@@ -50,6 +64,7 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import dayjs from 'dayjs';
+import cloneDeep from 'lodash-es/cloneDeep';
 import { Toast } from 'vant';
 import { productDetail } from '@/api/modules/product';
 import {
@@ -76,13 +91,14 @@ import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 import InsureForm from './components/InsureForm/index.vue';
 import { useTheme } from '../theme';
-import { ORIGIN } from '@/utils';
+import { ORIGIN, isAppFkq } from '@/utils';
 import Banner from './components/Banner/index.vue';
 import ProShadowButton from './components/ProShadowButton/index.vue';
 
 const AttachmentList = defineAsyncComponent(() => import('./components/AttachmentList/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
 
+const isApp = isAppFkq();
 // 调用主题
 const themeVars = useTheme();
 const router = useRouter();
@@ -125,13 +141,14 @@ const formRef = ref();
 const detail = ref<ProductDetail>(); // 产品详情
 const insureDetail = ref<ProductData>(); // 险种详情
 const orderDetail = ref<any>(); // 订单详情
-const premium = ref<number>(); // 保费试算
-const hasSocialInsurance = ref<boolean>(); // 有无社保
+const premium = ref<number>(0.0); // 保费试算
 const signUrl = ref<string>();
 const showModal = ref<boolean>(false);
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const orderNoUp = ref<string>('');
+const upgradeBtn = ref<boolean>(false);
+const tenantOrderHolderExtInfo = ref<any>();
 const state = reactive<{
   isOnlyView: boolean;
   activeIndex: number;
@@ -140,6 +157,13 @@ const state = reactive<{
   isOnlyView: true,
   activeIndex: 0,
   showFilePreview: false,
+});
+// 分享信息
+const shareInfo = ref({
+  imgUrl: '',
+  desc: '',
+  title: '',
+  link: window.location.href,
 });
 
 const onClose = () => {
@@ -155,6 +179,20 @@ const previewFile = (index: number) => {
 const onCloseFilePreview = () => {
   state.showFilePreview = false;
   state.isOnlyView = true;
+};
+
+const premiumText = computed(() => {
+  // if (premium) return 0;
+  return `${premium.value}元/月`;
+});
+
+const setShareLink = (config: { image: string; desc: string; title: string }) => {
+  shareInfo.value = {
+    desc: config.desc || '你好，这里是描述',
+    imgUrl: config.image,
+    title: config.title,
+    link: window.location.href,
+  };
 };
 
 const setfileList = () => {
@@ -204,6 +242,7 @@ const getPaymentMethod = (data) => {
 const onSaveOrder = async () => {
   const order = genarateOrderParam({
     tenantId,
+    templateId: orderDetail.value.tenantOrderInsuredList[0].templateId, // 升级款
     applicationNo: orderDetail.value.applicationNo,
     policyNo: orderDetail.value.policyNo,
     saleUserId: agentCode,
@@ -216,25 +255,30 @@ const onSaveOrder = async () => {
     paymentMethod: getPaymentMethod(orderDetail.value),
     renewalDK: orderDetail.value.extInfo?.extraInfo?.renewalDK, // 开通下一年
     iseeBizNo: iseeBizNo.value,
+    expiryDate: orderDetail.value.expiryDate,
     successJumpUrl: '',
     premium: premium.value as number, // 保费
     holder: {
       ...orderDetail.value.tenantOrderHolder,
-      socialFlag: orderDetail.value.tenantOrderHolder.extInfo.hasSocialInsurance,
+      extInfo: tenantOrderHolderExtInfo.value,
+      socialFlag: tenantOrderHolderExtInfo.value.hasSocialInsurance,
     },
     insured: {
       ...orderDetail.value.tenantOrderInsuredList[0],
       socialFlag: orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance,
     },
-    tenantOrderRiskList: transformData({
-      tenantId,
-      riskList: compositionTrailData(
-        setRiskOrMainRisk(insureDetail.value.productRiskVoList[0].riskDetailVOList),
-        detail.value as ProductDetail,
-      ) as any,
-      riskPremium: {},
-      productId: detail.value?.id as number,
-    }),
+    tenantOrderRiskList: transformData(
+      {
+        tenantId,
+        riskList: compositionTrailData(
+          setRiskOrMainRisk(insureDetail.value.productRiskVoList[0].riskDetailVOList),
+          detail.value as ProductDetail,
+        ) as any,
+        riskPremium: {},
+        productId: detail.value?.id as number,
+      },
+      true,
+    ),
   });
   const res = await saveOrder(order);
   const { code, data } = res;
@@ -255,6 +299,7 @@ const upgradeHandler = () => {
 
 // 保费试算 -> 订单保存 -> 升级保障
 const onPremiumCalc = async () => {
+  Toast.loading({ forbidClick: true, duration: 0, message: '试算中' });
   try {
     const reqData = getReqData(
       {
@@ -268,15 +313,19 @@ const onPremiumCalc = async () => {
       validatorRisk2022,
     );
     const res = await endorsementPremiumCalc(reqData);
-    const { code, data } = res;
+    const { code, data, message } = res;
     if (code === '10000') {
       premium.value = data.installmentPremium;
       signUrl.value = data.signUrl;
+    } else if (message === '已升级成功') {
+      upgradeBtn.value = true;
     }
   } catch (e) {
     console.log(e);
   } finally {
-    Toast.clear();
+    setTimeout(() => {
+      Toast.clear();
+    }, 2000);
   }
 };
 
@@ -333,7 +382,6 @@ const onUpgrade = async (o: any) => {
 };
 
 const fetchData = () => {
-  Toast.loading({ forbidClick: true, duration: 20 * 1000, message: '试算中' });
   const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
   const insureReq = insureProductDetail({ productCode });
   const orderReq = getTenantOrderDetail({ orderNo, tenantId });
@@ -341,18 +389,27 @@ const fetchData = () => {
     if (productRes.code === '10000') {
       detail.value = productRes.data;
       document.title = productRes.data?.productFullName || '';
+      const { title, desc, image } = productRes.data?.showConfigVO || {};
+      // 设置分享参数
+      setShareLink({ title, desc, image });
     }
 
     if (insureRes.code === '10000') {
       insureDetail.value = insureRes.data;
+      insureDetail.value.productFactor[1] = [];
     }
 
     if (orderRes.code === '10000') {
       orderDetail.value = orderRes.data;
+      // 暂存投保人信息
+      tenantOrderHolderExtInfo.value = cloneDeep(orderDetail.value.tenantOrderHolder.extInfo);
+      orderDetail.value.tenantOrderHolder.extInfo = orderDetail.value.tenantOrderInsuredList[0].extInfo;
     }
+
     loading.value = false;
     onPremiumCalc();
     setfileList();
+    onSaveOrder();
   });
 };
 
@@ -367,6 +424,7 @@ onMounted(() => {
 
 <style lang="scss">
 .page-upgrade-product-detail {
+  padding-bottom: 160px;
   .com-card-wrap .van-field__body {
     width: 100%;
   }
@@ -391,24 +449,31 @@ onMounted(() => {
     z-index: 10;
     justify-content: space-between;
     border-radius: 30px 30px 0px 0px;
-    // footer覆盖
-    .price {
-      color: #ff5840;
-      font-size: 48px;
-      font-weight: 600;
-      span {
-        &:last-child {
-          font-size: 26px;
-          font-family: PingFangSC-Regular, PingFang SC;
-          font-weight: 400;
+
+    .upgrade-submit {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      // footer覆盖
+      .price {
+        color: #ff5840;
+        font-size: 48px;
+        font-weight: 600;
+        span {
+          &:last-child {
+            font-size: 26px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+          }
         }
       }
-    }
 
-    .right {
-      width: 400px;
-      height: 88px;
-      border-radius: 44px;
+      .right {
+        width: 400px;
+        height: 88px;
+        border-radius: 44px;
+      }
     }
   }
 }
@@ -416,6 +481,34 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .page-upgrade-product-detail {
+  // :deep(.tenant-order-insured-wrapper) {
+  // .van-cell:after {
+  //   // & {
+  // background: red;
+  // position: absolute;
+  // box-sizing: border-box;
+  // content: ' ';
+  // pointer-events: none;
+  // right: var(--van-padding-md);
+  // bottom: 0;
+  // left: var(--van-padding-md);
+  // border-bottom: 1px solid var(--van-cell-border-color);
+  // transform: scaleY(1);
+  // width: unset;
+  //   // }
+  // }
+  // }
+  :deep(.com-share) {
+    width: 77px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 20px;
+    span {
+      font-size: 24px;
+      color: $zaui-text;
+    }
+  }
   :deep(.com-card-wrap) {
     .header {
       margin-left: 0px !important;
@@ -428,6 +521,8 @@ onMounted(() => {
     }
 
     .relation-holder {
+      display: none;
+
       .van-cell__title {
         display: none;
       }

@@ -44,6 +44,8 @@ const {
   pageCode,
   insurerCode,
   productCode,
+  agentCode,
+  saleChannelId,
   code: wxCode,
 } = route.query as QueryData;
 
@@ -57,7 +59,7 @@ try {
   //
 }
 
-const { templateId, openId, tenantId } = extInfo as any;
+const { templateId, openId, tenantId, orderNo } = extInfo as any;
 
 const getActivityPath = () => {
   try {
@@ -84,6 +86,26 @@ const getActivityPath = () => {
 };
 
 const jumpRouter = (url?: string) => {
+  // 魔方产品
+  if (templateId === '4' && orderNo) {
+    const params: any = {
+      insurerCode,
+      productCode,
+      tenantId: tenantId || route.query?.tenantId,
+      agencyCode,
+      agentCode,
+      orderNo,
+      saleChannelId,
+    };
+    params.extraInfo = decodeURIComponent(
+      JSON.stringify({
+        ...extInfo,
+        templateId,
+      }),
+    );
+    router.push(`/baseInsurance/upgrade?${qs.stringify(params)}`);
+    return;
+  }
   let path = url;
   const activityUrl = getActivityPath();
   if (activityUrl) {

@@ -37,6 +37,13 @@ export const isApp = () => {
   return Boolean(window?.AppJSInterface || window?.webkit?.messageHandlers);
 };
 
+// 判断是否在逢客签app
+export const isAppFkq = () => {
+  const u = navigator.userAgent;
+  const isInApp = u.indexOf('fkqapp') > -1;
+  return isInApp;
+};
+
 export const toLocal = (number: number | null | undefined) => {
   if (!number) return null;
   return number && number.toLocaleString();
