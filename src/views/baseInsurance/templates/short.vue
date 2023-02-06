@@ -529,7 +529,7 @@ const currentPackageConfigVOList = computed(() => {
     if (isMultiplePlan.value) {
       result = currentPlanInsure.value?.packageProductVOList || [];
     }
-    result = insureDetail.value.packageProductVOList;
+    result = insureDetail.value.packageProductVOList || [];
   }
   return result.map((e) => ({ ...e, value: INSURE_TYPE_ENUM.UN_INSURE }));
 });
