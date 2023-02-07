@@ -6,7 +6,9 @@
       <InsureForm
         ref="formRef"
         :title-collection="{
+          HOLDER: '投保人信息',
           INSURER: '投保信息',
+          BENEFICIARY: '投保人信息',
         }"
         need-desensitize
         is-view
@@ -381,6 +383,16 @@ const onUpgrade = async (o: any) => {
   onSubmit(o);
 };
 
+const productFactorMake = () => {
+  ['1', '2', '3'].forEach((field: string) => {
+    insureDetail.value.productFactor[field] = insureDetail.value.productFactor?.[field]?.some(
+      (item) => item.isDisplay === 1,
+    )
+      ? insureDetail.value.productFactor?.[field]
+      : [];
+  });
+};
+
 const fetchData = () => {
   const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
   const insureReq = insureProductDetail({ productCode });
@@ -396,7 +408,8 @@ const fetchData = () => {
 
     if (insureRes.code === '10000') {
       insureDetail.value = insureRes.data;
-      insureDetail.value.productFactor[1] = [];
+      productFactorMake();
+      // insureDetail.value.productFactor[1] = [];
     }
 
     if (orderRes.code === '10000') {
