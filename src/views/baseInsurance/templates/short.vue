@@ -268,6 +268,7 @@ const isOnlyView = ref<boolean>(true); // 资料查看模式
 const needDesensitize = ref<boolean>(true); // 投被保人身份证手机号是否需要掩码
 const loading = ref<boolean>(true);
 const iseeBizNo = ref('');
+const currentPackageConfigVOList = ref([]); // 加油包列表
 
 // 默认保费及保费单位 | 试算保费和实际保费单位
 const premium = ref<number | null>(); // 保费
@@ -523,17 +524,6 @@ const currentPlanInsure = computed(() => {
   return detail.value.tenantProductInsureVO.planInsureVO;
 });
 
-const currentPackageConfigVOList = computed(() => {
-  let result = [];
-  if (detail.value && insureDetail.value) {
-    if (isMultiplePlan.value) {
-      result = currentPlanInsure.value?.packageProductVOList || [];
-    }
-    result = insureDetail.value.packageProductVOList || [];
-  }
-  return result.map((e) => ({ ...e, value: INSURE_TYPE_ENUM.UN_INSURE }));
-});
-
 // 切换计划
 const updateActivePlan = (planCode: string) => {
   orderDetail.value.activePlanCode = planCode;
@@ -609,6 +599,24 @@ watch(
         attachmentList: tempList[e],
       };
     });
+  },
+  {
+    immediate: true,
+  },
+);
+
+watch(
+  [() => isMultiplePlan.value, () => insureDetail.value, () => currentPlanInsure.value],
+  () => {
+    let result = [];
+    if (detail.value && insureDetail.value) {
+      if (isMultiplePlan.value) {
+        result = currentPlanInsure.value?.packageProductVOList || [];
+      } else {
+        result = insureDetail.value.packageProductVOList || [];
+      }
+    }
+    currentPackageConfigVOList.value = result.map((e) => ({ ...e, value: INSURE_TYPE_ENUM.UN_INSURE }));
   },
   {
     immediate: true,
@@ -1028,6 +1036,7 @@ watch(
     () => orderDetail.value.activePlanCode,
     () => orderDetail.value.paymentFrequency,
     () => orderDetail.value.insurancePeriodValue,
+    () => currentPackageConfigVOList.value,
   ],
   debounce(() => {
     if (onTrialCheck()) {
@@ -1043,6 +1052,9 @@ watch(
       setPremium();
     }
   }, 500),
+  {
+    deep: true,
+  },
 );
 
 watch(
