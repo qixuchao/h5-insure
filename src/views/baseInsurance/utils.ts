@@ -650,11 +650,7 @@ export const getReqData = (o: upgradeParamType, validatorRisk = (args: any) => t
               {
                 tenantId: o.tenantId,
                 riskList: compositionTrailData(
-                  productRiskVoListFilter(
-                    o.insureDetail.productRiskVoList,
-                    o.orderDetail?.tenantOrderInsuredList?.[0]?.certNo,
-                    validatorRisk,
-                  )?.[0]?.riskDetailVOList,
+                  o.insureDetail.productRiskVoList?.[0]?.riskDetailVOList || [],
                   o.productDetail,
                 ) as any,
                 riskPremium: {},
