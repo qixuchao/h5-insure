@@ -1,0 +1,1 @@
+import{d as a,b as s,c as t,e,w as o,i as l}from"./index-a245982e.js";import"./pdfh5-e5c0db2a.js";const p=l("img",{src:"/static/assets/logo.9ded1271.png",alt:"logo",style:{margin:"100px auto",width:"200px",display:"block"}},null,-1),d=a({setup:a=>(a,l)=>{const d=s("ProPageWrap");return t(),e(d,{"main-class":"page-home"},{default:o((()=>[p])),_:1})}});export{d as default};
