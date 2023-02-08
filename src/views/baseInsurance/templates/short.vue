@@ -763,8 +763,8 @@ const trialPremium = async (
     // 试算接口参数组装
     const trialParams = {
       tenantId,
-      productCode: detail.value?.productCode,
-      productId: detail.value?.id,
+      productCode: currentProductDetail?.productBasicInfoVO.productCode,
+      productId: currentProductDetail?.productBasicInfoVO.id,
       insuranceStartDate: orderInfo.insuranceStartDate,
       insuranceEndDate: orderInfo.insuranceEndDate,
       commencementTime: orderInfo.insuranceStartDate,

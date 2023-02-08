@@ -1,8 +1,8 @@
 <!--
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
- * @LastEditors: zhaopu
- * @LastEditTime: 2023-01-31 11:51:51
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2023-02-08 22:09:12
  * @Description: 保障详情
 -->
 <template>
@@ -206,13 +206,13 @@ watch(
     if (!props.isMultiplePlan) {
       guaranteeList.value = props.dataSource?.planInsureVO.guaranteeItemVOS;
       extInfoVOList.value = props.dataSource?.planInsureVO.extInfoVOList;
-      const item = props.dataSource?.planInsureVO.productPremiumVOList.find(
+      const item = (props.dataSource?.planInsureVO?.productPremiumVOList || []).find(
         (e) => e.paymentFrequency === props.paymentFrequency,
       );
       if (item) {
         productPremiumVOItem.value = item;
       } else {
-        productPremiumVOItem.value = props.dataSource?.planInsureVO.productPremiumVOList[0];
+        productPremiumVOItem.value = props.dataSource?.planInsureVO?.productPremiumVOList?.[0];
       }
     } else if (planList.value && planList.value.length > 0) {
       let index = 0;
