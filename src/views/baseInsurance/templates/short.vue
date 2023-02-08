@@ -127,7 +127,6 @@
     :active-index="activeIndex"
     :text="isOnlyView ? '关闭' : '我已逐页阅读并确认告知内容'"
     :force-read-cound="isOnlyView ? 0 : 2"
-    on-close-file-preview
     @submit="onSubmit"
     @on-close-file-preview-by-mask="onResetFileFlag"
   ></FilePreview>
@@ -187,21 +186,12 @@ import { YES_NO_ENUM } from '@/common/constants/index';
 import { isTestEnv, isAppFkq } from '@/utils/index';
 
 import ScrollInfo from './components/ScrollInfo/index.vue';
-// import FilePreview from './components/FilePreview/index.vue';
-// import HealthNoticePreview from './components/HealthNoticePreview/index.vue';
-// import PaymentType from './components/PaymentType/index.vue';
-// import ProShadowButton from './components/ProShadowButton/index.vue';
-// import InsureForm from './components/InsureForm/index.vue';
-// import CustomerList from './components/CustomerList/index.vue';
-// import InscribedContent from './components/InscribedContent/index.vue';
-// import AttachmentList from './components/AttachmentList/index.vue';
 
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import { sessionStore } from '@/hooks/useStorage';
 import { TenantOrderProductItem } from '@/api/index.data';
 
 const isApp = isAppFkq();
-// const ScrollInfo = defineAsyncComponent(() => import('./components/ScrollInfo/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
 const HealthNoticePreview = defineAsyncComponent(() => import('./components/HealthNoticePreview/index.vue'));
 const PaymentType = defineAsyncComponent(() => import('./components/PaymentType/index.vue'));
@@ -457,6 +447,7 @@ const isSocialLimit = computed(() => {
   return socialObject;
 });
 
+// 是否可以在无身份证的时候默认设置证件类型为身份证
 const isSetDefaultCertNo = computed(() => {
   const factorList = factorObj.value?.[2] || [];
   const idx = factorList.findIndex((e: ProductFactorItem) => e.code === 'certType');
@@ -485,7 +476,7 @@ const isCheckHolderSmsCode = computed(() => {
   return false;
 });
 
-// 多计划时添加默认值
+// 多计划时添加默认值，默认展示第一个计划
 watch(
   () => isMultiplePlan.value,
   () => {
@@ -562,7 +553,6 @@ const healthAttachmentList = computed(() => {
 
 // 除健康告知的其他资料
 const filterHealthAttachmentList = ref();
-
 watch(
   [() => isMultiplePlan.value, () => orderDetail.value.activePlanCode, () => detail.value],
   () => {
@@ -584,8 +574,6 @@ watch(
       return;
     }
 
-    console.log('===============tempList', tempList);
-
     filterHealthAttachmentList.value = Object.keys(tempList).map((e) => {
       tempList[e].forEach((attachmentItem: AttachmentVOList) => {
         // eslint-disable-next-line no-param-reassign
@@ -605,6 +593,7 @@ watch(
   },
 );
 
+// 根据多计划切换|无计划 获取加油包列表参数
 watch(
   [() => isMultiplePlan.value, () => insureDetail.value, () => currentPlanInsure.value],
   () => {
@@ -623,6 +612,7 @@ watch(
   },
 );
 
+// 验证码验证
 const sendSmsCode = async ({ mobile, type }: { mobile: string; type: string }, cb: () => {}) => {
   if (formRef.value) {
     if (previewMode.value) {
@@ -644,6 +634,7 @@ const onClickToInsure = () => {
   detailScrollRef.value.handleClickTab()('tab3');
 };
 
+// 通讯录投保人信息更新
 const onUpdateHolderData = (data: RelationCustomer) => {
   needDesensitize.value = false;
   Object.assign(orderDetail.value.tenantOrderHolder, data);
@@ -652,6 +643,7 @@ const onUpdateHolderData = (data: RelationCustomer) => {
   });
 };
 
+// 通讯录被保人信息更新
 const onUpdateInsurerData = (data: RelationCustomer) => {
   needDesensitize.value = false;
   Object.assign(orderDetail.value.tenantOrderInsuredList[0], data);
@@ -660,11 +652,13 @@ const onUpdateInsurerData = (data: RelationCustomer) => {
   });
 };
 
+// 文件预览
 const previewFile = (index: number) => {
   activeIndex.value = index;
   showFilePreview.value = true;
 };
 
+// 试算参数转化为生成订单参数
 const trialData2Order = (
   currentProductDetail: ProductData = {} as ProductData,
   riskPremium = {},
@@ -717,10 +711,12 @@ const trialData2Order = (
   return nextStepParams;
 };
 
+// 核保接口调用
 const onUnderWrite = async (orderNo: string) => {
   try {
     const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
     if (code === '10000') {
+      // 核保 buttonCode: 'EVENT_SHORT_underWrite'
       data.extInfo = { ...data.extInfo, buttonCode: 'EVENT_SHORT_underWrite' };
       await nextStep(data);
     }
@@ -729,6 +725,7 @@ const onUnderWrite = async (orderNo: string) => {
   }
 };
 
+// 生成订单
 const onSaveOrder = async () => {
   try {
     await nextStep(
@@ -763,6 +760,7 @@ const trialPremium = async (
         coveragePeriod: orderInfo.insurancePeriodValue,
       };
     });
+    // 试算接口参数组装
     const trialParams = {
       tenantId,
       productCode: detail.value?.productCode,
@@ -821,6 +819,7 @@ const trialPremium = async (
         orderDetail.value.orderAmount = data.premium;
         orderDetail.value.orderRealAmount = data.premium;
         if (!isOnlypremiumCalc) {
+          // 获取试算结果，存储，在健告通过后将保费赋值给对应的险种
           const riskPremiumMap = {};
           if (data.riskPremiumDetailVOList && data.riskPremiumDetailVOList.length) {
             data.riskPremiumDetailVOList.forEach((riskDetail: any) => {
@@ -831,12 +830,15 @@ const trialPremium = async (
             });
           }
           premiumMap.value = riskPremiumMap;
+          // 文件弹窗
           if (filterHealthAttachmentList.value.length > 0) {
             isOnlyView.value = false;
             previewFile(0);
           } else if (healthAttachmentList.value.length > 0) {
+            // 无文件，弹健告
             showHealthPreview.value = true;
           } else {
+            // 无文件、无健告直接生成订单
             await onSaveOrder();
           }
         }
@@ -852,6 +854,7 @@ const trialPremium = async (
   }
 };
 
+// 获取选中的加油包列表
 const getPackageRiskList = () => {
   const packageRiskList = [];
 
@@ -861,10 +864,10 @@ const getPackageRiskList = () => {
       packageRiskList.push(...e.productRiskVoList.map((item) => ({ riskDetailVOList: [item] })));
     });
 
-  console.log('packageRiskList', packageRiskList);
   return packageRiskList;
 };
 
+// 点击立即投保
 const onNext = async () => {
   try {
     showHealthPreview.value = false;
@@ -873,6 +876,7 @@ const onNext = async () => {
       formRef.value
         ?.validateForm()
         .then(async () => {
+          // 老用户或者投保要素不包含验证码的情况
           if (isOldUser.value || !isCheckHolderSmsCode.value) {
             await trialPremium(
               orderDetail.value as OrderDetail,
@@ -881,6 +885,7 @@ const onNext = async () => {
               false,
             );
           } else {
+            // 验证码验证
             const smsCode = orderDetail.value.tenantOrderHolder?.verificationCode;
             if (!smsCode || !validateSmsCode(smsCode)) {
               Toast({
@@ -900,6 +905,7 @@ const onNext = async () => {
           }
         })
         .catch(() => {
+          // 表单验证错误定位问题
           const dom = document.querySelector('.form-title');
           if (dom) {
             dom.scrollIntoView();
@@ -911,6 +917,7 @@ const onNext = async () => {
   }
 };
 
+// 健告选择弹窗
 const onCloseHealth = (type: string) => {
   // 全部为否
   if (type === 'allFalse') {
@@ -926,15 +933,16 @@ const onCloseHealth = (type: string) => {
       cancelButtonText: '为其他人投保',
     })
       .then(() => {
-        // showHealthPreview.value = false;
-        // window.history.back();
+        // 选错了的情况下不做特殊处理，让用户重新选择
       })
       .catch(() => {
+        // 为其他人投保
         showHealthPreview.value = false;
       });
   }
 };
 
+// 文件阅读完毕
 const onSubmit = () => {
   showFilePreview.value = false;
   isOnlyView.value = true;
@@ -1027,6 +1035,7 @@ watch(
   },
 );
 
+// 试算监听
 watch(
   [
     () => orderDetail.value.tenantOrderInsuredList[0].birthday,
@@ -1057,6 +1066,7 @@ watch(
   },
 );
 
+// 老客户信息反显，被保人与投保人关系切换时，根据关系获取老用户信息
 watch(
   () => orderDetail.value.tenantOrderInsuredList[0],
   (e) => {
@@ -1095,6 +1105,7 @@ watch(
   },
 );
 
+// 获取产品配置详情和产品详情
 const fetchData = async () => {
   await productDetail({ productCode, withInsureInfo: true, tenantId }).then((productRes) => {
     if (productRes.code === '10000') {
@@ -1118,6 +1129,7 @@ const fetchData = async () => {
   loading.value = false;
 };
 
+// 底部按钮展示逻辑
 nextTick(() => {
   useIntersectionObserver(observeRef, ([{ isIntersecting }], observerElement) => {
     showFooterBtn.value = !isIntersecting;
@@ -1127,6 +1139,7 @@ nextTick(() => {
 // 需要支付的页面发起微信授权
 // useWXCode();
 
+// 再来一单，数据反显
 onBeforeMount(() => {
   const oldOrderDetailInfo = sessionStore.get(ORDER_DETAIL_KEY);
   if (oldOrderDetailInfo) {
