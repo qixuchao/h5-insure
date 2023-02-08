@@ -127,3 +127,22 @@ export function star(value: string) {
   }
   return str;
 }
+
+export const setPageTitle = (title: string): void => {
+  document.title = title;
+  const ua: any = navigator.userAgent.toLowerCase();
+  if (true || (ua.match(/MicroMessenger/i) === 'micromessenger' && !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/i))) {
+    const iframe = document.createElement('iframe');
+    iframe.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+    iframe.style.display = 'none';
+    const fn = () => {
+      const timer = setTimeout(() => {
+        iframe.removeEventListener('load', fn);
+        document.body.removeChild(iframe);
+        clearTimeout(timer);
+      }, 0);
+    };
+    iframe.addEventListener('load', fn);
+    document.body.appendChild(iframe);
+  }
+};

@@ -69,7 +69,7 @@ import { sendPay, useWXCode } from '@/views/cashier/core';
 import { ORDER_STATUS_MAP, ORDER_STATUS_DESC } from './const';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
-import { downLoadFile } from '@/utils';
+import { downLoadFile, setPageTitle } from '@/utils';
 import { useTheme } from '../theme';
 import { sessionStore } from '@/hooks/useStorage';
 import { ORDER_DETAIL_KEY } from '@/common/constants/infoCollection';
@@ -237,7 +237,7 @@ const initPageInfo = () => {
 
   state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
   state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
-  document.title = state.detail?.tenantProductInsureVO?.productName || '';
+  setPageTitle(state.detail?.tenantProductInsureVO?.productName || '');
   state.templateId = '4' || state.orderDetail.extInfo.templateId;
   let insurancePeriodDesc = '';
   if (state.templateId.toString() === '2') {

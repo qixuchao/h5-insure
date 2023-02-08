@@ -149,7 +149,7 @@ const showModal = ref<boolean>(false);
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const orderNoUp = ref<string>('');
-const upgradeBtn = ref<boolean>(false);
+const upgradeBtn = ref<boolean>(true);
 const tenantOrderHolderExtInfo = ref<any>();
 const state = reactive<{
   isOnlyView: boolean;
@@ -319,15 +319,20 @@ const onPremiumCalc = async () => {
     if (code === '10000') {
       premium.value = data.installmentPremium;
       signUrl.value = data.signUrl;
+      upgradeBtn.value = false;
     } else if (message === '已升级成功') {
       upgradeBtn.value = true;
     }
   } catch (e) {
     console.log(e);
+    upgradeBtn.value = true;
   } finally {
-    setTimeout(() => {
-      Toast.clear();
-    }, 2000);
+    setTimeout(
+      () => {
+        Toast.clear();
+      },
+      upgradeBtn.value ? 2000 : 0,
+    );
   }
 };
 
