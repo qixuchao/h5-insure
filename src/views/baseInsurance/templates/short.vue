@@ -127,7 +127,6 @@
     :active-index="activeIndex"
     :text="isOnlyView ? '关闭' : '我已逐页阅读并确认告知内容'"
     :force-read-cound="isOnlyView ? 0 : 2"
-    on-close-file-preview
     @submit="onSubmit"
     @on-close-file-preview-by-mask="onResetFileFlag"
   ></FilePreview>
@@ -187,21 +186,12 @@ import { YES_NO_ENUM } from '@/common/constants/index';
 import { isTestEnv, isAppFkq } from '@/utils/index';
 
 import ScrollInfo from './components/ScrollInfo/index.vue';
-// import FilePreview from './components/FilePreview/index.vue';
-// import HealthNoticePreview from './components/HealthNoticePreview/index.vue';
-// import PaymentType from './components/PaymentType/index.vue';
-// import ProShadowButton from './components/ProShadowButton/index.vue';
-// import InsureForm from './components/InsureForm/index.vue';
-// import CustomerList from './components/CustomerList/index.vue';
-// import InscribedContent from './components/InscribedContent/index.vue';
-// import AttachmentList from './components/AttachmentList/index.vue';
 
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import { sessionStore } from '@/hooks/useStorage';
 import { TenantOrderProductItem } from '@/api/index.data';
 
 const isApp = isAppFkq();
-// const ScrollInfo = defineAsyncComponent(() => import('./components/ScrollInfo/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
 const HealthNoticePreview = defineAsyncComponent(() => import('./components/HealthNoticePreview/index.vue'));
 const PaymentType = defineAsyncComponent(() => import('./components/PaymentType/index.vue'));
