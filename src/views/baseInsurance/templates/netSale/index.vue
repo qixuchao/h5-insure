@@ -134,7 +134,9 @@ const orderDetail = ref<Partial<NextStepRequestData>>({
   venderCode: '',
   tenantOrderHolder: {
     // 投保人
-    extInfo: {},
+    extInfo: {
+      occupationCodeList: [],
+    },
   },
   tenantOrderInsuredList: [
     // 被保人信息
@@ -146,9 +148,7 @@ const orderDetail = ref<Partial<NextStepRequestData>>({
       tenantOrderBeneficiaryList: [
         {
           beneficiaryId: 0,
-          extInfo: {
-            occupationCodeList: [],
-          },
+          extInfo: {},
         },
       ],
       tenantOrderProductList: [{}],
@@ -262,22 +262,30 @@ const trialPremium = async (
       personVO: {
         certType: CERT_TYPE_ENUM.CERT,
         ...orderInfo.tenantOrderHolder,
+        socialFlag: `${orderInfo.tenantOrderHolder?.extInfo?.hasSocialInsurance || ''}`,
+        occupationCodeList: orderInfo.tenantOrderHolder?.extInfo?.occupationCodeList,
       },
     },
     insuredVOList: (orderInfo?.tenantOrderInsuredList || []).map((person) => {
       return {
         insuredCode: '',
-        personVO: { ...person, certType: CERT_TYPE_ENUM.CERT },
+        personVO: {
+          ...person,
+          certType: CERT_TYPE_ENUM.CERT,
+          socialFlag: `${person?.extInfo?.hasSocialInsurance || ''}`,
+          occupationCodeList: person?.extInfo?.occupationCodeList,
+        },
         productPlanVOList: [
           {
             insurerCode: currentProductDetail?.productBasicInfoVO.insurerCode,
-            planCode: currentPlan.value || '0',
+            planCode: currentPlan.value || '',
             riskVOList: riskToOrder(productRiskList),
           },
         ],
       };
     }),
     productCode: currentProductDetail?.productBasicInfoVO.productCode,
+    productId: currentProductDetail?.productBasicInfoVO.id,
     tenantId,
   };
   // 对试算的参数进行验证
@@ -321,12 +329,16 @@ const trialData2Order = (
   // 设置投被保人的默认证件类型为身份证
   if (nextStepParams.tenantOrderHolder) {
     nextStepParams.tenantOrderHolder.certType = nextStepParams.tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT;
+    nextStepParams.tenantOrderHolder.certNo = (nextStepParams.tenantOrderHolder.certNo || '').toLocaleUpperCase();
   }
 
   if (nextStepParams.tenantOrderInsuredList) {
     // TODO 处理数组取0的方式
     nextStepParams.tenantOrderInsuredList[0].certType =
       nextStepParams.tenantOrderInsuredList[0].certType || CERT_TYPE_ENUM.CERT;
+    nextStepParams.tenantOrderInsuredList[0].certNo = (
+      nextStepParams.tenantOrderInsuredList[0].certNo || ''
+    ).toLocaleUpperCase();
 
     nextStepParams.tenantOrderInsuredList[0].tenantOrderProductList = [
       {
@@ -388,8 +400,8 @@ watch(
   }, 500),
 );
 // initProductData
-const fetchData = () => {
-  productDetail({ productCode, withInsureInfo: true, tenantId }).then(({ code, data }) => {
+const fetchData = async () => {
+  await productDetail({ productCode, withInsureInfo: true, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       tenantProductDetail.value = data;
       document.title = data.tenantProductInsureVO?.productName || '';

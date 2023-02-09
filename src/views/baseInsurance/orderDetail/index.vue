@@ -53,6 +53,7 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant/es';
+import qs from 'qs';
 import { useEventListener } from '@vueuse/core';
 import { useCountDown } from '@vant/use';
 import dayjs from 'dayjs';
@@ -68,7 +69,7 @@ import { sendPay, useWXCode } from '@/views/cashier/core';
 import { ORDER_STATUS_MAP, ORDER_STATUS_DESC } from './const';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
-import { downLoadFile } from '@/utils';
+import { downLoadFile, setPageTitle } from '@/utils';
 import { useTheme } from '../theme';
 import { sessionStore } from '@/hooks/useStorage';
 import { ORDER_DETAIL_KEY } from '@/common/constants/infoCollection';
@@ -103,7 +104,7 @@ const state = reactive<{
     notificationImage: string;
   };
   timeDown: any;
-  templateId: '1' | '2' | '3';
+  templateId: '1' | '2' | '3' | '4';
 }>({
   insureDetail: {} as ProductData,
   detail: {} as ProductDetail,
@@ -147,18 +148,32 @@ const getChannelCode = computed(() => {
 const goToInsurerPage = async (reOrder = false, promotion = '') => {
   try {
     const { insurerCode } = state.insureDetail.productBasicInfoVO;
+    const { templateId } = state.orderDetail.extInfo.extraInfo;
     delete state.orderDetail.extInfo.extraInfo.templateId;
-    const params = {
+    const params: any = {
       insurerCode,
       productCode: reOrder ? state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO.productCode : productCode,
       tenantId,
       agencyCode: state.orderDetail.agencyId,
       agentCode: state.orderDetail.agentCode,
       saleChannelId: state.orderDetail.extInfo?.extraInfo?.saleChannelId,
-      extraMap: {
-        ...state.orderDetail.extInfo.extraInfo,
-        channelCode: getChannelCode.value,
-      },
+    };
+    // 魔方升级款
+    if (templateId === '4') {
+      params.extraInfo = decodeURIComponent(
+        JSON.stringify({
+          ...state.orderDetail.extInfo.extraInfo,
+          channelCode: getChannelCode.value,
+          templateId,
+        }),
+      );
+      params.orderNo = orderNo;
+      router.push(`/baseInsurance/upgrade?${qs.stringify(params)}`);
+      return;
+    }
+    params.extraMap = {
+      ...state.orderDetail.extInfo.extraInfo,
+      channelCode: getChannelCode.value,
     };
     if (reOrder) {
       params.extraMap.promotion = promotion;
@@ -222,8 +237,8 @@ const initPageInfo = () => {
 
   state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
   state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
-  document.title = state.detail?.tenantProductInsureVO?.productName || '';
-  state.templateId = state.orderDetail.extInfo.templateId;
+  setPageTitle(state.detail?.tenantProductInsureVO?.productName || '');
+  state.templateId = '4' || state.orderDetail.extInfo.templateId;
   let insurancePeriodDesc = '';
   if (state.templateId.toString() === '2') {
     state.orderDetail.tenantOrderInsuredList[0].tenantOrderProductList.forEach((item: any) => {
@@ -239,7 +254,14 @@ const initPageInfo = () => {
       return false;
     });
   } else {
-    state.pageInfo.insureList = [{ label: '本期缴费金额', value: `${state.orderDetail.orderAmount}元` }];
+    state.pageInfo.insureList = [
+      {
+        label: `${
+          state.templateId === '4' && state.orderDetail?.extInfo?.extraInfo?.isUpgrade === '1' ? '下' : '本'
+        }期缴费金额`,
+        value: `${state.orderDetail.orderAmount}元`,
+      },
+    ];
     insurancePeriodDesc = `${dayjs(state.orderDetail.commencementTime).format('YYYY.MM.DD')}到${dayjs(
       state.orderDetail.expiryDate,
     ).format('YYYY.MM.DD')}`;
@@ -325,12 +347,12 @@ const addZero = (num: number) => {
   return s + num;
 };
 
-useEventListener(window, 'popstate', (e) => {
-  if (state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.productCode) {
-    window.history.pushState(null, '', document.URL);
-    goToInsurerPage(true, 'FHGGW');
-  }
-});
+// useEventListener(window, 'popstate', (e) => {
+//   if (state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.productCode) {
+//     window.history.pushState(null, '', document.URL);
+//     goToInsurerPage(true, 'FHGGW');
+//   }
+// });
 
 const orderDesc = computed(() => {
   if (ORDER_STATUS_ENUM.PAYING === state.orderDetail?.orderStatus) {
@@ -353,11 +375,11 @@ const orderDesc = computed(() => {
 onMounted(() => {
   getData();
   // 如果支持 popstate 一般移动端都支持了
-  if (window.history && window.history.pushState) {
-    // 往历史记录里面添加一条新的当前页面的url
-    window.history.pushState('forward', '', '#');
-    window.history.forward();
-  }
+  // if (window.history && window.history.pushState) {
+  //   // 往历史记录里面添加一条新的当前页面的url
+  //   window.history.pushState('forward', '', '#');
+  //   window.history.forward();
+  // }
 });
 </script>
 

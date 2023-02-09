@@ -101,7 +101,7 @@
       :label="certNoName"
       :name="`${prefix}_certNo`"
       :required="isRequiredByFactor('certNo')"
-      :maxlength="18"
+      :maxlength="certNoLimitLength"
       :is-view="isView"
       :validate-type="!certNoStatus ? validateType : undefined"
       @focus="onfocus('certNo')"
@@ -664,6 +664,7 @@ const certNo = computed(() => {
 dayjs.extend(relativeTime);
 
 const certEndType = ref<boolean>(props.formInfo.certEndType === 2);
+const certNoLimitLength = ref<number>(18);
 // 验证码相关逻辑
 const maxCountDown = 60;
 const countDownTimer = ref<number>(0);
@@ -797,6 +798,8 @@ const validateName = (value: string, rule: any) => {
 
 // 验证证件类型
 const validateType = computed(() => {
+  certNoLimitLength.value = 18;
+
   // 身份证和户口本
   if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(`${state.value.formInfo.certType}`)) {
     isIdCard.value = true;
@@ -804,7 +807,8 @@ const validateType = computed(() => {
   }
   // 出生证
   if (`${state.value.formInfo.certType}` === CERT_TYPE_ENUM.BIRTH) {
-    isIdCard.value = true;
+    isIdCard.value = false;
+    certNoLimitLength.value = 10;
     return [VALIDATE_TYPE_ENUM.BIRTH];
   }
   // 通信证
@@ -991,7 +995,7 @@ watch(
 watch(
   [() => state.value.formInfo.certNo, () => state.value.formInfo.certType],
   ([newVal]) => {
-    if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.BIRTH].includes(`${state.value.formInfo.certType}`)) {
+    if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(`${state.value.formInfo.certType}`)) {
       if (validateIdCardNo(newVal)) {
         state.value.formInfo.gender = +getSex(newVal);
         state.value.formInfo.birthday = dayjs(new Date(getBirth(newVal))).format('YYYY-MM-DD');

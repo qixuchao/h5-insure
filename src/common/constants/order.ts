@@ -100,6 +100,10 @@ export enum ORDER_STATUS_ENUM {
    */
   NOTE = 'note',
   /**
+   * 人核中
+   */
+  MANUAL_UNDERWRITING = 'manualUnderWriting',
+  /**
    * 核保通过
    */
   UNDER_WRITING_SUCCESS = 'underWritingSuccess',

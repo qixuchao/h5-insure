@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-30 18:20:10
+ * @LastEditTime: 2023-02-09 14:20:27
  * @Description:
 -->
 <template>
@@ -15,7 +15,7 @@
         </div>
       </div>
       <!-- 选择生效日期 -->
-      <!-- <div
+      <div
         v-if="riskGuaranteeStartDateType === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY"
         class="period-custom-cell period-common-cell"
         @click="onSelectCommencementTime"
@@ -27,11 +27,13 @@
               ? formatDate(state.formInfo.insuranceStartDate, 'YYYY.MM.DD HH:mm:ss')
               : ''
           }}</span>
-          <ProSvg class="custom--arrow-right" name="arrow-right"></ProSvg>
+          <ProSvg v-if="isShowCustomInsurancedate" class="custom--arrow-right" name="arrow-right"></ProSvg>
         </div>
-      </div> -->
-      <!-- v-if="riskGuaranteeStartDateType !== INSURANCE_START_TYPE_ENUM.CUSTOM_DAY" -->
-      <div class="period-custom-cell period-common-cell">
+      </div>
+      <div
+        v-if="riskGuaranteeStartDateType !== INSURANCE_START_TYPE_ENUM.CUSTOM_DAY"
+        class="period-custom-cell period-common-cell"
+      >
         <div class="period-cell-label">保障期限</div>
         <div class="period-cell-content">
           {{ state.formInfo.insuranceStartDate ? formatDate(state.formInfo.insuranceStartDate, 'YYYY.MM.DD') : '' }}-{{
@@ -146,6 +148,8 @@ const state = reactive({
   formInfo: props.formInfo,
 });
 
+const isShowCustomInsurancedate = ref(true);
+
 watch(
   () => state.formInfo.insuranceStartDate,
   (val) => {
@@ -243,17 +247,30 @@ const riskInsuranceEndType = computed(() => {
 const [show, toggle] = useToggle(false);
 
 const onSelectCommencementTime = () => {
+  if (!isShowCustomInsurancedate.value) return;
   toggle(true);
 };
 
-const minDate = new Date(computedAddDate(new Date(), 1, 'day'));
+const minDate = computed(() => {
+  if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) {
+    const tempDate = lastMainRiskInfo.value?.riskInsureLimitVO.maxInsuranceDay;
+    if (tempDate && tempDate.indexOf(',')) {
+      const [start, end] = tempDate.split(',');
+      return new Date(computedAddDate(new Date(), Number(start), 'day'));
+    }
+  }
+  return new Date(computedAddDate(new Date(), 1, 'day'));
+});
 
 // 日期选择框最大可选天数
 const maxDate = computed(() => {
   if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) {
     const tempDate = lastMainRiskInfo.value?.riskInsureLimitVO.maxInsuranceDay;
     if (!tempDate) return new Date();
-    // 注意看下当天是否可选
+    if (tempDate.indexOf(',')) {
+      const [start, end] = tempDate.split(',');
+      return new Date(computedAddDate(new Date(), Number(end), 'day'));
+    }
     const endDate = computedAddDate(new Date(), Number(tempDate), 'day');
     return new Date(endDate);
   }
@@ -286,7 +303,13 @@ watch(
         if (!tempDate) {
           state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), 1, 'day')} 00:00:00`;
         } else {
-          state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), tempDate, 'day')} 00:00:00`;
+          if (tempDate.indexOf(',')) {
+            const [start, end] = tempDate.split(',');
+            state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), Number(start), 'day')} 00:00:00`;
+            isShowCustomInsurancedate.value = start !== end;
+          } else {
+            state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), tempDate, 'day')} 00:00:00`;
+          }
         }
       } else if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.NEXT_DAY) {
         state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), 1, 'day')} 00:00:00`;

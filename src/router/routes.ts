@@ -214,6 +214,13 @@ const baseInsurance = [
     component: () => import('@/views/baseInsurance/templates/short.vue'),
   },
   {
+    // 升级款
+    name: 'baseInsurance-upgrade',
+    path: '/baseInsurance/upgrade',
+    meta: { title: '', keepAlive: true, requireWxJs: false },
+    component: () => import('@/views/baseInsurance/templates/upgrade.vue'),
+  },
+  {
     name: 'base网电销',
     path: '/baseInsurance/netsale',
     meta: { title: '', keepAlive: true },

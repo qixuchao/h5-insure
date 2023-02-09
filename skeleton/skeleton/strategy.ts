@@ -27,7 +27,7 @@ export function renderImg($dom: any) {
     background: '#eee',
   });
   if ($dom.attr(KEY) === 'img') {
-    $dom.attr('style', `width:${$dom[0].offsetWidth}px;height:${$dom[0].offsetHeight}px;`);
+    $dom.attr('style', `width:100%;height:${$dom[0].offsetHeight}px;`);
   }
   const emptyImage = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
   $dom.attr('src', emptyImage);

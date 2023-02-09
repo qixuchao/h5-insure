@@ -74,7 +74,6 @@ const loadPdfH5Viewer = () => {
   try {
     pdfh5.value = new Pdfh5(`#${id}`, {
       pdfurl: props.content,
-      renderType: 'svg',
       lazy: true,
     });
     // 监听完成事件

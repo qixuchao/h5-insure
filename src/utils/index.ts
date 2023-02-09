@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-28 10:28:12
  * @LastEditors: kevin.liang
- * @LastEditTime: 2023-02-01 10:49:19
+ * @LastEditTime: 2023-02-09 15:11:36
  * @FilePath: /zat-planet-h5-cloud-insure/src/utils/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -35,6 +35,13 @@ export const pickNameInList = (
 
 export const isApp = () => {
   return Boolean(window?.AppJSInterface || window?.webkit?.messageHandlers);
+};
+
+// 判断是否在逢客签app
+export const isAppFkq = () => {
+  const u = navigator.userAgent;
+  const isInApp = u.indexOf('fkqapp') > -1;
+  return isInApp;
 };
 
 export const toLocal = (number: number | null | undefined) => {
@@ -137,4 +144,27 @@ export const addScript = (url: string, callback = () => {}, isAsync = true) => {
     callback && callback();
   };
   document.getElementsByTagName('head')[0].appendChild(script);
+};
+
+/**
+ * 兼容iOS少数版本document.title设置不上的问题
+ * @param title 页面标题
+ */
+export const setPageTitle = (title: string): void => {
+  document.title = title;
+  const ua: any = navigator.userAgent.toLowerCase();
+  if (ua.match(/MicroMessenger/i) === 'micromessenger' && !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/i)) {
+    const iframe = document.createElement('iframe');
+    iframe.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+    iframe.style.display = 'none';
+    const fn = () => {
+      const timer = setTimeout(() => {
+        iframe.removeEventListener('load', fn);
+        document.body.removeChild(iframe);
+        clearTimeout(timer);
+      }, 0);
+    };
+    iframe.addEventListener('load', fn);
+    document.body.appendChild(iframe);
+  }
 };

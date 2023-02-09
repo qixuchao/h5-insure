@@ -54,7 +54,7 @@ export interface transformDataType {
 }
 
 // 将试算的参数转化成订单中需要的结构
-export const transformData = (o: transformDataType) => {
+export const transformData = (o: transformDataType, flag = false) => {
   const { tenantId, riskList, riskPremium, productId } = o;
   let currentRiskList = [];
   // 如果有险种保费，则只拿有保费的险种，否则就是全部险种
@@ -65,13 +65,13 @@ export const transformData = (o: transformDataType) => {
   }
   console.log('=============22222', currentRiskList);
   return currentRiskList.map((risk: RiskVoItem) => {
-    console.log('risk.chargePeriod=====', risk.chargePeriod);
+    console.log(flag, 'risk.chargePeriod=====', risk.chargePeriod);
     const currentRisk = {
       tenantId,
       amountUnit: 1,
       annuityDrawFrequency: risk.annuityDrawDate,
       annuityDrawType: risk.annuityDrawType,
-      paymentFrequency: risk.paymentFrequency,
+      paymentFrequency: flag ? 5 : risk.paymentFrequency,
       paymentPeriod: risk.chargePeriod.split('_')[1],
       paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],
       insurancePeriodType:
@@ -298,6 +298,8 @@ export const compositionTrailData = (
 
 interface orderParamType {
   tenantId: string;
+  templateId: string;
+  expiryDate: string;
   detail: ProductDetail;
   insureDetail: ProductData | undefined;
   saleUserId?: string; // 链接上带的，可能没有
@@ -333,6 +335,7 @@ export const genarateOrderParam = (o: orderParamType) => {
   const param = {
     orderAmount: o.premium,
     tenantId: o.tenantId,
+    expiryDate: o.expiryDate,
     venderCode: o.detail?.insurerCode,
     applicationNo: o.applicationNo,
     policyNo: o.policyNo,
@@ -358,10 +361,14 @@ export const genarateOrderParam = (o: orderParamType) => {
       extraInfo: {
         renewalDK: o.renewalDK, // 签约
         paymentMethod: o.paymentMethod,
+        templateId: o.templateId,
         paymentFrequency: o.paymentFrequency,
         successJumpUrl: o.successJumpUrl, // 支付成功跳转
+        isUpgrade: '1',
       },
       iseeBizNo: o.iseeBizNo,
+      templateId: o.templateId,
+      isUpgrade: '1',
     },
     tenantOrderInsuredList: [
       {
@@ -639,19 +646,18 @@ export const getReqData = (o: upgradeParamType, validatorRisk = (args: any) => t
             tenantId: orderDetail.tenantOrderInsuredList[0].tenantOrderProductList[0].tenantId,
             productCode: o.productDetail.productCode,
             productName: o.productDetail.productName,
-            tenantOrderRiskList: transformData({
-              tenantId: o.tenantId,
-              riskList: compositionTrailData(
-                productRiskVoListFilter(
-                  o.insureDetail.productRiskVoList,
-                  o.orderDetail?.tenantOrderInsuredList?.[0]?.certNo,
-                  validatorRisk,
-                )?.[0]?.riskDetailVOList,
-                o.productDetail,
-              ) as any,
-              riskPremium: {},
-              productId: o.productDetail?.id as number,
-            }),
+            tenantOrderRiskList: transformData(
+              {
+                tenantId: o.tenantId,
+                riskList: compositionTrailData(
+                  o.insureDetail.productRiskVoList?.[0]?.riskDetailVOList || [],
+                  o.productDetail,
+                ) as any,
+                riskPremium: {},
+                productId: o.productDetail?.id as number,
+              },
+              true,
+            ),
           },
         ],
       },
@@ -900,6 +906,7 @@ export const freeTransform = (o: any) => {
     tenantOrderHolder: {
       tenantId: o.tenantId,
       certType: o.order.tenantOrderHolder?.certType || CERT_TYPE_ENUM.CERT, // 默认身份证
+      certNo: (o.order.tenantOrderHolder?.certNo || '').toLocalUppercase(),
       ...o.order.tenantOrderHolder,
     },
     extInfo: {
@@ -917,6 +924,7 @@ export const freeTransform = (o: any) => {
         ...o.order.tenantOrderInsuredList[0],
         tenantId: o.tenantId,
         certType: o.order.tenantOrderInsuredList?.[0]?.certType || CERT_TYPE_ENUM.CERT, // 默认身份证
+        certNo: (o.order.tenantOrderInsuredList?.[0]?.certNo || '').toLocalUppercase(),
         mobile:
           o.order.tenantOrderInsuredList[0].relationToHolder === RELATION_HOLDER_ENUM.SELF
             ? o.order.tenantOrderHolder.mobile
@@ -991,4 +999,21 @@ export const getFileType = (attachmentType: string, url?: string) => {
     return 'picture';
   }
   return fileMap[attachmentType];
+};
+
+export const setRiskOrMainRisk = (risks: any) => {
+  const mainRisk = risks.filter((item: any) => {
+    return item.riskType === 1;
+  })?.[0];
+
+  return risks.map((item: any) => {
+    if (mainRisk && item.riskType !== 1) {
+      // eslint-disable-next-line no-param-reassign
+      item.riskInsureLimitVO.paymentFrequencyList =
+        item.riskInsureLimitVO.paymentTypeRule === 1
+          ? mainRisk.riskInsureLimitVO.paymentFrequencyList
+          : item.riskInsureLimitVO.paymentFrequencyList;
+    }
+    return item;
+  });
 };
