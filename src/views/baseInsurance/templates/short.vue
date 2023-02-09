@@ -680,6 +680,7 @@ const trialData2Order = (
     ...nextStepParams.tenantOrderHolder,
     socialFlag: isSocialLimit.value.holder ? nextStepParams.tenantOrderHolder.extInfo.hasSocialInsurance : null,
     certType: nextStepParams.tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
+    certNo: (nextStepParams.tenantOrderHolder.certNo || '').toLocaleUpperCase(),
     extInfo: {
       ...nextStepParams.tenantOrderHolder.extInfo,
       hasSocialInsurance: isSocialLimit.value.holder
@@ -691,6 +692,7 @@ const trialData2Order = (
     return {
       ...insurer,
       certType: insurer.certType || CERT_TYPE_ENUM.CERT,
+      certNo: (insurer.certNo || '').toLocaleUpperCase(),
       socialFlag: isSocialLimit.value.insured ? insurer.socialFlag : null,
       planCode: orderDetail.value.activePlanCode ? orderDetail.value.activePlanCode : null,
       extInfo: {

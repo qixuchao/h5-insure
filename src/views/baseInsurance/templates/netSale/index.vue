@@ -329,12 +329,16 @@ const trialData2Order = (
   // 设置投被保人的默认证件类型为身份证
   if (nextStepParams.tenantOrderHolder) {
     nextStepParams.tenantOrderHolder.certType = nextStepParams.tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT;
+    nextStepParams.tenantOrderHolder.certNo = (nextStepParams.tenantOrderHolder.certNo || '').toLocaleUpperCase();
   }
 
   if (nextStepParams.tenantOrderInsuredList) {
     // TODO 处理数组取0的方式
     nextStepParams.tenantOrderInsuredList[0].certType =
       nextStepParams.tenantOrderInsuredList[0].certType || CERT_TYPE_ENUM.CERT;
+    nextStepParams.tenantOrderInsuredList[0].certNo = (
+      nextStepParams.tenantOrderInsuredList[0].certNo || ''
+    ).toLocaleUpperCase();
 
     nextStepParams.tenantOrderInsuredList[0].tenantOrderProductList = [
       {

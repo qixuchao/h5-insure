@@ -906,6 +906,7 @@ export const freeTransform = (o: any) => {
     tenantOrderHolder: {
       tenantId: o.tenantId,
       certType: o.order.tenantOrderHolder?.certType || CERT_TYPE_ENUM.CERT, // 默认身份证
+      certNo: (o.order.tenantOrderHolder?.certNo || '').toLocalUppercase(),
       ...o.order.tenantOrderHolder,
     },
     extInfo: {
@@ -923,6 +924,7 @@ export const freeTransform = (o: any) => {
         ...o.order.tenantOrderInsuredList[0],
         tenantId: o.tenantId,
         certType: o.order.tenantOrderInsuredList?.[0]?.certType || CERT_TYPE_ENUM.CERT, // 默认身份证
+        certNo: (o.order.tenantOrderInsuredList?.[0]?.certNo || '').toLocalUppercase(),
         mobile:
           o.order.tenantOrderInsuredList[0].relationToHolder === RELATION_HOLDER_ENUM.SELF
             ? o.order.tenantOrderHolder.mobile
