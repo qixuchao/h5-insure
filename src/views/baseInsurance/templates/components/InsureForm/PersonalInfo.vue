@@ -804,7 +804,7 @@ const validateType = computed(() => {
   }
   // 出生证
   if (`${state.value.formInfo.certType}` === CERT_TYPE_ENUM.BIRTH) {
-    isIdCard.value = true;
+    isIdCard.value = false;
     return [VALIDATE_TYPE_ENUM.BIRTH];
   }
   // 通信证
