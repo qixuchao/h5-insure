@@ -965,6 +965,13 @@ const onResetFileFlag = () => {
 watch(
   () => orderDetail.value.tenantOrderInsuredList[0].relationToHolder,
   () => {
+    // 被保人与投保人关系切换时，重置加油包为不投保
+    if (currentPackageConfigVOList.value) {
+      currentPackageConfigVOList.value.forEach((e) => {
+        e.value = INSURE_TYPE_ENUM.UN_INSURE;
+      });
+    }
+
     needDesensitize.value = false;
     nextTick(() => {
       const { certType, extInfo: insuredExtInfo } = orderDetail.value.tenantOrderInsuredList[0];
