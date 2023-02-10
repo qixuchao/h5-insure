@@ -559,6 +559,12 @@ export const INSURANCE_PERIOD_TYPE_ENUMS = {
   to_life: 5,
 };
 
+export const INSURANCE_PERIOD_UNIT_ENUMS = {
+  day: '天',
+  month: '月',
+  year: '年',
+};
+
 export const PAYMENT_PERIOD_ENUMS = {
   1: 'single',
   2: 'year',
