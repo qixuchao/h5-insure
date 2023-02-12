@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-02-10 11:29:38
+ * @LastEditTime: 2023-02-11 22:00:22
  * @Description:
 -->
 <template>
@@ -196,7 +196,9 @@ watch(
   () => {
     periodList.value = [];
 
-    periodList.value = lastMainRiskInfo.value?.riskInsureLimitVO?.insurancePeriodValueList || [];
+    periodList.value = compositionInsuranceDesc(
+      lastMainRiskInfo.value?.riskInsureLimitVO?.insurancePeriodValueList || [],
+    );
 
     if (periodList.value.length > 0) {
       if (periodList.value.findIndex((e: any) => e.value === state.formInfo.insurancePeriodValue) < 0) {
