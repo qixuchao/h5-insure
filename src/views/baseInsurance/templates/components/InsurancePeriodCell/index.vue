@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-02-11 22:00:22
+ * @LastEditTime: 2023-02-12 21:06:03
  * @Description:
 -->
 <template>
@@ -67,7 +67,7 @@
     </van-datetime-picker>
   </ProPopup>
 </template>
-<script lang="ts" setup>
+<script lang="ts" setup name="insurancePeriodCell">
 import type { FormInstance } from 'vant';
 import dayjs from 'dayjs';
 import { useToggle } from '@vant/use';
