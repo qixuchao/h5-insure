@@ -33,9 +33,20 @@
         <div class="part">
           <ProCell title="保费" :content="productPremium"></ProCell>
           <ProCell
+            v-if="isShowInsureDate"
             title="保障期间"
             :content="`${insuranceStartDate.split(' ')[0]}~${insuranceEndDate.split(' ')[0]}`"
           ></ProCell>
+          <ProDatePicker
+            v-else
+            v-model="insurancePeriod.currentDate"
+            label="生效日期"
+            name="currentDate"
+            type="date"
+            :min="insurancePeriod.min"
+            :max="insurancePeriod.max"
+            :required="true"
+          ></ProDatePicker>
         </div>
 
         <div class="footer">
@@ -72,6 +83,7 @@ import { nextStepOperate as nextStep } from '@/views/baseInsurance/nextStep';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { NextStepRequestData, ExtInfo } from '@/api/index.data';
+import { INSURANCE_START_TYPE_ENUM, INSURANCE_END_TYPE_ENUM } from '@/common/constants/infoCollection';
 
 // 调用主题
 const themeVars = useTheme();
@@ -104,6 +116,13 @@ const factorObj = ref<Array<Partial<Pick<ProductData, 'productFactor'>>>>([{}]);
 const trialPremiumData = ref<Array<Partial<ProductPlanVoItem>>>([]);
 const currentFactor = ref<Partial<Pick<ProductData, 'productFactor'>>>({}); // 存贮需要使用的投保要素(productFactor、planFactor)
 const iseeBizNo = ref<string>(''); // 千里眼code
+
+// 保障生效开始日期的选择范围
+const insurancePeriod = ref({
+  min: new Date(dayjs().add(1, 'day').format('YYYY-MM-DD')),
+  max: new Date(),
+  currentDate: '',
+});
 
 let extInfo: Partial<ExtInfo> = {};
 
@@ -219,7 +238,49 @@ const currentRiskInfo = computed<ProductRiskVoItem[]>(() => {
     riskInfo = insureDetail.value?.productRiskVoList || [];
   }
 
+  const { insuranceStartType, riskInsureLimitVO } = riskInfo?.[0]?.riskDetailVOList?.[0] || {};
+  const { maxInsuranceDay } = riskInsureLimitVO || {};
+  if (insuranceStartType === +INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) {
+    const [startDate, endDate] = (maxInsuranceDay || '').split(',');
+    if (startDate && endDate && endDate !== startDate) {
+      insurancePeriod.value.min = new Date(
+        dayjs(new Date())
+          .add(+startDate || 0, 'day')
+          .format('YYYY-MM-DD'),
+      );
+      insurancePeriod.value.max = new Date(
+        dayjs(new Date())
+          .add(+endDate || 0, 'day')
+          .format('YYYY-MM-DD'),
+      );
+    } else if (startDate && endDate && endDate === startDate) {
+      insurancePeriod.value.currentDate = dayjs(new Date()).add(endDate, 'day').format('YYYY-MM-DD HH:mm:ss');
+    } else if (!endDate) {
+      insurancePeriod.value.max = new Date(
+        dayjs(new Date())
+          .add(+endDate || 0, 'day')
+          .format('YYYY-MM-DD'),
+      );
+    }
+  }
+
   return riskInfo;
+});
+
+// 是否展示保障期间
+const isShowInsureDate = computed(() => {
+  const { insuranceStartType, riskInsureLimitVO } = currentRiskInfo.value?.[0]?.riskDetailVOList?.[0] || {};
+  const { maxInsuranceDay } = riskInsureLimitVO || {};
+  // 不是指定时间生效
+  if (insuranceStartType !== +INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) {
+    return true;
+  }
+  const [startDate, endDate] = (maxInsuranceDay || '').split(',');
+  if (startDate === endDate) {
+    return true;
+  }
+
+  return false;
 });
 
 /* --------------计算保障开始、结束日期 ----------- */
@@ -227,8 +288,11 @@ const currentRiskInfo = computed<ProductRiskVoItem[]>(() => {
 const insuranceStartDate = computed<string>(() => {
   const riskInfo = currentRiskInfo.value || [];
   const startDateType = riskInfo?.[0]?.riskDetailVOList?.[0]?.insuranceStartType || 1;
-  if (startDateType === 1) {
-    return `${dayjs(new Date()).format('YYYY-MM-DD')} 00:00:00`;
+  if (insurancePeriod.value.currentDate) {
+    return `${dayjs(insurancePeriod.value.currentDate).format('YYYY-MM-DD')} 00:00:00`;
+  }
+  if (startDateType === +INSURANCE_START_TYPE_ENUM.CURRENT_DAY) {
+    return `${dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss')}`;
   }
   return `${dayjs(new Date()).add(1, 'day').format('YYYY-MM-DD')} 00:00:00`;
 });
@@ -243,13 +307,14 @@ const insuranceEndDate = computed(() => {
   }
   const [unit, num] = (insurancePeriodValueList?.[0] || '').split('_') as [string, number];
   // 当日23:59:59失效
-  if (insuranceEndType === 1) {
-    return `${dayjs(new Date())
+  if (insuranceEndType === +INSURANCE_END_TYPE_ENUM.CURRENT_DAY) {
+    return `${dayjs(insuranceStartDate.value)
       .add(num || 0, unit)
+      .subtract(1, 'day')
       .format('YYYY-MM-DD')} 23:59:59`;
   }
   // 次日00:00:00失效
-  return insuranceEndType ? `${dayjs(new Date()).add(num, unit).format('YYYY-MM-DD')} 00:00:00` : '';
+  return insuranceEndType ? `${dayjs(insuranceStartDate.value).add(num, unit).format('YYYY-MM-DD')} 00:00:00` : '';
 });
 
 const trialPremium = async (

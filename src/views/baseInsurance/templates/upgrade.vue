@@ -79,7 +79,6 @@ import {
 } from '@/api/modules/trial';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ProductData } from '@/api/modules/trial.data';
-import { nextStepOperate } from '@/views/baseInsurance/nextStep';
 import {
   freeTransform,
   genarateOrderParam,

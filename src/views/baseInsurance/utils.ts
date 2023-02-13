@@ -22,6 +22,7 @@ import {
   RULE_ENUM,
   PAYMENT_PERIOD_TYPE_ENUMS,
   INSURANCE_PERIOD_TYPE_ENUMS,
+  INSURANCE_PERIOD_UNIT_ENUMS,
 } from '@/common/constants/trial';
 import { CERT_TYPE_ENUM, SEX_LIMIT_ENUM } from '@/common/constants';
 import { getSex, getBirth } from '@/components/ProField/utils';
@@ -43,6 +44,24 @@ export const getExtInfo = (extInfo: string) => {
     console.log(e);
     return {};
   }
+};
+
+export const compositionInsuranceDesc = (list: string[]) => {
+  return (
+    list?.map((item: string) => {
+      const [unit, num] = item.split('_');
+      let name = '';
+      if (unit === 'to') {
+        name = `至${num}岁`;
+      }
+      if (item === 'to_life') {
+        name = '至终身';
+      } else if (unit !== 'to') {
+        name = `${num}${INSURANCE_PERIOD_UNIT_ENUMS[unit]}`;
+      }
+      return { name, value: item };
+    }) || []
+  );
 };
 
 /** */

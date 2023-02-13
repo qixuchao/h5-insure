@@ -2,14 +2,14 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-28 10:28:12
  * @LastEditors: kevin.liang
- * @LastEditTime: 2023-02-09 15:11:36
+ * @LastEditTime: 2023-02-13 15:39:12
  * @FilePath: /zat-planet-h5-cloud-insure/src/utils/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 // import md5 from 'md5';
 import dayjs from 'dayjs';
 import quarterOfYear from 'dayjs/plugin/quarterOfYear';
-import { INotice } from '@/api/modules/verify.data';
+import { parse } from 'qs';
 import { FILE_TYPE_ENUM } from '@/common/constants';
 
 dayjs.extend(quarterOfYear);
@@ -167,4 +167,18 @@ export const setPageTitle = (title: string): void => {
     iframe.addEventListener('load', fn);
     document.body.appendChild(iframe);
   }
+};
+
+/**
+ * 获取当前url上的query参数
+ * @param queryString 自己要处理的参数string
+ * @returns object
+ */
+export const getQueryObject = (queryString?: string) => {
+  const { search } = window.location;
+  const str = queryString || search.slice(1);
+  if (str && str.length > 1 && str.indexOf('=') > 1) {
+    return parse(str, { ignoreQueryPrefix: true, charset: 'utf-8', charsetSentinel: true });
+  }
+  return {};
 };

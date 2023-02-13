@@ -122,7 +122,7 @@
   <FilePreview
     v-if="showFilePreview"
     v-model:show="showFilePreview"
-    :content-list="filterHealthAttachmentList"
+    :content-list="isOnlyView ? filterHealthAttachmentList : mustReadFieldList"
     :is-only-view="isOnlyView"
     :active-index="activeIndex"
     :text="isOnlyView ? '关闭' : '我已逐页阅读并确认告知内容'"
@@ -553,6 +553,8 @@ const healthAttachmentList = computed(() => {
 
 // 除健康告知的其他资料
 const filterHealthAttachmentList = ref();
+
+const mustReadFieldList = ref([]);
 watch(
   [() => isMultiplePlan.value, () => orderDetail.value.activePlanCode, () => detail.value],
   () => {
@@ -587,6 +589,14 @@ watch(
         attachmentList: tempList[e],
       };
     });
+    mustReadFieldList.value = filterHealthAttachmentList.value
+      .map((fieldList) => {
+        return {
+          attachmentName: fieldList.attachmentName,
+          attachmentList: fieldList.attachmentList.filter((field) => field.mustReadFlag === YES_NO_ENUM.YES),
+        };
+      })
+      .filter((fieldList) => fieldList.attachmentList.length);
   },
   {
     immediate: true,
@@ -833,7 +843,7 @@ const trialPremium = async (
           }
           premiumMap.value = riskPremiumMap;
           // 文件弹窗
-          if (filterHealthAttachmentList.value.length > 0) {
+          if (mustReadFieldList.value.length > 0) {
             isOnlyView.value = false;
             previewFile(0);
           } else if (healthAttachmentList.value.length > 0) {

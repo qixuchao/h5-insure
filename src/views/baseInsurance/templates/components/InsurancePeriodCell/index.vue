@@ -1,8 +1,8 @@
 <!--
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
- * @LastEditors: zhaopu
- * @LastEditTime: 2023-02-09 14:20:27
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2023-02-12 21:06:03
  * @Description:
 -->
 <template>
@@ -67,17 +67,11 @@
     </van-datetime-picker>
   </ProPopup>
 </template>
-<script lang="ts" setup>
+<script lang="ts" setup name="insurancePeriodCell">
 import type { FormInstance } from 'vant';
 import dayjs from 'dayjs';
 import { useToggle } from '@vant/use';
-import {
-  INSURANCE_END_TYPE_ENUM,
-  INSURANCE_START_TYPE_ENUM,
-  PAYMENT_COMMON_FREQUENCY_ENUM,
-  PAYMENT_FREQUENCYE_LIST,
-  PAYMENT_FREQUENCY_ENUM, // 交费方式
-} from '@/common/constants/infoCollection';
+import { INSURANCE_END_TYPE_ENUM, INSURANCE_START_TYPE_ENUM } from '@/common/constants/infoCollection';
 import { PlanInsureVO, ProductDetail, ProductPlanInsureConditionVo, ShowConfigVO } from '@/api/modules/product.data';
 import { ProductData, ProductRelationPlanVoItem, ProductRiskVoItem, RiskDetailVoItem } from '@/api/modules/trial.data';
 import { formatDate, computedAddDate, computedSubtractDate } from '@/utils/date';
@@ -86,6 +80,7 @@ import useDicData from '@/hooks/useDicData';
 import ProShadowButton from '../ProShadowButton/index.vue';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { INSURANCE_PERIOD_ENUM } from '@/common/constants/trial';
+import { compositionInsuranceDesc } from '../../../utils';
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
@@ -142,8 +137,6 @@ const currentDate = ref<Date>(new Date());
 
 const emits = defineEmits(['onReset', 'onUpdate', 'onVerify']);
 
-const riskInfoPeriodList = useDicData('RISK_INSURANCE_PERIOD'); // 保障期间字典
-
 const state = reactive({
   formInfo: props.formInfo,
 });
@@ -199,23 +192,14 @@ watch(
 
 // 根据险种以及字典数据，获取枚举值
 watch(
-  [() => lastMainRiskInfo.value, () => riskInfoPeriodList.value],
+  () => lastMainRiskInfo.value,
   () => {
     periodList.value = [];
-    if (Array.isArray(riskInfoPeriodList.value) && riskInfoPeriodList.value.length > 1 && lastMainRiskInfo.value) {
-      periodList.value = (lastMainRiskInfo.value.riskInsureLimitVO.insurancePeriodValueList || [])
-        .map((item: string) => {
-          const periodItem = riskInfoPeriodList.value.find((e) => e.value === item);
-          if (periodItem) {
-            return {
-              label: periodItem.name,
-              value: periodItem.value,
-            };
-          }
-          return null;
-        })
-        .filter((e) => !!e);
-    }
+
+    periodList.value = compositionInsuranceDesc(
+      lastMainRiskInfo.value?.riskInsureLimitVO?.insurancePeriodValueList || [],
+    );
+
     if (periodList.value.length > 0) {
       if (periodList.value.findIndex((e: any) => e.value === state.formInfo.insurancePeriodValue) < 0) {
         state.formInfo.insurancePeriodValue = periodList.value[0].value;

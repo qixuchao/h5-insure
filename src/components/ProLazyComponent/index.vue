@@ -1,8 +1,8 @@
 <!--
  * @Author: zhaopu
  * @Date: 2022-12-29 17:34:36
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-29 17:40:41
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2023-02-13 14:33:49
  * @Description:
 -->
 <template>
@@ -21,7 +21,6 @@ onMounted(() => {
   setTimeout(() => {
     useIntersectionObserver(target, ([{ isIntersecting }]) => {
       if (isIntersecting && !show.value) {
-        console.log('来吧展示:', isIntersecting);
         show.value = true;
       }
     });
