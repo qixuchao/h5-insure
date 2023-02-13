@@ -54,7 +54,7 @@ const start = async () => {
   } catch (e) {
     console.log('获取cookies失败，或不是移动端');
   }
-  console.log('import.meta.env ', import.meta.env);
+  // console.log('import.meta.env ', import.meta.env);
   dayjs.locale({ ...zh, weekStart: 1 });
   const app = createApp(App);
 
