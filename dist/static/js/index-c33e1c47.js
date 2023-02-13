@@ -1,0 +1,1 @@
+import{_ as a,d as e,b as s,c as r,e as t,j as l}from"./index-8e56e59a.js";var n=a(e({props:{isCheck:{type:Boolean,default:!1},url:{type:String,default:""}},setup(a){const e=a;return(a,n)=>{const o=s("van-image");return e.url?(r(),t(o,{key:0,width:"100%",class:"banner","lazy-load":"",src:e.url},null,8,["src"])):l("",!0)}}}),[["__scopeId","data-v-34cbd784"]]);export{n as B};
