@@ -53,7 +53,7 @@
     <FilePreview
       v-if="state.showFilePreview && filterHealthAttachmentList.length !== 0"
       v-model:show="state.showFilePreview"
-      :content-list="filterHealthAttachmentList"
+      :content-list="state.isOnlyView ? filterHealthAttachmentList : mustReadFieldList"
       :is-only-view="state.isOnlyView"
       :active-index="state.activeIndex"
       :text="state.isOnlyView ? '关闭' : '我已逐页阅读上述内容并同意'"
@@ -83,7 +83,7 @@ import { RELATIONENUM } from '@/common/constants/trial';
 import { freeTransform, validateSmsCode } from '../utils';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 import { useTheme } from '../theme';
-import { CERT_TYPE_ENUM } from '@/common/constants';
+import { CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import Banner from './components/Banner/index.vue';
 import ProShadowButton from './components/ProShadowButton/index.vue';
 import FreeHolderForm from './components/FreeHolderForm/index.vue';
@@ -194,6 +194,8 @@ const state = reactive<{
 });
 
 const filterHealthAttachmentList = ref();
+// 弹窗中需要阅读的文件
+const mustReadFieldList = ref<any[]>([]);
 
 if (openId) {
   useAddressList({ openId }, (data: any) => {
@@ -246,6 +248,15 @@ const setfileList = () => {
         attachmentList: tempList[e],
       };
     }) || [];
+
+  mustReadFieldList.value = filterHealthAttachmentList.value
+    .map((fieldList) => {
+      return {
+        attachmentName: fieldList.attachmentName,
+        attachmentList: fieldList.attachmentList.filter((field) => field.mustReadFlag === YES_NO_ENUM.YES),
+      };
+    })
+    .filter((fieldList) => fieldList.attachmentList.length);
 };
 
 /* --------------计算保障开始、结束日期 ----------- */
@@ -400,7 +411,7 @@ const clickHandler = async () => {
     return null;
   }
 
-  if (state.newAuth || filterHealthAttachmentList.value.length === 0) {
+  if (state.newAuth || !mustReadFieldList.value.length) {
     onSaveOrder();
   } else {
     state.isOnlyView = false;

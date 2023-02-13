@@ -18,7 +18,7 @@
   <ProPopup v-model:show="show" :height="60" :closeable="false" class="com-cascader-popup">
     <van-cascader
       :title="title || label"
-      :options="dataSource"
+      :options="currentDataSource"
       :field-names="fieldNames"
       :model-value="modelValue"
       @close="handleClose"
@@ -115,6 +115,8 @@ const currentPlaceholder = computed(() => {
   return props.placeholder || `请选择${props.label}`;
 });
 
+const currentDataSource = ref<any[]>([]);
+
 const handleClick = () => {
   toggle(true);
 };
@@ -123,17 +125,33 @@ const handleClose = () => {
   toggle(false);
 };
 
-const deleteEmptyChildren = (item: any) => {
-  if (item.children) {
-    if (!item.children.length) {
-      // eslint-disable-next-line
-      delete item.children;
-    } else {
-      item.children.forEach((child: any) => {
-        deleteEmptyChildren(child);
-      });
-    }
+// const deleteEmptyChildren = (item: any) => {
+//   if (item.children) {
+//     if (!item.children.length) {
+//       // eslint-disable-next-line
+//       delete item.children;
+//     } else {
+//       item.children.forEach((child: any) => {
+//         deleteEmptyChildren(child);
+//       });
+//     }
+//   }
+// };
+
+const deleteOperate = (dataSource) => {
+  if (Array.isArray(dataSource)) {
+    return dataSource.map(({ children, ...other }) => {
+      const currentData = {};
+      if (children.length) {
+        currentData.children = deleteOperate(children);
+      }
+      return {
+        ...other,
+        ...currentData,
+      };
+    });
   }
+  return [];
 };
 
 const flat = (list: any[]) => {
@@ -150,9 +168,7 @@ const flat = (list: any[]) => {
 watch(
   () => props.dataSource,
   () => {
-    (props?.dataSource || []).forEach((item) => {
-      deleteEmptyChildren(item);
-    });
+    currentDataSource.value = deleteOperate(props.dataSource);
   },
   {
     deep: true,

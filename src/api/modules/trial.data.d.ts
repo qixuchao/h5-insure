@@ -39,6 +39,7 @@ export interface RiskDetailVoItem {
     insurerCode: string;
     insuranceStartType: number;
     insuranceEndType: number;
+    maxInsuranceDay: string;
     insurerName: string;
     liabilityPlanOssUrl: string;
     mainRiskCode: string;
@@ -58,6 +59,7 @@ export interface RiskDetailVoItem {
     riskRuleInfoVOList: RiskRuleInfoVoItem[];
     riskType: number;
     riskTypeDesc: string;
+
 }
 
 export interface RiskRuleInfoVoItem {
