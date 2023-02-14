@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-27 21:01:33
  * @LastEditors: kevin.liang
- * @LastEditTime: 2023-02-13 13:53:33
+ * @LastEditTime: 2023-02-14 15:16:54
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/middle/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -13,7 +13,8 @@
 </template>
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import qs from 'qs';
+import { stringify } from 'qs';
+import { deleteQuery } from '@/utils/index';
 import { validateSign } from '@/api';
 import { PAGE_CODE_ENUM, TEMPLATE_TYPE_MAP } from '@/common/constants/infoCollection';
 import { queryStandardInsurerLink } from '@/api/modules/trial';
@@ -102,7 +103,7 @@ const jumpRouter = (url?: string) => {
         templateId,
       }),
     );
-    router.push(`/baseInsurance/upgrade?${qs.stringify(params)}`);
+    router.push(`/baseInsurance/upgrade?${stringify(params)}`);
     return;
   }
   let path = url;
@@ -111,7 +112,7 @@ const jumpRouter = (url?: string) => {
     path = activityUrl;
   }
 
-  router.replace(encodeURI(`${path}?${qs.stringify(route.query)}`));
+  router.replace(encodeURI(`${path}?${stringify(route.query)}`));
 };
 
 const onValidateSign = (param: string) => {
@@ -129,6 +130,11 @@ const onValidateSign = (param: string) => {
   });
 };
 
+// 去掉链接上的多余扩展参数
+const getUrlParamNoExt = (search: string) => {
+  return deleteQuery(['ext'], search);
+};
+
 const onGetInsureLink = async () => {
   const { code, data } = await queryStandardInsurerLink({
     insurerCode,
@@ -138,13 +144,14 @@ const onGetInsureLink = async () => {
     extraMap: { ...extInfo, templateId: wxTemplateId },
   });
   if (code === '10000') {
-    onValidateSign((data || '').split('?')[1]);
+    const lastUrl = getUrlParamNoExt(data);
+    onValidateSign(lastUrl.split('?')[1]);
   }
 };
 
 onBeforeMount(() => {
   if (!openId) {
-    onValidateSign(window.location.search.replace('?', ''));
+    onValidateSign(getUrlParamNoExt(window.location.search));
   } else {
     onGetInsureLink();
   }
