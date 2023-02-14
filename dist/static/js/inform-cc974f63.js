@@ -1,0 +1,1 @@
+import{A as e}from"./index-9aeeb9a7.js";const a="/api/app/insure/insurance",s=s=>e({url:`${a}/listCustomerQuestions`,method:"POST",data:s}),t=s=>e({url:`${a}/getCustomerQuestionsDetail`,method:"POST",data:s}),o=s=>e({url:`${a}/saveMarketerNotices`,method:"POST",data:s});export{t as g,s as l,o as s};
