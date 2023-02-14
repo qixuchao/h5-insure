@@ -1,8 +1,8 @@
 <!--
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-02-12 21:06:03
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2023-02-14 14:43:42
  * @Description:
 -->
 <template>
@@ -20,15 +20,29 @@
         class="period-custom-cell period-common-cell"
         @click="onSelectCommencementTime"
       >
-        <div class="period-cell-label">生效日期</div>
-        <div class="period-cell-content period-custom-cell-content">
-          <span>{{
-            state.formInfo.insuranceStartDate
-              ? formatDate(state.formInfo.insuranceStartDate, 'YYYY.MM.DD HH:mm:ss')
-              : ''
-          }}</span>
-          <ProSvg v-if="isShowCustomInsurancedate" class="custom--arrow-right" name="arrow-right"></ProSvg>
-        </div>
+        <template v-if="isShowCustomInsurancedate">
+          <div class="period-cell-label">生效日期</div>
+          <div class="period-cell-content period-custom-cell-content">
+            <span>{{
+              state.formInfo.insuranceStartDate
+                ? formatDate(state.formInfo.insuranceStartDate, 'YYYY.MM.DD HH:mm:ss')
+                : ''
+            }}</span>
+            <ProSvg class="custom--arrow-right" name="arrow-right"></ProSvg>
+          </div>
+        </template>
+        <template v-else>
+          <div class="period-cell-label">保障期限</div>
+          <div class="period-cell-content period-custom-cell-content">
+            <span
+              >{{
+                state.formInfo.insuranceStartDate ? formatDate(state.formInfo.insuranceStartDate, 'YYYY.MM.DD') : ''
+              }}-{{
+                state.formInfo.insuranceEndDate ? formatDate(state.formInfo.insuranceEndDate, 'YYYY.MM.DD') : ''
+              }}</span
+            >
+          </div>
+        </template>
       </div>
       <div
         v-if="riskGuaranteeStartDateType !== INSURANCE_START_TYPE_ENUM.CUSTOM_DAY"
