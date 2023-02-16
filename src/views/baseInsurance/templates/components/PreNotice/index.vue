@@ -1,13 +1,13 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-09-15 15:01:12
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-01-04 15:02:41
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2023-02-16 10:54:00
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/PreNotice/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
-  <ProPopup class="pre-notice-wrap" :show="noticeShow" :closeable="false" :height="45">
+  <ProPopup class="pre-notice-wrap" :show="noticeShow" :closeable="false" height="auto" style="padding-bottom: 30px">
     <div class="header"><img :src="HeaderImg" /></div>
     <div class="content">
       <h4>温馨提示，您已进入投保流程：</h4>
@@ -19,6 +19,7 @@
         ，为维护您的合法权益，您的操作轨迹将被记录。
       </p>
     </div>
+    <abbr class="statement">{{ state.statement }} </abbr>
     <div class="footer">
       <VanButton type="primary" block round @click="closePopup">
         好的
@@ -45,6 +46,7 @@ import { queryInsurePopupConfig } from '@/api/modules/product';
 import Storage from '@/utils/storage';
 import ProShadowButton from '../ProShadowButton/index.vue';
 import HeaderImg from '@/assets/images/baseInsurance/header-logo.png';
+import { useCustomStatement } from '../../customLogic';
 
 const props = defineProps({
   productDetail: {
@@ -66,7 +68,11 @@ const state = reactive({
   insureConfig: {
     insureName: '',
     tenantName: '',
+    privacyAgreement: {
+      title: '',
+    },
   },
+  statement: '',
 });
 
 const STORAGE_PREFIX = 'PRENOTICE';
@@ -134,6 +140,7 @@ const initData = async () => {
 
 onMounted(() => {
   initData();
+  state.statement = useCustomStatement(tenantId);
 });
 </script>
 
@@ -179,6 +186,13 @@ onMounted(() => {
       }
     }
   }
+}
+.statement {
+  display: block;
+  padding: 0 32px;
+  font-size: 28px;
+  color: #616161;
+  text-align: left;
 }
 </style>
 <!-- <style scoped lang="scss">

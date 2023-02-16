@@ -1,11 +1,3 @@
-/*
- * @Author: za-qixuchao qixuchao@zhongan.com
- * @Date: 2022-11-28 17:42:39
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-02-12 21:06:22
- * @FilePath: /zat-planet-h5-cloud-insure/vite.config.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 /* eslint-disable no-shadow */
 import { defineConfig, loadEnv } from 'vite';
 import path, { resolve } from 'path';
@@ -47,7 +39,7 @@ export default defineConfig((env) => {
         '/api': {
           // 本地 8000 前端代码的接口 代理到 8888 的服务端口
           // target: 'http://150039-zat-planet-gateway.test.za-tech.net',
-          // target: 'https://h5-cloud-insure.ennejb.cn',
+          // target: 'https://gateway-tst.ennejb.cn',
           // target: 'https://h5-test.ennejb.cn',http://177716-zat-planet-gateway.test.za-tech.net/
           // target: 'http://177716-zat-planet-gateway.test.za-tech.net',
           // target: 'https://zat-planet-h5-cloud-insure-pre.zhongan.io',
