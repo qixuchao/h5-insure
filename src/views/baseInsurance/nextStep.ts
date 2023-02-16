@@ -3,7 +3,7 @@ import { Toast, Dialog } from 'vant';
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2022-12-01 11:06:22
  * @LastEditors: kevin.liang
- * @LastEditTime: 2023-02-13 15:42:58
+ * @LastEditTime: 2023-02-14 12:53:52
  * @FilePath: /zat-planet-h5-cloud-insure/src/utils/nextStep.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -24,15 +24,15 @@ export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: 
     const redirectUrl = `${`${window.location.origin}${VITE_BASE}baseInsurance/orderDetail`}?orderNo=${orderNo}&tenantId=${tenantId}&ISEE_BIZ=${iseeBizNo}&productCode=${productCode}`;
     currentParams.extInfo.redirectUrl = redirectUrl;
   }
-  // const queryObj = getQueryObject();
-  // //  从链接上取三方扩展字段,带到订单中
-  // if (queryObj.thirdExtInfo) {
-  //   try {
-  //     currentParams.thirdExtInfo = JSON.parse(decodeURIComponent(queryObj.thirdExtInfo));
-  //   } catch (err) {
-  //     console.error('thirdExtInfo 参数格式错误', queryObj.thirdExtInfo, err);
-  //   }
-  // }
+  const queryObj = getQueryObject();
+  //  从链接上取三方扩展字段,带到订单中
+  if (queryObj.ext) {
+    try {
+      currentParams.ext = queryObj.ext;
+    } catch (err) {
+      console.error('ext 参数格式错误', queryObj.ext, err);
+    }
+  }
 
   const { code, data } = await nextStep(currentParams);
   if (code === '10000') {
