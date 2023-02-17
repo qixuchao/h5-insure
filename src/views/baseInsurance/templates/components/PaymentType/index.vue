@@ -1,10 +1,3 @@
-<!--
- * @Author: zhaopu
- * @Date: 2022-11-24 23:45:20
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-15 11:37:15
- * @Description:
--->
 <template>
   <van-config-provider>
     <div class="com-payment-type">
@@ -105,47 +98,52 @@ interface FormInfoProps {
 }
 
 const props = defineProps({
+  // 短显采集的信息
   formInfo: {
     type: Object as () => OrderDetail,
     default: () => {},
   },
+  // 险种信息
   insureDetail: {
     type: Object as () => ProductData,
     default: () => {},
   },
+  // 配置信息
   configDetail: {
     type: Object as () => ProductDetail,
     default: () => {},
   },
+  // 是否多计划
   isMultiplePlan: {
     type: Boolean,
     default: false,
   },
+  // 保额、保费单位
   premiumInfo: {
     type: Object as any,
     default: () => {},
   },
 });
 
-const emits = defineEmits(['update-active-plan']);
-
 const state = reactive({
   formInfo: props.formInfo,
 });
 
+// 多计划列表
 const planList = ref<PlanInsureVO[]>([]);
+
+// 投保条件
 const insureCondition = ref<ProductPlanInsureConditionVo>();
 
+// 当前计划信息
 const planInsure = ref<PlanInsureVO>();
 
+// 是否展示交费方式（配置端投保条件开关控制）
 const isShowPaymentFrequency = computed(() => {
   return String(insureCondition.value?.paymentFrequencyFlag) === '1';
 });
 
-const premiumItem = computed(() => {
-  return planInsure.value?.productPremiumVOList.find((e) => e.paymentFrequency === state.formInfo.paymentFrequency);
-});
-
+// 根据实际保额保费单位展示实际保费
 const actualPremium = computed(() => {
   if (props.premiumInfo.premiumLoadingText) return props.premiumInfo.premiumLoadingText;
   if (props.premiumInfo.premium) {
@@ -154,6 +152,7 @@ const actualPremium = computed(() => {
   return `${props.premiumInfo.minPremiun || ''}${props.premiumInfo.unit || ''}`;
 });
 
+// 保费计算说明信息
 const explainInfo = computed(() => {
   if (planInsure) {
     const { premiumExplain, premiumExplainViewName, premiumExplainUri } = planInsure.value || {};
@@ -166,10 +165,12 @@ const explainInfo = computed(() => {
   return null;
 });
 
+// 是否展示保费计算说明
 const isShowExplainInfo = computed(() => {
   return explainInfo.value && explainInfo.value.premiumExplain && explainInfo.value.premiumExplainViewName;
 });
 
+// 获取计划列表
 watch(
   () => props.configDetail,
   () => {
@@ -183,6 +184,7 @@ watch(
   },
 );
 
+// 获取计划信息及投保条件
 watch(
   [() => props.configDetail, () => props.isMultiplePlan, () => state.formInfo.activePlanCode],
   () => {
@@ -207,6 +209,7 @@ watch(
   },
 );
 
+// 交费方式 | 保障计划 名称判断
 const isShowPaymentSelect = computed(() => {
   if (insureCondition.value && insureCondition.value.paymentFrequency) {
     const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
@@ -215,6 +218,7 @@ const isShowPaymentSelect = computed(() => {
   return false;
 });
 
+// 根据投保条件信息获取交费方式列表，
 watch(
   () => insureCondition.value,
   () => {
@@ -225,6 +229,7 @@ watch(
         return;
       }
 
+      // 当交费方式只有一次交清和月交时，默认选中一次交清。
       if (
         paymentFrequencyList.length === 2 &&
         paymentFrequencyList.filter(
@@ -236,7 +241,7 @@ watch(
         }
         return;
       }
-      console.log('paymentFrequencyList=================', paymentFrequencyList);
+      // 默认选中第一种交费方式
       if (paymentFrequencyList.length > 1 && !state.formInfo.paymentFrequency) {
         state.formInfo.paymentFrequency = paymentFrequencyList?.[0];
       }
@@ -248,6 +253,7 @@ watch(
   },
 );
 
+// 获取交费方式皮肤列表
 const skinValue = computed(() => {
   if (insureCondition.value) {
     return (insureCondition.value.paymentFrequencyList || [])?.map((e: any) => ({
@@ -258,10 +264,12 @@ const skinValue = computed(() => {
   return [];
 });
 
+// 交费方式是否以皮肤方式展示
 const showPictureBtn = computed(() => {
   return skinValue.value.length > 0;
 });
 
+// 计划皮肤列表
 const planSkinVlaue = computed(() => {
   if (props.isMultiplePlan) {
     return props.configDetail.tenantProductInsureVO.planList
@@ -278,11 +286,11 @@ const planSkinVlaue = computed(() => {
   return [];
 });
 
+// 交费方式列表
 const peymentBtnList = computed(() => {
   if (insureCondition.value) {
     const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
     if (paymentFrequencyList.length === 1) {
-      console.log('paymentFrequencyList======', paymentFrequencyList);
       // eslint-disable-next-line prefer-destructuring
       state.formInfo.paymentFrequency = paymentFrequencyList[0];
     }
@@ -294,15 +302,17 @@ const peymentBtnList = computed(() => {
   return [];
 });
 
+// 切换交费方式
 const onClickPaymethod = (type: string) => {
-  console.log('type', type);
   state.formInfo.paymentFrequency = type;
 };
 
+// 切换计划
 const onClickPlanCode = (planCode: string) => {
   state.formInfo.activePlanCode = planCode;
 };
 
+// 预览费率文件
 const onPreviewFeerateFile = () => {
   if (!explainInfo.value?.premiumExplainUri) {
     Toast('无费率文件！');
@@ -310,8 +320,6 @@ const onPreviewFeerateFile = () => {
   }
   openPreviewFilePage({ fileType: 'pdf', fileUri: explainInfo.value?.premiumExplainUri });
 };
-
-defineExpose({});
 </script>
 
 <style lang="scss" scoped>

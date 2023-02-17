@@ -2,7 +2,7 @@
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
  * @LastEditors: zhaopu
- * @LastEditTime: 2023-02-14 14:43:42
+ * @LastEditTime: 2023-02-17 15:28:20
  * @Description:
 -->
 <template>
@@ -87,7 +87,13 @@ import dayjs from 'dayjs';
 import { useToggle } from '@vant/use';
 import { INSURANCE_END_TYPE_ENUM, INSURANCE_START_TYPE_ENUM } from '@/common/constants/infoCollection';
 import { PlanInsureVO, ProductDetail, ProductPlanInsureConditionVo, ShowConfigVO } from '@/api/modules/product.data';
-import { ProductData, ProductRelationPlanVoItem, ProductRiskVoItem, RiskDetailVoItem } from '@/api/modules/trial.data';
+import {
+  ProductData,
+  OrderDetail,
+  ProductRelationPlanVoItem,
+  ProductRiskVoItem,
+  RiskDetailVoItem,
+} from '@/api/modules/trial.data';
 import { formatDate, computedAddDate, computedSubtractDate } from '@/utils/date';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import useDicData from '@/hooks/useDicData';
@@ -98,34 +104,9 @@ import { compositionInsuranceDesc } from '../../../utils';
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
-interface FormInfoProps {
-  paymentMethod: string;
-  paymentFrequency: string;
-  renewalDK: string;
-  holder: {
-    certNo: string;
-    mobile: string;
-    name: string;
-    socialFlag: string;
-    mobileSmsCode: string;
-  };
-  insured: {
-    certNo: string;
-    name: string;
-    socialFlag: string;
-    relationToHolder: string;
-  };
-  tenantOrderInsuredList: any;
-  activePlanCode: string;
-  insurancePeriodValue: string; // 保障期限
-  insuranceStartDate: string;
-  insuranceEndDate: string;
-  commencementTime: string;
-}
-
 const props = defineProps({
   formInfo: {
-    type: Object as () => FormInfoProps,
+    type: Object as () => OrderDetail,
     default: () => {},
   },
   insureDetail: {
@@ -134,6 +115,7 @@ const props = defineProps({
   },
 });
 
+// 生效日期选择框格式
 const formatter = (type: string, val: string) => {
   if (type === 'year') {
     return `${val}年`;
@@ -147,6 +129,7 @@ const formatter = (type: string, val: string) => {
   return val;
 };
 
+// 初始化生效日期
 const currentDate = ref<Date>(new Date());
 
 const emits = defineEmits(['onReset', 'onUpdate', 'onVerify']);
@@ -155,7 +138,14 @@ const state = reactive({
   formInfo: props.formInfo,
 });
 
+// 是否展示生效日期选择框
 const isShowCustomInsurancedate = ref(true);
+
+// 主险信息
+const lastMainRiskInfo = ref<any>();
+
+// 保障期限枚举值
+const periodList = ref<any[]>([]);
 
 watch(
   () => state.formInfo.insuranceStartDate,
@@ -168,16 +158,10 @@ watch(
   },
 );
 
-const lastMainRiskInfo = ref<any>();
-
-// 保障期限枚举值
-const periodList = ref<any[]>([]);
-
-// 根据是否多计划，获取相应主险信息，从而获取保障期限
+// 根据是否多计划，获取相应主险信息，从而获取保障期限。
 watch(
   [() => props.insureDetail, () => state.formInfo.activePlanCode],
   () => {
-    // state.formInfo.insurancePeriodValue = '';
     state.formInfo.insuranceStartDate = '';
     state.formInfo.insuranceEndDate = '';
     state.formInfo.commencementTime = '';
@@ -204,7 +188,7 @@ watch(
   },
 );
 
-// 根据险种以及字典数据，获取枚举值
+// 根据险种以及字典数据，获取保障期间选择枚举值
 watch(
   () => lastMainRiskInfo.value,
   () => {
@@ -215,10 +199,12 @@ watch(
     );
 
     if (periodList.value.length > 0) {
+      // 切换计划时，如果已选保障期间仍有可选项，默认选中已选择的保障期间
       if (periodList.value.findIndex((e: any) => e.value === state.formInfo.insurancePeriodValue) < 0) {
         state.formInfo.insurancePeriodValue = periodList.value[0].value;
       }
     } else {
+      // 若没有保障期间，默认未一年期
       state.formInfo.insurancePeriodValue = INSURANCE_PERIOD_ENUM.YEAR_1;
     }
   },
@@ -242,6 +228,7 @@ const riskInsuranceEndType = computed(() => {
     : INSURANCE_END_TYPE_ENUM.CURRENT_DAY;
 });
 
+// 日期选择弹出控制
 const [show, toggle] = useToggle(false);
 
 const onSelectCommencementTime = () => {
@@ -249,6 +236,7 @@ const onSelectCommencementTime = () => {
   toggle(true);
 };
 
+// 日期选择框最小可选日期
 const minDate = computed(() => {
   if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) {
     const tempDate = lastMainRiskInfo.value?.riskInsureLimitVO.maxInsuranceDay;
@@ -260,7 +248,7 @@ const minDate = computed(() => {
   return new Date(computedAddDate(new Date(), 1, 'day'));
 });
 
-// 日期选择框最大可选天数
+// 日期选择框最大可选日期
 const maxDate = computed(() => {
   if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) {
     const tempDate = lastMainRiskInfo.value?.riskInsureLimitVO.maxInsuranceDay;
@@ -275,8 +263,8 @@ const maxDate = computed(() => {
   return new Date();
 });
 
+// 确认选择日期
 const handleConfirm = (value: Date) => {
-  // state.formInfo.commencementTime = formatDate(value);
   state.formInfo.insuranceStartDate = `${formatDate(value)} 00:00:00`;
   toggle(false);
 };
@@ -285,6 +273,7 @@ const handleCancel = () => {
   toggle(false);
 };
 
+// 监听保障开始日期类型，保障期间，保障开始日期，主险信息。重新计算保障开始日期和保障结束日期
 watch(
   [
     () => riskGuaranteeStartDateType.value,
@@ -294,8 +283,12 @@ watch(
   ],
   () => {
     if (!state.formInfo.insurancePeriodValue) return;
+    // 将保障期间拆分为 值和单位
     const [unit, num] = state.formInfo.insurancePeriodValue.split('_');
     if (!state.formInfo.insuranceStartDate) {
+      // 如果是指定日期生效，需要判断 maxInsuranceDay 字段， 可拆分为两个值【start, end】，
+      // 若[start, end]一致，则默认保障日期开始日期为当前日期 + start, 同时展示标签为保障期限，不可自主选择日期
+      // 若[start, end]不一致，则保障开始日期默认为当前日期 + start，同时展示为生效日期，可通过日期选择框，根据计算出的最大、最小日期，重新选择保障开始日期
       if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) {
         const tempDate = lastMainRiskInfo.value?.riskInsureLimitVO.maxInsuranceDay;
         if (!tempDate) {
@@ -306,15 +299,19 @@ watch(
             state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), Number(start), 'day')} 00:00:00`;
             isShowCustomInsurancedate.value = start !== end;
           } else {
+            // 兼容老版本
             state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), tempDate, 'day')} 00:00:00`;
           }
         }
       } else if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.NEXT_DAY) {
+        // 次日生效
         state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), 1, 'day')} 00:00:00`;
       } else {
+        // 当天生效
         state.formInfo.insuranceStartDate = `${formatDate(new Date())} 00:00:00`;
       }
     }
+    // 根据保障期间，获取 值和单位， 再根据结束日期类型，计算出具体的结束日期
     if (unit !== 'to') {
       const tempStartDate = `${computedSubtractDate(state.formInfo.insuranceStartDate, 1, 'day')} 00:00:00`;
       if (riskInsuranceEndType.value === INSURANCE_END_TYPE_ENUM.CURRENT_DAY) {
@@ -327,6 +324,7 @@ watch(
         )} 00:00:00`;
       }
     } else {
+      // 当保障期间为保终身，保质某年龄等情况。 暂时无用
       let birth = state.formInfo.tenantOrderInsuredList[0].birthday;
       if (
         state.formInfo.tenantOrderInsuredList[0].certType === CERT_TYPE_ENUM.CERT &&
