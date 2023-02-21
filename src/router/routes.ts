@@ -125,46 +125,6 @@ const proposalRoutes: Array<RouteRecordRaw> = [
   },
 ];
 
-// 创新-白鸽宝路由
-const baigebaoRoutes = [
-  {
-    name: 'baigebaoCheck',
-    path: '/chuangxin/baigebao/check',
-    meta: { title: '审核' },
-    component: () => import('@/views/chuangxin/baigebao/check/index.vue'),
-  },
-  {
-    name: 'baigebaoFree',
-    path: '/chuangxin/baigebao/free',
-    meta: { title: '赠险' },
-    component: () => import('@/views/chuangxin/baigebao/free/index.vue'),
-  },
-  {
-    name: 'baigebaoProductDetail',
-    path: '/chuangxin/baigebao/productDetail',
-    meta: { title: '付费险' },
-    component: () => import('@/views/chuangxin/baigebao/product/detail/index.vue'),
-  },
-  {
-    name: 'baigebaoGuaranteeUpgrade',
-    path: '/chuangxin/baigebao/guaranteeUpgrade',
-    meta: { title: '保障升级' },
-    component: () => import('@/views/chuangxin/baigebao/upgrade/index.vue'),
-  },
-  {
-    name: 'baigebaoPayFail',
-    path: '/chuangxin/baigebao/payFail',
-    meta: { title: '支付失败' },
-    component: () => import('@/views/chuangxin/baigebao/payFail/index.vue'),
-  },
-  {
-    name: 'baigebaoOrderDetail',
-    path: '/chuangxin/baigebao/orderDetail',
-    meta: { title: '投保成功页' },
-    component: () => import('@/views/chuangxin/baigebao/orderDetail/index.vue'),
-  },
-];
-
 // 互联网在线投保
 const internetRoutes = [
   {

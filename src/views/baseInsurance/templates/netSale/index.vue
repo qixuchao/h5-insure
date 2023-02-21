@@ -86,7 +86,7 @@ import { NextStepRequestData, ExtInfo } from '@/api/index.data';
 import { INSURANCE_START_TYPE_ENUM, INSURANCE_END_TYPE_ENUM } from '@/common/constants/infoCollection';
 
 // 调用主题
-const themeVars = useTheme();
+const themeVars = useTheme('#ff0000');
 const route = useRoute();
 /** 页面query参数类型 */
 interface QueryData {

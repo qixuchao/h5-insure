@@ -71,6 +71,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useIntersectionObserver } from '@vueuse/core';
 import { Toast } from 'vant/es';
 import dayjs from 'dayjs';
+import { useTheme } from '@/hooks/useTheme';
 import { isEmpty } from '@/utils';
 import { productDetail, getAppUser } from '@/api/modules/product';
 import { insureProductDetail, toClogin } from '@/api/modules/trial';
@@ -82,7 +83,6 @@ import { nextStepOperate } from '@/views/baseInsurance/nextStep';
 import { RELATIONENUM } from '@/common/constants/trial';
 import { freeTransform, validateSmsCode } from '../utils';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
-import { useTheme } from '../theme';
 import { CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import Banner from './components/Banner/index.vue';
 import ProShadowButton from './components/ProShadowButton/index.vue';
@@ -94,7 +94,7 @@ const AttachmentList = defineAsyncComponent(() => import('./components/Attachmen
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
 
 // 调用主题
-const themeVars = useTheme();
+const themeVars = useTheme('#ff0000');
 const router = useRouter();
 const route = useRoute();
 /** 页面query参数类型 */

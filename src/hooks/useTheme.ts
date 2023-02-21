@@ -54,7 +54,7 @@ const getColor = (_color: string, _opacity = 1) => {
  * @param color 必须是16进制的颜色值
  * @returns 基于该主题颜色值的一系列主题变量
  */
-const useTheme = (color: string = import.meta.env.VITE_THEME_COLOR || themeConfig.blue) => {
+export const useTheme = (color: string = import.meta.env.VITE_THEME_COLOR || themeConfig.blue) => {
   const theme5 = hexToRgba(color, 0.05);
   const theme10 = hexToRgba(color, 0.1);
   const theme20 = hexToRgba(color, 0.2);
@@ -82,6 +82,8 @@ const useTheme = (color: string = import.meta.env.VITE_THEME_COLOR || themeConfi
     // ..其他组件的颜色覆盖
   };
 };
+
+export const config = themeConfig;
 
 export default useTheme;
 // {

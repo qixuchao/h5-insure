@@ -137,7 +137,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
 import { useIntersectionObserver } from '@vueuse/core';
-
+import { useTheme } from '@/hooks/useTheme';
 import {
   ProductDetail,
   AttachmentVOList,
@@ -173,7 +173,7 @@ import { CERT_TYPE_ENUM } from '@/common/constants';
 import { useWXCode } from '../../cashier/core';
 import useAddressList from '@/hooks/useAddressList';
 import useLoading from '@/hooks/useLoading';
-import { useTheme } from '../theme';
+// import { useTheme } from '../theme';
 import { isEmpty, toLocal } from '@/utils';
 import { transformData, riskToOrder, validateSmsCode, getFileType } from '../utils';
 import { validateCustomName } from '@/utils/validator';
@@ -201,7 +201,7 @@ const CustomerList = defineAsyncComponent(() => import('./components/CustomerLis
 const InscribedContent = defineAsyncComponent(() => import('./components/InscribedContent/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('./components/AttachmentList/index.vue'));
 
-const themeVars = useTheme();
+const themeVars = useTheme('#ff0000');
 const router = useRouter();
 const route = useRoute();
 
