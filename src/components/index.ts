@@ -17,7 +17,7 @@ import { Component } from 'vue';
 import ProSvg from './ProSvg/index.vue';
 import ProPageWrap from './ProPageWrap/index';
 import ProTitle from './ProTitle/index.vue';
-import ProPreviewPDF from './ProPreviewPDF/index.vue';
+// import ProPreviewPDF from './ProPreviewPDF/index.vue';
 import ProSign from './ProSign/index.vue';
 import ProCell from './ProCell/index.vue';
 import ProForm from './ProForm/index.vue';
@@ -39,7 +39,7 @@ import ProCascader from './ProCascader/index.vue';
 import ProPDFviewer from './ProPDFviewer/index.vue';
 import ProScrollTab from './ProScrollTab/index.vue';
 import ProLazyComponent from './ProLazyComponent/index.vue';
-import ProShare from './ProShare/index.vue'
+import ProShare from './ProShare/index.vue';
 
 interface ComponentMap {
   [key: string]: Component;
@@ -57,7 +57,7 @@ export const globalComs: ComponentMap = {
   ProSvg, // 本地svg组件，svg文件放到assets/svg/目录下
   ProPageWrap, // 页面布局包裹组件 ，每个页面都用这个包一次，方便后面做全局调整
   ProTitle,
-  ProPreviewPDF,
+  // ProPreviewPDF,
   ProSign,
   ProCell,
   ProForm,

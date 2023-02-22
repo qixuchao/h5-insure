@@ -1,0 +1,1 @@
+import{_ as a,d as e,c as s,e as r,k as t,I as n}from"./index-d9e24409.js";var d=a(e({__name:"index",props:{isCheck:{type:Boolean,default:!1},url:{type:String,default:""}},setup(a){const e=a;return(a,d)=>{const l=n;return e.url?(s(),r(l,{key:0,width:"100%",class:"banner","lazy-load":"",src:e.url},null,8,["src"])):t("",!0)}}}),[["__scopeId","data-v-34cbd784"]]);export{d as B};

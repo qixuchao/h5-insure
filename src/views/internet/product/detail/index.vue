@@ -11,7 +11,7 @@
         img-type="BW"
         :guarantee-list="titleAndDescVOSList"
       />
-      <ScrollInfo :detail="detail">
+      <ScrollInfo :detail="detail.tenantProductInsureVO">
         <template #form>
           <HolderInsureForm
             ref="formRef"

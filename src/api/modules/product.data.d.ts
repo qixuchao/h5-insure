@@ -174,16 +174,17 @@ export interface GuaranteeList {
 }
 
 interface BackgroundInsureVO {
-  colorEnd:string,
-  colorStart:string,
-  type:string
+  colorEnd: string,
+  colorStart: string,
+  type: string
 }
 
+/** 产品销售信息配置 */
 export interface TenantProductInsureVO {
   /**
    * 背景颜色
    */
-  backgroundInsureVO:BackgroundInsureVO,
+  backgroundInsureVO: BackgroundInsureVO,
   /**
    * 产品资料
    */
@@ -197,9 +198,9 @@ export interface TenantProductInsureVO {
   /**
    * banner动图
    */
-   bannerMove: string[];
-   planList: PlanInsureVO[];
-   planInsureVO: PlanInsureVO;
+  bannerMove: string[];
+  planList: PlanInsureVO[];
+  planInsureVO: PlanInsureVO;
   /**
    * 配置状态 1.暂存 2.完成
    */
@@ -256,9 +257,13 @@ export interface TenantProductInsureVO {
    */
   questionList: any[];
   /**
-   * 理赔流程
+   * 理赔流程配置
    */
-  settlementProcessList: any[];
+  settlementProcessVO: {
+    settlementProcessList?: any[];
+    settlementProcessPicList?: string[];
+    settlementProcessType?: string;
+  };
   /**
    * 性别限制 -1.无限制,1.男 2.女 （ （以英文逗号分隔）
    */

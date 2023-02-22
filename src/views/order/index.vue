@@ -17,7 +17,7 @@
 
 <script lang="ts" setup>
 import { useRouter } from 'vue-router';
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import ProTab from '@/components/ProTab/index.vue';
 import Item from './components/item.vue';
 import { getOrderList } from '@/api/modules/order';

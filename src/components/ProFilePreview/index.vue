@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { nanoid } from 'nanoid';
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import Pdfh5 from 'pdfh5';
 import QuestionPreview from './question.vue';
 import 'pdfh5/css/pdfh5.css';

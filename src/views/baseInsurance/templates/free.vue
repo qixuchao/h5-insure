@@ -94,7 +94,7 @@ const AttachmentList = defineAsyncComponent(() => import('./components/Attachmen
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
 
 // 调用主题
-const themeVars = useTheme('#ff0000');
+const themeVars = useTheme();
 const router = useRouter();
 const route = useRoute();
 /** 页面query参数类型 */

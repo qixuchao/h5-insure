@@ -1,15 +1,14 @@
 <!--
- * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-17 16:00
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-30 15:39:39
- * @Description: 审核版首页
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2023-02-22 12:01:52
+ * @Description: 滚动tab区域
 -->
 <template>
   <ProScrollTab ref="scrollRef" class="tabs" :list="tabList" sticky scrollspy>
     <template v-if="isShowTab1" #tab1>
       <div class="spec">
-        <template v-for="(item, index) in props.detail?.tenantProductInsureVO?.spec || []" :key="index">
+        <template v-for="(item, index) in dataSource.spec || []" :key="index">
           <Suspense>
             <van-image :key="index" class="detail-img" width="100%" :src="item" />
             <template #fallback>
@@ -23,16 +22,15 @@
     <template v-if="isShowTab2_1 || isShowTab2_2" #tab2>
       <template v-if="isShowTab2_1">
         <CustomCard
-          v-if="props.detail?.tenantProductInsureVO?.settlementProcessVO.settlementProcessType === CLAIM_TYPE_ENUM.WORD"
+          v-if="dataSource.settlementProcessVO?.settlementProcessType === CLAIM_TYPE_ENUM.WORD"
           title="理赔说明"
         >
-          <ProTimeline :list="props.detail?.tenantProductInsureVO?.settlementProcessVO?.settlementProcessList" />
+          <ProTimeline :list="dataSource.settlementProcessVO?.settlementProcessList" />
         </CustomCard>
         <div v-else class="spec">
           <Suspense>
             <van-image
-              v-for="(item, index) in props.detail?.tenantProductInsureVO?.settlementProcessVO
-                ?.settlementProcessPicList || []"
+              v-for="(item, index) in dataSource.settlementProcessVO?.settlementProcessPicList || []"
               :key="index"
               width="100%"
               :src="item"
@@ -47,7 +45,7 @@
       </template>
       <template v-if="isShowTab2_2">
         <CustomCard title="常见问题">
-          <Question :list="props.detail?.tenantProductInsureVO?.questionList" />
+          <Question :list="dataSource.questionList" />
         </CustomCard>
         <ProDivider />
       </template>
@@ -58,9 +56,10 @@
   </ProScrollTab>
 </template>
 
-<script lang="ts" setup>
-import { Ref, Suspense } from 'vue';
+<script lang="ts" setup name="ScrollInfo">
+import { Ref, Suspense, withDefaults } from 'vue';
 import { CLAIM_TYPE_ENUM } from '@/common/constants/infoCollection';
+import type { TenantProductInsureVO as ProductSaleConfig } from '@/api/modules/product.data';
 // import CustomCard from '../../../components/CustomCard/index.vue';
 // import ProDivider from '@/components/ProDivider/index.vue';
 // import ProScrollTab from '@/components/ProScrollTab/index.vue';
@@ -73,20 +72,24 @@ const ProDivider = defineAsyncComponent(() => import('@/components/ProDivider/in
 const CustomCard = defineAsyncComponent(() => import('../../../components/CustomCard/index.vue'));
 const Question = defineAsyncComponent(() => import('../Question/index.vue'));
 
-const props = defineProps({
-  isCheck: {
-    type: Boolean,
-    default: false,
+/**
+ * 本组件是产品详情的滚动区域
+ * props中 特色、理赔流程、常见问题
+ */
+const props = withDefaults(
+  defineProps<{
+    dataSource: Pick<ProductSaleConfig, 'spec' | 'settlementProcessVO' | 'questionList'>;
+  }>(),
+  {
+    dataSource: () => ({
+      spec: [],
+      settlementProcessVO: {},
+      questionList: [],
+    }),
   },
-  url: {
-    type: String,
-    default: '',
-  },
-  detail: {
-    type: Object,
-    default: () => {},
-  },
-});
+);
+
+const { dataSource } = toRefs(props);
 
 const scrollRef = ref<Ref>();
 
@@ -106,18 +109,18 @@ const initTabList = ref<Array<{ title: string; slotName: string }>>([
 ]);
 
 const isShowTab1 = computed(() => {
-  return props.detail?.tenantProductInsureVO?.spec && props.detail?.tenantProductInsureVO?.spec.length > 0;
+  return dataSource.value.spec && dataSource.value.spec.length > 0;
 });
 
 const isShowTab2_1 = computed(() => {
-  const type = props.detail?.tenantProductInsureVO?.settlementProcessVO.settlementProcessType;
+  const type = dataSource.value.settlementProcessVO.settlementProcessType;
   if (
     (type === CLAIM_TYPE_ENUM.WORD &&
-      props.detail?.tenantProductInsureVO?.settlementProcessVO?.settlementProcessList &&
-      props.detail?.tenantProductInsureVO?.settlementProcessVO?.settlementProcessList.length > 0) ||
+      dataSource.value.settlementProcessVO?.settlementProcessList &&
+      dataSource.value.settlementProcessVO?.settlementProcessList.length > 0) ||
     (type === CLAIM_TYPE_ENUM.IMAGE &&
-      props.detail?.tenantProductInsureVO?.settlementProcessVO?.settlementProcessPicList &&
-      props.detail?.tenantProductInsureVO?.settlementProcessVO?.settlementProcessPicList.length > 0)
+      dataSource.value.settlementProcessVO?.settlementProcessPicList &&
+      dataSource.value.settlementProcessVO?.settlementProcessPicList.length > 0)
   ) {
     return true;
   }
@@ -125,9 +128,7 @@ const isShowTab2_1 = computed(() => {
 });
 
 const isShowTab2_2 = computed(() => {
-  return (
-    props.detail?.tenantProductInsureVO?.questionList && props.detail?.tenantProductInsureVO?.questionList.length > 0
-  );
+  return dataSource.value.questionList && dataSource.value.questionList.length > 0;
 });
 
 const tabList = computed(() => {

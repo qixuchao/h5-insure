@@ -58,7 +58,7 @@
 </template>
 <script lang="ts" setup>
 import wx from 'weixin-js-sdk';
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
 import { queryProposalDetail, queryPreviewProposalDetail, generatePdf } from '@/api/modules/proposalList';

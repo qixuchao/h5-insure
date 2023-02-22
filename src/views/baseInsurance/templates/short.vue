@@ -20,7 +20,11 @@
         :premium-info="{ premium, unit, premiumLoadingText }"
         @update-active-plan="updateActivePlan"
       />
-      <ScrollInfo ref="detailScrollRef" :detail="detail">
+      <ScrollInfo
+        v-if="detail.tenantProductInsureVO.settlementProcessVO"
+        ref="detailScrollRef"
+        :data-source="detail.tenantProductInsureVO"
+      >
         <template #form>
           <div class="custom-page-form">
             <div class="form-title">请填写投保信息</div>
@@ -134,7 +138,7 @@
 
 <script lang="ts" setup name="InsuranceShort">
 import { useRoute, useRouter } from 'vue-router';
-import { Toast, Dialog } from 'vant';
+import { Toast, Dialog } from 'vant/es';
 import debounce from 'lodash-es/debounce';
 import { useIntersectionObserver } from '@vueuse/core';
 import { useTheme } from '@/hooks/useTheme';
@@ -201,7 +205,7 @@ const CustomerList = defineAsyncComponent(() => import('./components/CustomerLis
 const InscribedContent = defineAsyncComponent(() => import('./components/InscribedContent/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('./components/AttachmentList/index.vue'));
 
-const themeVars = useTheme('#ff0000');
+const themeVars = useTheme();
 const router = useRouter();
 const route = useRoute();
 

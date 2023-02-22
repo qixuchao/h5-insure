@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { nanoid } from 'nanoid';
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import Pdfh5 from 'pdfh5';
 import 'pdfh5/css/pdfh5.css';
 
@@ -52,7 +52,7 @@ const loadPdfCanvas = () => {
   try {
     pdfh5.value = new Pdfh5(`#${id}`, {
       pdfurl: props.url,
-      renderType: 'svg',
+      renderType: 'canvas',
       lazy: true,
     });
     // 监听完成事件

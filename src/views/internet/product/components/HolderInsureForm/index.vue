@@ -237,7 +237,7 @@
 </template>
 <script lang="ts" setup>
 import type { FormInstance } from 'vant';
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import themeVars from '../../../theme';
 import {
   RELATION_HOLDER_ENUM,

@@ -37,7 +37,7 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import {
   SOCIAL_SECURITY, // 有无社保
 } from '@/common/constants/infoCollection';

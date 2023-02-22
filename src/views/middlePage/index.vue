@@ -14,7 +14,7 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { stringify } from 'qs';
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import { deleteQuery } from '@/utils/index';
 import { validateSign } from '@/api';
 import { TEMPLATE_TYPE_MAP } from '@/common/constants/infoCollection';

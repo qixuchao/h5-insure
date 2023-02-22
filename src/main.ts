@@ -1,68 +1,32 @@
 /* eslint-disable no-new */
-/*
- * @Author: za-qixuchao qixuchao@zhongan.io
- * @Date: 2022-06-21 19:34:02
- * @LastEditors: kevin.liang
- * @LastEditTime: 2023-01-11 18:07:16
- * @FilePath: /zat-planet-h5-cloud-insure/src/main.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 import { createApp } from 'vue';
-import Vant, { Lazyload } from 'vant';
-import 'vant/lib/index.css';
+// import Vant, { Lazyload } from 'vant';
+// import 'vant/lib/index.css';
 import 'virtual:svg-icons-register';
 import 'amfe-flexible';
-import vue3PhotoPreview from 'vue3-photo-preview';
-import vconsole from 'vconsole';
 import dayjs from 'dayjs';
 import zh from 'dayjs/locale/zh-cn';
-
-// pinia
 import VueDOMPurifyHTML from 'vue-dompurify-html';
+
 import store from '@/store';
 import router from '@/router/index';
-import '@/styles/index.scss';
-import { getNativeCookies } from '@/utils/jsbridgePromise';
 import App from './App.vue';
 import globalComps from '@/components/index';
 import clipboard from '@/common/directives/clipboard';
 import resize from '@/common/directives/resize';
-import Storage from '@/utils/storage';
-import { isTestEnv, isPreEnv } from './utils';
-import '@vant/touch-emulator';
-// import { initInject } from '../skeleton/client/index';
+import { initNative } from '@/utils/native';
+import '@/styles/index.scss';
 
-const storage = new Storage({ source: 'sessionStorage' });
-const cookie = new Storage({ source: 'cookie' });
 const start = async () => {
-  // initInject();
-  if (isTestEnv) {
-    // eslint-disable-next-line new-cap
-    new vconsole();
-  }
+  initNative();
 
-  try {
-    const cookies = await getNativeCookies();
-    if (cookies.device) {
-      storage.set('device', cookies.device);
-      storage.set('statusBarHeight', cookies.statusBarHeight);
-    }
-    console.log('cookies.', cookies);
-    if (cookies.token) {
-      storage.set('token', cookies.token);
-    }
-  } catch (e) {
-    console.log('获取cookies失败，或不是移动端');
-  }
-  // console.log('import.meta.env ', import.meta.env);
   dayjs.locale({ ...zh, weekStart: 1 });
   const app = createApp(App);
 
   app.use(VueDOMPurifyHTML);
-  app.use(vue3PhotoPreview);
   app.use(router).use(store);
-  app.use(Vant);
-  app.use(Lazyload);
+  // app.use(Vant);
+  // app.use(Lazyload);
   // app.component('ProPageWrap', ProPageWrap);
   // 加载自定义的全局组件
   app.use(globalComps);

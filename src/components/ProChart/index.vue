@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts" setup>
-import * as echarts from 'echarts';
+import echarts from './useEcharts';
 
 const props = defineProps({
   min: {

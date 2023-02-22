@@ -22,7 +22,7 @@
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
 import type { FormInstance } from 'vant';
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 
 interface Props {
   labelAlign?: 'left' | 'right';

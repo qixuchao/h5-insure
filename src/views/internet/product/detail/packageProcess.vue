@@ -7,7 +7,7 @@
         <Desc :product-name="detail?.productFullName" :product-desc="detail?.showConfigVO?.desc" />
       </div>
       <Guarantee show-service-config :guarantee-list="detail?.tenantProductInsureVO?.titleAndDescVOS" />
-      <ScrollInfo :detail="detail">
+      <ScrollInfo :detail="detail.tenantProductInsureVO">
         <template #form>
           <HolderInsureForm
             ref="formRef"

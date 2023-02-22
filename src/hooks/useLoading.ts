@@ -1,4 +1,4 @@
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import { Ref } from 'vue';
 import loadingGif from '@/assets/images/loading.gif';
 
@@ -15,7 +15,7 @@ export default (loading: Ref<boolean>, msg = '加载中...') => {
     if (loadingRef.value) {
       toastInstance = Toast({
         message: msg,
-        icon: loadingGif,
+        // icon: loadingGif,
         iconSize: '120px',
         duration: 10 * 1000,
       });

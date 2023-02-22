@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import { login } from '@/api/modules/login';
 import Storage from '@/utils/storage';
 

@@ -14,7 +14,7 @@
 import { useRoute } from 'vue-router';
 import { onMounted } from 'vue';
 import { nanoid } from 'nanoid';
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import Pdfh5 from 'pdfh5';
 import 'pdfh5/css/pdfh5.css';
 

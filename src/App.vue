@@ -6,6 +6,7 @@
       </keep-alive>
       <component :is="Component" v-if="!route.meta.keepAlive" :key="route.path"></component>
     </router-view>
+    <ProVConsole />
   </van-config-provider>
 </template>
 <script lang="ts" setup>
@@ -15,7 +16,7 @@ import { getConfig } from './utils/config';
 import useTheme from '@/hooks/useTheme';
 import { addScript } from '@/utils/index';
 import { useThemesStore } from './store/themes';
-import useLoading from '@/hooks/useLoading';
+import ProVConsole from '@/components/ProVConsole/index.vue';
 
 const themeVars = ref({});
 // const styleMap = {

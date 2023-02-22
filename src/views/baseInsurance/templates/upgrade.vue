@@ -67,7 +67,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import dayjs from 'dayjs';
 import cloneDeep from 'lodash-es/cloneDeep';
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import { productDetail } from '@/api/modules/product';
 import {
   insureProductDetail,

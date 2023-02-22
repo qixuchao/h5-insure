@@ -1,13 +1,6 @@
-/*
- * @Description: 用户模块
- * @Autor: kevin.liang
- * @Date: 2022-02-15 17:58:02
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-02-03 16:47:53
- */
 import axios, { type AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axiosRetry from 'axios-retry';
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import useLoading from '@/hooks/useLoading';
 import Storage from '@/utils/storage';
 import showCodeMessage, { SUCCESS_CODE, SUCCESS_STATUS, UNLOGIN } from '@/api/code';
@@ -132,8 +125,8 @@ axiosInstance.interceptors.request.use(
       if (loadingInstance.count === 1) {
         loadingInstance.target = Toast.loading({
           message: '加载中...',
-          icon: loadingGif,
-          iconSize: '120px',
+          // icon: loadingGif,
+          // iconSize: '120px',
           forbidClick: true,
           duration: 6 * 1000,
         });

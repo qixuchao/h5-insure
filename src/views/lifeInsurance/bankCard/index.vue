@@ -101,7 +101,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import qs from 'qs';
 import { useRouter, useRoute } from 'vue-router';
 import ProCard from '@/components/ProCard/index.vue';
