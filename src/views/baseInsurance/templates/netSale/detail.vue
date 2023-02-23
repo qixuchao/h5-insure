@@ -103,7 +103,7 @@
 <script lang="ts" setup name="netSaleDetail">
 import { Toast, ImagePreview } from 'vant';
 import { useRoute, useRouter } from 'vue-router';
-import { useTheme } from '../../theme';
+import { useTheme } from '@/hooks/useTheme';
 import { insureProductDetail, getTenantOrderDetail, getPayUrl } from '@/api/modules/trial';
 import InsureForm from '../components/InsureForm/index.vue';
 import Sign from '../components/Sign/index.vue';

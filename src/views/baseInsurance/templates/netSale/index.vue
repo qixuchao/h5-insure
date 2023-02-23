@@ -78,7 +78,7 @@ import { productDetail } from '@/api/modules/product';
 import { ProductDetail, PlanInsureVO } from '@/api/modules/product.data';
 import { insureProductDetail, premiumCalc, underWriteRule } from '@/api/modules/trial';
 import InsureForm from '../components/InsureForm/index.vue';
-import { useTheme } from '../../theme';
+import { useTheme } from '@/hooks/useTheme';
 import { nextStepOperate as nextStep } from '@/views/baseInsurance/nextStep';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 import { CERT_TYPE_ENUM } from '@/common/constants';

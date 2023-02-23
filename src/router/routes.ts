@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-14 11:44:33
  * @LastEditors: kevin.liang
- * @LastEditTime: 2023-01-30 10:41:14
+ * @LastEditTime: 2023-02-22 13:55:15
  * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -161,39 +161,44 @@ const internetRoutes = [
 
 // 基线在线投保模板
 const baseInsurance = [
+  // 赠险模板
   {
-    name: 'base赠险',
+    name: 'baseInsuranceFree',
     path: '/baseInsurance/free',
     meta: { title: '', keepAlive: true },
     component: () => import('@/views/baseInsurance/templates/free.vue'),
   },
+  // 短险模板
   {
-    name: 'base一年期',
+    name: 'baseInsuranceShort',
     path: '/baseInsurance/short',
     meta: { title: '', keepAlive: true, requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/short.vue'),
   },
+  // 短险-升级款（魔方）
   {
-    // 升级款
-    name: 'baseInsurance-upgrade',
+    name: 'baseInsuranceUpgrade',
     path: '/baseInsurance/upgrade',
     meta: { title: '', keepAlive: true, requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/upgrade.vue'),
   },
+  // 网电销-坐下下单
   {
-    name: 'base网电销',
+    name: 'baseInsuranceNetsale',
     path: '/baseInsurance/netsale',
     meta: { title: '', keepAlive: true },
     component: () => import('@/views/baseInsurance/templates/netSale/index.vue'),
   },
+  // 网电销-客户确认订单
   {
-    name: 'base网电销详情',
+    name: 'baseInsuranceNetDetail',
     path: '/baseInsurance/netDetail',
     meta: { title: '', keepAlive: true, requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/netSale/detail.vue'),
   },
+  // 投保流程-订单详情
   {
-    name: 'baseInsurance-orderDetail',
+    name: 'baseInsuranceOrderDetail',
     path: '/baseInsurance/orderDetail',
     meta: { title: '', requireWxJs: false },
     component: () => import('@/views/baseInsurance/orderDetail/index.vue'),

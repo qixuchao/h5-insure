@@ -70,9 +70,11 @@ import { ORDER_STATUS_MAP, ORDER_STATUS_DESC } from './const';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { downLoadFile, setPageTitle } from '@/utils';
-import { useTheme } from '../theme';
+import { useTheme } from '@/hooks/useTheme';
 import { sessionStore } from '@/hooks/useStorage';
 import { ORDER_DETAIL_KEY } from '@/common/constants/infoCollection';
+import { TEMPLATE_TYPE_ENUM } from '../constant';
+
 // 调用主题
 const themeVars = useTheme();
 const router = useRouter();
@@ -159,7 +161,7 @@ const goToInsurerPage = async (reOrder = false, promotion = '') => {
       saleChannelId: state.orderDetail.extInfo?.extraInfo?.saleChannelId,
     };
     // 魔方升级款
-    if (templateId === '4') {
+    if (templateId === TEMPLATE_TYPE_ENUM.UPGRADE) {
       params.extraInfo = decodeURIComponent(
         JSON.stringify({
           ...state.orderDetail.extInfo.extraInfo,
@@ -257,7 +259,9 @@ const initPageInfo = () => {
     state.pageInfo.insureList = [
       {
         label: `${
-          state.templateId === '4' && state.orderDetail?.extInfo?.extraInfo?.isUpgrade === '1' ? '下' : '本'
+          state.templateId === TEMPLATE_TYPE_ENUM.UPGRADE && state.orderDetail?.extInfo?.extraInfo?.isUpgrade === '1'
+            ? '下'
+            : '本'
         }期缴费金额`,
         value: `${state.orderDetail.orderAmount}元`,
       },

@@ -91,7 +91,7 @@ import {
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 import InsureForm from './components/InsureForm/index.vue';
-import { useTheme } from '../theme';
+import { useTheme } from '@/hooks/useTheme';
 import { ORIGIN, isAppFkq } from '@/utils';
 import Banner from './components/Banner/index.vue';
 import ProShadowButton from './components/ProShadowButton/index.vue';

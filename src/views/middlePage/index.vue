@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-27 21:01:33
  * @LastEditors: kevin.liang
- * @LastEditTime: 2023-02-14 16:09:04
+ * @LastEditTime: 2023-02-22 17:46:38
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/middle/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -18,6 +18,7 @@ import { Toast } from 'vant/es';
 import { deleteQuery } from '@/utils/index';
 import { validateSign } from '@/api';
 import { TEMPLATE_TYPE_MAP } from '@/common/constants/infoCollection';
+import { TEMPLATE_TYPE_ENUM } from '../baseInsurance/constant';
 
 /**
  * middlePage 投保流程中间分发页
@@ -63,7 +64,7 @@ const { templateId, tenantId, orderNo } = extInfo as any;
  */
 const jumpRouter = () => {
   // 魔方产品
-  if (templateId === '4' && orderNo) {
+  if (templateId === TEMPLATE_TYPE_ENUM.UPGRADE && orderNo) {
     const params: any = {
       insurerCode,
       productCode,
