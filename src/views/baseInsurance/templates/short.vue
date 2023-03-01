@@ -194,6 +194,7 @@ import ScrollInfo from './components/ScrollInfo/index.vue';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import { sessionStore } from '@/hooks/useStorage';
 import { TenantOrderProductItem } from '@/api/index.data';
+import useOrder from '@/hooks/useOrder';
 
 const isApp = isAppFkq();
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
