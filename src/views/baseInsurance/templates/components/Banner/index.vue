@@ -1,24 +1,22 @@
-<!--
- * @Author: wangyuanli@zhongan.io
- * @Date: 2022-09-17 16:00
- * @LastEditors: kevin.liang
- * @LastEditTime: 2022-12-03 17:03:29
- * @Description: 审核版首页
--->
 <template>
-  <van-image v-if="props.url" width="100%" class="banner" lazy-load :src="props.url" />
+  <van-image v-if="props.url" width="100%" class="com-template-banner" lazy-load :src="props.url" />
 </template>
 
-<script lang="ts" setup>
-const props = defineProps({
-  isCheck: {
-    type: Boolean,
-    default: false,
-  },
-  url: {
-    type: String,
-    default: '',
-  },
+<script lang="ts" setup name="Banner">
+import { withDefaults } from 'vue';
+/**
+ * @param dataSource 图片对象列表
+ * TODO 将banner组件改造支持视频 和图片缩略图
+ */
+interface Props {
+  url: string;
+  dataSource: Array<{ url: string }> | string[];
+}
+/**
+ * banner图片列表
+ */
+const props = withDefaults(defineProps<Props>(), {
+  url: '',
 });
 </script>
 

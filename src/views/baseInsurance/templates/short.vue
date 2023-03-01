@@ -43,7 +43,7 @@
               <template v-if="relationCustomerList.length > 1" #holderName>
                 <CustomerList
                   :user-info="orderDetail.tenantOrderHolder"
-                  :data="relationCustomerList"
+                  :data-source="relationCustomerList"
                   @change="onUpdateHolderData"
                 />
               </template>
@@ -51,7 +51,7 @@
                 <CustomerList
                   title="选择被保人"
                   :user-info="orderDetail.tenantOrderInsuredList[0]"
-                  :data="relationCustomerList"
+                  :data-source="relationCustomerList"
                   @change="onUpdateInsurerData"
                 />
               </template>
