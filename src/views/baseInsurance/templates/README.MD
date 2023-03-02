@@ -72,6 +72,13 @@ const { productCode = '', tenantId, templateId, code: wxCode } = route.query as 
   #### js 函数名规范
 
   // 旭超 TODO
+- initData()
+  - getInsureProductDetail(); // 获取产品中心产品详细
+    - insureProductDetail; // 详细信息
+  - getTenantProductDetail(); // 获取核心产品详情
+    - tenantProductDetail;
+- trialPremium
+-
 
 ### 第四步 接⼝联调
 
