@@ -243,6 +243,18 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/demo/index.vue'),
   },
   {
+    name: 'FormDemo',
+    path: '/base/form',
+    meta: { title: '表单 Demo' },
+    component: () => import('@/views/demo/form/index.vue'),
+  },
+  {
+    name: 'schemaFormDemo',
+    path: '/base/form/schema',
+    meta: { title: '表单 Schema Demo' },
+    component: () => import('@/views/demo/form/schema.vue'),
+  },
+  {
     name: 'table',
     path: '/tableDemo',
     meta: { title: '表格' },
