@@ -1,5 +1,7 @@
 <template>
   <ProForm ref="demoFormRef" :model="state.formData" @submit="onSubmit">
+    <ProField name="phone" label="手机号" required />
+    <ProSMSCode name="smsCode" label="验证码" related-name="phone" />
     <!-- <van-divider content-position="left">Field 输入框 </van-divider> -->
     <ProField
       v-for="{ type, label, ...rest } in fieldList"
@@ -74,6 +76,7 @@ import {
   ProRadio,
   ProCascader,
   ProAddress,
+  ProSMSCode,
 } from '@/components/RenderForm';
 import { data, area } from './data';
 
@@ -93,8 +96,8 @@ const options = [
 ];
 
 const gener = [
-  { label: '男', value: '1' },
-  { label: '女 ', value: '2' },
+  { value: '男', code: '1' },
+  { value: '女 ', code: '2' },
 ];
 
 const fieldList = [
@@ -129,21 +132,23 @@ const state = reactive({
 });
 
 const onSubmit = (values) => {
+  console.log(11111111, values);
   console.log('formData', values, demoFormRef.value.children, state.date);
 };
 
-const submit = () => {
+const submit = (values) => {
+  console.log(2222222, values);
   demoFormRef.value.validate().then((res) => {});
 };
 
 onMounted(() => {
-  console.log(data);
   console.log('demoFormRef', demoFormRef.value.children);
 });
 
 watch(
-  () => state.formData,
+  () => state.formData.sex,
   () => {
+    console.log(state.formData);
     console.log('%c🔥 表单数据改动了', 'color:#1989fa;background:#5e4;padding:3px 5px;');
   },
   {

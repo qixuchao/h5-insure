@@ -28,25 +28,6 @@
         <template #form>
           <div class="custom-page-form">
             <div class="form-title">请填写投保信息</div>
-            <!-- 投保人 -->
-
-            <ProRenderFormWithCard
-              title="本人信息（投保人）"
-              :model="state.holder.formData"
-              :schema="state.holder.schema"
-              :config="state.holder.config"
-            />
-
-            <!-- 被保人 -->
-            <ProRenderFormWithCard
-              v-for="(insured, index) in state.insuredList"
-              :key="index"
-              title="为谁投保（被保人）"
-              :model="state.insuredList[index].formData"
-              :schema="insured.schema"
-              :config="insured.config"
-            />
-
             <InsureForm
               v-if="insureDetail"
               ref="formRef"
@@ -213,7 +194,6 @@ import ScrollInfo from './components/ScrollInfo/index.vue';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import { sessionStore } from '@/hooks/useStorage';
 import { TenantOrderProductItem } from '@/api/index.data';
-import { ProRenderFormWithCard, transformFactorToSchema } from '@/components/RenderForm';
 
 const isApp = isAppFkq();
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
@@ -290,43 +270,6 @@ const minPremiun = ref<number | null>(); // 默认最低保费
 const unit = ref(''); // 保费单位
 const actualUnit = ref(''); // 实际保费单位
 const premiumLoadingText = ref(''); // 保费试算中
-
-const sendSMSCode = async ({ mobile }, callback) => {
-  const res = await sendCode(mobile);
-  const { code } = res;
-  if (code === '10000') {
-    typeof callback === 'function' && callback();
-  }
-};
-
-const state = reactive({
-  // 投保人
-  holder: {
-    formData: {},
-    schema: [],
-    // 试算因子
-    trialFactorCodes: [],
-    config: {
-      verificationCode: {
-        sendSMSCode,
-      },
-    },
-  },
-  // 被保人
-  insuredList: [
-    {
-      formData: {},
-      schema: [],
-      // 试算因子
-      trialFactorCodes: [],
-      config: {
-        relationToHolder: {
-          label: '',
-        },
-      },
-    },
-  ],
-});
 
 if (openId) {
   useAddressList({ openId }, (data: any) => {
@@ -1200,58 +1143,14 @@ const fetchData = async () => {
   });
 
   await insureProductDetail({ productCode }).then((insureRes) => {
-    const { code, data } = insureRes || {};
-    if (code === '10000') {
+    if (insureRes.code === '10000') {
       preNoticeLoading.value = true;
-      insureDetail.value = data as ProductData;
-
-      const [holder, insured] = transformFactorToSchema(data.productFactor);
-      state.holder = {
-        ...state.holder,
-        ...holder,
-      };
-      state.insuredList[0] = {
-        ...state.insuredList[0],
-        ...insured,
-      };
-      console.log(1111, state);
+      insureDetail.value = insureRes.data as ProductData;
     }
   });
 
   loading.value = false;
 };
-
-// 监听试算因子
-watch(
-  () => [
-    ...state.holder.trialFactorCodes.map((key) => state.holder.formData[key]),
-    ...state.insuredList.reduce((res, insuredItem, index) => {
-      res.push(...insuredItem.trialFactorCodes.map((key) => state.insuredList[index].formData[key]));
-      return res;
-    }, []),
-  ],
-  (...rest) => {
-    console.log(999999, rest);
-    console.log('%c🔥 试算因子变动了', 'color:#1989fa;background:#5e4;padding:3px 5px;');
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
-
-// 监听投被保人关系
-watch(
-  () => state.insuredList.map((item, index) => state.insuredList[index].formData.relationToHolder),
-  (val, val1) => {
-    console.log('%c🔥 与投保人关系变动了', 'color:#1989fa;background:#5e4;padding:3px 5px;');
-    console.log(888888, val, val1);
-  },
-  {
-    immediate: true,
-    deep: true,
-  },
-);
 
 // 底部按钮展示逻辑
 nextTick(() => {

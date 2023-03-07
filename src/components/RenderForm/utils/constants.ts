@@ -1,3 +1,9 @@
+export const INPUT_MAX_LENGTH = {
+  SMS_CODE: 6,
+  MOBILE: 11,
+  TEXTAREA: 200,
+};
+
 export const filedType = [
   {
     code: 'input',

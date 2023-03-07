@@ -147,5 +147,11 @@ const subTitle = computed(() => {
       padding: 0 30px;
     }
   }
+
+  &.com-card-body-no-padding {
+    .body {
+      padding: 0;
+    }
+  }
 }
 </style>

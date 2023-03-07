@@ -1,7 +1,10 @@
-import { InjectionKey } from 'vue';
+import { type Ref, type InjectionKey } from 'vue';
+import type { FormInstance } from 'vant';
 import { isNotEmptyArray } from '@/common/constants/utils';
 
 export * from './validate';
+
+export * from './constants';
 
 interface FormState {
   formData: object;
@@ -11,6 +14,7 @@ interface FormState {
 
 interface VanFormProvied {
   formState: FormState;
+  formRef: Ref<FormInstance>;
 }
 
 // pro from
@@ -104,6 +108,17 @@ export const COMPONENT_MAP = {
   ProCheckbox: ['checkbox'],
   ProAddress: ['address'],
   ProBank: ['bank'],
+  ProSMSCode: ['smsCode'],
+};
+
+const tempMap = {
+  name: 'ProField',
+  certType: 'ProPicker',
+  certNo: 'ProField',
+  mobile: 'ProField',
+  verificationCode: 'ProSMSCode',
+  relationToHolder: 'ProRadio',
+  social: 'ProRadio',
 };
 
 // 组件名称列表
@@ -119,37 +134,90 @@ interface FieldConfItem {
   code: string;
   title: string;
   displayType: string;
-  isDisplay: boolean;
-  isMustInput: boolean;
-  hasDefaultValue: boolean;
+  isDisplay: number;
+  isMustInput: number;
+  hasDefaultValue: number;
   default: string;
   attributeValueList: Column[];
-  isReadonly: boolean;
+  isReadOnly: boolean;
   sort: number;
   isExtend: boolean;
   isHidden: boolean;
   placeholder: string;
   regular: RegExp;
   unit: string;
+  isSelfInsuredNeed: boolean;
+}
+
+interface ProductFactor {
+  [key: string]: FieldConfItem[];
 }
 
 // 转换原始数据 ProForm 所需要的数据
 export const transformToSchema = (arr: FieldConfItem[]) => {
+  // 表单 schema
+  let schema = [];
+  // 试算 code
+  const trialFactorCodes = [];
+
   if (isNotEmptyArray(arr)) {
-    return arr.map((item) => {
+    schema = arr.map((item) => {
       // 当前组件名
       const componentName = COMPONENT_LIST.find((key) => {
         return COMPONENT_MAP[key].includes(item.displayType);
       });
 
+      // TODO: 是否是试算因子
+      if (item.code === 'name') {
+        trialFactorCodes.push(item.code);
+      }
+
       return {
-        ...item,
+        // ...item,
         label: item.title,
         name: item.code,
+        required: item.isMustInput === 1,
         columns: item.attributeValueList || [],
-        componentName: componentName || 'ProField',
+        isSelfInsuredNeed: item.isSelfInsuredNeed,
+        customFieldName: { text: 'value', value: 'code', children: 'children' },
+        componentName: tempMap[item.code] || componentName || 'ProField',
       };
     });
+  }
+
+  return {
+    schema,
+    trialFactorCodes,
+  };
+};
+
+const moduleTypeMap = {
+  1: 'holder',
+  2: 'insured',
+  3: 'beneficiary',
+};
+
+export const transformFactorToSchema = (factors: ProductFactor) => {
+  if (factors && Object.keys(factors).length) {
+    const keys = Object.keys(factors);
+    const { holder, insured, beneficiary }: ProductFactor = keys.reduce((res, key) => {
+      res[moduleTypeMap[key]] = factors[key].filter((item) => item.isDisplay === 1);
+      return res;
+    }, {});
+
+    const holderCodes = holder.map((item) => item.code);
+
+    // 被保人为本人时，不在投保人中的因子展示
+    const finialInsured = insured.map((item) => {
+      return {
+        ...item,
+        isSelfInsuredNeed: !holderCodes.includes(item.code),
+      };
+    });
+
+    console.log(33333, holder, insured, beneficiary);
+
+    return [holder, finialInsured, beneficiary].map((item) => transformToSchema(item));
   }
   return [];
 };

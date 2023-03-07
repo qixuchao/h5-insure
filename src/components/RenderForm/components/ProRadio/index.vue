@@ -1,5 +1,5 @@
 <template>
-  <ProField class="com-van-radio-wrap" :model-value="state.modelValue" v-bind="filedAttrs">
+  <ProField class="com-van-radio-wrap" v-bind="filedAttrs" :model-value="state.modelValue">
     <template #input>
       <div v-if="isView">{{ fieldValueView }}</div>
       <template v-else>
@@ -7,7 +7,7 @@
           <ProCheckButton
             v-for="column in state.columns"
             :key="column.value"
-            :label="column.label"
+            :label="column.text"
             :disabled="column.disabled"
             :activated="state.modelValue == column.value"
             :icon-name="column.iconName"
@@ -36,7 +36,7 @@ interface RadioAttrs extends RadioGroupProps {
   title: string | number;
 }
 
-const { attrs, filedAttrs } = useAttrsAndSlots();
+const { filedAttrs, attrs } = useAttrsAndSlots();
 
 interface Column {
   label: string;
@@ -63,13 +63,12 @@ const props = defineProps({
     type: Array as () => Array<Column>,
     default: () => [],
   },
-  isSimply: {
+  /**
+   * 是否默认选中第一项
+   */
+  isDefaultSelected: {
     type: Boolean,
-    default: false,
-  },
-  prevent: {
-    type: String,
-    default: '',
+    default: true,
   },
   /**
    * 是否查看模式
@@ -83,11 +82,11 @@ const props = defineProps({
    */
   customFieldName: {
     type: Object,
-    default: () => ({ label: 'label', value: 'value', children: 'children' }),
+    default: () => ({ text: 'label', value: 'value', children: 'children' }),
   },
 });
 
-const emits = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue']);
 
 const { formState } = inject(VAN_PRO_FORM_KEY) || {};
 
@@ -104,13 +103,17 @@ const fieldValueView = computed(() => {
   return (state.columns.find((column) => column.value === state.modelValue) || {}).label || '';
 });
 
+const handleSelect = (value) => {
+  if (formState.formData && filedAttrs.name) {
+    formState.formData[filedAttrs.name] = value;
+  }
+  state.modelValue = value;
+  emit('update:modelValue', value);
+};
+
 const onClick = ({ disabled, value }: Column) => {
   if (!((attrs as RadioAttrs).disabled || disabled)) {
-    if (formState.formData && filedAttrs.name) {
-      formState.formData[filedAttrs.name] = props.modelValue;
-    }
-    state.modelValue = value;
-    emits('update:modelValue', value);
+    handleSelect(value);
   }
 };
 
@@ -130,9 +133,15 @@ watch(
     if (isNotEmptyArray(val)) {
       state.columns = val.map((item) => ({
         ...item,
-        text: item[props.customFieldName.label],
+        text: item[props.customFieldName.text],
         value: item[props.customFieldName.value],
       }));
+
+      const [{ disabled, value }] = state.columns;
+      // 默认选中第一项（是否可选）
+      if (props.isDefaultSelected && !disabled) {
+        handleSelect(value);
+      }
     }
   },
   {
@@ -141,11 +150,18 @@ watch(
   },
 );
 </script>
-
+<script lang="ts">
+export default {
+  inheritAttrs: false,
+};
+</script>
 <style lang="scss" scoped>
 .com-van-radio-wrap {
+  :deep(.van-field__control--custom) {
+    flex-flow: wrap;
+  }
   .com-check-btn {
-    margin: 8px 0 8px 16px;
+    margin: 8px 16px 8px 0;
   }
 }
 </style>

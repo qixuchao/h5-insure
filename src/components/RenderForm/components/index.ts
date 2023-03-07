@@ -5,4 +5,6 @@ export { default as ProPicker } from './ProPicker/index.vue';
 export { default as ProCalendar } from './ProCalendar/index.vue';
 export { default as ProCascader } from './ProCascader/index.vue';
 export { default as ProDatePicker } from './ProDatePicker/index.vue';
+export { default as ProSMSCode } from './ProSMSCode/index.vue';
 export { default as ProAddress } from './ProAddress/index.vue';
+export { default as ProRenderFormWithCard } from './ProRenderFormWithCard/index.vue';

@@ -59,11 +59,12 @@ const state = reactive({
   isView: props.isView,
 });
 
+const formRef = ref<FormInstance>({} as FormInstance);
+
 provide(VAN_PRO_FORM_KEY, {
   formState: state,
+  formRef,
 });
-
-const formRef = ref<FormInstance>({} as FormInstance);
 
 // 是否是 schema
 const isSchema = computed(() => isNotEmptyArray(props.schema));

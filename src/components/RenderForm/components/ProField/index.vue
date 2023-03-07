@@ -3,7 +3,7 @@
     :model-value="state.modelValue"
     class="com-van-field"
     autocomplete="off"
-    v-bind="{ placeholder, ...$attrs, rules }"
+    v-bind="{ ...$attrs, placeholder, rules }"
     @update:model-value="updateModelValue"
   >
     <!-- 继承 slots -->
@@ -121,12 +121,16 @@ watch(
 );
 
 onMounted(() => {
-  if (attrs.name) {
+  if (attrs.name && formState.nameList) {
     formState.nameList.push(attrs.name);
   }
 });
 </script>
-
+<script lang="ts">
+export default {
+  inheritAttrs: false,
+};
+</script>
 <style lang="scss">
 .van-cell.com-van-field {
   .van-field__label--required::before {

@@ -23,8 +23,8 @@ export default function useAttrsAndSlots({ placeholderType }: FormItemParams = {
 
   return {
     filedAttrs: {
-      placeholder: placeholder.value,
       ...filedAttrs,
+      placeholder: placeholder.value,
     } as FieldProps,
     filedSlots,
     attrs: {
