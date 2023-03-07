@@ -29,8 +29,9 @@
 <script lang="ts" setup name="ProPicker">
 import { useToggle } from '@vant/use';
 import isNil from 'lodash-es/isNil';
+import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
-import { useAttrsAndSlots } from '../../hooks';
+import { useAttrsAndSlots } from '../hooks';
 
 const { filedAttrs, filedSlots, attrs, slots } = useAttrsAndSlots();
 

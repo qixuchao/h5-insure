@@ -1,9 +1,9 @@
 <template>
-  <ProForm ref="demoFormRef" :model="state.formData" @submit="onSubmit">
-    <ProField name="phone" label="手机号" required />
+  <ProRenderForm ref="demoFormRef" :model="state.formData" @submit="onSubmit">
+    <ProFieldV2 name="phone" label="手机号" required />
     <ProSMSCode name="smsCode" label="验证码" related-name="phone" />
     <!-- <van-divider content-position="left">Field 输入框 </van-divider> -->
-    <ProField
+    <ProFieldV2
       v-for="{ type, label, ...rest } in fieldList"
       :key="type"
       :name="type"
@@ -12,13 +12,13 @@
       required
       v-bind="rest"
     />
-    <ProRadio label="性别" name="sex" :columns="gener" required />
+    <ProRadioV2 label="性别" name="sex" :columns="gener" required />
 
-    <ProCascader label="职业" name="occupation" show-full-value :columns="area" />
+    <ProCascaderV2 label="职业" name="occupation" show-full-value :columns="area" />
     <ProAddress label="地址" name="address" :columns="area" />
 
     <!-- <van-divider content-position="left">Calendar 日历</van-divider> -->
-    <ProCalendar
+    <ProCalendarv2
       v-for="{ type, label } in calendarList"
       :key="type"
       :name="type"
@@ -28,7 +28,7 @@
     />
 
     <!-- <van-divider content-position="left">DatetimePicker 时间选择</van-divider> -->
-    <ProDatePicker
+    <ProDatePickerV2
       v-for="{ type, label } in datePickerList"
       :key="type"
       :name="type"
@@ -38,7 +38,7 @@
     />
 
     <!-- <van-divider content-position="left">Picker 选择器</van-divider> -->
-    <ProPicker name="bank" label="银行卡" :columns="ACTIVITY_PAY_METHOD_LIST" required />
+    <ProPickerV2 name="bank" label="银行卡" :columns="ACTIVITY_PAY_METHOD_LIST" required />
     <!-- <ProBank name="bankInfo" label="银行卡信息" :columns="ACTIVITY_PAY_METHOD_LIST" /> -->
 
     <!-- <van-divider content-position="left">Radio 单选框</van-divider> -->
@@ -63,18 +63,18 @@
       <van-button round block type="primary" native-type="submit"> 提交 </van-button>
       <van-button round block type="primary" @click="submit"> 提交 </van-button>
     </div>
-  </ProForm>
+  </ProRenderForm>
 </template>
 <script lang="ts" setup>
 import { ACTIVITY_PAY_METHOD_LIST } from '@/common/constants/bankCard';
 import {
-  ProField,
-  ProCalendar,
-  ProDatePicker,
-  ProPicker,
-  ProForm,
-  ProRadio,
-  ProCascader,
+  ProFieldV2,
+  ProCalendarV2,
+  ProDatePickerV2,
+  ProPickerV2,
+  ProRenderForm,
+  ProRadioV2,
+  ProCascaderV2,
   ProAddress,
   ProSMSCode,
 } from '@/components/RenderForm';
@@ -96,8 +96,8 @@ const options = [
 ];
 
 const gener = [
-  { value: '男', code: '1' },
-  { value: '女 ', code: '2' },
+  { label: '男', value: '1' },
+  { label: '女 ', value: '2' },
 ];
 
 const fieldList = [

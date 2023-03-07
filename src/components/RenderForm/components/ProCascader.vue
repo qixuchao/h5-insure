@@ -21,10 +21,9 @@
 import type { PropType } from 'vue';
 import { useToggle } from '@vant/use';
 import type { CascaderOption } from 'vant';
-import ProFormItem from '../ProFormItem/index.vue';
-import ProPopup from '@/components/ProPopup/index.vue';
+import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
-import { useAttrsAndSlots } from '../../hooks';
+import { useAttrsAndSlots } from '../hooks';
 
 const emits = defineEmits(['update:modelValue', 'update:fullValue']);
 

@@ -11,9 +11,9 @@ import { withDefaults, reactive } from 'vue';
 import type { FormInstance } from 'vant';
 import { nanoid } from 'nanoid';
 import { Toast } from 'vant/es';
-import { VAN_PRO_FORM_KEY, COMPONENT_MAP, COMPONENT_LIST } from '../../utils';
+import { VAN_PRO_FORM_KEY } from '../utils';
 import { isNotEmptyArray } from '@/common/constants/utils';
-import * as FieldComponents from '../index';
+import * as FieldComponents from './index';
 
 interface Column {
   text: string;

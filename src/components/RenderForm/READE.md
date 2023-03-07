@@ -1,27 +1,112 @@
 # ProForm 使用说明
 
-## 引入
-
-```javascript
-import { ProForm, ProField, ProCalendar, ProDatePicker, ProPicker, transformToSchema } from '@/components/RenderForm';
-
-```
-
 ## ProForm 表单
 
 ```vue
 <template>
-  <ProForm :schema="state.schema" :config="state.config">
-  </ProForm>
+   <!-- 投保人 -->
+  <ProRenderFormWithCard
+    title="本人信息（投保人）"
+    :model="state.holder.formData"
+    :schema="state.holder.schema"
+    :config="state.holder.config"
+  />
+
+  <!-- 被保人 -->
+  <ProRenderFormWithCard
+    v-for="(insured, index) in state.insuredList"
+    :key="index"
+    title="为谁投保（被保人）"
+    :model="state.insuredList[index].formData"
+    :schema="insured.schema"
+    :config="insured.config"
+  />
 </template>
 <script setup lang="ts">
 import { reactive } from 'vue';
-import { ProForm, ProField, ProCalendar, ProDatePicker, ProPicker, transformToSchema } from '@/components/RenderForm';
+import { ProRenderFormWithCard, transformFactorToSchema } from '@/components/RenderForm';
 
 const state = reactive({
-  schema: [],
-  config: {}
-})
+  // 投保人
+  holder: {
+    formData: {},
+    schema: [],
+    // 试算因子
+    trialFactorCodes: [],
+    config: {
+      verificationCode: {
+        sendSMSCode,
+      },
+    },
+  },
+  // 被保人
+  insuredList: [
+    {
+      formData: {},
+      schema: [],
+      // 试算因子
+      trialFactorCodes: [],
+      config: {
+        relationToHolder: {
+          label: '',
+        },
+      },
+    },
+  ],
+});
+
+const fetchData = () => {
+  insureProductDetail({ productCode }).then((res) => {
+    const { code, data } = res || {};
+    if (code === '10000') {
+
+      // 投保人/被保人/受益人  { schema: [表单 schema], trialFactorCodes: [试算因子 name] }
+      const [holder, insured, beneficiary] = transformFactorToSchema(data.productFactor);
+      state.holder = {
+        ...state.holder,
+        ...holder,
+      };
+      state.insuredList[0] = {
+        ...state.insuredList[0],
+        ...insured,
+      };
+    }
+  });
+}
+
+onMounted(() => {
+  fetchData();
+});
+
+// 监听试算因子
+watch(
+  () => [
+    ...state.holder.trialFactorCodes.map((key) => state.holder.formData[key]),
+    ...state.insuredList.reduce((res, insuredItem, index) => {
+      res.push(...insuredItem.trialFactorCodes.map((key) => state.insuredList[index].formData[key]));
+      return res;
+    }, []),
+  ],
+  (newVal, oldVal) => {
+    console.log('%c🔥 试算因子变动了', 'color:#1989fa;background:#5e4;padding:3px 5px;');
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+// 监听投被保人关系
+watch(
+  () => state.insuredList.map((item, index) => state.insuredList[index].formData.relationToHolder),
+  (newVal, oldVal) => {
+    console.log('%c🔥 与投保人关系变动了', 'color:#1989fa;background:#5e4;padding:3px 5px;');
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
 </script>
 ```
 

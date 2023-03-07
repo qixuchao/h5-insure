@@ -17,7 +17,7 @@
 import { useAttrs, PropType, inject } from 'vue';
 import type { FieldProps, FieldRule } from 'vant';
 import { isNil } from 'lodash';
-import { VAN_PRO_FORM_KEY, RegMap, RULE_TYPE_MSG, upperFirstLetter } from '../../utils';
+import { VAN_PRO_FORM_KEY, RegMap, RULE_TYPE_MSG, upperFirstLetter } from '../utils';
 import { isNotEmptyArray } from '@/common/constants/utils';
 
 //

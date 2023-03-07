@@ -1,5 +1,5 @@
 <template>
-  <ProField class="com-form-item" :is-link="!isView">
+  <ProFieldV2 class="com-form-item" :is-link="!isView">
     <template #input>
       <CustomInput
         :name="$attrs.name"
@@ -12,11 +12,11 @@
     <template v-for="slotName in Object.keys($slots)" :key="slotName" #[slotName]>
       <slot :name="slotName" />
     </template>
-  </ProField>
+  </ProFieldV2>
 </template>
 
 <script lang="ts" setup name="ProFormItem">
-import ProField from '../ProField/index.vue';
+import ProFieldV2 from '../ProField.vue';
 import CustomInput from './CustomInput.vue';
 
 const props = defineProps({

@@ -19,13 +19,13 @@
 
 <script lang="ts" setup name="ProCalendar">
 import dayjs from 'dayjs';
-import { useAttrs, useSlots } from 'vue';
 import type { PropType } from 'vue';
 import type { CalendarType } from 'vant';
 import { useToggle } from '@vant/use';
 import isDate from 'lodash-es/isDate';
+import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
-import { useAttrsAndSlots } from '../../hooks';
+import { useAttrsAndSlots } from '../hooks';
 
 const { filedAttrs, filedSlots, attrs, slots } = useAttrsAndSlots();
 

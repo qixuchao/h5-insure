@@ -28,13 +28,12 @@
 
 <script lang="ts" setup name="ProDatePicker">
 import dayjs from 'dayjs';
-import { useAttrs, useSlots } from 'vue';
 import type { PropType } from 'vue';
 import type { DatetimePickerType } from 'vant';
 import { useToggle } from '@vant/use';
 import isDate from 'lodash-es/isDate';
-import ProPopup from '@/components/ProPopup/index.vue';
-import { useAttrsAndSlots } from '../../hooks';
+import ProFormItem from './ProFormItem/ProFormItem.vue';
+import { useAttrsAndSlots } from '../hooks';
 
 const { filedAttrs, filedSlots, attrs, slots } = useAttrsAndSlots();
 

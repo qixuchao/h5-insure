@@ -1,18 +1,18 @@
 <template>
-  <ProField v-if="!$attrs.isView" class="com-pro-sms-code" :maxlength="INPUT_MAX_LENGTH.SMS_CODE" v-bind="$attrs">
+  <ProFieldV2 v-if="!$attrs.isView" class="com-pro-sms-code" :maxlength="INPUT_MAX_LENGTH.SMS_CODE" v-bind="$attrs">
     <template #extra>
       <div class="button-extra">
         <van-button class="sms-code" size="small" plain type="primary" @click="onSendSmsCode">{{ smsText }}</van-button>
       </div>
     </template>
-  </ProField>
+  </ProFieldV2>
 </template>
 
 <script lang="ts" setup>
 import { Toast } from 'vant';
 import { useCountDown } from '@vant/use';
-import { VAN_PRO_FORM_KEY, INPUT_MAX_LENGTH } from '../../utils';
-import ProField from '../ProField/index.vue';
+import { VAN_PRO_FORM_KEY, INPUT_MAX_LENGTH } from '../utils';
+import ProFieldV2 from './ProField.vue';
 
 const props = defineProps({
   time: {

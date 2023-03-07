@@ -1,5 +1,5 @@
 <template>
-  <ProField class="com-van-radio-wrap" v-bind="filedAttrs" :model-value="state.modelValue">
+  <ProFieldV2 class="com-van-radio-wrap" v-bind="filedAttrs" :model-value="state.modelValue">
     <template #input>
       <div v-if="isView">{{ fieldValueView }}</div>
       <template v-else>
@@ -21,16 +21,16 @@
         </van-radio-group>
       </template>
     </template>
-  </ProField>
+  </ProFieldV2>
 </template>
 
 <script lang="ts" setup>
 import type { PropType } from 'vue';
 import { type RadioGroupProps } from 'vant';
 import { isNotEmptyArray } from '@/common/constants/utils';
-import { useAttrsAndSlots } from '../../hooks';
-import { VAN_PRO_FORM_KEY } from '../../utils';
-import ProField from '../ProField/index.vue';
+import { useAttrsAndSlots } from '../hooks';
+import { VAN_PRO_FORM_KEY } from '../utils';
+import ProFieldV2 from './ProField.vue';
 
 interface RadioAttrs extends RadioGroupProps {
   title: string | number;

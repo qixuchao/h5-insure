@@ -1,6 +1,6 @@
 <template>
   <ProFormItem class="com-van-field-hidden" :name="name" :model-value="state.address" />
-  <ProCascader
+  <ProCascaderV2
     show-full-value
     :custom-field-name="customFieldName"
     v-bind="$attrs"
@@ -9,8 +9,8 @@
   />
 </template>
 <script lang="ts" setup name="ProAddress">
-import ProCascader from '../ProCascader/index.vue';
-import ProFormItem from '../ProFormItem/index.vue';
+import ProCascaderV2 from './ProCascader.vue';
+import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
 
 interface Column {
