@@ -204,3 +204,12 @@ export const upperFirstLetter = (str: string): string => {
   }
   return '';
 };
+
+// 处理 slots  attrs slots {'nameTips': 'extra'}
+export const handleSlots = (slots, slotsMap = {}) => {
+  return Object.keys(slots).reduce((res, key) => {
+    const slotName = slotsMap[key];
+    res[slotName || key] = key;
+    return res;
+  }, {});
+};

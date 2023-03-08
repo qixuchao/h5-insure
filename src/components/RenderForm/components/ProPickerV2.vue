@@ -1,7 +1,7 @@
 <template>
   <ProFormItem
     :model-value="state.fieldValue"
-    :class="`${filedAttrs.visibile ? '' : 'com-van-field--hidden'}`"
+    :class="`${!filedAttrs.visibile ? '' : 'com-van-field--hidden'}`"
     v-bind="filedAttrs"
     :field-value-view="fieldValueView"
     @click="!isView && (show = true)"

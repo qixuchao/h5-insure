@@ -35,7 +35,9 @@
               :model="state.holder.formData"
               :schema="state.holder.schema"
               :config="state.holder.config"
-            />
+            >
+              <template #nameTips> sffff </template>
+            </ProRenderFormWithCard>
 
             <!-- 被保人 -->
             <ProRenderFormWithCard
@@ -307,11 +309,17 @@ const state = reactive({
     // 试算因子
     trialFactorCodes: [],
     config: {
+      name: {
+        // slots: {
+        //   nameTips: 'extra',
+        // },
+        // unit: '元',
+      },
       verificationCode: {
         sendSMSCode,
       },
       certType: {
-        visible: false,
+        // visible: false,
       },
       certNo: {
         label: '身份证号',

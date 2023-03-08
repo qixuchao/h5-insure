@@ -1,6 +1,6 @@
 import { useAttrs, useSlots } from 'vue';
 import type { FieldProps } from 'vant';
-import { filterAttrs, filterSlots } from '../utils';
+import { filterAttrs, filterSlots, handleSlots } from '../utils';
 
 interface FormItemParams {
   placeholderType: 'input' | 'select';
@@ -15,7 +15,7 @@ export default function useAttrsAndSlots({ placeholderType }: FormItemParams = {
   const attrs = useAttrs();
   const slots = useSlots();
   const [filedAttrs, componentAttrs] = filterAttrs(attrs);
-  const [filedSlots, componentSlots] = filterSlots(slots);
+  const [filedSlots, componentSlots] = filterSlots(handleSlots(slots, attrs.slots));
 
   const placeholder = computed(() => {
     return attrs.placeholder || `${prefixMap[placeholderType]}${attrs.label || ''}`;

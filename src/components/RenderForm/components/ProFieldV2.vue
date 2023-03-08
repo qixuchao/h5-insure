@@ -7,23 +7,25 @@
     @update:model-value="updateModelValue"
   >
     <!-- 继承 slots -->
-    <template v-for="slotName in Object.keys($slots)" :key="slotName" #[slotName]>
-      <slot :name="slotName" />
+    <template v-for="slotName in Object.keys(slotskeyMap)" :key="slotName" #[slotName]>
+      <slot :name="slotskeyMap[slotName]" />
     </template>
+    <template v-if="$attrs.unit" #extra>{{ $attrs.unit }}</template>
   </van-field>
 </template>
 
 <script lang="ts" setup name="ProFiled">
-import { useAttrs, PropType, inject } from 'vue';
+import { useAttrs, useSlots, PropType, inject } from 'vue';
 import type { FieldProps, FieldRule } from 'vant';
 import { isNil } from 'lodash';
-import { VAN_PRO_FORM_KEY, RegMap, RULE_TYPE_MSG, upperFirstLetter } from '../utils';
+import { VAN_PRO_FORM_KEY, RegMap, RULE_TYPE_MSG, upperFirstLetter, handleSlots } from '../utils';
 import { isNotEmptyArray } from '@/common/constants/utils';
 
 //
 type RuleType = 'phone' | 'email';
 
 const attrs = useAttrs() as FieldProps;
+const slots = useSlots();
 const emits = defineEmits(['update:model-value']);
 
 const { formState } = inject(VAN_PRO_FORM_KEY) || {};
@@ -56,6 +58,14 @@ const props = defineProps({
 
 const state = reactive({
   modelValue: '' as string | number,
+});
+
+// form schema 插槽
+const slotskeyMap = computed(() => {
+  const slotKeys = handleSlots(slots, attrs.slots);
+  const { extra, ...rest } = slotKeys;
+
+  return attrs.unit ? rest : slotKeys;
 });
 
 const placeholder = computed((): string => {

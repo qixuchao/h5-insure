@@ -8,7 +8,12 @@
         :key1="`${item.nanoid}_${index}`"
         :model-value="state.formData[item.name]"
         v-bind="item"
-      />
+      >
+        <!-- 继承 slots -->
+        <template v-for="slotName in Object.keys($slots)" :key="slotName" #[slotName]>
+          <slot :name="slotName" />
+        </template>
+      </component>
     </template>
     <slot />
   </VanForm>
