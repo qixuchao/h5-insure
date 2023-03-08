@@ -1,18 +1,21 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-24 13:44:22
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-30 15:50:47
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2023-03-08 13:44:17
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/modules/trial.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import request from '@/api/request';
 import { ProductData, PremiumCalcData, PremiumCalcResponse } from './trial.data';
-import { ProductDetail } from './newTrial.data';
+import { InsureProductData } from '@/api/modules/product.data';
 
 // 获取产品详情
 export const insureProductDetail = (data: any = {}) =>
-  request<ProductData>({ url: '/api/app/insure/product/insureProductDetail', method: 'POST', data }, { loading: true });
+  request<InsureProductData>(
+    { url: '/api/app/insure/product/v2/insureProductDetail', method: 'POST', data },
+    { loading: true },
+  );
 
 // 保费试算
 export const premiumCalc = (data = {}) =>

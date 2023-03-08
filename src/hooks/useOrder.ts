@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.com
  * @Date: 2023-03-01 13:51:44
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-03-01 20:36:01
+ * @LastEditTime: 2023-03-08 10:25:03
  * @FilePath: /zat-planet-h5-cloud-insure/src/hooks/useOrder.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -19,17 +19,17 @@ interface QueryData {
   [key: string]: string;
 }
 
-const { tenantId, agentCode = '', agencyCode, saleChannelId, extraInfo, insurerCode } = useRoute().query as QueryData;
-
-let extInfo: any = {};
-
-try {
-  extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
-} catch (error) {
-  //
-}
-
 export default (orderItem?: Partial<OrderDetail>) => {
+  const { tenantId, agentCode = '', agencyCode, saleChannelId, extraInfo, insurerCode } = useRoute().query as QueryData;
+
+  let extInfo: any = {};
+
+  try {
+    extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
+  } catch (error) {
+    //
+  }
+
   const orderDetail = ref<Partial<OrderDetail>>({
     agencyId: agencyCode,
     commencementTime: '',

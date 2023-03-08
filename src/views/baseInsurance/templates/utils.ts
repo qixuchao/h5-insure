@@ -1,11 +1,6 @@
-/*
- * @Author: za-qixuchao qixuchao@zhongan.com
- * @Date: 2023-03-02 17:05:21
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-03-02 17:18:30
- * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/utils.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
+import { PREMIUM_DISPLAY_TYPE_ENUM, PREMIUM_UNIT_TYPE_ENUM } from '@/common/constants/infoCollection';
+import { RISK_TYPE_ENUM } from '@/common/constants/trial';
+
 export const riskToOrder = (productRiskVoList: any) => {
   const result = productRiskVoList
     .map((productRiskVoListItem: any) => {
