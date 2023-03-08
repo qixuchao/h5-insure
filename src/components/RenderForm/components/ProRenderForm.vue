@@ -4,9 +4,7 @@
       <component
         :is="item.componentName"
         v-for="(item, index) in state.schema"
-        :key="item.nanoid"
-        :key1="`${item.nanoid}_${index}`"
-        :model-value="state.formData[item.name]"
+        :key="`${item.nanoid}_${index}`"
         v-bind="item"
       >
         <!-- 继承 slots -->
@@ -19,7 +17,7 @@
   </VanForm>
 </template>
 <script lang="ts" setup>
-import { withDefaults, reactive } from 'vue';
+import { withDefaults, reactive, shallowRef } from 'vue';
 import type { FormInstance } from 'vant';
 import { nanoid } from 'nanoid';
 import { Toast } from 'vant/es';
@@ -153,8 +151,9 @@ watch(
       state.schema = (schema as SchemaItem[])
         .map((item) => ({
           ...item,
+          modelValue: props.model[item.name],
           nanoid: item.nanoid || nanoid(),
-          componentName: FieldComponents[item.componentName] || item.componentName,
+          componentName: shallowRef(FieldComponents[item.componentName]) || item.componentName,
           ...config[item.name],
         }))
         .filter((item) => !item.hidden);

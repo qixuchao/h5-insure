@@ -35,9 +35,7 @@
               :model="state.holder.formData"
               :schema="state.holder.schema"
               :config="state.holder.config"
-            >
-              <template #nameTips> sffff </template>
-            </ProRenderFormWithCard>
+            />
 
             <!-- 被保人 -->
             <ProRenderFormWithCard
@@ -1238,7 +1236,7 @@ const fetchData = async () => {
   loading.value = false;
 };
 
-// 监听试算因子
+// 监听投保人信息
 watch(
   () => state.holder.formData,
   (...rest) => {

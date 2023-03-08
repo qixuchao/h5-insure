@@ -83,12 +83,26 @@ export const filterSlots = (slots) => {
 // 临时组件名
 const tempMap = {
   name: 'ProFieldV2',
+  sex: 'ProRadioV2',
+  birthDate: 'ProDatePickerV2',
+  certExpiry: 'ProDatePickerV2',
+  certImage: 'ProUpload',
   certType: 'ProPickerV2',
   certNo: 'ProFieldV2',
   mobile: 'ProFieldV2',
   verificationCode: 'ProSMSCode',
   relationToHolder: 'ProRadioV2',
   social: 'ProRadioV2',
+  isSmoke: 'ProRadioV2',
+  insureArea: 'ProAddress',
+  degree: 'ProRadioV2',
+  occupation: 'ProCascaderV2',
+  marritalStatus: 'ProRadioV2',
+  residence: 'ProAddress',
+  homeAddress: 'ProAddress',
+  homeAddressDetail: 'ProFieldV2',
+  workAddress: 'ProAddress',
+  country: 'ProPickerV2',
 };
 
 interface Column {
@@ -121,10 +135,26 @@ interface ProductFactor {
   [key: string]: FieldConfItem[];
 }
 
+// 模块类型
 const moduleTypeMap = {
   1: 'holder',
   2: 'insured',
   3: 'beneficiary',
+};
+
+const configMap = {
+  mobile: {},
+  age: {},
+  height: {},
+  weight: {},
+  contactNo: {},
+  email: {},
+  personalAnnualIncome: {},
+  familyAnnualIncome: {},
+  residence: {},
+  homePostalCode: {},
+  workPostalCode: {},
+  workContent: {},
 };
 
 // 转换原始数据 ProForm 所需要的数据
@@ -176,7 +206,8 @@ export const transformFactorToSchema = (factors: ProductFactor) => {
   if (factors && Object.keys(factors).length) {
     const keys = Object.keys(factors);
     const { holder, insured, beneficiary }: ProductFactor = keys.reduce((res, key) => {
-      res[moduleTypeMap[key]] = factors[key].filter((item) => item.isDisplay === 1);
+      // res[moduleTypeMap[key]] = factors[key].filter((item) => item.isDisplay === 1);
+      res[moduleTypeMap[key]] = factors[key];
       return res;
     }, {});
 
