@@ -12,7 +12,7 @@
 import { Toast } from 'vant';
 import { useCountDown } from '@vant/use';
 import { VAN_PRO_FORM_KEY, INPUT_MAX_LENGTH } from '../utils';
-import ProFieldV2 from './ProField.vue';
+import ProFieldV2 from './ProFieldV2.vue';
 
 const props = defineProps({
   time: {

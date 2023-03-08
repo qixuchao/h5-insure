@@ -30,7 +30,7 @@ import { type RadioGroupProps } from 'vant';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { useAttrsAndSlots } from '../hooks';
 import { VAN_PRO_FORM_KEY } from '../utils';
-import ProFieldV2 from './ProField.vue';
+import ProFieldV2 from './ProFieldV2.vue';
 
 interface RadioAttrs extends RadioGroupProps {
   title: string | number;

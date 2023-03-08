@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup name="ProFormItem">
-import ProFieldV2 from '../ProField.vue';
+import ProFieldV2 from '../ProFieldV2.vue';
 import CustomInput from './CustomInput.vue';
 
 const props = defineProps({

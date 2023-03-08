@@ -9,7 +9,7 @@
   />
 </template>
 <script lang="ts" setup name="ProAddress">
-import ProCascaderV2 from './ProCascader.vue';
+import ProCascaderV2 from './ProCascaderV2.vue';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
 

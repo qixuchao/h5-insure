@@ -10,7 +10,7 @@
   </ProCard>
 </template>
 <script lang="ts" setup>
-import ProRenderForm from './ProForm.vue';
+import ProRenderForm from './ProRenderForm.vue';
 
 const props = defineProps({
   title: {
