@@ -1,6 +1,7 @@
 <template>
   <ProFormItem
     :model-value="state.fieldValue"
+    :class="`${filedAttrs.visibile ? '' : 'com-van-field--hidden'}`"
     v-bind="filedAttrs"
     :field-value-view="fieldValueView"
     @click="!isView && (show = true)"
@@ -57,6 +58,13 @@ const props = defineProps({
     default: '',
   },
   /**
+   * 是否默认选中第一项
+   */
+  isDefaultSelected: {
+    type: Boolean,
+    default: true,
+  },
+  /**
    * 是否查看模式
    */
   isView: {
@@ -81,6 +89,11 @@ const state = reactive({
   columns: [],
 });
 
+const handleSelect = (val) => {
+  state.fieldValue = val;
+  emits('update:modelValue', val);
+};
+
 const handleConfirm = (val: any) => {
   const { value } = val || {};
   let result = '';
@@ -88,8 +101,7 @@ const handleConfirm = (val: any) => {
     result = value;
   }
   toggle(false);
-  state.fieldValue = result;
-  emits('update:modelValue', result);
+  handleSelect(result);
   emits('confirm', val);
 };
 
@@ -135,6 +147,12 @@ watch(
       text: item[props.customFieldName.text],
       value: item[props.customFieldName.value],
     }));
+
+    const [{ disabled, value }] = state.columns;
+    // 默认选中第一项（是否可选）
+    if (props.isDefaultSelected && !disabled && (isNil(props.modelValue) || props.modelValue === '')) {
+      handleSelect(value);
+    }
   },
   {
     deep: true,
@@ -148,13 +166,21 @@ export default {
 };
 </script>
 <style lang="scss">
-.van-cell.com-van-field .van-field__value {
-  align-items: flex-start;
-  .van-field__body {
-    width: 100%;
+.van-cell.com-van-field {
+  &.com-van-field--hidden {
+    height: 0;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
   }
-  .placeholder {
-    color: var(--van-field-placeholder-text-color);
+  .van-field__value {
+    align-items: flex-start;
+    .van-field__body {
+      width: 100%;
+    }
+    .placeholder {
+      color: var(--van-field-placeholder-text-color);
+    }
   }
 }
 </style>

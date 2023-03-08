@@ -1,7 +1,14 @@
 <template>
   <VanForm ref="formRef" class="com-van-form" v-bind="{ ...errorProps, ...$attrs }" @failed="onFailed">
     <template v-if="isSchema">
-      <component :is="item.componentName" v-for="item in state.schema" :key="item.nanoid" v-bind="item" />
+      <component
+        :is="item.componentName"
+        v-for="(item, index) in state.schema"
+        :key="item.nanoid"
+        :key1="`${item.nanoid}_${index}`"
+        :model-value="state.formData[item.name]"
+        v-bind="item"
+      />
     </template>
     <slot />
   </VanForm>
@@ -134,16 +141,18 @@ const onFailed = ({ values, errors }) => {
 };
 
 watch(
-  () => [props.schema, props.config],
+  [() => props.schema, () => props.config],
   ([schema, config]) => {
     state.config = config;
     if (isSchema.value) {
-      state.schema = (schema as SchemaItem[]).map((item) => ({
-        ...item,
-        nanoid: item.nanoid || nanoid(),
-        componentName: FieldComponents[item.componentName] || item.componentName,
-        ...config[item.name],
-      }));
+      state.schema = (schema as SchemaItem[])
+        .map((item) => ({
+          ...item,
+          nanoid: item.nanoid || nanoid(),
+          componentName: FieldComponents[item.componentName] || item.componentName,
+          ...config[item.name],
+        }))
+        .filter((item) => !item.hidden);
     }
   },
   {

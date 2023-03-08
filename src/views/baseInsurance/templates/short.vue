@@ -310,6 +310,12 @@ const state = reactive({
       verificationCode: {
         sendSMSCode,
       },
+      certType: {
+        visible: false,
+      },
+      certNo: {
+        label: '身份证号',
+      },
     },
   },
   // 被保人
@@ -322,6 +328,9 @@ const state = reactive({
       config: {
         relationToHolder: {
           label: '',
+        },
+        certNo: {
+          label: '身份证号',
         },
       },
     },
@@ -1214,12 +1223,31 @@ const fetchData = async () => {
         ...state.insuredList[0],
         ...insured,
       };
-      console.log(1111, state);
+      console.log(1111111, state);
     }
   });
 
   loading.value = false;
 };
+
+// 监听试算因子
+watch(
+  () => state.holder.formData,
+  (...rest) => {
+    console.log('%c🔥 投保人信息变动了', 'color:#1989fa;background:#5e4;padding:3px 5px;');
+    state.insuredList.forEach((insuredItem, index) => {
+      const { formData, schema } = insuredItem || {};
+      // 若为本人合并投保人数据
+      if (formData.relationToHolder === '1') {
+        Object.assign(insuredItem.formData, state.holder.formData);
+      }
+    });
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 // 监听试算因子
 watch(
@@ -1245,7 +1273,35 @@ watch(
   () => state.insuredList.map((item, index) => state.insuredList[index].formData.relationToHolder),
   (val, val1) => {
     console.log('%c🔥 与投保人关系变动了', 'color:#1989fa;background:#5e4;padding:3px 5px;');
-    console.log(888888, val, val1);
+    state.insuredList.forEach((insuredItem, index) => {
+      const { formData, schema, config } = insuredItem || {};
+
+      const isSelf = formData.relationToHolder === '1';
+      const isChild = formData.relationToHolder === '3';
+
+      config.certNo.label = `身份证号${isChild ? '(户口簿)' : ''}`;
+
+      insuredItem.schema.forEach((schemaItem) => {
+        schemaItem.relationToHolder = formData.relationToHolder;
+        schemaItem.hidden = !schemaItem.isSelfInsuredNeed && isSelf;
+      });
+
+      // 若为本人合并投保人数据
+      if (isSelf) {
+        Object.assign(insuredItem.formData, {
+          ...state.insuredList[index].formData,
+          ...state.holder.formData,
+        });
+      } else {
+        Object.assign(insuredItem.formData, {
+          ...Object.keys(insuredItem.formData).reduce((res, key) => {
+            res[key] = '';
+            return res;
+          }, {}),
+          relationToHolder: formData.relationToHolder,
+        });
+      }
+    });
   },
   {
     immediate: true,

@@ -27,6 +27,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue';
 import { type RadioGroupProps } from 'vant';
+import isNil from 'lodash-es/isNil';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { useAttrsAndSlots } from '../hooks';
 import { VAN_PRO_FORM_KEY } from '../utils';
@@ -139,7 +140,7 @@ watch(
 
       const [{ disabled, value }] = state.columns;
       // 默认选中第一项（是否可选）
-      if (props.isDefaultSelected && !disabled) {
+      if (props.isDefaultSelected && !disabled && (isNil(props.modelValue) || props.modelValue === '')) {
         handleSelect(value);
       }
     }

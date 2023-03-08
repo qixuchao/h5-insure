@@ -41,6 +41,7 @@ const FIELD_PROPS = [
   'rules',
   'autocomplete',
   'enterkeyhint',
+  'visibile',
 ];
 
 const FIELD_SLOTS = ['label', 'input', 'left-icon', 'right-icon', 'button', 'error-message', 'extra'];
@@ -84,7 +85,7 @@ const tempMap = {
   name: 'ProFieldV2',
   certType: 'ProPickerV2',
   certNo: 'ProFieldV2',
-  mobile: 'ProFieldv2',
+  mobile: 'ProFieldV2',
   verificationCode: 'ProSMSCode',
   relationToHolder: 'ProRadioV2',
   social: 'ProRadioV2',
@@ -107,6 +108,7 @@ interface FieldConfItem {
   attributeValueList: Column[];
   isReadOnly: boolean;
   sort: number;
+  moduleType: number;
   isExtend: boolean;
   isHidden: boolean;
   placeholder: string;
@@ -119,6 +121,12 @@ interface ProductFactor {
   [key: string]: FieldConfItem[];
 }
 
+const moduleTypeMap = {
+  1: 'holder',
+  2: 'insured',
+  3: 'beneficiary',
+};
+
 // 转换原始数据 ProForm 所需要的数据
 export const transformToSchema = (arr: FieldConfItem[]) => {
   // 表单 schema
@@ -128,7 +136,7 @@ export const transformToSchema = (arr: FieldConfItem[]) => {
 
   if (isNotEmptyArray(arr)) {
     schema = arr.map((item) => {
-      // 当前组件
+      // 当前组件配置
       const { code, name, value, componentName, ...rest } =
         COMPONENT_MAPPING_LIST.find((component) => `${component.value}` === `${item.displayType}`) || {};
 
@@ -137,14 +145,21 @@ export const transformToSchema = (arr: FieldConfItem[]) => {
         trialFactorCodes.push(item.code);
       }
 
+      const extraData: Partial<FieldConfItem> = {};
+
+      // 被保人因子是否为非投保人共有
+      if (item.moduleType === 2) {
+        extraData.isSelfInsuredNeed = item.isSelfInsuredNeed;
+      }
+
       return {
         // ...item,
         ...rest,
+        ...extraData,
         label: item.title,
         name: item.code,
         required: item.isMustInput === 1,
         columns: item.attributeValueList || [],
-        isSelfInsuredNeed: item.isSelfInsuredNeed,
         customFieldName: { text: 'value', value: 'code', children: 'children' },
         componentName: tempMap[item.code] || componentName || 'ProFieldV2',
       };
@@ -155,12 +170,6 @@ export const transformToSchema = (arr: FieldConfItem[]) => {
     schema,
     trialFactorCodes,
   };
-};
-
-const moduleTypeMap = {
-  1: 'holder',
-  2: 'insured',
-  3: 'beneficiary',
 };
 
 export const transformFactorToSchema = (factors: ProductFactor) => {
@@ -181,7 +190,7 @@ export const transformFactorToSchema = (factors: ProductFactor) => {
       };
     });
 
-    console.log(33333, holder, insured, beneficiary);
+    console.log('origin factors', holder, insured, beneficiary);
 
     return [holder, finialInsured, beneficiary].map((item) => transformToSchema(item));
   }
