@@ -1,6 +1,8 @@
 <template>
   <ProRenderForm ref="demoFormRef" :model="state.formData" @submit="onSubmit">
-    <ProFieldV2 name="phone" label="手机号" required />
+    <ProFieldV2 name="phone" label="手机号" required :slots-map="{ nameTips: 'extra' }">
+      <template #nameTips> extra </template>
+    </ProFieldV2>
     <ProSMSCode name="smsCode" label="验证码" related-name="phone" />
     <!-- <van-divider content-position="left">Field 输入框 </van-divider> -->
     <ProFieldV2

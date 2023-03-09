@@ -10,7 +10,9 @@
     :model="state.holder.formData"
     :schema="state.holder.schema"
     :config="state.holder.config"
-  />
+  >
+    <template #namtTips>提示</template>
+  </ProRenderFormWithCard>
 
   <!-- 被保人 -->
   <ProRenderFormWithCard
@@ -33,7 +35,15 @@ const state = reactive({
     schema: [],
     // 试算因子
     trialFactorCodes: [],
+    // 覆盖 组件 props
     config: {
+      name: {
+        // 组件插槽定义
+        slots: {
+          // slotName: 组件插槽 name
+          nameTips: 'extra'
+        } 
+      },
       verificationCode: {
         sendSMSCode,
       },
@@ -46,6 +56,7 @@ const state = reactive({
       schema: [],
       // 试算因子
       trialFactorCodes: [],
+      // 覆盖 组件 props
       config: {
         relationToHolder: {
           label: '',

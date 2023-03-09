@@ -1,7 +1,7 @@
 <template>
   <ProFormItem
     :model-value="state.fieldValue"
-    :class="`${filedAttrs.visibile ? '' : 'com-van-field--hidden'}`"
+    :class="`${!filedAttrs.visibile ? '' : 'com-van-field--hidden'}`"
     v-bind="filedAttrs"
     :field-value-view="fieldValueView"
     @click="!isView && (show = true)"
@@ -142,16 +142,18 @@ watch(
   () => props.columns,
   (val = []) => {
     // TODO: children
-    state.columns = val.map((item) => ({
-      ...item,
-      text: item[props.customFieldName.text],
-      value: item[props.customFieldName.value],
-    }));
+    if (isNotEmptyArray(val)) {
+      state.columns = val.map((item) => ({
+        ...item,
+        text: item[props.customFieldName.text],
+        value: item[props.customFieldName.value],
+      }));
 
-    const [{ disabled, value }] = state.columns;
-    // 默认选中第一项（是否可选）
-    if (props.isDefaultSelected && !disabled && (isNil(props.modelValue) || props.modelValue === '')) {
-      handleSelect(value);
+      const [{ disabled, value }] = state.columns;
+      // 默认选中第一项（是否可选）
+      if (props.isDefaultSelected && !disabled && (isNil(props.modelValue) || props.modelValue === '')) {
+        handleSelect(value);
+      }
     }
   },
   {

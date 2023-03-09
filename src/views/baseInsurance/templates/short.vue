@@ -292,11 +292,17 @@ const state = reactive({
     // 试算因子
     trialFactorCodes: [],
     config: {
+      name: {
+        // slots: {
+        //   nameTips: 'extra',
+        // },
+        // unit: '元',
+      },
       verificationCode: {
         sendSMSCode,
       },
       certType: {
-        visible: false,
+        // visible: false,
       },
       certNo: {
         label: '身份证号',
@@ -1148,7 +1154,7 @@ watch(
 //   },
 // );
 
-// 监听试算因子
+// 监听投保人信息
 watch(
   () => state.holder.formData,
   (...rest) => {
