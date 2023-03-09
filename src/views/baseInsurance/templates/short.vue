@@ -13,9 +13,9 @@
       </div>
       <!-- <Guarantee
         show-service-config
-        :data-source="tenantProductDetail?.tenantProductInsureVO"
+        :data-source="tenantProductDetail"
         :is-multiple-plan="isMultiplePlan"
-        :active-plan-code="orderDetail.activePlanCode"
+        :active-plan-code="currentPlanObj.planCode"
         :payment-frequency="orderDetail.paymentFrequency"
         :premium-info="{ premium, unit, premiumLoadingText }"
         @update-active-plan="updateActivePlan"
@@ -76,14 +76,14 @@
               </template>
             </InsureForm> -->
           </div>
-          <!-- <PaymentType
-            :form-info="orderDetail"
-            :insure-detail="insureProductDetail"
-            :config-detail="tenantProductDetail"
-            :is-multiple-plan="isMultiplePlan"
-            :premium-info="{ premium, unit, minPremium, actualUnit, premiumLoadingText }"
+          <PaymentType
+            :form-info="guaranteeObj"
+            :risk-info="mainRiskInfo"
+            :tenant-product-detail="tenantProductDetail"
+            :plan-list="planList"
+            :premium-info="{ premium, premiumLoadingText }"
             @update-active-plan="updateActivePlan"
-          /> -->
+          />
           <Package v-if="currentPackageConfigVOList.length > 0" :package-product-list="currentPackageConfigVOList" />
         </template>
       </ScrollInfo>
@@ -102,9 +102,13 @@
         /> -->
       </ProLazyComponent>
       <template v-if="showFooterBtn">
-        <!-- <TrialButton :premium="premium" :loading-text="premiumLoadingText" plan-code="" :tenant-product-detail="{}"
+        <TrialButton
+          :premium="premium"
+          :loading-text="premiumLoadingText"
+          :plan-code="currentPlanObj.planCode"
+          :tenant-product-detail="{}"
           >立即投保</TrialButton
-        > -->
+        >
       </template>
     </div>
     <PreNotice v-if="preNoticeLoading" :product-detail="tenantProductDetail"></PreNotice>
@@ -274,7 +278,8 @@ const iseeBizNo = ref('');
 const currentPackageConfigVOList = ref([]); // 加油包列表
 const currentFactor = ref<any>({});
 const currentPlanObj = ref<Partial<ProductPlanInsureVoItem>>({});
-const mainRiskInfo = ref<Partial<RiskDetailVoItem>>();
+const mainRiskInfo = ref<Partial<RiskDetailVoItem>>({}); // 标准主险信息
+const planList = ref<any[]>([]);
 
 const sendSMSCode = async ({ mobile }, callback) => {
   const res = await sendCode(mobile);
@@ -351,6 +356,7 @@ const setShareLink = (config: { image: string; desc: string; title: string }) =>
   };
 };
 
+// 订单数据
 const orderDetail = useOrder({
   extInfo: {
     buttonCode: 'EVENT_SHORT_saveOrder',
@@ -360,6 +366,9 @@ const orderDetail = useOrder({
     iseeBizNo: '',
   },
 });
+
+// 保障方案相关信息
+const guaranteeObj = ref<any>({});
 
 // ref<OrderDetail>({
 //   tenantId,
@@ -454,6 +463,9 @@ const initData = async () => {
       preNoticeLoading.value = true;
       insureProductDetail.value = data;
       currentPlanObj.value = data.productPlanInsureVOList?.[0];
+      planList.value = (data.productPlanInsureVOList || [])
+        .filter((plan) => plan.planCode)
+        .map((plan) => ({ planName: plan.planName, planCode: plan.planCode }));
     }
   });
 
@@ -567,9 +579,10 @@ const isCheckHolderSmsCode = computed(() => {
 
 // 险种信息
 const currentRiskInfo = computed(() => {
-  const { productRiskVoList } = currentPlanObj.value;
-  if (productRiskVoList.length) {
-    return productRiskVoList[0].riskDetailVOList;
+  const { insureProductRiskVOList } = currentPlanObj.value;
+  if (insureProductRiskVOList.length) {
+    mainRiskInfo.value = insureProductRiskVOList.find((risk) => risk.mainRiskFlag === YES_NO_ENUM.YES);
+    return insureProductRiskVOList;
   }
   return [];
 });
@@ -709,7 +722,7 @@ const trialData2Order = (
     productId: currentProductDetail?.productBasicInfoVO.id,
   };
   nextStepParams.extInfo.iseeBizNo = iseeBizNo.value;
-  nextStepParams.productCode = currentProductDetail.productBasicInfoVO.productCode;
+  nextStepParams.productCode = currentProductDetail.productCode;
   nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
   nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
   nextStepParams.paymentFrequency = nextStepParams.paymentFrequency || PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE;
@@ -740,8 +753,8 @@ const trialData2Order = (
   });
   nextStepParams.tenantOrderInsuredList[0].tenantOrderProductList[0] = {
     // premium: premium.value,
-    productCode: currentProductDetail.productBasicInfoVO.productCode,
-    productName: currentProductDetail.productBasicInfoVO.productName,
+    productCode: currentProductDetail.productCode,
+    productName: currentProductDetail.productName,
     planCode: orderDetail.value.activePlanCode ? orderDetail.value.activePlanCode : null,
     tenantOrderRiskList: transformData(transformDataReq),
   };
@@ -790,7 +803,7 @@ const trialPremium = async (
   orderInfo: OrderDetail,
   currentProductDetail: any,
   productRiskList: any,
-  isOnlypremiumCalc = true,
+  isOnlyPremiumCalc = true,
 ) => {
   try {
     premiumLoadingText.value = '保费试算中...';
@@ -805,24 +818,14 @@ const trialPremium = async (
     // 试算接口参数组装
     const trialParams = {
       tenantId,
-      productCode: currentProductDetail?.productBasicInfoVO.productCode,
-      productId: currentProductDetail?.productBasicInfoVO.id,
-      insuranceStartDate: orderInfo.insuranceStartDate,
-      insuranceEndDate: orderInfo.insuranceEndDate,
-      commencementTime: orderInfo.insuranceStartDate,
-      expiryDate: orderInfo.insuranceEndDate,
-      paymentFrequency: orderInfo.paymentFrequency || PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE,
+      productCode: currentProductDetail.productCode,
+      // insuranceStartDate: orderInfo.insuranceStartDate,
+      // insuranceEndDate: orderInfo.insuranceEndDate,
       holder: {
         personVO: {
           ...orderInfo.tenantOrderHolder,
           socialFlag: isSocialLimit.value.holder ? orderInfo.tenantOrderHolder.extInfo.hasSocialInsurance : null,
           certType: orderInfo.tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
-          extInfo: {
-            ...orderInfo.tenantOrderHolder.extInfo,
-            hasSocialInsurance: isSocialLimit.value.holder
-              ? orderInfo.tenantOrderHolder.extInfo.hasSocialInsurance
-              : null,
-          },
         },
       },
       insuredVOList: orderInfo.tenantOrderInsuredList.map((person) => {
@@ -833,15 +836,11 @@ const trialPremium = async (
             ...person,
             socialFlag: isSocialLimit.value.insured ? person.extInfo.hasSocialInsurance : null,
             certType: person.certType || CERT_TYPE_ENUM.CERT,
-            extInfo: {
-              ...person.extInfo,
-              hasSocialInsurance: isSocialLimit.value.insured ? person.extInfo.hasSocialInsurance : null,
-            },
           },
           productPlanVOList: [
             {
-              insurerCode: currentProductDetail.productBasicInfoVO.insurerCode,
-              planCode: orderDetail.value.activePlanCode ? orderDetail.value.activePlanCode : null,
+              insurerCode,
+              planCode: currentPlanObj.value.planCode,
               riskVOList: tempRiskVOList,
             },
           ],
@@ -860,7 +859,7 @@ const trialPremium = async (
         orderDetail.value.premium = data.premium;
         orderDetail.value.orderAmount = data.premium;
         orderDetail.value.orderRealAmount = data.premium;
-        if (!isOnlypremiumCalc) {
+        if (!isOnlyPremiumCalc) {
           // 获取试算结果，存储，在健告通过后将保费赋值给对应的险种
           const riskPremiumMap = {};
           if (data.riskPremiumDetailVOList && data.riskPremiumDetailVOList.length) {
@@ -1033,9 +1032,12 @@ watch(
 
 // 监听投被保人数据，同步到订单结构
 watch(
-  [() => state.holder.formData, () => state.insuredList[0].formData],
-  ([holder, insured]) => {
-    Object.assign(orderDetail.value, formData2Order({ holder, insured }));
+  [() => state.holder.formData, () => state.insuredList],
+  ([holder, insuredList]) => {
+    Object.assign(
+      orderDetail.value,
+      formData2Order({ holder, insuredList: insuredList.map((insured) => insured.formData) }),
+    );
   },
   {
     deep: true,

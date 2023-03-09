@@ -1,4 +1,3 @@
-import { ExtInfo } from '../../../api/index.data.d';
 import { PREMIUM_DISPLAY_TYPE_ENUM, PREMIUM_UNIT_TYPE_ENUM } from '@/common/constants/infoCollection';
 import { RISK_TYPE_ENUM } from '@/common/constants/trial';
 
@@ -96,7 +95,7 @@ export const riskToOrder = (productRiskVoList: any) => {
  * @param param { holder: {}, insured: {}}
  * @returns
  */
-export const formData2Order = ({ holder, insured }) => {
+export const formData2Order = ({ holder, insuredList = [] }) => {
   const baseProperties = [
     'birthday',
     'certEndDate',
@@ -122,7 +121,7 @@ export const formData2Order = ({ holder, insured }) => {
         if (baseProperties.includes(key)) {
           currentData[key] = data[key];
         } else {
-          currentData.extInfo = data[key];
+          currentData.extInfo[key] = data[key];
         }
       });
     }
@@ -130,7 +129,7 @@ export const formData2Order = ({ holder, insured }) => {
   };
   return {
     tenantOrderHolder: formatData(holder),
-    tenantOrderInsured: [formatData(insured)],
+    tenantOrderInsuredList: (insuredList || []).map((insured) => formatData(insured)),
   };
 };
 

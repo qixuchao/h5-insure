@@ -139,6 +139,8 @@ export const riskToOrder = (productRiskVoList: any) => {
             riskInsureLimitVO,
             riskCalcMethodInfoVO,
             amountPremiumConfigVO,
+            mainRiskCode,
+            mainRiskId,
           } = risk;
           const {
             annuityDrawFrequencyList,
@@ -168,7 +170,6 @@ export const riskToOrder = (productRiskVoList: any) => {
           } else if (strDisplayType && strDisplayType === PREMIUM_DISPLAY_TYPE_ENUM.COPY) {
             tempAmount = copyes && eachCopyPrice ? copyes * eachCopyPrice : 0;
           }
-          console.log('tempAmount', tempAmount);
           return {
             amount: tempAmount,
             annuityDrawDate: annuityDrawValueList?.[0],
@@ -177,13 +178,9 @@ export const riskToOrder = (productRiskVoList: any) => {
             copy: copyes,
             coveragePeriod: paymentPeriodRule === 4 ? 'year_1' : insurancePeriodValueList?.[0],
             liabilityVOList: risk.riskLiabilityInfoVOList,
-            // mainRisk: risk.riskCode === mainRisk.riskCode,
-            // mainRiskCode: risk.riskCode === mainRisk.riskCode ? mainRisk.riskCode : undefined,
-            // mainRiskId: risk.riskCode === mainRisk.riskCode ? mainRisk.riskId : undefined,
+            mainRiskCode,
+            mainRiskId,
             paymentFrequency: paymentFrequencyList?.[0],
-            riderRisk: true,
-            // riderRiskVOList: riskType === 1 ? transformRisk(riderRiskList) : [],
-            riderRiskVOList: [],
             riskCategory,
             riskCode,
             riskName,

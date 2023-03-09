@@ -3,22 +3,11 @@
     <div class="com-payment-type">
       <div class="title">{{ isShowPaymentSelect ? '交费方式' : '保障计划' }}</div>
       <template v-if="isMultiplePlan">
-        <div v-if="planSkinVlaue.length > 0" class="picture-payment-content">
-          <div
-            v-for="item in planSkinVlaue"
-            :key="item.planCode"
-            :class="`picture-payment-item`"
-            @click="onClickPlanCode(item.planCode)"
-          >
-            <img v-if="state.formInfo.activePlanCode == item.planCode" :src="item.selectedPic" />
-            <img v-else :src="item.unSelectedPic" />
-          </div>
-        </div>
-        <div v-else class="custom-cell check-btn-cell">
+        <div class="custom-cell check-btn-cell">
           <div class="cell-label">保障方案</div>
           <div class="cell-content">
             <ProRadioButton
-              v-model="state.formInfo.activePlanCode"
+              v-model="state.formInfo.planCode"
               :options="planList"
               :prop="{ value: 'planCode', label: 'planName' }"
               @change="onClickPlanCode"
@@ -26,27 +15,28 @@
           </div>
         </div>
       </template>
-      <templat v-if="isShowPaymentFrequency">
-        <div v-if="showPictureBtn && skinValue.length > 1" class="picture-payment-content">
-          <div
-            v-for="item in skinValue"
-            :key="item.paymentFrequency"
-            :class="`picture-payment-item`"
-            @click="onClickPaymethod(item.paymentFrequency)"
-          >
-            <img v-if="state.formInfo.paymentFrequency == item.paymentFrequency" :src="item.selectedPic" />
-            <img v-else :src="item.unSelectedPic" />
-          </div>
+      <div v-if="paymentFrequencyList.length > 1" class="custom-cell check-btn-cell">
+        <div class="cell-label">交费方式</div>
+        <div class="cell-content">
+          <ProRadioButton
+            v-model="state.formInfo.paymentFrequency"
+            :prop="{ label: 'value', value: 'code' }"
+            :options="paymentFrequencyList"
+          ></ProRadioButton>
         </div>
-        <div v-else-if="peymentBtnList.length > 1" class="custom-cell check-btn-cell">
-          <div class="cell-label">交费方式</div>
-          <div class="cell-content">
-            <ProRadioButton v-model="state.formInfo.paymentFrequency" :options="peymentBtnList"></ProRadioButton>
-          </div>
+      </div>
+      <div v-if="paymentPeriodList.length > 1" class="custom-cell check-btn-cell">
+        <div class="cell-label">交费期间</div>
+        <div class="cell-content">
+          <ProRadioButton
+            v-model="state.formInfo.chargePeriod"
+            :prop="{ label: 'value', value: 'code' }"
+            :options="paymentPeriodList"
+          ></ProRadioButton>
         </div>
-      </templat>
-      <InsurancePeriodCell :form-info="state.formInfo" :insure-detail="insureDetail" :config-detail="configDetail" />
-      <template v-if="actualPremium && isShowExplainInfo">
+      </div>
+      <InsurancePeriodCell :form-info="state.formInfo" :risk-info="riskInfo" />
+      <!-- <template v-if="actualPremium && isShowExplainInfo">
         <div class="custom-cell common-cell">
           <div class="cell-label">实付保费</div>
           <template v-if="props.premiumInfo.premiumLoadingText">
@@ -74,13 +64,14 @@
             </div>
           </div>
         </div>
-      </template>
+      </template> -->
     </div>
     <ProDivider />
   </van-config-provider>
 </template>
-<script lang="ts" setup>
+<script lang="ts" setup name="paymentType">
 import type { FormInstance } from 'vant';
+import { withDefaults } from 'vue';
 import { Toast } from 'vant/es';
 import { PAYMENT_COMMON_FREQUENCY_ENUM, PAYMENT_COMMON_FREQUENCY_MAP } from '@/common/constants/infoCollection';
 import { PlanInsureVO, ProductDetail, ProductPlanInsureConditionVo, ShowConfigVO } from '@/api/modules/product.data';
@@ -97,46 +88,39 @@ interface FormInfoProps {
   commencementTime: string; // 生效日期
 }
 
-const props = defineProps({
+interface Props {
+  formInfo: any;
+  riskInfo: any;
+  tenantProductDetail: any;
+  planList: any[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
   // 短显采集的信息
-  formInfo: {
-    type: Object as () => OrderDetail,
-    default: () => {},
-  },
+  formInfo: () => ({}),
   // 险种信息
-  insureDetail: {
-    type: Object as () => ProductData,
-    default: () => {},
-  },
+  riskInfo: () => ({}),
   // 配置信息
-  configDetail: {
-    type: Object as () => ProductDetail,
-    default: () => {},
-  },
-  // 是否多计划
-  isMultiplePlan: {
-    type: Boolean,
-    default: false,
-  },
+  tenantProductDetail: () => ({}),
   // 保额、保费单位
-  premiumInfo: {
-    type: Object as any,
-    default: () => {},
-  },
+  premiumInfo: () => ({}),
+  planList: () => [],
 });
 
 const state = reactive({
   formInfo: props.formInfo,
 });
 
-// 多计划列表
-const planList = ref<PlanInsureVO[]>([]);
-
 // 投保条件
 const insureCondition = ref<ProductPlanInsureConditionVo>();
 
 // 当前计划信息
 const planInsure = ref<PlanInsureVO>();
+const insurancePeriodList = ref([]);
+const paymentPeriodList = ref([]);
+const paymentFrequencyList = ref([]);
+
+const isMultiplePlan = computed(() => !!props.planList?.length);
 
 // 是否展示交费方式（配置端投保条件开关控制）
 const isShowPaymentFrequency = computed(() => {
@@ -144,13 +128,13 @@ const isShowPaymentFrequency = computed(() => {
 });
 
 // 根据实际保额保费单位展示实际保费
-const actualPremium = computed(() => {
-  if (props.premiumInfo.premiumLoadingText) return props.premiumInfo.premiumLoadingText;
-  if (props.premiumInfo.premium) {
-    return `${props.premiumInfo.premium || ''}${props.premiumInfo.actualUnit || '元'}`;
-  }
-  return `${props.premiumInfo.minPremiun || ''}${props.premiumInfo.unit || ''}`;
-});
+// const actualPremium = computed(() => {
+//   if (props.premiumInfo.premiumLoadingText) return props.premiumInfo.premiumLoadingText;
+//   if (props.premiumInfo.premium) {
+//     return `${props.premiumInfo.premium || ''}${props.premiumInfo.actualUnit || '元'}`;
+//   }
+//   return `${props.premiumInfo.minPremiun || ''}${props.premiumInfo.unit || ''}`;
+// });
 
 // 保费计算说明信息
 const explainInfo = computed(() => {
@@ -170,50 +154,36 @@ const isShowExplainInfo = computed(() => {
   return explainInfo.value && explainInfo.value.premiumExplain && explainInfo.value.premiumExplainViewName;
 });
 
-// 获取计划列表
-watch(
-  () => props.configDetail,
-  () => {
-    if (props.isMultiplePlan && props.configDetail) {
-      planList.value = props.configDetail.tenantProductInsureVO?.planList;
-    }
-  },
-  {
-    immediate: true,
-    deep: true,
-  },
-);
-
 // 获取计划信息及投保条件
-watch(
-  [() => props.configDetail, () => props.isMultiplePlan, () => state.formInfo.activePlanCode],
-  () => {
-    if (props.configDetail) {
-      if (props.isMultiplePlan) {
-        let idx = 0;
-        const index = props.configDetail.tenantProductInsureVO.planList.findIndex(
-          (e: PlanInsureVO) => e.planCode === state.formInfo.activePlanCode,
-        );
-        if (index > -1) idx = index;
-        insureCondition.value = props.configDetail.tenantProductInsureVO.planList[idx].productPlanInsureConditionVO;
-        planInsure.value = props.configDetail.tenantProductInsureVO.planList[idx];
-      } else {
-        insureCondition.value = props.configDetail.tenantProductInsureVO.planInsureVO.productPlanInsureConditionVO;
-        planInsure.value = props.configDetail.tenantProductInsureVO.planInsureVO;
-      }
-    }
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
+// watch(
+//   [() => props.configDetail, () => isMultiplePlan.value, () => state.formInfo.activePlanCode],
+//   () => {
+//     if (props.configDetail) {
+//       if (isMultiplePlan.value) {
+//         let idx = 0;
+//         const index = props.configDetail.tenantProductInsureVO.planList.findIndex(
+//           (e: PlanInsureVO) => e.planCode === state.formInfo.activePlanCode,
+//         );
+//         if (index > -1) idx = index;
+//         insureCondition.value = props.configDetail.tenantProductInsureVO.planList[idx].productPlanInsureConditionVO;
+//         planInsure.value = props.configDetail.tenantProductInsureVO.planList[idx];
+//       } else {
+//         insureCondition.value = props.configDetail.tenantProductInsureVO.planInsureVO.productPlanInsureConditionVO;
+//         planInsure.value = props.configDetail.tenantProductInsureVO.planInsureVO;
+//       }
+//     }
+//   },
+//   {
+//     deep: true,
+//     immediate: true,
+//   },
+// );
 
 // 交费方式 | 保障计划 名称判断
 const isShowPaymentSelect = computed(() => {
   if (insureCondition.value && insureCondition.value.paymentFrequency) {
-    const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
-    return paymentFrequencyList.length > 1;
+    const currentPaymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
+    return currentPaymentFrequencyList.length > 1;
   }
   return false;
 });
@@ -223,16 +193,16 @@ watch(
   () => insureCondition.value,
   () => {
     if (insureCondition.value) {
-      const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
-      if (paymentFrequencyList.length === 1) {
+      const currentPaymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
+      if (currentPaymentFrequencyList.length === 1) {
         state.formInfo.paymentFrequency = insureCondition.value.paymentFrequency;
         return;
       }
 
       // 当交费方式只有一次交清和月交时，默认选中一次交清。
       if (
-        paymentFrequencyList.length === 2 &&
-        paymentFrequencyList.filter(
+        currentPaymentFrequencyList.length === 2 &&
+        currentPaymentFrequencyList.filter(
           (e: string) => ![PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE, PAYMENT_COMMON_FREQUENCY_ENUM.MONTH].includes(e),
         ).length < 1
       ) {
@@ -242,7 +212,7 @@ watch(
         return;
       }
       // 默认选中第一种交费方式
-      if (paymentFrequencyList.length > 1 && !state.formInfo.paymentFrequency) {
+      if (currentPaymentFrequencyList.length > 1 && !state.formInfo.paymentFrequency) {
         state.formInfo.paymentFrequency = paymentFrequencyList?.[0];
       }
     }
@@ -253,54 +223,21 @@ watch(
   },
 );
 
-// 获取交费方式皮肤列表
-const skinValue = computed(() => {
-  if (insureCondition.value) {
-    return (insureCondition.value.paymentFrequencyList || [])?.map((e: any) => ({
-      ...e,
-      paymentFrequency: e.skinValue,
-    }));
-  }
-  return [];
-});
-
-// 交费方式是否以皮肤方式展示
-const showPictureBtn = computed(() => {
-  return skinValue.value.length > 0;
-});
-
-// 计划皮肤列表
-const planSkinVlaue = computed(() => {
-  if (props.isMultiplePlan) {
-    return props.configDetail.tenantProductInsureVO.planList
-      .map((e: PlanInsureVO) => {
-        if (!e.planPicList) return null;
-        return {
-          ...e.planPicList,
-          planCode: e.planCode,
-          planName: e.planName,
-        };
-      })
-      .filter((e) => !!e);
-  }
-  return [];
-});
-
 // 交费方式列表
-const peymentBtnList = computed(() => {
-  if (insureCondition.value) {
-    const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
-    if (paymentFrequencyList.length === 1) {
-      // eslint-disable-next-line prefer-destructuring
-      state.formInfo.paymentFrequency = paymentFrequencyList[0];
-    }
-    return (paymentFrequencyList || [])?.map((e: any) => ({
-      label: PAYMENT_COMMON_FREQUENCY_MAP[e],
-      value: e,
-    }));
-  }
-  return [];
-});
+// const paymentBtnList = computed(() => {
+//   if (insureCondition.value) {
+//     const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
+//     if (paymentFrequencyList.length === 1) {
+//       // eslint-disable-next-line prefer-destructuring
+//       state.formInfo.paymentFrequency = paymentFrequencyList[0];
+//     }
+//     return (paymentFrequencyList || [])?.map((e: any) => ({
+//       label: PAYMENT_COMMON_FREQUENCY_MAP[e],
+//       value: e,
+//     }));
+//   }
+//   return [];
+// });
 
 // 切换交费方式
 const onClickPaymethod = (type: string) => {
@@ -320,6 +257,31 @@ const onPreviewFeerateFile = () => {
   }
   openPreviewFilePage({ fileType: 'pdf', fileUri: explainInfo.value?.premiumExplainUri });
 };
+
+watch(
+  () => props.riskInfo,
+  () => {
+    const { productRiskInsureLimitVO } = props.riskInfo || {};
+    if (productRiskInsureLimitVO) {
+      const { paymentFrequencyList: frequencyList = [], paymentPeriodValueList } = productRiskInsureLimitVO || {};
+
+      if (!state.formInfo.paymentFrequency) {
+        state.formInfo.paymentFrequency = frequencyList?.[0]?.code;
+      }
+
+      if (!state.formInfo.chargePeriod) {
+        state.formInfo.chargePeriod = paymentPeriodValueList?.[0]?.code;
+      }
+
+      paymentPeriodList.value = paymentPeriodValueList;
+      paymentFrequencyList.value = frequencyList;
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 </script>
 
 <style lang="scss" scoped>

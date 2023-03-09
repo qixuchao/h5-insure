@@ -1,17 +1,21 @@
 <!--
  * @Author: zhaopu
  * @Date: 2022-11-24 23:45:20
- * @LastEditors: zhaopu
- * @LastEditTime: 2023-02-17 15:28:20
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2023-03-09 21:59:45
  * @Description:
 -->
 <template>
   <van-config-provider>
     <div class="com-period-cell">
-      <div v-if="periodList.length > 1" class="period-custom-cell period-check-btn-cell">
+      <div v-if="insurancePeriodList.length > 1" class="period-custom-cell period-check-btn-cell">
         <div class="period-cell-label">保障期间</div>
         <div class="period-cell-content">
-          <ProRadioButton v-model="state.formInfo.insurancePeriodValue" :options="periodList"></ProRadioButton>
+          <ProRadioButton
+            v-model="state.formInfo.coveragePeriod"
+            :prop="{ label: 'value', value: 'code' }"
+            :options="insurancePeriodList"
+          ></ProRadioButton>
         </div>
       </div>
       <!-- 选择生效日期 -->
@@ -20,7 +24,7 @@
         class="period-custom-cell period-common-cell"
         @click="onSelectCommencementTime"
       >
-        <template v-if="isShowCustomInsurancedate">
+        <template v-if="isShowCustomInsuranceDate">
           <div class="period-cell-label">生效日期</div>
           <div class="period-cell-content period-custom-cell-content">
             <span>{{
@@ -57,7 +61,7 @@
       </div>
     </div>
   </van-config-provider>
-  <ProPopup v-model:show="show" height="340" :closeable="true">
+  <ProPopup v-model:show="show" :height="340" :closeable="true">
     <van-datetime-picker
       v-model="currentDate"
       type="date"
@@ -82,6 +86,7 @@
   </ProPopup>
 </template>
 <script lang="ts" setup name="insurancePeriodCell">
+import { withDefaults } from 'vue';
 import type { FormInstance } from 'vant';
 import dayjs from 'dayjs';
 import { useToggle } from '@vant/use';
@@ -104,15 +109,9 @@ import { compositionInsuranceDesc } from '../../../utils';
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
-const props = defineProps({
-  formInfo: {
-    type: Object as () => OrderDetail,
-    default: () => {},
-  },
-  insureDetail: {
-    type: Object as () => ProductData,
-    default: () => {},
-  },
+const props = withDefaults(defineProps<{ formInfo: any; riskInfo: any }>(), {
+  formInfo: () => ({}),
+  riskInfo: () => ({}),
 });
 
 // 生效日期选择框格式
@@ -139,7 +138,7 @@ const state = reactive({
 });
 
 // 是否展示生效日期选择框
-const isShowCustomInsurancedate = ref(true);
+const isShowCustomInsuranceDate = ref(true);
 
 // 主险信息
 const lastMainRiskInfo = ref<any>();
@@ -158,88 +157,67 @@ watch(
   },
 );
 
-// 根据是否多计划，获取相应主险信息，从而获取保障期限。
-watch(
-  [() => props.insureDetail, () => state.formInfo.activePlanCode],
-  () => {
-    state.formInfo.insuranceStartDate = '';
-    state.formInfo.insuranceEndDate = '';
-    state.formInfo.commencementTime = '';
-    if (props.insureDetail) {
-      if (props.insureDetail.productRelationPlanVOList && props.insureDetail.productRelationPlanVOList.length > 0) {
-        let idx = 0;
-        const index = props.insureDetail.productRelationPlanVOList.findIndex(
-          (e: ProductRelationPlanVoItem) => e.planCode === state.formInfo.activePlanCode,
-        );
-        if (index > -1) idx = index;
-        const riskList = props.insureDetail.productRelationPlanVOList[idx]?.productRiskVoList[0].riskDetailVOList || [];
-        const riskItem = riskList.find((e: RiskDetailVoItem) => e.riskType === 1);
-        if (riskItem) lastMainRiskInfo.value = riskItem;
-      } else {
-        const riskList = props.insureDetail.productRiskVoList[0].riskDetailVOList || [];
-        const riskItem = riskList.find((e: RiskDetailVoItem) => e.riskType === 1);
-        if (riskItem) lastMainRiskInfo.value = riskItem;
-      }
-    }
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
-
 // 根据险种以及字典数据，获取保障期间选择枚举值
-watch(
-  () => lastMainRiskInfo.value,
-  () => {
-    periodList.value = [];
+// watch(
+//   () => props.riskInfo.value,
+//   () => {
+//     periodList.value = [];
 
-    periodList.value = compositionInsuranceDesc(
-      lastMainRiskInfo.value?.riskInsureLimitVO?.insurancePeriodValueList || [],
-    );
+//     periodList.value = compositionInsuranceDesc(
+//       lastMainRiskInfo.value?.riskInsureLimitVO?.insurancePeriodValueList || [],
+//     );
 
-    if (periodList.value.length > 0) {
-      // 切换计划时，如果已选保障期间仍有可选项，默认选中已选择的保障期间
-      if (periodList.value.findIndex((e: any) => e.value === state.formInfo.insurancePeriodValue) < 0) {
-        state.formInfo.insurancePeriodValue = periodList.value[0].value;
-      }
-    } else {
-      // 若没有保障期间，默认未一年期
-      state.formInfo.insurancePeriodValue = INSURANCE_PERIOD_ENUM.YEAR_1;
+//     if (periodList.value.length > 0) {
+//       // 切换计划时，如果已选保障期间仍有可选项，默认选中已选择的保障期间
+//       if (periodList.value.findIndex((e: any) => e.value === state.formInfo.coveragePeriod) < 0) {
+//         state.formInfo.coveragePeriod = periodList.value[0].value;
+//       }
+//     } else {
+//       // 若没有保障期间，默认未一年期
+//       state.formInfo.coveragePeriod = INSURANCE_PERIOD_ENUM.YEAR_1;
+//     }
+//   },
+//   {
+//     deep: true,
+//     immediate: true,
+//   },
+// );
+
+const insurancePeriodList = computed(() => {
+  const { insurancePeriodValueList = [] } = props.riskInfo?.productRiskInsureLimitVO || {};
+  if (insurancePeriodValueList.length) {
+    if (!state.formInfo.coveragePeriod) {
+      state.formInfo.coveragePeriod = insurancePeriodValueList[0].code;
     }
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
+    return insurancePeriodValueList;
+  }
+  return [];
+});
 
 // 险种保障开始日期类型
 const riskGuaranteeStartDateType = computed(() => {
-  return lastMainRiskInfo.value?.insuranceStartType
-    ? String(lastMainRiskInfo.value?.insuranceStartType)
-    : INSURANCE_START_TYPE_ENUM.CURRENT_DAY;
+  const { insuranceStartType } = props.riskInfo?.productRiskInsureLimitVO || {};
+  return insuranceStartType || 1;
 });
 
 // 险种保障结束日期类型
 const riskInsuranceEndType = computed(() => {
-  return lastMainRiskInfo.value?.insuranceEndType
-    ? String(lastMainRiskInfo.value?.insuranceEndType)
-    : INSURANCE_END_TYPE_ENUM.CURRENT_DAY;
+  const { insuranceEndType } = props.riskInfo?.productRiskInsureLimitVO || {};
+  return insuranceEndType || 1;
 });
 
 // 日期选择弹出控制
 const [show, toggle] = useToggle(false);
 
 const onSelectCommencementTime = () => {
-  if (!isShowCustomInsurancedate.value) return;
+  if (!isShowCustomInsuranceDate.value) return;
   toggle(true);
 };
 
 // 日期选择框最小可选日期
 const minDate = computed(() => {
   if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) {
-    const tempDate = lastMainRiskInfo.value?.riskInsureLimitVO.maxInsuranceDay;
+    const tempDate = props.riskInfo?.productRiskInsureLimitVO?.insuranceStartTime;
     if (tempDate && tempDate.indexOf(',')) {
       const [start, end] = tempDate.split(',');
       return new Date(computedAddDate(new Date(), Number(start), 'day'));
@@ -251,7 +229,7 @@ const minDate = computed(() => {
 // 日期选择框最大可选日期
 const maxDate = computed(() => {
   if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) {
-    const tempDate = lastMainRiskInfo.value?.riskInsureLimitVO.maxInsuranceDay;
+    const tempDate = props.riskInfo?.productRiskInsureLimitVO?.insuranceStartTime;
     if (!tempDate) return new Date();
     if (tempDate.indexOf(',')) {
       const [start, end] = tempDate.split(',');
@@ -273,31 +251,52 @@ const handleCancel = () => {
   toggle(false);
 };
 
+watch(
+  () => props.riskInfo,
+  () => {
+    const { productRiskInsureLimitVO } = props.riskInfo || {};
+    if (productRiskInsureLimitVO) {
+      const {
+        amountPremiumConfigVO,
+        insurancePeriodValueList,
+        paymentFrequencyList: frequencyList = [],
+        paymentPeriodValueList,
+      } = productRiskInsureLimitVO || {};
+      insurancePeriodList.value = insurancePeriodValueList;
+    }
+  },
+
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
 // 监听保障开始日期类型，保障期间，保障开始日期，主险信息。重新计算保障开始日期和保障结束日期
 watch(
   [
     () => riskGuaranteeStartDateType.value,
-    () => state.formInfo.insurancePeriodValue,
+    () => state.formInfo.coveragePeriod,
     () => state.formInfo.insuranceStartDate,
     () => lastMainRiskInfo.value,
   ],
   () => {
-    if (!state.formInfo.insurancePeriodValue) return;
+    if (!state.formInfo.coveragePeriod) return;
     // 将保障期间拆分为 值和单位
-    const [unit, num] = state.formInfo.insurancePeriodValue.split('_');
+    const [unit, num] = state.formInfo.coveragePeriod.split('_');
     if (!state.formInfo.insuranceStartDate) {
       // 如果是指定日期生效，需要判断 maxInsuranceDay 字段， 可拆分为两个值【start, end】，
       // 若[start, end]一致，则默认保障日期开始日期为当前日期 + start, 同时展示标签为保障期限，不可自主选择日期
       // 若[start, end]不一致，则保障开始日期默认为当前日期 + start，同时展示为生效日期，可通过日期选择框，根据计算出的最大、最小日期，重新选择保障开始日期
       if (riskGuaranteeStartDateType.value === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) {
-        const tempDate = lastMainRiskInfo.value?.riskInsureLimitVO.maxInsuranceDay;
+        const tempDate = props.riskInfo?.productRiskInsureLimitVO?.maxInsuranceDay;
         if (!tempDate) {
           state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), 1, 'day')} 00:00:00`;
         } else {
           if (tempDate.indexOf(',')) {
             const [start, end] = tempDate.split(',');
             state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), Number(start), 'day')} 00:00:00`;
-            isShowCustomInsurancedate.value = start !== end;
+            isShowCustomInsuranceDate.value = start !== end;
           } else {
             // 兼容老版本
             state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), tempDate, 'day')} 00:00:00`;
@@ -315,7 +314,9 @@ watch(
     if (unit !== 'to') {
       const tempStartDate = `${computedSubtractDate(state.formInfo.insuranceStartDate, 1, 'day')} 00:00:00`;
       if (riskInsuranceEndType.value === INSURANCE_END_TYPE_ENUM.CURRENT_DAY) {
-        state.formInfo.insuranceEndDate = `${computedAddDate(tempStartDate, Number(num), unit)} 23:59:59`;
+        state.formInfo.insuranceEndDate = `${dayjs(new Date(state.formInfo.insuranceStartDate))
+          .add(Number(num), unit)
+          .subtract(1, 'day')} 23:59:59`;
       } else {
         state.formInfo.insuranceEndDate = `${computedAddDate(
           state.formInfo.insuranceStartDate,
