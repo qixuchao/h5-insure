@@ -1,3 +1,4 @@
+import { ExtInfo } from '../../../api/index.data.d';
 import { PREMIUM_DISPLAY_TYPE_ENUM, PREMIUM_UNIT_TYPE_ENUM } from '@/common/constants/infoCollection';
 import { RISK_TYPE_ENUM } from '@/common/constants/trial';
 
@@ -88,6 +89,49 @@ export const riskToOrder = (productRiskVoList: any) => {
     }
   });
   return lastResult;
+};
+
+/**
+ * 表单数据转订单数据
+ * @param param { holder: {}, insured: {}}
+ * @returns
+ */
+export const formData2Order = ({ holder, insured }) => {
+  const baseProperties = [
+    'birthday',
+    'certEndDate',
+    'certEndType',
+    'certNo',
+    'certStartDate',
+    'certType',
+    'email',
+    'gender',
+    'mobile',
+    'name',
+    'id',
+    'insuredBeneficiaryType',
+    'relationToHolder',
+    'relationToMainInsured',
+  ];
+  const formatData = (data) => {
+    const currentData = {
+      extInfo: {},
+    };
+    if ({}.toString.call(data) === '[object Object]') {
+      Object.keys(data).forEach((key) => {
+        if (baseProperties.includes(key)) {
+          currentData[key] = data[key];
+        } else {
+          currentData.extInfo = data[key];
+        }
+      });
+    }
+    return currentData;
+  };
+  return {
+    tenantOrderHolder: formatData(holder),
+    tenantOrderInsured: [formatData(insured)],
+  };
 };
 
 export default {};

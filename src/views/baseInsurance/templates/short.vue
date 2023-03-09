@@ -200,6 +200,7 @@ import useOrder from '@/hooks/useOrder';
 import TrialButton from './components/TrialButton.vue';
 import useAttachment from '@/hooks/useAttachment';
 import { ProRenderFormWithCard, transformFactorToSchema } from '@/components/RenderForm';
+import { formData2Order } from './utils';
 
 const isApp = isAppFkq();
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
@@ -457,7 +458,7 @@ const initData = async () => {
 const isMultiplePlan = computed(() => {
   const { planCode } = currentPlanObj.value;
 
-  return false;
+  return true;
 });
 
 // 用户信息反显以及通讯录信息
@@ -488,6 +489,16 @@ const factorObj = computed(() => {
   if (isOldUser.value && factorObjList[1]) {
     factorObjList = factorObjList[1].filter((e: ProductFactorItem) => e.code !== 'verificationCode');
   }
+
+  const [holder, insured, beneficiary] = transformFactorToSchema(factorObjList);
+  state.holder = {
+    ...state.holder,
+    ...holder,
+  };
+  state.insuredList[0] = {
+    ...state.insuredList[0],
+    ...insured,
+  };
   return factorObjList;
 });
 
@@ -985,34 +996,45 @@ const onResetFileFlag = () => {
 };
 
 // 表单组件切换被保人时不会赋值默认社保以及身份证类型，需手动赋值
-// watch(
-//   () => orderDetail.value.tenantOrderInsuredList[0].relationToHolder,
-//   () => {
-//     // 被保人与投保人关系切换时，重置加油包为不投保
-//     if (currentPackageConfigVOList.value) {
-//       currentPackageConfigVOList.value.forEach((e) => {
-//         e.value = INSURE_TYPE_ENUM.UN_INSURE;
-//       });
-//     }
+watch(
+  () => orderDetail.value.tenantOrderInsuredList[0].relationToHolder,
+  () => {
+    // 被保人与投保人关系切换时，重置加油包为不投保
+    if (currentPackageConfigVOList.value) {
+      currentPackageConfigVOList.value.forEach((e) => {
+        e.value = INSURE_TYPE_ENUM.UN_INSURE;
+      });
+    }
 
-//     needDesensitize.value = false;
-//     nextTick(() => {
-//       const { certType, extInfo: insuredExtInfo } = orderDetail.value.tenantOrderInsuredList[0];
+    needDesensitize.value = false;
+    nextTick(() => {
+      const { certType, extInfo: insuredExtInfo } = orderDetail.value.tenantOrderInsuredList[0];
 
-//       if (insuredExtInfo && !insuredExtInfo.hasSocialInsurance) {
-//         orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance = SOCIAL_SECURITY_ENUM.HAS;
-//       }
-//       if (isSetDefaultCertNo.value && !certType) {
-//         orderDetail.value.tenantOrderInsuredList[0].certType = CERT_TYPE_ENUM.CERT;
-//       }
-//       needDesensitize.value = true;
-//     });
-//   },
-//   {
-//     deep: true,
-//     immediate: true,
-//   },
-// );
+      if (insuredExtInfo && !insuredExtInfo.hasSocialInsurance) {
+        orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance = SOCIAL_SECURITY_ENUM.HAS;
+      }
+      if (isSetDefaultCertNo.value && !certType) {
+        orderDetail.value.tenantOrderInsuredList[0].certType = CERT_TYPE_ENUM.CERT;
+      }
+      needDesensitize.value = true;
+    });
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+// 监听投被保人数据，同步到订单结构
+watch(
+  [() => state.holder.formData, () => state.insuredList[0].formData],
+  ([holder, insured]) => {
+    Object.assign(orderDetail.value, formData2Order({ holder, insured }));
+  },
+  {
+    deep: true,
+  },
+);
 
 const onTrialCheck = (): boolean => {
   const {
