@@ -61,6 +61,11 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  // Tips: 无用的属性，传递给 van-datetime-picker 引起组件不渲染日期
+  columns: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const [show, toggle] = useToggle(false);

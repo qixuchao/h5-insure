@@ -3,14 +3,16 @@
     :model-value="state.modelValue"
     class="com-van-field"
     autocomplete="off"
+    :formatter="formatter"
     v-bind="{ ...$attrs, placeholder, rules }"
+    @blur="onblur"
     @update:model-value="updateModelValue"
   >
     <!-- 继承 slots -->
     <template v-for="slotName in Object.keys(slotskeyMap)" :key="slotName" #[slotName]>
       <slot :name="slotskeyMap[slotName]" />
     </template>
-    <template v-if="$attrs.unit" #extra>{{ $attrs.unit }}</template>
+    <template v-if="unit" #extra>{{ unit }}</template>
   </van-field>
 </template>
 
@@ -26,7 +28,7 @@ type RuleType = 'phone' | 'email';
 
 const attrs = useAttrs() as FieldProps;
 const slots = useSlots();
-const emits = defineEmits(['update:model-value']);
+const emit = defineEmits(['update:model-value', 'blur']);
 
 const { formState } = inject(VAN_PRO_FORM_KEY) || {};
 
@@ -54,6 +56,20 @@ const props = defineProps({
     type: Array as PropType<FieldRule[]>,
     default: () => [],
   },
+  // number 类型 精度
+  precision: {
+    type: Number,
+    default: 0,
+  },
+  // 是否自动补全精度
+  isPrecisionCompleted: {
+    type: Boolean,
+    default: false,
+  },
+  unit: {
+    type: String,
+    default: '',
+  },
 });
 
 const state = reactive({
@@ -65,7 +81,7 @@ const slotskeyMap = computed(() => {
   const slotKeys = handleSlots(slots, attrs.slots);
   const { extra, ...rest } = slotKeys;
 
-  return attrs.unit ? rest : slotKeys;
+  return props.unit ? rest : slotKeys;
 });
 
 const placeholder = computed((): string => {
@@ -111,12 +127,34 @@ const rules = computed(() => {
   return [];
 });
 
+const isNeedPrecision = computed(() => {
+  return attrs.type === 'number' && props.precision;
+});
+
+const formatter = (value) => {
+  // 数字类型且精度存在
+  if (isNeedPrecision.value && value) {
+    return value.replace(/^(0)\d+$/g, '$1').replace(new RegExp(`^(\\d+\\.\\d{${props.precision}})\\d+$`, 'g'), '$1');
+  }
+  return value;
+};
+
 const updateModelValue = (val) => {
   if (formState.formData && attrs.name) {
     formState.formData[attrs.name] = val;
   }
   state.modelValue = val;
-  emits('update:model-value', val);
+  emit('update:model-value', val);
+};
+
+const onblur = (event) => {
+  let val = state.modelValue;
+  // 数字类型且精度存在
+  if (isNeedPrecision.value && val && props.isPrecisionCompleted) {
+    val = Number(val).toFixed(props.precision);
+    updateModelValue(val);
+  }
+  emit('blur', event);
 };
 
 watch(

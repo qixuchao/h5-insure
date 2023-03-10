@@ -670,3 +670,90 @@ export interface ProductFactorItem {
   position: object;
 }
 
+/**
+ * 产品中心-产品资料
+ */
+
+export interface ProductMaterialData {
+    productInsureMaterialVOList: ProductInsureMaterialVoItem[];
+    productQuestionnaireVOList: ProductQuestionnaireVoItem[];
+}
+
+export interface ProductQuestionnaireVoItem {
+    planCode: string;
+    productCode: string;
+    productId: number;
+    questionnaireDetailResponseVO: QuestionnaireDetailResponseVo;
+    questionnaireId: number;
+    questionnaireName: string;
+}
+
+export interface QuestionnaireDetailResponseVo {
+    basicInfo: BasicInfo;
+    creator: string;
+    gmtCreated: string;
+    gmtModified: string;
+    isDeleted: string;
+    modifier: string;
+    questions: Question[];
+}
+
+export interface Question {
+    content: string;
+    creator: string;
+    gmtCreated: string;
+    gmtModified: string;
+    id: number;
+    isDeleted: string;
+    modifier: string;
+    options: string;
+    position: number;
+    questionType: number;
+    questionnaireId: number;
+    tenantId: number;
+    textType: number;
+    title: string;
+}
+
+export interface BasicInfo {
+    gmtCreated: string;
+    id: number;
+    insurerCode: string;
+    objectType: number;
+    productCategory: number;
+    questionnaireCode: string;
+    questionnaireName: string;
+    questionnaireType: number;
+    tenantId: number;
+    title: string;
+}
+
+export interface ProductInsureMaterialVoItem {
+    id: number;
+    planCode: string;
+    productCode: string;
+    productId: number;
+    productMaterialVOList: ProductMaterialVoItem[];
+    showOrder: number;
+    tabName: string;
+}
+
+export interface ProductMaterialVoItem {
+    id: number;
+    materialContent: string;
+    materialSource: number;
+    materialSourceDesc: string;
+    materialType: number;
+    materialTypeDesc: string;
+    mustReadFlag: number;
+    noticeObject: number;
+    noticeObjectDesc: string;
+    popUpFlag: number;
+    productId: number;
+}
+
+
+
+
+
+

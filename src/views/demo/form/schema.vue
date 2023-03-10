@@ -3,7 +3,7 @@
   <ProRenderForm ref="schemaFormRef" class="schema-form" :model="state.formData" :schema="schema" />
 
   <!-- van-form 模版写法 -->
-  <ProRenderForm @submit="onSubmit">
+  <!-- <ProRenderForm @submit="onSubmit">
     <ProFieldV2 name="name" label="姓名" />
     <ProPickerV2 name="certType" label="证件类型" :columns="CERT_TYPE" />
     <ProFieldV2 name="cardNo" label="证件号码" />
@@ -16,7 +16,7 @@
     <div style="margin: 16px">
       <van-button round block type="primary" native-type="submit"> 提交 </van-button>
     </div>
-  </ProRenderForm>
+  </ProRenderForm> -->
 </template>
 <script lang="ts" setup>
 import {

@@ -1,5 +1,15 @@
+import dayjs from 'dayjs';
 import { isNotEmptyArray } from '@/common/constants/utils';
-import { COMPONENT_MAPPING_LIST } from './constants';
+import { COMPONENT_MAPPING_LIST, CONFIG_RULE_MAP } from './constants';
+import { Column, ComponentProps, FieldConfItem, ProductFactor } from '../index.data';
+
+/**
+ * 合并职业  dictCode
+ * @param [string] insurerCode
+ * @returns `${insurerCode.toUpperCase()}_OCCUPATION`
+ */
+export const combineOccupation = (insurerCode: string) =>
+  `${insurerCode ? `${insurerCode.toUpperCase()}_` : ''}OCCUPATION`;
 
 // van-filed Props
 const FIELD_PROPS = [
@@ -49,6 +59,27 @@ const FIELD_SLOTS = ['label', 'input', 'left-icon', 'right-icon', 'button', 'err
 // Field 通用默认属性
 const FIELD_INIT_ATTRS = {
   autocomplete: 'off',
+};
+
+/**
+ *  删除多级数据中空的 children
+ * @param arr
+ * @returns arr
+ */
+export const deleteEmptyChildren = (arr: Column[], childrenKey = 'children') => {
+  if (isNotEmptyArray(arr)) {
+    return arr.map(({ [`${childrenKey}`]: children, ...other }) => {
+      const currentData = {} as Column;
+      if (isNotEmptyArray(children)) {
+        currentData.children = deleteEmptyChildren(children);
+      }
+      return {
+        ...other,
+        ...currentData,
+      };
+    });
+  }
+  return [];
 };
 
 // 过滤数据
@@ -105,34 +136,9 @@ const tempMap = {
   country: 'ProPickerV2',
 };
 
-interface Column {
-  text: string;
-  value: string | number;
-  children: Column[];
-}
-
-interface FieldConfItem {
-  code: string;
-  title: string;
-  displayType: number;
-  isDisplay: number;
-  isMustInput: number;
-  hasDefaultValue: number;
-  default: string;
-  attributeValueList: Column[];
-  isReadOnly: boolean;
-  sort: number;
-  moduleType: number;
-  isExtend: boolean;
-  isHidden: boolean;
-  placeholder: string;
-  regular: RegExp;
-  unit: string;
-  isSelfInsuredNeed: boolean;
-}
-
-interface ProductFactor {
-  [key: string]: FieldConfItem[];
+interface ModuleResult {
+  schema: ComponentProps[];
+  trialFactorCodes: string[];
 }
 
 // 模块类型
@@ -142,23 +148,62 @@ const moduleTypeMap = {
   3: 'beneficiary',
 };
 
+/**
+ * 因子配置
+ */
 const configMap = {
-  mobile: {},
-  age: {},
-  height: {},
-  weight: {},
+  certNo: {
+    relatedName: 'certType',
+  },
+  mobile: CONFIG_RULE_MAP.MOBILE,
+  age: CONFIG_RULE_MAP.AGE,
+  height: {
+    ...CONFIG_RULE_MAP.HEIGHT_WEIGHT,
+    unit: 'cm',
+  },
+  weight: {
+    ...CONFIG_RULE_MAP.HEIGHT_WEIGHT,
+    unit: 'kg',
+  },
   contactNo: {},
-  email: {},
-  personalAnnualIncome: {},
-  familyAnnualIncome: {},
+  email: {
+    ruleType: 'email',
+  },
+  personalAnnualIncome: CONFIG_RULE_MAP.INCOME,
+  familyAnnualIncome: CONFIG_RULE_MAP.INCOME,
+  familyZipCode: CONFIG_RULE_MAP.ZIP_CODE,
   residence: {},
-  homePostalCode: {},
-  workPostalCode: {},
-  workContent: {},
+  homePostalCode: CONFIG_RULE_MAP.ZIP_CODE,
+  workPostalCode: CONFIG_RULE_MAP.ZIP_CODE,
+  // 内容
+  workContent: CONFIG_RULE_MAP.CONTENT,
+  // 燃气户号
+  gasNumberCollection: {
+    ...CONFIG_RULE_MAP.GAS_NUMBER,
+    ruleType: 'noZH',
+  },
+  verificationCode: {
+    ...CONFIG_RULE_MAP.ZIP_CODE,
+  },
+  insureArea: {
+    ...CONFIG_RULE_MAP.ADDRESS,
+  },
+  occupation: {},
+  country: {
+    ...CONFIG_RULE_MAP.COUNTRY,
+  },
+  certExpiry: {
+    minDate: new Date(),
+    maxDate: dayjs().add(100, 'year').toDate(),
+  },
 };
 
-// 转换原始数据 ProForm 所需要的数据
-export const transformToSchema = (arr: FieldConfItem[]) => {
+/**
+ * 转换原始数据 ProForm 所需要的数据
+ * @param [array] 投保人/被保人/受益人的因子数组
+ * @returns [object] schema 和 trialFactorCodes(试算因子 code )
+ */
+export const transformToSchema = (arr: FieldConfItem[]): ModuleResult => {
   // 表单 schema
   let schema = [];
   // 试算 code
@@ -177,6 +222,12 @@ export const transformToSchema = (arr: FieldConfItem[]) => {
 
       const extraData: Partial<FieldConfItem> = {};
 
+      // 按 code 配置的组件属性
+      const { componentName: configComponentName, ...restConfig } = configMap[item.code] || {};
+
+      // 组件名优先级 config(code) > schema > ProFieldV2
+      const finalComponentName = tempMap[item.code] || configComponentName || componentName || 'ProFieldV2';
+
       // 被保人因子是否为非投保人共有
       if (item.moduleType === 2) {
         extraData.isSelfInsuredNeed = item.isSelfInsuredNeed;
@@ -186,12 +237,13 @@ export const transformToSchema = (arr: FieldConfItem[]) => {
         // ...item,
         ...rest,
         ...extraData,
+        customFieldName: { text: 'value', value: 'code', children: 'children' },
         label: item.title,
         name: item.code,
+        componentName: finalComponentName,
         required: item.isMustInput === 1,
         columns: item.attributeValueList || [],
-        customFieldName: { text: 'value', value: 'code', children: 'children' },
-        componentName: componentName || 'ProFieldV2',
+        ...restConfig,
       };
     });
   }
@@ -202,7 +254,17 @@ export const transformToSchema = (arr: FieldConfItem[]) => {
   };
 };
 
-export const transformFactorToSchema = (factors: ProductFactor) => {
+/**
+ * 转换原始数据 ProForm 所需要的数据
+ * @param [array] 包含投保人、被保人、受益人的因子数组
+ * @returns [array] {schema 和 trialFactorCodes(试算因子 code )}[]
+ */
+export const transformFactorToSchema = (
+  factors: ProductFactor,
+): Array<{
+  schema: ComponentProps[];
+  trialFactorCodes: string[];
+}> => {
   if (factors && Object.keys(factors).length) {
     const keys = Object.keys(factors);
     const { holder, insured, beneficiary }: ProductFactor = keys.reduce((res, key) => {

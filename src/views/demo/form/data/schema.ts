@@ -46,11 +46,27 @@ export default [
     label: '出行人',
   },
   {
+    componentName: 'ProDatePickerV2',
+    label: '出生日期',
+  },
+  {
     componentName: 'ProAddress',
     label: '地址',
   },
   {
     componentName: 'ProBank',
     label: '银行卡',
+  },
+  {
+    label: '证件有效期',
+    name: 'certExpiry',
+    required: false,
+    columns: [],
+    customFieldName: {
+      children: 'children',
+      text: 'value',
+      value: 'code',
+    },
+    componentName: 'ProDatePickerV2',
   },
 ];

@@ -23,6 +23,7 @@ import { nanoid } from 'nanoid';
 import { Toast } from 'vant/es';
 import { VAN_PRO_FORM_KEY } from '../utils';
 import { isNotEmptyArray } from '@/common/constants/utils';
+import useDictData from '@/hooks/useDictData';
 import * as FieldComponents from './index';
 
 interface Column {
@@ -67,6 +68,7 @@ const state = reactive({
   schema: [],
   nameList: [], // 字段 name List
   isView: props.isView,
+  dictCodeList: [], // 需要请求的字典
 });
 
 const formRef = ref<FormInstance>({} as FormInstance);
@@ -157,6 +159,20 @@ watch(
           ...config[item.name],
         }))
         .filter((item) => !item.hidden);
+
+      // 处理需要请求的字典去重
+      state.dictCodeList = [
+        ...new Set(
+          state.schema.reduce((res, item) => {
+            if (item.dictCode) {
+              res.push(item.dictCode);
+            }
+            return res;
+          }, []),
+        ),
+      ];
+
+      useDictData(state.dictCodeList);
     }
   },
   {

@@ -9,20 +9,11 @@
   />
 </template>
 <script lang="ts" setup name="ProAddress">
+import { isNotEmptyArray } from '@/common/constants/utils';
 import ProCascaderV2 from './ProCascaderV2.vue';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
-import { isNotEmptyArray } from '@/common/constants/utils';
-
-interface Column {
-  [key: string]: any;
-  children: Column[];
-}
 
 const props = defineProps({
-  // modelValue: {
-  //   type: [String, Number],
-  //   default: '',
-  // },
   name: {
     type: String,
     default: '',
@@ -41,17 +32,17 @@ const state = reactive({
 });
 
 const updateFullValue = (arr = []) => {
+  let address = {};
   if (isNotEmptyArray(arr)) {
     const { text, value } = props.customFieldName;
-    state.address = ['province', 'city', 'area'].reduce((res, key, index) => {
+    address = ['province', 'city', 'area'].reduce((res, key, index) => {
       const item = arr[index + 1];
       res[`${key}Code`] = item[value];
       res[`${key}Name`] = item[text];
       return res;
     }, {});
-  } else {
-    state.address = {};
   }
+  state.address = address;
 };
 </script>
 <script lang="ts">

@@ -13,7 +13,7 @@
   </ProFormItem>
   <ProPopup v-model:show="show" :height="40" :closeable="false">
     <van-picker
-      :columns="state.columns"
+      :columns="columns"
       :default-index="defaultIndex"
       :title="filedAttrs.label"
       v-bind="attrs"
@@ -28,11 +28,17 @@
 </template>
 
 <script lang="ts" setup name="ProPicker">
+import { storeToRefs } from 'pinia';
 import { useToggle } from '@vant/use';
 import isNil from 'lodash-es/isNil';
+import useAppStore from '@/store/app';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { useAttrsAndSlots } from '../hooks';
+import { deleteEmptyChildren } from '../utils';
+
+const globalStore = useAppStore();
+const { dictMap } = storeToRefs(globalStore);
 
 const { filedAttrs, filedSlots, attrs, slots } = useAttrsAndSlots();
 
@@ -49,6 +55,13 @@ const props = defineProps({
   columns: {
     type: Array as () => Array<{ label: string; value: number | string }>,
     default: () => [],
+  },
+  /**
+   * 数据字典 code
+   */
+  dictCode: {
+    type: String,
+    default: '',
   },
   /**
    * modelvalue
@@ -109,6 +122,32 @@ const handleCancel = () => {
   toggle(false);
 };
 
+const dealColumns = (val) => {
+  if (isNotEmptyArray(val)) {
+    return val.map((item) => ({
+      ...item,
+      text: item[props.customFieldName.text],
+      value: item[props.customFieldName.value],
+    }));
+  }
+  return [];
+};
+
+// 数据源：1. 属性 columns 2. 全局字典数据
+const columns = computed(() => {
+  let tempColumns = [];
+  if (isNotEmptyArray(props.columns)) {
+    tempColumns = props.columns;
+  }
+
+  // 全局字典数据
+  const singleDictData = dictMap.value[props.dictCode];
+  if (props.dictCode && isNotEmptyArray(singleDictData)) {
+    tempColumns = singleDictData;
+  }
+  return deleteEmptyChildren(dealColumns(tempColumns));
+});
+
 // 选中的索引
 const defaultIndex = computed(() => {
   if (props.modelValue) {
@@ -119,12 +158,12 @@ const defaultIndex = computed(() => {
 
 // field value view
 const fieldValueView = computed(() => {
-  if (isNotEmptyArray(props.columns)) {
-    const currentItem = state.columns.find((item) => String(item.value) === String(state.fieldValue)) || {};
+  if (isNotEmptyArray(columns.value)) {
+    const currentItem = columns.value.find((item) => String(item.value) === String(state.fieldValue)) || {};
 
-    return currentItem?.text || props.modelValue;
+    return currentItem?.text || state.fieldValue;
   }
-  return props.modelValue;
+  return state.fieldValue;
 });
 
 watch(
@@ -139,17 +178,11 @@ watch(
 );
 
 watch(
-  () => props.columns,
+  columns,
   (val = []) => {
     // TODO: children
-    if (isNotEmptyArray(val)) {
-      state.columns = val.map((item) => ({
-        ...item,
-        text: item[props.customFieldName.text],
-        value: item[props.customFieldName.value],
-      }));
-
-      const [{ disabled, value }] = state.columns;
+    if (isNotEmptyArray(val) && val.length === 1) {
+      const [{ disabled, value }] = columns.value;
       // 默认选中第一项（是否可选）
       if (props.isDefaultSelected && !disabled && (isNil(props.modelValue) || props.modelValue === '')) {
         handleSelect(value);

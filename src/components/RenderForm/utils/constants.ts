@@ -1,10 +1,103 @@
 import { type Ref, type InjectionKey } from 'vue';
 import type { FormInstance } from 'vant';
+import { DictNameEnum } from '@/common/constants';
 
+// 输入框最大长度
 export const INPUT_MAX_LENGTH = {
+  /**
+   * 年龄长度 3
+   */
+  AGE: 3,
+  /**
+   * 验证码长度 6
+   */
   SMS_CODE: 6,
+  /**
+   * 邮编长度 6
+   */
+  ZIP_CODE: 6,
+  /**
+   * 手机号长度 11
+   */
   MOBILE: 11,
-  TEXTAREA: 200,
+  /**
+   * 燃气户号长度 20
+   */
+  GAS_NUMBER: 20,
+  /**
+   * 详细地址长度 50
+   */
+  ADDRESS_DETAIL: 50,
+  /**
+   * 内容长度 200
+   */
+  CONTENT: 200,
+};
+
+export const CONFIG_RULE_MAP = {
+  /**
+   * 手机号 长度11位，数字
+   */
+  MOBILE: {
+    type: 'digit',
+    maxlength: INPUT_MAX_LENGTH.MOBILE,
+  },
+  /**
+   * 年龄 最多三位数字，不支持小数
+   */
+  AGE: {
+    type: 'digit',
+    maxlength: INPUT_MAX_LENGTH.AGE,
+  },
+  /**
+   * 身高/体重 允许一位小数
+   */
+  HEIGHT_WEIGHT: {
+    type: 'number',
+    precision: 1,
+  },
+  /**
+   * 收入 允许2位小数，无小数位默认补全【.00】 单位: 万元
+   */
+  INCOME: {
+    type: 'number',
+    precision: 2,
+    unit: '万元',
+    isPrecisionCompleted: true,
+  },
+  /**
+   * 邮编/验证码 数字6位，不支持小数
+   */
+  ZIP_CODE: {
+    type: 'digit',
+    maxlength: INPUT_MAX_LENGTH.ZIP_CODE,
+  },
+  /**
+   * 内容 最长200个汉字
+   */
+  CONTENT: {
+    maxlength: INPUT_MAX_LENGTH.CONTENT,
+  },
+  /**
+   * 燃气户号 长度20个字符
+   */
+  GAS_NUMBER: {
+    maxlength: INPUT_MAX_LENGTH.GAS_NUMBER,
+  },
+  /**
+   * 地址
+   */
+  ADDRESS: {
+    dictCode: DictNameEnum.NATIONAL_REGION_CODE,
+    customFieldName: { text: 'name', value: 'code', children: 'children' },
+  },
+  /**
+   * 国籍
+   */
+  COUNTRY: {
+    dictCode: DictNameEnum.NATIONALITY,
+    customFieldName: { text: 'name', value: 'code', children: 'children' },
+  },
 };
 
 // 渲染组件映射
@@ -81,6 +174,12 @@ export const COMPONENT_MAPPING_LIST = [
     name: '文件上传',
     value: 12,
     componentName: 'ProUpload',
+  },
+  {
+    code: 'stepper',
+    name: '步进器',
+    value: 13,
+    componentName: 'ProStepperV2',
   },
 ];
 

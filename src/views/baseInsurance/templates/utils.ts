@@ -102,6 +102,7 @@ export const formData2Order = ({ holder, insuredList = [] }) => {
     'certEndType',
     'certNo',
     'certStartDate',
+    'verificationCode',
     'certType',
     'email',
     'gender',
