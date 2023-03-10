@@ -43,3 +43,13 @@ export interface ComponentProps {
   customFieldName: CustomFieldName;
   componentName: string;
 }
+
+export interface SchemaItem {
+  componentName: string;
+  type: string;
+  label: string;
+  name: string;
+  required: boolean;
+  columns: Column[];
+  nanoid: string;
+}

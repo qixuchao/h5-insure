@@ -304,7 +304,9 @@ const sendSMSCode = async ({ mobile }, callback) => {
 const state = reactive({
   // 投保人
   holder: {
-    formData: {},
+    formData: {
+      name: '111111',
+    },
     schema: [],
     // 试算因子
     trialFactorCodes: [],

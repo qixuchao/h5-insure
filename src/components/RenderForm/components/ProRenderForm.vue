@@ -25,27 +25,15 @@ import { VAN_PRO_FORM_KEY } from '../utils';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import useDictData from '@/hooks/useDictData';
 import * as FieldComponents from './index';
+import { SchemaItem } from '../index.data';
 
-interface Column {
-  text: string;
-  value: string | number;
-  children: Column[];
-}
-
-type ValidateType = 'toast' | 'show-error' | 'show-error-message';
-
-interface SchemaItem {
-  componentName: string;
-  type: string;
-  label: string;
-  name: string;
-  required: boolean;
-  columns: Column[];
-  nanoid: string;
-}
+/**
+ * 验证方式 toast - 弹窗，show-error - 仅标红， show-error-message - 字段下方红色文案
+ */
+type ValidateMethod = 'toast' | 'show-error' | 'show-error-message';
 
 interface Props {
-  validateType?: ValidateType;
+  validateMethod?: ValidateMethod;
   model?: object;
   isView?: boolean;
   schema?: SchemaItem[];
@@ -55,7 +43,7 @@ interface Props {
 const emits = defineEmits(['failed']);
 
 const props = withDefaults(defineProps<Props>(), {
-  validateType: 'show-error',
+  validateMethod: 'show-error',
   isView: false,
   model: () => ({}),
   config: () => ({}),
@@ -92,7 +80,7 @@ const errorProps = computed(() => {
     'show-error-message': [true, false],
   };
 
-  const [flag1, flag2] = tempMap[props.validateType];
+  const [flag1, flag2] = tempMap[props.validateMethod];
 
   return {
     'show-error-message': flag1,
@@ -119,7 +107,7 @@ const validate = (name?: string | string[]): Promise<Record<string, any>> => {
 
 const onFailed = ({ values, errors }) => {
   // 是否为 Toast 错误提示方式
-  if (props.validateType === 'toast') {
+  if (props.validateMethod === 'toast') {
     const errorsMap = errors.reduce((res, error) => {
       res[error.name] = error;
       return res;
@@ -143,6 +131,10 @@ const onFailed = ({ values, errors }) => {
 
   console.log('failed errors', errors);
   emits('failed', { values, errors });
+};
+
+const getModelValue = (key) => {
+  return state.formData[key];
 };
 
 watch(

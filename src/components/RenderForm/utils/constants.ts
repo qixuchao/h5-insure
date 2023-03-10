@@ -1,6 +1,6 @@
 import { type Ref, type InjectionKey } from 'vue';
 import type { FormInstance } from 'vant';
-import { DictNameEnum } from '@/common/constants';
+import { DictNameEnum, CERT_TYPE_ENUM } from '@/common/constants';
 
 // 输入框最大长度
 export const INPUT_MAX_LENGTH = {
@@ -183,9 +183,84 @@ export const COMPONENT_MAPPING_LIST = [
   },
 ];
 
+/** ruleType 枚举 */
+export const RULE_TYPE_ENUM = {
+  /** 链接 */
+  EXTERNAL: 'external',
+  /** 邮箱 */
+  EMAIL: 'email',
+  /** 邮编 */
+  ZIP_CODE: 'zipCode',
+  /** 电话号码 */
+  TEL: 'tel',
+  /** 手机号 */
+  MOBILE: 'mobile',
+  /** 中文字符 */
+  ZH_CN: 'zhCN',
+  /** 非中文字符 */
+  NOT_ZH_CN: 'notZhCN',
+  /** 只允许输入中文、数字、英文字母 */
+  NORMAL_CHAR: 'normalChar',
+  /** 字母、数字 */
+  ALPHABET_NUMBER: 'alphabetNumber',
+  /** 身份证 */
+  CERT: 'cert',
+  /** 户口本 */
+  HOUSE_HOLD: 'houseHold',
+  /** 出生证 */
+  BIRTH: 'birth',
+  /** 护照 */
+  PASSPORT: 'passport',
+  /** 其他证件 */
+  OTHER_CERT: 'otherCert',
+  /** 军官证 */
+  MILITARY_CARD: 'militaryCard',
+  /** 士兵证 */
+  SOLIDER: 'solider',
+  /** 大陆居民往来港澳通行证 */
+  HONGKONG_MACAO: 'hongkongMacao',
+  /** 大陆居民往来台湾通行证 */
+  TAIWAN_TRAVEL: 'taiwanTravel',
+  /** 外国人永久居留证 */
+  FOREIGN_PERMANENT: 'foreignPermanent',
+  /** 港澳居民居住证 */
+  HK_MACAO_RESIDENCE_PERMIT: 'HKMacaoResidencePermit',
+  /** 台湾居民居住证 */
+  TAIWAN_RESIDENCE_PERMIT: 'taiwanResidencePermit',
+  /** 社会信用代码 */
+  SOCIAL_CREDIT_CODE: 'socialCreditCode',
+  /** 组织机构代码 */
+  OCC: 'OCC',
+  /** 营业执照号码 */
+  BUSINESS_LICENSE: 'businessLicense',
+  /** 银行卡号 */
+  BAND_CARD: 'bandCard',
+};
+
+/**
+ * 关联的 filed ruleType 映射
+ */
+export const RELATED_RULE_TYPE_MAP = {
+  certType: {
+    [CERT_TYPE_ENUM.CERT]: [RULE_TYPE_ENUM.CERT],
+    [CERT_TYPE_ENUM.HOUSE_HOLD]: [RULE_TYPE_ENUM.HOUSE_HOLD],
+    [CERT_TYPE_ENUM.MILITARY_CARD]: [RULE_TYPE_ENUM.MILITARY_CARD],
+    [CERT_TYPE_ENUM.PASSPORT]: [RULE_TYPE_ENUM.PASSPORT],
+    [CERT_TYPE_ENUM.HONGKONG_MACAO]: [RULE_TYPE_ENUM.HONGKONG_MACAO],
+    [CERT_TYPE_ENUM.OTHER]: [RULE_TYPE_ENUM.OTHER_CERT],
+    [CERT_TYPE_ENUM.SOLIDER]: [RULE_TYPE_ENUM.SOLIDER],
+    [CERT_TYPE_ENUM.BIRTH]: [RULE_TYPE_ENUM.BIRTH],
+    [CERT_TYPE_ENUM.TAIWAN_TRAVEL]: [RULE_TYPE_ENUM.TAIWAN_TRAVEL],
+    [CERT_TYPE_ENUM.FOREIGN_PERMANENT]: [RULE_TYPE_ENUM.FOREIGN_PERMANENT],
+    [CERT_TYPE_ENUM.HK_MACAO_RESIDENCE_PERMIT]: [RULE_TYPE_ENUM.HK_MACAO_RESIDENCE_PERMIT],
+    [CERT_TYPE_ENUM.TAIWAN_RESIDENCE_PERMIT]: [RULE_TYPE_ENUM.TAIWAN_RESIDENCE_PERMIT],
+    [CERT_TYPE_ENUM.SOCIAL_CREDIT_CODE]: [RULE_TYPE_ENUM.SOCIAL_CREDIT_CODE],
+  },
+};
+
 interface FormState {
-  formData: object;
-  config: object;
+  formData: Data;
+  config: Data;
   nameList: string[];
 }
 
