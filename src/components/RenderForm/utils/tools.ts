@@ -228,7 +228,7 @@ export const transformToSchema = (arr: FieldConfItem[]): ModuleResult => {
       const { componentName: configComponentName, ...restConfig } = configMap[item.code] || {};
 
       // 组件名优先级 config(code) > schema > ProFieldV2
-      const finalComponentName = tempMap[item.code] || configComponentName || componentName || 'ProFieldV2';
+      const finalComponentName = configComponentName || componentName || 'ProFieldV2';
 
       // 被保人因子是否为非投保人共有
       if (item.moduleType === 2) {
@@ -270,8 +270,8 @@ export const transformFactorToSchema = (
   if (factors && Object.keys(factors).length) {
     const keys = Object.keys(factors);
     const { holder, insured, beneficiary }: ProductFactor = keys.reduce((res, key) => {
-      res[moduleTypeMap[key]] = factors[key].filter((item) => item.isDisplay === 1);
-      // res[moduleTypeMap[key]] = factors[key];
+      // res[moduleTypeMap[key]] = factors[key].filter((item) => item.isDisplay === 1);
+      res[moduleTypeMap[key]] = factors[key];
       return res;
     }, {});
 
@@ -338,7 +338,7 @@ export const parseCertNo = (str: string) => {
       /** 性别 */
       gender,
       /** 生日 */
-      birthDate: birthday,
+      birthday,
     };
   }
   return {};
