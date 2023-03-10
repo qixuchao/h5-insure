@@ -5,7 +5,7 @@
     autocomplete="off"
     :formatter="formatter"
     v-bind="{ ...$attrs, placeholder, rules }"
-    @blur="onblur"
+    @blur="onBlur"
     @update:model-value="updateModelValue"
   >
     <!-- 继承 slots -->
@@ -18,10 +18,19 @@
 
 <script lang="ts" setup name="ProFiled">
 import { useAttrs, useSlots, PropType, inject } from 'vue';
+import dayjs from 'dayjs';
 import type { FieldProps, FieldRule } from 'vant';
 import { isNil } from 'lodash';
-import { VAN_PRO_FORM_KEY, RegMap, RULE_TYPE_MSG, upperFirstLetter, handleSlots } from '../utils';
+import { CERT_TYPE_ENUM } from '@/common/constants';
 import { isNotEmptyArray } from '@/common/constants/utils';
+import {
+  VAN_PRO_FORM_KEY,
+  RELATED_RULE_TYPE_MAP,
+  relatedConfigMap,
+  handleSlots,
+  validatorMap,
+  parseCertNo,
+} from '../utils';
 
 //
 type RuleType = 'phone' | 'email';
@@ -56,12 +65,23 @@ const props = defineProps({
     type: Array as PropType<FieldRule[]>,
     default: () => [],
   },
-  // number 类型 精度
+  /**
+   * ruleType 关联的 name (证件号验证)
+   */
+  relatedName: {
+    type: String,
+    default: '',
+  },
+  /**
+   * number 类型 精度
+   */
   precision: {
     type: Number,
     default: 0,
   },
-  // 是否自动补全精度
+  /**
+   * 是否自动补全精度
+   */
   isPrecisionCompleted: {
     type: Boolean,
     default: false,
@@ -88,43 +108,48 @@ const placeholder = computed((): string => {
   return attrs.placeholder || `请输入${attrs.label || ''}`;
 });
 
+const ruleType = computed(() => {
+  if (props.ruleType) {
+    return props.ruleType;
+  }
+
+  // 关联字段的类型存在
+  if (props.relatedName) {
+    // 并且关联字段有值
+    const relatedNameValue = formState.formData[props.relatedName];
+    if (relatedNameValue) {
+      return RELATED_RULE_TYPE_MAP[props.relatedName]?.[relatedNameValue];
+    }
+  }
+  return '';
+});
+
 const rules = computed(() => {
   if (isNotEmptyArray(props.rules)) {
     return props.rules;
   }
 
-  if (props.ruleType) {
-    const regFn = RegMap[`is${upperFirstLetter(props.ruleType)}`];
-    return [
-      {
-        required: props.required,
-        message: (val) => {
-          if (isNil(val) || val === '') {
-            return attrs.placeholder;
-          }
-          if (regFn(val)) {
+  return [
+    {
+      required: props.required,
+      message: (val) => {
+        if (props.required && (isNil(val) || val === '')) {
+          return attrs.placeholder;
+        }
+        if (ruleType.value) {
+          const [regFn] = validatorMap[ruleType.value] || [];
+          if (typeof regFn !== 'function') {
+            console.warn(`%c 字段 ${attrs.label} 的规则 ${ruleType} 校验函数不存在，请先确认～`, 'color: #3e7;');
             return '';
           }
-          return RULE_TYPE_MSG[props.ruleType]?.[0] || '';
-        },
-      },
-    ];
-  }
-
-  if (props.required) {
-    return [
-      {
-        required: props.required,
-        message: (val) => {
-          if (isNil(val) || val === '') {
-            return attrs.placeholder;
+          if (regFn(val)) {
+            return `请输入正确的${attrs.label}`;
           }
-          return '';
-        },
+        }
+        return '';
       },
-    ];
-  }
-  return [];
+    },
+  ];
 });
 
 const isNeedPrecision = computed(() => {
@@ -147,18 +172,37 @@ const updateModelValue = (val) => {
   emit('update:model-value', val);
 };
 
-const onblur = (event) => {
+const onBlur = (event) => {
   let val = state.modelValue;
   // 数字类型且精度存在
   if (isNeedPrecision.value && val && props.isPrecisionCompleted) {
     val = Number(val).toFixed(props.precision);
     updateModelValue(val);
   }
+
+  if (props.relatedName) {
+    //  blur 副作用
+    const { onBlurEffect } = relatedConfigMap[props.relatedName] || {};
+    if (typeof onBlurEffect === 'function') {
+      onBlurEffect(val, formState.formData);
+    }
+  }
   emit('blur', event);
 };
 
 watch(
   () => props.modelValue,
+  (val) => {
+    state.modelValue = val;
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
+
+watch(
+  () => formState.formData[attrs.name],
   (val) => {
     state.modelValue = val;
   },

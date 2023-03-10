@@ -1,5 +1,5 @@
 <template>
-  <ProFormItem class="com-van-field-hidden" :name="name" :model-value="state.address" />
+  <ProFormItem class="com-van-field-hidden" :name="name" :model-value="address" />
   <ProCascaderV2
     show-full-value
     :custom-field-name="customFieldName"
@@ -7,11 +7,13 @@
     :name="`${name}-origin`"
     @update:full-value="updateFullValue"
   />
+  <ProFieldV2 v-model="state.address.detail" :label="`${$attrs.label}详情`" :maxlength="50" />
 </template>
 <script lang="ts" setup name="ProAddress">
 import { isNotEmptyArray } from '@/common/constants/utils';
 import ProCascaderV2 from './ProCascaderV2.vue';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
+import { upperFirstLetter } from '../utils';
 
 const props = defineProps({
   name: {
@@ -25,10 +27,44 @@ const props = defineProps({
     type: Object,
     default: () => ({ text: 'name', value: 'code', children: 'children' }),
   },
+  /**
+   * 值映射前缀 provinceCode => workProvinceCode
+   */
+  valuePrefix: {
+    type: String,
+    default: '',
+  },
 });
 
+/**
+ * 为值增加前缀
+ */
+const dealValueKey = (key: string) => {
+  if (typeof key === 'string' && key) {
+    return props.valuePrefix ? `${props.valuePrefix}${upperFirstLetter(key)}` : key;
+  }
+  return '';
+};
+
 const state = reactive({
-  address: {},
+  address: {
+    detail: '',
+  },
+});
+
+/**
+ * 增加前缀后的值
+ */
+const address = computed(() => {
+  if (!props.valuePrefix) {
+    return state.address;
+  }
+
+  const keys = Object.keys(state.address);
+  return keys.reduce((res, key) => {
+    res[dealValueKey(key)] = state.address[key];
+    return res;
+  }, {});
 });
 
 const updateFullValue = (arr = []) => {
@@ -42,7 +78,10 @@ const updateFullValue = (arr = []) => {
       return res;
     }, {});
   }
-  state.address = address;
+  state.address = {
+    ...state.address,
+    ...address,
+  };
 };
 </script>
 <script lang="ts">

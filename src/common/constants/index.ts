@@ -13,8 +13,10 @@ import { constantListToMap } from './utils';
 
 // eslint-disable-next-line
 export enum SEX_LIMIT_ENUM {
-  FEMALE = '1', // 女
-  MALE = '2', // 男
+  /** 女 */
+  FEMALE = '1',
+  /** 男 */
+  MALE = '2',
 }
 
 export const SEX_LIMIT_LIST = [

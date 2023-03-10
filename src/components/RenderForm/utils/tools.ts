@@ -1,6 +1,8 @@
 import dayjs from 'dayjs';
 import { isNotEmptyArray } from '@/common/constants/utils';
+import { SEX_LIMIT_ENUM, CERT_TYPE_ENUM } from '@/common/constants';
 import { COMPONENT_MAPPING_LIST, CONFIG_RULE_MAP } from './constants';
+import { validateIdCardNo } from './validate';
 import { Column, ComponentProps, FieldConfItem, ProductFactor } from '../index.data';
 
 /**
@@ -268,8 +270,8 @@ export const transformFactorToSchema = (
   if (factors && Object.keys(factors).length) {
     const keys = Object.keys(factors);
     const { holder, insured, beneficiary }: ProductFactor = keys.reduce((res, key) => {
-      // res[moduleTypeMap[key]] = factors[key].filter((item) => item.isDisplay === 1);
-      res[moduleTypeMap[key]] = factors[key];
+      res[moduleTypeMap[key]] = factors[key].filter((item) => item.isDisplay === 1);
+      // res[moduleTypeMap[key]] = factors[key];
       return res;
     }, {});
 
@@ -290,7 +292,11 @@ export const transformFactorToSchema = (
   return [];
 };
 
-// first letter upper
+/**
+ * 首字母大写
+ * @param str
+ * @returns
+ */
 export const upperFirstLetter = (str: string): string => {
   if (typeof str === 'string' && str) {
     return `${str[0].toUpperCase()}${str.substring(1)}`;
@@ -298,11 +304,57 @@ export const upperFirstLetter = (str: string): string => {
   return '';
 };
 
-// 处理 slots  attrs slots {'nameTips': 'extra'}
+/**
+ * 处理 slots  attrs slots {'nameTips': 'extra'}
+ * @param slots
+ * @param slotsMap
+ * @returns
+ */
 export const handleSlots = (slots, slotsMap = {}) => {
   return Object.keys(slots).reduce((res, key) => {
     const slotName = slotsMap[key];
     res[slotName || key] = key;
     return res;
   }, {});
+};
+
+/**
+ * 解析身份证号码
+ * @param str
+ * @returns
+ */
+export const parseCertNo = (str: string) => {
+  // 身份证验证通过
+  if (typeof str === 'string' && str && validateIdCardNo(str)) {
+    const splitRange = {
+      15: [6, 12],
+      18: [6, 14],
+    };
+    const birthday = str.slice(...splitRange[str.length]).replace(/(.{4})(.{2})/, '$1-$2-');
+
+    const gender = [SEX_LIMIT_ENUM.FEMALE, SEX_LIMIT_ENUM.MALE][Number(str.slice(-2, -1)) % 2];
+
+    return {
+      /** 性别 */
+      gender,
+      /** 生日 */
+      birthDate: birthday,
+    };
+  }
+  return {};
+};
+
+/**
+ * 字段关联副作用处理
+ */
+export const relatedConfigMap = {
+  certType: {
+    onBlurEffect: (val, formData) => {
+      // 身份证号码
+      if (formData.certType === CERT_TYPE_ENUM.CERT) {
+        const data = parseCertNo(val);
+        Object.assign(formData, data);
+      }
+    },
+  },
 };

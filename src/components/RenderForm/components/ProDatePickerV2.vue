@@ -34,10 +34,13 @@ import { useToggle } from '@vant/use';
 import isDate from 'lodash-es/isDate';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { useAttrsAndSlots } from '../hooks';
+import { VAN_PRO_FORM_KEY } from '../utils';
 
 const { filedAttrs, filedSlots, attrs, slots } = useAttrsAndSlots();
 
 const emits = defineEmits(['update:modelValue', 'cancel']);
+
+const { formState } = inject(VAN_PRO_FORM_KEY) || {};
 
 const props = defineProps({
   /**
@@ -109,23 +112,41 @@ const onCancel = () => {
   emits('cancel');
 };
 
+const dealModelValue = (val) => {
+  // 若为 Date 类型
+  if (isDate(val)) {
+    state.date = val;
+    state.fieldValue = dayjs(val).format(formatValueType.value);
+  } else if (typeof val === 'string' && val) {
+    state.fieldValue = val;
+    if (isDateType.value) {
+      state.date = dayjs(val, formatValueType.value).isValid() ? dayjs(val, formatValueType.value).toDate() : null;
+    } else {
+      state.date = val;
+    }
+  }
+};
+
 watch(
   () => props.modelValue,
   (val) => {
-    // 若为 Date 类型
-    if (isDate(val)) {
-      state.date = val;
-      state.fieldValue = dayjs(val).format(formatValueType.value);
-    } else if (typeof val === 'string' && val) {
-      state.fieldValue = val;
-      if (isDateType.value) {
-        state.date = dayjs(val, formatValueType.value).isValid() ? dayjs(val, formatValueType.value).toDate() : null;
-      } else {
-        state.date = val;
-      }
-    }
+    dealModelValue(val);
   },
-  { immediate: true, deep: true },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
+
+watch(
+  () => formState.formData[filedAttrs.name],
+  (val) => {
+    dealModelValue(val);
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
 );
 </script>
 <script lang="ts">
