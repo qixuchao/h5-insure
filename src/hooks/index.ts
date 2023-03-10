@@ -8,4 +8,8 @@
 
 import usePopup from './usePopup';
 
+export * from './useStorage';
+
+export { default as useDictData } from './useDictData';
+
 export default usePopup;

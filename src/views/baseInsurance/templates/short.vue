@@ -36,6 +36,8 @@
               :schema="state.holder.schema"
               :config="state.holder.config"
             />
+            <!-- <ProDatePickerV2 label="日期" />
+            </ProRenderFormWithCard> -->
 
             <!-- 被保人 -->
             <ProRenderFormWithCard
@@ -213,7 +215,7 @@ import ScrollInfo from './components/ScrollInfo/index.vue';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import { sessionStore } from '@/hooks/useStorage';
 import { TenantOrderProductItem } from '@/api/index.data';
-import { ProRenderFormWithCard, transformFactorToSchema } from '@/components/RenderForm';
+import { combineOccupation, ProRenderFormWithCard, transformFactorToSchema } from '@/components/RenderForm';
 
 const isApp = isAppFkq();
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
@@ -321,6 +323,9 @@ const state = reactive({
       },
       certNo: {
         label: '身份证号',
+      },
+      occupation: {
+        dictCode: combineOccupation(insurerCode),
       },
     },
   },

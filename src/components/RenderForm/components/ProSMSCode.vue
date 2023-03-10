@@ -1,5 +1,11 @@
 <template>
-  <ProFieldV2 v-if="!$attrs.isView" class="com-pro-sms-code" :maxlength="INPUT_MAX_LENGTH.SMS_CODE" v-bind="$attrs">
+  <ProFieldV2
+    v-if="!$attrs.isView"
+    class="com-pro-sms-code"
+    type="digit"
+    :maxlength="INPUT_MAX_LENGTH.SMS_CODE"
+    v-bind="$attrs"
+  >
     <template #extra>
       <div class="button-extra">
         <van-button class="sms-code" size="small" plain type="primary" @click="onSendSmsCode">{{ smsText }}</van-button>

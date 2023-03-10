@@ -7,7 +7,7 @@
   </ProFormItem>
   <ProPopup v-model:show="show" :height="60" :closeable="false" class="com-cascader-popup">
     <van-cascader
-      :options="state.columns"
+      :options="columns"
       :field-names="customFieldName"
       :model-value="state.modelValue"
       v-bind="attrs"
@@ -19,11 +19,17 @@
 
 <script lang="ts" setup name="ProCascader">
 import type { PropType } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useToggle } from '@vant/use';
 import type { CascaderOption } from 'vant';
+import useAppStore from '@/store/app';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { useAttrsAndSlots } from '../hooks';
+import { deleteEmptyChildren } from '../utils';
+
+const globalStore = useAppStore();
+const { dictMap } = storeToRefs(globalStore);
 
 const emits = defineEmits(['update:modelValue', 'update:fullValue']);
 
@@ -52,6 +58,13 @@ const props = defineProps({
     default: () => [],
   },
   /**
+   * 数据字典 code
+   */
+  dictCode: {
+    type: String,
+    default: '',
+  },
+  /**
    * 枚举映射
    */
   customFieldName: {
@@ -76,23 +89,6 @@ const onclick = () => {
 
 const onClose = () => {
   toggle(false);
-};
-
-// 删除空的 children
-const deleteEmptyChildren = (arr: Column[]) => {
-  if (Array.isArray(arr)) {
-    return arr.map(({ children, ...other }) => {
-      const currentData = {} as Column;
-      if (children.length) {
-        currentData.children = deleteEmptyChildren(children);
-      }
-      return {
-        ...other,
-        ...currentData,
-      };
-    });
-  }
-  return [];
 };
 
 // 获取选中的节点以及所有的父节点 [{name: "一级"},{name: "二级"},{name: "三级"}]
@@ -131,8 +127,23 @@ const findCheckedList = (arr: Column[], checkedValue) => {
   return tempList;
 };
 
+// 数据源：1. 属性 columns 2. 全局字典数据
+const columns = computed(() => {
+  let tempColumns = [];
+  if (isNotEmptyArray(props.columns)) {
+    tempColumns = props.columns;
+  }
+
+  // 全局字典数据
+  const singleDictData = dictMap.value[props.dictCode];
+  if (props.dictCode && isNotEmptyArray(singleDictData)) {
+    tempColumns = singleDictData;
+  }
+  return deleteEmptyChildren(tempColumns);
+});
+
 // 选中的所有层级数据
-const fullValue = computed(() => findCheckedList(state.columns, state.modelValue));
+const fullValue = computed(() => findCheckedList(columns.value, state.modelValue));
 
 // field 显示的值
 const fieldValueView = computed(() => {
@@ -160,19 +171,6 @@ const onFinish = ({
   emits('update:modelValue', value);
   onClose();
 };
-
-watch(
-  () => props.columns,
-  (val) => {
-    if (isNotEmptyArray(val)) {
-      state.columns = deleteEmptyChildren(val);
-    }
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
 
 watch(
   () => props.modelValue,

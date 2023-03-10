@@ -377,3 +377,5 @@ export const PAGE_ACTION_TYPE_ENUM = {
   JUMP_PAGE: 'jumpToPage',
   JUMP_ALERT: 'jumpToAlert',
 };
+
+export * from './dict';
