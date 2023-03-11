@@ -189,39 +189,39 @@ const isShowPaymentSelect = computed(() => {
 });
 
 // 根据投保条件信息获取交费方式列表，
-watch(
-  () => insureCondition.value,
-  () => {
-    if (insureCondition.value) {
-      const currentPaymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
-      if (currentPaymentFrequencyList.length === 1) {
-        state.formInfo.paymentFrequency = insureCondition.value.paymentFrequency;
-        return;
-      }
+// watch(
+//   () => insureCondition.value,
+//   () => {
+//     if (insureCondition.value) {
+//       const currentPaymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
+//       if (currentPaymentFrequencyList.length === 1) {
+//         state.formInfo.paymentFrequency = insureCondition.value.paymentFrequency;
+//         return;
+//       }
 
-      // 当交费方式只有一次交清和月交时，默认选中一次交清。
-      if (
-        currentPaymentFrequencyList.length === 2 &&
-        currentPaymentFrequencyList.filter(
-          (e: string) => ![PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE, PAYMENT_COMMON_FREQUENCY_ENUM.MONTH].includes(e),
-        ).length < 1
-      ) {
-        if (!state.formInfo.paymentFrequency) {
-          state.formInfo.paymentFrequency = PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE;
-        }
-        return;
-      }
-      // 默认选中第一种交费方式
-      if (currentPaymentFrequencyList.length > 1 && !state.formInfo.paymentFrequency) {
-        state.formInfo.paymentFrequency = paymentFrequencyList?.[0];
-      }
-    }
-  },
-  {
-    immediate: true,
-    deep: true,
-  },
-);
+//       // 当交费方式只有一次交清和月交时，默认选中一次交清。
+//       if (
+//         currentPaymentFrequencyList.length === 2 &&
+//         currentPaymentFrequencyList.filter(
+//           (e: string) => ![PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE, PAYMENT_COMMON_FREQUENCY_ENUM.MONTH].includes(e),
+//         ).length < 1
+//       ) {
+//         if (!state.formInfo.paymentFrequency) {
+//           state.formInfo.paymentFrequency = PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE;
+//         }
+//         return;
+//       }
+//       // 默认选中第一种交费方式
+//       if (currentPaymentFrequencyList.length > 1 && !state.formInfo.paymentFrequency) {
+//         state.formInfo.paymentFrequency = paymentFrequencyList?.[0];
+//       }
+//     }
+//   },
+//   {
+//     immediate: true,
+//     deep: true,
+//   },
+// );
 
 // 交费方式列表
 // const paymentBtnList = computed(() => {
@@ -261,6 +261,7 @@ const onPreviewFeerateFile = () => {
 watch(
   () => props.riskInfo,
   () => {
+    console.log('props.riskInfo', props.riskInfo);
     const { productRiskInsureLimitVO } = props.riskInfo || {};
     if (productRiskInsureLimitVO) {
       const { paymentFrequencyList: frequencyList = [], paymentPeriodValueList } = productRiskInsureLimitVO || {};
