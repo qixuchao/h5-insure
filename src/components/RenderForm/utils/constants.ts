@@ -2,6 +2,33 @@ import { type Ref, type InjectionKey } from 'vue';
 import type { FormInstance } from 'vant';
 import { DictNameEnum, CERT_TYPE_ENUM } from '@/common/constants';
 
+export const COMPONENT_ENUM = {
+  /** 1:单行文本/2:多行文本/3:数字输入框 */
+  ProFieldV2: 'ProFieldV2',
+  /** 4:日期 */
+  ProDatePickerV2: 'ProDatePickerV2',
+  /** 5:下拉框 */
+  ProPickerV2: 'ProPickerV2',
+  /** 6:单选框 */
+  ProRadioV2: 'ProRadioV2',
+  /** 7:多选框 */
+  ProCheckboxV2: 'ProCheckboxV2',
+  /** 8:switch开关 */
+  ProSwitchV2: 'ProSwitchV2',
+  /** 9:级联选择 */
+  ProCascaderV2: 'ProCascaderV2',
+  /** 10:银行卡 */
+  ProBank: 'ProBank',
+  /** 11:地址 */
+  ProAddress: 'ProAddress',
+  /** 12:文件上传 */
+  ProUpload: 'ProUpload',
+  /** 13:步进器 */
+  ProStepperV2: 'ProStepperV2',
+  /** 验证码 */
+  ProSMSCode: 'ProSMSCode',
+};
+
 // 输入框最大长度
 export const INPUT_MAX_LENGTH = {
   /**
@@ -40,6 +67,7 @@ export const CONFIG_RULE_MAP = {
    */
   MOBILE: {
     type: 'digit',
+    ruleType: 'mobile',
     maxlength: INPUT_MAX_LENGTH.MOBILE,
   },
   /**
@@ -106,80 +134,80 @@ export const COMPONENT_MAPPING_LIST = [
     code: 'input',
     name: '单行文本',
     value: 1,
-    componentName: 'ProFieldV2',
+    componentName: COMPONENT_ENUM.ProFieldV2,
   },
   {
     code: 'textarea',
     name: '多行文本',
     value: 2,
     type: 'textarea',
-    componentName: 'ProFieldV2',
+    componentName: COMPONENT_ENUM.ProFieldV2,
   },
   {
     code: 'number',
     name: '数字输入框',
     value: 3,
-    componentName: 'ProFieldV2',
+    componentName: COMPONENT_ENUM.ProFieldV2,
   },
   {
     code: 'date',
     name: '日期',
     value: 4,
-    componentName: 'ProDatePickerV2',
+    componentName: COMPONENT_ENUM.ProDatePickerV2,
   },
   {
     code: 'select',
     name: '下拉框',
     value: 5,
-    componentName: 'ProPickerV2',
+    componentName: COMPONENT_ENUM.ProPickerV2,
   },
   {
     code: 'radio',
     name: '单选框',
     value: 6,
-    componentName: 'ProRadioV2',
+    componentName: COMPONENT_ENUM.ProRadioV2,
   },
   {
     code: 'checkbox',
     name: '多选框',
     value: 7,
-    componentName: 'ProCheckboxV2',
+    componentName: COMPONENT_ENUM.ProCheckboxV2,
   },
   {
     code: 'switch',
     name: 'switch开关',
     value: 8,
-    componentName: 'ProSwitchV2',
+    componentName: COMPONENT_ENUM.ProSwitchV2,
   },
   {
     code: 'cascader',
     name: '级联选择',
     value: 9,
-    componentName: 'ProCascaderV2',
+    componentName: COMPONENT_ENUM.ProCascaderV2,
   },
   {
     code: 'bank',
     name: '银行卡',
     value: 10,
-    componentName: 'ProBank',
+    componentName: COMPONENT_ENUM.ProBank,
   },
   {
     code: 'address',
     name: '地址',
     value: 11,
-    componentName: 'ProAddress',
+    componentName: COMPONENT_ENUM.ProAddress,
   },
   {
     code: 'upload',
     name: '文件上传',
     value: 12,
-    componentName: 'ProUpload',
+    componentName: COMPONENT_ENUM.ProUpload,
   },
   {
     code: 'stepper',
     name: '步进器',
     value: 13,
-    componentName: 'ProStepperV2',
+    componentName: COMPONENT_ENUM.ProStepperV2,
   },
 ];
 
