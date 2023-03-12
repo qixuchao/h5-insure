@@ -88,23 +88,6 @@ const errorProps = computed(() => {
   };
 });
 
-const validate = (name?: string | string[]): Promise<Record<string, any>> => {
-  return new Promise((resolve, reject) => {
-    formRef.value
-      .validate(name)
-      .then(() => {
-        resolve(getValues());
-      })
-      .catch((err) => {
-        if (Array.isArray(err) && err[0]) {
-          formRef.value.scrollToField(err[0].name);
-          Toast({ message: err[0].message });
-        }
-        reject(err);
-      });
-  });
-};
-
 const onFailed = ({ values, errors }) => {
   // 是否为 Toast 错误提示方式
   if (props.validateMethod === 'toast') {
@@ -194,7 +177,6 @@ defineExpose({
     },
     {},
   ),
-  validate,
 });
 </script>
 <style lang="scss" scoped>

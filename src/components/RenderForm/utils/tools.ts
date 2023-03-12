@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { SEX_LIMIT_ENUM, CERT_TYPE_ENUM } from '@/common/constants';
-import { COMPONENT_MAPPING_LIST, CONFIG_RULE_MAP } from './constants';
+import { COMPONENT_MAPPING_LIST, CONFIG_RULE_MAP, COMPONENT_ENUM } from './constants';
 import { validateIdCardNo } from './validate';
 import { Column, ComponentProps, FieldConfItem, ProductFactor } from '../index.data';
 
@@ -113,31 +113,6 @@ export const filterSlots = (slots) => {
   return filterData(slots, FIELD_SLOTS);
 };
 
-// 临时组件名
-const tempMap = {
-  name: 'ProFieldV2',
-  sex: 'ProRadioV2',
-  birthDate: 'ProDatePickerV2',
-  certExpiry: 'ProDatePickerV2',
-  certImage: 'ProUpload',
-  certType: 'ProPickerV2',
-  certNo: 'ProFieldV2',
-  mobile: 'ProFieldV2',
-  verificationCode: 'ProSMSCode',
-  relationToHolder: 'ProRadioV2',
-  social: 'ProRadioV2',
-  isSmoke: 'ProRadioV2',
-  insureArea: 'ProAddress',
-  degree: 'ProRadioV2',
-  occupation: 'ProCascaderV2',
-  marritalStatus: 'ProRadioV2',
-  residence: 'ProAddress',
-  homeAddress: 'ProAddress',
-  homeAddressDetail: 'ProFieldV2',
-  workAddress: 'ProAddress',
-  country: 'ProPickerV2',
-};
-
 interface ModuleResult {
   schema: ComponentProps[];
   trialFactorCodes: string[];
@@ -185,6 +160,7 @@ const configMap = {
     ruleType: 'noZH',
   },
   verificationCode: {
+    componentName: COMPONENT_ENUM.ProSMSCode,
     ...CONFIG_RULE_MAP.ZIP_CODE,
   },
   insureArea: {
