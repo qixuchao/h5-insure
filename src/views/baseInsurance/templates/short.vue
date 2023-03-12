@@ -20,31 +20,6 @@
         :premium-info="{ premium, unit, premiumLoadingText }"
         @update-active-plan="updateActivePlan"
       /> -->
-      <div class="custom-page-form">
-        <div class="form-title">请填写投保信息</div>
-        <!-- 投保人 -->
-
-        <ProRenderFormWithCard
-          ref="holderFormRef"
-          title="本人信息（投保人）"
-          :model="state.holder.formData"
-          :schema="state.holder.schema"
-          :config="state.holder.config"
-        />
-        <!-- <ProDatePickerV2 label="日期" />
-            </ProRenderFormWithCard> -->
-
-        <!-- 被保人 -->
-        <ProRenderFormWithCard
-          v-for="(insured, index) in state.insuredList"
-          ref="insuredFormRef"
-          :key="index"
-          title="为谁投保（被保人）"
-          :model="state.insuredList[index].formData"
-          :schema="insured.schema"
-          :config="insured.config"
-        />
-      </div>
       <ScrollInfo
         v-if="true || tenantProductDetail.tenantProductInsureVO.settlementProcessVO"
         ref="tenantProductDetailScrollRef"
@@ -53,7 +28,26 @@
         <template #form>
           <div class="custom-page-form">
             <div class="form-title">请填写投保信息</div>
+            <ProRenderFormWithCard
+              ref="holderFormRef"
+              title="本人信息（投保人）"
+              :model="state.holder.formData"
+              :schema="state.holder.schema"
+              :config="state.holder.config"
+            />
+            <!-- <ProDatePickerV2 label="日期" />
+            </ProRenderFormWithCard> -->
 
+            <!-- 被保人 -->
+            <ProRenderFormWithCard
+              v-for="(insured, index) in state.insuredList"
+              ref="insuredFormRef"
+              :key="index"
+              title="为谁投保（被保人）"
+              :model="state.insuredList[index].formData"
+              :schema="insured.schema"
+              :config="insured.config"
+            />
             <!-- <InsureForm
               v-if="insureProductDetail"
               ref="formRef"
@@ -663,6 +657,7 @@ const trialPremium = async (
     holder: {
       personVO: {
         ...orderInfo.tenantOrderHolder,
+        socialFlag: orderInfo.tenantOrderHolder.extInfo?.hasSocialInsurance,
         certType: orderInfo.tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
       },
     },
@@ -672,6 +667,7 @@ const trialPremium = async (
         relationToHolder: person.relationToHolder,
         personVO: {
           ...person,
+          socialFlag: person.extInfo.hasSocialInsurance,
           certType: person.certType || CERT_TYPE_ENUM.CERT,
         },
         productPlanVOList: [
@@ -736,7 +732,7 @@ const getPackageRiskList = () => {
   currentPackageConfigVOList.value
     .filter((packageItem) => packageItem.value === INSURE_TYPE_ENUM.INSURE)
     .forEach((e) => {
-      packageRiskList.push(...e.productRiskVoList.map((item) => ({ riskDetailVOList: [item] })));
+      packageRiskList.push(...e.productRiskVoList);
     });
 
   return packageRiskList;
@@ -744,7 +740,6 @@ const getPackageRiskList = () => {
 
 // 点击立即投保
 const onNext = async () => {
-  console.log('2323424', insuredFormRef.value);
   if (premium.value) {
     onSaveOrder();
     return;

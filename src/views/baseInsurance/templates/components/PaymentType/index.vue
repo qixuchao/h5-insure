@@ -246,7 +246,7 @@ const onClickPaymethod = (type: string) => {
 
 // 切换计划
 const onClickPlanCode = (planCode: string) => {
-  state.formInfo.activePlanCode = planCode;
+  state.formInfo.planCode = planCode;
 };
 
 // 预览费率文件
@@ -261,7 +261,6 @@ const onPreviewFeerateFile = () => {
 watch(
   () => props.riskInfo,
   () => {
-    console.log('props.riskInfo', props.riskInfo);
     const { productRiskInsureLimitVO } = props.riskInfo || {};
     if (productRiskInsureLimitVO) {
       const { paymentFrequencyList: frequencyList = [], paymentPeriodValueList } = productRiskInsureLimitVO || {};
