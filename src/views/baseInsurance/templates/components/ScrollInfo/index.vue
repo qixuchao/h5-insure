@@ -1,7 +1,7 @@
 <!--
  * @Date: 2022-09-17 16:00
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-03-13 19:15:17
+ * @LastEditTime: 2023-03-13 20:17:57
  * @Description: 滚动tab区域
 -->
 <template>
@@ -21,8 +21,12 @@
     </template>
     <template v-if="isShowTab2_1 || isShowTab2_2 || isShowTab2_3 || isShowTab2_4" #tab2>
       <template v-if="isShowTab2_1">
-        <CustomCard v-if="dataSource.CLAIM_FLOW.processCaseType === CLAIM_TYPE_ENUM.WORD" title="理赔说明">
-          <div v-dompurify-html="dataSource.CLAIM_FLOW?.processContent"></div>
+        <CustomCard
+          v-if="dataSource.CLAIM_FLOW.processCaseType === CLAIM_TYPE_ENUM.WORD"
+          class="tab-card"
+          title="理赔说明"
+        >
+          <div v-dompurify-html="dataSource.CLAIM_FLOW?.processContent" class="rich-text"></div>
         </CustomCard>
         <div v-else class="spec">
           <Suspense>
@@ -41,8 +45,12 @@
         <ProDivider />
       </template>
       <template v-if="isShowTab2_2">
-        <CustomCard v-if="dataSource.CLAIM_CASE?.claimCaseType === CLAIM_TYPE_ENUM.WORD" title="理赔案例">
-          <div v-dompurify-html="dataSource.CLAIM_CASE?.claimContent"></div>
+        <CustomCard
+          v-if="dataSource.CLAIM_CASE?.claimCaseType === CLAIM_TYPE_ENUM.WORD"
+          class="tab-card"
+          title="理赔案例"
+        >
+          <div v-dompurify-html="dataSource.CLAIM_CASE?.claimContent" class="rich-text"></div>
         </CustomCard>
         <div v-else class="spec">
           <Suspense>
@@ -61,8 +69,8 @@
         <ProDivider />
       </template>
       <template v-if="isShowTab2_3">
-        <CustomCard title="投保须知">
-          <Question :list="dataSource.ISSUE_NOTICE" />
+        <CustomCard class="tab-card" title="投保须知">
+          <div v-dompurify-html="dataSource.ISSUE_NOTICE?.noticeContent" class="rich-text"></div>
         </CustomCard>
         <ProDivider />
       </template>
@@ -139,7 +147,7 @@ const isShowTab1 = computed(() => {
 
 // 理赔说明-理赔流程tab展示
 const isShowTab2_1 = computed(() => {
-  const type = dataSource.value?.CLAIM_FLOW?.processType;
+  const type = dataSource.value.CLAIM_FLOW?.processCaseType;
   console.log('type', type);
   if (
     (type === CLAIM_TYPE_ENUM.WORD && dataSource.value.CLAIM_FLOW?.processContent) ||
@@ -193,8 +201,15 @@ defineExpose({
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" scope>
 .tabs {
+  .tab-card {
+    .rich-text {
+      width: 100%;
+      word-wrap: break-word;
+    }
+  }
+
   :deep(.tab-title) {
     font-size: 32px;
     font-family: PingFangSC-Medium, PingFang SC;

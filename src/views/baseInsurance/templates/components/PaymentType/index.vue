@@ -35,7 +35,7 @@
         </div>
       </div>
       <InsurancePeriodCell :form-info="state.formInfo" :risk-info="riskInfo" />
-      <template v-if="actualPremium && isShowExplainInfo">
+      <template v-if="actualPremium">
         <div class="custom-cell common-cell">
           <div class="cell-label">实付保费</div>
           <template v-if="props.premiumInfo?.premiumLoadingText">
@@ -51,17 +51,6 @@
               共12期
             </div>
           </template>
-        </div>
-        <div v-if="isShowExplainInfo" class="fee-rate-explain">
-          <div class="content">
-            <div class="triangle-top"></div>
-            <div>
-              <span>{{ explainInfo.premiumExplain || '' }}</span>
-              <span class="file-name" @click="onPreviewFeeRateFile"
-                >《{{ explainInfo.premiumExplainViewName || '' }}》</span
-              >
-            </div>
-          </div>
         </div>
       </template>
     </div>
@@ -115,16 +104,10 @@ const insureCondition = ref<ProductPlanInsureConditionVo>();
 
 // 当前计划信息
 const planInsure = ref<PlanInsureVO>();
-const insurancePeriodList = ref([]);
 const paymentPeriodList = ref([]);
 const paymentFrequencyList = ref([]);
 
 const isMultiplePlan = computed(() => !!props.planList?.length);
-
-// 是否展示交费方式（配置端投保条件开关控制）
-const isShowPaymentFrequency = computed(() => {
-  return String(insureCondition.value?.paymentFrequencyFlag) === '1';
-});
 
 // 根据实际保额保费单位展示实际保费
 const actualPremium = computed(() => {

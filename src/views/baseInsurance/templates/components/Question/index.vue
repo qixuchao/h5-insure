@@ -1,8 +1,8 @@
 <!--
  * @Author: zhaopu
  * @Date: 2022-11-26 12:09:26
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-15 15:57:22
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2023-03-13 20:19:22
  * @Description:
 -->
 <template>
@@ -13,7 +13,7 @@
         :key="index"
         :name="index.toString()"
         :question="item.title"
-        :answer="item.desc"
+        :answer="item.content"
       />
     </van-collapse>
     <div v-if="list.length > 4" class="show-more" @click="handleShowMore">

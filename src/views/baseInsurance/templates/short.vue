@@ -92,18 +92,18 @@
         </template>
       </ScrollInfo>
       <ProLazyComponent>
-        <!-- <InscribedContent
-          v-if="tenantProductDetail?.tenantProductInsureVO.inscribedContent"
-          :inscribed-content="tenantProductDetail?.tenantProductInsureVO.inscribedContent"
-        /> -->
+        <InscribedContent
+          v-if="tenantProductDetail.SIGNATURE?.inscribedContent"
+          :inscribed-content="tenantProductDetail?.SIGNATURE?.inscribedContent"
+        />
       </ProLazyComponent>
       <ProLazyComponent>
-        <!-- <AttachmentList
+        <AttachmentList
           v-if="filterHealthAttachmentList && filterHealthAttachmentList.length > 0"
           :attachement-list="filterHealthAttachmentList"
           pre-text="请阅读"
           @preview-file="(index) => previewFile(index)"
-        /> -->
+        />
       </ProLazyComponent>
       <template v-if="showFooterBtn">
         <TrialButton
@@ -404,6 +404,7 @@ const queryProductMaterialData = () => {
             attachmentType: 'question',
           },
         ];
+        return;
       }
       healthAttachmentList.value = [
         {
@@ -478,19 +479,6 @@ const isOldUser = computed(() => {
 
 // 险种信息
 const currentRiskInfo = ref([]);
-
-// 获取当前计划配置信息
-// const currentPlanInsure = computed(() => {
-//   if (tenantProductDetail.value) return {};
-//   if (isMultiplePlan.value) {
-//     const item = tenantProductDetail.value?.tenantProductInsureVO.planList.find(
-//       (plan) => plan.planCode === orderDetail.value.activePlanCode,
-//     );
-//     if (item) return item;
-//     return {};
-//   }
-//   return tenantProductDetail.value?.tenantProductInsureVO?.planInsureVO;
-// });
 
 // 切换计划
 const updateActivePlan = (planCode: string) => {
