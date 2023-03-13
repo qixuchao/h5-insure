@@ -310,7 +310,6 @@ const state = reactive({
       },
       verificationCode: {
         sendSMSCode,
-        smsText: '24242',
       },
       certType: {
         // visible: false,
@@ -494,27 +493,10 @@ const currentRiskInfo = ref([]);
 
 // 切换计划
 const updateActivePlan = (planCode: string) => {
-  orderDetail.value.activePlanCode = planCode;
+  currentPlanObj.value = (insureProductDetail.value.productPlanInsureVOList || []).find(
+    (plan) => plan.planCode === planCode,
+  );
 };
-
-// 根据多计划切换|无计划 获取加油包列表参数
-// watch(
-//   [() => isMultiplePlan.value, () => insureProductDetail.value, () => currentPlanInsure.value],
-//   () => {
-//     let result = [];
-//     if (tenantProductDetail.value && insureProductDetail.value) {
-//       if (isMultiplePlan.value) {
-//         result = currentPlanInsure.value?.packageProductVOList || [];
-//       } else {
-//         result = insureProductDetail.value.packageProductVOList || [];
-//       }
-//     }
-//     currentPackageConfigVOList.value = result.map((e) => ({ ...e, value: INSURE_TYPE_ENUM.UN_INSURE }));
-//   },
-//   {
-//     immediate: true,
-//   },
-// );
 
 // 滑动到投保信息
 const onClickToInsure = () => {
@@ -909,18 +891,39 @@ const setPremium = () => {
 };
 
 // 当计划和交费方式切换时，需重置产品保费为默认值
-// watch(
-//   [() => currentPlanInsure.value, () => orderDetail.value.activePlanCode, () => orderDetail.value.paymentFrequency],
-//   () => {
-//     setPremium();
-//   },
-//   {
-//     deep: true,
-//     immediate: true,
-//   },
-// );
+watch(
+  [() => currentPlanObj.value, () => guaranteeObj.value.paymentFrequency],
+  () => {
+    setPremium();
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 // 试算监听
+// 监听试算因子
+watch(
+  () => [
+    ...state.holder.trialFactorCodes.map((key) => state.holder.formData[key]),
+    ...state.insuredList.reduce((res, insuredItem, index) => {
+      res.push(...insuredItem.trialFactorCodes.map((key) => state.insuredList[index].formData[key]));
+      return res;
+    }, []),
+  ],
+  (...rest) => {
+    // if (holderFormRef.value) {
+    //   holderFormRef.value.validate()
+    // }
+    console.log(999999, rest);
+    console.log('%c🔥 试算因子变动了', 'color:#1989fa;background:#5e4;padding:3px 5px;');
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 watch(
   [
     () => orderDetail.value.tenantOrderInsuredList[0].birthday,
@@ -1009,38 +1012,23 @@ watch(
   },
 );
 
-// 监听试算因子
-watch(
-  () => [
-    ...state.holder.trialFactorCodes.map((key) => state.holder.formData[key]),
-    ...state.insuredList.reduce((res, insuredItem, index) => {
-      res.push(...insuredItem.trialFactorCodes.map((key) => state.insuredList[index].formData[key]));
-      return res;
-    }, []),
-  ],
-  (...rest) => {
-    console.log(999999, rest);
-    console.log('%c🔥 试算因子变动了', 'color:#1989fa;background:#5e4;padding:3px 5px;');
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
-
 // 切换计划时,
 watch(
   () => currentPlanObj.value,
   () => {
     let { productFactor } = currentPlanObj.value;
-    const { oilPackageProductVOList, insureProductRiskVOList } = currentPlanObj.value;
+    const { oilPackageProductVOList, planCode, insureProductRiskVOList } = currentPlanObj.value;
     if (isOldUser.value && productFactor[1]) {
       productFactor = productFactor[1].filter((e: ProductFactorItem) => e.code !== 'verificationCode');
     }
 
+    // 设置默认选中的计划
+    guaranteeObj.value.planCode = planCode;
+
     currentRiskInfo.value = insureProductRiskVOList;
 
     mainRiskInfo.value = (insureProductRiskVOList || []).find((risk) => risk.mainRiskFlag === YES_NO_ENUM.YES);
+    console.log('mainRiskInfo.value', mainRiskInfo.value);
     currentPackageConfigVOList.value = (oilPackageProductVOList || []).map((oli) => ({
       ...oli,
       value: INSURE_TYPE_ENUM.UN_INSURE,

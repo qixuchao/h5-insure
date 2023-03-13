@@ -265,13 +265,9 @@ watch(
     if (productRiskInsureLimitVO) {
       const { paymentFrequencyList: frequencyList = [], paymentPeriodValueList } = productRiskInsureLimitVO || {};
 
-      if (!state.formInfo.paymentFrequency) {
-        state.formInfo.paymentFrequency = frequencyList?.[0]?.code;
-      }
+      state.formInfo.paymentFrequency = frequencyList?.[0]?.code;
 
-      if (!state.formInfo.chargePeriod) {
-        state.formInfo.chargePeriod = paymentPeriodValueList?.[0]?.code;
-      }
+      state.formInfo.chargePeriod = paymentPeriodValueList?.[0]?.code;
 
       paymentPeriodList.value = paymentPeriodValueList;
       paymentFrequencyList.value = frequencyList;
