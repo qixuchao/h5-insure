@@ -107,6 +107,7 @@
       </ProLazyComponent>
       <template v-if="showFooterBtn">
         <TrialButton
+          :is-share="tenantProductDetail.PRODUCT_LIST.showWXShare"
           :premium="premium"
           :loading-text="premiumLoadingText"
           :plan-code="currentPlanObj.planCode"
@@ -418,17 +419,17 @@ const queryProductMaterialData = () => {
 
 // 初始化数据，获取产品配置详情和产品详情
 const initData = async () => {
-  querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
+  querySalesInfo({ productCode, tenantId, isTenant: !preview }).then(({ data, code }) => {
     if (code === '10000') {
       tenantProductDetail.value = data;
       document.title = data.BASIC_INFO.title || '';
-      const { title, desc, image } = data?.showConfigVO || {};
+      const { title, desc, image } = data?.PRODUCT_LIST.wxShareConfig || {};
       // 设置分享参数
       setShareLink({ title, desc, image });
     }
   });
 
-  await getInsureProductDetail({ productCode }).then(({ data, code }) => {
+  await getInsureProductDetail({ productCode, isTenant: !preview }).then(({ data, code }) => {
     if (code === '10000') {
       preNoticeLoading.value = true;
       insureProductDetail.value = data;
