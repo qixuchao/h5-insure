@@ -2,7 +2,7 @@
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-08-10 16:45:37
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-03-10 17:58:04
+ * @LastEditTime: 2023-03-13 14:29:29
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/modules/product.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -20,6 +20,11 @@ export const productDetail = (data: any) => {
     { loading: true },
   );
 };
+
+// 获取产品销售信息
+export const querySalesInfo = (data = {}) =>
+  request({ url: '/api/app/insure/product/salesInfo', method: 'POST', data });
+
 // 获取资料信息
 export const queryProductMaterial = (data = {}) => {
   return request<ProductMaterialData>({

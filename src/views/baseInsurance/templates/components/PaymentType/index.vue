@@ -10,7 +10,6 @@
               v-model="state.formInfo.planCode"
               :options="planList"
               :prop="{ value: 'planCode', label: 'planName' }"
-              @change="onClickPlanCode"
             ></ProRadioButton>
           </div>
         </div>
@@ -36,10 +35,10 @@
         </div>
       </div>
       <InsurancePeriodCell :form-info="state.formInfo" :risk-info="riskInfo" />
-      <!-- <template v-if="actualPremium && isShowExplainInfo">
+      <template v-if="actualPremium && isShowExplainInfo">
         <div class="custom-cell common-cell">
           <div class="cell-label">实付保费</div>
-          <template v-if="props.premiumInfo.premiumLoadingText">
+          <template v-if="props.premiumInfo?.premiumLoadingText">
             <div class="cell-content actual-premium">
               {{ actualPremium }}
             </div>
@@ -53,18 +52,18 @@
             </div>
           </template>
         </div>
-        <div v-if="isShowExplainInfo" class="feerate-explain">
+        <div v-if="isShowExplainInfo" class="fee-rate-explain">
           <div class="content">
             <div class="triangle-top"></div>
             <div>
               <span>{{ explainInfo.premiumExplain || '' }}</span>
-              <span class="file-name" @click="onPreviewFeerateFile"
+              <span class="file-name" @click="onPreviewFeeRateFile"
                 >《{{ explainInfo.premiumExplainViewName || '' }}》</span
               >
             </div>
           </div>
         </div>
-      </template> -->
+      </template>
     </div>
     <ProDivider />
   </van-config-provider>
@@ -128,13 +127,18 @@ const isShowPaymentFrequency = computed(() => {
 });
 
 // 根据实际保额保费单位展示实际保费
-// const actualPremium = computed(() => {
-//   if (props.premiumInfo.premiumLoadingText) return props.premiumInfo.premiumLoadingText;
-//   if (props.premiumInfo.premium) {
-//     return `${props.premiumInfo.premium || ''}${props.premiumInfo.actualUnit || '元'}`;
-//   }
-//   return `${props.premiumInfo.minPremiun || ''}${props.premiumInfo.unit || ''}`;
-// });
+const actualPremium = computed(() => {
+  if (props.premiumInfo?.premiumLoadingText) {
+    return props.premiumInfo.premiumLoadingText;
+  }
+  const currentPremiumObj = props.tenantProductDetail.find((plan) => plan.planCode === state.formInfo.planCode);
+  const { premium, minActualUnit } =
+    currentPremiumObj.data.find((obj) => obj.paymentFrequency === state.formInfo.paymentFrequency) || {};
+  if (props.premiumInfo?.premium) {
+    return `${props.premiumInfo.premium || ''}${minActualUnit}`;
+  }
+  return premium;
+});
 
 // 保费计算说明信息
 const explainInfo = computed(() => {
@@ -154,31 +158,6 @@ const isShowExplainInfo = computed(() => {
   return explainInfo.value && explainInfo.value.premiumExplain && explainInfo.value.premiumExplainViewName;
 });
 
-// 获取计划信息及投保条件
-// watch(
-//   [() => props.configDetail, () => isMultiplePlan.value, () => state.formInfo.activePlanCode],
-//   () => {
-//     if (props.configDetail) {
-//       if (isMultiplePlan.value) {
-//         let idx = 0;
-//         const index = props.configDetail.tenantProductInsureVO.planList.findIndex(
-//           (e: PlanInsureVO) => e.planCode === state.formInfo.activePlanCode,
-//         );
-//         if (index > -1) idx = index;
-//         insureCondition.value = props.configDetail.tenantProductInsureVO.planList[idx].productPlanInsureConditionVO;
-//         planInsure.value = props.configDetail.tenantProductInsureVO.planList[idx];
-//       } else {
-//         insureCondition.value = props.configDetail.tenantProductInsureVO.planInsureVO.productPlanInsureConditionVO;
-//         planInsure.value = props.configDetail.tenantProductInsureVO.planInsureVO;
-//       }
-//     }
-//   },
-//   {
-//     deep: true,
-//     immediate: true,
-//   },
-// );
-
 // 交费方式 | 保障计划 名称判断
 const isShowPaymentSelect = computed(() => {
   if (insureCondition.value && insureCondition.value.paymentFrequency) {
@@ -188,69 +167,13 @@ const isShowPaymentSelect = computed(() => {
   return false;
 });
 
-// 根据投保条件信息获取交费方式列表，
-// watch(
-//   () => insureCondition.value,
-//   () => {
-//     if (insureCondition.value) {
-//       const currentPaymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
-//       if (currentPaymentFrequencyList.length === 1) {
-//         state.formInfo.paymentFrequency = insureCondition.value.paymentFrequency;
-//         return;
-//       }
-
-//       // 当交费方式只有一次交清和月交时，默认选中一次交清。
-//       if (
-//         currentPaymentFrequencyList.length === 2 &&
-//         currentPaymentFrequencyList.filter(
-//           (e: string) => ![PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE, PAYMENT_COMMON_FREQUENCY_ENUM.MONTH].includes(e),
-//         ).length < 1
-//       ) {
-//         if (!state.formInfo.paymentFrequency) {
-//           state.formInfo.paymentFrequency = PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE;
-//         }
-//         return;
-//       }
-//       // 默认选中第一种交费方式
-//       if (currentPaymentFrequencyList.length > 1 && !state.formInfo.paymentFrequency) {
-//         state.formInfo.paymentFrequency = paymentFrequencyList?.[0];
-//       }
-//     }
-//   },
-//   {
-//     immediate: true,
-//     deep: true,
-//   },
-// );
-
-// 交费方式列表
-// const paymentBtnList = computed(() => {
-//   if (insureCondition.value) {
-//     const paymentFrequencyList = insureCondition.value.paymentFrequency?.split(',') || [];
-//     if (paymentFrequencyList.length === 1) {
-//       // eslint-disable-next-line prefer-destructuring
-//       state.formInfo.paymentFrequency = paymentFrequencyList[0];
-//     }
-//     return (paymentFrequencyList || [])?.map((e: any) => ({
-//       label: PAYMENT_COMMON_FREQUENCY_MAP[e],
-//       value: e,
-//     }));
-//   }
-//   return [];
-// });
-
 // 切换交费方式
 const onClickPaymethod = (type: string) => {
   state.formInfo.paymentFrequency = type;
 };
 
-// 切换计划
-const onClickPlanCode = (planCode: string) => {
-  state.formInfo.planCode = planCode;
-};
-
 // 预览费率文件
-const onPreviewFeerateFile = () => {
+const onPreviewFeeRateFile = () => {
   if (!explainInfo.value?.premiumExplainUri) {
     Toast('无费率文件！');
     return;
@@ -399,7 +322,7 @@ watch(
     }
   }
 
-  .feerate-explain {
+  .fee-rate-explain {
     padding: 0px 40px 50px;
 
     .content {

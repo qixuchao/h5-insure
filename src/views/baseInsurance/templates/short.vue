@@ -3,28 +3,24 @@
   <van-config-provider v-else data-skeleton-root="SHORT" :theme-vars="themeVars">
     <div class="page-internet-product-detail">
       <div class="info">
-        <Banner data-skeleton-type="img" :url="tenantProductDetail?.tenantProductInsureVO?.banner[0]" />
+        <Banner data-skeleton-type="img" :url="tenantProductDetail.BASIC_INFO?.banner[0]" />
         <Banner
-          v-if="tenantProductDetail?.tenantProductInsureVO?.bannerMove"
-          :url="tenantProductDetail?.tenantProductInsureVO?.bannerMove[0]"
+          v-if="tenantProductDetail?.BASIC_INFO?.bannerMove"
+          :url="tenantProductDetail?.BASIC_INFO?.bannerMove[0]"
           @click="onClickToInsure"
         />
         <div ref="observeRef"></div>
       </div>
       <!-- <Guarantee
         show-service-config
-        :data-source="tenantProductDetail"
+        :data-source="tenantProductDetail."
         :is-multiple-plan="isMultiplePlan"
         :active-plan-code="currentPlanObj.planCode"
         :payment-frequency="orderDetail.paymentFrequency"
         :premium-info="{ premium, unit, premiumLoadingText }"
         @update-active-plan="updateActivePlan"
       /> -->
-      <ScrollInfo
-        v-if="true || tenantProductDetail.tenantProductInsureVO.settlementProcessVO"
-        ref="tenantProductDetailScrollRef"
-        :data-source="tenantProductDetail.tenantProductInsureVO"
-      >
+      <ScrollInfo ref="tenantProductDetailScrollRef" :data-source="tenantProductDetail">
         <template #form>
           <div class="custom-page-form">
             <div class="form-title">请填写投保信息</div>
@@ -48,6 +44,13 @@
               :schema="insured.schema"
               :config="insured.config"
             />
+            <!-- <ProRenderFormWithCard
+              ref="insuredFormRef"
+              title="为谁投保（被保人）"
+              :model="state.insuredList[0].formData"
+              :schema="state.insuredList[0].schema"
+              :config="state.insuredList[0].config"
+            /> -->
             <!-- <InsureForm
               v-if="insureProductDetail"
               ref="formRef"
@@ -80,7 +83,7 @@
           <PaymentType
             :form-info="guaranteeObj"
             :risk-info="mainRiskInfo"
-            :tenant-product-detail="tenantProductDetail"
+            :tenant-product-detail="tenantProductDetail.PREMIUM"
             :plan-list="planList"
             :premium-info="{ premium, premiumLoadingText }"
             @update-active-plan="updateActivePlan"
@@ -169,7 +172,7 @@ import {
   getTenantOrderDetail,
   underWriteRule,
 } from '@/api/modules/trial';
-import { productDetail as getTenantProductDetail, queryProductMaterial } from '@/api/modules/product';
+import { productDetail as getTenantProductDetail, queryProductMaterial, querySalesInfo } from '@/api/modules/product';
 import { nextStepOperate as nextStep } from '../nextStep';
 
 import {
@@ -415,17 +418,15 @@ const queryProductMaterialData = () => {
 
 // 初始化数据，获取产品配置详情和产品详情
 const initData = async () => {
-  // await getTenantProductDetail({ productCode, withInsureInfo: true, tenantId }).then((productRes) => {
-  //   if (productRes.code === '10000') {
-  //     tenantProductDetail.value = {
-  //       ...productRes.data,
-  //     };
-  //     document.title = productRes.data?.tenantProductInsureVO?.productName || '';
-  //     const { title, desc, image } = productRes.data?.showConfigVO || {};
-  //     // 设置分享参数
-  //     setShareLink({ title, desc, image });
-  //   }
-  // });
+  querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
+    if (code === '10000') {
+      tenantProductDetail.value = data;
+      document.title = data.BASIC_INFO.title || '';
+      const { title, desc, image } = data?.showConfigVO || {};
+      // 设置分享参数
+      setShareLink({ title, desc, image });
+    }
+  });
 
   await getInsureProductDetail({ productCode }).then(({ data, code }) => {
     if (code === '10000') {
@@ -493,10 +494,17 @@ const currentRiskInfo = ref([]);
 
 // 切换计划
 const updateActivePlan = (planCode: string) => {
-  currentPlanObj.value = (insureProductDetail.value.productPlanInsureVOList || []).find(
-    (plan) => plan.planCode === planCode,
-  );
+  console.log('currentPlanObj.value', planCode, currentPlanObj.value);
 };
+
+watch(
+  () => guaranteeObj.value.planCode,
+  (planCode) => {
+    currentPlanObj.value = (insureProductDetail.value.productPlanInsureVOList || []).find(
+      (plan) => plan.planCode === planCode,
+    );
+  },
+);
 
 // 滑动到投保信息
 const onClickToInsure = () => {
@@ -722,6 +730,7 @@ const getPackageRiskList = () => {
 
 // 点击立即投保
 const onNext = async () => {
+  console.log('insuredFormRef', insuredFormRef);
   if (premium.value) {
     onSaveOrder();
     return;
@@ -902,7 +911,6 @@ watch(
   },
 );
 
-// 试算监听
 // 监听试算因子
 watch(
   () => [
