@@ -86,7 +86,7 @@ export default (env: ConfigEnv) => {
       disable: false,
       algorithm: 'gzip',
       ext: '.gz',
-      deleteOriginFile: true,
+      // deleteOriginFile: true,
     }),
     PkgConfig(),
     env.mode === 'production'
