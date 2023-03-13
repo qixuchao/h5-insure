@@ -1,0 +1,1 @@
+import{_ as a,d as s,c as r,e,j as t,I as l}from"./index-5239afda.js";var d=a(s({props:{isCheck:{type:Boolean,default:!1},url:{type:String,default:""}},setup(a){const s=a;return(a,d)=>{const n=l;return s.url?(r(),e(n,{key:0,width:"100%",class:"banner","lazy-load":"",src:s.url},null,8,["src"])):t("",!0)}}}),[["__scopeId","data-v-34cbd784"]]);export{d as B};
