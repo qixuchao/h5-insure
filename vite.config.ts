@@ -60,8 +60,8 @@ export default defineConfig((env) => {
       // 在生产环境移除console.log
       terserOptions: {
         compress: {
-          drop_console: true,
-          drop_debugger: true,
+          // drop_console: true,
+          // drop_debugger: true,
         },
       },
       assetsDir: 'static/assets',
