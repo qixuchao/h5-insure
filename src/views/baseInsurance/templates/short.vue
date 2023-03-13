@@ -722,6 +722,7 @@ const getPackageRiskList = () => {
 
 // 点击立即投保
 const onNext = async () => {
+  console.log(11111111, insuredFormRef.value);
   if (premium.value) {
     onSaveOrder();
     return;
