@@ -21,7 +21,7 @@
         :data-source="tenantProductDetail"
         :plan-list="planList"
       />
-      <ScrollInfo ref="tenantProductDetailScrollRef" :data-source="tenantProductDetail">
+      <ScrollInfo ref="tenantProductDetailScrollRef" :order-detail="orderDetail" :data-source="tenantProductDetail">
         <template #form>
           <div class="custom-page-form">
             <div class="form-title">请填写投保信息</div>
@@ -145,6 +145,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant/es';
 import debounce from 'lodash-es/debounce';
 import { useIntersectionObserver } from '@vueuse/core';
+import dayjs from 'dayjs';
 import { useTheme } from '@/hooks/useTheme';
 import {
   ProductDetail,
@@ -205,6 +206,7 @@ import TrialButton from './components/TrialButton.vue';
 import useAttachment from '@/hooks/useAttachment';
 import { combineOccupation, ProRenderFormWithCard, transformFactorToSchema } from '@/components/RenderForm';
 import { formData2Order } from './utils';
+import { getSex, getBirth } from '@/components/ProField/utils';
 
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
 const HealthNoticePreview = defineAsyncComponent(() => import('./components/HealthNoticePreview/index.vue'));
@@ -599,12 +601,7 @@ const previewFile = (index: number) => {
 
 /** -------------  保费试算 -----------------*/
 
-const trialPremium = async (
-  orderInfo: OrderDetail,
-  currentProductDetail: any,
-  productRiskList: any,
-  isOnlyPremiumCalc = true,
-) => {
+const trialPremium = async (currentProductDetail: any, productRiskList: any, isOnlyPremiumCalc = true) => {
   const { chargePeriod, coveragePeriod, paymentFrequency, insuranceEndDate, insuranceStartDate } = guaranteeObj.value;
   premiumLoadingText.value = '保费试算中...';
   const tempRiskVOList = riskToOrder(productRiskList).map((riskVOList: any) => {
@@ -615,6 +612,8 @@ const trialPremium = async (
       coveragePeriod,
     };
   });
+  const { tenantOrderHolder, tenantOrderInsuredList } = orderDetail.value;
+
   // 试算接口参数组装
   const trialParams = {
     tenantId,
@@ -623,17 +622,25 @@ const trialPremium = async (
     insuranceEndDate,
     holder: {
       personVO: {
-        ...orderInfo.tenantOrderHolder,
-        socialFlag: orderInfo.tenantOrderHolder.extInfo?.hasSocialInsurance,
-        certType: orderInfo.tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
+        ...tenantOrderHolder,
+        socialFlag: tenantOrderHolder.extInfo?.hasSocialInsurance,
+        certType: tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
       },
     },
-    insuredVOList: orderInfo.tenantOrderInsuredList.map((person) => {
+    insuredVOList: tenantOrderInsuredList.map((person) => {
+      let currentPerson = {};
+      if (person.certType === CERT_TYPE_ENUM.CERT && person.certNo) {
+        currentPerson = {
+          gender: +getSex(person.certNo),
+          birthday: dayjs(new Date(getBirth(person.certNo))).format('YYYY-MM-DD'),
+        };
+      }
       return {
         insuredCode: '',
         relationToHolder: person.relationToHolder,
         personVO: {
           ...person,
+          ...currentPerson,
           socialFlag: person.extInfo.hasSocialInsurance,
           certType: person.certType || CERT_TYPE_ENUM.CERT,
         },
@@ -716,12 +723,7 @@ const onNext = async () => {
         .then(async () => {
           // 老用户或者投保要素不包含验证码的情况
           if (isOldUser.value) {
-            await trialPremium(
-              orderDetail.value as OrderDetail,
-              insureProductDetail.value,
-              [...currentRiskInfo.value, ...getPackageRiskList()],
-              false,
-            );
+            await trialPremium(insureProductDetail.value, [...currentRiskInfo.value, ...getPackageRiskList()], false);
           } else {
             // 验证码验证
             const smsCode = orderDetail.value.tenantOrderHolder?.verificationCode;
@@ -733,12 +735,7 @@ const onNext = async () => {
             }
             const { code, data } = await checkCode(orderDetail.value.tenantOrderHolder.mobile as string, smsCode);
             if (code === '10000') {
-              await trialPremium(
-                orderDetail.value as OrderDetail,
-                insureProductDetail.value,
-                [...currentRiskInfo.value, ...getPackageRiskList()],
-                false,
-              );
+              await trialPremium(insureProductDetail.value, [...currentRiskInfo.value, ...getPackageRiskList()], false);
             }
           }
         })
@@ -900,14 +897,12 @@ watch(
     guaranteeObj.value.paymentFrequency,
   ],
   (...rest) => {
+    if (previewMode.value) return;
+
     onTrialCheck()
       .then(() => {
-        if (previewMode.value) return;
         // 产品试算
-        trialPremium(orderDetail.value as OrderDetail, insureProductDetail.value, [
-          ...currentRiskInfo.value,
-          ...getPackageRiskList(),
-        ]);
+        trialPremium(insureProductDetail.value, [...currentRiskInfo.value, ...getPackageRiskList()]);
       })
       .catch(() => {
         setPremium();

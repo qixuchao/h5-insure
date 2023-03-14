@@ -42,7 +42,7 @@
             class="attachment-list-item"
             @click="onClickFileItem(item)"
           >
-            <div class="attachment-list-item-name">{{ item.attachmentName }}</div>
+            <div class="attachment-list-item-name">{{ item.materialSourceDesc }}</div>
             <div class="attachment-list-item-icon">
               <ProSvg name="arrow-right"></ProSvg>
             </div>
@@ -152,8 +152,8 @@ const showReadBtn = computed(() => {
 
 const onClickFileItem = (item: AttachmentVOList) => {
   const fileInfo = {
-    fileType: item.attachmentType,
-    fileUri: item.attachmentUri,
+    fileType: item.materialSource,
+    fileUri: item.materialContent,
   };
   openPreviewFilePage(fileInfo);
 };
@@ -193,9 +193,6 @@ const handleScroll = (el: any) => {
     const scrollHeight = el.target?.scrollHeight || el.scrollHeight;
     const scrollTop = el.target?.scrollTop || el.scrollTop;
     const clientHeight = el.target?.clientHeight || el.clientHeight;
-    console.log('scrollHeight', scrollHeight);
-    console.log('scrollTop', scrollTop);
-    console.log('clientHeight', clientHeight);
     if (Math.floor(scrollHeight - scrollTop - 15) <= clientHeight && calcuateFlg.value) {
       if (formatedContentList.value[currentActiveIndex.value].readDisabled) {
         formatedContentList.value[currentActiveIndex.value].disabled = false;

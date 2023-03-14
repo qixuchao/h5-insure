@@ -70,6 +70,10 @@ watch(
         premiumUnit.value = minActualUnit;
         productPremium.value = premium && `${premium}`;
       }
+    } else {
+      if (premium) {
+        productPremium.value = premium && `${premium}`;
+      }
     }
   },
   { deep: true, immediate: true },
