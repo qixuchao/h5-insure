@@ -753,6 +753,23 @@ export interface ProductMaterialVoItem {
 }
 
 
+/**
+ * 产品升级保障配置
+*/
+export interface ProductUpgradeConfig {
+    notificationImage: string[];
+    parameterMap: ParameterMap;
+    productCode: string;
+    productImage: string[];
+    productName: string;
+}
+
+export interface ParameterMap {
+}
+
+
+
+
 
 
 

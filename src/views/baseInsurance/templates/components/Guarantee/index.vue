@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-03-14 11:08:23
+ * @LastEditTime: 2023-03-14 14:45:18
  * @Description: 保障详情
 -->
 <template>
@@ -106,7 +106,7 @@ import { openPreviewFilePage } from '@/views/baseInsurance/utils';
 
 const props = defineProps({
   dataSource: {
-    type: Object as () => TenantProductInsureVO,
+    type: Object,
     default: () => {},
   },
   showServiceConfig: {
@@ -121,29 +121,17 @@ const props = defineProps({
     type: Number,
     default: 5,
   },
-  activePlanCode: {
-    type: String,
-    default: '',
-  },
   planList: {
     type: Array,
     require: false,
     default: () => [],
-  },
-  paymentFrequency: {
-    type: String,
-    default: '',
-  },
-  premiumInfo: {
-    type: Object as any,
-    default: () => {},
   },
 });
 
 const guaranteeDetailHeight = ref('');
 const emits = defineEmits(['update-active-plan']);
 
-const currentActivePlanCode = ref<string>(props.activePlanCode);
+const currentActivePlanCode = ref<string>(props.planList?.[0]?.planCode || '');
 
 const currentActivePlanCodeIndex = ref<number>();
 
@@ -154,36 +142,19 @@ const productPremiumVOItem = ref<ProductPremiumVoItem>();
 const isMultiplePlan = computed(() => !!props.planList.length);
 
 watch(
-  [() => props.dataSource, () => props.activePlanCode, () => props.paymentFrequency, () => currentActivePlanCode.value],
+  [() => props.dataSource, () => currentActivePlanCode.value],
   () => {
-    if (!isMultiplePlan.value) {
-      guaranteeList.value = props.dataSource?.planInsureVO.guaranteeItemVOS;
-      extInfoVOList.value = props.dataSource?.planInsureVO.extInfoVOList;
-      const item = (props.dataSource?.planInsureVO?.productPremiumVOList || []).find(
-        (e) => e.paymentFrequency === props.paymentFrequency,
-      );
-      if (item) {
-        productPremiumVOItem.value = item;
-      } else {
-        productPremiumVOItem.value = props.dataSource?.planInsureVO?.productPremiumVOList?.[0];
-      }
-    } else if (props.planList && props.planList.length > 0) {
-      let index = 0;
-      const idx = props.planList.findIndex((e: PlanInsureVO) => e.planCode === currentActivePlanCode.value);
-      if (idx > -1) {
-        index = idx;
-      }
-      guaranteeList.value = props.planList[index].guaranteeItemVOS;
-      extInfoVOList.value = props.planList[index].extInfoVOList;
-      const item = props.planList[index].productPremiumVOList.find(
-        (e) => e.paymentFrequency === props.paymentFrequency,
-      );
-      if (item) {
-        productPremiumVOItem.value = item;
-      } else {
-        productPremiumVOItem.value = props.planList[index]?.productPremiumVOList[0];
-      }
-    }
+    guaranteeList.value =
+      (props.dataSource?.GUARANTEE || []).find((plan) => plan.planCode === currentActivePlanCode.value)?.data || [];
+
+    // const item = props.planList[index].productPremiumVOList.find(
+    //   (e) => e.paymentFrequency === props.paymentFrequency,
+    // );
+    // if (item) {
+    //   productPremiumVOItem.value = item;
+    // } else {
+    //   productPremiumVOItem.value = props.planList[index]?.productPremiumVOList[0];
+    // }
   },
   {
     immediate: true,
@@ -246,9 +217,7 @@ const onPlanItemClick = (val: string) => {
 const onPlanItemClickEmit = (val: string) => {
   // activePlanCode.value = val;
   currentActivePlanCode.value = val;
-  currentActivePlanCodeIndex.value = props.dataSource?.planList.findIndex(
-    (e) => e.planCode === currentActivePlanCode.value,
-  );
+  currentActivePlanCodeIndex.value = props.planList.findIndex((e) => e.planCode === val);
   // emits('update-active-plan', val);
 };
 
@@ -276,11 +245,11 @@ const setGuaranteeListHeight = () => {
   console.log('guaranteeDetailHeight', guaranteeDetailHeight.value);
 };
 
-watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
-  nextTick(() => {
-    setGuaranteeListHeight();
-  });
-});
+// watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
+//   nextTick(() => {
+//     setGuaranteeListHeight();
+//   });
+// });
 </script>
 
 <style lang="scss" scoped>

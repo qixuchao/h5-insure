@@ -75,7 +75,6 @@ export interface transformDataType {
 
 // 将试算的参数转化成订单中需要的结构
 export const transformData = (o: transformDataType, flag = false) => {
-  debugger;
   const { tenantId, riskList, riskPremium, productId } = o;
   let currentRiskList = [];
   // 如果有险种保费，则只拿有保费的险种，否则就是全部险种

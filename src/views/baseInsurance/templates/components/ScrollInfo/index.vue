@@ -1,7 +1,7 @@
 <!--
  * @Date: 2022-09-17 16:00
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-03-14 10:40:56
+ * @LastEditTime: 2023-03-14 13:59:09
  * @Description: 滚动tab区域
 -->
 <template>
@@ -76,7 +76,7 @@
       </template>
       <template v-if="isShowTab2_4">
         <CustomCard title="常见问题">
-          <Question :list="dataSource.FAQ" />
+          <Question :list="dataSource.FAQ?.[0]?.data" />
         </CustomCard>
         <ProDivider />
       </template>
