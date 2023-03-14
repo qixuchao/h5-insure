@@ -1,6 +1,11 @@
 <template>
   <div class="trial-button-wrap">
     <div class="footer-area">
+      <ProShare v-if="isApp" v-bind="shareInfo" class="share-btn">
+        <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
+        <span>分享</span>
+      </ProShare>
+
       <div class="price">
         <span v-if="loadingText">{{ loadingText }}</span>
         <template v-else>
@@ -19,6 +24,7 @@
 import { withDefaults } from 'vue';
 import ProShadowButton from './ProShadowButton/index.vue';
 import { PlanInsureVO } from '@/api/modules/product.data';
+import { isAppFkq } from '@/utils';
 
 interface Props {
   premium: number;
@@ -26,38 +32,44 @@ interface Props {
   planCode: string;
   loadingText?: string;
   paymentFrequency: string;
+  shareInfo?: any;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   premium: 0,
   tenantProductDetail: () => ({}),
-  planCode: '',
+  planCode: undefined,
   loadingText: '',
   paymentFrequency: '',
+  shareInfo: () => ({}),
 });
 
 const emits = defineEmits(['onClick']);
 
 const productPremium = ref<string>('');
 const premiumUnit = ref<string>('');
+const isApp = isAppFkq();
 
 // 根据试算或者试算前根据产品配置信息显示产品保费
 watch(
   [() => props.premium, () => props.tenantProductDetail, () => props.planCode],
   ([premium]) => {
-    const { PREMIUM } = props.tenantProductDetail || {};
+    const { PREMIUM = [] } = props.tenantProductDetail || {};
     let selectedPlan = {} as PlanInsureVO | undefined;
     if (PREMIUM?.length) {
-      selectedPlan = (PREMIUM || []).find((plan) => plan.planCode === props.planCode) || {};
-    }
-    const currentPremium = (selectedPlan.data || []).map((data) => data.paymentFrequency === props.paymentFrequency);
-    const { premium: unit, minActualUnit } = currentPremium || {};
-    console.log('unit', currentPremium);
-    if (!premium) {
-      premiumUnit.value = unit;
-    } else {
-      premiumUnit.value = minActualUnit;
-      productPremium.value = premium && `${premium}`;
+      selectedPlan = (PREMIUM || []).find((plan) => plan.planCode === props.planCode || !plan.planCode) || {};
+
+      const currentPremium = (selectedPlan?.data || []).find(
+        (data) => data.paymentFrequency === props.paymentFrequency,
+      );
+      const { premium: unit, minActualUnit } = currentPremium || {};
+
+      if (!premium) {
+        premiumUnit.value = unit;
+      } else {
+        premiumUnit.value = minActualUnit;
+        productPremium.value = premium && `${premium}`;
+      }
     }
   },
   { deep: true, immediate: true },

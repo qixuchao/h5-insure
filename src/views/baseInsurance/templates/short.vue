@@ -107,6 +107,7 @@
       <template v-if="showFooterBtn">
         <TrialButton
           :premium="premium"
+          :share-info="shareInfo"
           :loading-text="premiumLoadingText"
           :plan-code="guaranteeObj.planCode"
           :payment-frequency="guaranteeObj.paymentFrequency"
@@ -187,37 +188,27 @@ import { CERT_TYPE_ENUM } from '@/common/constants';
 
 import { useWXCode } from '../../cashier/core';
 import useAddressList from '@/hooks/useAddressList';
-import useLoading from '@/hooks/useLoading';
-// import { useTheme } from '../theme';
-import { isEmpty, toLocal } from '@/utils';
 import { transformData, riskToOrder, validateSmsCode, getFileType } from '../utils';
-import { validateCustomName } from '@/utils/validator';
 
 import Banner from './components/Banner/index.vue';
 import Guarantee from './components/Guarantee/index.vue';
 import PreNotice from './components/PreNotice/index.vue';
 import Package from './components/Package/index.vue';
 import { YES_NO_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
-import { isTestEnv, isAppFkq } from '@/utils/index';
 
 import ScrollInfo from './components/ScrollInfo/index.vue';
 
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import { sessionStore } from '@/hooks/useStorage';
-import { TenantOrderProductItem } from '@/api/index.data';
 import useOrder from '@/hooks/useOrder';
 import TrialButton from './components/TrialButton.vue';
 import useAttachment from '@/hooks/useAttachment';
 import { combineOccupation, ProRenderFormWithCard, transformFactorToSchema } from '@/components/RenderForm';
 import { formData2Order } from './utils';
 
-const isApp = isAppFkq();
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
 const HealthNoticePreview = defineAsyncComponent(() => import('./components/HealthNoticePreview/index.vue'));
 const PaymentType = defineAsyncComponent(() => import('./components/PaymentType/index.vue'));
-const ProShadowButton = defineAsyncComponent(() => import('./components/ProShadowButton/index.vue'));
-const InsureForm = defineAsyncComponent(() => import('./components/InsureForm/index.vue'));
-const CustomerList = defineAsyncComponent(() => import('./components/CustomerList/index.vue'));
 const InscribedContent = defineAsyncComponent(() => import('./components/InscribedContent/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('./components/AttachmentList/index.vue'));
 
@@ -809,12 +800,14 @@ const onResetFileFlag = () => {
 // 表单组件切换被保人时不会赋值默认社保以及身份证类型，需手动赋值
 watch(
   () => orderDetail.value.tenantOrderInsuredList[0].relationToHolder,
-  () => {
+  (newVal, oldVal) => {
     // 被保人与投保人关系切换时，重置加油包为不投保
-    if (currentPackageConfigVOList.value) {
-      currentPackageConfigVOList.value.forEach((e) => {
-        e.value = INSURE_TYPE_ENUM.UN_INSURE;
-      });
+    if (newVal !== oldVal) {
+      if (currentPackageConfigVOList.value) {
+        currentPackageConfigVOList.value.forEach((e) => {
+          e.value = INSURE_TYPE_ENUM.UN_INSURE;
+        });
+      }
     }
 
     needDesensitize.value = false;
@@ -864,10 +857,7 @@ const onTrialCheck = async () => {
       holderFormRef.value &&
       insuredFormRef.value
     ) {
-      Promise.all([
-        holderFormRef.value.validate(state.holder.trialFactorCodes),
-        insuredFormRef.value[0].validate(state.insuredList[0].trialFactorCodes),
-      ])
+      Promise.all([holderFormRef.value.validate(holderCodes), insuredFormRef.value[0].validate(insureCodes)])
         .then(() => {
           resolve(true);
         })
@@ -889,15 +879,15 @@ const setPremium = () => {
 };
 
 // 当计划和交费方式切换时，需重置产品保费为默认值
-watch(
-  [() => currentPlanObj.value, () => guaranteeObj.value.paymentFrequency],
-  () => {
-    setPremium();
-  },
-  {
-    deep: true,
-  },
-);
+// watch(
+//   [() => currentPlanObj.value, () => guaranteeObj.value.paymentFrequency],
+//   () => {
+//     setPremium();
+//   },
+//   {
+//     deep: true,
+//   },
+// );
 
 // 监听试算因子
 watch(
@@ -907,7 +897,7 @@ watch(
       res.push(...insuredItem.trialFactorCodes.map((key) => state.insuredList[index].formData[key]));
       return res;
     }, []),
-    () => guaranteeObj.value.paymentFrequency,
+    guaranteeObj.value.paymentFrequency,
   ],
   (...rest) => {
     onTrialCheck()
@@ -925,48 +915,8 @@ watch(
   },
   {
     deep: true,
-    immediate: true,
   },
 );
-
-// 老客户信息反显，被保人与投保人关系切换时，根据关系获取老用户信息
-// watch(
-//   () => orderDetail.value.tenantOrderInsuredList[0],
-//   (e) => {
-//     if (isEmpty(relationList.value)) return null;
-//     const targets = relationList.value[e.relationToHolder] || [];
-//     if (targets.length === 1) {
-//       if (RELATIONENUM.SELF !== e.relationToHolder) {
-//         const { dontFetchDefaultInfo, certNo, name, certType, mobile } = orderDetail.value.tenantOrderInsuredList[0];
-//         if (!dontFetchDefaultInfo) {
-//           Object.assign(orderDetail.value.tenantOrderInsuredList[0], {
-//             dontFetchDefaultInfo: true,
-//             certNo: certNo || targets[0].cert[0].certNo,
-//             name: name || targets[0].cert[0].certName,
-//             certType: certType || targets[0].cert[0].certType || CERT_TYPE_ENUM.CERT,
-//             mobile: mobile || targets[0].contact[0].contactNo,
-//           });
-//         }
-//       } else {
-//         const { dontFetchDefaultInfo, certNo, name, certType, mobile } = orderDetail.value.tenantOrderHolder;
-//         if (!dontFetchDefaultInfo) {
-//           Object.assign(orderDetail.value.tenantOrderHolder, {
-//             dontFetchDefaultInfo: true,
-//             certNo: certNo || targets[0].cert[0].certNo,
-//             name: name || targets[0].cert[0].certName,
-//             certType: certType || targets[0].cert[0].certType || CERT_TYPE_ENUM.CERT,
-//             mobile: mobile || targets[0].contact[0].contactNo,
-//           });
-//         }
-//       }
-//     }
-//     return false;
-//   },
-//   {
-//     immediate: true,
-//     deep: true,
-//   },
-// );
 
 // 监听投保人信息
 watch(
@@ -1122,7 +1072,7 @@ onUnmounted(() => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" scope>
 .page-internet-product-detail {
   padding-bottom: 150px;
   background: #f1f5fc;
@@ -1137,7 +1087,7 @@ onUnmounted(() => {
       font-weight: 500;
       color: #333333;
     }
-    :deep(.com-card-wrap) {
+    .com-card-wrap {
       .header {
         margin-left: 0px !important;
 

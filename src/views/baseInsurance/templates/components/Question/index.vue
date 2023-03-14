@@ -13,7 +13,7 @@
         :key="index"
         :name="index.toString()"
         :question="item.title"
-        :answer="item.content"
+        :answer="item.desc"
       />
     </van-collapse>
     <div v-if="list.length > 4" class="show-more" @click="handleShowMore">

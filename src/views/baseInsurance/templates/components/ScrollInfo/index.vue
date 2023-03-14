@@ -150,7 +150,7 @@ const isShowTab2_1 = computed(() => {
   const type = dataSource.value.CLAIM_FLOW?.processCaseType;
   if (
     (type === CLAIM_TYPE_ENUM.WORD && dataSource.value.CLAIM_FLOW?.processContent) ||
-    (type === CLAIM_TYPE_ENUM.IMAGE && dataSource.value.CLAIM_FLOW?.processPicList?.length)
+    (type === CLAIM_TYPE_ENUM.IMAGE && dataSource.value.CLAIM_FLOW?.processCasePicList?.length)
   ) {
     return true;
   }
@@ -169,7 +169,7 @@ const isShowTab2_2 = computed(() => {
 });
 
 const isShowTab2_3 = computed(() => {
-  return dataSource.value?.FAQ?.length;
+  return dataSource.value?.ISSUE_NOTICE?.length;
 });
 
 const isShowTab2_4 = computed(() => {

@@ -114,15 +114,20 @@ const actualPremium = computed(() => {
   if (props.premiumInfo?.premiumLoadingText) {
     return props.premiumInfo.premiumLoadingText;
   }
-  const currentPremiumObj =
-    (props?.tenantProductDetail || []).find((plan) => plan.planCode === state.formInfo.planCode) || {};
-  const { premium, minActualUnit } =
-    (currentPremiumObj.data || []).find((obj) => obj.paymentFrequency === state.formInfo.paymentFrequency) || {};
 
-  if (props.premiumInfo?.premium) {
-    return `${props.premiumInfo.premium || ''}${minActualUnit}`;
+  if (props.tenantProductDetail.length) {
+    const currentPremiumObj =
+      (props?.tenantProductDetail || []).find((plan) => plan.planCode === state.formInfo.planCode || !plan.planCode) ||
+      {};
+    const { premium, minActualUnit } =
+      (currentPremiumObj.data || []).find((obj) => obj.paymentFrequency === state.formInfo.paymentFrequency) || {};
+
+    if (props.premiumInfo?.premium) {
+      return `${props.premiumInfo.premium || ''}${minActualUnit}`;
+    }
+    return premium;
   }
-  return premium;
+  return '';
 });
 
 // 保费计算说明信息

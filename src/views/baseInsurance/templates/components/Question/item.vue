@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<{ name: string; question: string; answer:
     width: 100%;
     word-wrap: break-word;
   }
-  :deep(.van-cell) {
+  .van-cell {
     align-items: center;
     padding-left: 0;
     padding-right: 0;

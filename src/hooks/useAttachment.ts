@@ -22,8 +22,9 @@ export default (planObject, productMaterialList) => {
     ([currentPlanCode, materialList]) => {
       let tempList: any = null;
 
-      if (currentPlanCode && materialList?.length) {
-        const planData = (materialList || []).find((e: PlanInsureVO) => e.planCode === (currentPlanCode || ''));
+      if (materialList?.length) {
+        const planData = (materialList || []).find((e: PlanInsureVO) => e.planCode === currentPlanCode || !e.planCode);
+
         if (planData) {
           tempList = planData?.productMaterialMap;
         }

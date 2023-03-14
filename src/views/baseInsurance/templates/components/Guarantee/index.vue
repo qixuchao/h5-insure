@@ -131,7 +131,7 @@ const props = defineProps({
 const guaranteeDetailHeight = ref('');
 const emits = defineEmits(['update-active-plan']);
 
-const currentActivePlanCode = ref<string>(props.planList?.[0]?.planCode || '');
+const currentActivePlanCode = ref<string>(props.planList?.[0]?.planCode || undefined);
 
 const currentActivePlanCodeIndex = ref<number>();
 
@@ -146,15 +146,6 @@ watch(
   () => {
     guaranteeList.value =
       (props.dataSource?.GUARANTEE || []).find((plan) => plan.planCode === currentActivePlanCode.value)?.data || [];
-
-    // const item = props.planList[index].productPremiumVOList.find(
-    //   (e) => e.paymentFrequency === props.paymentFrequency,
-    // );
-    // if (item) {
-    //   productPremiumVOItem.value = item;
-    // } else {
-    //   productPremiumVOItem.value = props.planList[index]?.productPremiumVOList[0];
-    // }
   },
   {
     immediate: true,
