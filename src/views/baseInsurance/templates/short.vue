@@ -15,14 +15,14 @@
         />
         <div ref="observeRef"></div>
       </div>
-      <Guarantee
+      <!-- <Guarantee
         show-service-config
         :data-source="tenantProductDetail"
         :plan-list="planList"
         :active-plan-code="guaranteeObj.planCode"
         :payment-frequency="guaranteeObj.paymentFrequency"
         :premium-info="{ premium, premiumLoadingText }"
-      />
+      /> -->
       <ScrollInfo ref="tenantProductDetailScrollRef" :data-source="tenantProductDetail">
         <template #form>
           <div class="custom-page-form">
