@@ -525,7 +525,6 @@ const trialData2Order = (
   riskPremium = {},
   currentOrderDetail = {},
 ) => {
-  debugger;
   const nextStepParams: any = { ...currentOrderDetail };
   const transformDataReq = {
     tenantId,
@@ -851,9 +850,20 @@ watch(
   },
 );
 
+const validateTrialFactorValue = (codes, formData) => {
+  return codes.find((code) => !formData[code]);
+};
+
 const onTrialCheck = async () => {
+  const { trialFactorCodes: holderCodes, formData: holderData } = state.holder;
+  const { trialFactorCodes: insureCodes, formData: insureData } = state.insuredList[0];
   return new Promise((resolve, reject) => {
-    if (holderFormRef.value && insuredFormRef.value) {
+    if (
+      !validateTrialFactorValue(holderCodes, holderData) &&
+      !validateTrialFactorValue(insureCodes, insureData) &&
+      holderFormRef.value &&
+      insuredFormRef.value
+    ) {
       Promise.all([
         holderFormRef.value.validate(state.holder.trialFactorCodes),
         insuredFormRef.value[0].validate(state.insuredList[0].trialFactorCodes),
@@ -882,7 +892,7 @@ const setPremium = () => {
 watch(
   [() => currentPlanObj.value, () => guaranteeObj.value.paymentFrequency],
   () => {
-    // setPremium();
+    setPremium();
   },
   {
     deep: true,
@@ -915,6 +925,7 @@ watch(
   },
   {
     deep: true,
+    immediate: true,
   },
 );
 

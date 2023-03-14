@@ -35,16 +35,16 @@ export default (planObject, productMaterialList) => {
       }
 
       fileList.value = Object.keys(tempList).map((e) => {
-        tempList[e].forEach((attachmentItem) => {
-          // eslint-disable-next-line no-param-reassign
-          attachmentItem.materialSource = getFileType(
-            `${attachmentItem?.materialSource}`,
-            attachmentItem?.materialContent,
-          );
+        const materialTabList = tempList[e].map((attachmentItem) => {
+          return {
+            ...attachmentItem,
+            materialSource: getFileType(`${attachmentItem?.materialSource}`, attachmentItem?.materialContent),
+          };
         });
+
         return {
           attachmentName: e,
-          attachmentList: tempList[e],
+          attachmentList: materialTabList,
         };
       });
 
@@ -60,7 +60,7 @@ export default (planObject, productMaterialList) => {
 
       // 获取强制阅读文件
       mustReadFileCount.value =
-        fileList.value
+        popupFileList.value
           .map((fieldList) => {
             return {
               attachmentName: fieldList.attachmentName,

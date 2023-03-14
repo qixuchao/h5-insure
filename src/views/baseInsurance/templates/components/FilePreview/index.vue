@@ -29,9 +29,9 @@
       <div ref="previewRef" class="list">
         <div v-if="attachmentActiveList.length === 1" class="item">
           <AsyncProFilePreview
-            :key="attachmentActiveList[0].attachmentName"
-            :content="attachmentActiveList[0].attachmentUri"
-            :type="attachmentActiveList[0].attachmentType"
+            :key="attachmentActiveList[0].materialSourceDesc"
+            :content="attachmentActiveList[0].materialContent"
+            :type="attachmentActiveList[0].materialSource"
             :forbid-click="true"
           />
         </div>

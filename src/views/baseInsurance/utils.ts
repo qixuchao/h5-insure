@@ -964,7 +964,7 @@ const fileMap = {
 };
 
 export const getFileType = (attachmentType: string, url?: string) => {
-  if (attachmentType === '1' && url) {
+  if (`${attachmentType}` === '1' && url) {
     const urlList = url?.split('?');
     const type = urlList[0].substr(urlList[0].lastIndexOf('.') + 1);
 

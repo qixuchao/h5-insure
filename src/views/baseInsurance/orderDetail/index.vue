@@ -11,7 +11,7 @@
       </div>
       <div class="prodouct-container">
         <div class="product-card">
-          <div class="product-name">{{ state.insureDetail?.productBasicInfoVO?.productName || '' }}</div>
+          <div class="product-name">{{ state.insureDetail?.productName || '' }}</div>
           <div v-for="(item, index) in state.pageInfo.insureList" :key="index" class="list">
             <span class="label">{{ item.label }}</span>
             <span class="value">{{ item.value }}</span>
@@ -151,11 +151,10 @@ const getChannelCode = computed(() => {
 
 const goToInsurerPage = async (reOrder = false, promotion = '') => {
   try {
-    const { insurerCode } = state.insureDetail.productBasicInfoVO;
     const { templateId } = state.orderDetail.extInfo.extraInfo;
     delete state.orderDetail.extInfo.extraInfo.templateId;
     const params: any = {
-      insurerCode,
+      insurerCode: reOrder ? upgradeConfig.value?.insurerCode : state.orderDetail.venderCode,
       productCode: reOrder ? upgradeConfig.value?.productCode : productCode,
       tenantId,
       agencyCode: state.orderDetail.agencyId,

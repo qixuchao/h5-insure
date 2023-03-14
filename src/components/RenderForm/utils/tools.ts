@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { isNotEmptyArray } from '@/common/constants/utils';
-import { SEX_LIMIT_ENUM, CERT_TYPE_ENUM } from '@/common/constants';
+import { SEX_LIMIT_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import { COMPONENT_MAPPING_LIST, CONFIG_RULE_MAP, COMPONENT_ENUM } from './constants';
 import { validateIdCardNo } from './validate';
 import { Column, ComponentProps, FieldConfItem, ProductFactor } from '../index.data';
@@ -194,7 +194,7 @@ export const transformToSchema = (arr: FieldConfItem[]): ModuleResult => {
         COMPONENT_MAPPING_LIST.find((component) => `${component.value}` === `${item.displayType}`) || {};
 
       // TODO: 是否是试算因子
-      if (item.code === 'name') {
+      if (item.isCalculationFactor === YES_NO_ENUM.YES) {
         trialFactorCodes.push(item.code);
       }
 
