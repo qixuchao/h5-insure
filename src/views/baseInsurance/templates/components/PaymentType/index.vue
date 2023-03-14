@@ -114,9 +114,10 @@ const actualPremium = computed(() => {
   if (props.premiumInfo?.premiumLoadingText) {
     return props.premiumInfo.premiumLoadingText;
   }
-  const currentPremiumObj = props.tenantProductDetail.find((plan) => plan.planCode === state.formInfo.planCode);
+  const currentPremiumObj = props.tenantProductDetail.find((plan) => plan.planCode === state.formInfo.planCode) || {};
   const { premium, minActualUnit } =
-    currentPremiumObj.data.find((obj) => obj.paymentFrequency === state.formInfo.paymentFrequency) || {};
+    (currentPremiumObj.data || []).find((obj) => obj.paymentFrequency === state.formInfo.paymentFrequency) || {};
+
   if (props.premiumInfo?.premium) {
     return `${props.premiumInfo.premium || ''}${minActualUnit}`;
   }

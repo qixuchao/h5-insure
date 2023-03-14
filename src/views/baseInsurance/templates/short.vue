@@ -3,23 +3,26 @@
   <van-config-provider v-else data-skeleton-root="SHORT" :theme-vars="themeVars">
     <div class="page-internet-product-detail">
       <div class="info">
-        <Banner data-skeleton-type="img" :url="tenantProductDetail.BASIC_INFO?.banner[0]" />
         <Banner
-          v-if="tenantProductDetail?.BASIC_INFO?.bannerMove"
-          :url="tenantProductDetail?.BASIC_INFO?.bannerMove[0]"
+          v-if="tenantProductDetail?.BASIC_INFO?.banner.length"
+          data-skeleton-type="img"
+          :url="tenantProductDetail?.BASIC_INFO.banner[0]"
+        />
+        <Banner
+          v-if="tenantProductDetail?.BASIC_INFO?.bannerMove?.length"
+          :url="tenantProductDetail?.BASIC_INFO?.bannerMove?.[0]"
           @click="onClickToInsure"
         />
         <div ref="observeRef"></div>
       </div>
-      <!-- <Guarantee
+      <Guarantee
         show-service-config
-        :data-source="tenantProductDetail."
-        :is-multiple-plan="isMultiplePlan"
-        :active-plan-code="currentPlanObj.planCode"
-        :payment-frequency="orderDetail.paymentFrequency"
-        :premium-info="{ premium, unit, premiumLoadingText }"
-        @update-active-plan="updateActivePlan"
-      /> -->
+        :data-source="tenantProductDetail"
+        :plan-list="planList"
+        :active-plan-code="guaranteeObj.planCode"
+        :payment-frequency="guaranteeObj.paymentFrequency"
+        :premium-info="{ premium, premiumLoadingText }"
+      />
       <ScrollInfo ref="tenantProductDetailScrollRef" :data-source="tenantProductDetail">
         <template #form>
           <div class="custom-page-form">
@@ -109,8 +112,9 @@
         <TrialButton
           :premium="premium"
           :loading-text="premiumLoadingText"
-          :plan-code="currentPlanObj.planCode"
-          :tenant-product-detail="{}"
+          :plan-code="guaranteeObj.planCode"
+          :payment-frequency="guaranteeObj.paymentFrequency"
+          :tenant-product-detail="tenantProductDetail"
           @click="onNext"
           >立即投保</TrialButton
         >
@@ -404,7 +408,6 @@ const queryProductMaterialData = () => {
             attachmentType: 'question',
           },
         ];
-        return;
       }
       healthAttachmentList.value = [
         {

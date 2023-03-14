@@ -25,6 +25,7 @@ interface Props {
   tenantProductDetail: any;
   planCode: string;
   loadingText?: string;
+  paymentFrequency: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -32,6 +33,7 @@ const props = withDefaults(defineProps<Props>(), {
   tenantProductDetail: () => ({}),
   planCode: '',
   loadingText: '',
+  paymentFrequency: '',
 });
 
 const emits = defineEmits(['onClick']);
@@ -43,23 +45,18 @@ const premiumUnit = ref<string>('');
 watch(
   [() => props.premium, () => props.tenantProductDetail, () => props.planCode],
   ([premium]) => {
-    const { tenantProductInsureVO } = props.tenantProductDetail || {};
+    const { PREMIUM } = props.tenantProductDetail || {};
     let selectedPlan = {} as PlanInsureVO | undefined;
-    if (tenantProductInsureVO?.planList?.length) {
-      selectedPlan = (tenantProductInsureVO?.planList || []).find((plan) => plan.planCode === props.planCode);
-    } else {
-      selectedPlan = tenantProductInsureVO?.planInsureVO;
+    if (PREMIUM?.length) {
+      selectedPlan = (PREMIUM || []).find((plan) => plan.planCode === props.planCode) || {};
     }
-    const {
-      paymentFrequencyValue,
-      premiumUnit: unit,
-      actualPremiumUnit,
-    } = selectedPlan?.productPremiumVOList?.[0] || {};
+    const currentPremium = (selectedPlan.data || []).map((data) => data.paymentFrequency === props.paymentFrequency);
+    const { premium: unit, minActualUnit } = currentPremium || {};
+    console.log('unit', currentPremium);
     if (!premium) {
       premiumUnit.value = unit;
-      productPremium.value = paymentFrequencyValue && `${paymentFrequencyValue}`;
     } else {
-      premiumUnit.value = actualPremiumUnit;
+      premiumUnit.value = minActualUnit;
       productPremium.value = premium && `${premium}`;
     }
   },

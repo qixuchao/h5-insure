@@ -1,7 +1,7 @@
 <!--
  * @Date: 2022-09-17 16:00
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-03-13 20:17:57
+ * @LastEditTime: 2023-03-14 10:40:56
  * @Description: 滚动tab区域
 -->
 <template>
@@ -22,7 +22,7 @@
     <template v-if="isShowTab2_1 || isShowTab2_2 || isShowTab2_3 || isShowTab2_4" #tab2>
       <template v-if="isShowTab2_1">
         <CustomCard
-          v-if="dataSource.CLAIM_FLOW.processCaseType === CLAIM_TYPE_ENUM.WORD"
+          v-if="dataSource.CLAIM_FLOW?.processCaseType === CLAIM_TYPE_ENUM.WORD"
           class="tab-card"
           title="理赔说明"
         >
@@ -148,7 +148,6 @@ const isShowTab1 = computed(() => {
 // 理赔说明-理赔流程tab展示
 const isShowTab2_1 = computed(() => {
   const type = dataSource.value.CLAIM_FLOW?.processCaseType;
-  console.log('type', type);
   if (
     (type === CLAIM_TYPE_ENUM.WORD && dataSource.value.CLAIM_FLOW?.processContent) ||
     (type === CLAIM_TYPE_ENUM.IMAGE && dataSource.value.CLAIM_FLOW?.processPicList?.length)
@@ -159,7 +158,7 @@ const isShowTab2_1 = computed(() => {
 });
 
 const isShowTab2_2 = computed(() => {
-  const type = dataSource.value.CLAIM_CASE.claimCaseType;
+  const type = dataSource.value?.CLAIM_CASE?.claimCaseType;
   if (
     (type === CLAIM_TYPE_ENUM.WORD && dataSource.value.CLAIM_CASE?.claimContent) ||
     (type === CLAIM_TYPE_ENUM.IMAGE && dataSource.value.CLAIM_CASE?.claimCasePicList?.length)
