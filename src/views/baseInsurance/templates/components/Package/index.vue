@@ -74,7 +74,7 @@ const displayList = computed(() => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" scope>
 .refueling-package-com {
   background: #fff;
   .title {
@@ -86,7 +86,8 @@ const displayList = computed(() => {
     padding: 30px 25px;
   }
 
-  :deep(.van-cell) {
+  .van-cell {
+    align-items: center;
     .van-field__label {
       min-width: 300px !important;
     }

@@ -11,7 +11,7 @@
       </div>
       <div class="prodouct-container">
         <div class="product-card">
-          <div class="product-name">{{ state.insureDetail?.productBasicInfoVO?.productName || '' }}</div>
+          <div class="product-name">{{ state.insureDetail?.productName || '' }}</div>
           <div v-for="(item, index) in state.pageInfo.insureList" :key="index" class="list">
             <span class="label">{{ item.label }}</span>
             <span class="value">{{ item.value }}</span>
@@ -57,7 +57,7 @@ import qs from 'qs';
 import { useEventListener } from '@vueuse/core';
 import { useCountDown } from '@vant/use';
 import dayjs from 'dayjs';
-import { productDetail } from '@/api/modules/product';
+import { querySalesInfo as tenantProductDetail, queryUpgradeConfig } from '@/api/modules/product';
 import { getPayUrl, getTenantOrderDetail, insureProductDetail, queryStandardInsurerLink } from '@/api/modules/trial';
 import ProShadowButton from '../templates/components/ProShadowButton/index.vue';
 import Curtain from '../templates/components/Curtain/index.vue';
@@ -67,7 +67,7 @@ import { INSURANCE_PERIOD_TYPE_ENUMS } from '@/common/constants/trial';
 import { compositionDesc } from '../utils';
 import { sendPay, useWXCode } from '@/views/cashier/core';
 import { ORDER_STATUS_MAP, ORDER_STATUS_DESC } from './const';
-import { ProductDetail } from '@/api/modules/product.data';
+import { ProductDetail, ProductUpgradeConfig } from '@/api/modules/product.data';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { downLoadFile, setPageTitle } from '@/utils';
 import { useTheme } from '@/hooks/useTheme';
@@ -124,6 +124,8 @@ const state = reactive<{
   templateId: '2',
 });
 const show = ref(false);
+// 获取产品升级保障配置
+const upgradeConfig = ref<Partial<ProductUpgradeConfig>>();
 
 const orderBtnText = computed(() => {
   // 投保成功 和 保单过期
@@ -149,12 +151,11 @@ const getChannelCode = computed(() => {
 
 const goToInsurerPage = async (reOrder = false, promotion = '') => {
   try {
-    const { insurerCode } = state.insureDetail.productBasicInfoVO;
     const { templateId } = state.orderDetail.extInfo.extraInfo;
     delete state.orderDetail.extInfo.extraInfo.templateId;
     const params: any = {
-      insurerCode,
-      productCode: reOrder ? state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO.productCode : productCode,
+      insurerCode: reOrder ? upgradeConfig.value?.insurerCode : state.orderDetail.venderCode,
+      productCode: reOrder ? upgradeConfig.value?.productCode : productCode,
       tenantId,
       agencyCode: state.orderDetail.agencyId,
       agentCode: state.orderDetail.agentCode,
@@ -277,24 +278,6 @@ const initPageInfo = () => {
   ];
   state.templateId = state.orderDetail.extInfo.templateId;
 
-  // 赠险+ 非（支付中和支付超期）
-  if (
-    from === 'free' ||
-    ![ORDER_STATUS_ENUM.PAYING, ORDER_STATUS_ENUM.TIMEOUT].includes(state.orderDetail.orderStatus)
-  ) {
-    // 只有 投保成功 和 已失效才有图片
-    if (state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO.productCode) {
-      state.pageInfo.notificationImage =
-        state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.notificationImage?.[0] || '';
-      state.pageInfo.productImage =
-        state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.productImage?.[0] || '';
-      show.value = !!state.pageInfo.notificationImage;
-    }
-  } else {
-    // 显示保障内容
-    state.showOrderDetail = true;
-  }
-
   // 支付中需要倒计时
   if (ORDER_STATUS_ENUM.PAYING === state.orderDetail.orderStatus) {
     // 假如没有传过期时间给个8.5小时
@@ -306,18 +289,37 @@ const initPageInfo = () => {
   }
   try {
     // 保障内容的获取
-    const planCode = state.orderDetail.tenantOrderInsuredList?.[0].planCode;
-    if (!state.detail?.tenantProductInsureVO?.planInsureVO) {
-      // 多计划
-      state.guaranteeItemVOS =
-        state.detail?.tenantProductInsureVO?.planList.filter((item) => {
-          return item.planCode === planCode;
-        })?.[0]?.guaranteeItemVOS || [];
-    } else {
-      state.guaranteeItemVOS = state.detail?.tenantProductInsureVO?.planInsureVO?.guaranteeItemVOS || [];
-    }
+    const planCode = state.orderDetail.tenantOrderInsuredList?.[0].planCode || '';
+
+    // 多计划
+    state.guaranteeItemVOS =
+      state.detail?.GUARANTEE.find((item) => {
+        return item.planCode === planCode;
+      })?.data || [];
   } catch (e) {
     console.log(e);
+  }
+};
+
+const getUpgrade = async (baseProductCode) => {
+  const { code: resCode, data } = await queryUpgradeConfig({ productCode: baseProductCode });
+  if (resCode === '10000') {
+    upgradeConfig.value = data;
+    // 赠险+ 非（支付中和支付超期）
+    if (
+      from === 'free' ||
+      ![ORDER_STATUS_ENUM.PAYING, ORDER_STATUS_ENUM.TIMEOUT].includes(state.orderDetail.orderStatus)
+    ) {
+      // 只有 投保成功 和 已失效才有图片
+      if (data.productCode) {
+        state.pageInfo.notificationImage = data?.notificationImage?.[0] || '';
+        state.pageInfo.productImage = data?.productImage?.[0] || '';
+        show.value = !!state.pageInfo.notificationImage;
+      }
+    } else {
+      // 显示保障内容
+      state.showOrderDetail = true;
+    }
   }
 };
 
@@ -327,8 +329,9 @@ const getData = async () => {
     state.orderDetail = orderRes.data;
     productCode = orderRes.data.tenantOrderInsuredList?.[0]?.tenantOrderProductList?.[0]?.productCode || '';
     if (!productCode) return '';
-    const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
+    const productReq = tenantProductDetail({ productCode, withInsureInfo: true, tenantId });
     const insureReq = insureProductDetail({ productCode });
+    getUpgrade(productCode);
     Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
       if (productRes.code === '10000') {
         state.detail = productRes.data as any;

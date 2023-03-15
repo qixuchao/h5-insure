@@ -3,24 +3,25 @@
   <van-config-provider v-else data-skeleton-root="SHORT" :theme-vars="themeVars">
     <div class="page-internet-product-detail">
       <div class="info">
-        <Banner data-skeleton-type="img" :url="tenantProductDetail.BASIC_INFO?.banner[0]" />
         <Banner
-          v-if="tenantProductDetail?.BASIC_INFO?.bannerMove"
-          :url="tenantProductDetail?.BASIC_INFO?.bannerMove[0]"
+          v-if="tenantProductDetail?.BASIC_INFO?.banner.length"
+          data-skeleton-type="img"
+          :url="tenantProductDetail?.BASIC_INFO.banner[0]"
+        />
+        <Banner
+          v-if="tenantProductDetail?.BASIC_INFO?.bannerMove?.length"
+          :url="tenantProductDetail?.BASIC_INFO?.bannerMove?.[0]"
           @click="onClickToInsure"
         />
         <div ref="observeRef"></div>
       </div>
-      <!-- <Guarantee
+      <Guarantee
+        v-if="tenantProductDetail?.GUARANTEE"
         show-service-config
-        :data-source="tenantProductDetail."
-        :is-multiple-plan="isMultiplePlan"
-        :active-plan-code="currentPlanObj.planCode"
-        :payment-frequency="orderDetail.paymentFrequency"
-        :premium-info="{ premium, unit, premiumLoadingText }"
-        @update-active-plan="updateActivePlan"
-      /> -->
-      <ScrollInfo ref="tenantProductDetailScrollRef" :data-source="tenantProductDetail">
+        :data-source="tenantProductDetail"
+        :plan-list="planList"
+      />
+      <ScrollInfo ref="tenantProductDetailScrollRef" :order-detail="orderDetail" :data-source="tenantProductDetail">
         <template #form>
           <div class="custom-page-form">
             <div class="form-title">请填写投保信息</div>
@@ -31,8 +32,6 @@
               :schema="state.holder.schema"
               :config="state.holder.config"
             />
-            <!-- <ProDatePickerV2 label="日期" />
-            </ProRenderFormWithCard> -->
 
             <!-- 被保人 -->
             <ProRenderFormWithCard
@@ -92,26 +91,28 @@
         </template>
       </ScrollInfo>
       <ProLazyComponent>
-        <!-- <InscribedContent
-          v-if="tenantProductDetail?.tenantProductInsureVO.inscribedContent"
-          :inscribed-content="tenantProductDetail?.tenantProductInsureVO.inscribedContent"
-        /> -->
+        <InscribedContent
+          v-if="tenantProductDetail.SIGNATURE?.inscribedContent"
+          :inscribed-content="tenantProductDetail?.SIGNATURE?.inscribedContent"
+        />
       </ProLazyComponent>
       <ProLazyComponent>
-        <!-- <AttachmentList
-          v-if="filterHealthAttachmentList && filterHealthAttachmentList.length > 0"
-          :attachement-list="filterHealthAttachmentList"
+        <AttachmentList
+          v-if="fileList?.length"
+          :attachement-list="fileList"
           pre-text="请阅读"
           @preview-file="(index) => previewFile(index)"
-        /> -->
+        />
       </ProLazyComponent>
       <template v-if="showFooterBtn">
         <TrialButton
           :is-share="tenantProductDetail.PRODUCT_LIST.showWXShare"
           :premium="premium"
+          :share-info="shareInfo"
           :loading-text="premiumLoadingText"
-          :plan-code="currentPlanObj.planCode"
-          :tenant-product-detail="{}"
+          :plan-code="guaranteeObj.planCode"
+          :payment-frequency="guaranteeObj.paymentFrequency"
+          :tenant-product-detail="tenantProductDetail"
           @click="onNext"
           >立即投保</TrialButton
         >
@@ -127,17 +128,17 @@
     @on-confirm-health="onCloseHealth"
     @on-close-health-by-mask="onResetFileFlag"
   ></HealthNoticePreview>
-  <!-- <FilePreview
+  <FilePreview
     v-if="showFilePreview"
     v-model:show="showFilePreview"
-    :content-list="isOnlyView ? filterHealthAttachmentList : mustReadFileList"
+    :content-list="isOnlyView ? fileList : popupFileList"
     :is-only-view="isOnlyView"
     :active-index="activeIndex"
     :text="isOnlyView ? '关闭' : '我已逐页阅读并确认告知内容'"
-    :force-read-cound="isOnlyView ? 0 : 2"
+    :force-read-cound="isOnlyView ? 0 : mustReadFileCount"
     @submit="onSubmit"
     @on-close-file-preview-by-mask="onResetFileFlag"
-  ></FilePreview> -->
+  ></FilePreview>
 </template>
 
 <script lang="ts" setup name="InsuranceShort">
@@ -145,6 +146,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant/es';
 import debounce from 'lodash-es/debounce';
 import { useIntersectionObserver } from '@vueuse/core';
+import dayjs from 'dayjs';
 import { useTheme } from '@/hooks/useTheme';
 import {
   ProductDetail,
@@ -188,37 +190,28 @@ import { CERT_TYPE_ENUM } from '@/common/constants';
 
 import { useWXCode } from '../../cashier/core';
 import useAddressList from '@/hooks/useAddressList';
-import useLoading from '@/hooks/useLoading';
-// import { useTheme } from '../theme';
-import { isEmpty, toLocal } from '@/utils';
 import { transformData, riskToOrder, validateSmsCode, getFileType } from '../utils';
-import { validateCustomName } from '@/utils/validator';
 
 import Banner from './components/Banner/index.vue';
 import Guarantee from './components/Guarantee/index.vue';
 import PreNotice from './components/PreNotice/index.vue';
 import Package from './components/Package/index.vue';
 import { YES_NO_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
-import { isTestEnv, isAppFkq } from '@/utils/index';
 
 import ScrollInfo from './components/ScrollInfo/index.vue';
 
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import { sessionStore } from '@/hooks/useStorage';
-import { TenantOrderProductItem } from '@/api/index.data';
 import useOrder from '@/hooks/useOrder';
 import TrialButton from './components/TrialButton.vue';
 import useAttachment from '@/hooks/useAttachment';
 import { combineOccupation, ProRenderFormWithCard, transformFactorToSchema } from '@/components/RenderForm';
 import { formData2Order } from './utils';
+import { getSex, getBirth } from '@/components/ProField/utils';
 
-const isApp = isAppFkq();
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
 const HealthNoticePreview = defineAsyncComponent(() => import('./components/HealthNoticePreview/index.vue'));
 const PaymentType = defineAsyncComponent(() => import('./components/PaymentType/index.vue'));
-const ProShadowButton = defineAsyncComponent(() => import('./components/ProShadowButton/index.vue'));
-const InsureForm = defineAsyncComponent(() => import('./components/InsureForm/index.vue'));
-const CustomerList = defineAsyncComponent(() => import('./components/CustomerList/index.vue'));
 const InscribedContent = defineAsyncComponent(() => import('./components/InscribedContent/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('./components/AttachmentList/index.vue'));
 
@@ -318,9 +311,7 @@ const state = reactive({
       certType: {
         // visible: false,
       },
-      certNo: {
-        label: '身份证号',
-      },
+      certNo: {},
       occupation: {
         dictCode: combineOccupation(insurerCode),
       },
@@ -338,7 +329,7 @@ const state = reactive({
           label: '',
         },
         certNo: {
-          label: '身份证号',
+          // label: '身份证号',
         },
       },
     },
@@ -387,10 +378,12 @@ const previewMode = computed(() => !!preview);
 
 /* -------产品资料模块------------ */
 const healthAttachmentList = ref([]);
+const productMaterialPlanList = ref();
 const queryProductMaterialData = () => {
   queryProductMaterial({ productCode }).then(({ code, data }) => {
     if (code === '10000') {
-      const { productInsureMaterialVOList, productQuestionnaireVOList } = data;
+      const { productMaterialPlanVOList, productQuestionnaireVOList } = data;
+      productMaterialPlanList.value = productMaterialPlanVOList || [];
       const {
         basicInfo: { questionnaireType },
         questions,
@@ -480,19 +473,6 @@ const isOldUser = computed(() => {
 // 险种信息
 const currentRiskInfo = ref([]);
 
-// 获取当前计划配置信息
-// const currentPlanInsure = computed(() => {
-//   if (tenantProductDetail.value) return {};
-//   if (isMultiplePlan.value) {
-//     const item = tenantProductDetail.value?.tenantProductInsureVO.planList.find(
-//       (plan) => plan.planCode === orderDetail.value.activePlanCode,
-//     );
-//     if (item) return item;
-//     return {};
-//   }
-//   return tenantProductDetail.value?.tenantProductInsureVO?.planInsureVO;
-// });
-
 // 切换计划
 const updateActivePlan = (planCode: string) => {
   console.log('currentPlanObj.value', planCode, currentPlanObj.value);
@@ -530,15 +510,8 @@ const onUpdateInsurerData = (data: RelationCustomer) => {
   });
 };
 
-/** -----------资料阅读模块开始-------------------- */
-// const { fileList = [], mustReadFileList = [] } = useAttachment('', {});
-const fileList = ref([]);
-const mustReadFileList = ref([]);
-// 文件预览
-const previewFile = (index: number) => {
-  activeIndex.value = index;
-  showFilePreview.value = true;
-};
+const premiumLoadingText = ref<string>('');
+const premium = ref<number>(0);
 
 // 试算参数转化为生成订单参数
 const trialData2Order = (
@@ -546,7 +519,6 @@ const trialData2Order = (
   riskPremium = {},
   currentOrderDetail = {},
 ) => {
-  debugger;
   const nextStepParams: any = { ...currentOrderDetail };
   const transformDataReq = {
     tenantId,
@@ -578,7 +550,7 @@ const trialData2Order = (
     };
   });
   nextStepParams.tenantOrderInsuredList[0].tenantOrderProductList[0] = {
-    // premium: premium.value,
+    premium: premium.value,
     productCode: currentProductDetail.productCode,
     productName: currentProductDetail.productName,
     planCode: currentPlanObj.value.planCode,
@@ -619,16 +591,18 @@ const onSaveOrder = async () => {
   }
 };
 
-/** -------------  保费试算 -----------------*/
-const premiumLoadingText = ref<string>('');
-const premium = ref<number>(0);
+/** -----------资料阅读模块开始-------------------- */
+const { fileList, mustReadFileCount, popupFileList } = useAttachment(currentPlanObj, productMaterialPlanList);
 
-const trialPremium = async (
-  orderInfo: OrderDetail,
-  currentProductDetail: any,
-  productRiskList: any,
-  isOnlyPremiumCalc = true,
-) => {
+// 文件预览
+const previewFile = (index: number) => {
+  activeIndex.value = index;
+  showFilePreview.value = true;
+};
+
+/** -------------  保费试算 -----------------*/
+
+const trialPremium = async (currentProductDetail: any, productRiskList: any, isOnlyPremiumCalc = true) => {
   const { chargePeriod, coveragePeriod, paymentFrequency, insuranceEndDate, insuranceStartDate } = guaranteeObj.value;
   premiumLoadingText.value = '保费试算中...';
   const tempRiskVOList = riskToOrder(productRiskList).map((riskVOList: any) => {
@@ -639,6 +613,8 @@ const trialPremium = async (
       coveragePeriod,
     };
   });
+  const { tenantOrderHolder, tenantOrderInsuredList } = orderDetail.value;
+
   // 试算接口参数组装
   const trialParams = {
     tenantId,
@@ -647,17 +623,25 @@ const trialPremium = async (
     insuranceEndDate,
     holder: {
       personVO: {
-        ...orderInfo.tenantOrderHolder,
-        socialFlag: orderInfo.tenantOrderHolder.extInfo?.hasSocialInsurance,
-        certType: orderInfo.tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
+        ...tenantOrderHolder,
+        socialFlag: tenantOrderHolder.extInfo?.hasSocialInsurance,
+        certType: tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
       },
     },
-    insuredVOList: orderInfo.tenantOrderInsuredList.map((person) => {
+    insuredVOList: tenantOrderInsuredList.map((person) => {
+      let currentPerson = {};
+      if (person.certType === CERT_TYPE_ENUM.CERT && person.certNo) {
+        currentPerson = {
+          gender: +getSex(person.certNo),
+          birthday: dayjs(new Date(getBirth(person.certNo))).format('YYYY-MM-DD'),
+        };
+      }
       return {
         insuredCode: '',
         relationToHolder: person.relationToHolder,
         personVO: {
           ...person,
+          ...currentPerson,
           socialFlag: person.extInfo.hasSocialInsurance,
           certType: person.certType || CERT_TYPE_ENUM.CERT,
         },
@@ -696,7 +680,7 @@ const trialPremium = async (
         }
         premiumMap.value = riskPremiumMap;
         // 文件弹窗
-        if (mustReadFileList.value.length > 0) {
+        if (popupFileList.value.length > 0) {
           isOnlyView.value = false;
           previewFile(0);
         } else if (healthAttachmentList.value.length > 0) {
@@ -731,26 +715,16 @@ const getPackageRiskList = () => {
 
 // 点击立即投保
 const onNext = async () => {
-  console.log('insuredFormRef', insuredFormRef);
-  if (premium.value) {
-    onSaveOrder();
-    return;
-  }
   try {
     showHealthPreview.value = false;
     showFilePreview.value = false;
-    if (holderFormRef.value) {
-      holderFormRef.value
-        .validate()
+
+    if (holderFormRef.value && insuredFormRef.value) {
+      Promise.all([holderFormRef.value?.validate(), insuredFormRef.value?.[0].validate()])
         .then(async () => {
           // 老用户或者投保要素不包含验证码的情况
           if (isOldUser.value) {
-            await trialPremium(
-              orderDetail.value as OrderDetail,
-              insureProductDetail.value,
-              [...currentRiskInfo.value, ...getPackageRiskList()],
-              false,
-            );
+            await trialPremium(insureProductDetail.value, [...currentRiskInfo.value, ...getPackageRiskList()], false);
           } else {
             // 验证码验证
             const smsCode = orderDetail.value.tenantOrderHolder?.verificationCode;
@@ -762,12 +736,7 @@ const onNext = async () => {
             }
             const { code, data } = await checkCode(orderDetail.value.tenantOrderHolder.mobile as string, smsCode);
             if (code === '10000') {
-              await trialPremium(
-                orderDetail.value as OrderDetail,
-                insureProductDetail.value,
-                [...currentRiskInfo.value, ...getPackageRiskList()],
-                false,
-              );
+              await trialPremium(insureProductDetail.value, [...currentRiskInfo.value, ...getPackageRiskList()], false);
             }
           }
         })
@@ -829,12 +798,14 @@ const onResetFileFlag = () => {
 // 表单组件切换被保人时不会赋值默认社保以及身份证类型，需手动赋值
 watch(
   () => orderDetail.value.tenantOrderInsuredList[0].relationToHolder,
-  () => {
+  (newVal, oldVal) => {
     // 被保人与投保人关系切换时，重置加油包为不投保
-    if (currentPackageConfigVOList.value) {
-      currentPackageConfigVOList.value.forEach((e) => {
-        e.value = INSURE_TYPE_ENUM.UN_INSURE;
-      });
+    if (newVal !== oldVal) {
+      if (currentPackageConfigVOList.value) {
+        currentPackageConfigVOList.value.forEach((e) => {
+          e.value = INSURE_TYPE_ENUM.UN_INSURE;
+        });
+      }
     }
 
     needDesensitize.value = false;
@@ -870,47 +841,51 @@ watch(
   },
 );
 
-const onTrialCheck = (): boolean => {
-  const {
-    name,
-    birthday,
-    gender,
-    certType,
-    extInfo: { hasSocialInsurance },
-  } = orderDetail.value.tenantOrderInsuredList[0];
+const validateTrialFactorValue = (codes, formData) => {
+  return codes.find((code) => !formData[code]);
+};
 
-  if (
-    birthday &&
-    gender &&
-    orderDetail.value.paymentFrequency &&
-    name &&
-    validateCustomName(name) &&
-    hasSocialInsurance
-  ) {
-    return true;
-  }
-  return false;
+const onTrialCheck = async () => {
+  const { trialFactorCodes: holderCodes, formData: holderData } = state.holder;
+  const { trialFactorCodes: insureCodes, formData: insureData } = state.insuredList[0];
+  return new Promise((resolve, reject) => {
+    if (
+      !validateTrialFactorValue(holderCodes, holderData) &&
+      !validateTrialFactorValue(insureCodes, insureData) &&
+      holderFormRef.value &&
+      insuredFormRef.value
+    ) {
+      Promise.all([holderFormRef.value.validate(holderCodes), insuredFormRef.value[0].validate(insureCodes)])
+        .then(() => {
+          resolve(true);
+        })
+        .catch(() => {
+          reject();
+        });
+    } else {
+      reject();
+    }
+  });
 };
 
 // 设置产品保费 =》 试算保费 | 默认保费
 const setPremium = () => {
-  if (onTrialCheck()) {
+  onTrialCheck().then(() => {
     // 试算的话，优先在这里将保费文字改为加载中，因为watch触发试算有延迟，导致文案切换过慢
     premiumLoadingText.value = '保费试算中...';
-  }
+  });
 };
 
 // 当计划和交费方式切换时，需重置产品保费为默认值
-watch(
-  [() => currentPlanObj.value, () => guaranteeObj.value.paymentFrequency],
-  () => {
-    setPremium();
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
+// watch(
+//   [() => currentPlanObj.value, () => guaranteeObj.value.paymentFrequency],
+//   () => {
+//     setPremium();
+//   },
+//   {
+//     deep: true,
+//   },
+// );
 
 // 监听试算因子
 watch(
@@ -920,93 +895,29 @@ watch(
       res.push(...insuredItem.trialFactorCodes.map((key) => state.insuredList[index].formData[key]));
       return res;
     }, []),
+    guaranteeObj.value.paymentFrequency,
   ],
   (...rest) => {
-    // if (holderFormRef.value) {
-    //   holderFormRef.value.validate()
-    // }
-    console.log(999999, rest);
-    console.log('%c🔥 试算因子变动了', 'color:#1989fa;background:#5e4;padding:3px 5px;');
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
-watch(
-  [
-    () => orderDetail.value.tenantOrderInsuredList[0].birthday,
-    () => orderDetail.value.tenantOrderInsuredList[0].name,
-    () => orderDetail.value.tenantOrderInsuredList[0].gender,
-    () => orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance,
-    () => orderDetail.value.activePlanCode,
-    () => orderDetail.value.paymentFrequency,
-    () => orderDetail.value.insurancePeriodValue,
-    () => currentPackageConfigVOList.value,
-  ],
-  debounce(() => {
-    if (onTrialCheck()) {
-      // 预览模式，不需要试算
-      if (previewMode.value) return;
-      // 产品试算
-      trialPremium(orderDetail.value as OrderDetail, insureProductDetail.value, [
-        ...currentRiskInfo.value,
-        ...getPackageRiskList(),
-      ]);
-    } else {
-      // 设置产品保费
-      setPremium();
-    }
-  }, 500),
-  {
-    deep: true,
-  },
-);
+    if (previewMode.value) return;
 
-// 老客户信息反显，被保人与投保人关系切换时，根据关系获取老用户信息
-// watch(
-//   () => orderDetail.value.tenantOrderInsuredList[0],
-//   (e) => {
-//     if (isEmpty(relationList.value)) return null;
-//     const targets = relationList.value[e.relationToHolder] || [];
-//     if (targets.length === 1) {
-//       if (RELATIONENUM.SELF !== e.relationToHolder) {
-//         const { dontFetchDefaultInfo, certNo, name, certType, mobile } = orderDetail.value.tenantOrderInsuredList[0];
-//         if (!dontFetchDefaultInfo) {
-//           Object.assign(orderDetail.value.tenantOrderInsuredList[0], {
-//             dontFetchDefaultInfo: true,
-//             certNo: certNo || targets[0].cert[0].certNo,
-//             name: name || targets[0].cert[0].certName,
-//             certType: certType || targets[0].cert[0].certType || CERT_TYPE_ENUM.CERT,
-//             mobile: mobile || targets[0].contact[0].contactNo,
-//           });
-//         }
-//       } else {
-//         const { dontFetchDefaultInfo, certNo, name, certType, mobile } = orderDetail.value.tenantOrderHolder;
-//         if (!dontFetchDefaultInfo) {
-//           Object.assign(orderDetail.value.tenantOrderHolder, {
-//             dontFetchDefaultInfo: true,
-//             certNo: certNo || targets[0].cert[0].certNo,
-//             name: name || targets[0].cert[0].certName,
-//             certType: certType || targets[0].cert[0].certType || CERT_TYPE_ENUM.CERT,
-//             mobile: mobile || targets[0].contact[0].contactNo,
-//           });
-//         }
-//       }
-//     }
-//     return false;
-//   },
-//   {
-//     immediate: true,
-//     deep: true,
-//   },
-// );
+    onTrialCheck()
+      .then(() => {
+        // 产品试算
+        trialPremium(insureProductDetail.value, [...currentRiskInfo.value, ...getPackageRiskList()]);
+      })
+      .catch(() => {
+        setPremium();
+      });
+  },
+  {
+    deep: true,
+  },
+);
 
 // 监听投保人信息
 watch(
   () => state.holder.formData,
   (...rest) => {
-    console.log('%c🔥 投保人信息变动了', 'color:#1989fa;background:#5e4;padding:3px 5px;');
     state.insuredList.forEach((insuredItem, index) => {
       const { formData, schema } = insuredItem || {};
       // 若为本人合并投保人数据
@@ -1157,7 +1068,7 @@ onUnmounted(() => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" scope>
 .page-internet-product-detail {
   padding-bottom: 150px;
   background: #f1f5fc;
@@ -1172,7 +1083,7 @@ onUnmounted(() => {
       font-weight: 500;
       color: #333333;
     }
-    :deep(.com-card-wrap) {
+    .com-card-wrap {
       .header {
         margin-left: 0px !important;
 

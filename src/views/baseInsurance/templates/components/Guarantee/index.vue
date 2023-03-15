@@ -2,7 +2,7 @@
  * @Author: wangyuanli@zhongan.io
  * @Date: 2022-09-21 21:00
  * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-02-08 22:09:12
+ * @LastEditTime: 2023-03-14 14:45:18
  * @Description: 保障详情
 -->
 <template>
@@ -12,18 +12,7 @@
       <span @click="onShowDetail">查看详情</span>
     </div>
     <template v-if="isMultiplePlan">
-      <div v-if="planSkinVlaue.length > 0" class="picture-payment-content">
-        <div
-          v-for="item in planSkinVlaue"
-          :key="item.planCode"
-          :class="`picture-payment-item`"
-          @click="onPlanItemClickEmit(item.planCode)"
-        >
-          <img v-if="currentActivePlanCode == item.planCode" :src="item.selectedPic" />
-          <img v-else :src="item.unSelectedPic" />
-        </div>
-      </div>
-      <div v-else class="plan-list">
+      <div class="plan-list">
         <div
           v-for="(item, index) in planList"
           :key="`${item.planCode}_${index}`"
@@ -51,11 +40,6 @@
       <span>{{
         `${productPremiumVOItem?.paymentFrequencyValue || ''}${productPremiumVOItem?.premiumUnit || ''}`
       }}</span>
-      <!-- <span>{{
-        premiumInfo.premiumLoadingText
-          ? premiumInfo.premiumLoadingText
-          : `${premiumInfo?.premium || ''}${premiumInfo?.unit || ''}`
-      }}</span> -->
       <span v-if="!!feeFileUri" @click="onClickFeeRate">查看保费</span>
     </div>
   </div>
@@ -122,7 +106,7 @@ import { openPreviewFilePage } from '@/views/baseInsurance/utils';
 
 const props = defineProps({
   dataSource: {
-    type: Object as () => TenantProductInsureVO,
+    type: Object,
     default: () => {},
   },
   showServiceConfig: {
@@ -137,100 +121,31 @@ const props = defineProps({
     type: Number,
     default: 5,
   },
-  activePlanCode: {
-    type: String,
-    default: '',
-  },
-  isMultiplePlan: {
-    type: Boolean,
-    default: false,
-  },
-  paymentFrequency: {
-    type: String,
-    default: '',
-  },
-  premiumInfo: {
-    type: Object as any,
-    default: () => {},
+  planList: {
+    type: Array,
+    require: false,
+    default: () => [],
   },
 });
 
 const guaranteeDetailHeight = ref('');
 const emits = defineEmits(['update-active-plan']);
 
-const planList = ref<PlanInsureVO[]>(props.dataSource?.planList);
-
-const currentActivePlanCode = ref<string>(props.activePlanCode);
+const currentActivePlanCode = ref<string>(props.planList?.[0]?.planCode || undefined);
 
 const currentActivePlanCodeIndex = ref<number>();
-
-watch(
-  [() => props.dataSource, () => props.activePlanCode],
-  () => {
-    if (props.isMultiplePlan) {
-      planList.value = props.dataSource?.planList;
-      currentActivePlanCode.value = props.activePlanCode;
-      currentActivePlanCodeIndex.value = props.dataSource?.planList.findIndex(
-        (e) => e.planCode === currentActivePlanCode.value,
-      );
-    }
-  },
-  {
-    immediate: true,
-  },
-);
 
 const guaranteeList = ref<GuaranteeItemVo[]>([]);
 const extInfoVOList = ref<ExtInfoVoItem[]>([]);
 const productPremiumVOItem = ref<ProductPremiumVoItem>();
 
-const planSkinVlaue = computed(() => {
-  if (props.isMultiplePlan) {
-    return props.dataSource.planList
-      .map((e: PlanInsureVO) => {
-        if (!e.planPicList) return null;
-        return {
-          ...e.planPicList,
-          planCode: e.planCode,
-          planName: e.planName,
-        };
-      })
-      .filter((e) => !!e);
-  }
-  return [];
-});
+const isMultiplePlan = computed(() => !!props.planList.length);
 
 watch(
-  [() => props.dataSource, () => props.activePlanCode, () => props.paymentFrequency, () => currentActivePlanCode.value],
+  [() => props.dataSource, () => currentActivePlanCode.value],
   () => {
-    if (!props.isMultiplePlan) {
-      guaranteeList.value = props.dataSource?.planInsureVO.guaranteeItemVOS;
-      extInfoVOList.value = props.dataSource?.planInsureVO.extInfoVOList;
-      const item = (props.dataSource?.planInsureVO?.productPremiumVOList || []).find(
-        (e) => e.paymentFrequency === props.paymentFrequency,
-      );
-      if (item) {
-        productPremiumVOItem.value = item;
-      } else {
-        productPremiumVOItem.value = props.dataSource?.planInsureVO?.productPremiumVOList?.[0];
-      }
-    } else if (planList.value && planList.value.length > 0) {
-      let index = 0;
-      const idx = planList.value.findIndex((e: PlanInsureVO) => e.planCode === currentActivePlanCode.value);
-      if (idx > -1) {
-        index = idx;
-      }
-      guaranteeList.value = planList.value[index].guaranteeItemVOS;
-      extInfoVOList.value = planList.value[index].extInfoVOList;
-      const item = planList.value[index].productPremiumVOList.find(
-        (e) => e.paymentFrequency === props.paymentFrequency,
-      );
-      if (item) {
-        productPremiumVOItem.value = item;
-      } else {
-        productPremiumVOItem.value = planList.value[index]?.productPremiumVOList[0];
-      }
-    }
+    guaranteeList.value =
+      (props.dataSource?.GUARANTEE || []).find((plan) => plan.planCode === currentActivePlanCode.value)?.data || [];
   },
   {
     immediate: true,
@@ -293,9 +208,7 @@ const onPlanItemClick = (val: string) => {
 const onPlanItemClickEmit = (val: string) => {
   // activePlanCode.value = val;
   currentActivePlanCode.value = val;
-  currentActivePlanCodeIndex.value = props.dataSource?.planList.findIndex(
-    (e) => e.planCode === currentActivePlanCode.value,
-  );
+  currentActivePlanCodeIndex.value = props.planList.findIndex((e) => e.planCode === val);
   // emits('update-active-plan', val);
 };
 
@@ -310,7 +223,7 @@ const onClickFeeRate = () => {
 };
 
 const onClickTab = (val: any) => {
-  currentActivePlanCode.value = planList.value[val.name].planCode;
+  currentActivePlanCode.value = props.planList[val.name].planCode;
 };
 
 const setGuaranteeListHeight = () => {
@@ -323,11 +236,11 @@ const setGuaranteeListHeight = () => {
   console.log('guaranteeDetailHeight', guaranteeDetailHeight.value);
 };
 
-watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
-  nextTick(() => {
-    setGuaranteeListHeight();
-  });
-});
+// watch([() => currentActivePlanCode.value, () => popupShow.value], () => {
+//   nextTick(() => {
+//     setGuaranteeListHeight();
+//   });
+// });
 </script>
 
 <style lang="scss" scoped>

@@ -23,6 +23,7 @@ export interface FieldConfItem {
   regular: RegExp;
   unit: string;
   isSelfInsuredNeed: boolean;
+  isCalculationFactor: number;
 }
 
 export interface ProductFactor {
