@@ -79,6 +79,9 @@
         <VanButton v-if="state.canTrial" type="primary" @click="trial">立即投保</VanButton>
       </div>
     </div>
+    <van-action-sheet v-model:show="infoShow" title="标题" style="height: 100%">
+      <InsureInfos v-if="productInfo.productCode" class="content" :origin-data="productInfo"></InsureInfos>
+    </van-action-sheet>
   </ProPageWrap>
 </template>
 <script lang="ts" setup>
@@ -89,6 +92,7 @@ import { Toast } from 'vant/es';
 import { number } from '@intlify/core-base';
 import RiskList from './RiskList/index.vue';
 import { insureProductDetail, premiumCalc } from '@/api/modules/trial';
+import InsureInfos from './InsureInfos/index.vue';
 import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
 import { getDic, nextStep, getTemplateInfo } from '@/api';
 import { useCookie } from '@/hooks/useStorage';
@@ -106,6 +110,7 @@ import {
   ProductRelationPlanVoItem,
   PremiumCalcResponse,
   ProductPlanVoItem,
+  ProductInfo,
 } from '@/api/modules/trial.data';
 import { PAYMENT_PERIOD_TYPE_ENUMS, INSURANCE_PERIOD_TYPE_ENUMS } from '@/common/constants/trial';
 import { ProposalProductRiskItem, ProposalInsuredProductItem } from '@/api/modules/createProposal.data';
@@ -127,6 +132,7 @@ interface PageState {
   collapseName: string[];
   insuredRiskList: any[];
   currentRiskList: RiskDetailVoItem[];
+  productInfo: ProductInfo;
 }
 
 interface HolderPerson {
@@ -155,6 +161,8 @@ const {
   saleChannelId, // 销售渠道id
 } = route.query as QueryData;
 
+const infoShow = ref(true);
+
 const holder = ref<HolderPerson>({
   personVO: {
     occupationCodeList: [],
@@ -171,6 +179,7 @@ const holderRef = ref({});
 const insuredRef = ref({});
 const riskFormRef = ref(null);
 const riskPremiumRef = ref({});
+const productInfo = ref({} as ProductInfo);
 
 const state = reactive<PageState>({
   currentPlan: '',
@@ -187,6 +196,7 @@ const state = reactive<PageState>({
   collapseName: ['1'],
   insuredRiskList: [],
   currentRiskList: [],
+  productInfo: {} as ProductInfo,
 });
 
 provide('premium', riskPremiumRef.value);
@@ -430,6 +440,7 @@ const queryProductInfo = () => {
   insureProductDetail({ productCode, source: proposalId ? 2 : 1 })
     .then(({ code, data }) => {
       if (code === '10000') {
+        productInfo.value = data as ProductInfo;
         state.riskBaseInfo = data.productBasicInfoVO;
         (data.productRelationPlanVOList.length
           ? data.productRelationPlanVOList
