@@ -49,7 +49,7 @@ export default (env: ConfigEnv) => {
       resolvers: [VantResolver()],
     }),
     Components({
-      dts: './src/components.d.ts',
+      // dts: './src/components.d.ts',
       extensions: ['vue'],
       include: [/\.vue$/, /\.vue\?vue/],
       // imports 指定组件所在位置，默认为 src/components; 有需要也可以加上 view 目录
