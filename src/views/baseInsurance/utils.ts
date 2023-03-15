@@ -1,4 +1,5 @@
 import dayjs, { UnitType } from 'dayjs';
+import { YES_NO_ENUM } from '../../common/constants/index';
 import {
   PREMIUM_DISPLAY_TYPE_ENUM,
   PREMIUM_UNIT_TYPE_ENUM,
@@ -119,93 +120,46 @@ export const transformData = (o: transformDataType, flag = false) => {
     return currentRisk;
   });
 };
+
 export const riskToOrder = (productRiskVoList: any) => {
-  const result = deepCopy(productRiskVoList)
-    .map((productRiskVoListItem: any) => {
-      const mainRisk = productRiskVoListItem.riskDetailVOList.find(
-        (risk: any) => risk.riskType === RISK_TYPE_ENUM.MAIN_RISK,
-      );
-      // const riderRiskList = productRiskVoListItem.riskDetailVOList.filter(
-      //   (risk: any) => risk.riskType === RISK_TYPE_ENUM.RIDER_RISK,
-      // );
-      const transformRisk = (currentRiskList: any) => {
-        return currentRiskList.map((risk: any) => {
-          const {
-            riskCategory,
-            riskCode,
-            riskType,
-            riskName,
-            id,
-            riskInsureLimitVO,
-            riskCalcMethodInfoVO,
-            amountPremiumConfigVO,
-          } = risk;
-          const {
-            annuityDrawFrequencyList,
-            annuityDrawValueList,
-            insurancePeriodValueList,
-            paymentFrequencyList,
-            paymentPeriodValueList,
-            paymentPeriodRule,
-          } = riskInsureLimitVO;
+  const result = productRiskVoList.map((risk: any) => {
+    const { riskCode, riskType, riskCategory, riskName, riskId, productRiskInsureLimitVO, mainRiskCode, mainRiskId } =
+      risk;
+    const {
+      annuityDrawFrequencyList,
+      annuityDrawValueList,
+      insurancePeriodValueList,
+      paymentFrequencyList,
+      paymentPeriodValueList,
+      paymentPeriodRule,
+      amountPremiumConfigVO,
+    } = productRiskInsureLimitVO || {};
+    const tempAmount = 0;
+    const { displayType, displayUnit, displayValues, eachCopyPrice } = amountPremiumConfigVO || {};
 
-          // const { minCopy, maxCopy, fixedAmount, singeAmount } = riskCalcMethodInfoVO;
-          let tempAmount = 0;
-          const { displayType, displayUnit, fixedValue, eachCopyPrice } = amountPremiumConfigVO || {};
-          const strDisplayType = String(displayType);
-          const strDisplayUnit = String(displayUnit);
-          // todo 份数默认为1
-          const copyes = 1;
-          if (strDisplayType && strDisplayType === PREMIUM_DISPLAY_TYPE_ENUM.FIXED) {
-            if (strDisplayUnit === PREMIUM_UNIT_TYPE_ENUM.YUAN) {
-              tempAmount = fixedValue || 0;
-            } else if (strDisplayUnit === PREMIUM_UNIT_TYPE_ENUM.MILLION) {
-              tempAmount = fixedValue ? Number(fixedValue * 10000) : 0;
-            }
-            //  else if (strDisplayUnit === PREMIUM_UNIT_TYPE_ENUM.COPY) {
-            //   tempAmount = copyes && eachCopyPrice ? copyes * eachCopyPrice : 0;
-            // }
-          } else if (strDisplayType && strDisplayType === PREMIUM_DISPLAY_TYPE_ENUM.COPY) {
-            tempAmount = copyes && eachCopyPrice ? copyes * eachCopyPrice : 0;
-          }
-          console.log('tempAmount', tempAmount);
-          return {
-            amount: tempAmount,
-            annuityDrawDate: annuityDrawValueList?.[0],
-            annuityDrawFrequency: annuityDrawFrequencyList?.[0],
-            chargePeriod: paymentPeriodRule === 4 ? 'year_1' : paymentPeriodValueList?.[0],
-            copy: copyes,
-            coveragePeriod: paymentPeriodRule === 4 ? 'year_1' : insurancePeriodValueList?.[0],
-            liabilityVOList: risk.riskLiabilityInfoVOList,
-            // mainRisk: risk.riskCode === mainRisk.riskCode,
-            // mainRiskCode: risk.riskCode === mainRisk.riskCode ? mainRisk.riskCode : undefined,
-            // mainRiskId: risk.riskCode === mainRisk.riskCode ? mainRisk.riskId : undefined,
-            paymentFrequency: paymentFrequencyList?.[0],
-            riderRisk: true,
-            // riderRiskVOList: riskType === 1 ? transformRisk(riderRiskList) : [],
-            riderRiskVOList: [],
-            riskCategory,
-            riskCode,
-            riskName,
-            riskId: id,
-            riskType,
-          };
-        });
-      };
+    // todo 份数默认为1
+    const copies = 1;
 
-      return transformRisk(productRiskVoListItem.riskDetailVOList || []);
-    })
-    .flat();
-
-  const riskCodeMap = {};
-  const lastResult: any = [];
-  result.forEach((risk: any) => {
-    if (!riskCodeMap[risk.riskCode]) {
-      lastResult.push(risk);
-      riskCodeMap[risk.riskCode] = true;
-    }
+    return {
+      amount: displayValues?.[0]?.code,
+      annuityDrawDate: annuityDrawValueList?.[0],
+      annuityDrawFrequency: annuityDrawFrequencyList?.[0],
+      chargePeriod: paymentPeriodValueList?.[0],
+      copy: copies,
+      coveragePeriod: insurancePeriodValueList?.[0],
+      liabilityVOList: risk.riskLiabilityInfoVOList,
+      mainRiskCode,
+      mainRiskId,
+      paymentFrequency: paymentFrequencyList?.[0],
+      riskCategory,
+      riskCode,
+      riskName,
+      riskId,
+      riskType,
+    };
   });
-  return lastResult;
+
+  return result;
 };
 
 export const compositionTrailData = (
@@ -1010,7 +964,7 @@ const fileMap = {
 };
 
 export const getFileType = (attachmentType: string, url?: string) => {
-  if (attachmentType === '1' && url) {
+  if (`${attachmentType}` === '1' && url) {
     const urlList = url?.split('?');
     const type = urlList[0].substr(urlList[0].lastIndexOf('.') + 1);
 

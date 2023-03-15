@@ -38,13 +38,17 @@ export default defineConfig((env) => {
         },
         '/api': {
           // 本地 8000 前端代码的接口 代理到 8888 的服务端口
-          // target: 'http://150039-zat-planet-gateway.test.za-tech.net',
+          target: 'http://185948-zat-planet-gateway.test.za-tech.net',
           // target: 'https://gateway-tst.ennejb.cn',
           // target: 'https://h5-test.ennejb.cn',http://177716-zat-planet-gateway.test.za-tech.net/
-          // target: 'http://177716-zat-planet-gateway.test.za-tech.net',
-          // target: 'https://zat-planet-h5-cloud-insure-pre.zhongan.io',
-          target: 'http://zat-planet-gateway.test.za-tech.net',
+          // target: 'http://zat-planet-gateway.test.za-tech.net',
+          // target: 'https://zat-planet-h5-cloud-insure-test.zhongan.io',
+          // target: 'http://zat-planet-gateway.test.za-tech.net',
           changeOrigin: true, // 允许跨域
+          secure: false,
+          // headers: {
+          //   Referer: 'https://techmall-pre.zhongan.com',
+          // },
         },
       },
     },
@@ -56,8 +60,8 @@ export default defineConfig((env) => {
       // 在生产环境移除console.log
       terserOptions: {
         compress: {
-          drop_console: true,
-          drop_debugger: true,
+          // drop_console: true,
+          // drop_debugger: true,
         },
       },
       assetsDir: 'static/assets',

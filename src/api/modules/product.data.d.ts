@@ -323,6 +323,328 @@ export interface ProductDetail {
   baseProductCode?: string;
 }
 
+/**
+ * 产品中心-产品详情
+ * @productInsureMaterialVOList 产品资料
+ * @productPlanInsureVOList 产品险种信息
+ * @productQuestionnaireVOList 产品关联问卷列表
+ */
+export interface InsureProductData {
+    productCode: string;
+    productInsureMaterialVOList: ProductInsureMaterialVoItem[];
+    productName: string;
+    productPlanInsureVOList: ProductPlanInsureVoItem[];
+    productQuestionnaireVOList: ProductQuestionnaireVoItem[];
+}
+export interface ProductQuestionnaireVoItem {
+    planCode: string;
+    productCode: string;
+    productId: number;
+    questionnaireDetailResponseVO: QuestionnaireDetailResponseVo;
+    questionnaireId: number;
+    questionnaireName: string;
+}
+
+export interface QuestionnaireDetailResponseVo {
+    basicInfo: BasicInfo;
+    creator: string;
+    gmtCreated: string;
+    gmtModified: string;
+    isDeleted: string;
+    modifier: string;
+    questions: Question[];
+}
+
+export interface Question {
+    content: string;
+    creator: string;
+    gmtCreated: string;
+    gmtModified: string;
+    id: number;
+    isDeleted: string;
+    modifier: string;
+    options: string;
+    position: number;
+    questionType: number;
+    questionnaireId: number;
+    tenantId: number;
+    textType: number;
+    title: string;
+}
+
+export interface BasicInfo {
+    gmtCreated: string;
+    id: number;
+    insurerCode: string;
+    objectType: number;
+    productCategory: number;
+    questionnaireCode: string;
+    questionnaireName: string;
+    questionnaireType: number;
+    tenantId: number;
+    title: string;
+}
+
+export interface ProductPlanInsureVoItem {
+    id: number;
+    packageConfigVOList: PackageConfigVoItem[];
+    packageProductVOList: PackageProductVoItem[];
+    planCode: string;
+    planName: string;
+    productRiskVoList: ProductRiskVoItem_1[];
+    riskNum: number;
+}
+
+export interface ProductRiskVoItem_1 {
+    riskDetailVOList: RiskDetailVoItem[];
+}
+
+type RiskDetailVoItem = ProductRiskVoItem;
+
+export interface RiskRuleInfoVoItem {
+    id: number;
+    riskId: number;
+    ruleCondition: string;
+    ruleName: string;
+    ruleParams: string;
+    ruleTip: string;
+}
+
+export interface RiskLiabilityInfoVoItem {
+    amount: number;
+    amountCalculateType: number;
+    amountCalculateTypeDesc: string;
+    extraInfo: string;
+    id: number;
+    liabilityAttributeType: number;
+    liabilityAttributeValueList: string[];
+    liabilityCode: string;
+    liabilityDesc: string;
+    liabilityId: number;
+    liabilityIndemnityContent: string;
+    liabilityIndemnityType: number;
+    liabilityName: string;
+    liabilityRateType: number;
+    liabilityTopType: number;
+    liabilityType: number;
+    optionFlag: string;
+    optionalFlag: number;
+    optionalFlagDesc: string;
+    premium: number;
+    premiumCalculateDesc: string;
+    premiumCalculateType: number;
+    riskId: number;
+}
+
+export interface RiskInsureLimitVo {
+    annuityDrawFrequency: string;
+    annuityDrawType: string;
+    annuityDrawValues: string;
+    creator: string;
+    extInfo: string;
+    gmtCreated: string;
+    gmtModified: string;
+    holderAgeLimit: string;
+    id: number;
+    insurancePeriodRule: string;
+    insurancePeriodType: string;
+    insurancePeriodValues: string;
+    insuredNum: number;
+    isDeleted: string;
+    modifier: string;
+    occupationLimit: string[];
+    paymentFrequency: string;
+    paymentPeriodRule: string;
+    paymentPeriodType: string;
+    paymentPeriodValues: string;
+    paymentTypeRule: string;
+    riskId: number;
+    sexLimit: string;
+    socialInsuranceLimit: string;
+    toLifeAge: number;
+}
+
+export interface RiskFactorLinkAgeInfoVoItem {
+    annuityDrawDate: string;
+    creator: string;
+    gmtCreated: string;
+    gmtModified: string;
+    id: number;
+    insurancePeriod: string;
+    isDeleted: string;
+    maxHolderAge: string;
+    minHolderAge: string;
+    modifier: string;
+    paymentPeriod: string;
+    riskId: number;
+}
+
+export interface RiskCalcMethodInfoVo {
+    bucketFlag: string;
+    copiesAmount: number;
+    creator: string;
+    dataTableList: string[];
+    displayType: string;
+    displayUnit: string;
+    displayValues: string[];
+    gmtCreated: string;
+    gmtModified: string;
+    id: number;
+    isDeleted: string;
+    maxValue: number;
+    minValue: number;
+    modifier: string;
+    requireCopies: string;
+    riskFactorRelationList: RiskFactorRelationItem[];
+    riskFormulaRelationList: RiskFormulaRelationItem[];
+    riskId: number;
+    saleMethod: string;
+    stepValue: number;
+}
+
+export interface RiskFormulaRelationItem {
+    creator: string;
+    formulaCode: string;
+    formulaName: string;
+    formulaType: string;
+    gmtCreated: string;
+    gmtModified: string;
+    id: number;
+    isDeleted: string;
+    liabilityId: number;
+    modifier: string;
+    riskId: number;
+}
+
+export interface RiskFactorRelationItem {
+    businessType: number;
+    creator: string;
+    factorCode: string;
+    factorName: string;
+    factorObject: string;
+    gmtCreated: string;
+    gmtModified: string;
+    id: number;
+    isDeleted: string;
+    modifier: string;
+    riskId: number;
+}
+
+export interface RiskAttachmentVoItem {
+    attachmentName: string;
+    attachmentType: string;
+    attachmentUrl: string;
+    businessType: string;
+}
+
+export interface CollocationVoItem {
+    collocationRiskCode: string;
+    collocationRiskId: number;
+    collocationRiskName: string;
+    collocationType: number;
+    collocationTypeDesc: string;
+    id: number;
+    riskId: number;
+    riskType: number;
+    riskTypeDesc: string;
+}
+
+export interface AmountPremiumConfigVo {
+    displayType: number;
+    displayUnit: number;
+    eachCopyPrice: string;
+    fixedValue: string;
+    maxCopiesValue: string;
+    maxValue: string;
+    minCopiesValue: string;
+    minValue: string;
+    stepValue: string;
+}
+
+export interface PackageProductVoItem {
+    packageCode: string;
+    packageName: string;
+    productRiskVoList: ProductRiskVoItem[];
+}
+
+export interface ProductRiskVoItem {
+    amountPremiumConfigVO: AmountPremiumConfigVo;
+    circCategory: string;
+    circCategoryDesc: string;
+    collocationType: number;
+    collocationVOList: CollocationVoItem[];
+    configStatus: number;
+    exemptFlag: number;
+    exemptType: number;
+    exemptTypeDesc: string;
+    extraInfo: string;
+    id: number;
+    insuranceEndType: number;
+    insuranceStartType: number;
+    insurerCode: string;
+    insurerName: string;
+    liabilityPlanOssUrl: string;
+    mainRiskCode: string;
+    mainRiskId: number;
+    periodType: number;
+    periodTypeDesc: string;
+    relationDesc: string;
+    riskAttachmentVOList: RiskAttachmentVoItem[];
+    riskCalcMethodInfoVO: RiskCalcMethodInfoVo;
+    riskCategory: number;
+    riskCategoryDesc: string;
+    riskCode: string;
+    riskFactorLinkAgeInfoVOList: RiskFactorLinkAgeInfoVoItem[];
+    riskInsureLimitVO: RiskInsureLimitVo;
+    riskLiabilityInfoVOList: RiskLiabilityInfoVoItem[];
+    riskName: string;
+    riskRuleInfoVOList: RiskRuleInfoVoItem[];
+    riskType: number;
+    riskTypeDesc: string;
+}
+
+export interface PackageConfigVoItem {
+    packageCode: string;
+    packageConfigItemList: PackageConfigItemItem[];
+    packageName: string;
+}
+
+export interface PackageConfigItemItem {
+    liabilityCode: string;
+    liabilityName: string;
+    packageCode: string;
+    packageName: string;
+    planCode: string;
+    riskCode: string;
+    riskName: string;
+}
+
+export interface ProductInsureMaterialVoItem {
+    id: number;
+    planCode: string;
+    productCode: string;
+    productId: number;
+    productMaterialVOList: ProductMaterialVoItem[];
+    showOrder: number;
+    tabName: string;
+}
+
+export interface ProductMaterialVoItem {
+    id: number;
+    materialContent: string;
+    materialSource: number;
+    materialSourceDesc: string;
+    materialType: number;
+    materialTypeDesc: string;
+    mustReadFlag: number;
+    noticeObject: number;
+    noticeObjectDesc: string;
+    popUpFlag: number;
+    productId: number;
+}
+
+
+
 
 export interface ProductFactorItem {
   id: number;
@@ -347,4 +669,108 @@ export interface ProductFactorItem {
   attributeValueList: object;
   position: object;
 }
+
+/**
+ * 产品中心-产品资料
+ */
+
+export interface ProductMaterialData {
+    productInsureMaterialVOList: ProductInsureMaterialVoItem[];
+    productQuestionnaireVOList: ProductQuestionnaireVoItem[];
+}
+
+export interface ProductQuestionnaireVoItem {
+    planCode: string;
+    productCode: string;
+    productId: number;
+    questionnaireDetailResponseVO: QuestionnaireDetailResponseVo;
+    questionnaireId: number;
+    questionnaireName: string;
+}
+
+export interface QuestionnaireDetailResponseVo {
+    basicInfo: BasicInfo;
+    creator: string;
+    gmtCreated: string;
+    gmtModified: string;
+    isDeleted: string;
+    modifier: string;
+    questions: Question[];
+}
+
+export interface Question {
+    content: string;
+    creator: string;
+    gmtCreated: string;
+    gmtModified: string;
+    id: number;
+    isDeleted: string;
+    modifier: string;
+    options: string;
+    position: number;
+    questionType: number;
+    questionnaireId: number;
+    tenantId: number;
+    textType: number;
+    title: string;
+}
+
+export interface BasicInfo {
+    gmtCreated: string;
+    id: number;
+    insurerCode: string;
+    objectType: number;
+    productCategory: number;
+    questionnaireCode: string;
+    questionnaireName: string;
+    questionnaireType: number;
+    tenantId: number;
+    title: string;
+}
+
+export interface ProductInsureMaterialVoItem {
+    id: number;
+    planCode: string;
+    productCode: string;
+    productId: number;
+    productMaterialVOList: ProductMaterialVoItem[];
+    showOrder: number;
+    tabName: string;
+}
+
+export interface ProductMaterialVoItem {
+    id: number;
+    materialContent: string;
+    materialSource: number;
+    materialSourceDesc: string;
+    materialType: number;
+    materialTypeDesc: string;
+    mustReadFlag: number;
+    noticeObject: number;
+    noticeObjectDesc: string;
+    popUpFlag: number;
+    productId: number;
+}
+
+
+/**
+ * 产品升级保障配置
+*/
+export interface ProductUpgradeConfig {
+    notificationImage: string[];
+    parameterMap: ParameterMap;
+    productCode: string;
+    productImage: string[];
+    productName: string;
+}
+
+export interface ParameterMap {
+}
+
+
+
+
+
+
+
 

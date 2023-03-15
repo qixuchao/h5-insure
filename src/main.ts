@@ -8,8 +8,8 @@ import dayjs from 'dayjs';
 import zh from 'dayjs/locale/zh-cn';
 import VueDOMPurifyHTML from 'vue-dompurify-html';
 
-import store from '@/store';
 import router from '@/router/index';
+import store from '@/store';
 import App from './App.vue';
 import globalComps from '@/components/index';
 import clipboard from '@/common/directives/clipboard';

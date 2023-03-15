@@ -53,14 +53,16 @@ const props = withDefaults(defineProps<Props>(), {
   justify-content: center;
   color: #393d46;
   font-weight: 400;
+  border: 2px solid #f6f7fc;
+
   &.activated {
-    border: 2px solid $primary-color;
+    border-color: $primary-color;
     color: $primary-color;
     background-color: var(--van-checkbox-checked-bg-color);
   }
   &.disabled {
     opacity: 0.4;
-    border: 2px solid #e6e6eb;
+    border-color: #e6e6eb;
   }
   &.activated-disabled {
     border: none;

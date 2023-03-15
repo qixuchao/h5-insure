@@ -18,9 +18,11 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   url: '',
 });
+
+console.log('props', props);
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" scope>
 .banner {
   width: 100%;
   min-height: 120px;

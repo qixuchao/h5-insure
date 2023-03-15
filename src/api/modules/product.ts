@@ -1,13 +1,13 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-08-10 16:45:37
- * @LastEditors: kevin.liang
- * @LastEditTime: 2023-02-16 11:36:28
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2023-03-14 15:47:08
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/modules/product.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import request from '@/api/request';
-import { ProductDetail } from './product.data';
+import { ProductDetail, ProductMaterialData, ProductUpgradeConfig } from './product.data';
 import { TemplatePageItem } from '../index.data';
 
 export const productDetail = (data: any) => {
@@ -19,6 +19,23 @@ export const productDetail = (data: any) => {
     },
     { loading: true },
   );
+};
+
+// 获取产品销售信息
+export const querySalesInfo = (data = {}) =>
+  request({ url: '/api/app/insure/product/salesInfo', method: 'POST', data });
+
+// 获取产品升级保障配置
+export const queryUpgradeConfig = (data = {}) =>
+  request<ProductUpgradeConfig>({ url: '/api/app/insure/product/v2/insureProductUpgrade', method: 'POST', data });
+
+// 获取资料信息
+export const queryProductMaterial = (data = {}) => {
+  return request<ProductMaterialData>({
+    url: '/api/app/insure/product/v2/insureProductMaterial',
+    method: 'POST',
+    data,
+  });
 };
 
 export const productList = () => {

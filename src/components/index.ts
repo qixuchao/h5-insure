@@ -13,7 +13,7 @@ import { Component } from 'vue';
 // import ZaFilterTab from './ZaFilterTab/index.vue';
 // import ProExpand from './ProExpand/index.vue';
 // import ProSelect from './ProSelect/index.vue';
-// import ProCalendar from './ProCalendar/index.vue';
+import ProCalendar from './ProCalendar/index.vue';
 import ProSvg from './ProSvg/index.vue';
 import ProPageWrap from './ProPageWrap/index';
 import ProTitle from './ProTitle/index.vue';
@@ -53,7 +53,7 @@ export const globalComs: ComponentMap = {
   // ZaFilterTab, //
   // ProExpand,
   // ProSelect,
-  // ProCalendar,
+  ProCalendar,
   ProSvg, // 本地svg组件，svg文件放到assets/svg/目录下
   ProPageWrap, // 页面布局包裹组件 ，每个页面都用这个包一次，方便后面做全局调整
   ProTitle,

@@ -1,8 +1,8 @@
 <!--
  * @Author: zhaopu
  * @Date: 2022-11-26 12:09:26
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-28 15:04:20
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2023-03-13 21:22:19
  * @Description:
 -->
 <template>
@@ -14,32 +14,27 @@
       </div>
     </template>
 
-    {{ answer }}
+    <div v-dompurify-html="answer" class="rich-text"></div>
   </van-collapse-item>
 </template>
 
 <script lang="ts" setup>
-import { defineProps } from 'vue';
+import { withDefaults } from 'vue';
 
-const props = defineProps({
-  name: {
-    type: String,
-    default: '',
-  },
-  question: {
-    type: String,
-    default: '',
-  },
-  answer: {
-    type: String,
-    default: '',
-  },
+const props = withDefaults(defineProps<{ name: string; question: string; answer: string }>(), {
+  name: '',
+  question: '',
+  answer: '',
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" scope>
 .com-question-item {
-  :deep(.van-cell) {
+  .rich-text {
+    width: 100%;
+    word-wrap: break-word;
+  }
+  .van-cell {
     align-items: center;
     padding-left: 0;
     padding-right: 0;

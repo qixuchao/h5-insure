@@ -1,6 +1,17 @@
 import { defineStore } from 'pinia';
 import dayjs from 'dayjs';
+import { getDic } from '@/api';
+import { localStore } from '@/hooks';
+import { NoTransform } from '@/common/constants';
 import { NextStepRequestData } from '@/api/index.data';
+
+const transformDictToEnum = (dictItemList: { name: string; code: string | number; value: string | number }[]) => {
+  return dictItemList.map((item) => ({
+    ...item,
+    value: item.code,
+    label: item.name || item.value,
+  }));
+};
 
 export interface AppState {
   theme: string;
@@ -10,6 +21,7 @@ export interface AppState {
   playingUrl: string;
   playStatus: 'playing' | 'pause' | 'stop';
   orderDetail: NextStepRequestData;
+  dictMap: object;
   appId: string;
 }
 
@@ -23,6 +35,7 @@ const useStore = defineStore<
     setPlayUrl: (url: string) => void;
     setPlayStatus: (status: 'playing' | 'pause' | 'stop') => void;
     setOrderDetail: (detail: NextStepRequestData) => void;
+    getDict: (codes: string[]) => void;
   }
 >({
   // 这里的id必须为唯一ID
@@ -39,6 +52,7 @@ const useStore = defineStore<
       playingUrl: '',
       playStatus: 'stop',
       orderDetail: {} as NextStepRequestData,
+      dictMap: localStore.get('PRODUCT_DICT_DATA') || {},
       appId: '', // 当前页面运行的微信公众号（只有需要授权的页面才调）
     };
   },
@@ -66,6 +80,25 @@ const useStore = defineStore<
     },
     setOrderDetail(detail: NextStepRequestData) {
       this.orderDetail = detail;
+    },
+    // 登出，并清空所有sessionStorage 和cookie 数据
+    async getDict(codes: string[]) {
+      // 把已经加载过的code过滤掉
+      const dictCodeList = codes.filter((c: string) => c && !this.dictMap[c]);
+      if (!dictCodeList.length) return;
+      await getDic({
+        dictCodeList,
+      }).then((res: any) => {
+        res.data.forEach((item: { dictCode: string; dictItemList: any[] }) => {
+          // 对字典结构转换成咱们用的label-value 注意特殊 职业信息 OCCUPATION 后缀
+          const dictValue = NoTransform.some((dictCode) => item.dictCode.includes(dictCode))
+            ? item.dictItemList
+            : transformDictToEnum(item.dictItemList);
+          this.dictMap[item.dictCode] = dictValue;
+        });
+        // 一次只存2天（避免万一数据库更新，一直无法更新）
+        localStore.set('PRODUCT_DICT_DATA', this.dictMap, 2 * 24);
+      });
     },
   },
 });

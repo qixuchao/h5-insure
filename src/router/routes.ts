@@ -1,11 +1,3 @@
-/*
- * @Author: za-qixuchao qixuchao@zhongan.io
- * @Date: 2022-07-14 11:44:33
- * @LastEditors: kevin.liang
- * @LastEditTime: 2023-03-01 17:15:07
- * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 // 需要鉴权的业务路由
 import { RouteRecordRaw } from 'vue-router';
 
@@ -203,6 +195,13 @@ const baseInsurance = [
     meta: { title: '', requireWxJs: false },
     component: () => import('@/views/baseInsurance/orderDetail/index.vue'),
   },
+  // 长期险试算
+  {
+    name: 'baseInsuranceTrialPreview',
+    path: '/baseInsurance/trialPreview',
+    meta: { title: '', requireWxJs: false },
+    component: () => import('@/views/baseInsurance/templates/long/trialPreview.vue'),
+  },
 ];
 
 const asyncRoutes: Array<RouteRecordRaw> = [
@@ -241,6 +240,18 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     path: '/demo',
     meta: { title: 'demo' },
     component: () => import('@/views/demo/index.vue'),
+  },
+  {
+    name: 'FormDemo',
+    path: '/base/form',
+    meta: { title: '表单 Demo' },
+    component: () => import('@/views/demo/form/index.vue'),
+  },
+  {
+    name: 'schemaFormDemo',
+    path: '/base/form/schema',
+    meta: { title: '表单 Schema Demo' },
+    component: () => import('@/views/demo/form/schema.vue'),
   },
   {
     name: 'table',

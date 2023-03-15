@@ -1,8 +1,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-28 10:28:12
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-07 21:15:31
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2023-03-10 16:37:21
  * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/infoCollection.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -306,10 +306,9 @@ export const ORDER_DETAIL_KEY = 'ORDER_DETAIL_KEY';
 
 // 保额类型
 export const PREMIUM_DISPLAY_TYPE_ENUM = {
-  INPUT: '1', // 录入值
-  STEP: '2', // 步进值
-  FIXED: '3', // 固定值
-  COPY: '4', // 份数
+  STEP: '1', // 步进值
+  FIXED: '3', // 枚举值
+  COPY: '2', // 份数
 };
 
 // 保障单位
