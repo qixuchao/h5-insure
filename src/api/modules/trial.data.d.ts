@@ -263,13 +263,13 @@ export interface ProductPlanVoItem {
 }
 
 export interface RiskVoItem {
-  amount: number;
+  amount: number; // 保额
   amountPremiumConfigVO: any;
   annuityDrawType: string;
   annuityDrawDate: number;
   annuityDrawFrequency: number;
   chargePeriod: string;
-  copy: string;
+  copy: string; // 份数
   coveragePeriod: string;
   insuredCode: string;
   liabilityVOList: LiabilityVoItem[];
@@ -277,7 +277,7 @@ export interface RiskVoItem {
   mainRiskCode: string;
   mainRiskId: number;
   paymentFrequency: number;
-  premium: number;
+  premium: number; // 保费
   riderRisk: boolean;
   riderRiskVOList: object[];
   riskCategory: number;

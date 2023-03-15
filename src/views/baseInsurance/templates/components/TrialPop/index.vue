@@ -22,7 +22,9 @@
         <!-- <van-icon name="cross" style="color: black" @click="state.loading = false" /> -->
         <van-icon :name="cancelIcon" @click="state.show = false" />
       </div>
-      <div class="container">将你们的组件填充进来</div>
+      <div class="container">
+        <InsureInfos :origin-data="dataSource"></InsureInfos>
+      </div>
       <TrialButton
         :is-share="false"
         :premium="100"
@@ -41,6 +43,7 @@
 import { computed, ref } from 'vue';
 import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import TrialButton from '../TrialButton.vue';
+import InsureInfos from '../../long/InsureInfos/index.vue';
 
 const props = defineProps({
   dataSource: {

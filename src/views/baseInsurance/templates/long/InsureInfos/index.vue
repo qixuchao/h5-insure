@@ -1,5 +1,6 @@
 <template>
-  <div>11111</div>
+  <div>因子</div>
+  <div>产品要素</div>
 </template>
 
 <script lang="ts" setup>
