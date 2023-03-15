@@ -1,7 +1,7 @@
 <template>
   <div class="demo-table">
-    <Table :top-height="186.5" :columns="columns" :list="list" :col-spans="colSpans" :is-clone="true">
-      <template #index="{ value, item }">
+    <Table :top-height="186.5" :columns="columns" :list="list" :is-clone="true">
+      <!-- <template #index="{ value, item }">
         <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
           value === null ? '-' : value
         }}</span>
@@ -75,7 +75,7 @@
         <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
           value === null ? '-' : value.toFixed(2)
         }}</span>
-      </template>
+      </template> -->
     </Table>
   </div>
 </template>
@@ -171,26 +171,26 @@ const columns: ColumnProps[] = [
     key: 'bgCount',
     scopedSlots: { customRender: 'bgCount' },
   },
-  {
-    title: '变更金额',
-    key: 'bgAmount',
-    scopedSlots: { customRender: 'bgAmount' },
-  },
-  {
-    title: '回款金额小计',
-    key: 'hkxjAmount',
-    scopedSlots: { customRender: 'hkxjAmount' },
-  },
-  {
-    title: '销售套数小计',
-    key: 'xsxjCount',
-    scopedSlots: { customRender: 'xsxjCount' },
-  },
-  {
-    title: '销售金额小计',
-    key: 'xsxjAmount',
-    scopedSlots: { customRender: 'xsxjAmount' },
-  },
+  // {
+  //   title: '变更金额',
+  //   key: 'bgAmount',
+  //   scopedSlots: { customRender: 'bgAmount' },
+  // },
+  // {
+  //   title: '回款金额小计',
+  //   key: 'hkxjAmount',
+  //   scopedSlots: { customRender: 'hkxjAmount' },
+  // },
+  // {
+  //   title: '销售套数小计',
+  //   key: 'xsxjCount',
+  //   scopedSlots: { customRender: 'xsxjCount' },
+  // },
+  // {
+  //   title: '销售金额小计',
+  //   key: 'xsxjAmount',
+  //   scopedSlots: { customRender: 'xsxjAmount' },
+  // },
 ];
 
 const list = ref([
@@ -214,8 +214,8 @@ const list = ref([
   },
   {
     cityName: 'asdfsdf',
-    projectName: 'projectName',
-    propertyName: 'propertyName',
+    projectName: '2',
+    propertyName: '34534',
     subCount: 345,
     subAmount: 345,
     saleCount: 'saleCount',
@@ -232,8 +232,8 @@ const list = ref([
   },
   {
     cityName: 'asdfsdf',
-    projectName: 'projectName',
-    propertyName: 'propertyName',
+    projectName: 'proj234234ectName',
+    propertyName: 'eer',
     subCount: 345,
     subAmount: 345,
     saleCount: 'saleCount',
@@ -249,9 +249,9 @@ const list = ref([
     xsxjAmount: 34,
   },
   {
-    cityName: 'asdfsdf',
-    projectName: 'projectName',
-    propertyName: 'propertyName',
+    cityName: '4',
+    projectName: 'ww',
+    propertyName: 'ytrytyrty',
     subCount: 345,
     subAmount: 345,
     saleCount: 'saleCount',
@@ -267,9 +267,9 @@ const list = ref([
     xsxjAmount: 34,
   },
   {
-    cityName: 'asdfsdf',
-    projectName: 'projectName',
-    propertyName: 'propertyName',
+    cityName: '4',
+    projectName: 'sfgdg',
+    propertyName: 'ggncnvbn',
     subCount: 345,
     subAmount: 345,
     saleCount: 'saleCount',
@@ -285,9 +285,9 @@ const list = ref([
     xsxjAmount: 34,
   },
   {
-    cityName: 'asdfsdf',
-    projectName: 'projectName',
-    propertyName: 'propertyName',
+    cityName: '44',
+    projectName: '5',
+    propertyName: 'dgdsgsfdg',
     subCount: 345,
     subAmount: 345,
     saleCount: 'saleCount',
