@@ -1,25 +1,28 @@
 <template>
   <ProPageWrap class="page-trial-wrapper">
+    试算因子渲染 参考short中表单渲染 -------- 投保人试算因子
     <div v-if="state.holderFactor.length" class="part-card">
       <ProTitle title="投保人"></ProTitle>
-      <PersonalInfo
+      <!-- <PersonalInfo
         ref="holderRef"
         :insured-code="state.riskBaseInfo?.insurerCode"
         :form-info="holder.personVO"
         :factor-list="state.holderFactor"
         :age-range="state.ageRange"
-      ></PersonalInfo>
+      ></PersonalInfo> -->
     </div>
+    投保人试算因子
     <div v-if="state.insuredFactor.length" class="part-card">
       <ProTitle title="被保人"></ProTitle>
-      <PersonalInfo
+      <!-- <PersonalInfo
         ref="insuredRef"
         :insured-code="state.riskBaseInfo?.insurerCode"
         :form-info="insured.personVO"
         :factor-list="state.insuredFactor"
         :age-range="state.ageRange"
-      ></PersonalInfo>
+      ></PersonalInfo> -->
     </div>
+    保障方案
     <div class="risk-content">
       <van-collapse v-model="state.collapseName">
         <van-collapse-item name="1">
@@ -73,12 +76,7 @@
         }}</span>
       </span>
       <div class="trial-operate">
-        <div v-if="state.retrialTip" class="retrial-tip">
-          条件更改后，需要重新试算
-          <span class="close-icon" @click="closeTip"></span>
-        </div>
-        <VanButton v-if="state.canTrial" type="primary" @click="trial">去试算</VanButton>
-        <VanButton v-else type="primary" @click="goNextPage">立即投保</VanButton>
+        <VanButton v-if="state.canTrial" type="primary" @click="trial">立即投保</VanButton>
       </div>
     </div>
   </ProPageWrap>
@@ -87,8 +85,9 @@
 import { provide } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant/es';
-// import PersonalInfo from './components/PersonalInfo/index.vue';
-// import RiskList from './components/RiskList/index.vue';
+// import PersonalInfo from './PersonalInfo/index.vue';
+import { number } from '@intlify/core-base';
+import RiskList from './RiskList/index.vue';
 import { insureProductDetail, premiumCalc } from '@/api/modules/trial';
 import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
 import { getDic, nextStep, getTemplateInfo } from '@/api';
@@ -133,18 +132,28 @@ interface PageState {
 interface HolderPerson {
   personVO: Partial<PersonVo>;
 }
+/** URL参数 */
+interface QueryData {
+  productCode: string; // 产品code
+  tenantId: number;
+  insurerCode: string;
+  templateId: number;
+  [key: string]: any;
+}
 
 const router = useRouter();
 const route = useRoute();
+
 const {
   agentCode = 'test',
   agencyCode = '',
   tenantId = 9991000007,
   insurerCode = '99',
+  productCode = 'MMBBSF',
+  templateId,
   proposalId,
   saleChannelId, // 销售渠道id
-} = route.query;
-let { productCode = 'MMBBSF', templateId = 1 } = route.query;
+} = route.query as QueryData;
 
 const holder = ref<HolderPerson>({
   personVO: {
@@ -180,19 +189,9 @@ const state = reactive<PageState>({
   currentRiskList: [],
 });
 
-// 如果是计划书转投保,这里的productCode取产品中心的productCode
-if (proposalId) {
-  productCode = (route.query || {})?.productCenterCode;
-}
-
 provide('premium', riskPremiumRef.value);
 
-const userInfo = useCookie().get('userInfo');
 const pageCode = 'premiumTrial';
-
-const closeTip = () => {
-  state.retrialTip = false;
-};
 
 // 将试算的参数转化成订单中需要的结构
 const transformData = (riskList: RiskVoItem[], riskPremium) => {
@@ -276,15 +275,6 @@ const goNextPage = () => {
           },
         });
       }
-    }
-  });
-};
-
-// 获取模板id
-const getTemplateId = (categoryNo?: number, venderCode?: string) => {
-  getTemplateInfo({ productCategory: categoryNo, venderCode }).then((templateRes) => {
-    if (templateRes.code === '10000') {
-      templateId = templateRes.data?.id;
     }
   });
 };
@@ -452,11 +442,6 @@ const queryProductInfo = () => {
             Object.assign(riskInfo.value, { [plan.planCode || index]: {} });
           }
         });
-
-        if (proposalId) {
-          getTemplateId(state.riskBaseInfo.productCategory, state.riskBaseInfo.insurerCode);
-        }
-
         state.riskData = data.productRiskVoList[0]?.riskDetailVOList || [];
         state.riskPlanData = data.productRelationPlanVOList || [];
         proposalId && getProposalDetail(data.productBasicInfoVO.id);
@@ -476,13 +461,13 @@ watch(
   (newVal) => {
     if (newVal && !state.canTrial) {
       state.canTrial = true;
-      state.retrialTip = true;
     }
   },
   {
     deep: true,
   },
 );
+onMounted(() => {});
 
 onBeforeMount(() => {
   queryProductInfo();
