@@ -10,7 +10,7 @@ import { withDefaults } from 'vue';
  */
 interface Props {
   url: string;
-  dataSource: Array<{ url: string }> | string[];
+  // dataSource: Array<{ url: string }> | string[];
 }
 /**
  * banner图片列表

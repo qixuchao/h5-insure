@@ -174,6 +174,13 @@ const baseInsurance = [
     meta: { title: '', keepAlive: true, requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/upgrade.vue'),
   },
+  // 长期险+年金
+  {
+    name: 'baseInsuranceLong',
+    path: '/baseInsurance/long',
+    meta: { title: '', keepAlive: true, requireWxJs: false },
+    component: () => import('@/views/baseInsurance/templates/long/index.vue'),
+  },
   // 网电销-坐下下单
   {
     name: 'baseInsuranceNetsale',
