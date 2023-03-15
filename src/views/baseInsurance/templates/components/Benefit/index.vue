@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <div class="common-title">利益演示</div>
     <van-tabs
       :active="active"
       title-active-color="#0d6efe"
@@ -8,18 +7,18 @@
       shrink
       @click-tab="changeTab"
     >
-      <van-tab v-for="(item, i) in props.info?.benefitRiskResultVOList" :key="i" :name="i" :title="item.riskName">
+      <van-tab v-for="(item, i) in props.dataSource?.benefitRiskResultVOList" :key="i" :name="i" :title="item.riskName">
         <div v-if="i == active" class="benefit">
           <div class="benefit-title">{{ item?.riskName }}</div>
           <div class="line"></div>
-          <p v-if="!showChart" class="box-title box-title-chart">
+          <p v-show="showType === 2" class="box-title box-title-chart">
             <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
             保单年度<span>{{ benefitObj?.year?.[benefitObj?.index] }}</span
             >年度，被保人<span>{{ benefitObj?.age?.[benefitObj?.index] }}</span
             >岁时
             <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
           </p>
-          <div v-if="showChart">
+          <div v-if="showType === 1">
             <div class="box">
               <p class="box-title">
                 <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
@@ -36,8 +35,9 @@
               </div>
             </div>
           </div>
+          <div v-if="showType === 3"><ProTable /></div>
 
-          <div v-if="!showChart" style="width: 100%, minWidth: 338px">
+          <div v-if="showType == 2" style="width: 100%, minWidth: 338px">
             <ProChart :min="ageBegin" :max="ageEnd" :current="num" :data="benefitObj?.result?.benefitRiskItemList" />
           </div>
           <div class="slider">
@@ -58,11 +58,14 @@
 
           <p class="slider-dec">拖动按钮查看不同年龄保障</p>
           <div class="btn-two">
-            <van-button round :plain="!showChart" type="primary" class="btn" @click="handleChangeChart('1')"
+            <van-button round :plain="showType !== 1" type="primary" class="btn" @click="showType = 1"
               >图表展示</van-button
             >
-            <van-button round :plain="showChart" type="primary" class="btn" @click="handleChangeChart('2')"
+            <van-button round :plain="showType !== 2" type="primary" class="btn" @click="showType = 2"
               >趋势展示</van-button
+            >
+            <van-button round :plain="showType !== 3" type="primary" class="btn" @click="showType = 3"
+              >表格展示</van-button
             >
           </div>
         </div>
@@ -73,9 +76,10 @@
 <script lang="ts" setup>
 import { toLocal } from '@/utils';
 import ProChart from '@/components/ProChart/index.vue';
+import ProTable from './Table.vue';
 
 const props = defineProps({
-  info: {
+  dataSource: {
     type: Object,
     default: () => {},
   },
@@ -87,7 +91,8 @@ const ageEnd = ref(0);
 const benefitObj = ref(); // 利益演示结构
 
 const num = ref(0);
-const showChart = ref(true);
+// 展示类型
+const showType = ref(1);
 
 const renderArray = (start: number, end: number) => {
   const a = [];
@@ -109,7 +114,7 @@ const setAge = (realData: any) => {
 
 const getData = () => {
   // 根据num 取对应数组的值
-  const benefit = props.info?.benefitRiskResultVOList?.[active.value];
+  const benefit = props.dataSource?.benefitRiskResultVOList?.[active.value];
 
   // a 年龄数组
   const { a, year } = renderArray(ageBegin.value, ageEnd.value);
@@ -138,20 +143,16 @@ const handleReduce = () => {
 };
 const changeTab = (val: { name: number }) => {
   active.value = val.name;
-  setAge(props.info);
+  setAge(props.dataSource);
   getData();
 };
 
-const handleChangeChart = (val: string) => {
-  if (val === '1') {
-    showChart.value = true;
-  } else {
-    showChart.value = false;
-  }
+const handleChangeChart = (val: number) => {
+  showType.value = val;
 };
 
 watch(
-  () => props.info,
+  () => props.dataSource,
   (val) => {
     if (val) {
       setAge(val);
@@ -170,127 +171,122 @@ watch(num, () => {
 </script>
 
 <style lang="scss" scoped>
-.page-composition-proposal {
-  .line {
-    margin: 0 -20px;
-    padding-bottom: 30px;
-    border-bottom: 1px solid $zaui-line;
+.container {
+  widows: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  padding: 0 20px 30px 20px;
+  .common-title {
+    padding-top: 34px;
+    margin-bottom: 30px;
+    font-weight: 500;
+    color: #333333;
   }
-
-  .container {
-    widows: 100%;
-    background: #ffffff;
-    border-radius: 16px;
-    margin-bottom: 20px;
-    padding: 0 20px 30px 20px;
-    .common-title {
-      padding-top: 34px;
-      margin-bottom: 30px;
-      font-weight: 500;
-      color: #333333;
+  .benefit {
+    border-top: 1px solid $zaui-line;
+    &-title {
+      margin-top: 36px;
+      font-size: 28px;
+      font-weight: 600;
+      color: #393d46;
     }
-    .benefit {
-      border-top: 1px solid $zaui-line;
+    .box {
+      width: 630px;
+      margin: 0 auto;
+      background: #fafafa;
+      border: 1px solid #9fb3d2;
+      padding: 40px 0;
+      border-radius: 20px;
+      margin-top: 40px;
       &-title {
-        margin-top: 36px;
-        font-size: 28px;
-        font-weight: 600;
-        color: #393d46;
-      }
-      .box {
-        width: 630px;
-        margin: 0 auto;
-        background: #fafafa;
-        border: 1px solid #9fb3d2;
-        padding: 40px 0;
-        border-radius: 20px;
-        margin-top: 40px;
-        &-title {
-          padding: 0 16px;
-          font-size: 32px;
-          font-weight: 500;
-          color: #333333;
-          text-align: center;
-          display: flex;
-          align-items: center;
-          justify-content: flex-start;
-          img {
-            width: 41px;
-            height: 29px;
-          }
-          span {
-            color: $zaui-price;
-          }
-          &.box-title-chart {
-            margin: 40px 0;
-          }
-        }
-        &-price {
-          margin-top: 40px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          text-align: center;
-          flex-wrap: wrap;
-          .text1 {
-            font-size: 28px;
-            font-weight: 500;
-            color: $zaui-price;
-          }
-          .text2 {
-            font-size: 24px;
-            font-weight: 400;
-            color: #393d46;
-          }
-        }
-      }
-      .slider {
+        padding: 0 16px;
+        font-size: 32px;
+        font-weight: 500;
+        color: #333333;
+        text-align: center;
         display: flex;
         align-items: center;
-        margin-top: 30px;
-        .add {
-          img {
-            width: 48px;
-            height: 48;
-          }
+        justify-content: flex-start;
+        img {
+          width: 41px;
+          height: 29px;
         }
-        .lf {
-          margin-right: 45px;
-          display: flex;
-          align-items: center;
+        span {
+          color: $zaui-price;
         }
-        .rg {
-          margin-left: 45px;
-        }
-        .custom-button {
-          width: 104px;
-          height: 46px;
-          background: $zaui-brand;
-          box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.1);
-          border-radius: 28px;
-          border: 5px solid #a2c7ff;
-          font-size: 24px;
-          font-weight: 600;
-          color: #ffffff;
-          text-align: center;
+        &.box-title-chart {
+          margin: 40px 0;
         }
       }
-      .slider-dec {
-        font-size: 24px;
-        font-weight: 400;
-        color: #99a9c0;
-        text-align: center;
-        margin: 20px 0 40px 0;
-      }
-
-      .btn-two {
+      &-price {
+        margin-top: 40px;
         display: flex;
-        padding: 0 70px;
         justify-content: space-between;
-        .btn {
-          width: 240px;
-          height: 60px;
+        align-items: center;
+        text-align: center;
+        flex-wrap: wrap;
+        .text1 {
           font-size: 28px;
+          font-weight: 500;
+          color: $zaui-price;
+        }
+        .text2 {
+          font-size: 24px;
+          font-weight: 400;
+          color: #393d46;
+        }
+      }
+    }
+    .slider {
+      display: flex;
+      align-items: center;
+      margin-top: 30px;
+      .add {
+        img {
+          width: 48px;
+          height: 48;
+        }
+      }
+      .lf {
+        margin-right: 45px;
+        display: flex;
+        align-items: center;
+      }
+      .rg {
+        margin-left: 45px;
+      }
+      .custom-button {
+        width: 104px;
+        height: 46px;
+        background: $zaui-brand;
+        box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.1);
+        border-radius: 28px;
+        border: 5px solid #a2c7ff;
+        font-size: 24px;
+        font-weight: 600;
+        color: #ffffff;
+        text-align: center;
+      }
+    }
+    .slider-dec {
+      font-size: 24px;
+      font-weight: 400;
+      color: #99a9c0;
+      text-align: center;
+      margin: 20px 0 40px 0;
+    }
+
+    .btn-two {
+      display: flex;
+      padding: 20px 0;
+      justify-content: space-between;
+      .btn {
+        width: 560px;
+        height: 60px;
+        margin-right: 10px;
+        :deep(.van-button__text) {
+          font-size: 22px;
         }
       }
     }
