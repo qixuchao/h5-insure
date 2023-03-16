@@ -1,6 +1,6 @@
 <template>
   <BaoeBaofei :v-model="modelValue" :origin-data="originData.insureProductRiskVOList[0]"></BaoeBaofei>
-  <PersonalInfo v-model="state.personalInfo" :product-factor="originData.productFactor" />
+  <PersonalInfo v-model="state.personalInfo" :product-factor="originData.productFactor" @trail="onTrail" />
   <div>因子</div>
   <div>产品要素</div>
 </template>
@@ -47,6 +47,10 @@ enumList.value = inject('enumList') || {};
 // const state = reactive<{ formInfo: RiskVoItem }>({
 //   formInfo: props.formInfo as RiskVoItem,
 // });
+
+const onTrail = (val) => {
+  console.log('---personal trail---', val);
+};
 
 onMounted(() => {
   console.log('--------origin data = ', props.originData);

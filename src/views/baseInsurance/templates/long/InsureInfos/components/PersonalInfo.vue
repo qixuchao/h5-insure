@@ -4,6 +4,7 @@
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
 import { useRoute } from 'vue-router';
+import { isNil } from 'lodash';
 import { ProRenderForm, combineOccupation, transformFactorToSchema } from '@/components/RenderForm';
 import { ProductFactor } from '@/api/modules/trial.data';
 
@@ -14,7 +15,7 @@ interface Props {
   modelValue: any;
 }
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'trail']);
 const personalInfoRef = ref(null);
 
 const props = withDefaults(defineProps<Props>(), {
@@ -25,6 +26,7 @@ const props = withDefaults(defineProps<Props>(), {
 const state = reactive({
   formData: {},
   schema: [],
+  trialFactorCodes: [],
   config: {
     // 职业
     occupation: {
@@ -32,6 +34,14 @@ const state = reactive({
     },
   },
 });
+
+/** 验证试算因子是否全部有值 */
+const validateFields = () => {
+  return state.trialFactorCodes.some((code) => {
+    const val = state.formData[code];
+    return isNil(val) || val === '';
+  });
+};
 
 watch(
   () => props.productFactor,
@@ -48,9 +58,13 @@ watch(
 watch(
   () => state.formData,
   () => {
-    personalInfoRef.value?.validate().then(() => {
-      emit('update:modelValue', state.formData);
-    });
+    emit('update:modelValue', state.formData);
+    // 验证通过调用试算
+    if (!validateFields()) {
+      personalInfoRef.value?.validate().then(() => {
+        emit('trail', state.formData);
+      });
+    }
   },
   {
     deep: true,
