@@ -25,6 +25,7 @@
       <div class="container">
         <InsureInfos :origin-data="dataSource"></InsureInfos>
         <Benefit :data-source="benefitData" />
+        <RiskLiabilityInfo :data-source="dataSource" />
         将你们的组件填充进来
       </div>
       <TrialButton
@@ -47,6 +48,7 @@ import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import TrialButton from '../TrialButton.vue';
 import InsureInfos from '../../long/InsureInfos/index.vue';
 import Benefit from '../Benefit/index.vue';
+import RiskLiabilityInfo from '../RiskLiabilityInfo/index.vue';
 
 const props = defineProps({
   dataSource: {
