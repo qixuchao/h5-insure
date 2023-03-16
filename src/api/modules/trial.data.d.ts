@@ -9,10 +9,6 @@ export interface ProductData {
   planFactor: any;
 }
 
-interface ProductFactor {
-  [propName: string]: any[],
-}
-
 export interface PackageProductVoItem {
   packageCode: string;
   packageName: string;
