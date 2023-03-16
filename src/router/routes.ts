@@ -1,11 +1,3 @@
-/*
- * @Author: za-qixuchao qixuchao@zhongan.io
- * @Date: 2022-07-14 11:44:33
- * @LastEditors: kevin.liang
- * @LastEditTime: 2023-02-22 13:55:15
- * @FilePath: /zat-planet-h5-cloud-insure/src/router/routes.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 // 需要鉴权的业务路由
 import { RouteRecordRaw } from 'vue-router';
 
@@ -74,7 +66,7 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'middlePage',
     path: '/middlePage',
-    meta: { title: ' ' },
+    meta: { title: '投保' },
     component: () => import('@/views/middlePage/index.vue'),
   },
   {
@@ -182,6 +174,13 @@ const baseInsurance = [
     meta: { title: '', keepAlive: true, requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/upgrade.vue'),
   },
+  // 长期险+年金
+  {
+    name: 'baseInsuranceLong',
+    path: '/baseInsurance/long',
+    meta: { title: '', keepAlive: true, requireWxJs: false },
+    component: () => import('@/views/baseInsurance/templates/long/index.vue'),
+  },
   // 网电销-坐下下单
   {
     name: 'baseInsuranceNetsale',
@@ -202,6 +201,13 @@ const baseInsurance = [
     path: '/baseInsurance/orderDetail',
     meta: { title: '', requireWxJs: false },
     component: () => import('@/views/baseInsurance/orderDetail/index.vue'),
+  },
+  // 长期险试算
+  {
+    name: 'baseInsuranceTrialPreview',
+    path: '/baseInsurance/trialPreview',
+    meta: { title: '', requireWxJs: false },
+    component: () => import('@/views/baseInsurance/templates/long/trialPreview.vue'),
   },
 ];
 

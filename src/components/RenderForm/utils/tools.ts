@@ -84,6 +84,36 @@ export const deleteEmptyChildren = (arr: Column[], childrenKey = 'children') => 
   return [];
 };
 
+/**
+ * 过滤级联级别数据
+ * @param arr
+ * @param childrenKey
+ * @param level 展示的层数 索引从 1 开始
+ * @returns
+ */
+export const filterChildrenLevel = (arr: Column[], level = 0, childrenKey = 'children') => {
+  const loop = (list: Column[], index = 1) => {
+    if (isNotEmptyArray(list)) {
+      return list.map(({ [`${childrenKey}`]: children, ...other }) => {
+        const currentData = {} as Column;
+        // 不需要过滤，或者需要过滤 并且 level > index
+        console.log(111111, level, index);
+        const isFilter = !level || (level && level > index);
+        if (isFilter && isNotEmptyArray(children)) {
+          currentData.children = loop(children, index + 1);
+        }
+        return {
+          ...other,
+          ...currentData,
+        };
+      });
+    }
+    return [];
+  };
+
+  return loop(arr);
+};
+
 // 过滤数据
 const filterData = (data, keys, initData = {}) => {
   const dataKeys = Object.keys(data);
@@ -123,7 +153,22 @@ const moduleTypeMap = {
   1: 'holder',
   2: 'insured',
   3: 'beneficiary',
+  4: 'payInfo',
 };
+
+const addressConf = [
+  /** 投保地区 */
+  'insureArea',
+  /** 户籍所在地 */
+  'residence',
+  /** 长期居住地 */
+  'longArea',
+  /** 工作所在地 */
+  'workAddress',
+].reduce((res, key) => {
+  res[key] = CONFIG_RULE_MAP.ADDRESS;
+  return res;
+}, {});
 
 /**
  * 因子配置
@@ -163,9 +208,7 @@ const configMap = {
     componentName: COMPONENT_ENUM.ProSMSCode,
     ...CONFIG_RULE_MAP.ZIP_CODE,
   },
-  insureArea: {
-    ...CONFIG_RULE_MAP.ADDRESS,
-  },
+  ...addressConf,
   occupation: {},
   country: {
     ...CONFIG_RULE_MAP.COUNTRY,
@@ -211,7 +254,7 @@ export const transformToSchema = (arr: FieldConfItem[]): ModuleResult => {
         extraData.isSelfInsuredNeed = item.isSelfInsuredNeed;
       }
 
-      return {
+      const tempItem = {
         // ...item,
         ...rest,
         ...extraData,
@@ -220,8 +263,14 @@ export const transformToSchema = (arr: FieldConfItem[]): ModuleResult => {
         name: item.code,
         componentName: finalComponentName,
         required: item.isMustInput === 1,
-        columns: item.attributeValueList || [],
         ...restConfig,
+      };
+
+      return {
+        ...tempItem,
+        attributeValueList: item.attributeValueList,
+        // 有字典 code 则从接口中获取数据
+        columns: tempItem.dictCode ? [] : item.attributeValueList || [],
       };
     });
   }
@@ -245,7 +294,7 @@ export const transformFactorToSchema = (
 }> => {
   if (factors && Object.keys(factors).length) {
     const keys = Object.keys(factors);
-    const { holder, insured, beneficiary }: ProductFactor = keys.reduce((res, key) => {
+    const { holder, insured, beneficiary, payInfo }: ProductFactor = keys.reduce((res, key) => {
       // res[moduleTypeMap[key]] = factors[key].filter((item) => item.isDisplay === 1);
       res[moduleTypeMap[key]] = factors[key];
       return res;
@@ -263,7 +312,7 @@ export const transformFactorToSchema = (
 
     console.log('origin factors', holder, insured, beneficiary);
 
-    return [holder, finialInsured, beneficiary].map((item) => transformToSchema(item));
+    return [holder, finialInsured, beneficiary, payInfo].map((item) => transformToSchema(item));
   }
   return [];
 };

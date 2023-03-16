@@ -1,1 +1,0 @@
-import{d as s,c as e,e as r,k as n,I as t}from"./index-6df31081.js";const o=s({__name:"index",props:{isCheck:{type:Boolean,default:!1},url:{type:String,default:""}},setup(s){const o=s;return console.log("props",o),(o,a)=>{const l=t;return s.url?(e(),r(l,{key:0,width:"100%",class:"banner",src:s.url},null,8,["src"])):n("",!0)}}});export{o as _};

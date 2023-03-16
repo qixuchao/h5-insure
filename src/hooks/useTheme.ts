@@ -1,5 +1,7 @@
 // 支持的颜色表
+import { storeToRefs } from 'pinia';
 import { themeConfig } from '@/config/theme';
+import { useThemesStore } from '@/store/themes';
 
 const hexToRgba = (_color: string, _opacity = 1) => {
   let sColor = _color.toLowerCase();
@@ -84,8 +86,19 @@ export const useTheme = (color: string = import.meta.env.VITE_THEME_COLOR || the
 };
 
 export const config = themeConfig;
+/**
+ * 设置全局主题颜色
+ * @param color 要设置的颜色(16进制的颜色值)
+ */
+export const setGlobalTheme = (color: string = import.meta.env.VITE_THEME_COLOR || themeConfig.blue) => {
+  const themesStore = useThemesStore();
+  const { themeVars } = storeToRefs(themesStore);
+
+  themeVars.value = useTheme(color);
+};
 
 export default useTheme;
+
 // {
 // primaryColor: '#ff00ff',
 // primaryBackgroundColor: '#0d6efe20', // 自定义的的背景色

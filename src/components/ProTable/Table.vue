@@ -150,6 +150,7 @@ export default defineComponent({
   setup(props) {
     const windowHeight = useWindowSize().height;
     const height = ref(windowHeight.value - props.topHeight);
+    console.log('表格的高度信息：', windowHeight.value, props.topHeight, height.value);
     const fixedColumns = computed(() => {
       return props.columns.filter((v) => v.fixed);
     });
@@ -190,6 +191,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+$header-height: 78px;
 .col-row-span {
   position: absolute;
   background-color: #fff;
@@ -200,14 +202,14 @@ export default defineComponent({
   z-index: 100;
 }
 .normal-text {
-  color: #555555;
+  color: $zaui-text;
   font-size: 24px;
 }
 .normal-padding {
-  padding: 0 6px;
+  padding: 0 20px;
 }
 .table-header {
-  height: 78px;
+  height: $header-height;
   display: flex;
   align-items: center;
   &-fixed {
@@ -260,8 +262,8 @@ export default defineComponent({
   }
   &-unit {
     display: inline-block;
-    height: 78px;
-    line-height: 78px;
+    height: $header-height;
+    line-height: $header-height;
     text-align: center;
     white-space: nowrap;
     box-sizing: border-box;
@@ -283,7 +285,7 @@ export default defineComponent({
   }
 }
 .table-article {
-  height: calc(100% - 78px);
+  height: calc(100% - $header-height);
   overflow: hidden;
   &-content {
     display: flex;
@@ -350,6 +352,13 @@ export default defineComponent({
     }
   }
 }
+
+.table-article-fixed .table-article-fixed-list,
+.table-article-flow .table-article-flow-list {
+  &:nth-child(even) {
+    background-color: #f3f3f3;
+  }
+}
 .no-data-wrap {
   display: flex;
   flex-direction: column;
@@ -361,7 +370,7 @@ export default defineComponent({
     margin-bottom: 32px;
   }
   span {
-    font-size: 30px;
+    font-size: $zaui-font-size;
     color: #888888;
     margin-left: 10px;
   }

@@ -287,6 +287,41 @@ export interface TenantProductInsureVO {
   rateUri?: string // 费率表
 }
 
+  type TAB_NAMES =
+  | 'DOMAIN_NAME'
+  | 'PRODUCT_LIST'
+  | 'TEMPLATE'
+  | 'BASIC_INFO'
+  | 'GUARANTEE'
+  | 'ISSUE_CONDITION'
+  | 'SPECIAL_FEATURE'
+  | 'CLAIM_CASE'
+  | 'CLAIM_FLOW'
+  | 'ISSUE_NOTICE'
+  | 'FAQ'
+  | 'SIGNATURE'
+  | 'PREMIUM';
+
+type ObjectConfig = { title?: string; [key: string]: any }
+type ArrayConfig = Array<{
+        planCode?: string;
+        planName?: string;
+        // paymentFrequency: 交费方式,  premium: 默认保费,  minActualUnit: 实际保费单位
+        data: Array<any>;
+      }>;
+export interface ProductSaleInfo {
+  PRODUCT_LIST: ObjectConfig;
+  BASIC_INFO: ObjectConfig;
+  GUARANTEE: ArrayConfig;
+  ISSUE_CONDITION: ArrayConfig;
+  SPECIAL_FEATURE: ConfigObject;
+  CLAIM_CASE: ConfigObject;
+  CLAIM_FLOW: ConfigObject;
+  ISSUE_NOTICE: ConfigObject;
+  FAQ: ArrayConfig;
+  SIGNATURE: ConfigObject;
+  PREMIUM: ArrayConfig;
+}
 export interface ProductDetail {
   /**
    * 产品id
@@ -387,7 +422,7 @@ export interface BasicInfo {
 
 export interface ProductPlanInsureVoItem {
     id: number;
-    packageConfigVOList: PackageConfigVoItem[];
+    oilPackageProductVOList: PackageConfigVoItem[];
     packageProductVOList: PackageProductVoItem[];
     planCode: string;
     planName: string;

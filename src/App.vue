@@ -10,15 +10,14 @@
   </van-config-provider>
 </template>
 <script lang="ts" setup>
-import { injectGlobal } from '@emotion/css';
-
+import { storeToRefs } from 'pinia';
 import { getConfig } from './utils/config';
-import useTheme from '@/hooks/useTheme';
 import { addScript } from '@/utils/index';
 import { useThemesStore } from './store/themes';
 import ProVConsole from '@/components/ProVConsole/index.vue';
 
-const themeVars = ref({});
+const themesStore = useThemesStore();
+const { themeVars } = storeToRefs(themesStore);
 // const styleMap = {
 //   default: () => import('@/styles/themes/default.scss'),
 //   blue: () => import('@/styles/themes/blue.scss'),
@@ -28,7 +27,8 @@ onBeforeMount(async () => {
   // const style = (await styleMap[type]()).default;
   // useThemesStore().setThemes(themes, type);
   // injectGlobal(style);
-  themeVars.value = useTheme(); // 默认蓝色
+  // themeVars.value = useTheme(); // 默认蓝色
+  // setGlobalTheme('#5f9ea0');
 });
 
 const X_FLOW = `https://xflowcloud.zhongan.io/sdk/dist/js/v0.0.1/ilog.js?id=${getConfig('xflow')}&history=true`;
@@ -62,7 +62,8 @@ const loadXFlow = () => {
 
 // const ld = ref(true);
 onMounted(() => {
-  addScript(getConfig('isee')); // 千里眼SDK
+  // 生产环境
+  process.env.NODE_ENV === 'production' && addScript(getConfig('isee')); // 千里眼SDK
   loadXFlow(); // 埋点SDK
 
   // useLoading(l);
