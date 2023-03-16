@@ -1,8 +1,18 @@
 <template>
-  <BaoeBaofei :v-model="modelValue" :origin-data="originData.insureProductRiskVOList[0]"></BaoeBaofei>
-  <PersonalInfo v-model="state.personalInfo" :product-factor="originData.productFactor" @trail="onTrail" />
-  <div>因子</div>
-  <div>产品要素</div>
+  <BaoeBaofei
+    :v-model="modelValue"
+    :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
+  ></BaoeBaofei>
+  <!-- 这里放因子 -->
+  <div v-if="productFactor">
+    <PersonalInfo v-model="state.personalInfo" :product-factor="originData.productFactor" @trail="onTrail" />
+  </div>
+  <!-- 产品要素 -->
+  <ProductKeys
+    :v-model="modelValue"
+    :origin-data="originData.productRiskInsureLimitVO"
+    :risk-code="originData.riskCode"
+  ></ProductKeys>
 </template>
 
 <script lang="ts" setup>
@@ -20,19 +30,19 @@ import {
   RULE_PAYMENT,
 } from '@/common/constants/trial';
 
-import { RiskDetailVoItem } from '@/api/modules/newTrial.data';
-import { ProductInfo, RiskVoItem, ProductPlanInsure } from '@/api/modules/trial.data';
-import { BaoeBaofei, PersonalInfo } from './components';
-import ProExpand from '@/components/ProExpand/index.vue';
+import { RiskDetailVoItem, ProductInfo, RiskVoItem, ProductPlanInsure } from '@/api/modules/trial.data';
+import { BaoeBaofei, PersonalInfo, ProductKeys } from './components';
 
 interface Props {
-  originData: ProductPlanInsure;
+  originData: RiskDetailVoItem;
   modelValue: RiskVoItem;
+  productFactor: any;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  originData: () => ({} as ProductPlanInsure),
+  originData: () => ({} as RiskDetailVoItem),
   modelValue: () => ({} as RiskVoItem),
+  productFactor: () => null,
 });
 
 const state = reactive({
