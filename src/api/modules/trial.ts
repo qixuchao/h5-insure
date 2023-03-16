@@ -1,8 +1,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-06-24 13:44:22
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-03-08 13:44:17
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2023-03-16 15:24:49
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/modules/trial.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -85,3 +85,12 @@ export const underWriteRule = (data = {}) =>
 // 获取投保链接
 export const queryStandardInsurerLink = (data = {}) =>
   request<string>({ url: '/api/app/insure/insurance/standardInsurerLink', method: 'POST', data });
+
+// 利益演示
+export const benefitCalc = (data: {}) => {
+  return request({
+    url: `/api/app/insure/insurance/benefitCalc`,
+    method: 'POST',
+    data,
+  });
+};

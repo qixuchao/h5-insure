@@ -18,6 +18,7 @@ export interface ColumnProps {
   key: string;
   fixed?: boolean;
   width?: number;
+  minWidth?: number;
   align?: 'left' | 'right' | 'center';
   scopedSlots?: { customRender: string };
 }

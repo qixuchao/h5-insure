@@ -1,6 +1,6 @@
 <template>
   <div :style="{ height: `${height}px` }">
-    <template v-if="list && list.length">
+    <template v-if="data && data.length">
       <header class="table-header">
         <section class="table-header-fixed">
           <div
@@ -8,6 +8,7 @@
             :id="column.key"
             :key="column.key"
             class="normal-text normal-padding table-header-unit"
+            :style="{ minWidth: column.minWidth + 'px !important' }"
           >
             {{ column.title }}
           </div>
@@ -28,6 +29,7 @@
               :id="column.key"
               :key="column.key"
               class="normal-text normal-padding table-header-unit"
+              :style="{ minWidth: column.minWidth + 'px !important' }"
             >
               {{ column.title }}
             </div>
@@ -38,16 +40,17 @@
         <section class="table-article-content">
           <section id="table-article-fixed" class="table-article-fixed">
             <div
-              v-for="(item, index) in list"
+              v-for="(item, index) in data"
               :key="`fixed${index}`"
               class="normal-text table-article-fixed-list"
-              :class="index === list.length - 1 ? 'table-article-fixed-list-last' : ''"
+              :class="index === data.length - 1 ? 'table-article-fixed-list-last' : ''"
             >
               <div
                 v-for="column in fixedColumns"
                 :key="column.key"
                 :class="column.key"
                 class="normal-padding table-article-unit"
+                :style="{ minWidth: column.minWidth + 'px !important' }"
               >
                 <template v-if="column.scopedSlots">
                   <slot :name="column.scopedSlots.customRender" :value="item[column.key]" :item="item">
@@ -83,12 +86,13 @@
             @scroll="handleScroll($event, 'tableScroll')"
           >
             <section class="table-article-flow-content">
-              <div v-for="(item, index) in list" :key="`flow${index}`" class="normal-text table-article-flow-list">
+              <div v-for="(item, index) in data" :key="`flow${index}`" class="normal-text table-article-flow-list">
                 <div
                   v-for="column in flowColumns"
                   :key="column.key"
                   :class="column.key"
                   class="normal-padding table-article-unit"
+                  :style="{ minWidth: column.minWidth + 'px !important' }"
                 >
                   <template v-if="column.scopedSlots">
                     <slot :name="column.scopedSlots.customRender" :value="item[column.key]" :item="item">
@@ -133,7 +137,7 @@ export default defineComponent({
       type: Array as PropType<ColumnProps[]>,
       required: true,
     },
-    list: {
+    data: {
       type: Array as PropType<ListProps[] | null>,
       required: true,
     },
@@ -286,7 +290,7 @@ $header-height: 78px;
 }
 .table-article {
   height: calc(100% - $header-height);
-  overflow: hidden;
+  overflow-y: auto;
   &-content {
     display: flex;
   }

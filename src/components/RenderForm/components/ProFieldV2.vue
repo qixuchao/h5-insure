@@ -1,10 +1,10 @@
 <template>
   <van-field
     :model-value="state.modelValue"
-    class="com-van-field"
+    :class="`com-van-field ${markRequired ? '' : 'field-mark_hidden'}`"
     autocomplete="off"
     :formatter="formatter"
-    v-bind="{ ...$attrs, placeholder, rules }"
+    v-bind="{ ...$attrs, placeholder, required, rules }"
     @blur="onBlur"
     @update:model-value="updateModelValue"
   >
@@ -18,7 +18,6 @@
 
 <script lang="ts" setup name="ProFiled">
 import { useAttrs, useSlots, PropType, inject } from 'vue';
-import dayjs from 'dayjs';
 import type { FieldProps, FieldRule } from 'vant';
 import { isNil } from 'lodash';
 import { CERT_TYPE_ENUM } from '@/common/constants';
@@ -39,7 +38,7 @@ const attrs = useAttrs() as FieldProps;
 const slots = useSlots();
 const emit = defineEmits(['update:model-value', 'blur']);
 
-const { formState } = inject(VAN_PRO_FORM_KEY) || {};
+const { formState, markRequired } = inject(VAN_PRO_FORM_KEY) || {};
 
 const props = defineProps({
   ruleType: {
@@ -116,7 +115,7 @@ const ruleType = computed(() => {
   // 关联字段的类型存在
   if (props.relatedName) {
     // 并且关联字段有值
-    const relatedNameValue = formState.formData[props.relatedName];
+    const relatedNameValue = formState?.formData?.[props.relatedName];
     if (relatedNameValue) {
       return RELATED_RULE_TYPE_MAP[props.relatedName]?.[relatedNameValue];
     }
@@ -132,9 +131,10 @@ const rules = computed(() => {
   return [
     {
       required: props.required,
-      message: (val) => {
-        if (props.required && (isNil(val) || val === '')) {
-          return attrs.placeholder;
+      validator: (val) => {
+        // 数值为空
+        if (isNil(val) || val === '') {
+          return props.required ? attrs.placeholder : '';
         }
         if (ruleType.value) {
           const [regFn] = validatorMap[ruleType.value] || [];
@@ -142,7 +142,7 @@ const rules = computed(() => {
             console.warn(`%c 字段 ${attrs.label} 的规则 ${ruleType} 校验函数不存在，请先确认～`, 'color: #3e7;');
             return '';
           }
-          if (regFn(val)) {
+          if (!regFn(val)) {
             return `请输入正确的${attrs.label}`;
           }
         }
@@ -165,6 +165,12 @@ const formatter = (value) => {
 };
 
 const updateModelValue = (val) => {
+  if (props.relatedName) {
+    const { onChangeEffect } = relatedConfigMap[props.relatedName] || {};
+    if (typeof onChangeEffect === 'function') {
+      onChangeEffect(val, formState.formData);
+    }
+  }
   if (formState.formData && attrs.name) {
     formState.formData[attrs.name] = val;
   }
@@ -202,7 +208,7 @@ watch(
 );
 
 watch(
-  () => formState.formData[attrs.name],
+  () => formState?.formData?.[attrs.name],
   (val) => {
     state.modelValue = val;
   },
@@ -224,7 +230,7 @@ export default {
 };
 </script>
 <style lang="scss">
-.van-cell.com-van-field {
+.van-cell.com-van-field.field-mark_hidden {
   .van-field__label--required::before {
     display: none;
   }

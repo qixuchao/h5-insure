@@ -105,7 +105,7 @@ const fieldValueView = computed(() => {
 });
 
 const handleSelect = (value) => {
-  if (formState.formData && filedAttrs.name) {
+  if (formState?.formData && filedAttrs.name) {
     formState.formData[filedAttrs.name] = value;
   }
   state.modelValue = value;
