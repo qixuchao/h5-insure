@@ -1,10 +1,10 @@
 <template>
   <van-field
     :model-value="state.modelValue"
-    class="com-van-field"
+    :class="`com-van-field ${markRequired ? '' : 'field-mark_hidden'}`"
     autocomplete="off"
     :formatter="formatter"
-    v-bind="{ ...$attrs, placeholder, required: true, rules }"
+    v-bind="{ ...$attrs, placeholder, required, rules }"
     @blur="onBlur"
     @update:model-value="updateModelValue"
   >
@@ -38,7 +38,7 @@ const attrs = useAttrs() as FieldProps;
 const slots = useSlots();
 const emit = defineEmits(['update:model-value', 'blur']);
 
-const { formState } = inject(VAN_PRO_FORM_KEY) || {};
+const { formState, markRequired } = inject(VAN_PRO_FORM_KEY) || {};
 
 const props = defineProps({
   ruleType: {
@@ -131,18 +131,18 @@ const rules = computed(() => {
   return [
     {
       required: props.required,
-      message: (val) => {
-        if (props.required && (isNil(val) || val === '')) {
-          return attrs.placeholder;
+      validator: (val) => {
+        // 数值为空
+        if (isNil(val) || val === '') {
+          return props.required ? attrs.placeholder : '';
         }
-        console.log(5555555, attrs.name, ruleType.value);
         if (ruleType.value) {
           const [regFn] = validatorMap[ruleType.value] || [];
           if (typeof regFn !== 'function') {
             console.warn(`%c 字段 ${attrs.label} 的规则 ${ruleType} 校验函数不存在，请先确认～`, 'color: #3e7;');
             return '';
           }
-          if (regFn(val)) {
+          if (!regFn(val)) {
             return `请输入正确的${attrs.label}`;
           }
         }
@@ -230,7 +230,7 @@ export default {
 };
 </script>
 <style lang="scss">
-.van-cell.com-van-field {
+.van-cell.com-van-field.field-mark_hidden {
   .van-field__label--required::before {
     display: none;
   }
