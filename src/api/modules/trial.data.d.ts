@@ -62,6 +62,36 @@ export interface RiskDetailVoItem {
 
 }
 
+export interface ProductRiskInsureLimit {
+  amountPremiumConfigVO: RiskAmountPremiumConfig;
+  annuityDrawFrequencyList: Array;
+  annuityDrawValueList: Array;
+  insuranceEndType: number;
+  insurancePeriodRule: any;
+  insurancePeriodValueList: Array;
+  insuranceStartTime: any;
+  insuranceStartType: number;
+  paymentFrequencyList: Array;
+  paymentPeriodRule: any;
+  paymentPeriodValueList: Array;
+  paymentTypeRule: any;
+  riskId: any;
+}
+
+export interface RiskAmountPremiumConfig {
+  copiesAmount: number | string;
+  diplayType: number;
+  displayUnit: number;
+  displayValue: Array<any>;
+  maxCopiesValue: number | string;
+  maxStepValue: number | string;
+  minCopiesValue: number | string;
+  minStepValue: number | string;
+  requireCopies: number | string;
+  saleMethod: number | string;
+  stepValue: number | string;
+}
+
 export interface RiskRuleInfoVoItem {
   id: number;
   riskId: number;
@@ -301,8 +331,14 @@ export interface LiabilityVoItem {
   liabilityRateType: number;
   liabilityTopType: number;
   liabilityType: number;
+  liabilityValue: LiabilityValue;
 }
 
+export interface LiabilityValue {
+  actualValue: string;
+  displayValue: string;
+  factorValue: number;
+}
 export interface PersonVo {
   birthday?: string;
   gender?: number;

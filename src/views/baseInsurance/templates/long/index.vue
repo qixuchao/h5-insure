@@ -144,7 +144,7 @@ const { openId } = extInfo;
 const formRef = ref();
 const detailScrollRef = ref();
 const observeRef = ref();
-const showFooterBtn = ref<boolean>(false);
+const showFooterBtn = ref<boolean>(true); // test  defalut false
 
 const tenantProductDetail = ref<Partial<ProductSaleInfo>>({}); // 核心系统产品信息
 const insureProductDetail = ref<Partial<InsureProductData>>({}); // 产品中心产品信息
@@ -333,7 +333,8 @@ watch(
 // 底部按钮展示逻辑
 nextTick(() => {
   useIntersectionObserver(observeRef, ([{ isIntersecting }], observerElement) => {
-    showFooterBtn.value = !isIntersecting;
+    // showFooterBtn.value = !isIntersecting;
+    showFooterBtn.value = true;
   });
 });
 

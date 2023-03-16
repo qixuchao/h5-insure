@@ -24,10 +24,36 @@
       </div>
       <div class="container">
         <Benefit :data-source="benefitData" />
-        将你们的组件填充进来
         <!-- 这里是标准险种信息 -->
-        <InsureInfos v-model="state.userData" :origin-data="dataSource.productPlanInsureVOList[0]"></InsureInfos>
+        <InsureInfos
+          v-model="state.userData"
+          :origin-data="dataSource.productPlanInsureVOList[0].insureProductRiskVOList[0]"
+        ></InsureInfos>
         <!-- 以下是附加险种信息 -->
+        <template v-for="risk in dataSource.productPlanInsureVOList[0].insureProductRiskVOList" :key="risk.riskCode">
+          <div v-if="risk.mainRiskFlag !== 1">
+            <!-- 附加险区域 -->
+            <VanField
+              v-model="state.riskIsInsure[risk.riskCode].selected"
+              :label="risk.riskName"
+              name="selected"
+              label-width="50%"
+              :border="false"
+              class="risk-select-field"
+            >
+              <template #input>
+                <ProRadioButton
+                  v-model="state.riskIsInsure[risk.riskCode].selected"
+                  :options="RISK_SELECT"
+                ></ProRadioButton>
+              </template>
+            </VanField>
+            <div v-if="state.riskIsInsure[risk.riskCode].selected === '1'" class="risk2-field">
+              <!-- 这里是附加险种选择投保后展开的区域 -->
+              <InsureInfos v-model="state.riskIsInsure[risk.riskCode].data" :origin-data="risk"></InsureInfos>
+            </div>
+          </div>
+        </template>
       </div>
       <TrialButton
         :is-share="false"
@@ -50,6 +76,12 @@ import TrialButton from '../TrialButton.vue';
 import InsureInfos from '../../long/InsureInfos/index.vue';
 import Benefit from '../Benefit/index.vue';
 import { RiskVoItem } from '@/api/modules/trial.data';
+import { RISK_TYPE, RISK_TYPE_ENUM } from '@/common/constants/trial';
+
+const RISK_SELECT = [
+  { value: 1, label: '投保' },
+  { value: 2, label: '不投保' },
+];
 
 const props = defineProps({
   dataSource: {
@@ -64,6 +96,7 @@ const state = reactive({
   select: {},
   list: [],
   userData: {} as RiskVoItem,
+  riskIsInsure: {},
 });
 
 const onNext = () => {
@@ -1584,6 +1617,28 @@ const benefitData = {
     },
   ],
 };
+
+const handleSetRiskSelect = () => {
+  state.riskIsInsure = {};
+  props.dataSource.productPlanInsureVOList[0].insureProductRiskVOList.forEach((risk) => {
+    state.riskIsInsure[risk.riskCode] = { selected: 2, data: null };
+  });
+  console.log('-=------state', state.riskIsInsure);
+};
+
+onBeforeMount(() => {
+  handleSetRiskSelect();
+});
+
+watch(
+  () => state.show,
+  (v) => {
+    if (v) {
+      // 每个附加险的投保不投保状态重置
+      handleSetRiskSelect();
+    }
+  },
+);
 </script>
 
 <style scoped lang="scss">
@@ -1605,9 +1660,22 @@ const benefitData = {
   }
 
   .container {
-    height: 1060px;
-    margin-bottom: 30px;
+    height: 90%;
+    padding-bottom: 150px;
     overflow-y: auto;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    :deep(.risk-select-field) {
+      display: inline-flex;
+      padding: 0;
+      align-items: center;
+      :deep(.van-field__label) {
+        color: black;
+      }
+    }
+    .risk2-field {
+    }
   }
 }
 </style>

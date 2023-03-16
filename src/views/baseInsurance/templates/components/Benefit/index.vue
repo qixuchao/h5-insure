@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="benefit-container">
     <van-tabs
       :active="active"
       title-active-color="#0d6efe"
@@ -171,7 +171,7 @@ watch(num, () => {
 </script>
 
 <style lang="scss" scoped>
-.container {
+.benefit-container {
   widows: 100%;
   background: #ffffff;
   border-radius: 16px;

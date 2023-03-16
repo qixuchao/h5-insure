@@ -1,7 +1,16 @@
 <template>
-  <BaoeBoafei :v-model="modelValue" :origin-data="originData.insureProductRiskVOList[0]"></BaoeBoafei>
-  <div>因子</div>
-  <div>产品要素</div>
+  <BaoeBoafei
+    :v-model="modelValue"
+    :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
+  ></BaoeBoafei>
+  <!-- 这里放因子 -->
+  <div></div>
+  <!-- 产品要素 -->
+  <ProductKeys
+    :v-model="modelValue"
+    :origin-data="originData.productRiskInsureLimitVO"
+    :risk-code="originData.riskCode"
+  ></ProductKeys>
 </template>
 
 <script lang="ts" setup>
@@ -19,18 +28,18 @@ import {
   RULE_PAYMENT,
 } from '@/common/constants/trial';
 
-import { RiskDetailVoItem } from '@/api/modules/newTrial.data';
-import { ProductInfo, RiskVoItem } from '@/api/modules/trial.data';
+// import { RiskDetailVoItem } from '@/api/modules/newTrial.data';
+import { RiskDetailVoItem, ProductInfo, RiskVoItem } from '@/api/modules/trial.data';
 import BaoeBoafei from './components/BaoeBaofei/index.vue';
-import ProExpand from '@/components/ProExpand/index.vue';
+import ProductKeys from './components/ProductKeys/index.vue';
 
 interface Props {
-  originData: ProductInfo;
+  originData: RiskDetailVoItem;
   modelValue: RiskVoItem;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  originData: () => ({} as ProductInfo),
+  originData: () => ({} as RiskDetailVoItem),
   modelValue: () => ({} as RiskVoItem),
 });
 
