@@ -25,7 +25,9 @@
       <div class="container">
         <Benefit :data-source="benefitData" />
         将你们的组件填充进来
+        <!-- 这里是标准险种信息 -->
         <InsureInfos v-model="state.userData" :origin-data="dataSource.productPlanInsureVOList[0]"></InsureInfos>
+        <!-- 以下是附加险种信息 -->
       </div>
       <TrialButton
         :is-share="false"
