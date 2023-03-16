@@ -1,6 +1,6 @@
 <template>
-  <div v-if="loading">__SKELETON_SHORT_CONTENT__</div>
-  <van-config-provider v-else data-skeleton-root="SHORT" :theme-vars="themeVars">
+  <div v-if="loading">__SKELETON_LONG_CONTENT__</div>
+  <van-config-provider v-else data-skeleton-root="LONG" :theme-vars="themeVars">
     <div class="page-internet-product-detail">
       <div class="info">
         <Banner
@@ -68,11 +68,11 @@
   ></FilePreview>
 </template>
 
-<script lang="ts" setup name="InsuranceShort">
+<script lang="ts" setup name="InsuranceLong">
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant/es';
 import { useIntersectionObserver } from '@vueuse/core';
-import { useTheme } from '@/hooks/useTheme';
+import { setGlobalTheme, useTheme } from '@/hooks/useTheme';
 import {
   ProductSaleInfo,
   InsureProductData,
@@ -229,6 +229,7 @@ const initData = async () => {
       const { title, desc, image } = data?.PRODUCT_LIST.wxShareConfig || {};
       // 设置分享参数
       setShareLink({ title, desc, image });
+      setGlobalTheme(data.BASIC_INFO.themeType);
     }
   });
 

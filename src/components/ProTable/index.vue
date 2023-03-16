@@ -1,5 +1,5 @@
 <template>
-  <div class="com-table">
+  <div class="com-pro-table">
     <div class="table-wrapper">
       <table class="scroll-table">
         <thead class="table-header">
@@ -88,7 +88,7 @@ const displayDataSource = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-.com-table {
+.com-pro-table {
   .table-wrapper {
     overflow-x: auto;
     font-size: 24px;
