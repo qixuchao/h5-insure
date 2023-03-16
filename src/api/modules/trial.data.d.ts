@@ -529,10 +529,36 @@ export interface ProductInfo {
   productName: string;
   productPlanInsureVOList: Array<ProductPlanInsure>;
 }
+
+export interface ProductFactorItem {
+  code: string;
+  title: string;
+  displayType: number;
+  isDisplay: number;
+  isMustInput: number;
+  hasDefaultValue: number;
+  default: string;
+  attributeValueList: Column[];
+  isReadOnly: boolean;
+  sort: number;
+  moduleType: number;
+  isExtend: boolean;
+  isHidden: boolean;
+  placeholder: string;
+  regular: RegExp;
+  unit: string;
+  isSelfInsuredNeed: boolean;
+  isCalculationFactor: number;
+}
+
+export interface ProductFactor {
+  [key: string]: ProductFactorItem[];
+}
+
 export interface ProductPlanInsure {
   planCode: string;
   planName: string;
-  productFactor: any;
+  productFactor: ProductFactor;
   insureProductRiskVOList: Array<RiskDetailVoItem>;
   oilPackageProductVOList: Array<any>;
   oilPackageRelationVOList: Array<any>;

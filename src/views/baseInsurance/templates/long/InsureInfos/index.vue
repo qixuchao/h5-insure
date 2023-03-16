@@ -1,5 +1,6 @@
 <template>
-  <BaoeBoafei :v-model="modelValue" :origin-data="originData.insureProductRiskVOList[0]"></BaoeBoafei>
+  <BaoeBaofei :v-model="modelValue" :origin-data="originData.insureProductRiskVOList[0]"></BaoeBaofei>
+  <PersonalInfo v-model="state.personalInfo" :product-factor="originData.productFactor" />
   <div>因子</div>
   <div>产品要素</div>
 </template>
@@ -20,18 +21,22 @@ import {
 } from '@/common/constants/trial';
 
 import { RiskDetailVoItem } from '@/api/modules/newTrial.data';
-import { ProductInfo, RiskVoItem } from '@/api/modules/trial.data';
-import BaoeBoafei from './components/BaoeBaofei/index.vue';
+import { ProductInfo, RiskVoItem, ProductPlanInsure } from '@/api/modules/trial.data';
+import { BaoeBaofei, PersonalInfo } from './components';
 import ProExpand from '@/components/ProExpand/index.vue';
 
 interface Props {
-  originData: ProductInfo;
+  originData: ProductPlanInsure;
   modelValue: RiskVoItem;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  originData: () => ({} as ProductInfo),
+  originData: () => ({} as ProductPlanInsure),
   modelValue: () => ({} as RiskVoItem),
+});
+
+const state = reactive({
+  personalInfo: {},
 });
 
 const enumList = ref({});

@@ -46,7 +46,8 @@ const props = withDefaults(defineProps<Props>(), {
   height: 60px;
   background-color: #f6f7fc;
   padding: 0 16px;
-  border-radius: var(--van-pro-check-radius, 18px);
+  // border-radius: var(--van-pro-check-radius, 18px);
+  border-radius: var(--van-border-radius-md);
   font-size: 26px;
   display: flex;
   align-items: center;

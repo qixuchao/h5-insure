@@ -8,21 +8,21 @@
         v-bind="item"
       >
         <!-- 继承 slots -->
-        <template v-for="slotName in Object.keys($slots)" :key="slotName" #[slotName]>
+        <template v-for="slotName in noDefaultSlots" :key="slotName" #[slotName]>
           <slot :name="slotName" />
         </template>
       </component>
     </template>
-    <slot />
+    <slot name="default" />
   </VanForm>
 </template>
 <script lang="ts" setup>
-import { withDefaults, reactive, shallowRef } from 'vue';
+import { withDefaults, reactive, shallowRef, useSlots } from 'vue';
 import type { FormInstance } from 'vant';
 import { nanoid } from 'nanoid';
 import { Toast } from 'vant/es';
-import { VAN_PRO_FORM_KEY } from '../utils';
 import { isNotEmptyArray } from '@/common/constants/utils';
+import { VAN_PRO_FORM_KEY } from '../utils';
 import useDictData from '@/hooks/useDictData';
 import * as FieldComponents from './index';
 import { SchemaItem } from '../index.data';
@@ -42,6 +42,8 @@ interface Props {
 }
 
 const emits = defineEmits(['failed']);
+
+const slots = useSlots();
 
 const props = withDefaults(defineProps<Props>(), {
   validateMethod: 'show-error',
@@ -69,13 +71,13 @@ provide(VAN_PRO_FORM_KEY, {
   markRequired: props.markRequired,
 });
 
+// 非默认 slots
+const noDefaultSlots = computed(() => Object.keys(slots).filter((key) => key !== 'default'));
+
 // 是否是 schema
 const isSchema = computed(() => isNotEmptyArray(props.schema));
 
-const getValues = (): Record<string, any> => {
-  return formRef.value.getValues();
-};
-
+// 表单验证错误提示方式
 const errorProps = computed(() => {
   const tempMap = {
     toast: [false, false],

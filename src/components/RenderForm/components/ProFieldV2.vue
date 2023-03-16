@@ -115,7 +115,7 @@ const ruleType = computed(() => {
   // 关联字段的类型存在
   if (props.relatedName) {
     // 并且关联字段有值
-    const relatedNameValue = formState.formData[props.relatedName];
+    const relatedNameValue = formState?.formData?.[props.relatedName];
     if (relatedNameValue) {
       return RELATED_RULE_TYPE_MAP[props.relatedName]?.[relatedNameValue];
     }
@@ -208,7 +208,7 @@ watch(
 );
 
 watch(
-  () => formState.formData[attrs.name],
+  () => formState?.formData?.[attrs.name],
   (val) => {
     state.modelValue = val;
   },

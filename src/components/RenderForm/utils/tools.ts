@@ -187,7 +187,6 @@ const configMap = {
     ...CONFIG_RULE_MAP.HEIGHT_WEIGHT,
     unit: 'kg',
   },
-  contactNo: {},
   email: {
     ruleType: RULE_TYPE_ENUM.EMAIL,
   },
@@ -207,10 +206,10 @@ const configMap = {
     ...CONFIG_RULE_MAP.ZIP_CODE,
   },
   ...addressConf,
-  country: {
+  nationalityCode: {
     ...CONFIG_RULE_MAP.COUNTRY,
   },
-  certExpiry: {
+  certEndDate: {
     minDate: new Date(),
     maxDate: dayjs().add(100, 'year').toDate(),
   },
@@ -281,37 +280,49 @@ export const transformToSchema = (arr: FieldConfItem[]): ModuleResult => {
 /**
  * 转换原始数据 ProForm 所需要的数据
  * @param [array] 包含投保人、被保人、受益人的因子数组
+ * @param [boolean] 是否过滤试算因子
  * @returns [array] {schema 和 trialFactorCodes(试算因子 code )}[]
  */
 export const transformFactorToSchema = (
   factors: ProductFactor,
+  isTrial = false,
 ): Array<{
   schema: ComponentProps[];
   trialFactorCodes: string[];
 }> => {
-  if (factors && Object.keys(factors).length) {
-    const keys = Object.keys(factors);
-    const { holder, insured, beneficiary, payInfo }: ProductFactor = keys.reduce((res, key) => {
-      // res[moduleTypeMap[key]] = factors[key].filter((item) => item.isDisplay === 1);
-      res[moduleTypeMap[key]] = factors[key];
-      return res;
-    }, {});
-
-    const holderCodes = holder.map((item) => item.code);
-
-    // 被保人为本人时，不在投保人中的因子展示
-    const finialInsured = insured.map((item) => {
-      return {
-        ...item,
-        isSelfInsuredNeed: !holderCodes.includes(item.code),
-      };
-    });
-
-    console.log('origin factors', holder, insured, beneficiary);
-
-    return [holder, finialInsured, beneficiary, payInfo].map((item) => transformToSchema(item));
+  if (!factors) {
+    return [];
   }
-  return [];
+
+  const keys = Object.keys(factors) || [];
+  if (!isNotEmptyArray(keys)) {
+    return [];
+  }
+
+  const { holder, insured, beneficiary, payInfo }: ProductFactor = keys.reduce((res, key) => {
+    // res[moduleTypeMap[key]] = factors[key].filter((item) => item.isDisplay === 1);
+    res[moduleTypeMap[key]] = isNotEmptyArray(factors[key])
+      ? factors[key].filter((factorsItem) => {
+          // 是否过滤试算
+          return isTrial ? factorsItem.isCalculationFactor === 1 : true;
+        })
+      : [];
+    return res;
+  }, {});
+
+  const holderCodes = holder.map((item) => item.code);
+
+  // 被保人为本人时，不在投保人中的因子展示
+  const finialInsured = insured.map((item) => {
+    return {
+      ...item,
+      isSelfInsuredNeed: !holderCodes.includes(item.code),
+    };
+  });
+
+  console.log('origin factors', holder, insured, beneficiary);
+
+  return [holder, finialInsured, beneficiary, payInfo].map((item) => transformToSchema(item));
 };
 
 /**
