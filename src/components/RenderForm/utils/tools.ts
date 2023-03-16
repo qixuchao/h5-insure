@@ -325,7 +325,7 @@ export const parseCertNo = (str: string) => {
  */
 export const relatedConfigMap = {
   certType: {
-    onBlurEffect: (val, formData) => {
+    onChangeEffect: (val, formData) => {
       // 身份证号码
       if (formData.certType === CERT_TYPE_ENUM.CERT) {
         const data = parseCertNo(val);

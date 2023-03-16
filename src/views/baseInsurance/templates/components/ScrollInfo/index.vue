@@ -169,7 +169,7 @@ const isShowTab2_2 = computed(() => {
 });
 
 const isShowTab2_3 = computed(() => {
-  return dataSource.value?.ISSUE_NOTICE?.length;
+  return dataSource.value?.ISSUE_NOTICE?.noticeContent;
 });
 
 const isShowTab2_4 = computed(() => {

@@ -628,19 +628,11 @@ const trialPremium = async (currentProductDetail: any, productRiskList: any, isO
       },
     },
     insuredVOList: tenantOrderInsuredList.map((person) => {
-      let currentPerson = {};
-      if (person.certType === CERT_TYPE_ENUM.CERT && person.certNo) {
-        currentPerson = {
-          gender: +getSex(person.certNo),
-          birthday: dayjs(new Date(getBirth(person.certNo))).format('YYYY-MM-DD'),
-        };
-      }
       return {
         insuredCode: '',
         relationToHolder: person.relationToHolder,
         personVO: {
           ...person,
-          ...currentPerson,
           socialFlag: person.extInfo.hasSocialInsurance,
           certType: person.certType || CERT_TYPE_ENUM.CERT,
         },

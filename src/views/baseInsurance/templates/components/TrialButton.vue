@@ -97,6 +97,14 @@ watch(
     justify-content: space-between;
     border-radius: 30px 30px 0px 0px;
 
+    .com-share {
+      display: flex;
+      flex-direction: column;
+      width: 60px;
+      font-size: 28px;
+      align-items: center;
+    }
+
     // footer覆盖
     .price {
       color: #393d46;

@@ -165,6 +165,12 @@ const formatter = (value) => {
 };
 
 const updateModelValue = (val) => {
+  if (props.relatedName) {
+    const { onChangeEffect } = relatedConfigMap[props.relatedName] || {};
+    if (typeof onChangeEffect === 'function') {
+      onChangeEffect(val, formState.formData);
+    }
+  }
   if (formState.formData && attrs.name) {
     formState.formData[attrs.name] = val;
   }
