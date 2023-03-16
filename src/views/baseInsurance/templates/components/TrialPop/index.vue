@@ -23,9 +23,9 @@
         <van-icon :name="cancelIcon" @click="state.show = false" />
       </div>
       <div class="container">
-        <InsureInfos :origin-data="dataSource"></InsureInfos>
         <Benefit :data-source="benefitData" />
         将你们的组件填充进来
+        <InsureInfos v-model="state.userData" :origin-data="dataSource.productPlanInsureVOList[0]"></InsureInfos>
       </div>
       <TrialButton
         :is-share="false"
@@ -47,6 +47,7 @@ import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import TrialButton from '../TrialButton.vue';
 import InsureInfos from '../../long/InsureInfos/index.vue';
 import Benefit from '../Benefit/index.vue';
+import { RiskVoItem } from '@/api/modules/trial.data';
 
 const props = defineProps({
   dataSource: {
@@ -54,12 +55,13 @@ const props = defineProps({
     default: () => [],
   },
 });
-
+console.log('pop data source = ', props.dataSource);
 const state = reactive({
   loading: false,
   show: true,
   select: {},
   list: [],
+  userData: {} as RiskVoItem,
 });
 
 const onNext = () => {
