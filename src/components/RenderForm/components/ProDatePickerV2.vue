@@ -139,7 +139,7 @@ watch(
 );
 
 watch(
-  () => formState.formData[filedAttrs.name],
+  () => formState.formData?.[filedAttrs.name],
   (val) => {
     dealModelValue(val);
   },

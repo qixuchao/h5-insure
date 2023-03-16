@@ -1,10 +1,12 @@
 <template>
-  <BaoeBoafei
+  <BaoeBaofei
     :v-model="modelValue"
     :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
-  ></BaoeBoafei>
+  ></BaoeBaofei>
   <!-- 这里放因子 -->
-  <div></div>
+  <div v-if="productFactor">
+    <PersonalInfo v-model="state.personalInfo" :product-factor="productFactor" />
+  </div>
   <!-- 产品要素 -->
   <ProductKeys
     :v-model="modelValue"
@@ -28,19 +30,23 @@ import {
   RULE_PAYMENT,
 } from '@/common/constants/trial';
 
-// import { RiskDetailVoItem } from '@/api/modules/newTrial.data';
-import { RiskDetailVoItem, ProductInfo, RiskVoItem } from '@/api/modules/trial.data';
-import BaoeBoafei from './components/BaoeBaofei/index.vue';
-import ProductKeys from './components/ProductKeys/index.vue';
+import { RiskDetailVoItem, ProductInfo, RiskVoItem, ProductPlanInsure } from '@/api/modules/trial.data';
+import { BaoeBaofei, PersonalInfo, ProductKeys } from './components';
 
 interface Props {
   originData: RiskDetailVoItem;
   modelValue: RiskVoItem;
+  productFactor: any;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as RiskDetailVoItem),
   modelValue: () => ({} as RiskVoItem),
+  productFactor: () => null,
+});
+
+const state = reactive({
+  personalInfo: {},
 });
 
 const enumList = ref({});

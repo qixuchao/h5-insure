@@ -52,6 +52,10 @@ export const INPUT_MAX_LENGTH = {
    */
   GAS_NUMBER: 20,
   /**
+   * 姓名长度
+   */
+  NAME: 25,
+  /**
    * 详细地址长度 50
    */
   ADDRESS_DETAIL: 50,
@@ -61,7 +65,67 @@ export const INPUT_MAX_LENGTH = {
   CONTENT: 200,
 };
 
+/** ruleType 枚举 */
+export const RULE_TYPE_ENUM = {
+  /** 姓名 */
+  NAME: 'name',
+  /** 链接 */
+  EXTERNAL: 'external',
+  /** 邮箱 */
+  EMAIL: 'email',
+  /** 邮编 */
+  ZIP_CODE: 'zipCode',
+  /** 电话号码 */
+  TEL: 'tel',
+  /** 手机号 */
+  MOBILE: 'mobile',
+  /** 中文字符 */
+  ZH_CN: 'zhCN',
+  /** 非中文字符 */
+  NOT_ZH_CN: 'notZhCN',
+  /** 只允许输入中文、数字、英文字母 */
+  NORMAL_CHAR: 'normalChar',
+  /** 字母、数字 */
+  ALPHABET_NUMBER: 'alphabetNumber',
+  /** 身份证 */
+  CERT: 'cert',
+  /** 户口本 */
+  HOUSE_HOLD: 'houseHold',
+  /** 出生证 */
+  BIRTH: 'birth',
+  /** 护照 */
+  PASSPORT: 'passport',
+  /** 其他证件 */
+  OTHER_CERT: 'otherCert',
+  /** 军官证 */
+  MILITARY_CARD: 'militaryCard',
+  /** 士兵证 */
+  SOLIDER: 'solider',
+  /** 大陆居民往来港澳通行证 */
+  HONGKONG_MACAO: 'hongkongMacao',
+  /** 大陆居民往来台湾通行证 */
+  TAIWAN_TRAVEL: 'taiwanTravel',
+  /** 外国人永久居留证 */
+  FOREIGN_PERMANENT: 'foreignPermanent',
+  /** 港澳居民居住证 */
+  HK_MACAO_RESIDENCE_PERMIT: 'HKMacaoResidencePermit',
+  /** 台湾居民居住证 */
+  TAIWAN_RESIDENCE_PERMIT: 'taiwanResidencePermit',
+  /** 社会信用代码 */
+  SOCIAL_CREDIT_CODE: 'socialCreditCode',
+  /** 组织机构代码 */
+  OCC: 'OCC',
+  /** 营业执照号码 */
+  BUSINESS_LICENSE: 'businessLicense',
+  /** 银行卡号 */
+  BAND_CARD: 'bandCard',
+};
+
 export const CONFIG_RULE_MAP = {
+  NAME: {
+    maxlength: INPUT_MAX_LENGTH.NAME,
+    ruleType: 'name',
+  },
   /**
    * 手机号 长度11位，数字
    */
@@ -98,6 +162,7 @@ export const CONFIG_RULE_MAP = {
    */
   ZIP_CODE: {
     type: 'digit',
+    ruleType: RULE_TYPE_ENUM.ZIP_CODE,
     maxlength: INPUT_MAX_LENGTH.ZIP_CODE,
   },
   /**
@@ -211,60 +276,6 @@ export const COMPONENT_MAPPING_LIST = [
   },
 ];
 
-/** ruleType 枚举 */
-export const RULE_TYPE_ENUM = {
-  /** 链接 */
-  EXTERNAL: 'external',
-  /** 邮箱 */
-  EMAIL: 'email',
-  /** 邮编 */
-  ZIP_CODE: 'zipCode',
-  /** 电话号码 */
-  TEL: 'tel',
-  /** 手机号 */
-  MOBILE: 'mobile',
-  /** 中文字符 */
-  ZH_CN: 'zhCN',
-  /** 非中文字符 */
-  NOT_ZH_CN: 'notZhCN',
-  /** 只允许输入中文、数字、英文字母 */
-  NORMAL_CHAR: 'normalChar',
-  /** 字母、数字 */
-  ALPHABET_NUMBER: 'alphabetNumber',
-  /** 身份证 */
-  CERT: 'cert',
-  /** 户口本 */
-  HOUSE_HOLD: 'houseHold',
-  /** 出生证 */
-  BIRTH: 'birth',
-  /** 护照 */
-  PASSPORT: 'passport',
-  /** 其他证件 */
-  OTHER_CERT: 'otherCert',
-  /** 军官证 */
-  MILITARY_CARD: 'militaryCard',
-  /** 士兵证 */
-  SOLIDER: 'solider',
-  /** 大陆居民往来港澳通行证 */
-  HONGKONG_MACAO: 'hongkongMacao',
-  /** 大陆居民往来台湾通行证 */
-  TAIWAN_TRAVEL: 'taiwanTravel',
-  /** 外国人永久居留证 */
-  FOREIGN_PERMANENT: 'foreignPermanent',
-  /** 港澳居民居住证 */
-  HK_MACAO_RESIDENCE_PERMIT: 'HKMacaoResidencePermit',
-  /** 台湾居民居住证 */
-  TAIWAN_RESIDENCE_PERMIT: 'taiwanResidencePermit',
-  /** 社会信用代码 */
-  SOCIAL_CREDIT_CODE: 'socialCreditCode',
-  /** 组织机构代码 */
-  OCC: 'OCC',
-  /** 营业执照号码 */
-  BUSINESS_LICENSE: 'businessLicense',
-  /** 银行卡号 */
-  BAND_CARD: 'bandCard',
-};
-
 /**
  * 关联的 filed ruleType 映射
  */
@@ -294,6 +305,7 @@ interface FormState {
 
 interface VanFormProvied {
   formState: FormState;
+  markRequired: boolean;
   formRef: Ref<FormInstance>;
 }
 

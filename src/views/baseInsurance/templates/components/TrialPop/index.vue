@@ -28,6 +28,7 @@
         <InsureInfos
           v-model="state.userData"
           :origin-data="dataSource.productPlanInsureVOList[0].insureProductRiskVOList[0]"
+          :product-factor="dataSource.productPlanInsureVOList[0].productFactor"
         ></InsureInfos>
         <!-- 以下是附加险种信息 -->
         <template v-for="risk in dataSource.productPlanInsureVOList[0].insureProductRiskVOList" :key="risk.riskCode">
@@ -1621,9 +1622,9 @@ const benefitData = {
 const handleSetRiskSelect = () => {
   state.riskIsInsure = {};
   props.dataSource.productPlanInsureVOList[0].insureProductRiskVOList.forEach((risk) => {
+    // 1是投保， 2是不投保
     state.riskIsInsure[risk.riskCode] = { selected: 2, data: null };
   });
-  console.log('-=------state', state.riskIsInsure);
 };
 
 onBeforeMount(() => {

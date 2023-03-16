@@ -26,7 +26,7 @@ import useAppStore from '@/store/app';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { useAttrsAndSlots } from '../hooks';
-import { deleteEmptyChildren } from '../utils';
+import { filterChildrenLevel } from '../utils';
 
 const globalStore = useAppStore();
 const { dictMap } = storeToRefs(globalStore);
@@ -70,6 +70,13 @@ const props = defineProps({
   customFieldName: {
     type: Object,
     default: () => ({ text: 'name', value: 'code', children: 'children' }),
+  },
+  /**
+   * 展示几级数据
+   */
+  level: {
+    type: Number,
+    default: 0,
   },
 });
 
@@ -139,7 +146,7 @@ const columns = computed(() => {
   if (props.dictCode && isNotEmptyArray(singleDictData)) {
     tempColumns = singleDictData;
   }
-  return deleteEmptyChildren(tempColumns);
+  return filterChildrenLevel(tempColumns, props.level);
 });
 
 // 选中的所有层级数据

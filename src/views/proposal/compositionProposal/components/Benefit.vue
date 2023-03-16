@@ -10,7 +10,7 @@
     >
       <van-tab v-for="(item, i) in props.info?.benefitRiskResultVOList" :key="i" :name="i" :title="item.riskName">
         <div v-if="i == active" class="benefit">
-          <div class="benefit-title">{{ item?.riskName }}</div>
+          <!-- <div class="benefit-title">{{ item?.riskName }}</div> -->
           <div class="line"></div>
           <p v-if="!showChart" class="box-title box-title-chart">
             <img src="@/assets/images/compositionProposal/box-title.png" alt="" />

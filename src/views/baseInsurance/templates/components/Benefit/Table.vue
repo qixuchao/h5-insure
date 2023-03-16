@@ -1,6 +1,6 @@
 <template>
-  <div class="demo-table">
-    <Table :top-height="400" :columns="columns" :list="list" :is-clone="true">
+  <div class="benefit-table">
+    <Table :top-height="400" :columns="columns" :data="tableData" :is-clone="true">
       <!-- <template #index="{ value, item }">
         <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
           value === null ? '-' : value
@@ -84,6 +84,15 @@
 import { ColumnProps } from '@/components/ProTable/types';
 import Table from '@/components/ProTable/Table.vue';
 
+interface Props {
+  dataSource: {
+    headers: string[];
+    dataList: Array<string[]>;
+  };
+}
+
+const props = defineProps<Props>();
+
 const colSpans = [
   // {
   //   rowIndex: 1,
@@ -94,6 +103,7 @@ const colSpans = [
   //   bgColor: '#ccc',
   //   color: 'red',
   // },
+
   {
     rowIndex: 5,
     spans: 2,
@@ -104,229 +114,41 @@ const colSpans = [
     color: 'black',
   },
 ];
-const columns: ColumnProps[] = [
-  // {
-  //   title: '序号',
-  //   key: 'index',
-  //   scopedSlots: { customRender: 'index' },
-  //   fixed: true,
-  // },
-  {
-    title: '保单年份',
-    key: 'year',
-    fixed: true,
-  },
-  {
-    title: '年龄',
-    key: 'age',
-    fixed: true,
-  },
-  {
-    title: '每年领取年金',
-    key: 'yearAmount',
-    scopedSlots: { customRender: 'propertyName' },
-    // fixed: true
-  },
-  {
-    title: '首次领取',
-    key: 'sumAmount',
-    scopedSlots: { customRender: 'sumAmount' },
-  },
-  {
-    title: '累计金额',
-    key: 'subAmount',
-    scopedSlots: { customRender: 'subAmount' },
-  },
-  // {
-  //   title: '销售套数',
-  //   key: 'saleCount',
-  //   scopedSlots: { customRender: 'saleCount' },
-  // },
-  // {
-  //   title: '销售金额',
-  //   key: 'saleAmount',
-  //   scopedSlots: { customRender: 'saleAmount' },
-  // },
-  // {
-  //   title: '无证销售套数',
-  //   key: 'saleNoLicenseCount',
-  //   scopedSlots: { customRender: 'saleNoLicenseCount' },
-  // },
-  // {
-  //   title: '无证销售金额',
-  //   key: 'saleNoLicenseAmount',
-  //   scopedSlots: { customRender: 'saleNoLicenseAmount' },
-  // },
-  // {
-  //   title: '退房套数',
-  //   key: 'tfCount',
-  //   scopedSlots: { customRender: 'tfCount' },
-  // },
-  // {
-  //   title: '退房金额',
-  //   key: 'tfAmount',
-  //   scopedSlots: { customRender: 'tfAmount' },
-  // },
-  // {
-  //   title: '变更套数',
-  //   key: 'bgCount',
-  //   scopedSlots: { customRender: 'bgCount' },
-  // },
-  // {
-  //   title: '变更金额',
-  //   key: 'bgAmount',
-  //   scopedSlots: { customRender: 'bgAmount' },
-  // },
-  // {
-  //   title: '回款金额小计',
-  //   key: 'hkxjAmount',
-  //   scopedSlots: { customRender: 'hkxjAmount' },
-  // },
-  // {
-  //   title: '销售套数小计',
-  //   key: 'xsxjCount',
-  //   scopedSlots: { customRender: 'xsxjCount' },
-  // },
-  // {
-  //   title: '销售金额小计',
-  //   key: 'xsxjAmount',
-  //   scopedSlots: { customRender: 'xsxjAmount' },
-  // },
-];
+const renderWidth = 320; // 表格在页面渲染的宽度
+// 构造列和行数据（header_是因为header里面的头是汉字，不能用于dom的ID）
+const columns = computed<ColumnProps[]>(() => {
+  // 表头的列数
+  const headerLen = props.dataSource.headers.length;
+  const totalWordWidth = props.dataSource.headers.join('').length * 12 + props.dataSource.headers.length * 20;
+  return props.dataSource.headers.map((h, i) => {
+    const titleWidth =
+      totalWordWidth > renderWidth ? h.length * 12 + 20 : Math.max(h.length * 12 + 20, renderWidth / headerLen);
 
-const list = ref([
-  {
-    year: 1,
-    age: '52',
-    yearAmount: '23元',
-    sumAmount: '345元',
-    subAmount: 395,
-    saleCount: 'saleCount',
-    saleAmount: 1272,
-  },
-  {
-    year: 2,
-    age: '53',
-    yearAmount: '23元',
-    sumAmount: '345元',
-    subAmount: 3475,
-    saleCount: 'saleCount',
-    saleAmount: 1262,
-  },
-  {
-    year: 3,
-    age: '54',
-    yearAmount: '23元',
-    sumAmount: '3545元',
-    subAmount: 3455,
-    saleCount: 'saleCount',
-    saleAmount: 1252,
-  },
-  {
-    year: 4,
-    age: '55',
-    yearAmount: '23元',
-    sumAmount: '345元',
-    subAmount: 345,
-    saleCount: 'saleCount',
-    saleAmount: 1242,
-  },
-  {
-    year: 5,
-    age: '56',
-    yearAmount: '23元',
-    sumAmount: '345元',
-    subAmount: 345,
-    saleCount: 'saleCount',
-    saleAmount: 1232,
-  },
-  {
-    year: 6,
-    age: '57',
-    yearAmount: '23元',
-    sumAmount: '345元',
-    subAmount: 345,
-    saleCount: 'saleCount',
-    saleAmount: 1222,
-  },
-  {
-    year: 7,
-    age: '58',
-    yearAmount: '23元',
-    sumAmount: '345元',
-    subAmount: 345,
-    saleCount: '22',
-    saleAmount: 1219,
-  },
-  {
-    year: 8,
-    age: '59',
-    yearAmount: '23元',
-    sumAmount: '345元',
-    subAmount: 345,
-    saleCount: 'saleCount',
-    saleAmount: 1220,
-  },
-  {
-    year: 9,
-    age: '60',
-    yearAmount: '23元',
-    sumAmount: '345元',
-    subAmount: 345,
-    saleCount: 'saleCount',
-    saleAmount: 1221,
-  },
-  {
-    year: 10,
-    age: '61',
-    yearAmount: '23元',
-    sumAmount: '345元',
-    subAmount: 345,
-    saleCount: 'saleCount',
-    saleAmount: 1222,
-  },
-  {
-    year: 11,
-    age: '62',
-    yearAmount: '23元',
-    sumAmount: '345元',
-    subAmount: 345,
-    saleCount: 'saleCount',
-    saleAmount: 1252,
-  },
-  {
-    year: 12,
-    age: '63',
-    yearAmount: '23元',
-    sumAmount: '345元',
-    subAmount: 345,
-    saleCount: 'saleCount',
-    saleAmount: 1242,
-  },
-  {
-    year: 13,
-    age: '64',
-    yearAmount: '23元',
-    sumAmount: '345元',
-    subAmount: 3445,
-    saleCount: 'saleCount',
-    saleAmount: 1232,
-  },
-  {
-    year: 14,
-    age: '65',
-    yearAmount: '23元',
-    sumAmount: '345元',
-    subAmount: 3435,
-    saleCount: 'saleCount',
-    saleAmount: 1232,
-  },
-]);
+    console.log('totalWordWidth:', totalWordWidth, 'titleWidth:', titleWidth, 'word-width:', h.length * 12 + 20);
+    return {
+      title: h,
+      key: `header_${i}`,
+      fixed: i < 2,
+      minWidth: titleWidth,
+    };
+  });
+});
+const tableData = computed(() => {
+  return props.dataSource.dataList.map((row) => {
+    const rowData: { [key: string]: string } = {};
+    row.forEach((col, index) => {
+      rowData[`header_${index}`] = col;
+    });
+    return rowData;
+  });
+});
+
+onMounted(() => {});
 </script>
 <style>
-.demo-table {
-  height: 600px;
-  border: 1px solid red;
-  overflow-y: auto;
+.benefit-table {
+  /* height: 600px; */
+  /* border: 1px solid red; */
+  overflow-y: hidden;
 }
 </style>

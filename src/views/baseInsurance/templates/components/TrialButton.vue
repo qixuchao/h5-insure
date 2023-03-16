@@ -52,7 +52,7 @@ const isApp = isAppFkq();
 
 // 根据试算或者试算前根据产品配置信息显示产品保费
 watch(
-  [() => props.premium, () => props.tenantProductDetail, () => props.planCode],
+  [() => props.premium, () => props.tenantProductDetail, () => props.paymentFrequency, () => props.planCode],
   ([premium]) => {
     const { PREMIUM = [] } = props.tenantProductDetail || {};
     let selectedPlan = {} as PlanInsureVO | undefined;
@@ -62,6 +62,7 @@ watch(
       const currentPremium = (selectedPlan?.data || []).find(
         (data) => data.paymentFrequency === props.paymentFrequency,
       );
+
       const { premium: unit, minActualUnit } = currentPremium || {};
 
       if (!premium) {
@@ -96,6 +97,14 @@ watch(
     z-index: 10;
     justify-content: space-between;
     border-radius: 30px 30px 0px 0px;
+
+    .com-share {
+      display: flex;
+      flex-direction: column;
+      width: 60px;
+      font-size: 28px;
+      align-items: center;
+    }
 
     // footer覆盖
     .price {

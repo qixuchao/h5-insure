@@ -5,9 +5,16 @@
     :custom-field-name="customFieldName"
     v-bind="$attrs"
     :name="`${name}-origin`"
+    :level="addressConfig.level"
     @update:full-value="updateFullValue"
   />
-  <ProFieldV2 v-model="state.address.detail" :label="`${$attrs.label}详情`" :maxlength="50" />
+  <ProFieldV2
+    v-if="addressConfig.showDetail"
+    v-model="state.address.detail"
+    :label="`${$attrs.label}详细地址`"
+    :required="$attrs.required as boolean"
+    :maxlength="50"
+  />
 </template>
 <script lang="ts" setup name="ProAddress">
 import { isNotEmptyArray } from '@/common/constants/utils';
@@ -33,6 +40,13 @@ const props = defineProps({
   valuePrefix: {
     type: String,
     default: '',
+  },
+  /**
+   * 控制级联组件筛选和是否展示详细地址
+   */
+  attributeValueList: {
+    type: Array,
+    default: () => [],
   },
 });
 
@@ -67,16 +81,43 @@ const address = computed(() => {
   }, {});
 });
 
+const addressConfig = computed(() => {
+  if (isNotEmptyArray(props.attributeValueList)) {
+    let level = 0;
+    let showDetail = false;
+    props.attributeValueList.forEach((item: { code: string; value: string }) => {
+      if (Number(item.code) > level && String(item.code) !== '4') {
+        level = Number(item.code);
+      }
+      if (String(item.code) !== '4') {
+        showDetail = true;
+      }
+    });
+    return {
+      // level 为 0，则展示全部，不等于 0 则 + 1 全国
+      level: level && level + 1,
+      showDetail,
+    };
+  }
+  return {
+    level: 0,
+    showDetail: true,
+  };
+});
+
 const updateFullValue = (arr = []) => {
   let address = {};
   if (isNotEmptyArray(arr)) {
     const { text, value } = props.customFieldName;
-    address = ['province', 'city', 'area'].reduce((res, key, index) => {
-      const item = arr[index + 1];
-      res[`${key}Code`] = item[value];
-      res[`${key}Name`] = item[text];
-      return res;
-    }, {});
+    // level = 0 时，默认全部
+    address = ['province', 'city', 'area']
+      .slice(0, Number(addressConfig.value.level || 3))
+      .reduce((res, key, index) => {
+        const item = arr[index + 1] || {};
+        res[`${key}Code`] = item[value];
+        res[`${key}Name`] = item[text];
+        return res;
+      }, {});
   }
   state.address = {
     ...state.address,
