@@ -280,7 +280,7 @@ watch(
     if (unit !== 'to') {
       const tempStartDate = `${computedSubtractDate(state.formInfo.insuranceStartDate, 1, 'day')} 00:00:00`;
       if (`${riskInsuranceEndType.value}` === INSURANCE_END_TYPE_ENUM.CURRENT_DAY) {
-        state.formInfo.insuranceEndDate = `${dayjs(new Date(state.formInfo.insuranceStartDate))
+        state.formInfo.insuranceEndDate = `${dayjs(state.formInfo.insuranceStartDate)
           .add(Number(num), unit)
           .subtract(1, 'day')
           .format('YYYY-MM-DD')} 23:59:59`;

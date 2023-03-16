@@ -25,6 +25,9 @@
       </div>
       <div class="container">
         <Benefit :data-source="benefitData" />
+        <!-- 这里是标准险种信息 -->
+        <InsureInfos v-model="state.userData" :origin-data="dataSource.productPlanInsureVOList[0]"></InsureInfos>
+        <!-- 以下是附加险种信息 -->
       </div>
       <TrialButton
         :is-share="false"
@@ -44,8 +47,10 @@
 import { computed, ref } from 'vue';
 import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import TrialButton from '../TrialButton.vue';
+import InsureInfos from '../../long/InsureInfos/index.vue';
 import Benefit from '../Benefit/index.vue';
 import { benefitCalc } from '@/api/modules/trial';
+import { RiskVoItem } from '@/api/modules/trial.data';
 
 const props = defineProps({
   dataSource: {
@@ -53,12 +58,13 @@ const props = defineProps({
     default: () => [],
   },
 });
-
+console.log('pop data source = ', props.dataSource);
 const state = reactive({
   loading: false,
   show: true,
   select: {},
   list: [],
+  userData: {} as RiskVoItem,
 });
 
 const onNext = () => {

@@ -49,7 +49,7 @@
           @click="onNext"
           >立即投保</TrialButton
         > -->
-        <TrialPop />
+        <TrialPop :data-source="insureProductDetail"></TrialPop>
       </template>
     </div>
     <PreNotice v-if="preNoticeLoading" :product-detail="tenantProductDetail"></PreNotice>

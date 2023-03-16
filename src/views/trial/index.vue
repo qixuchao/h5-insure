@@ -87,8 +87,8 @@
 import { provide } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant/es';
-import PersonalInfo from './components/PersonalInfo/index.vue';
-import RiskList from './components/RiskList/index.vue';
+// import PersonalInfo from './components/PersonalInfo/index.vue';
+// import RiskList from './components/RiskList/index.vue';
 import { insureProductDetail, premiumCalc } from '@/api/modules/trial';
 import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
 import { getDic, nextStep, getTemplateInfo } from '@/api';
