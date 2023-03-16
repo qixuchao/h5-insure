@@ -103,7 +103,8 @@ export const RegMap = {
   /** 身份证 */
   isIdCardNo: (val: any) => validateIdCardNo(val), // 只校验格式的正则: /^(^[1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}$)|(^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])((\d{4})|\d{3}[Xx])$)$/.test(val),
   /** 户口本 */
-  isHouseHold: (val: string) => /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(val),
+  isHouseHold: (val: string) => validateIdCardNo(val),
+  // isHouseHold: (val: string) => /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(val),
   /** 出生证 */
   isBirthType: (val: any) => /^[a-zA-Z]\d{9}$/.test(val),
   /** 密码 */

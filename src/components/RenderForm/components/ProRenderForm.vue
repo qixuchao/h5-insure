@@ -38,6 +38,7 @@ interface Props {
   isView?: boolean;
   schema?: SchemaItem[];
   config?: object;
+  markRequired: boolean;
 }
 
 const emits = defineEmits(['failed']);
@@ -45,6 +46,7 @@ const emits = defineEmits(['failed']);
 const props = withDefaults(defineProps<Props>(), {
   validateMethod: 'show-error',
   isView: false,
+  markRequired: false,
   model: () => ({}),
   config: () => ({}),
   schema: () => [],
@@ -64,6 +66,7 @@ const formRef = ref<FormInstance>({} as FormInstance);
 provide(VAN_PRO_FORM_KEY, {
   formState: state,
   formRef,
+  markRequired: props.markRequired,
 });
 
 // 是否是 schema

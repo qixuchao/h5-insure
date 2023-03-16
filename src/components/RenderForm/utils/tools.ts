@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { SEX_LIMIT_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
-import { COMPONENT_MAPPING_LIST, CONFIG_RULE_MAP, COMPONENT_ENUM } from './constants';
+import { COMPONENT_MAPPING_LIST, CONFIG_RULE_MAP, COMPONENT_ENUM, RULE_TYPE_ENUM } from './constants';
 import { validateIdCardNo } from './validate';
 import { Column, ComponentProps, FieldConfItem, ProductFactor } from '../index.data';
 
@@ -97,7 +97,6 @@ export const filterChildrenLevel = (arr: Column[], level = 0, childrenKey = 'chi
       return list.map(({ [`${childrenKey}`]: children, ...other }) => {
         const currentData = {} as Column;
         // 不需要过滤，或者需要过滤 并且 level > index
-        console.log(111111, level, index);
         const isFilter = !level || (level && level > index);
         if (isFilter && isNotEmptyArray(children)) {
           currentData.children = loop(children, index + 1);
@@ -189,27 +188,24 @@ const configMap = {
   },
   contactNo: {},
   email: {
-    ruleType: 'email',
+    ruleType: RULE_TYPE_ENUM.EMAIL,
   },
   personalAnnualIncome: CONFIG_RULE_MAP.INCOME,
   familyAnnualIncome: CONFIG_RULE_MAP.INCOME,
-  familyZipCode: CONFIG_RULE_MAP.ZIP_CODE,
-  residence: {},
+  workZipCode: CONFIG_RULE_MAP.ZIP_CODE,
   homePostalCode: CONFIG_RULE_MAP.ZIP_CODE,
-  workPostalCode: CONFIG_RULE_MAP.ZIP_CODE,
   // 内容
   workContent: CONFIG_RULE_MAP.CONTENT,
   // 燃气户号
   gasNumberCollection: {
     ...CONFIG_RULE_MAP.GAS_NUMBER,
-    ruleType: 'noZH',
+    ruleType: RULE_TYPE_ENUM.NOT_ZH_CN,
   },
   verificationCode: {
     componentName: COMPONENT_ENUM.ProSMSCode,
     ...CONFIG_RULE_MAP.ZIP_CODE,
   },
   ...addressConf,
-  occupation: {},
   country: {
     ...CONFIG_RULE_MAP.COUNTRY,
   },
@@ -375,8 +371,8 @@ export const parseCertNo = (str: string) => {
 export const relatedConfigMap = {
   certType: {
     onChangeEffect: (val, formData) => {
-      // 身份证号码
-      if (formData.certType === CERT_TYPE_ENUM.CERT) {
+      // 身份证号码/户口簿
+      if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(formData.certType)) {
         const data = parseCertNo(val);
         Object.assign(formData, data);
       }

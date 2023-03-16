@@ -12,6 +12,7 @@
     v-if="addressConfig.showDetail"
     v-model="state.address.detail"
     :label="`${$attrs.label}详细地址`"
+    :required="$attrs.required as boolean"
     :maxlength="50"
   />
 </template>
