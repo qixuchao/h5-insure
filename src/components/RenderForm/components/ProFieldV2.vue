@@ -4,7 +4,7 @@
     class="com-van-field"
     autocomplete="off"
     :formatter="formatter"
-    v-bind="{ ...$attrs, placeholder, rules }"
+    v-bind="{ ...$attrs, placeholder, required: true, rules }"
     @blur="onBlur"
     @update:model-value="updateModelValue"
   >
@@ -18,7 +18,6 @@
 
 <script lang="ts" setup name="ProFiled">
 import { useAttrs, useSlots, PropType, inject } from 'vue';
-import dayjs from 'dayjs';
 import type { FieldProps, FieldRule } from 'vant';
 import { isNil } from 'lodash';
 import { CERT_TYPE_ENUM } from '@/common/constants';
@@ -136,6 +135,7 @@ const rules = computed(() => {
         if (props.required && (isNil(val) || val === '')) {
           return attrs.placeholder;
         }
+        console.log(5555555, attrs.name, ruleType.value);
         if (ruleType.value) {
           const [regFn] = validatorMap[ruleType.value] || [];
           if (typeof regFn !== 'function') {
