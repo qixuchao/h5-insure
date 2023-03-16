@@ -173,6 +173,7 @@ const addressConf = [
  * 因子配置
  */
 const configMap = {
+  name: CONFIG_RULE_MAP.NAME,
   certNo: {
     relatedName: 'certType',
   },

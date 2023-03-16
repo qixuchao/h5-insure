@@ -52,6 +52,10 @@ export const INPUT_MAX_LENGTH = {
    */
   GAS_NUMBER: 20,
   /**
+   * 姓名长度
+   */
+  NAME: 25,
+  /**
    * 详细地址长度 50
    */
   ADDRESS_DETAIL: 50,
@@ -63,6 +67,8 @@ export const INPUT_MAX_LENGTH = {
 
 /** ruleType 枚举 */
 export const RULE_TYPE_ENUM = {
+  /** 姓名 */
+  NAME: 'name',
   /** 链接 */
   EXTERNAL: 'external',
   /** 邮箱 */
@@ -116,6 +122,10 @@ export const RULE_TYPE_ENUM = {
 };
 
 export const CONFIG_RULE_MAP = {
+  NAME: {
+    maxlength: INPUT_MAX_LENGTH.NAME,
+    ruleType: 'name',
+  },
   /**
    * 手机号 长度11位，数字
    */
