@@ -83,7 +83,7 @@
 
       <div v-for="(item, index) in guaranteeList" :key="index" class="guarantee-item">
         <ProCell :title="item.title" :content="item.desc" :border="false" size="small" />
-        <div v-dompurify-html="item.content" class="content" />
+        <div v-dompurify-html="item.tips" class="content" />
       </div>
     </div>
   </ProPopup>

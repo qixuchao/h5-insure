@@ -21,7 +21,7 @@
         :data-source="tenantProductDetail"
         :plan-list="planList"
       />
-      <ScrollInfo ref="tenantProductDetailScrollRef" :order-detail="orderDetail" :data-source="tenantProductDetail">
+      <ScrollInfo ref="detailScrollRef" :order-detail="orderDetail" :data-source="tenantProductDetail">
         <template #form>
           <div class="custom-page-form">
             <div class="form-title">请填写投保信息</div>
@@ -43,41 +43,6 @@
               :schema="insured.schema"
               :config="insured.config"
             />
-            <!-- <ProRenderFormWithCard
-              ref="insuredFormRef"
-              title="为谁投保（被保人）"
-              :model="state.insuredList[0].formData"
-              :schema="state.insuredList[0].schema"
-              :config="state.insuredList[0].config"
-            /> -->
-            <!-- <InsureForm
-              v-if="insureProductDetail"
-              ref="formRef"
-              :title-collection="{
-                HOLDER: '本人信息（投保人）',
-                INSURER: '为谁投保（被保人）',
-              }"
-              :form-info="orderDetail"
-              :need-desensitize="needDesensitize"
-              :send-sms-code="sendSmsCode"
-              :factor-object="factorObj || {}"
-            >
-              <template v-if="relationCustomerList.length > 1" #holderName>
-                <CustomerList
-                  :user-info="orderDetail.tenantOrderHolder"
-                  :data="relationCustomerList"
-                  @change="onUpdateHolderData"
-                />
-              </template>
-              <template v-if="relationCustomerList.length > 1" #insurerName>
-                <CustomerList
-                  title="选择被保人"
-                  :user-info="orderDetail.tenantOrderInsuredList[0]"
-                  :data="relationCustomerList"
-                  @change="onUpdateInsurerData"
-                />
-              </template>
-            </InsureForm> -->
           </div>
           <PaymentType
             :form-info="guaranteeObj"
@@ -868,17 +833,6 @@ const setPremium = () => {
   });
 };
 
-// 当计划和交费方式切换时，需重置产品保费为默认值
-// watch(
-//   [() => currentPlanObj.value, () => guaranteeObj.value.paymentFrequency],
-//   () => {
-//     setPremium();
-//   },
-//   {
-//     deep: true,
-//   },
-// );
-
 // 监听试算因子
 watch(
   () => [
@@ -888,6 +842,7 @@ watch(
       return res;
     }, []),
     guaranteeObj.value.paymentFrequency,
+    currentPackageConfigVOList.value,
   ],
   (...rest) => {
     if (previewMode.value) return;

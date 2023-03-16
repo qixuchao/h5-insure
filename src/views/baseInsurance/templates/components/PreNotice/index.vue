@@ -131,6 +131,7 @@ const initData = async () => {
   });
   if (code === '10000') {
     state.insureConfig = data;
+    state.statement = `本产品由${data.tenantName}销售本页面仅做产品展示，具体承保方案以实际保单约定为准`;
     nextTick(() => {
       countDown.start();
     });
@@ -140,7 +141,6 @@ const initData = async () => {
 
 onMounted(() => {
   initData();
-  state.statement = useCustomStatement(tenantId);
 });
 </script>
 
