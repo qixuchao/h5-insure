@@ -13,7 +13,7 @@
     :origin-data="originData.productRiskInsureLimitVO"
     :risk-code="originData.riskCode"
   ></ProductKeys>
-  <RiskLiabilityInfo :data-source="originData" />
+  <RiskLiabilityInfo :v-model="modelValue" :data-source="originData" />
 </template>
 
 <script lang="ts" setup>
