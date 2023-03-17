@@ -104,6 +104,7 @@ interface Props {
   originData: RiskAmountPremiumConfig;
   modelValue: RiskVoItem;
 }
+const emit = defineEmits(['trialChange']);
 
 const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as RiskAmountPremiumConfig),
@@ -187,6 +188,17 @@ watch(
   },
   {
     deep: true,
+  },
+);
+
+watch(
+  () => mValues.value,
+  (v) => {
+    emit('trialChange', v);
+  },
+  {
+    deep: true,
+    immediate: true,
   },
 );
 </script>

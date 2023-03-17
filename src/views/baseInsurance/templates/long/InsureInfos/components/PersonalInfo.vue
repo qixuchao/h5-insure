@@ -21,7 +21,7 @@ interface Props {
   modelValue: any;
 }
 
-const emit = defineEmits(['update:modelValue', 'trail']);
+const emit = defineEmits(['update:modelValue', 'trailChange']);
 const personalInfoRef = ref(null);
 
 const props = withDefaults(defineProps<Props>(), {
@@ -73,7 +73,7 @@ watch(
         ?.validate()
         .then(() => {
           state.validated = true;
-          emit('trail', state.formData);
+          emit('trailChange', state.formData);
         })
         .catch(() => {
           state.validated = false;
