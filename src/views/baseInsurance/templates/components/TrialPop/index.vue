@@ -43,10 +43,24 @@
               class="risk-select-field"
             >
               <template #input>
-                <ProRadioButton
+                <!-- <ProRadioButton
                   v-model="state.riskIsInsure[risk.riskCode].selected"
                   :options="RISK_SELECT"
-                ></ProRadioButton>
+                ></ProRadioButton> -->
+                <van-switch
+                  v-model="state.riskIsInsure[risk.riskCode].selected"
+                  active-value="1"
+                  inactive-value="2"
+                  size="26px"
+                >
+                  <!-- <template #node>
+                    <div class="icon-wrapper">
+                      <span>
+                        {{ state.riskIsInsure[risk.riskCode].selected }}
+                      </span>
+                    </div>
+                  </template> -->
+                </van-switch>
               </template>
             </VanField>
             <div v-if="state.riskIsInsure[risk.riskCode].selected === '1'" class="risk2-field">
@@ -196,8 +210,10 @@ const handleSetRiskSelect = () => {
   state.riskIsInsure = {};
   props.dataSource.insureProductRiskVOList.forEach((risk) => {
     // 1是投保， 2是不投保
-    state.riskIsInsure[risk.riskCode] = { selected: 2, data: null };
+    const relation = props.dataSource.productRiskRelationVOList.find((r) => r.collocationRiskId === risk.riskId);
+    state.riskIsInsure[risk.riskCode] = { selected: '2', data: null, relation };
   });
+  console.log('-----relation data = ', state.riskIsInsure);
 };
 
 onBeforeMount(() => {
@@ -222,6 +238,12 @@ watch(
       handleSetRiskSelect();
     }
   },
+);
+
+watch(
+  () => state.riskIsInsure,
+  (v) => {},
+  { deep: true, immediate: true },
 );
 </script>
 

@@ -2,9 +2,15 @@
   <BaoeBaofei
     :v-model="mValues"
     :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
+    @trial-change="handleBaoeBaofeiChange"
   ></BaoeBaofei>
   <!-- 这里放因子 -->
-  <!-- <PersonalInfo v-if="productFactor" v-model="state.personalInfo" :product-factor="productFactor" @trail="onTrail" /> -->
+  <PersonalInfo
+    v-if="originData.mainRiskFlag === 1 && productFactor"
+    v-model="state.personalInfo"
+    :product-factor="productFactor"
+    @trail-change="handlePersonalInfoChange"
+  />
   <!-- 产品要素 -->
   <ProductKeys
     :v-model="mValues"
@@ -71,6 +77,14 @@ onMounted(() => {
 
 const handleProductKeysChange = (data) => {
   console.log('data change: ', data);
+};
+
+const handlePersonalInfoChange = (data) => {
+  console.log('personalInfochange ', data);
+};
+
+const handleBaoeBaofeiChange = (data) => {
+  console.log('baoebaofei change ', data);
 };
 
 watch(
