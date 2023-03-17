@@ -1,7 +1,7 @@
 <template>
   <van-field
     :model-value="state.modelValue"
-    :class="`com-van-field ${markRequired ? '' : 'field-mark_hidden'}`"
+    :class="`com-van-field ${markRequired ? '' : 'field-mark_hidden'} ${!attrs.visible ? '' : 'com-van-field--hidden'}`"
     autocomplete="off"
     :formatter="formatter"
     v-bind="{ ...$attrs, placeholder, required, rules, ...extraAttrs }"
@@ -175,7 +175,7 @@ const extraAttrs = computed(() => {
 const onEffect = (type, val) => {
   if (props.relatedName && type) {
     const effectFn = (relatedConfigMap[props.relatedName] || {})[`${type}Effect`];
-    typeof effectFn === 'function' && effectFn(val, formState.formData);
+    typeof effectFn === 'function' && effectFn(val, formState);
   }
 };
 

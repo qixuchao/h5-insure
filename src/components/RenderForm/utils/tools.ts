@@ -1,4 +1,5 @@
 import { nanoid } from 'nanoid';
+import merge from 'lodash-es/merge';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { SEX_LIMIT_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import { COMPONENT_MAPPING_LIST, GLOBAL_CONFIG_MAP, MODULE_TYPE_MAP } from './constants';
@@ -317,9 +318,23 @@ export const parseCertNo = (str: string) => {
  */
 export const relatedConfigMap = {
   certNo: {
-    onChangeEffect: (val, formData) => {
+    onChangeEffect: (val, formState) => {
       // 证件类型切换清除证件号码
-      formData.certNo = '';
+      Object.assign(formState.formData, {
+        certNo: '',
+        gender: '',
+        birthday: '',
+      });
+      // const status = ![CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(formState.formData.certType);
+      // console.log(333333, status);
+      // merge(formState.config, {
+      //   gender: {
+      //     visible: status,
+      //   },
+      //   birthday: {
+      //     visible: status,
+      //   },
+      // });
     },
   },
   // 关联证件类型的配置
@@ -330,11 +345,11 @@ export const relatedConfigMap = {
         maxlength: 10,
       },
     },
-    onChangeEffect: (val, formData) => {
+    onChangeEffect: (val, formState) => {
       // 身份证号码/户口簿
-      if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(formData.certType)) {
+      if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(formState.formData.certType)) {
         const data = parseCertNo(val);
-        Object.assign(formData, data);
+        Object.assign(formState.formData, data);
       }
     },
   },

@@ -119,7 +119,7 @@ const state = reactive({
 const onEffect = (type, val) => {
   if (props.relatedName && type) {
     const effectFn = (relatedConfigMap[props.relatedName] || {})[`${type}Effect`];
-    typeof effectFn === 'function' && effectFn(val, formState.formData);
+    typeof effectFn === 'function' && effectFn(val, formState);
   }
 };
 
