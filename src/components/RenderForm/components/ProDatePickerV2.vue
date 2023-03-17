@@ -117,12 +117,12 @@ const dealModelValue = (val) => {
   if (isDate(val)) {
     state.date = val;
     state.fieldValue = dayjs(val).format(formatValueType.value);
-  } else if (typeof val === 'string' && val) {
+  } else if (typeof val === 'string') {
     state.fieldValue = val;
     if (isDateType.value) {
       state.date = dayjs(val, formatValueType.value).isValid() ? dayjs(val, formatValueType.value).toDate() : null;
     } else {
-      state.date = val;
+      state.date = val as string;
     }
   }
 };

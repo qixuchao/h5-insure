@@ -129,6 +129,17 @@ watch(
 );
 
 watch(
+  () => formState.formData?.[filedAttrs.name],
+  (val) => {
+    state.modelValue = val as string | number;
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
+
+watch(
   () => props.columns,
   (val = []) => {
     if (isNotEmptyArray(val)) {
