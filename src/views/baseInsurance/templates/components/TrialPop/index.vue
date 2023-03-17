@@ -17,10 +17,17 @@
       </div>
       <div class="container">
         <Benefit :data-source="benefitData" />
+        <!-- 这里放因子 -->
+        <PersonalInfo
+          v-if="dataSource.productFactor"
+          ref="personalInfoRef"
+          v-model="state.userData"
+          :product-factor="dataSource.productFactor"
+          @trail-change="handlePersonalInfoChange"
+        />
         <!-- 这里是标准险种信息 -->
         <InsureInfos
           ref="insureInfosRef"
-          v-model="state.userData"
           :origin-data="dataSource.insureProductRiskVOList[0]"
           :product-factor="dataSource.productFactor"
           @trial-change="handleTrialInfoChange"
@@ -49,6 +56,7 @@
 <script lang="ts" setup name="TrialPop">
 import { computed, ref, defineExpose } from 'vue';
 import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
+import { PersonalInfo } from '@/views/baseInsurance/templates/long/InsureInfos/components/index';
 import TrialButton from '../TrialButton.vue';
 import InsureInfos from '../../long/InsureInfos/index.vue';
 import ProductRiskList from '../../long/ProductRiskList/index.vue';
@@ -180,7 +188,31 @@ const handleSetRiskSelect = () => {
   });
 };
 
-const handleTrialInfoChange = (data: any) => {};
+const handlePersonalInfoChange = (data) => {
+  const { holder, insuredVOList } = data;
+  if (holder) {
+    // state.submitData.holder.personVO = holder;
+    state.submitData.holder = { personVO: holder };
+  }
+  if (insuredVOList && insuredVOList.length > 0) {
+    insuredVOList.forEach((ins, index) => {
+      if (state.submitData.insuredVOList && state.submitData.insuredVOList.length > index) {
+        state.submitData.insuredVOList[index].personVO = ins.personVO;
+      } else {
+        // new
+        state.submitData.insuredVOList = [
+          {
+            personVO: ins.personVO,
+          },
+        ];
+      }
+    });
+  }
+  console.log('投被保人的信息回传 ', state.submitData);
+};
+const handleTrialInfoChange = (data: any) => {
+  console.log('标准险种的信息回传', data);
+};
 const handleProductRiskInfoChange = (data: any) => {};
 
 const handleMixTrialData = () => {

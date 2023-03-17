@@ -3,7 +3,6 @@
     <!-- 步进值 -->
     <VanField
       v-if="originData.saleMethod === 1"
-      v-model="mValues[methodName.key]"
       :label="`基本${methodName.label}`"
       :name="methodName.key"
       class="risk-select-field"
@@ -194,6 +193,7 @@ watch(
 watch(
   () => mValues.value,
   (v) => {
+    // console.log('----change', v);
     emit('trialChange', v);
   },
   {
