@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { SEX_LIMIT_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import { COMPONENT_MAPPING_LIST, GLOBAL_CONFIG_MAP, MODULE_TYPE_MAP } from './constants';
@@ -190,6 +191,7 @@ export const transformToSchema = (arr: FieldConfItem[]): ModuleResult => {
         name: item.code,
         componentName: finalComponentName,
         required: item.isMustInput === 1,
+        nanoid: nanoid(),
         ...restConfig,
       };
 
