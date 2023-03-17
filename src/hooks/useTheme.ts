@@ -82,6 +82,7 @@ export const useTheme = (color: string = import.meta.env.VITE_THEME_COLOR || the
     radioCheckedIconColor: color,
     proCheckRadius: '40px', // proCheckButton的圆角
     buttonBorderRadius: '4px',
+    sliderActiveBackgroundColor: color, // 滑块底部颜色
     // ..其他组件的颜色覆盖
   };
 };

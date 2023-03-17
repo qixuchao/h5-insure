@@ -7,20 +7,20 @@
           <!-- <div class="benefit-title">{{ item?.riskName }}</div> -->
           <div class="line"></div>
           <p v-show="showType === SHOW_TYPE_ENUM.CHART" class="box-title box-title-chart">
-            <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
+            <img class="tl" src="@/assets/images/compositionProposal/box-title.png" alt="" />
             保单年度<span>{{ benefitObj?.year?.[benefitObj?.index] }}</span
             >年度，被保人<span>{{ benefitObj?.age?.[benefitObj?.index] }}</span
             >岁时
-            <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
+            <img class="transform-z180 tr" src="@/assets/images/compositionProposal/box-title.png" alt="" />
           </p>
           <div v-if="showType === SHOW_TYPE_ENUM.LIST">
             <div class="box">
               <p class="box-title">
-                <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
+                <img class="tl" src="@/assets/images/compositionProposal/box-title.png" alt="" />
                 保单年度<span>{{ benefitObj?.year?.[benefitObj?.index] }}</span
                 >年度，被保人<span>{{ benefitObj?.age?.[benefitObj?.index] }}</span
                 >岁时
-                <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
+                <img class="transform-z180 tr" src="@/assets/images/compositionProposal/box-title.png" alt="" />
               </p>
               <div class="box-price">
                 <div v-for="(val, k) in benefitObj?.result?.headers" :key="k" style="width: 33%">
@@ -38,8 +38,8 @@
             <ProChart :min="ageBegin" :max="ageEnd" :current="num" :data="benefitObj?.result?.benefitRiskItemList" />
           </div>
           <div class="slider">
-            <div class="add lf" @click="handleReduce">
-              <img src="@/assets/images/compositionProposal/cut.png" alt="" />
+            <div class="opt lf" @click="handleReduce">
+              <ProSvg name="minus" />
             </div>
             <div style="flex: 1; margin: 0px 5px">
               <van-slider v-if="ageBegin" v-model="num" :min="ageBegin" :max="ageEnd" bar-height="8px">
@@ -48,8 +48,9 @@
                 </template>
               </van-slider>
             </div>
-            <div class="add rg" @click="handleAdd">
-              <img src="@/assets/images/compositionProposal/add.png" alt="" />
+            <div class="opt rg" @click="handleAdd">
+              <ProSvg name="plus" />
+              <!-- <img src="@/assets/images/compositionProposal/add.png" alt="" /> -->
             </div>
           </div>
 
@@ -225,7 +226,7 @@ watch(num, () => {
         text-align: center;
         display: flex;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: center;
         img {
           width: 41px;
           height: 29px;
@@ -256,23 +257,30 @@ watch(num, () => {
         }
       }
     }
+    .tl {
+      margin-right: 10px;
+    }
+    .tr {
+      margin-left: 10px;
+    }
+    .transform-z180 {
+      transform: rotateZ(180deg);
+    }
     .slider {
       display: flex;
       align-items: center;
       margin-top: 30px;
-      .add {
-        img {
-          width: 48px;
-          height: 48;
-        }
+      .opt {
+        color: $primary-color;
+        font-size: 40px;
       }
       .lf {
-        margin-right: 45px;
+        margin-right: 50px;
         display: flex;
         align-items: center;
       }
       .rg {
-        margin-left: 45px;
+        margin-left: 50px;
       }
       .custom-button {
         width: 104px;
@@ -280,7 +288,7 @@ watch(num, () => {
         background: $zaui-brand;
         box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.1);
         border-radius: 28px;
-        border: 5px solid #a2c7ff;
+        border: 5px solid var(--van-primary-color-light05);
         font-size: 24px;
         font-weight: 600;
         color: #ffffff;
