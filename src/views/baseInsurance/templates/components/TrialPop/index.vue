@@ -237,7 +237,19 @@ watch(
         color: black;
       }
     }
+
     .risk2-field {
+    }
+
+    // 表单样式
+    :deep(.com-pro-field),
+    :deep(.com-van-field) {
+      padding-left: 0;
+      padding-right: 0;
+      &::after {
+        left: 0;
+        right: 0;
+      }
     }
   }
 }
