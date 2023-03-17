@@ -1,9 +1,4 @@
 <template>
-  <BaoeBaofei
-    :v-model="mValues"
-    :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
-    @trial-change="handleBaoeBaofeiChange"
-  ></BaoeBaofei>
   <!-- 这里放因子 -->
   <PersonalInfo
     v-if="originData.mainRiskFlag === 1 && productFactor"
@@ -12,6 +7,11 @@
     :product-factor="productFactor"
     @trail-change="handlePersonalInfoChange"
   />
+  <BaoeBaofei
+    :v-model="mValues"
+    :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
+    @trial-change="handleBaoeBaofeiChange"
+  ></BaoeBaofei>
   <!-- 产品要素 -->
   <ProductKeys
     :v-model="mValues"
@@ -56,6 +56,7 @@ interface Props {
   modelValue: RiskVoItem;
   productFactor: ProductFactor;
 }
+const emit = defineEmits(['trialChange']);
 
 const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as RiskDetailVoItem),
@@ -113,6 +114,11 @@ const handleRiskLiabilityChange = (data) => {
 
 const validate = async () => {
   await personalInfoRef.value?.validate();
+};
+
+const handleMixData = () => {
+  // TODO
+  // emit('trialChange', data)
 };
 
 watch(
