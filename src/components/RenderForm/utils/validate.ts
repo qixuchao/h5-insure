@@ -77,6 +77,8 @@ export function validateIdCardNo(idCard: string) {
 
 // 正则
 export const RegMap = {
+  /** 姓名 */
+  isName: (val: string) => /^[\u4e00-\u9fa5a-z].{0,23}[\u4e00-\u9fa5a-z]/i.test(val), // 链接
   /** 链接 */
   isExternal: (val: any) => /^(https?:|mailto:|tel:)/.test(val), // 链接
   /** 邮箱 */
@@ -143,6 +145,8 @@ export const RegMap = {
 
 /** 字段验证集合 */
 export const validatorMap = {
+  /** 姓名 */
+  [RULE_TYPE_ENUM.NAME]: [RegMap.isName],
   /** 链接 */
   [RULE_TYPE_ENUM.EXTERNAL]: [RegMap.isExternal],
   /** 邮箱 */
