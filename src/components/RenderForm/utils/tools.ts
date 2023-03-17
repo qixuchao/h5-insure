@@ -244,12 +244,14 @@ export const transformFactorToSchema = (
   const holderCodes = isNotEmptyArray(holder) ? holder.map((item) => item.code) : [];
 
   // 被保人为本人时，不在投保人中的因子展示
-  const finialInsured = insured.map((item) => {
-    return {
-      ...item,
-      isSelfInsuredNeed: !holderCodes.includes(item.code),
-    };
-  });
+  const finialInsured = isNotEmptyArray(insured)
+    ? insured.map((item) => {
+        return {
+          ...item,
+          isSelfInsuredNeed: !holderCodes.includes(item.code),
+        };
+      })
+    : [];
 
   console.log('origin factors', holder, insured, beneficiary);
 
@@ -288,24 +290,24 @@ export const handleSlots = (slots, slotsMap = {}) => {
  * @returns
  */
 export const parseCertNo = (str: string) => {
+  const result = {
+    /** 性别 */
+    gender: '',
+    /** 生日 */
+    birthday: '',
+  };
   // 身份证验证通过
   if (typeof str === 'string' && str && validateIdCardNo(str)) {
     const splitRange = {
       15: [6, 12],
       18: [6, 14],
     };
-    const birthday = str.slice(...splitRange[str.length]).replace(/(.{4})(.{2})/, '$1-$2-');
 
-    const gender = [SEX_LIMIT_ENUM.FEMALE, SEX_LIMIT_ENUM.MALE][Number(str.slice(-2, -1)) % 2];
+    result.birthday = str.slice(...splitRange[str.length]).replace(/(.{4})(.{2})/, '$1-$2-');
 
-    return {
-      /** 性别 */
-      gender,
-      /** 生日 */
-      birthday,
-    };
+    result.gender = [SEX_LIMIT_ENUM.FEMALE, SEX_LIMIT_ENUM.MALE][Number(str.slice(-2, -1)) % 2];
   }
-  return {};
+  return result;
 };
 
 /**

@@ -200,6 +200,17 @@ watch(
 );
 
 watch(
+  () => formState?.formData?.[filedAttrs.name],
+  (val) => {
+    state.fieldValue = val;
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
+
+watch(
   columns,
   (val = []) => {
     // TODO: children
