@@ -13,6 +13,7 @@
     :origin-data="originData.productRiskInsureLimitVO"
     :risk-code="originData.riskCode"
   ></ProductKeys>
+  <RiskLiabilityInfo :data-source="originData" />
 </template>
 
 <script lang="ts" setup>
@@ -31,7 +32,7 @@ import {
 } from '@/common/constants/trial';
 
 import { RiskDetailVoItem, ProductInfo, RiskVoItem, ProductPlanInsure } from '@/api/modules/trial.data';
-import { BaoeBaofei, PersonalInfo, ProductKeys } from './components';
+import { BaoeBaofei, PersonalInfo, ProductKeys, RiskLiabilityInfo } from './components';
 
 interface Props {
   originData: RiskDetailVoItem;
