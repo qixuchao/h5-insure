@@ -30,7 +30,6 @@
           :origin-data="dataSource.insureProductRiskVOList[0]"
           :product-factor="dataSource.productFactor"
         ></InsureInfos>
-        <RiskLiabilityInfo :data-source="dataSource" />
         <!-- 以下是附加险种信息 -->
         <template v-for="risk in dataSource.insureProductRiskVOList" :key="risk.riskCode">
           <div v-if="risk.mainRiskFlag !== 1">
@@ -79,7 +78,6 @@ import InsureInfos from '../../long/InsureInfos/index.vue';
 import Benefit from '../Benefit/index.vue';
 import { PremiumCalcData, RiskVoItem } from '@/api/modules/trial.data';
 import { RISK_TYPE, RISK_TYPE_ENUM } from '@/common/constants/trial';
-import RiskLiabilityInfo from '../RiskLiabilityInfo/index.vue';
 import { benefitCalc } from '@/api/modules/trial';
 
 const RISK_SELECT = [

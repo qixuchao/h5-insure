@@ -2,43 +2,42 @@
   <van-config-provider>
     <div class="com-risk-liabilityinfo">
       <div class="item-wrap">
-        <div v-for="(el, i) in dataMock" :key="i">
-          <div v-for="(item, index) in el.riskLiabilityInfoVOList" :key="index">
-            <div v-if="+item.showFlag === 1">
-              formula {{ item.formula.length }}
-              <ProField :label="`${item.liabilityName}`" label-width="40%" name="insuredRelation">
-                <!-- insureFlag投保/不投保标志位 1.展示 2.不展示 -->
-                <!-- <template #input> -->
-                <template #input>
-                  <ProRadioButton
-                    v-if="+item.insureFlag === 1"
-                    v-model="state.isCheckList[index]"
-                    :prop="{ label: 'value', value: 'code' }"
-                    :options="LIABILITY_ATTRIBUTE_VALUE"
-                  ></ProRadioButton>
-                </template>
-              </ProField>
-              <!-- 责任属性展示 -->
-              <ProField
-                v-if="+state.isCheckList[index] === 1 || +item.attributeFlag === 1"
-                label="责任属性名称"
-                label-width="40%"
-                name="insuredRelation"
-              >
-                <!-- insureFlag投保/不投保标志位 1.展示 2.不展示  formula不为空，请求公式计算结果-->
+        <!-- <div v-for="(el, i) in dataSource" :key="i"> -->
+        <div v-for="(item, index) in dataSource.riskLiabilityInfoVOList" :key="index">
+          <div v-if="+item.showFlag === 1">
+            <ProField :label="`${item.liabilityName}`" label-width="40%" name="insuredRelation">
+              <!-- insureFlag投保/不投保标志位 1.展示 2.不展示 -->
+              <!-- <template #input> -->
+              <template #input>
+                <ProRadioButton
+                  v-if="+item.insureFlag === 1"
+                  v-model="state.isCheckList[index]"
+                  :prop="{ label: 'value', value: 'code' }"
+                  :options="LIABILITY_ATTRIBUTE_VALUE"
+                ></ProRadioButton>
+              </template>
+            </ProField>
+            <!-- 责任属性展示 -->
+            <ProField
+              v-if="+state.isCheckList[index] === 1 || +item.attributeFlag === 1"
+              :label="item.liabilityAttributeTypeDesc"
+              label-width="40%"
+              name="insuredRelation"
+            >
+              <!-- insureFlag投保/不投保标志位 1.展示 2.不展示  formula不为空，请求公式计算结果-->
 
-                <template #input>
-                  <ProRadioButton
-                    :prop="{ label: 'displayValue', value: 'actualValue' }"
-                    :options="
-                      item.formula.length > 0 ? item.liabilityAttributeValueList : item.liabilityAttributeValueList
-                    "
-                  ></ProRadioButton>
-                </template>
-              </ProField>
-            </div>
+              <template #input>
+                <ProRadioButton
+                  :prop="{ label: 'displayValue', value: 'actualValue' }"
+                  :options="
+                    item.formula.length > 0 ? item.liabilityAttributeValueList : item.liabilityAttributeValueList
+                  "
+                ></ProRadioButton>
+              </template>
+            </ProField>
           </div>
         </div>
+        <!-- </div> -->
       </div>
     </div>
     <div class="cell-content"></div>
@@ -51,11 +50,12 @@ import { cloneDeep } from 'lodash';
 import type { FormInstance } from 'vant';
 import { withDefaults } from 'vue';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
+import { RiskDetailVoItem, ProductInfo, RiskVoItem, ProductPlanInsure } from '@/api/modules/trial.data';
 // import { RiskLiabilityInfoItem } from '@/api/index.data';
 
 // type FormInfo = RiskLiabilityInfoItem;
 interface Props {
-  dataSource: any[];
+  dataSource: RiskDetailVoItem;
   basicsAmount: string; // 基本保额
   basicsPremium: string; // 基本保费
 }
