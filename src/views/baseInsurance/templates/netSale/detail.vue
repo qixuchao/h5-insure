@@ -1,104 +1,96 @@
-<!--
- * @Author: za-qixuchao qixuchao@zhongan.com
- * @Date: 2022-11-28 10:22:03
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-02-13 10:20:27
- * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/netSale/detail.vue
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
--->
 <template>
-  <van-config-provider :theme-vars="themeVars">
-    <ProPageWrap>
-      <div v-if="productDetail?.productBasicInfoVO" class="net-sale-detail-wrap">
-        <ProCard>
-          <ProCell title="产品名称" :content="productDetail?.productBasicInfoVO.productFullName"></ProCell>
-        </ProCard>
-        <ProCard v-if="orderDetail.id" :show-line="false" title="投保信息">
-          <ProCell title="保费" :content="orderDetail.orderAmount + '元'"></ProCell>
-          <ProCell title="保险期限" :content="planName"></ProCell>
-          <ProCell title="起保日期" :content="orderDetail.commencementTime"></ProCell>
-          <ProCell title="终保日期" :content="orderDetail.expiryDate"></ProCell>
-          <ProCell title="保单状态" :content="ORDER_STATUS_MAP[orderDetail.orderStatus]"></ProCell>
-          <ProCell title="订单编号" :content="orderDetail.orderNo"></ProCell>
-          <!-- <ProCell title="销售人名称" content=""></ProCell> -->
-          <ProCascader
-            v-model="orderDetail.tenantOrderHolder.extInfo.familyAreaCode"
-            v-model:field1="orderDetail.tenantOrderHolder.extInfo.familyProvinceCode"
-            v-model:field2="orderDetail.tenantOrderHolder.extInfo.familyCityCode"
-            v-model:field3="orderDetail.tenantOrderHolder.extInfo.familyAreaCode"
-            label="房产所在地"
-            name="familyProvinceCode"
-            is-link
-            is-view
-            class="insured-info"
-            :data-source="region"
-            :mapping="{ label: 'name', value: 'code', children: 'children' }"
-          ></ProCascader>
-          <ProCell title="详细地址" :content="orderDetail.tenantOrderHolder?.extInfo?.familyAddress"></ProCell>
-          <ProCell title="燃气编号" :content="orderDetail.tenantOrderSubjectList?.[0]?.subjectNo"></ProCell>
-        </ProCard>
-        <InsureForm
-          v-if="loadForm"
-          ref="formRef"
-          :title-collection="{
-            HOLDER: '投保人信息',
-            INSURER: '被保人信息',
-            BENEFICIARY: '受益人',
-          }"
-          :is-view="true"
-          :form-info="orderDetail"
-          :factor-object="factorObj"
-          input-align="right"
-        ></InsureForm>
-        <ProCard title="阅读条款合同" class="file-list-card">
-          <van-cell
-            v-for="(attachment, index) in filterHealthAttachmentList"
-            :key="index"
-            :title="attachment.attachmentName"
-            is-link
-            @click="previewFile(attachment.attachmentName, attachment.attachmentList)"
-          ></van-cell>
-        </ProCard>
-        <ProCard title="客户签名">
-          <div class="sign-cell">
-            <div class="sign-label">签名</div>
-            <Sign v-model="signString" />
-          </div>
-        </ProCard>
-        <div class="footer">
-          <ProShadowButton :shadow="false" text="提 交" @click="submit" />
+  <!-- <van-config-provider :theme-vars="themeVars"> -->
+  <ProPageWrap>
+    <div v-if="productDetail?.productBasicInfoVO" class="net-sale-detail-wrap">
+      <ProCard>
+        <ProCell title="产品名称" :content="productDetail?.productBasicInfoVO.productFullName"></ProCell>
+      </ProCard>
+      <ProCard v-if="orderDetail.id" :show-line="false" title="投保信息">
+        <ProCell title="保费" :content="orderDetail.orderAmount + '元'"></ProCell>
+        <ProCell title="保险期限" :content="planName"></ProCell>
+        <ProCell title="起保日期" :content="orderDetail.commencementTime"></ProCell>
+        <ProCell title="终保日期" :content="orderDetail.expiryDate"></ProCell>
+        <ProCell title="保单状态" :content="ORDER_STATUS_MAP[orderDetail.orderStatus]"></ProCell>
+        <ProCell title="订单编号" :content="orderDetail.orderNo"></ProCell>
+        <!-- <ProCell title="销售人名称" content=""></ProCell> -->
+        <ProCascader
+          v-model="orderDetail.tenantOrderHolder.extInfo.familyAreaCode"
+          v-model:field1="orderDetail.tenantOrderHolder.extInfo.familyProvinceCode"
+          v-model:field2="orderDetail.tenantOrderHolder.extInfo.familyCityCode"
+          v-model:field3="orderDetail.tenantOrderHolder.extInfo.familyAreaCode"
+          label="房产所在地"
+          name="familyProvinceCode"
+          is-link
+          is-view
+          class="insured-info"
+          :data-source="region"
+          :mapping="{ label: 'name', value: 'code', children: 'children' }"
+        ></ProCascader>
+        <ProCell title="详细地址" :content="orderDetail.tenantOrderHolder?.extInfo?.familyAddress"></ProCell>
+        <ProCell title="燃气编号" :content="orderDetail.tenantOrderSubjectList?.[0]?.subjectNo"></ProCell>
+      </ProCard>
+      <InsureForm
+        v-if="loadForm"
+        ref="formRef"
+        :title-collection="{
+          HOLDER: '投保人信息',
+          INSURER: '被保人信息',
+          BENEFICIARY: '受益人',
+        }"
+        :is-view="true"
+        :form-info="orderDetail"
+        :factor-object="factorObj"
+        input-align="right"
+      ></InsureForm>
+      <ProCard title="阅读条款合同" class="file-list-card">
+        <van-cell
+          v-for="(attachment, index) in filterHealthAttachmentList"
+          :key="index"
+          :title="attachment.attachmentName"
+          is-link
+          @click="previewFile(attachment.attachmentName, attachment.attachmentList)"
+        ></van-cell>
+      </ProCard>
+      <ProCard title="客户签名">
+        <div class="sign-cell">
+          <div class="sign-label">签名</div>
+          <Sign v-model="signString" />
         </div>
-      </div>
-    </ProPageWrap>
-    <ProPopup
-      v-model:show="fileShow"
-      class="pre-notice-wrap"
-      :title="currentAttachment?.title"
-      position="bottom"
-      :style="{ height: '600px' }"
-    >
-      <ProFilePreview
-        :content="currentAttachment?.fileContent?.attachmentUri"
-        :type="currentAttachment?.fileContent?.attachmentType"
-      ></ProFilePreview>
+      </ProCard>
       <div class="footer">
-        <ProShadowButton :shadow="false" text="关闭" @click="fileShow = false" />
+        <ProShadowButton :shadow="false" text="提 交" @click="submit" />
       </div>
-    </ProPopup>
-    <FilePreview
-      v-if="showFilePreview && mustReadFieldList.length !== 0"
-      v-model:show="showFilePreview"
-      :content-list="mustReadFieldList"
-      :is-only-view="isOnlyView"
-      :active-index="activeIndex"
-      :text="isOnlyView ? '关闭' : '我已逐页阅读上述内容并同意'"
-      :force-read-cound="0"
-      on-close-file-preview
-      @submit="onSubmit"
-      @on-close-file-preview="onCloseFilePreview"
-      @on-close-file-preview-by-mask="showFilePreview = false"
-    ></FilePreview>
-  </van-config-provider>
+    </div>
+  </ProPageWrap>
+  <ProPopup
+    v-model:show="fileShow"
+    class="pre-notice-wrap"
+    :title="currentAttachment?.title"
+    position="bottom"
+    :style="{ height: '600px' }"
+  >
+    <ProFilePreview
+      :content="currentAttachment?.fileContent?.attachmentUri"
+      :type="currentAttachment?.fileContent?.attachmentType"
+    ></ProFilePreview>
+    <div class="footer">
+      <ProShadowButton :shadow="false" text="关闭" @click="fileShow = false" />
+    </div>
+  </ProPopup>
+  <FilePreview
+    v-if="showFilePreview && mustReadFieldList.length !== 0"
+    v-model:show="showFilePreview"
+    :content-list="mustReadFieldList"
+    :is-only-view="isOnlyView"
+    :active-index="activeIndex"
+    :text="isOnlyView ? '关闭' : '我已逐页阅读上述内容并同意'"
+    :force-read-cound="0"
+    on-close-file-preview
+    @submit="onSubmit"
+    @on-close-file-preview="onCloseFilePreview"
+    @on-close-file-preview-by-mask="showFilePreview = false"
+  ></FilePreview>
+  <!-- </van-config-provider> -->
 </template>
 <script lang="ts" setup name="netSaleDetail">
 import { Toast, ImagePreview } from 'vant';

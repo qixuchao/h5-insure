@@ -1,66 +1,57 @@
-<!--
- * @Author: zhaopu
- * @Date: 2022-11-24 23:45:20
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-03-09 21:59:45
- * @Description:
--->
 <template>
-  <van-config-provider>
-    <div class="com-period-cell">
-      <div v-if="insurancePeriodList.length > 1" class="period-custom-cell period-check-btn-cell">
-        <div class="period-cell-label">保障期间</div>
-        <div class="period-cell-content">
-          <ProRadioButton
-            v-model="state.formInfo.coveragePeriod"
-            :prop="{ label: 'value', value: 'code' }"
-            :options="insurancePeriodList"
-          ></ProRadioButton>
-        </div>
-      </div>
-      <!-- 选择生效日期 -->
-      <div
-        v-if="riskGuaranteeStartDateType + '' === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY"
-        class="period-custom-cell period-common-cell"
-        @click="onSelectCommencementTime"
-      >
-        <template v-if="isShowCustomInsuranceDate">
-          <div class="period-cell-label">生效日期</div>
-          <div class="period-cell-content period-custom-cell-content">
-            <span>{{
-              state.formInfo.insuranceStartDate
-                ? formatDate(state.formInfo.insuranceStartDate, 'YYYY.MM.DD HH:mm:ss')
-                : ''
-            }}</span>
-            <ProSvg class="custom--arrow-right" name="arrow-right"></ProSvg>
-          </div>
-        </template>
-        <template v-else>
-          <div class="period-cell-label">保障期限</div>
-          <div class="period-cell-content period-custom-cell-content">
-            <span
-              >{{
-                state.formInfo.insuranceStartDate ? formatDate(state.formInfo.insuranceStartDate, 'YYYY.MM.DD') : ''
-              }}-{{
-                state.formInfo.insuranceEndDate ? formatDate(state.formInfo.insuranceEndDate, 'YYYY.MM.DD') : ''
-              }}</span
-            >
-          </div>
-        </template>
-      </div>
-      <div
-        v-if="riskGuaranteeStartDateType + '' !== INSURANCE_START_TYPE_ENUM.CUSTOM_DAY"
-        class="period-custom-cell period-common-cell"
-      >
-        <div class="period-cell-label">保障期限</div>
-        <div class="period-cell-content">
-          {{ state.formInfo.insuranceStartDate ? formatDate(state.formInfo.insuranceStartDate, 'YYYY.MM.DD') : '' }}-{{
-            state.formInfo.insuranceEndDate ? formatDate(state.formInfo.insuranceEndDate, 'YYYY.MM.DD') : ''
-          }}
-        </div>
+  <div class="com-period-cell">
+    <div v-if="insurancePeriodList.length > 1" class="period-custom-cell period-check-btn-cell">
+      <div class="period-cell-label">保障期间</div>
+      <div class="period-cell-content">
+        <ProRadioButton
+          v-model="state.formInfo.coveragePeriod"
+          :prop="{ label: 'value', value: 'code' }"
+          :options="insurancePeriodList"
+        ></ProRadioButton>
       </div>
     </div>
-  </van-config-provider>
+    <!-- 选择生效日期 -->
+    <div
+      v-if="riskGuaranteeStartDateType + '' === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY"
+      class="period-custom-cell period-common-cell"
+      @click="onSelectCommencementTime"
+    >
+      <template v-if="isShowCustomInsuranceDate">
+        <div class="period-cell-label">生效日期</div>
+        <div class="period-cell-content period-custom-cell-content">
+          <span>{{
+            state.formInfo.insuranceStartDate
+              ? formatDate(state.formInfo.insuranceStartDate, 'YYYY.MM.DD HH:mm:ss')
+              : ''
+          }}</span>
+          <ProSvg class="custom--arrow-right" name="arrow-right"></ProSvg>
+        </div>
+      </template>
+      <template v-else>
+        <div class="period-cell-label">保障期限</div>
+        <div class="period-cell-content period-custom-cell-content">
+          <span
+            >{{
+              state.formInfo.insuranceStartDate ? formatDate(state.formInfo.insuranceStartDate, 'YYYY.MM.DD') : ''
+            }}-{{
+              state.formInfo.insuranceEndDate ? formatDate(state.formInfo.insuranceEndDate, 'YYYY.MM.DD') : ''
+            }}</span
+          >
+        </div>
+      </template>
+    </div>
+    <div
+      v-if="riskGuaranteeStartDateType + '' !== INSURANCE_START_TYPE_ENUM.CUSTOM_DAY"
+      class="period-custom-cell period-common-cell"
+    >
+      <div class="period-cell-label">保障期限</div>
+      <div class="period-cell-content">
+        {{ state.formInfo.insuranceStartDate ? formatDate(state.formInfo.insuranceStartDate, 'YYYY.MM.DD') : '' }}-{{
+          state.formInfo.insuranceEndDate ? formatDate(state.formInfo.insuranceEndDate, 'YYYY.MM.DD') : ''
+        }}
+      </div>
+    </div>
+  </div>
   <ProPopup v-model:show="show" :height="340" :closeable="true">
     <van-datetime-picker
       v-model="currentDate"

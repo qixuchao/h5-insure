@@ -1,14 +1,7 @@
 <template>
-  <!-- <VanButton type="primary" @click="state.show = true">立即投保</VanButton> -->
-  <TrialButton
-    :is-share="false"
-    :premium="100"
-    :plan-code="'todo计划的code'"
-    :payment-frequency="'guaranteeObj.paymentFrequency'"
-    :tenant-product-detail="'tenantProductDetail'"
-    @click="state.show = true"
-    >立即投保</TrialButton
-  >
+  <div class="trial-button">
+    <VanButton type="primary" @click="state.show = true">立即投保</VanButton>
+  </div>
   <ProPopup
     class="com-trial-wrap"
     :style="{ height: '620px' }"
@@ -26,6 +19,7 @@
         <Benefit :data-source="benefitData" />
         <!-- 这里是标准险种信息 -->
         <InsureInfos
+          ref="insureInfosRef"
           v-model="state.userData"
           :origin-data="dataSource.insureProductRiskVOList[0]"
           :product-factor="dataSource.productFactor"
@@ -53,7 +47,7 @@
 </template>
 
 <script lang="ts" setup name="TrialPop">
-import { computed, ref } from 'vue';
+import { computed, ref, defineExpose } from 'vue';
 import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import TrialButton from '../TrialButton.vue';
 import InsureInfos from '../../long/InsureInfos/index.vue';
@@ -67,6 +61,8 @@ const RISK_SELECT = [
   { value: 1, label: '投保' },
   { value: 2, label: '不投保' },
 ];
+
+const insureInfosRef = ref(null);
 
 const props = defineProps({
   dataSource: {
@@ -93,6 +89,10 @@ const state = reactive({
 });
 
 const onNext = () => {
+  // 验证
+  insureInfosRef.value?.validate().then(() => {
+    console.log('---- validate success ----');
+  });
   state.loading = false;
   state.show = true;
 };
@@ -212,6 +212,11 @@ watch(
   },
 );
 
+defineExpose({
+  open: () => {
+    state.show = true;
+  },
+});
 watch(
   () => state.riskIsInsure,
   (v) => {},
@@ -220,6 +225,11 @@ watch(
 </script>
 
 <style scoped lang="scss">
+.trial-button {
+  padding: 30px;
+  text-align: right;
+  background-color: #fff;
+}
 .com-body {
   height: 100%;
   padding: 32px 40px 16px;

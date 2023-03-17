@@ -2,6 +2,7 @@
   <!-- 这里放因子 -->
   <PersonalInfo
     v-if="originData.mainRiskFlag === 1 && productFactor"
+    ref="personalInfoRef"
     v-model="state.personalInfo"
     :product-factor="productFactor"
     @trail-change="handlePersonalInfoChange"
@@ -18,7 +19,17 @@
     :risk-code="originData.riskCode"
     @trial-change="handleProductKeysChange"
   ></ProductKeys>
-  <RiskLiabilityInfo :v-model="mValues" :data-source="originData" @trial-change="handleProductKeysChange" />
+  <RiskLiabilityInfo
+    :v-model="mValues"
+    :data-source="originData"
+    :params="{
+      amountUnit: originData?.productRiskInsureLimitVO?.amountPremiumConfigVO.displayUnit,
+      basicsAmount: state.basicsAmount,
+      basicsPremium: state.basicsPremium,
+      riskId: originData?.riskId,
+    }"
+    @trial-change="handleRiskLiabilityChange"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -55,7 +66,11 @@ const props = withDefaults(defineProps<Props>(), {
 
 const state = reactive({
   personalInfo: {},
+  basicsAmount: '',
+  basicsPremium: '',
 });
+
+const personalInfoRef = ref(null);
 
 const mValues = ref(props.modelValue);
 
@@ -86,6 +101,19 @@ const handlePersonalInfoChange = (data) => {
 
 const handleBaoeBaofeiChange = (data) => {
   console.log('baoebaofei change ', data);
+  // eslint-disable-next-line no-unsafe-optional-chaining
+  if (+props.originData?.productRiskInsureLimitVO?.amountPremiumConfigVO.saleMethod === 1) {
+    state.basicsAmount = data?.amount;
+  } else {
+    state.basicsAmount = data?.premium;
+  }
+};
+const handleRiskLiabilityChange = (data) => {
+  console.log('handleRiskLiabilityChange change ', data);
+};
+
+const validate = async () => {
+  await personalInfoRef.value?.validate();
 };
 
 const handleMixData = () => {
@@ -103,6 +131,10 @@ watch(
     immediate: true,
   },
 );
+
+defineExpose({
+  validate,
+});
 </script>
 
 <style lang="scss" scoped>

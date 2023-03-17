@@ -58,17 +58,13 @@ import {
   RiskLiabilityInfoVoItem,
 } from '@/api/modules/trial.data';
 import { getCalculateRiskFormula } from '@/api/modules/trial';
-// import { RiskLiabilityInfoItem } from '@/api/index.data';
 
-// type FormInfo = RiskLiabilityInfoItem;
 interface Props {
   dataSource: RiskDetailVoItem;
   modelValue: RiskVoItem;
+  params?: { amountUnit: string; basicsAmount: string; basicsPremium: string; riskId: string };
 }
 
-// interface State {
-//   formInfo: FormInfo;
-// }
 const emit = defineEmits(['trialChange']);
 const LIABILITY_ATTRIBUTE_VALUE = [
   {
@@ -84,6 +80,7 @@ const LIABILITY_ATTRIBUTE_VALUE = [
 const props = withDefaults(defineProps<Props>(), {
   dataSource: () => ({} as RiskDetailVoItem),
   modelValue: () => ({} as RiskVoItem),
+  params: () => ({ amountUnit: '', basicsAmount: '', basicsPremium: '', riskId: '' }),
 });
 const mValues = ref(props.modelValue);
 const dataSourceNew = ref({});
@@ -92,36 +89,52 @@ const state = ref({
   formInfo: props.dataSource,
   isCheckList: [],
 });
-const params = {
-  amountUnit: 1,
-  basicsAmount: 20000,
-  // basicsPremium: '',
-  riskId: 10331,
-};
-
-// eslint-disable-next-line consistent-return
-const liabilityItem = props.dataSource.riskLiabilityInfoVOList.map(async (liab) => {
-  if (liab.formula.length > 0) {
-    // 责任属性为公式类型，需要请求公式接口
-
-    const { code, data } = await getCalculateRiskFormula({ ...params, riskLiabilities: [liab] });
-
-    if (code === '10000') {
-      liab.liabilityAttributeValueList = data[0].formulaResult;
-      return { ...liab, liabilityAttributeValueList: data[0] };
-    }
-
-    return liab;
-  }
-});
-console.log('liabilityItem>>>>>>', liabilityItem);
-console.log('riskLiabilityInfoVOList>>>>>>', props.dataSource.riskLiabilityInfoVOList);
 
 watch(
   () => mValues.value,
   (v) => {
-    console.log('--------', props.modelValue);
+    console.log('----------------------------------------mValues.value----------------------------------------');
     emit('trialChange', v);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  () => props.dataSource,
+  (value) => {
+    console.log(
+      '22----------------------------------------mValues.value----------------------------------------',
+      value.productRiskInsureLimitVO,
+    );
+    const params = {
+      amountUnit: props.params.amountUnit,
+      basicsAmount: value.basicsAmount,
+      basicsPremium: value.basicsPremium,
+      riskId: props.params.riskId,
+    };
+
+    // eslint-disable-next-line consistent-return
+    const liabilityItem = props.dataSource.riskLiabilityInfoVOList.map(async (liab) => {
+      if (liab.formula.length > 0) {
+        // 责任属性为公式类型，需要请求公式接口
+
+        const { code, data } = await getCalculateRiskFormula({ ...params, riskLiabilities: [liab] });
+
+        if (code === '10000') {
+          liab.liabilityAttributeValueList = data[0].formulaResult;
+          return { ...liab, liabilityAttributeValueList: data[0] };
+        }
+
+        return liab;
+      }
+    });
+    console.log('liabilityItem>>>>>>', liabilityItem);
+    console.log('riskLiabilityInfoVOList>>>>>>', props.dataSource.riskLiabilityInfoVOList);
+    console.log('mValues.value>>>>>>', mValues.value);
+    emit('trialChange', value);
   },
   {
     deep: true,

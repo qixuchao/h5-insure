@@ -1,11 +1,3 @@
-<!--
- * @Author: za-qixuchao qixuchao@zhongan.io
- * @Date: 2022-09-15 17:44:21
- * @LastEditors: zhaopu
- * @LastEditTime: 2023-01-30 17:41:12
- * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
--->
 <template>
   <ProPopup
     v-model:show="isShow"
@@ -13,63 +5,61 @@
     :closeable="false"
     @close="emits('onCloseFilePreviewByMask')"
   >
-    <van-config-provider :theme-vars="themeVars" class="custom-provider">
-      <ProTab
-        v-if="isShow"
-        v-model:active="currentActiveIndex"
-        :list="
-          formatedContentList.map((item, index) => ({
-            title: item.attachmentName,
-            disabled: index == currentActiveIndex ? false : item.disabled || false,
-            slotName: `guarantee-${index}`,
-          }))
-        "
-        class="tab"
-      ></ProTab>
-      <div ref="previewRef" class="list">
-        <div v-if="attachmentActiveList.length === 1" class="item">
-          <AsyncProFilePreview
-            :key="attachmentActiveList[0].materialSourceDesc"
-            :content="attachmentActiveList[0].materialContent"
-            :type="attachmentActiveList[0].materialSource"
-            :forbid-click="true"
-          />
-        </div>
-        <div v-else class="attachment-list">
-          <div
-            v-for="(item, index) in attachmentActiveList"
-            :key="index"
-            class="attachment-list-item"
-            @click="onClickFileItem(item)"
-          >
-            <div class="attachment-list-item-name">{{ item.materialSourceDesc }}</div>
-            <div class="attachment-list-item-icon">
-              <ProSvg name="arrow-right"></ProSvg>
-            </div>
+    <ProTab
+      v-if="isShow"
+      v-model:active="currentActiveIndex"
+      :list="
+        formatedContentList.map((item, index) => ({
+          title: item.attachmentName,
+          disabled: index == currentActiveIndex ? false : item.disabled || false,
+          slotName: `guarantee-${index}`,
+        }))
+      "
+      class="tab"
+    ></ProTab>
+    <div ref="previewRef" class="list">
+      <div v-if="attachmentActiveList.length === 1" class="item">
+        <AsyncProFilePreview
+          :key="attachmentActiveList[0].materialSourceDesc"
+          :content="attachmentActiveList[0].materialContent"
+          :type="attachmentActiveList[0].materialSource"
+          :forbid-click="true"
+        />
+      </div>
+      <div v-else class="attachment-list">
+        <div
+          v-for="(item, index) in attachmentActiveList"
+          :key="index"
+          class="attachment-list-item"
+          @click="onClickFileItem(item)"
+        >
+          <div class="attachment-list-item-name">{{ item.materialSourceDesc }}</div>
+          <div class="attachment-list-item-icon">
+            <ProSvg name="arrow-right"></ProSvg>
           </div>
         </div>
       </div>
-      <div class="footer">
-        <ProShadowButton
-          v-if="showReadBtn"
-          :shadow="false"
-          :theme-vars="themeVars"
-          :disabled="isAgreeBtnDisabled"
-          class="right"
-          :text="`${beforeReadOverText}(${currentActiveIndex + 1}/${forceReadCound})`"
-          @click="agreeForceReadFile"
-        >
-        </ProShadowButton>
-        <ProShadowButton
-          v-else
-          :disabled="isAgreeBtnDisabled"
-          :shadow="false"
-          :theme-vars="themeVars"
-          :text="props.text"
-          @click="agreeMent"
-        ></ProShadowButton>
-      </div>
-    </van-config-provider>
+    </div>
+    <div class="footer">
+      <ProShadowButton
+        v-if="showReadBtn"
+        :shadow="false"
+        :theme-vars="themeVars"
+        :disabled="isAgreeBtnDisabled"
+        class="right"
+        :text="`${beforeReadOverText}(${currentActiveIndex + 1}/${forceReadCound})`"
+        @click="agreeForceReadFile"
+      >
+      </ProShadowButton>
+      <ProShadowButton
+        v-else
+        :disabled="isAgreeBtnDisabled"
+        :shadow="false"
+        :theme-vars="themeVars"
+        :text="props.text"
+        @click="agreeMent"
+      ></ProShadowButton>
+    </div>
   </ProPopup>
 </template>
 
