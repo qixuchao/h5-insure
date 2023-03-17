@@ -52,6 +52,7 @@
           >立即投保</TrialButton
         > -->
         <TrialPop
+          v-if="insureProductDetail && insureProductDetail.productPlanInsureVOList"
           :data-source="insureProductDetail.productPlanInsureVOList[0]"
           :product-info="insureProductDetail"
         ></TrialPop>

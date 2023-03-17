@@ -192,7 +192,7 @@ const handleMakeCalcData = () => {
 
 const handleSetRiskSelect = () => {
   state.riskIsInsure = {};
-  props.dataSource.productPlanInsureVOList[0].insureProductRiskVOList.forEach((risk) => {
+  props.dataSource.insureProductRiskVOList.forEach((risk) => {
     // 1是投保， 2是不投保
     state.riskIsInsure[risk.riskCode] = { selected: 2, data: null };
   });
