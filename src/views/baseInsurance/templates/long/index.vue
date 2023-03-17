@@ -8,6 +8,8 @@
           data-skeleton-type="img"
           :url="tenantProductDetail?.BASIC_INFO.banner[0]"
         />
+        v-if="tenantProductDetail?.BASIC_INFO?.video.length"
+        <Video data-skeleton-type="img" :src="tenantProductDetail?.BASIC_INFO.video[0]" />
         <Banner
           v-if="tenantProductDetail?.BASIC_INFO?.bannerMove?.length"
           :url="tenantProductDetail?.BASIC_INFO?.bannerMove?.[0]"
@@ -85,6 +87,7 @@ import { productDetail as getTenantProductDetail, queryProductMaterial, querySal
 import { INSURE_TYPE_ENUM } from '@/common/constants/infoCollection';
 
 import Banner from '../components/Banner/index.vue';
+import Video from '../components/Banner/Video.vue';
 import Guarantee from '../components/Guarantee/index.vue';
 import PreNotice from '../components/PreNotice/index.vue';
 import { YES_NO_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
@@ -225,6 +228,9 @@ const initData = async () => {
   querySalesInfo({ productCode, tenantId, isTenant: !preview }).then(({ data, code }) => {
     if (code === '10000') {
       tenantProductDetail.value = data;
+      tenantProductDetail.value.BASIC_INFO.video = [
+        'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/common/20230316/78b6ce255ee04c7a819b9bf284d9e9fd/1.mp4?Expires=1679581759&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=DkKlyOYtKfYvYM4xdni2hMsomzg%3D',
+      ];
       document.title = data.BASIC_INFO.title || '';
       const { title, desc, image } = data?.PRODUCT_LIST.wxShareConfig || {};
       // 设置分享参数

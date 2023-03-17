@@ -5,7 +5,7 @@
   ></BaoeBaofei>
   <!-- 这里放因子 -->
   <div v-if="productFactor">
-    <PersonalInfo v-model="state.personalInfo" :product-factor="productFactor" />
+    <PersonalInfo v-model="state.personalInfo" :product-factor="productFactor" @trail="onTrail" />
   </div>
   <!-- 产品要素 -->
   <ProductKeys
@@ -31,19 +31,20 @@ import {
   RULE_PAYMENT,
 } from '@/common/constants/trial';
 
-import { RiskDetailVoItem, ProductInfo, RiskVoItem, ProductPlanInsure } from '@/api/modules/trial.data';
+import { RiskDetailVoItem, ProductInfo, RiskVoItem, ProductPlanInsure, ProductFactor } from '@/api/modules/trial.data';
+
 import { BaoeBaofei, PersonalInfo, ProductKeys, RiskLiabilityInfo } from './components';
 
 interface Props {
   originData: RiskDetailVoItem;
   modelValue: RiskVoItem;
-  productFactor: any;
+  productFactor: ProductFactor;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as RiskDetailVoItem),
   modelValue: () => ({} as RiskVoItem),
-  productFactor: () => null,
+  productFactor: () => ({} as ProductFactor),
 });
 
 const state = reactive({
@@ -58,6 +59,10 @@ enumList.value = inject('enumList') || {};
 // const state = reactive<{ formInfo: RiskVoItem }>({
 //   formInfo: props.formInfo as RiskVoItem,
 // });
+
+const onTrail = (val) => {
+  console.log('---personal trail---', val);
+};
 
 onMounted(() => {
   console.log('--------origin data = ', props.originData);

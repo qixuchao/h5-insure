@@ -8,6 +8,11 @@
           data-skeleton-type="img"
           :url="tenantProductDetail?.BASIC_INFO.banner[0]"
         />
+        <!-- <Video
+          v-if="tenantProductDetail?.BASIC_INFO?.video.length"
+          data-skeleton-type="img"
+          :url="tenantProductDetail?.BASIC_INFO.video[0]"
+        /> -->
         <Banner
           v-if="tenantProductDetail?.BASIC_INFO?.bannerMove?.length"
           :url="tenantProductDetail?.BASIC_INFO?.bannerMove?.[0]"
@@ -158,6 +163,7 @@ import useAddressList from '@/hooks/useAddressList';
 import { transformData, riskToOrder, validateSmsCode, getFileType } from '../utils';
 
 import Banner from './components/Banner/index.vue';
+import Video from './components/Banner/Video.vue';
 import Guarantee from './components/Guarantee/index.vue';
 import PreNotice from './components/PreNotice/index.vue';
 import Package from './components/Package/index.vue';
