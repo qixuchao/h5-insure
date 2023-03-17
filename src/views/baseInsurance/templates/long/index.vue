@@ -1,14 +1,13 @@
 <template>
   <div v-if="loading">__SKELETON_LONG_CONTENT__</div>
-  <van-config-provider v-else data-skeleton-root="LONG" :theme-vars="themeVars">
-    <div class="page-internet-product-detail">
+  <div v-else class="page-internet-product-detail" data-skeleton-root="LONG">
+    <template v-if="!trialPreviewMode">
       <div class="info">
         <Banner
           v-if="tenantProductDetail?.BASIC_INFO?.banner.length"
           data-skeleton-type="img"
           :url="tenantProductDetail?.BASIC_INFO.banner[0]"
         />
-        v-if="tenantProductDetail?.BASIC_INFO?.video.length"
         <Video data-skeleton-type="img" :src="tenantProductDetail?.BASIC_INFO.video[0]" />
         <Banner
           v-if="tenantProductDetail?.BASIC_INFO?.bannerMove?.length"
@@ -23,6 +22,7 @@
         :data-source="tenantProductDetail"
         :plan-list="planList"
       />
+      <div class="trial-text-btn" @click="showTrial">算一算保费</div>
       <ScrollInfo ref="tenantProductDetailScrollRef" :data-source="tenantProductDetail"> </ScrollInfo>
       <ProLazyComponent>
         <InscribedContent
@@ -38,29 +38,19 @@
           @preview-file="(index) => previewFile(index)"
         />
       </ProLazyComponent>
-      <template v-if="showFooterBtn">
-        <span id="insureButton"></span>
-        <!-- <TrialButton
-          :is-share="tenantProductDetail.PRODUCT_LIST.showWXShare"
-          :premium="premium"
-          :share-info="shareInfo"
-          :loading-text="premiumLoadingText"
-          :plan-code="guaranteeObj.planCode"
-          :payment-frequency="guaranteeObj.paymentFrequency"
-          :tenant-product-detail="tenantProductDetail"
-          @click="onNext"
-          >立即投保</TrialButton
-        > -->
-        <TrialPop
-          v-if="insureProductDetail && insureProductDetail.productPlanInsureVOList"
-          :data-source="insureProductDetail.productPlanInsureVOList[0]"
-          :product-info="insureProductDetail"
-        ></TrialPop>
-      </template>
-    </div>
-    <PreNotice v-if="preNoticeLoading" :product-detail="tenantProductDetail"></PreNotice>
-    <div id="xinaoDialog"></div>
-  </van-config-provider>
+    </template>
+    <div v-else class="preview-placeholder">当前页面仅用于保费试算预览<br />不展示其他产品相关配置信息</div>
+    <template v-if="showFooterBtn">
+      <span id="insureButton"></span>
+      <TrialPop
+        ref="trialRef"
+        :data-source="currentPlanObj"
+        :product-info="{ productCode: insureProductDetail.productCode, productName: insureProductDetail.productName }"
+      ></TrialPop>
+    </template>
+  </div>
+  <PreNotice v-if="preNoticeLoading && !trialPreviewMode" :product-detail="tenantProductDetail"></PreNotice>
+  <div id="xinaoDialog"></div>
   <FilePreview
     v-if="showFilePreview"
     v-model:show="showFilePreview"
@@ -76,9 +66,8 @@
 
 <script lang="ts" setup name="InsuranceLong">
 import { useRoute, useRouter } from 'vue-router';
-import { Toast, Dialog } from 'vant/es';
 import { useIntersectionObserver } from '@vueuse/core';
-import { setGlobalTheme, useTheme } from '@/hooks/useTheme';
+import { setGlobalTheme } from '@/hooks/useTheme';
 import {
   ProductSaleInfo,
   InsureProductData,
@@ -107,7 +96,7 @@ const FilePreview = defineAsyncComponent(() => import('../components/FilePreview
 const InscribedContent = defineAsyncComponent(() => import('../components/InscribedContent/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
 
-const themeVars = useTheme();
+// const themeVars = useTheme();
 const router = useRouter();
 const route = useRoute();
 
@@ -121,7 +110,8 @@ interface QueryData {
   orderNo: string;
   pageCode: string;
   from: string; // from = 'check' 审核版
-  preview: string;
+  preview: string; // 产品详情预览
+  trialPreview: string; // 保费试算预览
   [key: string]: string;
 }
 
@@ -134,6 +124,7 @@ const {
   extraInfo,
   insurerCode,
   preview,
+  trialPreview,
 } = route.query as QueryData;
 
 let extInfo: any = {};
@@ -156,7 +147,6 @@ const showFooterBtn = ref<boolean>(true); // test  defalut false
 const tenantProductDetail = ref<Partial<ProductSaleInfo>>({}); // 核心系统产品信息
 const insureProductDetail = ref<Partial<InsureProductData>>({}); // 产品中心产品信息
 
-const showTrial = ref<boolean>(false); // 是否显示健康告知
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const preNoticeLoading = ref<boolean>(false); // 首页弹窗
@@ -165,7 +155,6 @@ const isOnlyView = ref<boolean>(true); // 资料查看模式
 const needDesensitize = ref<boolean>(true); // 投被保人身份证手机号是否需要掩码
 const loading = ref<boolean>(true);
 const iseeBizNo = ref('');
-const currentPackageConfigVOList = ref([]); // 加油包列表
 const currentPlanObj = ref<Partial<ProductPlanInsureVoItem>>({});
 const mainRiskInfo = ref<Partial<RiskDetailVoItem>>({}); // 标准主险信息
 const planList = ref<any[]>([]);
@@ -191,7 +180,12 @@ const setShareLink = (config: { image: string; desc: string; title: string }) =>
 const guaranteeObj = ref<any>({});
 
 // 是否是preview模式
-const previewMode = computed(() => !!preview);
+const previewMode = computed(() => !!preview || !!trialPreview);
+const trialPreviewMode = computed(() => !!trialPreview);
+const trialRef = ref();
+const showTrial = () => {
+  trialRef.value.open();
+}; // 展示试算
 
 /* -------产品资料模块------------ */
 const healthAttachmentList = ref([]);
@@ -229,21 +223,19 @@ const queryProductMaterialData = () => {
 
 // 初始化数据，获取产品配置详情和产品详情
 const initData = async () => {
-  querySalesInfo({ productCode, tenantId, isTenant: !preview }).then(({ data, code }) => {
-    if (code === '10000') {
-      tenantProductDetail.value = data;
-      tenantProductDetail.value.BASIC_INFO.video = [
-        'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/common/20230316/78b6ce255ee04c7a819b9bf284d9e9fd/1.mp4?Expires=1679581759&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=DkKlyOYtKfYvYM4xdni2hMsomzg%3D',
-      ];
-      document.title = data.BASIC_INFO.title || '';
-      const { title, desc, image } = data?.PRODUCT_LIST.wxShareConfig || {};
-      // 设置分享参数
-      setShareLink({ title, desc, image });
-      setGlobalTheme(data.BASIC_INFO.themeType);
-    }
-  });
+  !trialPreviewMode.value &&
+    querySalesInfo({ productCode, tenantId, isTenant: !preview }).then(({ data, code }) => {
+      if (code === '10000') {
+        tenantProductDetail.value = data;
+        document.title = data.BASIC_INFO.title || '';
+        const { title, desc, image } = data?.PRODUCT_LIST.wxShareConfig || {};
+        // 设置分享参数
+        setShareLink({ title, desc, image });
+        setGlobalTheme(data.BASIC_INFO.themeType);
+      }
+    });
 
-  await getInsureProductDetail({ productCode, isTenant: !preview }).then(({ data, code }) => {
+  await getInsureProductDetail({ productCode, isTenant: !preview || !trialPreview }).then(({ data, code }) => {
     if (code === '10000') {
       preNoticeLoading.value = true;
       insureProductDetail.value = data;
@@ -285,21 +277,6 @@ const previewFile = (index: number) => {
   showFilePreview.value = true;
 };
 
-/** -------------  保费试算 -----------------*/
-
-// 获取选中的加油包列表
-const getPackageRiskList = () => {
-  const packageRiskList = [];
-
-  currentPackageConfigVOList.value
-    .filter((packageItem) => packageItem.value === INSURE_TYPE_ENUM.INSURE)
-    .forEach((e) => {
-      packageRiskList.push(...e.productRiskVoList);
-    });
-
-  return packageRiskList;
-};
-
 // 点击立即投保
 const onNext = async () => {
   try {
@@ -329,11 +306,6 @@ watch(
     guaranteeObj.value.planCode = planCode;
 
     mainRiskInfo.value = (insureProductRiskVOList || []).find((risk) => risk.mainRiskFlag === YES_NO_ENUM.YES);
-    console.log('mainRiskInfo.value', mainRiskInfo.value);
-    currentPackageConfigVOList.value = (oilPackageProductVOList || []).map((oli) => ({
-      ...oli,
-      value: INSURE_TYPE_ENUM.UN_INSURE,
-    }));
   },
   {
     deep: true,
@@ -363,9 +335,16 @@ onMounted(() => {
 
 <style lang="scss" scope>
 .page-internet-product-detail {
-  padding-bottom: 150px;
+  // padding-bottom: 150px;
   background: #f1f5fc;
-
+  .preview-placeholder {
+    padding: 200px 60px;
+    height: calc(100vh - 188px);
+    line-height: 80px;
+    text-align: center;
+    color: $zaui-text-weak;
+    font-size: 32px;
+  }
   .custom-page-form {
     background: #ffffff;
     .form-title {
@@ -403,7 +382,12 @@ onMounted(() => {
       }
     }
   }
-
+  .trial-text-btn {
+    background-color: #fafafa;
+    padding: 30px;
+    color: $primary-color;
+    text-align: right;
+  }
   .footer-area {
     width: 100%;
     height: 150px;

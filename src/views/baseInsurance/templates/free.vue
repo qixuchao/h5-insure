@@ -1,69 +1,60 @@
 <template>
   <div v-if="state.loading">__SKELETON_FREE_CONTENT__</div>
-  <van-config-provider v-else data-skeleton-root="FREE" :theme-vars="themeVars">
-    <div class="page-free-product-detail">
-      <Banner data-skeleton-type="img" :url="state.banner" />
-      <FreeHolderForm
-        ref="formRef"
-        :is-first="state.newAuth"
-        :insure-detail="state.insureDetail"
-        :detail="state.order"
-        :colors="state.colors"
-        :preview-mode="previewMode"
-      >
-        <ProShadowButton
-          ref="root"
-          class="submit-btn"
-          :disabled="!state.newAuth && previewMode"
-          :is-gradient="false"
-          :text="state.newAuth ? '立即领取' : '激活保障'"
-          @click="clickHandler"
-        />
-        <AttachmentList
-          v-if="!state.newAuth && filterHealthAttachmentList && filterHealthAttachmentList.length > 0"
-          :attachement-list="filterHealthAttachmentList"
-          :has-bg-color="false"
-          pre-text="请阅读"
-          @preview-file="(index:number) => previewFile(index)"
-        />
-      </FreeHolderForm>
-      <div class="product-desc">
-        <van-image
-          v-for="(item, index) in state.productDesc"
-          :key="index"
-          width="100%"
-          lazy-load
-          :src="item"
-          class=""
-        />
-      </div>
-      <InscribedContent
-        v-if="state.detail?.tenantProductInsureVO?.inscribedContent"
-        :inscribed-content="state.detail?.tenantProductInsureVO?.inscribedContent"
+  <div v-else data-skeleton-root="FREE" class="page-free-product-detail">
+    <Banner data-skeleton-type="img" :url="state.banner" />
+    <FreeHolderForm
+      ref="formRef"
+      :is-first="state.newAuth"
+      :insure-detail="state.insureDetail"
+      :detail="state.order"
+      :colors="state.colors"
+      :preview-mode="previewMode"
+    >
+      <ProShadowButton
+        ref="root"
+        class="submit-btn"
+        :disabled="!state.newAuth && previewMode"
+        :is-gradient="false"
+        :text="state.newAuth ? '立即领取' : '激活保障'"
+        @click="clickHandler"
       />
-      <footer v-if="state.showBtn" class="page-free-footer">
-        <ProShadowButton
-          :disabled="!state.newAuth && previewMode"
-          :is-gradient="false"
-          :text="state.newAuth ? '立即领取' : '激活保障'"
-          @click="clickHandler"
-        />
-      </footer>
+      <AttachmentList
+        v-if="!state.newAuth && filterHealthAttachmentList && filterHealthAttachmentList.length > 0"
+        :attachement-list="filterHealthAttachmentList"
+        :has-bg-color="false"
+        pre-text="请阅读"
+        @preview-file="(index:number) => previewFile(index)"
+      />
+    </FreeHolderForm>
+    <div class="product-desc">
+      <van-image v-for="(item, index) in state.productDesc" :key="index" width="100%" lazy-load :src="item" class="" />
     </div>
-    <FilePreview
-      v-if="state.showFilePreview && filterHealthAttachmentList.length !== 0"
-      v-model:show="state.showFilePreview"
-      :content-list="state.isOnlyView ? filterHealthAttachmentList : mustReadFieldList"
-      :is-only-view="state.isOnlyView"
-      :active-index="state.activeIndex"
-      :text="state.isOnlyView ? '关闭' : '我已逐页阅读上述内容并同意'"
-      :force-read-cound="0"
-      on-close-file-preview
-      @submit="onSubmit"
-      @on-close-file-preview="onCloseFilePreview"
-    ></FilePreview>
-    <PreNotice v-if="!state.loading" :product-detail="state.detail"></PreNotice>
-  </van-config-provider>
+    <InscribedContent
+      v-if="state.detail?.tenantProductInsureVO?.inscribedContent"
+      :inscribed-content="state.detail?.tenantProductInsureVO?.inscribedContent"
+    />
+    <footer v-if="state.showBtn" class="page-free-footer">
+      <ProShadowButton
+        :disabled="!state.newAuth && previewMode"
+        :is-gradient="false"
+        :text="state.newAuth ? '立即领取' : '激活保障'"
+        @click="clickHandler"
+      />
+    </footer>
+  </div>
+  <FilePreview
+    v-if="state.showFilePreview && filterHealthAttachmentList.length !== 0"
+    v-model:show="state.showFilePreview"
+    :content-list="state.isOnlyView ? filterHealthAttachmentList : mustReadFieldList"
+    :is-only-view="state.isOnlyView"
+    :active-index="state.activeIndex"
+    :text="state.isOnlyView ? '关闭' : '我已逐页阅读上述内容并同意'"
+    :force-read-cound="0"
+    on-close-file-preview
+    @submit="onSubmit"
+    @on-close-file-preview="onCloseFilePreview"
+  ></FilePreview>
+  <PreNotice v-if="!state.loading" :product-detail="state.detail"></PreNotice>
 </template>
 
 <script lang="ts" setup>

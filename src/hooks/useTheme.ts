@@ -81,6 +81,7 @@ export const useTheme = (color: string = import.meta.env.VITE_THEME_COLOR || the
     cardCellColor: theme80, // 保障内容每一行颜色的颜色
     radioCheckedIconColor: color,
     proCheckRadius: '40px', // proCheckButton的圆角
+    buttonBorderRadius: '4px',
     // ..其他组件的颜色覆盖
   };
 };
@@ -93,8 +94,8 @@ export const config = themeConfig;
 export const setGlobalTheme = (color: string = import.meta.env.VITE_THEME_COLOR || themeConfig.blue) => {
   const themesStore = useThemesStore();
   const { themeVars } = storeToRefs(themesStore);
-
   themeVars.value = useTheme(color);
+  console.log('themeVars:', themeVars.value);
 };
 
 export default useTheme;

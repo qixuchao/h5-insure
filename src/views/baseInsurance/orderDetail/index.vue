@@ -1,53 +1,51 @@
 <template>
-  <van-config-provider :theme-vars="themeVars">
-    <div class="page-pay-result">
-      <div class="header">
-        <div class="product-status">{{ state.pageInfo.title }}</div>
-        <div
-          v-if="!(orderBtnText === '重下一单' && state.templateId.toString() === '3')"
-          class="desc"
-          v-html="orderDesc"
-        />
-      </div>
-      <div class="prodouct-container">
-        <div class="product-card">
-          <div class="product-name">{{ state.insureDetail?.productName || '' }}</div>
-          <div v-for="(item, index) in state.pageInfo.insureList" :key="index" class="list">
-            <span class="label">{{ item.label }}</span>
-            <span class="value">{{ item.value }}</span>
-          </div>
-          <ProShadowButton
-            v-if="!(orderBtnText === '重下一单' && state.templateId.toString() === '3')"
-            :theme-vars="themeVars"
-            class="btn"
-            :text="orderBtnText"
-            @click="orderBtnHandler"
-          />
-          <!-- <div v-if="state.showOrderDetail" class="desc">已有<span>29,182</span>位用户已投保</div> -->
+  <div class="page-pay-result">
+    <div class="header">
+      <div class="product-status">{{ state.pageInfo.title }}</div>
+      <div
+        v-if="!(orderBtnText === '重下一单' && state.templateId.toString() === '3')"
+        class="desc"
+        v-html="orderDesc"
+      />
+    </div>
+    <div class="prodouct-container">
+      <div class="product-card">
+        <div class="product-name">{{ state.insureDetail?.productName || '' }}</div>
+        <div v-for="(item, index) in state.pageInfo.insureList" :key="index" class="list">
+          <span class="label">{{ item.label }}</span>
+          <span class="value">{{ item.value }}</span>
         </div>
-        <img
-          v-if="state.pageInfo.productImage"
-          class="product-img"
-          :src="state.pageInfo.productImage"
-          @click="goToInsurerPage(true, 'GDGGW')"
+        <ProShadowButton
+          v-if="!(orderBtnText === '重下一单' && state.templateId.toString() === '3')"
+          :theme-vars="themeVars"
+          class="btn"
+          :text="orderBtnText"
+          @click="orderBtnHandler"
         />
-        <GuaranteeContent v-if="state.showOrderDetail" is-show-close :count="5" :data-source="state.guaranteeItemVOS" />
-        <!-- <div class="footer-desc">
+        <!-- <div v-if="state.showOrderDetail" class="desc">已有<span>29,182</span>位用户已投保</div> -->
+      </div>
+      <img
+        v-if="state.pageInfo.productImage"
+        class="product-img"
+        :src="state.pageInfo.productImage"
+        @click="goToInsurerPage(true, 'GDGGW')"
+      />
+      <GuaranteeContent v-if="state.showOrderDetail" is-show-close :count="5" :data-source="state.guaranteeItemVOS" />
+      <!-- <div class="footer-desc">
           <div>客服电话</div>
           <div>400 605 8000</div>
         </div> -->
-      </div>
     </div>
+  </div>
 
-    <Curtain v-model:show="show" @close="show = false">
-      <img
-        class="jump-img"
-        :src="state.pageInfo.notificationImage"
-        style="display: block"
-        @click="goToInsurerPage(true, 'TCGGW')"
-      />
-    </Curtain>
-  </van-config-provider>
+  <Curtain v-model:show="show" @close="show = false">
+    <img
+      class="jump-img"
+      :src="state.pageInfo.notificationImage"
+      style="display: block"
+      @click="goToInsurerPage(true, 'TCGGW')"
+    />
+  </Curtain>
 </template>
 
 <script lang="ts" setup>

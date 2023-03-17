@@ -1,60 +1,60 @@
 <template>
-  <van-config-provider :theme-vars="themeVars">
-    <ProPageWrap>
-      <div class="net-sale-wrap">
-        <div class="part product-name">{{ insureDetail?.productBasicInfoVO?.productFullName }}</div>
-        <ProCard v-if="isShowInsurePeriod" :show-line="false" title="保障年期">
-          <ProRadioButton
-            v-model="currentPlan"
-            class="radio-group"
-            :prop="{ label: 'planName', value: 'planCode' }"
-            :options="insureDetail?.productRelationPlanVOList"
-          ></ProRadioButton>
-        </ProCard>
-        <InsureForm
-          ref="formRef"
-          :title-collection="{
-            HOLDER: '投保人',
-            INSURER: '被保人',
-            BENEFICIARY: '收益人',
-          }"
-          :form-info="orderDetail"
-          :send-sms-code="() => {}"
-          input-align="left"
-          :factor-object="currentFactor"
-        >
-          <template #holderName>
-            <span></span>
-          </template>
-          <template #insurerName>
-            <span></span>
-          </template>
-        </InsureForm>
-        <div class="part">
-          <ProCell title="保费" :content="productPremium"></ProCell>
-          <ProCell
-            v-if="isShowInsureDate"
-            title="保障期间"
-            :content="`${insuranceStartDate.split(' ')[0]}~${insuranceEndDate.split(' ')[0]}`"
-          ></ProCell>
-          <ProDatePicker
-            v-else
-            v-model="insurancePeriod.currentDate"
-            label="生效日期"
-            name="currentDate"
-            type="date"
-            :min="insurancePeriod.min"
-            :max="insurancePeriod.max"
-            :required="true"
-          ></ProDatePicker>
-        </div>
-
-        <div class="footer">
-          <ProShadowButton :shadow="false" text="分享用户确认投保" @click="insured"></ProShadowButton>
-        </div>
+  <!-- <van-config-provider :theme-vars="themeVars"> -->
+  <ProPageWrap>
+    <div class="net-sale-wrap">
+      <div class="part product-name">{{ insureDetail?.productBasicInfoVO?.productFullName }}</div>
+      <ProCard v-if="isShowInsurePeriod" :show-line="false" title="保障年期">
+        <ProRadioButton
+          v-model="currentPlan"
+          class="radio-group"
+          :prop="{ label: 'planName', value: 'planCode' }"
+          :options="insureDetail?.productRelationPlanVOList"
+        ></ProRadioButton>
+      </ProCard>
+      <InsureForm
+        ref="formRef"
+        :title-collection="{
+          HOLDER: '投保人',
+          INSURER: '被保人',
+          BENEFICIARY: '收益人',
+        }"
+        :form-info="orderDetail"
+        :send-sms-code="() => {}"
+        input-align="left"
+        :factor-object="currentFactor"
+      >
+        <template #holderName>
+          <span></span>
+        </template>
+        <template #insurerName>
+          <span></span>
+        </template>
+      </InsureForm>
+      <div class="part">
+        <ProCell title="保费" :content="productPremium"></ProCell>
+        <ProCell
+          v-if="isShowInsureDate"
+          title="保障期间"
+          :content="`${insuranceStartDate.split(' ')[0]}~${insuranceEndDate.split(' ')[0]}`"
+        ></ProCell>
+        <ProDatePicker
+          v-else
+          v-model="insurancePeriod.currentDate"
+          label="生效日期"
+          name="currentDate"
+          type="date"
+          :min="insurancePeriod.min"
+          :max="insurancePeriod.max"
+          :required="true"
+        ></ProDatePicker>
       </div>
-    </ProPageWrap>
-  </van-config-provider>
+
+      <div class="footer">
+        <ProShadowButton :shadow="false" text="分享用户确认投保" @click="insured"></ProShadowButton>
+      </div>
+    </div>
+  </ProPageWrap>
+  <!-- </van-config-provider> -->
 </template>
 
 <script lang="ts" setup>
