@@ -51,7 +51,11 @@
             </VanField>
             <div v-if="state.riskIsInsure[risk.riskCode].selected === '1'" class="risk2-field">
               <!-- 这里是附加险种选择投保后展开的区域 -->
-              <InsureInfos v-model="state.riskIsInsure[risk.riskCode].data" :origin-data="risk"></InsureInfos>
+              <InsureInfos
+                v-model="state.riskIsInsure[risk.riskCode].data"
+                :origin-data="risk"
+                :product-factor="dataSource.productFactor"
+              ></InsureInfos>
             </div>
           </div>
         </template>
@@ -182,11 +186,9 @@ const formData = ref({
 const handleMakeCalcData = () => {
   state.submitData = {} as PremiumCalcData;
   state.submitData = {
-    holder: {},
+    holder: {}, // 投保人
     insuredVOList: [],
-    productCode: '',
-    productId: '',
-    tenantId: '',
+    productCode: props.productInfo.productCode,
   };
 };
 
