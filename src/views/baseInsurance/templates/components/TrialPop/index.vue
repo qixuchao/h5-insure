@@ -19,6 +19,7 @@
         <Benefit :data-source="benefitData" />
         <!-- 这里是标准险种信息 -->
         <InsureInfos
+          ref="insureInfosRef"
           v-model="state.userData"
           :origin-data="dataSource.insureProductRiskVOList[0]"
           :product-factor="dataSource.productFactor"
@@ -56,6 +57,8 @@ const RISK_SELECT = [
   { value: 2, label: '不投保' },
 ];
 
+const insureInfosRef = ref(null);
+
 const props = defineProps({
   dataSource: {
     // plan。。
@@ -81,6 +84,10 @@ const state = reactive({
 });
 
 const onNext = () => {
+  // 验证
+  insureInfosRef.value?.validate().then(() => {
+    console.log('---- validate success ----');
+  });
   state.loading = false;
   state.show = true;
 };

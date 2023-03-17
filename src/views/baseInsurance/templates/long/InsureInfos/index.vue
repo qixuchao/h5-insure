@@ -7,6 +7,7 @@
   <!-- 这里放因子 -->
   <PersonalInfo
     v-if="originData.mainRiskFlag === 1 && productFactor"
+    ref="personalInfoRef"
     v-model="state.personalInfo"
     :product-factor="productFactor"
     @trail-change="handlePersonalInfoChange"
@@ -68,6 +69,8 @@ const state = reactive({
   basicsPremium: '',
 });
 
+const personalInfoRef = ref(null);
+
 const mValues = ref(props.modelValue);
 
 const enumList = ref({});
@@ -108,6 +111,10 @@ const handleRiskLiabilityChange = (data) => {
   console.log('handleRiskLiabilityChange change ', data);
 };
 
+const validate = async () => {
+  await personalInfoRef.value?.validate();
+};
+
 watch(
   () => mValues.value,
   (v) => {
@@ -118,6 +125,10 @@ watch(
     immediate: true,
   },
 );
+
+defineExpose({
+  validate,
+});
 </script>
 
 <style lang="scss" scoped>

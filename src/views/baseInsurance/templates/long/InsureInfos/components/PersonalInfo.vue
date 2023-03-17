@@ -1,7 +1,7 @@
 <template>
   <ProRenderFormWithCard
     ref="holderInfoRef"
-    title="投保人信息"
+    :title="isOnlyForm ? '' : '投保人信息'"
     class="trail-personal-info"
     :model="state.holder.personVO"
     :schema="state.holder.schema"
@@ -13,7 +13,7 @@
     ref="insuredFormRef"
     :key="index"
     class="trail-personal-info"
-    title="被保人信息"
+    :title="isOnlyForm ? '' : '被保人信息'"
     :model="insured.personVO"
     :schema="state.insured.schema"
     :config="state.insured.config"
@@ -92,6 +92,19 @@ const validateFields = () => {
   return flag1 || flag2;
 };
 
+// 只有投保人/被保人 不显示标题
+const isOnlyForm = computed(() => {
+  const holderFlag = isNotEmptyArray(state.holder.schema);
+  const insuredFlag = isNotEmptyArray(state.insured.schema);
+  return holderFlag !== insuredFlag;
+});
+
+// 验证表单
+const validate = () => {
+  const insuredRefs = insuredFormRef.value?.map((refItem) => refItem?.validate());
+  return Promise.all([holderInfoRef.value?.validate(), ...insuredRefs]);
+};
+
 watch(
   () => props.productFactor,
   () => {
@@ -115,8 +128,7 @@ watch(
     emit('update:modelValue', result);
     // 验证通过调用试算
     if (!validateFields()) {
-      const insuredRefs = insuredFormRef.value?.map((refItem) => refItem?.validate());
-      Promise.all([holderInfoRef.value?.validate(), ...insuredRefs])
+      validate()
         .then(() => {
           state.validated = true;
           emit('trailChange', result);
@@ -130,6 +142,10 @@ watch(
     deep: true,
   },
 );
+
+defineExpose({
+  validate,
+});
 </script>
 
 <style scoped lang="scss">

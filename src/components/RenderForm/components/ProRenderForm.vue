@@ -185,7 +185,7 @@ watch(
 defineExpose({
   ...['submit', 'getValues', 'validate', 'resetValidation', 'getValidationStatus', 'scrollToField'].reduce(
     (res, key) => {
-      res[key] = (...rest) => formRef.value[key](...rest);
+      res[key] = (...rest) => formRef.value?.[key](...rest);
       return res;
     },
     {},
