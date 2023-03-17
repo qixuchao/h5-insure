@@ -1,7 +1,7 @@
-import dayjs from 'dayjs';
+import { nanoid } from 'nanoid';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { SEX_LIMIT_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
-import { COMPONENT_MAPPING_LIST, CONFIG_RULE_MAP, COMPONENT_ENUM, RULE_TYPE_ENUM } from './constants';
+import { COMPONENT_MAPPING_LIST, GLOBAL_CONFIG_MAP, MODULE_TYPE_MAP } from './constants';
 import { validateIdCardNo } from './validate';
 import { Column, ComponentProps, FieldConfItem, ProductFactor } from '../index.data';
 
@@ -53,7 +53,7 @@ const FIELD_PROPS = [
   'rules',
   'autocomplete',
   'enterkeyhint',
-  'visibile',
+  'visible',
 ];
 
 const FIELD_SLOTS = ['label', 'input', 'left-icon', 'right-icon', 'button', 'error-message', 'extra'];
@@ -147,74 +147,6 @@ interface ModuleResult {
   trialFactorCodes: string[];
 }
 
-// 模块类型
-const moduleTypeMap = {
-  1: 'holder',
-  2: 'insured',
-  3: 'beneficiary',
-  4: 'payInfo',
-};
-
-const addressConf = [
-  /** 投保地区 */
-  'insureArea',
-  /** 户籍所在地 */
-  'residence',
-  /** 长期居住地 */
-  'longArea',
-  /** 工作所在地 */
-  'workAddress',
-].reduce((res, key) => {
-  res[key] = CONFIG_RULE_MAP.ADDRESS;
-  return res;
-}, {});
-
-/**
- * 因子配置
- */
-const configMap = {
-  name: CONFIG_RULE_MAP.NAME,
-  certNo: {
-    relatedName: 'certType',
-  },
-  mobile: CONFIG_RULE_MAP.MOBILE,
-  age: CONFIG_RULE_MAP.AGE,
-  height: {
-    ...CONFIG_RULE_MAP.HEIGHT_WEIGHT,
-    unit: 'cm',
-  },
-  weight: {
-    ...CONFIG_RULE_MAP.HEIGHT_WEIGHT,
-    unit: 'kg',
-  },
-  email: {
-    ruleType: RULE_TYPE_ENUM.EMAIL,
-  },
-  personalAnnualIncome: CONFIG_RULE_MAP.INCOME,
-  familyAnnualIncome: CONFIG_RULE_MAP.INCOME,
-  workZipCode: CONFIG_RULE_MAP.ZIP_CODE,
-  homePostalCode: CONFIG_RULE_MAP.ZIP_CODE,
-  // 内容
-  workContent: CONFIG_RULE_MAP.CONTENT,
-  // 燃气户号
-  gasNumberCollection: {
-    ...CONFIG_RULE_MAP.GAS_NUMBER,
-    ruleType: RULE_TYPE_ENUM.NOT_ZH_CN,
-  },
-  verificationCode: {
-    componentName: COMPONENT_ENUM.ProSMSCode,
-    ...CONFIG_RULE_MAP.ZIP_CODE,
-  },
-  ...addressConf,
-  nationalityCode: {
-    ...CONFIG_RULE_MAP.COUNTRY,
-  },
-  certEndDate: {
-    minDate: new Date(),
-    maxDate: dayjs().add(100, 'year').toDate(),
-  },
-};
-
 /**
  * 转换原始数据 ProForm 所需要的数据
  * @param [array] 投保人/被保人/受益人的因子数组
@@ -240,7 +172,7 @@ export const transformToSchema = (arr: FieldConfItem[]): ModuleResult => {
       const extraData: Partial<FieldConfItem> = {};
 
       // 按 code 配置的组件属性
-      const { componentName: configComponentName, ...restConfig } = configMap[item.code] || {};
+      const { componentName: configComponentName, ...restConfig } = GLOBAL_CONFIG_MAP[item.code] || {};
 
       // 组件名优先级 config(code) > schema > ProFieldV2
       const finalComponentName = configComponentName || componentName || 'ProFieldV2';
@@ -259,6 +191,7 @@ export const transformToSchema = (arr: FieldConfItem[]): ModuleResult => {
         name: item.code,
         componentName: finalComponentName,
         required: item.isMustInput === 1,
+        nanoid: nanoid(),
         ...restConfig,
       };
 
@@ -300,8 +233,8 @@ export const transformFactorToSchema = (
   }
 
   const { holder, insured, beneficiary, payInfo }: ProductFactor = keys.reduce((res, key) => {
-    // res[moduleTypeMap[key]] = factors[key].filter((item) => item.isDisplay === 1);
-    res[moduleTypeMap[key]] = isNotEmptyArray(factors[key])
+    // res[MODULE_TYPE_MAP[key]] = factors[key].filter((item) => item.isDisplay === 1);
+    res[MODULE_TYPE_MAP[key]] = isNotEmptyArray(factors[key])
       ? factors[key].filter((factorsItem) => {
           // 是否过滤试算
           return isTrial ? factorsItem.isCalculationFactor === 1 : true;
@@ -310,15 +243,17 @@ export const transformFactorToSchema = (
     return res;
   }, {});
 
-  const holderCodes = holder.map((item) => item.code);
+  const holderCodes = isNotEmptyArray(holder) ? holder.map((item) => item.code) : [];
 
   // 被保人为本人时，不在投保人中的因子展示
-  const finialInsured = insured.map((item) => {
-    return {
-      ...item,
-      isSelfInsuredNeed: !holderCodes.includes(item.code),
-    };
-  });
+  const finialInsured = isNotEmptyArray(insured)
+    ? insured.map((item) => {
+        return {
+          ...item,
+          isSelfInsuredNeed: !holderCodes.includes(item.code),
+        };
+      })
+    : [];
 
   console.log('origin factors', holder, insured, beneficiary);
 
@@ -357,31 +292,44 @@ export const handleSlots = (slots, slotsMap = {}) => {
  * @returns
  */
 export const parseCertNo = (str: string) => {
+  const result = {
+    /** 性别 */
+    gender: '',
+    /** 生日 */
+    birthday: '',
+  };
   // 身份证验证通过
   if (typeof str === 'string' && str && validateIdCardNo(str)) {
     const splitRange = {
       15: [6, 12],
       18: [6, 14],
     };
-    const birthday = str.slice(...splitRange[str.length]).replace(/(.{4})(.{2})/, '$1-$2-');
 
-    const gender = [SEX_LIMIT_ENUM.FEMALE, SEX_LIMIT_ENUM.MALE][Number(str.slice(-2, -1)) % 2];
+    result.birthday = str.slice(...splitRange[str.length]).replace(/(.{4})(.{2})/, '$1-$2-');
 
-    return {
-      /** 性别 */
-      gender,
-      /** 生日 */
-      birthday,
-    };
+    result.gender = [SEX_LIMIT_ENUM.FEMALE, SEX_LIMIT_ENUM.MALE][Number(str.slice(-2, -1)) % 2];
   }
-  return {};
+  return result;
 };
 
 /**
- * 字段关联副作用处理
+ * 字段关联字段变化引起的副作用处理，如证件类型变化引起证件号码长度验证
  */
 export const relatedConfigMap = {
+  certNo: {
+    onChangeEffect: (val, formData) => {
+      // 证件类型切换清除证件号码
+      formData.certNo = '';
+    },
+  },
+  // 关联证件类型的配置
   certType: {
+    /** 关联的值引起组件属性变化 */
+    extraAttrs: {
+      4: {
+        maxlength: 10,
+      },
+    },
     onChangeEffect: (val, formData) => {
       // 身份证号码/户口簿
       if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(formData.certType)) {

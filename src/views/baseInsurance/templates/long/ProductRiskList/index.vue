@@ -1,54 +1,61 @@
 <template>
-  <div class="trial-button">
-    <VanButton type="primary" @click="state.show = true">立即投保</VanButton>
-  </div>
-  <ProPopup
-    class="com-trial-wrap"
-    :style="{ height: '620px' }"
-    :show="state.show"
-    :closeable="false"
-    @close="onClosePopup"
-  >
-    <div class="com-body">
-      <div class="header">
-        <span>试算</span>
-        <!-- <van-icon name="cross" style="color: black" @click="state.loading = false" /> -->
-        <van-icon :name="cancelIcon" @click="state.show = false" />
-      </div>
-      <div class="container">
-        <Benefit :data-source="benefitData" />
-        <!-- 这里是标准险种信息 -->
+  <!-- 以下是附加险种信息 -->
+  <template v-for="risk in dataSource.insureProductRiskVOList" :key="risk.riskCode">
+    <div
+      v-if="((!showMainRisk && risk.mainRiskFlag !== 1) || showMainRisk) && state.riskIsInsure[risk.riskId].relation"
+    >
+      <!-- 附加险区域 -->
+      <VanField
+        v-model="state.riskIsInsure[risk.riskId].selected"
+        :label="risk.riskName"
+        name="selected"
+        label-width="50%"
+        :border="false"
+        class="risk-select-field"
+      >
+        <template #input>
+          <!-- <ProRadioButton
+                  v-model="state.riskIsInsure[risk.riskCode].selected"
+                  :options="RISK_SELECT"
+                ></ProRadioButton> -->
+          <van-switch
+            v-model="state.riskIsInsure[risk.riskId].selected"
+            active-value="1"
+            inactive-value="2"
+            size="26px"
+            :disabled="state.riskIsInsure[risk.riskId].isMust"
+            @change="handleSwitchClick($event, risk)"
+          >
+            <!-- <template #node>
+                    <div class="icon-wrapper">
+                      <span>
+                        {{ state.riskIsInsure[risk.riskCode].selected }}
+                      </span>
+                    </div>
+                  </template> -->
+          </van-switch>
+        </template>
+      </VanField>
+      <div v-if="state.riskIsInsure[risk.riskId].selected === '1'" class="risk2-field">
+        <!-- 这里是附加险种选择投保后展开的区域 -->
         <InsureInfos
-          v-model="state.userData"
-          :origin-data="dataSource.insureProductRiskVOList[0]"
+          v-model="state.riskIsInsure[risk.riskId].data"
+          :origin-data="risk"
           :product-factor="dataSource.productFactor"
         ></InsureInfos>
-        <!-- 以下是附加险种信息 -->
-        <ProductRiskList :data-source="dataSource" :show-main-risk="false"></ProductRiskList>
       </div>
-      <TrialButton
-        :is-share="false"
-        :premium="100"
-        :loading-text="'试算中...'"
-        :plan-code="'todo计划的code'"
-        :payment-frequency="'guaranteeObj.paymentFrequency'"
-        :tenant-product-detail="'tenantProductDetail'"
-        @click="onNext"
-        >立即投保</TrialButton
-      >
     </div>
-  </ProPopup>
+  </template>
 </template>
 
 <script lang="ts" setup name="TrialPop">
-import { computed, ref, defineExpose } from 'vue';
+import { computed, ref } from 'vue';
 import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import TrialButton from '../TrialButton.vue';
-import InsureInfos from '../../long/InsureInfos/index.vue';
-import ProductRiskList from '../../long/ProductRiskList/index.vue';
+import InsureInfos from '../InsureInfos/index.vue';
 import Benefit from '../Benefit/index.vue';
 import { PremiumCalcData, RiskVoItem } from '@/api/modules/trial.data';
-import { RISK_TYPE, RISK_TYPE_ENUM } from '@/common/constants/trial';
+import { RISK_TYPE, RISK_TYPE_ENUM, COLLOCATION_TYPE } from '@/common/constants/trial';
 import { benefitCalc } from '@/api/modules/trial';
 
 const RISK_SELECT = [
@@ -56,6 +63,7 @@ const RISK_SELECT = [
   { value: 2, label: '不投保' },
 ];
 
+const emit = defineEmits(['trialChange']);
 const props = defineProps({
   dataSource: {
     // plan。。
@@ -67,6 +75,10 @@ const props = defineProps({
     default: () => {
       return { productCode: '', productName: '' };
     },
+  },
+  showMainRisk: {
+    type: Boolean,
+    default: () => true,
   },
 });
 console.log('pop data source = ', props.dataSource);
@@ -161,17 +173,39 @@ const handleMakeCalcData = () => {
 
 const handleSetRiskSelect = () => {
   state.riskIsInsure = {};
+  let mainRisk = null;
   props.dataSource.insureProductRiskVOList.forEach((risk) => {
     // 1是投保， 2是不投保
-    const relation = props.dataSource.productRiskRelationVOList.find((r) => r.collocationRiskId === risk.riskId);
-    state.riskIsInsure[risk.riskCode] = { selected: '2', data: null, relation };
+    const relation =
+      risk.mainRiskFlag !== 1
+        ? props.dataSource.productRiskRelationVOList.find((r) => r.collocationRiskId === risk.riskId)
+        : {};
+    if (risk.mainRiskFlag === 1) {
+      // 1可选，2绑定， 3互斥 {
+      mainRisk = risk;
+    }
+    state.riskIsInsure[risk.riskId] = { selected: '2', data: null, relation, isMust: false };
   });
+  if (mainRisk) {
+    const relationsFrom = props.dataSource.productRiskRelationVOList.filter((r) => r.riskId === mainRisk.riskId);
+    relationsFrom.forEach((r) => {
+      // 1可选，2绑定， 3互斥 {
+      if (r.collocationType === 2) {
+        state.riskIsInsure[r.collocationRiskId].selected = '1'; // 标准险种默认选中，所以绑定险种也默认选中
+        state.riskIsInsure[r.collocationRiskId].isMust = true;
+      }
+    });
+  }
+};
+
+const handleSwitchClick = (selected: string, data: any) => {
+  console.log('----data = ', data);
+  props.dataSource.productRiskRelationVOList.forEach((r) => {});
 };
 
 onBeforeMount(() => {
   handleSetRiskSelect();
 });
-
 onMounted(() => {
   state.loading = true;
   benefitCalc(formData.value)
@@ -183,21 +217,7 @@ onMounted(() => {
       state.loading = false;
     });
 });
-watch(
-  () => state.show,
-  (v) => {
-    if (v) {
-      // 每个附加险的投保不投保状态重置
-      handleSetRiskSelect();
-    }
-  },
-);
 
-defineExpose({
-  open: () => {
-    state.show = true;
-  },
-});
 watch(
   () => state.riskIsInsure,
   (v) => {},
@@ -206,11 +226,6 @@ watch(
 </script>
 
 <style scoped lang="scss">
-.trial-button {
-  padding: 30px;
-  text-align: right;
-  background-color: #fff;
-}
 .com-body {
   height: 100%;
   padding: 32px 40px 16px;

@@ -42,7 +42,11 @@
     <div v-else class="preview-placeholder">当前页面仅用于保费试算预览<br />不展示其他产品相关配置信息</div>
     <template v-if="showFooterBtn">
       <span id="insureButton"></span>
-      <TrialPop ref="trialRef" :data-source="currentPlanObj"></TrialPop>
+      <TrialPop
+        ref="trialRef"
+        :data-source="currentPlanObj"
+        :product-info="{ productCode: insureProductDetail.productCode, productName: insureProductDetail.productName }"
+      ></TrialPop>
     </template>
   </div>
   <PreNotice v-if="preNoticeLoading && !trialPreviewMode" :product-detail="tenantProductDetail"></PreNotice>

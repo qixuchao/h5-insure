@@ -19,7 +19,6 @@
 <script lang="ts" setup>
 import { withDefaults, reactive, shallowRef, useSlots } from 'vue';
 import type { FormInstance } from 'vant';
-import { nanoid } from 'nanoid';
 import { Toast } from 'vant/es';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { VAN_PRO_FORM_KEY } from '../utils';
@@ -60,7 +59,6 @@ const state = reactive({
   schema: [],
   nameList: [], // 字段 name List
   isView: props.isView,
-  dictCodeList: [], // 需要请求的字典
 });
 
 const formRef = ref<FormInstance>({} as FormInstance);
@@ -121,10 +119,6 @@ const onFailed = ({ values, errors }) => {
   emits('failed', { values, errors });
 };
 
-const getModelValue = (key) => {
-  return state.formData[key];
-};
-
 watch(
   [() => props.schema, () => props.config],
   ([schema, config]) => {
@@ -134,25 +128,39 @@ watch(
         .map((item) => ({
           ...item,
           modelValue: props.model[item.name],
-          nanoid: item.nanoid || nanoid(),
-          componentName: shallowRef(FieldComponents[item.componentName]) || item.componentName,
+          componentName: FieldComponents[item.componentName]
+            ? shallowRef(FieldComponents[item.componentName])
+            : item.componentName,
           ...config[item.name],
         }))
         .filter((item) => !item.hidden);
+    }
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
 
-      // 处理需要请求的字典去重
-      state.dictCodeList = [
-        ...new Set(
-          state.schema.reduce((res, item) => {
-            if (item.dictCode) {
-              res.push(item.dictCode);
-            }
-            return res;
-          }, []),
-        ),
-      ];
+// 处理需要请求的字典并去重
+const dictCodeList = computed(() => {
+  return [
+    ...new Set(
+      state.schema.reduce((res, item) => {
+        if (item.dictCode) {
+          res.push(item.dictCode);
+        }
+        return res;
+      }, []),
+    ),
+  ];
+});
 
-      useDictData(state.dictCodeList);
+watch(
+  dictCodeList,
+  (val) => {
+    if (val) {
+      useDictData(val as string[]);
     }
   },
   {
@@ -185,7 +193,6 @@ defineExpose({
 });
 </script>
 <style lang="scss" scoped>
-.com-van-form {
-  height: 100%;
-}
+// .com-van-form {
+// }
 </style>

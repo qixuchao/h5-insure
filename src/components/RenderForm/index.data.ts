@@ -1,3 +1,6 @@
+import type { FormInstance } from 'vant';
+import { Ref } from 'vue';
+
 export interface Column {
   text: string;
   value: string | number;
@@ -53,4 +56,16 @@ export interface SchemaItem {
   required: boolean;
   columns: Column[];
   nanoid: string;
+}
+
+export interface FormState {
+  formData: Data;
+  config: Data;
+  nameList: string[];
+}
+
+export interface VanFormProvied {
+  formState: FormState;
+  markRequired: boolean;
+  formRef: Ref<FormInstance>;
 }

@@ -1,18 +1,24 @@
 <template>
   <BaoeBaofei
-    :v-model="modelValue"
+    :v-model="mValues"
     :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
+    @trial-change="handleBaoeBaofeiChange"
   ></BaoeBaofei>
   <!-- 这里放因子 -->
-  <div v-if="productFactor">
-    <PersonalInfo v-model="state.personalInfo" :product-factor="productFactor" @trail="onTrail" />
-  </div>
+  <PersonalInfo
+    v-if="originData.mainRiskFlag === 1 && productFactor"
+    v-model="state.personalInfo"
+    :product-factor="productFactor"
+    @trail-change="handlePersonalInfoChange"
+  />
   <!-- 产品要素 -->
   <ProductKeys
-    :v-model="modelValue"
+    :v-model="mValues"
     :origin-data="originData.productRiskInsureLimitVO"
     :risk-code="originData.riskCode"
+    @trial-change="handleProductKeysChange"
   ></ProductKeys>
+  <RiskLiabilityInfo :v-model="mValues" :data-source="originData" @trial-change="handleProductKeysChange" />
 </template>
 
 <script lang="ts" setup>
@@ -31,7 +37,8 @@ import {
 } from '@/common/constants/trial';
 
 import { RiskDetailVoItem, ProductInfo, RiskVoItem, ProductPlanInsure, ProductFactor } from '@/api/modules/trial.data';
-import { BaoeBaofei, PersonalInfo, ProductKeys } from './components';
+
+import { BaoeBaofei, PersonalInfo, ProductKeys, RiskLiabilityInfo } from './components';
 
 interface Props {
   originData: RiskDetailVoItem;
@@ -49,6 +56,8 @@ const state = reactive({
   personalInfo: {},
 });
 
+const mValues = ref(props.modelValue);
+
 const enumList = ref({});
 
 const riskPremium: any = inject('premium') || {};
@@ -65,6 +74,29 @@ const onTrail = (val) => {
 onMounted(() => {
   console.log('--------origin data = ', props.originData);
 });
+
+const handleProductKeysChange = (data) => {
+  console.log('data change: ', data);
+};
+
+const handlePersonalInfoChange = (data) => {
+  console.log('personalInfochange ', data);
+};
+
+const handleBaoeBaofeiChange = (data) => {
+  console.log('baoebaofei change ', data);
+};
+
+watch(
+  () => mValues.value,
+  (v) => {
+    console.log('---model change', v);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 </script>
 
 <style lang="scss" scoped>

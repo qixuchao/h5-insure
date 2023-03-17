@@ -33,6 +33,7 @@ interface Props {
   modelValue: RiskVoItem;
   riskCode: string;
 }
+const emit = defineEmits(['trialChange']);
 
 const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as ProductRiskInsureLimit),
@@ -69,9 +70,21 @@ onMounted(() => {
 });
 
 watch(
-  () => mConfigs,
+  () => mConfigs.value,
   (v) => {
     initData();
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  () => mValues.value,
+  (v) => {
+    console.log('--------', props.modelValue);
+    emit('trialChange', v);
   },
   {
     deep: true,
