@@ -69,7 +69,7 @@ interface Props {
 // interface State {
 //   formInfo: FormInfo;
 // }
-
+const emit = defineEmits(['trialChange']);
 const LIABILITY_ATTRIBUTE_VALUE = [
   {
     value: '投保',
@@ -118,15 +118,13 @@ console.log('liabilityItem>>>>>>', liabilityItem);
 console.log('riskLiabilityInfoVOList>>>>>>', props.dataSource.riskLiabilityInfoVOList);
 
 watch(
-  () => props.modelValue,
-  (val) => {
-    if (val) {
-      console.log('11');
-      // 请求公式接口
-      props.dataSource.riskLiabilityInfoVOList;
-    }
+  () => mValues.value,
+  (v) => {
+    console.log('--------', props.modelValue);
+    emit('trialChange', v);
   },
   {
+    deep: true,
     immediate: true,
   },
 );

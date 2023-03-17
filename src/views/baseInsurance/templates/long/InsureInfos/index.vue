@@ -2,9 +2,10 @@
   <BaoeBaofei
     :v-model="mValues"
     :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
+    @trial-change="handleProductKeysChange"
   ></BaoeBaofei>
   <!-- 这里放因子 -->
-  <!-- <PersonalInfo v-if="productFactor" v-model="state.personalInfo" :product-factor="productFactor" @trail="onTrail" /> -->
+  <PersonalInfo v-if="productFactor" v-model="state.personalInfo" :product-factor="productFactor" @trail="onTrail" />
   <!-- 产品要素 -->
   <ProductKeys
     :v-model="mValues"
@@ -12,7 +13,7 @@
     :risk-code="originData.riskCode"
     @trial-change="handleProductKeysChange"
   ></ProductKeys>
-  <RiskLiabilityInfo :v-model="modelValue" :data-source="originData" />
+  <RiskLiabilityInfo :v-model="mValues" :data-source="originData" @trial-change="handleProductKeysChange" />
 </template>
 
 <script lang="ts" setup>
