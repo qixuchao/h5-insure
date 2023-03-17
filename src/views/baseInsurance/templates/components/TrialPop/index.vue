@@ -11,9 +11,10 @@
   >
     <div class="com-body">
       <div class="header">
-        <span>试算</span>
+        <span>算一算保费</span>
         <!-- <van-icon name="cross" style="color: black" @click="state.loading = false" /> -->
-        <van-icon :name="cancelIcon" @click="state.show = false" />
+        <!-- <van-icon :name="cancelIcon" @click="state.show = false" /> -->
+        <van-icon name="cross" @click="state.show = false" />
       </div>
       <div class="container">
         <Benefit :data-source="benefitData" />
@@ -264,24 +265,34 @@ watch(
 }
 .com-body {
   height: 100%;
-  padding: 32px 40px 16px;
   .header {
+    padding: 0 30px;
     display: flex;
     justify-content: space-between;
     border: none;
-    height: 42px;
-    font-size: 30px;
+    height: 110px;
+    font-size: 36px;
     font-family: PingFangSC-Medium, PingFang SC;
     font-weight: 500;
     color: #333;
-    line-height: 42px;
+    line-height: 40px;
     align-items: center;
-    margin-bottom: 30px;
+    border-bottom: 1px solid #eeeeee;
+    i {
+      font-size: 40px;
+    }
+    span {
+      width: 600px;
+      text-align: left;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   .container {
     height: 90%;
-    padding-bottom: 150px;
+    padding: 0 30px 150px;
     overflow-y: auto;
     &::-webkit-scrollbar {
       display: none;
