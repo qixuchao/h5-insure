@@ -18,7 +18,7 @@
     :risk-code="originData.riskCode"
     @trial-change="handleProductKeysChange"
   ></ProductKeys>
-  <RiskLiabilityInfo :data-source="originData" />
+  <RiskLiabilityInfo :v-model="mValues" :data-source="originData" @trial-change="handleProductKeysChange" />
 </template>
 
 <script lang="ts" setup>
