@@ -51,7 +51,10 @@
           @click="onNext"
           >立即投保</TrialButton
         > -->
-        <TrialPop :data-source="insureProductDetail"></TrialPop>
+        <TrialPop
+          :data-source="insureProductDetail.productPlanInsureVOList[0]"
+          :product-info="insureProductDetail"
+        ></TrialPop>
       </template>
     </div>
     <PreNotice v-if="preNoticeLoading" :product-detail="tenantProductDetail"></PreNotice>
