@@ -121,10 +121,6 @@ const onFailed = ({ values, errors }) => {
   emits('failed', { values, errors });
 };
 
-const getModelValue = (key) => {
-  return state.formData[key];
-};
-
 watch(
   [() => props.schema, () => props.config],
   ([schema, config]) => {
@@ -186,6 +182,5 @@ defineExpose({
 </script>
 <style lang="scss" scoped>
 .com-van-form {
-  height: 100%;
 }
 </style>

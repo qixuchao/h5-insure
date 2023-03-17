@@ -4,9 +4,7 @@
     :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
   ></BaoeBaofei>
   <!-- 这里放因子 -->
-  <div v-if="productFactor">
-    <PersonalInfo v-model="state.personalInfo" :product-factor="productFactor" @trail="onTrail" />
-  </div>
+  <PersonalInfo v-if="productFactor" v-model="state.personalInfo" :product-factor="productFactor" @trail="onTrail" />
   <!-- 产品要素 -->
   <ProductKeys
     :v-model="modelValue"
