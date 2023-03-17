@@ -1,61 +1,59 @@
 <template>
-  <van-config-provider>
-    <div class="com-payment-type">
-      <div class="title">{{ isShowPaymentSelect ? '交费方式' : '保障计划' }}</div>
-      <template v-if="isMultiplePlan">
-        <div class="custom-cell check-btn-cell">
-          <div class="cell-label">保障方案</div>
-          <div class="cell-content">
-            <ProRadioButton
-              v-model="state.formInfo.planCode"
-              :options="planList"
-              :prop="{ value: 'planCode', label: 'planName' }"
-            ></ProRadioButton>
-          </div>
-        </div>
-      </template>
-      <div v-if="paymentFrequencyList.length > 1" class="custom-cell check-btn-cell">
-        <div class="cell-label">交费方式</div>
+  <div class="com-payment-type">
+    <div class="title">{{ isShowPaymentSelect ? '交费方式' : '保障计划' }}</div>
+    <template v-if="isMultiplePlan">
+      <div class="custom-cell check-btn-cell">
+        <div class="cell-label">保障方案</div>
         <div class="cell-content">
           <ProRadioButton
-            v-model="state.formInfo.paymentFrequency"
-            :prop="{ label: 'value', value: 'code' }"
-            :options="paymentFrequencyList"
+            v-model="state.formInfo.planCode"
+            :options="planList"
+            :prop="{ value: 'planCode', label: 'planName' }"
           ></ProRadioButton>
         </div>
       </div>
-      <div v-if="paymentPeriodList.length > 1" class="custom-cell check-btn-cell">
-        <div class="cell-label">交费期间</div>
-        <div class="cell-content">
-          <ProRadioButton
-            v-model="state.formInfo.chargePeriod"
-            :prop="{ label: 'value', value: 'code' }"
-            :options="paymentPeriodList"
-          ></ProRadioButton>
-        </div>
+    </template>
+    <div v-if="paymentFrequencyList.length > 1" class="custom-cell check-btn-cell">
+      <div class="cell-label">交费方式</div>
+      <div class="cell-content">
+        <ProRadioButton
+          v-model="state.formInfo.paymentFrequency"
+          :prop="{ label: 'value', value: 'code' }"
+          :options="paymentFrequencyList"
+        ></ProRadioButton>
       </div>
-      <InsurancePeriodCell :form-info="state.formInfo" :risk-info="riskInfo" />
-      <template v-if="actualPremium">
-        <div class="custom-cell common-cell">
-          <div class="cell-label">实付保费</div>
-          <template v-if="props.premiumInfo?.premiumLoadingText">
-            <div class="cell-content actual-premium">
-              {{ actualPremium }}
-            </div>
-          </template>
-          <template v-else>
-            <div class="cell-content actual-premium">
-              {{ actualPremium }}
-            </div>
-            <div v-if="state.formInfo.paymentFrequency === '5'" class="actual-premium actual-premium-month-tip">
-              共12期
-            </div>
-          </template>
-        </div>
-      </template>
     </div>
-    <ProDivider />
-  </van-config-provider>
+    <div v-if="paymentPeriodList.length > 1" class="custom-cell check-btn-cell">
+      <div class="cell-label">交费期间</div>
+      <div class="cell-content">
+        <ProRadioButton
+          v-model="state.formInfo.chargePeriod"
+          :prop="{ label: 'value', value: 'code' }"
+          :options="paymentPeriodList"
+        ></ProRadioButton>
+      </div>
+    </div>
+    <InsurancePeriodCell :form-info="state.formInfo" :risk-info="riskInfo" />
+    <template v-if="actualPremium">
+      <div class="custom-cell common-cell">
+        <div class="cell-label">实付保费</div>
+        <template v-if="props.premiumInfo?.premiumLoadingText">
+          <div class="cell-content actual-premium">
+            {{ actualPremium }}
+          </div>
+        </template>
+        <template v-else>
+          <div class="cell-content actual-premium">
+            {{ actualPremium }}
+          </div>
+          <div v-if="state.formInfo.paymentFrequency === '5'" class="actual-premium actual-premium-month-tip">
+            共12期
+          </div>
+        </template>
+      </div>
+    </template>
+  </div>
+  <ProDivider />
 </template>
 <script lang="ts" setup name="paymentType">
 import type { FormInstance } from 'vant';

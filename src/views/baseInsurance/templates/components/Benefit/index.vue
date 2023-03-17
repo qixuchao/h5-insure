@@ -1,12 +1,7 @@
 <template>
   <div class="benefit-container">
-    <van-tabs
-      :active="active"
-      title-active-color="#0d6efe"
-      title-inactive-color="#393D46"
-      shrink
-      @click-tab="changeTab"
-    >
+    <!-- title-active-color="#0d6efe" -->
+    <van-tabs :active="active" @click-tab="changeTab">
       <van-tab v-for="(item, i) in props.dataSource?.benefitRiskResultVOList" :key="i" :name="i" :title="item.riskName">
         <div v-if="i == active" class="benefit">
           <!-- <div class="benefit-title">{{ item?.riskName }}</div> -->

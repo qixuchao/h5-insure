@@ -1,14 +1,7 @@
 <template>
-  <!-- <VanButton type="primary" @click="state.show = true">立即投保</VanButton> -->
-  <TrialButton
-    :is-share="false"
-    :premium="100"
-    :plan-code="'todo计划的code'"
-    :payment-frequency="'guaranteeObj.paymentFrequency'"
-    :tenant-product-detail="'tenantProductDetail'"
-    @click="state.show = true"
-    >立即投保</TrialButton
-  >
+  <div class="trial-button">
+    <VanButton type="primary" @click="state.show = true">立即投保</VanButton>
+  </div>
   <ProPopup
     class="com-trial-wrap"
     :style="{ height: '620px' }"
@@ -27,12 +20,12 @@
         <!-- 这里是标准险种信息 -->
         <InsureInfos
           v-model="state.userData"
-          :origin-data="dataSource.productPlanInsureVOList[0].insureProductRiskVOList[0]"
-          :product-factor="dataSource.productPlanInsureVOList[0].productFactor"
+          :origin-data="dataSource.insureProductRiskVOList[0]"
+          :product-factor="dataSource.productFactor"
         ></InsureInfos>
         <RiskLiabilityInfo :data-source="dataSource" />
         <!-- 以下是附加险种信息 -->
-        <template v-for="risk in dataSource.productPlanInsureVOList[0].insureProductRiskVOList" :key="risk.riskCode">
+        <template v-for="risk in dataSource.insureProductRiskVOList" :key="risk.riskCode">
           <div v-if="risk.mainRiskFlag !== 1">
             <!-- 附加险区域 -->
             <VanField
@@ -72,7 +65,7 @@
 </template>
 
 <script lang="ts" setup name="TrialPop">
-import { computed, ref } from 'vue';
+import { computed, ref, defineExpose } from 'vue';
 import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import TrialButton from '../TrialButton.vue';
 import InsureInfos from '../../long/InsureInfos/index.vue';
@@ -175,7 +168,7 @@ const formData = ref({
 
 const handleSetRiskSelect = () => {
   state.riskIsInsure = {};
-  props.dataSource.productPlanInsureVOList[0].insureProductRiskVOList.forEach((risk) => {
+  props.dataSource.insureProductRiskVOList.forEach((risk) => {
     // 1是投保， 2是不投保
     state.riskIsInsure[risk.riskCode] = { selected: 2, data: null };
   });
@@ -204,9 +197,20 @@ watch(
     }
   },
 );
+
+defineExpose({
+  open: () => {
+    state.show = true;
+  },
+});
 </script>
 
 <style scoped lang="scss">
+.trial-button {
+  padding: 30px;
+  text-align: right;
+  background-color: #fff;
+}
 .com-body {
   height: 100%;
   padding: 32px 40px 16px;

@@ -1,11 +1,3 @@
-/*
- * @Author: za-qixuchao qixuchao@zhongan.io
- * @Date: 2022-06-25 23:36:12
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-29 20:46:04
- * @FilePath: /zat-planet-h5-cloud-insure/src/api/index.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 import request from './request';
 import {
   DictData,
@@ -20,7 +12,10 @@ import useStore from '@/store/app';
 
 // 获取视频封面图 和 缩略图
 export const getCoverImage = (params: { type: number; url: string }) =>
-  request<string>({ url: '/api/app/common/file/generateLink', method: 'GET', params }, { loading: false });
+  request<string>(
+    { url: 'http://183654-zat-planet-ops.test.za-tech.net/api/app/common/file/generateLink', method: 'GET', params },
+    { loading: false },
+  );
 // 通用字典接口
 export const getDic = (data = {}) =>
   request<DictData[]>({ url: '/api/app/insure/dict/queryDictInfo', method: 'POST', data }, { loading: false });
