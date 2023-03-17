@@ -1,15 +1,16 @@
 <template>
   <BaoeBaofei
-    :v-model="modelValue"
+    :v-model="mValues"
     :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
   ></BaoeBaofei>
   <!-- 这里放因子 -->
-  <PersonalInfo v-if="productFactor" v-model="state.personalInfo" :product-factor="productFactor" @trail="onTrail" />
+  <!-- <PersonalInfo v-if="productFactor" v-model="state.personalInfo" :product-factor="productFactor" @trail="onTrail" /> -->
   <!-- 产品要素 -->
   <ProductKeys
-    :v-model="modelValue"
+    :v-model="mValues"
     :origin-data="originData.productRiskInsureLimitVO"
     :risk-code="originData.riskCode"
+    @trial-change="handleProductKeysChange"
   ></ProductKeys>
   <RiskLiabilityInfo :data-source="originData" />
 </template>
@@ -49,6 +50,8 @@ const state = reactive({
   personalInfo: {},
 });
 
+const mValues = ref(props.modelValue);
+
 const enumList = ref({});
 
 const riskPremium: any = inject('premium') || {};
@@ -65,6 +68,21 @@ const onTrail = (val) => {
 onMounted(() => {
   console.log('--------origin data = ', props.originData);
 });
+
+const handleProductKeysChange = (data) => {
+  console.log('data change: ', data);
+};
+
+watch(
+  () => mValues.value,
+  (v) => {
+    console.log('---model change', v);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 </script>
 
 <style lang="scss" scoped>
