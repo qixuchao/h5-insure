@@ -1,7 +1,9 @@
 import { type Ref, type InjectionKey } from 'vue';
-import type { FormInstance } from 'vant';
+import dayjs from 'dayjs';
+import type { VanFormProvied } from '../index.data';
 import { DictNameEnum, CERT_TYPE_ENUM } from '@/common/constants';
 
+/** 组件枚举 */
 export const COMPONENT_ENUM = {
   /** 1:单行文本/2:多行文本/3:数字输入框 */
   ProFieldV2: 'ProFieldV2',
@@ -36,6 +38,10 @@ export const INPUT_MAX_LENGTH = {
    */
   AGE: 3,
   /**
+   * 身高/体重 最多一位小数 长度 5
+   */
+  HEIGHT_WEIGHT: 5,
+  /**
    * 验证码长度 6
    */
   SMS_CODE: 6,
@@ -44,15 +50,23 @@ export const INPUT_MAX_LENGTH = {
    */
   ZIP_CODE: 6,
   /**
+   * 出生证长度 10
+   */
+  BIRTH_CERT: 10,
+  /**
    * 手机号长度 11
    */
   MOBILE: 11,
+  /**
+   * 证件号长度 18
+   */
+  CERT: 18,
   /**
    * 燃气户号长度 20
    */
   GAS_NUMBER: 20,
   /**
-   * 姓名长度
+   * 姓名长度 25
    */
   NAME: 25,
   /**
@@ -121,17 +135,18 @@ export const RULE_TYPE_ENUM = {
   BAND_CARD: 'bandCard',
 };
 
-export const CONFIG_RULE_MAP = {
+/** 规则配置 */
+export const RULE_CONFIG_MAP = {
   NAME: {
     maxlength: INPUT_MAX_LENGTH.NAME,
-    ruleType: 'name',
+    ruleType: RULE_TYPE_ENUM.NAME,
   },
   /**
    * 手机号 长度11位，数字
    */
   MOBILE: {
     type: 'digit',
-    ruleType: 'mobile',
+    ruleType: RULE_TYPE_ENUM.MOBILE,
     maxlength: INPUT_MAX_LENGTH.MOBILE,
   },
   /**
@@ -147,6 +162,7 @@ export const CONFIG_RULE_MAP = {
   HEIGHT_WEIGHT: {
     type: 'number',
     precision: 1,
+    maxlength: INPUT_MAX_LENGTH.HEIGHT_WEIGHT,
   },
   /**
    * 收入 允许2位小数，无小数位默认补全【.00】 单位: 万元
@@ -297,17 +313,81 @@ export const RELATED_RULE_TYPE_MAP = {
   },
 };
 
-interface FormState {
-  formData: Data;
-  config: Data;
-  nameList: string[];
-}
+export const ADDRESS_CONF = [
+  /** 投保地区 */
+  'insureArea',
+  /** 户籍所在地 */
+  'residence',
+  /** 长期居住地 */
+  'longArea',
+  /** 工作所在地 */
+  'workAddress',
+].reduce((res, key) => {
+  res[key] = RULE_CONFIG_MAP.ADDRESS;
+  return res;
+}, {});
 
-interface VanFormProvied {
-  formState: FormState;
-  markRequired: boolean;
-  formRef: Ref<FormInstance>;
-}
+/**
+ * 因子通用配置
+ */
+export const GLOBAL_CONFIG_MAP = {
+  name: RULE_CONFIG_MAP.NAME,
+  certNo: {
+    relatedName: 'certType',
+    maxlength: INPUT_MAX_LENGTH.CERT,
+  },
+  certType: {
+    relatedName: 'certNo',
+  },
+  mobile: RULE_CONFIG_MAP.MOBILE,
+  age: RULE_CONFIG_MAP.AGE,
+  height: {
+    ...RULE_CONFIG_MAP.HEIGHT_WEIGHT,
+    unit: 'cm',
+  },
+  weight: {
+    ...RULE_CONFIG_MAP.HEIGHT_WEIGHT,
+    unit: 'kg',
+  },
+  email: {
+    ruleType: RULE_TYPE_ENUM.EMAIL,
+  },
+  personalAnnualIncome: RULE_CONFIG_MAP.INCOME,
+  familyAnnualIncome: RULE_CONFIG_MAP.INCOME,
+  workZipCode: RULE_CONFIG_MAP.ZIP_CODE,
+  homePostalCode: RULE_CONFIG_MAP.ZIP_CODE,
+  // 内容
+  workContent: RULE_CONFIG_MAP.CONTENT,
+  // 燃气户号
+  gasNumberCollection: {
+    ...RULE_CONFIG_MAP.GAS_NUMBER,
+    ruleType: RULE_TYPE_ENUM.NOT_ZH_CN,
+  },
+  verificationCode: {
+    componentName: COMPONENT_ENUM.ProSMSCode,
+    ...RULE_CONFIG_MAP.ZIP_CODE,
+  },
+  ...ADDRESS_CONF,
+  nationalityCode: {
+    ...RULE_CONFIG_MAP.COUNTRY,
+  },
+  certEndDate: {
+    minDate: new Date(),
+    maxDate: dayjs().add(100, 'year').toDate(),
+  },
+};
+
+/** 因子类型 1. 投保人 2. 被保人 3. 受益人 4. 支付信息 */
+export const MODULE_TYPE_MAP = {
+  /** 投保人 */
+  1: 'holder',
+  /** 被保人 */
+  2: 'insured',
+  /** 受益人 */
+  3: 'beneficiary',
+  /** 支付信息 */
+  4: 'payInfo',
+};
 
 // pro from
 export const VAN_PRO_FORM_KEY: InjectionKey<VanFormProvied> = Symbol('VAN_PRO_FORM_KEY');
