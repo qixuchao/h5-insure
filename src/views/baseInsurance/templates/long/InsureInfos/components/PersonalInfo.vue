@@ -1,5 +1,11 @@
 <template>
-  <ProRenderForm ref="personalInfoRef" :model="state.formData" :schema="state.schema" :config="state.config" />
+  <ProRenderForm
+    ref="personalInfoRef"
+    class="trail-personal-info"
+    :model="state.formData"
+    :schema="state.schema"
+    :config="state.config"
+  />
 </template>
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
@@ -26,6 +32,8 @@ const props = withDefaults(defineProps<Props>(), {
 const state = reactive({
   formData: {},
   schema: [],
+  /** 验证成功状态 */
+  validated: false,
   trialFactorCodes: [],
   config: {
     // 职业
@@ -61,9 +69,15 @@ watch(
     emit('update:modelValue', state.formData);
     // 验证通过调用试算
     if (!validateFields()) {
-      personalInfoRef.value?.validate().then(() => {
-        emit('trail', state.formData);
-      });
+      personalInfoRef.value
+        ?.validate()
+        .then(() => {
+          state.validated = true;
+          emit('trail', state.formData);
+        })
+        .catch(() => {
+          state.validated = false;
+        });
     }
   },
   {
@@ -72,3 +86,13 @@ watch(
   },
 );
 </script>
+
+<style scoped lang="scss">
+.trail-personal-info {
+  :deep(.com-van-field) {
+    &:last-child::after {
+      display: block;
+    }
+  }
+}
+</style>

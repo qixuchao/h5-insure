@@ -1,5 +1,5 @@
 <template>
-  <van-image v-if="props.url" width="100%" class="com-template-banner" lazy-load :src="props.url" />
+  <van-image v-if="url" width="100%" class="com-template-banner" :src="url" />
 </template>
 
 <script lang="ts" setup name="Banner">

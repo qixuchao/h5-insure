@@ -27,11 +27,11 @@
         <!-- 这里是标准险种信息 -->
         <InsureInfos
           v-model="state.userData"
-          :origin-data="dataSource.productPlanInsureVOList[0].insureProductRiskVOList[0]"
-          :product-factor="dataSource.productPlanInsureVOList[0].productFactor"
+          :origin-data="dataSource.insureProductRiskVOList[0]"
+          :product-factor="dataSource.productFactor"
         ></InsureInfos>
         <!-- 以下是附加险种信息 -->
-        <template v-for="risk in dataSource.productPlanInsureVOList[0].insureProductRiskVOList" :key="risk.riskCode">
+        <template v-for="risk in dataSource.insureProductRiskVOList" :key="risk.riskCode">
           <div v-if="risk.mainRiskFlag !== 1">
             <!-- 附加险区域 -->
             <VanField
@@ -51,7 +51,11 @@
             </VanField>
             <div v-if="state.riskIsInsure[risk.riskCode].selected === '1'" class="risk2-field">
               <!-- 这里是附加险种选择投保后展开的区域 -->
-              <InsureInfos v-model="state.riskIsInsure[risk.riskCode].data" :origin-data="risk"></InsureInfos>
+              <InsureInfos
+                v-model="state.riskIsInsure[risk.riskCode].data"
+                :origin-data="risk"
+                :product-factor="dataSource.productFactor"
+              ></InsureInfos>
             </div>
           </div>
         </template>
@@ -76,7 +80,7 @@ import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import TrialButton from '../TrialButton.vue';
 import InsureInfos from '../../long/InsureInfos/index.vue';
 import Benefit from '../Benefit/index.vue';
-import { RiskVoItem } from '@/api/modules/trial.data';
+import { PremiumCalcData, RiskVoItem } from '@/api/modules/trial.data';
 import { RISK_TYPE, RISK_TYPE_ENUM } from '@/common/constants/trial';
 import { benefitCalc } from '@/api/modules/trial';
 
@@ -87,8 +91,15 @@ const RISK_SELECT = [
 
 const props = defineProps({
   dataSource: {
+    // plan。。
     type: Array as any,
     default: () => [],
+  },
+  productInfo: {
+    type: Object,
+    default: () => {
+      return { productCode: '', productName: '' };
+    },
   },
 });
 console.log('pop data source = ', props.dataSource);
@@ -99,6 +110,7 @@ const state = reactive({
   list: [],
   userData: {} as RiskVoItem,
   riskIsInsure: {},
+  submitData: {} as PremiumCalcData,
 });
 
 const onNext = () => {
@@ -171,9 +183,18 @@ const formData = ref({
   ],
 });
 
+const handleMakeCalcData = () => {
+  state.submitData = {} as PremiumCalcData;
+  state.submitData = {
+    holder: {}, // 投保人
+    insuredVOList: [],
+    productCode: props.productInfo.productCode,
+  };
+};
+
 const handleSetRiskSelect = () => {
   state.riskIsInsure = {};
-  props.dataSource.productPlanInsureVOList[0].insureProductRiskVOList.forEach((risk) => {
+  props.dataSource.insureProductRiskVOList.forEach((risk) => {
     // 1是投保， 2是不投保
     state.riskIsInsure[risk.riskCode] = { selected: 2, data: null };
   });
@@ -237,7 +258,19 @@ watch(
         color: black;
       }
     }
+
     .risk2-field {
+    }
+
+    // 表单样式
+    :deep(.com-pro-field),
+    :deep(.com-van-field) {
+      padding-left: 0;
+      padding-right: 0;
+      &::after {
+        left: 0;
+        right: 0;
+      }
     }
   }
 }

@@ -4,7 +4,7 @@
     :class="`com-van-field ${markRequired ? '' : 'field-mark_hidden'}`"
     autocomplete="off"
     :formatter="formatter"
-    v-bind="{ ...$attrs, placeholder, required, rules }"
+    v-bind="{ ...$attrs, placeholder, required, rules, ...extraAttrs }"
     @blur="onBlur"
     @update:model-value="updateModelValue"
   >
@@ -12,7 +12,9 @@
     <template v-for="slotName in Object.keys(slotskeyMap)" :key="slotName" #[slotName]>
       <slot :name="slotskeyMap[slotName]" />
     </template>
-    <template v-if="unit" #extra>{{ unit }}</template>
+    <template v-if="unit" #extra
+      ><div class="com-van-field-unit">{{ unit }}</div></template
+    >
   </van-field>
 </template>
 
@@ -20,19 +22,8 @@
 import { useAttrs, useSlots, PropType, inject } from 'vue';
 import type { FieldProps, FieldRule } from 'vant';
 import { isNil } from 'lodash';
-import { CERT_TYPE_ENUM } from '@/common/constants';
 import { isNotEmptyArray } from '@/common/constants/utils';
-import {
-  VAN_PRO_FORM_KEY,
-  RELATED_RULE_TYPE_MAP,
-  relatedConfigMap,
-  handleSlots,
-  validatorMap,
-  parseCertNo,
-} from '../utils';
-
-//
-type RuleType = 'phone' | 'email';
+import { VAN_PRO_FORM_KEY, RELATED_RULE_TYPE_MAP, relatedConfigMap, handleSlots, validatorMap } from '../utils';
 
 const attrs = useAttrs() as FieldProps;
 const slots = useSlots();
@@ -164,13 +155,32 @@ const formatter = (value) => {
   return value;
 };
 
-const updateModelValue = (val) => {
+// 关联字段值的额外属性 如证件类型引起的证件号码的长度
+const extraAttrs = computed(() => {
   if (props.relatedName) {
-    const { onChangeEffect } = relatedConfigMap[props.relatedName] || {};
-    if (typeof onChangeEffect === 'function') {
-      onChangeEffect(val, formState.formData);
+    const { extraAttrs } = relatedConfigMap[props.relatedName] || {};
+    const val = formState?.formData?.[props.relatedName] as any;
+    if (extraAttrs && !(isNil(val) || val === '')) {
+      return extraAttrs[val] || {};
     }
   }
+  return {};
+});
+
+/**
+ * 事件副作用, 定义对应 type 的副作用函数 `${type}Effect`
+ * @param type onBlur、onChange
+ * @param val
+ */
+const onEffect = (type, val) => {
+  if (props.relatedName && type) {
+    const effectFn = (relatedConfigMap[props.relatedName] || {})[`${type}Effect`];
+    typeof effectFn === 'function' && effectFn(val, formState.formData);
+  }
+};
+
+const updateModelValue = (val) => {
+  onEffect('onChange', val);
   if (formState.formData && attrs.name) {
     formState.formData[attrs.name] = val;
   }
@@ -186,13 +196,7 @@ const onBlur = (event) => {
     updateModelValue(val);
   }
 
-  if (props.relatedName) {
-    //  blur 副作用
-    const { onBlurEffect } = relatedConfigMap[props.relatedName] || {};
-    if (typeof onBlurEffect === 'function') {
-      onBlurEffect(val, formState.formData);
-    }
-  }
+  onEffect('onBlur', val);
   emit('blur', event);
 };
 
@@ -242,6 +246,9 @@ export default {
     .van-field__control {
       text-align: left;
     }
+  }
+  .com-van-field-unit {
+    align-self: center;
   }
 }
 </style>

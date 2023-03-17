@@ -7,9 +7,9 @@
     v-bind="$attrs"
   >
     <template #extra>
-      <div class="button-extra">
-        <van-button class="sms-code" size="small" plain type="primary" @click="onSendSmsCode">{{ smsText }}</van-button>
-      </div>
+      <van-button class="extra-button" size="small" plain type="primary" @click="onSendSmsCode">{{
+        smsText
+      }}</van-button>
     </template>
   </ProFieldV2>
 </template>
@@ -86,8 +86,12 @@ const smsText = computed(() => {
 
 <style lang="scss" scoped>
 .com-pro-sms-code {
-  .sms-code {
+  .extra-button {
     border: 0;
+    align-self: center;
+    :deep(.van-button__text) {
+      font-size: var(--van-cell-font-size);
+    }
   }
 }
 </style>
