@@ -1,0 +1,1 @@
+const t=t=>t?String(t).replace(/\B(?=(\d{3})+$)/g,","):"",a=t=>{const a=t,[e,o]=a.split("_");return"to_life"===a?"保终身":`${o}${{year:"年",month:"月",day:"天",to:"岁"}[e]}`},e=t=>{const a=t,[e,o]=a.split("_"),r={year:"年交",month:"月交",day:"天",to:"岁"};return"single"===a?"趸缴":"to"===r[e]?`交至${o}岁`:`${o}${r[e]}`},o=(t="")=>t.replace(/(\d{3})\d*(\d{4})/,"$1***$2");export{a,e as b,o as c,t};
