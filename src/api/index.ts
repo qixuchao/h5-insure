@@ -18,6 +18,9 @@ import {
 import { PAGE_API_ENUMS } from '@/common/constants/index';
 import useStore from '@/store/app';
 
+// 获取视频封面图 和 缩略图
+export const getCoverImage = (params: { type: number; url: string }) =>
+  request<string>({ url: '/api/app/common/file/generateLink', method: 'GET', params }, { loading: false });
 // 通用字典接口
 export const getDic = (data = {}) =>
   request<DictData[]>({ url: '/api/app/insure/dict/queryDictInfo', method: 'POST', data }, { loading: false });

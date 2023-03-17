@@ -1,6 +1,6 @@
 <template>
-  <div v-if="loading">__SKELETON_SHORT_CONTENT__</div>
-  <van-config-provider v-else data-skeleton-root="SHORT" :theme-vars="themeVars">
+  <div v-if="loading">__SKELETON_LONG_CONTENT__</div>
+  <van-config-provider v-else data-skeleton-root="LONG" :theme-vars="themeVars">
     <div class="page-internet-product-detail">
       <div class="info">
         <Banner
@@ -8,6 +8,8 @@
           data-skeleton-type="img"
           :url="tenantProductDetail?.BASIC_INFO.banner[0]"
         />
+        v-if="tenantProductDetail?.BASIC_INFO?.video.length"
+        <Video data-skeleton-type="img" :src="tenantProductDetail?.BASIC_INFO.video[0]" />
         <Banner
           v-if="tenantProductDetail?.BASIC_INFO?.bannerMove?.length"
           :url="tenantProductDetail?.BASIC_INFO?.bannerMove?.[0]"
@@ -49,7 +51,10 @@
           @click="onNext"
           >立即投保</TrialButton
         > -->
-        <TrialPop :data-source="insureProductDetail"></TrialPop>
+        <TrialPop
+          :data-source="insureProductDetail.productPlanInsureVOList[0]"
+          :product-info="insureProductDetail"
+        ></TrialPop>
       </template>
     </div>
     <PreNotice v-if="preNoticeLoading" :product-detail="tenantProductDetail"></PreNotice>
@@ -68,11 +73,11 @@
   ></FilePreview>
 </template>
 
-<script lang="ts" setup name="InsuranceShort">
+<script lang="ts" setup name="InsuranceLong">
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant/es';
 import { useIntersectionObserver } from '@vueuse/core';
-import { useTheme } from '@/hooks/useTheme';
+import { setGlobalTheme, useTheme } from '@/hooks/useTheme';
 import {
   ProductSaleInfo,
   InsureProductData,
@@ -85,6 +90,7 @@ import { productDetail as getTenantProductDetail, queryProductMaterial, querySal
 import { INSURE_TYPE_ENUM } from '@/common/constants/infoCollection';
 
 import Banner from '../components/Banner/index.vue';
+import Video from '../components/Banner/Video.vue';
 import Guarantee from '../components/Guarantee/index.vue';
 import PreNotice from '../components/PreNotice/index.vue';
 import { YES_NO_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
@@ -144,7 +150,7 @@ const { openId } = extInfo;
 const formRef = ref();
 const detailScrollRef = ref();
 const observeRef = ref();
-const showFooterBtn = ref<boolean>(false);
+const showFooterBtn = ref<boolean>(true); // test  defalut false
 
 const tenantProductDetail = ref<Partial<ProductSaleInfo>>({}); // 核心系统产品信息
 const insureProductDetail = ref<Partial<InsureProductData>>({}); // 产品中心产品信息
@@ -225,10 +231,14 @@ const initData = async () => {
   querySalesInfo({ productCode, tenantId, isTenant: !preview }).then(({ data, code }) => {
     if (code === '10000') {
       tenantProductDetail.value = data;
+      tenantProductDetail.value.BASIC_INFO.video = [
+        'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/common/20230316/78b6ce255ee04c7a819b9bf284d9e9fd/1.mp4?Expires=1679581759&OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Signature=DkKlyOYtKfYvYM4xdni2hMsomzg%3D',
+      ];
       document.title = data.BASIC_INFO.title || '';
       const { title, desc, image } = data?.PRODUCT_LIST.wxShareConfig || {};
       // 设置分享参数
       setShareLink({ title, desc, image });
+      setGlobalTheme(data.BASIC_INFO.themeType);
     }
   });
 
@@ -333,7 +343,8 @@ watch(
 // 底部按钮展示逻辑
 nextTick(() => {
   useIntersectionObserver(observeRef, ([{ isIntersecting }], observerElement) => {
-    showFooterBtn.value = !isIntersecting;
+    // showFooterBtn.value = !isIntersecting;
+    showFooterBtn.value = true;
   });
 });
 

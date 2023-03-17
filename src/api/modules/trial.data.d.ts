@@ -9,10 +9,6 @@ export interface ProductData {
   planFactor: any;
 }
 
-interface ProductFactor {
-  [propName: string]: any[],
-}
-
 export interface PackageProductVoItem {
   packageCode: string;
   packageName: string;
@@ -60,6 +56,36 @@ export interface RiskDetailVoItem {
   riskType: number;
   riskTypeDesc: string;
 
+}
+
+export interface ProductRiskInsureLimit {
+  amountPremiumConfigVO: RiskAmountPremiumConfig;
+  annuityDrawFrequencyList: Array;
+  annuityDrawValueList: Array;
+  insuranceEndType: number;
+  insurancePeriodRule: any;
+  insurancePeriodValueList: Array;
+  insuranceStartTime: any;
+  insuranceStartType: number;
+  paymentFrequencyList: Array;
+  paymentPeriodRule: any;
+  paymentPeriodValueList: Array;
+  paymentTypeRule: any;
+  riskId: any;
+}
+
+export interface RiskAmountPremiumConfig {
+  copiesAmount: number | string;
+  diplayType: number;
+  displayUnit: number;
+  displayValue: Array<any>;
+  maxCopiesValue: number | string;
+  maxStepValue: number | string;
+  minCopiesValue: number | string;
+  minStepValue: number | string;
+  requireCopies: number | string;
+  saleMethod: number | string;
+  stepValue: number | string;
 }
 
 export interface RiskRuleInfoVoItem {
@@ -301,8 +327,14 @@ export interface LiabilityVoItem {
   liabilityRateType: number;
   liabilityTopType: number;
   liabilityType: number;
+  liabilityValue: LiabilityValue;
 }
 
+export interface LiabilityValue {
+  actualValue: string;
+  displayValue: string;
+  factorValue: number;
+}
 export interface PersonVo {
   birthday?: string;
   gender?: number;
@@ -529,10 +561,36 @@ export interface ProductInfo {
   productName: string;
   productPlanInsureVOList: Array<ProductPlanInsure>;
 }
+
+export interface ProductFactorItem {
+  code: string;
+  title: string;
+  displayType: number;
+  isDisplay: number;
+  isMustInput: number;
+  hasDefaultValue: number;
+  default: string;
+  attributeValueList: Column[];
+  isReadOnly: boolean;
+  sort: number;
+  moduleType: number;
+  isExtend: boolean;
+  isHidden: boolean;
+  placeholder: string;
+  regular: RegExp;
+  unit: string;
+  isSelfInsuredNeed: boolean;
+  isCalculationFactor: number;
+}
+
+export interface ProductFactor {
+  [key: string]: ProductFactorItem[];
+}
+
 export interface ProductPlanInsure {
   planCode: string;
   planName: string;
-  productFactor: any;
+  productFactor: ProductFactor;
   insureProductRiskVOList: Array<RiskDetailVoItem>;
   oilPackageProductVOList: Array<any>;
   oilPackageRelationVOList: Array<any>;
