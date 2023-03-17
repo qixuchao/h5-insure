@@ -29,9 +29,14 @@
           v-model="state.userData"
           :origin-data="dataSource.insureProductRiskVOList[0]"
           :product-factor="dataSource.productFactor"
+          @trial-change="handleTrialInfoChange"
         ></InsureInfos>
         <!-- 以下是附加险种信息 -->
-        <ProductRiskList :data-source="dataSource" :show-main-risk="false"></ProductRiskList>
+        <ProductRiskList
+          :data-source="dataSource"
+          :show-main-risk="false"
+          @trial-change="handleProductRiskInfoChange"
+        ></ProductRiskList>
       </div>
       <TrialButton
         :is-share="false"
@@ -173,6 +178,13 @@ const handleSetRiskSelect = () => {
     const relation = props.dataSource.productRiskRelationVOList.find((r) => r.collocationRiskId === risk.riskId);
     state.riskIsInsure[risk.riskCode] = { selected: '2', data: null, relation };
   });
+};
+
+const handleTrialInfoChange = (data: any) => {};
+const handleProductRiskInfoChange = (data: any) => {};
+
+const handleMixTrialData = () => {
+  // 这里需要做一次防抖
 };
 
 onBeforeMount(() => {
