@@ -40,8 +40,6 @@ const props = withDefaults(defineProps<Props>(), {
   modelValue: () => ({} as RiskVoItem),
   riskCode: '',
 });
-
-console.log('baoebaofei  = ', props.originData);
 const mConfigs = ref(props.originData);
 const mValues = ref(props.modelValue);
 const showTypes = ref(1);
@@ -83,7 +81,6 @@ watch(
 watch(
   () => mValues.value,
   (v) => {
-    console.log('--------', props.modelValue);
     emit('trialChange', v);
   },
   {

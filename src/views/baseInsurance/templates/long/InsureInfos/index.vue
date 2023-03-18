@@ -4,13 +4,6 @@
     :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
     @trial-change="handleBaoeBaofeiChange"
   ></BaoeBaofei>
-  <!-- 这里放因子 -->
-  <PersonalInfo
-    v-if="originData.mainRiskFlag === 1 && productFactor"
-    v-model="state.personalInfo"
-    :product-factor="productFactor"
-    @trail-change="handlePersonalInfoChange"
-  />
   <!-- 产品要素 -->
   <ProductKeys
     :v-model="mValues"
@@ -34,6 +27,8 @@
 <script lang="ts" setup>
 import { inject, withDefaults } from 'vue';
 import { Toast } from 'vant/es';
+import { objectKeys } from '@antfu/utils';
+import { debounce } from 'lodash';
 import {
   INSURANCE_PERIOD_VALUE,
   PAYMENT_PERIOD_VALUE,
@@ -48,18 +43,17 @@ import {
 
 import { RiskDetailVoItem, ProductInfo, RiskVoItem, ProductPlanInsure, ProductFactor } from '@/api/modules/trial.data';
 
-import { BaoeBaofei, PersonalInfo, ProductKeys, RiskLiabilityInfo } from './components';
+import { BaoeBaofei, ProductKeys, RiskLiabilityInfo } from './components';
 
 interface Props {
   originData: RiskDetailVoItem;
   modelValue: RiskVoItem;
-  productFactor: ProductFactor;
 }
+const emit = defineEmits(['trialChange']);
 
 const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as RiskDetailVoItem),
   modelValue: () => ({} as RiskVoItem),
-  productFactor: () => ({} as ProductFactor),
 });
 
 const state = reactive({
@@ -68,7 +62,9 @@ const state = reactive({
   basicsPremium: '',
 });
 
-const mValues = ref(props.modelValue);
+const personalInfoRef = ref(null);
+
+const mValues = ref({});
 
 const enumList = ref({});
 
@@ -87,37 +83,53 @@ onMounted(() => {
   console.log('--------origin data = ', props.originData);
 });
 
-const handleProductKeysChange = (data) => {
-  console.log('data change: ', data);
-};
+const handleMixData = debounce(() => {
+  emit('trialChange', mValues.value);
+}, 500);
 
-const handlePersonalInfoChange = (data) => {
-  console.log('personalInfochange ', data);
+const handleProductKeysChange = (data) => {
+  objectKeys(data).forEach((key) => {
+    mValues.value[key] = data[key];
+  });
+  console.log('toubaoxinxi change: ', mValues.value);
+  handleMixData();
 };
 
 const handleBaoeBaofeiChange = (data) => {
-  console.log('baoebaofei change ', data);
   // eslint-disable-next-line no-unsafe-optional-chaining
   if (+props.originData?.productRiskInsureLimitVO?.amountPremiumConfigVO.saleMethod === 1) {
     state.basicsAmount = data?.amount;
   } else {
     state.basicsAmount = data?.premium;
   }
+  objectKeys(data).forEach((key) => {
+    mValues.value[key] = data[key];
+  });
+  console.log('baoebaofei change ', mValues.value);
+  handleMixData();
 };
 const handleRiskLiabilityChange = (data) => {
   console.log('handleRiskLiabilityChange change ', data);
 };
 
-watch(
-  () => mValues.value,
-  (v) => {
-    console.log('---model change', v);
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
+const validate = async () => {
+  await personalInfoRef.value?.validate();
+};
+
+// watch(
+//   () => mValues.value,
+//   (v) => {
+//     console.log('---model change', v);
+//   },
+//   {
+//     deep: true,
+//     immediate: true,
+//   },
+// );
+
+defineExpose({
+  validate,
+});
 </script>
 
 <style lang="scss" scoped>

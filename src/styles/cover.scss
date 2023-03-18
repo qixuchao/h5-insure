@@ -132,16 +132,16 @@
   }
 }
 
-.van-icon-cross {
-  &::before {
-    content: '';
-    width: 24px;
-    height: 24px;
-    background-image: url('@/assets/images/img-guanbi.png');
-    background-repeat: no-repeat;
-    background-size: contain;
-  }
-}
+// .van-icon-cross {
+//   &::before {
+//     content: '';
+//     width: 24px;
+//     height: 24px;
+//     background-image: url('@/assets/images/img-guanbi.png');
+//     background-repeat: no-repeat;
+//     background-size: contain;
+//   }
+// }
 
 // dialog
 .van-dialog {

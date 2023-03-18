@@ -11,20 +11,34 @@
   >
     <div class="com-body">
       <div class="header">
-        <span>试算</span>
+        <span>算一算保费</span>
         <!-- <van-icon name="cross" style="color: black" @click="state.loading = false" /> -->
-        <van-icon :name="cancelIcon" @click="state.show = false" />
+        <!-- <van-icon :name="cancelIcon" @click="state.show = false" /> -->
+        <van-icon name="cross" @click="state.show = false" />
       </div>
       <div class="container">
         <Benefit :data-source="benefitData" />
+        <!-- 这里放因子 -->
+        <PersonalInfo
+          v-if="dataSource.productFactor"
+          ref="personalInfoRef"
+          v-model="state.userData"
+          :product-factor="dataSource.productFactor"
+          @trail-change="handlePersonalInfoChange"
+        />
         <!-- 这里是标准险种信息 -->
         <InsureInfos
-          v-model="state.userData"
+          ref="insureInfosRef"
           :origin-data="dataSource.insureProductRiskVOList[0]"
           :product-factor="dataSource.productFactor"
+          @trial-change="handleTrialInfoChange"
         ></InsureInfos>
         <!-- 以下是附加险种信息 -->
-        <ProductRiskList :data-source="dataSource" :show-main-risk="false"></ProductRiskList>
+        <ProductRiskList
+          :data-source="dataSource"
+          :show-main-risk="false"
+          @trial-change="handleProductRiskInfoChange"
+        ></ProductRiskList>
       </div>
       <TrialButton
         :is-share="false"
@@ -43,6 +57,7 @@
 <script lang="ts" setup name="TrialPop">
 import { computed, ref, defineExpose } from 'vue';
 import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
+import { PersonalInfo } from '@/views/baseInsurance/templates/long/InsureInfos/components/index';
 import TrialButton from '../TrialButton.vue';
 import InsureInfos from '../../long/InsureInfos/index.vue';
 import ProductRiskList from '../../long/ProductRiskList/index.vue';
@@ -55,6 +70,8 @@ const RISK_SELECT = [
   { value: 1, label: '投保' },
   { value: 2, label: '不投保' },
 ];
+
+const insureInfosRef = ref(null);
 
 const props = defineProps({
   dataSource: {
@@ -81,6 +98,10 @@ const state = reactive({
 });
 
 const onNext = () => {
+  // 验证
+  insureInfosRef.value?.validate().then(() => {
+    console.log('---- validate success ----');
+  });
   state.loading = false;
   state.show = true;
 };
@@ -168,6 +189,37 @@ const handleSetRiskSelect = () => {
   });
 };
 
+const handlePersonalInfoChange = (data) => {
+  const { holder, insuredVOList } = data;
+  if (holder) {
+    // state.submitData.holder.personVO = holder;
+    state.submitData.holder = { personVO: holder };
+  }
+  if (insuredVOList && insuredVOList.length > 0) {
+    insuredVOList.forEach((ins, index) => {
+      if (state.submitData.insuredVOList && state.submitData.insuredVOList.length > index) {
+        state.submitData.insuredVOList[index].personVO = ins.personVO;
+      } else {
+        // new
+        state.submitData.insuredVOList = [
+          {
+            personVO: ins.personVO,
+          },
+        ];
+      }
+    });
+  }
+  console.log('投被保人的信息回传 ', state.submitData);
+};
+const handleTrialInfoChange = (data: any) => {
+  console.log('标准险种的信息回传', data);
+};
+const handleProductRiskInfoChange = (data: any) => {};
+
+const handleMixTrialData = () => {
+  // 这里需要做一次防抖
+};
+
 onBeforeMount(() => {
   handleSetRiskSelect();
 });
@@ -213,24 +265,34 @@ watch(
 }
 .com-body {
   height: 100%;
-  padding: 32px 40px 16px;
   .header {
+    padding: 0 30px;
     display: flex;
     justify-content: space-between;
     border: none;
-    height: 42px;
-    font-size: 30px;
+    height: 110px;
+    font-size: 36px;
     font-family: PingFangSC-Medium, PingFang SC;
     font-weight: 500;
     color: #333;
-    line-height: 42px;
+    line-height: 40px;
     align-items: center;
-    margin-bottom: 30px;
+    border-bottom: 1px solid #eeeeee;
+    i {
+      font-size: 40px;
+    }
+    span {
+      width: 600px;
+      text-align: left;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   .container {
     height: 90%;
-    padding-bottom: 150px;
+    padding: 0 30px 150px;
     overflow-y: auto;
     &::-webkit-scrollbar {
       display: none;

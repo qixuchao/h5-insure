@@ -42,6 +42,7 @@
           v-model="state.riskIsInsure[risk.riskId].data"
           :origin-data="risk"
           :product-factor="dataSource.productFactor"
+          @trial-change="handleInsureInfoChange"
         ></InsureInfos>
       </div>
     </div>
@@ -200,7 +201,13 @@ const handleSetRiskSelect = () => {
 
 const handleSwitchClick = (selected: string, data: any) => {
   console.log('----data = ', data);
-  props.dataSource.productRiskRelationVOList.forEach((r) => {});
+  props.dataSource.productRiskRelationVOList.forEach((r) => {
+    // TODO 处理复杂的关联关系逻辑
+  });
+};
+
+const handleInsureInfoChange = (data) => {
+  // todo emit('trialChange')
 };
 
 onBeforeMount(() => {
