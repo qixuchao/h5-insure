@@ -2,19 +2,19 @@
   <van-config-provider>
     <div class="com-risk-liabilityinfo">
       <div class="item-wrap">
-        <!-- <div v-for="(el, i) in dataSource" :key="i"> -->
         <div v-for="(item, index) in dataSource.riskLiabilityInfoVOList" :key="index">
           <div v-if="+item.showFlag === 1">
             <ProField :label="`${item.liabilityName}`" label-width="40%" name="insuredRelation">
               <!-- insureFlag投保/不投保标志位 1.展示 2.不展示 -->
-              <!-- <template #input> -->
               <template #input>
-                <ProRadioButton
+                <van-switch
                   v-if="+item.insureFlag === 1"
                   v-model="state.isCheckList[index]"
-                  :prop="{ label: 'value', value: 'code' }"
-                  :options="LIABILITY_ATTRIBUTE_VALUE"
-                ></ProRadioButton>
+                  active-value="1"
+                  inactive-value="2"
+                  size="26px"
+                  @click="handleSwitchClick(item, index)"
+                ></van-switch>
               </template>
             </ProField>
             <!-- 责任属性展示 -->
@@ -25,13 +25,14 @@
               name="insuredRelation"
             >
               <!-- insureFlag投保/不投保标志位 1.展示 2.不展示  formula不为空，请求公式计算结果-->
-
               <template #input>
                 <ProRadioButton
+                  v-model="state.checkValueList[index]"
                   :prop="{ label: 'displayValue', value: 'actualValue' }"
                   :options="
                     item.formula.length > 0 ? item.liabilityAttributeValueList : item.liabilityAttributeValueList
                   "
+                  @click="handleRiskLiabityClick(item, index)"
                 ></ProRadioButton>
               </template>
             </ProField>
@@ -46,17 +47,9 @@
   </van-config-provider>
 </template>
 <script lang="ts" setup name="riskLiabilityInfo">
-import { cloneDeep } from 'lodash';
-import type { FormInstance } from 'vant';
 import { withDefaults } from 'vue';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
-import {
-  RiskDetailVoItem,
-  ProductInfo,
-  RiskVoItem,
-  RiskAmountPremiumConfig,
-  RiskLiabilityInfoVoItem,
-} from '@/api/modules/trial.data';
+import { RiskDetailVoItem, RiskVoItem, RiskLiabilityInfoVoItem } from '@/api/modules/trial.data';
 import { getCalculateRiskFormula } from '@/api/modules/trial';
 
 interface Props {
@@ -66,16 +59,6 @@ interface Props {
 }
 
 const emit = defineEmits(['trialChange']);
-const LIABILITY_ATTRIBUTE_VALUE = [
-  {
-    value: '投保',
-    code: '1',
-  },
-  {
-    value: '不投保',
-    code: '2',
-  },
-];
 
 const props = withDefaults(defineProps<Props>(), {
   dataSource: () => ({} as RiskDetailVoItem),
@@ -83,18 +66,47 @@ const props = withDefaults(defineProps<Props>(), {
   params: () => ({ amountUnit: '', basicsAmount: '', basicsPremium: '', riskId: '' }),
 });
 const mValues = ref(props.modelValue);
-const dataSourceNew = ref({});
 console.log('mValue>>>>>>', mValues.value);
 const state = ref({
   formInfo: props.dataSource,
   isCheckList: [],
+  checkValueList: [],
+  liabilityVOList: [],
 });
+
+const handleSwitchClick = (item, index) => {
+  // 可选责任 没有责任属性 需要把code传给后端
+  if (item.liabilityAttributeValueList.length === 0 && item.formula.length === 0 && state.value.isCheckList[index]) {
+    state.value.liabilityVOList.push({
+      liabilityValue: item,
+      key: index,
+    });
+  }
+};
+const handleRiskLiabityClick = (e, index) => {
+  const curentLiabilityList = e.liabilityAttributeValueList.filter(
+    (x) => x.actualValue === state.value.checkValueList[index],
+  );
+  const liabilityValue = JSON.parse(JSON.stringify(curentLiabilityList))[0];
+
+  const curentLiabilityObject = { ...e, liabilityValue };
+
+  if (state.value.liabilityVOList.length > 0) {
+    if (Object.keys(state.value.checkValueList).indexOf(index)) {
+      state.value.liabilityVOList = state.value.liabilityVOList.filter((x) => x.key !== index);
+    }
+  }
+  state.value.liabilityVOList.push({
+    liabilityValue: curentLiabilityObject,
+    key: index,
+  });
+  console.log('state.liabilityVOList>>>>>>', state.value.liabilityVOList);
+};
 
 watch(
   () => mValues.value,
   (v) => {
-    console.log('----------------------------------------mValues.value----------------------------------------');
-    emit('trialChange', v);
+    // emit('trialChange', v);
   },
   {
     deep: true,
@@ -103,44 +115,66 @@ watch(
 );
 
 watch(
-  () => props.dataSource,
+  () => state.value.liabilityVOList,
   (value) => {
-    console.log(
-      '22----------------------------------------mValues.value----------------------------------------',
-      value.productRiskInsureLimitVO,
-    );
-    const params = {
-      amountUnit: props.params.amountUnit,
-      basicsAmount: value.basicsAmount,
-      basicsPremium: value.basicsPremium,
-      riskId: props.params.riskId,
-    };
-
-    // eslint-disable-next-line consistent-return
-    const liabilityItem = props.dataSource.riskLiabilityInfoVOList.map(async (liab) => {
-      if (liab.formula.length > 0) {
-        // 责任属性为公式类型，需要请求公式接口
-
-        const { code, data } = await getCalculateRiskFormula({ ...params, riskLiabilities: [liab] });
-
-        if (code === '10000') {
-          liab.liabilityAttributeValueList = data[0].formulaResult;
-          return { ...liab, liabilityAttributeValueList: data[0] };
-        }
-
-        return liab;
-      }
-    });
-    console.log('liabilityItem>>>>>>', liabilityItem);
-    console.log('riskLiabilityInfoVOList>>>>>>', props.dataSource.riskLiabilityInfoVOList);
-    console.log('mValues.value>>>>>>', mValues.value);
-    emit('trialChange', value);
+    const dataList = state.value.liabilityVOList.map((item) => ({ ...item.liabilityValue }));
+    emit('trialChange', dataList);
   },
   {
     deep: true,
     immediate: true,
   },
 );
+watch(
+  () => props.dataSource,
+  (value) => {
+    // emit('trialChange', value);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+onMounted(() => {
+  // 初始化数据，必选责任需要把当前责任code的对象传给后端
+  props.dataSource.riskLiabilityInfoVOList.map((item, index) => {
+    if (+item.showFlag !== 1) {
+      state.value.liabilityVOList.push({
+        liabilityValue: item,
+        key: index,
+      });
+    }
+    return null;
+  });
+});
+
+const params = {
+  amountUnit: props.params.amountUnit,
+  // basicsAmount: value.basicsAmount ,
+  basicsAmount: 1000,
+  // basicsPremium: value.basicsPremium,
+  basicsPremium: '',
+  riskId: props.params.riskId,
+};
+
+// eslint-disable-next-line consistent-return
+const liabilityItem = props.dataSource.riskLiabilityInfoVOList.map(async (liab) => {
+  if (liab.formula.length > 0) {
+    // 责任属性为公式类型，需要请求公式接口
+
+    const { code, data } = await getCalculateRiskFormula({ ...params, riskLiabilities: [liab] });
+
+    if (code === '10000') {
+      liab.liabilityAttributeValueList = data[0].formulaResult;
+      return { ...liab, liabilityAttributeValueList: data[0] };
+    }
+
+    return liab;
+  }
+});
+console.log('liabilityItem>>>>>>', liabilityItem);
+console.log('riskLiabilityInfoVOList>>>>>>', props.dataSource.riskLiabilityInfoVOList);
+console.log('mValues.value>>>>>>', mValues.value);
 </script>
 
 <style lang="scss" scoped></style>
