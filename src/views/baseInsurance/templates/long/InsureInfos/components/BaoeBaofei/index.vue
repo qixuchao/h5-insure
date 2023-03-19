@@ -103,7 +103,7 @@ interface Props {
   originData: RiskAmountPremiumConfig;
   modelValue: RiskVoItem;
 }
-const emit = defineEmits(['trialChange']);
+const emit = defineEmits(['update:modelValue', 'trialChange']);
 
 const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as RiskAmountPremiumConfig),
@@ -178,6 +178,7 @@ const handleClick = () => {
 
 onMounted(() => {
   initData();
+  emit('update:modelValue', mValues.value);
 });
 
 watch(
@@ -193,6 +194,7 @@ watch(
 watch(
   () => mValues.value,
   (v) => {
+    emit('update:modelValue', v);
     // console.log('----change', v);
     emit('trialChange', v);
   },

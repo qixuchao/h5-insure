@@ -13,7 +13,7 @@
                   active-value="1"
                   inactive-value="2"
                   size="26px"
-                  @click="handleSwitchClick(item, index)"
+                  @click="handleSwitchClick(item, index, state.isCheckList[index])"
                 ></van-switch>
               </template>
             </ProField>
@@ -75,11 +75,28 @@ const state = ref({
 });
 
 const handleSwitchClick = (item, index) => {
-  // 可选责任 没有责任属性 需要把code传给后端
-  if (item.liabilityAttributeValueList.length === 0 && item.formula.length === 0 && state.value.isCheckList[index]) {
+  // 可选责任 没有责任属性 且为选中投保状态需要把code传给后端
+
+  const key_list = state.value.liabilityVOList.map((i) => i.key);
+  // 可选责任 没有责任属性
+  const canChooseNoLib = item.liabilityAttributeValueList.length === 0 && item.formula.length === 0;
+  // 投保状态
+  const status = state.value.isCheckList[index];
+  console.log('key---------', key_list);
+  console.log('(key_list).indexOf(index)', key_list.indexOf(index));
+  if (canChooseNoLib && key_list.indexOf(index) === -1 && status) {
     state.value.liabilityVOList.push({
       liabilityValue: item,
       key: index,
+      isSwitchOn: state.value.isCheckList[index],
+    });
+  }
+  // 对已经存在的责任 选择投保不投保 更新当前状态
+  if (key_list.indexOf(index) !== -1) {
+    state.value.liabilityVOList.forEach((i, ind) => {
+      if (i.key === index) {
+        i.isSwitchOn = state.value.isCheckList[index];
+      }
     });
   }
 };
@@ -99,6 +116,7 @@ const handleRiskLiabityClick = (e, index) => {
   state.value.liabilityVOList.push({
     liabilityValue: curentLiabilityObject,
     key: index,
+    isSwitchOn: '1',
   });
   console.log('state.liabilityVOList>>>>>>', state.value.liabilityVOList);
 };
@@ -106,6 +124,7 @@ const handleRiskLiabityClick = (e, index) => {
 watch(
   () => mValues.value,
   (v) => {
+    console.log(' mValues.value-----------------', mValues.value);
     // emit('trialChange', v);
   },
   {
@@ -117,7 +136,9 @@ watch(
 watch(
   () => state.value.liabilityVOList,
   (value) => {
-    const dataList = state.value.liabilityVOList.map((item) => ({ ...item.liabilityValue }));
+    const dataList = state.value.liabilityVOList
+      .filter((x) => x.isSwitchOn === '1')
+      .map((item) => ({ ...item.liabilityValue }));
     emit('trialChange', dataList);
   },
   {
@@ -128,6 +149,7 @@ watch(
 watch(
   () => props.dataSource,
   (value) => {
+    console.log('dataSource-------------', props.dataSource);
     // emit('trialChange', value);
   },
   {
@@ -142,13 +164,14 @@ onMounted(() => {
       state.value.liabilityVOList.push({
         liabilityValue: item,
         key: index,
+        isSwitchOn: '1',
       });
     }
     return null;
   });
 });
 
-const params = {
+const formulaParams = {
   amountUnit: props.params.amountUnit,
   // basicsAmount: value.basicsAmount ,
   basicsAmount: 1000,
@@ -162,7 +185,7 @@ const liabilityItem = props.dataSource.riskLiabilityInfoVOList.map(async (liab) 
   if (liab.formula.length > 0) {
     // 责任属性为公式类型，需要请求公式接口
 
-    const { code, data } = await getCalculateRiskFormula({ ...params, riskLiabilities: [liab] });
+    const { code, data } = await getCalculateRiskFormula({ ...formulaParams, riskLiabilities: [liab] });
 
     if (code === '10000') {
       liab.liabilityAttributeValueList = data[0].formulaResult;

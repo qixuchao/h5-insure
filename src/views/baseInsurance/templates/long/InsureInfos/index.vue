@@ -110,6 +110,8 @@ const handleBaoeBaofeiChange = (data) => {
 };
 const handleRiskLiabilityChange = (data) => {
   console.log('handleRiskLiabilityChange change ', data);
+  mValues.value.liabilityVOList = data;
+  handleMixData();
 };
 
 const validate = async () => {
