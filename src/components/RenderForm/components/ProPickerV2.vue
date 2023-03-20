@@ -1,7 +1,7 @@
 <template>
   <ProFormItem
     :model-value="state.fieldValue"
-    :class="`${!filedAttrs.visible ? '' : 'com-van-field--hidden'}`"
+    :class="`${filedAttrs.visible === false ? 'com-van-field--hidden' : ''}`"
     v-bind="filedAttrs"
     :field-value-view="fieldValueView"
     @click="!isView && (show = true)"
@@ -40,7 +40,7 @@ import { deleteEmptyChildren, relatedConfigMap, VAN_PRO_FORM_KEY } from '../util
 const globalStore = useAppStore();
 const { dictMap } = storeToRefs(globalStore);
 
-const { filedAttrs, filedSlots, attrs, slots } = useAttrsAndSlots();
+const { filedAttrs, filedSlots, attrs, slots } = toRefs(useAttrsAndSlots());
 
 const { formState } = inject(VAN_PRO_FORM_KEY) || {};
 
@@ -200,9 +200,9 @@ watch(
 );
 
 watch(
-  () => formState?.formData?.[filedAttrs.name],
+  () => formState?.formData?.[filedAttrs.value.name],
   (val) => {
-    state.fieldValue = val;
+    state.fieldValue = val as string | number;
   },
   {
     immediate: true,

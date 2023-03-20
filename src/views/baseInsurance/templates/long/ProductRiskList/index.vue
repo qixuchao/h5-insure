@@ -58,7 +58,6 @@ import InsureInfos from '../InsureInfos/index.vue';
 import Benefit from '../Benefit/index.vue';
 import { PremiumCalcData, RiskVoItem } from '@/api/modules/trial.data';
 import { RISK_TYPE, RISK_TYPE_ENUM, COLLOCATION_TYPE } from '@/common/constants/trial';
-import { benefitCalc } from '@/api/modules/trial';
 
 const RISK_SELECT = [
   { value: 1, label: '投保' },
@@ -105,66 +104,6 @@ const onClosePopup = () => {
   state.loading = false;
 };
 
-// 利益演示数据
-const benefitData = ref();
-// 试算参数构造
-const formData = ref({
-  tenantId: '9991000007',
-  productCode: 'BDFZCHUN',
-  holder: {
-    personVO: {
-      extInfo: {},
-      certType: '1',
-      name: '春春',
-      certNo: '320682199503303592',
-      gender: '2',
-      birthday: '1995-03-30',
-      mobile: '13262279098',
-      verificationCode: '123456',
-    },
-  },
-  insuredVOList: [
-    {
-      insuredCode: '',
-      relationToHolder: '1',
-      personVO: {
-        extInfo: {
-          hasSocialInsurance: '1',
-        },
-        relationToHolder: '1',
-        certType: '1',
-        name: '春春',
-        certNo: '320682199503303592',
-        gender: '2',
-        birthday: '1995-03-30',
-        mobile: '13262279098',
-        verificationCode: '123456',
-        socialFlag: '1',
-      },
-      productPlanVOList: [
-        {
-          insurerCode: 'zhongan',
-          planCode: '',
-          riskVOList: [
-            {
-              amount: '6000000',
-              chargePeriod: 'year_5',
-              copy: 1,
-              coveragePeriod: 'to_68',
-              paymentFrequency: '2',
-              riskCategory: 4,
-              riskCode: 'CBE00CHUN',
-              riskName: '(勿动)利益演示测试',
-              riskId: 10325,
-              riskType: 1,
-            },
-          ],
-        },
-      ],
-    },
-  ],
-});
-
 const handleMakeCalcData = () => {
   state.submitData = {} as PremiumCalcData;
   state.submitData = {
@@ -173,7 +112,17 @@ const handleMakeCalcData = () => {
     productCode: props.productInfo.productCode,
   };
 };
+const getInitliabilityVOList = (dataSource: any) => {
+  const liabilityList = [];
 
+  dataSource.riskLiabilityInfoVOList.map((item) => {
+    if (+item.showFlag !== 1) {
+      liabilityList.push({ ...item });
+    }
+    return [];
+  });
+  return liabilityList;
+};
 const handleSetRiskSelect = () => {
   state.riskIsInsure = {};
   state.disabledRiskInfo = [];
@@ -192,6 +141,8 @@ const handleSetRiskSelect = () => {
   });
   // 根据关联关系判断和标准险种关联的是否可选
   if (mainRisk) {
+    // const initliabilityVOList = getInitliabilityVOList(props.dataSource.insureProductRiskVOList[0]);
+    // console.log('initliabilityVOList---', initliabilityVOList);
     const relationsFrom = props.dataSource.productRiskRelationVOList.filter((r) => r.riskId === mainRisk.riskId);
     relationsFrom.forEach((r) => {
       // 1可选，2绑定， 3互斥 {
@@ -212,7 +163,7 @@ const handleSetRiskSelect = () => {
               riskType: risk.riskType,
               mainRiskId: risk.mainRiskId,
               mainRiskCode: risk.mainRiskCode,
-              liabilityVOList: [],
+              liabilityVOList: getInitliabilityVOList(risk),
             };
             data.chargePeriod = risk?.paymentPeriodValueList?.length > 0 && risk?.paymentPeriodValueList[0].code;
             data.coveragePeriod = risk?.insurancePeriodValueList?.length > 0 && risk?.insurancePeriodValueList[0].code;
@@ -299,14 +250,6 @@ onBeforeMount(() => {
 });
 onMounted(() => {
   state.loading = true;
-  benefitCalc(formData.value)
-    .then((res) => {
-      // 利益演示接口
-      benefitData.value = res.data;
-    })
-    .finally(() => {
-      state.loading = false;
-    });
 });
 
 watch(

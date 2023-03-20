@@ -15,7 +15,7 @@
 import './index.scss';
 import { useSlots } from 'vue';
 
-import defaultImg from '@/assets/images/component/empty.png';
+import defaultImg from '@/assets/images/empty.png';
 
 const props = defineProps({
   emptyImg: {

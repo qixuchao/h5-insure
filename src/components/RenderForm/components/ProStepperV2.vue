@@ -22,7 +22,7 @@ interface RadioAttrs extends RadioGroupProps {
   title: string | number;
 }
 
-const { filedAttrs, attrs } = useAttrsAndSlots();
+const { filedAttrs, attrs } = toRefs(useAttrsAndSlots());
 
 interface Column {
   label: string;
@@ -90,15 +90,15 @@ const fieldValueView = computed(() => {
 });
 
 const handleSelect = (value) => {
-  if (formState.formData && filedAttrs.name) {
-    formState.formData[filedAttrs.name] = value;
+  if (formState.formData && filedAttrs.value.name) {
+    formState.formData[filedAttrs.value.name] = value;
   }
   state.modelValue = value;
   emit('update:modelValue', value);
 };
 
 const onClick = ({ disabled, value }: Column) => {
-  if (!((attrs as RadioAttrs).disabled || disabled)) {
+  if (!((attrs.value as RadioAttrs).disabled || disabled)) {
     handleSelect(value);
   }
 };
