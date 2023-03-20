@@ -12,7 +12,7 @@
     @trial-change="handleProductKeysChange"
   ></ProductKeys>
   <RiskLiabilityInfo
-    :v-model="mValues"
+    :data-source-folmulate="mValues"
     :data-source="originData"
     :params="{
       amountUnit: originData?.productRiskInsureLimitVO?.amountPremiumConfigVO.displayUnit,
