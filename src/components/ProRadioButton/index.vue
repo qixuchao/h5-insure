@@ -67,7 +67,7 @@ const emits = defineEmits(['update:modelValue']);
 const state = reactive({
   currentValue: props.modelValue,
 });
-
+console.log('-----model ', props.modelValue, props.options);
 const selectBtn = (value) => {
   if (props.prevent) {
     Toast(props.prevent);
@@ -94,6 +94,7 @@ onMounted(() => {
 watch(
   () => props.modelValue,
   (newVal) => {
+    console.log('------value change', newVal);
     state.currentValue = newVal;
   },
   {

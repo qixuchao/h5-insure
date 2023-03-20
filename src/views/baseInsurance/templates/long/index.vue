@@ -45,7 +45,13 @@
       <TrialPop
         ref="trialRef"
         :data-source="currentPlanObj"
-        :product-info="{ productCode: insureProductDetail.productCode, productName: insureProductDetail.productName }"
+        :product-info="{
+          productCode: insureProductDetail.productCode,
+          productName: insureProductDetail.productName,
+          productId: '',
+          tenantId,
+          insurerCode,
+        }"
       ></TrialPop>
     </template>
   </div>
