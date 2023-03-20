@@ -213,6 +213,14 @@ const handleMixTrialData = debounce(() => {
         // state.loading = false;
         // state.trialResult = '000';
       });
+    benefitCalc(state.submitData)
+      .then((res) => {
+        // 利益演示接口
+        benefitData.value = res.data;
+      })
+      .finally(() => {
+        state.loading = false;
+      });
   }
 }, 300);
 
@@ -261,14 +269,6 @@ onBeforeMount(() => {
 
 onMounted(() => {
   state.loading = true;
-  benefitCalc(formData.value)
-    .then((res) => {
-      // 利益演示接口
-      benefitData.value = res.data;
-    })
-    .finally(() => {
-      state.loading = false;
-    });
 });
 watch(
   () => state.show,

@@ -42,7 +42,6 @@ import {
 } from '@/common/constants/trial';
 
 import { RiskDetailVoItem, ProductInfo, RiskVoItem, ProductPlanInsure, ProductFactor } from '@/api/modules/trial.data';
-import { benefitCalc } from '@/api/modules/trial';
 import { BaoeBaofei, ProductKeys, RiskLiabilityInfo } from './components';
 
 interface Props {
