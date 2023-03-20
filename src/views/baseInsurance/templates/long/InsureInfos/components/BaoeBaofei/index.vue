@@ -176,7 +176,7 @@ const displayValues = computed(() => {
     const mKey = getMethodName().key;
     // console.log('>>>>set value', mValues.value, mConfigs.value.displayValues.length, mName);
     if (mConfigs.value.displayValues.length === 1) {
-      mValues.value[mKey] = mConfigs.value.displayValues[0].value;
+      mValues.value[mKey] = mConfigs.value.displayValues[0].code;
     }
     return mConfigs.value.displayValues.map((v) => {
       return {

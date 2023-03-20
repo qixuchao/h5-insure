@@ -226,7 +226,7 @@ const handleSwitchClick = (selected: string, data: any) => {
         const collSelected = state.riskIsInsure[data.riskId] && state.riskIsInsure[data.riskId].selected;
         if (r.collocationType === 2) {
           // 被绑定的数据 进行同步
-          if (state.riskIsInsure[r.riskId]) state.riskIsInsure[r.riskId].selected = selected;
+          if (state.riskIsInsure[r.collocationRiskId]) state.riskIsInsure[r.collocationRiskId].selected = selected;
         }
         if (r.collocationType === 3) {
           if (state.riskIsInsure[r.collocationRiskId])
@@ -235,6 +235,9 @@ const handleSwitchClick = (selected: string, data: any) => {
       } else if (data.riskId === r.collocationRiskId) {
         if (r.collocationType === 3) {
           if (state.riskIsInsure[r.riskId]) state.riskIsInsure[r.riskId].selected = selected === '1' ? '2' : '1';
+        }
+        if (r.collocationType === 2) {
+          if (state.riskIsInsure[r.riskId]) state.riskIsInsure[r.riskId].selected = selected;
         }
       }
     }

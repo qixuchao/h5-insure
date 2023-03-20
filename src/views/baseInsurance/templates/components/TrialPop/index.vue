@@ -42,11 +42,11 @@
       </div>
       <TrialButton
         :is-share="false"
-        :premium="100"
-        :loading-text="state.trialResult"
-        :plan-code="'todo计划的code'"
-        :payment-frequency="'guaranteeObj.paymentFrequency'"
-        :tenant-product-detail="'tenantProductDetail'"
+        :premium="state.trialResult"
+        :loading-text="state.trialMsg"
+        :plan-code="props.dataSource.planCode"
+        :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
+        :tenant-product-detail="tenantProductDetail"
         @click="onNext"
         >立即投保</TrialButton
       >
@@ -88,6 +88,10 @@ const props = defineProps({
       return { productCode: '', productName: '', insurerCode: '', tenantId: '' };
     },
   },
+  tenantProductDetail: {
+    type: Object,
+    default: () => {},
+  },
 });
 console.log('pop data source = ', props.dataSource);
 const state = reactive({
@@ -101,7 +105,8 @@ const state = reactive({
   riskVOList: [{}] as Array<Partial<RiskVoItem>>,
   mainRiskVO: {} as Partial<RiskVoItem>,
   ifPersonalInfoSuccess: false,
-  trialResult: LOADING_TEXT,
+  trialMsg: '',
+  trialResult: 0,
 });
 
 const onNext = () => {
@@ -180,7 +185,7 @@ const formData = ref({
 
 const handleSetRiskSelect = () => {
   state.riskIsInsure = {};
-  props.dataSource.insureProductRiskVOList.forEach((risk) => {
+  props?.dataSource?.insureProductRiskVOList?.forEach((risk) => {
     // 1是投保， 2是不投保
     const relation = props.dataSource.productRiskRelationVOList.find((r) => r.collocationRiskId === risk.riskId);
     state.riskIsInsure[risk.riskCode] = { selected: '2', data: null, relation };
@@ -200,16 +205,20 @@ const handleMixTrialData = debounce(() => {
       },
     ];
     console.log('>>>数据构建<<<', state.submitData);
-    state.trialResult = LOADING_TEXT;
+    state.trialMsg = LOADING_TEXT;
+    state.trialResult = 0;
+    state.loading = true;
     premiumCalc(state.submitData)
       .then((res) => {
         // benefitData.value = res.data;
         // console.log("----res =)
-        state.trialResult = `${res.data.premium}元`;
+        // state.trialMsg = `${res.data.premium}元`;
+        state.trialMsg = '';
+        state.trialResult = res.data.premium;
       })
       .finally(() => {
-        // state.loading = false;
-        // state.trialResult = '000';
+        state.loading = false;
+        // state.trialMsg = '000';
       });
     benefitCalc(state.submitData)
       .then((res) => {
