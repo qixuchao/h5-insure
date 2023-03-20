@@ -55,6 +55,7 @@ import { getCalculateRiskFormula } from '@/api/modules/trial';
 interface Props {
   dataSource: RiskDetailVoItem;
   modelValue: RiskVoItem;
+  dataSourceFolmulate: RiskVoItem;
   params?: { amountUnit: string; basicsAmount: string; basicsPremium: string; riskId: string };
 }
 
@@ -63,10 +64,11 @@ const emit = defineEmits(['trialChange']);
 const props = withDefaults(defineProps<Props>(), {
   dataSource: () => ({} as RiskDetailVoItem),
   modelValue: () => ({} as RiskVoItem),
+  dataSourceFolmulate: () => ({} as RiskVoItem),
   params: () => ({ amountUnit: '', basicsAmount: '', basicsPremium: '', riskId: '' }),
 });
-const mValues = ref(props.modelValue);
-console.log('mValue>>>>>>', mValues.value);
+// const mValues = ref(props.modelValue);
+// console.log('mValue>>>>>>', mValues.value);
 const state = ref({
   formInfo: props.dataSource,
   isCheckList: [],
@@ -93,7 +95,7 @@ const handleSwitchClick = (item, index) => {
   }
   // 对已经存在的责任 选择投保不投保 更新当前状态
   if (key_list.indexOf(index) !== -1) {
-    state.value.liabilityVOList.forEach((i, ind) => {
+    state.value.liabilityVOList.forEach((i) => {
       if (i.key === index) {
         i.isSwitchOn = state.value.isCheckList[index];
       }
@@ -101,6 +103,7 @@ const handleSwitchClick = (item, index) => {
   }
 };
 const handleRiskLiabityClick = (e, index) => {
+  console.log('keykeykey>>>>>>', index);
   const curentLiabilityList = e.liabilityAttributeValueList.filter(
     (x) => x.actualValue === state.value.checkValueList[index],
   );
@@ -122,10 +125,36 @@ const handleRiskLiabityClick = (e, index) => {
 };
 
 watch(
-  () => mValues.value,
+  () => props.dataSourceFolmulate,
   (v) => {
-    console.log(' mValues.value-----------------', mValues.value);
-    // emit('trialChange', v);
+    const amount = props.dataSourceFolmulate?.amount;
+    const premium = props.dataSourceFolmulate?.premium;
+    console.log('props.amount-----------------', amount);
+
+    const formulaParams = {
+      amountUnit: props.params.amountUnit,
+      basicsAmount: amount,
+      basicsPremium: premium,
+      riskId: props.params.riskId,
+    };
+
+    // eslint-disable-next-line consistent-return
+    const liabilityItem = props.dataSource.riskLiabilityInfoVOList.map(async (liab) => {
+      if (liab.formula.length > 0 && (amount || premium)) {
+        // 责任属性为公式类型，需要请求公式接口
+
+        const { code, data } = await getCalculateRiskFormula({ ...formulaParams, riskLiabilities: [liab] });
+
+        if (code === '10000') {
+          liab.liabilityAttributeValueList = data[0].formulaResult;
+          return { ...liab, liabilityAttributeValueList: data[0] };
+        }
+
+        return liab;
+      }
+    });
+    console.log('liabilityItem>>>>>>', liabilityItem);
+    console.log('riskLiabilityInfoVOList>>>>>>', props.dataSource.riskLiabilityInfoVOList);
   },
   {
     deep: true,
@@ -146,20 +175,17 @@ watch(
     immediate: true,
   },
 );
-watch(
-  () => props.dataSource,
-  (value) => {
-    console.log('dataSource-------------', props.dataSource);
-    // emit('trialChange', value);
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
+
 onMounted(() => {
+  // 默认需要选中第一个责任
+  // state.value.checkValueList = { 0: '100000', 1: '20000', 4: '1', 5: '1' };
+
   // 初始化数据，必选责任需要把当前责任code的对象传给后端
   props.dataSource.riskLiabilityInfoVOList.map((item, index) => {
+    item.liabilityAttributeValueList.length > 0 && item.liabilityAttributeValueList[0].actualValue;
+
+    // state.value.checkValueList.push({});
+
     if (+item.showFlag !== 1) {
       state.value.liabilityVOList.push({
         liabilityValue: item,
@@ -170,34 +196,6 @@ onMounted(() => {
     return null;
   });
 });
-
-const formulaParams = {
-  amountUnit: props.params.amountUnit,
-  // basicsAmount: value.basicsAmount ,
-  basicsAmount: 1000,
-  // basicsPremium: value.basicsPremium,
-  basicsPremium: '',
-  riskId: props.params.riskId,
-};
-
-// eslint-disable-next-line consistent-return
-const liabilityItem = props.dataSource.riskLiabilityInfoVOList.map(async (liab) => {
-  if (liab.formula.length > 0) {
-    // 责任属性为公式类型，需要请求公式接口
-
-    const { code, data } = await getCalculateRiskFormula({ ...formulaParams, riskLiabilities: [liab] });
-
-    if (code === '10000') {
-      liab.liabilityAttributeValueList = data[0].formulaResult;
-      return { ...liab, liabilityAttributeValueList: data[0] };
-    }
-
-    return liab;
-  }
-});
-console.log('liabilityItem>>>>>>', liabilityItem);
-console.log('riskLiabilityInfoVOList>>>>>>', props.dataSource.riskLiabilityInfoVOList);
-console.log('mValues.value>>>>>>', mValues.value);
 </script>
 
 <style lang="scss" scoped></style>

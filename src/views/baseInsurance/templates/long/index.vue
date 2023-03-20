@@ -8,7 +8,7 @@
           data-skeleton-type="img"
           :url="tenantProductDetail?.BASIC_INFO.banner[0]"
         />
-        <Video data-skeleton-type="img" :src="tenantProductDetail?.BASIC_INFO.video[0]" />
+        <!-- <Video data-skeleton-type="img" :src="tenantProductDetail?.BASIC_INFO.video[0]" /> -->
         <Banner
           v-if="tenantProductDetail?.BASIC_INFO?.bannerMove?.length"
           :url="tenantProductDetail?.BASIC_INFO?.bannerMove?.[0]"
@@ -45,7 +45,13 @@
       <TrialPop
         ref="trialRef"
         :data-source="currentPlanObj"
-        :product-info="{ productCode: insureProductDetail.productCode, productName: insureProductDetail.productName }"
+        :product-info="{
+          productCode: insureProductDetail.productCode,
+          productName: insureProductDetail.productName,
+          productId: '',
+          tenantId,
+          insurerCode,
+        }"
       ></TrialPop>
     </template>
   </div>

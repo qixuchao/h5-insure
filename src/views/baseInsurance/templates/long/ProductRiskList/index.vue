@@ -42,7 +42,7 @@
           v-model="state.riskIsInsure[risk.riskId].data"
           :origin-data="risk"
           :product-factor="dataSource.productFactor"
-          @trial-change="handleInsureInfoChange"
+          @trial-change="(data) => handleInsureInfoChange(data, risk.riskId)"
         ></InsureInfos>
       </div>
     </div>
@@ -199,15 +199,31 @@ const handleSetRiskSelect = () => {
   }
 };
 
+const handleInsureInfoChange = (data: any, riskId: number) => {
+  // todo emit('trialChange')
+
+  state.riskIsInsure[riskId].data = data;
+  const list = [];
+  props.dataSource.insureProductRiskVOList.forEach((risk) => {
+    if (risk.mainRiskFlag !== 1) {
+      const riskData = state.riskIsInsure[risk.riskId];
+      if (riskData.data && Object.keys(riskData.data).length > 0) {
+        list.push(riskData.data);
+      }
+    }
+  });
+  emit('trialChange', list);
+  // console.log('------附加险列表数据回传', list);
+};
+
 const handleSwitchClick = (selected: string, data: any) => {
   console.log('----data = ', data);
   props.dataSource.productRiskRelationVOList.forEach((r) => {
     // TODO 处理复杂的关联关系逻辑
   });
-};
-
-const handleInsureInfoChange = (data) => {
-  // todo emit('trialChange')
+  if (selected === '2') {
+    handleInsureInfoChange({}, data.riskId);
+  }
 };
 
 onBeforeMount(() => {
