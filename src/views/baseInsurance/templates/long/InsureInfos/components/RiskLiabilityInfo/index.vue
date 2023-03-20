@@ -16,7 +16,7 @@
                   active-value="1"
                   inactive-value="2"
                   size="26px"
-                  @click="handleSwitchClick(item, index, state.isCheckList[index])"
+                  @click="handleSwitchClick(item, index)"
                 ></van-switch>
               </template>
             </ProField>
@@ -53,7 +53,7 @@
 import { withDefaults } from 'vue';
 import cloneDeep from 'lodash-es/cloneDeep';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
-import { RiskDetailVoItem, RiskVoItem, RiskLiabilityInfoVoItem } from '@/api/modules/trial.data';
+import { RiskDetailVoItem, RiskVoItem } from '@/api/modules/trial.data';
 import { getCalculateRiskFormula } from '@/api/modules/trial';
 
 interface Props {
