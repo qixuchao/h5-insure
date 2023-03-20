@@ -42,7 +42,6 @@ import {
 } from '@/common/constants/trial';
 
 import { RiskDetailVoItem, ProductInfo, RiskVoItem, ProductPlanInsure, ProductFactor } from '@/api/modules/trial.data';
-
 import { BaoeBaofei, ProductKeys, RiskLiabilityInfo } from './components';
 
 interface Props {
@@ -84,8 +83,20 @@ onMounted(() => {
 });
 
 const handleMixData = debounce(() => {
+  if (props.originData.mainRiskFlag === 1) {
+    // TODO 待确认的逻辑
+    // mValues.value.mainRisk = true;
+    // mValues.value.mainRiskCode = props.originData.riskCode;
+    // mValues.value.mainRiskId = props.originData.riskId;
+  }
+  mValues.value.riskCategory = props.originData.riskCategory;
+  mValues.value.riskCode = props.originData.riskCode;
+  mValues.value.riskId = props.originData.riskId;
+  mValues.value.riskType = props.originData.riskType;
+  mValues.value.riskName = props.originData.riskName;
+  mValues.value.riskType = props.originData.riskType;
   emit('trialChange', mValues.value);
-}, 500);
+}, 300);
 
 const handleProductKeysChange = (data) => {
   objectKeys(data).forEach((key) => {

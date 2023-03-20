@@ -11,26 +11,52 @@ const prefixMap = {
   select: '请选择',
 };
 
+interface FieldAttrs extends FieldProps {
+  visible?: boolean;
+}
+
 export default function useAttrsAndSlots({ placeholderType }: FormItemParams = { placeholderType: 'select' }) {
   const attrs = useAttrs();
   const slots = useSlots();
-  const [filedAttrs, componentAttrs] = filterAttrs(attrs);
-  const [filedSlots, componentSlots] = filterSlots(handleSlots(slots, attrs.slots));
 
-  const placeholder = computed(() => {
-    return attrs.placeholder || `${prefixMap[placeholderType]}${attrs.label || ''}`;
+  const state = reactive({
+    filedAttrs: {} as FieldAttrs,
+    filedSlots: {},
+    attrs: {},
+    slots: {},
   });
 
-  return {
-    filedAttrs: {
-      ...filedAttrs,
-      placeholder: placeholder.value,
-    } as FieldProps,
-    filedSlots,
-    attrs: {
-      title: (filedAttrs as FieldProps).label,
-      ...componentAttrs,
+  watch(
+    () => attrs,
+    () => {
+      const [filedAttrs, componentAttrs] = filterAttrs(attrs) as [FieldProps, Data];
+      state.filedAttrs = {
+        ...filedAttrs,
+        placeholder: (attrs.placeholder as string) || `${prefixMap[placeholderType]}${attrs.label || ''}`,
+      };
+      state.attrs = {
+        title: filedAttrs.label,
+        ...componentAttrs,
+      };
     },
-    slots: componentSlots,
-  };
+    {
+      deep: true,
+      immediate: true,
+    },
+  );
+
+  watch(
+    [() => slots, () => attrs.slots],
+    (val) => {
+      const [filedSlots, componentSlots] = filterSlots(handleSlots(slots, attrs.slots));
+      state.filedSlots = filedSlots || {};
+      state.slots = componentSlots || {};
+    },
+    {
+      deep: true,
+      immediate: true,
+    },
+  );
+
+  return state;
 }

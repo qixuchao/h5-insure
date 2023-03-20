@@ -145,7 +145,7 @@ const initData = () => {
 };
 
 const methodName = computed(() => {
-  if (props?.originData?.saleMethod === 2) {
+  if (mConfigs.value.saleMethod === 2) {
     return {
       label: '保费',
       key: 'premium',
@@ -157,10 +157,26 @@ const methodName = computed(() => {
   };
 });
 
+const getMethodName = () => {
+  if (mConfigs.value.saleMethod === 2) {
+    return {
+      label: '保费',
+      key: 'premium',
+    };
+  }
+  return {
+    label: '保额',
+    key: 'amount',
+  };
+};
+
 const displayValues = computed(() => {
+  // console.log(methodName);
   if (mConfigs.value.displayValues) {
+    const mKey = getMethodName().key;
+    // console.log('>>>>set value', mValues.value, mConfigs.value.displayValues.length, mName);
     if (mConfigs.value.displayValues.length === 1) {
-      mValues.value[methodName.key] = mConfigs.value.displayValues[0].value;
+      mValues.value[mKey] = mConfigs.value.displayValues[0].value;
     }
     return mConfigs.value.displayValues.map((v) => {
       return {
@@ -173,7 +189,7 @@ const displayValues = computed(() => {
 });
 
 const handleClick = () => {
-  console.log('-------------------', mValues.value);
+  console.log('-------------------', mValues.value, mConfigs.value.displayValues);
 };
 
 onMounted(() => {

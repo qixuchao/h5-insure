@@ -43,7 +43,7 @@
       <TrialButton
         :is-share="false"
         :premium="100"
-        :loading-text="'试算中...'"
+        :loading-text="state.trialResult"
         :plan-code="'todo计划的code'"
         :payment-frequency="'guaranteeObj.paymentFrequency'"
         :tenant-product-detail="'tenantProductDetail'"
@@ -56,6 +56,7 @@
 
 <script lang="ts" setup name="TrialPop">
 import { computed, ref, defineExpose } from 'vue';
+import { debounce } from 'lodash';
 import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import { PersonalInfo } from '@/views/baseInsurance/templates/long/InsureInfos/components/index';
 import TrialButton from '../TrialButton.vue';
@@ -64,12 +65,14 @@ import ProductRiskList from '../../long/ProductRiskList/index.vue';
 import Benefit from '../Benefit/index.vue';
 import { PremiumCalcData, RiskVoItem } from '@/api/modules/trial.data';
 import { RISK_TYPE, RISK_TYPE_ENUM } from '@/common/constants/trial';
-import { benefitCalc } from '@/api/modules/trial';
+import { benefitCalc, premiumCalc } from '@/api/modules/trial';
 
 const RISK_SELECT = [
   { value: 1, label: '投保' },
   { value: 2, label: '不投保' },
 ];
+
+const LOADING_TEXT = '试算中...';
 
 const insureInfosRef = ref(null);
 
@@ -82,7 +85,7 @@ const props = defineProps({
   productInfo: {
     type: Object,
     default: () => {
-      return { productCode: '', productName: '' };
+      return { productCode: '', productName: '', insurerCode: '', tenantId: '' };
     },
   },
 });
@@ -95,6 +98,10 @@ const state = reactive({
   userData: {} as RiskVoItem,
   riskIsInsure: {},
   submitData: {} as PremiumCalcData,
+  riskVOList: [{}] as Array<Partial<RiskVoItem>>,
+  mainRiskVO: {} as Partial<RiskVoItem>,
+  ifPersonalInfoSuccess: false,
+  trialResult: LOADING_TEXT,
 });
 
 const onNext = () => {
@@ -171,15 +178,6 @@ const formData = ref({
   ],
 });
 
-const handleMakeCalcData = () => {
-  state.submitData = {} as PremiumCalcData;
-  state.submitData = {
-    holder: {}, // 投保人
-    insuredVOList: [],
-    productCode: props.productInfo.productCode,
-  };
-};
-
 const handleSetRiskSelect = () => {
   state.riskIsInsure = {};
   props.dataSource.insureProductRiskVOList.forEach((risk) => {
@@ -188,6 +186,43 @@ const handleSetRiskSelect = () => {
     state.riskIsInsure[risk.riskCode] = { selected: '2', data: null, relation };
   });
 };
+
+const handleMixTrialData = debounce(() => {
+  // TODO
+  if (state.ifPersonalInfoSuccess) {
+    state.submitData.productCode = props.productInfo.productCode;
+    state.submitData.tenantId = props.productInfo.tenantId;
+    //  这里目前只有一个被保人，所以直接index0，后面需要用被保人code来区分
+    state.submitData.insuredVOList[0].productPlanVOList = [
+      {
+        insurerCode: props.productInfo.insurerCode,
+        planCode: props.dataSource.planCode,
+        riskVOList: state.riskVOList,
+      },
+    ];
+    console.log('>>>数据构建<<<', state.submitData);
+    state.trialResult = LOADING_TEXT;
+    premiumCalc(state.submitData)
+      .then((res) => {
+        // 利益演示接口
+        // benefitData.value = res.data;
+        // console.log("----res =)
+        state.trialResult = `${res.data.premium}元`;
+      })
+      .finally(() => {
+        // state.loading = false;
+        // state.trialResult = '000';
+      });
+    benefitCalc(state.submitData)
+      .then((res) => {
+        // 利益演示接口
+        benefitData.value = res.data;
+      })
+      .finally(() => {
+        state.loading = false;
+      });
+  }
+}, 300);
 
 const handlePersonalInfoChange = (data) => {
   const { holder, insuredVOList } = data;
@@ -209,15 +244,23 @@ const handlePersonalInfoChange = (data) => {
       }
     });
   }
-  console.log('投被保人的信息回传 ', state.submitData);
+  state.ifPersonalInfoSuccess = true;
+  console.log('投被保人的信息回传 ', state.submitData, data);
+  handleMixTrialData();
 };
 const handleTrialInfoChange = (data: any) => {
+  // TODO 这里未来需要看一下  多倍保人的情况，回传需要加入被保人的Index或者别的key
+  state.mainRiskVO = data;
+  if (state.riskVOList.length > 0) {
+    state.riskVOList[0] = data;
+  }
   console.log('标准险种的信息回传', data);
+  handleMixTrialData();
 };
-const handleProductRiskInfoChange = (data: any) => {};
-
-const handleMixTrialData = () => {
-  // 这里需要做一次防抖
+const handleProductRiskInfoChange = (dataList: any) => {
+  state.riskVOList = [state.mainRiskVO, ...dataList];
+  console.log('附加险列表数据回传', dataList);
+  handleMixTrialData();
 };
 
 onBeforeMount(() => {
@@ -226,14 +269,6 @@ onBeforeMount(() => {
 
 onMounted(() => {
   state.loading = true;
-  benefitCalc(formData.value)
-    .then((res) => {
-      // 利益演示接口
-      benefitData.value = res.data;
-    })
-    .finally(() => {
-      state.loading = false;
-    });
 });
 watch(
   () => state.show,

@@ -1,5 +1,5 @@
 <template>
-  <div class="benefit-container">
+  <div v-if="dataSource.benefitRiskResultVOList" class="benefit-container">
     <!-- title-active-color="#0d6efe" -->
     <van-tabs :active="active" @click-tab="changeTab">
       <van-tab v-for="(item, i) in props.dataSource?.benefitRiskResultVOList" :key="i" :name="i" :title="item.riskName">
@@ -84,6 +84,9 @@
         </div>
       </van-tab>
     </van-tabs>
+  </div>
+  <div v-else>
+    <ZaEmpty title="利益演示配置错误~" empty-class="empty-select" />
   </div>
 </template>
 <script lang="ts" setup>
