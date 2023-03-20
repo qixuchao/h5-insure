@@ -96,6 +96,8 @@ const handleMixData = debounce(() => {
   mValues.value.riskType = props.originData.riskType;
   mValues.value.riskName = props.originData.riskName;
   mValues.value.riskType = props.originData.riskType;
+  mValues.value.mainRiskCode = props.originData.mainRiskCode;
+  mValues.value.mainRiskId = props.originData.mainRiskId;
   emit('trialChange', mValues.value);
 }, 300);
 

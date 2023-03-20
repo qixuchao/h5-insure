@@ -129,7 +129,6 @@ watch(
   (v) => {
     const amount = props.dataSourceFolmulate?.amount;
     const premium = props.dataSourceFolmulate?.premium;
-    console.log('props.amount-----------------', amount);
 
     const formulaParams = {
       amountUnit: props.params.amountUnit,

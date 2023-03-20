@@ -189,7 +189,7 @@ const displayValues = computed(() => {
 });
 
 const handleClick = () => {
-  console.log('-------------------', mValues.value, mConfigs.value.displayValues);
+  // console.log('-------------------', mValues.value, mConfigs.value.displayValues);
 };
 
 onMounted(() => {

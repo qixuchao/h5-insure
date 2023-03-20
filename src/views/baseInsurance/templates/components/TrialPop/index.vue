@@ -188,7 +188,6 @@ const handleSetRiskSelect = () => {
 };
 
 const handleMixTrialData = debounce(() => {
-  // TODO
   if (state.ifPersonalInfoSuccess) {
     state.submitData.productCode = props.productInfo.productCode;
     state.submitData.tenantId = props.productInfo.tenantId;
@@ -204,7 +203,6 @@ const handleMixTrialData = debounce(() => {
     state.trialResult = LOADING_TEXT;
     premiumCalc(state.submitData)
       .then((res) => {
-        // 利益演示接口
         // benefitData.value = res.data;
         // console.log("----res =)
         state.trialResult = `${res.data.premium}元`;
