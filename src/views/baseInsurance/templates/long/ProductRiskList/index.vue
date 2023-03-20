@@ -112,13 +112,14 @@ const handleMakeCalcData = () => {
 };
 const getInitliabilityVOList = (dataSource: any) => {
   const liabilityList = [];
+
   dataSource.riskLiabilityInfoVOList.map((item) => {
     if (+item.showFlag !== 1) {
       liabilityList.push({ ...item });
     }
-    console.log('-----------_liabilityList---------------', liabilityList);
-    return liabilityList;
+    return [];
   });
+  return liabilityList;
 };
 const handleSetRiskSelect = () => {
   state.riskIsInsure = {};
@@ -136,7 +137,8 @@ const handleSetRiskSelect = () => {
     state.riskIsInsure[risk.riskId] = { selected: '2', data: null, relation, isMust: false };
   });
   if (mainRisk) {
-    // const initliabilityVOList = getInitliabilityVOList(props.dataSource.insureProductRiskVOList[0]);
+    const initliabilityVOList = getInitliabilityVOList(props.dataSource.insureProductRiskVOList[0]);
+    console.log('initliabilityVOList---', initliabilityVOList);
     const relationsFrom = props.dataSource.productRiskRelationVOList.filter((r) => r.riskId === mainRisk.riskId);
     relationsFrom.forEach((r) => {
       // 1可选，2绑定， 3互斥 {
