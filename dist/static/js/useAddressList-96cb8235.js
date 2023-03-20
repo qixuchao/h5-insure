@@ -1,0 +1,1 @@
+import{q as o}from"./product-13a9b8c8.js";import{aE as a}from"./index-81bf126f.js";const t=(t,c,n)=>{a((()=>{(async()=>{try{const{code:a,data:n}=await o(t);if("10000"===a){const o={};n.forEach((a=>{o[a.relationCode]||(o[a.relationCode]=[]),o[a.relationCode].push(a)})),null==c||c(o)}}catch(a){console.log(a),null==n||n(!1)}})()}))};export{t as u};
