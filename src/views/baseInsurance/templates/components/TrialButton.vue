@@ -62,7 +62,6 @@ watch(
       const currentPremium = (selectedPlan?.data || []).find(
         (data) => data.paymentFrequency === props.paymentFrequency,
       );
-
       const { premium: unit, minActualUnit } = currentPremium || {};
 
       if (!premium) {
@@ -108,11 +107,11 @@ watch(
 
     // footer覆盖
     .price {
-      color: #393d46;
+      color: #ff6600;
       font-size: 34px;
       font-weight: normal;
       span {
-        color: $primary-color;
+        color: #ff6600;
         font-weight: bold;
 
         &:last-child {

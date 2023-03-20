@@ -52,6 +52,7 @@
           tenantId,
           insurerCode,
         }"
+        :tenant-product-detail="tenantProductDetail"
       ></TrialPop>
     </template>
   </div>
