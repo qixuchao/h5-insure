@@ -36,7 +36,7 @@ import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { useAttrsAndSlots } from '../hooks';
 import { VAN_PRO_FORM_KEY } from '../utils';
 
-const { filedAttrs, filedSlots, attrs, slots } = useAttrsAndSlots();
+const { filedAttrs, filedSlots, attrs, slots } = toRefs(useAttrsAndSlots());
 
 const emits = defineEmits(['update:modelValue', 'cancel']);
 
@@ -139,7 +139,7 @@ watch(
 );
 
 watch(
-  () => formState.formData?.[filedAttrs.name],
+  () => formState.formData?.[filedAttrs.value.name],
   (val) => {
     dealModelValue(val);
   },

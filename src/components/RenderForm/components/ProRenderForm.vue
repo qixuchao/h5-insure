@@ -120,9 +120,8 @@ const onFailed = ({ values, errors }) => {
 };
 
 watch(
-  [() => props.schema, () => props.config],
+  [() => props.schema, () => state.config],
   ([schema, config]) => {
-    state.config = config;
     if (isSchema.value) {
       state.schema = (schema as SchemaItem[])
         .map((item) => ({
@@ -135,6 +134,17 @@ watch(
         }))
         .filter((item) => !item.hidden);
     }
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
+
+watch(
+  () => props.config,
+  (val) => {
+    state.config = val;
   },
   {
     immediate: true,

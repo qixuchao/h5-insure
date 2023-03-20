@@ -1,5 +1,6 @@
 import { nanoid } from 'nanoid';
 import merge from 'lodash-es/merge';
+import { type FieldProps } from 'vant';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { SEX_LIMIT_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import { COMPONENT_MAPPING_LIST, GLOBAL_CONFIG_MAP, MODULE_TYPE_MAP } from './constants';
@@ -165,7 +166,7 @@ export const transformToSchema = (arr: FieldConfItem[]): ModuleResult => {
       const { code, name, value, componentName, ...rest } =
         COMPONENT_MAPPING_LIST.find((component) => `${component.value}` === `${item.displayType}`) || {};
 
-      // TODO: 是否是试算因子
+      // 是否是试算因子
       if (item.isCalculationFactor === YES_NO_ENUM.YES) {
         trialFactorCodes.push(item.code);
       }
@@ -325,16 +326,18 @@ export const relatedConfigMap = {
         gender: '',
         birthday: '',
       });
-      // const status = ![CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(formState.formData.certType);
-      // console.log(333333, status);
-      // merge(formState.config, {
-      //   gender: {
-      //     visible: status,
-      //   },
-      //   birthday: {
-      //     visible: status,
-      //   },
-      // });
+      // 证件类型选择证件号/户口本时，隐藏性别和出生日期
+      nextTick(() => {
+        const status = ![CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(formState.formData.certType);
+        merge(formState.config, {
+          gender: {
+            visible: status,
+          },
+          birthday: {
+            visible: status,
+          },
+        });
+      });
     },
   },
   // 关联证件类型的配置

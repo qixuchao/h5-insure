@@ -80,7 +80,7 @@ const props = defineProps({
   },
 });
 
-const { filedAttrs, filedSlots, attrs, slots } = useAttrsAndSlots();
+const { filedAttrs, filedSlots, attrs, slots } = toRefs(useAttrsAndSlots());
 
 const [show, toggle] = useToggle(false);
 

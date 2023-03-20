@@ -1,7 +1,10 @@
 <template>
+  <!-- {{ $attrs.visible ? `1111${$attrs.visible}` : `2222${$attrs.visible}` }} -->
   <van-field
     :model-value="state.modelValue"
-    :class="`com-van-field ${markRequired ? '' : 'field-mark_hidden'} ${!attrs.visible ? '' : 'com-van-field--hidden'}`"
+    :class="`com-van-field ${markRequired ? '' : 'field-mark_hidden'} ${
+      attrs.visible === false ? 'com-van-field--hidden' : ''
+    }`"
     autocomplete="off"
     :formatter="formatter"
     v-bind="{ ...$attrs, placeholder, required, rules, ...extraAttrs }"
@@ -234,10 +237,18 @@ export default {
 };
 </script>
 <style lang="scss">
-.van-cell.com-van-field.field-mark_hidden {
-  .van-field__label--required::before {
+.van-cell.van-field.com-van-field {
+  &.field-mark_hidden .van-field__label--required::before {
     display: none;
   }
+
+  &.com-van-field--hidden {
+    height: 0;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
   .van-field__value {
     align-items: flex-start;
     .van-field__body {
