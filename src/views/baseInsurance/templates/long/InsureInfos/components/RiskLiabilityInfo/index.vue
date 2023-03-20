@@ -3,7 +3,10 @@
     <div class="com-risk-liabilityinfo">
       <div class="item-wrap">
         <div v-for="(item, index) in dataSource.riskLiabilityInfoVOList" :key="index">
-          <div v-if="+item.showFlag === 1">
+          <!-- 必选责任 下面属性值只有一个时，不展示 -->
+          <div
+            v-if="+item.showFlag === 1 && !(item.attributeFlag === 2 && item?.liabilityAttributeValueList.length === 1)"
+          >
             <ProField :label="`${item.liabilityName}`" label-width="40%" name="insuredRelation">
               <!-- insureFlag投保/不投保标志位 1.展示 2.不展示 -->
               <template #input>
@@ -48,6 +51,7 @@
 </template>
 <script lang="ts" setup name="riskLiabilityInfo">
 import { withDefaults } from 'vue';
+import cloneDeep from 'lodash-es/cloneDeep';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
 import { RiskDetailVoItem, RiskVoItem, RiskLiabilityInfoVoItem } from '@/api/modules/trial.data';
 import { getCalculateRiskFormula } from '@/api/modules/trial';
@@ -123,14 +127,15 @@ const handleRiskLiabityClick = (e, index) => {
   });
   console.log('state.liabilityVOList>>>>>>', state.value.liabilityVOList);
 };
-
+const dataSourceFolmulate = computed(() => {
+  // if (premium) return 0;
+  return cloneDeep(props.dataSourceFolmulate);
+});
 watch(
-  () => props.dataSourceFolmulate,
-  (v) => {
+  () => dataSourceFolmulate.value,
+  (oldValue, newValue) => {
     const amount = props.dataSourceFolmulate?.amount;
     const premium = props.dataSourceFolmulate?.premium;
-    console.log('props.amount-----------------', amount);
-
     const formulaParams = {
       amountUnit: props.params.amountUnit,
       basicsAmount: amount,
@@ -140,7 +145,11 @@ watch(
 
     // eslint-disable-next-line consistent-return
     const liabilityItem = props.dataSource.riskLiabilityInfoVOList.map(async (liab) => {
-      if (liab.formula.length > 0 && (amount || premium)) {
+      if (
+        liab.formula.length > 0 &&
+        (amount || premium) &&
+        (oldValue?.amount !== newValue?.amount || oldValue?.premium !== newValue?.premium)
+      ) {
         // 责任属性为公式类型，需要请求公式接口
 
         const { code, data } = await getCalculateRiskFormula({ ...formulaParams, riskLiabilities: [liab] });
@@ -179,19 +188,46 @@ watch(
 onMounted(() => {
   // 默认需要选中第一个责任
   // state.value.checkValueList = { 0: '100000', 1: '20000', 4: '1', 5: '1' };
-
-  // 初始化数据，必选责任需要把当前责任code的对象传给后端
   props.dataSource.riskLiabilityInfoVOList.map((item, index) => {
-    item.liabilityAttributeValueList.length > 0 && item.liabilityAttributeValueList[0].actualValue;
+    // 设置非公式类型初始化 默认选中第一个值
+    const value =
+      item.liabilityAttributeValueList.length > 0 &&
+      item.formula.length === 0 &&
+      item.liabilityAttributeValueList[0].actualValue;
 
-    // state.value.checkValueList.push({});
-
+    state.value.checkValueList[index] = value;
+    // 初始化数据，必选责任不展示，但需要把当前责任code的对象传给后端
     if (+item.showFlag !== 1) {
       state.value.liabilityVOList.push({
         liabilityValue: item,
         key: index,
         isSwitchOn: '1',
       });
+    }
+    if (+item.showFlag === 1) {
+      // 初始状态 责任属性必须展示的情况(非公式类型)
+      if (item.attributeFlag === 1 && item.insureFlag === 2 && item.formula.length === 0) {
+        state.value.liabilityVOList.push({
+          liabilityValue: { ...item, liabilityValue: item?.liabilityAttributeValueList[0] },
+          key: index,
+          isSwitchOn: '1',
+        });
+      }
+      if (item.attributeFlag === 1 && item.insureFlag === 1 && item.formula.length === 0) {
+        state.value.liabilityVOList.push({
+          liabilityValue: { ...item, liabilityValue: item?.liabilityAttributeValueList[0] },
+          key: index,
+          isSwitchOn: '2',
+        });
+      }
+      // 必选责任 下面属性值只有一个时，不展示
+      if (item.attributeFlag === 2 && item?.liabilityAttributeValueList.length === 1) {
+        state.value.liabilityVOList.push({
+          liabilityValue: { ...item, liabilityValue: item?.liabilityAttributeValueList[0] },
+          key: index,
+          isSwitchOn: '1',
+        });
+      }
     }
     return null;
   });
