@@ -104,7 +104,6 @@ const handleProductKeysChange = (data) => {
   objectKeys(data).forEach((key) => {
     mValues.value[key] = data[key];
   });
-  console.log('toubaoxinxi change: ', mValues.value);
   handleMixData();
 };
 
@@ -118,11 +117,9 @@ const handleBaoeBaofeiChange = (data) => {
   objectKeys(data).forEach((key) => {
     mValues.value[key] = data[key];
   });
-  console.log('baoebaofei change ', mValues.value);
   handleMixData();
 };
 const handleRiskLiabilityChange = (data) => {
-  console.log('handleRiskLiabilityChange change ', data);
   mValues.value.liabilityVOList = data;
   handleMixData();
 };

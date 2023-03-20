@@ -101,7 +101,7 @@ const state = reactive({
   riskVOList: [{}] as Array<Partial<RiskVoItem>>,
   mainRiskVO: {} as Partial<RiskVoItem>,
   ifPersonalInfoSuccess: false,
-  trialResult: LOADING_TEXT,
+  trialResult: '试算前请完善投保信息',
 });
 
 const onNext = () => {
@@ -180,7 +180,7 @@ const formData = ref({
 
 const handleSetRiskSelect = () => {
   state.riskIsInsure = {};
-  props.dataSource.insureProductRiskVOList.forEach((risk) => {
+  props?.dataSource?.insureProductRiskVOList?.forEach((risk) => {
     // 1是投保， 2是不投保
     const relation = props.dataSource.productRiskRelationVOList.find((r) => r.collocationRiskId === risk.riskId);
     state.riskIsInsure[risk.riskCode] = { selected: '2', data: null, relation };
