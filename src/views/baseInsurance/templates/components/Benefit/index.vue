@@ -43,24 +43,26 @@
           <div v-if="showType == SHOW_TYPE_ENUM.CHART" style="width: 100%, minWidth: 338px">
             <ProChart :min="ageBegin" :max="ageEnd" :current="num" :data="benefitObj?.result?.benefitRiskItemList" />
           </div>
-          <div class="slider">
-            <div class="opt lf" @click="handleReduce">
-              <ProSvg name="minus" />
+          <template v-if="showType != SHOW_TYPE_ENUM.TABLE">
+            <div class="slider">
+              <div class="opt lf" @click="handleReduce">
+                <ProSvg name="minus" />
+              </div>
+              <div style="flex: 1; margin: 0px 5px">
+                <van-slider v-if="ageBegin" v-model="num" :min="ageBegin" :max="ageEnd" bar-height="8px">
+                  <template #button>
+                    <div class="custom-button">{{ num }} 岁</div>
+                  </template>
+                </van-slider>
+              </div>
+              <div class="opt rg" @click="handleAdd">
+                <ProSvg name="plus" />
+                <!-- <img src="@/assets/images/compositionProposal/add.png" alt="" /> -->
+              </div>
             </div>
-            <div style="flex: 1; margin: 0px 5px">
-              <van-slider v-if="ageBegin" v-model="num" :min="ageBegin" :max="ageEnd" bar-height="8px">
-                <template #button>
-                  <div class="custom-button">{{ num }} 岁</div>
-                </template>
-              </van-slider>
-            </div>
-            <div class="opt rg" @click="handleAdd">
-              <ProSvg name="plus" />
-              <!-- <img src="@/assets/images/compositionProposal/add.png" alt="" /> -->
-            </div>
-          </div>
+            <p class="slider-dec">拖动按钮查看不同年龄保障</p>
+          </template>
 
-          <p class="slider-dec">拖动按钮查看不同年龄保障</p>
           <div class="btn-two">
             <van-button
               v-if="props.dataSource.showTypeList.includes(SHOW_TYPE_ENUM.LIST)"
