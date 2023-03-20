@@ -24,7 +24,13 @@
               </p>
               <div class="box-price">
                 <div v-for="(val, k) in benefitObj?.result?.headers" :key="k" style="width: 33%">
-                  <p class="text1">{{ toLocal(Number(benefitObj?.result?.dataList?.[benefitObj?.index]?.[k])) }}</p>
+                  <p class="text1">
+                    {{
+                      benefitObj?.result?.dataList?.[benefitObj?.index]?.[k] == '0'
+                        ? '0'
+                        : toLocal(Number(benefitObj?.result?.dataList?.[benefitObj?.index]?.[k]))
+                    }}
+                  </p>
                   <p class="text2">{{ val }}(元）</p>
                 </div>
               </div>
@@ -57,6 +63,7 @@
           <p class="slider-dec">拖动按钮查看不同年龄保障</p>
           <div class="btn-two">
             <van-button
+              v-if="props.showTypeList.includes(SHOW_TYPE_ENUM.LIST)"
               round
               :plain="showType !== SHOW_TYPE_ENUM.LIST"
               type="primary"
@@ -65,6 +72,7 @@
               >图表展示</van-button
             >
             <van-button
+              v-if="props.showTypeList.includes(SHOW_TYPE_ENUM.CHART)"
               round
               :plain="showType !== SHOW_TYPE_ENUM.CHART"
               type="primary"
@@ -73,6 +81,7 @@
               >趋势展示</van-button
             >
             <van-button
+              v-if="props.showTypeList.includes(SHOW_TYPE_ENUM.TABLE)"
               round
               :plain="showType !== SHOW_TYPE_ENUM.TABLE"
               type="primary"
@@ -117,7 +126,7 @@ const benefitObj = ref(); // 利益演示结构
 
 const num = ref(0);
 // 展示类型
-const showType = ref('3');
+const showType = ref(props.showTypeList[0]);
 const tableData = ref();
 
 const renderArray = (start: number, end: number) => {
@@ -250,8 +259,10 @@ watch(num, () => {
         flex-wrap: wrap;
         .text1 {
           font-size: 28px;
+          line-height: 38px;
           font-weight: 500;
           color: $zaui-price;
+          font-family: Arial-BoldMT, Arial;
         }
         .text2 {
           font-size: 24px;
@@ -309,9 +320,10 @@ watch(num, () => {
     .btn-two {
       display: flex;
       padding: 20px 0;
-      justify-content: space-between;
+      justify-content: center;
       .btn {
-        width: 560px;
+        // width: 560px;
+        max-width: 560px;
         height: 60px;
         margin-right: 10px;
         :deep(.van-button__text) {
