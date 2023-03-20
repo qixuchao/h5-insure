@@ -104,7 +104,7 @@ export interface RiskLiabilityInfoVoItem {
   extraInfo: string;
   id: number;
   liabilityAttributeType: number;
-  liabilityAttributeValueList: string[];
+  liabilityAttributeValueList: liabilityAttributeValueListItem[];
   liabilityCode: string;
   liabilityDesc: string;
   liabilityId: number;
@@ -121,6 +121,17 @@ export interface RiskLiabilityInfoVoItem {
   premiumCalculateDesc: string;
   premiumCalculateType: number;
   riskId: number;
+  showFlag: number;
+  attributeFlag: number;
+  displayType: number;
+  formula: string[];
+  insureFlag: number;
+  liabilityAttributeTypeDesc: string
+}
+export interface liabilityAttributeValueListItem {
+  actualValue: string;
+  displayValue: string;
+  factorValue: number
 }
 
 export interface RiskInsureLimitVo {

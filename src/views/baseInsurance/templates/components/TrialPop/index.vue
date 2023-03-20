@@ -4,7 +4,7 @@
   </div>
   <ProPopup
     class="com-trial-wrap"
-    :style="{ height: '620px' }"
+    :style="{ height: '80%' }"
     :show="state.show"
     :closeable="false"
     @close="onClosePopup"
