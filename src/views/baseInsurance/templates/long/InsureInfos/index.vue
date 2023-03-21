@@ -8,7 +8,7 @@
   <ProductKeys
     :v-model="mValues"
     :origin-data="originData.productRiskInsureLimitVO"
-    :risk-code="originData.riskCode"
+    :risk-info="originData"
     @trial-change="handleProductKeysChange"
   ></ProductKeys>
   <RiskLiabilityInfo
@@ -171,5 +171,8 @@ defineExpose({
       margin: 0 0 8px 0;
     }
   }
+}
+:deep(.van-field) {
+  align-items: baseline;
 }
 </style>

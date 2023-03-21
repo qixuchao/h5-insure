@@ -3,11 +3,12 @@
     <VanButton type="primary" @click="state.show = true">立即投保</VanButton>
   </div>
   <ProPopup
+    v-if="state.isAniShow || state.show"
     class="com-trial-wrap"
-    :style="{ height: '80%' }"
     :show="state.show"
     :closeable="false"
     @close="onClosePopup"
+    @closed="onClosePopupAfterAni"
   >
     <div class="com-body">
       <div class="header">
@@ -39,6 +40,7 @@
           :show-main-risk="false"
           @trial-change="handleProductRiskInfoChange"
         ></ProductRiskList>
+        <div class="empty"></div>
       </div>
       <TrialButton
         :is-share="false"
@@ -66,6 +68,8 @@ import Benefit from '../Benefit/index.vue';
 import { PremiumCalcData, RiskVoItem } from '@/api/modules/trial.data';
 import { RISK_TYPE, RISK_TYPE_ENUM } from '@/common/constants/trial';
 import { benefitCalc, premiumCalc } from '@/api/modules/trial';
+import { SUCCESS_CODE } from '@/api/code';
+import { PRODUCT_KEYS_CONFIG } from '../../long/InsureInfos/components/ProductKeys/config';
 
 const RISK_SELECT = [
   { value: 1, label: '投保' },
@@ -107,6 +111,7 @@ const state = reactive({
   ifPersonalInfoSuccess: false,
   trialMsg: '',
   trialResult: 0,
+  isAniShow: false,
 });
 
 const onNext = () => {
@@ -116,6 +121,7 @@ const onNext = () => {
   });
   state.loading = false;
   state.show = true;
+  state.isAniShow = true;
 };
 
 const onClosePopup = () => {
@@ -192,10 +198,35 @@ const handleSetRiskSelect = () => {
   });
 };
 
+const handleSameMainRisk = (data: any) => {
+  // 处理同主险逻辑
+  const risk = props.dataSource.insureProductRiskVOList.find((r) => data.riskId === r.riskId);
+  if (risk && risk.mainRiskFlag !== 1) {
+    // 只处理非标准险种 根据关联关系找到他关联的主险
+    const relation = props.dataSource?.productRiskRelationVOList?.find((r) => r.collocationRiskId === risk.riskId);
+    if (relation) {
+      const mainRiskTrialData = state.riskVOList.find((r) => r.riskId === relation.riskId);
+      PRODUCT_KEYS_CONFIG.forEach((config) => {
+        if (config.ruleKey && risk.productRiskInsureLimitVO && risk.productRiskInsureLimitVO[config.ruleKey] === 1) {
+          // 同主险，直接赋值当前key
+          if (mainRiskTrialData) {
+            data[config.valueKey] = mainRiskTrialData[config.valueKey];
+          }
+        }
+      });
+    }
+  }
+  return data;
+};
+
 const handleMixTrialData = debounce(() => {
   if (state.ifPersonalInfoSuccess) {
     state.submitData.productCode = props.productInfo.productCode;
     state.submitData.tenantId = props.productInfo.tenantId;
+    // TODO 处理同主险的相关数据
+    state.riskVOList = state.riskVOList.map((trialRisk) => {
+      return handleSameMainRisk(trialRisk);
+    });
     //  这里目前只有一个被保人，所以直接index0，后面需要用被保人code来区分
     state.submitData.insuredVOList[0].productPlanVOList = [
       {
@@ -211,10 +242,12 @@ const handleMixTrialData = debounce(() => {
     premiumCalc(state.submitData)
       .then((res) => {
         // benefitData.value = res.data;
-        // console.log("----res =)
+        // console.log('----res =', res);
         // state.trialMsg = `${res.data.premium}元`;
-        state.trialMsg = '';
-        state.trialResult = res.data.premium;
+        if (res.data && res.code === SUCCESS_CODE) {
+          state.trialMsg = '';
+          state.trialResult = res.data.premium;
+        }
       })
       .finally(() => {
         state.loading = false;
@@ -223,7 +256,7 @@ const handleMixTrialData = debounce(() => {
     benefitCalc(state.submitData)
       .then((res) => {
         // 利益演示接口
-        benefitData.value = res.data;
+        if (res.data && res.code === SUCCESS_CODE) benefitData.value = res.data;
       })
       .finally(() => {
         state.loading = false;
@@ -270,6 +303,11 @@ const handleProductRiskInfoChange = (dataList: any) => {
   handleMixTrialData();
 };
 
+const onClosePopupAfterAni = () => {
+  console.log('--after');
+  state.isAniShow = false;
+};
+
 onBeforeMount(() => {
   handleSetRiskSelect();
 });
@@ -290,6 +328,7 @@ watch(
 defineExpose({
   open: () => {
     state.show = true;
+    state.isAniShow = true;
   },
 });
 watch(
@@ -333,9 +372,12 @@ watch(
   }
 
   .container {
-    height: 90%;
-    padding: 0 30px 150px;
-    overflow-y: auto;
+    padding: 0 30px;
+    overflow-y: scroll;
+    .empty {
+      width: 100%;
+      height: 180px;
+    }
     &::-webkit-scrollbar {
       display: none;
     }
