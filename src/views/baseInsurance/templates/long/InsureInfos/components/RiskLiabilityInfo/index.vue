@@ -5,7 +5,10 @@
         <div v-for="(item, index) in dataSource.riskLiabilityInfoVOList" :key="index">
           <!-- 必选责任 下面属性值只有一个时，不展示 -->
           <div
-            v-if="+item.showFlag === 1 && !(item.attributeFlag === 2 && item?.liabilityAttributeValueList.length === 1)"
+            v-if="
+              +item.showFlag === 1 &&
+              !(item.attributeFlag === 2 && item?.liabilityAttributeValueList.length === 1 && item.insureFlag === 2)
+            "
           >
             <ProField :label="`${item.liabilityName}`" label-width="40%" name="insuredRelation">
               <!-- insureFlag投保/不投保标志位 1.展示 2.不展示 -->
@@ -20,9 +23,12 @@
                 ></van-switch>
               </template>
             </ProField>
-            <!-- 责任属性展示 -->
+            <!-- 责任属性展示  责任可选 责任属性也需要展示 责任必选责任属性也需要展示-->
             <ProField
-              v-if="+state.isCheckList[index] === 1 || (item.attributeFlag === 1 && item.insureFlag === 2)"
+              v-if="
+                (+state.isCheckList[index] === 1 && item.attributeFlag === 1) ||
+                (item.attributeFlag === 1 && item.insureFlag === 2)
+              "
               :label="item.liabilityAttributeTypeDesc"
               label-width="40%"
               name="insuredRelation"
@@ -35,6 +41,7 @@
                   :options="
                     item.formula.length > 0 ? item.liabilityAttributeValueList : item.liabilityAttributeValueList
                   "
+                  :is-simply="true"
                   @click="handleRiskLiabityClick(item, index)"
                 ></ProRadioButton>
               </template>
@@ -131,6 +138,21 @@ const dataSourceFolmulate = computed(() => {
   // if (premium) return 0;
   return cloneDeep(props.dataSourceFolmulate);
 });
+const dealInitliabilityValueList = (item, index, type) => {
+  if (type === 1) {
+    state.value.liabilityVOList.push({
+      liabilityValue: { ...item, liabilityValue: item?.liabilityAttributeValueList[0] },
+      key: index,
+      isSwitchOn: '1',
+    });
+  } else {
+    state.value.liabilityVOList.push({
+      liabilityValue: { ...item, liabilityValue: item?.liabilityAttributeValueList[0] },
+      key: index,
+      isSwitchOn: '2',
+    });
+  }
+};
 watch(
   () => dataSourceFolmulate.value,
   (oldValue, newValue) => {
@@ -208,26 +230,19 @@ onMounted(() => {
     if (+item.showFlag === 1) {
       // 初始状态 责任属性必须展示的情况(非公式类型)
       if (item.attributeFlag === 1 && item.insureFlag === 2 && item.formula.length === 0) {
-        state.value.liabilityVOList.push({
-          liabilityValue: { ...item, liabilityValue: item?.liabilityAttributeValueList[0] },
-          key: index,
-          isSwitchOn: '1',
-        });
+        dealInitliabilityValueList(item, index, 1);
       }
+      // 初始状态 责任属性可选展示的情况(非公式类型)
       if (item.attributeFlag === 1 && item.insureFlag === 1 && item.formula.length === 0) {
-        state.value.liabilityVOList.push({
-          liabilityValue: { ...item, liabilityValue: item?.liabilityAttributeValueList[0] },
-          key: index,
-          isSwitchOn: '2',
-        });
+        dealInitliabilityValueList(item, index, 2);
       }
-      // 必选责任 下面属性值只有一个时，不展示
-      if (item.attributeFlag === 2 && item?.liabilityAttributeValueList.length === 1) {
-        state.value.liabilityVOList.push({
-          liabilityValue: { ...item, liabilityValue: item?.liabilityAttributeValueList[0] },
-          key: index,
-          isSwitchOn: '1',
-        });
+      // 必选责任 下面属性值只有一个时，不展示责任属性 初始化值
+      if (item.attributeFlag === 2 && item?.liabilityAttributeValueList.length === 1 && item.insureFlag === 2) {
+        dealInitliabilityValueList(item, index, 1);
+      }
+      // 可选责任 下面属性值只有一个时，不展示责任属性 初始化值
+      if (item.attributeFlag === 2 && item?.liabilityAttributeValueList.length === 1 && item.insureFlag === 1) {
+        dealInitliabilityValueList(item, index, 2);
       }
     }
     return null;

@@ -18,7 +18,7 @@
         <van-icon name="cross" @click="state.show = false" />
       </div>
       <div class="container">
-        <Benefit :data-source="benefitData" />
+        <Benefit :data-source="benefitData" :show-type-list="benefitData.showTypList" />
         <!-- 这里放因子 -->
         <PersonalInfo
           v-if="dataSource.productFactor"
@@ -100,7 +100,7 @@ const props = defineProps({
 console.log('pop data source = ', props.dataSource);
 const state = reactive({
   loading: false,
-  show: true,
+  show: false,
   select: {},
   list: [],
   userData: {} as RiskVoItem,
@@ -130,7 +130,10 @@ const onClosePopup = () => {
 };
 
 // 利益演示数据
-const benefitData = ref();
+const benefitData = ref({
+  // benefitRiskResultVOList: [],
+  // showTypList: [],
+});
 // 试算参数构造
 const formData = ref({
   tenantId: '9991000007',

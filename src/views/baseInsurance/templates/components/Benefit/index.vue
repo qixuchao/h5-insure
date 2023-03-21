@@ -1,5 +1,5 @@
 <template>
-  <div v-if="dataSource.benefitRiskResultVOList" class="benefit-container">
+  <div v-if="dataSource?.benefitRiskResultVOList" class="benefit-container">
     <!-- title-active-color="#0d6efe" -->
     <van-tabs :active="active" @click-tab="changeTab">
       <van-tab v-for="(item, i) in props.dataSource?.benefitRiskResultVOList" :key="i" :name="i" :title="item.riskName">
@@ -43,27 +43,29 @@
           <div v-if="showType == SHOW_TYPE_ENUM.CHART" style="width: 100%, minWidth: 338px">
             <ProChart :min="ageBegin" :max="ageEnd" :current="num" :data="benefitObj?.result?.benefitRiskItemList" />
           </div>
-          <div class="slider">
-            <div class="opt lf" @click="handleReduce">
-              <ProSvg name="minus" />
+          <template v-if="showType != SHOW_TYPE_ENUM.TABLE">
+            <div class="slider">
+              <div class="opt lf" @click="handleReduce">
+                <ProSvg name="minus" />
+              </div>
+              <div style="flex: 1; margin: 0px 5px">
+                <van-slider v-if="ageBegin" v-model="num" :min="ageBegin" :max="ageEnd" bar-height="8px">
+                  <template #button>
+                    <div class="custom-button">{{ num }} 岁</div>
+                  </template>
+                </van-slider>
+              </div>
+              <div class="opt rg" @click="handleAdd">
+                <ProSvg name="plus" />
+                <!-- <img src="@/assets/images/compositionProposal/add.png" alt="" /> -->
+              </div>
             </div>
-            <div style="flex: 1; margin: 0px 5px">
-              <van-slider v-if="ageBegin" v-model="num" :min="ageBegin" :max="ageEnd" bar-height="8px">
-                <template #button>
-                  <div class="custom-button">{{ num }} 岁</div>
-                </template>
-              </van-slider>
-            </div>
-            <div class="opt rg" @click="handleAdd">
-              <ProSvg name="plus" />
-              <!-- <img src="@/assets/images/compositionProposal/add.png" alt="" /> -->
-            </div>
-          </div>
+            <p class="slider-dec">拖动按钮查看不同年龄保障</p>
+          </template>
 
-          <p class="slider-dec">拖动按钮查看不同年龄保障</p>
           <div class="btn-two">
             <van-button
-              v-if="props.showTypeList.includes(SHOW_TYPE_ENUM.LIST)"
+              v-if="props.dataSource.showTypeList.includes(SHOW_TYPE_ENUM.LIST)"
               round
               :plain="showType !== SHOW_TYPE_ENUM.LIST"
               type="primary"
@@ -72,7 +74,7 @@
               >图表展示</van-button
             >
             <van-button
-              v-if="props.showTypeList.includes(SHOW_TYPE_ENUM.CHART)"
+              v-if="props.dataSource.showTypeList.includes(SHOW_TYPE_ENUM.CHART)"
               round
               :plain="showType !== SHOW_TYPE_ENUM.CHART"
               type="primary"
@@ -81,7 +83,7 @@
               >趋势展示</van-button
             >
             <van-button
-              v-if="props.showTypeList.includes(SHOW_TYPE_ENUM.TABLE)"
+              v-if="props.dataSource.showTypeList.includes(SHOW_TYPE_ENUM.TABLE)"
               round
               :plain="showType !== SHOW_TYPE_ENUM.TABLE"
               type="primary"
@@ -106,18 +108,18 @@ import ProTable from './Table.vue';
 
 const props = withDefaults(
   defineProps<{
-    dataSource: Array<any>;
-    showTypeList?: string[]; // 1: 表格  2: 趋势 3: 图标
+    dataSource: { showTypeList: string[] };
   }>(),
   {
-    dataSource: () => [{}],
-    showTypeList: () => ['1'],
+    dataSource: () => ({
+      showTypeList: ['1'],
+    }),
   },
 );
 const SHOW_TYPE_ENUM = {
-  TABLE: '1',
+  LIST: '1',
   CHART: '2',
-  LIST: '3',
+  TABLE: '3',
 };
 const active = ref(0);
 const ageBegin = ref(0);
@@ -126,7 +128,7 @@ const benefitObj = ref(); // 利益演示结构
 
 const num = ref(0);
 // 展示类型
-const showType = ref(props.showTypeList[0]);
+const showType = ref(props.dataSource.showTypeList?.[0]);
 const tableData = ref();
 
 const renderArray = (start: number, end: number) => {
@@ -150,7 +152,7 @@ const setAge = (realData: any) => {
 const getData = () => {
   // 根据num 取对应数组的值
   const benefit = props.dataSource?.benefitRiskResultVOList?.[active.value];
-  tableData.value = props.dataSource?.benefitRiskResultVOList?.[active.value].benefitRiskTableResultVOList[0];
+  tableData.value = props.dataSource?.benefitRiskResultVOList?.[active.value].benefitRiskTableResultVOList?.[0];
   // a 年龄数组
   const { a, year } = renderArray(ageBegin.value, ageEnd.value);
   const obj = {
@@ -188,6 +190,7 @@ watch(
     if (val) {
       setAge(val);
       getData();
+      showType.value = val.showTypeList?.[0];
     }
   },
   {
