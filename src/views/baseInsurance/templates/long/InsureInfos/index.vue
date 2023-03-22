@@ -76,6 +76,7 @@ enumList.value = inject('enumList') || {};
 //   formInfo: props.formInfo as RiskVoItem,
 // });
 
+console.log('-------origin data', props.originData);
 const onTrail = (val) => {
   console.log('---personal trail---', val);
 };
