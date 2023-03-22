@@ -1,12 +1,7 @@
 <template>
   <div v-if="showTypes === 1">
     <!-- 步进值 -->
-    <VanField
-      v-if="originData.saleMethod === 1"
-      :label="`基本${methodName.label}`"
-      :name="methodName.key"
-      class="risk-select-field"
-    >
+    <VanField :label="`基本${methodName.label}`" :name="methodName.key" class="risk-select-field">
       <template #input>
         <div class="custom-field">
           <VanStepper

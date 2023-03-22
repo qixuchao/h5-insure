@@ -1,27 +1,29 @@
 <template>
-  <BaoeBaofei
-    :v-model="mValues"
-    :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
-    @trial-change="handleBaoeBaofeiChange"
-  ></BaoeBaofei>
   <!-- 产品要素 -->
-  <ProductKeys
-    :v-model="mValues"
-    :origin-data="originData.productRiskInsureLimitVO"
-    :risk-info="originData"
-    @trial-change="handleProductKeysChange"
-  ></ProductKeys>
-  <RiskLiabilityInfo
-    :data-source-folmulate="mValues"
-    :data-source="originData"
-    :params="{
-      amountUnit: originData?.productRiskInsureLimitVO?.amountPremiumConfigVO.displayUnit,
-      basicsAmount: state.basicsAmount,
-      basicsPremium: state.basicsPremium,
-      riskId: originData?.riskId,
-    }"
-    @trial-change="handleRiskLiabilityChange"
-  />
+  <template v-if="originData?.factorDisPlayFlag === 1">
+    <BaoeBaofei
+      :v-model="mValues"
+      :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
+      @trial-change="handleBaoeBaofeiChange"
+    ></BaoeBaofei>
+    <ProductKeys
+      :v-model="mValues"
+      :origin-data="originData.productRiskInsureLimitVO"
+      :risk-info="originData"
+      @trial-change="handleProductKeysChange"
+    ></ProductKeys>
+    <RiskLiabilityInfo
+      :data-source-folmulate="mValues"
+      :data-source="originData"
+      :params="{
+        amountUnit: originData?.productRiskInsureLimitVO?.amountPremiumConfigVO.displayUnit,
+        basicsAmount: state.basicsAmount,
+        basicsPremium: state.basicsPremium,
+        riskId: originData?.riskId,
+      }"
+      @trial-change="handleRiskLiabilityChange"
+    />
+  </template>
 </template>
 
 <script lang="ts" setup>
@@ -79,7 +81,7 @@ const onTrail = (val) => {
 };
 
 onMounted(() => {
-  console.log('--------origin data = ', props.originData);
+  // console.log('--------origin data = ', props.originData);
 });
 
 const handleMixData = debounce(() => {
