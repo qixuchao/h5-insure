@@ -211,7 +211,11 @@ const handleSameMainRisk = (data: any) => {
     if (relation) {
       const mainRiskTrialData = state.riskVOList?.find((r) => r.riskId === relation.riskId);
       PRODUCT_KEYS_CONFIG.forEach((config) => {
-        if (config.ruleKey && risk.productRiskInsureLimitVO && risk.productRiskInsureLimitVO[config.ruleKey] === 1) {
+        if (
+          config.ruleKey &&
+          risk.productRiskInsureLimitVO &&
+          (risk.productRiskInsureLimitVO[config.ruleKey] === 1 || risk.productRiskInsureLimitVO[config.ruleKey] === 3)
+        ) {
           // 同主险，直接赋值当前key
           if (mainRiskTrialData) {
             data[config.valueKey] = mainRiskTrialData[config.valueKey];
