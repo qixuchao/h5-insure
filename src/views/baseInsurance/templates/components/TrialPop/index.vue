@@ -97,7 +97,6 @@ const props = defineProps({
     default: () => {},
   },
 });
-console.log('pop data source = ', props.dataSource);
 const state = reactive({
   loading: false,
   show: false,
@@ -376,7 +375,7 @@ watch(
 
   .container {
     padding: 0 30px;
-    overflow-y: scroll;
+    // overflow-y: auto;
     .empty {
       width: 100%;
       height: 180px;
