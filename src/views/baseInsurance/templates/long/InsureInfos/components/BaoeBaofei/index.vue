@@ -16,6 +16,7 @@
             :min="originData.minStepValue"
             :step="originData.stepValue"
             :max="originData.maxStepValue"
+            @blur="handleStepBlur"
           ></VanStepper>
         </div>
       </template>
@@ -65,7 +66,7 @@
             v-model="mValues.copy"
             input-width="80px"
             :default-value="originData.minCopiesValue"
-            :min="originData.minCopiesValue"
+            :min="originData.minCopiesValue || 1"
             :step="1"
             :max="originData.maxCopiesValue"
           ></VanStepper>
@@ -84,7 +85,7 @@
             v-model="mValues.copy"
             input-width="64px"
             :default-value="originData.minCopiesValue"
-            :min="originData.minCopiesValue"
+            :min="originData.minCopiesValue || 1"
             :step="1"
             :max="originData.maxCopiesValue"
           ></VanStepper>
@@ -109,8 +110,6 @@ const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as RiskAmountPremiumConfig),
   modelValue: () => ({} as RiskVoItem),
 });
-
-console.log('baoebaofei  = ', props.originData);
 const mConfigs = ref(props.originData);
 const mValues = ref(props.modelValue);
 const showTypes = ref(1);
@@ -137,6 +136,62 @@ const getMethodName = () => {
     key: 'amount',
   };
 };
+
+const methodName = computed(() => {
+  if (mConfigs.value.saleMethod === 2) {
+    return {
+      label: '保费',
+      key: 'premium',
+    };
+  }
+  return {
+    label: '保额',
+    key: 'amount',
+  };
+});
+
+const handleStepBlur = (...params) => {
+  if (showTypes.value === 1) {
+    const currentValue = mValues.value[methodName.value.key];
+    const minValue = props.originData.minStepValue;
+    const maxValue = props.originData.maxStepValue;
+    const step = props.originData.stepValue;
+    if (+currentValue >= +maxValue) {
+      mValues.value[methodName.value.key] = maxValue;
+    } else if (+currentValue <= +minValue) {
+      mValues.value[methodName.value.key] = minValue;
+    } else {
+      const sub = +currentValue - +minValue;
+      const gap = Math.floor(sub / +step);
+      if (sub % +step !== 0) {
+        mValues.value[methodName.value.key] = +minValue + gap * +step;
+      }
+    }
+  }
+  return true;
+};
+
+const checkStep = () => {
+  if (showTypes.value === 1) {
+    const currentValue = mValues.value[methodName.value.key];
+    const minValue = props.originData.minStepValue;
+    const maxValue = props.originData.maxStepValue;
+    const step = props.originData.stepValue;
+    if (+currentValue > +maxValue) {
+      return false;
+    }
+    if (+currentValue < +minValue) {
+      return false;
+    }
+    const sub = +currentValue - +minValue;
+    const gap = Math.floor(sub / +step);
+    if (sub % +step !== 0) {
+      return false;
+    }
+  }
+  return true;
+};
+
 const initData = () => {
   const { displayType, requireCopies } = mConfigs.value;
   const mKey = getMethodName().key;
@@ -164,19 +219,6 @@ const initData = () => {
     mValues.value.amount = mConfigs.value.copiesAmount;
   }
 };
-
-const methodName = computed(() => {
-  if (mConfigs.value.saleMethod === 2) {
-    return {
-      label: '保费',
-      key: 'premium',
-    };
-  }
-  return {
-    label: '保额',
-    key: 'amount',
-  };
-});
 
 const displayValues = computed(() => {
   // console.log(methodName);
@@ -218,9 +260,11 @@ watch(
 watch(
   () => mValues.value,
   (v) => {
-    emit('update:modelValue', v);
-    // console.log('----change', v);
-    emit('trialChange', v);
+    if (checkStep()) {
+      emit('update:modelValue', v);
+      // console.log('----change', v);
+      emit('trialChange', v);
+    }
   },
   {
     deep: true,
