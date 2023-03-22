@@ -97,7 +97,6 @@ const props = defineProps({
     default: () => {},
   },
 });
-console.log('pop data source = ', props.dataSource);
 const state = reactive({
   loading: false,
   show: false,
