@@ -8,7 +8,11 @@
           data-skeleton-type="img"
           :url="tenantProductDetail?.BASIC_INFO.banner[0]"
         />
-        <!-- <Video data-skeleton-type="img" :src="tenantProductDetail?.BASIC_INFO.video[0]" /> -->
+        <Video
+          v-if="tenantProductDetail?.BASIC_INFO?.video.length"
+          data-skeleton-type="img"
+          :src="tenantProductDetail?.BASIC_INFO.video[0]"
+        />
         <Banner
           v-if="tenantProductDetail?.BASIC_INFO?.bannerMove?.length"
           :url="tenantProductDetail?.BASIC_INFO?.bannerMove?.[0]"
@@ -23,7 +27,8 @@
         :plan-list="planList"
       />
       <div class="trial-text-btn" @click="showTrial">算一算保费</div>
-      <ScrollInfo ref="tenantProductDetailScrollRef" :data-source="tenantProductDetail"> </ScrollInfo>
+
+      <ScrollInfo ref="detailScrollRef" :data-source="tenantProductDetail"> </ScrollInfo>
       <ProLazyComponent>
         <InscribedContent
           v-if="tenantProductDetail.SIGNATURE?.inscribedContent"
@@ -40,8 +45,9 @@
       </ProLazyComponent>
     </template>
     <div v-else class="preview-placeholder">当前页面仅用于保费试算预览<br />不展示其他产品相关配置信息</div>
+
     <template v-if="showFooterBtn">
-      <span id="insureButton"></span>
+      <!-- <ProLazyComponent> -->
       <TrialPop
         ref="trialRef"
         :data-source="currentPlanObj"
@@ -54,7 +60,9 @@
         }"
         :tenant-product-detail="tenantProductDetail"
       ></TrialPop>
+      <!-- </ProLazyComponent> -->
     </template>
+    <div id="insureButton"></div>
   </div>
   <PreNotice v-if="preNoticeLoading && !trialPreviewMode" :product-detail="tenantProductDetail"></PreNotice>
   <div id="xinaoDialog"></div>
@@ -87,18 +95,16 @@ import { productDetail as getTenantProductDetail, queryProductMaterial, querySal
 import { INSURE_TYPE_ENUM } from '@/common/constants/infoCollection';
 
 import Banner from '../components/Banner/index.vue';
-import Video from '../components/Banner/Video.vue';
 import Guarantee from '../components/Guarantee/index.vue';
 import PreNotice from '../components/PreNotice/index.vue';
 import { YES_NO_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 
 import ScrollInfo from '../components/ScrollInfo/index.vue';
 
-import TrialButton from '../components/TrialButton.vue';
 import useAttachment from '@/hooks/useAttachment';
 import { getFileType } from '@/views/baseInsurance/utils';
-
-const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
+import TrialPop from '../components/TrialPop/index.vue';
+// const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const InscribedContent = defineAsyncComponent(() => import('../components/InscribedContent/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
@@ -149,7 +155,7 @@ const { openId } = extInfo;
 const formRef = ref();
 const detailScrollRef = ref();
 const observeRef = ref();
-const showFooterBtn = ref<boolean>(true); // test  defalut false
+const showFooterBtn = ref<boolean>(false); // test  defalut false
 
 const tenantProductDetail = ref<Partial<ProductSaleInfo>>({}); // 核心系统产品信息
 const insureProductDetail = ref<Partial<InsureProductData>>({}); // 产品中心产品信息
@@ -244,6 +250,7 @@ const initData = async () => {
 
   await getInsureProductDetail({ productCode, isTenant: !preview || !trialPreview }).then(({ data, code }) => {
     if (code === '10000') {
+      showFooterBtn.value = true;
       preNoticeLoading.value = true;
       insureProductDetail.value = data;
       currentPlanObj.value = data.productPlanInsureVOList?.[0];

@@ -126,8 +126,7 @@ const getInitliabilityVOList = (dataSource: any) => {
 const handleInsureInfoChange = (data: any, riskId: number) => {
   state.riskIsInsure[riskId].data = data;
   const list = [...state.disabledRiskInfo];
-  console.log('----disable = ', state.disabledRiskInfo);
-  props.dataSource.insureProductRiskVOList.forEach((risk) => {
+  props.dataSource.insureProductRiskVOList?.forEach((risk) => {
     if (risk.mainRiskFlag !== 1) {
       const riskData = state.riskIsInsure[risk.riskId];
       if (riskData.data && Object.keys(riskData.data).length > 0 && !riskData.isDisabled) {
@@ -142,11 +141,11 @@ const handleSetRiskSelect = () => {
   state.riskIsInsure = {};
   state.disabledRiskInfo = [];
   let mainRisk = null;
-  props.dataSource.insureProductRiskVOList.forEach((risk) => {
+  props.dataSource.insureProductRiskVOList?.forEach((risk) => {
     // 1是投保， 2是不投保
     const relation =
       risk.mainRiskFlag !== 1
-        ? props.dataSource.productRiskRelationVOList.find((r) => r.collocationRiskId === risk.riskId)
+        ? props.dataSource.productRiskRelationVOList?.find((r) => r.collocationRiskId === risk.riskId)
         : {};
     if (risk.mainRiskFlag === 1) {
       // 1可选，2绑定， 3互斥 {
@@ -158,15 +157,16 @@ const handleSetRiskSelect = () => {
   if (mainRisk) {
     // const initliabilityVOList = getInitliabilityVOList(props.dataSource.insureProductRiskVOList[0]);
     // console.log('initliabilityVOList---', initliabilityVOList);
-    const relationsFrom = props.dataSource.productRiskRelationVOList.filter((r) => r.riskId === mainRisk.riskId);
-    relationsFrom.forEach((r) => {
+    const relationsFrom = props.dataSource.productRiskRelationVOList?.filter((r) => r.riskId === mainRisk.riskId);
+    if (!relationsFrom) return;
+    relationsFrom?.forEach((r) => {
       // 1可选，2绑定， 3互斥 {
       if (r.collocationType === 2) {
         state.riskIsInsure[r.collocationRiskId].selected = '1'; // 标准险种默认选中，所以绑定险种也默认选中
         state.riskIsInsure[r.collocationRiskId].isMust = true;
-        const risk = props.dataSource.insureProductRiskVOList.find((rk) => r.collocationRiskId === rk.riskId);
+        const risk = props.dataSource.insureProductRiskVOList?.find((rk) => r.collocationRiskId === rk.riskId);
         if (risk && risk.factorDisPlayFlag !== 1 && risk?.productRiskInsureLimitVO?.amountPremiumConfigVO) {
-          const liabilityNoShow = risk.riskLiabilityInfoVOList.every((l) => l.showFlag !== 1);
+          const liabilityNoShow = risk.riskLiabilityInfoVOList?.every((l) => l.showFlag !== 1);
           const amountPremiumConfigVO = risk?.productRiskInsureLimitVO?.amountPremiumConfigVO;
           if (liabilityNoShow) {
             state.riskIsInsure[r.collocationRiskId].isDisabled = true;
@@ -262,8 +262,7 @@ const handleShowNoInfoShowRisk = (risk: any) => {
 };
 
 const handleSwitchClick = (selected: string, data: any) => {
-  console.log(state.riskIsInsure);
-  props.dataSource.productRiskRelationVOList.forEach((r) => {
+  props.dataSource.productRiskRelationVOList?.forEach((r) => {
     // 1可选 不管； 2绑定 跟选  3互斥 相反
     if (r.collocationType !== 1) {
       if (data.riskId === r.riskId) {
