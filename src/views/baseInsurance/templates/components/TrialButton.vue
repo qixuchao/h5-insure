@@ -95,7 +95,8 @@ watch(
     background: #ffffff;
     z-index: 10;
     justify-content: space-between;
-    border-radius: 30px 30px 0px 0px;
+    box-shadow: 0px -5px 15px 0px rgba(225, 228, 235, 0.5), inset 0px 1px 0px 0px #e1e4eb;
+    // border-radius: 30px 30px 0px 0px;
 
     .com-share {
       display: flex;
@@ -122,7 +123,7 @@ watch(
       }
     }
     .right {
-      width: 320px !important;
+      width: 270px;
       height: 88px !important;
       border-radius: 44px;
     }

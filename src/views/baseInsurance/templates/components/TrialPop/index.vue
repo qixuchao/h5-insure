@@ -346,14 +346,21 @@ watch(
   padding: 30px;
   text-align: right;
   background-color: #fff;
+  .van-button {
+    width: 270px;
+  }
 }
 .com-body {
   height: 100%;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  border-radius: 40px 40px 0 0;
   .header {
     padding: 0 30px;
     display: flex;
     justify-content: space-between;
-    border: none;
+    border-radius: 20px 20px 0 0;
     height: 110px;
     font-size: 36px;
     font-family: PingFangSC-Medium, PingFang SC;
@@ -377,6 +384,7 @@ watch(
   .container {
     padding: 0 30px;
     overflow-y: scroll;
+    flex: 1;
     .empty {
       width: 100%;
       height: 180px;
