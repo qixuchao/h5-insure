@@ -149,7 +149,7 @@ const { openId } = extInfo;
 const formRef = ref();
 const detailScrollRef = ref();
 const observeRef = ref();
-const showFooterBtn = ref<boolean>(false); // test  defalut false
+const showFooterBtn = ref<boolean>(true); // test  defalut false
 
 const tenantProductDetail = ref<Partial<ProductSaleInfo>>({}); // 核心系统产品信息
 const insureProductDetail = ref<Partial<InsureProductData>>({}); // 产品中心产品信息
@@ -408,7 +408,7 @@ onMounted(() => {
     background: #ffffff;
     z-index: 10;
     justify-content: space-between;
-    border-radius: 30px 30px 0px 0px;
+    // border-radius: 30px 30px 0px 0px;
 
     :deep(.com-share) {
       width: 77px;
