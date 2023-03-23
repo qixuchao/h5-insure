@@ -106,9 +106,10 @@ const validate = () => {
 };
 
 const listObject = (personInfo: any) => {
+  const keyWords = ['insureArea', 'residence', 'longArea', 'workAddress'];
   const newInfo = {};
   Object.keys(personInfo).forEach((key) => {
-    if (key.indexOf('Address') >= 0 && personInfo[key] instanceof Object) {
+    if (keyWords.indexOf(key) >= 0 && personInfo[key] instanceof Object) {
       // 平铺
       Object.keys(personInfo[key]).forEach((ckey) => {
         newInfo[ckey] = personInfo[key][ckey];
