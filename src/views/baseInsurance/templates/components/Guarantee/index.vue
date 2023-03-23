@@ -12,9 +12,7 @@
         <div
           v-for="(item, index) in planList"
           :key="`${item.planCode}_${index}`"
-          :class="`plan-list-item ${item.planCode === currentActivePlanCode ? 'plan-list-item-active' : ''} ${
-            planList.length === 2 ? 'paln-list-item-half' : ''
-          }`"
+          :class="`plan-list-item ${item.planCode === currentActivePlanCode ? 'plan-list-item-active' : ''}`"
           @click="onPlanItemClickEmit(item.planCode)"
         >
           <span>{{ item.planName }}</span>
