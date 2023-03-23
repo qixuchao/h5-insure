@@ -125,7 +125,7 @@ const props = defineProps({
 });
 
 const guaranteeDetailHeight = ref('');
-const emits = defineEmits(['update-active-plan']);
+const emits = defineEmits(['updateActivePlan']);
 
 const currentActivePlanCode = ref<string>(props.planList?.[0]?.planCode || undefined);
 
@@ -205,6 +205,7 @@ const onPlanItemClickEmit = (val: string) => {
   // activePlanCode.value = val;
   currentActivePlanCode.value = val;
   currentActivePlanCodeIndex.value = props.planList.findIndex((e) => e.planCode === val);
+  emits('updateActivePlan', val);
   // emits('update-active-plan', val);
 };
 

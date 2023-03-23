@@ -25,6 +25,7 @@
         show-service-config
         :data-source="tenantProductDetail"
         :plan-list="planList"
+        @update-active-plan="handlePlanChange"
       />
       <div class="trial-text-btn" @click="showTrial">算一算保费</div>
 
@@ -298,6 +299,12 @@ const onNext = async () => {
   } catch (e) {
     //
   }
+};
+
+const handlePlanChange = (planCode: string) => {
+  currentPlanObj.value = (insureProductDetail.value.productPlanInsureVOList || []).find(
+    (plan) => plan.planCode === planCode,
+  );
 };
 
 // 文件阅读完毕

@@ -70,6 +70,7 @@ import { RISK_TYPE, RISK_TYPE_ENUM } from '@/common/constants/trial';
 import { benefitCalc, premiumCalc } from '@/api/modules/trial';
 import { SUCCESS_CODE } from '@/api/code';
 import { PRODUCT_KEYS_CONFIG } from '../../long/InsureInfos/components/ProductKeys/config';
+import { dealExemptPeriod } from './utils';
 
 const RISK_SELECT = [
   { value: 1, label: '投保' },
@@ -211,14 +212,15 @@ const handleSameMainRisk = (data: any) => {
     if (relation) {
       const mainRiskTrialData = state.riskVOList?.find((r) => r.riskId === relation.riskId);
       PRODUCT_KEYS_CONFIG.forEach((config) => {
-        if (
-          config.ruleKey &&
-          risk.productRiskInsureLimitVO &&
-          (risk.productRiskInsureLimitVO[config.ruleKey] === 1 || risk.productRiskInsureLimitVO[config.ruleKey] === 3)
-        ) {
+        if (config.ruleKey && risk.productRiskInsureLimitVO) {
           // 同主险，直接赋值当前key
           if (mainRiskTrialData) {
-            data[config.valueKey] = mainRiskTrialData[config.valueKey];
+            if (risk.productRiskInsureLimitVO[config.ruleKey] === 1)
+              data[config.valueKey] = mainRiskTrialData[config.valueKey];
+            if (risk.productRiskInsureLimitVO[config.ruleKey] === 3) {
+              // -1
+              data[config.valueKey] = dealExemptPeriod(risk, mainRiskTrialData[config.valueKey], state.submitData);
+            }
           }
         }
       });

@@ -88,11 +88,22 @@
         </div>
       </template>
     </VanField>
+    <VanField :label="methodName.label" name="copyAmount" class="risk-select-field">
+      <template #input>
+        <div class="custom-field">
+          <span v-if="originData.minCopiesValue !== originData.maxCopiesValue">
+            {{ +originData.copiesAmount * +mValues.copy + getUnitString() }}
+          </span>
+          <span v-else>{{ +originData.minCopiesValue * +originData.copiesAmount + getUnitString() }}</span>
+        </div>
+      </template>
+    </VanField>
   </div>
 </template>
 <script lang="ts" setup>
 import { ref, watch, withDefaults } from 'vue';
 import { RiskVoItem, RiskAmountPremiumConfig } from '@/api/modules/trial.data';
+import { PREMIUM_UNIT_TYPE_ENUM } from '@/common/constants/infoCollection';
 
 // 参看CollapseItem组件
 interface Props {
@@ -130,6 +141,26 @@ const getMethodName = () => {
     label: '保额',
     key: 'amount',
   };
+};
+
+const getUnitString = () => {
+  switch (`${mConfigs.value.displayUnit}`) {
+    case PREMIUM_UNIT_TYPE_ENUM.YUAN: {
+      return '元';
+    }
+    case PREMIUM_UNIT_TYPE_ENUM.MONTH_SALARY: {
+      return '倍月薪';
+    }
+    case PREMIUM_UNIT_TYPE_ENUM.MILLION: {
+      return '万元';
+    }
+    case PREMIUM_UNIT_TYPE_ENUM.COPY: {
+      return '份';
+    }
+    default:
+      break;
+  }
+  return '';
 };
 
 const methodName = computed(() => {
@@ -225,7 +256,7 @@ const displayValues = computed(() => {
     }
     return mConfigs.value.displayValues.map((v) => {
       return {
-        label: v.value,
+        label: v.value + getUnitString(),
         value: v.code,
       };
     });
@@ -291,5 +322,7 @@ watch(
 
 :deep(.risk-select-field) {
   align-items: baseline !important;
+  span {
+  }
 }
 </style>
