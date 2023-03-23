@@ -448,10 +448,6 @@ const setGuaranteeListHeight = () => {
       color: $primary-color;
     }
   }
-
-  .paln-list-item-half {
-    min-width: 325px !important;
-  }
 }
 .guarantee-popup {
   .header {
