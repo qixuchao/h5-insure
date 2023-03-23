@@ -10,7 +10,12 @@
               !(item.attributeFlag === 2 && item?.liabilityAttributeValueList.length === 1 && item.insureFlag === 2)
             "
           >
-            <ProField :label="`${item.liabilityName}`" label-width="40%" name="insuredRelation">
+            <ProField
+              :label="`${item.liabilityName}`"
+              label-width="40%"
+              name="insuredRelation"
+              class="riskliab-select-field"
+            >
               <!-- insureFlag投保/不投保标志位 1.展示 2.不展示 -->
               <template #input>
                 <van-switch
@@ -32,6 +37,7 @@
               :label="item.liabilityAttributeTypeDesc"
               label-width="40%"
               name="insuredRelation"
+              class="riskliab-select-field-children"
             >
               <!-- insureFlag投保/不投保标志位 1.展示 2.不展示  formula不为空，请求公式计算结果-->
               <template #input>
@@ -250,4 +256,31 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.com-risk-liabilityinfo {
+  :deep(.riskliab-select-field) {
+    display: inline-flex;
+    padding: 0;
+    align-items: center;
+    min-height: 106px;
+    .van-cell__title {
+      color: #333333;
+    }
+    :deep(.van-field__label) {
+      color: #666666;
+    }
+    &::after {
+      display: none;
+    }
+  }
+  :deep(.riskliab-select-field-children) {
+    background: rgba(246, 246, 246, 0.2);
+    border-radius: 8px;
+    border: 1px solid #eeeeee;
+    padding: 18px 30px;
+    padding-left: 30px !important;
+    padding-right: 30px !important;
+    margin-bottom: 20px;
+  }
+}
+</style>
