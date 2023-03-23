@@ -318,6 +318,20 @@ const onClosePopupAfterAni = () => {
   state.isAniShow = false;
 };
 
+const handleRestState = () => {
+  console.log('---reset');
+  state.select = {};
+  state.list = [];
+  state.userData = {} as RiskVoItem;
+  state.riskIsInsure = {};
+  state.submitData = {} as PremiumCalcData;
+  state.riskVOList = [{}] as Array<Partial<RiskVoItem>>;
+  state.mainRiskVO = {} as Partial<RiskVoItem>;
+  state.ifPersonalInfoSuccess = false;
+  state.trialMsg = '';
+  state.trialResult = 0;
+};
+
 onBeforeMount(() => {
   handleSetRiskSelect();
 });
@@ -330,6 +344,7 @@ watch(
   (v) => {
     if (v) {
       // 每个附加险的投保不投保状态重置
+      handleRestState();
       handleSetRiskSelect();
     }
   },
