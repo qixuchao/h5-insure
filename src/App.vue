@@ -73,6 +73,9 @@ onMounted(() => {
 });
 </script>
 <style lang="scss">
+body {
+  touch-action: manipulation;
+}
 .router-view {
   width: 100%;
   height: 100vh;

@@ -195,21 +195,27 @@ const handleSetRiskSelect = () => {
   state.riskIsInsure = {};
   props?.dataSource?.insureProductRiskVOList?.forEach((risk) => {
     // 1是投保， 2是不投保
-    const relation = props.dataSource.productRiskRelationVOList.find((r) => r.collocationRiskId === risk.riskId);
+    const relation = props.dataSource.productRiskRelationVOList?.find((r) => r.collocationRiskId === risk.riskId);
+    // 数据不太正确时避免报错
+    if (!relation) return;
     state.riskIsInsure[risk.riskCode] = { selected: '2', data: null, relation };
   });
 };
 
 const handleSameMainRisk = (data: any) => {
   // 处理同主险逻辑
-  const risk = props.dataSource.insureProductRiskVOList.find((r) => data.riskId === r.riskId);
+  const risk = props.dataSource.insureProductRiskVOList?.find((r) => data.riskId === r.riskId);
   if (risk && risk.mainRiskFlag !== 1) {
     // 只处理非标准险种 根据关联关系找到他关联的主险
     const relation = props.dataSource?.productRiskRelationVOList?.find((r) => r.collocationRiskId === risk.riskId);
     if (relation) {
-      const mainRiskTrialData = state.riskVOList.find((r) => r.riskId === relation.riskId);
+      const mainRiskTrialData = state.riskVOList?.find((r) => r.riskId === relation.riskId);
       PRODUCT_KEYS_CONFIG.forEach((config) => {
-        if (config.ruleKey && risk.productRiskInsureLimitVO && risk.productRiskInsureLimitVO[config.ruleKey] === 1) {
+        if (
+          config.ruleKey &&
+          risk.productRiskInsureLimitVO &&
+          (risk.productRiskInsureLimitVO[config.ruleKey] === 1 || risk.productRiskInsureLimitVO[config.ruleKey] === 3)
+        ) {
           // 同主险，直接赋值当前key
           if (mainRiskTrialData) {
             data[config.valueKey] = mainRiskTrialData[config.valueKey];

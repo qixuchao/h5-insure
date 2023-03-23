@@ -66,12 +66,14 @@ watch(
 
       if (!premium) {
         premiumUnit.value = unit;
+        productPremium.value = '';
       } else {
         premiumUnit.value = minActualUnit;
         productPremium.value = premium && `${premium}`;
       }
     } else {
       if (premium) {
+        premiumUnit.value = '';
         productPremium.value = premium && `${premium}`;
       }
     }

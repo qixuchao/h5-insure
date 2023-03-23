@@ -82,7 +82,6 @@ const props = defineProps({
     default: () => true,
   },
 });
-console.log('pop data source = ', props.dataSource);
 const state = reactive({
   loading: false,
   show: true,
@@ -123,15 +122,30 @@ const getInitliabilityVOList = (dataSource: any) => {
   });
   return liabilityList;
 };
+
+const handleInsureInfoChange = (data: any, riskId: number) => {
+  state.riskIsInsure[riskId].data = data;
+  const list = [...state.disabledRiskInfo];
+  props.dataSource.insureProductRiskVOList?.forEach((risk) => {
+    if (risk.mainRiskFlag !== 1) {
+      const riskData = state.riskIsInsure[risk.riskId];
+      if (riskData.data && Object.keys(riskData.data).length > 0 && !riskData.isDisabled) {
+        list.push(riskData.data);
+      }
+    }
+  });
+  emit('trialChange', list);
+};
+
 const handleSetRiskSelect = () => {
   state.riskIsInsure = {};
   state.disabledRiskInfo = [];
   let mainRisk = null;
-  props.dataSource.insureProductRiskVOList.forEach((risk) => {
+  props.dataSource.insureProductRiskVOList?.forEach((risk) => {
     // 1是投保， 2是不投保
     const relation =
       risk.mainRiskFlag !== 1
-        ? props.dataSource.productRiskRelationVOList.find((r) => r.collocationRiskId === risk.riskId)
+        ? props.dataSource.productRiskRelationVOList?.find((r) => r.collocationRiskId === risk.riskId)
         : {};
     if (risk.mainRiskFlag === 1) {
       // 1可选，2绑定， 3互斥 {
@@ -143,15 +157,17 @@ const handleSetRiskSelect = () => {
   if (mainRisk) {
     // const initliabilityVOList = getInitliabilityVOList(props.dataSource.insureProductRiskVOList[0]);
     // console.log('initliabilityVOList---', initliabilityVOList);
-    const relationsFrom = props.dataSource.productRiskRelationVOList.filter((r) => r.riskId === mainRisk.riskId);
-    relationsFrom.forEach((r) => {
+    const relationsFrom = props.dataSource.productRiskRelationVOList?.filter((r) => r.riskId === mainRisk.riskId);
+    if (!relationsFrom) return;
+    relationsFrom?.forEach((r) => {
       // 1可选，2绑定， 3互斥 {
       if (r.collocationType === 2) {
         state.riskIsInsure[r.collocationRiskId].selected = '1'; // 标准险种默认选中，所以绑定险种也默认选中
         state.riskIsInsure[r.collocationRiskId].isMust = true;
-        const risk = props.dataSource.insureProductRiskVOList.find((rk) => r.collocationRiskId === rk.riskId);
-        if (risk && risk.factorDisPlayFlag !== 1) {
-          const liabilityNoShow = risk.riskLiabilityInfoVOList.every((l) => l.showFlag !== 1);
+        const risk = props.dataSource.insureProductRiskVOList?.find((rk) => r.collocationRiskId === rk.riskId);
+        if (risk && risk.factorDisPlayFlag !== 1 && risk?.productRiskInsureLimitVO?.amountPremiumConfigVO) {
+          const liabilityNoShow = risk.riskLiabilityInfoVOList?.every((l) => l.showFlag !== 1);
+          const amountPremiumConfigVO = risk?.productRiskInsureLimitVO?.amountPremiumConfigVO;
           if (liabilityNoShow) {
             state.riskIsInsure[r.collocationRiskId].isDisabled = true;
             // todo 处理当前risk的riskvo
@@ -165,33 +181,33 @@ const handleSetRiskSelect = () => {
               mainRiskCode: risk.mainRiskCode,
               liabilityVOList: getInitliabilityVOList(risk),
             };
-            data.chargePeriod = risk?.paymentPeriodValueList?.length > 0 && risk?.paymentPeriodValueList[0].code;
-            data.coveragePeriod = risk?.insurancePeriodValueList?.length > 0 && risk?.insurancePeriodValueList[0].code;
-            data.paymentFrequency = risk?.paymentFrequencyList?.length > 0 && risk?.paymentFrequencyList[0].code;
+            data.chargePeriod =
+              (risk?.paymentPeriodValueList?.length > 0 && risk?.paymentPeriodValueList[0].code) || null;
+            data.coveragePeriod =
+              (risk?.insurancePeriodValueList?.length > 0 && risk?.insurancePeriodValueList[0].code) || null;
+            data.paymentFrequency =
+              (risk?.paymentFrequencyList?.length > 0 && risk?.paymentFrequencyList[0].code) || null;
             let count = 0;
-            if (risk.amountPremiumConfigVO.displayType === 1) {
+            if (amountPremiumConfigVO.displayType === 1) {
               // amount
-              count = risk?.amountPremiumConfigVO?.minStepValue > 0 ? risk?.amountPremiumConfigVO?.minStepValue : 0;
-            } else if (risk.amountPremiumConfigVO.displayType === 3 && risk.amountPremiumConfigVO.requireCopies === 2) {
+              count = amountPremiumConfigVO?.minStepValue > 0 ? amountPremiumConfigVO?.minStepValue : 0;
+            } else if (amountPremiumConfigVO.displayType === 3 && amountPremiumConfigVO.requireCopies === 2) {
               // amount
               count =
-                risk?.amountPremiumConfigVO?.displayValues?.length > 0
-                  ? risk?.amountPremiumConfigVO?.displayValues[0].value
-                  : 0;
-            } else if (risk.amountPremiumConfigVO.displayType === 3 && risk.amountPremiumConfigVO.requireCopies === 1) {
+                amountPremiumConfigVO?.displayValues?.length > 0 ? amountPremiumConfigVO?.displayValues[0].value : 0;
+            } else if (amountPremiumConfigVO.displayType === 3 && amountPremiumConfigVO.requireCopies === 1) {
               // amout copy
               count =
-                risk?.amountPremiumConfigVO?.displayValues?.length > 0
-                  ? risk?.amountPremiumConfigVO?.displayValues[0].value
-                  : 0;
-              data.copy = risk.amountPremiumConfigVO.minCopiesValue;
-            } else if (risk.amountPremiumConfigVO.displayType === 2) {
+                amountPremiumConfigVO?.displayValues?.length > 0 ? amountPremiumConfigVO?.displayValues[0].value : 0;
+              data.copy = amountPremiumConfigVO.minCopiesValue;
+            } else if (amountPremiumConfigVO.displayType === 2) {
               // copy
-              data.copy = risk.amountPremiumConfigVO.minCopiesValue;
+              data.copy = amountPremiumConfigVO.minCopiesValue;
             }
-            if (risk.amountPremiumConfigVO.saleMethod === 1) data.amount = count;
+            if (amountPremiumConfigVO.saleMethod === 1) data.amount = count;
             else data.premium = count;
             state.disabledRiskInfo.push(data);
+            handleInsureInfoChange(data, risk.riskId);
           }
         }
       }
@@ -203,22 +219,50 @@ const handleSetRiskSelect = () => {
   }
 };
 
-const handleInsureInfoChange = (data: any, riskId: number) => {
-  state.riskIsInsure[riskId].data = data;
-  const list = [...state.disabledRiskInfo];
-  props.dataSource.insureProductRiskVOList.forEach((risk) => {
-    if (risk.mainRiskFlag !== 1) {
-      const riskData = state.riskIsInsure[risk.riskId];
-      if (riskData.data && Object.keys(riskData.data).length > 0 && !riskData.isDisabled) {
-        list.push(riskData.data);
-      }
+const handleShowNoInfoShowRisk = (risk: any) => {
+  if (risk?.factorDisPlayFlag !== 1) {
+    // 不展示要素
+    const amountPremiumConfigVO = risk?.productRiskInsureLimitVO?.amountPremiumConfigVO;
+    // todo 处理当前risk的riskvo
+    const data = {
+      riskCategory: risk.riskCategory,
+      riskCode: risk.riskCode,
+      riskName: risk.riskName,
+      riskId: risk.riskId,
+      riskType: risk.riskType,
+      mainRiskId: risk.mainRiskId,
+      mainRiskCode: risk.mainRiskCode,
+      liabilityVOList: getInitliabilityVOList(risk),
+    };
+    data.chargePeriod = (risk?.paymentPeriodValueList?.length > 0 && risk?.paymentPeriodValueList[0].code) || null;
+    data.coveragePeriod =
+      (risk?.insurancePeriodValueList?.length > 0 && risk?.insurancePeriodValueList[0].code) || null;
+    data.paymentFrequency = (risk?.paymentFrequencyList?.length > 0 && risk?.paymentFrequencyList[0].code) || null;
+    let count = 0;
+    if (amountPremiumConfigVO.displayType === 1) {
+      // amount
+      count = amountPremiumConfigVO?.minStepValue > 0 ? amountPremiumConfigVO?.minStepValue : 0;
+    } else if (amountPremiumConfigVO.displayType === 3 && amountPremiumConfigVO.requireCopies === 2) {
+      // amount
+      count = amountPremiumConfigVO?.displayValues?.length > 0 ? amountPremiumConfigVO?.displayValues[0].value : 0;
+    } else if (amountPremiumConfigVO.displayType === 3 && amountPremiumConfigVO.requireCopies === 1) {
+      // amout copy
+      count = amountPremiumConfigVO?.displayValues?.length > 0 ? amountPremiumConfigVO?.displayValues[0].value : 0;
+      data.copy = amountPremiumConfigVO.minCopiesValue;
+    } else if (amountPremiumConfigVO.displayType === 2) {
+      // copy
+      data.copy = amountPremiumConfigVO.minCopiesValue;
+    } else {
+      count = 0;
     }
-  });
-  emit('trialChange', list);
+    if (amountPremiumConfigVO.saleMethod === 1) data.amount = count;
+    else data.premium = count;
+    handleInsureInfoChange(data, risk.riskId);
+  }
 };
 
 const handleSwitchClick = (selected: string, data: any) => {
-  props.dataSource.productRiskRelationVOList.forEach((r) => {
+  props.dataSource.productRiskRelationVOList?.forEach((r) => {
     // 1可选 不管； 2绑定 跟选  3互斥 相反
     if (r.collocationType !== 1) {
       if (data.riskId === r.riskId) {
@@ -244,8 +288,9 @@ const handleSwitchClick = (selected: string, data: any) => {
   });
   if (selected === '2') {
     handleInsureInfoChange({}, data.riskId);
+  } else {
+    handleShowNoInfoShowRisk(data);
   }
-  console.log(state.riskIsInsure);
 };
 
 onBeforeMount(() => {
