@@ -53,22 +53,24 @@
         </div>
       </template>
     </ProField>
-    <VanField v-model="mValues.copy" label="份数" name="copy" class="risk-select-field">
-      <template #input>
-        <div class="custom-field">
-          <VanStepper
-            v-if="originData.minCopiesValue !== originData.maxCopiesValue"
-            v-model="mValues.copy"
-            input-width="80px"
-            :default-value="originData.minCopiesValue"
-            :min="originData.minCopiesValue || 1"
-            :step="1"
-            :max="originData.maxCopiesValue"
-          ></VanStepper>
-          <span v-else>{{ originData.minCopiesValue }}</span>
-        </div>
-      </template>
-    </VanField>
+    <div>
+      <VanField v-model="mValues.copy" label="份数" name="copy" class="risk-select-field">
+        <template #input>
+          <div class="custom-field">
+            <VanStepper
+              v-if="originData.minCopiesValue !== originData.maxCopiesValue"
+              v-model="mValues.copy"
+              input-width="80px"
+              :default-value="originData.minCopiesValue"
+              :min="originData.minCopiesValue || 1"
+              :step="1"
+              :max="originData.maxCopiesValue"
+            ></VanStepper>
+            <span v-else>{{ originData.minCopiesValue }}</span>
+          </div>
+        </template>
+      </VanField>
+    </div>
   </div>
   <div v-else-if="showTypes === 4">
     <!-- 份数 -->
@@ -256,7 +258,7 @@ const displayValues = computed(() => {
     }
     return mConfigs.value.displayValues.map((v) => {
       return {
-        label: v.value + getUnitString(),
+        label: v.value,
         value: v.code,
       };
     });
@@ -323,6 +325,11 @@ watch(
 :deep(.risk-select-field) {
   align-items: baseline !important;
   span {
+  }
+}
+:deep(.van-cell) {
+  &::after {
+    border: 0;
   }
 }
 </style>
