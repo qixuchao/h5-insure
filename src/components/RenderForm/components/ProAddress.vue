@@ -12,7 +12,7 @@
     v-if="addressConfig.showDetail"
     v-model="state.address.detail"
     :label="`${$attrs.label}详细地址`"
-    :required="$attrs.required as boolean"
+    :required="$attrs.required"
     :maxlength="50"
   />
 </template>
@@ -89,7 +89,7 @@ const addressConfig = computed(() => {
       if (Number(item.code) > level && String(item.code) !== '4') {
         level = Number(item.code);
       }
-      if (String(item.code) !== '4') {
+      if (String(item.code) === '4') {
         showDetail = true;
       }
     });
