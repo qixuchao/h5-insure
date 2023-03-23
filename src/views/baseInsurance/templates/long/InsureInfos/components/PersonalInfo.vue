@@ -105,6 +105,22 @@ const validate = () => {
   return Promise.all([holderInfoRef.value?.validate(), ...insuredRefs]);
 };
 
+const listObject = (personInfo: any) => {
+  const keyWords = ['insureArea', 'residence', 'longArea', 'workAddress'];
+  const newInfo = {};
+  Object.keys(personInfo).forEach((key) => {
+    if (keyWords.indexOf(key) >= 0 && personInfo[key] instanceof Object) {
+      // 平铺
+      Object.keys(personInfo[key]).forEach((ckey) => {
+        newInfo[ckey] = personInfo[key][ckey];
+      });
+    } else {
+      newInfo[key] = personInfo[key];
+    }
+  });
+  return newInfo;
+};
+
 watch(
   () => props.productFactor,
   () => {
@@ -122,9 +138,12 @@ watch(
   [() => state.holder.personVO, () => state.insured.insuredVOList],
   () => {
     const result = {
-      holder: state.holder.personVO,
-      insuredVOList: state.insured.insuredVOList,
+      holder: listObject(state.holder.personVO),
+      insuredVOList: state.insured.insuredVOList.map((insured) => {
+        return { ...insured, personVO: listObject(insured.personVO) };
+      }),
     };
+
     emit('update:modelValue', result);
     // 验证通过调用试算
     if (!validateFields()) {

@@ -313,17 +313,34 @@ export const RELATED_RULE_TYPE_MAP = {
   },
 };
 
+// 地区配置
 export const ADDRESS_CONF = [
-  /** 投保地区 */
-  'insureArea',
-  /** 户籍所在地 */
-  'residence',
-  /** 长期居住地 */
-  'longArea',
-  /** 工作所在地 */
-  'workAddress',
-].reduce((res, key) => {
-  res[key] = RULE_CONFIG_MAP.ADDRESS;
+  {
+    /** 投保地区 */
+    key: 'insureArea',
+    /** 前缀  */
+    valuePrefix: 'insure',
+  },
+  {
+    /** 户籍所在地 */
+    key: 'residence',
+    valuePrefix: '',
+  },
+  {
+    /** 长期居住地 */
+    key: 'longArea',
+    valuePrefix: '',
+  },
+  {
+    /** 工作所在地 */
+    key: 'workAddress',
+    valuePrefix: 'work',
+  },
+].reduce((res, { key, valuePrefix }) => {
+  res[key] = {
+    valuePrefix,
+    ...RULE_CONFIG_MAP.ADDRESS,
+  };
   return res;
 }, {});
 
