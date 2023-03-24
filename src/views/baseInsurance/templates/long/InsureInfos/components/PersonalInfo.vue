@@ -23,7 +23,7 @@
 import { withDefaults } from 'vue';
 import { useRoute } from 'vue-router';
 import { isNil } from 'lodash';
-import { ProRenderFormWithCard, combineOccupation, transformFactorToSchema } from '@/components/RenderForm';
+import { ProRenderFormWithCard, transformFactorToSchema } from '@/components/RenderForm';
 import { ProductFactor } from '@/api/modules/trial.data';
 import { isNotEmptyArray } from '@/common/constants/utils';
 
@@ -49,22 +49,12 @@ const state = reactive({
     personVO: {},
     schema: [],
     trialFactorCodes: [],
-    config: {
-      // 职业
-      occupation: {
-        dictCode: combineOccupation(insurerCode as string),
-      },
-    },
+    config: {},
   },
   insured: {
     schema: [],
     trialFactorCodes: [],
-    config: {
-      // 职业
-      occupation: {
-        dictCode: combineOccupation(insurerCode as string),
-      },
-    },
+    config: {},
     insuredVOList: [
       {
         personVO: {},
@@ -195,13 +185,13 @@ watch(
       const isSelf = personVO.relationToHolder === '1';
       const isChild = personVO.relationToHolder === '3';
 
-      state.insured.config = {
-        ...config,
-        certNo: {
-          ...config.certNo,
-          label: `${label}${isChild ? '(户口簿)' : ''}`,
-        },
-      };
+      // state.insured.config = {
+      //   ...config,
+      //   certNo: {
+      //     ...config.certNo,
+      //     label: `${label}${isChild ? '(户口簿)' : ''}`,
+      //   },
+      // };
 
       schema.forEach((schemaItem) => {
         schemaItem.relationToHolder = personVO.relationToHolder;

@@ -1,19 +1,10 @@
 import { nanoid } from 'nanoid';
 import merge from 'lodash-es/merge';
-import { type FieldProps } from 'vant';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { SEX_LIMIT_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import { COMPONENT_MAPPING_LIST, GLOBAL_CONFIG_MAP, MODULE_TYPE_MAP } from './constants';
 import { validateIdCardNo } from './validate';
 import { Column, ComponentProps, FieldConfItem, ProductFactor } from '../index.data';
-
-/**
- * 合并职业  dictCode
- * @param [string] insurerCode
- * @returns `${insurerCode.toUpperCase()}_OCCUPATION`
- */
-export const combineOccupation = (insurerCode: string) =>
-  `${insurerCode ? `${insurerCode.toUpperCase()}_` : ''}OCCUPATION`;
 
 // van-filed Props
 const FIELD_PROPS = [

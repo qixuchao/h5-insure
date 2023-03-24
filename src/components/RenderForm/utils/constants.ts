@@ -3,6 +3,20 @@ import dayjs from 'dayjs';
 import type { VanFormProvied } from '../index.data';
 import { DictNameEnum, CERT_TYPE_ENUM } from '@/common/constants';
 
+/**
+ * 获取保司 code, 通用处理，此处无法使用 useRoute
+ * @returns
+ */
+const getInsurerCodeFormUrl = () => (window.location.search.match(/&insurerCode=([^&]*)&/) || [])[1] || '';
+
+/**
+ * 合并职业  dictCode
+ * @param [string] insurerCode
+ * @returns `${insurerCode.toUpperCase()}_OCCUPATION`
+ */
+export const combineOccupation = (insurerCode: string) =>
+  `${insurerCode ? `${insurerCode.toUpperCase()}_` : ''}OCCUPATION`;
+
 /** 组件枚举 */
 export const COMPONENT_ENUM = {
   /** 1:单行文本/2:多行文本/3:数字输入框 */
@@ -29,54 +43,56 @@ export const COMPONENT_ENUM = {
   ProStepperV2: 'ProStepperV2',
   /** 验证码 */
   ProSMSCode: 'ProSMSCode',
+  /** 职业信息 */
+  ProOccupation: 'ProOccupation',
 };
 
 // 输入框最大长度
 export const INPUT_MAX_LENGTH = {
   /**
+   * 默认长度 25
+   */
+  DEFAULT: 25,
+  /**
    * 年龄长度 3
    */
-  AGE: 3,
+  THREE: 3,
   /**
    * 身高/体重 最多一位小数 长度 5
    */
-  HEIGHT_WEIGHT: 5,
+  FIVE: 5,
   /**
-   * 验证码长度 6
+   * 验证码/邮编 长度 6
    */
-  SMS_CODE: 6,
-  /**
-   * 邮编长度 6
-   */
-  ZIP_CODE: 6,
+  SIX: 6,
   /**
    * 出生证长度 10
    */
-  BIRTH_CERT: 10,
+  TEN: 10,
   /**
    * 手机号长度 11
    */
-  MOBILE: 11,
+  ELEVEN: 11,
   /**
    * 证件号长度 18
    */
-  CERT: 18,
+  EIGHTEEN: 18,
   /**
    * 燃气户号长度 20
    */
-  GAS_NUMBER: 20,
+  TWENTY: 20,
   /**
    * 姓名长度 25
    */
-  NAME: 25,
+  TWENTY_FIVE: 25,
   /**
    * 详细地址长度/单位名称 50
    */
-  ADDRESS_DETAIL: 50,
+  FIFTY: 50,
   /**
    * 内容长度 200
    */
-  CONTENT: 200,
+  TWO_HUNDRED: 200,
 };
 
 /** ruleType 枚举 */
@@ -137,8 +153,11 @@ export const RULE_TYPE_ENUM = {
 
 /** 规则配置 */
 export const RULE_CONFIG_MAP = {
+  /**
+   * 姓名 长度最大 25
+   */
   NAME: {
-    maxlength: INPUT_MAX_LENGTH.NAME,
+    maxlength: INPUT_MAX_LENGTH.TWENTY_FIVE,
     ruleType: RULE_TYPE_ENUM.NAME,
   },
   /**
@@ -147,14 +166,14 @@ export const RULE_CONFIG_MAP = {
   MOBILE: {
     type: 'digit',
     ruleType: RULE_TYPE_ENUM.MOBILE,
-    maxlength: INPUT_MAX_LENGTH.MOBILE,
+    maxlength: INPUT_MAX_LENGTH.ELEVEN,
   },
   /**
    * 年龄 最多三位数字，不支持小数
    */
   AGE: {
     type: 'digit',
-    maxlength: INPUT_MAX_LENGTH.AGE,
+    maxlength: INPUT_MAX_LENGTH.THREE,
   },
   /**
    * 身高/体重 允许一位小数
@@ -162,7 +181,7 @@ export const RULE_CONFIG_MAP = {
   HEIGHT_WEIGHT: {
     type: 'number',
     precision: 1,
-    maxlength: INPUT_MAX_LENGTH.HEIGHT_WEIGHT,
+    maxlength: INPUT_MAX_LENGTH.FIVE,
   },
   /**
    * 收入 允许2位小数，无小数位默认补全【.00】 单位: 万元
@@ -179,19 +198,19 @@ export const RULE_CONFIG_MAP = {
   ZIP_CODE: {
     type: 'digit',
     ruleType: RULE_TYPE_ENUM.ZIP_CODE,
-    maxlength: INPUT_MAX_LENGTH.ZIP_CODE,
+    maxlength: INPUT_MAX_LENGTH.SIX,
   },
   /**
    * 内容 最长200个汉字
    */
   CONTENT: {
-    maxlength: INPUT_MAX_LENGTH.CONTENT,
+    maxlength: INPUT_MAX_LENGTH.TWO_HUNDRED,
   },
   /**
    * 燃气户号 长度20个字符
    */
   GAS_NUMBER: {
-    maxlength: INPUT_MAX_LENGTH.GAS_NUMBER,
+    maxlength: INPUT_MAX_LENGTH.TWENTY,
   },
   /**
    * 地址
@@ -313,27 +332,44 @@ export const RELATED_RULE_TYPE_MAP = {
   },
 };
 
-// 地区配置
-export const ADDRESS_CONF = [
+/**
+ * 地址因子枚举
+ */
+export const ADDRESS_FACTOR_ENUM = {
+  INSURE_AREA: 'insureArea',
+  RESIDENCE: 'residence',
+  LONG_AREA: 'longArea',
+  WORK_ADDRESS: 'workAddress',
+};
+
+/**
+ * 地址因子code list
+ */
+export const ADDRESS_FACTOR_CODE_LIST = Object.values(ADDRESS_FACTOR_ENUM);
+
+/**
+ * 地址因子配置
+ */
+export const ADDRESS_FACTOR_CONF = [
   {
     /** 投保地区 */
-    key: 'insureArea',
+    key: ADDRESS_FACTOR_ENUM.INSURE_AREA,
     /** 前缀  */
     valuePrefix: 'insure',
   },
   {
     /** 户籍所在地 */
-    key: 'residence',
+    key: ADDRESS_FACTOR_ENUM.RESIDENCE,
     valuePrefix: '',
   },
   {
     /** 长期居住地 */
-    key: 'longArea',
+    key: ADDRESS_FACTOR_ENUM.LONG_AREA,
     valuePrefix: '',
   },
   {
     /** 工作所在地 */
-    key: 'workAddress',
+    key: ADDRESS_FACTOR_ENUM.WORK_ADDRESS,
     valuePrefix: 'work',
   },
 ].reduce((res, { key, valuePrefix }) => {
@@ -351,7 +387,7 @@ export const GLOBAL_CONFIG_MAP = {
   name: RULE_CONFIG_MAP.NAME,
   certNo: {
     relatedName: 'certType',
-    maxlength: INPUT_MAX_LENGTH.CERT,
+    maxlength: INPUT_MAX_LENGTH.EIGHTEEN,
   },
   certType: {
     relatedName: 'certNo',
@@ -384,7 +420,7 @@ export const GLOBAL_CONFIG_MAP = {
     componentName: COMPONENT_ENUM.ProSMSCode,
     ...RULE_CONFIG_MAP.ZIP_CODE,
   },
-  ...ADDRESS_CONF,
+  ...ADDRESS_FACTOR_CONF,
   nationalityCode: {
     ...RULE_CONFIG_MAP.COUNTRY,
   },
@@ -393,7 +429,11 @@ export const GLOBAL_CONFIG_MAP = {
     maxDate: dayjs().add(100, 'year').toDate(),
   },
   companyName: {
-    maxlength: INPUT_MAX_LENGTH.ADDRESS_DETAIL,
+    maxlength: INPUT_MAX_LENGTH.FIFTY,
+  },
+  occupationCodeList: {
+    componentName: COMPONENT_ENUM.ProOccupation,
+    dictCode: combineOccupation(getInsurerCodeFormUrl()),
   },
 };
 

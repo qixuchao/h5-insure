@@ -1,11 +1,5 @@
 <template>
-  <ProFieldV2
-    v-if="!$attrs.isView"
-    class="com-pro-sms-code"
-    type="digit"
-    :maxlength="INPUT_MAX_LENGTH.SMS_CODE"
-    v-bind="$attrs"
-  >
+  <ProFieldV2 v-if="!$attrs.isView" class="com-pro-sms-code" type="digit" v-bind="$attrs">
     <template #extra>
       <van-button class="extra-button" size="small" plain type="primary" @click="onSendSmsCode">{{
         smsText
@@ -17,7 +11,7 @@
 <script lang="ts" setup>
 import { Toast } from 'vant';
 import { useCountDown } from '@vant/use';
-import { VAN_PRO_FORM_KEY, INPUT_MAX_LENGTH } from '../utils';
+import { VAN_PRO_FORM_KEY } from '../utils';
 import ProFieldV2 from './ProFieldV2.vue';
 
 const props = defineProps({
@@ -44,25 +38,25 @@ const props = defineProps({
 const { formState, formRef } = inject(VAN_PRO_FORM_KEY) || {};
 
 const state = reactive({
-  iscountdowning: false,
+  isCountdowning: false,
 });
 
 const { current, start, reset } = useCountDown({
   // 倒计时 24 小时
   time: props.time * 1000,
   onFinish() {
-    state.iscountdowning = false;
+    state.isCountdowning = false;
   },
 });
 
 // 发送验证码
 const onSendSmsCode = () => {
-  if (!state.iscountdowning) {
+  if (!state.isCountdowning) {
     formRef.value
       .validate(props.relatedName)
       .then(() => {
         props.sendSMSCode({ mobile: formState.formData[props.relatedName] }, () => {
-          state.iscountdowning = true;
+          state.isCountdowning = true;
           Toast({
             message: '短信发送成功，请查收',
           });
@@ -80,7 +74,7 @@ const smsText = computed(() => {
   if (seconds === 0) {
     return props.smsText;
   }
-  return state.iscountdowning ? `${seconds}s` : props.smsText;
+  return state.isCountdowning ? `${seconds}s` : props.smsText;
 });
 </script>
 

@@ -39,6 +39,7 @@ declare module 'vue' {
     ProLazyComponent: typeof import('./src/components/ProLazyComponent/index.vue')['default']
     ProMessage: typeof import('./src/components/ProMessage/index.vue')['default']
     ProNavigator: typeof import('./src/components/ProNavigator/index.vue')['default']
+    ProOccupation: typeof import('./src/components/RenderForm/components/ProOccupation.vue')['default']
     ProPDFviewer: typeof import('./src/components/ProPDFviewer/index.vue')['default']
     ProPicker: typeof import('./src/components/ProPicker/index.vue')['default']
     ProPickerV2: typeof import('./src/components/RenderForm/components/ProPickerV2.vue')['default']

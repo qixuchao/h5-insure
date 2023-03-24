@@ -7,4 +7,5 @@ export { default as ProCascaderV2 } from './ProCascaderV2.vue';
 export { default as ProDatePickerV2 } from './ProDatePickerV2.vue';
 export { default as ProSMSCode } from './ProSMSCode.vue';
 export { default as ProAddress } from './ProAddress.vue';
+export { default as ProOccupation } from './ProOccupation.vue';
 export { default as ProRenderFormWithCard } from './ProRenderFormWithCard.vue';
