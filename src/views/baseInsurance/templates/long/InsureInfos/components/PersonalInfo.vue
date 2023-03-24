@@ -162,6 +162,56 @@ watch(
   },
 );
 
+// 监听投被保人关系
+// watch(
+//   () => state.insured.insuredVOList.map((item, index) => item.personVO.relationToHolder),
+//   (val, val1) => {
+//     console.log('%c🔥 与投保人关系变动了', 'color:#1989fa;background:#5e4;padding:3px 5px;');
+//     state.insured.insuredVOList.forEach((insuredItem, index) => {
+//       const { personVO } = insuredItem || {};
+//       const { schema, config } = state.insured;
+
+//       const { label } = schema.find((item) => item.name === 'certNo') || {};
+
+//       const isSelf = personVO.relationToHolder === '1';
+//       const isChild = personVO.relationToHolder === '3';
+
+//       state.insured.config = {
+//         ...config,
+//         certNo: {
+//           ...config.certNo,
+//           label: `${label}${isChild ? '(户口簿)' : ''}`,
+//         },
+//       };
+
+//       schema.forEach((schemaItem) => {
+//         schemaItem.relationToHolder = personVO.relationToHolder;
+//         schemaItem.hidden = !schemaItem.isSelfInsuredNeed && isSelf;
+//       });
+
+//       // 若为本人合并投保人数据
+//       if (isSelf) {
+//         Object.assign(personVO, {
+//           ...state.insuredList[index].formData,
+//           ...state.holder.formData,
+//         });
+//       } else {
+//         Object.assign(personVO, {
+//           ...Object.keys(personVO).reduce((res, key) => {
+//             res[key] = '';
+//             return res;
+//           }, {}),
+//           relationToHolder: personVO.relationToHolder,
+//         });
+//       }
+//     });
+//   },
+//   {
+//     immediate: true,
+//     deep: true,
+//   },
+// );
+
 defineExpose({
   validate,
 });
