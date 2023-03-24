@@ -209,9 +209,35 @@ const onPlanItemClickEmit = (val: string) => {
 
 const popupShow = ref(false);
 
+const handleOpenPage = (ev: any) => {
+  const e = ev || window.event;
+  // 阻止默认事件[兼容处理]
+  if (e.preventDefault) {
+    e.preventDefault();
+  } else {
+    e.returnValue = false;
+  }
+  // 阻止事件冒泡[兼容处理]
+  if (e.stopPropagation) {
+    e.stopPropagation();
+  } else {
+    e.cancelBubble = true;
+  }
+  if (e.target.tagName === 'A' && e.target.href) {
+    window.open(e.target.href);
+  }
+};
+
 const onShowDetail = () => {
   popupShow.value = true;
+  nextTick(() => {
+    document.getElementsByClassName('guarantee-detail')?.[0]?.addEventListener('click', handleOpenPage, false);
+  });
 };
+
+onUnmounted(() => {
+  document.getElementsByClassName('guarantee-detail')?.[0]?.removeEventListener('click', handleOpenPage, false);
+});
 
 const onClickFeeRate = () => {
   openPreviewFilePage({ fileType: 'pdf', fileUri: feeFileUri.value });
