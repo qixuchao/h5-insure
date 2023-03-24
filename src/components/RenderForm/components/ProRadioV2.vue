@@ -171,6 +171,7 @@ export default {
 .com-van-radio-wrap {
   :deep(.van-field__control--custom) {
     flex-flow: wrap;
+    justify-content: flex-end;
   }
   .com-check-btn {
     margin: 8px 16px 8px 0;
