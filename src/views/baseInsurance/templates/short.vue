@@ -630,6 +630,8 @@ const trialPremium = async (currentProductDetail: any, productRiskList: any, isO
       orderDetail.value.premium = data.premium;
       orderDetail.value.orderAmount = data.premium;
       orderDetail.value.orderRealAmount = data.premium;
+      orderDetail.value.insuranceStartDate = trialParams.insuranceStartDate;
+      orderDetail.value.insuranceEndDate = trialParams.insuranceEndDate;
       if (!isOnlyPremiumCalc) {
         // 获取试算结果，存储，在健告通过后将保费赋值给对应的险种
         const riskPremiumMap = {};

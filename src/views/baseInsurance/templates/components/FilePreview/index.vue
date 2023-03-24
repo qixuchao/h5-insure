@@ -188,11 +188,11 @@ watch(
 );
 
 const handleScroll = (el: any) => {
-  console.log('el', el);
   if (el) {
     const scrollHeight = el.target?.scrollHeight || el.scrollHeight;
     const scrollTop = el.target?.scrollTop || el.scrollTop;
     const clientHeight = el.target?.clientHeight || el.clientHeight;
+
     if (Math.floor(scrollHeight - scrollTop - 15) <= clientHeight && calcuateFlg.value) {
       if (formatedContentList.value[currentActiveIndex.value].readDisabled) {
         formatedContentList.value[currentActiveIndex.value].disabled = false;
@@ -221,7 +221,7 @@ watch(
     }
     nextTick(() => {
       setTimeout(() => {
-        const el = document.querySelector('.viewerContainer');
+        const el = document.querySelector('.viewerContainer') || document.querySelector('.com-file-preview .content');
         if (el) {
           el.removeEventListener('scroll', handleScroll);
           handleScroll(el);

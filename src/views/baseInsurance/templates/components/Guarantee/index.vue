@@ -459,6 +459,10 @@ const setGuaranteeListHeight = () => {
   }
   .body {
     height: calc(100% - 110px) !important;
+    overflow: scroll;
+    .guarantee-detail {
+      overflow-y: unset !important;
+    }
   }
   .van-popup__close-icon--top-right {
     top: 40px !important;
