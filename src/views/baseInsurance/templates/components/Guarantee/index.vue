@@ -94,7 +94,7 @@ import {
   ProductPremiumVoItem,
 } from '@/api/modules/product.data';
 import { isApp } from '@/utils';
-import { openWebView } from '@/utils/jsbridgePromise';
+import { openPDFWithUrl } from '@/utils/jsbridgePromise';
 import ProSvg from '@/components/ProSvg/index.vue';
 import ProDivider from '@/components/ProDivider/index.vue';
 import serviceConfig from '@/assets/images/chuangxin/serviceConfig.png';
@@ -227,7 +227,7 @@ const handleOpenPage = (ev: any) => {
   }
   if (e.target.tagName === 'A' && e.target.href) {
     if (isApp()) {
-      openWebView('', e.target.href);
+      openPDFWithUrl('', e.target.href);
     } else {
       window.open(e.target.href);
     }

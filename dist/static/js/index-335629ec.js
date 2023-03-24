@@ -1,1 +1,0 @@
-import{d as s,c as r,e,j as o,I as t}from"./index-dae3ff12.js";const a=s({props:{url:{default:""}},setup(s){const a=s;return console.log("props",a),(a,l)=>{const n=t;return s.url?(r(),e(n,{key:0,width:"100%",class:"com-template-banner",src:s.url},null,8,["src"])):o("",!0)}}});export{a as _};
