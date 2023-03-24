@@ -952,8 +952,9 @@ watch(
 
       const isSelf = formData.relationToHolder === '1';
       const isChild = formData.relationToHolder === '3';
+      const { label } = schema.find((item) => item.name === 'certNo') || {};
 
-      config.certNo.label = `身份证号${isChild ? '(户口簿)' : ''}`;
+      config.certNo.label = `${label}${isChild ? '(户口簿)' : ''}`;
 
       insuredItem.schema.forEach((schemaItem) => {
         schemaItem.relationToHolder = formData.relationToHolder;

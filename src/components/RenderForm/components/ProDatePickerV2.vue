@@ -76,10 +76,13 @@ const [show, toggle] = useToggle(false);
 // 是否为完整时间类型
 const isDateType = computed(() => !['time', 'month-day'].includes(props.type));
 
+// 初始值
+const defaultValue = computed(() => (isDateType.value ? new Date() : null));
+
 const state = reactive({
   fieldValue: '',
   // 类型为 time 不设置初始值
-  date: isDateType.value ? new Date() : null,
+  date: defaultValue.value,
 });
 
 const formatMap = {
@@ -120,7 +123,9 @@ const dealModelValue = (val) => {
   } else if (typeof val === 'string') {
     state.fieldValue = val;
     if (isDateType.value) {
-      state.date = dayjs(val, formatValueType.value).isValid() ? dayjs(val, formatValueType.value).toDate() : null;
+      state.date = dayjs(val, formatValueType.value).isValid()
+        ? dayjs(val, formatValueType.value).toDate()
+        : defaultValue.value;
     } else {
       state.date = val as string;
     }

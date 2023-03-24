@@ -20,6 +20,7 @@
 import { withDefaults, reactive, shallowRef, useSlots } from 'vue';
 import type { FormInstance } from 'vant';
 import { Toast } from 'vant/es';
+import debounce from 'lodash-es/debounce';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { VAN_PRO_FORM_KEY } from '../utils';
 import useDictData from '@/hooks/useDictData';
@@ -168,11 +169,11 @@ const dictCodeList = computed(() => {
 
 watch(
   dictCodeList,
-  (val) => {
+  debounce((val) => {
     if (val) {
       useDictData(val as string[]);
     }
-  },
+  }, 500),
   {
     immediate: true,
     deep: true,
