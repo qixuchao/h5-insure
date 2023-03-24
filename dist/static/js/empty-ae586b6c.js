@@ -1,1 +1,1 @@
-var s="/static/assets/empty.147549b5.png";export{s as _};
+var p="/static/png/empty-147549b5.png";export{p as _};
