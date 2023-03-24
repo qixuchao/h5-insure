@@ -43,8 +43,9 @@
         <div class="empty"></div>
       </div>
       <TrialButton
-        :is-share="false"
+        :is-share="shareInfo.isShare"
         :premium="state.trialResult"
+        :share-info="shareInfo"
         :loading-text="state.trialMsg"
         :plan-code="props.dataSource.planCode"
         :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
@@ -92,6 +93,10 @@ const props = defineProps({
     default: () => {
       return { productCode: '', productName: '', insurerCode: '', tenantId: '' };
     },
+  },
+  shareInfo: {
+    type: Object,
+    default: () => {},
   },
   tenantProductDetail: {
     type: Object,

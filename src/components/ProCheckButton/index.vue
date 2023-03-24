@@ -43,9 +43,9 @@ const props = withDefaults(defineProps<Props>(), {
 <style lang="scss" scoped>
 .com-check-btn {
   min-width: 140px;
-  height: 60px;
+  min-height: 60px;
   background-color: #f6f7fc;
-  padding: 0 16px;
+  padding: 9px 16px;
   // border-radius: var(--van-pro-check-radius, 18px);
   border-radius: var(--van-border-radius-md);
   font-size: 26px;

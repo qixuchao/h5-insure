@@ -1,7 +1,7 @@
 <template>
   <div class="trial-button-wrap">
     <div class="footer-area">
-      <ProShare v-if="isApp" v-bind="shareInfo" class="share-btn">
+      <ProShare v-if="isShare && isApp" v-bind="shareInfo" class="share-btn">
         <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
         <span>分享</span>
       </ProShare>
@@ -33,6 +33,7 @@ interface Props {
   loadingText?: string;
   paymentFrequency: string;
   shareInfo?: any;
+  isShare: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -42,6 +43,7 @@ const props = withDefaults(defineProps<Props>(), {
   loadingText: '',
   paymentFrequency: '',
   shareInfo: () => ({}),
+  isShare: false,
 });
 
 const emits = defineEmits(['onClick']);
