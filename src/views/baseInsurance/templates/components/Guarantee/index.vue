@@ -93,6 +93,8 @@ import {
   ShowConfigVO,
   ProductPremiumVoItem,
 } from '@/api/modules/product.data';
+import { isApp } from '@/utils';
+import { openWebView } from '@/utils/jsbridgePromise';
 import ProSvg from '@/components/ProSvg/index.vue';
 import ProDivider from '@/components/ProDivider/index.vue';
 import serviceConfig from '@/assets/images/chuangxin/serviceConfig.png';
@@ -224,7 +226,11 @@ const handleOpenPage = (ev: any) => {
     e.cancelBubble = true;
   }
   if (e.target.tagName === 'A' && e.target.href) {
-    window.open(e.target.href);
+    if (isApp()) {
+      openWebView('', e.target.href);
+    } else {
+      window.open(e.target.href);
+    }
   }
 };
 
