@@ -47,7 +47,7 @@ const slots = useSlots();
 const props = withDefaults(defineProps<Props>(), {
   validateMethod: 'show-error',
   isView: false,
-  markRequired: false,
+  markRequired: true,
   model: () => ({}),
   config: () => ({}),
   schema: () => [],
