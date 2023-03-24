@@ -62,17 +62,18 @@ watch(
       const currentPremium = (selectedPlan?.data || []).find(
         (data) => data.paymentFrequency === props.paymentFrequency,
       );
-
       const { premium: unit, minActualUnit } = currentPremium || {};
 
       if (!premium) {
         premiumUnit.value = unit;
+        productPremium.value = '';
       } else {
         premiumUnit.value = minActualUnit;
         productPremium.value = premium && `${premium}`;
       }
     } else {
       if (premium) {
+        premiumUnit.value = '';
         productPremium.value = premium && `${premium}`;
       }
     }
@@ -96,7 +97,8 @@ watch(
     background: #ffffff;
     z-index: 10;
     justify-content: space-between;
-    border-radius: 30px 30px 0px 0px;
+    box-shadow: 0px -5px 15px 0px rgba(225, 228, 235, 0.5), inset 0px 1px 0px 0px #e1e4eb;
+    // border-radius: 30px 30px 0px 0px;
 
     .com-share {
       display: flex;
@@ -108,11 +110,11 @@ watch(
 
     // footer覆盖
     .price {
-      color: #393d46;
+      color: #ff6600;
       font-size: 34px;
       font-weight: normal;
       span {
-        color: $primary-color;
+        color: #ff6600;
         font-weight: bold;
 
         &:last-child {
@@ -123,7 +125,7 @@ watch(
       }
     }
     .right {
-      width: 320px !important;
+      width: 270px;
       height: 88px !important;
       border-radius: 44px;
     }

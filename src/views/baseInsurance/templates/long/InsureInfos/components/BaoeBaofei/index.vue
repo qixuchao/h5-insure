@@ -1,13 +1,7 @@
 <template>
   <div v-if="showTypes === 1">
     <!-- 步进值 -->
-    <VanField
-      v-if="originData.saleMethod === 1"
-      v-model="mValues[methodName.key]"
-      :label="`基本${methodName.label}`"
-      :name="methodName.key"
-      class="risk-select-field"
-    >
+    <VanField :label="`基本${methodName.label}`" :name="methodName.key" class="risk-select-field">
       <template #input>
         <div class="custom-field">
           <VanStepper
@@ -17,6 +11,7 @@
             :min="originData.minStepValue"
             :step="originData.stepValue"
             :max="originData.maxStepValue"
+            @blur="handleStepBlur"
           ></VanStepper>
         </div>
       </template>
@@ -58,22 +53,24 @@
         </div>
       </template>
     </ProField>
-    <VanField v-model="mValues.copy" label="份数" name="copy" class="risk-select-field">
-      <template #input>
-        <div class="custom-field">
-          <VanStepper
-            v-if="originData.minCopiesValue !== originData.maxCopiesValue"
-            v-model="mValues.copy"
-            input-width="80px"
-            :default-value="originData.minCopiesValue"
-            :min="originData.minCopiesValue"
-            :step="1"
-            :max="originData.maxCopiesValue"
-          ></VanStepper>
-          <span v-else>{{ originData.minCopiesValue }}</span>
-        </div>
-      </template>
-    </VanField>
+    <div>
+      <VanField v-model="mValues.copy" label="份数" name="copy" class="risk-select-field">
+        <template #input>
+          <div class="custom-field">
+            <VanStepper
+              v-if="originData.minCopiesValue !== originData.maxCopiesValue"
+              v-model="mValues.copy"
+              input-width="80px"
+              :default-value="originData.minCopiesValue"
+              :min="originData.minCopiesValue || 1"
+              :step="1"
+              :max="originData.maxCopiesValue"
+            ></VanStepper>
+            <span v-else>{{ originData.minCopiesValue }}</span>
+          </div>
+        </template>
+      </VanField>
+    </div>
   </div>
   <div v-else-if="showTypes === 4">
     <!-- 份数 -->
@@ -85,11 +82,21 @@
             v-model="mValues.copy"
             input-width="64px"
             :default-value="originData.minCopiesValue"
-            :min="originData.minCopiesValue"
+            :min="originData.minCopiesValue || 1"
             :step="1"
             :max="originData.maxCopiesValue"
           ></VanStepper>
           <span v-else>{{ originData.minCopiesValue }}</span>
+        </div>
+      </template>
+    </VanField>
+    <VanField :label="methodName.label" name="copyAmount" class="risk-select-field">
+      <template #input>
+        <div class="custom-field">
+          <span v-if="originData.minCopiesValue !== originData.maxCopiesValue">
+            {{ +originData.copiesAmount * +mValues.copy + getUnitString() }}
+          </span>
+          <span v-else>{{ +originData.minCopiesValue * +originData.copiesAmount + getUnitString() }}</span>
         </div>
       </template>
     </VanField>
@@ -98,19 +105,19 @@
 <script lang="ts" setup>
 import { ref, watch, withDefaults } from 'vue';
 import { RiskVoItem, RiskAmountPremiumConfig } from '@/api/modules/trial.data';
+import { PREMIUM_UNIT_TYPE_ENUM } from '@/common/constants/infoCollection';
 
 // 参看CollapseItem组件
 interface Props {
   originData: RiskAmountPremiumConfig;
   modelValue: RiskVoItem;
 }
+const emit = defineEmits(['update:modelValue', 'trialChange']);
 
 const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as RiskAmountPremiumConfig),
   modelValue: () => ({} as RiskVoItem),
 });
-
-console.log('baoebaofei  = ', props.originData);
 const mConfigs = ref(props.originData);
 const mValues = ref(props.modelValue);
 const showTypes = ref(1);
@@ -125,27 +132,41 @@ const pickEnums = (origin: any[], target: any[], prop = {}) => {
 
 const validateSumInsured = () => {};
 
-const initData = () => {
-  const { displayType, requireCopies } = mConfigs.value;
-  if (displayType === 1) {
-    showTypes.value = 1;
-  } else if (displayType === 3 && requireCopies === 2) {
-    showTypes.value = 2;
-  } else if (displayType === 3 && requireCopies === 1) {
-    showTypes.value = 3;
-    if (mConfigs.value.minCopiesValue === mConfigs.value.maxCopiesValue) {
-      mValues.value.copy = mConfigs.value.minCopiesValue;
-    }
-  } else if (displayType === 2) {
-    showTypes.value = 4;
-    if (mConfigs.value.minCopiesValue === mConfigs.value.maxCopiesValue) {
-      mValues.value.copy = mConfigs.value.minCopiesValue;
-    }
+const getMethodName = () => {
+  if (mConfigs.value.saleMethod === 2) {
+    return {
+      label: '保费',
+      key: 'premium',
+    };
   }
+  return {
+    label: '保额',
+    key: 'amount',
+  };
+};
+
+const getUnitString = () => {
+  switch (`${mConfigs.value.displayUnit}`) {
+    case PREMIUM_UNIT_TYPE_ENUM.YUAN: {
+      return '元';
+    }
+    case PREMIUM_UNIT_TYPE_ENUM.MONTH_SALARY: {
+      return '倍月薪';
+    }
+    case PREMIUM_UNIT_TYPE_ENUM.MILLION: {
+      return '万元';
+    }
+    case PREMIUM_UNIT_TYPE_ENUM.COPY: {
+      return '份';
+    }
+    default:
+      break;
+  }
+  return '';
 };
 
 const methodName = computed(() => {
-  if (props?.originData?.saleMethod === 2) {
+  if (mConfigs.value.saleMethod === 2) {
     return {
       label: '保费',
       key: 'premium',
@@ -157,10 +178,83 @@ const methodName = computed(() => {
   };
 });
 
+const handleStepBlur = (...params) => {
+  if (showTypes.value === 1) {
+    const currentValue = mValues.value[methodName.value.key];
+    const minValue = props.originData.minStepValue;
+    const maxValue = props.originData.maxStepValue;
+    const step = props.originData.stepValue;
+    if (+currentValue >= +maxValue) {
+      mValues.value[methodName.value.key] = maxValue;
+    } else if (+currentValue <= +minValue) {
+      mValues.value[methodName.value.key] = minValue;
+    } else {
+      const sub = +currentValue - +minValue;
+      const gap = Math.floor(sub / +step);
+      if (sub % +step !== 0) {
+        mValues.value[methodName.value.key] = +minValue + gap * +step;
+      }
+    }
+  }
+  return true;
+};
+
+const checkStep = () => {
+  if (showTypes.value === 1) {
+    const currentValue = mValues.value[methodName.value.key];
+    const minValue = props.originData.minStepValue;
+    const maxValue = props.originData.maxStepValue;
+    const step = props.originData.stepValue;
+    if (+currentValue > +maxValue) {
+      return false;
+    }
+    if (+currentValue < +minValue) {
+      return false;
+    }
+    const sub = +currentValue - +minValue;
+    const gap = Math.floor(sub / +step);
+    if (sub % +step !== 0) {
+      return false;
+    }
+  }
+  return true;
+};
+
+const initData = () => {
+  const { displayType, requireCopies } = mConfigs.value;
+  const mKey = getMethodName().key;
+  if (displayType === 1) {
+    showTypes.value = 1;
+  } else if (displayType === 3 && requireCopies === 2) {
+    showTypes.value = 2;
+    // console.log('>>>>set value', mValues.value, mConfigs.value.displayValues.length, mName);
+    if (mConfigs.value.displayValues.length >= 1) {
+      mValues.value[mKey] = mConfigs.value.displayValues[0].code || mConfigs.value.displayValues[0].value;
+    }
+  } else if (displayType === 3 && requireCopies === 1) {
+    showTypes.value = 3;
+    if (mConfigs.value.minCopiesValue === mConfigs.value.maxCopiesValue) {
+      mValues.value.copy = mConfigs.value.minCopiesValue;
+    }
+    if (mConfigs.value.displayValues.length >= 1) {
+      mValues.value[mKey] = mConfigs.value.displayValues[0].code || mConfigs.value.displayValues[0].value;
+    }
+  } else if (displayType === 2) {
+    showTypes.value = 4;
+    if (mConfigs.value.minCopiesValue === mConfigs.value.maxCopiesValue) {
+      mValues.value.copy = mConfigs.value.minCopiesValue;
+    }
+    mValues.value.amount = mConfigs.value.copiesAmount;
+  }
+};
+
 const displayValues = computed(() => {
+  // console.log(methodName);
   if (mConfigs.value.displayValues) {
+    const mKey = getMethodName().key;
+    // console.log('>>>>set value', mValues.value, mConfigs.value.displayValues.length, mName);
     if (mConfigs.value.displayValues.length === 1) {
-      mValues.value[methodName.key] = mConfigs.value.displayValues[0].value;
+      mValues.value[mKey] = mConfigs.value.displayValues[0].code;
     }
     return mConfigs.value.displayValues.map((v) => {
       return {
@@ -173,11 +267,12 @@ const displayValues = computed(() => {
 });
 
 const handleClick = () => {
-  console.log('-------------------', mValues.value);
+  // console.log('-------------------', mValues.value, mConfigs.value.displayValues);
 };
 
 onMounted(() => {
   initData();
+  emit('update:modelValue', mValues.value);
 });
 
 watch(
@@ -187,6 +282,21 @@ watch(
   },
   {
     deep: true,
+  },
+);
+
+watch(
+  () => mValues.value,
+  (v) => {
+    if (checkStep()) {
+      emit('update:modelValue', v);
+      // console.log('----change', v);
+      emit('trialChange', v);
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
   },
 );
 </script>
@@ -210,5 +320,16 @@ watch(
   line-height: 32px;
   background-color: rgb(233, 231, 231);
   border: 1px solid rgb(205, 205, 205);
+}
+
+:deep(.risk-select-field) {
+  align-items: baseline !important;
+  span {
+  }
+}
+:deep(.van-cell) {
+  &::after {
+    border: 0;
+  }
 }
 </style>

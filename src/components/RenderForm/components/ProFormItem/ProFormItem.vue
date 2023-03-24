@@ -2,7 +2,7 @@
   <ProFieldV2 class="com-form-item" :is-link="!isView">
     <template #input>
       <CustomInput
-        :name="$attrs.name"
+        :name="name"
         :model-value="modelValue"
         :field-value-view="fieldValueView"
         :placeholder="$attrs.placeholder"
@@ -24,6 +24,10 @@ const props = defineProps({
    * 查看模式的值
    */
   fieldValueView: {
+    type: String,
+    default: '',
+  },
+  name: {
     type: String,
     default: '',
   },

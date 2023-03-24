@@ -1,14 +1,12 @@
 export default [
-  // input
   {
-    componentName: 'ProField',
+    displayType: 1,
     label: '姓名',
     name: 'name',
     required: true,
   },
-  // textarea
   {
-    componentName: 'ProField',
+    displayType: 2,
     type: 'textarea',
     label: '备注',
     name: 'textarea',
@@ -16,7 +14,7 @@ export default [
     required: true,
   },
   {
-    componentName: 'ProPicker',
+    displayType: 6,
     label: '证件类型',
     name: 'certType',
     required: true,
@@ -26,39 +24,36 @@ export default [
     ],
   },
   {
-    componentName: 'ProDatePicker',
+    displayType: 4,
     label: '出生日期',
     name: 'birthday',
   },
   // 日历选择
   {
-    componentName: 'ProCalendar',
+    displayType: 4,
     type: 'range',
     label: '酒店入住日期',
     name: 'orderDate',
   },
   {
-    componentName: 'ProRadio',
+    displayType: 6,
     label: '性别',
   },
   {
-    componentName: 'ProCheckbox',
+    displayType: 7,
     label: '出行人',
   },
   {
-    componentName: 'ProDatePickerV2',
+    displayType: 4,
     label: '出生日期',
   },
   {
-    componentName: 'ProAddress',
+    displayType: 11,
     label: '地址',
   },
   {
-    componentName: 'ProBank',
-    label: '银行卡',
-  },
-  {
     label: '证件有效期',
+    displayType: 4,
     name: 'certExpiry',
     required: false,
     columns: [],
@@ -67,6 +62,5 @@ export default [
       text: 'value',
       value: 'code',
     },
-    componentName: 'ProDatePickerV2',
   },
 ];

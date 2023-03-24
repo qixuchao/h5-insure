@@ -1,7 +1,7 @@
 <template>
   <ProCard
     v-if="$attrs.schema?.length"
-    class="com-pro-form-with-card com-card-body-no-padding"
+    :class="`com-pro-form-with-card com-card-body-no-padding ${props.class}`"
     :show-line="false"
     :show-divider="false"
     :title="title"
@@ -24,12 +24,16 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  class: {
+    type: String,
+    default: '',
+  },
 });
 
 defineExpose({
   ...['submit', 'getValues', 'validate', 'resetValidation', 'getValidationStatus', 'scrollToField'].reduce(
     (res, key) => {
-      res[key] = (...rest) => renderFormRef.value[key](...rest);
+      res[key] = (...rest) => renderFormRef.value?.[key](...rest);
       return res;
     },
     {},

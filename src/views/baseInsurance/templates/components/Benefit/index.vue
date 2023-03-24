@@ -1,35 +1,36 @@
 <template>
-  <div class="benefit-container">
-    <van-tabs
-      :active="active"
-      title-active-color="#0d6efe"
-      title-inactive-color="#393D46"
-      shrink
-      @click-tab="changeTab"
-    >
+  <div v-if="dataSource?.benefitRiskResultVOList" class="benefit-container">
+    <!-- title-active-color="#0d6efe" -->
+    <van-tabs :active="active" @click-tab="changeTab">
       <van-tab v-for="(item, i) in props.dataSource?.benefitRiskResultVOList" :key="i" :name="i" :title="item.riskName">
         <div v-if="i == active" class="benefit">
           <!-- <div class="benefit-title">{{ item?.riskName }}</div> -->
           <div class="line"></div>
           <p v-show="showType === SHOW_TYPE_ENUM.CHART" class="box-title box-title-chart">
-            <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
+            <img class="tl" src="@/assets/images/compositionProposal/box-title.png" alt="" />
             保单年度<span>{{ benefitObj?.year?.[benefitObj?.index] }}</span
             >年度，被保人<span>{{ benefitObj?.age?.[benefitObj?.index] }}</span
             >岁时
-            <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
+            <img class="transform-z180 tr" src="@/assets/images/compositionProposal/box-title.png" alt="" />
           </p>
           <div v-if="showType === SHOW_TYPE_ENUM.LIST">
             <div class="box">
               <p class="box-title">
-                <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
+                <img class="tl" src="@/assets/images/compositionProposal/box-title.png" alt="" />
                 保单年度<span>{{ benefitObj?.year?.[benefitObj?.index] }}</span
                 >年度，被保人<span>{{ benefitObj?.age?.[benefitObj?.index] }}</span
                 >岁时
-                <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
+                <img class="transform-z180 tr" src="@/assets/images/compositionProposal/box-title.png" alt="" />
               </p>
               <div class="box-price">
                 <div v-for="(val, k) in benefitObj?.result?.headers" :key="k" style="width: 33%">
-                  <p class="text1">{{ toLocal(Number(benefitObj?.result?.dataList?.[benefitObj?.index]?.[k])) }}</p>
+                  <p class="text1">
+                    {{
+                      benefitObj?.result?.dataList?.[benefitObj?.index]?.[k] == '0'
+                        ? '0'
+                        : toLocal(Number(benefitObj?.result?.dataList?.[benefitObj?.index]?.[k]))
+                    }}
+                  </p>
                   <p class="text2">{{ val }}(元）</p>
                 </div>
               </div>
@@ -42,25 +43,29 @@
           <div v-if="showType == SHOW_TYPE_ENUM.CHART" style="width: 100%, minWidth: 338px">
             <ProChart :min="ageBegin" :max="ageEnd" :current="num" :data="benefitObj?.result?.benefitRiskItemList" />
           </div>
-          <div class="slider">
-            <div class="add lf" @click="handleReduce">
-              <img src="@/assets/images/compositionProposal/cut.png" alt="" />
+          <template v-if="showType != SHOW_TYPE_ENUM.TABLE">
+            <div class="slider">
+              <div class="opt lf" @click="handleReduce">
+                <ProSvg name="minus" />
+              </div>
+              <div style="flex: 1; margin: 0px 5px">
+                <van-slider v-if="ageBegin" v-model="num" :min="ageBegin" :max="ageEnd" bar-height="8px">
+                  <template #button>
+                    <div class="custom-button">{{ num }} 岁</div>
+                  </template>
+                </van-slider>
+              </div>
+              <div class="opt rg" @click="handleAdd">
+                <ProSvg name="plus" />
+                <!-- <img src="@/assets/images/compositionProposal/add.png" alt="" /> -->
+              </div>
             </div>
-            <div style="flex: 1; margin: 0px 5px">
-              <van-slider v-if="ageBegin" v-model="num" :min="ageBegin" :max="ageEnd" bar-height="8px">
-                <template #button>
-                  <div class="custom-button">{{ num }} 岁</div>
-                </template>
-              </van-slider>
-            </div>
-            <div class="add rg" @click="handleAdd">
-              <img src="@/assets/images/compositionProposal/add.png" alt="" />
-            </div>
-          </div>
+            <p class="slider-dec">拖动按钮查看不同年龄保障</p>
+          </template>
 
-          <p class="slider-dec">拖动按钮查看不同年龄保障</p>
           <div class="btn-two">
             <van-button
+              v-if="props.dataSource.showTypeList.includes(SHOW_TYPE_ENUM.LIST)"
               round
               :plain="showType !== SHOW_TYPE_ENUM.LIST"
               type="primary"
@@ -69,6 +74,7 @@
               >图表展示</van-button
             >
             <van-button
+              v-if="props.dataSource.showTypeList.includes(SHOW_TYPE_ENUM.CHART)"
               round
               :plain="showType !== SHOW_TYPE_ENUM.CHART"
               type="primary"
@@ -77,6 +83,7 @@
               >趋势展示</van-button
             >
             <van-button
+              v-if="props.dataSource.showTypeList.includes(SHOW_TYPE_ENUM.TABLE)"
               round
               :plain="showType !== SHOW_TYPE_ENUM.TABLE"
               type="primary"
@@ -89,6 +96,9 @@
       </van-tab>
     </van-tabs>
   </div>
+  <div v-else>
+    <ZaEmpty title="试算前请完善投保信息" empty-class="empty-select" />
+  </div>
 </template>
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
@@ -98,18 +108,18 @@ import ProTable from './Table.vue';
 
 const props = withDefaults(
   defineProps<{
-    dataSource: Array<any>;
-    showTypeList?: string[]; // 1: 表格  2: 趋势 3: 图标
+    dataSource: { showTypeList: string[] };
   }>(),
   {
-    dataSource: () => [{}],
-    showTypeList: () => ['1'],
+    dataSource: () => ({
+      showTypeList: ['1'],
+    }),
   },
 );
 const SHOW_TYPE_ENUM = {
-  TABLE: '1',
+  LIST: '1',
   CHART: '2',
-  LIST: '3',
+  TABLE: '3',
 };
 const active = ref(0);
 const ageBegin = ref(0);
@@ -118,7 +128,7 @@ const benefitObj = ref(); // 利益演示结构
 
 const num = ref(0);
 // 展示类型
-const showType = ref('3');
+const showType = ref(props.dataSource.showTypeList?.[0]);
 const tableData = ref();
 
 const renderArray = (start: number, end: number) => {
@@ -142,7 +152,7 @@ const setAge = (realData: any) => {
 const getData = () => {
   // 根据num 取对应数组的值
   const benefit = props.dataSource?.benefitRiskResultVOList?.[active.value];
-  tableData.value = props.dataSource?.benefitRiskResultVOList?.[active.value].benefitRiskTableResultVOList[0];
+  tableData.value = props.dataSource?.benefitRiskResultVOList?.[active.value].benefitRiskTableResultVOList?.[0];
   // a 年龄数组
   const { a, year } = renderArray(ageBegin.value, ageEnd.value);
   const obj = {
@@ -180,6 +190,7 @@ watch(
     if (val) {
       setAge(val);
       getData();
+      showType.value = val.showTypeList?.[0];
     }
   },
   {
@@ -230,7 +241,7 @@ watch(num, () => {
         text-align: center;
         display: flex;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: center;
         img {
           width: 41px;
           height: 29px;
@@ -251,8 +262,10 @@ watch(num, () => {
         flex-wrap: wrap;
         .text1 {
           font-size: 28px;
+          line-height: 38px;
           font-weight: 500;
           color: $zaui-price;
+          font-family: Arial-BoldMT, Arial;
         }
         .text2 {
           font-size: 24px;
@@ -261,23 +274,30 @@ watch(num, () => {
         }
       }
     }
+    .tl {
+      margin-right: 10px;
+    }
+    .tr {
+      margin-left: 10px;
+    }
+    .transform-z180 {
+      transform: rotateZ(180deg);
+    }
     .slider {
       display: flex;
       align-items: center;
       margin-top: 30px;
-      .add {
-        img {
-          width: 48px;
-          height: 48;
-        }
+      .opt {
+        color: $primary-color;
+        font-size: 40px;
       }
       .lf {
-        margin-right: 45px;
+        margin-right: 50px;
         display: flex;
         align-items: center;
       }
       .rg {
-        margin-left: 45px;
+        margin-left: 50px;
       }
       .custom-button {
         width: 104px;
@@ -285,7 +305,7 @@ watch(num, () => {
         background: $zaui-brand;
         box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.1);
         border-radius: 28px;
-        border: 5px solid #a2c7ff;
+        border: 5px solid var(--van-primary-color-light05);
         font-size: 24px;
         font-weight: 600;
         color: #ffffff;
@@ -303,9 +323,10 @@ watch(num, () => {
     .btn-two {
       display: flex;
       padding: 20px 0;
-      justify-content: space-between;
+      justify-content: center;
       .btn {
-        width: 560px;
+        // width: 560px;
+        max-width: 560px;
         height: 60px;
         margin-right: 10px;
         :deep(.van-button__text) {

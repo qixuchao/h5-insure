@@ -2,36 +2,53 @@
   <van-config-provider>
     <div class="com-risk-liabilityinfo">
       <div class="item-wrap">
-        <!-- <div v-for="(el, i) in dataSource" :key="i"> -->
         <div v-for="(item, index) in dataSource.riskLiabilityInfoVOList" :key="index">
-          <div v-if="+item.showFlag === 1">
-            <ProField :label="`${item.liabilityName}`" label-width="40%" name="insuredRelation">
+          <!-- 必选责任 下面属性值只有一个时，不展示 -->
+          <div
+            v-if="
+              +item.showFlag === 1 &&
+              !(item.attributeFlag === 2 && item?.liabilityAttributeValueList.length === 1 && item.insureFlag === 2)
+            "
+          >
+            <ProField
+              :label="`${item.liabilityName}`"
+              label-width="40%"
+              name="insuredRelation"
+              class="riskliab-select-field"
+            >
               <!-- insureFlag投保/不投保标志位 1.展示 2.不展示 -->
-              <!-- <template #input> -->
               <template #input>
-                <ProRadioButton
+                <van-switch
                   v-if="+item.insureFlag === 1"
                   v-model="state.isCheckList[index]"
-                  :prop="{ label: 'value', value: 'code' }"
-                  :options="LIABILITY_ATTRIBUTE_VALUE"
-                ></ProRadioButton>
+                  active-value="1"
+                  inactive-value="2"
+                  size="26px"
+                  @click="handleSwitchClick(item, index)"
+                ></van-switch>
               </template>
             </ProField>
-            <!-- 责任属性展示 -->
+            <!-- 责任属性展示  责任可选 责任属性也需要展示 责任必选责任属性也需要展示-->
             <ProField
-              v-if="+state.isCheckList[index] === 1 || +item.attributeFlag === 1"
+              v-if="
+                (+state.isCheckList[index] === 1 && item.attributeFlag === 1) ||
+                (item.attributeFlag === 1 && item.insureFlag === 2)
+              "
               :label="item.liabilityAttributeTypeDesc"
               label-width="40%"
               name="insuredRelation"
+              class="riskliab-select-field-children"
             >
               <!-- insureFlag投保/不投保标志位 1.展示 2.不展示  formula不为空，请求公式计算结果-->
-
               <template #input>
                 <ProRadioButton
+                  v-model="state.checkValueList[index]"
                   :prop="{ label: 'displayValue', value: 'actualValue' }"
                   :options="
                     item.formula.length > 0 ? item.liabilityAttributeValueList : item.liabilityAttributeValueList
                   "
+                  :is-simply="true"
+                  @click="handleRiskLiabityClick(item, index)"
                 ></ProRadioButton>
               </template>
             </ProField>
@@ -45,258 +62,225 @@
     <ProDivider />
   </van-config-provider>
 </template>
-<script lang="ts" setup name="paymentType">
-import { cloneDeep } from 'lodash';
-import type { FormInstance } from 'vant';
+<script lang="ts" setup name="riskLiabilityInfo">
 import { withDefaults } from 'vue';
+import cloneDeep from 'lodash-es/cloneDeep';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
-import { RiskDetailVoItem, ProductInfo, RiskVoItem, ProductPlanInsure } from '@/api/modules/trial.data';
-// import { RiskLiabilityInfoItem } from '@/api/index.data';
+import { RiskDetailVoItem, RiskVoItem } from '@/api/modules/trial.data';
+import { getCalculateRiskFormula } from '@/api/modules/trial';
 
-// type FormInfo = RiskLiabilityInfoItem;
 interface Props {
   dataSource: RiskDetailVoItem;
-  basicsAmount: string; // 基本保额
-  basicsPremium: string; // 基本保费
+  modelValue: RiskVoItem;
+  dataSourceFolmulate: RiskVoItem;
+  params?: { amountUnit: string; basicsAmount: string; basicsPremium: string; riskId: string };
 }
 
-// interface State {
-//   formInfo: FormInfo;
-// }
-
-const LIABILITY_ATTRIBUTE_VALUE = [
-  {
-    value: '投保',
-    code: '1',
-  },
-  {
-    value: '不投保',
-    code: '2',
-  },
-];
-const dataMock = [
-  {
-    factorDisPlayFlag: 1,
-    mainRiskCode: null,
-    mainRiskCollocationType: null,
-    mainRiskFlag: 1,
-    mainRiskId: null,
-    ordering: 1,
-    productRiskInsureLimitVO: {
-      amountPremiumConfigVO: {
-        copiesAmount: null,
-        displayType: 1,
-        displayUnit: 1,
-        displayValues: [],
-        maxCopiesValue: null,
-        maxStepValue: '500000',
-        minCopiesValue: null,
-        minStepValue: '10000',
-        requireCopies: null,
-        saleMethod: 1,
-        stepValue: '1000',
-      },
-      annuityDrawFrequencyList: null,
-      annuityDrawValueList: null,
-      insuranceEndType: null,
-      insurancePeriodRule: null,
-      insurancePeriodValueList: null,
-      insuranceStartTime: null,
-      insuranceStartType: null,
-      paymentFrequencyList: null,
-      paymentPeriodRule: null,
-      paymentPeriodValueList: null,
-      paymentTypeRule: null,
-      riskId: null,
-    },
-    riskCategory: 5,
-    riskCode: 'BEB1003',
-    riskId: 10331,
-    riskLiabilityInfoVOList: [
-      {
-        attributeFlag: 1,
-        displayType: 1,
-        formula: [],
-        insureFlag: 2,
-        liabilityAttributeType: 2,
-        liabilityAttributeTypeDesc: '责任保额',
-        liabilityAttributeValueList: [
-          {
-            actualValue: '100000',
-            displayValue: '10万',
-            factorValue: 1,
-          },
-          {
-            actualValue: '200000',
-            displayValue: '20万',
-            factorValue: 2,
-          },
-        ],
-        liabilityCode: 'SGBXJ',
-        liabilityId: 10165,
-        liabilityName: '身故、全残保险金',
-        maxAmount: null,
-        optionalFlag: 1,
-        showFlag: 1,
-      },
-      {
-        attributeFlag: 1,
-        displayType: 2,
-        formula: ['AMOUNT*2', 'AMOUNT*3'],
-        insureFlag: 2,
-        liabilityAttributeType: 2,
-        liabilityAttributeTypeDesc: '责任保额',
-        liabilityAttributeValueList: [],
-        liabilityCode: 'YWSG',
-        liabilityId: 10164,
-        liabilityName: '意外身故保险金',
-        maxAmount: 1000000,
-        optionalFlag: 1,
-        showFlag: 1,
-      },
-      {
-        attributeFlag: 2,
-        displayType: null,
-        formula: [],
-        insureFlag: 2,
-        liabilityAttributeType: null,
-        liabilityAttributeTypeDesc: null,
-        liabilityAttributeValueList: [],
-        liabilityCode: 'MQSC',
-        liabilityId: 10163,
-        liabilityName: '满期生存保险金',
-        maxAmount: null,
-        optionalFlag: 1,
-        showFlag: 2,
-      },
-    ],
-    riskName: '(请勿动该险种)北大方正人寿健康保两全保险',
-    riskType: 1,
-  },
-  {
-    factorDisPlayFlag: 1,
-    mainRiskCode: 'BEB1003',
-    mainRiskCollocationType: 1,
-    mainRiskFlag: 2,
-    mainRiskId: 10331,
-    ordering: 1,
-    productRiskInsureLimitVO: {
-      amountPremiumConfigVO: {
-        copiesAmount: null,
-        displayType: 3,
-        displayUnit: 1,
-        displayValues: [
-          {
-            code: '50000',
-            value: '50000',
-          },
-        ],
-        maxCopiesValue: null,
-        maxStepValue: null,
-        minCopiesValue: null,
-        minStepValue: null,
-        requireCopies: 2,
-        saleMethod: 1,
-        stepValue: '1000',
-      },
-      annuityDrawFrequencyList: null,
-      annuityDrawValueList: null,
-      insuranceEndType: 1,
-      insurancePeriodRule: 2,
-      insurancePeriodValueList: [
-        {
-          code: 'to_68',
-          value: '68周岁',
-        },
-        {
-          code: 'to_78',
-          value: '78周岁',
-        },
-        {
-          code: 'to_88',
-          value: '88周岁',
-        },
-      ],
-      insuranceStartTime: null,
-      insuranceStartType: 2,
-      paymentFrequencyList: [
-        {
-          code: '1',
-          value: '趸缴',
-        },
-        {
-          code: '2',
-          value: '年缴',
-        },
-      ],
-      paymentPeriodRule: 2,
-      paymentPeriodValueList: [
-        {
-          code: 'year_5',
-          value: '5年交',
-        },
-        {
-          code: 'year_10',
-          value: '10年交',
-        },
-        {
-          code: 'year_20',
-          value: '20年交',
-        },
-        {
-          code: 'single',
-          value: '一次交清',
-        },
-      ],
-      paymentTypeRule: 2,
-      riskId: null,
-    },
-    riskCategory: 5,
-    riskCode: 'BEB1003_FU',
-    riskId: 10332,
-    riskLiabilityInfoVOList: [
-      {
-        attributeFlag: 2,
-        displayType: null,
-        formula: [],
-        insureFlag: 2,
-        liabilityAttributeType: null,
-        liabilityAttributeTypeDesc: null,
-        liabilityAttributeValueList: [],
-        liabilityCode: 'MQSC',
-        liabilityId: 10163,
-        liabilityName: '满期生存保险金',
-        maxAmount: null,
-        optionalFlag: 1,
-        showFlag: 2,
-      },
-    ],
-    riskName: '(请勿动该险种)北大方正人寿健康保两全附加险',
-    riskType: 2,
-  },
-];
+const emit = defineEmits(['trialChange']);
 
 const props = withDefaults(defineProps<Props>(), {
-  dataSource: () => [],
+  dataSource: () => ({} as RiskDetailVoItem),
+  modelValue: () => ({} as RiskVoItem),
+  dataSourceFolmulate: () => ({} as RiskVoItem),
+  params: () => ({ amountUnit: '', basicsAmount: '', basicsPremium: '', riskId: '' }),
 });
+// const mValues = ref(props.modelValue);
+// console.log('mValue>>>>>>', mValues.value);
 const state = ref({
   formInfo: props.dataSource,
   isCheckList: [],
-  basicsAmount: '', // 基本保额
-  basicsPremium: '', // 基本保费
+  checkValueList: [],
+  liabilityVOList: [],
 });
-watch(
-  () => props.basicsAmount,
-  (val) => {
-    if (val) {
-      console.log('11');
-      // 请求公式接口
+
+const handleSwitchClick = (item, index) => {
+  // 可选责任 没有责任属性 且为选中投保状态需要把code传给后端
+
+  const key_list = state.value.liabilityVOList.map((i) => i.key);
+  // 可选责任 没有责任属性
+  const canChooseNoLib = item.liabilityAttributeValueList.length === 0 && item.formula.length === 0;
+  // 投保状态
+  const status = state.value.isCheckList[index];
+  console.log('key---------', key_list);
+  console.log('(key_list).indexOf(index)', key_list.indexOf(index));
+  if (canChooseNoLib && key_list.indexOf(index) === -1 && status) {
+    state.value.liabilityVOList.push({
+      liabilityValue: item,
+      key: index,
+      isSwitchOn: state.value.isCheckList[index],
+    });
+  }
+  // 对已经存在的责任 选择投保不投保 更新当前状态
+  if (key_list.indexOf(index) !== -1) {
+    state.value.liabilityVOList.forEach((i) => {
+      if (i.key === index) {
+        i.isSwitchOn = state.value.isCheckList[index];
+      }
+    });
+  }
+};
+const handleRiskLiabityClick = (e, index) => {
+  console.log('keykeykey>>>>>>', index);
+  const curentLiabilityList = e.liabilityAttributeValueList.filter(
+    (x) => x.actualValue === state.value.checkValueList[index],
+  );
+  const liabilityValue = JSON.parse(JSON.stringify(curentLiabilityList))[0];
+
+  const curentLiabilityObject = { ...e, liabilityValue };
+
+  if (state.value.liabilityVOList.length > 0) {
+    if (Object.keys(state.value.checkValueList).indexOf(index)) {
+      state.value.liabilityVOList = state.value.liabilityVOList.filter((x) => x.key !== index);
     }
+  }
+  state.value.liabilityVOList.push({
+    liabilityValue: curentLiabilityObject,
+    key: index,
+    isSwitchOn: '1',
+  });
+  console.log('state.liabilityVOList>>>>>>', state.value.liabilityVOList);
+};
+const dataSourceFolmulate = computed(() => {
+  // if (premium) return 0;
+  return cloneDeep(props.dataSourceFolmulate);
+});
+const dealInitliabilityValueList = (item, index, type) => {
+  if (type === 1) {
+    state.value.liabilityVOList.push({
+      liabilityValue: { ...item, liabilityValue: item?.liabilityAttributeValueList[0] },
+      key: index,
+      isSwitchOn: '1',
+    });
+  } else {
+    state.value.liabilityVOList.push({
+      liabilityValue: { ...item, liabilityValue: item?.liabilityAttributeValueList[0] },
+      key: index,
+      isSwitchOn: '2',
+    });
+  }
+};
+watch(
+  () => dataSourceFolmulate.value,
+  (oldValue, newValue) => {
+    const amount = props.dataSourceFolmulate?.amount;
+    const premium = props.dataSourceFolmulate?.premium;
+
+    const formulaParams = {
+      amountUnit: props.params.amountUnit,
+      basicsAmount: amount,
+      basicsPremium: premium,
+      riskId: props.params.riskId,
+    };
+
+    // eslint-disable-next-line consistent-return
+    const liabilityItem = props.dataSource.riskLiabilityInfoVOList.map(async (liab) => {
+      if (
+        liab.formula.length > 0 &&
+        (amount || premium) &&
+        (oldValue?.amount !== newValue?.amount || oldValue?.premium !== newValue?.premium)
+      ) {
+        // 责任属性为公式类型，需要请求公式接口
+
+        const { code, data } = await getCalculateRiskFormula({ ...formulaParams, riskLiabilities: [liab] });
+
+        if (code === '10000') {
+          liab.liabilityAttributeValueList = data[0].formulaResult;
+          return { ...liab, liabilityAttributeValueList: data[0] };
+        }
+
+        return liab;
+      }
+    });
+    console.log('liabilityItem>>>>>>', liabilityItem);
+    console.log('riskLiabilityInfoVOList>>>>>>', props.dataSource.riskLiabilityInfoVOList);
   },
   {
+    deep: true,
     immediate: true,
   },
 );
+
+watch(
+  () => state.value.liabilityVOList,
+  (value) => {
+    const dataList = state.value.liabilityVOList
+      .filter((x) => x.isSwitchOn === '1')
+      .map((item) => ({ ...item.liabilityValue }));
+    emit('trialChange', dataList);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+onMounted(() => {
+  // 默认需要选中第一个责任
+  // state.value.checkValueList = { 0: '100000', 1: '20000', 4: '1', 5: '1' };
+  props.dataSource.riskLiabilityInfoVOList.map((item, index) => {
+    // 设置非公式类型初始化 默认选中第一个值
+    const value =
+      item.liabilityAttributeValueList.length > 0 &&
+      item.formula.length === 0 &&
+      item.liabilityAttributeValueList[0].actualValue;
+
+    state.value.checkValueList[index] = value;
+    // 初始化数据，必选责任不展示，但需要把当前责任code的对象传给后端
+    if (+item.showFlag !== 1) {
+      state.value.liabilityVOList.push({
+        liabilityValue: item,
+        key: index,
+        isSwitchOn: '1',
+      });
+    }
+    if (+item.showFlag === 1) {
+      // 初始状态 责任属性必须展示的情况(非公式类型)
+      if (item.attributeFlag === 1 && item.insureFlag === 2 && item.formula.length === 0) {
+        dealInitliabilityValueList(item, index, 1);
+      }
+      // 初始状态 责任属性可选展示的情况(非公式类型)
+      if (item.attributeFlag === 1 && item.insureFlag === 1 && item.formula.length === 0) {
+        dealInitliabilityValueList(item, index, 2);
+      }
+      // 必选责任 下面属性值只有一个时，不展示责任属性 初始化值
+      if (item.attributeFlag === 2 && item?.liabilityAttributeValueList.length === 1 && item.insureFlag === 2) {
+        dealInitliabilityValueList(item, index, 1);
+      }
+      // 可选责任 下面属性值只有一个时，不展示责任属性 初始化值
+      if (item.attributeFlag === 2 && item?.liabilityAttributeValueList.length === 1 && item.insureFlag === 1) {
+        dealInitliabilityValueList(item, index, 2);
+      }
+    }
+    return null;
+  });
+});
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.com-risk-liabilityinfo {
+  :deep(.riskliab-select-field) {
+    display: inline-flex;
+    padding: 0;
+    align-items: center;
+    min-height: 106px;
+    .van-cell__title {
+      color: #333333;
+    }
+    :deep(.van-field__label) {
+      color: #666666;
+    }
+    &::after {
+      display: none;
+    }
+  }
+  :deep(.riskliab-select-field-children) {
+    background: rgba(246, 246, 246, 0.2);
+    border-radius: 8px;
+    border: 1px solid #eeeeee;
+    padding: 18px 30px;
+    padding-left: 30px !important;
+    padding-right: 30px !important;
+    margin-bottom: 20px;
+  }
+}
+</style>

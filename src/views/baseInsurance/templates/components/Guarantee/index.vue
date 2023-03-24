@@ -1,9 +1,5 @@
 <!--
- * @Author: wangyuanli@zhongan.io
- * @Date: 2022-09-21 21:00
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-03-14 14:45:18
- * @Description: 保障详情
+ *  保障详情
 -->
 <template>
   <div class="guarantee-list">
@@ -16,9 +12,7 @@
         <div
           v-for="(item, index) in planList"
           :key="`${item.planCode}_${index}`"
-          :class="`plan-list-item ${item.planCode === currentActivePlanCode ? 'plan-list-item-active' : ''} ${
-            planList.length === 2 ? 'paln-list-item-half' : ''
-          }`"
+          :class="`plan-list-item ${item.planCode === currentActivePlanCode ? 'plan-list-item-active' : ''}`"
           @click="onPlanItemClickEmit(item.planCode)"
         >
           <span>{{ item.planName }}</span>
@@ -129,7 +123,7 @@ const props = defineProps({
 });
 
 const guaranteeDetailHeight = ref('');
-const emits = defineEmits(['update-active-plan']);
+const emits = defineEmits(['updateActivePlan']);
 
 const currentActivePlanCode = ref<string>(props.planList?.[0]?.planCode || undefined);
 
@@ -209,6 +203,7 @@ const onPlanItemClickEmit = (val: string) => {
   // activePlanCode.value = val;
   currentActivePlanCode.value = val;
   currentActivePlanCodeIndex.value = props.planList.findIndex((e) => e.planCode === val);
+  emits('updateActivePlan', val);
   // emits('update-active-plan', val);
 };
 
@@ -411,7 +406,7 @@ const setGuaranteeListHeight = () => {
   width: 100%;
   overflow-x: scroll;
   overflow-y: hidden;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   justify-content: flex-start;
   padding: 30px 0px;
 
@@ -420,15 +415,20 @@ const setGuaranteeListHeight = () => {
   }
 
   .plan-list-item {
-    min-width: 250px;
+    width: 31%;
     height: 76px;
     line-height: 76px;
+    margin-bottom: 20px;
+    margin-right: 3.5%;
     text-align: center;
     border-radius: 8px;
     background: #f6f6f6;
-    margin-right: 20px;
-
-    &:last-child {
+    border: 1px solid transparent;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0 10px;
+    &:nth-child(3n) {
       margin-right: 0px;
     }
 
@@ -442,15 +442,11 @@ const setGuaranteeListHeight = () => {
 
   .plan-list-item-active {
     border: 1px solid $primary-color;
-    background: #fff3eb;
+    background: var(--van-primary-color-light05);
 
     span {
       color: $primary-color;
     }
-  }
-
-  .paln-list-item-half {
-    min-width: 325px !important;
   }
 }
 .guarantee-popup {

@@ -1,8 +1,8 @@
 <!--
  * @Author: zhaopu
  * @Date: 2022-11-28 12:56:44
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-30 20:13:03
+ * @LastEditors: jianmei.ji
+ * @LastEditTime: 2023-03-22 15:19:17
  * @Description:
 -->
 <template>
@@ -27,7 +27,7 @@ watch(
     if (!val) {
       lastContent.value = '';
     } else {
-      lastContent.value = val.replaceAll('\n', '<br />');
+      lastContent.value = val;
     }
   },
   {

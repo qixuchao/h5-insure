@@ -1,6 +1,12 @@
 <template>
   <template v-for="config in PRODUCT_KEYS_CONFIG">
-    <div v-if="get(originData, config.configKey)" :key="riskCode + '_' + config.name">
+    <div
+      v-if="
+        get(originData, config.configKey) &&
+        (riskInfo.mainRiskFlag === 1 || (config.ruleKey && get(originData, config.ruleKey) === 2) || !config.ruleKey)
+      "
+      :key="riskInfo.riskCode + '_' + config.name"
+    >
       <template v-if="config.type === 'checkbox'">
         <ProField
           v-model="mValues[config.valueKey]"
@@ -24,23 +30,22 @@
 <script lang="ts" setup>
 import { ref, watch, withDefaults } from 'vue';
 import { set, get } from 'lodash';
-import { RiskVoItem, ProductRiskInsureLimit } from '@/api/modules/trial.data';
+import { RiskVoItem, ProductRiskInsureLimit, RiskDetailVoItem } from '@/api/modules/trial.data';
 import { PRODUCT_KEYS_CONFIG } from './config';
 
 // 参看CollapseItem组件
 interface Props {
   originData: ProductRiskInsureLimit;
   modelValue: RiskVoItem;
-  riskCode: string;
+  riskInfo: RiskDetailVoItem;
 }
+const emit = defineEmits(['trialChange']);
 
 const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as ProductRiskInsureLimit),
   modelValue: () => ({} as RiskVoItem),
-  riskCode: '',
+  riskInfo: () => ({} as RiskDetailVoItem),
 });
-
-console.log('baoebaofei  = ', props.originData);
 const mConfigs = ref(props.originData);
 const mValues = ref(props.modelValue);
 const showTypes = ref(1);
@@ -69,9 +74,20 @@ onMounted(() => {
 });
 
 watch(
-  () => mConfigs,
+  () => mConfigs.value,
   (v) => {
     initData();
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  () => mValues.value,
+  (v) => {
+    emit('trialChange', v);
   },
   {
     deep: true,
@@ -99,5 +115,8 @@ watch(
   line-height: 32px;
   background-color: rgb(233, 231, 231);
   border: 1px solid rgb(205, 205, 205);
+}
+:deep(.risk-select-field) {
+  align-items: baseline !important;
 }
 </style>

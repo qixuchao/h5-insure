@@ -1,11 +1,3 @@
-<!--
- * @Author: za-qixuchao qixuchao@zhongan.io
- * @Date: 2022-09-15 17:44:21
- * @LastEditors: zhaopu
- * @LastEditTime: 2023-01-12 12:38:12
- * @FilePath: /zat-planet-h5-cloud-insure/src/views/chuangxin/baigebao/product/components/FIlePreview/index.vue
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
--->
 <template>
   <ProPopup
     v-model:show="isShow"
@@ -14,8 +6,8 @@
     :closeable="false"
     @close="onClosePopup()"
   >
-    <van-config-provider :theme-vars="themeVars" class="custom-provider">
-      <!-- <ProTab
+    <!-- <van-config-provider :theme-vars="themeVars" class="custom-provider"> -->
+    <!-- <ProTab
         v-if="isShow"
         v-model:active="currentActiveIndex"
         :list="
@@ -26,25 +18,25 @@
         "
         class="tab"
       ></ProTab> -->
-      <div class="tip">
-        <div class="content">
-          <span>
-            <span class="important-text">重要</span>
-            请确认被保险人是否存在下列问题，请如实告知，否则将对您的理赔权益或合同效力产生影响
-          </span>
-        </div>
+    <div class="tip">
+      <div class="content">
+        <span>
+          <span class="important-text">重要</span>
+          请确认被保险人是否存在下列问题，请如实告知，否则将对您的理赔权益或合同效力产生影响
+        </span>
       </div>
-      <div class="title">{{ contentList[0].attachmentName }}</div>
-      <div class="list">
-        <div class="item">
-          <ProFilePreview :key="attachmentUri" :content="attachmentUri" :type="attachmentType"></ProFilePreview>
-        </div>
+    </div>
+    <div class="title">{{ contentList[0].attachmentName }}</div>
+    <div class="list">
+      <div class="item">
+        <ProFilePreview :key="attachmentUri" :content="attachmentUri" :type="attachmentType"></ProFilePreview>
       </div>
-      <div class="footer">
-        <VanButton block round class="left" @click="onConfirmHealth('N')">部分为是</VanButton>
-        <VanButton type="primary" plain block round @click="onConfirmHealth('allFalse')">以上全否，立即投保</VanButton>
-      </div>
-    </van-config-provider>
+    </div>
+    <div class="footer">
+      <VanButton block round class="left" @click="onConfirmHealth('N')">部分为是</VanButton>
+      <VanButton type="primary" plain block round @click="onConfirmHealth('allFalse')">以上全否，立即投保</VanButton>
+    </div>
+    <!-- </van-config-provider> -->
   </ProPopup>
 </template>
 

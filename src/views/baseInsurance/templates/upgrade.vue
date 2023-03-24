@@ -1,66 +1,64 @@
 <template>
   <div v-if="loading">__SKELETON_UPGRADE_CONTENT__</div>
-  <van-config-provider v-else data-skeleton-root="UPGRADE" :theme-vars="themeVars">
-    <div class="page-upgrade-product-detail">
-      <Banner data-skeleton-type="img" :url="detail?.tenantProductInsureVO?.banner[0]" />
-      <InsureForm
-        ref="formRef"
-        :title-collection="{
-          HOLDER: '投保人信息',
-          INSURER: '投保信息',
-          BENEFICIARY: '投保人信息',
-        }"
-        need-desensitize
-        is-view
-        input-align="right"
-        :form-info="orderDetail"
-        :factor-object="insureDetail?.productFactor"
-      ></InsureForm>
-      <ProField v-model="premiumText" input-align="right" label="每月保费" name="insuredBeneficiaryType"> </ProField>
-      <AttachmentList
-        v-if="filterHealthAttachmentList && filterHealthAttachmentList.length > 0"
-        class="attachment-bg"
-        :attachement-list="filterHealthAttachmentList"
-        :has-bg-color="false"
-        pre-text="请阅读"
-        @preview-file="(index:number) => previewFile(index)"
-      />
-      <div class="footer-area">
-        <ProShare v-if="isApp" v-bind="shareInfo" class="share-btn">
-          <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
-          <span>分享</span>
-        </ProShare>
-        <div class="upgrade-submit">
-          <div class="price">
-            <span class="num">{{ premium }}</span>
-            <span class="unit">元/月</span>
-          </div>
-          <ProShadowButton
-            :shadow="false"
-            :disabled="upgradeBtn"
-            :theme-vars="themeVars"
-            class="right"
-            text="升级保障"
-            @click="onUpgrade"
-          >
-            {{ '升级保障' }}
-          </ProShadowButton>
+  <div v-else data-skeleton-root="UPGRADE" class="page-upgrade-product-detail">
+    <Banner data-skeleton-type="img" :url="detail?.tenantProductInsureVO?.banner[0]" />
+    <InsureForm
+      ref="formRef"
+      :title-collection="{
+        HOLDER: '投保人信息',
+        INSURER: '投保信息',
+        BENEFICIARY: '投保人信息',
+      }"
+      need-desensitize
+      is-view
+      input-align="right"
+      :form-info="orderDetail"
+      :factor-object="insureDetail?.productFactor"
+    ></InsureForm>
+    <ProField v-model="premiumText" input-align="right" label="每月保费" name="insuredBeneficiaryType"> </ProField>
+    <AttachmentList
+      v-if="filterHealthAttachmentList && filterHealthAttachmentList.length > 0"
+      class="attachment-bg"
+      :attachement-list="filterHealthAttachmentList"
+      :has-bg-color="false"
+      pre-text="请阅读"
+      @preview-file="(index:number) => previewFile(index)"
+    />
+    <div class="footer-area">
+      <ProShare v-if="isApp" v-bind="shareInfo" class="share-btn">
+        <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
+        <span>分享</span>
+      </ProShare>
+      <div class="upgrade-submit">
+        <div class="price">
+          <span class="num">{{ premium }}</span>
+          <span class="unit">元/月</span>
         </div>
+        <ProShadowButton
+          :shadow="false"
+          :disabled="upgradeBtn"
+          :theme-vars="themeVars"
+          class="right"
+          text="升级保障"
+          @click="onUpgrade"
+        >
+          {{ '升级保障' }}
+        </ProShadowButton>
       </div>
     </div>
-    <FilePreview
-      v-if="state.showFilePreview && filterHealthAttachmentList.length !== 0"
-      v-model:show="state.showFilePreview"
-      :content-list="filterHealthAttachmentList"
-      :is-only-view="state.isOnlyView"
-      :active-index="state.activeIndex"
-      :text="state.isOnlyView ? '关闭' : '我已逐页阅读上述内容并同意'"
-      :force-read-cound="0"
-      on-close-file-preview
-      @submit="onSubmit"
-      @on-close-file-preview="onCloseFilePreview"
-    ></FilePreview>
-  </van-config-provider>
+  </div>
+  <FilePreview
+    v-if="state.showFilePreview && filterHealthAttachmentList.length !== 0"
+    v-model:show="state.showFilePreview"
+    :content-list="filterHealthAttachmentList"
+    :is-only-view="state.isOnlyView"
+    :active-index="state.activeIndex"
+    :text="state.isOnlyView ? '关闭' : '我已逐页阅读上述内容并同意'"
+    :force-read-cound="0"
+    on-close-file-preview
+    @submit="onSubmit"
+    @on-close-file-preview="onCloseFilePreview"
+  ></FilePreview>
 </template>
 
 <script lang="ts" setup>

@@ -1,7 +1,7 @@
 <template>
   <ProFormItem
     :model-value="state.fieldValue"
-    :class="`${!filedAttrs.visibile ? '' : 'com-van-field--hidden'}`"
+    :class="`${filedAttrs.visible === false ? 'com-van-field--hidden' : ''}`"
     v-bind="filedAttrs"
     :field-value-view="fieldValueView"
     @click="!isView && (show = true)"
@@ -35,12 +35,14 @@ import useAppStore from '@/store/app';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { useAttrsAndSlots } from '../hooks';
-import { deleteEmptyChildren } from '../utils';
+import { deleteEmptyChildren, relatedConfigMap, VAN_PRO_FORM_KEY } from '../utils';
 
 const globalStore = useAppStore();
 const { dictMap } = storeToRefs(globalStore);
 
-const { filedAttrs, filedSlots, attrs, slots } = useAttrsAndSlots();
+const { filedAttrs, filedSlots, attrs, slots } = toRefs(useAttrsAndSlots());
+
+const { formState } = inject(VAN_PRO_FORM_KEY) || {};
 
 interface ColumnsFieldNames {
   text: string;
@@ -49,6 +51,13 @@ interface ColumnsFieldNames {
 }
 
 const props = defineProps({
+  /**
+   * ruleType 关联的 name (证件号验证)
+   */
+  relatedName: {
+    type: String,
+    default: '',
+  },
   /**
    * 值列
    */
@@ -102,7 +111,20 @@ const state = reactive({
   columns: [],
 });
 
+/**
+ * 事件副作用, 定义对应 type 的副作用函数 `${type}Effect`
+ * @param type onBlur、onChange
+ * @param val
+ */
+const onEffect = (type, val) => {
+  if (props.relatedName && type) {
+    const effectFn = (relatedConfigMap[props.relatedName] || {})[`${type}Effect`];
+    typeof effectFn === 'function' && effectFn(val, formState);
+  }
+};
+
 const handleSelect = (val) => {
+  onEffect('onChange', val);
   state.fieldValue = val;
   emits('update:modelValue', val);
 };
@@ -174,6 +196,17 @@ watch(
   {
     deep: true,
     immediate: true,
+  },
+);
+
+watch(
+  () => formState?.formData?.[filedAttrs.value.name],
+  (val) => {
+    state.fieldValue = val as string | number;
+  },
+  {
+    immediate: true,
+    deep: true,
   },
 );
 

@@ -16,29 +16,18 @@ const props = defineProps<{ src: string }>();
 const showVideo = ref(false);
 const coverImg = ref('');
 watch(
-  () => props.src,
-  () => {
-    debugger;
-    getCoverImage({
-      type: 2,
-      url:
-        props.src ||
-        'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/test/edward/video.mp4?Expires=1678436061%26OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C%26Signature=cGw7WPsFup8EJ1Q1FQTw2jW4BMQ%3D',
-    }).then((res) => {
-      coverImg.value = res.data;
-    });
+  () => props,
+  (val) => {
+    coverImg.value = `/api/app/common/file/generateLink?type=2&url=${val.src}`;
+  },
+  {
+    deep: true,
+    immediate: true,
   },
 );
 onMounted(() => {
-  // getCoverImage({
-  //   type: 2,
-  //   url:
-  //     props.src ||
-  //     'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/test/edward/video.mp4?Expires=1678436061%26OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C%26Signature=cGw7WPsFup8EJ1Q1FQTw2jW4BMQ%3D',
-  // }).then((res) => {
-  //   debugger;
-  //   coverImg.value = res.data;
-  // });
+  // coverImg.value = `/api/app/common/file/generateLink?type=2&url=${props.src}`;
+  // coverImg.value = `/api/app/common/file/generateLink?type=2&url=http://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/test/edward/video.mp4?OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Expires=1679027240&Signature=vm8B94X7TrAdmCMdAUSckokW6cQ%3D`;
 });
 </script>
 

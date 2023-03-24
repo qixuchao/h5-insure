@@ -36,7 +36,7 @@ import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { useAttrsAndSlots } from '../hooks';
 import { VAN_PRO_FORM_KEY } from '../utils';
 
-const { filedAttrs, filedSlots, attrs, slots } = useAttrsAndSlots();
+const { filedAttrs, filedSlots, attrs, slots } = toRefs(useAttrsAndSlots());
 
 const emits = defineEmits(['update:modelValue', 'cancel']);
 
@@ -117,12 +117,12 @@ const dealModelValue = (val) => {
   if (isDate(val)) {
     state.date = val;
     state.fieldValue = dayjs(val).format(formatValueType.value);
-  } else if (typeof val === 'string' && val) {
+  } else if (typeof val === 'string') {
     state.fieldValue = val;
     if (isDateType.value) {
       state.date = dayjs(val, formatValueType.value).isValid() ? dayjs(val, formatValueType.value).toDate() : null;
     } else {
-      state.date = val;
+      state.date = val as string;
     }
   }
 };
@@ -139,7 +139,7 @@ watch(
 );
 
 watch(
-  () => formState.formData?.[filedAttrs.name],
+  () => formState.formData?.[filedAttrs.value.name],
   (val) => {
     dealModelValue(val);
   },

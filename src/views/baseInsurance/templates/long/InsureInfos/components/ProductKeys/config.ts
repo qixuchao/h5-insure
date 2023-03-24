@@ -16,18 +16,21 @@ export const PRODUCT_KEYS_CONFIG = [
     type: 'checkbox',
     configKey: ['paymentFrequencyList'],
     valueKey: 'paymentFrequency',
+    ruleKey: 'paymentTypeRule',
   },
   {
     name: '交费期间',
     type: 'checkbox',
     configKey: ['paymentPeriodValueList'],
     valueKey: 'chargePeriod',
+    ruleKey: 'paymentPeriodRule',
   },
   {
     name: '保障期间',
     type: 'checkbox',
     configKey: ['insurancePeriodValueList'],
     valueKey: 'coveragePeriod',
+    ruleKey: 'insurancePeriodRule',
   },
 ];
 

@@ -1,8 +1,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-28 10:28:12
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2023-03-10 16:37:21
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2023-03-17 18:00:39
  * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/infoCollection.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -157,6 +157,8 @@ export const TEMPLATE_TYPE_ENUM = {
   NETSALE: '3',
   // 魔方升级
   UPGRADE: '4',
+  LONG: '201',
+  NIANJIN: '202',
 };
 
 export const TEMPLATE_TYPE_MAP = {
@@ -168,6 +170,10 @@ export const TEMPLATE_TYPE_MAP = {
   [TEMPLATE_TYPE_ENUM.NETSALE]: 'netsale',
   // 魔方升级
   [TEMPLATE_TYPE_ENUM.UPGRADE]: 'short',
+  // 长期险
+  [TEMPLATE_TYPE_ENUM.LONG]: 'long',
+  // 年金
+  [TEMPLATE_TYPE_ENUM.NIANJIN]: 'long',
 };
 
 export const PAGE_CODE_LIST = [

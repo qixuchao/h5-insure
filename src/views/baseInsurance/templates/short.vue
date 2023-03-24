@@ -1,96 +1,94 @@
 <template>
   <div v-if="loading">__SKELETON_SHORT_CONTENT__</div>
-  <van-config-provider v-else data-skeleton-root="SHORT" :theme-vars="themeVars">
-    <div class="page-internet-product-detail">
-      <div class="info">
-        <Banner
-          v-if="tenantProductDetail?.BASIC_INFO?.banner.length"
-          data-skeleton-type="img"
-          :url="tenantProductDetail?.BASIC_INFO.banner[0]"
-        />
-        <!-- <Video
+  <div v-else data-skeleton-root="SHORT" :theme-vars="themeVars" class="page-internet-product-detail">
+    <div class="info">
+      <Banner
+        v-if="tenantProductDetail?.BASIC_INFO?.banner.length"
+        data-skeleton-type="img"
+        :url="tenantProductDetail?.BASIC_INFO.banner[0]"
+      />
+      <!-- <Video
           v-if="tenantProductDetail?.BASIC_INFO?.video.length"
           data-skeleton-type="img"
           :url="tenantProductDetail?.BASIC_INFO.video[0]"
         /> -->
-        <Banner
-          v-if="tenantProductDetail?.BASIC_INFO?.bannerMove?.length"
-          :url="tenantProductDetail?.BASIC_INFO?.bannerMove?.[0]"
-          @click="onClickToInsure"
-        />
-        <div ref="observeRef"></div>
-      </div>
-      <Guarantee
-        v-if="tenantProductDetail?.GUARANTEE"
-        show-service-config
-        :data-source="tenantProductDetail"
-        :plan-list="planList"
+      <Banner
+        v-if="tenantProductDetail?.BASIC_INFO?.bannerMove?.length"
+        :url="tenantProductDetail?.BASIC_INFO?.bannerMove?.[0]"
+        @click="onClickToInsure"
       />
-      <ScrollInfo ref="detailScrollRef" :order-detail="orderDetail" :data-source="tenantProductDetail">
-        <template #form>
-          <div class="custom-page-form">
-            <div class="form-title">请填写投保信息</div>
-            <ProRenderFormWithCard
-              ref="holderFormRef"
-              title="本人信息（投保人）"
-              :model="state.holder.formData"
-              :schema="state.holder.schema"
-              :config="state.holder.config"
-            />
-
-            <!-- 被保人 -->
-            <ProRenderFormWithCard
-              v-for="(insured, index) in state.insuredList"
-              ref="insuredFormRef"
-              :key="index"
-              title="为谁投保（被保人）"
-              :model="state.insuredList[index].formData"
-              :schema="insured.schema"
-              :config="insured.config"
-            />
-          </div>
-          <PaymentType
-            :form-info="guaranteeObj"
-            :risk-info="mainRiskInfo"
-            :tenant-product-detail="tenantProductDetail.PREMIUM"
-            :plan-list="planList"
-            :premium-info="{ premium, premiumLoadingText }"
-            @update-active-plan="updateActivePlan"
-          />
-          <Package v-if="currentPackageConfigVOList.length > 0" :package-product-list="currentPackageConfigVOList" />
-        </template>
-      </ScrollInfo>
-      <ProLazyComponent>
-        <InscribedContent
-          v-if="tenantProductDetail.SIGNATURE?.inscribedContent"
-          :inscribed-content="tenantProductDetail?.SIGNATURE?.inscribedContent"
-        />
-      </ProLazyComponent>
-      <ProLazyComponent>
-        <AttachmentList
-          v-if="fileList?.length"
-          :attachement-list="fileList"
-          pre-text="请阅读"
-          @preview-file="(index) => previewFile(index)"
-        />
-      </ProLazyComponent>
-      <template v-if="showFooterBtn">
-        <TrialButton
-          :is-share="tenantProductDetail.PRODUCT_LIST.showWXShare"
-          :premium="premium"
-          :share-info="shareInfo"
-          :loading-text="premiumLoadingText"
-          :plan-code="guaranteeObj.planCode"
-          :payment-frequency="guaranteeObj.paymentFrequency"
-          :tenant-product-detail="tenantProductDetail"
-          @click="onNext"
-          >立即投保</TrialButton
-        >
-      </template>
+      <div ref="observeRef"></div>
     </div>
-    <PreNotice v-if="preNoticeLoading" :product-detail="tenantProductDetail"></PreNotice>
-    <div id="xinaoDialog"></div>
-  </van-config-provider>
+    <Guarantee
+      v-if="tenantProductDetail?.GUARANTEE"
+      show-service-config
+      :data-source="tenantProductDetail"
+      :plan-list="planList"
+    />
+    <ScrollInfo ref="detailScrollRef" :order-detail="orderDetail" :data-source="tenantProductDetail">
+      <template #form>
+        <div class="custom-page-form">
+          <div class="form-title">请填写投保信息</div>
+          <ProRenderFormWithCard
+            ref="holderFormRef"
+            title="本人信息（投保人）"
+            :model="state.holder.formData"
+            :schema="state.holder.schema"
+            :config="state.holder.config"
+          />
+
+          <!-- 被保人 -->
+          <ProRenderFormWithCard
+            v-for="(insured, index) in state.insuredList"
+            ref="insuredFormRef"
+            :key="index"
+            title="为谁投保（被保人）"
+            :model="state.insuredList[index].formData"
+            :schema="insured.schema"
+            :config="insured.config"
+          />
+        </div>
+        <PaymentType
+          :form-info="guaranteeObj"
+          :risk-info="mainRiskInfo"
+          :tenant-product-detail="tenantProductDetail.PREMIUM"
+          :plan-list="planList"
+          :premium-info="{ premium, premiumLoadingText }"
+          @update-active-plan="updateActivePlan"
+        />
+        <Package v-if="currentPackageConfigVOList.length > 0" :package-product-list="currentPackageConfigVOList" />
+      </template>
+    </ScrollInfo>
+    <ProLazyComponent>
+      <InscribedContent
+        v-if="tenantProductDetail.SIGNATURE?.inscribedContent"
+        :inscribed-content="tenantProductDetail?.SIGNATURE?.inscribedContent"
+      />
+    </ProLazyComponent>
+    <ProLazyComponent>
+      <AttachmentList
+        v-if="fileList?.length"
+        :attachement-list="fileList"
+        pre-text="请阅读"
+        @preview-file="(index) => previewFile(index)"
+      />
+    </ProLazyComponent>
+    <template v-if="showFooterBtn">
+      <TrialButton
+        :is-share="tenantProductDetail.PRODUCT_LIST.showWXShare"
+        :premium="premium"
+        :share-info="shareInfo"
+        :loading-text="premiumLoadingText"
+        :plan-code="guaranteeObj.planCode"
+        :payment-frequency="guaranteeObj.paymentFrequency"
+        :tenant-product-detail="tenantProductDetail"
+        @click="onNext"
+        >立即投保</TrialButton
+      >
+    </template>
+  </div>
+  <PreNotice v-if="preNoticeLoading" :product-detail="tenantProductDetail"></PreNotice>
+  <div id="xinaoDialog"></div>
   <HealthNoticePreview
     v-model:show="showHealthPreview"
     :content-list="healthAttachmentList"

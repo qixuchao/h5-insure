@@ -1,18 +1,31 @@
 <template>
-  <ProRenderForm
-    ref="personalInfoRef"
+  <ProRenderFormWithCard
+    ref="holderInfoRef"
+    :title="isOnlyForm ? '' : '投保人信息'"
     class="trail-personal-info"
-    :model="state.formData"
-    :schema="state.schema"
-    :config="state.config"
+    :model="state.holder.personVO"
+    :schema="state.holder.schema"
+    :config="state.holder.config"
+  />
+  <!-- 被保人 -->
+  <ProRenderFormWithCard
+    v-for="(insured, index) in state.insured.insuredVOList"
+    ref="insuredFormRef"
+    :key="index"
+    class="trail-personal-info"
+    :title="isOnlyForm ? '' : '被保人信息'"
+    :model="insured.personVO"
+    :schema="state.insured.schema"
+    :config="state.insured.config"
   />
 </template>
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
 import { useRoute } from 'vue-router';
 import { isNil } from 'lodash';
-import { ProRenderForm, combineOccupation, transformFactorToSchema } from '@/components/RenderForm';
+import { ProRenderFormWithCard, combineOccupation, transformFactorToSchema } from '@/components/RenderForm';
 import { ProductFactor } from '@/api/modules/trial.data';
+import { isNotEmptyArray } from '@/common/constants/utils';
 
 const { query: { insurerCode } = {} } = useRoute();
 
@@ -21,8 +34,9 @@ interface Props {
   modelValue: any;
 }
 
-const emit = defineEmits(['update:modelValue', 'trail']);
-const personalInfoRef = ref(null);
+const emit = defineEmits(['update:modelValue', 'trailChange']);
+const holderInfoRef = ref(null);
+const insuredFormRef = ref(null);
 
 const props = withDefaults(defineProps<Props>(), {
   productFactor: () => ({} as ProductFactor),
@@ -30,32 +44,89 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const state = reactive({
-  formData: {},
-  schema: [],
-  /** 验证成功状态 */
   validated: false,
-  trialFactorCodes: [],
-  config: {
-    // 职业
-    occupation: {
-      dictCode: combineOccupation(insurerCode as string),
+  holder: {
+    personVO: {},
+    schema: [],
+    trialFactorCodes: [],
+    config: {
+      // 职业
+      occupation: {
+        dictCode: combineOccupation(insurerCode as string),
+      },
     },
+  },
+  insured: {
+    schema: [],
+    trialFactorCodes: [],
+    config: {
+      // 职业
+      occupation: {
+        dictCode: combineOccupation(insurerCode as string),
+      },
+    },
+    insuredVOList: [
+      {
+        personVO: {},
+      },
+    ],
   },
 });
 
 /** 验证试算因子是否全部有值 */
 const validateFields = () => {
-  return state.trialFactorCodes.some((code) => {
-    const val = state.formData[code];
-    return isNil(val) || val === '';
+  const flag1 = isNotEmptyArray(state.holder.trialFactorCodes)
+    ? state.holder.trialFactorCodes.some((code) => {
+        const val = state.holder.personVO[code];
+        return isNil(val) || val === '';
+      })
+    : false;
+  const flag2 = isNotEmptyArray(state.insured.trialFactorCodes)
+    ? state.insured.trialFactorCodes.some((code) => {
+        return state.insured.insuredVOList.some((item) => {
+          const val = item.personVO[code];
+          return isNil(val) || val === '';
+        });
+      })
+    : false;
+  return flag1 || flag2;
+};
+
+// 只有投保人/被保人 不显示标题
+const isOnlyForm = computed(() => {
+  const holderFlag = isNotEmptyArray(state.holder.schema);
+  const insuredFlag = isNotEmptyArray(state.insured.schema);
+  return holderFlag !== insuredFlag;
+});
+
+// 验证表单
+const validate = () => {
+  const insuredRefs = insuredFormRef.value?.map((refItem) => refItem?.validate());
+  return Promise.all([holderInfoRef.value?.validate(), ...insuredRefs]);
+};
+
+const listObject = (personInfo: any) => {
+  const keyWords = ['insureArea', 'residence', 'longArea', 'workAddress'];
+  const newInfo = {};
+  Object.keys(personInfo).forEach((key) => {
+    if (keyWords.indexOf(key) >= 0 && personInfo[key] instanceof Object) {
+      // 平铺
+      Object.keys(personInfo[key]).forEach((ckey) => {
+        newInfo[ckey] = personInfo[key][ckey];
+      });
+    } else {
+      newInfo[key] = personInfo[key];
+    }
   });
+  return newInfo;
 };
 
 watch(
   () => props.productFactor,
   () => {
     const [holder, insured] = transformFactorToSchema(props.productFactor, true);
-    Object.assign(state, insured);
+    Object.assign(state.holder, holder);
+    Object.assign(state.insured, insured);
   },
   {
     deep: true,
@@ -64,16 +135,22 @@ watch(
 );
 
 watch(
-  () => state.formData,
+  [() => state.holder.personVO, () => state.insured.insuredVOList],
   () => {
-    emit('update:modelValue', state.formData);
+    const result = {
+      holder: listObject(state.holder.personVO),
+      insuredVOList: state.insured.insuredVOList.map((insured) => {
+        return { ...insured, personVO: listObject(insured.personVO) };
+      }),
+    };
+
+    emit('update:modelValue', result);
     // 验证通过调用试算
     if (!validateFields()) {
-      personalInfoRef.value
-        ?.validate()
+      validate()
         .then(() => {
           state.validated = true;
-          emit('trail', state.formData);
+          emit('trailChange', result);
         })
         .catch(() => {
           state.validated = false;
@@ -82,13 +159,19 @@ watch(
   },
   {
     deep: true,
-    immediate: true,
   },
 );
+
+defineExpose({
+  validate,
+});
 </script>
 
 <style scoped lang="scss">
 .trail-personal-info {
+  :deep(.com-card-wrap) .header {
+    margin-left: 0;
+  }
   :deep(.com-van-field) {
     &:last-child::after {
       display: block;

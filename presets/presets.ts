@@ -75,19 +75,20 @@ export default (env: ConfigEnv) => {
     // VueI18n({
     //   include: [resolve(__dirname, '../locales/**')],
     // }),
-    legacyPlugin({
-      targets: ['chrome 72'], // 需要兼容的目标列表，可以设置多个
-      additionalLegacyPolyfills: ['regenerator-runtime/runtime'], // 面向IE11时需要此插件
-    }),
+    // legacyPlugin({
+    //   targets: ['chrome 72'], // 需要兼容的目标列表，可以设置多个
+    //   additionalLegacyPolyfills: ['regenerator-runtime/runtime'], // 面向IE11时需要此插件
+    // }),
     splitVendorChunkPlugin(),
-    viteCompression({
-      threshold: 1025 * 10,
-      verbose: true,
-      disable: false,
-      algorithm: 'gzip',
-      ext: '.gz',
-      // deleteOriginFile: true,
-    }),
+    // nginx静态压缩 https://juejin.cn/post/7101663374957608974
+    // viteCompression({
+    //   threshold: 1025 * 10,
+    //   verbose: true,
+    //   disable: false,
+    //   algorithm: 'gzip',
+    //   ext: '.gz',
+    //   // deleteOriginFile: true,
+    // }),
     PkgConfig(),
     env.mode === 'production'
       ? null

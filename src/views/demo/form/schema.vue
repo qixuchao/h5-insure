@@ -1,6 +1,12 @@
 <template>
   <van-divider content-position="left">ProForm schema</van-divider>
-  <ProRenderForm ref="schemaFormRef" class="schema-form" :model="state.formData" :schema="schema" />
+  <ProRenderForm
+    ref="schemaFormRef"
+    class="schema-form"
+    :model="state.formData"
+    :schema="schema"
+    :config="state.config"
+  />
 
   <!-- van-form 模版写法 -->
   <!-- <ProRenderForm @submit="onSubmit">
@@ -17,6 +23,9 @@
       <van-button round block type="primary" native-type="submit"> 提交 </van-button>
     </div>
   </ProRenderForm> -->
+  <div style="margin: 16px">
+    <van-button round block type="primary" native-type="submit" @click="onSubmit"> 提交 </van-button>
+  </div>
 </template>
 <script lang="ts" setup>
 import {
@@ -41,6 +50,7 @@ const CERT_TYPE = [
 
 const state = reactive({
   formData: {},
+  config: {},
   date: '',
   tel: '',
   birthday: '03:11',
@@ -53,6 +63,9 @@ const state = reactive({
 
 const onSubmit = (values) => {
   console.log(111111, schemaFormRef?.value, values, state.date);
+  state.config.certType = {
+    visible: false,
+  };
 };
 
 watch(
