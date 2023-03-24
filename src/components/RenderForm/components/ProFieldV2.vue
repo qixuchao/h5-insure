@@ -7,7 +7,7 @@
     }`"
     autocomplete="off"
     :formatter="formatter"
-    v-bind="{ ...$attrs, placeholder, required, rules, ...extraAttrs }"
+    v-bind="{ maxlength: 25, ...$attrs, placeholder, required, rules, ...extraAttrs }"
     @blur="onBlur"
     @update:model-value="updateModelValue"
   >
