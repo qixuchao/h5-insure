@@ -52,6 +52,7 @@
       <TrialPop
         ref="trialRef"
         :data-source="currentPlanObj"
+        :share-info="shareInfo"
         :product-info="{
           productCode: insureProductDetail.productCode,
           productName: insureProductDetail.productName,
@@ -179,14 +180,16 @@ const shareInfo = ref({
   desc: '',
   title: '',
   link: window.location.href,
+  isShare: false,
 });
 
-const setShareLink = (config: { image: string; desc: string; title: string }) => {
+const setShareLink = (config: { image: string; desc: string; title: string; isShare: boolean }) => {
   shareInfo.value = {
     desc: config.desc || '你好，这里是描述',
     imgUrl: config.image,
     title: config.title,
     link: window.location.href,
+    isShare: config.isShare,
   };
 };
 
@@ -244,7 +247,7 @@ const initData = async () => {
         document.title = data.BASIC_INFO.title || '';
         const { title, desc, image } = data?.PRODUCT_LIST.wxShareConfig || {};
         // 设置分享参数
-        setShareLink({ title, desc, image });
+        setShareLink({ title, desc, image, isShare: !!data?.PRODUCT_LIST.showWXShare });
         setGlobalTheme(data.BASIC_INFO.themeType);
       }
     });

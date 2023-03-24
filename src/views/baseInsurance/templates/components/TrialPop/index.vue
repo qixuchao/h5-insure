@@ -30,7 +30,7 @@
         <!-- 这里是标准险种信息 -->
         <InsureInfos
           ref="insureInfosRef"
-          :origin-data="dataSource.insureProductRiskVOList[0]"
+          :origin-data="dataSource.insureProductRiskVOList?.[0]"
           :product-factor="dataSource.productFactor"
           @trial-change="handleTrialInfoChange"
         ></InsureInfos>
@@ -43,8 +43,9 @@
         <div class="empty"></div>
       </div>
       <TrialButton
-        :is-share="false"
+        :is-share="shareInfo.isShare"
         :premium="state.trialResult"
+        :share-info="shareInfo"
         :loading-text="state.trialMsg"
         :plan-code="props.dataSource.planCode"
         :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
@@ -92,6 +93,10 @@ const props = defineProps({
     default: () => {
       return { productCode: '', productName: '', insurerCode: '', tenantId: '' };
     },
+  },
+  shareInfo: {
+    type: Object,
+    default: () => {},
   },
   tenantProductDetail: {
     type: Object,
@@ -278,17 +283,28 @@ const handlePersonalInfoChange = (data) => {
   const { holder, insuredVOList } = data;
   if (holder) {
     // state.submitData.holder.personVO = holder;
-    state.submitData.holder = { personVO: holder };
+    state.submitData.holder = {
+      personVO: {
+        ...holder,
+        socialFlag: holder.hasSocialInsurance,
+      },
+    };
   }
   if (insuredVOList && insuredVOList.length > 0) {
     insuredVOList.forEach((ins, index) => {
       if (state.submitData.insuredVOList && state.submitData.insuredVOList.length > index) {
-        state.submitData.insuredVOList[index].personVO = ins.personVO;
+        state.submitData.insuredVOList[index].personVO = {
+          ...ins.personVO,
+          socialFlag: ins.personVO.hasSocialInsurance,
+        };
       } else {
         // new
         state.submitData.insuredVOList = [
           {
-            personVO: ins.personVO,
+            personVO: {
+              ...ins.personVO,
+              socialFlag: ins.personVO.hasSocialInsurance,
+            },
           },
         ];
       }

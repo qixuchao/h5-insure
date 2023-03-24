@@ -188,3 +188,15 @@ export const openWebView = (title: string, link: string) => {
     },
   });
 };
+
+export const openPDFWithUrl = (title: string, link: string) => {
+  return callJsBridge({
+    fn: 'openPDFDoc',
+    cbName: 'js_openPDFDoc',
+    params: {
+      title,
+      link,
+      showProgress: true,
+    },
+  });
+};
