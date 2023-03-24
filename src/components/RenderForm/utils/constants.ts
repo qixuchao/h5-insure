@@ -70,7 +70,7 @@ export const INPUT_MAX_LENGTH = {
    */
   NAME: 25,
   /**
-   * 详细地址长度 50
+   * 详细地址长度/单位名称 50
    */
   ADDRESS_DETAIL: 50,
   /**
@@ -391,6 +391,9 @@ export const GLOBAL_CONFIG_MAP = {
   certEndDate: {
     minDate: new Date(),
     maxDate: dayjs().add(100, 'year').toDate(),
+  },
+  companyName: {
+    maxlength: INPUT_MAX_LENGTH.ADDRESS_DETAIL,
   },
 };
 
