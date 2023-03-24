@@ -15,7 +15,6 @@
     <van-picker
       :columns="columns"
       :default-index="defaultIndex"
-      :title="filedAttrs.label"
       v-bind="attrs"
       @cancel="handleCancel"
       @confirm="handleConfirm"

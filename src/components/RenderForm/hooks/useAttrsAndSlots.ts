@@ -35,7 +35,7 @@ export default function useAttrsAndSlots({ placeholderType }: FormItemParams = {
         placeholder: (attrs.placeholder as string) || `${prefixMap[placeholderType]}${attrs.label || ''}`,
       };
       state.attrs = {
-        title: filedAttrs.label,
+        title: `请选择${filedAttrs.label}`,
         ...componentAttrs,
       };
     },

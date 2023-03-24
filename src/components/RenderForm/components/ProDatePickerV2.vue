@@ -14,7 +14,6 @@
     <van-datetime-picker
       :type="type"
       :model-value="state.date"
-      :title="filedAttrs.label"
       v-bind="{ ...extraAttrs, ...attrs }"
       @confirm="onConfirm"
       @cancel="onCancel"
