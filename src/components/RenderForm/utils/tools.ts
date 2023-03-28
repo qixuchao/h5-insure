@@ -140,6 +140,20 @@ interface ModuleResult {
   trialFactorCodes: string[];
 }
 
+// 证件类型是否只有身份证
+export const isOnlyCert = (item) => {
+  if (item?.name !== 'certType') {
+    return false;
+  }
+  // 若只有证件类型为身份证, 隐藏证件类型，修改title为身份证号
+  const { columns, title } = item || {};
+  return (
+    isNotEmptyArray(columns) &&
+    columns.length === 1 &&
+    columns.find((columnItem) => columnItem.code === CERT_TYPE_ENUM.CERT)
+  );
+};
+
 /**
  * 转换原始数据 ProForm 所需要的数据
  * @param [array] 投保人/被保人/受益人的因子数组
@@ -188,12 +202,19 @@ export const transformToSchema = (arr: FieldConfItem[]): ModuleResult => {
         ...restConfig,
       };
 
-      return {
+      const result = {
         ...tempItem,
         attributeValueList: item.attributeValueList,
         // 有字典 code 则从接口中获取数据
         columns: tempItem.dictCode ? [] : item.attributeValueList || [],
       };
+
+      // 是否为只有身份证的证件类型的因子，就隐藏
+      if (isOnlyCert(result)) {
+        result.visible = false;
+      }
+
+      return result;
     });
   }
 
