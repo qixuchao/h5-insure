@@ -226,10 +226,38 @@ watch(
 );
 </script>
 
-<style lang="scss">
+<style lang="scss" scope>
 .file-preview-popup-wrap {
   .custom-provider {
     height: 100%;
+  }
+  .tab {
+    height: 106px;
+    width: 100%;
+
+    .van-tab {
+      padding: 10px $zaui-card-border 0px;
+    }
+    .van-tab__text {
+      font-size: 30px !important;
+      font-family: PingFangSC-Medium, PingFang SC !important;
+      font-weight: 500;
+    }
+    .van-tab--active {
+      .van-tab__text {
+        color: $primary-color !important;
+      }
+    }
+
+    .van-tabs__line {
+      background: $primary-color !important;
+    }
+  }
+
+  .list {
+    width: 100%;
+    height: calc(100% - 228px);
+    overflow-y: scroll;
 
     .attachment-list {
       margin: 10px 32px 58px;
@@ -262,34 +290,6 @@ watch(
         }
       }
     }
-  }
-  .tab {
-    height: 106px;
-    width: 100%;
-
-    .van-tab {
-      padding: 10px $zaui-card-border 0px;
-    }
-    .van-tab__text {
-      font-size: 30px !important;
-      font-family: PingFangSC-Medium, PingFang SC !important;
-      font-weight: 500;
-    }
-    .van-tab--active {
-      .van-tab__text {
-        color: $primary-color !important;
-      }
-    }
-
-    .van-tabs__line {
-      background: $primary-color !important;
-    }
-  }
-
-  .list {
-    width: 100%;
-    height: calc(100% - 228px);
-    overflow-y: scroll;
 
     .item {
       height: 100%;
