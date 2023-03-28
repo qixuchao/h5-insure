@@ -174,7 +174,7 @@ import { sessionStore } from '@/hooks/useStorage';
 import useOrder from '@/hooks/useOrder';
 import TrialButton from './components/TrialButton.vue';
 import useAttachment from '@/hooks/useAttachment';
-import { ProRenderFormWithCard, transformFactorToSchema } from '@/components/RenderForm';
+import { ProRenderFormWithCard, transformFactorToSchema, isOnlyCert } from '@/components/RenderForm';
 import { formData2Order } from './utils';
 import { getSex, getBirth } from '@/components/ProField/utils';
 
@@ -802,23 +802,23 @@ watch(
 );
 
 // 当证件类型为出生证时，重新设置日期范围
-watch(
-  [() => state.holder.formData?.certType, () => state.insuredList[0].formData.certType],
-  ([holderCertType, insuredCertType]) => {
-    const minDate = new Date(dayjs().subtract(2, 'year').format('YYYY-MM-DD'));
-    const maxDate = new Date();
-    if (`${holderCertType}` === CERT_TYPE_ENUM.BIRTH) {
-      Object.assign(state.holder.config, { birthday: { minDate, maxDate } });
-    } else {
-      Object.assign(state.holder.config, { birthday: { minDate: new Date('1900-01-01'), maxDate } });
-    }
-    if (`${insuredCertType}` === CERT_TYPE_ENUM.BIRTH) {
-      Object.assign(state.insuredList[0].config, { birthday: { minDate, maxDate } });
-    } else {
-      Object.assign(state.insuredList[0].config, { birthday: { minDate: new Date('1900-01-01'), maxDate } });
-    }
-  },
-);
+// watch(
+//   [() => state.holder.formData?.certType, () => state.insuredList[0].formData.certType],
+//   ([holderCertType, insuredCertType]) => {
+//     const minDate = new Date(dayjs().subtract(2, 'year').format('YYYY-MM-DD'));
+//     const maxDate = new Date();
+//     if (`${holderCertType}` === CERT_TYPE_ENUM.BIRTH) {
+//       Object.assign(state.holder.config, { birthday: { minDate, maxDate } });
+//     } else {
+//       Object.assign(state.holder.config, { birthday: { minDate: new Date('1900-01-01'), maxDate } });
+//     }
+//     if (`${insuredCertType}` === CERT_TYPE_ENUM.BIRTH) {
+//       Object.assign(state.insuredList[0].config, { birthday: { minDate, maxDate } });
+//     } else {
+//       Object.assign(state.insuredList[0].config, { birthday: { minDate: new Date('1900-01-01'), maxDate } });
+//     }
+//   },
+// );
 
 const validateTrialFactorValue = (codes, formData) => {
   return codes.find((code) => !formData[code]);
@@ -950,7 +950,10 @@ watch(
       const isSelf = formData.relationToHolder === '1';
       const isChild = formData.relationToHolder === '3';
 
-      config.certNo.label = `身份证号${isChild ? '(户口簿)' : ''}`;
+      // 若只有证件类型为身份证, 隐藏证件类型，修改title为身份证号
+      if (isOnlyCert(schema.find((schemaItem) => schemaItem.name === 'certType') || {})) {
+        config.certNo.label = `身份证号${isChild ? '(户口簿)' : ''}`;
+      }
 
       insuredItem.schema.forEach((schemaItem) => {
         schemaItem.relationToHolder = formData.relationToHolder;
