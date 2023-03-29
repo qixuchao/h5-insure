@@ -26,12 +26,6 @@ export const RULE_TYPE_MSG = {
 export const RUTE_TYPE_LIST = Object.keys(RULE_TYPE_MSG);
 
 /*
- * 身份证15位编码规则：dddddd yymmdd xx p
- * dddddd：6位地区编码
- * yymmdd: 出生年(两位年)月日，如：910215
- * xx: 顺序编码，系统产生，无法确定
- * p: 性别，奇数为男，偶数为女
- *
  * 身份证18位编码规则：dddddd yyyymmdd xxx y
  * dddddd：6位地区编码
  * yyyymmdd: 出生年(四位年)月日，如：19910215
@@ -46,25 +40,6 @@ export const RUTE_TYPE_LIST = Object.keys(RULE_TYPE_MSG);
  */
 
 // 15位和18位身份证号码的正则表达式
-
-// 15位转18位身份证号
-function changeFifteenToEighteen(card) {
-  if (card.length === 15) {
-    const arrInt = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
-    const arrCh = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2'];
-    let cardTemp = 0;
-    let i;
-    card = `${card.substr(0, 6)}19${card.substr(6, card.length - 6)}`;
-    for (i = 0; i < 17; i++) {
-      cardTemp += card.substr(i, 1) * arrInt[i];
-    }
-    card += arrCh[cardTemp % 11];
-    return card;
-  }
-  return card;
-}
-
-// 15位和18位身份证号码的正则表达式
 export const regIdCard =
   /^(^[1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}$)|(^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])((\d{4})|\d{3}[Xx])$)$/;
 export const validateIdCardNo = (idCard) => {
@@ -72,18 +47,17 @@ export const validateIdCardNo = (idCard) => {
     return false;
   }
   // 如果通过该验证，说明身份证格式正确，但准确性还需计算
-  const cardNo = idCard.length === 18 ? idCard : changeFifteenToEighteen(idCard);
-  if (cardNo.length !== 18) {
+  if (idCard.length !== 18) {
     return false;
   }
   const idCardWi = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2]; // 将前17位加权因子保存在数组里
   const idCardY = [1, 0, 10, 9, 8, 7, 6, 5, 4, 3, 2]; // 这是除以11后，可能产生的11位余数、验证码，也保存成数组
   let idCardWiSum = 0; // 用来保存前17位各自乖以加权因子后的总和
   for (let i = 0; i < 17; i++) {
-    idCardWiSum += cardNo.substring(i, i + 1) * idCardWi[i];
+    idCardWiSum += idCard.substring(i, i + 1) * idCardWi[i];
   }
   const idCardMod = idCardWiSum % 11; // 计算出校验码所在数组的位置
-  const idCardLast = cardNo.substring(17); // 得到最后一位身份证号码
+  const idCardLast = idCard.substring(17); // 得到最后一位身份证号码
   // 如果等于2，则说明校验码是10，身份证号码最后一位应该是X
   if (idCardMod === 2) {
     return idCardLast.toUpperCase() === 'X';
