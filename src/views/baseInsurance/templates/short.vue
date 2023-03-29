@@ -1045,6 +1045,11 @@ onUnmounted(() => {
   padding-bottom: 150px;
   background: #f1f5fc;
 
+  .van-field__label {
+    display: flex;
+    padding: 0 8px 0 0;
+  }
+
   .custom-page-form {
     background: #ffffff;
     .form-title {
