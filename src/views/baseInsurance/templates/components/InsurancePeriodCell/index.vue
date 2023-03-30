@@ -246,13 +246,14 @@ watch(
       // 若[start, end]一致，则默认保障日期开始日期为当前日期 + start, 同时展示标签为保障期限，不可自主选择日期
       // 若[start, end]不一致，则保障开始日期默认为当前日期 + start，同时展示为生效日期，可通过日期选择框，根据计算出的最大、最小日期，重新选择保障开始日期
       if (`${riskGuaranteeStartDateType.value}` === INSURANCE_START_TYPE_ENUM.CUSTOM_DAY) {
-        const tempDate = props.riskInfo?.productRiskInsureLimitVO?.maxInsuranceDay;
+        const tempDate = props.riskInfo?.productRiskInsureLimitVO?.insuranceStartTime;
         if (!tempDate) {
           state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), 1, 'day')} 00:00:00`;
         } else {
           if (tempDate.indexOf(',')) {
             const [start, end] = tempDate.split(',');
             state.formInfo.insuranceStartDate = `${computedAddDate(new Date(), Number(start), 'day')} 00:00:00`;
+            console.log('start', start, end);
             isShowCustomInsuranceDate.value = start !== end;
           } else {
             // 兼容老版本
