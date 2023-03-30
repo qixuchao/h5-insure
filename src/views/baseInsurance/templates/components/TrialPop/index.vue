@@ -59,6 +59,7 @@
 
 <script lang="ts" setup name="TrialPop">
 import { computed, ref, defineExpose } from 'vue';
+import { Toast } from 'vant/es';
 import { debounce } from 'lodash';
 import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import { PersonalInfo } from '@/views/baseInsurance/templates/long/InsureInfos/components/index';
@@ -260,6 +261,9 @@ const handleMixTrialData = debounce(() => {
         // console.log('----res =', res);
         // state.trialMsg = `${res.data.premium}元`;
         if (res.data && res.code === SUCCESS_CODE) {
+          if (res?.data?.errorInfo) {
+            Toast(`${res?.data?.errorInfo}`);
+          }
           state.trialMsg = '';
           state.trialResult = res.data.premium;
         }
