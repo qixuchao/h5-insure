@@ -356,22 +356,25 @@ const queryProductMaterialData = () => {
         questionnaireName,
       } = productQuestionnaireVOList?.[0]?.questionnaireDetailResponseVO || { basicInfo: {} };
       // 1: 文本 2、问答
-      if (questionnaireType === 2) {
-        healthAttachmentList.value = [
-          {
-            attachmentName: questionnaireName,
-            attachmentUri: questions,
-            attachmentType: 'question',
-          },
-        ];
+      if (questionnaireType) {
+        if (questionnaireType === 2) {
+          healthAttachmentList.value = [
+            {
+              attachmentName: questionnaireName,
+              attachmentUri: questions,
+              attachmentType: 'question',
+            },
+          ];
+        } else {
+          healthAttachmentList.value = [
+            {
+              attachmentName: questionnaireName,
+              attachmentUri: questions?.[0]?.content,
+              attachmentType: getFileType(String(questions?.[0]?.textType), questions?.[0]?.content),
+            },
+          ];
+        }
       }
-      healthAttachmentList.value = [
-        {
-          attachmentName: questionnaireName,
-          attachmentUri: questions?.[0]?.content,
-          attachmentType: getFileType(String(questions?.[0]?.textType), questions?.[0]?.content),
-        },
-      ];
     }
   });
 };
