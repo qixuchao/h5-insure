@@ -365,7 +365,7 @@ const dealTrialData = () => {
   premiumCalc({ ...trialData }).then(({ code, data }) => {
     if (code === '10000') {
       if (data?.errorInfo) {
-        Toast.success(`${data.errorInfo}`);
+        Toast(`${data.errorInfo}`);
       }
       state.retrialTip = false;
       state.trialResult = data;
