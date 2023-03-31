@@ -2,7 +2,7 @@
   <div class="com-order-item">
     <div class="header">
       <div class="product-name">{{ detail.goodsName }}</div>
-      <div class="company-name">{{ ('众安保险科技有限' || detail.abbreviation || '').substring(0, 6) }}</div>
+      <!-- <div class="company-name">{{ ('众安保险科技有限' || detail.abbreviation || '').substring(0, 6) }}</div> -->
       <div class="status">{{ ORDER_STATUS_MAP[detail.orderStatus] }}</div>
     </div>
     <div class="info">
