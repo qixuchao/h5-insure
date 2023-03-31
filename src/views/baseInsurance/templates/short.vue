@@ -75,7 +75,7 @@
     </ProLazyComponent>
     <template v-if="showFooterBtn">
       <TrialButton
-        :is-share="tenantProductDetail.PRODUCT_LIST.showWXShare"
+        :is-share="tenantProductDetail?.PRODUCT_LIST?.showWXShare"
         :premium="premium"
         :share-info="shareInfo"
         :loading-text="premiumLoadingText"

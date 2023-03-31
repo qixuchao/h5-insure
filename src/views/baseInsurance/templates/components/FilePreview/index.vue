@@ -33,7 +33,7 @@
           class="attachment-list-item"
           @click="onClickFileItem(item)"
         >
-          <div class="attachment-list-item-name">{{ item.materialSourceDesc }}</div>
+          <div class="attachment-list-item-name">{{ item.materialName }}</div>
           <div class="attachment-list-item-icon">
             <ProSvg name="arrow-right"></ProSvg>
           </div>
