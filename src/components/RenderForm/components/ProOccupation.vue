@@ -1,10 +1,15 @@
 <template>
-  <ProFormItem class="com-van-field-hidden" :name="name" :model-value="state.modelValue" />
+  <ProFormItem
+    v-model="state.modelValue"
+    class="com-van-field-hidden"
+    :name="name"
+    :rules="$attrs.rules"
+    :required="$attrs.required"
+  />
   <ProCascaderV2
     show-full-value
     :custom-field-name="customFieldName"
     v-bind="$attrs"
-    :name="`${name}-origin`"
     @update:full-value="updateFullValue"
   />
 </template>

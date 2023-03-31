@@ -24,7 +24,8 @@
 <script lang="ts" setup name="ProFiled">
 import { useAttrs, useSlots, PropType, inject } from 'vue';
 import type { FieldProps, FieldRule } from 'vant';
-import { isNil } from 'lodash';
+import isNil from 'lodash/isNil';
+import isObject from 'lodash/isObject';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { VAN_PRO_FORM_KEY, RELATED_RULE_TYPE_MAP, relatedConfigMap, handleSlots, validatorMap } from '../utils';
 
@@ -117,6 +118,12 @@ const ruleType = computed(() => {
   return '';
 });
 
+const isFalseValue = (val) =>
+  isNil(val) ||
+  val === '' ||
+  (Array.isArray(val) && !val.length) ||
+  (isObject(val) && Object.keys(val).some((item) => isFalseValue(item)));
+
 const rules = computed(() => {
   if (isNotEmptyArray(props.rules)) {
     return props.rules;
@@ -127,9 +134,10 @@ const rules = computed(() => {
       required: props.required,
       validator: (val) => {
         // 数值为空
-        if (isNil(val) || val === '') {
-          return props.required ? attrs.placeholder : '';
+        if (props.required && isFalseValue(val)) {
+          return attrs.placeholder;
         }
+
         if (ruleType.value) {
           const [regFn] = validatorMap[ruleType.value] || [];
           if (typeof regFn !== 'function') {

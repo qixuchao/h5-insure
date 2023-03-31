@@ -703,7 +703,7 @@ const onNext = async () => {
             }
           }
         })
-        .catch(() => {
+        .catch((e) => {
           // 表单验证错误定位问题
           const dom = document.querySelector('.form-title');
           if (dom) {
@@ -952,10 +952,11 @@ watch(
 
       const isSelf = formData.relationToHolder === '1';
       const isChild = formData.relationToHolder === '3';
+      const isOnlyCertFlag = isOnlyCert(schema.find((schemaItem) => schemaItem.name === 'certType') || {});
 
       // 若只有证件类型为身份证, 隐藏证件类型，修改title为身份证号
-      if (isOnlyCert(schema.find((schemaItem) => schemaItem.name === 'certType') || {})) {
-        config.certNo.label = `身份证号${isChild ? '(户口簿)' : ''}`;
+      if (isOnlyCertFlag) {
+        config.certNo.label = `身份证号${isChild ? '\n(户口簿)' : ''}`;
       }
 
       insuredItem.schema.forEach((schemaItem) => {
@@ -972,7 +973,14 @@ watch(
       } else {
         Object.assign(insuredItem.formData, {
           ...Object.keys(insuredItem.formData).reduce((res, key) => {
-            res[key] = '';
+            // 若只有证件类型为身份证
+            if (!(isOnlyCertFlag && key === 'certType')) {
+              res[key] =
+                {
+                  Object: {},
+                  Array: [],
+                }[Object.prototype.toString.call(insuredItem.formData[key]).slice(8, -1)] || '';
+            }
             return res;
           }, {}),
           relationToHolder: formData.relationToHolder,
