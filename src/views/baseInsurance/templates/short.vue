@@ -35,6 +35,7 @@
             :model="state.holder.formData"
             :schema="state.holder.schema"
             :config="state.holder.config"
+            autocomplete
           />
 
           <!-- 被保人 -->
@@ -46,6 +47,7 @@
             :model="state.insuredList[index].formData"
             :schema="insured.schema"
             :config="insured.config"
+            autocomplete
           />
         </div>
         <PaymentType
