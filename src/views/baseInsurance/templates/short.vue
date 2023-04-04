@@ -35,6 +35,7 @@
             :model="state.holder.formData"
             :schema="state.holder.schema"
             :config="state.holder.config"
+            autocomplete
           />
 
           <!-- 被保人 -->
@@ -46,6 +47,7 @@
             :model="state.insuredList[index].formData"
             :schema="insured.schema"
             :config="insured.config"
+            autocomplete
           />
         </div>
         <PaymentType
@@ -385,7 +387,11 @@ const initData = async () => {
     if (code === '10000') {
       tenantProductDetail.value = data;
       document.title = data.BASIC_INFO.title || '';
-      const { title, desc, image } = data?.PRODUCT_LIST.wxShareConfig || {};
+      const {
+        title,
+        desc,
+        image: [image = ''],
+      } = data?.PRODUCT_LIST.wxShareConfig || {};
       // 设置分享参数
       setShareLink({ title, desc, image });
     }

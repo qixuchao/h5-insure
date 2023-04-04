@@ -245,7 +245,11 @@ const initData = async () => {
       if (code === '10000') {
         tenantProductDetail.value = data;
         document.title = data.BASIC_INFO.title || '';
-        const { title, desc, image } = data?.PRODUCT_LIST.wxShareConfig || {};
+        const {
+          title,
+          desc,
+          image: [image = ''],
+        } = data?.PRODUCT_LIST.wxShareConfig || {};
         // 设置分享参数
         setShareLink({ title, desc, image, isShare: !!data?.PRODUCT_LIST.showWXShare });
         setGlobalTheme(data.BASIC_INFO.themeType);
