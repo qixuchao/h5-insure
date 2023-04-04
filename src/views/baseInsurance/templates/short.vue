@@ -325,6 +325,7 @@ const setShareLink = (config: { image: string; desc: string; title: string }) =>
     title: config.title,
     link: window.location.href,
   };
+  console.log('shareInfo', shareInfo.value);
 };
 
 // 订单数据
@@ -387,11 +388,8 @@ const initData = async () => {
     if (code === '10000') {
       tenantProductDetail.value = data;
       document.title = data.BASIC_INFO.title || '';
-      const {
-        title,
-        desc,
-        image: [image = ''],
-      } = data?.PRODUCT_LIST.wxShareConfig || {};
+      const { title, desc, image: imageArr } = data?.PRODUCT_LIST.wxShareConfig || {};
+      const [image = ''] = imageArr || [];
       // 设置分享参数
       setShareLink({ title, desc, image });
     }
