@@ -92,7 +92,7 @@ watch(
 );
 </script>
 
-<style lang="scss">
+<style lang="scss" scope>
 .health-notice-preview-popup-wrap {
   .custom-provider {
     height: 100%;
@@ -156,6 +156,14 @@ watch(
   .list {
     height: calc(100% - 420px);
     overflow-y: scroll;
+    .item {
+      height: 100%;
+      .com-file-preview {
+        .viewerContainer {
+          height: 100% !important;
+        }
+      }
+    }
   }
   .footer {
     display: flex;

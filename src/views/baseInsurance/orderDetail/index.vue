@@ -72,6 +72,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { sessionStore } from '@/hooks/useStorage';
 import { ORDER_DETAIL_KEY } from '@/common/constants/infoCollection';
 import { TEMPLATE_TYPE_ENUM } from '../constant';
+import { openPDFWithUrl } from '@/utils/jsbridgePromise';
 
 // 调用主题
 const themeVars = useTheme();
@@ -205,13 +206,13 @@ const orderBtnHandler = async () => {
       if (orderReq.code === '10000') {
         state.orderDetail = orderReq.data;
         if (state.orderDetail.extInfo?.policyUrl) {
-          downLoadFile(state.orderDetail.extInfo?.policyUrl);
+          openPDFWithUrl('', state.orderDetail.extInfo?.policyUrl);
         } else {
           Toast('电子保单单生成中，请稍后再试');
         }
       }
     } else {
-      state.orderDetail.extInfo?.policyUrl && downLoadFile(state.orderDetail.extInfo?.policyUrl);
+      state.orderDetail.extInfo?.policyUrl && openPDFWithUrl('', state.orderDetail.extInfo?.policyUrl);
     }
   } else if (orderBtnText.value === '立即支付') {
     getPayUrl({
