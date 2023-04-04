@@ -1,5 +1,1 @@
-<<<<<<<< HEAD:dist/static/js/createProposal-f4adfd0b.js
 import{K as a}from"./index-0fe7bae3.js";const p=p=>a({url:"/api/app/insure/proposal/addOrUpdateProposal",method:"POST",data:p}),r=(p={})=>a({url:`/api/app/insure/proposal/queryProposalDetail/${p.id}`,method:"GET",params:p}),o=(p={})=>a({url:`/api/app/insure/proposal/queryProposalDetailInsurer/${p.id}`,params:p,method:"GET"}),s=(p={})=>a({url:"/api/app/insure/product/listInsureProductDetail",method:"POST",data:p});export{s as a,p as b,o as c,r as q};
-========
-import{K as a}from"./index-9021af4d.js";const p=p=>a({url:"/api/app/insure/proposal/addOrUpdateProposal",method:"POST",data:p}),r=(p={})=>a({url:`/api/app/insure/proposal/queryProposalDetail/${p.id}`,method:"GET",params:p}),o=(p={})=>a({url:`/api/app/insure/proposal/queryProposalDetailInsurer/${p.id}`,params:p,method:"GET"}),s=(p={})=>a({url:"/api/app/insure/product/listInsureProductDetail",method:"POST",data:p});export{s as a,p as b,o as c,r as q};
->>>>>>>> 6da178c539a513aca8b0c7a2f0178a042da657ad:dist/static/js/createProposal-0765278b.js
