@@ -133,7 +133,7 @@ const orderBtnText = computed(() => {
       state.orderDetail.orderStatus,
     )
   ) {
-    return '查看保单';
+    return '下载保单';
   }
   if (ORDER_STATUS_ENUM.PAYING === state.orderDetail.orderStatus) {
     return '立即支付';
@@ -195,9 +195,9 @@ const goToInsurerPage = async (reOrder = false, promotion = '') => {
 };
 
 const orderBtnHandler = async () => {
-  if (orderBtnText.value === '查看保单') {
+  if (orderBtnText.value === '下载保单') {
     // console.log('配的保单下载地址', state.orderDetail.extInfo.extraInfo.xinaoMyUrl);
-    // 拿到客户配置的查看保单地址
+    // 拿到客户配置的下载保单地址
     // const customerDownloadUrl = `${state.orderDetail.extInfo.extraInfo.xinaoMyUrl}?code=${code}&state=STATE`;
     // console.log('拼接后的保单下载地址', customerDownloadUrl);
     // window.location.href = customerDownloadUrl;
