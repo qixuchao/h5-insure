@@ -20,9 +20,8 @@ export default {
     prd: 'https://xflowcloud.zhongan.io/nginx/cloud_web_sdk.gif', // 生产环境
   },
   isee: {
-    default: 'https://plugins.ennejb.cn/eye.js', // 默认值
+    default: 'https://staticdaily.zhongan.com/website/isee-poc/eye.js', // 默认值
     local: 'https://staticdaily.zhongan.com/website/isee-poc/eye.js', // 本地环境
-    test: 'https://plugins-tst.ennejb.cn/eye.js', // 本地环境
-    prd: 'https://plugins.ennejb.cn/eye.js', // 生产环境
+    prd: 'https://static.zhongan.com/website/isee/zainfo/eye.js', // 生产环境
   },
 };

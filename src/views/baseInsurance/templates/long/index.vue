@@ -191,6 +191,7 @@ const setShareLink = (config: { image: string; desc: string; title: string; isSh
     link: window.location.href,
     isShare: config.isShare,
   };
+  console.log('shareInfo', shareInfo.value);
 };
 
 // 保障方案相关信息
@@ -245,11 +246,9 @@ const initData = async () => {
       if (code === '10000') {
         tenantProductDetail.value = data;
         document.title = data.BASIC_INFO.title || '';
-        const {
-          title,
-          desc,
-          image: [image = ''],
-        } = data?.PRODUCT_LIST.wxShareConfig || {};
+
+        const { title, desc, image: imageArr } = data?.PRODUCT_LIST.wxShareConfig || {};
+        const [image = ''] = imageArr || [];
         // 设置分享参数
         setShareLink({ title, desc, image, isShare: !!data?.PRODUCT_LIST.showWXShare });
         setGlobalTheme(data.BASIC_INFO.themeType);
