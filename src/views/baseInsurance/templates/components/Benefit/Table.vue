@@ -80,7 +80,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="benefitTable">
 import { ColumnProps } from '@/components/ProTable/types';
 import Table from '@/components/ProTable/Table.vue';
 

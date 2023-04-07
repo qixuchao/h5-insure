@@ -39,7 +39,7 @@
       <ProLazyComponent>
         <AttachmentList
           v-if="fileList?.length"
-          :attachement-list="fileList"
+          :attachment-list="fileList"
           pre-text="请阅读"
           @preview-file="(index) => previewFile(index)"
         />
@@ -75,7 +75,7 @@
     :is-only-view="isOnlyView"
     :active-index="activeIndex"
     :text="isOnlyView ? '关闭' : '我已逐页阅读并确认告知内容'"
-    :force-read-cound="isOnlyView ? 0 : mustReadFileCount"
+    :force-read-count="isOnlyView ? 0 : mustReadFileCount"
     @submit="onSubmit"
     @on-close-file-preview-by-mask="onResetFileFlag"
   ></FilePreview>

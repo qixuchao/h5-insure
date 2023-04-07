@@ -58,7 +58,7 @@
 </template>
 
 <script lang="ts" setup name="TrialPop">
-import { computed, ref, defineExpose } from 'vue';
+import { withDefaults, ref, defineExpose } from 'vue';
 import { Toast } from 'vant/es';
 import { debounce } from 'lodash';
 import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
@@ -79,31 +79,26 @@ const RISK_SELECT = [
   { value: 2, label: '不投保' },
 ];
 
+interface Props {
+  dataSource: any[];
+  productInfo: any;
+  shareInfo: any;
+  tenantProductDetail: any;
+}
+
 const LOADING_TEXT = '试算中...';
 
 const insureInfosRef = ref(null);
 
-const props = defineProps({
-  dataSource: {
-    // plan。。
-    type: Array as any,
-    default: () => [],
+const props = withDefaults(defineProps<Props>(), {
+  dataSource: () => [],
+  productInfo: () => {
+    return { productCode: '', productName: '', insurerCode: '', tenantId: '' };
   },
-  productInfo: {
-    type: Object,
-    default: () => {
-      return { productCode: '', productName: '', insurerCode: '', tenantId: '' };
-    },
-  },
-  shareInfo: {
-    type: Object,
-    default: () => {},
-  },
-  tenantProductDetail: {
-    type: Object,
-    default: () => {},
-  },
+  shareInfo: () => ({}),
+  tenantProductDetail: () => ({}),
 });
+
 const state = reactive({
   loading: false,
   show: false,

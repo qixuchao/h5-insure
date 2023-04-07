@@ -28,25 +28,23 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="package">
 import { useToggle } from '@vant/use';
+import { withDefaults } from 'vue';
 import { INSURE_TYPE_LIST } from '@/common/constants/infoCollection';
 import { PackageProductVoItem } from '@/api/modules/trial.data';
 import ProSvg from '@/components/ProSvg/index.vue';
 
-const props = defineProps({
-  packageProductList: {
-    type: Array as () => PackageProductVoItem[],
-    default: () => [],
-  },
-  isShowClose: {
-    type: Boolean,
-    default: false,
-  },
-  count: {
-    type: Number,
-    default: 3,
-  },
+interface Props {
+  packageProductList: PackageProductVoItem[];
+  isShowClose: boolean;
+  count: number;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  packageProductList: () => [],
+  isShowClose: false,
+  count: 3,
 });
 
 const [showMore, toggle] = useToggle(false);

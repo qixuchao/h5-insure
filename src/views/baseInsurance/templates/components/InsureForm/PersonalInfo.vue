@@ -590,7 +590,7 @@ import {
 
 type FormInfo = TenantOrderInsuredItem | TenantOrderHolder;
 interface Props {
-  formInfo: FormInfo;
+  formInfo: Partial<FormInfo>;
   factorList: ProductInsureFactorItem[];
   images: string[];
   isView?: boolean;

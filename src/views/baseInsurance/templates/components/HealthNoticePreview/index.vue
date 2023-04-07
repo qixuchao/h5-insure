@@ -40,7 +40,7 @@
   </ProPopup>
 </template>
 
-<script lang="ts" setup name="filePreview">
+<script lang="ts" setup name="healthNoticePreview">
 import { withDefaults } from 'vue';
 import { useTheme } from '@/views/baseInsurance/theme';
 

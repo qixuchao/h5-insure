@@ -47,7 +47,7 @@
         :theme-vars="themeVars"
         :disabled="isAgreeBtnDisabled"
         class="right"
-        :text="`${beforeReadOverText}(${currentActiveIndex + 1}/${forceReadCound})`"
+        :text="`${beforeReadOverText}(${currentActiveIndex + 1}/${forceReadCount})`"
         @click="agreeForceReadFile"
       >
       </ProShadowButton>
@@ -64,6 +64,7 @@
 </template>
 
 <script lang="ts" setup name="filePreview">
+import { withDefaults } from 'vue';
 import { useTheme } from '../../../theme';
 import { AttachmentVOList } from '@/api/modules/product.data';
 import ProShadowButton from '../ProShadowButton/index.vue';
@@ -71,35 +72,24 @@ import { openPreviewFilePage } from '@/views/baseInsurance/utils';
 
 const AsyncProFilePreview = defineAsyncComponent(() => import('@/components/ProFilePreview/index.vue'));
 
-const props = defineProps({
-  show: {
-    type: Boolean,
-    default: false,
-  },
-  contentList: {
-    type: Array,
-    default: () => [],
-  },
-  activeIndex: {
-    type: Number,
-    default: 0,
-  },
-  text: {
-    type: String,
-    default: '',
-  },
-  beforeReadOverText: {
-    type: String,
-    default: '同意，下一条',
-  },
-  forceReadCound: {
-    type: Number,
-    default: 0,
-  },
-  isOnlyView: {
-    type: Boolean,
-    default: false,
-  },
+interface Props {
+  show: boolean;
+  contentList: any[];
+  activeIndex: number;
+  text: string;
+  beforeReadOverText?: string;
+  forceReadCount?: number;
+  isOnlyView: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  show: false,
+  contentList: () => [],
+  activeIndex: 0,
+  text: '',
+  beforeReadOverText: '同意，下一条',
+  forceReadCount: 0,
+  isOnlyView: false,
 });
 
 const emits = defineEmits(['update:show', 'submit', 'onCloseFilePreviewByMask']);
@@ -126,18 +116,18 @@ const isAgreeBtnDisabled = computed(() => {
 });
 
 const showReadBtn = computed(() => {
-  if (currentActiveIndex.value >= props.forceReadCound - 1) {
+  if (currentActiveIndex.value >= props.forceReadCount - 1) {
     return false;
   }
-  if (readCount.value >= props.forceReadCound) {
+  if (readCount.value >= props.forceReadCount) {
     return false;
   }
-  if (readCount.value < props.forceReadCound) {
-    if (currentActiveIndex.value === props.forceReadCound - 1) return false;
+  if (readCount.value < props.forceReadCount) {
+    if (currentActiveIndex.value === props.forceReadCount - 1) return false;
     return true;
   }
   return false;
-  // return formatedContentList.value.slice(0, props.forceReadCound).filter((e) => e.readDisabled).length > 0;
+  // return formatedContentList.value.slice(0, props.forceReadCount).filter((e) => e.readDisabled).length > 0;
 });
 
 const onClickFileItem = (item: AttachmentVOList) => {
@@ -199,7 +189,7 @@ watch(
   () => {
     calcuateFlg.value = false;
     if (props.show) {
-      if (readCount.value >= props.forceReadCound) {
+      if (readCount.value >= props.forceReadCount) {
         formatedContentList.value.forEach((e: any) => {
           e.disabled = false;
           e.readDisabled = false;

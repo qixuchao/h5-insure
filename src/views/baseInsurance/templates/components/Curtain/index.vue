@@ -7,19 +7,16 @@
   </van-overlay>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="curtain">
+import { withDefaults } from 'vue';
 import close from '@/assets/images/baseInsurance/close.png';
 // // 调用主题
 const emit = defineEmits(['close']);
 /**
  * 底部升级或弹窗产品 的图片控制
  */
-const props = defineProps({
-  show: {
-    // 是否有阴影
-    type: Boolean,
-    default: true,
-  },
+const props = withDefaults(defineProps<{ show: boolean }>(), {
+  show: true, // 是否有阴影
 });
 const state = reactive({ show: props.show });
 

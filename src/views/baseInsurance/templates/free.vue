@@ -20,7 +20,7 @@
       />
       <AttachmentList
         v-if="!state.newAuth && filterHealthAttachmentList && filterHealthAttachmentList.length > 0"
-        :attachement-list="filterHealthAttachmentList"
+        :attachment-list="filterHealthAttachmentList"
         :has-bg-color="false"
         pre-text="请阅读"
         @preview-file="(index:number) => previewFile(index)"
@@ -49,7 +49,7 @@
     :is-only-view="state.isOnlyView"
     :active-index="state.activeIndex"
     :text="state.isOnlyView ? '关闭' : '我已逐页阅读上述内容并同意'"
-    :force-read-cound="0"
+    :force-read-count="0"
     on-close-file-preview
     @submit="onSubmit"
     @on-close-file-preview="onCloseFilePreview"

@@ -18,32 +18,28 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="freeHolderForm">
+import { withDefaults } from 'vue';
 import InsureForm from '../InsureForm/index.vue';
 import { sendCode, sendCodeLogin } from '@/api/modules/phoneVerify';
+import { ProductData } from '@/api/modules/trial.data';
+import { ProductDetail } from '@/api/modules/product.data';
+
+interface Props {
+  colors: string[];
+  detail: Partial<ProductDetail>;
+  isFirst: boolean;
+  insureDetail: Partial<ProductData>;
+  previewMode: boolean;
+}
 
 const formRef = ref();
-const props = defineProps({
-  colors: {
-    type: Array,
-    default: () => ['#CDDFFE', '#F1F7FE'],
-  },
-  detail: {
-    type: Object,
-    default: () => {},
-  },
-  isFirst: {
-    type: Boolean,
-    default: true,
-  },
-  insureDetail: {
-    type: Object,
-    default: () => {},
-  },
-  previewMode: {
-    type: Boolean,
-    default: false,
-  },
+const props = withDefaults(defineProps<Props>(), {
+  colors: () => ['#CDDFFE', '#F1F7FE'],
+  detail: () => ({}),
+  isFirst: true,
+  insureDetail: () => ({}),
+  previewMode: false,
 });
 
 const state = reactive<{
