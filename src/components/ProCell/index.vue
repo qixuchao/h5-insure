@@ -1,13 +1,13 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 15:45:09
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-20 14:20:40
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-12-02 17:45:15
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProCell/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
-  <div :class="`com-cell-wrapper ${border ? 'border' : ''}`">
+  <div :class="`common-cell-wrapper ${customWrapper} ${border ? 'border' : ''}`">
     <div class="cell-container">
       <div :class="['left-part', state.status === 'left' ? 'large' : '']">{{ title }}</div>
       <div class="divider"></div>
@@ -21,19 +21,30 @@
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
 
-const props = withDefaults(defineProps<{ title: string; content: string; border: boolean }>(), {
+const props = withDefaults(defineProps<{ title: string; content: string; border: boolean; size: string }>(), {
   title: '',
   content: '',
   border: true,
+  size: '', // small
 });
 
 const state = ref({
   status: 'left',
 });
 
+const customWrapper = computed(() => {
+  if (props.size) {
+    return `com-cell-wrapper-${props.size}`;
+  }
+  return 'com-cell-wrapper';
+});
+/**
+ * 计算字符串占的字节数
+ * @param str 外部字符串
+ */
 const computeStrLength = (str = '') => {
   let len = 0;
-  for (let i = 0; i < str.length; i++) {
+  for (let i = 0, sLen = str.length; i < sLen; i++) {
     if (/[\u4e00-\u9fa5]/.test(str[i])) {
       len += 3;
     } else {
@@ -44,8 +55,8 @@ const computeStrLength = (str = '') => {
 };
 
 onBeforeMount(() => {
-  const leftLen = computeStrLength(props.title);
-  const rightLen = computeStrLength(props.content);
+  const leftLen = computeStrLength(props.title || '');
+  const rightLen = computeStrLength(props.content || '');
   if (leftLen < rightLen) {
     state.value.status = 'right';
   } else {
@@ -55,24 +66,16 @@ onBeforeMount(() => {
 </script>
 
 <style lang="scss" scoped>
-.com-cell-wrapper {
+.common-cell-wrapper {
   min-height: 62px;
   padding: 16px 0;
-  &.border {
-    border-bottom: 1px solid $zaui-line;
-  }
   .cell-container {
     display: flex;
-    line-height: 40px;
-    font-size: $zaui-font-size-md;
-    font-weight: 400;
     .left-part {
       width: 30%;
-      color: $zaui-popup-button-text;
     }
     .right-part {
       width: 30%;
-      color: $zaui-text;
       text-align: right;
     }
     .divider {
@@ -80,6 +83,43 @@ onBeforeMount(() => {
     }
     .large {
       width: 60%;
+    }
+  }
+}
+.com-cell-wrapper {
+  &.border {
+    border-bottom: 1px solid $zaui-line;
+  }
+  .cell-container {
+    line-height: 40px;
+    font-size: $zaui-font-size-md;
+    font-weight: 400;
+    .left-part {
+      color: $zaui-popup-button-text;
+    }
+    .right-part {
+      color: $zaui-text;
+    }
+  }
+}
+.com-cell-wrapper-small {
+  min-height: 62px;
+  padding: 16px 0;
+  &.border {
+    border-bottom: 1px solid $zaui-line;
+  }
+  .cell-container {
+    line-height: 45px;
+    font-size: 32px;
+    color: #333333;
+
+    .left-part {
+      font-weight: 500;
+      font-family: PingFangSC-Medium, PingFang SC;
+    }
+    .right-part {
+      font-family: PingFangSC-Regular, PingFang SC;
+      font-weight: 400;
     }
   }
 }

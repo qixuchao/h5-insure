@@ -220,7 +220,7 @@
           </ProField>
           <div class="desc">
             <p>保单到期自动重新投保，享受保障不间断</p>
-            <p>自从重新投保开启后，中途可随时取消</p>
+            <p>自主重新投保开启后，中途可随时取消</p>
           </div>
         </div>
       </div>
@@ -237,7 +237,7 @@
 </template>
 <script lang="ts" setup>
 import type { FormInstance } from 'vant';
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import themeVars from '../../../theme';
 import {
   RELATION_HOLDER_ENUM,

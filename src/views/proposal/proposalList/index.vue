@@ -17,7 +17,7 @@
           :finished-text="hasProduct ? '-&nbsp;已经到底了哦&nbsp;-' : ''"
           @load="onLoad"
         >
-          <ProductItem v-for="i in productList" :key="i.id" :product-info="i?.showConfig" @click="selectProposal(i)">
+          <ProductItem v-for="i in productList" :key="i.id" :product-info="i" @click="selectProposal(i)">
             <template v-if="isCreateProposal" #checkedProduct>
               <div class="check-button">
                 <van-checkbox-group v-model="selectProduct">

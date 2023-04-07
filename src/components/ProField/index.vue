@@ -1,18 +1,18 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 15:06:48
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-16 10:52:05
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-12-13 13:55:40
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProField/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <VanField
+    autocomplete="off"
     :="$attrs"
     :label="label"
-    input-align="right"
     :is-link="showLink"
-    :placeholder="placeholder"
+    :placeholder="currentPlaceholder"
     :rules="currentRules"
     :class="['com-pro-field', { block }, customClass]"
     :readonly="formProps.isView || isView"
@@ -27,6 +27,9 @@
     </template>
     <template #extra>
       <slot name="extra" />
+    </template>
+    <template #right-icon>
+      <slot name="right-icon"></slot>
     </template>
   </VanField>
 </template>
@@ -53,7 +56,7 @@ interface Props {
 const slot = useSlots();
 const emits = defineEmits(['click']);
 const props = withDefaults(defineProps<Props>(), {
-  placeholder: '请输入',
+  placeholder: '',
   label: '',
   title: '',
   block: false,
@@ -70,6 +73,10 @@ const props = withDefaults(defineProps<Props>(), {
 const formProps: any = inject('formProps') || {};
 
 const dealData = () => {};
+
+const currentPlaceholder = computed(() => {
+  return props.placeholder || `请输入${props.label}`;
+});
 
 const currentRules = computed(() => {
   let rules: any[] = [];

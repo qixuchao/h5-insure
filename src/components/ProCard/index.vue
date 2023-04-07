@@ -93,6 +93,7 @@ const subTitle = computed(() => {
 .com-card {
   .com-card-wrap {
     background-color: #ffffff;
+    border-radius: 16px;
     .header {
       margin-left: $zaui-card-border;
       padding-right: $zaui-card-border;
@@ -114,11 +115,11 @@ const subTitle = computed(() => {
           &.showIcon {
             &:before {
               content: ' ';
-              width: 8px;
-              height: 28px;
-              border-radius: 4px;
-              background: $zaui-brand;
+              width: 6px;
+              height: 30px;
+              background: $primary-color;
               margin-right: 16px;
+              border-radius: 0px 4px 4px 0px;
             }
           }
         }
@@ -144,6 +145,12 @@ const subTitle = computed(() => {
       transition: height 0.3s;
       overflow: hidden;
       padding: 0 30px;
+    }
+  }
+
+  &.com-card-body-no-padding {
+    .body {
+      padding: 0;
     }
   }
 }

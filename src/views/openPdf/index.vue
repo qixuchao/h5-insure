@@ -1,8 +1,8 @@
 <!--
  * @Author: wangyuanli
  * @Date: 2022-08-01 18:00:00
- * @LastEditors: wangyuanli
- * @LastEditTime: 2022-08-01 18:00:00
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-29 15:42:24
  * @FilePath: /zat-planet-h5-cloud-insure/src/views/pdfViewer/index.vue
  * @Description: 打开新页面，预览pdf, 链接传入url, 在线打开pdf
 -->
@@ -14,52 +14,34 @@
 import { useRoute } from 'vue-router';
 import { onMounted } from 'vue';
 import { nanoid } from 'nanoid';
-import { Toast } from 'vant';
-import * as PDFJS from 'pdfjs-dist';
-import * as workerSrc from 'pdfjs-dist/build/pdf.worker.entry.js';
-import 'pdfjs-dist/web/pdf_viewer.css';
-
-PDFJS.GlobalWorkerOptions.workerSrc = workerSrc;
+import { Toast } from 'vant/es';
+import Pdfh5 from 'pdfh5';
+import 'pdfh5/css/pdfh5.css';
 
 const route = useRoute();
 
 const id = nanoid();
 
+const pdfh5 = ref<any>(null);
+
 const loadPdfCanvas = (url: string) => {
-  Toast.loading({ forbidClick: true });
-  const container = document.getElementById(id) as HTMLElement;
-  if (container.hasChildNodes()) {
-    // 说明已经加载过一次pdf了，那就走缓存
-    return;
+  try {
+    pdfh5.value = new Pdfh5(`#${id}`, {
+      pdfurl: url,
+      renderType: 'svg',
+      lazy: true,
+    });
+    // 监听完成事件
+    pdfh5.value?.on('complete', (status: string, msg: string, time: number) => {
+      console.log(`状态：${status}，信息：${msg}，耗时：${time}毫秒`);
+      if (status === 'error') {
+        Toast('文件损坏，无法打开！');
+      }
+    });
+  } catch (error) {
+    //
+    console.log('error', error);
   }
-  const loadingTask = PDFJS.getDocument({
-    url,
-  });
-  loadingTask.promise.then((pdf: any) => {
-    const pageNum = pdf.numPages;
-    for (let i = 1; i <= pageNum; i++) {
-      pdf.getPage(i).then((page: any) => {
-        const scaledViewport = page.getViewport({ scale: 1 });
-
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-
-        canvas.width = scaledViewport.width;
-        canvas.height = scaledViewport.height;
-        canvas.style.width = '100%';
-
-        container.append(canvas);
-
-        const renderContext = {
-          // transform: [CSS_UNITS, 0, 0, CSS_UNITS, 0, 0],
-          canvasContext: context,
-          viewport: scaledViewport,
-        };
-        const renderTask = page.render(renderContext);
-      });
-    }
-    Toast.clear();
-  });
 };
 
 onMounted(() => {

@@ -6,8 +6,12 @@
       :class="['item', { last: index === displayList.length - 1 }]"
     >
       <div class="left">
-        <div class="num">{{ index + 1 }}</div>
+        <div class="num">
+          <ProSvg name="time-step"></ProSvg>
+          <span class="num-text">{{ index + 1 }}</span>
+        </div>
       </div>
+
       <div class="right">
         <div class="title">{{ item.title }}</div>
         <div class="desc">{{ item.desc }}</div>
@@ -49,15 +53,13 @@ const displayList = computed(() => {
 
 <style lang="scss" scoped>
 .com-time-line {
-  margin: 40px 0;
+  margin: 40px 0 0px;
   .item {
     display: flex;
     &.last {
       .left {
-        .num {
-          &::after {
-            display: none;
-          }
+        &::after {
+          display: none;
         }
       }
     }
@@ -65,43 +67,67 @@ const displayList = computed(() => {
       flex: 0 0 40px;
       position: relative;
       .num {
-        width: 40px;
-        height: 40px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: rgba(13, 110, 254, 0.16);
-        border: 1px solid #0d6efe;
+        width: 42px;
+        height: 42px;
+        position: relative;
         font-size: 28px;
         font-weight: 500;
         color: $zaui-brand;
-        border-radius: 20px;
-        &::after {
-          content: ' ';
+        border: none !important;
+        background: none !important;
+        display: flex;
+        align-items: center;
+
+        .svg-icon {
+          display: inline-block;
           position: absolute;
-          top: 40px;
-          left: 20px;
-          width: 0;
-          height: calc(100% - 40px);
-          border-left: 1px dashed rgba(13, 110, 254, 0.23);
-          border-right: 1px dashed rgba(13, 110, 254, 0.23);
+          width: 32px;
+          height: 32px;
+          font-size: 32px;
+          fill: $primary-color;
         }
+
+        .num-text {
+          display: inline-block;
+          position: absolute;
+          width: 15px;
+          height: 32px;
+          font-size: 24px;
+          font-family: AppleSystemUIFont;
+          color: #ffffff;
+          line-height: 32px;
+          left: 10px;
+        }
+      }
+      &::after {
+        content: ' ';
+        position: absolute;
+        top: 44px;
+        left: 16px;
+        width: 0;
+        height: calc(100% - 50px);
+        border-left: 1px dashed $primary-color;
+        // border-right: 1px dashed $primary-color;
       }
     }
     .right {
       margin-left: 20px;
       .title {
-        font-size: 28px;
-        font-weight: 500;
-        color: #393d46;
-        line-height: 36px;
+        height: 42px;
+        font-size: 30px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #333333;
+        line-height: 42px;
       }
       .desc {
         margin-top: 12px;
         padding-bottom: 50px;
         font-size: 26px;
-        color: #99a9c0;
-        line-height: 38px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
+        line-height: 37px;
       }
     }
   }

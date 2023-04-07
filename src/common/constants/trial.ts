@@ -1,5 +1,14 @@
 import { constantListToMap } from '@/utils';
 
+// eslint-disable-next-line no-shadow
+export enum RELATIONENUM {
+  SELF = '1', // "本人"
+  SPOUSE = '2', // "配偶"
+  SONS_DAUGHTERS = '3', // "子女"
+  PARENTS = '4', // "父母"
+  OTHER = '8', // "其他"
+}
+
 export const RISK_CATEGORY = [
   {
     label: '意外',
@@ -235,6 +244,10 @@ export const PAYMENT_FREQUENCY = [
   // },
 ];
 export const PAYMENT_FREQUENCY_MAP = constantListToMap(PAYMENT_FREQUENCY);
+
+export const INSURANCE_PERIOD_ENUM = {
+  YEAR_1: 'year_1', // 一年期
+};
 
 // 缴费期间值
 export const PAYMENT_PERIOD_VALUE = [
@@ -544,6 +557,12 @@ export const INSURANCE_PERIOD_TYPE_ENUMS = {
   year: 3,
   to: 4,
   to_life: 5,
+};
+
+export const INSURANCE_PERIOD_UNIT_ENUMS = {
+  day: '天',
+  month: '月',
+  year: '年',
 };
 
 export const PAYMENT_PERIOD_ENUMS = {

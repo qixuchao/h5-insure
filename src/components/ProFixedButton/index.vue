@@ -22,7 +22,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import { withDefaults } from 'vue';
 
 interface Props {

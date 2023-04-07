@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router';
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import dayjs from 'dayjs';
 import ProCard from '@/components/ProCard/index.vue';
 import ProPDFviewer from '@/components/ProPDFviewer/index.vue';

@@ -17,14 +17,30 @@
 
 <script lang="ts" setup>
 import { useRouter } from 'vue-router';
+import { Toast } from 'vant/es';
 import ProTab from '@/components/ProTab/index.vue';
 import Item from './components/item.vue';
 import { getOrderList } from '@/api/modules/order';
 import { OrderItem } from '@/api/modules/order.data';
 import pageJump from '@/utils/pageJump';
 
+interface QueryData {
+  type: number;
+  [key: string]: string | number;
+}
+
 const router = useRouter();
-const active = ref(0);
+const route = useRoute();
+const query = route.query as QueryData;
+// 兼容参数传状态
+const typeToActive = {
+  '-1': 1,
+  '0': 2,
+  '1': 3,
+  '2': 4,
+};
+const active = ref(typeToActive[query.type] || 0);
+
 const pageNum = ref(1);
 const loading = ref(false);
 const finished = ref(false);
@@ -53,6 +69,7 @@ const tabList = [
 ];
 
 const currentStatus = computed(() => {
+  list.value = [];
   return tabList[active.value].status;
 });
 
@@ -62,21 +79,31 @@ const handleClick = (item: OrderItem) => {
 };
 
 const getData = () => {
+  Toast.loading({
+    message: '加载中...',
+    forbidClick: true,
+  });
   loading.value = true;
-  getOrderList({ condition: { orderTopStatus: currentStatus.value }, pageSize: 10, pageNum: pageNum.value }).then(
-    (res) => {
+  getOrderList({
+    condition: { orderTopStatus: currentStatus.value },
+    pageSize: 10,
+    pageNum: pageNum.value,
+  })
+    .then((res) => {
       loading.value = false;
       const { code, data } = res;
-      if (code === '10000') {
+      if (code === '10000' && data) {
         if (pageNum.value === 1) {
-          list.value = data.datas;
+          list.value = data.datas || [];
         } else {
-          list.value = [...list.value, ...data.datas];
+          list.value = [...list.value, ...(data.datas || [])];
         }
       }
-      finished.value = list.value.length >= data.total;
-    },
-  );
+      finished.value = !data || list.value.length >= data?.total;
+    })
+    .then(() => {
+      Toast.clear();
+    });
 };
 
 const handleLoad = () => {

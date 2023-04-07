@@ -1,11 +1,3 @@
-/*
- * @Author: za-qixuchao qixuchao@zhongan.io
- * @Date: 2022-06-21 19:34:02
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-18 16:03:05
- * @FilePath: /zat-planet-h5-cloud-insure/vite.config.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 /* eslint-disable no-shadow */
 import { defineConfig, loadEnv } from 'vite';
 import path, { resolve } from 'path';
@@ -14,7 +6,7 @@ import presets from './presets/presets';
 // https://vitejs.dev/config/
 export default defineConfig((env) => {
   // env 环境变量
-  const viteEnv = loadEnv(env.mode, `.env.${env.mode}`);
+  const viteEnv = loadEnv(env.mode, process.cwd());
 
   return {
     base: viteEnv.VITE_BASE,
@@ -39,17 +31,27 @@ export default defineConfig((env) => {
         //   target: 'http://aquarius-commander.test.za-tech.net',
         //   changeOrigin: true, // 允许跨域
         // },
+        '/update_skeleton': {
+          target: 'http://localhost:5208',
+          changeOrigin: true, // 允许跨域
+          rewrite: (path) => path.replace('/', ''),
+        },
         '/api': {
           // 本地 8000 前端代码的接口 代理到 8888 的服务端口
-          // target: 'https://www.gconline.cn/acvmtest',
-          // target: 'http://141604-zat-planet-gateway.test.za-tech.net',
-          // target: 'http://154992-aquarius-commander.test.za-tech.net/',
-          // target: 'http://150039-zat-planet-gateway.test.za-tech.net',
+          // target: 'https://techmall.zaouter.com',
+          target: 'https://planet-h5-insure-ybx.zaouter.com',
+          // target: 'https://zat-planet-h5-cloud-insure-pre.zhongan.io',
+          // target: 'http://185948-zat-planet-gateway.test.za-tech.net',
+          // target: 'https://gateway-tst.ennejb.cn',
+          // target: 'https://h5-test.ennejb.cn',http://177716-zat-planet-gateway.test.za-tech.net/
           // target: 'http://zat-planet-gateway.test.za-tech.net',
-          // target: 'http://142461-zat-planet-gateway.test.za-tech.net',
-          target: 'https://zat-planet-h5-cloud-insure-pre.zhongan.io',
+          // target: 'https://zat-planet-h5-cloud-insure-test.zhongan.io',
           // target: 'http://zat-planet-gateway.test.za-tech.net',
           changeOrigin: true, // 允许跨域
+          secure: false,
+          // headers: {
+          //   Referer: 'https://techmall-pre.zhongan.com',
+          // },
         },
       },
     },
@@ -57,11 +59,12 @@ export default defineConfig((env) => {
       brotliSize: false,
       // 消除打包大小超过500kb警告
       chunkSizeWarningLimit: 2000,
+      minify: 'terser',
       // 在生产环境移除console.log
       terserOptions: {
         compress: {
-          drop_console: true,
-          drop_debugger: true,
+          // drop_console: true,
+          // drop_debugger: true,
         },
       },
       assetsDir: 'static/assets',
@@ -71,6 +74,10 @@ export default defineConfig((env) => {
           chunkFileNames: 'static/js/[name]-[hash].js',
           entryFileNames: 'static/js/[name]-[hash].js',
           assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
+          manualChunks: {
+            echarts: ['echarts'],
+            pdfh5: ['pdfh5'],
+          },
         },
       },
     },

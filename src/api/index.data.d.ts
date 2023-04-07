@@ -1,8 +1,8 @@
 /*
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-16 19:38:49
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-08-26 18:23:32
+ * @LastEditors: za-qixuchao qixuchao@zhongan.com
+ * @LastEditTime: 2022-12-16 14:55:57
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/index.data.d.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -64,18 +64,20 @@ export interface ProductInsureFactorItem {
 
 // 下一步接口的入参
 export interface NextStepRequestData {
-  agencyId: string;
+  agencyId: string | undefined;
   applicationNo: string;
   abbreviation: string;
+  agentCode: string;
   commencementTime: string;
   expiryDate: string;
-  extInfo: ExtInfo;
+  extInfo: Partial<ExtInfo>;
   groupOrderNo: string;
   id: number;
   issueTime: string;
-  operateOption: OperateOption;
+  operateOption: Partial<OperateOption>;
   orderAmount: number;
   orderDataSource: string;
+  orderCategory: number;
   orderDate: string;
   gmtCreated: string;
   orderNo: string;
@@ -88,12 +90,13 @@ export interface NextStepRequestData {
   relationUserType: number;
   saleChannelId: string;
   saleUserId: string;
-  tenantId: number;
+  tenantId: number | string;
   tenantOrderAttachmentList: TenantOrderAttachmentItem[];
-  tenantOrderHolder: TenantOrderHolder;
-  tenantOrderInsuredList: TenantOrderInsuredItem[];
+  tenantOrderHolder: Partial<TenantOrderHolder>;
+  tenantOrderInsuredList: Array<Partial<TenantOrderInsuredItem>>;
   tenantOrderNoticeList: TenantOrderNoticeItem[];
   tenantOrderPayInfoList: TenantOrderPayInfoItem[];
+  tenantOrderSubjectList: Array<Partial<TenantOrderSubjectItem>>
   thirdOrderNo: string;
   thirdOrderNoType: number;
   updateRelationUserId: string;
@@ -131,20 +134,40 @@ export interface TenantOrderInsuredItem {
   certEndType: number;
   certNo: string;
   certStartDate: string;
-  certType: number;
+  certType: number | string;
   email: string;
-  extInfo: InsuredExtInfo;
+  extInfo: Partial<InsuredExtInfo>;
   gender: number;
   id: number;
   insuredBeneficiaryType: number;
   mobile: string;
   name: string;
   planCode: string;
-  relationToHolder: number;
+  relationToHolder: number | string;
   relationToMainInsured: number;
-  tenantOrderBeneficiaryList: TenantOrderBeneficiaryItem[];
-  tenantOrderProductList: TenantOrderProductItem[];
+  tenantOrderBeneficiaryList: Array<Partial<TenantOrderBeneficiaryItem>>;
+  tenantOrderProductList: Array<Partial<TenantOrderProductItem>>;
 }
+
+export interface TenantOrderSubjectItem {
+    extInfo: Partial<SubjectItemExtInfo>;
+    id: number;
+    orderId: number;
+    subjectDesc: string;
+    subjectName: string;
+    subjectNo: string;
+    subjectObjectId: number;
+    subjectObjectType: string;
+    subjectType: string;
+    tenantId: number | string;
+}
+
+export interface SubjectItemExtInfo {
+    subjectRelatedFirm: string;
+    subjectRelatedUserId: string;
+}
+
+
 
 export interface TenantOrderProductItem {
   id: number;
@@ -152,7 +175,7 @@ export interface TenantOrderProductItem {
   premium: number;
   productCode: string;
   productName: string;
-  tenantOrderRiskList: TenantOrderRiskItem[];
+  tenantOrderRiskList: Array<Partial<TenantOrderRiskItem>>;
 }
 
 export interface TenantOrderRiskItem {
@@ -193,14 +216,15 @@ export interface TenantOrderBeneficiaryItem {
   benefitDistributeMode: number;
   benefitOrder: number;
   benefitRate: number;
+  beneficiaryId: number;
   birthday: string;
   certEndDate: string;
   certEndType: number;
   certNo: string;
   certStartDate: string;
-  certType: number;
+  certType: number | string;
   email: string;
-  extInfo: BeneficiaryExtInfo;
+  extInfo: Partial<BeneficiaryExtInfo>;
   gender: number;
   id: number;
   insuredId: number;
@@ -211,6 +235,7 @@ export interface TenantOrderBeneficiaryItem {
 
 export interface BeneficiaryExtInfo {
   nationalityCode: string;
+  occupationCodeList: string[]
 }
 
 export interface InsuredExtInfo {
@@ -255,9 +280,9 @@ export interface TenantOrderHolder {
   certEndType: number;
   certNo: string;
   certStartDate: string;
-  certType: number;
+  certType: number | string;
   email: string;
-  extInfo: HolderExtInfo;
+  extInfo: Partial<HolderExtInfo>;
   gender: number;
   holderType: number;
   id: number;
@@ -329,8 +354,10 @@ export interface ExtInfo {
   contactInfo: ContactInfo[];
   isReadCustomerNotice: number;
   pageCode: string;
-  templateId: number;
-  iseeBizNo?: string; // 千里眼需要的字段
+  templateId: number | string;
+  buttonCode: string;
+  iseeBizNo: string; // 千里眼需要的字段
+  extraInfo: {};
 }
 
 export interface ContactInfo {
@@ -381,6 +408,21 @@ export interface ProductInsureFactorItem {
   position: number;
   templateId: number;
   title: string;
+}
+
+/**
+ * 下一步接口的response
+ */
+
+export interface NextStepResponseData {
+    pageAction: PageAction;
+    success: boolean;
+}
+
+export interface PageAction {
+    data: any;
+    message: string;
+    pageAction: string;
 }
 
 /**

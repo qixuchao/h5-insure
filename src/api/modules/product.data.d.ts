@@ -1,3 +1,69 @@
+export interface PlanInsureVO {
+  planName: string;
+  planCode: string;
+  extInfoVOList: ExtInfoVoItem[];
+  guaranteeItemVOS: GuaranteeItemVo[];
+  productPremiumVOList: ProductPremiumVoItem[];
+  premiumExplain: string;
+  premiumExplainName: string;
+  premiumExplainUri: string;
+  premiumExplainViewName: string;
+  tabName: string[];
+  attachmentVOList: AttachmentVoItem;
+  productPlanInsureConditionVO: ProductPlanInsureConditionVo;
+  planPicList: any;
+}
+
+export interface ProductPlanInsureConditionVo {
+  waitPeriod: string;
+  waitPeriodFlag: number;
+  sexLimit: string;
+  sexLimitFlag: number;
+  socialInsuranceLimit: string;
+  socialInsuranceLimitFlag: number;
+  occupationLimit: string;
+  occupationLimitFlag: number;
+  occupationLimitPic: string;
+  holderAgeLimit: string;
+  renewalGracePeriod: string;
+  holderAgeLimitFlag: number;
+  insurancePeriodValues: string;
+  insurancePeriodValuesFlag: number;
+  paymentPeriodValues: string;
+  paymentPeriodValuesFlag: number;
+  paymentFrequency: string;
+  paymentFrequencyFlag: number;
+  annuityDrawValues: string;
+  annuityDrawValuesFlag: number;
+  annuityDrawFrequency: string;
+  annuityDrawFrequencyFlag: number;
+  hesitatePeriod: string;
+  hesitatePeriodFlag: string;
+  paymentFrequencyList: any;
+}
+
+export interface AttachmentVoItem {
+}
+
+export interface ProductPremiumVoItem {
+  paymentFrequency: string;
+  paymentFrequencyValue: string;
+  premiumUnit: string;
+  actualPremiumUnit: string;
+}
+
+export interface GuaranteeItemVo {
+  title: string;
+  desc: string;
+  content: string;
+}
+
+export interface ExtInfoVoItem {
+  name: string;
+  description: string;
+}
+
+
 export interface ShowConfigVO {
   /**
    * 展示类别
@@ -107,15 +173,34 @@ export interface GuaranteeList {
   [props: string]: any
 }
 
+interface BackgroundInsureVO {
+  colorEnd: string,
+  colorStart: string,
+  type: string
+}
+
+/** 产品销售信息配置 */
 export interface TenantProductInsureVO {
+  /**
+   * 背景颜色
+   */
+  backgroundInsureVO: BackgroundInsureVO,
   /**
    * 产品资料
    */
-  attachmentVOList: AttachmentVOList[];
+  attachmentVOList: {
+    [props: string]: AttachmentVOList[]
+  };
   /**
    * banner图
    */
   banner: string[];
+  /**
+   * banner动图
+   */
+  bannerMove: string[];
+  planList: PlanInsureVO[];
+  planInsureVO: PlanInsureVO;
   /**
    * 配置状态 1.暂存 2.完成
    */
@@ -134,13 +219,14 @@ export interface TenantProductInsureVO {
   id: number;
   /**
    * 保障期间值 固定：固定数字，枚举：英文逗号隔开，范围：最小值，最大值
-按年缴：以year开头，例如year_10
-按月保：以month开头，例如month_10
-按天保：以day开头，例如day_10
-保至多少岁：以to开头，例如to_60
-保终身：to_life
+      按年缴：以year开头，例如year_10
+      按月保：以month开头，例如month_10
+      按天保：以day开头，例如day_10
+      保至多少岁：以to开头，例如to_60
+      保终身：to_life
    */
   insurancePeriodValues: string;
+  inscribedContent: any;
   /**
    * 职业限制 -1.无限制,1.职业等级一，2.职业等级二，3.职业等级三
 4.职业等级四，5.职业等级五，6.职业等级六（以英文逗号分隔）
@@ -171,9 +257,13 @@ export interface TenantProductInsureVO {
    */
   questionList: any[];
   /**
-   * 理赔流程
+   * 理赔流程配置
    */
-  settlementProcessList: any[];
+  settlementProcessVO: {
+    settlementProcessList?: any[];
+    settlementProcessPicList?: string[];
+    settlementProcessType?: string;
+  };
   /**
    * 性别限制 -1.无限制,1.男 2.女 （ （以英文逗号分隔）
    */
@@ -194,8 +284,44 @@ export interface TenantProductInsureVO {
    * 单计划保障详情
    */
   titleAndDescVOS: TitleAndDescVO[]
+  rateUri?: string // 费率表
 }
 
+  type TAB_NAMES =
+  | 'DOMAIN_NAME'
+  | 'PRODUCT_LIST'
+  | 'TEMPLATE'
+  | 'BASIC_INFO'
+  | 'GUARANTEE'
+  | 'ISSUE_CONDITION'
+  | 'SPECIAL_FEATURE'
+  | 'CLAIM_CASE'
+  | 'CLAIM_FLOW'
+  | 'ISSUE_NOTICE'
+  | 'FAQ'
+  | 'SIGNATURE'
+  | 'PREMIUM';
+
+type ObjectConfig = { title?: string; [key: string]: any }
+type ArrayConfig = Array<{
+        planCode?: string;
+        planName?: string;
+        // paymentFrequency: 交费方式,  premium: 默认保费,  minActualUnit: 实际保费单位
+        data: Array<any>;
+      }>;
+export interface ProductSaleInfo {
+  PRODUCT_LIST: ObjectConfig;
+  BASIC_INFO: ObjectConfig;
+  GUARANTEE: ArrayConfig;
+  ISSUE_CONDITION: ArrayConfig;
+  SPECIAL_FEATURE: ConfigObject;
+  CLAIM_CASE: ConfigObject;
+  CLAIM_FLOW: ConfigObject;
+  ISSUE_NOTICE: ConfigObject;
+  FAQ: ArrayConfig;
+  SIGNATURE: ConfigObject;
+  PREMIUM: ArrayConfig;
+}
 export interface ProductDetail {
   /**
    * 产品id
@@ -231,3 +357,455 @@ export interface ProductDetail {
   insurerCode: string;
   baseProductCode?: string;
 }
+
+/**
+ * 产品中心-产品详情
+ * @productInsureMaterialVOList 产品资料
+ * @productPlanInsureVOList 产品险种信息
+ * @productQuestionnaireVOList 产品关联问卷列表
+ */
+export interface InsureProductData {
+    productCode: string;
+    productInsureMaterialVOList: ProductInsureMaterialVoItem[];
+    productName: string;
+    productPlanInsureVOList: ProductPlanInsureVoItem[];
+    productQuestionnaireVOList: ProductQuestionnaireVoItem[];
+}
+export interface ProductQuestionnaireVoItem {
+    planCode: string;
+    productCode: string;
+    productId: number;
+    questionnaireDetailResponseVO: QuestionnaireDetailResponseVo;
+    questionnaireId: number;
+    questionnaireName: string;
+}
+
+export interface QuestionnaireDetailResponseVo {
+    basicInfo: BasicInfo;
+    creator: string;
+    gmtCreated: string;
+    gmtModified: string;
+    isDeleted: string;
+    modifier: string;
+    questions: Question[];
+}
+
+export interface Question {
+    content: string;
+    creator: string;
+    gmtCreated: string;
+    gmtModified: string;
+    id: number;
+    isDeleted: string;
+    modifier: string;
+    options: string;
+    position: number;
+    questionType: number;
+    questionnaireId: number;
+    tenantId: number;
+    textType: number;
+    title: string;
+}
+
+export interface BasicInfo {
+    gmtCreated: string;
+    id: number;
+    insurerCode: string;
+    objectType: number;
+    productCategory: number;
+    questionnaireCode: string;
+    questionnaireName: string;
+    questionnaireType: number;
+    tenantId: number;
+    title: string;
+}
+
+export interface ProductPlanInsureVoItem {
+    id: number;
+    oilPackageProductVOList: PackageConfigVoItem[];
+    packageProductVOList: PackageProductVoItem[];
+    planCode: string;
+    planName: string;
+    productRiskVoList: ProductRiskVoItem_1[];
+    riskNum: number;
+}
+
+export interface ProductRiskVoItem_1 {
+    riskDetailVOList: RiskDetailVoItem[];
+}
+
+type RiskDetailVoItem = ProductRiskVoItem;
+
+export interface RiskRuleInfoVoItem {
+    id: number;
+    riskId: number;
+    ruleCondition: string;
+    ruleName: string;
+    ruleParams: string;
+    ruleTip: string;
+}
+
+export interface RiskLiabilityInfoVoItem {
+    amount: number;
+    amountCalculateType: number;
+    amountCalculateTypeDesc: string;
+    extraInfo: string;
+    id: number;
+    liabilityAttributeType: number;
+    liabilityAttributeValueList: string[];
+    liabilityCode: string;
+    liabilityDesc: string;
+    liabilityId: number;
+    liabilityIndemnityContent: string;
+    liabilityIndemnityType: number;
+    liabilityName: string;
+    liabilityRateType: number;
+    liabilityTopType: number;
+    liabilityType: number;
+    optionFlag: string;
+    optionalFlag: number;
+    optionalFlagDesc: string;
+    premium: number;
+    premiumCalculateDesc: string;
+    premiumCalculateType: number;
+    riskId: number;
+}
+
+export interface RiskInsureLimitVo {
+    annuityDrawFrequency: string;
+    annuityDrawType: string;
+    annuityDrawValues: string;
+    creator: string;
+    extInfo: string;
+    gmtCreated: string;
+    gmtModified: string;
+    holderAgeLimit: string;
+    id: number;
+    insurancePeriodRule: string;
+    insurancePeriodType: string;
+    insurancePeriodValues: string;
+    insuredNum: number;
+    isDeleted: string;
+    modifier: string;
+    occupationLimit: string[];
+    paymentFrequency: string;
+    paymentPeriodRule: string;
+    paymentPeriodType: string;
+    paymentPeriodValues: string;
+    paymentTypeRule: string;
+    riskId: number;
+    sexLimit: string;
+    socialInsuranceLimit: string;
+    toLifeAge: number;
+}
+
+export interface RiskFactorLinkAgeInfoVoItem {
+    annuityDrawDate: string;
+    creator: string;
+    gmtCreated: string;
+    gmtModified: string;
+    id: number;
+    insurancePeriod: string;
+    isDeleted: string;
+    maxHolderAge: string;
+    minHolderAge: string;
+    modifier: string;
+    paymentPeriod: string;
+    riskId: number;
+}
+
+export interface RiskCalcMethodInfoVo {
+    bucketFlag: string;
+    copiesAmount: number;
+    creator: string;
+    dataTableList: string[];
+    displayType: string;
+    displayUnit: string;
+    displayValues: string[];
+    gmtCreated: string;
+    gmtModified: string;
+    id: number;
+    isDeleted: string;
+    maxValue: number;
+    minValue: number;
+    modifier: string;
+    requireCopies: string;
+    riskFactorRelationList: RiskFactorRelationItem[];
+    riskFormulaRelationList: RiskFormulaRelationItem[];
+    riskId: number;
+    saleMethod: string;
+    stepValue: number;
+}
+
+export interface RiskFormulaRelationItem {
+    creator: string;
+    formulaCode: string;
+    formulaName: string;
+    formulaType: string;
+    gmtCreated: string;
+    gmtModified: string;
+    id: number;
+    isDeleted: string;
+    liabilityId: number;
+    modifier: string;
+    riskId: number;
+}
+
+export interface RiskFactorRelationItem {
+    businessType: number;
+    creator: string;
+    factorCode: string;
+    factorName: string;
+    factorObject: string;
+    gmtCreated: string;
+    gmtModified: string;
+    id: number;
+    isDeleted: string;
+    modifier: string;
+    riskId: number;
+}
+
+export interface RiskAttachmentVoItem {
+    attachmentName: string;
+    attachmentType: string;
+    attachmentUrl: string;
+    businessType: string;
+}
+
+export interface CollocationVoItem {
+    collocationRiskCode: string;
+    collocationRiskId: number;
+    collocationRiskName: string;
+    collocationType: number;
+    collocationTypeDesc: string;
+    id: number;
+    riskId: number;
+    riskType: number;
+    riskTypeDesc: string;
+}
+
+export interface AmountPremiumConfigVo {
+    displayType: number;
+    displayUnit: number;
+    eachCopyPrice: string;
+    fixedValue: string;
+    maxCopiesValue: string;
+    maxValue: string;
+    minCopiesValue: string;
+    minValue: string;
+    stepValue: string;
+}
+
+export interface PackageProductVoItem {
+    packageCode: string;
+    packageName: string;
+    productRiskVoList: ProductRiskVoItem[];
+}
+
+export interface ProductRiskVoItem {
+    amountPremiumConfigVO: AmountPremiumConfigVo;
+    circCategory: string;
+    circCategoryDesc: string;
+    collocationType: number;
+    collocationVOList: CollocationVoItem[];
+    configStatus: number;
+    exemptFlag: number;
+    exemptType: number;
+    exemptTypeDesc: string;
+    extraInfo: string;
+    id: number;
+    insuranceEndType: number;
+    insuranceStartType: number;
+    insurerCode: string;
+    insurerName: string;
+    liabilityPlanOssUrl: string;
+    mainRiskCode: string;
+    mainRiskId: number;
+    periodType: number;
+    periodTypeDesc: string;
+    relationDesc: string;
+    riskAttachmentVOList: RiskAttachmentVoItem[];
+    riskCalcMethodInfoVO: RiskCalcMethodInfoVo;
+    riskCategory: number;
+    riskCategoryDesc: string;
+    riskCode: string;
+    riskFactorLinkAgeInfoVOList: RiskFactorLinkAgeInfoVoItem[];
+    riskInsureLimitVO: RiskInsureLimitVo;
+    riskLiabilityInfoVOList: RiskLiabilityInfoVoItem[];
+    riskName: string;
+    riskRuleInfoVOList: RiskRuleInfoVoItem[];
+    riskType: number;
+    riskTypeDesc: string;
+}
+
+export interface PackageConfigVoItem {
+    packageCode: string;
+    packageConfigItemList: PackageConfigItemItem[];
+    packageName: string;
+}
+
+export interface PackageConfigItemItem {
+    liabilityCode: string;
+    liabilityName: string;
+    packageCode: string;
+    packageName: string;
+    planCode: string;
+    riskCode: string;
+    riskName: string;
+}
+
+export interface ProductInsureMaterialVoItem {
+    id: number;
+    planCode: string;
+    productCode: string;
+    productId: number;
+    productMaterialVOList: ProductMaterialVoItem[];
+    showOrder: number;
+    tabName: string;
+}
+
+export interface ProductMaterialVoItem {
+    id: number;
+    materialContent: string;
+    materialSource: number;
+    materialSourceDesc: string;
+    materialType: number;
+    materialTypeDesc: string;
+    mustReadFlag: number;
+    noticeObject: number;
+    noticeObjectDesc: string;
+    popUpFlag: number;
+    productId: number;
+}
+
+
+
+
+export interface ProductFactorItem {
+  id: number;
+  productId: object;
+  productCode: string;
+  planCode: object;
+  factorId: object;
+  moduleType: number;
+  code: string;
+  title: string;
+  hasDefaultValue: number;
+  defaultValue: object;
+  placeholder: object;
+  isHidden: number;
+  isDisplay: number;
+  isReadOnly: object;
+  isMustInput: number;
+  displayType: object;
+  datasource: object;
+  factorScript: object;
+  attributeValues: object;
+  attributeValueList: object;
+  position: object;
+}
+
+/**
+ * 产品中心-产品资料
+ */
+
+export interface ProductMaterialData {
+    productInsureMaterialVOList: ProductInsureMaterialVoItem[];
+    productQuestionnaireVOList: ProductQuestionnaireVoItem[];
+}
+
+export interface ProductQuestionnaireVoItem {
+    planCode: string;
+    productCode: string;
+    productId: number;
+    questionnaireDetailResponseVO: QuestionnaireDetailResponseVo;
+    questionnaireId: number;
+    questionnaireName: string;
+}
+
+export interface QuestionnaireDetailResponseVo {
+    basicInfo: BasicInfo;
+    creator: string;
+    gmtCreated: string;
+    gmtModified: string;
+    isDeleted: string;
+    modifier: string;
+    questions: Question[];
+}
+
+export interface Question {
+    content: string;
+    creator: string;
+    gmtCreated: string;
+    gmtModified: string;
+    id: number;
+    isDeleted: string;
+    modifier: string;
+    options: string;
+    position: number;
+    questionType: number;
+    questionnaireId: number;
+    tenantId: number;
+    textType: number;
+    title: string;
+}
+
+export interface BasicInfo {
+    gmtCreated: string;
+    id: number;
+    insurerCode: string;
+    objectType: number;
+    productCategory: number;
+    questionnaireCode: string;
+    questionnaireName: string;
+    questionnaireType: number;
+    tenantId: number;
+    title: string;
+}
+
+export interface ProductInsureMaterialVoItem {
+    id: number;
+    planCode: string;
+    productCode: string;
+    productId: number;
+    productMaterialVOList: ProductMaterialVoItem[];
+    showOrder: number;
+    tabName: string;
+}
+
+export interface ProductMaterialVoItem {
+    id: number;
+    materialContent: string;
+    materialSource: number;
+    materialSourceDesc: string;
+    materialType: number;
+    materialTypeDesc: string;
+    mustReadFlag: number;
+    noticeObject: number;
+    noticeObjectDesc: string;
+    popUpFlag: number;
+    productId: number;
+}
+
+
+/**
+ * 产品升级保障配置
+*/
+export interface ProductUpgradeConfig {
+    notificationImage: string[];
+    parameterMap: ParameterMap;
+    productCode: string;
+    productImage: string[];
+    productName: string;
+}
+
+export interface ParameterMap {
+}
+
+
+
+
+
+
+
+

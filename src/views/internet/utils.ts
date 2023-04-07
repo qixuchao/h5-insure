@@ -84,6 +84,23 @@ export const transformData = (o: transformDataType) => {
   });
 };
 
+export const setRiskOrMainRisk = (risks: any) => {
+  const mainRisk = risks.filter((item: any) => {
+    return item.riskType === 1;
+  })?.[0];
+
+  return risks.map((item: any) => {
+    if (mainRisk && item.riskType !== 1) {
+      // eslint-disable-next-line no-param-reassign
+      item.riskInsureLimitVO.paymentFrequencyList =
+        item.riskInsureLimitVO.paymentTypeRule === 1
+          ? mainRisk.riskInsureLimitVO.paymentFrequencyList
+          : item.riskInsureLimitVO.paymentFrequencyList;
+    }
+    return item;
+  });
+};
+
 export const compositionTrailData = (
   riskList: RiskDetailVoItem[],
   productDetail: ProductDetail,
@@ -138,7 +155,7 @@ export const compositionTrailData = (
       riskCode,
       riskId: id,
       riskName,
-      paymentFrequency,
+      paymentFrequency: paymentFrequencyList?.[0] || PAYMENT_FREQUENCY_ENUM.YEAR,
       extraInfo,
       chargePeriod: paymentPeriodValueList?.[0],
       annuityDrawDate: annuityDrawValueList?.[0],
@@ -232,18 +249,19 @@ export const genarateOrderParam = (o: orderParamType) => {
   const param = {
     id: o.originOrderIds?.id || null,
     orderNo: o.orderNo || null,
-    orderAmount: o.premium,
-    tenantId: o.tenantId,
-    venderCode: o.detail?.insurerCode,
+    orderAmount: o.premium, // '1'
+    tenantId: o.tenantId, // '1'
+    venderCode: o.detail?.insurerCode, // '1'
     applicationNo: o.applicationNo,
     policyNo: o.policyNo,
-    orderDataSource: '1', // 订单来源
-    saleUserId: o.saleUserId,
-    saleChannelId: o.saleChannelId, // 销售渠道id
-    orderCategory: o.orderCategory, // 订单类型
+    orderDataSource: '1', // 1 // 订单来源
+    saleUserId: o.saleUserId, // 1 'url'
+    saleChannelId: o.saleChannelId, // 1  'url'// 销售渠道id
+    orderCategory: o.orderCategory, // 1 '1' // 订单类型
     orderStatus: o.orderStatus,
     orderTopStatus: o.orderTopStatus,
     tenantOrderHolder: {
+      // '1'
       id: o.originOrderIds?.holderId || null,
       tenantId: o.tenantId,
       name: o.holder.name,
@@ -257,6 +275,7 @@ export const genarateOrderParam = (o: orderParamType) => {
       },
     },
     extInfo: {
+      // 1
       extraInfo: {
         renewalDK: o.renewalDK, // 签约
         paymentMethod: o.paymentMethod,
@@ -280,11 +299,12 @@ export const genarateOrderParam = (o: orderParamType) => {
           hasSocialInsurance: o.insured.socialFlag,
         },
         tenantOrderProductList: [
+          // 1
           {
-            tenantId: o.tenantId,
-            productCode: o.detail?.productCode,
-            productName: o.detail?.productName,
-            premium: o.premium, // 保费, 保费试算返回
+            tenantId: o.tenantId, // 1
+            productCode: o.detail?.productCode, // 1
+            productName: o.detail?.productName, // 1
+            premium: o.premium, // 1 // 保费, 保费试算返回
             tenantOrderRiskList: o.tenantOrderRiskList,
             // transformData({
             //   tenantId: o.tenantId,
@@ -441,8 +461,10 @@ export const genaratePremiumCalcData = (o: premiumCalcParamType, flag = false, v
   let riskVOList: any[] = [];
   if (flag) {
     riskVOList = compositionTrailData(
-      productRiskVoListFilter(deepCopy(o.insureDetail.productRiskVoList), o.insured.certNo, validatorRisk)?.[0]
-        ?.riskDetailVOList,
+      setRiskOrMainRisk(
+        productRiskVoListFilter(deepCopy(o.insureDetail.productRiskVoList), o.insured.certNo, validatorRisk)?.[0]
+          ?.riskDetailVOList,
+      ),
       o.productDetail,
       [],
       o.paymentFrequency,
@@ -450,7 +472,6 @@ export const genaratePremiumCalcData = (o: premiumCalcParamType, flag = false, v
     );
   } else {
     const result = productRiskVoListFilter(deepCopy(o.insureDetail.productRiskVoList), o.insured.certNo, validatorRisk);
-    console.log('===result', [...result]);
     riskVOList = result.map((item: ProductRiskVoItem) => {
       // return compositionTrailData(item.riskDetailVOList, o.productDetail, o.packageRiskIdList, o.paymentFrequency);
       return compositionTrailData(

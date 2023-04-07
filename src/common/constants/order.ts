@@ -96,9 +96,13 @@ export enum ORDER_STATUS_ENUM {
    */
   INSURANCE_PROCESSING = 'insuranceProcessing',
   /**
-   * 照会
+   * 核保中
    */
   NOTE = 'note',
+  /**
+   * 人核中
+   */
+  MANUAL_UNDERWRITING = 'manualUnderWriting',
   /**
    * 核保通过
    */
@@ -117,6 +121,10 @@ export const ORDER_STATUS_LIST = [
   {
     value: ORDER_STATUS_ENUM.PAYMENT_SUCCESS,
     label: '支付成功',
+  },
+  {
+    value: ORDER_STATUS_ENUM.CANCELED,
+    label: '已失效',
   },
   {
     value: ORDER_STATUS_ENUM.PAYMENT_FAILED,

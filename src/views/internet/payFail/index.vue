@@ -11,7 +11,7 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import { getPayUrl } from '@/api/modules/trial';
 import themeVars from '../theme';
 import failImg from '@/assets/images/chuangxin/fail.png';
