@@ -101,8 +101,8 @@
 </template>
 
 <script lang="ts" setup>
-import { Toast } from 'vant';
-import queryString from 'query-string';
+import { Toast } from 'vant/es';
+import qs from 'qs';
 import { useRouter, useRoute } from 'vue-router';
 import ProCard from '@/components/ProCard/index.vue';
 import ProForm from '@/components/ProForm/index.vue';
@@ -324,7 +324,7 @@ const handleSubmit = () => {
 
 const shareLink = computed(() => {
   const query = { ...route.query, isShare: 1, sharePageCode: 'payInfo' };
-  return `${window.location.origin}/phoneVerify?${queryString.stringify(query)}`;
+  return `${window.location.origin}/phoneVerify?${qs.stringify(query)}`;
 });
 
 // 是否校验数据

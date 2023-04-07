@@ -10,15 +10,15 @@
   >
     <template #input>
       <div class="input">
-        <span v-if="displayValue" class="displayValue">{{ displayValue }}</span>
-        <span v-else class="placeholder">{{ placeholder }}</span>
+        <span v-if="displayValue || isView" class="displayValue">{{ displayValue }}</span>
+        <span v-else class="placeholder">{{ currentPlaceholder }}</span>
       </div>
     </template>
   </ProField>
   <ProPopup v-model:show="show" :height="60" :closeable="false" class="com-cascader-popup">
     <van-cascader
       :title="title || label"
-      :options="dataSource"
+      :options="currentDataSource"
       :field-names="fieldNames"
       :model-value="modelValue"
       @close="handleClose"
@@ -80,7 +80,7 @@ const props = defineProps({
   },
   placeholder: {
     type: String,
-    default: '请选择',
+    default: '',
   },
   isView: {
     type: Boolean,
@@ -111,6 +111,12 @@ const props = defineProps({
 const [show, toggle] = useToggle(false);
 let tempValue: string[] = [];
 
+const currentPlaceholder = computed(() => {
+  return props.placeholder || `请选择${props.label}`;
+});
+
+const currentDataSource = ref<any[]>([]);
+
 const handleClick = () => {
   toggle(true);
 };
@@ -119,17 +125,33 @@ const handleClose = () => {
   toggle(false);
 };
 
-const deleteEmptyChildren = (item: any) => {
-  if (item.children) {
-    if (!item.children.length) {
-      // eslint-disable-next-line
-      delete item.children;
-    } else {
-      item.children.forEach((child: any) => {
-        deleteEmptyChildren(child);
-      });
-    }
+// const deleteEmptyChildren = (item: any) => {
+//   if (item.children) {
+//     if (!item.children.length) {
+//       // eslint-disable-next-line
+//       delete item.children;
+//     } else {
+//       item.children.forEach((child: any) => {
+//         deleteEmptyChildren(child);
+//       });
+//     }
+//   }
+// };
+
+const deleteOperate = (dataSource) => {
+  if (Array.isArray(dataSource)) {
+    return dataSource.map(({ children, ...other }) => {
+      const currentData = {};
+      if (children.length) {
+        currentData.children = deleteOperate(children);
+      }
+      return {
+        ...other,
+        ...currentData,
+      };
+    });
   }
+  return [];
 };
 
 const flat = (list: any[]) => {
@@ -146,9 +168,7 @@ const flat = (list: any[]) => {
 watch(
   () => props.dataSource,
   () => {
-    (props?.dataSource || []).forEach((item) => {
-      deleteEmptyChildren(item);
-    });
+    currentDataSource.value = deleteOperate(props.dataSource);
   },
   {
     deep: true,

@@ -5,7 +5,25 @@ export interface ProductDetail {
     productRelationPlanVOList: ProductRelationPlanVoItem[];
     productRiskVoList: ProductRiskVoItem[];
     riskDetailVOList: RiskDetailVoItem[];
+    packageProductVOList?: PackageConfigItemVo[];
+    [prop: string]: any;
 }
+
+export interface PackageRiskVo {
+  liabilityCode: string;
+  liabilityName: string;
+  riskCode: string;
+  riskName: string;
+  liabilityCodeList?: string[];
+  liabilityList?: any[]
+}
+
+export interface PackageConfigItemVo {
+  packageCode: string;
+  productRiskVoList: PackageRiskVo[]
+  packageName: string;
+}
+
 
 export interface RiskDetailVoItem {
     circCategory: string;
@@ -189,6 +207,7 @@ export interface ProductRelationPlanVoItem {
     productRiskVoList: ProductRiskVoItem[];
     riskDetailVOList: RiskDetailVoItem[];
     riskNum: number;
+    packageProductVOList: PackageConfigItemVo[]
 }
 
 export interface ProductMaterialVoItem {

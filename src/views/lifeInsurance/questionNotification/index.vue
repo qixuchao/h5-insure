@@ -57,7 +57,7 @@
 <script setup lang="ts">
 import wx from 'weixin-js-sdk';
 import { useRouter, useRoute } from 'vue-router';
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import { listCustomerQuestions } from '@/api/modules/inform';
 import {
   ListCustomerQuestionsResponse,

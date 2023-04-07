@@ -1,62 +1,81 @@
 <template>
-  <router-view v-slot="{ Component, route }" class="router-view">
-    <template v-if="Component">
-      <keep-alive v-if="route.meta.keepAlive">
-        <suspense>
-          <component :is="Component" :key="route.meta.usePathKey ? route.fullPath : undefined" />
-          <template #fallback>
-            <div v-if="route.meta && route.meta.skeleton == 'primary'"><Van-skeleton title :row="3" /></div>
-            <div v-else><Van-skeleton title :row="8" /></div>
-          </template>
-        </suspense>
+  <van-config-provider :theme-vars="themeVars">
+    <router-view v-slot="{ Component, route }" class="router-view">
+      <keep-alive>
+        <component :is="Component" v-if="route.meta.keepAlive" :key="route.path"></component>
       </keep-alive>
-      <suspense v-else>
-        <component :is="Component" :key="route.meta.usePathKey ? route.fullPath : undefined" />
-
-        <template #fallback>
-          <div v-if="route.meta && route.meta.skeleton == 'primary'"><Van-skeleton title :row="3" /></div>
-          <div v-else><Van-skeleton title :row="8" /></div>
-        </template>
-      </suspense>
-    </template>
-  </router-view>
+      <component :is="Component" v-if="!route.meta.keepAlive" :key="route.path"></component>
+    </router-view>
+    <ProVConsole />
+  </van-config-provider>
 </template>
 <script lang="ts" setup>
-import { injectGlobal } from '@emotion/css';
+import { storeToRefs } from 'pinia';
 import { getConfig } from './utils/config';
-import themes from './themes';
+import { addScript } from '@/utils/index';
 import { useThemesStore } from './store/themes';
+import ProVConsole from '@/components/ProVConsole/index.vue';
 
-const styleMap = {
-  default: () => import('@/styles/themes/default.scss'),
-  blue: () => import('@/styles/themes/blue.scss'),
-};
+const themesStore = useThemesStore();
+const { themeVars } = storeToRefs(themesStore);
+// const styleMap = {
+//   default: () => import('@/styles/themes/default.scss'),
+//   blue: () => import('@/styles/themes/blue.scss'),
+// };
 onBeforeMount(async () => {
-  const type = 'default';
-  const style = (await styleMap[type]()).default;
-  useThemesStore().setThemes(themes, type);
-  injectGlobal(style);
+  // const type = 'default';
+  // const style = (await styleMap[type]()).default;
+  // useThemesStore().setThemes(themes, type);
+  // injectGlobal(style);
+  // themeVars.value = useTheme(); // 默认蓝色
+  // setGlobalTheme('#5f9ea0');
 });
 
 const X_FLOW = `https://xflowcloud.zhongan.io/sdk/dist/js/v0.0.1/ilog.js?id=${getConfig('xflow')}&history=true`;
-
-const addScript = (url: string, isAsync = true) => {
-  console.log('加载脚本：', url);
-
-  const script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.async = isAsync;
-  script.src = url;
-  document.getElementsByTagName('head')[0].appendChild(script);
+const loadXFlow = () => {
+  ((para) => {
+    const w = window;
+    const d = document;
+    const s = 'script';
+    const a = para.sdkUrl;
+    if (typeof window.XFlowAnalysisSetting !== 'undefined') {
+      return false;
+    }
+    w.XFlowAnalysisSetting = para;
+    const x = d.createElement(s);
+    const y = d.getElementsByTagName(s)[0];
+    x.src = a;
+    x.async = true;
+    if (y.parentNode) {
+      y.parentNode.insertBefore(x, y);
+    }
+    return '';
+  })({
+    sdkUrl: X_FLOW, // 例如：https://xflowcloud.zhongan.io/sdk/dist/js/v0.0.1/ilog.js
+    siteId: getConfig('xflow'), // 站点id
+    name: '_XFLOW_', // new XFlow实例化后，暴露在window的变量名称. 主要供自定义事件使用
+    debug: false, // 默认为 false，true 则会在控制台打印上报日志
+    history: true, // 是否是单页面应用
+    serverUrl: getConfig('xflowServerUrl'), // 例如：https://xflowcloud.zhongan.io/nginx/cloud_web_sdk.gif
+  });
 };
 
+// const ld = ref(true);
 onMounted(() => {
-  console.log('ISEE:', getConfig('isee'), '\nX_FLOW:', X_FLOW);
-  addScript(getConfig('isee')); // 千里眼SDK
-  addScript(X_FLOW); // 埋点SDK
+  // 生产环境
+  process.env.NODE_ENV === 'production' && addScript(getConfig('isee')); // 千里眼SDK
+  loadXFlow(); // 埋点SDK
+
+  // useLoading(l);
+  // setTimeout(() => {
+  //   ld.value = false;
+  // }, 4000);
 });
 </script>
 <style lang="scss">
+body {
+  touch-action: manipulation;
+}
 .router-view {
   width: 100%;
   height: 100vh;

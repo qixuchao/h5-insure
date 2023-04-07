@@ -1,39 +1,31 @@
-import { get } from 'lodash';
 import { defineStore } from 'pinia';
+import useTheme from '@/hooks/useTheme';
+import { localStore } from '@/hooks/useStorage';
 
 interface StoreThemes {
-  type: string;
-  themes: AnyObject;
+  theme: string;
   loading: boolean;
-  currentThemes: AnyObject;
+  themeVars: Record<string, string>;
 }
 
 export const useThemesStore = defineStore({
   id: 'themes', // id必填，且需要唯一
   state: (): StoreThemes => {
     return {
-      themes: {},
-      type: '',
+      theme: '#fff000',
       loading: false,
-      currentThemes: {},
+      themeVars: localStore.get('GLOBAL_THEME_STORE') || useTheme(),
     };
   },
   actions: {
-    setThemes(themes: AnyObject, type: string) {
-      this.themes = themes;
-      this.type = type;
+    setTheme(theme: string) {
+      this.theme = theme;
     },
     setLoading(load: boolean) {
       this.loading = load;
     },
   },
-  getters: {
-    currentThemes: (state) => state.themes[state.type],
-    getIconUrl: (state) => {
-      return (url: string) => get(state.currentThemes, url);
-    },
-    currentType: (state) => state.type,
-  },
+  getters: {},
 });
 
 export default null;

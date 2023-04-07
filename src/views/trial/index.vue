@@ -87,8 +87,8 @@
 import { provide } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant/es';
-import PersonalInfo from './components/PersonalInfo/index.vue';
-import RiskList from './components/RiskList/index.vue';
+// import PersonalInfo from './components/PersonalInfo/index.vue';
+// import RiskList from './components/RiskList/index.vue';
 import { insureProductDetail, premiumCalc } from '@/api/modules/trial';
 import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
 import { getDic, nextStep, getTemplateInfo } from '@/api';
@@ -105,7 +105,7 @@ import {
   PremiumCalcData,
   RiskPremiumDetailVoItem,
   ProductRelationPlanVoItem,
-  premiumCalcResponse,
+  PremiumCalcResponse,
   ProductPlanVoItem,
 } from '@/api/modules/trial.data';
 import { PAYMENT_PERIOD_TYPE_ENUMS, INSURANCE_PERIOD_TYPE_ENUMS } from '@/common/constants/trial';
@@ -120,7 +120,7 @@ interface PageState {
   insuredFactor: string[];
   riskData: RiskDetailVoItem[];
   riskPlanData: ProductRelationPlanVoItem[];
-  trialResult: Partial<premiumCalcResponse>;
+  trialResult: Partial<PremiumCalcResponse>;
   canTrial: boolean;
   retrialTip: boolean;
   enumList: any;

@@ -104,9 +104,8 @@ declare module 'recorder-core' {
   export default RecorderCore;
 }
 declare module 'qrcode';
-declare module 'pdfjs-dist';
-declare module 'pdfjs-dist/build/pdf.worker.entry.js';
 declare module 'qs';
+declare module 'jquery'
 
 interface Window {
   AppJSInterface?: () => void;
@@ -114,4 +113,13 @@ interface Window {
   webkit: {
     messageHandlers: () => void
   }
+  wx: {
+    config: (config: unknown) => void,
+    checkJsApi: (config: unknown) => void,
+    ready: (config: unknown) => void,
+    updateAppMessageShareData: (config: unknown) => void,
+    updateTimelineShareData: (config: unknown) => void,
+    chooseWXPay: (config: unknown) => void,
+  }
+
 }

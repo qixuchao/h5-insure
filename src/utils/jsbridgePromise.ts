@@ -188,3 +188,28 @@ export const openWebView = (title: string, link: string) => {
     },
   });
 };
+
+export const openPDFWithUrl = (title: string, link: string) => {
+  return callJsBridge({
+    fn: 'openPDFDoc',
+    cbName: 'js_openPDFDoc',
+    params: {
+      title,
+      link,
+      showProgress: true,
+    },
+  });
+};
+
+/**
+ * 跳转浏览器进行预览、下载
+ * @param url
+ * @returns
+ */
+export const downloadPDFWithUrl = (url: string) => {
+  return callJsBridge({
+    fn: 'na_openBrowser',
+    cbName: 'js_openBrowser',
+    params: { url },
+  });
+};

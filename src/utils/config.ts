@@ -15,6 +15,9 @@ export const getEnv = () => {
   if (/\.test\.za/.test(host)) return 'test';
   if (/-pre\.zhongan/.test(host)) return 'pre';
   if (/\.prd\.za/.test(host)) return 'prd';
+  if (['insure-ybx.zaouter', 'insure-ybx-v2.zaouter', 'techmall.zaouter'].some((str) => host.includes(str))) {
+    return 'prd';
+  }
   return 'dev';
 };
 /**

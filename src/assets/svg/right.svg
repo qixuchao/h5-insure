@@ -1,2 +1,16 @@
-<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1650875293320" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2228" xmlns:xlink="http://www.w3.org/1999/xlink" width="48" height="48"><defs><style type="text/css">@font-face { font-family: feedback-iconfont; src: url("//at.alicdn.com/t/font_1031158_u69w8yhxdu.woff2?t=1630033759944") format("woff2"), url("//at.alicdn.com/t/font_1031158_u69w8yhxdu.woff?t=1630033759944") format("woff"), url("//at.alicdn.com/t/font_1031158_u69w8yhxdu.ttf?t=1630033759944") format("truetype"); }
-</style></defs><path d="M214.1728 27.946667A85.333333 85.333333 0 0 1 329.074133 17.450667l5.632 4.736 469.333334 426.666666a85.333333 85.333333 0 0 1 5.12 121.301334l-5.12 4.992-469.333334 426.666666a85.333333 85.333333 0 0 1-120.021333-121.088l5.248-5.205333L619.8048 512 219.9328 148.48A85.333333 85.333333 0 0 1 209.4368 33.578667L214.1728 27.946667z" fill="#ffffff" p-id="2229"></path></svg>
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1650875293320"
+  class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2228"
+  xmlns:xlink="http://www.w3.org/1999/xlink" width="48" height="48">
+  <defs>
+    <style type="text/css">
+      @font-face {
+        font-family: feedback-iconfont;
+        src: url("//at.alicdn.com/t/font_1031158_u69w8yhxdu.woff2?t=1630033759944") format("woff2"), url("//at.alicdn.com/t/font_1031158_u69w8yhxdu.woff?t=1630033759944") format("woff"), url("//at.alicdn.com/t/font_1031158_u69w8yhxdu.ttf?t=1630033759944") format("truetype");
+      }
+    </style>
+  </defs>
+  <path
+    d="M214.1728 27.946667A85.333333 85.333333 0 0 1 329.074133 17.450667l5.632 4.736 469.333334 426.666666a85.333333 85.333333 0 0 1 5.12 121.301334l-5.12 4.992-469.333334 426.666666a85.333333 85.333333 0 0 1-120.021333-121.088l5.248-5.205333L619.8048 512 219.9328 148.48A85.333333 85.333333 0 0 1 209.4368 33.578667L214.1728 27.946667z"
+    p-id="2229"></path>
+</svg>

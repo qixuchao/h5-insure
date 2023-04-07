@@ -1,23 +1,23 @@
 <!--
  * @Author: za-qixuchao qixuchao@zhongan.io
  * @Date: 2022-07-12 10:50:33
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-10 14:58:27
+ * @LastEditors: kevin.liang
+ * @LastEditTime: 2023-03-23 17:51:49
  * @FilePath: /zat-planet-h5-cloud-insure/src/components/ProPopup/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <Popup
     v-model:show="isShow"
-    :="$attrs"
+    v-bind="$attrs"
     position="bottom"
-    :style="{ height: `${height}%` }"
+    :style="{ height: height > 100 ? `${height}px` : `${height}%` }"
     round
     :closeable="closeable"
     class="com-pro-popup"
     @close="emits('close')"
   >
-    <div class="container">
+    <div class="pop-container">
       <div v-if="title" class="header">
         {{ title }}
       </div>
@@ -81,7 +81,7 @@ watch(isShow, (val) => {
 </script>
 <style lang="scss" scope>
 .com-pro-popup {
-  .container {
+  .pop-container {
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -96,7 +96,9 @@ watch(isShow, (val) => {
       border-bottom: 1px solid $zaui-line;
     }
     .body {
-      height: 100%;
+      // height: 100%;
+      flex: 1;
+      overflow: auto;
     }
     .footer {
       flex: 0 0 104px;

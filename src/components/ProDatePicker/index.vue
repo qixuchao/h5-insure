@@ -6,11 +6,12 @@
     :model-value="modelValue"
     :is-view="isView"
     :required="required"
+    @click="handleClick"
   >
     <template #input>
       <div style="width: 100%" class="input" @click="handleClick">
-        <span v-if="displayValue" class="displayValue">{{ displayValue }}</span>
-        <span v-else class="placeholder">{{ placeholder }}</span>
+        <span v-if="displayValue || isView" class="displayValue">{{ displayValue }}</span>
+        <span v-else class="placeholder">{{ currentPlaceholder }}</span>
       </div>
     </template>
     <template #extra>
@@ -54,7 +55,7 @@ const props = defineProps({
   },
   placeholder: {
     type: String,
-    default: '请选择',
+    default: '',
   },
   title: {
     type: String,
@@ -92,6 +93,10 @@ const formatMap = {
   datehour: 'YYYY-MM-DD HH',
   time: 'mm:ss',
 };
+
+const currentPlaceholder = computed(() => {
+  return props.placeholder || `请输入${props.label}`;
+});
 
 const handleClick = () => {
   !props.isView && toggle(true);
@@ -145,6 +150,6 @@ const displayValue = computed(() => {
 
 <style lang="scss" scoped>
 .placeholder {
-  color: #969799;
+  color: $zaui-aide-text;
 }
 </style>

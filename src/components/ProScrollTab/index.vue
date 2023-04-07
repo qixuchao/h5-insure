@@ -1,8 +1,8 @@
 <!--
  * @Author: za-wangyuanli wangyuanli@zhongan.io
  * @Date: 2022-09-14 16:50:33
- * @LastEditors: za-wangyuanli wangyuanli@zhongan.io
- * @LastEditTime: 2022-09-14 16:50:33
+ * @LastEditors: zhaopu
+ * @LastEditTime: 2022-12-13 18:27:16
  * @Description: 为了解决，VanTab 滚动导航, 切换tab时，选中的tab闪烁问题
  * 主要实现：监听页面滚动，高亮tab
 -->
@@ -25,7 +25,7 @@
       </div>
     </van-sticky>
     <div class="tab-content">
-      <div v-for="(item, index) in list" :id="item.slotName" :key="index">
+      <div v-for="item in list" :id="item.slotName" :key="item.slotName">
         <slot v-if="item.slotName" :name="item.slotName" />
       </div>
     </div>
@@ -99,6 +99,10 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   window.removeEventListener('scroll', handleScroll);
+});
+
+defineExpose({
+  handleClickTab,
 });
 </script>
 

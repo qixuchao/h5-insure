@@ -59,7 +59,7 @@
 
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { Toast } from 'vant';
+import { Toast } from 'vant/es';
 import { ref, onBeforeUpdate, withDefaults } from 'vue';
 import ProCard from '@/components/ProCard/index.vue';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
