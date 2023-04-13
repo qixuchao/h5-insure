@@ -2,6 +2,7 @@
   <ProFormItem
     :model-value="state.fieldValue"
     v-bind="filedAttrs"
+    :is-view="isView"
     :field-value-view="state.fieldValue"
     @click="!isView && (show = true)"
   >

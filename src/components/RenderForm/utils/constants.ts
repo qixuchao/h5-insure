@@ -2,6 +2,8 @@ import { type Ref, type InjectionKey } from 'vue';
 import dayjs from 'dayjs';
 import type { VanFormProvied } from '../index.data';
 import { DictNameEnum, CERT_TYPE_ENUM } from '@/common/constants';
+import { PAY_INFO_TYPE_LIST, PAY_INFO_TYPE_ENUM } from '@/common/constants/bankCard';
+import { sendCode } from '@/api/modules/phoneVerify';
 
 /**
  * 获取保司 code, 通用处理，此处无法使用 useRoute
@@ -16,6 +18,19 @@ const getInsurerCodeFormUrl = () => (window.location.search.match(/&insurerCode=
  */
 export const combineOccupation = (insurerCode: string) =>
   `${insurerCode ? `${insurerCode.toUpperCase()}_` : ''}OCCUPATION`;
+
+/**
+ * 发送验证码
+ * @param param0
+ * @param callback
+ */
+const sendSMSCode = async ({ mobile }, callback) => {
+  const res = await sendCode(mobile);
+  const { code } = res;
+  if (code === '10000') {
+    typeof callback === 'function' && callback();
+  }
+};
 
 /** 组件枚举 */
 export const COMPONENT_ENUM = {
@@ -38,13 +53,15 @@ export const COMPONENT_ENUM = {
   /** 11:地址 */
   ProAddress: 'ProAddress',
   /** 12:文件上传 */
-  ProUpload: 'ProUpload',
+  ProUploadV2: 'ProUploadV2',
   /** 13:步进器 */
   ProStepperV2: 'ProStepperV2',
   /** 验证码 */
   ProSMSCode: 'ProSMSCode',
   /** 职业信息 */
   ProOccupation: 'ProOccupation',
+  /** 证件影像 */
+  ProIDCardUploadV2: 'ProIDCardUploadV2',
 };
 
 // 输入框最大长度
@@ -78,7 +95,7 @@ export const INPUT_MAX_LENGTH = {
    */
   EIGHTEEN: 18,
   /**
-   * 燃气户号长度 20
+   * 燃气户号/银行卡号长度 20
    */
   TWENTY: 20,
   /**
@@ -213,6 +230,13 @@ export const RULE_CONFIG_MAP = {
     maxlength: INPUT_MAX_LENGTH.TWENTY,
   },
   /**
+   * 燃气户号 长度20个字符
+   */
+  BANK: {
+    type: 'digit',
+    maxlength: INPUT_MAX_LENGTH.TWENTY,
+  },
+  /**
    * 地址
    */
   ADDRESS: {
@@ -301,7 +325,7 @@ export const COMPONENT_MAPPING_LIST = [
     code: 'upload',
     name: '文件上传',
     value: 12,
-    componentName: COMPONENT_ENUM.ProUpload,
+    componentName: COMPONENT_ENUM.ProUploadV2,
   },
   {
     code: 'stepper',
@@ -310,6 +334,75 @@ export const COMPONENT_MAPPING_LIST = [
     componentName: COMPONENT_ENUM.ProStepperV2,
   },
 ];
+
+// ProBank 银行卡信息字段枚举
+export const BANK_INFO_KEY_ENUM = {
+  BANK_CARD_NO: 'bankCardNo',
+  CARD_HOLDER: 'cardHolder',
+  DEPOSIT_BANK: 'depositBank',
+  BANK_CARD_IMAGE: 'bankCardImage',
+  RESERVE_MOBILE: 'reserveMobile',
+  VERIFICATION_CODE: 'verificationCode',
+};
+
+// ProBank 银行卡信息字段枚举列表
+export const BANK_INFO_KEY_LIST = Object.values(BANK_INFO_KEY_ENUM);
+
+// ProBank 字段配置
+export const PRO_BANK_FIELD_MAP = {
+  // 年金同首期
+  sameFirstIssue: {
+    name: 'sameFirstIssue',
+    componentName: COMPONENT_ENUM.ProRadioV2,
+    columns: PAY_INFO_TYPE_LIST,
+  },
+  // 续期同首期
+  renewalSameFirstIssue: {
+    name: 'sameFirstIssue',
+    componentName: COMPONENT_ENUM.ProSwitchV2,
+    activeValue: `${PAY_INFO_TYPE_ENUM.FIRST_SAME}`,
+    inactiveValue: `${PAY_INFO_TYPE_ENUM.OTHER}`,
+  },
+  // 银行卡号
+  bankCardNo: {
+    ...RULE_CONFIG_MAP.BANK,
+    name: BANK_INFO_KEY_ENUM.BANK_CARD_NO,
+    componentName: COMPONENT_ENUM.ProFieldV2,
+  },
+  // 持卡人
+  cardHolder: {
+    ...RULE_CONFIG_MAP.NAME,
+    name: BANK_INFO_KEY_ENUM.CARD_HOLDER,
+    componentName: COMPONENT_ENUM.ProFieldV2,
+  },
+  // 开户银行
+  depositBank: {
+    name: BANK_INFO_KEY_ENUM.DEPOSIT_BANK,
+    dictCode: DictNameEnum.BANK,
+    componentName: COMPONENT_ENUM.ProPickerV2,
+  },
+  // 银行卡照片
+  bankCardImage: {
+    maxCount: 2,
+    subLabel: '（需上传正反两面）',
+    name: BANK_INFO_KEY_ENUM.BANK_CARD_IMAGE,
+    componentName: COMPONENT_ENUM.ProUploadV2,
+  },
+  // 预留手机号
+  reserveMobile: {
+    ...RULE_CONFIG_MAP.MOBILE,
+    name: BANK_INFO_KEY_ENUM.RESERVE_MOBILE,
+    componentName: COMPONENT_ENUM.ProFieldV2,
+  },
+  // 验证码
+  verificationCode: {
+    ...RULE_CONFIG_MAP.ZIP_CODE,
+    sendSMSCode,
+    name: BANK_INFO_KEY_ENUM.VERIFICATION_CODE,
+    relatedName: BANK_INFO_KEY_ENUM.RESERVE_MOBILE,
+    componentName: COMPONENT_ENUM.ProSMSCode,
+  },
+};
 
 /**
  * 关联的 filed ruleType 映射
@@ -417,6 +510,7 @@ export const GLOBAL_CONFIG_MAP = {
     ruleType: RULE_TYPE_ENUM.NOT_ZH_CN,
   },
   verificationCode: {
+    sendSMSCode,
     componentName: COMPONENT_ENUM.ProSMSCode,
     ...RULE_CONFIG_MAP.ZIP_CODE,
   },
@@ -431,9 +525,14 @@ export const GLOBAL_CONFIG_MAP = {
   companyName: {
     maxlength: INPUT_MAX_LENGTH.FIFTY,
   },
+  /** 职业 */
   occupationCodeList: {
     componentName: COMPONENT_ENUM.ProOccupation,
     dictCode: combineOccupation(getInsurerCodeFormUrl()),
+  },
+  /** 证件影像 */
+  certImage: {
+    componentName: COMPONENT_ENUM.ProIDCardUploadV2,
   },
 };
 

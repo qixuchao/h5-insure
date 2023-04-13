@@ -17,13 +17,11 @@ export const fileUpload = (file: File, uploadType: UPLOAD_TYPE_ENUM) => {
     file2Base64(file)
       .then((fileBase64) => {
         const data = { fileBase64, uploadType };
-        request<
-          ResponseData<{
-            ossKey: string;
-            tempUrl: string;
-            url: string;
-          }>
-        >({ url: '/api/app/uploadBase64File', method: 'POST', data }).then((res) => {
+        request<{
+          ossKey: string;
+          tempUrl: string;
+          url: string;
+        }>({ url: '/api/app/uploadBase64File', method: 'POST', data }).then((res) => {
           resolve(res);
         });
       })
@@ -42,5 +40,5 @@ export const ocr = (data: any) => {
   // Object.keys(data).forEach((key) => {
   //   formData.append(key, data[key]);
   // });
-  return request<ResponseData<OCRResponse>>({ url: '/api/app/ocrByFile', method: 'POST', data });
+  return request<OCRResponse>({ url: '/api/app/ocrByFile', method: 'POST', data });
 };

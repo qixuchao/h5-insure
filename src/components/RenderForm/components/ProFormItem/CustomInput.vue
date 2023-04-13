@@ -1,12 +1,13 @@
 <template>
-  <div style="width: 100%" class="input">
-    <span v-if="fieldValueView" class="displayValue">{{ fieldValueView }}</span>
+  <div class="custom-input-wrap">
+    <ValueView v-if="fieldValueView || isView" :value="fieldValueView" />
     <span v-else class="placeholder">{{ $attrs.placeholder }}</span>
   </div>
 </template>
 <script lang="ts" setup>
 import { useCustomFieldValue } from '@vant/use';
 import { inject } from 'vue';
+import ValueView from './ValueView.vue';
 import { VAN_PRO_FORM_KEY } from '../../utils';
 
 const attrs = useAttrs();
@@ -18,6 +19,13 @@ const props = defineProps({
   fieldValueView: {
     type: String,
     default: '',
+  },
+  /**
+   * 是否查看模式
+   */
+  isView: {
+    type: Boolean,
+    default: false,
   },
   modelValue: {
     type: [String, Boolean, Object, Number],
@@ -39,3 +47,10 @@ export default {
   inheritAttrs: false,
 };
 </script>
+<style lang="scss" scope>
+.custom-input-wrap {
+  width: 100%;
+  margin: 14px 0;
+  text-align: right;
+}
+</style>

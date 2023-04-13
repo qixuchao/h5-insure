@@ -4,6 +4,7 @@
     :class="`${filedAttrs.visible === false ? 'com-van-field--hidden' : ''}`"
     v-bind="filedAttrs"
     :field-value-view="fieldValueView"
+    :is-view="isView"
     @click="!isView && (show = true)"
   >
     <!-- 继承 slots -->
@@ -226,6 +227,12 @@ watch(
     immediate: true,
   },
 );
+
+onBeforeMount(() => {
+  if (props.dictCode && !formState.dictCodeList.includes(props.dictCode)) {
+    formState.dictCodeList.push(props.dictCode);
+  }
+});
 </script>
 <script lang="ts">
 export default {

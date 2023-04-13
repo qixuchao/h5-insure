@@ -2,7 +2,7 @@
   <!-- {{ $attrs.visible ? `1111${$attrs.visible}` : `2222${$attrs.visible}` }} -->
   <van-field
     :model-value="state.modelValue"
-    :class="`com-van-field ${markRequired ? '' : 'field-mark_hidden'} ${
+    :class="`com-van-field ${markRequired ? '' : 'field-mark--hidden'} ${
       attrs.visible === false ? 'com-van-field--hidden' : ''
     }`"
     autocomplete="off"
@@ -11,6 +11,9 @@
     @blur="onBlur"
     @update:model-value="updateModelValue"
   >
+    <template v-if="isView" #input>
+      <ValueView :value="valueView" />
+    </template>
     <!-- 继承 slots -->
     <template v-for="slotName in Object.keys(slotskeyMap)" :key="slotName" #[slotName]>
       <slot :name="slotskeyMap[slotName]" />
@@ -27,6 +30,7 @@ import type { FieldProps, FieldRule } from 'vant';
 import isNil from 'lodash/isNil';
 import isObject from 'lodash/isObject';
 import { isNotEmptyArray } from '@/common/constants/utils';
+import ValueView from './ProFormItem/ValueView.vue';
 import { VAN_PRO_FORM_KEY, RELATED_RULE_TYPE_MAP, relatedConfigMap, handleSlots, validatorMap } from '../utils';
 
 const attrs = useAttrs() as FieldProps;
@@ -101,6 +105,8 @@ const slotskeyMap = computed(() => {
 const placeholder = computed((): string => {
   return attrs.placeholder || `请输入${attrs.label || ''}`;
 });
+
+const valueView = computed(() => `${state.modelValue || ''}`);
 
 const ruleType = computed(() => {
   if (props.ruleType) {
@@ -246,10 +252,21 @@ export default {
 </script>
 <style lang="scss">
 .van-cell.van-field.com-van-field {
-  &.field-mark_hidden .van-field__label--required::before {
+  min-height: 106px;
+  // align-items: center;
+
+  &.field-mark--hidden .van-field__label--required::before {
     display: none;
   }
 
+  .van-field__label {
+    // align-self: flex-start;
+    // font-size: 28px;
+    // line-height: 32px;
+    // margin-top: 22px;
+  }
+
+  &.com-van-field-hidden,
   &.com-van-field--hidden {
     height: 0;
     min-height: 0;
@@ -266,6 +283,16 @@ export default {
       text-align: left;
     }
   }
+
+  textarea.van-field__control {
+    margin-top: 16px;
+    line-height: 1.3;
+  }
+
+  .van-cell__right-icon {
+    // padding-top: 0;
+  }
+
   .com-van-field-unit {
     align-self: center;
   }
