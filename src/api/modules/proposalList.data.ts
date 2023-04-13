@@ -4,6 +4,12 @@ export interface Sort {
   name: string;
 }
 
+export interface ProductCategoryItem {
+  id: number;
+  categoryName: string;
+  categoryNo: number;
+}
+
 export interface ProductInfoVoItem {
   fileName: string;
   fileType: string;
