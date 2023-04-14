@@ -1,3 +1,6 @@
+// 类型
+export * from './index.data';
+
 // 工具
 export * from './utils';
 

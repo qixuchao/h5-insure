@@ -171,7 +171,7 @@ const router = useRouter();
 const route = useRoute();
 const store = createProposalStore();
 
-const { id, type = 'add', isCreateProposal } = route.query;
+const { id, productId, type = 'add', isCreateProposal } = route.query;
 
 const state = ref<State>({
   productId: 0,

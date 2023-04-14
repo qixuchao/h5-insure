@@ -9,21 +9,21 @@
   />
   <!-- 被保人 -->
   <ProRenderFormWithCard
-    v-for="(insured, index) in state.insured.insuredVOList"
+    v-for="(insuredItem, index) in state.insured"
     ref="insuredFormRef"
     :key="index"
     class="trail-personal-info"
     :title="isOnlyForm ? '' : '被保人信息'"
-    :model="insured.personVO"
-    :schema="state.insured.schema"
-    :config="state.insured.config"
+    :model="insuredItem.personVO"
+    :schema="insuredItem.schema"
+    :config="insuredItem.config"
   />
 </template>
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
 import { useRoute } from 'vue-router';
 import { isNil } from 'lodash';
-import { ProRenderFormWithCard, transformFactorToSchema } from '@/components/RenderForm';
+import { type SchemaItem, isOnlyCert, ProRenderFormWithCard, transformFactorToSchema } from '@/components/RenderForm';
 import { ProductFactor } from '@/api/modules/trial.data';
 import { isNotEmptyArray } from '@/common/constants/utils';
 
@@ -43,24 +43,45 @@ const props = withDefaults(defineProps<Props>(), {
   modelValue: () => ({} as any),
 });
 
-const state = reactive({
+interface PersonalFormInfo {
+  personVO: {
+    relationToHolder?: string;
+    [x: string]: any;
+  };
+  schema: SchemaItem[];
+  trialFactorCodes: string[];
+  config: {
+    [x: string]: any;
+  };
+}
+
+interface StateInfo {
+  validated: boolean;
+  holder: PersonalFormInfo;
+  insured: PersonalFormInfo[];
+}
+
+const state = reactive<StateInfo>({
+  /**
+   * 是否所有表单是否验证成功
+   */
   validated: false,
+  /** 投保人 */
   holder: {
     personVO: {},
     schema: [],
     trialFactorCodes: [],
     config: {},
   },
-  insured: {
-    schema: [],
-    trialFactorCodes: [],
-    config: {},
-    insuredVOList: [
-      {
-        personVO: {},
-      },
-    ],
-  },
+  /** 被保人 */
+  insured: [
+    {
+      schema: [],
+      trialFactorCodes: [],
+      config: {},
+      personVO: {},
+    },
+  ],
 });
 
 /** 验证试算因子是否全部有值 */
@@ -71,21 +92,24 @@ const validateFields = () => {
         return isNil(val) || val === '';
       })
     : false;
-  const flag2 = isNotEmptyArray(state.insured.trialFactorCodes)
-    ? state.insured.trialFactorCodes.some((code) => {
-        return state.insured.insuredVOList.some((item) => {
-          const val = item.personVO[code];
-          return isNil(val) || val === '';
-        });
-      })
-    : false;
+  // 被保人试算因子校验
+  const flag2 = state.insured.some(({ trialFactorCodes, personVO }) => {
+    const hasTrialFactor = isNotEmptyArray(trialFactorCodes);
+    if (!hasTrialFactor) {
+      return false;
+    }
+    return trialFactorCodes.some((code) => {
+      const val = personVO[code];
+      return isNil(val) || val === '' || (Array.isArray(val) && !val.length);
+    });
+  });
   return flag1 || flag2;
 };
 
 // 只有投保人/被保人 不显示标题
 const isOnlyForm = computed(() => {
   const holderFlag = isNotEmptyArray(state.holder.schema);
-  const insuredFlag = isNotEmptyArray(state.insured.schema);
+  const insuredFlag = state.insured.some((insureItem) => isNotEmptyArray(insureItem.schema));
   return holderFlag !== insuredFlag;
 });
 
@@ -111,6 +135,8 @@ const listObject = (personInfo: any) => {
   return newInfo;
 };
 
+const colorConsole = (str) => console.log(`%c🔥 ${str}`, 'color:#1989fa;background:#5e4;padding:3px 5px;');
+
 watch(
   () => props.productFactor,
   () => {
@@ -125,11 +151,12 @@ watch(
 );
 
 watch(
-  [() => state.holder.personVO, () => state.insured.insuredVOList],
+  [() => state.holder.personVO, () => [state.insured.map((insuredItem) => insuredItem.personVO)]],
   () => {
+    colorConsole('投被保人信息变动了');
     const result = {
       holder: listObject(state.holder.personVO),
-      insuredVOList: state.insured.insuredVOList.map((insured) => {
+      insuredVOList: state.insured.map((insured) => {
         return { ...insured, personVO: listObject(insured.personVO) };
       }),
     };
@@ -156,12 +183,12 @@ watch(
 watch(
   () => state.holder.personVO,
   (...rest) => {
-    const { schema } = state.holder;
-    state.insured.insuredVOList.forEach((insuredItem, index) => {
+    colorConsole('投保人信息变动了');
+    state.insured.forEach((insuredItem, index) => {
       const { personVO } = insuredItem || {};
       // 若为本人合并投保人数据
       if (personVO.relationToHolder === '1') {
-        Object.assign(state.insured.insuredVOList[index].personVO, state.holder.personVO);
+        Object.assign(state.insured[index].personVO, state.holder.personVO);
       }
     });
   },
@@ -173,25 +200,20 @@ watch(
 
 // 监听投被保人关系
 watch(
-  () => state.insured.insuredVOList.map((item, index) => item.personVO.relationToHolder),
+  () => state.insured.map((insuredItem, index) => insuredItem.personVO.relationToHolder),
   (val, val1) => {
-    console.log('%c🔥 与投保人关系变动了', 'color:#1989fa;background:#5e4;padding:3px 5px;');
-    state.insured.insuredVOList.forEach((insuredItem, index) => {
-      const { personVO } = insuredItem || {};
-      const { schema, config } = state.insured;
-
-      const { label } = schema.find((item) => item.name === 'certNo') || {};
+    colorConsole('与投保人关系变动了');
+    state.insured.forEach((insuredItem, index) => {
+      const { personVO, schema, config } = insuredItem || {};
 
       const isSelf = personVO.relationToHolder === '1';
       const isChild = personVO.relationToHolder === '3';
+      const isOnlyCertFlag = isOnlyCert(schema.find((schemaItem) => schemaItem.name === 'certType') || {});
 
-      // state.insured.config = {
-      //   ...config,
-      //   certNo: {
-      //     ...config.certNo,
-      //     label: `${label}${isChild ? '(户口簿)' : ''}`,
-      //   },
-      // };
+      // 若只有证件类型为身份证, 隐藏证件类型，修改title为身份证号
+      if (isOnlyCertFlag) {
+        config.certNo.label = `身份证号${isChild ? '\n(户口簿)' : ''}`;
+      }
 
       schema.forEach((schemaItem) => {
         schemaItem.relationToHolder = personVO.relationToHolder;
@@ -206,6 +228,14 @@ watch(
           }
         : {
             ...Object.keys(personVO).reduce((res, key) => {
+              // 若只有证件类型为身份证
+              if (!(isOnlyCertFlag && key === 'certType')) {
+                res[key] =
+                  {
+                    Object: {},
+                    Array: [],
+                  }[Object.prototype.toString.call(insuredItem.personVO[key]).slice(8, -1)] || '';
+              }
               res[key] = '';
               return res;
             }, {}),
@@ -213,7 +243,7 @@ watch(
           };
 
       // 若为本人合并投保人数据
-      Object.assign(state.insured.insuredVOList[index].personVO, newPersonVo);
+      Object.assign(state.insured[index].personVO, newPersonVo);
     });
   },
   {

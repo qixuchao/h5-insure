@@ -9,6 +9,7 @@
         @on-select-insure="handleClickTag"
       />
     </div>
+    <ZaEmpty v-if="!hasProduct" :empty-img="emptyImg" title="没有找到相关内容~" empty-class="empty-select" />
     <div class="page-proposal-list">
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
         <van-list
@@ -29,7 +30,7 @@
         </van-list>
       </van-pull-refresh>
     </div>
-    <ZaEmpty v-if="!hasProduct" :empty-img="emptyImg" title="没有找到相关内容~" empty-class="empty-select" />
+
     <div v-if="isCreateProposal && showFooter" class="van-sticky">
       <div class="add-plan">
         <p class="has-select" @click="toggleSelectProduct(!showSelectProduct)">
@@ -55,6 +56,26 @@
       @close="closeProductRisk"
       @finished="onFinished"
     ></ProductRisk>
+    <TrialPop
+      ref="trialRef"
+      hide-benefit
+      title="选择保障方案"
+      class="proposal-trial"
+      :data-source="{}"
+      :share-info="{}"
+      :product-info="{
+        // productCode: insureProductDetail.productCode,
+        // productName: insureProductDetail.productName,
+        // productId: '',
+        // tenantId,
+        // insurerCode,
+      }"
+      :tenant-product-detail="{}"
+    >
+      <div class="trial-button">
+        <VanButton type="primary">确定</VanButton>
+      </div>
+    </TrialPop>
   </ProPageWrap>
   <ProFixedButton v-if="!isCreateProposal" :button-image="ProFixedButtonDefaultImage" @click="goHistoryList" />
 </template>
@@ -74,6 +95,7 @@ import ProFixedButton from '@/components/ProFixedButton/index.vue';
 import { queryProposalProductList } from '@/api/modules/proposalList';
 import ProFixedButtonDefaultImage from '@/assets/images/lishijihuashu.png';
 import TrialProductPopup from './components/TrialProductPopup/index.vue';
+import TrialPop from '@/views/baseInsurance/templates/components/TrialPop/index.vue';
 
 interface Props {
   isCreateProposal: boolean;
@@ -198,10 +220,16 @@ const hasProduct = computed(() => {
 });
 
 /** ****** 创建计划书相关逻辑 ******** */
-const selectProposal = (proposalInfo: any) => {
+const selectProposal = ({ productId }: any) => {
   showFooter.value = false;
-  state.productId = proposalInfo.productId;
-  toggleProductRisk(true);
+  state.productId = productId;
+  router.push({
+    path: '/proposal/createProposal',
+    query: {
+      productId,
+    },
+  });
+  // toggleProductRisk(true);
 };
 
 const checkProductRisk = (checked: any[]) => {
@@ -251,6 +279,39 @@ const onRefresh = () => {
 </script>
 
 <style scoped lang="scss">
+.page-proposal {
+  display: flex;
+  flex-direction: column;
+
+  :deep(.page-main) {
+    display: flex;
+    flex-direction: column;
+    flex: auto;
+  }
+  .empty-select {
+    margin-top: 200px;
+  }
+}
+
+.proposal-trial {
+  color: #0f0;
+  :deep(.trial-button) {
+    padding: 30px;
+    text-align: right;
+    background-color: #fff;
+    .van-button {
+      width: 270px;
+    }
+  }
+
+  &.com-trial-wrap {
+    color: #0f0;
+    :deep(.header-title) {
+      text-align: center;
+    }
+  }
+}
+
 .search-wrap {
   position: sticky;
   top: 0;
@@ -283,6 +344,7 @@ const onRefresh = () => {
   }
 }
 .page-proposal-list {
+  flex: auto;
   padding: 0 30px;
   margin-bottom: 200px;
   :deep(.van-list__finished-text) {

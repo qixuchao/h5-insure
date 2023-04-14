@@ -231,7 +231,7 @@ export const transformToSchema = (arr: FieldConfItem[]): ModuleResult => {
  * @returns [array] {schema 和 trialFactorCodes(试算因子 code )}[]
  */
 export const transformFactorToSchema = (
-  factors: ProductFactor,
+  factors: Partial<ProductFactor>,
   isTrial = false,
 ): Array<{
   schema: ComponentProps[];

@@ -1,10 +1,10 @@
 <template>
-  <div class="trial-button">
+  <div :class="`trial-button ${$attrs.class}`">
     <VanButton type="primary" @click="state.show = true">立即投保</VanButton>
   </div>
   <ProPopup
     v-if="state.isAniShow || state.show"
-    class="com-trial-wrap"
+    :class="`com-trial-wrap ${$attrs.class}`"
     :show="state.show"
     :closeable="false"
     @close="onClosePopup"
@@ -12,13 +12,18 @@
   >
     <div class="com-body">
       <div class="header">
-        <span>算一算保费</span>
+        <span class="header-title">{{ title }}</span>
         <!-- <van-icon name="cross" style="color: black" @click="state.loading = false" /> -->
         <!-- <van-icon :name="cancelIcon" @click="state.show = false" /> -->
         <van-icon name="cross" @click="state.show = false" />
       </div>
       <div class="container">
-        <Benefit :data-source="benefitData" :show-type-list="benefitData.showTypList" />
+        <Benefit
+          v-if="!hideBenefit"
+          class="benefit-wrap"
+          :data-source="benefitData"
+          :show-type-list="benefitData.showTypList"
+        />
         <!-- 这里放因子 -->
         <PersonalInfo
           v-if="dataSource.productFactor"
@@ -42,17 +47,19 @@
         ></ProductRiskList>
         <div class="empty"></div>
       </div>
-      <TrialButton
-        :is-share="shareInfo.isShare"
-        :premium="state.trialResult"
-        :share-info="shareInfo"
-        :loading-text="state.trialMsg"
-        :plan-code="props.dataSource.planCode"
-        :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
-        :tenant-product-detail="tenantProductDetail"
-        @click="onNext"
-        >立即投保</TrialButton
-      >
+      <slot>
+        <TrialButton
+          :is-share="shareInfo.isShare"
+          :premium="state.trialResult"
+          :share-info="shareInfo"
+          :loading-text="state.trialMsg"
+          :plan-code="props.dataSource.planCode"
+          :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
+          :tenant-product-detail="tenantProductDetail"
+          @click="onNext"
+          >立即投保</TrialButton
+        >
+      </slot>
     </div>
   </ProPopup>
 </template>
@@ -84,6 +91,8 @@ interface Props {
   productInfo: any;
   shareInfo: any;
   tenantProductDetail: any;
+  hideBenefit: boolean;
+  title: string;
 }
 
 const LOADING_TEXT = '试算中...';
@@ -97,6 +106,11 @@ const props = withDefaults(defineProps<Props>(), {
   },
   shareInfo: () => ({}),
   tenantProductDetail: () => ({}),
+  title: '算一算保费',
+  /**
+   * 是否隐藏利益演示
+   */
+  hideBenefit: false,
 });
 
 const state = reactive({
