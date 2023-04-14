@@ -39,7 +39,7 @@
           block
           round
           @click="agreeForceReadFile"
-          >{{ `${beforeReadOverText}(${currentActiveIndex + 1}/${forceReadCound})` }}</VanButton
+          >{{ `${beforeReadOverText}(${currentActiveIndex + 1}/${forceReadCount})` }}</VanButton
         >
         <VanButton v-else :disabled="isAgreeBtnDisabled" type="primary" block round @click="agreeMent">{{
           props.text
@@ -74,7 +74,7 @@ const props = defineProps({
     type: String,
     default: '同意，下一条',
   },
-  forceReadCound: {
+  forceReadCount: {
     type: Number,
     default: 0,
   },
@@ -99,18 +99,18 @@ const isAgreeBtnDisabled = computed(() => {
 });
 
 const showReadBtn = computed(() => {
-  if (currentActiveIndex.value >= props.forceReadCound - 1) {
+  if (currentActiveIndex.value >= props.forceReadCount - 1) {
     return false;
   }
-  if (readCount.value >= props.forceReadCound) {
+  if (readCount.value >= props.forceReadCount) {
     return false;
   }
-  if (readCount.value < props.forceReadCound) {
-    if (currentActiveIndex.value === props.forceReadCound - 1) return false;
+  if (readCount.value < props.forceReadCount) {
+    if (currentActiveIndex.value === props.forceReadCount - 1) return false;
     return true;
   }
   return false;
-  // return formatedContentList.value.slice(0, props.forceReadCound).filter((e) => e.readDisabled).length > 0;
+  // return formatedContentList.value.slice(0, props.forceReadCount).filter((e) => e.readDisabled).length > 0;
 });
 
 const agreeForceReadFile = () => {
@@ -159,7 +159,7 @@ watch(
   () => {
     calcuateFlg.value = false;
     if (props.show) {
-      if (readCount.value >= props.forceReadCound) {
+      if (readCount.value >= props.forceReadCount) {
         formatedContentList.value.forEach((e: any) => {
           e.disabled = false;
           e.readDisabled = false;

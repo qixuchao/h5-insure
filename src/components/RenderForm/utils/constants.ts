@@ -536,7 +536,7 @@ export const GLOBAL_CONFIG_MAP = {
   },
 };
 
-/** 因子类型 1. 投保人 2. 被保人 3. 受益人 4. 支付信息 */
+/** 因子类型 1. 投保人 2. 被保人 3. 受益人 4. 支付信息 5. 签字信息 */
 export const MODULE_TYPE_MAP = {
   /** 投保人 */
   1: 'holder',
@@ -546,6 +546,8 @@ export const MODULE_TYPE_MAP = {
   3: 'beneficiary',
   /** 支付信息 */
   4: 'payInfo',
+  /** 签字信息 */
+  5: 'sign',
 };
 
 // pro from

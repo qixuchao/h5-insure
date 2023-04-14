@@ -82,16 +82,16 @@ export default defineComponent<ZaPageWrapOptions>({
 
     return () => (
       <div class="page-container" style={{ minHeight: `${height.value}px` }}>
-        <ProNavigation />
         {slots.header ? (
           <header ref={header} class="page-header">
             {slots.header?.()}
           </header>
         ) : null}
+
         {needShowHeader.value ? <DefaultHeader /> : null}
 
         {slots.header && !hideHeaderPlaceholder ? <div style={{ height: `${headerh.value}px` }}></div> : null}
-
+        <ProNavigation />
         <main ref={main} class={`page-main ${mainClass}`}>
           {slots.default?.()}
         </main>

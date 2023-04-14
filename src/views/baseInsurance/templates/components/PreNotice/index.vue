@@ -34,17 +34,16 @@
 
 <script lang="ts" setup name="preNotice">
 import { useCountDown } from '@vant/use';
+import { withDefaults } from 'vue';
 import { queryInsurePopupConfig } from '@/api/modules/product';
 import Storage from '@/utils/storage';
 import ProShadowButton from '../ProShadowButton/index.vue';
 import HeaderImg from '@/assets/images/baseInsurance/header-logo.png';
 import { useCustomStatement } from '../../customLogic';
+import { ProductDetail } from '@/api/modules/product.data';
 
-const props = defineProps({
-  productDetail: {
-    type: Object,
-    default: () => {},
-  },
+const props = withDefaults(defineProps<{ productDetail: Partial<ProductDetail> }>(), {
+  productDetail: () => ({}),
 });
 
 const route = useRoute();

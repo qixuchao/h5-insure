@@ -11,13 +11,11 @@ import { INotice } from './verify.data';
 import { NOTICE_TYPE_MAP } from '@/common/constants/index';
 
 export const faceVerify = (data: any) => {
-  return request<
-    ResponseData<{
-      expire: number;
-      originalUrl: string;
-      serialNo: string;
-    }>
-  >({ url: '/api/app/insure/insurance/customerFace', method: 'POST', data });
+  return request<{
+    expire: number;
+    originalUrl: string;
+    serialNo: string;
+  }>({ url: '/api/app/insure/insurance/customerFace', method: 'POST', data });
 };
 
 export const faceVerifySave = (data: any) => {
@@ -33,9 +31,11 @@ export const saveSign = (
   fileBase64: string,
   orderId: string | number,
   tenantId: string | number,
+  bizObjectId?: number,
 ) => {
   const data = {
     bizObjectType: type,
+    bizObjectId,
     docCategory: 'ELECTRIC_SIGN',
     docType: 'png',
     fileBase64,
@@ -43,7 +43,7 @@ export const saveSign = (
     orderId,
     tenantId,
   };
-  return request<ResponseData<boolean>>({
+  return request<boolean>({
     url: '/api/app/insure/insurance/saveCustomerSignResult',
     method: 'POST',
     data,

@@ -67,6 +67,7 @@ export const constantListToMap = (arr: ConstantList): object => {
 };
 
 export const getFileType = (content: string, materialType: string) => {
+  console.log('content', content, 'materialType', materialType);
   let currentFileType = '1';
   if (+materialType === 1) {
     if (content.indexOf('.pdf') !== -1) {

@@ -62,7 +62,7 @@
     :content-list="filterHealthAttachmentList"
     :active-index="activeIndex"
     text="我已逐页阅读并确认告知内容"
-    :force-read-cound="2"
+    :force-read-count="2"
     on-close-file-preview
     @submit="onSubmit"
     @on-close-file-preview="resetCanInsureBtn"

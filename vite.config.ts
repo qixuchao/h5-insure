@@ -1,6 +1,7 @@
 /* eslint-disable no-shadow */
 import { defineConfig, loadEnv } from 'vite';
 import path, { resolve } from 'path';
+import vueSetupExtend from 'vite-plugin-vue-setup-extend';
 import presets from './presets/presets';
 
 // https://vitejs.dev/config/
@@ -11,7 +12,7 @@ export default defineConfig((env) => {
   return {
     base: viteEnv.VITE_BASE,
     // 插件
-    plugins: [presets(env)],
+    plugins: [presets(env), vueSetupExtend()],
     // 别名设置
     resolve: {
       alias: {
@@ -43,7 +44,7 @@ export default defineConfig((env) => {
           // target: 'http://185948-zat-planet-gateway.test.za-tech.net',
           // target: 'https://gateway-tst.ennejb.cn',
           // target: 'https://h5-test.ennejb.cn',http://177716-zat-planet-gateway.test.za-tech.net/
-          target: 'http://zat-planet-gateway.test.za-tech.net',
+          target: 'http://190116-zat-planet-gateway.test.za-tech.net',
           // target: 'https://zat-planet-h5-cloud-insure-test.zhongan.io',
           // target: 'http://zat-planet-gateway.test.za-tech.net',
           changeOrigin: true, // 允许跨域

@@ -246,7 +246,7 @@ export const transformFactorToSchema = (
     return [];
   }
 
-  const { holder, insured, beneficiary, payInfo }: ProductFactor = keys.reduce((res, key) => {
+  const { holder, insured, beneficiary, payInfo, sign }: ProductFactor = keys.reduce((res, key) => {
     // res[MODULE_TYPE_MAP[key]] = factors[key].filter((item) => item.isDisplay === 1);
     res[MODULE_TYPE_MAP[key]] = isNotEmptyArray(factors[key])
       ? factors[key].filter((factorsItem) => {
@@ -271,7 +271,7 @@ export const transformFactorToSchema = (
 
   console.log('origin factors', holder, insured, beneficiary);
 
-  return [holder, finialInsured, beneficiary, payInfo].map((item) => transformToSchema(item));
+  return [holder, finialInsured, beneficiary, payInfo, sign].map((item) => transformToSchema(item));
 };
 
 /**
