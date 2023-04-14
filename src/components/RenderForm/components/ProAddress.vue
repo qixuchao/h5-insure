@@ -1,6 +1,6 @@
 <template>
   <ProFormItem
-    class="com-van-field-hidden"
+    class="com-van-field--hidden"
     :name="name"
     :model-value="address"
     :rules="$attrs.rules"
@@ -10,12 +10,15 @@
     show-full-value
     :custom-field-name="customFieldName"
     v-bind="$attrs"
+    :is-view="isView"
     :level="addressConfig.level"
     @update:full-value="updateFullValue"
   />
   <ProFieldV2
     v-if="addressConfig.showDetail"
     v-model="state.address.detail"
+    :is-view="isView"
+    type="textarea"
     :label="`${$attrs.label}详细地址`"
     :required="$attrs.required"
     :maxlength="50"
@@ -45,6 +48,13 @@ const props = defineProps({
   valuePrefix: {
     type: String,
     default: '',
+  },
+  /**
+   * 是否查看模式
+   */
+  isView: {
+    type: Boolean,
+    default: false,
   },
   /**
    * 控制级联组件筛选和是否展示详细地址
@@ -135,11 +145,4 @@ export default {
   inheritAttrs: false,
 };
 </script>
-<style lang="scss" scoped>
-.com-van-field-hidden {
-  padding: 0;
-  max-height: 0;
-  min-height: 0;
-  overflow: hidden;
-}
-</style>
+<style lang="scss" scoped></style>

@@ -180,6 +180,13 @@ const baseInsurance = [
     component: () => import('@/views/baseInsurance/templates/long/trialPreview.vue'),
   },
   ...lifeInsuranceRoutes,
+  // 长期险投保结果
+  {
+    name: 'baseInsuranceLongResult',
+    path: '/baseInsurance/long/result',
+    meta: { title: '', requireWxJs: false },
+    component: () => import('@/views/baseInsurance/templates/long/Result/index.vue'),
+  },
 ];
 
 const asyncRoutes: Array<RouteRecordRaw> = [

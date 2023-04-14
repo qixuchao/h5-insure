@@ -1,5 +1,11 @@
 <template>
-  <ProFormItem :model-value="state.fieldValue" v-bind="filedAttrs" :field-value-view="fieldValueView" @click="onclick">
+  <ProFormItem
+    :model-value="state.fieldValue"
+    v-bind="filedAttrs"
+    :is-view="isView"
+    :field-value-view="fieldValueView"
+    @click="onclick"
+  >
     <!-- 继承 slots -->
     <template v-for="slotName in Object.keys(filedSlots)" :key="slotName" #[slotName]>
       <slot :name="slotName" />
@@ -25,6 +31,7 @@ import type { CascaderOption } from 'vant';
 import useAppStore from '@/store/app';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
+import ValueView from './ProFormItem/ValueView.vue';
 import { useAttrsAndSlots } from '../hooks';
 import { filterChildrenLevel } from '../utils';
 
@@ -77,6 +84,13 @@ const props = defineProps({
   level: {
     type: Number,
     default: 0,
+  },
+  /**
+   * 是否查看模式
+   */
+  isView: {
+    type: Boolean,
+    default: false,
   },
 });
 

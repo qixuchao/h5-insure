@@ -5,6 +5,7 @@
         :is="item.componentName"
         v-for="(item, index) in state.schema"
         :key="`${item.nanoid}_${index}`"
+        :is-view="isView"
         v-bind="item"
       >
         <!-- 继承 slots -->
@@ -13,6 +14,7 @@
         </template>
       </component>
     </template>
+    <!-- <SchemaRenderField v-if="isSchema" :schema="state.schema" /> -->
     <slot name="default" />
   </VanForm>
 </template>
@@ -59,7 +61,7 @@ const state = reactive({
   formData: {},
   schema: [],
   nameList: [], // 字段 name List
-  isView: props.isView,
+  dictCodeList: [], // 字典枚举
 });
 
 const formRef = ref<FormInstance>({} as FormInstance);
@@ -153,22 +155,8 @@ watch(
   },
 );
 
-// 处理需要请求的字典并去重
-const dictCodeList = computed(() => {
-  return [
-    ...new Set(
-      state.schema.reduce((res, item) => {
-        if (item.dictCode) {
-          res.push(item.dictCode);
-        }
-        return res;
-      }, []),
-    ),
-  ];
-});
-
 watch(
-  dictCodeList,
+  () => state.dictCodeList,
   debounce((val) => {
     if (val) {
       useDictData(val as string[]);
@@ -186,6 +174,28 @@ watch(
     if (val) {
       state.formData = val;
     }
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
+
+watch(
+  () => state.schema,
+  (val) => {
+    // 处理需要请求的字典并去重
+    state.dictCodeList = [
+      ...new Set([
+        ...state.dictCodeList,
+        ...state.schema.reduce((res, item) => {
+          if (item.dictCode) {
+            res.push(item.dictCode);
+          }
+          return res;
+        }, []),
+      ]),
+    ];
   },
   {
     immediate: true,
