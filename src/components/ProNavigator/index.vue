@@ -1,7 +1,7 @@
 <template>
   <div v-show="show" class="com-navigator">
     <div class="insure-bar">
-      <div class="page-title"></div>
+      <div class="page-title">{{ document?.title }}</div>
       <div class="page-progress" @click="handleClick">
         <span>进度</span>
         <span>(1/7)</span>
@@ -78,7 +78,7 @@ const currentPageCode = computed(() => {
 });
 
 onMounted(() => {
-  getTemplateInfo({ productCategory, venderCode: insurerCode, navbarFlag: 1 }).then((res) => {
+  getTemplateInfo({ templateId }).then((res) => {
     const { code, data } = res;
     if (code === '10000' && data) {
       list.value = data.templatePageList || [];

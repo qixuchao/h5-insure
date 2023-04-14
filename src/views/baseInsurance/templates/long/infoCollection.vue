@@ -1,31 +1,44 @@
 <template>
-  <div class="long-info-collection">
-    <ProRenderFormWithCard
-      ref="holderFormRef"
-      title="本人信息（投保人）"
-      :model="state.holder.formData"
-      :schema="state.holder.schema"
-      :config="state.holder.config"
-      autocomplete
-    />
+  <ProPageWrap>
+    <div class="long-info-collection">
+      <ProRenderFormWithCard
+        ref="holderFormRef"
+        title="本人信息（投保人）"
+        :model="state.holder.formData"
+        :schema="state.holder.schema"
+        :config="state.holder.config"
+        autocomplete
+      />
 
-    <!-- 被保人 -->
-    <ProRenderFormWithCard
-      v-for="(insured, index) in state.insuredList"
-      ref="insuredFormRef"
-      :key="index"
-      title="为谁投保（被保人）"
-      :model="state.insuredList[index].formData"
-      :schema="insured.schema"
-      :config="insured.config"
-      autocomplete
-    />
-  </div>
+      <!-- 被保人 -->
+      <template v-for="(insured, index) in state.insuredList" :key="index">
+        <ProRenderFormWithCard
+          ref="insuredFormRef"
+          title="为谁投保（被保人）"
+          :model="state.insuredList[index].formData"
+          :schema="insured.schema"
+          :config="insured.config"
+          autocomplete
+        />
+
+        <ProRenderFormWithCard
+          ref="insuredFormRef"
+          title="受益人"
+          :model="state.insuredList[index].formData"
+          :schema="insured.schema"
+          :config="insured.config"
+          autocomplete
+        />
+      </template>
+
+      <PayInfo v-model="state.payInfo.formData" :schema="state.payInfo.schema" :is-view="state.isView"></PayInfo>
+    </div>
+  </ProPageWrap>
 </template>
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { ProRenderFormWithCard, transformFactorToSchema, isOnlyCert } from '@/components/RenderForm';
+import { ProRenderFormWithCard, PayInfo, transformFactorToSchema, isOnlyCert } from '@/components/RenderForm';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import {
   premiumCalc,
@@ -80,6 +93,7 @@ const sendSMSCode = async ({ mobile }, callback) => {
 };
 
 const state = reactive({
+  isView: false,
   // 投保人
   holder: {
     formData: {},
@@ -119,6 +133,12 @@ const state = reactive({
       },
     },
   ],
+
+  payInfo: {
+    schema: [],
+    config: [],
+    formData: [],
+  },
 });
 
 // 分享信息
@@ -160,7 +180,26 @@ const initData = async () => {
   await getInsureProductDetail({ productCode, isTenant: !preview }).then(({ data, code }) => {
     if (code === '10000') {
       insureProductDetail.value = data;
+      const [holder, insured, beneficiary, payInfo] = transformFactorToSchema(
+        data.productPlanInsureVOList?.[0]?.productFactor || {},
+      );
+      state.holder = {
+        ...state.holder,
+        ...holder,
+      };
+      state.insuredList[0] = {
+        ...state.insuredList[0],
+        ...insured,
+      };
+      state.payInfo = {
+        ...state.payInfo,
+        ...payInfo,
+      };
     }
   });
 };
+
+onBeforeMount(() => {
+  initData();
+});
 </script>

@@ -31,7 +31,7 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     name: 'infoCollection',
     path: '/baseInsurance/infoCollection',
     meta: { title: '信息采集' },
-    component: () => import('@/views/lifeInsurance/infoCollection/index.vue'),
+    component: () => import('@/views/baseInsurance/templates/long/infoCollection.vue'),
   },
   {
     name: 'infoPreview',
