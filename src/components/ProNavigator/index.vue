@@ -1,6 +1,13 @@
 <template>
   <div v-show="show" class="com-navigator">
-    <img class="btn" :src="sideNavImage" @click="handleClick" />
+    <div class="insure-bar">
+      <div class="page-title"></div>
+      <div class="page-progress" @click="handleClick">
+        <span>进度</span>
+        <span>(1/7)</span>
+        <ProSvg name="right_arrow" class="icon" />
+      </div>
+    </div>
     <van-popup
       v-model:show="visible"
       position="right"
@@ -71,24 +78,42 @@ const currentPageCode = computed(() => {
 });
 
 onMounted(() => {
-  if (showNavigatorPageCodeList.includes(currentPageCode.value)) {
-    getTemplateInfo({ productCategory, venderCode: insurerCode, navbarFlag: 1 }).then((res) => {
-      const { code, data } = res;
-      if (code === '10000' && data) {
-        list.value = data.templatePageList || [];
-      }
-    });
-  }
+  getTemplateInfo({ productCategory, venderCode: insurerCode, navbarFlag: 1 }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000' && data) {
+      list.value = data.templatePageList || [];
+    }
+  });
 });
 
 const show = computed(() => {
-  return isFromOrderList && list.value.some((x) => x.pageCode === currentPageCode.value);
+  return true || (isFromOrderList && list.value.some((x) => x.pageCode === currentPageCode.value));
 });
 </script>
 
 <style lang="scss" scoped>
 .com-navigator {
   z-index: 999;
+  .insure-bar {
+    width: 750px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    padding: 0 30px;
+    justify-content: space-between;
+    .page-title {
+      font-size: 32px;
+      font-weight: 600;
+      color: #393d46;
+      line-height: 45px;
+    }
+    .page-progress {
+      border: 1px solid $zaui-brand;
+      border-radius: 8px;
+      color: $zaui-brand;
+      padding: 10px 16px;
+    }
+  }
   .btn {
     position: fixed;
     width: 60px;

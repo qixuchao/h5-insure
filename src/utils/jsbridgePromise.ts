@@ -189,6 +189,14 @@ export const openWebView = (title: string, link: string) => {
   });
 };
 
+export const closeWebView = () => {
+  return callJsBridge({
+    fn: 'closeWebView',
+    cbName: 'js_closeWebView',
+    params: {},
+  });
+};
+
 export const openPDFWithUrl = (title: string, link: string) => {
   return callJsBridge({
     fn: 'openPDFDoc',
