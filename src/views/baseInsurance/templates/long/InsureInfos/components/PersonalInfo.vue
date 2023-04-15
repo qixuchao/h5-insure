@@ -348,13 +348,13 @@ watch(
     const { holder, insuredVOList } = val || {};
     if (holder) {
       Object.assign(state.holder.personVO, holder?.personVO);
-      state.insured.map((insuredItem, index) => {
-        return {
-          ...insuredItem,
-          personVO: Object.assign(insuredItem.personVO, insuredVOList?.[index]?.personVO),
-        };
+    }
+    if (insuredVOList) {
+      state.insured.forEach((insuredItem, index) => {
+        insuredItem.personVO = Object.assign(insuredItem.personVO, insuredVOList?.[index]?.personVO);
       });
     }
+    console.log(state.insured);
   },
   {
     deep: true,

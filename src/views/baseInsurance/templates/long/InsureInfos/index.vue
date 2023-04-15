@@ -49,12 +49,14 @@ import { BaoeBaofei, ProductKeys, RiskLiabilityInfo } from './components';
 interface Props {
   originData: RiskDetailVoItem;
   modelValue: RiskVoItem;
+  defaultValue: any;
 }
 const emit = defineEmits(['trialChange']);
 
 const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as RiskDetailVoItem),
   modelValue: () => ({} as RiskVoItem),
+  defaultValue: () => ({} as any),
 });
 
 const state = reactive({
@@ -131,16 +133,20 @@ const validate = async () => {
   await personalInfoRef.value?.validate();
 };
 
-// watch(
-//   () => mValues.value,
-//   (v) => {
-//     console.log('---model change', v);
-//   },
-//   {
-//     deep: true,
-//     immediate: true,
-//   },
-// );
+watch(
+  () => props.defaultValue,
+  (v) => {
+    if (v) {
+      v.amount = 60000;
+      if (v) mValues.value = v;
+      console.log('-----v = ', v);
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 defineExpose({
   validate,

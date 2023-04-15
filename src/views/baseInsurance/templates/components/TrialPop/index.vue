@@ -31,7 +31,6 @@
           v-model="state.userData"
           is-trial
           :product-factor="dataSource.productFactor"
-          :default-value="state.userData"
           @trail-change="handlePersonalInfoChange"
         />
         <!-- 这里是标准险种信息 -->
@@ -39,6 +38,7 @@
           ref="insureInfosRef"
           :origin-data="dataSource.insureProductRiskVOList?.[0]"
           :product-factor="dataSource.productFactor"
+          :default-value="state.defaultValue ? state.defaultValue?.insuredVOList[0].productPlanVOList[0] : null"
           @trial-change="handleTrialInfoChange"
         ></InsureInfos>
         <!-- 以下是附加险种信息 -->
@@ -134,6 +134,7 @@ const state = reactive({
   trialMsg: '',
   trialResult: 0,
   isAniShow: false,
+  defaultValue: null, // 是一个plan
 });
 
 const onNext = () => {
@@ -368,9 +369,23 @@ const handleRestState = () => {
 
 const transformDefaultData = (defaultData: any) => {
   state.userData = defaultData;
+  state.defaultValue = defaultData;
+  console.log('-----data = ', state.defaultValue?.insuredVOList[0].productPlanVOList[0]);
+  // state.userData = {
+  //   holder: null,
+  //   insuredVOList: [
+  //     {
+  //       personVO: {
+  //         gender: 2,
+  //         birthday: '1988-08-27',
+  //       },
+  //     },
+  //   ],
+  // };
 };
 
 const fetchDefaultData = async (changes: []) => {
+  // TODO 加loading
   const result = await queryCalcDefaultInsureFactor({
     calcProductFactorList: [
       {
@@ -379,8 +394,7 @@ const fetchDefaultData = async (changes: []) => {
       },
     ],
   });
-  console.log('----reault = ', result);
-  transformDefaultData(result.data);
+  if (result.data) transformDefaultData(result.data.find((d) => d.productCode === props.productInfo.productCode));
 };
 
 onBeforeMount(() => {
