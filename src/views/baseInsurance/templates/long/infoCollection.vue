@@ -7,6 +7,7 @@
         ref="personalInfoRef"
         v-model="state.personalInfo"
         :product-factor="currentPlanObj.productFactor"
+        :is-view="false"
         @trail-change="handlePersonalInfoChange"
       />
       <InsureInfos
@@ -411,7 +412,7 @@ const initData = async () => {
     if (code === '10000') {
       insureProductDetail.value = data;
       currentPlanObj.value = data.productPlanInsureVOList?.[0] || {};
-      const [, , , payInfo] = transformFactorToSchema(currentPlanObj.value.productFactor || {});
+      const { payInfo } = transformFactorToSchema(currentPlanObj.value.productFactor || {});
 
       // state.holder = {
       //   ...state.holder,
