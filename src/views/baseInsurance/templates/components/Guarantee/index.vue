@@ -101,6 +101,7 @@ import ProDivider from '@/components/ProDivider/index.vue';
 import serviceConfig from '@/assets/images/chuangxin/serviceConfig.png';
 import { openPreviewFilePage } from '@/views/baseInsurance/utils';
 import { ProductDetail } from '@/api/modules/newTrial.data';
+import { YES_NO_ENUM } from '@/common/constants';
 
 interface Props {
   dataSource: Partial<ProductDetail>;
@@ -134,8 +135,9 @@ const isMultiplePlan = computed(() => !!props.planList.length);
 watch(
   [() => props.dataSource, () => currentActivePlanCode.value],
   () => {
-    guaranteeList.value =
-      (props.dataSource?.GUARANTEE || []).find((plan) => plan.planCode === currentActivePlanCode.value)?.data || [];
+    guaranteeList.value = (
+      (props.dataSource?.GUARANTEE || []).find((plan) => plan.planCode === currentActivePlanCode.value)?.data || []
+    ).filter((guarantee) => guarantee.isShowOn === `${YES_NO_ENUM.YES}`);
   },
   {
     immediate: true,

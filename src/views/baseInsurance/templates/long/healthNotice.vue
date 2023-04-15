@@ -1,21 +1,19 @@
 <template>
-  <ProPageWrap>
-    <div class="long-health-notice-wrap">
-      <ProFilePreview :type="currentQuestion.contentType" :content="currentQuestion.content">
-        <!-- <template #title>
+  <div class="long-health-notice-wrap">
+    <ProFilePreview :type="currentQuestion.contentType" :content="currentQuestion.content">
+      <!-- <template #title>
         {{ currentQuestion.questionnaireName }}
       </template> -->
-        <template #footer-btn>
-          <div class="footer-btn">
-            <VanButton @click="questionReject">部分为是</VanButton>
-            <ProShadowButton :shadow="false" @click="questionResolve">
-              <slot>以上皆否</slot>
-            </ProShadowButton>
-          </div>
-        </template>
-      </ProFilePreview>
-    </div>
-  </ProPageWrap>
+      <template #footer-btn>
+        <div class="footer-btn">
+          <VanButton @click="questionReject">部分为是</VanButton>
+          <ProShadowButton :shadow="false" @click="questionResolve">
+            <slot>以上皆否</slot>
+          </ProShadowButton>
+        </div>
+      </template>
+    </ProFilePreview>
+  </div>
 </template>
 
 <script lang="ts" setup>
