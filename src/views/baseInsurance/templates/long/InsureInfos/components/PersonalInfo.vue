@@ -153,7 +153,6 @@ const trialResult = (refValue, codes, isTrial) => {
 
 // 验证表单
 const validate = (isTrial) => {
-  debugger;
   const insuredRefs = insuredFormRef.value?.map((refItem, index) => {
     const { trialFactorCodes } = state.insured[index];
     return trialResult(refItem.value, trialFactorCodes, isTrial);
