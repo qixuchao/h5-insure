@@ -592,6 +592,7 @@ export interface ProductFactorItem {
   unit: string;
   isSelfInsuredNeed: boolean;
   isCalculationFactor: number;
+  visible: boolean;
 }
 
 export interface ProductFactor {

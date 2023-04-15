@@ -29,6 +29,7 @@
           v-if="dataSource.productFactor"
           ref="personalInfoRef"
           v-model="state.userData"
+          is-trial
           :product-factor="dataSource.productFactor"
           @trail-change="handlePersonalInfoChange"
         />

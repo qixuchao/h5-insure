@@ -12,7 +12,7 @@
       <div v-for="option in options" :key="option[prop.value]" class="btn-wrapper">
         <ProCheckButton
           :label="option[prop.label]"
-          :disabled="disabled"
+          :disabled="disabled || option.disabled"
           :activated="state.currentValue == option[prop.value]"
           :icon-name="option.iconName"
           @click="!disabled && selectBtn(option[prop.value])"

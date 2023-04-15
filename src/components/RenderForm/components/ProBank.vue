@@ -45,10 +45,10 @@ const state = reactive({
 });
 
 // 是否为续期
-const isRenewal = computed(() => props.paymentType === PAYMENT_TYPE_ENUM.RENEW_TERM);
+const isRenewal = computed(() => String(props.paymentType) === String(PAYMENT_TYPE_ENUM.RENEW_TERM));
 
 // 不是首期
-const isNotFistTerm = computed(() => props.paymentType !== PAYMENT_TYPE_ENUM.FIRST_TERM);
+const isNotFistTerm = computed(() => String(props.paymentType) !== String(PAYMENT_TYPE_ENUM.FIRST_TERM));
 
 const schema = computed(() => {
   if (isNotEmptyArray(props.attributeValueList)) {

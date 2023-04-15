@@ -58,6 +58,8 @@ export interface SchemaItem {
   columns: Column[];
   nanoid: string;
   [key: string]: any;
+  visible: boolean;
+  hidden: boolean;
 }
 
 export interface FormState {
