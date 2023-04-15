@@ -25,6 +25,7 @@
           ref="personalInfoRef"
           v-model="state.userData"
           :product-factor="dataSource.productFactor"
+          :default-value="state.userData"
           @trail-change="handlePersonalInfoChange"
         />
         <!-- 这里是标准险种信息 -->
@@ -69,7 +70,12 @@ import ProductRiskList from '../../long/ProductRiskList/index.vue';
 import Benefit from '../Benefit/index.vue';
 import { PremiumCalcData, RiskVoItem } from '@/api/modules/trial.data';
 import { RISK_TYPE, RISK_TYPE_ENUM } from '@/common/constants/trial';
-import { benefitCalc, premiumCalc } from '@/api/modules/trial';
+import {
+  benefitCalc,
+  premiumCalc,
+  queryCalcDefaultInsureFactor,
+  queryCalcDynamicInsureFactor,
+} from '@/api/modules/trial';
 import { SUCCESS_CODE } from '@/api/code';
 import { PRODUCT_KEYS_CONFIG } from '../../long/InsureInfos/components/ProductKeys/config';
 import { dealExemptPeriod } from './utils';
@@ -334,12 +340,10 @@ const handleProductRiskInfoChange = (dataList: any) => {
 };
 
 const onClosePopupAfterAni = () => {
-  console.log('--after');
   state.isAniShow = false;
 };
 
 const handleRestState = () => {
-  console.log('---reset');
   state.select = {};
   state.list = [];
   state.userData = {} as RiskVoItem;
@@ -350,6 +354,23 @@ const handleRestState = () => {
   state.ifPersonalInfoSuccess = false;
   state.trialMsg = '';
   state.trialResult = 0;
+};
+
+const transformDefaultData = (defaultData: any) => {
+  state.userData = defaultData;
+};
+
+const fetchDefaultData = async (changes: []) => {
+  const result = await queryCalcDefaultInsureFactor({
+    calcProductFactorList: [
+      {
+        planCode: props.dataSource.planCode,
+        productCode: props.productInfo.productCode,
+      },
+    ],
+  });
+  console.log('----reault = ', result);
+  transformDefaultData(result.data);
 };
 
 onBeforeMount(() => {
@@ -374,6 +395,8 @@ defineExpose({
   open: () => {
     state.show = true;
     state.isAniShow = true;
+    // 请求默认值接口
+    fetchDefaultData([]);
   },
 });
 watch(

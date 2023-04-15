@@ -38,9 +38,9 @@ export default defineConfig((env) => {
         },
         '/api': {
           // 本地 8000 前端代码的接口 代理到 8888 的服务端口
-          target: 'https://techmall.zaouter.com',
+          // target: 'https://techmall.zaouter.com',
           // target: 'https://zat-planet-h5-cloud-insure-pre.zhongan.io',
-          // target: 'http://185948-zat-planet-gateway.test.za-tech.net',
+          target: 'http://190116-zat-planet-gateway.test.za-tech.net',
           // target: 'https://gateway-tst.ennejb.cn',
           // target: 'https://h5-test.ennejb.cn',http://177716-zat-planet-gateway.test.za-tech.net/
           // target: 'http://zat-planet-gateway.test.za-tech.net',
