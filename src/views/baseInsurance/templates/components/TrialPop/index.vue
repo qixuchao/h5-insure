@@ -45,6 +45,7 @@
         <ProductRiskList
           :data-source="dataSource"
           :show-main-risk="false"
+          :default-value="state.defaultValue ? state.defaultValue?.insuredVOList[0].productPlanVOList : []"
           @trial-change="handleProductRiskInfoChange"
         ></ProductRiskList>
         <div class="empty"></div>

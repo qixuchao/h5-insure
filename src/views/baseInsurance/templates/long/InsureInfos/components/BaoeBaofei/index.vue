@@ -111,12 +111,14 @@ import { PREMIUM_UNIT_TYPE_ENUM } from '@/common/constants/infoCollection';
 interface Props {
   originData: RiskAmountPremiumConfig;
   modelValue: RiskVoItem;
+  defalutValue: any;
 }
 const emit = defineEmits(['update:modelValue', 'trialChange']);
 
 const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as RiskAmountPremiumConfig),
   modelValue: () => ({} as RiskVoItem),
+  defalutValue: () => ({} as any),
 });
 const mConfigs = ref(props.originData);
 const mValues = ref(props.modelValue);
@@ -284,6 +286,17 @@ watch(
   },
   {
     deep: true,
+  },
+);
+
+watch(
+  () => props.defalutValue,
+  (v) => {
+    if (v?.riskCode) mValues.value = props.defalutValue;
+  },
+  {
+    deep: true,
+    immediate: true,
   },
 );
 
