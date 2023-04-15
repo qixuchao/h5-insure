@@ -79,7 +79,7 @@ const fetchData = () => {
     if (code === '10000') {
 
       // 投保人/被保人/受益人  { schema: [表单 schema], trialFactorCodes: [试算因子 name] }
-      const [holder, insured, beneficiary, payInfo] = transformFactorToSchema(data.productFactor);
+      const { holder, insured, beneficiary, payInfo } = transformFactorToSchema(data.productFactor);
       state.holder = {
         ...state.holder,
         ...holder,

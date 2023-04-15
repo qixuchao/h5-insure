@@ -95,3 +95,21 @@ export const getCalculateRiskFormula = (data: {}) => {
     data,
   });
 };
+
+// 试算默认值
+export const queryCalcDefaultInsureFactor = (data: {}) => {
+  return request({
+    url: '/api/app/insure/product/v2/calcDefaultInsureFactor',
+    method: 'POST',
+    data,
+  });
+};
+
+// 试算动态值
+export const queryCalcDynamicInsureFactor = (data: {}) => {
+  return request({
+    url: '/api/app/insure/product/v2/dyInsureFactor',
+    method: 'POST',
+    data,
+  });
+};

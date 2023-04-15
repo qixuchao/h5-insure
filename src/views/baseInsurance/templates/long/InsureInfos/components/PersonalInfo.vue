@@ -6,6 +6,7 @@
     :model="state.holder.personVO"
     :schema="state.holder.schema"
     :config="state.holder.config"
+    :is-view="isView"
   />
   <!-- 被保人 -->
   <template v-for="(insuredItem, index) in state.insured" :key="index">
@@ -16,6 +17,7 @@
       :model="insuredItem.personVO"
       :schema="insuredItem.schema"
       :config="insuredItem.config"
+      :is-view="isView"
     />
     <ProRenderFormWithCard
       v-for="(beneficiary, i) in insuredItem.beneficiaryList"
@@ -26,6 +28,7 @@
       :model="beneficiary.personVO"
       :schema="beneficiary.schema"
       :config="beneficiary.config"
+      :is-view="isView"
     />
   </template>
 </template>
@@ -36,11 +39,13 @@ import { type SchemaItem, isOnlyCert, ProRenderFormWithCard, transformFactorToSc
 import { ProductFactor } from '@/api/modules/trial.data';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { BENEFICIARY_ENUM } from '@/common/constants/infoCollection';
+import { deepCopy } from '@/utils';
 
 interface Props {
   productFactor: ProductFactor;
   modelValue: any;
   isTrial: boolean;
+  isView: boolean;
 }
 
 const emit = defineEmits(['update:modelValue', 'trailChange']);
@@ -65,15 +70,37 @@ interface PersonFormProps {
   };
 }
 
-interface InsuredFormProps extends PersonFormProps {
+interface InsuredFormProps extends Partial<PersonFormProps> {
   beneficiaryList: Partial<PersonFormProps>[];
 }
 
 interface StateInfo {
   validated: boolean;
   holder: PersonFormProps;
+  initInsuredItem: PersonFormProps;
+  initBeneficiaryItem: PersonFormProps;
   insured: InsuredFormProps[];
 }
+
+const initBeneficiaryItem = {
+  schema: [],
+  config: {},
+  personVO: {},
+};
+
+const initInsuredItem = {
+  schema: [],
+  trialFactorCodes: [],
+  config: {},
+  personVO: {},
+  beneficiaryList: [
+    {
+      schema: [],
+      config: {},
+      personVO: {},
+    },
+  ],
+};
 
 const state = reactive<StateInfo>({
   /**
@@ -87,22 +114,10 @@ const state = reactive<StateInfo>({
     trialFactorCodes: [],
     config: {},
   },
+  initInsuredItem: deepCopy(initInsuredItem),
+  initBeneficiaryItem: deepCopy(initBeneficiaryItem),
   /** 被保人 */
-  insured: [
-    {
-      schema: [],
-      trialFactorCodes: [],
-      config: {},
-      personVO: {},
-      beneficiaryList: [
-        {
-          schema: [],
-          config: {},
-          personVO: {},
-        },
-      ],
-    },
-  ],
+  insured: [deepCopy(initInsuredItem)],
 });
 
 /** 验证试算因子是否全部有值 */
@@ -157,7 +172,6 @@ const validate = (isTrial) => {
     const { trialFactorCodes } = state.insured[index];
     return trialResult(refItem.value, trialFactorCodes, isTrial);
   });
-  console.log(333333, trialResult(holderInfoRef.value, state.holder.trialFactorCodes, isTrial));
   return Promise.all([trialResult(holderInfoRef.value, state.holder.trialFactorCodes, isTrial), ...insuredRefs]);
 };
 
@@ -183,18 +197,24 @@ watch(
   [() => props.productFactor, () => props.isTrial],
   (val) => {
     if (isNotEmptyArray(val)) {
-      const [holder, insured, beneficiary] = transformFactorToSchema(props.productFactor, props.isTrial);
+      const { holder, insured, beneficiary } = transformFactorToSchema(props.productFactor, props.isTrial);
       Object.assign(state.holder, holder);
-      state.insured.forEach((insuredItem) => {
-        Object.assign(insuredItem, {
-          schema: insured?.schema,
-          trialFactorCodes: insured?.trialFactorCodes,
-          beneficiaryList: insuredItem.beneficiaryList.map((beneficiaryItem) => ({
-            ...beneficiaryItem,
-            schema: beneficiary?.schema,
-          })),
+      if (isNotEmptyArray(insured?.list)) {
+        state.insured = insured.list.map((insuredItem, index) => {
+          const tempInsured = state.insured[index] || deepCopy(initInsuredItem);
+          // const { beneficiaryList } = tempInsured;
+          return {
+            ...tempInsured,
+            schema: insuredItem?.schema,
+            trialFactorCodes: insuredItem?.trialFactorCodes,
+            // beneficiaryList: tempInsured.beneficiaryList.map((beneficiaryItem) => ({
+            //   ...beneficiaryItem,
+            //   ...beneficiary,
+            // })),
+          };
         });
-      });
+      }
+
       // Object.assign(state.insured, insured);
     }
   },
@@ -217,7 +237,7 @@ watch(
     };
     emit('update:modelValue', result);
     // 验证通过调用试算
-    if (insuredFormRef.value && !validateFields()) {
+    if (!validateFields()) {
       validate(true)
         .then(() => {
           state.validated = true;
@@ -254,7 +274,7 @@ watch(
 
 // 监听投被保人关系
 watch(
-  () => state.insured.map((insuredItem, index) => insuredItem.personVO.relationToHolder),
+  () => state.insured.map((insuredItem, index) => insuredItem?.personVO?.relationToHolder),
   (val, val1) => {
     colorConsole('与投保人关系变动了');
     state.insured.forEach((insuredItem, index) => {
@@ -346,15 +366,17 @@ watch(
   () => props.modelValue,
   (val) => {
     const { holder, insuredVOList } = val || {};
-    if (holder) {
-      Object.assign(state.holder.personVO, holder?.personVO);
-      state.insured.map((insuredItem, index) => {
-        return {
-          ...insuredItem,
-          personVO: Object.assign(insuredItem.personVO, insuredVOList?.[index]?.personVO),
-        };
-      });
-    }
+    Object.assign(state.holder.personVO, holder?.personVO);
+    state.insured.forEach((insuredItem, index) => {
+      const currentInsured = insuredVOList?.[index] || {};
+      Object.assign(insuredItem.personVO, currentInsured?.personVO);
+      if (isNotEmptyArray(insuredItem.beneficiaryList) && isNotEmptyArray(currentInsured.beneficiaryList)) {
+        // 受益人
+        insuredItem.beneficiaryList.forEach((beneficiaryIem, i) => {
+          Object.assign(beneficiaryIem.personVO, currentInsured.beneficiaryList[i].personVO);
+        });
+      }
+    });
   },
   {
     deep: true,

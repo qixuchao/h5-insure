@@ -178,6 +178,7 @@ import TrialButton from './components/TrialButton.vue';
 import useAttachment from '@/hooks/useAttachment';
 import { ProRenderFormWithCard, transformFactorToSchema, isOnlyCert } from '@/components/RenderForm';
 import { formData2Order } from './utils';
+import { isNotEmptyArray } from '@/common/constants/utils';
 import { getSex, getBirth } from '@/components/ProField/utils';
 
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
@@ -269,21 +270,7 @@ const state = reactive({
     schema: [],
     // 试算因子
     trialFactorCodes: [],
-    config: {
-      name: {
-        // slots: {
-        //   nameTips: 'extra',
-        // },
-        // unit: '元',
-      },
-      verificationCode: {
-        sendSMSCode,
-      },
-      certType: {
-        // visible: false,
-      },
-      certNo: {},
-    },
+    config: {},
   },
   // 被保人
   insuredList: [
@@ -910,15 +897,14 @@ watch(
       ...oli,
       value: INSURE_TYPE_ENUM.UN_INSURE,
     }));
-
-    const [holder, insured, beneficiary] = transformFactorToSchema(productFactor);
+    const { holder, insured, beneficiary } = transformFactorToSchema(productFactor);
     state.holder = {
       ...state.holder,
       ...holder,
     };
     state.insuredList[0] = {
       ...state.insuredList[0],
-      ...insured,
+      ...insured.list?.[0],
     };
   },
   {

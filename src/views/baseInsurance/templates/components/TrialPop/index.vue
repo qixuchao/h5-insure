@@ -38,6 +38,7 @@
           ref="insureInfosRef"
           :origin-data="dataSource.insureProductRiskVOList?.[0]"
           :product-factor="dataSource.productFactor"
+          :default-value="state.defaultValue ? state.defaultValue?.insuredVOList[0].productPlanVOList[0] : null"
           @trial-change="handleTrialInfoChange"
         ></InsureInfos>
         <!-- 以下是附加险种信息 -->
@@ -77,7 +78,12 @@ import ProductRiskList from '../../long/ProductRiskList/index.vue';
 import Benefit from '../Benefit/index.vue';
 import { PremiumCalcData, RiskVoItem } from '@/api/modules/trial.data';
 import { RISK_TYPE, RISK_TYPE_ENUM } from '@/common/constants/trial';
-import { benefitCalc, premiumCalc } from '@/api/modules/trial';
+import {
+  benefitCalc,
+  premiumCalc,
+  queryCalcDefaultInsureFactor,
+  queryCalcDynamicInsureFactor,
+} from '@/api/modules/trial';
 import { SUCCESS_CODE } from '@/api/code';
 import { PRODUCT_KEYS_CONFIG } from '../../long/InsureInfos/components/ProductKeys/config';
 import { dealExemptPeriod } from './utils';
@@ -128,6 +134,7 @@ const state = reactive({
   trialMsg: '',
   trialResult: 0,
   isAniShow: false,
+  defaultValue: null, // 是一个plan
 });
 
 const onNext = () => {
@@ -344,12 +351,10 @@ const handleProductRiskInfoChange = (dataList: any) => {
 };
 
 const onClosePopupAfterAni = () => {
-  console.log('--after');
   state.isAniShow = false;
 };
 
 const handleRestState = () => {
-  console.log('---reset');
   state.select = {};
   state.list = [];
   state.userData = {} as RiskVoItem;
@@ -360,6 +365,36 @@ const handleRestState = () => {
   state.ifPersonalInfoSuccess = false;
   state.trialMsg = '';
   state.trialResult = 0;
+};
+
+const transformDefaultData = (defaultData: any) => {
+  state.userData = defaultData;
+  state.defaultValue = defaultData;
+  console.log('-----data = ', state.defaultValue?.insuredVOList[0].productPlanVOList[0]);
+  // state.userData = {
+  //   holder: null,
+  //   insuredVOList: [
+  //     {
+  //       personVO: {
+  //         gender: 2,
+  //         birthday: '1988-08-27',
+  //       },
+  //     },
+  //   ],
+  // };
+};
+
+const fetchDefaultData = async (changes: []) => {
+  // TODO 加loading
+  const result = await queryCalcDefaultInsureFactor({
+    calcProductFactorList: [
+      {
+        planCode: props.dataSource.planCode,
+        productCode: props.productInfo.productCode,
+      },
+    ],
+  });
+  if (result.data) transformDefaultData(result.data.find((d) => d.productCode === props.productInfo.productCode));
 };
 
 onBeforeMount(() => {
@@ -384,6 +419,8 @@ defineExpose({
   open: () => {
     state.show = true;
     state.isAniShow = true;
+    // 请求默认值接口
+    fetchDefaultData([]);
   },
 });
 watch(

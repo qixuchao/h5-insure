@@ -536,6 +536,12 @@ export const GLOBAL_CONFIG_MAP = {
   },
 };
 
+/** 被保人类型 主被保人/次被保人 */
+export const INSURED_MODULE_TYPE_ENUM = {
+  main: 1,
+  sub: 2,
+};
+
 /** 因子类型 1. 投保人 2. 被保人 3. 受益人 4. 支付信息 5. 签字信息 */
 export const MODULE_TYPE_MAP = {
   /** 投保人 */
@@ -547,7 +553,7 @@ export const MODULE_TYPE_MAP = {
   /** 支付信息 */
   4: 'payInfo',
   /** 签字信息 */
-  5: 'sign',
+  5: 'signInfo',
 };
 
 // pro from

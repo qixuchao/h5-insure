@@ -411,7 +411,7 @@ const initData = async () => {
     if (code === '10000') {
       insureProductDetail.value = data;
       currentPlanObj.value = data.productPlanInsureVOList?.[0] || {};
-      const [holder, insured, beneficiary, payInfo] = transformFactorToSchema(currentPlanObj.value.productFactor || {});
+      const [, , , payInfo] = transformFactorToSchema(currentPlanObj.value.productFactor || {});
 
       // state.holder = {
       //   ...state.holder,

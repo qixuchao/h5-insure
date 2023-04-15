@@ -7,10 +7,10 @@
           :key="index"
           class="tag-item"
           :class="{ checked: indexCheck == index }"
-          @click="onClickTag(item?.categoryNo, index)"
+          @click="onClickTag(item?.productCategoryId, index)"
         >
           <div class="tag-out" :class="{ checked: indexCheck == index }">
-            <div class="tag-item-text" :class="{ checked: indexCheck == index }">{{ item.categoryName }}</div>
+            <div class="tag-item-text" :class="{ checked: indexCheck == index }">{{ item.productCategoryName }}</div>
           </div>
           <!-- <div class="trianele-out"><div :class="{ triangle: indexCheck == index }"></div></div> -->
         </div>
@@ -97,8 +97,8 @@ const queryCategoryList = () => {
     if (code === '10000' && isNotEmptyArray(data)) {
       state.productCategoryList = [
         {
-          categoryName: '全部',
-          categoryNo: '',
+          productCategoryName: '全部',
+          productCategoryId: '',
         },
         ...data,
       ];

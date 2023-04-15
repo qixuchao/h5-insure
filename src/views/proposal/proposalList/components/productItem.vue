@@ -8,15 +8,15 @@
   <div class="com-product-item">
     <div class="content-wrap">
       <div class="product-image">
-        <van-image :src="productInfo.showConfig.fileUrl" />
+        <van-image :src="productInfo.showConfig?.fileUrl" />
         <p class="insure-name">{{ (productInfo.insurerName || '').substring(0, 6) }}</p>
         <!-- <span class="is-top new">热销</span> -->
       </div>
       <div class="product-info">
-        <p class="title">{{ productInfo.showConfig.title }}</p>
-        <p class="description">{{ productInfo.showConfig.text }}</p>
+        <p class="title">{{ productInfo.showConfig?.title }}</p>
+        <p class="description">{{ productInfo.showConfig?.text }}</p>
         <p class="tags">
-          <span v-for="(i, idx) of productInfo.showConfig.tags" :key="idx" class="tag">{{ i }}</span>
+          <span v-for="(i, idx) of productInfo.showConfig?.tags" :key="idx" class="tag">{{ i }}</span>
         </p>
       </div>
       <slot name="checkedProduct"> </slot>

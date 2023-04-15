@@ -22,7 +22,7 @@ export const queryProposalProductList = (data: Partial<QueryProposalProductListT
 
 // H5端查询计划书产品分类
 export const queryProductCategoryList = () =>
-  request<ProductCategoryItem[]>({ url: `api/app/listProductCategory`, method: 'GET' });
+  request<ProductCategoryItem[]>({ url: `${API_PREFIXED}/queryProposalProductCategoryList`, method: 'POST' });
 
 // H5端查询计历史划书列表
 export const historyProposalList = (data: Partial<HistoryProposalListParams>) =>

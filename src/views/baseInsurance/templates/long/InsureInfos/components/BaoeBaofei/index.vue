@@ -223,29 +223,31 @@ const checkStep = () => {
 const initData = () => {
   const { displayType, requireCopies } = mConfigs.value;
   const mKey = getMethodName().key;
+  const canChange = !mValues.value.riskCode;
   if (displayType === 1) {
     showTypes.value = 1;
   } else if (displayType === 3 && requireCopies === 2) {
     showTypes.value = 2;
     // console.log('>>>>set value', mValues.value, mConfigs.value.displayValues.length, mName);
-    if (mConfigs.value.displayValues.length >= 1) {
+    if (mConfigs.value.displayValues.length >= 1 && canChange) {
       mValues.value[mKey] = mConfigs.value.displayValues[0].code || mConfigs.value.displayValues[0].value;
     }
   } else if (displayType === 3 && requireCopies === 1) {
     showTypes.value = 3;
-    if (mConfigs.value.minCopiesValue === mConfigs.value.maxCopiesValue) {
+    if (mConfigs.value.minCopiesValue === mConfigs.value.maxCopiesValue && canChange) {
       mValues.value.copy = mConfigs.value.minCopiesValue;
     }
-    if (mConfigs.value.displayValues.length >= 1) {
+    if (mConfigs.value.displayValues.length >= 1 && canChange) {
       mValues.value[mKey] = mConfigs.value.displayValues[0].code || mConfigs.value.displayValues[0].value;
     }
   } else if (displayType === 2) {
     showTypes.value = 4;
-    if (mConfigs.value.minCopiesValue === mConfigs.value.maxCopiesValue) {
+    if (mConfigs.value.minCopiesValue === mConfigs.value.maxCopiesValue && canChange) {
       mValues.value.copy = mConfigs.value.minCopiesValue;
     }
-    mValues.value.amount = mConfigs.value.copiesAmount;
+    if (canChange) mValues.value.amount = mConfigs.value.copiesAmount;
   }
+  console.log(':---------values = ', mValues.value);
 };
 
 const displayValues = computed(() => {
@@ -253,7 +255,7 @@ const displayValues = computed(() => {
   if (mConfigs.value.displayValues) {
     const mKey = getMethodName().key;
     // console.log('>>>>set value', mValues.value, mConfigs.value.displayValues.length, mName);
-    if (mConfigs.value.displayValues.length === 1) {
+    if (mConfigs.value.displayValues.length === 1 && !mValues.value.riskCode) {
       mValues.value[mKey] = mConfigs.value.displayValues[0].code;
     }
     return mConfigs.value.displayValues.map((v) => {

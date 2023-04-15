@@ -257,7 +257,8 @@ const initData = async () => {
       }
     });
 
-  await getInsureProductDetail({ productCode, isTenant: !preview || !trialPreview }).then(({ data, code }) => {
+  // await getInsureProductDetail({ productCode, isTenant: !preview || !trialPreview }).then(({ data, code }) => {
+  await getInsureProductDetail({ productCode, isTenant: false }).then(({ data, code }) => {
     if (code === '10000') {
       showFooterBtn.value = true;
       preNoticeLoading.value = true;
