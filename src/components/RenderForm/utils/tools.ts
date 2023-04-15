@@ -2,7 +2,7 @@ import { nanoid } from 'nanoid';
 import merge from 'lodash-es/merge';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { SEX_LIMIT_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
-import { COMPONENT_MAPPING_LIST, GLOBAL_CONFIG_MAP, MODULE_TYPE_MAP } from './constants';
+import { COMPONENT_MAPPING_LIST, GLOBAL_CONFIG_MAP, MODULE_TYPE_MAP, INSURED_MODULE_TYPE_ENUM } from './constants';
 import { validateIdCardNo } from './validate';
 import { Column, ComponentProps, FieldConfItem, ProductFactor } from '../index.data';
 
@@ -210,9 +210,9 @@ export const transformToSchema = (arr: FieldConfItem[]): ModuleResult => {
       };
 
       // 是否为只有身份证的证件类型的因子，就隐藏
-      if (isOnlyCert(result)) {
-        result.visible = false;
-      }
+      // if (isOnlyCert(result)) {
+      //   result.visible = false;
+      // }
 
       return result;
     });
@@ -224,6 +224,18 @@ export const transformToSchema = (arr: FieldConfItem[]): ModuleResult => {
   };
 };
 
+interface InsuredFactorSchema extends ModuleResult {
+  beneficiaryList: ModuleResult[];
+}
+
+type FactorToSchemaResult = {
+  insured: {
+    list: InsuredFactorSchema[];
+  };
+} & {
+  [x: string]: ModuleResult;
+};
+
 /**
  * 转换原始数据 ProForm 所需要的数据
  * @param [array] 包含投保人、被保人、受益人的因子数组
@@ -233,21 +245,23 @@ export const transformToSchema = (arr: FieldConfItem[]): ModuleResult => {
 export const transformFactorToSchema = (
   factors: Partial<ProductFactor>,
   isTrial = false,
-): Array<{
-  schema: ComponentProps[];
-  trialFactorCodes: string[];
-}> => {
+): Partial<FactorToSchemaResult> => {
+  const initValue = {
+    insured: { list: [] },
+  } as FactorToSchemaResult;
+
   if (!factors) {
-    return [];
+    return initValue;
   }
 
   const keys = Object.keys(factors) || [];
   if (!isNotEmptyArray(keys)) {
-    return [];
+    return initValue;
   }
 
-  const { holder, insured, beneficiary, payInfo, sign }: ProductFactor = keys.reduce((res, key) => {
-    // res[MODULE_TYPE_MAP[key]] = factors[key].filter((item) => item.isDisplay === 1);
+  // 是否过滤试算因子
+  // { holder, insured, beneficiary, payInfo, sign }
+  const factorsMap: ProductFactor = keys.reduce((res, key) => {
     res[MODULE_TYPE_MAP[key]] = isNotEmptyArray(factors[key])
       ? factors[key].filter((factorsItem) => {
           // 是否过滤试算
@@ -257,21 +271,41 @@ export const transformFactorToSchema = (
     return res;
   }, {});
 
-  const holderCodes = isNotEmptyArray(holder) ? holder.map((item) => item.code) : [];
+  const holderCodes = isNotEmptyArray(factorsMap.holder) ? factorsMap.holder.map((item) => item.code) : [];
 
   // 被保人为本人时，不在投保人中的因子展示
-  const finialInsured = isNotEmptyArray(insured)
-    ? insured.map((item) => {
-        return {
-          ...item,
-          isSelfInsuredNeed: !holderCodes.includes(item.code),
-        };
-      })
-    : [];
+  let finialInsured = [];
+  // 多被保人逻辑
+  if (isNotEmptyArray(factorsMap.insured)) {
+    finialInsured = factorsMap.insured
+      .reduce(
+        (res, insuredItem) => {
+          // 若为次被保人
+          if (insuredItem.subModuleType === INSURED_MODULE_TYPE_ENUM.sub) {
+            res[1].push(insuredItem);
+          } else {
+            res[0].push({
+              ...insuredItem,
+              isSelfInsuredNeed: !holderCodes.includes(insuredItem.code),
+            });
+          }
+          return res;
+        },
+        [[], []],
+      )
+      .filter((item) => isNotEmptyArray(item));
+  }
 
-  console.log('origin factors', holder, insured, beneficiary);
-
-  return [holder, finialInsured, beneficiary, payInfo, sign].map((item) => transformToSchema(item));
+  return Object.keys(factorsMap).reduce((res, key) => {
+    if (key !== 'insured') {
+      res[key] = transformToSchema(factorsMap[key]);
+    } else {
+      res[key] = {
+        list: isNotEmptyArray(finialInsured) ? finialInsured.map(transformToSchema) : [],
+      };
+    }
+    return res;
+  }, {});
 };
 
 /**

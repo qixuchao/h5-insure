@@ -2,12 +2,7 @@
   <ProPageWrap class="page-proposal">
     <div class="search-wrap">
       <van-search v-model="searchValue" placeholder="搜索计划书" shape="round" class="search" @search="onSearch" />
-      <InsureFilter
-        v-if="hasProduct"
-        v-model:filter="isOpen"
-        filter-class="filter-area"
-        @on-select-insure="handleClickTag"
-      />
+      <InsureFilter v-model:filter="isOpen" filter-class="filter-area" @on-select-insure="handleClickTag" />
     </div>
     <ZaEmpty v-if="!hasProduct" :empty-img="emptyImg" title="没有找到相关内容~" empty-class="empty-select" />
     <div class="page-proposal-list">
@@ -226,7 +221,7 @@ const selectProposal = ({ productId }: any) => {
   router.push({
     path: '/proposal/createProposal',
     query: {
-      productId,
+      productId: 900001954,
     },
   });
   // toggleProductRisk(true);
