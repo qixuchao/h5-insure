@@ -2,7 +2,7 @@
   <!-- 以下是附加险种信息 -->
   <template v-for="risk in dataSource.insureProductRiskVOList" :key="risk.riskCode">
     <div
-      v-if="((!showMainRisk && risk.mainRiskFlag !== 1) || showMainRisk) && state.riskIsInsure[risk.riskId].relation"
+      v-if="((!showMainRisk && risk.mainRiskFlag !== 1) || showMainRisk) && state.riskIsInsure?.[risk.riskId]?.relation"
     >
       <!-- 附加险区域 -->
       <VanField

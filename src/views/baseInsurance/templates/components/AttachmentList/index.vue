@@ -7,15 +7,20 @@
 -->
 <template>
   <div :class="{ 'com-attachment-list': true, 'has-bg': hasBgColor }">
-    <span>{{ preText }}</span>
-    <span
-      v-for="(item, index) in attachmentList || []"
-      :key="index"
-      class="attachment-item"
-      @click="onClickReadAttachment(index)"
-    >
-      《{{ item.attachmentName }}》
-    </span>
+    <div class="attachment-wrap">
+      <van-checkbox v-if="isShowRadio" v-model="isAgree" shape="round" @change="onChange"> </van-checkbox>
+      <div class="attachment-content">
+        <span>{{ preText }}</span>
+        <span
+          v-for="(item, index) in attachmentList || []"
+          :key="index"
+          class="attachment-item"
+          @click="onClickReadAttachment(index)"
+        >
+          《{{ item.attachmentName }}》
+        </span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -26,21 +31,32 @@ interface Props {
   preText: string;
   hasBgColor: boolean;
   attachmentList: any[];
+  isShowRadio?: boolean;
+  modelValue?: boolean;
 }
+
 const props = withDefaults(defineProps<Props>(), {
   preText: '',
   hasBgColor: true,
   attachmentList: () => [],
+  modelValue: false,
+  isShowRadio: false,
 });
 
-const emits = defineEmits(['preview-file']);
+const emits = defineEmits(['preview-file', 'update:modelValue']);
+
+const isAgree = ref<boolean>(false); // 是否同意资料
 
 const onClickReadAttachment = (index: number) => {
   emits('preview-file', index);
 };
+
+const onChange = (e) => {
+  emits('update:modelValue', e);
+};
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" scope>
 .com-attachment-list {
   width: 100%;
   text-align: left;
@@ -49,6 +65,14 @@ const onClickReadAttachment = (index: number) => {
   &.has-bg {
     background: #fff8f3;
     padding: 16px 39px 40px;
+  }
+
+  .van-checkbox__icon--round {
+    width: 40px;
+    margin-right: 10px;
+    .van-icon {
+      border-radius: 100%;
+    }
   }
 
   span {
@@ -61,6 +85,11 @@ const onClickReadAttachment = (index: number) => {
 
   .attachment-item {
     color: #006afc;
+  }
+
+  .attachment-wrap {
+    display: flex;
+    align-items: center;
   }
 }
 </style>

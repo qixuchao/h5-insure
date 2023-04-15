@@ -5,7 +5,7 @@ import { RouteRecordRaw } from 'vue-router';
 const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'healthNotice',
-    path: '/baseInsurance/healthNotice',
+    path: '/baseInsurance/long/healthNotice',
     meta: { title: '健康告知书' },
     component: () => import('@/views/baseInsurance/templates/long/healthNotice.vue'),
   },
@@ -16,28 +16,22 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/lifeInsurance/product/detail/index.vue'),
   },
   {
-    name: 'pay',
-    path: '/baseInsurance/pay',
-    meta: { title: '支付状态' },
-    component: () => import('@/views/lifeInsurance/pay/index.vue'),
-  },
-  {
     name: 'verify',
-    path: '/baseInsurance/verify',
+    path: '/baseInsurance/long/verify',
     meta: { title: '身份认证' },
     component: () => import('@/views/baseInsurance/templates/long/verify.vue'),
   },
   {
     name: 'infoCollection',
-    path: '/baseInsurance/infoCollection',
+    path: '/baseInsurance/long/infoCollection',
     meta: { title: '信息采集' },
     component: () => import('@/views/baseInsurance/templates/long/infoCollection.vue'),
   },
   {
     name: 'infoPreview',
-    path: '/baseInsurance/infoPreview',
+    path: '/baseInsurance/long/infoPreview',
     meta: { title: '保单预览' },
-    component: () => import('@/views/lifeInsurance/infoPreview/index.vue'),
+    component: () => import('@/views/baseInsurance/templates/long/infoPreview.vue'),
   },
   {
     name: 'middlePage',
