@@ -202,15 +202,15 @@ watch(
       if (isNotEmptyArray(insured?.list)) {
         state.insured = insured.list.map((insuredItem, index) => {
           const tempInsured = state.insured[index] || deepCopy(initInsuredItem);
-          // const { beneficiaryList } = tempInsured;
+
           return {
             ...tempInsured,
             schema: insuredItem?.schema,
             trialFactorCodes: insuredItem?.trialFactorCodes,
-            // beneficiaryList: tempInsured.beneficiaryList.map((beneficiaryItem) => ({
-            //   ...beneficiaryItem,
-            //   ...beneficiary,
-            // })),
+            beneficiaryList: tempInsured.beneficiaryList.map((beneficiaryItem) => ({
+              ...beneficiaryItem,
+              ...beneficiary,
+            })),
           };
         });
       }
@@ -335,10 +335,15 @@ watch(
 // 受益人试算
 watch(
   () =>
-    state.insured.map((insuredItem, index) =>
-      insuredItem.beneficiaryList?.map((beneficiaryItem) => beneficiaryItem?.personVO?.insuredBeneficiaryType),
-    ),
+    state.insured
+      .map((insuredItem, index) =>
+        insuredItem.beneficiaryList
+          ?.map((beneficiaryItem) => beneficiaryItem?.personVO?.insuredBeneficiaryType)
+          .join(','),
+      )
+      .join(','),
   (val, val1) => {
+    console.log(44444, val);
     colorConsole('受益人类型关系变动了');
     state.insured.forEach((insuredItem, index) => {
       insuredItem.beneficiaryList?.forEach((beneficiaryItem) => {
@@ -358,7 +363,6 @@ watch(
   },
   {
     immediate: true,
-    deep: true,
   },
 );
 

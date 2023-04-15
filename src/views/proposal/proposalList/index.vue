@@ -91,6 +91,7 @@ import { queryProposalProductList } from '@/api/modules/proposalList';
 import ProFixedButtonDefaultImage from '@/assets/images/lishijihuashu.png';
 import TrialProductPopup from './components/TrialProductPopup/index.vue';
 import TrialPop from '@/views/baseInsurance/templates/components/TrialPop/index.vue';
+import { queryCalcDefaultInsureFactor, queryCalcDynamicInsureFactor, insureProductDetail } from '@/api/modules/trial';
 
 interface Props {
   isCreateProposal: boolean;
@@ -116,6 +117,7 @@ interface StateType {
   checked: string;
   proposalList: any[];
   showFooter: boolean;
+  productName: string;
 }
 
 const state = reactive<StateType>({
@@ -134,6 +136,7 @@ const state = reactive<StateType>({
   productId: undefined,
   proposalList: [],
   showFooter: true,
+  productName: '',
 });
 
 const {
@@ -214,16 +217,53 @@ const hasProduct = computed(() => {
   return productList.value.length > 0;
 });
 
-/** ****** 创建计划书相关逻辑 ******** */
-const selectProposal = ({ productId }: any) => {
-  showFooter.value = false;
-  state.productId = productId;
-  router.push({
-    path: '/proposal/createProposal',
-    query: {
-      productId: 900001954,
-    },
+const formatData = ({ productCode, holder, insuredVOList } = {}) => {
+  const { personVO, productPlanVOList } = insuredVOList?.[0] || {};
+
+  const proposalData = {
+    proposalHolder: holder,
+    proposalInsuredList: [
+      {
+        ...personVO,
+        proposalInsuredProductList: [
+          {
+            productCode,
+            productName: state.productName,
+            proposalProductRiskList: productPlanVOList,
+          },
+        ],
+      },
+    ],
+  };
+  return proposalData;
+};
+
+const fetchDefaultData = async (productCode) => {
+  // TODO 加loading
+  const { code, data } = await queryCalcDefaultInsureFactor({
+    calcProductFactorList: [
+      {
+        productCode,
+      },
+    ],
   });
+  if (code === '10000') {
+    formatData(data[0]);
+  }
+  // if (result.data) transformDefaultData(result.data.find((d) => d.productCode === props.productInfo.productCode));
+};
+
+/** ****** 创建计划书相关逻辑 ******** */
+const selectProposal = ({ productCode }: any) => {
+  showFooter.value = false;
+  state.productId = productCode;
+  fetchDefaultData(productCode);
+  // router.push({
+  //   path: '/proposal/createProposal',
+  //   query: {
+  //     productCode,
+  //   },
+  // });
   // toggleProductRisk(true);
 };
 
