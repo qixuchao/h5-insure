@@ -1,42 +1,10 @@
 <template>
   <ProPageWrap>
     <div class="long-info-collection">
-      <ProRenderFormWithCard
-        ref="holderFormRef"
-        title="本人信息（投保人）"
-        :model="state.holder.formData"
-        :schema="state.holder.schema"
-        :config="state.holder.config"
-        autocomplete
-      />
+      <!-- 投保人/被保人/受益人 -->
+      <PersonalInfo v-model="state.personalInfo" :product-factor="currentPlanObj.productFactor" />
 
-      <!-- 被保人 -->
-      <template v-for="(insured, index) in state.insuredList" :key="index">
-        <ProRenderFormWithCard
-          ref="insuredFormRef"
-          title="为谁投保（被保人）"
-          :model="state.insuredList[index].formData"
-          :schema="insured.schema"
-          :config="insured.config"
-          autocomplete
-        />
-
-        <ProRenderFormWithCard
-          ref="insuredFormRef"
-          title="受益人"
-          :model="state.insuredList[index].formData"
-          :schema="insured.schema"
-          :config="insured.config"
-          autocomplete
-        />
-      </template>
-
-      <PayInfo
-        v-if="state.payInfo.schema.length"
-        v-model="state.payInfo.formData"
-        :schema="state.payInfo.schema"
-        :is-view="state.isView"
-      ></PayInfo>
+      <PayInfo v-model="state.payInfo.formData" :schema="state.payInfo.schema" :is-view="state.isView"></PayInfo>
       <ProCard title="保单通讯信息" :show-line="false">
         <div class="add-contact-info">
           <van-button>选择保单通讯信息</van-button>
@@ -92,6 +60,7 @@ import { nextStepOperate as nextStep } from '../../nextStep';
 import useAttachment from '@/hooks/useAttachment';
 import { queryProductMaterial, querySalesInfo } from '@/api/modules/product';
 import { getFileType } from '../../utils';
+import PersonalInfo from './InsureInfos/components/PersonalInfo.vue';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
@@ -143,45 +112,7 @@ const sendSMSCode = async ({ mobile }, callback) => {
 const state = reactive({
   isView: false,
   // 投保人
-  holder: {
-    formData: {},
-    schema: [],
-    // 试算因子
-    trialFactorCodes: [],
-    config: {
-      name: {
-        // slots: {
-        //   nameTips: 'extra',
-        // },
-        // unit: '元',
-      },
-      verificationCode: {
-        sendSMSCode,
-      },
-      certType: {
-        // visible: false,
-      },
-      certNo: {},
-    },
-  },
-  // 被保人
-  insuredList: [
-    {
-      formData: {},
-      schema: [],
-      // 试算因子
-      trialFactorCodes: [],
-      config: {
-        relationToHolder: {
-          label: '',
-        },
-        certNo: {
-          // label: '身份证号',
-        },
-      },
-    },
-  ],
-
+  personalInfo: {},
   payInfo: {
     schema: [],
     config: [],
@@ -215,7 +146,7 @@ const insureProductDetail = ref<Partial<InsureProductData>>({}); // 产品中心
 /** -----------资料阅读模块开始-------------------- */
 const healthAttachmentList = ref([]);
 const productMaterialPlanList = ref();
-const currentPlanObj = ref();
+const currentPlanObj = ref({});
 const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
@@ -310,18 +241,24 @@ const initData = async () => {
   await getInsureProductDetail({ productCode, isTenant: !preview }).then(({ data, code }) => {
     if (code === '10000') {
       insureProductDetail.value = data;
-      currentPlanObj.value = data.productPlanInsureVOList?.[0];
-      const [holder, insured, beneficiary, payInfo] = transformFactorToSchema(
-        data.productPlanInsureVOList[0].productFactor || {},
-      );
-      state.holder = {
-        ...state.holder,
-        ...holder,
-      };
-      state.insuredList[0] = {
-        ...state.insuredList[0],
-        ...insured,
-      };
+      currentPlanObj.value = data.productPlanInsureVOList?.[0] || {};
+      const [holder, insured, beneficiary, payInfo] = transformFactorToSchema(currentPlanObj.productFactor || {});
+
+      // state.holder = {
+      //   ...state.holder,
+      //   ...holder,
+      // };
+      // state.insuredList[0] = {
+      //   ...state.insuredList[0],
+      //   ...insured,
+      //   beneficiaryList: [
+      //     {
+      //       ...state.insuredList[0].beneficiaryList[0],
+      //       ...beneficiary,
+      //     },
+      //   ],
+      // };
+
       state.payInfo = {
         ...state.payInfo,
         ...payInfo,
