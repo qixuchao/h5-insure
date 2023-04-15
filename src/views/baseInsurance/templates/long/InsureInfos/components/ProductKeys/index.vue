@@ -38,6 +38,7 @@ interface Props {
   originData: ProductRiskInsureLimit;
   modelValue: RiskVoItem;
   riskInfo: RiskDetailVoItem;
+  defaultValue: any;
 }
 const emit = defineEmits(['trialChange']);
 
@@ -45,6 +46,7 @@ const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as ProductRiskInsureLimit),
   modelValue: () => ({} as RiskVoItem),
   riskInfo: () => ({} as RiskDetailVoItem),
+  defaultValue: () => ({} as any),
 });
 const mConfigs = ref(props.originData);
 const mValues = ref(props.modelValue);
@@ -52,10 +54,13 @@ const showTypes = ref(1);
 
 const formatOptions = (configKey: Array<string>) => {
   const options = get(props.originData, configKey);
+  const useOptions = get(props.defaultValue, configKey);
   return options.map((v) => {
+    const useOption = useOptions ? useOptions.find((o) => o.code === v.code) : null;
     return {
       label: v.value,
       value: v.code,
+      disabled: useOption ? useOption.useFlag === 1 : true,
     };
   });
 };
@@ -63,7 +68,7 @@ const formatOptions = (configKey: Array<string>) => {
 const initData = () => {
   PRODUCT_KEYS_CONFIG.forEach((config) => {
     const options = get(props.originData, config.configKey);
-    if (config.type === 'checkbox' && options && options.length > 0) {
+    if (config.type === 'checkbox' && options && options.length > 0 && !mValues.value.riskCode) {
       mValues.value[config.valueKey] = options[0].code;
     }
   });
@@ -72,6 +77,17 @@ const initData = () => {
 onMounted(() => {
   initData();
 });
+
+watch(
+  () => props.defaultValue,
+  (v) => {
+    if (v?.riskCode) mValues.value = v;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 watch(
   () => mConfigs.value,

@@ -43,6 +43,7 @@
           v-model="state.riskIsInsure[risk.riskId].data"
           :origin-data="risk"
           :product-factor="dataSource.productFactor"
+          :default-value="state.risksDefaultValue[risk.riskCode]"
           @trial-change="(data) => handleInsureInfoChange(data, risk.riskId)"
         ></InsureInfos>
       </div>
@@ -81,6 +82,10 @@ const props = defineProps({
     type: Boolean,
     default: () => true,
   },
+  defaultValue: {
+    type: Object,
+    default: () => {},
+  },
 });
 const state = reactive({
   loading: false,
@@ -91,6 +96,7 @@ const state = reactive({
   riskIsInsure: {},
   submitData: {} as PremiumCalcData,
   disabledRiskInfo: [],
+  risksDefaultValue: {},
 });
 
 const onNext = () => {
@@ -303,6 +309,18 @@ onMounted(() => {
 watch(
   () => state.riskIsInsure,
   (v) => {},
+  { deep: true, immediate: true },
+);
+
+watch(
+  () => props.defaultValue,
+  (v) => {
+    if (v?.length > 0) {
+      v.forEach((risk) => {
+        state.risksDefaultValue[risk.riskCode] = risk;
+      });
+    }
+  },
   { deep: true, immediate: true },
 );
 </script>

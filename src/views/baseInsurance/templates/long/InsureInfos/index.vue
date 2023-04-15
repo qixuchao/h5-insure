@@ -4,12 +4,14 @@
     <BaoeBaofei
       :v-model="mValues"
       :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
+      :defalut-value="state.defaultValues"
       @trial-change="handleBaoeBaofeiChange"
     ></BaoeBaofei>
     <ProductKeys
       :v-model="mValues"
       :origin-data="originData.productRiskInsureLimitVO"
       :risk-info="originData"
+      :default-value="state.defaultValues"
       @trial-change="handleProductKeysChange"
     ></ProductKeys>
     <RiskLiabilityInfo
@@ -63,6 +65,7 @@ const state = reactive({
   personalInfo: {},
   basicsAmount: '',
   basicsPremium: '',
+  defaultValues: props.defaultValue,
 });
 
 const personalInfoRef = ref(null);
@@ -138,8 +141,8 @@ watch(
   (v) => {
     if (v) {
       v.amount = 60000;
-      if (v) mValues.value = v;
-      console.log('-----v = ', v);
+      if (v) state.defaultValues = v;
+      console.log('-----v = ', mValues.value);
     }
   },
   {
