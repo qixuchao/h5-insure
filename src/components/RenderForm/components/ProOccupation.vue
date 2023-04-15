@@ -1,7 +1,7 @@
 <template>
   <ProFormItem
     v-model="state.modelValue"
-    class="com-van-field-hidden"
+    class="com-van-field--hidden"
     :name="name"
     :rules="$attrs.rules"
     :required="$attrs.required"
@@ -50,11 +50,4 @@ export default {
   inheritAttrs: false,
 };
 </script>
-<style lang="scss" scoped>
-.com-van-field-hidden {
-  padding: 0;
-  max-height: 0;
-  min-height: 0;
-  overflow: hidden;
-}
-</style>
+<style lang="scss" scoped></style>

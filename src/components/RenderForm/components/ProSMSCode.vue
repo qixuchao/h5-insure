@@ -1,5 +1,5 @@
 <template>
-  <ProFieldV2 v-if="!$attrs.isView" class="com-pro-sms-code" type="digit" v-bind="$attrs">
+  <ProFieldV2 v-if="!$attrs['is-view']" class="com-pro-sms-code" type="digit" v-bind="$attrs">
     <template #extra>
       <van-button class="extra-button" size="small" plain type="primary" @click="onSendSmsCode">{{
         smsText

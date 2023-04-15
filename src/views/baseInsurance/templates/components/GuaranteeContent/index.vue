@@ -21,24 +21,22 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="guaranteeContent">
 import { useToggle } from '@vant/use';
+import { withDefaults } from 'vue';
 import downIcon from '@/assets/images/baseInsurance/down.png';
 import { GuaranteeItemVo } from '@/api/modules/product.data';
 
-const props = defineProps({
-  dataSource: {
-    type: Array,
-    default: () => [],
-  },
-  isShowClose: {
-    type: Boolean,
-    default: false,
-  },
-  count: {
-    type: Number,
-    default: 10,
-  },
+interface Props {
+  dataSource: any[];
+  isShowClose: boolean;
+  count: number;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  dataSource: () => [],
+  isShowClose: false,
+  count: 10,
 });
 const guaranteeList = ref<GuaranteeItemVo[]>(props.dataSource || []);
 

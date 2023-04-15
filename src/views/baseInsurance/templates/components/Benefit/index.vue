@@ -100,7 +100,7 @@
     <ZaEmpty title="试算前请完善投保信息" empty-class="empty-select" />
   </div>
 </template>
-<script lang="ts" setup>
+<script lang="ts" setup name="benefit">
 import { withDefaults } from 'vue';
 import { toLocal } from '@/utils';
 import ProChart from '@/components/ProChart/index.vue';

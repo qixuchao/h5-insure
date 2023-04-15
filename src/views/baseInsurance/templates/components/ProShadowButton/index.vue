@@ -12,9 +12,9 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-import { computed, ref } from 'vue';
-// // 调用主题
+<script lang="ts" setup name="shadowButton">
+import { withDefaults } from 'vue';
+// 调用主题
 const emit = defineEmits(['click']);
 
 const props = defineProps({

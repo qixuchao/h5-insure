@@ -9,7 +9,7 @@
   <div :class="{ 'com-attachment-list': true, 'has-bg': hasBgColor }">
     <span>{{ preText }}</span>
     <span
-      v-for="(item, index) in attachementList || []"
+      v-for="(item, index) in attachmentList || []"
       :key="index"
       class="attachment-item"
       @click="onClickReadAttachment(index)"
@@ -19,20 +19,18 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-const props = defineProps({
-  preText: {
-    type: String,
-    default: '',
-  },
-  hasBgColor: {
-    type: Boolean,
-    default: true,
-  },
-  attachementList: {
-    type: Object,
-    default: () => {},
-  },
+<script lang="ts" setup name="attachmentList">
+import { withDefaults } from 'vue';
+
+interface Props {
+  preText: string;
+  hasBgColor: boolean;
+  attachmentList: any[];
+}
+const props = withDefaults(defineProps<Props>(), {
+  preText: '',
+  hasBgColor: true,
+  attachmentList: () => [],
 });
 
 const emits = defineEmits(['preview-file']);

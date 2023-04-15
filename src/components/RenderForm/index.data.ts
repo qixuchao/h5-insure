@@ -57,12 +57,16 @@ export interface SchemaItem {
   required: boolean;
   columns: Column[];
   nanoid: string;
+  [key: string]: any;
+  visible: boolean;
+  hidden: boolean;
 }
 
 export interface FormState {
   formData: Data;
   config: Data;
   nameList: string[];
+  dictCodeList: string[];
 }
 
 export interface VanFormProvied {

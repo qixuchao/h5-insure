@@ -1,9 +1,10 @@
 <template>
-  <ProFieldV2 class="com-form-item" :is-link="!isView">
+  <ProFieldV2 :class="{ 'com-form-item': true, 'com-form-item--view': isView }" :is-link="!isView">
     <template #input>
       <CustomInput
         :name="name"
         :model-value="modelValue"
+        :is-view="isView"
         :field-value-view="fieldValueView"
         :placeholder="$attrs.placeholder"
       />
@@ -45,14 +46,16 @@ const props = defineProps({
 });
 </script>
 <style lang="scss">
-.van-cell.com-form-item .van-field__value {
-  align-items: flex-start;
-  .van-field__body {
-    width: 100%;
-  }
-  .van-field__control--error {
-    .placeholder {
-      color: var(--van-field-input-error-text-color);
+.van-cell.com-form-item {
+  .van-field__value {
+    align-items: flex-start;
+    .van-field__body {
+      width: 100%;
+    }
+    .van-field__control--error {
+      .placeholder {
+        color: var(--van-field-input-error-text-color);
+      }
     }
   }
 }

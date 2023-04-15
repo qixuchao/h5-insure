@@ -23,6 +23,8 @@
     :schema="insured.schema"
     :config="insured.config"
   />
+
+  <PayInfo v-model="state.payInfo.formData" :schema="state.payInfo.schema" :is-view="state.isView" />
 </template>
 <script setup lang="ts">
 import { reactive } from 'vue';
@@ -64,6 +66,11 @@ const state = reactive({
       },
     },
   ],
+  payInfo: {
+    schema: [],
+    config: [],
+    formData: [],
+  },
 });
 
 const fetchData = () => {
@@ -72,7 +79,7 @@ const fetchData = () => {
     if (code === '10000') {
 
       // 投保人/被保人/受益人  { schema: [表单 schema], trialFactorCodes: [试算因子 name] }
-      const [holder, insured, beneficiary] = transformFactorToSchema(data.productFactor);
+      const [holder, insured, beneficiary, payInfo] = transformFactorToSchema(data.productFactor);
       state.holder = {
         ...state.holder,
         ...holder,
@@ -80,6 +87,10 @@ const fetchData = () => {
       state.insuredList[0] = {
         ...state.insuredList[0],
         ...insured,
+      };
+      state.payInfo = {
+        ...state.payInfo,
+        ...payInfo,
       };
     }
   });

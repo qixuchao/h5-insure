@@ -40,34 +40,28 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { withDefaults } from 'vue';
 import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import checkedIcon from '@/assets/images/baseInsurance/checked.png';
-import ProShadowButton from '../ProShadowButton/index.vue';
 import { queryListRelationCustomer } from '@/api/modules/product';
 import { star } from '@/utils/index';
 import { CERT_TYPE_ENUM } from '@/common/constants';
+
+interface Props {
+  userInfo: any;
+  relationCode?: string;
+  title?: string;
+  dataSource: any[];
+}
+
 // // 调用主题
 const emit = defineEmits(['change']);
 
-const props = defineProps({
-  userInfo: {
-    type: Object,
-    default: () => ({}),
-  },
-  relationCode: {
-    type: String,
-    default: '1',
-  },
-  title: {
-    type: String,
-    default: '选择投保人',
-  },
-  // 客户列表数据源
-  dataSource: {
-    type: Array as any,
-    default: () => [],
-  },
+const props = withDefaults(defineProps<Props>(), {
+  userInfo: () => ({}),
+  relationCode: '1',
+  title: '选择投保人',
+  dataSource: () => [], // 客户列表数据源
 });
 
 const state = reactive({

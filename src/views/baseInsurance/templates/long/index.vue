@@ -39,7 +39,7 @@
       <ProLazyComponent>
         <AttachmentList
           v-if="fileList?.length"
-          :attachement-list="fileList"
+          :attachment-list="fileList"
           pre-text="请阅读"
           @preview-file="(index) => previewFile(index)"
         />
