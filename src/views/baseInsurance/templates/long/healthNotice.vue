@@ -1,19 +1,21 @@
 <template>
-  <div class="long-health-notice-wrap">
-    <ProFilePreview :type="currentQuestion.contentType" :content="currentQuestion.content">
-      <!-- <template #title>
+  <ProPageWrap>
+    <div class="long-health-notice-wrap">
+      <ProFilePreview :type="currentQuestion.contentType" :content="currentQuestion.content">
+        <!-- <template #title>
         {{ currentQuestion.questionnaireName }}
       </template> -->
-      <template #footer-btn>
-        <div class="footer-btn">
-          <VanButton @click="questionReject">部分为是</VanButton>
-          <ProShadowButton :shadow="false" @click="questionResolve">
-            <slot>以上皆否</slot>
-          </ProShadowButton>
-        </div>
-      </template>
-    </ProFilePreview>
-  </div>
+        <template #footer-btn>
+          <div class="footer-btn">
+            <VanButton @click="questionReject">部分为是</VanButton>
+            <ProShadowButton :shadow="false" @click="questionResolve">
+              <slot>以上皆否</slot>
+            </ProShadowButton>
+          </div>
+        </template>
+      </ProFilePreview>
+    </div>
+  </ProPageWrap>
 </template>
 
 <script lang="ts" setup>
@@ -25,14 +27,29 @@ import { QUESTIONNAIRE_TYPE_ENUM, OBJECT_TYPE_ENUM } from '@/common/constants/qu
 import { getFileType } from '../../utils';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 import { closeWebView } from '@/utils/jsbridgePromise';
+import { nextStepOperate as nextStep } from '../../nextStep';
+import { getOrderDetail as queryOrderDetail } from '@/api';
+import useOrder from '@/hooks/useOrder';
+import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
+import pageJump from '@/utils/pageJump';
+import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
 
 const route = useRoute();
 const router = useRouter();
+const orderDetail = useOrder();
 
-const { productCode, orderNo, questionnaireId: questionId } = route.query;
+const { productCode, orderNo, templateId, tenantId, questionnaireId: questionId } = route.query;
 const currentQuestion = ref<any>({});
 const nextQuestionnaireId = ref<number>();
 const objectType = ref<number>();
+
+const onNext = () => {
+  nextStep(orderDetail.value, (data, pageAction) => {
+    if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+      pageJump(data.nextPageCode, route.query);
+    }
+  });
+};
 
 const questionReject = () => {
   Dialog.confirm({ title: '', message: `${objectType.value}不符合当前产品投保条件，请选择其他产品` })
@@ -40,13 +57,13 @@ const questionReject = () => {
       closeWebView();
     })
     .catch(() => {
-      router.push({
-        path: route.path,
-        query: {
-          ...route.query,
-          questionnaireId: nextQuestionnaireId.value,
-        },
-      });
+      // router.push({
+      //   path: route.path,
+      //   query: {
+      //     ...route.query,
+      //     questionnaireId: nextQuestionnaireId.value,
+      //   },
+      // });
     });
 };
 
@@ -59,6 +76,8 @@ const questionResolve = () => {
         questionnaireId: nextQuestionnaireId.value,
       },
     });
+  } else {
+    onNext();
   }
 };
 
@@ -102,7 +121,22 @@ const getQuestionInfo = async () => {
   }
 };
 
+const getOrderDetail = async () => {
+  const { code, data } = await queryOrderDetail({ orderNo, tenantId });
+  if (code === '10000') {
+    Object.assign(orderDetail.value, data, {
+      extInfo: {
+        ...data.extInfo,
+        templateId,
+        pageCode: PAGE_CODE_ENUMS.QUESTION_NOTICE,
+        buttonCode: BUTTON_CODE_ENUMS.QUESTION_NOTICE,
+      },
+    });
+  }
+};
+
 onBeforeMount(() => {
+  getOrderDetail();
   getQuestionInfo();
 });
 </script>
@@ -118,6 +152,11 @@ onBeforeMount(() => {
     align-items: center;
     justify-content: space-between;
     padding: 0 30px;
+    position: fixed;
+    z-index: 1;
+    width: 100%;
+    bottom: 0;
+    background: #fff;
     .van-button,
     .pro-shadow-button {
       width: 300px;

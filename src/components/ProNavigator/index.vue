@@ -1,35 +1,34 @@
 <template>
   <div v-show="show" class="com-navigator">
     <div class="insure-bar">
-      <div class="page-title">{{ document?.title }}</div>
+      <div class="page-title">{{ currentNode?.pageName }}</div>
       <div class="page-progress" @click="handleClick">
         <span>进度</span>
-        <span>(1/7)</span>
-        <ProSvg name="right_arrow" class="icon" />
+        <span>{{ `(${activeIndex + 1}/${list?.length})` }}</span>
+        <ProSvg name="right_arrow" class="right-icon" />
       </div>
     </div>
-    <van-popup
-      v-model:show="visible"
-      position="right"
-      :style="{ width: '50%', height: '100%' }"
-      safe-area-inset-top
-      class="navigation-popup"
-    >
-      <div class="list">
-        <div
-          v-for="(item, index) in list"
-          :key="index"
-          :class="['item', { active: item.pageCode === currentPageCode, enable: index <= enableIndex }]"
-          @click="handleNavClick(item, index)"
-        >
-          {{ item.pageName }}
+    <van-popup v-model:show="visible" position="right" safe-area-inset-top class="navigation-popup">
+      <van-config-provider :theme-vars="themeVar">
+        <div class="popup-body">
+          <span class="popup-title">投保进度</span>
+          <p class="desc">您可以通过投保进度条预览投保流程步骤</p>
+
+          <div class="list">
+            <van-steps direction="vertical" :active="activeIndex">
+              <van-step v-for="(item, index) in list" :key="index">
+                <h3>{{ item.pageName }}</h3>
+              </van-step>
+            </van-steps>
+          </div>
         </div>
-      </div>
+      </van-config-provider>
     </van-popup>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { useRoute } from 'vue-router';
 import { useToggle } from '@vant/use';
 import { storeToRefs } from 'pinia';
 import { getTemplateInfo } from '@/api';
@@ -38,7 +37,9 @@ import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 import useStore from '@/store/app';
 import pageJump from '@/utils/pageJump';
 import sideNavImage from '@/assets/images/component/sidenav.png';
+import useTheme from '@/hooks/useTheme';
 
+const themeVar = useTheme();
 const store = useStore();
 const route = useRoute();
 const {
@@ -67,14 +68,24 @@ const enableIndex = computed(() => {
   return list.value.findIndex((x) => x.pageCode === orderDetail.value?.extInfo?.pageCode);
 });
 
-const handleNavClick = (item: TemplatePageItem, index: number) => {
-  if (index <= enableIndex.value) {
-    pageJump(item.pageCode, route.query);
-  }
-};
+// const handleNavClick = (item: TemplatePageItem, index: number) => {
+//   if (index <= enableIndex.value) {
+//     pageJump(item.pageCode, route.query);
+//   }
+// };
 
 const currentPageCode = computed(() => {
-  return Object.keys(PAGE_ROUTE_ENUMS).find((x) => PAGE_ROUTE_ENUMS[x] === route.path.replace('/', '')) || '';
+  return Object.keys(PAGE_ROUTE_ENUMS).find((x) => route.path.indexOf(PAGE_ROUTE_ENUMS[x]) !== -1) || '';
+});
+const activeIndex = ref<number>(0);
+const currentNode = computed(() => {
+  if (list.value?.length) {
+    return list.value.find((li, index) => {
+      activeIndex.value = index;
+      return li.pageCode === currentPageCode.value;
+    });
+  }
+  return {};
 });
 
 onMounted(() => {
@@ -87,20 +98,26 @@ onMounted(() => {
 });
 
 const show = computed(() => {
-  return true || (isFromOrderList && list.value.some((x) => x.pageCode === currentPageCode.value));
+  return list.value.some((x) => x.pageCode === currentPageCode.value);
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" scope>
 .com-navigator {
   z-index: 999;
+  .right-icon {
+    font-size: 24px;
+    margin-left: 10px;
+  }
   .insure-bar {
-    width: 750px;
+    width: 690px;
     height: 80px;
     display: flex;
     align-items: center;
     padding: 0 30px;
     justify-content: space-between;
+    border-bottom: 20px solid #f2f5fc;
+    box-sizing: content-box;
     .page-title {
       font-size: 32px;
       font-weight: 600;
@@ -111,7 +128,9 @@ const show = computed(() => {
       border: 1px solid $zaui-brand;
       border-radius: 8px;
       color: $zaui-brand;
-      padding: 10px 16px;
+      padding: 0 16px;
+      line-height: 60px;
+      font-size: 28px;
     }
   }
   .btn {
@@ -122,20 +141,23 @@ const show = computed(() => {
     top: 50%;
     margin-top: -90px;
   }
-  .navigation-popup {
-    .list {
-      .item {
-        line-height: 96px;
-        padding-left: 32px;
-        font-size: 28px;
-        color: #99a9c0;
-        &.enable {
-          color: #393d46;
-        }
-        &.active {
-          font-weight: 500;
-          color: #006aff;
-        }
+  .van-popup {
+    height: 100%;
+    width: 552px;
+    .popup-body {
+      padding: 60px;
+      .popup-title {
+        border: none;
+        justify-content: left;
+        height: 45px;
+        padding: 0;
+      }
+      .desc {
+        font-size: 24px;
+        font-weight: 500;
+        color: #939599;
+        line-height: 33px;
+        margin: 19px 0 47px;
       }
     }
   }

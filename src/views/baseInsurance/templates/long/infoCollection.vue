@@ -37,16 +37,13 @@
         :schema="state.payInfo.schema"
         :is-view="state.isView"
       ></PayInfo>
-      <ProCard title="保单通讯信息" :show-line="false">
-        <div class="add-contact-info">
-          <van-button>选择保单通讯信息</van-button>
-        </div>
-      </ProCard>
       <ProLazyComponent>
         <AttachmentList
           v-if="fileList?.length"
+          v-model="isAgree"
           :attachment-list="fileList"
-          pre-text="请阅读"
+          is-show-radio
+          pre-text="投保人阅读并接受"
           @preview-file="(index) => previewFile(index)"
         />
       </ProLazyComponent>
@@ -77,6 +74,7 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
+import { Toast } from 'vant';
 import { ProRenderFormWithCard, PayInfo, transformFactorToSchema, isOnlyCert } from '@/components/RenderForm';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import {
@@ -92,11 +90,15 @@ import { nextStepOperate as nextStep } from '../../nextStep';
 import useAttachment from '@/hooks/useAttachment';
 import { queryProductMaterial, querySalesInfo } from '@/api/modules/product';
 import { getFileType } from '../../utils';
+import useOrder from '@/hooks/useOrder';
+import pageJump from '@/utils/pageJump';
+import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
 
 const route = useRoute();
+const orderDetail = useOrder();
 
 /** 页面query参数类型 */
 interface QueryData {
@@ -221,6 +223,7 @@ const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const isOnlyView = ref<boolean>(true); // 资料查看模式
 const { fileList, mustReadFileCount, popupFileList } = useAttachment(currentPlanObj, productMaterialPlanList);
+const isAgree = ref<boolean>(false);
 
 // 文件预览
 const previewFile = (index: number) => {
@@ -246,7 +249,20 @@ const onResetFileFlag = () => {
 };
 
 const onNext = async () => {
-  nextStep({}, () => {});
+  if (!isAgree.value) {
+    Toast('请勾选投保人阅读并接受');
+    return;
+  }
+  Object.assign(orderDetail.value, {
+    extInfo: {
+      ...orderDetail.value.extInfo,
+      buttonCode: BUTTON_CODE_ENUMS.INFO_COLLECTION,
+      pageCode: PAGE_CODE_ENUMS.INFO_COLLECTION,
+    },
+  });
+  nextStep(orderDetail.value, (data, pageAction) => {
+    pageJump(data.nextPageCode, route.query);
+  });
 };
 
 /* -------产品资料模块------------ */
@@ -300,8 +316,7 @@ const initData = async () => {
 
   getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
-      // 核保 buttonCode: 'EVENT_SHORT_underWrite'
-      data.extInfo = { ...data.extInfo, buttonCode: 'EVENT_SHORT_underWrite' };
+      Object.assign(orderDetail.value, data);
     }
   });
 
