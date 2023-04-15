@@ -296,7 +296,7 @@ const initData = () => {
     if (code === '10000') {
       insureProductDetail.value = data;
       const { productFactor } = data.productPlanInsureVOList?.[0] || {};
-      const [, , , , signInfo] = transformFactorToSchema(productFactor);
+      const { signInfo } = transformFactorToSchema(productFactor);
       signInfo.schema.forEach((schema) => {
         if (schema.name === 'eleSign') {
           schema.columns.forEach((column) => {

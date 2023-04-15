@@ -28,6 +28,7 @@ export interface FieldConfItem {
   isSelfInsuredNeed: boolean;
   isCalculationFactor: number;
   visible: boolean;
+  subModuleType: number;
 }
 
 export interface ProductFactor {
