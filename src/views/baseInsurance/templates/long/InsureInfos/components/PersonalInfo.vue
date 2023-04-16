@@ -199,8 +199,8 @@ watch(
     if (isNotEmptyArray(val)) {
       const { holder, insured, beneficiary } = transformFactorToSchema(props.productFactor, props.isTrial);
       Object.assign(state.holder, holder);
-      if (isNotEmptyArray(insured?.list)) {
-        state.insured = insured.list.map((insuredItem, index) => {
+      if (isNotEmptyArray(insured)) {
+        state.insured = insured.map((insuredItem, index) => {
           const tempInsured = state.insured[index] || deepCopy(initInsuredItem);
 
           return {

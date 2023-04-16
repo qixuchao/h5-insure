@@ -88,7 +88,7 @@ import { getFileType } from '../../utils';
 import useOrder from '@/hooks/useOrder';
 import pageJump from '@/utils/pageJump';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
-import PersonalInfo from './InsureInfos/components/PersonalInfo.vue';
+import { PersonalInfo } from './InsureInfos/components';
 import { PRODUCT_KEYS_CONFIG } from './InsureInfos/components/ProductKeys/config';
 import { dealExemptPeriod } from '../components/TrialPop/utils';
 import { SUCCESS_CODE } from '@/api/code';

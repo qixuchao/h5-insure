@@ -86,7 +86,7 @@ const fetchData = () => {
       };
       state.insuredList[0] = {
         ...state.insuredList[0],
-        ...insured,
+        ...insured[0],
       };
       state.payInfo = {
         ...state.payInfo,

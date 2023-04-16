@@ -1,0 +1,246 @@
+<template>
+  <ProRenderFormWithCard
+    ref="holderFormRef"
+    title="投保人信息"
+    class="trail-personal-info"
+    :model="state.holder.personVO"
+    :schema="state.holder.schema"
+    :config="state.holder.config"
+    :is-view="isView"
+  />
+  <!-- 被保人 -->
+  <InsuredItem
+    v-for="(insuredItem, index) in state.insured"
+    ref="insuredFormRef"
+    :key="index"
+    v-model="insuredItem.personVO"
+    :="insuredItem"
+    :holder-person-v-o="state.holder.personVO"
+    :is-view="isView"
+  />
+  <!-- <van-button type="primary" @click="onAddInsured">添加被保人</van-button> -->
+</template>
+<script lang="ts" setup name="PersonalInfo">
+import { withDefaults } from 'vue';
+import {
+  type SchemaItem,
+  type PersonFormProps,
+  colorConsole,
+  validateForm,
+  validateFields,
+  ProRenderFormWithCard,
+  transformFactorToSchema,
+} from '@/components/RenderForm';
+import { ProductFactor } from '@/api/modules/trial.data';
+import { isNotEmptyArray } from '@/common/constants/utils';
+import { deepCopy } from '@/utils';
+import InsuredItem from './components/InsuredItem.vue';
+
+interface Props {
+  productFactor: ProductFactor;
+  modelValue: any;
+  isTrial: boolean;
+  isView: boolean;
+}
+
+const emit = defineEmits(['update:modelValue', 'trailChange']);
+const holderFormRef = ref(null);
+const insuredFormRef = ref(null);
+
+const props = withDefaults(defineProps<Props>(), {
+  productFactor: () => ({} as ProductFactor),
+  modelValue: () => ({} as any),
+  isTrial: false,
+});
+
+interface InsuredFormProps extends Partial<PersonFormProps> {
+  beneficiaryList: Partial<PersonFormProps>[];
+}
+
+interface StateInfo {
+  config: object;
+  validated: boolean;
+  holder: PersonFormProps;
+  initInsuredItem: InsuredFormProps;
+  insured: InsuredFormProps[];
+}
+
+const initInsuredItem: InsuredFormProps = {
+  schema: [],
+  trialFactorCodes: [],
+  config: {},
+  personVO: {},
+  beneficiaryList: [
+    {
+      config: {},
+      personVO: {},
+      trialFactorCodes: [],
+    },
+  ],
+};
+
+const state = reactive<StateInfo>({
+  config: {},
+  /**
+   * 是否所有表单是否验证成功
+   */
+  validated: false,
+  /** 投保人 */
+  holder: {
+    personVO: {},
+    schema: [],
+    trialFactorCodes: [],
+    config: {},
+  },
+  initInsuredItem: deepCopy(initInsuredItem),
+  /** 被保人 */
+  insured: [deepCopy(initInsuredItem)],
+});
+
+/** 验证试算因子是否全部有值 */
+const validateTrialFields = () => {
+  const flag = insuredFormRef.value?.every((item) => item.validateTrialFields());
+  return flag && validateFields(state.holder);
+};
+
+// 验证表单必填
+const validate = (isTrial) => {
+  return Promise.all([
+    ...(insuredFormRef.value?.map((item) => item.validate()) || []),
+    validateForm(holderFormRef, state.holder.trialFactorCodes, isTrial),
+  ]);
+};
+
+const listObject = (personInfo: any) => {
+  const keyWords = ['insureArea', 'residence', 'longArea', 'workAddress'];
+  const newInfo = {};
+  Object.keys(personInfo).forEach((key) => {
+    if (keyWords.indexOf(key) >= 0 && personInfo[key] instanceof Object) {
+      // 平铺
+      Object.keys(personInfo[key]).forEach((ckey) => {
+        newInfo[ckey] = personInfo[key][ckey];
+      });
+    } else {
+      newInfo[key] = personInfo[key];
+    }
+  });
+  return newInfo;
+};
+
+// 添加被保人
+const onAddInsured = () => {
+  state.insured.push(
+    deepCopy({
+      ...state.initInsuredItem,
+    }),
+  );
+};
+
+// 添加被保人
+const onDeleteInsured = () => {};
+
+// 验证是否试算
+watch(
+  [() => state.holder?.personVO, () => state.insured.map((insuredItem) => insuredItem?.personVO)],
+  () => {
+    colorConsole('投被保人信息变动了');
+    const result = {
+      holder: listObject(state.holder.personVO),
+      insuredVOList: state.insured.map((insured) => {
+        return { personVO: listObject(insured.personVO) };
+      }),
+    };
+    emit('update:modelValue', result);
+    // 验证通过调用试算
+    if (state.config.hasTrialFactorCodes && validateTrialFields()) {
+      validate(true)
+        .then(() => {
+          state.validated = true;
+          emit('trailChange', result);
+        })
+        .catch(() => {
+          state.validated = false;
+        });
+    }
+  },
+  {
+    deep: true,
+  },
+);
+
+// 投保因子变动
+watch(
+  [() => props.productFactor, () => props.isTrial],
+  (val) => {
+    if (val[0]) {
+      const { holder, insured, beneficiary, config } = transformFactorToSchema(...val);
+      Object.assign(state.holder, holder);
+
+      state.config = config;
+
+      if (isNotEmptyArray(insured)) {
+        const { length } = insured;
+        state.insured = insured.map((insuredItem, index) => {
+          const tempInsured = state.insured[index] || deepCopy(initInsuredItem);
+
+          // 初始投保人信息,非关系型被保人复制主被保人，关系型复制次被保人
+          if (index === length - 1) {
+            state.initInsuredItem = deepCopy({
+              ...initInsuredItem,
+              schema: deepCopy(insuredItem?.schema),
+              trialFactorCodes: insuredItem?.trialFactorCodes,
+              beneficiarySchema: deepCopy(beneficiary?.schema || []),
+            });
+          }
+
+          return {
+            ...tempInsured,
+            schema: deepCopy(insuredItem?.schema),
+            trialFactorCodes: insuredItem?.trialFactorCodes,
+            beneficiarySchema: deepCopy(beneficiary?.schema || []),
+          };
+        });
+      }
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+// 表单数据变动
+watch(
+  () => props.modelValue,
+  (val) => {
+    const { holder, insuredVOList } = val || {};
+    Object.assign(state.holder.personVO, holder?.personVO);
+
+    state.insured.forEach((insuredItem, index) => {
+      const currentInsured = insuredVOList?.[index] || {};
+      Object.assign(insuredItem.personVO, currentInsured?.personVO);
+    });
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+defineExpose({
+  validate,
+});
+</script>
+
+<style scoped lang="scss">
+.trail-personal-info {
+  :deep(.com-card-wrap) .header {
+    margin-left: 0;
+  }
+  :deep(.com-van-field) {
+    &:last-child::after {
+      display: block;
+    }
+  }
+}
+</style>

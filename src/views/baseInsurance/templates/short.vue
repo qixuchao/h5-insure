@@ -904,7 +904,7 @@ watch(
     };
     state.insuredList[0] = {
       ...state.insuredList[0],
-      ...insured.list?.[0],
+      ...insured?.[0],
     };
   },
   {
