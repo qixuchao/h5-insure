@@ -12,16 +12,18 @@
   <InsuredItem
     v-for="(insuredItem, index) in state.insured"
     ref="insuredFormRef"
-    :key="index"
+    :key="`${insuredItem.nanoid}_${index}`"
     v-model="insuredItem.personVO"
     :="insuredItem"
     :holder-person-v-o="state.holder.personVO"
     :is-view="isView"
+    @update:beneficiary-list="updateBeneficiaryList($event, index)"
   />
-  <!-- <van-button type="primary" @click="onAddInsured">添加被保人</van-button> -->
+  <van-button type="primary" @click="onAddInsured">添加被保人</van-button>
 </template>
 <script lang="ts" setup name="PersonalInfo">
 import { withDefaults } from 'vue';
+import { nanoid } from 'nanoid';
 import {
   type PersonalInfoConf,
   type PersonFormProps,
@@ -75,6 +77,7 @@ const initInsuredItem: InsuredFormProps = {
       config: {},
       personVO: {},
       trialFactorCodes: [],
+      nanoid: nanoid(),
     },
   ],
 };
@@ -132,6 +135,7 @@ const onAddInsured = () => {
   state.insured.push(
     deepCopy({
       ...state.initInsuredItem,
+      nanoid: nanoid(),
     }),
   );
 };
@@ -139,17 +143,38 @@ const onAddInsured = () => {
 // 添加被保人
 const onDeleteInsured = () => {};
 
+//
+const updateBeneficiaryList = (data, index) => {
+  state.insured[index].beneficiaryList.forEach((item, i) => {
+    Object.assign(item.personVO, data[i].personVO);
+  });
+};
+
 // 验证是否试算
 watch(
-  [() => state.holder?.personVO, () => state.insured.map((insuredItem) => insuredItem?.personVO)],
-  () => {
+  [
+    () => listObject(state.holder?.personVO),
+    () =>
+      state.insured.map((insuredItem) => {
+        const { beneficiaryList: list, personVO } = insuredItem || {};
+        const beneficiaryList = isNotEmptyArray(list)
+          ? list.map((beneficiaryItem) => ({
+              personVO: listObject(beneficiaryItem.personVO),
+            }))
+          : [];
+        return {
+          personVO: listObject(personVO),
+          beneficiaryList,
+        };
+      }),
+  ],
+  (val) => {
     colorConsole('投被保人信息变动了');
     const result = {
-      holder: listObject(state.holder.personVO),
-      insuredVOList: state.insured.map((insured) => {
-        return { personVO: listObject(insured.personVO) };
-      }),
+      holder: val[0],
+      insuredVOList: val[1],
     };
+    console.log('personalInfoResult--结果', result);
     emit('update:modelValue', result);
     // 验证通过调用试算
     if (state.config.hasTrialFactorCodes && validateTrialFields()) {
@@ -195,6 +220,7 @@ watch(
 
           return {
             ...tempInsured,
+            nanoid: nanoid(),
             schema: deepCopy(insuredItem?.schema),
             trialFactorCodes: insuredItem?.trialFactorCodes,
             beneficiarySchema: deepCopy(beneficiary?.schema || []),

@@ -280,7 +280,7 @@ export default {
       width: 100%;
     }
     .van-field__control {
-      text-align: left;
+      text-align: right;
     }
   }
 

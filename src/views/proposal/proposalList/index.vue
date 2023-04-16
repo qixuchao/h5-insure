@@ -258,12 +258,12 @@ const selectProposal = ({ productCode }: any) => {
   showFooter.value = false;
   state.productId = productCode;
   fetchDefaultData(productCode);
-  // router.push({
-  //   path: '/proposal/createProposal',
-  //   query: {
-  //     productCode,
-  //   },
-  // });
+  router.push({
+    path: '/proposal/createProposal',
+    query: {
+      productCode,
+    },
+  });
   // toggleProductRisk(true);
 };
 

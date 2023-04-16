@@ -9,15 +9,15 @@
     :is-view="isView"
   />
   <BeneficiaryItem
-    v-for="beneficiary in state.beneficiaryList"
+    v-for="(beneficiary, index) in state.beneficiaryList"
     ref="beneficiaryFormRef"
-    :key="beneficiary.nanoid"
+    :key="`${beneficiary.nanoid}_${index}`"
     v-model="beneficiary.personVO"
     :schema="beneficiarySchema"
     :config="beneficiary.config"
     :is-view="isView"
   />
-  <!-- <van-button type="primary" @click="onAddBeneficiary">添加受益人</van-button> -->
+  <van-button type="primary" @click="onAddBeneficiary">添加受益人</van-button>
 </template>
 <script lang="ts" setup name="InsuredItem">
 import { withDefaults } from 'vue';
@@ -47,7 +47,7 @@ interface Props {
   beneficiarySchema: SchemaItem[];
 }
 
-const emit = defineEmits(['update:modelValue', 'trailChange']);
+const emit = defineEmits(['update:modelValue', 'update:beneficiaryList']);
 const insuredFormRef = ref(null);
 const beneficiaryFormRef = ref(null);
 
@@ -113,6 +113,7 @@ const onAddBeneficiary = () => {
   state.beneficiaryList.push(
     deepCopy({
       ...initBeneficiaryItem,
+      nanoid: nanoid(),
       schema: props.beneficiarySchema,
     }),
   );
@@ -130,6 +131,18 @@ watch(
     if (state.personVO?.relationToHolder === '1') {
       Object.assign(state.personVO, val);
     }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+// 监听受益人信息
+watch(
+  () => state.beneficiaryList.map((item) => item.personVO),
+  (val) => {
+    emit('update:beneficiaryList', state.beneficiaryList);
   },
   {
     deep: true,
@@ -250,8 +263,10 @@ watch(
           const currentBeneficiaryItem = val[i] || {};
           return {
             ...currentBeneficiaryItem,
-            nanoid: nanoid(),
-            personVO: Object.assign(beneficiaryItem.personVO, currentBeneficiaryItem.personVO),
+            personVO: {
+              ...beneficiaryItem.personVO,
+              ...currentBeneficiaryItem.personVO,
+            },
           };
         });
       }
