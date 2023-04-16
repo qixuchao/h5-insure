@@ -266,10 +266,12 @@ interface InsuredFactorSchema extends ModuleResult {
 
 type ResultEnum = 'holder' | 'beneficiary' | 'payInfo' | 'signInfo';
 
+export interface PersonalInfoConf {
+  hasTrialFactorCodes?: boolean;
+}
+
 type FactorToSchemaResult = {
-  config: {
-    hasTrialFactorCodes?: boolean;
-  };
+  config: PersonalInfoConf;
   insured: ModuleResult[];
 } & {
   [x in ResultEnum]: ModuleResult;

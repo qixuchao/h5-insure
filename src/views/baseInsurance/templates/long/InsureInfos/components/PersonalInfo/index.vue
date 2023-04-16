@@ -23,7 +23,7 @@
 <script lang="ts" setup name="PersonalInfo">
 import { withDefaults } from 'vue';
 import {
-  type SchemaItem,
+  type PersonalInfoConf,
   type PersonFormProps,
   colorConsole,
   validateForm,
@@ -58,7 +58,7 @@ interface InsuredFormProps extends Partial<PersonFormProps> {
 }
 
 interface StateInfo {
-  config: object;
+  config: PersonalInfoConf;
   validated: boolean;
   holder: PersonFormProps;
   initInsuredItem: InsuredFormProps;

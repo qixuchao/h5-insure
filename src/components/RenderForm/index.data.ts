@@ -86,7 +86,7 @@ export interface PersonFormProps {
   config: {
     [x: string]: any;
   };
-  nanoid: string;
+  nanoid?: string;
 }
 
 export interface InsuredFormProps extends Partial<PersonFormProps> {
