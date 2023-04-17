@@ -15,7 +15,7 @@
           :disabled="disabled || option.disabled"
           :activated="state.currentValue == option[prop.value]"
           :icon-name="option.iconName"
-          @click="!disabled && selectBtn(option[prop.value])"
+          @click="!(disabled || option.disabled) && selectBtn(option[prop.value])"
         />
       </div>
     </div>
