@@ -66,6 +66,7 @@ const state = reactive({
   basicsAmount: '',
   basicsPremium: '',
   defaultValues: props.defaultValue,
+  changeData: null,
 });
 
 const personalInfoRef = ref(null);
@@ -90,7 +91,7 @@ onMounted(() => {
   // console.log('--------origin data = ', props.originData);
 });
 
-const handleMixData = debounce(() => {
+const handleMixData = debounce((changeValue: any) => {
   if (props.originData.mainRiskFlag === 1) {
     // TODO 待确认的逻辑
     // mValues.value.mainRisk = true;
@@ -105,14 +106,15 @@ const handleMixData = debounce(() => {
   mValues.value.riskType = props.originData.riskType;
   mValues.value.mainRiskCode = props.originData.mainRiskCode;
   mValues.value.mainRiskId = props.originData.mainRiskId;
-  emit('trialChange', mValues.value);
+  if (changeValue) emit('trialChange', mValues.value, changeValue);
+  else emit('trialChange', mValues.value);
 }, 300);
 
-const handleProductKeysChange = (data) => {
+const handleProductKeysChange = (data, changeValue) => {
   objectKeys(data).forEach((key) => {
     mValues.value[key] = data[key];
   });
-  handleMixData();
+  handleMixData(changeValue);
 };
 
 const handleBaoeBaofeiChange = (data) => {
@@ -142,7 +144,6 @@ watch(
     if (v) {
       v.amount = 60000;
       if (v) state.defaultValues = v;
-      console.log('-----v = ', mValues.value);
     }
   },
   {

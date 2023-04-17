@@ -120,6 +120,10 @@ const state = reactive<StateInfo>({
   insured: [deepCopy(initInsuredItem)],
 });
 
+const handleChangeInsuredInfo = () => {
+  console.log('----handleChangeInsuredInfo');
+};
+
 /** 验证试算因子是否全部有值 */
 const validateFields = () => {
   // 是否有试算因子
@@ -235,6 +239,9 @@ watch(
         return { personVO: listObject(insured.personVO) };
       }),
     };
+    const isFirstInsuredChange =
+      JSON.stringify(result?.insuredVOList?.[0]?.personVO) !== props.modelValue?.insuredVOList?.[0]?.personVO;
+    result.isFirstInsuredChange = isFirstInsuredChange;
     emit('update:modelValue', result);
     // 验证通过调用试算
     if (!validateFields()) {
