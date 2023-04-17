@@ -2,6 +2,7 @@
   <ProRenderFormWithCard
     v-for="schemaItem in state.schemaList"
     :key="schemaItem.nanoid"
+    ref="formRef"
     :schema="schemaItem.schema"
     :model="schemaItem.formData"
     :config="schemaItem.config"
@@ -50,6 +51,8 @@ const PAY_METHOD_TYPE_ENUM = {
 };
 
 const emit = defineEmits(['update:modelValue']);
+
+const formRef = ref<InstanceType<typeof ProRenderFormWithCard>>();
 
 const fieldInitList: Partial<PayInfoItem>[] = [
   {
@@ -358,4 +361,6 @@ watch(
     immediate: true,
   },
 );
+
+defineExpose({});
 </script>
