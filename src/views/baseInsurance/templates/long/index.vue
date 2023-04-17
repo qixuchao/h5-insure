@@ -27,8 +27,9 @@
         :plan-list="planList"
         @update-active-plan="handlePlanChange"
       />
-      <div class="trial-text-btn" @click="showTrial">算一算保费</div>
 
+      <div class="trial-text-btn" @click="showTrial">算一算保费</div>
+      <InsureLimit :data-source="tenantProductDetail?.ISSUE_CONDITION"></InsureLimit>
       <ScrollInfo ref="detailScrollRef" :data-source="tenantProductDetail"> </ScrollInfo>
       <ProLazyComponent>
         <InscribedContent
@@ -106,6 +107,7 @@ import ScrollInfo from '../components/ScrollInfo/index.vue';
 import useAttachment from '@/hooks/useAttachment';
 import { getFileType } from '@/views/baseInsurance/utils';
 import TrialPop from '../components/TrialPop/index.vue';
+import InsureLimit from '../components/InsureLimit/index.vue';
 // const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const InscribedContent = defineAsyncComponent(() => import('../components/InscribedContent/index.vue'));

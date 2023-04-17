@@ -1,15 +1,20 @@
-<!--
- * @Author: za-qixuchao qixuchao@zhongan.io
- * @Date: 2022-07-14 10:14:33
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-09 13:46:02
- * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/index.vue
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
--->
 <template>
   <ProPageWrap class="page-create-wrapper">
     <div class="container">
-      <VanForm ref="formRef" input-align="right" error-message-align="right">
+      <ProFieldV2
+        v-model="state.insuredFormData.proposalName"
+        class="mb20"
+        label="计划书名称"
+        name="proposalName"
+        :maxlength="20"
+      />
+      <ProRenderFormWithCard title="被保人信息" :model="state.insuredFormData">
+        <ProFieldV2 label="姓名" name="name" :maxlength="20" required />
+        <ProDatePickerV2 label="出生日期" name="birthday" required />
+        <ProRadioV2 label="性别" name="gender" :columns="SEX_LIMIT_LIST" required />
+      </ProRenderFormWithCard>
+
+      <!-- <VanForm ref="formRef" input-align="right" error-message-align="right">
         <ProCard :show-line="false">
           <VanField
             v-model="proposalInfo.proposalName"
@@ -56,7 +61,7 @@
             </template>
           </VanField>
         </ProCard>
-      </VanForm>
+      </VanForm> -->
       <ProCard
         v-for="product in proposalInfo.proposalInsuredList[0].proposalInsuredProductList || []"
         :key="product.productId"
@@ -109,7 +114,7 @@
   </ProPageWrap>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="createProposal">
 import { ActionSheetAction, Dialog, Toast } from 'vant';
 import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
@@ -117,6 +122,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { getDic } from '@/api/index';
 import { DictData } from '@/api/index.data';
 import createProposalStore from '@/store/proposal/createProposal';
+import { ProRenderFormWithCard, ProFieldV2, ProDatePickerV2, ProRadioV2 } from '@/components/RenderForm';
 import { queryProposalDetail, addOrUpdateProposal, queryProductDetailList } from '@/api/modules/createProposal';
 import {
   ProposalInfo,
@@ -124,7 +130,8 @@ import {
   ProposalInsuredProductItem,
   ProposalHolder,
 } from '@/api/modules/createProposal.data';
-import { insureProductDetail } from '@/api/modules/trial';
+import { queryCalcDefaultInsureFactor, insureProductDetail } from '@/api/modules/trial';
+
 import { ProductData } from '@/common/constants/trial.data';
 import { SEX_LIMIT_LIST } from '@/common/constants';
 import ProductList from './components/ProductList/index.vue';
@@ -138,6 +145,9 @@ interface State {
   riderRisk: any;
   type: 'add' | 'edit' | 'addRiderRisk';
   currentRisk: any[];
+  insuredFormData: {
+    [x: string]: number | string;
+  };
 }
 
 const SHEET_ACTIONS = [
@@ -171,7 +181,7 @@ const router = useRouter();
 const route = useRoute();
 const store = createProposalStore();
 
-const { id, productId, type = 'add', isCreateProposal } = route.query;
+const { id, productCode: productCodeInQuery, type = 'add', isCreateProposal } = route.query;
 
 const state = ref<State>({
   productId: 0,
@@ -181,6 +191,9 @@ const state = ref<State>({
   riderRisk: {},
   type: 'add',
   currentRisk: [],
+  insuredFormData: {
+    proposalName: '',
+  },
 });
 
 const formRef = ref();
@@ -199,7 +212,8 @@ const dateRange = computed(() => {
 
 const submitData = () => {
   formRef.value.validate().then(() => {
-    addOrUpdateProposal(proposalInfo.value).then(({ code, data }) => {
+    addOrUpdateProposal(proposalInfo.value).then((res) => {
+      const { code, data } = res || {};
       if (code === '10000') {
         store.$reset();
         store.proposalId = data;
@@ -229,14 +243,48 @@ const selectAction = (item: ActionSheetAction, index: number) => {
   submitData();
 };
 
-const validateName = (desc: string, value: string, rule: any) => {
-  if (value) {
-    if (/^.{1,20}$/.test(value)) {
-      return '';
-    }
-    return `${desc}不能超过20个字符`;
+const formatData = ({ productCode, holder, insuredVOList } = {}) => {
+  const { personVO, productPlanVOList } = insuredVOList?.[0] || {};
+
+  const proposalData = {
+    proposalHolder: holder,
+    proposalInsuredList: [
+      {
+        ...personVO,
+        proposalInsuredProductList: [
+          {
+            productCode,
+            productName: state.productName,
+            proposalProductRiskList: productPlanVOList,
+          },
+        ],
+      },
+    ],
+  };
+  return proposalData;
+};
+
+const fetchDefaultData = async (productCode) => {
+  // TODO 加loading
+  const { code, data } = await queryCalcDefaultInsureFactor({
+    calcProductFactorList: [
+      {
+        productCode,
+      },
+    ],
+  });
+  if (code === '10000' && data) {
+    const [{ holder, insuredVOList } = {}] = data || [{}];
+    const { personVO } = (insuredVOList || [])[0] || {};
+    const { age, gender, birthday } = personVO || {};
+    state.value.insuredFormData = {
+      age,
+      gender,
+      birthday,
+    };
+    proposalInfo.value = formatData(data[0]);
   }
-  return '';
+  // if (result.data) transformDefaultData(result.data.find((d) => d.productCode === props.productInfo.productCode));
 };
 
 const pickProductPremium = (premiumData = {}) => {
@@ -349,6 +397,7 @@ onBeforeMount(() => {
     proposalInfo.value = preProposalInfo;
   }
   store.setTrialData([]);
+  productCodeInQuery && fetchDefaultData(productCodeInQuery);
 });
 
 watch(
@@ -357,7 +406,7 @@ watch(
     const productList = proposalInfo.value.proposalInsuredList[0].proposalInsuredProductList.map(
       (productItem: ProposalInsuredProductItem) => {
         return {
-          productId: productItem.productId,
+          productCode: productItem.productCode,
           source: 2,
         };
       },
@@ -384,6 +433,10 @@ watch(
   }
   .container {
     padding: 30px 30px 180px 30px;
+
+    .mb20 {
+      margin-bottom: 20px;
+    }
 
     .operate-bar {
       width: 100%;

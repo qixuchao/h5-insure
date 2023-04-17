@@ -112,6 +112,8 @@ export const formData2Order = ({ holder, insuredList = [] }) => {
     'insuredBeneficiaryType',
     'relationToHolder',
     'relationToMainInsured',
+    'tenantOrderBeneficiaryList',
+    'extInfo',
   ];
   const formatData = (data) => {
     const currentData = {

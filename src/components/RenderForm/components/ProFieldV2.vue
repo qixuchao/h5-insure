@@ -198,7 +198,7 @@ const onEffect = (type, val) => {
 
 const updateModelValue = (val) => {
   onEffect('onChange', val);
-  if (formState.formData && attrs.name) {
+  if (formState?.formData && attrs.name) {
     formState.formData[attrs.name] = val;
   }
   state.modelValue = val;
@@ -240,7 +240,7 @@ watch(
 );
 
 onMounted(() => {
-  if (attrs.name && formState.nameList) {
+  if (attrs.name && formState?.nameList) {
     formState.nameList.push(attrs.name);
   }
 });
@@ -280,7 +280,7 @@ export default {
       width: 100%;
     }
     .van-field__control {
-      text-align: left;
+      text-align: right;
     }
   }
 

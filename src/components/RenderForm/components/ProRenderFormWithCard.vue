@@ -1,8 +1,6 @@
 <template>
   <ProCard
-    v-if="$attrs.schema?.length"
     :class="`com-pro-form-with-card com-card-body-no-padding ${props.class}`"
-    :show-line="false"
     :show-divider="false"
     :title="title"
   >

@@ -138,21 +138,15 @@ export const PAGE_API_ENUMS = {
 };
 
 export const PAGE_ROUTE_ENUMS = {
-  productInfo: 'productDetail', // 产品详情
-  premiumTrial: 'trial', // 保费试算
-  customerNotice: 'customerNotice', // 客户告知书
-  questionNotice: 'questionNotification', // 问卷告知书
+  productInfo: 'baseInsurance/productDetail', // 产品详情
+  premiumTrial: 'baseInsurance/trial', // 保费试算
+  questionNotice: 'healthNotice', // 问卷告知书
   infoCollection: 'infoCollection', // 信息采集
   infoPreview: 'infoPreview', // 信息采集预览
-  payInfo: 'bankCard', // 添加银行卡信息
-  salesNotice: 'salesmanInform', // 营销员告知
   sign: 'verify', // 人脸识别
   orderDetail: 'orderDetail', // 订单详情
   orderList: 'order', // 订单列表
-  paymentResult: 'pay',
-  activityFree: 'free',
-  activityProductDetail: 'productDetail',
-  activityGuaranteeUpgrade: 'guaranteeUpgrade',
+  paymentResult: 'result',
 };
 
 export const NEXT_BUTTON_CODE_ENUMS = {

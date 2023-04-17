@@ -1,6 +1,6 @@
 <template>
   <div :class="`trial-button ${$attrs.class}`">
-    <VanButton type="primary" @click="state.show = true">立即投保</VanButton>
+    <VanButton type="primary" @click="open">立即投保</VanButton>
   </div>
   <ProPopup
     v-if="state.isAniShow || state.show"
@@ -71,6 +71,7 @@
 import { withDefaults, ref, defineExpose } from 'vue';
 import { Toast } from 'vant/es';
 import { debounce } from 'lodash';
+import { useRouter, useRoute } from 'vue-router';
 import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import { PersonalInfo } from '@/views/baseInsurance/templates/long/InsureInfos/components/index';
 import TrialButton from '../TrialButton.vue';
@@ -88,6 +89,14 @@ import {
 import { SUCCESS_CODE } from '@/api/code';
 import { PRODUCT_KEYS_CONFIG } from '../../long/InsureInfos/components/ProductKeys/config';
 import { dealExemptPeriod } from './utils';
+import useOrder from '@/hooks/useOrder';
+import { formData2Order } from '../../utils';
+import { ProductDetail, ProductDetail as ProductData } from '@/api/modules/newTrial.data';
+import { CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
+import { transformData } from '@/views/baseInsurance/utils';
+import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from '../../long/constants';
+import { nextStepOperate as nextStep } from '../../../nextStep';
+import pageJump from '@/utils/pageJump';
 
 const RISK_SELECT = [
   { value: 1, label: '投保' },
@@ -106,6 +115,11 @@ interface Props {
 const LOADING_TEXT = '试算中...';
 
 const insureInfosRef = ref(null);
+
+const route = useRoute();
+const router = useRouter();
+
+const { tenantId } = route.query;
 
 const props = withDefaults(defineProps<Props>(), {
   dataSource: () => [],
@@ -138,9 +152,71 @@ const state = reactive({
   defaultValue: null, // 是一个plan
 });
 
+const orderDetail = useOrder();
+const iseeBizNo = ref<string>();
+
+const trialData2Order = (
+  currentProductDetail: ProductData = {} as ProductData,
+  riskPremium = {},
+  currentOrderDetail = {},
+) => {
+  const nextStepParams: any = { ...currentOrderDetail };
+  const { tenantOrderHolder, tenantOrderInsuredList } = formData2Order({
+    holder: state.submitData.holder?.personVO,
+    insuredList: (state.submitData.insuredVOList || []).map((person) => person.personVO),
+  });
+
+  const transformDataReq = {
+    tenantId,
+    riskList: nextStepParams.tenantOrderInsuredList[0]?.tenantOrderProductList[0].riskVOList || [],
+    riskPremium,
+    productId: currentProductDetail.id,
+  };
+  nextStepParams.extInfo.iseeBizNo = iseeBizNo.value;
+  nextStepParams.productCode = currentProductDetail.productCode;
+  nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
+  nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
+  nextStepParams.premium = state.trialResult;
+  nextStepParams.orderAmount = state.trialResult;
+  nextStepParams.orderRealAmount = state.trialResult;
+
+  nextStepParams.tenantOrderHolder = tenantOrderHolder;
+  nextStepParams.tenantOrderInsuredList = tenantOrderInsuredList.map((insurer: any) => {
+    return {
+      ...insurer,
+      certType: insurer.certType || CERT_TYPE_ENUM.CERT,
+      certNo: (insurer.certNo || '').toLocaleUpperCase(),
+      planCode: props.dataSource.planCode,
+      tenantOrderProductList: [
+        {
+          premium: state.trialResult,
+          productCode: currentProductDetail.productCode,
+          productName: currentProductDetail.productName,
+          planCode: props.dataSource.planCode,
+          tenantOrderRiskList: transformData(transformDataReq),
+        },
+      ],
+    };
+  });
+  return nextStepParams;
+};
+const premiumMap = ref();
 const onNext = () => {
   // 验证
   insureInfosRef.value?.validate().then(() => {
+    Object.assign(orderDetail.value, {
+      extInfo: {
+        ...orderDetail.value.extInfo,
+        buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
+        pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
+      },
+    });
+    const currentOrderDetail = trialData2Order(props.productInfo, premiumMap.value, orderDetail.value);
+    nextStep(currentOrderDetail, (data, pageAction) => {
+      if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+        pageJump(data.nextPageCode, route.query);
+      }
+    });
     console.log('---- validate success ----');
   });
   state.loading = false;
@@ -243,6 +319,17 @@ const handleMixTrialData = debounce(() => {
           }
           state.trialMsg = '';
           state.trialResult = res.data.premium;
+
+          const riskPremiumMap = {};
+          if (res.data.riskPremiumDetailVOList && res.data.riskPremiumDetailVOList.length) {
+            res.data.riskPremiumDetailVOList.forEach((riskDetail: any) => {
+              riskPremiumMap[riskDetail.riskCode] = {
+                premium: riskDetail.premium,
+                amount: riskDetail.amount,
+              };
+            });
+          }
+          premiumMap.value = riskPremiumMap;
         }
       })
       .finally(() => {
@@ -446,13 +533,15 @@ watch(
   },
 );
 
+const open = () => {
+  state.show = true;
+  state.isAniShow = true;
+  // 请求默认值接口
+  fetchDefaultData([]);
+};
+
 defineExpose({
-  open: () => {
-    state.show = true;
-    state.isAniShow = true;
-    // 请求默认值接口
-    fetchDefaultData([]);
-  },
+  open,
 });
 watch(
   () => state.riskIsInsure,

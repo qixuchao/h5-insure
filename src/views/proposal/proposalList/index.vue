@@ -51,31 +51,12 @@
       @close="closeProductRisk"
       @finished="onFinished"
     ></ProductRisk>
-    <TrialPop
-      ref="trialRef"
-      hide-benefit
-      title="选择保障方案"
-      class="proposal-trial"
-      :data-source="{}"
-      :share-info="{}"
-      :product-info="{
-        // productCode: insureProductDetail.productCode,
-        // productName: insureProductDetail.productName,
-        // productId: '',
-        // tenantId,
-        // insurerCode,
-      }"
-      :tenant-product-detail="{}"
-    >
-      <div class="trial-button">
-        <VanButton type="primary">确定</VanButton>
-      </div>
-    </TrialPop>
+    <TrialPopup />
   </ProPageWrap>
   <ProFixedButton v-if="!isCreateProposal" :button-image="ProFixedButtonDefaultImage" @click="goHistoryList" />
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" name="proposalList">
 import { useToggle } from '@vant/use';
 import { useRouter, useRoute } from 'vue-router';
 import { withDefaults } from 'vue';
@@ -90,7 +71,8 @@ import ProFixedButton from '@/components/ProFixedButton/index.vue';
 import { queryProposalProductList } from '@/api/modules/proposalList';
 import ProFixedButtonDefaultImage from '@/assets/images/lishijihuashu.png';
 import TrialProductPopup from './components/TrialProductPopup/index.vue';
-import TrialPop from '@/views/baseInsurance/templates/components/TrialPop/index.vue';
+import TrialPopup from './components/TrialPopup.vue';
+import { queryCalcDefaultInsureFactor, queryCalcDynamicInsureFactor, insureProductDetail } from '@/api/modules/trial';
 
 interface Props {
   isCreateProposal: boolean;
@@ -116,6 +98,8 @@ interface StateType {
   checked: string;
   proposalList: any[];
   showFooter: boolean;
+  productName: string;
+  productCodeList: string[];
 }
 
 const state = reactive<StateType>({
@@ -134,6 +118,8 @@ const state = reactive<StateType>({
   productId: undefined,
   proposalList: [],
   showFooter: true,
+  productName: '',
+  productCodeList: [],
 });
 
 const {
@@ -214,14 +200,51 @@ const hasProduct = computed(() => {
   return productList.value.length > 0;
 });
 
+const formatData = ({ productCode, holder, insuredVOList } = {}) => {
+  const { personVO, productPlanVOList } = insuredVOList?.[0] || {};
+
+  const proposalData = {
+    proposalHolder: holder,
+    proposalInsuredList: [
+      {
+        ...personVO,
+        proposalInsuredProductList: [
+          {
+            productCode,
+            productName: state.productName,
+            proposalProductRiskList: productPlanVOList,
+          },
+        ],
+      },
+    ],
+  };
+  return proposalData;
+};
+
+const fetchDefaultData = async (productCode) => {
+  // TODO 加loading
+  const { code, data } = await queryCalcDefaultInsureFactor({
+    calcProductFactorList: [
+      {
+        productCode,
+      },
+    ],
+  });
+  if (code === '10000') {
+    formatData(data[0]);
+  }
+  // if (result.data) transformDefaultData(result.data.find((d) => d.productCode === props.productInfo.productCode));
+};
+
 /** ****** 创建计划书相关逻辑 ******** */
-const selectProposal = ({ productId }: any) => {
+const selectProposal = ({ productCode }: any) => {
   showFooter.value = false;
-  state.productId = productId;
+  state.productId = productCode;
+  fetchDefaultData(productCode);
   router.push({
     path: '/proposal/createProposal',
     query: {
-      productId: 900001954,
+      productCode,
     },
   });
   // toggleProductRisk(true);
@@ -285,25 +308,6 @@ const onRefresh = () => {
   }
   .empty-select {
     margin-top: 200px;
-  }
-}
-
-.proposal-trial {
-  color: #0f0;
-  :deep(.trial-button) {
-    padding: 30px;
-    text-align: right;
-    background-color: #fff;
-    .van-button {
-      width: 270px;
-    }
-  }
-
-  &.com-trial-wrap {
-    color: #0f0;
-    :deep(.header-title) {
-      text-align: center;
-    }
   }
 }
 

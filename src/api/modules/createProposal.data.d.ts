@@ -37,6 +37,7 @@ export interface ProposalInsuredProductItem {
     id: number;
     productId: number;
     productName: string;
+    productCode: string;
     proposalId: number;
     proposalInsuredId: number;
     proposalProductRiskList: ProposalProductRiskItem[];

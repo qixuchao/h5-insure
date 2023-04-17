@@ -1,5 +1,6 @@
 import { nanoid } from 'nanoid';
 import merge from 'lodash-es/merge';
+import isNil from 'lodash-es/isNil';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { SEX_LIMIT_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import { COMPONENT_MAPPING_LIST, GLOBAL_CONFIG_MAP, MODULE_TYPE_MAP, INSURED_MODULE_TYPE_ENUM } from './constants';
@@ -54,6 +55,39 @@ const FIELD_SLOTS = ['label', 'input', 'left-icon', 'right-icon', 'button', 'err
 // Field 通用默认属性
 const FIELD_INIT_ATTRS = {
   autocomplete: 'off',
+};
+
+export const colorConsole = (str) => console.log(`%c🔥 ${str}`, 'color:#1989fa;background:#5e4;padding:3px 5px;');
+
+/** 验证试算因子是否全部有值 */
+export const validateFields = (state) => {
+  // 没有试算因子则不进行试算
+  const { trialFactorCodes, personVO } = state || {};
+  const hasTrialFactor = isNotEmptyArray(trialFactorCodes);
+  if (!hasTrialFactor) {
+    return true;
+  }
+
+  // 没有试算因子则不进行试算，或者试算因子是否全有值
+  return !trialFactorCodes.some((code) => {
+    const val = personVO[code];
+    return isNil(val) || val === '' || (Array.isArray(val) && !val.length);
+  });
+};
+
+/**
+ *
+ * @param formRef 表单 ref
+ * @param trialFactorCodes 试算因子
+ * @param isTrial 是否为试算
+ * @returns
+ */
+export const validateForm = (formRef, trialFactorCodes, isTrial) => {
+  // 如果是试算并且没有试算因子，直接通过
+  if (isTrial && !isNotEmptyArray(trialFactorCodes)) {
+    return Promise.resolve();
+  }
+  return formRef.value?.validate(isTrial ? trialFactorCodes : []);
 };
 
 /**
@@ -159,7 +193,7 @@ export const isOnlyCert = (item) => {
  * @param [array] 投保人/被保人/受益人的因子数组
  * @returns [object] schema 和 trialFactorCodes(试算因子 code )
  */
-export const transformToSchema = (arr: FieldConfItem[]): ModuleResult => {
+export const transformToSchema = (arr: FieldConfItem[], trialFactorCodesArr: string[]): ModuleResult => {
   // 表单 schema
   let schema = [];
   // 试算 code
@@ -210,13 +244,15 @@ export const transformToSchema = (arr: FieldConfItem[]): ModuleResult => {
       };
 
       // 是否为只有身份证的证件类型的因子，就隐藏
-      // if (isOnlyCert(result)) {
-      //   result.visible = false;
-      // }
+      if (isOnlyCert(result)) {
+        result.visible = false;
+      }
 
       return result;
     });
   }
+
+  trialFactorCodesArr.push(...trialFactorCodes);
 
   return {
     schema,
@@ -228,12 +264,17 @@ interface InsuredFactorSchema extends ModuleResult {
   beneficiaryList: ModuleResult[];
 }
 
+type ResultEnum = 'holder' | 'beneficiary' | 'payInfo' | 'signInfo';
+
+export interface PersonalInfoConf {
+  hasTrialFactorCodes?: boolean;
+}
+
 type FactorToSchemaResult = {
-  insured: {
-    list: InsuredFactorSchema[];
-  };
+  config: PersonalInfoConf;
+  insured: ModuleResult[];
 } & {
-  [x: string]: ModuleResult;
+  [x in ResultEnum]: ModuleResult;
 };
 
 /**
@@ -246,9 +287,7 @@ export const transformFactorToSchema = (
   factors: Partial<ProductFactor>,
   isTrial = false,
 ): Partial<FactorToSchemaResult> => {
-  const initValue = {
-    insured: { list: [] },
-  } as FactorToSchemaResult;
+  const initValue = {} as FactorToSchemaResult;
 
   if (!factors) {
     return initValue;
@@ -258,6 +297,11 @@ export const transformFactorToSchema = (
   if (!isNotEmptyArray(keys)) {
     return initValue;
   }
+
+  const trialFactorCodes = [];
+  const config = {
+    hasTrialFactorCodes: false,
+  };
 
   // 是否过滤试算因子
   // { holder, insured, beneficiary, payInfo, sign }
@@ -296,16 +340,23 @@ export const transformFactorToSchema = (
       .filter((item) => isNotEmptyArray(item));
   }
 
-  return Object.keys(factorsMap).reduce((res, key) => {
+  const result = Object.keys(factorsMap).reduce((res, key) => {
     if (key !== 'insured') {
-      res[key] = transformToSchema(factorsMap[key]);
+      res[key] = transformToSchema(factorsMap[key], trialFactorCodes);
     } else {
-      res[key] = {
-        list: isNotEmptyArray(finialInsured) ? finialInsured.map(transformToSchema) : [],
-      };
+      res[key] = isNotEmptyArray(finialInsured)
+        ? finialInsured.map((item) => transformToSchema(item, trialFactorCodes))
+        : [];
     }
     return res;
-  }, {});
+  }, {} as FactorToSchemaResult);
+
+  result.config = {
+    ...config,
+    hasTrialFactorCodes: isNotEmptyArray(trialFactorCodes) as boolean,
+  };
+
+  return result;
 };
 
 /**

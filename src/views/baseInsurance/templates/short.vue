@@ -795,25 +795,6 @@ watch(
   },
 );
 
-// 当证件类型为出生证时，重新设置日期范围
-// watch(
-//   [() => state.holder.formData?.certType, () => state.insuredList[0].formData.certType],
-//   ([holderCertType, insuredCertType]) => {
-//     const minDate = new Date(dayjs().subtract(2, 'year').format('YYYY-MM-DD'));
-//     const maxDate = new Date();
-//     if (`${holderCertType}` === CERT_TYPE_ENUM.BIRTH) {
-//       Object.assign(state.holder.config, { birthday: { minDate, maxDate } });
-//     } else {
-//       Object.assign(state.holder.config, { birthday: { minDate: new Date('1900-01-01'), maxDate } });
-//     }
-//     if (`${insuredCertType}` === CERT_TYPE_ENUM.BIRTH) {
-//       Object.assign(state.insuredList[0].config, { birthday: { minDate, maxDate } });
-//     } else {
-//       Object.assign(state.insuredList[0].config, { birthday: { minDate: new Date('1900-01-01'), maxDate } });
-//     }
-//   },
-// );
-
 const validateTrialFactorValue = (codes, formData) => {
   return codes.find((code) => !formData[code]);
 };
@@ -923,7 +904,7 @@ watch(
     };
     state.insuredList[0] = {
       ...state.insuredList[0],
-      ...insured.list?.[0],
+      ...insured?.[0],
     };
   },
   {

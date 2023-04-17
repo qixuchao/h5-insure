@@ -593,6 +593,7 @@ export interface ProductFactorItem {
   isSelfInsuredNeed: boolean;
   isCalculationFactor: number;
   visible: boolean;
+  subModuleType: number;
 }
 
 export interface ProductFactor {

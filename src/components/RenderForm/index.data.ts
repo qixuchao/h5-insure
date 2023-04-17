@@ -75,3 +75,28 @@ export interface VanFormProvied {
   markRequired: boolean;
   formRef: Ref<FormInstance>;
 }
+
+export interface PersonFormProps {
+  personVO: {
+    relationToHolder?: string;
+    [x: string]: any;
+  };
+  schema: SchemaItem[];
+  trialFactorCodes: string[];
+  config: {
+    [x: string]: any;
+  };
+  nanoid?: string;
+}
+
+export interface InsuredFormProps extends Partial<PersonFormProps> {
+  beneficiaryList: Partial<PersonFormProps>[];
+}
+
+export interface StateInfo {
+  validated: boolean;
+  holder: PersonFormProps;
+  initInsuredItem: PersonFormProps;
+  initBeneficiaryItem: PersonFormProps;
+  insured: InsuredFormProps[];
+}
