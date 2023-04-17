@@ -3,17 +3,17 @@
     <div class="long-info-collection">
       <!-- 投保人/被保人/受益人 -->
       <PersonalInfo
-        v-if="currentPlanObj.productFactor"
+        v-if="currentPlanObj?.productFactor"
         ref="personalInfoRef"
         v-model="state.personalInfo"
-        :product-factor="currentPlanObj.productFactor"
+        :product-factor="currentPlanObj?.productFactor"
         :is-view="false"
         @trail-change="handlePersonalInfoChange"
       />
       <InsureInfos
         ref="insureInfosRef"
-        :origin-data="currentPlanObj.insureProductRiskVOList?.[0]"
-        :product-factor="currentPlanObj.productFactor"
+        :origin-data="currentPlanObj?.insureProductRiskVOList?.[0]"
+        :product-factor="currentPlanObj?.productFactor"
         @trial-change="handleTrialInfoChange"
       ></InsureInfos>
       <!-- 以下是附加险种信息 -->
@@ -220,7 +220,7 @@ const mainRiskVO = ref<any>();
 
 const handleSameMainRisk = (data: any) => {
   // 处理同主险逻辑
-  const risk = currentPlanObj.value.insureProductRiskVOList?.find((r) => data.riskId === r.riskId);
+  const risk = currentPlanObj.value?.insureProductRiskVOList?.find((r) => data.riskId === r.riskId);
   if (risk && risk.mainRiskFlag !== 1) {
     // 只处理非标准险种 根据关联关系找到他关联的主险
     const relation = (currentPlanObj.value?.productRiskRelationVOList || [])?.find(
@@ -412,7 +412,7 @@ const initData = async () => {
     if (code === '10000') {
       insureProductDetail.value = data;
       currentPlanObj.value = data.productPlanInsureVOList?.[0] || {};
-      const { payInfo } = transformFactorToSchema(currentPlanObj.value.productFactor || {});
+      const { payInfo } = transformFactorToSchema(currentPlanObj.value?.productFactor || {});
 
       // state.holder = {
       //   ...state.holder,
