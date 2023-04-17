@@ -180,7 +180,9 @@ watch(
   (val) => {
     colorConsole('投被保人信息变动了');
     const result = {
-      holder: val[0],
+      holder: {
+        personVO: val[0],
+      },
       insuredVOList: val[1],
     };
     console.log('personalInfoResult--结果', result);

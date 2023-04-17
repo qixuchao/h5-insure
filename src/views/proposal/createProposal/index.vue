@@ -212,7 +212,8 @@ const dateRange = computed(() => {
 
 const submitData = () => {
   formRef.value.validate().then(() => {
-    addOrUpdateProposal(proposalInfo.value).then(({ code, data }) => {
+    addOrUpdateProposal(proposalInfo.value).then((res) => {
+      const { code, data } = res || {};
       if (code === '10000') {
         store.$reset();
         store.proposalId = data;
