@@ -3,10 +3,10 @@
     <div class="long-info-collection">
       <!-- 投保人/被保人/受益人 -->
       <PersonalInfo
-        v-if="currentPlanObj.productFactor && isLoading"
+        v-if="currentPlanObj?.productFactor"
         ref="personalInfoRef"
         v-model="state.personalInfo"
-        :product-factor="currentPlanObj.productFactor"
+        :product-factor="currentPlanObj?.productFactor"
         :is-view="false"
         @trail-change="handlePersonalInfoChange"
       />
@@ -232,7 +232,7 @@ const mainRiskInfo = computed(() => {
 
 const handleSameMainRisk = (data: any) => {
   // 处理同主险逻辑
-  const risk = currentPlanObj.value.insureProductRiskVOList?.find((r) => data.riskId === r.riskId);
+  const risk = currentPlanObj.value?.insureProductRiskVOList?.find((r) => data.riskId === r.riskId);
   if (risk && risk.mainRiskFlag !== 1) {
     // 只处理非标准险种 根据关联关系找到他关联的主险
     const relation = (currentPlanObj.value?.productRiskRelationVOList || [])?.find(

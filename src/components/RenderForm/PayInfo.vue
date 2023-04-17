@@ -1,8 +1,8 @@
 <template>
   <ProRenderFormWithCard
     v-for="schemaItem in state.schemaList"
+    ref="payInfoFormRef"
     :key="schemaItem.nanoid"
-    ref="formRef"
     :schema="schemaItem.schema"
     :model="schemaItem.formData"
     :config="schemaItem.config"
@@ -51,6 +51,7 @@ const PAY_METHOD_TYPE_ENUM = {
 };
 
 const emit = defineEmits(['update:modelValue']);
+const payInfoFormRef = ref(null);
 
 const formRef = ref<InstanceType<typeof ProRenderFormWithCard>>();
 
@@ -176,6 +177,11 @@ const combineFormData = (targetIndex, originIndex) => {
       [targetKey]: originKey,
     }),
   );
+};
+
+// 验证表单必填
+const validate = (isTrial) => {
+  return Promise.all(payInfoFormRef.value?.map((item) => item.validate()));
 };
 
 // 支付方式类型变动 银行卡/支付宝/微信
@@ -362,5 +368,7 @@ watch(
   },
 );
 
-defineExpose({});
+defineExpose({
+  validate,
+});
 </script>
