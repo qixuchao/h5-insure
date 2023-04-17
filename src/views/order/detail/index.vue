@@ -54,6 +54,7 @@ import { PAGE_ROUTE_ENUMS, PRODUCT_LIST_ENUM } from '@/common/constants';
 import FieldInfo from '../components/fieldInfo.vue';
 import InsureInfo from '@/views/lifeInsurance/infoPreview/components/InsuredPart.vue';
 import pageJump from '@/utils/pageJump';
+import { TEMPLATE_TYPE_ENUM } from '@/views/baseInsurance/constant';
 
 const route = useRoute();
 const router = useRouter();
@@ -142,6 +143,10 @@ const handlePay = () => {
       venderCode: insurerCode,
     } = detail.value;
     const productCode = detail.value.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productCode;
+    if ([TEMPLATE_TYPE_ENUM.FREE, TEMPLATE_TYPE_ENUM.SHORT, TEMPLATE_TYPE_ENUM.UPGRADE].includes(`${templateId}`)) {
+      // TODO,跳转到对应的投保流程（订单转投保）
+      debugger;
+    }
     pageJump('payInfo', {
       productCode,
       orderNo,

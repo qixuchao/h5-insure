@@ -1,7 +1,7 @@
 <template>
   <ProPageWrap main-class="page-order-list">
     <div class="page-order">
-      <ProTab v-model:active="active" :list="tabList" small-gap class="tab" />
+      <ProTab v-model:active="active" :list="tabList" class="tab" />
       <van-list class="body" :loading="loading" :finished="finished" @load="handleLoad">
         <Item
           v-for="(item, index) in list"

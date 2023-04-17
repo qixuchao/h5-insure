@@ -150,7 +150,7 @@ const getProducts = () => {
     title: searchValue.value,
     insurerCodeList: insurerCodeList.value,
     showCategory: showCategory.value,
-    excludeProductIdList: store.$state.excludeProduct || [],
+    excludeProductCodeList: [],
     pageNum: 1,
     pageSize: 999,
   }).then((res: any) => {

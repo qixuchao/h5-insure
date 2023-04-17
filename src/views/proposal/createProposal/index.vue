@@ -84,7 +84,7 @@
     </div>
     <div class="footer-bar">
       <span class="trial-result"
-        >总保费<span class="result-num">￥{{ proposalInfo.totalPremium.toLocaleString() }}</span>
+        >总保费<span class="result-num">￥{{ proposalInfo?.totalPremium?.toLocaleString() }}</span>
       </span>
       <div class="trial-operate">
         <VanButton type="primary" @click="saveProposalData">保存并预览</VanButton>
@@ -146,6 +146,7 @@ interface State {
   type: 'add' | 'edit' | 'addRiderRisk';
   currentRisk: any[];
   insuredFormData: {
+    proposalName: string;
     [x: string]: number | string;
   };
 }
@@ -352,10 +353,10 @@ const onFinished = (productInfo: ProposalInfo) => {
 };
 
 const queryProductInfo = (searchData: any) => {
-  queryProductDetailList(searchData)
+  queryProductDetailList(searchData.voList)
     .then(({ code, data }) => {
       if (code === '10000') {
-        state.value.productCollection = data;
+        state.value.productCollection = data || [];
       }
     })
     .finally(() => {});
@@ -364,7 +365,9 @@ const queryProductInfo = (searchData: any) => {
 const addMainRisk = () => {
   store.setProposalInfo(proposalInfo.value);
   store.setTrialData([]);
-  store.setExcludeProduct(Object.keys(state.value.productCollection));
+  if (state.value.productCollection.length) {
+    store.setExcludeProduct(state.value.productCollection.map((i) => i.productCode));
+  }
   router.push({
     path: '/proposalList',
     query: {
@@ -407,7 +410,7 @@ watch(
       (productItem: ProposalInsuredProductItem) => {
         return {
           productCode: productItem.productCode,
-          source: 2,
+          // source: 2,
         };
       },
     );

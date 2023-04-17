@@ -18,15 +18,8 @@ import ProVConsole from '@/components/ProVConsole/index.vue';
 
 const themesStore = useThemesStore();
 const { themeVars } = storeToRefs(themesStore);
-// const styleMap = {
-//   default: () => import('@/styles/themes/default.scss'),
-//   blue: () => import('@/styles/themes/blue.scss'),
-// };
+
 onBeforeMount(async () => {
-  // const type = 'default';
-  // const style = (await styleMap[type]()).default;
-  // useThemesStore().setThemes(themes, type);
-  // injectGlobal(style);
   // themeVars.value = useTheme(); // 默认蓝色
   // setGlobalTheme('#5f9ea0');
 });
