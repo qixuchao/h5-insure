@@ -1,6 +1,6 @@
 <template>
   <div :class="`trial-button ${$attrs.class}`">
-    <VanButton type="primary" @click="state.show = true">立即投保</VanButton>
+    <VanButton type="primary" @click="open">立即投保</VanButton>
   </div>
   <ProPopup
     v-if="state.isAniShow || state.show"
@@ -416,13 +416,15 @@ watch(
   },
 );
 
+const open = () => {
+  state.show = true;
+  state.isAniShow = true;
+  // 请求默认值接口
+  fetchDefaultData([]);
+};
+
 defineExpose({
-  open: () => {
-    state.show = true;
-    state.isAniShow = true;
-    // 请求默认值接口
-    fetchDefaultData([]);
-  },
+  open,
 });
 watch(
   () => state.riskIsInsure,

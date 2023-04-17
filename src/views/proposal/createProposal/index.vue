@@ -1,15 +1,20 @@
-<!--
- * @Author: za-qixuchao qixuchao@zhongan.io
- * @Date: 2022-07-14 10:14:33
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-09 13:46:02
- * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/index.vue
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
--->
 <template>
   <ProPageWrap class="page-create-wrapper">
     <div class="container">
-      <VanForm ref="formRef" input-align="right" error-message-align="right">
+      <ProFieldV2
+        v-model="state.insuredFormData.proposalName"
+        class="mb20"
+        label="计划书名称"
+        name="proposalName"
+        :maxlength="20"
+      />
+      <ProRenderFormWithCard title="被保人信息" :model="state.insuredFormData">
+        <ProFieldV2 label="姓名" name="name" :maxlength="20" required />
+        <ProDatePickerV2 label="出生日期" name="birthday" required />
+        <ProRadioV2 label="性别" name="gender" :columns="SEX_LIMIT_LIST" required />
+      </ProRenderFormWithCard>
+
+      <!-- <VanForm ref="formRef" input-align="right" error-message-align="right">
         <ProCard :show-line="false">
           <VanField
             v-model="proposalInfo.proposalName"
@@ -56,7 +61,7 @@
             </template>
           </VanField>
         </ProCard>
-      </VanForm>
+      </VanForm> -->
       <ProCard
         v-for="product in proposalInfo.proposalInsuredList[0].proposalInsuredProductList || []"
         :key="product.productId"
@@ -117,6 +122,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { getDic } from '@/api/index';
 import { DictData } from '@/api/index.data';
 import createProposalStore from '@/store/proposal/createProposal';
+import { ProRenderFormWithCard, ProFieldV2, ProDatePickerV2, ProRadioV2 } from '@/components/RenderForm';
 import { queryProposalDetail, addOrUpdateProposal, queryProductDetailList } from '@/api/modules/createProposal';
 import {
   ProposalInfo,
@@ -138,6 +144,9 @@ interface State {
   riderRisk: any;
   type: 'add' | 'edit' | 'addRiderRisk';
   currentRisk: any[];
+  insuredFormData: {
+    [x: string]: number | string;
+  };
 }
 
 const SHEET_ACTIONS = [
@@ -181,6 +190,9 @@ const state = ref<State>({
   riderRisk: {},
   type: 'add',
   currentRisk: [],
+  insuredFormData: {
+    proposalName: '',
+  },
 });
 
 const formRef = ref();
@@ -384,6 +396,10 @@ watch(
   }
   .container {
     padding: 30px 30px 180px 30px;
+
+    .mb20 {
+      margin-bottom: 20px;
+    }
 
     .operate-bar {
       width: 100%;

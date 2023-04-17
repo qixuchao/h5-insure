@@ -8,16 +8,18 @@
     :config="state.config"
     :is-view="isView"
   />
-  <BeneficiaryItem
-    v-for="(beneficiary, index) in state.beneficiaryList"
-    ref="beneficiaryFormRef"
-    :key="`${beneficiary.nanoid}_${index}`"
-    v-model="beneficiary.personVO"
-    :schema="beneficiarySchema"
-    :config="beneficiary.config"
-    :is-view="isView"
-  />
-  <van-button type="primary" @click="onAddBeneficiary">添加受益人</van-button>
+  <template v-if="hasBeneficiarySchema">
+    <BeneficiaryItem
+      v-for="(beneficiary, index) in state.beneficiaryList"
+      ref="beneficiaryFormRef"
+      :key="`${beneficiary.nanoid}_${index}`"
+      v-model="beneficiary.personVO"
+      :schema="beneficiarySchema"
+      :config="beneficiary.config"
+      :is-view="isView"
+    />
+    <van-button type="primary" @click="onAddBeneficiary">添加受益人</van-button>
+  </template>
 </template>
 <script lang="ts" setup name="InsuredItem">
 import { withDefaults } from 'vue';
@@ -121,6 +123,9 @@ const onAddBeneficiary = () => {
 
 // 删除受益人
 const onDeleteBeneficiary = () => {};
+
+// 是否有受益人
+const hasBeneficiarySchema = computed(() => isNotEmptyArray(props.beneficiarySchema));
 
 // 监听投保人信息
 watch(

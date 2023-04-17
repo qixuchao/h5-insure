@@ -1,22 +1,45 @@
-<template>dfff</template>
+<template>
+  <TrialPop
+    ref="trialRef"
+    hide-benefit
+    title="选择保障方案"
+    class="proposal-trial"
+    :share-info="{}"
+    :product-info="{
+      // productCode: insureProductDetail.productCode,
+      // productName: insureProductDetail.productName,
+      // productId: '',
+      // tenantId,
+      // insurerCode,
+    }"
+    :tenant-product-detail="{}"
+  >
+    <div class="trial-button">
+      <VanButton type="primary">确定</VanButton>
+    </div>
+  </TrialPop>
+</template>
 <script lang="ts" setup>
-// const queryProductInfo = () => {
-//   insureProductDetail({ productId: props.productId, source: 2 })
-//     .then(({ code, data }) => {
-//       if (code === '10000') {
-//         state.riskBaseInfo = data.productBasicInfoVO;
-//         // 根据险种或者计划数据生成默认的form数据
-//         (data.productRiskVoList[0].riskDetailVOList || []).forEach((plan, index) => {
-//           if (index === 0) {
-//             state.currentPlan = plan.planCode || '0';
-//           }
-//           Object.assign(riskInfo.value, { [plan.planCode || index]: {} });
-//         });
-
-//         state.riskData = data.productRiskVoList[0].riskDetailVOList || [];
-//         state.riskPlanData = data.productRelationPlanVOList || [];
-//       }
-//     })
-//     .finally(() => {});
-// };
+import TrialPop from '@/views/baseInsurance/templates/components/TrialPop/index.vue';
 </script>
+<style scoped lang="scss">
+.proposal-trial {
+  color: #0f0;
+  .trial-button {
+    width: 100%;
+    padding: 30px;
+    text-align: right;
+    background-color: #fff;
+    .van-button {
+      width: 100%;
+    }
+  }
+
+  &.com-trial-wrap {
+    color: #0f0;
+    :deep(.header-title) {
+      text-align: center;
+    }
+  }
+}
+</style>

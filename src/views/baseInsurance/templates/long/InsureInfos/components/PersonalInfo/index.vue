@@ -1,5 +1,6 @@
 <template>
   <ProRenderFormWithCard
+    v-if="hasHolderSchema"
     ref="holderFormRef"
     title="投保人信息"
     class="trail-personal-info"
@@ -9,17 +10,19 @@
     :is-view="isView"
   />
   <!-- 被保人 -->
-  <InsuredItem
-    v-for="(insuredItem, index) in state.insured"
-    ref="insuredFormRef"
-    :key="`${insuredItem.nanoid}_${index}`"
-    v-model="insuredItem.personVO"
-    :="insuredItem"
-    :holder-person-v-o="state.holder.personVO"
-    :is-view="isView"
-    @update:beneficiary-list="updateBeneficiaryList($event, index)"
-  />
-  <van-button type="primary" @click="onAddInsured">添加被保人</van-button>
+  <template v-if="hasInsuredSchema">
+    <InsuredItem
+      v-for="(insuredItem, index) in state.insured"
+      ref="insuredFormRef"
+      :key="`${insuredItem.nanoid}_${index}`"
+      v-model="insuredItem.personVO"
+      :="insuredItem"
+      :holder-person-v-o="state.holder.personVO"
+      :is-view="isView"
+      @update:beneficiary-list="updateBeneficiaryList($event, index)"
+    />
+    <van-button type="primary" @click="onAddInsured">添加被保人</van-button>
+  </template>
 </template>
 <script lang="ts" setup name="PersonalInfo">
 import { withDefaults } from 'vue';
@@ -149,6 +152,12 @@ const updateBeneficiaryList = (data, index) => {
     Object.assign(item.personVO, data[i].personVO);
   });
 };
+
+// 是否有投保人
+const hasHolderSchema = computed(() => isNotEmptyArray(state.holder.schema));
+
+// 是否有投保人
+const hasInsuredSchema = computed(() => state.insured.some((insuredItem) => isNotEmptyArray(insuredItem.schema)));
 
 // 验证是否试算
 watch(

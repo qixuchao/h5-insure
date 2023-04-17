@@ -51,26 +51,7 @@
       @close="closeProductRisk"
       @finished="onFinished"
     ></ProductRisk>
-    <TrialPop
-      ref="trialRef"
-      hide-benefit
-      title="选择保障方案"
-      class="proposal-trial"
-      :data-source="{}"
-      :share-info="{}"
-      :product-info="{
-        // productCode: insureProductDetail.productCode,
-        // productName: insureProductDetail.productName,
-        // productId: '',
-        // tenantId,
-        // insurerCode,
-      }"
-      :tenant-product-detail="{}"
-    >
-      <div class="trial-button">
-        <VanButton type="primary">确定</VanButton>
-      </div>
-    </TrialPop>
+    <TrialPopup />
   </ProPageWrap>
   <ProFixedButton v-if="!isCreateProposal" :button-image="ProFixedButtonDefaultImage" @click="goHistoryList" />
 </template>
@@ -90,7 +71,7 @@ import ProFixedButton from '@/components/ProFixedButton/index.vue';
 import { queryProposalProductList } from '@/api/modules/proposalList';
 import ProFixedButtonDefaultImage from '@/assets/images/lishijihuashu.png';
 import TrialProductPopup from './components/TrialProductPopup/index.vue';
-import TrialPop from '@/views/baseInsurance/templates/components/TrialPop/index.vue';
+import TrialPopup from './components/TrialPopup.vue';
 import { queryCalcDefaultInsureFactor, queryCalcDynamicInsureFactor, insureProductDetail } from '@/api/modules/trial';
 
 interface Props {
@@ -118,6 +99,7 @@ interface StateType {
   proposalList: any[];
   showFooter: boolean;
   productName: string;
+  productCodeList: string[];
 }
 
 const state = reactive<StateType>({
@@ -137,6 +119,7 @@ const state = reactive<StateType>({
   proposalList: [],
   showFooter: true,
   productName: '',
+  productCodeList: [],
 });
 
 const {
@@ -325,25 +308,6 @@ const onRefresh = () => {
   }
   .empty-select {
     margin-top: 200px;
-  }
-}
-
-.proposal-trial {
-  color: #0f0;
-  :deep(.trial-button) {
-    padding: 30px;
-    text-align: right;
-    background-color: #fff;
-    .van-button {
-      width: 270px;
-    }
-  }
-
-  &.com-trial-wrap {
-    color: #0f0;
-    :deep(.header-title) {
-      text-align: center;
-    }
   }
 }
 
