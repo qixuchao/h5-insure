@@ -78,7 +78,7 @@ import {
 import InsureInfos from './InsureInfos/index.vue';
 import ProductRiskList from './ProductRiskList/index.vue';
 
-import { InsureProductData } from '@/api/modules/product.data';
+import { InsureProductData, ProductPlanInsureVoItem } from '@/api/modules/product.data';
 import { ProductDetail } from '@/api/modules/newTrial.data';
 import TrialButton from '../components/TrialButton.vue';
 import { nextStepOperate as nextStep } from '../../nextStep';
@@ -179,7 +179,7 @@ const insureProductDetail = ref<Partial<InsureProductData>>({}); // 产品中心
 /** -----------资料阅读模块开始-------------------- */
 const healthAttachmentList = ref([]);
 const productMaterialPlanList = ref();
-const currentPlanObj = ref({});
+const currentPlanObj = ref<Partial<ProductPlanInsureVoItem>>();
 const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
