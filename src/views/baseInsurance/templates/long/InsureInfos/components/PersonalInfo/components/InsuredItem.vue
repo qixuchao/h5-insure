@@ -197,7 +197,8 @@ watch(
                 {
                   Object: {},
                   Array: [],
-                }[Object.prototype.toString.call(personVO[key]).slice(8, -1)] || '';
+                  Null: null,
+                }[Object.prototype.toString.call(personVO[key]).slice(8, -1)] || null;
             }
             return res;
           }, {}),

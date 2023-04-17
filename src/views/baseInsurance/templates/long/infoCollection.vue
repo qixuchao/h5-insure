@@ -26,7 +26,7 @@
       <PayInfo
         v-if="state.payInfo.schema.length"
         ref="payInfoRef"
-        v-model="orderDetail.tenantOrderPayInfoList"
+        v-model="order.tenantOrderPayInfoList"
         :schema="state.payInfo.schema"
         :is-view="state.isView"
       ></PayInfo>
@@ -216,7 +216,7 @@ const onResetFileFlag = () => {
 
 const submitData = ref<any>({});
 const ifPersonalInfoSuccess = ref<boolean>(false);
-const riskVOList = ref<any[]>([]);
+const riskVOList = ref<any[]>([{}]);
 const trialMsg = ref<string>('');
 const trialResult = ref<number>(0);
 const loading = ref<boolean>(false);
@@ -354,7 +354,8 @@ const handlePersonalInfoChange = (data) => {
 const handleTrialInfoChange = (data: any) => {
   // TODO 这里未来需要看一下  多倍保人的情况，回传需要加入被保人的Index或者别的key
   mainRiskVO.value = data;
-  if (riskVOList.value.length > 0) {
+
+  if (riskVOList.value.length) {
     riskVOList.value[0] = data;
   }
   console.log('标准险种的信息回传', data);
@@ -401,7 +402,7 @@ const trialData2Order = (
 
   const transformDataReq = {
     tenantId,
-    riskList: nextStepParams.tenantOrderInsuredList[0]?.tenantOrderProductList[0].riskVOList || [],
+    riskList: riskVOList.value || [],
     riskPremium,
     productId: currentProductDetail.id,
   };
@@ -516,6 +517,9 @@ const orderData2formData = () => {
 };
 
 // 初始化数据，获取产品配置详情和产品详情
+const order = reactive({
+  tenantOrderPayInfoList: [],
+});
 const initData = async () => {
   querySalesInfo({ productCode, tenantId, isTenant: !preview }).then(({ data, code }) => {
     if (code === '10000') {
@@ -530,6 +534,7 @@ const initData = async () => {
 
   getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
+      order.tenantOrderPayInfoList = data.tenantOrderPayInfoList;
       Object.assign(orderDetail.value, data, {
         tenantOrderPayInfoList: data.tenantOrderPayInfoList || [],
         operateOption: {
