@@ -172,7 +172,7 @@ watch(
   () => props.model,
   (val) => {
     if (val) {
-      state.formData = val;
+      Object.assign(state.formData, val);
     }
   },
   {

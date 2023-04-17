@@ -114,7 +114,7 @@
   </ProPageWrap>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="createProposal">
 import { ActionSheetAction, Dialog, Toast } from 'vant';
 import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
@@ -130,7 +130,8 @@ import {
   ProposalInsuredProductItem,
   ProposalHolder,
 } from '@/api/modules/createProposal.data';
-import { insureProductDetail } from '@/api/modules/trial';
+import { queryCalcDefaultInsureFactor, insureProductDetail } from '@/api/modules/trial';
+
 import { ProductData } from '@/common/constants/trial.data';
 import { SEX_LIMIT_LIST } from '@/common/constants';
 import ProductList from './components/ProductList/index.vue';
@@ -180,7 +181,7 @@ const router = useRouter();
 const route = useRoute();
 const store = createProposalStore();
 
-const { id, productId, type = 'add', isCreateProposal } = route.query;
+const { id, productCode: productCodeInQuery, type = 'add', isCreateProposal } = route.query;
 
 const state = ref<State>({
   productId: 0,
@@ -241,14 +242,48 @@ const selectAction = (item: ActionSheetAction, index: number) => {
   submitData();
 };
 
-const validateName = (desc: string, value: string, rule: any) => {
-  if (value) {
-    if (/^.{1,20}$/.test(value)) {
-      return '';
-    }
-    return `${desc}不能超过20个字符`;
+const formatData = ({ productCode, holder, insuredVOList } = {}) => {
+  const { personVO, productPlanVOList } = insuredVOList?.[0] || {};
+
+  const proposalData = {
+    proposalHolder: holder,
+    proposalInsuredList: [
+      {
+        ...personVO,
+        proposalInsuredProductList: [
+          {
+            productCode,
+            productName: state.productName,
+            proposalProductRiskList: productPlanVOList,
+          },
+        ],
+      },
+    ],
+  };
+  return proposalData;
+};
+
+const fetchDefaultData = async (productCode) => {
+  // TODO 加loading
+  const { code, data } = await queryCalcDefaultInsureFactor({
+    calcProductFactorList: [
+      {
+        productCode,
+      },
+    ],
+  });
+  if (code === '10000' && data) {
+    const [{ holder, insuredVOList } = {}] = data || [{}];
+    const { personVO } = (insuredVOList || [])[0] || {};
+    const { age, gender, birthday } = personVO || {};
+    state.value.insuredFormData = {
+      age,
+      gender,
+      birthday,
+    };
+    proposalInfo.value = formatData(data[0]);
   }
-  return '';
+  // if (result.data) transformDefaultData(result.data.find((d) => d.productCode === props.productInfo.productCode));
 };
 
 const pickProductPremium = (premiumData = {}) => {
@@ -361,6 +396,7 @@ onBeforeMount(() => {
     proposalInfo.value = preProposalInfo;
   }
   store.setTrialData([]);
+  productCodeInQuery && fetchDefaultData(productCodeInQuery);
 });
 
 watch(
@@ -369,7 +405,7 @@ watch(
     const productList = proposalInfo.value.proposalInsuredList[0].proposalInsuredProductList.map(
       (productItem: ProposalInsuredProductItem) => {
         return {
-          productId: productItem.productId,
+          productCode: productItem.productCode,
           source: 2,
         };
       },
