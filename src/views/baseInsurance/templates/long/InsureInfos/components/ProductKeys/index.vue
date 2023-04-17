@@ -19,6 +19,7 @@
               <ProRadioButton
                 v-model="mValues[config.valueKey]"
                 :options="formatOptions(config.configKey)"
+                @update:model-value="(e) => handleInputChange(e, config.valueKey)"
               ></ProRadioButton>
             </div>
           </template>
@@ -40,7 +41,7 @@ interface Props {
   riskInfo: RiskDetailVoItem;
   defaultValue: any;
 }
-const emit = defineEmits(['trialChange']);
+const emit = defineEmits(['trialChange', 'inputChange']);
 
 const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as ProductRiskInsureLimit),
@@ -74,6 +75,10 @@ const initData = () => {
   });
 };
 
+const handleInputChange = (e, key) => {
+  console.log('-------change', e, key);
+};
+
 onMounted(() => {
   initData();
 });
@@ -101,9 +106,28 @@ watch(
 );
 
 watch(
-  () => mValues.value,
-  (v) => {
-    emit('trialChange', v);
+  () => JSON.stringify(mValues.value),
+  (v, oldValue) => {
+    console.log('---new value, oldValue', v && JSON.parse(v), oldValue && JSON.parse(oldValue));
+    const newValues = (v && JSON.parse(v)) || {};
+    const oldValues = (oldValue && JSON.parse(oldValue)) || {};
+    let changeData = null;
+    PRODUCT_KEYS_CONFIG.forEach((config) => {
+      if (
+        newValues[config.valueKey] &&
+        oldValues[config.valueKey] &&
+        newValues[config.valueKey] !== oldValues[config.valueKey]
+      ) {
+        if (!changeData) {
+          changeData = {
+            key: config.valueKey,
+            oldValue: oldValues[config.valueKey],
+            newValue: newValues[config.valueKey],
+          };
+        }
+      }
+    });
+    if (v) emit('trialChange', JSON.parse(v), changeData);
   },
   {
     deep: true,
