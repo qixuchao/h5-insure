@@ -252,6 +252,10 @@ watch(
   (val) => {
     const { holder, insuredVOList } = val || {};
     Object.assign(state.holder.personVO, holder?.personVO);
+    const { length } = insuredVOList || [];
+    // TODO:预览时，被保人数量多于默认数量
+    const flag = length > state.insured.length;
+    const currentList = length > state.insured.length ? insuredVOList : state.insured;
 
     state.insured.forEach((insuredItem, index) => {
       const currentInsured = insuredVOList?.[index] || {};
@@ -266,6 +270,9 @@ watch(
 
 defineExpose({
   validate,
+  validateHolder: (...rest) => {
+    holderFormRef.value?.validate(...rest);
+  },
 });
 </script>
 
