@@ -6,7 +6,7 @@
     class="proposal-trial"
     :share-info="{}"
     :product-info="{
-      // productCode: insureProductDetail.productCode,
+      productCode: productCode,
       // productName: insureProductDetail.productName,
       // productId: '',
       // tenantId,
@@ -20,7 +20,24 @@
   </TrialPop>
 </template>
 <script lang="ts" setup>
+import { withDefaults } from 'vue';
 import TrialPop from '@/views/baseInsurance/templates/components/TrialPop/index.vue';
+
+interface Props {
+  productCode: string;
+}
+
+const trialRef = ref(null);
+
+const props = withDefaults(defineProps<Props>(), {
+  productCode: '',
+});
+
+defineExpose({
+  open: (...rest) => {
+    trialRef.value?.open(...rest);
+  },
+});
 </script>
 <style scoped lang="scss">
 .proposal-trial {

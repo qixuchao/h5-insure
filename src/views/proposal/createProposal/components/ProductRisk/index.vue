@@ -55,7 +55,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="ProductRisk">
 import { provide, withDefaults } from 'vue';
 import { useRoute } from 'vue-router';
 import { Toast } from 'vant/es';
