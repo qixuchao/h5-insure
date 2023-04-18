@@ -70,7 +70,7 @@
 <script lang="ts" setup name="TrialPop">
 import { withDefaults, ref, defineExpose } from 'vue';
 import { Toast } from 'vant/es';
-import { debounce } from 'lodash';
+import { cloneDeep, debounce } from 'lodash';
 import { useRouter, useRoute } from 'vue-router';
 import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import { PersonalInfo } from '@/views/baseInsurance/templates/long/InsureInfos/components/index';
@@ -289,6 +289,7 @@ const handleSameMainRisk = (data: any) => {
 };
 
 const handleMixTrialData = debounce(() => {
+  console.log('--------------state.ifPersonalInfoSucces = ', state.ifPersonalInfoSuccess);
   if (state.ifPersonalInfoSuccess) {
     state.submitData.productCode = props.productInfo.productCode;
     state.submitData.tenantId = props.productInfo.tenantId;
@@ -350,6 +351,7 @@ const handleMixTrialData = debounce(() => {
 const handlePersonalInfoChange = async (data) => {
   // 只有改动第一个被保人，需要调用dy接口
   const { holder, insuredVOList, isFirstInsuredChange } = data;
+  console.log('------', isFirstInsuredChange);
   if (holder) {
     // state.submitData.holder.personVO = holder;
     state.submitData.holder = {
@@ -405,6 +407,11 @@ const handleTrialInfoChange = async (data: any, changeData: any) => {
   state.mainRiskVO = data;
   // TODO 这里未来需要看一下  多倍保人的情况，回传需要加入被保人的Index或者别的key
   if (changeData) {
+    const DyData = cloneDeep(data);
+    delete DyData.insurancePeriodValueList;
+    delete DyData.liabilityVOList;
+    delete DyData.paymentFrequencyList;
+    delete DyData.paymentPeriodValueList;
     const hasDyChange = DYNAMIC_FACTOR_PARAMS.indexOf(changeData.key) >= 0;
     // 需要请求dy接口
     if (hasDyChange) {
@@ -412,20 +419,14 @@ const handleTrialInfoChange = async (data: any, changeData: any) => {
       switch (changeData.key) {
         case 'annuityDrawDate': {
           changeVO.changeType = 3;
-          changeVO.changeAnnuityDrawDate = changeData.newValue;
-          changeVO.originAnnuityDrawDate = changeData.oldValue;
           break;
         }
         case 'coveragePeriod': {
           changeVO.changeType = 2;
-          changeVO.changeInsurancePeriod = changeData.newValue;
-          changeVO.originInsurancePeriod = changeData.oldValue;
           break;
         }
         case 'chargePeriod': {
           changeVO.changeType = 1;
-          changeVO.changePaymentPeriod = changeData.newValue;
-          changeVO.originPaymentPeriod = changeData.oldValue;
           break;
         }
         default: {
@@ -444,6 +445,7 @@ const handleTrialInfoChange = async (data: any, changeData: any) => {
                 insureRiskEditReqVO: {
                   riskId: data.riskId,
                   riskCode: data.riskCode,
+                  ...DyData,
                   ...changeVO,
                 },
               },

@@ -61,7 +61,7 @@ const formatOptions = (configKey: Array<string>) => {
     return {
       label: v.value,
       value: v.code,
-      disabled: useOption ? useOption.useFlag === 1 : true,
+      disabled: useOption ? useOption.useFlag !== 1 : false,
     };
   });
 };
