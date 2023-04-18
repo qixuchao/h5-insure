@@ -56,15 +56,15 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
 // 计划书路由
 const proposalRoutes: Array<RouteRecordRaw> = [
   {
-    name: 'createProposal',
+    name: 'CreateProposal',
     path: '/proposal/createProposal',
-    meta: { title: '创建计划书' },
+    meta: { title: '创建计划书', keepAlive: true },
     component: () => import('@/views/proposal/createProposal/index.vue'),
   },
   {
-    name: 'proposalList',
+    name: 'ProposalList',
     path: '/proposalList',
-    meta: { title: '计划书列表' },
+    meta: { title: '计划书列表', keepAlive: true },
     component: () => import('@/views/proposal/proposalList/index.vue'),
   },
   {

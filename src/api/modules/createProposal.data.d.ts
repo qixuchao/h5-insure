@@ -9,8 +9,8 @@
 
 export interface ProposalInfo {
     id: number;
-    proposalHolder: ProposalHolder;
-    proposalInsuredList: ProposalInsuredItem[];
+    proposalHolder: Partial<ProposalHolder>;
+    proposalInsuredList: Partial<ProposalInsuredItem>[];
     proposalName: string;
     proposalPage: string;
     proposalPdf: string;
@@ -28,7 +28,7 @@ export interface ProposalInsuredItem {
     occupationCode: string;
     occupationName: string;
     proposalId: number;
-    proposalInsuredProductList: ProposalInsuredProductItem[];
+    proposalInsuredProductList: Partial<ProposalInsuredProductItem>[];
     relation: number;
     socialFlag: number;
 }
@@ -87,3 +87,15 @@ export interface ProposalHolder {
     proposalId: number;
 }
 
+
+export interface PlanTrialData {
+  productCode: string;
+  proposalHolder: Partial<ProposalHolder>;
+  insuredPersonVO: Partial<ProposalHolder>;
+  insuredProductInfo: {
+    productCode: string;
+    productName: string;
+    occupationCodeList: string[],
+    proposalProductRiskList: ProposalProductRiskItem[];
+  };
+}

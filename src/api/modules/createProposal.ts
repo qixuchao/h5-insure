@@ -9,7 +9,7 @@
 import request from '@/api/request';
 import { ProposalInfo } from './createProposal.data';
 // 创建计划书
-export const addOrUpdateProposal = (data: ProposalInfo) =>
+export const addOrUpdateProposal = (data: Partial<ProposalInfo>) =>
   request<ResponseData<any>>({ url: '/api/app/insure/proposal/addOrUpdateProposal', method: 'POST', data });
 
 // 获取计划书详情

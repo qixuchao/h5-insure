@@ -21,6 +21,7 @@
       </div>
       <slot name="checkedProduct"> </slot>
     </div>
+    <span v-if="errorMsg" class="product-tips">{{ errorMsg }}</span>
   </div>
 </template>
 
@@ -30,6 +31,7 @@ import { ProposalItem } from '@/api/modules/proposalList.data';
 
 interface Props {
   productInfo: Partial<ProposalItem>;
+  errorMsg: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -145,6 +147,9 @@ const { checked } = toRefs(state);
         border-color: #99a9c0;
       }
     }
+  }
+  .product-tips {
+    color: #ffa800;
   }
 }
 </style>
