@@ -158,22 +158,13 @@ const state = reactive({
 });
 
 // 分享信息
+const shareLink = `${window.origin}/baseInsurance/long/phoneVerify${window.location.search}`;
 const shareInfo = ref({
   imgUrl: '',
   desc: '',
   title: '',
-  link: window.location.href,
+  link: shareLink,
 });
-
-const setShareLink = (config: { image: string; desc: string; title: string }) => {
-  shareInfo.value = {
-    desc: config.desc || '你好，这里是描述',
-    imgUrl: config.image,
-    title: config.title,
-    link: window.location.href,
-  };
-  console.log('shareInfo', shareInfo.value);
-};
 
 const payInfoRef = ref<InstanceType<typeof PayInfo>>();
 const personalInfoRef = ref<InstanceType<typeof PersonalInfo>>();
@@ -222,7 +213,6 @@ const trialResult = ref<number>(0);
 const loading = ref<boolean>(false);
 const mainRiskVO = ref<any>(); // 标准主险的险种数据
 const iseeBizNo = ref<string>();
-
 const riskDefaultValue = ref<any>();
 
 const mainRiskInfo = computed(() => {
@@ -397,9 +387,6 @@ const trialData2Order = (
     insuredList: (submitData.value.insuredVOList || []).map((person) => person.personVO),
   });
 
-  console.log('tenantOrderHolder', tenantOrderHolder);
-  console.log('tenantOrderInsuredList', tenantOrderInsuredList);
-
   const transformDataReq = {
     tenantId,
     riskList: riskVOList.value || [],
@@ -525,10 +512,18 @@ const initData = async () => {
     if (code === '10000') {
       tenantProductDetail.value = data;
       document.title = data.BASIC_INFO.title || '';
-      const { title, desc, image: imageArr } = data?.PRODUCT_LIST.wxShareConfig || {};
-      const [image = ''] = imageArr || [];
+      let shareParams = {};
+      if (data?.PRODUCT_LIST?.wxShareConfig) {
+        const { title, desc, image: imageArr } = data?.PRODUCT_LIST.wxShareConfig || {};
+        const [image = ''] = imageArr || [];
+        shareParams = { title, desc, image };
+      } else {
+        const { title, desc, image } = data?.PRODUCT_LIST || {};
+        shareParams = { title, desc, image };
+      }
+
       // 设置分享参数
-      setShareLink({ title, desc, image });
+      Object.assign(shareInfo.value, shareParams);
     }
   });
 

@@ -19,10 +19,14 @@ export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: 
   const currentParams = params;
   // 判断订单是否生成,增加订单详情的跳转连接
   const { extInfo, orderNo, tenantOrderInsuredList, tenantId } = currentParams || {};
-  const { iseeBizNo } = extInfo || {};
+  const { iseeBizNo, templateId } = extInfo || {};
   if (orderNo) {
     const { productCode } = tenantOrderInsuredList?.[0]?.tenantOrderProductList?.[0] || {};
-    const redirectUrl = `${`${window.location.origin}${VITE_BASE}baseInsurance/orderDetail`}?orderNo=${orderNo}&tenantId=${tenantId}&ISEE_BIZ=${iseeBizNo}&productCode=${productCode}`;
+    let redirectUrl = `${`${window.location.origin}${VITE_BASE}baseInsurance/orderDetail`}?orderNo=${orderNo}&tenantId=${tenantId}&ISEE_BIZ=${iseeBizNo}&productCode=${productCode}`;
+    if (templateId > 200) {
+      redirectUrl = `${`${window.location.origin}${VITE_BASE}baseInsurance/long/result`}?orderNo=${orderNo}&tenantId=${tenantId}&ISEE_BIZ=${iseeBizNo}&productCode=${productCode}`;
+    }
+
     currentParams.extInfo.redirectUrl = redirectUrl;
   }
   const queryObj = getQueryObject();

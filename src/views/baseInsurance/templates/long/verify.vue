@@ -58,7 +58,7 @@
           <div><ProSvg name="refresh" /></div>
           <div class="text">刷新</div>
         </div>
-        <ProShare v-if="!isShare" title="邀请您进行身份认证" desc="邀请您进行身份认证" :link="shareLink">
+        <ProShare v-if="!isShare" v-bind="shareInfo">
           <van-button plain type="primary" class="share-btn">分享</van-button>
         </ProShare>
         <van-button type="primary" class="submit-btn" @click="handleSubmit">提交</van-button>
@@ -95,6 +95,7 @@ import Storage from '@/utils/storage';
 import { transformFactorToSchema } from '@/components/RenderForm';
 import pageJump from '@/utils/pageJump';
 import InsureProgress from './components/InsureProgress.vue';
+import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
 
 const route = useRoute();
 const router = useRouter();
@@ -139,7 +140,7 @@ try {
 }
 
 const orderDetail = useOrder();
-const shareLink = window.location.href;
+const shareLink = `${window.origin}/baseInsurance/long/phoneVerify${window.location.search}`;
 const storage = new Storage({ source: 'localStorage' });
 
 const tenantProductDetail = ref<Partial<ProductDetail>>({}); // 核心系统产品信息
@@ -204,10 +205,10 @@ const sign = (type, signData, bizObjectId?) => {
 const handleSubmit = () => {
   Promise.all([
     agentSignRef.value.validateSign(),
-    holderSignRef.value.validateSign(),
-    ...(insuredSignRef.value || []).map((validate) => validate.validateSign()),
-    holderSignRef.value.validateVerify(),
-    ...(insuredSignRef.value || []).map((validate) => validate.validateVerify()),
+    // holderSignRef.value.validateSign(),
+    // ...(insuredSignRef.value || []).map((validate) => validate.validateSign()),
+    // holderSignRef.value.validateVerify(),
+    // ...(insuredSignRef.value || []).map((validate) => validate.validateVerify()),
   ])
     .then((res) => {
       getTenantOrderDetail({
@@ -218,7 +219,7 @@ const handleSubmit = () => {
         if (code === '10000') {
           // 订单状态为待处理,支付失败,核保成功时可进行下一步操作，否则跳入支付结果页
           if (
-            !(
+            (
               [
                 ORDER_STATUS_ENUM.PENDING,
                 ORDER_STATUS_ENUM.PAYMENT_FAILED,
@@ -226,23 +227,20 @@ const handleSubmit = () => {
               ] as string[]
             ).includes(data.orderStatus)
           ) {
-            pageJump('paymentResult', route.query);
+            pageJump('paymentResult', { ...route.query, orderNo: orderCode || orderNo });
           } else {
             Dialog.confirm({
               title: '提示',
               message: '请确认信息填写无误后，再进行支付',
             }).then(() => {
               Object.assign(orderDetail.value, {
-                extInfo: { ...orderDetail.value.extInfo, buttonCode: '', pageCode: 'sign' },
+                extInfo: {
+                  ...orderDetail.value.extInfo,
+                  buttonCode: BUTTON_CODE_ENUMS.SIGN,
+                  pageCode: PAGE_CODE_ENUMS.SIGN,
+                },
               });
-              nextStep(orderDetail.value, (cbData, pageAction) => {
-                if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-                  router.push({
-                    path: PAGE_ROUTE_ENUMS[cbData.nextPageCode],
-                    query: { ...route.query, orderNo: orderCode || orderNo },
-                  });
-                }
-              });
+              nextStep(orderDetail.value, (cbData, pageAction) => {});
             });
           }
         }
@@ -272,8 +270,31 @@ const getOrderDetail = () => {
     }
   });
 };
+// 分享信息
+const shareInfo = ref({
+  imgUrl: '',
+  desc: '',
+  title: '',
+  link: shareLink,
+});
 
 const initData = () => {
+  querySalesInfo({ productCode, tenantId, isTenant: !preview }).then(({ data, code }) => {
+    if (code === '10000') {
+      let shareParams = {};
+      if (data?.PRODUCT_LIST?.wxShareConfig) {
+        const { title, desc, image: imageArr } = data?.PRODUCT_LIST.wxShareConfig || {};
+        const [image = ''] = imageArr || [];
+        shareParams = { title, desc, image };
+      } else {
+        const { title, desc, image } = data?.PRODUCT_LIST || {};
+        shareParams = { title, desc, image };
+      }
+
+      // 设置分享参数
+      Object.assign(shareInfo.value, shareParams);
+    }
+  });
   queryProductMaterial({ productCode }).then(({ code, data }) => {
     if (code === '10000') {
       const { productMaterialMap } = data.productInsureMaterialVOList?.[0] || {};

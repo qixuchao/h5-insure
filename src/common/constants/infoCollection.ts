@@ -171,9 +171,9 @@ export const TEMPLATE_TYPE_MAP = {
   // 魔方升级
   [TEMPLATE_TYPE_ENUM.UPGRADE]: 'short',
   // 长期险
-  [TEMPLATE_TYPE_ENUM.LONG]: 'long',
+  [TEMPLATE_TYPE_ENUM.LONG]: 'long/productDetail',
   // 年金
-  [TEMPLATE_TYPE_ENUM.NIANJIN]: 'long',
+  [TEMPLATE_TYPE_ENUM.NIANJIN]: 'long/productDetail',
 };
 
 export const PAGE_CODE_LIST = [

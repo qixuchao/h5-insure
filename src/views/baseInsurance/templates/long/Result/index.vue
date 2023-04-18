@@ -144,16 +144,16 @@ onMounted(() => {
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
-      // detail.value = data;
+      detail.value = data;
       // Mock Data
-      detail.value = {
-        orderStatus: ORDER_STATUS_ENUM.PAYMENT_SUCCESS,
-        orderNo: '2023041315055958221',
-        payType: '银行卡支付',
-        paySum: '￥ 1000.00',
-        policyStatus: '待承保',
-        payFailDesc: '失败原因：银行卡余额不足',
-      };
+      // detail.value = {
+      //   orderStatus: ORDER_STATUS_ENUM.PAYMENT_SUCCESS,
+      //   orderNo: '2023041315055958221',
+      //   payType: '银行卡支付',
+      //   paySum: '￥ 1000.00',
+      //   policyStatus: '待承保',
+      //   payFailDesc: '失败原因：银行卡余额不足',
+      // };
     }
     // 如果订单处于其他状态的处理逻辑 TODO
     // ....

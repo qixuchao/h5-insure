@@ -92,7 +92,7 @@ onMounted(() => {
   getTemplateInfo({ templateId }).then((res) => {
     const { code, data } = res;
     if (code === '10000' && data) {
-      list.value = data.templatePageList || [];
+      list.value = (data.templatePageList || []).filter((item) => item.pageCode !== 'trial');
     }
   });
 });
