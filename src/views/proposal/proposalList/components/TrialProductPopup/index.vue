@@ -20,24 +20,22 @@
             <van-cell-group inset>
               <VanCell
                 v-for="item in proposalList"
-                :key="item.proposalInsuredList[0].proposalInsuredProductList[0].productCode"
-                :title="item.proposalInsuredList[0].proposalInsuredProductList[0].productName"
-                @click="toggle(item.proposalInsuredList[0].proposalInsuredProductList[0].productCode)"
+                :key="item.productCode"
+                :title="item.productName"
+                @click="toggle(item.productCode)"
               >
                 <template #right-icon>
                   <van-checkbox
-                    :ref="
-                      (el) => (checkboxRefs[item.proposalInsuredList[0].proposalInsuredProductList[0].productCode] = el)
-                    "
+                    :ref="(el) => (checkboxRefs[item.productCode] = el)"
                     shape="square"
-                    :name="item.proposalInsuredList[0].proposalInsuredProductList[0].productCode"
-                    @click.stop="toggle(item.proposalInsuredList[0].proposalInsuredProductList[0].productCode)"
+                    :name="item.productCode"
+                    @click.stop="toggle(item.productCode)"
                   />
                 </template>
                 <template #title>
                   <div class="cell-title">
                     <div class="title">
-                      {{ item.proposalInsuredList[0].proposalInsuredProductList[0].productName }}
+                      {{ item.productName }}
                     </div>
                   </div>
                 </template>
@@ -55,7 +53,10 @@ import { ProposalInfo } from '@/api/modules/createProposal.data';
 
 interface Props {
   isShow: boolean;
-  proposalList: ProposalInfo[];
+  proposalList: {
+    productCode: string;
+    productName: string;
+  }[];
   modalValue: any[];
 }
 

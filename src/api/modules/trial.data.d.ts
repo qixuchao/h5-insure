@@ -621,3 +621,12 @@ export interface InsureLinkReq {
   proposalId: number;
   tenantId: number;
 }
+/** 试算默认值 */
+export interface PlanTrialDefaultItem {
+  holder: Partial<PersonVo>,
+  insuredVOList: {
+    personVO: Partial<PersonVo>;
+    productPlanVOList: ProductPlanVoItem[];
+  }[];
+  productCode: string;
+}
