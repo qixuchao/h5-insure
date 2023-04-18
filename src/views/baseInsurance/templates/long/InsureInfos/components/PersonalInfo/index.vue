@@ -185,14 +185,18 @@ watch(
       },
       insuredVOList: val[1],
     };
-    console.log('personalInfoResult--结果', result);
+    const isFirstInsuredChange =
+      JSON.stringify(result?.insuredVOList?.[0]?.personVO) !== props.modelValue?.insuredVOList?.[0]?.personVO;
+    result.isFirstInsuredChange = isFirstInsuredChange;
     emit('update:modelValue', result);
+    console.log('---is first change= ', isFirstInsuredChange, state.config.hasTrialFactorCodes, validateTrialFields());
     // 验证通过调用试算
     if (state.config.hasTrialFactorCodes && validateTrialFields()) {
       validate(true)
         .then(() => {
           state.validated = true;
           emit('trailChange', result);
+          console.log('----emit trial');
         })
         .catch(() => {
           state.validated = false;
@@ -209,6 +213,7 @@ watch(
   [() => props.productFactor, () => props.isTrial],
   (val) => {
     if (val[0]) {
+      console.log('123', val);
       const { holder, insured, beneficiary, config } = transformFactorToSchema(...val);
       Object.assign(state.holder, holder);
 

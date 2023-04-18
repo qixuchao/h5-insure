@@ -20,18 +20,18 @@
             <van-cell-group inset>
               <VanCell
                 v-for="item in proposalList"
-                :key="item.proposalInsuredList[0].proposalInsuredProductList[0].productId"
+                :key="item.proposalInsuredList[0].proposalInsuredProductList[0].productCode"
                 :title="item.proposalInsuredList[0].proposalInsuredProductList[0].productName"
-                @click="toggle(item.proposalInsuredList[0].proposalInsuredProductList[0].productId)"
+                @click="toggle(item.proposalInsuredList[0].proposalInsuredProductList[0].productCode)"
               >
                 <template #right-icon>
                   <van-checkbox
                     :ref="
-                      (el) => (checkboxRefs[item.proposalInsuredList[0].proposalInsuredProductList[0].productId] = el)
+                      (el) => (checkboxRefs[item.proposalInsuredList[0].proposalInsuredProductList[0].productCode] = el)
                     "
                     shape="square"
-                    :name="item.proposalInsuredList[0].proposalInsuredProductList[0].productId"
-                    @click.stop="toggle(item.proposalInsuredList[0].proposalInsuredProductList[0].productId)"
+                    :name="item.proposalInsuredList[0].proposalInsuredProductList[0].productCode"
+                    @click.stop="toggle(item.proposalInsuredList[0].proposalInsuredProductList[0].productCode)"
                   />
                 </template>
                 <template #title>
@@ -49,7 +49,7 @@
     </VanPopup>
   </div>
 </template>
-<script lang="ts" setup>
+<script lang="ts" setup name="TrialProductPopup">
 import { withDefaults } from 'vue';
 import { ProposalInfo } from '@/api/modules/createProposal.data';
 

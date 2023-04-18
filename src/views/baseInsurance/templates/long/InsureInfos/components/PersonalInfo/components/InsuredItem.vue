@@ -90,18 +90,6 @@ const state = reactive<Partial<StateInfo>>({
   beneficiaryList: [deepCopy(initBeneficiaryItem)],
 });
 
-/** 验证试算因子是否全部有值 */
-const validateTrialFields = () => {
-  const flag = beneficiaryFormRef.value?.every((item) => item.validateTrialFields());
-  return (
-    flag &&
-    validateFields({
-      personVO: state.personVO,
-      trialFactorCodes: props.trialFactorCodes,
-    })
-  );
-};
-
 // 验证表单必填
 const validate = (isTrial) => {
   return Promise.all([
@@ -126,6 +114,19 @@ const onDeleteBeneficiary = () => {};
 
 // 是否有受益人
 const hasBeneficiarySchema = computed(() => isNotEmptyArray(props.beneficiarySchema));
+
+/** 验证试算因子是否全部有值 */
+const validateTrialFields = () => {
+  /** 受益人没有试算因子，先留这个位置 */
+  const flag = !hasBeneficiarySchema.value || beneficiaryFormRef.value?.every((item) => item.validateTrialFields());
+  return (
+    flag &&
+    validateFields({
+      personVO: state.personVO,
+      trialFactorCodes: props.trialFactorCodes,
+    })
+  );
+};
 
 // 监听投保人信息
 watch(

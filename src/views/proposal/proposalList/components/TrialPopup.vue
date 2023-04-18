@@ -2,11 +2,11 @@
   <TrialPop
     ref="trialRef"
     hide-benefit
+    hide-popup-button
     title="选择保障方案"
     class="proposal-trial"
-    :share-info="{}"
     :product-info="{
-      // productCode: insureProductDetail.productCode,
+      productCode: productCode,
       // productName: insureProductDetail.productName,
       // productId: '',
       // tenantId,
@@ -14,13 +14,99 @@
     }"
     :tenant-product-detail="{}"
   >
-    <div class="trial-button">
-      <VanButton type="primary">确定</VanButton>
-    </div>
+    <template #default="{ trialData, riskPremium }">
+      <div class="trial-button">
+        <VanButton type="primary" @click="onFinished(trialData, riskPremium)">确定</VanButton>
+      </div>
+    </template>
   </TrialPop>
 </template>
 <script lang="ts" setup>
+import { withDefaults } from 'vue';
+import {
+  ProductBasicInfoVo,
+  RiskDetailVoItem,
+  PersonVo,
+  Holder,
+  RiskVoItem,
+  InsuredVoItem,
+  LiabilityVoItem,
+  PremiumCalcData,
+  RiskPremiumDetailVoItem,
+  ProductRelationPlanVoItem,
+} from '@/api/modules/trial.data';
 import TrialPop from '@/views/baseInsurance/templates/components/TrialPop/index.vue';
+
+interface Props {
+  productCode: string;
+  productName: string;
+}
+
+const emit = defineEmits(['finish']);
+
+const trialRef = ref(null);
+
+const props = withDefaults(defineProps<Props>(), {
+  productCode: '',
+  productName: '',
+});
+
+// 将试算的数据转换成计划书的数据
+const formatData = (trialData: PremiumCalcData, riskPremium: any) => {
+  console.log('trialData', trialData);
+  const { holder, insuredVOList } = trialData || {};
+  const { personVO, productPlanVOList } = insuredVOList?.[0] || {};
+  const riskList = (productPlanVOList?.[0]?.riskVOList || []).map((risk: RiskVoItem) => {
+    return {
+      ...risk,
+      premium: riskPremium[risk.riskCode]?.premium,
+      amount: riskPremium[risk.riskCode]?.amount,
+    };
+  });
+  // const proposalData = {
+  //   proposalHolder: {
+  //     ...holder?.personVO,
+  //   },
+  //   proposalInsuredList: [
+  //     {
+  //       ...personVO,
+  //       proposalInsuredProductList: [
+  //         {
+  //           productCode: props.productCode,
+  //           productName: props.productName,
+  //           occupationCodeList: personVO.occupationCodeList,
+  //           proposalProductRiskList: riskList,
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // };
+  // return proposalData;
+  return {
+    productCode: props.productCode,
+    proposalHolder: holder?.personVO,
+    insuredPersonVO: personVO,
+    insuredProductInfo: {
+      productCode: props.productCode,
+      productName: props.productName,
+      occupationCodeList: personVO.occupationCodeList,
+      proposalProductRiskList: riskList,
+    },
+  };
+};
+
+const onFinished = (...rest) => {
+  emit('finish', formatData(rest[0], rest[1]));
+};
+
+defineExpose({
+  ...['open', 'close'].reduce((res, key) => {
+    res[key] = (...rest) => {
+      trialRef.value?.[key](...rest);
+    };
+    return res;
+  }, {}),
+});
 </script>
 <style scoped lang="scss">
 .proposal-trial {
