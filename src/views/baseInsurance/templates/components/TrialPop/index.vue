@@ -85,6 +85,7 @@ import {
   premiumCalc,
   queryCalcDefaultInsureFactor,
   queryCalcDynamicInsureFactor,
+  underWriteRule,
 } from '@/api/modules/trial';
 import { SUCCESS_CODE } from '@/api/code';
 import { PRODUCT_KEYS_CONFIG } from '../../long/InsureInfos/components/ProductKeys/config';
@@ -327,7 +328,7 @@ const handleSameMainRisk = (data: any) => {
   return data;
 };
 
-const handleMixTrialData = debounce(() => {
+const handleMixTrialData = debounce(async () => {
   if (state.ifPersonalInfoSuccess) {
     state.submitData.productCode = props.productInfo.productCode;
     state.submitData.tenantId = props.productInfo.tenantId;
@@ -347,42 +348,45 @@ const handleMixTrialData = debounce(() => {
     state.trialMsg = LOADING_TEXT;
     state.trialResult = 0;
     state.loading = true;
-    premiumCalc(state.submitData)
-      .then((res) => {
-        // benefitData.value = res.data;
-        // console.log('----res =', res);
-        // state.trialMsg = `${res.data.premium}元`;
-        if (res.data && res.code === SUCCESS_CODE) {
-          if (res?.data?.errorInfo) {
-            Toast(`${res?.data?.errorInfo}`);
-          }
-          state.trialMsg = '';
-          state.trialResult = res.data.premium;
+    const { code } = await underWriteRule(state.submitData);
+    if (code === '10000') {
+      premiumCalc(state.submitData)
+        .then((res) => {
+          // benefitData.value = res.data;
+          // console.log('----res =', res);
+          // state.trialMsg = `${res.data.premium}元`;
+          if (res.data && res.code === SUCCESS_CODE) {
+            if (res?.data?.errorInfo) {
+              Toast(`${res?.data?.errorInfo}`);
+            }
+            state.trialMsg = '';
+            state.trialResult = res.data.premium;
 
-          const riskPremiumMap = {};
-          if (res.data.riskPremiumDetailVOList && res.data.riskPremiumDetailVOList.length) {
-            res.data.riskPremiumDetailVOList.forEach((riskDetail: any) => {
-              riskPremiumMap[riskDetail.riskCode] = {
-                premium: riskDetail.premium,
-                amount: riskDetail.amount,
-              };
-            });
+            const riskPremiumMap = {};
+            if (res.data.riskPremiumDetailVOList && res.data.riskPremiumDetailVOList.length) {
+              res.data.riskPremiumDetailVOList.forEach((riskDetail: any) => {
+                riskPremiumMap[riskDetail.riskCode] = {
+                  premium: riskDetail.premium,
+                  amount: riskDetail.amount,
+                };
+              });
+            }
+            premiumMap.value = riskPremiumMap;
           }
-          premiumMap.value = riskPremiumMap;
-        }
-      })
-      .finally(() => {
-        state.loading = false;
-        // state.trialMsg = '000';
-      });
-    benefitCalc(state.submitData)
-      .then((res) => {
-        // 利益演示接口
-        if (res.data && res.code === SUCCESS_CODE) benefitData.value = res.data;
-      })
-      .finally(() => {
-        state.loading = false;
-      });
+        })
+        .finally(() => {
+          state.loading = false;
+          // state.trialMsg = '000';
+        });
+      benefitCalc(state.submitData)
+        .then((res) => {
+          // 利益演示接口
+          if (res.data && res.code === SUCCESS_CODE) benefitData.value = res.data;
+        })
+        .finally(() => {
+          state.loading = false;
+        });
+    }
   }
 }, 300);
 
