@@ -28,6 +28,7 @@ declare module 'vue' {
     ProDatePicker: typeof import('./src/components/ProDatePicker/index.vue')['default']
     ProDatePickerV2: typeof import('./src/components/RenderForm/components/ProDatePickerV2.vue')['default']
     ProDivider: typeof import('./src/components/ProDivider/index.vue')['default']
+    ProEmpty: typeof import('./src/components/ProEmpty/index.vue')['default']
     ProExpand: typeof import('./src/components/ProExpand/index.vue')['default']
     ProField: typeof import('./src/components/ProField/index.vue')['default']
     ProFieldV2: typeof import('./src/components/RenderForm/components/ProFieldV2.vue')['default']

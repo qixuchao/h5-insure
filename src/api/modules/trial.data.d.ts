@@ -609,3 +609,15 @@ export interface ProductPlanInsure {
   oilPackageRelationVOList: Array<any>;
   productRiskRelationVOList: Array<any>;
 }
+
+export interface InsureLinkReq {
+  agencyCode: string;
+  agentCode: string;
+  extraMap: {
+    [key: string]:	string
+  };
+  insurerCode: string;
+  productCode: string;
+  proposalId: number;
+  tenantId: number;
+}

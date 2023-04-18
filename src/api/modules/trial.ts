@@ -1,5 +1,5 @@
 import request from '@/api/request';
-import { ProductData, PremiumCalcData, PremiumCalcResponse } from './trial.data';
+import { InsureLinkReq, PremiumCalcData, PremiumCalcResponse } from './trial.data';
 import { InsureProductData } from '@/api/modules/product.data';
 
 // 获取产品详情
@@ -74,8 +74,8 @@ export const underWriteRule = (data = {}) =>
     data,
   });
 
-// 获取投保链接
-export const queryStandardInsurerLink = (data = {}) =>
+/** 获取投保链接 */
+export const queryStandardInsurerLink = (data: InsureLinkReq) =>
   request<string>({ url: '/api/app/insure/insurance/standardInsurerLink', method: 'POST', data });
 
 // 利益演示

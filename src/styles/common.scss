@@ -28,3 +28,58 @@ body {
     font-weight: bolder;
   }
 }
+
+// 全部footer下一步按钮通用样式
+.footer-button {
+  width: 100%;
+  height: 150px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-top: 1px solid $zaui-line;
+  padding: 0 30px;
+  background: #ffffff;
+  z-index: 10;
+  .van-button {
+    height: 90px;
+    border-radius: 8px;
+    border: 2px solid $zaui-brand;
+    &:not(:first-child) {
+      margin-left: 20px;
+    }
+    &:nth-last-child(1):first-child{
+      width: 100%;
+    }
+    &:nth-last-child(2):first-child,
+    &:nth-last-child(2):first-child ~  .van-button {
+      width: calc(100% / 2);
+    }
+  }
+}
+
+// 金额颜色
+.price {
+  color: $zaui-price;
+  font-size: $zaui-font-size-md2;
+  font-weight: 600;
+}
+
+.pro-radio-wrap {
+  // margin-top: -28px;
+  // padding: 14px 0;
+}
+
+.popup-title {
+  height: 104px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 64px;
+  font-size: 34px;
+  font-weight: 600;
+  color: #393d46;
+  border-bottom: 2px solid $zaui-line;
+}
