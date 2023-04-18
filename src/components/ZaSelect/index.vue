@@ -58,7 +58,7 @@
         </van-cell-group>
       </component>
 
-      <ZaEmpty
+      <ProEmpty
         v-if="filterDataSource.length === 0"
         :empty-img="emptyImg"
         title="没有找到相关信息~"
@@ -74,7 +74,7 @@
 
 <script lang="ts" setup>
 import { Icon } from 'vant';
-import ZaEmpty from '../ZaEmpty/index.vue';
+import ProEmpty from '../ProEmpty/index.vue';
 import emptyImg from '@/assets/images/searchempty.png';
 import backImg from '@/assets/images/back.png';
 import closeImg from '@/assets/images/themes/default/target/close.png';

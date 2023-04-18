@@ -2,6 +2,7 @@
 import { storeToRefs } from 'pinia';
 import { themeConfig } from '@/config/theme';
 import { useThemesStore } from '@/store/themes';
+import { localStore } from '@/hooks/useStorage';
 
 const hexToRgba = (_color: string, _opacity = 1) => {
   let sColor = _color.toLowerCase();
@@ -97,6 +98,7 @@ export const setGlobalTheme = (color: string = import.meta.env.VITE_THEME_COLOR 
   const themesStore = useThemesStore();
   const { themeVars } = storeToRefs(themesStore);
   themeVars.value = useTheme(color);
+  localStore.set('GLOBAL_THEME_STORE', themeVars.value);
   console.log('themeVars:', themeVars.value);
 };
 

@@ -4,7 +4,7 @@
       <van-search v-model="searchValue" placeholder="搜索计划书" shape="round" class="search" @search="onSearch" />
       <InsureFilter v-model:filter="isOpen" filter-class="filter-area" @on-select-insure="handleClickTag" />
     </div>
-    <ZaEmpty v-if="!hasProduct" :empty-img="emptyImg" title="没有找到相关内容~" empty-class="empty-select" />
+    <ProEmpty v-if="!hasProduct" :empty-img="emptyImg" title="没有找到相关内容~" empty-class="empty-select" />
     <div class="page-proposal-list">
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
         <van-list
@@ -70,7 +70,7 @@
 import { useToggle } from '@vant/use';
 import { useRouter, useRoute } from 'vue-router';
 import { withDefaults } from 'vue';
-import ZaEmpty from '@/components/ZaEmpty/index.vue';
+import ProEmpty from '@/components/ProEmpty/index.vue';
 import emptyImg from '@/assets/images/empty.png';
 import ProductItem from './components/productItem.vue';
 import InsureFilter from './components/insureFilter.vue';
