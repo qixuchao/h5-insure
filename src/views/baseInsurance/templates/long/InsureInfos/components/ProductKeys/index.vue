@@ -55,13 +55,15 @@ const showTypes = ref(1);
 
 const formatOptions = (configKey: Array<string>) => {
   const options = get(props.originData, configKey);
-  const useOptions = get(props.defaultValue, configKey);
+  const useOptions = get(props.originData, configKey);
+  // console.log('---------------change option', props.defaultValue);
   return options.map((v) => {
     const useOption = useOptions ? useOptions.find((o) => o.code === v.code) : null;
     return {
       label: v.value,
       value: v.code,
-      disabled: useOption ? useOption.useFlag !== 1 : false,
+      disabled:
+        useOption && useOption.useFlag !== null && useOption.useFlag !== undefined ? useOption.useFlag !== 1 : false,
     };
   });
 };
@@ -108,7 +110,6 @@ watch(
 watch(
   () => JSON.stringify(mValues.value),
   (v, oldValue) => {
-    console.log('---new value, oldValue', v && JSON.parse(v), oldValue && JSON.parse(oldValue));
     const newValues = (v && JSON.parse(v)) || {};
     const oldValues = (oldValue && JSON.parse(oldValue)) || {};
     let changeData = null;
@@ -123,6 +124,7 @@ watch(
             key: config.valueKey,
             oldValue: oldValues[config.valueKey],
             newValue: newValues[config.valueKey],
+            riskCode: props.riskInfo.riskCode,
           };
         }
       }

@@ -150,6 +150,7 @@ const state = reactive({
   trialResult: 0,
   isAniShow: false,
   defaultValue: null, // 是一个plan
+  isAutoChange: false,
 });
 
 const orderDetail = useOrder();
@@ -250,6 +251,7 @@ const handleSetRiskSelect = () => {
 
 const handleDealDyResult = (dyResult: any) => {
   if (dyResult?.data?.[0]?.productRiskDyInsureFactorVOList) {
+    const defaultRiskData = [];
     props.dataSource?.insureProductRiskVOList.forEach((risk) => {
       const newRisk = dyResult?.data?.[0]?.productRiskDyInsureFactorVOList.find((r) => r.riskCode === risk.riskCode);
       if (newRisk) {
@@ -257,9 +259,46 @@ const handleDealDyResult = (dyResult: any) => {
           ...risk.productRiskInsureLimitVO,
           ...newRisk,
         };
+        const riskTrialData = state.riskVOList.find((l) => l.riskCode === risk.riskCode);
+        let change = false;
+        PRODUCT_KEYS_CONFIG.forEach((config) => {
+          if (DYNAMIC_FACTOR_PARAMS.indexOf(config.valueKey) >= 0) {
+            const configData = risk.productRiskInsureLimitVO[config.configKey];
+            if (configData && riskTrialData) {
+              // 对试算值进行比对
+              const targetConfigData = configData.find((d) => d.code === riskTrialData[config.valueKey]);
+              if (targetConfigData && targetConfigData.useFlag === 2) {
+                const newTargetConfigData = configData.find((d) => d.defaultFlag === 1);
+                riskTrialData[config.valueKey] = newTargetConfigData.code;
+                change = true;
+              }
+            }
+          }
+        });
+        if (change) {
+          defaultRiskData.push({
+            ...riskTrialData,
+            ...newRisk,
+            riskCode: risk.riskCode,
+          });
+        }
       }
     });
+    if (defaultRiskData.length > 0 && state.defaultValue?.insuredVOList?.[0]?.productPlanVOList) {
+      // 给默认值
+      defaultRiskData.forEach((data) => {
+        state.defaultValue.insuredVOList[0].productPlanVOList =
+          state.defaultValue?.insuredVOList?.[0]?.productPlanVOList.map((p) => {
+            if (p.riskCode === data.riskCode) {
+              p = data;
+            }
+            return p;
+          });
+      });
+      return false;
+    }
   }
+  return true;
 };
 
 const handleSameMainRisk = (data: any) => {
@@ -289,7 +328,6 @@ const handleSameMainRisk = (data: any) => {
 };
 
 const handleMixTrialData = debounce(() => {
-  console.log('--------------state.ifPersonalInfoSucces = ', state.ifPersonalInfoSuccess);
   if (state.ifPersonalInfoSuccess) {
     state.submitData.productCode = props.productInfo.productCode;
     state.submitData.tenantId = props.productInfo.tenantId;
@@ -351,7 +389,6 @@ const handleMixTrialData = debounce(() => {
 const handlePersonalInfoChange = async (data) => {
   // 只有改动第一个被保人，需要调用dy接口
   const { holder, insuredVOList, isFirstInsuredChange } = data;
-  console.log('------', isFirstInsuredChange);
   if (holder) {
     // state.submitData.holder.personVO = holder;
     state.submitData.holder = {
@@ -398,14 +435,13 @@ const handlePersonalInfoChange = async (data) => {
       ],
       ...insuredVOList[0].personVO,
     });
-    handleDealDyResult(dyResult);
+    if (!handleDealDyResult(dyResult)) return;
   }
   console.log('投被保人的信息回传 ', state.submitData, data);
   handleMixTrialData();
 };
-const handleTrialInfoChange = async (data: any, changeData: any) => {
-  state.mainRiskVO = data;
-  // TODO 这里未来需要看一下  多倍保人的情况，回传需要加入被保人的Index或者别的key
+
+const handleDynamicConfig = async (data: any, changeData: any) => {
   if (changeData) {
     const DyData = cloneDeep(data);
     delete DyData.insurancePeriodValueList;
@@ -434,29 +470,45 @@ const handleTrialInfoChange = async (data: any, changeData: any) => {
         }
       }
       const persionVo = state.submitData?.insuredVOList?.[0].personVO;
-      const dyResult = await queryCalcDynamicInsureFactor({
-        calcProductFactorList: [
-          {
-            planCode: props.dataSource.planCode,
-            productCode: props.productInfo.productCode,
-            riskEditVOList: [
-              {
-                insureProductRiskVO: props.dataSource.insureProductRiskVOList?.[0],
-                insureRiskEditReqVO: {
-                  riskId: data.riskId,
-                  riskCode: data.riskCode,
-                  ...DyData,
-                  ...changeVO,
+      const riskInfo = props.dataSource?.insureProductRiskVOList?.find((r) => r.riskCode === data.riskCode);
+      if (!state.isAutoChange) {
+        const dyResult = await queryCalcDynamicInsureFactor({
+          calcProductFactorList: [
+            {
+              planCode: props.dataSource.planCode,
+              productCode: props.productInfo.productCode,
+              riskEditVOList: [
+                {
+                  insureProductRiskVO: riskInfo,
+                  insureRiskEditReqVO: {
+                    riskId: data.riskId,
+                    riskCode: data.riskCode,
+                    ...DyData,
+                    ...changeVO,
+                  },
                 },
-              },
-            ],
-          },
-        ],
-        ...persionVo,
-      });
-      handleDealDyResult(dyResult);
+              ],
+            },
+          ],
+          ...persionVo,
+        });
+        const result = handleDealDyResult(dyResult);
+        if (!result) {
+          state.isAutoChange = true;
+        }
+        return result;
+      }
+      state.isAutoChange = false;
     }
   }
+  return true;
+};
+
+const handleTrialInfoChange = async (data: any, changeData: any) => {
+  state.mainRiskVO = data;
+  // TODO 这里未来需要看一下  多倍保人的情况，回传需要加入被保人的Index或者别的key
+  const dyDeal = await handleDynamicConfig(data, changeData);
+  if (!dyDeal) return;
   if (state.riskVOList.length > 0) {
     state.riskVOList[0] = data;
   }
@@ -464,9 +516,15 @@ const handleTrialInfoChange = async (data: any, changeData: any) => {
   handleMixTrialData();
 };
 
-const handleProductRiskInfoChange = (dataList: any) => {
+const handleProductRiskInfoChange = async (dataList: any, changeData: any) => {
   state.riskVOList = [state.mainRiskVO, ...dataList];
   console.log('附加险列表数据回传', dataList);
+  if (changeData) {
+    console.log('-change data = ', changeData);
+    const targetRisk = dataList.find((d) => d.riskCode === changeData.riskCode);
+    const dyDeal = await handleDynamicConfig(targetRisk, changeData);
+    if (!dyDeal) return;
+  }
   handleMixTrialData();
 };
 
