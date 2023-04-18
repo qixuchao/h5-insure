@@ -2,13 +2,13 @@
   <ProPageWrap class="page-create-wrapper">
     <div class="container">
       <ProFieldV2
-        v-model="state.insuredFormData.proposalName"
+        v-model="stateInfo.insuredFormData.proposalName"
         class="mb20"
         label="计划书名称"
         name="proposalName"
         :maxlength="20"
       />
-      <ProRenderFormWithCard title="被保人信息" :model="state.insuredFormData">
+      <ProRenderFormWithCard title="被保人信息" :model="stateInfo.insuredFormData">
         <ProFieldV2 label="姓名" name="name" :maxlength="20" required />
         <ProDatePickerV2 label="出生日期" name="birthday" required />
         <ProRadioV2 label="性别" name="gender" :columns="SEX_LIMIT_LIST" required />
@@ -63,15 +63,15 @@
         </ProCard>
       </VanForm> -->
       <ProCard
-        v-for="product in proposalInfo.proposalInsuredList[0].proposalInsuredProductList || []"
-        :key="product.productId"
+        v-for="product in proposalInfo.proposalInsuredList[0]?.proposalInsuredProductList"
+        :key="product.productCode"
         :show-line="false"
       >
         <ProductList
           :product-risk-list="product.proposalProductRiskList"
           :product-info="product"
           :product-num="proposalInfo.proposalInsuredList[0]?.proposalInsuredProductList?.length - 1"
-          :product-data="state.productCollection[product.productId]"
+          :product-data="state.productCollection[product.productCode]"
           :pick-product-premium="pickProductPremium"
           @add-rider-risk="addRiderRisk"
           @update-risk="updateRisk"
@@ -111,6 +111,11 @@
       @cancel="toggleActionSheet(false)"
       @select="selectAction"
     />
+    <TrialPopup
+      ref="trialPopupRef"
+      :data-source="currentProductPlanDetail"
+      :product-code="stateInfo.currentProductCode"
+    />
   </ProPageWrap>
 </template>
 
@@ -131,11 +136,13 @@ import {
   ProposalHolder,
 } from '@/api/modules/createProposal.data';
 import { queryCalcDefaultInsureFactor, insureProductDetail } from '@/api/modules/trial';
+import TrialPopup from '../proposalList/components/TrialPopup.vue';
 
 import { ProductData } from '@/common/constants/trial.data';
 import { SEX_LIMIT_LIST } from '@/common/constants';
 import ProductList from './components/ProductList/index.vue';
 import ProductRisk from './components/ProductRisk/index.vue';
+import { isNotEmptyArray } from '@/common/constants/utils';
 
 interface State {
   productId: number;
@@ -184,6 +191,8 @@ const store = createProposalStore();
 
 const { id, productCode: productCodeInQuery, type = 'add', isCreateProposal } = route.query;
 
+const trialPopupRef = ref(null);
+
 const state = ref<State>({
   productId: 0,
   productCollection: {},
@@ -195,6 +204,20 @@ const state = ref<State>({
   insuredFormData: {
     proposalName: '',
   },
+});
+
+interface StateInfo {
+  insuredFormData: {
+    [x: string]: string | number;
+  };
+  currentProductCode: string;
+}
+
+const stateInfo = reactive<StateInfo>({
+  insuredFormData: {
+    proposalName: '',
+  },
+  currentProductCode: '',
 });
 
 const formRef = ref();
@@ -265,6 +288,16 @@ const formatData = ({ productCode, holder, insuredVOList } = {}) => {
   return proposalData;
 };
 
+/** 当前产品详情 */
+const currentProductDetail = computed(() => {
+  return state.value.productCollection?.[stateInfo.currentProductCode] || {};
+});
+
+/** 当前计划数据 */
+const currentProductPlanDetail = computed(() => {
+  return currentProductDetail.value?.productPlanInsureVOList?.[0] || {};
+});
+
 const fetchDefaultData = async (productCode) => {
   // TODO 加loading
   const { code, data } = await queryCalcDefaultInsureFactor({
@@ -278,12 +311,13 @@ const fetchDefaultData = async (productCode) => {
     const [{ holder, insuredVOList } = {}] = data || [{}];
     const { personVO } = (insuredVOList || [])[0] || {};
     const { age, gender, birthday } = personVO || {};
-    state.value.insuredFormData = {
+
+    Object.assign(stateInfo.insuredFormData, {
       age,
       gender,
       birthday,
-    };
-    proposalInfo.value = formatData(data[0]);
+    });
+    Object.assign(proposalInfo.value, formatData((data || [])[0]));
   }
   // if (result.data) transformDefaultData(result.data.find((d) => d.productCode === props.productInfo.productCode));
 };
@@ -319,7 +353,11 @@ const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
   state.value.productInfo = productInfo;
   state.value.type = 'edit';
   state.value.currentRisk = [riskInfo.riskId];
-  toggleProductRisk(true);
+  // toggleProductRisk(true);
+  stateInfo.currentProductCode = productInfo.productCode;
+  nextTick(() => {
+    trialPopupRef.value?.open();
+  });
 };
 
 // 添加附加险
@@ -353,10 +391,15 @@ const onFinished = (productInfo: ProposalInfo) => {
 };
 
 const queryProductInfo = (searchData: any) => {
-  queryProductDetailList(searchData.voList)
+  queryProductDetailList(searchData)
     .then(({ code, data }) => {
       if (code === '10000') {
-        state.value.productCollection = data || [];
+        state.value.productCollection = isNotEmptyArray(data)
+          ? data.reduce((res, item) => {
+              res[item.productCode] = item;
+              return res;
+            }, {})
+          : {};
       }
     })
     .finally(() => {});
@@ -414,7 +457,7 @@ watch(
         };
       },
     );
-    queryProductInfo({ voList: productList });
+    queryProductInfo(productList);
   },
 );
 </script>

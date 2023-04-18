@@ -24,6 +24,6 @@ export const queryProposalDetailInsurer = (params = {} as any) =>
     method: 'GET',
   });
 
-// 获取产品详情列表
+// 获取产品详情列表（旧版接口）
 export const queryProductDetailList = (data = {}) =>
-  request<ResponseData>({ url: '/api/app/insure/product/v2/listInsureProductDetail', method: 'POST', data });
+  request<any[]>({ url: '/api/app/insure/product/v2/listInsureProductDetail', method: 'POST', data });
