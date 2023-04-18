@@ -1,14 +1,10 @@
 <template>
   <ProPageWrap class="page-create-wrapper">
     <div class="container">
-      <ProFieldV2
-        v-model="stateInfo.insuredFormData.proposalName"
-        class="mb20"
-        label="计划书名称"
-        name="proposalName"
-        :maxlength="20"
-      />
-      <ProRenderFormWithCard title="被保人信息" :model="stateInfo.insuredFormData">
+      <ProRenderForm ref="formRef" class="mb20" :model="stateInfo">
+        <ProFieldV2 label="计划书名称" name="proposalName" :maxlength="20" required />
+      </ProRenderForm>
+      <ProRenderFormWithCard ref="insuredFormRef" title="被保人信息" :model="stateInfo.insuredFormData">
         <ProFieldV2 label="姓名" name="name" :maxlength="20" required />
         <ProDatePickerV2 label="出生日期" name="birthday" required />
         <ProRadioV2 label="性别" name="gender" :columns="SEX_LIMIT_LIST" required />
@@ -63,15 +59,15 @@
         </ProCard>
       </VanForm> -->
       <ProCard
-        v-for="product in proposalInfo.proposalInsuredList[0]?.proposalInsuredProductList"
-        :key="product.productCode"
+        v-for="productItem in proposalInfo.proposalInsuredList[0]?.proposalInsuredProductList"
+        :key="productItem.productCode"
         :show-line="false"
       >
         <ProductList
-          :product-risk-list="product.proposalProductRiskList"
-          :product-info="product"
+          :product-risk-list="productItem.proposalProductRiskList"
+          :product-info="productItem"
           :product-num="proposalInfo.proposalInsuredList[0]?.proposalInsuredProductList?.length - 1"
-          :product-data="state.productCollection[product.productCode]"
+          :product-data="state.productCollection[productItem.productCode]"
           :pick-product-premium="pickProductPremium"
           @add-rider-risk="addRiderRisk"
           @update-risk="updateRisk"
@@ -90,19 +86,19 @@
         <VanButton type="primary" @click="saveProposalData">保存并预览</VanButton>
       </div>
     </div>
-    <ProductRisk
+    <!-- <ProductRisk
       v-if="showProductRisk"
       :is-show="showProductRisk"
       :type="state.type"
-      :rider-risk="state.riderRisk?.[state.productId] || []"
-      :product-data="state.productCollection[state.productId]"
+      :rider-risk="state.riderRisk?.[state.productCode] || []"
+      :product-data="state.productCollection[state.productCode]"
       :form-info="state.productInfo"
       :holder="proposalInfo.proposalHolder"
       :insured="proposalInfo.proposalInsuredList[0]"
       :current-risk="state.currentRisk"
       @close="closeProductRisk"
       @finished="onFinished"
-    ></ProductRisk>
+    ></ProductRisk> -->
     <VanActionSheet
       v-model:show="showActionSheet"
       :actions="SHEET_ACTIONS"
@@ -115,11 +111,12 @@
       ref="trialPopupRef"
       :data-source="currentProductPlanDetail"
       :product-code="stateInfo.currentProductCode"
+      @finish="onFinished"
     />
   </ProPageWrap>
 </template>
 
-<script lang="ts" setup name="createProposal">
+<script lang="ts" setup name="CreateProposal">
 import { ActionSheetAction, Dialog, Toast } from 'vant';
 import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
@@ -145,7 +142,7 @@ import ProductRisk from './components/ProductRisk/index.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
 
 interface State {
-  productId: number;
+  productCode: number;
   productCollection: ProductData;
   productInfo: ProposalInsuredProductItem;
   productPremium: any;
@@ -194,7 +191,7 @@ const { id, productCode: productCodeInQuery, type = 'add', isCreateProposal } = 
 const trialPopupRef = ref(null);
 
 const state = ref<State>({
-  productId: 0,
+  productCode: 0,
   productCollection: {},
   productInfo: {} as ProposalInsuredProductItem,
   productPremium: {},
@@ -210,17 +207,20 @@ interface StateInfo {
   insuredFormData: {
     [x: string]: string | number;
   };
+  proposalName: string;
   currentProductCode: string;
+  proposalInsuredProductList: object[];
 }
 
 const stateInfo = reactive<StateInfo>({
-  insuredFormData: {
-    proposalName: '',
-  },
+  insuredFormData: {},
+  proposalName: '',
   currentProductCode: '',
+  proposalInsuredProductList: [],
 });
 
-const formRef = ref();
+const formRef = ref(null);
+const insuredFormRef = ref(null);
 
 // 原始的产品详情数据
 const selectedProduct = ref({});
@@ -234,8 +234,16 @@ const dateRange = computed(() => {
   };
 });
 
+/** 当前计划书的产品CodeList */
+const currentProductCodeList = computed(() => {
+  const { proposalInsuredProductList } = proposalInfo.value?.proposalInsuredList?.[0] || {};
+  return isNotEmptyArray(proposalInsuredProductList)
+    ? proposalInsuredProductList.map((item) => item.productCode).filter((code) => Boolean(code))
+    : [];
+});
+
 const submitData = () => {
-  formRef.value.validate().then(() => {
+  Promise.all([formRef.value?.validate(), insuredFormRef.value?.validate()]).then(() => {
     addOrUpdateProposal(proposalInfo.value).then((res) => {
       const { code, data } = res || {};
       if (code === '10000') {
@@ -253,11 +261,11 @@ const submitData = () => {
 };
 
 const saveProposalData = () => {
-  if (!id && store.proposalId) {
-    toggleActionSheet(true);
-  } else {
-    submitData();
-  }
+  // if (!id && store.proposalId) {
+  //   toggleActionSheet(true);
+  // } else {
+  submitData();
+  // }
 };
 
 const selectAction = (item: ActionSheetAction, index: number) => {
@@ -336,9 +344,9 @@ const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
     if (riskInfo.riskType === 1) {
       proposalInfo.value.proposalInsuredList[0].proposalInsuredProductList =
         proposalInfo.value.proposalInsuredList[0].proposalInsuredProductList.filter(
-          (product: ProposalInsuredProductItem) => product.productId !== currentProduct.productId,
+          (product: ProposalInsuredProductItem) => product.productCode !== currentProduct.productCode,
         );
-      pickProductPremium({ [currentProduct.productId]: 0 });
+      pickProductPremium({ [currentProduct.productCode]: 0 });
     } else {
       currentProduct.proposalProductRiskList = currentProduct.proposalProductRiskList.filter(
         (risk) => risk.riskId !== riskInfo.riskId,
@@ -349,7 +357,7 @@ const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
 
 // 修改险种
 const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsuredProductItem) => {
-  state.value.productId = productInfo.productId;
+  state.value.productCode = productInfo.productCode;
   state.value.productInfo = productInfo;
   state.value.type = 'edit';
   state.value.currentRisk = [riskInfo.riskId];
@@ -362,7 +370,7 @@ const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
 
 // 添加附加险
 const addRiderRisk = (riskIds: any[], productInfo: ProposalInsuredProductItem) => {
-  state.value.productId = productInfo.productId;
+  state.value.productCode = productInfo.productCode;
   state.value.productInfo = productInfo;
   state.value.type = 'addRiderRisk';
   state.value.currentRisk = riskIds;
@@ -382,12 +390,13 @@ const onFinished = (productInfo: ProposalInfo) => {
   proposalInfo.value.proposalInsuredList[0].proposalInsuredProductList =
     proposalInfo.value.proposalInsuredList[0].proposalInsuredProductList.map((product: ProposalInsuredProductItem) => {
       let currentProduct = product;
-      if (product.productId === productInfo.proposalInsuredList[0].proposalInsuredProductList[0].productId) {
+      if (product.productCode === productInfo.proposalInsuredList[0].proposalInsuredProductList[0].productCode) {
         currentProduct = { ...productInfo.proposalInsuredList[0].proposalInsuredProductList[0] };
       }
       return currentProduct;
     });
-  toggleProductRisk(false);
+  // toggleProductRisk(false);
+  trialPopupRef.value?.close();
 };
 
 const queryProductInfo = (searchData: any) => {
@@ -411,11 +420,16 @@ const addMainRisk = () => {
   if (state.value.productCollection.length) {
     store.setExcludeProduct(state.value.productCollection.map((i) => i.productCode));
   }
+
+  const { gender, birthday } = stateInfo.insuredFormData;
+
   router.push({
     path: '/proposalList',
     query: {
       isCreateProposal: '1',
-      ...route.query,
+      productCodeList: currentProductCodeList.value,
+      gender,
+      birthday,
     },
   });
 };

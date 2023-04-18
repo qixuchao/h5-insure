@@ -56,7 +56,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="ProductList">
 import { withDefaults } from 'vue';
 import { useToggle } from '@vant/use';
 import { ProposalProductRiskItem, ProposalInsuredProductItem } from '@/api/modules/createProposal.data';

@@ -1,5 +1,5 @@
 <template>
-  <div :class="`trial-button ${$attrs.class}`">
+  <div v-if="!hidePopupButton" :class="`trial-button ${$attrs.class}`">
     <VanButton type="primary" @click="open">立即投保</VanButton>
   </div>
   <ProPopup
@@ -50,7 +50,7 @@
         ></ProductRiskList>
         <div class="empty"></div>
       </div>
-      <slot>
+      <slot :trial-data="state.submitData" :risk-premium="premiumMap">
         <TrialButton
           :is-share="shareInfo.isShare"
           :premium="state.trialResult"
@@ -109,6 +109,7 @@ interface Props {
   shareInfo: any;
   tenantProductDetail: any;
   hideBenefit: boolean;
+  hidePopupButton: boolean;
   title: string;
 }
 
@@ -133,6 +134,10 @@ const props = withDefaults(defineProps<Props>(), {
    * 是否隐藏利益演示
    */
   hideBenefit: false,
+  /**
+   * 隐藏弹窗操作按钮
+   */
+  hidePopupButton: false,
 });
 
 const state = reactive({
@@ -544,6 +549,7 @@ const open = () => {
 
 defineExpose({
   open,
+  close: onClosePopup,
 });
 watch(
   () => state.riskIsInsure,
