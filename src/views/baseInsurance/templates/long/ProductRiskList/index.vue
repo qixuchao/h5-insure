@@ -44,7 +44,7 @@
           :origin-data="risk"
           :product-factor="dataSource.productFactor"
           :default-value="state.risksDefaultValue[risk.riskCode]"
-          @trial-change="(data) => handleInsureInfoChange(data, risk.riskId)"
+          @trial-change="(data, changeData) => handleInsureInfoChange(data, risk.riskId, changeData)"
         ></InsureInfos>
       </div>
     </div>
@@ -129,7 +129,7 @@ const getInitliabilityVOList = (dataSource: any) => {
   return liabilityList;
 };
 
-const handleInsureInfoChange = (data: any, riskId: number) => {
+const handleInsureInfoChange = (data: any, riskId: number, changeData: any) => {
   state.riskIsInsure[riskId].data = data;
   const list = [...state.disabledRiskInfo];
   props.dataSource.insureProductRiskVOList?.forEach((risk) => {
@@ -140,7 +140,7 @@ const handleInsureInfoChange = (data: any, riskId: number) => {
       }
     }
   });
-  emit('trialChange', list);
+  emit('trialChange', list, changeData);
 };
 
 const handleSetRiskSelect = () => {
