@@ -63,25 +63,36 @@ const formatData = (trialData: PremiumCalcData, riskPremium: any) => {
       amount: riskPremium[risk.riskCode]?.amount,
     };
   });
-  const proposalData = {
-    proposalHolder: {
-      ...holder?.personVO,
+  // const proposalData = {
+  //   proposalHolder: {
+  //     ...holder?.personVO,
+  //   },
+  //   proposalInsuredList: [
+  //     {
+  //       ...personVO,
+  //       proposalInsuredProductList: [
+  //         {
+  //           productCode: props.productCode,
+  //           productName: props.productName,
+  //           occupationCodeList: personVO.occupationCodeList,
+  //           proposalProductRiskList: riskList,
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // };
+  // return proposalData;
+  return {
+    productCode: props.productCode,
+    proposalHolder: holder?.personVO,
+    insuredPersonVO: personVO,
+    insuredProductInfo: {
+      productCode: props.productCode,
+      productName: props.productName,
+      occupationCodeList: personVO.occupationCodeList,
+      proposalProductRiskList: riskList,
     },
-    proposalInsuredList: [
-      {
-        ...personVO,
-        proposalInsuredProductList: [
-          {
-            productCode: props.productCode,
-            productName: props.productName,
-            occupationCodeList: personVO.occupationCodeList,
-            proposalProductRiskList: riskList,
-          },
-        ],
-      },
-    ],
   };
-  return proposalData;
 };
 
 const onFinished = (...rest) => {
