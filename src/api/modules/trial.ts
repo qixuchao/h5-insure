@@ -1,5 +1,5 @@
 import request from '@/api/request';
-import { ProductData, PremiumCalcData, PremiumCalcResponse } from './trial.data';
+import { ProductData, PremiumCalcData, PremiumCalcResponse, PlanTrialDefaultItem } from './trial.data';
 import { InsureProductData } from '@/api/modules/product.data';
 
 // 获取产品详情
@@ -98,7 +98,7 @@ export const getCalculateRiskFormula = (data: {}) => {
 
 // 试算默认值
 export const queryCalcDefaultInsureFactor = (data: {}) => {
-  return request({
+  return request<PlanTrialDefaultItem[]>({
     url: '/api/app/insure/product/v2/calcDefaultInsureFactor',
     method: 'POST',
     data,

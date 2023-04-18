@@ -609,3 +609,14 @@ export interface ProductPlanInsure {
   oilPackageRelationVOList: Array<any>;
   productRiskRelationVOList: Array<any>;
 }
+
+
+/** 试算默认值 */
+export interface PlanTrialDefaultItem {
+  holder: Partial<PersonVo>,
+  insuredVOList: {
+    personVO: Partial<PersonVo>;
+    productPlanVOList: ProductPlanVoItem[];
+  }[];
+  productCode: string;
+}
