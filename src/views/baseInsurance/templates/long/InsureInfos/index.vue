@@ -23,6 +23,7 @@
         basicsPremium: state.basicsPremium,
         riskId: originData?.riskId,
       }"
+      :default-value="state.defaultValues"
       @trial-change="handleRiskLiabilityChange"
     />
   </template>
@@ -106,6 +107,7 @@ const handleMixData = debounce((changeValue: any) => {
   mValues.value.riskType = props.originData.riskType;
   mValues.value.mainRiskCode = props.originData.mainRiskCode;
   mValues.value.mainRiskId = props.originData.mainRiskId;
+  console.log('---trial value = ', mValues.value, mValues.value.liabilityVOList);
   if (changeValue) emit('trialChange', mValues.value, changeValue);
   else emit('trialChange', mValues.value);
 }, 300);
@@ -114,6 +116,7 @@ const handleProductKeysChange = (data, changeValue) => {
   objectKeys(data).forEach((key) => {
     mValues.value[key] = data[key];
   });
+  console.log('-handleProductKeysChange', mValues.value.liabilityVOList);
   handleMixData(changeValue);
 };
 
@@ -127,10 +130,12 @@ const handleBaoeBaofeiChange = (data) => {
   objectKeys(data).forEach((key) => {
     mValues.value[key] = data[key];
   });
+  console.log('-handleBaoeBaofeiChange', mValues.value.liabilityVOList);
   handleMixData();
 };
 const handleRiskLiabilityChange = (data) => {
   mValues.value.liabilityVOList = data;
+  console.log('---trial change lia = ', mValues.value.liabilityVOList);
   handleMixData();
 };
 
@@ -144,6 +149,17 @@ watch(
     if (v) {
       if (v) state.defaultValues = v;
     }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  () => mValues.value,
+  (v) => {
+    console.log('----=-=-=-=-=-=-=-=-=vvvv = ', v.liabilityVOList);
   },
   {
     deep: true,

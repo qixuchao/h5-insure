@@ -323,7 +323,15 @@ const handleSameMainRisk = (data: any) => {
               data[config.valueKey] = mainRiskTrialData[config.valueKey];
             if (risk.productRiskInsureLimitVO[config.ruleKey] === 3) {
               // -1
-              data[config.valueKey] = dealExemptPeriod(risk, mainRiskTrialData[config.valueKey], state.submitData);
+              if (risk.exemptFlag !== 1)
+                // 附加险为豁免险的时候 ，附加险的额交期、保期是主险的缴费期间-1 @小春
+                data[config.valueKey] = dealExemptPeriod(risk, mainRiskTrialData[config.valueKey], state.submitData);
+              else
+                data[config.valueKey] = dealExemptPeriod(
+                  risk,
+                  mainRiskTrialData[config.ruleValueKey],
+                  state.submitData,
+                );
             }
           }
         }
@@ -342,13 +350,24 @@ const handleMixTrialData = debounce(async () => {
       return handleSameMainRisk(trialRisk);
     });
     //  这里目前只有一个被保人，所以直接index0，后面需要用被保人code来区分
-    state.submitData.insuredVOList[0].productPlanVOList = [
-      {
-        insurerCode: props.productInfo.insurerCode,
-        planCode: props.dataSource.planCode,
-        riskVOList: state.riskVOList,
-      },
-    ];
+    // state.submitData.insuredVOList[0].productPlanVOList = [
+    //   {
+    //     insurerCode: props.productInfo.insurerCode,
+    //     planCode: props.dataSource.planCode,
+    //     riskVOList: state.riskVOList,
+    //   },
+    // ];
+    if (state.submitData.insuredVOList) {
+      state.submitData.insuredVOList.forEach((ins) => {
+        ins.productPlanVOList = [
+          {
+            insurerCode: props.productInfo.insurerCode,
+            planCode: props.dataSource.planCode,
+            riskVOList: state.riskVOList,
+          },
+        ];
+      });
+    }
     console.log('>>>数据构建<<<', state.submitData);
     state.trialMsg = LOADING_TEXT;
     state.trialResult = 0;
@@ -416,14 +435,13 @@ const handlePersonalInfoChange = async (data) => {
         };
       } else {
         // new
-        state.submitData.insuredVOList = [
-          {
-            personVO: {
-              ...ins.personVO,
-              socialFlag: ins.personVO.hasSocialInsurance,
-            },
+        if (!state.submitData?.insuredVOList) state.submitData.insuredVOList = [];
+        state.submitData.insuredVOList.push({
+          personVO: {
+            ...ins.personVO,
+            socialFlag: ins.personVO.hasSocialInsurance,
           },
-        ];
+        });
       }
     });
   }
@@ -454,7 +472,6 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
   if (changeData) {
     const DyData = cloneDeep(data);
     delete DyData.insurancePeriodValueList;
-    delete DyData.liabilityVOList;
     delete DyData.paymentFrequencyList;
     delete DyData.paymentPeriodValueList;
     const hasDyChange = DYNAMIC_FACTOR_PARAMS.indexOf(changeData.key) >= 0;
@@ -515,6 +532,7 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
 
 const handleTrialInfoChange = async (data: any, changeData: any) => {
   state.mainRiskVO = data;
+  console.log(':::::handleTrialInfoChange = ', data);
   // TODO 这里未来需要看一下  多倍保人的情况，回传需要加入被保人的Index或者别的key
   const dyDeal = await handleDynamicConfig(data, changeData);
   if (!dyDeal) return;

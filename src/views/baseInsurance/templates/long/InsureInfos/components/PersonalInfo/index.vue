@@ -189,7 +189,7 @@ watch(
       JSON.stringify(result?.insuredVOList?.[0]?.personVO) !== props.modelValue?.insuredVOList?.[0]?.personVO;
     result.isFirstInsuredChange = isFirstInsuredChange;
     emit('update:modelValue', result);
-    console.log('---is first change= ', isFirstInsuredChange, state.config.hasTrialFactorCodes, validateTrialFields());
+    console.log('---is first change= ', result);
     // 验证通过调用试算
     if (state.config.hasTrialFactorCodes && validateTrialFields()) {
       validate(true)

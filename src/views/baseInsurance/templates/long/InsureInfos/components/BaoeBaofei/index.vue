@@ -124,7 +124,6 @@ const props = withDefaults(defineProps<Props>(), {
 const mConfigs = ref(props.originData);
 const mValues = ref(props.modelValue);
 const showTypes = ref(1);
-
 const pickEnums = (origin: any[], target: any[], prop = {}) => {
   let currentTarget = target;
   if (!Array.isArray(target)) {
@@ -292,7 +291,7 @@ watch(
 watch(
   () => props.defalutValue,
   (v) => {
-    if (v?.riskCode) mValues.value = cloneDeep(props.defalutValue);
+    if (v?.riskCode) mValues.value = Object.assign(mValues.value, cloneDeep(props.defalutValue));
   },
   {
     deep: true,
@@ -305,9 +304,19 @@ watch(
   (v) => {
     if (checkStep()) {
       emit('update:modelValue', v);
-      // console.log('----change', v);
       emit('trialChange', v);
     }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  () => props.modelValue,
+  (v) => {
+    console.log('---------modelValueChange = ', v);
   },
   {
     deep: true,
