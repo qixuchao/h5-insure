@@ -270,6 +270,8 @@ export interface PersonalInfoConf {
   hasTrialFactorCodes?: boolean;
   /** 被保人人个数 */
   multiInsuredNum: number;
+  /** 是否可以添加多被保人 */
+  insuredAddable: boolean;
   /** 受益人人个数 */
   multiBeneficiaryNum: number;
 }
@@ -305,8 +307,11 @@ const handleHolderSchema = (factorsMap, config) => {
           if (code === 'relationToMainInsured') {
             const isSpouse =
               isNotEmptyArray(attributeValueList) && attributeValueList.filter((attrItem) => attrItem.code === '2');
-            // 若是配偶，被保人数量为2
-            if (isSpouse) config.multiInsuredNum = 2;
+            // 若是配偶，被保人数量为2,并且不可添加
+            if (isSpouse) {
+              config.multiInsuredNum = 2;
+              config.insuredAddable = false;
+            }
           }
           res[1].push(insuredItem);
         } else {
@@ -357,6 +362,8 @@ export const transformFactorToSchema = (
   const config: PersonalInfoConf = {
     /** 是否有试算因子 */
     hasTrialFactorCodes: false,
+    /** 是否可以添加被保人-配偶为false */
+    insuredAddable: true,
     /** 被保人数量 */
     multiInsuredNum: conf.multiInsuredNum,
     /** 受益人数量, 默认 5 */

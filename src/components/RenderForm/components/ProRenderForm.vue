@@ -217,6 +217,9 @@ defineExpose({
 });
 </script>
 <style lang="scss" scoped>
-// .com-van-form {
-// }
+.com-van-form {
+  div.van-cell:last-child::after {
+    display: none;
+  }
+}
 </style>

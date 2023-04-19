@@ -164,7 +164,10 @@ const onDeleteInsured = (index) => {
 
 /** 被保人是否可添加的 */
 const addible = computed(() => {
-  const { multiInsuredNum } = state.config;
+  const { multiInsuredNum, insuredAddable } = state.config;
+  // 配偶只有两个被保人并且无法添加
+  if (!insuredAddable) return false;
+  // 其他根据数量判断
   return multiInsuredNum ? state.insured.length < multiInsuredNum : true;
 });
 
