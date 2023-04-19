@@ -24,18 +24,9 @@
     >
       <span v-if="index > 0" @click="onDeleteInsured(index)"><van-icon name="delete-o" /></span>
     </InsuredItem>
-    <van-cell>
+    <van-cell v-if="!isView || addible" class="add-button-wrap">
       <template #title>
-        <van-button
-          v-if="!isView || addible"
-          icon="plus"
-          size="small"
-          plain
-          color="#8FBBFC"
-          type="primary"
-          @click="onAddInsured"
-          >添加被保人</van-button
-        >
+        <span class="add-button" @click="onAddInsured"><van-icon name="plus" />添加被保人</span>
       </template>
     </van-cell>
   </template>
@@ -318,12 +309,21 @@ defineExpose({
 <style scoped lang="scss">
 .personal-info-card {
   margin-bottom: 20px;
-  :deep(.com-card-wrap) .header {
-    margin-left: 0;
-  }
   :deep(.com-van-field) {
     &:last-child::after {
       display: block;
+    }
+  }
+}
+.add-button-wrap {
+  margin-bottom: 20px;
+  padding: 25px 30px;
+  .add-button {
+    font-size: 32px;
+    color: #006aff;
+    line-height: 45px;
+    .van-icon-plus {
+      font-weight: 600;
     }
   }
 }

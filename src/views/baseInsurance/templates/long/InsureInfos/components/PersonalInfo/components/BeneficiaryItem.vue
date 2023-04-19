@@ -1,7 +1,7 @@
 <template>
   <ProRenderFormWithCard
     ref="formRef"
-    class="trail-personal-info"
+    class="personal-info-card"
     :title="title"
     :model="state.personVO"
     :schema="state.schema"
@@ -155,10 +155,7 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
-.trail-personal-info {
-  :deep(.com-card-wrap) .header {
-    margin-left: 0;
-  }
+.personal-info-card {
   :deep(.com-van-field) {
     &:last-child::after {
       display: block;

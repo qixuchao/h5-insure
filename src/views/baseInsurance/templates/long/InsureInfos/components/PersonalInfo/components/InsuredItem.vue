@@ -1,7 +1,7 @@
 <template>
   <ProRenderFormWithCard
     ref="insuredFormRef"
-    class="trail-personal-info"
+    class="personal-info-card"
     :title="'被保人信息'"
     :model="state.personVO"
     :schema="state.schema"
@@ -13,7 +13,7 @@
   <template v-if="hasBeneficiarySchema">
     <ProRenderFormWithCard
       ref="insuredFormRef"
-      class="trail-personal-info"
+      class="personal-info-card"
       :title="'受益人'"
       :model="state.personVO"
       :schema="state.beneficiaryTypeSchemaList"
@@ -32,15 +32,9 @@
       >
         <span v-if="index > 0" @click="onDeleteBeneficiary(index)"><van-icon name="delete-o" /></span>
       </BeneficiaryItem>
-      <van-button
-        v-if="!isView && addible"
-        icon="plus"
-        size="small"
-        plain
-        color="#8FBBFC"
-        type="primary"
-        @click="onAddBeneficiary"
-        >添加受益人</van-button
+
+      <span v-if="!isView && addible" class="add-button" @click="onAddBeneficiary"
+        ><van-icon name="plus" />添加受益人</span
       >
     </template>
   </template>
@@ -389,14 +383,20 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
-.trail-personal-info {
-  :deep(.com-card-wrap) .header {
-    margin-left: 0;
-  }
+.personal-info-card {
   :deep(.com-van-field) {
     &:last-child::after {
       display: block;
     }
+  }
+}
+.add-button {
+  padding: 20px 30px;
+  font-size: 26px;
+  color: #0d6efe;
+  line-height: 37px;
+  .van-icon-plus {
+    font-weight: 600;
   }
 }
 </style>
