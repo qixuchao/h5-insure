@@ -136,7 +136,7 @@ watch(
             ? shallowRef(FieldComponents[item.componentName])
             : item.componentName,
           ...config[item.name],
-          // nanoid: nanoid(),
+          nanoid: nanoid(),
         }))
         .filter((item) => !item.hidden);
     }

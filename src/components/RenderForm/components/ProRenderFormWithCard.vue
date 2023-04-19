@@ -9,7 +9,7 @@
     </template>
     <ProRenderForm ref="renderFormRef" v-bind="$attrs">
       <!-- 继承 slots -->
-      <template v-for="slotName in Object.keys(noProCardSlots)" :key="slotName" #[slotName]>
+      <template v-for="slotName in noProCardSlots" :key="slotName" #[slotName]>
         <slot :name="slotName" />
       </template>
     </ProRenderForm>
