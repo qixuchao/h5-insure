@@ -142,7 +142,6 @@ watch(
   () => props.defaultValue,
   (v) => {
     if (v) {
-      v.amount = 60000;
       if (v) state.defaultValues = v;
     }
   },

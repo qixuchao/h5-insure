@@ -65,7 +65,7 @@
 
 <script lang="ts" setup name="filePreview">
 import { withDefaults } from 'vue';
-import { useTheme } from '../../../t333heme';
+import { useTheme } from '../../../theme';
 import { AttachmentVOList } from '@/api/modules/product.data';
 import ProShadowButton from '../ProShadowButton/index.vue';
 import { openPreviewFilePage } from '@/views/baseInsurance/utils';
