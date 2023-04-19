@@ -1,0 +1,1 @@
+import{d as s,a4 as r,c as e,e as a,h as n}from"./index-000b7445.js";const o=s({name:"Banner"}),t=s({...o,props:{url:{default:""}},setup(s){const o=s;return console.log("props",o),(o,t)=>{const l=r;return s.url?(e(),a(l,{key:0,width:"100%",class:"com-template-banner",src:s.url},null,8,["src"])):n("",!0)}}});export{t as _};
