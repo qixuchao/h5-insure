@@ -22,6 +22,7 @@
 <script lang="ts" setup>
 import { withDefaults, reactive, shallowRef, useSlots } from 'vue';
 import type { FormInstance } from 'vant';
+import { nanoid } from 'nanoid';
 import { Toast } from 'vant/es';
 import debounce from 'lodash-es/debounce';
 import { isNotEmptyArray } from '@/common/constants/utils';
@@ -130,10 +131,12 @@ watch(
       state.schema = (schema as SchemaItem[])
         .map((item) => ({
           ...item,
+          // modelValue: props.model[item.name],
           componentName: FieldComponents[item.componentName]
             ? shallowRef(FieldComponents[item.componentName])
             : item.componentName,
           ...config[item.name],
+          // nanoid: nanoid(),
         }))
         .filter((item) => !item.hidden);
     }

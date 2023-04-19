@@ -2,25 +2,25 @@
   <ProRenderFormWithCard
     ref="formRef"
     class="trail-personal-info"
-    :title="'受益人'"
+    :title="title"
     :model="state.personVO"
     :schema="state.schema"
     :config="state.config"
     :is-view="isView"
-  />
+  >
+    <template #cardTitleExtra><slot></slot></template>
+  </ProRenderFormWithCard>
 </template>
 <script lang="ts" setup name="BeneficiaryItem">
 import { withDefaults } from 'vue';
+import cloneDeep from 'lodash-es/cloneDeep';
 import {
   type SchemaItem,
   type PersonFormProps,
   validateForm,
   validateFields,
   ProRenderFormWithCard,
-  colorConsole,
 } from '@/components/RenderForm';
-import { BENEFICIARY_ENUM } from '@/common/constants/infoCollection';
-import { deepCopy } from '@/utils';
 
 interface Props {
   modelValue: any;
@@ -28,6 +28,7 @@ interface Props {
   config: object;
   isView: boolean;
   isTrial: boolean;
+  title: string;
 }
 
 const emit = defineEmits(['update:modelValue', 'trailChange']);
@@ -40,6 +41,7 @@ const props = withDefaults(defineProps<Props>(), {
   config: () => ({} as any),
   isView: false,
   isTrial: false,
+  title: '受益人',
 });
 
 interface StateInfo extends PersonFormProps {
@@ -70,29 +72,29 @@ const validate = (isTrial) => {
   return validateForm(formRef, props.trialFactorCodes, isTrial);
 };
 
-// 受益人试算
-watch(
-  () => state?.personVO?.insuredBeneficiaryType,
-  (val) => {
-    colorConsole('受益人类型关系变动了');
+// // 受益人试算
+// watch(
+//   () => state?.personVO?.insuredBeneficiaryType,
+//   (val) => {
+//     colorConsole('受益人类型关系变动了');
 
-    // 是否为法定
-    const isLegal = val === BENEFICIARY_ENUM.LEGAL;
-    state.schema?.forEach((schemaItem) => {
-      schemaItem.hidden = isLegal ? schemaItem.name !== 'insuredBeneficiaryType' : false;
-    });
+//     // 是否为法定
+//     const isLegal = val === BENEFICIARY_ENUM.LEGAL;
+//     state.schema?.forEach((schemaItem) => {
+//       schemaItem.hidden = isLegal ? schemaItem.name !== 'insuredBeneficiaryType' : false;
+//     });
 
-    // 如果是法定只保留受益人类型
-    if (isLegal) {
-      state.personVO = {
-        insuredBeneficiaryType: BENEFICIARY_ENUM.LEGAL,
-      };
-    }
-  },
-  {
-    immediate: true,
-  },
-);
+//     // 如果是法定只保留受益人类型
+//     if (isLegal) {
+//       state.personVO = {
+//         insuredBeneficiaryType: BENEFICIARY_ENUM.LEGAL,
+//       };
+//     }
+//   },
+//   {
+//     immediate: true,
+//   },
+// );
 
 watch(
   () => props.config,
@@ -111,7 +113,7 @@ watch(
   () => props.schema,
   (val) => {
     if (val) {
-      Object.assign(state.schema, deepCopy(props.schema));
+      Object.assign(state.schema, cloneDeep(props.schema));
     }
   },
   {

@@ -7,23 +7,49 @@
     :schema="state.schema"
     :config="state.config"
     :is-view="isView"
-  />
+  >
+    <template #cardTitleExtra><slot></slot></template>
+  </ProRenderFormWithCard>
   <template v-if="hasBeneficiarySchema">
-    <BeneficiaryItem
-      v-for="(beneficiary, index) in state.beneficiaryList"
-      ref="beneficiaryFormRef"
-      :key="`${beneficiary.nanoid}_${index}`"
-      v-model="beneficiary.personVO"
-      :schema="beneficiarySchema"
-      :config="beneficiary.config"
+    <ProRenderFormWithCard
+      ref="insuredFormRef"
+      class="trail-personal-info"
+      :title="'受益人'"
+      :model="state.personVO"
+      :schema="state.beneficiaryTypeSchemaList"
       :is-view="isView"
     />
-    <van-button type="primary" @click="onAddBeneficiary">添加受益人</van-button>
+    <template v-if="isSpecifyBeneficiary">
+      <BeneficiaryItem
+        v-for="(beneficiary, index) in state.beneficiaryList"
+        ref="beneficiaryFormRef"
+        :key="`${beneficiary.nanoid}_${index}`"
+        v-model="beneficiary.personVO"
+        :title="`受益人${index + 1}`"
+        :schema="state.beneficiarySchemaList"
+        :config="beneficiary.config"
+        :is-view="isView"
+      >
+        <span v-if="index > 0" @click="onDeleteBeneficiary(index)"><van-icon name="delete-o" /></span>
+      </BeneficiaryItem>
+      <van-button
+        v-if="!isView && addible"
+        icon="plus"
+        size="small"
+        plain
+        color="#8FBBFC"
+        type="primary"
+        @click="onAddBeneficiary"
+        >添加受益人</van-button
+      >
+    </template>
   </template>
 </template>
 <script lang="ts" setup name="InsuredItem">
 import { withDefaults } from 'vue';
+import { Dialog } from 'vant';
 import { nanoid } from 'nanoid';
+import cloneDeep from 'lodash-es/cloneDeep';
 import {
   type SchemaItem,
   type PersonFormProps,
@@ -34,8 +60,8 @@ import {
   colorConsole,
 } from '@/components/RenderForm';
 import { isNotEmptyArray } from '@/common/constants/utils';
+import { BENEFICIARY_ENUM } from '@/common/constants/infoCollection';
 import BeneficiaryItem from './BeneficiaryItem.vue';
-import { deepCopy } from '@/utils';
 
 interface Props {
   modelValue: any;
@@ -45,6 +71,7 @@ interface Props {
   isView: boolean;
   isTrial: boolean;
   trialFactorCodes: string[];
+  multiBeneficiaryNum: number;
   beneficiaryList: Partial<PersonFormProps>[];
   beneficiarySchema: SchemaItem[];
 }
@@ -71,11 +98,14 @@ const props = withDefaults(defineProps<Props>(), {
   beneficiarySchema: () => [],
   isView: false,
   isTrial: false,
+  multiBeneficiaryNum: null,
 });
 
 interface StateInfo extends PersonFormProps {
   validated: boolean;
   beneficiaryList: Partial<PersonFormProps>[];
+  beneficiarySchemaList: SchemaItem[];
+  beneficiaryTypeSchemaList: SchemaItem[];
 }
 
 const state = reactive<Partial<StateInfo>>({
@@ -87,7 +117,11 @@ const state = reactive<Partial<StateInfo>>({
   schema: [],
   config: {},
   personVO: {},
-  beneficiaryList: [deepCopy(initBeneficiaryItem)],
+  /** 受益人类型 */
+  beneficiaryTypeSchemaList: [],
+  /** 排除受益人类型 */
+  beneficiarySchemaList: [],
+  beneficiaryList: [],
 });
 
 // 验证表单必填
@@ -101,7 +135,7 @@ const validate = (isTrial) => {
 // 添加受益人
 const onAddBeneficiary = () => {
   state.beneficiaryList.push(
-    deepCopy({
+    cloneDeep({
       ...initBeneficiaryItem,
       nanoid: nanoid(),
       schema: props.beneficiarySchema,
@@ -110,10 +144,24 @@ const onAddBeneficiary = () => {
 };
 
 // 删除受益人
-const onDeleteBeneficiary = () => {};
+const onDeleteBeneficiary = (index) => {
+  Dialog.confirm({
+    message: `确定要删除该受益人吗？`,
+  }).then(() => {
+    state.beneficiaryList.splice(index, 1);
+  });
+};
+
+/** 受益人是否可添加的 */
+const addible = computed(() => {
+  return props.multiBeneficiaryNum ? state.beneficiaryList.length < props.multiBeneficiaryNum : true;
+});
 
 // 是否有受益人
 const hasBeneficiarySchema = computed(() => isNotEmptyArray(props.beneficiarySchema));
+
+// 是否为指定受益人
+const isSpecifyBeneficiary = computed(() => state.personVO?.insuredBeneficiaryType === BENEFICIARY_ENUM.SPECIFY);
 
 /** 验证试算因子是否全部有值 */
 const validateTrialFields = () => {
@@ -142,6 +190,39 @@ watch(
   },
   {
     deep: true,
+    immediate: true,
+  },
+);
+
+/** 筛选受益人类型 */
+watch(
+  () => props.beneficiarySchema,
+  (val) => {
+    state.beneficiarySchemaList = isNotEmptyArray(val)
+      ? val.filter((item) => item.name !== 'insuredBeneficiaryType')
+      : [];
+    state.beneficiaryTypeSchemaList = isNotEmptyArray(val)
+      ? val.filter((item) => item.name === 'insuredBeneficiaryType')
+      : [];
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+// 指定受益人
+watch(
+  isSpecifyBeneficiary,
+  (val) => {
+    colorConsole('受益人类型关系变动了');
+
+    // 如果是指定受益人
+    if (val) {
+      onAddBeneficiary();
+    }
+  },
+  {
     immediate: true,
   },
 );
@@ -235,7 +316,7 @@ watch(
   () => props.schema,
   (val) => {
     if (val) {
-      Object.assign(state.schema, deepCopy(val));
+      Object.assign(state.schema, cloneDeep(val));
     }
   },
   {
@@ -252,7 +333,7 @@ watch(
       if (isNotEmptyArray(val.beneficiaryList) && isNotEmptyArray(state.beneficiaryList)) {
         // 受益人
         state.beneficiaryList.forEach((beneficiaryIem, i) => {
-          Object.assign(beneficiaryIem.personVO, val.beneficiaryList[i].personVO);
+          Object.assign(beneficiaryIem.personVO, val.beneficiaryList[i]?.personVO);
         });
       }
     }
