@@ -122,7 +122,7 @@ const props = withDefaults(defineProps<Props>(), {
   defalutValue: () => ({} as any),
 });
 const mConfigs = ref(props.originData);
-const mValues = ref(props.modelValue);
+const mValues = ref({}); // ref(props.modelValue);
 const showTypes = ref(1);
 const pickEnums = (origin: any[], target: any[], prop = {}) => {
   let currentTarget = target;
@@ -291,7 +291,12 @@ watch(
 watch(
   () => props.defalutValue,
   (v) => {
-    if (v?.riskCode) mValues.value = Object.assign(mValues.value, cloneDeep(props.defalutValue));
+    if (v?.riskCode) console.log('-----baoebaofei ', mValues.value);
+    if (v?.riskCode) {
+      Object.keys(mValues.value).forEach((key) => {
+        mValues.value[key] = v[key] || mValues.value[key];
+      });
+    }
   },
   {
     deep: true,
@@ -314,7 +319,7 @@ watch(
 );
 
 watch(
-  () => props.modelValue,
+  props.modelValue,
   (v) => {
     console.log('---------modelValueChange = ', v);
   },

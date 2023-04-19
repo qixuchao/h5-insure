@@ -130,7 +130,7 @@ const handleBaoeBaofeiChange = (data) => {
   objectKeys(data).forEach((key) => {
     mValues.value[key] = data[key];
   });
-  console.log('-handleBaoeBaofeiChange', mValues.value.liabilityVOList);
+  console.log('-handleBaoeBaofeiChange', data);
   handleMixData();
 };
 const handleRiskLiabilityChange = (data) => {
@@ -147,7 +147,10 @@ watch(
   () => props.defaultValue,
   (v) => {
     if (v) {
-      if (v) state.defaultValues = v;
+      state.defaultValues = v;
+      mValues.value = {
+        ...v,
+      };
     }
   },
   {

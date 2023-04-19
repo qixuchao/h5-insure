@@ -429,13 +429,14 @@ const handlePersonalInfoChange = async (data) => {
   // 只有改动第一个被保人，需要调用dy接口
   const { holder, insuredVOList, isFirstInsuredChange } = data;
   if (holder) {
-    // state.submitData.holder.personVO = holder;
-    state.submitData.holder = {
-      personVO: {
-        ...holder,
-        socialFlag: holder.hasSocialInsurance,
-      },
-    };
+    state.submitData.holder = holder;
+    // console.log('------', holder);
+    // state.submitData.holder = {
+    //   personVO: {
+    //     ...holder,
+    //     socialFlag: holder.hasSocialInsurance,
+    //   },
+    // };
   }
   if (insuredVOList && insuredVOList.length > 0) {
     insuredVOList.forEach((ins, index) => {
