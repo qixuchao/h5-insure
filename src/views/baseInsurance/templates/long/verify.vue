@@ -19,6 +19,7 @@
           :show-share-sign="signPartInfo.agent.isShareSign"
           :file-list="signPartInfo.agent.fileList"
           :personal-info="signPartInfo.agent.personalInfo"
+          :disabled="!!isShare"
           title="代理人"
           @handle-sign="(signData) => sign('AGENT', signData)"
         ></SignPart>

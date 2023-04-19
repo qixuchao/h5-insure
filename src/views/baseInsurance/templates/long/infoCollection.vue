@@ -41,15 +41,17 @@
         />
       </ProLazyComponent>
       <TrialButton
-        is-share
+        :is-share="false"
         :premium="trialResult"
         :share-info="shareInfo"
         :loading-text="trialMsg"
         payment-frequency="1"
         :tenant-product-detail="tenantProductDetail"
-        @click="onNext"
+        :handle-share="handleShare"
+        @handle-click="onNext"
         >下一步</TrialButton
       >
+
       <FilePreview
         v-if="showFilePreview"
         v-model:show="showFilePreview"
@@ -126,6 +128,7 @@ const {
   agentCode = '',
   agencyCode,
   saleChannelId,
+  isShare,
   orderNo,
   extraInfo,
   insurerCode,
@@ -509,7 +512,7 @@ const handleProductRiskInfoChange = async (dataList: any, changeData) => {
 };
 
 // 分享时需要校验投保人手机号并且保存数据
-const shareValidate = () => {
+const handleShare = () => {
   return new Promise((resolve, reject) => {
     if (state.personalInfo?.personVO?.mobile) {
       Toast('请录入投保人手机号后进行分享');
@@ -664,13 +667,14 @@ const initData = async () => {
       tenantProductDetail.value = data;
       document.title = data.BASIC_INFO.title || '';
       let shareParams = {};
-      if (data?.PRODUCT_LIST?.wxShareConfig) {
-        const { title, desc, image: imageArr } = data?.PRODUCT_LIST.wxShareConfig || {};
+      const { wxShareConfig, showWXShare } = data.PRODUCT_LIST || {};
+      if (showWXShare) {
+        const { title, desc, image: imageArr } = wxShareConfig || {};
         const [image = ''] = imageArr || [];
-        shareParams = { title, desc, image };
+        shareParams = { title, desc, image, isShare: showWXShare };
       } else {
         const { title, desc, image } = data?.PRODUCT_LIST || {};
-        shareParams = { title, desc, image };
+        shareParams = { title, desc, image, isShare: showWXShare };
       }
 
       // 设置分享参数
