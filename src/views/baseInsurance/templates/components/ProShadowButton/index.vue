@@ -73,18 +73,18 @@ const getColor = (_color: string, _opacity = 0.9) => {
   return sColor;
 };
 
-watch(
-  [() => props.themeVars, () => props.isGradient],
-  () => {
-    if (props.themeVars) {
-      state.color = props.isGradient ? getColor(props.themeVars.primaryColor) : props.themeVars.primaryColor;
-    }
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
+// watch(
+//   [() => props.themeVars, () => props.isGradient],
+//   () => {
+//     if (props.themeVars) {
+//       state.color = props.isGradient ? getColor(props.themeVars.primaryColor) : props.themeVars.primaryColor;
+//     }
+//   },
+//   {
+//     deep: true,
+//     immediate: true,
+//   },
+// );
 </script>
 
 <style scoped lang="scss">

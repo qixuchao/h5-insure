@@ -181,6 +181,7 @@ const goToInsurerPage = async (reOrder = false, promotion = '') => {
       params.extraMap.promotion = promotion;
     }
     delete params.extraMap.templateId;
+    console.log('订单转投保', params);
     const res = await queryStandardInsurerLink(params);
     if (res.code === '10000') {
       if (!reOrder) {

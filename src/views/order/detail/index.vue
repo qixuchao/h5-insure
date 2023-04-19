@@ -49,7 +49,8 @@ import { deleteOrder } from '@/api/modules/order';
 import { getOrderDetail } from '@/api';
 import { NextStepRequestData } from '@/api/index.data';
 import { ORDER_TOP_STATUS_ENUM, ORDER_STATUS_MAP, ORDER_STATUS_ENUM } from '@/common/constants/order';
-// import { OrderDetail } from '@/api/modules/order.data';
+import { insureProductDetail, queryStandardInsurerLink } from '@/api/modules/trial';
+import { InsureLinkReq } from '@/api/modules/trial.data';
 import { PAGE_ROUTE_ENUMS, PRODUCT_LIST_ENUM } from '@/common/constants';
 import FieldInfo from '../components/fieldInfo.vue';
 import InsureInfo from '@/views/lifeInsurance/infoPreview/components/InsuredPart.vue';
@@ -112,24 +113,41 @@ const handleProcess = () => {
     if (redirectProductDetail()) return;
     const {
       id: orderId,
-      extInfo: { templateId, pageCode },
+      extInfo: { templateId, pageCode, extraInfo },
       agencyId: agencyCode,
       venderCode: insurerCode,
     } = detail.value;
     const productCode = detail.value.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productCode;
-    pageJump(pageCode, {
-      productCode,
-      orderNo,
-      orderId,
-      agentCode,
-      templateId,
-      tenantId,
-      productCategory,
-      insurerCode,
-      agencyCode,
-      // 是否从订单列表来的，用来判断是否展示导航栏
-      isFromOrderList: '1',
-    });
+    if ([TEMPLATE_TYPE_ENUM.FREE, TEMPLATE_TYPE_ENUM.SHORT, TEMPLATE_TYPE_ENUM.UPGRADE].includes(`${templateId}`)) {
+      const params: InsureLinkReq = {
+        insurerCode,
+        productCode,
+        tenantId: detail.value.tenantId,
+        agencyCode: detail.value.agencyId,
+        agentCode: detail.value.agentCode,
+        saleChannelId: extraInfo?.saleChannelId,
+      };
+      // TODO,跳转到对应的投保流程（订单转投保）
+      queryStandardInsurerLink(params).then((res) => {
+        // 获取投保链接
+        if (res.code === '10000') {
+          window.location.href = res.data;
+        }
+      });
+    }
+    // pageJump(pageCode, {
+    //   productCode,
+    //   orderNo,
+    //   orderId,
+    //   agentCode,
+    //   templateId,
+    //   tenantId,
+    //   productCategory,
+    //   insurerCode,
+    //   agencyCode,
+    //   // 是否从订单列表来的，用来判断是否展示导航栏
+    //   isFromOrderList: '1',
+    // });
   }
 };
 const handlePay = () => {
@@ -143,10 +161,6 @@ const handlePay = () => {
       venderCode: insurerCode,
     } = detail.value;
     const productCode = detail.value.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productCode;
-    if ([TEMPLATE_TYPE_ENUM.FREE, TEMPLATE_TYPE_ENUM.SHORT, TEMPLATE_TYPE_ENUM.UPGRADE].includes(`${templateId}`)) {
-      // TODO,跳转到对应的投保流程（订单转投保）
-      debugger;
-    }
     pageJump('payInfo', {
       productCode,
       orderNo,

@@ -33,7 +33,7 @@
         </div>
       </van-list>
     </div>
-    <ZaEmpty v-if="!hasProduct" :empty-img="emptyImg" title="暂无历史计划书" empty-class="empty-select" />
+    <ProEmpty v-if="!hasProduct" :empty-img="emptyImg" title="暂无历史计划书" empty-class="empty-select" />
   </ProPageWrap>
 </template>
 
@@ -41,7 +41,7 @@
 import { Dialog, Toast } from 'vant';
 import { useRouter } from 'vue-router';
 import { toLocal } from '@/utils';
-import ZaEmpty from '@/components/ZaEmpty/index.vue';
+import ProEmpty from '@/components/ProEmpty/index.vue';
 import emptyImg from '@/assets/images/empty.png';
 import ProTable from '@/components/ProTable/index.vue';
 import { historyProposalList, deleteProposal } from '@/api/modules/proposalList';

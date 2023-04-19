@@ -1,11 +1,3 @@
-<!--
- * @Author: wangyuanli
- * @Date: 2022-08-01 18:00:00
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-29 15:42:24
- * @FilePath: /zat-planet-h5-cloud-insure/src/views/pdfViewer/index.vue
- * @Description: 打开新页面，预览pdf, 链接传入url, 在线打开pdf
--->
 <template>
   <div :id="id"></div>
 </template>
@@ -28,7 +20,7 @@ const loadPdfCanvas = (url: string) => {
   try {
     pdfh5.value = new Pdfh5(`#${id}`, {
       pdfurl: url,
-      renderType: 'svg',
+      renderType: 'canvas',
       lazy: true,
     });
     // 监听完成事件
@@ -45,7 +37,7 @@ const loadPdfCanvas = (url: string) => {
 };
 
 onMounted(() => {
-  const { title, url } = route.query;
+  const { title, url } = route.query as { title: string; url: string };
   document.title = title || '';
 
   if (!url) {

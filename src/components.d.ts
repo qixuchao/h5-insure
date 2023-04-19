@@ -92,7 +92,7 @@ declare module 'vue' {
     ZaCircleProgress: typeof import('./components/ZaCircleProgress/index.vue')['default']
     ZaDateChange: typeof import('./components/ZaDateChange/index.vue')['default']
     ZaDatePicker: typeof import('./components/ZaDatePicker/index.vue')['default']
-    ZaEmpty: typeof import('./components/ZaEmpty/index.vue')['default']
+    ProEmpty: typeof import('./components/ProEmpty/index.vue')['default']
     ZaFilterTab: typeof import('./components/ZaFilterTab/index.vue')['default']
     ZaImagesPreview: typeof import('./components/ZaImagesPreview/index.vue')['default']
     ZaLoading: typeof import('./components/ZaLoading/index.vue')['default']

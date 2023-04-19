@@ -14,17 +14,22 @@
             <van-col class="order-label" span="8">订单号：</van-col>
             <van-col span="12">{{ detail.orderNo }}</van-col>
             <van-col class="order-label" span="8">支付方式：</van-col>
-            <van-col span="12">{{ detail.payType }}</van-col>
+            <van-col span="12">{{ detail.payWay }}</van-col>
             <van-col class="order-label" span="8">支付金额：</van-col>
-            <van-col span="12">{{ detail.paySum }}</van-col>
+            <van-col span="12">{{ detail.orderAmount }}</van-col>
             <van-col class="order-label" span="8">保单状态：</van-col>
-            <van-col span="12">{{ detail.policyStatus }}</van-col>
+            <van-col span="12">{{ detail.orderStatusDesc }}</van-col>
           </van-row>
         </div>
         <div v-if="detail && detail.orderStatus === ORDER_STATUS_ENUM.PAYMENT_FAILED" class="order-list">
           <van-row>
             <van-col span="24">{{ detail.payFailDesc }}</van-col>
           </van-row>
+          <div class="page-pay-fail">
+            <div class="title">支付失败</div>
+            <div class="desc">支付遇到问题，请尝试重新支付</div>
+            <VanButton class="btn" type="primary" round block @click="retry">重新支付</VanButton>
+          </div>
         </div>
       </template>
     </ProResult>
@@ -33,13 +38,30 @@
 
 <script lang="ts" setup>
 import { useRouter, useRoute } from 'vue-router';
+import { Toast } from 'vant';
 import ProResult from '@/components/ProResult/index.vue';
 import { nextStep, getOrderDetail, getInitFactor } from '@/api';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 import { NextStepRequestData } from '@/api/index.data';
 import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
+import { getPayUrl } from '@/api/modules/trial';
 
-const detail = ref<NextStepRequestData>();
+interface PayResultData {
+  orderNo: string;
+  payWay: string;
+  orderAmount: string;
+  orderStatus: string;
+  orderStatusDesc: string;
+  payFailDesc: string;
+}
+const detail = ref<PayResultData>({
+  orderNo: '2023041315055958221',
+  payWay: '',
+  orderAmount: '',
+  orderStatus: '',
+  orderStatusDesc: '',
+  payFailDesc: '',
+});
 const route = useRoute();
 const router = useRouter();
 const {
@@ -71,10 +93,10 @@ const okText = computed(() => {
       case ORDER_STATUS_ENUM.PAYMENT_SUCCESS:
         return '确定';
       default:
-        return '';
+        return '确定';
     }
   }
-  return '';
+  return '确定';
 });
 
 const cancelText = computed(() => {
@@ -99,12 +121,23 @@ const status = computed(() => {
       case ORDER_STATUS_ENUM.PAYMENT_SUCCESS:
         return 'success';
       default:
-        return '';
+        return 'process';
     }
   }
-  return '';
+  return 'process';
 });
 
+const repay = async () => {
+  Toast.loading({ forbidClick: true, message: '获取支付链接' });
+  const res = await getPayUrl({
+    orderNo,
+    tenantId,
+  });
+  const { code, data } = res;
+  if (code === '10000') {
+    window.location.href = data;
+  }
+};
 const handleOk = () => {
   if (okText.value === '查看保单详情') {
     // 点击【查看保单详情】，进入保单详情页面
@@ -118,6 +151,7 @@ const handleOk = () => {
     //   path: PAGE_ROUTE_ENUMS.payInfo,
     //   query: route.query,
     // });
+    repay();
   } else if (okText.value === '确定') {
     // 点击【确定】，进入保单列表页面
     // router.push({
@@ -144,16 +178,16 @@ onMounted(() => {
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
-      detail.value = data;
       // Mock Data
-      // detail.value = {
-      //   orderStatus: ORDER_STATUS_ENUM.PAYMENT_SUCCESS,
-      //   orderNo: '2023041315055958221',
-      //   payType: '银行卡支付',
-      //   paySum: '￥ 1000.00',
-      //   policyStatus: '待承保',
-      //   payFailDesc: '失败原因：银行卡余额不足',
-      // };
+      detail.value = Object.assign(data, {
+        orderStatusDesc: ORDER_STATUS_MAP[data.orderStatus],
+        orderNo: data.orderNo,
+        payWay: '银行卡支付',
+        orderAmount: `￥${data.orderAmount}`,
+        // policyStatus: '待承保',
+        // TODO tenantOrderPayInfoList
+        payFailDesc: '失败原因：银行卡余额不足',
+      });
     }
     // 如果订单处于其他状态的处理逻辑 TODO
     // ....

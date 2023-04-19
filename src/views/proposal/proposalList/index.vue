@@ -4,7 +4,7 @@
       <van-search v-model="searchValue" placeholder="搜索计划书" shape="round" class="search" @search="onSearch" />
       <InsureFilter v-model:filter="isOpen" filter-class="filter-area" @on-select-insure="handleClickTag" />
     </div>
-    <ZaEmpty v-if="!hasProduct" :empty-img="emptyImg" title="没有找到相关内容~" empty-class="empty-select" />
+    <ProEmpty v-if="!hasProduct" :empty-img="emptyImg" title="没有找到相关内容~" empty-class="empty-select" />
     <div class="page-proposal-list">
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
         <van-list
@@ -47,7 +47,7 @@
     </div>
     <TrialProductPopup
       v-model="selectProduct"
-      :proposal-list="state.proposalList"
+      :proposal-list="selectedProductList"
       :is-show="showSelectProduct"
       @close="toggleSelectProduct(false)"
       @checked="checkProductRisk"
@@ -70,7 +70,7 @@
 import { useToggle } from '@vant/use';
 import { useRouter, useRoute } from 'vue-router';
 import { withDefaults } from 'vue';
-import ZaEmpty from '@/components/ZaEmpty/index.vue';
+import ProEmpty from '@/components/ProEmpty/index.vue';
 import emptyImg from '@/assets/images/empty.png';
 import ProductItem from './components/productItem.vue';
 import InsureFilter from './components/insureFilter.vue';
@@ -157,7 +157,7 @@ const [showSelectProduct, toggleSelectProduct] = useToggle();
 const store = createProposalStore();
 const router = useRouter();
 const route = useRoute();
-const { isCreateProposal, productCodeList = [] } = route.query;
+const { isCreateProposal, productCode: productCodeInQuery, productCodeList = [] } = route.query;
 const addProposalType = ref<any>(isCreateProposal ? 'repeatAdd' : 'add');
 
 const getProducts = () => {
@@ -165,7 +165,7 @@ const getProducts = () => {
     title: searchValue.value,
     insurerCodeList: insurerCodeList.value,
     showCategory: showCategory.value,
-    excludeProductCodeList: productCodeList,
+    excludeProductCodeList: productCodeList as string[],
     pageNum: 1,
     pageSize: 999,
   }).then((res: any) => {
@@ -255,6 +255,10 @@ const fetchDefaultData = async (productCode, callback) => {
   // if (result.data) transformDefaultData(result.data.find((d) => d.productCode === props.productInfo.productCode));
 };
 
+const selectedProductList = computed(() =>
+  productList.value.filter((item) => state.selectProduct.includes(item.productCode)),
+);
+
 /** ****** 创建计划书相关逻辑 ******** */
 const selectProposal = ({ productCode }: any) => {
   // showFooter.value = false;
@@ -292,9 +296,16 @@ const addProposal = () => {
     return state.selectProduct.includes(proposal.proposalInsuredList[0].proposalInsuredProductList[0].productCode);
   });
   store.setTrialData(selectedProduct);
-  router.push({
+  router.replace({
     path: '/proposal/createProposal',
+    query: {
+      productCode: productCodeInQuery,
+      selectProduct: state.selectProduct,
+    },
   });
+  // router.push({
+  //   path: '/proposal/createProposal',
+  // });
   // nextTick(() => {
   //   router.replace({
   //     path: '/proposal/createProposal',

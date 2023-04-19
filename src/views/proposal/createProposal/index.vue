@@ -121,6 +121,8 @@ import { ActionSheetAction, Dialog, Toast } from 'vant';
 import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
 import { useRouter, useRoute } from 'vue-router';
+import debounce from 'lodash-es/debounce';
+import { SUCCESS_CODE } from '@/api/code';
 import { getDic } from '@/api/index';
 import { DictData } from '@/api/index.data';
 import createProposalStore from '@/store/proposal/createProposal';
@@ -133,7 +135,7 @@ import {
   ProposalHolder,
   PlanTrialData,
 } from '@/api/modules/createProposal.data';
-import { queryCalcDefaultInsureFactor, insureProductDetail } from '@/api/modules/trial';
+import { queryCalcDefaultInsureFactor, insureProductDetail, premiumCalc } from '@/api/modules/trial';
 import TrialPopup from '../proposalList/components/TrialPopup.vue';
 
 import { ProductData } from '@/common/constants/trial.data';
@@ -201,43 +203,51 @@ const state = ref<State>({
   currentRisk: [],
 });
 
+interface proposalInsuredProductItem {
+  productCode: string;
+  proposalProductRiskList: Partial<ProposalProductRiskItem>[];
+}
+
 interface StateInfo {
+  selectedProductCodeList: string[];
   proposalName: string;
   currentProductCode: string;
   proposalHolder: Partial<ProposalHolder>;
   insuredPersonVO: Partial<ProposalHolder>;
-  proposalInsuredProductList: ProposalProductRiskItem[];
+  proposalInsuredProductList: proposalInsuredProductItem[];
+  productCollection: {
+    [x: string]: ProductData;
+  };
 }
 
 const stateInfo = reactive<StateInfo>({
+  selectedProductCodeList: [],
   insuredPersonVO: {},
   proposalName: '',
   currentProductCode: '',
   proposalHolder: {},
   proposalInsuredProductList: [],
+  productCollection: {},
 });
 
 const formRef = ref(null);
 const insuredFormRef = ref(null);
 
 // 原始的产品详情数据
-const selectedProduct = ref({});
-// 试算之后的产品险种列表
-const trialedProductList = ref<ProposalInsuredProductItem[]>([]);
+// const selectedProduct = ref({});
+// // 试算之后的产品险种列表
+// const trialedProductList = ref<ProposalInsuredProductItem[]>([]);
 
-const dateRange = computed(() => {
-  return {
-    min: '',
-    max: '',
-  };
-});
+// const dateRange = computed(() => {
+//   return {
+//     min: '',
+//     max: '',
+//   };
+// });
 
 /** 当前计划书的产品CodeList */
 const currentProductCodeList = computed(() => {
-  const { proposalInsuredProductList } = proposalInfo.value?.proposalInsuredList?.[0] || {};
-  return isNotEmptyArray(proposalInsuredProductList)
-    ? proposalInsuredProductList.map((item) => item.productCode).filter((code) => Boolean(code))
-    : [];
+  return stateInfo.proposalInsuredProductList.map((item) => item.productCode).filter((code) => Boolean(code));
 });
 
 // 创建计划书
@@ -309,39 +319,13 @@ const selectAction = (item: ActionSheetAction, index: number) => {
 
 /** 当前产品详情 */
 const currentProductDetail = computed(() => {
-  return state.value.productCollection?.[stateInfo.currentProductCode] || {};
+  return stateInfo.productCollection?.[stateInfo.currentProductCode] || {};
 });
 
 /** 当前计划数据 */
 const currentProductPlanDetail = computed(() => {
   return currentProductDetail.value?.productPlanInsureVOList?.[0] || {};
 });
-
-// 获取试算默认值
-const fetchDefaultData = async (productCode) => {
-  // TODO 加loading
-  const { code, data } = await queryCalcDefaultInsureFactor({
-    calcProductFactorList: [
-      {
-        productCode,
-      },
-    ],
-  });
-  if (code === '10000' && data) {
-    const [{ holder, insuredVOList } = {}] = data || [{}];
-    const { personVO, productPlanVOList } = (insuredVOList || [])[0] || {};
-
-    Object.assign(stateInfo.insuredPersonVO, personVO);
-    Object.assign(stateInfo.proposalHolder, holder);
-    stateInfo.proposalInsuredProductList = [
-      {
-        productCode,
-        proposalProductRiskList: productPlanVOList,
-      },
-    ];
-  }
-  // if (result.data) transformDefaultData(result.data.find((d) => d.productCode === props.productInfo.productCode));
-};
 
 const pickProductPremium = (premiumData = {}) => {
   Object.assign(state.value.productPremium, premiumData);
@@ -408,21 +392,6 @@ const onFinished = (productInfo: PlanTrialData) => {
   trialPopupRef.value?.close();
 };
 
-const queryProductInfo = (searchData: any) => {
-  queryProductDetailList(searchData)
-    .then(({ code, data }) => {
-      if (code === '10000') {
-        state.value.productCollection = isNotEmptyArray(data)
-          ? data.reduce((res, item) => {
-              res[item.productCode] = item;
-              return res;
-            }, {})
-          : {};
-      }
-    })
-    .finally(() => {});
-};
-
 const addMainRisk = () => {
   store.setProposalInfo(proposalInfo.value);
   store.setTrialData([]);
@@ -444,8 +413,66 @@ const addMainRisk = () => {
   });
 };
 
-const closeProductRisk = () => {
-  toggleProductRisk(false);
+const trailProduct = (params) => {
+  premiumCalc(params).then(({ code, data }) => {
+    if (code === SUCCESS_CODE && data) {
+      if (data?.errorInfo) {
+        Toast(`${data?.errorInfo}`);
+      }
+
+      const riskPremiumMap = {};
+      if (isNotEmptyArray(data.riskPremiumDetailVOList)) {
+        data.riskPremiumDetailVOList.forEach((riskDetail: any) => {
+          riskPremiumMap[riskDetail.riskCode] = {
+            premium: riskDetail.premium,
+            amount: riskDetail.amount,
+          };
+        });
+        onFinished(trialPopupRef.value?.formatData(params, riskPremiumMap));
+      }
+    }
+  });
+};
+
+// const closeProductRisk = () => {
+//   toggleProductRisk(false);
+// };
+
+// 获取试算默认值
+const fetchDefaultData = async (productCodeList: string[], flag = false) => {
+  if (!isNotEmptyArray(productCodeList)) {
+    return;
+  }
+  // TODO 加loading
+  const { code, data } = await queryCalcDefaultInsureFactor({
+    calcProductFactorList: productCodeList.map((codeItem) => ({ productCode: codeItem })),
+    ...(flag ? {} : stateInfo.insuredPersonVO),
+  });
+  if (code === '10000' && data) {
+    if (isNotEmptyArray(data)) {
+      data.forEach((dataItem) => {
+        const { holder, insuredVOList, productCode } = dataItem;
+        const { personVO, productPlanVOList } = (insuredVOList || [])[0] || {};
+        const tempData: proposalInsuredProductItem = {
+          productCode,
+          proposalProductRiskList: productPlanVOList,
+        };
+
+        // 初次调用
+        if (flag) {
+          Object.assign(stateInfo.insuredPersonVO, personVO);
+          Object.assign(stateInfo.proposalHolder, holder);
+
+          stateInfo.proposalInsuredProductList = [tempData];
+          trailProduct(dataItem);
+        } else {
+          const currentIndex = currentProductCodeList.value.findIndex((codeItem) => codeItem === productCode);
+          stateInfo.proposalInsuredProductList[currentIndex] = tempData;
+        }
+      });
+    }
+  }
+  // if (result.data) transformDefaultData(result.data.find((d) => d.productCode === props.productInfo.productCode));
 };
 
 onBeforeMount(() => {
@@ -467,21 +494,78 @@ onBeforeMount(() => {
   //   proposalInfo.value = preProposalInfo;
   // }
   // store.setTrialData([]);
-  productCodeInQuery && fetchDefaultData(productCodeInQuery);
+  productCodeInQuery && fetchDefaultData([productCodeInQuery as string], true);
 });
 
+/** 获取产品数据列表 */
+const queryProductInfo = (searchData: any) => {
+  queryProductDetailList(searchData)
+    .then(({ code, data }) => {
+      if (code === '10000') {
+        if (isNotEmptyArray(data)) {
+          Object.assign(
+            stateInfo.productCollection,
+            data.reduce((res, item) => {
+              res[item.productCode] = item;
+              return res;
+            }, {}),
+          );
+        }
+      }
+    })
+    .finally(() => {});
+};
+
 watch(
-  () => stateInfo.proposalInsuredProductList?.length,
-  () => {
-    const productList = stateInfo.proposalInsuredProductList.map((productItem: ProposalInsuredProductItem) => {
-      return {
-        productCode: productItem.productCode,
-        // source: 2,
-      };
-    });
-    queryProductInfo(productList);
+  () => stateInfo.selectedProductCodeList,
+  debounce((val) => {
+    console.log('选择的产品变动了', val);
+    if (isNotEmptyArray(val)) {
+      const tempList = val.map((code) => ({
+        productCode: code,
+        proposalProductRiskList: [],
+      }));
+      stateInfo.proposalInsuredProductList.push(...tempList);
+      fetchDefaultData(val);
+    }
+  }),
+  {
+    deep: true,
   },
 );
+
+// 获取产品详情信息
+watch(
+  () => stateInfo.selectedProductCodeList,
+  () => {
+    if (isNotEmptyArray(currentProductCodeList.value)) {
+      const codeList = Object.keys(stateInfo.productCollection);
+      const tempCodeList = currentProductCodeList.value?.filter((code) => !codeList.includes(code));
+      if (isNotEmptyArray(tempCodeList)) {
+        queryProductInfo(
+          tempCodeList?.map((code) => ({
+            productCode: code,
+          })),
+        );
+      }
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+onActivated(() => {
+  const {
+    query: { selectProduct },
+  } = useRoute();
+  stateInfo.selectedProductCodeList = isNotEmptyArray(selectProduct)
+    ? (selectProduct as string[])
+    : typeof selectProduct === 'string' && selectProduct
+    ? [selectProduct]
+    : [];
+});
 </script>
 
 <style lang="scss" scoped>

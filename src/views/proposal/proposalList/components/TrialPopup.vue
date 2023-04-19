@@ -106,6 +106,7 @@ defineExpose({
     };
     return res;
   }, {}),
+  formatData,
 });
 </script>
 <style scoped lang="scss">

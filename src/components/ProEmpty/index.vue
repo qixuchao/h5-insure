@@ -41,11 +41,41 @@ const emit = defineEmits(['currentIndex']);
 const slotBtn = !!useSlots().emptyBtn;
 </script>
 <style scoped lang="scss">
-.empty-title {
-  font-size: 30px;
-  font-family: PingFangSC-Regular, PingFang SC;
-  font-weight: 400;
-  color: #99a9c0;
-  line-height: 39px;
+.com-za-empty {
+  .empty-img {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 37px;
+    img {
+      width: 201px;
+      height: 200px;
+    }
+  }
+  .empty-title {
+    text-align: center;
+    margin-bottom: 8px;
+    font-size: $zaui-font-size-md2;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    // color: #616161;
+    font-size: 30px;
+    color: #99a9c0;
+    line-height: 39px;
+    // line-height: 42px;
+  }
+  .empty-desc {
+    text-align: center;
+    margin-bottom: 44px;
+    font-size: $zaui-font-size-md;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #c1c1c1;
+    // line-height: 37px;
+  }
+  .empty-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 </style>
