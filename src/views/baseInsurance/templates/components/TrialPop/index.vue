@@ -1,6 +1,16 @@
 <template>
   <div v-if="!hidePopupButton" :class="`trial-button ${$attrs.class}`">
-    <VanButton type="primary" @click="open">立即投保</VanButton>
+    <TrialButton
+      :is-share="shareInfo.isShare"
+      :premium="state.trialResult"
+      :share-info="shareInfo"
+      :loading-text="state.trialMsg"
+      :plan-code="props.dataSource.planCode"
+      :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
+      :tenant-product-detail="tenantProductDetail"
+      @click="open"
+      >立即投保</TrialButton
+    >
   </div>
   <ProPopup
     v-if="state.isAniShow || state.show"

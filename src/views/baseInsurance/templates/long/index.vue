@@ -54,6 +54,7 @@
         ref="trialRef"
         :data-source="currentPlanObj"
         :share-info="shareInfo"
+        :is-share="shareInfo.isShare"
         :product-info="{
           productCode: insureProductDetail.productCode,
           productName: insureProductDetail.productName,
@@ -185,17 +186,6 @@ const shareInfo = ref({
   isShare: false,
 });
 
-const setShareLink = (config: { image: string; desc: string; title: string; isShare: boolean }) => {
-  shareInfo.value = {
-    desc: config.desc || '你好，这里是描述',
-    imgUrl: config.image,
-    title: config.title,
-    link: window.location.href,
-    isShare: config.isShare,
-  };
-  console.log('shareInfo', shareInfo.value);
-};
-
 // 保障方案相关信息
 const guaranteeObj = ref<any>({});
 
@@ -252,7 +242,7 @@ const initData = async () => {
         const { title, desc, image: imageArr } = data?.PRODUCT_LIST.wxShareConfig || {};
         const [image = ''] = imageArr || [];
         // 设置分享参数
-        setShareLink({ title, desc, image, isShare: !!data?.PRODUCT_LIST.showWXShare });
+        Object.assign(shareInfo.value, { title, desc, image, isShare: !!data?.PRODUCT_LIST.showWXShare });
         setGlobalTheme(data.BASIC_INFO.themeType);
       }
     });
@@ -365,7 +355,7 @@ onMounted(() => {
 
 <style lang="scss" scope>
 .page-internet-product-detail {
-  // padding-bottom: 150px;
+  padding-bottom: 150px;
   background: #f1f5fc;
   .preview-placeholder {
     padding: 200px 60px;

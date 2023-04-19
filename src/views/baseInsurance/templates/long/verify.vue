@@ -54,12 +54,12 @@
         ></SignPart>
       </div>
       <div class="footer-button footer-bar">
-        <div v-if="!isShare" class="refresh-btn" @click="handleRefresh">
+        <div class="refresh-btn" @click="handleRefresh">
           <div><ProSvg name="refresh" /></div>
           <div class="text">刷新</div>
         </div>
-        <ProShare v-if="!isShare" v-bind="shareInfo">
-          <van-button plain type="primary" class="share-btn">分享</van-button>
+        <ProShare v-if="!isShare" ref="shareRef" v-bind="shareInfo">
+          <van-button plain type="primary" class="share-btn" @click.stop="handleShare">分享</van-button>
         </ProShare>
         <van-button type="primary" class="submit-btn" @click="handleSubmit">提交</van-button>
       </div>
@@ -96,6 +96,7 @@ import { transformFactorToSchema } from '@/components/RenderForm';
 import pageJump from '@/utils/pageJump';
 import InsureProgress from './components/InsureProgress.vue';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
+import ProShare from '@/components/ProShare/index.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -248,6 +249,20 @@ const handleSubmit = () => {
     })
     .catch((e) => {
       Toast(e.message);
+    });
+};
+
+const shareRef = ref<InstanceType<typeof ProShare>>();
+const handleShare = () => {
+  agentSignRef.value
+    .validateSign()
+    .then(() => {
+      if (shareRef.value) {
+        shareRef.value.handleShare();
+      }
+    })
+    .catch(() => {
+      Toast('请完成代理人签字后进行分享');
     });
 };
 
