@@ -41,6 +41,7 @@
           v-model="state.userData"
           is-trial
           :product-factor="dataSource.productFactor"
+          :multi-insured-num="dataSource?.multiInsuredConfigVO?.multiInsuredNum"
           @trail-change="handlePersonalInfoChange"
         />
         <!-- 这里是标准险种信息 -->

@@ -3,7 +3,7 @@
     v-if="hasHolderSchema"
     ref="holderFormRef"
     title="投保人信息"
-    class="trail-personal-info"
+    class="personal-info-card"
     :model="state.holder.personVO"
     :schema="state.holder.schema"
     :config="state.holder.config"
@@ -19,14 +19,32 @@
       :="insuredItem"
       :holder-person-v-o="state.holder.personVO"
       :is-view="isView"
+      :multi-beneficiary-num="state.config.multiBeneficiaryNum"
       @update:beneficiary-list="updateBeneficiaryList($event, index)"
-    />
-    <van-button type="primary" @click="onAddInsured">添加被保人</van-button>
+    >
+      <span v-if="index > 0" @click="onDeleteInsured(index)"><van-icon name="delete-o" /></span>
+    </InsuredItem>
+    <van-cell>
+      <template #title>
+        <van-button
+          v-if="!isView || addible"
+          icon="plus"
+          size="small"
+          plain
+          color="#8FBBFC"
+          type="primary"
+          @click="onAddInsured"
+          >添加被保人</van-button
+        >
+      </template>
+    </van-cell>
   </template>
 </template>
 <script lang="ts" setup name="PersonalInfo">
 import { withDefaults } from 'vue';
+import { Dialog } from 'vant';
 import { nanoid } from 'nanoid';
+import cloneDeep from 'lodash-es/cloneDeep';
 import {
   type PersonalInfoConf,
   type PersonFormProps,
@@ -38,7 +56,6 @@ import {
 } from '@/components/RenderForm';
 import { ProductFactor } from '@/api/modules/trial.data';
 import { isNotEmptyArray } from '@/common/constants/utils';
-import { deepCopy } from '@/utils';
 import InsuredItem from './components/InsuredItem.vue';
 
 interface Props {
@@ -46,6 +63,7 @@ interface Props {
   modelValue: any;
   isTrial: boolean;
   isView: boolean;
+  multiInsuredNum: number;
 }
 
 const emit = defineEmits(['update:modelValue', 'trailChange']);
@@ -56,6 +74,7 @@ const props = withDefaults(defineProps<Props>(), {
   productFactor: () => ({} as ProductFactor),
   modelValue: () => ({} as any),
   isTrial: false,
+  multiInsuredNum: null,
 });
 
 interface InsuredFormProps extends Partial<PersonFormProps> {
@@ -63,7 +82,7 @@ interface InsuredFormProps extends Partial<PersonFormProps> {
 }
 
 interface StateInfo {
-  config: PersonalInfoConf;
+  config: Partial<PersonalInfoConf>;
   validated: boolean;
   holder: PersonFormProps;
   initInsuredItem: InsuredFormProps;
@@ -98,9 +117,9 @@ const state = reactive<StateInfo>({
     trialFactorCodes: [],
     config: {},
   },
-  initInsuredItem: deepCopy(initInsuredItem),
+  initInsuredItem: cloneDeep(initInsuredItem),
   /** 被保人 */
-  insured: [deepCopy(initInsuredItem)],
+  insured: [cloneDeep(initInsuredItem)],
 });
 
 /** 验证试算因子是否全部有值 */
@@ -136,20 +155,32 @@ const listObject = (personInfo: any) => {
 // 添加被保人
 const onAddInsured = () => {
   state.insured.push(
-    deepCopy({
-      ...state.initInsuredItem,
+    cloneDeep({
+      ...cloneDeep(state.initInsuredItem),
       nanoid: nanoid(),
     }),
   );
 };
 
 // 添加被保人
-const onDeleteInsured = () => {};
+const onDeleteInsured = (index) => {
+  Dialog.confirm({
+    message: `确定要删除该被保人吗？`,
+  }).then(() => {
+    state.insured.splice(index, 1);
+  });
+};
+
+/** 被保人是否可添加的 */
+const addible = computed(() => {
+  const { multiInsuredNum } = state.config;
+  return multiInsuredNum ? state.insured.length < multiInsuredNum : true;
+});
 
 //
 const updateBeneficiaryList = (data, index) => {
   state.insured[index].beneficiaryList.forEach((item, i) => {
-    Object.assign(item.personVO, data[i].personVO);
+    Object.assign(item.personVO, data[i]?.personVO);
   });
 };
 
@@ -162,7 +193,7 @@ const hasInsuredSchema = computed(() => state.insured.some((insuredItem) => isNo
 // 验证是否试算
 watch(
   [
-    () => state.holder?.personVO,
+    () => listObject(state.holder?.personVO),
     () =>
       state.insured.map((insuredItem) => {
         const { beneficiaryList: list, personVO } = insuredItem || {};
@@ -188,6 +219,7 @@ watch(
     const isFirstInsuredChange =
       JSON.stringify(result?.insuredVOList?.[0]?.personVO) !== props.modelValue?.insuredVOList?.[0]?.personVO;
     result.isFirstInsuredChange = isFirstInsuredChange;
+
     emit('update:modelValue', result);
     console.log('---is first change= ', result);
     // 验证通过调用试算
@@ -213,8 +245,10 @@ watch(
   [() => props.productFactor, () => props.isTrial],
   (val) => {
     if (val[0]) {
-      console.log('123', val);
-      const { holder, insured, beneficiary, config } = transformFactorToSchema(...val);
+      const { holder, insured, beneficiary, config } = transformFactorToSchema(val[0], {
+        isTrial: val[1],
+        multiInsuredNum: props.multiInsuredNum,
+      });
       Object.assign(state.holder, holder);
 
       state.config = config;
@@ -222,24 +256,24 @@ watch(
       if (isNotEmptyArray(insured)) {
         const { length } = insured;
         state.insured = insured.map((insuredItem, index) => {
-          const tempInsured = state.insured[index] || deepCopy(initInsuredItem);
+          const tempInsured = state.insured[index] || cloneDeep(initInsuredItem);
 
           // 初始投保人信息,非关系型被保人复制主被保人，关系型复制次被保人
           if (index === length - 1) {
-            state.initInsuredItem = deepCopy({
+            state.initInsuredItem = cloneDeep({
               ...initInsuredItem,
-              schema: deepCopy(insuredItem?.schema),
+              schema: cloneDeep(insuredItem?.schema),
               trialFactorCodes: insuredItem?.trialFactorCodes,
-              beneficiarySchema: deepCopy(beneficiary?.schema || []),
+              beneficiarySchema: cloneDeep(beneficiary?.schema || []),
             });
           }
 
           return {
             ...tempInsured,
             nanoid: nanoid(),
-            schema: deepCopy(insuredItem?.schema),
+            schema: cloneDeep(insuredItem?.schema),
             trialFactorCodes: insuredItem?.trialFactorCodes,
-            beneficiarySchema: deepCopy(beneficiary?.schema || []),
+            beneficiarySchema: cloneDeep(beneficiary?.schema || []),
           };
         });
       }
@@ -253,9 +287,9 @@ watch(
 
 // 表单数据变动
 watch(
-  () => props.modelValue,
+  [() => props.modelValue, () => state.config],
   (val) => {
-    const { holder, insuredVOList } = val || {};
+    const { holder, insuredVOList } = val[0] || {};
     Object.assign(state.holder.personVO, holder?.personVO);
     const { length } = insuredVOList || [];
     // TODO:预览时，被保人数量多于默认数量
@@ -282,7 +316,8 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
-.trail-personal-info {
+.personal-info-card {
+  margin-bottom: 20px;
   :deep(.com-card-wrap) .header {
     margin-left: 0;
   }
