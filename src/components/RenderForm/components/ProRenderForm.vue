@@ -7,6 +7,7 @@
         :key="`${item.nanoid}_${index}`"
         :is-view="isView"
         v-bind="item"
+        :model-value="state.formData[item.name]"
       >
         <!-- 继承 slots -->
         <template v-for="slotName in noDefaultSlots" :key="slotName" #[slotName]>
@@ -129,7 +130,6 @@ watch(
       state.schema = (schema as SchemaItem[])
         .map((item) => ({
           ...item,
-          modelValue: props.model[item.name],
           componentName: FieldComponents[item.componentName]
             ? shallowRef(FieldComponents[item.componentName])
             : item.componentName,

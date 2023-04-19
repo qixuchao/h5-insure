@@ -29,7 +29,7 @@
       <template #extra>
         <div class="sign-status">
           <div class="status">{{ signString ? '已签名' : '未签名' }}</div>
-          <div class="resign" @click="resetSign">重签</div>
+          <div :disabled="disabled" class="resign" @click="resetSign">重签</div>
         </div>
       </template>
       <Sign ref="signRef" v-model="signString" class="sign" @submit-sign="submitSign">
@@ -79,6 +79,7 @@ interface Props {
   showSign: boolean;
   showVerify: boolean;
   showShareSign: boolean;
+  disabled?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -88,6 +89,7 @@ const props = withDefaults(defineProps<Props>(), {
   showVerify: false,
   showShareSign: false,
   signString: '',
+  disabled: false,
 });
 const emits = defineEmits(['handleVerify', 'handleSign']);
 const currentPersonalInfo = ref<any>({});
@@ -131,6 +133,9 @@ const resetSign = () => {
   }
 };
 const openSign = () => {
+  if (props.disabled) {
+    return;
+  }
   if (signRef.value) {
     signRef.value.openSign();
   }

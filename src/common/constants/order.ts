@@ -72,6 +72,10 @@ export enum ORDER_STATUS_ENUM {
    */
   IDENTIFICATION_COMPLETE = 'identificationComplete',
   /**
+   * 认证中
+   */
+  IN_IDENTIFICATION = 'inIdentification',
+  /**
    * 审核中
    */
   AUDIT_PROCESSING = 'auditProcessing',

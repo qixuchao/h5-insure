@@ -70,7 +70,7 @@ const fieldInitList: Partial<PayInfoItem>[] = [
       },
     },
     nanoid: nanoid(),
-    paymentMethodKey: 'paymentMethod',
+    paymentMethodKey: 'initialPaymentMethod',
     hiddenKeyList: ['initialCardType', 'initialBankCard', 'initialPaymentType'],
   },
   {
@@ -105,11 +105,11 @@ const fieldInitList: Partial<PayInfoItem>[] = [
 
 const fieldCodeList: string[][] = [
   // 首期支付
-  ['paymentMethod', 'initialPaymentMethod', 'initialCardType', 'initialBankCard', 'initialPaymentType'],
+  ['initialPaymentMethod', 'initialCardType', 'initialBankCard', 'initialPaymentType'],
   // 续期支付
   ['renewalPaymentMethod', 'renewalCardType', 'renewalBankCard', 'renewalPaymentType', 'premiumOverdue'],
   // 年金领取银行卡
-  ['annuityPaymentMethod', 'annuityBankCard'],
+  ['annuityBankCard'],
 ];
 
 interface SchemaKeyMap {
@@ -350,13 +350,28 @@ watch(
 );
 
 watch(
-  () => state.schemaList,
+  () => props.modelValue,
+  (val) => {
+    if (isNotEmptyArray(val)) {
+      state.schemaList.forEach((schemaItem, index) => {
+        Object.assign(schemaItem.formData, val[index]);
+      });
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  () => state.schemaList?.map((item) => item.formData),
   (val) => {
     if (isNotEmptyArray(val)) {
       emit(
         'update:modelValue',
         val.map((item) => ({
-          ...item.formData,
+          ...item,
           paymentType: item.paymentType,
         })),
       );

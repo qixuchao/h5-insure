@@ -13,7 +13,7 @@
           <span>{{ premiumUnit }} </span>
         </template>
       </div>
-      <ProShadowButton :shadow="false" class="right" @click="emits('onClick')">
+      <ProShadowButton :shadow="false" class="right" @click="emits('handleClick')">
         <slot>立即投保</slot>
       </ProShadowButton>
     </div>
@@ -46,7 +46,7 @@ const props = withDefaults(defineProps<Props>(), {
   isShare: false,
 });
 
-const emits = defineEmits(['onClick']);
+const emits = defineEmits(['handleClick']);
 
 const productPremium = ref<string>('');
 const premiumUnit = ref<string>('');

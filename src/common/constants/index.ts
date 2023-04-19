@@ -140,13 +140,13 @@ export const PAGE_API_ENUMS = {
 export const PAGE_ROUTE_ENUMS = {
   productInfo: 'baseInsurance/productDetail', // 产品详情
   premiumTrial: 'baseInsurance/trial', // 保费试算
-  questionNotice: 'healthNotice', // 问卷告知书
-  infoCollection: 'infoCollection', // 信息采集
-  infoPreview: 'infoPreview', // 信息采集预览
-  sign: 'verify', // 人脸识别
+  questionNotice: '/baseInsurance/long/healthNotice', // 问卷告知书
+  infoCollection: '/baseInsurance/long/infoCollection', // 信息采集
+  infoPreview: '/baseInsurance/long/infoPreview', // 信息采集预览
+  sign: '/baseInsurance/long/verify', // 人脸识别
   orderDetail: 'orderDetail', // 订单详情
   orderList: 'order', // 订单列表
-  paymentResult: 'result',
+  paymentResult: '/baseInsurance/long/result',
 };
 
 export const NEXT_BUTTON_CODE_ENUMS = {

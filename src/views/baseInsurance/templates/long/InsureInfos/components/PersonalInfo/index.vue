@@ -162,7 +162,7 @@ const hasInsuredSchema = computed(() => state.insured.some((insuredItem) => isNo
 // 验证是否试算
 watch(
   [
-    () => listObject(state.holder?.personVO),
+    () => state.holder?.personVO,
     () =>
       state.insured.map((insuredItem) => {
         const { beneficiaryList: list, personVO } = insuredItem || {};

@@ -1,6 +1,16 @@
 <template>
   <div v-if="!hidePopupButton" :class="`trial-button ${$attrs.class}`">
-    <VanButton type="primary" @click="open">立即投保</VanButton>
+    <TrialButton
+      :is-share="shareInfo.isShare"
+      :premium="state.trialResult"
+      :share-info="shareInfo"
+      :loading-text="state.trialMsg"
+      :plan-code="props.dataSource.planCode"
+      :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
+      :tenant-product-detail="tenantProductDetail"
+      @click="open"
+      >立即投保</TrialButton
+    >
   </div>
   <ProPopup
     v-if="state.isAniShow || state.show"
@@ -121,7 +131,7 @@ const insureInfosRef = ref(null);
 const route = useRoute();
 const router = useRouter();
 
-const { tenantId } = route.query;
+const { tenantId, templateId } = route.query;
 
 const props = withDefaults(defineProps<Props>(), {
   dataSource: () => [],
@@ -216,12 +226,13 @@ const onNext = () => {
         ...orderDetail.value.extInfo,
         buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
         pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
+        templateId,
       },
     });
     const currentOrderDetail = trialData2Order(props.productInfo, premiumMap.value, orderDetail.value);
     nextStep(currentOrderDetail, (data, pageAction) => {
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-        pageJump(data.nextPageCode, route.query);
+        pageJump(data.nextPageCode, { ...route.query, orderNo: data.orderNo });
       }
     });
     console.log('---- validate success ----');

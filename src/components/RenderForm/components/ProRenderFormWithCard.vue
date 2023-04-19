@@ -43,3 +43,8 @@ export default {
   inheritAttrs: false,
 };
 </script>
+<style lang="scss" scoped>
+.com-pro-form-with-card {
+  margin-bottom: 20px;
+}
+</style>

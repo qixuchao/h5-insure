@@ -133,9 +133,11 @@ watch(
   () => props.holderPersonVO,
   (val) => {
     colorConsole('投保人信息变动了');
+    // 投保人id不同步到被保人
+    const { id, ...holderPersonVO } = val || {};
     // 若为本人合并投保人数据
     if (state.personVO?.relationToHolder === '1') {
-      Object.assign(state.personVO, val);
+      Object.assign(state.personVO, holderPersonVO);
     }
   },
   {
@@ -162,6 +164,8 @@ watch(
   (val) => {
     colorConsole('与投保人关系变动了');
     const { personVO, schema = [], config } = state || {};
+    // 投保人id不同步到被保人
+    const { id, ...holderPersonVO } = props.holderPersonVO || {};
 
     const isSelf = personVO.relationToHolder === '1';
     const isChild = personVO.relationToHolder === '3';
@@ -188,7 +192,7 @@ watch(
     const newPersonVo = isSelf
       ? {
           ...personVO,
-          ...props.holderPersonVO,
+          ...holderPersonVO,
         }
       : {
           ...Object.keys(personVO).reduce((res, key) => {
@@ -198,7 +202,6 @@ watch(
                 {
                   Object: {},
                   Array: [],
-                  Null: null,
                 }[Object.prototype.toString.call(personVO[key]).slice(8, -1)] || null;
             }
             return res;

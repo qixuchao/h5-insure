@@ -178,9 +178,8 @@ onMounted(() => {
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
-      // detail.value = data;
       // Mock Data
-      detail.value = {
+      detail.value = Object.assign(data, {
         orderStatusDesc: ORDER_STATUS_MAP[data.orderStatus],
         orderNo: data.orderNo,
         payWay: '银行卡支付',
@@ -188,7 +187,7 @@ onMounted(() => {
         // policyStatus: '待承保',
         // TODO tenantOrderPayInfoList
         payFailDesc: '失败原因：银行卡余额不足',
-      };
+      });
     }
     // 如果订单处于其他状态的处理逻辑 TODO
     // ....
