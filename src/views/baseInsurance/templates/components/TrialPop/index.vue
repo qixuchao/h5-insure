@@ -131,6 +131,7 @@ interface Props {
   hideBenefit: boolean;
   hidePopupButton: boolean;
   title: string;
+  defaultData: any;
 }
 
 const LOADING_TEXT = '试算中...';
@@ -158,6 +159,7 @@ const props = withDefaults(defineProps<Props>(), {
    * 隐藏弹窗操作按钮
    */
   hidePopupButton: false,
+  defaultData: null,
 });
 
 const state = reactive({
@@ -617,15 +619,19 @@ const transformDefaultData = (defaultData: any) => {
 
 const fetchDefaultData = async (changes: []) => {
   // TODO 加loading
-  const result = await queryCalcDefaultInsureFactor({
-    calcProductFactorList: [
-      {
-        planCode: props.dataSource.planCode,
-        productCode: props.productInfo.productCode,
-      },
-    ],
-  });
-  if (result.data) transformDefaultData(result.data.find((d) => d.productCode === props.productInfo.productCode));
+  if (!props.defaultData) {
+    const result = await queryCalcDefaultInsureFactor({
+      calcProductFactorList: [
+        {
+          planCode: props.dataSource.planCode,
+          productCode: props.productInfo.productCode,
+        },
+      ],
+    });
+    if (result.data) transformDefaultData(result.data.find((d) => d.productCode === props.productInfo.productCode));
+  } else {
+    transformDefaultData(props.defaultData.find((d) => d.productCode === props.productInfo.productCode));
+  }
 };
 
 onBeforeMount(() => {
