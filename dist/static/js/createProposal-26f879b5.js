@@ -1,0 +1,1 @@
+import{bC as t}from"./index-eff7527d.js";const a=t({id:"createProposal",state:()=>({proposalInfo:{},trialData:[],excludeProduct:[],proposalId:0}),actions:{setProposalInfo(t){this.$state.proposalInfo=t},setTrialData(t){this.$state.trialData=t},setExcludeProduct(t){this.$state.excludeProduct=t}}});export{a as u};
