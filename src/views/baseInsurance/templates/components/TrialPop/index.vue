@@ -49,14 +49,22 @@
           ref="insureInfosRef"
           :origin-data="dataSource.insureProductRiskVOList?.[0]"
           :product-factor="dataSource.productFactor"
-          :default-value="state.defaultValue ? state.defaultValue?.insuredVOList[0].productPlanVOList[0] : null"
+          :default-value="
+            state.defaultValue
+              ? state.defaultValue?.insuredVOList[0].productPlanVOList[state.planIndex]?.riskVOList[0]
+              : null
+          "
           @trial-change="handleTrialInfoChange"
         ></InsureInfos>
         <!-- 以下是附加险种信息 -->
         <ProductRiskList
           :data-source="dataSource"
           :show-main-risk="false"
-          :default-value="state.defaultValue ? state.defaultValue?.insuredVOList[0].productPlanVOList : []"
+          :default-value="
+            state.defaultValue
+              ? state.defaultValue?.insuredVOList[0].productPlanVOList[state.planIndex]?.riskVOList
+              : []
+          "
           @trial-change="handleProductRiskInfoChange"
         ></ProductRiskList>
         <div class="empty"></div>
@@ -123,6 +131,7 @@ interface Props {
   hideBenefit: boolean;
   hidePopupButton: boolean;
   title: string;
+  defaultData: any;
 }
 
 const LOADING_TEXT = '试算中...';
@@ -150,6 +159,7 @@ const props = withDefaults(defineProps<Props>(), {
    * 隐藏弹窗操作按钮
    */
   hidePopupButton: false,
+  defaultData: null,
 });
 
 const state = reactive({
@@ -168,6 +178,7 @@ const state = reactive({
   isAniShow: false,
   defaultValue: null, // 是一个plan
   isAutoChange: false,
+  planIndex: 0,
 });
 
 const orderDetail = useOrder();
@@ -354,6 +365,7 @@ const handleSameMainRisk = (data: any) => {
 };
 
 const handleMixTrialData = debounce(async () => {
+  console.error('-------', new Date().getTime());
   if (state.ifPersonalInfoSuccess) {
     state.submitData.productCode = props.productInfo.productCode;
     state.submitData.tenantId = props.productInfo.tenantId;
@@ -424,7 +436,7 @@ const handleMixTrialData = debounce(async () => {
         });
     }
   }
-}, 300);
+}, 400);
 
 const handlePersonalInfoChange = async (data) => {
   // 只有改动第一个被保人，需要调用dy接口
@@ -588,6 +600,9 @@ const handleRestState = () => {
 const transformDefaultData = (defaultData: any) => {
   state.userData = defaultData;
   state.defaultValue = defaultData;
+  state.planIndex = defaultData.insuredVOList[0].productPlanVOList.findIndex(
+    (p) => p.planCode === props.dataSource.planCode,
+  );
   console.log('-----data = ', state.defaultValue?.insuredVOList[0].productPlanVOList[0]);
   // state.userData = {
   //   holder: null,
@@ -604,15 +619,19 @@ const transformDefaultData = (defaultData: any) => {
 
 const fetchDefaultData = async (changes: []) => {
   // TODO 加loading
-  const result = await queryCalcDefaultInsureFactor({
-    calcProductFactorList: [
-      {
-        planCode: props.dataSource.planCode,
-        productCode: props.productInfo.productCode,
-      },
-    ],
-  });
-  if (result.data) transformDefaultData(result.data.find((d) => d.productCode === props.productInfo.productCode));
+  if (!props.defaultData) {
+    const result = await queryCalcDefaultInsureFactor({
+      calcProductFactorList: [
+        {
+          planCode: props.dataSource.planCode,
+          productCode: props.productInfo.productCode,
+        },
+      ],
+    });
+    if (result.data) transformDefaultData(result.data.find((d) => d.productCode === props.productInfo.productCode));
+  } else {
+    transformDefaultData(props.defaultData.find((d) => d.productCode === props.productInfo.productCode));
+  }
 };
 
 onBeforeMount(() => {
