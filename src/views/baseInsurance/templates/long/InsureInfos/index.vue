@@ -2,7 +2,7 @@
   <!-- 产品要素 -->
   <template v-if="originData?.factorDisPlayFlag === 1">
     <BaoeBaofei
-      :v-model="mValues"
+      :v-model="state.sValues"
       :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
       :defalut-value="state.defaultValues"
       @trial-change="handleBaoeBaofeiChange"
@@ -62,19 +62,20 @@ const props = withDefaults(defineProps<Props>(), {
   defaultValue: () => ({} as any),
 });
 
+const personalInfoRef = ref(null);
+
+const mValues = ref({});
+
+const enumList = ref({});
+
 const state = reactive({
   personalInfo: {},
   basicsAmount: '',
   basicsPremium: '',
   defaultValues: props.defaultValue,
   changeData: null,
+  sValues: mValues.value,
 });
-
-const personalInfoRef = ref(null);
-
-const mValues = ref({});
-
-const enumList = ref({});
 
 const riskPremium: any = inject('premium') || {};
 enumList.value = inject('enumList') || {};
@@ -82,11 +83,6 @@ enumList.value = inject('enumList') || {};
 // const state = reactive<{ formInfo: RiskVoItem }>({
 //   formInfo: props.formInfo as RiskVoItem,
 // });
-
-console.log('-------origin data', props.originData);
-const onTrail = (val) => {
-  console.log('---personal trail---', val);
-};
 
 onMounted(() => {
   // console.log('--------origin data = ', props.originData);
@@ -107,7 +103,6 @@ const handleMixData = debounce((changeValue: any) => {
   mValues.value.riskType = props.originData.riskType;
   mValues.value.mainRiskCode = props.originData.mainRiskCode;
   mValues.value.mainRiskId = props.originData.mainRiskId;
-  console.log('---trial value = ', mValues.value, mValues.value.liabilityVOList);
   if (changeValue) emit('trialChange', mValues.value, changeValue);
   else emit('trialChange', mValues.value);
 }, 300);
@@ -116,7 +111,6 @@ const handleProductKeysChange = (data, changeValue) => {
   objectKeys(data).forEach((key) => {
     mValues.value[key] = data[key];
   });
-  console.log('-handleProductKeysChange', mValues.value.liabilityVOList);
   handleMixData(changeValue);
 };
 
@@ -130,12 +124,10 @@ const handleBaoeBaofeiChange = (data) => {
   objectKeys(data).forEach((key) => {
     mValues.value[key] = data[key];
   });
-  console.log('-handleBaoeBaofeiChange', data);
   handleMixData();
 };
 const handleRiskLiabilityChange = (data) => {
   mValues.value.liabilityVOList = data;
-  console.log('---trial change lia = ', mValues.value.liabilityVOList);
   handleMixData();
 };
 
@@ -162,7 +154,7 @@ watch(
 watch(
   () => mValues.value,
   (v) => {
-    console.log('----=-=-=-=-=-=-=-=-=vvvv = ', v.liabilityVOList);
+    state.sValues = v;
   },
   {
     deep: true,
