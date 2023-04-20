@@ -9,28 +9,25 @@
       </div>
     </div>
     <van-popup v-model:show="visible" position="right" safe-area-inset-top class="navigation-popup">
-      <van-config-provider :theme-vars="themeVar">
-        <div class="popup-body">
-          <span class="popup-title">投保进度</span>
-          <p class="desc">您可以通过投保进度条预览投保流程步骤</p>
+      <div class="popup-body">
+        <span class="popup-title">投保进度</span>
+        <p class="desc">您可以通过投保进度条预览投保流程步骤</p>
 
-          <div class="list">
-            <van-steps direction="vertical" :active="activeIndex">
-              <van-step v-for="(item, index) in list" :key="index">
-                <h3>{{ item.pageName }}</h3>
-              </van-step>
-            </van-steps>
-          </div>
+        <div class="list">
+          <van-steps direction="vertical" :active="activeIndex">
+            <van-step v-for="(item, index) in list" :key="index">
+              <h3>{{ item.pageName }}</h3>
+            </van-step>
+          </van-steps>
         </div>
-      </van-config-provider>
+      </div>
     </van-popup>
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="ProNavigator">
 import { useRoute } from 'vue-router';
 import { useToggle } from '@vant/use';
-import { storeToRefs } from 'pinia';
 import { getTemplateInfo } from '@/api';
 import { TemplatePageItem } from '@/api/index.data';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
@@ -42,8 +39,6 @@ import { useSessionStorage } from '@/hooks/useStorage';
 
 const storage = useSessionStorage();
 
-const themeVar = useTheme();
-const store = useStore();
 const route = useRoute();
 const {
   saleUserId = 'D1234567-1',
@@ -58,7 +53,7 @@ const {
 // 需要展示侧边导航的页面code
 const showNavigatorPageCodeList = ['questionNotice', 'infoCollection', 'infoPreview', 'payInfo', 'salesNotice', 'sign'];
 
-const { orderDetail } = storeToRefs(store);
+// const { orderDetail } = storeToRefs(store);
 const [visible, toggle] = useToggle(false);
 const list = ref<Array<TemplatePageItem>>([]);
 
@@ -66,10 +61,10 @@ const handleClick = () => {
   toggle(true);
 };
 
-// 可以点击的步骤index
-const enableIndex = computed(() => {
-  return list.value.findIndex((x) => x.pageCode === orderDetail.value?.extInfo?.pageCode);
-});
+// // 可以点击的步骤index
+// const enableIndex = computed(() => {
+//   return list.value.findIndex((x) => x.pageCode === orderDetail.value?.extInfo?.pageCode);
+// });
 
 // const handleNavClick = (item: TemplatePageItem, index: number) => {
 //   if (index <= enableIndex.value) {

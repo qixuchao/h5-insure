@@ -69,22 +69,28 @@ export const useTheme = (color: string = import.meta.env.VITE_THEME_COLOR || the
     primaryColorLight2: theme20,
     primaryColorLight8: theme80,
     dangerColor: '#FF3C10', // 错误颜色
+    /** === 自定义变量 start ==== */
+    cardTitle: color, // 保障内容title的颜色
+    cardCellColor: theme80, // 保障内容每一行颜色的颜色
+    linearBg: `linear-gradient(to right, ${color}, ${getColor(color)})`,
+    proCheckRadius: '40px', // proCheckButton的圆角
+    // buttonBorderRadius: '4px', // 按钮圆角
+    /** === 自定义变量 end ==== */
+
+    /** === vant组件样式覆盖  start === */
     primaryBackgroundColor: `${theme20}`, // 自定义主题20%透明度的颜色
     buttonPrimaryBackgroundColor: color, // 主题按钮背景
     buttonPrimaryBorderColor: color, // 主题按钮边框
     checkboxCheckedBgColor: `${theme10}`, // van-checkbox的背景色
     switchOnBackgroundColor: color, // switch 开时的背景
-    toastDefaultPadding: '14px',
-    linearBg: `linear-gradient(to right, ${color}, ${getColor(color)})`,
-    popupCloseIconMargin: '20px',
-    popupRoundBorderRadius: '20px',
-    cardTitle: color, // 保障内容title的颜色
-    cardCellColor: theme80, // 保障内容每一行颜色的颜色
-    radioCheckedIconColor: color,
-    proCheckRadius: '40px', // proCheckButton的圆角
-    buttonBorderRadius: '4px',
+    toastDefaultPadding: '14px', // toast默认内边距
+    popupCloseIconMargin: '20px', // popup弹窗关闭icon距离
+    popupRoundBorderRadius: '20px', // popup底部圆角
+    radioCheckedIconColor: color, // 单选按钮背景颜色
     sliderActiveBackgroundColor: color, // 滑块底部颜色
-    tabsBottomBarColor: color,
+    tabsBottomBarColor: color, // tabs激活条的颜色
+    stepActiveColor: color, // 步骤条
+    stepFinishLineColor: color, // 步骤条线条
     // ..其他组件的颜色覆盖
   };
 };

@@ -97,7 +97,7 @@
     </van-tabs>
   </div>
   <div v-else>
-    <ZaEmpty title="试算前请完善投保信息" empty-class="empty-select" />
+    <ProEmpty title="试算前请完善投保信息" empty-class="empty-select" />
   </div>
 </template>
 <script lang="ts" setup name="benefit">

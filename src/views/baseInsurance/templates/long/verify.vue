@@ -107,6 +107,7 @@ import InsureProgress from './components/InsureProgress.vue';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
 import ProShare from '@/components/ProShare/index.vue';
 import { jumpToNextPage, isAppFkq } from '@/utils';
+import { setGlobalTheme } from '@/hooks/useTheme';
 
 const route = useRoute();
 
@@ -368,7 +369,7 @@ const initData = () => {
         const { title, desc, image } = data?.PRODUCT_LIST || {};
         shareParams = { title, desc, image };
       }
-
+      setGlobalTheme(data.BASIC_INFO.themeType);
       // 设置分享参数
       Object.assign(shareInfo.value, shareParams);
     }

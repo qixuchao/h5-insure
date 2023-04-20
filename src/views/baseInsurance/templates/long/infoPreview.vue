@@ -8,7 +8,7 @@
         ref="personalInfoRef"
         v-model="state.personalInfo"
         :product-factor="currentPlanObj?.productFactor"
-        :multi-insured-num="currentPlanObj?.multiInsuredConfigVO?.multiInsuredNum"
+        :multi-insured-config="currentPlanObj?.multiInsuredConfigVO"
         is-view
       />
 
@@ -72,6 +72,7 @@ import ProShadowButton from '../components/ProShadowButton/index.vue';
 import InsureInfo from './components/InsureInfo.vue';
 import ProShare from '@/components/ProShare/index.vue';
 import { jumpToNextPage, isAppFkq } from '@/utils';
+import { setGlobalTheme } from '@/hooks/useTheme';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
@@ -287,7 +288,7 @@ const initData = async () => {
         const { title, desc, image } = data?.PRODUCT_LIST || {};
         shareParams = { title, desc, image, isShare: false };
       }
-
+      setGlobalTheme(data.BASIC_INFO.themeType);
       // 设置分享参数
       Object.assign(shareInfo.value, shareParams);
     }

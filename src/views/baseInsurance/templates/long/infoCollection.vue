@@ -7,7 +7,7 @@
         ref="personalInfoRef"
         v-model="state.personalInfo"
         :product-factor="currentPlanObj?.productFactor"
-        :multi-insured-num="currentPlanObj?.multiInsuredConfigVO?.multiInsuredNum"
+        :multi-insured-config="currentPlanObj?.multiInsuredConfigVO"
         :is-view="false"
         @trail-change="handlePersonalInfoChange"
       />
@@ -119,6 +119,8 @@ import {
 } from '@/common/constants';
 import { formData2Order, orderData2trialData } from '../utils';
 import { jumpToNextPage } from '@/utils';
+
+import { setGlobalTheme } from '@/hooks/useTheme';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
@@ -774,7 +776,7 @@ const initData = async () => {
         const { title, desc, image } = data?.PRODUCT_LIST || {};
         shareParams = { title, desc, image, isShare: showWXShare };
       }
-
+      setGlobalTheme(data.BASIC_INFO.themeType);
       // 设置分享参数
       Object.assign(shareInfo.value, shareParams);
     }
