@@ -10,12 +10,6 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/baseInsurance/templates/long/healthNotice.vue'),
   },
   {
-    name: 'productDetail',
-    path: '/productDetail',
-    meta: { title: '产品详情' },
-    component: () => import('@/views/lifeInsurance/product/detail/index.vue'),
-  },
-  {
     name: 'verify',
     path: '/baseInsurance/long/verify',
     meta: { title: '身份认证' },
@@ -43,7 +37,7 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     name: 'previewMiddlePage',
     path: '/previewMiddlePage',
     meta: { title: '预览' },
-    component: () => import('@/views/previewMiddlePage/index.vue'),
+    component: () => import('@/views/middlePage/preview.vue'),
   },
 ];
 
@@ -78,40 +72,6 @@ const proposalRoutes: Array<RouteRecordRaw> = [
     path: '/proposalCover',
     meta: { title: '计划书封面', requireWxJs: false },
     component: () => import('@/views/proposal/compositionProposal/cover.vue'),
-  },
-];
-
-// 互联网在线投保
-const internetRoutes = [
-  {
-    name: 'internetProductDetail',
-    path: '/internet/productDetail',
-    meta: { title: '付费险' },
-    component: () => import('@/views/internet/product/detail/index.vue'),
-  },
-  {
-    name: 'productDetailPackage',
-    path: '/internet/productDetail/package',
-    meta: { title: '付费险' },
-    component: () => import('@/views/internet/product/detail/packageProcess.vue'),
-  },
-  {
-    name: 'internetGuaranteeUpgrade',
-    path: '/internet/guaranteeUpgrade',
-    meta: { title: '保障升级' },
-    component: () => import('@/views/internet/upgrade/index.vue'),
-  },
-  {
-    name: 'internetOrderDetail',
-    path: '/internet/orderDetail',
-    meta: { title: '投保成功页' },
-    component: () => import('@/views/internet/orderDetail/index.vue'),
-  },
-  {
-    name: 'internetPayFail',
-    path: '/internet/payFail',
-    meta: { title: '支付失败' },
-    component: () => import('@/views/internet/payFail/index.vue'),
   },
 ];
 
@@ -295,7 +255,6 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/baseInsurance/filePreview/index.vue'),
   },
   ...proposalRoutes,
-  ...internetRoutes,
   ...baseInsurance,
 ];
 

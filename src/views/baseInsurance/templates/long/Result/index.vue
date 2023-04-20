@@ -9,27 +9,23 @@
       @cancel="handleCancel"
     >
       <template #order>
-        <div v-if="detail && detail.orderStatus === ORDER_STATUS_ENUM.PAYMENT_SUCCESS" class="order-list">
+        <div v-if="isSuccess" class="order-result">
           <van-row>
-            <van-col class="order-label" span="8">订单号：</van-col>
-            <van-col span="12">{{ detail.orderNo }}</van-col>
-            <van-col class="order-label" span="8">支付方式：</van-col>
-            <van-col span="12">{{ detail.payWay }}</van-col>
-            <van-col class="order-label" span="8">支付金额：</van-col>
-            <van-col span="12">{{ detail.orderAmount }}</van-col>
-            <van-col class="order-label" span="8">保单状态：</van-col>
-            <van-col span="12">{{ detail.orderStatusDesc }}</van-col>
+            <van-col class="order-label" span="10">订 单 号：</van-col>
+            <van-col span="14">{{ result.orderNo }}</van-col>
+            <van-col class="order-label" span="10">支付方式：</van-col>
+            <van-col span="14">{{ result.paymentMethod }}</van-col>
+            <van-col class="order-label" span="10">支付金额：</van-col>
+            <van-col span="14">{{ result.orderAmount }}</van-col>
+            <van-col class="order-label" span="10">保单状态：</van-col>
+            <van-col span="14">{{ result.orderStatusDesc }}</van-col>
           </van-row>
         </div>
-        <div v-if="detail && detail.orderStatus === ORDER_STATUS_ENUM.PAYMENT_FAILED" class="order-list">
-          <van-row>
-            <van-col span="24">{{ detail.payFailDesc }}</van-col>
+        <div v-if="isFail" class="order-result">
+          <van-row v-if="result.paymentResultDesc">
+            <van-col class="order-label" span="10">失败原因：</van-col>
+            <van-col span="14">{{ result.paymentResultDesc }}</van-col>
           </van-row>
-          <div class="page-pay-fail">
-            <div class="title">支付失败</div>
-            <div class="desc">支付遇到问题，请尝试重新支付</div>
-            <VanButton class="btn" type="primary" round block @click="retry">重新支付</VanButton>
-          </div>
         </div>
       </template>
     </ProResult>
@@ -38,131 +34,111 @@
 
 <script lang="ts" setup>
 import { useRouter, useRoute } from 'vue-router';
-import { Toast } from 'vant';
 import ProResult from '@/components/ProResult/index.vue';
-import { nextStep, getOrderDetail, getInitFactor } from '@/api';
+import { getOrderDetail } from '@/api';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
-import { NextStepRequestData } from '@/api/index.data';
+import { PAYMENT_METHOD_MAP } from '@/common/constants/bankCard';
 import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
-import { getPayUrl } from '@/api/modules/trial';
 
+/**
+ * 本页面只有三种结果状态
+ * @since success 成功
+ * @since fail 失败
+ * @since process 处理中
+ */
 interface PayResultData {
   orderNo: string;
-  payWay: string;
+  /** 支付方式 */
+  paymentMethod: string;
   orderAmount: string;
+  // 订单状态
   orderStatus: string;
+  /** 订单状态（已承保） */
   orderStatusDesc: string;
-  payFailDesc: string;
+  /** 支付结果 */
+  paymentResultDesc: string;
 }
-const detail = ref<PayResultData>({
-  orderNo: '2023041315055958221',
-  payWay: '',
+
+const TEXT_MAP = {
+  payFail: '支付失败',
+  congratulate: '恭喜你完成投保',
+  repay: '重新支付',
+  goPolicy: '查看保单详情',
+  updatePayInfo: '修改支付信息',
+};
+
+const result = ref<PayResultData>({
+  orderNo: '',
+  paymentMethod: '',
   orderAmount: '',
   orderStatus: '',
   orderStatusDesc: '',
-  payFailDesc: '',
+  paymentResultDesc: '',
 });
 const route = useRoute();
 const router = useRouter();
-const {
-  orderNo = '2023041315055958221',
-  saleUserId = 'D1234567-1',
-  tenantId = '9991000007',
-  templateId = 1,
-} = route.query;
-
-const title = computed(() => {
-  if (detail.value) {
-    switch (detail.value.orderStatus) {
-      case ORDER_STATUS_ENUM.PAYMENT_FAILED:
-        return '支付失败';
-      case ORDER_STATUS_ENUM.PAYMENT_SUCCESS:
-        return '恭喜你完成投保';
-      default:
-        return ORDER_STATUS_MAP[detail.value.orderStatus];
-    }
-  }
-  return '';
+const { orderNo = '', saleUserId = '', tenantId = '', templateId = 1 } = route.query;
+const orderInfo = ref({});
+/** 当前订单是成功 */
+const isSuccess = computed((status) => {
+  return (
+    result.value &&
+    [
+      ORDER_STATUS_ENUM.SUCCESS, // 交易成功
+      ORDER_STATUS_ENUM.PAYMENT_SUCCESS, // 支付成功
+      ORDER_STATUS_ENUM.ACCEPT_POLICY, // 已承保
+    ].some((i) => i === result.value?.orderStatus)
+  );
 });
-
-const okText = computed(() => {
-  if (detail.value) {
-    switch (detail.value.orderStatus) {
-      case ORDER_STATUS_ENUM.PAYMENT_FAILED:
-        return '重新支付';
-      case ORDER_STATUS_ENUM.PAYMENT_SUCCESS:
-        return '确定';
-      default:
-        return '确定';
-    }
-  }
-  return '确定';
+/** 当前订单是失败 */
+const isFail = computed((status) => {
+  return (
+    result.value &&
+    [
+      ORDER_STATUS_ENUM.PAYMENT_FAILED, // 支付失败
+      ORDER_STATUS_ENUM.INSURER_REJECT, // 保司拒保
+      ORDER_STATUS_ENUM.TIMEOUT, // 超时
+      ORDER_STATUS_ENUM.FAILED, // 交易失败
+      ORDER_STATUS_ENUM.CANCELED, // 交易失败
+    ].some((i) => i === result.value?.orderStatus)
+  );
 });
-
-const cancelText = computed(() => {
-  if (detail.value) {
-    switch (detail.value.orderStatus) {
-      case ORDER_STATUS_ENUM.PAYMENT_FAILED:
-        return '取消交易';
-      case ORDER_STATUS_ENUM.PAYMENT_SUCCESS:
-        return '查看保单详情';
-      default:
-        return '';
-    }
-  }
-  return '';
-});
-
 const status = computed(() => {
-  if (detail.value) {
-    switch (detail.value.orderStatus) {
-      case ORDER_STATUS_ENUM.PAYMENT_FAILED:
-        return 'fail';
-      case ORDER_STATUS_ENUM.PAYMENT_SUCCESS:
-        return 'success';
-      default:
-        return 'process';
-    }
+  if (result.value) {
+    return isSuccess.value ? 'success' : isFail.value ? 'fail' : 'process';
   }
   return 'process';
 });
 
-const repay = async () => {
-  Toast.loading({ forbidClick: true, message: '获取支付链接' });
-  const res = await getPayUrl({
-    orderNo,
-    tenantId,
-  });
-  const { code, data } = res;
-  if (code === '10000') {
-    window.location.href = data;
-  }
-};
+const title = computed(() => {
+  return isSuccess.value ? TEXT_MAP.congratulate : isFail.value ? TEXT_MAP.payFail : '处理中';
+});
+
+const okText = computed(() => {
+  return isSuccess.value ? TEXT_MAP.updatePayInfo : isFail.value ? TEXT_MAP.repay : '';
+});
+
+const cancelText = computed(() => {
+  return isSuccess.value ? TEXT_MAP.updatePayInfo : isFail.value ? TEXT_MAP.updatePayInfo : '';
+});
 const handleOk = () => {
-  if (okText.value === '查看保单详情') {
+  if (okText.value === TEXT_MAP.goPolicy) {
     // 点击【查看保单详情】，进入保单详情页面
-    // router.push({
-    //   path: PAGE_ROUTE_ENUMS.orderDetail,
-    //   query: { orderNo, tenantId, agentCode: saleUserId },
-    // });
-  } else if (okText.value === '重新支付') {
+    router.push({
+      path: PAGE_ROUTE_ENUMS.orderDetail,
+      query: route.query,
+    });
+  } else if (okText.value === TEXT_MAP.repay) {
     // 点击【重新支付】按钮，唤起支付
-    // router.push({
-    //   path: PAGE_ROUTE_ENUMS.payInfo,
-    //   query: route.query,
-    // });
-    repay();
-  } else if (okText.value === '确定') {
-    // 点击【确定】，进入保单列表页面
-    // router.push({
-    //   path: PAGE_ROUTE_ENUMS.orderList,
-    //   query: route.query,
-    // });
+    router.push({
+      path: PAGE_ROUTE_ENUMS.infoPreview,
+      query: route.query,
+    });
   }
 };
 
 const handleCancel = () => {
-  if (cancelText.value === '取消交易') {
+  if (cancelText.value === TEXT_MAP.updatePayInfo) {
     router.push({
       path: PAGE_ROUTE_ENUMS.infoCollection,
       query: route.query,
@@ -178,33 +154,31 @@ onMounted(() => {
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
-      // detail.value = data;
-      // Mock Data
-      detail.value = {
+      orderInfo.value = data;
+      // 支付信息
+      const payMentInfo = data.tenantOrderPaymentInfoList?.[0];
+      result.value = {
         orderStatusDesc: ORDER_STATUS_MAP[data.orderStatus],
+        orderStatus: data.orderStatus,
         orderNo: data.orderNo,
-        payWay: '银行卡支付',
+        paymentMethod: PAYMENT_METHOD_MAP[payMentInfo.paymentMethod] || '',
         orderAmount: `￥${data.orderAmount}`,
-        // policyStatus: '待承保',
-        // TODO tenantOrderPayInfoList
-        payFailDesc: '失败原因：银行卡余额不足',
+        paymentResultDesc: payMentInfo.paymentResultDesc,
       };
     }
-    // 如果订单处于其他状态的处理逻辑 TODO
-    // ....
   });
 });
 </script>
 
 <style lang="scss" scoped>
-// .com-pay {}
-.order-list {
+.order-result {
   width: 600px;
-  padding: $zaui-page-border;
+  padding: 40px;
   text-align: left;
 
   .order-label {
     margin-bottom: $zaui-space-card;
+    text-align: right;
   }
 }
 </style>

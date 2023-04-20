@@ -72,11 +72,11 @@ const img = computed(() => {
   .img {
     width: 128px;
     height: 128px;
-    margin-top: 290px;
+    margin-top: 220px;
   }
   .title {
     margin-top: 32px;
-    font-size: 34px;
+    font-size: 36px;
     font-weight: 500;
     color: #393d46;
     line-height: 42px;
