@@ -369,7 +369,7 @@ const handleSameMainRisk = (data: any) => {
 };
 
 const handleMixTrialData = debounce(async () => {
-  console.error('-------', new Date().getTime());
+  console.log('>>>>>调用试算<<<<<');
   if (state.ifPersonalInfoSuccess) {
     state.submitData.productCode = props.productInfo.productCode;
     state.submitData.tenantId = props.productInfo.tenantId;
