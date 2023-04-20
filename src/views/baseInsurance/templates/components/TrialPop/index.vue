@@ -142,7 +142,7 @@ const insureInfosRef = ref(null);
 const route = useRoute();
 const router = useRouter();
 
-const { tenantId, templateId } = route.query;
+const { tenantId, templateId, preview } = route.query;
 
 const props = withDefaults(defineProps<Props>(), {
   dataSource: () => [],
@@ -237,6 +237,10 @@ const trialData2Order = (
 };
 const premiumMap = ref();
 const onNext = () => {
+  // if (preview) {
+  //   pageJump(data.nextPageCode, route.query);
+  //   return
+  // }
   if (state.trialResult) {
     // 验证
     insureInfosRef.value?.validate().then(() => {

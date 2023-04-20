@@ -1,3 +1,7 @@
+import { NextStepRequestData } from '@/api/index.data';
+import { ProductRiskVoItem } from '@/api/modules/product.data';
+import { ProductData } from '@/api/modules/trial.data';
+import { CERT_TYPE_ENUM } from '@/common/constants';
 import { PREMIUM_DISPLAY_TYPE_ENUM, PREMIUM_UNIT_TYPE_ENUM } from '@/common/constants/infoCollection';
 import { RISK_TYPE_ENUM } from '@/common/constants/trial';
 
@@ -133,6 +137,46 @@ export const formData2Order = ({ holder, insuredList = [] }) => {
   return {
     tenantOrderHolder: formatData(holder),
     tenantOrderInsuredList: (insuredList || []).map((insured) => formatData(insured)),
+  };
+};
+
+export const orderData2trialData = (
+  orderInfo: Partial<NextStepRequestData>,
+  currentProductDetail: ProductData | undefined,
+  productRiskList: ProductRiskVoItem[],
+) => {
+  const { tenantId, commencementTime, expiryDate, venderCode, tenantOrderHolder, tenantOrderInsuredList } = orderInfo;
+  // 试算接口参数组装
+  const trialParams = {
+    tenantId,
+    // productCode: currentProductDetail?.productCode,
+    insuranceStartDate: commencementTime,
+    insuranceEndDate: expiryDate,
+    holder: {
+      personVO: {
+        ...tenantOrderHolder,
+        socialFlag: tenantOrderHolder.extInfo?.hasSocialInsurance,
+        certType: tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
+      },
+    },
+    insuredVOList: tenantOrderInsuredList.map((person) => {
+      return {
+        insuredCode: '',
+        relationToHolder: person.relationToHolder,
+        personVO: {
+          ...person,
+          socialFlag: person.extInfo.hasSocialInsurance,
+          certType: person.certType || CERT_TYPE_ENUM.CERT,
+        },
+        productPlanVOList: [
+          {
+            insurerCode: venderCode,
+            planCode: '',
+            riskVOList: riskToOrder(productRiskList),
+          },
+        ],
+      };
+    }),
   };
 };
 

@@ -93,7 +93,7 @@ import {
   ProductPlanInsureVoItem,
   RiskDetailVoItem,
 } from '@/api/modules/product.data';
-import { insureProductDetail as getInsureProductDetail } from '@/api/modules/trial';
+import { getTenantOrderDetail, insureProductDetail as getInsureProductDetail } from '@/api/modules/trial';
 import { productDetail as getTenantProductDetail, queryProductMaterial, querySalesInfo } from '@/api/modules/product';
 
 import { INSURE_TYPE_ENUM } from '@/common/constants/infoCollection';
@@ -140,6 +140,7 @@ const {
   agencyCode,
   saleChannelId,
   extraInfo,
+  orderNo,
   insurerCode,
   preview,
   trialPreview,
@@ -232,6 +233,7 @@ const queryProductMaterialData = () => {
 };
 
 // 初始化数据，获取产品配置详情和产品详情
+const orderDetail = ref<any>();
 const initData = async () => {
   !trialPreviewMode.value &&
     querySalesInfo({ productCode, tenantId, isTenant: !preview }).then(({ data, code }) => {
@@ -244,6 +246,13 @@ const initData = async () => {
         // 设置分享参数
         Object.assign(shareInfo.value, { title, desc, image, isShare: !!data?.PRODUCT_LIST.showWXShare });
         setGlobalTheme(data.BASIC_INFO.themeType);
+      }
+    });
+
+  orderNo &&
+    getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
+      if (code === '10000') {
+        orderDetail.value = data;
       }
     });
 
