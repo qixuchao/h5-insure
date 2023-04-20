@@ -220,6 +220,8 @@ watch(
     emit('update:modelValue', result);
     console.log('---is first change= ', result);
     // 验证通过调用试算
+    console.log('state.config.hasTrialFactorCodes', state.config.hasTrialFactorCodes);
+    console.log('state.config.hasTrialFactorCodes', state.config.hasTrialFactorCodes);
     if (state.config.hasTrialFactorCodes && validateTrialFields()) {
       validate(true)
         .then(() => {

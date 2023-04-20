@@ -15,6 +15,11 @@
         ref="insureInfosRef"
         :origin-data="mainRiskInfo"
         :product-factor="currentPlanObj.productFactor"
+        :default-value="
+          state.defaultValue
+            ? state.defaultValue?.insuredVOList?.[0]?.productPlanVOList?.[state.planIndex]?.riskVOList?.[0]
+            : null
+        "
         @trial-change="handleTrialInfoChange"
       ></InsureInfos>
       <!-- 以下是附加险种信息 -->
@@ -46,7 +51,7 @@
         :premium="trialResult"
         :share-info="shareInfo"
         :loading-text="trialMsg"
-        :payment-frequency="1"
+        :payment-frequency="riskVOList?.[0]?.paymentFrequency"
         :tenant-product-detail="tenantProductDetail"
         :handle-share="handleShare"
         @handle-click="onNext"
@@ -266,6 +271,7 @@ const premium = ref<number>(0);
 const premiumMap = ref<any>({}); // 试算后保费
 
 const handleMixTrialData = debounce(() => {
+  console.log('ifPersonalInfoSuccess', ifPersonalInfoSuccess);
   if (ifPersonalInfoSuccess.value) {
     submitData.value.productCode = productCode;
     submitData.value.tenantId = tenantId;
@@ -393,14 +399,13 @@ const handlePersonalInfoChange = async (data) => {
         };
       } else {
         // new
-        submitData.value.insuredVOList = [
-          {
-            personVO: {
-              ...ins.personVO,
-              socialFlag: ins.personVO.hasSocialInsurance,
-            },
+        if (!submitData.value?.insuredVOList) submitData.value.insuredVOList = [];
+        submitData.value.insuredVOList.push({
+          personVO: {
+            ...ins.personVO,
+            socialFlag: ins.personVO.hasSocialInsurance,
           },
-        ];
+        });
       }
     });
   }
@@ -420,7 +425,7 @@ const handlePersonalInfoChange = async (data) => {
           ],
         },
       ],
-      ...insuredVOList[0].personVO,
+      ...insuredVOList?.[0]?.personVO,
     });
     if (!handleDealDyResult(dyResult)) return;
   }
@@ -497,9 +502,6 @@ const handleTrialInfoChange = async (data: any, changeData) => {
   const dyDeal = await handleDynamicConfig(data, changeData);
   if (!dyDeal) return;
   if (riskVOList.value.length > 0) {
-    riskVOList.value[0] = data;
-  }
-  if (riskVOList.value.length) {
     riskVOList.value[0] = data;
   }
   console.log('标准险种的信息回传', data);
