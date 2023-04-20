@@ -236,7 +236,7 @@ const queryProductMaterialData = () => {
 const orderDetail = ref<any>();
 const initData = async () => {
   !trialPreviewMode.value &&
-    querySalesInfo({ productCode, tenantId, isTenant: !preview }).then(({ data, code }) => {
+    querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
       if (code === '10000') {
         tenantProductDetail.value = data;
         document.title = data.BASIC_INFO.title || '';
