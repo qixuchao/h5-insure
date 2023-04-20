@@ -7,7 +7,7 @@
         ref="personalInfoRef"
         v-model="state.personalInfo"
         :product-factor="currentPlanObj?.productFactor"
-        :multi-insured-num="currentPlanObj?.multiInsuredConfigVO?.multiInsuredNum"
+        :multi-insured-config="currentPlanObj?.multiInsuredConfigVO"
         :is-view="false"
         @trail-change="handlePersonalInfoChange"
       />
