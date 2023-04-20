@@ -1,0 +1,1 @@
+const E={SHORT:"1",FREE:"2",NETSALE:"3",UPGRADE:"4",BASELONG:"201",NIANJIN:"202"};export{E as T};
