@@ -30,7 +30,9 @@
         :config="beneficiary.config"
         :is-view="isView"
       >
-        <span v-if="index > 0" @click="onDeleteBeneficiary(index)"><van-icon name="delete-o" /></span>
+        <span v-if="index > 0" class="delete-button" @click="onDeleteBeneficiary(index)"
+          ><van-icon name="delete-o"
+        /></span>
       </BeneficiaryItem>
 
       <span v-if="!isView && addible" class="add-button" @click="onAddBeneficiary"
@@ -224,9 +226,13 @@ watch(
 
 // 监听受益人信息
 watch(
-  () => state.beneficiaryList.map((item) => item.personVO),
+  () =>
+    state.beneficiaryList.map((item) => ({
+      personVO: item.personVO,
+    })),
   (val) => {
-    emit('update:beneficiaryList', state.beneficiaryList);
+    emit('update:beneficiaryList', val);
+    // emit('update:modelValue', state.beneficiaryList);
   },
   {
     deep: true,
@@ -331,12 +337,12 @@ watch(
   (val) => {
     if (val) {
       Object.assign(state.personVO, val);
-      if (isNotEmptyArray(val.beneficiaryList) && isNotEmptyArray(state.beneficiaryList)) {
-        // 受益人
-        state.beneficiaryList.forEach((beneficiaryIem, i) => {
-          Object.assign(beneficiaryIem.personVO, val.beneficiaryList[i]?.personVO);
-        });
-      }
+      // if (isNotEmptyArray(val.beneficiaryList) && isNotEmptyArray(state.beneficiaryList)) {
+      //   // 受益人
+      //   state.beneficiaryList.forEach((beneficiaryIem, i) => {
+      //     Object.assign(beneficiaryIem.personVO, val.beneficiaryList[i]?.personVO);
+      //   });
+      // }
     }
   },
   {
@@ -349,18 +355,18 @@ watch(
   () => props.beneficiaryList,
   (val) => {
     if (val) {
-      if (isNotEmptyArray(val) && isNotEmptyArray(state.beneficiaryList)) {
+      if (isNotEmptyArray(val)) {
         // 受益人
-        state.beneficiaryList = state.beneficiaryList.map((beneficiaryItem, i) => {
-          const currentBeneficiaryItem = val[i] || {};
-          return {
-            ...currentBeneficiaryItem,
-            personVO: {
-              ...beneficiaryItem.personVO,
-              ...currentBeneficiaryItem.personVO,
-            },
-          };
-        });
+        // state.beneficiaryList = val.map((beneficiaryItem, i) => {
+        //   const currentBeneficiaryItem = val[i] || {};
+        //   return {
+        //     ...currentBeneficiaryItem,
+        //     personVO: {
+        //       ...beneficiaryItem.personVO,
+        //       ...currentBeneficiaryItem.personVO,
+        //     },
+        //   };
+        // });
       }
     }
   },
@@ -398,12 +404,16 @@ defineExpose({
   }
 }
 .add-button {
-  padding: 20px 30px;
+  display: block;
+  padding: 0 30px 20px;
   font-size: 26px;
-  color: #0d6efe;
+  color: $zaui-primary-text;
   line-height: 37px;
   .van-icon-plus {
     font-weight: 600;
   }
+}
+.delete-button {
+  color: $zaui-primary-text;
 }
 </style>

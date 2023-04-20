@@ -41,7 +41,7 @@
           v-model="state.userData"
           is-trial
           :product-factor="dataSource.productFactor"
-          :multi-insured-num="dataSource?.multiInsuredConfigVO?.multiInsuredNum"
+          :multi-insured-config="dataSource?.multiInsuredConfigVO"
           @trail-change="handlePersonalInfoChange"
         />
         <!-- 这里是标准险种信息 -->
@@ -397,7 +397,7 @@ const handleSameMainRisk = (data: any) => {
 };
 
 const handleMixTrialData = debounce(async () => {
-  console.error('-------', new Date().getTime());
+  console.log('>>>>>调用试算<<<<<');
   if (state.ifPersonalInfoSuccess) {
     state.submitData.productCode = props.productInfo.productCode;
     state.submitData.tenantId = props.productInfo.tenantId;

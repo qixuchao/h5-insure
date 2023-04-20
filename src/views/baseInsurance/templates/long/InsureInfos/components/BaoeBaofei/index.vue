@@ -291,7 +291,6 @@ watch(
 watch(
   () => props.defalutValue,
   (v) => {
-    if (v?.riskCode) console.log('-----baoebaofei ', mValues.value);
     if (v?.riskCode) {
       Object.keys(mValues.value).forEach((key) => {
         mValues.value[key] = v[key] || mValues.value[key];

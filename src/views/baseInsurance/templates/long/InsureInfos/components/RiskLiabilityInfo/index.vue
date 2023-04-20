@@ -120,7 +120,6 @@ const handleSwitchClick = (item, index) => {
   }
 };
 const handleRiskLiabityClick = (e, index) => {
-  console.log('keykeykey>>>>>>', index, e);
   const curentLiabilityList = e.liabilityAttributeValueList.filter(
     (x) => x.displayValue === state.value.checkValueList[index],
   );
@@ -138,7 +137,6 @@ const handleRiskLiabityClick = (e, index) => {
     key: index,
     isSwitchOn: '1',
   });
-  console.log('state.liabilityVOList>>>>>>', state.value.liabilityVOList);
 };
 const dataSourceFolmulate = computed(() => {
   // if (premium) return 0;

@@ -270,6 +270,8 @@ export interface PersonalInfoConf {
   hasTrialFactorCodes?: boolean;
   /** 是否支持多被保人 */
   multiInsuredSupportFlag: boolean;
+  /** 是否为配偶被保人 */
+  isSpouseInsured: false;
   /** 被保人人最大个数 */
   multiInsuredMaxNum: number;
   /** 被保人最小个数 */
@@ -308,14 +310,17 @@ const handleHolderSchema = (factorsMap, config) => {
           // 若为主被保人关系因子
           if (code === 'relationToMainInsured') {
             const isSpouse =
-              isNotEmptyArray(attributeValueList) && attributeValueList.filter((attrItem) => attrItem.code === '2');
-            // 若是配偶，被保人数量为2,并且不可添加
+              isNotEmptyArray(attributeValueList) &&
+              attributeValueList.findIndex((attrItem) => attrItem.code === '2') > -1;
+            // 若是配偶，被保人最大最小数量为2,并且不可添加
             if (isSpouse) {
-              config.multiInsuredMaxNum = 2;
+              Object.assign(config, {
+                multiInsuredMaxNum: 2,
+                multiInsuredMinNum: 2,
+                isSpouseInsured: true,
+              });
             }
           }
-          // 若有次被保人，被保人最小数量为2
-          // config.multiInsuredMinNum = 2;
 
           res[1].push({
             ...insuredItem,
@@ -371,6 +376,8 @@ export const transformFactorToSchema = (
   const config: PersonalInfoConf = {
     /** 是否有试算因子 */
     hasTrialFactorCodes: false,
+    /** 是否为配偶被保人 */
+    isSpouseInsured: false,
     /** 是否支持多被保人 */
     multiInsuredSupportFlag: conf.multiInsuredSupportFlag === YES_NO_ENUM.YES,
     /** 被保人最大数量 */
