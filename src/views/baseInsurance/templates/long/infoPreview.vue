@@ -66,6 +66,7 @@ import { formData2Order } from '../utils';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 import InsureInfo from './components/InsureInfo.vue';
 import ProShare from '@/components/ProShare/index.vue';
+import { setGlobalTheme } from '@/hooks/useTheme';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
@@ -277,7 +278,7 @@ const initData = async () => {
         const { title, desc, image } = data?.PRODUCT_LIST || {};
         shareParams = { title, desc, image, isShare: false };
       }
-
+      setGlobalTheme(data.BASIC_INFO.themeType);
       // 设置分享参数
       Object.assign(shareInfo.value, shareParams);
     }

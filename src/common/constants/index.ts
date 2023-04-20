@@ -1,15 +1,8 @@
 /* eslint-disable no-shadow */
-/*
- * @Author: za-qixuchao qixuchao@zhongan.io
- * @Date: 2022-07-14 16:05:16
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-14 15:48:44
- * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/index.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 
 // 1: 男
 import { constantListToMap } from './utils';
+import { ORDER_STATUS_ENUM } from './order';
 
 // eslint-disable-next-line
 export enum SEX_LIMIT_ENUM {
@@ -138,14 +131,14 @@ export const PAGE_API_ENUMS = {
 };
 
 export const PAGE_ROUTE_ENUMS = {
-  productInfo: 'baseInsurance/productDetail', // 产品详情
-  premiumTrial: 'baseInsurance/trial', // 保费试算
+  productInfo: '/baseInsurance/productDetail', // 产品详情
+  premiumTrial: '/baseInsurance/trial', // 保费试算
   questionNotice: '/baseInsurance/long/healthNotice', // 问卷告知书
   infoCollection: '/baseInsurance/long/infoCollection', // 信息采集
   infoPreview: '/baseInsurance/long/infoPreview', // 信息采集预览
   sign: '/baseInsurance/long/verify', // 人脸识别
-  orderDetail: 'orderDetail', // 订单详情
-  orderList: 'order', // 订单列表
+  orderDetail: '/orderDetail', // 订单详情
+  orderList: '/order', // 订单列表
   paymentResult: '/baseInsurance/long/result',
 };
 
@@ -154,12 +147,26 @@ export const NEXT_BUTTON_CODE_ENUMS = {
   customerNotice: 'nextStepByPageCustomerNotice', // 客户告知书
   questionNotice: 'nextStepByPageNotice', // 问卷告知书
   infoCollection: 'nextStepByPageInfoCollection', // 信息采集
-  infoPreview: 'nextStepByPagePreview', // 信息采集预览
+  infoPreview: 'nextStepByPagePreview', // 保单预览
   payInfo: 'nextStepByPagePayInfo', // 添加银行卡信息
   salesNotice: 'nextStepByPageSalesNotice', // 营销员告知
   sign: 'nextStepByPageSign', // 人脸识别
 };
-
+// 订单流程，不同状态跳转到不同的页面
+export const ORDER_STATUS_MAPPING_PAGE = {
+  /** 待处理->保费试算 */
+  [ORDER_STATUS_ENUM.PENDING]: NEXT_BUTTON_CODE_ENUMS.premiumTrial,
+  /** 处理中->信息采集 */
+  [ORDER_STATUS_ENUM.PROCESSING]: NEXT_BUTTON_CODE_ENUMS.infoCollection,
+  /** 待认证->保单预览 */
+  [ORDER_STATUS_ENUM.WAIT_IDENTIFICATION]: NEXT_BUTTON_CODE_ENUMS.infoPreview,
+  /** 认证中->签名认证 */
+  [ORDER_STATUS_ENUM.IN_IDENTIFICATION]: NEXT_BUTTON_CODE_ENUMS.infoPreview,
+  /** 认证完成->签名认证 */
+  [ORDER_STATUS_ENUM.IDENTIFICATION_COMPLETE]: NEXT_BUTTON_CODE_ENUMS.infoPreview,
+  /** 待支付-> 支付页面 */
+  [ORDER_STATUS_ENUM.PAYING]: NEXT_BUTTON_CODE_ENUMS.infoPreview,
+};
 // eslint-disable-next-line
 export enum UPLOAD_TYPE_ENUM {
   /**
