@@ -1,6 +1,6 @@
 <template>
   <ProFormItem
-    :model-value="state.fieldValue"
+    :model-value="state.modelValue"
     v-bind="filedAttrs"
     :is-view="isView"
     :field-value-view="fieldValueView"
@@ -171,7 +171,9 @@ const columns = computed(() => {
 });
 
 // 选中的所有层级数据
-const fullValue = computed(() => findCheckedList(columns.value, state.modelValue));
+const fullValue = computed(() => {
+  return findCheckedList(columns.value, state.modelValue);
+});
 
 // field 显示的值
 const fieldValueView = computed(() => {
@@ -201,7 +203,6 @@ const onFinish = ({
   tabIndex: number;
 }) => {
   state.modelValue = value;
-  state.fieldValue = value;
   emits('update:modelValue', value);
   onClose();
 };

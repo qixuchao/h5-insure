@@ -37,7 +37,9 @@ interface PayInfoItem {
   };
   config: object;
   nanoid: string;
-  /** 支付类型Key */
+  /** 支付类型Key 同首期/续期 */
+  paymentGenreKey: string;
+  /** 支付方式Key */
   paymentMethodKey: string;
   // 非银行卡需要隐藏的key
   hiddenKeyList: string[];
@@ -78,7 +80,7 @@ const fieldInitList: Partial<PayInfoItem>[] = [
     schema: [],
     paymentType: PAYMENT_TYPE_ENUM.RENEW_TERM,
     formData: {
-      sameFirstIssue: String(PAY_INFO_TYPE_ENUM.FIRST_SAME),
+      renewalPaymentGenre: String(PAY_INFO_TYPE_ENUM.FIRST_SAME),
       // 续期银行卡类型 默认借记卡
       renewalCardType: BANK_CARD_TYPE_ENUM.DEBIT,
     },
@@ -89,15 +91,19 @@ const fieldInitList: Partial<PayInfoItem>[] = [
     },
     nanoid: nanoid(),
     hiddenKeyList: ['renewalCardType', 'renewalBankCard', 'renewalPaymentType'],
+    paymentGenreKey: 'renewalPaymentGenre',
     paymentMethodKey: 'renewalPaymentMethod',
   },
   {
     title: '年金领取银行卡',
     schema: [],
     paymentType: PAYMENT_TYPE_ENUM.REPRISE,
-    formData: {},
+    formData: {
+      annuityPaymentGenre: String(PAY_INFO_TYPE_ENUM.FIRST_SAME),
+    },
     config: {},
     nanoid: nanoid(),
+    paymentGenreKey: 'annuityPaymentGenre',
     paymentMethodKey: 'annuityPaymentMethod',
     hiddenKeyList: ['annuityBankCard'],
   },
@@ -107,9 +113,16 @@ const fieldCodeList: string[][] = [
   // 首期支付
   ['initialPaymentMethod', 'initialCardType', 'initialBankCard', 'initialPaymentType'],
   // 续期支付
-  ['renewalPaymentMethod', 'renewalCardType', 'renewalBankCard', 'renewalPaymentType', 'premiumOverdue'],
+  [
+    'renewalPaymentGenre',
+    'renewalPaymentMethod',
+    'renewalCardType',
+    'renewalBankCard',
+    'renewalPaymentType',
+    'premiumOverdue',
+  ],
   // 年金领取银行卡
-  ['annuityBankCard'],
+  ['annuityPaymentGenre', 'annuityBankCard'],
 ];
 
 interface SchemaKeyMap {
@@ -248,7 +261,10 @@ watch(
 
 // 续期里的 同首期 按钮变动，复制首期值
 watch(
-  () => state.schemaList[schemaIndexMap.value.RENEW_TERM]?.formData?.sameFirstIssue,
+  () => {
+    const { RENEW_TERM } = schemaIndexMap.value;
+    return state.schemaList[RENEW_TERM]?.formData?.[fieldInitList[RENEW_TERM].paymentGenreKey];
+  },
   (val) => {
     const firstTermIndex = schemaIndexMap.value.FIRST_TERM;
     const renewalIndex = schemaIndexMap.value.RENEW_TERM;
@@ -270,7 +286,10 @@ watch(
 
 // 年金领取 同首期/同续期 数据变动，复制 同首期/同续期 数据
 watch(
-  () => state.schemaList[schemaIndexMap.value.REPRISE]?.formData?.sameFirstIssue,
+  () => {
+    const { REPRISE } = schemaIndexMap.value;
+    return state.schemaList[REPRISE]?.formData?.[fieldInitList[REPRISE].paymentGenreKey];
+  },
   (val) => {
     const firstTermIndex = schemaIndexMap.value.FIRST_TERM;
     const renewalIndex = schemaIndexMap.value.RENEW_TERM;

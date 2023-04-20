@@ -264,13 +264,17 @@ watch(
       schemaItem.hidden = !schemaItem.isSelfInsuredNeed && isSelf;
     });
 
-    // // 新数据
-    const newPersonVo = isSelf
-      ? {
-          ...personVO,
-          ...holderPersonVO,
-        }
-      : {
+    // 非查看模式处理清除操作
+    if (!props.isView) {
+      // 本人则本人数据覆盖
+      let newPersonVo = {
+        ...personVO,
+        ...holderPersonVO,
+      };
+
+      // 非本人则清空数据
+      if (!isSelf) {
+        newPersonVo = {
           ...Object.keys(personVO).reduce((res, key) => {
             // 若只有证件类型为身份证
             if (!(isOnlyCertFlag && key === 'certType')) {
@@ -284,12 +288,14 @@ watch(
           }, {}),
           relationToHolder: personVO.relationToHolder,
         };
+      }
 
-    // 若为本人合并投保人数据
-    Object.assign(state.personVO, newPersonVo);
+      // 若为本人合并投保人数据
+      Object.assign(state.personVO, newPersonVo);
+    }
   },
   {
-    immediate: true,
+    // immediate: true,
     deep: true,
   },
 );
