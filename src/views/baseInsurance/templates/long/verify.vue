@@ -455,6 +455,7 @@ onBeforeMount(() => {
       align-items: center;
       color: var(--van-primary-color);
       font-size: 40px;
+      margin-right: 10px;
       .text {
         font-size: 20px;
       }
@@ -466,6 +467,7 @@ onBeforeMount(() => {
     }
     .submit-btn {
       width: 290px;
+      flex: 1;
     }
   }
 }

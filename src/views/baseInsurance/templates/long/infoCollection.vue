@@ -526,8 +526,8 @@ const trialData2Order = (
 ) => {
   const nextStepParams: any = { ...currentOrderDetail };
   const { tenantOrderHolder, tenantOrderInsuredList } = formData2Order({
-    holder: submitData.value.holder?.personVO.personVO,
-    insuredList: (submitData.value.insuredVOList || []).map((person) => person.personVO),
+    holder: state.personalInfo.holder?.personVO,
+    insuredList: (state.personalInfo.insuredVOList || []).map((person) => person.personVO),
   });
 
   const transformDataReq = {
@@ -788,6 +788,7 @@ watch(
 
   .com-risk-liabilityinfo {
     padding: 0 30px;
+    background: #ffffff;
   }
 }
 </style>
