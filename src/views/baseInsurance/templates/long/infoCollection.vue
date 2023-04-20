@@ -118,6 +118,7 @@ import {
   YES_NO_ENUM,
 } from '@/common/constants';
 import { formData2Order } from '../utils';
+import { setGlobalTheme } from '@/hooks/useTheme';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
@@ -763,7 +764,7 @@ const initData = async () => {
         const { title, desc, image } = data?.PRODUCT_LIST || {};
         shareParams = { title, desc, image, isShare: showWXShare };
       }
-
+      setGlobalTheme(data.BASIC_INFO.themeType);
       // 设置分享参数
       Object.assign(shareInfo.value, shareParams);
     }

@@ -18,7 +18,8 @@ export const TEMPLATE_TYPE_ENUM = {
   // 魔方升级
   UPGRADE: '4',
   // 长期险
-  BASELONG: '51',
+  BASELONG: '201',
+  NIANJIN: '202',
 };
 /**
  * 模板code映射路由
@@ -32,6 +33,8 @@ export const TEMPLATE_TYPE_MAP = {
   [TEMPLATE_TYPE_ENUM.NETSALE]: 'netsale',
   // 魔方升级
   [TEMPLATE_TYPE_ENUM.UPGRADE]: 'short',
-  // 长期险-基础模板(多款长期险模板，列多个)
-  [TEMPLATE_TYPE_ENUM.BASELONG]: 'baseLong',
+  // 长期险-基础模板(多款长期险模板，多个)
+  [TEMPLATE_TYPE_ENUM.BASELONG]: 'long',
+  // 长期险-年金
+  [TEMPLATE_TYPE_ENUM.NIANJIN]: 'long',
 };
