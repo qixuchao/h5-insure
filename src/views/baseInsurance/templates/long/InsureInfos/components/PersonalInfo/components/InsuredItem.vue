@@ -1,29 +1,49 @@
 <template>
   <ProRenderFormWithCard
     ref="insuredFormRef"
-    class="trail-personal-info"
-    :title="'被保人信息'"
+    class="personal-info-card"
+    :title="title"
     :model="state.personVO"
     :schema="state.schema"
     :config="state.config"
     :is-view="isView"
-  />
+  >
+    <template #cardTitleExtra><slot></slot></template>
+  </ProRenderFormWithCard>
   <template v-if="hasBeneficiarySchema">
-    <BeneficiaryItem
-      v-for="(beneficiary, index) in state.beneficiaryList"
-      ref="beneficiaryFormRef"
-      :key="`${beneficiary.nanoid}_${index}`"
-      v-model="beneficiary.personVO"
-      :schema="beneficiarySchema"
-      :config="beneficiary.config"
+    <ProRenderFormWithCard
+      ref="insuredFormRef"
+      class="personal-info-card"
+      :title="'受益人'"
+      :model="state.personVO"
+      :schema="state.beneficiaryTypeSchemaList"
       :is-view="isView"
     />
-    <van-button type="primary" @click="onAddBeneficiary">添加受益人</van-button>
+    <template v-if="isSpecifyBeneficiary">
+      <BeneficiaryItem
+        v-for="(beneficiary, index) in state.beneficiaryList"
+        ref="beneficiaryFormRef"
+        :key="`${beneficiary.nanoid}_${index}`"
+        v-model="beneficiary.personVO"
+        :title="`受益人${index + 1}`"
+        :schema="state.beneficiarySchemaList"
+        :config="beneficiary.config"
+        :is-view="isView"
+      >
+        <span v-if="index > 0" @click="onDeleteBeneficiary(index)"><van-icon name="delete-o" /></span>
+      </BeneficiaryItem>
+
+      <span v-if="!isView && addible" class="add-button" @click="onAddBeneficiary"
+        ><van-icon name="plus" />添加受益人</span
+      >
+    </template>
   </template>
 </template>
 <script lang="ts" setup name="InsuredItem">
 import { withDefaults } from 'vue';
+import { Dialog } from 'vant';
 import { nanoid } from 'nanoid';
+import cloneDeep from 'lodash-es/cloneDeep';
 import {
   type SchemaItem,
   type PersonFormProps,
@@ -34,17 +54,19 @@ import {
   colorConsole,
 } from '@/components/RenderForm';
 import { isNotEmptyArray } from '@/common/constants/utils';
+import { BENEFICIARY_ENUM } from '@/common/constants/infoCollection';
 import BeneficiaryItem from './BeneficiaryItem.vue';
-import { deepCopy } from '@/utils';
 
 interface Props {
   modelValue: any;
+  title: string;
   holderPersonVO: object;
   schema: SchemaItem[];
   config: object;
   isView: boolean;
   isTrial: boolean;
   trialFactorCodes: string[];
+  multiBeneficiaryMaxNum: number;
   beneficiaryList: Partial<PersonFormProps>[];
   beneficiarySchema: SchemaItem[];
 }
@@ -63,6 +85,7 @@ const initBeneficiaryItem = {
 
 const props = withDefaults(defineProps<Props>(), {
   schema: () => [],
+  title: '',
   modelValue: () => ({}),
   trialFactorCodes: () => [],
   config: () => ({}),
@@ -71,11 +94,14 @@ const props = withDefaults(defineProps<Props>(), {
   beneficiarySchema: () => [],
   isView: false,
   isTrial: false,
+  multiBeneficiaryMaxNum: null,
 });
 
 interface StateInfo extends PersonFormProps {
   validated: boolean;
   beneficiaryList: Partial<PersonFormProps>[];
+  beneficiarySchemaList: SchemaItem[];
+  beneficiaryTypeSchemaList: SchemaItem[];
 }
 
 const state = reactive<Partial<StateInfo>>({
@@ -87,7 +113,11 @@ const state = reactive<Partial<StateInfo>>({
   schema: [],
   config: {},
   personVO: {},
-  beneficiaryList: [deepCopy(initBeneficiaryItem)],
+  /** 受益人类型 */
+  beneficiaryTypeSchemaList: [],
+  /** 排除受益人类型 */
+  beneficiarySchemaList: [],
+  beneficiaryList: [],
 });
 
 // 验证表单必填
@@ -101,7 +131,7 @@ const validate = (isTrial) => {
 // 添加受益人
 const onAddBeneficiary = () => {
   state.beneficiaryList.push(
-    deepCopy({
+    cloneDeep({
       ...initBeneficiaryItem,
       nanoid: nanoid(),
       schema: props.beneficiarySchema,
@@ -110,10 +140,24 @@ const onAddBeneficiary = () => {
 };
 
 // 删除受益人
-const onDeleteBeneficiary = () => {};
+const onDeleteBeneficiary = (index) => {
+  Dialog.confirm({
+    message: `确定要删除该受益人吗？`,
+  }).then(() => {
+    state.beneficiaryList.splice(index, 1);
+  });
+};
+
+/** 受益人是否可添加的 */
+const addible = computed(() => {
+  return !props.multiBeneficiaryMaxNum || state.beneficiaryList.length < props.multiBeneficiaryMaxNum;
+});
 
 // 是否有受益人
 const hasBeneficiarySchema = computed(() => isNotEmptyArray(props.beneficiarySchema));
+
+// 是否为指定受益人
+const isSpecifyBeneficiary = computed(() => state.personVO?.insuredBeneficiaryType === BENEFICIARY_ENUM.SPECIFY);
 
 /** 验证试算因子是否全部有值 */
 const validateTrialFields = () => {
@@ -146,6 +190,39 @@ watch(
   },
 );
 
+/** 筛选受益人类型 */
+watch(
+  () => props.beneficiarySchema,
+  (val) => {
+    state.beneficiarySchemaList = isNotEmptyArray(val)
+      ? val.filter((item) => item.name !== 'insuredBeneficiaryType')
+      : [];
+    state.beneficiaryTypeSchemaList = isNotEmptyArray(val)
+      ? val.filter((item) => item.name === 'insuredBeneficiaryType')
+      : [];
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+// 指定受益人
+watch(
+  isSpecifyBeneficiary,
+  (val) => {
+    colorConsole('受益人类型关系变动了');
+
+    // 如果是指定受益人
+    if (val) {
+      onAddBeneficiary();
+    }
+  },
+  {
+    immediate: true,
+  },
+);
+
 // 监听受益人信息
 watch(
   () => state.beneficiaryList.map((item) => item.personVO),
@@ -167,8 +244,8 @@ watch(
     // 投保人id不同步到被保人
     const { id, ...holderPersonVO } = props.holderPersonVO || {};
 
-    const isSelf = personVO.relationToHolder === '1';
-    const isChild = personVO.relationToHolder === '3';
+    const isSelf = String(personVO.relationToHolder) === '1';
+    const isChild = String(personVO.relationToHolder) === '3';
     const isOnlyCertFlag = isOnlyCert(schema.find((schemaItem) => schemaItem.name === 'certType') || {});
 
     // 若只有证件类型为身份证, 隐藏证件类型，修改title为身份证号
@@ -235,7 +312,7 @@ watch(
   () => props.schema,
   (val) => {
     if (val) {
-      Object.assign(state.schema, deepCopy(val));
+      Object.assign(state.schema, cloneDeep(val));
     }
   },
   {
@@ -252,7 +329,7 @@ watch(
       if (isNotEmptyArray(val.beneficiaryList) && isNotEmptyArray(state.beneficiaryList)) {
         // 受益人
         state.beneficiaryList.forEach((beneficiaryIem, i) => {
-          Object.assign(beneficiaryIem.personVO, val.beneficiaryList[i].personVO);
+          Object.assign(beneficiaryIem.personVO, val.beneficiaryList[i]?.personVO);
         });
       }
     }
@@ -308,14 +385,20 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
-.trail-personal-info {
-  :deep(.com-card-wrap) .header {
-    margin-left: 0;
-  }
+.personal-info-card {
   :deep(.com-van-field) {
     &:last-child::after {
       display: block;
     }
+  }
+}
+.add-button {
+  padding: 20px 30px;
+  font-size: 26px;
+  color: #0d6efe;
+  line-height: 37px;
+  .van-icon-plus {
+    font-weight: 600;
   }
 }
 </style>

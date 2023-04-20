@@ -198,9 +198,9 @@ const onEffect = (type, val) => {
 
 const updateModelValue = (val) => {
   onEffect('onChange', val);
-  if (formState?.formData && attrs.name) {
-    formState.formData[attrs.name] = val;
-  }
+  // if (formState?.formData && attrs.name) {
+  //   formState.formData[attrs.name] = val;
+  // }
   state.modelValue = val;
   emit('update:model-value', val);
 };

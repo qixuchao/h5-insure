@@ -2,7 +2,7 @@
   <!-- 产品要素 -->
   <template v-if="originData?.factorDisPlayFlag === 1">
     <BaoeBaofei
-      :v-model="mValues"
+      :v-model="state.sValues"
       :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
       :defalut-value="state.defaultValues"
       @trial-change="handleBaoeBaofeiChange"
@@ -23,6 +23,7 @@
         basicsPremium: state.basicsPremium,
         riskId: originData?.riskId,
       }"
+      :default-value="state.defaultValues"
       @trial-change="handleRiskLiabilityChange"
     />
   </template>
@@ -61,19 +62,20 @@ const props = withDefaults(defineProps<Props>(), {
   defaultValue: () => ({} as any),
 });
 
+const personalInfoRef = ref(null);
+
+const mValues = ref({});
+
+const enumList = ref({});
+
 const state = reactive({
   personalInfo: {},
   basicsAmount: '',
   basicsPremium: '',
   defaultValues: props.defaultValue,
   changeData: null,
+  sValues: mValues.value,
 });
-
-const personalInfoRef = ref(null);
-
-const mValues = ref({});
-
-const enumList = ref({});
 
 const riskPremium: any = inject('premium') || {};
 enumList.value = inject('enumList') || {};
@@ -81,11 +83,6 @@ enumList.value = inject('enumList') || {};
 // const state = reactive<{ formInfo: RiskVoItem }>({
 //   formInfo: props.formInfo as RiskVoItem,
 // });
-
-console.log('-------origin data', props.originData);
-const onTrail = (val) => {
-  console.log('---personal trail---', val);
-};
 
 onMounted(() => {
   // console.log('--------origin data = ', props.originData);
@@ -142,8 +139,22 @@ watch(
   () => props.defaultValue,
   (v) => {
     if (v) {
-      if (v) state.defaultValues = v;
+      state.defaultValues = v;
+      mValues.value = {
+        ...v,
+      };
     }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  () => mValues.value,
+  (v) => {
+    state.sValues = v;
   },
   {
     deep: true,

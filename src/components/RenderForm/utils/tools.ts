@@ -268,6 +268,12 @@ type ResultEnum = 'holder' | 'beneficiary' | 'payInfo' | 'signInfo';
 
 export interface PersonalInfoConf {
   hasTrialFactorCodes?: boolean;
+  /** 被保人人最大个数 */
+  multiInsuredMaxNum: number;
+  /** 被保人最小个数 */
+  multiInsuredMinNum: number;
+  /** 受益人人个数 */
+  multiBeneficiaryMaxNum: number;
 }
 
 type FactorToSchemaResult = {
@@ -278,6 +284,65 @@ type FactorToSchemaResult = {
 };
 
 /**
+ * 处理被保人 schema
+ * @param factorsMap
+ * @param config
+ * @returns [[],[]]
+ */
+const handleHolderSchema = (factorsMap, config) => {
+  if (!isNotEmptyArray(factorsMap.insured)) {
+    return [];
+  }
+
+  // 投保人codeList
+  const holderCodes = isNotEmptyArray(factorsMap.holder) ? factorsMap.holder.map((item) => item.code) : [];
+
+  return factorsMap.insured
+    .reduce(
+      (res, insuredItem) => {
+        const { code, subModuleType, attributeValueList } = insuredItem;
+        // 若为次被保人
+        if (subModuleType === INSURED_MODULE_TYPE_ENUM.sub) {
+          // 若为主被保人关系因子
+          if (code === 'relationToMainInsured') {
+            const isSpouse =
+              isNotEmptyArray(attributeValueList) && attributeValueList.filter((attrItem) => attrItem.code === '2');
+            // 若是配偶，被保人数量为2,并且不可添加
+            if (isSpouse) {
+              config.multiInsuredMaxNum = 2;
+            }
+          }
+          // 若有次被保人，被保人最小数量为2
+          config.multiInsuredMinNum = 2;
+
+          res[1].push({
+            ...insuredItem,
+            isSelfInsuredNeed: !holderCodes.includes(code),
+          });
+        } else {
+          res[0].push({
+            ...insuredItem,
+            isSelfInsuredNeed: !holderCodes.includes(code),
+          });
+        }
+        return res;
+      },
+      [[], []],
+    )
+    .filter((item) => isNotEmptyArray(item));
+};
+
+/** 配置 */
+interface TransformConf {
+  /** 是否过滤试算因子 */
+  isTrial: boolean;
+  /** 被保人个数 */
+  multiInsuredNum: number;
+  /** 受益人人个数 */
+  multiBeneficiaryMaxNum: number;
+}
+
+/**
  * 转换原始数据 ProForm 所需要的数据
  * @param [array] 包含投保人、被保人、受益人的因子数组
  * @param [boolean] 是否过滤试算因子
@@ -285,7 +350,7 @@ type FactorToSchemaResult = {
  */
 export const transformFactorToSchema = (
   factors: Partial<ProductFactor>,
-  isTrial = false,
+  conf: Partial<TransformConf> = { isTrial: false },
 ): Partial<FactorToSchemaResult> => {
   const initValue = {} as FactorToSchemaResult;
 
@@ -299,8 +364,15 @@ export const transformFactorToSchema = (
   }
 
   const trialFactorCodes = [];
-  const config = {
+  const config: PersonalInfoConf = {
+    /** 是否有试算因子 */
     hasTrialFactorCodes: false,
+    /** 被保人最大数量 */
+    multiInsuredMaxNum: conf.multiInsuredNum,
+    /** 被保人最大数量 */
+    multiInsuredMinNum: 1,
+    /** 受益人数量, 默认 5 */
+    multiBeneficiaryMaxNum: conf.multiBeneficiaryMaxNum || 5,
   };
 
   // 是否过滤试算因子
@@ -309,36 +381,14 @@ export const transformFactorToSchema = (
     res[MODULE_TYPE_MAP[key]] = isNotEmptyArray(factors[key])
       ? factors[key].filter((factorsItem) => {
           // 是否过滤试算
-          return isTrial ? factorsItem.isCalculationFactor === 1 : true;
+          return conf.isTrial ? factorsItem.isCalculationFactor === 1 : true;
         })
       : [];
     return res;
   }, {});
 
-  const holderCodes = isNotEmptyArray(factorsMap.holder) ? factorsMap.holder.map((item) => item.code) : [];
-
-  // 被保人为本人时，不在投保人中的因子展示
-  let finialInsured = [];
   // 多被保人逻辑
-  if (isNotEmptyArray(factorsMap.insured)) {
-    finialInsured = factorsMap.insured
-      .reduce(
-        (res, insuredItem) => {
-          // 若为次被保人
-          if (insuredItem.subModuleType === INSURED_MODULE_TYPE_ENUM.sub) {
-            res[1].push(insuredItem);
-          } else {
-            res[0].push({
-              ...insuredItem,
-              isSelfInsuredNeed: !holderCodes.includes(insuredItem.code),
-            });
-          }
-          return res;
-        },
-        [[], []],
-      )
-      .filter((item) => isNotEmptyArray(item));
-  }
+  const finialInsured = handleHolderSchema(factorsMap, config);
 
   const result = Object.keys(factorsMap).reduce((res, key) => {
     if (key !== 'insured') {
