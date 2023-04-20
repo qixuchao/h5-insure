@@ -36,6 +36,7 @@ import ProSvg from '@/components/ProSvg/index.vue';
 import { fileUpload } from '@/api/modules/file';
 import { UPLOAD_TYPE_ENUM } from '@/common/constants';
 import { useAttrsAndSlots } from '../hooks';
+import { VAN_PRO_FORM_KEY } from '../utils';
 
 interface UploadProps {
   modelValue: UploaderFileListItem[];
@@ -49,6 +50,8 @@ interface FileUploadRes {
 }
 
 const { filedAttrs, filedSlots, attrs, slots } = toRefs(useAttrsAndSlots());
+
+const { formState } = inject(VAN_PRO_FORM_KEY) || {};
 
 // 非默认 slots
 const noDefaultSlots = computed(() => Object.keys(slots).filter((key) => key !== 'default'));
@@ -108,6 +111,9 @@ const handleBeforeDelete = (file: string, target: { index: number }) => {
 watch(
   () => state.modelValue,
   (val) => {
+    // if (formState?.formData && filedAttrs.value.name) {
+    //   formState.formData[filedAttrs.value.name] = val;
+    // }
     emits('update:modelValue', val);
   },
   {

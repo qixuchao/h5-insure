@@ -92,6 +92,13 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  /**
+   *
+   */
+  selfValueViewFn: {
+    type: Function,
+    default: () => {},
+  },
 });
 
 const { filedAttrs, filedSlots, attrs, slots } = toRefs(useAttrsAndSlots());
@@ -168,15 +175,21 @@ const fullValue = computed(() => findCheckedList(columns.value, state.modelValue
 
 // field 显示的值
 const fieldValueView = computed(() => {
-  if (isNotEmptyArray(fullValue.value)) {
-    const textList = fullValue.value.map((item) => item[props.customFieldName.text]);
-
-    if (props.showFullValue) {
-      return textList.join('/');
-    }
-    return textList[textList.length - 1];
+  if (!isNotEmptyArray(fullValue.value)) {
+    return '';
   }
-  return '';
+
+  const { selfValueViewFn, showFullValue, customFieldName } = props;
+  const textList = fullValue.value.map((item) => item[customFieldName.text]);
+
+  // 自定义显示值
+  const selfViewStr = typeof selfValueViewFn === 'function' ? selfValueViewFn(fullValue.value) : '';
+
+  if (selfViewStr) {
+    return selfViewStr;
+  }
+  // 默认显示值
+  return showFullValue ? textList.join('/') : textList[textList.length - 1];
 });
 
 const onFinish = ({

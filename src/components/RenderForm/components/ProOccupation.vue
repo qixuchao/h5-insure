@@ -7,9 +7,10 @@
     :required="$attrs.required"
   />
   <ProCascaderV2
-    show-full-value
     :custom-field-name="customFieldName"
     v-bind="$attrs"
+    :model-value="cascaderModelValue"
+    :self-value-view-fn="selfValueViewFn"
     @update:full-value="updateFullValue"
   />
 </template>
@@ -29,7 +30,11 @@ const props = defineProps({
    */
   customFieldName: {
     type: Object,
-    default: () => ({ text: 'name', value: 'code', children: 'children' }),
+    default: () => ({ text: 'value', value: 'code', children: 'children' }),
+  },
+  modelValue: {
+    type: Array,
+    default: () => [],
   },
 });
 
@@ -44,6 +49,30 @@ const updateFullValue = (arr = []) => {
   }
   state.modelValue = val;
 };
+
+const cascaderModelValue = computed(() => {
+  return isNotEmptyArray(state.modelValue) ? state.modelValue[state.modelValue.length - 1] : null;
+});
+
+const selfValueViewFn = (arr) => {
+  if (!isNotEmptyArray(arr)) {
+    return '';
+  }
+  const lastItem = arr[arr.length - 1];
+  return `${lastItem[props?.customFieldName?.text]} ${lastItem.name}类`;
+};
+
+watch(
+  () => props.modelValue,
+  (val) => {
+    console.log(11114444, val, props.name);
+    state.modelValue = val;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 </script>
 <script lang="ts">
 export default {

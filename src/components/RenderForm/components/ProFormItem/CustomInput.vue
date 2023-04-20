@@ -36,9 +36,9 @@ const props = defineProps({
 const { formState } = inject(VAN_PRO_FORM_KEY) || {};
 
 useCustomFieldValue(() => {
-  if (formState?.formData && attrs.name) {
-    formState.formData[attrs.name as string] = props.modelValue;
-  }
+  // if (formState?.formData && attrs.name) {
+  //   formState.formData[attrs.name as string] = props.modelValue;
+  // }
   return props.modelValue;
 });
 </script>

@@ -5,7 +5,7 @@
  * index.vue
 -->
 <template>
-  <ProPageWrap class="com-question">
+  <div class="com-question">
     <div v-for="(i, idx) of listQuestions" :key="idx" class="question-item">
       <div class="problem">{{ idx + 1 }}. {{ i.title }}</div>
       <!-- 单选 -->
@@ -54,7 +54,7 @@
         <van-field v-model="i.singleAnswer" placeholder="请输入" />
       </van-cell-group>
     </div>
-  </ProPageWrap>
+  </div>
 </template>
 
 <script setup lang="ts">

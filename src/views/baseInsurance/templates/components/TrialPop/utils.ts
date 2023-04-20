@@ -1,3 +1,4 @@
+import { isNaN } from 'lodash';
 import { RiskDetailVoItem, PremiumCalcData } from '@/api/modules/trial.data';
 
 export const dealExemptPeriod = (riderRisk: RiskDetailVoItem, mainRiskValue: string, trialData: PremiumCalcData) => {
@@ -6,6 +7,12 @@ export const dealExemptPeriod = (riderRisk: RiskDetailVoItem, mainRiskValue: str
   const { holder } = trialData;
   const insured = trialData.insuredVOList[0];
   const paymentYear: Array<string | number> = (mainRiskValue || '').split('_');
+  if (paymentYear.length < 2) {
+    return mainRiskValue;
+  }
+  if (isNaN(Number(paymentYear[1]))) {
+    return mainRiskValue;
+  }
   (paymentYear[1] as number) -= 1;
   /** * 豁免险 */
   if (riskItem.exemptFlag === 1) {

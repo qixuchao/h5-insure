@@ -43,7 +43,7 @@
               <template #input>
                 <ProRadioButton
                   v-model="state.checkValueList[index]"
-                  :prop="{ label: 'displayValue', value: 'actualValue' }"
+                  :prop="{ label: 'displayValue', value: 'displayValue' }"
                   :options="
                     item.formula.length > 0 ? item.liabilityAttributeValueList : item.liabilityAttributeValueList
                   "
@@ -74,6 +74,7 @@ interface Props {
   modelValue: RiskVoItem;
   dataSourceFolmulate: RiskVoItem;
   params?: { amountUnit: string; basicsAmount: string; basicsPremium: string; riskId: string };
+  defaultValue: any;
 }
 
 const emit = defineEmits(['trialChange']);
@@ -83,6 +84,7 @@ const props = withDefaults(defineProps<Props>(), {
   modelValue: () => ({} as RiskVoItem),
   dataSourceFolmulate: () => ({} as RiskVoItem),
   params: () => ({ amountUnit: '', basicsAmount: '', basicsPremium: '', riskId: '' }),
+  defaultValue: () => ({} as any),
 });
 // const mValues = ref(props.modelValue);
 // console.log('mValue>>>>>>', mValues.value);
@@ -101,8 +103,6 @@ const handleSwitchClick = (item, index) => {
   const canChooseNoLib = item.liabilityAttributeValueList.length === 0 && item.formula.length === 0;
   // 投保状态
   const status = state.value.isCheckList[index];
-  console.log('key---------', key_list);
-  console.log('(key_list).indexOf(index)', key_list.indexOf(index));
   if (canChooseNoLib && key_list.indexOf(index) === -1 && status) {
     state.value.liabilityVOList.push({
       liabilityValue: item,
@@ -120,9 +120,9 @@ const handleSwitchClick = (item, index) => {
   }
 };
 const handleRiskLiabityClick = (e, index) => {
-  console.log('keykeykey>>>>>>', index);
+  console.log('keykeykey>>>>>>', index, e);
   const curentLiabilityList = e.liabilityAttributeValueList.filter(
-    (x) => x.actualValue === state.value.checkValueList[index],
+    (x) => x.displayValue === state.value.checkValueList[index],
   );
   const liabilityValue = JSON.parse(JSON.stringify(curentLiabilityList))[0];
 
@@ -222,7 +222,7 @@ onMounted(() => {
     const value =
       item.liabilityAttributeValueList.length > 0 &&
       item.formula.length === 0 &&
-      item.liabilityAttributeValueList[0].actualValue;
+      item.liabilityAttributeValueList[0].displayValue;
 
     state.value.checkValueList[index] = value;
     // 初始化数据，必选责任不展示，但需要把当前责任code的对象传给后端
@@ -254,6 +254,25 @@ onMounted(() => {
     return null;
   });
 });
+
+watch(
+  () => props.defaultValue,
+  (v) => {
+    if (v?.riskCode && v.liabilityVOList) {
+      props.dataSource.riskLiabilityInfoVOList.forEach((item, index) => {
+        const targetLia = v?.liabilityVOList.find((li) => li.liabilityCode === item.liabilityCode);
+        if (targetLia) {
+          state.value.checkValueList[index] = targetLia?.liabilityValue?.displayValue;
+          handleRiskLiabityClick(item, index);
+        }
+      });
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 </script>
 
 <style lang="scss" scoped>

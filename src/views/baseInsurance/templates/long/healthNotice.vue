@@ -1,19 +1,23 @@
 <template>
-  <div class="long-health-notice-wrap">
-    <ProFilePreview :type="currentQuestion.contentType" :content="currentQuestion.content">
-      <!-- <template #title>
+  <ProPageWrap>
+    <div class="long-health-notice-wrap">
+      <ProFilePreview
+        v-if="currentQuestion.content"
+        :type="currentQuestion.contentType"
+        :content="currentQuestion.content"
+      >
+        <!-- <template #title>
         {{ currentQuestion.questionnaireName }}
       </template> -->
-      <template #footer-btn>
-        <div class="footer-btn">
-          <VanButton @click="questionReject">部分为是</VanButton>
-          <ProShadowButton :shadow="false" @click="questionResolve">
-            <slot>以上皆否</slot>
-          </ProShadowButton>
-        </div>
-      </template>
-    </ProFilePreview>
-  </div>
+      </ProFilePreview>
+      <div class="footer-btn">
+        <VanButton @click="questionReject">部分为是</VanButton>
+        <ProShadowButton :shadow="false" @click="questionResolve">
+          <slot>以上皆否</slot>
+        </ProShadowButton>
+      </div>
+    </div>
+  </ProPageWrap>
 </template>
 
 <script lang="ts" setup>
@@ -83,7 +87,7 @@ const getQuestionInfo = async () => {
   const { code, data } = await queryProductMaterial({ productCode });
 
   if (code === '10000') {
-    let questionInfo = data.productQuestionnaireVOList[0];
+    let questionInfo = data.productQuestionnaireVOList[0] || {};
     if (questionId) {
       const questionIndex = data.productQuestionnaireVOList.findIndex(
         (questionnaire) => `${questionnaire.questionnaireId}` === questionId,
@@ -95,7 +99,7 @@ const getQuestionInfo = async () => {
         nextQuestionnaireId.value = data.productQuestionnaireVOList[questionIndex + 1].questionnaireId;
       }
     }
-    const { questionnaireDetailResponseVO, questionnaireId, questionnaireName } = questionInfo;
+    const { questionnaireDetailResponseVO, questionnaireId, questionnaireName } = questionInfo || {};
     const { questions, basicInfo } = questionnaireDetailResponseVO || {};
     const { objectType: objType, questionnaireType } = basicInfo || {};
     objectType.value = objType;

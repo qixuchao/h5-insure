@@ -19,12 +19,13 @@
           :show-share-sign="signPartInfo.agent.isShareSign"
           :file-list="signPartInfo.agent.fileList"
           :personal-info="signPartInfo.agent.personalInfo"
+          :disabled="!!isShare"
           title="代理人"
           @handle-sign="(signData) => sign('AGENT', signData)"
         ></SignPart>
         <SignPart
+          v-if="isShare ? signPartInfo.holder.isShareSign : true"
           ref="holderSignRef"
-          :data-source="[]"
           :order-detail="orderDetail"
           :sign-string="signPartInfo.holder.signData"
           :show-sign="signPartInfo.holder.isSign"
@@ -36,32 +37,34 @@
           @handle-sign="(signData) => sign('HOLDER', signData, signPartInfo.holder.personalInfo.id)"
           @handle-verify="doVerify"
         ></SignPart>
-        <SignPart
-          v-for="personalInfo in signPartInfo.insured.personalInfo || []"
-          :key="personalInfo.id"
-          ref="insuredSignRef"
-          :data-source="[]"
-          :order-detail="orderDetail"
-          :sign-string="signPartInfo.insured.signData[personalInfo.id]"
-          :show-sign="signPartInfo.insured.isSign"
-          :show-verify="signPartInfo.insured.isVerify"
-          :show-share-sign="signPartInfo.insured.isShareSign"
-          :file-list="signPartInfo.insured.fileList"
-          :personal-info="personalInfo || {}"
-          title="被保人"
-          @handle-sign="(signData) => sign('INSURED', signData, personalInfo.id)"
-          @handle-verify="doVerify"
-        ></SignPart>
+        <template v-if="isShare ? signPartInfo.insured.isShareSign : true">
+          <SignPart
+            v-for="personalInfo in signPartInfo.insured.personalInfo || []"
+            :key="personalInfo.id"
+            ref="insuredSignRef"
+            :data-source="[]"
+            :order-detail="orderDetail"
+            :sign-string="signPartInfo.insured.signData[personalInfo.id]"
+            :show-sign="signPartInfo.insured.isSign"
+            :show-verify="signPartInfo.insured.isVerify"
+            :show-share-sign="signPartInfo.insured.isShareSign"
+            :file-list="signPartInfo.insured.fileList"
+            :personal-info="personalInfo || {}"
+            title="被保人"
+            @handle-sign="(signData) => sign('INSURED', signData, personalInfo.id)"
+            @handle-verify="doVerify"
+          ></SignPart>
+        </template>
       </div>
       <div class="footer-button footer-bar">
-        <div v-if="!isShare" class="refresh-btn" @click="handleRefresh">
+        <div class="refresh-btn" @click="handleRefresh">
           <div><ProSvg name="refresh" /></div>
           <div class="text">刷新</div>
         </div>
-        <ProShare v-if="!isShare" title="邀请您进行身份认证" desc="邀请您进行身份认证" :link="shareLink">
-          <van-button plain type="primary" class="share-btn">分享</van-button>
+        <ProShare v-if="!isShare" ref="shareRef" v-bind="shareInfo">
+          <van-button plain type="primary" class="share-btn" @click.stop="handleShare">分享</van-button>
         </ProShare>
-        <van-button type="primary" class="submit-btn" @click="handleSubmit">提交</van-button>
+        <van-button type="primary" class="submit-btn" @click="handleSubmit">确认支付</van-button>
       </div>
     </div>
   </ProPageWrap>
@@ -86,7 +89,13 @@ import {
 } from '@/api/modules/trial';
 import SignPart from './components/SignPart.vue';
 import useOrder from '@/hooks/useOrder';
-import { PAGE_ACTION_TYPE_ENUM, PAGE_ROUTE_ENUMS, YES_NO_ENUM } from '@/common/constants';
+import {
+  ATTACHMENT_CATEGORY_ENUM,
+  ATTACHMENT_OBJECT_TYPE_ENUM,
+  PAGE_ACTION_TYPE_ENUM,
+  PAGE_ROUTE_ENUMS,
+  YES_NO_ENUM,
+} from '@/common/constants';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { MATERIAL_TYPE_ENUM } from '@/common/constants/product';
 import { NOTICE_OBJECT_ENUM } from '@/common/constants/notice';
@@ -95,6 +104,8 @@ import Storage from '@/utils/storage';
 import { transformFactorToSchema } from '@/components/RenderForm';
 import pageJump from '@/utils/pageJump';
 import InsureProgress from './components/InsureProgress.vue';
+import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
+import ProShare from '@/components/ProShare/index.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -139,13 +150,11 @@ try {
 }
 
 const orderDetail = useOrder();
-const shareLink = window.location.href;
+const shareLink = `${window.origin}/baseInsurance/long/phoneVerify${window.location.search}`;
 const storage = new Storage({ source: 'localStorage' });
 
 const tenantProductDetail = ref<Partial<ProductDetail>>({}); // 核心系统产品信息
 const insureProductDetail = ref<Partial<InsureProductData>>({}); // 产品中心产品信息
-
-const handleRefresh = () => {};
 
 const agentSignRef = ref<InstanceType<typeof SignPart>>();
 const holderSignRef = ref<InstanceType<typeof SignPart>>();
@@ -201,14 +210,35 @@ const sign = (type, signData, bizObjectId?) => {
   saveSign(type, signData, orderDetail.value?.id, tenantId, bizObjectId);
 };
 
+const requiredType = ref<any>({
+  sign: [],
+  verify: [],
+});
+
 const handleSubmit = () => {
-  Promise.all([
-    agentSignRef.value.validateSign(),
-    holderSignRef.value.validateSign(),
-    ...(insuredSignRef.value || []).map((validate) => validate.validateSign()),
-    holderSignRef.value.validateVerify(),
-    ...(insuredSignRef.value || []).map((validate) => validate.validateVerify()),
-  ])
+  const validateCollection = [];
+  if (agentSignRef.value && requiredType.value.sign.includes('1')) {
+    validateCollection.push(agentSignRef.value.validateSign());
+  }
+  if (holderSignRef.value) {
+    if (isShare ? requiredType.value.sign.includes('4') : requiredType.value.sign.includes('2')) {
+      validateCollection.push(holderSignRef.value.validateSign());
+    }
+    if (requiredType.value.verify.includes('1')) {
+      validateCollection.push(holderSignRef.value.validateVerify());
+    }
+  }
+
+  if (insuredSignRef.value) {
+    if (isShare ? requiredType.value.sign.includes('5') : requiredType.value.sign.includes('3')) {
+      validateCollection.push(...(insuredSignRef.value || []).map((validate) => validate.validateSign()));
+    }
+    if (requiredType.value.verify.includes('2')) {
+      validateCollection.push(...(insuredSignRef.value || []).map((validate) => validate.validateVerify()));
+    }
+  }
+
+  Promise.all(validateCollection)
     .then((res) => {
       getTenantOrderDetail({
         orderNo: orderCode || orderNo,
@@ -217,34 +247,35 @@ const handleSubmit = () => {
       }).then(({ code, data }) => {
         if (code === '10000') {
           // 订单状态为待处理,支付失败,核保成功时可进行下一步操作，否则跳入支付结果页
-          if (
-            !(
-              [
-                ORDER_STATUS_ENUM.PENDING,
-                ORDER_STATUS_ENUM.PAYMENT_FAILED,
-                ORDER_STATUS_ENUM.UNDER_WRITING_SUCCESS,
-              ] as string[]
-            ).includes(data.orderStatus)
-          ) {
-            pageJump('paymentResult', route.query);
-          } else {
-            Dialog.confirm({
-              title: '提示',
-              message: '请确认信息填写无误后，再进行支付',
-            }).then(() => {
-              Object.assign(orderDetail.value, {
-                extInfo: { ...orderDetail.value.extInfo, buttonCode: '', pageCode: 'sign' },
-              });
-              nextStep(orderDetail.value, (cbData, pageAction) => {
-                if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-                  router.push({
-                    path: PAGE_ROUTE_ENUMS[cbData.nextPageCode],
-                    query: { ...route.query, orderNo: orderCode || orderNo },
-                  });
-                }
-              });
+          // if (
+          //   !(
+          //     [
+          //       ORDER_STATUS_ENUM.PENDING,
+          //       ORDER_STATUS_ENUM.PAYMENT_FAILED,
+          //       ORDER_STATUS_ENUM.UNDER_WRITING_SUCCESS,
+          //     ] as string[]
+          //   ).includes(data.orderStatus)
+          // ) {
+          //   pageJump('paymentResult', { ...route.query, orderNo: orderCode || orderNo });
+          // } else {
+          Dialog.confirm({
+            title: '提示',
+            message: '请确认信息填写无误后，再进行支付',
+          }).then(() => {
+            Object.assign(orderDetail.value, {
+              extInfo: {
+                ...orderDetail.value.extInfo,
+                buttonCode: BUTTON_CODE_ENUMS.SIGN,
+                pageCode: PAGE_CODE_ENUMS.SIGN,
+              },
             });
-          }
+            nextStep(orderDetail.value, (cbData, pageAction) => {
+              if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_URL) {
+                window.location.href = cbData.paymentUrl;
+              }
+            });
+          });
+          // }
         }
       });
     })
@@ -253,9 +284,44 @@ const handleSubmit = () => {
     });
 };
 
-const getOrderDetail = () => {
+const shareRef = ref<InstanceType<typeof ProShare>>();
+const handleShare = () => {
+  agentSignRef.value
+    .validateSign()
+    .then(() => {
+      if (shareRef.value) {
+        shareRef.value.handleShare();
+      }
+    })
+    .catch(() => {
+      Toast('请完成代理人签字后进行分享');
+    });
+};
+
+const getOrderDetail = (check = false) => {
   getTenantOrderDetail({ orderNo: orderCode || orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
+      if (check) {
+        if (
+          data?.tenantOrderHolder?.extInfo?.isCert === YES_NO_ENUM.NO ||
+          data?.tenantOrderInsuredList.some((x) => x.extInfo?.isCert === YES_NO_ENUM.NO)
+        ) {
+          Toast('用户未完身份认证及签字');
+        } else if (
+          !data?.tenantOrderAttachmentList.find(
+            (x) =>
+              x.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN &&
+              x.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER,
+          ) ||
+          !data?.tenantOrderAttachmentList.find(
+            (x) =>
+              x.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN &&
+              x.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.INSURED,
+          )
+        ) {
+          Toast('用户未完身份认证及签字');
+        }
+      }
       Object.assign(orderDetail.value, data);
       signPartInfo.value.holder.personalInfo = data.tenantOrderHolder;
       signPartInfo.value.insured.personalInfo = data.tenantOrderInsuredList;
@@ -273,7 +339,35 @@ const getOrderDetail = () => {
   });
 };
 
+const handleRefresh = () => {
+  getOrderDetail(true);
+};
+
+// 分享信息
+const shareInfo = ref({
+  imgUrl: '',
+  desc: '',
+  title: '',
+  link: shareLink,
+});
+
 const initData = () => {
+  querySalesInfo({ productCode, tenantId, isTenant: !preview }).then(({ data, code }) => {
+    if (code === '10000') {
+      let shareParams = {};
+      if (data?.PRODUCT_LIST?.wxShareConfig) {
+        const { title, desc, image: imageArr } = data?.PRODUCT_LIST.wxShareConfig || {};
+        const [image = ''] = imageArr || [];
+        shareParams = { title, desc, image };
+      } else {
+        const { title, desc, image } = data?.PRODUCT_LIST || {};
+        shareParams = { title, desc, image };
+      }
+
+      // 设置分享参数
+      Object.assign(shareInfo.value, shareParams);
+    }
+  });
   queryProductMaterial({ productCode }).then(({ code, data }) => {
     if (code === '10000') {
       const { productMaterialMap } = data.productInsureMaterialVOList?.[0] || {};
@@ -297,9 +391,13 @@ const initData = () => {
       insureProductDetail.value = data;
       const { productFactor } = data.productPlanInsureVOList?.[0] || {};
       const { signInfo } = transformFactorToSchema(productFactor);
+      console.log('signInfo', signInfo);
       signInfo.schema.forEach((schema) => {
         if (schema.name === 'eleSign') {
           schema.columns.forEach((column) => {
+            if (schema.required) {
+              requiredType.value.sign.push(column.code);
+            }
             // 代理人签字
             if (column.code === '1') {
               signPartInfo.value.agent.isSign = true;
@@ -320,6 +418,9 @@ const initData = () => {
         }
         if (schema.name === 'customerFace') {
           schema.columns.forEach((column) => {
+            if (schema.required) {
+              requiredType.value.verify.push(column.code);
+            }
             if (column.code === '1') {
               signPartInfo.value.holder.isVerify = true;
             } else if (column.code === '2') {
@@ -354,6 +455,7 @@ onBeforeMount(() => {
       align-items: center;
       color: var(--van-primary-color);
       font-size: 40px;
+      margin-right: 10px;
       .text {
         font-size: 20px;
       }
@@ -365,6 +467,7 @@ onBeforeMount(() => {
     }
     .submit-btn {
       width: 290px;
+      flex: 1;
     }
   }
 }

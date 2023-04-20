@@ -5,8 +5,9 @@
         :is="item.componentName"
         v-for="(item, index) in state.schema"
         :key="`${item.nanoid}_${index}`"
-        :is-view="isView"
         v-bind="item"
+        v-model="state.formData[item.name]"
+        :is-view="isView"
       >
         <!-- 继承 slots -->
         <template v-for="slotName in noDefaultSlots" :key="slotName" #[slotName]>
@@ -21,6 +22,7 @@
 <script lang="ts" setup>
 import { withDefaults, reactive, shallowRef, useSlots } from 'vue';
 import type { FormInstance } from 'vant';
+import { nanoid } from 'nanoid';
 import { Toast } from 'vant/es';
 import debounce from 'lodash-es/debounce';
 import { isNotEmptyArray } from '@/common/constants/utils';
@@ -129,11 +131,12 @@ watch(
       state.schema = (schema as SchemaItem[])
         .map((item) => ({
           ...item,
-          modelValue: props.model[item.name],
+          // modelValue: props.model[item.name],
           componentName: FieldComponents[item.componentName]
             ? shallowRef(FieldComponents[item.componentName])
             : item.componentName,
           ...config[item.name],
+          nanoid: nanoid(),
         }))
         .filter((item) => !item.hidden);
     }
@@ -214,6 +217,9 @@ defineExpose({
 });
 </script>
 <style lang="scss" scoped>
-// .com-van-form {
-// }
+.com-van-form {
+  div.van-cell:last-child::after {
+    display: none;
+  }
+}
 </style>

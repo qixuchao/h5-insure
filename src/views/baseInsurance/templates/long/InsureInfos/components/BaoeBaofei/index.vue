@@ -104,6 +104,7 @@
 </template>
 <script lang="ts" setup>
 import { ref, watch, withDefaults } from 'vue';
+import { cloneDeep } from 'lodash';
 import { RiskVoItem, RiskAmountPremiumConfig } from '@/api/modules/trial.data';
 import { PREMIUM_UNIT_TYPE_ENUM } from '@/common/constants/infoCollection';
 
@@ -121,9 +122,8 @@ const props = withDefaults(defineProps<Props>(), {
   defalutValue: () => ({} as any),
 });
 const mConfigs = ref(props.originData);
-const mValues = ref(props.modelValue);
+const mValues = ref({}); // ref(props.modelValue);
 const showTypes = ref(1);
-
 const pickEnums = (origin: any[], target: any[], prop = {}) => {
   let currentTarget = target;
   if (!Array.isArray(target)) {
@@ -231,25 +231,24 @@ const initData = () => {
   } else if (displayType === 3 && requireCopies === 2) {
     showTypes.value = 2;
     // console.log('>>>>set value', mValues.value, mConfigs.value.displayValues.length, mName);
-    if (mConfigs.value.displayValues.length >= 1 && canChange) {
+    if (mConfigs.value.displayValues.length >= 1 && canChange && !mValues.value[mKey]) {
       mValues.value[mKey] = mConfigs.value.displayValues[0].code || mConfigs.value.displayValues[0].value;
     }
   } else if (displayType === 3 && requireCopies === 1) {
     showTypes.value = 3;
-    if (mConfigs.value.minCopiesValue === mConfigs.value.maxCopiesValue && canChange) {
+    if (mConfigs.value.minCopiesValue === mConfigs.value.maxCopiesValue && canChange && !mValues.value.copy) {
       mValues.value.copy = mConfigs.value.minCopiesValue;
     }
-    if (mConfigs.value.displayValues.length >= 1 && canChange) {
+    if (mConfigs.value.displayValues.length >= 1 && canChange && !mValues.value[mKey]) {
       mValues.value[mKey] = mConfigs.value.displayValues[0].code || mConfigs.value.displayValues[0].value;
     }
   } else if (displayType === 2) {
     showTypes.value = 4;
-    if (mConfigs.value.minCopiesValue === mConfigs.value.maxCopiesValue && canChange) {
+    if (mConfigs.value.minCopiesValue === mConfigs.value.maxCopiesValue && canChange && !mValues.value.copy) {
       mValues.value.copy = mConfigs.value.minCopiesValue;
     }
-    if (canChange) mValues.value.amount = mConfigs.value.copiesAmount;
+    if (canChange && !mValues.value.amount) mValues.value.amount = mConfigs.value.copiesAmount;
   }
-  console.log(':---------values = ', mValues.value);
 };
 
 const displayValues = computed(() => {
@@ -292,7 +291,12 @@ watch(
 watch(
   () => props.defalutValue,
   (v) => {
-    if (v?.riskCode) mValues.value = props.defalutValue;
+    if (v?.riskCode) console.log('-----baoebaofei ', mValues.value);
+    if (v?.riskCode) {
+      Object.keys(mValues.value).forEach((key) => {
+        mValues.value[key] = v[key] || mValues.value[key];
+      });
+    }
   },
   {
     deep: true,
@@ -305,9 +309,19 @@ watch(
   (v) => {
     if (checkStep()) {
       emit('update:modelValue', v);
-      // console.log('----change', v);
       emit('trialChange', v);
     }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  props.modelValue,
+  (v) => {
+    console.log('---------modelValueChange = ', v);
   },
   {
     deep: true,
