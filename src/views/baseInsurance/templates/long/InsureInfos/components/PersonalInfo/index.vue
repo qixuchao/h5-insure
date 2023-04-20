@@ -288,22 +288,21 @@ watch(
     const { length: stateInsuredLen } = state.insured;
 
     // 预览时，被保人数量多于默认数量
-    const insuredLen = props.isView || propsInsuredLen > stateInsuredLen ? propsInsuredLen : stateInsuredLen;
     const { length, 0: mainInsuredItem = {}, [length - 1]: lastInsuredItem } = state.initInsuredIList;
-    // debugger;
+    const insuredLen = props.isView || propsInsuredLen > stateInsuredLen ? propsInsuredLen : stateInsuredLen || length;
 
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
-      const { personVO } = insuredVOList[index] || {};
+      const { personVO } = insuredVOList?.[index] || {};
       const initInsuredTempData = index === 0 ? mainInsuredItem : lastInsuredItem;
 
-      if (!res[index]?.personVO) {
+      if (!res[index]) {
         res[index] = {
           ...initInsuredTempData,
           personVO,
           nanoid: nanoid(),
         };
       } else {
-        Object.assign(res[index].personVO, personVO);
+        Object.assign(res[index]?.personVO, personVO);
       }
       return res;
     }, state.insured);
