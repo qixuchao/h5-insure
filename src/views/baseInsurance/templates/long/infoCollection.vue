@@ -24,9 +24,14 @@
       ></InsureInfos>
       <!-- 以下是附加险种信息 -->
       <ProductRiskList
+        v-if="currentPlanObj.insureProductRiskVOList"
         :data-source="currentPlanObj"
         :show-main-risk="false"
-        :default-value="state.defaultValue ? state.defaultValue?.insuredVOList?.[0]?.productPlanVOList : []"
+        :default-value="
+          state.defaultValue
+            ? state.defaultValue?.insuredVOList?.[0]?.productPlanVOList?.[state.planIndex]?.riskVOList || []
+            : []
+        "
         @trial-change="handleProductRiskInfoChange"
       ></ProductRiskList>
       <PayInfo
@@ -86,6 +91,7 @@ import {
   getTenantOrderDetail,
   underWriteRule,
   queryCalcDynamicInsureFactor,
+  queryCalcDefaultInsureFactor,
 } from '@/api/modules/trial';
 import InsureInfos from './InsureInfos/index.vue';
 import ProductRiskList from './ProductRiskList/index.vue';
@@ -270,8 +276,44 @@ const handleSameMainRisk = (data: any) => {
 const premium = ref<number>(0);
 const premiumMap = ref<any>({}); // 试算后保费
 
+const transformDefaultData = (defaultData: any) => {
+  state.userData = defaultData;
+  state.defaultValue = defaultData;
+  state.planIndex = defaultData.insuredVOList[0].productPlanVOList.findIndex(
+    (p) => p.planCode === currentPlanObj.value.planCode,
+  );
+  console.log('-----data = ', state.defaultValue?.insuredVOList[0].productPlanVOList[0]);
+  // state.userData = {
+  //   holder: null,
+  //   insuredVOList: [
+  //     {
+  //       personVO: {
+  //         gender: 2,
+  //         birthday: '1988-08-27',
+  //       },
+  //     },
+  //   ],
+  // };
+};
+
+const fetchDefaultData = async (changes: []) => {
+  // TODO 加loading
+  const result = await queryCalcDefaultInsureFactor({
+    calcProductFactorList: [
+      {
+        planCode: currentPlanObj.value.planCode,
+        productCode,
+      },
+    ],
+  });
+  if (result.data) transformDefaultData(result.data.find((d) => d.productCode === productCode));
+  // }
+  //  else {
+  //   transformDefaultData(props.defaultData.find((d) => d.productCode === props.productInfo.productCode));
+  // }
+};
+
 const handleMixTrialData = debounce(() => {
-  console.log('ifPersonalInfoSuccess', ifPersonalInfoSuccess);
   if (ifPersonalInfoSuccess.value) {
     submitData.value.productCode = productCode;
     submitData.value.tenantId = tenantId;
@@ -328,6 +370,7 @@ const handleMixTrialData = debounce(() => {
 }, 300);
 const DYNAMIC_FACTOR_PARAMS = ['annuityDrawDate', 'coveragePeriod', 'chargePeriod'];
 const handleDealDyResult = (dyResult: any) => {
+  console.log('handleDealDyResult', dyResult);
   if (dyResult?.data?.[0]?.productRiskDyInsureFactorVOList) {
     const defaultRiskData = [];
     currentPlanObj.value?.insureProductRiskVOList.forEach((risk) => {
@@ -338,7 +381,7 @@ const handleDealDyResult = (dyResult: any) => {
           ...newRisk,
         };
         const riskTrialData = riskVOList.value.find((l) => l.riskCode === risk.riskCode);
-        let change = false;
+        let change = true;
         PRODUCT_KEYS_CONFIG.forEach((config) => {
           if (DYNAMIC_FACTOR_PARAMS.indexOf(config.valueKey) >= 0) {
             const configData = risk.productRiskInsureLimitVO[config.configKey];
@@ -362,6 +405,7 @@ const handleDealDyResult = (dyResult: any) => {
         }
       }
     });
+    console.log('默认值', defaultRiskData.length, state.defaultValue);
     if (defaultRiskData.length > 0 && state.defaultValue?.insuredVOList?.[0]?.productPlanVOList) {
       // 给默认值
       defaultRiskData.forEach((data) => {
@@ -380,12 +424,13 @@ const handleDealDyResult = (dyResult: any) => {
 };
 
 const handlePersonalInfoChange = async (data) => {
+  console.log('data', data);
   const { holder, insuredVOList, isFirstInsuredChange } = data;
   if (holder) {
     // submitData.value.holder.personVO = holder;
     submitData.value.holder = {
       personVO: {
-        ...holder,
+        ...holder.personVO,
         socialFlag: holder.hasSocialInsurance,
       },
     };
@@ -756,6 +801,8 @@ const initData = async () => {
         ...state.payInfo,
         ...payInfo,
       };
+
+      fetchDefaultData([]);
     }
   });
 };
