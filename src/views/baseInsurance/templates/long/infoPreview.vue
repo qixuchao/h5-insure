@@ -255,8 +255,7 @@ const orderData2formData = () => {
       })),
     },
   }));
-
-  Object.assign(state.personalInfo, personalInfo);
+  state.personalInfo = personalInfo;
 };
 
 // 初始化数据，获取产品配置详情和产品详情

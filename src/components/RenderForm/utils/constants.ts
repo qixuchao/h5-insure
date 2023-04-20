@@ -350,19 +350,6 @@ export const BANK_INFO_KEY_LIST = Object.values(BANK_INFO_KEY_ENUM);
 
 // ProBank 字段配置
 export const PRO_BANK_FIELD_MAP = {
-  // 年金同首期
-  sameFirstIssue: {
-    name: 'sameFirstIssue',
-    componentName: COMPONENT_ENUM.ProRadioV2,
-    columns: PAY_INFO_TYPE_LIST,
-  },
-  // 续期同首期
-  renewalSameFirstIssue: {
-    name: 'sameFirstIssue',
-    componentName: COMPONENT_ENUM.ProSwitchV2,
-    activeValue: `${PAY_INFO_TYPE_ENUM.FIRST_SAME}`,
-    inactiveValue: `${PAY_INFO_TYPE_ENUM.OTHER}`,
-  },
   // 银行卡号
   bankCardNo: {
     ...RULE_CONFIG_MAP.BANK,

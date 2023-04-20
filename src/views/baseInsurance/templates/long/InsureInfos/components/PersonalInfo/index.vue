@@ -23,11 +23,11 @@
       :multi-beneficiary-num="state.config.multiBeneficiaryMaxNum"
       @update:beneficiary-list="updateBeneficiaryList($event, index)"
     >
-      <span v-if="index + 1 > state.config.multiInsuredMinNum" @click="onDeleteInsured(index)"
+      <span v-if="!isView && index + 1 > state.config.multiInsuredMinNum" @click="onDeleteInsured(index)"
         ><van-icon name="delete-o"
       /></span>
     </InsuredItem>
-    <van-cell v-if="!isView || addible" class="add-button-wrap">
+    <van-cell v-if="!isView && addible" class="add-button-wrap">
       <template #title>
         <span class="add-button" @click="onAddInsured"><van-icon name="plus" />添加被保人</span>
       </template>
@@ -81,6 +81,7 @@ interface StateInfo {
   validated: boolean;
   holder: PersonFormProps;
   initInsuredItem: InsuredFormProps;
+  initInsuredIList: InsuredFormProps[];
   insured: InsuredFormProps[];
 }
 
@@ -113,8 +114,9 @@ const state = reactive<StateInfo>({
     config: {},
   },
   initInsuredItem: cloneDeep(initInsuredItem),
+  initInsuredIList: [],
   /** 被保人 */
-  insured: [cloneDeep(initInsuredItem)],
+  insured: [],
 });
 
 /** 验证试算因子是否全部有值 */
@@ -134,6 +136,9 @@ const validate = (isTrial) => {
 const listObject = (personInfo: any) => {
   const keyWords = ['insureArea', 'residence', 'longArea', 'workAddress'];
   const newInfo = {};
+  if (!personInfo) {
+    return newInfo;
+  }
   Object.keys(personInfo).forEach((key) => {
     if (keyWords.indexOf(key) >= 0 && personInfo[key] instanceof Object) {
       // 平铺
@@ -168,17 +173,19 @@ const onDeleteInsured = (index) => {
 
 /** 被保人是否可添加的 */
 const addible = computed(() => {
-  const { multiInsuredMaxNum } = state.config;
+  const { multiInsuredMaxNum, multiInsuredSupportFlag } = state.config;
 
-  // 最大数量不存在则可添加，存在则根据最大数量判断
-  return !multiInsuredMaxNum || state.insured.length < multiInsuredMaxNum;
+  // 是否支持多被保人，最大数量不存在则可添加，存在则根据最大数量判断
+  return multiInsuredSupportFlag && (!multiInsuredMaxNum || state.insured.length < multiInsuredMaxNum);
 });
 
 //
 const updateBeneficiaryList = (data, index) => {
-  state.insured[index].beneficiaryList.forEach((item, i) => {
-    Object.assign(item.personVO, data[i]?.personVO);
-  });
+  if (state.insured[index]) {
+    state.insured[index]?.beneficiaryList.forEach((item, i) => {
+      Object.assign(item.personVO, data[i]?.personVO);
+    });
+  }
 };
 
 // 是否有投保人
@@ -253,25 +260,10 @@ watch(
       state.config = config;
 
       if (isNotEmptyArray(insured)) {
-        const { length } = insured;
-        state.insured = insured.map((insuredItem, index) => {
-          const tempInsured = state.insured[index] || cloneDeep(initInsuredItem);
-
-          // 初始投保人信息,非关系型被保人复制主被保人，关系型复制次被保人
-          if (index === length - 1) {
-            state.initInsuredItem = cloneDeep({
-              ...initInsuredItem,
-              schema: cloneDeep(insuredItem?.schema),
-              trialFactorCodes: insuredItem?.trialFactorCodes,
-              beneficiarySchema: cloneDeep(beneficiary?.schema || []),
-            });
-          }
-
+        state.initInsuredIList = insured.map((insuredItem) => {
           return {
-            ...tempInsured,
-            nanoid: nanoid(),
-            schema: cloneDeep(insuredItem?.schema),
-            trialFactorCodes: insuredItem?.trialFactorCodes,
+            ...insuredItem,
+            beneficiaryList: [],
             beneficiarySchema: cloneDeep(beneficiary?.schema || []),
           };
         });
@@ -290,26 +282,31 @@ watch(
   (val) => {
     const { holder, insuredVOList } = val[0] || {};
     Object.assign(state.holder.personVO, holder?.personVO);
-    const { length } = insuredVOList || [];
-    const originLen = state.insured.length;
-    // 预览时，被保人数量多于默认数量
-    const flag = length > state.insured.length;
 
-    if (flag) {
-      state.insured = insuredVOList.map((insuredItem, index) => {
-        const { personVO } = state.insured[index] || {};
-        return {
-          ...state.initInsuredItem,
-          ...insuredItem,
-          // personVo: Object.assign(personVO || {}, insuredItem.personVO),
+    // 处理被保人数据
+    const { length: propsInsuredLen } = insuredVOList || [];
+    const { length: stateInsuredLen } = state.insured;
+
+    // 预览时，被保人数量多于默认数量
+    const insuredLen = props.isView || propsInsuredLen > stateInsuredLen ? propsInsuredLen : stateInsuredLen;
+    const { length, 0: mainInsuredItem = {}, [length - 1]: lastInsuredItem } = state.initInsuredIList;
+    // debugger;
+
+    state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
+      const { personVO } = insuredVOList[index] || {};
+      const initInsuredTempData = index === 0 ? mainInsuredItem : lastInsuredItem;
+
+      if (!res[index]?.personVO) {
+        res[index] = {
+          ...initInsuredTempData,
+          personVO,
+          nanoid: nanoid(),
         };
-      });
-    } else {
-      state.insured.forEach((insuredItem, index) => {
-        const currentInsured = insuredVOList?.[index] || {};
-        Object.assign(insuredItem.personVO, currentInsured?.personVO);
-      });
-    }
+      } else {
+        Object.assign(res[index].personVO, personVO);
+      }
+      return res;
+    }, state.insured);
   },
   {
     deep: true,

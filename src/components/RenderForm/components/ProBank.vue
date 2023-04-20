@@ -53,27 +53,10 @@ const isNotFistTerm = computed(() => String(props.paymentType) !== String(PAYMEN
 const schema = computed(() => {
   if (isNotEmptyArray(props.attributeValueList)) {
     return props.attributeValueList.map((item: { code: string; value: string }) => {
-      // 续费支付 同首期 & 其他
-      const currentField =
-        PRO_BANK_FIELD_MAP[isRenewal.value && item.code === 'sameFirstIssue' ? 'renewalSameFirstIssue' : item.code];
-      let extraInfo = {};
-
-      // 续期/年金领取是否隐藏银行卡信息
-      if (item.code !== 'sameFirstIssue') {
-        extraInfo = {
-          hidden: isNotFistTerm.value
-            ? [PAY_INFO_TYPE_ENUM.FIRST_SAME, PAY_INFO_TYPE_ENUM.RENEW_SAME].includes(
-                Number(formState.formData?.sameFirstIssue),
-              )
-            : false,
-        };
-      }
-
       return {
-        ...currentField,
+        ...PRO_BANK_FIELD_MAP[item.code],
         isView: props.isView,
         required: props.required,
-        ...extraInfo,
         label: item.value,
       };
     });

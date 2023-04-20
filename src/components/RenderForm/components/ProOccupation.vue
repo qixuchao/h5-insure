@@ -65,7 +65,6 @@ const selfValueViewFn = (arr) => {
 watch(
   () => props.modelValue,
   (val) => {
-    console.log(11114444, val, props.name);
     state.modelValue = val;
   },
   {
