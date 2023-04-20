@@ -131,8 +131,8 @@ export const PAGE_API_ENUMS = {
 };
 
 export const PAGE_ROUTE_ENUMS = {
-  productInfo: '/baseInsurance/productDetail', // 产品详情
-  premiumTrial: '/baseInsurance/trial', // 保费试算
+  productInfo: '/baseInsurance/long/productDetail', // 产品详情
+  premiumTrial: '/baseInsurance/long/productDetail', // 保费试算
   questionNotice: '/baseInsurance/long/healthNotice', // 问卷告知书
   infoCollection: '/baseInsurance/long/infoCollection', // 信息采集
   infoPreview: '/baseInsurance/long/infoPreview', // 信息采集预览
@@ -155,17 +155,17 @@ export const NEXT_BUTTON_CODE_ENUMS = {
 // 订单流程，不同状态跳转到不同的页面
 export const ORDER_STATUS_MAPPING_PAGE = {
   /** 待处理->保费试算 */
-  [ORDER_STATUS_ENUM.PENDING]: NEXT_BUTTON_CODE_ENUMS.premiumTrial,
+  [ORDER_STATUS_ENUM.PENDING]: PAGE_ROUTE_ENUMS.premiumTrial,
   /** 处理中->信息采集 */
-  [ORDER_STATUS_ENUM.PROCESSING]: NEXT_BUTTON_CODE_ENUMS.infoCollection,
+  [ORDER_STATUS_ENUM.PROCESSING]: PAGE_ROUTE_ENUMS.infoCollection,
   /** 待认证->保单预览 */
-  [ORDER_STATUS_ENUM.WAIT_IDENTIFICATION]: NEXT_BUTTON_CODE_ENUMS.infoPreview,
+  [ORDER_STATUS_ENUM.WAIT_IDENTIFICATION]: PAGE_ROUTE_ENUMS.infoPreview,
   /** 认证中->签名认证 */
-  [ORDER_STATUS_ENUM.IN_IDENTIFICATION]: NEXT_BUTTON_CODE_ENUMS.infoPreview,
+  [ORDER_STATUS_ENUM.IN_IDENTIFICATION]: PAGE_ROUTE_ENUMS.infoPreview,
   /** 认证完成->签名认证 */
-  [ORDER_STATUS_ENUM.IDENTIFICATION_COMPLETE]: NEXT_BUTTON_CODE_ENUMS.infoPreview,
+  [ORDER_STATUS_ENUM.IDENTIFICATION_COMPLETE]: PAGE_ROUTE_ENUMS.infoPreview,
   /** 待支付-> 支付页面 */
-  [ORDER_STATUS_ENUM.PAYING]: NEXT_BUTTON_CODE_ENUMS.infoPreview,
+  [ORDER_STATUS_ENUM.PAYING]: PAGE_ROUTE_ENUMS.infoPreview,
 };
 // eslint-disable-next-line
 export enum UPLOAD_TYPE_ENUM {

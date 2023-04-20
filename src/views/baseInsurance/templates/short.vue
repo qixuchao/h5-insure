@@ -3,15 +3,16 @@
   <div v-else data-skeleton-root="SHORT" :theme-vars="themeVars" class="page-internet-product-detail">
     <div class="info">
       <Banner
-        v-if="tenantProductDetail?.BASIC_INFO?.banner.length"
+        v-if="tenantProductDetail?.BASIC_INFO?.bannerType == 1 && tenantProductDetail?.BASIC_INFO?.banner.length"
         data-skeleton-type="img"
-        :url="tenantProductDetail?.BASIC_INFO.banner[0]"
+        indicator-color="#ddd"
+        :images="tenantProductDetail?.BASIC_INFO.banner"
       />
-      <!-- <Video
-          v-if="tenantProductDetail?.BASIC_INFO?.video.length"
-          data-skeleton-type="img"
-          :url="tenantProductDetail?.BASIC_INFO.video[0]"
-        /> -->
+      <Video
+        v-if="tenantProductDetail?.BASIC_INFO?.bannerType == 2 && tenantProductDetail?.BASIC_INFO?.video.length"
+        data-skeleton-type="img"
+        :src="tenantProductDetail?.BASIC_INFO.video[0]"
+      />
       <Banner
         v-if="tenantProductDetail?.BASIC_INFO?.bannerMove?.length"
         :url="tenantProductDetail?.BASIC_INFO?.bannerMove?.[0]"
@@ -375,6 +376,7 @@ const initData = async () => {
     if (code === '10000') {
       tenantProductDetail.value = data;
       document.title = data.BASIC_INFO.title || '';
+      tenantProductDetail.BASIC_INFO = data.BASIC_INFO;
       const { title, desc, image: imageArr } = data?.PRODUCT_LIST.wxShareConfig || {};
       const [image = ''] = imageArr || [];
       // 设置分享参数

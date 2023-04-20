@@ -133,20 +133,24 @@ const handleProcess = () => {
     loading.value = true;
     // TODO,跳转到对应的投保流程（订单转投保）
     queryStandardInsurerLink(params).then((res) => {
+      console.log('投保链接==', res.data);
       // 获取投保链接
       if (res.code === '10000') {
         // 长期险或年金跳转对应pageCode的页面
         if ([TEMPLATE_NAME_ENUM.LONG, TEMPLATE_NAME_ENUM.NIANJIN].includes(getTemplateNameById(`${templateId}`))) {
           const queryStr = res.data.split('?')[1];
-          // todo 根据状态跳转
+          const queryObj = qs.parse(queryStr);
           router.push({
             path: ORDER_STATUS_MAPPING_PAGE[orderStatus],
-            query: qs.parse(queryStr),
+            query: {
+              ...queryObj,
+              extraInfo: queryObj.extraInfo,
+              orderNo,
+            },
           });
-          window.location.href = res.data;
         } else {
           // 否则就是其他险种，走投保流程链接
-          window.location.href = res.data;
+          window.location.href = `${res.data}&orderNo=${orderNo}`;
         }
       }
     });
