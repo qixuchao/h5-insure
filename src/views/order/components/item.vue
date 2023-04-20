@@ -125,7 +125,7 @@ const handlePay = () => {
   } = props.detail;
   if (redirectProductDetail()) return;
   router.push({
-    path: PAGE_ROUTE_ENUMS.payInfo,
+    path: 'orderDetail',
     query: {
       productCode,
       orderNo,

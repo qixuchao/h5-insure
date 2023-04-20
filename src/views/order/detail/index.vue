@@ -33,7 +33,7 @@
         </div>
         <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.PAYING" class="footer-button">
           <van-button type="primary" @click.stop="handleDelete">删除</van-button>
-          <van-button type="primary" @click.stop="handlePay">去支付</van-button>
+          <van-button type="primary" @click.stop="handleProcess">去支付</van-button>
         </div>
         <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.TIMEOUT" class="footer-button">
           <van-button type="primary" @click.stop="handleDelete">删除</van-button>
