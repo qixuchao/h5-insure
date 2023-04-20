@@ -19,7 +19,7 @@
         is-view
       ></PayInfo>
       <div class="footer-btn">
-        <ProShare v-bind="shareInfo" class="share-btn">
+        <ProShare v-if="!isShare && shareInfo.isShare" v-bind="shareInfo" class="share-btn" @click.stop="handleShare">
           <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
           <span>分享</span>
         </ProShare>
@@ -64,6 +64,7 @@ import { CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM, YES_NO_ENUM } from '@/common/con
 import { formData2Order } from '../utils';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 import InsureInfo from './components/InsureInfo.vue';
+import ProShare from '@/components/ProShare/index.vue';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
@@ -92,6 +93,7 @@ const {
   agentCode = '',
   agencyCode,
   saleChannelId,
+  isShare,
   orderNo,
   extraInfo,
   insurerCode,
@@ -167,15 +169,6 @@ const onSubmit = () => {
   }
 };
 
-const submitData = ref<any>({});
-const ifPersonalInfoSuccess = ref<boolean>(false);
-const riskVOList = ref<any[]>([{}]);
-const trialMsg = ref<string>('');
-const trialResult = ref<number>(0);
-const loading = ref<boolean>(false);
-const mainRiskVO = ref<any>(); // 标准主险的险种数据
-const iseeBizNo = ref<string>();
-
 const riskDefaultValue = ref<any>();
 
 const mainRiskInfo = computed(() => {
@@ -183,25 +176,12 @@ const mainRiskInfo = computed(() => {
   return (insureProductRiskVOList || []).find((risk) => risk.mainRiskFlag === YES_NO_ENUM.YES);
 }); //
 
-// 试算结果-保费
-const premium = ref<number>(0);
-const premiumMap = ref<any>({}); // 试算后保费
-
-// 分享时需要校验投保人手机号并且保存数据
-const shareValidate = () => {
-  return new Promise((resolve, reject) => {
-    if (state.personalInfo?.personVO?.mobile) {
-      Toast('请录入投保人手机号后进行分享');
-      reject();
-      return;
+const shareRef = ref<InstanceType<typeof ProShare>>();
+const handleShare = () => {
+  nextStep(orderDetail.value, (data, pageAction) => {
+    if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+      shareRef.value.handleShare();
     }
-    nextStep(orderDetail.value, (data, pageAction) => {
-      if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-        resolve(true);
-      } else {
-        reject();
-      }
-    });
   });
 };
 
@@ -288,13 +268,14 @@ const initData = async () => {
       tenantProductDetail.value = data;
       document.title = data.BASIC_INFO.title || '';
       let shareParams = {};
-      if (data?.PRODUCT_LIST?.wxShareConfig) {
-        const { title, desc, image: imageArr } = data?.PRODUCT_LIST.wxShareConfig || {};
+      const { wxShareConfig, showWXShare } = data?.PRODUCT_LIST || {};
+      if (wxShareConfig) {
+        const { title, desc, image: imageArr } = wxShareConfig || {};
         const [image = ''] = imageArr || [];
-        shareParams = { title, desc, image };
+        shareParams = { title, desc, image, isShare: showWXShare };
       } else {
         const { title, desc, image } = data?.PRODUCT_LIST || {};
-        shareParams = { title, desc, image };
+        shareParams = { title, desc, image, isShare: false };
       }
 
       // 设置分享参数

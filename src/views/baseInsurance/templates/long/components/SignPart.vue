@@ -151,7 +151,7 @@ const validateSign = () => {
       resolve(true);
       return;
     }
-    reject(new Error(`请${props.title}成签名后，去支付`));
+    reject(new Error(`请${props.title}完成签名后，去支付`));
   });
 };
 

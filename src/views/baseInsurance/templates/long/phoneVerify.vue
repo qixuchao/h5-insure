@@ -1,8 +1,8 @@
 <template>
   <ProPageWrap>
     <div class="page-phone-verify">
-      <div class="title">通过投保人手机号验证后，可进行投保信息预</div>
-      <div class="phone">{{ convertPhone(phone) }}</div>
+      <div class="title">通过投保人手机号验证后，可进行投保信息填写</div>
+      <div class="phone">{{ convertPhone(phone || '') }}</div>
       <div class="input-wrapper">
         <input v-model="smsCode" placeholder="请输入验证码" class="input" />
         <div :class="['btn', { second }]" @click="handleSend">{{ second ? `${second}s` : '发送验证码' }}</div>

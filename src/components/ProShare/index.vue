@@ -60,7 +60,6 @@ const onCloseOverlay = () => {
 };
 
 const handleShare = () => {
-  console.log('13123132');
   if (isWechat()) {
     console.log('在微信内，弹起遮罩');
     showOverLay.value = true;

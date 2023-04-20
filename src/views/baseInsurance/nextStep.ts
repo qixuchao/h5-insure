@@ -24,7 +24,7 @@ export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: 
     const { productCode } = tenantOrderInsuredList?.[0]?.tenantOrderProductList?.[0] || {};
     let redirectUrl = `${`${window.location.origin}${VITE_BASE}baseInsurance/orderDetail`}?orderNo=${orderNo}&tenantId=${tenantId}&ISEE_BIZ=${iseeBizNo}&productCode=${productCode}`;
     if (templateId > 200) {
-      redirectUrl = `${`${window.location.origin}${VITE_BASE}baseInsurance/long/result`}?orderNo=${orderNo}&tenantId=${tenantId}&ISEE_BIZ=${iseeBizNo}&productCode=${productCode}`;
+      redirectUrl = `${`${window.location.origin}${VITE_BASE}baseInsurance/long/result`}?orderNo=${orderNo}&templateId=${templateId}=tenantId=${tenantId}&ISEE_BIZ=${iseeBizNo}&productCode=${productCode}`;
     }
 
     currentParams.extInfo.redirectUrl = redirectUrl;

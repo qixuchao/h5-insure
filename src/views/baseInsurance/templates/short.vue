@@ -84,7 +84,7 @@
         :plan-code="guaranteeObj.planCode"
         :payment-frequency="guaranteeObj.paymentFrequency"
         :tenant-product-detail="tenantProductDetail"
-        @click="onNext"
+        @handle-click="onNext"
         >立即投保</TrialButton
       >
     </template>

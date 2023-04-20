@@ -276,7 +276,7 @@ watch(
 defineExpose({
   validate,
   validateHolder: (...rest) => {
-    holderFormRef.value?.validate(...rest);
+    return holderFormRef.value?.validate(...rest);
   },
 });
 </script>

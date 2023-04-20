@@ -8,7 +8,7 @@
       :plan-code="props.dataSource.planCode"
       :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
       :tenant-product-detail="tenantProductDetail"
-      @click="open"
+      @handle-click="open"
       >立即投保</TrialButton
     >
   </div>
@@ -69,7 +69,7 @@
           :plan-code="props.dataSource.planCode"
           :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
           :tenant-product-detail="tenantProductDetail"
-          @click="onNext"
+          @handle-click="onNext"
           >立即投保</TrialButton
         >
       </slot>

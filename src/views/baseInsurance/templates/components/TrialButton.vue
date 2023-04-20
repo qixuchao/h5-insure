@@ -1,10 +1,10 @@
 <template>
   <div class="trial-button-wrap">
     <div class="footer-area">
-      <ProShare v-if="isShare && isApp" v-bind="shareInfo" class="share-btn">
+      <div v-if="isShare" class="com-share" @click="onShare">
         <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
         <span>分享</span>
-      </ProShare>
+      </div>
 
       <div class="price">
         <span v-if="loadingText">{{ loadingText }}</span>
@@ -17,6 +17,7 @@
         <slot>立即投保</slot>
       </ProShadowButton>
     </div>
+    <ProShare ref="shareRef" v-bind="shareInfo"> </ProShare>
   </div>
 </template>
 
@@ -25,6 +26,7 @@ import { withDefaults } from 'vue';
 import ProShadowButton from './ProShadowButton/index.vue';
 import { PlanInsureVO } from '@/api/modules/product.data';
 import { isAppFkq } from '@/utils';
+import ProShare from '@/components/ProShare/index.vue';
 
 interface Props {
   premium: number;
@@ -34,6 +36,7 @@ interface Props {
   paymentFrequency: string;
   shareInfo?: any;
   isShare: boolean;
+  handleShare?: (cb: () => void) => void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -44,6 +47,7 @@ const props = withDefaults(defineProps<Props>(), {
   paymentFrequency: '',
   shareInfo: () => ({}),
   isShare: false,
+  handleShare: () => {},
 });
 
 const emits = defineEmits(['handleClick']);
@@ -51,6 +55,16 @@ const emits = defineEmits(['handleClick']);
 const productPremium = ref<string>('');
 const premiumUnit = ref<string>('');
 const isApp = isAppFkq();
+
+const shareRef = ref<InstanceType<typeof ProShare>>();
+const onShare = () => {
+  console.log('323424');
+  if (props.handleShare) {
+    props.handleShare(() => shareRef.value.handleShare());
+    return;
+  }
+  shareRef.value.handleShare();
+};
 
 // 根据试算或者试算前根据产品配置信息显示产品保费
 watch(
@@ -115,6 +129,7 @@ watch(
       color: #ff6600;
       font-size: 34px;
       font-weight: normal;
+      min-width: 300px;
       span {
         color: #ff6600;
         font-weight: bold;
