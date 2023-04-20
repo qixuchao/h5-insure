@@ -371,7 +371,7 @@ const queryProductMaterialData = () => {
 
 // 初始化数据，获取产品配置详情和产品详情
 const initData = async () => {
-  querySalesInfo({ productCode, tenantId, isTenant: !preview }).then(({ data, code }) => {
+  querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
     if (code === '10000') {
       tenantProductDetail.value = data;
       document.title = data.BASIC_INFO.title || '';

@@ -32,7 +32,7 @@
   </ProPageWrap>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="OrderResult">
 import { useRouter, useRoute } from 'vue-router';
 import ProResult from '@/components/ProResult/index.vue';
 import { getOrderDetail } from '@/api';
@@ -65,6 +65,7 @@ const TEXT_MAP = {
   repay: '重新支付',
   goPolicy: '查看保单详情',
   updatePayInfo: '修改支付信息',
+  orderList: '确定',
 };
 
 const result = ref<PayResultData>({
@@ -115,11 +116,11 @@ const title = computed(() => {
 });
 
 const okText = computed(() => {
-  return isSuccess.value ? TEXT_MAP.updatePayInfo : isFail.value ? TEXT_MAP.repay : '';
+  return isSuccess.value ? TEXT_MAP.goPolicy : isFail.value ? TEXT_MAP.repay : '';
 });
 
 const cancelText = computed(() => {
-  return isSuccess.value ? TEXT_MAP.updatePayInfo : isFail.value ? TEXT_MAP.updatePayInfo : '';
+  return isSuccess.value ? TEXT_MAP.orderList : isFail.value ? TEXT_MAP.updatePayInfo : '';
 });
 const handleOk = () => {
   if (okText.value === TEXT_MAP.goPolicy) {
@@ -141,6 +142,11 @@ const handleCancel = () => {
   if (cancelText.value === TEXT_MAP.updatePayInfo) {
     router.push({
       path: PAGE_ROUTE_ENUMS.infoCollection,
+      query: route.query,
+    });
+  } else if (cancelText.value === TEXT_MAP.orderList) {
+    router.push({
+      path: PAGE_ROUTE_ENUMS.orderList,
       query: route.query,
     });
   }

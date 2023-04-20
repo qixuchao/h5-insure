@@ -1,7 +1,7 @@
 <template>
   <ProPageWrap>
     <div class="long-info-preview">
-      <InsureInfo :product-data="orderDetail.tenantOrderInsuredList?.[1]?.tenantOrderProductList?.[0]"></InsureInfo>
+      <InsureInfo :product-data="orderDetail.tenantOrderInsuredList?.[0]?.tenantOrderProductList?.[0]"></InsureInfo>
       <!-- 投保人/被保人/受益人 -->
       <PersonalInfo
         v-if="currentPlanObj?.productFactor"
@@ -255,8 +255,7 @@ const orderData2formData = () => {
       })),
     },
   }));
-
-  Object.assign(state.personalInfo, personalInfo);
+  state.personalInfo = personalInfo;
 };
 
 // 初始化数据，获取产品配置详情和产品详情
@@ -264,7 +263,7 @@ const order = reactive({
   tenantOrderPayInfoList: [],
 });
 const initData = async () => {
-  querySalesInfo({ productCode, tenantId, isTenant: !preview }).then(({ data, code }) => {
+  querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
     if (code === '10000') {
       tenantProductDetail.value = data;
       document.title = data.BASIC_INFO.title || '';

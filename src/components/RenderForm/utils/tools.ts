@@ -268,6 +268,8 @@ type ResultEnum = 'holder' | 'beneficiary' | 'payInfo' | 'signInfo';
 
 export interface PersonalInfoConf {
   hasTrialFactorCodes?: boolean;
+  /** 是否支持多被保人 */
+  multiInsuredSupportFlag: boolean;
   /** 被保人人最大个数 */
   multiInsuredMaxNum: number;
   /** 被保人最小个数 */
@@ -313,7 +315,7 @@ const handleHolderSchema = (factorsMap, config) => {
             }
           }
           // 若有次被保人，被保人最小数量为2
-          config.multiInsuredMinNum = 2;
+          // config.multiInsuredMinNum = 2;
 
           res[1].push({
             ...insuredItem,
@@ -336,6 +338,8 @@ const handleHolderSchema = (factorsMap, config) => {
 interface TransformConf {
   /** 是否过滤试算因子 */
   isTrial: boolean;
+  /** 是否支持多被保人 */
+  multiInsuredSupportFlag: number;
   /** 被保人个数 */
   multiInsuredNum: number;
   /** 受益人人个数 */
@@ -367,6 +371,8 @@ export const transformFactorToSchema = (
   const config: PersonalInfoConf = {
     /** 是否有试算因子 */
     hasTrialFactorCodes: false,
+    /** 是否支持多被保人 */
+    multiInsuredSupportFlag: conf.multiInsuredSupportFlag === YES_NO_ENUM.YES,
     /** 被保人最大数量 */
     multiInsuredMaxNum: conf.multiInsuredNum,
     /** 被保人最大数量 */

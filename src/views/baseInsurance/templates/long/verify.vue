@@ -352,7 +352,7 @@ const shareInfo = ref({
 });
 
 const initData = () => {
-  querySalesInfo({ productCode, tenantId, isTenant: !preview }).then(({ data, code }) => {
+  querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
     if (code === '10000') {
       let shareParams = {};
       if (data?.PRODUCT_LIST?.wxShareConfig) {

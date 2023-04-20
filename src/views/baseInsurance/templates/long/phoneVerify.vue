@@ -46,22 +46,9 @@ const getDetail = () => {
     saleUserId: agentCode,
     tenantId,
   }).then(({ code, data }) => {
-    Object.assign(orderDetail.value, data);
-    phone.value = data?.tenantOrderHolder?.mobile;
     if (code === '10000') {
-      if (
-        !(
-          [
-            ORDER_STATUS_ENUM.PENDING,
-            ORDER_STATUS_ENUM.PAYMENT_FAILED,
-            ORDER_STATUS_ENUM.UNDER_WRITING_SUCCESS,
-          ] as string[]
-        ).includes(data.orderStatus)
-      ) {
-        pageJump('paymentResult', route.query);
-      } else {
-        phone.value = data?.tenantOrderHolder?.mobile;
-      }
+      Object.assign(orderDetail.value, data);
+      phone.value = data?.tenantOrderHolder?.mobile;
     }
   });
 };
