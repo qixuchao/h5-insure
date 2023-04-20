@@ -53,7 +53,7 @@ import { insureProductDetail, queryStandardInsurerLink } from '@/api/modules/tri
 import { InsureLinkReq } from '@/api/modules/trial.data';
 import { PAGE_ROUTE_ENUMS, PRODUCT_LIST_ENUM } from '@/common/constants';
 import FieldInfo from '../components/fieldInfo.vue';
-import InsureInfo from './components/InsuredPart.vue';
+import InsureInfo from '../components/InsuredPart.vue';
 import pageJump from '@/utils/pageJump';
 import { TEMPLATE_TYPE_ENUM } from '@/views/baseInsurance/constant';
 
