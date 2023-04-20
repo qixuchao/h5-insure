@@ -424,7 +424,7 @@ const handleMixTrialData = debounce(async () => {
         ];
       });
     }
-    console.log('>>>数据构建<<<', JSON.stringify(state.submitData));
+    console.log('>>>数据构建<<<', state.submitData);
     const submitDataCopy = cloneDeep(state.submitData);
     state.trialMsg = LOADING_TEXT;
     state.trialResult = 0;
@@ -469,7 +469,7 @@ const handleMixTrialData = debounce(async () => {
         });
     }
   }
-}, 400);
+}, 300);
 
 const handlePersonalInfoChange = async (data) => {
   // 只有改动第一个被保人，需要调用dy接口
@@ -590,7 +590,6 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
 
 const handleTrialInfoChange = async (data: any, changeData: any) => {
   state.mainRiskVO = data;
-  console.log(':::::handleTrialInfoChange = ', data);
   // TODO 这里未来需要看一下  多倍保人的情况，回传需要加入被保人的Index或者别的key
   const dyDeal = await handleDynamicConfig(data, changeData);
   if (!dyDeal) return;
@@ -605,7 +604,6 @@ const handleProductRiskInfoChange = async (dataList: any, changeData: any) => {
   state.riskVOList = [state.mainRiskVO, ...dataList];
   console.log('附加险列表数据回传', dataList);
   if (changeData) {
-    console.log('-change data = ', changeData);
     const targetRisk = dataList.find((d) => d.riskCode === changeData.riskCode);
     const dyDeal = await handleDynamicConfig(targetRisk, changeData);
     if (!dyDeal) return;

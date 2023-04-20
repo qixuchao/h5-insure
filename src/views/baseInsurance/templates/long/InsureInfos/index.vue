@@ -88,7 +88,7 @@ onMounted(() => {
   // console.log('--------origin data = ', props.originData);
 });
 
-const handleMixData = debounce((changeValue: any) => {
+const handleMixData = (changeValue: any) => {
   if (props.originData.mainRiskFlag === 1) {
     // TODO 待确认的逻辑
     // mValues.value.mainRisk = true;
@@ -105,7 +105,7 @@ const handleMixData = debounce((changeValue: any) => {
   mValues.value.mainRiskId = props.originData.mainRiskId;
   if (changeValue) emit('trialChange', mValues.value, changeValue);
   else emit('trialChange', mValues.value);
-}, 300);
+};
 
 const handleProductKeysChange = (data, changeValue) => {
   objectKeys(data).forEach((key) => {
