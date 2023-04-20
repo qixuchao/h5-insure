@@ -261,16 +261,12 @@ watch(
     result.isFirstInsuredChange = isFirstInsuredChange;
 
     emit('update:modelValue', result);
-    console.log('---is first change= ', result);
     // 验证通过调用试算
-    console.log('state.config.hasTrialFactorCodes', state.config.hasTrialFactorCodes);
-    console.log('state.config.hasTrialFactorCodes', state.config.hasTrialFactorCodes);
     if (state.config.hasTrialFactorCodes && validateTrialFields()) {
       validate(true)
         .then(() => {
           state.validated = true;
           emit('trailChange', result);
-          console.log('----emit trial');
         })
         .catch(() => {
           state.validated = false;

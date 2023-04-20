@@ -749,7 +749,7 @@ const order = reactive({
   tenantOrderPayInfoList: [],
 });
 const initData = async () => {
-  querySalesInfo({ productCode, tenantId, isTenant: !preview }).then(({ data, code }) => {
+  querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
     if (code === '10000') {
       tenantProductDetail.value = data;
       document.title = data.BASIC_INFO.title || '';
