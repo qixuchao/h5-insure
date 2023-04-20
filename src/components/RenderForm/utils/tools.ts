@@ -268,12 +268,12 @@ type ResultEnum = 'holder' | 'beneficiary' | 'payInfo' | 'signInfo';
 
 export interface PersonalInfoConf {
   hasTrialFactorCodes?: boolean;
-  /** 被保人人个数 */
-  multiInsuredNum: number;
-  /** 是否可以添加多被保人 */
-  insuredAddable: boolean;
+  /** 被保人人最大个数 */
+  multiInsuredMaxNum: number;
+  /** 被保人最小个数 */
+  multiInsuredMinNum: number;
   /** 受益人人个数 */
-  multiBeneficiaryNum: number;
+  multiBeneficiaryMaxNum: number;
 }
 
 type FactorToSchemaResult = {
@@ -309,11 +309,16 @@ const handleHolderSchema = (factorsMap, config) => {
               isNotEmptyArray(attributeValueList) && attributeValueList.filter((attrItem) => attrItem.code === '2');
             // 若是配偶，被保人数量为2,并且不可添加
             if (isSpouse) {
-              config.multiInsuredNum = 2;
-              config.insuredAddable = false;
+              config.multiInsuredMaxNum = 2;
             }
           }
-          res[1].push(insuredItem);
+          // 若有次被保人，被保人最小数量为2
+          config.multiInsuredMinNum = 2;
+
+          res[1].push({
+            ...insuredItem,
+            isSelfInsuredNeed: !holderCodes.includes(code),
+          });
         } else {
           res[0].push({
             ...insuredItem,
@@ -334,7 +339,7 @@ interface TransformConf {
   /** 被保人个数 */
   multiInsuredNum: number;
   /** 受益人人个数 */
-  multiBeneficiaryNum: number;
+  multiBeneficiaryMaxNum: number;
 }
 
 /**
@@ -362,12 +367,12 @@ export const transformFactorToSchema = (
   const config: PersonalInfoConf = {
     /** 是否有试算因子 */
     hasTrialFactorCodes: false,
-    /** 是否可以添加被保人-配偶为false */
-    insuredAddable: true,
-    /** 被保人数量 */
-    multiInsuredNum: conf.multiInsuredNum,
+    /** 被保人最大数量 */
+    multiInsuredMaxNum: conf.multiInsuredNum,
+    /** 被保人最大数量 */
+    multiInsuredMinNum: 1,
     /** 受益人数量, 默认 5 */
-    multiBeneficiaryNum: conf.multiBeneficiaryNum || 5,
+    multiBeneficiaryMaxNum: conf.multiBeneficiaryMaxNum || 5,
   };
 
   // 是否过滤试算因子

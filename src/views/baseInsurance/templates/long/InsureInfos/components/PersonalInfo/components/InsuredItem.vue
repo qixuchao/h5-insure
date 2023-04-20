@@ -2,7 +2,7 @@
   <ProRenderFormWithCard
     ref="insuredFormRef"
     class="personal-info-card"
-    :title="'被保人信息'"
+    :title="title"
     :model="state.personVO"
     :schema="state.schema"
     :config="state.config"
@@ -59,13 +59,14 @@ import BeneficiaryItem from './BeneficiaryItem.vue';
 
 interface Props {
   modelValue: any;
+  title: string;
   holderPersonVO: object;
   schema: SchemaItem[];
   config: object;
   isView: boolean;
   isTrial: boolean;
   trialFactorCodes: string[];
-  multiBeneficiaryNum: number;
+  multiBeneficiaryMaxNum: number;
   beneficiaryList: Partial<PersonFormProps>[];
   beneficiarySchema: SchemaItem[];
 }
@@ -84,6 +85,7 @@ const initBeneficiaryItem = {
 
 const props = withDefaults(defineProps<Props>(), {
   schema: () => [],
+  title: '',
   modelValue: () => ({}),
   trialFactorCodes: () => [],
   config: () => ({}),
@@ -92,7 +94,7 @@ const props = withDefaults(defineProps<Props>(), {
   beneficiarySchema: () => [],
   isView: false,
   isTrial: false,
-  multiBeneficiaryNum: null,
+  multiBeneficiaryMaxNum: null,
 });
 
 interface StateInfo extends PersonFormProps {
@@ -148,7 +150,7 @@ const onDeleteBeneficiary = (index) => {
 
 /** 受益人是否可添加的 */
 const addible = computed(() => {
-  return props.multiBeneficiaryNum ? state.beneficiaryList.length < props.multiBeneficiaryNum : true;
+  return !props.multiBeneficiaryMaxNum || state.beneficiaryList.length < props.multiBeneficiaryMaxNum;
 });
 
 // 是否有受益人
@@ -242,8 +244,8 @@ watch(
     // 投保人id不同步到被保人
     const { id, ...holderPersonVO } = props.holderPersonVO || {};
 
-    const isSelf = personVO.relationToHolder === '1';
-    const isChild = personVO.relationToHolder === '3';
+    const isSelf = String(personVO.relationToHolder) === '1';
+    const isChild = String(personVO.relationToHolder) === '3';
     const isOnlyCertFlag = isOnlyCert(schema.find((schemaItem) => schemaItem.name === 'certType') || {});
 
     // 若只有证件类型为身份证, 隐藏证件类型，修改title为身份证号

@@ -111,9 +111,9 @@ const handleBeforeDelete = (file: string, target: { index: number }) => {
 watch(
   () => state.modelValue,
   (val) => {
-    if (formState?.formData && filedAttrs.value.name) {
-      formState.formData[filedAttrs.value.name] = val;
-    }
+    // if (formState?.formData && filedAttrs.value.name) {
+    //   formState.formData[filedAttrs.value.name] = val;
+    // }
     emits('update:modelValue', val);
   },
   {

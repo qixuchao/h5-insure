@@ -16,13 +16,16 @@
       ref="insuredFormRef"
       :key="`${insuredItem.nanoid}_${index}`"
       v-model="insuredItem.personVO"
+      :title="`${state.insured.length > 1 ? `被保人${index + 1}` : '被保人信息'}`"
       :="insuredItem"
       :holder-person-v-o="state.holder.personVO"
       :is-view="isView"
-      :multi-beneficiary-num="state.config.multiBeneficiaryNum"
+      :multi-beneficiary-num="state.config.multiBeneficiaryMaxNum"
       @update:beneficiary-list="updateBeneficiaryList($event, index)"
     >
-      <span v-if="index > 0" @click="onDeleteInsured(index)"><van-icon name="delete-o" /></span>
+      <span v-if="index + 1 > state.config.multiInsuredMinNum" @click="onDeleteInsured(index)"
+        ><van-icon name="delete-o"
+      /></span>
     </InsuredItem>
     <van-cell v-if="!isView || addible" class="add-button-wrap">
       <template #title>
@@ -36,6 +39,7 @@ import { withDefaults } from 'vue';
 import { Dialog } from 'vant';
 import { nanoid } from 'nanoid';
 import cloneDeep from 'lodash-es/cloneDeep';
+import { debounce } from 'lodash';
 import {
   type PersonalInfoConf,
   type PersonFormProps,
@@ -164,11 +168,10 @@ const onDeleteInsured = (index) => {
 
 /** 被保人是否可添加的 */
 const addible = computed(() => {
-  const { multiInsuredNum, insuredAddable } = state.config;
-  // 配偶只有两个被保人并且无法添加
-  if (!insuredAddable) return false;
-  // 其他根据数量判断
-  return multiInsuredNum ? state.insured.length < multiInsuredNum : true;
+  const { multiInsuredMaxNum } = state.config;
+
+  // 最大数量不存在则可添加，存在则根据最大数量判断
+  return !multiInsuredMaxNum || state.insured.length < multiInsuredMaxNum;
 });
 
 //
@@ -202,7 +205,7 @@ watch(
         };
       }),
   ],
-  (val) => {
+  debounce((val) => {
     colorConsole('投被保人信息变动了');
     const result = {
       holder: {
@@ -228,7 +231,7 @@ watch(
           state.validated = false;
         });
     }
-  },
+  }, 800),
   {
     deep: true,
   },
@@ -286,14 +289,25 @@ watch(
     const { holder, insuredVOList } = val[0] || {};
     Object.assign(state.holder.personVO, holder?.personVO);
     const { length } = insuredVOList || [];
-    // TODO:预览时，被保人数量多于默认数量
+    const originLen = state.insured.length;
+    // 预览时，被保人数量多于默认数量
     const flag = length > state.insured.length;
-    const currentList = length > state.insured.length ? insuredVOList : state.insured;
 
-    state.insured.forEach((insuredItem, index) => {
-      const currentInsured = insuredVOList?.[index] || {};
-      Object.assign(insuredItem.personVO, currentInsured?.personVO);
-    });
+    if (flag) {
+      state.insured = insuredVOList.map((insuredItem, index) => {
+        const { personVO } = state.insured[index] || {};
+        return {
+          ...state.initInsuredItem,
+          ...insuredItem,
+          // personVo: Object.assign(personVO || {}, insuredItem.personVO),
+        };
+      });
+    } else {
+      state.insured.forEach((insuredItem, index) => {
+        const currentInsured = insuredVOList?.[index] || {};
+        Object.assign(insuredItem.personVO, currentInsured?.personVO);
+      });
+    }
   },
   {
     deep: true,

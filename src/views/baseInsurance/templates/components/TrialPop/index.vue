@@ -733,6 +733,21 @@ watch(
     .risk2-field {
     }
 
+    :deep(.com-pro-form-with-card) {
+      .header {
+        margin-left: 0;
+      }
+    }
+
+    :deep(.add-button-wrap) {
+      margin-top: -20px;
+      padding-left: 0;
+      &::after {
+        width: 100%;
+        left: 0;
+      }
+    }
+
     // 表单样式
     :deep(.com-pro-field),
     :deep(.com-van-field) {

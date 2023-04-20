@@ -48,9 +48,9 @@ watch(
 );
 
 const onChange = (val) => {
-  if (formState?.formData && filedAttrs.value.name) {
-    formState.formData[filedAttrs.value.name] = val;
-  }
+  // if (formState?.formData && filedAttrs.value.name) {
+  //   formState.formData[filedAttrs.value.name] = val;
+  // }
   emit('update:modelValue', val);
 };
 
