@@ -15,13 +15,23 @@
         ref="insureInfosRef"
         :origin-data="mainRiskInfo"
         :product-factor="currentPlanObj.productFactor"
+        :default-value="
+          state.defaultValue
+            ? state.defaultValue?.insuredVOList?.[0]?.productPlanVOList?.[state.planIndex]?.riskVOList?.[0]
+            : null
+        "
         @trial-change="handleTrialInfoChange"
       ></InsureInfos>
       <!-- 以下是附加险种信息 -->
       <ProductRiskList
+        v-if="currentPlanObj.insureProductRiskVOList"
         :data-source="currentPlanObj"
         :show-main-risk="false"
-        :default-value="state.defaultValue ? state.defaultValue?.insuredVOList?.[0]?.productPlanVOList : []"
+        :default-value="
+          state.defaultValue
+            ? state.defaultValue?.insuredVOList?.[0]?.productPlanVOList?.[state.planIndex]?.riskVOList || []
+            : []
+        "
         @trial-change="handleProductRiskInfoChange"
       ></ProductRiskList>
       <PayInfo
@@ -46,7 +56,7 @@
         :premium="trialResult"
         :share-info="shareInfo"
         :loading-text="trialMsg"
-        :payment-frequency="1"
+        :payment-frequency="riskVOList?.[0]?.paymentFrequency"
         :tenant-product-detail="tenantProductDetail"
         :handle-share="handleShare"
         @handle-click="onNext"
@@ -81,6 +91,7 @@ import {
   getTenantOrderDetail,
   underWriteRule,
   queryCalcDynamicInsureFactor,
+  queryCalcDefaultInsureFactor,
 } from '@/api/modules/trial';
 import InsureInfos from './InsureInfos/index.vue';
 import ProductRiskList from './ProductRiskList/index.vue';
@@ -265,6 +276,43 @@ const handleSameMainRisk = (data: any) => {
 const premium = ref<number>(0);
 const premiumMap = ref<any>({}); // 试算后保费
 
+const transformDefaultData = (defaultData: any) => {
+  state.userData = defaultData;
+  state.defaultValue = defaultData;
+  state.planIndex = defaultData.insuredVOList[0].productPlanVOList.findIndex(
+    (p) => p.planCode === currentPlanObj.value.planCode,
+  );
+  console.log('-----data = ', state.defaultValue?.insuredVOList[0].productPlanVOList[0]);
+  // state.userData = {
+  //   holder: null,
+  //   insuredVOList: [
+  //     {
+  //       personVO: {
+  //         gender: 2,
+  //         birthday: '1988-08-27',
+  //       },
+  //     },
+  //   ],
+  // };
+};
+
+const fetchDefaultData = async (changes: []) => {
+  // TODO 加loading
+  const result = await queryCalcDefaultInsureFactor({
+    calcProductFactorList: [
+      {
+        planCode: currentPlanObj.value.planCode,
+        productCode,
+      },
+    ],
+  });
+  if (result.data) transformDefaultData(result.data.find((d) => d.productCode === productCode));
+  // }
+  //  else {
+  //   transformDefaultData(props.defaultData.find((d) => d.productCode === props.productInfo.productCode));
+  // }
+};
+
 const handleMixTrialData = debounce(() => {
   if (ifPersonalInfoSuccess.value) {
     submitData.value.productCode = productCode;
@@ -322,6 +370,7 @@ const handleMixTrialData = debounce(() => {
 }, 300);
 const DYNAMIC_FACTOR_PARAMS = ['annuityDrawDate', 'coveragePeriod', 'chargePeriod'];
 const handleDealDyResult = (dyResult: any) => {
+  console.log('handleDealDyResult', dyResult);
   if (dyResult?.data?.[0]?.productRiskDyInsureFactorVOList) {
     const defaultRiskData = [];
     currentPlanObj.value?.insureProductRiskVOList.forEach((risk) => {
@@ -332,7 +381,7 @@ const handleDealDyResult = (dyResult: any) => {
           ...newRisk,
         };
         const riskTrialData = riskVOList.value.find((l) => l.riskCode === risk.riskCode);
-        let change = false;
+        let change = true;
         PRODUCT_KEYS_CONFIG.forEach((config) => {
           if (DYNAMIC_FACTOR_PARAMS.indexOf(config.valueKey) >= 0) {
             const configData = risk.productRiskInsureLimitVO[config.configKey];
@@ -356,6 +405,7 @@ const handleDealDyResult = (dyResult: any) => {
         }
       }
     });
+    console.log('默认值', defaultRiskData.length, state.defaultValue);
     if (defaultRiskData.length > 0 && state.defaultValue?.insuredVOList?.[0]?.productPlanVOList) {
       // 给默认值
       defaultRiskData.forEach((data) => {
@@ -374,12 +424,13 @@ const handleDealDyResult = (dyResult: any) => {
 };
 
 const handlePersonalInfoChange = async (data) => {
+  console.log('data', data);
   const { holder, insuredVOList, isFirstInsuredChange } = data;
   if (holder) {
     // submitData.value.holder.personVO = holder;
     submitData.value.holder = {
       personVO: {
-        ...holder,
+        ...holder.personVO,
         socialFlag: holder.hasSocialInsurance,
       },
     };
@@ -393,14 +444,13 @@ const handlePersonalInfoChange = async (data) => {
         };
       } else {
         // new
-        submitData.value.insuredVOList = [
-          {
-            personVO: {
-              ...ins.personVO,
-              socialFlag: ins.personVO.hasSocialInsurance,
-            },
+        if (!submitData.value?.insuredVOList) submitData.value.insuredVOList = [];
+        submitData.value.insuredVOList.push({
+          personVO: {
+            ...ins.personVO,
+            socialFlag: ins.personVO.hasSocialInsurance,
           },
-        ];
+        });
       }
     });
   }
@@ -420,7 +470,7 @@ const handlePersonalInfoChange = async (data) => {
           ],
         },
       ],
-      ...insuredVOList[0].personVO,
+      ...insuredVOList?.[0]?.personVO,
     });
     if (!handleDealDyResult(dyResult)) return;
   }
@@ -497,9 +547,6 @@ const handleTrialInfoChange = async (data: any, changeData) => {
   const dyDeal = await handleDynamicConfig(data, changeData);
   if (!dyDeal) return;
   if (riskVOList.value.length > 0) {
-    riskVOList.value[0] = data;
-  }
-  if (riskVOList.value.length) {
     riskVOList.value[0] = data;
   }
   console.log('标准险种的信息回传', data);
@@ -754,6 +801,8 @@ const initData = async () => {
         ...state.payInfo,
         ...payInfo,
       };
+
+      fetchDefaultData([]);
     }
   });
 };

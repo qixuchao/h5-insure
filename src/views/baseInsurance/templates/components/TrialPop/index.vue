@@ -1,9 +1,9 @@
 <template>
   <div v-if="!hidePopupButton" :class="`trial-button ${$attrs.class}`">
     <TrialButton
-      :is-share="shareInfo.isShare"
+      :is-share="currentShareInfo.isShare"
       :premium="state.trialResult"
-      :share-info="shareInfo"
+      :share-info="currentShareInfo"
       :loading-text="state.trialMsg"
       :plan-code="props.dataSource.planCode"
       :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
@@ -71,13 +71,14 @@
       </div>
       <slot :trial-data="state.submitData" :risk-premium="premiumMap">
         <TrialButton
-          :is-share="shareInfo.isShare"
+          :is-share="currentShareInfo.isShare"
           :premium="state.trialResult"
-          :share-info="shareInfo"
+          :share-info="currentShareInfo"
           :loading-text="state.trialMsg"
           :plan-code="props.dataSource.planCode"
           :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
           :tenant-product-detail="tenantProductDetail"
+          :handle-share="onShare"
           @handle-click="onNext"
           >立即投保</TrialButton
         >
@@ -183,6 +184,7 @@ const state = reactive({
 
 const orderDetail = useOrder();
 const iseeBizNo = ref<string>();
+const currentShareInfo = ref<any>();
 
 const trialData2Order = (
   currentProductDetail: ProductData = {} as ProductData,
@@ -235,27 +237,53 @@ const trialData2Order = (
 };
 const premiumMap = ref();
 const onNext = () => {
-  // 验证
-  insureInfosRef.value?.validate().then(() => {
-    Object.assign(orderDetail.value, {
-      extInfo: {
-        ...orderDetail.value.extInfo,
-        buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
-        pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
-        templateId,
-      },
+  if (state.trialResult) {
+    // 验证
+    insureInfosRef.value?.validate().then(() => {
+      Object.assign(orderDetail.value, {
+        extInfo: {
+          ...orderDetail.value.extInfo,
+          buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
+          pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
+          templateId,
+        },
+      });
+      const currentOrderDetail = trialData2Order(props.productInfo, premiumMap.value, orderDetail.value);
+      nextStep(currentOrderDetail, (data, pageAction) => {
+        if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+          pageJump(data.nextPageCode, { ...route.query, orderNo: data.orderNo });
+        }
+      });
+      console.log('---- validate success ----');
     });
-    const currentOrderDetail = trialData2Order(props.productInfo, premiumMap.value, orderDetail.value);
-    nextStep(currentOrderDetail, (data, pageAction) => {
-      if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-        pageJump(data.nextPageCode, { ...route.query, orderNo: data.orderNo });
-      }
+    state.loading = false;
+    state.show = true;
+    state.isAniShow = true;
+  }
+};
+
+const onShare = (cb) => {
+  if (state.trialResult) {
+    // 验证
+    insureInfosRef.value?.validate().then(() => {
+      Object.assign(orderDetail.value, {
+        extInfo: {
+          ...orderDetail.value.extInfo,
+          buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
+          pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
+          templateId,
+        },
+      });
+      const currentOrderDetail = trialData2Order(props.productInfo, premiumMap.value, orderDetail.value);
+      nextStep(currentOrderDetail, (data, pageAction) => {
+        if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+          currentShareInfo.value.link = `${window.location.href}&isShare=1&orderNo=${data.orderNo}`;
+          cb();
+        }
+      });
+      console.log('---- validate success ----');
     });
-    console.log('---- validate success ----');
-  });
-  state.loading = false;
-  state.show = true;
-  state.isAniShow = true;
+  }
 };
 
 const onClosePopup = () => {
@@ -396,7 +424,7 @@ const handleMixTrialData = debounce(async () => {
         ];
       });
     }
-    console.log('>>>数据构建<<<', JSON.stringify(state.submitData));
+    console.log('>>>数据构建<<<', state.submitData);
     const submitDataCopy = cloneDeep(state.submitData);
     state.trialMsg = LOADING_TEXT;
     state.trialResult = 0;
@@ -441,7 +469,7 @@ const handleMixTrialData = debounce(async () => {
         });
     }
   }
-}, 400);
+}, 300);
 
 const handlePersonalInfoChange = async (data) => {
   // 只有改动第一个被保人，需要调用dy接口
@@ -562,7 +590,6 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
 
 const handleTrialInfoChange = async (data: any, changeData: any) => {
   state.mainRiskVO = data;
-  console.log(':::::handleTrialInfoChange = ', data);
   // TODO 这里未来需要看一下  多倍保人的情况，回传需要加入被保人的Index或者别的key
   const dyDeal = await handleDynamicConfig(data, changeData);
   if (!dyDeal) return;
@@ -577,7 +604,6 @@ const handleProductRiskInfoChange = async (dataList: any, changeData: any) => {
   state.riskVOList = [state.mainRiskVO, ...dataList];
   console.log('附加险列表数据回传', dataList);
   if (changeData) {
-    console.log('-change data = ', changeData);
     const targetRisk = dataList.find((d) => d.riskCode === changeData.riskCode);
     const dyDeal = await handleDynamicConfig(targetRisk, changeData);
     if (!dyDeal) return;
@@ -672,6 +698,17 @@ watch(
   () => state.riskIsInsure,
   (v) => {},
   { deep: true, immediate: true },
+);
+
+watch(
+  () => props.shareInfo,
+  () => {
+    currentShareInfo.value = props.shareInfo;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
 );
 </script>
 

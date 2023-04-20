@@ -182,7 +182,7 @@ const shareInfo = ref({
   imgUrl: '',
   desc: '',
   title: '',
-  link: window.location.href,
+  link: `${window.location.href}&isShare=1`,
   isShare: false,
 });
 
