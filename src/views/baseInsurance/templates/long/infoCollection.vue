@@ -785,8 +785,8 @@ watch(
 .long-info-collection {
   padding-bottom: 150px;
   background-color: #f2f5fc;
-
   .com-risk-liabilityinfo {
+    background-color: #fff;
     padding: 0 30px;
     background: #ffffff;
   }

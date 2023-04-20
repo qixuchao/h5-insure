@@ -162,14 +162,13 @@ const isSpecifyBeneficiary = computed(() => state.personVO?.insuredBeneficiaryTy
 /** 验证试算因子是否全部有值 */
 const validateTrialFields = () => {
   /** 受益人没有试算因子，先留这个位置 */
-  const flag = !hasBeneficiarySchema.value || beneficiaryFormRef.value?.every((item) => item.validateTrialFields());
-  return (
-    flag &&
-    validateFields({
-      personVO: state.personVO,
-      trialFactorCodes: props.trialFactorCodes,
-    })
-  );
+  // const flag =
+  //   (!hasBeneficiarySchema.value && !beneficiaryFormRef.value) ||
+  //   beneficiaryFormRef.value?.every((item) => item.validateTrialFields());
+  return validateFields({
+    personVO: state.personVO,
+    trialFactorCodes: props.trialFactorCodes,
+  });
 };
 
 // 监听投保人信息
