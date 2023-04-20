@@ -38,6 +38,9 @@ import useStore from '@/store/app';
 import pageJump from '@/utils/pageJump';
 import sideNavImage from '@/assets/images/component/sidenav.png';
 import useTheme from '@/hooks/useTheme';
+import { useSessionStorage } from '@/hooks/useStorage';
+
+const storage = useSessionStorage();
 
 const themeVar = useTheme();
 const store = useStore();
@@ -92,6 +95,8 @@ onMounted(() => {
   getTemplateInfo({ templateId }).then((res) => {
     const { code, data } = res;
     if (code === '10000' && data) {
+      const pageCodeList = data.templatePageList.map((item) => item.pageCode);
+      storage.set('TEMPLATE_LIST', pageCodeList);
       list.value = (data.templatePageList || []).filter((item) => item.pageCode !== 'trial');
     }
   });

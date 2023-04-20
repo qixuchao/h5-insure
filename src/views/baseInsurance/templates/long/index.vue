@@ -109,6 +109,7 @@ import useAttachment from '@/hooks/useAttachment';
 import { getFileType } from '@/views/baseInsurance/utils';
 import TrialPop from '../components/TrialPop/index.vue';
 import InsureLimit from '../components/InsureLimit/index.vue';
+import { orderData2trialData } from '../utils';
 // const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const InscribedContent = defineAsyncComponent(() => import('../components/InscribedContent/index.vue'));
@@ -234,6 +235,7 @@ const queryProductMaterialData = () => {
 
 // 初始化数据，获取产品配置详情和产品详情
 const orderDetail = ref<any>();
+const trialDefaultData = ref<any>();
 const initData = async () => {
   !trialPreviewMode.value &&
     querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
@@ -253,6 +255,7 @@ const initData = async () => {
     getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         orderDetail.value = data;
+        trialDefaultData.value = orderData2trialData(data, currentPlanObj.value?.planCode);
       }
     });
 

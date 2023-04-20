@@ -37,7 +37,7 @@
       <PayInfo
         v-if="state.payInfo.schema.length"
         ref="payInfoRef"
-        v-model="order.tenantOrderPayInfoList"
+        v-model="orderDetail.tenantOrderPayInfoList"
         :schema="state.payInfo.schema"
         :is-view="state.isView"
       ></PayInfo>
@@ -117,7 +117,8 @@ import {
   PAGE_ACTION_TYPE_ENUM,
   YES_NO_ENUM,
 } from '@/common/constants';
-import { formData2Order } from '../utils';
+import { formData2Order, orderData2trialData } from '../utils';
+import { jumpToNextPage } from '@/utils';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
@@ -322,13 +323,19 @@ const handleMixTrialData = debounce(() => {
       return handleSameMainRisk(trialRisk);
     });
     //  这里目前只有一个被保人，所以直接index0，后面需要用被保人code来区分
-    submitData.value.insuredVOList[0].productPlanVOList = [
-      {
-        insurerCode,
-        planCode: currentPlanObj.value?.planCode,
-        riskVOList: riskVOList.value,
-      },
-    ];
+    submitData.value.insuredVOList = submitData.value.insuredVOList.map((insured) => {
+      return {
+        personVO: insured.personVO,
+        productPlanVOList: [
+          {
+            insurerCode,
+            planCode: currentPlanObj.value?.planCode,
+            riskVOList: riskVOList.value,
+          },
+        ],
+      };
+    });
+
     console.log('>>>数据构建<<<', submitData.value);
     trialMsg.value = LOADING_TEXT;
     trialResult.value = 0;
@@ -424,7 +431,6 @@ const handleDealDyResult = (dyResult: any) => {
 };
 
 const handlePersonalInfoChange = async (data) => {
-  console.log('data', data);
   const { holder, insuredVOList, isFirstInsuredChange } = data;
   if (holder) {
     // submitData.value.holder.personVO = holder;
@@ -639,12 +645,16 @@ const updateAttachment = (orderData) => {
 };
 
 const onNext = async () => {
+  if (preview) {
+    jumpToNextPage(PAGE_CODE_ENUMS.INFO_COLLECTION, route.query);
+    return;
+  }
   if (!isAgree.value) {
     Toast('请勾选投保人阅读并接受');
     return;
   }
 
-  Promise.all([personalInfoRef.value?.validate(false), payInfoRef.value]).then(() => {
+  Promise.all([personalInfoRef.value?.validate(false), payInfoRef.value?.validate?.()]).then(() => {
     Object.assign(orderDetail.value, {
       extInfo: {
         ...orderDetail.value.extInfo,
@@ -656,6 +666,7 @@ const onNext = async () => {
 
     nextStep(currentOrderDetail, (data, pageAction) => {
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+        console.log('12313');
         pageJump(data.nextPageCode, route.query);
       }
     });
@@ -769,26 +780,27 @@ const initData = async () => {
     }
   });
 
-  getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
-    if (code === '10000') {
-      order.tenantOrderPayInfoList = data.tenantOrderPayInfoList;
-      trialResult.value = data.orderAmount;
-      Object.assign(orderDetail.value, data, {
-        tenantOrderPayInfoList: data.tenantOrderPayInfoList || [],
-        operateOption: {
-          withBeneficiaryInfo: true,
-          withHolderInfo: true,
-          withInsuredInfo: true,
-          withAttachmentInfo: true,
-          withProductInfo: true,
-          withPayInfo: true,
-        },
-      });
+  orderNo &&
+    getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
+      if (code === '10000') {
+        trialResult.value = data.orderAmount;
+        Object.assign(orderDetail.value, data, {
+          tenantOrderPayInfoList: data.tenantOrderPayInfoList || [],
+          operateOption: {
+            withBeneficiaryInfo: true,
+            withHolderInfo: true,
+            withInsuredInfo: true,
+            withAttachmentInfo: true,
+            withProductInfo: true,
+            withPayInfo: true,
+          },
+        });
 
-      orderData2formData();
-      isLoading.value = true;
-    }
-  });
+        orderData2formData();
+
+        isLoading.value = true;
+      }
+    });
 
   queryProductMaterialData();
 

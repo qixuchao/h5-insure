@@ -128,7 +128,7 @@ const validateTrialFields = () => {
 // 验证表单必填
 const validate = (isTrial) => {
   return Promise.all([
-    ...(insuredFormRef.value?.map((item) => item.validate()) || []),
+    ...(insuredFormRef.value?.map((item) => item.validate(isTrial)) || []),
     validateForm(holderFormRef, state.holder.trialFactorCodes, isTrial),
   ]);
 };

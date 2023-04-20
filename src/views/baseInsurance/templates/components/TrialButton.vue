@@ -1,7 +1,7 @@
 <template>
   <div class="trial-button-wrap">
     <div class="footer-area">
-      <div v-if="isShare" class="com-share" @click="onShare">
+      <div v-if="isShare && isApp" class="com-share" @click="onShare">
         <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
         <span>分享</span>
       </div>

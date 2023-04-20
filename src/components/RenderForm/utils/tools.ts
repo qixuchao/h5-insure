@@ -87,7 +87,7 @@ export const validateForm = (formRef, trialFactorCodes, isTrial) => {
   if (isTrial && !isNotEmptyArray(trialFactorCodes)) {
     return Promise.resolve();
   }
-  return formRef.value?.validate(isTrial ? trialFactorCodes : []);
+  return formRef.value?.validate(isTrial ? trialFactorCodes : undefined);
 };
 
 /**

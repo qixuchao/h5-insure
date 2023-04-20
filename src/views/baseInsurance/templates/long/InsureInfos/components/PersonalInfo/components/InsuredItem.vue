@@ -123,7 +123,7 @@ const state = reactive<Partial<StateInfo>>({
 // 验证表单必填
 const validate = (isTrial) => {
   return Promise.all([
-    ...(beneficiaryFormRef.value?.map((item) => item.validate()) || []),
+    ...(beneficiaryFormRef.value?.map((item) => item.validate(isTrial)) || []),
     validateForm(insuredFormRef, props.trialFactorCodes, isTrial),
   ]);
 };

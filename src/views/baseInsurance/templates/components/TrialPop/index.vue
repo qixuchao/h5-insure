@@ -118,6 +118,7 @@ import { transformData } from '@/views/baseInsurance/utils';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from '../../long/constants';
 import { nextStepOperate as nextStep } from '../../../nextStep';
 import pageJump from '@/utils/pageJump';
+import { jumpToNextPage } from '@/utils';
 
 const RISK_SELECT = [
   { value: 1, label: '投保' },
@@ -237,10 +238,10 @@ const trialData2Order = (
 };
 const premiumMap = ref();
 const onNext = () => {
-  // if (preview) {
-  //   pageJump(data.nextPageCode, route.query);
-  //   return
-  // }
+  if (preview) {
+    jumpToNextPage(PAGE_CODE_ENUMS.TRIAL_PREMIUM, route.query);
+    return;
+  }
   if (state.trialResult) {
     // 验证
     insureInfosRef.value?.validate().then(() => {
