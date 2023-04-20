@@ -1,9 +1,9 @@
 <template>
   <div v-if="!hidePopupButton" :class="`trial-button ${$attrs.class}`">
     <TrialButton
-      :is-share="shareInfo.isShare"
+      :is-share="currentShareInfo.isShare"
       :premium="state.trialResult"
-      :share-info="shareInfo"
+      :share-info="currentShareInfo"
       :loading-text="state.trialMsg"
       :plan-code="props.dataSource.planCode"
       :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
@@ -71,13 +71,14 @@
       </div>
       <slot :trial-data="state.submitData" :risk-premium="premiumMap">
         <TrialButton
-          :is-share="shareInfo.isShare"
+          :is-share="currentShareInfo.isShare"
           :premium="state.trialResult"
-          :share-info="shareInfo"
+          :share-info="currentShareInfo"
           :loading-text="state.trialMsg"
           :plan-code="props.dataSource.planCode"
           :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
           :tenant-product-detail="tenantProductDetail"
+          :handle-share="onShare"
           @handle-click="onNext"
           >立即投保</TrialButton
         >
@@ -183,6 +184,7 @@ const state = reactive({
 
 const orderDetail = useOrder();
 const iseeBizNo = ref<string>();
+const currentShareInfo = ref<any>();
 
 const trialData2Order = (
   currentProductDetail: ProductData = {} as ProductData,
@@ -235,27 +237,53 @@ const trialData2Order = (
 };
 const premiumMap = ref();
 const onNext = () => {
-  // 验证
-  insureInfosRef.value?.validate().then(() => {
-    Object.assign(orderDetail.value, {
-      extInfo: {
-        ...orderDetail.value.extInfo,
-        buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
-        pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
-        templateId,
-      },
+  if (state.trialResult) {
+    // 验证
+    insureInfosRef.value?.validate().then(() => {
+      Object.assign(orderDetail.value, {
+        extInfo: {
+          ...orderDetail.value.extInfo,
+          buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
+          pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
+          templateId,
+        },
+      });
+      const currentOrderDetail = trialData2Order(props.productInfo, premiumMap.value, orderDetail.value);
+      nextStep(currentOrderDetail, (data, pageAction) => {
+        if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+          pageJump(data.nextPageCode, { ...route.query, orderNo: data.orderNo });
+        }
+      });
+      console.log('---- validate success ----');
     });
-    const currentOrderDetail = trialData2Order(props.productInfo, premiumMap.value, orderDetail.value);
-    nextStep(currentOrderDetail, (data, pageAction) => {
-      if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-        pageJump(data.nextPageCode, { ...route.query, orderNo: data.orderNo });
-      }
+    state.loading = false;
+    state.show = true;
+    state.isAniShow = true;
+  }
+};
+
+const onShare = (cb) => {
+  if (state.trialResult) {
+    // 验证
+    insureInfosRef.value?.validate().then(() => {
+      Object.assign(orderDetail.value, {
+        extInfo: {
+          ...orderDetail.value.extInfo,
+          buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
+          pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
+          templateId,
+        },
+      });
+      const currentOrderDetail = trialData2Order(props.productInfo, premiumMap.value, orderDetail.value);
+      nextStep(currentOrderDetail, (data, pageAction) => {
+        if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+          currentShareInfo.value.link = `${window.location.href}&isShare=1&orderNo=${data.orderNo}`;
+          cb();
+        }
+      });
+      console.log('---- validate success ----');
     });
-    console.log('---- validate success ----');
-  });
-  state.loading = false;
-  state.show = true;
-  state.isAniShow = true;
+  }
 };
 
 const onClosePopup = () => {
@@ -672,6 +700,17 @@ watch(
   () => state.riskIsInsure,
   (v) => {},
   { deep: true, immediate: true },
+);
+
+watch(
+  () => props.shareInfo,
+  () => {
+    currentShareInfo.value = props.shareInfo;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
 );
 </script>
 

@@ -47,7 +47,6 @@ const props = withDefaults(defineProps<Props>(), {
   paymentFrequency: '',
   shareInfo: () => ({}),
   isShare: false,
-  handleShare: () => {},
 });
 
 const emits = defineEmits(['handleClick']);
@@ -58,7 +57,6 @@ const isApp = isAppFkq();
 
 const shareRef = ref<InstanceType<typeof ProShare>>();
 const onShare = () => {
-  console.log('323424');
   if (props.handleShare) {
     props.handleShare(() => shareRef.value.handleShare());
     return;
