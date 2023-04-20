@@ -88,6 +88,7 @@ export interface NextStepRequestData {
   tenantOrderInsuredList: Array<Partial<TenantOrderInsuredItem>>;
   tenantOrderNoticeList: TenantOrderNoticeItem[];
   tenantOrderPayInfoList: TenantOrderPayInfoItem[];
+  tenantOrderPaymentInfoList: { payTime: string; paymentMethod: string; paymentResultDesc: string }[];
   tenantOrderSubjectList: Array<Partial<TenantOrderSubjectItem>>
   thirdOrderNo: string;
   thirdOrderNoType: number;
