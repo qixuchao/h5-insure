@@ -8,7 +8,7 @@
       :plan-code="props.dataSource.planCode"
       :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
       :tenant-product-detail="tenantProductDetail"
-      @click="open"
+      @handle-click="open"
       >立即投保</TrialButton
     >
   </div>
@@ -78,7 +78,7 @@
           :plan-code="props.dataSource.planCode"
           :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
           :tenant-product-detail="tenantProductDetail"
-          @click="onNext"
+          @handle-click="onNext"
           >立即投保</TrialButton
         >
       </slot>
@@ -194,10 +194,13 @@ const trialData2Order = (
     holder: state.submitData.holder?.personVO,
     insuredList: (state.submitData.insuredVOList || []).map((person) => person.personVO),
   });
-
+  console.log('tenantOrderHolder', tenantOrderHolder);
+  console.log('tenantOrderInsuredList', tenantOrderInsuredList);
+  const riskList = state.submitData.insuredVOList.map((person) => person.productPlanVOList?.[0]?.riskVOList).flat();
+  console.log('riskList', riskList);
   const transformDataReq = {
     tenantId,
-    riskList: nextStepParams.tenantOrderInsuredList[0]?.tenantOrderProductList[0].riskVOList || [],
+    riskList,
     riskPremium,
     productId: currentProductDetail.id,
   };
@@ -227,6 +230,7 @@ const trialData2Order = (
       ],
     };
   });
+  console.log('nextStepParams', nextStepParams);
   return nextStepParams;
 };
 const premiumMap = ref();

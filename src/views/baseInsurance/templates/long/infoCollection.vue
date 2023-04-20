@@ -42,11 +42,11 @@
         />
       </ProLazyComponent>
       <TrialButton
-        :is-share="false"
+        :is-share="shareInfo.isShare && !isShare"
         :premium="trialResult"
         :share-info="shareInfo"
         :loading-text="trialMsg"
-        payment-frequency="1"
+        :payment-frequency="1"
         :tenant-product-detail="tenantProductDetail"
         :handle-share="handleShare"
         @handle-click="onNext"
@@ -99,7 +99,13 @@ import { PersonalInfo } from './InsureInfos/components';
 import { PRODUCT_KEYS_CONFIG } from './InsureInfos/components/ProductKeys/config';
 import { dealExemptPeriod } from '../components/TrialPop/utils';
 import { SUCCESS_CODE } from '@/api/code';
-import { CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
+import {
+  ATTACHMENT_CATEGORY_ENUM,
+  ATTACHMENT_OBJECT_TYPE_ENUM,
+  CERT_TYPE_ENUM,
+  PAGE_ACTION_TYPE_ENUM,
+  YES_NO_ENUM,
+} from '@/common/constants';
 import { formData2Order } from '../utils';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
@@ -512,24 +518,6 @@ const handleProductRiskInfoChange = async (dataList: any, changeData) => {
   handleMixTrialData();
 };
 
-// 分享时需要校验投保人手机号并且保存数据
-const handleShare = () => {
-  return new Promise((resolve, reject) => {
-    if (state.personalInfo?.personVO?.mobile) {
-      Toast('请录入投保人手机号后进行分享');
-      reject();
-      return;
-    }
-    nextStep(orderDetail.value, (data, pageAction) => {
-      if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-        resolve(true);
-      } else {
-        reject();
-      }
-    });
-  });
-};
-
 // 试算参数转化为生成订单参数
 const trialData2Order = (
   currentProductDetail: ProductData = {} as ProductData,
@@ -538,8 +526,8 @@ const trialData2Order = (
 ) => {
   const nextStepParams: any = { ...currentOrderDetail };
   const { tenantOrderHolder, tenantOrderInsuredList } = formData2Order({
-    holder: submitData.value.holder?.personVO.personVO,
-    insuredList: (submitData.value.insuredVOList || []).map((person) => person.personVO),
+    holder: state.personalInfo.holder?.personVO,
+    insuredList: (state.personalInfo.insuredVOList || []).map((person) => person.personVO),
   });
 
   const transformDataReq = {
@@ -577,6 +565,32 @@ const trialData2Order = (
   return nextStepParams;
 };
 
+const updateAttachment = (orderData) => {
+  const { tenantOrderHolder, tenantOrderInsuredList, tenantOrderAttachmentList } = orderData;
+  const currentAttachmentList = [...tenantOrderAttachmentList];
+  // const attachmentObj = {
+  //   category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_CERT,
+  //   objectType: ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER,
+  //   objectId: formInfo.value.tenantOrderHolder.id,
+  //   name: '投保人证件正面',
+  //   uri: holderImages.value[0],
+  //   id: holderImagesId.value[0],
+  // };
+
+  const { certImage } = tenantOrderHolder.extInfo;
+  tenantOrderInsuredList.forEach((insured) => {
+    if (insured.extInfo.certImage) {
+      // currentAttachmentList.forEach((attachment) => {
+      //   if (attachment.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.INSURED) {
+      //     if (attachment.objectId === insured.id) {
+      //       attachment.uri = certImage?.[0];
+      //     }
+      //   }
+      // });
+    }
+  });
+};
+
 const onNext = async () => {
   if (!isAgree.value) {
     Toast('请勾选投保人阅读并接受');
@@ -592,6 +606,7 @@ const onNext = async () => {
       },
     });
     const currentOrderDetail = trialData2Order(insureProductDetail.value, premiumMap.value, orderDetail.value);
+
     nextStep(currentOrderDetail, (data, pageAction) => {
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
         pageJump(data.nextPageCode, route.query);
@@ -600,8 +615,32 @@ const onNext = async () => {
   });
 };
 
-/* -------产品资料模块------------ */
+// 分享时需要校验投保人手机号并且保存数据
+const handleShare = (cb) => {
+  personalInfoRef.value
+    .validateHolder('mobile')
+    .then(() => {
+      Object.assign(orderDetail.value, {
+        extInfo: {
+          ...orderDetail.value.extInfo,
+          buttonCode: BUTTON_CODE_ENUMS.INFO_COLLECTION,
+          pageCode: PAGE_CODE_ENUMS.INFO_COLLECTION,
+        },
+      });
+      const currentOrderDetail = trialData2Order(insureProductDetail.value, premiumMap.value, orderDetail.value);
 
+      nextStep(currentOrderDetail, (data, pageAction) => {
+        if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+          cb?.();
+        }
+      });
+    })
+    .catch(() => {
+      Toast('请录入投保人手机号后进行分享');
+    });
+};
+
+/* -------产品资料模块------------ */
 const queryProductMaterialData = () => {
   queryProductMaterial({ productCode }).then(({ code, data }) => {
     if (code === '10000') {
@@ -686,6 +725,7 @@ const initData = async () => {
   getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       order.tenantOrderPayInfoList = data.tenantOrderPayInfoList;
+      trialResult.value = data.orderAmount;
       Object.assign(orderDetail.value, data, {
         tenantOrderPayInfoList: data.tenantOrderPayInfoList || [],
         operateOption: {
@@ -748,6 +788,7 @@ watch(
 
   .com-risk-liabilityinfo {
     padding: 0 30px;
+    background: #ffffff;
   }
 }
 </style>
