@@ -392,13 +392,14 @@ const handleMixTrialData = debounce(async () => {
         ];
       });
     }
-    console.log('>>>数据构建<<<', state.submitData);
+    console.log('>>>数据构建<<<', JSON.stringify(state.submitData));
+    const submitDataCopy = cloneDeep(state.submitData);
     state.trialMsg = LOADING_TEXT;
     state.trialResult = 0;
     state.loading = true;
-    const { code } = await underWriteRule(state.submitData);
+    const { code } = await underWriteRule(submitDataCopy);
     if (code === '10000') {
-      premiumCalc(state.submitData)
+      premiumCalc(submitDataCopy)
         .then((res) => {
           // benefitData.value = res.data;
           // console.log('----res =', res);
@@ -426,7 +427,7 @@ const handleMixTrialData = debounce(async () => {
           state.loading = false;
           // state.trialMsg = '000';
         });
-      benefitCalc(state.submitData)
+      benefitCalc(submitDataCopy)
         .then((res) => {
           // 利益演示接口
           if (res.data && res.code === SUCCESS_CODE) benefitData.value = res.data;
