@@ -688,7 +688,7 @@ onMounted(() => {
 watch(
   () => state.show,
   (v) => {
-    if (v) {
+    if (v && !props.defaultData) {
       // 每个附加险的投保不投保状态重置
       handleRestState();
       handleSetRiskSelect();

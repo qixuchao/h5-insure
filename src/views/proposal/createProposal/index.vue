@@ -365,10 +365,15 @@ const onFinished = (productInfo: PlanTrialData) => {
   const currentIndex = stateInfo.proposalInsuredProductList.findIndex(
     (productItem) => productItem.productCode === productInfo.productCode,
   );
+  // 投保人
+  Object.assign(stateInfo.proposalHolder, productInfo.proposalHolder);
+  // 被保人
+  Object.assign(stateInfo.insuredPersonVO, productInfo.insuredPersonVO);
   const tempData = {
     ...productInfo.insuredProductInfo,
     nanoid: nanoid(),
   };
+
   if (currentIndex > -1) {
     const currentProductItem = stateInfo.proposalInsuredProductList[currentIndex];
     const { proposalProductRiskList } = tempData;
@@ -487,7 +492,7 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
         // 初次调用
         if (flag) {
           Object.assign(stateInfo.insuredPersonVO, personVO);
-          Object.assign(stateInfo.proposalHolder, holder);
+          Object.assign(stateInfo.proposalHolder, holder?.persionVo);
 
           stateInfo.proposalInsuredProductList = [tempData];
         } else {
@@ -554,6 +559,9 @@ const convertProposalToTrialData = (productCode) => {
   const currentProductItem = stateInfo.proposalInsuredProductList.find((item) => item.productCode === productCode);
 
   return {
+    holder: {
+      personVO: stateInfo.proposalHolder,
+    },
     insuredVOList: [
       {
         personVO: stateInfo.insuredPersonVO,
