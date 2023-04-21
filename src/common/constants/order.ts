@@ -158,6 +158,10 @@ export const ORDER_STATUS_LIST = [
     value: ORDER_STATUS_ENUM.INSURANCE_PROCESSING,
     label: '保司处理中',
   },
+  {
+    value: ORDER_STATUS_ENUM.IN_IDENTIFICATION,
+    label: '认证中',
+  },
 ];
 
 export const ORDER_STATUS_MAP = constantListToMap(ORDER_STATUS_LIST);

@@ -379,7 +379,6 @@ const handleMixTrialData = debounce(() => {
 }, 300);
 const DYNAMIC_FACTOR_PARAMS = ['annuityDrawDate', 'coveragePeriod', 'chargePeriod'];
 const handleDealDyResult = (dyResult: any) => {
-  console.log('handleDealDyResult', dyResult);
   if (dyResult?.data?.[0]?.productRiskDyInsureFactorVOList) {
     const defaultRiskData = [];
     currentPlanObj.value?.insureProductRiskVOList.forEach((risk) => {
@@ -753,6 +752,8 @@ const orderData2formData = () => {
       })),
     },
   }));
+
+  console.log('personalInfo', personalInfo);
 
   Object.assign(state.personalInfo, personalInfo);
 };

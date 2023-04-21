@@ -99,7 +99,7 @@ import {
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { MATERIAL_TYPE_ENUM } from '@/common/constants/product';
 import { NOTICE_OBJECT_ENUM } from '@/common/constants/notice';
-import { faceVerify, saveSign } from '@/api/modules/verify';
+import { faceVerify, faceVerifySave, saveSign } from '@/api/modules/verify';
 import Storage from '@/utils/storage';
 import { transformFactorToSchema } from '@/components/RenderForm';
 import pageJump from '@/utils/pageJump';
@@ -108,6 +108,7 @@ import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
 import ProShare from '@/components/ProShare/index.vue';
 import { jumpToNextPage, isAppFkq } from '@/utils';
 import { setGlobalTheme } from '@/hooks/useTheme';
+import { localStore } from '@/hooks/useStorage';
 
 const route = useRoute();
 
@@ -200,7 +201,7 @@ const doVerify = (name: string, certNo: string) => {
     if (code === '10000') {
       const { originalUrl, serialNo } = data;
       window.location.href = originalUrl;
-      storage.set('verifyData', { serialNo, certNo, name });
+      localStore.set('verifyData', { serialNo, certNo, name });
     }
   });
 };
@@ -443,6 +444,23 @@ const initData = () => {
 
 onBeforeMount(() => {
   initData();
+  const verifyData = localStore.get('verifyData');
+  if (verifyData) {
+    const { serialNo, certNo, name } = verifyData;
+    faceVerifySave({
+      certiNo: certNo,
+      orderNo: orderCode || orderNo,
+      serialNo,
+      tenantId,
+      userName: name,
+    }).then((res) => {
+      const { code, data } = res;
+      if (code === '10000') {
+        storage.remove('verifyData');
+        getOrderDetail();
+      }
+    });
+  }
 });
 </script>
 
