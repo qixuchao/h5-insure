@@ -10,8 +10,12 @@
 import dayjs from 'dayjs';
 import quarterOfYear from 'dayjs/plugin/quarterOfYear';
 import { parse, stringify } from 'qs';
+import { useRoute } from 'vue-router';
 import { FILE_TYPE_ENUM } from '@/common/constants';
+import { useSessionStorage } from '@/hooks/useStorage';
+import pageJump from './pageJump';
 
+const storage = useSessionStorage();
 dayjs.extend(quarterOfYear);
 
 // 微信浏览器，且非企业微信
@@ -197,4 +201,12 @@ export const deleteQuery = (keyObj: string[], url?: string) => {
     if (!keyObj.includes(key)) newObj[key] = queryObj[key];
   });
   return `${hostPath}?${stringify(newObj)}`;
+};
+
+export const jumpToNextPage = (pageCode, query) => {
+  const codeList = storage.get('TEMPLATE_LIST') || [];
+
+  const currentIndex = codeList.indexOf(pageCode);
+
+  pageJump(codeList[currentIndex + 1], query);
 };

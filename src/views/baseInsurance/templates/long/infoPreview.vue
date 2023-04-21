@@ -8,7 +8,7 @@
         ref="personalInfoRef"
         v-model="state.personalInfo"
         :product-factor="currentPlanObj?.productFactor"
-        :multi-insured-num="currentPlanObj?.multiInsuredConfigVO?.multiInsuredNum"
+        :multi-insured-config="currentPlanObj?.multiInsuredConfigVO"
         is-view
       />
 
@@ -20,7 +20,12 @@
         is-view
       ></PayInfo>
       <div class="footer-btn">
-        <ProShare v-if="!isShare && shareInfo.isShare" v-bind="shareInfo" class="share-btn" @click.stop="handleShare">
+        <ProShare
+          v-if="!isShare && shareInfo.isShare && isAppFkq()"
+          v-bind="shareInfo"
+          class="share-btn"
+          @click.stop="handleShare"
+        >
           <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
           <span>分享</span>
         </ProShare>
@@ -66,6 +71,8 @@ import { formData2Order } from '../utils';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 import InsureInfo from './components/InsureInfo.vue';
 import ProShare from '@/components/ProShare/index.vue';
+import { jumpToNextPage, isAppFkq } from '@/utils';
+import { setGlobalTheme } from '@/hooks/useTheme';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
@@ -187,6 +194,10 @@ const handleShare = () => {
 };
 
 const onNext = async () => {
+  if (preview) {
+    jumpToNextPage(PAGE_CODE_ENUMS.INFO_PREVIEW, route.query);
+    return;
+  }
   Object.assign(orderDetail.value, {
     extInfo: {
       ...orderDetail.value.extInfo,
@@ -277,31 +288,32 @@ const initData = async () => {
         const { title, desc, image } = data?.PRODUCT_LIST || {};
         shareParams = { title, desc, image, isShare: false };
       }
-
+      setGlobalTheme(data.BASIC_INFO.themeType);
       // 设置分享参数
       Object.assign(shareInfo.value, shareParams);
     }
   });
 
-  getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
-    if (code === '10000') {
-      order.tenantOrderPayInfoList = data.tenantOrderPayInfoList;
-      Object.assign(orderDetail.value, data, {
-        tenantOrderPayInfoList: data.tenantOrderPayInfoList || [],
-        operateOption: {
-          withBeneficiaryInfo: true,
-          withHolderInfo: true,
-          withInsuredInfo: true,
-          withAttachmentInfo: true,
-          withProductInfo: true,
-          withPayInfo: true,
-        },
-      });
+  orderNo &&
+    getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
+      if (code === '10000') {
+        order.tenantOrderPayInfoList = data.tenantOrderPayInfoList;
+        Object.assign(orderDetail.value, data, {
+          tenantOrderPayInfoList: data.tenantOrderPayInfoList || [],
+          operateOption: {
+            withBeneficiaryInfo: true,
+            withHolderInfo: true,
+            withInsuredInfo: true,
+            withAttachmentInfo: true,
+            withProductInfo: true,
+            withPayInfo: true,
+          },
+        });
 
-      orderData2formData();
-      isLoading.value = true;
-    }
-  });
+        orderData2formData();
+        isLoading.value = true;
+      }
+    });
 
   queryProductMaterialData();
 

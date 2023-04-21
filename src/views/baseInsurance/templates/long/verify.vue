@@ -61,8 +61,8 @@
           <div><ProSvg name="refresh" /></div>
           <div class="text">刷新</div>
         </div>
-        <ProShare v-if="!isShare" ref="shareRef" v-bind="shareInfo">
-          <van-button plain type="primary" class="share-btn" @click.stop="handleShare">分享</van-button>
+        <ProShare v-if="!isShare && isAppFkq()" ref="shareRef" v-bind="shareInfo" @click.stop="handleShare">
+          <van-button plain type="primary" class="share-btn">分享</van-button>
         </ProShare>
         <van-button type="primary" class="submit-btn" @click="handleSubmit">确认支付</van-button>
       </div>
@@ -106,11 +106,10 @@ import pageJump from '@/utils/pageJump';
 import InsureProgress from './components/InsureProgress.vue';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
 import ProShare from '@/components/ProShare/index.vue';
+import { jumpToNextPage, isAppFkq } from '@/utils';
+import { setGlobalTheme } from '@/hooks/useTheme';
 
 const route = useRoute();
-const router = useRouter();
-
-const PAGE_CODE = '';
 
 /** 页面query参数类型 */
 interface QueryData {
@@ -216,6 +215,10 @@ const requiredType = ref<any>({
 });
 
 const handleSubmit = () => {
+  if (preview) {
+    jumpToNextPage(PAGE_CODE_ENUMS.SIGN, route.query);
+    return;
+  }
   const validateCollection = [];
   if (agentSignRef.value && requiredType.value.sign.includes('1')) {
     validateCollection.push(agentSignRef.value.validateSign());
@@ -240,44 +243,45 @@ const handleSubmit = () => {
 
   Promise.all(validateCollection)
     .then((res) => {
-      getTenantOrderDetail({
-        orderNo: orderCode || orderNo,
-        saleUserId,
-        tenantId,
-      }).then(({ code, data }) => {
-        if (code === '10000') {
-          // 订单状态为待处理,支付失败,核保成功时可进行下一步操作，否则跳入支付结果页
-          // if (
-          //   !(
-          //     [
-          //       ORDER_STATUS_ENUM.PENDING,
-          //       ORDER_STATUS_ENUM.PAYMENT_FAILED,
-          //       ORDER_STATUS_ENUM.UNDER_WRITING_SUCCESS,
-          //     ] as string[]
-          //   ).includes(data.orderStatus)
-          // ) {
-          //   pageJump('paymentResult', { ...route.query, orderNo: orderCode || orderNo });
-          // } else {
-          Dialog.confirm({
-            title: '提示',
-            message: '请确认信息填写无误后，再进行支付',
-          }).then(() => {
-            Object.assign(orderDetail.value, {
-              extInfo: {
-                ...orderDetail.value.extInfo,
-                buttonCode: BUTTON_CODE_ENUMS.SIGN,
-                pageCode: PAGE_CODE_ENUMS.SIGN,
-              },
+      orderNo &&
+        getTenantOrderDetail({
+          orderNo: orderCode || orderNo,
+          saleUserId,
+          tenantId,
+        }).then(({ code, data }) => {
+          if (code === '10000') {
+            // 订单状态为待处理,支付失败,核保成功时可进行下一步操作，否则跳入支付结果页
+            // if (
+            //   !(
+            //     [
+            //       ORDER_STATUS_ENUM.PENDING,
+            //       ORDER_STATUS_ENUM.PAYMENT_FAILED,
+            //       ORDER_STATUS_ENUM.UNDER_WRITING_SUCCESS,
+            //     ] as string[]
+            //   ).includes(data.orderStatus)
+            // ) {
+            //   pageJump('paymentResult', { ...route.query, orderNo: orderCode || orderNo });
+            // } else {
+            Dialog.confirm({
+              title: '提示',
+              message: '请确认信息填写无误后，再进行支付',
+            }).then(() => {
+              Object.assign(orderDetail.value, {
+                extInfo: {
+                  ...orderDetail.value.extInfo,
+                  buttonCode: BUTTON_CODE_ENUMS.SIGN,
+                  pageCode: PAGE_CODE_ENUMS.SIGN,
+                },
+              });
+              nextStep(orderDetail.value, (cbData, pageAction) => {
+                if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_URL) {
+                  window.location.href = cbData.paymentUrl;
+                }
+              });
             });
-            nextStep(orderDetail.value, (cbData, pageAction) => {
-              if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_URL) {
-                window.location.href = cbData.paymentUrl;
-              }
-            });
-          });
-          // }
-        }
-      });
+            // }
+          }
+        });
     })
     .catch((e) => {
       Toast(e.message);
@@ -290,6 +294,7 @@ const handleShare = () => {
     .validateSign()
     .then(() => {
       if (shareRef.value) {
+        console.log('234242');
         shareRef.value.handleShare();
       }
     })
@@ -299,44 +304,45 @@ const handleShare = () => {
 };
 
 const getOrderDetail = (check = false) => {
-  getTenantOrderDetail({ orderNo: orderCode || orderNo, tenantId }).then(({ code, data }) => {
-    if (code === '10000') {
-      if (check) {
-        if (
-          data?.tenantOrderHolder?.extInfo?.isCert === YES_NO_ENUM.NO ||
-          data?.tenantOrderInsuredList.some((x) => x.extInfo?.isCert === YES_NO_ENUM.NO)
-        ) {
-          Toast('用户未完身份认证及签字');
-        } else if (
-          !data?.tenantOrderAttachmentList.find(
-            (x) =>
-              x.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN &&
-              x.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER,
-          ) ||
-          !data?.tenantOrderAttachmentList.find(
-            (x) =>
-              x.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN &&
-              x.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.INSURED,
-          )
-        ) {
-          Toast('用户未完身份认证及签字');
+  orderNo &&
+    getTenantOrderDetail({ orderNo: orderCode || orderNo, tenantId }).then(({ code, data }) => {
+      if (code === '10000') {
+        if (check) {
+          if (
+            data?.tenantOrderHolder?.extInfo?.isCert === YES_NO_ENUM.NO ||
+            data?.tenantOrderInsuredList.some((x) => x.extInfo?.isCert === YES_NO_ENUM.NO)
+          ) {
+            Toast('用户未完身份认证及签字');
+          } else if (
+            !data?.tenantOrderAttachmentList.find(
+              (x) =>
+                x.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN &&
+                x.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER,
+            ) ||
+            !data?.tenantOrderAttachmentList.find(
+              (x) =>
+                x.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN &&
+                x.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.INSURED,
+            )
+          ) {
+            Toast('用户未完身份认证及签字');
+          }
         }
-      }
-      Object.assign(orderDetail.value, data);
-      signPartInfo.value.holder.personalInfo = data.tenantOrderHolder;
-      signPartInfo.value.insured.personalInfo = data.tenantOrderInsuredList;
+        Object.assign(orderDetail.value, data);
+        signPartInfo.value.holder.personalInfo = data.tenantOrderHolder;
+        signPartInfo.value.insured.personalInfo = data.tenantOrderInsuredList;
 
-      data.tenantOrderAttachmentList.forEach((attachment) => {
-        if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
-          signPartInfo.value.holder.signData = attachment.fileBase64;
-        } else if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT) {
-          signPartInfo.value.agent.signData = attachment.fileBase64;
-        } else if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED) {
-          signPartInfo.value.insured.signData[attachment.objectId] = attachment.fileBase64;
-        }
-      });
-    }
-  });
+        data.tenantOrderAttachmentList.forEach((attachment) => {
+          if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
+            signPartInfo.value.holder.signData = attachment.fileBase64;
+          } else if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT) {
+            signPartInfo.value.agent.signData = attachment.fileBase64;
+          } else if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED) {
+            signPartInfo.value.insured.signData[attachment.objectId] = attachment.fileBase64;
+          }
+        });
+      }
+    });
 };
 
 const handleRefresh = () => {
@@ -363,7 +369,7 @@ const initData = () => {
         const { title, desc, image } = data?.PRODUCT_LIST || {};
         shareParams = { title, desc, image };
       }
-
+      setGlobalTheme(data.BASIC_INFO.themeType);
       // 设置分享参数
       Object.assign(shareInfo.value, shareParams);
     }

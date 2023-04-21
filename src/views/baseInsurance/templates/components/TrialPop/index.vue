@@ -42,7 +42,7 @@
           v-model="state.userData"
           is-trial
           :product-factor="dataSource.productFactor"
-          :multi-insured-num="dataSource?.multiInsuredConfigVO?.multiInsuredNum"
+          :multi-insured-config="dataSource?.multiInsuredConfigVO"
           @trail-change="handlePersonalInfoChange"
         />
         <!-- 这里是标准险种信息 -->
@@ -119,6 +119,7 @@ import { transformData } from '@/views/baseInsurance/utils';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from '../../long/constants';
 import { nextStepOperate as nextStep } from '../../../nextStep';
 import pageJump from '@/utils/pageJump';
+import { jumpToNextPage } from '@/utils';
 
 const RISK_SELECT = [
   { value: 1, label: '投保' },
@@ -143,7 +144,7 @@ const insureInfosRef = ref(null);
 const route = useRoute();
 const router = useRouter();
 
-const { tenantId, templateId } = route.query;
+const { tenantId, templateId, preview } = route.query;
 
 const props = withDefaults(defineProps<Props>(), {
   dataSource: () => [],
@@ -240,6 +241,10 @@ const trialData2Order = (
 };
 const premiumMap = ref();
 const onNext = () => {
+  if (preview) {
+    jumpToNextPage(PAGE_CODE_ENUMS.TRIAL_PREMIUM, route.query);
+    return;
+  }
   if (state.trialResult) {
     // 验证
     insureInfosRef.value?.validate().then(() => {

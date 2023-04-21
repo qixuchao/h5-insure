@@ -27,6 +27,17 @@
             <van-col span="14">{{ result.paymentResultDesc }}</van-col>
           </van-row>
         </div>
+        <div v-if="isPaying" class="order-result">
+          <van-row class="tac">
+            <van-col span="24" class="mb20">支付中请耐心等待</van-col>
+            <van-col span="24">点击【刷新】按钮刷新支付结果</van-col>
+          </van-row>
+          <van-row class="tac buttons">
+            <van-col span="24">
+              <van-button type="primary" block @click="refresh">刷新</van-button>
+            </van-col>
+          </van-row>
+        </div>
       </template>
     </ProResult>
   </ProPageWrap>
@@ -104,6 +115,8 @@ const isFail = computed((status) => {
     ].some((i) => i === result.value?.orderStatus)
   );
 });
+const isPaying = computed(() => result.value.orderStatus === ORDER_STATUS_ENUM.PAYING);
+
 const status = computed(() => {
   if (result.value) {
     return isSuccess.value ? 'success' : isFail.value ? 'fail' : 'process';
@@ -151,7 +164,9 @@ const handleCancel = () => {
     });
   }
 };
-
+const refresh = () => {
+  window.location.reload();
+};
 onMounted(() => {
   getOrderDetail({
     orderNo,
@@ -185,6 +200,13 @@ onMounted(() => {
   .order-label {
     margin-bottom: $zaui-space-card;
     text-align: right;
+  }
+
+  .mb20 {
+    margin-bottom: 20px;
+  }
+  .buttons {
+    margin-top: 96px;
   }
 }
 </style>

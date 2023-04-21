@@ -89,8 +89,8 @@ export const transformData = (o: transformDataType, flag = false) => {
     const currentRisk = {
       tenantId,
       amountUnit: 1,
-      annuityDrawFrequency: risk.annuityDrawDate,
-      annuityDrawType: risk.annuityDrawType,
+      annuityDrawFrequency: risk.annuityDrawType,
+      annuityDrawDate: risk.annuityDrawDate,
       paymentFrequency: flag ? 5 : risk.paymentFrequency,
       paymentPeriod: risk.chargePeriod.split('_')[1],
       paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],

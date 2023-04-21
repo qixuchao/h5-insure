@@ -174,7 +174,7 @@ export interface TenantOrderProductItem {
 export interface TenantOrderRiskItem {
   amountUnit: number;
   annuityDrawFrequency: number;
-  annuityDrawType: number;
+  annuityDrawDate: number;
   currentAmount: number;
   id: number;
   initialAmount: number;

@@ -20,6 +20,8 @@ import { isNotEmptyArray } from '@/common/constants/utils';
 import ProCascaderV2 from './ProCascaderV2.vue';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
 
+const emit = defineEmits(['update:modelValue']);
+
 const props = defineProps({
   name: {
     type: String,
@@ -66,6 +68,17 @@ watch(
   () => props.modelValue,
   (val) => {
     state.modelValue = val;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  () => state.modelValue,
+  (val) => {
+    emit('update:modelValue', val);
   },
   {
     deep: true,

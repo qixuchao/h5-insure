@@ -35,17 +35,22 @@ import useOrder from '@/hooks/useOrder';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
+import { jumpToNextPage } from '@/utils';
 
 const route = useRoute();
 const router = useRouter();
 const orderDetail = useOrder();
 
-const { productCode, orderNo, templateId, tenantId, questionnaireId: questionId } = route.query;
+const { productCode, orderNo, templateId, tenantId, preview, questionnaireId: questionId } = route.query;
 const currentQuestion = ref<any>({});
 const nextQuestionnaireId = ref<number>();
 const objectType = ref<number>();
 
 const onNext = () => {
+  if (preview) {
+    jumpToNextPage(PAGE_CODE_ENUMS.QUESTION_NOTICE, route.query);
+    return;
+  }
   nextStep(orderDetail.value, (data, pageAction) => {
     if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
       pageJump(data.nextPageCode, route.query);

@@ -3,13 +3,15 @@
   <div v-else class="page-internet-product-detail" data-skeleton-root="LONG">
     <template v-if="!trialPreviewMode">
       <div class="info">
+        <!-- bannerType--1：图片 2：视频  -->
         <Banner
-          v-if="tenantProductDetail?.BASIC_INFO?.banner.length"
+          v-if="tenantProductDetail?.BASIC_INFO?.bannerType == 1 && tenantProductDetail?.BASIC_INFO?.banner.length"
           data-skeleton-type="img"
-          :url="tenantProductDetail?.BASIC_INFO.banner[0]"
+          indicator-color="#ddd"
+          :images="tenantProductDetail?.BASIC_INFO.banner"
         />
         <Video
-          v-if="tenantProductDetail?.BASIC_INFO?.video.length"
+          v-if="tenantProductDetail?.BASIC_INFO?.bannerType == 2 && tenantProductDetail?.BASIC_INFO?.video.length"
           data-skeleton-type="img"
           :src="tenantProductDetail?.BASIC_INFO.video[0]"
         />
@@ -93,7 +95,7 @@ import {
   ProductPlanInsureVoItem,
   RiskDetailVoItem,
 } from '@/api/modules/product.data';
-import { insureProductDetail as getInsureProductDetail } from '@/api/modules/trial';
+import { getTenantOrderDetail, insureProductDetail as getInsureProductDetail } from '@/api/modules/trial';
 import { productDetail as getTenantProductDetail, queryProductMaterial, querySalesInfo } from '@/api/modules/product';
 
 import { INSURE_TYPE_ENUM } from '@/common/constants/infoCollection';
@@ -109,6 +111,7 @@ import useAttachment from '@/hooks/useAttachment';
 import { getFileType } from '@/views/baseInsurance/utils';
 import TrialPop from '../components/TrialPop/index.vue';
 import InsureLimit from '../components/InsureLimit/index.vue';
+import { orderData2trialData } from '../utils';
 // const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const InscribedContent = defineAsyncComponent(() => import('../components/InscribedContent/index.vue'));
@@ -140,6 +143,7 @@ const {
   agencyCode,
   saleChannelId,
   extraInfo,
+  orderNo,
   insurerCode,
   preview,
   trialPreview,
@@ -232,6 +236,8 @@ const queryProductMaterialData = () => {
 };
 
 // 初始化数据，获取产品配置详情和产品详情
+const orderDetail = ref<any>();
+const trialDefaultData = ref<any>();
 const initData = async () => {
   !trialPreviewMode.value &&
     querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
@@ -244,6 +250,14 @@ const initData = async () => {
         // 设置分享参数
         Object.assign(shareInfo.value, { title, desc, image, isShare: !!data?.PRODUCT_LIST.showWXShare });
         setGlobalTheme(data.BASIC_INFO.themeType);
+      }
+    });
+
+  orderNo &&
+    getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
+      if (code === '10000') {
+        orderDetail.value = data;
+        trialDefaultData.value = orderData2trialData(data, currentPlanObj.value?.planCode);
       }
     });
 

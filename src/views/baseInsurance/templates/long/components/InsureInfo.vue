@@ -26,13 +26,13 @@
           ></ProCell>
           <ProCell
             title="保障金额"
-            :content="(riskInfo.currentAmount || 0).toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })"
+            :content="(riskInfo.initialAmount || 0).toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })"
           >
           </ProCell>
           <ProCell
             title="首期保费"
             class="price"
-            :content="(productData.premium || 0).toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })"
+            :content="(riskInfo.initialPremium || 0).toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })"
           >
           </ProCell>
         </div>

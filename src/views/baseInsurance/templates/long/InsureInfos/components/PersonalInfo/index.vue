@@ -16,14 +16,19 @@
       ref="insuredFormRef"
       :key="`${insuredItem.nanoid}_${index}`"
       v-model="insuredItem.personVO"
+      v-model:beneficiary-list="insuredItem.beneficiaryList"
       :title="`${state.insured.length > 1 ? `被保人${index + 1}` : '被保人信息'}`"
-      :="insuredItem"
       :holder-person-v-o="state.holder.personVO"
+      :="insuredItem"
+      :beneficiary-schema="state.beneficiarySchema"
       :is-view="isView"
       :multi-beneficiary-num="state.config.multiBeneficiaryMaxNum"
-      @update:beneficiary-list="updateBeneficiaryList($event, index)"
     >
-      <span v-if="!isView && index + 1 > state.config.multiInsuredMinNum" @click="onDeleteInsured(index)"
+      <!-- @update:beneficiary-list="updateBeneficiaryList($event, index)" -->
+      <span
+        v-if="!isView && index + 1 > state.config.multiInsuredMinNum"
+        class="delete-button"
+        @click="onDeleteInsured(index)"
         ><van-icon name="delete-o"
       /></span>
     </InsuredItem>
@@ -36,7 +41,7 @@
 </template>
 <script lang="ts" setup name="PersonalInfo">
 import { withDefaults } from 'vue';
-import { Dialog } from 'vant';
+import { Dialog, Toast } from 'vant';
 import { nanoid } from 'nanoid';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { debounce } from 'lodash';
@@ -48,6 +53,7 @@ import {
   validateFields,
   ProRenderFormWithCard,
   transformFactorToSchema,
+  SchemaItem,
 } from '@/components/RenderForm';
 import { ProductFactor } from '@/api/modules/trial.data';
 import { isNotEmptyArray } from '@/common/constants/utils';
@@ -58,7 +64,10 @@ interface Props {
   modelValue: any;
   isTrial: boolean;
   isView: boolean;
-  multiInsuredNum: number;
+  multiInsuredConfig: {
+    multiInsuredNum: number;
+    multiInsuredSupportFlag: number;
+  };
 }
 
 const emit = defineEmits(['update:modelValue', 'trailChange']);
@@ -74,31 +83,32 @@ const props = withDefaults(defineProps<Props>(), {
 
 interface InsuredFormProps extends Partial<PersonFormProps> {
   beneficiaryList: Partial<PersonFormProps>[];
+  beneficiarySchema: SchemaItem[];
 }
 
 interface StateInfo {
   config: Partial<PersonalInfoConf>;
   validated: boolean;
   holder: PersonFormProps;
-  initInsuredItem: InsuredFormProps;
+  beneficiarySchema: SchemaItem[];
   initInsuredIList: InsuredFormProps[];
   insured: InsuredFormProps[];
 }
 
-const initInsuredItem: InsuredFormProps = {
-  schema: [],
-  trialFactorCodes: [],
-  config: {},
-  personVO: {},
-  beneficiaryList: [
-    {
-      config: {},
-      personVO: {},
-      trialFactorCodes: [],
-      nanoid: nanoid(),
-    },
-  ],
-};
+// const initInsuredItem: InsuredFormProps = {
+//   schema: [],
+//   trialFactorCodes: [],
+//   config: {},
+//   personVO: {},
+//   beneficiaryList: [
+//     {
+//       config: {},
+//       personVO: {},
+//       trialFactorCodes: [],
+//       nanoid: nanoid(),
+//     },
+//   ],
+// };
 
 const state = reactive<StateInfo>({
   config: {},
@@ -113,7 +123,7 @@ const state = reactive<StateInfo>({
     trialFactorCodes: [],
     config: {},
   },
-  initInsuredItem: cloneDeep(initInsuredItem),
+  beneficiarySchema: [],
   initInsuredIList: [],
   /** 被保人 */
   insured: [],
@@ -128,7 +138,7 @@ const validateTrialFields = () => {
 // 验证表单必填
 const validate = (isTrial) => {
   return Promise.all([
-    ...(insuredFormRef.value?.map((item) => item.validate()) || []),
+    ...(insuredFormRef.value?.map((item) => item.validate(isTrial)) || []),
     validateForm(holderFormRef, state.holder.trialFactorCodes, isTrial),
   ]);
 };
@@ -154,9 +164,11 @@ const listObject = (personInfo: any) => {
 
 // 添加被保人
 const onAddInsured = () => {
+  const { length, [length - 1]: lastInsuredItem } = state.initInsuredIList;
+
   state.insured.push(
     cloneDeep({
-      ...cloneDeep(state.initInsuredItem),
+      ...lastInsuredItem,
       nanoid: nanoid(),
     }),
   );
@@ -180,13 +192,26 @@ const addible = computed(() => {
 });
 
 //
-const updateBeneficiaryList = (data, index) => {
-  if (state.insured[index]) {
-    state.insured[index]?.beneficiaryList.forEach((item, i) => {
-      Object.assign(item.personVO, data[i]?.personVO);
-    });
-  }
-};
+// const updateBeneficiaryList = (data, index) => {
+//   if (state.insured[index]) {
+//     debugger;
+//     if (Array.isArray(data)) {
+//       data.forEach((personVO, i) => {
+//         const { beneficiaryList } = state.insured[index];
+//         if (beneficiaryList[1]) {
+//           Object.assign(state.insured[index].beneficiaryList[i].personVO, personVO);
+//         } else {
+//           state.insured[index].beneficiaryList[i] = {
+//             personVO,
+//           };
+//         }
+//       });
+//     }
+//     // state.insured[index].beneficiaryList.forEach((item, i) => {
+//     //   Object.assign(item.personVO, data[i]?.personVO);
+//     // });
+//   }
+// };
 
 // 是否有投保人
 const hasHolderSchema = computed(() => isNotEmptyArray(state.holder.schema));
@@ -212,6 +237,7 @@ watch(
         };
       }),
   ],
+  // eslint-disable-next-line consistent-return
   debounce((val) => {
     colorConsole('投被保人信息变动了');
     const result = {
@@ -220,8 +246,18 @@ watch(
       },
       insuredVOList: val[1],
     };
+
+    // 多被保人为配偶,性别不符合给提示
+    if (state.config.isSpouseInsured) {
+      const [gender1, gender2] = val[1].map((item) => item.personVO?.gender);
+      if (gender1 && gender2 && gender1 === gender2) {
+        return Toast('被保人性别与投保要求不符');
+      }
+    }
+
     const isFirstInsuredChange =
       JSON.stringify(result?.insuredVOList?.[0]?.personVO) !== props.modelValue?.insuredVOList?.[0]?.personVO;
+
     result.isFirstInsuredChange = isFirstInsuredChange;
 
     emit('update:modelValue', result);
@@ -249,7 +285,7 @@ watch(
     if (val[0]) {
       const { holder, insured, beneficiary, config } = transformFactorToSchema(val[0], {
         isTrial: val[1],
-        multiInsuredNum: props.multiInsuredNum,
+        ...props.multiInsuredConfig,
       });
       Object.assign(state.holder, holder);
 
@@ -260,10 +296,11 @@ watch(
           return {
             ...insuredItem,
             beneficiaryList: [],
-            beneficiarySchema: cloneDeep(beneficiary?.schema || []),
           };
         });
       }
+
+      state.beneficiarySchema = cloneDeep(beneficiary?.schema || []);
     }
   },
   {
@@ -285,11 +322,14 @@ watch(
 
     // 预览时，被保人数量多于默认数量
     const { length, 0: mainInsuredItem = {}, [length - 1]: lastInsuredItem } = state.initInsuredIList;
-    const insuredLen = props.isView || propsInsuredLen > stateInsuredLen ? propsInsuredLen : stateInsuredLen || length;
+    const insuredLen =
+      props.isView || propsInsuredLen > stateInsuredLen
+        ? propsInsuredLen
+        : stateInsuredLen || state.config.multiInsuredMinNum;
 
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
       const { personVO } = insuredVOList?.[index] || {};
-      const initInsuredTempData = index === 0 ? mainInsuredItem : lastInsuredItem;
+      const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
 
       if (!res[index]) {
         res[index] = {
@@ -331,11 +371,14 @@ defineExpose({
   padding: 25px 30px;
   .add-button {
     font-size: 32px;
-    color: #006aff;
+    color: $zaui-primary-text;
     line-height: 45px;
     .van-icon-plus {
       font-weight: 600;
     }
   }
+}
+.delete-button {
+  color: $zaui-primary-text;
 }
 </style>

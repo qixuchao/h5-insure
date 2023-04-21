@@ -215,26 +215,26 @@ const hasProduct = computed(() => {
   return productList.value.length > 0;
 });
 
-const formatData = ({ productCode, holder, insuredVOList } = {}) => {
-  const { personVO, productPlanVOList } = insuredVOList?.[0] || {};
+// const formatData = ({ productCode, holder, insuredVOList } = {}) => {
+//   const { personVO, productPlanVOList } = insuredVOList?.[0] || {};
 
-  const proposalData = {
-    proposalHolder: holder,
-    proposalInsuredList: [
-      {
-        ...personVO,
-        proposalInsuredProductList: [
-          {
-            productCode,
-            productName: state.productName,
-            proposalProductRiskList: productPlanVOList,
-          },
-        ],
-      },
-    ],
-  };
-  return proposalData;
-};
+//   const proposalData = {
+//     proposalHolder: holder,
+//     proposalInsuredList: [
+//       {
+//         ...personVO,
+//         proposalInsuredProductList: [
+//           {
+//             productCode,
+//             productName: state.productName,
+//             proposalProductRiskList: productPlanVOList,
+//           },
+//         ],
+//       },
+//     ],
+//   };
+//   return proposalData;
+// };
 
 const fetchDefaultData = async (productCode, callback) => {
   // TODO 加loading
