@@ -113,6 +113,7 @@ interface StateType {
   errorMsgMap: {
     [x: string]: string;
   };
+  excludeProductCodeList: string[];
 }
 
 const state = reactive<StateType>({
@@ -135,6 +136,8 @@ const state = reactive<StateType>({
   productCodeList: [],
   // 错误信息集合
   errorMsgMap: {},
+  // 排除的产品code
+  excludeProductCodeList: [],
 });
 
 const {
@@ -157,7 +160,7 @@ const [showSelectProduct, toggleSelectProduct] = useToggle();
 const store = createProposalStore();
 const router = useRouter();
 const route = useRoute();
-const { isCreateProposal, productCode: productCodeInQuery, productCodeList = [] } = route.query;
+const { isCreateProposal, productCode: productCodeInQuery } = route.query;
 const addProposalType = ref<any>(isCreateProposal ? 'repeatAdd' : 'add');
 
 const getProducts = () => {
@@ -165,7 +168,7 @@ const getProducts = () => {
     title: searchValue.value,
     insurerCodeList: insurerCodeList.value,
     showCategory: showCategory.value,
-    excludeProductCodeList: productCodeList as string[],
+    excludeProductCodeList: state.excludeProductCodeList,
     pageNum: 1,
     pageSize: 999,
   }).then((res: any) => {
@@ -215,26 +218,26 @@ const hasProduct = computed(() => {
   return productList.value.length > 0;
 });
 
-const formatData = ({ productCode, holder, insuredVOList } = {}) => {
-  const { personVO, productPlanVOList } = insuredVOList?.[0] || {};
+// const formatData = ({ productCode, holder, insuredVOList } = {}) => {
+//   const { personVO, productPlanVOList } = insuredVOList?.[0] || {};
 
-  const proposalData = {
-    proposalHolder: holder,
-    proposalInsuredList: [
-      {
-        ...personVO,
-        proposalInsuredProductList: [
-          {
-            productCode,
-            productName: state.productName,
-            proposalProductRiskList: productPlanVOList,
-          },
-        ],
-      },
-    ],
-  };
-  return proposalData;
-};
+//   const proposalData = {
+//     proposalHolder: holder,
+//     proposalInsuredList: [
+//       {
+//         ...personVO,
+//         proposalInsuredProductList: [
+//           {
+//             productCode,
+//             productName: state.productName,
+//             proposalProductRiskList: productPlanVOList,
+//           },
+//         ],
+//       },
+//     ],
+//   };
+//   return proposalData;
+// };
 
 const fetchDefaultData = async (productCode, callback) => {
   // TODO 加loading
@@ -346,6 +349,15 @@ const onRefresh = () => {
   loading.value = true;
   onLoad();
 };
+
+onActivated(() => {
+  const { productCodeList = [] } = useRoute().query;
+  state.selectProduct = [];
+  state.excludeProductCodeList = productCodeList as string[];
+  onRefresh();
+});
+
+onMounted(() => {});
 </script>
 
 <style scoped lang="scss">

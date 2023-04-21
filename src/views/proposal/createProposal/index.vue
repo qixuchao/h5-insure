@@ -2,12 +2,18 @@
   <ProPageWrap class="page-create-wrapper">
     <div class="container">
       <ProRenderForm ref="formRef" class="mb20" :model="stateInfo">
-        <ProFieldV2 label="计划书名称" name="proposalName" :maxlength="20" required />
+        <ProFieldV2 v-model="stateInfo.proposalName" label="计划书名称" name="proposalName" :maxlength="20" required />
       </ProRenderForm>
       <ProRenderFormWithCard ref="insuredFormRef" title="被保人信息" :model="stateInfo.insuredPersonVO">
-        <ProFieldV2 label="姓名" name="name" :maxlength="20" required />
-        <ProDatePickerV2 label="出生日期" name="birthday" required />
-        <ProRadioV2 label="性别" name="gender" :columns="SEX_LIMIT_LIST" required />
+        <ProFieldV2 v-model="stateInfo.insuredPersonVO.name" label="姓名" name="name" :maxlength="20" required />
+        <ProDatePickerV2 v-model="stateInfo.insuredPersonVO.birthday" label="出生日期" name="birthday" required />
+        <ProRadioV2
+          v-model="stateInfo.insuredPersonVO.gender"
+          label="性别"
+          name="gender"
+          :columns="SEX_LIMIT_LIST"
+          required
+        />
       </ProRenderFormWithCard>
 
       <!-- <VanForm ref="formRef" input-align="right" error-message-align="right">
@@ -59,8 +65,8 @@
         </ProCard>
       </VanForm> -->
       <ProCard
-        v-for="productItem in stateInfo.proposalInsuredProductList"
-        :key="productItem.productCode"
+        v-for="(productItem, index) in stateInfo.proposalInsuredProductList"
+        :key="`${productItem.nanoid}_${index}_${productItem.productCode}`"
         :show-line="false"
       >
         <ProductList
@@ -120,6 +126,7 @@
 import { ActionSheetAction, Dialog, Toast } from 'vant';
 import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
+import { nanoid } from 'nanoid';
 import { useRouter, useRoute } from 'vue-router';
 import debounce from 'lodash-es/debounce';
 import { SUCCESS_CODE } from '@/api/code';
@@ -205,6 +212,7 @@ const state = ref<State>({
 
 interface proposalInsuredProductItem {
   productCode: string;
+  nanoid: string;
   proposalProductRiskList: Partial<ProposalProductRiskItem>[];
 }
 
@@ -339,9 +347,9 @@ const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
   Dialog.confirm({ message: '确认删除该险种？' }).then(() => {
     // 删除主险等同于删除整个产品信息
     if (riskInfo.riskType === 1) {
-      stateInfo.proposalInsuredProductList = stateInfo.proposalInsuredProductList.filter(
-        (product: ProposalInsuredProductItem) => product.productCode !== currentProduct.productCode,
-      );
+      stateInfo.proposalInsuredProductList = stateInfo.proposalInsuredProductList
+        .filter((product: ProposalInsuredProductItem) => product.productCode !== currentProduct.productCode)
+        .map((item) => ({ ...item, nanoid: nanoid() }));
       pickProductPremium({ [currentProduct.productCode]: 0 });
     } else {
       currentProduct.proposalProductRiskList = currentProduct.proposalProductRiskList.filter(
@@ -386,7 +394,15 @@ const onFinished = (productInfo: PlanTrialData) => {
   const currentIndex = stateInfo.proposalInsuredProductList.findIndex(
     (productItem) => productItem.productCode === productInfo.productCode,
   );
-  stateInfo.proposalInsuredProductList[currentIndex] = productInfo.insuredProductInfo;
+  const tempData = {
+    ...productInfo.insuredProductInfo,
+    nanoid: nanoid(),
+  };
+  if (currentIndex > -1) {
+    stateInfo.proposalInsuredProductList[currentIndex] = tempData;
+  } else {
+    stateInfo.proposalInsuredProductList.push(tempData);
+  }
 
   // toggleProductRisk(false);
   trialPopupRef.value?.close();
@@ -428,6 +444,7 @@ const trailProduct = (params) => {
             amount: riskDetail.amount,
           };
         });
+
         onFinished(trialPopupRef.value?.formatData(params, riskPremiumMap));
       }
     }
@@ -438,25 +455,46 @@ const trailProduct = (params) => {
 //   toggleProductRisk(false);
 // };
 
+/** 获取产品数据列表 */
+const queryProductInfo = (searchData: any) => {
+  queryProductDetailList(searchData)
+    .then(({ code, data }) => {
+      if (code === '10000') {
+        if (isNotEmptyArray(data)) {
+          Object.assign(
+            stateInfo.productCollection,
+            data.reduce((res, item) => {
+              res[item.productCode] = item;
+              return res;
+            }, {}),
+          );
+        }
+      }
+    })
+    .finally(() => {});
+};
+
 // 获取试算默认值
-const fetchDefaultData = async (productCodeList: string[], flag = false) => {
-  if (!isNotEmptyArray(productCodeList)) {
+const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[], flag = false) => {
+  if (!isNotEmptyArray(calcProductFactorList)) {
     return;
   }
   // TODO 加loading
   const { code, data } = await queryCalcDefaultInsureFactor({
-    calcProductFactorList: productCodeList.map((codeItem) => ({ productCode: codeItem })),
-    ...(flag ? {} : stateInfo.insuredPersonVO),
+    calcProductFactorList,
+    ...stateInfo.insuredPersonVO,
   });
   if (code === '10000' && data) {
     if (isNotEmptyArray(data)) {
       data.forEach((dataItem) => {
         const { holder, insuredVOList, productCode } = dataItem;
         const { personVO, productPlanVOList } = (insuredVOList || [])[0] || {};
+        const [{ riskVOList } = {}] = productPlanVOList || [];
         const tempData: proposalInsuredProductItem = {
           productCode,
-          proposalProductRiskList: productPlanVOList,
+          proposalProductRiskList: riskVOList,
         };
+        trailProduct(dataItem);
 
         // 初次调用
         if (flag) {
@@ -464,7 +502,6 @@ const fetchDefaultData = async (productCodeList: string[], flag = false) => {
           Object.assign(stateInfo.proposalHolder, holder);
 
           stateInfo.proposalInsuredProductList = [tempData];
-          trailProduct(dataItem);
         } else {
           const currentIndex = currentProductCodeList.value.findIndex((codeItem) => codeItem === productCode);
           stateInfo.proposalInsuredProductList[currentIndex] = tempData;
@@ -494,39 +531,48 @@ onBeforeMount(() => {
   //   proposalInfo.value = preProposalInfo;
   // }
   // store.setTrialData([]);
-  productCodeInQuery && fetchDefaultData([productCodeInQuery as string], true);
+  if (productCodeInQuery) {
+    queryProductInfo([{ productCode: productCodeInQuery }]);
+    fetchDefaultData([{ productCode: productCodeInQuery }], true);
+  }
 });
 
-/** 获取产品数据列表 */
-const queryProductInfo = (searchData: any) => {
-  queryProductDetailList(searchData)
-    .then(({ code, data }) => {
-      if (code === '10000') {
-        if (isNotEmptyArray(data)) {
-          Object.assign(
-            stateInfo.productCollection,
-            data.reduce((res, item) => {
-              res[item.productCode] = item;
-              return res;
-            }, {}),
-          );
-        }
-      }
-    })
-    .finally(() => {});
-};
+const validateData = (arr) => (isNotEmptyArray(arr) ? arr.every((item) => Boolean(item)) : false);
+
+watch(
+  () => ['gender', 'birthday'].map((key) => stateInfo.insuredPersonVO[key]),
+  (val, oldVal) => {
+    console.log(
+      66666666,
+      val,
+      val.every((item) => Boolean(item)),
+    );
+
+    if (validateData(val) && validateData(oldVal) && val.join(',') !== oldVal.join(',')) {
+      console.log('被保人条件变动');
+      const codeList = [productCodeInQuery, ...stateInfo.selectedProductCodeList].map((productCode) => ({
+        productCode,
+      }));
+      queryProductInfo(codeList);
+      fetchDefaultData(codeList, true);
+    }
+  },
+  {
+    deep: true,
+  },
+);
 
 watch(
   () => stateInfo.selectedProductCodeList,
   debounce((val) => {
-    console.log('选择的产品变动了', val);
     if (isNotEmptyArray(val)) {
+      console.log('选择的产品变动了', val);
       const tempList = val.map((code) => ({
         productCode: code,
         proposalProductRiskList: [],
       }));
       stateInfo.proposalInsuredProductList.push(...tempList);
-      fetchDefaultData(val);
+      fetchDefaultData(val.map((productCode) => ({ productCode })));
     }
   }),
   {
@@ -537,10 +583,10 @@ watch(
 // 获取产品详情信息
 watch(
   () => stateInfo.selectedProductCodeList,
-  () => {
-    if (isNotEmptyArray(currentProductCodeList.value)) {
+  (val) => {
+    if (isNotEmptyArray(val)) {
       const codeList = Object.keys(stateInfo.productCollection);
-      const tempCodeList = currentProductCodeList.value?.filter((code) => !codeList.includes(code));
+      const tempCodeList = val?.filter((code) => !codeList.includes(code));
       if (isNotEmptyArray(tempCodeList)) {
         queryProductInfo(
           tempCodeList?.map((code) => ({

@@ -32,6 +32,7 @@
           v-if="!hideBenefit"
           class="benefit-wrap"
           :data-source="benefitData"
+          :product-info="dataSource"
           :show-type-list="benefitData.showTypList"
         />
         <!-- 这里放因子 -->
@@ -181,6 +182,8 @@ const state = reactive({
   defaultValue: null, // 是一个plan
   isAutoChange: false,
   planIndex: 0,
+  isSkipFirstTrial: false, // 是否跳过默认值表单触发的第一次试算
+  hadSkipFirstTrial: false,
 });
 
 const orderDetail = useOrder();
@@ -401,6 +404,58 @@ const handleSameMainRisk = (data: any) => {
   return data;
 };
 
+const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
+  state.trialMsg = LOADING_TEXT;
+  state.trialResult = 0;
+  state.loading = true;
+  let checkResult = false;
+  if (needCheck) {
+    const { code } = await underWriteRule(calcData);
+    checkResult = code === '10000';
+  }
+  if (checkResult || !needCheck) {
+    // 是否显示利益演示
+    if (!props.hideBenefit) {
+      benefitCalc(calcData)
+        .then((res) => {
+          // 利益演示接口
+          if (res.data && res.code === SUCCESS_CODE) benefitData.value = res.data;
+        })
+        .finally(() => {
+          state.loading = false;
+        });
+    }
+    premiumCalc(calcData)
+      .then((res) => {
+        // benefitData.value = res.data;
+        // console.log('----res =', res);
+        // state.trialMsg = `${res.data.premium}元`;
+        if (res.data && res.code === SUCCESS_CODE) {
+          if (res?.data?.errorInfo) {
+            Toast(`${res?.data?.errorInfo}`);
+          }
+          state.trialMsg = '';
+          state.trialResult = res.data.premium;
+
+          const riskPremiumMap = {};
+          if (res.data.riskPremiumDetailVOList && res.data.riskPremiumDetailVOList.length) {
+            res.data.riskPremiumDetailVOList.forEach((riskDetail: any) => {
+              riskPremiumMap[riskDetail.riskCode] = {
+                premium: riskDetail.premium,
+                amount: riskDetail.amount,
+              };
+            });
+          }
+          premiumMap.value = riskPremiumMap;
+        }
+      })
+      .finally(() => {
+        state.loading = false;
+        // state.trialMsg = '000';
+      });
+  }
+};
+
 const handleMixTrialData = debounce(async () => {
   console.log('>>>>>调用试算<<<<<');
   if (state.ifPersonalInfoSuccess) {
@@ -429,50 +484,13 @@ const handleMixTrialData = debounce(async () => {
         ];
       });
     }
+    if (state.isSkipFirstTrial && !state.hadSkipFirstTrial) {
+      state.hadSkipFirstTrial = true;
+      return;
+    }
     console.log('>>>数据构建<<<', state.submitData);
     const submitDataCopy = cloneDeep(state.submitData);
-    state.trialMsg = LOADING_TEXT;
-    state.trialResult = 0;
-    state.loading = true;
-    const { code } = await underWriteRule(submitDataCopy);
-    if (code === '10000') {
-      premiumCalc(submitDataCopy)
-        .then((res) => {
-          // benefitData.value = res.data;
-          // console.log('----res =', res);
-          // state.trialMsg = `${res.data.premium}元`;
-          if (res.data && res.code === SUCCESS_CODE) {
-            if (res?.data?.errorInfo) {
-              Toast(`${res?.data?.errorInfo}`);
-            }
-            state.trialMsg = '';
-            state.trialResult = res.data.premium;
-
-            const riskPremiumMap = {};
-            if (res.data.riskPremiumDetailVOList && res.data.riskPremiumDetailVOList.length) {
-              res.data.riskPremiumDetailVOList.forEach((riskDetail: any) => {
-                riskPremiumMap[riskDetail.riskCode] = {
-                  premium: riskDetail.premium,
-                  amount: riskDetail.amount,
-                };
-              });
-            }
-            premiumMap.value = riskPremiumMap;
-          }
-        })
-        .finally(() => {
-          state.loading = false;
-          // state.trialMsg = '000';
-        });
-      benefitCalc(submitDataCopy)
-        .then((res) => {
-          // 利益演示接口
-          if (res.data && res.code === SUCCESS_CODE) benefitData.value = res.data;
-        })
-        .finally(() => {
-          state.loading = false;
-        });
-    }
+    await handleTrialAndBenefit(submitDataCopy);
   }
 }, 300);
 
@@ -639,18 +657,7 @@ const transformDefaultData = (defaultData: any) => {
   state.planIndex = defaultData.insuredVOList[0].productPlanVOList.findIndex(
     (p) => p.planCode === props.dataSource.planCode,
   );
-  console.log('-----data = ', state.defaultValue?.insuredVOList[0].productPlanVOList[0]);
-  // state.userData = {
-  //   holder: null,
-  //   insuredVOList: [
-  //     {
-  //       personVO: {
-  //         gender: 2,
-  //         birthday: '1988-08-27',
-  //       },
-  //     },
-  //   ],
-  // };
+  handleTrialAndBenefit(defaultData, true);
 };
 
 const fetchDefaultData = async (changes: []) => {
@@ -691,6 +698,8 @@ watch(
 const open = () => {
   state.show = true;
   state.isAniShow = true;
+  state.isSkipFirstTrial = true;
+  state.hadSkipFirstTrial = false;
   // 请求默认值接口
   fetchDefaultData([]);
 };
