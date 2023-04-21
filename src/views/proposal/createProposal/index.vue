@@ -438,6 +438,25 @@ const trailProduct = (params) => {
 //   toggleProductRisk(false);
 // };
 
+/** 获取产品数据列表 */
+const queryProductInfo = (searchData: any) => {
+  queryProductDetailList(searchData)
+    .then(({ code, data }) => {
+      if (code === '10000') {
+        if (isNotEmptyArray(data)) {
+          Object.assign(
+            stateInfo.productCollection,
+            data.reduce((res, item) => {
+              res[item.productCode] = item;
+              return res;
+            }, {}),
+          );
+        }
+      }
+    })
+    .finally(() => {});
+};
+
 // 获取试算默认值
 const fetchDefaultData = async (productCodeList: string[], flag = false) => {
   if (!isNotEmptyArray(productCodeList)) {
@@ -453,9 +472,10 @@ const fetchDefaultData = async (productCodeList: string[], flag = false) => {
       data.forEach((dataItem) => {
         const { holder, insuredVOList, productCode } = dataItem;
         const { personVO, productPlanVOList } = (insuredVOList || [])[0] || {};
+        const [{ riskVOList } = {}] = productPlanVOList || [];
         const tempData: proposalInsuredProductItem = {
           productCode,
-          proposalProductRiskList: productPlanVOList,
+          proposalProductRiskList: riskVOList,
         };
 
         // 初次调用
@@ -494,27 +514,11 @@ onBeforeMount(() => {
   //   proposalInfo.value = preProposalInfo;
   // }
   // store.setTrialData([]);
-  productCodeInQuery && fetchDefaultData([productCodeInQuery as string], true);
+  if (productCodeInQuery) {
+    queryProductInfo([{ productCode: productCodeInQuery }]);
+    fetchDefaultData([productCodeInQuery as string], true);
+  }
 });
-
-/** 获取产品数据列表 */
-const queryProductInfo = (searchData: any) => {
-  queryProductDetailList(searchData)
-    .then(({ code, data }) => {
-      if (code === '10000') {
-        if (isNotEmptyArray(data)) {
-          Object.assign(
-            stateInfo.productCollection,
-            data.reduce((res, item) => {
-              res[item.productCode] = item;
-              return res;
-            }, {}),
-          );
-        }
-      }
-    })
-    .finally(() => {});
-};
 
 watch(
   () => stateInfo.selectedProductCodeList,
@@ -536,7 +540,7 @@ watch(
 
 // 获取产品详情信息
 watch(
-  () => stateInfo.selectedProductCodeList,
+  [() => stateInfo.selectedProductCodeList, () => productCodeInQuery],
   () => {
     if (isNotEmptyArray(currentProductCodeList.value)) {
       const codeList = Object.keys(stateInfo.productCollection);
