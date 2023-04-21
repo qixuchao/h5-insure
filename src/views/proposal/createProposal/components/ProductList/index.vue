@@ -182,12 +182,13 @@ const onFinished = (riskList: any[], disabled: any[]) => {
 watch(
   () => props.productInfo,
   (newVal) => {
+    console.log(12111111);
     let productPremium = 0;
     (newVal.proposalProductRiskList || []).forEach((risk: ProposalProductRiskItem) => {
       productPremium += risk.premium;
     });
 
-    props.pickProductPremium?.({ [`${newVal.productId}`]: productPremium });
+    props.pickProductPremium?.({ [`${newVal.productCode}`]: productPremium });
     state.value.totalPremium = productPremium;
   },
   {

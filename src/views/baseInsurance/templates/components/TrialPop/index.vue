@@ -464,14 +464,17 @@ const handleMixTrialData = debounce(async () => {
           state.loading = false;
           // state.trialMsg = '000';
         });
-      benefitCalc(submitDataCopy)
-        .then((res) => {
-          // 利益演示接口
-          if (res.data && res.code === SUCCESS_CODE) benefitData.value = res.data;
-        })
-        .finally(() => {
-          state.loading = false;
-        });
+      // 是否显示利益演示
+      if (!props.hideBenefit) {
+        benefitCalc(submitDataCopy)
+          .then((res) => {
+            // 利益演示接口
+            if (res.data && res.code === SUCCESS_CODE) benefitData.value = res.data;
+          })
+          .finally(() => {
+            state.loading = false;
+          });
+      }
     }
   }
 }, 300);
