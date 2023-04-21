@@ -414,14 +414,17 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
     checkResult = code === '10000';
   }
   if (checkResult || !needCheck) {
-    benefitCalc(calcData)
-      .then((res) => {
-        // 利益演示接口
-        if (res.data && res.code === SUCCESS_CODE) benefitData.value = res.data;
-      })
-      .finally(() => {
-        state.loading = false;
-      });
+    // 是否显示利益演示
+    if (!props.hideBenefit) {
+      benefitCalc(calcData)
+        .then((res) => {
+          // 利益演示接口
+          if (res.data && res.code === SUCCESS_CODE) benefitData.value = res.data;
+        })
+        .finally(() => {
+          state.loading = false;
+        });
+    }
     premiumCalc(calcData)
       .then((res) => {
         // benefitData.value = res.data;
