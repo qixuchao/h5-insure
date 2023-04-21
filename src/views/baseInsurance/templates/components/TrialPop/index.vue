@@ -652,11 +652,12 @@ const handleRestState = () => {
 };
 
 const transformDefaultData = (defaultData: any) => {
+  // state.userData = defaultData;
   state.userData = defaultData;
   state.defaultValue = defaultData;
-  state.planIndex = defaultData.insuredVOList[0].productPlanVOList.findIndex(
-    (p) => p.planCode === props.dataSource.planCode,
-  );
+  state.planIndex =
+    defaultData.insuredVOList[0].productPlanVOList.findIndex((p) => p.planCode === props.dataSource.planCode) ||
+    state.planIndex;
   handleTrialAndBenefit(defaultData, true);
 };
 

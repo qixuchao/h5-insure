@@ -10,6 +10,8 @@ const BASE_PREFIX = import.meta.env.VITE_API_BASEURL;
 
 const pendingMap = new Map();
 
+type AxiosRequestConf = { isCustomError?: boolean } & AxiosRequestConfig;
+
 // 自定义配置
 let customOption = {
   // TODO
@@ -49,7 +51,7 @@ const closeLoading = (_options: any) => {
  * @param AxiosRequestConfig config
  * @returns string
  */
-const getPendingKey = (config: AxiosRequestConfig = {}): any => {
+const getPendingKey = (config: AxiosRequestConf = {}): any => {
   const { url, method, params } = config;
   let { data } = config;
 
@@ -110,9 +112,8 @@ const axiosInstance: AxiosInstance = axios.create({
 
 // 请求拦截器
 axiosInstance.interceptors.request.use(
-  (config: AxiosRequestConfig) => {
+  (config: AxiosRequestConf) => {
     // TODO 在这里可以加上想要在请求发送前处理的逻辑
-
     removePending(config);
     customOption.repeat_request_cancel && addPending(config);
 
@@ -154,7 +155,9 @@ axiosInstance.interceptors.response.use(
     if (res.code === SUCCESS_CODE || res.status === SUCCESS_STATUS) {
       return response;
     }
-    Toast((res && res.data) || (res && res.message) || '请求出错');
+    if (!(response.config as { isCustomError: false })?.isCustomError as any as boolean) {
+      Toast((res && res.data) || (res && res.message) || '请求出错');
+    }
     removePending(response.config);
     return response;
   },
@@ -170,7 +173,7 @@ axiosInstance.interceptors.response.use(
 );
 
 export default function request<T = ResponseData>(
-  config: AxiosRequestConfig,
+  config: AxiosRequestConf,
   customOptions = { loading: false },
 ): ResponseDataPromise<T> {
   // 自定义配置
