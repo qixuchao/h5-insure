@@ -45,6 +45,7 @@ export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
     saleChannelId,
     tenantId,
     venderCode: insurerCode,
+    insurerCode,
     tenantOrderHolder: {
       // 投保人
       extInfo: {

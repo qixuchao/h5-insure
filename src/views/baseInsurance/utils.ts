@@ -107,15 +107,29 @@ export const transformData = (o: transformDataType, flag = false) => {
       initialPremium: riskPremium[risk.riskCode]?.premium || 0,
       totalPremium: riskPremium[risk.riskCode]?.premium || 0,
       liabilityDetails:
-        risk.liabilityVOList?.map((liab) => ({
-          liabilityCode: liab.liabilityCode,
-          liabilityName: liab.liabilityName,
-          refundMethod: liab.liabilityAttributeValue,
-          isInsurance: liab.insureFlag,
-          premium: '',
-          sumInsuredValueStr: '',
-          sumInsured: 300000,
-        })) || [],
+        risk.liabilityVOList?.map((liab) => {
+          const {
+            liabilityCode,
+            liabilityName,
+            liabilityAttributeValue,
+            insureFlag,
+            liabilityRateType,
+            liabilityAttributeType,
+            liabilityValue,
+          } = liab;
+          return {
+            liabilityCode,
+            liabilityName,
+            refundMethod: liabilityAttributeValue,
+            isInsurance: insureFlag, // 是否投保
+            liabilityAttributeType, // 责任属性code
+            liabilityRateType, // 责任费率表
+            liabilityValue, // 责任值
+            premium: liabilityValue?.factorValue, // 责任保额
+            sumInsuredValueStr: liabilityValue?.displayValue,
+            sumInsured: liabilityValue?.factorValue,
+          };
+        }) || [],
       productId,
       currentAmount: risk.amount || 0,
       initialAmount: riskPremium[risk.riskCode]?.amount || risk.amount,
