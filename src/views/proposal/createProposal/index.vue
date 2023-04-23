@@ -30,7 +30,7 @@
               label="出生日期"
               name="birthday"
               required
-              @change="changeBirthday"
+              @update:model-value="changeBirthday"
             />
           </template>
         </ProFieldV2>

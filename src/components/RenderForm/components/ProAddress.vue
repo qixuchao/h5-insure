@@ -10,6 +10,7 @@
     show-full-value
     :custom-field-name="customFieldName"
     v-bind="$attrs"
+    :model-value="cascaderModelValue"
     :is-view="isView"
     :level="addressConfig.level"
     @update:full-value="updateFullValue"
@@ -29,6 +30,8 @@ import { isNotEmptyArray } from '@/common/constants/utils';
 import ProCascaderV2 from './ProCascaderV2.vue';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { upperFirstLetter } from '../utils';
+
+const emit = defineEmits(['update:modelValue']);
 
 const props = defineProps({
   name: {
@@ -120,6 +123,12 @@ const addressConfig = computed(() => {
   };
 });
 
+const cascaderModelValue = computed(() => {
+  const { level } = addressConfig.value;
+  const key = ['province', 'city', 'area'][level === 0 ? 'area' : level - 1];
+  return state.address[key];
+});
+
 const updateFullValue = (arr = []) => {
   let address = {};
   if (isNotEmptyArray(arr)) {
@@ -139,6 +148,18 @@ const updateFullValue = (arr = []) => {
     ...address,
   };
 };
+
+watch(
+  () => state.address,
+  () => {
+    console.log('address', 1111111, state.address);
+    emit('update:modelValue', state.address);
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
 </script>
 <script lang="ts">
 export default {
