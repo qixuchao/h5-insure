@@ -355,12 +355,16 @@ const handleDealDyResult = (dyResult: any) => {
       defaultRiskData.forEach((data) => {
         state.defaultValue.insuredVOList[0].productPlanVOList =
           state.defaultValue?.insuredVOList?.[0]?.productPlanVOList.map((p) => {
-            if (p.riskCode === data.riskCode) {
-              p = data;
-            }
+            p.riskVOList = p?.riskVOList.map((r) => {
+              if (r.riskCode === data.riskCode) {
+                r = data;
+              }
+              return r;
+            });
             return p;
           });
       });
+      // state.defaultValue = cloneDeep(state.defaultValue);
       return false;
     }
   }
