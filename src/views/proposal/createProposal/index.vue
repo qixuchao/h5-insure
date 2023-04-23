@@ -327,12 +327,14 @@ const sexLimit = computed(() => {
   return riskInsureLimitVO?.sexLimit;
 });
 
+// 性别限制仅显示配置的，无限制/男/女
 const sexList = computed(() => {
   if (sexLimit.value === '-1') return SEX_LIMIT_LIST;
-  return SEX_LIMIT_LIST.map((item) => ({
-    ...item,
-    disabled: sexLimit.value !== item.value,
-  }));
+  return SEX_LIMIT_LIST.filter((item) => sexLimit.value === item.value);
+  // return SEX_LIMIT_LIST.map((item) => ({
+  //   ...item,
+  //   disabled: sexLimit.value !== item.value,
+  // }));
 });
 
 /** 当前产品详情 */
