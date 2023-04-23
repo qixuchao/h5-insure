@@ -12,7 +12,28 @@
       </ProRenderForm>
       <ProRenderFormWithCard ref="insuredFormRef" title="被保人信息" :model="stateInfo.insuredPersonVO">
         <ProFieldV2 v-model="stateInfo.insuredPersonVO.name" label="姓名" name="name" :maxlength="20" required />
-        <ProDatePickerV2 v-model="stateInfo.insuredPersonVO.birthday" label="出生日期" name="birthday" required />
+
+        <ProFieldV2
+          v-model="stateInfo.insuredPersonVO.age"
+          class="age-field-wrap"
+          name="age"
+          label="年龄"
+          type="digit"
+          :maxlength="3"
+          required
+          @change="changeAge"
+        >
+          <template #extra>
+            <ProDatePickerV2
+              v-model="stateInfo.insuredPersonVO.birthday"
+              class="birthday-field-wrap"
+              label="出生日期"
+              name="birthday"
+              required
+              @change="changeBirthday"
+            />
+          </template>
+        </ProFieldV2>
         <ProRadioV2 v-model="stateInfo.insuredPersonVO.gender" label="性别" name="gender" :columns="sexList" required />
       </ProRenderFormWithCard>
 
@@ -434,6 +455,18 @@ const trailProduct = (params) => {
 //   toggleProductRisk(false);
 // };
 
+// 生日变化要改变年龄
+const changeBirthday = (val) => {
+  if (val) {
+    stateInfo.insuredPersonVO.age = dayjs(val).diff(new Date(), 'year');
+  }
+};
+
+//  改变年龄清除出生日期
+const changeAge = () => {
+  stateInfo.insuredPersonVO.birthday = '';
+};
+
 /** 获取产品数据列表 */
 const queryProductInfo = (searchData: any) => {
   queryProductDetailList(searchData)
@@ -847,6 +880,27 @@ onDeactivated(() => {});
     .trial-operate {
       button {
         width: 280px;
+      }
+    }
+  }
+
+  .age-field-wrap {
+    :deep(.com-form-item.birthday-field-wrap) {
+      min-height: 78px;
+      padding: 0;
+      width: 240px;
+      margin-left: 30px;
+      .van-field__label {
+        display: none;
+      }
+
+      &::after {
+        left: 10px;
+        top: 50%;
+        width: 2px;
+        height: 40px;
+        border-left: 1px solid var(--van-cell-border-color);
+        transform: translateY(-50%);
       }
     }
   }
