@@ -198,7 +198,7 @@ const router = useRouter();
 const route = useRoute();
 const store = createProposalStore();
 
-const { id, productCode: productCodeInQuery, type = 'add', isCreateProposal } = route.query;
+const { id, type = 'add', isCreateProposal } = route.query;
 
 const trialPopupRef = ref(null);
 
@@ -234,6 +234,7 @@ interface StateInfo {
   defaultData: {
     [x: string]: any;
   };
+  productCodeInQuery: string;
 }
 
 const stateInfo = reactive<StateInfo>({
@@ -246,6 +247,7 @@ const stateInfo = reactive<StateInfo>({
   productCollection: {},
   productErrorMap: {},
   defaultData: null,
+  productCodeInQuery: '',
 });
 
 const formRef = ref(null);
@@ -404,20 +406,14 @@ const onFinished = (productInfo: PlanTrialData) => {
 const addMainRisk = () => {
   store.setProposalInfo(proposalInfo.value);
   store.setTrialData([]);
-  if (state.value.productCollection.length) {
-    store.setExcludeProduct(state.value.productCollection.map((i) => i.productCode));
-  }
 
-  const { gender, birthday } = stateInfo.insuredPersonVO;
+  store.setExcludeProduct(currentProductCodeList.value);
+  store.setInsuredPersonVO(stateInfo.insuredPersonVO);
 
   router.push({
-    path: '/proposalList',
+    path: '/proposalListSelect',
     query: {
       isCreateProposal: '1',
-      productCode: productCodeInQuery,
-      productCodeList: currentProductCodeList.value,
-      gender,
-      birthday,
     },
   });
 };
@@ -473,10 +469,16 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
     return;
   }
   // TODO 加loading
-  const { code, data } = await queryCalcDefaultInsureFactor({
-    calcProductFactorList,
-    ...stateInfo.insuredPersonVO,
-  });
+  const { code, data } = await queryCalcDefaultInsureFactor(
+    {
+      calcProductFactorList,
+      ...stateInfo.insuredPersonVO,
+    },
+    {
+      // 第一次弹窗提示错误信息
+      isCustomError: !flag,
+    },
+  );
   if (code === '10000' && data) {
     if (isNotEmptyArray(data)) {
       data.forEach((dataItem) => {
@@ -581,10 +583,15 @@ const convertProposalToTrialData = (productCode) => {
  */
 const calcDynamicInsureFactor = async (productCode) => {
   try {
-    const { code, data, message } = await queryCalcDynamicInsureFactor({
-      calcProductFactorList: handleCalcDynamicInsure(productCode),
-      ...stateInfo.insuredPersonVO,
-    });
+    const { code, data, message } = await queryCalcDynamicInsureFactor(
+      {
+        calcProductFactorList: handleCalcDynamicInsure(productCode),
+        ...stateInfo.insuredPersonVO,
+      },
+      {
+        isCustomError: true,
+      },
+    );
     if (code === '10000' && isNotEmptyArray(data)) {
       stateInfo.proposalInsuredProductList.forEach(({ productCode: pCode, proposalProductRiskList }) => {
         const { productRiskDyInsureFactorVOList } = data[0] || data.find((item) => item.productCode === pCode) || {};
@@ -668,10 +675,10 @@ onBeforeMount(() => {
   //   proposalInfo.value = preProposalInfo;
   // }
   // store.setTrialData([]);
-  if (productCodeInQuery) {
-    queryProductInfo([{ productCode: productCodeInQuery }]);
-    fetchDefaultData([{ productCode: productCodeInQuery }], true);
-  }
+  // if (productCodeInQuery) {
+  //   queryProductInfo([{ productCode: productCodeInQuery }]);
+  //   fetchDefaultData([{ productCode: productCodeInQuery }], true);
+  // }
 });
 
 const validateData = (arr) => (isNotEmptyArray(arr) ? arr.every((item) => Boolean(item)) : false);
@@ -681,9 +688,6 @@ watch(
   (val, oldVal) => {
     if (validateData(val) && validateData(oldVal) && val.join(',') !== oldVal.join(',')) {
       console.log('被保人条件变动');
-      const codeList = [productCodeInQuery, ...stateInfo.selectedProductCodeList].map((productCode) => ({
-        productCode,
-      }));
       currentProductCodeList.value.forEach((code) => calcDynamicInsureFactor(code));
     }
   },
@@ -703,18 +707,8 @@ watch(
       }));
       stateInfo.proposalInsuredProductList.push(...tempList);
       fetchDefaultData(val.map((productCode) => ({ productCode })));
-    }
-  }),
-  {
-    deep: true,
-  },
-);
 
-// 获取产品详情信息
-watch(
-  () => stateInfo.selectedProductCodeList,
-  (val) => {
-    if (isNotEmptyArray(val)) {
+      // 获取产品详情
       const codeList = Object.keys(stateInfo.productCollection);
       const tempCodeList = val?.filter((code) => !codeList.includes(code));
       if (isNotEmptyArray(tempCodeList)) {
@@ -725,23 +719,35 @@ watch(
         );
       }
     }
-  },
+  }),
   {
     deep: true,
-    immediate: true,
   },
 );
 
 onActivated(() => {
   const {
-    query: { selectProduct },
+    query: { productCode: productCodeInQuery },
   } = useRoute();
-  stateInfo.selectedProductCodeList = isNotEmptyArray(selectProduct)
-    ? (selectProduct as string[])
-    : typeof selectProduct === 'string' && selectProduct
-    ? [selectProduct]
-    : [];
+  const { selectedProduct, insuredPersonVO } = store.$state;
+  stateInfo.productCodeInQuery = productCodeInQuery;
+  stateInfo.proposalInsuredProductList = [];
+
+  console.log(333333, insuredPersonVO);
+  if (!insuredPersonVO || !Object.keys(insuredPersonVO).length) {
+    stateInfo.insuredPersonVO = {};
+  }
+
+  if (productCodeInQuery) {
+    const params = [{ productCode: productCodeInQuery as string }];
+    queryProductInfo(params);
+    fetchDefaultData(params, true);
+  }
+
+  stateInfo.selectedProductCodeList = isNotEmptyArray(selectedProduct) ? (selectedProduct as string[]) : [];
 });
+
+onDeactivated(() => {});
 </script>
 
 <style lang="scss" scoped>

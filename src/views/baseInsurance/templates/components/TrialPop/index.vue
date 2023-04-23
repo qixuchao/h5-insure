@@ -652,9 +652,10 @@ const transformDefaultData = (defaultData: any) => {
   // state.userData = defaultData;
   state.userData = defaultData;
   state.defaultValue = defaultData;
-  state.planIndex =
-    defaultData.insuredVOList[0].productPlanVOList.findIndex((p) => p.planCode === props.dataSource.planCode) ||
-    state.planIndex;
+  const currentPlanIndex = defaultData.insuredVOList[0].productPlanVOList.findIndex(
+    (p) => p.planCode === props.dataSource.planCode,
+  );
+  state.planIndex = currentPlanIndex === -1 ? 0 : currentPlanIndex;
   handleTrialAndBenefit(defaultData, true);
 };
 

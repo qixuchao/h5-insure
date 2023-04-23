@@ -28,6 +28,7 @@
                   <van-checkbox
                     :ref="(el) => (checkboxRefs[item.productCode] = el)"
                     shape="square"
+                    :model-value="checked?.includes(item.productCode)"
                     :name="item.productCode"
                     @click.stop="toggle(item.productCode)"
                   />
@@ -49,6 +50,7 @@
 </template>
 <script lang="ts" setup name="TrialProductPopup">
 import { withDefaults } from 'vue';
+import { emit } from 'process';
 import { ProposalInfo } from '@/api/modules/createProposal.data';
 
 interface Props {
@@ -96,6 +98,17 @@ watch(
   () => props.isShow,
   (newVal) => {
     state.value.isShow = newVal;
+  },
+);
+
+watch(
+  checked,
+  (newVal = []) => {
+    emits('update:modalValue', newVal);
+  },
+  {
+    deep: true,
+    immediate: true,
   },
 );
 
