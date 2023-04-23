@@ -218,6 +218,7 @@ watch(
     const dataList = state.value.liabilityVOList
       .filter((x) => x.isSwitchOn === '1')
       .map((item) => ({ ...item.liabilityValue }));
+
     emit('trialChange', dataList);
   },
   {
@@ -274,9 +275,11 @@ watch(
       state.value.signLiabilityClick = [];
       props.dataSource.riskLiabilityInfoVOList.forEach((item, index) => {
         const targetLia = v?.liabilityVOList.find((li) => li.liabilityCode === item.liabilityCode);
+        state.value.isCheckList[index] = '2';
         if (targetLia) {
+          state.value.isCheckList[index] = '1';
           state.value.checkValueList[index] = targetLia?.liabilityValue?.displayValue;
-          // handleRiskLiabityClick(item, index);
+          // handleSwitchClick(item, index);
           signLiabilityClick(item, index);
         }
       });
