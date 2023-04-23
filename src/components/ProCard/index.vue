@@ -1,7 +1,7 @@
 <template>
   <div class="com-card">
     <div class="com-card-wrap">
-      <div :class="['header', { showLine }]">
+      <div :class="['header', { showLine: Boolean(title) && showLine }]">
         <div v-if="title" class="title-wrapper">
           <div :class="['title', { showIcon }]">{{ title }}</div>
           <ProSvg
@@ -97,6 +97,8 @@ const subTitle = computed(() => {
     .header {
       margin-left: $zaui-card-border;
       padding-right: $zaui-card-border;
+      border-bottom: 0;
+
       &.showLine {
         border-bottom: 1px solid $zaui-line;
       }

@@ -1,19 +1,19 @@
 <template>
   <ProPageWrap class="page-create-wrapper">
     <div class="container">
-      <ProRenderForm ref="formRef" class="mb20" :model="stateInfo">
-        <ProFieldV2 v-model="stateInfo.proposalName" label="计划书名称" name="proposalName" :maxlength="20" required />
+      <ProRenderForm ref="formRef" class="mb20" :model="stateInfo.insuredPersonVO">
+        <ProFieldV2
+          v-model="stateInfo.insuredPersonVO.proposalName"
+          label="计划书名称"
+          name="proposalName"
+          :maxlength="20"
+          required
+        />
       </ProRenderForm>
       <ProRenderFormWithCard ref="insuredFormRef" title="被保人信息" :model="stateInfo.insuredPersonVO">
         <ProFieldV2 v-model="stateInfo.insuredPersonVO.name" label="姓名" name="name" :maxlength="20" required />
         <ProDatePickerV2 v-model="stateInfo.insuredPersonVO.birthday" label="出生日期" name="birthday" required />
-        <ProRadioV2
-          v-model="stateInfo.insuredPersonVO.gender"
-          label="性别"
-          name="gender"
-          :columns="SEX_LIMIT_LIST"
-          required
-        />
+        <ProRadioV2 v-model="stateInfo.insuredPersonVO.gender" label="性别" name="gender" :columns="sexList" required />
       </ProRenderFormWithCard>
 
       <!-- <VanForm ref="formRef" input-align="right" error-message-align="right">
@@ -87,10 +87,10 @@
     </div>
     <div class="footer-bar">
       <span class="trial-result"
-        >总保费<span class="result-num">￥{{ proposalInfo?.totalPremium?.toLocaleString() }}</span>
+        >总保费<span class="result-num">￥{{ totalPremium?.toLocaleString() }}</span>
       </span>
       <div class="trial-operate">
-        <VanButton type="primary" @click="saveProposalData">保存并预览</VanButton>
+        <VanButton :disabled="submitDisable" type="primary" @click="saveProposalData">保存并预览</VanButton>
       </div>
     </div>
     <!-- <ProductRisk
@@ -200,6 +200,13 @@ const store = createProposalStore();
 
 const { id, type = 'add', isCreateProposal } = route.query;
 
+const hiddenFieldKeys = ['name', 'gender', 'birthday'].reduce((res, key) => {
+  res[key] = {
+    hidden: true,
+  };
+  return res;
+}, {});
+
 const trialPopupRef = ref(null);
 
 const state = ref<State>({
@@ -220,7 +227,6 @@ interface proposalInsuredProductItem {
 
 interface StateInfo {
   selectedProductCodeList: string[];
-  proposalName: string;
   currentProductCode: string;
   proposalHolder: Partial<ProposalHolder>;
   insuredPersonVO: Partial<ProposalHolder>;
@@ -240,7 +246,6 @@ interface StateInfo {
 const stateInfo = reactive<StateInfo>({
   selectedProductCodeList: [],
   insuredPersonVO: {},
-  proposalName: '',
   currentProductCode: '',
   proposalHolder: {},
   proposalInsuredProductList: [],
@@ -270,52 +275,6 @@ const currentProductCodeList = computed(() => {
   return stateInfo.proposalInsuredProductList.map((item) => item.productCode).filter((code) => Boolean(code));
 });
 
-// 创建计划书
-const submitData = () => {
-  Promise.all([formRef.value?.validate(), insuredFormRef.value?.validate()]).then(() => {
-    const { proposalHolder } = stateInfo;
-    addOrUpdateProposal({
-      proposalHolder,
-      proposalInsuredList: [
-        {
-          ...stateInfo.insuredPersonVO,
-          proposalInsuredProductList: stateInfo.proposalInsuredProductList,
-        },
-      ],
-      proposalName: stateInfo.proposalName,
-      totalPremium: 0,
-      relationUserType: 2,
-    }).then((res) => {
-      const { code, data } = res || {};
-      if (code === '10000') {
-        store.$reset();
-        store.proposalId = data;
-        router.push({
-          path: '/compositionProposal',
-          query: {
-            id: data,
-          },
-        });
-      }
-    });
-  });
-};
-
-const saveProposalData = () => {
-  // if (!id && store.proposalId) {
-  //   toggleActionSheet(true);
-  // } else {
-  submitData();
-  // }
-};
-
-const selectAction = (item: ActionSheetAction, index: number) => {
-  if (index) {
-    proposalInfo.value.id = null;
-  }
-  submitData();
-};
-
 // const formatData = ({ productCode, holder, insuredVOList } = {}) => {
 //   const { personVO, productPlanVOList } = insuredVOList?.[0] || {};
 
@@ -337,6 +296,22 @@ const selectAction = (item: ActionSheetAction, index: number) => {
 //   return proposalData;
 // };
 
+/** 性别限制 */
+const sexLimit = computed(() => {
+  const { productPlanInsureVOList } = stateInfo.productCollection[stateInfo.productCodeInQuery] || {};
+  const [{ insureProductRiskVOList } = {}] = productPlanInsureVOList || [];
+  const { riskInsureLimitVO } = insureProductRiskVOList?.find((riskItem) => riskItem.riskType === 1) || {};
+  return riskInsureLimitVO?.sexLimit;
+});
+
+const sexList = computed(() => {
+  if (sexLimit.value === '-1') return SEX_LIMIT_LIST;
+  return SEX_LIMIT_LIST.map((item) => ({
+    ...item,
+    disabled: sexLimit.value !== item.value,
+  }));
+});
+
 /** 当前产品详情 */
 const currentProductDetail = computed(() => {
   return stateInfo.productCollection?.[stateInfo.currentProductCode] || {};
@@ -353,6 +328,21 @@ const pickProductPremium = (premiumData = {}) => {
     return pre + next;
   }, 0);
 };
+
+/**  */
+const submitDisable = computed(() => {
+  return Boolean(Object.values(stateInfo.productErrorMap).join(''));
+});
+
+// 总保费
+const totalPremium = computed(() => {
+  return stateInfo.proposalInsuredProductList.reduce((total, item) => {
+    const premium = item.proposalProductRiskList.reduce((res, riskItem) => {
+      return res + (riskItem.premium || 0);
+    }, 0);
+    return total + premium;
+  }, 0);
+});
 
 const queryProposalInfo = (params = {}) => {
   queryProposalDetail(params).then(({ code, data }) => {
@@ -567,6 +557,7 @@ const convertProposalToTrialData = (productCode) => {
     insuredVOList: [
       {
         personVO: stateInfo.insuredPersonVO,
+        config: hiddenFieldKeys,
         productPlanVOList: [
           {
             riskVOList: currentProductItem.proposalProductRiskList,
@@ -683,6 +674,52 @@ onBeforeMount(() => {
 
 const validateData = (arr) => (isNotEmptyArray(arr) ? arr.every((item) => Boolean(item)) : false);
 
+// 创建计划书
+const submitData = () => {
+  Promise.all([formRef.value?.validate(), insuredFormRef.value?.validate()]).then(() => {
+    const { proposalHolder } = stateInfo;
+    addOrUpdateProposal({
+      proposalHolder,
+      proposalInsuredList: [
+        {
+          ...stateInfo.insuredPersonVO,
+          proposalInsuredProductList: stateInfo.proposalInsuredProductList,
+        },
+      ],
+      proposalName: stateInfo.insuredPersonVO.proposalName,
+      totalPremium: totalPremium.value,
+      relationUserType: 2,
+    }).then((res) => {
+      const { code, data } = res || {};
+      if (code === '10000') {
+        store.$reset();
+        store.proposalId = data;
+        router.push({
+          path: '/compositionProposal',
+          query: {
+            id: data,
+          },
+        });
+      }
+    });
+  });
+};
+
+const saveProposalData = () => {
+  // if (!id && store.proposalId) {
+  //   toggleActionSheet(true);
+  // } else {
+  submitData();
+  // }
+};
+
+const selectAction = (item: ActionSheetAction, index: number) => {
+  if (index) {
+    proposalInfo.value.id = null;
+  }
+  submitData();
+};
+
 watch(
   () => ['gender', 'birthday'].map((key) => stateInfo.insuredPersonVO[key]),
   (val, oldVal) => {
@@ -733,10 +770,11 @@ onActivated(() => {
   stateInfo.productCodeInQuery = productCodeInQuery;
   stateInfo.proposalInsuredProductList = [];
 
-  console.log(333333, insuredPersonVO);
   if (!insuredPersonVO || !Object.keys(insuredPersonVO).length) {
     stateInfo.insuredPersonVO = {};
   }
+
+  stateInfo.productErrorMap = {};
 
   if (productCodeInQuery) {
     const params = [{ productCode: productCodeInQuery as string }];

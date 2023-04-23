@@ -2,7 +2,7 @@
   <ProRenderFormWithCard
     ref="insuredFormRef"
     class="personal-info-card"
-    :title="title"
+    :title="hideTitle ? '' : title"
     :model="state.personVO"
     :schema="state.schema"
     :config="state.config"
@@ -154,6 +154,11 @@ const onDeleteBeneficiary = (index) => {
 const addible = computed(() => {
   return !props.multiBeneficiaryMaxNum || state.beneficiaryList.length < props.multiBeneficiaryMaxNum;
 });
+
+// 是否有展示title, 有效 schema
+const hideTitle = computed(
+  () => !state.schema.filter((item) => !(item.hidden || state.config[item.name]?.hidden)).length,
+);
 
 // 是否有受益人
 const hasBeneficiarySchema = computed(() => isNotEmptyArray(props.beneficiarySchema));

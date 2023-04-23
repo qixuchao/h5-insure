@@ -44,7 +44,7 @@ import { withDefaults } from 'vue';
 import { Dialog, Toast } from 'vant';
 import { nanoid } from 'nanoid';
 import cloneDeep from 'lodash-es/cloneDeep';
-import { debounce } from 'lodash';
+import { debounce, merge } from 'lodash';
 import {
   type PersonalInfoConf,
   type PersonFormProps,
@@ -312,8 +312,11 @@ watch(
 // 表单数据变动
 watch(
   [() => props.modelValue, () => state.config],
-  (val) => {
+  debounce((val) => {
     const { holder, insuredVOList } = val[0] || {};
+
+    // 投保人
+    state.holder.config = holder?.config || {};
     Object.assign(state.holder.personVO, holder?.personVO);
 
     // 处理被保人数据
@@ -328,13 +331,14 @@ watch(
         : stateInsuredLen || state.config.multiInsuredMinNum;
 
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
-      const { personVO } = insuredVOList?.[index] || {};
+      const { personVO, config = {} } = insuredVOList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
 
       if (!res[index]) {
         res[index] = {
           ...initInsuredTempData,
           personVO,
+          config,
           nanoid: nanoid(),
         };
       } else {
@@ -342,7 +346,7 @@ watch(
       }
       return res;
     }, state.insured);
-  },
+  }, 500),
   {
     deep: true,
     immediate: true,
