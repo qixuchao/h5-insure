@@ -15,11 +15,7 @@
         ref="insureInfosRef"
         :origin-data="mainRiskInfo"
         :product-factor="currentPlanObj.productFactor"
-        :default-value="
-          state.defaultValue
-            ? state.defaultValue?.insuredVOList?.[0]?.productPlanVOList?.[state.planIndex]?.riskVOList?.[0]
-            : null
-        "
+        :default-value="state.defaultValue?.insuredVOList?.[0]?.productPlanVOList?.[0]?.riskVOList?.[0]"
         @trial-change="handleTrialInfoChange"
       ></InsureInfos>
       <!-- 以下是附加险种信息 -->
@@ -28,9 +24,7 @@
         :data-source="currentPlanObj"
         :show-main-risk="false"
         :default-value="
-          state.defaultValue
-            ? state.defaultValue?.insuredVOList?.[0]?.productPlanVOList?.[state.planIndex]?.riskVOList || []
-            : []
+          state.defaultValue ? state.defaultValue?.insuredVOList?.[0]?.productPlanVOList?.[0]?.riskVOList || [] : []
         "
         @trial-change="handleProductRiskInfoChange"
       ></ProductRiskList>
@@ -413,7 +407,7 @@ const handleDealDyResult = (dyResult: any) => {
         }
       }
     });
-    console.log('默认值', defaultRiskData.length, state.defaultValue);
+
     if (defaultRiskData.length > 0 && state.defaultValue?.insuredVOList?.[0]?.productPlanVOList) {
       // 给默认值
       defaultRiskData.forEach((data) => {
@@ -753,8 +747,6 @@ const orderData2formData = () => {
     },
   }));
 
-  console.log('personalInfo', personalInfo);
-
   Object.assign(state.personalInfo, personalInfo);
 };
 
@@ -800,7 +792,8 @@ const initData = async () => {
         });
 
         orderData2formData();
-
+        const trialData = orderData2trialData(data, insureProductDetail.value, '');
+        state.defaultValue = trialData;
         isLoading.value = true;
       }
     });
@@ -817,7 +810,7 @@ const initData = async () => {
         ...payInfo,
       };
 
-      fetchDefaultData([]);
+      // fetchDefaultData([]);
     }
   });
 };

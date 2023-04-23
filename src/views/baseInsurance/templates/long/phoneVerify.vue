@@ -67,7 +67,7 @@ const handleSubmit = () => {
     if (code === '10000' && data) {
       Toast.success('验证成功');
       if (orderDetail.value.orderStatus === ORDER_STATUS_ENUM.PROCESSING) {
-        pageJump('infoCollection', route.query);
+        pageJump('infoCollection', { ...route.query, isShare: 1 });
       } else if (
         [
           ORDER_STATUS_ENUM.WAIT_IDENTIFICATION,
@@ -75,7 +75,7 @@ const handleSubmit = () => {
           ORDER_STATUS_ENUM.IN_IDENTIFICATION,
         ].includes(orderDetail.value.orderStatus)
       ) {
-        pageJump('infoPreview', route.query);
+        pageJump('infoPreview', { ...route.query, isShare: 1 });
       }
     } else {
       Toast.fail('验证失败');

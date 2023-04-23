@@ -309,7 +309,7 @@ export interface RiskVoItem {
   copy: string; // 份数
   coveragePeriod: string;
   insuredCode: string;
-  liabilityVOList: LiabilityVoItem[];
+  liabilityVOList: Array<Partial<LiabilityVoItem>>;
   mainRisk: boolean;
   mainRiskCode: string;
   mainRiskId: number;
@@ -339,6 +339,7 @@ export interface LiabilityVoItem {
   liabilityTopType: number;
   liabilityType: number;
   liabilityValue: LiabilityValue;
+  [propName: string]: any
 }
 
 export interface LiabilityValue {

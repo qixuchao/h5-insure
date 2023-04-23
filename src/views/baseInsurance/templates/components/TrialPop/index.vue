@@ -200,10 +200,7 @@ const trialData2Order = (
     holder: state.submitData.holder?.personVO,
     insuredList: (state.submitData.insuredVOList || []).map((person) => person.personVO),
   });
-  console.log('tenantOrderHolder', tenantOrderHolder);
-  console.log('tenantOrderInsuredList', tenantOrderInsuredList);
   const riskList = state.submitData.insuredVOList.map((person) => person.productPlanVOList?.[0]?.riskVOList).flat();
-  console.log('riskList', riskList);
   const transformDataReq = {
     tenantId,
     riskList,
