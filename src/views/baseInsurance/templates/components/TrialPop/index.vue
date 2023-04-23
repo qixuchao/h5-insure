@@ -27,6 +27,7 @@
         <!-- <van-icon :name="cancelIcon" @click="state.show = false" /> -->
         <van-icon name="cross" @click="state.show = false" />
       </div>
+      <HeadWaring :label="getRelationText(dataSource.insureProductRiskVOList, dataSource.productRiskRelationVOList)" />
       <div class="container">
         <Benefit
           v-if="!hideBenefit"
@@ -101,6 +102,7 @@ import ProductRiskList from '../../long/ProductRiskList/index.vue';
 import Benefit from '../Benefit/index.vue';
 import { PremiumCalcData, RiskVoItem } from '@/api/modules/trial.data';
 import { RISK_TYPE, RISK_TYPE_ENUM } from '@/common/constants/trial';
+import HeadWaring from '../HeadWarning/index.vue';
 import {
   benefitCalc,
   premiumCalc,
@@ -110,7 +112,7 @@ import {
 } from '@/api/modules/trial';
 import { SUCCESS_CODE } from '@/api/code';
 import { PRODUCT_KEYS_CONFIG } from '../../long/InsureInfos/components/ProductKeys/config';
-import { dealExemptPeriod } from './utils';
+import { dealExemptPeriod, getRelationText } from './utils';
 import useOrder from '@/hooks/useOrder';
 import { formData2Order } from '../../utils';
 import { ProductDetail, ProductDetail as ProductData } from '@/api/modules/newTrial.data';
