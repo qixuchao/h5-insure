@@ -93,6 +93,7 @@ const state = ref({
   isCheckList: [],
   checkValueList: [],
   liabilityVOList: [],
+  signLiabilityClick: [],
 });
 
 const handleSwitchClick = (item, index) => {
@@ -124,7 +125,6 @@ const handleRiskLiabityClick = (e, index) => {
     (x) => x.displayValue === state.value.checkValueList[index],
   );
   const liabilityValue = JSON.parse(JSON.stringify(curentLiabilityList))[0];
-
   const curentLiabilityObject = { ...e, liabilityValue };
 
   if (state.value.liabilityVOList.length > 0) {
@@ -157,6 +157,14 @@ const dealInitliabilityValueList = (item, index, type) => {
     });
   }
 };
+
+const signLiabilityClick = (item, index) => {
+  state.value.signLiabilityClick.push({
+    item,
+    index,
+  });
+};
+
 watch(
   () => dataSourceFolmulate.value,
   (oldValue, newValue) => {
@@ -183,6 +191,12 @@ watch(
 
         if (code === '10000') {
           liab.liabilityAttributeValueList = data[0].formulaResult;
+          if (state.value.signLiabilityClick.length > 0) {
+            const targetSign = state.value.signLiabilityClick.find((s) => s.item.liabilityCode === liab.liabilityCode);
+            if (targetSign) {
+              handleRiskLiabityClick(targetSign.item, targetSign.index);
+            }
+          }
           return { ...liab, liabilityAttributeValueList: data[0] };
         }
 
@@ -257,11 +271,13 @@ watch(
   () => props.defaultValue,
   (v) => {
     if (v?.riskCode && v.liabilityVOList) {
+      state.value.signLiabilityClick = [];
       props.dataSource.riskLiabilityInfoVOList.forEach((item, index) => {
         const targetLia = v?.liabilityVOList.find((li) => li.liabilityCode === item.liabilityCode);
         if (targetLia) {
           state.value.checkValueList[index] = targetLia?.liabilityValue?.displayValue;
-          handleRiskLiabityClick(item, index);
+          // handleRiskLiabityClick(item, index);
+          signLiabilityClick(item, index);
         }
       });
     }
