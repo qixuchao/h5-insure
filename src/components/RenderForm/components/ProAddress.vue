@@ -123,6 +123,7 @@ const addressConfig = computed(() => {
   };
 });
 
+/** cascader 值 */
 const cascaderModelValue = computed(() => {
   const { level } = addressConfig.value;
   const key = ['province', 'city', 'area'][level === 0 ? 'area' : level - 1];
@@ -152,7 +153,6 @@ const updateFullValue = (arr = []) => {
 watch(
   () => state.address,
   () => {
-    console.log('address', 1111111, state.address);
     emit('update:modelValue', state.address);
   },
   {
