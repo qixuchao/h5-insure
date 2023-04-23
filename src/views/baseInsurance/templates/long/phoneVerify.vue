@@ -73,6 +73,7 @@ const handleSubmit = () => {
           ORDER_STATUS_ENUM.WAIT_IDENTIFICATION,
           ORDER_STATUS_ENUM.IDENTIFICATION_COMPLETE,
           ORDER_STATUS_ENUM.IN_IDENTIFICATION,
+          ORDER_STATUS_ENUM.UNDER_WRITING_SUCCESS,
         ].includes(orderDetail.value.orderStatus)
       ) {
         pageJump('infoPreview', { ...route.query, isShare: 1 });
