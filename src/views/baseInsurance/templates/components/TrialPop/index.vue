@@ -688,7 +688,7 @@ onMounted(() => {
 watch(
   () => state.show,
   (v) => {
-    if (v && !props.defaultData) {
+    if (v) {
       // 每个附加险的投保不投保状态重置
       handleRestState();
       handleSetRiskSelect();
@@ -701,8 +701,10 @@ const open = () => {
   state.isAniShow = true;
   state.isSkipFirstTrial = true;
   state.hadSkipFirstTrial = false;
-  // 请求默认值接口
-  fetchDefaultData([]);
+  nextTick(() => {
+    // 请求默认值接口
+    fetchDefaultData([]);
+  });
 };
 
 defineExpose({

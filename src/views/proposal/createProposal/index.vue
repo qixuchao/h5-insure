@@ -599,6 +599,7 @@ const calcDynamicInsureFactor = async (productCode) => {
 
       // 试算
       trailProduct(convertProposalToTrialData(productCode));
+      stateInfo.productErrorMap[productCode] = '';
       // 成功
     } else {
       stateInfo.productErrorMap[productCode] = message;

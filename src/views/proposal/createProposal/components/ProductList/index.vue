@@ -53,7 +53,7 @@
       @finished="onFinished"
       @close="toggleRelationList(false)"
     ></RiskRelationList>
-    <span v-if="errorMsg">{{ errorMsg }}</span>
+    <ProductTips :error-msg="errorMsg" />
   </div>
 </template>
 
@@ -65,6 +65,7 @@ import { ProductData, RiskDetailVoItem } from '@/api/modules/trial.data';
 import { pickNameInList } from '@/utils';
 import RiskRelationList from '@/views/trial/components/RiskRelationList/index.vue';
 import useDict from '@/hooks/useDicData';
+import ProductTips from '@/views/proposal/proposalList/components/ProductTips.vue';
 
 interface Props {
   productRiskList: ProposalProductRiskItem[];
