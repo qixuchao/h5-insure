@@ -67,7 +67,6 @@ import { isEmpty } from '@/utils';
 import { productDetail, getAppUser } from '@/api/modules/product';
 import { insureProductDetail, toClogin } from '@/api/modules/trial';
 import { checkCode } from '@/api/modules/phoneVerify';
-import useAddressList from '@/hooks/useAddressList';
 import { ProductDetail } from '@/api/modules/product.data';
 import { ProductData } from '@/api/modules/trial.data';
 import { nextStepOperate } from '@/views/baseInsurance/nextStep';
@@ -137,7 +136,6 @@ const state = reactive<{
   showFilePreview: boolean;
   isSelfInsure: boolean;
   isOnlyView: boolean;
-  relationList: any;
 }>({
   colors: ['#fff'],
   detail: {} as ProductDetail,
@@ -170,7 +168,6 @@ const state = reactive<{
       withProductInfo: true,
     },
   },
-  relationList: {},
   banner: '',
   productDesc: [],
   newAuth: true,
@@ -188,11 +185,11 @@ const filterHealthAttachmentList = ref();
 // 弹窗中需要阅读的文件
 const mustReadFieldList = ref<any[]>([]);
 
-if (openId) {
-  useAddressList({ openId }, (data: any) => {
-    state.relationList = data;
-  });
-}
+// if (openId) {
+//   useAddressList({ openId }, (data: any) => {
+//     state.relationList = data;
+//   });
+// }
 
 // 是否是preview模式
 const previewMode = computed(() => !!preview);
@@ -280,9 +277,9 @@ const fetchData = async () => {
   state.loading = true;
   const productReq = productDetail({ productCode, withInsureInfo: true, tenantId });
   const insureReq = insureProductDetail({ productCode });
-  const userReq = getAppUser({ openId });
+  // const userReq = getAppUser({ openId });
 
-  await Promise.all([productReq, insureReq, userReq]).then(([productRes, insureRes, userRes]) => {
+  await Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
     if (productRes.code === '10000') {
       state.detail = productRes.data as any;
       state.banner = state.detail.tenantProductInsureVO?.banner[0];
@@ -309,19 +306,19 @@ const fetchData = async () => {
         return item;
       });
     }
-    if (userRes.code === '10000') {
-      state.newAuth = !userRes.data;
-      state.isSelfInsure = !!userRes.data;
-      if (userRes.data) {
-        const res: any = userRes.data;
-        state.order.tenantOrderHolder = {
-          certNo: res?.certiNo,
-          extInfo: {},
-          mobile: res?.mobile,
-          name: res?.name,
-        };
-      }
-    }
+    // if (userRes.code === '10000') {
+    //   state.newAuth = !userRes.data;
+    //   state.isSelfInsure = !!userRes.data;
+    //   if (userRes.data) {
+    //     const res: any = userRes.data;
+    //     state.order.tenantOrderHolder = {
+    //       certNo: res?.certiNo,
+    //       extInfo: {},
+    //       mobile: res?.mobile,
+    //       name: res?.name,
+    //     };
+    //   }
+    // }
     setfileList();
     state.loading = false;
   });
@@ -430,34 +427,34 @@ onMounted(() => {
   }, 1500);
 });
 
-watch(
-  () => state.order.tenantOrderInsuredList[0],
-  (e) => {
-    if (isEmpty(state.relationList) || state.newAuth) return null;
-    const targets = state.relationList[e.relationToHolder] || [];
-    if (targets.length === 1) {
-      if (RELATIONENUM.SELF !== e.relationToHolder) {
-        const { certNo, name, mobile, certType } = state.order.tenantOrderInsuredList[0];
-        state.order.tenantOrderInsuredList[0].certNo = certNo || targets[0].cert[0].certNo;
-        state.order.tenantOrderInsuredList[0].name = name || targets[0].cert[0].certName;
-        state.order.tenantOrderInsuredList[0].mobile = mobile || targets[0].contact[0].contactNo;
-        state.order.tenantOrderInsuredList[0].certType = certType || targets[0].cert[0].certType || CERT_TYPE_ENUM.CERT;
-      } else if (state.isSelfInsure) {
-        state.isSelfInsure = false;
-        const { certNo, name, mobile, certType } = state.order.tenantOrderHolder;
-        state.order.tenantOrderHolder.certNo = certNo || targets[0].cert[0].certNo;
-        state.order.tenantOrderHolder.name = name || targets[0].cert[0].certName;
-        state.order.tenantOrderHolder.mobile = mobile || targets[0].contact[0].contactNo;
-        state.order.tenantOrderHolder[0].certType = certType || targets[0].cert[0].certType || CERT_TYPE_ENUM.CERT;
-      }
-    }
-    return false;
-  },
-  {
-    immediate: true,
-    deep: true,
-  },
-);
+// watch(
+//   () => state.order.tenantOrderInsuredList[0],
+//   (e) => {
+//     if (isEmpty(state.relationList) || state.newAuth) return null;
+//     const targets = state.relationList[e.relationToHolder] || [];
+//     if (targets.length === 1) {
+//       if (RELATIONENUM.SELF !== e.relationToHolder) {
+//         const { certNo, name, mobile, certType } = state.order.tenantOrderInsuredList[0];
+//         state.order.tenantOrderInsuredList[0].certNo = certNo || targets[0].cert[0].certNo;
+//         state.order.tenantOrderInsuredList[0].name = name || targets[0].cert[0].certName;
+//         state.order.tenantOrderInsuredList[0].mobile = mobile || targets[0].contact[0].contactNo;
+//         state.order.tenantOrderInsuredList[0].certType = certType || targets[0].cert[0].certType || CERT_TYPE_ENUM.CERT;
+//       } else if (state.isSelfInsure) {
+//         state.isSelfInsure = false;
+//         const { certNo, name, mobile, certType } = state.order.tenantOrderHolder;
+//         state.order.tenantOrderHolder.certNo = certNo || targets[0].cert[0].certNo;
+//         state.order.tenantOrderHolder.name = name || targets[0].cert[0].certName;
+//         state.order.tenantOrderHolder.mobile = mobile || targets[0].contact[0].contactNo;
+//         state.order.tenantOrderHolder[0].certType = certType || targets[0].cert[0].certType || CERT_TYPE_ENUM.CERT;
+//       }
+//     }
+//     return false;
+//   },
+//   {
+//     immediate: true,
+//     deep: true,
+//   },
+// );
 
 useIntersectionObserver(root, ([{ isIntersecting }], observerElement) => {
   state.showBtn = !isIntersecting;
