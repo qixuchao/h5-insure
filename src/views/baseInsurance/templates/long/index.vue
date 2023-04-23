@@ -63,6 +63,7 @@
           insurerCode,
         }"
         :tenant-product-detail="tenantProductDetail"
+        :hide-benefit="insureProductDetail.openFlag !== 1"
       ></TrialPop>
       <!-- </ProLazyComponent> -->
     </template>
@@ -93,7 +94,7 @@ import {
   ProductPlanInsureVoItem,
   RiskDetailVoItem,
 } from '@/api/modules/product.data';
-import { getTenantOrderDetail, insureProductDetail as getInsureProductDetail } from '@/api/modules/trial';
+import { getTenantOrderDetail, insureProductDetail as getInsureProductDetail, premiumCalc } from '@/api/modules/trial';
 import { productDetail as getTenantProductDetail, queryProductMaterial, querySalesInfo } from '@/api/modules/product';
 
 import { INSURE_TYPE_ENUM } from '@/common/constants/infoCollection';
@@ -110,6 +111,7 @@ import { getFileType } from '@/views/baseInsurance/utils';
 import TrialPop from '../components/TrialPop/index.vue';
 import InsureLimit from '../components/InsureLimit/index.vue';
 import { orderData2trialData } from '../utils';
+import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
 // const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const InscribedContent = defineAsyncComponent(() => import('../components/InscribedContent/index.vue'));
@@ -233,10 +235,90 @@ const queryProductMaterialData = () => {
   });
 };
 
+const proposalToTrial = async () => {
+  const result = await queryProposalDetailInsurer({ id: 356, tenantId });
+  // 计划书详情转试算模型
+  const sourceData = result.data;
+  const targetData = {
+    holder: {},
+    insuredVOList: [],
+  };
+  targetData.holder.personVO = sourceData.proposalHolder;
+  targetData.insuredVOList = sourceData.proposalInsuredList.map((insured) => {
+    return {
+      personVO: {
+        age: insured.age,
+        birthday: insured.birthday,
+        bmi: insured.bmi,
+        certNo: insured.certNo,
+        certType: insured.certType,
+        email: insured.email,
+        gender: insured.gender,
+        hasSocialInsurance: insured.hasSocialInsurance,
+        height: insured.height,
+        holderRelation: insured.holderRelation,
+        insureAreaCode: insured.insureAreaCode,
+        insureCityCode: insured.insureCityCode,
+        insureProvinceCode: insured.insureProvinceCode,
+        mobile: insured.mobile,
+        name: insured.name,
+        occupationClass: insured.occupationClass,
+        occupationCodeList: insured.occupationCode, // *****
+        smokeFlag: insured.smokeFlag,
+        socialFlag: insured.socialFlag,
+        weight: insured.weight,
+      },
+      productPlanVOList: insured.proposalInsuredProductList.map((plan) => {
+        return {
+          insurerCode: null,
+          planCode: '',
+          riskVOList: plan.proposalProductRiskList.map((risk) => {
+            return {
+              amount: risk.amount,
+              annuityDrawDate: risk.annuityDrawDate,
+              // annuityDrawFrequencyList: risk.annuityDrawFrequencyList, //***** */
+              annuityDrawType: risk.annuityDrawType,
+              // annuityDrawValueList: risk.annuityDrawValueList, // *****
+              chargePeriod: risk.chargePeriod,
+              copy: risk.copy,
+              coveragePeriod: risk.coveragePeriod,
+              // insurancePeriodValueList: risk.insurancePeriodValueList, // ****
+              liabilityVOList: risk.liabilityVOList.map((liability) => {
+                return {
+                  liabilityAmount: null, // *****
+                  liabilityAttributeType: liability.liabilityAttributeType,
+                  liabilityAttributeValueList: liability.liabilityAttributeValueList,
+                  liabilityCode: liability.liabilityCode,
+                  liabilityId: liability.liabilityId,
+                  liabilityRateType: null, // ******
+                  liabilityValue: null, // ******
+                };
+              }),
+              mainRiskCode: risk.mainRiskCode, // *****
+              mainRiskId: risk.mainRiskId,
+              paymentFrequency: risk.paymentFrequency,
+              // paymentFrequencyList: risk.paymentFrequencyList, // *****
+              // paymentPeriodValueList: risk.paymentPeriodValueList, // *****
+              premium: risk.premium,
+              riskCategory: risk.riskCategory, // ****
+              riskCode: risk.riskCode,
+              riskId: risk.riskId,
+              riskName: risk.riskName,
+              riskType: risk.riskType,
+            };
+          }),
+        };
+      }),
+    };
+  });
+  premiumCalc(targetData);
+};
+
 // 初始化数据，获取产品配置详情和产品详情
 const orderDetail = ref<any>();
 const trialDefaultData = ref<any>();
 const initData = async () => {
+  proposalToTrial();
   !trialPreviewMode.value &&
     querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
       if (code === '10000') {

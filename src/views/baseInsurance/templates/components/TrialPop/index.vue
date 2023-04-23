@@ -649,11 +649,12 @@ const handleRestState = () => {
 };
 
 const transformDefaultData = (defaultData: any) => {
+  // state.userData = defaultData;
   state.userData = defaultData;
   state.defaultValue = defaultData;
-  state.planIndex = defaultData.insuredVOList[0].productPlanVOList.findIndex(
-    (p) => p.planCode === props.dataSource.planCode,
-  );
+  state.planIndex =
+    defaultData.insuredVOList[0].productPlanVOList.findIndex((p) => p.planCode === props.dataSource.planCode) ||
+    state.planIndex;
   handleTrialAndBenefit(defaultData, true);
 };
 
@@ -697,8 +698,10 @@ const open = () => {
   state.isAniShow = true;
   state.isSkipFirstTrial = true;
   state.hadSkipFirstTrial = false;
-  // 请求默认值接口
-  fetchDefaultData([]);
+  nextTick(() => {
+    // 请求默认值接口
+    fetchDefaultData([]);
+  });
 };
 
 defineExpose({

@@ -53,6 +53,7 @@
       @finished="onFinished"
       @close="toggleRelationList(false)"
     ></RiskRelationList>
+    <ProductTips :error-msg="errorMsg" />
   </div>
 </template>
 
@@ -64,6 +65,7 @@ import { ProductData, RiskDetailVoItem } from '@/api/modules/trial.data';
 import { pickNameInList } from '@/utils';
 import RiskRelationList from '@/views/trial/components/RiskRelationList/index.vue';
 import useDict from '@/hooks/useDicData';
+import ProductTips from '@/views/proposal/proposalList/components/ProductTips.vue';
 
 interface Props {
   productRiskList: ProposalProductRiskItem[];
@@ -71,6 +73,7 @@ interface Props {
   productData: Partial<ProductData>;
   pickProductPremium: (type: any) => void;
   productNum: number;
+  errorMsg: string;
 }
 
 interface State {
@@ -89,6 +92,7 @@ const props = withDefaults(defineProps<Props>(), {
   productData: () => ({}),
   pickProductPremium: () => {},
   productNum: 0,
+  errorMsg: '',
 });
 
 const emits = defineEmits(['deleteRisk', 'updateRisk', 'addRiderRisk']);
@@ -182,7 +186,6 @@ const onFinished = (riskList: any[], disabled: any[]) => {
 watch(
   () => props.productInfo,
   (newVal) => {
-    console.log(12111111);
     let productPremium = 0;
     (newVal.proposalProductRiskList || []).forEach((risk: ProposalProductRiskItem) => {
       productPremium += risk.premium;

@@ -21,13 +21,14 @@
       </div>
       <slot name="checkedProduct"> </slot>
     </div>
-    <span v-if="errorMsg" class="product-tips">{{ errorMsg }}</span>
+    <ProductTips :error-msg="errorMsg" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { withDefaults } from 'vue';
 import { ProposalItem } from '@/api/modules/proposalList.data';
+import ProductTips from './ProductTips.vue';
 
 interface Props {
   productInfo: Partial<ProposalItem>;
@@ -36,6 +37,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   productInfo: () => ({}),
+  errorMsg: '',
 });
 
 const { productInfo } = toRefs(props);
@@ -148,8 +150,17 @@ const { checked } = toRefs(state);
       }
     }
   }
-  .product-tips {
-    color: #ffa800;
+  .error-msg {
+    margin: 0 30px 30px;
+    padding: 9px 20px;
+    line-height: 32px;
+    font-size: 24px;
+    color: #ff5840;
+    background: rgba(255, 88, 64, 0.1);
+    border-radius: 10px;
+    .warning-icon {
+      margin-right: 10px;
+    }
   }
 }
 </style>
