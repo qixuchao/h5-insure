@@ -101,7 +101,7 @@ const renderArray = (start: number, end: number) => {
 
 const setAge = (realData: any) => {
   if (!realData?.benefitRiskResultVOList) return;
-  const benefit = realData?.benefitRiskResultVOList[active.value];
+  const benefit = realData?.benefitRiskResultVOList[active.value] || {};
   ageBegin.value = benefit.ageBegin + 1;
   num.value = benefit.ageBegin + 1;
   ageEnd.value = benefit.ageEnd;
