@@ -362,10 +362,11 @@ const initData = () => {
   querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
     if (code === '10000') {
       let shareParams = {};
-      if (data?.PRODUCT_LIST?.wxShareConfig) {
-        const { title, desc, image: imageArr } = data?.PRODUCT_LIST.wxShareConfig || {};
+      const { wxShareConfig, showWXShare } = data?.PRODUCT_LIST || {};
+      if (wxShareConfig) {
+        const { title, desc, image: imageArr } = wxShareConfig || {};
         const [image = ''] = imageArr || [];
-        shareParams = { title, desc, image };
+        shareParams = { title, desc, image, isShare: showWXShare };
       } else {
         const { title, desc, image } = data?.PRODUCT_LIST || {};
         shareParams = { title, desc, image };
