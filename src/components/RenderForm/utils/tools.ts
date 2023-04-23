@@ -393,6 +393,24 @@ export const transformFactorToSchema = (
   const factorsMap: ProductFactor = keys.reduce((res, key) => {
     res[MODULE_TYPE_MAP[key]] = isNotEmptyArray(factors[key])
       ? factors[key].filter((factorsItem) => {
+          const { subModuleType, code, attributeValueList } = factorsItem;
+          if (subModuleType === INSURED_MODULE_TYPE_ENUM.sub) {
+            // 若为主被保人关系因子
+            if (code === 'relationToMainInsured') {
+              const isSpouse =
+                isNotEmptyArray(attributeValueList) &&
+                attributeValueList.length === 1 &&
+                attributeValueList.findIndex((attrItem) => attrItem.code === '2') > -1;
+              // 若是配偶，被保人最大最小数量为2,并且不可添加
+              if (isSpouse) {
+                Object.assign(config, {
+                  multiInsuredMaxNum: 2,
+                  multiInsuredMinNum: 2,
+                  isSpouseInsured: true,
+                });
+              }
+            }
+          }
           // 是否过滤试算
           return conf.isTrial ? factorsItem.isCalculationFactor === 1 : true;
         })

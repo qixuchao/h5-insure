@@ -106,12 +106,16 @@ export const formData2Order = ({ holder, insuredList = [] }) => {
   };
 };
 
-export const orderData2trialData = (orderInfo: Partial<NextStepRequestData>, planCode?: string) => {
+export const orderData2trialData = (
+  orderInfo: Partial<NextStepRequestData>,
+  insureProductDetail,
+  planCode?: string,
+) => {
   const { tenantId, commencementTime, expiryDate, venderCode, tenantOrderHolder, tenantOrderInsuredList } = orderInfo;
   // 试算接口参数组装
   const trialParams = {
     tenantId,
-    // productCode: currentProductDetail?.productCode,
+    productCode: insureProductDetail?.productCode,
     insuranceStartDate: commencementTime,
     insuranceEndDate: expiryDate,
     holder: {

@@ -414,14 +414,17 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
     checkResult = code === '10000';
   }
   if (checkResult || !needCheck) {
-    benefitCalc(calcData)
-      .then((res) => {
-        // 利益演示接口
-        if (res.data && res.code === SUCCESS_CODE) benefitData.value = res.data;
-      })
-      .finally(() => {
-        state.loading = false;
-      });
+    // 是否显示利益演示
+    if (!props.hideBenefit) {
+      benefitCalc(calcData)
+        .then((res) => {
+          // 利益演示接口
+          if (res.data && res.code === SUCCESS_CODE) benefitData.value = res.data;
+        })
+        .finally(() => {
+          state.loading = false;
+        });
+    }
     premiumCalc(calcData)
       .then((res) => {
         // benefitData.value = res.data;
@@ -649,11 +652,12 @@ const handleRestState = () => {
 };
 
 const transformDefaultData = (defaultData: any) => {
+  // state.userData = defaultData;
   state.userData = defaultData;
   state.defaultValue = defaultData;
-  state.planIndex = defaultData.insuredVOList[0].productPlanVOList.findIndex(
-    (p) => p.planCode === props.dataSource.planCode,
-  );
+  state.planIndex =
+    defaultData.insuredVOList[0].productPlanVOList.findIndex((p) => p.planCode === props.dataSource.planCode) ||
+    state.planIndex;
   handleTrialAndBenefit(defaultData, true);
 };
 
@@ -697,8 +701,10 @@ const open = () => {
   state.isAniShow = true;
   state.isSkipFirstTrial = true;
   state.hadSkipFirstTrial = false;
-  // 请求默认值接口
-  fetchDefaultData([]);
+  nextTick(() => {
+    // 请求默认值接口
+    fetchDefaultData([]);
+  });
 };
 
 defineExpose({

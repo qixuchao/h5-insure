@@ -107,9 +107,10 @@ export const queryCalcDefaultInsureFactor = (data: {}) => {
 
 // 试算动态值
 export const queryCalcDynamicInsureFactor = (data: {}) => {
-  return request({
+  return request<any[]>({
     url: '/api/app/insure/product/v2/dyInsureFactor',
     method: 'POST',
     data,
+    isCustomError: true,
   });
 };

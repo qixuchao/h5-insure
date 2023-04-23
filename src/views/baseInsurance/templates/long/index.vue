@@ -3,15 +3,13 @@
   <div v-else class="page-internet-product-detail" data-skeleton-root="LONG">
     <template v-if="!trialPreviewMode">
       <div class="info">
-        <!-- bannerType--1：图片 2：视频  -->
         <Banner
-          v-if="tenantProductDetail?.BASIC_INFO?.bannerType == 1 && tenantProductDetail?.BASIC_INFO?.banner.length"
+          v-if="tenantProductDetail?.BASIC_INFO?.banner.length"
           data-skeleton-type="img"
-          indicator-color="#ddd"
-          :images="tenantProductDetail?.BASIC_INFO.banner"
+          :url="tenantProductDetail?.BASIC_INFO.banner[0]"
         />
         <Video
-          v-if="tenantProductDetail?.BASIC_INFO?.bannerType == 2 && tenantProductDetail?.BASIC_INFO?.video.length"
+          v-if="tenantProductDetail?.BASIC_INFO?.video.length"
           data-skeleton-type="img"
           :src="tenantProductDetail?.BASIC_INFO.video[0]"
         />
@@ -339,7 +337,7 @@ const initData = async () => {
     getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         orderDetail.value = data;
-        trialDefaultData.value = orderData2trialData(data, currentPlanObj.value?.planCode);
+        trialDefaultData.value = orderData2trialData(data, insureProductDetail.value, currentPlanObj.value?.planCode);
       }
     });
 
