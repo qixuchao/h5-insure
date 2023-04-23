@@ -26,7 +26,6 @@ import { ProductData } from '@/api/modules/trial.data';
 import { ProductDetail } from '@/api/modules/product.data';
 
 interface Props {
-  colors: string[];
   detail: Partial<ProductDetail>;
   isFirst: boolean;
   insureDetail: Partial<ProductData>;
@@ -35,7 +34,6 @@ interface Props {
 
 const formRef = ref();
 const props = withDefaults(defineProps<Props>(), {
-  colors: () => ['#CDDFFE', '#F1F7FE'],
   detail: () => ({}),
   isFirst: true,
   insureDetail: () => ({}),
@@ -235,10 +233,10 @@ defineExpose({
 
 <style lang="scss">
 .free-card {
-  padding: 0 32px;
-  background: linear-gradient(v-bind('props.colors[0]'), v-bind('props.colors[1]'));
+  padding: calc($zaui-space-card + 5px) 32px 0;
   .container {
     padding: 46px 40px 20px;
+    box-shadow: 0px 0px 20px 1px #eee;
     background: #ffffff;
     text-align: center;
     border-radius: 40px;

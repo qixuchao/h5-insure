@@ -35,7 +35,7 @@
             ref="personalInfoRef"
             v-model="state.userData"
             :product-factor="currentPlanObj?.productFactor"
-            :multi-insured-num="currentPlanObj?.multiInsuredConfigVO?.multiInsuredNum"
+            :multi-insured-config="currentPlanObj?.multiInsuredConfigVO"
             :is-view="false"
             @trail-change="handlePersonalInfoChange"
           />
@@ -393,6 +393,7 @@ const trialData2Order = (
     holder: state.submitData.holder?.personVO,
     insuredList: (state.submitData.insuredVOList || []).map((person) => person.personVO),
   });
+  console.log('state.submitData', state.submitData);
   console.log('tenantOrderHolder', tenantOrderHolder);
   console.log('tenantOrderInsuredList', tenantOrderInsuredList);
   const riskList = state.submitData.insuredVOList.map((person) => person.productPlanVOList?.[0]?.riskVOList).flat();
