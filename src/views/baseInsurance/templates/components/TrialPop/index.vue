@@ -27,7 +27,7 @@
         <!-- <van-icon :name="cancelIcon" @click="state.show = false" /> -->
         <van-icon name="cross" @click="state.show = false" />
       </div>
-      <HeadWaring :label="getRelationText(dataSource.insureProductRiskVOList, dataSource.productRiskRelationVOList)" />
+      <HeadWaring :labels="getRelationText(dataSource.insureProductRiskVOList, dataSource.productRiskRelationVOList)" />
       <div class="container">
         <Benefit
           v-if="!hideBenefit"

@@ -6,11 +6,11 @@
  * @Description:
 -->
 <template>
-  <div v-if="label" class="head-warning-wrap">
+  <div v-if="labels" class="head-warning-wrap">
     <div class="warning-icon"><span>!</span></div>
 
     <div class="warning-text">
-      <span>{{ label }}</span>
+      <span v-for="text in labels" :key="text">{{ text }}</span>
     </div>
   </div>
 </template>
@@ -18,8 +18,8 @@
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
 
-const props = withDefaults(defineProps<{ label: string }>(), {
-  label: '',
+const props = withDefaults(defineProps<{ labels: string[] }>(), {
+  labels: () => [],
 });
 </script>
 
@@ -47,6 +47,9 @@ const props = withDefaults(defineProps<{ label: string }>(), {
   .warning-text {
     margin-left: 10px;
     width: 94%;
+    span {
+      display: block;
+    }
   }
 }
 </style>

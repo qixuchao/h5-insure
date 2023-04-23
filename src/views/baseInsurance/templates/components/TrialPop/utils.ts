@@ -45,12 +45,12 @@ export const dealExemptPeriod = (riderRisk: RiskDetailVoItem, mainRiskValue: str
 };
 
 export const getRelationText = (risks: any[], relations: any[]) => {
-  const texts = [];
+  const texts = ['ceshi ceshi ceshi ', 'sssssssssss'];
   const riskMap = {};
   risks.forEach((risk) => {
     riskMap[risk.riskId] = risk;
   });
-  relations.forEach((relation) => {
+  relations?.forEach((relation) => {
     const { collocationType, collocationRiskId, riskId } = relation;
     switch (collocationType) {
       case 2: {
@@ -69,10 +69,7 @@ export const getRelationText = (risks: any[], relations: any[]) => {
         break;
     }
   });
-  if (texts.length > 0) {
-    return texts.join('/r/n');
-  }
-  return '';
+  return texts;
 };
 
 export default {};
