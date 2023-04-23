@@ -51,7 +51,7 @@
   </template>
 </template>
 
-<script lang="ts" setup name="TrialPop">
+<script lang="ts" setup name="ProductRiskList">
 import { computed, ref } from 'vue';
 import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import TrialButton from '../TrialButton.vue';

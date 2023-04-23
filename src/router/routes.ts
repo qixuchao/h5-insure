@@ -68,6 +68,12 @@ const proposalRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/proposal/proposalList/index.vue'),
   },
   {
+    name: 'ProposalListSelect',
+    path: '/proposalListSelect',
+    meta: { title: '添加产品' },
+    component: () => import('@/views/proposal/proposalListSelect/index.vue'),
+  },
+  {
     name: 'historyProposalList',
     path: '/historyProposalList',
     meta: { title: '历史计划书列表' },

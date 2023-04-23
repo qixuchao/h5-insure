@@ -162,5 +162,8 @@ const { checked } = toRefs(state);
       margin-right: 10px;
     }
   }
+  :deep(.error-msg) {
+    margin: 10px 0;
+  }
 }
 </style>

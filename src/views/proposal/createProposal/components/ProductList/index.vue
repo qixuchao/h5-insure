@@ -21,7 +21,7 @@
               <span class="factor-name"> 缴费期间 </span>
             </div>
           </div>
-          <div class="operate-bar">
+          <div v-if="risk.riskType !== 2" class="operate-bar">
             <ProCheckButton v-if="isCanDeleteRisk(risk.riskId)" :round="32" class="border" @click="deleteRisk(risk)"
               >删除</ProCheckButton
             >
