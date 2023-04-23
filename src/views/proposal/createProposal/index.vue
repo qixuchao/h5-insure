@@ -12,7 +12,28 @@
       </ProRenderForm>
       <ProRenderFormWithCard ref="insuredFormRef" title="被保人信息" :model="stateInfo.insuredPersonVO">
         <ProFieldV2 v-model="stateInfo.insuredPersonVO.name" label="姓名" name="name" :maxlength="20" required />
-        <ProDatePickerV2 v-model="stateInfo.insuredPersonVO.birthday" label="出生日期" name="birthday" required />
+
+        <ProFieldV2
+          v-model="stateInfo.insuredPersonVO.age"
+          class="age-field-wrap"
+          name="age"
+          label="年龄"
+          type="digit"
+          :maxlength="3"
+          required
+          @change="changeAge"
+        >
+          <template #extra>
+            <ProDatePickerV2
+              v-model="stateInfo.insuredPersonVO.birthday"
+              class="birthday-field-wrap"
+              label="出生日期"
+              name="birthday"
+              required
+              @change="changeBirthday"
+            />
+          </template>
+        </ProFieldV2>
         <ProRadioV2 v-model="stateInfo.insuredPersonVO.gender" label="性别" name="gender" :columns="sexList" required />
       </ProRenderFormWithCard>
 
@@ -200,7 +221,9 @@ const store = createProposalStore();
 
 const { id, type = 'add', isCreateProposal } = route.query;
 
-const hiddenFieldKeys = ['name', 'gender', 'birthday'].reduce((res, key) => {
+const trialFieldkeys = ['age', 'gender', 'birthday'];
+
+const hiddenFieldKeys = ['name', ...trialFieldkeys].reduce((res, key) => {
   res[key] = {
     hidden: true,
   };
@@ -304,12 +327,14 @@ const sexLimit = computed(() => {
   return riskInsureLimitVO?.sexLimit;
 });
 
+// 性别限制仅显示配置的，无限制/男/女
 const sexList = computed(() => {
   if (sexLimit.value === '-1') return SEX_LIMIT_LIST;
-  return SEX_LIMIT_LIST.map((item) => ({
-    ...item,
-    disabled: sexLimit.value !== item.value,
-  }));
+  return SEX_LIMIT_LIST.filter((item) => sexLimit.value === item.value);
+  // return SEX_LIMIT_LIST.map((item) => ({
+  //   ...item,
+  //   disabled: sexLimit.value !== item.value,
+  // }));
 });
 
 /** 当前产品详情 */
@@ -433,6 +458,18 @@ const trailProduct = (params) => {
 // const closeProductRisk = () => {
 //   toggleProductRisk(false);
 // };
+
+// 生日变化要改变年龄
+const changeBirthday = (val) => {
+  if (val) {
+    stateInfo.insuredPersonVO.age = dayjs(val).diff(new Date(), 'year');
+  }
+};
+
+//  改变年龄清除出生日期
+const changeAge = () => {
+  stateInfo.insuredPersonVO.birthday = '';
+};
 
 /** 获取产品数据列表 */
 const queryProductInfo = (searchData: any) => {
@@ -683,6 +720,7 @@ const submitData = () => {
       proposalInsuredList: [
         {
           ...stateInfo.insuredPersonVO,
+          socialFlag: stateInfo.insuredPersonVO?.hasSocialInsurance,
           proposalInsuredProductList: stateInfo.proposalInsuredProductList,
         },
       ],
@@ -721,7 +759,7 @@ const selectAction = (item: ActionSheetAction, index: number) => {
 };
 
 watch(
-  () => ['gender', 'birthday'].map((key) => stateInfo.insuredPersonVO[key]),
+  () => trialFieldkeys.map((key) => stateInfo.insuredPersonVO[key]),
   (val, oldVal) => {
     if (validateData(val) && validateData(oldVal) && val.join(',') !== oldVal.join(',')) {
       console.log('被保人条件变动');
@@ -847,6 +885,27 @@ onDeactivated(() => {});
     .trial-operate {
       button {
         width: 280px;
+      }
+    }
+  }
+
+  .age-field-wrap {
+    :deep(.com-form-item.birthday-field-wrap) {
+      min-height: 78px;
+      padding: 0;
+      width: 240px;
+      margin-left: 30px;
+      .van-field__label {
+        display: none;
+      }
+
+      &::after {
+        left: 10px;
+        top: 50%;
+        width: 2px;
+        height: 40px;
+        border-left: 1px solid var(--van-cell-border-color);
+        transform: translateY(-50%);
       }
     }
   }

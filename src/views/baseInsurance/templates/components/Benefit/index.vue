@@ -26,9 +26,9 @@
                 <div v-for="(val, k) in benefitObj?.result?.headers" :key="k" style="width: 33%">
                   <p class="text1">
                     {{
-                      benefitObj?.result?.dataList?.[benefitObj?.index]?.[k] == '0'
+                      (benefitObj?.result?.dataList?.[benefitObj?.index]?.[k] == '0'
                         ? '0'
-                        : toLocal(Number(benefitObj?.result?.dataList?.[benefitObj?.index]?.[k]))
+                        : toLocal(Number(benefitObj?.result?.dataList?.[benefitObj?.index]?.[k]))) || '0'
                     }}
                   </p>
                   <p class="text2">{{ val }}(元）</p>

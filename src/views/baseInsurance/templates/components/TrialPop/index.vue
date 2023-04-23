@@ -712,6 +712,9 @@ const open = () => {
 defineExpose({
   open,
   close: onClosePopup,
+  getTrialSuccessFlag: () => {
+    return state.trialResult > 0;
+  },
 });
 watch(
   () => state.riskIsInsure,

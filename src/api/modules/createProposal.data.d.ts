@@ -80,11 +80,13 @@ export interface ProposalHolder {
     gender: number;
     id: number;
     name: string;
+    age: Number;
     occupationClass: number;
     occupationCode: string;
     occupationName: string;
     proposalId: number;
     proposalName: string;
+    hasSocialInsurance: string;
 }
 
 

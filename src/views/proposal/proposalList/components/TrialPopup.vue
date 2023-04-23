@@ -16,7 +16,12 @@
   >
     <template #default="{ trialData, riskPremium }">
       <div class="trial-button">
-        <VanButton type="primary" @click="onFinished(trialData, riskPremium)">确定</VanButton>
+        <VanButton
+          :disabled="!trialRef.getTrialSuccessFlag()"
+          type="primary"
+          @click="onFinished(trialData, riskPremium)"
+          >确定</VanButton
+        >
       </div>
     </template>
   </TrialPop>
@@ -89,7 +94,7 @@ const formatData = (trialData: PremiumCalcData, riskPremium: any) => {
     insuredProductInfo: {
       productCode,
       productName: props.productName,
-      occupationCodeList: personVO.occupationCodeList,
+      occupationCodeList: personVO?.occupationCodeList,
       proposalProductRiskList: riskList,
     },
   };
