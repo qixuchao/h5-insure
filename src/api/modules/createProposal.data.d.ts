@@ -86,6 +86,7 @@ export interface ProposalHolder {
     occupationName: string;
     proposalId: number;
     proposalName: string;
+    hasSocialInsurance: string;
 }
 
 

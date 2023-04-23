@@ -221,7 +221,9 @@ const store = createProposalStore();
 
 const { id, type = 'add', isCreateProposal } = route.query;
 
-const hiddenFieldKeys = ['name', 'gender', 'birthday'].reduce((res, key) => {
+const trialFieldkeys = ['age', 'gender', 'birthday'];
+
+const hiddenFieldKeys = ['name', ...trialFieldkeys].reduce((res, key) => {
   res[key] = {
     hidden: true,
   };
@@ -716,6 +718,7 @@ const submitData = () => {
       proposalInsuredList: [
         {
           ...stateInfo.insuredPersonVO,
+          socialFlag: stateInfo.insuredPersonVO?.hasSocialInsurance,
           proposalInsuredProductList: stateInfo.proposalInsuredProductList,
         },
       ],
@@ -754,7 +757,7 @@ const selectAction = (item: ActionSheetAction, index: number) => {
 };
 
 watch(
-  () => ['gender', 'birthday'].map((key) => stateInfo.insuredPersonVO[key]),
+  () => trialFieldkeys.map((key) => stateInfo.insuredPersonVO[key]),
   (val, oldVal) => {
     if (validateData(val) && validateData(oldVal) && val.join(',') !== oldVal.join(',')) {
       console.log('被保人条件变动');
