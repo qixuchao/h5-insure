@@ -84,6 +84,7 @@ export interface ProposalHolder {
     occupationCode: string;
     occupationName: string;
     proposalId: number;
+    proposalName: string;
 }
 
 

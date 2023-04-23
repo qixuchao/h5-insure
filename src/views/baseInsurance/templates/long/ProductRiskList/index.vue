@@ -318,6 +318,11 @@ watch(
     if (v?.length > 0) {
       v.forEach((risk) => {
         state.risksDefaultValue[risk.riskCode] = risk;
+        if (state.riskIsInsure[risk.riskId]) {
+          state.riskIsInsure[risk.riskId].selected = '1';
+          // handleSwitchClick('1', risk);
+          handleInsureInfoChange(risk, risk.riskId);
+        }
       });
     }
   },

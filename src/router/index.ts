@@ -70,8 +70,8 @@ router.beforeEach(async (to, from, next) => {
   }
 });
 
-const IS_WECHAT = isWechat();
 router.beforeResolve(async (to, from) => {
+  const IS_WECHAT = isWechat();
   console.log('IS_WECHAT', IS_WECHAT);
   if (IS_WECHAT && to.meta.requireWxJs) {
     const tenantId = to.query?.tenantId as string;
