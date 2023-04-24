@@ -27,49 +27,53 @@
         <!-- <van-icon :name="cancelIcon" @click="state.show = false" /> -->
         <van-icon name="cross" @click="state.show = false" />
       </div>
-      <HeadWaring :labels="getRelationText(dataSource.insureProductRiskVOList, dataSource.productRiskRelationVOList)" />
-      <div class="container">
-        <Benefit
-          v-if="!hideBenefit"
-          class="benefit-wrap"
-          :data-source="benefitData"
-          :product-info="dataSource"
-          :show-type-list="benefitData.showTypList"
+      <div class="trial-body">
+        <HeadWaring
+          :labels="getRelationText(dataSource.insureProductRiskVOList, dataSource.productRiskRelationVOList)"
         />
-        <!-- 这里放因子 -->
-        <PersonalInfo
-          v-if="dataSource.productFactor"
-          ref="personalInfoRef"
-          v-model="state.userData"
-          is-trial
-          :product-factor="dataSource.productFactor"
-          :multi-insured-config="dataSource?.multiInsuredConfigVO"
-          @trail-change="handlePersonalInfoChange"
-        />
-        <!-- 这里是标准险种信息 -->
-        <InsureInfos
-          ref="insureInfosRef"
-          :origin-data="dataSource.insureProductRiskVOList?.[0]"
-          :product-factor="dataSource.productFactor"
-          :default-value="
-            state.defaultValue
-              ? state.defaultValue?.insuredVOList[0].productPlanVOList[state.planIndex]?.riskVOList[0]
-              : null
-          "
-          @trial-change="handleTrialInfoChange"
-        ></InsureInfos>
-        <!-- 以下是附加险种信息 -->
-        <ProductRiskList
-          :data-source="dataSource"
-          :show-main-risk="false"
-          :default-value="
-            state.defaultValue
-              ? state.defaultValue?.insuredVOList[0].productPlanVOList[state.planIndex]?.riskVOList
-              : []
-          "
-          @trial-change="handleProductRiskInfoChange"
-        ></ProductRiskList>
-        <div class="empty"></div>
+        <div class="container">
+          <Benefit
+            v-if="!hideBenefit"
+            class="benefit-wrap"
+            :data-source="benefitData"
+            :product-info="dataSource"
+            :show-type-list="benefitData.showTypList"
+          />
+          <!-- 这里放因子 -->
+          <PersonalInfo
+            v-if="dataSource.productFactor"
+            ref="personalInfoRef"
+            v-model="state.userData"
+            is-trial
+            :product-factor="dataSource.productFactor"
+            :multi-insured-config="dataSource?.multiInsuredConfigVO"
+            @trail-change="handlePersonalInfoChange"
+          />
+          <!-- 这里是标准险种信息 -->
+          <InsureInfos
+            ref="insureInfosRef"
+            :origin-data="dataSource.insureProductRiskVOList?.[0]"
+            :product-factor="dataSource.productFactor"
+            :default-value="
+              state.defaultValue
+                ? state.defaultValue?.insuredVOList[0].productPlanVOList[state.planIndex]?.riskVOList[0]
+                : null
+            "
+            @trial-change="handleTrialInfoChange"
+          ></InsureInfos>
+          <!-- 以下是附加险种信息 -->
+          <ProductRiskList
+            :data-source="dataSource"
+            :show-main-risk="false"
+            :default-value="
+              state.defaultValue
+                ? state.defaultValue?.insuredVOList[0].productPlanVOList[state.planIndex]?.riskVOList
+                : []
+            "
+            @trial-change="handleProductRiskInfoChange"
+          ></ProductRiskList>
+          <div class="empty"></div>
+        </div>
       </div>
       <slot :trial-data="state.submitData" :risk-premium="premiumMap">
         <TrialButton
@@ -676,9 +680,16 @@ const fetchDefaultData = async (changes: []) => {
         },
       ],
     });
-    if (result.data) transformDefaultData(result.data.find((d) => d.productCode === props.productInfo.productCode));
+    if (result.data) {
+      const targetProduct = result.data.find((d) => d.productCode === props.productInfo.productCode) || result.data[0];
+      transformDefaultData(targetProduct);
+    }
   } else {
-    transformDefaultData(props.defaultData.find((d) => d.productCode === props.productInfo.productCode));
+    if (props.defaultData) {
+      const targetProduct =
+        props.defaultData.find((d) => d.productCode === props.productInfo.productCode) || props.defaultData[0];
+      transformDefaultData(targetProduct);
+    }
   }
 };
 
@@ -776,9 +787,13 @@ watch(
     }
   }
 
+  .trial-body {
+    overflow-y: scroll;
+    flex: 1;
+  }
   .container {
     padding: 0 30px;
-    overflow-y: scroll;
+    // overflow-y: scroll;
     flex: 1;
     .empty {
       width: 100%;

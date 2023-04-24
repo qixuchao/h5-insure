@@ -314,7 +314,7 @@ watch(
   [() => props.modelValue, () => state.config],
   debounce((val) => {
     const { holder, insuredVOList } = val[0] || {};
-
+    console.log('------holder = ', holder);
     // 投保人
     state.holder.config = holder?.config || {};
     Object.assign(state.holder.personVO, holder?.personVO);
