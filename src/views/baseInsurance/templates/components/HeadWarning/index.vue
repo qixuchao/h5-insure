@@ -6,7 +6,7 @@
  * @Description:
 -->
 <template>
-  <div v-if="labels" class="head-warning-wrap">
+  <div v-if="labels.length > 0" class="head-warning-wrap">
     <div class="warning-icon"><span>!</span></div>
 
     <div class="warning-text">
