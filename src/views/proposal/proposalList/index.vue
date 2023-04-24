@@ -27,6 +27,7 @@
                   :name="productItem.productCode"
                   :model-value="state.selectProduct.includes(productItem.productCode)"
                   shape="square"
+                  @change="(event) => onSelect(event, productItem)"
                 ></van-checkbox>
               </div>
             </template>
@@ -46,7 +47,7 @@
     </div>
     <TrialProductPopup
       :modal-value="state.selectProduct"
-      :proposal-list="selectedProductList"
+      :proposal-list="state.selectedProductList"
       :is-show="showSelectProduct"
       @close="toggleSelectProduct(false)"
       @checked="checkProductRisk"
@@ -102,6 +103,7 @@ interface StateType {
   };
   excludeProductCodeList: string[];
   isCreateProposal: boolean;
+  selectedProductList: any[];
 }
 
 const store = createProposalStore();
@@ -132,6 +134,8 @@ const state = reactive<StateType>({
   // 排除的产品code
   excludeProductCodeList: [],
   isCreateProposal: false,
+  // 选择的产品
+  selectedProductList: [],
 });
 
 const {
@@ -233,9 +237,9 @@ const fetchDefaultData = async (productCode, callback) => {
   }
 };
 
-const selectedProductList = computed(() =>
-  productList.value.filter((item) => state.selectProduct.includes(item.productCode)),
-);
+// const selectedProductList = computed(() =>
+//   productList.value.filter((item) => state.selectProduct.includes(item.productCode)),
+// );
 
 /** ****** 创建计划书相关逻辑 ******** */
 // eslint-disable-next-line consistent-return
@@ -266,8 +270,21 @@ const selectProposal = ({ productCode }: any) => {
   });
 };
 
+/** 购物车选择产品操作 */
 const checkProductRisk = (checked: any[]) => {
   state.selectProduct = checked;
+  state.selectedProductList = state.selectedProductList.filter((item) => checked.includes(item.productCode));
+};
+
+/** 选择产品，切换类型，只能保存产品数据 */
+const onSelect = (flag, productItem) => {
+  if (flag) {
+    state.selectedProductList.push(productItem);
+  } else {
+    state.selectedProductList = state.selectedProductList.filter(
+      (item) => item.productCode !== productItem.productCode,
+    );
+  }
 };
 
 const addProposal = () => {
