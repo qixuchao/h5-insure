@@ -2,7 +2,7 @@
   <div v-if="!hidePopupButton" :class="`trial-button ${$attrs.class}`">
     <TrialButton
       :is-share="currentShareInfo.isShare"
-      :premium="state.trialResult"
+      :premium="state.trialResultPremium"
       :share-info="currentShareInfo"
       :loading-text="state.trialMsg"
       :plan-code="props.dataSource.planCode"
@@ -59,6 +59,7 @@
                 ? state.defaultValue?.insuredVOList[0].productPlanVOList[state.planIndex]?.riskVOList[0]
                 : null
             "
+            :trial-result="state.trialResult"
             @trial-change="handleTrialInfoChange"
           ></InsureInfos>
           <!-- 以下是附加险种信息 -->
@@ -78,7 +79,7 @@
       <slot :trial-data="state.submitData" :risk-premium="premiumMap">
         <TrialButton
           :is-share="currentShareInfo.isShare"
-          :premium="state.trialResult"
+          :premium="state.trialResultPremium"
           :share-info="currentShareInfo"
           :loading-text="state.trialMsg"
           :plan-code="props.dataSource.planCode"
@@ -183,7 +184,11 @@ const state = reactive({
   mainRiskVO: {} as Partial<RiskVoItem>,
   ifPersonalInfoSuccess: false,
   trialMsg: '',
-  trialResult: 0,
+  trialResultPremium: 0,
+  trialResult: {
+    premium: 0,
+    amount: 0,
+  },
   isAniShow: false,
   defaultValue: null, // 是一个plan
   isAutoChange: false,
@@ -217,9 +222,9 @@ const trialData2Order = (
   nextStepParams.productCode = currentProductDetail.productCode;
   nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
   nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
-  nextStepParams.premium = state.trialResult;
-  nextStepParams.orderAmount = state.trialResult;
-  nextStepParams.orderRealAmount = state.trialResult;
+  nextStepParams.premium = state.trialResultPremium;
+  nextStepParams.orderAmount = state.trialResultPremium;
+  nextStepParams.orderRealAmount = state.trialResultPremium;
 
   nextStepParams.tenantOrderHolder = tenantOrderHolder;
   nextStepParams.tenantOrderInsuredList = tenantOrderInsuredList.map((insurer: any) => {
@@ -230,7 +235,7 @@ const trialData2Order = (
       planCode: props.dataSource.planCode,
       tenantOrderProductList: [
         {
-          premium: state.trialResult,
+          premium: state.trialResultPremium,
           productCode: currentProductDetail.productCode,
           productName: currentProductDetail.productName,
           planCode: props.dataSource.planCode,
@@ -248,7 +253,7 @@ const onNext = () => {
     jumpToNextPage(PAGE_CODE_ENUMS.TRIAL_PREMIUM, route.query);
     return;
   }
-  if (state.trialResult) {
+  if (state.trialResultPremium) {
     // 验证
     insureInfosRef.value?.validate().then(() => {
       Object.assign(orderDetail.value, {
@@ -274,7 +279,7 @@ const onNext = () => {
 };
 
 const onShare = (cb) => {
-  if (state.trialResult) {
+  if (state.trialResultPremium) {
     // 验证
     insureInfosRef.value?.validate().then(() => {
       Object.assign(orderDetail.value, {
@@ -413,7 +418,7 @@ const handleSameMainRisk = (data: any) => {
 
 const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
   state.trialMsg = LOADING_TEXT;
-  state.trialResult = 0;
+  state.trialResultPremium = 0;
   state.loading = true;
   let checkResult = false;
   if (needCheck) {
@@ -442,7 +447,8 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
             Toast(`${res?.data?.errorInfo}`);
           }
           state.trialMsg = '';
-          state.trialResult = res.data.premium;
+          state.trialResultPremium = res.data.premium;
+          state.trialResult = res.data;
 
           const riskPremiumMap = {};
           if (res.data.riskPremiumDetailVOList && res.data.riskPremiumDetailVOList.length) {
@@ -655,7 +661,7 @@ const handleRestState = () => {
   state.mainRiskVO = {} as Partial<RiskVoItem>;
   state.ifPersonalInfoSuccess = false;
   state.trialMsg = '';
-  state.trialResult = 0;
+  state.trialResultPremium = 0;
 };
 
 const transformDefaultData = (defaultData: any) => {
@@ -726,7 +732,7 @@ defineExpose({
   open,
   close: onClosePopup,
   getTrialSuccessFlag: () => {
-    return state.trialResult > 0;
+    return state.trialResultPremium > 0;
   },
 });
 watch(
