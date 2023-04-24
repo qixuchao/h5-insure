@@ -386,7 +386,8 @@ const trialData2Order = (
   riskPremium = {},
   currentOrderDetail = {},
 ) => {
-  const nextStepParams: any = { ...currentOrderDetail };
+  const { insuranceEndDate, insuranceStartDate } = guaranteeObj.value;
+  const nextStepParams: any = { ...currentOrderDetail, insuranceStartDate, insuranceEndDate };
   console.log('nextStepParams', nextStepParams);
 
   const { tenantOrderHolder, tenantOrderInsuredList } = formData2Order({
@@ -456,17 +457,13 @@ const onSaveOrder = async () => {
     }`;
   } else {
     try {
-      const { insuranceEndDate, insuranceStartDate } = guaranteeObj.value;
       const productInfo: any = {
         insurerCode,
         productCode,
         productId: '',
-        insuranceEndDate,
-        insuranceStartDate,
         productName: insureProductDetail.value?.productName || '',
         tenantId,
       };
-
       const currentOrderDetail = trialData2Order(productInfo, premiumMap.value, orderDetail.value);
       nextStep(currentOrderDetail, async (data: any, pageAction: string) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
