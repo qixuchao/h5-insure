@@ -259,7 +259,7 @@ const initPageInfo = () => {
   state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
   state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
   setPageTitle(state.detail?.tenantProductInsureVO?.productName || '');
-  state.templateId = '4' || state.orderDetail.extInfo.templateId;
+  state.templateId = state.orderDetail.extInfo.templateId || '4';
   let insurancePeriodDesc = '';
   if (state.templateId.toString() === '2') {
     state.orderDetail.tenantOrderInsuredList[0].tenantOrderProductList.forEach((item: any) => {
@@ -361,7 +361,16 @@ const queryOrderDeatil = () => {
       orderDetail.value.tenantOrderInsuredList[0].name = '小安';
       orderDetail.value.commencementTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
       orderDetail.value.expiryDate = dayjs().add(1, 'year').format('YYYY-MM-DD HH:mm:ss');
-      orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList[0].productCode = productCodeView;
+      orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList[0] = {
+        productCode: productCodeView,
+        tenantOrderRiskList: [
+          {
+            riskType: 1,
+            insurancePeriodValue: '1',
+            insurancePeriodType: 3,
+          },
+        ],
+      };
       resolve({ code: '10000', data: unref(orderDetail) });
     } else {
       getTenantOrderDetail({ orderNo, tenantId, withProductInfo: true }).then((result) => {

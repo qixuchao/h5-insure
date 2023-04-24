@@ -456,10 +456,13 @@ const onSaveOrder = async () => {
     }`;
   } else {
     try {
+      const { insuranceEndDate, insuranceStartDate } = guaranteeObj.value;
       const productInfo: any = {
         insurerCode,
         productCode,
         productId: '',
+        insuranceEndDate,
+        insuranceStartDate,
         productName: insureProductDetail.value?.productName || '',
         tenantId,
       };
@@ -774,35 +777,35 @@ nextTick(() => {
 
 // 再来一单，数据反显
 onBeforeMount(() => {
-  const oldOrderDetailInfo = sessionStore.get(ORDER_DETAIL_KEY);
-  console.log('oldOrderDetailInfo', oldOrderDetailInfo);
-  if (oldOrderDetailInfo) {
-    const { tenantOrderHolder, tenantOrderInsuredList } = oldOrderDetailInfo;
-    if (tenantOrderHolder) {
-      orderDetail.value.tenantOrderHolder = {
-        ...tenantOrderHolder,
-        certType: tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
-      };
-    }
-    if (Array(tenantOrderInsuredList) && tenantOrderInsuredList[0]) {
-      const insurer = tenantOrderInsuredList[0] || {};
-      orderDetail.value.activePlanCode = insurer.planCode;
-      if (
-        insurer.tenantOrderProductListtenantOrderProductList &&
-        insurer.tenantOrderProductList[0] &&
-        insurer.tenantOrderProductList[0].tenantOrderRiskList
-      ) {
-        const item = insurer.tenantOrderProductList[0].tenantOrderRiskList?.find(
-          (e: TenantOrderRiskItem) => String(e.riskType) === '1',
-        );
-        if (item) {
-          orderDetail.value.paymentFrequency = item?.paymentFrequency
-            ? String(item?.paymentFrequency)
-            : PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE;
-        }
-      }
-    }
-  }
+  // const oldOrderDetailInfo = sessionStore.get(ORDER_DETAIL_KEY);
+  // console.log('oldOrderDetailInfo', oldOrderDetailInfo);
+  // if (oldOrderDetailInfo) {
+  //   const { tenantOrderHolder, tenantOrderInsuredList } = oldOrderDetailInfo;
+  //   if (tenantOrderHolder) {
+  //     orderDetail.value.tenantOrderHolder = {
+  //       ...tenantOrderHolder,
+  //       certType: tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
+  //     };
+  //   }
+  //   if (Array(tenantOrderInsuredList) && tenantOrderInsuredList[0]) {
+  //     const insurer = tenantOrderInsuredList[0] || {};
+  //     orderDetail.value.activePlanCode = insurer.planCode;
+  //     if (
+  //       insurer.tenantOrderProductListtenantOrderProductList &&
+  //       insurer.tenantOrderProductList[0] &&
+  //       insurer.tenantOrderProductList[0].tenantOrderRiskList
+  //     ) {
+  //       const item = insurer.tenantOrderProductList[0].tenantOrderRiskList?.find(
+  //         (e: TenantOrderRiskItem) => String(e.riskType) === '1',
+  //       );
+  //       if (item) {
+  //         orderDetail.value.paymentFrequency = item?.paymentFrequency
+  //           ? String(item?.paymentFrequency)
+  //           : PAYMENT_COMMON_FREQUENCY_ENUM.SINGLE;
+  //       }
+  //     }
+  //   }
+  // }
 });
 
 onMounted(() => {
@@ -816,7 +819,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   // 清除再来一单的缓存值
-  sessionStore.remove(ORDER_DETAIL_KEY);
+  // sessionStore.remove(ORDER_DETAIL_KEY);
 });
 </script>
 

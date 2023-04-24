@@ -1,11 +1,12 @@
 <template>
   <div class="free-card">
-    <div class="container">
+    <div :class="{ container: true, 'is-first': isFirst }">
       <div class="title">
         <ProSvg name="free-arrow" /><span>{{ isFirst ? '凭手机号 免费领取' : '最后一步 填写信息' }}</span
         ><ProSvg name="free-arrow" />
       </div>
       <InsureForm
+        v-if="isFirst"
         ref="formRef"
         :key="isFirst ? 1 : 2"
         :send-sms-code="sendSmsCode"
@@ -235,11 +236,15 @@ defineExpose({
 .free-card {
   padding: calc($zaui-space-card + 5px) 32px 0;
   .container {
-    padding: 46px 40px 20px;
+    padding: 46px 0 20px;
     box-shadow: 0px 0px 20px 1px #eee;
     background: #ffffff;
     text-align: center;
     border-radius: 40px;
+
+    &.is-first {
+      padding: 46px 40px 20px;
+    }
 
     .title {
       height: 33px;
