@@ -7,7 +7,7 @@
 -->
 <template>
   <ProPageWrap>
-    <div class="page-composition-proposal">
+    <div class="page-composition-proposal" :class="{ 'page-proposal-bottom': !isShare }">
       <div class="head-bg">
         {{ proposalName }}
       </div>
@@ -77,10 +77,11 @@ import LiabilityByRisk from './components/LiabilityByRisk.vue';
 import LiabilityByRes from './components/LiabilityByRes.vue';
 import ProShare from '@/components/ProShare/index.vue';
 import { InsuredProductData, ThemeItem, ShowConfig } from '@/api/modules/compositionProposal.data';
-import { redirectInsurePageLink } from '@/api';
+import { queryStandardInsurerLink } from '@/api/modules/trial';
 import InsuredProductList from './components/InsuredProductList/index.vue';
 import ThemeSelect from './components/ThemeSelect/index.vue';
 import { SEX_LIMIT_ENUM } from '@/common/constants';
+import { useLocalStorage } from '@/hooks/useStorage';
 
 const isLiabilityByRisk = ref(true);
 
@@ -184,17 +185,34 @@ const getProposalTransInsured = () => {
 // 计划书产品转投保
 const proposal2Insured = (product: InsuredProductData) => {
   const { productCode, insurerCode, tenantProductCode } = product;
+
+  let userInfo: {
+    agencyCode: string;
+    agentCode: string;
+    tenantId: number;
+  } = {};
+  try {
+    const str = useLocalStorage().get('userInfo');
+    userInfo = str && JSON.parse(str);
+  } catch (error) {
+    //
+  }
   // 检验产品是否支持转投保
   checkProposalInsurer({ productCode, proposalId: id }).then(({ code, data, message }) => {
     if (code === '10000') {
       if (data) {
-        redirectInsurePageLink({ insurerCode, productCode: tenantProductCode, proposalId: id }).then(
-          ({ code: newCode, data: newData }) => {
-            if (newCode === '10000') {
-              window.location.href = newData;
-            }
-          },
-        );
+        queryStandardInsurerLink({
+          insurerCode,
+          productCode: tenantProductCode,
+          proposalId: id,
+          agencyCode: userInfo.agencyCode,
+          agentCode: userInfo.agentCode,
+          tenantId: userInfo.tenantId,
+        }).then(({ code: newCode, data: newData }) => {
+          if (newCode === '10000') {
+            window.location.href = newData;
+          }
+        });
       } else {
         Toast(message);
       }
@@ -297,10 +315,12 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .page-composition-proposal {
-  margin-bottom: 150px;
-
   padding: 0 30px 30px 30px;
   background-color: #3486ff;
+  .page-proposal-bottom {
+    margin-bottom: 150px;
+  }
+
   .head-bg {
     background-image: url('@/assets/images/compositionProposal/head.png');
     background-repeat: no-repeat;
