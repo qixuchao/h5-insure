@@ -317,7 +317,7 @@ onMounted(() => {
 .page-composition-proposal {
   padding: 0 30px 30px 30px;
   background-color: #3486ff;
-  .page-proposal-bottom {
+  &.page-proposal-bottom {
     margin-bottom: 150px;
   }
 

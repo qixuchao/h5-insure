@@ -278,7 +278,7 @@ const selectProposal = ({ productCode }: any) => {
 
   // 如果是列表页
   if (!isCreateProposal) {
-    store.setInsuredPersonVO({});
+    // store.setInsuredPersonVO({});
     router.push({
       path: '/proposal/createProposal',
       query: {
@@ -368,12 +368,12 @@ onBeforeMount(() => {
   state.excludeProductCodeList = store.$state.excludeProduct;
 });
 
-onActivated(() => {
-  state.selectProduct = [];
-  state.excludeProductCodeList = [];
+// onActivated(() => {
+//   // state.selectProduct = [];
+//   // state.excludeProductCodeList = [];
 
-  onRefresh();
-});
+//   onRefresh();
+// });
 
 onMounted(() => {});
 </script>

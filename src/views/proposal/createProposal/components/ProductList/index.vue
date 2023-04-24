@@ -27,7 +27,7 @@
             <ProCheckButton v-if="isCanDeleteRisk(risk.riskId)" :round="32" class="border" @click="deleteRisk(risk)"
               >删除</ProCheckButton
             >
-            <ProCheckButton
+            <!-- <ProCheckButton
               v-if="isCanAddRiderRisk"
               activated
               :round="32"
@@ -36,7 +36,7 @@
             >
               <span class="btn-plus">+</span>
               附加险</ProCheckButton
-            >
+            > -->
             <ProCheckButton activated :round="32" @click="updateRisk(risk)">修改</ProCheckButton>
           </div>
         </div>
@@ -196,7 +196,7 @@ watch(
       productPremium += risk.premium;
     });
 
-    props.pickProductPremium?.({ [`${newVal.productCode}`]: productPremium });
+    // props.pickProductPremium?.({ [`${newVal.productCode}`]: productPremium });
     state.value.totalPremium = productPremium;
   },
   {

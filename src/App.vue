@@ -4,7 +4,10 @@
       <keep-alive>
         <component :is="Component" v-if="route.meta.keepAlive" :key="route.path"></component>
       </keep-alive>
-      <component :is="Component" v-if="!route.meta.keepAlive" :key="route.path"></component>
+      <!-- <component :is="Component" v-if="!route.meta.keepAlive" :key="route.path"></component> -->
+      <keep-alive :include="globalStore.CACHE_PAGE_LIST">
+        <component :is="Component" :key="route.path" />
+      </keep-alive>
     </router-view>
     <ProVConsole />
   </van-config-provider>
@@ -14,8 +17,11 @@ import { storeToRefs } from 'pinia';
 import { getConfig } from './utils/config';
 import { addScript } from '@/utils/index';
 import { useThemesStore } from './store/themes';
+import useStore from '@/store/app';
+
 import ProVConsole from '@/components/ProVConsole/index.vue';
 
+const globalStore = useStore();
 const themesStore = useThemesStore();
 const { themeVars } = storeToRefs(themesStore);
 

@@ -40,6 +40,7 @@
       <ProCard
         v-for="(productItem, index) in stateInfo.proposalInsuredProductList"
         :key="`${productItem.nanoid}_${index}_${productItem.productCode}`"
+        class="product-item-card"
         :show-line="false"
       >
         <ProductList
@@ -47,7 +48,6 @@
           :product-info="productItem"
           :product-num="stateInfo.proposalInsuredProductList?.length - 1"
           :product-data="state.productCollection[productItem.productCode]"
-          :pick-product-premium="pickProductPremium"
           :error-msg="stateInfo.productErrorMap[productItem.productCode]"
           @add-rider-risk="addRiderRisk"
           @update-risk="updateRisk"
@@ -171,7 +171,7 @@ const router = useRouter();
 const route = useRoute();
 const store = createProposalStore();
 
-const { id, type = 'add', isCreateProposal } = route.query;
+const { productCode: productCodeInQuery }: { productCode?: string } = route.query;
 
 const trialFieldkeys = ['age', 'gender', 'birthday'];
 
@@ -215,7 +215,6 @@ interface StateInfo {
   defaultData: {
     [x: string]: any;
   };
-  productCodeInQuery: string;
 }
 
 const stateInfo = reactive<StateInfo>({
@@ -227,53 +226,19 @@ const stateInfo = reactive<StateInfo>({
   productCollection: {},
   productErrorMap: {},
   defaultData: null,
-  productCodeInQuery: '',
 });
 
 const formRef = ref(null);
 const insuredFormRef = ref(null);
-
-// 原始的产品详情数据
-// const selectedProduct = ref({});
-// // 试算之后的产品险种列表
-// const trialedProductList = ref<ProposalInsuredProductItem[]>([]);
-
-// const dateRange = computed(() => {
-//   return {
-//     min: '',
-//     max: '',
-//   };
-// });
 
 /** 当前计划书的产品CodeList */
 const currentProductCodeList = computed(() => {
   return stateInfo.proposalInsuredProductList.map((item) => item.productCode).filter((code) => Boolean(code));
 });
 
-// const formatData = ({ productCode, holder, insuredVOList } = {}) => {
-//   const { personVO, productPlanVOList } = insuredVOList?.[0] || {};
-
-//   const proposalData = {
-//     proposalHolder: holder,
-//     proposalInsuredList: [
-//       {
-//         ...personVO,
-//         proposalInsuredProductList: [
-//           {
-//             productCode,
-//             productName: state.productName,
-//             proposalProductRiskList: productPlanVOList,
-//           },
-//         ],
-//       },
-//     ],
-//   };
-//   return proposalData;
-// };
-
 /** 性别限制 */
 const sexLimit = computed(() => {
-  const { productPlanInsureVOList } = stateInfo.productCollection[stateInfo.productCodeInQuery] || {};
+  const { productPlanInsureVOList } = stateInfo.productCollection[productCodeInQuery] || {};
   const [{ insureProductRiskVOList } = {}] = productPlanInsureVOList || [];
   const { riskInsureLimitVO } = insureProductRiskVOList?.find((riskItem) => riskItem.riskType === 1) || {};
   return riskInsureLimitVO?.sexLimit;
@@ -283,10 +248,6 @@ const sexLimit = computed(() => {
 const sexList = computed(() => {
   if (sexLimit.value === '-1') return SEX_LIMIT_LIST;
   return SEX_LIMIT_LIST.filter((item) => sexLimit.value === item.value);
-  // return SEX_LIMIT_LIST.map((item) => ({
-  //   ...item,
-  //   disabled: sexLimit.value !== item.value,
-  // }));
 });
 
 /** 当前产品详情 */
@@ -299,14 +260,7 @@ const currentProductPlanDetail = computed(() => {
   return currentProductDetail.value?.productPlanInsureVOList?.[0] || {};
 });
 
-const pickProductPremium = (premiumData = {}) => {
-  Object.assign(state.value.productPremium, premiumData);
-  proposalInfo.value.totalPremium = Object.values(state.value.productPremium).reduce((pre: any, next: any) => {
-    return pre + next;
-  }, 0);
-};
-
-/**  */
+/** 产品是否有错误信息 */
 const submitDisable = computed(() => {
   return Boolean(Object.values(stateInfo.productErrorMap).join(''));
 });
@@ -321,55 +275,51 @@ const totalPremium = computed(() => {
   }, 0);
 });
 
-const queryProposalInfo = (params = {}) => {
-  queryProposalDetail(params).then(({ code, data }) => {
-    if (code === '10000') {
-      Object.assign(proposalInfo.value, data);
-    }
-  });
-};
-
-// 添加或修改险种信息成功的回调
-const onFinished = (productInfo: PlanTrialData, flag = true) => {
+/** 合并数据到 productList  */
+// eslint-disable-next-line consistent-return
+const combineToProductList = (productInfo: PlanTrialData) => {
   const currentIndex = stateInfo.proposalInsuredProductList.findIndex(
     (productItem) => productItem.productCode === productInfo.productCode,
   );
-
-  // 是否需要更新投被保人信息
-  if (flag) {
-    // 投保人
-    Object.assign(stateInfo.proposalHolder, productInfo.proposalHolder);
-    // 被保人
-    Object.assign(stateInfo.insuredPersonVO, productInfo.insuredPersonVO);
-  }
 
   const tempData = {
     ...productInfo.insuredProductInfo,
     nanoid: nanoid(),
   };
 
-  if (currentIndex > -1) {
-    const currentProductItem = stateInfo.proposalInsuredProductList[currentIndex];
-    const { proposalProductRiskList } = tempData;
-
-    // 合并两边的险种属性
-    stateInfo.proposalInsuredProductList[currentIndex] = {
-      ...tempData,
-      proposalProductRiskList: isNotEmptyArray(proposalProductRiskList)
-        ? proposalProductRiskList.map((riskItem) => {
-            const currentRiskItem = currentProductItem.proposalProductRiskList.find(
-              (item) => item.riskCode === riskItem.riskCode,
-            );
-            return {
-              ...currentRiskItem,
-              ...riskItem,
-            };
-          })
-        : [],
-    };
-  } else {
+  if (currentIndex === -1) {
     stateInfo.proposalInsuredProductList.push(tempData);
+    return false;
   }
+  const currentProductItem = stateInfo.proposalInsuredProductList[currentIndex];
+  const { proposalProductRiskList } = tempData;
+
+  // 合并两边的险种属性
+  stateInfo.proposalInsuredProductList[currentIndex] = {
+    ...tempData,
+    proposalProductRiskList: isNotEmptyArray(proposalProductRiskList)
+      ? proposalProductRiskList.map((riskItem) => {
+          const currentRiskItem = currentProductItem.proposalProductRiskList.find(
+            (item) => item.riskCode === riskItem.riskCode,
+          );
+          return {
+            ...currentRiskItem,
+            ...riskItem,
+          };
+        })
+      : [],
+  };
+};
+
+// 添加或修改险种信息成功的回调
+const onFinished = (productInfo: PlanTrialData) => {
+  // 是否需要更新投被保人信息
+  // 投保人
+  Object.assign(stateInfo.proposalHolder, productInfo.proposalHolder);
+  // 被保人
+  Object.assign(stateInfo.insuredPersonVO, productInfo.insuredPersonVO);
+
+  combineToProductList(productInfo);
 
   // toggleProductRisk(false);
   trialPopupRef.value?.close();
@@ -377,7 +327,6 @@ const onFinished = (productInfo: PlanTrialData, flag = true) => {
 
 const addProduct = () => {
   store.setProposalInfo(proposalInfo.value);
-  store.setTrialData([]);
 
   store.setExcludeProduct(currentProductCodeList.value);
   store.setInsuredPersonVO(stateInfo.insuredPersonVO);
@@ -406,15 +355,11 @@ const trailProduct = (params) => {
           };
         });
 
-        onFinished(trialPopupRef.value?.formatData(params, riskPremiumMap), false);
+        combineToProductList(trialPopupRef.value?.formatData(params, riskPremiumMap));
       }
     }
   });
 };
-
-// const closeProductRisk = () => {
-//   toggleProductRisk(false);
-// };
 
 // 生日变化要改变年龄
 const changeBirthday = (val) => {
@@ -606,13 +551,12 @@ const calcDynamicInsureFactor = async (productCode) => {
 
 const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsuredProductItem) => {
   const currentProduct = productInfo;
-  Dialog.confirm({ message: '确认删除该产品？' }).then(() => {
+  Dialog.confirm({ message: '确认删除该险种？' }).then(() => {
     // 删除主险等同于删除整个产品信息
     if (riskInfo.riskType === 1) {
       stateInfo.proposalInsuredProductList = stateInfo.proposalInsuredProductList
         .filter((product: ProposalInsuredProductItem) => product.productCode !== currentProduct.productCode)
         .map((item) => ({ ...item, nanoid: nanoid() }));
-      pickProductPremium({ [currentProduct.productCode]: 0 });
     } else {
       currentProduct.proposalProductRiskList = currentProduct.proposalProductRiskList.filter(
         (risk) => risk.riskId !== riskInfo.riskId,
@@ -623,11 +567,6 @@ const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
 
 // 修改险种
 const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsuredProductItem) => {
-  state.value.productCode = productInfo.productCode;
-  state.value.productInfo = productInfo;
-  state.value.type = 'edit';
-  state.value.currentRisk = [riskInfo.riskId];
-  // toggleProductRisk(true);
   stateInfo.currentProductCode = productInfo.productCode;
   stateInfo.defaultData = [convertProposalToTrialData(productInfo.productCode)];
   nextTick(() => {
@@ -637,37 +576,11 @@ const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
 
 // 添加附加险
 const addRiderRisk = (riskIds: any[], productInfo: ProposalInsuredProductItem) => {
-  state.value.productCode = productInfo.productCode;
   state.value.productInfo = productInfo;
   state.value.type = 'addRiderRisk';
   state.value.currentRisk = riskIds;
   toggleProductRisk(true);
 };
-
-onBeforeMount(() => {
-  // const currentProposalInfo = store.$state.trialData;
-  // const preProposalInfo: any = store.$state.proposalInfo;
-  // const currentProposalId = store.$state.proposalId;
-  // // 初始编辑计划书
-  // if ((id && !isCreateProposal) || currentProposalId) {
-  //   queryProposalInfo({ id: id || currentProposalId });
-  //   store.$reset();
-  // } else if (!Object.keys(preProposalInfo).length && currentProposalInfo.length) {
-  //   Object.assign(proposalInfo.value, currentProposalInfo[0]);
-  // } else if (Object.keys(preProposalInfo).length && currentProposalInfo.length) {
-  //   preProposalInfo.proposalInsuredList[0].proposalInsuredProductList.push(
-  //     ...currentProposalInfo[0].proposalInsuredList[0].proposalInsuredProductList,
-  //   );
-  //   proposalInfo.value = preProposalInfo;
-  // } else if (Object.keys(preProposalInfo).length && !currentProposalInfo.length) {
-  //   proposalInfo.value = preProposalInfo;
-  // }
-  // store.setTrialData([]);
-  // if (productCodeInQuery) {
-  //   queryProductInfo([{ productCode: productCodeInQuery }]);
-  //   fetchDefaultData([{ productCode: productCodeInQuery }], true);
-  // }
-});
 
 const validateData = (arr) =>
   isNotEmptyArray(arr) ? arr.every((item) => (typeof item === 'number' ? !Number.isNaN(item) : Boolean(item))) : false;
@@ -692,7 +605,6 @@ const submitData = () => {
       const { code, data } = res || {};
       if (code === '10000') {
         store.$reset();
-        store.proposalId = data;
         router.push({
           path: '/compositionProposal',
           query: {
@@ -705,11 +617,7 @@ const submitData = () => {
 };
 
 const saveProposalData = () => {
-  // if (!id && store.proposalId) {
-  //   toggleActionSheet(true);
-  // } else {
   submitData();
-  // }
 };
 
 const selectAction = (item: ActionSheetAction, index: number) => {
@@ -719,6 +627,7 @@ const selectAction = (item: ActionSheetAction, index: number) => {
   submitData();
 };
 
+/** 被保人数据变动 */
 watch(
   () => trialFieldkeys.map((key) => stateInfo.insuredPersonVO[key]),
   debounce((val, oldVal) => {
@@ -732,6 +641,7 @@ watch(
   },
 );
 
+// 选择产品页面变动
 watch(
   () => stateInfo.selectedProductCodeList,
   debounce((val) => {
@@ -761,30 +671,20 @@ watch(
   },
 );
 
+// 返回创建页面
 onActivated(() => {
-  const {
-    query: { productCode: productCodeInQuery },
-  } = useRoute();
   const { selectedProduct, insuredPersonVO } = store.$state;
-  stateInfo.productCodeInQuery = productCodeInQuery;
-  stateInfo.proposalInsuredProductList = [];
 
-  if (!insuredPersonVO || !Object.keys(insuredPersonVO).length) {
-    stateInfo.insuredPersonVO = {};
-  }
+  stateInfo.selectedProductCodeList = isNotEmptyArray(selectedProduct) ? (selectedProduct as string[]) : [];
+});
 
-  stateInfo.productErrorMap = {};
-
+onBeforeMount(() => {
   if (productCodeInQuery) {
     const params = [{ productCode: productCodeInQuery as string }];
     queryProductInfo(params);
     fetchDefaultData(params, true);
   }
-
-  stateInfo.selectedProductCodeList = isNotEmptyArray(selectedProduct) ? (selectedProduct as string[]) : [];
 });
-
-onDeactivated(() => {});
 </script>
 
 <style lang="scss" scoped>
@@ -801,6 +701,9 @@ onDeactivated(() => {});
     .body {
       padding: 0;
     }
+  }
+  .product-item-card {
+    margin-bottom: 10px;
   }
   .container {
     padding: 30px 30px 180px 30px;

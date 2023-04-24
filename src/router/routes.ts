@@ -58,19 +58,19 @@ const proposalRoutes: Array<RouteRecordRaw> = [
   {
     name: 'CreateProposal',
     path: '/proposal/createProposal',
-    meta: { title: '创建计划书', keepAlive: true },
+    meta: { title: '创建计划书', cacheSource: ['ProposalList'], cacheTarget: ['ProposalListSelect'] },
     component: () => import('@/views/proposal/createProposal/index.vue'),
   },
   {
     name: 'ProposalList',
     path: '/proposalList',
-    meta: { title: '计划书列表', keepAlive: true },
+    meta: { title: '计划书列表', cacheTarget: ['CreateProposal'] },
     component: () => import('@/views/proposal/proposalList/index.vue'),
   },
   {
     name: 'ProposalListSelect',
     path: '/proposalListSelect',
-    meta: { title: '添加产品' },
+    meta: { title: '添加产品', cacheSource: ['CreateProposal'] },
     component: () => import('@/views/proposal/proposalListSelect/index.vue'),
   },
   {

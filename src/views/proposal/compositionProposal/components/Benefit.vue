@@ -11,23 +11,27 @@
       <van-tab v-for="(item, i) in props.info?.benefitRiskResultVOList" :key="i" :name="i" :title="item.productName">
         <div v-if="i == active" class="benefit">
           <!-- <div class="benefit-title">{{ item?.riskName }}</div> -->
-          <div class="line"></div>
-          <p v-if="!showChart" class="box-title box-title-chart">
+          <!-- <div class="line"></div> -->
+          <div v-if="!showChart" class="box-title box-title-chart">
             <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
-            保单年度<span>{{ benefitObj?.year?.[benefitObj?.index] }}</span
-            >年度，被保人<span>{{ benefitObj?.age?.[benefitObj?.index] }}</span
-            >岁时
+            <div>
+              保单年度<span>{{ benefitObj?.year?.[benefitObj?.index] }}</span
+              >年度，被保人<span>{{ benefitObj?.age?.[benefitObj?.index] }}</span
+              >岁时
+            </div>
             <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
-          </p>
+          </div>
           <div v-if="showChart">
             <div class="box">
-              <p class="box-title">
+              <div class="box-title">
                 <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
-                保单年度<span>{{ benefitObj?.year?.[benefitObj?.index] }}</span
-                >年度，被保人<span>{{ benefitObj?.age?.[benefitObj?.index] }}</span
-                >岁时
+                <div>
+                  保单年度<span>{{ benefitObj?.year?.[benefitObj?.index] }}</span
+                  >年度，被保人<span>{{ benefitObj?.age?.[benefitObj?.index] }}</span
+                  >岁时
+                </div>
                 <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
-              </p>
+              </div>
               <div class="box-price">
                 <div v-for="(val, k) in benefitObj?.result?.headers" :key="k" style="width: 33%">
                   <p class="text1">{{ toLocal(Number(benefitObj?.result?.dataList?.[benefitObj?.index]?.[k])) }}</p>
@@ -199,12 +203,11 @@ watch(num, () => {
       }
       .box {
         width: 630px;
-        margin: 0 auto;
-        background: #fafafa;
-        border: 1px solid #9fb3d2;
-        padding: 40px 0;
-        border-radius: 20px;
-        margin-top: 40px;
+        // background: #fafafa;
+        // border: 1px solid #9fb3d2;
+        // padding: 40px 0;
+        // border-radius: 20px;
+        margin: 50px auto;
         &-title {
           padding: 0 16px;
           font-size: 32px;
@@ -213,7 +216,7 @@ watch(num, () => {
           text-align: center;
           display: flex;
           align-items: center;
-          justify-content: flex-start;
+          justify-content: space-between;
           img {
             width: 41px;
             height: 29px;
