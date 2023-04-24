@@ -114,6 +114,10 @@ interface Props {
   modelValue: RiskVoItem;
   defalutValue: any;
 }
+
+interface StateInfo {
+  hadSetDefault: boolean;
+}
 const emit = defineEmits(['update:modelValue', 'trialChange']);
 
 const props = withDefaults(defineProps<Props>(), {
@@ -121,6 +125,11 @@ const props = withDefaults(defineProps<Props>(), {
   modelValue: () => ({} as RiskVoItem),
   defalutValue: () => ({} as any),
 });
+
+const state = reactive<StateInfo>({
+  hadSetDefault: false,
+});
+
 const mConfigs = ref(props.originData);
 const mValues = ref({}); // ref(props.modelValue);
 const showTypes = ref(1);
@@ -291,8 +300,10 @@ watch(
 watch(
   () => props.defalutValue,
   (v) => {
-    if (v?.riskCode) {
+    if (v?.riskCode && !state.hadSetDefault) {
+      state.hadSetDefault = true;
       Object.keys(mValues.value).forEach((key) => {
+        // console.log('=====mValues.value[key] = ', mValues.value[key]);
         mValues.value[key] = v[key] || mValues.value[key];
       });
     }

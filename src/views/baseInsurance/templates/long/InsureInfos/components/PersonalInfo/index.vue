@@ -312,9 +312,8 @@ watch(
 // 表单数据变动
 watch(
   [() => props.modelValue, () => state.config],
-  debounce((val) => {
+  (val) => {
     const { holder, insuredVOList } = val[0] || {};
-
     // 投保人
     state.holder.config = holder?.config || {};
     Object.assign(state.holder.personVO, holder?.personVO);
@@ -346,7 +345,7 @@ watch(
       }
       return res;
     }, state.insured);
-  }, 500),
+  },
   {
     deep: true,
     immediate: true,

@@ -311,6 +311,7 @@ const handleHolderSchema = (factorsMap, config) => {
           if (code === 'relationToMainInsured') {
             const isSpouse =
               isNotEmptyArray(attributeValueList) &&
+              attributeValueList.length === 1 &&
               attributeValueList.findIndex((attrItem) => attrItem.code === '2') > -1;
             // 若是配偶，被保人最大最小数量为2,并且不可添加
             if (isSpouse) {
