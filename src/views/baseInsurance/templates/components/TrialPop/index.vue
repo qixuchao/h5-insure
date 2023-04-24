@@ -680,9 +680,16 @@ const fetchDefaultData = async (changes: []) => {
         },
       ],
     });
-    if (result.data) transformDefaultData(result.data.find((d) => d.productCode === props.productInfo.productCode));
+    if (result.data) {
+      const targetProduct = result.data.find((d) => d.productCode === props.productInfo.productCode) || result.data[0];
+      transformDefaultData(targetProduct);
+    }
   } else {
-    transformDefaultData(props.defaultData.find((d) => d.productCode === props.productInfo.productCode));
+    if (props.defaultData) {
+      const targetProduct =
+        props.defaultData.find((d) => d.productCode === props.productInfo.productCode) || props.defaultData[0];
+      transformDefaultData(targetProduct);
+    }
   }
 };
 
