@@ -255,7 +255,7 @@ const getPdf = (themeHistoryId?: number) => {
     if (code === '10000') {
       Toast.clear();
       if (message) {
-        history.push(`/pdfViewer?url=${encodeURIComponent(message)}&title=${proposalName.value}`);
+        history.push(`/pdfViewer?url=${encodeURIComponent(message)}&title=${encodeURIComponent(proposalName.value)}`);
       } else {
         Toast('计划书为空');
       }
