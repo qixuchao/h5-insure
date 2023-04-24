@@ -1,6 +1,6 @@
 <template>
   <div v-if="state.loading">__SKELETON_FREE_CONTENT__</div>
-  <div v-else data-skeleton-root="FREE" class="page-free-product-detail">
+  <div v-else data-skeleton-root="FREE" :theme-vars="themeVars" class="page-free-product-detail">
     <Banner
       v-if="
         state.tenantProductDetail?.BASIC_INFO?.bannerType == 1 && state.tenantProductDetail?.BASIC_INFO?.banner.length
