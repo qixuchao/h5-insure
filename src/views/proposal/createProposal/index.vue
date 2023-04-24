@@ -647,11 +647,6 @@ watch(
   debounce((val) => {
     if (isNotEmptyArray(val)) {
       console.log('选择的产品变动了', val);
-      const tempList = val.map((code) => ({
-        productCode: code,
-        proposalProductRiskList: [],
-      }));
-      stateInfo.proposalInsuredProductList.push(...tempList);
       fetchDefaultData(val.map((productCode) => ({ productCode })));
 
       // 获取产品详情

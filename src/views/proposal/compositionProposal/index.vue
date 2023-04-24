@@ -187,15 +187,16 @@ const proposal2Insured = (product: InsuredProductData) => {
   const { productCode, insurerCode, tenantProductCode } = product;
 
   let userInfo: {
-    agencyCode: string;
-    agentCode: string;
-    tenantId: number;
+    agencyCode?: string;
+    agentCode?: string;
+    tenantId?: number;
   } = {};
   try {
     const str = useLocalStorage().get('userInfo');
-    userInfo = str && JSON.parse(str);
+    userInfo = str ? JSON.parse(str) : {};
   } catch (error) {
     //
+    userInfo = {};
   }
   // 检验产品是否支持转投保
   checkProposalInsurer({ productCode, proposalId: id }).then(({ code, data, message }) => {
@@ -205,9 +206,9 @@ const proposal2Insured = (product: InsuredProductData) => {
           insurerCode,
           productCode: tenantProductCode,
           proposalId: id,
-          agencyCode: userInfo.agencyCode,
-          agentCode: userInfo.agentCode,
-          tenantId: userInfo.tenantId,
+          agencyCode: userInfo?.agencyCode,
+          agentCode: userInfo?.agentCode,
+          tenantId: userInfo?.tenantId,
         }).then(({ code: newCode, data: newData }) => {
           if (newCode === '10000') {
             window.location.href = newData;

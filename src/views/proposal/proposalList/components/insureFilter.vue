@@ -77,9 +77,11 @@ const state = reactive({
 const { insureList, checkedInsure } = toRefs(state);
 
 const indexCheck = ref<string | number>('');
+
 const onClickTag = (id: any, index: number) => {
   indexCheck.value = index;
-  emit('onSelectInsure', { selectInsureCode: checkedInsure.value, selectCategory: indexCheck.value });
+  const { productCategoryId } = state.productCategoryList?.[indexCheck.value] || {};
+  emit('onSelectInsure', { selectInsureCode: checkedInsure.value, selectCategory: productCategoryId });
 };
 
 const reset = () => {
@@ -87,7 +89,8 @@ const reset = () => {
 };
 
 const handleClickFilter = () => {
-  emit('onSelectInsure', { selectInsureCode: checkedInsure.value, selectCategory: indexCheck.value });
+  const { productCategoryId } = state.productCategoryList?.[indexCheck.value] || {};
+  emit('onSelectInsure', { selectInsureCode: checkedInsure.value, selectCategory: productCategoryId });
   closePop();
 };
 
