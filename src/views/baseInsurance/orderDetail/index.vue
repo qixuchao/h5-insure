@@ -50,9 +50,8 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Toast, Dialog } from 'vant/es';
+import { Toast } from 'vant/es';
 import qs from 'qs';
-import { useEventListener } from '@vueuse/core';
 import { useCountDown } from '@vant/use';
 import dayjs from 'dayjs';
 import { querySalesInfo as tenantProductDetail, queryUpgradeConfig } from '@/api/modules/product';
@@ -63,16 +62,17 @@ import GuaranteeContent from '../templates/components/GuaranteeContent/index.vue
 import { ProductData } from '@/api/modules/trial.data';
 import { INSURANCE_PERIOD_TYPE_ENUMS } from '@/common/constants/trial';
 import { compositionDesc } from '../utils';
-import { sendPay, useWXCode } from '@/views/cashier/core';
+import { sendPay } from '@/views/cashier/core';
 import { ORDER_STATUS_MAP, ORDER_STATUS_DESC } from './const';
 import { ProductDetail, ProductUpgradeConfig } from '@/api/modules/product.data';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
-import { downLoadFile, setPageTitle } from '@/utils';
+import { setPageTitle } from '@/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { sessionStore } from '@/hooks/useStorage';
 import { ORDER_DETAIL_KEY } from '@/common/constants/infoCollection';
 import { TEMPLATE_TYPE_ENUM } from '../constant';
 import { downloadPDFWithUrl } from '@/utils/jsbridgePromise';
+import useOrder from '@/hooks/useOrder';
 
 // 调用主题
 const themeVars = useTheme();
@@ -83,12 +83,22 @@ interface QueryData {
   tenantId: string; // 订单id
   orderNo: string;
   from: string;
-  code: string; // 微信授权code
   channelCode: string; // 渠道code
+  productCode: string; // 产品code
+  preview: string; // 是否是预览
+  templateView: any;
   [key: string]: string;
 }
 
-const { tenantId, from = 'other', orderNo, code, channelCode = '' } = route.query as QueryData;
+const {
+  tenantId,
+  from = 'other',
+  orderNo,
+  preview,
+  productCode: productCodeView,
+  channelCode = '',
+  templateView,
+} = route.query as QueryData;
 let productCode = '';
 
 const state = reactive<{
@@ -148,6 +158,9 @@ const getChannelCode = computed(() => {
   return channelCode || state.orderDetail.extInfo.extraInfo.channelCode;
 });
 
+// 是否是preview模式
+const previewMode = computed(() => !!preview);
+
 const goToInsurerPage = async (reOrder = false, promotion = '') => {
   try {
     const { templateId } = state.orderDetail.extInfo.extraInfo;
@@ -195,25 +208,30 @@ const goToInsurerPage = async (reOrder = false, promotion = '') => {
   }
 };
 
+const previewHandleBtn = (msg: string) => {
+  if (previewMode.value) {
+    Toast(msg);
+    return false;
+  }
+  return true;
+};
+
 const orderBtnHandler = async () => {
   if (orderBtnText.value === '下载保单') {
-    // console.log('配的保单下载地址', state.orderDetail.extInfo.extraInfo.xinaoMyUrl);
-    // 拿到客户配置的下载保单地址
-    // const customerDownloadUrl = `${state.orderDetail.extInfo.extraInfo.xinaoMyUrl}?code=${code}&state=STATE`;
-    // console.log('拼接后的保单下载地址', customerDownloadUrl);
-    // window.location.href = customerDownloadUrl;
-    if (!state.orderDetail.extInfo?.policyUrl) {
-      const orderReq = await getTenantOrderDetail({ orderNo, tenantId });
-      if (orderReq.code === '10000') {
-        state.orderDetail = orderReq.data;
-        if (state.orderDetail.extInfo?.policyUrl) {
-          downloadPDFWithUrl(state.orderDetail.extInfo?.policyUrl);
-        } else {
-          Toast('电子保单单生成中，请稍后再试');
+    if (previewHandleBtn('预览模式无法下载保单')) {
+      if (!state.orderDetail.extInfo?.policyUrl) {
+        const orderReq = await getTenantOrderDetail({ orderNo, tenantId });
+        if (orderReq.code === '10000') {
+          state.orderDetail = orderReq.data;
+          if (state.orderDetail.extInfo?.policyUrl) {
+            downloadPDFWithUrl(state.orderDetail.extInfo?.policyUrl);
+          } else {
+            Toast('电子保单单生成中，请稍后再试');
+          }
         }
+      } else {
+        state.orderDetail.extInfo?.policyUrl && downloadPDFWithUrl(state.orderDetail.extInfo?.policyUrl);
       }
-    } else {
-      state.orderDetail.extInfo?.policyUrl && downloadPDFWithUrl(state.orderDetail.extInfo?.policyUrl);
     }
   } else if (orderBtnText.value === '立即支付') {
     getPayUrl({
@@ -241,7 +259,7 @@ const initPageInfo = () => {
   state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
   state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
   setPageTitle(state.detail?.tenantProductInsureVO?.productName || '');
-  state.templateId = '4' || state.orderDetail.extInfo.templateId;
+  state.templateId = state.orderDetail.extInfo.templateId || '4';
   let insurancePeriodDesc = '';
   if (state.templateId.toString() === '2') {
     state.orderDetail.tenantOrderInsuredList[0].tenantOrderProductList.forEach((item: any) => {
@@ -323,8 +341,52 @@ const getUpgrade = async (baseProductCode) => {
   }
 };
 
+const queryOrderDeatil = () => {
+  return new Promise((resolve, reject) => {
+    if (previewMode.value) {
+      // 订单数据
+      const orderDetail = useOrder({
+        extInfo: {
+          buttonCode: 'EVENT_SHORT_saveOrder',
+          pageCode: 'productInfo',
+          iseeBizNo: '',
+          templateId: templateView,
+          extraInfo: {
+            templateId: templateView,
+          },
+        },
+      });
+      orderDetail.value.orderAmount = (Math.random() * 1000).toFixed(2);
+      orderDetail.value.orderStatus = 'acceptPolicy';
+      orderDetail.value.tenantOrderInsuredList[0].name = '小安';
+      orderDetail.value.commencementTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
+      orderDetail.value.expiryDate = dayjs().add(1, 'year').format('YYYY-MM-DD HH:mm:ss');
+      orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList[0] = {
+        productCode: productCodeView,
+        tenantOrderRiskList: [
+          {
+            riskType: 1,
+            insurancePeriodValue: '1',
+            insurancePeriodType: 3,
+          },
+        ],
+      };
+      resolve({ code: '10000', data: unref(orderDetail) });
+    } else {
+      getTenantOrderDetail({ orderNo, tenantId, withProductInfo: true }).then((result) => {
+        if (result.code === '10000') {
+          resolve(result);
+        } else {
+          reject();
+        }
+      });
+    }
+  });
+};
+
 const getData = async () => {
-  const orderRes = await getTenantOrderDetail({ orderNo, tenantId, withProductInfo: true });
+  const orderRes: any = await queryOrderDeatil();
+  console.log(orderRes, 'orderRes');
   if (orderRes.code === '10000') {
     state.orderDetail = orderRes.data;
     productCode = orderRes.data.tenantOrderInsuredList?.[0]?.tenantOrderProductList?.[0]?.productCode || '';
@@ -354,13 +416,6 @@ const addZero = (num: number) => {
   return s + num;
 };
 
-// useEventListener(window, 'popstate', (e) => {
-//   if (state.insureDetail?.productBasicInfoVO?.upgradeGuaranteeConfigVO?.productCode) {
-//     window.history.pushState(null, '', document.URL);
-//     goToInsurerPage(true, 'FHGGW');
-//   }
-// });
-
 const orderDesc = computed(() => {
   if (ORDER_STATUS_ENUM.PAYING === state.orderDetail?.orderStatus) {
     if (state.timeDown.current.total <= 0) {
@@ -377,16 +432,8 @@ const orderDesc = computed(() => {
   return state.pageInfo.desc;
 });
 
-// 微信授权
-// useWXCode();
 onMounted(() => {
   getData();
-  // 如果支持 popstate 一般移动端都支持了
-  // if (window.history && window.history.pushState) {
-  //   // 往历史记录里面添加一条新的当前页面的url
-  //   window.history.pushState('forward', '', '#');
-  //   window.history.forward();
-  // }
 });
 </script>
 
