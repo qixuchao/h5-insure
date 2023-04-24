@@ -430,7 +430,7 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
         // 初次调用
         if (flag) {
           Object.assign(stateInfo.insuredPersonVO, personVO);
-          Object.assign(stateInfo.proposalHolder, holder?.persionVo);
+          Object.assign(stateInfo.proposalHolder, holder?.personVO);
         }
 
         const currentIndex = currentProductCodeList.value.findIndex((codeItem) => codeItem === productCode);
@@ -576,9 +576,7 @@ const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
 const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsuredProductItem) => {
   stateInfo.currentProductCode = productInfo.productCode;
   stateInfo.defaultData = [convertProposalToTrialData(productInfo.productCode)];
-  nextTick(() => {
-    trialPopupRef.value?.open();
-  });
+  trialPopupRef.value?.open();
 };
 
 // 添加附加险

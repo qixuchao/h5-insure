@@ -7,10 +7,6 @@
     class="proposal-trial"
     :product-info="{
       productCode: productCode,
-      // productName: insureProductDetail.productName,
-      // productId: '',
-      // tenantId,
-      // insurerCode,
     }"
     :tenant-product-detail="{}"
   >
@@ -28,18 +24,7 @@
 </template>
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
-import {
-  ProductBasicInfoVo,
-  RiskDetailVoItem,
-  PersonVo,
-  Holder,
-  RiskVoItem,
-  InsuredVoItem,
-  LiabilityVoItem,
-  PremiumCalcData,
-  RiskPremiumDetailVoItem,
-  ProductRelationPlanVoItem,
-} from '@/api/modules/trial.data';
+import { RiskVoItem, PremiumCalcData } from '@/api/modules/trial.data';
 import TrialPop from '@/views/baseInsurance/templates/components/TrialPop/index.vue';
 
 interface Props {

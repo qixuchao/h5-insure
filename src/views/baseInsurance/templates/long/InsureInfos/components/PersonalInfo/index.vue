@@ -311,9 +311,29 @@ watch(
 
 // 表单数据变动
 watch(
-  [() => props.modelValue, () => state.config],
+  [
+    () => {
+      const { holder, insuredVOList } = props.modelValue;
+      const insuredList = isNotEmptyArray(insuredVOList)
+        ? insuredVOList.map((item) => {
+            return {
+              config: item.config,
+              personVO: item.personVO,
+              beneficiaryList: isNotEmptyArray(item.beneficiaryList)
+                ? item.beneficiaryList.map(({ config, personVO }) => ({
+                    config,
+                    personVO,
+                  }))
+                : [],
+            };
+          })
+        : [];
+      return [holder?.config, holder?.personVO, insuredList];
+    },
+    () => state.config,
+  ],
   (val) => {
-    const { holder, insuredVOList } = val[0] || {};
+    const { holder, insuredVOList } = props.modelValue || {};
     // 投保人
     Object.assign(state.holder.config, holder?.config);
     Object.assign(state.holder.personVO, holder?.personVO);
@@ -329,6 +349,7 @@ watch(
         ? propsInsuredLen
         : stateInsuredLen || state.config.multiInsuredMinNum;
 
+    console.log(1111111, insuredVOList);
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
       const { personVO, config = {} } = insuredVOList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
@@ -342,6 +363,7 @@ watch(
         };
       } else {
         Object.assign(res[index]?.personVO, personVO);
+        Object.assign(res[index]?.config, config);
       }
       return res;
     }, state.insured);
