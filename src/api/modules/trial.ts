@@ -10,8 +10,8 @@ export const insureProductDetail = (data: any = {}) =>
   );
 
 // 保费试算
-export const premiumCalc = (data = {}) =>
-  request<PremiumCalcResponse>({ url: '/api/app/insure/insurance/premiumCalc', method: 'POST', data });
+export const premiumCalc = (data = {}, config = {}) =>
+  request<PremiumCalcResponse>({ url: '/api/app/insure/insurance/premiumCalc', method: 'POST', data, ...config });
 
 export const insureProductDetailNew = (data = {}) =>
   request<ResponseData>({ url: '/api/app/insure/product/insureProductDetailNew', method: 'POST', data });

@@ -42,6 +42,7 @@
         :key="`${productItem.nanoid}_${index}_${productItem.productCode}`"
         class="product-item-card"
         :show-line="false"
+        :show-divider="false"
       >
         <ProductList
           :product-risk-list="productItem.proposalProductRiskList"
@@ -340,7 +341,9 @@ const addProduct = () => {
 };
 
 const trailProduct = (params) => {
-  premiumCalc(params).then(({ code, data }) => {
+  premiumCalc(params, {
+    isCustomError: true,
+  }).then(({ code, data, message }) => {
     if (code === SUCCESS_CODE && data) {
       if (data?.errorInfo) {
         Toast(`${data?.errorInfo}`);
@@ -357,6 +360,10 @@ const trailProduct = (params) => {
 
         combineToProductList(trialPopupRef.value?.formatData(params, riskPremiumMap));
       }
+      stateInfo.productErrorMap[params.productCode] = '';
+      // 成功
+    } else {
+      stateInfo.productErrorMap[params.productCode] = message;
     }
   });
 };
@@ -647,11 +654,6 @@ watch(
   debounce((val) => {
     if (isNotEmptyArray(val)) {
       console.log('选择的产品变动了', val);
-      const tempList = val.map((code) => ({
-        productCode: code,
-        proposalProductRiskList: [],
-      }));
-      stateInfo.proposalInsuredProductList.push(...tempList);
       fetchDefaultData(val.map((productCode) => ({ productCode })));
 
       // 获取产品详情
@@ -703,10 +705,10 @@ onBeforeMount(() => {
     }
   }
   .product-item-card {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
   }
   .container {
-    padding: 30px 30px 180px 30px;
+    padding: 30px 30px 200px 30px;
 
     .mb20 {
       margin-bottom: 20px;
@@ -716,7 +718,7 @@ onBeforeMount(() => {
       width: 100%;
       justify-content: center;
       display: flex;
-      margin-top: 20px;
+      margin-top: 40px;
       :deep(.com-check-btn) {
         height: 68px;
         width: 240px;

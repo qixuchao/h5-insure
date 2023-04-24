@@ -315,7 +315,7 @@ watch(
   (val) => {
     const { holder, insuredVOList } = val[0] || {};
     // 投保人
-    state.holder.config = holder?.config || {};
+    Object.assign(state.holder.config, holder?.config);
     Object.assign(state.holder.personVO, holder?.personVO);
 
     // 处理被保人数据

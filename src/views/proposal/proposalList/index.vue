@@ -22,14 +22,13 @@
           >
             <template v-if="isCreateProposal" #checkedProduct>
               <div class="check-button">
-                <!-- <van-checkbox-group v-model="selectProduct"> -->
                 <van-checkbox
                   :key="productItem.id"
                   :name="productItem.productCode"
                   :model-value="state.selectProduct.includes(productItem.productCode)"
                   shape="square"
+                  @change="(event) => onSelect(event, productItem)"
                 ></van-checkbox>
-                <!-- </van-checkbox-group> -->
               </div>
             </template>
           </ProductItem>
@@ -48,21 +47,11 @@
     </div>
     <TrialProductPopup
       :modal-value="state.selectProduct"
-      :proposal-list="selectedProductList"
+      :proposal-list="state.selectedProductList"
       :is-show="showSelectProduct"
       @close="toggleSelectProduct(false)"
       @checked="checkProductRisk"
     />
-    <!-- <ProductRisk
-      v-if="showProductRisk"
-      :is-show="showProductRisk"
-      :type="addProposalType"
-      :insured="insured"
-      :product-id="state.productCode"
-      @close="closeProductRisk"
-      @finished="onFinished"
-    ></ProductRisk>
-    <TrialPopup /> -->
   </ProPageWrap>
   <ProFixedButton v-if="!isCreateProposal" :button-image="ProFixedButtonDefaultImage" @click="goHistoryList" />
 </template>
@@ -77,14 +66,11 @@ import ProductItem from './components/productItem.vue';
 import InsureFilter from './components/insureFilter.vue';
 import ProductRisk from '../createProposal/components/ProductRisk/index.vue';
 import createProposalStore from '@/store/proposal/createProposal';
-import { ProposalInfo } from '@/api/modules/createProposal.data';
 import ProFixedButton from '@/components/ProFixedButton/index.vue';
 import { queryProposalProductList } from '@/api/modules/proposalList';
 import ProFixedButtonDefaultImage from '@/assets/images/lishijihuashu.png';
 import TrialProductPopup from './components/TrialProductPopup/index.vue';
-import TrialPopup from './components/TrialPopup.vue';
 import { queryCalcDefaultInsureFactor, queryCalcDynamicInsureFactor, insureProductDetail } from '@/api/modules/trial';
-import { sessionStore } from '@/hooks/useStorage';
 
 interface Props {
   isCreateProposal: boolean;
@@ -117,6 +103,7 @@ interface StateType {
   };
   excludeProductCodeList: string[];
   isCreateProposal: boolean;
+  selectedProductList: any[];
 }
 
 const store = createProposalStore();
@@ -147,6 +134,8 @@ const state = reactive<StateType>({
   // 排除的产品code
   excludeProductCodeList: [],
   isCreateProposal: false,
+  // 选择的产品
+  selectedProductList: [],
 });
 
 const {
@@ -225,51 +214,32 @@ const hasProduct = computed(() => {
   return productList.value.length > 0;
 });
 
-// const formatData = ({ productCode, holder, insuredVOList } = {}) => {
-//   const { personVO, productPlanVOList } = insuredVOList?.[0] || {};
-
-//   const proposalData = {
-//     proposalHolder: holder,
-//     proposalInsuredList: [
-//       {
-//         ...personVO,
-//         proposalInsuredProductList: [
-//           {
-//             productCode,
-//             productName: state.productName,
-//             proposalProductRiskList: productPlanVOList,
-//           },
-//         ],
-//       },
-//     ],
-//   };
-//   return proposalData;
-// };
-
 const fetchDefaultData = async (productCode, callback) => {
-  console.log(11111, store.$state);
   // TODO 加loading
-  const { code, data, message } = await queryCalcDefaultInsureFactor({
-    ...store.$state.insuredPersonVO,
-    calcProductFactorList: [
-      {
-        productCode,
-      },
-    ],
-  });
+  const { code, data, message } = await queryCalcDefaultInsureFactor(
+    {
+      ...store.$state.insuredPersonVO,
+      calcProductFactorList: [
+        {
+          productCode,
+        },
+      ],
+    },
+    {
+      isCustomError: true,
+    },
+  );
   if (code === '10000') {
     state.errorMsgMap[productCode] = '';
     typeof callback === 'function' && callback(true);
-    // formatData(data[0]);
   } else {
     state.errorMsgMap[productCode] = message;
   }
-  // if (result.data) transformDefaultData(result.data.find((d) => d.productCode === props.productInfo.productCode));
 };
 
-const selectedProductList = computed(() =>
-  productList.value.filter((item) => state.selectProduct.includes(item.productCode)),
-);
+// const selectedProductList = computed(() =>
+//   productList.value.filter((item) => state.selectProduct.includes(item.productCode)),
+// );
 
 /** ****** 创建计划书相关逻辑 ******** */
 // eslint-disable-next-line consistent-return
@@ -298,12 +268,23 @@ const selectProposal = ({ productCode }: any) => {
   fetchDefaultData(productCode, () => {
     state.selectProduct.push(productCode);
   });
-
-  // toggleProductRisk(true);
 };
 
+/** 购物车选择产品操作 */
 const checkProductRisk = (checked: any[]) => {
   state.selectProduct = checked;
+  state.selectedProductList = state.selectedProductList.filter((item) => checked.includes(item.productCode));
+};
+
+/** 选择产品，切换类型，只能保存产品数据 */
+const onSelect = (flag, productItem) => {
+  if (flag) {
+    state.selectedProductList.push(productItem);
+  } else {
+    state.selectedProductList = state.selectedProductList.filter(
+      (item) => item.productCode !== productItem.productCode,
+    );
+  }
 };
 
 const addProposal = () => {
@@ -313,46 +294,7 @@ const addProposal = () => {
   store.setTrialData(selectedProduct);
   store.setSelectedProduct(state.selectProduct);
   router.back();
-  // router.replace({
-  //   path: '/proposal/createProposal',
-  //   query: {
-  //     productCode: productCodeInQuery,
-  //     selectProduct: state.selectProduct,
-  //   },
-  // });
-  // router.push({
-  //   path: '/proposal/createProposal',
-  // });
-  // nextTick(() => {
-  //   router.replace({
-  //     path: '/proposal/createProposal',
-  //     query: {
-  //       selectProduct: state.selectProduct,
-  //     },
-  //   });
-  // });
 };
-
-// const closeProductRisk = () => {
-//   toggleProductRisk(false);
-// };
-
-// const onFinished = (proposalInfo: ProposalInfo) => {
-//   if (isCreateProposal) {
-//     state.proposalList.push(proposalInfo);
-//     showFooter.value = true;
-//     state.selectProduct.push(proposalInfo.proposalInsuredList[0].proposalInsuredProductList[0].productCode);
-//     toggleProductRisk(false);
-//     return;
-//   }
-
-//   store.setTrialData([proposalInfo]);
-//   toggleProductRisk(false);
-//   router.push({
-//     path: '/proposal/createProposal',
-//     query: route.query,
-//   });
-// };
 
 const onRefresh = () => {
   // 清空列表数据
@@ -367,15 +309,6 @@ const onRefresh = () => {
 onBeforeMount(() => {
   state.excludeProductCodeList = store.$state.excludeProduct;
 });
-
-// onActivated(() => {
-//   // state.selectProduct = [];
-//   // state.excludeProductCodeList = [];
-
-//   onRefresh();
-// });
-
-onMounted(() => {});
 </script>
 
 <style scoped lang="scss">

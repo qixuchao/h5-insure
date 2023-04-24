@@ -160,6 +160,10 @@ const onClickPaymethod = (type: string) => {
   state.formInfo.paymentFrequency = type;
 };
 
+const handleChange = () => {
+  console.log('handleChange');
+};
+
 // 预览费率文件
 const onPreviewFeeRateFile = () => {
   if (!explainInfo.value?.premiumExplainUri) {

@@ -46,7 +46,6 @@
           :tenant-product-detail="tenantProductDetail.PREMIUM"
           :plan-list="planList"
           :premium-info="{ premium, premiumLoadingText }"
-          @update-active-plan="updateActivePlan"
         />
         <Package v-if="currentPackageConfigVOList.length > 0" :package-product-list="currentPackageConfigVOList" />
       </template>
@@ -232,6 +231,8 @@ const state = reactive({
   ifPersonalInfoSuccess: false,
   trialMsg: '',
   trialResult: 0,
+  trialData: null,
+  isFirst: true,
 });
 
 // 分享信息
@@ -358,11 +359,6 @@ const initData = async () => {
 // 险种信息
 const currentRiskInfo = ref([]);
 
-// 切换计划
-const updateActivePlan = (planCode: string) => {
-  console.log('currentPlanObj.value', planCode, currentPlanObj.value);
-};
-
 watch(
   () => guaranteeObj.value.planCode,
   (planCode) => {
@@ -386,7 +382,8 @@ const trialData2Order = (
   riskPremium = {},
   currentOrderDetail = {},
 ) => {
-  const nextStepParams: any = { ...currentOrderDetail };
+  const { insuranceEndDate, insuranceStartDate } = guaranteeObj.value;
+  const nextStepParams: any = { ...currentOrderDetail, insuranceStartDate, insuranceEndDate };
   console.log('nextStepParams', nextStepParams);
 
   const { tenantOrderHolder, tenantOrderInsuredList } = formData2Order({
@@ -456,17 +453,13 @@ const onSaveOrder = async () => {
     }`;
   } else {
     try {
-      const { insuranceEndDate, insuranceStartDate } = guaranteeObj.value;
       const productInfo: any = {
         insurerCode,
         productCode,
         productId: '',
-        insuranceEndDate,
-        insuranceStartDate,
         productName: insureProductDetail.value?.productName || '',
         tenantId,
       };
-
       const currentOrderDetail = trialData2Order(productInfo, premiumMap.value, orderDetail.value);
       nextStep(currentOrderDetail, async (data: any, pageAction: string) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
@@ -522,12 +515,10 @@ const getToOrderPage = () => {
 const onNext = async () => {
   showHealthPreview.value = false;
   showFilePreview.value = false;
-  console.log('previewMode.value---next', previewMode.value);
   if (!previewMode.value) {
     personalInfoRef.value
       .validate()
       .then(async (res) => {
-        console.log(orderDetail.value, 'skskks===++++', state.trialResult, state.submitData);
         if (state.trialResult) {
           const { mobile, verificationCode = '' } = state.submitData.holder?.personVO || {};
           const { code, data } = await checkCode(mobile as string, verificationCode);
@@ -635,13 +626,14 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
       })
       .finally(() => {
         // state.trialMsg = '000';
+        state.isFirst = false;
       });
   }
 };
 
 const getRiskVOList = () => {
   const { chargePeriod, coveragePeriod, paymentFrequency, insuranceEndDate, insuranceStartDate } = guaranteeObj.value;
-  console.log('ssinit===++guaranteeObj.value', guaranteeObj.value);
+
   return riskToOrder([...currentRiskInfo.value, ...getPackageRiskList()]).map((riskVOList: any) => {
     return {
       ...riskVOList,
@@ -657,7 +649,7 @@ const handleMixTrialData = debounce(async () => {
   if (state.ifPersonalInfoSuccess) {
     state.submitData.productCode = productCode;
     state.submitData.tenantId = tenantId;
-    console.log([...currentRiskInfo.value, ...getPackageRiskList()], 'slslslwwp--1--190199');
+
     // TODO 处理同主险的相关数据
     state.riskVOList = getRiskVOList();
     console.log(state.riskVOList, 'state.riskVOList----2222223333');
@@ -679,18 +671,12 @@ const handleMixTrialData = debounce(async () => {
 }, 300);
 
 const handlePersonalInfoChange = async (data) => {
-  console.log(data, 'slsllw--2020');
+  state.trialData = data;
+
   // 只有改动第一个被保人，需要调用dy接口
-  const { holder, insuredVOList, isFirstInsuredChange } = data;
+  const { holder, insuredVOList } = data;
   if (holder) {
     state.submitData.holder = holder;
-    // console.log('------', holder);
-    // state.submitData.holder = {
-    //   personVO: {
-    //     ...holder,
-    //     socialFlag: holder.hasSocialInsurance,
-    //   },
-    // };
   }
   if (insuredVOList && insuredVOList.length > 0) {
     insuredVOList.forEach((ins, index) => {
@@ -744,6 +730,25 @@ watch(
   },
 );
 
+const resetTrialData = debounce(() => {
+  if (state.trialData) {
+    handlePersonalInfoChange(state.trialData);
+  }
+}, 400);
+
+watch(
+  [() => currentPlanObj.value, () => guaranteeObj.value],
+  () => {
+    if (!state.isFirst) {
+      resetTrialData();
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
 // 切换计划时,
 watch(
   () => currentPlanObj.value,
@@ -756,7 +761,7 @@ watch(
     currentRiskInfo.value = insureProductRiskVOList;
 
     mainRiskInfo.value = (insureProductRiskVOList || []).find((risk) => risk.mainRiskFlag === YES_NO_ENUM.YES);
-    console.log('mainRiskInfo.value', mainRiskInfo.value);
+
     currentPackageConfigVOList.value = (oilPackageProductVOList || []).map((oli) => ({
       ...oli,
       value: INSURE_TYPE_ENUM.UN_INSURE,

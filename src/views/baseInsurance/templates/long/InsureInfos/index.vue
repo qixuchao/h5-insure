@@ -5,6 +5,7 @@
       :v-model="state.sValues"
       :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
       :defalut-value="state.defaultValues"
+      :trial-result="trialResult"
       @trial-change="handleBaoeBaofeiChange"
     ></BaoeBaofei>
     <ProductKeys
@@ -53,6 +54,7 @@ interface Props {
   originData: RiskDetailVoItem;
   modelValue: RiskVoItem;
   defaultValue: any;
+  trialResult: any;
 }
 const emit = defineEmits(['trialChange']);
 
@@ -60,6 +62,7 @@ const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as RiskDetailVoItem),
   modelValue: () => ({} as RiskVoItem),
   defaultValue: () => ({} as any),
+  trialResult: () => ({} as any),
 });
 
 const personalInfoRef = ref(null);

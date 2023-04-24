@@ -101,6 +101,13 @@
       </template>
     </VanField>
   </div>
+  <div v-if="mConfigs.saleMethod === 2 && trialResult && trialResult.amount > 0">
+    <VanField :label="`保额`" class="risk-select-field">
+      <template #input>
+        <span>{{ trialResult.amount }}</span>
+      </template>
+    </VanField>
+  </div>
 </template>
 <script lang="ts" setup>
 import { ref, watch, withDefaults } from 'vue';
@@ -113,6 +120,7 @@ interface Props {
   originData: RiskAmountPremiumConfig;
   modelValue: RiskVoItem;
   defalutValue: any;
+  trialResult: any;
 }
 
 interface StateInfo {
@@ -124,6 +132,7 @@ const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as RiskAmountPremiumConfig),
   modelValue: () => ({} as RiskVoItem),
   defalutValue: () => ({} as any),
+  trialResult: () => ({} as any),
 });
 
 const state = reactive<StateInfo>({
@@ -141,7 +150,10 @@ const pickEnums = (origin: any[], target: any[], prop = {}) => {
   return (origin || []).filter((or) => currentTarget.includes(`${or.value}`) || currentTarget.includes(or.value));
 };
 
-const validateSumInsured = () => {};
+const validateSumInsured = () => {
+  console.log('-----------', mConfigs.value, mValues.value);
+  return true;
+};
 
 const getMethodName = () => {
   if (mConfigs.value.saleMethod === 2) {
