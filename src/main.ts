@@ -21,10 +21,10 @@ import '@/styles/index.scss';
 
 const start = async () => {
   initNative();
-  // if (isTestEnv) {
-  // eslint-disable-next-line new-cap
-  new vconsole();
-  // }
+  if (isTestEnv) {
+    // eslint-disable-next-line new-cap
+    new vconsole();
+  }
 
   dayjs.locale({ ...zh, weekStart: 1 });
   const app = createApp(App);
