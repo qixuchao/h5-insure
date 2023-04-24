@@ -30,61 +30,13 @@
               label="出生日期"
               name="birthday"
               required
-              @change="changeBirthday"
+              @update:model-value="changeBirthday"
             />
           </template>
         </ProFieldV2>
         <ProRadioV2 v-model="stateInfo.insuredPersonVO.gender" label="性别" name="gender" :columns="sexList" required />
       </ProRenderFormWithCard>
 
-      <!-- <VanForm ref="formRef" input-align="right" error-message-align="right">
-        <ProCard :show-line="false">
-          <VanField
-            v-model="proposalInfo.proposalName"
-            class="border-radius"
-            name="proposalName"
-            placeholder="请输入计划书名称"
-            :rules="[{ validator: (...params) => validateName('计划书名称', ...params) }]"
-          >
-            <template #label>
-              <span class="plan-name">计划书名称</span>
-            </template>
-          </VanField>
-        </ProCard>
-        <ProCard title="被保人信息">
-          <VanField
-            v-model="proposalInfo.proposalInsuredList[0].name"
-            name="name"
-            label="姓名"
-            :rules="[{ validator: (...params) => validateName('姓名', ...params) }]"
-            placeholder="请输入（选填）"
-          ></VanField>
-          <ProDatePicker
-            v-model="proposalInfo.proposalInsuredList[0].birthday"
-            name="birthday"
-            label="出生日期"
-            type="date"
-            is-link
-            readonly
-            placeholder="请选择"
-            :rules="[{ required: true, message: '请选择' }]"
-          />
-          <VanField
-            v-model="proposalInfo.proposalInsuredList[0].gender"
-            name="gender"
-            label="性别"
-            class="border-radius"
-            :rules="[{ required: true, message: '请选择' }]"
-          >
-            <template #input>
-              <ProRadioButton
-                v-model="proposalInfo.proposalInsuredList[0].gender"
-                :options="SEX_LIMIT_LIST"
-              ></ProRadioButton>
-            </template>
-          </VanField>
-        </ProCard>
-      </VanForm> -->
       <ProCard
         v-for="(productItem, index) in stateInfo.proposalInsuredProductList"
         :key="`${productItem.nanoid}_${index}_${productItem.productCode}`"
@@ -103,12 +55,12 @@
         ></ProductList>
       </ProCard>
       <div class="operate-bar">
-        <ProCheckButton activated :round="34" @click="addMainRisk">添加主险</ProCheckButton>
+        <ProCheckButton activated :round="34" @click="addProduct">添加产品</ProCheckButton>
       </div>
     </div>
     <div class="footer-bar">
       <span class="trial-result"
-        >总保费<span class="result-num">￥{{ totalPremium?.toLocaleString() }}</span>
+        >总保费<span class="result-num">{{ !submitDisable ? `￥${totalPremium?.toLocaleString()}` : '-' }}</span>
       </span>
       <div class="trial-operate">
         <VanButton :disabled="submitDisable" type="primary" @click="saveProposalData">保存并预览</VanButton>
@@ -378,14 +330,19 @@ const queryProposalInfo = (params = {}) => {
 };
 
 // 添加或修改险种信息成功的回调
-const onFinished = (productInfo: PlanTrialData) => {
+const onFinished = (productInfo: PlanTrialData, flag = true) => {
   const currentIndex = stateInfo.proposalInsuredProductList.findIndex(
     (productItem) => productItem.productCode === productInfo.productCode,
   );
-  // 投保人
-  Object.assign(stateInfo.proposalHolder, productInfo.proposalHolder);
-  // 被保人
-  Object.assign(stateInfo.insuredPersonVO, productInfo.insuredPersonVO);
+
+  // 是否需要更新投被保人信息
+  if (flag) {
+    // 投保人
+    Object.assign(stateInfo.proposalHolder, productInfo.proposalHolder);
+    // 被保人
+    Object.assign(stateInfo.insuredPersonVO, productInfo.insuredPersonVO);
+  }
+
   const tempData = {
     ...productInfo.insuredProductInfo,
     nanoid: nanoid(),
@@ -418,7 +375,7 @@ const onFinished = (productInfo: PlanTrialData) => {
   trialPopupRef.value?.close();
 };
 
-const addMainRisk = () => {
+const addProduct = () => {
   store.setProposalInfo(proposalInfo.value);
   store.setTrialData([]);
 
@@ -449,7 +406,7 @@ const trailProduct = (params) => {
           };
         });
 
-        onFinished(trialPopupRef.value?.formatData(params, riskPremiumMap));
+        onFinished(trialPopupRef.value?.formatData(params, riskPremiumMap), false);
       }
     }
   });
@@ -522,11 +479,13 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
         if (flag) {
           Object.assign(stateInfo.insuredPersonVO, personVO);
           Object.assign(stateInfo.proposalHolder, holder?.persionVo);
+        }
 
-          stateInfo.proposalInsuredProductList = [tempData];
-        } else {
-          const currentIndex = currentProductCodeList.value.findIndex((codeItem) => codeItem === productCode);
+        const currentIndex = currentProductCodeList.value.findIndex((codeItem) => codeItem === productCode);
+        if (currentIndex > -1) {
           stateInfo.proposalInsuredProductList[currentIndex] = tempData;
+        } else {
+          stateInfo.proposalInsuredProductList.push(tempData);
         }
       });
     }
@@ -544,7 +503,7 @@ const handleCalcDynamicInsure = (code: string) => {
     .map(({ productCode, proposalProductRiskList }) => {
       // 原始数据
       const { productPlanInsureVOList } = stateInfo.productCollection[productCode] || {};
-      const [{ insureProductRiskVOList }] = productPlanInsureVOList || [];
+      const [{ insureProductRiskVOList } = {}] = productPlanInsureVOList || [];
       return {
         productCode,
         riskEditVOList: isNotEmptyArray(proposalProductRiskList)
@@ -561,12 +520,12 @@ const handleCalcDynamicInsure = (code: string) => {
                   ...rest
                 }) => {
                   // 动态值
-                  const currentRiskItem = insureProductRiskVOList.find((item) => item.riskCode === riskCode) || {};
+                  const currentRiskItem = insureProductRiskVOList?.find((item) => item.riskCode === riskCode) || {};
                   return {
                     insureProductRiskVO: {
                       ...currentRiskItem,
                       productRiskInsureLimitVO: {
-                        ...currentRiskItem.productRiskInsureLimitVO,
+                        ...currentRiskItem?.productRiskInsureLimitVO,
                         annuityDrawValueList,
                         paymentPeriodValueList,
                         insurancePeriodValueList,
@@ -585,7 +544,8 @@ const handleCalcDynamicInsure = (code: string) => {
  * @param productCode
  */
 const convertProposalToTrialData = (productCode) => {
-  const currentProductItem = stateInfo.proposalInsuredProductList.find((item) => item.productCode === productCode);
+  const currentProductItem =
+    stateInfo.proposalInsuredProductList.find((item) => item.productCode === productCode) || {};
 
   return {
     holder: {
@@ -597,7 +557,7 @@ const convertProposalToTrialData = (productCode) => {
         config: hiddenFieldKeys,
         productPlanVOList: [
           {
-            riskVOList: currentProductItem.proposalProductRiskList,
+            riskVOList: currentProductItem?.proposalProductRiskList,
           },
         ],
       },
@@ -646,7 +606,7 @@ const calcDynamicInsureFactor = async (productCode) => {
 
 const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsuredProductItem) => {
   const currentProduct = productInfo;
-  Dialog.confirm({ message: '确认删除该险种？' }).then(() => {
+  Dialog.confirm({ message: '确认删除该产品？' }).then(() => {
     // 删除主险等同于删除整个产品信息
     if (riskInfo.riskType === 1) {
       stateInfo.proposalInsuredProductList = stateInfo.proposalInsuredProductList
@@ -709,7 +669,8 @@ onBeforeMount(() => {
   // }
 });
 
-const validateData = (arr) => (isNotEmptyArray(arr) ? arr.every((item) => Boolean(item)) : false);
+const validateData = (arr) =>
+  isNotEmptyArray(arr) ? arr.every((item) => (typeof item === 'number' ? !Number.isNaN(item) : Boolean(item))) : false;
 
 // 创建计划书
 const submitData = () => {
@@ -760,12 +721,12 @@ const selectAction = (item: ActionSheetAction, index: number) => {
 
 watch(
   () => trialFieldkeys.map((key) => stateInfo.insuredPersonVO[key]),
-  (val, oldVal) => {
-    if (validateData(val) && validateData(oldVal) && val.join(',') !== oldVal.join(',')) {
+  debounce((val, oldVal) => {
+    if (validateData(val) && validateData(oldVal)) {
       console.log('被保人条件变动');
       currentProductCodeList.value.forEach((code) => calcDynamicInsureFactor(code));
     }
-  },
+  }),
   {
     deep: true,
   },

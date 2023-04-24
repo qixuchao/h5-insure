@@ -1,4 +1,5 @@
 import { isNaN } from 'lodash';
+import { text } from 'stream/consumers';
 import { RiskDetailVoItem, PremiumCalcData } from '@/api/modules/trial.data';
 
 export const dealExemptPeriod = (riderRisk: RiskDetailVoItem, mainRiskValue: string, trialData: PremiumCalcData) => {
@@ -41,6 +42,34 @@ export const dealExemptPeriod = (riderRisk: RiskDetailVoItem, mainRiskValue: str
   }
 
   return paymentYear.join('_');
+};
+
+export const getRelationText = (risks: any[], relations: any[]) => {
+  const texts = ['ceshi ceshi ceshi ', 'sssssssssss'];
+  const riskMap = {};
+  risks.forEach((risk) => {
+    riskMap[risk.riskId] = risk;
+  });
+  relations?.forEach((relation) => {
+    const { collocationType, collocationRiskId, riskId } = relation;
+    switch (collocationType) {
+      case 2: {
+        const fromName = riskMap[riskId]?.riskName;
+        const toName = riskMap[collocationRiskId]?.riskName;
+        texts.push(`${fromName} 和 ${toName} 必须同时投保`);
+        break;
+      }
+      case 3: {
+        const fromName = riskMap[riskId]?.riskName;
+        const toName = riskMap[collocationRiskId]?.riskName;
+        texts.push(`${fromName} 和 ${toName} 不能同时投保`);
+        break;
+      }
+      default:
+        break;
+    }
+  });
+  return texts;
 };
 
 export default {};

@@ -5,19 +5,21 @@
         <ProTitle :risk-type="risk.riskType" :title="risk.riskName" class="no-border" />
         <div class="content">
           <div class="risk-premium">
-            保费:<span class="premium">￥{{ risk.premium?.toLocaleString() }}</span>
+            保费:<span class="premium">{{
+              !errorMsg && risk.premium ? `￥${risk.premium?.toLocaleString()}` : '-'
+            }}</span>
           </div>
           <div class="risk-factor">
             <div class="factor">
-              <span class="factor-value">{{ risk.amount?.toLocaleString() }}</span>
+              <span class="factor-value">{{ risk.amount?.toLocaleString() || '-' }}</span>
               <span class="factor-name"> 保额(元) </span>
             </div>
             <div class="factor">
-              <span class="factor-value">{{ pickNameInList(RISK_INSURANCE_PERIOD, risk.coveragePeriod) }}</span>
+              <span class="factor-value">{{ pickNameInList(RISK_INSURANCE_PERIOD, risk.coveragePeriod) || '-' }}</span>
               <span class="factor-name"> 保障期间 </span>
             </div>
             <div class="factor">
-              <span class="factor-value">{{ pickNameInList(RISK_PAYMENT_PERIOD, risk.chargePeriod) }}</span>
+              <span class="factor-value">{{ pickNameInList(RISK_PAYMENT_PERIOD, risk.chargePeriod) || '-' }}</span>
               <span class="factor-name"> 缴费期间 </span>
             </div>
           </div>
@@ -41,7 +43,10 @@
       </div>
     </div>
     <div v-if="state.productRiskList.length > 1" class="premium-total">
-      保费: <span class="premium">￥{{ state?.totalPremium?.toLocaleString() }}</span>
+      保费:
+      <span class="premium">{{
+        !errorMsg && state?.totalPremium ? `￥${state?.totalPremium?.toLocaleString()}` : '-'
+      }}</span>
     </div>
     <RiskRelationList
       v-if="showRelationList"
