@@ -361,19 +361,15 @@ const shareInfo = ref({
 const initData = () => {
   querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
     if (code === '10000') {
-      let shareParams = {};
-      const { wxShareConfig, showWXShare } = data?.PRODUCT_LIST || {};
-      if (wxShareConfig) {
-        const { title, desc, image: imageArr } = wxShareConfig || {};
-        const [image = ''] = imageArr || [];
-        shareParams = { title, desc, image, isShare: showWXShare };
+      const { wxShareConfig, showWXShare, title, desc, image } = data?.PRODUCT_LIST || {};
+      if (showWXShare) {
+        Object.assign(shareInfo.value, { ...wxShareConfig, isShare: showWXShare });
       } else {
-        const { title, desc, image } = data?.PRODUCT_LIST || {};
-        shareParams = { title, desc, image };
+        // 设置分享参数
+        Object.assign(shareInfo.value, { title, desc, image, isShare: showWXShare });
       }
       setGlobalTheme(data.BASIC_INFO.themeType);
       // 设置分享参数
-      Object.assign(shareInfo.value, shareParams);
     }
   });
   queryProductMaterial({ productCode }).then(({ code, data }) => {

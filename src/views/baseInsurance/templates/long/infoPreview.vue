@@ -277,20 +277,14 @@ const initData = async () => {
   querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
     if (code === '10000') {
       tenantProductDetail.value = data;
-      document.title = data.BASIC_INFO.title || '';
-      let shareParams = {};
-      const { wxShareConfig, showWXShare } = data?.PRODUCT_LIST || {};
-      if (wxShareConfig) {
-        const { title, desc, image: imageArr } = wxShareConfig || {};
-        const [image = ''] = imageArr || [];
-        shareParams = { title, desc, image, isShare: showWXShare };
+      const { wxShareConfig, showWXShare, title, desc, image } = data?.PRODUCT_LIST || {};
+      if (showWXShare) {
+        Object.assign(shareInfo.value, { ...wxShareConfig, isShare: showWXShare });
       } else {
-        const { title, desc, image } = data?.PRODUCT_LIST || {};
-        shareParams = { title, desc, image, isShare: false };
+        // 设置分享参数
+        Object.assign(shareInfo.value, { title, desc, image, isShare: showWXShare });
       }
       setGlobalTheme(data.BASIC_INFO.themeType);
-      // 设置分享参数
-      Object.assign(shareInfo.value, shareParams);
     }
   });
 
