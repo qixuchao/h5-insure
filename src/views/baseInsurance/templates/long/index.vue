@@ -244,12 +244,14 @@ const initData = async () => {
     querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
       if (code === '10000') {
         tenantProductDetail.value = data;
-        document.title = data.BASIC_INFO.title || '';
+        const { wxShareConfig, showWXShare, title, desc, image } = data?.PRODUCT_LIST || {};
+        if (showWXShare) {
+          Object.assign(shareInfo.value, { ...wxShareConfig, isShare: showWXShare });
+        } else {
+          // 设置分享参数
+          Object.assign(shareInfo.value, { title, desc, image, isShare: showWXShare });
+        }
 
-        const { title, desc, image: imageArr } = data?.PRODUCT_LIST.wxShareConfig || {};
-        const [image = ''] = imageArr || [];
-        // 设置分享参数
-        Object.assign(shareInfo.value, { title, desc, image, isShare: !!data?.PRODUCT_LIST.showWXShare });
         setGlobalTheme(data.BASIC_INFO.themeType);
       }
     });

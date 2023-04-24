@@ -23,9 +23,7 @@
         v-if="currentPlanObj.insureProductRiskVOList"
         :data-source="currentPlanObj"
         :show-main-risk="false"
-        :default-value="
-          state.defaultValue ? state.defaultValue?.insuredVOList?.[0]?.productPlanVOList?.[0]?.riskVOList || [] : []
-        "
+        :default-value="state.defaultValue?.insuredVOList?.[0]?.productPlanVOList?.[0]?.riskVOList || []"
         @trial-change="handleProductRiskInfoChange"
       ></ProductRiskList>
       <PayInfo
@@ -758,20 +756,15 @@ const initData = async () => {
   querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
     if (code === '10000') {
       tenantProductDetail.value = data;
-      document.title = data.BASIC_INFO.title || '';
-      let shareParams = {};
-      const { wxShareConfig, showWXShare } = data.PRODUCT_LIST || {};
+
+      const { wxShareConfig, showWXShare, title, desc, image } = data?.PRODUCT_LIST || {};
       if (showWXShare) {
-        const { title, desc, image: imageArr } = wxShareConfig || {};
-        const [image = ''] = imageArr || [];
-        shareParams = { title, desc, image, isShare: showWXShare };
+        Object.assign(shareInfo.value, { ...wxShareConfig, isShare: showWXShare });
       } else {
-        const { title, desc, image } = data?.PRODUCT_LIST || {};
-        shareParams = { title, desc, image, isShare: showWXShare };
+        // 设置分享参数
+        Object.assign(shareInfo.value, { title, desc, image, isShare: showWXShare });
       }
       setGlobalTheme(data.BASIC_INFO.themeType);
-      // 设置分享参数
-      Object.assign(shareInfo.value, shareParams);
     }
   });
 

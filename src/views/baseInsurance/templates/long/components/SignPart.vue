@@ -29,7 +29,7 @@
       <template #extra>
         <div class="sign-status">
           <div class="status">{{ signString ? '已签名' : '未签名' }}</div>
-          <div :disabled="disabled" class="resign" @click="resetSign">重签</div>
+          <div v-if="!disabled" class="resign" @click="resetSign">重签</div>
         </div>
       </template>
       <Sign ref="signRef" v-model="signString" class="sign" @submit-sign="submitSign">
