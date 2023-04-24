@@ -4,12 +4,12 @@
     <template v-if="!trialPreviewMode">
       <div class="info">
         <Banner
-          v-if="tenantProductDetail?.BASIC_INFO?.banner.length"
+          v-if="tenantProductDetail?.BASIC_INFO?.bannerType == 1 && tenantProductDetail?.BASIC_INFO?.banner.length"
           data-skeleton-type="img"
           :url="tenantProductDetail?.BASIC_INFO.banner[0]"
         />
         <Video
-          v-if="tenantProductDetail?.BASIC_INFO?.video.length"
+          v-if="tenantProductDetail?.BASIC_INFO?.bannerType == 2 && tenantProductDetail?.BASIC_INFO?.video.length"
           data-skeleton-type="img"
           :src="tenantProductDetail?.BASIC_INFO.video[0]"
         />
@@ -100,6 +100,7 @@ import { productDetail as getTenantProductDetail, queryProductMaterial, querySal
 import { INSURE_TYPE_ENUM } from '@/common/constants/infoCollection';
 
 import Banner from '../components/Banner/index.vue';
+import Video from '../components/Banner/Video.vue';
 import Guarantee from '../components/Guarantee/index.vue';
 import PreNotice from '../components/PreNotice/index.vue';
 import { YES_NO_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';

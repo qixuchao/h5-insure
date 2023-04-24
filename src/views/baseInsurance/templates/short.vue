@@ -234,7 +234,15 @@ const detailScrollRef = ref();
 const observeRef = ref();
 const showFooterBtn = ref<boolean>(false);
 
-const tenantProductDetail = ref<Partial<ProductDetail>>({}); // 核心系统产品信息
+const tenantProductDetail = ref<
+  Partial<ProductDetail> & {
+    BASIC_INFO: any;
+    PREMIUM: any[];
+    GUARANTEE: any;
+    PRODUCT_LIST: any;
+    SIGNATURE: { inscribedContent: string };
+  }
+>(); // 核心系统产品信息
 const insureProductDetail = ref<Partial<InsureProductData>>({}); // 产品中心产品信息
 
 const showHealthPreview = ref<boolean>(false); // 是否显示健康告知
