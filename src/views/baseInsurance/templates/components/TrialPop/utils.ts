@@ -45,7 +45,7 @@ export const dealExemptPeriod = (riderRisk: RiskDetailVoItem, mainRiskValue: str
 };
 
 export const getRelationText = (risks: any[], relations: any[]) => {
-  const texts = ['ceshi ceshi ceshi ', 'sssssssssss'];
+  const texts = [];
   const riskMap = {};
   risks.forEach((risk) => {
     riskMap[risk.riskId] = risk;
