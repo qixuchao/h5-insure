@@ -104,7 +104,7 @@ const baseInsurance = [
   },
   // 短险模板
   {
-    name: 'baseInsuranceShort',
+    name: 'InsuranceShort',
     path: '/baseInsurance/short',
     meta: { title: '', keepAlive: true, requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/short.vue'),

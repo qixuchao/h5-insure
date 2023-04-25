@@ -1,13 +1,10 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
     <router-view v-slot="{ Component, route }" class="router-view">
-      <keep-alive v-if="route.meta.keepAlive">
-        <component :is="Component" :key="route.path"></component>
+      <keep-alive>
+        <component :is="Component" v-if="route.meta.keepAlive" :key="route.path"></component>
       </keep-alive>
-      <!-- <component :is="Component" v-if="!route.meta.keepAlive" :key="route.path"></component> -->
-      <keep-alive v-else :include="globalStore.CACHE_PAGE_LIST">
-        <component :is="Component" :key="route.path" />
-      </keep-alive>
+      <component :is="Component" v-if="!route.meta.keepAlive" :key="route.path"></component>
     </router-view>
     <ProVConsole />
   </van-config-provider>
