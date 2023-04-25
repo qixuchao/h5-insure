@@ -293,11 +293,12 @@ const combineToProductList = (productInfo: PlanTrialData) => {
     return false;
   }
   const currentProductItem = stateInfo.proposalInsuredProductList[currentIndex];
-  const { proposalProductRiskList } = tempData;
+  const { proposalProductRiskList, ...rest } = tempData;
 
   // 合并两边的险种属性
   stateInfo.proposalInsuredProductList[currentIndex] = {
     ...tempData,
+    ...rest,
     proposalProductRiskList: isNotEmptyArray(proposalProductRiskList)
       ? proposalProductRiskList.map((riskItem) => {
           const currentRiskItem = currentProductItem.proposalProductRiskList.find(
@@ -420,9 +421,11 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
       data.forEach((dataItem) => {
         const { holder, insuredVOList, productCode } = dataItem;
         const { personVO, productPlanVOList } = (insuredVOList || [])[0] || {};
-        const [{ riskVOList } = {}] = productPlanVOList || [];
+        const [{ riskVOList, ...rest } = {}] = productPlanVOList || [];
+
         const tempData: proposalInsuredProductItem = {
           productCode,
+          ...rest,
           proposalProductRiskList: riskVOList,
         };
         trailProduct(dataItem);
@@ -496,7 +499,7 @@ const handleCalcDynamicInsure = (code: string) => {
  * @param productCode
  */
 const convertProposalToTrialData = (productCode) => {
-  const currentProductItem =
+  const { proposalProductRiskList, ...rest } =
     stateInfo.proposalInsuredProductList.find((item) => item.productCode === productCode) || {};
 
   return {
@@ -509,12 +512,13 @@ const convertProposalToTrialData = (productCode) => {
         config: hiddenFieldKeys,
         productPlanVOList: [
           {
-            riskVOList: currentProductItem?.proposalProductRiskList,
+            ...rest,
+            riskVOList: proposalProductRiskList,
           },
         ],
       },
     ],
-    productCode: currentProductItem.productCode,
+    productCode,
   };
 };
 

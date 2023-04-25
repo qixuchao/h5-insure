@@ -46,7 +46,8 @@ const formatData = (trialData: PremiumCalcData, riskPremium: any) => {
   console.log('trialData', trialData);
   const { holder, insuredVOList, productCode } = trialData || {};
   const { personVO, productPlanVOList } = insuredVOList?.[0] || {};
-  const riskList = (productPlanVOList?.[0]?.riskVOList || []).map((risk: RiskVoItem) => {
+  const { riskVOList, ...rest } = productPlanVOList?.[0] || {};
+  const riskList = (riskVOList || []).map((risk: RiskVoItem) => {
     return {
       ...risk,
       premium: riskPremium[risk.riskCode]?.premium,
@@ -78,6 +79,7 @@ const formatData = (trialData: PremiumCalcData, riskPremium: any) => {
     insuredPersonVO: personVO,
     insuredProductInfo: {
       productCode,
+      ...rest,
       productName: props.productName,
       occupationCodeList: personVO?.occupationCodeList,
       proposalProductRiskList: riskList,

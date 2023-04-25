@@ -1,5 +1,4 @@
 <template>
-  <!-- {{ $attrs.visible ? `1111${$attrs.visible}` : `2222${$attrs.visible}` }} -->
   <van-field
     :model-value="state.modelValue"
     :class="`com-van-field ${markRequired ? '' : 'field-mark--hidden'} ${
