@@ -349,7 +349,6 @@ watch(
         ? propsInsuredLen
         : stateInsuredLen || state.config.multiInsuredMinNum;
 
-    console.log(1111111, insuredVOList);
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
       const { personVO, config = {} } = insuredVOList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);

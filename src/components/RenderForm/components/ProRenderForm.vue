@@ -10,8 +10,8 @@
         :is-view="isView"
       >
         <!-- 继承 slots -->
-        <template v-for="slotName in noDefaultSlots" :key="slotName" #[slotName]>
-          <slot :name="slotName" />
+        <template v-for="slotName in noDefaultSlots" :key="slotName" #[slotName]="slotParams">
+          <slot :name="slotName" v-bind="slotParams || {}" />
         </template>
       </component>
     </template>

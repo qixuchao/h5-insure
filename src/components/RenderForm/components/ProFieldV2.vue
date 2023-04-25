@@ -15,8 +15,8 @@
       <ValueView :value="valueView" />
     </template>
     <!-- 继承 slots -->
-    <template v-for="slotName in Object.keys(slotskeyMap)" :key="slotName" #[slotName]>
-      <slot :name="slotskeyMap[slotName]" />
+    <template v-for="slotName in Object.keys(slotskeyMap)" :key="slotName" #[slotName]="slotParams">
+      <slot :name="slotskeyMap?.[slotName]" v-bind="slotParams || {}" />
     </template>
     <template v-if="unit" #extra
       ><div class="com-van-field-unit">{{ unit }}</div></template
