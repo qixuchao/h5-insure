@@ -378,9 +378,8 @@ const initData = async () => {
       document.title = data.BASIC_INFO.title || '';
       tenantProductDetail.BASIC_INFO = data.BASIC_INFO;
       const { title, desc, image: imageArr } = data?.PRODUCT_LIST.wxShareConfig || {};
-      const [image = ''] = imageArr || [];
       // 设置分享参数
-      setShareLink({ title, desc, image });
+      setShareLink({ title, desc, image: imageArr });
     }
   });
 
