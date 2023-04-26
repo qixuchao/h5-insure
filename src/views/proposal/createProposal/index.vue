@@ -172,7 +172,7 @@ const router = useRouter();
 const route = useRoute();
 const store = createProposalStore();
 
-const { productCode: productCodeInQuery }: { productCode?: string } = route.query;
+const { productCode: productCodeInQuery, id }: { productCode?: string; id?: string } = route.query;
 
 const trialFieldkeys = ['age', 'gender', 'birthday'];
 
@@ -379,6 +379,21 @@ const changeBirthday = (val) => {
 //  改变年龄清除出生日期
 const changeAge = () => {
   stateInfo.insuredPersonVO.birthday = '';
+};
+
+const queryProposalInfo = (params = {}) => {
+  queryProposalDetail(params).then(({ code, data }) => {
+    if (code === '10000' && data) {
+      const { proposalInsuredList, proposalHolder, proposalName } = data || {};
+      const [{ proposalInsuredProductList, ...insuredPersonVO }] = proposalInsuredList || {};
+      stateInfo.proposalHolder = proposalHolder;
+      stateInfo.insuredPersonVO = {
+        ...insuredPersonVO,
+        proposalName,
+      };
+      stateInfo.proposalInsuredProductList = proposalInsuredProductList;
+    }
+  });
 };
 
 /** 获取产品数据列表 */
@@ -610,6 +625,7 @@ const submitData = () => {
       proposalName: stateInfo.insuredPersonVO.proposalName,
       totalPremium: totalPremium.value,
       relationUserType: 2,
+      id,
     }).then((res) => {
       const { code, data } = res || {};
       if (code === '10000') {
@@ -687,6 +703,9 @@ onBeforeMount(() => {
     const params = [{ productCode: productCodeInQuery as string }];
     queryProductInfo(params);
     fetchDefaultData(params, true);
+  }
+  if (id) {
+    queryProposalInfo({ id });
   }
 });
 </script>
