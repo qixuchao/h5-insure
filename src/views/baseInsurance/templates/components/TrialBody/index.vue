@@ -1,58 +1,55 @@
 <template>
-  <div v-if="!hidePopupButton" :class="`trial-button ${$attrs.class}`">
-    <TrialButton
-      :is-share="currentShareInfo.isShare"
-      :premium="state.trialResultPremium"
-      :share-info="currentShareInfo"
-      :loading-text="state.trialMsg"
-      :plan-code="props.dataSource.planCode"
-      :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
-      :tenant-product-detail="tenantProductDetail"
-      @handle-click="open"
-      >立即投保</TrialButton
-    >
+  <div class="com-body">
+    <slot name="trialHead"></slot>
+    <div class="trial-body">
+      <HeadWaring :labels="getRelationText(dataSource.insureProductRiskVOList, dataSource.productRiskRelationVOList)" />
+      <div class="container">
+        <Benefit
+          v-if="!hideBenefit"
+          class="benefit-wrap"
+          :data-source="benefitData"
+          :product-info="dataSource"
+          :show-type-list="benefitData.showTypList"
+        />
+        <!-- 这里放因子 -->
+        <PersonalInfo
+          v-if="dataSource.productFactor"
+          ref="personalInfoRef"
+          v-model="state.userData"
+          is-trial
+          :product-factor="dataSource.productFactor"
+          :multi-insured-config="dataSource?.multiInsuredConfigVO"
+          @trail-change="handlePersonalInfoChange"
+        />
+        <!-- 这里是标准险种信息 -->
+        <InsureInfos
+          ref="insureInfosRef"
+          :origin-data="dataSource.insureProductRiskVOList?.[0]"
+          :product-factor="dataSource.productFactor"
+          :default-value="
+            state.defaultValue
+              ? state.defaultValue?.insuredVOList[0].productPlanVOList[state.planIndex]?.riskVOList[0]
+              : null
+          "
+          :trial-result="state.trialResult"
+          @trial-change="handleTrialInfoChange"
+        ></InsureInfos>
+        <!-- 以下是附加险种信息 -->
+        <ProductRiskList
+          :data-source="dataSource"
+          :show-main-risk="false"
+          :default-value="
+            state.defaultValue
+              ? state.defaultValue?.insuredVOList[0].productPlanVOList[state.planIndex]?.riskVOList
+              : []
+          "
+          @trial-change="handleProductRiskInfoChange"
+        ></ProductRiskList>
+        <div class="empty"></div>
+      </div>
+    </div>
+    <slot name="trialBtn" :trial-data="state.submitData" :risk-premium="premiumMap"></slot>
   </div>
-  <ProPopup
-    v-if="state.isAniShow || state.show"
-    :class="`com-trial-wrap ${$attrs.class}`"
-    :show="state.show"
-    :closeable="false"
-    @close="onClosePopup"
-    @closed="onClosePopupAfterAni"
-  >
-    <TrialBody
-      :data-source="dataSource"
-      :share-info="shareInfo"
-      :product-info="productInfo"
-      :tenant-product-detail="tenantProductDetail"
-      :hide-benefit="hideBenefit"
-      @trial-start="handleTrialStart"
-      @trial-end="handleTrialEnd"
-    >
-      <template #trialHead>
-        <div class="header">
-          <span class="header-title">{{ title }}</span>
-          <!-- <van-icon name="cross" style="color: black" @click="state.loading = false" /> -->
-          <!-- <van-icon :name="cancelIcon" @click="state.show = false" /> -->
-          <van-icon name="cross" @click="state.show = false" />
-        </div>
-      </template>
-      <template #trialBtn>
-        <TrialButton
-          :is-share="currentShareInfo.isShare"
-          :premium="state.trialResultPremium"
-          :share-info="currentShareInfo"
-          :loading-text="state.trialMsg"
-          :plan-code="props.dataSource.planCode"
-          :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
-          :tenant-product-detail="tenantProductDetail"
-          :handle-share="onShare"
-          @handle-click="onNext"
-          >立即投保</TrialButton
-        >
-      </template>
-    </TrialBody>
-  </ProPopup>
 </template>
 
 <script lang="ts" setup name="TrialPop">
@@ -88,7 +85,6 @@ import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from '../../long/constants';
 import { nextStepOperate as nextStep } from '../../../nextStep';
 import pageJump from '@/utils/pageJump';
 import { jumpToNextPage } from '@/utils';
-import TrialBody from '../TrialBody/index.vue';
 
 const RISK_SELECT = [
   { value: 1, label: '投保' },
@@ -98,7 +94,6 @@ const RISK_SELECT = [
 interface Props {
   dataSource: any[];
   productInfo: any;
-  shareInfo: any;
   tenantProductDetail: any;
   hideBenefit: boolean;
   hidePopupButton: boolean;
@@ -113,6 +108,8 @@ const insureInfosRef = ref(null);
 const route = useRoute();
 const router = useRouter();
 
+const emit = defineEmits(['trialStart', 'trialEnd']);
+
 const { tenantId, templateId, preview } = route.query;
 
 const props = withDefaults(defineProps<Props>(), {
@@ -120,7 +117,6 @@ const props = withDefaults(defineProps<Props>(), {
   productInfo: () => {
     return { productCode: '', productName: '', insurerCode: '', tenantId: '' };
   },
-  shareInfo: () => ({}),
   tenantProductDetail: () => ({}),
   title: '算一算保费',
   /**
@@ -265,7 +261,6 @@ const onShare = (cb) => {
 };
 
 const onClosePopup = () => {
-  console.log('---close');
   state.show = false;
   state.loading = false;
 };
@@ -383,6 +378,7 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
   state.trialMsg = LOADING_TEXT;
   state.trialResultPremium = 0;
   state.loading = true;
+  emit('trialStart');
   let checkResult = false;
   if (needCheck) {
     const { code } = await underWriteRule(calcData);
@@ -423,6 +419,7 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
             });
           }
           premiumMap.value = riskPremiumMap;
+          emit('trialEnd', res.data);
         }
       })
       .finally(() => {
@@ -662,47 +659,24 @@ const fetchDefaultData = async (changes: []) => {
   }
 };
 
-const handleTrialStart = () => {
-  state.trialMsg = LOADING_TEXT;
-  state.trialResultPremium = 0;
-  state.loading = true;
-};
-
-const handleTrialEnd = (result: any) => {
-  state.trialMsg = '';
-  state.trialResultPremium = result.premium;
-  state.trialResult = result;
-  state.loading = false;
-};
-
 onBeforeMount(() => {
+  handleRestState();
   handleSetRiskSelect();
 });
 
 onMounted(() => {
   state.loading = true;
-});
-watch(
-  () => state.show,
-  (v) => {
-    if (v) {
-      // 每个附加险的投保不投保状态重置
-      handleRestState();
-      handleSetRiskSelect();
-    }
-  },
-);
-
-const open = () => {
   state.show = true;
   state.isAniShow = true;
   state.isSkipFirstTrial = true;
   state.hadSkipFirstTrial = false;
-};
+  nextTick(() => {
+    // 请求默认值接口
+    fetchDefaultData([]);
+  });
+});
 
 defineExpose({
-  open,
-  close: onClosePopup,
   getTrialSuccessFlag: () => {
     return state.trialResultPremium > 0;
   },
@@ -711,17 +685,6 @@ watch(
   () => state.riskIsInsure,
   (v) => {},
   { deep: true, immediate: true },
-);
-
-watch(
-  () => props.shareInfo,
-  () => {
-    currentShareInfo.value = props.shareInfo;
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
 );
 </script>
 
