@@ -46,6 +46,7 @@ import { withDefaults } from 'vue';
 import { Dialog } from 'vant';
 import { nanoid } from 'nanoid';
 import cloneDeep from 'lodash-es/cloneDeep';
+import merge from 'lodash-es/merge';
 import {
   type SchemaItem,
   type PersonFormProps,
@@ -54,19 +55,20 @@ import {
   validateFields,
   ProRenderFormWithCard,
   colorConsole,
+  getCertConfig,
 } from '@/components/RenderForm';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { BENEFICIARY_ENUM } from '@/common/constants/infoCollection';
 import BeneficiaryItem from './BeneficiaryItem.vue';
 
-interface Props {
+interface InsuredProps {
   modelValue: any;
-  title: string;
+  title?: string;
   holderPersonVO: object;
   schema: SchemaItem[];
-  config: object;
-  isView: boolean;
-  isTrial: boolean;
+  config?: object;
+  isView?: boolean;
+  isTrial?: boolean;
   trialFactorCodes: string[];
   multiBeneficiaryMaxNum: number;
   beneficiaryList: Partial<PersonFormProps>[];
@@ -85,7 +87,7 @@ const initBeneficiaryItem = {
   personVO: {},
 };
 
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<InsuredProps>(), {
   schema: () => [],
   title: '',
   modelValue: () => ({}),
@@ -164,14 +166,13 @@ const hideTitle = computed(
 const hasBeneficiarySchema = computed(() => isNotEmptyArray(props.beneficiarySchema));
 
 // 是否为指定受益人
-const isSpecifyBeneficiary = computed(() => state.personVO?.insuredBeneficiaryType === BENEFICIARY_ENUM.SPECIFY);
+const isSpecifyBeneficiary = computed(
+  () => String(state.personVO?.insuredBeneficiaryType) === BENEFICIARY_ENUM.SPECIFY,
+);
 
 /** 验证试算因子是否全部有值 */
 const validateTrialFields = () => {
-  /** 受益人没有试算因子，先留这个位置 */
-  // const flag =
-  //   (!hasBeneficiarySchema.value && !beneficiaryFormRef.value) ||
-  //   beneficiaryFormRef.value?.every((item) => item.validateTrialFields());
+  /** 受益人没有试算因子 */
   return validateFields({
     personVO: state.personVO,
     trialFactorCodes: props.trialFactorCodes,
@@ -186,7 +187,7 @@ watch(
     // 投保人id不同步到被保人
     const { id, ...holderPersonVO } = val || {};
     // 若为本人合并投保人数据
-    if (state.personVO?.relationToHolder === '1') {
+    if (String(state.personVO?.relationToHolder) === '1') {
       Object.assign(state.personVO, holderPersonVO);
     }
   },
@@ -222,6 +223,8 @@ watch(
     // 如果是指定受益人
     if (val) {
       onAddBeneficiary();
+    } else {
+      state.beneficiaryList = [];
     }
   },
   {
@@ -256,7 +259,9 @@ watch(
 
     const isSelf = String(personVO.relationToHolder) === '1';
     const isChild = String(personVO.relationToHolder) === '3';
-    const isOnlyCertFlag = isOnlyCert(schema.find((schemaItem) => schemaItem.name === 'certType') || {});
+    // 证件类型
+    const certTypeSchema = schema.find((schemaItem) => schemaItem.name === 'certType');
+    const isOnlyCertFlag = isOnlyCert(certTypeSchema || {});
 
     // 若只有证件类型为身份证, 隐藏证件类型，修改title为身份证号
     if (isOnlyCertFlag) {
@@ -274,6 +279,11 @@ watch(
       schemaItem.relationToHolder = personVO.relationToHolder;
       schemaItem.hidden = !schemaItem.isSelfInsuredNeed && isSelf;
     });
+
+    // 证件类型为身份证或者户口本
+    if (certTypeSchema) {
+      merge(config, getCertConfig(personVO.certType));
+    }
 
     // 非查看模式处理清除操作
     if (!props.isView) {
@@ -341,13 +351,12 @@ watch(
   () => props.modelValue,
   (val) => {
     if (val) {
-      Object.assign(state.personVO, val);
-      // if (isNotEmptyArray(val.beneficiaryList) && isNotEmptyArray(state.beneficiaryList)) {
-      //   // 受益人
-      //   state.beneficiaryList.forEach((beneficiaryIem, i) => {
-      //     Object.assign(beneficiaryIem.personVO, val.beneficiaryList[i]?.personVO);
-      //   });
-      // }
+      const { beneficiaryList, ...rest } = val;
+      merge(state.personVO, rest);
+      if (isNotEmptyArray(beneficiaryList)) {
+        // 受益人
+        state.beneficiaryList = beneficiaryList;
+      }
     }
   },
   {
