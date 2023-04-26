@@ -69,7 +69,7 @@ const handleShare = () => {
   if (isApp()) {
     console.log('在app内');
     const shareConfig = {
-      img: props.imgUrl,
+      img: encodeURI(props.imgUrl),
       title: props.title,
       desc: props.desc,
       link: props.link,

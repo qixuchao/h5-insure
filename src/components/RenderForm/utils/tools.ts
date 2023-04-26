@@ -50,7 +50,11 @@ const FIELD_PROPS = [
   'visible',
 ];
 
-const FIELD_SLOTS = ['label', 'input', 'left-icon', 'right-icon', 'button', 'error-message', 'extra'];
+/**
+ * field slots 集合
+ * value-view field value 查看模式插槽
+ */
+const FIELD_SLOTS = ['label', 'input', 'left-icon', 'right-icon', 'button', 'error-message', 'extra', 'value-view'];
 
 // Field 通用默认属性
 const FIELD_INIT_ATTRS = {

@@ -8,8 +8,8 @@
     @click="!isView && (show = true)"
   >
     <!-- 继承 slots -->
-    <template v-for="slotName in Object.keys(filedSlots)" :key="slotName" #[slotName]>
-      <slot :name="slotName" />
+    <template v-for="slotName in Object.keys(filedSlots)" :key="slotName" #[slotName]="slotParams">
+      <slot :name="slotName" v-bind="slotParams || {}" />
     </template>
   </ProFormItem>
   <ProPopup v-model:show="show" :height="40" :closeable="false">
@@ -20,8 +20,8 @@
       @cancel="handleCancel"
       @confirm="handleConfirm"
     >
-      <template v-for="slotName in Object.keys($slots)" :key="slotName" #[slotName]>
-        <slot :name="slotName" />
+      <template v-for="slotName in Object.keys($slots)" :key="slotName" #[slotName]="slotParams">
+        <slot :name="slotName" v-bind="slotParams || {}" />
       </template>
     </van-picker>
   </ProPopup>

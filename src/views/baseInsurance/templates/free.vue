@@ -419,9 +419,8 @@ const fetchData = async () => {
       state.tenantProductDetail = productRes.data as any;
       document.title = productRes.data.BASIC_INFO.title || '';
       const { title, desc, image: imageArr } = productRes.data?.PRODUCT_LIST.wxShareConfig || {};
-      const [image = ''] = imageArr || [];
       // 设置分享参数
-      setShareLink({ title, desc, image });
+      setShareLink({ title, desc, image: imageArr });
     }
 
     if (insureRes.code === '10000') {

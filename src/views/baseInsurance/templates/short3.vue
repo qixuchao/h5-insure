@@ -147,6 +147,7 @@ import useOrder from '@/hooks/useOrder';
 import TrialButton from './components/TrialButton.vue';
 import useAttachment from '@/hooks/useAttachment';
 import { formData2Order, orderData2trialData, proposalToTrial } from './utils';
+import { colorConsole } from '@/components/RenderForm';
 
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
 const HealthNoticePreview = defineAsyncComponent(() => import('./components/HealthNoticePreview/index.vue'));
@@ -213,7 +214,6 @@ const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件�
 const preNoticeLoading = ref<boolean>(false); // 首页弹窗
 const premiumMap = ref<any>({}); // 试算后保费
 const isOnlyView = ref<boolean>(true); // 资料查看模式
-const needDesensitize = ref<boolean>(true); // 投被保人身份证手机号是否需要掩码
 const loading = ref<boolean>(true);
 const iseeBizNo = ref('');
 const currentPackageConfigVOList = ref([]); // 加油包列表
@@ -229,7 +229,6 @@ const state = reactive({
   ifPersonalInfoSuccess: false,
   trialMsg: '',
   trialResult: 0,
-  isTrial: false, // 是否被主动试算过，来控制外部调用试算的触发时机
   isFirst: true,
 });
 
@@ -302,6 +301,9 @@ const queryProductMaterialData = () => {
         }
       }
     }
+    nextTick(() => {
+      state.isFirst = false;
+    });
   });
 };
 
@@ -313,9 +315,8 @@ const initData = async () => {
       document.title = data.BASIC_INFO.title || '';
       tenantProductDetail.BASIC_INFO = data.BASIC_INFO;
       const { title, desc, image: imageArr } = data?.PRODUCT_LIST.wxShareConfig || {};
-      const [image = ''] = imageArr || [];
       // 设置分享参数
-      setShareLink({ title, desc, image });
+      setShareLink({ title, desc, image: imageArr });
     }
   });
 
@@ -346,7 +347,7 @@ const initData = async () => {
 
   proposalId &&
     proposalToTrial({ proposalId, productCode, tenantId }, (data) => {
-      console.log(data, 'skskks====');
+      colorConsole('计划书查询参数');
       state.userData = data;
     });
 
@@ -392,7 +393,6 @@ const trialData2Order = (
   console.log('tenantOrderHolder', tenantOrderHolder);
   console.log('tenantOrderInsuredList', tenantOrderInsuredList);
   const riskList = state.submitData.insuredVOList.map((person) => person.productPlanVOList?.[0]?.riskVOList).flat();
-  console.log('riskList', riskList);
   const transformDataReq: any = {
     tenantId,
     riskList,
@@ -626,7 +626,6 @@ const handleMixTrialData = debounce(async (isSave = false) => {
 
     // TODO 处理同主险的相关数据
     state.riskVOList = getRiskVOList();
-    console.log(state.riskVOList, 'state.riskVOList----2222223333');
     if (state.submitData.insuredVOList) {
       state.submitData.insuredVOList.forEach((ins) => {
         ins.productPlanVOList = [
@@ -645,8 +644,6 @@ const handleMixTrialData = debounce(async (isSave = false) => {
 }, 300);
 
 const handlePersonalInfoChange = async (data, isSave = false) => {
-  state.isTrial = true;
-
   // 只有改动第一个被保人，需要调用dy接口
   const { holder, insuredVOList } = data;
   if (holder) {
@@ -680,6 +677,7 @@ const handlePersonalInfoChange = async (data, isSave = false) => {
 const onNext = async () => {
   showHealthPreview.value = false;
   showFilePreview.value = false;
+  state.isFirst = false;
   if (!previewMode.value) {
     personalInfoRef.value
       .validate()
@@ -704,8 +702,8 @@ const onNext = async () => {
 
 // 重新试算
 const resetTrialData = debounce(() => {
-  console.log('----监听事件变化，重新触发试算------');
-  if (state.isTrial) {
+  console.log('----监听事件变化，重新触发试算------', personalInfoRef.value.validateTrialFields());
+  if (personalInfoRef.value.validateTrialFields()) {
     handlePersonalInfoChange(state.userData);
   }
 }, 400);
@@ -722,14 +720,12 @@ watch(
         });
       }
     }
-    needDesensitize.value = false;
     nextTick(() => {
       const { certType, extInfo: insuredExtInfo } = orderDetail.value.tenantOrderInsuredList[0];
 
       if (insuredExtInfo && !insuredExtInfo.hasSocialInsurance) {
         orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance = SOCIAL_SECURITY_ENUM.HAS;
       }
-      needDesensitize.value = true;
     });
   },
   {

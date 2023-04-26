@@ -74,3 +74,10 @@ input:-ms-input-placeholder { /* IE 10+ */
 input:-moz-placeholder { /* Firefox 18- */
   color: red;
 }
+
+
+img {
+  display: inline-block !important;
+  vertical-align: bottom;
+}
+
