@@ -70,7 +70,7 @@ interface Props {
   };
 }
 
-const emit = defineEmits(['update:modelValue', 'trailChange']);
+const emit = defineEmits(['update:modelValue', 'trailChange', 'trailValidateFailed']);
 const holderFormRef = ref(null);
 const insuredFormRef = ref(null);
 
@@ -88,7 +88,7 @@ interface InsuredFormProps extends Partial<PersonFormProps> {
 
 interface StateInfo {
   config: Partial<PersonalInfoConf>;
-  validated: boolean;
+  trialValidated: boolean;
   holder: PersonFormProps;
   beneficiarySchema: SchemaItem[];
   initInsuredIList: InsuredFormProps[];
@@ -113,9 +113,9 @@ interface StateInfo {
 const state = reactive<StateInfo>({
   config: {},
   /**
-   * 是否所有表单是否验证成功
+   * 试算字段是否验证成功
    */
-  validated: false,
+  trialValidated: false,
   /** 投保人 */
   holder: {
     personVO: {},
@@ -262,16 +262,23 @@ watch(
 
     emit('update:modelValue', result);
     // 验证通过调用试算
-    if (state.config.hasTrialFactorCodes && validateTrialFields()) {
-      validate(true)
-        .then(() => {
-          state.validated = true;
-          emit('trailChange', result);
-        })
-        .catch(() => {
-          state.validated = false;
-        });
+    if (!state.config.hasTrialFactorCodes) {
+      return false;
     }
+
+    if (!validateTrialFields()) {
+      state.trialValidated = false;
+      return emit('trailValidateFailed', result);
+    }
+    validate(true)
+      .then(() => {
+        state.trialValidated = true;
+        emit('trailChange', result);
+      })
+      .catch(() => {
+        state.trialValidated = false;
+        emit('trailValidateFailed', result);
+      });
   }, 800),
   {
     deep: true,
@@ -349,7 +356,6 @@ watch(
         ? propsInsuredLen
         : stateInsuredLen || state.config.multiInsuredMinNum;
 
-    console.log(1111111, insuredVOList);
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
       const { personVO, config = {} } = insuredVOList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
@@ -376,6 +382,7 @@ watch(
 
 defineExpose({
   validate,
+  validateTrialFields,
   validateHolder: (...rest) => {
     return holderFormRef.value?.validate(...rest);
   },

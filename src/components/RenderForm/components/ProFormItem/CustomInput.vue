@@ -1,6 +1,8 @@
 <template>
   <div class="custom-input-wrap">
-    <ValueView v-if="fieldValueView || isView" :value="fieldValueView" />
+    <slot v-if="fieldValueView || isView" name="value-view" :value="fieldValueView">
+      <ValueView :value="fieldValueView" />
+    </slot>
     <span v-else class="placeholder">{{ $attrs.placeholder }}</span>
   </div>
 </template>

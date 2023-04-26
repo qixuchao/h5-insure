@@ -52,10 +52,7 @@ export const cachePage = (
       addCachePage(from.name as string);
     } else {
       // from不是to的缓存目标，则说明已经不需要缓存了
-      if (!isFromInTarget) {
-        // console.log('重置');
-        removeCachePage();
-      }
+      removeCachePage(from.name as string);
     }
     resolve(true);
   });

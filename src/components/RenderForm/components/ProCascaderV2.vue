@@ -7,8 +7,8 @@
     @click="onclick"
   >
     <!-- 继承 slots -->
-    <template v-for="slotName in Object.keys(filedSlots)" :key="slotName" #[slotName]>
-      <slot :name="slotName" />
+    <template v-for="slotName in Object.keys(filedSlots)" :key="slotName" #[slotName]="slotParams">
+      <slot :name="slotName" v-bind="slotParams || {}" />
     </template>
   </ProFormItem>
   <ProPopup v-model:show="show" :height="60" :closeable="false" class="com-cascader-popup">
@@ -19,7 +19,12 @@
       v-bind="attrs"
       @close="onClose"
       @finish="onFinish"
-    />
+    >
+      <!-- 继承 slots -->
+      <template v-for="slotName in Object.keys(slots)" :key="slotName" #[slotName]="slotParams">
+        <slot :name="slotName" v-bind="slotParams || {}" />
+      </template>
+    </van-cascader>
   </ProPopup>
 </template>
 
@@ -31,7 +36,6 @@ import type { CascaderOption } from 'vant';
 import useAppStore from '@/store/app';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
-import ValueView from './ProFormItem/ValueView.vue';
 import { useAttrsAndSlots } from '../hooks';
 import { filterChildrenLevel } from '../utils';
 
@@ -248,6 +252,10 @@ export default {
     height: 100%;
     display: flex;
     flex-direction: column;
+    // --van-cascader-active-color: $primary-color;
+    .van-cascader__option--selected {
+      color: $primary-color;
+    }
 
     .van-tabs {
       flex: 1;
