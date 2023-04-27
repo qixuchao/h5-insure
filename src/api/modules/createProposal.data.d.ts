@@ -8,8 +8,8 @@
  */
 export interface ProposalInfo {
     id: string;
-    proposalHolder: Partial<ProposalHolder>;
-    proposalInsuredList: Partial<ProposalInsuredItem>[];
+    holder: Partial<ProposalHolder>;
+    insuredList: Partial<ProposalInsuredItem>[];
     proposalName: string;
     proposalPage: string;
     proposalPdf: string;
@@ -27,9 +27,9 @@ export interface ProposalInsuredItem {
     occupationCode: string;
     occupationName: string;
     proposalId: number;
-    proposalInsuredProductList: Partial<ProposalInsuredProductItem>[];
+    productList: Partial<ProposalInsuredProductItem>[];
     relation: number;
-    socialFlag: number;
+    hasSocialInsurance: number;
 }
 
 export interface ProposalInsuredProductItem {
@@ -37,9 +37,7 @@ export interface ProposalInsuredProductItem {
     productId: number;
     productName: string;
     productCode: string;
-    proposalId: number;
-    proposalInsuredId: number;
-    proposalProductRiskList: ProposalProductRiskItem[];
+    riskList: ProposalProductRiskItem[];
 }
 
 export interface ProposalProductRiskItem {
@@ -86,18 +84,18 @@ export interface ProposalHolder {
     occupationName: string;
     proposalId: number;
     proposalName: string;
-    hasSocialInsurance: string;
+    hasSocialInsurance: number;
 }
 
 
 export interface PlanTrialData {
   productCode: string;
-  proposalHolder: Partial<ProposalHolder>;
+  holder: Partial<ProposalHolder>;
   insuredPersonVO: Partial<ProposalHolder>;
   insuredProductInfo: {
     productCode: string;
     productName: string;
     occupationCodeList: string[],
-    proposalProductRiskList: ProposalProductRiskItem[];
+    riskList: ProposalProductRiskItem[];
   };
 }

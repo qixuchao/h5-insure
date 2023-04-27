@@ -75,14 +75,14 @@ const formatData = (trialData: PremiumCalcData, riskPremium: any) => {
   // return proposalData;
   return {
     productCode,
-    proposalHolder: holder?.personVO,
+    holder: holder?.personVO,
     insuredPersonVO: personVO,
     insuredProductInfo: {
       productCode,
       ...rest,
       productName: props.productName,
       occupationCodeList: personVO?.occupationCodeList,
-      proposalProductRiskList: riskList,
+      riskList,
     },
   };
 };

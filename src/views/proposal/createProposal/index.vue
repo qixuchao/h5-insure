@@ -38,19 +38,18 @@
       </ProRenderFormWithCard>
 
       <ProCard
-        v-for="(productItem, index) in stateInfo.proposalInsuredProductList"
+        v-for="(productItem, index) in stateInfo.productList"
         :key="`${productItem.nanoid}_${index}_${productItem.productCode}`"
         class="product-item-card"
         :show-line="false"
         :show-divider="false"
       >
         <ProductList
-          :product-risk-list="productItem.proposalProductRiskList"
+          :product-risk-list="productItem.riskList"
           :product-info="productItem"
-          :product-num="stateInfo.proposalInsuredProductList?.length - 1"
-          :product-data="state.productCollection[productItem.productCode]"
+          :product-num="stateInfo.productList?.length - 1"
+          :product-data="stateInfo.productCollection[productItem.productCode]"
           :error-msg="stateInfo.productErrorMap[productItem.productCode]"
-          @add-rider-risk="addRiderRisk"
           @update-risk="updateRisk"
           @delete-risk="deleteRisk"
         ></ProductList>
@@ -74,8 +73,8 @@
       :rider-risk="state.riderRisk?.[state.productCode] || []"
       :product-data="state.productCollection[state.productCode]"
       :form-info="state.productInfo"
-      :holder="proposalInfo.proposalHolder"
-      :insured="proposalInfo.proposalInsuredList[0]"
+      :holder="proposalInfo.holder"
+      :insured="proposalInfo.insuredList[0]"
       :current-risk="state.currentRisk"
       @close="closeProductRisk"
       @finished="onFinished"
@@ -124,7 +123,7 @@ import TrialPopup from '../proposalList/components/TrialPopup.vue';
 import { ProductData } from '@/common/constants/trial.data';
 import { SEX_LIMIT_LIST } from '@/common/constants';
 import ProductList from './components/ProductList/index.vue';
-import ProductRisk from './components/ProductRisk/index.vue';
+// import ProductRisk from './components/ProductRisk/index.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
 
 interface State {
@@ -154,13 +153,13 @@ const [showProductRisk, toggleProductRisk] = useToggle();
 const [showActionSheet, toggleActionSheet] = useToggle();
 
 const proposalInfo = ref<any>({
-  proposalHolder: {},
-  proposalInsuredList: [
+  holder: {},
+  insuredList: [
     {
       name: '',
       gender: '',
       birthday: '',
-      proposalInsuredProductList: [],
+      productList: [],
     },
   ],
   proposalName: '',
@@ -185,28 +184,18 @@ const hiddenFieldKeys = ['name', ...trialFieldkeys].reduce((res, key) => {
 
 const trialPopupRef = ref(null);
 
-const state = ref<State>({
-  productCode: 0,
-  productCollection: {},
-  productInfo: {} as ProposalInsuredProductItem,
-  productPremium: {},
-  riderRisk: {},
-  type: 'add',
-  currentRisk: [],
-});
-
 interface proposalInsuredProductItem {
   productCode: string;
   nanoid: string;
-  proposalProductRiskList: Partial<ProposalProductRiskItem>[];
+  riskList: Partial<ProposalProductRiskItem>[];
 }
 
 interface StateInfo {
   selectedProductCodeList: string[];
   currentProductCode: string;
-  proposalHolder: Partial<ProposalHolder>;
+  holder: Partial<ProposalHolder>;
   insuredPersonVO: Partial<ProposalHolder>;
-  proposalInsuredProductList: proposalInsuredProductItem[];
+  productList: ProposalInsuredProductItem[];
   productCollection: {
     [x: string]: ProductData;
   };
@@ -222,8 +211,8 @@ const stateInfo = reactive<StateInfo>({
   selectedProductCodeList: [],
   insuredPersonVO: {},
   currentProductCode: '',
-  proposalHolder: {},
-  proposalInsuredProductList: [],
+  holder: {},
+  productList: [],
   productCollection: {},
   productErrorMap: {},
   defaultData: null,
@@ -234,13 +223,13 @@ const insuredFormRef = ref(null);
 
 /** 当前计划书的产品CodeList */
 const currentProductCodeList = computed(() => {
-  return stateInfo.proposalInsuredProductList.map((item) => item.productCode).filter((code) => Boolean(code));
+  return stateInfo.productList.map((item) => item.productCode).filter((code) => Boolean(code));
 });
 
 /** 性别限制 */
 const sexLimit = computed(() => {
   const { productPlanInsureVOList } = stateInfo.productCollection[productCodeInQuery] || {};
-  const [{ insureProductRiskVOList } = {}] = productPlanInsureVOList || [];
+  const [{ insureProductRiskVOList = [] } = {}] = productPlanInsureVOList || [];
   const { riskInsureLimitVO } = insureProductRiskVOList?.find((riskItem) => riskItem.riskType === 1) || {};
   return riskInsureLimitVO?.sexLimit;
 });
@@ -268,8 +257,8 @@ const submitDisable = computed(() => {
 
 // 总保费
 const totalPremium = computed(() => {
-  return stateInfo.proposalInsuredProductList.reduce((total, item) => {
-    const premium = item.proposalProductRiskList.reduce((res, riskItem) => {
+  return stateInfo.productList.reduce((total, item) => {
+    const premium = item.riskList.reduce((res, riskItem) => {
       return res + (riskItem.premium || 0);
     }, 0);
     return total + premium;
@@ -279,7 +268,7 @@ const totalPremium = computed(() => {
 /** 合并数据到 productList  */
 // eslint-disable-next-line consistent-return
 const combineToProductList = (productInfo: PlanTrialData) => {
-  const currentIndex = stateInfo.proposalInsuredProductList.findIndex(
+  const currentIndex = stateInfo.productList.findIndex(
     (productItem) => productItem.productCode === productInfo.productCode,
   );
 
@@ -289,21 +278,19 @@ const combineToProductList = (productInfo: PlanTrialData) => {
   };
 
   if (currentIndex === -1) {
-    stateInfo.proposalInsuredProductList.push(tempData);
+    stateInfo.productList.push(tempData);
     return false;
   }
-  const currentProductItem = stateInfo.proposalInsuredProductList[currentIndex];
-  const { proposalProductRiskList, ...rest } = tempData;
+  const currentProductItem = stateInfo.productList[currentIndex];
+  const { riskList, ...rest } = tempData;
 
   // 合并两边的险种属性
-  stateInfo.proposalInsuredProductList[currentIndex] = {
+  stateInfo.productList[currentIndex] = {
     ...tempData,
     ...rest,
-    proposalProductRiskList: isNotEmptyArray(proposalProductRiskList)
-      ? proposalProductRiskList.map((riskItem) => {
-          const currentRiskItem = currentProductItem.proposalProductRiskList.find(
-            (item) => item.riskCode === riskItem.riskCode,
-          );
+    riskList: isNotEmptyArray(riskList)
+      ? riskList.map((riskItem) => {
+          const currentRiskItem = currentProductItem.riskList.find((item) => item.riskCode === riskItem.riskCode);
           return {
             ...currentRiskItem,
             ...riskItem,
@@ -317,7 +304,7 @@ const combineToProductList = (productInfo: PlanTrialData) => {
 const onFinished = (productInfo: PlanTrialData) => {
   // 是否需要更新投被保人信息
   // 投保人
-  Object.assign(stateInfo.proposalHolder, productInfo.proposalHolder);
+  Object.assign(stateInfo.holder, productInfo.holder);
   // 被保人
   Object.assign(stateInfo.insuredPersonVO, productInfo.insuredPersonVO);
 
@@ -384,14 +371,14 @@ const changeAge = () => {
 const queryProposalInfo = (params = {}) => {
   queryProposalDetail(params).then(({ code, data }) => {
     if (code === '10000' && data) {
-      const { proposalInsuredList, proposalHolder, proposalName } = data || {};
-      const [{ proposalInsuredProductList, ...insuredPersonVO }] = proposalInsuredList || {};
-      stateInfo.proposalHolder = proposalHolder;
+      const { insuredList, holder, proposalName } = data || {};
+      const [{ productList, ...insuredPersonVO }] = insuredList || [];
+      stateInfo.holder = holder;
       stateInfo.insuredPersonVO = {
         ...insuredPersonVO,
         proposalName,
       };
-      stateInfo.proposalInsuredProductList = proposalInsuredProductList;
+      stateInfo.productList = productList;
     }
   });
 };
@@ -436,26 +423,26 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
       data.forEach((dataItem) => {
         const { holder, insuredVOList, productCode } = dataItem;
         const { personVO, productPlanVOList } = (insuredVOList || [])[0] || {};
-        const [{ riskVOList, ...rest } = {}] = productPlanVOList || [];
+        const [{ riskVOList = [], ...rest } = {}] = productPlanVOList || [];
 
-        const tempData: proposalInsuredProductItem = {
+        const tempData: Partial<ProposalInsuredProductItem> = {
           productCode,
           ...rest,
-          proposalProductRiskList: riskVOList,
+          riskList: riskVOList,
         };
         trailProduct(dataItem);
 
         // 初次调用
         if (flag) {
           Object.assign(stateInfo.insuredPersonVO, personVO);
-          Object.assign(stateInfo.proposalHolder, holder?.personVO);
+          Object.assign(stateInfo.holder, holder?.personVO);
         }
 
         const currentIndex = currentProductCodeList.value.findIndex((codeItem) => codeItem === productCode);
         if (currentIndex > -1) {
-          stateInfo.proposalInsuredProductList[currentIndex] = tempData;
+          stateInfo.productList[currentIndex] = tempData;
         } else {
-          stateInfo.proposalInsuredProductList.push(tempData);
+          stateInfo.productList.push(tempData);
         }
       });
     }
@@ -468,16 +455,16 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
  * @param code
  */
 const handleCalcDynamicInsure = (code: string) => {
-  return stateInfo.proposalInsuredProductList
+  return stateInfo.productList
     .filter((item) => item.productCode === code)
-    .map(({ productCode, proposalProductRiskList }) => {
+    .map(({ productCode, riskList }) => {
       // 原始数据
       const { productPlanInsureVOList } = stateInfo.productCollection[productCode] || {};
       const [{ insureProductRiskVOList } = {}] = productPlanInsureVOList || [];
       return {
         productCode,
-        riskEditVOList: isNotEmptyArray(proposalProductRiskList)
-          ? proposalProductRiskList
+        riskEditVOList: isNotEmptyArray(riskList)
+          ? riskList
               // 主险种
               .filter((item) => item.riskType === 1)
               .map(
@@ -514,12 +501,11 @@ const handleCalcDynamicInsure = (code: string) => {
  * @param productCode
  */
 const convertProposalToTrialData = (productCode) => {
-  const { proposalProductRiskList, ...rest } =
-    stateInfo.proposalInsuredProductList.find((item) => item.productCode === productCode) || {};
+  const { riskList, ...rest } = stateInfo.productList.find((item) => item.productCode === productCode) || {};
 
   return {
     holder: {
-      personVO: stateInfo.proposalHolder,
+      personVO: stateInfo.holder,
     },
     insuredVOList: [
       {
@@ -528,7 +514,7 @@ const convertProposalToTrialData = (productCode) => {
         productPlanVOList: [
           {
             ...rest,
-            riskVOList: proposalProductRiskList,
+            riskVOList: riskList,
           },
         ],
       },
@@ -552,9 +538,9 @@ const calcDynamicInsureFactor = async (productCode) => {
       },
     );
     if (code === '10000' && isNotEmptyArray(data)) {
-      stateInfo.proposalInsuredProductList.forEach(({ productCode: pCode, proposalProductRiskList }) => {
+      stateInfo.productList.forEach(({ productCode: pCode, riskList }) => {
         const { productRiskDyInsureFactorVOList } = data[0] || data.find((item) => item.productCode === pCode) || {};
-        proposalProductRiskList.forEach((riskItem) => {
+        riskList.forEach((riskItem) => {
           const currentRiskItem = productRiskDyInsureFactorVOList.find((item) => item.riskCode === riskItem.riskCode);
           Object.assign(riskItem, {
             ...riskItem,
@@ -580,13 +566,11 @@ const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
   Dialog.confirm({ message: '确认删除该险种？' }).then(() => {
     // 删除主险等同于删除整个产品信息
     if (riskInfo.riskType === 1) {
-      stateInfo.proposalInsuredProductList = stateInfo.proposalInsuredProductList
+      stateInfo.productList = stateInfo.productList
         .filter((product: ProposalInsuredProductItem) => product.productCode !== currentProduct.productCode)
         .map((item) => ({ ...item, nanoid: nanoid() }));
     } else {
-      currentProduct.proposalProductRiskList = currentProduct.proposalProductRiskList.filter(
-        (risk) => risk.riskId !== riskInfo.riskId,
-      );
+      currentProduct.riskList = currentProduct.riskList.filter((risk) => risk.riskId !== riskInfo.riskId);
     }
   });
 };
@@ -599,12 +583,12 @@ const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
 };
 
 // 添加附加险
-const addRiderRisk = (riskIds: any[], productInfo: ProposalInsuredProductItem) => {
-  state.value.productInfo = productInfo;
-  state.value.type = 'addRiderRisk';
-  state.value.currentRisk = riskIds;
-  toggleProductRisk(true);
-};
+// const addRiderRisk = (riskIds: any[], productInfo: ProposalInsuredProductItem) => {
+//   state.value.productInfo = productInfo;
+//   state.value.type = 'addRiderRisk';
+//   state.value.currentRisk = riskIds;
+//   toggleProductRisk(true);
+// };
 
 const validateData = (arr) =>
   isNotEmptyArray(arr) ? arr.every((item) => (typeof item === 'number' ? !Number.isNaN(item) : Boolean(item))) : false;
@@ -612,14 +596,13 @@ const validateData = (arr) =>
 // 创建计划书
 const submitData = () => {
   Promise.all([formRef.value?.validate(), insuredFormRef.value?.validate()]).then(() => {
-    const { proposalHolder } = stateInfo;
+    const { holder } = stateInfo;
     addOrUpdateProposal({
-      proposalHolder,
-      proposalInsuredList: [
+      holder,
+      insuredList: [
         {
           ...stateInfo.insuredPersonVO,
-          socialFlag: stateInfo.insuredPersonVO?.hasSocialInsurance,
-          proposalInsuredProductList: stateInfo.proposalInsuredProductList,
+          productList: stateInfo.productList,
         },
       ],
       proposalName: stateInfo.insuredPersonVO.proposalName,
@@ -642,7 +625,11 @@ const submitData = () => {
 };
 
 const saveProposalData = () => {
-  submitData();
+  if (id) {
+    toggleActionSheet(true);
+  } else {
+    submitData();
+  }
 };
 
 const selectAction = (item: ActionSheetAction, index: number) => {

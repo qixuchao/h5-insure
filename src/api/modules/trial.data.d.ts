@@ -296,7 +296,7 @@ export interface InsuredVoItem {
 export interface ProductPlanVoItem {
   insurerCode: string;
   planCode: string;
-  riskVOList: Array<Partial<RiskVoItem>>;
+  riskList: Array<Partial<RiskVoItem>>;
 }
 
 export interface RiskVoItem {
@@ -625,9 +625,8 @@ export interface InsureLinkReq {
 /** 试算默认值 */
 export interface PlanTrialDefaultItem {
   holder: Partial<PersonVo>,
-  insuredVOList: {
-    personVO: Partial<PersonVo>;
-    productPlanVOList: ProductPlanVoItem[];
+  insuredList: Partial<PersonVo> & {
+    productList: ProductPlanVoItem[];
   }[];
   productCode: string;
 }
