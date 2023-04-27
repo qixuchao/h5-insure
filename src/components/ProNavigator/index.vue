@@ -7,6 +7,7 @@
         <span>{{ `(${activeIndex + 1}/${list?.length})` }}</span>
         <ProSvg name="right_arrow" class="right-icon" />
       </div>
+      <div class="progress-line"></div>
     </div>
     <van-popup v-model:show="visible" position="right" safe-area-inset-top class="navigation-popup">
       <div class="popup-body">
@@ -118,6 +119,7 @@ const show = computed(() => {
     justify-content: space-between;
     border-bottom: 20px solid #f2f5fc;
     box-sizing: content-box;
+    position: relative;
     .page-title {
       font-size: 32px;
       font-weight: 600;

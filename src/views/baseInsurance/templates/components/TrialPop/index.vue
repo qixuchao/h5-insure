@@ -23,6 +23,7 @@
     <TrialBody
       :data-source="dataSource"
       :share-info="shareInfo"
+      is-trial
       :product-info="productInfo"
       :tenant-product-detail="tenantProductDetail"
       :hide-benefit="hideBenefit"
@@ -37,17 +38,17 @@
           <van-icon name="cross" @click="state.show = false" />
         </div>
       </template>
-      <template #trialBtn>
+      <template #trialBtn="{ trialData, riskPremium }">
         <TrialButton
           :is-share="currentShareInfo.isShare"
-          :premium="state.trialResultPremium"
+          :premium="riskPremium.premium"
           :share-info="currentShareInfo"
           :loading-text="state.trialMsg"
           :plan-code="props.dataSource.planCode"
           :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
           :tenant-product-detail="tenantProductDetail"
           :handle-share="onShare"
-          @handle-click="onNext"
+          @handle-click="onNext(trialData)"
           >立即投保</TrialButton
         >
       </template>
@@ -173,6 +174,11 @@ const trialData2Order = (
     holder: state.submitData.holder?.personVO,
     insuredList: (state.submitData.insuredVOList || []).map((person) => person.personVO),
   });
+
+  console.log('submitData', state.submitData);
+  console.log('tenantOrderHolder', tenantOrderHolder);
+  console.log('tenantOrderInsuredList', tenantOrderInsuredList);
+
   const riskList = state.submitData.insuredVOList.map((person) => person.productPlanVOList?.[0]?.riskVOList).flat();
   const transformDataReq = {
     tenantId,
@@ -210,30 +216,30 @@ const trialData2Order = (
   return nextStepParams;
 };
 const premiumMap = ref();
-const onNext = () => {
+const onNext = (trialData) => {
+  state.submitData = trialData;
   if (preview) {
     jumpToNextPage(PAGE_CODE_ENUMS.TRIAL_PREMIUM, route.query);
     return;
   }
   if (state.trialResultPremium) {
     // 验证
-    insureInfosRef.value?.validate().then(() => {
-      Object.assign(orderDetail.value, {
-        extInfo: {
-          ...orderDetail.value.extInfo,
-          buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
-          pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
-          templateId,
-        },
-      });
-      const currentOrderDetail = trialData2Order(props.productInfo, premiumMap.value, orderDetail.value);
-      nextStep(currentOrderDetail, (data, pageAction) => {
-        if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-          pageJump(data.nextPageCode, { ...route.query, orderNo: data.orderNo });
-        }
-      });
-      console.log('---- validate success ----');
+    Object.assign(orderDetail.value, {
+      extInfo: {
+        ...orderDetail.value.extInfo,
+        buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
+        pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
+        templateId,
+      },
     });
+    const currentOrderDetail = trialData2Order(props.productInfo, premiumMap.value, orderDetail.value);
+    nextStep(currentOrderDetail, (data, pageAction) => {
+      if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+        pageJump(data.nextPageCode, { ...route.query, orderNo: data.orderNo });
+      }
+    });
+    console.log('---- validate success ----');
+
     state.loading = false;
     state.show = true;
     state.isAniShow = true;
