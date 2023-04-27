@@ -42,7 +42,7 @@ interface Props {
   isView?: boolean;
   schema?: SchemaItem[];
   config?: object;
-  markRequired: boolean;
+  markRequired?: boolean;
 }
 
 const emits = defineEmits(['failed']);

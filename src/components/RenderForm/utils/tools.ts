@@ -178,7 +178,11 @@ interface ModuleResult {
   trialFactorCodes: string[];
 }
 
-// 证件类型是否只有身份证
+/**
+ * 证件类型是否只有身份证
+ * @param item schema Item
+ * @returns
+ */
 export const isOnlyCert = (item) => {
   if (item?.name !== 'certType') {
     return false;
@@ -188,7 +192,7 @@ export const isOnlyCert = (item) => {
   return (
     isNotEmptyArray(columns) &&
     columns.length === 1 &&
-    columns.find((columnItem) => columnItem.code === CERT_TYPE_ENUM.CERT)
+    columns.findIndex((columnItem) => columnItem.code === CERT_TYPE_ENUM.CERT) > -1
   );
 };
 
@@ -498,6 +502,23 @@ export const parseCertNo = (str: string) => {
 };
 
 /**
+ * 证件类型选择证件号/户口本时，隐藏性别和出生日期
+ * @param val certType
+ * @returns
+ */
+export const getCertConfig = (val) => {
+  const status = ![CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(String(val));
+  return {
+    gender: {
+      visible: status,
+    },
+    birthday: {
+      visible: status,
+    },
+  };
+};
+
+/**
  * 字段关联字段变化引起的副作用处理，如证件类型变化引起证件号码长度验证
  */
 export const relatedConfigMap = {
@@ -511,15 +532,7 @@ export const relatedConfigMap = {
       });
       // 证件类型选择证件号/户口本时，隐藏性别和出生日期
       nextTick(() => {
-        const status = ![CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(formState.formData.certType);
-        merge(formState.config, {
-          gender: {
-            visible: status,
-          },
-          birthday: {
-            visible: status,
-          },
-        });
+        merge(formState.config, getCertConfig(formState.formData.certType));
       });
     },
   },
@@ -533,7 +546,7 @@ export const relatedConfigMap = {
     },
     onChangeEffect: (val, formState) => {
       // 身份证号码/户口簿
-      if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(formState.formData.certType)) {
+      if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(String(formState.formData.certType))) {
         const data = parseCertNo(val);
         Object.assign(formState.formData, data);
       }

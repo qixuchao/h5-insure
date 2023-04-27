@@ -17,6 +17,7 @@ import cloneDeep from 'lodash-es/cloneDeep';
 import {
   type SchemaItem,
   type PersonFormProps,
+  colorConsole,
   validateForm,
   validateFields,
   ProRenderFormWithCard,
@@ -72,30 +73,6 @@ const validate = (isTrial) => {
   return validateForm(formRef, props.trialFactorCodes, isTrial);
 };
 
-// // 受益人试算
-// watch(
-//   () => state?.personVO?.insuredBeneficiaryType,
-//   (val) => {
-//     colorConsole('受益人类型关系变动了');
-
-//     // 是否为法定
-//     const isLegal = val === BENEFICIARY_ENUM.LEGAL;
-//     state.schema?.forEach((schemaItem) => {
-//       schemaItem.hidden = isLegal ? schemaItem.name !== 'insuredBeneficiaryType' : false;
-//     });
-
-//     // 如果是法定只保留受益人类型
-//     if (isLegal) {
-//       state.personVO = {
-//         insuredBeneficiaryType: BENEFICIARY_ENUM.LEGAL,
-//       };
-//     }
-//   },
-//   {
-//     immediate: true,
-//   },
-// );
-
 watch(
   () => props.config,
   (val) => {
@@ -126,6 +103,7 @@ watch(
   () => props.modelValue,
   (val) => {
     if (val) {
+      colorConsole('受益人数据变动了');
       Object.assign(state.personVO, val);
     }
   },

@@ -60,10 +60,10 @@ import { isNotEmptyArray } from '@/common/constants/utils';
 import InsuredItem from './components/InsuredItem.vue';
 
 interface Props {
-  productFactor: ProductFactor;
-  modelValue: any;
-  isTrial: boolean;
-  isView: boolean;
+  productFactor?: ProductFactor;
+  modelValue?: any;
+  isTrial?: boolean;
+  isView?: boolean;
   multiInsuredConfig: {
     multiInsuredNum: number;
     multiInsuredSupportFlag: number;
@@ -77,6 +77,7 @@ const insuredFormRef = ref(null);
 const props = withDefaults(defineProps<Props>(), {
   productFactor: () => ({} as ProductFactor),
   modelValue: () => ({} as any),
+  isView: false,
   isTrial: false,
   multiInsuredNum: null,
 });
