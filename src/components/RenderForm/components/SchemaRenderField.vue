@@ -3,6 +3,7 @@
     :is="item.componentName"
     v-for="(item, index) in state.schema"
     :key="`${item.nanoid}_${index}`"
+    v-model="state.formData[item.name]"
     v-bind="item"
     :is-view="isView"
   >
@@ -14,6 +15,7 @@
 </template>
 <script lang="ts" setup>
 import { withDefaults, shallowRef, useSlots } from 'vue';
+import { nanoid } from 'nanoid';
 import { SchemaItem } from '../index.data';
 import * as FieldComponents from './index';
 
@@ -43,20 +45,34 @@ const state = reactive({
 const noDefaultSlots = computed(() => Object.keys(slots).filter((key) => key !== 'default'));
 
 watch(
-  [() => props.schema, () => state.config, () => props.model],
+  [() => props.schema, () => state.config],
   ([schema, config]) => {
     state.schema = (schema as SchemaItem[])
       .map((item) => {
         return {
           ...item,
-          modelValue: props.model[item.name],
+          // modelValue: props.model[item.name],
           componentName: FieldComponents[item.componentName]
             ? shallowRef(FieldComponents[item.componentName])
             : item.componentName,
           ...config[item.name],
+          nanoid: nanoid(),
         };
       })
       .filter((item) => !item.hidden);
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
+
+watch(
+  () => props.model,
+  (val) => {
+    if (val) {
+      state.formData = val;
+    }
   },
   {
     immediate: true,

@@ -450,16 +450,33 @@ export const transformFactorToSchema = (
 };
 
 /**
+ * 转换首字母大小写
+ * @param type
+ * @returns
+ */
+const transfromFistLetter =
+  (type = false) =>
+  (str: string) => {
+    if (typeof str === 'string' && str) {
+      const fnName = ['toLowerCase', 'toUpperCase'][Number(type)];
+      return `${str[0][fnName]()}${str.substring(1)}`;
+    }
+    return '';
+  };
+
+/**
  * 首字母大写
  * @param str
  * @returns
  */
-export const upperFirstLetter = (str: string): string => {
-  if (typeof str === 'string' && str) {
-    return `${str[0].toUpperCase()}${str.substring(1)}`;
-  }
-  return '';
-};
+export const upperFirstLetter = transfromFistLetter(true);
+
+/**
+ * 首字母小写
+ * @param str
+ * @returns
+ */
+export const lowerFirstLetter = transfromFistLetter();
 
 /**
  * 处理 slots  attrs slots {'nameTips': 'extra'}

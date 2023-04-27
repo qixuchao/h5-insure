@@ -13,11 +13,12 @@
 <script lang="ts" setup>
 import { withDefaults, ComputedRef } from 'vue';
 import { nanoid } from 'nanoid';
+import debounce from 'lodash-es/debounce';
 import { ProRenderFormWithCard } from './components';
 import { SchemaItem } from './index.data';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { PAYMENT_TYPE_ENUM, PAY_INFO_TYPE_ENUM, BANK_CARD_TYPE_ENUM } from '@/common/constants/bankCard';
-import { BANK_INFO_KEY_LIST } from './utils';
+import { BANK_INFO_KEY_LIST, colorConsole, lowerFirstLetter } from './utils';
 import { deepCopy } from '@/utils';
 
 interface PayInfoProps {
@@ -30,19 +31,12 @@ interface PayInfoProps {
 interface PayInfoItem {
   title: string;
   schema: Partial<SchemaItem>[];
-  paymentType: number;
+  payInfoType: number;
   formData: {
-    sameFirstIssue?: string;
     [x: string]: any;
   };
   config: object;
   nanoid: string;
-  /** 支付类型Key 同首期/续期 */
-  paymentGenreKey: string;
-  /** 支付方式Key */
-  paymentMethodKey: string;
-  // 非银行卡需要隐藏的key
-  hiddenKeyList: string[];
 }
 
 // 支付方式 银行卡/支付宝/维系
@@ -57,57 +51,59 @@ const payInfoFormRef = ref(null);
 
 const formRef = ref<InstanceType<typeof ProRenderFormWithCard>>();
 
+// 隐藏银行相关的字段
+const HIDDEN_KEY_LIST = ['cardType', 'bankCard', 'paymentType'];
+
 const fieldInitList: Partial<PayInfoItem>[] = [
   {
     title: '首期支付',
     schema: [],
-    paymentType: PAYMENT_TYPE_ENUM.FIRST_TERM,
+    payInfoType: PAYMENT_TYPE_ENUM.FIRST_TERM,
     formData: {
+      // 首期扣款方式
+      paymentType: '1',
+      // 首期支付方式 默认银行卡
+      paymentMethod: '1',
       /** 首期银行卡类型 默认借记卡 */
-      initialCardType: BANK_CARD_TYPE_ENUM.DEBIT,
+      cardType: BANK_CARD_TYPE_ENUM.DEBIT,
     },
     config: {
-      initialCardType: {
+      cardType: {
         isView: true,
       },
     },
-    nanoid: nanoid(),
-    paymentMethodKey: 'initialPaymentMethod',
-    hiddenKeyList: ['initialCardType', 'initialBankCard', 'initialPaymentType'],
   },
   {
     title: '续期支付',
     schema: [],
-    paymentType: PAYMENT_TYPE_ENUM.RENEW_TERM,
+    payInfoType: PAYMENT_TYPE_ENUM.RENEW_TERM,
     formData: {
-      renewalPaymentGenre: String(PAY_INFO_TYPE_ENUM.FIRST_SAME),
+      paymentType: '1',
+      // 首期支付方式 默认银行卡
+      paymentMethod: '1',
+      paymentGenre: String(PAY_INFO_TYPE_ENUM.FIRST_SAME),
       // 续期银行卡类型 默认借记卡
-      renewalCardType: BANK_CARD_TYPE_ENUM.DEBIT,
+      cardType: BANK_CARD_TYPE_ENUM.DEBIT,
     },
     config: {
-      renewalCardType: {
+      cardType: {
         isView: true,
       },
     },
-    nanoid: nanoid(),
-    hiddenKeyList: ['renewalCardType', 'renewalBankCard', 'renewalPaymentType'],
-    paymentGenreKey: 'renewalPaymentGenre',
-    paymentMethodKey: 'renewalPaymentMethod',
   },
   {
     title: '年金领取银行卡',
     schema: [],
-    paymentType: PAYMENT_TYPE_ENUM.REPRISE,
+    payInfoType: PAYMENT_TYPE_ENUM.REPRISE,
     formData: {
-      annuityPaymentGenre: String(PAY_INFO_TYPE_ENUM.FIRST_SAME),
+      paymentGenre: String(PAY_INFO_TYPE_ENUM.FIRST_SAME),
     },
     config: {},
-    nanoid: nanoid(),
-    paymentGenreKey: 'annuityPaymentGenre',
-    paymentMethodKey: 'annuityPaymentMethod',
-    hiddenKeyList: ['annuityBankCard'],
   },
-];
+].map((item) => ({
+  ...item,
+  nanoid: nanoid(),
+}));
 
 const fieldCodeList: string[][] = [
   // 首期支付
@@ -131,8 +127,6 @@ interface SchemaKeyMap {
   REPRISE: number;
 }
 
-const slots = useSlots();
-
 const props = withDefaults(defineProps<PayInfoProps>(), {
   config: () => [],
   schema: () => [],
@@ -146,50 +140,55 @@ const state = reactive<{
   schemaList: deepCopy(fieldInitList),
 });
 
+// 获取支付模块索引
 const getSchemaIndex = (type) => {
-  return state.schemaList.findIndex((item) => String(item.paymentType) === String(PAYMENT_TYPE_ENUM[type]));
+  return state.schemaList.findIndex((item) => String(item.payInfoType) === String(PAYMENT_TYPE_ENUM[type]));
 };
 
 // 首期/续期/年金 索引
 const schemaIndexMap: ComputedRef<Partial<SchemaKeyMap>> = computed(() => {
   return ['FIRST_TERM', 'RENEW_TERM', 'REPRISE'].reduce((res, key) => {
-    res[key] = getSchemaIndex(key);
+    const index = getSchemaIndex(key);
+    index > -1 && (res[key] = index);
     return res;
   }, {});
 });
 
 // 是否同首期/同续期
 const isSame = (index, type) => {
-  return index > -1 && state.schemaList[index]?.formData?.sameFirstIssue === `${PAY_INFO_TYPE_ENUM[type]}`;
+  return index > -1 && state.schemaList[index]?.formData?.paymentGenre === `${PAY_INFO_TYPE_ENUM[type]}`;
 };
 
 // 过滤同步的银行卡信息字段 和 支付类型字段
-const filterData = (data, keyMap) => {
-  let extInfo = {};
-  // 额外需要处理的数据
-  if (keyMap) {
-    const keys = Object.keys(keyMap);
-    extInfo = keys.map((key) => ({
-      [key]: data[keyMap[key]],
-    }));
+// const filterData = (data, keyMap) => {
+//   let extInfo = {};
+//   // 额外需要处理的数据
+//   if (keyMap) {
+//     const keys = Object.keys(keyMap);
+//     extInfo = keys.map((key) => ({
+//       [key]: data[keyMap[key]],
+//     }));
+//   }
+//   return BANK_INFO_KEY_LIST.reduce((res, key) => {
+//     res[key] = data[key];
+//     return res;
+//   }, extInfo);
+// };
+
+/** 转换支付字段name,去除模块标识符  */
+const transformSchemaName = (name) => {
+  if (!(typeof name === 'string' && name)) {
+    return '';
   }
-  return BANK_INFO_KEY_LIST.reduce((res, key) => {
-    res[key] = data[key];
-    return res;
-  }, extInfo);
+  const [a, b] = name.match(/^(?:initial|renewal|annuity)(.*)$/) || [];
+  return b ? lowerFirstLetter(b) : name;
 };
 
 /** 合并不同模块 formData */
 const combineFormData = (targetIndex, originIndex) => {
-  // 支付类型字段不同
-  const targetKey = state.schemaList[targetIndex].paymentMethodKey;
-  const originKey = state.schemaList[originIndex].paymentMethodKey;
-  Object.assign(
-    state.schemaList[targetIndex].formData,
-    filterData(state.schemaList[originIndex].formData, {
-      [targetKey]: originKey,
-    }),
-  );
+  const { formData } = state.schemaList[originIndex] || {};
+
+  Object.assign(state.schemaList[targetIndex]?.formData, formData);
 };
 
 // 验证表单必填
@@ -197,19 +196,25 @@ const validate = (isTrial) => {
   return Promise.all(payInfoFormRef.value?.map((item) => item.validate()));
 };
 
-// 支付方式类型变动 银行卡/支付宝/微信
+// 是否为银行卡信息
+const isBankField = (name) => name && HIDDEN_KEY_LIST.includes(name);
+
+// 支付方式变动 银行卡/支付宝/微信
 watch(
-  () => state.schemaList.map((item) => item.formData?.[item.paymentMethodKey]),
+  () => state.schemaList.map((item) => item?.formData?.paymentMethod),
   () => {
+    colorConsole('支付方式变动');
     state.schemaList.forEach((schemaItem, index) => {
-      const { formData, schema, hiddenKeyList } = schemaItem || {};
+      const { formData, schema } = schemaItem || {};
       // 非银行卡支付
       const isNotBankPay = [PAY_METHOD_TYPE_ENUM.ALI_PAY, PAY_METHOD_TYPE_ENUM.WECHAT_PAY].includes(
-        formData?.[schemaItem.paymentMethodKey],
+        String(formData?.paymentMethod),
       );
 
+      const isSameFirst = formData?.paymentGenre === String(PAY_INFO_TYPE_ENUM.FIRST_SAME);
+
       schema.forEach((item) => {
-        item.hidden = isNotBankPay && hiddenKeyList.includes(item.name);
+        item.hidden = (isSameFirst || isNotBankPay) && isBankField(item.name);
       });
       schemaItem.nanoid = nanoid();
     });
@@ -220,24 +225,23 @@ watch(
   },
 );
 
-// 根据 paymentType 处理，原因是 首期/续期/年金某一个可能不配置，不能拿索引
+// 根据 payInfoType 处理，原因是 首期/续期/年金某一个可能不配置，不能拿索引
 // 首期 数据变动，若续期/年金同首期
 watch(
   () => state.schemaList[schemaIndexMap.value.FIRST_TERM]?.formData,
-  (val) => {
-    const renewalIndex = schemaIndexMap.value.RENEW_TERM;
-    const repriseIndex = schemaIndexMap.value.REPRISE;
-
+  debounce((val) => {
+    const { REPRISE, RENEW_TERM } = schemaIndexMap.value;
+    colorConsole('首期数据变动');
     // 续期同首期
-    if (isSame(renewalIndex, 'FIRST_SAME')) {
-      combineFormData(renewalIndex, schemaIndexMap.value.FIRST_TERM);
+    if (isSame(RENEW_TERM, 'FIRST_SAME')) {
+      combineFormData(RENEW_TERM, schemaIndexMap.value.FIRST_TERM);
     }
 
     // 年金同首期
-    if (isSame(repriseIndex, 'FIRST_SAME')) {
-      combineFormData(repriseIndex, renewalIndex);
+    if (isSame(REPRISE, 'FIRST_SAME')) {
+      combineFormData(REPRISE, RENEW_TERM);
     }
-  },
+  }, 500),
   {
     deep: true,
   },
@@ -246,14 +250,15 @@ watch(
 // 续期 数据变动，若年金同续期
 watch(
   () => state.schemaList[schemaIndexMap.value.RENEW_TERM]?.formData,
-  (val) => {
-    const repriseIndex = schemaIndexMap.value.REPRISE;
+  debounce((val) => {
+    colorConsole('续期数据变动');
+    const { REPRISE, RENEW_TERM } = schemaIndexMap.value;
 
     // 年金同续期
-    if (isSame(repriseIndex, 'RENEW_SAME')) {
-      combineFormData(repriseIndex, schemaIndexMap.value.RENEW_TERM);
+    if (isSame(REPRISE, 'RENEW_SAME')) {
+      combineFormData(REPRISE, RENEW_TERM);
     }
-  },
+  }, 500),
   {
     deep: true,
   },
@@ -261,48 +266,46 @@ watch(
 
 // 续期里的 同首期 按钮变动，复制首期值
 watch(
-  () => {
-    const { RENEW_TERM } = schemaIndexMap.value;
-    return state.schemaList[RENEW_TERM]?.formData?.[fieldInitList[RENEW_TERM].paymentGenreKey];
-  },
+  () => state.schemaList[schemaIndexMap.value.RENEW_TERM]?.formData?.paymentGenre,
   (val) => {
-    const firstTermIndex = schemaIndexMap.value.FIRST_TERM;
-    const renewalIndex = schemaIndexMap.value.RENEW_TERM;
+    colorConsole('续期支付类型变动');
+    const { FIRST_TERM, RENEW_TERM } = schemaIndexMap.value;
+
+    const isSameFirst = val === String(PAY_INFO_TYPE_ENUM.FIRST_SAME);
+    const { schema } = state.schemaList[RENEW_TERM] || {};
 
     // 续期同首期
-    if (val === String(PAY_INFO_TYPE_ENUM.FIRST_SAME)) {
-      combineFormData(renewalIndex, firstTermIndex);
+    if (isSameFirst) {
+      combineFormData(RENEW_TERM, FIRST_TERM);
     } else {
-      state.schemaList[renewalIndex].formData = {
-        ...fieldInitList[renewalIndex].formData,
-        sameFirstIssue: val,
+      state.schemaList[RENEW_TERM].formData = {
+        ...fieldInitList[RENEW_TERM].formData,
+        paymentGenre: val,
       };
     }
-  },
-  {
-    immediate: true,
+
+    if (isNotEmptyArray(schema)) {
+      schema.forEach((item) => {
+        item.hidden = isBankField(item.name);
+      });
+    }
   },
 );
 
 // 年金领取 同首期/同续期 数据变动，复制 同首期/同续期 数据
 watch(
-  () => {
-    const { REPRISE } = schemaIndexMap.value;
-    return state.schemaList[REPRISE]?.formData?.[fieldInitList[REPRISE].paymentGenreKey];
-  },
+  () => state.schemaList[schemaIndexMap.value.REPRISE]?.formData?.paymentGenre,
   (val) => {
-    const firstTermIndex = schemaIndexMap.value.FIRST_TERM;
-    const renewalIndex = schemaIndexMap.value.RENEW_TERM;
-    const repriseIndex = schemaIndexMap.value.REPRISE;
-
+    const { FIRST_TERM, RENEW_TERM, REPRISE } = schemaIndexMap.value;
+    colorConsole('年金支付类型变动');
     // 同首期/同续期
     if ([PAY_INFO_TYPE_ENUM.FIRST_SAME, PAY_INFO_TYPE_ENUM.RENEW_SAME].includes(Number(val))) {
-      const currentIndex = val === String(PAY_INFO_TYPE_ENUM.FIRST_SAME) ? firstTermIndex : renewalIndex;
-      combineFormData(repriseIndex, currentIndex);
-    } else {
-      state.schemaList[repriseIndex].formData = {
-        ...fieldInitList[repriseIndex].formData,
-        sameFirstIssue: val,
+      const currentIndex = val === String(PAY_INFO_TYPE_ENUM.FIRST_SAME) ? FIRST_TERM : RENEW_TERM;
+      combineFormData(REPRISE, currentIndex);
+    } else if (state.schemaList[REPRISE]) {
+      state.schemaList[REPRISE].formData = {
+        ...fieldInitList[REPRISE].formData,
+        paymentGenre: val,
       };
     }
   },
@@ -316,10 +319,6 @@ watch(
   () => {
     // 交费/领取类型 决定有哪些模块
     let paymentDrawTypeList = [];
-
-    if (isNotEmptyArray(props.schema)) {
-      state.schemaList = deepCopy(fieldInitList);
-    }
 
     state.schemaList = props.schema
       .reduce((res, item) => {
@@ -335,7 +334,9 @@ watch(
         if (index > -1) {
           res[index].schema.push({
             ...item,
-            paymentType: fieldInitList[index].paymentType,
+            name: transformSchemaName(item.name),
+            // 默认首期隐藏银行卡信息
+            payInfoType: fieldInitList[index].payInfoType,
           });
         }
         return res;
@@ -352,14 +353,7 @@ watch(
       })
       // 筛选掉不展示的支付信息模块
       .filter(({ schema, ...rest }) => {
-        const hidden = !paymentDrawTypeList.includes(`${rest.paymentType}`);
-        if (hidden) {
-          return rest;
-        }
-        return {
-          schema,
-          ...rest,
-        };
+        return paymentDrawTypeList.includes(`${rest.payInfoType}`);
       });
   },
   {
@@ -389,10 +383,13 @@ watch(
     if (isNotEmptyArray(val)) {
       emit(
         'update:modelValue',
-        val.map((item) => ({
-          ...item,
-          paymentType: item.paymentType,
-        })),
+        val.map((item, index) => {
+          const { payInfoType } = state.schemaList[index];
+          return {
+            ...item,
+            payInfoType,
+          };
+        }),
       );
     }
   },
