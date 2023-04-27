@@ -95,13 +95,13 @@ const getQuestionInfo = async () => {
     let questionInfo = data.productQuestionnaireVOList[0] || {};
     if (questionId) {
       const questionIndex = data.productQuestionnaireVOList.findIndex(
-        (questionnaire) => `${questionnaire.questionnaireId}` === questionId,
+        (questionnaire) => `${questionnaire.id}` === questionId,
       );
       if (data.productQuestionnaireVOList[questionIndex]) {
         questionInfo = data.productQuestionnaireVOList[questionIndex];
       }
       if (data.productQuestionnaireVOList[questionIndex + 1]) {
-        nextQuestionnaireId.value = data.productQuestionnaireVOList[questionIndex + 1].questionnaireId;
+        nextQuestionnaireId.value = data.productQuestionnaireVOList[questionIndex + 1].id;
       }
     }
     const { questionnaireDetailResponseVO, questionnaireId, questionnaireName } = questionInfo || {};

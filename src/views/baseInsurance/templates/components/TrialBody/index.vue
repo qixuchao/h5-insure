@@ -16,7 +16,7 @@
           v-if="dataSource.productFactor"
           ref="personalInfoRef"
           v-model="state.userData"
-          is-trial
+          :is-trial="isTrial"
           :product-factor="dataSource.productFactor"
           :multi-insured-config="dataSource?.multiInsuredConfigVO"
           @trail-change="handlePersonalInfoChange"
@@ -99,6 +99,7 @@ interface Props {
   hidePopupButton: boolean;
   title: string;
   defaultData: any;
+  isTrial: boolean;
 }
 
 const LOADING_TEXT = '试算中...';
@@ -128,6 +129,7 @@ const props = withDefaults(defineProps<Props>(), {
    */
   hidePopupButton: false,
   defaultData: null,
+  isTrial: false,
 });
 
 const state = reactive({
