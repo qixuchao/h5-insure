@@ -39,6 +39,7 @@ const typeToActive = {
   '1': 3,
   '2': 4,
 };
+
 const active = ref(typeToActive[query.type] || 0);
 
 const pageNum = ref(1);
