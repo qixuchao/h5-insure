@@ -121,7 +121,6 @@ axiosInstance.interceptors.request.use(
     const local = new Storage({ source: 'localStorage' });
     const session = new Storage({ source: 'sessionStorage' });
     const token = storage.get('token') || local.get('token') || session.get('token') || '';
-    console.log('request get token', token);
     if (customOption.loading) {
       loadingInstance.count += 1;
       if (loadingInstance.count === 1) {
