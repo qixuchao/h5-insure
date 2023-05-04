@@ -20,7 +20,7 @@ import { isTestEnv } from './utils';
 import '@/styles/index.scss';
 
 const start = async () => {
-  initNative();
+  await initNative();
   if (isTestEnv) {
     // eslint-disable-next-line new-cap
     new vconsole();
