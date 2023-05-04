@@ -10,7 +10,6 @@ declare module 'vue' {
     Demo: typeof import('./src/components/ProFilePreview/demo.vue')['default']
     Indev_blk: typeof import('./src/components/ProChart/indev_blk.vue')['default']
     PayInfo: typeof import('./src/components/RenderForm/PayInfo.vue')['default']
-    PayInfoItem: typeof import('./src/components/RenderForm/PayInfo/PayInfoItem.vue')['default']
     Play: typeof import('./src/components/ZaVoice/play.vue')['default']
     PlayBar: typeof import('./src/components/ZaVoice/playBar.vue')['default']
     ProAddress: typeof import('./src/components/RenderForm/components/ProAddress.vue')['default']
