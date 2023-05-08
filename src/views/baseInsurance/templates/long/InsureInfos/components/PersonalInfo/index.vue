@@ -4,7 +4,7 @@
     ref="holderFormRef"
     title="投保人信息"
     class="personal-info-card"
-    :model="state.holder.personVO"
+    :model="state.holder"
     :schema="state.holder.schema"
     :config="state.holder.config"
     :is-view="isView"
@@ -15,10 +15,10 @@
       v-for="(insuredItem, index) in state.insured"
       ref="insuredFormRef"
       :key="`${insuredItem.nanoid}_${index}`"
-      v-model="insuredItem.personVO"
+      v-model="state.insured[index]"
       v-model:beneficiary-list="insuredItem.beneficiaryList"
       :title="`${state.insured.length > 1 ? `被保人${index + 1}` : '被保人信息'}`"
-      :holder-person-v-o="state.holder.personVO"
+      :holder-person-v-o="state.holder"
       :="insuredItem"
       :beneficiary-schema="state.beneficiarySchema"
       :is-view="isView"
@@ -119,7 +119,6 @@ const state = reactive<StateInfo>({
   trialValidated: false,
   /** 投保人 */
   holder: {
-    personVO: {},
     schema: [],
     trialFactorCodes: [],
     config: {},
@@ -223,17 +222,17 @@ const hasInsuredSchema = computed(() => state.insured.some((insuredItem) => isNo
 // 验证是否试算
 watch(
   [
-    () => listObject(state.holder?.personVO),
+    () => listObject(state.holder),
     () =>
       state.insured.map((insuredItem) => {
-        const { beneficiaryList: list, personVO } = insuredItem || {};
+        const { beneficiaryList: list, ...personVO } = insuredItem || {};
         const beneficiaryList = isNotEmptyArray(list)
           ? list.map((beneficiaryItem) => ({
-              personVO: listObject(beneficiaryItem.personVO),
+              ...listObject(beneficiaryItem.personVO),
             }))
           : [];
         return {
-          personVO: listObject(personVO),
+          ...listObject(personVO),
           beneficiaryList,
         };
       }),
@@ -241,27 +240,27 @@ watch(
   // eslint-disable-next-line consistent-return
   debounce((val) => {
     colorConsole('投被保人信息变动了');
+    console.log(', val = ', val);
     const result = {
       holder: {
-        personVO: val[0],
+        ...val[0],
       },
-      insuredVOList: val[1],
+      insuredList: val[1],
     };
 
     // 多被保人为配偶,性别不符合给提示
     if (state.config.isSpouseInsured) {
-      const [gender1, gender2] = val[1].map((item) => item.personVO?.gender);
+      const [gender1, gender2] = val[1].map((item) => item?.gender);
       if (gender1 && gender2 && gender1 === gender2) {
         return Toast('被保人性别与投保要求不符');
       }
     }
 
-    const isFirstInsuredChange =
-      JSON.stringify(result?.insuredVOList?.[0]?.personVO) !== props.modelValue?.insuredVOList?.[0]?.personVO;
+    const isFirstInsuredChange = JSON.stringify(result?.insuredList?.[0]) !== props.modelValue?.insuredList?.[0];
 
     result.isFirstInsuredChange = isFirstInsuredChange;
 
-    emit('update:modelValue', result);
+    // emit('update:modelValue', result);
     // 验证通过调用试算
     if (!state.config.hasTrialFactorCodes) {
       return false;
@@ -321,33 +320,33 @@ watch(
 watch(
   [
     () => {
-      const { holder, insuredVOList } = props.modelValue;
-      const insuredList = isNotEmptyArray(insuredVOList)
-        ? insuredVOList.map((item) => {
+      const { holder, insuredList } = props.modelValue;
+      const insuredsList = isNotEmptyArray(insuredList)
+        ? insuredList.map(({ config, beneficiaryList, ...person }) => {
             return {
-              config: item.config,
-              personVO: item.personVO,
-              beneficiaryList: isNotEmptyArray(item.beneficiaryList)
-                ? item.beneficiaryList.map(({ config, personVO }) => ({
-                    config,
-                    personVO,
+              config,
+              beneficiaryList: isNotEmptyArray(beneficiaryList)
+                ? beneficiaryList.map(({ config: conf, ...personVO }) => ({
+                    config: conf,
+                    ...personVO,
                   }))
                 : [],
+              ...person,
             };
           })
         : [];
-      return [holder?.config, holder?.personVO, insuredList];
+      return [holder?.config, holder, insuredsList];
     },
     () => state.config,
   ],
   (val) => {
-    const { holder, insuredVOList } = props.modelValue || {};
+    const { holder, insuredList } = props.modelValue || {};
     // 投保人
+    Object.assign(state.holder, holder);
     Object.assign(state.holder.config, holder?.config);
-    Object.assign(state.holder.personVO, holder?.personVO);
 
     // 处理被保人数据
-    const { length: propsInsuredLen } = insuredVOList || [];
+    const { length: propsInsuredLen } = insuredList || [];
     const { length: stateInsuredLen } = state.insured;
 
     // 预览时，被保人数量多于默认数量
@@ -356,24 +355,25 @@ watch(
       props.isView || propsInsuredLen > stateInsuredLen
         ? propsInsuredLen
         : stateInsuredLen || state.config.multiInsuredMinNum;
-
+    const copyInsuredList = cloneDeep(insuredList);
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
-      const { personVO, config = {} } = insuredVOList?.[index] || {};
+      const { config = {}, ...personVO } = copyInsuredList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
 
       if (!res[index]) {
         res[index] = {
           ...initInsuredTempData,
-          personVO,
+          ...personVO,
           config,
           nanoid: nanoid(),
         };
       } else {
-        Object.assign(res[index]?.personVO, personVO);
+        Object.assign(res[index], personVO);
         Object.assign(res[index]?.config, config);
       }
       return res;
     }, state.insured);
+    console.log('------person change = ', state.insured);
   },
   {
     deep: true,

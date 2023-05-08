@@ -58,6 +58,8 @@ const { checked } = toRefs(state);
     display: flex;
     .product-image {
       position: relative;
+      border-radius: 12px;
+      overflow: hidden;
       .van-image {
         width: 160px;
         height: 160px;
@@ -76,7 +78,7 @@ const { checked } = toRefs(state);
         line-height: 44px;
         text-align: center;
         position: absolute;
-        bottom: 5px;
+        bottom: 0px;
         left: 0;
         border-radius: 0 0 12px 12px;
       }

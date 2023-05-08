@@ -280,7 +280,7 @@ export interface ProductBasicInfoVo {
 
 export interface PremiumCalcData {
   holder?: Holder;
-  insuredVOList: Array<Partial<InsuredVoItem>>;
+  insuredList: Array<Partial<InsuredVoItem>>;
   productCode: string;
   productId?: number;
   tenantId?: string;
@@ -289,7 +289,7 @@ export interface PremiumCalcData {
 export interface InsuredVoItem {
   insuredCode: string;
   personVO: PersonVo;
-  productPlanVOList: Array<Partial<ProductPlanVoItem>>;
+  productList: Array<Partial<ProductPlanVoItem>>;
   relationToHolder?: string;
 }
 
@@ -615,7 +615,7 @@ export interface InsureLinkReq {
   agencyCode: string;
   agentCode: string;
   extraMap: {
-    [key: string]:	string
+    [key: string]: string
   };
   insurerCode: string;
   productCode: string;
