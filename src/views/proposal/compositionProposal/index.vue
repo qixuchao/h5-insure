@@ -22,7 +22,7 @@
       <div class="container">
         <div class="common-title">保险公司简介</div>
 
-        <van-collapse v-model="activeName" accordion :is-link="false" :border="false" size="middle">
+        <van-collapse v-model="activeName" :is-link="false" :border="false" size="middle">
           <van-collapse-item v-for="(item, i) in info?.insurerInfoVOList" :key="i" :name="i" value-class="price">
             <template #title>
               <div><span class="poiner"></span> {{ item?.insurerName }}</div>
@@ -98,7 +98,7 @@ const currentInsuredProduct = ref();
 
 const [showProductList, toggleProductList] = useToggle();
 const [showThemeSelect, toggleThemeSelect] = useToggle(); // 选择主题弹出
-const activeName = ref('');
+const activeName = ref<string[]>([]);
 const themeList = ref<ThemeItem[]>([]); // 主题列表
 const shareButtonRef = ref(); // 分享按钮组件实例
 const operateType = ref<'share' | 'pdf'>('share'); // 按钮的操作类型
@@ -125,9 +125,9 @@ watch(
     const { gender, name, birthday } = val;
     const age = dayjs().diff(birthday, 'y');
     if (isMale(gender)) {
-      proposalName.value = `${name || age}岁先生的计划书`;
+      proposalName.value = `${name}先生的计划书`;
     } else {
-      proposalName.value = `${name || age}岁女士的计划书`;
+      proposalName.value = `${name}女士的计划书`;
     }
   },
 );
