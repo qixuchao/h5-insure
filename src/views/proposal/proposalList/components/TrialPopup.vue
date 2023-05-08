@@ -10,7 +10,7 @@
     }"
     :tenant-product-detail="{}"
   >
-    <template #default="{ trialData, riskPremium }">
+    <template #trialBtn="{ trialData, riskPremium }">
       <div class="trial-button">
         <VanButton
           :disabled="!trialRef.getTrialSuccessFlag()"

@@ -26,6 +26,7 @@
       :product-info="productInfo"
       :tenant-product-detail="tenantProductDetail"
       :hide-benefit="hideBenefit"
+      :default-data="defaultData"
       @trial-start="handleTrialStart"
       @trial-end="handleTrialEnd"
     >
@@ -37,19 +38,21 @@
           <van-icon name="cross" @click="state.show = false" />
         </div>
       </template>
-      <template #trialBtn>
-        <TrialButton
-          :is-share="currentShareInfo.isShare"
-          :premium="state.trialResultPremium"
-          :share-info="currentShareInfo"
-          :loading-text="state.trialMsg"
-          :plan-code="props.dataSource.planCode"
-          :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
-          :tenant-product-detail="tenantProductDetail"
-          :handle-share="onShare"
-          @handle-click="onNext"
-          >立即投保</TrialButton
-        >
+      <template #trialBtn="slotProps">
+        <slot name="trialBtn" v-bind="slotProps">
+          <TrialButton
+            :is-share="currentShareInfo.isShare"
+            :premium="state.trialResultPremium"
+            :share-info="currentShareInfo"
+            :loading-text="state.trialMsg"
+            :plan-code="props.dataSource.planCode"
+            :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
+            :tenant-product-detail="tenantProductDetail"
+            :handle-share="onShare"
+            @handle-click="onNext"
+            >立即投保</TrialButton
+          >
+        </slot>
       </template>
     </TrialBody>
   </ProPopup>
