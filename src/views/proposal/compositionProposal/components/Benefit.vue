@@ -34,7 +34,9 @@
               </div>
               <div class="box-price">
                 <div v-for="(val, k) in benefitObj?.result?.headers" :key="k" style="width: 33%">
-                  <p class="text1">{{ toLocal(Number(benefitObj?.result?.dataList?.[benefitObj?.index]?.[k])) }}</p>
+                  <p class="text1">
+                    {{ toLocal(Number(benefitObj?.result?.dataList?.[benefitObj?.index]?.[k])) || '--' }}
+                  </p>
                   <p class="text2">{{ val }}(元）</p>
                 </div>
               </div>
