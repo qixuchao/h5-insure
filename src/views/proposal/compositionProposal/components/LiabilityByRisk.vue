@@ -23,7 +23,8 @@
             value-class="price"
             :value="val.liabilityIndemnityContent"
           >
-            {{ val.liabilityDesc }}
+            <div v-html="val.liabilityDesc"></div>
+            <!-- {{ val.liabilityDesc }} -->
           </van-collapse-item>
         </van-collapse>
       </div>

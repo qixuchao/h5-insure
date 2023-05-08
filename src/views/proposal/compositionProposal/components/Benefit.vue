@@ -1,6 +1,11 @@
 <template>
   <div class="container">
     <div class="common-title">利益演示</div>
+    <!-- <div class="common-switch" @click="handleChangeChart('1')">
+      <ProSvg name="switch" />
+      <span v-if="showChart">切换趋势图</span>
+      <span v-else>切换图表</span>
+    </div> -->
     <van-tabs
       :active="active"
       title-active-color="#0d6efe"
@@ -26,15 +31,17 @@
               <div class="box-title">
                 <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
                 <div>
-                  保单年度<span>{{ benefitObj?.year?.[benefitObj?.index] }}</span
-                  >年度，被保人<span>{{ benefitObj?.age?.[benefitObj?.index] }}</span
+                  保单年度<span> &nbsp;{{ benefitObj?.year?.[benefitObj?.index] }} &nbsp;</span>年度，被保人<span
+                    >&nbsp; {{ benefitObj?.age?.[benefitObj?.index] }} &nbsp;</span
                   >岁时
                 </div>
                 <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
               </div>
               <div class="box-price">
                 <div v-for="(val, k) in benefitObj?.result?.headers" :key="k" style="width: 33%">
-                  <p class="text1">{{ toLocal(Number(benefitObj?.result?.dataList?.[benefitObj?.index]?.[k])) }}</p>
+                  <p class="text1">
+                    {{ toLocal(Number(benefitObj?.result?.dataList?.[benefitObj?.index]?.[k])) || '--' }}
+                  </p>
                   <p class="text2">{{ val }}(元）</p>
                 </div>
               </div>
@@ -152,6 +159,7 @@ const handleChangeChart = (val: string) => {
   } else {
     showChart.value = false;
   }
+  // showChart.value = !showChart.value;
 };
 
 watch(
@@ -187,11 +195,25 @@ watch(num, () => {
     border-radius: 16px;
     margin-bottom: 20px;
     padding: 0 20px 30px 20px;
+    position: relative;
     .common-title {
       padding-top: 34px;
       margin-bottom: 30px;
       font-weight: 500;
       color: #333333;
+    }
+    .common-switch {
+      position: absolute;
+      top: 34px;
+      right: 20px;
+      height: 26px;
+      line-height: 26px;
+      color: $zaui-brand;
+      font-size: $zaui-font-size-sm;
+      svg {
+        margin-right: 12px;
+        margin-top: -4px;
+      }
     }
     .benefit {
       border-top: 1px solid $zaui-line;
