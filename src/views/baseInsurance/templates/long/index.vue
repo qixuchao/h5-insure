@@ -260,7 +260,6 @@ const initData = async () => {
     getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         orderDetail.value = data;
-        trialDefaultData.value = orderData2trialData(data, insureProductDetail.value, currentPlanObj.value?.planCode);
       }
     });
 
