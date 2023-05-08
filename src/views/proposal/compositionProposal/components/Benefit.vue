@@ -1,11 +1,11 @@
 <template>
   <div class="container">
     <div class="common-title">利益演示</div>
-    <div class="common-switch" @click="handleChangeChart('1')">
+    <!-- <div class="common-switch" @click="handleChangeChart('1')">
       <ProSvg name="switch" />
       <span v-if="showChart">切换趋势图</span>
       <span v-else>切换图表</span>
-    </div>
+    </div> -->
     <van-tabs
       :active="active"
       title-active-color="#0d6efe"
@@ -68,14 +68,14 @@
           </div>
 
           <p class="slider-dec">拖动按钮查看不同年龄保障</p>
-          <!-- <div class="btn-two">
+          <div class="btn-two">
             <van-button round :plain="!showChart" type="primary" class="btn" @click="handleChangeChart('1')"
               >图表展示</van-button
             >
             <van-button round :plain="showChart" type="primary" class="btn" @click="handleChangeChart('2')"
               >趋势展示</van-button
             >
-          </div> -->
+          </div>
         </div>
       </van-tab>
     </van-tabs>
@@ -154,12 +154,12 @@ const changeTab = (val: { name: number }) => {
 };
 
 const handleChangeChart = (val: string) => {
-  // if (val === '1') {
-  //   showChart.value = true;
-  // } else {
-  //   showChart.value = false;
-  // }
-  showChart.value = !showChart.value;
+  if (val === '1') {
+    showChart.value = true;
+  } else {
+    showChart.value = false;
+  }
+  // showChart.value = !showChart.value;
 };
 
 watch(
