@@ -358,6 +358,8 @@ interface TransformConf {
   multiInsuredNum: number;
   /** 受益人人个数 */
   multiBeneficiaryMaxNum: number;
+  /** 被保人仅显示的要素，仅用于计划书 */
+  insuredFactorCodes: string[];
 }
 
 /**
@@ -434,8 +436,20 @@ export const transformFactorToSchema = (
     if (key !== 'insured') {
       res[key] = transformToSchema(factorsMap[key], trialFactorCodes);
     } else {
+      // 被保人
       res[key] = isNotEmptyArray(finialInsured)
-        ? finialInsured.map((item) => transformToSchema(item, trialFactorCodes))
+        ? finialInsured.map((insuredSchemaListItem) =>
+            transformToSchema(
+              insuredSchemaListItem.filter((item) => {
+                // 计划书被保人只展示职业/有无社保
+                if (isNotEmptyArray(conf.insuredFactorCodes)) {
+                  return conf.insuredFactorCodes.includes(item.code);
+                }
+                return true;
+              }),
+              trialFactorCodes,
+            ),
+          )
         : [];
     }
     return res;

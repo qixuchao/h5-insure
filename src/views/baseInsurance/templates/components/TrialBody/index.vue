@@ -159,6 +159,36 @@ const orderDetail = useOrder();
 const iseeBizNo = ref<string>();
 const currentShareInfo = ref<any>();
 
+/**
+ * 处理投被保人信息到state.submitData
+ * @param data
+ */
+const handlePersonInfo = (data) => {
+  const { holder, insuredVOList } = data || {};
+  if (holder) {
+    state.submitData.holder = holder;
+  }
+  if (insuredVOList && insuredVOList.length > 0) {
+    insuredVOList.forEach((ins, index) => {
+      if (state.submitData.insuredVOList && state.submitData.insuredVOList.length > index) {
+        state.submitData.insuredVOList[index].personVO = {
+          ...ins.personVO,
+          socialFlag: ins.personVO.hasSocialInsurance,
+        };
+      } else {
+        // new
+        if (!state.submitData?.insuredVOList) state.submitData.insuredVOList = [];
+        state.submitData.insuredVOList.push({
+          personVO: {
+            ...ins.personVO,
+            socialFlag: ins.personVO.hasSocialInsurance,
+          },
+        });
+      }
+    });
+  }
+};
+
 const trialData2Order = (
   currentProductDetail: ProductData = {} as ProductData,
   riskPremium = {},
@@ -469,36 +499,10 @@ const handleMixTrialData = debounce(async () => {
 
 const handlePersonalInfoChange = async (data) => {
   // 只有改动第一个被保人，需要调用dy接口
-  const { holder, insuredVOList, isFirstInsuredChange } = data;
-  if (holder) {
-    state.submitData.holder = holder;
-    // console.log('------', holder);
-    // state.submitData.holder = {
-    //   personVO: {
-    //     ...holder,
-    //     socialFlag: holder.hasSocialInsurance,
-    //   },
-    // };
-  }
-  if (insuredVOList && insuredVOList.length > 0) {
-    insuredVOList.forEach((ins, index) => {
-      if (state.submitData.insuredVOList && state.submitData.insuredVOList.length > index) {
-        state.submitData.insuredVOList[index].personVO = {
-          ...ins.personVO,
-          socialFlag: ins.personVO.hasSocialInsurance,
-        };
-      } else {
-        // new
-        if (!state.submitData?.insuredVOList) state.submitData.insuredVOList = [];
-        state.submitData.insuredVOList.push({
-          personVO: {
-            ...ins.personVO,
-            socialFlag: ins.personVO.hasSocialInsurance,
-          },
-        });
-      }
-    });
-  }
+  const { insuredVOList, isFirstInsuredChange } = data;
+
+  handlePersonInfo(data);
+
   state.ifPersonalInfoSuccess = true;
   if (isFirstInsuredChange) {
     console.log('处理第一被保人修改的dy变化');
@@ -651,11 +655,10 @@ const fetchDefaultData = async (changes: []) => {
       transformDefaultData(targetProduct);
     }
   } else {
-    if (props.defaultData) {
-      const targetProduct =
-        props.defaultData.find((d) => d.productCode === props.productInfo.productCode) || props.defaultData[0];
-      transformDefaultData(targetProduct);
-    }
+    const targetProduct =
+      props.defaultData.find((d) => d.productCode === props.productInfo.productCode) || props.defaultData[0];
+    transformDefaultData(targetProduct);
+    handlePersonInfo(props.defaultData?.[0]);
   }
 };
 

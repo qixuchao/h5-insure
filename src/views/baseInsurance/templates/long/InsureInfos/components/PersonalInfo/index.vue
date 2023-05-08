@@ -56,7 +56,7 @@ import {
   SchemaItem,
 } from '@/components/RenderForm';
 import { ProductFactor } from '@/api/modules/trial.data';
-import { isNotEmptyArray } from '@/common/constants/utils';
+import { isNotEmptyArray, PERSONAL_INFO_KEY } from '@/common/constants';
 import InsuredItem from './components/InsuredItem.vue';
 
 interface Props {
@@ -92,7 +92,7 @@ interface StateInfo {
   trialValidated: boolean;
   holder: PersonFormProps;
   beneficiarySchema: SchemaItem[];
-  initInsuredIList: InsuredFormProps[];
+  initInsuredIList: Partial<InsuredFormProps>[];
   insured: InsuredFormProps[];
 }
 
@@ -132,7 +132,7 @@ const state = reactive<StateInfo>({
 
 /** 验证试算因子是否全部有值 */
 const validateTrialFields = () => {
-  const flag = insuredFormRef.value?.every((item) => item.validateTrialFields());
+  const flag = insuredFormRef.value ? insuredFormRef.value?.every((item) => item.validateTrialFields()) : true;
   return flag && validateFields(state.holder);
 };
 
@@ -291,9 +291,11 @@ watch(
   [() => props.productFactor, () => props.isTrial],
   (val) => {
     if (val[0]) {
+      const { insuredFactorCodes } = inject(PERSONAL_INFO_KEY) || {};
       const { holder, insured, beneficiary, config } = transformFactorToSchema(val[0], {
         isTrial: val[1],
         ...props.multiInsuredConfig,
+        insuredFactorCodes,
       });
       Object.assign(state.holder, holder);
 
@@ -369,8 +371,17 @@ watch(
           nanoid: nanoid(),
         };
       } else {
-        Object.assign(res[index]?.personVO, personVO);
-        Object.assign(res[index]?.config, config);
+        if (res[index]?.personVO) {
+          Object.assign(res[index]?.personVO, personVO);
+        } else {
+          res[index].personVO = personVO;
+        }
+
+        if (res[index]?.config) {
+          Object.assign(res[index]?.config, config);
+        } else {
+          res[index].config = config;
+        }
       }
       return res;
     }, state.insured);

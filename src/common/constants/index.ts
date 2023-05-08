@@ -1,4 +1,5 @@
 /* eslint-disable no-shadow */
+import { type InjectionKey } from 'vue';
 
 // 1: 男
 import { constantListToMap } from './utils';
@@ -382,3 +383,10 @@ export const PAGE_ACTION_TYPE_ENUM = {
 };
 
 export * from './dict';
+
+export * from './utils';
+
+// pro from
+export const PERSONAL_INFO_KEY: InjectionKey<{
+  insuredFactorCodes: string[];
+}> = Symbol('PERSONAL_INFO_KEY');

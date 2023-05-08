@@ -23,8 +23,9 @@
   </TrialPop>
 </template>
 <script lang="ts" setup>
-import { withDefaults } from 'vue';
+import { withDefaults, provide } from 'vue';
 import { RiskVoItem, PremiumCalcData } from '@/api/modules/trial.data';
+import { PERSONAL_INFO_KEY } from '@/common/constants';
 import TrialPop from '@/views/baseInsurance/templates/components/TrialPop/index.vue';
 
 interface Props {
@@ -39,6 +40,11 @@ const trialRef = ref(null);
 const props = withDefaults(defineProps<Props>(), {
   productCode: '',
   productName: '',
+});
+
+// 计划书被保人仅显示社保/职业
+provide(PERSONAL_INFO_KEY, {
+  insuredFactorCodes: ['hasSocialInsurance', 'occupationCodeList'],
 });
 
 // 将试算的数据转换成计划书的数据
