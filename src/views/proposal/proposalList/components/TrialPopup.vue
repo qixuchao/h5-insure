@@ -43,15 +43,14 @@ const props = withDefaults(defineProps<Props>(), {
 
 // 将试算的数据转换成计划书的数据
 const formatData = (trialData: PremiumCalcData, riskPremium: any) => {
-  console.log('trialData', trialData);
-  const { holder, insuredVOList, productCode } = trialData || {};
-  const { personVO, productPlanVOList } = insuredVOList?.[0] || {};
-  const { riskVOList, ...rest } = productPlanVOList?.[0] || {};
+  const { holder, insuredList, productCode } = trialData || {};
+  const { productList, ...personVO } = insuredList?.[0] || {};
+  const { riskList: riskVOList, ...rest } = productList?.[0] || {};
   const riskList = (riskVOList || []).map((risk: RiskVoItem) => {
     return {
       ...risk,
-      premium: riskPremium[risk.riskCode]?.premium,
-      amount: riskPremium[risk.riskCode]?.amount,
+      initialPremium: riskPremium[risk.riskCode]?.initialPremium,
+      initialAmount: riskPremium[risk.riskCode]?.initialAmount,
     };
   });
   // const proposalData = {
@@ -75,7 +74,7 @@ const formatData = (trialData: PremiumCalcData, riskPremium: any) => {
   // return proposalData;
   return {
     productCode,
-    holder: holder?.personVO,
+    holder,
     insuredPersonVO: personVO,
     insuredProductInfo: {
       productCode,

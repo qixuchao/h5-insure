@@ -77,10 +77,10 @@ export interface VanFormProvied {
 }
 
 export interface PersonFormProps {
-  personVO: {
-    relationToHolder?: string;
-    [x: string]: any;
-  };
+  // personVO: {
+  //   relationToHolder?: string;
+  //   [x: string]: any;
+  // };
   schema: SchemaItem[];
   trialFactorCodes: string[];
   config: {

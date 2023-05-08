@@ -6,12 +6,12 @@
         <div class="content">
           <div class="risk-premium">
             保费:<span class="premium">{{
-              !errorMsg && risk.premium ? `￥${risk.premium?.toLocaleString()}` : '-'
+              !errorMsg && risk.initialPremium ? `￥${risk.initialPremium?.toLocaleString()}` : '-'
             }}</span>
           </div>
           <div class="risk-factor">
             <div class="factor">
-              <span class="factor-value">{{ risk.amount?.toLocaleString() || '-' }}</span>
+              <span class="factor-value">{{ risk.initialAmount?.toLocaleString() || '-' }}</span>
               <span class="factor-name"> 保额(元) </span>
             </div>
             <div class="factor">
@@ -192,8 +192,8 @@ watch(
   () => props.productInfo,
   (newVal) => {
     let productPremium = 0;
-    (newVal.proposalProductRiskList || []).forEach((risk: ProposalProductRiskItem) => {
-      productPremium += risk.premium;
+    (newVal.riskList || []).forEach((risk: ProposalProductRiskItem) => {
+      productPremium += risk.initialPremium;
     });
 
     // props.pickProductPremium?.({ [`${newVal.productCode}`]: productPremium });

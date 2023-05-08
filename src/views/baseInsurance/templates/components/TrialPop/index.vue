@@ -33,15 +33,13 @@
       <template #trialHead>
         <div class="header">
           <span class="header-title">{{ title }}</span>
-          <!-- <van-icon name="cross" style="color: black" @click="state.loading = false" /> -->
-          <!-- <van-icon :name="cancelIcon" @click="state.show = false" /> -->
           <van-icon name="cross" @click="state.show = false" />
         </div>
       </template>
       <template #trialBtn="{ trialData, riskPremium }">
         <TrialButton
           :is-share="currentShareInfo.isShare"
-          :premium="riskPremium.premium"
+          :premium="riskPremium?.premium"
           :share-info="currentShareInfo"
           :loading-text="state.trialMsg"
           :plan-code="props.dataSource.planCode"
@@ -475,61 +473,6 @@ const handleMixTrialData = debounce(async () => {
     await handleTrialAndBenefit(submitDataCopy);
   }
 }, 300);
-
-const handlePersonalInfoChange = async (data) => {
-  // 只有改动第一个被保人，需要调用dy接口
-  const { holder, insuredVOList, isFirstInsuredChange } = data;
-  if (holder) {
-    state.submitData.holder = holder;
-    // console.log('------', holder);
-    // state.submitData.holder = {
-    //   personVO: {
-    //     ...holder,
-    //     socialFlag: holder.hasSocialInsurance,
-    //   },
-    // };
-  }
-  if (insuredVOList && insuredVOList.length > 0) {
-    insuredVOList.forEach((ins, index) => {
-      if (state.submitData.insuredVOList && state.submitData.insuredVOList.length > index) {
-        state.submitData.insuredVOList[index].personVO = {
-          ...ins.personVO,
-          socialFlag: ins.personVO.hasSocialInsurance,
-        };
-      } else {
-        // new
-        if (!state.submitData?.insuredVOList) state.submitData.insuredVOList = [];
-        state.submitData.insuredVOList.push({
-          personVO: {
-            ...ins.personVO,
-            socialFlag: ins.personVO.hasSocialInsurance,
-          },
-        });
-      }
-    });
-  }
-  state.ifPersonalInfoSuccess = true;
-  if (isFirstInsuredChange) {
-    console.log('处理第一被保人修改的dy变化');
-    const dyResult = await queryCalcDynamicInsureFactor({
-      calcProductFactorList: [
-        {
-          planCode: props.dataSource.planCode,
-          productCode: props.productInfo.productCode,
-          riskEditVOList: [
-            {
-              insureProductRiskVO: props.dataSource.insureProductRiskVOList?.[0],
-            },
-          ],
-        },
-      ],
-      ...insuredVOList[0].personVO,
-    });
-    if (!handleDealDyResult(dyResult)) return;
-  }
-  console.log('投被保人的信息回传 ', state.submitData, data);
-  handleMixTrialData();
-};
 
 const handleDynamicConfig = async (data: any, changeData: any) => {
   if (changeData) {

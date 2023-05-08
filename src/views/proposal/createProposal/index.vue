@@ -63,7 +63,8 @@
         >总保费<span class="result-num">{{ !submitDisable ? `￥${totalPremium?.toLocaleString()}` : '-' }}</span>
       </span>
       <div class="trial-operate">
-        <VanButton :disabled="submitDisable" type="primary" @click="saveProposalData">保存并预览</VanButton>
+        <!-- <VanButton :disabled="submitDisable" type="primary" @click="saveProposalData">保存并预览</VanButton> -->
+        <VanButton type="primary" @click="saveProposalData">保存并预览</VanButton>
       </div>
     </div>
     <!-- <ProductRisk
@@ -259,7 +260,7 @@ const submitDisable = computed(() => {
 const totalPremium = computed(() => {
   return stateInfo.productList.reduce((total, item) => {
     const premium = item.riskList.reduce((res, riskItem) => {
-      return res + (riskItem.premium || 0);
+      return res + (riskItem.initialPremium || 0);
     }, 0);
     return total + premium;
   }, 0);
@@ -285,6 +286,7 @@ const combineToProductList = (productInfo: PlanTrialData) => {
   const { riskList, ...rest } = tempData;
 
   // 合并两边的险种属性
+  console.log('---hebing', productInfo);
   stateInfo.productList[currentIndex] = {
     ...tempData,
     ...rest,
@@ -329,6 +331,7 @@ const addProduct = () => {
 };
 
 const trailProduct = (params) => {
+  console.log('-----trailProduct = ', params);
   premiumCalc(params, {
     isCustomError: true,
   }).then(({ code, data, message }) => {
@@ -341,11 +344,11 @@ const trailProduct = (params) => {
       if (isNotEmptyArray(data.riskPremiumDetailVOList)) {
         data.riskPremiumDetailVOList.forEach((riskDetail: any) => {
           riskPremiumMap[riskDetail.riskCode] = {
-            premium: riskDetail.premium,
-            amount: riskDetail.amount,
+            initialPremium: riskDetail.premium,
+            initialAmount: riskDetail.amount,
           };
         });
-
+        console.log('---combine = ', riskPremiumMap);
         combineToProductList(trialPopupRef.value?.formatData(params, riskPremiumMap));
       }
       stateInfo.productErrorMap[params.productCode] = '';
@@ -378,6 +381,7 @@ const queryProposalInfo = (params = {}) => {
         ...insuredPersonVO,
         proposalName,
       };
+      console.log('----query detail ', productList);
       stateInfo.productList = productList;
     }
   });
@@ -396,6 +400,7 @@ const queryProductInfo = (searchData: any) => {
               return res;
             }, {}),
           );
+          console.log('stateInfo.productCollection = ', stateInfo.productCollection);
         }
       }
     })
@@ -421,14 +426,14 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
   if (code === '10000' && data) {
     if (isNotEmptyArray(data)) {
       data.forEach((dataItem) => {
-        const { holder, insuredVOList, productCode } = dataItem;
-        const { personVO, productPlanVOList } = (insuredVOList || [])[0] || {};
-        const [{ riskVOList = [], ...rest } = {}] = productPlanVOList || [];
+        const { holder, insuredList, productCode } = dataItem;
+        const { productList, ...personVO } = (insuredList || [])[0] || {};
+        const [{ riskList = [], ...rest } = {}] = productList || [];
 
         const tempData: Partial<ProposalInsuredProductItem> = {
           productCode,
           ...rest,
-          riskList: riskVOList,
+          riskList,
         };
         trailProduct(dataItem);
 
@@ -437,13 +442,13 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
           Object.assign(stateInfo.insuredPersonVO, personVO);
           Object.assign(stateInfo.holder, holder?.personVO);
         }
-
         const currentIndex = currentProductCodeList.value.findIndex((codeItem) => codeItem === productCode);
         if (currentIndex > -1) {
           stateInfo.productList[currentIndex] = tempData;
         } else {
           stateInfo.productList.push(tempData);
         }
+        console.log('----add tempdata = ', tempData);
       });
     }
   }
@@ -505,16 +510,16 @@ const convertProposalToTrialData = (productCode) => {
 
   return {
     holder: {
-      personVO: stateInfo.holder,
+      ...stateInfo.holder,
     },
-    insuredVOList: [
+    insuredList: [
       {
-        personVO: stateInfo.insuredPersonVO,
+        ...stateInfo.insuredPersonVO,
         config: hiddenFieldKeys,
-        productPlanVOList: [
+        productList: [
           {
             ...rest,
-            riskVOList: riskList,
+            riskList,
           },
         ],
       },

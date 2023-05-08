@@ -546,7 +546,7 @@ export const genaratePremiumCalcData = (o: premiumCalcParamType, flag = false, v
         socialFlag: o.holder.socialFlag,
       },
     },
-    insuredVOList: [
+    insuredList: [
       {
         insuredCode: o.productDetail?.insurerCode as string,
         relationToHolder: o.insured.relationToHolder,
@@ -559,9 +559,9 @@ export const genaratePremiumCalcData = (o: premiumCalcParamType, flag = false, v
           socialFlag: o.insured.socialFlag,
         },
         // TODO ts报错
-        productPlanVOList: [
+        productList: [
           {
-            riskVOList: riskVOList.flat(),
+            riskList: riskVOList.flat(),
           },
         ] as any,
       },

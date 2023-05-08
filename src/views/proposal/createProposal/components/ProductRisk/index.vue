@@ -191,6 +191,7 @@ const messageInfo = computed(() => {
 
 // 将试算的数据转换成计划书的数据
 const formatData = (trialData: PremiumCalcData, riskPremium: any) => {
+  console.log('-----format data riskPremium= ', riskPremium);
   const riskList = (trialData.insuredVOList[0].productPlanVOList[0].riskVOList || []).map((risk: RiskVoItem) => {
     return {
       ...risk,
