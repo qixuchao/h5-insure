@@ -262,10 +262,12 @@ watch(
     result.isFirstInsuredChange = isFirstInsuredChange;
 
     emit('update:modelValue', result);
-    // 验证通过调用试算
-    if (!state.config.hasTrialFactorCodes) {
-      return false;
-    }
+
+    // // 没有试算因子调用试算
+    // if (!state.config.hasTrialFactorCodes) {
+    //   emit('trailChange', result);
+    //   return false;
+    // }
 
     if (!validateTrialFields()) {
       state.trialValidated = false;
