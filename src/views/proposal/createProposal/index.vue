@@ -371,22 +371,6 @@ const changeAge = () => {
   stateInfo.insuredPersonVO.birthday = '';
 };
 
-const queryProposalInfo = (params = {}) => {
-  queryProposalDetail(params).then(({ code, data }) => {
-    if (code === '10000' && data) {
-      const { insuredList, holder, proposalName } = data || {};
-      const [{ productList, ...insuredPersonVO }] = insuredList || [];
-      stateInfo.holder = holder;
-      stateInfo.insuredPersonVO = {
-        ...insuredPersonVO,
-        proposalName,
-      };
-      console.log('----query detail ', productList);
-      stateInfo.productList = productList;
-    }
-  });
-};
-
 /** 获取产品数据列表 */
 const queryProductInfo = (searchData: any) => {
   queryProductDetailList(searchData)
@@ -405,6 +389,28 @@ const queryProductInfo = (searchData: any) => {
       }
     })
     .finally(() => {});
+};
+
+// 获取计划书详情
+const queryProposalInfo = (params = {}) => {
+  queryProposalDetail(params).then(({ code, data }) => {
+    if (code === '10000' && data) {
+      const { insuredList, holder, proposalName } = data || {};
+      const [{ productList, ...insuredPersonVO }] = insuredList || [];
+      stateInfo.holder = holder;
+      stateInfo.insuredPersonVO = {
+        ...insuredPersonVO,
+        proposalName,
+      };
+      queryProductInfo(
+        productList.map((item) => ({
+          productCode: item.productCode,
+        })),
+      );
+      console.log('----query detail ', productList);
+      stateInfo.productList = productList;
+    }
+  });
 };
 
 // 获取试算默认值
@@ -599,7 +605,7 @@ const validateData = (arr) =>
   isNotEmptyArray(arr) ? arr.every((item) => (typeof item === 'number' ? !Number.isNaN(item) : Boolean(item))) : false;
 
 // 创建计划书
-const submitData = () => {
+const submitData = (proposalId) => {
   Promise.all([formRef.value?.validate(), insuredFormRef.value?.validate()]).then(() => {
     const { holder } = stateInfo;
     addOrUpdateProposal({
@@ -613,7 +619,7 @@ const submitData = () => {
       proposalName: stateInfo.insuredPersonVO.proposalName,
       totalPremium: totalPremium.value,
       relationUserType: 2,
-      id,
+      id: proposalId,
     }).then((res) => {
       const { code, data } = res || {};
       if (code === '10000') {
@@ -630,18 +636,17 @@ const submitData = () => {
 };
 
 const saveProposalData = () => {
+  // 编辑
   if (id) {
     toggleActionSheet(true);
   } else {
-    submitData();
+    submitData(id);
   }
 };
 
+// 保存修改/另存为新的计划书
 const selectAction = (item: ActionSheetAction, index: number) => {
-  if (index) {
-    proposalInfo.value.id = null;
-  }
-  submitData();
+  submitData(index ? undefined : id);
 };
 
 /** 被保人数据变动 */

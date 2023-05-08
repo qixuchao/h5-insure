@@ -1,3 +1,5 @@
+import {  type InjectionKey } from 'vue';
+
 export interface ProductData {
   productFactor: ProductFactor;
   productBasicInfoVO: ProductBasicInfoVo;

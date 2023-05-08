@@ -56,7 +56,7 @@ import {
   SchemaItem,
 } from '@/components/RenderForm';
 import { ProductFactor } from '@/api/modules/trial.data';
-import { isNotEmptyArray } from '@/common/constants/utils';
+import { isNotEmptyArray, PERSONAL_INFO_KEY } from '@/common/constants';
 import InsuredItem from './components/InsuredItem.vue';
 
 interface Props {
@@ -134,7 +134,7 @@ const state = reactive<Partial<StateInfo>>({
 
 /** 验证试算因子是否全部有值 */
 const validateTrialFields = () => {
-  const flag = insuredFormRef.value?.every((item) => item.validateTrialFields());
+  const flag = insuredFormRef.value ? insuredFormRef.value?.every((item) => item.validateTrialFields()) : true;
   return flag && validateFields(state.holder);
 };
 
@@ -309,9 +309,11 @@ watch(
   [() => props.productFactor, () => props.isTrial],
   (val) => {
     if (val[0]) {
+      const { insuredFactorCodes } = inject(PERSONAL_INFO_KEY) || {};
       const { holder, insured, beneficiary, config } = transformFactorToSchema(val[0], {
         isTrial: val[1],
         ...props.multiInsuredConfig,
+        insuredFactorCodes,
       });
       Object.assign(state.holder, holder);
 
