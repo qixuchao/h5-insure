@@ -15,7 +15,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="HeadWaring">
 import { withDefaults } from 'vue';
 
 const props = withDefaults(defineProps<{ labels: string[] }>(), {

@@ -48,7 +48,7 @@
   </div>
 </template>
 
-<script lang="ts" setup name="TrialPop">
+<script lang="ts" setup name="TrialBody">
 import { withDefaults, ref, defineExpose } from 'vue';
 import { Toast } from 'vant/es';
 import { cloneDeep, debounce } from 'lodash';

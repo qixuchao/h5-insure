@@ -10,7 +10,7 @@
     }"
     :tenant-product-detail="{}"
   >
-    <template #default="{ trialData, riskPremium }">
+    <template #trialBtn="{ trialData, riskPremium }">
       <div class="trial-button">
         <VanButton
           :disabled="!trialRef.getTrialSuccessFlag()"
@@ -22,7 +22,7 @@
     </template>
   </TrialPop>
 </template>
-<script lang="ts" setup>
+<script lang="ts" setup name="TrialPopup">
 import { withDefaults } from 'vue';
 import { RiskVoItem, PremiumCalcData } from '@/api/modules/trial.data';
 import TrialPop from '@/views/baseInsurance/templates/components/TrialPop/index.vue';

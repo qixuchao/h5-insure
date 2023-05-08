@@ -146,7 +146,7 @@
     </div>
   </div>
 </template>
-<script lang="ts" setup name="benefit">
+<script lang="ts" setup name="Benefit">
 import { withDefaults } from 'vue';
 import { toLocal } from '@/utils';
 import ProChart from '@/components/ProChart/index.vue';

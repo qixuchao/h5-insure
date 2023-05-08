@@ -30,7 +30,7 @@
   </template>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="InsureInfos">
 import { inject, withDefaults } from 'vue';
 import { Toast } from 'vant/es';
 import { objectKeys } from '@antfu/utils';

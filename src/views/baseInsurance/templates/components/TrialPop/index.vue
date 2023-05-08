@@ -27,6 +27,7 @@
       :product-info="productInfo"
       :tenant-product-detail="tenantProductDetail"
       :hide-benefit="hideBenefit"
+      :default-data="defaultData"
       @trial-start="handleTrialStart"
       @trial-end="handleTrialEnd"
     >
@@ -37,18 +38,20 @@
         </div>
       </template>
       <template #trialBtn="{ trialData, riskPremium }">
-        <TrialButton
-          :is-share="currentShareInfo.isShare"
-          :premium="riskPremium?.premium"
-          :share-info="currentShareInfo"
-          :loading-text="state.trialMsg"
-          :plan-code="props.dataSource.planCode"
-          :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
-          :tenant-product-detail="tenantProductDetail"
-          :handle-share="onShare"
-          @handle-click="onNext(trialData)"
-          >立即投保</TrialButton
-        >
+        <slot name="trialBtn" :trial-data="state.submitData" :risk-premium="premiumMap">
+          <TrialButton
+            :is-share="currentShareInfo.isShare"
+            :premium="riskPremium?.premium"
+            :share-info="currentShareInfo"
+            :loading-text="state.trialMsg"
+            :plan-code="props.dataSource.planCode"
+            :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
+            :tenant-product-detail="tenantProductDetail"
+            :handle-share="onShare"
+            @handle-click="onNext(trialData)"
+            >立即投保</TrialButton
+          >
+        </slot>
       </template>
     </TrialBody>
   </ProPopup>
