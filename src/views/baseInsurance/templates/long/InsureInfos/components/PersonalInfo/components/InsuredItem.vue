@@ -294,7 +294,7 @@ watch(
       };
 
       // 非本人则清空数据
-      if (!isSelf) {
+      if (!isSelf && personVO.relationToHolder) {
         newPersonVo = {
           ...Object.keys(personVO).reduce((res, key) => {
             // 若只有证件类型为身份证

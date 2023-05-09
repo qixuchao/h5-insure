@@ -649,7 +649,9 @@ watch(
   debounce((val, oldVal) => {
     if (validateData(val) && validateData(oldVal)) {
       console.log('被保人条件变动');
-      currentProductCodeList.value.forEach((code) => calcDynamicInsureFactor(code));
+      if (isNotEmptyArray(Object.keys(stateInfo.productCollection))) {
+        currentProductCodeList.value.forEach((code) => calcDynamicInsureFactor(code));
+      }
     }
   }),
   {
