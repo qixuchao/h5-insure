@@ -150,8 +150,8 @@ const state = reactive({
   trialMsg: '',
   trialResultPremium: 0,
   trialResult: {
-    premium: 0,
-    amount: 0,
+    initialPremium: 0,
+    initialAmount: 0,
   },
   isAniShow: false,
   defaultValue: null, // 是一个plan
@@ -169,19 +169,19 @@ const trialData2Order = (trialData, riskPremium = {}, currentOrderDetail = {}) =
   const nextStepParams: any = { ...currentOrderDetail, ...trialData };
 
   const riskPremiumMap = {};
-  const { riskPremiumDetailVOList = [], amount, premium = 0 } = riskPremium || {};
+  const { riskPremiumDetailVOList = [], initialPremium, initialAmount = 0 } = riskPremium || {};
   if (riskPremiumDetailVOList.length) {
     riskPremiumDetailVOList.forEach((riskDetail: any) => {
       riskPremiumMap[riskDetail.riskCode] = {
-        premium: riskDetail.premium,
-        amount: riskDetail.amount,
+        initialAmount: riskDetail.initialAmount,
+        initialPremium: riskDetail.initialPremium,
       };
     });
   }
 
-  nextStepParams.premium = premium;
-  nextStepParams.orderAmount = amount;
-  nextStepParams.orderRealAmount = amount;
+  nextStepParams.premium = initialPremium;
+  nextStepParams.orderAmount = initialAmount;
+  nextStepParams.orderRealAmount = initialAmount;
 
   nextStepParams.insuredList = (nextStepParams.insuredList || []).map((insurer: any) => {
     return {
@@ -189,17 +189,17 @@ const trialData2Order = (trialData, riskPremium = {}, currentOrderDetail = {}) =
       certType: insurer.certType || CERT_TYPE_ENUM.CERT,
       certNo: (insurer.certNo || '').toLocaleUpperCase(),
       productList: insurer.productList.map((item) => ({
-        premium,
+        initialPremium,
         productCode: trialData.productCode,
         productName: trialData.productName,
         riskList: item.riskList.map((risk) => {
-          const { amount: initialAmount, premium: initialPremium } = riskPremiumMap[risk.riskCode];
+          const { initialAmount: amount, initialPremium: premium } = riskPremiumMap[risk.riskCode];
           return {
             ...risk,
-            initialAmount,
-            initialPremium,
-            regularPremium: initialPremium,
-            totalPremium: premium,
+            initialAmount: amount,
+            initialPremium: premium,
+            regularPremium: premium,
+            totalPremium: initialPremium,
           };
         }),
       })),
@@ -407,15 +407,15 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
             Toast(`${res?.data?.errorInfo}`);
           }
           state.trialMsg = '';
-          state.trialResultPremium = res.data.premium;
+          state.trialResultPremium = res.data.initialPremium;
           state.trialResult = res.data;
 
           const riskPremiumMap = {};
           if (res.data.riskPremiumDetailVOList && res.data.riskPremiumDetailVOList.length) {
             res.data.riskPremiumDetailVOList.forEach((riskDetail: any) => {
               riskPremiumMap[riskDetail.riskCode] = {
-                premium: riskDetail.premium,
-                amount: riskDetail.amount,
+                initialPremium: riskDetail.initialPremium,
+                initialAmount: riskDetail.initialAmount,
               };
             });
           }
@@ -612,7 +612,7 @@ const handleTrialStart = () => {
 
 const handleTrialEnd = (result: any) => {
   state.trialMsg = '';
-  state.trialResultPremium = result.premium;
+  state.trialResultPremium = result.initialPremium;
   state.trialResult = result;
   state.loading = false;
 };

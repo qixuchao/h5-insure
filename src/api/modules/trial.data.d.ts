@@ -367,9 +367,9 @@ export interface Holder {
 
 // 保费试算结果
 export interface PremiumCalcResponse {
-  amount: number;
+  initialAmount: number;
   errorInfo: string;
-  premium: number;
+  initialPremium: number;
   riskPremiumDetailVOList: RiskPremiumDetailVoItem[];
 }
 

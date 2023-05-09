@@ -434,8 +434,8 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
           if (res.data.riskPremiumDetailVOList && res.data.riskPremiumDetailVOList.length) {
             res.data.riskPremiumDetailVOList.forEach((riskDetail: any) => {
               riskPremiumMap[riskDetail.riskCode] = {
-                initialPremium: riskDetail.initialPremium,
                 initialAmount: riskDetail.initialAmount,
+                initialPremium: riskDetail.initialPremium,
               };
             });
           }

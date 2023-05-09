@@ -24,6 +24,7 @@
 </template>
 <script lang="ts" setup>
 import { withDefaults, provide } from 'vue';
+import { isNotEmptyArray } from '@/common/constants/utils';
 import { RiskVoItem, PremiumCalcData } from '@/api/modules/trial.data';
 import { PERSONAL_INFO_KEY } from '@/common/constants';
 import TrialPop from '@/views/baseInsurance/templates/components/TrialPop/index.vue';
@@ -48,15 +49,26 @@ provide(PERSONAL_INFO_KEY, {
 });
 
 // 将试算的数据转换成计划书的数据
-const formatData = (trialData: PremiumCalcData, riskPremium: any) => {
+const formatData = (trialData: PremiumCalcData, trialResult: any) => {
   const { holder, insuredList, productCode } = trialData || {};
   const { productList, ...personVO } = insuredList?.[0] || {};
   const { riskList: riskVOList, ...rest } = productList?.[0] || {};
+
+  const riskPremiumMap = isNotEmptyArray(trialResult?.riskPremiumDetailVOList)
+    ? trialResult?.riskPremiumDetailVOList.reduce((res, riskDetail: any) => {
+        res[riskDetail.riskCode] = {
+          initialPremium: riskDetail.initialPremium,
+          initialAmount: riskDetail.initialAmount,
+        };
+        return res;
+      }, {})
+    : {};
+
   const riskList = (riskVOList || []).map((risk: RiskVoItem) => {
     return {
       ...risk,
-      initialPremium: riskPremium[risk.riskCode]?.initialPremium,
-      initialAmount: riskPremium[risk.riskCode]?.initialAmount,
+      initialPremium: riskPremiumMap?.[risk.riskCode]?.initialPremium,
+      initialAmount: riskPremiumMap?.[risk.riskCode]?.initialAmount,
     };
   });
   // const proposalData = {

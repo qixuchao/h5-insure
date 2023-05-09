@@ -229,7 +229,7 @@ const sexLimit = computed(() => {
 
 // 性别限制仅显示配置的，无限制/男/女
 const sexList = computed(() => {
-  if (sexLimit.value === '-1') return SEX_LIMIT_LIST;
+  if (sexLimit.value === '-1' || !sexLimit.value) return SEX_LIMIT_LIST;
   return SEX_LIMIT_LIST.filter((item) => sexLimit.value === item.value);
 });
 
@@ -337,16 +337,8 @@ const trailProduct = (params) => {
         Toast(`${data?.errorInfo}`);
       }
 
-      const riskPremiumMap = {};
       if (isNotEmptyArray(data.riskPremiumDetailVOList)) {
-        data.riskPremiumDetailVOList.forEach((riskDetail: any) => {
-          riskPremiumMap[riskDetail.riskCode] = {
-            initialPremium: riskDetail.premium,
-            initialAmount: riskDetail.amount,
-          };
-        });
-        console.log('---combine = ', riskPremiumMap);
-        combineToProductList(trialPopupRef.value?.formatData(params, riskPremiumMap));
+        combineToProductList(trialPopupRef.value?.formatData(params, data));
       }
       setProductError(params.productCode);
       // 成功
@@ -374,40 +366,15 @@ const queryProductInfo = (searchData: any) => {
     .then(({ code, data }) => {
       if (code === '10000') {
         if (isNotEmptyArray(data)) {
-          Object.assign(
-            stateInfo.productCollection,
-            data.reduce((res, item) => {
-              res[item.productCode] = item;
-              return res;
-            }, {}),
-          );
+          data.reduce((res, item) => {
+            res[item.productCode] = item;
+            return res;
+          }, stateInfo.productCollection);
           console.log('stateInfo.productCollection = ', stateInfo.productCollection);
         }
       }
     })
     .finally(() => {});
-};
-
-// 获取计划书详情
-const queryProposalInfo = (params = {}) => {
-  queryProposalDetail(params).then(({ code, data }) => {
-    if (code === '10000' && data) {
-      const { insuredList, holder, proposalName } = data || {};
-      const [{ productList, ...insuredPersonVO }] = insuredList || [];
-      stateInfo.holder = holder;
-      stateInfo.insuredPersonVO = {
-        ...insuredPersonVO,
-        proposalName,
-      };
-      queryProductInfo(
-        productList.map((item) => ({
-          productCode: item.productCode,
-        })),
-      );
-      console.log('----query detail ', productList);
-      stateInfo.productList = productList;
-    }
-  });
 };
 
 // 获取试算默认值
@@ -456,6 +423,36 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
     }
   }
   // if (result.data) transformDefaultData(result.data.find((d) => d.productCode === props.productInfo.productCode));
+};
+
+// 获取计划书详情
+const queryProposalInfo = (params = {}) => {
+  queryProposalDetail(params).then(({ code, data }) => {
+    if (code === '10000' && data) {
+      const { insuredList, holder, proposalName } = data || {};
+      const [{ productList, ...insuredPersonVO }] = insuredList || [];
+      stateInfo.holder = holder;
+      stateInfo.insuredPersonVO = {
+        ...insuredPersonVO,
+        proposalName,
+      };
+      queryProductInfo(
+        productList.map((item) => ({
+          productCode: item.productCode,
+        })),
+      );
+      fetchDefaultData(
+        [
+          {
+            productCode: productList[0].productCode,
+          },
+        ],
+        true,
+      );
+      console.log('----query detail ', productList);
+      stateInfo.productList = productList;
+    }
+  });
 };
 
 /**
