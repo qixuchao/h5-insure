@@ -555,7 +555,7 @@ const calcDynamicInsureFactor = async (productCode) => {
 
       // 试算
       trailProduct(convertProposalToTrialData(productCode));
-      setProductError(productCode, message);
+      setProductError(productCode);
       // 成功
     } else {
       setProductError(productCode, message);
