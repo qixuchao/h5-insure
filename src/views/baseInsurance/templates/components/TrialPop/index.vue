@@ -37,21 +37,19 @@
           <van-icon name="cross" @click="state.show = false" />
         </div>
       </template>
-      <template #trialBtn="{ trialData, riskPremium }">
-        <slot name="trialBtn" :trial-data="state.submitData" :risk-premium="premiumMap">
-          <TrialButton
-            :is-share="currentShareInfo.isShare"
-            :premium="riskPremium?.premium"
-            :share-info="currentShareInfo"
-            :loading-text="state.trialMsg"
-            :plan-code="props.dataSource.planCode"
-            :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
-            :tenant-product-detail="tenantProductDetail"
-            :handle-share="onShare"
-            @handle-click="onNext(trialData)"
-            >立即投保</TrialButton
-          >
-        </slot>
+      <template #trialBtn="scope">
+        <TrialButton
+          :is-share="currentShareInfo.isShare"
+          :premium="scope.riskPremium?.premium"
+          :share-info="currentShareInfo"
+          :loading-text="state.trialMsg"
+          :plan-code="props.dataSource.planCode"
+          :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
+          :tenant-product-detail="tenantProductDetail"
+          :handle-share="(cb) => onShare(cb, scope.trialData)"
+          @handle-click="onNext(scope.trialData)"
+          >立即投保</TrialButton
+        >
       </template>
     </TrialBody>
   </ProPopup>
@@ -165,60 +163,50 @@ const orderDetail = useOrder();
 const iseeBizNo = ref<string>();
 const currentShareInfo = ref<any>();
 
-const trialData2Order = (
-  currentProductDetail: ProductData = {} as ProductData,
-  riskPremium = {},
-  currentOrderDetail = {},
-) => {
-  const nextStepParams: any = { ...currentOrderDetail };
-  const { tenantOrderHolder, tenantOrderInsuredList } = formData2Order({
-    holder: state.submitData.holder?.personVO,
-    insuredList: (state.submitData.insuredVOList || []).map((person) => person.personVO),
-  });
+const trialData2Order = (trialData, riskPremium = {}, currentOrderDetail = {}) => {
+  const nextStepParams: any = { ...currentOrderDetail, ...trialData };
 
-  console.log('submitData', state.submitData);
-  console.log('tenantOrderHolder', tenantOrderHolder);
-  console.log('tenantOrderInsuredList', tenantOrderInsuredList);
+  const riskPremiumMap = {};
+  const { riskPremiumDetailVOList = [], amount, premium = 0 } = riskPremium || {};
+  if (riskPremiumDetailVOList.length) {
+    riskPremiumDetailVOList.forEach((riskDetail: any) => {
+      riskPremiumMap[riskDetail.riskCode] = {
+        premium: riskDetail.premium,
+        amount: riskDetail.amount,
+      };
+    });
+  }
 
-  const riskList = state.submitData.insuredVOList.map((person) => person.productPlanVOList?.[0]?.riskVOList).flat();
-  const transformDataReq = {
-    tenantId,
-    riskList,
-    riskPremium,
-    productId: currentProductDetail.id,
-  };
-  nextStepParams.extInfo.iseeBizNo = iseeBizNo.value;
-  nextStepParams.productCode = currentProductDetail.productCode;
-  nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
-  nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
-  nextStepParams.premium = state.trialResultPremium;
-  nextStepParams.orderAmount = state.trialResultPremium;
-  nextStepParams.orderRealAmount = state.trialResultPremium;
+  nextStepParams.premium = premium;
+  nextStepParams.orderAmount = amount;
+  nextStepParams.orderRealAmount = amount;
 
-  nextStepParams.tenantOrderHolder = tenantOrderHolder;
-  nextStepParams.tenantOrderInsuredList = tenantOrderInsuredList.map((insurer: any) => {
+  nextStepParams.insuredList = (nextStepParams.insuredList || []).map((insurer: any) => {
     return {
       ...insurer,
       certType: insurer.certType || CERT_TYPE_ENUM.CERT,
       certNo: (insurer.certNo || '').toLocaleUpperCase(),
-      planCode: props.dataSource.planCode,
-      tenantOrderProductList: [
-        {
-          premium: state.trialResultPremium,
-          productCode: currentProductDetail.productCode,
-          productName: currentProductDetail.productName,
-          planCode: props.dataSource.planCode,
-          tenantOrderRiskList: transformData(transformDataReq),
-        },
-      ],
+      productList: insurer.productList.map((item) => ({
+        premium,
+        productCode: trialData.productCode,
+        productName: trialData.productName,
+        riskList: item.riskList.map((risk) => {
+          const { amount: initialAmount, premium: initialPremium } = riskPremiumMap[risk.riskCode];
+          return {
+            ...risk,
+            initialAmount,
+            initialPremium,
+            regularPremium: initialPremium,
+            totalPremium: premium,
+          };
+        }),
+      })),
     };
   });
-  console.log('nextStepParams', nextStepParams);
   return nextStepParams;
 };
 const premiumMap = ref();
 const onNext = (trialData) => {
-  state.submitData = trialData;
   if (preview) {
     jumpToNextPage(PAGE_CODE_ENUMS.TRIAL_PREMIUM, route.query);
     return;
@@ -233,7 +221,7 @@ const onNext = (trialData) => {
         templateId,
       },
     });
-    const currentOrderDetail = trialData2Order(props.productInfo, premiumMap.value, orderDetail.value);
+    const currentOrderDetail = trialData2Order(trialData, state.trialResult, orderDetail.value);
     nextStep(currentOrderDetail, (data, pageAction) => {
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
         pageJump(data.nextPageCode, { ...route.query, orderNo: data.orderNo });
@@ -247,7 +235,7 @@ const onNext = (trialData) => {
   }
 };
 
-const onShare = (cb) => {
+const onShare = (cb, trialData) => {
   if (state.trialResultPremium) {
     // 验证
     insureInfosRef.value?.validate().then(() => {
@@ -259,7 +247,7 @@ const onShare = (cb) => {
           templateId,
         },
       });
-      const currentOrderDetail = trialData2Order(props.productInfo, premiumMap.value, orderDetail.value);
+      const currentOrderDetail = trialData2Order(trialData, state.trialResult, orderDetail.value);
       nextStep(currentOrderDetail, (data, pageAction) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
           currentShareInfo.value.link = `${window.location.href}&isShare=1&orderNo=${data.orderNo}`;

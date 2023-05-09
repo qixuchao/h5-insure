@@ -46,41 +46,20 @@ export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
     tenantId,
     venderCode: insurerCode,
     insurerCode,
-    tenantOrderHolder: {
+    holder: {
       // 投保人
-      extInfo: {
-        occupationCodeList: [],
-      },
+      occupationCodeList: [],
     },
-    tenantOrderInsuredList: [
+    insuredList: [
       // 被保人信息
       {
-        relationToHolder: '1',
-        extInfo: {
-          occupationCodeList: [],
-        },
-        tenantOrderBeneficiaryList: [
-          {
-            extInfo: {},
-          },
-        ],
-        tenantOrderProductList: [{}],
+        relationToHolder: 1,
+        occupationCodeList: [],
+        tenantOrderBeneficiaryList: [],
+        productList: [],
       },
     ],
-    tenantOrderSubjectList: [
-      // 标的物信息
-      {
-        extInfo: {
-          subjectRelatedFirm: '',
-          subjectRelatedUserId: '',
-        },
-        subjectName: '',
-        subjectObjectType: 'HOLDER',
-        subjectType: 'GENERAL',
-        subjectNo: '',
-        tenantId,
-      },
-    ],
+    tenantOrderSubjectList: [],
     operateOption: {
       withBeneficiaryInfo: true,
       withHolderInfo: true,

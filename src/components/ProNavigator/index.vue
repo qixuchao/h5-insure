@@ -7,7 +7,7 @@
         <span>{{ `(${activeIndex + 1}/${list?.length})` }}</span>
         <ProSvg name="right_arrow" class="right-icon" />
       </div>
-      <div class="progress-line"></div>
+      <!-- <div class="progress-line"></div> -->
     </div>
     <van-popup v-model:show="visible" position="right" safe-area-inset-top class="navigation-popup">
       <div class="popup-body">

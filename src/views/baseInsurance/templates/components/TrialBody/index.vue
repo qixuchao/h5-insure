@@ -2,7 +2,9 @@
   <div class="com-body">
     <slot name="trialHead"></slot>
     <div class="trial-body">
-      <HeadWaring :labels="getRelationText(dataSource.insureProductRiskVOList, dataSource.productRiskRelationVOList)" />
+      <HeadWaring
+        :labels="getRelationText(dataSource?.insureProductRiskVOList || [], dataSource.productRiskRelationVOList)"
+      />
       <div class="container">
         <Benefit
           v-if="!hideBenefit"
@@ -44,7 +46,7 @@
         <div class="empty"></div>
       </div>
     </div>
-    <slot name="trialBtn" :trial-data="state.submitData" :risk-premium="premiumMap"></slot>
+    <slot name="trialBtn" :trial-data="state.submitData" :risk-premium="state.trialResult"></slot>
   </div>
 </template>
 
@@ -452,6 +454,7 @@ const handleMixTrialData = debounce(async () => {
   console.log('>>>>>调用试算<<<<<');
   if (state.ifPersonalInfoSuccess) {
     state.submitData.productCode = props.productInfo.productCode;
+    state.submitData.productName = props.productInfo.productName;
     state.submitData.tenantId = props.productInfo.tenantId;
     // TODO 处理同主险的相关数据
     state.riskList = state.riskList.map((trialRisk) => {
@@ -630,6 +633,7 @@ const transformDefaultData = (defaultData: any) => {
 };
 
 const fetchDefaultData = async (changes: []) => {
+  console.log('props.defaultData', props.defaultData);
   // TODO 加loading
   if (!props.defaultData) {
     const result = await queryCalcDefaultInsureFactor({
@@ -642,6 +646,7 @@ const fetchDefaultData = async (changes: []) => {
     });
     if (result.data) {
       const targetProduct = result.data.find((d) => d.productCode === props.productInfo.productCode) || result.data[0];
+      console.log('targetProduct', targetProduct);
       transformDefaultData(targetProduct);
     }
   } else {
