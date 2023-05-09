@@ -389,4 +389,5 @@ export * from './utils';
 // pro from
 export const PERSONAL_INFO_KEY: InjectionKey<{
   insuredFactorCodes: string[];
+  holderFactorCodes: string[];
 }> = Symbol('PERSONAL_INFO_KEY');

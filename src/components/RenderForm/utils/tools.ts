@@ -358,6 +358,8 @@ interface TransformConf {
   multiBeneficiaryMaxNum: number;
   /** 被保人仅显示的要素，仅用于计划书 */
   insuredFactorCodes: string[];
+  /** 被保人仅显示的要素，仅用于计划书 */
+  holderFactorCodes: string[];
 }
 
 /**
@@ -432,19 +434,29 @@ export const transformFactorToSchema = (
 
   const result = Object.keys(factorsMap).reduce((res, key) => {
     if (key !== 'insured') {
-      res[key] = transformToSchema(factorsMap[key], trialFactorCodes);
+      const schemaList = factorsMap[key];
+      const isHolder = key === 'holder';
+      // 计划书投保信息中试算因子做展示（仅限于出生日期、性别、社保、职业）
+      res[key] = transformToSchema(
+        isHolder && isNotEmptyArray(conf.holderFactorCodes)
+          ? schemaList.filter((item) => {
+              // 计划书被保人只展示职业/有无社保
+              return conf.holderFactorCodes.includes(item.code);
+            })
+          : schemaList,
+        trialFactorCodes,
+      );
     } else {
       // 被保人
       res[key] = isNotEmptyArray(finialInsured)
         ? finialInsured.map((insuredSchemaListItem) =>
             transformToSchema(
-              insuredSchemaListItem.filter((item) => {
-                // 计划书被保人只展示职业/有无社保
-                if (isNotEmptyArray(conf.insuredFactorCodes)) {
-                  return conf.insuredFactorCodes.includes(item.code);
-                }
-                return true;
-              }),
+              isNotEmptyArray(conf.insuredFactorCodes)
+                ? insuredSchemaListItem.filter((item) => {
+                    // 计划书被保人只展示职业/有无社保
+                    return conf.insuredFactorCodes.includes(item.code);
+                  })
+                : insuredSchemaListItem,
               trialFactorCodes,
             ),
           )
