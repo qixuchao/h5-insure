@@ -252,6 +252,10 @@ watch(
 watch(
   () => state.personVO?.relationToHolder,
   (val) => {
+    // 若投被保人关系为空则不执行
+    if (!val) {
+      return;
+    }
     colorConsole('与投保人关系变动了');
     const { personVO, schema = [], config } = state || {};
     // 投保人id不同步到被保人
@@ -294,7 +298,7 @@ watch(
       };
 
       // 非本人则清空数据
-      if (!isSelf && personVO.relationToHolder) {
+      if (!isSelf) {
         newPersonVo = {
           ...Object.keys(personVO).reduce((res, key) => {
             // 若只有证件类型为身份证
