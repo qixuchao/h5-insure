@@ -2,6 +2,7 @@
   <ProPageWrap>
     <div class="long-info-collection">
       <TrialBody
+        v-if="state.defaultValue"
         :data-source="currentPlanObj"
         :product-info="{
           productCode,
@@ -11,7 +12,7 @@
         }"
         :tenant-product-detail="tenantProductDetail"
         hide-benefit
-        :default-data="state.personalInfo"
+        :default-data="[state.defaultValue]"
         @trial-start="handleTrialStart"
         @trial-end="handleTrialEnd"
       ></TrialBody>
@@ -162,7 +163,7 @@ const state = reactive({
     config: [],
     formData: [],
   },
-  defaultValue: {},
+  defaultValue: null,
   isAutoChange: false,
 });
 
@@ -464,11 +465,9 @@ const initData = async () => {
             withProductInfo: true,
             withPayInfo: true,
           },
+          productCode,
         });
-
-        orderData2formData();
-        const trialData = orderData2trialData(data, insureProductDetail.value, '');
-        state.defaultValue = trialData;
+        state.defaultValue = orderDetail.value;
         isLoading.value = true;
       }
     });
