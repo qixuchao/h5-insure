@@ -1,12 +1,12 @@
 <template>
   <ProPageWrap>
     <div class="long-info-preview">
-      <InsureInfo :product-data="orderDetail.tenantOrderInsuredList?.[0]?.tenantOrderProductList?.[0]"></InsureInfo>
+      <InsureInfo :product-data="orderDetail.insuredList?.[0]?.productList?.[0]"></InsureInfo>
       <!-- 投保人/被保人/受益人 -->
       <PersonalInfo
         v-if="currentPlanObj?.productFactor"
         ref="personalInfoRef"
-        v-model="state.personalInfo"
+        v-model="personInfo"
         :product-factor="currentPlanObj?.productFactor"
         :multi-insured-config="currentPlanObj?.multiInsuredConfigVO"
         is-view
@@ -49,8 +49,6 @@ import {
   getTenantOrderDetail,
   underWriteRule,
 } from '@/api/modules/trial';
-import InsureInfos from './InsureInfos/index.vue';
-import ProductRiskList from './ProductRiskList/index.vue';
 
 import { InsureProductData, ProductPlanInsureVoItem } from '@/api/modules/product.data';
 import { ProductDetail, ProductDetail as ProductData } from '@/api/modules/newTrial.data';
@@ -177,13 +175,6 @@ const onSubmit = () => {
   }
 };
 
-const riskDefaultValue = ref<any>();
-
-const mainRiskInfo = computed(() => {
-  const { insureProductRiskVOList } = insureProductDetail.value?.productPlanInsureVOList?.[0] || {};
-  return (insureProductRiskVOList || []).find((risk) => risk.mainRiskFlag === YES_NO_ENUM.YES);
-}); //
-
 const shareRef = ref<InstanceType<typeof ProShare>>();
 const handleShare = () => {
   nextStep(orderDetail.value, (data, pageAction) => {
@@ -248,31 +239,12 @@ const queryProductMaterialData = () => {
   });
 };
 
-const orderData2formData = () => {
-  const personalInfo = {};
-  const { tenantOrderHolder, tenantOrderInsuredList } = orderDetail.value;
-  personalInfo.holder = {
-    personVO: {
-      ...tenantOrderHolder,
-      ...tenantOrderHolder.extInfo,
-    },
-  };
-  personalInfo.insuredVOList = (tenantOrderInsuredList || []).map((insuredPerson) => ({
-    personVO: {
-      ...insuredPerson,
-      ...insuredPerson.extInfo,
-      beneficiaryList: insuredPerson.tenantOrderBeneficiaryList.map((beneficPerson) => ({
-        personVO: beneficPerson,
-      })),
-    },
-  }));
-  state.personalInfo = personalInfo;
-};
-
 // 初始化数据，获取产品配置详情和产品详情
 const order = reactive({
   tenantOrderPayInfoList: [],
 });
+
+const personInfo = ref();
 const initData = async () => {
   querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
     if (code === '10000') {
@@ -291,7 +263,6 @@ const initData = async () => {
   orderNo &&
     getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
-        order.tenantOrderPayInfoList = data.tenantOrderPayInfoList;
         Object.assign(orderDetail.value, data, {
           tenantOrderPayInfoList: data.tenantOrderPayInfoList || [],
           operateOption: {
@@ -303,8 +274,7 @@ const initData = async () => {
             withPayInfo: true,
           },
         });
-
-        orderData2formData();
+        personInfo.value = data;
         isLoading.value = true;
       }
     });

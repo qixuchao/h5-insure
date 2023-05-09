@@ -2,21 +2,17 @@
   <div class="com-insured-part-wrapper">
     <ProCard title="保障信息">
       <div class="content-wrapper">
-        <div v-for="(riskInfo, index) in productData?.tenantOrderRiskList || []" :key="index" class="risk-item">
+        <div v-for="(riskInfo, index) in productData?.riskList || []" :key="index" class="risk-item">
           <p>{{ riskInfo.riskName }}</p>
-          <ProCell
-            title="保障期间"
-            :content="
-              compositionDesc(riskInfo.insurancePeriodValue, INSURANCE_PERIOD_TYPE_ENUMS[riskInfo.insurancePeriodType])
-            "
-          >
-          </ProCell>
-          <ProCell
-            title="交费期间"
-            :content="compositionDesc(riskInfo.paymentPeriod, PAYMENT_PERIOD_TYPE_ENUMS[riskInfo.paymentPeriodType])"
-          >
-          </ProCell>
+          <ProCell title="保障期间" :content="riskInfo.coveragePeriod"> </ProCell>
+          <ProCell title="交费期间" :content="riskInfo.chargePeriod"> </ProCell>
           <ProCell title="交费方式" :content="PAYMENT_FREQUENCY_MAP[riskInfo.paymentFrequency]"></ProCell>
+          <ProCell v-if="riskInfo.annuityDrawDate" title="年金领取时间" :content="riskInfo.annuityDrawDate"></ProCell>
+          <ProCell
+            v-if="riskInfo.annuityDrawFrequency"
+            title="年金领取方式"
+            :content="ANNUITY_DRAW_TYPE_MAP[riskInfo.annuityDrawFrequency]"
+          ></ProCell>
 
           <ProCell
             v-for="(liability, ind) in riskInfo.liabilityDetails"
@@ -49,6 +45,7 @@ import {
   PAYMENT_FREQUENCY_MAP,
   RISK_TYPE_ENUM,
 } from '@/common/constants/trial';
+import { ANNUITY_DRAW_TYPE_MAP } from '@/common/constants/infoCollection';
 
 interface Props {
   productData: any;
@@ -57,14 +54,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   productData: () => ({}),
 });
-
-// 根据保障期间和交费期间的value+type拼接出描述
-const compositionDesc = (value: number, desc: string) => {
-  if (desc.indexOf('$') !== -1) {
-    return desc.replace('$', `${value}`);
-  }
-  return `${value || ''}${desc}`;
-};
 </script>
 <style lang="scss" scoped>
 .com-insured-part-wrapper {

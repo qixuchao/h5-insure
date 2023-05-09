@@ -347,3 +347,25 @@ export const PREMIUM_UNIT_TYPE_ENUM = {
   MONTH_SALARY: '3', // 倍月薪
   MILLION: '4', // 万元
 };
+
+// 年金领取方式
+export const ANNUITY_DRAW_TYPE = [
+  {
+    value: '1',
+    label: '年',
+  },
+  {
+    value: '2',
+    label: '半年',
+  },
+  {
+    value: '3',
+    label: '季度',
+  },
+  {
+    value: '4',
+    label: '月度',
+  },
+];
+
+export const ANNUITY_DRAW_TYPE_MAP = constantListToMap(ANNUITY_DRAW_TYPE);

@@ -62,6 +62,7 @@
           tenantId,
           insurerCode,
         }"
+        :default-data="[orderDetail]"
         :tenant-product-detail="tenantProductDetail"
         :hide-benefit="insureProductDetail.openFlag !== 1"
       ></TrialPop>

@@ -15,7 +15,23 @@
         :default-data="[state.defaultValue]"
         @trial-start="handleTrialStart"
         @trial-end="handleTrialEnd"
-      ></TrialBody>
+      >
+        <template #trialBtn="scope">
+          <slot name="trialBtn" v-bind="scope">
+            <TrialButton
+              :is-share="shareInfo.isShare && !isShare"
+              :premium="scope.riskPremium?.initialPremium"
+              :share-info="shareInfo"
+              :loading-text="trialMsg"
+              :payment-frequency="riskVOList?.[0]?.paymentFrequency"
+              :tenant-product-detail="tenantProductDetail"
+              :handle-share="(cb) => onShare(cb, scope.trialData)"
+              @handle-click="onNext(scope.trialData)"
+              >下一步</TrialButton
+            >
+          </slot>
+        </template>
+      </TrialBody>
       <PayInfo
         v-if="state.payInfo.schema.length"
         ref="payInfoRef"
@@ -33,17 +49,6 @@
           @preview-file="(index) => previewFile(index)"
         />
       </ProLazyComponent>
-      <TrialButton
-        :is-share="shareInfo.isShare && !isShare"
-        :premium="trialResult"
-        :share-info="shareInfo"
-        :loading-text="trialMsg"
-        :payment-frequency="riskVOList?.[0]?.paymentFrequency"
-        :tenant-product-detail="tenantProductDetail"
-        :handle-share="handleShare"
-        @handle-click="onNext"
-        >下一步</TrialButton
-      >
 
       <FilePreview
         v-if="showFilePreview"
@@ -99,7 +104,7 @@ import {
   PAGE_ACTION_TYPE_ENUM,
   YES_NO_ENUM,
 } from '@/common/constants';
-import { formData2Order, orderData2trialData } from '../utils';
+import { formData2Order, orderData2trialData, trialData2Order } from '../utils';
 import { jumpToNextPage } from '@/utils';
 import TrialBody from '../components/TrialBody/index.vue';
 import { setGlobalTheme } from '@/hooks/useTheme';
@@ -247,53 +252,6 @@ const handleTrialEnd = (result: any) => {
   loading.value = false;
 };
 
-// 试算参数转化为生成订单参数
-const trialData2Order = (
-  currentProductDetail: ProductData = {} as ProductData,
-  riskPremium = {},
-  currentOrderDetail = {},
-) => {
-  const nextStepParams: any = { ...currentOrderDetail };
-  const { tenantOrderHolder, tenantOrderInsuredList } = formData2Order({
-    holder: state.personalInfo.holder?.personVO,
-    insuredList: (state.personalInfo.insuredVOList || []).map((person) => person.personVO),
-  });
-
-  const transformDataReq = {
-    tenantId,
-    riskList: riskVOList.value || [],
-    riskPremium,
-    productId: currentProductDetail.id,
-  };
-  nextStepParams.extInfo.iseeBizNo = iseeBizNo.value;
-  nextStepParams.productCode = currentProductDetail.productCode;
-  nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
-  nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
-  nextStepParams.premium = premium.value;
-  nextStepParams.orderAmount = premium.value;
-  nextStepParams.orderRealAmount = premium.value;
-
-  nextStepParams.tenantOrderHolder = tenantOrderHolder;
-  nextStepParams.tenantOrderInsuredList = tenantOrderInsuredList.map((insurer: any) => {
-    return {
-      ...insurer,
-      certType: insurer.certType || CERT_TYPE_ENUM.CERT,
-      certNo: (insurer.certNo || '').toLocaleUpperCase(),
-      planCode: currentPlanObj.value.planCode,
-      tenantOrderProductList: [
-        {
-          premium: premium.value,
-          productCode: currentProductDetail.productCode,
-          productName: currentProductDetail.productName,
-          planCode: currentPlanObj.value.planCode,
-          tenantOrderRiskList: transformData(transformDataReq),
-        },
-      ],
-    };
-  });
-  return nextStepParams;
-};
-
 const updateAttachment = (orderData) => {
   const { tenantOrderHolder, tenantOrderInsuredList, tenantOrderAttachmentList } = orderData;
   const currentAttachmentList = [...tenantOrderAttachmentList];
@@ -320,11 +278,12 @@ const updateAttachment = (orderData) => {
   });
 };
 
-const onNext = async () => {
+const onNext = async (trialData) => {
   if (preview) {
     jumpToNextPage(PAGE_CODE_ENUMS.INFO_COLLECTION, route.query);
     return;
   }
+
   if (!isAgree.value) {
     Toast('请勾选投保人阅读并接受');
     return;
@@ -338,7 +297,7 @@ const onNext = async () => {
         pageCode: PAGE_CODE_ENUMS.INFO_COLLECTION,
       },
     });
-    const currentOrderDetail = trialData2Order(insureProductDetail.value, premiumMap.value, orderDetail.value);
+    const currentOrderDetail = trialData2Order(trialData, trialResult.value, orderDetail.value);
 
     nextStep(currentOrderDetail, (data, pageAction) => {
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
@@ -350,7 +309,7 @@ const onNext = async () => {
 };
 
 // 分享时需要校验投保人手机号并且保存数据
-const handleShare = (cb) => {
+const onShare = (cb, trialData) => {
   personalInfoRef.value
     .validateHolder('mobile')
     .then(() => {
@@ -361,7 +320,7 @@ const handleShare = (cb) => {
           pageCode: PAGE_CODE_ENUMS.INFO_COLLECTION,
         },
       });
-      const currentOrderDetail = trialData2Order(insureProductDetail.value, premiumMap.value, orderDetail.value);
+      const currentOrderDetail = trialData2Order(trialData, trialResult.value, orderDetail.value);
 
       nextStep(currentOrderDetail, (data, pageAction) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
@@ -407,28 +366,6 @@ const queryProductMaterialData = () => {
       }
     }
   });
-};
-
-const orderData2formData = () => {
-  const personalInfo = {};
-  const { tenantOrderHolder, tenantOrderInsuredList } = orderDetail.value;
-  personalInfo.holder = {
-    personVO: {
-      ...tenantOrderHolder,
-      ...tenantOrderHolder.extInfo,
-    },
-  };
-  personalInfo.insuredVOList = (tenantOrderInsuredList || []).map((insuredPerson) => ({
-    personVO: {
-      ...insuredPerson,
-      ...insuredPerson.extInfo,
-      beneficiaryList: insuredPerson.tenantOrderBeneficiaryList.map((beneficPerson) => ({
-        personVO: beneficPerson,
-      })),
-    },
-  }));
-
-  Object.assign(state.personalInfo, personalInfo);
 };
 
 // 初始化数据，获取产品配置详情和产品详情

@@ -309,10 +309,7 @@ const getOrderDetail = (check = false) => {
     getTenantOrderDetail({ orderNo: orderCode || orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         if (check) {
-          if (
-            data?.tenantOrderHolder?.extInfo?.isCert === YES_NO_ENUM.NO ||
-            data?.tenantOrderInsuredList.some((x) => x.extInfo?.isCert === YES_NO_ENUM.NO)
-          ) {
+          if (data?.holder?.isCert === YES_NO_ENUM.NO || data?.insuredList.some((x) => x.isCert === YES_NO_ENUM.NO)) {
             Toast('用户未完身份认证及签字');
           } else if (
             !data?.tenantOrderAttachmentList.find(
@@ -330,8 +327,8 @@ const getOrderDetail = (check = false) => {
           }
         }
         Object.assign(orderDetail.value, data);
-        signPartInfo.value.holder.personalInfo = data.tenantOrderHolder;
-        signPartInfo.value.insured.personalInfo = data.tenantOrderInsuredList;
+        signPartInfo.value.holder.personalInfo = data.holder;
+        signPartInfo.value.insured.personalInfo = data.insuredList;
 
         data.tenantOrderAttachmentList.forEach((attachment) => {
           if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
@@ -375,7 +372,7 @@ const initData = () => {
   queryProductMaterial({ productCode }).then(({ code, data }) => {
     if (code === '10000') {
       const { productMaterialMap } = data.productInsureMaterialVOList?.[0] || {};
-      const signMaterialCollection = (Object.values(productMaterialMap) || [])
+      const signMaterialCollection = (Object.values(productMaterialMap || {}) || [])
         .flat()
         .filter((material: ProductMaterialVoItem) => material.materialType === MATERIAL_TYPE_ENUM.SIGN);
       signMaterialCollection.forEach((material: ProductMaterialVoItem) => {

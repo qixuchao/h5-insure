@@ -82,7 +82,7 @@ import { SUCCESS_CODE } from '@/api/code';
 import { PRODUCT_KEYS_CONFIG } from '../../long/InsureInfos/components/ProductKeys/config';
 import { dealExemptPeriod, getRelationText } from './utils';
 import useOrder from '@/hooks/useOrder';
-import { formData2Order } from '../../utils';
+import { formData2Order, trialData2Order } from '../../utils';
 import { ProductDetail, ProductDetail as ProductData } from '@/api/modules/newTrial.data';
 import { CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
 import { transformData } from '@/views/baseInsurance/utils';
@@ -165,55 +165,14 @@ const orderDetail = useOrder();
 const iseeBizNo = ref<string>();
 const currentShareInfo = ref<any>();
 
-const trialData2Order = (trialData, riskPremium = {}, currentOrderDetail = {}) => {
-  const nextStepParams: any = { ...currentOrderDetail, ...trialData };
-
-  const riskPremiumMap = {};
-  const { riskPremiumDetailVOList = [], initialPremium, initialAmount = 0 } = riskPremium || {};
-  if (riskPremiumDetailVOList.length) {
-    riskPremiumDetailVOList.forEach((riskDetail: any) => {
-      riskPremiumMap[riskDetail.riskCode] = {
-        initialAmount: riskDetail.initialAmount,
-        initialPremium: riskDetail.initialPremium,
-      };
-    });
-  }
-
-  nextStepParams.premium = initialPremium;
-  nextStepParams.orderAmount = initialAmount;
-  nextStepParams.orderRealAmount = initialAmount;
-
-  nextStepParams.insuredList = (nextStepParams.insuredList || []).map((insurer: any) => {
-    return {
-      ...insurer,
-      certType: insurer.certType || CERT_TYPE_ENUM.CERT,
-      certNo: (insurer.certNo || '').toLocaleUpperCase(),
-      productList: insurer.productList.map((item) => ({
-        initialPremium,
-        productCode: trialData.productCode,
-        productName: trialData.productName,
-        riskList: item.riskList.map((risk) => {
-          const { initialAmount: amount, initialPremium: premium } = riskPremiumMap[risk.riskCode];
-          return {
-            ...risk,
-            initialAmount: amount,
-            initialPremium: premium,
-            regularPremium: premium,
-            totalPremium: initialPremium,
-          };
-        }),
-      })),
-    };
-  });
-  return nextStepParams;
-};
 const premiumMap = ref();
 const onNext = (trialData) => {
   if (preview) {
     jumpToNextPage(PAGE_CODE_ENUMS.TRIAL_PREMIUM, route.query);
     return;
   }
-  if (state.trialResultPremium) {
+
+  if (state.trialResult.initialPremium) {
     // 验证
     Object.assign(orderDetail.value, {
       extInfo: {

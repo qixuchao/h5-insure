@@ -239,4 +239,46 @@ export const proposalToTrial = async (
   cb?.(targetData);
 };
 
+export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
+  const nextStepParams: any = { ...currentOrderDetail, ...trialData };
+
+  const riskPremiumMap = {};
+  const { riskPremiumDetailVOList = [], initialAmount, initialPremium = 0 } = riskPremium || {};
+  if (riskPremiumDetailVOList.length) {
+    riskPremiumDetailVOList.forEach((riskDetail: any) => {
+      riskPremiumMap[riskDetail.riskCode] = {
+        premium: riskDetail.initialPremium,
+        amount: riskDetail.initialAmount,
+      };
+    });
+  }
+
+  nextStepParams.premium = initialPremium;
+  nextStepParams.orderAmount = initialAmount;
+
+  nextStepParams.insuredList = (nextStepParams.insuredList || []).map((insurer: any) => {
+    return {
+      ...insurer,
+      certType: insurer.certType || CERT_TYPE_ENUM.CERT,
+      certNo: (insurer.certNo || '').toLocaleUpperCase(),
+      productList: insurer.productList.map((item) => ({
+        premium: initialPremium,
+        productCode: trialData.productCode,
+        productName: trialData.productName,
+        riskList: item.riskList.map((risk) => {
+          const { amount, premium } = riskPremiumMap[risk.riskCode];
+          return {
+            ...risk,
+            initialAmount: amount,
+            initialPremium: premium,
+            regularPremium: initialPremium,
+            totalPremium: initialPremium,
+          };
+        }),
+      })),
+    };
+  });
+  return nextStepParams;
+};
+
 export default {};

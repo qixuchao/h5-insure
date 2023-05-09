@@ -36,6 +36,7 @@
         ></InsureInfos>
         <!-- 以下是附加险种信息 -->
         <ProductRiskList
+          v-if="dataSource.insureProductRiskVOList"
           :data-source="dataSource"
           :show-main-risk="false"
           :default-value="
