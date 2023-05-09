@@ -30,24 +30,26 @@
 </template>
 <script lang="ts" setup name="ProductKeys">
 import { ref, watch, withDefaults } from 'vue';
-import { set, get } from 'lodash';
+import { set, get, cloneDeep } from 'lodash';
 import { RiskVoItem, ProductRiskInsureLimit, RiskDetailVoItem } from '@/api/modules/trial.data';
 import { PRODUCT_KEYS_CONFIG } from './config';
 
 // 参看CollapseItem组件
 interface Props {
   originData: ProductRiskInsureLimit;
-  modelValue: RiskVoItem;
+  modelValue: any;
   riskInfo: RiskDetailVoItem;
   defaultValue: any;
+  useData: any;
 }
 const emit = defineEmits(['trialChange', 'inputChange']);
 
 const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as ProductRiskInsureLimit),
-  modelValue: () => ({} as RiskVoItem),
+  modelValue: () => ({} as any),
   riskInfo: () => ({} as RiskDetailVoItem),
   defaultValue: () => ({} as any),
+  useData: () => ({} as any),
 });
 const mConfigs = ref(props.originData);
 const mValues = ref(props.modelValue);
@@ -88,7 +90,7 @@ onMounted(() => {
 watch(
   () => props.defaultValue,
   (v) => {
-    if (v?.riskCode) mValues.value = v;
+    if (v?.riskCode) mValues.value = JSON.parse(JSON.stringify(v));
   },
   {
     deep: true,

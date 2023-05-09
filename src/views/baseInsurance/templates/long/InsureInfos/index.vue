@@ -9,7 +9,8 @@
       @trial-change="handleBaoeBaofeiChange"
     ></BaoeBaofei>
     <ProductKeys
-      :v-model="mValues"
+      :v-model="state.sValues"
+      :use-data="state.sValues"
       :origin-data="originData.productRiskInsureLimitVO"
       :risk-info="originData"
       :default-value="state.defaultValues"
@@ -34,7 +35,7 @@
 import { inject, withDefaults } from 'vue';
 import { Toast } from 'vant/es';
 import { objectKeys } from '@antfu/utils';
-import { debounce } from 'lodash';
+import { cloneDeep, debounce } from 'lodash';
 import {
   INSURANCE_PERIOD_VALUE,
   PAYMENT_PERIOD_VALUE,
@@ -111,18 +112,22 @@ const handleMixData = (changeValue: any) => {
 };
 
 const handleProductKeysChange = (data, changeValue) => {
-  objectKeys(data).forEach((key) => {
-    mValues.value[key] = data[key];
-  });
+  if (!changeValue) {
+    objectKeys(data).forEach((key) => {
+      mValues.value[key] = data[key];
+    });
+  } else {
+    mValues.value[changeValue.key] = changeValue.newValue;
+  }
   handleMixData(changeValue);
 };
 
 const handleBaoeBaofeiChange = (data) => {
   // eslint-disable-next-line no-unsafe-optional-chaining
   if (+props.originData?.productRiskInsureLimitVO?.amountPremiumConfigVO.saleMethod === 1) {
-    state.basicsAmount = data?.amount;
+    state.basicsAmount = data?.initialAmount;
   } else {
-    state.basicsAmount = data?.premium;
+    state.basicsAmount = data?.initialPremium;
   }
   objectKeys(data).forEach((key) => {
     mValues.value[key] = data[key];
@@ -131,7 +136,6 @@ const handleBaoeBaofeiChange = (data) => {
 };
 const handleRiskLiabilityChange = (data) => {
   mValues.value.liabilityVOList = data;
-  console.log('>>>handleRiskLiabilityChange = ', mValues.value);
   handleMixData();
 };
 
