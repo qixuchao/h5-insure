@@ -109,7 +109,7 @@
     </VanField>
   </div>
 </template>
-<script lang="ts" setup>
+<script lang="ts" setup name="BaoeBaofei">
 import { ref, watch, withDefaults } from 'vue';
 import { cloneDeep } from 'lodash';
 import { RiskVoItem, RiskAmountPremiumConfig } from '@/api/modules/trial.data';

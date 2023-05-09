@@ -282,7 +282,7 @@ export interface ProductBasicInfoVo {
 
 export interface PremiumCalcData {
   holder?: Holder;
-  insuredVOList: Array<Partial<InsuredVoItem>>;
+  insuredList: Array<Partial<InsuredVoItem>>;
   productCode: string;
   productId?: number;
   tenantId?: string;
@@ -291,14 +291,14 @@ export interface PremiumCalcData {
 export interface InsuredVoItem {
   insuredCode: string;
   personVO: PersonVo;
-  productPlanVOList: Array<Partial<ProductPlanVoItem>>;
+  productList: Array<Partial<ProductPlanVoItem>>;
   relationToHolder?: string;
 }
 
 export interface ProductPlanVoItem {
   insurerCode: string;
   planCode: string;
-  riskVOList: Array<Partial<RiskVoItem>>;
+  riskList: Array<Partial<RiskVoItem>>;
 }
 
 export interface RiskVoItem {
@@ -617,7 +617,7 @@ export interface InsureLinkReq {
   agencyCode: string;
   agentCode: string;
   extraMap: {
-    [key: string]:	string
+    [key: string]: string
   };
   insurerCode: string;
   productCode: string;
@@ -627,9 +627,8 @@ export interface InsureLinkReq {
 /** 试算默认值 */
 export interface PlanTrialDefaultItem {
   holder: Partial<PersonVo>,
-  insuredVOList: {
-    personVO: Partial<PersonVo>;
-    productPlanVOList: ProductPlanVoItem[];
+  insuredList: Partial<PersonVo> & {
+    productList: ProductPlanVoItem[];
   }[];
   productCode: string;
 }

@@ -14,7 +14,7 @@ export const addOrUpdateProposal = (data: Partial<ProposalInfo>) =>
 
 // 获取计划书详情
 export const queryProposalDetail = (params = {} as any) =>
-  request<ResponseData>({ url: `/api/app/insure/proposal/queryProposalDetail/${params.id}`, method: 'GET' });
+  request<ProposalInfo>({ url: `/api/app/insure/proposal/queryProposalDetail/${params.id}`, method: 'GET' });
 
 // 获取计划书详情(无token)
 export const queryProposalDetailInsurer = (params = {} as any) =>

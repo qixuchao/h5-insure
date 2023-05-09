@@ -28,7 +28,7 @@
     </div>
   </template>
 </template>
-<script lang="ts" setup>
+<script lang="ts" setup name="ProductKeys">
 import { ref, watch, withDefaults } from 'vue';
 import { set, get } from 'lodash';
 import { RiskVoItem, ProductRiskInsureLimit, RiskDetailVoItem } from '@/api/modules/trial.data';

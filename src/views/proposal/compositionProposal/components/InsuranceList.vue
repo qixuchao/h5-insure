@@ -52,7 +52,7 @@ const columns = [
   },
   {
     title: '保额',
-    dataIndex: 'amount',
+    dataIndex: 'initialAmount',
   },
   {
     title: '保障期间',
@@ -66,7 +66,7 @@ const columns = [
   },
   {
     title: '保费',
-    dataIndex: 'premium',
+    dataIndex: 'initialPremium',
     width: 120,
   },
 ];
@@ -119,13 +119,13 @@ const getChargePay = (val: string) => {
 const setProposalProductRiskVOList = (dataList: Array<any>) => {
   const list: Array<any> = [];
   dataList?.forEach((item: any) => {
-    const { riskName, amount, coveragePeriod, chargePeriod, premium } = item;
+    const { riskName, initialAmount, coveragePeriod, chargePeriod, initialPremium } = item;
     list.push({
       riskName,
-      amount,
+      initialAmount,
       coveragePeriod: getCover(coveragePeriod),
       chargePeriod: getChargePay(chargePeriod),
-      premium,
+      initialPremium,
     });
   });
 

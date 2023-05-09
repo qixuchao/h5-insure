@@ -24,7 +24,6 @@
             :value="val.liabilityIndemnityContent"
           >
             <div v-html="val.liabilityDesc"></div>
-            <!-- {{ val.liabilityDesc }} -->
           </van-collapse-item>
         </van-collapse>
       </div>

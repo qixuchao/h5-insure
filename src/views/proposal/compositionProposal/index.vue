@@ -25,7 +25,7 @@
         <van-collapse v-model="activeName" :is-link="false" :border="false" size="middle">
           <van-collapse-item v-for="(item, i) in info?.insurerInfoVOList" :key="i" :name="i" value-class="price">
             <template #title>
-              <div><span class="poiner"></span> {{ item?.insurerName }}</div>
+              <div style="line-height: 36px"><span class="poiner"></span> {{ item?.insurerName }}</div>
             </template>
             {{ item.insurerDesc }}
           </van-collapse-item>
@@ -337,7 +337,7 @@ onMounted(() => {
       align-items: center;
       justify-content: space-between;
       padding-top: 34px;
-      margin-bottom: 30px;
+      // margin-bottom: 30px;
       font-weight: 500;
       color: #333333;
       .title {

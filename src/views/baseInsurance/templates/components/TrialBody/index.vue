@@ -2,7 +2,9 @@
   <div class="com-body">
     <slot name="trialHead"></slot>
     <div class="trial-body">
-      <HeadWaring :labels="getRelationText(dataSource.insureProductRiskVOList, dataSource.productRiskRelationVOList)" />
+      <HeadWaring
+        :labels="getRelationText(dataSource?.insureProductRiskVOList || [], dataSource.productRiskRelationVOList)"
+      />
       <div class="container">
         <Benefit
           v-if="!hideBenefit"
@@ -16,7 +18,7 @@
           v-if="dataSource.productFactor"
           ref="personalInfoRef"
           v-model="state.userData"
-          is-trial
+          :is-trial="isTrial"
           :product-factor="dataSource.productFactor"
           :multi-insured-config="dataSource?.multiInsuredConfigVO"
           @trail-change="handlePersonalInfoChange"
@@ -27,9 +29,7 @@
           :origin-data="dataSource.insureProductRiskVOList?.[0]"
           :product-factor="dataSource.productFactor"
           :default-value="
-            state.defaultValue
-              ? state.defaultValue?.insuredVOList[0].productPlanVOList[state.planIndex]?.riskVOList[0]
-              : null
+            state.defaultValue ? state.defaultValue?.insuredList[0].productList[state.planIndex]?.riskList[0] : null
           "
           :trial-result="state.trialResult"
           @trial-change="handleTrialInfoChange"
@@ -39,20 +39,18 @@
           :data-source="dataSource"
           :show-main-risk="false"
           :default-value="
-            state.defaultValue
-              ? state.defaultValue?.insuredVOList[0].productPlanVOList[state.planIndex]?.riskVOList
-              : []
+            state.defaultValue ? state.defaultValue?.insuredList[0].productList[state.planIndex]?.riskList : []
           "
           @trial-change="handleProductRiskInfoChange"
         ></ProductRiskList>
         <div class="empty"></div>
       </div>
     </div>
-    <slot name="trialBtn" :trial-data="state.submitData" :risk-premium="premiumMap"></slot>
+    <slot name="trialBtn" :trial-data="state.submitData" :risk-premium="state.trialResult"></slot>
   </div>
 </template>
 
-<script lang="ts" setup name="TrialPop">
+<script lang="ts" setup name="TrialBody">
 import { withDefaults, ref, defineExpose } from 'vue';
 import { Toast } from 'vant/es';
 import { cloneDeep, debounce } from 'lodash';
@@ -99,6 +97,7 @@ interface Props {
   hidePopupButton: boolean;
   title: string;
   defaultData: any;
+  isTrial: boolean;
 }
 
 const LOADING_TEXT = '试算中...';
@@ -128,6 +127,7 @@ const props = withDefaults(defineProps<Props>(), {
    */
   hidePopupButton: false,
   defaultData: null,
+  isTrial: false,
 });
 
 const state = reactive({
@@ -138,7 +138,7 @@ const state = reactive({
   userData: {} as RiskVoItem,
   riskIsInsure: {},
   submitData: {} as PremiumCalcData,
-  riskVOList: [{}] as Array<Partial<RiskVoItem>>,
+  riskList: [{}] as Array<Partial<RiskVoItem>>,
   mainRiskVO: {} as Partial<RiskVoItem>,
   ifPersonalInfoSuccess: false,
   trialMsg: '',
@@ -164,26 +164,18 @@ const currentShareInfo = ref<any>();
  * @param data
  */
 const handlePersonInfo = (data) => {
-  const { holder, insuredVOList } = data || {};
+  const { holder, insuredList } = data || {};
   if (holder) {
     state.submitData.holder = holder;
   }
-  if (insuredVOList && insuredVOList.length > 0) {
-    insuredVOList.forEach((ins, index) => {
-      if (state.submitData.insuredVOList && state.submitData.insuredVOList.length > index) {
-        state.submitData.insuredVOList[index].personVO = {
-          ...ins.personVO,
-          socialFlag: ins.personVO.hasSocialInsurance,
-        };
+  if (insuredList && insuredList.length > 0) {
+    insuredList.forEach((ins, index) => {
+      if (state.submitData.insuredList && state.submitData.insuredList.length > index) {
+        state.submitData.insuredList[index] = ins;
       } else {
         // new
-        if (!state.submitData?.insuredVOList) state.submitData.insuredVOList = [];
-        state.submitData.insuredVOList.push({
-          personVO: {
-            ...ins.personVO,
-            socialFlag: ins.personVO.hasSocialInsurance,
-          },
-        });
+        if (!state.submitData?.insuredList) state.submitData.insuredList = [];
+        state.submitData.insuredList.push(ins);
       }
     });
   }
@@ -196,10 +188,10 @@ const trialData2Order = (
 ) => {
   const nextStepParams: any = { ...currentOrderDetail };
   const { tenantOrderHolder, tenantOrderInsuredList } = formData2Order({
-    holder: state.submitData.holder?.personVO,
-    insuredList: (state.submitData.insuredVOList || []).map((person) => person.personVO),
+    holder: state.submitData.holder,
+    insuredList: state.submitData.insuredList || [],
   });
-  const riskList = state.submitData.insuredVOList.map((person) => person.productPlanVOList?.[0]?.riskVOList).flat();
+  const riskList = state.submitData.insuredList.map((person) => person.productList?.[0]?.riskList).flat();
   const transformDataReq = {
     tenantId,
     riskList,
@@ -324,7 +316,7 @@ const handleDealDyResult = (dyResult: any) => {
           ...risk.productRiskInsureLimitVO,
           ...newRisk,
         };
-        const riskTrialData = state.riskVOList.find((l) => l.riskCode === risk.riskCode);
+        const riskTrialData = state.riskList.find((l) => l.riskCode === risk.riskCode);
         let change = false;
         PRODUCT_KEYS_CONFIG.forEach((config) => {
           if (DYNAMIC_FACTOR_PARAMS.indexOf(config.valueKey) >= 0) {
@@ -349,19 +341,18 @@ const handleDealDyResult = (dyResult: any) => {
         }
       }
     });
-    if (defaultRiskData.length > 0 && state.defaultValue?.insuredVOList?.[0]?.productPlanVOList) {
+    if (defaultRiskData.length > 0 && state.defaultValue?.insuredList?.[0]?.productList) {
       // 给默认值
       defaultRiskData.forEach((data) => {
-        state.defaultValue.insuredVOList[0].productPlanVOList =
-          state.defaultValue?.insuredVOList?.[0]?.productPlanVOList.map((p) => {
-            p.riskVOList = p?.riskVOList.map((r) => {
-              if (r.riskCode === data.riskCode) {
-                r = data;
-              }
-              return r;
-            });
-            return p;
+        state.defaultValue.insuredList[0].productList = state.defaultValue?.insuredList?.[0]?.productList.map((p) => {
+          p.riskList = p?.riskList.map((r) => {
+            if (r.riskCode === data.riskCode) {
+              r = data;
+            }
+            return r;
           });
+          return p;
+        });
       });
       // state.defaultValue = cloneDeep(state.defaultValue);
       return false;
@@ -377,7 +368,7 @@ const handleSameMainRisk = (data: any) => {
     // 只处理非标准险种 根据关联关系找到他关联的主险
     const relation = props.dataSource?.productRiskRelationVOList?.find((r) => r.collocationRiskId === risk.riskId);
     if (relation) {
-      const mainRiskTrialData = state.riskVOList?.find((r) => r.riskId === relation.riskId);
+      const mainRiskTrialData = state.riskList?.find((r) => r.riskId === relation.riskId);
       PRODUCT_KEYS_CONFIG.forEach((config) => {
         if (config.ruleKey && risk.productRiskInsureLimitVO) {
           // 同主险，直接赋值当前key
@@ -463,26 +454,27 @@ const handleMixTrialData = debounce(async () => {
   console.log('>>>>>调用试算<<<<<');
   if (state.ifPersonalInfoSuccess) {
     state.submitData.productCode = props.productInfo.productCode;
+    state.submitData.productName = props.productInfo.productName;
     state.submitData.tenantId = props.productInfo.tenantId;
     // TODO 处理同主险的相关数据
-    state.riskVOList = state.riskVOList.map((trialRisk) => {
+    state.riskList = state.riskList.map((trialRisk) => {
       return handleSameMainRisk(trialRisk);
     });
     //  这里目前只有一个被保人，所以直接index0，后面需要用被保人code来区分
-    // state.submitData.insuredVOList[0].productPlanVOList = [
+    // state.submitData.insuredList[0].productList = [
     //   {
     //     insurerCode: props.productInfo.insurerCode,
     //     planCode: props.dataSource.planCode,
-    //     riskVOList: state.riskVOList,
+    //     riskList: state.riskList,
     //   },
     // ];
-    if (state.submitData.insuredVOList) {
-      state.submitData.insuredVOList.forEach((ins) => {
-        ins.productPlanVOList = [
+    if (state.submitData.insuredList) {
+      state.submitData.insuredList.forEach((ins) => {
+        ins.productList = [
           {
             insurerCode: props.productInfo.insurerCode,
             planCode: props.dataSource.planCode,
-            riskVOList: state.riskVOList,
+            riskList: state.riskList,
           },
         ];
       });
@@ -499,7 +491,7 @@ const handleMixTrialData = debounce(async () => {
 
 const handlePersonalInfoChange = async (data) => {
   // 只有改动第一个被保人，需要调用dy接口
-  const { insuredVOList, isFirstInsuredChange } = data;
+  const { insuredList, isFirstInsuredChange } = data;
 
   handlePersonInfo(data);
 
@@ -518,7 +510,7 @@ const handlePersonalInfoChange = async (data) => {
           ],
         },
       ],
-      ...insuredVOList[0].personVO,
+      ...insuredList[0],
     });
     if (!handleDealDyResult(dyResult)) return;
   }
@@ -553,7 +545,7 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
           break;
         }
       }
-      const persionVo = state.submitData?.insuredVOList?.[0].personVO;
+      const persionVo = state.submitData?.insuredList?.[0];
       const riskInfo = props.dataSource?.insureProductRiskVOList?.find((r) => r.riskCode === data.riskCode);
       if (!state.isAutoChange) {
         const dyResult = await queryCalcDynamicInsureFactor({
@@ -593,15 +585,15 @@ const handleTrialInfoChange = async (data: any, changeData: any) => {
   // TODO 这里未来需要看一下  多倍保人的情况，回传需要加入被保人的Index或者别的key
   const dyDeal = await handleDynamicConfig(data, changeData);
   if (!dyDeal) return;
-  if (state.riskVOList.length > 0) {
-    state.riskVOList[0] = data;
+  if (state.riskList.length > 0) {
+    state.riskList[0] = data;
   }
   console.log('标准险种的信息回传', data);
   handleMixTrialData();
 };
 
 const handleProductRiskInfoChange = async (dataList: any, changeData: any) => {
-  state.riskVOList = [state.mainRiskVO, ...dataList];
+  state.riskList = [state.mainRiskVO, ...dataList];
   console.log('附加险列表数据回传', dataList);
   if (changeData) {
     const targetRisk = dataList.find((d) => d.riskCode === changeData.riskCode);
@@ -621,7 +613,7 @@ const handleRestState = () => {
   state.userData = {} as RiskVoItem;
   state.riskIsInsure = {};
   state.submitData = {} as PremiumCalcData;
-  state.riskVOList = [{}] as Array<Partial<RiskVoItem>>;
+  state.riskList = [{}] as Array<Partial<RiskVoItem>>;
   state.mainRiskVO = {} as Partial<RiskVoItem>;
   state.ifPersonalInfoSuccess = false;
   state.trialMsg = '';
@@ -630,9 +622,10 @@ const handleRestState = () => {
 
 const transformDefaultData = (defaultData: any) => {
   // state.userData = defaultData;
+  console.log('------default data = ', defaultData);
   state.userData = defaultData;
   state.defaultValue = defaultData;
-  const currentPlanIndex = defaultData.insuredVOList[0].productPlanVOList.findIndex(
+  const currentPlanIndex = defaultData.insuredList[0].productList.findIndex(
     (p) => p.planCode === props.dataSource.planCode,
   );
   state.planIndex = currentPlanIndex === -1 ? 0 : currentPlanIndex;
@@ -640,6 +633,7 @@ const transformDefaultData = (defaultData: any) => {
 };
 
 const fetchDefaultData = async (changes: []) => {
+  console.log('props.defaultData', props.defaultData);
   // TODO 加loading
   if (!props.defaultData) {
     const result = await queryCalcDefaultInsureFactor({
@@ -652,6 +646,7 @@ const fetchDefaultData = async (changes: []) => {
     });
     if (result.data) {
       const targetProduct = result.data.find((d) => d.productCode === props.productInfo.productCode) || result.data[0];
+      console.log('targetProduct', targetProduct);
       transformDefaultData(targetProduct);
     }
   } else {

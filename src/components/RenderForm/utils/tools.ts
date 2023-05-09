@@ -291,9 +291,7 @@ export interface PersonalInfoConf {
 type FactorToSchemaResult = {
   config: PersonalInfoConf;
   insured: ModuleResult[];
-} & {
-  [x in ResultEnum]: ModuleResult;
-};
+} & { [x in ResultEnum]: ModuleResult };
 
 /**
  * 处理被保人 schema

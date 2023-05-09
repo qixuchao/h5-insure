@@ -23,6 +23,7 @@
     <TrialBody
       :data-source="dataSource"
       :share-info="shareInfo"
+      is-trial
       :product-info="productInfo"
       :tenant-product-detail="tenantProductDetail"
       :hide-benefit="hideBenefit"
@@ -33,23 +34,21 @@
       <template #trialHead>
         <div class="header">
           <span class="header-title">{{ title }}</span>
-          <!-- <van-icon name="cross" style="color: black" @click="state.loading = false" /> -->
-          <!-- <van-icon :name="cancelIcon" @click="state.show = false" /> -->
           <van-icon name="cross" @click="state.show = false" />
         </div>
       </template>
-      <template #trialBtn="slotProps">
-        <slot name="trialBtn" v-bind="slotProps">
+      <template #trialBtn="scope">
+        <slot name="trialBtn" v-bind="scope">
           <TrialButton
             :is-share="currentShareInfo.isShare"
-            :premium="state.trialResultPremium"
+            :premium="scope.riskPremium?.premium"
             :share-info="currentShareInfo"
             :loading-text="state.trialMsg"
             :plan-code="props.dataSource.planCode"
             :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
             :tenant-product-detail="tenantProductDetail"
-            :handle-share="onShare"
-            @handle-click="onNext"
+            :handle-share="(cb) => onShare(cb, scope.trialData)"
+            @handle-click="onNext(scope.trialData)"
             >立即投保</TrialButton
           >
         </slot>
@@ -166,84 +165,79 @@ const orderDetail = useOrder();
 const iseeBizNo = ref<string>();
 const currentShareInfo = ref<any>();
 
-const trialData2Order = (
-  currentProductDetail: ProductData = {} as ProductData,
-  riskPremium = {},
-  currentOrderDetail = {},
-) => {
-  const nextStepParams: any = { ...currentOrderDetail };
-  const { tenantOrderHolder, tenantOrderInsuredList } = formData2Order({
-    holder: state.submitData.holder?.personVO,
-    insuredList: (state.submitData.insuredVOList || []).map((person) => person.personVO),
-  });
-  const riskList = state.submitData.insuredVOList.map((person) => person.productPlanVOList?.[0]?.riskVOList).flat();
-  const transformDataReq = {
-    tenantId,
-    riskList,
-    riskPremium,
-    productId: currentProductDetail.id,
-  };
-  nextStepParams.extInfo.iseeBizNo = iseeBizNo.value;
-  nextStepParams.productCode = currentProductDetail.productCode;
-  nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
-  nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
-  nextStepParams.premium = state.trialResultPremium;
-  nextStepParams.orderAmount = state.trialResultPremium;
-  nextStepParams.orderRealAmount = state.trialResultPremium;
+const trialData2Order = (trialData, riskPremium = {}, currentOrderDetail = {}) => {
+  const nextStepParams: any = { ...currentOrderDetail, ...trialData };
 
-  nextStepParams.tenantOrderHolder = tenantOrderHolder;
-  nextStepParams.tenantOrderInsuredList = tenantOrderInsuredList.map((insurer: any) => {
+  const riskPremiumMap = {};
+  const { riskPremiumDetailVOList = [], amount, premium = 0 } = riskPremium || {};
+  if (riskPremiumDetailVOList.length) {
+    riskPremiumDetailVOList.forEach((riskDetail: any) => {
+      riskPremiumMap[riskDetail.riskCode] = {
+        premium: riskDetail.premium,
+        amount: riskDetail.amount,
+      };
+    });
+  }
+
+  nextStepParams.premium = premium;
+  nextStepParams.orderAmount = amount;
+  nextStepParams.orderRealAmount = amount;
+
+  nextStepParams.insuredList = (nextStepParams.insuredList || []).map((insurer: any) => {
     return {
       ...insurer,
       certType: insurer.certType || CERT_TYPE_ENUM.CERT,
       certNo: (insurer.certNo || '').toLocaleUpperCase(),
-      planCode: props.dataSource.planCode,
-      tenantOrderProductList: [
-        {
-          premium: state.trialResultPremium,
-          productCode: currentProductDetail.productCode,
-          productName: currentProductDetail.productName,
-          planCode: props.dataSource.planCode,
-          tenantOrderRiskList: transformData(transformDataReq),
-        },
-      ],
+      productList: insurer.productList.map((item) => ({
+        premium,
+        productCode: trialData.productCode,
+        productName: trialData.productName,
+        riskList: item.riskList.map((risk) => {
+          const { amount: initialAmount, premium: initialPremium } = riskPremiumMap[risk.riskCode];
+          return {
+            ...risk,
+            initialAmount,
+            initialPremium,
+            regularPremium: initialPremium,
+            totalPremium: premium,
+          };
+        }),
+      })),
     };
   });
-  console.log('nextStepParams', nextStepParams);
   return nextStepParams;
 };
 const premiumMap = ref();
-const onNext = () => {
+const onNext = (trialData) => {
   if (preview) {
     jumpToNextPage(PAGE_CODE_ENUMS.TRIAL_PREMIUM, route.query);
     return;
   }
   if (state.trialResultPremium) {
     // 验证
-    insureInfosRef.value?.validate().then(() => {
-      Object.assign(orderDetail.value, {
-        extInfo: {
-          ...orderDetail.value.extInfo,
-          buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
-          pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
-          templateId,
-        },
-      });
-      const currentOrderDetail = trialData2Order(props.productInfo, premiumMap.value, orderDetail.value);
-      nextStep(currentOrderDetail, (data, pageAction) => {
-        if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-          pageJump(data.nextPageCode, { ...route.query, orderNo: data.orderNo });
-        }
-      });
-      console.log('---- validate success ----');
+    Object.assign(orderDetail.value, {
+      extInfo: {
+        ...orderDetail.value.extInfo,
+        buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
+        pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
+        templateId,
+      },
     });
+    const currentOrderDetail = trialData2Order(trialData, state.trialResult, orderDetail.value);
+    nextStep(currentOrderDetail, (data, pageAction) => {
+      if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+        pageJump(data.nextPageCode, { ...route.query, orderNo: data.orderNo });
+      }
+    });
+    console.log('---- validate success ----');
+
     state.loading = false;
     state.show = true;
     state.isAniShow = true;
   }
 };
 
-const onShare = (cb) => {
+const onShare = (cb, trialData) => {
   if (state.trialResultPremium) {
     // 验证
     insureInfosRef.value?.validate().then(() => {
@@ -255,7 +249,7 @@ const onShare = (cb) => {
           templateId,
         },
       });
-      const currentOrderDetail = trialData2Order(props.productInfo, premiumMap.value, orderDetail.value);
+      const currentOrderDetail = trialData2Order(trialData, state.trialResult, orderDetail.value);
       nextStep(currentOrderDetail, (data, pageAction) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
           currentShareInfo.value.link = `${window.location.href}&isShare=1&orderNo=${data.orderNo}`;
@@ -472,61 +466,6 @@ const handleMixTrialData = debounce(async () => {
     await handleTrialAndBenefit(submitDataCopy);
   }
 }, 300);
-
-const handlePersonalInfoChange = async (data) => {
-  // 只有改动第一个被保人，需要调用dy接口
-  const { holder, insuredVOList, isFirstInsuredChange } = data;
-  if (holder) {
-    state.submitData.holder = holder;
-    // console.log('------', holder);
-    // state.submitData.holder = {
-    //   personVO: {
-    //     ...holder,
-    //     socialFlag: holder.hasSocialInsurance,
-    //   },
-    // };
-  }
-  if (insuredVOList && insuredVOList.length > 0) {
-    insuredVOList.forEach((ins, index) => {
-      if (state.submitData.insuredVOList && state.submitData.insuredVOList.length > index) {
-        state.submitData.insuredVOList[index].personVO = {
-          ...ins.personVO,
-          socialFlag: ins.personVO.hasSocialInsurance,
-        };
-      } else {
-        // new
-        if (!state.submitData?.insuredVOList) state.submitData.insuredVOList = [];
-        state.submitData.insuredVOList.push({
-          personVO: {
-            ...ins.personVO,
-            socialFlag: ins.personVO.hasSocialInsurance,
-          },
-        });
-      }
-    });
-  }
-  state.ifPersonalInfoSuccess = true;
-  if (isFirstInsuredChange) {
-    console.log('处理第一被保人修改的dy变化');
-    const dyResult = await queryCalcDynamicInsureFactor({
-      calcProductFactorList: [
-        {
-          planCode: props.dataSource.planCode,
-          productCode: props.productInfo.productCode,
-          riskEditVOList: [
-            {
-              insureProductRiskVO: props.dataSource.insureProductRiskVOList?.[0],
-            },
-          ],
-        },
-      ],
-      ...insuredVOList[0].personVO,
-    });
-    if (!handleDealDyResult(dyResult)) return;
-  }
-  console.log('投被保人的信息回传 ', state.submitData, data);
-  handleMixTrialData();
-};
 
 const handleDynamicConfig = async (data: any, changeData: any) => {
   if (changeData) {

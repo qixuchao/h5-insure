@@ -6,7 +6,7 @@ export const dealExemptPeriod = (riderRisk: RiskDetailVoItem, mainRiskValue: str
   // 豁免险处理逻辑
   const riskItem = riderRisk;
   const { holder } = trialData;
-  const insured = trialData.insuredVOList[0];
+  const insured = trialData.insuredList[0];
   const paymentYear: Array<string | number> = (mainRiskValue || '').split('_');
   if (paymentYear.length < 2) {
     return mainRiskValue;
