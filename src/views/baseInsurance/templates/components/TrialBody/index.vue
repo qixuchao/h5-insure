@@ -144,8 +144,8 @@ const state = reactive({
   trialMsg: '',
   trialResultPremium: 0,
   trialResult: {
-    premium: 0,
-    amount: 0,
+    initialPremium: 0,
+    initialAmount: 0,
   },
   isAniShow: false,
   defaultValue: null, // 是一个plan
@@ -202,7 +202,7 @@ const trialData2Order = (
   nextStepParams.productCode = currentProductDetail.productCode;
   nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
   nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
-  nextStepParams.premium = state.trialResultPremium;
+  nextStepParams.initialPremium = state.trialResultPremium;
   nextStepParams.orderAmount = state.trialResultPremium;
   nextStepParams.orderRealAmount = state.trialResultPremium;
 
@@ -215,7 +215,7 @@ const trialData2Order = (
       planCode: props.dataSource.planCode,
       tenantOrderProductList: [
         {
-          premium: state.trialResultPremium,
+          initialPremium: state.trialResultPremium,
           productCode: currentProductDetail.productCode,
           productName: currentProductDetail.productName,
           planCode: props.dataSource.planCode,
@@ -427,15 +427,15 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
             Toast(`${res?.data?.errorInfo}`);
           }
           state.trialMsg = '';
-          state.trialResultPremium = res.data.premium;
+          state.trialResultPremium = res.data.initialPremium;
           state.trialResult = res.data;
 
           const riskPremiumMap = {};
           if (res.data.riskPremiumDetailVOList && res.data.riskPremiumDetailVOList.length) {
             res.data.riskPremiumDetailVOList.forEach((riskDetail: any) => {
               riskPremiumMap[riskDetail.riskCode] = {
-                premium: riskDetail.premium,
-                amount: riskDetail.amount,
+                initialPremium: riskDetail.initialPremium,
+                initialAmount: riskDetail.initialAmount,
               };
             });
           }

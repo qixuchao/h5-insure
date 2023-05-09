@@ -41,7 +41,7 @@
         <slot name="trialBtn" v-bind="scope">
           <TrialButton
             :is-share="currentShareInfo.isShare"
-            :premium="scope.riskPremium?.premium"
+            :premium="scope.riskPremium?.initialPremium"
             :share-info="currentShareInfo"
             :loading-text="state.trialMsg"
             :plan-code="props.dataSource.planCode"

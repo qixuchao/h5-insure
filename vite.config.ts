@@ -44,9 +44,9 @@ export default defineConfig((env) => {
           // target: 'http://190116-zat-planet-gateway.test.za-tech.net',
           // target: 'https://gateway-tst.ennejb.cn',
           // target: 'https://h5-test.ennejb.cn',http://177716-zat-planet-gateway.test.za-tech.net/
-          // target: 'http://190116-zat-planet-gateway.test.za-tech.net',
+          target: 'http://190116-zat-planet-gateway.test.za-tech.net',
           // target: 'https://zat-planet-h5-cloud-insure-test.zhongan.io',
-          target: 'http://zat-planet-gateway.test.za-tech.net',
+          // target: 'http://zat-planet-gateway.test.za-tech.net',
           changeOrigin: true, // 允许跨域
           secure: false,
           // headers: {
