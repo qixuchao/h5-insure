@@ -24,7 +24,6 @@
       :is-view="isView"
       :multi-beneficiary-num="state.config.multiBeneficiaryMaxNum"
     >
-      <!-- @update:beneficiary-list="updateBeneficiaryList($event, index)" -->
       <span
         v-if="!isView && index + 1 > state.config.multiInsuredMinNum"
         class="delete-button"
