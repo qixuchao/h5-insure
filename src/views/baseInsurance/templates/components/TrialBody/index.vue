@@ -189,7 +189,7 @@ const trialData2Order = (
   const nextStepParams: any = { ...currentOrderDetail };
   const { tenantOrderHolder, tenantOrderInsuredList } = formData2Order({
     holder: state.submitData.holder,
-    insuredList: (state.submitData.insuredList || []).map((person) => person),
+    insuredList: state.submitData.insuredList || [],
   });
   const riskList = state.submitData.insuredList.map((person) => person.productList?.[0]?.riskList).flat();
   const transformDataReq = {

@@ -66,7 +66,7 @@ export const colorConsole = (str) => console.log(`%c🔥 ${str}`, 'color:#1989fa
 /** 验证试算因子是否全部有值 */
 export const validateFields = (state) => {
   // 没有试算因子则不进行试算
-  const { trialFactorCodes, ...personVO } = state || {};
+  const { trialFactorCodes, personVO } = state || {};
   const hasTrialFactor = isNotEmptyArray(trialFactorCodes);
   if (!hasTrialFactor) {
     return true;

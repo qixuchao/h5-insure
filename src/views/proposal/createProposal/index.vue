@@ -63,8 +63,7 @@
         >总保费<span class="result-num">{{ !submitDisable ? `￥${totalPremium?.toLocaleString()}` : '-' }}</span>
       </span>
       <div class="trial-operate">
-        <!-- <VanButton :disabled="submitDisable" type="primary" @click="saveProposalData">保存并预览</VanButton> -->
-        <VanButton type="primary" @click="saveProposalData">保存并预览</VanButton>
+        <VanButton :disabled="submitDisable" type="primary" @click="saveProposalData">保存并预览</VanButton>
       </div>
     </div>
     <!-- <ProductRisk
@@ -175,13 +174,6 @@ const store = createProposalStore();
 const { productCode: productCodeInQuery, id }: { productCode?: string; id?: string } = route.query;
 
 const trialFieldkeys = ['age', 'gender', 'birthday'];
-
-const hiddenFieldKeys = ['name', ...trialFieldkeys].reduce((res, key) => {
-  res[key] = {
-    hidden: true,
-  };
-  return res;
-}, {});
 
 const trialPopupRef = ref(null);
 
@@ -330,6 +322,11 @@ const addProduct = () => {
   });
 };
 
+// 设置产品错误信息
+const setProductError = (productCode, msg = '') => {
+  stateInfo.productErrorMap[productCode] = msg;
+};
+
 const trailProduct = (params) => {
   console.log('-----trailProduct = ', params);
   premiumCalc(params, {
@@ -351,10 +348,10 @@ const trailProduct = (params) => {
         console.log('---combine = ', riskPremiumMap);
         combineToProductList(trialPopupRef.value?.formatData(params, riskPremiumMap));
       }
-      stateInfo.productErrorMap[params.productCode] = '';
+      setProductError(params.productCode);
       // 成功
     } else {
-      stateInfo.productErrorMap[params.productCode] = message;
+      setProductError(params.productCode, message);
     }
   });
 };
@@ -446,7 +443,7 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
         // 初次调用
         if (flag) {
           Object.assign(stateInfo.insuredPersonVO, personVO);
-          Object.assign(stateInfo.holder, holder?.personVO);
+          Object.assign(stateInfo.holder, holder);
         }
         const currentIndex = currentProductCodeList.value.findIndex((codeItem) => codeItem === productCode);
         if (currentIndex > -1) {
@@ -521,7 +518,6 @@ const convertProposalToTrialData = (productCode) => {
     insuredList: [
       {
         ...stateInfo.insuredPersonVO,
-        config: hiddenFieldKeys,
         productList: [
           {
             ...rest,
@@ -562,10 +558,10 @@ const calcDynamicInsureFactor = async (productCode) => {
 
       // 试算
       trailProduct(convertProposalToTrialData(productCode));
-      stateInfo.productErrorMap[productCode] = '';
+      setProductError(productCode, message);
       // 成功
     } else {
-      stateInfo.productErrorMap[productCode] = message;
+      setProductError(productCode, message);
     }
   } catch (e) {
     console.log('Error', e);
@@ -583,6 +579,7 @@ const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
     } else {
       currentProduct.riskList = currentProduct.riskList.filter((risk) => risk.riskId !== riskInfo.riskId);
     }
+    setProductError(currentProduct.productCode);
   });
 };
 

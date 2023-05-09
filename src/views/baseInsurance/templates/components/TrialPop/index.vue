@@ -38,18 +38,20 @@
         </div>
       </template>
       <template #trialBtn="scope">
-        <TrialButton
-          :is-share="currentShareInfo.isShare"
-          :premium="scope.riskPremium?.premium"
-          :share-info="currentShareInfo"
-          :loading-text="state.trialMsg"
-          :plan-code="props.dataSource.planCode"
-          :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
-          :tenant-product-detail="tenantProductDetail"
-          :handle-share="(cb) => onShare(cb, scope.trialData)"
-          @handle-click="onNext(scope.trialData)"
-          >立即投保</TrialButton
-        >
+        <slot name="trialBtn" v-bind="scope">
+          <TrialButton
+            :is-share="currentShareInfo.isShare"
+            :premium="scope.riskPremium?.premium"
+            :share-info="currentShareInfo"
+            :loading-text="state.trialMsg"
+            :plan-code="props.dataSource.planCode"
+            :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
+            :tenant-product-detail="tenantProductDetail"
+            :handle-share="(cb) => onShare(cb, scope.trialData)"
+            @handle-click="onNext(scope.trialData)"
+            >立即投保</TrialButton
+          >
+        </slot>
       </template>
     </TrialBody>
   </ProPopup>

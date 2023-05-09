@@ -245,14 +245,14 @@ watch(
     () => state.holder?.personVO,
     () =>
       state.insured.map((insuredItem) => {
-        const { beneficiaryList: list, ...insuredItemRest } = insuredItem || {};
+        const { beneficiaryList: list, personVO } = insuredItem || {};
         const beneficiaryList = isNotEmptyArray(list)
           ? list.map((beneficiaryItem) => ({
-              personVO: beneficiaryItem,
+              ...beneficiaryItem.personVO,
             }))
           : [];
         return {
-          personVO: filterFormData(insuredItemRest),
+          ...personVO,
           beneficiaryList,
         };
       }),
@@ -274,19 +274,18 @@ watch(
     }
 
     // TODO: 主要被保人变动
-    // const isFirstInsuredChange =
-    //   JSON.stringify(insuredList?.[0]?.personVO) !== JSON.stringify(filterFormData(props.modelValue?.insuredList?.[0]));
+    const isFirstInsuredChange =
+      JSON.stringify(insuredList?.[0]?.personVO) !== filterFormData(props.modelValue?.insuredList?.[0]);
 
-    // result.isFirstInsuredChange = isFirstInsuredChange;
+    result.isFirstInsuredChange = isFirstInsuredChange;
 
     emit('update:modelValue', result);
-
-    // // 没有试算因子调用试算
+    // 验证通过调用试算
     // if (!state.config.hasTrialFactorCodes) {
     //   emit('trailChange', result);
     //   return false;
     // }
-
+    debugger;
     if (!validateTrialFields()) {
       state.trialValidated = false;
       return emit('trailValidateFailed', result);
@@ -377,22 +376,32 @@ watch(
       props.isView || propsInsuredLen > stateInsuredLen
         ? propsInsuredLen
         : stateInsuredLen || state.config.multiInsuredMinNum;
-
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
-      const { config = {}, ...insuredRest } = insuredList?.[index] || {};
+      const { personVO, config = {} } = insuredList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
 
-      const formData = filterFormData(insuredRest);
       if (!res[index]) {
         res[index] = {
           ...initInsuredTempData,
-          personVO: formData,
+          personVO,
           config,
           nanoid: nanoid(),
         };
       } else {
-        Object.assign(res[index]?.personVO, formData);
-        Object.assign(res[index]?.config, config);
+        merge(res[index], {
+          personVO,
+          config,
+        });
+        // if (res[index]?.personVO) {
+        //   Object.assign(res[index]?.personVO, personVO);
+        // } else {
+        //   res[index].personVO = personVO;
+        // }
+        // if (res[index]?.config) {
+        //   Object.assign(res[index]?.config, config);
+        // } else {
+        //   res[index].config = config;
+        // }
       }
       return res;
     }, state.insured) as InsuredListProps;
