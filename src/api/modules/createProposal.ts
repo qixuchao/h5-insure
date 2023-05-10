@@ -18,7 +18,7 @@ export const queryProposalDetail = (params = {} as any) =>
 
 // 获取计划书详情(无token)
 export const queryProposalDetailInsurer = (params = {} as any) =>
-  request<ResponseData<any>>({
+  request<ProposalInfo>({
     url: `/api/app/insure/proposal/queryProposalDetailInsurer/${params.id}`,
     params,
     method: 'GET',

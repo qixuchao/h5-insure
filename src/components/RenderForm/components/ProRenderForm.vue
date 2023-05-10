@@ -43,6 +43,8 @@ interface Props {
   schema?: SchemaItem[];
   config?: object;
   markRequired?: boolean;
+  /** 额外Provide  */
+  extraProvision: object;
 }
 
 const emits = defineEmits(['failed']);
@@ -72,6 +74,7 @@ provide(VAN_PRO_FORM_KEY, {
   formState: state,
   formRef,
   markRequired: props.markRequired,
+  ...props.extraProvision,
 });
 
 // 非默认 slots

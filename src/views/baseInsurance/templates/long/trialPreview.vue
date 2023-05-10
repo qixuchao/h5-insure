@@ -209,8 +209,7 @@ const transformData = (riskList: RiskVoItem[], riskPremium) => {
     const currentRisk = {
       initialAmount: riskPremium[risk.riskCode]?.amount,
       amountUnit: 1,
-      annuityDrawFrequency: risk.annuityDrawDate,
-      annuityDrawType: risk.annuityDrawType,
+      annuityDrawFrequency: risk.annuityDrawFrequency,
       paymentFrequency: risk.paymentFrequency,
       paymentPeriod: risk.chargePeriod.split('_')[1],
       paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],

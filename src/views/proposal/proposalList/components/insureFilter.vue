@@ -25,7 +25,10 @@
         :show="isPopShow"
         position="right"
         close-on-click-overlay
-        :style="popupStyle || { width: '322px', height: '100%', padding: '0 15px' }"
+        teleport="body"
+        class="proposal-list-filter-popup-wrap"
+        :overlay-style="{ 'z-index': 5000 }"
+        :style="popupStyle || { width: '322px', height: '100%', padding: '0 15px', 'z-index': 5000 }"
         @click-overlay="closePop"
       >
         <div class="popup-inner">
@@ -223,28 +226,28 @@ onBeforeMount(() => {
       }
     }
   }
-  .van-popup {
-    position: relative;
-    .popup-inner {
-      padding-left: 0;
-      .popup-title {
-        height: 42px;
-        margin-top: 32px;
-        margin-bottom: 24px;
-        color: #343434;
-        font-weight: 500;
-        font-size: $zaui-font-size-lg;
-        font-family: PingFangSC-Medium, PingFang SC;
-        line-height: 42px;
-        padding: 0;
-        justify-content: flex-start;
-        border: 0;
-      }
-      :deep(.com-radio-btn) {
-        justify-content: flex-start;
-        .com-check-btn {
-          margin: 0 12px 10px 0;
-        }
+}
+.proposal-list-filter-popup-wrap.van-popup {
+  position: relative;
+  .popup-inner {
+    padding-left: 0;
+    .popup-title {
+      height: 42px;
+      margin-top: 32px;
+      margin-bottom: 24px;
+      color: #343434;
+      font-weight: 500;
+      font-size: $zaui-font-size-lg;
+      font-family: PingFangSC-Medium, PingFang SC;
+      line-height: 42px;
+      padding: 0;
+      justify-content: flex-start;
+      border: 0;
+    }
+    :deep(.com-radio-btn) {
+      justify-content: flex-start;
+      .com-check-btn {
+        margin: 0 12px 10px 0;
       }
     }
   }

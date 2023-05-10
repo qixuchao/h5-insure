@@ -7,6 +7,9 @@
     :schema="state.schema"
     :config="state.config"
     :is-view="isView"
+    :extra-provision="{
+      objectType: ATTACHMENT_OBJECT_TYPE_ENUM.BENEFICIARY,
+    }"
   >
     <template #cardTitleExtra><slot></slot></template>
   </ProRenderFormWithCard>
@@ -14,6 +17,7 @@
 <script lang="ts" setup name="BeneficiaryItem">
 import { withDefaults } from 'vue';
 import cloneDeep from 'lodash-es/cloneDeep';
+import { ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import {
   type SchemaItem,
   type PersonFormProps,

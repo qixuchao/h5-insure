@@ -7,9 +7,9 @@
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 export interface ProposalInfo {
-  id: string;
-  holder: Partial<ProposalHolder>;
-  insuredList: Partial<ProposalInsuredItem>[];
+  holder: Holder;
+  id: number;
+  insuredList: InsuredItem[];
   proposalName: string;
   proposalPage: string;
   proposalPdf: string;
@@ -17,52 +17,62 @@ export interface ProposalInfo {
   relationUserType: number;
   totalPremium: number;
 }
-/**  */
-export interface ProposalInsuredItem {
+
+export interface InsuredItem {
   birthday: string;
+  bmi: string;
+  certEndDate: string;
+  certEndType: number;
+  certNo: string;
+  certStartDate: string;
+  certType: number;
+  email: string;
   gender: number;
+  hasSocialInsurance: number;
+  height: number;
   id: number;
+  insureArea: InsureArea;
+  mobile: string;
   name: string;
   occupationClass: number;
   occupationCode: string;
-  occupationName: string;
-  proposalId: number;
-  productList: Partial<ProposalInsuredProductItem>[];
-  relation: number;
-  hasSocialInsurance: number;
+  occupationCodeList: string[];
+  productList: ProductItem[];
+  relationToHolder: number;
+  smokeFlag: number;
+  weight: number;
 }
 
-export interface ProposalInsuredProductItem {
+export interface ProductItem {
   id: number;
+  occupationClass: number;
+  occupationCodeList: string[];
+  productCode: string;
   productId: number;
   productName: string;
-  productCode: string;
-  riskList: ProposalProductRiskItem[];
+  riskList: RiskItem[];
 }
 
-export interface ProposalProductRiskItem {
-  amount: number;
-  initialAmount: number;
+export interface RiskItem {
+  annuityDrawDate: string;
+  annuityDrawFrequency: number;
   chargePeriod: string;
-  copy: number;
+  copy: string;
   coveragePeriod: string;
   id: number;
-  liabilityVOList: LiabilityVoItem[];
-  mainRiskId: number;
-  paymentFrequency: number;
-  premium: number;
+  initialAmount: number;
   initialPremium: number;
-  proposalProductId: number;
-  riderRiskVOList: ProposalProductRiskItem[];
+  liabilityList: LiabilityItem[];
+  mainRiskCode: string;
+  paymentFrequency: number;
   riskCode: string;
   riskId: number;
   riskName: string;
   riskType: number;
 }
 
-export interface LiabilityVoItem {
-  liabilityAttributeCode: string;
-  liabilityAttributeValue: string;
+export interface LiabilityItem {
+  liabilityAttributeType: number;
   liabilityCode: string;
   liabilityDesc: string;
   liabilityId: number;
@@ -71,33 +81,44 @@ export interface LiabilityVoItem {
   liabilityName: string;
   liabilityRateType: number;
   liabilityTopType: number;
-  liabilityType: number;
+  liabilityValue: LiabilityValue;
+  proposalLiabilityId: number;
+  riskName: string;
 }
 
-export interface ProposalHolder {
+export interface LiabilityValue {
+  actualValue: string;
+  displayValue: string;
+  factorValue: number;
+}
+
+export interface InsureArea {
+  area: string;
+  city: string;
+  detail: string;
+  province: string;
+}
+
+export interface Holder {
   birthday: string;
-  extraInfo: string;
+  bmi: string;
+  certEndDate: string;
+  certEndType: number;
+  certNo: string;
+  certStartDate: string;
+  certType: number;
+  email: string;
   gender: number;
+  hasSocialInsurance: number;
+  height: number;
   id: number;
+  insureArea: InsureArea;
+  mobile: string;
   name: string;
-  age: Number;
   occupationClass: number;
   occupationCode: string;
-  occupationName: string;
-  proposalId: number;
-  proposalName: string;
-  hasSocialInsurance: number;
+  occupationCodeList: string[];
+  smokeFlag: number;
+  weight: number;
 }
 
-
-export interface PlanTrialData {
-  productCode: string;
-  holder: Partial<ProposalHolder>;
-  insuredPersonVO: Partial<ProposalHolder>;
-  insuredProductInfo: {
-    productCode: string;
-    productName: string;
-    occupationCodeList: string[],
-    riskList: ProposalProductRiskItem[];
-  };
-}

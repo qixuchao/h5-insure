@@ -20,7 +20,15 @@ interface QueryData {
 }
 
 export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
-  const { tenantId, agentCode = '', agencyCode, saleChannelId, extraInfo, insurerCode } = useRoute().query as QueryData;
+  const {
+    tenantId,
+    agentCode = '',
+    agencyCode,
+    proposalId,
+    saleChannelId,
+    extraInfo,
+    insurerCode,
+  } = useRoute().query as QueryData;
 
   let extInfo: any = {};
 
@@ -34,11 +42,12 @@ export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
     agencyId: agencyCode,
     commencementTime: '',
     expiryDate: '',
+    proposalId,
     extInfo: {
       buttonCode: '',
       pageCode: '',
       iseeBizNo: '',
-      extraInfo: {},
+      extraInfo: extInfo,
     },
     orderCategory: 1,
     saleUserId: agentCode,

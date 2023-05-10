@@ -144,6 +144,7 @@ const {
   agentCode = '',
   agencyCode,
   saleChannelId,
+  proposalId,
   extraInfo,
   orderNo,
   insurerCode,
@@ -239,7 +240,7 @@ const queryProductMaterialData = () => {
 
 // 初始化数据，获取产品配置详情和产品详情
 const orderDetail = ref<any>();
-const trialDefaultData = ref<any>();
+
 const initData = async () => {
   !trialPreviewMode.value &&
     querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
@@ -261,6 +262,24 @@ const initData = async () => {
     getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         orderDetail.value = data;
+      }
+    });
+
+  proposalId &&
+    queryProposalDetailInsurer({ id: proposalId, tenantId }).then(({ code, data }) => {
+      if (code === '10000') {
+        const { holder, insuredList } = data;
+        orderDetail.value = {
+          productCode,
+          productName: '',
+          renewFlag: '',
+          holder,
+          tenantId,
+          insuredList: (insuredList || []).map((insured) => ({
+            ...insured,
+            productList: insured.productList.filter((product) => product.productCode === productCode),
+          })),
+        };
       }
     });
 
@@ -306,15 +325,6 @@ const { fileList, mustReadFileCount, popupFileList } = useAttachment(currentPlan
 const previewFile = (index: number) => {
   activeIndex.value = index;
   showFilePreview.value = true;
-};
-
-// 点击立即投保
-const onNext = async () => {
-  try {
-    // TODO 调起试算弹窗
-  } catch (e) {
-    //
-  }
 };
 
 const handlePlanChange = (planCode: string) => {

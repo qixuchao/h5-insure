@@ -25,7 +25,11 @@
               }}</span>
             </div>
             <div v-if="risk.riskType !== 2" class="operate-bar">
-              <ProCheckButton v-if="isCanDeleteRisk(risk.riskId)" :round="32" class="border" @click="deleteRisk(risk)"
+              <ProCheckButton
+                v-if="isCanDeleteRisk(risk.riskId) && productIndex > 0"
+                :round="32"
+                class="border"
+                @click="deleteRisk(risk)"
                 >删除</ProCheckButton
               >
               <!-- <ProCheckButton
@@ -81,6 +85,7 @@ interface Props {
   pickProductPremium: (type: any) => void;
   productNum: number;
   errorMsg: string;
+  productIndex: number;
 }
 
 interface State {

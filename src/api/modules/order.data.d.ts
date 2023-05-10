@@ -239,7 +239,7 @@ export interface OrderDetail {
     /** 保单号 */
     policyNo: string;
     /** 计划书id */
-    proposalId: number;
+    proposalId?: number | string;
     /** 计划关联用户id类型 */
     relationUserType: number;
     /** 销售渠道id */

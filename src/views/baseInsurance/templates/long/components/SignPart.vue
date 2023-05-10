@@ -6,9 +6,9 @@
           <div class="name">{{ currentPersonalInfo?.name }}</div>
           <div
             v-if="showVerify && needVerify(currentPersonalInfo?.certType)"
-            :class="['status', { verified: currentPersonalInfo?.extInfo?.isCert === YES_NO_ENUM.YES }]"
+            :class="['status', { verified: currentPersonalInfo?.isCert === YES_NO_ENUM.YES }]"
           >
-            {{ currentPersonalInfo?.extInfo?.isCert === YES_NO_ENUM.YES ? '已认证' : '待认证' }}
+            {{ currentPersonalInfo?.isCert === YES_NO_ENUM.YES ? '已认证' : '待认证' }}
           </div>
         </div>
       </template>
@@ -16,7 +16,7 @@
         <div class="label">证件号码</div>
         <div class="no">{{ currentPersonalInfo?.certNo }}</div>
         <div
-          v-if="currentPersonalInfo?.extInfo?.isCert !== YES_NO_ENUM.YES && needVerify(currentPersonalInfo?.certType)"
+          v-if="currentPersonalInfo?.isCert !== YES_NO_ENUM.YES && needVerify(currentPersonalInfo?.certType)"
           class="action"
           @click="handleVerify"
         >
@@ -157,7 +157,7 @@ const validateSign = () => {
 
 const validateVerify = () => {
   return new Promise((resolve, reject) => {
-    if (props.personalInfo?.extInfo?.isCert === YES_NO_ENUM.YES) {
+    if (props.personalInfo?.isCert === YES_NO_ENUM.YES) {
       resolve(true);
       return;
     }
