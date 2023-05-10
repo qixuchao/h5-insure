@@ -690,11 +690,19 @@ onMounted(() => {
 
 const personalInfoRef = ref<InstanceType<typeof PersonalInfo>>();
 
+const validate = () => personalInfoRef.value.validate();
+const validateTrialFields = () => personalInfoRef.value.validateTrialFields();
+const validateHolder = (...rest) => {
+  return personalInfoRef.value?.validate(...rest);
+};
+
 defineExpose({
   getTrialSuccessFlag: () => {
     return state.trialResultPremium > 0;
   },
-  personalInfoRef,
+  validate,
+  validateTrialFields,
+  validateHolder,
 });
 watch(
   () => state.riskIsInsure,

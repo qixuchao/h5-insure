@@ -3,7 +3,7 @@
     <div class="long-info-collection">
       <TrialBody
         v-if="state.defaultValue"
-        ref="trialRef"
+        ref="personalInfoRef"
         :data-source="currentPlanObj"
         :product-info="{
           productCode,
@@ -185,6 +185,7 @@ const shareInfo = ref({
 });
 
 const payInfoRef = ref<InstanceType<typeof PayInfo>>();
+const trialRef = ref<InstanceType<typeof TrialBody>>();
 const personalInfoRef = ref<InstanceType<typeof PersonalInfo>>();
 const tenantProductDetail = ref<Partial<ProductDetail>>({}); // 核心系统产品信息
 const insureProductDetail = ref<Partial<InsureProductData>>({}); // 产品中心产品信息
@@ -292,7 +293,19 @@ const onNext = async (trialData) => {
     return;
   }
 
-  Promise.all([personalInfoRef.value?.validate(false), payInfoRef.value?.validate?.()]).then(() => {
+  const validateList = [];
+
+  if (personalInfoRef.value) {
+    validateList.push(personalInfoRef.value?.validate(false));
+  }
+
+  // if (payInfoRef.value) {
+  //   validateList.push(payInfoRef.value?.validate(false));
+  // }
+
+  console.log('validateList', validateList);
+
+  Promise.all(validateList).then(() => {
     Object.assign(orderDetail.value, {
       extInfo: {
         ...orderDetail.value.extInfo,
