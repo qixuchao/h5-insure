@@ -50,6 +50,7 @@
           :product-num="stateInfo.productList?.length - 1"
           :product-data="stateInfo.productCollection[productItem.productCode]"
           :error-msg="stateInfo.productErrorMap[productItem.productCode]"
+          :product-index="index"
           @update-risk="updateRisk"
           @delete-risk="deleteRisk"
         ></ProductList>

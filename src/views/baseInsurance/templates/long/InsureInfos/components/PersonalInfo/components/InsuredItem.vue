@@ -7,6 +7,9 @@
     :schema="state.schema"
     :config="state.config"
     :is-view="isView"
+    :extra-provision="{
+      objectType: ATTACHMENT_OBJECT_TYPE_ENUM.INSURED,
+    }"
   >
     <template #cardTitleExtra><slot></slot></template>
   </ProRenderFormWithCard>
@@ -59,6 +62,7 @@ import {
 } from '@/components/RenderForm';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { BENEFICIARY_ENUM } from '@/common/constants/infoCollection';
+import { ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import BeneficiaryItem from './BeneficiaryItem.vue';
 
 interface InsuredProps {

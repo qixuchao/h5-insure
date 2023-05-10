@@ -536,6 +536,6 @@ export const MODULE_TYPE_MAP = {
 };
 
 // pro from
-export const VAN_PRO_FORM_KEY: InjectionKey<VanFormProvied> = Symbol('VAN_PRO_FORM_KEY');
+export const VAN_PRO_FORM_KEY: InjectionKey<Partial<VanFormProvied>> = Symbol('VAN_PRO_FORM_KEY');
 
 export default {};

@@ -360,6 +360,10 @@ export enum ATTACHMENT_OBJECT_TYPE_ENUM {
    * 年金签约
    */
   ANNUAL_SIGN = 7,
+  /**
+   * 受益人
+   */
+  BENEFICIARY = 8,
 }
 
 export const OCR_TYPE_ENUM = {

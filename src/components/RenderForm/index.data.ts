@@ -70,10 +70,11 @@ export interface FormState {
   dictCodeList: string[];
 }
 
-export interface VanFormProvied {
+export interface VanFormProvied extends Data {
   formState: FormState;
   markRequired: boolean;
   formRef: Ref<FormInstance>;
+  objectType: number;
 }
 
 export interface PersonFormProps {

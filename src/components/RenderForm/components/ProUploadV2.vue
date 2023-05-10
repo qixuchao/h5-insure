@@ -32,9 +32,10 @@
 <script lang="ts" setup>
 import { UploaderFileListItem } from 'vant';
 import { useCustomFieldValue } from '@vant/use';
+import { Partial } from 'lodash';
 import ProSvg from '@/components/ProSvg/index.vue';
 import { fileUpload } from '@/api/modules/file';
-import { UPLOAD_TYPE_ENUM } from '@/common/constants';
+import { UPLOAD_TYPE_ENUM, ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import { useAttrsAndSlots } from '../hooks';
 import { VAN_PRO_FORM_KEY } from '../utils';
 
@@ -51,16 +52,25 @@ interface FileUploadRes {
 
 const { filedAttrs, filedSlots, attrs, slots } = toRefs(useAttrsAndSlots());
 
-const { formState } = inject(VAN_PRO_FORM_KEY) || {};
+const { formState, objectType } = inject(VAN_PRO_FORM_KEY) || {};
 
 // 非默认 slots
 const noDefaultSlots = computed(() => Object.keys(slots).filter((key) => key !== 'default'));
 
 const emits = defineEmits(['update:modelValue', 'onUploaded']);
 
+interface FileProps {
+  category: string;
+  objectType: string;
+  objectId?: string;
+  name?: string;
+  uri: string;
+  id?: number;
+}
+
 const props = defineProps({
   modelValue: {
-    type: Array as () => Array<string>,
+    type: Array as () => FileProps[],
     default: () => [],
   },
   maxCount: {
@@ -76,6 +86,16 @@ const props = defineProps({
     type: String as () => UPLOAD_TYPE_ENUM,
     default: UPLOAD_TYPE_ENUM.OTHER,
   },
+  /** 附件类型(发牌/身份证...) */
+  category: {
+    type: Number as () => ATTACHMENT_CATEGORY_ENUM,
+    default: ATTACHMENT_CATEGORY_ENUM.OTHER,
+  },
+  /** 数据对象类型-属于哪个模块(被保人...) */
+  objectType: {
+    type: Number as () => ATTACHMENT_OBJECT_TYPE_ENUM,
+    default: ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER,
+  },
   /**
    * 是否查看模式
    */
@@ -89,7 +109,7 @@ const state = reactive({
   modelValue: [],
 });
 
-const fileList = computed(() => state.modelValue.map((url) => ({ url })));
+const fileList = computed(() => state.modelValue.map(({ url }) => ({ url })));
 
 useCustomFieldValue(() => state.modelValue);
 
@@ -97,7 +117,11 @@ const handleAfterRead = (e: { file: File; content: string }) => {
   fileUpload(e.file, props.uploadType).then((res) => {
     const { code, data } = (res || {}) as FileUploadRes;
     if (code === '10000' && data.url) {
-      state.modelValue.push(data.url);
+      state.modelValue.push({
+        url: data.url,
+        category: props.category,
+        objectType: props.objectType || objectType,
+      });
       emits('onUploaded', data);
     }
   });

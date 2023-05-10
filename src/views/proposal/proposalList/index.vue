@@ -376,7 +376,7 @@ onBeforeMount(() => {
   position: fixed;
   bottom: 0;
   left: 0;
-  z-index: 9999;
+  z-index: 3000;
   .add-plan {
     width: 100%;
     height: 150px;
