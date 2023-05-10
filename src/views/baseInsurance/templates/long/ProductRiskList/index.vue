@@ -144,7 +144,7 @@ const handleInsureInfoChange = (data: any, riskId: number, changeData: any) => {
 };
 
 const handleSetRiskSelect = () => {
-  state.riskIsInsure = {};
+  // state.riskIsInsure = {};
   state.disabledRiskInfo = [];
   let mainRisk = null;
   props.dataSource.insureProductRiskVOList?.forEach((risk) => {
@@ -157,7 +157,13 @@ const handleSetRiskSelect = () => {
       // 1可选，2绑定， 3互斥 {
       mainRisk = risk;
     }
-    state.riskIsInsure[risk.riskId] = { selected: '2', data: null, relation, isMust: false };
+    if (!state.riskIsInsure[risk.riskId])
+      state.riskIsInsure[risk.riskId] = { selected: '2', data: null, relation, isMust: false };
+    else {
+      state.riskIsInsure[risk.riskId].data = null;
+      state.riskIsInsure[risk.riskId].relation = relation;
+      state.riskIsInsure[risk.riskId].isMust = false;
+    }
   });
   // 根据关联关系判断和标准险种关联的是否可选
   if (mainRisk) {
@@ -195,10 +201,10 @@ const handleSetRiskSelect = () => {
               (risk?.paymentFrequencyList?.length > 0 && risk?.paymentFrequencyList[0].code) || null;
             let count = 0;
             if (amountPremiumConfigVO.displayType === 1) {
-              // amount
+              // initialAmount
               count = amountPremiumConfigVO?.minStepValue > 0 ? amountPremiumConfigVO?.minStepValue : 0;
             } else if (amountPremiumConfigVO.displayType === 3 && amountPremiumConfigVO.requireCopies === 2) {
-              // amount
+              // initialAmount
               count =
                 amountPremiumConfigVO?.displayValues?.length > 0 ? amountPremiumConfigVO?.displayValues[0].value : 0;
             } else if (amountPremiumConfigVO.displayType === 3 && amountPremiumConfigVO.requireCopies === 1) {
@@ -210,8 +216,8 @@ const handleSetRiskSelect = () => {
               // copy
               data.copy = amountPremiumConfigVO.minCopiesValue;
             }
-            if (amountPremiumConfigVO.saleMethod === 1) data.amount = count;
-            else data.premium = count;
+            if (amountPremiumConfigVO.saleMethod === 1) data.initialAmount = count;
+            else data.initialPremium = count;
             state.disabledRiskInfo.push(data);
             handleInsureInfoChange(data, risk.riskId);
           }
@@ -246,10 +252,10 @@ const handleShowNoInfoShowRisk = (risk: any) => {
     data.paymentFrequency = (risk?.paymentFrequencyList?.length > 0 && risk?.paymentFrequencyList[0].code) || null;
     let count = 0;
     if (amountPremiumConfigVO.displayType === 1) {
-      // amount
+      // initialAmount
       count = amountPremiumConfigVO?.minStepValue > 0 ? amountPremiumConfigVO?.minStepValue : 0;
     } else if (amountPremiumConfigVO.displayType === 3 && amountPremiumConfigVO.requireCopies === 2) {
-      // amount
+      // initialAmount
       count = amountPremiumConfigVO?.displayValues?.length > 0 ? amountPremiumConfigVO?.displayValues[0].value : 0;
     } else if (amountPremiumConfigVO.displayType === 3 && amountPremiumConfigVO.requireCopies === 1) {
       // amout copy
@@ -261,8 +267,8 @@ const handleShowNoInfoShowRisk = (risk: any) => {
     } else {
       count = 0;
     }
-    if (amountPremiumConfigVO.saleMethod === 1) data.amount = count;
-    else data.premium = count;
+    if (amountPremiumConfigVO.saleMethod === 1) data.initialAmount = count;
+    else data.initialPremium = count;
     handleInsureInfoChange(data, risk.riskId);
   }
 };
@@ -322,6 +328,11 @@ watch(
           state.riskIsInsure[risk.riskId].selected = '1';
           // handleSwitchClick('1', risk);
           handleInsureInfoChange(risk, risk.riskId);
+        } else {
+          state.riskIsInsure[risk.riskId] = {
+            selected: '1',
+            isMust: false,
+          };
         }
       });
     }

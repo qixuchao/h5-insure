@@ -21,7 +21,7 @@
           <div class="operate-bar-wrap">
             <div class="risk-premium">
               保费:<span class="premium">{{
-                !errorMsg && risk.initialPremium ? `￥${risk.initialPremium?.toFixed(2)?.toLocaleString()}` : '-'
+                !errorMsg && risk.initialPremium ? `￥${risk.initialPremium?.toLocaleString()}` : '-'
               }}</span>
             </div>
             <div v-if="risk.riskType !== 2" class="operate-bar">

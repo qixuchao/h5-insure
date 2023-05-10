@@ -47,7 +47,12 @@
         <div class="empty"></div>
       </div>
     </div>
-    <slot name="trialBtn" :trial-data="state.submitData" :risk-premium="state.trialResult"></slot>
+    <slot
+      name="trialBtn"
+      :trial-data="state.submitData"
+      :risk-premium="state.trialResult"
+      :loading="state.isQuerying"
+    ></slot>
   </div>
 </template>
 
@@ -154,6 +159,7 @@ const state = reactive({
   planIndex: 0,
   isSkipFirstTrial: false, // 是否跳过默认值表单触发的第一次试算
   hadSkipFirstTrial: false,
+  isQuerying: false, // 是否正在请求表单数据
 });
 
 const orderDetail = useOrder();
@@ -408,6 +414,7 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
   }
   if (checkResult || !needCheck) {
     // 是否显示利益演示
+    state.isQuerying = true;
     if (!props.hideBenefit) {
       benefitCalc(calcData)
         .then((res) => {
@@ -446,6 +453,7 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
       })
       .finally(() => {
         state.loading = false;
+        state.isQuerying = false;
         // state.trialMsg = '000';
       });
   }
@@ -499,6 +507,8 @@ const handlePersonalInfoChange = async (data) => {
   state.ifPersonalInfoSuccess = true;
   if (isFirstInsuredChange) {
     console.log('处理第一被保人修改的dy变化');
+
+    state.isQuerying = true;
     const dyResult = await queryCalcDynamicInsureFactor({
       calcProductFactorList: [
         {
@@ -513,6 +523,7 @@ const handlePersonalInfoChange = async (data) => {
       ],
       ...insuredList[0],
     });
+    state.isQuerying = false;
     if (!handleDealDyResult(dyResult)) return;
   }
   console.log('投被保人的信息回传 ', state.submitData, data);
@@ -549,6 +560,7 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
       const persionVo = state.submitData?.insuredList?.[0];
       const riskInfo = props.dataSource?.insureProductRiskVOList?.find((r) => r.riskCode === data.riskCode);
       if (!state.isAutoChange) {
+        state.isQuerying = true;
         const dyResult = await queryCalcDynamicInsureFactor({
           calcProductFactorList: [
             {
@@ -569,6 +581,7 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
           ],
           ...persionVo,
         });
+        state.isQuerying = false;
         const result = handleDealDyResult(dyResult);
         if (!result) {
           state.isAutoChange = true;
