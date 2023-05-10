@@ -1,6 +1,6 @@
 <template>
   <div class="com-product-list-wrapper">
-    <div v-for="(risk, index) in state.productRiskList" :key="risk.riskId">
+    <div v-for="risk in state.productRiskList" :key="risk.riskId">
       <div class="risk-item-wrapper">
         <ProTitle :risk-type="risk.riskType" :title="risk.riskName" class="no-border" />
         <div class="content">
@@ -26,7 +26,7 @@
             </div>
             <div v-if="risk.riskType !== 2" class="operate-bar">
               <ProCheckButton
-                v-if="isCanDeleteRisk(risk.riskId) && index > 0"
+                v-if="isCanDeleteRisk(risk.riskId) && productIndex > 0"
                 :round="32"
                 class="border"
                 @click="deleteRisk(risk)"
@@ -85,6 +85,7 @@ interface Props {
   pickProductPremium: (type: any) => void;
   productNum: number;
   errorMsg: string;
+  productIndex: number;
 }
 
 interface State {
