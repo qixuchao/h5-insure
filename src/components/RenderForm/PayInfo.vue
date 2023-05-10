@@ -8,6 +8,9 @@
     :config="schemaItem.config"
     :title="schemaItem.title"
     :is-view="isView"
+    :extra-provision="{
+      objectType: schemaItem.objectType,
+    }"
   />
 </template>
 <script lang="ts" setup>
@@ -19,6 +22,7 @@ import { SchemaItem } from './index.data';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { PAYMENT_TYPE_ENUM, PAY_INFO_TYPE_ENUM, BANK_CARD_TYPE_ENUM } from '@/common/constants/bankCard';
 import { BANK_INFO_KEY_LIST, colorConsole, lowerFirstLetter } from './utils';
+import { ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import { deepCopy } from '@/utils';
 
 interface PayInfoProps {
@@ -37,6 +41,7 @@ interface PayInfoItem {
   };
   config: object;
   nanoid: string;
+  objectType: number;
 }
 
 // 支付方式 银行卡/支付宝/维系
@@ -72,6 +77,7 @@ const fieldInitList: Partial<PayInfoItem>[] = [
         isView: true,
       },
     },
+    objectType: ATTACHMENT_OBJECT_TYPE_ENUM.INIT_SIGN,
   },
   {
     title: '续期支付',
@@ -90,6 +96,7 @@ const fieldInitList: Partial<PayInfoItem>[] = [
         isView: true,
       },
     },
+    objectType: ATTACHMENT_OBJECT_TYPE_ENUM.RENEWAL_SIGN,
   },
   {
     title: '年金领取银行卡',
@@ -99,6 +106,7 @@ const fieldInitList: Partial<PayInfoItem>[] = [
       paymentGenre: String(PAY_INFO_TYPE_ENUM.FIRST_SAME),
     },
     config: {},
+    objectType: ATTACHMENT_OBJECT_TYPE_ENUM.ANNUAL_SIGN,
   },
 ].map((item) => ({
   ...item,
