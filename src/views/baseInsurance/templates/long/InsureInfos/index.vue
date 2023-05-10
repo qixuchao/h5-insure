@@ -135,7 +135,7 @@ const handleBaoeBaofeiChange = (data) => {
   handleMixData();
 };
 const handleRiskLiabilityChange = (data) => {
-  mValues.value.liabilityVOList = data;
+  mValues.value.liabilityList = data;
   handleMixData();
 };
 

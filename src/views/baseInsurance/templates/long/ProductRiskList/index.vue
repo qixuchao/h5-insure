@@ -185,7 +185,7 @@ const handleSetRiskSelect = () => {
               riskType: risk.riskType,
               mainRiskId: risk.mainRiskId,
               mainRiskCode: risk.mainRiskCode,
-              liabilityVOList: getInitliabilityVOList(risk),
+              liabilityList: getInitliabilityVOList(risk),
             };
             data.chargePeriod =
               (risk?.paymentPeriodValueList?.length > 0 && risk?.paymentPeriodValueList[0].code) || null;
@@ -238,7 +238,7 @@ const handleShowNoInfoShowRisk = (risk: any) => {
       riskType: risk.riskType,
       mainRiskId: risk.mainRiskId,
       mainRiskCode: risk.mainRiskCode,
-      liabilityVOList: getInitliabilityVOList(risk),
+      liabilityList: getInitliabilityVOList(risk),
     };
     data.chargePeriod = (risk?.paymentPeriodValueList?.length > 0 && risk?.paymentPeriodValueList[0].code) || null;
     data.coveragePeriod =
