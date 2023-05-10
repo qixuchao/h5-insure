@@ -434,29 +434,21 @@ export const ADDRESS_FACTOR_CONF = [
   {
     /** 投保地区 */
     key: ADDRESS_FACTOR_ENUM.INSURE_AREA,
-    /** 前缀  */
-    valuePrefix: 'insure',
   },
   {
     /** 户籍所在地 */
     key: ADDRESS_FACTOR_ENUM.RESIDENCE,
-    valuePrefix: '',
   },
   {
     /** 长期居住地 */
     key: ADDRESS_FACTOR_ENUM.LONG_AREA,
-    valuePrefix: '',
   },
   {
     /** 工作所在地 */
     key: ADDRESS_FACTOR_ENUM.WORK_ADDRESS,
-    valuePrefix: 'work',
   },
-].reduce((res, { key, valuePrefix }) => {
-  res[key] = {
-    valuePrefix,
-    ...RULE_CONFIG_MAP.ADDRESS,
-  };
+].reduce((res, { key }) => {
+  res[key] = RULE_CONFIG_MAP.ADDRESS;
   return res;
 }, {});
 
