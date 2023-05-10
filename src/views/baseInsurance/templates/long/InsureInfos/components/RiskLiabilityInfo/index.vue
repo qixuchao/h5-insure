@@ -96,6 +96,13 @@ const state = ref({
   signLiabilityClick: [],
 });
 
+const signLiabilityClick = (item, index) => {
+  state.value.signLiabilityClick.push({
+    item,
+    index,
+  });
+};
+
 const handleSwitchClick = (item, index) => {
   // 可选责任 没有责任属性 且为选中投保状态需要把code传给后端
 
@@ -111,6 +118,12 @@ const handleSwitchClick = (item, index) => {
       isSwitchOn: state.value.isCheckList[index],
     });
   }
+  if (status === '1') {
+    signLiabilityClick(item, index);
+  } else {
+    state.value.signLiabilityClick.splice(index, 1);
+  }
+
   // 对已经存在的责任 选择投保不投保 更新当前状态
   if (key_list.indexOf(index) !== -1) {
     state.value.liabilityList.forEach((i) => {
@@ -124,7 +137,7 @@ const handleRiskLiabityClick = (e, index) => {
   const curentLiabilityList = e.liabilityAttributeValueList.filter(
     (x) => x.displayValue === state.value.checkValueList[index],
   );
-  const liabilityValue = JSON.parse(JSON.stringify(curentLiabilityList))[0];
+  const liabilityValue = JSON.parse(JSON.stringify(curentLiabilityList))[0] || e.liabilityAttributeValueList[0];
   const curentLiabilityObject = { ...e, liabilityValue };
 
   if (state.value.liabilityList.length > 0) {
@@ -132,6 +145,7 @@ const handleRiskLiabityClick = (e, index) => {
       state.value.liabilityList = state.value.liabilityList.filter((x) => x.key !== index);
     }
   }
+  state.value.checkValueList[index] = liabilityValue.displayValue;
   state.value.liabilityList.push({
     liabilityValue: curentLiabilityObject,
     key: index,
@@ -139,7 +153,7 @@ const handleRiskLiabityClick = (e, index) => {
   });
 };
 const dataSourceFolmulate = computed(() => {
-  // if (premium) return 0;
+  // if (initialPremium) return 0;
   return cloneDeep(props.dataSourceFolmulate);
 });
 const dealInitliabilityValueList = (item, index, type) => {
@@ -158,23 +172,16 @@ const dealInitliabilityValueList = (item, index, type) => {
   }
 };
 
-const signLiabilityClick = (item, index) => {
-  state.value.signLiabilityClick.push({
-    item,
-    index,
-  });
-};
-
 watch(
   () => dataSourceFolmulate.value,
   (oldValue, newValue) => {
-    const amount = props.dataSourceFolmulate?.amount;
-    const premium = props.dataSourceFolmulate?.premium;
+    const initialAmount = props.dataSourceFolmulate?.initialAmount;
+    const initialPremium = props.dataSourceFolmulate?.initialPremium;
 
     const formulaParams = {
       amountUnit: props.params.amountUnit,
-      basicsAmount: amount,
-      basicsPremium: premium,
+      basicsAmount: initialAmount,
+      basicsPremium: initialPremium,
       riskId: props.params.riskId,
     };
 
@@ -182,8 +189,8 @@ watch(
     const liabilityItem = props.dataSource.riskLiabilityInfoVOList.map(async (liab) => {
       if (
         liab.formula.length > 0 &&
-        (amount || premium) &&
-        (oldValue?.amount !== newValue?.amount || oldValue?.premium !== newValue?.premium)
+        (initialAmount || initialPremium) &&
+        (oldValue?.initialAmount !== newValue?.initialAmount || oldValue?.initialPremium !== newValue?.initialPremium)
       ) {
         // 责任属性为公式类型，需要请求公式接口
 
@@ -218,7 +225,6 @@ watch(
     const dataList = state.value.liabilityList
       .filter((x) => x.isSwitchOn === '1')
       .map((item) => ({ ...item.liabilityValue }));
-
     emit('trialChange', dataList);
   },
   {
