@@ -8,6 +8,9 @@
     :schema="state.holder.schema"
     :config="state.holder.config"
     :is-view="isView"
+    :extra-provision="{
+      objectType: ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER,
+    }"
   />
   <!-- 被保人 -->
   <template v-if="hasInsuredSchema">
@@ -55,7 +58,7 @@ import {
   SchemaItem,
 } from '@/components/RenderForm';
 import { ProductFactor } from '@/api/modules/trial.data';
-import { isNotEmptyArray, PERSONAL_INFO_KEY } from '@/common/constants';
+import { isNotEmptyArray, PERSONAL_INFO_KEY, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import InsuredItem from './components/InsuredItem.vue';
 
 interface Props {

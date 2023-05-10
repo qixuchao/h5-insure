@@ -1,6 +1,6 @@
 <template>
   <div class="com-product-list-wrapper">
-    <div v-for="risk in state.productRiskList" :key="risk.riskId">
+    <div v-for="(risk, index) in state.productRiskList" :key="risk.riskId">
       <div class="risk-item-wrapper">
         <ProTitle :risk-type="risk.riskType" :title="risk.riskName" class="no-border" />
         <div class="content">
@@ -25,7 +25,11 @@
               }}</span>
             </div>
             <div v-if="risk.riskType !== 2" class="operate-bar">
-              <ProCheckButton v-if="isCanDeleteRisk(risk.riskId)" :round="32" class="border" @click="deleteRisk(risk)"
+              <ProCheckButton
+                v-if="isCanDeleteRisk(risk.riskId) && index > 0"
+                :round="32"
+                class="border"
+                @click="deleteRisk(risk)"
                 >删除</ProCheckButton
               >
               <!-- <ProCheckButton

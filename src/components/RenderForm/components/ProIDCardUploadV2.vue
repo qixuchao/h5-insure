@@ -42,7 +42,12 @@ import { fileUpload, ocr } from '@/api/modules/file';
 import IDCardUploadIconImage from '@/assets/images/component/idcard-upload.png';
 import IDCardUploadFrontImage from '@/assets/images/component/idcard-front.png';
 import IDCardUploadBackImage from '@/assets/images/component/idcard-back.png';
-import { UPLOAD_TYPE_ENUM, OCR_TYPE_ENUM } from '@/common/constants';
+import {
+  UPLOAD_TYPE_ENUM,
+  OCR_TYPE_ENUM,
+  ATTACHMENT_CATEGORY_ENUM,
+  ATTACHMENT_OBJECT_TYPE_ENUM,
+} from '@/common/constants';
 import { VAN_PRO_FORM_KEY } from '../utils';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { useAttrsAndSlots } from '../hooks';
@@ -55,11 +60,13 @@ interface FileUploadRes {
 const uploaderList = [
   {
     uploadType: UPLOAD_TYPE_ENUM.ID_CARD_FRONT,
+    category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_CERT,
     title: '上传人像面',
     imgSrc: IDCardUploadFrontImage,
   },
   {
     uploadType: UPLOAD_TYPE_ENUM.ID_CARD_BACK,
+    category: ATTACHMENT_CATEGORY_ENUM.REVERSE_CERT,
     title: '上传国徽面',
     imgSrc: IDCardUploadBackImage,
   },
@@ -67,7 +74,7 @@ const uploaderList = [
 
 const { filedAttrs, filedSlots, attrs, slots } = toRefs(useAttrsAndSlots());
 
-const { formState } = inject(VAN_PRO_FORM_KEY) || {};
+const { formState, objectType } = inject(VAN_PRO_FORM_KEY) || {};
 
 const tempUploaderRef = ref<UploaderInstance>();
 
@@ -85,6 +92,11 @@ const props = defineProps({
     type: Object,
     default: () => ({ text: 'name', value: 'code', children: 'children' }),
   },
+  /** 数据对象类型-属于哪个模块(被保人...) */
+  objectType: {
+    type: Number as () => ATTACHMENT_OBJECT_TYPE_ENUM,
+    default: null,
+  },
   /**
    * 是否查看模式
    */
@@ -100,15 +112,22 @@ const state = reactive({
   ossKeyList: [],
 });
 
-const fileList = computed(() => state.modelValue.map((url) => [{ url }]));
+const fileList = computed(() => state.modelValue.map((item) => [{ url: item.url }]));
 
 useCustomFieldValue(() => state.modelValue);
 
 const handleRead = (e: UploaderFileListItem, index) => {
-  fileUpload(e.file, uploaderList[index].uploadType).then((res) => {
+  const { uploadType, title, category } = uploaderList[index];
+  fileUpload(e.file, uploadType).then((res) => {
     const { code, data } = (res || {}) as FileUploadRes;
     if (code === '10000' && data.url) {
-      state.modelValue[index] = data.url;
+      state.modelValue[index] = {
+        ...state.modelValue[index],
+        url: data.url,
+        category,
+        name: title,
+        objectType: props.objectType || objectType,
+      };
       state.ossKeyList[index] = data.ossKey;
       if (formState.formData && filedAttrs.value.name) {
         formState.formData[filedAttrs.value.name] = state.modelValue;
