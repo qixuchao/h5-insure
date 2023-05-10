@@ -4,11 +4,6 @@
       <div class="risk-item-wrapper">
         <ProTitle :risk-type="risk.riskType" :title="risk.riskName" class="no-border" />
         <div class="content">
-          <div class="risk-premium">
-            保费:<span class="premium">{{
-              !errorMsg && risk.initialPremium ? `￥${risk.initialPremium?.toLocaleString()}` : '-'
-            }}</span>
-          </div>
           <div class="risk-factor">
             <div class="factor">
               <span class="factor-value">{{ risk.initialAmount?.toLocaleString() || '-' }}</span>
@@ -20,14 +15,20 @@
             </div>
             <div class="factor">
               <span class="factor-value">{{ pickNameInList(RISK_PAYMENT_PERIOD, risk.chargePeriod) || '-' }}</span>
-              <span class="factor-name"> 缴费期间 </span>
+              <span class="factor-name"> 交费期间 </span>
             </div>
           </div>
-          <div v-if="risk.riskType !== 2" class="operate-bar">
-            <ProCheckButton v-if="isCanDeleteRisk(risk.riskId)" :round="32" class="border" @click="deleteRisk(risk)"
-              >删除</ProCheckButton
-            >
-            <!-- <ProCheckButton
+          <div class="operate-bar-wrap">
+            <div class="risk-premium">
+              保费:<span class="premium">{{
+                !errorMsg && risk.initialPremium ? `￥${risk.initialPremium?.toFixed(2)?.toLocaleString()}` : '-'
+              }}</span>
+            </div>
+            <div v-if="risk.riskType !== 2" class="operate-bar">
+              <ProCheckButton v-if="isCanDeleteRisk(risk.riskId)" :round="32" class="border" @click="deleteRisk(risk)"
+                >删除</ProCheckButton
+              >
+              <!-- <ProCheckButton
               v-if="isCanAddRiderRisk"
               activated
               :round="32"
@@ -37,17 +38,18 @@
               <span class="btn-plus">+</span>
               附加险</ProCheckButton
             > -->
-            <ProCheckButton activated :round="32" @click="updateRisk(risk)">修改</ProCheckButton>
+              <ProCheckButton activated :round="32" @click="updateRisk(risk)">修改</ProCheckButton>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div v-if="state.productRiskList.length > 1" class="premium-total">
+    <!-- <div v-if="state.productRiskList.length > 1" class="premium-total">
       保费:
       <span class="premium">{{
-        !errorMsg && state?.totalPremium ? `￥${state?.totalPremium?.toLocaleString()}` : '-'
+        !errorMsg && state?.totalPremium ? `￥${state?.totalPremium?.toFixed(2)?.toLocaleString()}` : '-'
       }}</span>
-    </div>
+    </div> -->
     <RiskRelationList
       v-if="showRelationList"
       v-model="state.checkedList"
@@ -253,6 +255,7 @@ watch(
   }
   .risk-item-wrapper {
     margin: $zaui-card-border;
+    padding-bottom: 20px;
     background-color: #f6f6fa;
     border-radius: 20px;
     :deep(.card-title) {
@@ -270,6 +273,8 @@ watch(
       font-weight: 600;
     }
     .risk-premium {
+      display: inline-flex;
+      align-items: center;
       color: #333333;
       font-weight: 400;
       font-size: 26px;
@@ -305,11 +310,14 @@ watch(
         }
       }
     }
-    .operate-bar {
+    .operate-bar-wrap {
       display: flex;
       align-content: center;
-      justify-content: flex-end;
-      padding-bottom: 20px;
+      justify-content: space-between;
+      height: 60px;
+      .operate-bar {
+        display: flex;
+      }
       .border {
         border: 2px solid #e6e6eb;
       }

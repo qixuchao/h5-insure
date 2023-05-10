@@ -44,7 +44,7 @@ export const convertPeriod = (value: string): string => {
   return `${years}${unitMap[unit]}`;
 };
 
-// 缴费期间
+// 交费期间
 export const convertChargePeriod = (value: string): string => {
   const currentData = value;
   const [unit, years] = currentData.split('_');

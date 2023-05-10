@@ -62,7 +62,7 @@ const columns = [
     },
   },
   {
-    title: '缴费期间',
+    title: '交费期间',
     dataIndex: 'chargePeriod',
     width: 110,
     render: (row: any) => {

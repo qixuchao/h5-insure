@@ -40,7 +40,7 @@ export const orderRiskTotrial = (tenantOrderProductList: any[], insuredCode: str
         amount: initialAmount, // 保额
         annuityDrawDate, // 年金领取值 （数字，以英文逗号分隔）1-第5个保单周年 2-55周岁起 3-60周岁起 4-65周岁起 5-70周岁起 6-75周岁起
         annuityDrawFrequency, // 年金领取频率 1.年领 2.月领
-        chargePeriod, // 缴费期间值 固定：固定数字，枚举：英文逗号隔开，范围：最小值，最大值按年缴：以year开头，例如year_10
+        chargePeriod, // 交费期间值 固定：固定数字，枚举：英文逗号隔开，范围：最小值，最大值按年缴：以year开头，例如year_10
         copy: extInfo?.copy || '',
         coveragePeriod, // 保障期间值 固定：固定数字，枚举：英文逗号隔开，范围：最小值，最大值
         insuredCode, // 保司code

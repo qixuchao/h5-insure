@@ -60,7 +60,9 @@
     </div>
     <div class="footer-bar">
       <span class="trial-result"
-        >总保费<span class="result-num">{{ !submitDisable ? `￥${totalPremium?.toLocaleString()}` : '-' }}</span>
+        >总保费<span class="result-num">{{
+          !submitDisable ? `￥${totalPremium?.toFixed(2)?.toLocaleString()}` : '-'
+        }}</span>
       </span>
       <div class="trial-operate">
         <VanButton :disabled="submitDisable" type="primary" @click="saveProposalData">保存并预览</VanButton>

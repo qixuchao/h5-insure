@@ -251,11 +251,12 @@ watch(
 // 监听投被保人关系
 watch(
   () => state.personVO?.relationToHolder,
-  (val) => {
+  (val, oldVal) => {
     // 若投被保人关系为空则不执行
     if (!val) {
       return;
     }
+    console.log(111111, state.personVO?.relationToHolder);
     colorConsole('与投保人关系变动了');
     const { personVO, schema = [], config } = state || {};
     // 投保人id不同步到被保人
@@ -290,7 +291,7 @@ watch(
     }
 
     // 非查看模式处理清除操作
-    if (!props.isView) {
+    if (!props.isView || val !== oldVal) {
       // 本人则本人数据覆盖
       let newPersonVo = {
         ...personVO,
