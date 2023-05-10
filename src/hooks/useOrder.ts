@@ -60,6 +60,7 @@ export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
       },
     ],
     tenantOrderSubjectList: [],
+    tenantOrderPayInfoList: [],
     operateOption: {
       withBeneficiaryInfo: true,
       withHolderInfo: true,

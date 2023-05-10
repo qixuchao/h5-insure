@@ -23,7 +23,9 @@
               :premium="scope.riskPremium?.initialPremium"
               :share-info="shareInfo"
               :loading-text="trialMsg"
-              :payment-frequency="riskVOList?.[0]?.paymentFrequency"
+              :payment-frequency="
+                scope.trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''
+              "
               :tenant-product-detail="tenantProductDetail"
               :handle-share="(cb) => onShare(cb, scope.trialData)"
               @handle-click="onNext(scope.trialData)"
