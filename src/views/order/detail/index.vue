@@ -6,7 +6,7 @@
           <template #label>
             <div class="header">
               <div class="product-name">
-                {{ detail?.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productName }}
+                {{ detail?.insuredList[0]?.productList[0]?.productName }}
               </div>
               <div class="company-name">{{ (detail?.abbreviation || '').substring(0, 6) }}</div>
             </div>
@@ -17,15 +17,15 @@
         </FieldInfo>
         <FieldInfo label="投保单号" :content="detail?.orderNo" />
         <FieldInfo label="创建时间" :content="dayjs(detail?.gmtCreated).format('YYYY-MM-DD HH:mm:ss')" />
-        <FieldInfo label="投保人" :content="detail?.tenantOrderHolder?.name" />
+        <FieldInfo label="投保人" :content="detail?.holder?.name" />
         <FieldInfo
-          v-for="(item, index) in detail?.tenantOrderInsuredList || []"
+          v-for="(item, index) in detail?.insuredList || []"
           :key="index"
           label="被保人"
           :content="item.name"
         />
       </div>
-      <InsureInfo :product-data="detail?.tenantOrderInsuredList[0]?.tenantOrderProductList?.[0]" class="insure-info" />
+      <InsureInfo :product-data="detail?.insuredList?.[0]?.productList?.[0]" class="insure-info" />
       <div v-loading="loading">
         <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.PENDING" class="footer-button">
           <van-button type="primary" @click.stop="handleDelete">删除</van-button>
@@ -87,7 +87,7 @@ const handleDelete = () => {
 const redirectProductDetail = (): boolean => {
   if (!detail.value) return false;
   const { agencyId: agencyCode, saleChannelId, orderTopStatus } = detail.value;
-  const productCode = detail.value.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productCode;
+  const productCode = detail.value.insuredList?.[0]?.productList[0]?.productCode;
   if (ORDER_TOP_STATUS_ENUM.PENDING === orderTopStatus || ORDER_TOP_STATUS_ENUM.PAYING === orderTopStatus) {
     if (productCode === PRODUCT_LIST_ENUM.ZXYS || productCode === PRODUCT_LIST_ENUM.BWYL) {
       const productUrlMap = {
@@ -121,7 +121,7 @@ const handleProcess = () => {
       venderCode: insurerCode,
       orderStatus,
     } = detail.value;
-    const productCode = detail.value.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productCode;
+    const productCode = detail.value.insuredList?.[0]?.productList[0]?.productCode;
     const params: InsureLinkReq = {
       insurerCode,
       productCode,
@@ -179,7 +179,7 @@ const handlePay = () => {
       agencyId: agencyCode,
       venderCode: insurerCode,
     } = detail.value;
-    const productCode = detail.value.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productCode;
+    const productCode = detail.value.insuredList?.[0]?.productList[0]?.productCode;
     pageJump('payInfo', {
       productCode,
       orderNo,

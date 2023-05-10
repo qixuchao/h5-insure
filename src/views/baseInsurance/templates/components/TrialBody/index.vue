@@ -44,7 +44,7 @@
           "
           @trial-change="handleProductRiskInfoChange"
         ></ProductRiskList>
-        <!-- <div class="empty"></div> -->
+        <div class="empty"></div>
       </div>
     </div>
     <slot

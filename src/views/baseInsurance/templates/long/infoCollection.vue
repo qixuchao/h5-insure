@@ -439,5 +439,9 @@ onBeforeMount(() => {
     background-color: #fff;
     background: #ffffff;
   }
+
+  .empty {
+    display: none;
+  }
 }
 </style>
