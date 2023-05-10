@@ -275,9 +275,10 @@ const initData = async () => {
           renewFlag: '',
           holder,
           tenantId,
-          insuredList: (insuredList || []).map((insured) =>
-            insured.productList.filter((product) => product.productCode === productCode),
-          ),
+          insuredList: (insuredList || []).map((insured) => ({
+            ...insured,
+            productList: insured.productList.filter((product) => product.productCode === productCode),
+          })),
         };
       }
     });
