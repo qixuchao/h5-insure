@@ -144,7 +144,7 @@ const handleInsureInfoChange = (data: any, riskId: number, changeData: any) => {
 };
 
 const handleSetRiskSelect = () => {
-  state.riskIsInsure = {};
+  // state.riskIsInsure = {};
   state.disabledRiskInfo = [];
   let mainRisk = null;
   props.dataSource.insureProductRiskVOList?.forEach((risk) => {
@@ -157,7 +157,13 @@ const handleSetRiskSelect = () => {
       // 1可选，2绑定， 3互斥 {
       mainRisk = risk;
     }
-    state.riskIsInsure[risk.riskId] = { selected: '2', data: null, relation, isMust: false };
+    if (!state.riskIsInsure[risk.riskId])
+      state.riskIsInsure[risk.riskId] = { selected: '2', data: null, relation, isMust: false };
+    else {
+      state.riskIsInsure[risk.riskId].data = null;
+      state.riskIsInsure[risk.riskId].relation = relation;
+      state.riskIsInsure[risk.riskId].isMust = false;
+    }
   });
   // 根据关联关系判断和标准险种关联的是否可选
   if (mainRisk) {
@@ -322,6 +328,11 @@ watch(
           state.riskIsInsure[risk.riskId].selected = '1';
           // handleSwitchClick('1', risk);
           handleInsureInfoChange(risk, risk.riskId);
+        } else {
+          state.riskIsInsure[risk.riskId] = {
+            selected: '1',
+            isMust: false,
+          };
         }
       });
     }
