@@ -195,10 +195,10 @@ const handleSetRiskSelect = () => {
               (risk?.paymentFrequencyList?.length > 0 && risk?.paymentFrequencyList[0].code) || null;
             let count = 0;
             if (amountPremiumConfigVO.displayType === 1) {
-              // amount
+              // initialAmount
               count = amountPremiumConfigVO?.minStepValue > 0 ? amountPremiumConfigVO?.minStepValue : 0;
             } else if (amountPremiumConfigVO.displayType === 3 && amountPremiumConfigVO.requireCopies === 2) {
-              // amount
+              // initialAmount
               count =
                 amountPremiumConfigVO?.displayValues?.length > 0 ? amountPremiumConfigVO?.displayValues[0].value : 0;
             } else if (amountPremiumConfigVO.displayType === 3 && amountPremiumConfigVO.requireCopies === 1) {
@@ -210,8 +210,8 @@ const handleSetRiskSelect = () => {
               // copy
               data.copy = amountPremiumConfigVO.minCopiesValue;
             }
-            if (amountPremiumConfigVO.saleMethod === 1) data.amount = count;
-            else data.premium = count;
+            if (amountPremiumConfigVO.saleMethod === 1) data.initialAmount = count;
+            else data.initialPremium = count;
             state.disabledRiskInfo.push(data);
             handleInsureInfoChange(data, risk.riskId);
           }
@@ -246,10 +246,10 @@ const handleShowNoInfoShowRisk = (risk: any) => {
     data.paymentFrequency = (risk?.paymentFrequencyList?.length > 0 && risk?.paymentFrequencyList[0].code) || null;
     let count = 0;
     if (amountPremiumConfigVO.displayType === 1) {
-      // amount
+      // initialAmount
       count = amountPremiumConfigVO?.minStepValue > 0 ? amountPremiumConfigVO?.minStepValue : 0;
     } else if (amountPremiumConfigVO.displayType === 3 && amountPremiumConfigVO.requireCopies === 2) {
-      // amount
+      // initialAmount
       count = amountPremiumConfigVO?.displayValues?.length > 0 ? amountPremiumConfigVO?.displayValues[0].value : 0;
     } else if (amountPremiumConfigVO.displayType === 3 && amountPremiumConfigVO.requireCopies === 1) {
       // amout copy
@@ -261,8 +261,8 @@ const handleShowNoInfoShowRisk = (risk: any) => {
     } else {
       count = 0;
     }
-    if (amountPremiumConfigVO.saleMethod === 1) data.amount = count;
-    else data.premium = count;
+    if (amountPremiumConfigVO.saleMethod === 1) data.initialAmount = count;
+    else data.initialPremium = count;
     handleInsureInfoChange(data, risk.riskId);
   }
 };
