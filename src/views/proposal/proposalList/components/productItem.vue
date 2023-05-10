@@ -8,7 +8,7 @@
   <div class="com-product-item">
     <div class="content-wrap">
       <div class="product-image">
-        <van-image :src="productInfo.showConfig?.fileUrl" />
+        <van-image :src="productInfo.showConfig?.fileThumbnailUrl || productInfo.showConfig?.fileUrl" />
         <p class="insure-name">{{ (productInfo.insurerName || '').substring(0, 6) }}</p>
         <!-- <span class="is-top new">热销</span> -->
       </div>

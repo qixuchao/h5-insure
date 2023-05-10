@@ -14,6 +14,7 @@ export interface ProductInfoVoItem {
   fileName: string;
   fileType: string;
   fileUrl: string;
+  fileThumbnailUrl: string; // 缩略图
   id: number;
   tags: string[];
   text: string;
@@ -36,7 +37,8 @@ export interface ProposalItem {
 export interface ShowConfig {
   fileName: string;
   fileType: string;
-  fileUrl: string;
+  fileUrl: string; // 大图
+  fileThumbnailUrl: string; // 缩略图
   tags: string[];
   text: string;
   title: string;
