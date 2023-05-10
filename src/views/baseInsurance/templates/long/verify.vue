@@ -73,6 +73,7 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
+import { stringify } from 'qs';
 import { productDetail as getTenantProductDetail, queryProductMaterial, querySalesInfo } from '@/api/modules/product';
 import { nextStepOperate as nextStep } from '../../nextStep';
 import {
@@ -150,7 +151,11 @@ try {
 }
 
 const orderDetail = useOrder();
-const shareLink = `${window.origin}/baseInsurance/long/phoneVerify${window.location.search}`;
+const shareLink = `${window.origin}/baseInsurance/long/phoneVerify?${stringify({
+  ...route.query,
+  orderNo: orderCode || orderNo,
+})}`;
+console.log('shareLink', shareLink);
 const storage = new Storage({ source: 'localStorage' });
 
 const tenantProductDetail = ref<Partial<ProductDetail>>({}); // 核心系统产品信息
