@@ -516,6 +516,17 @@ export const handleSlots = (slots, slotsMap = {}) => {
   }, {});
 };
 
+export const calculateAge = (birthdate) => {
+  const today = new Date();
+  const birthDate = new Date(birthdate);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const month = today.getMonth() - birthDate.getMonth();
+  if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
+    age -= 1;
+  }
+  return age;
+};
+
 /**
  * 解析身份证号码
  * @param str
@@ -527,6 +538,8 @@ export const parseCertNo = (str: string) => {
     gender: '',
     /** 生日 */
     birthday: '',
+    /** 年龄 */
+    age: '',
   };
   // 身份证验证通过
   if (typeof str === 'string' && str && validateIdCardNo(str)) {
@@ -538,6 +551,8 @@ export const parseCertNo = (str: string) => {
     result.birthday = str.slice(...splitRange[str.length]).replace(/(.{4})(.{2})/, '$1-$2-');
 
     result.gender = [SEX_LIMIT_ENUM.FEMALE, SEX_LIMIT_ENUM.MALE][Number(str.slice(-2, -1)) % 2];
+
+    result.age = result.birthday && `${calculateAge(result.birthday)}`;
   }
   return result;
 };

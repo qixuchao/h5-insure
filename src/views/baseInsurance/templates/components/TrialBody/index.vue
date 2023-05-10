@@ -687,10 +687,13 @@ onMounted(() => {
   });
 });
 
+const personalInfoRef = ref<InstanceType<typeof PersonalInfo>>();
+
 defineExpose({
   getTrialSuccessFlag: () => {
     return state.trialResultPremium > 0;
   },
+  personalInfoRef,
 });
 watch(
   () => state.riskIsInsure,

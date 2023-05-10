@@ -10,11 +10,11 @@
               <span class="factor-name"> 保额(元) </span>
             </div>
             <div class="factor">
-              <span class="factor-value">{{ pickNameInList(RISK_INSURANCE_PERIOD, risk.coveragePeriod) || '-' }}</span>
+              <span class="factor-value">{{ convertPeriod(risk.coveragePeriod) || '-' }}</span>
               <span class="factor-name"> 保障期间 </span>
             </div>
             <div class="factor">
-              <span class="factor-value">{{ pickNameInList(RISK_PAYMENT_PERIOD, risk.chargePeriod) || '-' }}</span>
+              <span class="factor-value">{{ convertChargePeriod(risk.chargePeriod) || '-' }}</span>
               <span class="factor-name"> 交费期间 </span>
             </div>
           </div>
@@ -73,7 +73,7 @@ import { withDefaults } from 'vue';
 import { useToggle } from '@vant/use';
 import { ProposalProductRiskItem, ProposalInsuredProductItem } from '@/api/modules/createProposal.data';
 import { ProductData, RiskDetailVoItem } from '@/api/modules/trial.data';
-import { pickNameInList } from '@/utils';
+import { convertPeriod, convertChargePeriod } from '@/utils/format';
 import RiskRelationList from '@/views/trial/components/RiskRelationList/index.vue';
 import useDict from '@/hooks/useDicData';
 import ProductTips from '@/views/proposal/proposalList/components/ProductTips.vue';
@@ -119,10 +119,6 @@ const state = ref<State>({
   productRiskList: [],
 });
 // const isCanAddRiderRisk = ref<boolean>(false);
-
-const RISK_PAYMENT_PERIOD = useDict('RISK_PAYMENT_PERIOD');
-
-const RISK_INSURANCE_PERIOD = useDict('RISK_INSURANCE_PERIOD');
 
 // 可选附加险
 const riderRiskList = computed(() => {
