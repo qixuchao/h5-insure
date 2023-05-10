@@ -638,11 +638,10 @@ const transformDefaultData = (defaultData: any) => {
   // state.userData = defaultData;
   state.userData = defaultData;
   state.defaultValue = defaultData;
-  const currentPlanIndex = defaultData.insuredList[0].productList.findIndex(
-    (p) => p.planCode === props.dataSource.planCode,
-  );
+  const currentPlanIndex =
+    defaultData.insuredList?.[0].productList.findIndex((p) => p.planCode === props.dataSource.planCode) || 0;
   state.planIndex = currentPlanIndex === -1 ? 0 : currentPlanIndex;
-  state.riskList = defaultData?.insuredList[0].productList[state.planIndex]?.riskList;
+  state.riskList = defaultData?.insuredList?.[0].productList?.[state.planIndex]?.riskList || [];
   handleTrialAndBenefit(defaultData, true);
 };
 

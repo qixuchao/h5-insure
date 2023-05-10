@@ -338,17 +338,6 @@ watch(
     immediate: true,
   },
 );
-
-watch(
-  props.modelValue,
-  (v) => {
-    console.log('---------modelValueChange = ', v);
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
 </script>
 <style lang="scss" scoped>
 .flex-form {
