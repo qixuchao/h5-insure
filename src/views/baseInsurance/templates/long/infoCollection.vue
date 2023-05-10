@@ -3,6 +3,7 @@
     <div class="long-info-collection">
       <TrialBody
         v-if="state.defaultValue"
+        ref="trialRef"
         :data-source="currentPlanObj"
         :product-info="{
           productCode,
