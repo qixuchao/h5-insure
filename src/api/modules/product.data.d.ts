@@ -233,7 +233,7 @@ export interface TenantProductInsureVO {
    */
   occupationLimit: string;
   /**
-   * 缴费期间值 固定：固定数字，枚举：英文逗号隔开，范围：最小值，最大值
+   * 交费期间值 固定：固定数字，枚举：英文逗号隔开，范围：最小值，最大值
 按年缴：以year开头，例如year_10
 按月缴：以month开头，例如month_10
 缴至多少岁：以to开头，例如to_60

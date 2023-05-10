@@ -251,7 +251,7 @@ watch(
 // 监听投被保人关系
 watch(
   () => state.personVO?.relationToHolder,
-  (val) => {
+  (val, oldVal) => {
     // 若投被保人关系为空则不执行
     if (!val) {
       return;
@@ -289,8 +289,8 @@ watch(
       merge(config, getCertConfig(personVO.certType));
     }
 
-    // 非查看模式处理清除操作
-    if (!props.isView) {
+    // 非查看模式处理与投保人关系变动，数据操作
+    if (!props.isView && oldVal && String(val) !== String(oldVal)) {
       // 本人则本人数据覆盖
       let newPersonVo = {
         ...personVO,

@@ -287,7 +287,7 @@ const columns = [
     width: 110,
   },
   {
-    title: '缴费期间',
+    title: '交费期间',
     dataIndex: 'key4',
     width: 110,
   },

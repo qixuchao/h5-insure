@@ -92,20 +92,20 @@ const state = ref({
   formInfo: props.dataSource,
   isCheckList: [],
   checkValueList: [],
-  liabilityVOList: [],
+  liabilityList: [],
   signLiabilityClick: [],
 });
 
 const handleSwitchClick = (item, index) => {
   // 可选责任 没有责任属性 且为选中投保状态需要把code传给后端
 
-  const key_list = state.value.liabilityVOList.map((i) => i.key);
+  const key_list = state.value.liabilityList.map((i) => i.key);
   // 可选责任 没有责任属性
   const canChooseNoLib = item.liabilityAttributeValueList.length === 0 && item.formula.length === 0;
   // 投保状态
   const status = state.value.isCheckList[index];
   if (canChooseNoLib && key_list.indexOf(index) === -1 && status) {
-    state.value.liabilityVOList.push({
+    state.value.liabilityList.push({
       liabilityValue: item,
       key: index,
       isSwitchOn: state.value.isCheckList[index],
@@ -113,7 +113,7 @@ const handleSwitchClick = (item, index) => {
   }
   // 对已经存在的责任 选择投保不投保 更新当前状态
   if (key_list.indexOf(index) !== -1) {
-    state.value.liabilityVOList.forEach((i) => {
+    state.value.liabilityList.forEach((i) => {
       if (i.key === index) {
         i.isSwitchOn = state.value.isCheckList[index];
       }
@@ -127,12 +127,12 @@ const handleRiskLiabityClick = (e, index) => {
   const liabilityValue = JSON.parse(JSON.stringify(curentLiabilityList))[0];
   const curentLiabilityObject = { ...e, liabilityValue };
 
-  if (state.value.liabilityVOList.length > 0) {
+  if (state.value.liabilityList.length > 0) {
     if (Object.keys(state.value.checkValueList).indexOf(index)) {
-      state.value.liabilityVOList = state.value.liabilityVOList.filter((x) => x.key !== index);
+      state.value.liabilityList = state.value.liabilityList.filter((x) => x.key !== index);
     }
   }
-  state.value.liabilityVOList.push({
+  state.value.liabilityList.push({
     liabilityValue: curentLiabilityObject,
     key: index,
     isSwitchOn: '1',
@@ -144,13 +144,13 @@ const dataSourceFolmulate = computed(() => {
 });
 const dealInitliabilityValueList = (item, index, type) => {
   if (type === 1) {
-    state.value.liabilityVOList.push({
+    state.value.liabilityList.push({
       liabilityValue: { ...item, liabilityValue: item?.liabilityAttributeValueList[0] },
       key: index,
       isSwitchOn: '1',
     });
   } else {
-    state.value.liabilityVOList.push({
+    state.value.liabilityList.push({
       liabilityValue: { ...item, liabilityValue: item?.liabilityAttributeValueList[0] },
       key: index,
       isSwitchOn: '2',
@@ -213,9 +213,9 @@ watch(
 );
 
 watch(
-  () => state.value.liabilityVOList,
+  () => state.value.liabilityList,
   (value) => {
-    const dataList = state.value.liabilityVOList
+    const dataList = state.value.liabilityList
       .filter((x) => x.isSwitchOn === '1')
       .map((item) => ({ ...item.liabilityValue }));
 
@@ -240,7 +240,7 @@ onMounted(() => {
     state.value.checkValueList[index] = value;
     // 初始化数据，必选责任不展示，但需要把当前责任code的对象传给后端
     if (+item.showFlag !== 1) {
-      state.value.liabilityVOList.push({
+      state.value.liabilityList.push({
         liabilityValue: item,
         key: index,
         isSwitchOn: '1',
@@ -271,10 +271,10 @@ onMounted(() => {
 watch(
   () => props.defaultValue,
   (v) => {
-    if (v?.riskCode && v.liabilityVOList) {
+    if (v?.riskCode && v.liabilityList) {
       state.value.signLiabilityClick = [];
       props.dataSource.riskLiabilityInfoVOList.forEach((item, index) => {
-        const targetLia = v?.liabilityVOList.find((li) => li.liabilityCode === item.liabilityCode);
+        const targetLia = v?.liabilityList.find((li) => li.liabilityCode === item.liabilityCode);
         state.value.isCheckList[index] = '2';
         if (targetLia) {
           state.value.isCheckList[index] = '1';

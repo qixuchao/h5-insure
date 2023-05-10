@@ -379,7 +379,7 @@ const handleSameMainRisk = (data: any) => {
             if (risk.productRiskInsureLimitVO[config.ruleKey] === 3) {
               // -1
               if (risk.exemptFlag !== 1)
-                // 附加险为豁免险的时候 ，附加险的额交期、保期是主险的缴费期间-1 @小春
+                // 附加险为豁免险的时候 ，附加险的额交期、保期是主险的交费期间-1 @小春
                 data[config.valueKey] = dealExemptPeriod(risk, mainRiskTrialData[config.valueKey], state.submitData);
               else
                 data[config.valueKey] = dealExemptPeriod(
