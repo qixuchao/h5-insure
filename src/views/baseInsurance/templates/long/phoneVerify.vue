@@ -48,7 +48,7 @@ const getDetail = () => {
   }).then(({ code, data }) => {
     if (code === '10000') {
       Object.assign(orderDetail.value, data);
-      phone.value = data?.tenantOrderHolder?.mobile;
+      phone.value = data?.holder?.mobile;
     }
   });
 };

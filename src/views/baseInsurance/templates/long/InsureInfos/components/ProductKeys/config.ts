@@ -9,7 +9,7 @@ export const PRODUCT_KEYS_CONFIG = [
     name: '领取频率',
     type: 'checkbox',
     configKey: ['annuityDrawFrequencyList'],
-    valueKey: 'annuityDrawType',
+    valueKey: 'annuityDrawFrequency',
   },
   {
     name: '交费方式',

@@ -2,9 +2,9 @@
   <div v-if="!hidePopupButton" :class="`trial-button ${$attrs.class}`">
     <TrialButton
       :is-share="currentShareInfo.isShare"
-      :premium="state.trialResultPremium"
+      :premium="0"
       :share-info="currentShareInfo"
-      :loading-text="state.trialMsg"
+      loading-text=""
       :plan-code="props.dataSource.planCode"
       :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
       :tenant-product-detail="tenantProductDetail"
