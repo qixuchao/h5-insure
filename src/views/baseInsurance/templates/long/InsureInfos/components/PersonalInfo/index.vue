@@ -308,11 +308,12 @@ watch(
   [() => props.productFactor, () => props.isTrial],
   (val) => {
     if (val[0]) {
-      const { insuredFactorCodes } = inject(PERSONAL_INFO_KEY) || {};
+      const { insuredFactorCodes, holderFactorCodes } = inject(PERSONAL_INFO_KEY) || {};
       const { holder, insured, beneficiary, config } = transformFactorToSchema(val[0], {
         isTrial: val[1],
         ...props.multiInsuredConfig,
         insuredFactorCodes,
+        holderFactorCodes,
       });
       Object.assign(state.holder, holder);
 

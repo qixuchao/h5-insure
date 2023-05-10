@@ -21,16 +21,16 @@ export const dealExemptPeriod = (riderRisk: RiskDetailVoItem, mainRiskValue: str
       let age = 0;
       // 投保人豁免
       if (riskItem.exemptType === 1) {
-        if (holder?.personVO?.birthday) {
+        if (holder?.birthday) {
           age = parseInt(
-            `${(new Date().getTime() - new Date(holder.personVO?.birthday).getTime()) / (1000 * 60 * 60 * 24 * 365)}`,
+            `${(new Date().getTime() - new Date(holder.birthday).getTime()) / (1000 * 60 * 60 * 24 * 365)}`,
             10,
           );
         }
       } else if (riskItem.exemptType === 2) {
-        if (insured?.personVO?.birthday) {
+        if (insured?.birthday) {
           age = parseInt(
-            `${(+new Date().getTime() - new Date(insured.personVO?.birthday).getTime()) / (1000 * 60 * 60 * 24 * 365)}`,
+            `${(+new Date().getTime() - new Date(insured.birthday).getTime()) / (1000 * 60 * 60 * 24 * 365)}`,
             10,
           );
         }

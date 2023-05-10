@@ -101,10 +101,10 @@
       </template>
     </VanField>
   </div>
-  <div v-if="mConfigs.saleMethod === 2 && trialResult && trialResult.amount > 0">
+  <div v-if="mConfigs.saleMethod === 2 && trialResult && trialResult.initialAmount > 0">
     <VanField :label="`保额`" class="risk-select-field">
       <template #input>
-        <span>{{ trialResult.amount }}</span>
+        <span>{{ trialResult.initialAmount }}</span>
       </template>
     </VanField>
   </div>
@@ -151,7 +151,6 @@ const pickEnums = (origin: any[], target: any[], prop = {}) => {
 };
 
 const validateSumInsured = () => {
-  console.log('-----------', mConfigs.value, mValues.value);
   return true;
 };
 
@@ -159,12 +158,12 @@ const getMethodName = () => {
   if (mConfigs.value.saleMethod === 2) {
     return {
       label: '保费',
-      key: 'premium',
+      key: 'initialPremium',
     };
   }
   return {
     label: '保额',
-    key: 'amount',
+    key: 'initialAmount',
   };
 };
 
@@ -192,12 +191,12 @@ const methodName = computed(() => {
   if (mConfigs.value.saleMethod === 2) {
     return {
       label: '保费',
-      key: 'premium',
+      key: 'initialPremium',
     };
   }
   return {
     label: '保额',
-    key: 'amount',
+    key: 'initialAmount',
   };
 });
 
@@ -268,7 +267,7 @@ const initData = () => {
     if (mConfigs.value.minCopiesValue === mConfigs.value.maxCopiesValue && canChange && !mValues.value.copy) {
       mValues.value.copy = mConfigs.value.minCopiesValue;
     }
-    if (canChange && !mValues.value.amount) mValues.value.amount = mConfigs.value.copiesAmount;
+    if (canChange && !mValues.value.initialAmount) mValues.value.initialAmount = mConfigs.value.copiesAmount;
   }
 };
 

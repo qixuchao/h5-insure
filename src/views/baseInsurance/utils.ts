@@ -536,28 +536,24 @@ export const genaratePremiumCalcData = (o: premiumCalcParamType, flag = false, v
   }
   const calcData: PremiumCalcData = {
     holder: {
-      personVO: {
-        birthday: getBirth(o.holder.certNo),
-        certType: CERT_TYPE_ENUM.CERT, // 默认身份证
-        certNo: o.holder.certNo,
-        gender: Number(getSex(o.holder.certNo)),
-        mobile: o.holder.mobile,
-        name: o.holder.name,
-        socialFlag: o.holder.socialFlag,
-      },
+      birthday: getBirth(o.holder.certNo),
+      certType: CERT_TYPE_ENUM.CERT, // 默认身份证
+      certNo: o.holder.certNo,
+      gender: Number(getSex(o.holder.certNo)),
+      mobile: o.holder.mobile,
+      name: o.holder.name,
+      socialFlag: o.holder.socialFlag,
     },
     insuredList: [
       {
         insuredCode: o.productDetail?.insurerCode as string,
         relationToHolder: o.insured.relationToHolder,
-        personVO: {
-          birthday: getBirth(o.insured.certNo),
-          certType: CERT_TYPE_ENUM.CERT, // 默认身份证
-          certNo: o.insured.certNo,
-          gender: Number(getSex(o.insured.certNo)),
-          name: o.insured.name,
-          socialFlag: o.insured.socialFlag,
-        },
+        birthday: getBirth(o.insured.certNo),
+        certType: CERT_TYPE_ENUM.CERT, // 默认身份证
+        certNo: o.insured.certNo,
+        gender: Number(getSex(o.insured.certNo)),
+        name: o.insured.name,
+        socialFlag: o.insured.socialFlag,
         // TODO ts报错
         productList: [
           {

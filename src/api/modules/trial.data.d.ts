@@ -281,16 +281,15 @@ export interface ProductBasicInfoVo {
 }
 
 export interface PremiumCalcData {
-  holder?: Holder;
+  holder?: Partial<PersonVo>;
   insuredList: Array<Partial<InsuredVoItem>>;
   productCode: string;
   productId?: number;
   tenantId?: string;
 }
 
-export interface InsuredVoItem {
+export interface InsuredVoItem extends PersonVo {
   insuredCode: string;
-  personVO: PersonVo;
   productList: Array<Partial<ProductPlanVoItem>>;
   relationToHolder?: string;
 }
