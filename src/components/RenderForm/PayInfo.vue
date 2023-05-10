@@ -277,7 +277,7 @@ watch(
     // 续期同首期
     if (isSameFirst) {
       combineFormData(RENEW_TERM, FIRST_TERM);
-    } else {
+    } else if (state.schemaList[RENEW_TERM]) {
       state.schemaList[RENEW_TERM].formData = {
         ...fieldInitList[RENEW_TERM].formData,
         paymentGenre: val,
