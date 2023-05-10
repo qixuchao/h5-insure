@@ -266,6 +266,7 @@ const initData = async () => {
   orderNo &&
     getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
+        data.productCode = productCode;
         orderDetail.value = data;
         isLoadDefaultValue.value = true;
       }

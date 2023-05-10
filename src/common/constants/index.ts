@@ -161,6 +161,8 @@ export const ORDER_STATUS_MAPPING_PAGE = {
   [ORDER_STATUS_ENUM.PROCESSING]: PAGE_ROUTE_ENUMS.infoCollection,
   /** 待认证->保单预览 */
   [ORDER_STATUS_ENUM.WAIT_IDENTIFICATION]: PAGE_ROUTE_ENUMS.infoPreview,
+  /** 核保通过->保单预览 */
+  [ORDER_STATUS_ENUM.UNDER_WRITING_SUCCESS]: PAGE_ROUTE_ENUMS.infoPreview,
   /** 认证中->签名认证 */
   [ORDER_STATUS_ENUM.IN_IDENTIFICATION]: PAGE_ROUTE_ENUMS.infoPreview,
   /** 认证完成->签名认证 */

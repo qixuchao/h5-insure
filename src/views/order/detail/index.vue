@@ -140,6 +140,7 @@ const handleProcess = () => {
         if ([TEMPLATE_NAME_ENUM.LONG, TEMPLATE_NAME_ENUM.NIANJIN].includes(getTemplateNameById(`${templateId}`))) {
           const queryStr = res.data.split('?')[1];
           const queryObj = qs.parse(queryStr);
+          console.log('234242', ORDER_STATUS_MAPPING_PAGE[orderStatus]);
           router.push({
             path: ORDER_STATUS_MAPPING_PAGE[orderStatus],
             query: {

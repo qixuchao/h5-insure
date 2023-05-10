@@ -689,10 +689,10 @@ onMounted(() => {
 
 const personalInfoRef = ref<InstanceType<typeof PersonalInfo>>();
 
-const validate = () => personalInfoRef.value.validate();
+const validate = () => personalInfoRef.value.validate(false);
 const validateTrialFields = () => personalInfoRef.value.validateTrialFields();
-const validateHolder = (...rest) => {
-  return personalInfoRef.value?.validate(...rest);
+const validateHolder = (rest) => {
+  return personalInfoRef.value?.validateHolder(rest);
 };
 
 defineExpose({

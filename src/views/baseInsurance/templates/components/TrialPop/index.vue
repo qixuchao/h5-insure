@@ -21,6 +21,7 @@
     @closed="onClosePopupAfterAni"
   >
     <TrialBody
+      ref="insureInfosRef"
       :data-source="dataSource"
       :share-info="shareInfo"
       is-trial

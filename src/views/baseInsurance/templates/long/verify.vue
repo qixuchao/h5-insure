@@ -295,7 +295,6 @@ const handleShare = () => {
     .validateSign()
     .then(() => {
       if (shareRef.value) {
-        console.log('234242');
         shareRef.value.handleShare();
       }
     })

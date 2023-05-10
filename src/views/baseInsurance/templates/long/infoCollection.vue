@@ -299,11 +299,9 @@ const onNext = async (trialData) => {
     validateList.push(personalInfoRef.value?.validate(false));
   }
 
-  // if (payInfoRef.value) {
-  //   validateList.push(payInfoRef.value?.validate(false));
-  // }
-
-  console.log('validateList', validateList);
+  if (payInfoRef.value) {
+    validateList.push(payInfoRef.value?.validate(false));
+  }
 
   Promise.all(validateList).then(() => {
     Object.assign(orderDetail.value, {
@@ -327,7 +325,7 @@ const onNext = async (trialData) => {
 // 分享时需要校验投保人手机号并且保存数据
 const onShare = (cb, trialData) => {
   personalInfoRef.value
-    .validateHolder('mobile')
+    .validateHolder(['mobile'])
     .then(() => {
       Object.assign(orderDetail.value, {
         extInfo: {
