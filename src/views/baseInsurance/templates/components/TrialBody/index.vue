@@ -636,13 +636,13 @@ const handleRestState = () => {
 
 const transformDefaultData = (defaultData: any) => {
   // state.userData = defaultData;
-  console.log('------default data = ', defaultData);
   state.userData = defaultData;
   state.defaultValue = defaultData;
   const currentPlanIndex = defaultData.insuredList[0].productList.findIndex(
     (p) => p.planCode === props.dataSource.planCode,
   );
   state.planIndex = currentPlanIndex === -1 ? 0 : currentPlanIndex;
+  state.riskList = defaultData?.insuredList[0].productList[state.planIndex]?.riskList;
   handleTrialAndBenefit(defaultData, true);
 };
 
@@ -688,10 +688,13 @@ onMounted(() => {
   });
 });
 
+const personalInfoRef = ref<InstanceType<typeof PersonalInfo>>();
+
 defineExpose({
   getTrialSuccessFlag: () => {
     return state.trialResultPremium > 0;
   },
+  personalInfoRef,
 });
 watch(
   () => state.riskIsInsure,

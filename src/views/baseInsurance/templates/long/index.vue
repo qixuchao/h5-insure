@@ -48,7 +48,7 @@
     </template>
     <div v-else class="preview-placeholder">当前页面仅用于保费试算预览<br />不展示其他产品相关配置信息</div>
 
-    <template v-if="showFooterBtn">
+    <template v-if="showFooterBtn && isLoadDefaultValue">
       <!-- <ProLazyComponent> -->
       <TrialPop
         ref="trialRef"
@@ -240,6 +240,7 @@ const queryProductMaterialData = () => {
 
 // 初始化数据，获取产品配置详情和产品详情
 const orderDetail = ref<any>();
+const isLoadDefaultValue = ref<boolean>(false);
 
 const initData = async () => {
   !trialPreviewMode.value &&
@@ -258,10 +259,15 @@ const initData = async () => {
       }
     });
 
+  if (!(orderNo || proposalId)) {
+    isLoadDefaultValue.value = true;
+  }
+
   orderNo &&
     getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         orderDetail.value = data;
+        isLoadDefaultValue.value = true;
       }
     });
 
@@ -280,6 +286,7 @@ const initData = async () => {
             productList: insured.productList.filter((product) => product.productCode === productCode),
           })),
         };
+        isLoadDefaultValue.value = true;
       }
     });
 
