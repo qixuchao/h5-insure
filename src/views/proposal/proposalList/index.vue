@@ -60,6 +60,7 @@
 import { useToggle } from '@vant/use';
 import { useRouter, useRoute } from 'vue-router';
 import { withDefaults } from 'vue';
+import { Toast } from 'vant';
 import ProEmpty from '@/components/ProEmpty/index.vue';
 import emptyImg from '@/assets/images/empty.png';
 import ProductItem from './components/productItem.vue';
@@ -104,6 +105,7 @@ interface StateType {
   excludeProductCodeList: string[];
   isCreateProposal: boolean;
   selectedProductList: any[];
+  firstLoading: boolean;
 }
 
 const store = createProposalStore();
@@ -136,6 +138,7 @@ const state = reactive<StateType>({
   isCreateProposal: false,
   // 选择的产品
   selectedProductList: [],
+  firstLoading: true,
 });
 
 const {
@@ -160,6 +163,10 @@ const [showSelectProduct, toggleSelectProduct] = useToggle();
 
 const getProducts = () => {
   const { excludeProductCodeList } = state;
+  if (state.firstLoading) {
+    state.firstLoading = false;
+    Toast.loading('加载中...');
+  }
   queryProposalProductList({
     title: searchValue.value,
     insurerCodeList: insurerCodeList.value,
@@ -167,13 +174,17 @@ const getProducts = () => {
     excludeProductCodeList: Array.isArray(excludeProductCodeList) ? excludeProductCodeList : [],
     pageNum: 1,
     pageSize: 999,
-  }).then((res: any) => {
-    const { code, data, total } = res;
-    if (code === '10000') {
-      productList.value = data?.datas;
-      productTotal.value = total;
-    }
-  });
+  })
+    .then((res: any) => {
+      const { code, data, total } = res;
+      if (code === '10000') {
+        productList.value = data?.datas;
+        productTotal.value = total;
+      }
+    })
+    .finally(() => {
+      Toast.clear();
+    });
 };
 
 const onSearch = (val: string) => {

@@ -233,7 +233,7 @@ watch(
     () => state.holder?.personVO,
     () =>
       state.insured.map((insuredItem) => {
-        const { beneficiaryList: list, personVO } = insuredItem || {};
+        const { beneficiaryList: list, personVO, ...others } = insuredItem || {};
         const beneficiaryList = isNotEmptyArray(list)
           ? list.map((beneficiaryItem) => ({
               ...beneficiaryItem.personVO,
@@ -242,6 +242,7 @@ watch(
         return {
           ...personVO,
           beneficiaryList,
+          ...others,
         };
       }),
   ],
@@ -256,7 +257,6 @@ watch(
       holder,
       insuredList,
     };
-
     // 多被保人为配偶,性别不符合给提示
     if (state.config.isSpouseInsured) {
       const [gender1, gender2] = insuredList.map((item) => item.personVO?.gender);
@@ -339,6 +339,7 @@ watch(
         ? insuredList.map((item) => {
             return {
               config: item.config,
+              productList: item.productList,
               personVO: filterFormData(item),
               beneficiaryList: isNotEmptyArray(item.beneficiaryList)
                 ? item.beneficiaryList.map(({ config, ...rest }) => ({
@@ -369,7 +370,7 @@ watch(
         ? propsInsuredLen
         : stateInsuredLen || state.config.multiInsuredMinNum;
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
-      const { personVO, config = {} } = insuredList?.[index] || {};
+      const { personVO, config = {}, ...others } = insuredList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
 
       if (!res[index]) {
@@ -378,11 +379,13 @@ watch(
           personVO,
           config,
           nanoid: nanoid(),
+          ...others,
         };
       } else {
         merge(res[index], {
           personVO,
           config,
+          ...others,
         });
         // if (res[index]?.personVO) {
         //   Object.assign(res[index]?.personVO, personVO);

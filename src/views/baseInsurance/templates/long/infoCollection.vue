@@ -324,30 +324,33 @@ const onNext = async (trialData) => {
 
 // 分享时需要校验投保人手机号并且保存数据
 const onShare = (cb, trialData) => {
-  personalInfoRef.value.validateHolder(['mobile']).then(() => {
-    Object.assign(orderDetail.value, {
-      extInfo: {
-        ...orderDetail.value.extInfo,
-        buttonCode: BUTTON_CODE_ENUMS.INFO_COLLECTION,
-        pageCode: PAGE_CODE_ENUMS.INFO_COLLECTION,
-      },
+  personalInfoRef.value
+    .validateHolder(['mobile'])
+    .then(() => {
+      Object.assign(orderDetail.value, {
+        extInfo: {
+          ...orderDetail.value.extInfo,
+          buttonCode: BUTTON_CODE_ENUMS.INFO_COLLECTION,
+          pageCode: PAGE_CODE_ENUMS.INFO_COLLECTION,
+        },
+      });
+
+      const userData = personalInfoRef.value.getUserData();
+      const currentOrderDetail = trialData2Order(
+        { ...trialData, holder: userData?.holder },
+        trialResult.value || {},
+        orderDetail.value,
+      );
+
+      nextStep(currentOrderDetail, (data, pageAction) => {
+        if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+          cb?.();
+        }
+      });
+    })
+    .catch(() => {
+      Toast('请录入投保人手机号后进行分享');
     });
-
-    const userData = personalInfoRef.value.getUserData();
-    const currentOrderDetail = trialData2Order(
-      { ...trialData, holder: userData?.holder },
-      trialResult.value || {},
-      orderDetail.value,
-    );
-
-    console.log('currentOrderDetail', currentOrderDetail);
-
-    nextStep(currentOrderDetail, (data, pageAction) => {
-      if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-        cb?.();
-      }
-    });
-  });
 };
 
 /* -------产品资料模块------------ */
