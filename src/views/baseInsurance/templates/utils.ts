@@ -265,7 +265,7 @@ export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
         productCode: trialData.productCode,
         productName: trialData.productName,
         riskList: (item.riskList || []).map((risk) => {
-          const { amount, premium } = riskPremiumMap[risk.riskCode];
+          const { amount, premium } = riskPremiumMap?.[risk.riskCode] || {};
           return {
             ...risk,
             initialAmount: amount,

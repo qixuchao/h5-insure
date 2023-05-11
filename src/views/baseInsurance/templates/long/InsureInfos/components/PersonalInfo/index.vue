@@ -166,25 +166,6 @@ const filterFormData = (data) => {
   return formData;
 };
 
-// const listObject = (personInfo: any) => {
-//   const keyWords = ['insureArea', 'residence', 'longArea', 'workAddress'];
-//   const newInfo = {};
-//   if (!personInfo) {
-//     return newInfo;
-//   }
-//   Object.keys(personInfo).forEach((key) => {
-//     if (keyWords.indexOf(key) >= 0 && personInfo[key] instanceof Object) {
-//       // 平铺
-//       Object.keys(personInfo[key]).forEach((ckey) => {
-//         newInfo[ckey] = personInfo[key][ckey];
-//       });
-//     } else {
-//       newInfo[key] = personInfo[key];
-//     }
-//   });
-//   return newInfo;
-// };
-
 // 添加被保人
 const onAddInsured = () => {
   const { length, [length - 1]: lastInsuredItem } = state.initInsuredIList;
@@ -214,33 +195,41 @@ const addible = computed(() => {
   return multiInsuredSupportFlag && (!multiInsuredMaxNum || state.insured.length < multiInsuredMaxNum);
 });
 
-//
-// const updateBeneficiaryList = (data, index) => {
-//   if (state.insured[index]) {
-//     debugger;
-//     if (Array.isArray(data)) {
-//       data.forEach((personVO, i) => {
-//         const { beneficiaryList } = state.insured[index];
-//         if (beneficiaryList[1]) {
-//           Object.assign(state.insured[index].beneficiaryList[i].personVO, personVO);
-//         } else {
-//           state.insured[index].beneficiaryList[i] = {
-//             personVO,
-//           };
-//         }
-//       });
-//     }
-//     // state.insured[index].beneficiaryList.forEach((item, i) => {
-//     //   Object.assign(item.personVO, data[i]?.personVO);
-//     // });
-//   }
-// };
-
 // 是否有投保人
 const hasHolderSchema = computed(() => isNotEmptyArray(state.holder.schema));
 
 // 是否有投保人
 const hasInsuredSchema = computed(() => state.insured.some((insuredItem) => isNotEmptyArray(insuredItem.schema)));
+
+const filterData = (keys, data) => {
+  if (!isNotEmptyArray(keys)) {
+    return {};
+  }
+  return keys.reduce((res, key) => {
+    res[key] = data[key];
+    return res;
+  }, {});
+};
+
+const diffDataChange = (keys, val, oldVal) => {
+  if (!isNotEmptyArray(keys)) return false;
+  console.log(keys, filterData(keys, val), filterData(keys, oldVal));
+  return JSON.stringify(filterData(keys, val)) !== JSON.stringify(filterData(keys, oldVal));
+};
+
+// 试算数据是否变动
+const isTrialDataChange = (val, oldVal) => {
+  const flag1 = diffDataChange(state.holder.trialFactorCodes, val[0], oldVal[0]);
+  const flag2 = state.insured.some((insuredItem) => {
+    const { trialFactorCodes, personVO } = insuredItem;
+    return diffDataChange(trialFactorCodes, personVO, oldVal[1]);
+  });
+  return flag1 || flag2;
+};
+
+const canTrail = () => {
+  return state.trialValidated;
+};
 
 // 验证是否试算
 watch(
@@ -248,7 +237,7 @@ watch(
     () => state.holder?.personVO,
     () =>
       state.insured.map((insuredItem) => {
-        const { beneficiaryList: list, personVO } = insuredItem || {};
+        const { beneficiaryList: list, personVO, ...others } = insuredItem || {};
         const beneficiaryList = isNotEmptyArray(list)
           ? list.map((beneficiaryItem) => ({
               ...beneficiaryItem.personVO,
@@ -257,17 +246,21 @@ watch(
         return {
           ...personVO,
           beneficiaryList,
+          ...others,
         };
       }),
   ],
   // eslint-disable-next-line consistent-return
-  debounce(([holder, insuredList]) => {
-    colorConsole('投被保人信息变动了');
+  debounce(([holder, insuredList], oldVal) => {
+    // 试算因子的值是否变动
+    const trialDataChanged = isTrialDataChange([holder, insuredList], oldVal);
+
+    colorConsole(`投被保人信息变动了---${trialDataChanged}`);
+
     const result = {
       holder,
       insuredList,
     };
-
     // 多被保人为配偶,性别不符合给提示
     if (state.config.isSpouseInsured) {
       const [gender1, gender2] = insuredList.map((item) => item.personVO?.gender);
@@ -350,6 +343,7 @@ watch(
         ? insuredList.map((item) => {
             return {
               config: item.config,
+              productList: item.productList,
               personVO: filterFormData(item),
               beneficiaryList: isNotEmptyArray(item.beneficiaryList)
                 ? item.beneficiaryList.map(({ config, ...rest }) => ({
@@ -380,7 +374,7 @@ watch(
         ? propsInsuredLen
         : stateInsuredLen || state.config.multiInsuredMinNum;
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
-      const { personVO, config = {} } = insuredList?.[index] || {};
+      const { personVO, config = {}, ...others } = insuredList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
 
       if (!res[index]) {
@@ -389,11 +383,13 @@ watch(
           personVO,
           config,
           nanoid: nanoid(),
+          ...others,
         };
       } else {
         merge(res[index], {
           personVO,
           config,
+          ...others,
         });
         // if (res[index]?.personVO) {
         //   Object.assign(res[index]?.personVO, personVO);
@@ -421,6 +417,7 @@ defineExpose({
   validateHolder: (...rest) => {
     return holderFormRef.value?.validate(...rest);
   },
+  canTrail,
 });
 </script>
 

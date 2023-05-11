@@ -285,11 +285,11 @@ const handleSwitchClick = (selected: string, data: any) => {
           if (state.riskIsInsure[r.collocationRiskId]) state.riskIsInsure[r.collocationRiskId].selected = selected;
         }
         if (r.collocationType === 3) {
-          if (state.riskIsInsure[r.collocationRiskId])
+          if (state.riskIsInsure[r.collocationRiskId] && selected === '1')
             state.riskIsInsure[r.collocationRiskId].selected = selected === '1' ? '2' : '1';
         }
       } else if (data.riskId === r.collocationRiskId) {
-        if (r.collocationType === 3) {
+        if (r.collocationType === 3 && selected === '1') {
           if (state.riskIsInsure[r.riskId]) state.riskIsInsure[r.riskId].selected = selected === '1' ? '2' : '1';
         }
         if (r.collocationType === 2) {

@@ -259,6 +259,11 @@ const totalPremium = computed(() => {
   }, 0);
 });
 
+// 设置产品错误信息
+const setProductError = (productCode, msg = '') => {
+  stateInfo.productErrorMap[productCode] = msg;
+};
+
 /** 合并数据到 productList  */
 // eslint-disable-next-line consistent-return
 const combineToProductList = (productInfo: PlanTrialData) => {
@@ -279,7 +284,6 @@ const combineToProductList = (productInfo: PlanTrialData) => {
   const { riskList, ...rest } = tempData;
 
   // 合并两边的险种属性
-  console.log('---hebing', productInfo);
   stateInfo.productList[currentIndex] = {
     ...tempData,
     ...rest,
@@ -305,6 +309,9 @@ const onFinished = (productInfo: PlanTrialData) => {
 
   combineToProductList(productInfo);
 
+  // 清除掉错误信息
+  setProductError(productInfo.productCode);
+
   // toggleProductRisk(false);
   trialPopupRef.value?.close();
 };
@@ -323,13 +330,7 @@ const addProduct = () => {
   });
 };
 
-// 设置产品错误信息
-const setProductError = (productCode, msg = '') => {
-  stateInfo.productErrorMap[productCode] = msg;
-};
-
 const trailProduct = (params) => {
-  console.log('-----trailProduct = ', params);
   premiumCalc(params, {
     isCustomError: true,
   }).then(({ code, data, message }) => {
