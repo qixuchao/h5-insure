@@ -227,6 +227,10 @@ const isTrialDataChange = (val, oldVal) => {
   return flag1 || flag2;
 };
 
+const canTrail = () => {
+  return state.trialValidated;
+};
+
 // 验证是否试算
 watch(
   [
@@ -413,6 +417,7 @@ defineExpose({
   validateHolder: (...rest) => {
     return holderFormRef.value?.validate(...rest);
   },
+  canTrail,
 });
 </script>
 

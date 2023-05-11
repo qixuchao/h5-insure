@@ -117,6 +117,8 @@ const emit = defineEmits(['trialStart', 'trialEnd']);
 
 const { tenantId, templateId, preview } = route.query;
 
+const personalInfoRef = ref<InstanceType<typeof PersonalInfo>>();
+
 const props = withDefaults(defineProps<Props>(), {
   dataSource: () => [],
   productInfo: () => {
@@ -493,7 +495,7 @@ const handleMixTrialData = debounce(async () => {
   }
   console.log('>>>数据构建<<<', cloneDeep(state.submitData));
 
-  if (state.ifPersonalInfoSuccess) {
+  if (state.ifPersonalInfoSuccess || personalInfoRef.value.canTrail()) {
     const submitDataCopy = cloneDeep(state.submitData);
     await handleTrialAndBenefit(submitDataCopy);
   }
@@ -687,8 +689,6 @@ onMounted(() => {
     fetchDefaultData([]);
   });
 });
-
-const personalInfoRef = ref<InstanceType<typeof PersonalInfo>>();
 
 const validate = () => personalInfoRef.value.validate(false);
 const validateTrialFields = () => personalInfoRef.value.validateTrialFields();
