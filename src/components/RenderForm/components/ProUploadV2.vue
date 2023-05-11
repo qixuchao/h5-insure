@@ -109,7 +109,7 @@ const state = reactive({
   modelValue: [],
 });
 
-const fileList = computed(() => state.modelValue.map(({ url }) => ({ url })));
+const fileList = computed(() => (state.modelValue || []).map(({ url }) => ({ url })));
 
 useCustomFieldValue(() => state.modelValue);
 
