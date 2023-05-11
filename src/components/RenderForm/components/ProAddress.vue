@@ -31,9 +31,20 @@ import ProCascaderV2 from './ProCascaderV2.vue';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { upperFirstLetter } from '../utils';
 
+interface Address {
+  province: string;
+  city: string;
+  area: string;
+  detail: string;
+}
+
 const emit = defineEmits(['update:modelValue']);
 
 const props = defineProps({
+  modelValue: {
+    type: Object,
+    default: () => ({}),
+  },
   name: {
     type: String,
     default: '',
@@ -78,7 +89,9 @@ const dealValueKey = (key: string) => {
   return '';
 };
 
-const state = reactive({
+const state = reactive<{
+  address: Partial<Address>;
+}>({
   address: {
     detail: '',
   },
@@ -126,8 +139,9 @@ const addressConfig = computed(() => {
 /** cascader 值 */
 const cascaderModelValue = computed(() => {
   const { level } = addressConfig.value;
-  const key = ['province', 'city', 'area'][level === 0 ? 'area' : level - 1];
-  return state.address[key];
+  // 字典索引多了层全国，所以为level-2
+  const key = ['province', 'city', 'area'][level === 0 ? 'area' : level - 2];
+  return state.address?.[key];
 });
 
 const updateFullValue = (arr = []) => {
@@ -154,6 +168,17 @@ watch(
   () => state.address,
   () => {
     emit('update:modelValue', state.address);
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
+
+watch(
+  () => props.modelValue,
+  (val) => {
+    state.address = val || {};
   },
   {
     immediate: true,

@@ -10,6 +10,7 @@
     :is-view="isView"
     :extra-provision="{
       objectType: schemaItem.objectType,
+      objectId: schemaItem.formData.id,
     }"
   />
 </template>
@@ -27,7 +28,7 @@ import { deepCopy } from '@/utils';
 
 interface PayInfoProps {
   schema: SchemaItem[];
-  config: object[];
+  config?: object[];
   modelValue: object[];
   isView: boolean;
 }
@@ -143,7 +144,7 @@ const props = withDefaults(defineProps<PayInfoProps>(), {
 });
 
 const state = reactive<{
-  schemaList: PayInfoItem[];
+  schemaList: Partial<PayInfoItem>[];
 }>({
   schemaList: deepCopy(fieldInitList),
 });
@@ -196,7 +197,18 @@ const transformSchemaName = (name) => {
 const combineFormData = (targetIndex, originIndex) => {
   const { formData } = state.schemaList[originIndex] || {};
 
-  Object.assign(state.schemaList[targetIndex]?.formData, formData);
+  // 合并影像注意类型
+  const tempData = {
+    ...formData,
+    bankCardImage: isNotEmptyArray(formData.bankCardImage)
+      ? formData.bankCardImage.map((item) => ({
+          ...item,
+          objectType: fieldInitList[targetIndex].objectType,
+        }))
+      : formData.bankCardImage,
+  };
+
+  Object.assign(state.schemaList[targetIndex]?.formData, tempData);
 };
 
 // 验证表单必填

@@ -9,6 +9,7 @@
     :is-view="isView"
     :extra-provision="{
       objectType: ATTACHMENT_OBJECT_TYPE_ENUM.BENEFICIARY,
+      objectId: state.personVO.id,
     }"
   >
     <template #cardTitleExtra><slot></slot></template>
