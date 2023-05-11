@@ -166,25 +166,6 @@ const filterFormData = (data) => {
   return formData;
 };
 
-// const listObject = (personInfo: any) => {
-//   const keyWords = ['insureArea', 'residence', 'longArea', 'workAddress'];
-//   const newInfo = {};
-//   if (!personInfo) {
-//     return newInfo;
-//   }
-//   Object.keys(personInfo).forEach((key) => {
-//     if (keyWords.indexOf(key) >= 0 && personInfo[key] instanceof Object) {
-//       // 平铺
-//       Object.keys(personInfo[key]).forEach((ckey) => {
-//         newInfo[ckey] = personInfo[key][ckey];
-//       });
-//     } else {
-//       newInfo[key] = personInfo[key];
-//     }
-//   });
-//   return newInfo;
-// };
-
 // 添加被保人
 const onAddInsured = () => {
   const { length, [length - 1]: lastInsuredItem } = state.initInsuredIList;
@@ -214,33 +195,37 @@ const addible = computed(() => {
   return multiInsuredSupportFlag && (!multiInsuredMaxNum || state.insured.length < multiInsuredMaxNum);
 });
 
-//
-// const updateBeneficiaryList = (data, index) => {
-//   if (state.insured[index]) {
-//     debugger;
-//     if (Array.isArray(data)) {
-//       data.forEach((personVO, i) => {
-//         const { beneficiaryList } = state.insured[index];
-//         if (beneficiaryList[1]) {
-//           Object.assign(state.insured[index].beneficiaryList[i].personVO, personVO);
-//         } else {
-//           state.insured[index].beneficiaryList[i] = {
-//             personVO,
-//           };
-//         }
-//       });
-//     }
-//     // state.insured[index].beneficiaryList.forEach((item, i) => {
-//     //   Object.assign(item.personVO, data[i]?.personVO);
-//     // });
-//   }
-// };
-
 // 是否有投保人
 const hasHolderSchema = computed(() => isNotEmptyArray(state.holder.schema));
 
 // 是否有投保人
 const hasInsuredSchema = computed(() => state.insured.some((insuredItem) => isNotEmptyArray(insuredItem.schema)));
+
+const filterData = (keys, data) => {
+  if (!isNotEmptyArray(keys)) {
+    return {};
+  }
+  return keys.reduce((res, key) => {
+    res[key] = data[key];
+    return res;
+  }, {});
+};
+
+const diffDataChange = (keys, val, oldVal) => {
+  if (!isNotEmptyArray(keys)) return false;
+  console.log(keys, filterData(keys, val), filterData(keys, oldVal));
+  return JSON.stringify(filterData(keys, val)) !== JSON.stringify(filterData(keys, oldVal));
+};
+
+// 试算数据是否变动
+const isTrialDataChange = (val, oldVal) => {
+  const flag1 = diffDataChange(state.holder.trialFactorCodes, val[0], oldVal[0]);
+  const flag2 = state.insured.some((insuredItem) => {
+    const { trialFactorCodes, personVO } = insuredItem;
+    return diffDataChange(trialFactorCodes, personVO, oldVal[1]);
+  });
+  return flag1 || flag2;
+};
 
 // 验证是否试算
 watch(
@@ -261,8 +246,12 @@ watch(
       }),
   ],
   // eslint-disable-next-line consistent-return
-  debounce(([holder, insuredList]) => {
-    colorConsole('投被保人信息变动了');
+  debounce(([holder, insuredList], oldVal) => {
+    // 试算因子的值是否变动
+    const trialDataChanged = isTrialDataChange([holder, insuredList], oldVal);
+
+    colorConsole(`投被保人信息变动了---${trialDataChanged}`);
+
     const result = {
       holder,
       insuredList,
