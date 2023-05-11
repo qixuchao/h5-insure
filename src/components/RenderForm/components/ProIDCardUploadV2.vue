@@ -105,7 +105,7 @@ const state = reactive({
   ossKeyList: [],
 });
 
-const fileList = computed(() => state.modelValue.map((item) => [{ url: item.url }]));
+const fileList = computed(() => state.modelValue.map((item) => [{ url: item.uri }]));
 
 useCustomFieldValue(() => state.modelValue);
 
@@ -117,7 +117,7 @@ const handleRead = (e: UploaderFileListItem, index) => {
       state.modelValue[index] = {
         ...state.modelValue[index],
         objectId,
-        url: data.url,
+        uri: data.url,
         category,
         name: title,
         objectType: props.objectType || objectType,

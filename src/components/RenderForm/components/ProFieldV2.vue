@@ -227,17 +227,6 @@ watch(
   },
 );
 
-watch(
-  () => formState?.formData?.[attrs.name],
-  (val) => {
-    state.modelValue = val;
-  },
-  {
-    immediate: true,
-    deep: true,
-  },
-);
-
 onMounted(() => {
   if (attrs.name && formState?.nameList) {
     formState.nameList.push(attrs.name);

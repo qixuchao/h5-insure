@@ -109,7 +109,7 @@ const state = reactive({
   modelValue: [],
 });
 
-const fileList = computed(() => (state.modelValue || []).map(({ url }) => ({ url })));
+const fileList = computed(() => (state.modelValue || []).map(({ uri }) => ({ url: uri })));
 
 useCustomFieldValue(() => state.modelValue);
 
@@ -119,7 +119,7 @@ const handleAfterRead = (e: { file: File; content: string }) => {
     if (code === '10000' && data.url) {
       state.modelValue.push({
         objectId,
-        url: data.url,
+        uri: data.url,
         category: props.category,
         objectType: props.objectType || objectType,
       });

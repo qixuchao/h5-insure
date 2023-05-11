@@ -98,7 +98,17 @@ const state = reactive({
 
 useCustomFieldValue(() => state.modelValue);
 
-const fileList = computed(() => state.modelValue.map((item) => (item ? [item] : [])));
+const fileList = computed(() =>
+  state.modelValue.map((item) =>
+    item
+      ? [
+          {
+            url: item.uri,
+          },
+        ]
+      : [],
+  ),
+);
 
 const handleRead = (e: UploaderFileListItem, index) => {
   const { title, category } = uploaderList[index];
@@ -108,7 +118,7 @@ const handleRead = (e: UploaderFileListItem, index) => {
       state.modelValue[index] = {
         ...state.modelValue[index],
         objectId,
-        url: data.url,
+        uri: data.url,
         category,
         name: title,
         objectType: props.objectType || objectType,
