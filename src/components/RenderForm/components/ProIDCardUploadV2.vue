@@ -72,9 +72,9 @@ const uploaderList = [
   },
 ];
 
-const { filedAttrs, filedSlots, attrs, slots } = toRefs(useAttrsAndSlots());
+const { filedAttrs } = toRefs(useAttrsAndSlots());
 
-const { formState, objectType } = inject(VAN_PRO_FORM_KEY) || {};
+const { formState, objectType, objectId } = inject(VAN_PRO_FORM_KEY) || {};
 
 const tempUploaderRef = ref<UploaderInstance>();
 
@@ -84,13 +84,6 @@ const props = defineProps({
   modelValue: {
     type: Array as () => string[],
     default: () => [],
-  },
-  /**
-   * 枚举映射
-   */
-  customFieldName: {
-    type: Object,
-    default: () => ({ text: 'name', value: 'code', children: 'children' }),
   },
   /** 数据对象类型-属于哪个模块(被保人...) */
   objectType: {
@@ -123,6 +116,7 @@ const handleRead = (e: UploaderFileListItem, index) => {
     if (code === '10000' && data.url) {
       state.modelValue[index] = {
         ...state.modelValue[index],
+        objectId,
         url: data.url,
         category,
         name: title,

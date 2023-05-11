@@ -101,3 +101,12 @@ export interface StateInfo {
   initBeneficiaryItem: PersonFormProps;
   insured: InsuredFormProps[];
 }
+
+export interface FileProps {
+  category: string;
+  objectType?: string;
+  objectId?: string;
+  name?: string;
+  uri: string;
+  id?: number;
+}

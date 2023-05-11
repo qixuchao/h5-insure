@@ -62,6 +62,10 @@ export const COMPONENT_ENUM = {
   ProOccupation: 'ProOccupation',
   /** 证件影像 */
   ProIDCardUploadV2: 'ProIDCardUploadV2',
+  /** 影像上传基础组件 */
+  ProBaseUpload: 'ProBaseUpload',
+  /** 银行卡照片 */
+  ProBankUpload: 'ProBankUpload',
 };
 
 // 输入框最大长度
@@ -373,7 +377,7 @@ export const PRO_BANK_FIELD_MAP = {
     maxCount: 2,
     subLabel: '（需上传正反两面）',
     name: BANK_INFO_KEY_ENUM.BANK_CARD_IMAGE,
-    componentName: COMPONENT_ENUM.ProUploadV2,
+    componentName: COMPONENT_ENUM.ProBankUpload,
   },
   // 预留手机号
   mobile: {
