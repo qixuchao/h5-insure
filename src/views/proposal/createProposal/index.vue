@@ -279,7 +279,6 @@ const combineToProductList = (productInfo: PlanTrialData) => {
   const { riskList, ...rest } = tempData;
 
   // 合并两边的险种属性
-  console.log('---hebing', productInfo);
   stateInfo.productList[currentIndex] = {
     ...tempData,
     ...rest,
@@ -329,7 +328,6 @@ const setProductError = (productCode, msg = '') => {
 };
 
 const trailProduct = (params) => {
-  console.log('-----trailProduct = ', params);
   premiumCalc(params, {
     isCustomError: true,
   }).then(({ code, data, message }) => {
