@@ -241,7 +241,6 @@ export const proposalToTrial = async (
 
 export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
   const nextStepParams: any = { ...currentOrderDetail, ...trialData };
-
   const riskPremiumMap = {};
   const { riskPremiumDetailVOList = [], initialAmount, initialPremium = 0 } = riskPremium || {};
   if (riskPremiumDetailVOList.length) {
@@ -261,11 +260,11 @@ export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
       ...insurer,
       certType: insurer.certType || CERT_TYPE_ENUM.CERT,
       certNo: (insurer.certNo || '').toLocaleUpperCase(),
-      productList: insurer.productList.map((item) => ({
+      productList: (insurer.productList || []).map((item) => ({
         premium: initialPremium,
         productCode: trialData.productCode,
         productName: trialData.productName,
-        riskList: item.riskList.map((risk) => {
+        riskList: (item.riskList || []).map((risk) => {
           const { amount, premium } = riskPremiumMap[risk.riskCode];
           return {
             ...risk,
