@@ -52,7 +52,7 @@ interface FileUploadRes {
 
 const { filedAttrs, filedSlots, attrs, slots } = toRefs(useAttrsAndSlots());
 
-const { formState, objectType } = inject(VAN_PRO_FORM_KEY) || {};
+const { formState, objectType, objectId } = inject(VAN_PRO_FORM_KEY) || {};
 
 // 非默认 slots
 const noDefaultSlots = computed(() => Object.keys(slots).filter((key) => key !== 'default'));
@@ -94,7 +94,7 @@ const props = defineProps({
   /** 数据对象类型-属于哪个模块(被保人...) */
   objectType: {
     type: Number as () => ATTACHMENT_OBJECT_TYPE_ENUM,
-    default: ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER,
+    default: null,
   },
   /**
    * 是否查看模式
@@ -109,7 +109,7 @@ const state = reactive({
   modelValue: [],
 });
 
-const fileList = computed(() => (state.modelValue || []).map(({ url }) => ({ url })));
+const fileList = computed(() => (state.modelValue || []).map(({ uri }) => ({ url: uri })));
 
 useCustomFieldValue(() => state.modelValue);
 
@@ -118,7 +118,8 @@ const handleAfterRead = (e: { file: File; content: string }) => {
     const { code, data } = (res || {}) as FileUploadRes;
     if (code === '10000' && data.url) {
       state.modelValue.push({
-        url: data.url,
+        objectId,
+        uri: data.url,
         category: props.category,
         objectType: props.objectType || objectType,
       });

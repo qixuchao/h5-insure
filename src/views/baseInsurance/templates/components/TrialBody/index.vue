@@ -696,6 +696,10 @@ const validateHolder = (rest) => {
   return personalInfoRef.value?.validateHolder(rest);
 };
 
+const getUserData = () => {
+  return { ...state.userData };
+};
+
 defineExpose({
   getTrialSuccessFlag: () => {
     return state.trialResultPremium > 0;
@@ -703,6 +707,7 @@ defineExpose({
   validate,
   validateTrialFields,
   validateHolder,
+  getUserData,
 });
 watch(
   () => state.riskIsInsure,

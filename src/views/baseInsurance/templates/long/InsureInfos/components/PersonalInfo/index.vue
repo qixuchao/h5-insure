@@ -10,6 +10,7 @@
     :is-view="isView"
     :extra-provision="{
       objectType: ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER,
+      objectId: state.holder.personVO.id,
     }"
   />
   <!-- 被保人 -->

@@ -14,6 +14,8 @@ declare module 'vue' {
     PlayBar: typeof import('./src/components/ZaVoice/playBar.vue')['default']
     ProAddress: typeof import('./src/components/RenderForm/components/ProAddress.vue')['default']
     ProBank: typeof import('./src/components/RenderForm/components/ProBank.vue')['default']
+    ProBankUpload: typeof import('./src/components/RenderForm/components/ProBankUpload.vue')['default']
+    ProBaseUpload: typeof import('./src/components/RenderForm/components/ProBaseUpload.vue')['default']
     ProCalendar: typeof import('./src/components/ProCalendar/index.vue')['default']
     ProCalendarV2: typeof import('./src/components/RenderForm/components/ProCalendarV2.vue')['default']
     ProCard: typeof import('./src/components/ProCard/index.vue')['default']

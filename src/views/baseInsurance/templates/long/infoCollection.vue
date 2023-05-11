@@ -186,7 +186,7 @@ const shareInfo = ref({
 
 const payInfoRef = ref<InstanceType<typeof PayInfo>>();
 const trialRef = ref<InstanceType<typeof TrialBody>>();
-const personalInfoRef = ref<InstanceType<typeof PersonalInfo>>();
+const personalInfoRef = ref<InstanceType<typeof TrialBody>>();
 const tenantProductDetail = ref<Partial<ProductDetail>>({}); // 核心系统产品信息
 const insureProductDetail = ref<Partial<InsureProductData>>({}); // 产品中心产品信息
 
@@ -334,7 +334,13 @@ const onShare = (cb, trialData) => {
           pageCode: PAGE_CODE_ENUMS.INFO_COLLECTION,
         },
       });
-      const currentOrderDetail = trialData2Order(trialData, trialResult.value, orderDetail.value);
+
+      const userData = personalInfoRef.value.getUserData();
+      const currentOrderDetail = trialData2Order(
+        { ...trialData, holder: userData?.holder },
+        trialResult.value || {},
+        orderDetail.value,
+      );
 
       nextStep(currentOrderDetail, (data, pageAction) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
