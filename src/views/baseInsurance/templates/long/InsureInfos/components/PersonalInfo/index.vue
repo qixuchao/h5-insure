@@ -211,22 +211,22 @@ const filterData = (keys, data) => {
   }, {});
 };
 
-const diffDataChange = (keys, val, oldVal) => {
+const diffDataChange = (keys, val, oldVal = {}) => {
   if (!isNotEmptyArray(keys)) return false;
-  console.log(keys, filterData(keys, val), filterData(keys, oldVal));
   return JSON.stringify(filterData(keys, val)) !== JSON.stringify(filterData(keys, oldVal));
 };
 
 // 试算数据是否变动
 const isTrialDataChange = (val, oldVal) => {
   const flag1 = diffDataChange(state.holder.trialFactorCodes, val[0], oldVal[0]);
-  const flag2 = state.insured.some((insuredItem) => {
+  const flag2 = state.insured.some((insuredItem, index) => {
     const { trialFactorCodes, personVO } = insuredItem;
-    return diffDataChange(trialFactorCodes, personVO, oldVal[1]);
+    return diffDataChange(trialFactorCodes, personVO, oldVal[1]?.[index]);
   });
   return flag1 || flag2;
 };
 
+// 是否可以试算
 const canTrail = () => {
   return state.trialValidated;
 };
@@ -237,7 +237,7 @@ watch(
     () => state.holder?.personVO,
     () =>
       state.insured.map((insuredItem) => {
-        const { beneficiaryList: list, personVO, ...others } = insuredItem || {};
+        const { beneficiaryList: list, personVO } = insuredItem || {};
         const beneficiaryList = isNotEmptyArray(list)
           ? list.map((beneficiaryItem) => ({
               ...beneficiaryItem.personVO,
@@ -246,7 +246,6 @@ watch(
         return {
           ...personVO,
           beneficiaryList,
-          ...others,
         };
       }),
   ],
@@ -256,11 +255,17 @@ watch(
     const trialDataChanged = isTrialDataChange([holder, insuredList], oldVal);
 
     colorConsole(`投被保人信息变动了---${trialDataChanged}`);
+    const { insuredList: insuredListProps } = props.modelValue;
 
+    // productList 重新赋值到modelValue
     const result = {
       holder,
-      insuredList,
+      insuredList: insuredList.map((item, index) => ({
+        ...insuredListProps[index],
+        ...item,
+      })),
     };
+
     // 多被保人为配偶,性别不符合给提示
     if (state.config.isSpouseInsured) {
       const [gender1, gender2] = insuredList.map((item) => item.personVO?.gender);
@@ -288,7 +293,10 @@ watch(
     validate(true)
       .then(() => {
         state.trialValidated = true;
-        emit('trailChange', result);
+        // 只有试算因子数据变动才调用试算
+        if (trialDataChanged) {
+          emit('trailChange', result);
+        }
       })
       .catch(() => {
         state.trialValidated = false;
@@ -343,7 +351,6 @@ watch(
         ? insuredList.map((item) => {
             return {
               config: item.config,
-              productList: item.productList,
               personVO: filterFormData(item),
               beneficiaryList: isNotEmptyArray(item.beneficiaryList)
                 ? item.beneficiaryList.map(({ config, ...rest }) => ({
@@ -374,7 +381,7 @@ watch(
         ? propsInsuredLen
         : stateInsuredLen || state.config.multiInsuredMinNum;
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
-      const { personVO, config = {}, ...others } = insuredList?.[index] || {};
+      const { personVO, config = {} } = insuredList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
 
       if (!res[index]) {
@@ -383,13 +390,11 @@ watch(
           personVO,
           config,
           nanoid: nanoid(),
-          ...others,
         };
       } else {
         merge(res[index], {
           personVO,
           config,
-          ...others,
         });
         // if (res[index]?.personVO) {
         //   Object.assign(res[index]?.personVO, personVO);
