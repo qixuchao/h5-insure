@@ -107,7 +107,7 @@ const baseInsurance = [
     name: 'InsuranceShort',
     path: '/baseInsurance/short',
     meta: { title: '', keepAlive: true, requireWxJs: false },
-    component: () => import('@/views/baseInsurance/templates/short.vue'),
+    component: () => import('@/views/baseInsurance/templates/short3.vue'),
   },
   {
     name: 'baseInsuranceShort3',

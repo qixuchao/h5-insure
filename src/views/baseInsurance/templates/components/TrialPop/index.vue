@@ -46,7 +46,7 @@
             :share-info="currentShareInfo"
             :loading-text="state.trialMsg"
             :plan-code="props.dataSource.planCode"
-            :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
+            :payment-frequency="scope.trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''"
             :tenant-product-detail="tenantProductDetail"
             :handle-share="(cb) => onShare(cb, scope.trialData)"
             @handle-click="onNext(scope.trialData)"
