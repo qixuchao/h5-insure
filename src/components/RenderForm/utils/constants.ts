@@ -338,10 +338,10 @@ export const COMPONENT_MAPPING_LIST = [
 // ProBank 银行卡信息字段枚举
 export const BANK_INFO_KEY_ENUM = {
   BANK_CARD_NO: 'bankCardNo',
-  CARD_HOLDER: 'cardHolder',
-  DEPOSIT_BANK: 'depositBank',
+  ACCOUNT_NAME: 'accountName',
+  PAY_BANK: 'payBank',
   BANK_CARD_IMAGE: 'bankCardImage',
-  RESERVE_MOBILE: 'reserveMobile',
+  MOBILE: 'mobile',
   VERIFICATION_CODE: 'verificationCode',
 };
 
@@ -357,14 +357,14 @@ export const PRO_BANK_FIELD_MAP = {
     componentName: COMPONENT_ENUM.ProFieldV2,
   },
   // 持卡人
-  cardHolder: {
+  accountName: {
     ...RULE_CONFIG_MAP.NAME,
-    name: BANK_INFO_KEY_ENUM.CARD_HOLDER,
+    name: BANK_INFO_KEY_ENUM.ACCOUNT_NAME,
     componentName: COMPONENT_ENUM.ProFieldV2,
   },
   // 开户银行
-  depositBank: {
-    name: BANK_INFO_KEY_ENUM.DEPOSIT_BANK,
+  payBank: {
+    name: BANK_INFO_KEY_ENUM.PAY_BANK,
     dictCode: DictNameEnum.BANK,
     componentName: COMPONENT_ENUM.ProPickerV2,
   },
@@ -376,9 +376,9 @@ export const PRO_BANK_FIELD_MAP = {
     componentName: COMPONENT_ENUM.ProUploadV2,
   },
   // 预留手机号
-  reserveMobile: {
+  mobile: {
     ...RULE_CONFIG_MAP.MOBILE,
-    name: BANK_INFO_KEY_ENUM.RESERVE_MOBILE,
+    name: BANK_INFO_KEY_ENUM.MOBILE,
     componentName: COMPONENT_ENUM.ProFieldV2,
   },
   // 验证码
@@ -386,7 +386,7 @@ export const PRO_BANK_FIELD_MAP = {
     ...RULE_CONFIG_MAP.ZIP_CODE,
     sendSMSCode,
     name: BANK_INFO_KEY_ENUM.VERIFICATION_CODE,
-    relatedName: BANK_INFO_KEY_ENUM.RESERVE_MOBILE,
+    relatedName: BANK_INFO_KEY_ENUM.MOBILE,
     componentName: COMPONENT_ENUM.ProSMSCode,
   },
 };

@@ -139,7 +139,7 @@ const updateFullValue = (arr = []) => {
       .slice(0, Number(addressConfig.value.level || 3))
       .reduce((res, key, index) => {
         const item = arr[index + 1] || {};
-        res[`${key}Code`] = item[value];
+        res[key] = item[value];
         res[`${key}Name`] = item[text];
         return res;
       }, {});

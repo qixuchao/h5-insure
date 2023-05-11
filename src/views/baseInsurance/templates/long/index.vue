@@ -249,10 +249,10 @@ const initData = async () => {
         tenantProductDetail.value = data;
         const { wxShareConfig, showWXShare, title, desc, image } = data?.PRODUCT_LIST || {};
         if (showWXShare) {
-          Object.assign(shareInfo.value, { ...wxShareConfig, isShare: showWXShare });
+          Object.assign(shareInfo.value, { ...wxShareConfig, imgUrl: wxShareConfig.image, isShare: showWXShare });
         } else {
           // 设置分享参数
-          Object.assign(shareInfo.value, { title, desc, image, isShare: showWXShare });
+          Object.assign(shareInfo.value, { title, desc, imgUrl: image, isShare: showWXShare });
         }
 
         setGlobalTheme(data.BASIC_INFO.themeType);
