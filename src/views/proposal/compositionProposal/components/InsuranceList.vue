@@ -11,8 +11,10 @@
     <div class="info-detail">
       <div class="name">
         <div class="img">
-          <img v-if="isMale(props.info?.gender)" src="@/assets/images/compositionProposal/male.png" />
-          <img v-if="!isMale(props.info?.gender)" src="@/assets/images/compositionProposal/female.png" />
+          <template v-if="props.info?.gender">
+            <img v-if="isMale(props.info?.gender)" src="@/assets/images/compositionProposal/male.png" />
+            <img v-else src="@/assets/images/compositionProposal/female.png"
+          /></template>
         </div>
         <div>
           <p clase="p1">{{ props.info?.name }}</p>

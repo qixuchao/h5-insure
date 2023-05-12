@@ -345,9 +345,13 @@ onBeforeMount(() => {
   :deep(.van-search) {
     .van-field__body {
       width: 100%;
+      // padding: 12px 0;
       .van-field__control {
         width: 100%;
-        height: 34px;
+        margin: 0;
+        padding: 8px;
+        // height: 100%;
+        // height: 34px;
       }
     }
   }
