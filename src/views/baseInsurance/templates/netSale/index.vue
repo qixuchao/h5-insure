@@ -64,7 +64,7 @@ import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
 import dayjs from 'dayjs';
 import '@vant/touch-emulator';
-import { transformData, riskToOrder, type transformDataType } from '../../utils';
+import { transformData, riskToTrial, type transformDataType } from '../../utils';
 import {
   ProductData,
   RiskPremiumDetailVoItem,
@@ -344,7 +344,7 @@ const trialPremium = async (
           {
             insurerCode: currentProductDetail?.productBasicInfoVO.insurerCode,
             planCode: currentPlan.value || '',
-            riskVOList: riskToOrder(productRiskList),
+            riskVOList: riskToTrial(productRiskList),
           },
         ],
       };
