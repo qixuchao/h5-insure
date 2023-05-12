@@ -2,7 +2,7 @@
   <div v-if="loading">__SKELETON_UPGRADE_CONTENT__</div>
   <div v-else data-skeleton-root="UPGRADE" class="page-upgrade-product-detail">
     <Banner data-skeleton-type="img" :url="detail?.tenantProductInsureVO?.banner[0]" />
-    <InsureForm
+    <!-- <InsureForm
       ref="formRef"
       :title-collection="{
         HOLDER: '投保人信息',
@@ -14,7 +14,14 @@
       input-align="right"
       :form-info="orderDetail"
       :factor-object="insureDetail?.productFactor"
-    ></InsureForm>
+    ></InsureForm> -->
+    <PersonalInfo
+      v-if="insureDetail?.productFactor"
+      ref="personalInfoRef"
+      v-model="orderDetail"
+      :product-factor="insureDetail.productFactor"
+      :multi-insured-config="insureDetail?.multiInsuredConfigVO"
+    />
     <ProField v-model="premiumText" input-align="right" label="每月保费" name="insuredBeneficiaryType"> </ProField>
     <AttachmentList
       v-if="filterHealthAttachmentList && filterHealthAttachmentList.length > 0"
@@ -93,6 +100,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { ORIGIN, isAppFkq } from '@/utils';
 import Banner from './components/Banner/index.vue';
 import ProShadowButton from './components/ProShadowButton/index.vue';
+import PersonalInfo from './components/InsureForm/PersonalInfo.vue';
 
 const AttachmentList = defineAsyncComponent(() => import('./components/AttachmentList/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));

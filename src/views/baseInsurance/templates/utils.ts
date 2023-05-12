@@ -253,7 +253,7 @@ export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
   }
 
   nextStepParams.premium = initialPremium;
-  nextStepParams.orderAmount = initialAmount;
+  nextStepParams.orderAmount = initialPremium;
 
   nextStepParams.insuredList = (nextStepParams.insuredList || []).map((insurer: any) => {
     return {

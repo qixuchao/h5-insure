@@ -138,33 +138,40 @@ export const transformData = (o: transformDataType, flag = false) => {
   });
 };
 
-export const riskToOrder = (productRiskVoList: any) => {
+export const riskToTrial = (productRiskVoList: any) => {
   const result = productRiskVoList.map((risk: any) => {
-    const { riskCode, riskType, riskCategory, riskName, riskId, productRiskInsureLimitVO, mainRiskCode, mainRiskId } =
-      risk;
+    const {
+      riskCode,
+      riskType,
+      riskCategory,
+      riskLiabilityInfoVOList,
+      riskName,
+      riskId,
+      productRiskInsureLimitVO,
+      mainRiskCode,
+      mainRiskId,
+    } = risk;
     const {
       annuityDrawFrequencyList,
       annuityDrawValueList,
       insurancePeriodValueList,
       paymentFrequencyList,
       paymentPeriodValueList,
-      paymentPeriodRule,
       amountPremiumConfigVO,
     } = productRiskInsureLimitVO || {};
-    const tempAmount = 0;
-    const { displayType, displayUnit, displayValues, eachCopyPrice } = amountPremiumConfigVO || {};
+    const { displayValues } = amountPremiumConfigVO || {};
 
     // todo 份数默认为1
     const copies = 1;
 
     return {
-      amount: displayValues?.[0]?.code,
+      initialAmount: displayValues?.[0]?.code,
       annuityDrawDate: annuityDrawValueList?.[0],
       annuityDrawFrequency: annuityDrawFrequencyList?.[0],
       chargePeriod: paymentPeriodValueList?.[0],
       copy: copies,
       coveragePeriod: insurancePeriodValueList?.[0],
-      liabilityVOList: risk.riskLiabilityInfoVOList,
+      liabilityList: riskLiabilityInfoVOList,
       mainRiskCode,
       mainRiskId,
       paymentFrequency: paymentFrequencyList?.[0],

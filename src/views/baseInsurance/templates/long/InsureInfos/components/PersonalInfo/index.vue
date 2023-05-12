@@ -256,12 +256,13 @@ watch(
 
     colorConsole(`投被保人信息变动了---${trialDataChanged}`);
     const { insuredList: insuredListProps } = props.modelValue;
+    console.log('insuredList', insuredListProps, insuredList);
 
     // productList 重新赋值到modelValue
     const result = {
       holder,
       insuredList: insuredList.map((item, index) => ({
-        ...insuredListProps[index],
+        ...(insuredListProps?.[index] || {}),
         ...item,
       })),
     };

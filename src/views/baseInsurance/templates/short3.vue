@@ -132,7 +132,7 @@ import {
 } from '@/common/constants/infoCollection';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { PersonalInfo } from '@/views/baseInsurance/templates/long/InsureInfos/components/index';
-import { transformData, riskToOrder, getFileType } from '../utils';
+import { transformData, riskToTrial, getFileType } from '../utils';
 import Banner from './components/Banner/index.vue';
 import Video from './components/Banner/Video.vue';
 import Guarantee from './components/Guarantee/index.vue';
@@ -145,7 +145,7 @@ import { sessionStore } from '@/hooks/useStorage';
 import useOrder from '@/hooks/useOrder';
 import TrialButton from './components/TrialButton.vue';
 import useAttachment from '@/hooks/useAttachment';
-import { formData2Order, orderData2trialData, proposalToTrial } from './utils';
+import { formData2Order, orderData2trialData, proposalToTrial, trialData2Order } from './utils';
 import { colorConsole } from '@/components/RenderForm';
 
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
@@ -374,60 +374,6 @@ const onClickToInsure = () => {
 const premiumLoadingText = ref<string>('');
 const premium = ref<number>(0);
 
-// 试算参数转化为生成订单参数
-const trialData2Order = (
-  currentProductDetail: ProductData = {} as ProductData,
-  riskPremium = {},
-  currentOrderDetail = {},
-) => {
-  const { insuranceEndDate, insuranceStartDate } = guaranteeObj.value;
-  const nextStepParams: any = { ...currentOrderDetail, insuranceStartDate, insuranceEndDate };
-  console.log('nextStepParams', nextStepParams);
-
-  const { holder, insuredList } = formData2Order({
-    holder: state.submitData.holder?.personVO,
-    insuredList: (state.submitData.insuredVOList || []).map((person) => person.personVO),
-  });
-  console.log('state.submitData', state.submitData);
-  console.log('holder', holder);
-  console.log('insuredList', insuredList);
-  const riskList = state.submitData.insuredVOList.map((person) => person.productPlanVOList?.[0]?.riskVOList).flat();
-  const transformDataReq: any = {
-    tenantId,
-    riskList,
-    riskPremium,
-    productId: currentProductDetail.id,
-  };
-  nextStepParams.extInfo.iseeBizNo = iseeBizNo.value;
-  nextStepParams.productCode = currentProductDetail.productCode;
-  nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
-  nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
-  nextStepParams.premium = state.trialResult;
-  nextStepParams.orderAmount = state.trialResult;
-  nextStepParams.orderRealAmount = state.trialResult;
-
-  nextStepParams.holder = holder;
-  nextStepParams.insuredList = insuredList.map((insurer: any) => {
-    return {
-      ...insurer,
-      certType: insurer.certType || CERT_TYPE_ENUM.CERT,
-      certNo: (insurer.certNo || '').toLocaleUpperCase(),
-      planCode: currentPlanObj.value.planCode,
-      tenantOrderProductList: [
-        {
-          premium: state.trialResult,
-          productCode: currentProductDetail.productCode,
-          productName: currentProductDetail.productName,
-          planCode: currentPlanObj.value.planCode,
-          tenantOrderRiskList: transformData(transformDataReq),
-        },
-      ],
-    };
-  });
-  console.log('nextStepParams', nextStepParams);
-  return nextStepParams;
-};
-
 // 核保接口调用
 const onUnderWrite = async (orderNo: string) => {
   try {
@@ -569,14 +515,14 @@ const handleTrialAndBenefit = async (calcData: any, isSave = false) => {
             Toast(`${res?.data?.errorInfo}`);
           }
           state.trialMsg = '';
-          state.trialResult = res.data.premium;
+          state.trialResult = res.data.initialPremium;
 
           const riskPremiumMap = {};
           if (res.data.riskPremiumDetailVOList && res.data.riskPremiumDetailVOList.length) {
             res.data.riskPremiumDetailVOList.forEach((riskDetail: any) => {
               riskPremiumMap[riskDetail.riskCode] = {
-                premium: riskDetail.premium,
-                amount: riskDetail.amount,
+                premium: riskDetail.initialPremium,
+                amount: riskDetail.initialAmount,
               };
             });
           }
@@ -595,10 +541,11 @@ const handleTrialAndBenefit = async (calcData: any, isSave = false) => {
               onSaveOrder();
             }
           }
+        } else {
+          state.trialMsg = '';
         }
       })
       .finally(() => {
-        // state.trialMsg = '000';
         state.isFirst = false;
       });
   }
@@ -607,7 +554,7 @@ const handleTrialAndBenefit = async (calcData: any, isSave = false) => {
 const getRiskVOList = () => {
   const { chargePeriod, coveragePeriod, paymentFrequency, insuranceEndDate, insuranceStartDate } = guaranteeObj.value;
 
-  return riskToOrder([...currentRiskInfo.value, ...getPackageRiskList()]).map((riskVOList: any) => {
+  return riskToTrial([...currentRiskInfo.value, ...getPackageRiskList()]).map((riskVOList: any) => {
     return {
       ...riskVOList,
       paymentFrequency,
@@ -619,57 +566,63 @@ const getRiskVOList = () => {
 
 const handleMixTrialData = debounce(async (isSave = false) => {
   console.log('>>>>>调用试算<<<<<');
-  if (state.ifPersonalInfoSuccess) {
+  if (state.ifPersonalInfoSuccess || personalInfoRef.value.canTrail()) {
     state.submitData.productCode = productCode;
     state.submitData.tenantId = tenantId;
-
+    // state.submitData.productName = props.productInfo.productName;
     // TODO 处理同主险的相关数据
-    state.riskVOList = getRiskVOList();
-    if (state.submitData.insuredVOList) {
-      state.submitData.insuredVOList.forEach((ins) => {
-        ins.productPlanVOList = [
-          {
-            insurerCode,
-            planCode: currentPlanObj.value.planCode,
-            riskVOList: state.riskVOList,
-          },
-        ];
+    state.riskList = getRiskVOList();
+    const submitDataCopy = cloneDeep(state.submitData);
+
+    if (submitDataCopy.insuredList?.length) {
+      submitDataCopy.insuredList = submitDataCopy.insuredList.map((ins) => {
+        return {
+          ...ins,
+          productList: [
+            {
+              insurerCode,
+              planCode: currentPlanObj.value.planCode,
+              riskList: state.riskList,
+            },
+          ],
+        };
       });
     }
     console.log('>>>数据构建<<<', state.submitData);
-    const submitDataCopy = cloneDeep(state.submitData);
     await handleTrialAndBenefit(submitDataCopy, isSave);
   }
 }, 300);
 
-const handlePersonalInfoChange = async (data, isSave = false) => {
-  // 只有改动第一个被保人，需要调用dy接口
-  const { holder, insuredVOList } = data;
+/**
+ * 处理投被保人信息到state.submitData
+ * @param data
+ */
+const handlePersonInfo = (data) => {
+  const { holder, insuredList } = data || {};
   if (holder) {
     state.submitData.holder = holder;
   }
-  if (insuredVOList && insuredVOList.length > 0) {
-    insuredVOList.forEach((ins, index) => {
-      if (state.submitData.insuredVOList && state.submitData.insuredVOList.length > index) {
-        state.submitData.insuredVOList[index].personVO = {
-          ...ins.personVO,
-          socialFlag: ins.personVO.hasSocialInsurance,
-        };
+  if (insuredList && insuredList.length > 0) {
+    insuredList.forEach((ins, index) => {
+      if (state.submitData.insuredList && state.submitData.insuredList.length > index) {
+        state.submitData.insuredList[index] = ins;
       } else {
         // new
-        if (!state.submitData?.insuredVOList) state.submitData.insuredVOList = [];
-        state.submitData.insuredVOList.push({
-          personVO: {
-            ...ins.personVO,
-            socialFlag: ins.personVO.hasSocialInsurance,
-          },
-        });
+        if (!state.submitData?.insuredList) state.submitData.insuredList = [];
+        state.submitData.insuredList.push(ins);
       }
     });
   }
-  state.ifPersonalInfoSuccess = true;
+};
 
-  handleMixTrialData(isSave);
+const handlePersonalInfoChange = async (data, isSave = false) => {
+  const { insuredList, isFirstInsuredChange } = data;
+
+  handlePersonInfo(data);
+
+  state.ifPersonalInfoSuccess = true;
+  console.log('投被保人的信息回传 ', data);
+  handleMixTrialData();
 };
 
 // 点击立即投保
@@ -681,10 +634,10 @@ const onNext = async () => {
     personalInfoRef.value
       .validate()
       .then(async (res) => {
-        const { mobile, verificationCode = '' } = state.userData.holder?.personVO || {};
+        const { mobile, verificationCode = '' } = state.userData.holder || {};
         const { code, data } = await checkCode(mobile as string, verificationCode);
         if (code === '10000') {
-          handlePersonalInfoChange(state.userData, true);
+          handleMixTrialData(true);
         }
       })
       .catch((e) => {
