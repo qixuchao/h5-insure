@@ -463,39 +463,39 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
 
 const handleMixTrialData = debounce(async () => {
   console.log('>>>>>调用试算<<<<<', state.ifPersonalInfoSuccess);
-  state.submitData.productCode = props.productInfo.productCode;
-  state.submitData.productName = props.productInfo.productName;
-  state.submitData.tenantId = props.productInfo.tenantId;
-  // TODO 处理同主险的相关数据
-  state.riskList = state.riskList.map((trialRisk) => {
-    return handleSameMainRisk(trialRisk);
-  });
-  //  这里目前只有一个被保人，所以直接index0，后面需要用被保人code来区分
-  // state.submitData.insuredList[0].productList = [
-  //   {
-  //     insurerCode: props.productInfo.insurerCode,
-  //     planCode: props.dataSource.planCode,
-  //     riskList: state.riskList,
-  //   },
-  // ];
-  if (state.submitData.insuredList) {
-    state.submitData.insuredList.forEach((ins) => {
-      ins.productList = [
-        {
-          insurerCode: props.productInfo.insurerCode,
-          planCode: props.dataSource.planCode,
-          riskList: state.riskList,
-        },
-      ];
-    });
-  }
-  if (state.isSkipFirstTrial && !state.hadSkipFirstTrial) {
-    state.hadSkipFirstTrial = true;
-    return;
-  }
-  console.log('>>>数据构建<<<', cloneDeep(state.submitData));
-
   if (state.ifPersonalInfoSuccess || personalInfoRef.value.canTrail()) {
+    state.submitData.productCode = props.productInfo.productCode;
+    state.submitData.productName = props.productInfo.productName;
+    state.submitData.tenantId = props.productInfo.tenantId;
+    // TODO 处理同主险的相关数据
+    state.riskList = state.riskList.map((trialRisk) => {
+      return handleSameMainRisk(trialRisk);
+    });
+    //  这里目前只有一个被保人，所以直接index0，后面需要用被保人code来区分
+    // state.submitData.insuredList[0].productList = [
+    //   {
+    //     insurerCode: props.productInfo.insurerCode,
+    //     planCode: props.dataSource.planCode,
+    //     riskList: state.riskList,
+    //   },
+    // ];
+    if (state.submitData.insuredList) {
+      state.submitData.insuredList.forEach((ins) => {
+        ins.productList = [
+          {
+            insurerCode: props.productInfo.insurerCode,
+            planCode: props.dataSource.planCode,
+            riskList: state.riskList,
+          },
+        ];
+      });
+    }
+    if (state.isSkipFirstTrial && !state.hadSkipFirstTrial) {
+      state.hadSkipFirstTrial = true;
+      return;
+    }
+    console.log('>>>数据构建<<<', cloneDeep(state.submitData));
+
     const submitDataCopy = cloneDeep(state.submitData);
     await handleTrialAndBenefit(submitDataCopy);
   }
