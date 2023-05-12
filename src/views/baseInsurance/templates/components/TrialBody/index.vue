@@ -302,7 +302,7 @@ const benefitData = ref({
   // showTypList: [],
 });
 
-const DYNAMIC_FACTOR_PARAMS = ['annuityDrawDate', 'coveragePeriod', 'chargePeriod'];
+const DYNAMIC_FACTOR_PARAMS = ['annuityDrawDate', 'coveragePeriod', 'chargePeriod', 'paymentFrequency'];
 
 const handleSetRiskSelect = () => {
   state.riskIsInsure = {};
@@ -375,7 +375,15 @@ const handleSameMainRisk = (data: any) => {
   const risk = props.dataSource.insureProductRiskVOList?.find((r) => data.riskId === r.riskId);
   if (risk && risk.mainRiskFlag !== 1) {
     // 只处理非标准险种 根据关联关系找到他关联的主险
-    const relation = props.dataSource?.productRiskRelationVOList?.find((r) => r.collocationRiskId === risk.riskId);
+    const relations = props.dataSource?.productRiskRelationVOList?.filter((r) => {
+      if (r.collocationRiskId === risk.riskId && r.collocationType !== 3) {
+        const relationRisk = props.dataSource.insureProductRiskVOList?.find((rr) => r.riskId === rr.riskId);
+        if (relationRisk && relationRisk.riskType === RISK_TYPE_ENUM.MAIN_RISK) return true;
+      }
+      return false;
+    });
+    const relation = relations.length > 0 ? relations[0] : null;
+
     if (relation) {
       const mainRiskTrialData = state.riskList?.find((r) => r.riskId === relation.riskId);
       PRODUCT_KEYS_CONFIG.forEach((config) => {
@@ -490,10 +498,10 @@ const handleMixTrialData = debounce(async () => {
         ];
       });
     }
-    if (state.isSkipFirstTrial && !state.hadSkipFirstTrial) {
-      state.hadSkipFirstTrial = true;
-      return;
-    }
+    // if (state.isSkipFirstTrial && !state.hadSkipFirstTrial) {
+    //   state.hadSkipFirstTrial = true;
+    //   return;
+    // }
     console.log('>>>数据构建<<<', cloneDeep(state.submitData));
 
     const submitDataCopy = cloneDeep(state.submitData);
@@ -539,7 +547,8 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
     delete DyData.insurancePeriodValueList;
     delete DyData.paymentFrequencyList;
     delete DyData.paymentPeriodValueList;
-    const hasDyChange = DYNAMIC_FACTOR_PARAMS.indexOf(changeData.key) >= 0;
+    const hasDyChange =
+      DYNAMIC_FACTOR_PARAMS.indexOf(changeData.key) >= 0 && `${changeData.oldValue}` !== `${changeData.newValue}`;
     // 需要请求dy接口
     if (hasDyChange) {
       const changeVO = {};
@@ -649,7 +658,7 @@ const transformDefaultData = (defaultData: any) => {
 };
 
 const fetchDefaultData = async (changes: []) => {
-  console.log('props.defaultData', props.defaultData);
+  console.log('props.defaultData', !props.defaultData);
   // TODO 加loading
   if (!props.defaultData) {
     const result = await queryCalcDefaultInsureFactor({
@@ -662,8 +671,8 @@ const fetchDefaultData = async (changes: []) => {
     });
     if (result.data) {
       const targetProduct = result.data.find((d) => d.productCode === props.productInfo.productCode) || result.data[0];
-      console.log('targetProduct', targetProduct);
       transformDefaultData(targetProduct);
+      handlePersonInfo(result.data?.[0]);
     }
   } else {
     const targetProduct =

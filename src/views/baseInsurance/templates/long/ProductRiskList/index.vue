@@ -22,7 +22,7 @@
             v-model="state.riskIsInsure[risk.riskId].selected"
             active-value="1"
             inactive-value="2"
-            size="26px"
+            size="0.74rem"
             :disabled="state.riskIsInsure[risk.riskId].isMust"
             style="margin-right: 8px"
             @change="handleSwitchClick($event, risk)"
@@ -135,7 +135,7 @@ const handleInsureInfoChange = (data: any, riskId: number, changeData: any) => {
   props.dataSource.insureProductRiskVOList?.forEach((risk) => {
     if (risk.mainRiskFlag !== 1) {
       const riskData = state.riskIsInsure[risk.riskId];
-      if (riskData.data && Object.keys(riskData.data).length > 0 && !riskData.isDisabled) {
+      if (riskData.data && Object.keys(riskData.data).length > 0 && riskData.selected === '1') {
         list.push(riskData.data);
       }
     }
@@ -194,11 +194,17 @@ const handleSetRiskSelect = () => {
               liabilityList: getInitliabilityVOList(risk),
             };
             data.chargePeriod =
-              (risk?.paymentPeriodValueList?.length > 0 && risk?.paymentPeriodValueList[0].code) || null;
+              (risk?.productRiskInsureLimitVO?.paymentPeriodValueList?.length > 0 &&
+                risk?.productRiskInsureLimitVO?.paymentPeriodValueList[0].code) ||
+              null;
             data.coveragePeriod =
-              (risk?.insurancePeriodValueList?.length > 0 && risk?.insurancePeriodValueList[0].code) || null;
+              (risk?.productRiskInsureLimitVO?.insurancePeriodValueList?.length > 0 &&
+                risk?.productRiskInsureLimitVO?.insurancePeriodValueList[0].code) ||
+              null;
             data.paymentFrequency =
-              (risk?.paymentFrequencyList?.length > 0 && risk?.paymentFrequencyList[0].code) || null;
+              (risk?.productRiskInsureLimitVO?.paymentFrequencyList?.length > 0 &&
+                risk?.productRiskInsureLimitVO?.paymentFrequencyList[0].code) ||
+              null;
             let count = 0;
             if (amountPremiumConfigVO.displayType === 1) {
               // initialAmount
@@ -246,10 +252,18 @@ const handleShowNoInfoShowRisk = (risk: any) => {
       mainRiskCode: risk.mainRiskCode,
       liabilityList: getInitliabilityVOList(risk),
     };
-    data.chargePeriod = (risk?.paymentPeriodValueList?.length > 0 && risk?.paymentPeriodValueList[0].code) || null;
+    data.chargePeriod =
+      (risk?.productRiskInsureLimitVO?.paymentPeriodValueList?.length > 0 &&
+        risk?.productRiskInsureLimitVO?.paymentPeriodValueList[0].code) ||
+      null;
     data.coveragePeriod =
-      (risk?.insurancePeriodValueList?.length > 0 && risk?.insurancePeriodValueList[0].code) || null;
-    data.paymentFrequency = (risk?.paymentFrequencyList?.length > 0 && risk?.paymentFrequencyList[0].code) || null;
+      (risk?.productRiskInsureLimitVO?.insurancePeriodValueList?.length > 0 &&
+        risk?.productRiskInsureLimitVO?.insurancePeriodValueList[0].code) ||
+      null;
+    data.paymentFrequency =
+      (risk?.productRiskInsureLimitVO?.paymentFrequencyList?.length > 0 &&
+        risk?.productRiskInsureLimitVO?.paymentFrequencyList[0].code) ||
+      null;
     let count = 0;
     if (amountPremiumConfigVO.displayType === 1) {
       // initialAmount
