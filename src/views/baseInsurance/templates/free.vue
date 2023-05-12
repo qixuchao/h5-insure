@@ -99,7 +99,7 @@ import {
 import { PersonalInfo } from '@/views/baseInsurance/templates/long/InsureInfos/components/index';
 import { ProductData, PremiumCalcData, RiskVoItem } from '@/api/modules/trial.data';
 import { nextStepOperate } from '@/views/baseInsurance/nextStep';
-import { freeTransform, validateSmsCode, transformData, riskToOrder, getFileType } from '../utils';
+import { freeTransform, validateSmsCode, transformData, riskToTrial, getFileType } from '../utils';
 import { formData2Order } from './utils';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 import { YES_NO_ENUM, CERT_TYPE_ENUM } from '@/common/constants';
@@ -281,7 +281,7 @@ const previewFile = (index: number) => {
 const getRiskVOList = () => {
   const { chargePeriod, coveragePeriod, paymentFrequency, insuranceEndDate, insuranceStartDate } = guaranteeObj.value;
   console.log('ssinit===++guaranteeObj.value', guaranteeObj.value);
-  return riskToOrder([...state.currentRiskInfo]).map((riskVOList: any) => {
+  return riskToTrial([...state.currentRiskInfo]).map((riskVOList: any) => {
     return {
       ...riskVOList,
       paymentFrequency,
