@@ -324,6 +324,8 @@ export interface RiskVoItem {
   riskType: number;
   riskName: string;
   riskInsureLimitVO: any;
+  holder: object;
+  insuredList: object[];
 }
 
 export interface LiabilityVoItem {
