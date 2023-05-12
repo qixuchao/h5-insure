@@ -7,28 +7,28 @@
  */
 module.exports = {
   plugins: {
-    // autoprefixer: {
-    //   overrideBrowserslist: [
-    //     'Android 4.4',
-    //     'iOS 7.1',
-    //     'Chrome > 38',
-    //     'not ie <= 11', // 不考虑IE浏览器
-    //     'ff >= 30', // 仅新版本用“ff>=30
-    //     '> 1%', //  全球统计有超过1%的使用率使用“>1%”;
-    //     'last 2 versions', // 所有主流浏览器最近2个版本
-    //   ],
-    //   grid: true, // 开启grid布局的兼容(浏览器IE除外其他都能兼容grid，可以关闭开启)
-    // },
-    // 'postcss-pxtorem': {
-    //   rootValue: 32, // 换算的基数(设计图750的根字体为32)
-    //   // rootValue({ file }) {
-    //   //   return file.indexOf('vant') !== -1 ? 37.5 : 75;
-    //   // },
-    //   selectorBlackList: ['.ignore', '.ignore-'], // 要忽略的选择器并保留为px。
-    //   propList: ['*'], // 可以从px更改为rem的属性。
-    //   minPixelValue: 2, // 设置要替换的最小像素值。
-    //   // exclude: /node_modules/i,
-    // },
+    autoprefixer: {
+      overrideBrowserslist: [
+        'Android 4.4',
+        'iOS 7.1',
+        'Chrome > 38',
+        'not ie <= 11', // 不考虑IE浏览器
+        'ff >= 30', // 仅新版本用“ff>=30
+        '> 1%', //  全球统计有超过1%的使用率使用“>1%”;
+        'last 2 versions', // 所有主流浏览器最近2个版本
+      ],
+      grid: true, // 开启grid布局的兼容(浏览器IE除外其他都能兼容grid，可以关闭开启)
+    },
+    'postcss-pxtorem': {
+      // rootValue: 75, // 换算的基数(设计图750的根字体为32)
+      rootValue({ file }) {
+        return file.indexOf('vant') !== -1 ? 37.5 : 75;
+      },
+      selectorBlackList: ['.ignore', '.ignore-'], // 要忽略的选择器并保留为px。
+      propList: ['*'], // 可以从px更改为rem的属性。
+      minPixelValue: 2, // 设置要替换的最小像素值。
+      // exclude: /node_modules/i,
+    },
     // 'postcss-px-to-viewport': { // 已经不推荐使用了 需要用 新插件 postcss-px-to-viewport-8-plugin
     //   unitToConvert: 'px', // 需要转换的单位，默认为"px"
     //   viewportWidth: 750, //  设计稿的视口宽度
@@ -46,14 +46,14 @@ module.exports = {
     //   landscapeUnit: 'vw', // 横屏时使用的单位
     //   landscapeWidth: 568, // 横屏时使用的视口宽度
     // },
-    'postcss-px-to-relative-unit': {
-      targetUnit: 'rem',
-      ignoreThreshold: 1,
-      htmlFontSize: 75,
-      unitPrecision: 5,
-      excludeFiles: [/node_modules/],
-      excludeSelectors: [],
-      excludeProperties: [],
-    },
+    // 'postcss-px-to-relative-unit': {
+    //   targetUnit: 'rem',
+    //   ignoreThreshold: 1,
+    //   htmlFontSize: 75,
+    //   unitPrecision: 5,
+    //   excludeFiles: [/node_modules/],
+    //   excludeSelectors: [],
+    //   excludeProperties: [],
+    // },
   },
 };
