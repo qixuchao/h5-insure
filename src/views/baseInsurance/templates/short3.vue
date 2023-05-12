@@ -36,7 +36,6 @@
             v-model="state.userData"
             :product-factor="currentPlanObj?.productFactor"
             :multi-insured-config="currentPlanObj?.multiInsuredConfigVO"
-            :is-view="false"
             @trail-change="handlePersonalInfoChange"
           />
         </div>
@@ -171,7 +170,7 @@ interface QueryData {
   pageCode: string;
   from: string; // from = 'check' 审核版
   preview: string;
-  proposalId: number;
+  proposalId: string;
   [key: string]: string;
 }
 
@@ -335,7 +334,7 @@ const initData = async () => {
     getTenantOrderDetail({ orderNo: reOrderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         orderDetail.value = data;
-        const orderPlanCode = orderDetail.value.tenantOrderInsuredList?.[0]?.planCode || '';
+        const orderPlanCode = orderDetail.value.insuredList?.[0]?.planCode || '';
         if (orderPlanCode) {
           currentPlanObj.value =
             insureProductDetail.value.productPlanInsureVOList?.find((item) => item.planCode === orderPlanCode) ||
@@ -385,13 +384,13 @@ const trialData2Order = (
   const nextStepParams: any = { ...currentOrderDetail, insuranceStartDate, insuranceEndDate };
   console.log('nextStepParams', nextStepParams);
 
-  const { tenantOrderHolder, tenantOrderInsuredList } = formData2Order({
+  const { holder, insuredList } = formData2Order({
     holder: state.submitData.holder?.personVO,
     insuredList: (state.submitData.insuredVOList || []).map((person) => person.personVO),
   });
   console.log('state.submitData', state.submitData);
-  console.log('tenantOrderHolder', tenantOrderHolder);
-  console.log('tenantOrderInsuredList', tenantOrderInsuredList);
+  console.log('holder', holder);
+  console.log('insuredList', insuredList);
   const riskList = state.submitData.insuredVOList.map((person) => person.productPlanVOList?.[0]?.riskVOList).flat();
   const transformDataReq: any = {
     tenantId,
@@ -407,8 +406,8 @@ const trialData2Order = (
   nextStepParams.orderAmount = state.trialResult;
   nextStepParams.orderRealAmount = state.trialResult;
 
-  nextStepParams.tenantOrderHolder = tenantOrderHolder;
-  nextStepParams.tenantOrderInsuredList = tenantOrderInsuredList.map((insurer: any) => {
+  nextStepParams.holder = holder;
+  nextStepParams.insuredList = insuredList.map((insurer: any) => {
     return {
       ...insurer,
       certType: insurer.certType || CERT_TYPE_ENUM.CERT,
@@ -710,7 +709,7 @@ const resetTrialData = debounce(() => {
 
 // 表单组件切换被保人时不会赋值默认社保以及身份证类型，需手动赋值
 watch(
-  () => orderDetail.value.tenantOrderInsuredList[0].relationToHolder,
+  () => orderDetail.value.insuredList[0].relationToHolder,
   (newVal, oldVal) => {
     // 被保人与投保人关系切换时，重置加油包为不投保
     if (newVal !== oldVal) {
@@ -721,10 +720,10 @@ watch(
       }
     }
     nextTick(() => {
-      const { certType, extInfo: insuredExtInfo } = orderDetail.value.tenantOrderInsuredList[0];
+      const { certType, extInfo: insuredExtInfo } = orderDetail.value.insuredList[0];
 
       if (insuredExtInfo && !insuredExtInfo.hasSocialInsurance) {
-        orderDetail.value.tenantOrderInsuredList[0].extInfo.hasSocialInsurance = SOCIAL_SECURITY_ENUM.HAS;
+        orderDetail.value.insuredList[0].extInfo.hasSocialInsurance = SOCIAL_SECURITY_ENUM.HAS;
       }
     });
   },
@@ -793,15 +792,15 @@ onBeforeMount(() => {
   // const oldOrderDetailInfo = sessionStore.get(ORDER_DETAIL_KEY);
   // console.log('oldOrderDetailInfo', oldOrderDetailInfo);
   // if (oldOrderDetailInfo) {
-  //   const { tenantOrderHolder, tenantOrderInsuredList } = oldOrderDetailInfo;
-  //   if (tenantOrderHolder) {
-  //     orderDetail.value.tenantOrderHolder = {
-  //       ...tenantOrderHolder,
-  //       certType: tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
+  //   const { holder, insuredList } = oldOrderDetailInfo;
+  //   if (holder) {
+  //     orderDetail.value.holder = {
+  //       ...holder,
+  //       certType: holder.certType || CERT_TYPE_ENUM.CERT,
   //     };
   //   }
-  //   if (Array(tenantOrderInsuredList) && tenantOrderInsuredList[0]) {
-  //     const insurer = tenantOrderInsuredList[0] || {};
+  //   if (Array(insuredList) && insuredList[0]) {
+  //     const insurer = insuredList[0] || {};
   //     orderDetail.value.activePlanCode = insurer.planCode;
   //     if (
   //       insurer.tenantOrderProductListtenantOrderProductList &&

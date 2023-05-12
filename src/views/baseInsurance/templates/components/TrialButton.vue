@@ -1,7 +1,7 @@
 <template>
   <div class="trial-button-wrap">
     <div class="footer-area">
-      <div v-if="isShare && isApp" class="com-share" @click="onShare">
+      <div class="com-share" @click="onShare">
         <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
         <span>分享</span>
       </div>
@@ -17,7 +17,7 @@
         <slot>立即投保</slot>
       </ProShadowButton>
     </div>
-    <ProShare ref="shareRef" v-bind="shareInfo"> </ProShare>
+    <ProShare ref="shareRef" v-bind="currentShareInfo"> </ProShare>
   </div>
 </template>
 
@@ -54,14 +54,15 @@ const emits = defineEmits(['handleClick']);
 const productPremium = ref<string>('');
 const premiumUnit = ref<string>('');
 const isApp = isAppFkq();
+const currentShareInfo = ref();
 
 const shareRef = ref<InstanceType<typeof ProShare>>();
 const onShare = () => {
   if (props.handleShare) {
-    props.handleShare(() => shareRef.value.handleShare());
+    props.handleShare(() => shareRef.value.handleShare(currentShareInfo.value));
     return;
   }
-  shareRef.value.handleShare();
+  shareRef.value.handleShare(currentShareInfo.value);
 };
 
 // 根据试算或者试算前根据产品配置信息显示产品保费
@@ -93,6 +94,16 @@ watch(
     }
   },
   { deep: true, immediate: true },
+);
+watch(
+  () => props.shareInfo,
+  (info) => {
+    currentShareInfo.value = info;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
 );
 </script>
 
