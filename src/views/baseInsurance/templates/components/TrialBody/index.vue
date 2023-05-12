@@ -723,6 +723,22 @@ watch(
   (v) => {},
   { deep: true, immediate: true },
 );
+
+watch(
+  () => state.userData,
+  (val) => {
+    if (val) {
+      const { holder, insuredList } = val || {};
+      Object.assign(state.submitData, {
+        holder,
+        insuredList,
+      });
+    }
+  },
+  {
+    deep: true,
+  },
+);
 </script>
 
 <style scoped lang="scss">
