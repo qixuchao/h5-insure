@@ -198,8 +198,8 @@ const goToInsurerPage = async (reOrder = false, promotion = '') => {
     const res = await queryStandardInsurerLink(params);
     if (res.code === '10000') {
       if (!reOrder) {
-        const { tenantOrderHolder, tenantOrderInsuredList } = state.orderDetail;
-        sessionStore.set(ORDER_DETAIL_KEY, { tenantOrderHolder, tenantOrderInsuredList });
+        const { holder, insuredList } = state.orderDetail;
+        sessionStore.set(ORDER_DETAIL_KEY, { holder, insuredList });
       }
       window.location.href = res.data || '';
     }
@@ -262,9 +262,9 @@ const initPageInfo = () => {
   state.templateId = state.orderDetail.extInfo.templateId || '4';
   let insurancePeriodDesc = '';
   if (state.templateId.toString() === '2') {
-    state.orderDetail.tenantOrderInsuredList[0].tenantOrderProductList.forEach((item: any) => {
+    state.orderDetail.insuredList[0].productList.forEach((item: any) => {
       if (insurancePeriodDesc) return null;
-      item.tenantOrderRiskList.forEach((node: any) => {
+      item.riskList.forEach((node: any) => {
         if (node.riskType === 1 && !insurancePeriodDesc) {
           insurancePeriodDesc = compositionDesc(
             node.insurancePeriodValue,
@@ -291,7 +291,7 @@ const initPageInfo = () => {
   }
   state.pageInfo.insureList = [
     ...state.pageInfo.insureList,
-    { label: '被保人', value: state.orderDetail?.tenantOrderInsuredList?.[0]?.name },
+    { label: '被保人', value: state.orderDetail?.insuredList?.[0]?.name },
     { label: '保障期间', value: insurancePeriodDesc || '' },
   ];
   state.templateId = state.orderDetail.extInfo.templateId;
@@ -307,12 +307,12 @@ const initPageInfo = () => {
   }
   try {
     // 保障内容的获取
-    const planCode = state.orderDetail.tenantOrderInsuredList?.[0].planCode || '';
+    const planCode = state.orderDetail.insuredList?.[0].planCode || '';
 
     // 多计划
     state.guaranteeItemVOS =
       state.detail?.GUARANTEE.find((item) => {
-        return item.planCode === planCode;
+        return !item.planCode || item.planCode === planCode;
       })?.data || [];
   } catch (e) {
     console.log(e);
@@ -358,12 +358,12 @@ const queryOrderDeatil = () => {
       });
       orderDetail.value.orderAmount = (Math.random() * 1000).toFixed(2);
       orderDetail.value.orderStatus = 'acceptPolicy';
-      orderDetail.value.tenantOrderInsuredList[0].name = '小安';
+      orderDetail.value.insuredList[0].name = '小安';
       orderDetail.value.commencementTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
       orderDetail.value.expiryDate = dayjs().add(1, 'year').format('YYYY-MM-DD HH:mm:ss');
-      orderDetail.value.tenantOrderInsuredList[0].tenantOrderProductList[0] = {
+      orderDetail.value.insuredList[0].productList[0] = {
         productCode: productCodeView,
-        tenantOrderRiskList: [
+        riskList: [
           {
             riskType: 1,
             insurancePeriodValue: '1',
@@ -389,7 +389,7 @@ const getData = async () => {
   console.log(orderRes, 'orderRes');
   if (orderRes.code === '10000') {
     state.orderDetail = orderRes.data;
-    productCode = orderRes.data.tenantOrderInsuredList?.[0]?.tenantOrderProductList?.[0]?.productCode || '';
+    productCode = orderRes.data.insuredList?.[0]?.productList?.[0]?.productCode || '';
     if (!productCode) return '';
     const productReq = tenantProductDetail({ productCode, withInsureInfo: true, tenantId });
     const insureReq = insureProductDetail({ productCode });

@@ -66,7 +66,7 @@
     <template v-if="showFooterBtn">
       <TrialButton
         :is-share="tenantProductDetail?.PRODUCT_LIST?.showWXShare"
-        :premium="state.trialResult"
+        :premium="state.trialResult?.initialPremium"
         :share-info="shareInfo"
         :loading-text="state.trialMsg"
         :plan-code="guaranteeObj.planCode"
@@ -227,7 +227,7 @@ const state = reactive({
   userData: {} as RiskVoItem,
   ifPersonalInfoSuccess: false,
   trialMsg: '',
-  trialResult: 0,
+  trialResult: {},
   isFirst: true,
 });
 
@@ -389,7 +389,7 @@ const onUnderWrite = async (orderNo: string) => {
 };
 
 // 生成订单
-const onSaveOrder = async () => {
+const onSaveOrder = async (trialData) => {
   if (previewMode.value) {
     window.location.href = `${`${window.location.origin}${VITE_BASE}baseInsurance/orderDetail`}?orderNo=mockOrderNo&tenantId=${tenantId}&ISEE_BIZ=${iseeBizNo}&productCode=${productCode}&preview=true&templateView=${
       extInfo?.templateId
@@ -403,7 +403,7 @@ const onSaveOrder = async () => {
         productName: insureProductDetail.value?.productName || '',
         tenantId,
       };
-      const currentOrderDetail = trialData2Order(productInfo, premiumMap.value, orderDetail.value);
+      const currentOrderDetail = trialData2Order(trialData, state.trialResult, orderDetail.value);
       nextStep(currentOrderDetail, async (data: any, pageAction: string) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
           if (data?.orderNo) {
@@ -498,7 +498,7 @@ const onResetFileFlag = () => {
 
 const handleTrialAndBenefit = async (calcData: any, isSave = false) => {
   state.trialMsg = LOADING_TEXT;
-  state.trialResult = 0;
+  state.trialResult = {};
   let checkResult = false;
 
   const { code } = await underWriteRule(calcData);
@@ -515,18 +515,7 @@ const handleTrialAndBenefit = async (calcData: any, isSave = false) => {
             Toast(`${res?.data?.errorInfo}`);
           }
           state.trialMsg = '';
-          state.trialResult = res.data.initialPremium;
-
-          const riskPremiumMap = {};
-          if (res.data.riskPremiumDetailVOList && res.data.riskPremiumDetailVOList.length) {
-            res.data.riskPremiumDetailVOList.forEach((riskDetail: any) => {
-              riskPremiumMap[riskDetail.riskCode] = {
-                premium: riskDetail.initialPremium,
-                amount: riskDetail.initialAmount,
-              };
-            });
-          }
-          premiumMap.value = riskPremiumMap;
+          state.trialResult = res.data;
 
           if (isSave) {
             if (popupFileList.value.length > 0) {
@@ -538,7 +527,7 @@ const handleTrialAndBenefit = async (calcData: any, isSave = false) => {
               showHealthPreview.value = true;
             } else {
               // 无文件、无健告直接生成订单
-              onSaveOrder();
+              onSaveOrder(calcData);
             }
           }
         } else {
@@ -567,9 +556,14 @@ const getRiskVOList = () => {
 const handleMixTrialData = debounce(async (isSave = false) => {
   console.log('>>>>>调用试算<<<<<');
   if (state.ifPersonalInfoSuccess || personalInfoRef.value.canTrail()) {
-    state.submitData.productCode = productCode;
-    state.submitData.tenantId = tenantId;
-    // state.submitData.productName = props.productInfo.productName;
+    const { insuranceEndDate: expiryDate, insuranceStartDate: commencementTime } = guaranteeObj.value;
+    Object.assign(state.submitData, {
+      productCode,
+      tenantId,
+      productName: insureProductDetail.value.productName,
+      commencementTime,
+      expiryDate,
+    });
     // TODO 处理同主险的相关数据
     state.riskList = getRiskVOList();
     const submitDataCopy = cloneDeep(state.submitData);
