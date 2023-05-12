@@ -302,7 +302,7 @@ const benefitData = ref({
   // showTypList: [],
 });
 
-const DYNAMIC_FACTOR_PARAMS = ['annuityDrawDate', 'coveragePeriod', 'chargePeriod'];
+const DYNAMIC_FACTOR_PARAMS = ['annuityDrawDate', 'coveragePeriod', 'chargePeriod', 'paymentFrequency'];
 
 const handleSetRiskSelect = () => {
   state.riskIsInsure = {};
@@ -498,10 +498,10 @@ const handleMixTrialData = debounce(async () => {
         ];
       });
     }
-    if (state.isSkipFirstTrial && !state.hadSkipFirstTrial) {
-      state.hadSkipFirstTrial = true;
-      return;
-    }
+    // if (state.isSkipFirstTrial && !state.hadSkipFirstTrial) {
+    //   state.hadSkipFirstTrial = true;
+    //   return;
+    // }
     console.log('>>>数据构建<<<', cloneDeep(state.submitData));
 
     const submitDataCopy = cloneDeep(state.submitData);
@@ -547,7 +547,8 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
     delete DyData.insurancePeriodValueList;
     delete DyData.paymentFrequencyList;
     delete DyData.paymentPeriodValueList;
-    const hasDyChange = DYNAMIC_FACTOR_PARAMS.indexOf(changeData.key) >= 0;
+    const hasDyChange =
+      DYNAMIC_FACTOR_PARAMS.indexOf(changeData.key) >= 0 && `${changeData.oldValue}` !== `${changeData.newValue}`;
     // 需要请求dy接口
     if (hasDyChange) {
       const changeVO = {};
@@ -657,7 +658,7 @@ const transformDefaultData = (defaultData: any) => {
 };
 
 const fetchDefaultData = async (changes: []) => {
-  console.log('props.defaultData', props.defaultData);
+  console.log('props.defaultData', !props.defaultData);
   // TODO 加loading
   if (!props.defaultData) {
     const result = await queryCalcDefaultInsureFactor({
@@ -670,8 +671,8 @@ const fetchDefaultData = async (changes: []) => {
     });
     if (result.data) {
       const targetProduct = result.data.find((d) => d.productCode === props.productInfo.productCode) || result.data[0];
-      console.log('targetProduct', targetProduct);
       transformDefaultData(targetProduct);
+      handlePersonInfo(result.data?.[0]);
     }
   } else {
     const targetProduct =
