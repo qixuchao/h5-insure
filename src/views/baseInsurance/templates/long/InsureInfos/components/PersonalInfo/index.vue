@@ -268,8 +268,8 @@ watch(
 
     // 多被保人为配偶,性别不符合给提示
     if (state.config.isSpouseInsured) {
-      const [gender1, gender2] = insuredList.map((item) => item.personVO?.gender);
-      if (gender1 && gender2 && gender1 === gender2) {
+      const [gender1, gender2] = insuredList.map((item) => item?.gender);
+      if (gender1 && gender2 && String(gender1) === String(gender2)) {
         return Toast('被保人性别与投保要求不符');
       }
     }

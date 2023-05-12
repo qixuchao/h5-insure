@@ -74,7 +74,7 @@ const columns = [
     dataIndex: 'premium',
     width: 120,
     render: (row: any) => {
-      return transformToMoney(row?.premium);
+      return transformToMoney(row?.initialPremium);
     },
   },
 ];
@@ -175,7 +175,8 @@ const editProposal = (id: number) => {
       width: 100%;
       .van-field__control {
         width: 100%;
-        height: 34px;
+        margin: 0;
+        padding: 8px 0;
       }
     }
   }
