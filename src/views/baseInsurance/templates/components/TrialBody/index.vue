@@ -375,7 +375,11 @@ const handleSameMainRisk = (data: any) => {
   const risk = props.dataSource.insureProductRiskVOList?.find((r) => data.riskId === r.riskId);
   if (risk && risk.mainRiskFlag !== 1) {
     // 只处理非标准险种 根据关联关系找到他关联的主险
-    const relation = props.dataSource?.productRiskRelationVOList?.find((r) => r.collocationRiskId === risk.riskId);
+    const relations = props.dataSource?.productRiskRelationVOList?.filter(
+      (r) => r.collocationRiskId === risk.riskId && r.collocationType !== 3,
+    );
+    const relation = relations.length > 0 ? relations[0] : null;
+
     if (relation) {
       const mainRiskTrialData = state.riskList?.find((r) => r.riskId === relation.riskId);
       PRODUCT_KEYS_CONFIG.forEach((config) => {
