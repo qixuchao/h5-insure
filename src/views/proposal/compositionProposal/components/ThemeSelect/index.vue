@@ -11,7 +11,7 @@
     <div class="popup-body">
       <van-cell center title="封面图">
         <template #right-icon>
-          <van-switch v-model="themeStatus" :inactive-value="0" :active-value="themeList[0].id" size="24" />
+          <van-switch v-model="themeStatus" :inactive-value="0" :active-value="themeList[0].id" size="0.7rem" />
         </template>
       </van-cell>
 
