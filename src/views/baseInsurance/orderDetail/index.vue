@@ -305,18 +305,21 @@ const initPageInfo = () => {
     });
     state.timeDown.start();
   }
-  try {
-    // 保障内容的获取
-    const planCode = state.orderDetail.insuredList?.[0].planCode || '';
+  // 保障内容的获取
+  const planCode = state.orderDetail.insuredList?.[0].planCode || '';
 
-    // 多计划
-    state.guaranteeItemVOS =
-      state.detail?.GUARANTEE.find((item) => {
-        return !item.planCode || item.planCode === planCode;
-      })?.data || [];
-  } catch (e) {
-    console.log(e);
-  }
+  console.log(
+    'state.detail?.GUARANTEE',
+    state.detail?.GUARANTEE.find((item) => {
+      return !item.planCode || item.planCode === planCode;
+    }).data,
+  );
+
+  // 多计划
+  state.guaranteeItemVOS =
+    state.detail?.GUARANTEE.find((item) => {
+      return !item.planCode || item.planCode === planCode;
+    })?.data || [];
 };
 
 const getUpgrade = async (baseProductCode) => {

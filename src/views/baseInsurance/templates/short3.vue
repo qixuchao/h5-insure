@@ -389,7 +389,8 @@ const onUnderWrite = async (orderNo: string) => {
 };
 
 // 生成订单
-const onSaveOrder = async (trialData) => {
+const trialData = ref();
+const onSaveOrder = async () => {
   if (previewMode.value) {
     window.location.href = `${`${window.location.origin}${VITE_BASE}baseInsurance/orderDetail`}?orderNo=mockOrderNo&tenantId=${tenantId}&ISEE_BIZ=${iseeBizNo}&productCode=${productCode}&preview=true&templateView=${
       extInfo?.templateId
@@ -403,7 +404,7 @@ const onSaveOrder = async (trialData) => {
         productName: insureProductDetail.value?.productName || '',
         tenantId,
       };
-      const currentOrderDetail = trialData2Order(trialData, state.trialResult, orderDetail.value);
+      const currentOrderDetail = trialData2Order(trialData.value, state.trialResult, orderDetail.value);
       nextStep(currentOrderDetail, async (data: any, pageAction: string) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
           if (data?.orderNo) {
@@ -514,6 +515,7 @@ const handleTrialAndBenefit = async (calcData: any, isSave = false) => {
           if (res?.data?.errorInfo) {
             Toast(`${res?.data?.errorInfo}`);
           }
+          trialData.value = calcData;
           state.trialMsg = '';
           state.trialResult = res.data;
 
@@ -527,7 +529,7 @@ const handleTrialAndBenefit = async (calcData: any, isSave = false) => {
               showHealthPreview.value = true;
             } else {
               // 无文件、无健告直接生成订单
-              onSaveOrder(calcData);
+              onSaveOrder();
             }
           }
         } else {
