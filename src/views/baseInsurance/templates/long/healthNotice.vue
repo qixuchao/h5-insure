@@ -59,7 +59,7 @@ const onNext = () => {
 };
 
 const questionReject = () => {
-  Dialog.confirm({ title: '', message: `${objectType.value}不符合当前产品投保条件，请选择其他产品` })
+  Dialog.confirm({ title: '', message: `${objectType.value || ''}不符合当前产品投保条件，请选择其他产品` })
     .then(() => {
       closeWebView();
     })
