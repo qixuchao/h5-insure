@@ -147,7 +147,7 @@ watch(
   () => props.defaultValue,
   (v) => {
     if (v) {
-      state.defaultValues = v;
+      state.defaultValues = cloneDeep(v);
       mValues.value = {
         ...v,
       };
