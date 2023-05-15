@@ -234,7 +234,7 @@ const canTrail = () => {
 // 验证是否试算
 watch(
   [
-    () => state.holder?.personVO,
+    () => ({ ...state.holder?.personVO }),
     () =>
       state.insured.map((insuredItem) => {
         const { beneficiaryList: list, personVO } = insuredItem || {};
@@ -250,7 +250,7 @@ watch(
       }),
   ],
   // eslint-disable-next-line consistent-return
-  debounce(([holder, insuredList], oldVal) => {
+  ([holder, insuredList], oldVal) => {
     // 试算因子的值是否变动
     const trialDataChanged = isTrialDataChange([holder, insuredList], oldVal);
 
@@ -303,7 +303,7 @@ watch(
         state.trialValidated = false;
         emit('trailValidateFailed', result);
       });
-  }, 800),
+  },
   {
     deep: true,
   },
@@ -382,7 +382,7 @@ watch(
         ? propsInsuredLen
         : stateInsuredLen || state.config.multiInsuredMinNum;
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
-      const { personVO, config = {} } = insuredList?.[index] || {};
+      const { personVO, config = {}, beneficiaryList } = insuredList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
 
       if (!res[index]) {
@@ -390,12 +390,14 @@ watch(
           ...initInsuredTempData,
           personVO,
           config,
+          beneficiaryList,
           nanoid: nanoid(),
         };
       } else {
         merge(res[index], {
           personVO,
           config,
+          beneficiaryList,
         });
         // if (res[index]?.personVO) {
         //   Object.assign(res[index]?.personVO, personVO);

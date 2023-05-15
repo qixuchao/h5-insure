@@ -25,7 +25,7 @@
                   :style="{ backgroundImage: `url(${item.showConfig.thumbnailImage})` }"
                   @click="onCheck(item.id)"
                 >
-                  <VanRadio :name="item.id" />
+                  <VanRadio :name="item.id" :disabled="themeStatus === 0" />
                 </div>
                 <span :class="`${checked === item.id ? 'checked' : ''}`">{{ item.name }}</span>
               </div>
@@ -61,7 +61,9 @@ const checked = ref<number>(themeList?.[0]?.id);
 const themeStatus = ref<number>(themeList?.[0]?.id);
 
 const onCheck = (value: number) => {
-  checked.value = value;
+  if (themeStatus.value !== 0) {
+    checked.value = value;
+  }
 };
 
 const submit = () => {

@@ -1,5 +1,5 @@
 <template>
-  <div :id="id"></div>
+  <div :id="id" class="pdf-viewer-wrap"></div>
 </template>
 
 <script setup lang="ts">
@@ -47,3 +47,10 @@ onMounted(() => {
   loadPdfCanvas(url as string);
 });
 </script>
+<style lang="scss">
+.pdf-viewer-wrap {
+  .pinch-zoom-container {
+    height: 100% !important;
+  }
+}
+</style>

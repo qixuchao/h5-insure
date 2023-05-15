@@ -443,14 +443,6 @@ const queryProposalInfo = (params = {}) => {
           productCode: item.productCode,
         })),
       );
-      fetchDefaultData(
-        [
-          {
-            productCode: productList[0].productCode,
-          },
-        ],
-        true,
-      );
       console.log('----query detail ', productList);
       stateInfo.productList = productList;
     }
