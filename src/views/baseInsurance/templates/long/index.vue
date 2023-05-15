@@ -6,7 +6,7 @@
         <Banner
           v-if="tenantProductDetail?.BASIC_INFO?.bannerType == 1 && tenantProductDetail?.BASIC_INFO?.banner.length"
           data-skeleton-type="img"
-          :url="tenantProductDetail?.BASIC_INFO.banner[0]"
+          :images="tenantProductDetail?.BASIC_INFO?.banner"
         />
         <Video
           v-if="tenantProductDetail?.BASIC_INFO?.bannerType == 2 && tenantProductDetail?.BASIC_INFO?.video.length"
