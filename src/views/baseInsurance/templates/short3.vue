@@ -397,13 +397,6 @@ const onSaveOrder = async () => {
     }`;
   } else {
     try {
-      const productInfo: any = {
-        insurerCode,
-        productCode,
-        productId: '',
-        productName: insureProductDetail.value?.productName || '',
-        tenantId,
-      };
       const currentOrderDetail = trialData2Order(trialData.value, state.trialResult, orderDetail.value);
       nextStep(currentOrderDetail, async (data: any, pageAction: string) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
@@ -574,10 +567,11 @@ const handleMixTrialData = debounce(async (isSave = false) => {
       submitDataCopy.insuredList = submitDataCopy.insuredList.map((ins) => {
         return {
           ...ins,
+          planCode: currentPlanObj.value.planCode,
+
           productList: [
             {
               insurerCode,
-              planCode: currentPlanObj.value.planCode,
               riskList: state.riskList,
             },
           ],
