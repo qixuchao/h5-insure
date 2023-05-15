@@ -7,7 +7,7 @@
       />
       <div class="container">
         <Benefit
-          v-if="!hideBenefit"
+          v-if="!hideBenefit && benefitData?.benefitRiskResultVOList"
           class="benefit-wrap"
           :data-source="benefitData"
           :product-info="dataSource"
