@@ -199,10 +199,10 @@ watch(
 
     // 若为本人合并投保人数据
     if (String(state.personVO?.relationToHolder) === '1') {
-      // 过滤投被保人相同要素，预防关系为本人时，仅被保人有的字段被清空,后端给了null
+      // 过滤投被保人相同要素，保留证件相关的，预防关系为本人时，仅被保人有的字段被清空,后端给了null
       const tempData = isNotEmptyArray(isSelfInsuredNeedCods.value)
         ? Object.keys(holderPersonVO).reduce((res, key: string) => {
-            if (!isSelfInsuredNeedCods.value.includes(key)) {
+            if (!isSelfInsuredNeedCods.value.includes(key) || ['birthday', 'age', 'gender'].includes(key)) {
               res[key] = holderPersonVO[key];
             }
             return res;
