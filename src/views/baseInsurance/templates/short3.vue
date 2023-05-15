@@ -313,9 +313,9 @@ const initData = async () => {
       tenantProductDetail.value = data;
       document.title = data.BASIC_INFO.title || '';
       tenantProductDetail.BASIC_INFO = data.BASIC_INFO;
-      const { title, desc, image: imageArr } = data?.PRODUCT_LIST.wxShareConfig || {};
+      const { title, desc, image } = data?.PRODUCT_LIST.wxShareConfig || {};
       // 设置分享参数
-      setShareLink({ title, desc, image: imageArr });
+      setShareLink({ title, desc, image });
     }
   });
 

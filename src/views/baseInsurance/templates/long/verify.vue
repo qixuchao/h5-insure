@@ -396,7 +396,6 @@ const initData = () => {
       insureProductDetail.value = data;
       const { productFactor } = data.productPlanInsureVOList?.[0] || {};
       const { signInfo } = transformFactorToSchema(productFactor);
-      console.log('signInfo', signInfo);
       signInfo.schema.forEach((schema) => {
         if (schema.name === 'eleSign') {
           schema.columns.forEach((column) => {

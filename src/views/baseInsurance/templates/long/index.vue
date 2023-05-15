@@ -1,6 +1,6 @@
 <template>
   <div v-if="loading">__SKELETON_LONG_CONTENT__</div>
-  <div v-else class="page-internet-product-detail" data-skeleton-root="LONG">
+  <ProPageWrap v-else class="page-internet-product-detail" data-skeleton-root="LONG">
     <template v-if="!trialPreviewMode">
       <div class="info">
         <Banner
@@ -69,7 +69,7 @@
       <!-- </ProLazyComponent> -->
     </template>
     <div id="insureButton"></div>
-  </div>
+  </ProPageWrap>
   <PreNotice v-if="preNoticeLoading && !trialPreviewMode" :product-detail="tenantProductDetail"></PreNotice>
   <div id="xinaoDialog"></div>
   <FilePreview
@@ -114,6 +114,7 @@ import TrialPop from '../components/TrialPop/index.vue';
 import InsureLimit from '../components/InsureLimit/index.vue';
 import { orderData2trialData } from '../utils';
 import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
+import ProPageWrap from '@/components/ProPageWrap';
 // const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const InscribedContent = defineAsyncComponent(() => import('../components/InscribedContent/index.vue'));

@@ -2,19 +2,6 @@
   <div v-if="loading">__SKELETON_UPGRADE_CONTENT__</div>
   <div v-else data-skeleton-root="UPGRADE" class="page-upgrade-product-detail">
     <Banner data-skeleton-type="img" :url="detail?.tenantProductInsureVO?.banner[0]" />
-    <!-- <InsureForm
-      ref="formRef"
-      :title-collection="{
-        HOLDER: '投保人信息',
-        INSURER: '投保信息',
-        BENEFICIARY: '投保人信息',
-      }"
-      need-desensitize
-      is-view
-      input-align="right"
-      :form-info="orderDetail"
-      :factor-object="insureDetail?.productFactor"
-    ></InsureForm> -->
     <PersonalInfo
       v-if="insureDetail?.productFactor"
       ref="personalInfoRef"
@@ -123,7 +110,7 @@ interface QueryData {
 }
 // oKugN52glZx_hhg7liu0WpWcmD5o
 const {
-  productCode = '',
+  productCode = 'ZXYS2023',
   orderNo = '',
   agencyCode = '',
   tenantId = '',
@@ -395,7 +382,7 @@ const onUpgrade = async (o: any) => {
 
 const productFactorMake = () => {
   ['1', '2', '3'].forEach((field: string) => {
-    insureDetail.value.productFactor[field] = insureDetail.value.productFactor?.[field]?.some(
+    insureDetail.value.productFactor[field] = (insureDetail.value?.productFactor?.[field] || [])?.some(
       (item) => item.isDisplay === 1,
     )
       ? insureDetail.value.productFactor?.[field]

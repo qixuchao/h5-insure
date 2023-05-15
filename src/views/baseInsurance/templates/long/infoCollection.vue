@@ -2,7 +2,7 @@
   <ProPageWrap>
     <div class="long-info-collection">
       <TrialBody
-        v-if="state.defaultValue"
+        v-if="isLoading || preview"
         ref="personalInfoRef"
         :data-source="currentPlanObj"
         :product-info="{

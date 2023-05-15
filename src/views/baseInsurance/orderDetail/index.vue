@@ -183,6 +183,9 @@ const goToInsurerPage = async (reOrder = false, promotion = '') => {
         }),
       );
       params.orderNo = orderNo;
+      if (previewMode.value) {
+        params.productCode = 'ZXYS2023';
+      }
       router.push(`/baseInsurance/upgrade?${qs.stringify(params)}`);
       return;
     }
@@ -194,7 +197,7 @@ const goToInsurerPage = async (reOrder = false, promotion = '') => {
       params.extraMap.promotion = promotion;
     }
     delete params.extraMap.templateId;
-    console.log('订单转投保', params);
+
     const res = await queryStandardInsurerLink(params);
     if (res.code === '10000') {
       if (!reOrder) {
@@ -307,13 +310,6 @@ const initPageInfo = () => {
   }
   // 保障内容的获取
   const planCode = state.orderDetail.insuredList?.[0].planCode || '';
-
-  console.log(
-    'state.detail?.GUARANTEE',
-    state.detail?.GUARANTEE.find((item) => {
-      return !item.planCode || item.planCode === planCode;
-    }).data,
-  );
 
   // 多计划
   state.guaranteeItemVOS =

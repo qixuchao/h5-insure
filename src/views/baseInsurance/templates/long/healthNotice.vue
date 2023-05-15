@@ -143,7 +143,7 @@ const getOrderDetail = async () => {
 };
 
 onBeforeMount(() => {
-  getOrderDetail();
+  !preview && getOrderDetail();
   getQuestionInfo();
 });
 </script>

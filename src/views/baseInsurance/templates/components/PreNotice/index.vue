@@ -53,7 +53,7 @@ interface QueryData {
   [key: string]: string;
 }
 
-const { tenantId = '' } = route.query as QueryData;
+const { tenantId = '', preview } = route.query as QueryData;
 
 const state = reactive({
   insureConfig: {
@@ -131,7 +131,7 @@ const initData = async () => {
 };
 
 onMounted(() => {
-  initData();
+  !preview && initData();
 });
 </script>
 

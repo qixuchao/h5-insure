@@ -89,7 +89,7 @@ const result = ref<PayResultData>({
 });
 const route = useRoute();
 const router = useRouter();
-const { orderNo = '', saleUserId = '', tenantId = '', templateId = 1 } = route.query;
+const { orderNo = '', preview, saleUserId = '', tenantId = '', templateId = 1 } = route.query;
 const orderInfo = ref({});
 /** 当前订单是成功 */
 const isSuccess = computed((status) => {
@@ -168,6 +168,9 @@ const refresh = () => {
   window.location.reload();
 };
 onMounted(() => {
+  if (preview) {
+    return;
+  }
   getOrderDetail({
     orderNo,
     saleUserId,
