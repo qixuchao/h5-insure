@@ -16,7 +16,7 @@
   </ProRenderFormWithCard>
   <template v-if="hasBeneficiarySchema">
     <ProRenderFormWithCard
-      ref="insuredFormRef"
+      ref="beneficiaryTypeFormRef"
       class="personal-info-card"
       :title="'受益人'"
       :model="state.personVO"
@@ -82,6 +82,7 @@ interface InsuredProps {
 
 const emit = defineEmits(['update:modelValue', 'update:beneficiaryList']);
 const insuredFormRef = ref(null);
+const beneficiaryTypeFormRef = ref(null);
 const beneficiaryFormRef = ref(null);
 
 // 初始化受益人数据
@@ -132,8 +133,9 @@ const state = reactive<Partial<StateInfo>>({
 // 验证表单必填
 const validate = (isTrial) => {
   return Promise.all([
-    ...(beneficiaryFormRef.value?.map((item) => item.validate(isTrial)) || []),
     validateForm(insuredFormRef, props.trialFactorCodes, isTrial),
+    validateForm(beneficiaryTypeFormRef, [], isTrial),
+    ...(beneficiaryFormRef.value?.map((item) => item.validate(isTrial)) || []),
   ]);
 };
 
