@@ -173,7 +173,9 @@ const columns = computed(() => {
 // 选中的索引
 const defaultIndex = computed(() => {
   if (state.fieldValue) {
-    return props.columns.findIndex((x) => x[(props.customFieldName as ColumnsFieldNames)?.value] === state.fieldValue);
+    return props.columns.findIndex(
+      (column) => String(column[(props.customFieldName as ColumnsFieldNames)?.value]) === String(state.fieldValue),
+    );
   }
   return '';
 });

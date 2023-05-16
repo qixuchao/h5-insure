@@ -23,7 +23,8 @@
       v-model:beneficiary-list="insuredItem.beneficiaryList"
       :title="`${state.insured.length > 1 ? `被保人${index + 1}` : '被保人信息'}`"
       :holder-person-v-o="state.holder.personVO"
-      :="insuredItem"
+      :config="insuredItem.config"
+      :schema="InsuredItem.schema"
       :beneficiary-schema="state.beneficiarySchema"
       :is-view="isView"
       :multi-beneficiary-num="state.config.multiBeneficiaryMaxNum"
@@ -404,16 +405,6 @@ watch(
           config,
           beneficiaryList,
         });
-        // if (res[index]?.personVO) {
-        //   Object.assign(res[index]?.personVO, personVO);
-        // } else {
-        //   res[index].personVO = personVO;
-        // }
-        // if (res[index]?.config) {
-        //   Object.assign(res[index]?.config, config);
-        // } else {
-        //   res[index].config = config;
-        // }
       }
       return res;
     }, state.insured) as InsuredListProps;

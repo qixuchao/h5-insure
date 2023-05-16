@@ -106,8 +106,8 @@ watch(
 
 watch(
   () => props.modelValue,
-  (val) => {
-    if (val) {
+  (val, oldVal) => {
+    if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
       colorConsole('受益人数据变动了');
       Object.assign(state.personVO, val);
     }

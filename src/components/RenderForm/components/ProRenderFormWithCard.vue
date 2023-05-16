@@ -55,5 +55,11 @@ export default {
 <style lang="scss" scoped>
 .com-pro-form-with-card {
   margin-bottom: 20px;
+
+  &.com-card-body-no-padding {
+    :deep(.com-card-wrap) .header {
+      padding-right: 0;
+    }
+  }
 }
 </style>

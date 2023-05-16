@@ -238,14 +238,15 @@ watch(
 // 指定受益人
 watch(
   isSpecifyBeneficiary,
-  (val) => {
-    colorConsole('受益人类型关系变动了');
-
-    // 如果是指定受益人
-    if (val) {
-      onAddBeneficiary();
-    } else {
-      state.beneficiaryList = [];
+  (val, oldVal) => {
+    if (val && oldVal && String(val) !== String(oldVal)) {
+      colorConsole('受益人类型关系变动了');
+      // 如果是指定受益人
+      if (val) {
+        onAddBeneficiary();
+      } else {
+        state.beneficiaryList = [];
+      }
     }
   },
   {
@@ -259,9 +260,10 @@ watch(
     state.beneficiaryList.map((item) => ({
       personVO: item.personVO,
     })),
-  (val) => {
-    emit('update:beneficiaryList', val);
-    // emit('update:modelValue', state.beneficiaryList);
+  (val, oldValue) => {
+    if (JSON.stringify(val) !== JSON.stringify(oldValue)) {
+      emit('update:beneficiaryList', val);
+    }
   },
   {
     deep: true,
@@ -374,14 +376,10 @@ watch(
 
 watch(
   () => props.modelValue,
-  (val) => {
-    if (val) {
+  (val, oldVal) => {
+    if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
       const { beneficiaryList, ...rest } = val;
       merge(state.personVO, rest);
-      if (isNotEmptyArray(beneficiaryList)) {
-        // 受益人
-        state.beneficiaryList = beneficiaryList;
-      }
     }
   },
   {
@@ -392,21 +390,14 @@ watch(
 
 watch(
   () => props.beneficiaryList,
-  (val) => {
-    if (val) {
-      if (isNotEmptyArray(val)) {
-        // 受益人
-        // state.beneficiaryList = val.map((beneficiaryItem, i) => {
-        //   const currentBeneficiaryItem = val[i] || {};
-        //   return {
-        //     ...currentBeneficiaryItem,
-        //     personVO: {
-        //       ...beneficiaryItem.personVO,
-        //       ...currentBeneficiaryItem.personVO,
-        //     },
-        //   };
-        // });
-      }
+  (val, oldValue) => {
+    if (JSON.stringify(val) !== JSON.stringify(oldValue)) {
+      state.beneficiaryList = isNotEmptyArray(val)
+        ? val.map((item) => ({
+            ...item,
+            nanoid: item.nanoid || nanoid(),
+          }))
+        : [];
     }
   },
   {
@@ -444,7 +435,7 @@ defineExpose({
 }
 .add-button {
   display: block;
-  padding: 0 30px 20px;
+  padding: 0 30px 20px 0;
   font-size: 26px;
   color: $zaui-primary-text;
   line-height: 37px;

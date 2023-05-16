@@ -373,7 +373,7 @@ watch(
       })
       // 筛选掉不展示的支付信息模块
       .filter(({ schema, ...rest }) => {
-        return paymentDrawTypeList.includes(`${rest.payInfoType}`);
+        return paymentDrawTypeList.includes(`${rest.payInfoType}`) && isNotEmptyArray(schema);
       });
   },
   {
