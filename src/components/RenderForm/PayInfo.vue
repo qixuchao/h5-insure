@@ -1,8 +1,8 @@
 <template>
   <ProRenderFormWithCard
-    v-for="schemaItem in state.schemaList"
+    v-for="(schemaItem, index) in state.schemaList"
     ref="payInfoFormRef"
-    :key="schemaItem.nanoid"
+    :key="`${schemaItem.nanoid}_${index}`"
     :schema="schemaItem.schema"
     :model="schemaItem.formData"
     :config="schemaItem.config"
@@ -18,6 +18,7 @@
 import { withDefaults, ComputedRef } from 'vue';
 import { nanoid } from 'nanoid';
 import debounce from 'lodash-es/debounce';
+import cloneDeep from 'lodash-es/cloneDeep';
 import { ProRenderFormWithCard } from './components';
 import { SchemaItem } from './index.data';
 import { isNotEmptyArray } from '@/common/constants/utils';
@@ -58,7 +59,7 @@ const payInfoFormRef = ref(null);
 const formRef = ref<InstanceType<typeof ProRenderFormWithCard>>();
 
 // 隐藏银行相关的字段
-const HIDDEN_KEY_LIST = ['cardType', 'bankCard', 'paymentType'];
+const HIDDEN_KEY_LIST = ['cardType', 'bankCard', 'paymentMethod'];
 
 const fieldInitList: Partial<PayInfoItem>[] = [
   {
@@ -196,18 +197,18 @@ const transformSchemaName = (name) => {
 /** 合并不同模块 formData */
 const combineFormData = (targetIndex, originIndex) => {
   const { formData } = state.schemaList[originIndex] || {};
+  const { paymentGenre, id, ...rest } = formData || {};
 
   // 合并影像注意类型
   const tempData = {
-    ...formData,
-    bankCardImage: isNotEmptyArray(formData.bankCardImage)
-      ? formData.bankCardImage.map((item) => ({
+    ...rest,
+    bankCardImage: isNotEmptyArray(rest.bankCardImage)
+      ? rest.bankCardImage.map((item) => ({
           ...item,
           objectType: fieldInitList[targetIndex].objectType,
         }))
-      : formData.bankCardImage,
+      : rest.bankCardImage,
   };
-
   Object.assign(state.schemaList[targetIndex]?.formData, tempData);
 };
 
@@ -306,7 +307,7 @@ watch(
 
     if (isNotEmptyArray(schema)) {
       schema.forEach((item) => {
-        item.hidden = isBankField(item.name);
+        item.hidden = isSameFirst && isBankField(item.name);
       });
     }
   },
@@ -315,18 +316,30 @@ watch(
 // 年金领取 同首期/同续期 数据变动，复制 同首期/同续期 数据
 watch(
   () => state.schemaList[schemaIndexMap.value.REPRISE]?.formData?.paymentGenre,
-  (val) => {
+  // eslint-disable-next-line consistent-return
+  (val, oldVal) => {
+    if (val === oldVal) {
+      return false;
+    }
     const { FIRST_TERM, RENEW_TERM, REPRISE } = schemaIndexMap.value;
+    const { schema } = state.schemaList[REPRISE] || {};
+
     colorConsole('年金支付类型变动');
     // 同首期/同续期
     if ([PAY_INFO_TYPE_ENUM.FIRST_SAME, PAY_INFO_TYPE_ENUM.RENEW_SAME].includes(Number(val))) {
-      const currentIndex = val === String(PAY_INFO_TYPE_ENUM.FIRST_SAME) ? FIRST_TERM : RENEW_TERM;
+      const currentIndex = String(val) === String(PAY_INFO_TYPE_ENUM.FIRST_SAME) ? FIRST_TERM : RENEW_TERM;
       combineFormData(REPRISE, currentIndex);
     } else if (state.schemaList[REPRISE]) {
       state.schemaList[REPRISE].formData = {
-        ...fieldInitList[REPRISE].formData,
+        ...cloneDeep(fieldInitList[REPRISE].formData),
         paymentGenre: val,
       };
+    }
+
+    if (isNotEmptyArray(schema)) {
+      schema.forEach((item) => {
+        item.hidden = isBankField(item.name);
+      });
     }
   },
   {
