@@ -34,7 +34,7 @@
         :config="beneficiary.config"
         :is-view="isView"
       >
-        <span v-if="index > 0" class="delete-button" @click="onDeleteBeneficiary(index)"
+        <span v-if="index > 0 && !isView" class="delete-button" @click="onDeleteBeneficiary(index)"
           ><van-icon name="delete-o"
         /></span>
       </BeneficiaryItem>

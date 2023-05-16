@@ -15,7 +15,7 @@
       <PayInfo
         v-if="state.payInfo.schema.length"
         ref="payInfoRef"
-        v-model="order.tenantOrderPayInfoList"
+        v-model="orderDetail.tenantOrderPayInfoList"
         :schema="state.payInfo.schema"
         is-view
       ></PayInfo>

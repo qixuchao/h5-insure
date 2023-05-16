@@ -46,7 +46,7 @@ const { formState } = inject(VAN_PRO_FORM_KEY) || {};
 
 interface ColumnsFieldNames {
   text: string;
-  values: string;
+  value: string;
   children: string;
 }
 
@@ -172,8 +172,8 @@ const columns = computed(() => {
 
 // 选中的索引
 const defaultIndex = computed(() => {
-  if (props.modelValue) {
-    return props.columns.findIndex((x) => x[(props.customFieldName as ColumnsFieldNames)?.values] === props.modelValue);
+  if (state.fieldValue) {
+    return props.columns.findIndex((x) => x[(props.customFieldName as ColumnsFieldNames)?.value] === state.fieldValue);
   }
   return '';
 });
@@ -196,17 +196,6 @@ watch(
   {
     deep: true,
     immediate: true,
-  },
-);
-
-watch(
-  () => formState?.formData?.[filedAttrs.value.name],
-  (val) => {
-    state.fieldValue = val as string | number;
-  },
-  {
-    immediate: true,
-    deep: true,
   },
 );
 

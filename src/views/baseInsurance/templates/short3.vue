@@ -553,6 +553,7 @@ const handleMixTrialData = debounce(async (isSave = false) => {
   if (state.ifPersonalInfoSuccess || personalInfoRef.value.canTrail()) {
     const { insuranceEndDate: expiryDate, insuranceStartDate: commencementTime } = guaranteeObj.value;
     Object.assign(state.submitData, {
+      ...state.userData,
       productCode,
       tenantId,
       productName: insureProductDetail.value.productName,

@@ -250,7 +250,12 @@ watch(
       }),
   ],
   // eslint-disable-next-line consistent-return
-  ([holder, insuredList], oldVal) => {
+  debounce((val, oldVal) => {
+    // if (JSON.stringify(val) === JSON.stringify(oldVal)) {
+    //   return false;
+    // }
+
+    const [holder, insuredList] = val;
     // 试算因子的值是否变动
     const trialDataChanged = isTrialDataChange([holder, insuredList], oldVal);
 
@@ -303,7 +308,7 @@ watch(
         state.trialValidated = false;
         emit('trailValidateFailed', result);
       });
-  },
+  }, 500),
   {
     deep: true,
   },

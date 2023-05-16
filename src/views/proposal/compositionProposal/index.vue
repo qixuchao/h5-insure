@@ -221,7 +221,7 @@ const onShareProposal = () => {
   if (themeList.value.length) {
     toggleThemeSelect(true);
   } else {
-    shareButtonRef.value.handleShare();
+    shareButtonRef.value.handleShare(shareConfig.value);
   }
 };
 

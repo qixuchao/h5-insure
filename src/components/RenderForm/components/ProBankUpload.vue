@@ -10,6 +10,7 @@
             :max-count="1"
             :preview-full-image="isView"
             :disabled="isView"
+            :deletable="!isView"
             :model-value="fileList[index]"
             :before-delete="() => handleBeforeDelete(index)"
             :after-read="(e: UploaderFileListItem) => handleRead(e, index)"

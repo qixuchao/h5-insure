@@ -694,6 +694,9 @@ onBeforeMount(() => {
   if (id) {
     queryProposalInfo({ id });
   }
+
+  // 修改标题
+  route.meta.title = `${id ? '编辑' : '创建'}计划书`;
 });
 </script>
 

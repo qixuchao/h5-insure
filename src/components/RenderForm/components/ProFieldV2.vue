@@ -149,7 +149,9 @@ const rules = computed(() => {
             console.warn(`%c 字段 ${attrs.label} 的规则 ${ruleType} 校验函数不存在，请先确认～`, 'color: #3e7;');
             return '';
           }
-          if (!regFn(val)) {
+
+          // 有值则验证是否匹配
+          if (!isFalseValue(val) && !regFn(val)) {
             return `请输入正确的${attrs.label}`;
           }
         }

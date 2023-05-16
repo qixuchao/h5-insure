@@ -73,7 +73,7 @@ const formRef = ref<FormInstance>({} as FormInstance);
 provide(VAN_PRO_FORM_KEY, {
   formState: state,
   formRef,
-  markRequired: props.markRequired,
+  markRequired: props.markRequired && !props.isView,
   ...props.extraProvision,
 });
 
