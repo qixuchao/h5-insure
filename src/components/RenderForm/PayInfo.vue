@@ -222,8 +222,13 @@ const isBankField = (name) => name && HIDDEN_KEY_LIST.includes(name);
 
 // 支付方式变动 银行卡/支付宝/微信
 watch(
-  () => state.schemaList.map((item) => item?.formData?.paymentMethod),
-  () => {
+  () => state.schemaList.map((item) => [item?.formData?.paymentMethod, item?.formData?.paymentGenre]),
+  // eslint-disable-next-line consistent-return
+  (val, oldVal) => {
+    if (JSON.stringify(val) === JSON.stringify(oldVal)) {
+      return false;
+    }
+
     colorConsole('支付方式变动');
     state.schemaList.forEach((schemaItem, index) => {
       const { formData, schema } = schemaItem || {};
@@ -232,10 +237,12 @@ watch(
         String(formData?.paymentMethod),
       );
 
-      const isSameFirst = formData?.paymentGenre === String(PAY_INFO_TYPE_ENUM.FIRST_SAME);
+      const isSameFirstOrRenew = [PAY_INFO_TYPE_ENUM.FIRST_SAME, PAY_INFO_TYPE_ENUM.RENEW_SAME].includes(
+        Number(formData?.paymentGenre),
+      );
 
       schema.forEach((item) => {
-        item.hidden = (isSameFirst || isNotBankPay) && isBankField(item.name);
+        item.hidden = (isSameFirstOrRenew || isNotBankPay) && isBankField(item.name);
       });
       schemaItem.nanoid = nanoid();
     });
@@ -292,7 +299,7 @@ watch(
     colorConsole('续期支付类型变动');
     const { FIRST_TERM, RENEW_TERM } = schemaIndexMap.value;
 
-    const isSameFirst = val === String(PAY_INFO_TYPE_ENUM.FIRST_SAME);
+    const isSameFirst = String(val) === String(PAY_INFO_TYPE_ENUM.FIRST_SAME);
     const { schema } = state.schemaList[RENEW_TERM] || {};
 
     // 续期同首期
@@ -323,22 +330,23 @@ watch(
     }
     const { FIRST_TERM, RENEW_TERM, REPRISE } = schemaIndexMap.value;
     const { schema } = state.schemaList[REPRISE] || {};
+    const isSameFirstOrRenew = [PAY_INFO_TYPE_ENUM.FIRST_SAME, PAY_INFO_TYPE_ENUM.RENEW_SAME].includes(Number(val));
 
     colorConsole('年金支付类型变动');
     // 同首期/同续期
-    if ([PAY_INFO_TYPE_ENUM.FIRST_SAME, PAY_INFO_TYPE_ENUM.RENEW_SAME].includes(Number(val))) {
+    if (isSameFirstOrRenew) {
       const currentIndex = String(val) === String(PAY_INFO_TYPE_ENUM.FIRST_SAME) ? FIRST_TERM : RENEW_TERM;
       combineFormData(REPRISE, currentIndex);
     } else if (state.schemaList[REPRISE]) {
       state.schemaList[REPRISE].formData = {
-        ...cloneDeep(fieldInitList[REPRISE].formData),
+        ...fieldInitList[REPRISE].formData,
         paymentGenre: val,
       };
     }
 
     if (isNotEmptyArray(schema)) {
       schema.forEach((item) => {
-        item.hidden = isBankField(item.name);
+        item.hidden = isSameFirstOrRenew && isBankField(item.name);
       });
     }
   },
