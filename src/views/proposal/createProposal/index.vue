@@ -696,7 +696,9 @@ onBeforeMount(() => {
   }
 
   // 修改标题
-  route.meta.title = `${id ? '编辑' : '创建'}计划书`;
+  const title = `${id ? '编辑' : '创建'}计划书`;
+  route.meta.title = title;
+  document.title = title;
 });
 </script>
 
