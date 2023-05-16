@@ -7,7 +7,7 @@
         :key="`${item.nanoid}_${index}`"
         v-bind="item"
         v-model="state.formData[item.name]"
-        :is-view="isView"
+        :is-view="item.isView || isView"
       >
         <!-- 继承 slots -->
         <template v-for="slotName in noDefaultSlots" :key="slotName" #[slotName]="slotParams">
@@ -24,6 +24,7 @@ import { withDefaults, reactive, shallowRef, useSlots } from 'vue';
 import type { FormInstance } from 'vant';
 import { nanoid } from 'nanoid';
 import { Toast } from 'vant/es';
+import isEqual from 'lodash-es/isEqual';
 import debounce from 'lodash-es/debounce';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { VAN_PRO_FORM_KEY } from '../utils';
@@ -176,8 +177,8 @@ watch(
 
 watch(
   () => props.model,
-  (val) => {
-    if (val) {
+  (val, oldVal) => {
+    if (!isEqual(val, oldVal)) {
       state.formData = val;
     }
   },

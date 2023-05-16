@@ -4,7 +4,12 @@
       <van-search v-model="searchValue" placeholder="搜索计划书" shape="round" class="search" @search="onSearch" />
       <InsureFilter v-model:filter="isOpen" filter-class="filter-area" @on-select-insure="handleClickTag" />
     </div>
-    <ProEmpty v-if="!hasProduct" :empty-img="emptyImg" title="没有找到相关内容~" empty-class="empty-select" />
+    <ProEmpty
+      v-if="!hasProduct && !state.firstLoading"
+      :empty-img="emptyImg"
+      title="没有找到相关内容~"
+      empty-class="empty-select"
+    />
     <div class="page-proposal-list">
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
         <van-list
@@ -164,7 +169,6 @@ const [showSelectProduct, toggleSelectProduct] = useToggle();
 const getProducts = () => {
   const { excludeProductCodeList } = state;
   if (state.firstLoading) {
-    state.firstLoading = false;
     Toast.loading('加载中...');
   }
   queryProposalProductList({
@@ -184,6 +188,7 @@ const getProducts = () => {
     })
     .finally(() => {
       Toast.clear();
+      state.firstLoading = false;
     });
 };
 
