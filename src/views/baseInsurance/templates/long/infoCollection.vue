@@ -288,11 +288,6 @@ const onNext = async (trialData) => {
     return;
   }
 
-  if (!isAgree.value) {
-    Toast('请勾选投保人阅读并接受');
-    return;
-  }
-
   const validateList = [];
 
   if (personalInfoRef.value) {
@@ -304,6 +299,11 @@ const onNext = async (trialData) => {
   }
 
   Promise.all(validateList).then(() => {
+    if (!isAgree.value) {
+      Toast('请勾选投保人阅读并接受');
+      return;
+    }
+
     Object.assign(orderDetail.value, {
       extInfo: {
         ...orderDetail.value.extInfo,

@@ -403,7 +403,7 @@ watch(
   (val) => {
     if (isNotEmptyArray(val)) {
       state.schemaList.forEach((schemaItem, index) => {
-        Object.assign(schemaItem.formData, val[index]);
+        merge(schemaItem.formData, val[index]);
       });
     }
   },
