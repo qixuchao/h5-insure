@@ -353,7 +353,7 @@ const trailProduct = (params) => {
 // 生日变化要改变年龄
 const changeBirthday = (val) => {
   if (val) {
-    stateInfo.insuredPersonVO.age = dayjs(val).diff(new Date(), 'year');
+    stateInfo.insuredPersonVO.age = dayjs(new Date()).diff(val, 'year');
   }
 };
 
