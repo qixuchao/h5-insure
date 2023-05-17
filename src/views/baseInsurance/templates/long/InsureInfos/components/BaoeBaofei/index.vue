@@ -141,7 +141,7 @@ const state = reactive<StateInfo>({
 
 const mConfigs = ref(props.originData);
 const mValues = ref(props.modelValue);
-const showTypes = ref(1);
+const showTypes = ref(0);
 const pickEnums = (origin: any[], target: any[], prop = {}) => {
   let currentTarget = target;
   if (!Array.isArray(target)) {
