@@ -519,7 +519,8 @@ export const GLOBAL_CONFIG_MAP = {
   },
   /** 受益比例 */
   benefitRate: {
-    unit: 'kg',
+    ...RULE_CONFIG_MAP.AGE,
+    unit: '%',
   },
 };
 

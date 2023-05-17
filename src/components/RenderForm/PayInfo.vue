@@ -59,7 +59,7 @@ const PAY_METHOD_TYPE_ENUM = {
 
 const emit = defineEmits(['update:modelValue']);
 
-const payInfoFormRef = ref<InstanceType<typeof ProRenderFormWithCard>>(null);
+const payInfoFormRef = ref(null);
 
 // 隐藏银行相关的字段
 const HIDDEN_KEY_LIST = ['cardType', 'bankCard'];
@@ -189,6 +189,12 @@ const transformSchemaName = (name) => {
   return b ? lowerFirstLetter(b) : name;
 };
 
+/** 最终初始值 */
+const finalFieldList = computed(() => {
+  const payInfoTypeList = state.schemaList.map((item) => `${item.payInfoType}`);
+  return fieldInitList.filter((item) => payInfoTypeList.includes(String(item.payInfoType)));
+});
+
 /** 合并不同模块 formData */
 const combineFormData = (targetIndex, originIndex) => {
   const { formData } = state.schemaList[originIndex] || {};
@@ -200,7 +206,7 @@ const combineFormData = (targetIndex, originIndex) => {
     bankCardImage: isNotEmptyArray(rest.bankCardImage)
       ? rest.bankCardImage.map((item) => ({
           ...item,
-          objectType: fieldInitList[targetIndex].objectType,
+          objectType: finalFieldList.value?.[targetIndex]?.objectType,
         }))
       : rest.bankCardImage,
   };
@@ -209,7 +215,7 @@ const combineFormData = (targetIndex, originIndex) => {
 
 // 验证表单必填
 const validate = (isTrial) => {
-  return Promise.all(payInfoFormRef.value ? payInfoFormRef.value.map((item) => item.validate()) : []);
+  return Promise.all(payInfoFormRef.value ? payInfoFormRef.value?.map((item) => item?.validate()) : []);
 };
 
 // 是否为银行卡信息
@@ -222,6 +228,24 @@ const isBankField = (name, hidePaymentMethod = false) => {
     return list.includes(name);
   }
   return false;
+};
+
+/**
+ * 验证字段是否需要默认值
+ */
+const needDefaultValue = ({ name, columns }, data) => {
+  if (isNotEmptyArray(columns)) {
+    const tempData = {
+      ...data,
+      ...defaultFormData,
+    };
+    const flag = isNotEmptyArray(columns) && columns.find((item) => `${item.code}` === `${tempData[name]}`);
+    // 若存在对应项,则使用默认值
+    return {
+      [name]: flag ? tempData[name] : null,
+    };
+  }
+  return {};
 };
 
 // 支付方式变动 银行卡/支付宝/微信
@@ -258,7 +282,7 @@ watch(
   () => state.schemaList[schemaIndexMap.value.FIRST_TERM]?.formData,
   // eslint-disable-next-line consistent-return
   (val, oldVal) => {
-    if (isEqual(val, oldVal)) {
+    if (props.isView || isEqual(val, oldVal)) {
       return false;
     }
     const { REPRISE, RENEW_TERM } = schemaIndexMap.value;
@@ -283,7 +307,7 @@ watch(
   () => state.schemaList[schemaIndexMap.value.RENEW_TERM]?.formData,
   // eslint-disable-next-line consistent-return
   (val, oldVal) => {
-    if (isEqual(val, oldVal)) {
+    if (props.isView || isEqual(val, oldVal)) {
       return false;
     }
     colorConsole('续期数据变动');
@@ -302,7 +326,11 @@ watch(
 // 续期里的 同首期 按钮变动，复制首期值
 watch(
   () => state.schemaList[schemaIndexMap.value.RENEW_TERM]?.formData?.paymentGenre,
+  // eslint-disable-next-line consistent-return
   (val) => {
+    if (props.isView) {
+      return false;
+    }
     colorConsole('续期支付类型变动');
     const { FIRST_TERM, RENEW_TERM } = schemaIndexMap.value;
 
@@ -317,7 +345,7 @@ watch(
           state.schemaList[RENEW_TERM].formData,
           (key) => !['orderId', 'tenantId', 'id'].includes(key),
         ),
-        ...fieldInitList[RENEW_TERM].formData,
+        ...finalFieldList.value?.[RENEW_TERM]?.formData,
         paymentGenre: val,
       });
       state.schemaList[RENEW_TERM].nanoid = nanoid();
@@ -330,13 +358,14 @@ watch(
   () => state.schemaList[schemaIndexMap.value.REPRISE]?.formData?.paymentGenre,
   // eslint-disable-next-line consistent-return
   (val, oldVal) => {
-    if (val === oldVal) {
+    if (props.isView || val === oldVal) {
       return false;
     }
     const { FIRST_TERM, RENEW_TERM, REPRISE } = schemaIndexMap.value;
     const isSameFirstOrRenew = [PAY_INFO_TYPE_ENUM.FIRST_SAME, PAY_INFO_TYPE_ENUM.RENEW_SAME].includes(Number(val));
 
     colorConsole('年金支付类型变动');
+
     // 同首期/同续期
     if (isSameFirstOrRenew) {
       const currentIndex = String(val) === String(PAY_INFO_TYPE_ENUM.FIRST_SAME) ? FIRST_TERM : RENEW_TERM;
@@ -344,7 +373,7 @@ watch(
     } else if (state.schemaList[REPRISE]) {
       merge(state.schemaList[REPRISE].formData, {
         ...restObjectValues(state.schemaList[REPRISE].formData, (key) => !['orderId', 'tenantId', 'id'].includes(key)),
-        ...fieldInitList[REPRISE].formData,
+        ...finalFieldList.value?.[REPRISE]?.formData,
         paymentGenre: val,
       });
       state.schemaList[REPRISE].nanoid = nanoid();
@@ -354,24 +383,6 @@ watch(
     immediate: true,
   },
 );
-
-/**
- * 验证字段是否需要默认值
- */
-const needDefaultValue = ({ name, columns }, data) => {
-  if (isNotEmptyArray(columns)) {
-    const tempData = {
-      ...data,
-      ...defaultFormData,
-    };
-    const flag = isNotEmptyArray(columns) && columns.find((item) => `${item.code}` === `${tempData[name]}`);
-    // 若存在对应项,则使用默认值
-    return {
-      [name]: flag ? tempData[name] : null,
-    };
-  }
-  return {};
-};
 
 watch(
   [() => props.schema, () => props.config],
