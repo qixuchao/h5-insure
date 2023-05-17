@@ -9,6 +9,7 @@
 <template>
   <Popup
     v-model:show="isShow"
+    teleport="body"
     v-bind="$attrs"
     position="bottom"
     :style="{ height: height > 100 ? `${height}px` : `${height}%` }"

@@ -191,8 +191,8 @@ export const openWebView = (title: string, link: string) => {
 
 export const closeWebView = () => {
   return callJsBridge({
-    fn: 'closeWebView',
-    cbName: 'js_closeWebView',
+    fn: 'closeWebview',
+    cbName: 'js_closeWebview',
     params: {},
   });
 };
