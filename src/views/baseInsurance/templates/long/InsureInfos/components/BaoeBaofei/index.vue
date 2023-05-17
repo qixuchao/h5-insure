@@ -140,7 +140,7 @@ const state = reactive<StateInfo>({
 });
 
 const mConfigs = ref(props.originData);
-const mValues = ref({}); // ref(props.modelValue);
+const mValues = ref(props.modelValue);
 const showTypes = ref(1);
 const pickEnums = (origin: any[], target: any[], prop = {}) => {
   let currentTarget = target;
@@ -313,10 +313,12 @@ watch(
   (v) => {
     if (v?.riskCode && !state.hadSetDefault) {
       state.hadSetDefault = true;
-      Object.keys(mValues.value).forEach((key) => {
-        // console.log('=====mValues.value[key] = ', mValues.value[key]);
-        mValues.value[key] = v[key] || mValues.value[key];
-      });
+      mValues.value = {
+        ...mValues.value,
+        initialAmount: v.initialAmount,
+        initialPremium: v.initialPremium,
+        copy: v.copy,
+      };
     }
   },
   {

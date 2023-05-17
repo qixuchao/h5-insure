@@ -285,8 +285,8 @@ watch(
         if (targetLia) {
           state.value.isCheckList[index] = '1';
           state.value.checkValueList[index] = targetLia?.liabilityValue?.displayValue;
-          // handleSwitchClick(item, index);
-          signLiabilityClick(item, index);
+          if (+item.showFlag === 1 && +item.optionalFlag === 2) handleSwitchClick(item, index);
+          else signLiabilityClick(item, index);
         }
       });
     }
