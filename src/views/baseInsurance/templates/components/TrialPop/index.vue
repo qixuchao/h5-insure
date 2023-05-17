@@ -2,11 +2,11 @@
   <div v-if="!hidePopupButton" :class="`trial-button ${$attrs.class}`">
     <TrialButton
       :is-share="currentShareInfo.isShare"
-      :premium="0"
+      :premium="state.trialResultPremium"
       :share-info="currentShareInfo"
       loading-text=""
       :plan-code="props.dataSource.planCode"
-      :payment-frequency="state.mainRiskVO.paymentFrequency + ''"
+      :payment-frequency="defaultPaymentType"
       :tenant-product-detail="tenantProductDetail"
       @handle-click="open"
       >立即投保</TrialButton
@@ -584,6 +584,30 @@ onBeforeMount(() => {
 onMounted(() => {
   state.loading = true;
 });
+
+// 默认的交费方式
+const defaultPaymentType = ref<string>();
+
+watch(
+  () => props.tenantProductDetail,
+  () => {
+    const currentPremiumData =
+      props.tenantProductDetail.PREMIUM.find((plan) => {
+        return !plan.planCode || plan.planCode === props.dataSource.planCode;
+      }) || {};
+
+    console.log('currentPremiumData', currentPremiumData);
+
+    defaultPaymentType.value = (currentPremiumData.data || []).sort(
+      (v1, v2) => +v1.paymentFrequency - +v2.paymentFrequency,
+    )?.[0]?.paymentFrequency;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
 watch(
   () => state.show,
   (v) => {
@@ -609,11 +633,6 @@ defineExpose({
     return state.trialResultPremium > 0;
   },
 });
-watch(
-  () => state.riskIsInsure,
-  (v) => {},
-  { deep: true, immediate: true },
-);
 
 watch(
   () => props.shareInfo,
@@ -627,13 +646,16 @@ watch(
 );
 </script>
 
-<style scoped lang="scss">
+<style scope lang="scss">
 .trial-button {
   padding: 30px;
   text-align: right;
   background-color: #fff;
   .van-button {
     width: 270px;
+  }
+  .price {
+    text-align: left;
   }
 }
 .com-body {
