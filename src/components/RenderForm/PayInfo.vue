@@ -35,6 +35,7 @@ interface PayInfoProps {
   config?: object[];
   modelValue: object[];
   isView: boolean;
+  holderName: string;
 }
 
 interface PayInfoItem {
@@ -57,26 +58,34 @@ const PAY_METHOD_TYPE_ENUM = {
 };
 
 const emit = defineEmits(['update:modelValue']);
-const payInfoFormRef = ref(null);
 
-const formRef = ref<InstanceType<typeof ProRenderFormWithCard>>();
+const payInfoFormRef = ref<InstanceType<typeof ProRenderFormWithCard>>(null);
 
 // 隐藏银行相关的字段
 const HIDDEN_KEY_LIST = ['cardType', 'bankCard'];
+
+// 通用默认值
+const defaultFormData = {
+  // 扣款方式
+  paymentType: '1',
+  // 支付方式 默认银行卡
+  paymentMethod: '1',
+  // 保费逾期未支付 默认自动垫付
+  expiryMethod: '1',
+  // 银行卡类型 默认借记卡
+  cardType: BANK_CARD_TYPE_ENUM.DEBIT,
+  // 保费逾期未支付 默认自动垫付
+};
+
+// 有默认值的 key, paymentGenre 的默认值不一样
+const defaultFormDataKeys = [...Object.keys(defaultFormData), 'paymentGenre'];
 
 const fieldInitList: Partial<PayInfoItem>[] = [
   {
     title: '首期支付',
     schema: [],
     payInfoType: PAYMENT_TYPE_ENUM.FIRST_TERM,
-    formData: {
-      // 首期扣款方式
-      paymentType: '1',
-      // 首期支付方式 默认银行卡
-      paymentMethod: '1',
-      /** 首期银行卡类型 默认借记卡 */
-      cardType: BANK_CARD_TYPE_ENUM.DEBIT,
-    },
+    formData: {},
     config: {
       cardType: {
         isView: true,
@@ -89,12 +98,8 @@ const fieldInitList: Partial<PayInfoItem>[] = [
     schema: [],
     payInfoType: PAYMENT_TYPE_ENUM.RENEW_TERM,
     formData: {
-      paymentType: '1',
-      // 首期支付方式 默认银行卡
-      paymentMethod: '1',
+      // 同首期/其他
       paymentGenre: String(PAY_INFO_TYPE_ENUM.FIRST_SAME),
-      // 续期银行卡类型 默认借记卡
-      cardType: BANK_CARD_TYPE_ENUM.DEBIT,
     },
     config: {
       cardType: {
@@ -109,6 +114,7 @@ const fieldInitList: Partial<PayInfoItem>[] = [
     payInfoType: PAYMENT_TYPE_ENUM.REPRISE,
     formData: {
       paymentMethod: '1',
+      // 同首期/同续期/其他
       paymentGenre: String(PAY_INFO_TYPE_ENUM.FIRST_SAME),
     },
     config: {},
@@ -146,12 +152,13 @@ const props = withDefaults(defineProps<PayInfoProps>(), {
   schema: () => [],
   modelValue: () => [],
   isView: false,
+  holderName: '',
 });
 
 const state = reactive<{
   schemaList: Partial<PayInfoItem>[];
 }>({
-  schemaList: deepCopy(fieldInitList),
+  schemaList: [],
 });
 
 // 获取支付模块索引
@@ -226,9 +233,7 @@ watch(
     state.schemaList.forEach((schemaItem, index) => {
       const { formData, schema } = schemaItem || {};
       // 非银行卡支付
-      const isNotBankPay = [PAY_METHOD_TYPE_ENUM.ALI_PAY, PAY_METHOD_TYPE_ENUM.WECHAT_PAY].includes(
-        String(formData?.paymentMethod),
-      );
+      const isBankPay = PAY_METHOD_TYPE_ENUM.BANK_PAY === String(formData?.paymentMethod);
 
       const isSameFirstOrRenew = [PAY_INFO_TYPE_ENUM.FIRST_SAME, PAY_INFO_TYPE_ENUM.RENEW_SAME].includes(
         Number(formData?.paymentGenre),
@@ -236,7 +241,7 @@ watch(
 
       // 同首期/同续期 才隐藏支付方式/银行卡相关的字段，支付宝/微信只隐藏银行卡
       schema.forEach((item) => {
-        item.hidden = (isSameFirstOrRenew || isNotBankPay) && isBankField(item.name, isSameFirstOrRenew);
+        item.hidden = (isSameFirstOrRenew || !isBankPay) && isBankField(item.name, isSameFirstOrRenew);
       });
       schemaItem.nanoid = nanoid();
     });
@@ -350,6 +355,24 @@ watch(
   },
 );
 
+/**
+ * 验证字段是否需要默认值
+ */
+const needDefaultValue = ({ name, columns }, data) => {
+  if (isNotEmptyArray(columns)) {
+    const tempData = {
+      ...data,
+      ...defaultFormData,
+    };
+    const flag = isNotEmptyArray(columns) && columns.find((item) => `${item.code}` === `${tempData[name]}`);
+    // 若存在对应项,则使用默认值
+    return {
+      [name]: flag ? tempData[name] : null,
+    };
+  }
+  return {};
+};
+
 watch(
   [() => props.schema, () => props.config],
   () => {
@@ -368,9 +391,23 @@ watch(
         }
 
         if (index > -1) {
+          const name = transformSchemaName(item.name);
+          // 支付方式是否需要默认银行卡
+
+          if (defaultFormDataKeys.includes(name)) {
+            const formData = needDefaultValue(
+              {
+                name,
+                columns: item.columns,
+              },
+              fieldInitList[index].formData,
+            );
+            merge(res[index].formData, formData);
+            merge(fieldInitList[index].formData, formData);
+          }
           res[index].schema.push({
             ...item,
-            name: transformSchemaName(item.name),
+            name,
             // 默认首期隐藏银行卡信息
             payInfoType: fieldInitList[index].payInfoType,
           });
