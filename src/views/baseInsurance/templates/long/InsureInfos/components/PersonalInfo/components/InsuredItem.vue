@@ -60,6 +60,7 @@ import {
   ProRenderFormWithCard,
   colorConsole,
   getCertConfig,
+  restObjectValues,
 } from '@/components/RenderForm';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { BENEFICIARY_ENUM } from '@/common/constants/infoCollection';
@@ -285,32 +286,17 @@ watch(
     const { id, ...holderPersonVO } = props.holderPersonVO || {};
 
     const isSelf = String(personVO.relationToHolder) === '1';
-    const isChild = String(personVO.relationToHolder) === '3';
-    // 证件类型
-    const certTypeSchema = schema.find((schemaItem) => schemaItem.name === 'certType');
-    const isOnlyCertFlag = isOnlyCert(certTypeSchema || {});
 
-    // 若只有证件类型为身份证, 隐藏证件类型，修改title为身份证号
-    if (isOnlyCertFlag) {
-      if (config.certNo) {
-        config.certNo.label = `身份证号${isChild ? '\n(户口簿)' : ''}`;
-      } else {
-        config.certNo = {
-          label: `身份证号${isChild ? '\n(户口簿)' : ''}`,
-        };
-      }
-    }
+    // 证件类型是否只有身份证
+    const [isOnlyCertFlag, tempConfig] = getCertConfig(schema, personVO);
+
+    merge(config, tempConfig);
 
     // 若被保人为本人是否要隐藏
     schema.forEach((schemaItem) => {
       schemaItem.relationToHolder = personVO.relationToHolder;
       schemaItem.hidden = !schemaItem.isSelfInsuredNeed && isSelf;
     });
-
-    // 证件类型为身份证或者户口本
-    if (certTypeSchema) {
-      merge(config, getCertConfig(personVO.certType));
-    }
 
     // 非查看模式处理与投保人关系变动，数据操作
     if (!props.isView && oldVal && String(val) !== String(oldVal)) {
@@ -323,17 +309,8 @@ watch(
       // 非本人则清空数据
       if (!isSelf) {
         newPersonVo = {
-          ...Object.keys(personVO).reduce((res, key) => {
-            // 若只有证件类型为身份证
-            if (!(isOnlyCertFlag && key === 'certType')) {
-              res[key] =
-                {
-                  Object: {},
-                  Array: [],
-                }[Object.prototype.toString.call(personVO[key]).slice(8, -1)] || null;
-            }
-            return res;
-          }, {}),
+          // 若只有证件类型为身份证，不清除值
+          ...restObjectValues(personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
           relationToHolder: personVO.relationToHolder,
         };
       }

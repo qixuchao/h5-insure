@@ -586,7 +586,7 @@ export const restObjectValues = (data, filterFn = (key: string) => true) => {
  * @param val certType
  * @returns
  */
-export const getCertConfig = (val) => {
+export const getCertTypeConfig = (val) => {
   const status = ![CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(String(val));
   return {
     gender: {
@@ -596,6 +596,33 @@ export const getCertConfig = (val) => {
       visible: status,
     },
   };
+};
+
+/**
+ * 证件类型是否只有身份真狗，则证件号码显示为身份证号，子女为户口簿
+ */
+export const getCertConfig = (schema, personVO) => {
+  const config: {
+    [x: string]: any;
+  } = {};
+  const { relationToHolder, certType } = personVO || {};
+  const isChild = String(relationToHolder) === '3';
+  // 证件类型
+  const certTypeSchema = schema?.find((schemaItem) => schemaItem.name === 'certType');
+  const isOnlyCertFlag = isOnlyCert(certTypeSchema || {});
+
+  // 若只有证件类型为身份证, 隐藏证件类型，修改title为身份证号
+  if (isOnlyCertFlag) {
+    config.certNo = {
+      label: `身份证号${isChild ? '\n(户口簿)' : ''}`,
+    };
+  }
+
+  // 证件类型为身份证或者户口本
+  if (certTypeSchema) {
+    merge(config, getCertTypeConfig(certType));
+  }
+  return [isOnlyCertFlag, config];
 };
 
 /**
@@ -612,7 +639,7 @@ export const relatedConfigMap = {
       });
       // 证件类型选择证件号/户口本时，隐藏性别和出生日期
       nextTick(() => {
-        merge(formState.config, getCertConfig(formState.formData.certType));
+        merge(formState.config, getCertTypeConfig(formState.formData.certType));
       });
     },
   },
