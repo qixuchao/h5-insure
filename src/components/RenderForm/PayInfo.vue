@@ -64,6 +64,9 @@ const payInfoFormRef = ref(null);
 // 隐藏银行相关的字段
 const HIDDEN_KEY_LIST = ['cardType', 'bankCard'];
 
+// 清除时需要保留的字段
+const RESERVE_FIELD_NAMES = ['orderId', 'tenantId', 'id'];
+
 // 通用默认值
 const defaultFormData = {
   // 扣款方式
@@ -202,13 +205,15 @@ const combineFormData = (targetIndex, originIndex) => {
 
   // 合并影像注意类型
   const tempData = {
+    // ...restObjectValues(state.schemaList[targetIndex].formData, (key) => !RESERVE_FIELD_NAMES.includes(key)),
+    // ...finalFieldList.value?.[targetIndex]?.formData,
     ...rest,
     bankCardImage: isNotEmptyArray(rest.bankCardImage)
       ? rest.bankCardImage.map((item) => ({
           ...item,
           objectType: finalFieldList.value?.[targetIndex]?.objectType,
         }))
-      : rest.bankCardImage,
+      : [],
   };
   Object.assign(state.schemaList[targetIndex]?.formData, tempData);
 };
@@ -341,10 +346,7 @@ watch(
       combineFormData(RENEW_TERM, FIRST_TERM);
     } else if (state.schemaList[RENEW_TERM]) {
       merge(state.schemaList[RENEW_TERM].formData, {
-        ...restObjectValues(
-          state.schemaList[RENEW_TERM].formData,
-          (key) => !['orderId', 'tenantId', 'id'].includes(key),
-        ),
+        ...restObjectValues(state.schemaList[RENEW_TERM].formData, (key) => !RESERVE_FIELD_NAMES.includes(key)),
         ...finalFieldList.value?.[RENEW_TERM]?.formData,
         paymentGenre: val,
       });
@@ -358,7 +360,7 @@ watch(
   () => state.schemaList[schemaIndexMap.value.REPRISE]?.formData?.paymentGenre,
   // eslint-disable-next-line consistent-return
   (val, oldVal) => {
-    if (props.isView || val === oldVal) {
+    if (props.isView || !(val && oldVal && val !== oldVal)) {
       return false;
     }
     const { FIRST_TERM, RENEW_TERM, REPRISE } = schemaIndexMap.value;
@@ -372,7 +374,7 @@ watch(
       combineFormData(REPRISE, currentIndex);
     } else if (state.schemaList[REPRISE]) {
       merge(state.schemaList[REPRISE].formData, {
-        ...restObjectValues(state.schemaList[REPRISE].formData, (key) => !['orderId', 'tenantId', 'id'].includes(key)),
+        ...restObjectValues(state.schemaList[REPRISE].formData, (key) => !RESERVE_FIELD_NAMES.includes(key)),
         ...finalFieldList.value?.[REPRISE]?.formData,
         paymentGenre: val,
       });

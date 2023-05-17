@@ -582,20 +582,18 @@ export const restObjectValues = (data, filterFn = (key: string) => true) => {
 };
 
 /**
- * 证件类型选择证件号/户口本时，隐藏性别和出生日期
+ * 证件类型选择证件号/户口本时，隐藏性别和出生日期和年龄
  * @param val certType
  * @returns
  */
 export const getCertTypeConfig = (val) => {
   const status = ![CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(String(val));
-  return {
-    gender: {
+  return ['gender', 'birthday', 'age'].reduce((res, key) => {
+    res[key] = {
       visible: status,
-    },
-    birthday: {
-      visible: status,
-    },
-  };
+    };
+    return res;
+  }, {});
 };
 
 /**
