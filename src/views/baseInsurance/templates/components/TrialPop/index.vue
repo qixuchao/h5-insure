@@ -597,7 +597,7 @@ watch(
       }) || {};
 
     defaultPaymentType.value = (currentPremiumData.data || []).sort(
-      (v1, v2) => +v1.paymentFrequency - +v2.paymentFrequency,
+      (v1, v2) => +v2.paymentFrequency - +v1.paymentFrequency,
     )?.[0]?.paymentFrequency;
   },
   {
