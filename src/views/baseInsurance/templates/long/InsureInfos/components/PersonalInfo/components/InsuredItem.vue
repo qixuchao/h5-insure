@@ -241,11 +241,11 @@ watch(
 watch(
   isSpecifyBeneficiary,
   (val, oldVal) => {
-    if (val && oldVal && String(val) !== String(oldVal)) {
+    if (String(val) !== String(oldVal)) {
       colorConsole('受益人类型关系变动了');
       // 如果是指定受益人
       if (val) {
-        onAddBeneficiary();
+        !isNotEmptyArray(state.beneficiaryList) && onAddBeneficiary();
       } else {
         state.beneficiaryList = [];
       }
@@ -263,9 +263,7 @@ watch(
       personVO: item.personVO,
     })),
   (val, oldValue) => {
-    if (JSON.stringify(val) !== JSON.stringify(oldValue)) {
-      emit('update:beneficiaryList', val);
-    }
+    emit('update:beneficiaryList', val);
   },
   {
     deep: true,

@@ -202,7 +202,7 @@ const combineFormData = (targetIndex, originIndex) => {
 
 // 验证表单必填
 const validate = (isTrial) => {
-  return Promise.all(payInfoFormRef.value?.map((item) => item.validate()));
+  return Promise.all(payInfoFormRef.value ? payInfoFormRef.value.map((item) => item.validate()) : []);
 };
 
 // 是否为银行卡信息
