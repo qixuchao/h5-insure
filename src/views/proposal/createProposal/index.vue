@@ -692,6 +692,7 @@ onBeforeMount(() => {
   }
   if (id) {
     queryProposalInfo({ id });
+    trialFlag.value = true;
   }
 
   // 修改标题
