@@ -314,6 +314,9 @@ const onFinished = (productInfo: PlanTrialData) => {
   // 清除掉错误信息
   setProductError(productInfo.productCode);
 
+  // 修改试算成功
+  trialFlag.value = true;
+
   // toggleProductRisk(false);
   trialPopupRef.value?.close();
 };
