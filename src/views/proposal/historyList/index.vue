@@ -20,7 +20,7 @@
         @load="onloadClick"
       >
         <div v-for="i of historyList" :key="i.id" class="proposal-item">
-          <div class="title">{{ i.proposalName }}计划书</div>
+          <div class="title">{{ i.proposalName }}</div>
           <p class="premium">
             保费：<span>¥{{ toLocal(i.totalPremium) }}</span>
           </p>

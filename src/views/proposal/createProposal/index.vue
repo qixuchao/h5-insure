@@ -7,7 +7,6 @@
           label="计划书名称"
           name="proposalName"
           :maxlength="20"
-          required
         />
       </ProRenderForm>
       <ProRenderFormWithCard ref="insuredFormRef" title="被保人信息" :model="stateInfo.insuredPersonVO">
