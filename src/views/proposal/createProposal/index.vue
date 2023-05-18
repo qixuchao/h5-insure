@@ -644,7 +644,7 @@ const selectAction = (item: ActionSheetAction, index: number) => {
 watch(
   () => trialFieldkeys.map((key) => stateInfo.insuredPersonVO[key]),
   debounce((val, oldVal) => {
-    if (!isEqual(val, oldVal)) {
+    if (val.join(',') !== oldVal.join(',')) {
       console.log('被保人条件变动');
       if (isNotEmptyArray(Object.keys(stateInfo.productCollection))) {
         currentProductCodeList.value.forEach((code) => calcDynamicInsureFactor(code));

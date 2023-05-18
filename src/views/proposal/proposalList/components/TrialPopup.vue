@@ -73,6 +73,7 @@ const formatData = (trialData: PremiumCalcData, trialResult: any) => {
       initialAmount: riskPremiumMap?.[risk.riskCode]?.initialAmount,
     };
   });
+  // const { productCode } = props;
   // const proposalData = {
   //   proposalHolder: {
   //     ...holder?.personVO,
@@ -107,7 +108,16 @@ const formatData = (trialData: PremiumCalcData, trialResult: any) => {
 };
 
 const onFinished = (...rest) => {
-  emit('finish', formatData(rest[0], rest[1]));
+  emit(
+    'finish',
+    formatData(
+      {
+        ...rest[0],
+        productCode: props.productCode,
+      },
+      rest[1],
+    ),
+  );
 };
 
 defineExpose({
