@@ -592,14 +592,12 @@ watch(
   () => props.tenantProductDetail,
   () => {
     const currentPremiumData =
-      props.tenantProductDetail?.PREMIUM?.find((plan) => {
-        return !plan.planCode || plan.planCode === props.dataSource.planCode;
+      (props?.tenantProductDetail?.PREMIUM || []).find((plan) => {
+        return !plan.planCode || plan.planCode === props?.dataSource?.planCode;
       }) || {};
 
-    console.log('currentPremiumData', currentPremiumData);
-
     defaultPaymentType.value = (currentPremiumData.data || []).sort(
-      (v1, v2) => +v1.paymentFrequency - +v2.paymentFrequency,
+      (v1, v2) => +v2.paymentFrequency - +v1.paymentFrequency,
     )?.[0]?.paymentFrequency;
   },
   {

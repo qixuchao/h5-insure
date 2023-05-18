@@ -47,7 +47,9 @@ import { withDefaults } from 'vue';
 import { Dialog, Toast } from 'vant';
 import { nanoid } from 'nanoid';
 import cloneDeep from 'lodash-es/cloneDeep';
-import { debounce, merge } from 'lodash';
+import debounce from 'lodash-es/debounce';
+import merge from 'lodash-es/merge';
+import isEqual from 'lodash-es/isEqual';
 import {
   type PersonalInfoConf,
   type PersonFormProps,
@@ -57,6 +59,7 @@ import {
   ProRenderFormWithCard,
   transformFactorToSchema,
   SchemaItem,
+  getCertConfig,
 } from '@/components/RenderForm';
 import { ProductFactor } from '@/api/modules/trial.data';
 import { isNotEmptyArray, PERSONAL_INFO_KEY, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
@@ -231,6 +234,22 @@ const canTrail = () => {
   return state.trialValidated;
 };
 
+// 监听投被保人关系
+watch(
+  () => state.holder.personVO?.certType,
+  (val, oldVal) => {
+    if (val === oldVal) {
+      return false;
+    }
+    colorConsole(`投保人信息变动了`);
+    // 证件类型是否只有身份证
+    const [isOnlyCertFlag, tempConfig] = getCertConfig(state.holder.schema, { certType: val });
+
+    merge(state.holder.config, tempConfig);
+    return false;
+  },
+);
+
 // 验证是否试算
 watch(
   [
@@ -317,30 +336,35 @@ watch(
 // 投保因子变动
 watch(
   [() => props.productFactor, () => props.isTrial],
-  (val) => {
-    if (val[0]) {
-      const { insuredFactorCodes, holderFactorCodes } = inject(PERSONAL_INFO_KEY) || {};
-      const { holder, insured, beneficiary, config } = transformFactorToSchema(val[0], {
-        isTrial: val[1],
-        ...props.multiInsuredConfig,
-        insuredFactorCodes,
-        holderFactorCodes,
-      });
-      Object.assign(state.holder, holder);
-
-      state.config = config;
-
-      if (isNotEmptyArray(insured)) {
-        state.initInsuredIList = insured.map((insuredItem) => {
-          return {
-            ...insuredItem,
-            beneficiaryList: [],
-          };
-        });
-      }
-
-      state.beneficiarySchema = cloneDeep(beneficiary?.schema || []);
+  (val, oldVal) => {
+    if (isEqual(val, oldVal) || !val[0]) {
+      return false;
     }
+
+    colorConsole(`投被保人要素变动了`);
+    const { insuredFactorCodes, holderFactorCodes } = inject(PERSONAL_INFO_KEY) || {};
+    const { holder, insured, beneficiary, config } = transformFactorToSchema(val[0], {
+      isTrial: val[1],
+      ...props.multiInsuredConfig,
+      insuredFactorCodes,
+      holderFactorCodes,
+    });
+    Object.assign(state.holder, holder);
+
+    state.config = config;
+
+    if (isNotEmptyArray(insured)) {
+      state.initInsuredIList = insured.map((insuredItem) => {
+        return {
+          ...insuredItem,
+          beneficiaryList: [],
+        };
+      });
+    }
+
+    state.beneficiarySchema = cloneDeep(beneficiary?.schema || []);
+
+    return false;
   },
   {
     deep: true,

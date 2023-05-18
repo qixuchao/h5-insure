@@ -17,24 +17,18 @@
         @trial-start="handleTrialStart"
         @trial-end="handleTrialEnd"
       >
-        <template #trialBtn="scope">
-          <slot name="trialBtn" v-bind="scope">
-            <TrialButton
-              :is-share="shareInfo.isShare && !isShare"
-              :premium="scope.riskPremium?.initialPremium"
-              :share-info="shareInfo"
-              :loading-text="trialMsg"
-              :payment-frequency="
-                scope.trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''
-              "
-              :tenant-product-detail="tenantProductDetail"
-              :handle-share="(cb) => onShare(cb, scope.trialData)"
-              @handle-click="onNext(scope.trialData)"
-              >下一步</TrialButton
-            >
-          </slot>
-        </template>
       </TrialBody>
+      <TrialButton
+        :is-share="shareInfo.isShare && !isShare"
+        :premium="trialResult?.initialPremium"
+        :share-info="shareInfo"
+        :loading-text="trialMsg"
+        :payment-frequency="trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''"
+        :tenant-product-detail="tenantProductDetail"
+        :handle-share="(cb) => onShare(cb)"
+        @handle-click="onNext"
+        >下一步</TrialButton
+      >
       <PayInfo
         v-if="state.payInfo.schema.length"
         ref="payInfoRef"
@@ -242,6 +236,7 @@ const mainRiskInfo = computed(() => {
 // 试算结果-保费
 const premium = ref<number>(0);
 const premiumMap = ref<any>({}); // 试算后保费
+const trialData = ref();
 
 const handleTrialStart = () => {
   trialMsg.value = LOADING_TEXT;
@@ -249,10 +244,11 @@ const handleTrialStart = () => {
   loading.value = true;
 };
 
-const handleTrialEnd = (result: any) => {
+const handleTrialEnd = (result: any, data) => {
   trialMsg.value = '';
   premium.value = result.premium;
   trialResult.value = result;
+  trialData.value = data;
   loading.value = false;
 };
 
@@ -282,7 +278,7 @@ const updateAttachment = (orderData) => {
   });
 };
 
-const onNext = async (trialData) => {
+const onNext = async () => {
   if (preview) {
     jumpToNextPage(PAGE_CODE_ENUMS.INFO_COLLECTION, route.query);
     return;
@@ -311,7 +307,7 @@ const onNext = async (trialData) => {
         pageCode: PAGE_CODE_ENUMS.INFO_COLLECTION,
       },
     });
-    const currentOrderDetail = trialData2Order(trialData, trialResult.value, orderDetail.value);
+    const currentOrderDetail = trialData2Order(trialData.value, trialResult.value, orderDetail.value);
 
     nextStep(currentOrderDetail, (data, pageAction) => {
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
@@ -323,7 +319,7 @@ const onNext = async (trialData) => {
 };
 
 // 分享时需要校验投保人手机号并且保存数据
-const onShare = (cb, trialData) => {
+const onShare = (cb) => {
   personalInfoRef.value
     .validateHolder(['mobile'])
     .then(() => {
@@ -337,7 +333,7 @@ const onShare = (cb, trialData) => {
 
       const userData = personalInfoRef.value.getUserData();
       const currentOrderDetail = trialData2Order(
-        { ...trialData, holder: userData?.holder },
+        { ...trialData.value, holder: userData?.holder },
         trialResult.value || {},
         orderDetail.value,
       );
@@ -456,6 +452,10 @@ onBeforeMount(() => {
   .com-risk-liabilityinfo {
     background-color: #fff;
     background: #ffffff;
+  }
+
+  .footer-area {
+    z-index: 111;
   }
 
   .empty {

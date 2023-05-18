@@ -284,6 +284,7 @@ export default {
   }
 
   .com-van-field-unit {
+    margin-left: 8px;
     align-self: center;
   }
 }

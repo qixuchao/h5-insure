@@ -7,7 +7,6 @@
           label="计划书名称"
           name="proposalName"
           :maxlength="20"
-          required
         />
       </ProRenderForm>
       <ProRenderFormWithCard ref="insuredFormRef" title="被保人信息" :model="stateInfo.insuredPersonVO">
@@ -104,6 +103,7 @@ import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
 import { nanoid } from 'nanoid';
 import { useRouter, useRoute } from 'vue-router';
+import isEqual from 'lodash-es/isEqual';
 import debounce from 'lodash-es/debounce';
 import { SUCCESS_CODE } from '@/api/code';
 import { getDic } from '@/api/index';
@@ -212,6 +212,8 @@ const stateInfo = reactive<StateInfo>({
   defaultData: null,
 });
 
+// 是否试算过
+const trialFlag = ref(false);
 const formRef = ref(null);
 const insuredFormRef = ref(null);
 
@@ -246,7 +248,8 @@ const currentProductPlanDetail = computed(() => {
 
 /** 产品是否有错误信息 */
 const submitDisable = computed(() => {
-  return Boolean(Object.values(stateInfo.productErrorMap).join(''));
+  // debugger;
+  return !trialFlag.value || Boolean(Object.values(stateInfo.productErrorMap).join(''));
 });
 
 // 总保费
@@ -343,7 +346,7 @@ const trailProduct = (params) => {
         combineToProductList(trialPopupRef.value?.formatData(params, data));
       }
       setProductError(params.productCode);
-      // 成功
+      trialFlag.value = true;
     } else {
       setProductError(params.productCode, message);
     }
@@ -641,7 +644,7 @@ const selectAction = (item: ActionSheetAction, index: number) => {
 watch(
   () => trialFieldkeys.map((key) => stateInfo.insuredPersonVO[key]),
   debounce((val, oldVal) => {
-    if (validateData(val) && validateData(oldVal)) {
+    if (!isEqual(val, oldVal)) {
       console.log('被保人条件变动');
       if (isNotEmptyArray(Object.keys(stateInfo.productCollection))) {
         currentProductCodeList.value.forEach((code) => calcDynamicInsureFactor(code));
