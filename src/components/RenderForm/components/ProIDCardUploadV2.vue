@@ -10,15 +10,15 @@
         :disabled="isView"
         :model-value="fileList[index]"
         :after-read="(e: UploaderFileListItem) => handleRead(e, index)"
-        @click-preview="onClick(index)"
       >
+        <!-- @click-preview="onClick(index)" -->
         <div class="upload-item">
           <img :src="item.imgSrc" class="bg" />
           <img v-if="!isView" :src="IDCardUploadIconImage" class="icon" />
           <div v-if="!isView" class="text">{{ item.title }}</div>
         </div>
         <template #preview-cover>
-          <div v-if="!isView" class="upload-item cover">
+          <div v-if="!isView" class="upload-item cover" @click.stop="() => onClick(index)">
             <div class="bg" />
             <img :src="IDCardUploadIconImage" class="icon" />
             <div class="text">{{ item.title }}</div>
