@@ -30,15 +30,17 @@ export const transformToMoney = (num?: number | string) => {
 
 // 保障期间
 export const convertPeriod = (value: string): string => {
-  const currentData = value;
-  const [unit, years] = currentData.split('_');
+  if (typeof value !== 'string') {
+    return '';
+  }
+  const [unit, years] = value.split('_');
   const unitMap = {
     year: '年',
     month: '月',
     day: '天',
     to: '岁',
   };
-  if (currentData === 'to_life') {
+  if (value === 'to_life') {
     return '保终身';
   }
   return `${years}${unitMap[unit]}`;
@@ -46,15 +48,17 @@ export const convertPeriod = (value: string): string => {
 
 // 交费期间
 export const convertChargePeriod = (value: string): string => {
-  const currentData = value;
-  const [unit, years] = currentData.split('_');
+  if (typeof value !== 'string') {
+    return '';
+  }
+  const [unit, years] = value.split('_');
   const unitMap = {
     year: '年交',
     month: '月交',
     day: '天',
     to: '岁',
   };
-  if (currentData === 'single') {
+  if (value === 'single') {
     return '趸缴';
   }
   if (unitMap[unit] === 'to') {

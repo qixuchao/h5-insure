@@ -33,7 +33,7 @@
         </div>
       </van-list>
     </div>
-    <ProEmpty v-if="!hasProduct" :empty-img="emptyImg" title="暂无历史计划书" empty-class="empty-select" />
+    <ProEmpty v-if="!hasProduct && !loading" :empty-img="emptyImg" title="暂无历史计划书" empty-class="empty-select" />
   </ProPageWrap>
 </template>
 
@@ -109,9 +109,9 @@ const getHistoryList = () => {
       } else {
         historyList.value = historyList.value.concat(data.datas);
       }
+      loading.value = false;
 
       pageNum.value += 1;
-      loading.value = false;
       finished.value = historyList.value.length >= data.total;
     }
   });
