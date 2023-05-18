@@ -148,6 +148,50 @@ const show = computed(() => {
     width: 552px;
     .popup-body {
       padding: 60px;
+
+      .list {
+        .van-steps--vertical {
+          padding: 0 0 0 47px;
+
+          .van-step__circle-container {
+            left: -32px;
+            top: 36px;
+            .van-step__circle {
+              background-color: #dee0e3;
+            }
+          }
+          .van-step__line {
+            left: -33px;
+          }
+          .van-step--vertical {
+            padding: 0;
+            line-height: 76px;
+            &:not(:last-child):after {
+              border: none;
+            }
+          }
+          .van-icon-checked:before {
+            content: ' ';
+            width: 16px;
+            height: 16px;
+            border-radius: 100%;
+            background-color: var(--van-primary-color);
+          }
+          .van-step__title {
+            h3 {
+              font-size: 30px;
+              font-weight: 400;
+              color: #939599;
+            }
+          }
+          .van-step__title--active {
+            h3 {
+              color: #343434;
+            }
+          }
+        }
+      }
+
       .popup-title {
         border: none;
         justify-content: left;

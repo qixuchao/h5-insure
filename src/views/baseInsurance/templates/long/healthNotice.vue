@@ -41,6 +41,8 @@ const route = useRoute();
 const router = useRouter();
 const orderDetail = useOrder();
 
+console.log('route', route);
+
 const { productCode, orderNo, templateId, tenantId, preview, questionnaireId: questionId } = route.query;
 const currentQuestion = ref<any>({});
 const nextQuestionnaireId = ref<number>();
@@ -77,7 +79,7 @@ const questionReject = () => {
 const questionResolve = () => {
   if (nextQuestionnaireId.value) {
     router.push({
-      path: route.path,
+      path: `${route.path}/${nextQuestionnaireId.value}`,
       query: {
         ...route.query,
         questionnaireId: nextQuestionnaireId.value,
@@ -92,16 +94,21 @@ const getQuestionInfo = async () => {
   const { code, data } = await queryProductMaterial({ productCode });
 
   if (code === '10000') {
-    let questionInfo = data.productQuestionnaireVOList[0] || {};
-    if (questionId) {
-      const questionIndex = data.productQuestionnaireVOList.findIndex(
-        (questionnaire) => `${questionnaire.id}` === questionId,
-      );
-      if (data.productQuestionnaireVOList[questionIndex]) {
-        questionInfo = data.productQuestionnaireVOList[questionIndex];
-      }
-      if (data.productQuestionnaireVOList[questionIndex + 1]) {
-        nextQuestionnaireId.value = data.productQuestionnaireVOList[questionIndex + 1].id;
+    const { productQuestionnaireVOList } = data || {};
+    let questionInfo = productQuestionnaireVOList[0] || {};
+    if (productQuestionnaireVOList?.length > 1) {
+      if (questionId) {
+        const questionIndex = productQuestionnaireVOList.findIndex(
+          (questionnaire) => `${questionnaire.id}` === questionId,
+        );
+        if (productQuestionnaireVOList[questionIndex]) {
+          questionInfo = productQuestionnaireVOList[questionIndex];
+        }
+        if (productQuestionnaireVOList[questionIndex + 1]) {
+          nextQuestionnaireId.value = productQuestionnaireVOList[questionIndex + 1].id;
+        }
+      } else {
+        nextQuestionnaireId.value = productQuestionnaireVOList[1]?.id;
       }
     }
     const { questionnaireDetailResponseVO, questionnaireId, questionnaireName } = questionInfo || {};
