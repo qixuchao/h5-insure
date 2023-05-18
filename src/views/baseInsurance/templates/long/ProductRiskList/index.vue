@@ -47,6 +47,8 @@
           @trial-change="(data, changeData) => handleInsureInfoChange(data, risk.riskId, changeData)"
         ></InsureInfos>
       </div>
+      <!-- 豁免险展示投保人 -->
+      <slot v-if="risk.exemptFlag === 1 && state.riskIsInsure[risk.riskId].selected === '1'" name="holderForm" />
     </div>
   </template>
 </template>
