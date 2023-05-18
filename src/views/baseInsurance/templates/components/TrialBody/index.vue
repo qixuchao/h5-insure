@@ -471,7 +471,7 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
 
 const handleMixTrialData = debounce(async () => {
   console.log('>>>>>调用试算<<<<<', state.ifPersonalInfoSuccess);
-  if (state.ifPersonalInfoSuccess || personalInfoRef.value.canTrail()) {
+  if (state.ifPersonalInfoSuccess || (personalInfoRef.value && personalInfoRef.value.canTrail())) {
     state.submitData.productCode = props.productInfo.productCode;
     state.submitData.productName = props.productInfo.productName;
     state.submitData.tenantId = props.productInfo.tenantId;

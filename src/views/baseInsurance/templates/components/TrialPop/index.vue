@@ -592,7 +592,7 @@ watch(
   () => props.tenantProductDetail,
   () => {
     const currentPremiumData =
-      props.tenantProductDetail.PREMIUM.find((plan) => {
+      props.tenantProductDetail?.PREMIUM?.find((plan) => {
         return !plan.planCode || plan.planCode === props.dataSource.planCode;
       }) || {};
 
