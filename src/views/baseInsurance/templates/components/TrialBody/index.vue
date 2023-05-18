@@ -458,7 +458,7 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
             });
           }
           premiumMap.value = riskPremiumMap;
-          emit('trialEnd', res.data);
+          emit('trialEnd', res.data, state.submitData);
         }
       })
       .finally(() => {
@@ -471,9 +471,10 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
 
 const handleMixTrialData = debounce(async () => {
   console.log('>>>>>调用试算<<<<<', state.ifPersonalInfoSuccess);
+  const { productCode, productName } = props.productInfo || {};
   if (state.ifPersonalInfoSuccess || personalInfoRef.value.canTrail()) {
-    state.submitData.productCode = props.productInfo.productCode;
-    state.submitData.productName = props.productInfo.productName;
+    state.submitData.productCode = productCode;
+    state.submitData.productName = productName;
     state.submitData.tenantId = props.productInfo.tenantId;
     // TODO 处理同主险的相关数据
     state.riskList = state.riskList.map((trialRisk) => {
@@ -491,8 +492,8 @@ const handleMixTrialData = debounce(async () => {
       state.submitData.insuredList.forEach((ins) => {
         ins.productList = [
           {
-            insurerCode: props.productInfo.insurerCode,
-            planCode: props.dataSource.planCode,
+            productCode,
+            productName,
             riskList: state.riskList,
           },
         ];
