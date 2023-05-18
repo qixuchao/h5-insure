@@ -43,7 +43,21 @@
             state.defaultValue ? state.defaultValue?.insuredList[0].productList[state.planIndex]?.riskList : []
           "
           @trial-change="handleProductRiskInfoChange"
-        ></ProductRiskList>
+        >
+          <template #holderForm>
+            <!-- 投保人豁免勾选时显示投保人 -->
+            <PersonalInfo
+              v-if="isTrial && dataSource.productFactor"
+              ref="personalInfoRef"
+              v-model="state.userData"
+              :is-trial="isTrial"
+              :is-only-holder="true"
+              :product-factor="dataSource.productFactor"
+              :multi-insured-config="dataSource?.multiInsuredConfigVO"
+              @trail-change="handlePersonalInfoChange"
+            />
+          </template>
+        </ProductRiskList>
         <div class="empty"></div>
       </div>
     </div>
@@ -785,6 +799,9 @@ watch(
   .trial-body {
     overflow-y: scroll;
     flex: 1;
+    :deep(.com-pro-form-with-card.personal-info-card) .header {
+      padding-left: 0;
+    }
   }
   .container {
     padding: 0 30px;
