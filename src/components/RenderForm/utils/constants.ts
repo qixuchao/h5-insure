@@ -517,6 +517,11 @@ export const GLOBAL_CONFIG_MAP = {
   certImage: {
     componentName: COMPONENT_ENUM.ProIDCardUploadV2,
   },
+  /** 受益比例 */
+  benefitRate: {
+    ...RULE_CONFIG_MAP.AGE,
+    unit: '%',
+  },
 };
 
 /** 被保人类型 主被保人/次被保人 */

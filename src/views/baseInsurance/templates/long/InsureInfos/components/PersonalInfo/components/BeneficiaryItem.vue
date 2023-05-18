@@ -17,6 +17,8 @@
 </template>
 <script lang="ts" setup name="BeneficiaryItem">
 import { withDefaults } from 'vue';
+import merge from 'lodash-es/merge';
+import isEqual from 'lodash-es/isEqual';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import {
@@ -24,7 +26,9 @@ import {
   type PersonFormProps,
   colorConsole,
   validateForm,
+  getCertConfig,
   validateFields,
+  restObjectValues,
   ProRenderFormWithCard,
 } from '@/components/RenderForm';
 
@@ -127,6 +131,38 @@ watch(
   },
   {
     deep: true,
+    immediate: true,
+  },
+);
+
+// 监听与被保人关系
+watch(
+  () => state.personVO?.relationToInsured,
+  (val, oldVal) => {
+    if (val === oldVal) {
+      return false;
+    }
+    colorConsole(`受益人与被保人关系变动了`);
+
+    const { certType } = state.personVO || {};
+    // 证件类型是否只有身份证, 与被保险人关系变动
+    const [isOnlyCertFlag, tempConfig] = getCertConfig(state.schema, { certType, relationToHolder: val });
+
+    merge(state.config, tempConfig);
+
+    // 受益人与被保人关系切换
+    if (!props.isView && val && oldVal) {
+      // 若为本人合并投保人数据
+      Object.assign(state.personVO, {
+        // 若只有证件类型为身份证，不清除值
+        ...restObjectValues(state.personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
+        relationToInsured: val,
+      });
+    }
+
+    return false;
+  },
+  {
     immediate: true,
   },
 );
