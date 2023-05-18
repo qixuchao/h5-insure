@@ -1,6 +1,8 @@
 <template>
   <!-- 产品要素 -->
   <template v-if="originData?.factorDisPlayFlag === 1">
+    <ProCard title="保障计划" class="insurePlan" :show-divider="false"></ProCard>
+
     <BaoeBaofei
       :v-model="state.sValues"
       :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
@@ -175,7 +177,7 @@ defineExpose({
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" scope>
 .com-risk-card-wrapper {
   &.part-card {
     background-color: #ffffff;
@@ -205,5 +207,12 @@ defineExpose({
 }
 :deep(.van-field) {
   align-items: baseline;
+}
+.insurePlan {
+  .com-card-wrap {
+    .header {
+      margin-left: 0 !important;
+    }
+  }
 }
 </style>

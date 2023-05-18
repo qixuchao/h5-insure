@@ -63,6 +63,7 @@
           insurerCode,
         }"
         :default-data="orderDetail ? [orderDetail] : null"
+        :current-order-detail="orderDetail"
         :tenant-product-detail="tenantProductDetail"
         :hide-benefit="insureProductDetail.openFlag !== 1"
       ></TrialPop>

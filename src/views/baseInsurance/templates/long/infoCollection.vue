@@ -18,17 +18,7 @@
         @trial-end="handleTrialEnd"
       >
       </TrialBody>
-      <TrialButton
-        :is-share="shareInfo.isShare && !isShare"
-        :premium="trialResult?.initialPremium"
-        :share-info="shareInfo"
-        :loading-text="trialMsg"
-        :payment-frequency="trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''"
-        :tenant-product-detail="tenantProductDetail"
-        :handle-share="(cb) => onShare(cb)"
-        @handle-click="onNext"
-        >下一步</TrialButton
-      >
+
       <PayInfo
         v-if="state.payInfo.schema.length"
         ref="payInfoRef"
@@ -58,6 +48,19 @@
         @submit="onSubmit"
         @on-close-file-preview-by-mask="onResetFileFlag"
       ></FilePreview>
+    </div>
+    <div class="wrap">
+      <TrialButton
+        :is-share="shareInfo.isShare && !isShare"
+        :premium="trialResult?.initialPremium"
+        :share-info="shareInfo"
+        :loading-text="trialMsg"
+        :payment-frequency="trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''"
+        :tenant-product-detail="tenantProductDetail"
+        :handle-share="(cb) => onShare(cb)"
+        @handle-click="onNext"
+        >下一步</TrialButton
+      >
     </div>
   </ProPageWrap>
 </template>
@@ -447,7 +450,7 @@ onBeforeMount(() => {
 
 <style lang="scss" scope>
 .long-info-collection {
-  padding-bottom: 150px;
+  margin-bottom: 150px;
   background-color: #fff;
   .com-risk-liabilityinfo {
     background-color: #fff;
@@ -461,5 +464,8 @@ onBeforeMount(() => {
   .empty {
     display: none;
   }
+}
+.wrap {
+  padding: 100px;
 }
 </style>

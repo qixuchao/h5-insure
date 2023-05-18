@@ -2,7 +2,7 @@
   <div class="pdf-viewer-wrap">
     <div :id="id"></div>
     <div class="footer-btn">
-      <ProShare :link="shareLink"> <van-button>分享</van-button></ProShare>
+      <ProShare :link="shareLink" :title="title"> <van-button>分享</van-button></ProShare>
       <van-button @click="downloadPdf">下载</van-button>
     </div>
   </div>

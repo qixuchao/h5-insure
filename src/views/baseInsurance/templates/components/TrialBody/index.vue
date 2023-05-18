@@ -751,6 +751,9 @@ watch(
     width: 270px;
   }
 }
+
+.insurePlan {
+}
 .com-body {
   height: 100%;
   overflow-y: scroll;
