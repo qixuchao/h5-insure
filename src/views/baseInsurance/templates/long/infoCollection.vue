@@ -450,22 +450,15 @@ onBeforeMount(() => {
 
 <style lang="scss" scope>
 .long-info-collection {
-  margin-bottom: 150px;
+  padding-bottom: 200px;
   background-color: #fff;
   .com-risk-liabilityinfo {
     background-color: #fff;
     background: #ffffff;
   }
 
-  .footer-area {
-    z-index: 111;
-  }
-
   .empty {
     display: none;
   }
-}
-.wrap {
-  padding: 100px;
 }
 </style>
