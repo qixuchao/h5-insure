@@ -37,9 +37,7 @@
           </van-radio-group>
         </div>
         <div class="footer-button">
-          <VanButton block type="primary" :disabled="!checked" @click="emits('finished', currentProduct)"
-            >立即投保</VanButton
-          >
+          <VanButton block type="primary" @click="onClick">立即投保</VanButton>
         </div>
       </div>
     </VanPopup>
@@ -47,6 +45,7 @@
 </template>
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
+import { Toast } from 'vant/es';
 import { InsuredProductData } from '@/api/modules/compositionProposal.data';
 
 interface Props {
@@ -103,6 +102,14 @@ const onCheck = (product: InsuredProductData) => {
 
 const close = () => {
   emits('close');
+};
+
+// eslint-disable-next-line consistent-return
+const onClick = () => {
+  if (!checked) {
+    return Toast('请选择投保产品');
+  }
+  emits('finished', currentProduct);
 };
 
 watch(

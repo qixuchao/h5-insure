@@ -37,7 +37,7 @@
             </div>
           </div>
           <div v-if="showType === SHOW_TYPE_ENUM.TABLE">
-            <ProTable :data-source="tableData" />
+            <BenefitTable :data-source="tableData" />
           </div>
 
           <div v-if="showType == SHOW_TYPE_ENUM.CHART" style="width: 100%, minWidth: 338px">
@@ -150,7 +150,7 @@
 import { withDefaults } from 'vue';
 import { toLocal } from '@/utils';
 import ProChart from '@/components/ProChart/index.vue';
-import ProTable from './Table.vue';
+import BenefitTable from './BenefitTable.vue';
 
 const props = withDefaults(
   defineProps<{
