@@ -20,6 +20,7 @@
         />
         <div ref="observeRef"></div>
       </div>
+      <ProductDesc :data-source="tenantProductDetail?.BASIC_INFO"></ProductDesc>
       <Guarantee
         v-if="tenantProductDetail?.GUARANTEE"
         show-service-config
@@ -116,6 +117,7 @@ import InsureLimit from '../components/InsureLimit/index.vue';
 import { orderData2trialData } from '../utils';
 import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
 import ProPageWrap from '@/components/ProPageWrap';
+import ProductDesc from '../components/ProductDesc/index.vue';
 // const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const InscribedContent = defineAsyncComponent(() => import('../components/InscribedContent/index.vue'));
