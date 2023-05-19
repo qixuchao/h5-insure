@@ -1,11 +1,3 @@
-/*
- * @Author: za-qixuchao qixuchao@zhongan.io
- * @Date: 2022-07-28 10:28:12
- * @LastEditors: kevin.liang
- * @LastEditTime: 2023-03-17 18:00:39
- * @FilePath: /zat-planet-h5-cloud-insure/src/common/constants/infoCollection.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 import { constantListToMap } from './utils';
 
 export const RELATION_HOLDER_ENUM = {
@@ -171,9 +163,40 @@ export const TEMPLATE_TYPE_MAP = {
   // 魔方升级
   [TEMPLATE_TYPE_ENUM.UPGRADE]: 'short',
   // 长期险
-  [TEMPLATE_TYPE_ENUM.LONG]: 'long',
+  [TEMPLATE_TYPE_ENUM.LONG]: 'long/productDetail',
   // 年金
-  [TEMPLATE_TYPE_ENUM.NIANJIN]: 'long',
+  [TEMPLATE_TYPE_ENUM.NIANJIN]: 'long/productDetail',
+};
+// 模板名称
+export const TEMPLATE_NAME_ENUM = {
+  // 赠险
+  FREE: 'free',
+  // 短险
+  SHORT: 'short',
+  // 网电销
+  NETSALE: 'netsale',
+  // 魔方升级
+  UPGRADE: 'short',
+  // 长期险
+  LONG: 'long',
+  // 年金
+  NIANJIN: 'long',
+};
+export const getTemplateNameById = (templateId: string | number) => {
+  switch (`${templateId}`) {
+    case TEMPLATE_TYPE_ENUM.FREE:
+      return 'free';
+    case TEMPLATE_TYPE_ENUM.NETSALE:
+      return 'netsale';
+    case TEMPLATE_TYPE_ENUM.SHORT:
+    case TEMPLATE_TYPE_ENUM.UPGRADE:
+      return 'short';
+    case TEMPLATE_TYPE_ENUM.LONG:
+    case TEMPLATE_TYPE_ENUM.NIANJIN:
+      return 'long';
+    default:
+      return 'long';
+  }
 };
 
 export const PAGE_CODE_LIST = [
@@ -324,3 +347,25 @@ export const PREMIUM_UNIT_TYPE_ENUM = {
   MONTH_SALARY: '3', // 倍月薪
   MILLION: '4', // 万元
 };
+
+// 年金领取方式
+export const ANNUITY_DRAW_TYPE = [
+  {
+    value: '1',
+    label: '年',
+  },
+  {
+    value: '2',
+    label: '半年',
+  },
+  {
+    value: '3',
+    label: '季度',
+  },
+  {
+    value: '4',
+    label: '月度',
+  },
+];
+
+export const ANNUITY_DRAW_TYPE_MAP = constantListToMap(ANNUITY_DRAW_TYPE);

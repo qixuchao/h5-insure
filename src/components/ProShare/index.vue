@@ -59,21 +59,19 @@ const onCloseOverlay = () => {
   showOverLay.value = false;
 };
 
-const handleShare = () => {
-  console.log('13123132');
+const handleShare = (shareInfo = {}) => {
   if (isWechat()) {
     console.log('在微信内，弹起遮罩');
     showOverLay.value = true;
     return;
   }
-
   if (isApp()) {
-    console.log('在app内');
+    console.log('在app内', props);
     const shareConfig = {
-      img: encodeURI(props.imgUrl),
+      img: props.imgUrl,
       title: props.title,
       desc: props.desc,
-      link: props.link,
+      link: shareInfo.link || props.link,
     };
     console.log('参数：', shareConfig);
     wechatShare(shareConfig);

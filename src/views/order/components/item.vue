@@ -25,7 +25,7 @@
       </div>
       <div v-if="detail.orderTopStatus === ORDER_TOP_STATUS_ENUM.PENDING" class="buttons">
         <van-button class="button" @click.stop="handleDelete">删除</van-button>
-        <van-button class="button primary" @click.stop="handleProcess">去处理</van-button>
+        <van-button class="button primary" @click.stop="handleProcess()">去处理</van-button>
       </div>
       <div v-if="detail.orderTopStatus === ORDER_TOP_STATUS_ENUM.PAYING" class="buttons">
         <van-button class="button primary" @click.stop="handlePay">去支付</van-button>
@@ -45,6 +45,8 @@ import { OrderItem } from '@/api/modules/order.data';
 import { deleteOrder } from '@/api/modules/order';
 import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP, ORDER_TOP_STATUS_ENUM } from '@/common/constants/order';
 import { PAGE_ROUTE_ENUMS, PRODUCT_LIST_ENUM } from '@/common/constants';
+import { TEMPLATE_TYPE_ENUM } from '@/views/baseInsurance/constant';
+import pageJump from '@/utils/pageJump';
 
 const emits = defineEmits(['afterDelete']);
 const router = useRouter();
@@ -123,7 +125,7 @@ const handlePay = () => {
   } = props.detail;
   if (redirectProductDetail()) return;
   router.push({
-    path: PAGE_ROUTE_ENUMS.payInfo,
+    path: 'orderDetail',
     query: {
       productCode,
       orderNo,
@@ -151,24 +153,26 @@ const handleProcess = () => {
     agencyId: agencyCode,
     saleChannelId,
     orderStatus,
+    abbreviation,
   } = props.detail;
   if (redirectProductDetail()) return;
-  router.push({
-    path: PAGE_ROUTE_ENUMS[props.detail.pageCode],
-    query: {
-      productCode,
-      orderNo,
-      orderId,
-      agentCode,
-      templateId,
-      tenantId,
-      insurerCode,
-      productCategory,
-      agencyCode,
-      // 是否从订单列表来的，用来判断是否展示导航栏
-      isFromOrderList: '1',
-    },
-  });
+  pageJump('orderDetail', { orderNo, agentCode, tenantId, abbreviation, productCategory });
+  // router.push({
+  //   path: PAGE_ROUTE_ENUMS[props.detail.pageCode],
+  //   query: {
+  //     productCode,
+  //     orderNo,
+  //     orderId,
+  //     agentCode,
+  //     templateId,
+  //     tenantId,
+  //     insurerCode,
+  //     productCategory,
+  //     agencyCode,
+  //     // 是否从订单列表来的，用来判断是否展示导航栏
+  //     isFromOrderList: '1',
+  //   },
+  // });
 };
 </script>
 

@@ -9,7 +9,7 @@ export const PRODUCT_KEYS_CONFIG = [
     name: '领取频率',
     type: 'checkbox',
     configKey: ['annuityDrawFrequencyList'],
-    valueKey: 'annuityDrawType',
+    valueKey: 'annuityDrawFrequency',
   },
   {
     name: '交费方式',
@@ -24,6 +24,7 @@ export const PRODUCT_KEYS_CONFIG = [
     configKey: ['paymentPeriodValueList'],
     valueKey: 'chargePeriod',
     ruleKey: 'paymentPeriodRule',
+    ruleValueKey: 'chargePeriod',
   },
   {
     name: '保障期间',
@@ -31,6 +32,7 @@ export const PRODUCT_KEYS_CONFIG = [
     configKey: ['insurancePeriodValueList'],
     valueKey: 'coveragePeriod',
     ruleKey: 'insurancePeriodRule',
+    ruleValueKey: 'chargePeriod',
   },
 ];
 

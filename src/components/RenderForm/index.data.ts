@@ -28,6 +28,7 @@ export interface FieldConfItem {
   isSelfInsuredNeed: boolean;
   isCalculationFactor: number;
   visible: boolean;
+  subModuleType: number;
 }
 
 export interface ProductFactor {
@@ -57,16 +58,56 @@ export interface SchemaItem {
   required: boolean;
   columns: Column[];
   nanoid: string;
+  [key: string]: any;
+  visible: boolean;
+  hidden: boolean;
 }
 
 export interface FormState {
   formData: Data;
   config: Data;
   nameList: string[];
+  dictCodeList: string[];
 }
 
-export interface VanFormProvied {
+export interface VanFormProvied extends Data {
   formState: FormState;
   markRequired: boolean;
   formRef: Ref<FormInstance>;
+  objectType: number;
+}
+
+export interface PersonFormProps {
+  personVO: {
+    relationToHolder?: string;
+    relationToMainInsured?: string;
+    [x: string]: any;
+  };
+  schema: SchemaItem[];
+  trialFactorCodes: string[];
+  config: {
+    [x: string]: any;
+  };
+  nanoid?: string;
+}
+
+export interface InsuredFormProps extends Partial<PersonFormProps> {
+  beneficiaryList: Partial<PersonFormProps>[];
+}
+
+export interface StateInfo {
+  validated: boolean;
+  holder: PersonFormProps;
+  initInsuredItem: PersonFormProps;
+  initBeneficiaryItem: PersonFormProps;
+  insured: InsuredFormProps[];
+}
+
+export interface FileProps {
+  category: string;
+  objectType?: string;
+  objectId?: string;
+  name?: string;
+  uri: string;
+  id?: number;
 }

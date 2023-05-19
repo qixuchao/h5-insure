@@ -3,16 +3,16 @@
     <div class="article-mid">
       <div class="article-tag">
         <div
-          v-for="(item, index) in PRODUCT_CATEGORY"
+          v-for="(item, index) in state.productCategoryList"
           :key="index"
           class="tag-item"
-          :class="{ checked: indexCheck == item.value }"
-          @click="onClickTag(item?.value, item.value)"
+          :class="{ checked: indexCheck == index }"
+          @click="onClickTag(item?.productCategoryId, index)"
         >
-          <div class="tag-out" :class="{ checked: indexCheck == item.value }">
-            <div class="tag-item-text" :class="{ checked: indexCheck == item.value }">{{ item.label }}</div>
+          <div class="tag-out" :class="{ checked: indexCheck == index }">
+            <div class="tag-item-text" :class="{ checked: indexCheck == index }">{{ item.productCategoryName }}</div>
           </div>
-          <div class="trianele-out"><div :class="{ triangle: indexCheck == item.value }"></div></div>
+          <!-- <div class="trianele-out"><div :class="{ triangle: indexCheck == index }"></div></div> -->
         </div>
       </div>
       <div v-if="filter" class="filter" @click="openPop">
@@ -25,7 +25,10 @@
         :show="isPopShow"
         position="right"
         close-on-click-overlay
-        :style="popupStyle || { width: '322px', height: '100%', padding: '0 15px' }"
+        teleport="body"
+        class="proposal-list-filter-popup-wrap"
+        :overlay-style="{ 'z-index': 5000 }"
+        :style="popupStyle || { width: '322px', height: '100%', padding: '0 15px', 'z-index': 5000 }"
         @click-overlay="closePop"
       >
         <div class="popup-inner">
@@ -47,6 +50,8 @@ import ProCheckboxButton from '@/components/ProCheckboxButton/index.vue';
 import ZaSvg from '@/components/ZaSvg/index.vue';
 import { queryInsurer } from '@/api';
 import { PRODUCT_CATEGORY } from '@/common/constants';
+import { queryProductCategoryList } from '@/api/modules/proposalList';
+import { isNotEmptyArray } from '@/common/constants/utils';
 
 const props = defineProps({
   tagList: {
@@ -69,14 +74,17 @@ const emit = defineEmits(['onSelectInsure']);
 const state = reactive({
   insureList: [],
   checkedInsure: [],
+  productCategoryList: [],
 });
 
 const { insureList, checkedInsure } = toRefs(state);
 
 const indexCheck = ref<string | number>('');
+
 const onClickTag = (id: any, index: number) => {
   indexCheck.value = index;
-  emit('onSelectInsure', { selectInsureCode: checkedInsure.value, selectCategory: indexCheck.value });
+  const { productCategoryId } = state.productCategoryList?.[indexCheck.value] || {};
+  emit('onSelectInsure', { selectInsureCode: checkedInsure.value, selectCategory: productCategoryId });
 };
 
 const reset = () => {
@@ -84,8 +92,24 @@ const reset = () => {
 };
 
 const handleClickFilter = () => {
-  emit('onSelectInsure', { selectInsureCode: checkedInsure.value, selectCategory: indexCheck.value });
+  const { productCategoryId } = state.productCategoryList?.[indexCheck.value] || {};
+  emit('onSelectInsure', { selectInsureCode: checkedInsure.value, selectCategory: productCategoryId });
   closePop();
+};
+
+const queryCategoryList = () => {
+  queryProductCategoryList().then((res) => {
+    const { code, data } = res || {};
+    if (code === '10000' && isNotEmptyArray(data)) {
+      state.productCategoryList = [
+        {
+          productCategoryName: '全部',
+          productCategoryId: '',
+        },
+        ...data,
+      ];
+    }
+  });
 };
 
 onMounted(() => {
@@ -100,6 +124,10 @@ onMounted(() => {
       });
     }
   });
+});
+
+onBeforeMount(() => {
+  queryCategoryList();
 });
 </script>
 
@@ -143,9 +171,10 @@ onMounted(() => {
 
         .tag-out {
           height: 50px;
+          line-height: 50px;
           background: #f4f5f7;
           border-radius: 25px;
-          padding: 12px 34px;
+          padding: 0 34px;
           margin-right: 20px;
 
           &.checked {
@@ -153,12 +182,10 @@ onMounted(() => {
           }
 
           .tag-item-text {
-            height: 26px;
             font-size: $zaui-font-size-md;
             font-family: PingFangSC-Medium, PingFang SC;
             font-weight: 500;
             color: #959595;
-            line-height: 26px;
 
             &.checked {
               color: #ffffff;
@@ -199,25 +226,28 @@ onMounted(() => {
       }
     }
   }
-  .van-popup {
-    position: relative;
-    .popup-inner {
-      padding-left: 0;
-      .popup-title {
-        height: 42px;
-        margin-top: 32px;
-        margin-bottom: 24px;
-        color: #343434;
-        font-weight: 500;
-        font-size: $zaui-font-size-lg;
-        font-family: PingFangSC-Medium, PingFang SC;
-        line-height: 42px;
-      }
-      :deep(.com-radio-btn) {
-        justify-content: flex-start;
-        .com-check-btn {
-          margin: 0 12px 10px 0;
-        }
+}
+.proposal-list-filter-popup-wrap.van-popup {
+  position: relative;
+  .popup-inner {
+    padding-left: 0;
+    .popup-title {
+      height: 42px;
+      margin-top: 32px;
+      margin-bottom: 24px;
+      color: #343434;
+      font-weight: 500;
+      font-size: $zaui-font-size-lg;
+      font-family: PingFangSC-Medium, PingFang SC;
+      line-height: 42px;
+      padding: 0;
+      justify-content: flex-start;
+      border: 0;
+    }
+    :deep(.com-radio-btn) {
+      justify-content: flex-start;
+      .com-check-btn {
+        margin: 0 12px 10px 0;
       }
     }
   }

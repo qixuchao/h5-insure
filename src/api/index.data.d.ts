@@ -1,11 +1,3 @@
-/*
- * @Author: za-qixuchao qixuchao@zhongan.io
- * @Date: 2022-07-16 19:38:49
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-16 14:55:57
- * @FilePath: /zat-planet-h5-cloud-insure/src/api/index.data.d.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 
 export interface DictData {
   dictCode: string;
@@ -90,12 +82,13 @@ export interface NextStepRequestData {
   relationUserType: number;
   saleChannelId: string;
   saleUserId: string;
-  tenantId: number | string;
+  tenantId: number;
   tenantOrderAttachmentList: TenantOrderAttachmentItem[];
   tenantOrderHolder: Partial<TenantOrderHolder>;
   tenantOrderInsuredList: Array<Partial<TenantOrderInsuredItem>>;
   tenantOrderNoticeList: TenantOrderNoticeItem[];
   tenantOrderPayInfoList: TenantOrderPayInfoItem[];
+  tenantOrderPaymentInfoList: { payTime: string; paymentMethod: string; paymentResultDesc: string }[];
   tenantOrderSubjectList: Array<Partial<TenantOrderSubjectItem>>
   thirdOrderNo: string;
   thirdOrderNoType: number;
@@ -181,7 +174,7 @@ export interface TenantOrderProductItem {
 export interface TenantOrderRiskItem {
   amountUnit: number;
   annuityDrawFrequency: number;
-  annuityDrawType: number;
+  annuityDrawDate: number;
   currentAmount: number;
   id: number;
   initialAmount: number;
@@ -357,7 +350,7 @@ export interface ExtInfo {
   templateId: number | string;
   buttonCode: string;
   iseeBizNo: string; // 千里眼需要的字段
-  extraInfo: {};
+  extraInfo: { [key: string]: string };
 }
 
 export interface ContactInfo {

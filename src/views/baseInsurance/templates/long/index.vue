@@ -1,15 +1,15 @@
 <template>
   <div v-if="loading">__SKELETON_LONG_CONTENT__</div>
-  <div v-else class="page-internet-product-detail" data-skeleton-root="LONG">
+  <ProPageWrap v-else class="page-internet-product-detail" data-skeleton-root="LONG">
     <template v-if="!trialPreviewMode">
       <div class="info">
         <Banner
-          v-if="tenantProductDetail?.BASIC_INFO?.banner.length"
+          v-if="tenantProductDetail?.BASIC_INFO?.bannerType == 1 && tenantProductDetail?.BASIC_INFO?.banner.length"
           data-skeleton-type="img"
-          :url="tenantProductDetail?.BASIC_INFO.banner[0]"
+          :images="tenantProductDetail?.BASIC_INFO?.banner"
         />
         <Video
-          v-if="tenantProductDetail?.BASIC_INFO?.video.length"
+          v-if="tenantProductDetail?.BASIC_INFO?.bannerType == 2 && tenantProductDetail?.BASIC_INFO?.video.length"
           data-skeleton-type="img"
           :src="tenantProductDetail?.BASIC_INFO.video[0]"
         />
@@ -20,6 +20,7 @@
         />
         <div ref="observeRef"></div>
       </div>
+      <ProductDesc :data-source="tenantProductDetail?.BASIC_INFO"></ProductDesc>
       <Guarantee
         v-if="tenantProductDetail?.GUARANTEE"
         show-service-config
@@ -27,8 +28,9 @@
         :plan-list="planList"
         @update-active-plan="handlePlanChange"
       />
-      <div class="trial-text-btn" @click="showTrial">算一算保费</div>
 
+      <div class="trial-text-btn" @click="showTrial">算一算保费</div>
+      <InsureLimit :data-source="tenantProductDetail?.ISSUE_CONDITION"></InsureLimit>
       <ScrollInfo ref="detailScrollRef" :data-source="tenantProductDetail"> </ScrollInfo>
       <ProLazyComponent>
         <InscribedContent
@@ -39,7 +41,7 @@
       <ProLazyComponent>
         <AttachmentList
           v-if="fileList?.length"
-          :attachement-list="fileList"
+          :attachment-list="fileList"
           pre-text="请阅读"
           @preview-file="(index) => previewFile(index)"
         />
@@ -47,12 +49,13 @@
     </template>
     <div v-else class="preview-placeholder">当前页面仅用于保费试算预览<br />不展示其他产品相关配置信息</div>
 
-    <template v-if="showFooterBtn">
+    <template v-if="showFooterBtn && isLoadDefaultValue">
       <!-- <ProLazyComponent> -->
       <TrialPop
         ref="trialRef"
         :data-source="currentPlanObj"
         :share-info="shareInfo"
+        :is-share="shareInfo.isShare"
         :product-info="{
           productCode: insureProductDetail.productCode,
           productName: insureProductDetail.productName,
@@ -60,12 +63,15 @@
           tenantId,
           insurerCode,
         }"
+        :default-data="orderDetail ? [orderDetail] : null"
+        :current-order-detail="orderDetail"
         :tenant-product-detail="tenantProductDetail"
+        :hide-benefit="insureProductDetail.openFlag !== 1"
       ></TrialPop>
       <!-- </ProLazyComponent> -->
     </template>
     <div id="insureButton"></div>
-  </div>
+  </ProPageWrap>
   <PreNotice v-if="preNoticeLoading && !trialPreviewMode" :product-detail="tenantProductDetail"></PreNotice>
   <div id="xinaoDialog"></div>
   <FilePreview
@@ -91,12 +97,13 @@ import {
   ProductPlanInsureVoItem,
   RiskDetailVoItem,
 } from '@/api/modules/product.data';
-import { insureProductDetail as getInsureProductDetail } from '@/api/modules/trial';
+import { getTenantOrderDetail, insureProductDetail as getInsureProductDetail, premiumCalc } from '@/api/modules/trial';
 import { productDetail as getTenantProductDetail, queryProductMaterial, querySalesInfo } from '@/api/modules/product';
 
 import { INSURE_TYPE_ENUM } from '@/common/constants/infoCollection';
 
 import Banner from '../components/Banner/index.vue';
+import Video from '../components/Banner/Video.vue';
 import Guarantee from '../components/Guarantee/index.vue';
 import PreNotice from '../components/PreNotice/index.vue';
 import { YES_NO_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
@@ -106,6 +113,12 @@ import ScrollInfo from '../components/ScrollInfo/index.vue';
 import useAttachment from '@/hooks/useAttachment';
 import { getFileType } from '@/views/baseInsurance/utils';
 import TrialPop from '../components/TrialPop/index.vue';
+import InsureLimit from '../components/InsureLimit/index.vue';
+import { orderData2trialData } from '../utils';
+import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
+import ProPageWrap from '@/components/ProPageWrap';
+import ProductDesc from '../components/ProductDesc/index.vue';
+import useOrder from '@/hooks/useOrder';
 // const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const InscribedContent = defineAsyncComponent(() => import('../components/InscribedContent/index.vue'));
@@ -136,7 +149,9 @@ const {
   agentCode = '',
   agencyCode,
   saleChannelId,
+  proposalId,
   extraInfo,
+  orderNo,
   insurerCode,
   preview,
   trialPreview,
@@ -179,20 +194,9 @@ const shareInfo = ref({
   imgUrl: '',
   desc: '',
   title: '',
-  link: window.location.href,
+  link: `${window.location.href}&isShare=1`,
   isShare: false,
 });
-
-const setShareLink = (config: { image: string; desc: string; title: string; isShare: boolean }) => {
-  shareInfo.value = {
-    desc: config.desc || '你好，这里是描述',
-    imgUrl: config.image,
-    title: config.title,
-    link: window.location.href,
-    isShare: config.isShare,
-  };
-  console.log('shareInfo', shareInfo.value);
-};
 
 // 保障方案相关信息
 const guaranteeObj = ref<any>({});
@@ -240,22 +244,62 @@ const queryProductMaterialData = () => {
 };
 
 // 初始化数据，获取产品配置详情和产品详情
+const orderDetail = ref<any>();
+const defaultOrderDetail = useOrder();
+const isLoadDefaultValue = ref<boolean>(false);
+
 const initData = async () => {
   !trialPreviewMode.value &&
-    querySalesInfo({ productCode, tenantId, isTenant: !preview }).then(({ data, code }) => {
+    querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
       if (code === '10000') {
         tenantProductDetail.value = data;
-        document.title = data.BASIC_INFO.title || '';
+        const { wxShareConfig, showWXShare, title, desc, image } = data?.PRODUCT_LIST || {};
+        if (showWXShare) {
+          Object.assign(shareInfo.value, { ...wxShareConfig, imgUrl: wxShareConfig.image, isShare: showWXShare });
+        } else {
+          // 设置分享参数
+          Object.assign(shareInfo.value, { title, desc, imgUrl: image, isShare: showWXShare });
+        }
 
-        const { title, desc, image: imageArr } = data?.PRODUCT_LIST.wxShareConfig || {};
-        const [image = ''] = imageArr || [];
-        // 设置分享参数
-        setShareLink({ title, desc, image, isShare: !!data?.PRODUCT_LIST.showWXShare });
         setGlobalTheme(data.BASIC_INFO.themeType);
       }
     });
 
-  await getInsureProductDetail({ productCode, isTenant: !preview || !trialPreview }).then(({ data, code }) => {
+  if (!(orderNo || proposalId)) {
+    isLoadDefaultValue.value = true;
+  }
+
+  orderNo &&
+    getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
+      if (code === '10000') {
+        data.productCode = productCode;
+        orderDetail.value = data;
+        isLoadDefaultValue.value = true;
+      }
+    });
+
+  proposalId &&
+    queryProposalDetailInsurer({ id: proposalId, tenantId }).then(({ code, data }) => {
+      if (code === '10000') {
+        const { holder, insuredList } = data;
+
+        orderDetail.value = Object.assign(defaultOrderDetail.value, {
+          productCode,
+          productName: '',
+          renewFlag: '',
+          holder,
+          tenantId,
+          insuredList: (insuredList || []).map((insured) => ({
+            ...insured,
+            productList: insured.productList.filter((product) => product.productCode === productCode),
+          })),
+        });
+        isLoadDefaultValue.value = true;
+      }
+    });
+
+  // await getInsureProductDetail({ productCode, isTenant: !preview || !trialPreview }).then(({ data, code }) => {
+  await getInsureProductDetail({ productCode, isTenant: false }).then(({ data, code }) => {
     if (code === '10000') {
       showFooterBtn.value = true;
       preNoticeLoading.value = true;
@@ -296,15 +340,6 @@ const { fileList, mustReadFileCount, popupFileList } = useAttachment(currentPlan
 const previewFile = (index: number) => {
   activeIndex.value = index;
   showFilePreview.value = true;
-};
-
-// 点击立即投保
-const onNext = async () => {
-  try {
-    // TODO 调起试算弹窗
-  } catch (e) {
-    //
-  }
 };
 
 const handlePlanChange = (planCode: string) => {
@@ -362,7 +397,7 @@ onMounted(() => {
 
 <style lang="scss" scope>
 .page-internet-product-detail {
-  // padding-bottom: 150px;
+  padding-bottom: 150px;
   background: #f1f5fc;
   .preview-placeholder {
     padding: 200px 60px;

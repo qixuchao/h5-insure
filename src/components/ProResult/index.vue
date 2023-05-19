@@ -3,6 +3,9 @@
     <img :src="img" alt="" class="img" />
     <div class="title">{{ title }}</div>
     <div v-if="desc" class="desc">{{ desc }}</div>
+    <div class="order">
+      <slot name="order"></slot>
+    </div>
     <div class="buttons">
       <van-button v-if="cancelText" class="button cancel" @click="handleCancelClick">{{ cancelText }}</van-button>
       <van-button v-if="okText" class="button ok" @click="handleOkClick">{{ okText }}</van-button>
@@ -69,11 +72,11 @@ const img = computed(() => {
   .img {
     width: 128px;
     height: 128px;
-    margin-top: 290px;
+    margin-top: 220px;
   }
   .title {
     margin-top: 32px;
-    font-size: 34px;
+    font-size: 36px;
     font-weight: 500;
     color: #393d46;
     line-height: 42px;

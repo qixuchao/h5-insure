@@ -9,6 +9,7 @@
 <template>
   <Popup
     v-model:show="isShow"
+    teleport="#app .van-config-provider"
     v-bind="$attrs"
     position="bottom"
     :style="{ height: height > 100 ? `${height}px` : `${height}%` }"

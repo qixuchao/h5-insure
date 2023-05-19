@@ -23,7 +23,7 @@
                   v-model="state.isCheckList[index]"
                   active-value="1"
                   inactive-value="2"
-                  size="26px"
+                  size="0.74rem"
                   @click="handleSwitchClick(item, index)"
                 ></van-switch>
               </template>
@@ -43,7 +43,7 @@
               <template #input>
                 <ProRadioButton
                   v-model="state.checkValueList[index]"
-                  :prop="{ label: 'displayValue', value: 'actualValue' }"
+                  :prop="{ label: 'displayValue', value: 'displayValue' }"
                   :options="
                     item.formula.length > 0 ? item.liabilityAttributeValueList : item.liabilityAttributeValueList
                   "
@@ -74,6 +74,7 @@ interface Props {
   modelValue: RiskVoItem;
   dataSourceFolmulate: RiskVoItem;
   params?: { amountUnit: string; basicsAmount: string; basicsPremium: string; riskId: string };
+  defaultValue: any;
 }
 
 const emit = defineEmits(['trialChange']);
@@ -83,6 +84,7 @@ const props = withDefaults(defineProps<Props>(), {
   modelValue: () => ({} as RiskVoItem),
   dataSourceFolmulate: () => ({} as RiskVoItem),
   params: () => ({ amountUnit: '', basicsAmount: '', basicsPremium: '', riskId: '' }),
+  defaultValue: () => ({} as any),
 });
 // const mValues = ref(props.modelValue);
 // console.log('mValue>>>>>>', mValues.value);
@@ -90,29 +92,41 @@ const state = ref({
   formInfo: props.dataSource,
   isCheckList: [],
   checkValueList: [],
-  liabilityVOList: [],
+  liabilityList: [],
+  signLiabilityClick: [],
 });
+
+const signLiabilityClick = (item, index) => {
+  state.value.signLiabilityClick.push({
+    item,
+    index,
+  });
+};
 
 const handleSwitchClick = (item, index) => {
   // 可选责任 没有责任属性 且为选中投保状态需要把code传给后端
 
-  const key_list = state.value.liabilityVOList.map((i) => i.key);
+  const key_list = state.value.liabilityList.map((i) => i.key);
   // 可选责任 没有责任属性
   const canChooseNoLib = item.liabilityAttributeValueList.length === 0 && item.formula.length === 0;
   // 投保状态
   const status = state.value.isCheckList[index];
-  console.log('key---------', key_list);
-  console.log('(key_list).indexOf(index)', key_list.indexOf(index));
   if (canChooseNoLib && key_list.indexOf(index) === -1 && status) {
-    state.value.liabilityVOList.push({
+    state.value.liabilityList.push({
       liabilityValue: item,
       key: index,
       isSwitchOn: state.value.isCheckList[index],
     });
   }
+  if (status === '1') {
+    signLiabilityClick(item, index);
+  } else {
+    state.value.signLiabilityClick.splice(index, 1);
+  }
+
   // 对已经存在的责任 选择投保不投保 更新当前状态
   if (key_list.indexOf(index) !== -1) {
-    state.value.liabilityVOList.forEach((i) => {
+    state.value.liabilityList.forEach((i) => {
       if (i.key === index) {
         i.isSwitchOn = state.value.isCheckList[index];
       }
@@ -120,55 +134,54 @@ const handleSwitchClick = (item, index) => {
   }
 };
 const handleRiskLiabityClick = (e, index) => {
-  console.log('keykeykey>>>>>>', index);
   const curentLiabilityList = e.liabilityAttributeValueList.filter(
-    (x) => x.actualValue === state.value.checkValueList[index],
+    (x) => x.displayValue === state.value.checkValueList[index],
   );
-  const liabilityValue = JSON.parse(JSON.stringify(curentLiabilityList))[0];
-
+  const liabilityValue = JSON.parse(JSON.stringify(curentLiabilityList))[0] || e.liabilityAttributeValueList[0];
   const curentLiabilityObject = { ...e, liabilityValue };
 
-  if (state.value.liabilityVOList.length > 0) {
+  if (state.value.liabilityList.length > 0) {
     if (Object.keys(state.value.checkValueList).indexOf(index)) {
-      state.value.liabilityVOList = state.value.liabilityVOList.filter((x) => x.key !== index);
+      state.value.liabilityList = state.value.liabilityList.filter((x) => x.key !== index);
     }
   }
-  state.value.liabilityVOList.push({
+  state.value.checkValueList[index] = liabilityValue.displayValue;
+  state.value.liabilityList.push({
     liabilityValue: curentLiabilityObject,
     key: index,
     isSwitchOn: '1',
   });
-  console.log('state.liabilityVOList>>>>>>', state.value.liabilityVOList);
 };
 const dataSourceFolmulate = computed(() => {
-  // if (premium) return 0;
+  // if (initialPremium) return 0;
   return cloneDeep(props.dataSourceFolmulate);
 });
 const dealInitliabilityValueList = (item, index, type) => {
   if (type === 1) {
-    state.value.liabilityVOList.push({
+    state.value.liabilityList.push({
       liabilityValue: { ...item, liabilityValue: item?.liabilityAttributeValueList[0] },
       key: index,
       isSwitchOn: '1',
     });
   } else {
-    state.value.liabilityVOList.push({
+    state.value.liabilityList.push({
       liabilityValue: { ...item, liabilityValue: item?.liabilityAttributeValueList[0] },
       key: index,
       isSwitchOn: '2',
     });
   }
 };
+
 watch(
   () => dataSourceFolmulate.value,
   (oldValue, newValue) => {
-    const amount = props.dataSourceFolmulate?.amount;
-    const premium = props.dataSourceFolmulate?.premium;
+    const initialAmount = props.dataSourceFolmulate?.initialAmount;
+    const initialPremium = props.dataSourceFolmulate?.initialPremium;
 
     const formulaParams = {
       amountUnit: props.params.amountUnit,
-      basicsAmount: amount,
-      basicsPremium: premium,
+      basicsAmount: initialAmount,
+      basicsPremium: initialPremium,
       riskId: props.params.riskId,
     };
 
@@ -176,8 +189,8 @@ watch(
     const liabilityItem = props.dataSource.riskLiabilityInfoVOList.map(async (liab) => {
       if (
         liab.formula.length > 0 &&
-        (amount || premium) &&
-        (oldValue?.amount !== newValue?.amount || oldValue?.premium !== newValue?.premium)
+        (initialAmount || initialPremium) &&
+        (oldValue?.initialAmount !== newValue?.initialAmount || oldValue?.initialPremium !== newValue?.initialPremium)
       ) {
         // 责任属性为公式类型，需要请求公式接口
 
@@ -185,6 +198,12 @@ watch(
 
         if (code === '10000') {
           liab.liabilityAttributeValueList = data[0].formulaResult;
+          if (state.value.signLiabilityClick.length > 0) {
+            const targetSign = state.value.signLiabilityClick.find((s) => s.item.liabilityCode === liab.liabilityCode);
+            if (targetSign) {
+              handleRiskLiabityClick(targetSign.item, targetSign.index);
+            }
+          }
           return { ...liab, liabilityAttributeValueList: data[0] };
         }
 
@@ -201,9 +220,9 @@ watch(
 );
 
 watch(
-  () => state.value.liabilityVOList,
+  () => state.value.liabilityList,
   (value) => {
-    const dataList = state.value.liabilityVOList
+    const dataList = state.value.liabilityList
       .filter((x) => x.isSwitchOn === '1')
       .map((item) => ({ ...item.liabilityValue }));
     emit('trialChange', dataList);
@@ -222,12 +241,12 @@ onMounted(() => {
     const value =
       item.liabilityAttributeValueList.length > 0 &&
       item.formula.length === 0 &&
-      item.liabilityAttributeValueList[0].actualValue;
+      item.liabilityAttributeValueList[0].displayValue;
 
     state.value.checkValueList[index] = value;
     // 初始化数据，必选责任不展示，但需要把当前责任code的对象传给后端
     if (+item.showFlag !== 1) {
-      state.value.liabilityVOList.push({
+      state.value.liabilityList.push({
         liabilityValue: item,
         key: index,
         isSwitchOn: '1',
@@ -254,6 +273,29 @@ onMounted(() => {
     return null;
   });
 });
+
+watch(
+  () => props.defaultValue,
+  (v) => {
+    if (v?.riskCode && v.liabilityList) {
+      state.value.signLiabilityClick = [];
+      props.dataSource.riskLiabilityInfoVOList.forEach((item, index) => {
+        const targetLia = v?.liabilityList.find((li) => li.liabilityCode === item.liabilityCode);
+        state.value.isCheckList[index] = '2';
+        if (targetLia) {
+          state.value.isCheckList[index] = '1';
+          state.value.checkValueList[index] = targetLia?.liabilityValue?.displayValue;
+          if (+item.showFlag === 1 && +item.optionalFlag === 2) handleSwitchClick(item, index);
+          else signLiabilityClick(item, index);
+        }
+      });
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 </script>
 
 <style lang="scss" scoped>

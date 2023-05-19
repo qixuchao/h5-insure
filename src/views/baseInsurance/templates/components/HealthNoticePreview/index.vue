@@ -40,9 +40,8 @@
   </ProPopup>
 </template>
 
-<script lang="ts" setup name="filePreview">
+<script lang="ts" setup name="healthNoticePreview">
 import { withDefaults } from 'vue';
-import { useTheme } from '@/views/baseInsurance/theme';
 
 const props = withDefaults(defineProps<{ show: boolean; activeIndex: number; contentList: any[] }>(), {
   show: true,
@@ -50,7 +49,6 @@ const props = withDefaults(defineProps<{ show: boolean; activeIndex: number; con
   activeIndex: 0,
 });
 
-const themeVars = useTheme();
 const emits = defineEmits(['update:show', 'onConfirmHealth', 'onCloseHealthByMask']);
 const isShow = ref<boolean>(props.show);
 const currentActiveIndex = ref<number>(props.activeIndex);

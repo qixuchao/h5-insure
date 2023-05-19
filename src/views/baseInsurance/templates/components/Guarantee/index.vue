@@ -83,8 +83,9 @@
   </ProPopup>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="guarantee">
 import { useToggle } from '@vant/use';
+import { withDefaults } from 'vue';
 import {
   PlanInsureVO,
   TenantProductInsureVO,
@@ -99,29 +100,23 @@ import ProSvg from '@/components/ProSvg/index.vue';
 import ProDivider from '@/components/ProDivider/index.vue';
 import serviceConfig from '@/assets/images/chuangxin/serviceConfig.png';
 import { openPreviewFilePage } from '@/views/baseInsurance/utils';
+import { ProductDetail } from '@/api/modules/newTrial.data';
+import { YES_NO_ENUM } from '@/common/constants';
 
-const props = defineProps({
-  dataSource: {
-    type: Object,
-    default: () => {},
-  },
-  showServiceConfig: {
-    type: Boolean,
-    default: false,
-  },
-  isShowClose: {
-    type: Boolean,
-    default: false,
-  },
-  count: {
-    type: Number,
-    default: 5,
-  },
-  planList: {
-    type: Array,
-    require: false,
-    default: () => [],
-  },
+interface Props {
+  dataSource: Partial<ProductDetail>;
+  showServiceConfig: boolean;
+  isShowClose: boolean;
+  count: number;
+  planList?: any[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  dataSource: () => ({}),
+  showServiceConfig: false,
+  isShowClose: false,
+  count: 5,
+  planList: () => [],
 });
 
 const guaranteeDetailHeight = ref('');
@@ -140,8 +135,9 @@ const isMultiplePlan = computed(() => !!props.planList.length);
 watch(
   [() => props.dataSource, () => currentActivePlanCode.value],
   () => {
-    guaranteeList.value =
-      (props.dataSource?.GUARANTEE || []).find((plan) => plan.planCode === currentActivePlanCode.value)?.data || [];
+    guaranteeList.value = (
+      (props.dataSource?.GUARANTEE || []).find((plan) => plan.planCode === currentActivePlanCode.value)?.data || []
+    ).filter((guarantee) => guarantee.isShowOn === `${YES_NO_ENUM.YES}`);
   },
   {
     immediate: true,

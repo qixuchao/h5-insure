@@ -1,13 +1,11 @@
-<!--
- * @Author: wangyuanli
- * @Date: 2022-08-01 18:00:00
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-12-29 15:42:24
- * @FilePath: /zat-planet-h5-cloud-insure/src/views/pdfViewer/index.vue
- * @Description: 打开新页面，预览pdf, 链接传入url, 在线打开pdf
--->
 <template>
-  <div :id="id"></div>
+  <div class="pdf-viewer-wrap">
+    <div :id="id"></div>
+    <div v-if="isAppFkq()" class="footer-btn">
+      <ProShare :link="shareLink" :title="title"> <van-button>分享</van-button></ProShare>
+      <van-button @click="downloadPdf">下载</van-button>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -16,19 +14,25 @@ import { onMounted } from 'vue';
 import { nanoid } from 'nanoid';
 import { Toast } from 'vant/es';
 import Pdfh5 from 'pdfh5';
+import ProShare from '@/components/ProShare/index.vue';
 import 'pdfh5/css/pdfh5.css';
+import { downloadPDFWithUrl } from '@/utils/jsbridgePromise';
+import { isAppFkq } from '@/utils';
 
 const route = useRoute();
+const shareLink = window.location.href;
+
+const { title, url } = route.query as { title: string; url: string };
 
 const id = nanoid();
 
 const pdfh5 = ref<any>(null);
 
-const loadPdfCanvas = (url: string) => {
+const loadPdfCanvas = () => {
   try {
     pdfh5.value = new Pdfh5(`#${id}`, {
       pdfurl: url,
-      renderType: 'svg',
+      renderType: 'canvas',
       lazy: true,
     });
     // 监听完成事件
@@ -44,14 +48,40 @@ const loadPdfCanvas = (url: string) => {
   }
 };
 
+const downloadPdf = () => {
+  url && downloadPDFWithUrl(url);
+};
+
 onMounted(() => {
-  const { title, url } = route.query;
   document.title = title || '';
 
   if (!url) {
     Toast('pdf文件为空');
     return;
   }
-  loadPdfCanvas(url as string);
+  loadPdfCanvas();
 });
 </script>
+<style lang="scss">
+.pdf-viewer-wrap {
+  .pinch-zoom-container {
+    height: 100% !important;
+  }
+  .footer-btn {
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    .van-button {
+      width: 45%;
+    }
+    .com-share {
+      width: 45%;
+      .van-button {
+        width: 100%;
+      }
+    }
+  }
+}
+</style>

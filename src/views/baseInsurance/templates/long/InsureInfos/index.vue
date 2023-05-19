@@ -1,15 +1,21 @@
 <template>
   <!-- 产品要素 -->
   <template v-if="originData?.factorDisPlayFlag === 1">
+    <ProCard title="保障计划" class="insurePlan" :show-divider="false"></ProCard>
+
     <BaoeBaofei
-      :v-model="mValues"
+      :v-model="state.sValues"
       :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
+      :defalut-value="state.defaultValues"
+      :trial-result="trialResult"
       @trial-change="handleBaoeBaofeiChange"
     ></BaoeBaofei>
     <ProductKeys
-      :v-model="mValues"
+      :v-model="state.sValues"
+      :use-data="state.sValues"
       :origin-data="originData.productRiskInsureLimitVO"
       :risk-info="originData"
+      :default-value="state.defaultValues"
       @trial-change="handleProductKeysChange"
     ></ProductKeys>
     <RiskLiabilityInfo
@@ -21,16 +27,17 @@
         basicsPremium: state.basicsPremium,
         riskId: originData?.riskId,
       }"
+      :default-value="state.defaultValues"
       @trial-change="handleRiskLiabilityChange"
     />
   </template>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="InsureInfos">
 import { inject, withDefaults } from 'vue';
 import { Toast } from 'vant/es';
 import { objectKeys } from '@antfu/utils';
-import { debounce } from 'lodash';
+import { cloneDeep, debounce } from 'lodash';
 import {
   INSURANCE_PERIOD_VALUE,
   PAYMENT_PERIOD_VALUE,
@@ -49,18 +56,16 @@ import { BaoeBaofei, ProductKeys, RiskLiabilityInfo } from './components';
 interface Props {
   originData: RiskDetailVoItem;
   modelValue: RiskVoItem;
+  defaultValue: any;
+  trialResult: any;
 }
 const emit = defineEmits(['trialChange']);
 
 const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as RiskDetailVoItem),
   modelValue: () => ({} as RiskVoItem),
-});
-
-const state = reactive({
-  personalInfo: {},
-  basicsAmount: '',
-  basicsPremium: '',
+  defaultValue: () => ({} as any),
+  trialResult: () => ({} as any),
 });
 
 const personalInfoRef = ref(null);
@@ -69,6 +74,15 @@ const mValues = ref({});
 
 const enumList = ref({});
 
+const state = reactive({
+  personalInfo: {},
+  basicsAmount: '',
+  basicsPremium: '',
+  defaultValues: props.defaultValue,
+  changeData: null,
+  sValues: mValues.value,
+});
+
 const riskPremium: any = inject('premium') || {};
 enumList.value = inject('enumList') || {};
 
@@ -76,16 +90,11 @@ enumList.value = inject('enumList') || {};
 //   formInfo: props.formInfo as RiskVoItem,
 // });
 
-console.log('-------origin data', props.originData);
-const onTrail = (val) => {
-  console.log('---personal trail---', val);
-};
-
 onMounted(() => {
   // console.log('--------origin data = ', props.originData);
 });
 
-const handleMixData = debounce(() => {
+const handleMixData = (changeValue: any) => {
   if (props.originData.mainRiskFlag === 1) {
     // TODO 待确认的逻辑
     // mValues.value.mainRisk = true;
@@ -100,22 +109,27 @@ const handleMixData = debounce(() => {
   mValues.value.riskType = props.originData.riskType;
   mValues.value.mainRiskCode = props.originData.mainRiskCode;
   mValues.value.mainRiskId = props.originData.mainRiskId;
-  emit('trialChange', mValues.value);
-}, 300);
+  if (changeValue) emit('trialChange', mValues.value, changeValue);
+  else emit('trialChange', mValues.value);
+};
 
-const handleProductKeysChange = (data) => {
-  objectKeys(data).forEach((key) => {
-    mValues.value[key] = data[key];
-  });
-  handleMixData();
+const handleProductKeysChange = (data, changeValue) => {
+  if (!changeValue) {
+    objectKeys(data).forEach((key) => {
+      mValues.value[key] = data[key];
+    });
+  } else {
+    mValues.value[changeValue.key] = changeValue.newValue;
+  }
+  handleMixData(changeValue);
 };
 
 const handleBaoeBaofeiChange = (data) => {
   // eslint-disable-next-line no-unsafe-optional-chaining
   if (+props.originData?.productRiskInsureLimitVO?.amountPremiumConfigVO.saleMethod === 1) {
-    state.basicsAmount = data?.amount;
+    state.basicsAmount = data?.initialAmount;
   } else {
-    state.basicsAmount = data?.premium;
+    state.basicsAmount = data?.initialPremium;
   }
   objectKeys(data).forEach((key) => {
     mValues.value[key] = data[key];
@@ -123,7 +137,7 @@ const handleBaoeBaofeiChange = (data) => {
   handleMixData();
 };
 const handleRiskLiabilityChange = (data) => {
-  mValues.value.liabilityVOList = data;
+  mValues.value.liabilityList = data;
   handleMixData();
 };
 
@@ -131,23 +145,39 @@ const validate = async () => {
   await personalInfoRef.value?.validate();
 };
 
-// watch(
-//   () => mValues.value,
-//   (v) => {
-//     console.log('---model change', v);
-//   },
-//   {
-//     deep: true,
-//     immediate: true,
-//   },
-// );
+watch(
+  () => props.defaultValue,
+  (v) => {
+    if (v) {
+      state.defaultValues = cloneDeep(v);
+      mValues.value = {
+        ...v,
+      };
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  () => mValues.value,
+  (v) => {
+    state.sValues = v;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 defineExpose({
   validate,
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" scope>
 .com-risk-card-wrapper {
   &.part-card {
     background-color: #ffffff;
@@ -177,5 +207,12 @@ defineExpose({
 }
 :deep(.van-field) {
   align-items: baseline;
+}
+.insurePlan {
+  .com-card-wrap {
+    .header {
+      margin-left: 0 !important;
+    }
+  }
 }
 </style>

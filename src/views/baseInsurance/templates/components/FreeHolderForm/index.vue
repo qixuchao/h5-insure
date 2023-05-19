@@ -1,11 +1,12 @@
 <template>
   <div class="free-card">
-    <div class="container">
+    <div :class="{ container: true, 'is-first': isFirst }">
       <div class="title">
         <ProSvg name="free-arrow" /><span>{{ isFirst ? '凭手机号 免费领取' : '最后一步 填写信息' }}</span
         ><ProSvg name="free-arrow" />
       </div>
       <InsureForm
+        v-if="isFirst"
         ref="formRef"
         :key="isFirst ? 1 : 2"
         :send-sms-code="sendSmsCode"
@@ -18,32 +19,26 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="freeHolderForm">
+import { withDefaults } from 'vue';
 import InsureForm from '../InsureForm/index.vue';
 import { sendCode, sendCodeLogin } from '@/api/modules/phoneVerify';
+import { ProductData } from '@/api/modules/trial.data';
+import { ProductDetail } from '@/api/modules/product.data';
+
+interface Props {
+  detail: Partial<ProductDetail>;
+  isFirst: boolean;
+  insureDetail: Partial<ProductData>;
+  previewMode: boolean;
+}
 
 const formRef = ref();
-const props = defineProps({
-  colors: {
-    type: Array,
-    default: () => ['#CDDFFE', '#F1F7FE'],
-  },
-  detail: {
-    type: Object,
-    default: () => {},
-  },
-  isFirst: {
-    type: Boolean,
-    default: true,
-  },
-  insureDetail: {
-    type: Object,
-    default: () => {},
-  },
-  previewMode: {
-    type: Boolean,
-    default: false,
-  },
+const props = withDefaults(defineProps<Props>(), {
+  detail: () => ({}),
+  isFirst: true,
+  insureDetail: () => ({}),
+  previewMode: false,
 });
 
 const state = reactive<{
@@ -239,13 +234,17 @@ defineExpose({
 
 <style lang="scss">
 .free-card {
-  padding: 0 32px;
-  background: linear-gradient(v-bind('props.colors[0]'), v-bind('props.colors[1]'));
+  padding: calc($zaui-space-card + 5px) 32px 0;
   .container {
-    padding: 46px 40px 20px;
+    padding: 46px 0 20px;
+    box-shadow: 0px 0px 20px 1px #eee;
     background: #ffffff;
     text-align: center;
     border-radius: 40px;
+
+    &.is-first {
+      padding: 46px 40px 20px;
+    }
 
     .title {
       height: 33px;

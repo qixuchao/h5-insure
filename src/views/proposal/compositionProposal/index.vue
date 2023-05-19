@@ -7,7 +7,7 @@
 -->
 <template>
   <ProPageWrap>
-    <div class="page-composition-proposal">
+    <div class="page-composition-proposal" :class="{ 'page-proposal-bottom': !isShare }">
       <div class="head-bg">
         {{ proposalName }}
       </div>
@@ -22,10 +22,10 @@
       <div class="container">
         <div class="common-title">保险公司简介</div>
 
-        <van-collapse v-model="activeName" accordion :is-link="false" :border="false" size="middle">
+        <van-collapse v-model="activeName" :is-link="false" :border="false" size="middle">
           <van-collapse-item v-for="(item, i) in info?.insurerInfoVOList" :key="i" :name="i" value-class="price">
             <template #title>
-              <div><span class="poiner"></span> {{ item?.insurerName }}</div>
+              <div style="line-height: 36px"><span class="poiner"></span> {{ item?.insurerName }}</div>
             </template>
             {{ item.insurerDesc }}
           </van-collapse-item>
@@ -77,10 +77,11 @@ import LiabilityByRisk from './components/LiabilityByRisk.vue';
 import LiabilityByRes from './components/LiabilityByRes.vue';
 import ProShare from '@/components/ProShare/index.vue';
 import { InsuredProductData, ThemeItem, ShowConfig } from '@/api/modules/compositionProposal.data';
-import { redirectInsurePageLink } from '@/api';
+import { queryStandardInsurerLink } from '@/api/modules/trial';
 import InsuredProductList from './components/InsuredProductList/index.vue';
 import ThemeSelect from './components/ThemeSelect/index.vue';
 import { SEX_LIMIT_ENUM } from '@/common/constants';
+import { useLocalStorage } from '@/hooks/useStorage';
 
 const isLiabilityByRisk = ref(true);
 
@@ -97,7 +98,7 @@ const currentInsuredProduct = ref();
 
 const [showProductList, toggleProductList] = useToggle();
 const [showThemeSelect, toggleThemeSelect] = useToggle(); // 选择主题弹出
-const activeName = ref('');
+const activeName = ref<string[]>([]);
 const themeList = ref<ThemeItem[]>([]); // 主题列表
 const shareButtonRef = ref(); // 分享按钮组件实例
 const operateType = ref<'share' | 'pdf'>('share'); // 按钮的操作类型
@@ -124,9 +125,9 @@ watch(
     const { gender, name, birthday } = val;
     const age = dayjs().diff(birthday, 'y');
     if (isMale(gender)) {
-      proposalName.value = `${name || age}岁先生的计划书`;
+      proposalName.value = `${name}先生的计划书`;
     } else {
-      proposalName.value = `${name || age}岁女士的计划书`;
+      proposalName.value = `${name}女士的计划书`;
     }
   },
 );
@@ -188,13 +189,15 @@ const proposal2Insured = (product: InsuredProductData) => {
   checkProposalInsurer({ productCode, proposalId: id }).then(({ code, data, message }) => {
     if (code === '10000') {
       if (data) {
-        redirectInsurePageLink({ insurerCode, productCode: tenantProductCode, proposalId: id }).then(
-          ({ code: newCode, data: newData }) => {
-            if (newCode === '10000') {
-              window.location.href = newData;
-            }
-          },
-        );
+        queryStandardInsurerLink({
+          insurerCode,
+          productCode: tenantProductCode,
+          proposalId: id,
+        }).then(({ code: newCode, data: newData }) => {
+          if (newCode === '10000') {
+            window.location.href = newData;
+          }
+        });
       } else {
         Toast(message);
       }
@@ -218,7 +221,7 @@ const onShareProposal = () => {
   if (themeList.value.length) {
     toggleThemeSelect(true);
   } else {
-    shareButtonRef.value.handleShare();
+    shareButtonRef.value.handleShare(shareConfig.value);
   }
 };
 
@@ -237,7 +240,7 @@ const getPdf = (themeHistoryId?: number) => {
     if (code === '10000') {
       Toast.clear();
       if (message) {
-        history.push(`/pdfViewer?url=${encodeURIComponent(message)}&title=${proposalName.value}`);
+        history.push(`/pdfViewer?url=${encodeURIComponent(message)}&title=${encodeURIComponent(proposalName.value)}`);
       } else {
         Toast('计划书为空');
       }
@@ -297,10 +300,12 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .page-composition-proposal {
-  margin-bottom: 150px;
-
   padding: 0 30px 30px 30px;
   background-color: #3486ff;
+  &.page-proposal-bottom {
+    margin-bottom: 150px;
+  }
+
   .head-bg {
     background-image: url('@/assets/images/compositionProposal/head.png');
     background-repeat: no-repeat;
@@ -332,7 +337,7 @@ onMounted(() => {
       align-items: center;
       justify-content: space-between;
       padding-top: 34px;
-      margin-bottom: 30px;
+      // margin-bottom: 30px;
       font-weight: 500;
       color: #333333;
       .title {

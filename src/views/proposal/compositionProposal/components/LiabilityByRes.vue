@@ -15,12 +15,12 @@
           </div>
         </div>
         <div class="product-detail">
-          <van-collapse v-model="item.riskName1" accordion :is-link="false" :border="false" size="middle">
+          <van-collapse v-model="activeList" :is-link="false" :border="false" size="middle">
             <van-collapse-item
               v-for="(val, k) in Object.keys(item.proposalRiskLiabilityVOMap)"
-              :key="k"
+              :key="k + i"
               :title="val"
-              :name="k"
+              :name="k + i"
               value-class="price"
             >
               <ProCell
@@ -45,6 +45,7 @@ const props = defineProps({
     default: () => {},
   },
 });
+const activeList = ref<string[]>([]);
 </script>
 
 <style lang="scss" scoped>

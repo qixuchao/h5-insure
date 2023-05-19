@@ -84,7 +84,7 @@
     :is-only-view="isOnlyView"
     :active-index="activeIndex"
     :text="isOnlyView ? '关闭' : '我已逐页阅读上述内容并同意'"
-    :force-read-cound="0"
+    :force-read-count="0"
     on-close-file-preview
     @submit="onSubmit"
     @on-close-file-preview="onCloseFilePreview"

@@ -19,6 +19,7 @@
               <ProRadioButton
                 v-model="mValues[config.valueKey]"
                 :options="formatOptions(config.configKey)"
+                @update:model-value="(e) => handleInputChange(e, config.valueKey)"
               ></ProRadioButton>
             </div>
           </template>
@@ -27,24 +28,28 @@
     </div>
   </template>
 </template>
-<script lang="ts" setup>
+<script lang="ts" setup name="ProductKeys">
 import { ref, watch, withDefaults } from 'vue';
-import { set, get } from 'lodash';
+import { set, get, cloneDeep } from 'lodash';
 import { RiskVoItem, ProductRiskInsureLimit, RiskDetailVoItem } from '@/api/modules/trial.data';
 import { PRODUCT_KEYS_CONFIG } from './config';
 
 // 参看CollapseItem组件
 interface Props {
   originData: ProductRiskInsureLimit;
-  modelValue: RiskVoItem;
+  modelValue: any;
   riskInfo: RiskDetailVoItem;
+  defaultValue: any;
+  useData: any;
 }
-const emit = defineEmits(['trialChange']);
+const emit = defineEmits(['trialChange', 'inputChange']);
 
 const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as ProductRiskInsureLimit),
-  modelValue: () => ({} as RiskVoItem),
+  modelValue: () => ({} as any),
   riskInfo: () => ({} as RiskDetailVoItem),
+  defaultValue: () => ({} as any),
+  useData: () => ({} as any),
 });
 const mConfigs = ref(props.originData);
 const mValues = ref(props.modelValue);
@@ -52,10 +57,15 @@ const showTypes = ref(1);
 
 const formatOptions = (configKey: Array<string>) => {
   const options = get(props.originData, configKey);
+  const useOptions = get(props.originData, configKey);
+  // console.log('---------------change option', props.defaultValue);
   return options.map((v) => {
+    const useOption = useOptions ? useOptions.find((o) => o.code === v.code) : null;
     return {
       label: v.value,
       value: v.code,
+      disabled:
+        useOption && useOption.useFlag !== null && useOption.useFlag !== undefined ? useOption.useFlag !== 1 : false,
     };
   });
 };
@@ -63,15 +73,30 @@ const formatOptions = (configKey: Array<string>) => {
 const initData = () => {
   PRODUCT_KEYS_CONFIG.forEach((config) => {
     const options = get(props.originData, config.configKey);
-    if (config.type === 'checkbox' && options && options.length > 0) {
+    if (config.type === 'checkbox' && options && options.length > 0 && !mValues.value.riskCode) {
       mValues.value[config.valueKey] = options[0].code;
     }
   });
 };
 
+const handleInputChange = (e, key) => {
+  console.log('-------change', e, key);
+};
+
 onMounted(() => {
   initData();
 });
+
+watch(
+  () => props.defaultValue,
+  (v) => {
+    if (v?.riskCode) mValues.value = JSON.parse(JSON.stringify(v));
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 watch(
   () => mConfigs.value,
@@ -85,9 +110,28 @@ watch(
 );
 
 watch(
-  () => mValues.value,
-  (v) => {
-    emit('trialChange', v);
+  () => JSON.stringify(mValues.value),
+  (v, oldValue) => {
+    const newValues = (v && JSON.parse(v)) || {};
+    const oldValues = (oldValue && JSON.parse(oldValue)) || {};
+    let changeData = null;
+    PRODUCT_KEYS_CONFIG.forEach((config) => {
+      if (
+        newValues[config.valueKey] &&
+        oldValues[config.valueKey] &&
+        newValues[config.valueKey] !== oldValues[config.valueKey]
+      ) {
+        if (!changeData) {
+          changeData = {
+            key: config.valueKey,
+            oldValue: oldValues[config.valueKey],
+            newValue: newValues[config.valueKey],
+            riskCode: props.riskInfo.riskCode,
+          };
+        }
+      }
+    });
+    if (v) emit('trialChange', JSON.parse(v), changeData);
   },
   {
     deep: true,

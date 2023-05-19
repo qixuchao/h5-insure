@@ -1,5 +1,5 @@
 import request from '@/api/request';
-import { ProductData, PremiumCalcData, PremiumCalcResponse } from './trial.data';
+import { InsureLinkReq, PremiumCalcResponse, PlanTrialDefaultItem } from './trial.data';
 import { InsureProductData } from '@/api/modules/product.data';
 
 // 获取产品详情
@@ -10,8 +10,8 @@ export const insureProductDetail = (data: any = {}) =>
   );
 
 // 保费试算
-export const premiumCalc = (data = {}) =>
-  request<PremiumCalcResponse>({ url: '/api/app/insure/insurance/premiumCalc', method: 'POST', data });
+export const premiumCalc = (data = {}, config = {}) =>
+  request<PremiumCalcResponse>({ url: '/api/app/insure/insurance/premiumCalc', method: 'POST', data, ...config });
 
 export const insureProductDetailNew = (data = {}) =>
   request<ResponseData>({ url: '/api/app/insure/product/insureProductDetailNew', method: 'POST', data });
@@ -74,8 +74,8 @@ export const underWriteRule = (data = {}) =>
     data,
   });
 
-// 获取投保链接
-export const queryStandardInsurerLink = (data = {}) =>
+/** 获取投保链接 */
+export const queryStandardInsurerLink = (data: InsureLinkReq) =>
   request<string>({ url: '/api/app/insure/insurance/standardInsurerLink', method: 'POST', data });
 
 // 利益演示
@@ -93,5 +93,25 @@ export const getCalculateRiskFormula = (data: {}) => {
     url: `/api/app/insure/product/v2/calculateRiskLiabilityFormula`,
     method: 'POST',
     data,
+  });
+};
+
+// 试算默认值
+export const queryCalcDefaultInsureFactor = (data: {}, config = {}) => {
+  return request<PlanTrialDefaultItem[]>({
+    url: '/api/app/insure/product/v2/calcDefaultInsureFactor',
+    method: 'POST',
+    data,
+    ...config,
+  });
+};
+
+// 试算动态值
+export const queryCalcDynamicInsureFactor = (data: {}, config = {}) => {
+  return request<any[]>({
+    url: '/api/app/insure/product/v2/dyInsureFactor',
+    method: 'POST',
+    data,
+    ...config,
   });
 };

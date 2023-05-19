@@ -6,83 +6,119 @@
  * @FilePath: /zat-planet-h5-cloud-insure/src/api/modules/createProposal.data.d.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
-
 export interface ProposalInfo {
-    id: number;
-    proposalHolder: ProposalHolder;
-    proposalInsuredList: ProposalInsuredItem[];
-    proposalName: string;
-    proposalPage: string;
-    proposalPdf: string;
-    relationUserId: number;
-    relationUserType: number;
-    totalPremium: number;
-}
-/**  */
-export interface ProposalInsuredItem {
-    birthday: string;
-    gender: number;
-    id: number;
-    name: string;
-    occupationClass: number;
-    occupationCode: string;
-    occupationName: string;
-    proposalId: number;
-    proposalInsuredProductList: ProposalInsuredProductItem[];
-    relation: number;
-    socialFlag: number;
+  holder: Holder;
+  id: number;
+  insuredList: InsuredItem[];
+  proposalName: string;
+  proposalPage: string;
+  proposalPdf: string;
+  relationUserId: number;
+  relationUserType: number;
+  totalPremium: number;
 }
 
-export interface ProposalInsuredProductItem {
-    id: number;
-    productId: number;
-    productName: string;
-    proposalId: number;
-    proposalInsuredId: number;
-    proposalProductRiskList: ProposalProductRiskItem[];
+export interface InsuredItem {
+  birthday: string;
+  bmi: string;
+  certEndDate: string;
+  certEndType: number;
+  certNo: string;
+  certStartDate: string;
+  certType: number;
+  email: string;
+  gender: number;
+  hasSocialInsurance: number;
+  height: number;
+  id: number;
+  insureArea: InsureArea;
+  mobile: string;
+  name: string;
+  occupationClass: number;
+  occupationCode: string;
+  occupationCodeList: string[];
+  productList: ProductItem[];
+  relationToHolder: number;
+  smokeFlag: number;
+  weight: number;
 }
 
-export interface ProposalProductRiskItem {
-    amount: number;
-    chargePeriod: string;
-    copy: number;
-    coveragePeriod: string;
-    id: number;
-    liabilityVOList: LiabilityVoItem[];
-    mainRiskId: number;
-    paymentFrequency: number;
-    premium: number;
-    proposalProductId: number;
-    riderRiskVOList: ProposalProductRiskItem[];
-    riskCode: string;
-    riskId: number;
-    riskName: string;
-    riskType: number;
+export interface ProductItem {
+  id: number;
+  occupationClass: number;
+  occupationCodeList: string[];
+  productCode: string;
+  productId: number;
+  productName: string;
+  riskList: RiskItem[];
 }
 
-export interface LiabilityVoItem {
-    liabilityAttributeCode: string;
-    liabilityAttributeValue: string;
-    liabilityCode: string;
-    liabilityDesc: string;
-    liabilityId: number;
-    liabilityIndemnityContent: string;
-    liabilityIndemnityType: number;
-    liabilityName: string;
-    liabilityRateType: number;
-    liabilityTopType: number;
-    liabilityType: number;
+export interface RiskItem {
+  annuityDrawDate: string;
+  annuityDrawFrequency: number;
+  chargePeriod: string;
+  copy: string;
+  coveragePeriod: string;
+  id: number;
+  initialAmount: number;
+  initialPremium: number;
+  liabilityList: LiabilityItem[];
+  mainRiskCode: string;
+  paymentFrequency: number;
+  riskCode: string;
+  riskId: number;
+  riskName: string;
+  riskType: number;
 }
 
-export interface ProposalHolder {
-    birthday: string;
-    extraInfo: string;
-    gender: number;
-    id: number;
-    name: string;
-    occupationClass: number;
-    occupationCode: string;
-    occupationName: string;
-    proposalId: number;
+export interface LiabilityItem {
+  liabilityAttributeType: number;
+  liabilityCode: string;
+  liabilityDesc: string;
+  liabilityId: number;
+  liabilityIndemnityContent: string;
+  liabilityIndemnityType: number;
+  liabilityName: string;
+  liabilityRateType: number;
+  liabilityTopType: number;
+  liabilityValue: LiabilityValue;
+  proposalLiabilityId: number;
+  riskName: string;
+}
+
+export interface LiabilityValue {
+  actualValue: string;
+  displayValue: string;
+  factorValue: number;
+}
+
+export interface InsureArea {
+  area: string;
+  city: string;
+  detail: string;
+  province: string;
+}
+
+export interface Holder {
+  birthday: string;
+  bmi: string;
+  certEndDate: string;
+  certEndType: number;
+  certNo: string;
+  certStartDate: string;
+  certType: number;
+  email: string;
+  gender: number;
+  hasSocialInsurance: number;
+  height: number;
+  id: number;
+  insureArea: InsureArea;
+  mobile: string;
+  name: string;
+  occupationClass: number;
+  occupationCode: string;
+  occupationCodeList: string[];
+  smokeFlag: number;
+  weight: number;
 }
 

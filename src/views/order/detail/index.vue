@@ -6,7 +6,7 @@
           <template #label>
             <div class="header">
               <div class="product-name">
-                {{ detail?.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productName }}
+                {{ detail?.insuredList[0]?.productList[0]?.productName }}
               </div>
               <div class="company-name">{{ (detail?.abbreviation || '').substring(0, 6) }}</div>
             </div>
@@ -17,25 +17,27 @@
         </FieldInfo>
         <FieldInfo label="投保单号" :content="detail?.orderNo" />
         <FieldInfo label="创建时间" :content="dayjs(detail?.gmtCreated).format('YYYY-MM-DD HH:mm:ss')" />
-        <FieldInfo label="投保人" :content="detail?.tenantOrderHolder?.name" />
+        <FieldInfo label="投保人" :content="detail?.holder?.name" />
         <FieldInfo
-          v-for="(item, index) in detail?.tenantOrderInsuredList || []"
+          v-for="(item, index) in detail?.insuredList || []"
           :key="index"
           label="被保人"
           :content="item.name"
         />
       </div>
-      <InsureInfo :product-data="detail?.tenantOrderInsuredList[0]?.tenantOrderProductList?.[0]" class="insure-info" />
-      <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.PENDING" class="footer-button">
-        <van-button type="primary" @click.stop="handleDelete">删除</van-button>
-        <van-button type="primary" @click.stop="handleProcess">去处理</van-button>
-      </div>
-      <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.PAYING" class="footer-button">
-        <van-button type="primary" @click.stop="handleDelete">删除</van-button>
-        <van-button type="primary" @click.stop="handlePay">去支付</van-button>
-      </div>
-      <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.TIMEOUT" class="footer-button">
-        <van-button type="primary" @click.stop="handleDelete">删除</van-button>
+      <InsureInfo :product-data="detail?.insuredList?.[0]?.productList?.[0]" class="insure-info" />
+      <div v-loading="loading">
+        <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.PENDING" class="footer-button">
+          <van-button type="primary" @click.stop="handleDelete">删除</van-button>
+          <van-button type="primary" @click.stop="handleProcess">去处理</van-button>
+        </div>
+        <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.PAYING" class="footer-button">
+          <van-button type="primary" @click.stop="handleDelete">删除</van-button>
+          <van-button type="primary" @click.stop="handleProcess">去支付</van-button>
+        </div>
+        <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.TIMEOUT" class="footer-button">
+          <van-button type="primary" @click.stop="handleDelete">删除</van-button>
+        </div>
       </div>
     </div>
   </ProPageWrap>
@@ -45,14 +47,17 @@
 import { Dialog, Toast } from 'vant';
 import { useRoute, useRouter } from 'vue-router';
 import dayjs from 'dayjs';
+import qs from 'qs';
 import { deleteOrder } from '@/api/modules/order';
 import { getOrderDetail } from '@/api';
 import { NextStepRequestData } from '@/api/index.data';
 import { ORDER_TOP_STATUS_ENUM, ORDER_STATUS_MAP, ORDER_STATUS_ENUM } from '@/common/constants/order';
-// import { OrderDetail } from '@/api/modules/order.data';
-import { PAGE_ROUTE_ENUMS, PRODUCT_LIST_ENUM } from '@/common/constants';
+import { insureProductDetail, queryStandardInsurerLink } from '@/api/modules/trial';
+import { InsureLinkReq } from '@/api/modules/trial.data';
+import { PRODUCT_LIST_ENUM, PAGE_ROUTE_ENUMS, ORDER_STATUS_MAPPING_PAGE } from '@/common/constants';
+import { TEMPLATE_NAME_ENUM, getTemplateNameById } from '@/common/constants/infoCollection';
 import FieldInfo from '../components/fieldInfo.vue';
-import InsureInfo from '@/views/lifeInsurance/infoPreview/components/InsuredPart.vue';
+import InsureInfo from '../components/InsuredPart.vue';
 import pageJump from '@/utils/pageJump';
 
 const route = useRoute();
@@ -82,7 +87,7 @@ const handleDelete = () => {
 const redirectProductDetail = (): boolean => {
   if (!detail.value) return false;
   const { agencyId: agencyCode, saleChannelId, orderTopStatus } = detail.value;
-  const productCode = detail.value.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productCode;
+  const productCode = detail.value.insuredList?.[0]?.productList[0]?.productCode;
   if (ORDER_TOP_STATUS_ENUM.PENDING === orderTopStatus || ORDER_TOP_STATUS_ENUM.PAYING === orderTopStatus) {
     if (productCode === PRODUCT_LIST_ENUM.ZXYS || productCode === PRODUCT_LIST_ENUM.BWYL) {
       const productUrlMap = {
@@ -105,30 +110,64 @@ const redirectProductDetail = (): boolean => {
   }
   return false;
 };
-
+const loading = ref(false);
 const handleProcess = () => {
   if (detail.value) {
     if (redirectProductDetail()) return;
     const {
       id: orderId,
-      extInfo: { templateId, pageCode },
+      extInfo: { templateId, pageCode, extraInfo },
       agencyId: agencyCode,
       venderCode: insurerCode,
+      orderStatus,
     } = detail.value;
-    const productCode = detail.value.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productCode;
-    pageJump(pageCode, {
-      productCode,
-      orderNo,
-      orderId,
-      agentCode,
-      templateId,
-      tenantId,
-      productCategory,
+    const productCode = detail.value.insuredList?.[0]?.productList[0]?.productCode;
+    const params: InsureLinkReq = {
       insurerCode,
-      agencyCode,
-      // 是否从订单列表来的，用来判断是否展示导航栏
-      isFromOrderList: '1',
+      productCode,
+      tenantId: detail.value.tenantId,
+      agencyCode: detail.value.agencyId,
+      agentCode: detail.value.agentCode,
+      saleChannelId: extraInfo?.saleChannelId,
+    };
+    loading.value = true;
+    // TODO,跳转到对应的投保流程（订单转投保）
+    queryStandardInsurerLink(params).then((res) => {
+      console.log('投保链接==', res.data);
+      // 获取投保链接
+      if (res.code === '10000') {
+        // 长期险或年金跳转对应pageCode的页面
+        if ([TEMPLATE_NAME_ENUM.LONG, TEMPLATE_NAME_ENUM.NIANJIN].includes(getTemplateNameById(`${templateId}`))) {
+          const queryStr = res.data.split('?')[1];
+          const queryObj = qs.parse(queryStr);
+          console.log('234242', ORDER_STATUS_MAPPING_PAGE[orderStatus]);
+          router.push({
+            path: ORDER_STATUS_MAPPING_PAGE[orderStatus],
+            query: {
+              ...queryObj,
+              extraInfo: queryObj.extraInfo,
+              orderNo,
+            },
+          });
+        } else {
+          // 否则就是其他险种，走投保流程链接
+          window.location.href = `${res.data}&orderNo=${orderNo}`;
+        }
+      }
     });
+    // pageJump(pageCode, {
+    //   productCode,
+    //   orderNo,
+    //   orderId,
+    //   agentCode,
+    //   templateId,
+    //   tenantId,
+    //   productCategory,
+    //   insurerCode,
+    //   agencyCode,
+    //   // 是否从订单列表来的，用来判断是否展示导航栏
+    //   isFromOrderList: '1',
+    // });
   }
 };
 const handlePay = () => {
@@ -141,7 +180,7 @@ const handlePay = () => {
       agencyId: agencyCode,
       venderCode: insurerCode,
     } = detail.value;
-    const productCode = detail.value.tenantOrderInsuredList[0]?.tenantOrderProductList[0]?.productCode;
+    const productCode = detail.value.insuredList?.[0]?.productList[0]?.productCode;
     pageJump('payInfo', {
       productCode,
       orderNo,

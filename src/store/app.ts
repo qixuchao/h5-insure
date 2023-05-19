@@ -23,6 +23,7 @@ export interface AppState {
   orderDetail: NextStepRequestData;
   dictMap: object;
   appId: string;
+  CACHE_PAGE_LIST: string[];
 }
 
 const useStore = defineStore<
@@ -36,6 +37,8 @@ const useStore = defineStore<
     setPlayStatus: (status: 'playing' | 'pause' | 'stop') => void;
     setOrderDetail: (detail: NextStepRequestData) => void;
     getDict: (codes: string[]) => void;
+    addCachePage: (name?: string) => void;
+    removeCachePage: (name?: string) => void;
   }
 >({
   // 这里的id必须为唯一ID
@@ -54,6 +57,7 @@ const useStore = defineStore<
       orderDetail: {} as NextStepRequestData,
       dictMap: localStore.get('PRODUCT_DICT_DATA') || {},
       appId: '', // 当前页面运行的微信公众号（只有需要授权的页面才调）
+      CACHE_PAGE_LIST: [] as string[], // 动态缓存页面 name集合
     };
   },
   // 等同于vuex的getter
@@ -99,6 +103,22 @@ const useStore = defineStore<
         // 一次只存2天（避免万一数据库更新，一直无法更新）
         localStore.set('PRODUCT_DICT_DATA', this.dictMap, 2 * 24);
       });
+    },
+    /**
+     * 添加页面缓存
+     * @param name 要添加的页面 name
+     */
+    addCachePage(name: string) {
+      if (name && !this.CACHE_PAGE_LIST.includes(name)) {
+        this.CACHE_PAGE_LIST = [...this.CACHE_PAGE_LIST, name];
+      }
+    },
+    /**
+     * 移除页面缓存
+     * @param name 要移除的页面 name, 不传则移除所有
+     */
+    removeCachePage(name?: string) {
+      this.CACHE_PAGE_LIST = name ? this.CACHE_PAGE_LIST.filter((item) => item !== name) : [];
     },
   },
 });

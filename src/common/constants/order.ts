@@ -72,6 +72,10 @@ export enum ORDER_STATUS_ENUM {
    */
   IDENTIFICATION_COMPLETE = 'identificationComplete',
   /**
+   * 认证中
+   */
+  IN_IDENTIFICATION = 'inIdentification',
+  /**
    * 审核中
    */
   AUDIT_PROCESSING = 'auditProcessing',
@@ -153,6 +157,10 @@ export const ORDER_STATUS_LIST = [
   {
     value: ORDER_STATUS_ENUM.INSURANCE_PROCESSING,
     label: '保司处理中',
+  },
+  {
+    value: ORDER_STATUS_ENUM.IN_IDENTIFICATION,
+    label: '认证中',
   },
 ];
 

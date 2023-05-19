@@ -20,10 +20,10 @@ module.exports = {
     //   grid: true, // 开启grid布局的兼容(浏览器IE除外其他都能兼容grid，可以关闭开启)
     // },
     // 'postcss-pxtorem': {
-    //   rootValue: 32, // 换算的基数(设计图750的根字体为32)
-    //   // rootValue({ file }) {
-    //   //   return file.indexOf('vant') !== -1 ? 37.5 : 75;
-    //   // },
+    //   // rootValue: 75, // 换算的基数(设计图750的根字体为32)
+    //   rootValue({ file }) {
+    //     return file.indexOf('vant') !== -1 ? 37.5 : 75;
+    //   },
     //   selectorBlackList: ['.ignore', '.ignore-'], // 要忽略的选择器并保留为px。
     //   propList: ['*'], // 可以从px更改为rem的属性。
     //   minPixelValue: 2, // 设置要替换的最小像素值。

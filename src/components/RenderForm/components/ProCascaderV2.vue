@@ -1,8 +1,14 @@
 <template>
-  <ProFormItem :model-value="state.fieldValue" v-bind="filedAttrs" :field-value-view="fieldValueView" @click="onclick">
+  <ProFormItem
+    :model-value="state.modelValue"
+    v-bind="filedAttrs"
+    :is-view="isView"
+    :field-value-view="fieldValueView"
+    @click="onclick"
+  >
     <!-- 继承 slots -->
-    <template v-for="slotName in Object.keys(filedSlots)" :key="slotName" #[slotName]>
-      <slot :name="slotName" />
+    <template v-for="slotName in Object.keys(filedSlots)" :key="slotName" #[slotName]="slotParams">
+      <slot :name="slotName" v-bind="slotParams || {}" />
     </template>
   </ProFormItem>
   <ProPopup v-model:show="show" :height="60" :closeable="false" class="com-cascader-popup">
@@ -13,7 +19,12 @@
       v-bind="attrs"
       @close="onClose"
       @finish="onFinish"
-    />
+    >
+      <!-- 继承 slots -->
+      <template v-for="slotName in Object.keys(slots)" :key="slotName" #[slotName]="slotParams">
+        <slot :name="slotName" v-bind="slotParams || {}" />
+      </template>
+    </van-cascader>
   </ProPopup>
 </template>
 
@@ -77,6 +88,20 @@ const props = defineProps({
   level: {
     type: Number,
     default: 0,
+  },
+  /**
+   * 是否查看模式
+   */
+  isView: {
+    type: Boolean,
+    default: false,
+  },
+  /**
+   *
+   */
+  selfValueViewFn: {
+    type: Function,
+    default: () => {},
   },
 });
 
@@ -150,19 +175,27 @@ const columns = computed(() => {
 });
 
 // 选中的所有层级数据
-const fullValue = computed(() => findCheckedList(columns.value, state.modelValue));
+const fullValue = computed(() => {
+  return findCheckedList(columns.value, state.modelValue);
+});
 
 // field 显示的值
 const fieldValueView = computed(() => {
-  if (isNotEmptyArray(fullValue.value)) {
-    const textList = fullValue.value.map((item) => item[props.customFieldName.text]);
-
-    if (props.showFullValue) {
-      return textList.join('/');
-    }
-    return textList[textList.length - 1];
+  if (!isNotEmptyArray(fullValue.value)) {
+    return '';
   }
-  return '';
+
+  const { selfValueViewFn, showFullValue, customFieldName } = props;
+  const textList = fullValue.value.map((item) => item[customFieldName.text]);
+
+  // 自定义显示值
+  const selfViewStr = typeof selfValueViewFn === 'function' ? selfValueViewFn(fullValue.value) : '';
+
+  if (selfViewStr) {
+    return selfViewStr;
+  }
+  // 默认显示值
+  return showFullValue ? textList.join('/') : textList[textList.length - 1];
 });
 
 const onFinish = ({
@@ -174,7 +207,6 @@ const onFinish = ({
   tabIndex: number;
 }) => {
   state.modelValue = value;
-  state.fieldValue = value;
   emits('update:modelValue', value);
   onClose();
 };
@@ -220,6 +252,10 @@ export default {
     height: 100%;
     display: flex;
     flex-direction: column;
+    // --van-cascader-active-color: $primary-color;
+    .van-cascader__option--selected {
+      color: $primary-color;
+    }
 
     .van-tabs {
       flex: 1;

@@ -3,15 +3,16 @@
   <div v-else data-skeleton-root="SHORT" :theme-vars="themeVars" class="page-internet-product-detail">
     <div class="info">
       <Banner
-        v-if="tenantProductDetail?.BASIC_INFO?.banner.length"
+        v-if="tenantProductDetail?.BASIC_INFO?.bannerType == 1 && tenantProductDetail?.BASIC_INFO?.banner.length"
         data-skeleton-type="img"
-        :url="tenantProductDetail?.BASIC_INFO.banner[0]"
+        indicator-color="#ddd"
+        :images="tenantProductDetail?.BASIC_INFO.banner"
       />
-      <!-- <Video
-          v-if="tenantProductDetail?.BASIC_INFO?.video.length"
-          data-skeleton-type="img"
-          :url="tenantProductDetail?.BASIC_INFO.video[0]"
-        /> -->
+      <Video
+        v-if="tenantProductDetail?.BASIC_INFO?.bannerType == 2 && tenantProductDetail?.BASIC_INFO?.video.length"
+        data-skeleton-type="img"
+        :src="tenantProductDetail?.BASIC_INFO.video[0]"
+      />
       <Banner
         v-if="tenantProductDetail?.BASIC_INFO?.bannerMove?.length"
         :url="tenantProductDetail?.BASIC_INFO?.bannerMove?.[0]"
@@ -70,7 +71,7 @@
     <ProLazyComponent>
       <AttachmentList
         v-if="fileList?.length"
-        :attachement-list="fileList"
+        :attachment-list="fileList"
         pre-text="请阅读"
         @preview-file="(index) => previewFile(index)"
       />
@@ -84,7 +85,7 @@
         :plan-code="guaranteeObj.planCode"
         :payment-frequency="guaranteeObj.paymentFrequency"
         :tenant-product-detail="tenantProductDetail"
-        @click="onNext"
+        @handle-click="onNext"
         >立即投保</TrialButton
       >
     </template>
@@ -105,7 +106,7 @@
     :is-only-view="isOnlyView"
     :active-index="activeIndex"
     :text="isOnlyView ? '关闭' : '我已逐页阅读并确认告知内容'"
-    :force-read-cound="isOnlyView ? 0 : mustReadFileCount"
+    :force-read-count="isOnlyView ? 0 : mustReadFileCount"
     @submit="onSubmit"
     @on-close-file-preview-by-mask="onResetFileFlag"
   ></FilePreview>
@@ -178,6 +179,7 @@ import TrialButton from './components/TrialButton.vue';
 import useAttachment from '@/hooks/useAttachment';
 import { ProRenderFormWithCard, transformFactorToSchema, isOnlyCert } from '@/components/RenderForm';
 import { formData2Order } from './utils';
+import { isNotEmptyArray } from '@/common/constants/utils';
 import { getSex, getBirth } from '@/components/ProField/utils';
 
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
@@ -269,21 +271,7 @@ const state = reactive({
     schema: [],
     // 试算因子
     trialFactorCodes: [],
-    config: {
-      name: {
-        // slots: {
-        //   nameTips: 'extra',
-        // },
-        // unit: '元',
-      },
-      verificationCode: {
-        sendSMSCode,
-      },
-      certType: {
-        // visible: false,
-      },
-      certNo: {},
-    },
+    config: {},
   },
   // 被保人
   insuredList: [
@@ -384,14 +372,14 @@ const queryProductMaterialData = () => {
 
 // 初始化数据，获取产品配置详情和产品详情
 const initData = async () => {
-  querySalesInfo({ productCode, tenantId, isTenant: !preview }).then(({ data, code }) => {
+  querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
     if (code === '10000') {
       tenantProductDetail.value = data;
       document.title = data.BASIC_INFO.title || '';
+      tenantProductDetail.BASIC_INFO = data.BASIC_INFO;
       const { title, desc, image: imageArr } = data?.PRODUCT_LIST.wxShareConfig || {};
-      const [image = ''] = imageArr || [];
       // 设置分享参数
-      setShareLink({ title, desc, image });
+      setShareLink({ title, desc, image: imageArr });
     }
   });
 
@@ -577,6 +565,7 @@ const previewFile = (index: number) => {
 
 const trialPremium = async (currentProductDetail: any, productRiskList: any, isOnlyPremiumCalc = true) => {
   const { chargePeriod, coveragePeriod, paymentFrequency, insuranceEndDate, insuranceStartDate } = guaranteeObj.value;
+  console.log('ssinit===++guaranteeObj.value', guaranteeObj.value);
   premiumLoadingText.value = '保费试算中...';
   const tempRiskVOList = riskToOrder(productRiskList).map((riskVOList: any) => {
     return {
@@ -808,25 +797,6 @@ watch(
   },
 );
 
-// 当证件类型为出生证时，重新设置日期范围
-// watch(
-//   [() => state.holder.formData?.certType, () => state.insuredList[0].formData.certType],
-//   ([holderCertType, insuredCertType]) => {
-//     const minDate = new Date(dayjs().subtract(2, 'year').format('YYYY-MM-DD'));
-//     const maxDate = new Date();
-//     if (`${holderCertType}` === CERT_TYPE_ENUM.BIRTH) {
-//       Object.assign(state.holder.config, { birthday: { minDate, maxDate } });
-//     } else {
-//       Object.assign(state.holder.config, { birthday: { minDate: new Date('1900-01-01'), maxDate } });
-//     }
-//     if (`${insuredCertType}` === CERT_TYPE_ENUM.BIRTH) {
-//       Object.assign(state.insuredList[0].config, { birthday: { minDate, maxDate } });
-//     } else {
-//       Object.assign(state.insuredList[0].config, { birthday: { minDate: new Date('1900-01-01'), maxDate } });
-//     }
-//   },
-// );
-
 const validateTrialFactorValue = (codes, formData) => {
   return codes.find((code) => !formData[code]);
 };
@@ -929,15 +899,14 @@ watch(
       ...oli,
       value: INSURE_TYPE_ENUM.UN_INSURE,
     }));
-
-    const [holder, insured, beneficiary] = transformFactorToSchema(productFactor);
+    const { holder, insured, beneficiary } = transformFactorToSchema(productFactor);
     state.holder = {
       ...state.holder,
       ...holder,
     };
     state.insuredList[0] = {
       ...state.insuredList[0],
-      ...insured,
+      ...insured?.[0],
     };
   },
   {

@@ -2,13 +2,14 @@
   <ProPageWrap class="page-proposal">
     <div class="search-wrap">
       <van-search v-model="searchValue" placeholder="搜索计划书" shape="round" class="search" @search="onSearch" />
-      <InsureFilter
-        v-if="hasProduct"
-        v-model:filter="isOpen"
-        filter-class="filter-area"
-        @on-select-insure="handleClickTag"
-      />
+      <InsureFilter v-model:filter="isOpen" filter-class="filter-area" @on-select-insure="handleClickTag" />
     </div>
+    <ProEmpty
+      v-if="!hasProduct && !state.firstLoading"
+      :empty-img="emptyImg"
+      title="没有找到相关内容~"
+      empty-class="empty-select"
+    />
     <div class="page-proposal-list">
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
         <van-list
@@ -17,63 +18,65 @@
           :finished-text="hasProduct ? '-&nbsp;已经到底了哦&nbsp;-' : ''"
           @load="onLoad"
         >
-          <ProductItem v-for="i in productList" :key="i.id" :product-info="i" @click="selectProposal(i)">
+          <ProductItem
+            v-for="productItem in productList"
+            :key="productItem.id"
+            :product-info="productItem"
+            :error-msg="state.errorMsgMap[productItem.productCode]"
+            @click="selectProposal(productItem)"
+          >
             <template v-if="isCreateProposal" #checkedProduct>
               <div class="check-button">
-                <van-checkbox-group v-model="selectProduct">
-                  <van-checkbox :name="i.productId" shape="square"></van-checkbox>
-                </van-checkbox-group>
+                <van-checkbox
+                  :key="productItem.id"
+                  :name="productItem.productCode"
+                  :model-value="state.selectProduct.includes(productItem.productCode)"
+                  shape="square"
+                  @change="(event) => onSelect(event, productItem)"
+                ></van-checkbox>
               </div>
             </template>
           </ProductItem>
         </van-list>
       </van-pull-refresh>
     </div>
-    <ZaEmpty v-if="!hasProduct" :empty-img="emptyImg" title="没有找到相关内容~" empty-class="empty-select" />
+
     <div v-if="isCreateProposal && showFooter" class="van-sticky">
       <div class="add-plan">
         <p class="has-select" @click="toggleSelectProduct(!showSelectProduct)">
-          已选<span class="has-select-product">{{ selectProduct.length }}</span
+          已选<span class="has-select-product">{{ state.selectProduct.length }}</span
           >款产品 <span class="icon"></span>
         </p>
-        <van-button type="primary" :disabled="!selectProduct.length" @click="addProposal">添加计划书</van-button>
+        <van-button type="primary" :disabled="!state.selectProduct.length" @click="addProposal">添加计划书</van-button>
       </div>
     </div>
     <TrialProductPopup
-      v-model="selectProduct"
-      :proposal-list="state.proposalList"
+      :modal-value="state.selectProduct"
+      :proposal-list="state.selectedProductList"
       :is-show="showSelectProduct"
       @close="toggleSelectProduct(false)"
       @checked="checkProductRisk"
-    ></TrialProductPopup>
-    <ProductRisk
-      v-if="showProductRisk"
-      :is-show="showProductRisk"
-      :type="addProposalType"
-      :insured="insured"
-      :product-id="state.productId"
-      @close="closeProductRisk"
-      @finished="onFinished"
-    ></ProductRisk>
+    />
   </ProPageWrap>
   <ProFixedButton v-if="!isCreateProposal" :button-image="ProFixedButtonDefaultImage" @click="goHistoryList" />
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" name="ProposalList">
 import { useToggle } from '@vant/use';
 import { useRouter, useRoute } from 'vue-router';
 import { withDefaults } from 'vue';
-import ZaEmpty from '@/components/ZaEmpty/index.vue';
+import { Toast } from 'vant';
+import ProEmpty from '@/components/ProEmpty/index.vue';
 import emptyImg from '@/assets/images/empty.png';
 import ProductItem from './components/productItem.vue';
 import InsureFilter from './components/insureFilter.vue';
 import ProductRisk from '../createProposal/components/ProductRisk/index.vue';
 import createProposalStore from '@/store/proposal/createProposal';
-import { ProposalInfo } from '@/api/modules/createProposal.data';
 import ProFixedButton from '@/components/ProFixedButton/index.vue';
 import { queryProposalProductList } from '@/api/modules/proposalList';
 import ProFixedButtonDefaultImage from '@/assets/images/lishijihuashu.png';
 import TrialProductPopup from './components/TrialProductPopup/index.vue';
+import { queryCalcDefaultInsureFactor, queryCalcDynamicInsureFactor, insureProductDetail } from '@/api/modules/trial';
 
 interface Props {
   isCreateProposal: boolean;
@@ -95,11 +98,25 @@ interface StateType {
   insurerCodeList: string[];
   showCategory: number | string;
   productTotal: number;
-  productId?: number;
+  productCode?: number;
   checked: string;
   proposalList: any[];
   showFooter: boolean;
+  productName: string;
+  productCodeList: string[];
+  errorMsgMap: {
+    [x: string]: string;
+  };
+  excludeProductCodeList: string[];
+  isCreateProposal: boolean;
+  selectedProductList: any[];
+  firstLoading: boolean;
 }
+
+const store = createProposalStore();
+const router = useRouter();
+const route = useRoute();
+const { isCreateProposal } = route.query;
 
 const state = reactive<StateType>({
   searchValue: '',
@@ -114,9 +131,19 @@ const state = reactive<StateType>({
   showCategory: '',
   productTotal: 0,
   checked: '',
-  productId: undefined,
+  productCode: undefined,
   proposalList: [],
   showFooter: true,
+  productName: '',
+  productCodeList: [],
+  // 错误信息集合
+  errorMsgMap: {},
+  // 排除的产品code
+  excludeProductCodeList: [],
+  isCreateProposal: false,
+  // 选择的产品
+  selectedProductList: [],
+  firstLoading: true,
 });
 
 const {
@@ -136,27 +163,33 @@ const {
 
 const [showProductRisk, toggleProductRisk] = useToggle();
 const [showSelectProduct, toggleSelectProduct] = useToggle();
-const store = createProposalStore();
-const router = useRouter();
-const route = useRoute();
-const { isCreateProposal } = route.query;
-const addProposalType = ref<any>(isCreateProposal ? 'repeatAdd' : 'add');
+
+// const addProposalType = ref<any>(isCreateProposal ? 'repeatAdd' : 'add');
 
 const getProducts = () => {
+  const { excludeProductCodeList } = state;
+  if (state.firstLoading) {
+    Toast.loading('加载中...');
+  }
   queryProposalProductList({
     title: searchValue.value,
     insurerCodeList: insurerCodeList.value,
     showCategory: showCategory.value,
-    excludeProductIdList: store.$state.excludeProduct || [],
+    excludeProductCodeList: Array.isArray(excludeProductCodeList) ? excludeProductCodeList : [],
     pageNum: 1,
     pageSize: 999,
-  }).then((res: any) => {
-    const { code, data, total } = res;
-    if (code === '10000') {
-      productList.value = data?.datas;
-      productTotal.value = total;
-    }
-  });
+  })
+    .then((res: any) => {
+      const { code, data, total } = res;
+      if (code === '10000') {
+        productList.value = data?.datas;
+        productTotal.value = total;
+      }
+    })
+    .finally(() => {
+      Toast.clear();
+      state.firstLoading = false;
+    });
 };
 
 const onSearch = (val: string) => {
@@ -197,46 +230,86 @@ const hasProduct = computed(() => {
   return productList.value.length > 0;
 });
 
-/** ****** 创建计划书相关逻辑 ******** */
-const selectProposal = (proposalInfo: any) => {
-  showFooter.value = false;
-  state.productId = proposalInfo.productId;
-  toggleProductRisk(true);
+const fetchDefaultData = async (productCode, callback) => {
+  // TODO 加loading
+  const { code, data, message } = await queryCalcDefaultInsureFactor(
+    {
+      ...store.$state.insuredPersonVO,
+      calcProductFactorList: [
+        {
+          productCode,
+        },
+      ],
+    },
+    {
+      isCustomError: true,
+    },
+  );
+  if (code === '10000') {
+    state.errorMsgMap[productCode] = '';
+    typeof callback === 'function' && callback(true);
+  } else {
+    state.errorMsgMap[productCode] = message;
+  }
 };
 
+// const selectedProductList = computed(() =>
+//   productList.value.filter((item) => state.selectProduct.includes(item.productCode)),
+// );
+
+/** ****** 创建计划书相关逻辑 ******** */
+// eslint-disable-next-line consistent-return
+const selectProposal = ({ productCode }: any) => {
+  // showFooter.value = false;
+
+  // 如果是列表页
+  if (!isCreateProposal) {
+    // store.setInsuredPersonVO({});
+    router.push({
+      path: '/proposal/createProposal',
+      query: {
+        productCode,
+      },
+    });
+    return false;
+  }
+
+  state.productCode = productCode;
+  // 已存在
+  if (state.selectProduct.includes(productCode)) {
+    state.selectProduct = state.selectProduct.filter((code) => code !== productCode);
+    return false;
+  }
+
+  fetchDefaultData(productCode, () => {
+    state.selectProduct.push(productCode);
+  });
+};
+
+/** 购物车选择产品操作 */
 const checkProductRisk = (checked: any[]) => {
   state.selectProduct = checked;
+  state.selectedProductList = state.selectedProductList.filter((item) => checked.includes(item.productCode));
+};
+
+/** 选择产品，切换类型，只能保存产品数据 */
+const onSelect = (flag, productItem) => {
+  if (flag) {
+    state.selectedProductList.push(productItem);
+  } else {
+    state.selectedProductList = state.selectedProductList.filter(
+      (item) => item.productCode !== productItem.productCode,
+    );
+  }
 };
 
 const addProposal = () => {
   const selectedProduct = state.proposalList.filter((proposal) => {
-    return state.selectProduct.includes(proposal.proposalInsuredList[0].proposalInsuredProductList[0].productId);
+    return state.selectProduct.includes(proposal.proposalInsuredList[0].proposalInsuredProductList[0].productCode);
   });
   store.setTrialData(selectedProduct);
-  router.push({
-    path: '/proposal/createProposal',
-  });
-};
-
-const closeProductRisk = () => {
-  toggleProductRisk(false);
-};
-
-const onFinished = (proposalInfo: ProposalInfo) => {
-  if (isCreateProposal) {
-    state.proposalList.push(proposalInfo);
-    showFooter.value = true;
-    state.selectProduct.push(proposalInfo.proposalInsuredList[0].proposalInsuredProductList[0].productId);
-    toggleProductRisk(false);
-    return;
-  }
-
-  store.setTrialData([proposalInfo]);
-  toggleProductRisk(false);
-  router.push({
-    path: '/proposal/createProposal',
-    query: route.query,
-  });
+  store.setSelectedProduct(state.selectProduct);
+  router.back();
 };
 
 const onRefresh = () => {
@@ -248,9 +321,27 @@ const onRefresh = () => {
   loading.value = true;
   onLoad();
 };
+
+onBeforeMount(() => {
+  state.excludeProductCodeList = store.$state.excludeProduct;
+});
 </script>
 
 <style scoped lang="scss">
+.page-proposal {
+  display: flex;
+  flex-direction: column;
+
+  :deep(.page-main) {
+    display: flex;
+    flex-direction: column;
+    flex: auto;
+  }
+  .empty-select {
+    margin-top: 200px;
+  }
+}
+
 .search-wrap {
   position: sticky;
   top: 0;
@@ -261,7 +352,8 @@ const onRefresh = () => {
       width: 100%;
       .van-field__control {
         width: 100%;
-        height: 34px;
+        margin: 0;
+        padding: 8px 0;
       }
     }
   }
@@ -283,6 +375,7 @@ const onRefresh = () => {
   }
 }
 .page-proposal-list {
+  flex: auto;
   padding: 0 30px;
   margin-bottom: 200px;
   :deep(.van-list__finished-text) {
@@ -300,7 +393,7 @@ const onRefresh = () => {
   position: fixed;
   bottom: 0;
   left: 0;
-  z-index: 9999;
+  z-index: 3000;
   .add-plan {
     width: 100%;
     height: 150px;

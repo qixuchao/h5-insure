@@ -26,9 +26,9 @@
                 <div v-for="(val, k) in benefitObj?.result?.headers" :key="k" style="width: 33%">
                   <p class="text1">
                     {{
-                      benefitObj?.result?.dataList?.[benefitObj?.index]?.[k] == '0'
+                      (benefitObj?.result?.dataList?.[benefitObj?.index]?.[k] == '0'
                         ? '0'
-                        : toLocal(Number(benefitObj?.result?.dataList?.[benefitObj?.index]?.[k]))
+                        : toLocal(Number(benefitObj?.result?.dataList?.[benefitObj?.index]?.[k]))) || '0'
                     }}
                   </p>
                   <p class="text2">{{ val }}(元）</p>
@@ -37,7 +37,7 @@
             </div>
           </div>
           <div v-if="showType === SHOW_TYPE_ENUM.TABLE">
-            <ProTable :data-source="tableData" />
+            <BenefitTable :data-source="tableData" />
           </div>
 
           <div v-if="showType == SHOW_TYPE_ENUM.CHART" style="width: 100%, minWidth: 338px">
@@ -96,24 +96,72 @@
       </van-tab>
     </van-tabs>
   </div>
-  <div v-else>
-    <ZaEmpty title="试算前请完善投保信息" empty-class="empty-select" />
+  <div v-else class="benefit-container">
+    <div v-if="props.productInfo">
+      <van-tabs :active="active" @click-tab="changeTab">
+        <van-tab :key="1" :name="1" :title="productInfo.insureProductRiskVOList[0].riskName">
+          <div class="benefit">
+            <!-- <div class="benefit-title">{{ item?.riskName }}</div> -->
+            <div class="line"></div>
+            <div>
+              <div class="box">
+                <p class="box-title">
+                  <img class="tl" src="@/assets/images/compositionProposal/box-title.png" alt="" />
+                  保单年度<span>-</span>年度，被保人<span>-</span>岁时
+                  <img class="transform-z180 tr" src="@/assets/images/compositionProposal/box-title.png" alt="" />
+                </p>
+                <div class="box-price"></div>
+              </div>
+            </div>
+            <div class="slider">
+              <div class="opt lf">
+                <ProSvg name="minus" />
+              </div>
+              <div style="flex: 1; margin: 0px 5px">
+                <van-slider v-model="num" :min="0" :max="80" bar-height="8px" disabled>
+                  <template #button>
+                    <div class="custom-button">0 岁</div>
+                  </template>
+                </van-slider>
+              </div>
+              <div class="opt rg">
+                <ProSvg name="plus" />
+                <!-- <img src="@/assets/images/compositionProposal/add.png" alt="" /> -->
+              </div>
+            </div>
+            <p class="slider-dec">拖动按钮查看不同年龄保障</p>
+
+            <div class="btn-two">
+              <van-button round :plain="true" type="primary" class="btn" disabled>图表展示</van-button>
+              <van-button round :plain="false" type="primary" class="btn" disabled>趋势展示</van-button>
+              <van-button round :plain="false" type="primary" class="btn" disabled>表格展示</van-button>
+            </div>
+          </div>
+        </van-tab>
+      </van-tabs>
+    </div>
+    <div v-else class="empty-box">
+      <!-- <ProEmpty title="试算前请完善投保信息" empty-class="empty-select" /> -->
+      <ProEmpty title="试算结果正在计算中..." empty-class="empty-select" />
+    </div>
   </div>
 </template>
-<script lang="ts" setup>
+<script lang="ts" setup name="Benefit">
 import { withDefaults } from 'vue';
 import { toLocal } from '@/utils';
 import ProChart from '@/components/ProChart/index.vue';
-import ProTable from './Table.vue';
+import BenefitTable from './BenefitTable.vue';
 
 const props = withDefaults(
   defineProps<{
     dataSource: { showTypeList: string[] };
+    productInfo: any;
   }>(),
   {
     dataSource: () => ({
       showTypeList: ['1'],
     }),
+    productInfo: () => null,
   },
 );
 const SHOW_TYPE_ENUM = {
@@ -335,5 +383,11 @@ watch(num, () => {
       }
     }
   }
+}
+.empty-box {
+  height: 680px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

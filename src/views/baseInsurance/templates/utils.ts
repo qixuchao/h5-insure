@@ -1,93 +1,64 @@
-import { PREMIUM_DISPLAY_TYPE_ENUM, PREMIUM_UNIT_TYPE_ENUM } from '@/common/constants/infoCollection';
-import { RISK_TYPE_ENUM } from '@/common/constants/trial';
+import { NextStepRequestData, TenantOrderProductItem, TenantOrderRiskItem } from '@/api/index.data';
+import { ProductRiskVoItem } from '@/api/modules/product.data';
+import { ProductData } from '@/api/modules/trial.data';
+import { CERT_TYPE_ENUM } from '@/common/constants';
+import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
 
-export const riskToOrder = (productRiskVoList: any) => {
-  const result = productRiskVoList
-    .map((productRiskVoListItem: any) => {
-      const mainRisk = productRiskVoListItem.riskDetailVOList.find(
-        (risk: any) => risk.riskType === RISK_TYPE_ENUM.MAIN_RISK,
-      );
-      // const riderRiskList = productRiskVoListItem.riskDetailVOList.filter(
-      //   (risk: any) => risk.riskType === RISK_TYPE_ENUM.RIDER_RISK,
-      // );
-      const transformRisk = (currentRiskList: any) => {
-        return currentRiskList.map((risk: any) => {
-          const {
-            riskCategory,
-            riskCode,
-            riskType,
-            riskName,
-            id,
-            riskInsureLimitVO,
-            riskCalcMethodInfoVO,
-            amountPremiumConfigVO,
-          } = risk;
-          const {
-            annuityDrawFrequencyList,
-            annuityDrawValueList,
-            insurancePeriodValueList,
-            paymentFrequencyList,
-            paymentPeriodValueList,
-            paymentPeriodRule,
-          } = riskInsureLimitVO;
+import { INSURANCE_PERIOD_ENUMS, PAYMENT_PERIOD_ENUMS, RISK_TYPE_ENUM } from '@/common/constants/trial';
 
-          // const { minCopy, maxCopy, fixedAmount, singeAmount } = riskCalcMethodInfoVO;
-          let tempAmount = 0;
-          const { displayType, displayUnit, fixedValue, eachCopyPrice } = amountPremiumConfigVO || {};
-          const strDisplayType = String(displayType);
-          const strDisplayUnit = String(displayUnit);
-          // todo 份数默认为1
-          const copyes = 1;
-          if (strDisplayType && strDisplayType === PREMIUM_DISPLAY_TYPE_ENUM.FIXED) {
-            if (strDisplayUnit === PREMIUM_UNIT_TYPE_ENUM.YUAN) {
-              tempAmount = fixedValue || 0;
-            } else if (strDisplayUnit === PREMIUM_UNIT_TYPE_ENUM.MILLION) {
-              tempAmount = fixedValue ? Number(fixedValue * 10000) : 0;
-            }
-            //  else if (strDisplayUnit === PREMIUM_UNIT_TYPE_ENUM.COPY) {
-            //   tempAmount = copyes && eachCopyPrice ? copyes * eachCopyPrice : 0;
-            // }
-          } else if (strDisplayType && strDisplayType === PREMIUM_DISPLAY_TYPE_ENUM.COPY) {
-            tempAmount = copyes && eachCopyPrice ? copyes * eachCopyPrice : 0;
-          }
-          console.log('tempAmount', tempAmount);
-          return {
-            amount: tempAmount,
-            annuityDrawDate: annuityDrawValueList?.[0],
-            annuityDrawFrequency: annuityDrawFrequencyList?.[0],
-            chargePeriod: paymentPeriodRule === 4 ? 'year_1' : paymentPeriodValueList?.[0],
-            copy: copyes,
-            coveragePeriod: paymentPeriodRule === 4 ? 'year_1' : insurancePeriodValueList?.[0],
-            liabilityVOList: risk.riskLiabilityInfoVOList,
-            // mainRisk: risk.riskCode === mainRisk.riskCode,
-            // mainRiskCode: risk.riskCode === mainRisk.riskCode ? mainRisk.riskCode : undefined,
-            // mainRiskId: risk.riskCode === mainRisk.riskCode ? mainRisk.riskId : undefined,
-            paymentFrequency: paymentFrequencyList?.[0],
-            riderRisk: true,
-            // riderRiskVOList: riskType === 1 ? transformRisk(riderRiskList) : [],
-            riderRiskVOList: [],
-            riskCategory,
-            riskCode,
-            riskName,
-            riskId: id,
-            riskType,
-          };
-        });
-      };
+export const orderRiskTotrial = (tenantOrderProductList: any[], insuredCode: string) => {
+  const riskList = [];
+  tenantOrderProductList.forEach((item: TenantOrderProductItem) => {
+    item.tenantOrderRiskList?.forEach((node: TenantOrderRiskItem) => {
+      const {
+        currentAmount,
+        paymentPeriod,
+        paymentPeriodType,
+        liabilityDetails,
+        extInfo,
+        insurancePeriodValue,
+        insurancePeriodType,
+        paymentFrequency,
+        riskType,
+        riskCode,
+        initialPremium,
+        initialAmount,
+        annuityDrawFrequency,
+        annuityDrawDate,
+      } = node;
 
-      return transformRisk(productRiskVoListItem.riskDetailVOList || []);
-    })
-    .flat();
+      let chargePeriod = `${PAYMENT_PERIOD_ENUMS[paymentPeriodType]}_${paymentPeriod}`;
+      if (paymentPeriodType === 1) {
+        chargePeriod = 'single';
+      }
+      let coveragePeriod = `${INSURANCE_PERIOD_ENUMS[insurancePeriodType]}_${insurancePeriodValue}`;
+      if (insurancePeriodType === 5) {
+        coveragePeriod = 'to_life';
+      }
 
-  const riskCodeMap = {};
-  const lastResult: any = [];
-  result.forEach((risk: any) => {
-    if (!riskCodeMap[risk.riskCode]) {
-      lastResult.push(risk);
-      riskCodeMap[risk.riskCode] = true;
-    }
+      riskList.push({
+        amount: initialAmount, // 保额
+        annuityDrawDate, // 年金领取值 （数字，以英文逗号分隔）1-第5个保单周年 2-55周岁起 3-60周岁起 4-65周岁起 5-70周岁起 6-75周岁起
+        annuityDrawFrequency, // 年金领取频率 1.年领 2.月领
+        chargePeriod, // 交费期间值 固定：固定数字，枚举：英文逗号隔开，范围：最小值，最大值按年缴：以year开头，例如year_10
+        copy: extInfo?.copy || '',
+        coveragePeriod, // 保障期间值 固定：固定数字，枚举：英文逗号隔开，范围：最小值，最大值
+        insuredCode, // 保司code
+        liabilityVOList: liabilityDetails, // 责任
+        mainRisk: '',
+        mainRiskCode: '', // 关联的主险种code
+        mainRiskId: '', // 关联的主险种id
+        paymentFrequency, // 缴费方式 1-趸交,2-年缴,3-半年缴,4-季缴,5-月缴,6-日缴
+        premium: initialPremium,
+        riskType, // 险种类型 1: 主险 2: 附加险
+        riskCode,
+        riskId: extInfo?.riskId || '',
+        riderRisk: '', // 是否关联险种
+        riderRiskVOList: [], // 当前主险关联的附加险
+      });
+    });
   });
-  return lastResult;
+  return riskList;
 };
 
 /**
@@ -112,6 +83,8 @@ export const formData2Order = ({ holder, insuredList = [] }) => {
     'insuredBeneficiaryType',
     'relationToHolder',
     'relationToMainInsured',
+    'tenantOrderBeneficiaryList',
+    'extInfo',
   ];
   const formatData = (data) => {
     const currentData = {
@@ -132,6 +105,179 @@ export const formData2Order = ({ holder, insuredList = [] }) => {
     tenantOrderHolder: formatData(holder),
     tenantOrderInsuredList: (insuredList || []).map((insured) => formatData(insured)),
   };
+};
+
+export const orderData2trialData = (
+  orderInfo: Partial<NextStepRequestData>,
+  insureProductDetail,
+  planCode?: string,
+) => {
+  const { tenantId, commencementTime, expiryDate, venderCode, tenantOrderHolder, tenantOrderInsuredList } = orderInfo;
+  // 试算接口参数组装
+  const trialParams = {
+    tenantId,
+    productCode: insureProductDetail?.productCode,
+    insuranceStartDate: commencementTime,
+    insuranceEndDate: expiryDate,
+    holder: {
+      personVO: {
+        ...tenantOrderHolder,
+        socialFlag: tenantOrderHolder.extInfo?.hasSocialInsurance,
+        certType: tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT,
+      },
+    },
+    insuredVOList: tenantOrderInsuredList.map((person) => {
+      return {
+        insuredCode: '',
+        relationToHolder: person.relationToHolder,
+        personVO: {
+          ...person,
+          socialFlag: person.extInfo.hasSocialInsurance,
+          certType: person.certType || CERT_TYPE_ENUM.CERT,
+        },
+        productPlanVOList: [
+          {
+            insurerCode: venderCode,
+            planCode: planCode || '',
+            riskVOList: orderRiskTotrial(person.tenantOrderProductList || [], orderInfo.venderCode),
+          },
+        ],
+      };
+    }),
+  };
+  return trialParams;
+};
+
+interface ProposalDetailInsurer {
+  proposalHolder: any;
+  proposalInsuredList: any[];
+}
+
+export const proposalToTrial = async (
+  { proposalId, productCode, tenantId }: { proposalId: number; productCode: string; tenantId: string },
+  cb,
+) => {
+  const result = await queryProposalDetailInsurer({ id: proposalId, tenantId });
+  // 计划书详情转试算模型
+  const sourceData = result.data as unknown as ProposalDetailInsurer;
+  const targetData = {
+    holder: {},
+    insuredVOList: [],
+    productCode,
+  };
+  targetData.holder = {
+    personVO: sourceData?.proposalHolder,
+  };
+  targetData.insuredVOList = sourceData?.proposalInsuredList.map((insured) => {
+    return {
+      personVO: {
+        age: insured.age,
+        birthday: insured.birthday,
+        bmi: insured.bmi,
+        certNo: insured.certNo,
+        certType: insured.certType,
+        email: insured.email,
+        gender: insured.gender,
+        hasSocialInsurance: insured.hasSocialInsurance,
+        height: insured.height,
+        holderRelation: insured.holderRelation,
+        insureAreaCode: insured.insureAreaCode,
+        insureCityCode: insured.insureCityCode,
+        insureProvinceCode: insured.insureProvinceCode,
+        mobile: insured.mobile,
+        name: insured.name,
+        occupationClass: insured.occupationClass,
+        occupationCodeList: insured.occupationCode, // *****
+        smokeFlag: insured.smokeFlag,
+        socialFlag: insured.socialFlag,
+        weight: insured.weight,
+      },
+      productPlanVOList: insured.proposalInsuredProductList.map((plan) => {
+        return {
+          insurerCode: null,
+          planCode: '',
+          relationToHolder: '1',
+          riskVOList: plan.proposalProductRiskList.map((risk) => {
+            return {
+              amount: risk.amount,
+              annuityDrawDate: risk.annuityDrawDate,
+              // annuityDrawFrequencyList: risk.annuityDrawFrequencyList, //***** */
+              annuityDrawType: risk.annuityDrawType,
+              // annuityDrawValueList: risk.annuityDrawValueList, // *****
+              chargePeriod: risk.chargePeriod,
+              copy: risk.copy,
+              coveragePeriod: risk.coveragePeriod,
+              // insurancePeriodValueList: risk.insurancePeriodValueList, // ****
+              liabilityVOList: risk.liabilityVOList.map((liability) => {
+                return {
+                  liabilityAmount: null, // *****
+                  liabilityAttributeType: liability.liabilityAttributeType,
+                  liabilityAttributeValueList: liability.liabilityAttributeValueList,
+                  liabilityCode: liability.liabilityCode,
+                  liabilityId: liability.liabilityId,
+                  liabilityRateType: null, // ******
+                  liabilityValue: null, // ******
+                };
+              }),
+              mainRiskCode: risk.mainRiskCode, // *****
+              mainRiskId: risk.mainRiskId,
+              paymentFrequency: risk.paymentFrequency,
+              // paymentFrequencyList: risk.paymentFrequencyList, // *****
+              // paymentPeriodValueList: risk.paymentPeriodValueList, // *****
+              premium: risk.premium,
+              riskCategory: risk.riskCategory, // ****
+              riskCode: risk.riskCode,
+              riskId: risk.riskId,
+              riskName: risk.riskName,
+              riskType: risk.riskType,
+            };
+          }),
+        };
+      }),
+    };
+  });
+  cb?.(targetData);
+};
+
+export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
+  const nextStepParams: any = { ...currentOrderDetail, ...trialData };
+  const riskPremiumMap = {};
+  const { riskPremiumDetailVOList = [], initialAmount, initialPremium = 0 } = riskPremium || {};
+  if (riskPremiumDetailVOList.length) {
+    riskPremiumDetailVOList.forEach((riskDetail: any) => {
+      riskPremiumMap[riskDetail.riskCode] = {
+        premium: riskDetail.initialPremium,
+        amount: riskDetail.initialAmount,
+      };
+    });
+  }
+
+  nextStepParams.premium = initialPremium;
+  nextStepParams.orderAmount = initialPremium;
+
+  nextStepParams.insuredList = (nextStepParams.insuredList || []).map((insurer: any) => {
+    return {
+      ...insurer,
+      certType: insurer.certType || CERT_TYPE_ENUM.CERT,
+      certNo: (insurer.certNo || '').toLocaleUpperCase(),
+      productList: (insurer.productList || []).map((item) => ({
+        premium: initialPremium,
+        productCode: trialData.productCode,
+        productName: trialData.productName,
+        riskList: (item.riskList || []).map((risk) => {
+          const { amount, premium } = riskPremiumMap?.[risk.riskCode] || {};
+          return {
+            ...risk,
+            initialAmount: amount,
+            initialPremium: premium,
+            regularPremium: initialPremium,
+            totalPremium: initialPremium,
+          };
+        }),
+      })),
+    };
+  });
+  return nextStepParams;
 };
 
 export default {};

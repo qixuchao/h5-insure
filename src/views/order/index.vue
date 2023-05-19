@@ -1,7 +1,7 @@
 <template>
   <ProPageWrap main-class="page-order-list">
     <div class="page-order">
-      <ProTab v-model:active="active" :list="tabList" small-gap class="tab" />
+      <ProTab v-model:active="active" :list="tabList" class="tab" />
       <van-list class="body" :loading="loading" :finished="finished" @load="handleLoad">
         <Item
           v-for="(item, index) in list"
@@ -39,6 +39,7 @@ const typeToActive = {
   '1': 3,
   '2': 4,
 };
+
 const active = ref(typeToActive[query.type] || 0);
 
 const pageNum = ref(1);

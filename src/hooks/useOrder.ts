@@ -20,7 +20,15 @@ interface QueryData {
 }
 
 export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
-  const { tenantId, agentCode = '', agencyCode, saleChannelId, extraInfo, insurerCode } = useRoute().query as QueryData;
+  const {
+    tenantId,
+    agentCode = '',
+    agencyCode,
+    proposalId,
+    saleChannelId,
+    extraInfo,
+    insurerCode,
+  } = useRoute().query as QueryData;
 
   let extInfo: any = {};
 
@@ -34,52 +42,34 @@ export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
     agencyId: agencyCode,
     commencementTime: '',
     expiryDate: '',
+    proposalId,
     extInfo: {
       buttonCode: '',
       pageCode: '',
       iseeBizNo: '',
-      extraInfo: {},
+      extraInfo: extInfo,
     },
     orderCategory: 1,
     saleUserId: agentCode,
     saleChannelId,
     tenantId,
     venderCode: insurerCode,
-    tenantOrderHolder: {
+    insurerCode,
+    holder: {
       // 投保人
-      extInfo: {
-        occupationCodeList: [],
-      },
+      occupationCodeList: [],
     },
-    tenantOrderInsuredList: [
+    insuredList: [
       // 被保人信息
       {
-        relationToHolder: '1',
-        extInfo: {
-          occupationCodeList: [],
-        },
-        tenantOrderBeneficiaryList: [
-          {
-            extInfo: {},
-          },
-        ],
-        tenantOrderProductList: [{}],
+        relationToHolder: 1,
+        occupationCodeList: [],
+        tenantOrderBeneficiaryList: [],
+        productList: [],
       },
     ],
-    tenantOrderSubjectList: [
-      // 标的物信息
-      {
-        extInfo: {
-          subjectRelatedFirm: '',
-          subjectRelatedUserId: '',
-        },
-        subjectName: '',
-        subjectObjectType: 'HOLDER',
-        subjectType: 'GENERAL',
-        subjectNo: '',
-        tenantId,
-      },
-    ],
+    tenantOrderSubjectList: [],
+    tenantOrderPayInfoList: [],
     operateOption: {
       withBeneficiaryInfo: true,
       withHolderInfo: true,
