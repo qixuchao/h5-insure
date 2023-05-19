@@ -440,6 +440,11 @@ defineExpose({
   :deep(.com-card-wrap) .title-wrapper {
     width: 100%;
   }
+  .delete-button {
+    width: auto;
+    margin-top: 4px;
+    color: $zaui-primary-text;
+  }
 }
 .add-button {
   display: block;
@@ -450,8 +455,5 @@ defineExpose({
   .van-icon-plus {
     font-weight: 600;
   }
-}
-.delete-button {
-  color: $zaui-primary-text;
 }
 </style>
