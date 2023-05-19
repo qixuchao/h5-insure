@@ -882,5 +882,10 @@ onUnmounted(() => {
     height: 88px;
     border-radius: 44px;
   }
+  .com-pro-form-with-card.personal-info-card {
+    .com-card-wrap .header {
+      padding-right: var(--zaui-card-border, 0.4rem);
+    }
+  }
 }
 </style>
