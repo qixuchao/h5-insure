@@ -290,6 +290,8 @@ const initData = async () => {
             ...insured,
             productList: insured.productList.filter((product) => product.productCode === productCode),
           })),
+          insurerCode,
+          venderCode: insurerCode,
         };
         isLoadDefaultValue.value = true;
       }
