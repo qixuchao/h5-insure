@@ -173,7 +173,7 @@ const store = createProposalStore();
 
 const { productCode: productCodeInQuery, id }: { productCode?: string; id?: string } = route.query;
 
-const trialFieldkeys = ['age', 'gender', 'birthday'];
+const trialFieldkeys = ['age', 'gender', 'birthday', 'hasSocialInsurance', 'occupationCodeList'];
 
 const trialPopupRef = ref(null);
 
