@@ -118,6 +118,7 @@ import { orderData2trialData } from '../utils';
 import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
 import ProPageWrap from '@/components/ProPageWrap';
 import ProductDesc from '../components/ProductDesc/index.vue';
+import useOrder from '@/hooks/useOrder';
 // const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const InscribedContent = defineAsyncComponent(() => import('../components/InscribedContent/index.vue'));
@@ -244,6 +245,7 @@ const queryProductMaterialData = () => {
 
 // 初始化数据，获取产品配置详情和产品详情
 const orderDetail = ref<any>();
+const defaultOrderDetail = useOrder();
 const isLoadDefaultValue = ref<boolean>(false);
 
 const initData = async () => {
@@ -280,7 +282,8 @@ const initData = async () => {
     queryProposalDetailInsurer({ id: proposalId, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         const { holder, insuredList } = data;
-        Object.assign(orderDetail.value, {
+
+        orderDetail.value = Object.assign(defaultOrderDetail.value, {
           productCode,
           productName: '',
           renewFlag: '',
