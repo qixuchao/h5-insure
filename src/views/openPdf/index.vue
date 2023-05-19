@@ -1,7 +1,7 @@
 <template>
   <div class="pdf-viewer-wrap">
     <div :id="id"></div>
-    <div class="footer-btn">
+    <div v-if="isAppFkq()" class="footer-btn">
       <ProShare :link="shareLink" :title="title"> <van-button>分享</van-button></ProShare>
       <van-button @click="downloadPdf">下载</van-button>
     </div>
@@ -17,6 +17,7 @@ import Pdfh5 from 'pdfh5';
 import ProShare from '@/components/ProShare/index.vue';
 import 'pdfh5/css/pdfh5.css';
 import { downloadPDFWithUrl } from '@/utils/jsbridgePromise';
+import { isAppFkq } from '@/utils';
 
 const route = useRoute();
 const shareLink = window.location.href;

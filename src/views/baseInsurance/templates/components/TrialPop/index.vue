@@ -136,7 +136,7 @@ const props = withDefaults(defineProps<Props>(), {
    */
   hidePopupButton: false,
   defaultData: null,
-  currentOrderDetail: () => ({}),
+  currentOrderDetail: null,
 });
 
 const state = reactive({
@@ -165,6 +165,7 @@ const state = reactive({
 });
 
 const orderDetail = ref();
+const defaultOrderDetail = useOrder();
 const iseeBizNo = ref<string>();
 const currentShareInfo = ref<any>();
 
@@ -590,7 +591,7 @@ onMounted(() => {
 watch(
   () => props.currentOrderDetail,
   (value) => {
-    orderDetail.value = value;
+    orderDetail.value = value || defaultOrderDetail.value;
   },
   {
     deep: true,

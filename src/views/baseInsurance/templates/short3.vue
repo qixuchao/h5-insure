@@ -554,9 +554,7 @@ const handleMixTrialData = debounce(async (isSave = false) => {
     const { insuranceEndDate: expiryDate, insuranceStartDate: commencementTime } = guaranteeObj.value;
     Object.assign(state.submitData, {
       ...state.userData,
-      productCode,
       tenantId,
-      productName: insureProductDetail.value.productName,
       commencementTime,
       expiryDate,
     });
@@ -573,6 +571,8 @@ const handleMixTrialData = debounce(async (isSave = false) => {
           productList: [
             {
               insurerCode,
+              productName: insureProductDetail.value.productName,
+              productCode,
               riskList: state.riskList,
             },
           ],
