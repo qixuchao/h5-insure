@@ -4,11 +4,12 @@
     :class="`${filedAttrs.visible === false ? 'com-van-field--hidden' : ''}`"
     v-bind="filedAttrs"
     :field-value-view="fieldValueView"
+    :is-view="isView"
     @click="!isView && (show = true)"
   >
     <!-- 继承 slots -->
-    <template v-for="slotName in Object.keys(filedSlots)" :key="slotName" #[slotName]>
-      <slot :name="slotName" />
+    <template v-for="slotName in Object.keys(filedSlots)" :key="slotName" #[slotName]="slotParams">
+      <slot :name="slotName" v-bind="slotParams || {}" />
     </template>
   </ProFormItem>
   <ProPopup v-model:show="show" :height="40" :closeable="false">
@@ -19,8 +20,8 @@
       @cancel="handleCancel"
       @confirm="handleConfirm"
     >
-      <template v-for="slotName in Object.keys($slots)" :key="slotName" #[slotName]>
-        <slot :name="slotName" />
+      <template v-for="slotName in Object.keys($slots)" :key="slotName" #[slotName]="slotParams">
+        <slot :name="slotName" v-bind="slotParams || {}" />
       </template>
     </van-picker>
   </ProPopup>
@@ -45,7 +46,7 @@ const { formState } = inject(VAN_PRO_FORM_KEY) || {};
 
 interface ColumnsFieldNames {
   text: string;
-  values: string;
+  value: string;
   children: string;
 }
 
@@ -171,8 +172,10 @@ const columns = computed(() => {
 
 // 选中的索引
 const defaultIndex = computed(() => {
-  if (props.modelValue) {
-    return props.columns.findIndex((x) => x[(props.customFieldName as ColumnsFieldNames)?.values] === props.modelValue);
+  if (state.fieldValue) {
+    return props.columns.findIndex(
+      (column) => String(column[(props.customFieldName as ColumnsFieldNames)?.value]) === String(state.fieldValue),
+    );
   }
   return '';
 });
@@ -199,17 +202,6 @@ watch(
 );
 
 watch(
-  () => formState?.formData?.[filedAttrs.value.name],
-  (val) => {
-    state.fieldValue = val as string | number;
-  },
-  {
-    immediate: true,
-    deep: true,
-  },
-);
-
-watch(
   columns,
   (val = []) => {
     // TODO: children
@@ -226,6 +218,12 @@ watch(
     immediate: true,
   },
 );
+
+onBeforeMount(() => {
+  if (props.dictCode && !formState.dictCodeList.includes(props.dictCode)) {
+    formState.dictCodeList.push(props.dictCode);
+  }
+});
 </script>
 <script lang="ts">
 export default {

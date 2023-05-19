@@ -6,13 +6,13 @@
     @click="!isView && (show = true)"
   >
     <!-- 继承 slots -->
-    <template v-for="slotName in Object.keys(filedSlots)" :key="slotName" #[slotName]>
-      <slot :name="slotName" />
+    <template v-for="slotName in Object.keys(filedSlots)" :key="slotName" #[slotName]="slotParams">
+      <slot :name="slotName" v-bind="slotParams || {}" />
     </template>
   </ProFormItem>
   <van-calendar v-model:show="show" :type="type" :default-date="state.defaultDate" v-bind="attrs" @confirm="onConfirm">
-    <template v-for="slotName in Object.keys(slots)" :key="slotName" #[slotName]>
-      <slot :name="slotName" />
+    <template v-for="slotName in Object.keys(slots)" :key="slotName" #[slotName]="slotParams">
+      <slot :name="slotName" v-bind="slotParams || {}" />
     </template>
   </van-calendar>
 </template>

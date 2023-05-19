@@ -9,6 +9,7 @@ import routes from '@/router/routes';
 import useAppStore from '@/store/app';
 import { getWxJsSdkSignature } from '@/api/modules/wechat';
 import { isWechat } from '@/utils/index';
+import { cachePage } from '@/utils/cachePage';
 
 const router: Router = createRouter({
   // 新的vue-router4 使用 history路由模式 和 base前缀
@@ -39,6 +40,8 @@ const handlePageResult = async (res: { status: number; data: string }, storage: 
 let realAuthUrl = '';
 
 router.beforeEach(async (to, from, next) => {
+  // 处理缓存页面
+  await cachePage(from, to);
   next();
   if (!realAuthUrl) {
     realAuthUrl = ORIGIN + (to.redirectedFrom || to.fullPath);
@@ -70,8 +73,8 @@ router.beforeEach(async (to, from, next) => {
   }
 });
 
-const IS_WECHAT = isWechat();
 router.beforeResolve(async (to, from) => {
+  const IS_WECHAT = isWechat();
   console.log('IS_WECHAT', IS_WECHAT);
   if (IS_WECHAT && to.meta.requireWxJs) {
     const tenantId = to.query?.tenantId as string;

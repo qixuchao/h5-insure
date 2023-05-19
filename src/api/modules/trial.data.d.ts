@@ -1,3 +1,5 @@
+import {  type InjectionKey } from 'vue';
+
 export interface ProductData {
   productFactor: ProductFactor;
   productBasicInfoVO: ProductBasicInfoVo;
@@ -279,24 +281,23 @@ export interface ProductBasicInfoVo {
 }
 
 export interface PremiumCalcData {
-  holder?: Holder;
-  insuredVOList: Array<Partial<InsuredVoItem>>;
+  holder?: Partial<PersonVo>;
+  insuredList: Array<Partial<InsuredVoItem>>;
   productCode: string;
   productId?: number;
   tenantId?: string;
 }
 
-export interface InsuredVoItem {
+export interface InsuredVoItem extends PersonVo {
   insuredCode: string;
-  personVO: PersonVo;
-  productPlanVOList: Array<Partial<ProductPlanVoItem>>;
+  productList: Array<Partial<ProductPlanVoItem>>;
   relationToHolder?: string;
 }
 
 export interface ProductPlanVoItem {
   insurerCode: string;
   planCode: string;
-  riskVOList: Array<Partial<RiskVoItem>>;
+  riskList: Array<Partial<RiskVoItem>>;
 }
 
 export interface RiskVoItem {
@@ -309,7 +310,7 @@ export interface RiskVoItem {
   copy: string; // 份数
   coveragePeriod: string;
   insuredCode: string;
-  liabilityVOList: LiabilityVoItem[];
+  liabilityVOList: Array<Partial<LiabilityVoItem>>;
   mainRisk: boolean;
   mainRiskCode: string;
   mainRiskId: number;
@@ -323,6 +324,8 @@ export interface RiskVoItem {
   riskType: number;
   riskName: string;
   riskInsureLimitVO: any;
+  holder: object;
+  insuredList: object[];
 }
 
 export interface LiabilityVoItem {
@@ -339,6 +342,7 @@ export interface LiabilityVoItem {
   liabilityTopType: number;
   liabilityType: number;
   liabilityValue: LiabilityValue;
+  [propName: string]: any
 }
 
 export interface LiabilityValue {
@@ -364,9 +368,9 @@ export interface Holder {
 
 // 保费试算结果
 export interface PremiumCalcResponse {
-  amount: number;
+  initialAmount: number;
   errorInfo: string;
-  premium: number;
+  initialPremium: number;
   riskPremiumDetailVOList: RiskPremiumDetailVoItem[];
 }
 
@@ -592,6 +596,8 @@ export interface ProductFactorItem {
   unit: string;
   isSelfInsuredNeed: boolean;
   isCalculationFactor: number;
+  visible: boolean;
+  subModuleType: number;
 }
 
 export interface ProductFactor {
@@ -606,4 +612,24 @@ export interface ProductPlanInsure {
   oilPackageProductVOList: Array<any>;
   oilPackageRelationVOList: Array<any>;
   productRiskRelationVOList: Array<any>;
+}
+
+export interface InsureLinkReq {
+  agencyCode: string;
+  agentCode: string;
+  extraMap: {
+    [key: string]: string
+  };
+  insurerCode: string;
+  productCode: string;
+  proposalId: number;
+  tenantId: number;
+}
+/** 试算默认值 */
+export interface PlanTrialDefaultItem {
+  holder: Partial<PersonVo>,
+  insuredList: Partial<PersonVo> & {
+    productList: ProductPlanVoItem[];
+  }[];
+  productCode: string;
 }

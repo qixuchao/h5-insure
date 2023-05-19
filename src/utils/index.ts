@@ -10,8 +10,12 @@
 import dayjs from 'dayjs';
 import quarterOfYear from 'dayjs/plugin/quarterOfYear';
 import { parse, stringify } from 'qs';
+import { useRoute } from 'vue-router';
 import { FILE_TYPE_ENUM } from '@/common/constants';
+import { useSessionStorage } from '@/hooks/useStorage';
+import pageJump from './pageJump';
 
+const storage = useSessionStorage();
 dayjs.extend(quarterOfYear);
 
 // 微信浏览器，且非企业微信
@@ -67,6 +71,7 @@ export const constantListToMap = (arr: ConstantList): object => {
 };
 
 export const getFileType = (content: string, materialType: string) => {
+  console.log('content', content, 'materialType', materialType);
   let currentFileType = '1';
   if (+materialType === 1) {
     if (content.indexOf('.pdf') !== -1) {
@@ -87,6 +92,8 @@ export const isTestEnv = ORIGIN.includes('test');
 export const isPreEnv = ORIGIN.includes('pre');
 
 export const isPrdEnv = !(isDevEnv || isTestEnv || isPreEnv);
+
+export const isDebugger = window.location.href.indexOf('is__debugger') !== -1;
 
 /**
  * 深拷贝 （不能处理有函数等特殊对象的值）
@@ -196,4 +203,12 @@ export const deleteQuery = (keyObj: string[], url?: string) => {
     if (!keyObj.includes(key)) newObj[key] = queryObj[key];
   });
   return `${hostPath}?${stringify(newObj)}`;
+};
+
+export const jumpToNextPage = (pageCode, query) => {
+  const codeList = storage.get('TEMPLATE_LIST') || [];
+
+  const currentIndex = codeList.indexOf(pageCode);
+
+  pageJump(codeList[currentIndex + 1], query);
 };

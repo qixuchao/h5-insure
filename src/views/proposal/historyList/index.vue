@@ -20,7 +20,7 @@
         @load="onloadClick"
       >
         <div v-for="i of historyList" :key="i.id" class="proposal-item">
-          <div class="title">{{ i.proposalName }}计划书</div>
+          <div class="title">{{ i.proposalName }}</div>
           <p class="premium">
             保费：<span>¥{{ toLocal(i.totalPremium) }}</span>
           </p>
@@ -33,7 +33,7 @@
         </div>
       </van-list>
     </div>
-    <ZaEmpty v-if="!hasProduct" :empty-img="emptyImg" title="暂无历史计划书" empty-class="empty-select" />
+    <ProEmpty v-if="!hasProduct && !loading" :empty-img="emptyImg" title="暂无历史计划书" empty-class="empty-select" />
   </ProPageWrap>
 </template>
 
@@ -41,7 +41,7 @@
 import { Dialog, Toast } from 'vant';
 import { useRouter } from 'vue-router';
 import { toLocal } from '@/utils';
-import ZaEmpty from '@/components/ZaEmpty/index.vue';
+import ProEmpty from '@/components/ProEmpty/index.vue';
 import emptyImg from '@/assets/images/empty.png';
 import ProTable from '@/components/ProTable/index.vue';
 import { historyProposalList, deleteProposal } from '@/api/modules/proposalList';
@@ -62,7 +62,7 @@ const columns = [
     },
   },
   {
-    title: '缴费期间',
+    title: '交费期间',
     dataIndex: 'chargePeriod',
     width: 110,
     render: (row: any) => {
@@ -74,7 +74,7 @@ const columns = [
     dataIndex: 'premium',
     width: 120,
     render: (row: any) => {
-      return transformToMoney(row?.premium);
+      return transformToMoney(row?.initialPremium);
     },
   },
 ];
@@ -109,9 +109,9 @@ const getHistoryList = () => {
       } else {
         historyList.value = historyList.value.concat(data.datas);
       }
+      loading.value = false;
 
       pageNum.value += 1;
-      loading.value = false;
       finished.value = historyList.value.length >= data.total;
     }
   });
@@ -175,7 +175,8 @@ const editProposal = (id: number) => {
       width: 100%;
       .van-field__control {
         width: 100%;
-        height: 34px;
+        margin: 0;
+        padding: 8px 0;
       }
     }
   }

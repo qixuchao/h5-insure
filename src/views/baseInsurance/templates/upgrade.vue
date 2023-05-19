@@ -2,24 +2,18 @@
   <div v-if="loading">__SKELETON_UPGRADE_CONTENT__</div>
   <div v-else data-skeleton-root="UPGRADE" class="page-upgrade-product-detail">
     <Banner data-skeleton-type="img" :url="detail?.tenantProductInsureVO?.banner[0]" />
-    <InsureForm
-      ref="formRef"
-      :title-collection="{
-        HOLDER: '投保人信息',
-        INSURER: '投保信息',
-        BENEFICIARY: '投保人信息',
-      }"
-      need-desensitize
-      is-view
-      input-align="right"
-      :form-info="orderDetail"
-      :factor-object="insureDetail?.productFactor"
-    ></InsureForm>
+    <PersonalInfo
+      v-if="insureDetail?.productFactor"
+      ref="personalInfoRef"
+      v-model="orderDetail"
+      :product-factor="insureDetail.productFactor"
+      :multi-insured-config="insureDetail?.multiInsuredConfigVO"
+    />
     <ProField v-model="premiumText" input-align="right" label="每月保费" name="insuredBeneficiaryType"> </ProField>
     <AttachmentList
       v-if="filterHealthAttachmentList && filterHealthAttachmentList.length > 0"
       class="attachment-bg"
-      :attachement-list="filterHealthAttachmentList"
+      :attachment-list="filterHealthAttachmentList"
       :has-bg-color="false"
       pre-text="请阅读"
       @preview-file="(index:number) => previewFile(index)"
@@ -54,7 +48,7 @@
     :is-only-view="state.isOnlyView"
     :active-index="state.activeIndex"
     :text="state.isOnlyView ? '关闭' : '我已逐页阅读上述内容并同意'"
-    :force-read-cound="0"
+    :force-read-count="0"
     on-close-file-preview
     @submit="onSubmit"
     @on-close-file-preview="onCloseFilePreview"
@@ -93,6 +87,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { ORIGIN, isAppFkq } from '@/utils';
 import Banner from './components/Banner/index.vue';
 import ProShadowButton from './components/ProShadowButton/index.vue';
+import PersonalInfo from './components/InsureForm/PersonalInfo.vue';
 
 const AttachmentList = defineAsyncComponent(() => import('./components/AttachmentList/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('./components/FilePreview/index.vue'));
@@ -115,7 +110,7 @@ interface QueryData {
 }
 // oKugN52glZx_hhg7liu0WpWcmD5o
 const {
-  productCode = '',
+  productCode = 'ZXYS2023',
   orderNo = '',
   agencyCode = '',
   tenantId = '',
@@ -387,7 +382,7 @@ const onUpgrade = async (o: any) => {
 
 const productFactorMake = () => {
   ['1', '2', '3'].forEach((field: string) => {
-    insureDetail.value.productFactor[field] = insureDetail.value.productFactor?.[field]?.some(
+    insureDetail.value.productFactor[field] = (insureDetail.value?.productFactor?.[field] || [])?.some(
       (item) => item.isDisplay === 1,
     )
       ? insureDetail.value.productFactor?.[field]

@@ -1,6 +1,6 @@
 <template>
   <ProFormItem
-    class="com-van-field-hidden"
+    class="com-van-field--hidden"
     :name="name"
     :model-value="address"
     :rules="$attrs.rules"
@@ -10,12 +10,16 @@
     show-full-value
     :custom-field-name="customFieldName"
     v-bind="$attrs"
+    :model-value="cascaderModelValue"
+    :is-view="isView"
     :level="addressConfig.level"
     @update:full-value="updateFullValue"
   />
   <ProFieldV2
     v-if="addressConfig.showDetail"
     v-model="state.address.detail"
+    :is-view="isView"
+    type="textarea"
     :label="`${$attrs.label}详细地址`"
     :required="$attrs.required"
     :maxlength="50"
@@ -27,7 +31,20 @@ import ProCascaderV2 from './ProCascaderV2.vue';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { upperFirstLetter } from '../utils';
 
+interface Address {
+  province: string;
+  city: string;
+  area: string;
+  detail: string;
+}
+
+const emit = defineEmits(['update:modelValue']);
+
 const props = defineProps({
+  modelValue: {
+    type: Object,
+    default: () => ({}),
+  },
   name: {
     type: String,
     default: '',
@@ -45,6 +62,13 @@ const props = defineProps({
   valuePrefix: {
     type: String,
     default: '',
+  },
+  /**
+   * 是否查看模式
+   */
+  isView: {
+    type: Boolean,
+    default: false,
   },
   /**
    * 控制级联组件筛选和是否展示详细地址
@@ -65,7 +89,9 @@ const dealValueKey = (key: string) => {
   return '';
 };
 
-const state = reactive({
+const state = reactive<{
+  address: Partial<Address>;
+}>({
   address: {
     detail: '',
   },
@@ -110,6 +136,14 @@ const addressConfig = computed(() => {
   };
 });
 
+/** cascader 值 */
+const cascaderModelValue = computed(() => {
+  const { level } = addressConfig.value;
+  // 字典索引多了层全国，所以为level-2
+  const key = ['province', 'city', 'area'][level === 0 ? 'area' : level - 2];
+  return state.address?.[key];
+});
+
 const updateFullValue = (arr = []) => {
   let address = {};
   if (isNotEmptyArray(arr)) {
@@ -119,7 +153,7 @@ const updateFullValue = (arr = []) => {
       .slice(0, Number(addressConfig.value.level || 3))
       .reduce((res, key, index) => {
         const item = arr[index + 1] || {};
-        res[`${key}Code`] = item[value];
+        res[key] = item[value];
         res[`${key}Name`] = item[text];
         return res;
       }, {});
@@ -129,17 +163,32 @@ const updateFullValue = (arr = []) => {
     ...address,
   };
 };
+
+watch(
+  () => state.address,
+  () => {
+    emit('update:modelValue', state.address);
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
+
+watch(
+  () => props.modelValue,
+  (val) => {
+    state.address = val || {};
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
 </script>
 <script lang="ts">
 export default {
   inheritAttrs: false,
 };
 </script>
-<style lang="scss" scoped>
-.com-van-field-hidden {
-  padding: 0;
-  max-height: 0;
-  min-height: 0;
-  overflow: hidden;
-}
-</style>
+<style lang="scss" scoped></style>

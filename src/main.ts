@@ -16,12 +16,12 @@ import globalComps from '@/components/index';
 import clipboard from '@/common/directives/clipboard';
 import resize from '@/common/directives/resize';
 import { initNative } from '@/utils/native';
-import { isTestEnv } from './utils';
+import { isTestEnv, isDebugger } from './utils';
 import '@/styles/index.scss';
 
 const start = async () => {
-  initNative();
-  if (isTestEnv) {
+  await initNative();
+  if (isTestEnv || isDebugger) {
     // eslint-disable-next-line new-cap
     new vconsole();
   }

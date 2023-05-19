@@ -12,9 +12,9 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-import { computed, ref } from 'vue';
-// // 调用主题
+<script lang="ts" setup name="shadowButton">
+import { withDefaults } from 'vue';
+// 调用主题
 const emit = defineEmits(['click']);
 
 const props = defineProps({
@@ -73,18 +73,18 @@ const getColor = (_color: string, _opacity = 0.9) => {
   return sColor;
 };
 
-watch(
-  [() => props.themeVars, () => props.isGradient],
-  () => {
-    if (props.themeVars) {
-      state.color = props.isGradient ? getColor(props.themeVars.primaryColor) : props.themeVars.primaryColor;
-    }
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
+// watch(
+//   [() => props.themeVars, () => props.isGradient],
+//   () => {
+//     if (props.themeVars) {
+//       state.color = props.isGradient ? getColor(props.themeVars.primaryColor) : props.themeVars.primaryColor;
+//     }
+//   },
+//   {
+//     deep: true,
+//     immediate: true,
+//   },
+// );
 </script>
 
 <style scoped lang="scss">

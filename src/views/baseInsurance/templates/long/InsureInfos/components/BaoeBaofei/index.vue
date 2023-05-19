@@ -101,9 +101,17 @@
       </template>
     </VanField>
   </div>
+  <div v-if="mConfigs.saleMethod === 2 && trialResult && trialResult.initialAmount > 0">
+    <VanField :label="`保额`" class="risk-select-field">
+      <template #input>
+        <span>{{ trialResult.initialAmount }}</span>
+      </template>
+    </VanField>
+  </div>
 </template>
-<script lang="ts" setup>
+<script lang="ts" setup name="BaoeBaofei">
 import { ref, watch, withDefaults } from 'vue';
+import { cloneDeep } from 'lodash';
 import { RiskVoItem, RiskAmountPremiumConfig } from '@/api/modules/trial.data';
 import { PREMIUM_UNIT_TYPE_ENUM } from '@/common/constants/infoCollection';
 
@@ -111,17 +119,29 @@ import { PREMIUM_UNIT_TYPE_ENUM } from '@/common/constants/infoCollection';
 interface Props {
   originData: RiskAmountPremiumConfig;
   modelValue: RiskVoItem;
+  defalutValue: any;
+  trialResult: any;
+}
+
+interface StateInfo {
+  hadSetDefault: boolean;
 }
 const emit = defineEmits(['update:modelValue', 'trialChange']);
 
 const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as RiskAmountPremiumConfig),
   modelValue: () => ({} as RiskVoItem),
+  defalutValue: () => ({} as any),
+  trialResult: () => ({} as any),
 });
+
+const state = reactive<StateInfo>({
+  hadSetDefault: false,
+});
+
 const mConfigs = ref(props.originData);
 const mValues = ref(props.modelValue);
-const showTypes = ref(1);
-
+const showTypes = ref(0);
 const pickEnums = (origin: any[], target: any[], prop = {}) => {
   let currentTarget = target;
   if (!Array.isArray(target)) {
@@ -130,18 +150,20 @@ const pickEnums = (origin: any[], target: any[], prop = {}) => {
   return (origin || []).filter((or) => currentTarget.includes(`${or.value}`) || currentTarget.includes(or.value));
 };
 
-const validateSumInsured = () => {};
+const validateSumInsured = () => {
+  return true;
+};
 
 const getMethodName = () => {
   if (mConfigs.value.saleMethod === 2) {
     return {
       label: '保费',
-      key: 'premium',
+      key: 'initialPremium',
     };
   }
   return {
     label: '保额',
-    key: 'amount',
+    key: 'initialAmount',
   };
 };
 
@@ -169,12 +191,12 @@ const methodName = computed(() => {
   if (mConfigs.value.saleMethod === 2) {
     return {
       label: '保费',
-      key: 'premium',
+      key: 'initialPremium',
     };
   }
   return {
     label: '保额',
-    key: 'amount',
+    key: 'initialAmount',
   };
 });
 
@@ -223,28 +245,29 @@ const checkStep = () => {
 const initData = () => {
   const { displayType, requireCopies } = mConfigs.value;
   const mKey = getMethodName().key;
+  const canChange = !mValues.value.riskCode;
   if (displayType === 1) {
     showTypes.value = 1;
   } else if (displayType === 3 && requireCopies === 2) {
     showTypes.value = 2;
     // console.log('>>>>set value', mValues.value, mConfigs.value.displayValues.length, mName);
-    if (mConfigs.value.displayValues.length >= 1) {
+    if (mConfigs.value.displayValues.length >= 1 && canChange && !mValues.value[mKey]) {
       mValues.value[mKey] = mConfigs.value.displayValues[0].code || mConfigs.value.displayValues[0].value;
     }
   } else if (displayType === 3 && requireCopies === 1) {
     showTypes.value = 3;
-    if (mConfigs.value.minCopiesValue === mConfigs.value.maxCopiesValue) {
+    if (mConfigs.value.minCopiesValue === mConfigs.value.maxCopiesValue && canChange && !mValues.value.copy) {
       mValues.value.copy = mConfigs.value.minCopiesValue;
     }
-    if (mConfigs.value.displayValues.length >= 1) {
+    if (mConfigs.value.displayValues.length >= 1 && canChange && !mValues.value[mKey]) {
       mValues.value[mKey] = mConfigs.value.displayValues[0].code || mConfigs.value.displayValues[0].value;
     }
   } else if (displayType === 2) {
     showTypes.value = 4;
-    if (mConfigs.value.minCopiesValue === mConfigs.value.maxCopiesValue) {
+    if (mConfigs.value.minCopiesValue === mConfigs.value.maxCopiesValue && canChange && !mValues.value.copy) {
       mValues.value.copy = mConfigs.value.minCopiesValue;
     }
-    mValues.value.amount = mConfigs.value.copiesAmount;
+    if (canChange && !mValues.value.initialAmount) mValues.value.initialAmount = mConfigs.value.copiesAmount;
   }
 };
 
@@ -253,7 +276,7 @@ const displayValues = computed(() => {
   if (mConfigs.value.displayValues) {
     const mKey = getMethodName().key;
     // console.log('>>>>set value', mValues.value, mConfigs.value.displayValues.length, mName);
-    if (mConfigs.value.displayValues.length === 1) {
+    if (mConfigs.value.displayValues.length === 1 && !mValues.value.riskCode) {
       mValues.value[mKey] = mConfigs.value.displayValues[0].code;
     }
     return mConfigs.value.displayValues.map((v) => {
@@ -286,11 +309,29 @@ watch(
 );
 
 watch(
+  () => props.defalutValue,
+  (v) => {
+    if (v?.riskCode && !state.hadSetDefault) {
+      state.hadSetDefault = true;
+      mValues.value = {
+        ...mValues.value,
+        initialAmount: v.initialAmount,
+        initialPremium: v.initialPremium,
+        copy: v.copy,
+      };
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
   () => mValues.value,
   (v) => {
     if (checkStep()) {
       emit('update:modelValue', v);
-      // console.log('----change', v);
       emit('trialChange', v);
     }
   },

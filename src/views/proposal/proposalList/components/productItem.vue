@@ -8,32 +8,36 @@
   <div class="com-product-item">
     <div class="content-wrap">
       <div class="product-image">
-        <van-image :src="productInfo.showConfig.fileUrl" />
+        <van-image :src="productInfo.showConfig?.fileThumbnailUrl || productInfo.showConfig?.fileUrl" />
         <p class="insure-name">{{ (productInfo.insurerName || '').substring(0, 6) }}</p>
         <!-- <span class="is-top new">热销</span> -->
       </div>
       <div class="product-info">
-        <p class="title">{{ productInfo.showConfig.title }}</p>
-        <p class="description">{{ productInfo.showConfig.text }}</p>
+        <p class="title">{{ productInfo.showConfig?.title }}</p>
+        <p class="description">{{ productInfo.showConfig?.text }}</p>
         <p class="tags">
-          <span v-for="(i, idx) of productInfo.showConfig.tags" :key="idx" class="tag">{{ i }}</span>
+          <span v-for="(i, idx) of productInfo.showConfig?.tags" :key="idx" class="tag">{{ i }}</span>
         </p>
       </div>
       <slot name="checkedProduct"> </slot>
     </div>
+    <ProductTips :error-msg="errorMsg" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { withDefaults } from 'vue';
 import { ProposalItem } from '@/api/modules/proposalList.data';
+import ProductTips from './ProductTips.vue';
 
 interface Props {
   productInfo: Partial<ProposalItem>;
+  errorMsg: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   productInfo: () => ({}),
+  errorMsg: '',
 });
 
 const { productInfo } = toRefs(props);
@@ -54,6 +58,8 @@ const { checked } = toRefs(state);
     display: flex;
     .product-image {
       position: relative;
+      border-radius: 12px;
+      overflow: hidden;
       .van-image {
         width: 160px;
         height: 160px;
@@ -72,7 +78,7 @@ const { checked } = toRefs(state);
         line-height: 44px;
         text-align: center;
         position: absolute;
-        bottom: 5px;
+        bottom: 0px;
         left: 0;
         border-radius: 0 0 12px 12px;
       }
@@ -145,6 +151,21 @@ const { checked } = toRefs(state);
         border-color: #99a9c0;
       }
     }
+  }
+  .error-msg {
+    margin: 0 30px 30px;
+    padding: 9px 20px;
+    line-height: 32px;
+    font-size: 24px;
+    color: #ff5840;
+    background: rgba(255, 88, 64, 0.1);
+    border-radius: 10px;
+    .warning-icon {
+      margin-right: 10px;
+    }
+  }
+  :deep(.error-msg) {
+    margin: 10px 0;
   }
 }
 </style>

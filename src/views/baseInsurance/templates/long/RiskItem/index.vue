@@ -173,14 +173,14 @@
     </ProField>
     <ProField
       v-if="!isEmpty(originData?.riskInsureLimitVO?.annuityDrawFrequencyList)"
-      v-model="state.formInfo.annuityDrawType"
+      v-model="state.formInfo.annuityDrawFrequency"
       label="领取方式"
-      name="annuityDrawType"
+      name="annuityDrawFrequency"
     >
       <template #input>
         <div class="pro-radio-wrap">
           <ProRadioButton
-            v-model="state.formInfo.annuityDrawType"
+            v-model="state.formInfo.annuityDrawFrequency"
             :options="pickEnums(ANNUITY_DRAW_TYPE, originData.riskInsureLimitVO?.annuityDrawFrequencyList || [])"
           ></ProRadioButton>
         </div>

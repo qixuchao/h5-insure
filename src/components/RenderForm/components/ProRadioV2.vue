@@ -1,7 +1,7 @@
 <template>
   <ProFieldV2 class="com-van-radio-wrap" v-bind="filedAttrs" :model-value="state.modelValue">
     <template #input>
-      <div v-if="isView">{{ fieldValueView }}</div>
+      <ValueView v-if="isView" :value="fieldValueView" />
       <template v-else>
         <template v-if="isButtonType">
           <ProCheckButton
@@ -31,6 +31,7 @@ import isNil from 'lodash-es/isNil';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { useAttrsAndSlots } from '../hooks';
 import { VAN_PRO_FORM_KEY } from '../utils';
+import ValueView from './ProFormItem/ValueView.vue';
 import ProFieldV2 from './ProFieldV2.vue';
 
 interface RadioAttrs extends RadioGroupProps {
@@ -101,13 +102,13 @@ const isButtonType = computed(() => props.type === 'button');
 
 // 查看模式值
 const fieldValueView = computed(() => {
-  return (state.columns.find((column) => column.value === state.modelValue) || {}).label || '';
+  return (state.columns.find((column) => String(column.value) === String(state.modelValue)) || {}).text || '';
 });
 
 const handleSelect = (value) => {
-  if (formState?.formData && filedAttrs.value.name) {
-    formState.formData[filedAttrs.value.name] = value;
-  }
+  // if (formState?.formData && filedAttrs.value.name) {
+  //   formState.formData[filedAttrs.value.name] = value;
+  // }
   state.modelValue = value;
   emit('update:modelValue', value);
 };
@@ -175,6 +176,10 @@ export default {
   }
   .com-check-btn {
     margin: 8px 16px 8px 0;
+  }
+  .value-view-wrap {
+    margin: 14px 0;
+    text-align: right;
   }
 }
 </style>

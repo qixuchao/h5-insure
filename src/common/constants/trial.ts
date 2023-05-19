@@ -249,7 +249,7 @@ export const INSURANCE_PERIOD_ENUM = {
   YEAR_1: 'year_1', // 一年期
 };
 
-// 缴费期间值
+// 交费期间值
 export const PAYMENT_PERIOD_VALUE = [
   {
     label: '趸交',

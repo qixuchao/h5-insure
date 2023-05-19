@@ -141,7 +141,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="insureForm">
 import { useRoute, useRouter } from 'vue-router';
 import { useToggle } from '@vant/use';
 import { Toast } from 'vant/es';

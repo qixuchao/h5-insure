@@ -1,67 +1,49 @@
 // 需要鉴权的业务路由
 import { RouteRecordRaw } from 'vue-router';
 
-// 人身险路由
+// 长期险路由
 const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'healthNotice',
-    path: '/healthNotice',
+    path: '/baseInsurance/long/healthNotice',
     meta: { title: '健康告知书' },
-    component: () => import('@/views/lifeInsurance/healthNotice/index.vue'),
+    component: () => import('@/views/baseInsurance/templates/long/healthNotice.vue'),
   },
   {
-    name: 'questionNotification',
-    path: '/questionNotification',
-    meta: { title: '问卷告知' },
-    component: () => import('@/views/lifeInsurance/questionNotification/index.vue'),
+    name: 'healthNoticeView',
+    path: '/baseInsurance/long/healthNotice/:id',
+    meta: { title: '健康告知书' },
+    component: () => import('@/views/baseInsurance/templates/long/healthNotice.vue'),
   },
   {
-    name: 'productDetail',
-    path: '/productDetail',
+    name: 'long-productDetail',
+    path: '/baseInsurance/long/productDetail',
     meta: { title: '产品详情' },
-    component: () => import('@/views/lifeInsurance/product/detail/index.vue'),
-  },
-  {
-    name: 'pay',
-    path: '/pay',
-    meta: { title: '支付状态' },
-    component: () => import('@/views/lifeInsurance/pay/index.vue'),
+    component: () => import('@/views/baseInsurance/templates/long/index.vue'),
   },
   {
     name: 'verify',
-    path: '/verify',
+    path: '/baseInsurance/long/verify',
     meta: { title: '身份认证' },
-    component: () => import('@/views/lifeInsurance/verify/index.vue'),
+    component: () => import('@/views/baseInsurance/templates/long/verify.vue'),
   },
   {
-    name: 'bankCard',
-    path: '/bankCard',
-    meta: { title: '添加银行卡' },
-    component: () => import('@/views/lifeInsurance/bankCard/index.vue'),
-  },
-  {
-    name: 'salesmanInform',
-    path: '/salesmanInform',
-    meta: { title: '营销员告知' },
-    component: () => import('@/views/lifeInsurance/salesmanInform/index.vue'),
+    name: 'phoneVerify',
+    path: '/baseInsurance/long/phoneVerify',
+    meta: { title: '空中签名' },
+    component: () => import('@/views/baseInsurance/templates/long/phoneVerify.vue'),
   },
   {
     name: 'infoCollection',
-    path: '/infoCollection',
+    path: '/baseInsurance/long/infoCollection',
     meta: { title: '信息采集' },
-    component: () => import('@/views/lifeInsurance/infoCollection/index.vue'),
+    component: () => import('@/views/baseInsurance/templates/long/infoCollection.vue'),
   },
   {
     name: 'infoPreview',
-    path: '/infoPreview',
+    path: '/baseInsurance/long/infoPreview',
     meta: { title: '保单预览' },
-    component: () => import('@/views/lifeInsurance/infoPreview/index.vue'),
-  },
-  {
-    name: 'customerNotice',
-    path: '/customerNotice',
-    meta: { title: '客户告知页' },
-    component: () => import('@/views/lifeInsurance/customerNotice/index.vue'),
+    component: () => import('@/views/baseInsurance/templates/long/infoPreview.vue'),
   },
   {
     name: 'middlePage',
@@ -73,29 +55,29 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     name: 'previewMiddlePage',
     path: '/previewMiddlePage',
     meta: { title: '预览' },
-    component: () => import('@/views/previewMiddlePage/index.vue'),
-  },
-  {
-    name: '手机号验证',
-    path: '/phoneVerify',
-    meta: { title: '手机号验证' },
-    component: () => import('@/views/lifeInsurance/phoneVerify/index.vue'),
+    component: () => import('@/views/middlePage/preview.vue'),
   },
 ];
 
 // 计划书路由
 const proposalRoutes: Array<RouteRecordRaw> = [
   {
-    name: 'createProposal',
+    name: 'CreateProposal',
     path: '/proposal/createProposal',
-    meta: { title: '创建计划书' },
+    meta: { title: '创建计划书', cacheSource: ['ProposalList'], cacheTarget: ['ProposalListSelect'] },
     component: () => import('@/views/proposal/createProposal/index.vue'),
   },
   {
-    name: 'proposalList',
+    name: 'ProposalList',
     path: '/proposalList',
-    meta: { title: '计划书列表' },
+    meta: { title: '计划书列表', cacheTarget: ['CreateProposal'] },
     component: () => import('@/views/proposal/proposalList/index.vue'),
+  },
+  {
+    name: 'ProposalListSelect',
+    path: '/proposalListSelect',
+    meta: { title: '添加产品', cacheSource: ['CreateProposal'] },
+    component: () => import('@/views/proposal/proposalListSelect/index.vue'),
   },
   {
     name: 'historyProposalList',
@@ -117,40 +99,6 @@ const proposalRoutes: Array<RouteRecordRaw> = [
   },
 ];
 
-// 互联网在线投保
-const internetRoutes = [
-  {
-    name: 'internetProductDetail',
-    path: '/internet/productDetail',
-    meta: { title: '付费险' },
-    component: () => import('@/views/internet/product/detail/index.vue'),
-  },
-  {
-    name: 'productDetailPackage',
-    path: '/internet/productDetail/package',
-    meta: { title: '付费险' },
-    component: () => import('@/views/internet/product/detail/packageProcess.vue'),
-  },
-  {
-    name: 'internetGuaranteeUpgrade',
-    path: '/internet/guaranteeUpgrade',
-    meta: { title: '保障升级' },
-    component: () => import('@/views/internet/upgrade/index.vue'),
-  },
-  {
-    name: 'internetOrderDetail',
-    path: '/internet/orderDetail',
-    meta: { title: '投保成功页' },
-    component: () => import('@/views/internet/orderDetail/index.vue'),
-  },
-  {
-    name: 'internetPayFail',
-    path: '/internet/payFail',
-    meta: { title: '支付失败' },
-    component: () => import('@/views/internet/payFail/index.vue'),
-  },
-];
-
 // 基线在线投保模板
 const baseInsurance = [
   // 赠险模板
@@ -162,10 +110,16 @@ const baseInsurance = [
   },
   // 短险模板
   {
-    name: 'baseInsuranceShort',
+    name: 'InsuranceShort',
     path: '/baseInsurance/short',
     meta: { title: '', keepAlive: true, requireWxJs: false },
-    component: () => import('@/views/baseInsurance/templates/short.vue'),
+    component: () => import('@/views/baseInsurance/templates/short3.vue'),
+  },
+  {
+    name: 'baseInsuranceShort3',
+    path: '/baseInsurance/short3',
+    meta: { title: '', keepAlive: true, requireWxJs: false },
+    component: () => import('@/views/baseInsurance/templates/short3.vue'),
   },
   // 短险-升级款（魔方）
   {
@@ -175,12 +129,12 @@ const baseInsurance = [
     component: () => import('@/views/baseInsurance/templates/upgrade.vue'),
   },
   // 长期险+年金
-  {
-    name: 'baseInsuranceLong',
-    path: '/baseInsurance/long',
-    meta: { title: '', keepAlive: true, requireWxJs: false },
-    component: () => import('@/views/baseInsurance/templates/long/index.vue'),
-  },
+  // {
+  //   name: 'baseInsuranceLong',
+  //   path: '/baseInsurance/long',
+  //   meta: { title: '', keepAlive: true, requireWxJs: false },
+  //   component: () => import('@/views/baseInsurance/templates/long/index.vue'),
+  // },
   // 网电销-坐下下单
   {
     name: 'baseInsuranceNetsale',
@@ -208,6 +162,14 @@ const baseInsurance = [
     path: '/baseInsurance/trialPreview',
     meta: { title: '', requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/long/trialPreview.vue'),
+  },
+  ...lifeInsuranceRoutes,
+  // 长期险投保结果
+  {
+    name: 'baseInsuranceLongResult',
+    path: '/baseInsurance/long/result',
+    meta: { title: '', requireWxJs: false },
+    component: () => import('@/views/baseInsurance/templates/long/Result/index.vue'),
   },
 ];
 
@@ -323,8 +285,6 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/baseInsurance/filePreview/index.vue'),
   },
   ...proposalRoutes,
-  ...lifeInsuranceRoutes,
-  ...internetRoutes,
   ...baseInsurance,
 ];
 

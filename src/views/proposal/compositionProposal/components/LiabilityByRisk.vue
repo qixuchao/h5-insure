@@ -14,7 +14,7 @@
         </div>
       </div>
       <div class="product-detail">
-        <van-collapse v-model="item.riskName1" accordion :is-link="false" :border="false" size="middle">
+        <van-collapse v-model="activeList" :is-link="false" :border="false" size="middle">
           <van-collapse-item
             v-for="(val, k) in item.proposalRiskLiabilityVOList"
             :key="k"
@@ -23,7 +23,7 @@
             value-class="price"
             :value="val.liabilityIndemnityContent"
           >
-            {{ val.liabilityDesc }}
+            <div v-html="val.liabilityDesc"></div>
           </van-collapse-item>
         </van-collapse>
       </div>
@@ -37,6 +37,8 @@ const props = defineProps({
     default: () => {},
   },
 });
+
+const activeList = ref<string[]>([]);
 </script>
 
 <style lang="scss" scoped>

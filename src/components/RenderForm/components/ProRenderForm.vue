@@ -6,20 +6,25 @@
         v-for="(item, index) in state.schema"
         :key="`${item.nanoid}_${index}`"
         v-bind="item"
+        v-model="state.formData[item.name]"
+        :is-view="item.isView || isView"
       >
         <!-- 继承 slots -->
-        <template v-for="slotName in noDefaultSlots" :key="slotName" #[slotName]>
-          <slot :name="slotName" />
+        <template v-for="slotName in noDefaultSlots" :key="slotName" #[slotName]="slotParams">
+          <slot :name="slotName" v-bind="slotParams || {}" />
         </template>
       </component>
     </template>
+    <!-- <SchemaRenderField v-if="isSchema" :schema="state.schema" /> -->
     <slot name="default" />
   </VanForm>
 </template>
 <script lang="ts" setup>
 import { withDefaults, reactive, shallowRef, useSlots } from 'vue';
 import type { FormInstance } from 'vant';
+import { nanoid } from 'nanoid';
 import { Toast } from 'vant/es';
+import isEqual from 'lodash-es/isEqual';
 import debounce from 'lodash-es/debounce';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { VAN_PRO_FORM_KEY } from '../utils';
@@ -38,7 +43,9 @@ interface Props {
   isView?: boolean;
   schema?: SchemaItem[];
   config?: object;
-  markRequired: boolean;
+  markRequired?: boolean;
+  /** 额外Provide  */
+  extraProvision: object;
 }
 
 const emits = defineEmits(['failed']);
@@ -59,7 +66,7 @@ const state = reactive({
   formData: {},
   schema: [],
   nameList: [], // 字段 name List
-  isView: props.isView,
+  dictCodeList: [], // 字典枚举
 });
 
 const formRef = ref<FormInstance>({} as FormInstance);
@@ -67,7 +74,8 @@ const formRef = ref<FormInstance>({} as FormInstance);
 provide(VAN_PRO_FORM_KEY, {
   formState: state,
   formRef,
-  markRequired: props.markRequired,
+  markRequired: props.markRequired && !props.isView,
+  ...props.extraProvision,
 });
 
 // 非默认 slots
@@ -127,11 +135,12 @@ watch(
       state.schema = (schema as SchemaItem[])
         .map((item) => ({
           ...item,
-          modelValue: props.model[item.name],
+          // modelValue: props.model[item.name],
           componentName: FieldComponents[item.componentName]
             ? shallowRef(FieldComponents[item.componentName])
             : item.componentName,
           ...config[item.name],
+          nanoid: nanoid(),
         }))
         .filter((item) => !item.hidden);
     }
@@ -153,22 +162,8 @@ watch(
   },
 );
 
-// 处理需要请求的字典并去重
-const dictCodeList = computed(() => {
-  return [
-    ...new Set(
-      state.schema.reduce((res, item) => {
-        if (item.dictCode) {
-          res.push(item.dictCode);
-        }
-        return res;
-      }, []),
-    ),
-  ];
-});
-
 watch(
-  dictCodeList,
+  () => state.dictCodeList,
   debounce((val) => {
     if (val) {
       useDictData(val as string[]);
@@ -182,10 +177,32 @@ watch(
 
 watch(
   () => props.model,
-  (val) => {
-    if (val) {
+  (val, oldVal) => {
+    if (!isEqual(val, oldVal)) {
       state.formData = val;
     }
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
+
+watch(
+  () => state.schema,
+  (val) => {
+    // 处理需要请求的字典并去重
+    state.dictCodeList = [
+      ...new Set([
+        ...state.dictCodeList,
+        ...state.schema.reduce((res, item) => {
+          if (item.dictCode) {
+            res.push(item.dictCode);
+          }
+          return res;
+        }, []),
+      ]),
+    ];
   },
   {
     immediate: true,
@@ -204,6 +221,6 @@ defineExpose({
 });
 </script>
 <style lang="scss" scoped>
-// .com-van-form {
-// }
+.com-van-form {
+}
 </style>

@@ -11,12 +11,11 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-const props = defineProps({
-  inscribedContent: {
-    type: String,
-    default: '',
-  },
+<script lang="ts" setup name="inscribedContent">
+import { withDefaults } from 'vue';
+
+const props = withDefaults(defineProps<{ inscribedContent: string }>(), {
+  inscribedContent: '',
 });
 
 const lastContent = ref<string>();

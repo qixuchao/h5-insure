@@ -1,16 +1,19 @@
 <template>
-  <ProFieldV2 class="com-form-item" :is-link="!isView">
+  <ProFieldV2 :class="{ 'com-form-item': true, 'com-form-item--view': isView }" :is-link="!isView">
     <template #input>
       <CustomInput
         :name="name"
         :model-value="modelValue"
+        :is-view="isView"
         :field-value-view="fieldValueView"
         :placeholder="$attrs.placeholder"
-      />
+      >
+        <template #value-view="slotParams"><slot name="value-view" v-bind="slotParams || {}" /></template>
+      </CustomInput>
     </template>
     <!-- 继承 slots -->
-    <template v-for="slotName in Object.keys($slots)" :key="slotName" #[slotName]>
-      <slot :name="slotName" />
+    <template v-for="slotName in noValueViewSlots" :key="slotName" #[slotName]="slotParams">
+      <slot :name="slotName" v-bind="slotParams || {}" />
     </template>
   </ProFieldV2>
 </template>
@@ -18,6 +21,8 @@
 <script lang="ts" setup name="ProFormItem">
 import ProFieldV2 from '../ProFieldV2.vue';
 import CustomInput from './CustomInput.vue';
+
+const slots = useSlots();
 
 const props = defineProps({
   /**
@@ -43,16 +48,21 @@ const props = defineProps({
     default: '',
   },
 });
+
+// 非默认 slots
+const noValueViewSlots = computed(() => Object.keys(slots).filter((key) => key !== 'value-view'));
 </script>
 <style lang="scss">
-.van-cell.com-form-item .van-field__value {
-  align-items: flex-start;
-  .van-field__body {
-    width: 100%;
-  }
-  .van-field__control--error {
-    .placeholder {
-      color: var(--van-field-input-error-text-color);
+.van-cell.com-form-item {
+  .van-field__value {
+    align-items: flex-start;
+    .van-field__body {
+      width: 100%;
+    }
+    .van-field__control--error {
+      .placeholder {
+        color: var(--van-field-input-error-text-color);
+      }
     }
   }
 }

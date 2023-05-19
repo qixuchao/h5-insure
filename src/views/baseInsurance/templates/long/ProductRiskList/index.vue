@@ -2,7 +2,7 @@
   <!-- 以下是附加险种信息 -->
   <template v-for="risk in dataSource.insureProductRiskVOList" :key="risk.riskCode">
     <div
-      v-if="((!showMainRisk && risk.mainRiskFlag !== 1) || showMainRisk) && state.riskIsInsure[risk.riskId].relation"
+      v-if="((!showMainRisk && risk.mainRiskFlag !== 1) || showMainRisk) && state.riskIsInsure?.[risk.riskId]?.relation"
     >
       <!-- 附加险区域 -->
       <VanField
@@ -22,7 +22,7 @@
             v-model="state.riskIsInsure[risk.riskId].selected"
             active-value="1"
             inactive-value="2"
-            size="26px"
+            size="0.74rem"
             :disabled="state.riskIsInsure[risk.riskId].isMust"
             style="margin-right: 8px"
             @change="handleSwitchClick($event, risk)"
@@ -43,14 +43,17 @@
           v-model="state.riskIsInsure[risk.riskId].data"
           :origin-data="risk"
           :product-factor="dataSource.productFactor"
-          @trial-change="(data) => handleInsureInfoChange(data, risk.riskId)"
+          :default-value="state.risksDefaultValue[risk.riskCode]"
+          @trial-change="(data, changeData) => handleInsureInfoChange(data, risk.riskId, changeData)"
         ></InsureInfos>
       </div>
+      <!-- 豁免险展示投保人 -->
+      <slot v-if="risk.exemptFlag === 1 && state.riskIsInsure[risk.riskId].selected === '1'" name="holderForm" />
     </div>
   </template>
 </template>
 
-<script lang="ts" setup name="TrialPop">
+<script lang="ts" setup name="ProductRiskList">
 import { computed, ref } from 'vue';
 import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import TrialButton from '../TrialButton.vue';
@@ -81,6 +84,10 @@ const props = defineProps({
     type: Boolean,
     default: () => true,
   },
+  defaultValue: {
+    type: Object,
+    default: () => {},
+  },
 });
 const state = reactive({
   loading: false,
@@ -91,6 +98,7 @@ const state = reactive({
   riskIsInsure: {},
   submitData: {} as PremiumCalcData,
   disabledRiskInfo: [],
+  risksDefaultValue: {},
 });
 
 const onNext = () => {
@@ -123,22 +131,22 @@ const getInitliabilityVOList = (dataSource: any) => {
   return liabilityList;
 };
 
-const handleInsureInfoChange = (data: any, riskId: number) => {
+const handleInsureInfoChange = (data: any, riskId: number, changeData: any) => {
   state.riskIsInsure[riskId].data = data;
   const list = [...state.disabledRiskInfo];
   props.dataSource.insureProductRiskVOList?.forEach((risk) => {
     if (risk.mainRiskFlag !== 1) {
       const riskData = state.riskIsInsure[risk.riskId];
-      if (riskData.data && Object.keys(riskData.data).length > 0 && !riskData.isDisabled) {
+      if (riskData.data && Object.keys(riskData.data).length > 0 && riskData.selected === '1') {
         list.push(riskData.data);
       }
     }
   });
-  emit('trialChange', list);
+  emit('trialChange', list, changeData);
 };
 
 const handleSetRiskSelect = () => {
-  state.riskIsInsure = {};
+  // state.riskIsInsure = {};
   state.disabledRiskInfo = [];
   let mainRisk = null;
   props.dataSource.insureProductRiskVOList?.forEach((risk) => {
@@ -151,7 +159,13 @@ const handleSetRiskSelect = () => {
       // 1可选，2绑定， 3互斥 {
       mainRisk = risk;
     }
-    state.riskIsInsure[risk.riskId] = { selected: '2', data: null, relation, isMust: false };
+    if (!state.riskIsInsure[risk.riskId])
+      state.riskIsInsure[risk.riskId] = { selected: '2', data: null, relation, isMust: false };
+    else {
+      state.riskIsInsure[risk.riskId].data = null;
+      state.riskIsInsure[risk.riskId].relation = relation;
+      state.riskIsInsure[risk.riskId].isMust = false;
+    }
   });
   // 根据关联关系判断和标准险种关联的是否可选
   if (mainRisk) {
@@ -179,20 +193,26 @@ const handleSetRiskSelect = () => {
               riskType: risk.riskType,
               mainRiskId: risk.mainRiskId,
               mainRiskCode: risk.mainRiskCode,
-              liabilityVOList: getInitliabilityVOList(risk),
+              liabilityList: getInitliabilityVOList(risk),
             };
             data.chargePeriod =
-              (risk?.paymentPeriodValueList?.length > 0 && risk?.paymentPeriodValueList[0].code) || null;
+              (risk?.productRiskInsureLimitVO?.paymentPeriodValueList?.length > 0 &&
+                risk?.productRiskInsureLimitVO?.paymentPeriodValueList[0].code) ||
+              null;
             data.coveragePeriod =
-              (risk?.insurancePeriodValueList?.length > 0 && risk?.insurancePeriodValueList[0].code) || null;
+              (risk?.productRiskInsureLimitVO?.insurancePeriodValueList?.length > 0 &&
+                risk?.productRiskInsureLimitVO?.insurancePeriodValueList[0].code) ||
+              null;
             data.paymentFrequency =
-              (risk?.paymentFrequencyList?.length > 0 && risk?.paymentFrequencyList[0].code) || null;
+              (risk?.productRiskInsureLimitVO?.paymentFrequencyList?.length > 0 &&
+                risk?.productRiskInsureLimitVO?.paymentFrequencyList[0].code) ||
+              null;
             let count = 0;
             if (amountPremiumConfigVO.displayType === 1) {
-              // amount
+              // initialAmount
               count = amountPremiumConfigVO?.minStepValue > 0 ? amountPremiumConfigVO?.minStepValue : 0;
             } else if (amountPremiumConfigVO.displayType === 3 && amountPremiumConfigVO.requireCopies === 2) {
-              // amount
+              // initialAmount
               count =
                 amountPremiumConfigVO?.displayValues?.length > 0 ? amountPremiumConfigVO?.displayValues[0].value : 0;
             } else if (amountPremiumConfigVO.displayType === 3 && amountPremiumConfigVO.requireCopies === 1) {
@@ -204,8 +224,8 @@ const handleSetRiskSelect = () => {
               // copy
               data.copy = amountPremiumConfigVO.minCopiesValue;
             }
-            if (amountPremiumConfigVO.saleMethod === 1) data.amount = count;
-            else data.premium = count;
+            if (amountPremiumConfigVO.saleMethod === 1) data.initialAmount = count;
+            else data.initialPremium = count;
             state.disabledRiskInfo.push(data);
             handleInsureInfoChange(data, risk.riskId);
           }
@@ -232,18 +252,26 @@ const handleShowNoInfoShowRisk = (risk: any) => {
       riskType: risk.riskType,
       mainRiskId: risk.mainRiskId,
       mainRiskCode: risk.mainRiskCode,
-      liabilityVOList: getInitliabilityVOList(risk),
+      liabilityList: getInitliabilityVOList(risk),
     };
-    data.chargePeriod = (risk?.paymentPeriodValueList?.length > 0 && risk?.paymentPeriodValueList[0].code) || null;
+    data.chargePeriod =
+      (risk?.productRiskInsureLimitVO?.paymentPeriodValueList?.length > 0 &&
+        risk?.productRiskInsureLimitVO?.paymentPeriodValueList[0].code) ||
+      null;
     data.coveragePeriod =
-      (risk?.insurancePeriodValueList?.length > 0 && risk?.insurancePeriodValueList[0].code) || null;
-    data.paymentFrequency = (risk?.paymentFrequencyList?.length > 0 && risk?.paymentFrequencyList[0].code) || null;
+      (risk?.productRiskInsureLimitVO?.insurancePeriodValueList?.length > 0 &&
+        risk?.productRiskInsureLimitVO?.insurancePeriodValueList[0].code) ||
+      null;
+    data.paymentFrequency =
+      (risk?.productRiskInsureLimitVO?.paymentFrequencyList?.length > 0 &&
+        risk?.productRiskInsureLimitVO?.paymentFrequencyList[0].code) ||
+      null;
     let count = 0;
     if (amountPremiumConfigVO.displayType === 1) {
-      // amount
+      // initialAmount
       count = amountPremiumConfigVO?.minStepValue > 0 ? amountPremiumConfigVO?.minStepValue : 0;
     } else if (amountPremiumConfigVO.displayType === 3 && amountPremiumConfigVO.requireCopies === 2) {
-      // amount
+      // initialAmount
       count = amountPremiumConfigVO?.displayValues?.length > 0 ? amountPremiumConfigVO?.displayValues[0].value : 0;
     } else if (amountPremiumConfigVO.displayType === 3 && amountPremiumConfigVO.requireCopies === 1) {
       // amout copy
@@ -255,8 +283,8 @@ const handleShowNoInfoShowRisk = (risk: any) => {
     } else {
       count = 0;
     }
-    if (amountPremiumConfigVO.saleMethod === 1) data.amount = count;
-    else data.premium = count;
+    if (amountPremiumConfigVO.saleMethod === 1) data.initialAmount = count;
+    else data.initialPremium = count;
     handleInsureInfoChange(data, risk.riskId);
   }
 };
@@ -273,11 +301,11 @@ const handleSwitchClick = (selected: string, data: any) => {
           if (state.riskIsInsure[r.collocationRiskId]) state.riskIsInsure[r.collocationRiskId].selected = selected;
         }
         if (r.collocationType === 3) {
-          if (state.riskIsInsure[r.collocationRiskId])
+          if (state.riskIsInsure[r.collocationRiskId] && selected === '1')
             state.riskIsInsure[r.collocationRiskId].selected = selected === '1' ? '2' : '1';
         }
       } else if (data.riskId === r.collocationRiskId) {
-        if (r.collocationType === 3) {
+        if (r.collocationType === 3 && selected === '1') {
           if (state.riskIsInsure[r.riskId]) state.riskIsInsure[r.riskId].selected = selected === '1' ? '2' : '1';
         }
         if (r.collocationType === 2) {
@@ -303,6 +331,28 @@ onMounted(() => {
 watch(
   () => state.riskIsInsure,
   (v) => {},
+  { deep: true, immediate: true },
+);
+
+watch(
+  () => props.defaultValue,
+  (v) => {
+    if (v?.length > 0) {
+      v.forEach((risk) => {
+        state.risksDefaultValue[risk.riskCode] = risk;
+        if (state.riskIsInsure[risk.riskId]) {
+          state.riskIsInsure[risk.riskId].selected = '1';
+          // handleSwitchClick('1', risk);
+          handleInsureInfoChange(risk, risk.riskId);
+        } else {
+          state.riskIsInsure[risk.riskId] = {
+            selected: '1',
+            isMust: false,
+          };
+        }
+      });
+    }
+  },
   { deep: true, immediate: true },
 );
 </script>

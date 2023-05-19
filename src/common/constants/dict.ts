@@ -18,6 +18,8 @@ export const DictNameEnum = {
    * 国籍信息
    */
   NATIONALITY: 'NATIONALITY',
+  /** 银行卡 */
+  BANK: 'BANK',
 };
 
 // 全局字典 不需要转label-value的列表

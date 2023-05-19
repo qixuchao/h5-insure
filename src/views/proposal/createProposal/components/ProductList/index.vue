@@ -1,39 +1,38 @@
-<!--
- * @Author: za-qixuchao qixuchao@zhongan.io
- * @Date: 2022-07-14 16:43:35
- * @LastEditors: za-qixuchao qixuchao@zhongan.io
- * @LastEditTime: 2022-09-13 00:39:57
- * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductList/index.vue
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
--->
 <template>
   <div class="com-product-list-wrapper">
     <div v-for="risk in state.productRiskList" :key="risk.riskId">
       <div class="risk-item-wrapper">
         <ProTitle :risk-type="risk.riskType" :title="risk.riskName" class="no-border" />
         <div class="content">
-          <div class="risk-premium">
-            保费:<span class="premium">￥{{ risk.premium?.toLocaleString() }}</span>
-          </div>
           <div class="risk-factor">
             <div class="factor">
-              <span class="factor-value">{{ risk.amount?.toLocaleString() }}</span>
+              <span class="factor-value">{{ risk.initialAmount?.toLocaleString() || '-' }}</span>
               <span class="factor-name"> 保额(元) </span>
             </div>
             <div class="factor">
-              <span class="factor-value">{{ pickNameInList(RISK_INSURANCE_PERIOD, risk.coveragePeriod) }}</span>
+              <span class="factor-value">{{ convertPeriod(risk.coveragePeriod) || '-' }}</span>
               <span class="factor-name"> 保障期间 </span>
             </div>
             <div class="factor">
-              <span class="factor-value">{{ pickNameInList(RISK_PAYMENT_PERIOD, risk.chargePeriod) }}</span>
-              <span class="factor-name"> 缴费期间 </span>
+              <span class="factor-value">{{ convertChargePeriod(risk.chargePeriod) || '-' }}</span>
+              <span class="factor-name"> 交费期间 </span>
             </div>
           </div>
-          <div class="operate-bar">
-            <ProCheckButton v-if="isCanDeleteRisk(risk.riskId)" :round="32" class="border" @click="deleteRisk(risk)"
-              >删除</ProCheckButton
-            >
-            <ProCheckButton
+          <div class="operate-bar-wrap">
+            <div class="risk-premium">
+              保费:<span class="premium">{{
+                !errorMsg && risk.initialPremium ? `￥${risk.initialPremium?.toLocaleString()}` : '-'
+              }}</span>
+            </div>
+            <div v-if="risk.riskType !== 2" class="operate-bar">
+              <ProCheckButton
+                v-if="isCanDeleteRisk(risk.riskId) && productIndex > 0"
+                :round="32"
+                class="border"
+                @click="deleteRisk(risk)"
+                >删除</ProCheckButton
+              >
+              <!-- <ProCheckButton
               v-if="isCanAddRiderRisk"
               activated
               :round="32"
@@ -42,15 +41,19 @@
             >
               <span class="btn-plus">+</span>
               附加险</ProCheckButton
-            >
-            <ProCheckButton activated :round="32" @click="updateRisk(risk)">修改</ProCheckButton>
+            > -->
+              <ProCheckButton activated :round="32" @click="updateRisk(risk)">修改</ProCheckButton>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div v-if="state.productRiskList.length > 1" class="premium-total">
-      保费: <span class="premium">￥{{ state.totalPremium.toLocaleString() }}</span>
-    </div>
+    <!-- <div v-if="state.productRiskList.length > 1" class="premium-total">
+      保费:
+      <span class="premium">{{
+        !errorMsg && state?.totalPremium ? `￥${state?.totalPremium?.toFixed(2)?.toLocaleString()}` : '-'
+      }}</span>
+    </div> -->
     <RiskRelationList
       v-if="showRelationList"
       v-model="state.checkedList"
@@ -61,17 +64,19 @@
       @finished="onFinished"
       @close="toggleRelationList(false)"
     ></RiskRelationList>
+    <ProductTips :error-msg="errorMsg" />
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="ProductList">
 import { withDefaults } from 'vue';
 import { useToggle } from '@vant/use';
 import { ProposalProductRiskItem, ProposalInsuredProductItem } from '@/api/modules/createProposal.data';
 import { ProductData, RiskDetailVoItem } from '@/api/modules/trial.data';
-import { pickNameInList } from '@/utils';
+import { convertPeriod, convertChargePeriod } from '@/utils/format';
 import RiskRelationList from '@/views/trial/components/RiskRelationList/index.vue';
 import useDict from '@/hooks/useDicData';
+import ProductTips from '@/views/proposal/proposalList/components/ProductTips.vue';
 
 interface Props {
   productRiskList: ProposalProductRiskItem[];
@@ -79,6 +84,8 @@ interface Props {
   productData: Partial<ProductData>;
   pickProductPremium: (type: any) => void;
   productNum: number;
+  errorMsg: string;
+  productIndex: number;
 }
 
 interface State {
@@ -97,6 +104,7 @@ const props = withDefaults(defineProps<Props>(), {
   productData: () => ({}),
   pickProductPremium: () => {},
   productNum: 0,
+  errorMsg: '',
 });
 
 const emits = defineEmits(['deleteRisk', 'updateRisk', 'addRiderRisk']);
@@ -111,10 +119,6 @@ const state = ref<State>({
   productRiskList: [],
 });
 // const isCanAddRiderRisk = ref<boolean>(false);
-
-const RISK_PAYMENT_PERIOD = useDict('RISK_PAYMENT_PERIOD');
-
-const RISK_INSURANCE_PERIOD = useDict('RISK_INSURANCE_PERIOD');
 
 // 可选附加险
 const riderRiskList = computed(() => {
@@ -191,11 +195,11 @@ watch(
   () => props.productInfo,
   (newVal) => {
     let productPremium = 0;
-    (newVal.proposalProductRiskList || []).forEach((risk: ProposalProductRiskItem) => {
-      productPremium += risk.premium;
+    (newVal.riskList || []).forEach((risk: ProposalProductRiskItem) => {
+      productPremium += risk.initialPremium;
     });
 
-    props.pickProductPremium?.({ [`${newVal.productId}`]: productPremium });
+    // props.pickProductPremium?.({ [`${newVal.productCode}`]: productPremium });
     state.value.totalPremium = productPremium;
   },
   {
@@ -252,6 +256,7 @@ watch(
   }
   .risk-item-wrapper {
     margin: $zaui-card-border;
+    padding-bottom: 20px;
     background-color: #f6f6fa;
     border-radius: 20px;
     :deep(.card-title) {
@@ -269,6 +274,8 @@ watch(
       font-weight: 600;
     }
     .risk-premium {
+      display: inline-flex;
+      align-items: center;
       color: #333333;
       font-weight: 400;
       font-size: 26px;
@@ -304,11 +311,14 @@ watch(
         }
       }
     }
-    .operate-bar {
+    .operate-bar-wrap {
       display: flex;
       align-content: center;
-      justify-content: flex-end;
-      padding-bottom: 20px;
+      justify-content: space-between;
+      height: 60px;
+      .operate-bar {
+        display: flex;
+      }
       .border {
         border: 2px solid #e6e6eb;
       }

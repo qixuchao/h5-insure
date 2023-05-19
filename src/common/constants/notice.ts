@@ -1,8 +1,17 @@
 export const NOTICE_OBJECT_ENUM = {
-  1: '投保人',
-  2: '被保人',
-  3: '营销人员(代理人)',
+  HOlDER: 1, // 投保人
+  INSURED: 2, // 被保人
+  AGENT: 3, // 代理人
 };
+
+export const NOTICE_OBJECT_LIST = [
+  {
+    label: '投保人',
+    value: NOTICE_OBJECT_ENUM.HOlDER,
+  }, // 投保人
+  { label: '被保人', value: NOTICE_OBJECT_ENUM.INSURED }, // 被保人
+  { label: '代理人', vale: NOTICE_OBJECT_ENUM.AGENT }, // 代理人
+];
 
 export const QUESTION_TEXT_TYPE = 2;
 

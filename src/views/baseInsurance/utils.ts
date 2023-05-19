@@ -89,8 +89,8 @@ export const transformData = (o: transformDataType, flag = false) => {
     const currentRisk = {
       tenantId,
       amountUnit: 1,
-      annuityDrawFrequency: risk.annuityDrawDate,
-      annuityDrawType: risk.annuityDrawType,
+      annuityDrawFrequency: risk.annuityDrawType,
+      annuityDrawDate: risk.annuityDrawDate,
       paymentFrequency: flag ? 5 : risk.paymentFrequency,
       paymentPeriod: risk.chargePeriod.split('_')[1],
       paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],
@@ -107,12 +107,29 @@ export const transformData = (o: transformDataType, flag = false) => {
       initialPremium: riskPremium[risk.riskCode]?.premium || 0,
       totalPremium: riskPremium[risk.riskCode]?.premium || 0,
       liabilityDetails:
-        risk.liabilityVOList?.map((liab) => ({
-          liabilityCode: liab.liabilityCode,
-          liabilityName: liab.liabilityName,
-          refundMethod: liab.liabilityAttributeValue,
-          // sumInsured: 300000,
-        })) || [],
+        risk.liabilityVOList?.map((liab) => {
+          const {
+            liabilityCode,
+            liabilityName,
+            liabilityAttributeValue,
+            insureFlag,
+            liabilityRateType,
+            liabilityAttributeType,
+            liabilityValue,
+          } = liab;
+          return {
+            liabilityCode,
+            liabilityName,
+            refundMethod: liabilityAttributeValue,
+            isInsurance: insureFlag, // 是否投保
+            liabilityAttributeType, // 责任属性code
+            liabilityRateType, // 责任费率表
+            liabilityValue, // 责任值
+            premium: liabilityValue?.factorValue, // 责任保额
+            sumInsuredValueStr: liabilityValue?.displayValue,
+            sumInsured: liabilityValue?.factorValue,
+          };
+        }) || [],
       productId,
       currentAmount: risk.amount || 0,
       initialAmount: riskPremium[risk.riskCode]?.amount || risk.amount,
@@ -121,33 +138,40 @@ export const transformData = (o: transformDataType, flag = false) => {
   });
 };
 
-export const riskToOrder = (productRiskVoList: any) => {
+export const riskToTrial = (productRiskVoList: any) => {
   const result = productRiskVoList.map((risk: any) => {
-    const { riskCode, riskType, riskCategory, riskName, riskId, productRiskInsureLimitVO, mainRiskCode, mainRiskId } =
-      risk;
+    const {
+      riskCode,
+      riskType,
+      riskCategory,
+      riskLiabilityInfoVOList,
+      riskName,
+      riskId,
+      productRiskInsureLimitVO,
+      mainRiskCode,
+      mainRiskId,
+    } = risk;
     const {
       annuityDrawFrequencyList,
       annuityDrawValueList,
       insurancePeriodValueList,
       paymentFrequencyList,
       paymentPeriodValueList,
-      paymentPeriodRule,
       amountPremiumConfigVO,
     } = productRiskInsureLimitVO || {};
-    const tempAmount = 0;
-    const { displayType, displayUnit, displayValues, eachCopyPrice } = amountPremiumConfigVO || {};
+    const { displayValues } = amountPremiumConfigVO || {};
 
     // todo 份数默认为1
     const copies = 1;
 
     return {
-      amount: displayValues?.[0]?.code,
+      initialAmount: displayValues?.[0]?.code,
       annuityDrawDate: annuityDrawValueList?.[0],
       annuityDrawFrequency: annuityDrawFrequencyList?.[0],
       chargePeriod: paymentPeriodValueList?.[0],
       copy: copies,
       coveragePeriod: insurancePeriodValueList?.[0],
-      liabilityVOList: risk.riskLiabilityInfoVOList,
+      liabilityList: riskLiabilityInfoVOList,
       mainRiskCode,
       mainRiskId,
       paymentFrequency: paymentFrequencyList?.[0],
@@ -519,32 +543,28 @@ export const genaratePremiumCalcData = (o: premiumCalcParamType, flag = false, v
   }
   const calcData: PremiumCalcData = {
     holder: {
-      personVO: {
-        birthday: getBirth(o.holder.certNo),
-        certType: CERT_TYPE_ENUM.CERT, // 默认身份证
-        certNo: o.holder.certNo,
-        gender: Number(getSex(o.holder.certNo)),
-        mobile: o.holder.mobile,
-        name: o.holder.name,
-        socialFlag: o.holder.socialFlag,
-      },
+      birthday: getBirth(o.holder.certNo),
+      certType: CERT_TYPE_ENUM.CERT, // 默认身份证
+      certNo: o.holder.certNo,
+      gender: Number(getSex(o.holder.certNo)),
+      mobile: o.holder.mobile,
+      name: o.holder.name,
+      socialFlag: o.holder.socialFlag,
     },
-    insuredVOList: [
+    insuredList: [
       {
         insuredCode: o.productDetail?.insurerCode as string,
         relationToHolder: o.insured.relationToHolder,
-        personVO: {
-          birthday: getBirth(o.insured.certNo),
-          certType: CERT_TYPE_ENUM.CERT, // 默认身份证
-          certNo: o.insured.certNo,
-          gender: Number(getSex(o.insured.certNo)),
-          name: o.insured.name,
-          socialFlag: o.insured.socialFlag,
-        },
+        birthday: getBirth(o.insured.certNo),
+        certType: CERT_TYPE_ENUM.CERT, // 默认身份证
+        certNo: o.insured.certNo,
+        gender: Number(getSex(o.insured.certNo)),
+        name: o.insured.name,
+        socialFlag: o.insured.socialFlag,
         // TODO ts报错
-        productPlanVOList: [
+        productList: [
           {
-            riskVOList: riskVOList.flat(),
+            riskList: riskVOList.flat(),
           },
         ] as any,
       },

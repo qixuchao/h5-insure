@@ -1,8 +1,7 @@
 <template>
-  <!-- {{ $attrs.visible ? `1111${$attrs.visible}` : `2222${$attrs.visible}` }} -->
   <van-field
     :model-value="state.modelValue"
-    :class="`com-van-field ${markRequired ? '' : 'field-mark_hidden'} ${
+    :class="`com-van-field ${markRequired ? '' : 'field-mark--hidden'} ${
       attrs.visible === false ? 'com-van-field--hidden' : ''
     }`"
     autocomplete="off"
@@ -11,9 +10,12 @@
     @blur="onBlur"
     @update:model-value="updateModelValue"
   >
+    <template v-if="isView" #input>
+      <ValueView :value="valueView" />
+    </template>
     <!-- 继承 slots -->
-    <template v-for="slotName in Object.keys(slotskeyMap)" :key="slotName" #[slotName]>
-      <slot :name="slotskeyMap[slotName]" />
+    <template v-for="slotName in Object.keys(slotskeyMap)" :key="slotName" #[slotName]="slotParams">
+      <slot :name="slotskeyMap?.[slotName]" v-bind="slotParams || {}" />
     </template>
     <template v-if="unit" #extra
       ><div class="com-van-field-unit">{{ unit }}</div></template
@@ -27,6 +29,7 @@ import type { FieldProps, FieldRule } from 'vant';
 import isNil from 'lodash/isNil';
 import isObject from 'lodash/isObject';
 import { isNotEmptyArray } from '@/common/constants/utils';
+import ValueView from './ProFormItem/ValueView.vue';
 import { VAN_PRO_FORM_KEY, RELATED_RULE_TYPE_MAP, relatedConfigMap, handleSlots, validatorMap } from '../utils';
 
 const attrs = useAttrs() as FieldProps;
@@ -102,6 +105,8 @@ const placeholder = computed((): string => {
   return attrs.placeholder || `请输入${attrs.label || ''}`;
 });
 
+const valueView = computed(() => `${state.modelValue || ''}`);
+
 const ruleType = computed(() => {
   if (props.ruleType) {
     return props.ruleType;
@@ -144,7 +149,9 @@ const rules = computed(() => {
             console.warn(`%c 字段 ${attrs.label} 的规则 ${ruleType} 校验函数不存在，请先确认～`, 'color: #3e7;');
             return '';
           }
-          if (!regFn(val)) {
+
+          // 有值则验证是否匹配
+          if (!isFalseValue(val) && !regFn(val)) {
             return `请输入正确的${attrs.label}`;
           }
         }
@@ -192,9 +199,9 @@ const onEffect = (type, val) => {
 
 const updateModelValue = (val) => {
   onEffect('onChange', val);
-  if (formState.formData && attrs.name) {
-    formState.formData[attrs.name] = val;
-  }
+  // if (formState?.formData && attrs.name) {
+  //   formState.formData[attrs.name] = val;
+  // }
   state.modelValue = val;
   emit('update:model-value', val);
 };
@@ -222,19 +229,8 @@ watch(
   },
 );
 
-watch(
-  () => formState?.formData?.[attrs.name],
-  (val) => {
-    state.modelValue = val;
-  },
-  {
-    immediate: true,
-    deep: true,
-  },
-);
-
 onMounted(() => {
-  if (attrs.name && formState.nameList) {
+  if (attrs.name && formState?.nameList) {
     formState.nameList.push(attrs.name);
   }
 });
@@ -246,10 +242,21 @@ export default {
 </script>
 <style lang="scss">
 .van-cell.van-field.com-van-field {
-  &.field-mark_hidden .van-field__label--required::before {
+  min-height: 106px;
+  // align-items: center;
+
+  &.field-mark--hidden .van-field__label--required::before {
     display: none;
   }
 
+  .van-field__label {
+    // align-self: flex-start;
+    // font-size: 28px;
+    // line-height: 32px;
+    // margin-top: 22px;
+  }
+
+  &.com-van-field-hidden,
   &.com-van-field--hidden {
     height: 0;
     min-height: 0;
@@ -263,10 +270,21 @@ export default {
       width: 100%;
     }
     .van-field__control {
-      text-align: left;
+      text-align: right;
     }
   }
+
+  textarea.van-field__control {
+    margin-top: 16px;
+    line-height: 1.3;
+  }
+
+  .van-cell__right-icon {
+    // padding-top: 0;
+  }
+
   .com-van-field-unit {
+    margin-left: 8px;
     align-self: center;
   }
 }

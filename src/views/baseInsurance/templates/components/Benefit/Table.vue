@@ -1,154 +1,129 @@
 <template>
-  <div class="benefit-table">
-    <Table :top-height="400" :columns="columns" :data="tableData" :is-clone="true">
-      <!-- <template #index="{ value, item }">
-        <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
-          value === null ? '-' : value
-        }}</span>
-      </template>
-      <template #propertyName="{ value, item }">
-        <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
-          value === null ? '-' : value
-        }}</span>
-      </template>
-      <template #subCount="{ value, item }">
-        <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
-          value === null ? '-' : value
-        }}</span>
-      </template>
-      <template #subAmount="{ value, item }">
-        <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
-          value === null ? '-' : value.toFixed(2)
-        }}</span>
-      </template>
-      <template #saleCount="{ value, item }">
-        <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
-          value === null ? '-' : value
-        }}</span>
-      </template>
-      <template #saleAmount="{ value, item }">
-        <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
-          value === null ? '-' : value.toFixed(2)
-        }}</span>
-      </template>
-      <template #saleNoLicenseCount="{ value, item }">
-        <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
-          value === null ? '-' : value
-        }}</span>
-      </template>
-      <template #saleNoLicenseAmount="{ value, item }">
-        <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
-          value === null ? '-' : value.toFixed(2)
-        }}</span>
-      </template>
-      <template #tfCount="{ value, item }">
-        <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
-          value === null ? '-' : value
-        }}</span>
-      </template>
-      <template #tfAmount="{ value, item }">
-        <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
-          value === null ? '-' : value.toFixed(2)
-        }}</span>
-      </template>
-      <template #bgCount="{ value, item }">
-        <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
-          value === null ? '-' : value
-        }}</span>
-      </template>
-      <template #bgAmount="{ value, item }">
-        <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
-          value === null ? '-' : value.toFixed(2)
-        }}</span>
-      </template>
-      <template #hkxjAmount="{ value, item }">
-        <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
-          value === null ? '-' : value.toFixed(2)
-        }}</span>
-      </template>
-      <template #xsxjCount="{ value, item }">
-        <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
-          value === null ? '-' : value
-        }}</span>
-      </template>
-      <template #xsxjAmount="{ value, item }">
-        <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
-          value === null ? '-' : value.toFixed(2)
-        }}</span>
-      </template> -->
-    </Table>
+  <div class="pro-com-table-wrap">
+    <ScrollWrap ref="tableScroll" class="pro-table-head" scroll-x @update:need-fixed="setNeedFixed">
+      <table ref="tableHeadRef" class="com-table">
+        <thead class="com-table-head">
+          <tr class="com-table-row">
+            <th
+              v-for="(column, index) in columns"
+              :key="index"
+              :class="['table-cell', `table-cell-${index}`]"
+              :style="{ minWidth: `${column.width || 80}px` }"
+            >
+              {{ column.title }}
+            </th>
+          </tr>
+        </thead>
+      </table>
+    </ScrollWrap>
+    <ScrollWrap ref="tableScroll" class="pro-table-body" scroll-y scroll-x>
+      <table ref="tableBodyRef" class="com-table">
+        <thead class="com-table-head">
+          <tr class="com-table-row">
+            <th
+              v-for="(column, index) in columns"
+              :key="index"
+              :class="['table-cell', `table-cell-${index}`]"
+              :style="{ minWidth: `${column.width || 80}px` }"
+            >
+              {{ column.title }}
+            </th>
+          </tr>
+        </thead>
+        <tbody class="com-table-body">
+          <template v-for="(item, index) in data" :key="index">
+            <tr class="com-table-row">
+              <td v-for="(column, columnIndex) in columns" :key="columnIndex" :class="['table-cell']">
+                <span>
+                  {{ column.render ? column.render(item, index) : item[column.key] }}
+                </span>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </ScrollWrap>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ColumnProps } from '@/components/ProTable/types';
-import Table from '@/components/ProTable/Table.vue';
+import ScrollWrap from './ScrollWrap.vue';
 
-interface Props {
-  dataSource: {
-    headers: string[];
-    dataList: Array<string[]>;
-  };
-}
+const emit = defineEmits(['update:modelValue', 'update:needFixed']);
 
-const props = defineProps<Props>();
-
-const colSpans = [
-  // {
-  //   rowIndex: 1,
-  //   spans: 4,
-  //   colIndex: 0,
-  //   contentIndex: 0, // 合并后的列采用第几行的数据
-  //   direction: 'row',
-  //   bgColor: '#ccc',
-  //   color: 'red',
-  // },
-
-  {
-    rowIndex: 5,
-    spans: 2,
-    colIndex: 2,
-    contentIndex: 5, // 合并后的列采用第几行的数据
-    direction: 'col',
-    bgColor: '#e1e1e1',
-    color: 'black',
+const props = defineProps({
+  data: {
+    type: Array,
+    default: () => [],
   },
-];
-const renderWidth = 320; // 表格在页面渲染的宽度
-// 构造列和行数据（header_是因为header里面的头是汉字，不能用于dom的ID）
-const columns = computed<ColumnProps[]>(() => {
-  // 表头的列数
-  const headerLen = props.dataSource.headers.length;
-  const totalWordWidth = props.dataSource.headers.join('').length * 12 + props.dataSource.headers.length * 20;
-  return props.dataSource.headers.map((h, i) => {
-    const titleWidth =
-      totalWordWidth > renderWidth ? h.length * 12 + 20 : Math.max(h.length * 12 + 20, renderWidth / headerLen);
-
-    console.log('totalWordWidth:', totalWordWidth, 'titleWidth:', titleWidth, 'word-width:', h.length * 12 + 20);
-    return {
-      title: h,
-      key: `header_${i}`,
-      fixed: i < 2,
-      minWidth: titleWidth,
-    };
-  });
-});
-const tableData = computed(() => {
-  return props.dataSource.dataList.map((row) => {
-    const rowData: { [key: string]: string } = {};
-    row.forEach((col, index) => {
-      rowData[`header_${index}`] = col;
-    });
-    return rowData;
-  });
+  columns: {
+    type: Array,
+    default: () => [],
+  },
+  translateY: {
+    type: Number,
+    default: 0,
+  },
 });
 
-onMounted(() => {});
+const setNeedFixed = (val) => {
+  emit('update:needFixed', val);
+};
 </script>
-<style>
-.benefit-table {
-  /* height: 600px; */
-  /* border: 1px solid red; */
-  overflow-y: hidden;
+
+<style lang="scss" scoped>
+.pro-com-table-wrap {
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+
+  .pro-table-head,
+  .pro-table-body {
+    position: absolute;
+    top: 0;
+    left: 0;
+    min-width: 100%;
+  }
+
+  .pro-table-head {
+    z-index: 10;
+  }
+
+  .com-table {
+    border-collapse: unset;
+    border-spacing: 0;
+    width: 100%;
+
+    :deep(td) {
+      width: 80px;
+      line-height: 64px;
+    }
+
+    :deep(th),
+    :deep(td) {
+      padding: 0 10px;
+      text-align: center;
+      white-space: nowrap;
+      box-sizing: border-box;
+      color: $zaui-text;
+      font-size: 24px;
+    }
+  }
+
+  .com-table-head {
+    line-height: 78px;
+    width: 100%;
+    background-color: #f4f8fd;
+  }
+
+  .com-table-body {
+    :deep(tr) {
+      background-color: #fff;
+
+      &:nth-child(even) {
+        background-color: #f3f3f3;
+      }
+    }
+  }
 }
 </style>

@@ -1,10 +1,10 @@
 <template>
   <div class="trial-button-wrap">
     <div class="footer-area">
-      <ProShare v-if="isShare && isApp" v-bind="shareInfo" class="share-btn">
+      <div v-if="isShare && isApp" class="com-share" @click="onShare">
         <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
         <span>分享</span>
-      </ProShare>
+      </div>
 
       <div class="price">
         <span v-if="loadingText">{{ loadingText }}</span>
@@ -13,10 +13,11 @@
           <span>{{ premiumUnit }} </span>
         </template>
       </div>
-      <ProShadowButton :shadow="false" class="right" @click="emits('onClick')">
+      <ProShadowButton :shadow="false" class="right" @click="emits('handleClick')">
         <slot>立即投保</slot>
       </ProShadowButton>
     </div>
+    <ProShare ref="shareRef" v-bind="currentShareInfo"> </ProShare>
   </div>
 </template>
 
@@ -25,6 +26,7 @@ import { withDefaults } from 'vue';
 import ProShadowButton from './ProShadowButton/index.vue';
 import { PlanInsureVO } from '@/api/modules/product.data';
 import { isAppFkq } from '@/utils';
+import ProShare from '@/components/ProShare/index.vue';
 
 interface Props {
   premium: number;
@@ -34,6 +36,7 @@ interface Props {
   paymentFrequency: string;
   shareInfo?: any;
   isShare: boolean;
+  handleShare?: (cb: () => void) => void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -46,11 +49,21 @@ const props = withDefaults(defineProps<Props>(), {
   isShare: false,
 });
 
-const emits = defineEmits(['onClick']);
+const emits = defineEmits(['handleClick']);
 
 const productPremium = ref<string>('');
 const premiumUnit = ref<string>('');
 const isApp = isAppFkq();
+const currentShareInfo = ref();
+
+const shareRef = ref<InstanceType<typeof ProShare>>();
+const onShare = () => {
+  if (props.handleShare) {
+    props.handleShare(() => shareRef.value.handleShare(currentShareInfo.value));
+    return;
+  }
+  shareRef.value.handleShare(currentShareInfo.value);
+};
 
 // 根据试算或者试算前根据产品配置信息显示产品保费
 watch(
@@ -81,6 +94,16 @@ watch(
     }
   },
   { deep: true, immediate: true },
+);
+watch(
+  () => props.shareInfo,
+  (info) => {
+    currentShareInfo.value = info;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
 );
 </script>
 
@@ -115,6 +138,7 @@ watch(
       color: #ff6600;
       font-size: 34px;
       font-weight: normal;
+      min-width: 300px;
       span {
         color: #ff6600;
         font-weight: bold;

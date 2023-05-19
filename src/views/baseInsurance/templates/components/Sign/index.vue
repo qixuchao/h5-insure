@@ -9,10 +9,13 @@
 -->
 <template>
   <div class="sign-wrap">
-    <img v-if="signString" class="preview-sign" :src="signString" alt="" @click="preview" />
-    <van-button type="primary" round size="small" @click="openSign">{{
-      signString ? '重新签名' : '点击签字'
-    }}</van-button>
+    <slot name="signImg" :data="signString">
+      <img v-if="signString" class="preview-sign" :src="signString" alt="" @click="preview" />
+
+      <van-button type="primary" round size="small" @click="openSign">{{
+        signString ? '重新签名' : '点击签字'
+      }}</van-button>
+    </slot>
   </div>
   <van-popup
     v-model:show="isShowSign"
@@ -55,7 +58,7 @@ const props = withDefaults(
 
 const isShowSign = ref<boolean>(false);
 const signRef = ref<InstanceType<typeof ProSign>>();
-const emits = defineEmits(['update:modelValue']);
+const emits = defineEmits(['update:modelValue', 'submitSign']);
 
 const signString = ref<string>('');
 
@@ -64,6 +67,14 @@ const isEmpty = ref<boolean>(true);
 const openSign = () => {
   isShowSign.value = true;
   signRef.value?.clear();
+  setTimeout(() => {
+    signRef.value?.setDataURL(signString.value);
+    if (props.modelValue) {
+      isEmpty.value = false;
+    } else {
+      isEmpty.value = true;
+    }
+  });
 };
 
 const preview = () => {
@@ -73,14 +84,35 @@ const preview = () => {
 const goBack = () => {
   isShowSign.value = false;
 };
+
 const rewrite = () => {
   signRef.value?.clear?.();
+  signString.value = '';
+  isEmpty.value = true;
+  emits('update:modelValue', '');
 };
+
 const confirm = () => {
   signString.value = signRef.value?.save();
   emits('update:modelValue', signString.value);
+  emits('submitSign', signString.value);
   isShowSign.value = false;
 };
+
+watch(
+  () => props.modelValue,
+  () => {
+    signString.value = props.modelValue;
+  },
+  {
+    immediate: true,
+  },
+);
+
+defineExpose({
+  rewrite,
+  openSign,
+});
 </script>
 
 <style lang="scss" scope>

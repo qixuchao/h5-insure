@@ -206,7 +206,9 @@ export interface OrderDetail {
     extInfo: Partial<ExtInfo>;
     /** 团单号(不需要) */
     groupOrderNo: string;
-    id: number;
+    /** 保司编码 */
+    insurerCode: string;
+    id?: number;
     /** 订单承保时间 */
     issueTime: string;
     /** 订单操作选项，需要更新的结构 *
@@ -237,7 +239,7 @@ export interface OrderDetail {
     /** 保单号 */
     policyNo: string;
     /** 计划书id */
-    proposalId: number;
+    proposalId?: number | string;
     /** 计划关联用户id类型 */
     relationUserType: number;
     /** 销售渠道id */
@@ -249,9 +251,9 @@ export interface OrderDetail {
     /** 附件、资料、签名信息 */
     tenantOrderAttachmentList: TenantOrderAttachmentItem[];
     /** 投保人信息 */
-    tenantOrderHolder: Partial<TenantOrderHolder>;
+    holder: Partial<Holder>;
     /** 被保人信息，按照多被保人处理 */
-    tenantOrderInsuredList: Array<Partial<TenantOrderInsuredItem>>;
+    insuredList: Array<Partial<InsuredItem>>;
     /** 投保人问卷告知 */
     tenantOrderNoticeList: Array<Partial<TenantOrderNoticeItem>>;
     /** 订单支付、签约信息 */
@@ -268,6 +270,286 @@ export interface OrderDetail {
     venderCode: string;
     [propName: string]: any;
 }
+
+export interface TenantOrderSubjectItem {
+    extInfo: ExtInfo_2;
+    id: number;
+    orderId: number;
+    subjectDesc: string;
+    subjectName: string;
+    subjectNo: string;
+    subjectObjectId: number;
+    subjectObjectType: string;
+    subjectType: string;
+    tenantId: number;
+}
+
+export interface ExtInfo_2 {
+    subjectRelatedFirm: string;
+    subjectRelatedUserId: string;
+}
+
+export interface TenantOrderPayInfoItem {
+    accountName: string;
+    bankBranch: string;
+    bankCardImage: BankCardImage[];
+    bankCardNo: string;
+    bankCardType: number;
+    expiryMethod: number;
+    id: number;
+    mobile: string;
+    payBank: string;
+    payInfoType: number;
+    payMethod: number;
+    paymentType: number;
+}
+
+type BankCardImage = CertImage;
+
+export interface TenantOrderNoticeItem {
+    content: string;
+    contentType: number;
+    id: number;
+    isDone: number;
+    name: string;
+    objectId: string;
+    objectType: number;
+    type: number;
+}
+
+type TenantOrderAttachmentItem = CertImage;
+
+export interface OperateOption {
+    withAttachmentInfo: boolean;
+    withBeneficiaryInfo: boolean;
+    withHolderInfo: boolean;
+    withHolderNoticeInfo: boolean;
+    withInsuredInfo: boolean;
+    withInsuredNoticeInfo: boolean;
+    withPayInfo: boolean;
+    withProductInfo: boolean;
+    withSalesNoticeInfo: boolean;
+    withSignInfo: boolean;
+}
+
+export interface InsuredItem {
+    birthday: string;
+    bmi: string;
+    certEndDate: string;
+    certEndType: number;
+    certImage: CertImage[];
+    certNo: string;
+    certStartDate: string;
+    certType: number;
+    educationDegree: number;
+    email: string;
+    familyAnnualIncome: number;
+    familyZipCode: string;
+    gender: number;
+    hasSocialInsurance: number;
+    hasUsCard: number;
+    height: number;
+    id: number;
+    insureArea: InsureArea;
+    insuredBeneficiaryType: number;
+    isCert: number;
+    isPartTime: number;
+    longArea: LongArea_1;
+    marriageStatus: string;
+    mobile: string;
+    name: string;
+    nationalityCode: string;
+    occupationClass: number;
+    occupationCode: string;
+    occupationCodeList: string[];
+    personalAnnualIncome: number;
+    planCode: string;
+    productList: ProductItem[];
+    relationToHolder: number;
+    relationToMainInsured: number;
+    residence: Residence_1;
+    smokeFlag: number;
+    taxResident: number;
+    tenantOrderBeneficiaryList: TenantOrderBeneficiaryItem[];
+    weight: number;
+    workAddress: WorkAddres_1;
+    workContent: string;
+    workStation: string;
+    workZipCode: string;
+}
+
+type WorkAddres_1 = InsureArea;
+
+export interface TenantOrderBeneficiaryItem {
+    beneficiaryType: number;
+    benefitDistributeMode: number;
+    benefitOrder: number;
+    benefitRate: number;
+    birthday: string;
+    certEndDate: string;
+    certEndType: number;
+    certNo: string;
+    certStartDate: string;
+    certType: number;
+    email: string;
+    extInfo: ExtInfo_1;
+    gender: number;
+    id: number;
+    insuredId: number;
+    mobile: string;
+    name: string;
+    relationToInsured: number;
+}
+
+export interface ExtInfo_1 {
+    certImage: string[];
+    nationalityCode: string;
+}
+
+type Residence_1 = InsureArea;
+
+export interface ProductItem {
+    id: number;
+    insuredId: number;
+    premium: number;
+    productCode: string;
+    productName: string;
+    riskList: RiskItem[];
+}
+
+export interface RiskItem {
+    amountUnit: number;
+    annuityDrawDate: string;
+    annuityDrawFrequency: number;
+    chargePeriod: string;
+    copy: string;
+    coveragePeriod: string;
+    currentAmount: number;
+    id: number;
+    initialAmount: number;
+    initialPremium: number;
+    liabilityList: LiabilityItem[];
+    mainRiskCode: string;
+    paymentFrequency: number;
+    productId: string;
+    regularPremium: number;
+    riskCode: string;
+    riskId: number;
+    riskName: string;
+    riskType: number;
+    totalPremium: number;
+}
+
+export interface LiabilityItem {
+    liabilityAttributeType: number;
+    liabilityCode: string;
+    liabilityId: number;
+    liabilityName: string;
+    liabilityRateType: number;
+    liabilityValue: LiabilityValue;
+}
+
+export interface LiabilityValue {
+    actualValue: string;
+    displayValue: string;
+    factorValue: number;
+}
+
+type LongArea_1 = InsureArea;
+
+export interface InsureArea {
+    area: string;
+    city: string;
+    detail: string;
+    province: string;
+}
+
+export interface CertImage {
+    category: number;
+    desc: string;
+    id: number;
+    name: string;
+    objectId: string;
+    objectType: number;
+    size: number;
+    type: string;
+    uri: string;
+    uriKey: string;
+}
+
+export interface Holder {
+    areaCode: string;
+    birthday: string;
+    bmi: string;
+    certEndDate: string;
+    certEndType: number;
+    certImage: CertImage[];
+    certNo: string;
+    certStartDate: string;
+    certType: number;
+    cityCode: string;
+    educationDegree: number;
+    email: string;
+    familyAnnualIncome: number;
+    familyZipCode: string;
+    gender: number;
+    hasSocialInsurance: number;
+    hasUsCard: number;
+    height: number;
+    holderType: number;
+    id: number;
+    insureArea: InsureArea;
+    isCert: number;
+    isPartTime: number;
+    longArea: LongArea;
+    marriageStatus: string;
+    mobile: string;
+    name: string;
+    nationalityCode: string;
+    occupationClass: number;
+    occupationCode: string;
+    occupationCodeList: string[];
+    personalAnnualIncome: number;
+    provinceCode: string;
+    residence: Residence;
+    smokeFlag: number;
+    taxResident: number;
+    weight: number;
+    workAddress: WorkAddres;
+    workContent: string;
+    workStation: string;
+    workZipCode: string;
+}
+
+type WorkAddres = InsureArea;
+
+type Residence = InsureArea;
+
+type LongArea = InsureArea;
+
+export interface ExtInfo {
+    buttonCode: string;
+    contactInfo: ContactInfo[];
+    ext: string;
+    extraInfo: ExtraInfo;
+    isReadCustomerNotice: number;
+    iseeBizNo: string;
+    pageCode: string;
+    redirectUrl: string;
+    shareFlag: string;
+    templateId: number;
+}
+
+export interface ExtraInfo {
+}
+
+export interface ContactInfo {
+    contactAddress: string;
+    contactName: string;
+    contactPhoneNo: string;
+}
+
+
 
 export interface TenantOrderSubjectItem {
     extInfo: Partial<ExtInfo_5>;

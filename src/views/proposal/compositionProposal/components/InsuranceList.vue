@@ -11,8 +11,10 @@
     <div class="info-detail">
       <div class="name">
         <div class="img">
-          <img v-if="isMale(props.info?.gender)" src="@/assets/images/compositionProposal/male.png" />
-          <img v-if="!isMale(props.info?.gender)" src="@/assets/images/compositionProposal/female.png" />
+          <template v-if="props.info?.gender">
+            <img v-if="isMale(props.info?.gender)" src="@/assets/images/compositionProposal/male.png" />
+            <img v-else src="@/assets/images/compositionProposal/female.png"
+          /></template>
         </div>
         <div>
           <p clase="p1">{{ props.info?.name }}</p>
@@ -52,7 +54,7 @@ const columns = [
   },
   {
     title: '保额',
-    dataIndex: 'amount',
+    dataIndex: 'initialAmount',
   },
   {
     title: '保障期间',
@@ -60,13 +62,13 @@ const columns = [
     width: 110,
   },
   {
-    title: '缴费期间',
+    title: '交费期间',
     dataIndex: 'chargePeriod',
     width: 110,
   },
   {
     title: '保费',
-    dataIndex: 'premium',
+    dataIndex: 'initialPremium',
     width: 120,
   },
 ];
@@ -119,13 +121,13 @@ const getChargePay = (val: string) => {
 const setProposalProductRiskVOList = (dataList: Array<any>) => {
   const list: Array<any> = [];
   dataList?.forEach((item: any) => {
-    const { riskName, amount, coveragePeriod, chargePeriod, premium } = item;
+    const { riskName, initialAmount, coveragePeriod, chargePeriod, initialPremium } = item;
     list.push({
       riskName,
-      amount,
+      initialAmount,
       coveragePeriod: getCover(coveragePeriod),
       chargePeriod: getChargePay(chargePeriod),
-      premium,
+      initialPremium,
     });
   });
 
