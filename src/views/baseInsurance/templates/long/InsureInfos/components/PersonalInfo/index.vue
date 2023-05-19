@@ -146,8 +146,9 @@ const isShowHolder = computed(() => !props.isTrial || props.isOnlyHolder);
 
 /** 验证试算因子是否全部有值 */
 const validateTrialFields = () => {
-  const flag = insuredFormRef.value ? insuredFormRef.value?.every((item) => item.validateTrialFields()) : true;
-  return flag && validateFields(state.holder);
+  const insuredFlag = !insuredFormRef.value || insuredFormRef.value?.every((item) => item.validateTrialFields());
+  const holderFlag = !holderFormRef.value || validateFields(state.holder);
+  return holderFlag && insuredFlag;
 };
 
 // 验证表单必填

@@ -66,6 +66,7 @@
       :trial-data="state.submitData"
       :risk-premium="state.trialResult"
       :loading="state.isQuerying"
+      :personal-info-ref="personalInfoRef"
     ></slot>
   </div>
 </template>
@@ -484,7 +485,7 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
 };
 
 const handleMixTrialData = debounce(async () => {
-  console.log('>>>>>调用试算<<<<<', state.ifPersonalInfoSuccess);
+  console.log('>>>>>调用试算<<<<<', state.ifPersonalInfoSuccess, personalInfoRef.value.canTrail());
   const { productCode, productName } = props.productInfo || {};
   if (state.ifPersonalInfoSuccess || personalInfoRef.value.canTrail()) {
     state.submitData.productCode = productCode;
@@ -829,9 +830,11 @@ watch(
     .risk2-field {
     }
 
-    :deep(.com-pro-form-with-card) {
+    :deep(.com-pro-form-with-card),
+    :deep(.insurePlan) {
       .header {
         margin-left: 0;
+        padding-left: 0;
       }
     }
 
