@@ -556,6 +556,7 @@ const handleMixTrialData = debounce(async (isSave = false) => {
       ...state.userData,
       tenantId,
       productCode,
+      productName: insureProductDetail.value.productName,
       commencementTime,
       expiryDate,
     });

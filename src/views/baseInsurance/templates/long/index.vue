@@ -280,7 +280,7 @@ const initData = async () => {
     queryProposalDetailInsurer({ id: proposalId, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         const { holder, insuredList } = data;
-        orderDetail.value = {
+        Object.assign(orderDetail.value, {
           productCode,
           productName: '',
           renewFlag: '',
@@ -290,9 +290,7 @@ const initData = async () => {
             ...insured,
             productList: insured.productList.filter((product) => product.productCode === productCode),
           })),
-          insurerCode,
-          venderCode: insurerCode,
-        };
+        });
         isLoadDefaultValue.value = true;
       }
     });

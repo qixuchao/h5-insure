@@ -310,11 +310,15 @@ const onNext = async () => {
         pageCode: PAGE_CODE_ENUMS.INFO_COLLECTION,
       },
     });
-    const currentOrderDetail = trialData2Order(trialData.value, trialResult.value, orderDetail.value);
+
+    const currentOrderDetail = trialData2Order(
+      { ...trialData.value, productCode, productName: insureProductDetail.value.productName },
+      trialResult.value,
+      orderDetail.value,
+    );
 
     nextStep(currentOrderDetail, (data, pageAction) => {
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-        console.log('12313');
         pageJump(data.nextPageCode, route.query);
       }
     });
