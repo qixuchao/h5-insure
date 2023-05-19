@@ -555,6 +555,7 @@ const handleMixTrialData = debounce(async (isSave = false) => {
     Object.assign(state.submitData, {
       ...state.userData,
       tenantId,
+      productCode,
       commencementTime,
       expiryDate,
     });
