@@ -81,8 +81,15 @@ const smsText = computed(() => {
 <style lang="scss" scoped>
 .com-pro-sms-code {
   .extra-button {
+    display: inline-block;
     border: 0;
+    width: 100px;
+    padding-right: 0;
+    text-align: right;
     align-self: center;
+    :deep(.van-button__content) {
+      justify-content: end;
+    }
     :deep(.van-button__text) {
       font-size: var(--van-cell-font-size);
     }
