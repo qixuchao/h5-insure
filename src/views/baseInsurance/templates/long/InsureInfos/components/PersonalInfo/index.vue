@@ -464,6 +464,11 @@ defineExpose({
       display: block;
     }
   }
+  .delete-button {
+    width: auto;
+    margin-top: 4px;
+    color: $zaui-primary-text;
+  }
 }
 .add-button-wrap {
   margin-bottom: 20px;
@@ -476,8 +481,5 @@ defineExpose({
       font-weight: 600;
     }
   }
-}
-.delete-button {
-  color: $zaui-primary-text;
 }
 </style>
