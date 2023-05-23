@@ -205,7 +205,10 @@ watch(
       // 过滤投被保人相同要素，保留证件相关的，预防关系为本人时，仅被保人有的字段被清空,后端给了null
       const tempData = isNotEmptyArray(isSelfInsuredNeedCods.value)
         ? Object.keys(holderPersonVO).reduce((res, key: string) => {
-            if (!isSelfInsuredNeedCods.value.includes(key) || ['birthday', 'age', 'gender'].includes(key)) {
+            if (
+              ![...isSelfInsuredNeedCods.value, 'occupationClass'].includes(key) ||
+              ['birthday', 'age', 'gender'].includes(key)
+            ) {
               res[key] = holderPersonVO[key];
             }
             return res;

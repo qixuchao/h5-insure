@@ -218,6 +218,11 @@ const dealMixData = () => {
     });
   }
 
+  const relationFactor = {
+    occupationClass: 'occupationCodeList',
+    occupationCode: 'occupationCodeList',
+  };
+
   if (submitData.insuredList) {
     const factor = currentPlan.value.productFactor['2'] || [];
     const ignoreKey = ['productList', 'beneficiaryList'];
@@ -230,6 +235,12 @@ const dealMixData = () => {
           const targetFactorKey = factor.find(
             (k) => k.code === key && (k.subModuleType === null || k.subModuleType === subModuleType),
           );
+          if (relationFactor[key] && !targetFactorKey) {
+            const relateFactor = factor.find(
+              (k) => k.code === relationFactor[key] && (k.subModuleType === null || k.subModuleType === subModuleType),
+            );
+            if (relateFactor) return;
+          }
           if (!targetFactorKey) insured[key] = null;
         }
       });
