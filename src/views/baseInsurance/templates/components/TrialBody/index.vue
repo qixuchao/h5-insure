@@ -14,7 +14,12 @@
           :show-type-list="benefitData.showTypList"
         />
         <!-- 多计划 -->
-        <PlanSelect :plan-list="productInfo.planList" :default-plan="currentPlan" @plan-change="handlePlanChange" />
+        <PlanSelect
+          v-if="productInfo.planList && productInfo.planList.length > 2"
+          :plan-list="productInfo.planList"
+          :default-plan="currentPlan"
+          @plan-change="handlePlanChange"
+        />
         <!-- 这里放因子 -->
         <PersonalInfo
           v-if="currentPlan.productFactor"
@@ -497,6 +502,7 @@ const dealMixData = () => {
     const ignoreKey = ['productList', 'beneficiaryList'];
     submitData.insuredList.forEach((insured, index) => {
       const subModuleType = index >= 1 ? 2 : 1;
+      // 处理被保人信息
       Object.keys(insured).forEach((key) => {
         if (ignoreKey.indexOf(key) >= 0) return;
         if (insured[key]) {
@@ -504,7 +510,28 @@ const dealMixData = () => {
           if (!targetFactorKey) insured[key] = null;
         }
       });
+      // 受益人信息 todo
+      if (insured.beneficiaryList?.length > 0) {
+        const factorBen = currentPlan.value.productFactor['3'] || [];
+        insured.beneficiaryList.forEach((ben) => {
+          Object.keys(ben).forEach((key) => {
+            if (!factorBen.find((k) => k.code === key)) {
+              ben[key] = null;
+            }
+          });
+        });
+      }
+
       insured.planCode = currentPlan.value.planCode;
+      // 处理附加险
+      const riskList = insured.productList[0]?.riskList || [];
+      const currentPlanRiskList = currentPlan.value.insureProductRiskVOList || [];
+      if (riskList && currentPlanRiskList) {
+        const newRiskList = riskList.filter((risk) => {
+          return currentPlanRiskList.find((r) => r.riskCode === risk.riskCode) !== null;
+        });
+        insured.productList[0].riskList = newRiskList;
+      }
     });
   }
   return submitData;
@@ -732,16 +759,16 @@ const handlePlanChange = async (planCode: string) => {
   const targetPlanIndex = props.productInfo.planList.findIndex((p) => p.planCode === planCode);
 
   const targetProductPlanIndex =
-    state.defaultValue.insuredList?.[0].productList.findIndex((p) => p.planCode === planCode) || 0;
+    state.defaultValue?.insuredList?.[0].productList.findIndex((p) => p.planCode === planCode) || 0;
   const targetPlan = targetPlanIndex >= 0 ? props.productInfo.planList[targetPlanIndex] : null;
   if (targetPlan) {
     state.currentPlanCode = planCode;
     currentPlan.value = targetPlan;
-    state.planIndex = targetPlanIndex;
-    state.defaultValue.insuredList[0].productList[targetProductPlanIndex].riskList[0] = state.mainRiskVO;
+    state.planIndex = targetProductPlanIndex >= 0 ? targetProductPlanIndex : 0;
+    // state.defaultValue.insuredList[0].productList[state.planIndex].riskList[0] = state.mainRiskVO; // state.riskList
+    state.defaultValue.insuredList[0].productList[state.planIndex].riskList = state.riskList;
     if (hasDefault.value.findIndex((d) => d === planCode) < 0) {
       hasDefault.value.push(planCode);
-      // fetchDefaultDataFromServer();
     }
   }
 };
