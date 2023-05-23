@@ -61,6 +61,7 @@
           productId: '',
           tenantId,
           insurerCode,
+          planList: insureProductDetail.productPlanInsureVOList,
         }"
         :default-data="orderDetail ? [orderDetail] : null"
         :tenant-product-detail="tenantProductDetail"

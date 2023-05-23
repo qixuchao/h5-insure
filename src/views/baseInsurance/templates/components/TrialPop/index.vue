@@ -33,7 +33,7 @@
       @trial-end="handleTrialEnd"
     >
       <template #trialHead>
-        <div class="header">
+        <div class="pop-header">
           <span class="header-title">{{ title }}</span>
           <van-icon name="cross" @click="state.show = false" />
         </div>
@@ -121,7 +121,7 @@ const { tenantId, templateId, preview } = route.query;
 const props = withDefaults(defineProps<Props>(), {
   dataSource: () => [],
   productInfo: () => {
-    return { productCode: '', productName: '', insurerCode: '', tenantId: '' };
+    return { productCode: '', productName: '', insurerCode: '', tenantId: '', planList: [] };
   },
   shareInfo: () => ({}),
   tenantProductDetail: () => ({}),
@@ -662,7 +662,7 @@ watch(
   display: flex;
   flex-direction: column;
   border-radius: 40px 40px 0 0;
-  .header {
+  .pop-header {
     padding: 0 30px;
     display: flex;
     justify-content: space-between;

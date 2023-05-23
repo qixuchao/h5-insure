@@ -302,9 +302,7 @@ watch(
     // TODO: 主要被保人变动
     const isFirstInsuredChange =
       JSON.stringify(insuredList?.[0]?.personVO) !== filterFormData(props.modelValue?.insuredList?.[0]);
-
-    result.isFirstInsuredChange = isFirstInsuredChange;
-
+    console.log('-------result = ', result);
     emit('update:modelValue', result);
     // 验证通过调用试算
     // if (!state.config.hasTrialFactorCodes) {

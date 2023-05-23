@@ -54,7 +54,7 @@
           @delete-risk="deleteRisk"
         ></ProductList>
       </ProCard>
-      <div class="operate-bar">
+      <div v-if="showAddBtn" class="operate-bar">
         <ProCheckButton activated :round="34" @click="addProduct">添加产品</ProCheckButton>
       </div>
     </div>
@@ -172,7 +172,11 @@ const router = useRouter();
 const route = useRoute();
 const store = createProposalStore();
 
-const { productCode: productCodeInQuery, id }: { productCode?: string; id?: string } = route.query;
+const {
+  productCode: productCodeInQuery,
+  id,
+  preview,
+}: { productCode?: string; id?: string; preview?: string } = route.query;
 
 const trialFieldkeys = ['age', 'gender', 'birthday'];
 
@@ -250,6 +254,10 @@ const currentProductPlanDetail = computed(() => {
 const submitDisable = computed(() => {
   // debugger;
   return !trialFlag.value || Boolean(Object.values(stateInfo.productErrorMap).join(''));
+});
+
+const showAddBtn = computed(() => {
+  return `${preview}` !== '1';
 });
 
 // 总保费
