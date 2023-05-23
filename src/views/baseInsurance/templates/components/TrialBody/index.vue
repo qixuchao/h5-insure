@@ -227,7 +227,9 @@ const dealMixData = () => {
       Object.keys(insured).forEach((key) => {
         if (ignoreKey.indexOf(key) >= 0) return;
         if (insured[key]) {
-          const targetFactorKey = factor.find((k) => k.code === key && k.subModuleType === subModuleType);
+          const targetFactorKey = factor.find(
+            (k) => k.code === key && (k.subModuleType === null || k.subModuleType === subModuleType),
+          );
           if (!targetFactorKey) insured[key] = null;
         }
       });
@@ -582,7 +584,6 @@ const handleMixTrialData = debounce(async () => {
 const handlePersonalInfoChange = async (data) => {
   // 只有改动第一个被保人，需要调用dy接口
   const { insuredList, isFirstInsuredChange } = data;
-  console.log('----------person info change');
   handlePersonInfo(data);
 
   state.ifPersonalInfoSuccess = true;
