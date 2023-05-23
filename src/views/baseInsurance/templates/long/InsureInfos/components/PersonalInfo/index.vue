@@ -348,7 +348,7 @@ watch(
       holderFactorCodes,
     });
     Object.assign(state.holder, holder);
-
+    console.log('-----------', holder, insured);
     state.config = config;
 
     if (isNotEmptyArray(insured)) {

@@ -19,6 +19,7 @@
         <PersonalInfo
           v-if="currentPlan.productFactor"
           ref="personalInfoRef"
+          :key="currentPlan.planCode"
           v-model="state.userData"
           :is-trial="isTrial"
           :product-factor="currentPlan.productFactor"
@@ -28,6 +29,7 @@
         <!-- 这里是标准险种信息 -->
         <InsureInfos
           ref="insureInfosRef"
+          :key="currentPlan.planCode"
           :origin-data="currentPlan.insureProductRiskVOList?.[0]"
           :product-factor="currentPlan.productFactor"
           :default-value="
@@ -39,6 +41,7 @@
         <!-- 以下是附加险种信息 -->
         <ProductRiskList
           v-if="currentPlan.insureProductRiskVOList"
+          :key="currentPlan.planCode"
           :data-source="currentPlan"
           :show-main-risk="false"
           :default-value="
@@ -475,36 +478,36 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
   }
 };
 
-const w = () => {
-  const { productCode, productName } = props.productInfo || {};
-  if (state.ifPersonalInfoSuccess || personalInfoRef.value.canTrail()) {
-    state.submitData.productCode = productCode;
-    state.submitData.productName = productName;
-    state.submitData.tenantId = props.productInfo.tenantId;
-    // TODO 处理同主险的相关数据
-    state.riskList = state.riskList.map((trialRisk) => {
-      return handleSameMainRisk(trialRisk);
+const dealMixData = () => {
+  console.log('--current plan = ', currentPlan.value);
+  console.log('---current submit = ', state.submitData);
+  const submitData = cloneDeep(state.submitData);
+  if (submitData.holder) {
+    const factor = currentPlan.value.productFactor['1'] || [];
+    Object.keys(submitData.holder).forEach((key) => {
+      if (submitData.holder[key]) {
+        const targetFactorKey = factor.find((k) => k.code === key);
+        if (!targetFactorKey) submitData.holder[key] = null;
+      }
     });
-    //  这里目前只有一个被保人，所以直接index0，后面需要用被保人code来区分
-    // state.submitData.insuredList[0].productList = [
-    //   {
-    //     insurerCode: props.productInfo.insurerCode,
-    //     planCode: props.dataSource.planCode,
-    //     riskList: state.riskList,
-    //   },
-    // ];
-    if (state.submitData.insuredList) {
-      state.submitData.insuredList.forEach((ins) => {
-        ins.productList = [
-          {
-            productCode,
-            productName,
-            riskList: state.riskList,
-          },
-        ];
-      });
-    }
   }
+
+  if (submitData.insuredList) {
+    const factor = currentPlan.value.productFactor['2'] || [];
+    const ignoreKey = ['productList', 'beneficiaryList'];
+    submitData.insuredList.forEach((insured, index) => {
+      const subModuleType = index >= 1 ? 2 : 1;
+      Object.keys(insured).forEach((key) => {
+        if (ignoreKey.indexOf(key) >= 0) return;
+        if (insured[key]) {
+          const targetFactorKey = factor.find((k) => k.code === key && k.subModuleType === subModuleType);
+          if (!targetFactorKey) insured[key] = null;
+        }
+      });
+      insured.planCode = currentPlan.value.planCode;
+    });
+  }
+  return submitData;
 };
 
 const handleMixTrialData = debounce(async () => {
@@ -541,9 +544,9 @@ const handleMixTrialData = debounce(async () => {
     //   state.hadSkipFirstTrial = true;
     //   return;
     // }
-    console.log('>>>数据构建<<<', cloneDeep(state.submitData));
 
-    const submitDataCopy = cloneDeep(state.submitData);
+    const submitDataCopy = dealMixData();
+    console.log('>>>数据构建<<<', submitDataCopy);
     await handleTrialAndBenefit(submitDataCopy);
   }
 }, 300);
@@ -726,10 +729,16 @@ const fetchDefaultData = async (changes: []) => {
 };
 
 const handlePlanChange = async (planCode: string) => {
-  const targetPlan = props.productInfo.planList.find((p) => p.planCode === planCode);
+  const targetPlanIndex = props.productInfo.planList.findIndex((p) => p.planCode === planCode);
+
+  const targetProductPlanIndex =
+    state.defaultValue.insuredList?.[0].productList.findIndex((p) => p.planCode === planCode) || 0;
+  const targetPlan = targetPlanIndex >= 0 ? props.productInfo.planList[targetPlanIndex] : null;
   if (targetPlan) {
     state.currentPlanCode = planCode;
     currentPlan.value = targetPlan;
+    state.planIndex = targetPlanIndex;
+    state.defaultValue.insuredList[0].productList[targetProductPlanIndex].riskList[0] = state.mainRiskVO;
     if (hasDefault.value.findIndex((d) => d === planCode) < 0) {
       hasDefault.value.push(planCode);
       // fetchDefaultDataFromServer();

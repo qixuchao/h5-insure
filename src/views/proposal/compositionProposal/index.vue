@@ -32,7 +32,7 @@
         </van-collapse>
       </div>
     </div>
-    <div v-if="!isShare" class="footer-btn">
+    <div v-if="!isShare && !isPreview" class="footer-btn">
       <ProShare
         ref="shareButtonRef"
         :title="shareConfig.title"
@@ -87,7 +87,7 @@ const isLiabilityByRisk = ref(true);
 
 const router = useRoute();
 const history = useRouter();
-const { isShare, id, themeId } = router.query;
+const { isShare, id, themeId, preview } = router.query;
 
 const info = ref();
 const tenantId = ref('');
@@ -117,6 +117,10 @@ const isShowInsured = computed(() => {
     return product.authStatus === 1 && product.insureMethod === 1;
   });
   return !!productList.length;
+});
+
+const isPreview = computed(() => {
+  return `${preview}` === '1';
 });
 
 watch(

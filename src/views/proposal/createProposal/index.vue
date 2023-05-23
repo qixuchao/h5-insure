@@ -627,6 +627,7 @@ const submitData = (proposalId) => {
           path: '/compositionProposal',
           query: {
             id: data,
+            preview,
           },
         });
       }
