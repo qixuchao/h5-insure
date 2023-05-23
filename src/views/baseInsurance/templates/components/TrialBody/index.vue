@@ -204,17 +204,72 @@ const handlePersonInfo = (data) => {
   }
 };
 
+const dealMixData = () => {
+  console.log('--current plan = ', currentPlan.value);
+  console.log('---current submit = ', state.submitData);
+  const submitData = cloneDeep(state.submitData);
+  if (submitData.holder) {
+    const factor = currentPlan.value.productFactor['1'] || [];
+    Object.keys(submitData.holder).forEach((key) => {
+      if (submitData.holder[key]) {
+        const targetFactorKey = factor.find((k) => k.code === key);
+        if (!targetFactorKey) submitData.holder[key] = null;
+      }
+    });
+  }
+
+  if (submitData.insuredList) {
+    const factor = currentPlan.value.productFactor['2'] || [];
+    const ignoreKey = ['productList', 'beneficiaryList'];
+    submitData.insuredList.forEach((insured, index) => {
+      const subModuleType = index >= 1 ? 2 : 1;
+      // 处理被保人信息
+      Object.keys(insured).forEach((key) => {
+        if (ignoreKey.indexOf(key) >= 0) return;
+        if (insured[key]) {
+          const targetFactorKey = factor.find((k) => k.code === key && k.subModuleType === subModuleType);
+          if (!targetFactorKey) insured[key] = null;
+        }
+      });
+      // 受益人信息 todo
+      if (insured.beneficiaryList?.length > 0) {
+        const factorBen = currentPlan.value.productFactor['3'] || [];
+        insured.beneficiaryList.forEach((ben) => {
+          Object.keys(ben).forEach((key) => {
+            if (!factorBen.find((k) => k.code === key)) {
+              ben[key] = null;
+            }
+          });
+        });
+      }
+
+      insured.planCode = currentPlan.value.planCode;
+      // 处理附加险
+      const riskList = insured.productList[0]?.riskList || [];
+      const currentPlanRiskList = currentPlan.value.insureProductRiskVOList || [];
+      if (riskList && currentPlanRiskList) {
+        const newRiskList = riskList.filter((risk) => {
+          return currentPlanRiskList.find((r) => r.riskCode === risk.riskCode) !== null;
+        });
+        insured.productList[0].riskList = newRiskList;
+      }
+    });
+  }
+  return submitData;
+};
+
 const trialData2Order = (
   currentProductDetail: ProductData = {} as ProductData,
   riskPremium = {},
   currentOrderDetail = {},
 ) => {
   const nextStepParams: any = { ...currentOrderDetail };
+  const tempSubmitData = dealMixData();
   const { tenantOrderHolder, tenantOrderInsuredList } = formData2Order({
-    holder: state.submitData.holder,
-    insuredList: state.submitData.insuredList || [],
+    holder: tempSubmitData.holder,
+    insuredList: tempSubmitData.insuredList || [],
   });
-  const riskList = state.submitData.insuredList.map((person) => person.productList?.[0]?.riskList).flat();
+  const riskList = tempSubmitData.insuredList.map((person) => person.productList?.[0]?.riskList).flat();
   const transformDataReq = {
     tenantId,
     riskList,
@@ -481,60 +536,6 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
         // state.trialMsg = '000';
       });
   }
-};
-
-const dealMixData = () => {
-  console.log('--current plan = ', currentPlan.value);
-  console.log('---current submit = ', state.submitData);
-  const submitData = cloneDeep(state.submitData);
-  if (submitData.holder) {
-    const factor = currentPlan.value.productFactor['1'] || [];
-    Object.keys(submitData.holder).forEach((key) => {
-      if (submitData.holder[key]) {
-        const targetFactorKey = factor.find((k) => k.code === key);
-        if (!targetFactorKey) submitData.holder[key] = null;
-      }
-    });
-  }
-
-  if (submitData.insuredList) {
-    const factor = currentPlan.value.productFactor['2'] || [];
-    const ignoreKey = ['productList', 'beneficiaryList'];
-    submitData.insuredList.forEach((insured, index) => {
-      const subModuleType = index >= 1 ? 2 : 1;
-      // 处理被保人信息
-      Object.keys(insured).forEach((key) => {
-        if (ignoreKey.indexOf(key) >= 0) return;
-        if (insured[key]) {
-          const targetFactorKey = factor.find((k) => k.code === key && k.subModuleType === subModuleType);
-          if (!targetFactorKey) insured[key] = null;
-        }
-      });
-      // 受益人信息 todo
-      if (insured.beneficiaryList?.length > 0) {
-        const factorBen = currentPlan.value.productFactor['3'] || [];
-        insured.beneficiaryList.forEach((ben) => {
-          Object.keys(ben).forEach((key) => {
-            if (!factorBen.find((k) => k.code === key)) {
-              ben[key] = null;
-            }
-          });
-        });
-      }
-
-      insured.planCode = currentPlan.value.planCode;
-      // 处理附加险
-      const riskList = insured.productList[0]?.riskList || [];
-      const currentPlanRiskList = currentPlan.value.insureProductRiskVOList || [];
-      if (riskList && currentPlanRiskList) {
-        const newRiskList = riskList.filter((risk) => {
-          return currentPlanRiskList.find((r) => r.riskCode === risk.riskCode) !== null;
-        });
-        insured.productList[0].riskList = newRiskList;
-      }
-    });
-  }
-  return submitData;
 };
 
 const handleMixTrialData = debounce(async () => {
@@ -829,6 +830,17 @@ watch(
   },
   {
     deep: true,
+  },
+);
+
+watch(
+  () => props.dataSource,
+  (val) => {
+    currentPlan.value = val;
+  },
+  {
+    deep: true,
+    immediate: true,
   },
 );
 </script>

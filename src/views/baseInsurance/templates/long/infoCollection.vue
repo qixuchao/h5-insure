@@ -10,6 +10,7 @@
           productName: insureProductDetail.productName,
           insurerCode,
           tenantId,
+          planList: insureProductDetail.productPlanInsureVOList,
         }"
         :tenant-product-detail="tenantProductDetail"
         hide-benefit
@@ -167,6 +168,7 @@ const state = reactive({
   },
   defaultValue: null,
   isAutoChange: false,
+  defaultPlanCode: '',
 });
 
 // 分享信息
@@ -408,6 +410,10 @@ const initData = async () => {
     getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         trialResult.value = data.orderAmount;
+        if (data.insuredList?.length > 0) {
+          const { planCode } = data.insuredList[0];
+          state.defaultPlanCode = planCode;
+        }
         Object.assign(orderDetail.value, data, {
           tenantOrderPayInfoList: data.tenantOrderPayInfoList || [],
           operateOption: {
@@ -430,7 +436,7 @@ const initData = async () => {
   await getInsureProductDetail({ productCode, isTenant: !preview }).then(({ data, code }) => {
     if (code === '10000') {
       insureProductDetail.value = data;
-      currentPlanObj.value = data.productPlanInsureVOList?.[0] || {};
+      currentPlanObj.value = data.productPlanInsureVOList.find((plan) => plan.planCode === state.defaultPlanCode) || {};
       const { payInfo } = transformFactorToSchema(currentPlanObj.value?.productFactor);
       state.payInfo = {
         ...state.payInfo,
