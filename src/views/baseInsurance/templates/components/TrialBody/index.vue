@@ -92,7 +92,7 @@ import { SUCCESS_CODE } from '@/api/code';
 import { PRODUCT_KEYS_CONFIG } from '../../long/InsureInfos/components/ProductKeys/config';
 import { dealExemptPeriod, getRelationText } from './utils';
 import useOrder from '@/hooks/useOrder';
-import { formData2Order } from '../../utils';
+import { formData2Order, trialData2Order } from '../../utils';
 import { ProductDetail, ProductDetail as ProductData } from '@/api/modules/newTrial.data';
 import { CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
 import { transformData } from '@/views/baseInsurance/utils';
@@ -271,53 +271,54 @@ const dealMixData = () => {
   return submitData;
 };
 
-const trialData2Order = (
-  currentProductDetail: ProductData = {} as ProductData,
-  riskPremium = {},
-  currentOrderDetail = {},
-) => {
-  const nextStepParams: any = { ...currentOrderDetail };
-  const tempSubmitData = dealMixData();
-  const { tenantOrderHolder, tenantOrderInsuredList } = formData2Order({
-    holder: tempSubmitData.holder,
-    insuredList: tempSubmitData.insuredList || [],
-  });
-  const riskList = tempSubmitData.insuredList.map((person) => person.productList?.[0]?.riskList).flat();
-  const transformDataReq = {
-    tenantId,
-    riskList,
-    riskPremium,
-    productId: currentProductDetail.id,
-  };
-  nextStepParams.extInfo.iseeBizNo = iseeBizNo.value;
-  nextStepParams.productCode = currentProductDetail.productCode;
-  nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
-  nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
-  nextStepParams.initialPremium = state.trialResultPremium;
-  nextStepParams.orderAmount = state.trialResultPremium;
-  nextStepParams.orderRealAmount = state.trialResultPremium;
+// const trialData2Order = (
+//   currentProductDetail: ProductData = {} as ProductData,
+//   riskPremium = {},
+//   currentOrderDetail = {},
+// ) => {
+//   const nextStepParams: any = { ...currentOrderDetail };
+//   const tempSubmitData = dealMixData();
+//   console.log('------------', tempSubmitData);
+//   const { tenantOrderHolder, tenantOrderInsuredList } = formData2Order({
+//     holder: tempSubmitData.holder,
+//     insuredList: tempSubmitData.insuredList || [],
+//   });
+//   const riskList = tempSubmitData.insuredList.map((person) => person.productList?.[0]?.riskList).flat();
+//   const transformDataReq = {
+//     tenantId,
+//     riskList,
+//     riskPremium,
+//     productId: currentProductDetail.id,
+//   };
+//   nextStepParams.extInfo.iseeBizNo = iseeBizNo.value;
+//   nextStepParams.productCode = currentProductDetail.productCode;
+//   nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
+//   nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
+//   nextStepParams.initialPremium = state.trialResultPremium;
+//   nextStepParams.orderAmount = state.trialResultPremium;
+//   nextStepParams.orderRealAmount = state.trialResultPremium;
 
-  nextStepParams.tenantOrderHolder = tenantOrderHolder;
-  nextStepParams.tenantOrderInsuredList = tenantOrderInsuredList.map((insurer: any) => {
-    return {
-      ...insurer,
-      certType: insurer.certType || CERT_TYPE_ENUM.CERT,
-      certNo: (insurer.certNo || '').toLocaleUpperCase(),
-      planCode: currentPlan.value.planCode,
-      tenantOrderProductList: [
-        {
-          initialPremium: state.trialResultPremium,
-          productCode: currentProductDetail.productCode,
-          productName: currentProductDetail.productName,
-          planCode: currentPlan.value.planCode,
-          tenantOrderRiskList: transformData(transformDataReq),
-        },
-      ],
-    };
-  });
-  console.log('nextStepParams', nextStepParams);
-  return nextStepParams;
-};
+//   nextStepParams.tenantOrderHolder = tenantOrderHolder;
+//   nextStepParams.tenantOrderInsuredList = tenantOrderInsuredList.map((insurer: any) => {
+//     return {
+//       ...insurer,
+//       certType: insurer.certType || CERT_TYPE_ENUM.CERT,
+//       certNo: (insurer.certNo || '').toLocaleUpperCase(),
+//       planCode: currentPlan.value.planCode,
+//       tenantOrderProductList: [
+//         {
+//           initialPremium: state.trialResultPremium,
+//           productCode: currentProductDetail.productCode,
+//           productName: currentProductDetail.productName,
+//           planCode: currentPlan.value.planCode,
+//           tenantOrderRiskList: transformData(transformDataReq),
+//         },
+//       ],
+//     };
+//   });
+//   console.log('nextStepParams', nextStepParams);
+//   return nextStepParams;
+// };
 const premiumMap = ref();
 const onNext = () => {
   if (preview) {
@@ -335,7 +336,7 @@ const onNext = () => {
           templateId,
         },
       });
-      const currentOrderDetail = trialData2Order(props.productInfo, premiumMap.value, orderDetail.value);
+      const currentOrderDetail = trialData2Order(dealMixData(), state.trialResult, orderDetail.value);
       nextStep(currentOrderDetail, (data, pageAction) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
           pageJump(data.nextPageCode, { ...route.query, orderNo: data.orderNo });
@@ -822,6 +823,8 @@ defineExpose({
   validateTrialFields,
   validateHolder,
   getUserData,
+  onShare,
+  onNext,
 });
 watch(
   () => state.riskIsInsure,

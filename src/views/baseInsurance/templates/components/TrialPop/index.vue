@@ -168,57 +168,59 @@ const currentShareInfo = ref<any>();
 
 const premiumMap = ref();
 const onNext = (trialData) => {
-  if (preview) {
-    jumpToNextPage(PAGE_CODE_ENUMS.TRIAL_PREMIUM, route.query);
-    return;
-  }
+  insureInfosRef.value.onNext();
+  // if (preview) {
+  //   jumpToNextPage(PAGE_CODE_ENUMS.TRIAL_PREMIUM, route.query);
+  //   return;
+  // }
 
-  if (state.trialResult.initialPremium) {
-    // 验证
-    Object.assign(orderDetail.value, {
-      extInfo: {
-        ...orderDetail.value.extInfo,
-        buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
-        pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
-        templateId,
-      },
-    });
-    const currentOrderDetail = trialData2Order(trialData, state.trialResult, orderDetail.value);
-    nextStep(currentOrderDetail, (data, pageAction) => {
-      if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-        pageJump(data.nextPageCode, { ...route.query, orderNo: data.orderNo });
-      }
-    });
-    console.log('---- validate success ----');
+  // if (state.trialResult.initialPremium) {
+  //   // 验证
+  //   Object.assign(orderDetail.value, {
+  //     extInfo: {
+  //       ...orderDetail.value.extInfo,
+  //       buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
+  //       pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
+  //       templateId,
+  //     },
+  //   });
+  //   const currentOrderDetail = trialData2Order(trialData, state.trialResult, orderDetail.value);
+  //   nextStep(currentOrderDetail, (data, pageAction) => {
+  //     if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+  //       pageJump(data.nextPageCode, { ...route.query, orderNo: data.orderNo });
+  //     }
+  //   });
+  //   console.log('---- validate success ----');
 
-    state.loading = false;
-    state.show = true;
-    state.isAniShow = true;
-  }
+  //   state.loading = false;
+  //   state.show = true;
+  //   state.isAniShow = true;
+  // }
 };
 
 const onShare = (cb, trialData) => {
-  if (state.trialResultPremium) {
-    // 验证
-    insureInfosRef.value?.validate().then(() => {
-      Object.assign(orderDetail.value, {
-        extInfo: {
-          ...orderDetail.value.extInfo,
-          buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
-          pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
-          templateId,
-        },
-      });
-      const currentOrderDetail = trialData2Order(trialData, state.trialResult, orderDetail.value);
-      nextStep(currentOrderDetail, (data, pageAction) => {
-        if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-          currentShareInfo.value.link = `${window.location.href}&isShare=1&orderNo=${data.orderNo}`;
-          cb();
-        }
-      });
-      console.log('---- validate success ----');
-    });
-  }
+  insureInfosRef.value.onShare(cb);
+  // if (state.trialResultPremium) {
+  //   // 验证
+  //   insureInfosRef.value?.validate().then(() => {
+  //     Object.assign(orderDetail.value, {
+  //       extInfo: {
+  //         ...orderDetail.value.extInfo,
+  //         buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
+  //         pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
+  //         templateId,
+  //       },
+  //     });
+  //     const currentOrderDetail = trialData2Order(trialData, state.trialResult, orderDetail.value);
+  //     nextStep(currentOrderDetail, (data, pageAction) => {
+  //       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+  //         currentShareInfo.value.link = `${window.location.href}&isShare=1&orderNo=${data.orderNo}`;
+  //         cb();
+  //       }
+  //     });
+  //     console.log('---- validate success ----');
+  //   });
+  // }
 };
 
 const onClosePopup = () => {
