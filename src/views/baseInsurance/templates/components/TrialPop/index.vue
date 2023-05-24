@@ -49,6 +49,7 @@
             :payment-frequency="scope.trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''"
             :tenant-product-detail="tenantProductDetail"
             :handle-share="(cb) => onShare(cb, scope.trialData)"
+            :disabled="!!state.trialMsg"
             @handle-click="onNext(scope.trialData)"
             >立即投保</TrialButton
           >
@@ -107,6 +108,7 @@ interface Props {
   hidePopupButton: boolean;
   title: string;
   defaultData: any;
+  currentOrderDetail?: any;
 }
 
 const LOADING_TEXT = '试算中...';
@@ -135,6 +137,7 @@ const props = withDefaults(defineProps<Props>(), {
    */
   hidePopupButton: false,
   defaultData: null,
+  currentOrderDetail: null,
 });
 
 const state = reactive({
@@ -162,7 +165,8 @@ const state = reactive({
   hadSkipFirstTrial: false,
 });
 
-const orderDetail = useOrder();
+const orderDetail = ref();
+const defaultOrderDetail = useOrder();
 const iseeBizNo = ref<string>();
 const currentShareInfo = ref<any>();
 
@@ -586,6 +590,17 @@ onBeforeMount(() => {
 onMounted(() => {
   state.loading = true;
 });
+
+watch(
+  () => props.currentOrderDetail,
+  (value) => {
+    orderDetail.value = value || defaultOrderDetail.value;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 // 默认的交费方式
 const defaultPaymentType = ref<string>();

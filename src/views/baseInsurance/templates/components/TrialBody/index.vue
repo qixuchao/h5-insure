@@ -53,7 +53,21 @@
             state.defaultValue ? state.defaultValue?.insuredList[0].productList[state.planIndex]?.riskList : []
           "
           @trial-change="handleProductRiskInfoChange"
-        ></ProductRiskList>
+        >
+          <template #holderForm>
+            <!-- 投保人豁免勾选时显示投保人 -->
+            <PersonalInfo
+              v-if="isTrial && dataSource.productFactor"
+              ref="personalInfoRef"
+              v-model="state.userData"
+              :is-trial="isTrial"
+              :is-only-holder="true"
+              :product-factor="dataSource.productFactor"
+              :multi-insured-config="dataSource?.multiInsuredConfigVO"
+              @trail-change="handlePersonalInfoChange"
+            />
+          </template>
+        </ProductRiskList>
         <div class="empty"></div>
       </div>
     </div>
@@ -62,6 +76,7 @@
       :trial-data="state.submitData"
       :risk-premium="state.trialResult"
       :loading="state.isQuerying"
+      :personal-info-ref="personalInfoRef"
     ></slot>
   </div>
 </template>
@@ -337,6 +352,7 @@ const onNext = () => {
           templateId,
         },
       });
+      console.log('dealMixData()', dealMixData());
       const currentOrderDetail = trialData2Order(dealMixData(), state.trialResult, orderDetail.value);
       nextStep(currentOrderDetail, (data, pageAction) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
@@ -554,7 +570,7 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
 };
 
 const handleMixTrialData = debounce(async () => {
-  console.log('>>>>>调用试算<<<<<', state.ifPersonalInfoSuccess);
+  console.log('>>>>>调用试算<<<<<', state.ifPersonalInfoSuccess, personalInfoRef.value.canTrail());
   const { productCode, productName } = props.productInfo || {};
   if (state.ifPersonalInfoSuccess || personalInfoRef.value.canTrail()) {
     state.submitData.productCode = productCode;
@@ -870,6 +886,9 @@ watch(
     width: 270px;
   }
 }
+
+.insurePlan {
+}
 .com-body {
   height: 100%;
   overflow-y: scroll;
@@ -904,6 +923,9 @@ watch(
   .trial-body {
     overflow-y: scroll;
     flex: 1;
+    :deep(.com-pro-form-with-card.personal-info-card) .header {
+      padding-left: 0;
+    }
   }
   .container {
     padding: 0 30px;
@@ -928,9 +950,11 @@ watch(
     .risk2-field {
     }
 
-    :deep(.com-pro-form-with-card) {
+    :deep(.com-pro-form-with-card),
+    :deep(.insurePlan) {
       .header {
         margin-left: 0;
+        padding-left: 0;
       }
     }
 

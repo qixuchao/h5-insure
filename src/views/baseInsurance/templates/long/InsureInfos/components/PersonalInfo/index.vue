@@ -1,6 +1,6 @@
 <template>
   <ProRenderFormWithCard
-    v-if="hasHolderSchema"
+    v-if="hasHolderSchema && isShowHolder"
     ref="holderFormRef"
     title="投保人信息"
     class="personal-info-card"
@@ -14,7 +14,7 @@
     }"
   />
   <!-- 被保人 -->
-  <template v-if="hasInsuredSchema">
+  <template v-if="hasInsuredSchema && !isOnlyHolder">
     <InsuredItem
       v-for="(insuredItem, index) in state.insured"
       ref="insuredFormRef"
@@ -70,6 +70,8 @@ interface Props {
   modelValue?: any;
   isTrial?: boolean;
   isView?: boolean;
+  // 豁免险仅显示投保人
+  isOnlyHolder?: boolean;
   multiInsuredConfig: {
     multiInsuredNum: number;
     multiInsuredSupportFlag: number;
@@ -86,6 +88,7 @@ const props = withDefaults(defineProps<Props>(), {
   isView: false,
   isTrial: false,
   multiInsuredNum: null,
+  isOnlyHolder: false,
 });
 
 interface InsuredFormProps extends Partial<PersonFormProps> {
@@ -138,10 +141,14 @@ const state = reactive<Partial<StateInfo>>({
   insured: [],
 });
 
+// 是否显示holder
+const isShowHolder = computed(() => !props.isTrial || props.isOnlyHolder);
+
 /** 验证试算因子是否全部有值 */
 const validateTrialFields = () => {
-  const flag = insuredFormRef.value ? insuredFormRef.value?.every((item) => item.validateTrialFields()) : true;
-  return flag && validateFields(state.holder);
+  const insuredFlag = !insuredFormRef.value || insuredFormRef.value?.every((item) => item.validateTrialFields());
+  const holderFlag = !holderFormRef.value || validateFields(state.holder);
+  return holderFlag && insuredFlag;
 };
 
 // 验证表单必填
@@ -317,7 +324,8 @@ watch(
       .then(() => {
         state.trialValidated = true;
         // 只有试算因子数据变动才调用试算
-        if (trialDataChanged) {
+        // 试算时投被保人分开不需要多次试算
+        if (trialDataChanged && !props.isOnlyHolder) {
           emit('trailChange', result);
         }
       })
@@ -454,6 +462,11 @@ defineExpose({
       display: block;
     }
   }
+  .delete-button {
+    width: auto;
+    margin-top: 4px;
+    color: $zaui-primary-text;
+  }
 }
 .add-button-wrap {
   margin-bottom: 20px;
@@ -466,8 +479,5 @@ defineExpose({
       font-weight: 600;
     }
   }
-}
-.delete-button {
-  color: $zaui-primary-text;
 }
 </style>

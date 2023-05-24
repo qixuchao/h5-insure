@@ -554,8 +554,8 @@ const handleMixTrialData = debounce(async (isSave = false) => {
     const { insuranceEndDate: expiryDate, insuranceStartDate: commencementTime } = guaranteeObj.value;
     Object.assign(state.submitData, {
       ...state.userData,
-      productCode,
       tenantId,
+      productCode,
       productName: insureProductDetail.value.productName,
       commencementTime,
       expiryDate,
@@ -573,6 +573,8 @@ const handleMixTrialData = debounce(async (isSave = false) => {
           productList: [
             {
               insurerCode,
+              productName: insureProductDetail.value.productName,
+              productCode,
               riskList: state.riskList,
             },
           ],
@@ -879,6 +881,11 @@ onUnmounted(() => {
     width: 300px;
     height: 88px;
     border-radius: 44px;
+  }
+  .com-pro-form-with-card.personal-info-card {
+    .com-card-wrap .header {
+      padding-right: var(--zaui-card-border, 0.4rem);
+    }
   }
 }
 </style>

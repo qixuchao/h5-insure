@@ -80,6 +80,7 @@ export interface VanFormProvied extends Data {
 export interface PersonFormProps {
   personVO: {
     relationToHolder?: string;
+    relationToMainInsured?: string;
     [x: string]: any;
   };
   schema: SchemaItem[];

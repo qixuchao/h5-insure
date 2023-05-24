@@ -150,7 +150,7 @@ const orderDetail = () => {
 
 onBeforeUpdate(() => {
   checkboxRefs.value = [];
-  orderDetail();
+  // orderDetail();
 });
 onMounted(() => {
   console.log(listQuestions.value);
