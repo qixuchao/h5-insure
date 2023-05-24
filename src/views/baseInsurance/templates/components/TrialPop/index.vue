@@ -49,6 +49,7 @@
             :payment-frequency="scope.trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''"
             :tenant-product-detail="tenantProductDetail"
             :handle-share="(cb) => onShare(cb, scope.trialData)"
+            :disabled="!!state.trialMsg"
             @handle-click="onNext(scope.trialData)"
             >立即投保</TrialButton
           >
