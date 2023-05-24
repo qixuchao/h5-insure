@@ -557,7 +557,7 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
             });
           }
           premiumMap.value = riskPremiumMap;
-          emit('trialEnd', res.data, state.submitData);
+          emit('trialEnd', res.data, calcData);
         }
       })
       .finally(() => {
