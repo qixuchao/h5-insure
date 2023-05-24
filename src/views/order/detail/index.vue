@@ -118,12 +118,12 @@ const handleProcess = () => {
       id: orderId,
       extInfo: { templateId, pageCode, extraInfo },
       agencyId: agencyCode,
-      venderCode: insurerCode,
+      insurerCode: currentInsurerCode,
       orderStatus,
     } = detail.value;
     const productCode = detail.value.insuredList?.[0]?.productList[0]?.productCode;
     const params: InsureLinkReq = {
-      insurerCode,
+      insurerCode: currentInsurerCode,
       productCode,
       tenantId: detail.value.tenantId,
       agencyCode: detail.value.agencyId,

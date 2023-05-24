@@ -59,6 +59,7 @@
         :payment-frequency="trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''"
         :tenant-product-detail="tenantProductDetail"
         :handle-share="(cb) => onShare(cb)"
+        :disabled="!trialResult"
         @handle-click="onNext"
         >下一步</TrialButton
       >
