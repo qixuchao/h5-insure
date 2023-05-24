@@ -10,12 +10,9 @@
     }"
     :tenant-product-detail="{}"
   >
-    <template #trialBtn="{ trialData, riskPremium }">
+    <template #trialBtn="slotProps">
       <div class="trial-button">
-        <VanButton
-          :disabled="!trialRef.getTrialSuccessFlag()"
-          type="primary"
-          @click="onFinished(trialData, riskPremium)"
+        <VanButton :disabled="!trialRef.getTrialSuccessFlag()" type="primary" @click="onFinished(slotProps)"
           >确定</VanButton
         >
       </div>
@@ -73,6 +70,7 @@ const formatData = (trialData: PremiumCalcData, trialResult: any) => {
       initialAmount: riskPremiumMap?.[risk.riskCode]?.initialAmount,
     };
   });
+  // const { productCode } = props;
   // const proposalData = {
   //   proposalHolder: {
   //     ...holder?.personVO,
@@ -106,8 +104,21 @@ const formatData = (trialData: PremiumCalcData, trialResult: any) => {
   };
 };
 
-const onFinished = (...rest) => {
-  emit('finish', formatData(rest[0], rest[1]));
+const onFinished = ({ trialData, riskPremium, personalInfoRef }) => {
+  if (typeof personalInfoRef?.canTrail === 'function' && personalInfoRef.canTrail()) {
+    return emit(
+      'finish',
+      formatData(
+        {
+          ...trialData,
+          productCode: props.productCode,
+        },
+        riskPremium,
+      ),
+    );
+  }
+  // 验证试算表单
+  return typeof personalInfoRef?.validate === 'function' && personalInfoRef.validate();
 };
 
 defineExpose({

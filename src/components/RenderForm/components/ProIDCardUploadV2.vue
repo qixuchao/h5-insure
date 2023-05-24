@@ -12,7 +12,7 @@
         :after-read="(e: UploaderFileListItem) => handleRead(e, index)"
         @click-preview="onClick(index)"
       >
-        <div class="upload-item">
+        <div class="upload-item" @click="() => onClick(index)">
           <img :src="item.imgSrc" class="bg" />
           <img v-if="!isView" :src="IDCardUploadIconImage" class="icon" />
           <div v-if="!isView" class="text">{{ item.title }}</div>

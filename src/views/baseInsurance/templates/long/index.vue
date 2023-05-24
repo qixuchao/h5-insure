@@ -20,6 +20,7 @@
         />
         <div ref="observeRef"></div>
       </div>
+      <ProductDesc :data-source="tenantProductDetail?.BASIC_INFO"></ProductDesc>
       <Guarantee
         v-if="tenantProductDetail?.GUARANTEE"
         show-service-config
@@ -64,6 +65,7 @@
           planList: insureProductDetail.productPlanInsureVOList,
         }"
         :default-data="orderDetail ? [orderDetail] : null"
+        :current-order-detail="orderDetail"
         :tenant-product-detail="tenantProductDetail"
         :hide-benefit="insureProductDetail.openFlag !== 1"
       ></TrialPop>
@@ -116,6 +118,8 @@ import InsureLimit from '../components/InsureLimit/index.vue';
 import { orderData2trialData } from '../utils';
 import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
 import ProPageWrap from '@/components/ProPageWrap';
+import ProductDesc from '../components/ProductDesc/index.vue';
+import useOrder from '@/hooks/useOrder';
 // const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const InscribedContent = defineAsyncComponent(() => import('../components/InscribedContent/index.vue'));
@@ -242,6 +246,7 @@ const queryProductMaterialData = () => {
 
 // 初始化数据，获取产品配置详情和产品详情
 const orderDetail = ref<any>();
+const defaultOrderDetail = useOrder();
 const isLoadDefaultValue = ref<boolean>(false);
 
 const initData = async () => {
@@ -278,7 +283,8 @@ const initData = async () => {
     queryProposalDetailInsurer({ id: proposalId, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         const { holder, insuredList } = data;
-        orderDetail.value = {
+
+        orderDetail.value = Object.assign(defaultOrderDetail.value, {
           productCode,
           productName: '',
           renewFlag: '',
@@ -288,7 +294,7 @@ const initData = async () => {
             ...insured,
             productList: insured.productList.filter((product) => product.productCode === productCode),
           })),
-        };
+        });
         isLoadDefaultValue.value = true;
       }
     });

@@ -93,6 +93,8 @@ export const isPreEnv = ORIGIN.includes('pre');
 
 export const isPrdEnv = !(isDevEnv || isTestEnv || isPreEnv);
 
+export const isDebugger = window.location.href.indexOf('is__debugger') !== -1;
+
 /**
  * 深拷贝 （不能处理有函数等特殊对象的值）
  * @param {*} source 被拷贝对象

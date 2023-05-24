@@ -19,17 +19,7 @@
         @trial-end="handleTrialEnd"
       >
       </TrialBody>
-      <TrialButton
-        :is-share="shareInfo.isShare && !isShare"
-        :premium="trialResult?.initialPremium"
-        :share-info="shareInfo"
-        :loading-text="trialMsg"
-        :payment-frequency="trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''"
-        :tenant-product-detail="tenantProductDetail"
-        :handle-share="(cb) => onShare(cb)"
-        @handle-click="onNext"
-        >下一步</TrialButton
-      >
+
       <PayInfo
         v-if="state.payInfo.schema.length"
         ref="payInfoRef"
@@ -59,6 +49,19 @@
         @submit="onSubmit"
         @on-close-file-preview-by-mask="onResetFileFlag"
       ></FilePreview>
+    </div>
+    <div class="wrap">
+      <TrialButton
+        :is-share="shareInfo.isShare && !isShare"
+        :premium="trialResult?.initialPremium"
+        :share-info="shareInfo"
+        :loading-text="trialMsg"
+        :payment-frequency="trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''"
+        :tenant-product-detail="tenantProductDetail"
+        :handle-share="(cb) => onShare(cb)"
+        @handle-click="onNext"
+        >下一步</TrialButton
+      >
     </div>
   </ProPageWrap>
 </template>
@@ -309,11 +312,15 @@ const onNext = async () => {
         pageCode: PAGE_CODE_ENUMS.INFO_COLLECTION,
       },
     });
-    const currentOrderDetail = trialData2Order(trialData.value, trialResult.value, orderDetail.value);
+
+    const currentOrderDetail = trialData2Order(
+      { ...trialData.value, productCode, productName: insureProductDetail.value.productName },
+      trialResult.value,
+      orderDetail.value,
+    );
 
     nextStep(currentOrderDetail, (data, pageAction) => {
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-        console.log('12313');
         pageJump(data.nextPageCode, route.query);
       }
     });
@@ -453,15 +460,11 @@ onBeforeMount(() => {
 
 <style lang="scss" scope>
 .long-info-collection {
-  padding-bottom: 150px;
+  padding-bottom: 200px;
   background-color: #fff;
   .com-risk-liabilityinfo {
     background-color: #fff;
     background: #ffffff;
-  }
-
-  .footer-area {
-    z-index: 111;
   }
 
   .empty {

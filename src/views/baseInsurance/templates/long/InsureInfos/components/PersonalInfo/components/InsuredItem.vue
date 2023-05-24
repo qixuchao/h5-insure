@@ -328,6 +328,34 @@ watch(
   },
 );
 
+// 监听与主被保人关系变动
+watch(
+  () => state.personVO?.relationToMainInsured,
+  (val, oldVal) => {
+    // 若投被保人关系为空则不执行
+    if (!val) {
+      return;
+    }
+    colorConsole('次被保人与主被保人关系变动了');
+    const { personVO, schema = [], config } = state || {};
+    const { certType } = personVO || {};
+
+    // 证件类型是否只有身份证
+    const [isOnlyCertFlag, tempConfig] = getCertConfig(schema, { certType, relationToHolder: val });
+
+    merge(config, tempConfig);
+
+    // 非查看模式处理与主被保人关系变动，数据清空操作
+    if (!props.isView && oldVal && String(val) !== String(oldVal)) {
+      Object.assign(state.personVO, {
+        // 若只有证件类型为身份证，不清除值
+        ...restObjectValues(personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
+        relationToMainInsured: personVO.relationToMainInsured,
+      });
+    }
+  },
+);
+
 watch(
   () => props.config,
   (val) => {
@@ -412,6 +440,14 @@ defineExpose({
       display: block;
     }
   }
+  :deep(.com-card-wrap) .title-wrapper {
+    width: 100%;
+  }
+  .delete-button {
+    width: auto;
+    margin-top: 4px;
+    color: $zaui-primary-text;
+  }
 }
 .add-button {
   display: block;
@@ -422,8 +458,5 @@ defineExpose({
   .van-icon-plus {
     font-weight: 600;
   }
-}
-.delete-button {
-  color: $zaui-primary-text;
 }
 </style>

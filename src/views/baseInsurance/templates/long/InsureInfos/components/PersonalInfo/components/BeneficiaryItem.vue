@@ -180,5 +180,8 @@ defineExpose({
       display: block;
     }
   }
+  :deep(.com-card-wrap) .title-wrapper {
+    width: 100%;
+  }
 }
 </style>
