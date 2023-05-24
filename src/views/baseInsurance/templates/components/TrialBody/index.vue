@@ -351,6 +351,7 @@ const onNext = () => {
           templateId,
         },
       });
+      console.log('dealMixData()', dealMixData());
       const currentOrderDetail = trialData2Order(dealMixData(), state.trialResult, orderDetail.value);
       nextStep(currentOrderDetail, (data, pageAction) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
