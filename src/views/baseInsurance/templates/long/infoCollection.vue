@@ -414,7 +414,9 @@ const initData = async () => {
         // 设置分享参数
         Object.assign(shareInfo.value, { title, desc, imgUrl: image, isShare: showWXShare });
       }
-      setGlobalTheme(data.BASIC_INFO.themeType);
+      if (data.BASIC_INFO && data.BASIC_INFO.themeType) {
+        setGlobalTheme(data.BASIC_INFO.themeType);
+      }
     }
   });
 
