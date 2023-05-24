@@ -226,8 +226,9 @@ const dealMixData = () => {
   if (submitData.insuredList) {
     const factor = currentPlan.value.productFactor['2'] || [];
     const ignoreKey = ['productList', 'beneficiaryList'];
+    const hasSub = factor.some((f) => `${f.subModuleType}` === '2');
     submitData.insuredList.forEach((insured, index) => {
-      const subModuleType = index >= 1 ? 2 : 1;
+      const subModuleType = index >= 1 && hasSub ? 2 : 1;
       // 处理被保人信息
       Object.keys(insured).forEach((key) => {
         if (ignoreKey.indexOf(key) >= 0) return;
