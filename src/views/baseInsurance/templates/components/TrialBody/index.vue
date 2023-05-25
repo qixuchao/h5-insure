@@ -231,7 +231,7 @@ const shakeData = (data, keys) => {
 
     // 若有职业保留职业大类
     if (keys.includes('occupationCodeList')) {
-      extraKeys.push('occupationCodeClass');
+      extraKeys.push('occupationClass');
     }
     Object.keys(data).forEach((key) => {
       if (![...keys, ...extraKeys].includes(key)) {
