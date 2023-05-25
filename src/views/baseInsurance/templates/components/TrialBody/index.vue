@@ -15,7 +15,7 @@
         />
         <!-- 多计划 -->
         <PlanSelect
-          v-if="productInfo.planList && productInfo.planList.length > 2"
+          v-if="isMultiPlan"
           :plan-list="productInfo.planList"
           :default-plan="currentPlan"
           @plan-change="handlePlanChange"
@@ -109,12 +109,13 @@ import { dealExemptPeriod, getRelationText } from './utils';
 import useOrder from '@/hooks/useOrder';
 import { formData2Order, trialData2Order } from '../../utils';
 import { ProductDetail, ProductDetail as ProductData } from '@/api/modules/newTrial.data';
-import { CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
+import { CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM, isNotEmptyArray } from '@/common/constants';
 import { transformData } from '@/views/baseInsurance/utils';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from '../../long/constants';
 import { nextStepOperate as nextStep } from '../../../nextStep';
 import pageJump from '@/utils/pageJump';
 import { jumpToNextPage } from '@/utils';
+import { ProductFactor } from '@/components/RenderForm';
 
 const RISK_SELECT = [
   { value: 1, label: '投保' },
@@ -219,57 +220,90 @@ const handlePersonInfo = (data) => {
   }
 };
 
-const dealMixData = () => {
-  console.log('--current plan = ', currentPlan.value);
-  console.log('---current submit = ', state.submitData);
-  const submitData = cloneDeep(state.submitData);
-  if (submitData.holder) {
-    const factor = currentPlan.value.productFactor['1'] || [];
-    Object.keys(submitData.holder).forEach((key) => {
-      if (submitData.holder[key]) {
-        const targetFactorKey = factor.find((k) => k.code === key);
-        if (!targetFactorKey) submitData.holder[key] = null;
+// 是否多计划
+const isMultiPlan = computed(() => props.productInfo.planList && props.productInfo.planList.length > 2);
+
+// 排除不需要的数据
+const shakeData = (data, keys) => {
+  if (data) {
+    // 需要保留的字段
+    const extraKeys = ['birthday', 'age', 'gender', 'id'];
+
+    // 若有职业保留职业大类
+    if (keys.includes('occupationCodeList')) {
+      extraKeys.push('occupationCodeClass');
+    }
+    Object.keys(data).forEach((key) => {
+      if (![...keys, ...extraKeys].includes(key)) {
+        data[key] = null;
       }
     });
   }
+};
 
-  const relationFactor = {
-    occupationClass: 'occupationCodeList',
-    occupationCode: 'occupationCodeList',
-  };
+// 获取要素code列表
+const getFactorCodes = (arr, filterFn = (x: ProductFactor) => true): string[] => {
+  if (isNotEmptyArray(arr)) {
+    return arr.filter(filterFn).map((item) => item.code);
+  }
+  return [];
+};
+
+const dealMixData = () => {
+  console.log('--current plan = ', currentPlan.value);
+  console.log('---current submit = ', state.submitData);
+
+  const submitData = cloneDeep(state.submitData);
+
+  // 如果不是多计划
+  if (!isMultiPlan.value) {
+    return submitData;
+  }
+
+  const { 1: holderFactor, 2: insuredFactor, 3: beneficiaryFactor } = currentPlan.value.productFactor || {};
+
+  // 处理投保人信息
+  if (submitData.holder) {
+    shakeData(submitData.holder, getFactorCodes(holderFactor));
+  }
 
   if (submitData.insuredList) {
-    const factor = currentPlan.value.productFactor['2'] || [];
     const ignoreKey = ['productList', 'beneficiaryList'];
-    const hasSub = factor.some((f) => `${f.subModuleType}` === '2');
+
+    // 主被保人code
+    const mainInsuredFactorCodes = getFactorCodes(
+      insuredFactor,
+      (item: ProductFactor) => String(item.subModuleType) !== '2',
+    );
+
+    // 次被保人code
+    const secondaryInsuredFactorCodes = getFactorCodes(
+      insuredFactor,
+      (item: ProductFactor) => String(item.subModuleType) === '2',
+    );
+
+    // 是否为次被保人
+    const hasSub = isNotEmptyArray(secondaryInsuredFactorCodes);
+
+    // 受益人 code
+    const beneficiaryFactorCodes = getFactorCodes(beneficiaryFactor);
+
+    // 是否有受益人
+    const hasBeneficiary = isNotEmptyArray(beneficiaryFactorCodes);
+
     submitData.insuredList.forEach((insured, index) => {
-      const subModuleType = index >= 1 && hasSub ? 2 : 1;
-      // 处理被保人信息
-      Object.keys(insured).forEach((key) => {
-        if (ignoreKey.indexOf(key) >= 0) return;
-        if (insured[key]) {
-          const targetFactorKey = factor.find(
-            (k) => k.code === key && (k.subModuleType === null || k.subModuleType === subModuleType),
-          );
-          if (relationFactor[key] && !targetFactorKey) {
-            const relateFactor = factor.find(
-              (k) => k.code === relationFactor[key] && (k.subModuleType === null || k.subModuleType === subModuleType),
-            );
-            if (relateFactor) return;
-          }
-          if (!targetFactorKey) insured[key] = null;
-        }
-      });
+      const targetFactorKeys = index >= 1 && hasSub ? secondaryInsuredFactorCodes : mainInsuredFactorCodes;
+      // 处理被保人信息, 要素有受益人则保留受益人类型字段
+      shakeData(insured, [...targetFactorKeys, ...ignoreKey, hasBeneficiary ? ['insuredBeneficiaryType'] : []]);
+
       // 受益人信息 todo
       if (insured.beneficiaryList?.length > 0) {
-        const factorBen = currentPlan.value.productFactor['3'] || [];
-        insured.beneficiaryList.forEach((ben) => {
-          Object.keys(ben).forEach((key) => {
-            if (!factorBen.find((k) => k.code === key)) {
-              ben[key] = null;
-            }
-          });
-        });
+        // 如果有受益人
+        if (hasBeneficiary) {
+          insured.beneficiaryList.forEach((ben) => shakeData(ben, beneficiaryFactorCodes));
+        } else {
+          insured.beneficiaryList.length = 0;
+        }
       }
 
       insured.planCode = currentPlan.value.planCode;
