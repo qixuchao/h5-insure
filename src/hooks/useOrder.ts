@@ -28,6 +28,8 @@ export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
     saleChannelId,
     extraInfo,
     insurerCode,
+    systemCode,
+    source,
   } = useRoute().query as QueryData;
 
   let extInfo: any = {};
@@ -47,6 +49,8 @@ export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
       buttonCode: '',
       pageCode: '',
       iseeBizNo: '',
+      source,
+      systemCode,
       extraInfo: extInfo,
     },
     orderCategory: 1,

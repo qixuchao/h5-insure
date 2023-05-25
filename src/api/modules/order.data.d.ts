@@ -538,6 +538,8 @@ export interface ExtInfo {
     redirectUrl: string;
     shareFlag: string;
     templateId: number;
+    source: string;
+    systemCode: string;
 }
 
 export interface ExtraInfo {
