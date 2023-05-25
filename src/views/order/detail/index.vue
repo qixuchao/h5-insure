@@ -127,8 +127,9 @@ const handleProcess = () => {
       productCode,
       tenantId: detail.value.tenantId,
       agencyCode: detail.value.agencyId,
-      agentCode: detail.value.agentCode,
+      agentCode: detail.value.saleUserId,
       saleChannelId: extraInfo?.saleChannelId,
+      extraMap: { ...detail.value?.extInfo?.extraInfo, orderNo: detail.value.orderNo },
     };
     loading.value = true;
     // TODO,跳转到对应的投保流程（订单转投保）
@@ -140,7 +141,6 @@ const handleProcess = () => {
         if ([TEMPLATE_NAME_ENUM.LONG, TEMPLATE_NAME_ENUM.NIANJIN].includes(getTemplateNameById(`${templateId}`))) {
           const queryStr = res.data.split('?')[1];
           const queryObj = qs.parse(queryStr);
-          console.log('234242', ORDER_STATUS_MAPPING_PAGE[orderStatus]);
           router.push({
             path: ORDER_STATUS_MAPPING_PAGE[orderStatus],
             query: {
@@ -151,7 +151,7 @@ const handleProcess = () => {
           });
         } else {
           // 否则就是其他险种，走投保流程链接
-          window.location.href = `${res.data}&orderNo=${orderNo}`;
+          window.location.href = res.data;
         }
       }
     });

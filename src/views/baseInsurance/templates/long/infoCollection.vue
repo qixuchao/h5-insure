@@ -318,12 +318,14 @@ const onNext = async () => {
       },
     });
 
+    const userData = personalInfoRef.value.dealMixData();
+
     const currentOrderDetail = trialData2Order(
-      { ...trialData.value, productCode, productName: insureProductDetail.value.productName },
+      { ...userData, productCode, productName: insureProductDetail.value.productName },
       trialResult.value,
       orderDetail.value,
     );
-    console.log('currentOrderDetail', currentOrderDetail);
+
     nextStep(currentOrderDetail, (data, pageAction) => {
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
         pageJump(data.nextPageCode, route.query);
@@ -421,7 +423,7 @@ const initData = async () => {
   });
 
   orderNo &&
-    getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
+    (await getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         trialResult.value = data.orderAmount;
         if (data.insuredList?.length > 0) {
@@ -443,13 +445,14 @@ const initData = async () => {
         state.defaultValue = orderDetail.value;
         isLoading.value = true;
       }
-    });
+    }));
 
   queryProductMaterialData();
 
   await getInsureProductDetail({ productCode, isTenant: !preview }).then(({ data, code }) => {
     if (code === '10000') {
       insureProductDetail.value = data;
+      console.log('state.defaultPlanCode', state.defaultPlanCode);
       currentPlanObj.value = data.productPlanInsureVOList.find((plan) => plan.planCode === state.defaultPlanCode) || {};
       const { payInfo } = transformFactorToSchema(currentPlanObj.value?.productFactor);
       state.payInfo = {
