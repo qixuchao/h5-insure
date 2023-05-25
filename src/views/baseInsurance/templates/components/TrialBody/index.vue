@@ -876,6 +876,7 @@ defineExpose({
   getUserData,
   onShare,
   onNext,
+  dealMixData,
 });
 watch(
   () => state.riskIsInsure,

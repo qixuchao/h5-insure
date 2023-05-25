@@ -245,10 +245,13 @@ export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
   const { riskInsuredDetailVOList = [], initialAmount, initialPremium = 0 } = riskPremium || {};
   if (riskInsuredDetailVOList.length) {
     riskInsuredPremiumList = riskInsuredDetailVOList.map((riskDetail: any) => {
-      const riskPremiumMap = {};
+      const riskPremiumMap = {
+        totalPremium: riskDetail.totalPremium,
+        riskMap: {},
+      };
 
       riskDetail.riskPremiumDetailVOList.forEach((risk) => {
-        riskPremiumMap[risk.riskCode] = {
+        riskPremiumMap.riskMap[risk.riskCode] = {
           premium: risk.initialPremium,
           amount: risk.initialAmount,
         };
@@ -261,17 +264,17 @@ export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
   nextStepParams.premium = initialPremium;
   nextStepParams.orderAmount = initialPremium;
 
-  nextStepParams.insuredList = (nextStepParams.insuredList || []).map((insurer: any) => {
+  nextStepParams.insuredList = (nextStepParams.insuredList || []).map((insurer: any, index) => {
     return {
       ...insurer,
       certType: insurer.certType || CERT_TYPE_ENUM.CERT,
       certNo: (insurer.certNo || '').toLocaleUpperCase(),
       productList: (insurer.productList || []).map((item) => ({
-        premium: initialPremium,
+        premium: riskInsuredPremiumList?.[index]?.totalPremium,
         productCode: trialData.productCode,
         productName: trialData.productName,
-        riskList: (item.riskList || []).map((risk, index) => {
-          const { amount, premium } = riskInsuredPremiumList?.[index]?.[risk.riskCode] || {};
+        riskList: (item.riskList || []).map((risk) => {
+          const { amount, premium } = riskInsuredPremiumList?.[index]?.riskMap?.[risk.riskCode] || {};
           return {
             ...risk,
             initialAmount: amount,
