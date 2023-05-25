@@ -323,7 +323,7 @@ const onNext = async () => {
       trialResult.value,
       orderDetail.value,
     );
-    console.log('currentOrderDetail', currentOrderDetail);
+
     nextStep(currentOrderDetail, (data, pageAction) => {
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
         pageJump(data.nextPageCode, route.query);
