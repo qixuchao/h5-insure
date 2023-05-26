@@ -384,15 +384,21 @@ export const transformFactorToSchema = (
   }
 
   const trialFactorCodes = [];
+  // 是否支持多被保人
+  const multiInsuredSupportFlag = conf.multiInsuredSupportFlag === YES_NO_ENUM.YES;
+  // 配置
   const config: PersonalInfoConf = {
     /** 是否有试算因子 */
     hasTrialFactorCodes: false,
     /** 是否为配偶被保人 */
     isSpouseInsured: false,
     /** 是否支持多被保人 */
-    multiInsuredSupportFlag: conf.multiInsuredSupportFlag === YES_NO_ENUM.YES,
-    /** 被保人最大数量 */
-    multiInsuredMaxNum: conf.multiInsuredNum,
+    multiInsuredSupportFlag,
+    /** 被保人最大数量，
+     * 若支持多被保人，则为被保人数量（被保人数量未配置则为无限大）
+     * 不支持多被保人，则最大数量为1
+     * */
+    multiInsuredMaxNum: multiInsuredSupportFlag ? conf.multiInsuredNum || Number.MAX_SAFE_INTEGER : 1,
     /** 被保人最大数量 */
     multiInsuredMinNum: 1,
     /** 受益人数量, 默认 5 */

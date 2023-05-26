@@ -412,14 +412,21 @@ watch(
 
     // 预览时，被保人数量多于默认数量
     const { length, 0: mainInsuredItem = {}, [length - 1]: lastInsuredItem } = state.initInsuredIList;
-    const { multiInsuredMaxNum, multiInsuredSupportFlag } = state.config;
-    const insuredLen = !multiInsuredSupportFlag
-      ? 1
-      : props.isView || propsInsuredLen > stateInsuredLen
-      ? propsInsuredLen
-      : stateInsuredLen || multiInsuredMaxNum;
+
+    const { multiInsuredMaxNum, multiInsuredMinNum, multiInsuredSupportFlag } = state.config;
+    // const insuredLen = !multiInsuredSupportFlag
+    //   ? 1
+    //   : props.isView || propsInsuredLen > stateInsuredLen
+    //   ? propsInsuredLen
+    //   : stateInsuredLen || multiInsuredMinNum;
+    // 查看模式，或者编辑模式并且数据大于默认被保人数，则显示数据的长度与最大被保人数两者的最小值，否则显示最小值
+    const insuredLen =
+      props.isView || propsInsuredLen > stateInsuredLen
+        ? Math.min(propsInsuredLen, multiInsuredMaxNum)
+        : stateInsuredLen || multiInsuredMinNum;
 
     console.log('-----change', state.config, insuredLen);
+
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
       const { personVO, config = {}, beneficiaryList } = insuredList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
