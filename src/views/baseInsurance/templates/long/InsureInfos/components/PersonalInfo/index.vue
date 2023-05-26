@@ -412,10 +412,14 @@ watch(
 
     // 预览时，被保人数量多于默认数量
     const { length, 0: mainInsuredItem = {}, [length - 1]: lastInsuredItem } = state.initInsuredIList;
-    const insuredLen =
-      props.isView || propsInsuredLen > stateInsuredLen
-        ? propsInsuredLen
-        : stateInsuredLen || state.config.multiInsuredMinNum;
+    const { multiInsuredMaxNum, multiInsuredSupportFlag } = state.config;
+    const insuredLen = !multiInsuredSupportFlag
+      ? 1
+      : props.isView || propsInsuredLen > stateInsuredLen
+      ? propsInsuredLen
+      : stateInsuredLen || multiInsuredMaxNum;
+
+    console.log('-----change', state.config, insuredLen);
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
       const { personVO, config = {}, beneficiaryList } = insuredList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
