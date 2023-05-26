@@ -294,7 +294,7 @@ const dealMixData = () => {
     submitData.insuredList.forEach((insured, index) => {
       const targetFactorKeys = index >= 1 && hasSub ? secondaryInsuredFactorCodes : mainInsuredFactorCodes;
       // 处理被保人信息, 要素有受益人则保留受益人类型字段
-      shakeData(insured, [...targetFactorKeys, ...ignoreKey, hasBeneficiary ? ['insuredBeneficiaryType'] : []]);
+      shakeData(insured, [...targetFactorKeys, ...ignoreKey, ...(hasBeneficiary ? ['insuredBeneficiaryType'] : [])]);
 
       // 受益人信息 todo
       if (insured.beneficiaryList?.length > 0) {
