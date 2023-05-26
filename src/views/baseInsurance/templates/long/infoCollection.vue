@@ -17,6 +17,7 @@
         :default-data="[state.defaultValue]"
         @trial-start="handleTrialStart"
         @trial-end="handleTrialEnd"
+        @update:user-data="(val) => (state.userData = val)"
       >
       </TrialBody>
 
@@ -26,6 +27,7 @@
         v-model="orderDetail.tenantOrderPayInfoList"
         :schema="state.payInfo.schema"
         :is-view="state.isView"
+        :user-data="state.userData"
       ></PayInfo>
       <ProLazyComponent>
         <AttachmentList
@@ -173,6 +175,7 @@ const state = reactive({
   defaultValue: null,
   isAutoChange: false,
   defaultPlanCode: '',
+  userData: {},
 });
 
 // 分享信息

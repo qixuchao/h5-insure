@@ -580,7 +580,7 @@ export const parseCertNo = (str: string) => {
  * @param filterFn 过滤不需要清除的key函数
  * @returns 返回一个新对象
  */
-export const restObjectValues = (data, filterFn = (key: string) => true) => {
+export const resetObjectValues = (data, filterFn = (key: string) => true) => {
   if (!data) {
     return {};
   }

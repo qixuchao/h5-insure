@@ -140,7 +140,7 @@ const insureInfosRef = ref(null);
 const route = useRoute();
 const router = useRouter();
 
-const emit = defineEmits(['trialStart', 'trialEnd']);
+const emit = defineEmits(['trialStart', 'trialEnd', 'update:userData']);
 
 const { tenantId, templateId, preview } = route.query;
 
@@ -889,10 +889,13 @@ watch(
   (val) => {
     if (val) {
       const { holder, insuredList } = val || {};
-      Object.assign(state.submitData, {
+      const userData = {
         holder,
         insuredList,
-      });
+      };
+      Object.assign(state.submitData, userData);
+
+      emit('update:userData', userData);
     }
   },
   {

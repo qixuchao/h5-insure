@@ -61,7 +61,7 @@ import {
   ProRenderFormWithCard,
   colorConsole,
   getCertConfig,
-  restObjectValues,
+  resetObjectValues,
 } from '@/components/RenderForm';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { BENEFICIARY_ENUM } from '@/common/constants/infoCollection';
@@ -315,7 +315,7 @@ watch(
       if (!isSelf) {
         newPersonVo = {
           // 若只有证件类型为身份证，不清除值
-          ...restObjectValues(personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
+          ...resetObjectValues(personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
           relationToHolder: personVO.relationToHolder,
         };
       }
@@ -351,7 +351,7 @@ watch(
     if (!props.isView && oldVal && String(val) !== String(oldVal)) {
       Object.assign(state.personVO, {
         // 若只有证件类型为身份证，不清除值
-        ...restObjectValues(personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
+        ...resetObjectValues(personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
         relationToMainInsured: personVO.relationToMainInsured,
       });
     }
