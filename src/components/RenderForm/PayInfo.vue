@@ -536,9 +536,9 @@ watch(
         // 是否为年金领取,若为年金领取则为被保人姓名
         const isReprise = schemaItem.payInfoType === PAYMENT_TYPE_ENUM.REPRISE;
         if (isReprise) {
-          name2 && (schemaItem.formData.accountName = name2);
+          schemaItem.formData.accountName = name2;
         } else {
-          name1 && (schemaItem.formData.accountName = name1);
+          schemaItem.formData.accountName = name1;
         }
       });
     }
