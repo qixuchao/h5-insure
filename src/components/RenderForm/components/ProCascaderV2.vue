@@ -116,7 +116,9 @@ const state = reactive({
 });
 
 const onclick = () => {
-  toggle(true);
+  if (!props.isView) {
+    toggle(true);
+  }
 };
 
 const onClose = () => {
