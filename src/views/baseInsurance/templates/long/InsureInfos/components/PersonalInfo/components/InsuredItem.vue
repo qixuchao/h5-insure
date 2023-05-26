@@ -267,11 +267,12 @@ watch(
       personVO: item.personVO,
     })),
   (val, oldValue) => {
-    emit('update:beneficiaryList', val);
+    if (JSON.stringify(val) !== JSON.stringify(oldValue)) {
+      emit('update:beneficiaryList', val);
+    }
   },
   {
     deep: true,
-    immediate: true,
   },
 );
 
