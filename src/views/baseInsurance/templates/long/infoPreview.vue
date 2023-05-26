@@ -1,7 +1,10 @@
 <template>
   <ProPageWrap>
     <div class="long-info-preview">
-      <InsureInfo :product-data="orderDetail.insuredList?.[0]?.productList?.[0]"></InsureInfo>
+      <InsureInfo
+        :product-data="orderDetail.insuredList?.[0]?.productList?.[0]"
+        :total-premium="orderDetail.orderAmount"
+      ></InsureInfo>
       <!-- 投保人/被保人/受益人 -->
       <PersonalInfo
         v-if="currentPlanObj?.productFactor"

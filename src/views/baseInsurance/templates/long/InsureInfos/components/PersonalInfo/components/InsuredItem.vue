@@ -14,6 +14,7 @@
   >
     <template #cardTitleExtra><slot></slot></template>
   </ProRenderFormWithCard>
+
   <template v-if="hasBeneficiarySchema">
     <ProRenderFormWithCard
       ref="beneficiaryTypeFormRef"

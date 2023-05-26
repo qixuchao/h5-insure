@@ -25,7 +25,11 @@
           :content="item.name"
         />
       </div>
-      <InsureInfo :product-data="detail?.insuredList?.[0]?.productList?.[0]" class="insure-info" />
+      <InsureInfo
+        :product-data="detail?.insuredList?.[0]?.productList?.[0]"
+        :total-premium="detail.orderAmount"
+        class="insure-info"
+      />
       <div v-loading="loading">
         <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.PENDING" class="footer-button">
           <van-button type="primary" @click.stop="handleDelete">删除</van-button>
