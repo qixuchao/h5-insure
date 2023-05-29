@@ -8,6 +8,7 @@
  */
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
+import merge from 'lodash-es/merge';
 import { OrderDetail } from '@/api/modules/order.data';
 
 /** 页面query参数类型 */
@@ -83,7 +84,7 @@ export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
     },
   });
   if ({}.toString.call(orderItem) === '[object Object]') {
-    Object.assign(orderDetail.value, orderItem);
+    merge(orderDetail.value, orderItem);
   }
   return orderDetail;
 };
