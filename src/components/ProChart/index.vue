@@ -77,7 +77,6 @@ const fullIndex = computed(() => {
 
 const handleChange = (val: number) => {
   let index = 0;
-  debugger;
   state.option.xAxis.data.forEach((item: number, i: number) => {
     if (item === val) {
       index = i;
