@@ -1,23 +1,22 @@
 <template>
-  <ProPageWrap>
-    <div class="long-health-notice-wrap">
-      <ProFilePreview
-        v-if="currentQuestion.content"
-        :type="currentQuestion.contentType"
-        :content="currentQuestion.content"
-      >
-        <!-- <template #title>
+  <div class="long-health-notice-wrap">
+    <ProNavigator />
+    <ProFilePreview
+      v-if="currentQuestion.content"
+      :type="currentQuestion.contentType"
+      :content="currentQuestion.content"
+    >
+      <!-- <template #title>
         {{ currentQuestion.questionnaireName }}
       </template> -->
-      </ProFilePreview>
-      <div class="footer-btn">
-        <VanButton @click="questionReject">部分为是</VanButton>
-        <ProShadowButton :shadow="false" @click="questionResolve">
-          <slot>以上皆否</slot>
-        </ProShadowButton>
-      </div>
+    </ProFilePreview>
+    <div class="footer-btn">
+      <VanButton @click="questionReject">部分为是</VanButton>
+      <ProShadowButton :shadow="false" @click="questionResolve">
+        <slot>以上皆否</slot>
+      </ProShadowButton>
     </div>
-  </ProPageWrap>
+  </div>
 </template>
 
 <script lang="ts" setup>

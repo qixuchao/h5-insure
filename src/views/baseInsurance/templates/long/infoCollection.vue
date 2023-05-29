@@ -1,72 +1,69 @@
 <template>
-  <ProPageWrap>
-    <div class="long-info-collection">
-      <TrialBody
-        v-if="isLoading || preview"
-        ref="personalInfoRef"
-        :data-source="currentPlanObj"
-        :product-info="{
-          productCode,
-          productName: insureProductDetail.productName,
-          insurerCode,
-          tenantId,
-          planList: insureProductDetail.productPlanInsureVOList,
-        }"
-        :tenant-product-detail="tenantProductDetail"
-        hide-benefit
-        :default-data="[state.defaultValue]"
-        @trial-start="handleTrialStart"
-        @trial-end="handleTrialEnd"
-        @update:user-data="(val) => (state.userData = val)"
-      >
-      </TrialBody>
+  <div class="long-info-collection">
+    <ProNavigator />
+    <TrialBody
+      v-if="isLoading || preview"
+      ref="personalInfoRef"
+      :data-source="currentPlanObj"
+      :product-info="{
+        productCode,
+        productName: insureProductDetail.productName,
+        insurerCode,
+        tenantId,
+        planList: insureProductDetail.productPlanInsureVOList,
+      }"
+      :tenant-product-detail="tenantProductDetail"
+      hide-benefit
+      :default-data="[state.defaultValue]"
+      @trial-start="handleTrialStart"
+      @trial-end="handleTrialEnd"
+      @update:user-data="(val) => (state.userData = val)"
+    >
+    </TrialBody>
 
-      <PayInfo
-        v-if="state.payInfo.schema.length"
-        ref="payInfoRef"
-        v-model="orderDetail.tenantOrderPayInfoList"
-        :schema="state.payInfo.schema"
-        :is-view="state.isView"
-        :user-data="state.userData"
-      ></PayInfo>
-      <ProLazyComponent>
-        <AttachmentList
-          v-if="fileList?.length"
-          v-model="isAgree"
-          :attachment-list="fileList"
-          is-show-radio
-          pre-text="投保人阅读并接受"
-          @preview-file="(index) => previewFile(index)"
-        />
-      </ProLazyComponent>
+    <PayInfo
+      v-if="state.payInfo.schema.length"
+      ref="payInfoRef"
+      v-model="orderDetail.tenantOrderPayInfoList"
+      :schema="state.payInfo.schema"
+      :is-view="state.isView"
+      :user-data="state.userData"
+    ></PayInfo>
+    <ProLazyComponent>
+      <AttachmentList
+        v-if="fileList?.length"
+        v-model="isAgree"
+        :attachment-list="fileList"
+        is-show-radio
+        pre-text="投保人阅读并接受"
+        @preview-file="(index) => previewFile(index)"
+      />
+    </ProLazyComponent>
 
-      <FilePreview
-        v-if="showFilePreview"
-        v-model:show="showFilePreview"
-        :content-list="isOnlyView ? fileList : popupFileList"
-        :is-only-view="isOnlyView"
-        :active-index="activeIndex"
-        :text="isOnlyView ? '关闭' : '我已逐页阅读并确认告知内容'"
-        :force-read-count="isOnlyView ? 0 : mustReadFileCount"
-        @submit="onSubmit"
-        @on-close-file-preview-by-mask="onResetFileFlag"
-      ></FilePreview>
-    </div>
-    <div class="wrap">
-      <TrialButton
-        :is-share="shareInfo.isShare && !isShare"
-        :premium="trialResult?.initialPremium"
-        :share-info="shareInfo"
-        :loading-text="trialMsg"
-        :payment-frequency="trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''"
-        :tenant-product-detail="tenantProductDetail"
-        :handle-share="(cb) => onShare(cb)"
-        :disabled="!trialResult"
-        @handle-click="onNext"
-        >下一步</TrialButton
-      >
-    </div>
-  </ProPageWrap>
+    <FilePreview
+      v-if="showFilePreview"
+      v-model:show="showFilePreview"
+      :content-list="isOnlyView ? fileList : popupFileList"
+      :is-only-view="isOnlyView"
+      :active-index="activeIndex"
+      :text="isOnlyView ? '关闭' : '我已逐页阅读并确认告知内容'"
+      :force-read-count="isOnlyView ? 0 : mustReadFileCount"
+      @submit="onSubmit"
+      @on-close-file-preview-by-mask="onResetFileFlag"
+    ></FilePreview>
+    <TrialButton
+      :is-share="shareInfo.isShare && !isShare"
+      :premium="trialResult?.initialPremium"
+      :share-info="shareInfo"
+      :loading-text="trialMsg"
+      :payment-frequency="trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''"
+      :tenant-product-detail="tenantProductDetail"
+      :handle-share="(cb) => onShare(cb)"
+      :disabled="!trialResult"
+      @handle-click="onNext"
+      >下一步</TrialButton
+    >
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -475,6 +472,10 @@ onBeforeMount(() => {
 .long-info-collection {
   padding-bottom: 200px;
   background-color: #fff;
+  .com-body {
+    height: unset;
+    overflow: unset;
+  }
   .com-risk-liabilityinfo {
     background-color: #fff;
     background: #ffffff;

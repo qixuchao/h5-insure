@@ -1,6 +1,7 @@
 <template>
   <div v-if="loading">__SKELETON_LONG_CONTENT__</div>
-  <ProPageWrap v-else class="page-internet-product-detail" data-skeleton-root="LONG">
+  <div v-else class="page-internet-product-detail" data-skeleton-root="LONG">
+    <ProNavigator />
     <template v-if="!trialPreviewMode">
       <div class="info">
         <Banner
@@ -72,7 +73,7 @@
       <!-- </ProLazyComponent> -->
     </template>
     <div id="insureButton"></div>
-  </ProPageWrap>
+  </div>
   <PreNotice v-if="preNoticeLoading && !trialPreviewMode" :product-detail="tenantProductDetail"></PreNotice>
   <div id="xinaoDialog"></div>
   <FilePreview

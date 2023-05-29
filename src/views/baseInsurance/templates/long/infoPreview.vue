@@ -1,43 +1,42 @@
 <template>
-  <ProPageWrap>
-    <div class="long-info-preview">
-      <InsureInfo
-        :product-data="orderDetail.insuredList?.[0]?.productList?.[0]"
-        :total-premium="orderDetail.orderAmount"
-      ></InsureInfo>
-      <!-- 投保人/被保人/受益人 -->
-      <PersonalInfo
-        v-if="currentPlanObj?.productFactor"
-        ref="personalInfoRef"
-        v-model="personInfo"
-        :product-factor="currentPlanObj?.productFactor"
-        :multi-insured-config="currentPlanObj?.multiInsuredConfigVO"
-        is-view
-      />
+  <div class="long-info-preview">
+    <ProNavigator />
+    <InsureInfo
+      :product-data="orderDetail.insuredList?.[0]?.productList?.[0]"
+      :total-premium="orderDetail.orderAmount"
+    ></InsureInfo>
+    <!-- 投保人/被保人/受益人 -->
+    <PersonalInfo
+      v-if="currentPlanObj?.productFactor"
+      ref="personalInfoRef"
+      v-model="personInfo"
+      :product-factor="currentPlanObj?.productFactor"
+      :multi-insured-config="currentPlanObj?.multiInsuredConfigVO"
+      is-view
+    />
 
-      <PayInfo
-        v-if="state.payInfo.schema.length"
-        ref="payInfoRef"
-        v-model="orderDetail.tenantOrderPayInfoList"
-        :schema="state.payInfo.schema"
-        is-view
-      ></PayInfo>
-      <div class="footer-btn">
-        <ProShare
-          v-if="!isShare && shareInfo.isShare && isAppFkq()"
-          v-bind="shareInfo"
-          class="share-btn"
-          @click.stop="handleShare"
-        >
-          <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
-          <span>分享</span>
-        </ProShare>
-        <ProShadowButton :shadow="false" @click="onNext">
-          <slot>下一步</slot>
-        </ProShadowButton>
-      </div>
+    <PayInfo
+      v-if="state.payInfo.schema.length"
+      ref="payInfoRef"
+      v-model="orderDetail.tenantOrderPayInfoList"
+      :schema="state.payInfo.schema"
+      is-view
+    ></PayInfo>
+    <div class="footer-btn">
+      <ProShare
+        v-if="!isShare && shareInfo.isShare && isAppFkq()"
+        v-bind="shareInfo"
+        class="share-btn"
+        @click.stop="handleShare"
+      >
+        <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
+        <span>分享</span>
+      </ProShare>
+      <ProShadowButton :shadow="false" @click="onNext">
+        <slot>下一步</slot>
+      </ProShadowButton>
     </div>
-  </ProPageWrap>
+  </div>
 </template>
 
 <script lang="ts" setup>

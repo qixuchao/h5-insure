@@ -1,46 +1,45 @@
 <template>
-  <ProPageWrap>
-    <ProResult
-      :title="title"
-      :status="status"
-      :ok-text="okText"
-      :cancel-text="cancelText"
-      @ok="handleOk"
-      @cancel="handleCancel"
-    >
-      <template #order>
-        <div v-if="isSuccess" class="order-result">
-          <van-row>
-            <van-col class="order-label" span="10">订 单 号：</van-col>
-            <van-col span="14">{{ result.orderNo }}</van-col>
-            <van-col class="order-label" span="10">支付方式：</van-col>
-            <van-col span="14">{{ result.paymentMethod }}</van-col>
-            <van-col class="order-label" span="10">支付金额：</van-col>
-            <van-col span="14">{{ result.orderAmount }}</van-col>
-            <van-col class="order-label" span="10">保单状态：</van-col>
-            <van-col span="14">{{ result.orderStatusDesc }}</van-col>
-          </van-row>
-        </div>
-        <div v-if="isFail" class="order-result">
-          <van-row v-if="result.paymentResultDesc">
-            <van-col class="order-label" span="10">失败原因：</van-col>
-            <van-col span="14">{{ result.paymentResultDesc }}</van-col>
-          </van-row>
-        </div>
-        <div v-if="isPaying" class="order-result">
-          <van-row class="tac">
-            <van-col span="24" class="mb20">支付中请耐心等待</van-col>
-            <van-col span="24">点击【刷新】按钮刷新支付结果</van-col>
-          </van-row>
-          <van-row class="tac buttons">
-            <van-col span="24">
-              <van-button type="primary" block @click="refresh">刷新</van-button>
-            </van-col>
-          </van-row>
-        </div>
-      </template>
-    </ProResult>
-  </ProPageWrap>
+  <ProNavigator />
+  <ProResult
+    :title="title"
+    :status="status"
+    :ok-text="okText"
+    :cancel-text="cancelText"
+    @ok="handleOk"
+    @cancel="handleCancel"
+  >
+    <template #order>
+      <div v-if="isSuccess" class="order-result">
+        <van-row>
+          <van-col class="order-label" span="10">订 单 号：</van-col>
+          <van-col span="14">{{ result.orderNo }}</van-col>
+          <van-col class="order-label" span="10">支付方式：</van-col>
+          <van-col span="14">{{ result.paymentMethod }}</van-col>
+          <van-col class="order-label" span="10">支付金额：</van-col>
+          <van-col span="14">{{ result.orderAmount }}</van-col>
+          <van-col class="order-label" span="10">保单状态：</van-col>
+          <van-col span="14">{{ result.orderStatusDesc }}</van-col>
+        </van-row>
+      </div>
+      <div v-if="isFail" class="order-result">
+        <van-row v-if="result.paymentResultDesc">
+          <van-col class="order-label" span="10">失败原因：</van-col>
+          <van-col span="14">{{ result.paymentResultDesc }}</van-col>
+        </van-row>
+      </div>
+      <div v-if="isPaying" class="order-result">
+        <van-row class="tac">
+          <van-col span="24" class="mb20">支付中请耐心等待</van-col>
+          <van-col span="24">点击【刷新】按钮刷新支付结果</van-col>
+        </van-row>
+        <van-row class="tac buttons">
+          <van-col span="24">
+            <van-button type="primary" block @click="refresh">刷新</van-button>
+          </van-col>
+        </van-row>
+      </div>
+    </template>
+  </ProResult>
 </template>
 
 <script lang="ts" setup name="OrderResult">
