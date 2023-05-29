@@ -126,6 +126,9 @@ const isPreview = computed(() => {
 watch(
   () => info.value,
   (val) => {
+    if (proposalName.value) {
+      return;
+    }
     const { gender, name, birthday } = val;
     const age = dayjs().diff(birthday, 'y');
     if (isMale(gender)) {
@@ -160,6 +163,7 @@ const getData = async () => {
     if (code === '10000') {
       const realData = data?.proposalInsuredVOList[0] || {};
       info.value = realData;
+      proposalName.value = data.proposalName;
       tenantId.value = data?.tenantId;
       shareLink = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
       setShareConfig(shareLink);
