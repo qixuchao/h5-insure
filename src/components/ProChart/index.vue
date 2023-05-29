@@ -67,8 +67,17 @@ const state = reactive({
 });
 let myChart: echarts.ECharts;
 
+const fullIndex = computed(() => {
+  return (
+    data.value?.findIndex((item) => {
+      return item?.itemList?.every((v) => v !== '0.00');
+    }) || 1
+  );
+});
+
 const handleChange = (val: number) => {
   let index = 0;
+  debugger;
   state.option.xAxis.data.forEach((item: number, i: number) => {
     if (item === val) {
       index = i;
@@ -76,7 +85,7 @@ const handleChange = (val: number) => {
   });
   myChart.dispatchAction({
     type: 'showTip',
-    seriesIndex: 0, // 显示第几个series
+    seriesIndex: fullIndex.value, // 显示第几个series
     dataIndex: index, // 显示第几个数据
   });
 };
