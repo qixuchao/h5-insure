@@ -141,11 +141,11 @@ watch(
 
 const setShareConfig = (link: string) => {
   shareConfig.value = {
-    title: `${info.value?.name}的计划书`,
+    title: proposalName,
     desc: '您的贴心保险管家',
     link,
-    imgUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/4e9f65f5-1bfc-4062-959b-c3101cb9e763.jpg',
-    img: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/4e9f65f5-1bfc-4062-959b-c3101cb9e763.jpg',
+    imgUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
+    img: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
   };
 };
 
