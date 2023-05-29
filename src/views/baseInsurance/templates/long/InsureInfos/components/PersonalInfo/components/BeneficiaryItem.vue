@@ -28,7 +28,7 @@ import {
   validateForm,
   getCertConfig,
   validateFields,
-  restObjectValues,
+  resetObjectValues,
   ProRenderFormWithCard,
 } from '@/components/RenderForm';
 
@@ -155,7 +155,7 @@ watch(
       // 若为本人合并投保人数据
       Object.assign(state.personVO, {
         // 若只有证件类型为身份证，不清除值
-        ...restObjectValues(state.personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
+        ...resetObjectValues(state.personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
         relationToInsured: val,
       });
     }
