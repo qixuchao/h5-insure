@@ -17,7 +17,7 @@
       <LiabilityByRes v-else :info="info" />
 
       <!-- 利益演示 -->
-      <Benefit :info="info" />
+      <Benefit v-if="info?.benefitRiskResultVOList" :info="info" />
 
       <div class="container">
         <div class="common-title">保险公司简介</div>

@@ -5,7 +5,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="ProChart">
 import echarts from './useEcharts';
 
 const props = defineProps({
@@ -67,14 +67,6 @@ const state = reactive({
 });
 let myChart: echarts.ECharts;
 
-const fullIndex = computed(() => {
-  return (
-    data.value?.findIndex((item) => {
-      return item?.itemList?.every((v) => v !== '0.00');
-    }) || 1
-  );
-});
-
 const handleChange = (val: number) => {
   let index = 0;
   state.option.xAxis.data.forEach((item: number, i: number) => {
@@ -82,9 +74,10 @@ const handleChange = (val: number) => {
       index = i;
     }
   });
+  const { length } = data.value;
   myChart.dispatchAction({
     type: 'showTip',
-    seriesIndex: fullIndex.value, // 显示第几个series
+    seriesIndex: length > 1 ? 1 : 0, // 显示第几个series
     dataIndex: index, // 显示第几个数据
   });
 };
