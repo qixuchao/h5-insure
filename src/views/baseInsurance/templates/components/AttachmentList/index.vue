@@ -84,7 +84,7 @@ const onChange = (e) => {
   }
 
   .attachment-item {
-    color: #006afc;
+    color: var(--van-primary-color);
   }
 
   .attachment-wrap {

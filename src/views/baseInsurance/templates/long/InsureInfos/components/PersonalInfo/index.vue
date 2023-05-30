@@ -476,7 +476,7 @@ defineExpose({
   .delete-button {
     width: auto;
     margin-top: 4px;
-    color: $zaui-primary-text;
+    color: var(--van-primary-color);
   }
 }
 .add-button-wrap {
@@ -484,7 +484,7 @@ defineExpose({
   padding: 25px 30px;
   .add-button {
     font-size: 32px;
-    color: $zaui-primary-text;
+    color: var(--van-primary-color);
     line-height: 45px;
     .van-icon-plus {
       font-weight: 600;

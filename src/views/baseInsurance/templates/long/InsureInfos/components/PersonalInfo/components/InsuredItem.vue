@@ -448,14 +448,14 @@ defineExpose({
   .delete-button {
     width: auto;
     margin-top: 4px;
-    color: $zaui-primary-text;
+    color: var(--van-primary-color);
   }
 }
 .add-button {
   display: block;
   padding: 0 30px 20px 0;
   font-size: 26px;
-  color: $zaui-primary-text;
+  color: var(--van-primary-color);
   line-height: 37px;
   .van-icon-plus {
     font-weight: 600;

@@ -131,6 +131,7 @@ interface Props {
   title: string;
   defaultData: any;
   isTrial: boolean;
+  defaultOrder: any;
 }
 
 const LOADING_TEXT = '试算中...';
@@ -163,6 +164,7 @@ const props = withDefaults(defineProps<Props>(), {
   hidePopupButton: false,
   defaultData: null,
   isTrial: false,
+  defaultOrder: () => ({}),
 });
 
 const state = reactive({
@@ -371,6 +373,7 @@ const dealMixData = () => {
 // };
 const premiumMap = ref();
 const onNext = () => {
+  const { productCode, productName } = props.productInfo;
   if (preview) {
     jumpToNextPage(PAGE_CODE_ENUMS.TRIAL_PREMIUM, route.query);
     return;
@@ -378,16 +381,22 @@ const onNext = () => {
   if (state.trialResultPremium) {
     // 验证
     insureInfosRef.value?.validate().then(() => {
-      Object.assign(orderDetail.value, {
+      Object.assign(orderDetail.value, props.defaultOrder, {
         extInfo: {
+          templateId,
+
           ...orderDetail.value.extInfo,
+          ...(props.defaultOrder.extInfo || {}),
           buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
           pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
-          templateId,
         },
       });
       console.log('dealMixData()', dealMixData());
-      const currentOrderDetail = trialData2Order(dealMixData(), state.trialResult, orderDetail.value);
+      const currentOrderDetail = trialData2Order(
+        { ...dealMixData(), productCode, productName },
+        state.trialResult,
+        orderDetail.value,
+      );
       nextStep(currentOrderDetail, (data, pageAction) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
           pageJump(data.nextPageCode, { ...route.query, orderNo: data.orderNo });
@@ -405,7 +414,7 @@ const onShare = (cb) => {
   if (state.trialResultPremium) {
     // 验证
     insureInfosRef.value?.validate().then(() => {
-      Object.assign(orderDetail.value, {
+      Object.assign(orderDetail.value, props.defaultOrder, {
         extInfo: {
           ...orderDetail.value.extInfo,
           buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,

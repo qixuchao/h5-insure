@@ -151,6 +151,7 @@ const handleProcess = () => {
               ...queryObj,
               extraInfo: queryObj.extraInfo,
               orderNo,
+              templateId,
             },
           });
         } else {

@@ -29,6 +29,7 @@
       :tenant-product-detail="tenantProductDetail"
       :hide-benefit="hideBenefit"
       :default-data="defaultData"
+      :default-order="orderDetail"
       @trial-start="handleTrialStart"
       @trial-end="handleTrialEnd"
     >
