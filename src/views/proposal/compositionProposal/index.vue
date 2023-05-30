@@ -6,8 +6,8 @@
  * @Description: 计划书
 -->
 <template>
-  <van-config-provider :theme-vars="themeVars">
-    <ProPageWrap>
+  <ProPageWrap>
+    <van-config-provider :theme-vars="themeVars">
       <div class="page-composition-proposal" :class="{ 'page-proposal-bottom': !isShare }">
         <div class="head-bg">
           {{ proposalName }}
@@ -18,7 +18,7 @@
         <LiabilityByRes v-else :info="info" />
 
         <!-- 利益演示 -->
-        <Benefit :info="info" />
+        <Benefit v-if="info?.benefitRiskResultVOList" :info="info" />
 
         <div class="container">
           <div class="common-title">保险公司简介</div>
@@ -60,8 +60,8 @@
         :theme-list="themeList"
         @submit="selectTheme"
       />
-    </ProPageWrap>
-  </van-config-provider>
+    </van-config-provider>
+  </ProPageWrap>
 </template>
 <script lang="ts" setup>
 import wx from 'weixin-js-sdk';
