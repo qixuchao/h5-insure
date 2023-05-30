@@ -6,55 +6,62 @@
  * @Description: 计划书
 -->
 <template>
-  <ProPageWrap>
-    <div class="page-composition-proposal" :class="{ 'page-proposal-bottom': !isShare }">
-      <div class="head-bg">
-        {{ proposalName }}
+  <van-config-provider :theme-vars="themeVars">
+    <ProPageWrap>
+      <div class="page-composition-proposal" :class="{ 'page-proposal-bottom': !isShare }">
+        <div class="head-bg">
+          {{ proposalName }}
+        </div>
+        <InsuranceList :info="info" />
+        <div class="switch-btn" @click="changeLiabilityType">{{ isLiabilityByRisk ? '按责任显示' : '按险种显示' }}</div>
+        <LiabilityByRisk v-if="isLiabilityByRisk" :info="info" />
+        <LiabilityByRes v-else :info="info" />
+
+        <!-- 利益演示 -->
+        <Benefit :info="info" />
+
+        <div class="container">
+          <div class="common-title">保险公司简介</div>
+
+          <van-collapse v-model="activeName" :is-link="false" :border="false" size="middle">
+            <van-collapse-item v-for="(item, i) in info?.insurerInfoVOList" :key="i" :name="i" value-class="price">
+              <template #title>
+                <div style="line-height: 36px"><span class="poiner"></span> {{ item?.insurerName }}</div>
+              </template>
+              {{ item.insurerDesc }}
+            </van-collapse-item>
+          </van-collapse>
+        </div>
       </div>
-      <InsuranceList :info="info" />
-      <div class="switch-btn" @click="changeLiabilityType">{{ isLiabilityByRisk ? '按责任显示' : '按险种显示' }}</div>
-      <LiabilityByRisk v-if="isLiabilityByRisk" :info="info" />
-      <LiabilityByRes v-else :info="info" />
-
-      <!-- 利益演示 -->
-      <Benefit :info="info" />
-
-      <div class="container">
-        <div class="common-title">保险公司简介</div>
-
-        <van-collapse v-model="activeName" :is-link="false" :border="false" size="middle">
-          <van-collapse-item v-for="(item, i) in info?.insurerInfoVOList" :key="i" :name="i" value-class="price">
-            <template #title>
-              <div style="line-height: 36px"><span class="poiner"></span> {{ item?.insurerName }}</div>
-            </template>
-            {{ item.insurerDesc }}
-          </van-collapse-item>
-        </van-collapse>
+      <div v-if="!isShare && !isPreview" class="footer-btn">
+        <ProShare
+          ref="shareButtonRef"
+          :title="shareConfig.title"
+          :desc="shareConfig.desc"
+          :link="shareConfig.link"
+          :img-url="shareConfig.imgUrl"
+        >
+          <van-button type="primary" class="share-btn" @click.stop="() => onShareProposal()">分享</van-button>
+        </ProShare>
+        <van-button plain type="primary" class="btn" @click="onCreatePdf">生成PDF</van-button>
+        <van-button v-if="isShowInsured" type="primary" class="btn" @click="onInsured">立即投保</van-button>
       </div>
-    </div>
-    <div v-if="!isShare && !isPreview" class="footer-btn">
-      <ProShare
-        ref="shareButtonRef"
-        :title="shareConfig.title"
-        :desc="shareConfig.desc"
-        :link="shareConfig.link"
-        :img-url="shareConfig.imgUrl"
-      >
-        <van-button type="primary" class="share-btn" @click.stop="() => onShareProposal()">分享</van-button>
-      </ProShare>
-      <van-button plain type="primary" class="btn" @click="onCreatePdf">生成PDF</van-button>
-      <van-button v-if="isShowInsured" type="primary" class="btn" @click="onInsured">立即投保</van-button>
-    </div>
 
-    <InsuredProductList
-      v-if="showProductList"
-      :is-show="showProductList"
-      :data-source="insuredProductList"
-      @finished="proposal2Insured"
-      @close="toggleProductList(false)"
-    ></InsuredProductList>
-    <ThemeSelect :key="+showThemeSelect" v-model:show="showThemeSelect" :theme-list="themeList" @submit="selectTheme" />
-  </ProPageWrap>
+      <InsuredProductList
+        v-if="showProductList"
+        :is-show="showProductList"
+        :data-source="insuredProductList"
+        @finished="proposal2Insured"
+        @close="toggleProductList(false)"
+      ></InsuredProductList>
+      <ThemeSelect
+        :key="+showThemeSelect"
+        v-model:show="showThemeSelect"
+        :theme-list="themeList"
+        @submit="selectTheme"
+      />
+    </ProPageWrap>
+  </van-config-provider>
 </template>
 <script lang="ts" setup>
 import wx from 'weixin-js-sdk';
@@ -82,6 +89,9 @@ import InsuredProductList from './components/InsuredProductList/index.vue';
 import ThemeSelect from './components/ThemeSelect/index.vue';
 import { SEX_LIMIT_ENUM } from '@/common/constants';
 import { useLocalStorage } from '@/hooks/useStorage';
+import useTheme from '@/hooks/useTheme';
+
+const themeVars = useTheme();
 
 const isLiabilityByRisk = ref(true);
 

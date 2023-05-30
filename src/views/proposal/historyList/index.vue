@@ -4,37 +4,44 @@
  * index.vue
 -->
 <template>
-  <ProPageWrap class="page-history-proposal">
-    <van-search
-      v-model="searchValue"
-      placeholder="请输入被保人姓名/计划书名称"
-      shape="round"
-      class="search"
-      @search="onSearch"
-    />
-    <div class="proposal-content">
-      <van-list
-        v-model:loading="loading"
-        :finished="finished"
-        :finished-text="hasProduct ? '- 没有更多了 -' : ''"
-        @load="onloadClick"
-      >
-        <div v-for="i of historyList" :key="i.id" class="proposal-item">
-          <div class="title">{{ i.proposalName }}</div>
-          <p class="premium">
-            保费：<span>¥{{ toLocal(i.totalPremium) }}</span>
-          </p>
-          <ProTable :columns="columns" class="table" :data-source="i.proposalProductRiskVOList" />
-          <div class="operate-btn">
-            <van-button plain round type="primary" class="del-btn" @click="delRisk(i.id)">删除</van-button>
-            <van-button plain round type="primary" @click="editProposal(i.id)">编辑</van-button>
-            <van-button plain round type="primary" @click="previewProposal(i.id)">预览</van-button>
+  <van-config-provider :theme-vars="themeVars">
+    <ProPageWrap class="page-history-proposal">
+      <van-search
+        v-model="searchValue"
+        placeholder="请输入被保人姓名/计划书名称"
+        shape="round"
+        class="search"
+        @search="onSearch"
+      />
+      <div class="proposal-content">
+        <van-list
+          v-model:loading="loading"
+          :finished="finished"
+          :finished-text="hasProduct ? '- 没有更多了 -' : ''"
+          @load="onloadClick"
+        >
+          <div v-for="i of historyList" :key="i.id" class="proposal-item">
+            <div class="title">{{ i.proposalName }}</div>
+            <p class="premium">
+              保费：<span>¥{{ toLocal(i.totalPremium) }}</span>
+            </p>
+            <ProTable :columns="columns" class="table" :data-source="i.proposalProductRiskVOList" />
+            <div class="operate-btn">
+              <van-button plain round type="primary" class="del-btn" @click="delRisk(i.id)">删除</van-button>
+              <van-button plain round type="primary" @click="editProposal(i.id)">编辑</van-button>
+              <van-button plain round type="primary" @click="previewProposal(i.id)">预览</van-button>
+            </div>
           </div>
-        </div>
-      </van-list>
-    </div>
-    <ProEmpty v-if="!hasProduct && !loading" :empty-img="emptyImg" title="暂无历史计划书" empty-class="empty-select" />
-  </ProPageWrap>
+        </van-list>
+      </div>
+      <ProEmpty
+        v-if="!hasProduct && !loading"
+        :empty-img="emptyImg"
+        title="暂无历史计划书"
+        empty-class="empty-select"
+      />
+    </ProPageWrap>
+  </van-config-provider>
 </template>
 
 <script setup lang="ts">
@@ -47,6 +54,9 @@ import ProTable from '@/components/ProTable/index.vue';
 import { historyProposalList, deleteProposal } from '@/api/modules/proposalList';
 import { HistoryProposalListType } from '@/api/modules/proposalList.data';
 import { convertPeriod, convertChargePeriod, transformToMoney } from '@/utils/format';
+import useTheme from '@/hooks/useTheme';
+
+const themeVars = useTheme();
 
 const columns = [
   {
