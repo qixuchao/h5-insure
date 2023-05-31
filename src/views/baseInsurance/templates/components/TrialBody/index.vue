@@ -929,6 +929,9 @@ watch(
   padding: 30px;
   text-align: right;
   background-color: #fff;
+  position: fixed;
+  bottom: 0;
+  left: 0;
   .van-button {
     width: 270px;
   }
