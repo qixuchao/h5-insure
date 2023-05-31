@@ -977,6 +977,7 @@ watch(
     :deep(.van-field) {
       align-items: baseline;
       border: 1px;
+      min-height: 86px;
       border-bottom: 1px solid var(--van-cell-border-color);
     }
     :deep(.van-cell::after) {
