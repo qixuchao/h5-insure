@@ -309,9 +309,7 @@ watch(
     // TODO: 主要被保人变动
     const isFirstInsuredChange =
       JSON.stringify(insuredList?.[0]?.personVO) !== filterFormData(props.modelValue?.insuredList?.[0]);
-
-    result.isFirstInsuredChange = isFirstInsuredChange;
-
+    console.log('-------result = ', result);
     emit('update:modelValue', result);
     // 验证通过调用试算
     // if (!state.config.hasTrialFactorCodes) {
@@ -358,7 +356,7 @@ watch(
       holderFactorCodes,
     });
     Object.assign(state.holder, holder);
-
+    console.log('-----------', holder, insured);
     state.config = config;
 
     if (isNotEmptyArray(insured)) {
@@ -414,10 +412,21 @@ watch(
 
     // 预览时，被保人数量多于默认数量
     const { length, 0: mainInsuredItem = {}, [length - 1]: lastInsuredItem } = state.initInsuredIList;
+
+    const { multiInsuredMaxNum, multiInsuredMinNum, multiInsuredSupportFlag } = state.config;
+    // const insuredLen = !multiInsuredSupportFlag
+    //   ? 1
+    //   : props.isView || propsInsuredLen > stateInsuredLen
+    //   ? propsInsuredLen
+    //   : stateInsuredLen || multiInsuredMinNum;
+    // 查看模式，或者编辑模式并且数据大于默认被保人数，则显示数据的长度与最大被保人数两者的最小值，否则显示最小值
     const insuredLen =
       props.isView || propsInsuredLen > stateInsuredLen
-        ? propsInsuredLen
-        : stateInsuredLen || state.config.multiInsuredMinNum;
+        ? Math.min(propsInsuredLen, multiInsuredMaxNum)
+        : stateInsuredLen || multiInsuredMinNum;
+
+    console.log('-----change', state.config, insuredLen);
+
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
       const { personVO, config = {}, beneficiaryList } = insuredList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
@@ -467,7 +476,7 @@ defineExpose({
   .delete-button {
     width: auto;
     margin-top: 4px;
-    color: $zaui-primary-text;
+    color: var(--van-primary-color);
   }
 }
 .add-button-wrap {
@@ -475,7 +484,7 @@ defineExpose({
   padding: 25px 30px;
   .add-button {
     font-size: 32px;
-    color: $zaui-primary-text;
+    color: var(--van-primary-color);
     line-height: 45px;
     .van-icon-plus {
       font-weight: 600;

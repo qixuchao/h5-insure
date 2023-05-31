@@ -490,7 +490,7 @@ onMounted(() => {
       color: #333333;
       line-height: 42px;
       span {
-        color: #006afc;
+        color: var(--van-primary-color);
       }
       border: 1px solid #fff1de;
       border-top-color: #fee6dd;

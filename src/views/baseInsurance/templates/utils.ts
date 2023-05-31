@@ -241,31 +241,40 @@ export const proposalToTrial = async (
 
 export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
   const nextStepParams: any = { ...currentOrderDetail, ...trialData };
-  const riskPremiumMap = {};
-  const { riskPremiumDetailVOList = [], initialAmount, initialPremium = 0 } = riskPremium || {};
-  if (riskPremiumDetailVOList.length) {
-    riskPremiumDetailVOList.forEach((riskDetail: any) => {
-      riskPremiumMap[riskDetail.riskCode] = {
-        premium: riskDetail.initialPremium,
-        amount: riskDetail.initialAmount,
+  let riskInsuredPremiumList = [];
+  const { riskInsuredDetailVOList = [], initialAmount, initialPremium = 0 } = riskPremium || {};
+  if (riskInsuredDetailVOList.length) {
+    riskInsuredPremiumList = riskInsuredDetailVOList.map((riskDetail: any) => {
+      const riskPremiumMap = {
+        totalPremium: riskDetail.totalPremium,
+        riskMap: {},
       };
+
+      riskDetail.riskPremiumDetailVOList.forEach((risk) => {
+        riskPremiumMap.riskMap[risk.riskCode] = {
+          premium: risk.initialPremium,
+          amount: risk.initialAmount,
+        };
+      });
+
+      return riskPremiumMap;
     });
   }
 
   nextStepParams.premium = initialPremium;
   nextStepParams.orderAmount = initialPremium;
 
-  nextStepParams.insuredList = (nextStepParams.insuredList || []).map((insurer: any) => {
+  nextStepParams.insuredList = (nextStepParams.insuredList || []).map((insurer: any, index) => {
     return {
       ...insurer,
       certType: insurer.certType || CERT_TYPE_ENUM.CERT,
       certNo: (insurer.certNo || '').toLocaleUpperCase(),
       productList: (insurer.productList || []).map((item) => ({
-        premium: initialPremium,
+        premium: riskInsuredPremiumList?.[index]?.totalPremium,
         productCode: trialData.productCode,
         productName: trialData.productName,
         riskList: (item.riskList || []).map((risk) => {
-          const { amount, premium } = riskPremiumMap?.[risk.riskCode] || {};
+          const { amount, premium } = riskInsuredPremiumList?.[index]?.riskMap?.[risk.riskCode] || {};
           return {
             ...risk,
             initialAmount: amount,

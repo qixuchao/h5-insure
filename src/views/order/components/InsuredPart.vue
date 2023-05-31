@@ -21,7 +21,7 @@
           <ProCell
             title="首期保费"
             class="price"
-            :content="(riskInfo.initialPremium || 0).toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })"
+            :content="(totalPremium || 0).toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })"
           >
           </ProCell>
         </div>
@@ -41,10 +41,12 @@ import {
 
 interface Props {
   productData: any;
+  totalPremium: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   productData: () => ({}),
+  totalPremium: 0,
 });
 
 const riskInfo = computed(() => {

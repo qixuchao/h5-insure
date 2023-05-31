@@ -5,7 +5,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="ProChart">
 import echarts from './useEcharts';
 
 const props = defineProps({
@@ -74,9 +74,10 @@ const handleChange = (val: number) => {
       index = i;
     }
   });
+  const { length } = data.value;
   myChart.dispatchAction({
     type: 'showTip',
-    seriesIndex: 0, // 显示第几个series
+    seriesIndex: length > 1 ? 1 : 0, // 显示第几个series
     dataIndex: index, // 显示第几个数据
   });
 };

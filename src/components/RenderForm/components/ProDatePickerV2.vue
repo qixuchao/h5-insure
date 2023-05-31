@@ -3,7 +3,7 @@
     :model-value="state.fieldValue"
     v-bind="filedAttrs"
     :is-view="isView"
-    :class="$attrs.class"
+    :class="`${filedAttrs.visible === false ? 'com-van-field--hidden' : ''} ${$attrs.class}`"
     :field-value-view="state.fieldValue"
     @click="!isView && (show = true)"
   >
@@ -35,7 +35,7 @@ import { useToggle } from '@vant/use';
 import isDate from 'lodash-es/isDate';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { useAttrsAndSlots } from '../hooks';
-import { VAN_PRO_FORM_KEY } from '../utils';
+import { VAN_PRO_FORM_KEY, relatedConfigMap } from '../utils';
 
 const { filedAttrs, filedSlots, attrs, slots } = toRefs(useAttrsAndSlots());
 
@@ -44,6 +44,13 @@ const emits = defineEmits(['update:modelValue', 'cancel']);
 const { formState } = inject(VAN_PRO_FORM_KEY) || {};
 
 const props = defineProps({
+  /**
+   * ruleType 关联的 name (证件号验证)
+   */
+  relatedName: {
+    type: String,
+    default: '',
+  },
   /**
    * 选择类型，同 van-datetime-picker type 属性
    */
@@ -102,11 +109,25 @@ const extraAttrs = computed(() => {
   };
 });
 
+/**
+ * 事件副作用, 定义对应 type 的副作用函数 `${type}Effect`
+ * @param type onBlur、onChange
+ * @param val
+ */
+const onEffect = (type, val) => {
+  if (props.relatedName && type) {
+    const effectFn = (relatedConfigMap[props.relatedName] || {})[`${type}Effect`];
+    typeof effectFn === 'function' && effectFn(val, formState);
+  }
+};
+
 // 格式化默认值
 const formatValueType = computed(() => formatMap[props.type] || 'YYYY-MM-DD HH:mm');
 
 const onConfirm = (value: Date | string) => {
-  state.fieldValue = isDate(value) ? dayjs(value).format(formatValueType.value) : (value as string);
+  const val = isDate(value) ? dayjs(value).format(formatValueType.value) : (value as string);
+  onEffect('onChange', val);
+  state.fieldValue = val;
   emits('update:modelValue', state.fieldValue);
   toggle(false);
 };

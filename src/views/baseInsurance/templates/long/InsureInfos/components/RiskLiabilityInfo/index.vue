@@ -97,6 +97,7 @@ const state = ref({
 });
 
 const signLiabilityClick = (item, index) => {
+  console.log('---click ', item, index);
   state.value.signLiabilityClick.push({
     item,
     index,
@@ -236,6 +237,7 @@ watch(
 onMounted(() => {
   // 默认需要选中第一个责任
   // state.value.checkValueList = { 0: '100000', 1: '20000', 4: '1', 5: '1' };
+  console.log('----mounted');
   props.dataSource.riskLiabilityInfoVOList.map((item, index) => {
     // 设置非公式类型初始化 默认选中第一个值
     const value =
@@ -243,7 +245,7 @@ onMounted(() => {
       item.formula.length === 0 &&
       item.liabilityAttributeValueList[0].displayValue;
 
-    state.value.checkValueList[index] = value;
+    if (!state.value.checkValueList[index]) state.value.checkValueList[index] = value;
     // 初始化数据，必选责任不展示，但需要把当前责任code的对象传给后端
     if (+item.showFlag !== 1) {
       state.value.liabilityList.push({
@@ -281,6 +283,7 @@ watch(
       state.value.signLiabilityClick = [];
       props.dataSource.riskLiabilityInfoVOList.forEach((item, index) => {
         const targetLia = v?.liabilityList.find((li) => li.liabilityCode === item.liabilityCode);
+        console.log('--target lia = ', targetLia);
         state.value.isCheckList[index] = '2';
         if (targetLia) {
           state.value.isCheckList[index] = '1';

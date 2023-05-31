@@ -1,68 +1,69 @@
 <template>
-  <ProPageWrap>
-    <div class="long-info-collection">
-      <TrialBody
-        v-if="isLoading || preview"
-        ref="personalInfoRef"
-        :data-source="currentPlanObj"
-        :product-info="{
-          productCode,
-          productName: insureProductDetail.productName,
-          insurerCode,
-          tenantId,
-        }"
-        :tenant-product-detail="tenantProductDetail"
-        hide-benefit
-        :default-data="[state.defaultValue]"
-        @trial-start="handleTrialStart"
-        @trial-end="handleTrialEnd"
-      >
-      </TrialBody>
+  <div class="long-info-collection">
+    <ProNavigator />
+    <TrialBody
+      v-if="isLoading || preview"
+      ref="personalInfoRef"
+      :data-source="currentPlanObj"
+      :product-info="{
+        productCode,
+        productName: insureProductDetail.productName,
+        insurerCode,
+        tenantId,
+        planList: insureProductDetail.productPlanInsureVOList,
+      }"
+      :tenant-product-detail="tenantProductDetail"
+      hide-benefit
+      :default-data="[state.defaultValue]"
+      @trial-start="handleTrialStart"
+      @trial-end="handleTrialEnd"
+      @update:user-data="(val) => (state.userData = val)"
+    >
+    </TrialBody>
 
-      <PayInfo
-        v-if="state.payInfo.schema.length"
-        ref="payInfoRef"
-        v-model="orderDetail.tenantOrderPayInfoList"
-        :schema="state.payInfo.schema"
-        :is-view="state.isView"
-      ></PayInfo>
-      <ProLazyComponent>
-        <AttachmentList
-          v-if="fileList?.length"
-          v-model="isAgree"
-          :attachment-list="fileList"
-          is-show-radio
-          pre-text="投保人阅读并接受"
-          @preview-file="(index) => previewFile(index)"
-        />
-      </ProLazyComponent>
+    <PayInfo
+      v-if="state.payInfo.schema.length"
+      ref="payInfoRef"
+      v-model="orderDetail.tenantOrderPayInfoList"
+      :schema="state.payInfo.schema"
+      :is-view="state.isView"
+      :user-data="state.userData"
+    ></PayInfo>
+    <ProLazyComponent>
+      <AttachmentList
+        v-if="fileList?.length"
+        v-model="isAgree"
+        :attachment-list="fileList"
+        is-show-radio
+        pre-text="投保人阅读并接受"
+        @preview-file="(index) => previewFile(index)"
+      />
+    </ProLazyComponent>
 
-      <FilePreview
-        v-if="showFilePreview"
-        v-model:show="showFilePreview"
-        :content-list="isOnlyView ? fileList : popupFileList"
-        :is-only-view="isOnlyView"
-        :active-index="activeIndex"
-        :text="isOnlyView ? '关闭' : '我已逐页阅读并确认告知内容'"
-        :force-read-count="isOnlyView ? 0 : mustReadFileCount"
-        @submit="onSubmit"
-        @on-close-file-preview-by-mask="onResetFileFlag"
-      ></FilePreview>
-    </div>
-    <div class="wrap">
-      <TrialButton
-        :is-share="shareInfo.isShare && !isShare"
-        :premium="trialResult?.initialPremium"
-        :share-info="shareInfo"
-        :loading-text="trialMsg"
-        :payment-frequency="trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''"
-        :tenant-product-detail="tenantProductDetail"
-        :handle-share="(cb) => onShare(cb)"
-        @handle-click="onNext"
-        >下一步</TrialButton
-      >
-    </div>
-  </ProPageWrap>
+    <FilePreview
+      v-if="showFilePreview"
+      v-model:show="showFilePreview"
+      :content-list="isOnlyView ? fileList : popupFileList"
+      :is-only-view="isOnlyView"
+      :active-index="activeIndex"
+      :text="isOnlyView ? '关闭' : '我已逐页阅读并确认告知内容'"
+      :force-read-count="isOnlyView ? 0 : mustReadFileCount"
+      @submit="onSubmit"
+      @on-close-file-preview-by-mask="onResetFileFlag"
+    ></FilePreview>
+    <TrialButton
+      :is-share="shareInfo.isShare && !isShare"
+      :premium="trialResult?.initialPremium"
+      :share-info="shareInfo"
+      :loading-text="trialMsg"
+      :payment-frequency="trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''"
+      :tenant-product-detail="tenantProductDetail"
+      :handle-share="(cb) => onShare(cb)"
+      :disabled="!trialResult"
+      @handle-click="onNext"
+      >下一步</TrialButton
+    >
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -170,6 +171,8 @@ const state = reactive({
   },
   defaultValue: null,
   isAutoChange: false,
+  defaultPlanCode: '',
+  userData: {},
 });
 
 // 分享信息
@@ -287,6 +290,10 @@ const onNext = async () => {
     return;
   }
 
+  if (!trialResult.value) {
+    return;
+  }
+
   const validateList = [];
 
   if (personalInfoRef.value) {
@@ -311,8 +318,10 @@ const onNext = async () => {
       },
     });
 
+    const userData = personalInfoRef.value.dealMixData();
+
     const currentOrderDetail = trialData2Order(
-      { ...trialData.value, productCode, productName: insureProductDetail.value.productName },
+      { ...userData, productCode, productName: insureProductDetail.value.productName },
       trialResult.value,
       orderDetail.value,
     );
@@ -407,14 +416,20 @@ const initData = async () => {
         // 设置分享参数
         Object.assign(shareInfo.value, { title, desc, imgUrl: image, isShare: showWXShare });
       }
-      setGlobalTheme(data.BASIC_INFO.themeType);
+      if (data.BASIC_INFO && data.BASIC_INFO.themeType) {
+        setGlobalTheme(data.BASIC_INFO.themeType);
+      }
     }
   });
 
   orderNo &&
-    getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
+    (await getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         trialResult.value = data.orderAmount;
+        if (data.insuredList?.length > 0) {
+          const { planCode } = data.insuredList[0];
+          state.defaultPlanCode = planCode;
+        }
         Object.assign(orderDetail.value, data, {
           tenantOrderPayInfoList: data.tenantOrderPayInfoList || [],
           operateOption: {
@@ -430,14 +445,15 @@ const initData = async () => {
         state.defaultValue = orderDetail.value;
         isLoading.value = true;
       }
-    });
+    }));
 
   queryProductMaterialData();
 
   await getInsureProductDetail({ productCode, isTenant: !preview }).then(({ data, code }) => {
     if (code === '10000') {
       insureProductDetail.value = data;
-      currentPlanObj.value = data.productPlanInsureVOList?.[0] || {};
+      console.log('state.defaultPlanCode', state.defaultPlanCode);
+      currentPlanObj.value = data.productPlanInsureVOList.find((plan) => plan.planCode === state.defaultPlanCode) || {};
       const { payInfo } = transformFactorToSchema(currentPlanObj.value?.productFactor);
       state.payInfo = {
         ...state.payInfo,
@@ -456,6 +472,10 @@ onBeforeMount(() => {
 .long-info-collection {
   padding-bottom: 200px;
   background-color: #fff;
+  .com-body {
+    height: unset;
+    overflow: unset;
+  }
   .com-risk-liabilityinfo {
     background-color: #fff;
     background: #ffffff;

@@ -468,6 +468,9 @@ export const GLOBAL_CONFIG_MAP = {
   certType: {
     relatedName: 'certNo',
   },
+  birthday: {
+    relatedName: 'age',
+  },
   mobile: RULE_CONFIG_MAP.MOBILE,
   age: RULE_CONFIG_MAP.AGE,
   height: {

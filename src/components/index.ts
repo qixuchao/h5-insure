@@ -40,6 +40,7 @@ import ProPDFviewer from './ProPDFviewer/index.vue';
 import ProScrollTab from './ProScrollTab/index.vue';
 import ProLazyComponent from './ProLazyComponent/index.vue';
 import ProShare from './ProShare/index.vue';
+import ProNavigator from './ProNavigator/index.vue'
 
 interface ComponentMap {
   [key: string]: Component;
@@ -80,6 +81,7 @@ export const globalComs: ComponentMap = {
   ProTab,
   ProShare,
   ProLazyComponent,
+  ProNavigator
 };
 
 function install(app: any) {
