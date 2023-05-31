@@ -100,7 +100,14 @@ const subTitle = computed(() => {
       border-bottom: 0;
 
       &.showLine {
-        border-bottom: 1px solid $zaui-line;
+        &:after {
+          content: ' ';
+          position: absolute;
+          width: 100%;
+          border-bottom: 1px solid $zaui-line;
+          transform: scaleY(0.5);
+          z-index: 1;
+        }
       }
       .title-wrapper {
         height: 90px;

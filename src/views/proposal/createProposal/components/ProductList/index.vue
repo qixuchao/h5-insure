@@ -27,7 +27,6 @@
             <div v-if="risk.riskType !== 2" class="operate-bar">
               <ProCheckButton
                 v-if="isCanDeleteRisk(risk.riskId) && productIndex > 0"
-                :round="32"
                 class="border"
                 @click="deleteRisk(risk)"
                 >删除</ProCheckButton
@@ -42,7 +41,7 @@
               <span class="btn-plus">+</span>
               附加险</ProCheckButton
             > -->
-              <ProCheckButton activated :round="32" @click="updateRisk(risk)">修改</ProCheckButton>
+              <ProCheckButton activated @click="updateRisk(risk)">修改</ProCheckButton>
             </div>
           </div>
         </div>
@@ -325,6 +324,7 @@ watch(
       :deep(.com-check-btn) {
         margin-left: 16px;
         background-color: #ffffff;
+        border-radius: 32px;
       }
       .btn-rider-risk {
         display: flex;

@@ -5,6 +5,7 @@
         <ProRenderForm ref="formRef" class="mb20" :model="stateInfo.insuredPersonVO">
           <ProFieldV2
             v-model="stateInfo.insuredPersonVO.proposalName"
+            class="ra20"
             label="计划书名称"
             name="proposalName"
             :maxlength="20"
@@ -61,7 +62,7 @@
           ></ProductList>
         </ProCard>
         <div v-if="showAddBtn" class="operate-bar">
-          <ProCheckButton activated :round="34" @click="addProduct">添加产品</ProCheckButton>
+          <ProCheckButton activated @click="addProduct">添加产品</ProCheckButton>
         </div>
       </div>
       <div class="footer-bar">
@@ -735,7 +736,7 @@ onBeforeMount(() => {
     }
   }
   :deep(.com-card-wrap) {
-    border-radius: $zaui-border-radius-card;
+    clip-path: inset(0 0 0 0 round $zaui-border-radius-card);
     .body {
       padding: 0;
     }
@@ -750,6 +751,10 @@ onBeforeMount(() => {
       margin-bottom: 20px;
     }
 
+    .ra20 {
+      border-radius: $zaui-border-radius-card;
+    }
+
     .operate-bar {
       width: 100%;
       justify-content: center;
@@ -758,6 +763,7 @@ onBeforeMount(() => {
       :deep(.com-check-btn) {
         height: 68px;
         width: 240px;
+        border-radius: 34px;
       }
     }
   }
@@ -797,6 +803,17 @@ onBeforeMount(() => {
       padding: 0;
       width: 260px;
       margin-left: 30px;
+      position: relative;
+      &::before {
+        content: ' ';
+        position: absolute;
+        width: 1px;
+        height: 41px;
+        background-color: $zaui-line;
+        margin: auto;
+        top: 0;
+        bottom: 0;
+      }
       .van-field__label {
         display: none;
       }
