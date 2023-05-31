@@ -208,6 +208,9 @@ defineExpose({
 }
 :deep(.van-field) {
   align-items: baseline;
+  ::after {
+    border-bottom: 1px solid var(--van-cell-border-color);
+  }
 }
 .insurePlan {
   .com-card-wrap {

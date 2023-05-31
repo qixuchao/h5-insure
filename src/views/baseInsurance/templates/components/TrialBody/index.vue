@@ -973,6 +973,15 @@ watch(
     :deep(.com-pro-form-with-card.personal-info-card) .header {
       padding-left: 0;
     }
+
+    :deep(.van-field) {
+      align-items: baseline;
+      border: 1px;
+      border-bottom: 1px solid var(--van-cell-border-color);
+    }
+    :deep(.van-cell::after) {
+      border-bottom: 0;
+    }
   }
   .container {
     padding: 0 30px;
