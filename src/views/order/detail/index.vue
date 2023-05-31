@@ -1,5 +1,5 @@
 <template>
-  <ProPageWrap>
+  <van-config-provider :theme-vars="themeVars">
     <div v-if="detail" class="page-order-detail">
       <div class="card">
         <FieldInfo>
@@ -25,7 +25,11 @@
           :content="item.name"
         />
       </div>
-      <InsureInfo :product-data="detail?.insuredList?.[0]?.productList?.[0]" class="insure-info" />
+      <InsureInfo
+        :product-data="detail?.insuredList?.[0]?.productList?.[0]"
+        :total-premium="detail.orderAmount"
+        class="insure-info"
+      />
       <div v-loading="loading">
         <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.PENDING" class="footer-button">
           <van-button type="primary" @click.stop="handleDelete">删除</van-button>
@@ -40,7 +44,7 @@
         </div>
       </div>
     </div>
-  </ProPageWrap>
+  </van-config-provider>
 </template>
 
 <script lang="ts" setup>
@@ -59,7 +63,9 @@ import { TEMPLATE_NAME_ENUM, getTemplateNameById } from '@/common/constants/info
 import FieldInfo from '../components/fieldInfo.vue';
 import InsureInfo from '../components/InsuredPart.vue';
 import pageJump from '@/utils/pageJump';
+import useTheme from '@/hooks/useTheme';
 
+const themeVars = useTheme();
 const route = useRoute();
 const router = useRouter();
 const detail = ref<NextStepRequestData>();
@@ -118,17 +124,18 @@ const handleProcess = () => {
       id: orderId,
       extInfo: { templateId, pageCode, extraInfo },
       agencyId: agencyCode,
-      venderCode: insurerCode,
+      insurerCode: currentInsurerCode,
       orderStatus,
     } = detail.value;
     const productCode = detail.value.insuredList?.[0]?.productList[0]?.productCode;
     const params: InsureLinkReq = {
-      insurerCode,
+      insurerCode: currentInsurerCode,
       productCode,
       tenantId: detail.value.tenantId,
       agencyCode: detail.value.agencyId,
-      agentCode: detail.value.agentCode,
+      agentCode: detail.value.saleUserId,
       saleChannelId: extraInfo?.saleChannelId,
+      extraMap: { ...detail.value?.extInfo?.extraInfo, orderNo: detail.value.orderNo },
     };
     loading.value = true;
     // TODO,跳转到对应的投保流程（订单转投保）
@@ -140,18 +147,18 @@ const handleProcess = () => {
         if ([TEMPLATE_NAME_ENUM.LONG, TEMPLATE_NAME_ENUM.NIANJIN].includes(getTemplateNameById(`${templateId}`))) {
           const queryStr = res.data.split('?')[1];
           const queryObj = qs.parse(queryStr);
-          console.log('234242', ORDER_STATUS_MAPPING_PAGE[orderStatus]);
           router.push({
             path: ORDER_STATUS_MAPPING_PAGE[orderStatus],
             query: {
               ...queryObj,
               extraInfo: queryObj.extraInfo,
               orderNo,
+              templateId,
             },
           });
         } else {
           // 否则就是其他险种，走投保流程链接
-          window.location.href = `${res.data}&orderNo=${orderNo}`;
+          window.location.href = res.data;
         }
       }
     });

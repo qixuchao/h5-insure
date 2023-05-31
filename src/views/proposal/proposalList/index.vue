@@ -1,64 +1,68 @@
 <template>
-  <ProPageWrap class="page-proposal">
-    <div class="search-wrap">
-      <van-search v-model="searchValue" placeholder="搜索计划书" shape="round" class="search" @search="onSearch" />
-      <InsureFilter v-model:filter="isOpen" filter-class="filter-area" @on-select-insure="handleClickTag" />
-    </div>
-    <ProEmpty
-      v-if="!hasProduct && !state.firstLoading"
-      :empty-img="emptyImg"
-      title="没有找到相关内容~"
-      empty-class="empty-select"
-    />
-    <div class="page-proposal-list">
-      <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
-        <van-list
-          v-model:loading="loading"
-          :finished="finished"
-          :finished-text="hasProduct ? '-&nbsp;已经到底了哦&nbsp;-' : ''"
-          @load="onLoad"
-        >
-          <ProductItem
-            v-for="productItem in productList"
-            :key="productItem.id"
-            :product-info="productItem"
-            :error-msg="state.errorMsgMap[productItem.productCode]"
-            @click="selectProposal(productItem)"
-          >
-            <template v-if="isCreateProposal" #checkedProduct>
-              <div class="check-button">
-                <van-checkbox
-                  :key="productItem.id"
-                  :name="productItem.productCode"
-                  :model-value="state.selectProduct.includes(productItem.productCode)"
-                  shape="square"
-                  @change="(event) => onSelect(event, productItem)"
-                ></van-checkbox>
-              </div>
-            </template>
-          </ProductItem>
-        </van-list>
-      </van-pull-refresh>
-    </div>
-
-    <div v-if="isCreateProposal && showFooter" class="van-sticky">
-      <div class="add-plan">
-        <p class="has-select" @click="toggleSelectProduct(!showSelectProduct)">
-          已选<span class="has-select-product">{{ state.selectProduct.length }}</span
-          >款产品 <span class="icon"></span>
-        </p>
-        <van-button type="primary" :disabled="!state.selectProduct.length" @click="addProposal">添加计划书</van-button>
+  <van-config-provider :theme-vars="themeVars">
+    <ProPageWrap class="page-proposal">
+      <div class="search-wrap">
+        <van-search v-model="searchValue" placeholder="搜索计划书" shape="round" class="search" @search="onSearch" />
+        <InsureFilter v-model:filter="isOpen" filter-class="filter-area" @on-select-insure="handleClickTag" />
       </div>
-    </div>
-    <TrialProductPopup
-      :modal-value="state.selectProduct"
-      :proposal-list="state.selectedProductList"
-      :is-show="showSelectProduct"
-      @close="toggleSelectProduct(false)"
-      @checked="checkProductRisk"
-    />
-  </ProPageWrap>
-  <ProFixedButton v-if="!isCreateProposal" :button-image="ProFixedButtonDefaultImage" @click="goHistoryList" />
+      <ProEmpty
+        v-if="!hasProduct && !state.firstLoading"
+        :empty-img="emptyImg"
+        title="没有找到相关内容~"
+        empty-class="empty-select"
+      />
+      <div class="page-proposal-list">
+        <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
+          <van-list
+            v-model:loading="loading"
+            :finished="finished"
+            :finished-text="hasProduct ? '-&nbsp;已经到底了哦&nbsp;-' : ''"
+            @load="onLoad"
+          >
+            <ProductItem
+              v-for="productItem in productList"
+              :key="productItem.id"
+              :product-info="productItem"
+              :error-msg="state.errorMsgMap[productItem.productCode]"
+              @click="selectProposal(productItem)"
+            >
+              <template v-if="isCreateProposal" #checkedProduct>
+                <div class="check-button">
+                  <van-checkbox
+                    :key="productItem.id"
+                    :name="productItem.productCode"
+                    :model-value="state.selectProduct.includes(productItem.productCode)"
+                    shape="square"
+                    @change="(event) => onSelect(event, productItem)"
+                  ></van-checkbox>
+                </div>
+              </template>
+            </ProductItem>
+          </van-list>
+        </van-pull-refresh>
+      </div>
+
+      <div v-if="isCreateProposal && showFooter" class="van-sticky">
+        <div class="add-plan">
+          <p class="has-select" @click="toggleSelectProduct(!showSelectProduct)">
+            已选<span class="has-select-product">{{ state.selectProduct.length }}</span
+            >款产品 <span class="icon"></span>
+          </p>
+          <van-button type="primary" :disabled="!state.selectProduct.length" @click="addProposal"
+            >添加计划书</van-button
+          >
+        </div>
+      </div>
+      <TrialProductPopup
+        :modal-value="state.selectProduct"
+        :proposal-list="state.selectedProductList"
+        :is-show="showSelectProduct"
+        @close="toggleSelectProduct(false)"
+        @checked="checkProductRisk"
+      />
+    </ProPageWrap>
+    <ProFixedButton v-if="!isCreateProposal" :button-image="ProFixedButtonDefaultImage" @click="goHistoryList" />
+  </van-config-provider>
 </template>
 
 <script setup lang="ts" name="ProposalList">
@@ -77,6 +81,7 @@ import { queryProposalProductList } from '@/api/modules/proposalList';
 import ProFixedButtonDefaultImage from '@/assets/images/lishijihuashu.png';
 import TrialProductPopup from './components/TrialProductPopup/index.vue';
 import { queryCalcDefaultInsureFactor, queryCalcDynamicInsureFactor, insureProductDetail } from '@/api/modules/trial';
+import useTheme from '@/hooks/useTheme';
 
 interface Props {
   isCreateProposal: boolean;
@@ -117,6 +122,7 @@ const store = createProposalStore();
 const router = useRouter();
 const route = useRoute();
 const { isCreateProposal } = route.query;
+const themeVars = useTheme();
 
 const state = reactive<StateType>({
   searchValue: '',

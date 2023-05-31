@@ -13,7 +13,7 @@
           <span>{{ premiumUnit }} </span>
         </template>
       </div>
-      <ProShadowButton :shadow="false" class="right" @click="emits('handleClick')">
+      <ProShadowButton :="$attrs" :shadow="false" class="right" @click="emits('handleClick')">
         <slot>立即投保</slot>
       </ProShadowButton>
     </div>

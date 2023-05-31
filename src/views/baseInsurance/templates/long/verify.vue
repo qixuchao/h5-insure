@@ -1,69 +1,68 @@
 <template>
-  <ProPageWrap>
-    <div class="long-verify">
-      <div class="header">
-        <ProMessage
-          type="warning"
-          title="尊敬的客户，本次投保需要进行身份认证"
-          content="本产品投保需要对投保人、被保人进行实名认证，您购买本产品的累计总保费已超过20万，按监管要求，需要提供投保人、被保人、指定受益人证件影像，本产品非本人投保且带身故责任、需对投保人、被保人（成人）的投保意愿进行签字确认。"
-        />
-      </div>
-      <div class="verify-content">
+  <div class="long-verify">
+    <ProNavigator />
+    <div class="header">
+      <ProMessage
+        type="warning"
+        title="尊敬的客户，本次投保需要进行身份认证"
+        content="本产品投保需要对投保人、被保人进行实名认证，您购买本产品的累计总保费已超过20万，按监管要求，需要提供投保人、被保人、指定受益人证件影像，本产品非本人投保且带身故责任、需对投保人、被保人（成人）的投保意愿进行签字确认。"
+      />
+    </div>
+    <div class="verify-content">
+      <SignPart
+        ref="agentSignRef"
+        :order-detail="orderDetail"
+        :sign-string="signPartInfo.agent.signData"
+        :show-sign="signPartInfo.agent.isSign"
+        :show-verify="signPartInfo.agent.isVerify"
+        :file-list="signPartInfo.agent.fileList"
+        :personal-info="signPartInfo.agent.personalInfo"
+        :disabled="!!isShare"
+        title="代理人"
+        @handle-sign="(signData) => sign('AGENT', signData)"
+      ></SignPart>
+      <SignPart
+        v-if="isShare ? signPartInfo.holder.isShareSign : true"
+        ref="holderSignRef"
+        :order-detail="orderDetail"
+        :sign-string="signPartInfo.holder.signData"
+        :show-sign="!isShare ? signPartInfo.holder.isSign : signPartInfo.holder.isShareSign"
+        :show-verify="signPartInfo.holder.isVerify"
+        :file-list="signPartInfo.holder.fileList"
+        :personal-info="signPartInfo.holder.personalInfo"
+        title="投保人"
+        @handle-sign="(signData) => sign('HOLDER', signData, signPartInfo.holder.personalInfo.id)"
+        @handle-verify="doVerify"
+      ></SignPart>
+      <template v-if="isShare ? signPartInfo.insured.isShareSign : true">
         <SignPart
-          ref="agentSignRef"
+          v-for="personalInfo in signPartInfo.insured.personalInfo || []"
+          :key="personalInfo.id"
+          ref="insuredSignRef"
+          :data-source="[]"
           :order-detail="orderDetail"
-          :sign-string="signPartInfo.agent.signData"
-          :show-sign="signPartInfo.agent.isSign"
-          :show-verify="signPartInfo.agent.isVerify"
-          :file-list="signPartInfo.agent.fileList"
-          :personal-info="signPartInfo.agent.personalInfo"
-          :disabled="!!isShare"
-          title="代理人"
-          @handle-sign="(signData) => sign('AGENT', signData)"
-        ></SignPart>
-        <SignPart
-          v-if="isShare ? signPartInfo.holder.isShareSign : true"
-          ref="holderSignRef"
-          :order-detail="orderDetail"
-          :sign-string="signPartInfo.holder.signData"
-          :show-sign="!isShare ? signPartInfo.holder.isSign : signPartInfo.holder.isShareSign"
-          :show-verify="signPartInfo.holder.isVerify"
-          :file-list="signPartInfo.holder.fileList"
-          :personal-info="signPartInfo.holder.personalInfo"
-          title="投保人"
-          @handle-sign="(signData) => sign('HOLDER', signData, signPartInfo.holder.personalInfo.id)"
+          :sign-string="signPartInfo.insured.signData[personalInfo.id]"
+          :show-sign="!isShare ? signPartInfo.insured.isSign : signPartInfo.insured.isShareSign"
+          :show-verify="signPartInfo.insured.isVerify"
+          :file-list="signPartInfo.insured.fileList"
+          :personal-info="personalInfo || {}"
+          title="被保人"
+          @handle-sign="(signData) => sign('INSURED', signData, personalInfo.id)"
           @handle-verify="doVerify"
         ></SignPart>
-        <template v-if="isShare ? signPartInfo.insured.isShareSign : true">
-          <SignPart
-            v-for="personalInfo in signPartInfo.insured.personalInfo || []"
-            :key="personalInfo.id"
-            ref="insuredSignRef"
-            :data-source="[]"
-            :order-detail="orderDetail"
-            :sign-string="signPartInfo.insured.signData[personalInfo.id]"
-            :show-sign="!isShare ? signPartInfo.insured.isSign : signPartInfo.insured.isShareSign"
-            :show-verify="signPartInfo.insured.isVerify"
-            :file-list="signPartInfo.insured.fileList"
-            :personal-info="personalInfo || {}"
-            title="被保人"
-            @handle-sign="(signData) => sign('INSURED', signData, personalInfo.id)"
-            @handle-verify="doVerify"
-          ></SignPart>
-        </template>
-      </div>
-      <div class="footer-button footer-bar">
-        <div class="refresh-btn" @click="handleRefresh">
-          <div><ProSvg name="refresh" /></div>
-          <div class="text">刷新</div>
-        </div>
-        <ProShare v-if="!isShare && isAppFkq()" ref="shareRef" v-bind="shareInfo" @click.stop="handleShare">
-          <van-button plain type="primary" class="share-btn">分享</van-button>
-        </ProShare>
-        <van-button type="primary" class="submit-btn" @click="handleSubmit">确认支付</van-button>
-      </div>
+      </template>
     </div>
-  </ProPageWrap>
+    <div class="footer-button footer-bar">
+      <div class="refresh-btn" @click="handleRefresh">
+        <div><ProSvg name="refresh" /></div>
+        <div class="text">刷新</div>
+      </div>
+      <ProShare v-if="!isShare && isAppFkq()" ref="shareRef" v-bind="shareInfo" @click.stop="handleShare">
+        <van-button plain type="primary" class="share-btn">分享</van-button>
+      </ProShare>
+      <van-button type="primary" class="submit-btn" @click="handleSubmit">确认支付</van-button>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -365,7 +364,9 @@ const initData = () => {
         // 设置分享参数
         Object.assign(shareInfo.value, { title, desc, imgUrl: image, isShare: showWXShare });
       }
-      setGlobalTheme(data.BASIC_INFO.themeType);
+      if (data.BASIC_INFO && data.BASIC_INFO.themeType) {
+        setGlobalTheme(data.BASIC_INFO.themeType);
+      }
       // 设置分享参数
     }
   });

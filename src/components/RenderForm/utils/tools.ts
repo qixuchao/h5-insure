@@ -196,6 +196,9 @@ export const isOnlyCert = (item) => {
   );
 };
 
+// 是否有出生日期
+const hasBirthday = (arr) => isNotEmptyArray(arr) && arr.some((item) => (item.code || item.name) === 'birthday');
+
 /**
  * 转换原始数据 ProForm 所需要的数据
  * @param [array] 投保人/被保人/受益人的因子数组
@@ -208,6 +211,9 @@ export const transformToSchema = (arr: FieldConfItem[], trialFactorCodesArr: str
   const trialFactorCodes = [];
 
   if (isNotEmptyArray(arr)) {
+    // 是否有出生日期
+    const isBirthdayExisted = hasBirthday(arr);
+
     schema = arr.map((item) => {
       // 当前组件配置
       const { code, name, value, componentName, ...rest } =
@@ -229,6 +235,11 @@ export const transformToSchema = (arr: FieldConfItem[], trialFactorCodesArr: str
       // 被保人因子是否为非投保人共有
       if (item.moduleType === 2) {
         extraData.isSelfInsuredNeed = item.isSelfInsuredNeed;
+      }
+
+      // 有出生日期则隐藏年龄
+      if (item.code === 'age') {
+        extraData.visible = !isBirthdayExisted;
       }
 
       const tempItem = {
@@ -384,15 +395,21 @@ export const transformFactorToSchema = (
   }
 
   const trialFactorCodes = [];
+  // 是否支持多被保人
+  const multiInsuredSupportFlag = conf.multiInsuredSupportFlag === YES_NO_ENUM.YES;
+  // 配置
   const config: PersonalInfoConf = {
     /** 是否有试算因子 */
     hasTrialFactorCodes: false,
     /** 是否为配偶被保人 */
     isSpouseInsured: false,
     /** 是否支持多被保人 */
-    multiInsuredSupportFlag: conf.multiInsuredSupportFlag === YES_NO_ENUM.YES,
-    /** 被保人最大数量 */
-    multiInsuredMaxNum: conf.multiInsuredNum,
+    multiInsuredSupportFlag,
+    /** 被保人最大数量，
+     * 若支持多被保人，则为被保人数量（被保人数量未配置则为无限大）
+     * 不支持多被保人，则最大数量为1
+     * */
+    multiInsuredMaxNum: multiInsuredSupportFlag ? conf.multiInsuredNum || Number.MAX_SAFE_INTEGER : 1,
     /** 被保人最大数量 */
     multiInsuredMinNum: 1,
     /** 受益人数量, 默认 5 */
@@ -535,11 +552,11 @@ export const calculateAge = (birthdate) => {
 export const parseCertNo = (str: string) => {
   const result = {
     /** 性别 */
-    gender: '',
+    gender: null,
     /** 生日 */
-    birthday: '',
+    birthday: null,
     /** 年龄 */
-    age: '',
+    age: null,
   };
   // 身份证验证通过
   if (typeof str === 'string' && str && validateIdCardNo(str)) {
@@ -563,7 +580,7 @@ export const parseCertNo = (str: string) => {
  * @param filterFn 过滤不需要清除的key函数
  * @returns 返回一个新对象
  */
-export const restObjectValues = (data, filterFn = (key: string) => true) => {
+export const resetObjectValues = (data, filterFn = (key: string) => true) => {
   if (!data) {
     return {};
   }
@@ -586,14 +603,30 @@ export const restObjectValues = (data, filterFn = (key: string) => true) => {
  * @param val certType
  * @returns
  */
-export const getCertTypeConfig = (val) => {
+export const getCertTypeConfig = (val, schema) => {
   const status = ![CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(String(val));
-  return ['gender', 'birthday', 'age'].reduce((res, key) => {
+
+  // 是否有出生日期, 如果有则隐藏年龄
+  const isBirthdayExisted = hasBirthday(schema);
+  const extraResult = isBirthdayExisted
+    ? {
+        age: {
+          visible: false,
+        },
+      }
+    : {};
+
+  const result = ['gender', 'birthday', 'age'].reduce((res, key) => {
     res[key] = {
       visible: status,
     };
     return res;
   }, {});
+
+  return {
+    ...result,
+    ...extraResult,
+  };
 };
 
 /**
@@ -618,7 +651,7 @@ export const getCertConfig = (schema, personVO) => {
 
   // 证件类型为身份证或者户口本
   if (certTypeSchema) {
-    merge(config, getCertTypeConfig(certType));
+    merge(config, getCertTypeConfig(certType, schema));
   }
   return [isOnlyCertFlag, config];
 };
@@ -631,13 +664,14 @@ export const relatedConfigMap = {
     onChangeEffect: (val, formState) => {
       // 证件类型切换清除证件号码
       Object.assign(formState.formData, {
-        certNo: '',
-        gender: '',
-        birthday: '',
+        certNo: null,
+        gender: null,
+        birthday: null,
+        age: null,
       });
       // 证件类型选择证件号/户口本时，隐藏性别和出生日期
       nextTick(() => {
-        merge(formState.config, getCertTypeConfig(formState.formData.certType));
+        merge(formState.config, getCertTypeConfig(formState.formData.certType, formState.schema));
       });
     },
   },
@@ -654,6 +688,18 @@ export const relatedConfigMap = {
       if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(String(formState.formData.certType))) {
         const data = parseCertNo(val);
         Object.assign(formState.formData, data);
+      }
+    },
+  },
+  // 出生日期变动引起的年龄变化
+  age: {
+    onChangeEffect: (val, formState) => {
+      // 若不为身份证号码/户口簿
+      if (![CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(String(formState.formData.certType))) {
+        const age = val ? calculateAge(val) : null;
+        Object.assign(formState.formData, {
+          age,
+        });
       }
     },
   },

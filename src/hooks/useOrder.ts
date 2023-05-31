@@ -8,6 +8,7 @@
  */
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
+import merge from 'lodash-es/merge';
 import { OrderDetail } from '@/api/modules/order.data';
 
 /** 页面query参数类型 */
@@ -28,6 +29,8 @@ export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
     saleChannelId,
     extraInfo,
     insurerCode,
+    systemCode,
+    source,
   } = useRoute().query as QueryData;
 
   let extInfo: any = {};
@@ -47,6 +50,8 @@ export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
       buttonCode: '',
       pageCode: '',
       iseeBizNo: '',
+      source,
+      systemCode,
       extraInfo: extInfo,
     },
     orderCategory: 1,
@@ -79,7 +84,7 @@ export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
     },
   });
   if ({}.toString.call(orderItem) === '[object Object]') {
-    Object.assign(orderDetail.value, orderItem);
+    merge(orderDetail.value, orderItem);
   }
   return orderDetail;
 };

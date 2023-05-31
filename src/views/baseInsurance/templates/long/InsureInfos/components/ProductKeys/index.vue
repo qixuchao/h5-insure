@@ -113,6 +113,7 @@ watch(
   () => JSON.stringify(mValues.value),
   (v, oldValue) => {
     const newValues = (v && JSON.parse(v)) || {};
+    console.log('---v new = ', newValues);
     const oldValues = (oldValue && JSON.parse(oldValue)) || {};
     let changeData = null;
     PRODUCT_KEYS_CONFIG.forEach((config) => {

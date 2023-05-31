@@ -14,6 +14,7 @@
   >
     <template #cardTitleExtra><slot></slot></template>
   </ProRenderFormWithCard>
+
   <template v-if="hasBeneficiarySchema">
     <ProRenderFormWithCard
       ref="beneficiaryTypeFormRef"
@@ -60,7 +61,7 @@ import {
   ProRenderFormWithCard,
   colorConsole,
   getCertConfig,
-  restObjectValues,
+  resetObjectValues,
 } from '@/components/RenderForm';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { BENEFICIARY_ENUM } from '@/common/constants/infoCollection';
@@ -205,7 +206,10 @@ watch(
       // 过滤投被保人相同要素，保留证件相关的，预防关系为本人时，仅被保人有的字段被清空,后端给了null
       const tempData = isNotEmptyArray(isSelfInsuredNeedCods.value)
         ? Object.keys(holderPersonVO).reduce((res, key: string) => {
-            if (!isSelfInsuredNeedCods.value.includes(key) || ['birthday', 'age', 'gender'].includes(key)) {
+            if (
+              ![...isSelfInsuredNeedCods.value, 'occupationClass'].includes(key) ||
+              ['birthday', 'age', 'gender'].includes(key)
+            ) {
               res[key] = holderPersonVO[key];
             }
             return res;
@@ -264,11 +268,12 @@ watch(
       personVO: item.personVO,
     })),
   (val, oldValue) => {
-    emit('update:beneficiaryList', val);
+    if (JSON.stringify(val) !== JSON.stringify(oldValue)) {
+      emit('update:beneficiaryList', val);
+    }
   },
   {
     deep: true,
-    immediate: true,
   },
 );
 
@@ -310,7 +315,7 @@ watch(
       if (!isSelf) {
         newPersonVo = {
           // 若只有证件类型为身份证，不清除值
-          ...restObjectValues(personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
+          ...resetObjectValues(personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
           relationToHolder: personVO.relationToHolder,
         };
       }
@@ -346,7 +351,7 @@ watch(
     if (!props.isView && oldVal && String(val) !== String(oldVal)) {
       Object.assign(state.personVO, {
         // 若只有证件类型为身份证，不清除值
-        ...restObjectValues(personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
+        ...resetObjectValues(personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
         relationToMainInsured: personVO.relationToMainInsured,
       });
     }
@@ -443,14 +448,14 @@ defineExpose({
   .delete-button {
     width: auto;
     margin-top: 4px;
-    color: $zaui-primary-text;
+    color: var(--van-primary-color);
   }
 }
 .add-button {
   display: block;
   padding: 0 30px 20px 0;
   font-size: 26px;
-  color: $zaui-primary-text;
+  color: var(--van-primary-color);
   line-height: 37px;
   .van-icon-plus {
     font-weight: 600;

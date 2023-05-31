@@ -244,7 +244,7 @@ watch(
     .text {
       font-size: 26px;
       margin-top: 9px;
-      color: #0d6efe;
+      color: var(--van-primary-color);
       z-index: 9;
     }
   }

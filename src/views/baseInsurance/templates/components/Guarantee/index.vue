@@ -378,7 +378,7 @@ const setGuaranteeListHeight = () => {
         font-size: 26px;
         font-family: PingFangSC-Medium, PingFang SC;
         font-weight: 500;
-        color: #006afc;
+        color: var(--van-primary-color);
         line-height: 37px;
       }
     }

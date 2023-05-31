@@ -1,71 +1,78 @@
 <template>
-  <ProPageWrap class="page-create-wrapper">
-    <div class="container">
-      <ProRenderForm ref="formRef" class="mb20" :model="stateInfo.insuredPersonVO">
-        <ProFieldV2
-          v-model="stateInfo.insuredPersonVO.proposalName"
-          label="计划书名称"
-          name="proposalName"
-          :maxlength="20"
-        />
-      </ProRenderForm>
-      <ProRenderFormWithCard ref="insuredFormRef" title="被保人信息" :model="stateInfo.insuredPersonVO">
-        <ProFieldV2 v-model="stateInfo.insuredPersonVO.name" label="姓名" name="name" :maxlength="20" required />
+  <van-config-provider :theme-vars="themeVars">
+    <ProPageWrap class="page-create-wrapper">
+      <div class="container">
+        <ProRenderForm ref="formRef" class="mb20" :model="stateInfo.insuredPersonVO">
+          <ProFieldV2
+            v-model="stateInfo.insuredPersonVO.proposalName"
+            label="计划书名称"
+            name="proposalName"
+            :maxlength="20"
+          />
+        </ProRenderForm>
+        <ProRenderFormWithCard ref="insuredFormRef" title="被保人信息" :model="stateInfo.insuredPersonVO">
+          <ProFieldV2 v-model="stateInfo.insuredPersonVO.name" label="姓名" name="name" :maxlength="20" required />
 
-        <ProFieldV2
-          v-model="stateInfo.insuredPersonVO.age"
-          class="age-field-wrap"
-          name="age"
-          label="年龄"
-          type="digit"
-          :maxlength="3"
-          required
-          @change="changeAge"
+          <ProFieldV2
+            v-model="stateInfo.insuredPersonVO.age"
+            class="age-field-wrap"
+            name="age"
+            label="年龄"
+            type="digit"
+            :maxlength="3"
+            required
+            @change="changeAge"
+          >
+            <template #extra>
+              <ProDatePickerV2
+                v-model="stateInfo.insuredPersonVO.birthday"
+                class="birthday-field-wrap"
+                label="出生日期"
+                name="birthday"
+                @update:model-value="changeBirthday"
+              />
+            </template>
+          </ProFieldV2>
+          <ProRadioV2
+            v-model="stateInfo.insuredPersonVO.gender"
+            label="性别"
+            name="gender"
+            :columns="sexList"
+            required
+          />
+        </ProRenderFormWithCard>
+
+        <ProCard
+          v-for="(productItem, index) in stateInfo.productList"
+          :key="`${productItem.nanoid}_${index}_${productItem.productCode}`"
+          class="product-item-card"
+          :show-line="false"
+          :show-divider="false"
         >
-          <template #extra>
-            <ProDatePickerV2
-              v-model="stateInfo.insuredPersonVO.birthday"
-              class="birthday-field-wrap"
-              label="出生日期"
-              name="birthday"
-              @update:model-value="changeBirthday"
-            />
-          </template>
-        </ProFieldV2>
-        <ProRadioV2 v-model="stateInfo.insuredPersonVO.gender" label="性别" name="gender" :columns="sexList" required />
-      </ProRenderFormWithCard>
-
-      <ProCard
-        v-for="(productItem, index) in stateInfo.productList"
-        :key="`${productItem.nanoid}_${index}_${productItem.productCode}`"
-        class="product-item-card"
-        :show-line="false"
-        :show-divider="false"
-      >
-        <ProductList
-          :product-risk-list="productItem.riskList"
-          :product-info="productItem"
-          :product-num="stateInfo.productList?.length - 1"
-          :product-data="stateInfo.productCollection[productItem.productCode]"
-          :error-msg="stateInfo.productErrorMap[productItem.productCode]"
-          :product-index="index"
-          @update-risk="updateRisk"
-          @delete-risk="deleteRisk"
-        ></ProductList>
-      </ProCard>
-      <div class="operate-bar">
-        <ProCheckButton activated :round="34" @click="addProduct">添加产品</ProCheckButton>
+          <ProductList
+            :product-risk-list="productItem.riskList"
+            :product-info="productItem"
+            :product-num="stateInfo.productList?.length - 1"
+            :product-data="stateInfo.productCollection[productItem.productCode]"
+            :error-msg="stateInfo.productErrorMap[productItem.productCode]"
+            :product-index="index"
+            @update-risk="updateRisk"
+            @delete-risk="deleteRisk"
+          ></ProductList>
+        </ProCard>
+        <div v-if="showAddBtn" class="operate-bar">
+          <ProCheckButton activated :round="34" @click="addProduct">添加产品</ProCheckButton>
+        </div>
       </div>
-    </div>
-    <div class="footer-bar">
-      <span class="trial-result"
-        >总保费<span class="result-num">{{ !submitDisable ? `￥${totalPremium?.toLocaleString()}` : '-' }}</span>
-      </span>
-      <div class="trial-operate">
-        <VanButton :disabled="submitDisable" type="primary" @click="saveProposalData">保存并预览</VanButton>
+      <div class="footer-bar">
+        <span class="trial-result"
+          >总保费<span class="result-num">{{ !submitDisable ? `￥${totalPremium?.toLocaleString()}` : '-' }}</span>
+        </span>
+        <div class="trial-operate">
+          <VanButton :disabled="submitDisable" type="primary" @click="saveProposalData">保存并预览</VanButton>
+        </div>
       </div>
-    </div>
-    <!-- <ProductRisk
+      <!-- <ProductRisk
       v-if="showProductRisk"
       :is-show="showProductRisk"
       :type="state.type"
@@ -78,22 +85,23 @@
       @close="closeProductRisk"
       @finished="onFinished"
     ></ProductRisk> -->
-    <VanActionSheet
-      v-model:show="showActionSheet"
-      :actions="SHEET_ACTIONS"
-      cancel-text="取消"
-      close-on-click-action
-      @cancel="toggleActionSheet(false)"
-      @select="selectAction"
-    />
-    <TrialPopup
-      ref="trialPopupRef"
-      :data-source="currentProductPlanDetail"
-      :product-code="stateInfo.currentProductCode"
-      :default-data="stateInfo.defaultData"
-      @finish="onFinished"
-    />
-  </ProPageWrap>
+      <VanActionSheet
+        v-model:show="showActionSheet"
+        :actions="SHEET_ACTIONS"
+        cancel-text="取消"
+        close-on-click-action
+        @cancel="toggleActionSheet(false)"
+        @select="selectAction"
+      />
+      <TrialPopup
+        ref="trialPopupRef"
+        :data-source="currentProductPlanDetail"
+        :product-code="stateInfo.currentProductCode"
+        :default-data="stateInfo.defaultData"
+        @finish="onFinished"
+      />
+    </ProPageWrap>
+  </van-config-provider>
 </template>
 
 <script lang="ts" setup name="CreateProposal">
@@ -125,6 +133,7 @@ import { SEX_LIMIT_LIST } from '@/common/constants';
 import ProductList from './components/ProductList/index.vue';
 // import ProductRisk from './components/ProductRisk/index.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
+import useTheme from '@/hooks/useTheme';
 
 interface State {
   productCode: number;
@@ -149,6 +158,8 @@ const SHEET_ACTIONS = [
   },
 ];
 
+const themeVars = useTheme();
+
 const [showProductRisk, toggleProductRisk] = useToggle();
 const [showActionSheet, toggleActionSheet] = useToggle();
 
@@ -171,7 +182,11 @@ const router = useRouter();
 const route = useRoute();
 const store = createProposalStore();
 
-const { productCode: productCodeInQuery, id }: { productCode?: string; id?: string } = route.query;
+const {
+  productCode: productCodeInQuery,
+  id,
+  preview,
+}: { productCode?: string; id?: string; preview?: string } = route.query;
 
 const trialFieldkeys = ['age', 'gender', 'birthday', 'hasSocialInsurance', 'occupationCodeList'];
 
@@ -249,6 +264,10 @@ const currentProductPlanDetail = computed(() => {
 const submitDisable = computed(() => {
   // debugger;
   return !trialFlag.value || Boolean(Object.values(stateInfo.productErrorMap).join(''));
+});
+
+const showAddBtn = computed(() => {
+  return `${preview}` !== '1';
 });
 
 // 总保费
@@ -618,6 +637,7 @@ const submitData = (proposalId) => {
           path: '/compositionProposal',
           query: {
             id: data,
+            preview,
           },
         });
       }

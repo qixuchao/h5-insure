@@ -106,7 +106,7 @@ import debounce from 'lodash-es/debounce';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { useIntersectionObserver, useElementBounding } from '@vueuse/core';
 import { template } from 'lodash';
-import { useTheme } from '@/hooks/useTheme';
+import { setGlobalTheme, useTheme } from '@/hooks/useTheme';
 import {
   InsureProductData,
   ProductPlanInsureVoItem,
@@ -316,6 +316,10 @@ const initData = async () => {
       const { title, desc, image } = data?.PRODUCT_LIST.wxShareConfig || {};
       // 设置分享参数
       setShareLink({ title, desc, image });
+
+      if (data.BASIC_INFO && data.BASIC_INFO.themeType) {
+        setGlobalTheme(data.BASIC_INFO.themeType);
+      }
     }
   });
 
@@ -330,8 +334,8 @@ const initData = async () => {
     }
   });
 
-  reOrderNo &&
-    getTenantOrderDetail({ orderNo: reOrderNo, tenantId }).then(({ code, data }) => {
+  (reOrderNo || extInfo.orderNo) &&
+    getTenantOrderDetail({ orderNo: reOrderNo || extInfo.orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         orderDetail.value = data;
         const orderPlanCode = orderDetail.value.insuredList?.[0]?.planCode || '';
@@ -340,7 +344,8 @@ const initData = async () => {
             insureProductDetail.value.productPlanInsureVOList?.find((item) => item.planCode === orderPlanCode) ||
             currentPlanObj.value?.productPlanInsureVOList?.[0];
         }
-        state.userData = orderData2trialData(data, insureProductDetail.value, orderPlanCode) as any;
+
+        state.userData = data;
       }
     });
 
@@ -397,7 +402,10 @@ const onSaveOrder = async () => {
     }`;
   } else {
     try {
-      const currentOrderDetail = trialData2Order(trialData.value, state.trialResult, orderDetail.value);
+      const currentOrderDetail = trialData2Order(trialData.value, state.trialResult, {
+        ...orderDetail.value,
+        extInfo: { ...orderDetail.value.extInfo, buttonCode: 'EVENT_SHORT_saveOrder', iseeBizNo: iseeBizNo.value },
+      });
       nextStep(currentOrderDetail, async (data: any, pageAction: string) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
           if (data?.orderNo) {

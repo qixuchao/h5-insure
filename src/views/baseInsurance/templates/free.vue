@@ -85,7 +85,7 @@ import { Toast } from 'vant/es';
 import debounce from 'lodash-es/debounce';
 import cloneDeep from 'lodash-es/cloneDeep';
 import dayjs from 'dayjs';
-import { useTheme } from '@/hooks/useTheme';
+import { setGlobalTheme, useTheme } from '@/hooks/useTheme';
 import { queryProductMaterial, querySalesInfo } from '@/api/modules/product';
 import { insureProductDetail, toClogin } from '@/api/modules/trial';
 import { checkCode } from '@/api/modules/phoneVerify';
@@ -421,6 +421,10 @@ const fetchData = async () => {
       const { title, desc, image: imageArr } = productRes.data?.PRODUCT_LIST.wxShareConfig || {};
       // 设置分享参数
       setShareLink({ title, desc, image: imageArr });
+
+      if (productRes.data.BASIC_INFO && productRes.data.BASIC_INFO.themeType) {
+        setGlobalTheme(productRes.data.BASIC_INFO.themeType);
+      }
     }
 
     if (insureRes.code === '10000') {

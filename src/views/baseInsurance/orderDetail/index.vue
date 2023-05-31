@@ -67,12 +67,13 @@ import { ORDER_STATUS_MAP, ORDER_STATUS_DESC } from './const';
 import { ProductDetail, ProductUpgradeConfig } from '@/api/modules/product.data';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { setPageTitle } from '@/utils';
-import { useTheme } from '@/hooks/useTheme';
+import { setGlobalTheme, useTheme } from '@/hooks/useTheme';
 import { sessionStore } from '@/hooks/useStorage';
 import { ORDER_DETAIL_KEY } from '@/common/constants/infoCollection';
 import { TEMPLATE_TYPE_ENUM } from '../constant';
 import { downloadPDFWithUrl } from '@/utils/jsbridgePromise';
 import useOrder from '@/hooks/useOrder';
+import useThread, { ThreadType } from '@/hooks/useThread';
 
 // 调用主题
 const themeVars = useTheme();
@@ -382,6 +383,28 @@ const queryOrderDeatil = () => {
     }
   });
 };
+let thread: ThreadType;
+const loopOrderDetail = () => {
+  getTenantOrderDetail({ orderNo, tenantId, withProductInfo: true }, { loading: false }).then((res: any) => {
+    const { data } = res;
+    if (res.code === '10000' && data.orderStatus !== ORDER_STATUS_ENUM.PAYING) {
+      state.orderDetail = data;
+      initPageInfo();
+      thread.stop();
+    }
+  });
+};
+thread = useThread({
+  start() {
+    console.log('轮询中...');
+    loopOrderDetail();
+  },
+  stop() {
+    console.log('轮询结束,结束方式：配置轮询次数');
+  },
+  number: 5, // 这里是轮询次数配置，不配置默认无线轮询
+  time: 2000, // 这里是轮询的时间 不配置默认 300ms
+});
 
 const getData = async () => {
   const orderRes: any = await queryOrderDeatil();
@@ -396,9 +419,17 @@ const getData = async () => {
     Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
       if (productRes.code === '10000') {
         state.detail = productRes.data as any;
+
+        if (productRes.data.BASIC_INFO && productRes.data.BASIC_INFO.themeType) {
+          setGlobalTheme(productRes.data.BASIC_INFO.themeType);
+        }
       }
       if (insureRes.code === '10000') {
         state.insureDetail = insureRes.data as any;
+      }
+      if (state.orderDetail.orderStatus === ORDER_STATUS_ENUM.PAYING) {
+        // 开始轮询
+        thread.run();
       }
       initPageInfo();
     });
@@ -417,7 +448,7 @@ const addZero = (num: number) => {
 
 const orderDesc = computed(() => {
   if (ORDER_STATUS_ENUM.PAYING === state.orderDetail?.orderStatus) {
-    if (state.timeDown.current.total <= 0) {
+    if (state.timeDown?.current?.total <= 0) {
       state.orderDetail.orderStatus = ORDER_STATUS_ENUM.TIMEOUT;
       state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
       state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];

@@ -342,7 +342,7 @@ watch(
       }
 
       .file-name {
-        color: #006afc;
+        color: var(--van-primary-color);
       }
     }
   }

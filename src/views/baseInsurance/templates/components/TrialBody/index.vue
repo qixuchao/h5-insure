@@ -3,31 +3,40 @@
     <slot name="trialHead"></slot>
     <div class="trial-body">
       <HeadWaring
-        :labels="getRelationText(dataSource?.insureProductRiskVOList || [], dataSource.productRiskRelationVOList)"
+        :labels="getRelationText(currentPlan?.insureProductRiskVOList || [], currentPlan.productRiskRelationVOList)"
       />
       <div class="container">
         <Benefit
           v-if="!hideBenefit && benefitData?.benefitRiskResultVOList"
           class="benefit-wrap"
           :data-source="benefitData"
-          :product-info="dataSource"
+          :product-info="currentPlan"
           :show-type-list="benefitData.showTypList"
+        />
+        <!-- 多计划 -->
+        <PlanSelect
+          v-if="isMultiPlan"
+          :plan-list="productInfo.planList"
+          :default-plan="currentPlan"
+          @plan-change="handlePlanChange"
         />
         <!-- 这里放因子 -->
         <PersonalInfo
-          v-if="dataSource.productFactor"
+          v-if="currentPlan.productFactor"
           ref="personalInfoRef"
+          :key="currentPlan.planCode"
           v-model="state.userData"
           :is-trial="isTrial"
-          :product-factor="dataSource.productFactor"
-          :multi-insured-config="dataSource?.multiInsuredConfigVO"
+          :product-factor="currentPlan.productFactor"
+          :multi-insured-config="currentPlan?.multiInsuredConfigVO"
           @trail-change="handlePersonalInfoChange"
         />
         <!-- 这里是标准险种信息 -->
         <InsureInfos
           ref="insureInfosRef"
-          :origin-data="dataSource.insureProductRiskVOList?.[0]"
-          :product-factor="dataSource.productFactor"
+          :key="currentPlan.planCode"
+          :origin-data="currentPlan.insureProductRiskVOList?.[0]"
+          :product-factor="currentPlan.productFactor"
           :default-value="
             state.defaultValue ? state.defaultValue?.insuredList[0].productList[state.planIndex]?.riskList[0] : null
           "
@@ -36,8 +45,9 @@
         ></InsureInfos>
         <!-- 以下是附加险种信息 -->
         <ProductRiskList
-          v-if="dataSource.insureProductRiskVOList"
-          :data-source="dataSource"
+          v-if="currentPlan.insureProductRiskVOList"
+          :key="currentPlan.planCode"
+          :data-source="currentPlan"
           :show-main-risk="false"
           :default-value="
             state.defaultValue ? state.defaultValue?.insuredList[0].productList[state.planIndex]?.riskList : []
@@ -81,6 +91,7 @@ import { PersonalInfo } from '@/views/baseInsurance/templates/long/InsureInfos/c
 import TrialButton from '../TrialButton.vue';
 import InsureInfos from '../../long/InsureInfos/index.vue';
 import ProductRiskList from '../../long/ProductRiskList/index.vue';
+import PlanSelect from '../../long/InsureInfos/components/PlanSelect/index.vue';
 import Benefit from '../Benefit/index.vue';
 import { PremiumCalcData, RiskVoItem } from '@/api/modules/trial.data';
 import { RISK_TYPE, RISK_TYPE_ENUM } from '@/common/constants/trial';
@@ -96,14 +107,15 @@ import { SUCCESS_CODE } from '@/api/code';
 import { PRODUCT_KEYS_CONFIG } from '../../long/InsureInfos/components/ProductKeys/config';
 import { dealExemptPeriod, getRelationText } from './utils';
 import useOrder from '@/hooks/useOrder';
-import { formData2Order } from '../../utils';
+import { formData2Order, trialData2Order } from '../../utils';
 import { ProductDetail, ProductDetail as ProductData } from '@/api/modules/newTrial.data';
-import { CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
+import { CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM, isNotEmptyArray } from '@/common/constants';
 import { transformData } from '@/views/baseInsurance/utils';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from '../../long/constants';
 import { nextStepOperate as nextStep } from '../../../nextStep';
 import pageJump from '@/utils/pageJump';
 import { jumpToNextPage } from '@/utils';
+import { ProductFactor } from '@/components/RenderForm';
 
 const RISK_SELECT = [
   { value: 1, label: '投保' },
@@ -119,6 +131,7 @@ interface Props {
   title: string;
   defaultData: any;
   isTrial: boolean;
+  defaultOrder: any;
 }
 
 const LOADING_TEXT = '试算中...';
@@ -128,7 +141,7 @@ const insureInfosRef = ref(null);
 const route = useRoute();
 const router = useRouter();
 
-const emit = defineEmits(['trialStart', 'trialEnd']);
+const emit = defineEmits(['trialStart', 'trialEnd', 'update:userData']);
 
 const { tenantId, templateId, preview } = route.query;
 
@@ -137,7 +150,7 @@ const personalInfoRef = ref<InstanceType<typeof PersonalInfo>>();
 const props = withDefaults(defineProps<Props>(), {
   dataSource: () => [],
   productInfo: () => {
-    return { productCode: '', productName: '', insurerCode: '', tenantId: '' };
+    return { productCode: '', productName: '', insurerCode: '', tenantId: '', planList: [] };
   },
   tenantProductDetail: () => ({}),
   title: '算一算保费',
@@ -151,6 +164,7 @@ const props = withDefaults(defineProps<Props>(), {
   hidePopupButton: false,
   defaultData: null,
   isTrial: false,
+  defaultOrder: () => ({}),
 });
 
 const state = reactive({
@@ -177,11 +191,14 @@ const state = reactive({
   isSkipFirstTrial: false, // 是否跳过默认值表单触发的第一次试算
   hadSkipFirstTrial: false,
   isQuerying: false, // 是否正在请求表单数据
+  currentPlanCode: '',
 });
 
 const orderDetail = useOrder();
 const iseeBizNo = ref<string>();
 const currentShareInfo = ref<any>();
+const currentPlan = ref<any>(props.dataSource);
+const hasDefault = ref([]);
 
 /**
  * 处理投被保人信息到state.submitData
@@ -205,54 +222,158 @@ const handlePersonInfo = (data) => {
   }
 };
 
-const trialData2Order = (
-  currentProductDetail: ProductData = {} as ProductData,
-  riskPremium = {},
-  currentOrderDetail = {},
-) => {
-  const nextStepParams: any = { ...currentOrderDetail };
-  const { tenantOrderHolder, tenantOrderInsuredList } = formData2Order({
-    holder: state.submitData.holder,
-    insuredList: state.submitData.insuredList || [],
-  });
-  const riskList = state.submitData.insuredList.map((person) => person.productList?.[0]?.riskList).flat();
-  const transformDataReq = {
-    tenantId,
-    riskList,
-    riskPremium,
-    productId: currentProductDetail.id,
-  };
-  nextStepParams.extInfo.iseeBizNo = iseeBizNo.value;
-  nextStepParams.productCode = currentProductDetail.productCode;
-  nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
-  nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
-  nextStepParams.initialPremium = state.trialResultPremium;
-  nextStepParams.orderAmount = state.trialResultPremium;
-  nextStepParams.orderRealAmount = state.trialResultPremium;
+// 是否多计划
+const isMultiPlan = computed(() => props.productInfo.planList && props.productInfo.planList.length > 2);
 
-  nextStepParams.tenantOrderHolder = tenantOrderHolder;
-  nextStepParams.tenantOrderInsuredList = tenantOrderInsuredList.map((insurer: any) => {
-    return {
-      ...insurer,
-      certType: insurer.certType || CERT_TYPE_ENUM.CERT,
-      certNo: (insurer.certNo || '').toLocaleUpperCase(),
-      planCode: props.dataSource.planCode,
-      tenantOrderProductList: [
-        {
-          initialPremium: state.trialResultPremium,
-          productCode: currentProductDetail.productCode,
-          productName: currentProductDetail.productName,
-          planCode: props.dataSource.planCode,
-          tenantOrderRiskList: transformData(transformDataReq),
-        },
-      ],
-    };
-  });
-  console.log('nextStepParams', nextStepParams);
-  return nextStepParams;
+// 排除不需要的数据
+const shakeData = (data, keys) => {
+  if (data) {
+    // 需要保留的字段
+    const extraKeys = ['birthday', 'age', 'gender', 'id'];
+
+    // 若有职业保留职业大类
+    if (keys.includes('occupationCodeList')) {
+      extraKeys.push('occupationClass');
+    }
+    Object.keys(data).forEach((key) => {
+      if (![...keys, ...extraKeys].includes(key)) {
+        data[key] = null;
+      }
+    });
+  }
 };
+
+// 获取要素code列表
+const getFactorCodes = (arr, filterFn = (x: ProductFactor) => true): string[] => {
+  if (isNotEmptyArray(arr)) {
+    return arr.filter(filterFn).map((item) => item.code);
+  }
+  return [];
+};
+
+const dealMixData = () => {
+  console.log('--current plan = ', currentPlan.value);
+  console.log('---current submit = ', state.submitData);
+
+  const submitData = cloneDeep(state.submitData);
+
+  // 如果不是多计划
+  if (!isMultiPlan.value) {
+    return submitData;
+  }
+
+  const { 1: holderFactor, 2: insuredFactor, 3: beneficiaryFactor } = currentPlan.value.productFactor || {};
+
+  // 处理投保人信息
+  if (submitData.holder) {
+    shakeData(submitData.holder, getFactorCodes(holderFactor));
+  }
+
+  if (submitData.insuredList) {
+    const ignoreKey = ['productList', 'beneficiaryList'];
+
+    // 主被保人code
+    const mainInsuredFactorCodes = getFactorCodes(
+      insuredFactor,
+      (item: ProductFactor) => String(item.subModuleType) !== '2',
+    );
+
+    // 次被保人code
+    const secondaryInsuredFactorCodes = getFactorCodes(
+      insuredFactor,
+      (item: ProductFactor) => String(item.subModuleType) === '2',
+    );
+
+    // 是否为次被保人
+    const hasSub = isNotEmptyArray(secondaryInsuredFactorCodes);
+
+    // 受益人 code
+    const beneficiaryFactorCodes = getFactorCodes(beneficiaryFactor);
+
+    // 是否有受益人
+    const hasBeneficiary = isNotEmptyArray(beneficiaryFactorCodes);
+
+    submitData.insuredList.forEach((insured, index) => {
+      const targetFactorKeys = index >= 1 && hasSub ? secondaryInsuredFactorCodes : mainInsuredFactorCodes;
+      // 处理被保人信息, 要素有受益人则保留受益人类型字段
+      shakeData(insured, [...targetFactorKeys, ...ignoreKey, ...(hasBeneficiary ? ['insuredBeneficiaryType'] : [])]);
+
+      // 受益人信息 todo
+      if (insured.beneficiaryList?.length > 0) {
+        // 如果有受益人
+        if (hasBeneficiary) {
+          insured.beneficiaryList.forEach((ben) => shakeData(ben, beneficiaryFactorCodes));
+        } else {
+          insured.beneficiaryList.length = 0;
+        }
+      }
+
+      insured.planCode = currentPlan.value.planCode;
+      // 处理附加险
+      const riskList = insured.productList[0]?.riskList || [];
+      const currentPlanRiskList = currentPlan.value.insureProductRiskVOList || [];
+      if (riskList && currentPlanRiskList) {
+        const newRiskList = riskList.filter((risk) => {
+          return currentPlanRiskList.find((r) => r.riskCode === risk.riskCode) !== null;
+        });
+        insured.productList[0].riskList = newRiskList;
+      }
+    });
+  }
+  return submitData;
+};
+
+// const trialData2Order = (
+//   currentProductDetail: ProductData = {} as ProductData,
+//   riskPremium = {},
+//   currentOrderDetail = {},
+// ) => {
+//   const nextStepParams: any = { ...currentOrderDetail };
+//   const tempSubmitData = dealMixData();
+//   console.log('------------', tempSubmitData);
+//   const { tenantOrderHolder, tenantOrderInsuredList } = formData2Order({
+//     holder: tempSubmitData.holder,
+//     insuredList: tempSubmitData.insuredList || [],
+//   });
+//   const riskList = tempSubmitData.insuredList.map((person) => person.productList?.[0]?.riskList).flat();
+//   const transformDataReq = {
+//     tenantId,
+//     riskList,
+//     riskPremium,
+//     productId: currentProductDetail.id,
+//   };
+//   nextStepParams.extInfo.iseeBizNo = iseeBizNo.value;
+//   nextStepParams.productCode = currentProductDetail.productCode;
+//   nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
+//   nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
+//   nextStepParams.initialPremium = state.trialResultPremium;
+//   nextStepParams.orderAmount = state.trialResultPremium;
+//   nextStepParams.orderRealAmount = state.trialResultPremium;
+
+//   nextStepParams.tenantOrderHolder = tenantOrderHolder;
+//   nextStepParams.tenantOrderInsuredList = tenantOrderInsuredList.map((insurer: any) => {
+//     return {
+//       ...insurer,
+//       certType: insurer.certType || CERT_TYPE_ENUM.CERT,
+//       certNo: (insurer.certNo || '').toLocaleUpperCase(),
+//       planCode: currentPlan.value.planCode,
+//       tenantOrderProductList: [
+//         {
+//           initialPremium: state.trialResultPremium,
+//           productCode: currentProductDetail.productCode,
+//           productName: currentProductDetail.productName,
+//           planCode: currentPlan.value.planCode,
+//           tenantOrderRiskList: transformData(transformDataReq),
+//         },
+//       ],
+//     };
+//   });
+//   console.log('nextStepParams', nextStepParams);
+//   return nextStepParams;
+// };
 const premiumMap = ref();
 const onNext = () => {
+  const { productCode, productName } = props.productInfo;
   if (preview) {
     jumpToNextPage(PAGE_CODE_ENUMS.TRIAL_PREMIUM, route.query);
     return;
@@ -260,15 +381,22 @@ const onNext = () => {
   if (state.trialResultPremium) {
     // 验证
     insureInfosRef.value?.validate().then(() => {
-      Object.assign(orderDetail.value, {
+      Object.assign(orderDetail.value, props.defaultOrder, {
         extInfo: {
+          templateId,
+
           ...orderDetail.value.extInfo,
+          ...(props.defaultOrder.extInfo || {}),
           buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
           pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
-          templateId,
         },
       });
-      const currentOrderDetail = trialData2Order(props.productInfo, premiumMap.value, orderDetail.value);
+      console.log('dealMixData()', dealMixData());
+      const currentOrderDetail = trialData2Order(
+        { ...dealMixData(), productCode, productName },
+        state.trialResult,
+        orderDetail.value,
+      );
       nextStep(currentOrderDetail, (data, pageAction) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
           pageJump(data.nextPageCode, { ...route.query, orderNo: data.orderNo });
@@ -286,7 +414,7 @@ const onShare = (cb) => {
   if (state.trialResultPremium) {
     // 验证
     insureInfosRef.value?.validate().then(() => {
-      Object.assign(orderDetail.value, {
+      Object.assign(orderDetail.value, props.defaultOrder, {
         extInfo: {
           ...orderDetail.value.extInfo,
           buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
@@ -321,9 +449,9 @@ const DYNAMIC_FACTOR_PARAMS = ['annuityDrawDate', 'coveragePeriod', 'chargePerio
 
 const handleSetRiskSelect = () => {
   state.riskIsInsure = {};
-  props?.dataSource?.insureProductRiskVOList?.forEach((risk) => {
+  currentPlan.value?.insureProductRiskVOList?.forEach((risk) => {
     // 1是投保， 2是不投保
-    const relation = props.dataSource.productRiskRelationVOList?.find((r) => r.collocationRiskId === risk.riskId);
+    const relation = currentPlan.value.productRiskRelationVOList?.find((r) => r.collocationRiskId === risk.riskId);
     // 数据不太正确时避免报错
     if (!relation) return;
     state.riskIsInsure[risk.riskCode] = { selected: '2', data: null, relation };
@@ -333,7 +461,7 @@ const handleSetRiskSelect = () => {
 const handleDealDyResult = (dyResult: any) => {
   if (dyResult?.data?.[0]?.productRiskDyInsureFactorVOList) {
     const defaultRiskData = [];
-    props.dataSource?.insureProductRiskVOList.forEach((risk) => {
+    currentPlan.value?.insureProductRiskVOList.forEach((risk) => {
       const newRisk = dyResult?.data?.[0]?.productRiskDyInsureFactorVOList.find((r) => r.riskCode === risk.riskCode);
       if (newRisk) {
         risk.productRiskInsureLimitVO = {
@@ -387,12 +515,12 @@ const handleDealDyResult = (dyResult: any) => {
 
 const handleSameMainRisk = (data: any) => {
   // 处理同主险逻辑
-  const risk = props.dataSource.insureProductRiskVOList?.find((r) => data.riskId === r.riskId);
+  const risk = currentPlan.value.insureProductRiskVOList?.find((r) => data.riskId === r.riskId);
   if (risk && risk.mainRiskFlag !== 1) {
     // 只处理非标准险种 根据关联关系找到他关联的主险
-    const relations = props.dataSource?.productRiskRelationVOList?.filter((r) => {
+    const relations = currentPlan.value?.productRiskRelationVOList?.filter((r) => {
       if (r.collocationRiskId === risk.riskId && r.collocationType !== 3) {
-        const relationRisk = props.dataSource.insureProductRiskVOList?.find((rr) => r.riskId === rr.riskId);
+        const relationRisk = currentPlan.value.insureProductRiskVOList?.find((rr) => r.riskId === rr.riskId);
         if (relationRisk && relationRisk.riskType === RISK_TYPE_ENUM.MAIN_RISK) return true;
       }
       return false;
@@ -473,7 +601,7 @@ const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
             });
           }
           premiumMap.value = riskPremiumMap;
-          emit('trialEnd', res.data, state.submitData);
+          emit('trialEnd', res.data, calcData);
         }
       })
       .finally(() => {
@@ -518,9 +646,9 @@ const handleMixTrialData = debounce(async () => {
     //   state.hadSkipFirstTrial = true;
     //   return;
     // }
-    console.log('>>>数据构建<<<', cloneDeep(state.submitData));
 
-    const submitDataCopy = cloneDeep(state.submitData);
+    const submitDataCopy = dealMixData();
+    console.log('>>>数据构建<<<', submitDataCopy);
     await handleTrialAndBenefit(submitDataCopy);
   }
 }, 300);
@@ -528,7 +656,6 @@ const handleMixTrialData = debounce(async () => {
 const handlePersonalInfoChange = async (data) => {
   // 只有改动第一个被保人，需要调用dy接口
   const { insuredList, isFirstInsuredChange } = data;
-
   handlePersonInfo(data);
 
   state.ifPersonalInfoSuccess = true;
@@ -539,11 +666,11 @@ const handlePersonalInfoChange = async (data) => {
     const dyResult = await queryCalcDynamicInsureFactor({
       calcProductFactorList: [
         {
-          planCode: props.dataSource.planCode,
+          planCode: currentPlan.value.planCode,
           productCode: props.productInfo.productCode,
           riskEditVOList: [
             {
-              insureProductRiskVO: props.dataSource.insureProductRiskVOList?.[0],
+              insureProductRiskVO: currentPlan.value.insureProductRiskVOList?.[0],
             },
           ],
         },
@@ -586,13 +713,13 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
         }
       }
       const persionVo = state.submitData?.insuredList?.[0];
-      const riskInfo = props.dataSource?.insureProductRiskVOList?.find((r) => r.riskCode === data.riskCode);
+      const riskInfo = currentPlan.value?.insureProductRiskVOList?.find((r) => r.riskCode === data.riskCode);
       if (!state.isAutoChange) {
         state.isQuerying = true;
         const dyResult = await queryCalcDynamicInsureFactor({
           calcProductFactorList: [
             {
-              planCode: props.dataSource.planCode,
+              planCode: currentPlan.value.planCode,
               productCode: props.productInfo.productCode,
               riskEditVOList: [
                 {
@@ -667,34 +794,56 @@ const transformDefaultData = (defaultData: any) => {
   state.userData = defaultData;
   state.defaultValue = defaultData;
   const currentPlanIndex =
-    defaultData.insuredList?.[0].productList.findIndex((p) => p.planCode === props.dataSource.planCode) || 0;
+    defaultData.insuredList?.[0].productList.findIndex((p) => p.planCode === currentPlan.value.planCode) || 0;
   state.planIndex = currentPlanIndex === -1 ? 0 : currentPlanIndex;
   state.riskList = defaultData?.insuredList?.[0].productList?.[state.planIndex]?.riskList || [];
   handleTrialAndBenefit(defaultData, true);
 };
 
+const fetchDefaultDataFromServer = async () => {
+  const result = await queryCalcDefaultInsureFactor({
+    calcProductFactorList: [
+      {
+        planCode: currentPlan.value.planCode,
+        productCode: props.productInfo.productCode,
+      },
+    ],
+  });
+  if (result.data) {
+    const targetProduct = result.data.find((d) => d.productCode === props.productInfo.productCode) || result.data[0];
+    transformDefaultData(targetProduct);
+    handlePersonInfo(result.data?.[0]);
+  }
+};
 const fetchDefaultData = async (changes: []) => {
-  console.log('props.defaultData', !props.defaultData);
+  // 主要用于mount打开的时候调用。 切换计划书需要另外写一套，以防信息采集页逻辑错误
   // TODO 加loading
   if (!props.defaultData) {
-    const result = await queryCalcDefaultInsureFactor({
-      calcProductFactorList: [
-        {
-          planCode: props.dataSource.planCode,
-          productCode: props.productInfo.productCode,
-        },
-      ],
-    });
-    if (result.data) {
-      const targetProduct = result.data.find((d) => d.productCode === props.productInfo.productCode) || result.data[0];
-      transformDefaultData(targetProduct);
-      handlePersonInfo(result.data?.[0]);
-    }
+    hasDefault.value.push(currentPlan.value.planCode);
+    await fetchDefaultDataFromServer();
   } else {
     const targetProduct =
       props.defaultData.find((d) => d.productCode === props.productInfo.productCode) || props.defaultData[0];
     transformDefaultData(targetProduct);
     handlePersonInfo(props.defaultData?.[0]);
+  }
+};
+
+const handlePlanChange = async (planCode: string) => {
+  const targetPlanIndex = props.productInfo.planList.findIndex((p) => p.planCode === planCode);
+
+  const targetProductPlanIndex =
+    state.defaultValue?.insuredList?.[0].productList.findIndex((p) => p.planCode === planCode) || 0;
+  const targetPlan = targetPlanIndex >= 0 ? props.productInfo.planList[targetPlanIndex] : null;
+  if (targetPlan) {
+    state.currentPlanCode = planCode;
+    currentPlan.value = targetPlan;
+    state.planIndex = targetProductPlanIndex >= 0 ? targetProductPlanIndex : 0;
+    // state.defaultValue.insuredList[0].productList[state.planIndex].riskList[0] = state.mainRiskVO; // state.riskList
+    state.defaultValue.insuredList[0].productList[state.planIndex].riskList = state.riskList;
+    if (hasDefault.value.findIndex((d) => d === planCode) < 0) {
+      hasDefault.value.push(planCode);
+    }
   }
 };
 
@@ -704,6 +853,7 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {
+  currentPlan.value = props.dataSource;
   state.loading = true;
   state.show = true;
   state.isAniShow = true;
@@ -733,6 +883,9 @@ defineExpose({
   validateTrialFields,
   validateHolder,
   getUserData,
+  onShare,
+  onNext,
+  dealMixData,
 });
 watch(
   () => state.riskIsInsure,
@@ -745,14 +898,28 @@ watch(
   (val) => {
     if (val) {
       const { holder, insuredList } = val || {};
-      Object.assign(state.submitData, {
+      const userData = {
         holder,
         insuredList,
-      });
+      };
+      Object.assign(state.submitData, userData);
+
+      emit('update:userData', userData);
     }
   },
   {
     deep: true,
+  },
+);
+
+watch(
+  () => props.dataSource,
+  (val) => {
+    currentPlan.value = val;
+  },
+  {
+    deep: true,
+    immediate: true,
   },
 );
 </script>

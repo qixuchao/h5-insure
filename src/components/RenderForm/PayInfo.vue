@@ -25,17 +25,26 @@ import { ProRenderFormWithCard } from './components';
 import { SchemaItem } from './index.data';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { PAYMENT_TYPE_ENUM, PAY_INFO_TYPE_ENUM, BANK_CARD_TYPE_ENUM } from '@/common/constants/bankCard';
-import { BANK_INFO_KEY_LIST, colorConsole, lowerFirstLetter } from './utils';
-import { restObjectValues } from '@/components/RenderForm';
+import { colorConsole, lowerFirstLetter } from './utils';
+import { resetObjectValues, BANK_INFO_KEY_LIST } from '@/components/RenderForm';
 import { ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import { deepCopy } from '@/utils';
+
+interface UserData {
+  holder: {
+    name: string;
+  };
+  insuredList: {
+    name: string;
+  }[];
+}
 
 interface PayInfoProps {
   schema: SchemaItem[];
   config?: object[];
   modelValue: object[];
   isView: boolean;
-  holderName: string;
+  userData: UserData;
 }
 
 interface PayInfoItem {
@@ -151,11 +160,11 @@ interface SchemaKeyMap {
 }
 
 const props = withDefaults(defineProps<PayInfoProps>(), {
+  isView: false,
   config: () => [],
   schema: () => [],
   modelValue: () => [],
-  isView: false,
-  holderName: '',
+  userData: () => ({} as UserData),
 });
 
 const state = reactive<{
@@ -163,6 +172,11 @@ const state = reactive<{
 }>({
   schemaList: [],
 });
+
+// 主被保人名字
+const mainInsuredName = computed(() => props.userData.insuredList?.[0]?.name || null);
+
+const holderName = computed(() => props.userData?.holder?.name || null);
 
 // 获取支付模块索引
 const getSchemaIndex = (type) => {
@@ -205,7 +219,7 @@ const combineFormData = (targetIndex, originIndex) => {
 
   // 合并影像注意类型
   const tempData = {
-    // ...restObjectValues(state.schemaList[targetIndex].formData, (key) => !RESERVE_FIELD_NAMES.includes(key)),
+    // ...resetObjectValues(state.schemaList[targetIndex].formData, (key) => !RESERVE_FIELD_NAMES.includes(key)),
     // ...finalFieldList.value?.[targetIndex]?.formData,
     ...rest,
     bankCardImage: isNotEmptyArray(rest.bankCardImage)
@@ -284,7 +298,7 @@ watch(
 // 根据 payInfoType 处理，原因是 首期/续期/年金某一个可能不配置，不能拿索引
 // 首期 数据变动，若续期/年金同首期
 watch(
-  () => state.schemaList[schemaIndexMap.value.FIRST_TERM]?.formData,
+  () => ({ ...state.schemaList[schemaIndexMap.value.FIRST_TERM]?.formData }),
   // eslint-disable-next-line consistent-return
   (val, oldVal) => {
     if (props.isView || isEqual(val, oldVal)) {
@@ -328,6 +342,32 @@ watch(
   },
 );
 
+// 监听非续期支付方式变动
+watch(
+  () => state.schemaList.map((item) => item?.formData?.paymentMethod),
+  (val, oldVal) => {
+    if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
+      state.schemaList.forEach((schemaItem, index) => {
+        const newPaymentMethod = val[index];
+        const oldPaymentMethod = oldVal[index];
+        const isChange = newPaymentMethod && oldPaymentMethod && String(newPaymentMethod) !== String(oldPaymentMethod);
+        if (schemaItem.payInfoType !== PAYMENT_TYPE_ENUM.REPRISE && isChange) {
+          // 非银行则需要清除银行数据
+          if (String(newPaymentMethod) !== '1') {
+            merge(schemaItem.formData, {
+              ...resetObjectValues(schemaItem.formData, (key) => BANK_INFO_KEY_LIST.includes(key)),
+              bankCardImage: null,
+            });
+          }
+        }
+      });
+    }
+  },
+  {
+    deep: true,
+  },
+);
+
 // 续期里的 同首期 按钮变动，复制首期值
 watch(
   () => state.schemaList[schemaIndexMap.value.RENEW_TERM]?.formData?.paymentGenre,
@@ -346,8 +386,9 @@ watch(
       combineFormData(RENEW_TERM, FIRST_TERM);
     } else if (state.schemaList[RENEW_TERM]) {
       merge(state.schemaList[RENEW_TERM].formData, {
-        ...restObjectValues(state.schemaList[RENEW_TERM].formData, (key) => !RESERVE_FIELD_NAMES.includes(key)),
+        ...resetObjectValues(state.schemaList[RENEW_TERM].formData, (key) => !RESERVE_FIELD_NAMES.includes(key)),
         ...finalFieldList.value?.[RENEW_TERM]?.formData,
+        accountName: holderName.value,
         paymentGenre: val,
       });
       state.schemaList[RENEW_TERM].nanoid = nanoid();
@@ -374,8 +415,9 @@ watch(
       combineFormData(REPRISE, currentIndex);
     } else if (state.schemaList[REPRISE]) {
       merge(state.schemaList[REPRISE].formData, {
-        ...restObjectValues(state.schemaList[REPRISE].formData, (key) => !RESERVE_FIELD_NAMES.includes(key)),
+        ...resetObjectValues(state.schemaList[REPRISE].formData, (key) => !RESERVE_FIELD_NAMES.includes(key)),
         ...finalFieldList.value?.[REPRISE]?.formData,
+        accountName: mainInsuredName.value,
         paymentGenre: val,
       });
       state.schemaList[REPRISE].nanoid = nanoid();
@@ -482,6 +524,27 @@ watch(
   {
     deep: true,
     immediate: true,
+  },
+);
+
+// 监听投被保人姓名变动, 多被保人默认主被保人/第一主被保人
+watch(
+  () => [holderName.value, mainInsuredName.value],
+  ([name1, name2]) => {
+    if (name1 || name2) {
+      state.schemaList.forEach((schemaItem) => {
+        // 是否为年金领取,若为年金领取则为被保人姓名
+        const isReprise = schemaItem.payInfoType === PAYMENT_TYPE_ENUM.REPRISE;
+        if (isReprise) {
+          schemaItem.formData.accountName = name2;
+        } else {
+          schemaItem.formData.accountName = name1;
+        }
+      });
+    }
+  },
+  {
+    deep: true,
   },
 );
 
