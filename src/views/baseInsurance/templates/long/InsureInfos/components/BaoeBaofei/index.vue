@@ -11,6 +11,7 @@
             :min="originData.minStepValue"
             :step="originData.stepValue"
             :max="originData.maxStepValue"
+            theme="round"
             @blur="handleStepBlur"
           ></VanStepper>
         </div>
@@ -65,6 +66,7 @@
               :min="originData.minCopiesValue || 1"
               :step="1"
               :max="originData.maxCopiesValue"
+              theme="round"
             ></VanStepper>
             <span v-else>{{ originData.minCopiesValue }}</span>
           </div>
@@ -85,6 +87,7 @@
             :min="originData.minCopiesValue || 1"
             :step="1"
             :max="originData.maxCopiesValue"
+            theme="round"
           ></VanStepper>
           <span v-else>{{ originData.minCopiesValue }}</span>
         </div>
