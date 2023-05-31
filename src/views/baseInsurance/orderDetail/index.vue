@@ -67,7 +67,7 @@ import { ORDER_STATUS_MAP, ORDER_STATUS_DESC } from './const';
 import { ProductDetail, ProductUpgradeConfig } from '@/api/modules/product.data';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { setPageTitle } from '@/utils';
-import { useTheme } from '@/hooks/useTheme';
+import { setGlobalTheme, useTheme } from '@/hooks/useTheme';
 import { sessionStore } from '@/hooks/useStorage';
 import { ORDER_DETAIL_KEY } from '@/common/constants/infoCollection';
 import { TEMPLATE_TYPE_ENUM } from '../constant';
@@ -419,6 +419,10 @@ const getData = async () => {
     Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
       if (productRes.code === '10000') {
         state.detail = productRes.data as any;
+
+        if (productRes.data.BASIC_INFO && productRes.data.BASIC_INFO.themeType) {
+          setGlobalTheme(productRes.data.BASIC_INFO.themeType);
+        }
       }
       if (insureRes.code === '10000') {
         state.insureDetail = insureRes.data as any;

@@ -1,14 +1,16 @@
 <template>
-  <ProPageWrap main-class="page-pay-check">
-    <div v-if="loading && !showResult" class="wait-loading">加载中，请稍候...</div>
-    <div v-if="!loading && showResult" class="result-view">
-      <div class="content-box">
-        <van-icon name="checked" class="large-icon" />
-        <div class="content">开通成功，正在为您生成保单...</div>
-        <div class="tip">请勿返回或退出</div>
+  <van-config-provider :theme-vars="themeVars">
+    <ProPageWrap main-class="page-pay-check">
+      <div v-if="loading && !showResult" class="wait-loading">加载中，请稍候...</div>
+      <div v-if="!loading && showResult" class="result-view">
+        <div class="content-box">
+          <van-icon name="checked" class="large-icon" />
+          <div class="content">开通成功，正在为您生成保单...</div>
+          <div class="tip">请勿返回或退出</div>
+        </div>
       </div>
-    </div>
-  </ProPageWrap>
+    </ProPageWrap>
+  </van-config-provider>
 </template>
 
 <script lang="ts" setup>
@@ -17,13 +19,14 @@ import type { PayParam } from '@/api/modules/cashier.data';
 import { getPaymentResult } from '@/api/modules/cashier';
 import { useSign, useWXCode } from './core';
 import useThread, { ThreadType } from '@/hooks/useThread';
+import useTheme from '@/hooks/useTheme';
 
 interface QueryData extends PayParam {
   from_wxpay: number; // 是否从支付页回来
   [key: string]: string | number;
 }
 const query = useRoute().query as QueryData;
-
+const themeVars = useTheme();
 // 是否展示支付结果（默认进入签约）
 const showResult = ref(false);
 const payResult = ref(false);

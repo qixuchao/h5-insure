@@ -1,5 +1,6 @@
 <template>
-  <ProPageWrap main-class="page-order-list">
+  <van-config-provider :theme-vars="themeVars">
+    <!-- <ProPageWrap main-class="page-order-list"> -->
     <div class="page-order">
       <ProTab v-model:active="active" :list="tabList" class="tab" />
       <van-list class="body" :loading="loading" :finished="finished" @load="handleLoad">
@@ -12,7 +13,8 @@
         />
       </van-list>
     </div>
-  </ProPageWrap>
+    <!-- </ProPageWrap> -->
+  </van-config-provider>
 </template>
 
 <script lang="ts" setup>
@@ -23,12 +25,14 @@ import Item from './components/item.vue';
 import { getOrderList } from '@/api/modules/order';
 import { OrderItem } from '@/api/modules/order.data';
 import pageJump from '@/utils/pageJump';
+import useTheme from '@/hooks/useTheme';
 
 interface QueryData {
   type: number;
   [key: string]: string | number;
 }
 
+const themeVars = useTheme();
 const router = useRouter();
 const route = useRoute();
 const query = route.query as QueryData;

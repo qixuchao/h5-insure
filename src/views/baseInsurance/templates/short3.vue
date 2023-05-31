@@ -106,7 +106,7 @@ import debounce from 'lodash-es/debounce';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { useIntersectionObserver, useElementBounding } from '@vueuse/core';
 import { template } from 'lodash';
-import { useTheme } from '@/hooks/useTheme';
+import { setGlobalTheme, useTheme } from '@/hooks/useTheme';
 import {
   InsureProductData,
   ProductPlanInsureVoItem,
@@ -316,6 +316,10 @@ const initData = async () => {
       const { title, desc, image } = data?.PRODUCT_LIST.wxShareConfig || {};
       // 设置分享参数
       setShareLink({ title, desc, image });
+
+      if (data.BASIC_INFO && data.BASIC_INFO.themeType) {
+        setGlobalTheme(data.BASIC_INFO.themeType);
+      }
     }
   });
 

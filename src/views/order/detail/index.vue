@@ -1,5 +1,5 @@
 <template>
-  <ProPageWrap>
+  <van-config-provider :theme-vars="themeVars">
     <div v-if="detail" class="page-order-detail">
       <div class="card">
         <FieldInfo>
@@ -44,7 +44,7 @@
         </div>
       </div>
     </div>
-  </ProPageWrap>
+  </van-config-provider>
 </template>
 
 <script lang="ts" setup>
@@ -63,7 +63,9 @@ import { TEMPLATE_NAME_ENUM, getTemplateNameById } from '@/common/constants/info
 import FieldInfo from '../components/fieldInfo.vue';
 import InsureInfo from '../components/InsuredPart.vue';
 import pageJump from '@/utils/pageJump';
+import useTheme from '@/hooks/useTheme';
 
+const themeVars = useTheme();
 const route = useRoute();
 const router = useRouter();
 const detail = ref<NextStepRequestData>();
