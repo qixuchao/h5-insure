@@ -39,6 +39,7 @@ body {
   display: flex;
   align-items: flex-start;
   box-sizing: border-box;
+  font-size: 30px;
 
   &::after {
     transform: scaleY(1);

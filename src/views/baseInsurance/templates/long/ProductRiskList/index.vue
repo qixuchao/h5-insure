@@ -376,7 +376,7 @@ watch(
   }
 
   .risk-name {
-    font-weight: 600;
+    font-weight: 700;
   }
 
   .container {
@@ -390,7 +390,7 @@ watch(
       display: inline-flex;
       padding: 0;
       align-items: center;
-      font-weight: 600;
+      font-weight: 700;
       :deep(.van-field__label) {
         color: black;
       }
