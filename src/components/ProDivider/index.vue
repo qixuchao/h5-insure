@@ -6,13 +6,28 @@
  * @Description:
 -->
 <template>
-  <div class="com-divider"></div>
+  <div :class="className"></div>
 </template>
-
+<script lang="ts" setup>
+const props = defineProps({
+  size: {
+    type: String,
+    default: 'normal',
+  },
+});
+const className = computed(() => {
+  return `com-divider-${props.size}`;
+});
+</script>
 <style scoped>
-.com-divider {
+.com-divider-normal {
   width: 100%;
   height: 10px;
+  background: #f1f1f1;
+}
+.com-divider-large {
+  width: 100%;
+  height: 20px;
   background: #f1f1f1;
 }
 </style>

@@ -58,8 +58,6 @@
       </div>
     </div>
     <div class="cell-content"></div>
-
-    <ProDivider />
   </van-config-provider>
 </template>
 <script lang="ts" setup name="riskLiabilityInfo">
@@ -305,7 +303,6 @@ watch(
 .com-risk-liabilityinfo {
   :deep(.riskliab-select-field) {
     display: inline-flex;
-    padding: 0;
     align-items: center;
     min-height: 106px;
     .van-cell__title {
@@ -325,7 +322,7 @@ watch(
     padding: 18px 30px;
     padding-left: 30px !important;
     padding-right: 30px !important;
-    margin-bottom: 20px;
+    // margin-bottom: 20px;
   }
 }
 </style>

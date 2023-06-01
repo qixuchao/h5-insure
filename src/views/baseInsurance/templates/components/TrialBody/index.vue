@@ -31,6 +31,9 @@
           :multi-insured-config="currentPlan?.multiInsuredConfigVO"
           @trail-change="handlePersonalInfoChange"
         />
+      </div>
+      <ProDivider size="large" />
+      <div class="container">
         <!-- 这里是标准险种信息 -->
         <InsureInfos
           ref="insureInfosRef"
@@ -43,6 +46,8 @@
           :trial-result="state.trialResult"
           @trial-change="handleTrialInfoChange"
         ></InsureInfos>
+      </div>
+      <div class="container">
         <!-- 以下是附加险种信息 -->
         <ProductRiskList
           v-if="currentPlan.insureProductRiskVOList"
@@ -68,8 +73,8 @@
             />
           </template>
         </ProductRiskList>
-        <div class="empty"></div>
       </div>
+      <div class="empty"></div>
     </div>
     <slot
       name="trialBtn"
@@ -980,8 +985,19 @@ watch(
     :deep(.van-field) {
       align-items: baseline;
       border: 1px;
-      min-height: 86px;
+      min-height: 100px;
       border-bottom: 1px solid var(--van-cell-border-color);
+      // padding: 10px 0;
+      box-sizing: border-box;
+      .van-cell__title {
+        min-height: 74px;
+        margin: 0 0 auto;
+        padding-top: 16px;
+      }
+      .van-field__value {
+        min-height: 74px;
+        justify-content: center;
+      }
     }
     :deep(.van-cell::after) {
       border-bottom: 0;
@@ -1000,7 +1016,6 @@ watch(
     }
     :deep(.risk-select-field) {
       display: inline-flex;
-      padding: 0;
       align-items: center;
       :deep(.van-field__label) {
         color: black;

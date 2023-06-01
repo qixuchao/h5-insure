@@ -66,6 +66,10 @@
     margin: 16px 0 8px;
   }
 
+  .van-cell__title label {
+    color: $zaui-text-title;
+  }
+
   .van-field__control {
     input::input-placeholder {
       /* Chrome/Opera/Safari */
@@ -324,4 +328,12 @@
       }
     }
   }
+}
+
+.van-switch {
+  background: #8696B2 !important;
+}
+
+.van-switch--on {
+  background: $zaui-brand !important;
 }

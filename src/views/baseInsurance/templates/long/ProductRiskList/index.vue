@@ -5,7 +5,7 @@
       v-if="((!showMainRisk && risk.mainRiskFlag !== 1) || showMainRisk) && state.riskIsInsure?.[risk.riskId]?.relation"
     >
       <!-- 附加险区域 -->
-      <VanField
+      <ProField
         v-model="state.riskIsInsure[risk.riskId].selected"
         :label="risk.riskName"
         name="selected"
@@ -36,7 +36,7 @@
                   </template> -->
           </van-switch>
         </template>
-      </VanField>
+      </ProField>
       <div v-if="state.riskIsInsure[risk.riskId].selected === '1'" class="risk2-field">
         <!-- 这里是附加险种选择投保后展开的区域 -->
         <InsureInfos
