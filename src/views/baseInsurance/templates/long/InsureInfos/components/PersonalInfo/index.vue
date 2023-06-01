@@ -480,8 +480,7 @@ defineExpose({
   }
 }
 .add-button-wrap {
-  margin-bottom: 20px;
-  padding: 25px 30px;
+  padding: 25px 30px 0;
   .add-button {
     font-size: 32px;
     color: var(--van-primary-color);

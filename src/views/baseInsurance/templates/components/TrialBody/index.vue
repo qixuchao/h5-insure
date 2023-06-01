@@ -929,6 +929,9 @@ watch(
   padding: 30px;
   text-align: right;
   background-color: #fff;
+  position: fixed;
+  bottom: 0;
+  left: 0;
   .van-button {
     width: 270px;
   }
@@ -972,6 +975,16 @@ watch(
     flex: 1;
     :deep(.com-pro-form-with-card.personal-info-card) .header {
       padding-left: 0;
+    }
+
+    :deep(.van-field) {
+      align-items: baseline;
+      border: 1px;
+      min-height: 86px;
+      border-bottom: 1px solid var(--van-cell-border-color);
+    }
+    :deep(.van-cell::after) {
+      border-bottom: 0;
     }
   }
   .container {
