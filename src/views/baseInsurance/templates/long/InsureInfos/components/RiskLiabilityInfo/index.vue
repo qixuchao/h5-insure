@@ -23,7 +23,7 @@
                   v-model="state.isCheckList[index]"
                   active-value="1"
                   inactive-value="2"
-                  size="0.74rem"
+                  size="0.68rem"
                   @click="handleSwitchClick(item, index)"
                 ></van-switch>
               </template>

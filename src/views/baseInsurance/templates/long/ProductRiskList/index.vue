@@ -22,7 +22,7 @@
             v-model="state.riskIsInsure[risk.riskId].selected"
             active-value="1"
             inactive-value="2"
-            size="0.74rem"
+            size="0.68rem"
             :disabled="state.riskIsInsure[risk.riskId].isMust"
             style="margin-right: 8px"
             @change="handleSwitchClick($event, risk)"

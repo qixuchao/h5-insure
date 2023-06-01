@@ -1,7 +1,9 @@
 /**
  * vant 组件库需要全局覆盖的样式
  */
-
+body {
+  --van-switch-width: 1.16rem;
+}
 //  tab组件的下划线颜色和选中文字颜色
 .van-tabs__line {
   height: 8px;
@@ -330,10 +332,17 @@
   }
 }
 
+// switch定制版
 .van-switch {
   background: #8696B2 !important;
+  .van-switch__node {
+    border: 1px solid #8696B2;
+  }
 }
 
 .van-switch--on {
   background: $zaui-brand !important;
+  .van-switch__node {
+    border: 1px solid $zaui-brand;
+  }
 }
