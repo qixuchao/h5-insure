@@ -120,5 +120,8 @@ const showLink = computed(() => {
       justify-content: flex-start;
     }
   }
+  :deep(.van-cell__title label) {
+    color: $zaui-text-title;
+  }
 }
 </style>

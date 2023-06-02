@@ -425,8 +425,6 @@ watch(
         ? Math.min(propsInsuredLen, multiInsuredMaxNum)
         : stateInsuredLen || multiInsuredMinNum;
 
-    console.log('-----change', state.config, insuredLen);
-
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
       const { personVO, config = {}, beneficiaryList } = insuredList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
@@ -467,7 +465,7 @@ defineExpose({
 
 <style scoped lang="scss">
 .personal-info-card {
-  margin-bottom: 20px;
+  margin-bottom: 0px !important;
   :deep(.com-van-field) {
     &:last-child::after {
       display: block;
@@ -480,7 +478,7 @@ defineExpose({
   }
 }
 .add-button-wrap {
-  padding: 25px 30px 0;
+  padding: 25px 30px;
   .add-button {
     font-size: 32px;
     color: var(--van-primary-color);

@@ -1,7 +1,9 @@
 /**
  * vant 组件库需要全局覆盖的样式
  */
-
+body {
+  --van-switch-width: 1.16rem;
+}
 //  tab组件的下划线颜色和选中文字颜色
 .van-tabs__line {
   height: 8px;
@@ -37,6 +39,7 @@
   display: flex;
   align-items: flex-start;
   box-sizing: border-box;
+  font-size: 30px;
 
   &::after {
     width: 720px;
@@ -63,6 +66,10 @@
   .van-field__label {
     line-height: 42px;
     margin: 16px 0 8px;
+  }
+
+  .van-cell__title label {
+    color: $zaui-text-title;
   }
 
   .van-field__control {
@@ -322,5 +329,20 @@
         color: #ffffff;
       }
     }
+  }
+}
+
+// switch定制版
+.van-switch {
+  background: #8696B2 !important;
+  .van-switch__node {
+    border: 1px solid #8696B2;
+  }
+}
+
+.van-switch--on {
+  background: $zaui-brand !important;
+  .van-switch__node {
+    border: 1px solid $zaui-brand;
   }
 }
