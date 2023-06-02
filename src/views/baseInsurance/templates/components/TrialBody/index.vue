@@ -981,7 +981,9 @@ watch(
     :deep(.com-pro-form-with-card.personal-info-card) .header {
       padding-left: 0;
     }
-
+    :deep(.van-cell) {
+      font-size: 30px;
+    }
     :deep(.van-field) {
       align-items: baseline;
       border: 1px;
@@ -1001,6 +1003,9 @@ watch(
         min-height: 74px;
         justify-content: center;
       }
+      .com-check-btn {
+        font-size: 30px;
+      }
     }
     :deep(.van-cell::after) {
       border-bottom: 0;
@@ -1012,7 +1017,7 @@ watch(
     flex: 1;
     .empty {
       width: 100%;
-      height: 180px;
+      height: 200px;
     }
     &::-webkit-scrollbar {
       display: none;
