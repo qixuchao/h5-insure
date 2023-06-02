@@ -245,7 +245,7 @@
   }
   .van-stepper__minus, .van-stepper__plus, button {
     border: 0 !important;
-    background-color: $zaui-icon-fill !important;
+    background-color: var(--van-primary-color) !important;
     width: 40px;
     height: 40px;
     font-weight: 600;

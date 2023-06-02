@@ -4,7 +4,7 @@
       <div class="content-wrapper">
         <div v-for="(riskInfo, index) in productData?.riskList || []" :key="index" class="risk-item">
           <template v-if="riskInfo.riskType === RISK_TYPE_ENUM.MAIN_RISK">
-            <p>{{ riskInfo.riskName }}</p>
+            <p class="risk-name">{{ riskInfo.riskName }}</p>
             <ProCell title="保障期间" :content="riskInfo.coveragePeriodDesc"> </ProCell>
             <ProCell title="交费期间" :content="riskInfo.chargePeriodDesc"> </ProCell>
           </template>
@@ -82,13 +82,29 @@ const props = withDefaults(defineProps<Props>(), {
   totalPremium: 0,
 });
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 .com-insured-part-wrapper {
-  :deep(.body) {
+  .body {
     padding: 0 !important;
   }
+  .risk-name {
+    min-height: 106px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    &:after {
+      content: ' ';
+      position: absolute;
+      width: 100%;
+      height: 1px;
+      background-color: $zaui-line;
+      transform: scaleY(0.5);
+      bottom: 0;
+      left: 0;
+    }
+  }
   .content-wrapper {
-    padding: 0 30px;
+    padding: 0 0 0 30px;
 
     .product-name {
       min-height: $zaui-cell-height;
@@ -97,11 +113,20 @@ const props = withDefaults(defineProps<Props>(), {
       font-size: $zaui-font-size-md2;
       font-weight: 500;
     }
+    .common-cell-wrapper {
+      min-height: 106px;
+      display: flex;
+      align-items: center;
+      padding-right: 30px;
+      .cell-container {
+        width: 100%;
+      }
+    }
     .price {
-      :deep(.right-part) {
+      .right-part {
         color: unset;
       }
-      :deep(.left-part) {
+      .left-part {
         font-weight: 400;
       }
     }

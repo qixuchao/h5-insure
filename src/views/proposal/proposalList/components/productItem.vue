@@ -52,8 +52,19 @@ const { checked } = toRefs(state);
 <style scoped lang="scss">
 @import '@/styles/mixins.scss';
 .com-product-item {
-  padding: 30px 0;
-  border-bottom: 0.5px $zaui-line;
+  padding: $zaui-card-border 0;
+  position: relative;
+  &:after {
+    content: ' ';
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    border-bottom: 1px solid $zaui-line;
+    transform: scaleY(0.5);
+    z-index: 1;
+    bottom: 0;
+  }
+
   .content-wrap {
     display: flex;
     .product-image {

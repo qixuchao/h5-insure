@@ -20,16 +20,20 @@
         <!-- 利益演示 -->
         <Benefit v-if="info?.benefitRiskResultVOList" :info="info" />
 
-        <div class="container">
+        <div v-if="!!isShowInsurePart" class="container">
           <div class="common-title">保险公司简介</div>
 
           <van-collapse v-model="activeName" :is-link="false" :border="false" size="middle">
-            <van-collapse-item v-for="(item, i) in info?.insurerInfoVOList" :key="i" :name="i" value-class="price">
-              <template #title>
-                <div style="line-height: 36px"><span class="poiner"></span> {{ item?.insurerName }}</div>
-              </template>
-              {{ item.insurerDesc }}
-            </van-collapse-item>
+            <template v-for="(item, i) in info?.insurerInfoVOList" :key="i">
+              <van-collapse-item v-if="item.insurerDesc" :name="i" value-class="price">
+                <template #title>
+                  <div><span class="poiner"></span>{{ item?.insurerName }}</div>
+                </template>
+                <div class="insure-desc">
+                  {{ item.insurerDesc }}
+                </div>
+              </van-collapse-item>
+            </template>
           </van-collapse>
         </div>
       </div>
@@ -41,7 +45,10 @@
           :link="shareConfig.link"
           :img-url="shareConfig.imgUrl"
         >
-          <van-button type="primary" class="share-btn" @click.stop="() => onShareProposal()">分享</van-button>
+          <div class="share-btn" @click.stop="() => onShareProposal()">
+            <ProSvg name="share-icon" font-size="24px" color="var(--van-primary-color)"></ProSvg>
+            <span>分享计划书</span>
+          </div>
         </ProShare>
         <van-button plain type="primary" class="btn" @click="onCreatePdf">生成PDF</van-button>
         <van-button v-if="isShowInsured" type="primary" class="btn" @click="onInsured">立即投保</van-button>
@@ -122,6 +129,18 @@ const isMale = (gender: number) => {
   return gender === +SEX_LIMIT_ENUM.MALE;
 };
 
+// 根据是否存在保司以及保司简介来判断是否展示保司简介模块
+const isShowInsurePart = computed(() => {
+  if (!info.value?.insurerInfoVOList?.length) {
+    return false;
+  }
+  const insureDesc = (info.value.insurerInfoVOList || []).find((insureInfo) => {
+    return insureInfo.insurerDesc;
+  });
+
+  return insureDesc;
+});
+// 判断是否展示转投保按钮
 const isShowInsured = computed(() => {
   const productList = insuredProductList.value.filter((product: InsuredProductData) => {
     return product.authStatus === 1 && product.insureMethod === 1;
@@ -347,17 +366,31 @@ onMounted(() => {
   .container {
     widows: 100%;
     background: #ffffff;
-    border-radius: 16px;
+    clip-path: inset(0 0 0 0 round 16px);
+    // border-radius: 16px;
     margin-bottom: 20px;
-    padding: 0 20px 30px 20px;
+    // padding: 0 20px 30px 20px;
     .common-title {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: 34px;
-      // margin-bottom: 30px;
+      padding: $zaui-space-border-big $zaui-space-border-small;
       font-weight: 500;
       color: #333333;
+      font-size: $zaui-font-size-md2;
+      line-height: 42px;
+      position: relative;
+      &:after {
+        content: ' ';
+        position: absolute;
+        width: 100%;
+        height: 1px;
+        background-color: $zaui-line;
+        transform: scaleY(0.5);
+        bottom: 0;
+        left: 0;
+      }
+
       .title {
         font-size: 30px;
         font-weight: 600;
@@ -372,35 +405,35 @@ onMounted(() => {
         }
       }
     }
-    .product-detail {
-      background-color: #f6f6fa;
-      border-radius: 8px;
 
-      :deep(.van-collapse-item__content) {
-        background-color: #f6f6fa;
-        border-radius: 8px;
-      }
-      :deep(.van-cell) {
-        background-color: #f6f6fa;
-        padding: 20px 30px 20px 20px;
-        min-height: 20px;
-        font-size: 28px;
-        font-weight: 400;
-        color: #393d46;
-        border-radius: 8px;
-      }
-      :deep(.price) {
-        font-size: 28px;
-        font-weight: 400;
-        color: $zaui-price;
+    :deep(.van-collapse-item) {
+      .van-cell {
+        display: flex;
+        align-items: center;
       }
     }
+
+    :deep(.van-collapse-item__content) {
+      background-color: #f6f6fa;
+      padding: 29px 30px 7px;
+      font-size: $zaui-font-size-md;
+      color: $text-color;
+      line-height: 47px;
+      font-weight: 400;
+    }
+    :deep(.price) {
+      font-size: 28px;
+      font-weight: 400;
+      color: $zaui-price;
+    }
+
     .poiner {
       width: 14px;
       height: 14px;
       display: inline-block;
       background: $zaui-brand;
       border-radius: 50%;
+      margin-right: 14px;
     }
   }
   .switch-btn {
@@ -480,8 +513,19 @@ onMounted(() => {
   padding: 30px;
   z-index: 99999999; // echart 覆盖了footer，提高层级
   .share-btn {
-    width: 140px;
+    width: 129px;
     margin-right: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: var(--van-primary-color);
+    font-size: $zaui-base-size;
+    line-height: 30px;
+    font-weight: 400;
+    span {
+      margin-top: 14px;
+    }
   }
   .btn {
     width: 100%;

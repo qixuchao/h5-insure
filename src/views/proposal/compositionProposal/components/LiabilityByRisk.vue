@@ -19,7 +19,8 @@
             v-for="(val, k) in item.proposalRiskLiabilityVOList"
             :key="k"
             :title="val.liabilityName"
-            :name="k"
+            :border="false"
+            :name="`${k}-${i}`"
             value-class="price"
             :value="val.liabilityIndemnityContent"
           >

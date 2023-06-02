@@ -11,10 +11,8 @@
       </template> -->
     </ProFilePreview>
     <div class="footer-btn">
-      <VanButton @click="questionReject">部分为是</VanButton>
-      <ProShadowButton :shadow="false" @click="questionResolve">
-        <slot>以上皆否</slot>
-      </ProShadowButton>
+      <VanButton plain type="primary" @click="questionReject">部分为是</VanButton>
+      <VanButton type="primary" @click="questionResolve">以上皆否</VanButton>
     </div>
   </div>
 </template>
@@ -172,7 +170,7 @@ onBeforeMount(() => {
     background: #fff;
     .van-button,
     .pro-shadow-button {
-      width: 300px;
+      width: 335px;
     }
     .pro-shadow-button {
       display: flex;

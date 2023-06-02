@@ -49,7 +49,7 @@
             >款产品 <span class="icon"></span>
           </p>
           <van-button type="primary" :disabled="!state.selectProduct.length" @click="addProposal"
-            >添加计划书</van-button
+            >添加到计划书</van-button
           >
         </div>
       </div>

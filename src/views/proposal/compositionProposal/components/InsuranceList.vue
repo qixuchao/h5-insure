@@ -147,12 +147,12 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-.page-composition-proposal {
+.container {
+  padding: 26px 20px 30px;
   .head-cover {
     margin-top: -30px;
   }
   .info-detail {
-    padding-top: 26px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -191,6 +191,7 @@ watch(
     margin: 0 -20px;
     padding-bottom: 30px;
     border-bottom: 1px solid $zaui-line;
+    transform: scaleY(0.5);
   }
   .tp {
     margin-top: 30px;

@@ -5,6 +5,7 @@
       type="primary"
       :disabled="disabled"
       block
+      safe-area-inset-bottom
       @click="emit('click')"
     >
       <slot>{{ text }}</slot></van-button

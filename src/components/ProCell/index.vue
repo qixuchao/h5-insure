@@ -88,7 +88,17 @@ onBeforeMount(() => {
 }
 .com-cell-wrapper {
   &.border {
-    border-bottom: 1px solid $zaui-line;
+    position: relative;
+    &:after {
+      content: ' ';
+      position: absolute;
+      width: 100%;
+      height: 1px;
+      background-color: $zaui-line;
+      transform: scaleY(0.5);
+      bottom: 0;
+      left: 0;
+    }
   }
   .cell-container {
     line-height: 40px;

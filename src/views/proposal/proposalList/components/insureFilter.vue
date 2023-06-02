@@ -20,26 +20,25 @@
         <div class="text" :class="{ 'has-select-condition': checkedInsure.length > 0 }">筛选</div>
         <ZaSvg name="filter" />
       </div>
-
-      <van-popup
-        :show="isPopShow"
-        position="right"
-        close-on-click-overlay
-        teleport="body"
-        class="proposal-list-filter-popup-wrap"
-        :overlay-style="{ 'z-index': 5000 }"
-        :style="popupStyle || { width: '322px', height: '100%', padding: '0 15px', 'z-index': 5000 }"
-        @click-overlay="closePop"
-      >
-        <div class="popup-inner">
-          <div class="popup-title">保险公司</div>
-          <ProCheckboxButton v-model="checkedInsure" :options="insureList" />
-        </div>
-        <div class="footer-button">
-          <van-button plain type="primary" @click="reset">重置</van-button>
-          <van-button type="primary" @click="handleClickFilter">确定</van-button>
-        </div>
-      </van-popup>
+      <template v-if="proposalListNode">
+        <van-popup
+          :show="isPopShow"
+          position="right"
+          close-on-click-overlay
+          class="proposal-list-filter-popup-wrap"
+          :style="popupStyle"
+          @click-overlay="closePop"
+        >
+          <div class="popup-inner">
+            <div class="popup-title">保险公司</div>
+            <ProCheckboxButton v-model="checkedInsure" :options="insureList" />
+          </div>
+          <div class="footer-button">
+            <van-button plain type="primary" @click="reset">重置</van-button>
+            <van-button type="primary" @click="handleClickFilter">确定</van-button>
+          </div>
+        </van-popup>
+      </template>
     </div>
   </div>
 </template>
@@ -129,6 +128,12 @@ onMounted(() => {
 onBeforeMount(() => {
   queryCategoryList();
 });
+
+const proposalListNode = ref();
+
+onMounted(() => {
+  proposalListNode.value = document.querySelector('.page-proposal');
+});
 </script>
 
 <style scoped lang="scss">
@@ -151,6 +156,7 @@ onBeforeMount(() => {
       white-space: nowrap;
 
       .tag-item {
+        margin-right: $zaui-space-card;
         .trianele-out {
           display: flex;
           justify-content: center;
@@ -226,28 +232,44 @@ onBeforeMount(() => {
       }
     }
   }
-}
-.proposal-list-filter-popup-wrap.van-popup {
-  position: relative;
-  .popup-inner {
-    padding-left: 0;
-    .popup-title {
-      height: 42px;
-      margin-top: 32px;
-      margin-bottom: 24px;
-      color: #343434;
-      font-weight: 500;
-      font-size: $zaui-font-size-lg;
-      font-family: PingFangSC-Medium, PingFang SC;
-      line-height: 42px;
-      padding: 0;
-      justify-content: flex-start;
-      border: 0;
+  :deep(.proposal-list-filter-popup-wrap) {
+    width: 644px;
+    height: 100vh;
+    padding: 90px 6px 150px 30px;
+    z-index: 5000;
+    .popup-inner {
+      padding-left: 0;
+      .popup-title {
+        margin-bottom: 32px;
+        color: #343434;
+        font-weight: 500;
+        font-size: $zaui-font-size-lg;
+        line-height: 40px;
+        height: 40px;
+        padding: 0;
+        justify-content: flex-start;
+        border: 0;
+      }
+      .com-radio-btn {
+        justify-content: flex-start;
+        .com-check-btn {
+          width: 177px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: inline-block;
+          text-align: center;
+          font-size: $zaui-font-size-spec;
+          box-sizing: border-box;
+
+          margin: 0 24px 21px 0;
+        }
+      }
     }
-    :deep(.com-radio-btn) {
-      justify-content: flex-start;
-      .com-check-btn {
-        margin: 0 12px 10px 0;
+
+    .footer-button {
+      button {
+        width: 277px !important;
       }
     }
   }

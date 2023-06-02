@@ -7,7 +7,7 @@
         <span>{{ `(${activeIndex + 1}/${list?.length})` }}</span>
         <ProSvg name="right_arrow" class="right-icon" />
       </div>
-      <!-- <div class="progress-line"></div> -->
+      <div class="progress-line" :style="`width:${progressWidth}`"></div>
     </div>
     <van-popup v-model:show="visible" position="right" safe-area-inset-top class="navigation-popup">
       <div class="popup-body">
@@ -76,7 +76,15 @@ const handleClick = () => {
 const currentPageCode = computed(() => {
   return Object.keys(PAGE_ROUTE_ENUMS).find((x) => route.path.indexOf(PAGE_ROUTE_ENUMS[x]) !== -1) || '';
 });
+
 const activeIndex = ref<number>(0);
+const progressWidth = computed(() => {
+  if (list.value?.length) {
+    return `${((activeIndex.value + 1) / list.value.length) * 100}%`;
+  }
+
+  return 0;
+});
 const currentNode = computed(() => {
   if (list.value?.length) {
     return list.value.find((li, index) => {
@@ -134,6 +142,15 @@ const show = computed(() => {
       line-height: 60px;
       font-size: 28px;
     }
+    .progress-line {
+      position: absolute;
+      width: 0;
+      height: 3px;
+      background-color: var(--van-primary-color);
+      transition: width;
+      left: 0;
+      bottom: 0;
+    }
   }
   .btn {
     position: fixed;
@@ -147,7 +164,7 @@ const show = computed(() => {
     height: 100%;
     width: 552px;
     .popup-body {
-      padding: 60px;
+      padding: 60px 50px 60px 60px;
 
       .list {
         .van-steps--vertical {
@@ -156,10 +173,8 @@ const show = computed(() => {
           .van-step__circle-container {
             left: -32px;
             top: 36px;
-            .van-step__circle {
-              background-color: #dee0e3;
-            }
           }
+
           .van-step__line {
             left: -33px;
           }
@@ -200,7 +215,7 @@ const show = computed(() => {
       }
       .desc {
         font-size: 24px;
-        font-weight: 500;
+        font-weight: 400;
         color: #939599;
         line-height: 33px;
         margin: 19px 0 47px;
