@@ -35,9 +35,9 @@
         :config="beneficiary.config"
         :is-view="isView"
       >
-        <span v-if="index > 0 && !isView" class="delete-button" @click="onDeleteBeneficiary(index)"
-          ><van-icon name="delete-o"
-        /></span>
+        <span v-if="index > 0 && !isView" class="delete-button" @click="onDeleteBeneficiary(index)">
+          <ProSvg name="delete"></ProSvg>
+        </span>
       </BeneficiaryItem>
 
       <span v-if="!isView && addible" class="add-button" @click="onAddBeneficiary"

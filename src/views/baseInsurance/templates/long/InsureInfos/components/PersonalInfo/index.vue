@@ -32,8 +32,8 @@
         v-if="!isView && index + 1 > state.config.multiInsuredMinNum"
         class="delete-button"
         @click="onDeleteInsured(index)"
-        ><van-icon name="delete-o"
-      /></span>
+        ><ProSvg name="delete" color="var(--van-primary-color)"></ProSvg
+      ></span>
     </InsuredItem>
     <van-cell v-if="!isView && addible" class="add-button-wrap">
       <template #title>
