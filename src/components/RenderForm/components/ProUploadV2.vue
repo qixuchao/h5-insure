@@ -32,7 +32,7 @@
 <script lang="ts" setup>
 import { UploaderFileListItem } from 'vant';
 import { useCustomFieldValue } from '@vant/use';
-import { Partial } from 'lodash';
+// import { Partial } from 'lodash';
 import ProSvg from '@/components/ProSvg/index.vue';
 import { fileUpload } from '@/api/modules/file';
 import { UPLOAD_TYPE_ENUM, ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';

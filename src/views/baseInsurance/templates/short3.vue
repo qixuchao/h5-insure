@@ -105,7 +105,7 @@ import { Toast, Dialog } from 'vant/es';
 import debounce from 'lodash-es/debounce';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { useIntersectionObserver, useElementBounding } from '@vueuse/core';
-import { template } from 'lodash';
+// import { template } from 'lodash';
 import { setGlobalTheme, useTheme } from '@/hooks/useTheme';
 import {
   InsureProductData,
