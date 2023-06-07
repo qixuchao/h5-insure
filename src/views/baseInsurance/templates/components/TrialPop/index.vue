@@ -63,7 +63,8 @@
 <script lang="ts" setup name="TrialPop">
 import { withDefaults, ref, defineExpose } from 'vue';
 import { Toast } from 'vant/es';
-import { cloneDeep, debounce } from 'lodash';
+import debounce from 'lodash-es/debounce';
+import cloneDeep from 'lodash-es/cloneDeep';
 import { useRouter, useRoute } from 'vue-router';
 import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import { PersonalInfo } from '@/views/baseInsurance/templates/long/InsureInfos/components/index';

@@ -70,7 +70,6 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import debounce from 'lodash-es/debounce';
-import { cloneDeep } from 'lodash';
 import { ProRenderFormWithCard, PayInfo, transformFactorToSchema, isOnlyCert } from '@/components/RenderForm';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import {

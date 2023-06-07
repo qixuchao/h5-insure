@@ -84,7 +84,6 @@
 <script lang="ts" setup name="TrialBody">
 import { withDefaults, ref, defineExpose } from 'vue';
 import { Toast } from 'vant/es';
-// import { cloneDeep, debounce } from 'lodash';
 import debounce from 'lodash-es/debounce';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { useRouter, useRoute } from 'vue-router';
