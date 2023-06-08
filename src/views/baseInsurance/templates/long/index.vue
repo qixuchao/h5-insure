@@ -104,24 +104,32 @@ import { productDetail as getTenantProductDetail, queryProductMaterial, querySal
 
 import { INSURE_TYPE_ENUM } from '@/common/constants/infoCollection';
 
-import Banner from '../components/Banner/index.vue';
-import Video from '../components/Banner/Video.vue';
-import Guarantee from '../components/Guarantee/index.vue';
-import PreNotice from '../components/PreNotice/index.vue';
+// import Banner from '../components/Banner/index.vue';
+// import Video from '../components/Banner/Video.vue';
+// import Guarantee from '../components/Guarantee/index.vue';
+// import PreNotice from '../components/PreNotice/index.vue';
 import { YES_NO_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 
-import ScrollInfo from '../components/ScrollInfo/index.vue';
+// import ScrollInfo from '../components/ScrollInfo/index.vue';
 
 import useAttachment from '@/hooks/useAttachment';
 import { getFileType } from '@/views/baseInsurance/utils';
-import TrialPop from '../components/TrialPop/index.vue';
-import InsureLimit from '../components/InsureLimit/index.vue';
+// import TrialPop from '../components/TrialPop/index.vue';
+// import InsureLimit from '../components/InsureLimit/index.vue';
 import { orderData2trialData } from '../utils';
 import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
 import ProPageWrap from '@/components/ProPageWrap';
-import ProductDesc from '../components/ProductDesc/index.vue';
+// import ProductDesc from '../components/ProductDesc/index.vue';
 import useOrder from '@/hooks/useOrder';
 // const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
+const ProductDesc = defineAsyncComponent(() => import('../components/ProductDesc/index.vue'));
+const ScrollInfo = defineAsyncComponent(() => import('../components/ScrollInfo/index.vue'));
+const Banner = defineAsyncComponent(() => import('../components/Banner/index.vue'));
+const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
+const InsureLimit = defineAsyncComponent(() => import('../components/InsureLimit/index.vue'));
+const Video = defineAsyncComponent(() => import('../components/Banner/Video.vue'));
+const Guarantee = defineAsyncComponent(() => import('../components/Guarantee/index.vue'));
+const PreNotice = defineAsyncComponent(() => import('../components/PreNotice/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const InscribedContent = defineAsyncComponent(() => import('../components/InscribedContent/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));

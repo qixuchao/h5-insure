@@ -11,7 +11,7 @@ import PkgConfig from 'vite-plugin-package-config';
 import checker from 'vite-plugin-checker';
 import ViteFonts from 'vite-plugin-fonts';
 import { ConfigEnv } from 'vite';
-import { Plugin as importToCDN } from "vite-plugin-cdn-import"
+// import { Plugin as importToCDN } from "vite-plugin-cdn-import"
 // 重新启用插件 vite-plugin-style-import 的原因见 Issue：https://github.com/antfu/unplugin-vue-components/issues/301
 // 对于 ElMessage 组件的第一次扫描失效，只有手动进入了页面才会加载
 import styleImport, { VantResolve } from 'vite-plugin-style-import';
