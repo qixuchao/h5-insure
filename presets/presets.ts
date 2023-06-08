@@ -88,6 +88,13 @@ export default (env: ConfigEnv) => {
     //   ext: '.gz',
     //   // deleteOriginFile: true,
     // }),
+    viteCompression({
+      algorithm: 'gzip',
+      threshold: 10240,
+      verbose: false,
+      deleteOriginFile: true
+
+    }),
     PkgConfig(),
     env.mode === 'production'
       ? null
