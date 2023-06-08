@@ -16,7 +16,6 @@ import { ConfigEnv } from 'vite';
 import styleImport, { VantResolve } from 'vite-plugin-style-import';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import viteCompression from 'vite-plugin-compression'; // gzip压缩
-import legacyPlugin from '@vitejs/plugin-legacy';
 const path = require('path');
 
 import { SkeletonPlaceholderPlugin } from '../skeleton/plugins/vitePlugin';
@@ -93,16 +92,16 @@ export default (env: ConfigEnv) => {
     env.mode === 'production'
       ? null
       : checker({
-          // 校验ts
-          enableBuild: false,
-          typescript: true,
-          vueTsc: true,
-          eslint: {
-            lintCommand: 'eslint "./src/**/*.{ts,tsx,vue}"',
-            dev: {
-              logLevel: ['error'],
-            },
+        // 校验ts
+        enableBuild: false,
+        typescript: true,
+        vueTsc: true,
+        eslint: {
+          lintCommand: 'eslint "./src/**/*.{ts,tsx,vue}"',
+          dev: {
+            logLevel: ['error'],
           },
-        }),
+        },
+      }),
   ];
 };
