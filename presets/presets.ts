@@ -39,7 +39,7 @@ export default (env: ConfigEnv) => {
       modules: [
         {
           name: "vue",
-          var: "Vue",
+          var: "vue",
           path: "https://cdn.bootcdn.net/ajax/libs/vue/3.2.25/vue.cjs.js",
         },
       ],
