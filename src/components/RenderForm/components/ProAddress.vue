@@ -170,7 +170,6 @@ watch(
     emit('update:modelValue', state.address);
   },
   {
-    immediate: true,
     deep: true,
   },
 );
