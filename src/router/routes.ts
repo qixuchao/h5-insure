@@ -247,19 +247,6 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     meta: { title: 'PDF预览' },
     component: () => import('@/views/openPdf/index.vue'),
   },
-
-  {
-    name: 'consult',
-    path: '/consult',
-    meta: { title: '咨询登记' },
-    component: () => import('@/views/consult/index.vue'),
-  },
-  {
-    name: 'result',
-    path: '/result',
-    meta: { title: '登记成功' },
-    component: () => import('@/views/consult/result.vue'),
-  },
   {
     name: '收银台',
     path: '/cashier/pay',
