@@ -35,15 +35,15 @@ export default (env: ConfigEnv) => {
     }),
     vueJsx(),
     svgLoader(),
-    importToCDN({
-      modules: [
-        {
-          name: "vue",
-          var: "vue",
-          path: "https://cdn.bootcdn.net/ajax/libs/vue/3.2.25/vue.cjs.js",
-        },
-      ],
-    }),
+    // importToCDN({
+    //   modules: [
+    //     {
+    //       name: "vue",
+    //       var: "vue",
+    //       path: "https://cdn.bootcdn.net/ajax/libs/vue/3.2.25/vue.cjs.js",
+    //     },
+    //   ],
+    // }),
     AutoImport({
       dts: true,
       /* eslint-disable no-sparse-arrays */
