@@ -400,8 +400,10 @@ watch(
       return [holder?.config, filterFormData(holder), tempInsuredList];
     },
     () => state.config,
+    () => state.initInsuredIList,
   ],
   ([[holderConfig, holderFormData, insuredList]]) => {
+    colorConsole(`投被保人数据变动了`);
     // 投保人
     Object.assign(state.holder.config, holderConfig);
     Object.assign(state.holder.personVO, holderFormData);
@@ -430,7 +432,6 @@ watch(
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
       const { personVO, config = {}, beneficiaryList } = insuredList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
-
       if (!res[index]) {
         res[index] = {
           ...initInsuredTempData,
@@ -441,9 +442,11 @@ watch(
         };
       } else {
         merge(res[index], {
+          ...initInsuredTempData,
           personVO,
           config,
           beneficiaryList,
+          // nanoid: nanoid(),
         });
       }
       return res;

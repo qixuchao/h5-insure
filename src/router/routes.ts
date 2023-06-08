@@ -113,13 +113,7 @@ const baseInsurance = [
     name: 'InsuranceShort',
     path: '/baseInsurance/short',
     meta: { title: '', keepAlive: true, requireWxJs: false },
-    component: () => import('@/views/baseInsurance/templates/short3.vue'),
-  },
-  {
-    name: 'baseInsuranceShort3',
-    path: '/baseInsurance/short3',
-    meta: { title: '', keepAlive: true, requireWxJs: false },
-    component: () => import('@/views/baseInsurance/templates/short3.vue'),
+    component: () => import('@/views/baseInsurance/templates/short.vue'),
   },
   // 短险-升级款（魔方）
   {

@@ -375,6 +375,7 @@ watch(
   () => props.schema,
   (val) => {
     if (val) {
+      // state.schema = val;
       Object.assign(state.schema, cloneDeep(val));
     }
   },
