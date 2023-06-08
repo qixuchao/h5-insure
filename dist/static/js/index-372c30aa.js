@@ -1,0 +1,1 @@
+const e=Vue.createElementVNode("img",{src:"/static/png/logo-c907ee91.png",alt:"logo",style:{margin:"100px auto",width:"200px",display:"block"}},null,-1),o=Vue.defineComponent({__name:"index",setup:o=>(o,t)=>{const n=Vue.resolveComponent("ProPageWrap");return Vue.openBlock(),Vue.createBlock(n,{"main-class":"page-home"},{default:Vue.withCtx((()=>[e])),_:1})}});export{o as default};

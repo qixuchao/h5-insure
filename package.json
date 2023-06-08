@@ -45,6 +45,7 @@
     "signature_pad": "^4.0.5",
     "vant": "3.6.6",
     "vconsole": "^3.14.6",
+    "vite-plugin-cdn-import": "^0.3.5",
     "vue": "^3.2.25",
     "vue-dompurify-html": "^3.0.0",
     "vue-i18n": "^9.1.9",
