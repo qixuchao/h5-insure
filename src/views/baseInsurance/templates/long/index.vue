@@ -74,19 +74,24 @@
     </template>
     <div id="insureButton"></div>
   </div>
-  <PreNotice v-if="preNoticeLoading && !trialPreviewMode" :product-detail="tenantProductDetail"></PreNotice>
+  <ProLazyComponent>
+    <PreNotice v-if="preNoticeLoading && !trialPreviewMode" :product-detail="tenantProductDetail"></PreNotice>
+  </ProLazyComponent>
+
   <div id="xinaoDialog"></div>
-  <FilePreview
-    v-if="showFilePreview"
-    v-model:show="showFilePreview"
-    :content-list="isOnlyView ? fileList : popupFileList"
-    :is-only-view="isOnlyView"
-    :active-index="activeIndex"
-    :text="isOnlyView ? '关闭' : '我已逐页阅读并确认告知内容'"
-    :force-read-cound="isOnlyView ? 0 : mustReadFileCount"
-    @submit="onSubmit"
-    @on-close-file-preview-by-mask="onResetFileFlag"
-  ></FilePreview>
+  <ProLazyComponent>
+    <FilePreview
+      v-if="showFilePreview"
+      v-model:show="showFilePreview"
+      :content-list="isOnlyView ? fileList : popupFileList"
+      :is-only-view="isOnlyView"
+      :active-index="activeIndex"
+      :text="isOnlyView ? '关闭' : '我已逐页阅读并确认告知内容'"
+      :force-read-cound="isOnlyView ? 0 : mustReadFileCount"
+      @submit="onSubmit"
+      @on-close-file-preview-by-mask="onResetFileFlag"
+    ></FilePreview>
+  </ProLazyComponent>
 </template>
 
 <script lang="ts" setup name="InsuranceLong">
@@ -314,7 +319,10 @@ const initData = async () => {
   await getInsureProductDetail({ productCode, isTenant: false }).then(({ data, code }) => {
     if (code === '10000') {
       showFooterBtn.value = true;
-      preNoticeLoading.value = true;
+      setTimeout(() => {
+        preNoticeLoading.value = true;
+      }, 1000);
+
       insureProductDetail.value = data;
       currentPlanObj.value = data.productPlanInsureVOList?.[0];
       planList.value = (data.productPlanInsureVOList || [])
