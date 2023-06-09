@@ -1,17 +1,19 @@
 <template>
   <ProPopup class="pre-notice-wrap" :show="noticeShow" :closeable="false" height="auto" style="padding-bottom: 30px">
-    <div class="header"><img :src="HeaderImg" /></div>
-    <div class="content">
-      <h4>温馨提示，您已进入投保流程：</h4>
-      <p>
-        请仔细阅读免责条款、投保须知等信息，请您重点阅读并知晓
-        <span class="file-name" @click="(e) => clickHandler(e, 'privacyAgreement')">
-          《{{ state.insureConfig.privacyAgreement?.title || '用户隐私协议' }}》
-        </span>
-        ，为维护您的合法权益，您的操作轨迹将被记录。
-      </p>
+    <div v-if="state.insureConfig.logoUrl" class="header"><img :src="state.insureConfig.logoUrl" /></div>
+    <div
+      v-if="state.insureConfig.logoLocation === 1 && state.insureConfig.acceptReminder"
+      v-dompurify-html="state.insureConfig.acceptReminder"
+      class="statement up"
+    ></div>
+    <div v-if="state.insureConfig.readingReminder" ref="noticeRef" class="content">
+      <div v-dompurify-html="state.insureConfig.readingReminder"></div>
     </div>
-    <abbr class="statement">{{ state.statement }} </abbr>
+    <div
+      v-if="state.insureConfig.logoLocation === 2 && state.insureConfig.acceptReminder"
+      v-dompurify-html="state.insureConfig.acceptReminder"
+      class="statement"
+    ></div>
     <div class="footer">
       <VanButton type="primary" block round @click="closePopup">
         好的
@@ -35,12 +37,14 @@
 <script lang="ts" setup name="preNotice">
 import { useCountDown } from '@vant/use';
 import { withDefaults } from 'vue';
+import { useEventListener } from '@vueuse/core';
 import { queryInsurePopupConfig } from '@/api/modules/product';
 import Storage from '@/utils/storage';
 import ProShadowButton from '../ProShadowButton/index.vue';
 import HeaderImg from '@/assets/images/baseInsurance/header-logo.png';
 import { useCustomStatement } from '../../customLogic';
 import { ProductDetail } from '@/api/modules/product.data';
+import useThread, { ThreadType } from '@/hooks/useThread';
 
 const props = withDefaults(defineProps<{ productDetail: Partial<ProductDetail> }>(), {
   productDetail: () => ({}),
@@ -50,20 +54,31 @@ const route = useRoute();
 /** 页面query参数类型 */
 interface QueryData {
   tenantId: string;
+  productCode: string;
   [key: string]: string;
 }
 
-const { tenantId = '', preview } = route.query as QueryData;
+const { tenantId = '', productCode, preview } = route.query as QueryData;
 
-const state = reactive({
+const noticeRef = ref();
+const state = reactive<{
   insureConfig: {
-    insureName: '',
-    tenantName: '',
-    privacyAgreement: {
-      title: '',
-    },
+    acceptReminder: string;
+    buttonTitle: string;
+    logoLocation: number;
+    logoUrl: string;
+    readingReminder: string;
+    readingSeconds: number;
+  };
+}>({
+  insureConfig: {
+    logoLocation: undefined,
+    logoUrl: '',
+    readingReminder: '',
+    acceptReminder: '',
+    readingSeconds: 10,
+    buttonTitle: '我知道了',
   },
-  statement: '',
 });
 
 const STORAGE_PREFIX = 'PRENOTICE';
@@ -72,22 +87,14 @@ const noticeShow = ref<boolean>(false);
 const pdfShow = ref<boolean>(false);
 
 const sessionStorage = new Storage({ source: 'sessionStorage' });
-const countDown = useCountDown({
-  time: 4000,
-  onFinish: () => {
-    sessionStorage.set(`${STORAGE_PREFIX}-isShow`, '1');
-    // noticeShow.value = false;
-  },
-});
+let thread: ThreadType;
 
 const attachmentUri = ref({
   title: '',
   link: '',
 });
 
-const currentTime = computed<number>(() => {
-  return countDown.current.value.seconds;
-});
+const currentTime = ref();
 
 const fileType = computed(() => {
   if (attachmentUri.value.link) {
@@ -118,16 +125,33 @@ const closePopup = () => {
 const initData = async () => {
   const { code, data } = await queryInsurePopupConfig({
     insureCode: props.productDetail.insurerCode,
+    productCode,
     tenantId,
   });
   if (code === '10000') {
-    state.insureConfig = data;
-    state.statement = `本产品由${data.tenantName}销售本页面仅做产品展示，具体承保方案以实际保单约定为准`;
+    state.insureConfig = data as any;
+    currentTime.value = state.insureConfig.readingSeconds || 0;
+    // state.statement = `本产品由${data.tenantName}销售本页面仅做产品展示，具体承保方案以实际保单约定为准`;
+    thread = useThread({
+      start: () => {
+        console.log('开始轮询');
+        currentTime.value -= 1;
+      },
+      stop: () => {
+        console.log('结束轮询');
+        sessionStorage.set(`${STORAGE_PREFIX}-isShow`, '1');
+      },
+      time: 1000,
+      number: state.insureConfig.readingSeconds || 0,
+    });
     nextTick(() => {
-      countDown.start();
+      thread.run();
     });
   }
   noticeShow.value = true;
+  // useEventListener(noticeRef, 'click', (e) => {
+  //   console.dir(e.target, 'sslslwwowp');
+  // });
 };
 
 onMounted(() => {
@@ -143,9 +167,12 @@ onMounted(() => {
     img {
       width: 100%;
     }
+    margin-bottom: $zaui-card-border;
   }
   .content {
     padding: $zaui-card-border;
+    margin-top: $zaui-card-border;
+    padding-top: 0;
     p {
       margin-top: 20px;
       font-size: 28px;
@@ -184,6 +211,11 @@ onMounted(() => {
   font-size: 28px;
   color: #616161;
   text-align: left;
+
+  &.up {
+    margin-top: $zaui-card-border;
+    margin-bottom: $zaui-card-border;
+  }
 }
 </style>
 <!-- <style scoped lang="scss">
