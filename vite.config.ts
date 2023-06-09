@@ -76,7 +76,7 @@ export default defineConfig((env) => {
           entryFileNames: 'static/js/[name]-[hash].js',
           assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
           manualChunks: {
-            echarts: ['echarts'],
+            // echarts: ['echarts'],
             // pdfh5: ['pdfh5'],
           },
         },
