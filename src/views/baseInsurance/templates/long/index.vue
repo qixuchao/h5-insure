@@ -319,10 +319,7 @@ const initData = async () => {
   await getInsureProductDetail({ productCode, isTenant: false }).then(({ data, code }) => {
     if (code === '10000') {
       showFooterBtn.value = true;
-      setTimeout(() => {
-        preNoticeLoading.value = true;
-      }, 1000);
-
+      preNoticeLoading.value = true;
       insureProductDetail.value = data;
       currentPlanObj.value = data.productPlanInsureVOList?.[0];
       planList.value = (data.productPlanInsureVOList || [])
