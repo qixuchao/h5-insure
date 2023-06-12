@@ -76,7 +76,7 @@ const state = reactive<{
     logoUrl: '',
     readingReminder: '',
     acceptReminder: '',
-    readingSeconds: 10,
+    readingSeconds: 0,
     buttonTitle: '我知道了',
   },
 });
