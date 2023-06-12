@@ -1,1 +1,0 @@
-import{d as a,a3 as s,b as e,g as t,w as o,i as l}from"./index-c26f5a93.js";const n=l("img",{src:"/static/png/logo-c907ee91.png",alt:"logo",style:{margin:"100px auto",width:"200px",display:"block"}},null,-1),i=a({__name:"index",setup:a=>(a,l)=>{const i=s("ProPageWrap");return e(),t(i,{"main-class":"page-home"},{default:o((()=>[n])),_:1})}});export{i as default};
