@@ -26,8 +26,8 @@
 <script lang="ts" setup name="ProFiled">
 import { useAttrs, useSlots, PropType, inject } from 'vue';
 import type { FieldProps, FieldRule } from 'vant';
-import isNil from 'lodash/isNil';
-import isObject from 'lodash/isObject';
+import isNil from 'lodash-es/isNil';
+import isObject from 'lodash-es/isObject';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import ValueView from './ProFormItem/ValueView.vue';
 import { VAN_PRO_FORM_KEY, RELATED_RULE_TYPE_MAP, relatedConfigMap, handleSlots, validatorMap } from '../utils';

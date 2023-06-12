@@ -17,7 +17,7 @@
 
 <script lang="ts" setup>
 import { withDefaults, CSSProperties } from 'vue';
-import 'vue3-photo-preview/dist/index.css';
+// import 'vue3-photo-preview/dist/index.css';
 /**
  * 库地址： https://www.npmjs.com/package/vue3-photo-preview
  */

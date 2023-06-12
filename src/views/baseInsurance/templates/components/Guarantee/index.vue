@@ -98,7 +98,6 @@ import { isApp } from '@/utils';
 import { openPDFWithUrl } from '@/utils/jsbridgePromise';
 import ProSvg from '@/components/ProSvg/index.vue';
 import ProDivider from '@/components/ProDivider/index.vue';
-import serviceConfig from '@/assets/images/chuangxin/serviceConfig.png';
 import { openPreviewFilePage } from '@/views/baseInsurance/utils';
 import { ProductDetail } from '@/api/modules/newTrial.data';
 import { YES_NO_ENUM } from '@/common/constants';

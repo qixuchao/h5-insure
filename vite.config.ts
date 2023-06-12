@@ -1,7 +1,8 @@
 /* eslint-disable no-shadow */
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, type PluginOption, loadEnv } from 'vite';
 import path, { resolve } from 'path';
 import vueSetupExtend from 'vite-plugin-vue-setup-extend';
+import stats from 'vite-plugin-stats-html';
 import presets from './presets/presets';
 
 // https://vitejs.dev/config/
@@ -12,7 +13,7 @@ export default defineConfig((env) => {
   return {
     base: viteEnv.VITE_BASE,
     // 插件
-    plugins: [presets(env), vueSetupExtend()],
+    plugins: [presets(env), vueSetupExtend(), stats() as PluginOption],
     // 别名设置
     resolve: {
       alias: {
@@ -78,8 +79,8 @@ export default defineConfig((env) => {
           entryFileNames: 'static/js/[name]-[hash].js',
           assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
           manualChunks: {
-            echarts: ['echarts'],
-            pdfh5: ['pdfh5'],
+            // echarts: ['echarts'],
+            // pdfh5: ['pdfh5'],
           },
         },
       },
