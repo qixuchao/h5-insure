@@ -1,5 +1,5 @@
 <template>
-  <ProFieldV2 class="com-van-radio-wrap" v-bind="filedAttrs" :model-value="state.modelValue">
+  <ProFieldV2 class="com-van-radio-wrap" v-bind="filedAttrs" :model-value="state.modelValue" :disabled="disabled">
     <template #input>
       <ValueView v-if="isView" :value="fieldValueView" />
       <template v-else>
@@ -8,16 +8,21 @@
             v-for="column in state.columns"
             :key="column.value"
             :label="column.text"
-            :disabled="column.disabled"
+            :disabled="column.disabled || disabled"
             :activated="state.modelValue == column.value"
             :icon-name="column.iconName"
             @click="onClick(column)"
           />
         </template>
-        <van-radio-group v-else v-model="state.modelValue" v-bind="attrs">
-          <van-radio v-for="column in state.columns" :key="column.value" :name="column.value" v-bind="column">{{
-            column.label
-          }}</van-radio>
+        <van-radio-group v-else v-model="state.modelValue" v-bind="attrs" :disabled="disabled">
+          <van-radio
+            v-for="column in state.columns"
+            :key="column.value"
+            :name="column.value"
+            v-bind="column"
+            :disabled="disabled"
+            >{{ column.label }}</van-radio
+          >
         </van-radio-group>
       </template>
     </template>
@@ -86,6 +91,13 @@ const props = defineProps({
     type: Object,
     default: () => ({ text: 'label', value: 'value', children: 'children' }),
   },
+  /**
+   * 是否可用
+   */
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -113,8 +125,8 @@ const handleSelect = (value) => {
   emit('update:modelValue', value);
 };
 
-const onClick = ({ disabled, value }: Column) => {
-  if (!((attrs.value as RadioAttrs).disabled || disabled)) {
+const onClick = ({ disabled: dis, value }: Column) => {
+  if (!((attrs.value as RadioAttrs).disabled || dis || props.disabled)) {
     handleSelect(value);
   }
 };
@@ -132,6 +144,7 @@ watch(
 watch(
   () => formState.formData?.[filedAttrs.value.name],
   (val) => {
+    if (val === undefined && state.modelValue !== undefined) return;
     state.modelValue = val as string | number;
   },
   {

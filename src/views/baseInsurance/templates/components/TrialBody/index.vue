@@ -708,6 +708,10 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
           changeVO.changeType = 1;
           break;
         }
+        case 'paymentFrequency': {
+          changeVO.changeType = 4;
+          break;
+        }
         default: {
           break;
         }

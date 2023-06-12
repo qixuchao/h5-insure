@@ -1,7 +1,7 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
     <ProPageWrap class="page-create-wrapper">
-      <div class="container">
+      <div class="proposal-header">
         <ProRenderForm ref="formRef" class="mb20" :model="stateInfo.insuredPersonVO">
           <ProFieldV2
             v-model="stateInfo.insuredPersonVO.proposalName"
@@ -10,11 +10,41 @@
             :maxlength="20"
           />
         </ProRenderForm>
-        <ProRenderFormWithCard ref="insuredFormRef" title="被保人信息" :model="stateInfo.insuredPersonVO">
-          <ProFieldV2 v-model="stateInfo.insuredPersonVO.name" label="姓名" name="name" :maxlength="20" required />
-
+        <InsurerList
+          :config="stateInfo"
+          :insurer-list="stateInfo.insurerList"
+          :can-change-select="true"
+          @current-change="handleCurrentInsureChange"
+          @add="handleAddInsure"
+          @delete="handleDeleteInsure"
+        />
+      </div>
+      <div v-if="stateInfo.insurerList[stateInfo.currentSelectInsure]" class="container">
+        <ProRenderFormWithCard
+          ref="insuredFormRef"
+          title="被保人信息"
+          :model="stateInfo.insurerList[stateInfo.currentSelectInsure]"
+          class="insure-container"
+        >
           <ProFieldV2
-            v-model="stateInfo.insuredPersonVO.age"
+            v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.name"
+            label="姓名"
+            name="name"
+            :maxlength="20"
+            required
+          />
+          <ProPickerV2
+            v-if="stateInfo.currentSelectInsure !== 0 && stateInfo.insurerList[stateInfo.currentSelectInsure]"
+            v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToHolder"
+            label="关系"
+            :is-default-selected="true"
+            name="relationToHolder"
+            :columns="relationColumn()"
+            required
+          >
+          </ProPickerV2>
+          <ProFieldV2
+            v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.age"
             class="age-field-wrap"
             name="age"
             label="年龄"
@@ -25,7 +55,7 @@
           >
             <template #extra>
               <ProDatePickerV2
-                v-model="stateInfo.insuredPersonVO.birthday"
+                v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.birthday"
                 class="birthday-field-wrap"
                 label="出生日期"
                 name="birthday"
@@ -34,16 +64,20 @@
             </template>
           </ProFieldV2>
           <ProRadioV2
-            v-model="stateInfo.insuredPersonVO.gender"
+            v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.gender"
             label="性别"
             name="gender"
             :columns="sexList"
+            :disabled="
+              stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToHolder ===
+              RELATION_HOLDER_ENUM.MATE
+            "
             required
           />
         </ProRenderFormWithCard>
 
         <ProCard
-          v-for="(productItem, index) in stateInfo.productList"
+          v-for="(productItem, index) in stateInfo.insurerList[stateInfo.currentSelectInsure].productList"
           :key="`${productItem.nanoid}_${index}_${productItem.productCode}`"
           class="product-item-card"
           :show-line="false"
@@ -52,7 +86,7 @@
           <ProductList
             :product-risk-list="productItem.riskList"
             :product-info="productItem"
-            :product-num="stateInfo.productList?.length - 1"
+            :product-num="stateInfo.insurerList[stateInfo.currentSelectInsure].productList?.length - 1"
             :product-data="stateInfo.productCollection[productItem.productCode]"
             :error-msg="stateInfo.productErrorMap[productItem.productCode]"
             :product-index="index"
@@ -112,6 +146,7 @@ import { nanoid } from 'nanoid';
 import { useRouter, useRoute } from 'vue-router';
 import isEqual from 'lodash-es/isEqual';
 import debounce from 'lodash-es/debounce';
+import { cloneDeep } from 'lodash';
 import { SUCCESS_CODE } from '@/api/code';
 import { getDic } from '@/api/index';
 import { DictData } from '@/api/index.data';
@@ -134,6 +169,8 @@ import ProductList from './components/ProductList/index.vue';
 // import ProductRisk from './components/ProductRisk/index.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import useTheme from '@/hooks/useTheme';
+import InsurerList from './components/InsurerSelect/index.vue';
+import { RELATION_HOLDER_LIST, RELATION_HOLDER_ENUM } from '@/common/constants/product';
 
 interface State {
   productCode: number;
@@ -203,6 +240,8 @@ interface StateInfo {
   currentProductCode: string;
   holder: Partial<ProposalHolder>;
   insuredPersonVO: Partial<ProposalHolder>;
+  insurerList: ProposalHolder[];
+  currentSelectInsure: number;
   productList: ProposalInsuredProductItem[];
   productCollection: {
     [x: string]: ProductData;
@@ -218,12 +257,14 @@ interface StateInfo {
 const stateInfo = reactive<StateInfo>({
   selectedProductCodeList: [],
   insuredPersonVO: {},
+  insurerList: [],
   currentProductCode: '',
   holder: {},
   productList: [],
   productCollection: {},
   productErrorMap: {},
   defaultData: null,
+  currentSelectInsure: 0,
 });
 
 // 是否试算过
@@ -233,8 +274,18 @@ const insuredFormRef = ref(null);
 
 /** 当前计划书的产品CodeList */
 const currentProductCodeList = computed(() => {
-  return stateInfo.productList.map((item) => item.productCode).filter((code) => Boolean(code));
+  if (!stateInfo.insurerList[stateInfo.currentSelectInsure]?.productList) return [];
+  return stateInfo.insurerList[stateInfo.currentSelectInsure].productList
+    .map((item) => item.productCode)
+    .filter((code) => Boolean(code));
 });
+
+const currentProductCodeListFn = () => {
+  console.log('------', stateInfo.insurerList, stateInfo.currentSelectInsure);
+  return stateInfo.insurerList[stateInfo.currentSelectInsure].productList
+    .map((item) => item.productCode)
+    .filter((code) => Boolean(code));
+};
 
 /** 性别限制 */
 const sexLimit = computed(() => {
@@ -260,6 +311,14 @@ const currentProductPlanDetail = computed(() => {
   return currentProductDetail.value?.productPlanInsureVOList?.[0] || {};
 });
 
+const multiInsured = computed(() => {
+  console.log(
+    '----- currentProductDetail.value?.productPlanInsureVOList?.[0]?.multiInsuredConfigVO = ',
+    stateInfo.currentProductCode,
+  );
+  return currentProductDetail.value?.productPlanInsureVOList?.[0]?.multiInsuredConfigVO;
+});
+
 /** 产品是否有错误信息 */
 const submitDisable = computed(() => {
   // debugger;
@@ -280,6 +339,24 @@ const totalPremium = computed(() => {
   }, 0);
 });
 
+const relationColumn = () => {
+  const mateIndex = stateInfo.insurerList.findIndex(({ personVO }) => {
+    return personVO.relationToHolder === RELATION_HOLDER_ENUM.MATE;
+  });
+  const newMap = RELATION_HOLDER_LIST.map((conf) => {
+    if (conf.value === RELATION_HOLDER_ENUM.MATE && mateIndex >= 0 && mateIndex !== stateInfo.currentSelectInsure) {
+      return {
+        ...conf,
+        disabled: true,
+      };
+    }
+    return {
+      ...conf,
+    };
+  });
+  return newMap;
+};
+
 // 设置产品错误信息
 const setProductError = (productCode, msg = '') => {
   stateInfo.productErrorMap[productCode] = msg;
@@ -288,7 +365,7 @@ const setProductError = (productCode, msg = '') => {
 /** 合并数据到 productList  */
 // eslint-disable-next-line consistent-return
 const combineToProductList = (productInfo: PlanTrialData) => {
-  const currentIndex = stateInfo.productList.findIndex(
+  const currentIndex = stateInfo.insurerList[stateInfo.currentSelectInsure].productList.findIndex(
     (productItem) => productItem.productCode === productInfo.productCode,
   );
 
@@ -298,14 +375,14 @@ const combineToProductList = (productInfo: PlanTrialData) => {
   };
 
   if (currentIndex === -1) {
-    stateInfo.productList.push(tempData);
+    stateInfo.insurerList[stateInfo.currentSelectInsure].productList.push(tempData);
     return false;
   }
-  const currentProductItem = stateInfo.productList[currentIndex];
+  const currentProductItem = stateInfo.insurerList[stateInfo.currentSelectInsure].productList[currentIndex];
   const { riskList, ...rest } = tempData;
 
   // 合并两边的险种属性
-  stateInfo.productList[currentIndex] = {
+  stateInfo.insurerList[stateInfo.currentSelectInsure].productList[currentIndex] = {
     ...tempData,
     ...rest,
     riskList: isNotEmptyArray(riskList)
@@ -343,8 +420,9 @@ const onFinished = (productInfo: PlanTrialData) => {
 const addProduct = () => {
   store.setProposalInfo(proposalInfo.value);
 
-  store.setExcludeProduct(currentProductCodeList.value);
-  store.setInsuredPersonVO(stateInfo.insuredPersonVO);
+  console.log('---value = ', currentProductCodeListFn());
+  store.setExcludeProduct(currentProductCodeListFn());
+  store.setInsuredPersonVO(stateInfo.insurerList[stateInfo.currentSelectInsure].personVO);
 
   router.push({
     path: '/proposalListSelect',
@@ -405,6 +483,7 @@ const queryProductInfo = (searchData: any) => {
 
 // 获取试算默认值
 const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[], flag = false) => {
+  console.log('----fetchDefaultData', calcProductFactorList);
   if (!isNotEmptyArray(calcProductFactorList)) {
     return;
   }
@@ -438,7 +517,24 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
           Object.assign(stateInfo.insuredPersonVO, personVO);
           Object.assign(stateInfo.holder, holder);
         }
-        const currentIndex = currentProductCodeList.value.findIndex((codeItem) => codeItem === productCode);
+        insuredList.forEach((insured: any, index: number) => {
+          const { productList: products, ...p } = insured;
+
+          if (stateInfo.insurerList[index]) {
+            Object.assign(stateInfo.insurerList[index].personVO, p);
+            stateInfo.insurerList[index].productList = products.map((pro) => {
+              return { ...pro, productCode };
+            });
+          } else {
+            stateInfo.insurerList.push({
+              productList: products.map((pro) => {
+                return { ...pro, productCode };
+              }),
+              personVO: p,
+            });
+          }
+        });
+        const currentIndex = currentProductCodeListFn().findIndex((codeItem) => codeItem === productCode);
         if (currentIndex > -1) {
           stateInfo.productList[currentIndex] = tempData;
         } else {
@@ -478,7 +574,7 @@ const queryProposalInfo = (params = {}) => {
  * @param code
  */
 const handleCalcDynamicInsure = (code: string) => {
-  return stateInfo.productList
+  return stateInfo.insurerList[stateInfo.currentSelectInsure].productList
     .filter((item) => item.productCode === code)
     .map(({ productCode, riskList }) => {
       // 原始数据
@@ -524,7 +620,9 @@ const handleCalcDynamicInsure = (code: string) => {
  * @param productCode
  */
 const convertProposalToTrialData = (productCode) => {
-  const { riskList, ...rest } = stateInfo.productList.find((item) => item.productCode === productCode) || {};
+  const { riskList, ...rest } =
+    stateInfo.insurerList[stateInfo.currentSelectInsure].productList.find((item) => item.productCode === productCode) ||
+    {};
 
   return {
     holder: {
@@ -560,7 +658,7 @@ const calcDynamicInsureFactor = async (productCode) => {
       },
     );
     if (code === '10000' && isNotEmptyArray(data)) {
-      stateInfo.productList.forEach(({ productCode: pCode, riskList }) => {
+      stateInfo.insurerList[stateInfo.currentSelectInsure].productList.forEach(({ productCode: pCode, riskList }) => {
         const { productRiskDyInsureFactorVOList } = data[0] || data.find((item) => item.productCode === pCode) || {};
         riskList.forEach((riskItem) => {
           const currentRiskItem = productRiskDyInsureFactorVOList.find((item) => item.riskCode === riskItem.riskCode);
@@ -588,7 +686,9 @@ const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
   Dialog.confirm({ message: '确认删除该险种？' }).then(() => {
     // 删除主险等同于删除整个产品信息
     if (riskInfo.riskType === 1) {
-      stateInfo.productList = stateInfo.productList
+      stateInfo.insurerList[stateInfo.currentSelectInsure].productList = stateInfo.insurerList[
+        stateInfo.currentSelectInsure
+      ].productList
         .filter((product: ProposalInsuredProductItem) => product.productCode !== currentProduct.productCode)
         .map((item) => ({ ...item, nanoid: nanoid() }));
     } else {
@@ -659,6 +759,31 @@ const selectAction = (item: ActionSheetAction, index: number) => {
   submitData(index ? undefined : id);
 };
 
+const handleCurrentInsureChange = (index: number) => {
+  stateInfo.currentSelectInsure = index;
+};
+
+const handleAddInsure = (data: any, index: number) => {
+  if (stateInfo.insurerList.length - 1 === index) {
+    // 说明添加的就是最后一个
+    const mateIndex = stateInfo.insurerList.findIndex((insure) => {
+      if (insure && insure.personVO) return insure.personVO.relationToHolder === RELATION_HOLDER_ENUM.MATE;
+      return false;
+    });
+    stateInfo.insurerList[index] = {
+      ...data,
+      personVO: {
+        relationToHolder: mateIndex < 0 ? RELATION_HOLDER_ENUM.MATE : '',
+        gender: mateIndex < 0 ? (stateInfo.insurerList[0].personVO.gender === 1 ? 2 : 1) : '',
+      },
+      productList: [],
+    };
+  }
+  stateInfo.currentSelectInsure = index;
+};
+
+const handleDeleteInsure = (index: number) => {};
+
 /** 被保人数据变动 */
 watch(
   () => trialFieldkeys.map((key) => stateInfo.insuredPersonVO[key]),
@@ -666,7 +791,7 @@ watch(
     if (val.join(',') !== oldVal.join(',')) {
       console.log('被保人条件变动');
       if (isNotEmptyArray(Object.keys(stateInfo.productCollection))) {
-        currentProductCodeList.value.forEach((code) => calcDynamicInsureFactor(code));
+        currentProductCodeListFn().forEach((code) => calcDynamicInsureFactor(code));
       }
     }
   },
@@ -680,7 +805,7 @@ watch(
   () => stateInfo.selectedProductCodeList,
   debounce((val) => {
     if (isNotEmptyArray(val)) {
-      console.log('选择的产品变动了', val);
+      console.log('选择的产品变动了', val, cloneDeep(stateInfo.insurerList));
       fetchDefaultData(val.map((productCode) => ({ productCode })));
 
       // 获取产品详情
@@ -693,6 +818,7 @@ watch(
           })),
         );
       }
+      console.log('-----', cloneDeep(stateInfo.insurerList));
     }
   }),
   {
@@ -728,6 +854,12 @@ onBeforeMount(() => {
 <style lang="scss" scoped>
 .page-create-wrapper {
   background-color: $zaui-global-bg;
+  .proposal-header {
+    width: 100%;
+    :deep(.van-cell__title) {
+      font-weight: 600;
+    }
+  }
   .border-radius {
     border-radius: $zaui-border-radius-card;
     .plan-name {
@@ -740,12 +872,17 @@ onBeforeMount(() => {
       padding: 0;
     }
   }
+
   .product-item-card {
     margin-bottom: 20px;
+    border-radius: 20px;
   }
   .container {
     padding: 30px 30px 200px 30px;
-
+    .insure-container {
+      border-radius: 20px;
+      overflow: hidden;
+    }
     .mb20 {
       margin-bottom: 20px;
     }

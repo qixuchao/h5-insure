@@ -62,7 +62,7 @@ const props = defineProps({
    * 值列
    */
   columns: {
-    type: Array as () => Array<{ label: string; value: number | string }>,
+    type: Array as () => Array<{ label: string; value: number | string; disabled: boolean }>,
     default: () => [],
   },
   /**
