@@ -50,7 +50,7 @@
     </template>
     <div v-else class="preview-placeholder">当前页面仅用于保费试算预览<br />不展示其他产品相关配置信息</div>
 
-    <!-- <template v-if="showFooterBtn && isLoadDefaultValue">
+    <template v-if="showFooterBtn && isLoadDefaultValue">
       <TrialPop
         ref="trialRef"
         :data-source="currentPlanObj"
@@ -69,7 +69,7 @@
         :tenant-product-detail="tenantProductDetail"
         :hide-benefit="insureProductDetail.openFlag !== 1"
       ></TrialPop>
-    </template> -->
+    </template>
     <div id="insureButton"></div>
   </div>
   <ProLazyComponent>
