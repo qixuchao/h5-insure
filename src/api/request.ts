@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
-import axiosRetry from 'axios-retry';
+// import axiosRetry from 'axios-retry';
 import { Toast } from 'vant/es';
 import useLoading from '@/hooks/useLoading';
 import Storage from '@/utils/storage';

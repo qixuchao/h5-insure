@@ -29,7 +29,15 @@ const start = async () => {
   dayjs.locale({ ...zh, weekStart: 1 });
   const app = createApp(App);
 
-  app.use(VueDOMPurifyHTML);
+  app.use(VueDOMPurifyHTML, {
+    hooks: {
+      afterSanitizeAttributes: (currentNode) => {
+        if ('target' in currentNode) {
+          currentNode.setAttribute('target', '_blank');
+        }
+      },
+    },
+  });
   app.use(router).use(store);
   // app.use(Vant);
   // app.use(Lazyload);

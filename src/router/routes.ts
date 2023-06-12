@@ -113,13 +113,7 @@ const baseInsurance = [
     name: 'InsuranceShort',
     path: '/baseInsurance/short',
     meta: { title: '', keepAlive: true, requireWxJs: false },
-    component: () => import('@/views/baseInsurance/templates/short3.vue'),
-  },
-  {
-    name: 'baseInsuranceShort3',
-    path: '/baseInsurance/short3',
-    meta: { title: '', keepAlive: true, requireWxJs: false },
-    component: () => import('@/views/baseInsurance/templates/short3.vue'),
+    component: () => import('@/views/baseInsurance/templates/short.vue'),
   },
   // 短险-升级款（魔方）
   {
@@ -246,19 +240,6 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     path: '/pdfViewer',
     meta: { title: 'PDF预览' },
     component: () => import('@/views/openPdf/index.vue'),
-  },
-
-  {
-    name: 'consult',
-    path: '/consult',
-    meta: { title: '咨询登记' },
-    component: () => import('@/views/consult/index.vue'),
-  },
-  {
-    name: 'result',
-    path: '/result',
-    meta: { title: '登记成功' },
-    component: () => import('@/views/consult/result.vue'),
   },
   {
     name: '收银台',

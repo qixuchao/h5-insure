@@ -56,7 +56,6 @@ declare type AnyObject = {
   [key: string]: any;
 }
 
-declare module 'clipic'
 // declare class XFlow {
 //   constructor (option: any)
 // };

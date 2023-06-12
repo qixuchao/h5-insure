@@ -1,7 +1,8 @@
 /* eslint-disable no-shadow */
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, type PluginOption, loadEnv } from 'vite';
 import path, { resolve } from 'path';
 import vueSetupExtend from 'vite-plugin-vue-setup-extend';
+import stats from 'vite-plugin-stats-html';
 import presets from './presets/presets';
 
 // https://vitejs.dev/config/
@@ -12,7 +13,7 @@ export default defineConfig((env) => {
   return {
     base: viteEnv.VITE_BASE,
     // 插件
-    plugins: [presets(env), vueSetupExtend()],
+    plugins: [presets(env), vueSetupExtend(), stats() as PluginOption],
     // 别名设置
     resolve: {
       alias: {
@@ -41,10 +42,12 @@ export default defineConfig((env) => {
           // 本地 8000 前端代码的接口 代理到 8888 的服务端口
           // target: 'https://techmall.zaouter.com',
           // target: 'https://zat-planet-h5-cloud-insure-pre.zhongan.io',
-          target: 'http://zat-planet-gateway.test.za-tech.net',
+          // target: 'http://zat-planet-gateway.test.za-tech.net',
           // target: 'https://gateway-tst.ennejb.cn',
-          // target: 'https://h5-test.ennejb.cn',
-          // target: 'http://199272-zat-planet-gateway.test.za-tech.net',
+          // target: 'https://zat-planet-h5-cloud-insure-pre.zhongan.io',
+          // target: 'http://zat-planet-gateway.test.za-tech.net',
+          target: 'https://199272-zat-planet-gateway.test.za-tech.net',
+          // target: 'https://h5-test.ennejb.cn',http://177716-zat-planet-gateway.test.za-tech.net/
           // target: 'http://zat-planet-gateway.test.za-tech.net',
           // target: 'https://zat-planet-h5-cloud-insure-test.zhongan.io',
           // target: 'http://zat-planet-gateway.test.za-tech.net',
@@ -76,8 +79,8 @@ export default defineConfig((env) => {
           entryFileNames: 'static/js/[name]-[hash].js',
           assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
           manualChunks: {
-            echarts: ['echarts'],
-            pdfh5: ['pdfh5'],
+            // echarts: ['echarts'],
+            // pdfh5: ['pdfh5'],
           },
         },
       },

@@ -45,7 +45,6 @@
   <ProDivider />
 </template>
 <script lang="ts" setup name="paymentType">
-import { cloneDeep } from 'lodash';
 import type { FormInstance } from 'vant';
 import { withDefaults } from 'vue';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';

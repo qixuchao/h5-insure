@@ -16,7 +16,6 @@
     />
     <ProRadioV2 label="性别" name="sex" :columns="gener" required />
 
-    <ProCascaderV2 label="职业" name="occupation" show-full-value :columns="area" />
     <ProAddress label="地址" name="address" :columns="area" />
 
     <!-- <van-divider content-position="left">Calendar 日历</van-divider> -->
@@ -80,7 +79,7 @@ import {
   ProAddress,
   ProSMSCode,
 } from '@/components/RenderForm';
-import { data, area } from './data';
+import { data } from './data';
 
 const demoFormRef = ref(null);
 

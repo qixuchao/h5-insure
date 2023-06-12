@@ -15,7 +15,7 @@ import { useRoute } from 'vue-router';
 import { onMounted } from 'vue';
 import { nanoid } from 'nanoid';
 import { Toast } from 'vant/es';
-import Pdfh5 from 'pdfh5';
+// import Pdfh5 from 'pdfh5';
 import ProShare from '@/components/ProShare/index.vue';
 import 'pdfh5/css/pdfh5.css';
 import { downloadPDFWithUrl } from '@/utils/jsbridgePromise';
@@ -32,8 +32,9 @@ const id = nanoid();
 
 const pdfh5 = ref<any>(null);
 
-const loadPdfCanvas = () => {
+const loadPdfCanvas = async () => {
   try {
+    const { default: Pdfh5 } = await import('pdfh5');
     pdfh5.value = new Pdfh5(`#${id}`, {
       pdfurl: url,
       renderType: 'canvas',

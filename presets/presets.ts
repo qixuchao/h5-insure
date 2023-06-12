@@ -11,12 +11,12 @@ import PkgConfig from 'vite-plugin-package-config';
 import checker from 'vite-plugin-checker';
 import ViteFonts from 'vite-plugin-fonts';
 import { ConfigEnv } from 'vite';
+// import { Plugin as importToCDN } from "vite-plugin-cdn-import"
 // 重新启用插件 vite-plugin-style-import 的原因见 Issue：https://github.com/antfu/unplugin-vue-components/issues/301
 // 对于 ElMessage 组件的第一次扫描失效，只有手动进入了页面才会加载
 import styleImport, { VantResolve } from 'vite-plugin-style-import';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import viteCompression from 'vite-plugin-compression'; // gzip压缩
-import legacyPlugin from '@vitejs/plugin-legacy';
 const path = require('path');
 
 import { SkeletonPlaceholderPlugin } from '../skeleton/plugins/vitePlugin';
@@ -35,6 +35,15 @@ export default (env: ConfigEnv) => {
     }),
     vueJsx(),
     svgLoader(),
+    // importToCDN({
+    //   modules: [
+    //     {
+    //       name: "vue",
+    //       var: "vue",
+    //       path: "https://cdn.bootcdn.net/ajax/libs/vue/3.2.25/vue.cjs.js",
+    //     },
+    //   ],
+    // }),
     AutoImport({
       dts: true,
       /* eslint-disable no-sparse-arrays */
@@ -89,20 +98,27 @@ export default (env: ConfigEnv) => {
     //   ext: '.gz',
     //   // deleteOriginFile: true,
     // }),
+    // viteCompression({
+    //   algorithm: 'gzip',
+    //   threshold: 10240,
+    //   verbose: false,
+    //   deleteOriginFile: true
+
+    // }),
     PkgConfig(),
     env.mode === 'production'
       ? null
       : checker({
-          // 校验ts
-          enableBuild: false,
-          typescript: true,
-          vueTsc: true,
-          eslint: {
-            lintCommand: 'eslint "./src/**/*.{ts,tsx,vue}"',
-            dev: {
-              logLevel: ['error'],
-            },
+        // 校验ts
+        enableBuild: false,
+        typescript: true,
+        vueTsc: true,
+        eslint: {
+          lintCommand: 'eslint "./src/**/*.{ts,tsx,vue}"',
+          dev: {
+            logLevel: ['error'],
           },
-        }),
+        },
+      }),
   ];
 };

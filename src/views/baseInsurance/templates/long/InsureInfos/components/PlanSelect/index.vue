@@ -11,7 +11,6 @@
 </template>
 <script lang="ts" setup name="PlanSelect">
 import { ref, watch, withDefaults } from 'vue';
-import { cloneDeep } from 'lodash';
 import { RiskVoItem, RiskAmountPremiumConfig } from '@/api/modules/trial.data';
 import { PREMIUM_UNIT_TYPE_ENUM } from '@/common/constants/infoCollection';
 

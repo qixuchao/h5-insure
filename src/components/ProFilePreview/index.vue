@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { nanoid } from 'nanoid';
 import { Toast } from 'vant/es';
-import Pdfh5 from 'pdfh5';
+// import Pdfh5 from 'pdfh5';
 import QuestionPreview from './question.vue';
 import 'pdfh5/css/pdfh5.css';
 
@@ -70,8 +70,9 @@ const show = ref(false);
 
 const pdfh5 = ref<any>(null);
 
-const loadPdfH5Viewer = () => {
+const loadPdfH5Viewer = async () => {
   try {
+    const { default: Pdfh5 } = await import('pdfh5');
     pdfh5.value = new Pdfh5(`#${id}`, {
       pdfurl: props.content,
       lazy: true,

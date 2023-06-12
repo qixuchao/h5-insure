@@ -37,7 +37,8 @@
 import { inject, withDefaults } from 'vue';
 import { Toast } from 'vant/es';
 import { objectKeys } from '@antfu/utils';
-import { cloneDeep, debounce } from 'lodash';
+import debounce from 'lodash-es/debounce';
+import cloneDeep from 'lodash-es/cloneDeep';
 import {
   INSURANCE_PERIOD_VALUE,
   PAYMENT_PERIOD_VALUE,

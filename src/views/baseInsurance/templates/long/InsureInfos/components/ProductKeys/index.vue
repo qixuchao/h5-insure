@@ -30,7 +30,7 @@
 </template>
 <script lang="ts" setup name="ProductKeys">
 import { ref, watch, withDefaults } from 'vue';
-import { set, get, cloneDeep } from 'lodash';
+import get from 'lodash-es/get';
 import { RiskVoItem, ProductRiskInsureLimit, RiskDetailVoItem } from '@/api/modules/trial.data';
 import { PRODUCT_KEYS_CONFIG } from './config';
 

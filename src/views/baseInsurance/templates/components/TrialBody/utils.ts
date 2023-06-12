@@ -1,4 +1,4 @@
-import { isNaN } from 'lodash';
+import isNaN from 'lodash-es/isNaN';
 import { text } from 'stream/consumers';
 import { RiskDetailVoItem, PremiumCalcData } from '@/api/modules/trial.data';
 
