@@ -33,7 +33,12 @@
       <div v-loading="loading">
         <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.PENDING" class="footer-button">
           <van-button type="primary" @click.stop="handleDelete">删除</van-button>
-          <van-button type="primary" @click.stop="handleProcess">去处理</van-button>
+          <van-button
+            v-if="ORDER_STATUS_ENUM.UNDERWRITING_FAILED !== detail.orderStatus"
+            type="primary"
+            @click.stop="handleProcess"
+            >去处理</van-button
+          >
         </div>
         <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.PAYING" class="footer-button">
           <van-button type="primary" @click.stop="handleDelete">删除</van-button>
