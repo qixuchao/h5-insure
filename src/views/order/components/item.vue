@@ -25,7 +25,12 @@
       </div>
       <div v-if="detail.orderTopStatus === ORDER_TOP_STATUS_ENUM.PENDING" class="buttons">
         <van-button class="button" @click.stop="handleDelete">删除</van-button>
-        <van-button class="button primary" @click.stop="handleProcess()">去处理</van-button>
+        <van-button
+          v-if="ORDER_STATUS_ENUM.UNDERWRITING_FAILED !== detail.orderStatus"
+          class="button primary"
+          @click.stop="handleProcess()"
+          >去处理</van-button
+        >
       </div>
       <div v-if="detail.orderTopStatus === ORDER_TOP_STATUS_ENUM.PAYING" class="buttons">
         <van-button class="button primary" @click.stop="handlePay">去支付</van-button>
