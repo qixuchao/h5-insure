@@ -75,7 +75,7 @@
 </template>
 
 <script lang="ts" setup name="Banner">
-import { withDefaults, useAttrs } from 'vue';
+import { withDefaults } from 'vue';
 import isEmpty from 'lodash-es/isEmpty';
 import { isNotEmptyArray, YES_NO_ENUM } from '@/common/constants';
 import { ProductFactor, ProductFactorItem } from '@/api/modules/trial.data';
@@ -102,9 +102,6 @@ const PAYMAP_KEY = {
   2: { icon: zhifubaoIcon },
   1: { icon: yinhangkaIcon },
 };
-// { name: '绑定微信支付', icon: wechatIcon, value: '01' },
-// { name: '绑定支付宝支付', icon: zhifubaoIcon, value: '02' },
-// { name: '绑定银行卡支付', icon: yinhangkaIcon, value: '03' },
 
 const WXS = [
   { name: '默认未开启', icon: wxcut1Icon },
@@ -134,10 +131,10 @@ const state = reactive<{
 }>({
   isAutoRenewal: false,
   formData: {
-    isAutoRenewal: 0,
-    paymentMethod: '',
-    bankCardNo: '',
-    payBank: '',
+    isAutoRenewal: 0, // 0 没选择，1 续保，2不续保
+    paymentMethod: '', // 支付方式
+    bankCardNo: '', // 卡号
+    payBank: '', // 开户行code
     bankBranch: '',
   },
   formItems: [],
@@ -149,20 +146,15 @@ const bankList = computed(() => {
 
 const initFactor = (list: ProductFactorItem[]) => {
   const reversalHandle = {
-    autoRenewal: (item: ProductFactorItem) => {
-      if (!isNotEmptyArray(item.attributeValueList)) {
-        state.isAutoRenewal = false;
-        return;
-      }
-      state.isAutoRenewal = +item.attributeValueList[0].code === YES_NO_ENUM.YES;
-    },
     autoRenewalPaymentMethod: (item: ProductFactorItem) => {
+      // 支付方式处理
       PAY_LISTS.value = item.attributeValueList.map((node: any, i: number) => {
-        if (i === 0) state.formData.paymentMethod = node.code;
+        if (i === 0) state.formData.paymentMethod = node.code; // 默认第一个支付方式
         return { ...node, ...PAYMAP_KEY[node.code] };
       });
     },
     bankCard: (item: ProductFactorItem) => {
+      // 银行卡信息
       state.formItems = item.attributeValueList.map((node: any) => {
         return { label: node.value, name: node.code, required: true };
       });
@@ -172,15 +164,15 @@ const initFactor = (list: ProductFactorItem[]) => {
   list.forEach((item: ProductFactorItem) => {
     reversalHandle?.[item.code]?.(item);
   });
-  console.log('state.formItems===+++', state.formItems);
 };
 
 // 投保因子变动
 watch(
   () => props.productFactor,
   (val) => {
+    state.isAutoRenewal = false;
     if (isNotEmptyArray(val[6])) {
-      console.log('val[6]val[6]val[6]', val[6]);
+      state.isAutoRenewal = true;
       initFactor(val[6]);
     }
   },
@@ -190,11 +182,13 @@ watch(
   },
 );
 
+// 监听扩张字段的值，来反显
 watch(
   () => props.extInfo,
   (val) => {
     if (!isEmpty(val.autoRenewalInfo)) {
       state.formData = { ...val.autoRenewalInfo };
+      // 支付方式值类型和要素枚举code类型不一致number->string
       if (val.autoRenewalInfo.paymentMethod) {
         state.formData.paymentMethod = state.formData.paymentMethod.toString();
       }
@@ -209,14 +203,17 @@ watch(
 const validate = () => {
   return new Promise((resolve, reject) => {
     const { isAutoRenewal, paymentMethod } = state.formData;
+    // 没有自动续保，或者不选或者选择不续保或者是微信和支付宝支付
     if (
       !state.isAutoRenewal ||
       [YES_NO_ENUM.NO, 0].includes(state.formData.isAutoRenewal) ||
       ['2', '3'].includes(state.formData.paymentMethod)
     ) {
+      // 不支持续保和没选
       if (!state.isAutoRenewal || isAutoRenewal === 0) {
         resolve({});
       } else if (isAutoRenewal === YES_NO_ENUM.NO) {
+        // 选择不续保
         resolve({ isAutoRenewal: YES_NO_ENUM.NO });
       } else {
         resolve({ isAutoRenewal, paymentMethod });
