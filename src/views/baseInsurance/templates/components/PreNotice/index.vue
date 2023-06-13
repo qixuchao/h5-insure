@@ -16,7 +16,7 @@
     ></div>
     <div class="footer">
       <VanButton type="primary" block round @click="closePopup">
-        好的
+        {{ state.insureConfig.buttonTitle }}
         <span v-if="currentTime">{{ currentTime }}s</span>
       </VanButton>
     </div>
@@ -164,8 +164,11 @@ onMounted(() => {
   .header {
     line-height: 1;
     border: none;
+    height: 100px;
+    text-align: center;
     img {
-      width: 100%;
+      max-width: 100%;
+      max-height: 100%;
     }
     margin-bottom: $zaui-card-border;
   }
