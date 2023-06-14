@@ -82,6 +82,16 @@ const displayList = computed(() => {
     color: #333333;
     line-height: 30px;
     padding: 30px 25px;
+
+    &::before {
+      display: inline-block;
+      content: ' ';
+      width: 8px;
+      height: 28px;
+      background: $primary-color;
+      border-radius: 4px;
+      margin-right: 16px;
+    }
   }
 
   .van-cell {
