@@ -61,6 +61,7 @@
                   v-model="state.formData[node.name]"
                   :name="node.name"
                   :label="node.label"
+                  type="number"
                   :required="node.required"
                   placeholder="请输入"
                 >
@@ -76,6 +77,7 @@
 
 <script lang="ts" setup name="Banner">
 import { withDefaults } from 'vue';
+import { Toast } from 'vant';
 import isEmpty from 'lodash-es/isEmpty';
 import { isNotEmptyArray, YES_NO_ENUM } from '@/common/constants';
 import { ProductFactor, ProductFactorItem } from '@/api/modules/trial.data';
@@ -86,6 +88,7 @@ import yinhangkaIcon from '@/assets/images/baseInsurance/yinhangka.png';
 import wxcut1Icon from '@/assets/images/baseInsurance/wxcut1.png';
 import wxcut2Icon from '@/assets/images/baseInsurance/wxcut2.png';
 import useDicData from '@/hooks/useDicData';
+import { validateBandcard } from '@/utils/validator';
 
 const route = useRoute();
 
@@ -220,6 +223,10 @@ const validate = () => {
       }
     } else {
       formBackRef.value[2].validate().then(() => {
+        if (state.formData.bankCardNo && !validateBandcard(state.formData.bankCardNo)) {
+          Toast('请输入正确的银行卡号');
+          return;
+        }
         resolve(state.formData);
       });
     }

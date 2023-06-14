@@ -116,7 +116,7 @@ import {
   RiskDetailVoItem,
 } from '@/api/modules/product.data';
 import { ProductDetail as ProductData } from '@/api/modules/newTrial.data';
-import { TenantOrderRiskItem, PremiumCalcData, RiskVoItem } from '@/api/modules/trial.data';
+import { TenantOrderRiskItem, PremiumCalcData, RiskVoItem, ProductFactor } from '@/api/modules/trial.data';
 import {
   premiumCalc,
   insureProductDetail as getInsureProductDetail,
@@ -132,7 +132,7 @@ import {
   ORDER_DETAIL_KEY,
   INSURE_TYPE_ENUM,
 } from '@/common/constants/infoCollection';
-import { CERT_TYPE_ENUM } from '@/common/constants';
+import { CERT_TYPE_ENUM, isNotEmptyArray } from '@/common/constants';
 import { PersonalInfo } from '@/views/baseInsurance/templates/long/InsureInfos/components/index';
 import { transformData, riskToTrial, getFileType } from '../utils';
 import Banner from './components/Banner/index.vue';
@@ -566,6 +566,103 @@ const getRiskVOList = () => {
   });
 };
 
+// 排除不需要的数据
+const shakeData = (data, keys) => {
+  if (data) {
+    // 需要保留的字段
+    const extraKeys = ['birthday', 'age', 'gender', 'id'];
+
+    // 若有职业保留职业大类
+    if (keys.includes('occupationCodeList')) {
+      extraKeys.push('occupationClass');
+    }
+    Object.keys(data).forEach((key) => {
+      if (![...keys, ...extraKeys].includes(key)) {
+        data[key] = null;
+      }
+    });
+  }
+};
+
+// 获取要素code列表
+const getFactorCodes = (arr, filterFn = (x: ProductFactor) => true): string[] => {
+  if (isNotEmptyArray(arr)) {
+    return arr.filter(filterFn).map((item) => item.code);
+  }
+  return [];
+};
+
+const dealMixData = () => {
+  console.log('--current plan = ', currentPlanObj.value);
+  console.log('---current submit = ', state.submitData);
+
+  const submitData = cloneDeep(state.userData);
+
+  // 如果不是多计划
+  // if (!isMultiPlan.value) {
+  //   return submitData;
+  // }
+  const { 1: holderFactor, 2: insuredFactor, 3: beneficiaryFactor } = currentPlanObj.value.productFactor || {};
+
+  // 处理投保人信息
+  if (submitData.holder) {
+    shakeData(submitData.holder, getFactorCodes(holderFactor));
+  }
+
+  if (submitData.insuredList) {
+    const ignoreKey = ['productList', 'beneficiaryList'];
+
+    // 主被保人code
+    const mainInsuredFactorCodes = getFactorCodes(
+      insuredFactor,
+      (item: ProductFactor) => String(item.subModuleType) !== '2',
+    );
+
+    // 次被保人code
+    const secondaryInsuredFactorCodes = getFactorCodes(
+      insuredFactor,
+      (item: ProductFactor) => String(item.subModuleType) === '2',
+    );
+
+    // 是否为次被保人
+    const hasSub = isNotEmptyArray(secondaryInsuredFactorCodes);
+
+    // 受益人 code
+    const beneficiaryFactorCodes = getFactorCodes(beneficiaryFactor);
+
+    // 是否有受益人
+    const hasBeneficiary = isNotEmptyArray(beneficiaryFactorCodes);
+
+    submitData.insuredList.forEach((insured, index) => {
+      const targetFactorKeys = index >= 1 && hasSub ? secondaryInsuredFactorCodes : mainInsuredFactorCodes;
+      // 处理被保人信息, 要素有受益人则保留受益人类型字段
+      shakeData(insured, [...targetFactorKeys, ...ignoreKey, ...(hasBeneficiary ? ['insuredBeneficiaryType'] : [])]);
+
+      // 受益人信息 todo
+      if (insured.beneficiaryList?.length > 0) {
+        // 如果有受益人
+        if (hasBeneficiary) {
+          insured.beneficiaryList.forEach((ben) => shakeData(ben, beneficiaryFactorCodes));
+        } else {
+          insured.beneficiaryList.length = 0;
+        }
+      }
+
+      insured.planCode = currentPlanObj.value.planCode;
+      // 处理附加险
+      // const riskList = insured.productList?.[0]?.riskList || [];
+      // const currentPlanRiskList = currentPlanObj.value.insureProductRiskVOList || [];
+      // if (riskList && currentPlanRiskList) {
+      //   const newRiskList = riskList.filter((risk) => {
+      //     return currentPlanRiskList.find((r) => r.riskCode === risk.riskCode) !== null;
+      //   });
+      //   insured.productList[0].riskList = newRiskList;
+      // }
+    });
+  }
+  return submitData;
+};
+
 const handleMixTrialData = debounce(async (isSave = false) => {
   console.log('>>>>>调用试算<<<<<');
   if (state.ifPersonalInfoSuccess || personalInfoRef.value.canTrail()) {
@@ -580,7 +677,7 @@ const handleMixTrialData = debounce(async (isSave = false) => {
     });
     // TODO 处理同主险的相关数据
     state.riskList = getRiskVOList();
-    const submitDataCopy = cloneDeep(state.submitData);
+    const submitDataCopy = state.submitData;
 
     if (submitDataCopy.insuredList?.length) {
       submitDataCopy.insuredList = submitDataCopy.insuredList.map((ins) => {
@@ -716,8 +813,8 @@ watch(
 // 切换计划时
 watch(
   () => currentPlanObj.value,
-  () => {
-    const { oilPackageProductVOList, planCode, insureProductRiskVOList } = currentPlanObj.value;
+  (newVal, oldVal) => {
+    const { oilPackageProductVOList, planCode, insureProductRiskVOList } = newVal || {};
 
     // 设置默认选中的计划
     guaranteeObj.value.planCode = planCode;
@@ -730,6 +827,9 @@ watch(
       ...oli,
       value: INSURE_TYPE_ENUM.UN_INSURE,
     }));
+    if (planCode !== oldVal?.planCode && oldVal?.planCode) {
+      Object.assign(state.userData, dealMixData());
+    }
   },
   {
     deep: true,
