@@ -1,27 +1,39 @@
 <template>
-  <div class="auto-renew-com">
+  <div v-if="state.isAutoRenewal" class="auto-renew-com">
     <div class="title">开通次年自主重新投保</div>
     <div class="btns">
       <img :src="hotIcon" />
-      <div :class="{ btn: true, 'is-active': state.active === '01' }" @click="state.active = '01'">免费开通</div>
-      <div :class="{ btn: true, 'is-active': state.active === '02' }" @click="state.active = '02'">暂不开通</div>
+      <div
+        :class="{ btn: true, 'is-active': state.formData.isAutoRenewal === YES_NO_ENUM.YES }"
+        @click="state.formData.isAutoRenewal = YES_NO_ENUM.YES"
+      >
+        免费开通
+      </div>
+      <div
+        :class="{ btn: true, 'is-active': state.formData.isAutoRenewal === YES_NO_ENUM.NO }"
+        @click="state.formData.isAutoRenewal = YES_NO_ENUM.NO"
+      >
+        暂不开通
+      </div>
     </div>
     <div class="tip">
       <div class="tip-title">开通后可享受</div>
       <div class="tip-row">保单到期自动重新投保，享受保障不间断</div>
       <div class="tip-row">自动重新投保开启后，中途可随时取消</div>
     </div>
-    <div :class="{ 'radio-group': true, 'is-pay': state.active === '01' }">
-      <van-radio-group v-model="state.checked">
+    <div :class="{ 'radio-group': true, 'is-pay': state.formData.isAutoRenewal === YES_NO_ENUM.YES }">
+      <van-radio-group v-model="state.formData.paymentMethod">
         <div v-for="(item, i) in PAY_LISTS" :key="i" class="radio-group-item">
           <div class="row">
             <div class="left">
               <img :src="item.icon" />
-              {{ item.name }}
+              {{ item.value }}
             </div>
-            <van-radio :name="item.value" @click="state.checked = item.value" />
+            <van-radio :name="item.code" @click="state.formData.paymentMethod = item.code" />
           </div>
-          <div :class="{ prefix: true, card: true, show: state.checked === item.value && item.value === '01' }">
+          <div
+            :class="{ prefix: true, card: true, show: state.formData.paymentMethod === item.code && item.code === '3' }"
+          >
             <header>在微信支付时，请开启自动绑卡续保按钮</header>
             <section>
               <div v-for="(node, idx) in WXS" :key="idx" class="node-item">
@@ -30,11 +42,31 @@
               </div>
             </section>
           </div>
-          <div :class="{ prefix: true, form: true, show: state.checked === item.value && item.value === '03' }">
+          <div
+            :class="{ prefix: true, form: true, show: state.formData.paymentMethod === item.code && item.code === '1' }"
+          >
             <header>请填写 <label>投保人</label> 的银行卡借记卡</header>
-            <ProForm ref="formRef">
-              <ProField label="银行卡号" required placeholder="请输入"> </ProField>
-              <ProField label="开户行" required placeholder="请选择"> </ProField>
+            <ProForm ref="formBackRef" show-error :show-error-message="false">
+              <template v-for="node in state.formItems" :key="node.name">
+                <ProPicker
+                  v-if="node.name === 'payBank'"
+                  v-model="state.formData[node.name]"
+                  :name="node.name"
+                  :label="node.label"
+                  :required="node.required"
+                  :data-source="bankList"
+                />
+                <ProField
+                  v-else
+                  v-model="state.formData[node.name]"
+                  :name="node.name"
+                  :label="node.label"
+                  type="number"
+                  :required="node.required"
+                  placeholder="请输入"
+                >
+                </ProField>
+              </template>
             </ProForm>
           </div>
         </div>
@@ -44,19 +76,35 @@
 </template>
 
 <script lang="ts" setup name="Banner">
-import { withDefaults, useAttrs } from 'vue';
+import { withDefaults } from 'vue';
+import { Toast } from 'vant';
+import isEmpty from 'lodash-es/isEmpty';
+import { isNotEmptyArray, YES_NO_ENUM } from '@/common/constants';
+import { ProductFactor, ProductFactorItem } from '@/api/modules/trial.data';
 import hotIcon from '@/assets/images/baseInsurance/hot.png';
 import wechatIcon from '@/assets/images/baseInsurance/wechart.png';
 import zhifubaoIcon from '@/assets/images/baseInsurance/zhifubao.png';
 import yinhangkaIcon from '@/assets/images/baseInsurance/yinhangka.png';
 import wxcut1Icon from '@/assets/images/baseInsurance/wxcut1.png';
 import wxcut2Icon from '@/assets/images/baseInsurance/wxcut2.png';
+import useDicData from '@/hooks/useDicData';
+import { validateBandcard } from '@/utils/validator';
 
-const PAY_LISTS = [
-  { name: '绑定微信支付', icon: wechatIcon, value: '01' },
-  { name: '绑定支付宝支付', icon: zhifubaoIcon, value: '02' },
-  { name: '绑定银行卡支付', icon: yinhangkaIcon, value: '03' },
-];
+const route = useRoute();
+
+interface QueryData {
+  insurerCode: string;
+  [key: string]: string;
+}
+const PAY_LISTS = ref([]);
+const formBackRef = ref();
+const { insurerCode = '' } = route.query as QueryData;
+const bankDic = useDicData(`${insurerCode?.toUpperCase()}_BANK`);
+const PAYMAP_KEY = {
+  3: { icon: wechatIcon },
+  2: { icon: zhifubaoIcon },
+  1: { icon: yinhangkaIcon },
+};
 
 const WXS = [
   { name: '默认未开启', icon: wxcut1Icon },
@@ -64,25 +112,130 @@ const WXS = [
 ];
 
 interface Props {
-  url: string;
-  images: string[];
-  autoplay: number | string;
+  productFactor?: ProductFactor;
+  extInfo: any;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  url: '',
-  images: () => [],
-  autoplay: 5000,
+  productFactor: () => ({} as ProductFactor),
+  extInfo: {},
 });
 
-const state = reactive<{ active: string; checked: string }>({
-  active: '01',
-  checked: '03',
+const state = reactive<{
+  isAutoRenewal: boolean;
+  formData: {
+    isAutoRenewal: number;
+    paymentMethod: string;
+    bankCardNo: string;
+    payBank: string;
+    bankBranch: string;
+  };
+  formItems: any[];
+}>({
+  isAutoRenewal: false,
+  formData: {
+    isAutoRenewal: 0, // 0 没选择，1 续保，2不续保
+    paymentMethod: '', // 支付方式
+    bankCardNo: '', // 卡号
+    payBank: '', // 开户行code
+    bankBranch: '',
+  },
+  formItems: [],
 });
 
-const attrs = useAttrs();
+const bankList = computed(() => {
+  return bankDic.value.map((item) => ({ label: item.name, value: item.code }));
+});
 
-console.log('props', props);
+const initFactor = (list: ProductFactorItem[]) => {
+  const reversalHandle = {
+    autoRenewalPaymentMethod: (item: ProductFactorItem) => {
+      // 支付方式处理
+      PAY_LISTS.value = item.attributeValueList.map((node: any, i: number) => {
+        if (i === 0) state.formData.paymentMethod = node.code; // 默认第一个支付方式
+        return { ...node, ...PAYMAP_KEY[node.code] };
+      });
+    },
+    bankCard: (item: ProductFactorItem) => {
+      // 银行卡信息
+      state.formItems = item.attributeValueList.map((node: any) => {
+        return { label: node.value, name: node.code, required: true };
+      });
+    },
+  };
+  state.formItems = [];
+  list.forEach((item: ProductFactorItem) => {
+    reversalHandle?.[item.code]?.(item);
+  });
+};
+
+// 投保因子变动
+watch(
+  () => props.productFactor,
+  (val) => {
+    state.isAutoRenewal = false;
+    if (isNotEmptyArray(val[6])) {
+      state.isAutoRenewal = true;
+      initFactor(val[6]);
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+// 监听扩张字段的值，来反显
+watch(
+  () => props.extInfo,
+  (val) => {
+    if (!isEmpty(val.autoRenewalInfo)) {
+      state.formData = { ...val.autoRenewalInfo };
+      // 支付方式值类型和要素枚举code类型不一致number->string
+      if (val.autoRenewalInfo.paymentMethod) {
+        state.formData.paymentMethod = state.formData.paymentMethod.toString();
+      }
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+const validate = () => {
+  return new Promise((resolve, reject) => {
+    const { isAutoRenewal, paymentMethod } = state.formData;
+    // 没有自动续保，或者不选或者选择不续保或者是微信和支付宝支付
+    if (
+      !state.isAutoRenewal ||
+      [YES_NO_ENUM.NO, 0].includes(state.formData.isAutoRenewal) ||
+      ['2', '3'].includes(state.formData.paymentMethod)
+    ) {
+      // 不支持续保和没选
+      if (!state.isAutoRenewal || isAutoRenewal === 0) {
+        resolve({});
+      } else if (isAutoRenewal === YES_NO_ENUM.NO) {
+        // 选择不续保
+        resolve({ isAutoRenewal: YES_NO_ENUM.NO });
+      } else {
+        resolve({ isAutoRenewal, paymentMethod });
+      }
+    } else {
+      formBackRef.value[2].validate().then(() => {
+        if (state.formData.bankCardNo && !validateBandcard(state.formData.bankCardNo)) {
+          Toast('请输入正确的银行卡号');
+          return;
+        }
+        resolve(state.formData);
+      });
+    }
+  });
+};
+
+defineExpose({
+  validate,
+});
 </script>
 
 <style lang="scss">

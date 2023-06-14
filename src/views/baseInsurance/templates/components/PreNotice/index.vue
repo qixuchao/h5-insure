@@ -16,7 +16,7 @@
     ></div>
     <div class="footer">
       <VanButton type="primary" block round @click="closePopup">
-        好的
+        {{ state.insureConfig.buttonTitle }}
         <span v-if="currentTime">{{ currentTime }}s</span>
       </VanButton>
     </div>
@@ -164,8 +164,11 @@ onMounted(() => {
   .header {
     line-height: 1;
     border: none;
+    height: 132px;
+    text-align: center;
     img {
-      width: 100%;
+      max-width: 100%;
+      max-height: 100%;
     }
     margin-bottom: $zaui-card-border;
   }
@@ -218,48 +221,3 @@ onMounted(() => {
   }
 }
 </style>
-<!-- <style scoped lang="scss">
-.pre-notice-wrap {
-  .pre-body {
-    padding: 50px 32px 0;
-    height: 100%;
-    .header {
-      line-height: 1;
-      border: none;
-      img {
-        height: 44px;
-      }
-
-      .company-name {
-        margin-top: 20px;
-        font-size: 24px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 500;
-        color: #333;
-        line-height: 33px;
-      }
-    }
-
-    .content {
-      margin-top: 32px;
-      padding: 32px;
-      background: #fcf4f0;
-      border-radius: 20px;
-      font-size: 28px;
-      font-family: PingFangSC-Regular, PingFang SC;
-      font-weight: 400;
-      color: #333333;
-      line-height: 42px;
-      span {
-        color: #006afc;
-      }
-      border: 1px solid #fff1de;
-      border-top-color: #fee6dd;
-    }
-
-    .footer {
-      margin-top: 50px;
-    }
-  }
-}
-</style> -->

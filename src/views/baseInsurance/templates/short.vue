@@ -48,6 +48,7 @@
           :premium-info="{ premium, premiumLoadingText }"
         />
         <Package v-if="currentPackageConfigVOList.length > 0" :package-product-list="currentPackageConfigVOList" />
+        <AutoRenew ref="autoRenewRef" :ext-info="orderDetail.extInfo" :product-factor="currentPlanObj?.productFactor" />
       </template>
     </ScrollInfo>
     <ProLazyComponent>
@@ -154,6 +155,7 @@ const HealthNoticePreview = defineAsyncComponent(() => import('./components/Heal
 const PaymentType = defineAsyncComponent(() => import('./components/PaymentType/index.vue'));
 const InscribedContent = defineAsyncComponent(() => import('./components/InscribedContent/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('./components/AttachmentList/index.vue'));
+const AutoRenew = defineAsyncComponent(() => import('./components/AutoRenew/index.vue'));
 
 const { VITE_BASE } = import.meta.env;
 const themeVars = useTheme();
@@ -201,6 +203,7 @@ try {
 // 常量
 const LOADING_TEXT = '试算中...';
 const root = ref();
+const autoRenewRef = ref();
 const personalInfoRef = ref();
 const detailScrollRef = ref();
 const showFooterBtn = ref<boolean>(false);
@@ -220,6 +223,7 @@ const currentPackageConfigVOList = ref([]); // 加油包列表
 const currentPlanObj = ref<Partial<ProductPlanInsureVoItem>>({});
 const mainRiskInfo = ref<Partial<RiskDetailVoItem>>({}); // 标准主险信息
 const planList = ref<any[]>([]);
+const autoRenewalInfo = ref();
 
 const state = reactive({
   submitData: {} as PremiumCalcData,
@@ -405,7 +409,12 @@ const onSaveOrder = async () => {
     try {
       const currentOrderDetail = trialData2Order(trialData.value, state.trialResult, {
         ...orderDetail.value,
-        extInfo: { ...orderDetail.value.extInfo, buttonCode: 'EVENT_SHORT_saveOrder', iseeBizNo: iseeBizNo.value },
+        extInfo: {
+          ...orderDetail.value.extInfo,
+          buttonCode: 'EVENT_SHORT_saveOrder',
+          iseeBizNo: iseeBizNo.value,
+          autoRenewalInfo: autoRenewalInfo.value,
+        },
       });
       nextStep(currentOrderDetail, async (data: any, pageAction: string) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
@@ -729,7 +738,9 @@ const onNext = async () => {
   showHealthPreview.value = false;
   showFilePreview.value = false;
   state.isFirst = false;
+
   if (!previewMode.value) {
+    autoRenewalInfo.value = await autoRenewRef.value.validate();
     personalInfoRef.value
       .validate()
       .then(async (res) => {
