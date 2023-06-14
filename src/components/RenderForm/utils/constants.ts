@@ -16,8 +16,10 @@ const getInsurerCodeFormUrl = () => (window.location.search.match(/&insurerCode=
  * @param [string] insurerCode
  * @returns `${insurerCode.toUpperCase()}_OCCUPATION`
  */
-export const combineOccupation = (insurerCode: string) =>
-  `${insurerCode ? `${insurerCode.toUpperCase()}_` : ''}OCCUPATION`;
+export const combineDictCode = (() => {
+  const insurerCode = getInsurerCodeFormUrl();
+  return (dictCode: string) => `${insurerCode ? `${insurerCode.toUpperCase()}_` : ''}${dictCode}`;
+})();
 
 /**
  * 发送验证码
@@ -244,7 +246,7 @@ export const RULE_CONFIG_MAP = {
    * 地址
    */
   ADDRESS: {
-    dictCode: DictNameEnum.NATIONAL_REGION_CODE,
+    dictCode: combineDictCode(DictNameEnum.NATIONAL_REGION_CODE),
     customFieldName: { text: 'name', value: 'code', children: 'children' },
   },
   /**
@@ -369,7 +371,7 @@ export const PRO_BANK_FIELD_MAP = {
   // 开户银行
   payBank: {
     name: BANK_INFO_KEY_ENUM.PAY_BANK,
-    dictCode: DictNameEnum.BANK,
+    dictCode: combineDictCode(DictNameEnum.BANK),
     componentName: COMPONENT_ENUM.ProPickerV2,
   },
   // 银行卡照片
@@ -514,7 +516,7 @@ export const GLOBAL_CONFIG_MAP = {
   /** 职业 */
   occupationCodeList: {
     componentName: COMPONENT_ENUM.ProOccupation,
-    dictCode: combineOccupation(getInsurerCodeFormUrl()),
+    dictCode: combineDictCode('OCCUPATION'),
   },
   /** 证件影像 */
   certImage: {
