@@ -9,21 +9,32 @@
 <template>
   <div class="container head-cover">
     <div class="info-detail">
-      <div class="name">
-        <div class="img">
-          <template v-if="props.info?.gender">
-            <img v-if="isMale(props.info?.gender)" src="@/assets/images/compositionProposal/male.png" />
-            <img v-else src="@/assets/images/compositionProposal/female.png"
-          /></template>
+      <template v-if="!isTotal">
+        <div class="name">
+          <div>
+            <span clase="p1">{{ props.info?.name }}</span>
+            <span class="p2"
+              >{{ getRelationName() }} / {{ SEX_LIMIT_MAP[props.info?.gender] }} /
+              {{ dayjs().diff(info?.birthday, 'y') }}岁</span
+            >
+          </div>
         </div>
-        <div>
-          <p clase="p1">{{ props.info?.name }}</p>
-          <p class="p2">{{ SEX_LIMIT_MAP[props.info?.gender] }}，{{ dayjs().diff(info?.birthday, 'y') }}岁</p>
+        <div class="fe">
+          首年保费： <span>¥{{ toLocal(props.info?.totalPremium) }}</span>
         </div>
-      </div>
-      <div class="fe">
-        首年保费： <span>¥{{ toLocal(props.info?.totalPremium) }}</span>
-      </div>
+      </template>
+      <template v-else>
+        <div class="name">
+          <div>
+            <span clase="p1">{{ props.info?.name }}</span>
+            <span class="p2"
+              >{{ getRelationName() }} / {{ SEX_LIMIT_MAP[props.info?.gender] }} /
+              {{ dayjs().diff(info?.birthday, 'y') }}岁 / 首年保费:
+              <span>¥{{ toLocal(props.info?.totalPremium) }}</span></span
+            >
+          </div>
+        </div>
+      </template>
     </div>
     <div class="line"></div>
 
@@ -38,11 +49,16 @@ import { toLocal } from '@/utils';
 import { ProposalProductRisk } from '../../type';
 import ProTable from '@/components/ProTable/index.vue';
 import { SEX_LIMIT_ENUM, SEX_LIMIT_MAP } from '@/common/constants';
+import { RELATION_HOLDER_LIST } from '@/common/constants/product';
 
 const props = defineProps({
   info: {
     type: Object,
-    default: () => {},
+    default: () => null,
+  },
+  isTotal: {
+    type: Boolean,
+    default: () => false,
   },
 });
 
@@ -98,6 +114,11 @@ const getCover = (val: string) => {
     default:
       return '';
   }
+};
+
+const getRelationName = () => {
+  const tedxt = RELATION_HOLDER_LIST.find((e) => +e.value === props.info.relationToHolder);
+  return (tedxt && tedxt.label) || '';
 };
 
 // 交费期间
@@ -162,12 +183,13 @@ watch(
     .p1 {
       font-size: 32px;
       font-weight: 500;
-      color: #393d46;
+      color: #333333;
     }
     .p2 {
+      padding-left: 22px;
       font-size: 24px;
       font-weight: 400;
-      color: #727983;
+      color: #393d46;
     }
     .img {
       width: 80px;
@@ -184,16 +206,14 @@ watch(
       font-size: 26px;
       span {
         color: $zaui-price;
+        font-weight: 400;
       }
     }
   }
   .line {
-    margin: 0 -20px;
-    padding-bottom: 30px;
-    border-bottom: 1px solid $zaui-line;
   }
   .tp {
-    margin-top: 30px;
+    margin-top: 22px;
   }
 }
 </style>
