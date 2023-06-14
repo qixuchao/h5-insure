@@ -7,7 +7,7 @@
 -->
 <template>
   <div class="container">
-    <div v-for="(item, i) in props.info?.liabilityByTopTypeVOList" :key="i">
+    <div v-for="(item, i) in props.info?.liabilityByTopTypeVOList" :key="i" style="margin-bottom: 20px">
       <div>
         <div class="common-title">
           <div class="title">
@@ -38,6 +38,7 @@
 </template>
 <script lang="ts" setup>
 import ProField from '@/components/ProField/index.vue';
+import Capsule from './SelectCapsule.vue';
 
 const props = defineProps({
   info: {
@@ -79,11 +80,28 @@ const activeList = ref<string[]>([]);
     border-radius: 16px;
     margin-bottom: 20px;
     padding: 0 20px 30px 20px;
+
+    .lia-header {
+      min-height: 106px;
+      width: 100%;
+      border-radius: 16px 16px 0 0;
+      display: flex;
+      .info-detail {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .p1 {
+          font-size: 32px;
+          font-weight: 600;
+          color: #333333;
+        }
+      }
+    }
     .common-title {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: 34px;
       margin-bottom: 30px;
       font-weight: 500;
       color: #333333;

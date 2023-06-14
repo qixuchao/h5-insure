@@ -18,7 +18,11 @@
         <div class="popup-body">
           <van-radio-group v-model="checked">
             <van-cell-group>
-              <VanCell v-for="item in dataSource" :key="item.productCode" @click="onCheck(item)">
+              <VanCell
+                v-for="item in dataSource.proposalTransInsuredProductVOList"
+                :key="item.productCode"
+                @click="onCheck(item)"
+              >
                 <template #right-icon>
                   <van-radio :name="item.productCode" :disabled="!!errorMessage(item)" />
                 </template>
@@ -46,11 +50,11 @@
 <script lang="ts" setup>
 import { withDefaults } from 'vue';
 import { Toast } from 'vant/es';
-import { InsuredProductData } from '@/api/modules/compositionProposal.data';
+import { InsuredProductData, ProposalTransInsuredVO } from '@/api/modules/compositionProposal.data';
 
 interface Props {
   isShow: boolean;
-  dataSource: any[];
+  dataSource: ProposalTransInsuredVO;
 }
 
 interface State {
@@ -66,7 +70,7 @@ const ERROR_MESSAGE_ENUM = {
 
 const props = withDefaults(defineProps<Props>(), {
   isShow: true,
-  dataSource: () => [],
+  dataSource: () => {},
 });
 
 const emits = defineEmits(['close', 'finished']);
@@ -109,7 +113,7 @@ const onClick = () => {
   if (!checked.value) {
     return Toast('请选择投保产品');
   }
-  emits('finished', currentProduct.value);
+  emits('finished', currentProduct.value, props.dataSource.proposalInsuredId);
 };
 
 watch(
