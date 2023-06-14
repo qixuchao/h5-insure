@@ -23,3 +23,8 @@ export const validateCustomName = (name: string): boolean => {
 export const validateSmsCode = (code: string): boolean => {
   return /^\d{6}$/.test(code);
 };
+
+// 银行卡
+export const validateBandcard = (val: string): boolean => {
+  return /^\d{12,20}$/g.test(val);
+};
