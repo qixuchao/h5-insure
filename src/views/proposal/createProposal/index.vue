@@ -805,8 +805,8 @@ const handleCurrentInsureChange = (index: number) => {
   stateInfo.currentSelectInsure = index;
   if (stateInfo.insurerList[index]?.productList.length > 0) {
     queryProductInfo(
-      stateInfo.insurerList[index].productList.map((code) => ({
-        productCode: code,
+      stateInfo.insurerList[index].productList.map(({ productCode }) => ({
+        productCode,
       })),
     );
   } else {
