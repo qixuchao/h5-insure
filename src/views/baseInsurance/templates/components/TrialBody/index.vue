@@ -647,6 +647,10 @@ watch(
   () => (state.userData?.insuredList || []).map((insured) => insured.birthday).join(','),
   debounce(async (value) => {
     if (currentPlan.value.insureProductRiskVOList && value) {
+      const insuredList = state.userData.insuredList.filter((insured) => insured.birthday) || [];
+      if (!insuredList.length) {
+        return;
+      }
       const dyResult = await queryCalcDynamicInsureFactor({
         calcProductFactorList: [
           {
@@ -659,7 +663,7 @@ watch(
             ],
           },
         ],
-        insuredVOList: state.userData.insuredList.filter((insured) => insured.birthday),
+        insuredVOList: insuredList,
       });
       handleDealDyResult(dyResult);
     }
@@ -704,6 +708,10 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
       const riskInfo = currentPlan.value?.insureProductRiskVOList?.find((r) => r.riskCode === data.riskCode);
       if (!state.isAutoChange) {
         state.isQuerying = true;
+        const insuredList = state.userData.insuredList.filter((insured) => insured.birthday) || [];
+        if (!insuredList.length) {
+          return false;
+        }
         const dyResult = await queryCalcDynamicInsureFactor({
           calcProductFactorList: [
             {
@@ -722,7 +730,7 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
               ],
             },
           ],
-          insuredVOList: state.submitData?.insuredList.filter((insured) => insured.birthday),
+          insuredVOList: insuredList,
         });
         state.isQuerying = false;
         const result = handleDealDyResult(dyResult);
