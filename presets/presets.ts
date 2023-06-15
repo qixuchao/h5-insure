@@ -16,7 +16,6 @@ import { ConfigEnv } from 'vite';
 // 对于 ElMessage 组件的第一次扫描失效，只有手动进入了页面才会加载
 import styleImport, { VantResolve } from 'vite-plugin-style-import';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
-import viteCompression from 'vite-plugin-compression'; // gzip压缩
 const path = require('path');
 
 import { SkeletonPlaceholderPlugin } from '../skeleton/plugins/vitePlugin';
@@ -90,21 +89,6 @@ export default (env: ConfigEnv) => {
     // }),
     splitVendorChunkPlugin(),
     // nginx静态压缩 https://juejin.cn/post/7101663374957608974
-    // viteCompression({
-    //   threshold: 1025 * 10,
-    //   verbose: true,
-    //   disable: false,
-    //   algorithm: 'gzip',
-    //   ext: '.gz',
-    //   // deleteOriginFile: true,
-    // }),
-    // viteCompression({
-    //   algorithm: 'gzip',
-    //   threshold: 10240,
-    //   verbose: false,
-    //   deleteOriginFile: true
-
-    // }),
     PkgConfig(),
     env.mode === 'production'
       ? null
