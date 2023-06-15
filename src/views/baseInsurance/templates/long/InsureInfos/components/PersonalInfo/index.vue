@@ -432,6 +432,7 @@ watch(
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
       const { personVO, config = {}, beneficiaryList } = insuredList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
+      debugger;
       if (!res[index]) {
         res[index] = {
           ...initInsuredTempData,
@@ -442,7 +443,7 @@ watch(
         };
       } else {
         merge(res[index], {
-          ...initInsuredTempData,
+          ...cloneDeep(initInsuredTempData),
           personVO,
           config,
           beneficiaryList,

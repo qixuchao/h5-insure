@@ -13,6 +13,10 @@ export const RELATION_HOLDER_ENUM = {
 
 export const RELATION_HOLDER_LIST = [
   {
+    label: '本人',
+    value: RELATION_HOLDER_ENUM.SELF,
+  },
+  {
     label: '配偶',
     value: RELATION_HOLDER_ENUM.MATE,
   },

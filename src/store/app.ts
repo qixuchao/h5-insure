@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import dayjs from 'dayjs';
 import { getDic } from '@/api';
-import { localStore } from '@/hooks';
+import { sessionStore } from '@/hooks';
 import { NoTransform } from '@/common/constants';
 import { NextStepRequestData } from '@/api/index.data';
 
@@ -55,7 +55,7 @@ const useStore = defineStore<
       playingUrl: '',
       playStatus: 'stop',
       orderDetail: {} as NextStepRequestData,
-      dictMap: localStore.get('PRODUCT_DICT_DATA') || {},
+      dictMap: sessionStore.get('PRODUCT_DICT_DATA') || {},
       appId: '', // 当前页面运行的微信公众号（只有需要授权的页面才调）
       CACHE_PAGE_LIST: [] as string[], // 动态缓存页面 name集合
     };
@@ -100,8 +100,7 @@ const useStore = defineStore<
             : transformDictToEnum(item.dictItemList);
           this.dictMap[item.dictCode] = dictValue;
         });
-        // 一次只存2天（避免万一数据库更新，一直无法更新）
-        localStore.set('PRODUCT_DICT_DATA', this.dictMap, 2 * 24);
+        sessionStore.set('PRODUCT_DICT_DATA', this.dictMap);
       });
     },
     /**

@@ -75,26 +75,43 @@
             required
           />
         </ProRenderFormWithCard>
-
-        <ProCard
-          v-for="(productItem, index) in stateInfo.insurerList[stateInfo.currentSelectInsure].productList"
-          :key="`${productItem.nanoid}_${index}_${productItem.productCode}`"
-          class="product-item-card"
-          :show-line="false"
-          :show-divider="false"
+        <ProRenderFormWithCard ref="productFormRef" title="保障计划" class="product-container">
+          <template v-if="stateInfo.insurerList[stateInfo.currentSelectInsure].productList.length > 0">
+            <ProCard
+              v-for="(productItem, index) in stateInfo.insurerList[stateInfo.currentSelectInsure].productList"
+              :key="`${productItem.nanoid}_${index}_${productItem.productCode}`"
+              class="product-item-card"
+              :show-line="false"
+              :show-divider="false"
+            >
+              <ProductList
+                :product-risk-list="productItem.riskList"
+                :product-info="productItem"
+                :product-num="stateInfo.insurerList[stateInfo.currentSelectInsure].productList?.length - 1"
+                :product-data="stateInfo.productCollection[productItem.productCode]"
+                :error-msg="stateInfo.productErrorMap[productItem.productCode]"
+                :product-index="index"
+                @update-risk="updateRisk"
+                @delete-risk="deleteRisk"
+              ></ProductList>
+            </ProCard>
+          </template>
+          <template v-else>
+            <div v-if="showAddBtn" class="operate-bar">
+              <ProEmpty
+                v-if="stateInfo.insurerList[stateInfo.currentSelectInsure].productList?.length <= 0"
+                :empty-img="emptyImg"
+                title="该成员还未配置产品，去添加吧！"
+                empty-class="empty-select"
+              />
+              <ProCheckButton activated :round="34" @click="addProduct">添加产品</ProCheckButton>
+            </div>
+          </template>
+        </ProRenderFormWithCard>
+        <div
+          v-if="showAddBtn && stateInfo.insurerList[stateInfo.currentSelectInsure].productList.length > 0"
+          class="operate-bar"
         >
-          <ProductList
-            :product-risk-list="productItem.riskList"
-            :product-info="productItem"
-            :product-num="stateInfo.insurerList[stateInfo.currentSelectInsure].productList?.length - 1"
-            :product-data="stateInfo.productCollection[productItem.productCode]"
-            :error-msg="stateInfo.productErrorMap[productItem.productCode]"
-            :product-index="index"
-            @update-risk="updateRisk"
-            @delete-risk="deleteRisk"
-          ></ProductList>
-        </ProCard>
-        <div v-if="showAddBtn" class="operate-bar">
           <ProCheckButton activated :round="34" @click="addProduct">添加产品</ProCheckButton>
         </div>
       </div>
@@ -162,6 +179,8 @@ import {
 } from '@/api/modules/createProposal.data';
 import { queryCalcDefaultInsureFactor, queryCalcDynamicInsureFactor, premiumCalc } from '@/api/modules/trial';
 import TrialPopup from '../proposalList/components/TrialPopup.vue';
+import ProEmpty from '@/components/ProEmpty/index.vue';
+import emptyImg from '@/assets/images/empty.png';
 
 import { ProductData } from '@/common/constants/trial.data';
 import { SEX_LIMIT_LIST } from '@/common/constants';
@@ -331,11 +350,15 @@ const showAddBtn = computed(() => {
 
 // 总保费
 const totalPremium = computed(() => {
-  return stateInfo.productList.reduce((total, item) => {
-    const premium = item.riskList.reduce((res, riskItem) => {
-      return res + (riskItem.initialPremium || 0);
-    }, 0);
-    return total + premium;
+  return stateInfo.insurerList.reduce((total, insure) => {
+    return +(
+      insure.productList.reduce((totalNum, item) => {
+        const premium = item.riskList.reduce((res, riskItem) => {
+          return +res + +(riskItem.initialPremium || 0);
+        }, 0);
+        return +totalNum + +premium;
+      }, 0) + +total
+    );
   }, 0);
 });
 
@@ -403,7 +426,8 @@ const onFinished = (productInfo: PlanTrialData) => {
   // 投保人
   Object.assign(stateInfo.holder, productInfo.holder);
   // 被保人
-  Object.assign(stateInfo.insuredPersonVO, productInfo.insuredPersonVO);
+  if (stateInfo.insurerList[stateInfo.currentSelectInsure])
+    Object.assign(stateInfo.insurerList[stateInfo.currentSelectInsure].personVO, productInfo.insuredPersonVO);
 
   combineToProductList(productInfo);
 
@@ -420,7 +444,6 @@ const onFinished = (productInfo: PlanTrialData) => {
 const addProduct = () => {
   store.setProposalInfo(proposalInfo.value);
 
-  console.log('---value = ', currentProductCodeListFn());
   store.setExcludeProduct(currentProductCodeListFn());
   store.setInsuredPersonVO(stateInfo.insurerList[stateInfo.currentSelectInsure].personVO);
 
@@ -455,13 +478,13 @@ const trailProduct = (params) => {
 // 生日变化要改变年龄
 const changeBirthday = (val) => {
   if (val) {
-    stateInfo.insuredPersonVO.age = dayjs(new Date()).diff(val, 'year');
+    stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.age = dayjs(new Date()).diff(val, 'year');
   }
 };
 
 //  改变年龄清除出生日期
 const changeAge = () => {
-  stateInfo.insuredPersonVO.birthday = '';
+  stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.birthday = '';
 };
 
 /** 获取产品数据列表 */
@@ -491,7 +514,9 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
   const { code, data } = await queryCalcDefaultInsureFactor(
     {
       calcProductFactorList,
-      ...stateInfo.insuredPersonVO,
+      ...((stateInfo.insurerList[stateInfo.currentSelectInsure] &&
+        stateInfo.insurerList[stateInfo.currentSelectInsure].personVO) ||
+        {}),
     },
     {
       // 第一次弹窗提示错误信息
@@ -514,18 +539,22 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
 
         // 初次调用
         if (flag) {
-          Object.assign(stateInfo.insuredPersonVO, personVO);
+          if (stateInfo.insurerList[stateInfo.currentSelectInsure])
+            Object.assign(stateInfo.insurerList[stateInfo.currentSelectInsure].personVO, personVO);
           Object.assign(stateInfo.holder, holder);
         }
         insuredList.forEach((insured: any, index: number) => {
           const { productList: products, ...p } = insured;
 
           if (stateInfo.insurerList[index]) {
-            Object.assign(stateInfo.insurerList[index].personVO, p);
-            stateInfo.insurerList[index].productList = products.map((pro) => {
-              return { ...pro, productCode };
-            });
+            // Object.assign(stateInfo.insurerList[index].personVO, p);
+            // stateInfo.insurerList[index].productList = products.map((pro) => {
+            //   return { ...pro, productCode };
+            // });
           } else {
+            if (!p.relationToHolder) {
+              p.relationToHolder = RELATION_HOLDER_ENUM.SELF;
+            }
             stateInfo.insurerList.push({
               productList: products.map((pro) => {
                 return { ...pro, productCode };
@@ -540,7 +569,6 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
         } else {
           stateInfo.productList.push(tempData);
         }
-        console.log('----add tempdata = ', tempData);
       });
     }
   }
@@ -630,13 +658,8 @@ const convertProposalToTrialData = (productCode) => {
     },
     insuredList: [
       {
-        ...stateInfo.insuredPersonVO,
-        productList: [
-          {
-            ...rest,
-            riskList,
-          },
-        ],
+        ...stateInfo.insurerList[stateInfo.currentSelectInsure].personVO,
+        productList: stateInfo.insurerList[stateInfo.currentSelectInsure].productList,
       },
     ],
     productCode,
@@ -651,7 +674,7 @@ const calcDynamicInsureFactor = async (productCode) => {
     const { code, data, message } = await queryCalcDynamicInsureFactor(
       {
         calcProductFactorList: handleCalcDynamicInsure(productCode),
-        ...stateInfo.insuredPersonVO,
+        ...stateInfo.insurerList[stateInfo.currentSelectInsure].personVO,
       },
       {
         isCustomError: true,
@@ -719,12 +742,12 @@ const submitData = (proposalId) => {
     const { holder } = stateInfo;
     addOrUpdateProposal({
       holder,
-      insuredList: [
-        {
-          ...stateInfo.insuredPersonVO,
-          productList: stateInfo.productList,
-        },
-      ],
+      insuredList: stateInfo.insurerList.map((insure) => {
+        return {
+          ...insure.personVO,
+          productList: insure.productList,
+        };
+      }),
       proposalName: stateInfo.insuredPersonVO.proposalName,
       totalPremium: totalPremium.value,
       relationUserType: 2,
@@ -782,11 +805,18 @@ const handleAddInsure = (data: any, index: number) => {
   stateInfo.currentSelectInsure = index;
 };
 
-const handleDeleteInsure = (index: number) => {};
+const handleDeleteInsure = (index: number) => {
+  stateInfo.insurerList.splice(index, 1);
+};
 
 /** 被保人数据变动 */
 watch(
-  () => trialFieldkeys.map((key) => stateInfo.insuredPersonVO[key]),
+  () =>
+    trialFieldkeys.map((key) => {
+      if (stateInfo.insurerList[stateInfo.currentSelectInsure])
+        return stateInfo.insurerList[stateInfo.currentSelectInsure].personVO[key];
+      return '';
+    }),
   (val, oldVal) => {
     if (val.join(',') !== oldVal.join(',')) {
       console.log('被保人条件变动');
@@ -829,7 +859,6 @@ watch(
 // 返回创建页面
 onActivated(() => {
   const { selectedProduct, insuredPersonVO } = store.$state;
-
   stateInfo.selectedProductCodeList = isNotEmptyArray(selectedProduct) ? (selectedProduct as string[]) : [];
 });
 
@@ -873,6 +902,12 @@ onBeforeMount(() => {
     }
   }
 
+  .product-container {
+    .operate-bar,
+    .empty-select {
+      margin-bottom: 40px;
+    }
+  }
   .product-item-card {
     margin-bottom: 20px;
     border-radius: 20px;
@@ -890,6 +925,8 @@ onBeforeMount(() => {
     .operate-bar {
       width: 100%;
       justify-content: center;
+      flex-direction: column;
+      align-items: center;
       display: flex;
       margin-top: 40px;
       :deep(.com-check-btn) {

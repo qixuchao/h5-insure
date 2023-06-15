@@ -1,1 +1,0 @@
-const a={INSURE:1,SIGN:2},l={SELF:"1",MATE:"2",CHILD:"3",PARENT:"4",OTHER:"8"},e=[{label:"配偶",value:l.MATE},{label:"子女",value:l.CHILD},{label:"父母",value:l.PARENT},{label:"其他",value:l.OTHER}];export{a as M,e as R,l as a};

@@ -20,6 +20,15 @@ export interface InsuredProductData {
     tenantProductCode: string;
 }
 
+export interface ProposalTransInsuredVO {
+  name: string;
+  birthday: string;
+  gender: number;
+  relationToHolder: number;
+  proposalInsuredId: number;
+  proposalTransInsuredProductVOList: InsuredProductData[];
+}
+
 /**
  * 计划书历史主题
  */
