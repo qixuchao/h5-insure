@@ -21,11 +21,18 @@
           @load="onloadClick"
         >
           <div v-for="i of historyList" :key="i.id" class="proposal-item">
-            <div class="title">{{ i.proposalName }}</div>
+            <div class="title">{{ i.proposalName || getProposalName(i) }}</div>
             <p class="premium">
-              保费：<span>¥{{ toLocal(i.totalPremium) }}</span>
+              总保费：<span>¥{{ toLocal(i.totalPremium) }}</span>
             </p>
-            <ProTable :columns="columns" class="table" :data-source="i.proposalProductRiskVOList" />
+            <div v-for="(item, index) in i.proposalInsuredVOList" :key="`proposal_${index}`">
+              <p class="insure-info">
+                {{ item.name }} / {{ getRelationName(item.relationToHolder) }} / {{ SEX_LIMIT_MAP[item?.gender] }} /
+                {{ dayjs().diff(item?.birthday, 'y') + '岁' }} /
+                {{ `首年保费 ${toLocal(getProductTotal(item.productList))}元` }}
+              </p>
+              <ProTable :columns="columns" class="table" :data-source="getAllRisks(item.productList)" />
+            </div>
             <div class="operate-btn">
               <van-button plain round type="primary" class="del-btn" @click="delRisk(i.id)">删除</van-button>
               <van-button plain round type="primary" @click="editProposal(i.id)">编辑</van-button>
@@ -46,6 +53,7 @@
 
 <script setup lang="ts">
 import { Dialog, Toast } from 'vant';
+import dayjs from 'dayjs';
 import { useRouter } from 'vue-router';
 import { toLocal } from '@/utils';
 import ProEmpty from '@/components/ProEmpty/index.vue';
@@ -55,6 +63,8 @@ import { historyProposalList, deleteProposal } from '@/api/modules/proposalList'
 import { HistoryProposalListType } from '@/api/modules/proposalList.data';
 import { convertPeriod, convertChargePeriod, transformToMoney } from '@/utils/format';
 import useTheme from '@/hooks/useTheme';
+import { RELATION_HOLDER_LIST } from '@/common/constants/product';
+import { SEX_LIMIT_MAP, SEX_LIMIT_ENUM } from '@/common/constants';
 
 const themeVars = useTheme();
 
@@ -105,6 +115,11 @@ const pageNum = ref(1);
 const { historyList, searchValue } = toRefs(state);
 const router = useRouter();
 
+const getRelationName = (relation: number) => {
+  const tedxt = RELATION_HOLDER_LIST.find((e) => +e.value === +relation);
+  return (tedxt && tedxt.label) || '本人';
+};
+
 const getHistoryList = () => {
   historyProposalList({
     name: searchValue.value,
@@ -125,6 +140,53 @@ const getHistoryList = () => {
       finished.value = historyList.value.length >= data.total;
     }
   });
+};
+const isMale = (gender: number) => {
+  return gender === +SEX_LIMIT_ENUM.MALE;
+};
+const getProposalName = (i: any) => {
+  if (i.proposalName) {
+    return i.proposalName;
+  }
+  if (i.proposalInsuredVOList.length > 1) {
+    const targetInsure = i.proposalInsuredVOList.find(
+      (insure) => insure.relationToHolder === 1 || insure.relationToHolder === null,
+    );
+    if (targetInsure) {
+      const { name, gender } = targetInsure;
+      if (isMale(gender)) {
+        return `${name}先生的家庭计划书`;
+      }
+      return `${name}女士的家庭计划书`;
+    }
+  }
+  if (i.proposalInsuredVOList.length === 1) {
+    const { name } = i.proposalInsuredVOList[0];
+    const { gender } = i.proposalInsuredVOList[0];
+    if (isMale(gender)) {
+      return `${name}先生的计划书`;
+    }
+    return `${name}女士的计划书`;
+  }
+  return '计划书';
+};
+
+const getAllRisks = (products: any) => {
+  let risks = [];
+  products.forEach((product) => {
+    risks = risks.concat(product.riskList);
+  });
+  return risks;
+};
+
+const getProductTotal = (products: any) => {
+  let premium = 0;
+  products.forEach((product) => {
+    product.riskList.forEach((risk) => {
+      if (risk.initialPremium !== null) premium += +risk.initialPremium;
+    });
+  });
+  return premium;
 };
 
 const onloadClick = () => {
@@ -221,6 +283,11 @@ const editProposal = (id: number) => {
         font-weight: 500;
         color: #393d46;
         line-height: 40px;
+      }
+      .insure-info {
+        font-size: 24px;
+        color: #393d46;
+        line-height: 60px;
       }
       .premium {
         font-size: 26px;

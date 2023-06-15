@@ -26,9 +26,9 @@
                   <div class="cell-title">
                     <div class="title">
                       <p>
-                        {{ item.name }} | {{ getRelationName(item.relationToHolder) }}|
+                        {{ item.name }} | {{ getRelationName(item.relationToHolder) }} |
                         {{ SEX_LIMIT_MAP[item?.gender] }} |
-                        {{ dayjs().diff(item?.birthday, 'y') }}
+                        {{ dayjs().diff(item?.birthday, 'y') + '岁' }}
                       </p>
                     </div>
                   </div>
@@ -38,7 +38,7 @@
           </van-radio-group>
         </div>
         <div class="footer-button">
-          <VanButton block type="primary" @click="onClick">立即投保</VanButton>
+          <VanButton block type="primary" @click="onClick">下一步</VanButton>
         </div>
       </div>
     </VanPopup>
@@ -61,21 +61,14 @@ interface State {
   isShow: boolean;
 }
 
-const ERROR_MESSAGE_ENUM = {
-  insured: '已通过计划书进行投保',
-  unAuth: '产品未授权，无法进行投保',
-  off: '产品已下架，无法进行投保',
-  cps: '产品暂不支持计划书转投保',
-};
-
 const props = withDefaults(defineProps<Props>(), {
   isShow: true,
   dataSource: () => [],
 });
 
 const emits = defineEmits(['close', 'finished']);
-const checked = ref<string>('');
-const currentProduct = ref<InsuredProductData | null>(null);
+const checked = ref<number>(-1);
+const currentProduct = ref<ProposalTransInsuredVO | null>(null);
 
 const state = ref<State>({
   isShow: props.isShow,
@@ -141,7 +134,11 @@ watch(
     }
     .popup-body {
       padding-bottom: 150px;
-
+      :deep(.van-cell) {
+        height: 106px;
+        display: flex;
+        align-items: center;
+      }
       .error-message {
         color: $zaui-danger;
         font-size: 26px;

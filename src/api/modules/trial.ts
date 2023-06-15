@@ -78,6 +78,8 @@ export const underWriteRule = (data = {}) =>
 export const queryStandardInsurerLink = (data: InsureLinkReq) =>
   request<string>({ url: '/api/app/insure/insurance/standardInsurerLink', method: 'POST', data });
 
+export const queryInsureLink = (data: InsureLinkReq) =>
+  request<string>({ url: '/api/app/toApply/v2/insureLink', method: 'GET', params: data });
 // 利益演示
 export const benefitCalc = (data: {}) => {
   return request<{ benefitRiskResultVOList: []; showTypeList: string[] }>({

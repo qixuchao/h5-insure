@@ -118,12 +118,12 @@
         :is-show="showInsureSelect"
         :data-source="insuredProductList"
         @finished="openProductList"
-        @close="toggleProductList(false)"
+        @close="toggleInsureList(false)"
       ></InsuredList>
       <InsuredProductList
         v-if="showProductList"
         :is-show="showProductList"
-        :data-source="insuredProductList"
+        :data-source="proposal2InsuredSelectedInsurer"
         @finished="proposal2Insured"
         @close="toggleProductList(false)"
       ></InsuredProductList>
@@ -163,7 +163,7 @@ import {
   ThemeItem,
   ShowConfig,
 } from '@/api/modules/compositionProposal.data';
-import { queryStandardInsurerLink } from '@/api/modules/trial';
+import { queryStandardInsurerLink, queryInsureLink } from '@/api/modules/trial';
 import InsuredProductList from './components/InsuredProductList/index.vue';
 import ThemeSelect from './components/ThemeSelect/index.vue';
 import { SEX_LIMIT_ENUM } from '@/common/constants';
@@ -227,14 +227,13 @@ const isMale = (gender: number) => {
 };
 
 const isShowInsured = computed(() => {
-  const products = [];
+  let products = [];
   insuredProductList.value.forEach((insure) => {
-    if (insure?.proposalTransInsuredProductVOList) {
-      products.concat(
-        insure?.proposalTransInsuredProductVOList.filter((product: InsuredProductData) => {
-          return product.authStatus === 1 && product.insureMethod === 1;
-        }),
-      );
+    if (insure.proposalTransInsuredProductVOList) {
+      const filterList = insure?.proposalTransInsuredProductVOList.filter((product: InsuredProductData) => {
+        return product.authStatus === 1 && product.insureMethod === 1;
+      });
+      products = products.concat(filterList);
     }
   });
   return !!products.length;
@@ -326,21 +325,50 @@ const getProposalTransInsured = () => {
 };
 
 const openProductList = (insure: any) => {
+  toggleInsureList(false);
   proposal2InsuredSelectedInsurer.value = insure;
+  console.log('------insure = ', insure);
   toggleProductList(true);
 };
 
 // 计划书产品转投保
-const proposal2Insured = (product: InsuredProductData, proposalInsuredId: number) => {
+const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
   const { productCode, insurerCode, tenantProductCode } = product;
+  let targetInsureId = insuredId;
+  if (targetInsureId <= 0 || insuredId === undefined) {
+    if (proposal2InsuredSelectedInsurer.value) {
+      targetInsureId = proposal2InsuredSelectedInsurer.value.proposalInsuredId;
+    } else {
+      if (currentInfo.value) {
+        const targetInsure = insuredProductList.value.find(
+          (insure) => insure.name === currentInfo.value.name && insure.proposalInsuredId === currentInfo.value.id,
+        );
+        targetInsureId = targetInsure.proposalInsuredId;
+      }
+    }
+  }
   // 检验产品是否支持转投保
-  checkProposalInsurer({ productCode, proposalId: id, proposalInsuredId }).then(({ code, data, message }) => {
+  checkProposalInsurer({
+    productCode,
+    proposalId: id,
+    proposalInsuredId: targetInsureId,
+  }).then(({ code, data, message }) => {
     if (code === '10000') {
       if (data) {
-        queryStandardInsurerLink({
+        // queryStandardInsurerLink({
+        //   insurerCode,
+        //   productCode: tenantProductCode,
+        //   proposalId: id,
+        // }).then(({ code: newCode, data: newData }) => {
+        //   if (newCode === '10000') {
+        //     window.location.href = newData;
+        //   }
+        // });
+        queryInsureLink({
           insurerCode,
           productCode: tenantProductCode,
           proposalId: id,
+          proposalInsuredId: targetInsureId,
         }).then(({ code: newCode, data: newData }) => {
           if (newCode === '10000') {
             window.location.href = newData;
@@ -355,11 +383,18 @@ const proposal2Insured = (product: InsuredProductData, proposalInsuredId: number
 
 // 立即投保
 const onInsured = () => {
-  if (insuredProductList.value?.length === 1) {
-    // proposal2Insured(insuredProductList.value?.[0]);
+  if (currentInfo.value) {
+    // 投保当前被保人
+    const targetInsure = insuredProductList.value.find(
+      (insure) => insure.name === currentInfo.value.name && insure.proposalInsuredId === currentInfo.value.id,
+    );
+    if (targetInsure && targetInsure.proposalTransInsuredProductVOList.length === 1) {
+      proposal2Insured(targetInsure.proposalTransInsuredProductVOList?.[0], targetInsure.proposalInsuredId);
+    } else {
+      toggleProductList(true);
+    }
   } else {
     toggleInsureList(true);
-    // toggleProductList(true);
   }
 };
 

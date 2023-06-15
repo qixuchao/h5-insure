@@ -114,8 +114,9 @@ const handleDeleteClick = (e, index) => {
 };
 
 watch(
-  () => props.insurerList,
+  () => props.insurerList.length,
   () => {
+    console.log('--------', props.insurerList.length);
     list.value = props.insurerList;
   },
   {
