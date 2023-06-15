@@ -442,7 +442,7 @@ watch(
         };
       } else {
         merge(res[index], {
-          ...initInsuredTempData,
+          ...cloneDeep(initInsuredTempData),
           personVO,
           config,
           beneficiaryList,

@@ -311,9 +311,9 @@ const dealMixData = () => {
 
       insured.planCode = currentPlan.value.planCode;
       // 处理附加险
-      const riskList = insured.productList[0]?.riskList || [];
+      const riskList = insured.productList?.[0]?.riskList || [];
       const currentPlanRiskList = currentPlan.value.insureProductRiskVOList || [];
-      if (riskList && currentPlanRiskList) {
+      if (riskList.length && currentPlanRiskList) {
         const newRiskList = riskList.filter((risk) => {
           return currentPlanRiskList.find((r) => r.riskCode === risk.riskCode) !== null;
         });
@@ -324,54 +324,6 @@ const dealMixData = () => {
   return submitData;
 };
 
-// const trialData2Order = (
-//   currentProductDetail: ProductData = {} as ProductData,
-//   riskPremium = {},
-//   currentOrderDetail = {},
-// ) => {
-//   const nextStepParams: any = { ...currentOrderDetail };
-//   const tempSubmitData = dealMixData();
-//   console.log('------------', tempSubmitData);
-//   const { tenantOrderHolder, tenantOrderInsuredList } = formData2Order({
-//     holder: tempSubmitData.holder,
-//     insuredList: tempSubmitData.insuredList || [],
-//   });
-//   const riskList = tempSubmitData.insuredList.map((person) => person.productList?.[0]?.riskList).flat();
-//   const transformDataReq = {
-//     tenantId,
-//     riskList,
-//     riskPremium,
-//     productId: currentProductDetail.id,
-//   };
-//   nextStepParams.extInfo.iseeBizNo = iseeBizNo.value;
-//   nextStepParams.productCode = currentProductDetail.productCode;
-//   nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
-//   nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
-//   nextStepParams.initialPremium = state.trialResultPremium;
-//   nextStepParams.orderAmount = state.trialResultPremium;
-//   nextStepParams.orderRealAmount = state.trialResultPremium;
-
-//   nextStepParams.tenantOrderHolder = tenantOrderHolder;
-//   nextStepParams.tenantOrderInsuredList = tenantOrderInsuredList.map((insurer: any) => {
-//     return {
-//       ...insurer,
-//       certType: insurer.certType || CERT_TYPE_ENUM.CERT,
-//       certNo: (insurer.certNo || '').toLocaleUpperCase(),
-//       planCode: currentPlan.value.planCode,
-//       tenantOrderProductList: [
-//         {
-//           initialPremium: state.trialResultPremium,
-//           productCode: currentProductDetail.productCode,
-//           productName: currentProductDetail.productName,
-//           planCode: currentPlan.value.planCode,
-//           tenantOrderRiskList: transformData(transformDataReq),
-//         },
-//       ],
-//     };
-//   });
-//   console.log('nextStepParams', nextStepParams);
-//   return nextStepParams;
-// };
 const premiumMap = ref();
 const onNext = () => {
   const { productCode, productName } = props.productInfo;
@@ -655,35 +607,71 @@ const handleMixTrialData = debounce(async () => {
 }, 300);
 
 const handlePersonalInfoChange = async (data) => {
+  console.log('人的信息更改了');
   // 只有改动第一个被保人，需要调用dy接口
   const { insuredList, isFirstInsuredChange } = data;
   handlePersonInfo(data);
 
   state.ifPersonalInfoSuccess = true;
-  if (isFirstInsuredChange) {
-    console.log('处理第一被保人修改的dy变化');
+  // if (isFirstInsuredChange) {
+  console.log('处理第一被保人修改的dy变化');
 
-    state.isQuerying = true;
-    const dyResult = await queryCalcDynamicInsureFactor({
-      calcProductFactorList: [
-        {
-          planCode: currentPlan.value.planCode,
-          productCode: props.productInfo.productCode,
-          riskEditVOList: [
-            {
-              insureProductRiskVO: currentPlan.value.insureProductRiskVOList?.[0],
-            },
-          ],
-        },
-      ],
-      ...insuredList[0],
-    });
-    state.isQuerying = false;
-    if (!handleDealDyResult(dyResult)) return;
-  }
-  console.log('投被保人的信息回传 ', data);
+  // state.isQuerying = true;
+  // const dyResult = await queryCalcDynamicInsureFactor({
+  //   calcProductFactorList: [
+  //     {
+  //       planCode: currentPlan.value.planCode,
+  //       productCode: props.productInfo.productCode,
+  //       riskEditVOList: [
+  //         {
+  //           insureProductRiskVO: currentPlan.value.insureProductRiskVOList?.[0],
+  //         },
+  //       ],
+  //     },
+  //   ],
+  //   insuredVOList: insuredList,
+  // });
+  // state.isQuerying = false;
+  // if (!handleDealDyResult(dyResult)) return;
+  // // }
+  // console.log('投被保人的信息回传 ', data);
   handleMixTrialData();
 };
+
+const birthdayList = computed(() => {
+  return (state.userData?.insuredList || []).map((insured) => insured.birthday).join(',');
+});
+
+// 监听被保人出生日期变化时，重新获取动态值
+watch(
+  () => (state.userData?.insuredList || []).map((insured) => insured.birthday).join(','),
+  debounce(async (value) => {
+    if (currentPlan.value.insureProductRiskVOList && value) {
+      const insuredList = state.userData.insuredList.filter((insured) => insured.birthday) || [];
+      if (!insuredList.length) {
+        return;
+      }
+      const dyResult = await queryCalcDynamicInsureFactor({
+        calcProductFactorList: [
+          {
+            planCode: currentPlan.value.planCode,
+            productCode: props.productInfo.productCode,
+            riskEditVOList: [
+              {
+                insureProductRiskVO: currentPlan.value.insureProductRiskVOList?.[0],
+              },
+            ],
+          },
+        ],
+        insuredVOList: insuredList,
+      });
+      handleDealDyResult(dyResult);
+    }
+  }),
+  {
+    // deep: true,
+  },
+);
 
 const handleDynamicConfig = async (data: any, changeData: any) => {
   if (changeData) {
@@ -717,10 +705,13 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
           break;
         }
       }
-      const persionVo = state.submitData?.insuredList?.[0];
       const riskInfo = currentPlan.value?.insureProductRiskVOList?.find((r) => r.riskCode === data.riskCode);
       if (!state.isAutoChange) {
         state.isQuerying = true;
+        const insuredList = state.userData.insuredList.filter((insured) => insured.birthday) || [];
+        if (!insuredList.length) {
+          return false;
+        }
         const dyResult = await queryCalcDynamicInsureFactor({
           calcProductFactorList: [
             {
@@ -739,7 +730,7 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
               ],
             },
           ],
-          ...persionVo,
+          insuredVOList: insuredList,
         });
         state.isQuerying = false;
         const result = handleDealDyResult(dyResult);
