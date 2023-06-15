@@ -701,7 +701,6 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
           break;
         }
       }
-      const persionVo = state.submitData?.insuredList?.[0];
       const riskInfo = currentPlan.value?.insureProductRiskVOList?.find((r) => r.riskCode === data.riskCode);
       if (!state.isAutoChange) {
         state.isQuerying = true;
@@ -723,7 +722,7 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
               ],
             },
           ],
-          ...persionVo,
+          insuredVOList: state.submitData?.insuredList.filter((insured) => insured.birthday),
         });
         state.isQuerying = false;
         const result = handleDealDyResult(dyResult);
