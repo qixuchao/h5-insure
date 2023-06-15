@@ -61,6 +61,7 @@
                   v-model="state.formData[node.name]"
                   :name="node.name"
                   :label="node.label"
+                  :maxlength="18"
                   type="number"
                   :required="node.required"
                   placeholder="请输入"
