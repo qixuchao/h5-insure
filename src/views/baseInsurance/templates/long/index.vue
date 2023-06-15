@@ -404,9 +404,9 @@ onMounted(() => {
   loading.value = true;
   initData();
   // 调用千里眼插件获取一个iseeBiz
-  // setTimeout(async () => {
-  //   iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
-  // }, 1500);
+  setTimeout(async () => {
+    iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
+  }, 1500);
 });
 </script>
 
