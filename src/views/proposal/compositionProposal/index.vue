@@ -669,7 +669,7 @@ onMounted(() => {
             flex-shrink: 0;
             position: relative;
             span {
-              margin-left: 16px;
+              margin-left: 14px;
               color: $zaui-brand;
               font-size: 34px;
               font-weight: 600;
@@ -683,7 +683,7 @@ onMounted(() => {
               transform: translateX(-50%);
               width: 40px;
               height: 8px;
-              border-radius: 2px;
+              border-radius: 8px;
               background-color: $zaui-brand;
               opacity: 0.14;
             }
