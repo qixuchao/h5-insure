@@ -2,7 +2,7 @@
   <van-config-provider>
     <div class="com-risk-liabilityinfo">
       <div class="item-wrap">
-        <div v-for="({ liabilityValue: item, relation }, index) in state.liabilityList" :key="index">
+        <div v-for="(item, index) in liabilityOriginData" :key="index">
           <!-- 必选责任 下面属性值只有一个时，不展示 -->
           <div
             v-if="
@@ -14,7 +14,7 @@
               v-if="
                 state.isCheckList[index]
                   ? state.isCheckList[index] !== '3'
-                  : relation !== LIABILITY_RELATION_ENUM.YI_LAI
+                  : item.relation !== LIABILITY_RELATION_ENUM.YI_LAI
               "
               :label="`${item.liabilityName}`"
               label-width="40%"
@@ -139,10 +139,11 @@ const findLiabilityRelation = (index, cb) => {
 
   const currentLiabilityId = riskLiabilityInfoVOList[index].liabilityId;
 
-  const currentRelation = riskLiabilityCollocationVOList.find(
-    (liability) =>
-      liability.relatedLiabilityId === currentLiabilityId || liability.collocationLiabilityId === currentLiabilityId,
-  );
+  const currentRelation =
+    (riskLiabilityCollocationVOList || []).find(
+      (liability) =>
+        liability.relatedLiabilityId === currentLiabilityId || liability.collocationLiabilityId === currentLiabilityId,
+    ) || {};
   let relatedLiabilityId = null;
   if (currentRelation.collocationLiabilityId === currentLiabilityId) {
     relatedLiabilityId = currentRelation.relatedLiabilityId;
@@ -163,7 +164,7 @@ const handleSwitchClick = (item, index, flag?) => {
   // 可选责任 没有责任属性 且为选中投保状态需要把code传给后端
   const key_list = state.value.liabilityList.map((i) => i.key);
   // 可选责任 没有责任属性
-  const canChooseNoLib = item.liabilityAttributeValueList.length === 0 && item.formula.length === 0;
+  const canChooseNoLib = item?.liabilityAttributeValueList.length === 0 && item?.formula.length === 0;
   // 投保状态
   const status = state.value.isCheckList[index];
   if (canChooseNoLib && key_list.indexOf(index) === -1 && status) {
@@ -217,22 +218,17 @@ const dataSourceFolmulate = computed(() => {
   return cloneDeep(props.dataSourceFolmulate);
 });
 const dealInitliabilityValueList = (item, index, type) => {
-  const relation = (props.dataSource.riskLiabilityCollocationVOList || []).find(
-    (liability) => liability.collocationLiabilityId === item.liabilityId,
-  );
   if (type === 1) {
     state.value.liabilityList.push({
       liabilityValue: { ...item, liabilityValue: item?.liabilityAttributeValueList[0] },
       key: index,
       isSwitchOn: '1',
-      relation: relation?.collocationType,
     });
   } else {
     state.value.liabilityList.push({
       liabilityValue: { ...item, liabilityValue: item?.liabilityAttributeValueList[0] },
       key: index,
       isSwitchOn: '2',
-      relation: relation?.collocationType,
     });
   }
 };
@@ -338,6 +334,26 @@ onMounted(() => {
   });
 });
 
+const liabilityOriginData = ref([]);
+watch(
+  () => props.dataSource.riskLiabilityInfoVOList,
+  (value) => {
+    liabilityOriginData.value = (value || []).map((liability) => {
+      const relation = (props.dataSource.riskLiabilityCollocationVOList || []).find(
+        (liabi) => liabi.collocationLiabilityId === liability.liabilityId,
+      );
+      return {
+        ...liability,
+        relation: relation?.collocationType,
+      };
+    });
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
 watch(
   () => props.defaultValue,
   (v) => {
@@ -346,7 +362,7 @@ watch(
       props.dataSource.riskLiabilityInfoVOList.forEach((item, index) => {
         const targetLia = v?.liabilityList.find((li) => li.liabilityCode === item.liabilityCode);
         console.log('--target lia = ', targetLia);
-        state.value.isCheckList[index] = '2';
+        // state.value.isCheckList[index] = '2';
         if (targetLia) {
           state.value.isCheckList[index] = '1';
           state.value.checkValueList[index] = targetLia?.liabilityValue?.displayValue;
