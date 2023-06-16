@@ -30,12 +30,8 @@ const start = async () => {
   const app = createApp(App);
 
   app.use(VueDOMPurifyHTML, {
-    hooks: {
-      afterSanitizeAttributes: (currentNode) => {
-        if ('target' in currentNode) {
-          currentNode.setAttribute('target', '_blank');
-        }
-      },
+    default: {
+      ALLOWED_ATTR: ['target', 'href', 'style', 'html', 'title', 'rel', 'alt'],
     },
   });
   app.use(router).use(store);

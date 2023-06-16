@@ -155,9 +155,9 @@ const getProposalName = (i: any) => {
     if (targetInsure) {
       const { name, gender } = targetInsure;
       if (isMale(gender)) {
-        return `${name}先生的家庭计划书`;
+        return `${name}先生的计划书`;
       }
-      return `${name}女士的家庭计划书`;
+      return `${name}女士的计划书`;
     }
   }
   if (i.proposalInsuredVOList.length === 1) {

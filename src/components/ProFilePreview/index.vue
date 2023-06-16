@@ -17,7 +17,7 @@
 
     <QuestionPreview v-else-if="isQuestion" :current-page-info="props.content" />
     <!-- 外联 -->
-    <!-- <iframe v-else :src="content" frameborder="0" width="100%" style="height: 100vh"></iframe> -->
+    <iframe v-else-if="!isIframe" :src="content" frameborder="0" width="100%" style="height: 100vh"></iframe>
     <slot name="footer-btn"></slot>
   </div>
 </template>
@@ -41,6 +41,10 @@ const props = defineProps({
   forbidClick: {
     type: Boolean,
     default: false,
+  },
+  isIframe: {
+    type: Boolean,
+    default: true,
   },
 });
 const isRichText = computed(() => {
@@ -113,7 +117,7 @@ watch(
 watch(
   () => props.type,
   (newVal) => {
-    if (newVal === 'link') {
+    if (props.isIframe && newVal === 'link') {
       window.open(props.content);
     }
   },
