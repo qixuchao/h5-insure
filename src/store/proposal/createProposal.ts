@@ -7,6 +7,7 @@ export interface State {
   excludeProduct: any[]; // 计划书中添加产品时需要排除的产品id
   insuredPersonVO: object; // 投保人信息
   selectedProduct: any[]; // 计划书选择的产品:
+  selectedProductList: any[]; // 计划书选择的产品详细信息:
   proposalId: number; // 记录当前计划书id
 }
 
@@ -19,6 +20,7 @@ const useStore = defineStore<
     setTrialData: (data: ProposalInfo[]) => void;
     setExcludeProduct: (data: any[]) => void;
     setSelectedProduct: (data: any[]) => void;
+    setSelectedProductList: (data: any[]) => void;
     setInsuredPersonVO: (data: any) => void;
   }
 >({
@@ -30,6 +32,7 @@ const useStore = defineStore<
       trialData: [],
       excludeProduct: [], // 创建计划书，查询产品时，排除已选
       selectedProduct: [], // 计划书选择的产品
+      selectedProductList: [],
       proposalId: 0,
       insuredPersonVO: {},
     };
@@ -48,6 +51,9 @@ const useStore = defineStore<
     },
     setSelectedProduct(data) {
       this.$state.selectedProduct = data;
+    },
+    setSelectedProductList(data) {
+      this.$state.selectedProductList = data;
     },
     setInsuredPersonVO(data) {
       this.$state.insuredPersonVO = data;

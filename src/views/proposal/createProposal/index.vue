@@ -237,6 +237,7 @@ const proposalInfo = ref<any>({
 const router = useRouter();
 const route = useRoute();
 const store = createProposalStore();
+const product_namelist = {};
 
 const {
   productCode: productCodeInQuery,
@@ -256,6 +257,7 @@ interface proposalInsuredProductItem {
 
 interface StateInfo {
   selectedProductCodeList: string[];
+  selectedProductList: any[];
   currentProductCode: string;
   holder: Partial<ProposalHolder>;
   insuredPersonVO: Partial<ProposalHolder>;
@@ -275,6 +277,7 @@ interface StateInfo {
 
 const stateInfo = reactive<StateInfo>({
   selectedProductCodeList: [],
+  selectedProductList: [],
   insuredPersonVO: {},
   insurerList: [],
   currentProductCode: '',
@@ -331,10 +334,6 @@ const currentProductPlanDetail = computed(() => {
 });
 
 const multiInsured = computed(() => {
-  console.log(
-    '----- currentProductDetail.value?.productPlanInsureVOList?.[0]?.multiInsuredConfigVO = ',
-    stateInfo.currentProductCode,
-  );
   return currentProductDetail.value?.productPlanInsureVOList?.[0]?.multiInsuredConfigVO;
 });
 
@@ -367,7 +366,10 @@ const relationColumn = () => {
     return personVO.relationToHolder === RELATION_HOLDER_ENUM.MATE;
   });
   const newMap = RELATION_HOLDER_LIST.map((conf) => {
-    if (conf.value === RELATION_HOLDER_ENUM.MATE && mateIndex >= 0 && mateIndex !== stateInfo.currentSelectInsure) {
+    if (
+      conf.value === RELATION_HOLDER_ENUM.SELF ||
+      (conf.value === RELATION_HOLDER_ENUM.MATE && mateIndex >= 0 && mateIndex !== stateInfo.currentSelectInsure)
+    ) {
       return {
         ...conf,
         disabled: true,
@@ -391,10 +393,10 @@ const combineToProductList = (productInfo: PlanTrialData) => {
   const currentIndex = stateInfo.insurerList[stateInfo.currentSelectInsure].productList.findIndex(
     (productItem) => productItem.productCode === productInfo.productCode,
   );
-
   const tempData = {
     ...productInfo.insuredProductInfo,
     nanoid: nanoid(),
+    productName: product_namelist[productInfo.productCode],
   };
 
   if (currentIndex === -1) {
@@ -495,6 +497,7 @@ const queryProductInfo = (searchData: any) => {
         if (isNotEmptyArray(data)) {
           data.reduce((res, item) => {
             res[item.productCode] = item;
+            product_namelist[item.productCode] = item.productName;
             return res;
           }, stateInfo.productCollection);
           console.log('stateInfo.productCollection = ', stateInfo.productCollection);
@@ -506,7 +509,6 @@ const queryProductInfo = (searchData: any) => {
 
 // 获取试算默认值
 const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[], flag = false) => {
-  console.log('----fetchDefaultData', calcProductFactorList);
   if (!isNotEmptyArray(calcProductFactorList)) {
     return;
   }
@@ -535,7 +537,6 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
           ...rest,
           riskList,
         };
-        trailProduct(dataItem);
 
         // 初次调用
         if (flag) {
@@ -545,13 +546,18 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
         }
         insuredList.forEach((insured: any, index: number) => {
           const { productList: products, ...p } = insured;
-
-          if (stateInfo.insurerList[index]) {
-            // Object.assign(stateInfo.insurerList[index].personVO, p);
-            // stateInfo.insurerList[index].productList = products.map((pro) => {
-            //   return { ...pro, productCode };
-            // });
-          } else {
+          // if (stateInfo.insurerList[stateInfo.currentSelectInsure]) {
+          //   products.forEach((product) => {
+          //     const hasProduct = stateInfo.insurerList[stateInfo.currentSelectInsure].productList.some(
+          //       (pro) => pro.productCode === product.productCode,
+          //     );
+          //     if (!hasProduct) {
+          //       // console.log('----push ');
+          //       stateInfo.insurerList[stateInfo.currentSelectInsure].productList.push(product);
+          //     }
+          //   });
+          // }
+          if (stateInfo.insurerList.length === 0) {
             if (!p.relationToHolder) {
               p.relationToHolder = RELATION_HOLDER_ENUM.SELF;
             }
@@ -569,6 +575,8 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
         } else {
           stateInfo.productList.push(tempData);
         }
+
+        trailProduct(dataItem);
       });
     }
   }
@@ -586,12 +594,18 @@ const queryProposalInfo = (params = {}) => {
         ...insuredPersonVO,
         proposalName,
       };
+      stateInfo.insurerList = insuredList.map((insure) => {
+        const { productList: products, ...personVO } = insure;
+        return {
+          productList: products,
+          personVO,
+        };
+      });
       queryProductInfo(
         productList.map((item) => ({
           productCode: item.productCode,
         })),
       );
-      console.log('----query detail ', productList);
       stateInfo.productList = productList;
     }
   });
@@ -745,7 +759,12 @@ const submitData = (proposalId) => {
       insuredList: stateInfo.insurerList.map((insure) => {
         return {
           ...insure.personVO,
-          productList: insure.productList,
+          productList: insure.productList.map((p) => {
+            return {
+              ...p,
+              productName: product_namelist[p.productCode],
+            };
+          }),
         };
       }),
       proposalName: stateInfo.insuredPersonVO.proposalName,
@@ -784,6 +803,15 @@ const selectAction = (item: ActionSheetAction, index: number) => {
 
 const handleCurrentInsureChange = (index: number) => {
   stateInfo.currentSelectInsure = index;
+  if (stateInfo.insurerList[index]?.productList.length > 0) {
+    queryProductInfo(
+      stateInfo.insurerList[index].productList.map(({ productCode }) => ({
+        productCode,
+      })),
+    );
+  } else {
+    stateInfo.productCollection = {};
+  }
 };
 
 const handleAddInsure = (data: any, index: number) => {
@@ -803,6 +831,7 @@ const handleAddInsure = (data: any, index: number) => {
     };
   }
   stateInfo.currentSelectInsure = index;
+  stateInfo.productCollection = {};
 };
 
 const handleDeleteInsure = (index: number) => {
@@ -848,7 +877,6 @@ watch(
           })),
         );
       }
-      console.log('-----', cloneDeep(stateInfo.insurerList));
     }
   }),
   {
@@ -858,7 +886,8 @@ watch(
 
 // 返回创建页面
 onActivated(() => {
-  const { selectedProduct, insuredPersonVO } = store.$state;
+  const { selectedProduct, selectedProductList } = store.$state;
+  stateInfo.selectedProductList = selectedProductList;
   stateInfo.selectedProductCodeList = isNotEmptyArray(selectedProduct) ? (selectedProduct as string[]) : [];
 });
 
@@ -883,6 +912,9 @@ onBeforeMount(() => {
 <style lang="scss" scoped>
 .page-create-wrapper {
   background-color: $zaui-global-bg;
+  :deep(.page-main) {
+    background-color: $zaui-global-bg;
+  }
   .proposal-header {
     width: 100%;
     :deep(.van-cell__title) {

@@ -315,6 +315,7 @@ const addProposal = () => {
   });
   store.setTrialData(selectedProduct);
   store.setSelectedProduct(state.selectProduct);
+  store.setSelectedProductList(state.selectedProductList);
   router.back();
 };
 

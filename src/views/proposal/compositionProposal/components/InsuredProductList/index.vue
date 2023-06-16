@@ -113,7 +113,7 @@ const onClick = () => {
   if (!checked.value) {
     return Toast('请选择投保产品');
   }
-  emits('finished', currentProduct.value, props.dataSource.proposalInsuredId);
+  emits('finished', currentProduct.value);
 };
 
 watch(
@@ -155,6 +155,11 @@ watch(
     .popup-body {
       padding-bottom: 150px;
 
+      :deep(.van-cell) {
+        height: 106px;
+        display: flex;
+        align-items: center;
+      }
       .error-message {
         color: $zaui-danger;
         font-size: 26px;
