@@ -46,15 +46,18 @@
 import { Toast } from 'vant';
 import { withDefaults } from 'vue';
 import { useEventListener } from '@vueuse/core';
+import { isAppFkq } from '@/utils';
 import { queryInsurePopupConfig } from '@/api/modules/product';
 import Storage from '@/utils/storage';
 import { ProductDetail } from '@/api/modules/product.data';
 import useThread, { ThreadType } from '@/hooks/useThread';
+import { openWebView } from '@/utils/jsbridgePromise';
 
 const props = withDefaults(defineProps<{ productDetail: Partial<ProductDetail> }>(), {
   productDetail: () => ({}),
 });
 
+const isApp = isAppFkq();
 const route = useRoute();
 /** 页面query参数类型 */
 interface QueryData {
@@ -186,7 +189,11 @@ const initData = async () => {
       } else if (targetA.target === '_blank') {
         // 假如是链接类型
         if (targetA.href.indexOf('http://') === 0 || targetA.href.indexOf('https://') === 0) {
-          window.open(targetA.href);
+          if (isApp) {
+            openWebView(targetA.innerText, targetA.href);
+          } else {
+            window.open(targetA.href);
+          }
         } else {
           Toast('配置网页链接需要带协议http://或https://');
         }
