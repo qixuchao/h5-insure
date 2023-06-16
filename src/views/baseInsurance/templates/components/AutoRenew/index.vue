@@ -64,7 +64,6 @@
                   :maxlength="18"
                   type="number"
                   :required="node.required"
-                  placeholder="请输入"
                 >
                 </ProField>
               </template>
