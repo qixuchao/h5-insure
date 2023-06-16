@@ -1,5 +1,12 @@
 <template>
-  <ProPopup class="pre-notice-wrap" :show="noticeShow" :closeable="false" height="auto" style="padding-bottom: 30px">
+  <ProPopup
+    class="pre-notice-wrap"
+    :show="noticeShow"
+    :close-on-click-overlay="false"
+    :closeable="false"
+    height="auto"
+    style="padding-bottom: 30px"
+  >
     <div v-if="state.insureConfig.logoUrl" class="header"><img :src="state.insureConfig.logoUrl" /></div>
     <div
       v-if="state.insureConfig.logoLocation === 1 && state.insureConfig.acceptReminder"
@@ -15,7 +22,7 @@
       class="statement"
     ></div>
     <div class="footer">
-      <VanButton type="primary" block round @click="closePopup">
+      <VanButton type="primary" :disabled="currentTime !== 0" block round @click="closePopup">
         {{ state.insureConfig.buttonTitle }}
         <span v-if="currentTime">{{ currentTime }}s</span>
       </VanButton>
@@ -26,23 +33,21 @@
     class="pre-notice-wrap"
     :title="attachmentUri?.title"
     position="bottom"
+    :close-on-click-overlay="false"
     :style="{ overflow: 'hidden' }"
   >
     <div class="review-pdf">
-      <ProFilePreview :content="attachmentUri?.link" :type="fileType"></ProFilePreview>
+      <ProFilePreview :is-iframe="false" :content="attachmentUri?.link" :type="fileType"></ProFilePreview>
     </div>
   </ProPopup>
 </template>
 
 <script lang="ts" setup name="preNotice">
-import { useCountDown } from '@vant/use';
+import { Toast } from 'vant';
 import { withDefaults } from 'vue';
 import { useEventListener } from '@vueuse/core';
 import { queryInsurePopupConfig } from '@/api/modules/product';
 import Storage from '@/utils/storage';
-import ProShadowButton from '../ProShadowButton/index.vue';
-import HeaderImg from '@/assets/images/baseInsurance/header-logo.png';
-import { useCustomStatement } from '../../customLogic';
 import { ProductDetail } from '@/api/modules/product.data';
 import useThread, { ThreadType } from '@/hooks/useThread';
 
@@ -99,27 +104,37 @@ const currentTime = ref();
 const fileType = computed(() => {
   if (attachmentUri.value.link) {
     const urlList = (attachmentUri.value.link || '').split('?');
-    const type = (urlList[0] || '').substr(urlList[0].lastIndexOf('.') + 1);
-    console.log('urlList', type);
-    // eslint-disable-next-line no-param-reassign
+    const lastIndex = urlList[0].lastIndexOf('.');
+    const type = (urlList[0] || '').substring(lastIndex + 1);
     if (type === 'pdf') {
-      // eslint-disable-next-line no-param-reassign
       return 'pdf';
     }
-    // eslint-disable-next-line no-param-reassign
-    return 'picture';
+    if (['.jpg', '.JPG', '.jpeg', '.JPEG', '.png', '.PNG', '.gif', '.tif'].includes(type)) {
+      return 'picture';
+    }
   }
   return 'link';
 });
 
-const clickHandler = (e: any, field: string) => {
+const clickHandler = (e: any) => {
   pdfShow.value = !pdfShow.value;
-  attachmentUri.value.link = state.insureConfig?.[field].link;
-  attachmentUri.value.title = e.target.innerText;
+  attachmentUri.value.link = e.href;
+  attachmentUri.value.title = e.innerText;
 };
 
 const closePopup = () => {
   noticeShow.value = false;
+};
+
+const isFileUrl = (url: string) => {
+  if (!url) return false;
+  const [href] = (url || '').split('?');
+  const lastIndex = href.lastIndexOf('.');
+  if (lastIndex === -1) {
+    return false;
+  }
+  const prefix = href.substring(lastIndex);
+  return ['.jpg', '.JPG', '.jpeg', '.JPEG', '.png', '.PNG', '.gif', '.tif', '.pdf', '.PDF'].includes(prefix);
 };
 
 const initData = async () => {
@@ -139,6 +154,7 @@ const initData = async () => {
       },
       stop: () => {
         console.log('结束轮询');
+        currentTime.value = 0;
         sessionStorage.set(`${STORAGE_PREFIX}-isShow`, '1');
       },
       time: 1000,
@@ -149,9 +165,36 @@ const initData = async () => {
     });
   }
   noticeShow.value = true;
-  // useEventListener(noticeRef, 'click', (e) => {
-  //   console.dir(e.target, 'sslslwwowp');
-  // });
+  useEventListener(noticeRef, 'click', (ev) => {
+    const e: any = ev || window.event;
+    // 阻止默认事件[兼容处理]
+    if (e.preventDefault) {
+      e.preventDefault();
+    } else {
+      e.returnValue = false;
+    }
+    const { target } = e;
+    let targetA: any = target;
+    if ((target.tagName === 'SPAN' && target?.parentNode.tagName === 'A') || target.tagName === 'A') {
+      if (target.tagName === 'SPAN' && target?.parentNode.tagName === 'A') {
+        targetA = target?.parentNode;
+      }
+      console.dir(targetA);
+      if (isFileUrl(targetA.href)) {
+        // 假如是文件类型
+        clickHandler(targetA);
+      } else if (targetA.target === '_blank') {
+        // 假如是链接类型
+        if (targetA.href.indexOf('http://') === 0 || targetA.href.indexOf('https://') === 0) {
+          window.open(targetA.href);
+        } else {
+          Toast('配置网页链接需要带协议http://或https://');
+        }
+      } else {
+        clickHandler(targetA);
+      }
+    }
+  });
 };
 
 onMounted(() => {

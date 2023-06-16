@@ -26,6 +26,12 @@ class Thread {
 
   timer: any;
 
+  deltaTime = 0;
+
+  startTime = 0;
+
+  isStart = false;
+
   constructor(config: ThreadConfig) {
     this.params = this.init(config);
   }
@@ -43,33 +49,46 @@ class Thread {
   }
 
   run() {
-    this.timer = setTimeout(this.runTime.bind(this), this.time);
+    // this.timer = setTimeout(this.runTime.bind(this), this.time);
+    window.requestAnimationFrame((t) => {
+      this.startTime = t;
+      this.isStart = true;
+      this.runTime();
+    });
   }
 
   stop() {
     clearTimeout(this.timer);
+    this.isStart = false;
     this.params.stop();
   }
 
   runTime() {
-    try {
-      this.params.start();
-    } finally {
-      if (this.params.number > 0) {
-        if (this.total >= this.params.number) {
-          this.params.stop();
-          clearTimeout(this.timer);
-          // eslint-disable-next-line no-unsafe-finally
-          return;
+    window.requestAnimationFrame((delta) => {
+      this.deltaTime += delta - this.startTime;
+      this.startTime = delta;
+      if (this.deltaTime >= this.time) {
+        this.deltaTime = 0;
+        try {
+          this.params.start();
+        } finally {
+          if (this.params.number > 0) {
+            if (this.total >= this.params.number) {
+              this.stop();
+              // eslint-disable-next-line no-unsafe-finally
+              return;
+            }
+            if (!this.total) {
+              this.total = 1;
+            }
+            this.total += 1;
+          }
         }
-        if (!this.total) {
-          this.total = 1;
-        }
-        this.total += 1;
       }
-      clearTimeout(this.timer);
-    }
-    this.timer = setTimeout(this.runTime.bind(this), this.time);
+      if (this.isStart) {
+        this.runTime();
+      }
+    });
   }
 }
 
