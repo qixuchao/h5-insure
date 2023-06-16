@@ -252,9 +252,9 @@ watch(
     const { gender, name, birthday } = val[0];
     const age = dayjs().diff(birthday, 'y');
     if (isMale(gender)) {
-      proposalName.value = `${name}先生的家庭计划书`;
+      proposalName.value = `${name}先生的计划书`;
     } else {
-      proposalName.value = `${name}女士的家庭计划书`;
+      proposalName.value = `${name}女士的计划书`;
     }
   },
 );
