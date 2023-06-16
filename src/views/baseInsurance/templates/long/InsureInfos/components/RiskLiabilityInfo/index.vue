@@ -2,7 +2,7 @@
   <van-config-provider>
     <div class="com-risk-liabilityinfo">
       <div class="item-wrap">
-        <div v-for="(item, index) in dataSource.riskLiabilityInfoVOList" :key="index">
+        <div v-for="({ liabilityValue: item, relation }, index) in state.liabilityList" :key="index">
           <!-- 必选责任 下面属性值只有一个时，不展示 -->
           <div
             v-if="
@@ -11,6 +11,11 @@
             "
           >
             <ProField
+              v-if="
+                state.isCheckList[index]
+                  ? state.isCheckList[index] !== '3'
+                  : relation !== LIABILITY_RELATION_ENUM.YI_LAI
+              "
               :label="`${item.liabilityName}`"
               label-width="40%"
               name="insuredRelation"
@@ -68,6 +73,8 @@ import cloneDeep from 'lodash-es/cloneDeep';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
 import { RiskDetailVoItem, RiskVoItem } from '@/api/modules/trial.data';
 import { getCalculateRiskFormula } from '@/api/modules/trial';
+import { LIABILITY_RELATION_ENUM } from '@/common/constants/product';
+import { YES_NO_ENUM } from '@/common/constants';
 
 interface Props {
   dataSource: RiskDetailVoItem;
@@ -104,9 +111,56 @@ const signLiabilityClick = (item, index) => {
   });
 };
 
-const handleSwitchClick = (item, index) => {
-  // 可选责任 没有责任属性 且为选中投保状态需要把code传给后端
+const displayLiabilityByRelation = (preIndex, index, relation) => {
+  if (state.value.isCheckList[preIndex] === `${YES_NO_ENUM.YES}`) {
+    if (relation === LIABILITY_RELATION_ENUM.BANG_DING) {
+      state.value.isCheckList[index] = '1';
+    } else if (relation === LIABILITY_RELATION_ENUM.YI_LAI) {
+      state.value.isCheckList[index] = '1';
+    } else {
+      state.value.isCheckList[index] = '2';
+    }
+  } else {
+    if (relation === LIABILITY_RELATION_ENUM.BANG_DING) {
+      state.value.isCheckList[index] = '2';
+    } else if (relation === LIABILITY_RELATION_ENUM.YI_LAI) {
+      if (preIndex !== index) {
+        state.value.isCheckList[index] = '3';
+      } else {
+        state.value.isCheckList[index] = '2';
+      }
+    }
+  }
+};
 
+// 根据选择的责任找出和他有关系的责任及对应关系
+const findLiabilityRelation = (index, cb) => {
+  const { riskLiabilityInfoVOList, riskLiabilityCollocationVOList } = props.dataSource;
+
+  const currentLiabilityId = riskLiabilityInfoVOList[index].liabilityId;
+
+  const currentRelation = riskLiabilityCollocationVOList.find(
+    (liability) =>
+      liability.relatedLiabilityId === currentLiabilityId || liability.collocationLiabilityId === currentLiabilityId,
+  );
+  let relatedLiabilityId = null;
+  if (currentRelation.collocationLiabilityId === currentLiabilityId) {
+    relatedLiabilityId = currentRelation.relatedLiabilityId;
+    if (currentRelation.collocationType === LIABILITY_RELATION_ENUM.YI_LAI) {
+      relatedLiabilityId = currentRelation.collocationLiabilityId;
+    }
+  } else {
+    relatedLiabilityId = currentRelation.collocationLiabilityId;
+  }
+
+  const nextIndex = riskLiabilityInfoVOList.findIndex((liability) => liability.liabilityId === relatedLiabilityId);
+
+  displayLiabilityByRelation(index, nextIndex, currentRelation.collocationType);
+  cb(riskLiabilityInfoVOList[nextIndex], nextIndex, true);
+};
+
+const handleSwitchClick = (item, index, flag?) => {
+  // 可选责任 没有责任属性 且为选中投保状态需要把code传给后端
   const key_list = state.value.liabilityList.map((i) => i.key);
   // 可选责任 没有责任属性
   const canChooseNoLib = item.liabilityAttributeValueList.length === 0 && item.formula.length === 0;
@@ -133,7 +187,11 @@ const handleSwitchClick = (item, index) => {
       }
     });
   }
+  if (!flag) {
+    findLiabilityRelation(index, handleSwitchClick);
+  }
 };
+
 const handleRiskLiabityClick = (e, index) => {
   const curentLiabilityList = e.liabilityAttributeValueList.filter(
     (x) => x.displayValue === state.value.checkValueList[index],
@@ -153,22 +211,28 @@ const handleRiskLiabityClick = (e, index) => {
     isSwitchOn: '1',
   });
 };
+
 const dataSourceFolmulate = computed(() => {
   // if (initialPremium) return 0;
   return cloneDeep(props.dataSourceFolmulate);
 });
 const dealInitliabilityValueList = (item, index, type) => {
+  const relation = (props.dataSource.riskLiabilityCollocationVOList || []).find(
+    (liability) => liability.collocationLiabilityId === item.liabilityId,
+  );
   if (type === 1) {
     state.value.liabilityList.push({
       liabilityValue: { ...item, liabilityValue: item?.liabilityAttributeValueList[0] },
       key: index,
       isSwitchOn: '1',
+      relation: relation?.collocationType,
     });
   } else {
     state.value.liabilityList.push({
       liabilityValue: { ...item, liabilityValue: item?.liabilityAttributeValueList[0] },
       key: index,
       isSwitchOn: '2',
+      relation: relation?.collocationType,
     });
   }
 };
@@ -211,8 +275,6 @@ watch(
         return liab;
       }
     });
-    console.log('liabilityItem>>>>>>', liabilityItem);
-    console.log('riskLiabilityInfoVOList>>>>>>', props.dataSource.riskLiabilityInfoVOList);
   },
   {
     deep: true,

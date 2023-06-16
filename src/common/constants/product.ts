@@ -34,4 +34,11 @@ export const RELATION_HOLDER_LIST = [
   },
 ];
 
+// 责任关联关系枚举值
+export const LIABILITY_RELATION_ENUM = {
+  BANG_DING: 1, // 绑定
+  HU_CHI: 2, // 互斥
+  YI_LAI: 3, // 单向依赖
+};
+
 export default {};
