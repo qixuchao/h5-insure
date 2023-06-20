@@ -151,8 +151,8 @@ import {
   queryProposalThemeHistoryDetail,
 } from '@/api/modules/compositionProposal';
 import Storage from '@/utils/storage';
-import InsurancesList from './components/InsurancesList.vue';
-import InsuranceList from './components/InsuranceList.vue';
+import InsurancesList from './components/InsurancesList.vue'; // 预览页面 被保人选择
+import InsuranceList from './components/InsuranceList.vue'; // 被保人展示
 import Benefit from './components/Benefit.vue';
 import LiabilityByRisk from './components/LiabilityByRisk.vue';
 import LiabilityByRes from './components/LiabilityByRes.vue';
@@ -169,7 +169,7 @@ import ThemeSelect from './components/ThemeSelect/index.vue';
 import { SEX_LIMIT_ENUM } from '@/common/constants';
 import { useLocalStorage } from '@/hooks/useStorage';
 import Capsule from '@/components/CapsuleSelect/index.vue';
-import InsuredList from './components/InsuredList.vue';
+import InsuredList from './components/InsuredList.vue'; // 选择被保人
 import useTheme from '@/hooks/useTheme';
 
 const themeVars = useTheme();
@@ -327,7 +327,6 @@ const getProposalTransInsured = () => {
 const openProductList = (insure: any) => {
   toggleInsureList(false);
   proposal2InsuredSelectedInsurer.value = insure;
-  console.log('------insure = ', insure);
   toggleProductList(true);
 };
 
@@ -365,6 +364,7 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
         //   }
         // });
         queryInsureLink({
+          // 后端换接口了
           insurerCode,
           productCode: tenantProductCode,
           proposalId: id,

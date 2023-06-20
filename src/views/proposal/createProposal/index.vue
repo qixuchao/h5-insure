@@ -257,12 +257,12 @@ interface proposalInsuredProductItem {
 
 interface StateInfo {
   selectedProductCodeList: string[];
-  selectedProductList: any[];
+  selectedProductList: any[]; // 当前被保人选择的产品列表
   currentProductCode: string;
   holder: Partial<ProposalHolder>;
   insuredPersonVO: Partial<ProposalHolder>;
-  insurerList: ProposalHolder[];
-  currentSelectInsure: number;
+  insurerList: ProposalHolder[]; // 被保人列表，包含被保人信息personVO和productList
+  currentSelectInsure: number; // 当前选择的被保人序号
   productList: ProposalInsuredProductItem[];
   productCollection: {
     [x: string]: ProductData;
@@ -303,7 +303,6 @@ const currentProductCodeList = computed(() => {
 });
 
 const currentProductCodeListFn = () => {
-  console.log('------', stateInfo.insurerList, stateInfo.currentSelectInsure);
   return stateInfo.insurerList[stateInfo.currentSelectInsure].productList
     .map((item) => item.productCode)
     .filter((code) => Boolean(code));
@@ -366,6 +365,7 @@ const relationColumn = () => {
     return personVO.relationToHolder === RELATION_HOLDER_ENUM.MATE;
   });
   const newMap = RELATION_HOLDER_LIST.map((conf) => {
+    // 如果是本人的情况  一定是disable的，因为默认第一个被保人就是本人
     if (
       conf.value === RELATION_HOLDER_ENUM.SELF ||
       (conf.value === RELATION_HOLDER_ENUM.MATE && mateIndex >= 0 && mateIndex !== stateInfo.currentSelectInsure)

@@ -58,6 +58,7 @@ const emits = defineEmits(['listChange', 'currentChange', 'add', 'delete']);
 const updateInsurer = (index: number, info: any) => {};
 
 const getRelate = (relate: any) => {
+  // 根据枚举获取关系的文本
   if (relate?.personVO && relate?.personVO?.relationToHolder) {
     const targetEnum = RELATION_HOLDER_LIST.find((en) => en.value === `${relate?.personVO?.relationToHolder}`);
     if (targetEnum) return targetEnum.label;
@@ -66,6 +67,7 @@ const getRelate = (relate: any) => {
 };
 
 const hasProductCheck = () => {
+  // 有产品的时候，才允许用户切换被保人和添加新的被保人
   const ifHasNoProduct =
     !list.value[state.value.currentSelected].productList ||
     list.value[state.value.currentSelected].productList.length <= 0;
@@ -116,7 +118,6 @@ const handleDeleteClick = (e, index) => {
 watch(
   () => props.insurerList.length,
   () => {
-    console.log('--------', props.insurerList.length);
     list.value = props.insurerList;
   },
   {
