@@ -357,6 +357,8 @@ export interface PersonVo {
   certNo?: string;
   occupationClass?: number;
   occupationCodeList?: string[];
+  relationToHolder:number;
+  relationToMainInsured:string;
   socialFlag?: string;
   mobile?: string;
   name?: string;

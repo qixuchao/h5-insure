@@ -29,6 +29,7 @@ export interface InsuredItem {
   email: string;
   gender: number;
   hasSocialInsurance: number;
+  shelfStatus: number;
   height: number;
   id: number;
   insureArea: InsureArea;
@@ -50,6 +51,7 @@ export interface ProductItem {
   productCode: string;
   productId: number;
   productName: string;
+  shelfStatus:number;
   riskList: RiskItem[];
 }
 

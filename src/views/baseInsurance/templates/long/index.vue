@@ -173,14 +173,12 @@ const {
 let extInfo: any = {};
 
 try {
-  console.log('extInfo', decodeURIComponent(extraInfo));
-
   extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
 } catch (error) {
   //
 }
 
-const { openId } = extInfo;
+const { openId, proposalInsuredId } = extInfo;
 
 const formRef = ref();
 const detailScrollRef = ref();
@@ -297,17 +295,18 @@ const initData = async () => {
     queryProposalDetailInsurer({ id: proposalId, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         const { holder, insuredList } = data;
-
         orderDetail.value = Object.assign(defaultOrderDetail.value, {
           productCode,
           productName: '',
           renewFlag: '',
           holder,
           tenantId,
-          insuredList: (insuredList || []).map((insured) => ({
-            ...insured,
-            productList: insured.productList.filter((product) => product.productCode === productCode),
-          })),
+          insuredList: (insuredList || [])
+            .filter((item) => item.id === +proposalInsuredId)
+            .map((insured) => ({
+              ...insured,
+              productList: insured.productList.filter((product) => product.productCode === productCode),
+            })),
         });
         isLoadDefaultValue.value = true;
       }

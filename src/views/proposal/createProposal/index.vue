@@ -99,6 +99,7 @@
                 >
                   <template #extra>
                     <ProDatePickerV2
+                      v-model="stateInfo.holder.birthday"
                       class="birthday-field-wrap"
                       label="出生日期"
                       name="birthday"
@@ -218,6 +219,7 @@ import {
   ProposalInsuredProductItem,
   ProposalHolder,
   PlanTrialData,
+  ProductItem,
 } from '@/api/modules/createProposal.data';
 import { queryCalcDefaultInsureFactor, queryCalcDynamicInsureFactor, premiumCalc } from '@/api/modules/trial';
 import TrialPopup from '../proposalList/components/TrialPopup.vue';
@@ -410,12 +412,10 @@ const validateTab = (cb) => {
   }
   Promise.all(validates)
     .then(() => {
-      console.log('ok', 1111);
       cb();
     })
     .catch((e) => {
-      console.log('error', 2222);
-      Toast('请确认信息是否录入完全!');
+      Toast('请确认信息是否录入完整!');
     });
 };
 
@@ -486,6 +486,10 @@ const onFinished = (productInfo: PlanTrialData) => {
   // 是否需要更新投被保人信息
   // 投保人
   Object.assign(stateInfo.holder, productInfo.holder);
+  if (stateInfo.currentSelectInsure === 0) {
+    productInfo.insuredPersonVO.relationToHolder =
+      stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToHolder;
+  }
   // 被保人
   if (stateInfo.insurerList[stateInfo.currentSelectInsure])
     Object.assign(stateInfo.insurerList[stateInfo.currentSelectInsure].personVO, productInfo.insuredPersonVO);
@@ -571,11 +575,26 @@ const queryProductInfo = (searchData: any) => {
             product_namelist[item.productCode] = item.productName;
             return res;
           }, stateInfo.productCollection);
-          console.log('stateInfo.productCollection = ', stateInfo.productCollection);
         }
       }
     })
     .finally(() => {});
+};
+
+const getHolderList = () => {
+  if (+stateInfo.insurerList[0].personVO.relationToHolder === 1) {
+    const { relationToHolder, relationToMainInsured, productList, ...other } = stateInfo.insurerList[0].personVO;
+    return other;
+  }
+  return stateInfo.holder;
+};
+
+const getInsurerList = (index: number) => {
+  if (index === 0 && +stateInfo.insurerList[index].personVO.relationToHolder === 2) {
+    return { ...stateInfo.insurerList[index].personVO, relationToHolder: null };
+  }
+
+  return stateInfo.insurerList[index].personVO;
 };
 
 // 获取试算默认值
@@ -611,8 +630,11 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
 
         // 初次调用
         if (flag) {
-          if (stateInfo.insurerList[stateInfo.currentSelectInsure])
-            Object.assign(stateInfo.insurerList[stateInfo.currentSelectInsure].personVO, personVO);
+          if (stateInfo.insurerList[stateInfo.currentSelectInsure]) {
+            Object.assign(stateInfo.insurerList[stateInfo.currentSelectInsure].personVO, personVO, {
+              relationToHolder: 1,
+            });
+          }
           Object.assign(stateInfo.holder, holder);
         }
         insuredList.forEach((insured: any, index: number) => {
@@ -646,8 +668,18 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
         } else {
           stateInfo.productList.push(tempData);
         }
-
-        trailProduct(dataItem);
+        nextTick(() => {
+          trailProduct({
+            ...dataItem,
+            holder: { ...getHolderList() },
+            insuredList: [
+              {
+                ...getInsurerList(stateInfo.currentSelectInsure),
+                productList: stateInfo.insurerList[stateInfo.currentSelectInsure].productList,
+              },
+            ],
+          });
+        });
       });
     }
   }
@@ -665,17 +697,32 @@ const queryProposalInfo = (params = {}) => {
         ...insuredPersonVO,
         proposalName,
       };
-      stateInfo.insurerList = insuredList.map((insure) => {
+      let isDown = false;
+      stateInfo.insurerList = insuredList.map((insure, i) => {
         const { productList: products, ...personVO } = insure;
+        if (i === 0 && !personVO.relationToHolder) {
+          personVO.relationToHolder = 2;
+          changeHolderBirthday(stateInfo.holder.birthday);
+        }
         return {
-          productList: products,
+          productList: products.filter((item: ProductItem) => {
+            if (!isDown && item.shelfStatus !== 1) {
+              isDown = true;
+            }
+            return item.shelfStatus === 1;
+          }),
           personVO,
         };
       });
+      if (isDown) {
+        Toast('计划书中存在已下架产品，请重新生成计划书');
+      }
       queryProductInfo(
-        productList.map((item) => ({
-          productCode: item.productCode,
-        })),
+        productList
+          .filter((item: ProductItem) => item.shelfStatus === 1)
+          .map((item) => ({
+            productCode: item.productCode,
+          })),
       );
       stateInfo.productList = productList;
     }
@@ -728,24 +775,6 @@ const handleCalcDynamicInsure = (code: string) => {
     });
 };
 
-const getHolderList = () => {
-  if (+stateInfo.insurerList[0].personVO.relationToHolder === 1) {
-    const { relationToHolder, relationToMainInsured, productList, ...other } = stateInfo.insurerList[0].personVO;
-    return other;
-  }
-  return stateInfo.holder;
-};
-
-const getInsurerList = () => {
-  if (
-    stateInfo.currentSelectInsure === 0 &&
-    +stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToHolder === 2
-  ) {
-    return { ...stateInfo.insurerList[stateInfo.currentSelectInsure].personVO, relationToHolder: null };
-  }
-  return stateInfo.insurerList[stateInfo.currentSelectInsure].personVO;
-};
-
 /**
  * 计划书数据转试算数据
  * @param productCode
@@ -761,7 +790,7 @@ const convertProposalToTrialData = (productCode) => {
     },
     insuredList: [
       {
-        ...getInsurerList(),
+        ...getInsurerList(stateInfo.currentSelectInsure),
         productList: stateInfo.insurerList[stateInfo.currentSelectInsure].productList,
       },
     ],
@@ -846,12 +875,11 @@ const submitData = (proposalId) => {
     validates.push(holderFormRef.value?.validate());
   }
   Promise.all(validates).then(() => {
-    const { holder } = stateInfo;
     addOrUpdateProposal({
-      holder,
-      insuredList: stateInfo.insurerList.map((insure) => {
+      holder: { ...getHolderList() },
+      insuredList: stateInfo.insurerList.map((insure, i) => {
         return {
-          ...insure.personVO,
+          ...getInsurerList(i),
           productList: insure.productList.map((p) => {
             return {
               ...p,
