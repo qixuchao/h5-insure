@@ -78,6 +78,17 @@ export const FLAG_LIST = [
   },
 ];
 
+export const SELF_LIST = [
+  {
+    label: '是',
+    value: 1,
+  },
+  {
+    label: '否',
+    value: null,
+  },
+];
+
 // 产品资料对应的文件类型
 export const FILE_TYPE_ENUM = {
   1: 'pdf',

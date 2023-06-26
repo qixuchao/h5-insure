@@ -59,8 +59,8 @@ const updateInsurer = (index: number, info: any) => {};
 
 const getRelate = (relate: any) => {
   // 根据枚举获取关系的文本
-  if (relate?.personVO && relate?.personVO?.relationToHolder) {
-    const targetEnum = RELATION_HOLDER_LIST.find((en) => en.value === `${relate?.personVO?.relationToHolder}`);
+  if (relate?.personVO && relate?.personVO?.relationToMainInsured) {
+    const targetEnum = RELATION_HOLDER_LIST.find((en) => en.value === `${relate?.personVO?.relationToMainInsured}`);
     if (targetEnum) return targetEnum.label;
   }
   return '关系';

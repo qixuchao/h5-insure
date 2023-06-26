@@ -35,10 +35,10 @@
           />
           <ProPickerV2
             v-if="stateInfo.currentSelectInsure !== 0 && stateInfo.insurerList[stateInfo.currentSelectInsure]"
-            v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToHolder"
+            v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToMainInsured"
             label="关系"
             :is-default-selected="true"
-            name="relationToHolder"
+            name="relationToMainInsured"
             :columns="relationColumn()"
             required
           >
@@ -69,12 +69,56 @@
             name="gender"
             :columns="sexList"
             :disabled="
-              stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToHolder ===
+              stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToMainInsured ===
               RELATION_HOLDER_ENUM.MATE
             "
             required
           />
         </ProRenderFormWithCard>
+        <template v-if="stateInfo.currentSelectInsure === 0">
+          <ProRenderFormWithCard
+            ref="holderFormRef"
+            title="投保人信息"
+            :model="stateInfo.holder"
+            class="insure-container"
+          >
+            <ProRadioV2
+              v-model="stateInfo.insurerList[0].personVO.relationToHolder"
+              label="投被保人是同一人"
+              :columns="SELF_LIST"
+              required
+            />
+            <template v-if="!stateInfo.insurerList[0].personVO.relationToHolder">
+              <ProFieldV2 v-model="stateInfo.holder.name" name="name" label="姓名" :maxlength="20" required />
+              <ProFieldV2
+                v-model="stateInfo.holder.age"
+                class="age-field-wrap"
+                name="age"
+                label="年龄"
+                type="digit"
+                :maxlength="3"
+                required
+                @change="changeHolderAge"
+              >
+                <template #extra>
+                  <ProDatePickerV2
+                    class="birthday-field-wrap"
+                    label="出生日期"
+                    name="birthday"
+                    @update:model-value="changeHolderBirthday"
+                  />
+                </template>
+              </ProFieldV2>
+              <ProRadioV2
+                v-model="stateInfo.holder.gender"
+                label="性别"
+                name="gender"
+                :columns="SEX_LIMIT_LIST"
+                required
+              />
+            </template>
+          </ProRenderFormWithCard>
+        </template>
         <ProRenderFormWithCard ref="productFormRef" title="保障计划" class="product-container">
           <template v-if="stateInfo.insurerList[stateInfo.currentSelectInsure].productList.length > 0">
             <ProCard
@@ -183,7 +227,7 @@ import ProEmpty from '@/components/ProEmpty/index.vue';
 import emptyImg from '@/assets/images/empty.png';
 
 import { ProductData } from '@/common/constants/trial.data';
-import { SEX_LIMIT_LIST } from '@/common/constants';
+import { SEX_LIMIT_LIST, SELF_LIST } from '@/common/constants';
 import ProductList from './components/ProductList/index.vue';
 // import ProductRisk from './components/ProductRisk/index.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
@@ -293,6 +337,7 @@ const stateInfo = reactive<StateInfo>({
 const trialFlag = ref(false);
 const formRef = ref(null);
 const insuredFormRef = ref(null);
+const holderFormRef = ref(null);
 
 /** 当前计划书的产品CodeList */
 const currentProductCodeList = computed(() => {
@@ -362,7 +407,7 @@ const totalPremium = computed(() => {
 
 const relationColumn = () => {
   const mateIndex = stateInfo.insurerList.findIndex(({ personVO }) => {
-    return personVO.relationToHolder === RELATION_HOLDER_ENUM.MATE;
+    return personVO.relationToMainInsured === RELATION_HOLDER_ENUM.MATE;
   });
   const newMap = RELATION_HOLDER_LIST.map((conf) => {
     // 如果是本人的情况  一定是disable的，因为默认第一个被保人就是本人
@@ -484,9 +529,21 @@ const changeBirthday = (val) => {
   }
 };
 
+// 投保人生日变化要改变年龄
+const changeHolderBirthday = (val) => {
+  if (val) {
+    stateInfo.holder.age = dayjs(new Date()).diff(val, 'year');
+  }
+};
+
 //  改变年龄清除出生日期
 const changeAge = () => {
   stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.birthday = '';
+};
+
+//  改变年龄清除出生日期
+const changeHolderAge = () => {
+  stateInfo.holder.birthday = '';
 };
 
 /** 获取产品数据列表 */
@@ -558,8 +615,8 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
           //   });
           // }
           if (stateInfo.insurerList.length === 0) {
-            if (!p.relationToHolder) {
-              p.relationToHolder = RELATION_HOLDER_ENUM.SELF;
+            if (!p.relationToMainInsured) {
+              p.relationToMainInsured = RELATION_HOLDER_ENUM.SELF;
             }
             stateInfo.insurerList.push({
               productList: products.map((pro) => {
@@ -657,6 +714,13 @@ const handleCalcDynamicInsure = (code: string) => {
     });
 };
 
+const getHolderList = () => {
+  if (+stateInfo.insurerList[0].personVO.relationToHolder === 1) {
+    const { relationToHolder, relationToMainInsured, productList, ...other } = stateInfo.insurerList[0].personVO;
+    return other;
+  }
+  return stateInfo.holder;
+};
 /**
  * 计划书数据转试算数据
  * @param productCode
@@ -668,7 +732,7 @@ const convertProposalToTrialData = (productCode) => {
 
   return {
     holder: {
-      ...stateInfo.holder,
+      ...getHolderList(),
     },
     insuredList: [
       {
@@ -752,39 +816,41 @@ const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
 
 // 创建计划书
 const submitData = (proposalId) => {
-  Promise.all([formRef.value?.validate(), insuredFormRef.value?.validate()]).then(() => {
-    const { holder } = stateInfo;
-    addOrUpdateProposal({
-      holder,
-      insuredList: stateInfo.insurerList.map((insure) => {
-        return {
-          ...insure.personVO,
-          productList: insure.productList.map((p) => {
-            return {
-              ...p,
-              productName: product_namelist[p.productCode],
-            };
-          }),
-        };
-      }),
-      proposalName: stateInfo.insuredPersonVO.proposalName,
-      totalPremium: totalPremium.value,
-      relationUserType: 2,
-      id: proposalId,
-    }).then((res) => {
-      const { code, data } = res || {};
-      if (code === '10000') {
-        store.$reset();
-        router.push({
-          path: '/compositionProposal',
-          query: {
-            id: data,
-            preview,
-          },
-        });
-      }
-    });
-  });
+  Promise.all([formRef.value?.validate(), insuredFormRef.value?.validate(), holderFormRef.value?.validate()]).then(
+    () => {
+      const { holder } = stateInfo;
+      addOrUpdateProposal({
+        holder,
+        insuredList: stateInfo.insurerList.map((insure) => {
+          return {
+            ...insure.personVO,
+            productList: insure.productList.map((p) => {
+              return {
+                ...p,
+                productName: product_namelist[p.productCode],
+              };
+            }),
+          };
+        }),
+        proposalName: stateInfo.insuredPersonVO.proposalName,
+        totalPremium: totalPremium.value,
+        relationUserType: 2,
+        id: proposalId,
+      }).then((res) => {
+        const { code, data } = res || {};
+        if (code === '10000') {
+          store.$reset();
+          router.push({
+            path: '/compositionProposal',
+            query: {
+              id: data,
+              preview,
+            },
+          });
+        }
+      });
+    },
+  );
 };
 
 const saveProposalData = () => {
@@ -818,13 +884,13 @@ const handleAddInsure = (data: any, index: number) => {
   if (stateInfo.insurerList.length - 1 === index) {
     // 说明添加的就是最后一个
     const mateIndex = stateInfo.insurerList.findIndex((insure) => {
-      if (insure && insure.personVO) return insure.personVO.relationToHolder === RELATION_HOLDER_ENUM.MATE;
+      if (insure && insure.personVO) return insure.personVO.relationToMainInsured === RELATION_HOLDER_ENUM.MATE;
       return false;
     });
     stateInfo.insurerList[index] = {
       ...data,
       personVO: {
-        relationToHolder: mateIndex < 0 ? RELATION_HOLDER_ENUM.MATE : '',
+        relationToMainInsured: mateIndex < 0 ? RELATION_HOLDER_ENUM.MATE : '',
         gender: mateIndex < 0 ? (stateInfo.insurerList[0].personVO.gender === 1 ? 2 : 1) : '',
       },
       productList: [],
