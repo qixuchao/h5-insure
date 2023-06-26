@@ -53,7 +53,7 @@ const state = ref<State>({
 });
 
 const list = ref(props.insurerList);
-const emits = defineEmits(['listChange', 'currentChange', 'add', 'delete']);
+const emits = defineEmits(['listChange', 'currentChange', 'add', 'delete', 'validateTab']);
 
 const updateInsurer = (index: number, info: any) => {};
 
@@ -82,8 +82,10 @@ const handleInsurerClick = (e, index: number) => {
     return;
   }
   if (props.canChangeSelect) {
-    state.value.currentSelected = index;
-    emits('currentChange', index);
+    emits('validateTab', () => {
+      state.value.currentSelected = index;
+      emits('currentChange', index);
+    });
   }
 };
 
@@ -91,9 +93,11 @@ const handleAddClick = () => {
   if (!hasProductCheck()) {
     return;
   }
-  list.value.push({});
-  state.value.currentSelected = list.value.length - 1;
-  emits('add', {}, list.value.length - 1);
+  emits('validateTab', () => {
+    list.value.push({});
+    state.value.currentSelected = list.value.length - 1;
+    emits('add', {}, list.value.length - 1);
+  });
   // emits('currentChange', list.value.length - 1);
 };
 

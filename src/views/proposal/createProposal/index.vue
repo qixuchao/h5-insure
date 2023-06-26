@@ -14,111 +14,109 @@
           :config="stateInfo"
           :insurer-list="stateInfo.insurerList"
           :can-change-select="true"
+          @validateTab="validateTab"
           @current-change="handleCurrentInsureChange"
           @add="handleAddInsure"
           @delete="handleDeleteInsure"
         />
       </div>
       <div v-if="stateInfo.insurerList[stateInfo.currentSelectInsure]" class="container">
-        <ProRenderFormWithCard
-          ref="insuredFormRef"
+        <ProCard
           title="被保人信息"
-          :model="stateInfo.insurerList[stateInfo.currentSelectInsure]"
-          class="insure-container"
+          class="com-pro-form-with-card com-card-body-no-padding insure-containe"
+          :show-divider="false"
         >
-          <ProFieldV2
-            v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.name"
-            label="姓名"
-            name="name"
-            :maxlength="20"
-            required
-          />
-          <ProPickerV2
-            v-if="stateInfo.currentSelectInsure !== 0 && stateInfo.insurerList[stateInfo.currentSelectInsure]"
-            v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToMainInsured"
-            label="关系"
-            :is-default-selected="true"
-            name="relationToMainInsured"
-            :columns="relationColumn()"
-            required
-          >
-          </ProPickerV2>
-          <ProFieldV2
-            v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.age"
-            class="age-field-wrap"
-            name="age"
-            label="年龄"
-            type="digit"
-            :maxlength="3"
-            required
-            @change="changeAge"
-          >
-            <template #extra>
-              <ProDatePickerV2
-                v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.birthday"
-                class="birthday-field-wrap"
-                label="出生日期"
-                name="birthday"
-                @update:model-value="changeBirthday"
-              />
-            </template>
-          </ProFieldV2>
-          <ProRadioV2
-            v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.gender"
-            label="性别"
-            name="gender"
-            :columns="sexList"
-            :disabled="
-              stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToMainInsured ===
-              RELATION_HOLDER_ENUM.MATE
-            "
-            required
-          />
-        </ProRenderFormWithCard>
-        <template v-if="stateInfo.currentSelectInsure === 0">
-          <ProRenderFormWithCard
-            ref="holderFormRef"
-            title="投保人信息"
-            :model="stateInfo.holder"
-            class="insure-container"
-          >
-            <ProRadioV2
-              v-model="stateInfo.insurerList[0].personVO.relationToHolder"
-              label="投被保人是同一人"
-              :columns="SELF_LIST"
+          <ProRenderForm ref="insuredFormRef" :model="stateInfo.insurerList[stateInfo.currentSelectInsure]">
+            <ProFieldV2
+              v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.name"
+              label="姓名"
+              name="name"
+              :maxlength="20"
               required
             />
-            <template v-if="!stateInfo.insurerList[0].personVO.relationToHolder">
-              <ProFieldV2 v-model="stateInfo.holder.name" name="name" label="姓名" :maxlength="20" required />
-              <ProFieldV2
-                v-model="stateInfo.holder.age"
-                class="age-field-wrap"
-                name="age"
-                label="年龄"
-                type="digit"
-                :maxlength="3"
-                required
-                @change="changeHolderAge"
-              >
-                <template #extra>
-                  <ProDatePickerV2
-                    class="birthday-field-wrap"
-                    label="出生日期"
-                    name="birthday"
-                    @update:model-value="changeHolderBirthday"
-                  />
-                </template>
-              </ProFieldV2>
+            <ProPickerV2
+              v-if="stateInfo.currentSelectInsure !== 0 && stateInfo.insurerList[stateInfo.currentSelectInsure]"
+              v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToMainInsured"
+              label="与主被保人关系"
+              :is-default-selected="true"
+              name="relationToMainInsured"
+              :columns="relationColumn()"
+              required
+            >
+            </ProPickerV2>
+            <ProFieldV2
+              v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.age"
+              class="age-field-wrap"
+              name="age"
+              label="年龄"
+              type="digit"
+              :maxlength="3"
+              required
+              @change="changeAge"
+            >
+              <template #extra>
+                <ProDatePickerV2
+                  v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.birthday"
+                  class="birthday-field-wrap"
+                  label="出生日期"
+                  name="birthday"
+                  @update:model-value="changeBirthday"
+                />
+              </template>
+            </ProFieldV2>
+            <ProRadioV2
+              v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.gender"
+              label="性别"
+              name="gender"
+              :columns="sexList"
+              :disabled="
+                stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToMainInsured ===
+                RELATION_HOLDER_ENUM.MATE
+              "
+              required
+            />
+          </ProRenderForm>
+          <template v-if="stateInfo.currentSelectInsure === 0">
+            <div class="title-tip-icon">投保人信息</div>
+            <ProRenderForm ref="holderFormRef" :model="stateInfo.holder" class="insure-container">
               <ProRadioV2
-                v-model="stateInfo.holder.gender"
-                label="性别"
-                name="gender"
-                :columns="SEX_LIMIT_LIST"
+                v-model="stateInfo.insurerList[0].personVO.relationToHolder"
+                label="投被保人是同一人"
+                :columns="SELF_LIST"
                 required
               />
-            </template>
-          </ProRenderFormWithCard>
-        </template>
+              <template v-if="stateInfo.insurerList[0].personVO.relationToHolder === 2">
+                <ProFieldV2 v-model="stateInfo.holder.name" name="name" label="姓名" :maxlength="20" required />
+                <ProFieldV2
+                  v-model="stateInfo.holder.age"
+                  class="age-field-wrap"
+                  name="age"
+                  label="年龄"
+                  type="digit"
+                  :maxlength="3"
+                  required
+                  @change="changeHolderAge"
+                >
+                  <template #extra>
+                    <ProDatePickerV2
+                      class="birthday-field-wrap"
+                      label="出生日期"
+                      name="birthday"
+                      @update:model-value="changeHolderBirthday"
+                    />
+                  </template>
+                </ProFieldV2>
+                <ProRadioV2
+                  v-model="stateInfo.holder.gender"
+                  label="性别"
+                  name="gender"
+                  :columns="SEX_LIMIT_LIST"
+                  required
+                />
+              </template>
+            </ProRenderForm>
+          </template>
+        </ProCard>
         <ProRenderFormWithCard ref="productFormRef" title="保障计划" class="product-container">
           <template v-if="stateInfo.insurerList[stateInfo.currentSelectInsure].productList.length > 0">
             <ProCard
@@ -404,6 +402,22 @@ const totalPremium = computed(() => {
     );
   }, 0);
 });
+
+const validateTab = (cb) => {
+  const validates = [insuredFormRef.value?.validate()];
+  if (stateInfo.currentSelectInsure === 0) {
+    validates.push(holderFormRef.value?.validate());
+  }
+  Promise.all(validates)
+    .then(() => {
+      console.log('ok', 1111);
+      cb();
+    })
+    .catch((e) => {
+      console.log('error', 2222);
+      Toast('请确认信息是否录入完全!');
+    });
+};
 
 const relationColumn = () => {
   const mateIndex = stateInfo.insurerList.findIndex(({ personVO }) => {
@@ -721,6 +735,17 @@ const getHolderList = () => {
   }
   return stateInfo.holder;
 };
+
+const getInsurerList = () => {
+  if (
+    stateInfo.currentSelectInsure === 0 &&
+    +stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToHolder === 2
+  ) {
+    return { ...stateInfo.insurerList[stateInfo.currentSelectInsure].personVO, relationToHolder: null };
+  }
+  return stateInfo.insurerList[stateInfo.currentSelectInsure].personVO;
+};
+
 /**
  * 计划书数据转试算数据
  * @param productCode
@@ -736,7 +761,7 @@ const convertProposalToTrialData = (productCode) => {
     },
     insuredList: [
       {
-        ...stateInfo.insurerList[stateInfo.currentSelectInsure].personVO,
+        ...getInsurerList(),
         productList: stateInfo.insurerList[stateInfo.currentSelectInsure].productList,
       },
     ],
@@ -816,41 +841,43 @@ const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
 
 // 创建计划书
 const submitData = (proposalId) => {
-  Promise.all([formRef.value?.validate(), insuredFormRef.value?.validate(), holderFormRef.value?.validate()]).then(
-    () => {
-      const { holder } = stateInfo;
-      addOrUpdateProposal({
-        holder,
-        insuredList: stateInfo.insurerList.map((insure) => {
-          return {
-            ...insure.personVO,
-            productList: insure.productList.map((p) => {
-              return {
-                ...p,
-                productName: product_namelist[p.productCode],
-              };
-            }),
-          };
-        }),
-        proposalName: stateInfo.insuredPersonVO.proposalName,
-        totalPremium: totalPremium.value,
-        relationUserType: 2,
-        id: proposalId,
-      }).then((res) => {
-        const { code, data } = res || {};
-        if (code === '10000') {
-          store.$reset();
-          router.push({
-            path: '/compositionProposal',
-            query: {
-              id: data,
-              preview,
-            },
-          });
-        }
-      });
-    },
-  );
+  const validates = [formRef.value?.validate(), insuredFormRef.value?.validate()];
+  if (stateInfo.currentSelectInsure === 0) {
+    validates.push(holderFormRef.value?.validate());
+  }
+  Promise.all(validates).then(() => {
+    const { holder } = stateInfo;
+    addOrUpdateProposal({
+      holder,
+      insuredList: stateInfo.insurerList.map((insure) => {
+        return {
+          ...insure.personVO,
+          productList: insure.productList.map((p) => {
+            return {
+              ...p,
+              productName: product_namelist[p.productCode],
+            };
+          }),
+        };
+      }),
+      proposalName: stateInfo.insuredPersonVO.proposalName,
+      totalPremium: totalPremium.value,
+      relationUserType: 2,
+      id: proposalId,
+    }).then((res) => {
+      const { code, data } = res || {};
+      if (code === '10000') {
+        store.$reset();
+        router.push({
+          path: '/compositionProposal',
+          query: {
+            id: data,
+            preview,
+          },
+        });
+      }
+    });
+  });
 };
 
 const saveProposalData = () => {
@@ -980,6 +1007,32 @@ onBeforeMount(() => {
   background-color: $zaui-global-bg;
   :deep(.page-main) {
     background-color: $zaui-global-bg;
+  }
+
+  .title-tip-icon {
+    height: 90px;
+    line-height: 90px;
+    display: flex;
+    align-items: center;
+    margin-left: $zaui-card-border;
+    &:before {
+      content: ' ';
+      width: 6px;
+      height: 30px;
+      background: $primary-color;
+      margin-right: 16px;
+      border-radius: 0px 4px 4px 0px;
+    }
+  }
+
+  .com-pro-form-with-card {
+    margin-bottom: 20px;
+
+    &.com-card-body-no-padding {
+      :deep(.com-card-wrap) .header {
+        padding-right: 0;
+      }
+    }
   }
   .proposal-header {
     width: 100%;

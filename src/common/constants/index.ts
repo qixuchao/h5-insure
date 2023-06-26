@@ -85,7 +85,7 @@ export const SELF_LIST = [
   },
   {
     label: '否',
-    value: null,
+    value: 2,
   },
 ];
 
