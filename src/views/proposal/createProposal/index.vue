@@ -584,6 +584,9 @@ const queryProductInfo = (searchData: any) => {
 const getHolderList = () => {
   if (+stateInfo.insurerList[0].personVO.relationToHolder === 1) {
     const { relationToHolder, relationToMainInsured, productList, ...other } = stateInfo.insurerList[0].personVO;
+    if (id) {
+      other.id = stateInfo.holder.id;
+    }
     return other;
   }
   return stateInfo.holder;
