@@ -675,7 +675,7 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
             insuredList: [
               {
                 ...getInsurerList(stateInfo.currentSelectInsure),
-                productList: stateInfo.insurerList[stateInfo.currentSelectInsure].productList,
+                productList,
               },
             ],
           });
