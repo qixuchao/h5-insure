@@ -451,8 +451,10 @@ const initData = async () => {
   await getInsureProductDetail({ productCode, isTenant: !preview }).then(({ data, code }) => {
     if (code === '10000') {
       insureProductDetail.value = data;
-      console.log('state.defaultPlanCode', state.defaultPlanCode);
-      currentPlanObj.value = data.productPlanInsureVOList.find((plan) => plan.planCode === state.defaultPlanCode) || {};
+      currentPlanObj.value =
+        data.productPlanInsureVOList.find(
+          (plan) => !state.defaultPlanCode || plan.planCode === state.defaultPlanCode,
+        ) || {};
       const { payInfo } = transformFactorToSchema(currentPlanObj.value?.productFactor);
       state.payInfo = {
         ...state.payInfo,

@@ -40,6 +40,7 @@ export interface InsuredItem {
   occupationCodeList: string[];
   productList: ProductItem[];
   relationToHolder: number;
+  relationToMainInsured:number;
   smokeFlag: number;
   weight: number;
 }
