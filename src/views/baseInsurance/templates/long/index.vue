@@ -178,7 +178,7 @@ try {
   //
 }
 
-const { openId, proposalInsuredId } = extInfo;
+const { openId, proposalInsuredId, saTenantId = '' } = extInfo;
 
 const formRef = ref();
 const detailScrollRef = ref();
@@ -292,7 +292,7 @@ const initData = async () => {
     });
 
   proposalId &&
-    queryProposalDetailInsurer({ id: proposalId, tenantId }).then(({ code, data }) => {
+    queryProposalDetailInsurer({ id: proposalId, tenantId: saTenantId || tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         const { holder, insuredList } = data;
         orderDetail.value = Object.assign(defaultOrderDetail.value, {
