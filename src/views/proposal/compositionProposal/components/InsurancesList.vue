@@ -28,7 +28,7 @@
       <img round class="insure_icon" :src="getRelationIcon(insure)" />
       <div class="text-box">
         <span class="insure_name">{{ insure.name }}</span>
-        <span class="insure_relation">{{ getRelationName(insure.relationToHolder)?.label }}</span>
+        <span class="insure_relation">{{ getRelationName(insure.relationToMainInsured)?.label }}</span>
       </div>
     </div>
   </div>
@@ -99,7 +99,7 @@ const getRelationName = (relation) => {
 };
 
 const getRelationIcon = (item) => {
-  switch (+item.relationToHolder) {
+  switch (+item.relationToMainInsured) {
     case +RELATION_HOLDER_ENUM.CHILD: {
       if (+item.gender === 2) {
         return image_child_male;
@@ -160,6 +160,8 @@ const handleInsureClick = (insure, index) => {
       .insure_name {
         color: #818899;
         font-size: $zaui-font-size-sm;
+        // word-break: break-all;
+        // padding: 0 4px;
       }
       .insure_relation {
         color: #818899;

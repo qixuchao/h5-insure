@@ -75,6 +75,7 @@
                 RELATION_HOLDER_ENUM.MATE
               "
               required
+              @change="changeGender"
             />
           </ProRenderForm>
           <template v-if="stateInfo.currentSelectInsure === 0">
@@ -565,7 +566,7 @@ const changeHolderBirthday = (val) => {
 
 const changeRelationToMain = (val) => {
   const { value } = val;
-  let param = { age: 0, birthday: undefined, gender: +SEX_LIMIT_ENUM.MALE };
+  let param = { age: 30, birthday: dayjs().subtract(30, 'year').format('YYYY-MM-DD'), gender: +SEX_LIMIT_ENUM.MALE };
   if ([RELATION_HOLDER_ENUM.MATE, RELATION_HOLDER_ENUM.CHILD].includes(value)) {
     param = {
       age: value === RELATION_HOLDER_ENUM.MATE ? stateInfo.insurerList[0].personVO.age : 0,
@@ -593,6 +594,18 @@ const changeRelationToMain = (val) => {
 //  改变年龄清除出生日期
 const changeAge = () => {
   stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.birthday = '';
+};
+
+const changeGender = () => {
+  if (stateInfo.currentSelectInsure === 0) {
+    const mateIndex = stateInfo.insurerList.findIndex((insure) => {
+      if (insure && insure.personVO) return +insure.personVO.relationToMainInsured === +RELATION_HOLDER_ENUM.MATE;
+      return false;
+    });
+    if (mateIndex !== -1) {
+      stateInfo.insurerList[mateIndex].personVO.gender = +stateInfo.insurerList[0].personVO.gender === 1 ? 2 : 1;
+    }
+  }
 };
 
 //  改变年龄清除出生日期
@@ -986,7 +999,7 @@ const handleAddInsure = (data: any, index: number) => {
   if (stateInfo.insurerList.length - 1 === index) {
     // 说明添加的就是最后一个
     const mateIndex = stateInfo.insurerList.findIndex((insure) => {
-      if (insure && insure.personVO) return insure.personVO.relationToMainInsured === RELATION_HOLDER_ENUM.MATE;
+      if (insure && insure.personVO) return +insure.personVO.relationToMainInsured === +RELATION_HOLDER_ENUM.MATE;
       return false;
     });
     stateInfo.insurerList[index] = {

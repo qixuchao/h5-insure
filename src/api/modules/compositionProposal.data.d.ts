@@ -25,6 +25,7 @@ export interface ProposalTransInsuredVO {
   birthday: string;
   gender: number;
   relationToHolder: number;
+  relationToMainInsured: number;
   proposalInsuredId: number;
   proposalTransInsuredProductVOList: InsuredProductData[];
 }

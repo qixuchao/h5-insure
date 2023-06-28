@@ -23,7 +23,7 @@
 <script lang="ts" setup name="InsurerSelect">
 import { withDefaults } from 'vue';
 import { useToggle } from '@vant/use';
-import { Dialog } from 'vant';
+import { Dialog, Toast } from 'vant';
 import { ProposalProductRiskItem, ProposalInsuredProductItem } from '@/api/modules/createProposal.data';
 import { ProductData, RiskDetailVoItem } from '@/api/modules/trial.data';
 import { convertPeriod, convertChargePeriod } from '@/utils/format';
@@ -79,6 +79,7 @@ const hasProductCheck = () => {
 
 const handleInsurerClick = (e, index: number) => {
   if (!hasProductCheck()) {
+    Toast('请确认信息是否录入完整!');
     return;
   }
   if (props.canChangeSelect) {
@@ -91,6 +92,7 @@ const handleInsurerClick = (e, index: number) => {
 
 const handleAddClick = () => {
   if (!hasProductCheck()) {
+    Toast('请确认信息是否录入完整!');
     return;
   }
   emits('validateTab', () => {
