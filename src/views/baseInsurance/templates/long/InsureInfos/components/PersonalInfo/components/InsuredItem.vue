@@ -45,6 +45,7 @@
       >
     </template>
   </template>
+  <slot name="riskList"></slot>
 </template>
 <script lang="ts" setup name="InsuredItem">
 import { withDefaults } from 'vue';

@@ -28,6 +28,9 @@
       :is-view="isView"
       :multi-beneficiary-num="state.config.multiBeneficiaryMaxNum"
     >
+      <template #riskList>
+        <slot name="riskInfo" :insured-index="index"></slot>
+      </template>
       <span
         v-if="!isView && index + 1 > state.config.multiInsuredMinNum"
         class="delete-button"

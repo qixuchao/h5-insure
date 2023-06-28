@@ -1,10 +1,7 @@
 <template>
   <div class="long-info-preview">
     <ProNavigator />
-    <InsureInfo
-      :product-data="orderDetail.insuredList?.[0]?.productList?.[0]"
-      :total-premium="orderDetail.orderAmount"
-    ></InsureInfo>
+
     <!-- 投保人/被保人/受益人 -->
     <PersonalInfo
       v-if="currentPlanObj?.productFactor"
@@ -13,7 +10,14 @@
       :product-factor="currentPlanObj?.productFactor"
       :multi-insured-config="currentPlanObj?.multiInsuredConfigVO"
       is-view
-    />
+    >
+      <template #riskInfo="{ insuredIndex }">
+        <InsureInfo
+          :product-data="orderDetail.insuredList?.[`${insuredIndex}`]?.productList?.[0]"
+          :total-premium="orderDetail.orderAmount"
+        ></InsureInfo>
+      </template>
+    </PersonalInfo>
 
     <PayInfo
       v-if="state.payInfo.schema.length"
