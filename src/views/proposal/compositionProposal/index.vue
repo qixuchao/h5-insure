@@ -79,7 +79,7 @@
                 />
               </div>
             </div>
-            <div class="rules">
+            <div v-if="isMultiple" class="rules">
               <div class="rules-header">
                 <div class="info-detail">
                   <span class="info-title">保险配置原则</span>

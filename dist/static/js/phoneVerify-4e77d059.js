@@ -1,0 +1,1 @@
+import{s as e}from"./index-eeb199d1.js";const s=s=>e({url:"/api/app/insure/insurance/sendSmsCodeToC",method:"POST",params:{mobile:s}}),a=s=>e({url:"/api/mall/app/v2/login/toCSendSmsCode",method:"POST",params:{mobile:s}}),o=(s,a)=>e({url:"/api/app/insure/insurance/checkSmsCode",method:"POST",params:{mobile:s,smsCode:a}});export{a,o as c,s};

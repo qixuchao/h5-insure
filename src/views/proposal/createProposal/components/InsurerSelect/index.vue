@@ -3,6 +3,7 @@
     <div class="list">
       <div
         v-for="(insure, index) in list"
+        ref="tabRef"
         :key="`insure_${index}`"
         :class="`insure-box ${index === state.currentSelected ? 'selected' : ''}`"
         @click="(e) => handleInsurerClick(e, index)"
@@ -48,6 +49,7 @@ const props = withDefaults(defineProps<Props>(), {
   canChangeSelect: () => true,
 });
 
+const tabRef = ref();
 const state = ref<State>({
   currentSelected: 0,
 });
@@ -56,6 +58,15 @@ const list = ref(props.insurerList);
 const emits = defineEmits(['listChange', 'currentChange', 'add', 'delete', 'validateTab']);
 
 const updateInsurer = (index: number, info: any) => {};
+
+const showTabs = () => {
+  console.log('state.currentSelected', state.value.currentSelected);
+  tabRef.value[state.value.currentSelected]?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'nearest',
+    inline: 'start',
+  });
+};
 
 const getRelate = (relate: any) => {
   // 根据枚举获取关系的文本
@@ -86,6 +97,7 @@ const handleInsurerClick = (e, index: number) => {
     emits('validateTab', () => {
       state.value.currentSelected = index;
       emits('currentChange', index);
+      showTabs();
     });
   }
 };
@@ -99,6 +111,7 @@ const handleAddClick = () => {
     list.value.push({});
     state.value.currentSelected = list.value.length - 1;
     emits('add', {}, list.value.length - 1);
+    showTabs();
   });
   // emits('currentChange', list.value.length - 1);
 };

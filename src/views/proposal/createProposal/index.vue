@@ -798,30 +798,15 @@ const handleCalcDynamicInsure = (code: string) => {
           ? riskList
               // 主险种
               .filter((item) => item.riskType === 1)
-              .map(
-                ({
-                  riskCode,
-                  riskType,
-                  annuityDrawValueList,
-                  paymentPeriodValueList,
-                  insurancePeriodValueList,
-                  ...rest
-                }) => {
-                  // 动态值
-                  const currentRiskItem = insureProductRiskVOList?.find((item) => item.riskCode === riskCode) || {};
-                  return {
-                    insureProductRiskVO: {
-                      ...currentRiskItem,
-                      productRiskInsureLimitVO: {
-                        ...currentRiskItem?.productRiskInsureLimitVO,
-                        annuityDrawValueList,
-                        paymentPeriodValueList,
-                        insurancePeriodValueList,
-                      },
-                    },
-                  };
-                },
-              )
+              .map(({ riskCode }) => {
+                // 动态值
+                const currentRiskItem = insureProductRiskVOList?.find((item) => item.riskCode === riskCode) || {};
+                return {
+                  insureProductRiskVO: {
+                    ...currentRiskItem,
+                  },
+                };
+              })
           : [],
       };
     });
