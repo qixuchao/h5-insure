@@ -198,7 +198,7 @@ try {
   //
 }
 
-// const {} = extInfo;
+const { saTenantId, proposalInsuredId = '' } = extInfo;
 
 // 常量
 const LOADING_TEXT = '试算中...';
@@ -355,7 +355,7 @@ const initData = async () => {
     });
 
   proposalId &&
-    proposalToTrial({ proposalId, productCode, tenantId }, (data) => {
+    proposalToTrial({ proposalId, productCode, tenantId: saTenantId || tenantId, proposalInsuredId }, (data) => {
       colorConsole('计划书查询参数');
       state.userData = data;
     });

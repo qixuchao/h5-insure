@@ -42,6 +42,7 @@
               name="relationToMainInsured"
               :columns="relationColumn()"
               required
+              @confirm="changeRelationToMain"
             >
             </ProPickerV2>
             <ProFieldV2
@@ -134,6 +135,7 @@
                 :product-data="stateInfo.productCollection[productItem.productCode]"
                 :error-msg="stateInfo.productErrorMap[productItem.productCode]"
                 :product-index="index"
+                :current-select-insure="stateInfo.currentSelectInsure"
                 @update-risk="updateRisk"
                 @delete-risk="deleteRisk"
               ></ProductList>
@@ -227,7 +229,7 @@ import ProEmpty from '@/components/ProEmpty/index.vue';
 import emptyImg from '@/assets/images/empty.png';
 
 import { ProductData } from '@/common/constants/trial.data';
-import { SEX_LIMIT_LIST, SELF_LIST } from '@/common/constants';
+import { SEX_LIMIT_LIST, SELF_LIST, SEX_LIMIT_ENUM } from '@/common/constants';
 import ProductList from './components/ProductList/index.vue';
 // import ProductRisk from './components/ProductRisk/index.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
@@ -507,17 +509,24 @@ const onFinished = (productInfo: PlanTrialData) => {
 };
 
 const addProduct = () => {
-  store.setProposalInfo(proposalInfo.value);
+  const validates = [insuredFormRef.value?.validate()];
 
-  store.setExcludeProduct(currentProductCodeListFn());
-  store.setInsuredPersonVO(stateInfo.insurerList[stateInfo.currentSelectInsure].personVO);
+  Promise.all(validates)
+    .then(() => {
+      store.setProposalInfo(proposalInfo.value);
+      store.setExcludeProduct(currentProductCodeListFn());
+      store.setInsuredPersonVO(stateInfo.insurerList[stateInfo.currentSelectInsure].personVO);
 
-  router.push({
-    path: '/proposalListSelect',
-    query: {
-      isCreateProposal: '1',
-    },
-  });
+      router.push({
+        path: '/proposalListSelect',
+        query: {
+          isCreateProposal: '1',
+        },
+      });
+    })
+    .catch((e) => {
+      Toast('请确认被保人信息是否录入完整!');
+    });
 };
 
 const trailProduct = (params) => {
@@ -552,6 +561,33 @@ const changeHolderBirthday = (val) => {
   if (val) {
     stateInfo.holder.age = dayjs(new Date()).diff(val, 'year');
   }
+};
+
+const changeRelationToMain = (val) => {
+  const { value } = val;
+  let param = { age: 0, birthday: undefined, gender: +SEX_LIMIT_ENUM.MALE };
+  if ([RELATION_HOLDER_ENUM.MATE, RELATION_HOLDER_ENUM.CHILD].includes(value)) {
+    param = {
+      age: value === RELATION_HOLDER_ENUM.MATE ? stateInfo.insurerList[0].personVO.age : 0,
+      birthday:
+        value === RELATION_HOLDER_ENUM.MATE
+          ? stateInfo.insurerList[0].personVO.birthday
+          : dayjs().subtract(28, 'day').format('YYYY-MM-DD'),
+      gender:
+        value === RELATION_HOLDER_ENUM.MATE
+          ? +stateInfo.insurerList[0].personVO.gender === 1
+            ? 2
+            : 1
+          : +SEX_LIMIT_ENUM.MALE,
+    };
+  } else if (RELATION_HOLDER_ENUM.PARENT === value) {
+    param = {
+      age: +stateInfo.insurerList[0].personVO.age + 18,
+      birthday: dayjs(stateInfo.insurerList[0].personVO.birthday).add(18, 'year').format('YYYY-MM-DD'),
+      gender: +SEX_LIMIT_ENUM.MALE,
+    };
+  }
+  Object.assign(stateInfo.insurerList[stateInfo.currentSelectInsure].personVO, param);
 };
 
 //  改变年龄清除出生日期
@@ -871,8 +907,16 @@ const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
 //   toggleProductRisk(true);
 // };
 
+const validateProducts = () => {
+  return !stateInfo.insurerList.some((item) => item.productList.length === 0);
+};
+
 // 创建计划书
 const submitData = (proposalId) => {
+  if (!validateProducts()) {
+    Toast('请先添加产品');
+    return;
+  }
   const validates = [formRef.value?.validate(), insuredFormRef.value?.validate()];
   if (stateInfo.currentSelectInsure === 0) {
     validates.push(holderFormRef.value?.validate());
@@ -948,8 +992,11 @@ const handleAddInsure = (data: any, index: number) => {
     stateInfo.insurerList[index] = {
       ...data,
       personVO: {
-        relationToMainInsured: mateIndex < 0 ? RELATION_HOLDER_ENUM.MATE : '',
-        gender: mateIndex < 0 ? (stateInfo.insurerList[0].personVO.gender === 1 ? 2 : 1) : '',
+        age: mateIndex < 0 ? stateInfo.insurerList[0].personVO.age : 0,
+        birthday:
+          mateIndex < 0 ? stateInfo.insurerList[0].personVO.birthday : dayjs().subtract(28, 'day').format('YYYY-MM-DD'),
+        relationToMainInsured: mateIndex < 0 ? RELATION_HOLDER_ENUM.MATE : RELATION_HOLDER_ENUM.CHILD,
+        gender: mateIndex < 0 ? (+stateInfo.insurerList[0].personVO.gender === 1 ? 2 : 1) : SEX_LIMIT_ENUM.MALE,
       },
       productList: [],
     };
@@ -958,8 +1005,9 @@ const handleAddInsure = (data: any, index: number) => {
   stateInfo.productCollection = {};
 };
 
-const handleDeleteInsure = (index: number) => {
+const handleDeleteInsure = (index: number, cb) => {
   stateInfo.insurerList.splice(index, 1);
+  cb?.();
 };
 
 /** 被保人数据变动 */
@@ -1032,6 +1080,12 @@ onBeforeMount(() => {
   document.title = title;
 });
 </script>
+
+<style lang="scss">
+.age-field-wrap .van-field__value .van-field__control {
+  padding-right: 18px;
+}
+</style>
 
 <style lang="scss" scoped>
 .page-create-wrapper {
@@ -1151,8 +1205,8 @@ onBeforeMount(() => {
     :deep(.com-form-item.birthday-field-wrap) {
       min-height: 78px;
       padding: 0;
-      width: 260px;
-      margin-left: 30px;
+      width: 220px;
+      margin-left: 20px;
       .van-field__label {
         display: none;
       }

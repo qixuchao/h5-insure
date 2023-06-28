@@ -109,12 +109,15 @@ const handleDeleteClick = (e, index) => {
     message: '确定要删除该被保人吗？',
   })
     .then(() => {
-      list.value.splice(index, 1);
-      emits('delete', index);
-      if (index === state.value.currentSelected) {
-        state.value.currentSelected = 0;
-        emits('currentChange', 0);
-      }
+      emits('delete', index, () => {
+        if (index < state.value.currentSelected) {
+          state.value.currentSelected -= 1;
+          emits('currentChange', state.value.currentSelected);
+        } else if (index === state.value.currentSelected) {
+          state.value.currentSelected = 0;
+          emits('currentChange', 0);
+        }
+      });
     })
     .catch(() => {});
 };

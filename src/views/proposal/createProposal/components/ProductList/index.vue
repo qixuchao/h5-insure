@@ -26,7 +26,7 @@
             </div>
             <div v-if="risk.riskType !== 2" class="operate-bar">
               <ProCheckButton
-                v-if="isCanDeleteRisk(risk.riskId) && productIndex > 0"
+                v-if="currentSelectInsure > 0 || (isCanDeleteRisk(risk.riskId) && productIndex > 0)"
                 :round="32"
                 class="border"
                 @click="deleteRisk(risk)"
@@ -86,6 +86,7 @@ interface Props {
   productNum: number;
   errorMsg: string;
   productIndex: number;
+  currentSelectInsure: number;
 }
 
 interface State {
@@ -105,6 +106,7 @@ const props = withDefaults(defineProps<Props>(), {
   pickProductPremium: () => {},
   productNum: 0,
   errorMsg: '',
+  currentSelectInsure: 0,
 });
 
 const emits = defineEmits(['deleteRisk', 'updateRisk', 'addRiderRisk']);
