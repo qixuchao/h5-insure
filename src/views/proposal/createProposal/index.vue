@@ -231,7 +231,7 @@ import { SEX_LIMIT_LIST, SELF_LIST } from '@/common/constants';
 import ProductList from './components/ProductList/index.vue';
 // import ProductRisk from './components/ProductRisk/index.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
-import useTheme from '@/hooks/useTheme';
+import useTheme, { setGlobalTheme } from '@/hooks/useTheme';
 import InsurerList from './components/InsurerSelect/index.vue';
 import { RELATION_HOLDER_LIST, RELATION_HOLDER_ENUM } from '@/common/constants/product';
 
@@ -1016,6 +1016,7 @@ onActivated(() => {
 });
 
 onBeforeMount(() => {
+  setGlobalTheme();
   if (productCodeInQuery) {
     const params = [{ productCode: productCodeInQuery as string }];
     queryProductInfo(params);
