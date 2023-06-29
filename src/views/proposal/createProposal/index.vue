@@ -1114,7 +1114,7 @@ onBeforeMount(() => {
 
 <style lang="scss">
 .age-field-wrap .van-field__value .van-field__control {
-  padding-right: 18px;
+  padding-right: 30px;
 }
 </style>
 

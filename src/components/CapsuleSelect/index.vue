@@ -17,7 +17,7 @@
     <div class="capsule-select" :style="{ left: styleLeft, width: styleWidth }">
       <div id="textContainer" class="text-container" :style="{ left: '-' + styleLeft }">
         <div v-for="(item, i) in configs" :key="`${i}capsule_${item.value}`" class="capsule-select-text">
-          {{ item.label }}
+          {{ textRef }}
         </div>
       </div>
     </div>
@@ -35,6 +35,7 @@ const props = defineProps({
 const current = ref(0);
 const styleLeft = ref('0');
 const styleWidth = ref('auto');
+const textRef = ref('');
 
 const allLength = computed(() => {
   let len = 0;
@@ -53,6 +54,7 @@ const calcLeft = (item: any) => {
     const left = targetRect.left - containerRect.left;
     styleLeft.value = `${left - 1}px`;
     styleWidth.value = `${targetRect.width}px`;
+    textRef.value = item.label;
   }
 };
 

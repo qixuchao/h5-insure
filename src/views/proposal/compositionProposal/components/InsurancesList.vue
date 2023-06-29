@@ -132,11 +132,15 @@ const handleInsureClick = (insure, index) => {
 <style lang="scss" scoped>
 .select-box {
   display: flex;
-  width: 100%;
+  width: 100vw;
   height: 160px;
   margin-bottom: 20px;
   overflow-x: scroll;
   overflow-y: visible;
+  // 隐藏滚动条
+  &::-webkit-scrollbar {
+    display: none;
+  }
   .select-item {
     background-color: white;
     width: 128px;
@@ -148,6 +152,7 @@ const handleInsureClick = (insure, index) => {
     // justify-content: center;
     align-items: center;
     margin: 0 10px;
+    flex-shrink: 0;
     &:nth-child(1) {
       margin-left: 30px;
     }

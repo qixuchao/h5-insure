@@ -14,8 +14,9 @@
           <template v-if="isMultiple">
             <van-sticky :class="`selected`" @change="stickyChange">
               <div :class="`${selectedFixed ? 'to-fixed' : ''}`">
-                <InsurancesList :infos="infos" @insure-select-change="handleSelectInsureChange" /></div
-            ></van-sticky>
+                <InsurancesList :infos="infos" @insure-select-change="handleSelectInsureChange" />
+              </div>
+            </van-sticky>
           </template>
         </div>
         <div class="proposal-body">
