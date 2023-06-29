@@ -212,3 +212,10 @@ export const jumpToNextPage = (pageCode, query) => {
 
   pageJump(codeList[currentIndex + 1], query);
 };
+
+export function subString(str: string, size: number, prefix = '...'): string {
+  if (typeof str !== 'string') return '';
+  if (!str) return str;
+  if (str.length <= size) return str;
+  return `${str.substr(0, size)}${prefix}`;
+}

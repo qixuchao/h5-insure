@@ -72,8 +72,8 @@
               name="gender"
               :columns="sexList"
               :disabled="
-                stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToMainInsured ===
-                RELATION_HOLDER_ENUM.MATE
+                +stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToMainInsured ===
+                +RELATION_HOLDER_ENUM.MATE
               "
               required
               @change="changeGender"
@@ -98,6 +98,13 @@
                   type="digit"
                   :maxlength="3"
                   required
+                  :rules="[
+                    { required: true, message: '请输入年龄' },
+                    {
+                      trigger: 'onChange',
+                      validator: validateAge,
+                    },
+                  ]"
                   @change="changeHolderAge"
                 >
                   <template #extra>
@@ -343,6 +350,16 @@ const formRef = ref(null);
 const insuredFormRef = ref(null);
 const holderFormRef = ref(null);
 
+const validateAge = (value: string, rule: any, type: string) => {
+  if (!value) {
+    return '请输入投保人年龄';
+  }
+  if (+value < 18) {
+    return `投保人年龄不得小于18周岁`;
+  }
+  return '';
+};
+
 /** 当前计划书的产品CodeList */
 const currentProductCodeList = computed(() => {
   if (!stateInfo.insurerList[stateInfo.currentSelectInsure]?.productList) return [];
@@ -412,6 +429,13 @@ const totalPremium = computed(() => {
 const validateTab = (cb) => {
   const validates = [insuredFormRef.value?.validate()];
   if (stateInfo.currentSelectInsure === 0) {
+    if (
+      (stateInfo.insurerList[0].personVO.relationToHolder === 1 && stateInfo.insurerList[0].personVO.age < 18) ||
+      (stateInfo.insurerList[0].personVO.relationToHolder !== 1 && stateInfo.holder.age < 18)
+    ) {
+      Toast('投保人年龄不得小于18周岁');
+      return;
+    }
     validates.push(holderFormRef.value?.validate());
   }
   Promise.all(validates)
@@ -425,7 +449,7 @@ const validateTab = (cb) => {
 
 const relationColumn = () => {
   const mateIndex = stateInfo.insurerList.findIndex(({ personVO }) => {
-    return personVO.relationToMainInsured === RELATION_HOLDER_ENUM.MATE;
+    return personVO.relationToMainInsured === +RELATION_HOLDER_ENUM.MATE;
   });
   const newMap = RELATION_HOLDER_LIST.map((conf) => {
     // 如果是本人的情况  一定是disable的，因为默认第一个被保人就是本人
@@ -918,6 +942,13 @@ const submitData = (proposalId) => {
   }
   const validates = [formRef.value?.validate(), insuredFormRef.value?.validate()];
   if (stateInfo.currentSelectInsure === 0) {
+    if (
+      (stateInfo.insurerList[0].personVO.relationToHolder === 1 && stateInfo.insurerList[0].personVO.age < 18) ||
+      (stateInfo.insurerList[0].personVO.relationToHolder !== 1 && stateInfo.holder.age < 18)
+    ) {
+      Toast('投保人年龄不得小于18周岁');
+      return;
+    }
     validates.push(holderFormRef.value?.validate());
   }
   Promise.all(validates).then(() => {

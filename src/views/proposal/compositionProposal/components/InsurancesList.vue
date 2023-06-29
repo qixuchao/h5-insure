@@ -27,7 +27,7 @@
     >
       <img round class="insure_icon" :src="getRelationIcon(insure)" />
       <div class="text-box">
-        <span class="insure_name">{{ insure.name }}</span>
+        <span class="insure_name">{{ subString(insure.name, 4, '...') }}</span>
         <span class="insure_relation">{{ getRelationName(insure.relationToMainInsured)?.label }}</span>
       </div>
     </div>
@@ -35,7 +35,7 @@
 </template>
 <script lang="ts" setup>
 import dayjs from 'dayjs';
-import { toLocal } from '@/utils';
+import { subString } from '@/utils';
 import { ProposalProductRisk } from '../../type';
 import ProTable from '@/components/ProTable/index.vue';
 import { SEX_LIMIT_ENUM, SEX_LIMIT_MAP } from '@/common/constants';

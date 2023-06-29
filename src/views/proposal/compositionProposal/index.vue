@@ -57,7 +57,7 @@
             </div>
           </div>
           <div v-else>
-            <div class="family-proposals">
+            <div v-if="!isLoading" class="family-proposals">
               <div v-if="isMultiple" class="family-header">
                 <div class="info-detail">
                   <div class="name">
@@ -188,6 +188,7 @@ const { isShare, id, themeId, preview } = router.query;
 const infos = ref();
 const currentInfo = ref(null);
 const selectedFixed = ref(false);
+const isLoading = ref(true);
 const tenantId = ref('');
 const proposalName = ref('');
 const shareConfig = ref<any>({});
@@ -332,6 +333,7 @@ const getData = async () => {
       document.title = title;
       infos.value = realData;
       proposalName.value = data.proposalName;
+      isLoading.value = false;
       tenantId.value = data?.tenantId;
       shareLink = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
       setShareConfig(shareLink);
@@ -425,6 +427,7 @@ const onInsured = () => {
     if (targetInsure && targetInsure.proposalTransInsuredProductVOList.length === 1) {
       proposal2Insured(targetInsure.proposalTransInsuredProductVOList?.[0], targetInsure.proposalInsuredId);
     } else {
+      proposal2InsuredSelectedInsurer.value = targetInsure;
       toggleProductList(true);
     }
   } else {
