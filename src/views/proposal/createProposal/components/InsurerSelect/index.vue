@@ -3,6 +3,7 @@
     <div class="list">
       <div
         v-for="(insure, index) in list"
+        ref="tabRef"
         :key="`insure_${index}`"
         :class="`insure-box ${index === state.currentSelected ? 'selected' : ''}`"
         @click="(e) => handleInsurerClick(e, index)"
@@ -23,7 +24,7 @@
 <script lang="ts" setup name="InsurerSelect">
 import { withDefaults } from 'vue';
 import { useToggle } from '@vant/use';
-import { Dialog } from 'vant';
+import { Dialog, Toast } from 'vant';
 import { ProposalProductRiskItem, ProposalInsuredProductItem } from '@/api/modules/createProposal.data';
 import { ProductData, RiskDetailVoItem } from '@/api/modules/trial.data';
 import { convertPeriod, convertChargePeriod } from '@/utils/format';
@@ -48,6 +49,7 @@ const props = withDefaults(defineProps<Props>(), {
   canChangeSelect: () => true,
 });
 
+const tabRef = ref();
 const state = ref<State>({
   currentSelected: 0,
 });
@@ -56,6 +58,15 @@ const list = ref(props.insurerList);
 const emits = defineEmits(['listChange', 'currentChange', 'add', 'delete', 'validateTab']);
 
 const updateInsurer = (index: number, info: any) => {};
+
+const showTabs = () => {
+  console.log('state.currentSelected', state.value.currentSelected);
+  tabRef.value[state.value.currentSelected]?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'nearest',
+    inline: 'start',
+  });
+};
 
 const getRelate = (relate: any) => {
   // 根据枚举获取关系的文本
@@ -79,24 +90,28 @@ const hasProductCheck = () => {
 
 const handleInsurerClick = (e, index: number) => {
   if (!hasProductCheck()) {
+    Toast('请确认信息是否录入完整!');
     return;
   }
   if (props.canChangeSelect) {
     emits('validateTab', () => {
       state.value.currentSelected = index;
       emits('currentChange', index);
+      showTabs();
     });
   }
 };
 
 const handleAddClick = () => {
   if (!hasProductCheck()) {
+    Toast('请确认信息是否录入完整!');
     return;
   }
   emits('validateTab', () => {
     list.value.push({});
     state.value.currentSelected = list.value.length - 1;
     emits('add', {}, list.value.length - 1);
+    showTabs();
   });
   // emits('currentChange', list.value.length - 1);
 };
@@ -109,12 +124,15 @@ const handleDeleteClick = (e, index) => {
     message: '确定要删除该被保人吗？',
   })
     .then(() => {
-      list.value.splice(index, 1);
-      emits('delete', index);
-      if (index === state.value.currentSelected) {
-        state.value.currentSelected = 0;
-        emits('currentChange', 0);
-      }
+      emits('delete', index, () => {
+        if (index < state.value.currentSelected) {
+          state.value.currentSelected -= 1;
+          emits('currentChange', state.value.currentSelected);
+        } else if (index === state.value.currentSelected) {
+          state.value.currentSelected = 0;
+          emits('currentChange', 0);
+        }
+      });
     })
     .catch(() => {});
 };

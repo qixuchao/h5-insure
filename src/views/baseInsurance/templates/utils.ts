@@ -149,12 +149,17 @@ export const orderData2trialData = (
 };
 
 interface ProposalDetailInsurer {
-  proposalHolder: any;
-  proposalInsuredList: any[];
+  holder: any;
+  insuredList: any[];
 }
 
 export const proposalToTrial = async (
-  { proposalId, productCode, tenantId }: { proposalId: number; productCode: string; tenantId: string },
+  {
+    proposalId,
+    productCode,
+    tenantId,
+    proposalInsuredId,
+  }: { proposalId: number; productCode: string; tenantId: string; proposalInsuredId: string },
   cb,
 ) => {
   const result = await queryProposalDetailInsurer({ id: proposalId, tenantId });
@@ -166,76 +171,78 @@ export const proposalToTrial = async (
     productCode,
   };
   targetData.holder = {
-    personVO: sourceData?.proposalHolder,
+    personVO: sourceData?.holder,
   };
-  targetData.insuredVOList = sourceData?.proposalInsuredList.map((insured) => {
-    return {
-      personVO: {
-        age: insured.age,
-        birthday: insured.birthday,
-        bmi: insured.bmi,
-        certNo: insured.certNo,
-        certType: insured.certType,
-        email: insured.email,
-        gender: insured.gender,
-        hasSocialInsurance: insured.hasSocialInsurance,
-        height: insured.height,
-        holderRelation: insured.holderRelation,
-        insureAreaCode: insured.insureAreaCode,
-        insureCityCode: insured.insureCityCode,
-        insureProvinceCode: insured.insureProvinceCode,
-        mobile: insured.mobile,
-        name: insured.name,
-        occupationClass: insured.occupationClass,
-        occupationCodeList: insured.occupationCode, // *****
-        smokeFlag: insured.smokeFlag,
-        socialFlag: insured.socialFlag,
-        weight: insured.weight,
-      },
-      productPlanVOList: insured.proposalInsuredProductList.map((plan) => {
-        return {
-          insurerCode: null,
-          planCode: '',
-          relationToHolder: '1',
-          riskVOList: plan.proposalProductRiskList.map((risk) => {
-            return {
-              amount: risk.amount,
-              annuityDrawDate: risk.annuityDrawDate,
-              // annuityDrawFrequencyList: risk.annuityDrawFrequencyList, //***** */
-              annuityDrawType: risk.annuityDrawType,
-              // annuityDrawValueList: risk.annuityDrawValueList, // *****
-              chargePeriod: risk.chargePeriod,
-              copy: risk.copy,
-              coveragePeriod: risk.coveragePeriod,
-              // insurancePeriodValueList: risk.insurancePeriodValueList, // ****
-              liabilityVOList: risk.liabilityVOList.map((liability) => {
-                return {
-                  liabilityAmount: null, // *****
-                  liabilityAttributeType: liability.liabilityAttributeType,
-                  liabilityAttributeValueList: liability.liabilityAttributeValueList,
-                  liabilityCode: liability.liabilityCode,
-                  liabilityId: liability.liabilityId,
-                  liabilityRateType: null, // ******
-                  liabilityValue: null, // ******
-                };
-              }),
-              mainRiskCode: risk.mainRiskCode, // *****
-              mainRiskId: risk.mainRiskId,
-              paymentFrequency: risk.paymentFrequency,
-              // paymentFrequencyList: risk.paymentFrequencyList, // *****
-              // paymentPeriodValueList: risk.paymentPeriodValueList, // *****
-              premium: risk.premium,
-              riskCategory: risk.riskCategory, // ****
-              riskCode: risk.riskCode,
-              riskId: risk.riskId,
-              riskName: risk.riskName,
-              riskType: risk.riskType,
-            };
-          }),
-        };
-      }),
-    };
-  });
+  targetData.insuredVOList = sourceData?.insuredList
+    .filter((item) => item.id === +proposalInsuredId)
+    .map((insured) => {
+      return {
+        personVO: {
+          age: insured.age,
+          birthday: insured.birthday,
+          bmi: insured.bmi,
+          certNo: insured.certNo,
+          certType: insured.certType,
+          email: insured.email,
+          gender: insured.gender,
+          hasSocialInsurance: insured.hasSocialInsurance,
+          height: insured.height,
+          holderRelation: insured.holderRelation,
+          insureAreaCode: insured.insureAreaCode,
+          insureCityCode: insured.insureCityCode,
+          insureProvinceCode: insured.insureProvinceCode,
+          mobile: insured.mobile,
+          name: insured.name,
+          occupationClass: insured.occupationClass,
+          occupationCodeList: insured.occupationCode, // *****
+          smokeFlag: insured.smokeFlag,
+          socialFlag: insured.socialFlag,
+          weight: insured.weight,
+        },
+        productPlanVOList: insured.proposalInsuredProductList.map((plan) => {
+          return {
+            insurerCode: null,
+            planCode: '',
+            relationToHolder: '1',
+            riskVOList: plan.proposalProductRiskList.map((risk) => {
+              return {
+                amount: risk.amount,
+                annuityDrawDate: risk.annuityDrawDate,
+                // annuityDrawFrequencyList: risk.annuityDrawFrequencyList, //***** */
+                annuityDrawType: risk.annuityDrawType,
+                // annuityDrawValueList: risk.annuityDrawValueList, // *****
+                chargePeriod: risk.chargePeriod,
+                copy: risk.copy,
+                coveragePeriod: risk.coveragePeriod,
+                // insurancePeriodValueList: risk.insurancePeriodValueList, // ****
+                liabilityVOList: risk.liabilityVOList.map((liability) => {
+                  return {
+                    liabilityAmount: null, // *****
+                    liabilityAttributeType: liability.liabilityAttributeType,
+                    liabilityAttributeValueList: liability.liabilityAttributeValueList,
+                    liabilityCode: liability.liabilityCode,
+                    liabilityId: liability.liabilityId,
+                    liabilityRateType: null, // ******
+                    liabilityValue: null, // ******
+                  };
+                }),
+                mainRiskCode: risk.mainRiskCode, // *****
+                mainRiskId: risk.mainRiskId,
+                paymentFrequency: risk.paymentFrequency,
+                // paymentFrequencyList: risk.paymentFrequencyList, // *****
+                // paymentPeriodValueList: risk.paymentPeriodValueList, // *****
+                premium: risk.premium,
+                riskCategory: risk.riskCategory, // ****
+                riskCode: risk.riskCode,
+                riskId: risk.riskId,
+                riskName: risk.riskName,
+                riskType: risk.riskType,
+              };
+            }),
+          };
+        }),
+      };
+    });
   cb?.(targetData);
 };
 

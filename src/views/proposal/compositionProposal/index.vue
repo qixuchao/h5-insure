@@ -9,12 +9,14 @@
   <ProPageWrap>
     <van-config-provider :theme-vars="themeVars">
       <div class="page-composition-proposal" :class="{ 'page-proposal-bottom': !isShare }">
-        <div class="head-bg">
+        <div :class="{ 'head-bg': true, 'single-user': !isMultiple }">
           <div class="title">{{ proposalName }}</div>
-          <van-sticky :class="`selected`" @change="stickyChange">
-            <div :class="`${selectedFixed ? 'to-fixed' : ''}`">
-              <InsurancesList :infos="infos" @insure-select-change="handleSelectInsureChange" /></div
-          ></van-sticky>
+          <template v-if="isMultiple">
+            <van-sticky :class="`selected`" @change="stickyChange">
+              <div :class="`${selectedFixed ? 'to-fixed' : ''}`">
+                <InsurancesList :infos="infos" @insure-select-change="handleSelectInsureChange" /></div
+            ></van-sticky>
+          </template>
         </div>
         <div class="proposal-body">
           <div v-if="currentInfo !== null">
@@ -56,7 +58,7 @@
           </div>
           <div v-else>
             <div class="family-proposals">
-              <div class="family-header">
+              <div v-if="isMultiple" class="family-header">
                 <div class="info-detail">
                   <div class="name">
                     <div>
@@ -64,7 +66,7 @@
                     </div>
                   </div>
                   <div class="fe">
-                    首年保费： <span>¥{{ toLocal(getAllPremium()) }}</span>
+                    家庭年交保费： <span>¥{{ toLocal(getAllPremium()) }}</span>
                   </div>
                 </div>
               </div>
@@ -77,7 +79,7 @@
                 />
               </div>
             </div>
-            <div class="rules">
+            <div v-if="isMultiple" class="rules">
               <div class="rules-header">
                 <div class="info-detail">
                   <span class="info-title">保险配置原则</span>
@@ -189,6 +191,7 @@ const shareConfig = ref<any>({});
 const insuredProductList = ref<ProposalTransInsuredVO[]>([]);
 const currentInsuredProduct = ref();
 const proposal2InsuredSelectedInsurer = ref(null);
+const isMultiple = ref(false);
 
 const [showInsureSelect, toggleInsureList] = useToggle();
 const [showProductList, toggleProductList] = useToggle();
@@ -280,7 +283,16 @@ const getAllPremium = () => {
       total += +info.totalPremium;
     });
   }
-  return total;
+  return total?.toFixed(2);
+};
+
+const handleSelectInsureChange = (index, insure) => {
+  if (!insure) {
+    // 家庭全部显示
+    currentInfo.value = null;
+  } else {
+    currentInfo.value = insure;
+  }
 };
 
 const getData = async () => {
@@ -296,6 +308,13 @@ const getData = async () => {
 
     if (code === '10000') {
       const realData = data?.proposalInsuredVOList || [];
+      isMultiple.value = realData?.length > 1;
+      let title = '家庭保障方案';
+      if (!isMultiple.value) {
+        handleSelectInsureChange(0, realData[0]);
+        title = '个人保障方案';
+      }
+      document.title = title;
       infos.value = realData;
       proposalName.value = data.proposalName;
       tenantId.value = data?.tenantId;
@@ -462,15 +481,6 @@ const selectTheme = async (selectedThemeId: number) => {
   }
 };
 
-const handleSelectInsureChange = (index, insure) => {
-  if (!insure) {
-    // 家庭全部显示
-    currentInfo.value = null;
-  } else {
-    currentInfo.value = insure;
-  }
-};
-
 // 创建pdf文件
 const onCreatePdf = () => {
   operateType.value = 'pdf';
@@ -523,6 +533,10 @@ onMounted(() => {
     position: relative;
     box-sizing: border-box;
     margin-bottom: 28px;
+
+    &.single-user {
+      height: 200px;
+    }
     .title {
       width: 432px;
       margin-left: 30px;

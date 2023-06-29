@@ -16,7 +16,9 @@
     </div>
     <div class="capsule-select" :style="{ left: styleLeft, width: styleWidth }">
       <div id="textContainer" class="text-container" :style="{ left: '-' + styleLeft }">
-        <div v-for="item in configs" :key="`capsule_${item.value}`" class="capsule-select-text">{{ item.label }}</div>
+        <div v-for="(item, i) in configs" :key="`${i}capsule_${item.value}`" class="capsule-select-text">
+          {{ item.label }}
+        </div>
       </div>
     </div>
   </div>

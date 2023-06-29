@@ -26,7 +26,7 @@
                   <div class="cell-title">
                     <div class="title">
                       <p>
-                        {{ item.name }} | {{ getRelationName(item.relationToHolder) }} |
+                        {{ item.name }} | {{ getRelationName(item.relationToMainInsured) }} |
                         {{ SEX_LIMIT_MAP[item?.gender] }} |
                         {{ dayjs().diff(item?.birthday, 'y') + '岁' }}
                       </p>

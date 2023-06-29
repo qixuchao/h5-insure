@@ -27,8 +27,8 @@
             </p>
             <div v-for="(item, index) in i.proposalInsuredVOList" :key="`proposal_${index}`">
               <p class="insure-info">
-                {{ item.name }} / {{ getRelationName(item.relationToHolder) }} / {{ SEX_LIMIT_MAP[item?.gender] }} /
-                {{ dayjs().diff(item?.birthday, 'y') + '岁' }} /
+                {{ item.name }} / {{ getRelationName(item.relationToMainInsured) }} /
+                {{ SEX_LIMIT_MAP[item?.gender] }} / {{ dayjs().diff(item?.birthday, 'y') + '岁' }} /
                 {{ `首年保费 ${toLocal(getProductTotal(item.productList))}元` }}
               </p>
               <ProTable :columns="columns" class="table" :data-source="getAllRisks(item.productList)" />
@@ -150,7 +150,7 @@ const getProposalName = (i: any) => {
   }
   if (i.proposalInsuredVOList.length > 1) {
     const targetInsure = i.proposalInsuredVOList.find(
-      (insure) => insure.relationToHolder === 1 || insure.relationToHolder === null,
+      (insure) => insure.relationToMainInsured === 1 || insure.relationToMainInsured === null,
     );
     if (targetInsure) {
       const { name, gender } = targetInsure;

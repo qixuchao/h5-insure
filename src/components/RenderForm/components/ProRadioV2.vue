@@ -100,7 +100,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'change']);
 
 const { formState } = inject(VAN_PRO_FORM_KEY) || {};
 
@@ -123,6 +123,7 @@ const handleSelect = (value) => {
   // }
   state.modelValue = value;
   emit('update:modelValue', value);
+  emit('change', value);
 };
 
 const onClick = ({ disabled: dis, value }: Column) => {

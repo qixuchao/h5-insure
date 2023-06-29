@@ -20,7 +20,7 @@
           </div>
         </div>
         <div class="fe">
-          首年保费： <span>¥{{ toLocal(props.info?.totalPremium) }}</span>
+          首年保费： <span>¥{{ toLocal(props.info?.totalPremium?.toFixed(2)) }}</span>
         </div>
       </template>
       <template v-else>
@@ -30,7 +30,7 @@
             <span class="p2"
               >{{ getRelationName() }} / {{ SEX_LIMIT_MAP[props.info?.gender] }} /
               {{ dayjs().diff(info?.birthday, 'y') }}岁 / 首年保费:
-              <span>¥{{ toLocal(props.info?.totalPremium) }}</span></span
+              <span>¥{{ toLocal(props.info?.totalPremium?.toFixed(2)) }}</span></span
             >
           </div>
         </div>
@@ -117,7 +117,7 @@ const getCover = (val: string) => {
 };
 
 const getRelationName = () => {
-  const tedxt = RELATION_HOLDER_LIST.find((e) => +e.value === props.info.relationToHolder);
+  const tedxt = RELATION_HOLDER_LIST.find((e) => +e.value === props.info.relationToMainInsured);
   return (tedxt && tedxt.label) || '';
 };
 
