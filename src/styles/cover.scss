@@ -92,6 +92,17 @@ body {
   }
 }
 
+.van-field__label--required {
+  &:before {
+    display: none;
+  }
+  &:after {
+    margin-right: 2px;
+    color: var(--van-field-required-mark-color);
+    content: "*";
+  }
+}
+
 .van-search__field {
   .van-field__value {
     align-items: flex-start;
@@ -114,6 +125,8 @@ body {
   padding-top: 8px;
 }
 
+.van-cell
+
 .van-icon-arrow {
   &:before {
     color: #99a9c0;
@@ -126,6 +139,7 @@ body {
     border-width: 0;
   }
 }
+
 
 .van-icon-success {
   &::before {

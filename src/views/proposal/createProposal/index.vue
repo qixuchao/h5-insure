@@ -1210,7 +1210,7 @@ onBeforeMount(() => {
     :deep(.com-form-item.birthday-field-wrap) {
       min-height: 78px;
       padding: 0;
-      width: 220px;
+      width: 260px;
       margin-left: 20px;
       position: relative;
       &::before {

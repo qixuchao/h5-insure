@@ -1007,14 +1007,15 @@ watch(
       border-bottom: 0;
     }
   }
+  .empty {
+    width: 100%;
+    height: 200px;
+  }
   .container {
     padding: 0 30px;
     // overflow-y: scroll;
     flex: 1;
-    .empty {
-      width: 100%;
-      height: 200px;
-    }
+
     &::-webkit-scrollbar {
       display: none;
     }
