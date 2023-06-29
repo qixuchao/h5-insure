@@ -584,7 +584,7 @@ const changeRelationToMain = (val) => {
   } else if (RELATION_HOLDER_ENUM.PARENT === value) {
     param = {
       age: +stateInfo.insurerList[0].personVO.age + 18,
-      birthday: dayjs(stateInfo.insurerList[0].personVO.birthday).add(18, 'year').format('YYYY-MM-DD'),
+      birthday: dayjs(stateInfo.insurerList[0].personVO.birthday).subtract(18, 'year').format('YYYY-MM-DD'),
       gender: +SEX_LIMIT_ENUM.MALE,
     };
   }
