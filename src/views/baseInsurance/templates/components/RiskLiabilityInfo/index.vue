@@ -5,7 +5,7 @@
         <div v-for="(item, index) in el.riskLiabilityInfoVOList" :key="index">
           <div v-if="+item.showFlag === 1">
             formula {{ item.formula.length }}
-            <ProField :label="`${item.liabilityName}`" label-width="40%" name="insuredRelation">
+            <ProField :label="`${item.liabilityName}`" label-width="44%" name="insuredRelation">
               <!-- insureFlag投保/不投保标志位 1.展示 2.不展示 -->
               <!-- <template #input> -->
               <template #input>
@@ -21,7 +21,7 @@
             <ProField
               v-if="+state.isCheckList[index] === 1 || +item.attributeFlag === 1"
               label="责任属性名称"
-              label-width="40%"
+              label-width="44%"
               name="insuredRelation"
             >
               <!-- insureFlag投保/不投保标志位 1.展示 2.不展示  formula不为空，请求公式计算结果-->

@@ -17,7 +17,7 @@
                   : item.relation !== LIABILITY_RELATION_ENUM.YI_LAI
               "
               :label="`${item.liabilityName}`"
-              label-width="40%"
+              label-width="44%"
               name="insuredRelation"
               class="riskliab-select-field"
             >
@@ -28,7 +28,7 @@
                   v-model="state.isCheckList[index]"
                   active-value="1"
                   inactive-value="2"
-                  size="0.74rem"
+                  size="0.68rem"
                   @click="handleSwitchClick(item, index)"
                 ></van-switch>
               </template>
@@ -40,7 +40,7 @@
                 (item.attributeFlag === 1 && item.insureFlag === 2)
               "
               :label="item.liabilityAttributeTypeDesc"
-              label-width="40%"
+              label-width="44%"
               name="insuredRelation"
               class="riskliab-select-field-children"
             >
@@ -63,8 +63,6 @@
       </div>
     </div>
     <div class="cell-content"></div>
-
-    <ProDivider />
   </van-config-provider>
 </template>
 <script lang="ts" setup name="riskLiabilityInfo">
@@ -383,7 +381,6 @@ watch(
 .com-risk-liabilityinfo {
   :deep(.riskliab-select-field) {
     display: inline-flex;
-    padding: 0;
     align-items: center;
     min-height: 106px;
     .van-cell__title {
@@ -403,7 +400,7 @@ watch(
     padding: 18px 30px;
     padding-left: 30px !important;
     padding-right: 30px !important;
-    margin-bottom: 20px;
+    // margin-bottom: 20px;
   }
 }
 </style>

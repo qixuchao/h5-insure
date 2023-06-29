@@ -5,7 +5,7 @@
       v-if="((!showMainRisk && risk.mainRiskFlag !== 1) || showMainRisk) && state.riskIsInsure?.[risk.riskId]?.relation"
     >
       <!-- 附加险区域 -->
-      <VanField
+      <ProField
         v-model="state.riskIsInsure[risk.riskId].selected"
         :label="risk.riskName"
         name="selected"
@@ -22,7 +22,7 @@
             v-model="state.riskIsInsure[risk.riskId].selected"
             active-value="1"
             inactive-value="2"
-            size="0.74rem"
+            size="0.68rem"
             :disabled="state.riskIsInsure[risk.riskId].isMust"
             style="margin-right: 8px"
             @change="handleSwitchClick($event, risk)"
@@ -36,7 +36,7 @@
                   </template> -->
           </van-switch>
         </template>
-      </VanField>
+      </ProField>
       <div v-if="state.riskIsInsure[risk.riskId].selected === '1'" class="risk2-field">
         <!-- 这里是附加险种选择投保后展开的区域 -->
         <InsureInfos
@@ -376,7 +376,7 @@ watch(
   }
 
   .risk-name {
-    font-weight: 600;
+    font-weight: 700;
   }
 
   .container {
@@ -390,7 +390,7 @@ watch(
       display: inline-flex;
       padding: 0;
       align-items: center;
-      font-weight: 600;
+      font-weight: 700;
       :deep(.van-field__label) {
         color: black;
       }

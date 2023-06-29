@@ -35,8 +35,8 @@
         v-if="!isView && index + 1 > state.config.multiInsuredMinNum"
         class="delete-button"
         @click="onDeleteInsured(index)"
-        ><van-icon name="delete-o"
-      /></span>
+        ><ProSvg name="delete" color="var(--van-primary-color)"></ProSvg
+      ></span>
     </InsuredItem>
     <van-cell v-if="!isView && addible" class="add-button-wrap">
       <template #title>
@@ -430,8 +430,6 @@ watch(
         ? Math.min(propsInsuredLen, multiInsuredMaxNum)
         : stateInsuredLen || multiInsuredMinNum;
 
-    console.log('-----change', state.config, insuredLen);
-
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
       const { personVO, config = {}, beneficiaryList } = insuredList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
@@ -473,7 +471,7 @@ defineExpose({
 
 <style scoped lang="scss">
 .personal-info-card {
-  margin-bottom: 20px;
+  margin-bottom: 0px !important;
   :deep(.com-van-field) {
     &:last-child::after {
       display: block;
@@ -486,7 +484,6 @@ defineExpose({
   }
 }
 .add-button-wrap {
-  margin-bottom: 20px;
   padding: 25px 30px;
   .add-button {
     font-size: 32px;

@@ -8,7 +8,7 @@
 <template>
   <div :class="{ 'com-attachment-list': true, 'has-bg': hasBgColor }">
     <div class="attachment-wrap">
-      <van-checkbox v-if="isShowRadio" v-model="isAgree" shape="round" @change="onChange"> </van-checkbox>
+      <van-checkbox v-if="isShowRadio" v-model="isAgree" shape="square" @change="onChange"> </van-checkbox>
       <div class="attachment-content">
         <span>{{ preText }}</span>
         <span
@@ -62,16 +62,27 @@ const onChange = (e) => {
   text-align: left;
   padding: 0 10px 25px;
   margin-bottom: -15px;
+  padding: 16px 39px 40px;
+
   &.has-bg {
     background: #fff8f3;
-    padding: 16px 39px 40px;
   }
 
-  .van-checkbox__icon--round {
-    width: 40px;
+  .van-checkbox__icon {
+    width: 28px;
+    height: 28px;
     margin-right: 10px;
     .van-icon {
-      border-radius: 100%;
+      width: 100%;
+      height: 100%;
+      &::before {
+        position: absolute;
+        margin: auto;
+        top: 2px;
+        bottom: 0;
+        left: 0;
+        right: 0;
+      }
     }
   }
 

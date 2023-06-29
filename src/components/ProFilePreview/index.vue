@@ -162,7 +162,7 @@ watch(
     }
   }
   .pdf-wapper {
-    background-color: rgb(82, 86, 89);
+    // background-color: rgb(82, 86, 89);
     height: 100%;
 
     :deep(.viewerContainer) {

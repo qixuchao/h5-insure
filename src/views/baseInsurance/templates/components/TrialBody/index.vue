@@ -31,6 +31,9 @@
           :multi-insured-config="currentPlan?.multiInsuredConfigVO"
           @trail-change="handlePersonalInfoChange"
         />
+      </div>
+      <ProDivider size="large" />
+      <div class="container">
         <!-- 这里是标准险种信息 -->
         <InsureInfos
           ref="insureInfosRef"
@@ -43,6 +46,8 @@
           :trial-result="state.trialResult"
           @trial-change="handleTrialInfoChange"
         ></InsureInfos>
+      </div>
+      <div class="container">
         <!-- 以下是附加险种信息 -->
         <ProductRiskList
           v-if="currentPlan.insureProductRiskVOList"
@@ -68,8 +73,8 @@
             />
           </template>
         </ProductRiskList>
-        <div class="empty"></div>
       </div>
+      <div class="empty"></div>
     </div>
     <slot
       name="trialBtn"
@@ -925,6 +930,9 @@ watch(
   padding: 30px;
   text-align: right;
   background-color: #fff;
+  position: fixed;
+  bottom: 0;
+  left: 0;
   .van-button {
     width: 270px;
   }
@@ -969,6 +977,35 @@ watch(
     :deep(.com-pro-form-with-card.personal-info-card) .header {
       padding-left: 0;
     }
+    :deep(.van-cell) {
+      font-size: 30px;
+    }
+    :deep(.van-field) {
+      align-items: baseline;
+      border: 1px;
+      min-height: 110px;
+      border-bottom: 1px solid var(--van-cell-border-color);
+      // padding: 10px 0;
+      box-sizing: border-box;
+      .van-cell__title {
+        min-height: 74px;
+        margin: 0 0 auto;
+        padding-top: 20px;
+      }
+      .van-field__body {
+        display: unset;
+      }
+      .van-field__value {
+        min-height: 74px;
+        justify-content: center;
+      }
+      .com-check-btn {
+        font-size: 30px;
+      }
+    }
+    :deep(.van-cell::after) {
+      border-bottom: 0;
+    }
   }
   .container {
     padding: 0 30px;
@@ -976,14 +1013,13 @@ watch(
     flex: 1;
     .empty {
       width: 100%;
-      height: 180px;
+      height: 200px;
     }
     &::-webkit-scrollbar {
       display: none;
     }
     :deep(.risk-select-field) {
       display: inline-flex;
-      padding: 0;
       align-items: center;
       :deep(.van-field__label) {
         color: black;

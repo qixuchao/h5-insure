@@ -1,7 +1,7 @@
 <template>
   <div v-if="showTypes === 1">
     <!-- 步进值 -->
-    <VanField :label="`基本${methodName.label}`" :name="methodName.key" class="risk-select-field">
+    <ProField :label="`基本${methodName.label}`" :name="methodName.key" class="risk-select-field">
       <template #input>
         <div class="custom-field">
           <VanStepper
@@ -11,11 +11,12 @@
             :min="originData.minStepValue"
             :step="originData.stepValue"
             :max="originData.maxStepValue"
+            theme="round"
             @blur="handleStepBlur"
           ></VanStepper>
         </div>
       </template>
-    </VanField>
+    </ProField>
   </div>
   <div v-else-if="showTypes === 2" class="flex-field">
     <ProField
@@ -54,7 +55,7 @@
       </template>
     </ProField>
     <div>
-      <VanField v-model="mValues.copy" label="份数" name="copy" class="risk-select-field">
+      <ProField v-model="mValues.copy" label="份数" name="copy" class="risk-select-field">
         <template #input>
           <div class="custom-field">
             <VanStepper
@@ -65,16 +66,17 @@
               :min="originData.minCopiesValue || 1"
               :step="1"
               :max="originData.maxCopiesValue"
+              theme="round"
             ></VanStepper>
             <span v-else>{{ originData.minCopiesValue }}</span>
           </div>
         </template>
-      </VanField>
+      </ProField>
     </div>
   </div>
   <div v-else-if="showTypes === 4">
     <!-- 份数 -->
-    <VanField v-model="mValues.copy" label="份数" name="copy" class="risk-select-field">
+    <ProField v-model="mValues.copy" label="份数" name="copy" class="risk-select-field">
       <template #input>
         <div class="custom-field">
           <VanStepper
@@ -85,12 +87,13 @@
             :min="originData.minCopiesValue || 1"
             :step="1"
             :max="originData.maxCopiesValue"
+            theme="round"
           ></VanStepper>
           <span v-else>{{ originData.minCopiesValue }}</span>
         </div>
       </template>
-    </VanField>
-    <VanField :label="methodName.label" name="copyAmount" class="risk-select-field">
+    </ProField>
+    <ProField :label="methodName.label" name="copyAmount" class="risk-select-field">
       <template #input>
         <div class="custom-field">
           <span v-if="originData.minCopiesValue !== originData.maxCopiesValue">
@@ -99,14 +102,14 @@
           <span v-else>{{ +originData.minCopiesValue * +originData.copiesAmount + getUnitString() }}</span>
         </div>
       </template>
-    </VanField>
+    </ProField>
   </div>
   <div v-if="mConfigs.saleMethod === 2 && trialResult && trialResult.initialAmount > 0">
-    <VanField :label="`保额`" class="risk-select-field">
+    <ProField :label="`保额`" class="risk-select-field">
       <template #input>
         <span>{{ trialResult.initialAmount }}</span>
       </template>
-    </VanField>
+    </ProField>
   </div>
 </template>
 <script lang="ts" setup name="BaoeBaofei">

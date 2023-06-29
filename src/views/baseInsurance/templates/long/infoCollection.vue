@@ -33,6 +33,7 @@
       <AttachmentList
         v-if="fileList?.length"
         v-model="isAgree"
+        :has-bg-color="false"
         :attachment-list="fileList"
         is-show-radio
         pre-text="投保人阅读并接受"

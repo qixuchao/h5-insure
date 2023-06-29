@@ -98,9 +98,17 @@ const subTitle = computed(() => {
       margin-left: $zaui-card-border;
       padding-right: $zaui-card-border;
       border-bottom: 0;
+      position: relative;
 
       &.showLine {
-        border-bottom: 1px solid $zaui-line;
+        &:after {
+          content: ' ';
+          position: absolute;
+          width: 100%;
+          border-bottom: 1px solid $zaui-line;
+          transform: scaleY(0.5);
+          z-index: 1;
+        }
       }
       .title-wrapper {
         height: 90px;
@@ -117,11 +125,11 @@ const subTitle = computed(() => {
           &.showIcon {
             &:before {
               content: ' ';
-              width: 6px;
-              height: 30px;
-              background: $primary-color;
+              width: 8px;
+              height: 28px;
+              background: var(--van-primary-color);
               margin-right: 16px;
-              border-radius: 0px 4px 4px 0px;
+              border-radius: 4px;
             }
           }
         }

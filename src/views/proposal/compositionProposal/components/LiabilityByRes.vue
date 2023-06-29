@@ -21,6 +21,7 @@
               :key="k + i"
               :title="val"
               :name="k + i"
+              :border="false"
               value-class="price"
             >
               <ProCell
@@ -28,6 +29,7 @@
                 :key="liability.liabilityId"
                 :title="liability.liabilityName"
                 :content="liability.liabilityIndemnityContent || ''"
+                :border="false"
               ></ProCell>
             </van-collapse-item>
           </van-collapse>

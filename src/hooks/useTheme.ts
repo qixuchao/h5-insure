@@ -91,6 +91,9 @@ export const useTheme = (color: string = import.meta.env.VITE_THEME_COLOR || the
     tabsBottomBarColor: color, // tabs激活条的颜色
     stepActiveColor: color, // 步骤条
     stepFinishLineColor: color, // 步骤条线条
+    stepCircleColor: '#DEE0E3',
+    checkboxCheckedIconColor: color, // checkbox选中状态的颜色
+
     // ..其他组件的颜色覆盖
   };
 };

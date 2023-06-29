@@ -5,6 +5,7 @@
         <ProRenderForm ref="formRef" class="mb20" :model="stateInfo.insuredPersonVO">
           <ProFieldV2
             v-model="stateInfo.insuredPersonVO.proposalName"
+            class="ra20"
             label="计划书名称"
             name="proposalName"
             :maxlength="20"
@@ -14,7 +15,7 @@
           :config="stateInfo"
           :insurer-list="stateInfo.insurerList"
           :can-change-select="true"
-          @validateTab="validateTab"
+          @validate-tab="validateTab"
           @current-change="handleCurrentInsureChange"
           @add="handleAddInsure"
           @delete="handleDeleteInsure"
@@ -1131,7 +1132,7 @@ onBeforeMount(() => {
     }
   }
   :deep(.com-card-wrap) {
-    border-radius: $zaui-border-radius-card;
+    clip-path: inset(0 0 0 0 round $zaui-border-radius-card);
     .body {
       padding: 0;
     }
@@ -1157,6 +1158,10 @@ onBeforeMount(() => {
       margin-bottom: 20px;
     }
 
+    .ra20 {
+      border-radius: $zaui-border-radius-card;
+    }
+
     .operate-bar {
       width: 100%;
       justify-content: center;
@@ -1167,6 +1172,7 @@ onBeforeMount(() => {
       :deep(.com-check-btn) {
         height: 68px;
         width: 240px;
+        border-radius: 34px;
       }
     }
   }
@@ -1206,6 +1212,17 @@ onBeforeMount(() => {
       padding: 0;
       width: 220px;
       margin-left: 20px;
+      position: relative;
+      &::before {
+        content: ' ';
+        position: absolute;
+        width: 1px;
+        height: 41px;
+        background-color: $zaui-line;
+        margin: auto;
+        top: 0;
+        bottom: 0;
+      }
       .van-field__label {
         display: none;
       }
