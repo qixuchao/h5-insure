@@ -51,9 +51,8 @@ const state = ref<State>({
 const list = ref(props.insurerList);
 const emits = defineEmits(['listChange', 'currentChange', 'add', 'delete', 'validateTab']);
 
-const showTabs = () => {
+const showTabs = (reLad = false) => {
   nextTick(() => {
-    console.log('111state.value.currentSelected1', state.value.currentSelected);
     tabRef.value[state.value.currentSelected]?.scrollIntoView({
       behavior: 'smooth',
       block: 'nearest',
@@ -61,8 +60,8 @@ const showTabs = () => {
     });
     if (state.value.currentSelected === 0) {
       tabsRef.value.scrollLeft = 0;
-    } else if (state.value.currentSelected >= 3) {
-      tabRef.value.scrollLeft = tabRef.value.scrollWidth;
+    } else if (reLad && state.value.currentSelected >= 3) {
+      tabsRef.value.scrollLeft = tabsRef.value.scrollWidth;
     }
   });
 };
@@ -70,8 +69,7 @@ const showTabs = () => {
 const updateInsurer = (index: number, info: any) => {};
 
 onActivated(() => {
-  console.log('1111');
-  showTabs();
+  showTabs(true);
 });
 
 const getRelate = (relate: any) => {
