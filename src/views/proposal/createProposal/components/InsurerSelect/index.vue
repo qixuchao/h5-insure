@@ -23,14 +23,7 @@
 
 <script lang="ts" setup name="InsurerSelect">
 import { withDefaults } from 'vue';
-import { useToggle } from '@vant/use';
 import { Dialog, Toast } from 'vant';
-import { ProposalProductRiskItem, ProposalInsuredProductItem } from '@/api/modules/createProposal.data';
-import { ProductData, RiskDetailVoItem } from '@/api/modules/trial.data';
-import { convertPeriod, convertChargePeriod } from '@/utils/format';
-import RiskRelationList from '@/views/trial/components/RiskRelationList/index.vue';
-import useDict from '@/hooks/useDicData';
-import ProductTips from '@/views/proposal/proposalList/components/ProductTips.vue';
 import { RELATION_HOLDER_LIST } from '@/common/constants/product';
 
 interface Props {
@@ -58,8 +51,6 @@ const state = ref<State>({
 const list = ref(props.insurerList);
 const emits = defineEmits(['listChange', 'currentChange', 'add', 'delete', 'validateTab']);
 
-const updateInsurer = (index: number, info: any) => {};
-
 const showTabs = () => {
   nextTick(() => {
     tabRef.value[state.value.currentSelected]?.scrollIntoView({
@@ -72,6 +63,12 @@ const showTabs = () => {
     }
   });
 };
+
+const updateInsurer = (index: number, info: any) => {};
+
+onActivated(() => {
+  showTabs();
+});
 
 const getRelate = (relate: any) => {
   // 根据枚举获取关系的文本
