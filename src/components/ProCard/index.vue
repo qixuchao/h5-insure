@@ -108,6 +108,7 @@ const subTitle = computed(() => {
           border-bottom: 1px solid $zaui-line;
           transform: scaleY(0.5);
           z-index: 1;
+          left: 0;
         }
       }
       .title-wrapper {

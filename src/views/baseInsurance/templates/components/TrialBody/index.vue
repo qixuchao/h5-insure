@@ -982,9 +982,8 @@ watch(
     }
     :deep(.van-field) {
       align-items: baseline;
-      border: 1px;
       min-height: 110px;
-      border-bottom: 1px solid var(--van-cell-border-color);
+      border-bottom: 0.5px solid var(--van-cell-border-color);
       // padding: 10px 0;
       box-sizing: border-box;
       .van-cell__title {
