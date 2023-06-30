@@ -415,6 +415,13 @@ const onSaveOrder = async () => {
           iseeBizNo: iseeBizNo.value,
           autoRenewalInfo: autoRenewalInfo.value,
         },
+        operateOption: {
+          withBeneficiaryInfo: true,
+          withHolderInfo: true,
+          withInsuredInfo: true,
+          withAttachmentInfo: true,
+          withProductInfo: true,
+        },
       });
       nextStep(currentOrderDetail, async (data: any, pageAction: string) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
