@@ -61,6 +61,8 @@ const showTabs = () => {
     });
     if (state.value.currentSelected === 0) {
       tabsRef.value.scrollLeft = 0;
+    } else if (state.value.currentSelected >= 3) {
+      tabRef.value.scrollLeft = tabRef.value.scrollWidth;
     }
   });
 };
