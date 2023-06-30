@@ -209,11 +209,11 @@ const validate = () => {
     // 没有自动续保，或者不选或者选择不续保或者是微信和支付宝支付
     if (
       !state.isAutoRenewal ||
-      [YES_NO_ENUM.NO, 0].includes(state.formData.isAutoRenewal) ||
+      [YES_NO_ENUM.NO, 0, null].includes(state.formData.isAutoRenewal) ||
       ['2', '3'].includes(state.formData.paymentMethod)
     ) {
       // 不支持续保和没选
-      if (!state.isAutoRenewal || isAutoRenewal === 0) {
+      if (!state.isAutoRenewal || [0, null].includes(isAutoRenewal)) {
         resolve({});
       } else if (isAutoRenewal === YES_NO_ENUM.NO) {
         // 选择不续保
