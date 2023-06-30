@@ -233,6 +233,19 @@ defineExpose({
     .gap {
       min-width: 60px;
       height: 118px;
+      position: relative;
+
+      &::after {
+        box-shadow: -8px 0px 15px 1px #cecece;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        display: inline-block;
+        height: 70%;
+        content: '';
+        width: 1px;
+      }
     }
     .add-btn {
       line-height: 118px;

@@ -174,7 +174,14 @@
           >总保费<span class="result-num">{{ !submitDisable ? `￥${totalPremium?.toLocaleString()}` : '-' }}</span>
         </span>
         <div class="trial-operate">
-          <VanButton :disabled="submitDisable" type="primary" @click="saveProposalData">保存并预览</VanButton>
+          <VanButton
+            :disabled="submitDisable || stateInfo.isLoading"
+            :loading="stateInfo.isLoading"
+            loading-type="spinner"
+            type="primary"
+            @click="saveProposalData"
+            >保存并预览</VanButton
+          >
         </div>
       </div>
       <!-- <ProductRisk
@@ -328,6 +335,7 @@ interface StateInfo {
   defaultData: {
     [x: string]: any;
   };
+  isLoading: boolean;
 }
 
 const stateInfo = reactive<StateInfo>({
@@ -342,6 +350,7 @@ const stateInfo = reactive<StateInfo>({
   productErrorMap: {},
   defaultData: null,
   currentSelectInsure: 0,
+  isLoading: false,
 });
 
 // 是否试算过
@@ -777,8 +786,8 @@ const queryProposalInfo = (params = {}) => {
       let isDown = false;
       stateInfo.insurerList = insuredList.map((insure, i) => {
         const { productList: products, ...personVO } = insure;
-        if (i === 0 && !personVO.relationToHolder) {
-          personVO.relationToHolder = 2;
+        if (i === 0) {
+          personVO.relationToHolder = !personVO.relationToHolder ? 2 : 1;
           changeHolderBirthday(stateInfo.holder.birthday);
         }
         return {
@@ -952,6 +961,7 @@ const submitData = (proposalId) => {
     validates.push(holderFormRef.value?.validate());
   }
   Promise.all(validates).then(() => {
+    stateInfo.isLoading = true;
     addOrUpdateProposal({
       holder: { ...getHolderList() },
       insuredList: stateInfo.insurerList.map((insure, i) => {
@@ -969,19 +979,23 @@ const submitData = (proposalId) => {
       totalPremium: totalPremium.value,
       relationUserType: 2,
       id: proposalId,
-    }).then((res) => {
-      const { code, data } = res || {};
-      if (code === '10000') {
-        store.$reset();
-        router.push({
-          path: '/compositionProposal',
-          query: {
-            id: data,
-            preview,
-          },
-        });
-      }
-    });
+    })
+      .then((res) => {
+        const { code, data } = res || {};
+        if (code === '10000') {
+          store.$reset();
+          router.push({
+            path: '/compositionProposal',
+            query: {
+              id: data,
+              preview,
+            },
+          });
+        }
+      })
+      .catch(() => {
+        stateInfo.isLoading = false;
+      });
   });
 };
 
@@ -1042,15 +1056,18 @@ const handleDeleteInsure = (index: number, cb) => {
 
 /** 被保人数据变动 */
 watch(
-  () =>
-    trialFieldkeys.map((key) => {
-      if (stateInfo.insurerList[stateInfo.currentSelectInsure])
-        return stateInfo.insurerList[stateInfo.currentSelectInsure].personVO[key];
-      return '';
-    }),
-  (val, oldVal) => {
-    if (val.join(',') !== oldVal.join(',')) {
-      console.log('被保人条件变动');
+  [
+    () =>
+      trialFieldkeys.map((key) => {
+        if (stateInfo.insurerList[stateInfo.currentSelectInsure])
+          return stateInfo.insurerList[stateInfo.currentSelectInsure].personVO[key];
+        return '';
+      }),
+    () => stateInfo.currentSelectInsure,
+  ],
+  ([val, newIndex], [oldVal, oldIndex]) => {
+    if (val.join(',') !== oldVal.join(',') && newIndex === oldIndex) {
+      console.log(newIndex, '被保人条件变动', oldIndex);
       if (isNotEmptyArray(Object.keys(stateInfo.productCollection))) {
         currentProductCodeListFn().forEach((code) => calcDynamicInsureFactor(code));
       }
@@ -1241,7 +1258,7 @@ onBeforeMount(() => {
     :deep(.com-form-item.birthday-field-wrap) {
       min-height: 78px;
       padding: 0;
-      width: 260px;
+      width: 280px;
       margin-left: 20px;
       position: relative;
       &::before {
