@@ -1,6 +1,6 @@
 <template>
   <div class="insurer-list">
-    <div class="list">
+    <div ref="tabsRef" class="list">
       <div
         v-for="(insure, index) in list"
         ref="tabRef"
@@ -23,14 +23,7 @@
 
 <script lang="ts" setup name="InsurerSelect">
 import { withDefaults } from 'vue';
-import { useToggle } from '@vant/use';
 import { Dialog, Toast } from 'vant';
-import { ProposalProductRiskItem, ProposalInsuredProductItem } from '@/api/modules/createProposal.data';
-import { ProductData, RiskDetailVoItem } from '@/api/modules/trial.data';
-import { convertPeriod, convertChargePeriod } from '@/utils/format';
-import RiskRelationList from '@/views/trial/components/RiskRelationList/index.vue';
-import useDict from '@/hooks/useDicData';
-import ProductTips from '@/views/proposal/proposalList/components/ProductTips.vue';
 import { RELATION_HOLDER_LIST } from '@/common/constants/product';
 
 interface Props {
@@ -50,6 +43,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const tabRef = ref();
+const tabsRef = ref();
 const state = ref<State>({
   currentSelected: 0,
 });
@@ -57,16 +51,26 @@ const state = ref<State>({
 const list = ref(props.insurerList);
 const emits = defineEmits(['listChange', 'currentChange', 'add', 'delete', 'validateTab']);
 
-const updateInsurer = (index: number, info: any) => {};
-
-const showTabs = () => {
-  console.log('state.currentSelected', state.value.currentSelected);
-  tabRef.value[state.value.currentSelected]?.scrollIntoView({
-    behavior: 'smooth',
-    block: 'nearest',
-    inline: 'start',
+const showTabs = (reLad = false) => {
+  nextTick(() => {
+    tabRef.value[state.value.currentSelected]?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'start',
+    });
+    if (state.value.currentSelected === 0) {
+      tabsRef.value.scrollLeft = 0;
+    } else if (reLad && state.value.currentSelected >= 3) {
+      tabsRef.value.scrollLeft = tabsRef.value.scrollWidth;
+    }
   });
 };
+
+const updateInsurer = (index: number, info: any) => {};
+
+onActivated(() => {
+  showTabs(true);
+});
 
 const getRelate = (relate: any) => {
   // 根据枚举获取关系的文本
@@ -111,9 +115,7 @@ const handleAddClick = () => {
     list.value.push({});
     state.value.currentSelected = list.value.length - 1;
     emits('add', {}, list.value.length - 1);
-    showTabs();
   });
-  // emits('currentChange', list.value.length - 1);
 };
 
 const handleDeleteClick = (e, index) => {
@@ -141,6 +143,7 @@ watch(
   () => props.insurerList.length,
   () => {
     list.value = props.insurerList;
+    showTabs();
   },
   {
     deep: true,
@@ -165,6 +168,10 @@ defineExpose({
     display: inline-flex;
     align-items: center;
     overflow-x: scroll;
+    // 隐藏滚动条
+    &::-webkit-scrollbar {
+      display: none;
+    }
     .insure-box {
       min-width: 136px;
       width: 136px;
