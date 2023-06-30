@@ -53,6 +53,7 @@ const emits = defineEmits(['listChange', 'currentChange', 'add', 'delete', 'vali
 
 const showTabs = () => {
   nextTick(() => {
+    console.log('111state.value.currentSelected1', state.value.currentSelected);
     tabRef.value[state.value.currentSelected]?.scrollIntoView({
       behavior: 'smooth',
       block: 'nearest',
@@ -67,6 +68,7 @@ const showTabs = () => {
 const updateInsurer = (index: number, info: any) => {};
 
 onActivated(() => {
+  console.log('1111');
   showTabs();
 });
 
