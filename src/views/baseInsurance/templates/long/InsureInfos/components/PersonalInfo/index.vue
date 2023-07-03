@@ -248,10 +248,10 @@ const canTrail = () => {
 watch(
   () => state.holder.personVO?.certType,
   (val, oldVal) => {
-    if (val === oldVal) {
+    if (`${val}` === `${oldVal}`) {
       return false;
     }
-    colorConsole(`投保人信息变动了`);
+    colorConsole(`投保人信息变动了====`);
     // 证件类型是否只有身份证
     const [isOnlyCertFlag, tempConfig] = getCertConfig(state.holder.schema, { certType: val });
 
@@ -386,6 +386,7 @@ watch(
   [
     () => {
       const { holder, insuredList } = props.modelValue;
+      console.log('表单数据', cloneDeep(holder));
       const tempInsuredList = isNotEmptyArray(insuredList)
         ? insuredList.map((item) => {
             return {
@@ -409,6 +410,8 @@ watch(
     colorConsole(`投被保人数据变动了`);
     // 投保人
     Object.assign(state.holder.config, holderConfig);
+    console.log('投保人数据===', cloneDeep(state.holder.personVO), cloneDeep(holderFormData));
+
     Object.assign(state.holder.personVO, holderFormData);
 
     // 处理被保人数据

@@ -21,45 +21,47 @@
     @closed="onClosePopupAfterAni"
   >
     <ProLazyComponent>
-      <TrialBody
-        ref="insureInfosRef"
-        :data-source="dataSource"
-        :share-info="shareInfo"
-        is-trial
-        :product-info="productInfo"
-        :tenant-product-detail="tenantProductDetail"
-        :hide-benefit="hideBenefit"
-        :default-data="defaultData"
-        :default-order="orderDetail"
-        @trial-start="handleTrialStart"
-        @trial-end="handleTrialEnd"
-      >
-        <template #trialHead>
-          <div class="pop-header">
-            <span class="header-title">{{ title }}</span>
-            <van-icon name="cross" @click="state.show = false" />
-          </div>
-        </template>
-        <template #trialBtn="scope">
-          <slot name="trialBtn" v-bind="scope">
-            <TrialButton
-              :is-share="currentShareInfo.isShare"
-              :premium="scope.riskPremium?.initialPremium"
-              :share-info="currentShareInfo"
-              :loading-text="state.trialMsg"
-              :plan-code="props.dataSource.planCode"
-              :payment-frequency="
-                scope.trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''
-              "
-              :tenant-product-detail="tenantProductDetail"
-              :handle-share="(cb) => onShare(cb, scope.trialData)"
-              :disabled="!!state.trialMsg"
-              @handle-click="onNext(scope.trialData)"
-              >立即投保</TrialButton
-            >
-          </slot>
-        </template>
-      </TrialBody>
+      <div class="trial-wrap">
+        <TrialBody
+          ref="insureInfosRef"
+          :data-source="dataSource"
+          :share-info="shareInfo"
+          is-trial
+          :product-info="productInfo"
+          :tenant-product-detail="tenantProductDetail"
+          :hide-benefit="hideBenefit"
+          :default-data="defaultData"
+          :default-order="orderDetail"
+          @trial-start="handleTrialStart"
+          @trial-end="handleTrialEnd"
+        >
+          <template #trialHead>
+            <div class="pop-header">
+              <span class="header-title">{{ title }}</span>
+              <van-icon name="cross" @click="state.show = false" />
+            </div>
+          </template>
+          <template #trialBtn="scope">
+            <slot name="trialBtn" v-bind="scope">
+              <TrialButton
+                :is-share="currentShareInfo.isShare"
+                :premium="scope.riskPremium?.initialPremium"
+                :share-info="currentShareInfo"
+                :loading-text="state.trialMsg"
+                :plan-code="props.dataSource.planCode"
+                :payment-frequency="
+                  scope.trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''
+                "
+                :tenant-product-detail="tenantProductDetail"
+                :handle-share="(cb) => onShare(cb, scope.trialData)"
+                :disabled="!!state.trialMsg"
+                @handle-click="onNext(scope.trialData)"
+                >立即投保</TrialButton
+              >
+            </slot>
+          </template>
+        </TrialBody>
+      </div>
     </ProLazyComponent>
   </ProPopup>
 </template>
@@ -681,6 +683,11 @@ watch(
   .price {
     text-align: left;
   }
+}
+
+.trial-wrap {
+  height: 100%;
+  overflow-y: scroll;
 }
 .com-body {
   height: 100%;

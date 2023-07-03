@@ -38,7 +38,7 @@ export const deleteProposal = (id: number) =>
 
 // 计划书详情
 export const queryProposalDetail = (id: string) => {
-  return request({ url: `${API_PREFIXED}/preview/${id}`, method: 'POST' });
+  return request({ url: `${API_PREFIXED}/preview/${id}`, method: 'POST' }, { loading: true });
 };
 
 // 生成计划书pdf
@@ -47,5 +47,5 @@ export const generatePdf = (params = {}) => {
 };
 
 export const queryPreviewProposalDetail = (id: string) => {
-  return request({ url: `${API_PREFIXED}/sharePreview/${id}`, method: 'GET' });
+  return request({ url: `${API_PREFIXED}/sharePreview/${id}`, method: 'GET' }, { loading: true });
 };
