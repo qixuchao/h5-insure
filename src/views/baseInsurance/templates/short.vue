@@ -338,7 +338,7 @@ const initData = async () => {
     }
   });
 
-  if (reOrderNo || !extInfo.orderNo) {
+  if (reOrderNo || extInfo.orderNo) {
     getTenantOrderDetail({ orderNo: reOrderNo || extInfo.orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         orderDetail.value = data;
