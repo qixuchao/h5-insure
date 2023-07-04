@@ -31,13 +31,12 @@
         <div class="custom-page-form">
           <!-- 投保人/被保人/受益人 -->
           <PersonalInfo
-            v-if="currentPlanObj?.productFactor"
+            v-if="currentPlanObj?.productFactor && !isLoading"
             :key="currentPlanObj.planCode"
             ref="personalInfoRef"
             v-model="state.userData"
             :product-factor="currentPlanObj?.productFactor"
             :multi-insured-config="currentPlanObj?.multiInsuredConfigVO"
-            @trail-change="handlePersonalInfoChange"
           />
         </div>
         <PaymentType
@@ -310,7 +309,7 @@ const queryProductMaterialData = () => {
     });
   });
 };
-
+const isLoading = ref<boolean>(true);
 // 初始化数据，获取产品配置详情和产品详情
 const initData = async () => {
   querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
@@ -339,7 +338,7 @@ const initData = async () => {
     }
   });
 
-  (reOrderNo || extInfo.orderNo) &&
+  if (reOrderNo || !extInfo.orderNo) {
     getTenantOrderDetail({ orderNo: reOrderNo || extInfo.orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         orderDetail.value = data;
@@ -351,14 +350,18 @@ const initData = async () => {
         }
 
         state.userData = data;
+        isLoading.value = false;
       }
     });
-
-  proposalId &&
+  } else if (proposalId) {
     proposalToTrial({ proposalId, productCode, tenantId: saTenantId || tenantId, proposalInsuredId }, (data) => {
       colorConsole('计划书查询参数');
       state.userData = data;
+      isLoading.value = false;
     });
+  } else {
+    isLoading.value = false;
+  }
 
   loading.value = false;
   queryProductMaterialData();
