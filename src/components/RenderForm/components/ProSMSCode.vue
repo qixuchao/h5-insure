@@ -1,5 +1,5 @@
 <template>
-  <ProFieldV2 v-if="!$attrs['is-view']" class="com-pro-sms-code" type="digit" v-bind="$attrs">
+  <ProFieldV2 v-if="!isView" class="com-pro-sms-code" type="digit" v-bind="$attrs" :is-view="isView">
     <template #extra>
       <van-button class="extra-button" size="small" plain type="primary" @click="onSendSmsCode">{{
         smsText
@@ -26,6 +26,10 @@ const props = defineProps({
   relatedName: {
     type: String,
     default: 'mobile',
+  },
+  isView: {
+    type: Boolean,
+    default: false,
   },
   sendSMSCode: {
     type: Function,

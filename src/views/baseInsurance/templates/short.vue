@@ -35,6 +35,7 @@
             :key="currentPlanObj.planCode"
             ref="personalInfoRef"
             v-model="state.userData"
+            :is-view="isView"
             :product-factor="currentPlanObj?.productFactor"
             :multi-insured-config="currentPlanObj?.multiInsuredConfigVO"
           />
@@ -310,6 +311,7 @@ const queryProductMaterialData = () => {
   });
 };
 const isLoading = ref<boolean>(true);
+const isView = ref<boolean>(false);
 // 初始化数据，获取产品配置详情和产品详情
 const initData = async () => {
   querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
@@ -342,6 +344,7 @@ const initData = async () => {
     getTenantOrderDetail({ orderNo: reOrderNo || extInfo.orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         orderDetail.value = data;
+        isView.value = true;
         const orderPlanCode = orderDetail.value.insuredList?.[0]?.planCode || '';
         if (orderPlanCode) {
           currentPlanObj.value =
@@ -349,7 +352,19 @@ const initData = async () => {
             currentPlanObj.value?.productPlanInsureVOList?.[0];
         }
 
-        state.userData = data;
+        Object.assign(state.userData, {
+          ...data,
+          holder: {
+            ...data.holder,
+            config: {
+              verificationCode: {
+                isView: false,
+                isHidden: false,
+                visible: true,
+              },
+            },
+          },
+        });
         isLoading.value = false;
       }
     });
