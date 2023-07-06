@@ -153,7 +153,7 @@ watch(
 watch(
   () => props.modelValue,
   (val) => {
-    if (Array.isArray(val)) {
+    if (Array.isArray(val) && val.length) {
       state.modelValue = val;
     }
   },
