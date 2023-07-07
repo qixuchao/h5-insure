@@ -259,7 +259,7 @@ export default {
   &.com-van-field-hidden,
   &.com-van-field--hidden {
     height: 0;
-    min-height: 0;
+    min-height: 0 !important;
     padding: 0;
     overflow: hidden;
   }
