@@ -24,6 +24,7 @@
       :schema="state.beneficiaryTypeSchemaList"
       :is-view="isView"
     />
+
     <template v-if="isSpecifyBeneficiary">
       <BeneficiaryItem
         v-for="(beneficiary, index) in state.beneficiaryList"
@@ -35,6 +36,7 @@
         :config="beneficiary.config"
         :is-view="isView"
       >
+        <slot name="cardTitleExtraBenifit" :index="index"></slot>
         <span v-if="index > 0 && !isView" class="delete-button" @click="onDeleteBeneficiary(index)">
           <ProSvg name="delete"></ProSvg>
         </span>
@@ -198,7 +200,7 @@ const validateTrialFields = () => {
 watch(
   () => props.holderPersonVO,
   (val) => {
-    colorConsole('投保人信息变动了');
+    colorConsole('------投保人信息变动了-----');
     // 投保人id不同步到被保人
     const { id, ...holderPersonVO } = val || {};
 
@@ -403,7 +405,7 @@ watch(
 );
 
 watch(
-  () => props.beneficiaryList,
+  () => cloneDeep(props.beneficiaryList),
   (val, oldValue) => {
     if (JSON.stringify(val) !== JSON.stringify(oldValue)) {
       state.beneficiaryList = isNotEmptyArray(val)
