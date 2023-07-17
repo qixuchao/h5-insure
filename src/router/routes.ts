@@ -57,6 +57,18 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     meta: { title: '预览' },
     component: () => import('@/views/middlePage/preview.vue'),
   },
+  {
+    name: 'scribing',
+    path: '/baseInsurance/long/scribing',
+    meta: { title: '抄录' },
+    component: () => import('@/views/baseInsurance/templates/long/handleScribing.vue'),
+  },
+  {
+    name: 'scribingPreview',
+    path: '/baseInsurance/long/scribingPreview',
+    meta: { title: '抄录' },
+    component: () => import('@/views/baseInsurance/templates/long/scribingPreview.vue'),
+  },
 ];
 
 // 计划书路由

@@ -10,8 +10,8 @@
   <Popup
     v-model:show="isShow"
     teleport="#app .van-config-provider"
-    v-bind="$attrs"
     position="bottom"
+    v-bind="$attrs"
     :style="{ height: height > 100 ? `${height}px` : `${height}%` }"
     round
     :closeable="closeable"

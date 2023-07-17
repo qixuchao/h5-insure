@@ -23,7 +23,7 @@
       :model="state.personVO"
       :schema="state.beneficiaryTypeSchemaList"
       :is-view="isView"
-    />
+    ></ProRenderFormWithCard>
     <template v-if="isSpecifyBeneficiary">
       <BeneficiaryItem
         v-for="(beneficiary, index) in state.beneficiaryList"

@@ -11,7 +11,7 @@ import type { GetPayUrlParam, PayParam, OrderInfo, PayResult } from './cashier.d
 
 // 在线投保-银行卡签约确认
 export const getPayUrl = (data: GetPayUrlParam) => {
-  return request<{ url: string }>({ url: '/api/app/insure/insurance/getPayUrl', method: 'POST', data });
+  return request<string>({ url: '/api/app/insure/insurance/getPayUrl', method: 'POST', data });
 };
 
 // 获取收银台订单信息

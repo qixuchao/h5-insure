@@ -399,6 +399,12 @@ export const PAGE_ACTION_TYPE_ENUM = {
   JUMP_ALERT: 'jumpToAlert',
 };
 
+// 风险抄录
+export const SCRIBING_TYPE_ENUM = {
+  AUTO: 1, // 一键抄录
+  HANDLE: 2, // 手动录入
+};
+
 export * from './dict';
 
 export * from './utils';

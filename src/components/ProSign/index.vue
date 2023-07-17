@@ -8,33 +8,44 @@
 -->
 <template>
   <div class="com-sign-wrapper">
-    <div ref="container" class="sign-container">
-      <div v-if="empty" class="placeholder">{{ placeholder }}</div>
-      <canvas ref="canvas" class="canvas"></canvas>
+    <div ref="container" :class="`sign-container ${hasBg ? 'bg' : ''}`">
+      <canvas id="canvas" ref="canvas" class="canvas"></canvas>
+      <div class="placeholder">{{ placeholder }}</div>
+
+      <div v-if="closeable" class="close-part" @click="clearSign">
+        <img :src="closeIcon" alt="" />
+      </div>
     </div>
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="proSign">
+import { withDefaults } from 'vue';
 import SignaturePad from 'signature_pad';
+import closeIcon from '@/assets/images/close_square.png';
 
 interface ComState {
   options: any;
   [propsName: string]: any;
 }
 
-const props = defineProps({
-  options: {
-    type: Object,
-    default: () => {},
-  },
-  placeholder: {
-    type: String,
-    default: '请输入',
-  },
+interface Props {
+  options: any;
+  placeholder: string;
+  closeable: boolean;
+  modelValue: string;
+  hasBg: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  options: () => {},
+  placeholder: '',
+  closeable: false,
+  modelValue: '',
+  hasBg: false,
 });
 
-const emits = defineEmits(['stroke']);
+const emits = defineEmits(['stroke', 'update:modelValue']);
 
 const signatureIns = ref<SignaturePad>();
 const canvas = ref<HTMLCanvasElement>();
@@ -45,6 +56,7 @@ const state = ref<ComState>({
   options: {
     penColor: 'rgb(0, 0, 0)',
     backgroundColor: 'rgb(255,255,255)',
+    position: 'absolute',
     ...props.options,
   },
   disabled: false,
@@ -77,6 +89,7 @@ const isEmpty = () => {
 const clearSign = () => {
   signatureIns.value?.clear();
   empty.value = true;
+  emits('update:modelValue', '');
 };
 
 const setDataURL = (data: string, option: any = { ratio: 1 }) => {
@@ -86,6 +99,7 @@ const setDataURL = (data: string, option: any = { ratio: 1 }) => {
 };
 
 onMounted(() => {
+  console.log('canvas.value', canvas.value);
   if (canvas.value && container.value) {
     canvas.value.width = container.value.getBoundingClientRect().width;
     canvas.value.height = container.value.getBoundingClientRect().height;
@@ -93,6 +107,9 @@ onMounted(() => {
     signatureIns.value.addEventListener('beginStroke', () => {
       empty.value = false;
       emits('stroke');
+    });
+    signatureIns.value.addEventListener('endStroke', () => {
+      emits('update:modelValue', saveSign());
     });
   }
 });
@@ -115,9 +132,31 @@ defineExpose({
     width: 100%;
     height: 100%;
     position: relative;
-    background: #fff;
-    border-radius: 20px;
-    border: 1px solid #eaeaea;
+    background-color: #fff;
+    // border-radius: 20px;
+    // border: 1px solid #eaeaea;
+    &.bg {
+      background-image: url(@/assets/images/mi.png);
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
+    }
+
+    .canvas {
+      z-index: 11;
+      position: absolute;
+    }
+    .close-part {
+      position: absolute;
+      right: 4px;
+      bottom: 4px;
+      z-index: 12;
+      width: 50px;
+      height: 50px;
+      img {
+        width: 100%;
+      }
+    }
     .placeholder {
       position: absolute;
       width: 100vw;
@@ -127,8 +166,9 @@ defineExpose({
       margin-top: -20px;
       text-align: center;
       font-size: 120px;
-      color: #e9e9e9;
+      color: #000000;
       pointer-events: none;
+      opacity: 0.3;
     }
   }
 }
