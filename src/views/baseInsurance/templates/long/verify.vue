@@ -62,6 +62,12 @@
       </ProShare>
       <van-button type="primary" class="submit-btn" @click="handleSubmit">确认支付</van-button>
     </div>
+    <ProScribing
+      :show="true"
+      :="scribingConfig"
+      title="为了保障您的权益请抄录以下声明内容"
+      @on-submit="submitScribing"
+    ></ProScribing>
   </div>
 </template>
 
@@ -91,6 +97,7 @@ import {
   PAGE_ACTION_TYPE_ENUM,
   PAGE_ROUTE_ENUMS,
   YES_NO_ENUM,
+  SCRIBING_TYPE_ENUM,
 } from '@/common/constants';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { MATERIAL_TYPE_ENUM } from '@/common/constants/product';
@@ -105,8 +112,10 @@ import ProShare from '@/components/ProShare/index.vue';
 import { jumpToNextPage, isAppFkq } from '@/utils';
 import { setGlobalTheme } from '@/hooks/useTheme';
 import { localStore } from '@/hooks/useStorage';
+import { confirmRiskTranscription } from '@/api/modules/scribing';
 
 const route = useRoute();
+const router = useRouter();
 
 /** 页面query参数类型 */
 interface QueryData {
@@ -150,7 +159,7 @@ const shareLink = `${window.origin}/baseInsurance/long/phoneVerify?${stringify({
   ...route.query,
   orderNo: orderCode || orderNo,
 })}`;
-console.log('shareLink', shareLink);
+
 const storage = new Storage({ source: 'localStorage' });
 
 const tenantProductDetail = ref<Partial<ProductDetail>>({}); // 核心系统产品信息
@@ -185,6 +194,11 @@ const signPartInfo = ref({
     isShareSign: false,
     signData: '',
   }, // 代理人
+});
+
+const scribingConfig = ref({
+  text: '本人已阅读风险提示，愿意承担风险',
+  type: 'handle',
 });
 
 /** ------------- 人脸识别 ----------- */
@@ -434,6 +448,32 @@ const initData = () => {
   });
 
   getOrderDetail();
+};
+
+const submitScribing = (scribingStr?: string) => {
+  const { type, text } = scribingConfig.value;
+  if (type === 'handle') {
+    router.push({
+      path: 'scribing',
+      query: {
+        ...route.query,
+        text,
+        orderId: orderDetail.value.id,
+      },
+    });
+  } else {
+    confirmRiskTranscription({
+      content: text,
+      image: scribingStr,
+      orderNo,
+      tenantId,
+      transcriptionType: SCRIBING_TYPE_ENUM.AUTO,
+    }).then(({ code }) => {
+      if (code === '10000') {
+        getOrderDetail();
+      }
+    });
+  }
 };
 
 onBeforeMount(() => {

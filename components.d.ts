@@ -4,11 +4,13 @@
 
 declare module 'vue' {
   export interface GlobalComponents {
+    AutoScribing: typeof import('./src/components/ProScribing/components/AutoScribing.vue')['default']
     BankCardInfo: typeof import('./src/components/BankCardInfo/index.vue')['default']
     Blk: typeof import('./src/components/ZaDatePicker/blk.vue')['default']
     CapsuleSelect: typeof import('./src/components/CapsuleSelect/index.vue')['default']
     CustomInput: typeof import('./src/components/RenderForm/components/ProFormItem/CustomInput.vue')['default']
     Demo: typeof import('./src/components/ProFilePreview/demo.vue')['default']
+    HandleScribing: typeof import('./src/components/ProScribing/components/HandleScribing.vue')['default']
     Indev_blk: typeof import('./src/components/ProChart/indev_blk.vue')['default']
     PayInfo: typeof import('./src/components/RenderForm/PayInfo.vue')['default']
     Play: typeof import('./src/components/ZaVoice/play.vue')['default']
@@ -57,6 +59,7 @@ declare module 'vue' {
     ProRenderForm: typeof import('./src/components/RenderForm/components/ProRenderForm.vue')['default']
     ProRenderFormWithCard: typeof import('./src/components/RenderForm/components/ProRenderFormWithCard.vue')['default']
     ProResult: typeof import('./src/components/ProResult/index.vue')['default']
+    ProScribing: typeof import('./src/components/ProScribing/index.vue')['default']
     ProScrollTab: typeof import('./src/components/ProScrollTab/index.vue')['default']
     ProSelect: typeof import('./src/components/ProSelect/index.vue')['default']
     ProShare: typeof import('./src/components/ProShare/index.vue')['default']
@@ -110,6 +113,7 @@ declare module 'vue' {
     VanRow: typeof import('vant/es')['Row']
     VanSearch: typeof import('vant/es')['Search']
     VanSlider: typeof import('vant/es')['Slider']
+    VanSpace: typeof import('vant/es')['Space']
     VanStep: typeof import('vant/es')['Step']
     VanStepper: typeof import('vant/es')['Stepper']
     VanSteps: typeof import('vant/es')['Steps']

@@ -1,12 +1,3 @@
-<!--
- * @Author: za-qixuchao qixuchao@zhongan.com
- * @Date: 2022-11-28 11:26:50
-
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-12-04 02:38:35
- * @FilePath: /zat-planet-h5-cloud-insure/src/views/baseInsurance/templates/components/SIgn/index.vue
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
--->
 <template>
   <div class="sign-wrap">
     <slot name="signImg" :data="signString">
@@ -41,7 +32,7 @@
   </van-popup>
 </template>
 <script lang="ts" setup name="sign">
-import { withDefaults, Ref } from 'vue';
+import { withDefaults } from 'vue';
 import { ImagePreview } from 'vant';
 import ProSign from '@/components/ProSign/index.vue';
 
@@ -115,7 +106,7 @@ defineExpose({
 });
 </script>
 
-<style lang="scss" scope>
+<style lang="scss" scoped>
 .customer-sign-preview {
   background: rgba(222, 222, 222, 1);
   .van-image__img {
@@ -159,13 +150,14 @@ defineExpose({
     transform: rotateZ(90deg) translate3d(95vh, 660px, 0px);
     padding: 20px;
     transform-origin: right;
+    box-shadow: 0px -2px 10px 0px #eaeaea;
     .btn {
       width: 240px;
       margin-right: 20px;
     }
   }
 
-  .com-sign-wrapper {
+  :deep(.com-sign-wrapper) {
     width: 100%;
     height: 100%;
     .placeholder {

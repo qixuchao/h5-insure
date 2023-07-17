@@ -42,7 +42,7 @@
         </div>
         <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.PAYING" class="footer-button">
           <van-button type="primary" @click.stop="handleDelete">删除</van-button>
-          <van-button type="primary" @click.stop="handleProcess">去支付</van-button>
+          <van-button type="primary" @click.stop="handlePay">去支付</van-button>
         </div>
         <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.TIMEOUT" class="footer-button">
           <van-button type="primary" @click.stop="handleDelete">删除</van-button>
@@ -69,6 +69,8 @@ import FieldInfo from '../components/fieldInfo.vue';
 import InsureInfo from '../components/InsuredPart.vue';
 import pageJump from '@/utils/pageJump';
 import useTheme from '@/hooks/useTheme';
+import { getPayUrl } from '@/api/modules/cashier';
+import { sendPay } from '@/views/cashier/core';
 
 const themeVars = useTheme();
 const route = useRoute();
@@ -95,36 +97,9 @@ const handleDelete = () => {
   });
 };
 
-const redirectProductDetail = (): boolean => {
-  if (!detail.value) return false;
-  const { agencyId: agencyCode, saleChannelId, orderTopStatus } = detail.value;
-  const productCode = detail.value.insuredList?.[0]?.productList[0]?.productCode;
-  if (ORDER_TOP_STATUS_ENUM.PENDING === orderTopStatus || ORDER_TOP_STATUS_ENUM.PAYING === orderTopStatus) {
-    if (productCode === PRODUCT_LIST_ENUM.ZXYS || productCode === PRODUCT_LIST_ENUM.BWYL) {
-      const productUrlMap = {
-        [PRODUCT_LIST_ENUM.ZXYS]: '/internet/productDetail/package',
-        [PRODUCT_LIST_ENUM.BWYL]: '/internet/productDetail',
-      };
-      router.push({
-        path: productUrlMap[productCode],
-        query: {
-          productCode,
-          saleChannelId,
-          agentCode,
-          tenantId,
-          agencyCode,
-          orderNo,
-        },
-      });
-      return true;
-    }
-  }
-  return false;
-};
 const loading = ref(false);
 const handleProcess = () => {
   if (detail.value) {
-    if (redirectProductDetail()) return;
     const {
       id: orderId,
       extInfo: { templateId, pageCode, extraInfo },
@@ -184,26 +159,18 @@ const handleProcess = () => {
 };
 const handlePay = () => {
   if (detail.value) {
-    if (redirectProductDetail()) return;
     const {
-      id: orderId,
-      saleUserId,
       extInfo: { templateId },
-      agencyId: agencyCode,
-      venderCode: insurerCode,
     } = detail.value;
-    const productCode = detail.value.insuredList?.[0]?.productList[0]?.productCode;
-    pageJump('payInfo', {
-      productCode,
-      orderNo,
-      orderId,
-      saleUserId,
-      templateId,
-      tenantId,
-      productCategory,
-      insurerCode,
-      agencyCode,
-    });
+    if ([TEMPLATE_NAME_ENUM.LONG, TEMPLATE_NAME_ENUM.NIANJIN].includes(getTemplateNameById(`${templateId}`))) {
+      handleProcess();
+    } else {
+      getPayUrl(detail.value).then(({ code, data }) => {
+        if (code === '10000') {
+          sendPay(data as string);
+        }
+      });
+    }
   }
 };
 
