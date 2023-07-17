@@ -210,23 +210,11 @@ const getCustomerList = async (params: any) => {
     },
   };
   const reqs = {
-    condition: {
-      certNo: '',
-      mobile: '',
-      name: '',
-    },
-    datas: [],
-    offset: 0,
     pageNum: 1,
-    pageSize: 100,
-    queryAll: true,
-    sortCondition: 'string',
-    sorts: [
-      {
-        asc: true,
-        name: '',
-      },
-    ],
+    pageSize: 999,
+    queryBean: {
+      keyword: state.keyword || '',
+    },
   };
   const res = await queryCustomerInsureList(reqs);
   console.log('reqs', res);
@@ -247,16 +235,12 @@ const handleSearch = () => {
 const isShowHolder = computed(() => !props.isTrial || props.isOnlyHolder);
 
 const chooseCustomers = (type: string, index) => {
-  console.log('我是选择111');
-  console.log('state.currentType', state.currentType);
-  console.log('state.currentIndex', state.currentIndex);
   state.currentType = type;
   if (type !== 'benifit') {
     state.currentIndex = index;
   } else {
     state.currentBenifitIndex = index;
   }
-  state.currentIndex = index;
   state.uniqKey = nanoid();
   getCustomerList({ keyword: '' });
   state.show = true;
@@ -270,6 +254,7 @@ const onClosePopup = () => {
 // 当前模块要素code集合
 // eslint-disable-next-line consistent-return
 const insureKeys = () => {
+  console.log('state.beneficiarySchema', state.beneficiarySchema);
   if (state.currentType === 'holder') {
     return state.holder.schema.map((obj) => obj.name) || [];
   }
@@ -277,6 +262,9 @@ const insureKeys = () => {
     return state.insured[state.currentIndex].schema.map((obj) => obj.name) || [];
   }
   // TODOJJM 受益人
+  if (state.currentType === 'benifit') {
+    return state.beneficiarySchema.map((obj) => obj.name) || [];
+  }
 };
 // 投保人五要素
 const holderName = computed(() => {
@@ -294,17 +282,8 @@ const holderCertType = computed(() => {
 const holderCertNo = computed(() => {
   return state?.holder?.personVO?.certNo;
 });
-// 处理客户数据 证件信息 取第一个  联系方式信息前端过滤  银行卡信息取第一个  地址信息前端过滤
+// 处理客户数据 证件信息 取第一个  联系方式信息前端过滤
 const convertCustomerData = (value, type) => {
-  // 地址类型（01-联系地址,02-户籍地址,03-工作地址,04-企业注册地,05-投保地址，06-企业办公地址）需求不需要代入
-  // const allAreaObjects = [
-  //   value?.addressInfo?.find((address) => address.type === '01'),
-  //   value?.addressInfo?.find((address) => address.type === '02'),
-  //   value?.addressInfo?.find((address) => address.type === '03'),
-  //   value?.addressInfo?.find((address) => address.type === '04'),
-  //   value?.addressInfo?.find((address) => address.type === '05'),
-  //   value?.addressInfo?.find((address) => address.type === '06'),
-  // ];
   console.log('convertCustomerData', value);
   const mobileObject = value?.contactInfo?.find((contact) => contact.contactType === '01');
   const emailObject = value?.contactInfo?.find((contact) => contact.contactType === '02');
@@ -366,13 +345,16 @@ const onClickClosePopup = (value) => {
       return;
     }
   }
-
+  console.log(
+    'state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO',
+    state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO,
+  );
+  console.log('ceshi shice ', convertCustomerData(value, 'benifit'));
   // TODOJJM 受益人
   if (state.currentType === 'benifit') {
-    // debugger;
     Object.assign(
       state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO || {},
-      value,
+      convertCustomerData(value, 'benifit'),
     );
   }
   // console.log(

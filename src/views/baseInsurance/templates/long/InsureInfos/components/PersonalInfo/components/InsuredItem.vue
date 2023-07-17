@@ -267,8 +267,9 @@ watch(
 // 监听受益人信息
 watch(
   () =>
-    state.beneficiaryList.map((item) => ({
+    cloneDeep(state.beneficiaryList).map((item) => ({
       personVO: item.personVO,
+      nanoid: item.nanoid,
     })),
   (val, oldValue) => {
     if (JSON.stringify(val) !== JSON.stringify(oldValue)) {
