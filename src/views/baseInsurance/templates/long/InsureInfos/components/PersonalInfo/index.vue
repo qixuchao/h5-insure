@@ -13,7 +13,9 @@
       objectId: state.holder.personVO.id,
     }"
   >
-    <template #cardTitleExtra><div v-if="!isShare" @click="chooseCustomers('holder', 1)">选择老用户</div></template>
+    <template #cardTitleExtra
+      ><div v-if="!isShare && !isView && !isTrial" @click="chooseCustomers('holder', 1)">选择老用户</div></template
+    >
   </ProRenderFormWithCard>
   <!-- 被保人 -->
   <template v-if="hasInsuredSchema && !isOnlyHolder">
@@ -33,11 +35,16 @@
       <template #riskList>
         <slot name="riskInfo" :insured-index="index"></slot>
       </template>
-      <div v-if="+insuredItem.personVO.relationToHolder !== 1 && !isShare" @click="chooseCustomers('insured', index)">
+      <div
+        v-if="+insuredItem.personVO.relationToHolder !== 1 && !isShare && !isView && !isTrial"
+        @click="chooseCustomers('insured', index)"
+      >
         选择老用户
       </div>
       <template #cardTitleExtraBenifit="slotProps">
-        <div v-if="!isShare" @click="chooseCustomers('benifit', slotProps?.index)">选择老用户</div></template
+        <div v-if="!isShare && !isView && !isTrial" @click="chooseCustomers('benifit', slotProps?.index)">
+          选择老用户
+        </div></template
       >
       <span
         v-if="!isView && index + 1 > state.config.multiInsuredMinNum"
