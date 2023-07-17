@@ -30,6 +30,7 @@
           :product-factor="currentPlan.productFactor"
           :multi-insured-config="currentPlan?.multiInsuredConfigVO"
           @trail-change="handlePersonalInfoChange"
+          @close-customer-popoup="handleClose"
         />
       </div>
       <ProDivider size="large" />
@@ -129,6 +130,7 @@ const RISK_SELECT = [
 ];
 
 interface Props {
+  selfKey: string;
   dataSource: any[];
   productInfo: any;
   tenantProductDetail: any;
@@ -147,13 +149,14 @@ const insureInfosRef = ref(null);
 const route = useRoute();
 const router = useRouter();
 
-const emit = defineEmits(['trialStart', 'trialEnd', 'update:userData']);
+const emit = defineEmits(['trialStart', 'trialEnd', 'update:userData', 'closeCustomerPopoup']);
 
 const { tenantId, templateId, preview } = route.query;
 
 const personalInfoRef = ref<InstanceType<typeof PersonalInfo>>();
 
 const props = withDefaults(defineProps<Props>(), {
+  selfKey: '',
   dataSource: () => [],
   productInfo: () => {
     return { productCode: '', productName: '', insurerCode: '', tenantId: '', planList: [] };
@@ -248,7 +251,10 @@ const shakeData = (data, keys) => {
     });
   }
 };
-
+const handleClose = (value) => {
+  console.log('我是客户数据', value);
+  emit('closeCustomerPopoup', value);
+};
 // 获取要素code列表
 const getFactorCodes = (arr, filterFn = (x: ProductFactor) => true): string[] => {
   if (isNotEmptyArray(arr)) {
@@ -923,6 +929,17 @@ watch(
     immediate: true,
   },
 );
+// watch(
+//   () => props.defaultData,
+//   (val) => {
+//     console.log('val=========', val);
+//     state.userData = val;
+//   },
+//   {
+//     deep: true,
+//     immediate: true,
+//   },
+// );
 </script>
 
 <style scoped lang="scss">

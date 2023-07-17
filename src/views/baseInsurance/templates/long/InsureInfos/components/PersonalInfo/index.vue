@@ -12,7 +12,11 @@
       objectType: ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER,
       objectId: state.holder.personVO.id,
     }"
-  />
+  >
+    <template #cardTitleExtra
+      ><div v-if="!isShare && !isView && !isTrial" @click="chooseCustomers('holder', 1)">选择老用户</div></template
+    >
+  </ProRenderFormWithCard>
   <!-- 被保人 -->
   <template v-if="hasInsuredSchema && !isOnlyHolder">
     <InsuredItem
@@ -31,6 +35,17 @@
       <template #riskList>
         <slot name="riskInfo" :insured-index="index"></slot>
       </template>
+      <div
+        v-if="+insuredItem.personVO.relationToHolder !== 1 && !isShare && !isView && !isTrial"
+        @click="chooseCustomers('insured', index)"
+      >
+        选择老用户
+      </div>
+      <template #cardTitleExtraBenifit="slotProps">
+        <div v-if="!isShare && !isView && !isTrial" @click="chooseCustomers('benifit', slotProps?.index)">
+          选择老用户
+        </div></template
+      >
       <span
         v-if="!isView && index + 1 > state.config.multiInsuredMinNum"
         class="delete-button"
@@ -44,6 +59,30 @@
       </template>
     </van-cell>
   </template>
+  <!-- <CustomerList v-if="state.show" :key="state.uniqKey" :close-customer-popoup="onClickClosePopup" /> -->
+  <ProPopup
+    v-if="state.show"
+    :class="`com-trial-wrap ${$attrs.class}`"
+    :show="state.show"
+    :closeable="false"
+    @close="onClosePopup"
+    @closed="onClosePopupAfterAni"
+  >
+    <div class="search-bar">
+      <van-search
+        v-model="state.keyword"
+        shape="round"
+        placeholder="姓名或手机号查询"
+        class="icon-sercher"
+        @search="handleSearch"
+      >
+        <template #left-icon>
+          <img :src="SearchLeftIcon" alt="" class="search-icon-img" style="width: 22px; height: 23px" />
+        </template>
+      </van-search>
+    </div>
+    <CustomerList :data="state.list" :type="order" :disabled="false" @on-close="onClickClosePopup" />
+  </ProPopup>
 </template>
 <script lang="ts" setup name="PersonalInfo">
 import { withDefaults } from 'vue';
@@ -65,8 +104,14 @@ import {
   getCertConfig,
 } from '@/components/RenderForm';
 import { ProductFactor } from '@/api/modules/trial.data';
+import { queryCustomerInsureList } from '@/api/modules/trial';
 import { isNotEmptyArray, PERSONAL_INFO_KEY, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import InsuredItem from './components/InsuredItem.vue';
+import CustomerList from './components/list/index.vue';
+import SearchLeftIcon from '@/assets/images/baseInsurance/search.png';
+
+const router = useRoute();
+const { isShare, saleChannelId } = router.query;
 
 interface Props {
   productFactor?: ProductFactor;
@@ -81,7 +126,7 @@ interface Props {
   };
 }
 
-const emit = defineEmits(['update:modelValue', 'trailChange', 'trailValidateFailed']);
+const emit = defineEmits(['update:modelValue', 'trailChange', 'trailValidateFailed', 'closeCustomerPopoup']);
 const holderFormRef = ref(null);
 const insuredFormRef = ref(null);
 
@@ -102,12 +147,20 @@ interface InsuredFormProps extends Partial<PersonFormProps> {
 type InsuredListProps = Partial<InsuredFormProps>[];
 
 interface StateInfo {
+  uniqKey: string;
+  currentType: string;
+  currentIndex: number;
+  currentBenifitIndex: number;
+  show: boolean;
   config: Partial<PersonalInfoConf>;
   trialValidated: boolean;
   holder: PersonFormProps;
   beneficiarySchema: SchemaItem[];
   initInsuredIList: InsuredListProps;
   insured: InsuredListProps;
+  keyword: any;
+  list: any;
+  slotProps: any;
 }
 
 // const initInsuredItem: InsuredFormProps = {
@@ -126,6 +179,14 @@ interface StateInfo {
 // };
 
 const state = reactive<Partial<StateInfo>>({
+  slotProps: {},
+  uniqKey: '',
+  currentIndex: 0,
+  currentBenifitIndex: 0,
+  currentType: '',
+  keyword: undefined,
+  show: false,
+  list: [],
   config: {},
   /**
    * 试算字段是否验证成功
@@ -144,9 +205,170 @@ const state = reactive<Partial<StateInfo>>({
   insured: [],
 });
 
+const getCustomerList = async (params: any) => {
+  const reqs11 = {
+    pageNum: '1',
+    pageSize: '999',
+    queryBean: {
+      orderBy: { tagName: '按首字母排序', tagCode: 'firstLetter' },
+      customerListType: '01',
+      keyword: state.keyword || '',
+      ...params,
+    },
+  };
+  const reqs = {
+    pageNum: 1,
+    pageSize: 999,
+    queryBean: {
+      keyword: state.keyword || '',
+    },
+  };
+  const res = await queryCustomerInsureList(reqs);
+  console.log('reqs', res);
+  const temp: { label: string; children: any }[] = [];
+  Object.keys(res?.data?.customerMaps || {}).forEach((item) => {
+    temp.push({
+      label: item,
+      children: res?.data?.customerMaps[item],
+    });
+  });
+  state.list = temp;
+};
+// 搜索
+const handleSearch = () => {
+  getCustomerList({ keyword: state.keyword });
+};
 // 是否显示holder
 const isShowHolder = computed(() => !props.isTrial || props.isOnlyHolder);
 
+const chooseCustomers = (type: string, index) => {
+  state.currentType = type;
+  if (type !== 'benifit') {
+    state.currentIndex = index;
+  } else {
+    state.currentBenifitIndex = index;
+  }
+  state.uniqKey = nanoid();
+  getCustomerList({ keyword: '' });
+  state.show = true;
+};
+
+const onClosePopup = () => {
+  setTimeout(() => {
+    state.show = false;
+  }, 300);
+};
+// 当前模块要素code集合
+// eslint-disable-next-line consistent-return
+const insureKeys = () => {
+  console.log('state.beneficiarySchema', state.beneficiarySchema);
+  if (state.currentType === 'holder') {
+    return state.holder.schema.map((obj) => obj.name) || [];
+  }
+  if (state.currentType === 'insured') {
+    return state.insured[state.currentIndex].schema.map((obj) => obj.name) || [];
+  }
+  // TODOJJM 受益人
+  if (state.currentType === 'benifit') {
+    return state.beneficiarySchema.map((obj) => obj.name) || [];
+  }
+};
+// 投保人五要素
+const holderName = computed(() => {
+  return state?.holder?.personVO?.name;
+});
+const holderGender = computed(() => {
+  return state?.holder?.personVO?.gender;
+});
+const holderBirthday = computed(() => {
+  return state?.holder?.personVO?.birthday;
+});
+const holderCertType = computed(() => {
+  return state?.holder?.personVO?.certType;
+});
+const holderCertNo = computed(() => {
+  return state?.holder?.personVO?.certNo;
+});
+// 处理客户数据 证件信息 取第一个  联系方式信息前端过滤
+const convertCustomerData = (value, type) => {
+  console.log('convertCustomerData', value);
+  const mobileObject = value?.contactInfo?.find((contact) => contact.contactType === '01');
+  const emailObject = value?.contactInfo?.find((contact) => contact.contactType === '02');
+  const certObject = value?.certInfo[0];
+  console.log('mobileObject=====', mobileObject);
+
+  // 客户数据整合
+  const newValue = {
+    // ...value,
+    name: value?.name,
+    gender: value?.gender,
+    birthday: value?.birthday,
+    mobile: mobileObject?.contactNo || null,
+    email: emailObject?.contactNo || null,
+    certNo: certObject?.certNo || null,
+    certType: certObject?.certType || null,
+  };
+  // 数据过滤，只映射投保流程中的数据，剔除客户多余部分
+  console.log('insureKeys', insureKeys());
+  const extractedObject = insureKeys()?.reduce((result, key) => {
+    // eslint-disable-next-line no-prototype-builtins
+    if (newValue.hasOwnProperty(key)) {
+      return { ...result, [key]: newValue[key] };
+    }
+    return result;
+  }, {});
+  console.log('extractedObject===', extractedObject);
+  console.log('state.holder.schema=====', state.holder.schema);
+  return extractedObject;
+};
+
+const onClickClosePopup = (value) => {
+  convertCustomerData(value, 'holder');
+  console.log('---state.currentType', state.currentType);
+  console.log('--state.currentIndex', state.currentIndex);
+  console.log('--state.currentBenifitIndex', state.currentBenifitIndex);
+  console.log(
+    'state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO ',
+    state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO,
+  );
+  state.show = false;
+  if (state.currentType === 'holder') {
+    Object.assign(state?.holder?.personVO || {}, convertCustomerData(value, 'holder'));
+  }
+  if (state.currentType === 'insured') {
+    Object.assign(state?.insured[state.currentIndex]?.personVO || {}, convertCustomerData(value, 'insured'));
+    console.log('---holderGender---', holderGender.value);
+    console.log('---holderBirthday---', holderBirthday.value);
+    const { name, gender, birthday, certType, certNo } = convertCustomerData(value, 'insured');
+    // 五要素判断 相同 被保人关系置为本人
+    if (
+      holderName.value === name &&
+      holderGender.value === gender &&
+      holderBirthday.value === birthday &&
+      holderCertType.value === certType &&
+      holderCertNo.value === certNo
+    ) {
+      Object.assign(state?.insured[state.currentIndex]?.personVO || {}, { relationToHolder: '1' });
+      return;
+    }
+  }
+  console.log(
+    'state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO',
+    state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO,
+  );
+  console.log('ceshi shice ', convertCustomerData(value, 'benifit'));
+  // TODOJJM 受益人
+  if (state.currentType === 'benifit') {
+    Object.assign(
+      state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO || {},
+      convertCustomerData(value, 'benifit'),
+    );
+  }
+  // console.log(
+  //   'state.insured[state.currentIndex].beneficiaryList[state.currentBenifitIndex].personVO.value',
+  //   Object.assign(state.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex].personVO, value),
+  // );
+};
 /** 验证试算因子是否全部有值 */
 const validateTrialFields = () => {
   const insuredFlag = !insuredFormRef.value || insuredFormRef.value?.every((item) => item.validateTrialFields());
@@ -381,6 +603,19 @@ watch(
   },
 );
 
+watch(
+  () => props.modelValue,
+  (val, oldVal) => {
+    if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
+      colorConsole('受益人数据变动了+++++');
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
 // 表单数据变动
 watch(
   [
@@ -410,6 +645,7 @@ watch(
     colorConsole(`投被保人数据变动了`);
     // 投保人
     Object.assign(state.holder.config, holderConfig);
+    console.log('投保人数据===', cloneDeep(state.holder.personVO), cloneDeep(holderFormData));
     console.log('投保人数据===', cloneDeep(state.holder.personVO), cloneDeep(holderFormData));
 
     Object.assign(state.holder.personVO, holderFormData);
@@ -462,6 +698,16 @@ watch(
   },
 );
 
+watch(
+  () => state.list,
+  (val, oldVal) => {
+    if (val) {
+      console.log('val----', val);
+      state.list = val;
+    }
+  },
+);
+
 defineExpose({
   validate,
   validateTrialFields,
@@ -480,6 +726,7 @@ defineExpose({
       display: block;
     }
   }
+
   .delete-button {
     width: auto;
     margin-top: 4px;
@@ -495,6 +742,11 @@ defineExpose({
     .van-icon-plus {
       font-weight: 600;
     }
+  }
+}
+:deep(.pop-container) {
+  .van-field__body {
+    width: 100% !important;
   }
 }
 </style>

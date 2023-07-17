@@ -1215,9 +1215,9 @@ onBeforeMount(() => {
       justify-content: center;
       flex-direction: column;
       align-items: center;
-      display: flex;
       margin-top: 40px;
       :deep(.com-check-btn) {
+        display: flex;
         height: 68px;
         width: 240px;
         border-radius: 34px;

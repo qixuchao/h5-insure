@@ -117,3 +117,12 @@ export const queryCalcDynamicInsureFactor = (data: {}, config = {}) => {
     ...config,
   });
 };
+// 投保流程通讯录列表
+export const queryCustomerInsureList = (data: {}, config = {}) => {
+  return request<any[]>({
+    url: '/api/app/client/activity/customer/customerInsureList',
+    method: 'POST',
+    data,
+    ...config,
+  });
+};
