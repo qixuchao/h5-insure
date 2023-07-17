@@ -14,7 +14,7 @@
     }"
   >
     <template #cardTitleExtra
-      ><div v-if="!isShare && !isView && !isTrial" @click="chooseCustomers('holder', 1)">选择老用户</div></template
+      ><div v-if="!isShare && !isView && !isTrial" @click="chooseCustomers('holder', 1, 0)">选择老用户</div></template
     >
   </ProRenderFormWithCard>
   <!-- 被保人 -->
@@ -37,12 +37,12 @@
       </template>
       <div
         v-if="+insuredItem.personVO.relationToHolder !== 1 && !isShare && !isView && !isTrial"
-        @click="chooseCustomers('insured', index)"
+        @click="chooseCustomers('insured', index, 0)"
       >
         选择老用户
       </div>
       <template #cardTitleExtraBenifit="slotProps">
-        <div v-if="!isShare && !isView && !isTrial" @click="chooseCustomers('benifit', slotProps?.index)">
+        <div v-if="!isShare && !isView && !isTrial" @click="chooseCustomers('benifit', index, slotProps?.index)">
           选择老用户
         </div></template
       >
@@ -241,12 +241,13 @@ const handleSearch = () => {
 // 是否显示holder
 const isShowHolder = computed(() => !props.isTrial || props.isOnlyHolder);
 
-const chooseCustomers = (type: string, index) => {
+const chooseCustomers = (type: string, index, benifitIndex) => {
   state.currentType = type;
   if (type !== 'benifit') {
     state.currentIndex = index;
   } else {
-    state.currentBenifitIndex = index;
+    state.currentIndex = index;
+    state.currentBenifitIndex = benifitIndex;
   }
   state.uniqKey = nanoid();
   getCustomerList({ keyword: '' });
@@ -268,7 +269,6 @@ const insureKeys = () => {
   if (state.currentType === 'insured') {
     return state.insured[state.currentIndex].schema.map((obj) => obj.name) || [];
   }
-  // TODOJJM 受益人
   if (state.currentType === 'benifit') {
     return state.beneficiarySchema.map((obj) => obj.name) || [];
   }
@@ -352,22 +352,25 @@ const onClickClosePopup = (value) => {
       return;
     }
   }
-  console.log(
-    'state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO',
-    state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO,
-  );
-  console.log('ceshi shice ', convertCustomerData(value, 'benifit'));
   // TODOJJM 受益人
   if (state.currentType === 'benifit') {
-    Object.assign(
-      state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO || {},
-      convertCustomerData(value, 'benifit'),
-    );
+    // 五要素判断和被保人相同 受益人信息不同步
+    const { name, gender, birthday, certType, certNo } = convertCustomerData(value, 'benifit');
+    if (
+      state?.insured[state.currentIndex]?.personVO.name === name &&
+      state?.insured[state.currentIndex]?.personVO.gender === gender &&
+      state?.insured[state.currentIndex]?.personVO.birthday === birthday &&
+      state?.insured[state.currentIndex]?.personVO.certType === certType &&
+      state?.insured[state.currentIndex]?.personVO.certNo === certNo
+    ) {
+      Toast('指定受益人不可为被保人本人');
+    } else {
+      Object.assign(
+        state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO || {},
+        convertCustomerData(value, 'benifit'),
+      );
+    }
   }
-  // console.log(
-  //   'state.insured[state.currentIndex].beneficiaryList[state.currentBenifitIndex].personVO.value',
-  //   Object.assign(state.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex].personVO, value),
-  // );
 };
 /** 验证试算因子是否全部有值 */
 const validateTrialFields = () => {

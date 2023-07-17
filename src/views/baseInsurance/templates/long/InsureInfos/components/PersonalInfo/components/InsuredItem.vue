@@ -272,6 +272,7 @@ watch(
       nanoid: item.nanoid,
     })),
   (val, oldValue) => {
+    // debugger;
     if (JSON.stringify(val) !== JSON.stringify(oldValue)) {
       emit('update:beneficiaryList', val);
     }
