@@ -14,7 +14,9 @@
     }"
   >
     <template #cardTitleExtra
-      ><div v-if="!isShare && !isView && !isTrial" @click="chooseCustomers('holder', 1, 0)">选择老用户</div></template
+      ><div v-if="!isShare && !isView && !isTrial" class="choose-customer" @click="chooseCustomers('holder', 1, 0)">
+        选择老用户
+      </div></template
     >
   </ProRenderFormWithCard>
   <!-- 被保人 -->
@@ -37,12 +39,17 @@
       </template>
       <div
         v-if="+insuredItem.personVO.relationToHolder !== 1 && !isShare && !isView && !isTrial"
+        class="choose-customer"
         @click="chooseCustomers('insured', index, 0)"
       >
         选择老用户
       </div>
       <template #cardTitleExtraBenifit="slotProps">
-        <div v-if="!isShare && !isView && !isTrial" @click="chooseCustomers('benifit', index, slotProps?.index)">
+        <div
+          v-if="!isShare && !isView && !isTrial"
+          class="choose-customer"
+          @click="chooseCustomers('benifit', index, slotProps?.index)"
+        >
           选择老用户
         </div></template
       >
@@ -352,7 +359,7 @@ const onClickClosePopup = (value) => {
       return;
     }
   }
-  // TODOJJM 受益人
+  //  受益人
   if (state.currentType === 'benifit') {
     // 五要素判断和被保人相同 受益人信息不同步
     const { name, gender, birthday, certType, certNo } = convertCustomerData(value, 'benifit');
@@ -606,11 +613,16 @@ watch(
   },
 );
 
+// 受益人切换关系 清空数据
 watch(
-  () => props.modelValue,
+  () => state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO,
   (val, oldVal) => {
-    if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
-      colorConsole('受益人数据变动了+++++');
+    if (val?.relationToInsured !== oldVal?.relationToInsured) {
+      colorConsole('受益人关系变动了+++++');
+      state.insured[state.currentIndex].beneficiaryList[state.currentBenifitIndex].personVO = {
+        relationToInsured: val?.relationToInsured,
+      };
+      // });
     }
   },
   {
@@ -728,6 +740,11 @@ defineExpose({
     &:last-child::after {
       display: block;
     }
+  }
+  .choose-customer {
+    font-size: 30px;
+    font-weight: bold;
+    color: #333333;
   }
 
   .delete-button {

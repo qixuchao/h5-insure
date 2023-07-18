@@ -153,13 +153,13 @@ watch(
 
     // 受益人与被保人关系切换
     if (!props.isView && val && oldVal) {
-      // debugger;
       // 若为本人合并投保人数据
       Object.assign(state.personVO, {
         // 若只有证件类型为身份证，不清除值
         ...resetObjectValues(state.personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
         relationToInsured: val,
       });
+      // debugger;
     }
 
     return false;
