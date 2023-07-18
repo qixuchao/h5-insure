@@ -63,7 +63,7 @@
       <van-button type="primary" class="submit-btn" @click="handleSubmit">确认支付</van-button>
     </div>
     <ProScribing
-      :show="true"
+      v-if="!!scribingConfig.type"
       :="scribingConfig"
       title="为了保障您的权益请抄录以下声明内容"
       @on-submit="submitScribing"
@@ -98,6 +98,8 @@ import {
   PAGE_ROUTE_ENUMS,
   YES_NO_ENUM,
   SCRIBING_TYPE_ENUM,
+  SCRIBING_TYPE_LIST,
+  SCRIBING_TYPE_MAP,
 } from '@/common/constants';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { MATERIAL_TYPE_ENUM } from '@/common/constants/product';
@@ -196,9 +198,16 @@ const signPartInfo = ref({
   }, // 代理人
 });
 
+// 抄录配置
 const scribingConfig = ref({
-  text: '本人已阅读风险提示，愿意承担风险',
-  type: 'handle',
+  text: '',
+  type: '',
+  signInfo: '',
+});
+
+const defaultScribingConfig = ref({
+  text: '',
+  type: '',
   signInfo: '',
 });
 
@@ -259,6 +268,10 @@ const handleSubmit = () => {
 
   Promise.all(validateCollection)
     .then((res) => {
+      if (scribingConfig.value.type && !scribingConfig.value.signInfo) {
+        Toast('请先完成风险抄录');
+        return;
+      }
       orderNo &&
         getTenantOrderDetail({
           orderNo: orderCode || orderNo,
@@ -344,7 +357,10 @@ const getOrderDetail = (check = false) => {
         signPartInfo.value.holder.personalInfo = data.holder;
         signPartInfo.value.insured.personalInfo = data.insuredList;
 
-        // scribingConfig.value.signInfo = data.riskTranscriptionList[0].thumbnail;
+        Object.assign(scribingConfig.value, defaultScribingConfig.value, {
+          type: SCRIBING_TYPE_MAP[data.extInfo.transcriptionType],
+          signInfo: data.riskTranscriptionList?.[0]?.thumbnail,
+        });
 
         data.tenantOrderAttachmentList.forEach((attachment) => {
           if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
@@ -431,6 +447,20 @@ const initData = () => {
               // 被保人空中签字
             } else if (column.code === '5') {
               signPartInfo.value.insured.isShareSign = true;
+            }
+          });
+        }
+
+        // 风险抄录
+        if (schema.name === 'riskNotificationCopy') {
+          console.log('schema', schema);
+          defaultScribingConfig.value.text = schema.remark;
+
+          schema.columns.forEach((column) => {
+            if (column.code === '1') {
+              defaultScribingConfig.value.type = 'handle';
+            } else {
+              defaultScribingConfig.value.type = 'auto';
             }
           });
         }

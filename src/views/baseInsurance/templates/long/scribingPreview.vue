@@ -14,7 +14,7 @@
       </van-space>
     </div>
     <div class="footer-btn">
-      <ProShadowButton :shadow="false" @click="handleSubmit">
+      <ProShadowButton :shadow="false" :disabled="scribingStatus === YES_NO_ENUM.NO" @click="handleSubmit">
         <slot>确认</slot>
       </ProShadowButton>
     </div>
@@ -33,9 +33,7 @@
     </div>
     <div class="popup-footer">
       <van-button @click="handleCancel">取消</van-button>
-      <van-button type="primary" plain :disabled="scribingStatus === YES_NO_ENUM.NO" @click="handleConfirm"
-        >确定</van-button
-      >
+      <van-button type="primary" plain :disabled="!currentSignRecord.image" @click="handleConfirm">确定</van-button>
     </div>
   </ProPopup>
 </template>

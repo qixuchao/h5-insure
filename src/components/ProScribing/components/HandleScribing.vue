@@ -136,28 +136,30 @@ const handleChancel = () => {
 };
 
 const handleConfirm = () => {
-  const promiseList = signCollection.value.map((sign, index) => {
-    return {
-      position: index + 1,
-      content: props.text[index],
-      image: sign,
-    };
-  });
-  // signCollection.value.forEach(async (sign, index) => {
-  //   promiseList.push(rotateBase64(sign, 90));
-  // });
+  if (signCollection.value?.length !== props.text.length) {
+    Toast({
+      message: '请完成抄录',
+      teleport: '.com-handle-scribing',
+    });
+    return;
+  }
+  const promiseList = [];
 
-  // Promise.all(promiseList).then((newBase64) => {
-  //   const params = newBase64.map((base64, index) => {
-  //     return {
-  //       position: index + 1,
-  //       content: props.text[index],
-  //       image: base64,
-  //     };
-  //   });
-  //   console.log('params', params);
-  emits('onSubmit', promiseList);
-  // });
+  signCollection.value.forEach(async (sign, index) => {
+    promiseList.push(rotateBase64(sign, 270));
+  });
+
+  Promise.all(promiseList).then((newBase64) => {
+    const params = newBase64.map((base64, index) => {
+      return {
+        position: index + 1,
+        content: props.text[index],
+        image: base64,
+      };
+    });
+    console.log('params', params);
+    emits('onSubmit', params);
+  });
 };
 </script>
 

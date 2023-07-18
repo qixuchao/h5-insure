@@ -249,6 +249,7 @@ export const transformToSchema = (arr: FieldConfItem[], trialFactorCodesArr: str
         customFieldName: { text: 'value', value: 'code', children: 'children' },
         label: item.title,
         name: item.code,
+        remark: item.remark,
         componentName: finalComponentName,
         required: item.isMustInput === 1,
         nanoid: nanoid(),
