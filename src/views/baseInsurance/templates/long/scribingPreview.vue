@@ -55,7 +55,7 @@ interface RouterParams {
 const router = useRouter();
 const route = useRoute();
 
-const signCollection = ref<any[]>([]);
+const signCollection = ref<any[]>([{ content: '想' }]);
 
 const { orderNo, text, tenantId, orderId } = route.query as RouterParams;
 const currentSignRecord = ref<any>({});
@@ -120,49 +120,6 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
-.popup-body {
-  padding: 58px 80px;
-  width: 560px;
-  height: 518px;
-  .com-sign-wrapper {
-    .sign-container {
-      .close-part {
-        top: 4px;
-        right: 2px;
-      }
-      .placeholder {
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        margin: auto;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 320px;
-      }
-    }
-  }
-}
-
-.popup-footer {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-top: 1px solid $zaui-line;
-  button {
-    width: 50%;
-    height: 98px;
-    border: none;
-    &:first-of-type {
-      border-right: 1px solid $zaui-line;
-    }
-  }
-}
-
 .page-scribing-preview-wrap {
   background-color: #f2f2f2;
   min-height: 100vh;
@@ -179,6 +136,49 @@ onMounted(() => {
       flex: none;
       font-weight: 600;
       color: #ff911e;
+    }
+  }
+
+  .popup-body {
+    padding: 58px 80px;
+    width: 560px;
+    height: 518px;
+    .com-sign-wrapper {
+      .sign-container {
+        .close-part {
+          top: 4px;
+          right: 2px;
+        }
+        .placeholder {
+          top: 0;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          margin: auto;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 320px;
+        }
+      }
+    }
+  }
+
+  .popup-footer {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid $zaui-line;
+    button {
+      width: 50%;
+      height: 98px;
+      border: none;
+      &:first-of-type {
+        border-right: 1px solid $zaui-line;
+      }
     }
   }
   .header-tip {
