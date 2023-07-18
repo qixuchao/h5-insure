@@ -357,7 +357,7 @@ const getOrderDetail = (check = false) => {
         signPartInfo.value.holder.personalInfo = data.holder;
         signPartInfo.value.insured.personalInfo = data.insuredList;
 
-        Object.assign(scribingConfig.value, defaultScribingConfig.value, {
+        Object.assign(defaultScribingConfig.value, {
           type: SCRIBING_TYPE_MAP[data.extInfo.transcriptionType],
           signInfo: data.riskTranscriptionList?.[0]?.thumbnail,
         });
@@ -453,7 +453,6 @@ const initData = () => {
 
         // 风险抄录
         if (schema.name === 'riskNotificationCopy') {
-          console.log('schema', schema);
           defaultScribingConfig.value.text = schema.remark;
 
           schema.columns.forEach((column) => {
@@ -508,6 +507,17 @@ const submitScribing = (scribingStr?: string) => {
     });
   }
 };
+
+watch(
+  [() => defaultScribingConfig.value, () => scribingConfig.value],
+  () => {
+    Object.assign(scribingConfig.value, defaultScribingConfig.value);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 onBeforeMount(() => {
   initData();
