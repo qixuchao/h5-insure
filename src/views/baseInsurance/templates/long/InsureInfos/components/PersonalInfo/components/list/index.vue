@@ -94,14 +94,13 @@ watch(
 <style lang="scss" scoped>
 :deep(.van-index-bar__sidebar) {
   border-radius: 15px;
-  background: #f2f2f2;
   color: #969696;
   right: 10px;
   padding: 20px 5px;
   top: 67%;
   font-size: 8px !important;
   .van-index-bar__index {
-    color: #999;
+    color: #99a9c0;
     font-size: $zaui-font-size-md;
     padding: 5px 0;
     font-weight: 400;
@@ -113,9 +112,8 @@ watch(
 .customer-list {
   background-color: $zaui-global-bg;
   .van-index-anchor {
-    color: #999;
-    font-size: $zaui-font-size-sm;
-    // line-height: $zaui-font-size-xs * 2;
+    color: #99a9c0 !important;
+    font-size: 26px;
   }
 
   .list-pr {

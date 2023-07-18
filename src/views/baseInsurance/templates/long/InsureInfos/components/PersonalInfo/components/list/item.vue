@@ -7,15 +7,16 @@
             <img :src="data.gender ? (data.gender === '1' ? female : male) : gender" alt="" class="mf" />
           </div>
           <div>
-            <div class="left">
+            <div class="left-item">
               <div class="name">{{ data.name }}</div>
-              <div v-if="data.visitTag === '转介绍'" class="icon icon-bg1">{{ data.visitTag }}</div>
-              <div v-if="data.visitTag === '接触面谈'" class="icon icon-bg2">{{ data.visitTag }}</div>
-              <div v-if="data.visitTag === '客户获取'" class="icon icon-bg3">{{ data.visitTag }}</div>
-              <div v-if="data.visitTag === '需求分析'" class="icon icon-bg6">{{ data.visitTag }}</div>
-              <div v-if="data.visitTag === '电话邀约'" class="icon icon-bg5">{{ data.visitTag }}</div>
-              <div v-if="data.visitTag === '呈现促成'" class="icon icon-bg6">{{ data.visitTag }}</div>
-              <div v-if="data.visitTag === '保单服务'" class="icon icon-bg4">{{ data.visitTag }}</div>
+              <div v-if="data?.certInfo[0]?.certNo && +data?.certInfo[0]?.certType === 1" class="cert-no">
+                {{ data.certInfo[0].desensitizaCertNo }}
+                <span class="cert-type-name">{{ data.certInfo[0].certTypeName }}</span>
+              </div>
+              <div v-if="data?.certInfo[0]?.certNo && +data?.certInfo[0]?.certType !== 1" class="cert-no">
+                {{ data.certInfo[0].certNo }}
+                <span class="cert-type-name">{{ data.certInfo[0].certTypeName }}</span>
+              </div>
             </div>
             <div v-if="data.relative" class="from-wx">
               <img class="img-wx" alt="" />
@@ -111,11 +112,12 @@ const handleCustomerItem = (e: any) => {
       height: 1px;
       margin: 0 auto;
       bottom: 0;
-      background-color: #eeeff4;
+      background-color: #f2f2f2;
     }
     .mf {
       width: 88px;
       height: 88px;
+      margin-right: 10px;
     }
     .icon {
       margin-left: 10px;
@@ -154,8 +156,31 @@ const handleCustomerItem = (e: any) => {
       .name {
         color: #393d46;
         font-size: $zaui-font-size-md;
-        font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
+      }
+      .left-item {
+        .name {
+          font-weight: bold;
+          color: #393d46;
+          line-height: 42px;
+        }
+        .cert-no {
+          margin-top: 4px;
+          color: #393d46;
+          line-height: 33px;
+          font-weight: 400;
+          font-size: 24px;
+        }
+        .cert-type-name {
+          margin-left: 8px;
+          padding: 2px 8px;
+          background: #ffeee7;
+          border-radius: 8px;
+          font-size: 20px;
+
+          font-weight: 400;
+          color: #ff6600;
+        }
       }
       .from-wx {
         display: flex;
@@ -176,9 +201,6 @@ const handleCustomerItem = (e: any) => {
     .right {
       margin-right: 50px;
       padding: 10px;
-    }
-    .name {
-      margin-left: 16px;
     }
     .ph {
       width: 34px;
