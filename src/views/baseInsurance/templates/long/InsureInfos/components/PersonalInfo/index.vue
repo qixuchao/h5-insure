@@ -617,7 +617,10 @@ watch(
 watch(
   () => state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO,
   (val, oldVal) => {
-    if (val?.relationToInsured !== oldVal?.relationToInsured) {
+    if (
+      state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO &&
+      val?.relationToInsured !== oldVal?.relationToInsured
+    ) {
       colorConsole('受益人关系变动了+++++');
       state.insured[state.currentIndex].beneficiaryList[state.currentBenifitIndex].personVO = {
         relationToInsured: val?.relationToInsured,
