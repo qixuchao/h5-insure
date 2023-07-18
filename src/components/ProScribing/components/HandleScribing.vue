@@ -44,6 +44,7 @@
 <script setup lang="ts" name="handleScribing">
 import { Toast } from 'vant';
 import { ref, withDefaults } from 'vue';
+import { rotateBase64 } from '../utils';
 
 interface Props {
   text: string;
@@ -135,15 +136,28 @@ const handleChancel = () => {
 };
 
 const handleConfirm = () => {
-  const params = signCollection.value.map((sign, index) => {
+  const promiseList = signCollection.value.map((sign, index) => {
     return {
       position: index + 1,
       content: props.text[index],
       image: sign,
     };
   });
+  // signCollection.value.forEach(async (sign, index) => {
+  //   promiseList.push(rotateBase64(sign, 90));
+  // });
 
-  emits('onSubmit', params);
+  // Promise.all(promiseList).then((newBase64) => {
+  //   const params = newBase64.map((base64, index) => {
+  //     return {
+  //       position: index + 1,
+  //       content: props.text[index],
+  //       image: base64,
+  //     };
+  //   });
+  //   console.log('params', params);
+  emits('onSubmit', promiseList);
+  // });
 };
 </script>
 

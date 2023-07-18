@@ -199,6 +199,7 @@ const signPartInfo = ref({
 const scribingConfig = ref({
   text: '本人已阅读风险提示，愿意承担风险',
   type: 'handle',
+  signInfo: '',
 });
 
 /** ------------- 人脸识别 ----------- */
@@ -342,6 +343,8 @@ const getOrderDetail = (check = false) => {
         Object.assign(orderDetail.value, data);
         signPartInfo.value.holder.personalInfo = data.holder;
         signPartInfo.value.insured.personalInfo = data.insuredList;
+
+        // scribingConfig.value.signInfo = data.riskTranscriptionList[0].thumbnail;
 
         data.tenantOrderAttachmentList.forEach((attachment) => {
           if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
