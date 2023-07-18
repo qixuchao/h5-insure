@@ -516,7 +516,8 @@ onMounted(() => {
     const storage = new Storage({ source: 'localStorage' });
     storage.set('token', router.query.token);
   }
-  if (!isShare) {
+  // 预览状态下不调用获取产品列表状态
+  if (!isShare && !isPreview) {
     getProposalTransInsured();
     getThemeList();
   }
