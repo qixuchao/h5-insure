@@ -10,7 +10,7 @@
       <van-search
         v-model="state.keyword"
         shape="round"
-        placeholder="姓名或手机号查询"
+        placeholder="客户 姓名/手机号"
         class="icon-sercher"
         @search="handleSearch"
       >

@@ -15,6 +15,7 @@
   >
     <template #cardTitleExtra
       ><div v-if="!isShare && !isView && !isTrial" class="choose-customer" @click="chooseCustomers('holder', 1, 0)">
+        <img src="@/assets/images/baseInsurance/customer.png" />
         选择老用户
       </div></template
     >
@@ -42,6 +43,7 @@
         class="choose-customer"
         @click="chooseCustomers('insured', index, 0)"
       >
+        <img src="@/assets/images/baseInsurance/customer.png" />
         选择老用户
       </div>
       <template #cardTitleExtraBenifit="slotProps">
@@ -50,6 +52,7 @@
           class="choose-customer"
           @click="chooseCustomers('benifit', index, slotProps?.index)"
         >
+          <img src="@/assets/images/baseInsurance/customer.png" />
           选择老用户
         </div></template
       >
@@ -69,7 +72,7 @@
   <!-- <CustomerList v-if="state.show" :key="state.uniqKey" :close-customer-popoup="onClickClosePopup" /> -->
   <ProPopup
     v-if="state.show"
-    :class="`com-trial-wrap ${$attrs.class}`"
+    :round="false"
     :show="state.show"
     :closeable="false"
     @close="onClosePopup"
@@ -78,17 +81,21 @@
     <div class="search-bar">
       <van-search
         v-model="state.keyword"
-        shape="round"
-        placeholder="姓名或手机号查询"
+        placeholder="客户 姓名/手机号"
         class="icon-sercher"
         @search="handleSearch"
+        @cancel="onCancel"
       >
         <template #left-icon>
           <img :src="SearchLeftIcon" alt="" class="search-icon-img" style="width: 22px; height: 23px" />
         </template>
       </van-search>
     </div>
-    <CustomerList :data="state.list" :type="order" :disabled="false" @on-close="onClickClosePopup" />
+    <CustomerList v-if="state.count" :data="state.list" :type="order" :disabled="false" @on-close="onClickClosePopup" />
+    <div v-else class="empth">
+      <p><img src="@/assets/images/baseInsurance/empth.png" class="ig" /></p>
+      <p class="p1">暂时还没有客户哦～</p>
+    </div>
   </ProPopup>
 </template>
 <script lang="ts" setup name="PersonalInfo">
@@ -168,6 +175,7 @@ interface StateInfo {
   keyword: any;
   list: any;
   slotProps: any;
+  count: number;
 }
 
 // const initInsuredItem: InsuredFormProps = {
@@ -186,6 +194,7 @@ interface StateInfo {
 // };
 
 const state = reactive<Partial<StateInfo>>({
+  count: 0,
   slotProps: {},
   uniqKey: '',
   currentIndex: 0,
@@ -240,10 +249,14 @@ const getCustomerList = async (params: any) => {
     });
   });
   state.list = temp;
+  state.count = res?.data?.count;
 };
 // 搜索
 const handleSearch = () => {
   getCustomerList({ keyword: state.keyword });
+};
+const onCancel = () => {
+  getCustomerList({ keyword: '' });
 };
 // 是否显示holder
 const isShowHolder = computed(() => !props.isTrial || props.isOnlyHolder);
@@ -745,9 +758,17 @@ defineExpose({
     }
   }
   .choose-customer {
+    display: flex;
+    align-items: center;
     font-size: 30px;
-    font-weight: bold;
-    color: #333333;
+    font-weight: 400;
+    color: #0d6efe;
+    line-height: 42px;
+    img {
+      width: 23px;
+      height: 21px;
+      margin-right: 10px;
+    }
   }
 
   .delete-button {
@@ -767,9 +788,34 @@ defineExpose({
     }
   }
 }
-:deep(.pop-container) {
+:deep(.search-bar) {
+  .van-field__control {
+    font-weight: 400;
+    color: #99a9c0;
+  }
+}
+.empth {
+  text-align: center;
+  .p1 {
+    font-size: 30px;
+    color: #99a9c0;
+  }
+  .ig {
+    width: 200px;
+    height: 200px;
+    margin-top: 236px;
+    margin-bottom: 47px;
+  }
+}
+</style>
+
+<style lang="scss">
+.icon-sercher {
   .van-field__body {
-    width: 100% !important;
+    width: 100%;
+    .van-field__control {
+      color: #393d46 !important;
+    }
   }
 }
 </style>

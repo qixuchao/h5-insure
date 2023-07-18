@@ -99,7 +99,7 @@ body {
   &:after {
     margin-right: 2px;
     color: var(--van-field-required-mark-color);
-    content: "*";
+    content: '*';
   }
 }
 
@@ -125,9 +125,7 @@ body {
   padding-top: 8px;
 }
 
-.van-cell
-
-.van-icon-arrow {
+.van-cell .van-icon-arrow {
   &:before {
     color: #99a9c0;
     font-weight: 600;
@@ -139,7 +137,6 @@ body {
     border-width: 0;
   }
 }
-
 
 .van-icon-success {
   &::before {
@@ -264,7 +261,9 @@ body {
   .van-stepper__input {
     border: 0;
   }
-  .van-stepper__minus, .van-stepper__plus, button {
+  .van-stepper__minus,
+  .van-stepper__plus,
+  button {
     border: 0 !important;
     background-color: var(--van-primary-color) !important;
     width: 40px;
@@ -348,9 +347,9 @@ body {
 
 // switch定制版
 .van-switch {
-  background: #8696B2 !important;
+  background: #8696b2 !important;
   .van-switch__node {
-    border: 1px solid #8696B2;
+    border: 1px solid #8696b2;
   }
 }
 
@@ -359,4 +358,8 @@ body {
   .van-switch__node {
     border: 1px solid $zaui-brand;
   }
+}
+.van-index-anchor {
+  color: #99a9c0 !important;
+  font-size: 26px;
 }
