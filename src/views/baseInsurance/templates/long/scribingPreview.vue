@@ -33,7 +33,9 @@
     </div>
     <div class="popup-footer">
       <van-button @click="handleCancel">取消</van-button>
-      <van-button type="primary" plain @click="handleConfirm">确定</van-button>
+      <van-button type="primary" plain :disabled="scribingStatus === YES_NO_ENUM.NO" @click="handleConfirm"
+        >确定</van-button
+      >
     </div>
   </ProPopup>
 </template>
@@ -59,7 +61,7 @@ const signCollection = ref<any[]>([]);
 const { orderNo, text, tenantId, orderId } = route.query as RouterParams;
 const currentSignRecord = ref<any>({});
 const [visible, toggleVisible] = useToggle(false);
-const scribingStatus = ref<boolean>(false);
+const scribingStatus = ref<number>();
 
 const queryScribingList = async () => {
   const { code, data } = await queryListRiskTranscription({
@@ -68,7 +70,8 @@ const queryScribingList = async () => {
     contentType: SCRIBING_TYPE_ENUM.HANDLE,
   });
   if (code === '10000') {
-    signCollection.value = data;
+    signCollection.value = data.riskTranscriptionList;
+    scribingStatus.value = data.status;
   }
 };
 

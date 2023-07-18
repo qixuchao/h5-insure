@@ -11,8 +11,8 @@ export const confirmRiskTranscription = (data = {}) =>
 
 // 手动抄录信息查询
 export const queryListRiskTranscription = (data = {}) =>
-  request<ScribingResultItem[]>({
-    url: '/api/app/insure/insurance/listRiskTranscription',
+  request<{ riskTranscriptionList: ScribingResultItem[]; status: number }>({
+    url: '/api/app/insure/insurance/queryRiskTranscriptionResult',
     method: 'POST',
     data,
   });
