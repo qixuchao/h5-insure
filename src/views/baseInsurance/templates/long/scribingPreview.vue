@@ -41,6 +41,7 @@
 <script lang="ts" setup name="scribingPreview">
 import { useRoute, useRouter } from 'vue-router';
 import { useToggle } from '@vant/use';
+import { Toast } from 'vant';
 import { YES_NO_ENUM, SCRIBING_TYPE_ENUM } from '@/common/constants';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 import { confirmRiskTranscription, queryListRiskTranscription, saveRiskTranscription } from '@/api/modules/scribing';
@@ -146,20 +147,6 @@ onMounted(() => {
   }
 }
 
-.van-popup {
-  width: 560px !important;
-  height: 745px !important;
-  border-radius: 12px;
-  &.com-pro-popup .pop-container .header {
-    line-height: 128px;
-    background-color: #fff6e4;
-    font-size: 36px;
-    flex: none;
-    font-weight: 600;
-    color: #ff911e;
-  }
-}
-
 .popup-footer {
   width: 100%;
   display: flex;
@@ -180,6 +167,20 @@ onMounted(() => {
   background-color: #f2f2f2;
   min-height: 100vh;
   padding: $zaui-space-border-big 0px 14px $zaui-space-border-big;
+
+  .van-popup {
+    width: 560px !important;
+    height: 745px !important;
+    border-radius: 12px;
+    &.com-pro-popup .pop-container .header {
+      line-height: 128px;
+      background-color: #fff6e4;
+      font-size: 36px;
+      flex: none;
+      font-weight: 600;
+      color: #ff911e;
+    }
+  }
   .header-tip {
     font-size: $zaui-font-size-md2;
     font-weight: 400;
