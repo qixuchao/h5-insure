@@ -57,13 +57,12 @@
         <div><ProSvg name="refresh" /></div>
         <div class="text">刷新</div>
       </div>
-      <ProShare v-if="!isShare && isAppFkq()" ref="shareRef" v-bind="shareInfo" @click.stop="handleShare">
-        <van-button plain type="primary" class="share-btn">分享</van-button>
+      <ProShare v-if="!(!isShare && isAppFkq())" ref="shareRef" v-bind="shareInfo">
+        <van-button plain type="primary" class="share-btn" @click="handleShare">分享</van-button>
       </ProShare>
       <van-button type="primary" class="submit-btn" @click="handleSubmit">确认支付</van-button>
     </div>
     <ProScribing
-      v-if="!!scribingConfig.type"
       :="scribingConfig"
       title="为了保障您的权益请抄录以下声明内容"
       @on-submit="submitScribing"
@@ -237,6 +236,7 @@ const sign = (type, signData, bizObjectId?) => {
 const requiredType = ref<any>({
   sign: [],
   verify: [],
+  scribing: '',
 });
 
 const handleSubmit = () => {
@@ -319,16 +319,18 @@ const handleSubmit = () => {
 
 const shareRef = ref<InstanceType<typeof ProShare>>();
 const handleShare = () => {
-  agentSignRef.value
-    .validateSign()
-    .then(() => {
-      if (shareRef.value) {
-        shareRef.value.handleShare();
-      }
-    })
-    .catch(() => {
-      Toast('请完成代理人签字后进行分享');
-    });
+  if (agentSignRef.value && requiredType.value.sign.includes('1')) {
+    agentSignRef.value
+      .validateSign()
+      .then(() => {
+        if (shareRef.value) {
+          shareRef.value.handleShare();
+        }
+      })
+      .catch(() => {
+        Toast('请完成代理人签字后进行分享');
+      });
+  }
 };
 
 const getOrderDetail = (check = false) => {
@@ -454,7 +456,7 @@ const initData = () => {
         // 风险抄录
         if (schema.name === 'riskNotificationCopy') {
           defaultScribingConfig.value.text = schema.remark;
-
+          requiredType.value.scribing = schema.required;
           schema.columns.forEach((column) => {
             if (column.code === '1') {
               defaultScribingConfig.value.type = 'handle';

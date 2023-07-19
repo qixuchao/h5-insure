@@ -46,6 +46,9 @@ watch(
   (value) => {
     signString.value = value;
   },
+  {
+    immediate: true,
+  },
 );
 
 defineExpose({
