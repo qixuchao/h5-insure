@@ -63,6 +63,7 @@
       <van-button type="primary" class="submit-btn" @click="handleSubmit">确认支付</van-button>
     </div>
     <ProScribing
+      v-if="requiredType.scribing.type"
       :="scribingConfig"
       title="为了保障您的权益请抄录以下声明内容"
       @on-submit="submitScribing"
