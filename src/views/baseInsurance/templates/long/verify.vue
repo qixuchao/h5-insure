@@ -63,7 +63,7 @@
       <van-button type="primary" class="submit-btn" @click="handleSubmit">确认支付</van-button>
     </div>
     <ProScribing
-      v-if="requiredType.scribing.type"
+      v-if="requiredType.scribing"
       :="scribingConfig"
       title="为了保障您的权益请抄录以下声明内容"
       @on-submit="submitScribing"
@@ -457,6 +457,7 @@ const initData = () => {
         // 风险抄录
         if (schema.name === 'riskNotificationCopy') {
           defaultScribingConfig.value.text = schema.remark;
+          console.log('schema', schema);
           requiredType.value.scribing = schema.required;
           schema.columns.forEach((column) => {
             if (column.code === '1') {
