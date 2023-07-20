@@ -356,9 +356,14 @@ const onClickClosePopup = (value) => {
     Object.assign(state?.holder?.personVO || {}, convertCustomerData(value, 'holder'));
   }
   if (state.currentType === 'insured') {
-    Object.assign(state?.insured[state.currentIndex]?.personVO || {}, convertCustomerData(value, 'insured'));
-    console.log('---holderGender---', holderGender.value);
-    console.log('---holderBirthday---', holderBirthday.value);
+    // 被保人中关系是否有本人
+    const hasInsuredRelationSlef = state?.insured[state.currentIndex]?.schema.some((item) => {
+      if (item.name === 'relationToHolder') {
+        return item.attributeValueList.some((r) => r.code === '1');
+      }
+      return false;
+    });
+
     const { name, gender, birthday, certType, certNo } = convertCustomerData(value, 'insured');
     // 五要素判断 相同 被保人关系置为本人
     if (
@@ -368,9 +373,14 @@ const onClickClosePopup = (value) => {
       holderCertType.value === certType &&
       holderCertNo.value === certNo
     ) {
-      Object.assign(state?.insured[state.currentIndex]?.personVO || {}, { relationToHolder: '1' });
+      if (hasInsuredRelationSlef) {
+        Object.assign(state?.insured[state.currentIndex]?.personVO || {}, { relationToHolder: '1' });
+        return;
+      }
+      Toast('投被保人不可为本人');
       return;
     }
+    Object.assign(state?.insured[state.currentIndex]?.personVO || {}, convertCustomerData(value, 'insured'));
   }
   //  受益人
   if (state.currentType === 'benifit') {
