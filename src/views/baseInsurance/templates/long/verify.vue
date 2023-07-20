@@ -75,6 +75,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
 import { stringify } from 'qs';
+import { merge } from 'lodash-es';
 import { productDetail as getTenantProductDetail, queryProductMaterial, querySalesInfo } from '@/api/modules/product';
 import { nextStepOperate as nextStep } from '../../nextStep';
 import {
@@ -515,7 +516,7 @@ const submitScribing = (scribingStr?: string) => {
 watch(
   [() => defaultScribingConfig.value, () => scribingConfig.value],
   () => {
-    Object.assign(scribingConfig.value, defaultScribingConfig.value);
+    merge(scribingConfig.value, defaultScribingConfig.value);
   },
   {
     deep: true,
