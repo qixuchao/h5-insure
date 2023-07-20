@@ -142,6 +142,7 @@ const displayDataSource = computed(() => {
           min-width: 80px;
           border-right: 1px solid $zaui-line;
           border-bottom: 1px solid $zaui-line;
+          word-break: break-all;
           // background: #fff;
           &.fixed {
             position: sticky;

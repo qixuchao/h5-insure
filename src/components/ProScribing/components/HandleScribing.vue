@@ -30,8 +30,18 @@
       <div class="operate-bar">
         <div class="btns">
           <van-space>
-            <van-button plain hairline type="primary" class="btn" @click="handlePre">上一页</van-button>
-            <van-button plain hairline type="primary" class="btn" @click="handleNext">下一页</van-button>
+            <van-button plain hairline type="primary" :disabled="activityIndex === 0" class="btn" @click="handlePre"
+              >上一页</van-button
+            >
+            <van-button
+              plain
+              hairline
+              type="primary"
+              :disabled="activityIndex === scribingSlice.length - 1"
+              class="btn"
+              @click="handleNext"
+              >下一页</van-button
+            >
             <van-button plain hairline type="primary" class="btn" @click="handleChancel">取消</van-button>
             <van-button type="primary" class="btn" @click="handleConfirm">保存</van-button>
           </van-space>
