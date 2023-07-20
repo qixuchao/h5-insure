@@ -517,7 +517,7 @@ onMounted(() => {
     storage.set('token', router.query.token);
   }
   // 预览状态下不调用获取产品列表状态
-  if (!isShare && !isPreview) {
+  if (!isShare && !isPreview.value) {
     getProposalTransInsured();
     getThemeList();
   }
