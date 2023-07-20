@@ -1,1 +1,0 @@
-import{d as a,b as s,c,i as e,$ as d}from"./index-be39512e.js";const t={class:"product-desc-wrap"},o={class:"product-name"},r={class:"product-desc"},p=a({name:"productDesc"}),u=a({...p,props:{dataSource:{default:()=>({})}},setup:a=>(a,p)=>(s(),c("div",t,[e("div",o,d(a.dataSource.title),1),e("p",r,d(a.dataSource.productDesc),1)]))});export{u as default};

@@ -139,7 +139,7 @@ const displayDataSource = computed(() => {
         .table-cell {
           position: relative;
           text-align: center;
-          width: 80px;
+          min-width: 80px;
           border-right: 1px solid $zaui-line;
           border-bottom: 1px solid $zaui-line;
           // background: #fff;
@@ -159,43 +159,43 @@ const displayDataSource = computed(() => {
             }
           }
           &.table-cell-width-80 {
-            width: 80px;
+            min-width: 80px;
           }
           &.table-cell-width-90 {
-            width: 90px;
+            min-width: 90px;
           }
           &.table-cell-width-100 {
-            width: 100px;
+            min-width: 100px;
           }
           &.table-cell-width-110 {
-            width: 110px;
+            min-width: 110px;
           }
           &.table-cell-width-120 {
-            width: 120px;
+            min-width: 120px;
           }
           &.table-cell-width-130 {
-            width: 130px;
+            min-width: 130px;
           }
           &.table-cell-width-140 {
-            width: 140px;
+            min-width: 140px;
           }
           &.table-cell-width-150 {
-            width: 150px;
+            min-width: 150px;
           }
           &.table-cell-width-160 {
-            width: 160px;
+            min-width: 160px;
           }
           &.table-cell-width-170 {
-            width: 170px;
+            min-width: 170px;
           }
           &.table-cell-width-180 {
-            width: 180px;
+            min-width: 180px;
           }
           &.table-cell-width-190 {
-            width: 190px;
+            min-width: 190px;
           }
           &.table-cell-width-200 {
-            width: 200px;
+            min-width: 200px;
           }
         }
       }

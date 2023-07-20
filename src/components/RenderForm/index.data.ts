@@ -29,6 +29,7 @@ export interface FieldConfItem {
   isCalculationFactor: number;
   visible: boolean;
   subModuleType: number;
+  remark?: string;
 }
 
 export interface ProductFactor {

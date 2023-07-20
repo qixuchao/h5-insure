@@ -54,7 +54,7 @@ const empty = ref(true);
 
 const state = ref<ComState>({
   options: {
-    penColor: 'rgb(0, 0, 0)',
+    penColor: 'rgb(255, 255, 0)',
     backgroundColor: 'rgb(255,255,255)',
     position: 'absolute',
     ...props.options,
@@ -99,10 +99,10 @@ const setDataURL = (data: string, option: any = { ratio: 1 }) => {
 };
 
 onMounted(() => {
-  console.log('canvas.value', canvas.value);
   if (canvas.value && container.value) {
-    canvas.value.width = container.value.getBoundingClientRect().width;
-    canvas.value.height = container.value.getBoundingClientRect().height;
+    const containerRect = container.value.getBoundingClientRect();
+    canvas.value.width = containerRect.width;
+    canvas.value.height = containerRect.height;
     signatureIns.value = new SignaturePad(canvas.value);
     signatureIns.value.addEventListener('beginStroke', () => {
       empty.value = false;

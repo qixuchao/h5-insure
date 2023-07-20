@@ -1,5 +1,5 @@
-/* eslint-disable no-shadow */
 import { type InjectionKey } from 'vue';
+/* eslint-disable no-shadow */
 
 // 1: 男
 import { constantListToMap } from './utils';
@@ -404,6 +404,12 @@ export const SCRIBING_TYPE_ENUM = {
   AUTO: 1, // 一键抄录
   HANDLE: 2, // 手动录入
 };
+
+export const SCRIBING_TYPE_LIST = [
+  { value: [SCRIBING_TYPE_ENUM.AUTO], label: 'auto' }, // 一键抄录
+  { value: [SCRIBING_TYPE_ENUM.HANDLE], label: 'handle' }, // 手动录入
+];
+export const SCRIBING_TYPE_MAP = constantListToMap(SCRIBING_TYPE_LIST);
 
 export * from './dict';
 

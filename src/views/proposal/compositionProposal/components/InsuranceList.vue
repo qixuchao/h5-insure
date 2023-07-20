@@ -71,6 +71,7 @@ const columns = [
   {
     title: '保额',
     dataIndex: 'initialAmount',
+    render: (record) => toLocal(record.initialAmount),
   },
   {
     title: '保障期间',
@@ -86,6 +87,7 @@ const columns = [
     title: '保费',
     dataIndex: 'initialPremium',
     width: 120,
+    render: (record) => toLocal(record.initialPremium),
   },
 ];
 
