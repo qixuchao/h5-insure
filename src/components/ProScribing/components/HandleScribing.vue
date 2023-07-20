@@ -109,7 +109,7 @@ const handleNext = () => {
   scribingSlice.value.forEach((signStr: string, index) => {
     if (index === activityIndex.value) {
       signStr.split('').forEach((t, i) => {
-        if (!signCollection.value[index + i]) {
+        if (!signCollection.value[index + i + index]) {
           msg = '请抄录当前页面文字';
         }
       });

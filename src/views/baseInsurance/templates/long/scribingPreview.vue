@@ -199,7 +199,7 @@ onMounted(() => {
 
   .scribing-list {
     width: 100%;
-    margin-top: 30px;
+    margin: 30px 0 150px;
     .scribing-item {
       width: 150px;
       height: 150px;
@@ -224,6 +224,7 @@ onMounted(() => {
     justify-content: space-between;
     padding: 0 30px;
     left: 0;
+    background-color: #f2f2f2;
   }
 }
 </style>
