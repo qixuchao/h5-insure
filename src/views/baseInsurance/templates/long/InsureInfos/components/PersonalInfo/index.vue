@@ -377,7 +377,7 @@ const onClickClosePopup = (value) => {
         Object.assign(state?.insured[state.currentIndex]?.personVO || {}, { relationToHolder: '1' });
         return;
       }
-      Toast('投被保人不可为本人');
+      Toast('与投保人关系未配置本人');
       return;
     }
     Object.assign(state?.insured[state.currentIndex]?.personVO || {}, convertCustomerData(value, 'insured'));
