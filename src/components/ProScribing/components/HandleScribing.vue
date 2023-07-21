@@ -192,9 +192,11 @@ const handleConfirm = () => {
 
     .scribing-text {
       width: 120px;
-      padding: 24px;
+      padding: 24px 0;
       display: flex;
       flex-direction: column;
+      flex-wrap: wrap;
+      direction: rtl;
       align-items: center;
       font-size: $zaui-font-size-md;
       font-weight: 500;
