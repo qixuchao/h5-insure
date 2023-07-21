@@ -16,26 +16,32 @@ const props = withDefaults(
   defineProps<{
     text: string;
     modelValue: string | undefined;
-    containerRect: any;
+    container: string;
   }>(),
   {
     text: '',
     modelValue: '',
-    containerRect: () => ({}),
+    container: '',
   },
 );
 
 const emits = defineEmits(['update:modelValue']);
 const signString = ref<string>('');
 const canvasRef = ref<HTMLCanvasElement>();
+const containerStyle = ref();
 
 const autoScribing = () => {
   const canvas = document.querySelector('.com-auto-scribing')?.querySelector?.('.canvas');
   const ctx = canvas?.getContext?.('2d');
+  const paddingRight = parseFloat(containerStyle.value.getPropertyValue('padding-right'));
+  const paddingTop = parseFloat(containerStyle.value.getPropertyValue('padding-top'));
+  const lineHeight = parseFloat(containerStyle.value.getPropertyValue('line-height'));
+  const width = parseFloat(containerStyle.value.getPropertyValue('width')) - paddingRight * 3;
 
-  const height = drawTextWrap(ctx, '#333', 'left', '14', props.text, 20, 20, 20, 400);
+  console.log(paddingRight, paddingTop, lineHeight, width);
+  const height = drawTextWrap(ctx, '#333', 'left', '14', props.text, paddingRight, paddingTop, lineHeight, width);
 
-  signString.value = canvas?.toDataURL?.('image/png');
+  signString.value = canvas?.toDataURL?.('image/png', 1);
 
   emits('update:modelValue', signString.value);
   return signString.value;
@@ -57,8 +63,11 @@ defineExpose({
 
 onMounted(() => {
   if (canvasRef.value) {
-    canvasRef.value.width = props.containerRect.width;
-    canvasRef.value.height = props.containerRect.height;
+    const wrap = document.querySelector(props.container);
+    const style = window.getComputedStyle(wrap, null);
+    containerStyle.value = style;
+    canvasRef.value.width = parseFloat(style.getPropertyValue('width'));
+    canvasRef.value.height = parseFloat(style.getPropertyValue('height'));
   }
 });
 </script>
