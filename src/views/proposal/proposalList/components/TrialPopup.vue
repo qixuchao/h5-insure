@@ -58,6 +58,8 @@ const formatData = (trialData: PremiumCalcData, trialResult: any) => {
         res[riskDetail.riskCode] = {
           initialPremium: riskDetail.initialPremium,
           initialAmount: riskDetail.initialAmount,
+          unitAmount: riskDetail.unitAmount,
+          unitPremium: riskDetail.unitPremium,
         };
         return res;
       }, {})
@@ -66,6 +68,8 @@ const formatData = (trialData: PremiumCalcData, trialResult: any) => {
   const riskList = (riskVOList || []).map((risk: RiskVoItem) => {
     return {
       ...risk,
+      unitPremium: riskPremiumMap?.[risk.riskCode]?.unitPremium,
+      unitAmount: riskPremiumMap?.[risk.riskCode]?.unitAmount,
       initialPremium: riskPremiumMap?.[risk.riskCode]?.initialPremium,
       initialAmount: riskPremiumMap?.[risk.riskCode]?.initialAmount,
     };
