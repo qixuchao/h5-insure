@@ -38,8 +38,17 @@ const autoScribing = () => {
   const lineHeight = parseFloat(containerStyle.value.getPropertyValue('line-height'));
   const width = parseFloat(containerStyle.value.getPropertyValue('width')) - paddingRight * 3;
 
-  console.log(paddingRight, paddingTop, lineHeight, width);
-  const height = drawTextWrap(ctx, '#333', 'left', '14', props.text, paddingRight, paddingTop, lineHeight, width);
+  const height = drawTextWrap(
+    ctx,
+    '#333',
+    'left',
+    '28',
+    props.text,
+    paddingRight * 2,
+    paddingTop * 3,
+    lineHeight * 2,
+    width * 2,
+  );
 
   signString.value = canvas?.toDataURL?.('image/png', 1);
 
@@ -66,8 +75,11 @@ onMounted(() => {
     const wrap = document.querySelector(props.container);
     const style = window.getComputedStyle(wrap, null);
     containerStyle.value = style;
-    canvasRef.value.width = parseFloat(style.getPropertyValue('width'));
-    canvasRef.value.height = parseFloat(style.getPropertyValue('height'));
+    canvasRef.value.width = parseFloat(style.getPropertyValue('width')) * 2;
+    canvasRef.value.height = parseFloat(style.getPropertyValue('height')) * 2;
+
+    canvasRef.value.style.width = style.getPropertyValue('width');
+    canvasRef.value.style.height = style.getPropertyValue('height');
   }
 });
 </script>
