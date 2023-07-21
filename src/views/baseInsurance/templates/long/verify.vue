@@ -58,7 +58,7 @@
         <div class="text">刷新</div>
       </div>
       <ProShare v-if="!isShare && isAppFkq()" ref="shareRef" v-bind="shareInfo">
-        <van-button plain type="primary" class="share-btn" @click="handleShare">分享</van-button>
+        <van-button plain type="primary" class="share-btn" @click.stop="handleShare">分享</van-button>
       </ProShare>
       <van-button type="primary" class="submit-btn" @click="handleSubmit">确认支付</van-button>
     </div>
@@ -75,6 +75,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
 import { stringify } from 'qs';
+import { merge } from 'lodash-es';
 import { productDetail as getTenantProductDetail, queryProductMaterial, querySalesInfo } from '@/api/modules/product';
 import { nextStepOperate as nextStep } from '../../nextStep';
 import {
@@ -515,7 +516,7 @@ const submitScribing = (scribingStr?: string) => {
 watch(
   [() => defaultScribingConfig.value, () => scribingConfig.value],
   () => {
-    Object.assign(scribingConfig.value, defaultScribingConfig.value);
+    merge(scribingConfig.value, defaultScribingConfig.value);
   },
   {
     deep: true,

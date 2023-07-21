@@ -12,10 +12,10 @@
       {{ text }}
     </div>
     <AutoScribing
-      v-if="type === 'auto' && containerRect.width"
+      v-if="type === 'auto'"
       ref="autoScribingRef"
       v-model="signString"
-      :container-rect="containerRect"
+      container=".scribing-content .scribing-text"
       :text="text"
     ></AutoScribing>
   </div>
@@ -73,14 +73,6 @@ watch(
     immediate: true,
   },
 );
-
-onMounted(() => {
-  const rect = document.querySelector('.scribing-content .scribing-text').getBoundingClientRect();
-  containerRect.value = {
-    width: rect.width,
-    height: rect.height,
-  };
-});
 </script>
 <style lang="scss" scoped>
 .scribing-content {

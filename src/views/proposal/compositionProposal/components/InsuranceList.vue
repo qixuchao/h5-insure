@@ -20,7 +20,7 @@
           </div>
         </div>
         <div class="fe">
-          首年保费： <span>¥{{ toLocal(props.info?.totalPremium?.toFixed(2)) }}</span>
+          首年保费： <span>¥{{ toLocal(props.info?.totalPremium) }}</span>
         </div>
       </template>
       <template v-else>
@@ -30,7 +30,7 @@
             <span class="p2"
               >{{ getRelationName() }} / {{ SEX_LIMIT_MAP[props.info?.gender] }} /
               {{ dayjs().diff(info?.birthday, 'y') }}岁 / 首年保费:
-              <span>¥{{ toLocal(props.info?.totalPremium?.toFixed(2)) }}</span></span
+              <span>¥{{ toLocal(props.info?.totalPremium) }}</span></span
             >
           </div>
         </div>

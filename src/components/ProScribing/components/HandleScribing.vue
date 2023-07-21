@@ -30,8 +30,18 @@
       <div class="operate-bar">
         <div class="btns">
           <van-space>
-            <van-button plain hairline type="primary" class="btn" @click="handlePre">上一页</van-button>
-            <van-button plain hairline type="primary" class="btn" @click="handleNext">下一页</van-button>
+            <van-button plain hairline type="primary" :disabled="activityIndex === 0" class="btn" @click="handlePre"
+              >上一页</van-button
+            >
+            <van-button
+              plain
+              hairline
+              type="primary"
+              :disabled="activityIndex === scribingSlice.length - 1"
+              class="btn"
+              @click="handleNext"
+              >下一页</van-button
+            >
             <van-button plain hairline type="primary" class="btn" @click="handleChancel">取消</van-button>
             <van-button type="primary" class="btn" @click="handleConfirm">保存</van-button>
           </van-space>
@@ -99,7 +109,7 @@ const handleNext = () => {
   scribingSlice.value.forEach((signStr: string, index) => {
     if (index === activityIndex.value) {
       signStr.split('').forEach((t, i) => {
-        if (!signCollection.value[index + i]) {
+        if (!signCollection.value[index + i + index]) {
           msg = '请抄录当前页面文字';
         }
       });
@@ -182,9 +192,11 @@ const handleConfirm = () => {
 
     .scribing-text {
       width: 120px;
-      padding: 24px;
+      padding: 24px 0;
       display: flex;
       flex-direction: column;
+      flex-wrap: wrap;
+      direction: rtl;
       align-items: center;
       font-size: $zaui-font-size-md;
       font-weight: 500;

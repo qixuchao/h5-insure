@@ -29,7 +29,13 @@
     @close="handleCancel"
   >
     <div class="popup-body">
-      <ProSign v-model="currentSignRecord.image" has-bg :placeholder="currentSignRecord.content" closeable></ProSign>
+      <ProSign
+        ref="signRef"
+        v-model="currentSignRecord.image"
+        has-bg
+        :placeholder="currentSignRecord.content"
+        closeable
+      ></ProSign>
     </div>
     <div class="popup-footer">
       <van-button @click="handleCancel">取消</van-button>
@@ -45,6 +51,7 @@ import { Toast } from 'vant';
 import { YES_NO_ENUM, SCRIBING_TYPE_ENUM } from '@/common/constants';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 import { confirmRiskTranscription, queryListRiskTranscription, saveRiskTranscription } from '@/api/modules/scribing';
+import ProSign from '@/components/ProSign/index.vue';
 
 interface RouterParams {
   orderNo: string;
@@ -61,6 +68,7 @@ const { orderNo, text, tenantId, orderId } = route.query as RouterParams;
 const currentSignRecord = ref<any>({});
 const [visible, toggleVisible] = useToggle(false);
 const scribingStatus = ref<number>();
+const signRef = ref<InstanceType<typeof ProSign>>();
 
 const queryScribingList = async () => {
   const { code, data } = await queryListRiskTranscription({
@@ -80,6 +88,7 @@ const updateSign = (record) => {
 };
 
 const handleCancel = () => {
+  signRef.value.clear();
   toggleVisible(false);
 };
 
@@ -190,7 +199,7 @@ onMounted(() => {
 
   .scribing-list {
     width: 100%;
-    margin-top: 30px;
+    margin: 30px 0 150px;
     .scribing-item {
       width: 150px;
       height: 150px;
@@ -215,6 +224,7 @@ onMounted(() => {
     justify-content: space-between;
     padding: 0 30px;
     left: 0;
+    background-color: #f2f2f2;
   }
 }
 </style>
