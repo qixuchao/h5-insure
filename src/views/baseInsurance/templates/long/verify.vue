@@ -270,7 +270,7 @@ const handleSubmit = () => {
 
   Promise.all(validateCollection)
     .then((res) => {
-      if (requiredType.value.scribing && !scribingConfig.value.signInfo) {
+      if (requiredType.value.scribing && !scribingConfig.value.status) {
         Toast('请先完成风险抄录');
         return;
       }
