@@ -364,6 +364,7 @@ const getOrderDetail = (check = false) => {
         Object.assign(defaultScribingConfig.value, {
           type: SCRIBING_TYPE_MAP[data.extInfo.transcriptionType],
           signInfo: data.riskTranscriptionList?.[0]?.uri,
+          status: data.riskTranscriptionList?.[0]?.status === YES_NO_ENUM.YES,
         });
 
         data.tenantOrderAttachmentList.forEach((attachment) => {
