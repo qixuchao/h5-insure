@@ -32,12 +32,14 @@ interface Props {
   title: string; // 弹窗标题
   signInfo: string; // 抄录的base64
   text: string; // 抄录的文案
+  status: boolean; // 抄录状态
 }
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'auto',
   signInfo: '',
   text: '',
+  status: false,
 });
 
 const route = useRoute();
@@ -50,7 +52,7 @@ const autoScribingRef = ref<InstanceType<typeof AutoScribing>>();
 const containerRect = ref({});
 
 const scribingStatus = computed(() => {
-  return !!signString.value;
+  return props.status;
 });
 
 const handleScribing = () => {

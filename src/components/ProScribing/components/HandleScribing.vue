@@ -115,11 +115,10 @@ const handleNext = () => {
       });
     }
   });
-
   if (msg) {
     Toast({
       message: msg,
-      teleport: '.com-handle-scribing',
+      className: 'toast-vertical',
     });
     return;
   }
@@ -149,7 +148,7 @@ const handleConfirm = () => {
   if (signCollection.value?.length !== props.text.length) {
     Toast({
       message: '请完成抄录',
-      teleport: '.com-handle-scribing',
+      className: 'toast-vertical',
     });
     return;
   }
@@ -173,14 +172,14 @@ const handleConfirm = () => {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+.toast-vertical {
+  transform: rotateZ(90deg);
+}
 .com-handle-scribing {
   width: 100%;
   height: 100%;
 
-  :deep(.van-toast) {
-    transform: rotateZ(90deg);
-  }
   .sign-container-wrap {
     width: 100%;
     // padding: 0 128px 0 130px;
@@ -232,7 +231,7 @@ const handleConfirm = () => {
         height: 401px;
         position: relative;
 
-        :deep(.placeholder) {
+        .placeholder {
           top: 0;
           bottom: 0;
           left: 0;
@@ -244,6 +243,7 @@ const handleConfirm = () => {
           align-items: center;
           justify-content: center;
           font-size: 320px;
+          transform: rotate(90deg);
         }
       }
     }

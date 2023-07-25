@@ -259,8 +259,8 @@ export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
 
       riskDetail.riskPremiumDetailVOList.forEach((risk) => {
         riskPremiumMap.riskMap[risk.riskCode] = {
-          premium: risk.initialPremium,
-          amount: risk.initialAmount,
+          premium: risk.unitPremium,
+          amount: risk.unitAmount,
         };
       });
 

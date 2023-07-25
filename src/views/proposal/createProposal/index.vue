@@ -402,6 +402,23 @@ const currentProductDetail = computed(() => {
   return stateInfo.productCollection?.[stateInfo.currentProductCode] || {};
 });
 
+const trailParams = (params) => {
+  params.insuredList = params.insuredList.map((field) => {
+    field.productList = field.productList.map((node) => {
+      node.riskList = node.riskList.map((item) => {
+        return {
+          ...item,
+          initialPremium: item.unitPremium || item.initialPremium,
+          initialAmount: item.unitAmount || item.initialAmount,
+        };
+      });
+      return node;
+    });
+    return field;
+  });
+  return params;
+};
+
 /** 当前计划数据 */
 const currentProductPlanDetail = computed(() => {
   return currentProductDetail.value?.productPlanInsureVOList?.[0] || {};
@@ -565,7 +582,8 @@ const addProduct = () => {
 };
 
 const trailProduct = (params) => {
-  premiumCalc(params, {
+  const tempParams = trailParams(params);
+  premiumCalc(tempParams, {
     isCustomError: true,
   }).then(({ code, data, message }) => {
     if (code === SUCCESS_CODE && data) {
@@ -574,12 +592,12 @@ const trailProduct = (params) => {
       }
 
       if (isNotEmptyArray(data.riskPremiumDetailVOList)) {
-        combineToProductList(trialPopupRef.value?.formatData(params, data));
+        combineToProductList(trialPopupRef.value?.formatData(tempParams, data));
       }
-      setProductError(params.productCode);
+      setProductError(tempParams.productCode);
       trialFlag.value = true;
     } else {
-      setProductError(params.productCode, message);
+      setProductError(tempParams.productCode, message);
     }
   });
 };
@@ -927,7 +945,8 @@ const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
 // 修改险种
 const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsuredProductItem) => {
   stateInfo.currentProductCode = productInfo.productCode;
-  stateInfo.defaultData = [convertProposalToTrialData(productInfo.productCode)];
+  const tempParams = trailParams(convertProposalToTrialData(productInfo.productCode));
+  stateInfo.defaultData = [tempParams];
   trialPopupRef.value?.open();
 };
 
@@ -1212,6 +1231,7 @@ onBeforeMount(() => {
 
     .operate-bar {
       width: 100%;
+      display: flex;
       justify-content: center;
       flex-direction: column;
       align-items: center;
