@@ -249,7 +249,7 @@ const setShareLink = (config: { image: string; desc: string; title: string }) =>
     desc: config.desc || '你好，这里是描述',
     imgUrl: config.image,
     title: config.title,
-    link: window.location.href,
+    link: `${window.location.href}&isShare=true`,
   };
   console.log('shareInfo', shareInfo.value);
 };
