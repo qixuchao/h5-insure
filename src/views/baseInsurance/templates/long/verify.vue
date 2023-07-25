@@ -215,7 +215,7 @@ const defaultScribingConfig = ref({
 /** ------------- 人脸识别 ----------- */
 const doVerify = (name: string, certNo: string) => {
   let jumpUrl = window.location.href;
-  jumpUrl = jumpUrl.includes('orderCode') ? jumpUrl : jumpUrl.replace('orderNo', 'orderCode');
+  jumpUrl = jumpUrl.includes('orderCode') ? jumpUrl : jumpUrl.replaceAll('orderNo', 'orderCode');
   faceVerify({
     callbackUrl: jumpUrl,
     certiNo: certNo,
