@@ -204,7 +204,7 @@ onMounted(() => {
       width: 150px;
       height: 150px;
       background-color: #ffffff;
-      margin: 0 14px 14px 0;
+      margin: 0 13px 13px 0;
       &.activity {
         border: 1px solid red;
       }
