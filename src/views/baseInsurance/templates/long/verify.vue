@@ -496,7 +496,7 @@ const submitScribing = (scribingStr?: string) => {
     confirmRiskTranscription({
       content: text,
       image: scribingStr,
-      orderNo,
+      orderNo: orderCode || orderNo,
       tenantId,
       transcriptionType: SCRIBING_TYPE_ENUM.AUTO,
     }).then(({ code }) => {
