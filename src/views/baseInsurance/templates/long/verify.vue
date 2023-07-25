@@ -200,22 +200,15 @@ const signPartInfo = ref({
 });
 
 // 抄录配置
-const scribingConfig = ref({
-  text: '',
-  type: '',
-  signInfo: '',
-});
+const scribingConfig = ref({});
 
-const defaultScribingConfig = ref({
-  text: '',
-  type: '',
-  signInfo: '',
-});
+const defaultScribingConfig = ref({});
 
 /** ------------- 人脸识别 ----------- */
 const doVerify = (name: string, certNo: string) => {
   let jumpUrl = window.location.href;
-  jumpUrl = jumpUrl.includes('orderCode') ? jumpUrl : jumpUrl.replaceAll('orderNo', 'orderCode');
+  jumpUrl = jumpUrl.includes('orderCode') ? jumpUrl : jumpUrl.replace(/orderNo/g, 'orderCode');
+
   faceVerify({
     callbackUrl: jumpUrl,
     certiNo: certNo,
@@ -517,7 +510,12 @@ const submitScribing = (scribingStr?: string) => {
 watch(
   [() => defaultScribingConfig.value, () => scribingConfig.value],
   () => {
-    merge(scribingConfig.value, defaultScribingConfig.value);
+    Object.assign(scribingConfig.value, {
+      type: defaultScribingConfig.value.type || scribingConfig.value.type,
+      text: defaultScribingConfig.value.text || scribingConfig.value.text,
+      status: defaultScribingConfig.value.status || scribingConfig.value.status,
+      signInfo: defaultScribingConfig.value.signInfo || scribingConfig.value.signInfo,
+    });
   },
   {
     deep: true,
