@@ -483,14 +483,16 @@ const initData = () => {
 
 const submitScribing = (scribingStr?: string) => {
   const { type, text } = scribingConfig.value;
+  const currentQuery = {
+    ...route.query,
+    orderNo: orderCode || orderNo,
+    text,
+    orderId: orderDetail.value.id,
+  };
   if (type === 'handle') {
     router.push({
       path: 'scribing',
-      query: {
-        ...route.query,
-        text,
-        orderId: orderDetail.value.id,
-      },
+      query: currentQuery,
     });
   } else {
     confirmRiskTranscription({
