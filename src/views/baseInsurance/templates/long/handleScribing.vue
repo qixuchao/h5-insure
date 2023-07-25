@@ -11,14 +11,13 @@ import { saveRiskTranscription } from '@/api/modules/scribing';
 
 interface RouterParams {
   orderNo: string;
-  orderCode: string;
   text: string;
   [propName: string]: string;
 }
 
 const router = useRouter();
 const route = useRoute();
-const { orderNo, text, tenantId, orderCode } = route.query as RouterParams;
+const { orderNo, text, tenantId } = route.query as RouterParams;
 
 const handleCancel = () => {
   router.back();
@@ -26,7 +25,7 @@ const handleCancel = () => {
 
 const handleConfirm = (params) => {
   saveRiskTranscription({
-    orderNo: orderCode,
+    orderNo,
     tenantId,
     riskTranscriptionList: params,
   }).then(({ code, data }) => {
