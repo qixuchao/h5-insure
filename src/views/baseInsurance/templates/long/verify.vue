@@ -364,7 +364,8 @@ const getOrderDetail = (check = false) => {
         Object.assign(defaultScribingConfig.value, {
           type: SCRIBING_TYPE_MAP[data.extInfo.transcriptionType],
           signInfo: data.riskTranscriptionList?.[0]?.uri,
-          status: data.riskTranscriptionList?.[0]?.status === YES_NO_ENUM.YES,
+          text: data.riskTranscriptionList?.[0]?.content,
+          status: !!data.extInfo.transcriptionStatus,
         });
 
         data.tenantOrderAttachmentList.forEach((attachment) => {
@@ -458,14 +459,13 @@ const initData = () => {
 
         // 风险抄录
         if (schema.name === 'riskNotificationCopy') {
-          defaultScribingConfig.value.text = schema.remark;
-          console.log('schema', schema);
+          scribingConfig.value.text = schema.remark;
           requiredType.value.scribing = schema.required;
           schema.columns.forEach((column) => {
             if (column.code === '1') {
-              defaultScribingConfig.value.type = 'handle';
+              scribingConfig.value.type = 'handle';
             } else {
-              defaultScribingConfig.value.type = 'auto';
+              scribingConfig.value.type = 'auto';
             }
           });
         }
