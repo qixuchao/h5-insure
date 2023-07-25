@@ -121,6 +121,7 @@ export default {
     border-radius: 8px;
     font-size: 22px;
     color: #ff5840;
+    white-space: nowrap;
   }
 }
 </style>
