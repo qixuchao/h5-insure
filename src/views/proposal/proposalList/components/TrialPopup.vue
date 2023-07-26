@@ -52,7 +52,9 @@ provide(PERSONAL_INFO_KEY, {
 const formatData = (trialData: PremiumCalcData, trialResult: any) => {
   const { holder, insuredList, productCode } = trialData || {};
   const { productList, ...personVO } = insuredList?.[0] || {};
-  const { riskList: riskVOList, ...rest } = productList?.[0] || {};
+  const { riskList: riskVOList, ...rest } =
+    productList.find((item: any) => productCode === item.productCode) || productList?.[0] || {};
+  // const { riskList: riskVOList, ...rest } = productList?.[0] || {};
   const riskPremiumMap = isNotEmptyArray(trialResult?.riskPremiumDetailVOList)
     ? trialResult?.riskPremiumDetailVOList.reduce((res, riskDetail: any) => {
         res[riskDetail.riskCode] = {

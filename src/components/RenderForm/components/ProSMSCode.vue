@@ -88,14 +88,16 @@ const smsText = computed(() => {
     display: inline-block;
     border: 0;
     width: 100px;
-    padding-right: 0;
+    padding: 0;
     text-align: right;
     align-self: center;
     :deep(.van-button__content) {
-      justify-content: end;
+      justify-content: flex-end;
     }
     :deep(.van-button__text) {
       font-size: var(--van-cell-font-size);
+      display: inline-block;
+      margin-bottom: 4px;
     }
   }
 }
