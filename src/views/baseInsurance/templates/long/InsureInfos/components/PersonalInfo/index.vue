@@ -14,7 +14,11 @@
     }"
   >
     <template #cardTitleExtra
-      ><div v-if="!isShare && !isView && !isTrial" class="choose-customer" @click="chooseCustomers('holder', 1, 0)">
+      ><div
+        v-if="!isShare && !isView && !isTrial && isApp"
+        class="choose-customer"
+        @click="chooseCustomers('holder', 1, 0)"
+      >
         <img src="@/assets/images/baseInsurance/customer.png" />
         选择老用户
       </div></template
@@ -39,7 +43,7 @@
         <slot name="riskInfo" :insured-index="index"></slot>
       </template>
       <div
-        v-if="+insuredItem.personVO.relationToHolder !== 1 && !isShare && !isView && !isTrial"
+        v-if="+insuredItem.personVO.relationToHolder !== 1 && !isShare && !isView && !isTrial && isApp"
         class="choose-customer"
         @click="chooseCustomers('insured', index, 0)"
       >
@@ -48,7 +52,7 @@
       </div>
       <template #cardTitleExtraBenifit="slotProps">
         <div
-          v-if="!isShare && !isView && !isTrial"
+          v-if="!isShare && !isView && !isTrial && isApp"
           class="choose-customer"
           @click="chooseCustomers('benifit', index, slotProps?.index)"
         >
@@ -123,8 +127,10 @@ import { isNotEmptyArray, PERSONAL_INFO_KEY, ATTACHMENT_OBJECT_TYPE_ENUM } from 
 import InsuredItem from './components/InsuredItem.vue';
 import CustomerList from './components/list/index.vue';
 import SearchLeftIcon from '@/assets/images/baseInsurance/search.png';
+import { isAppFkq } from '@/utils';
 
 const router = useRoute();
+const isApp = isAppFkq();
 const { isShare, saleChannelId } = router.query;
 
 interface Props {
@@ -240,7 +246,6 @@ const getCustomerList = async (params: any) => {
     },
   };
   const res = await queryCustomerInsureList(reqs);
-  console.log('reqs', res);
   const temp: { label: string; children: any }[] = [];
   Object.keys(res?.data?.customerMaps || {}).forEach((item) => {
     temp.push({
@@ -282,7 +287,6 @@ const onClosePopup = () => {
 // 当前模块要素code集合
 // eslint-disable-next-line consistent-return
 const insureKeys = () => {
-  console.log('state.beneficiarySchema', state.beneficiarySchema);
   if (state.currentType === 'holder') {
     return state.holder.schema.map((obj) => obj.name) || [];
   }
@@ -314,8 +318,10 @@ const convertCustomerData = (value, type) => {
   console.log('convertCustomerData', value);
   const mobileObject = value?.contactInfo?.find((contact) => contact.contactType === '01');
   const emailObject = value?.contactInfo?.find((contact) => contact.contactType === '02');
-  const certObject = value?.certInfo[0];
-  console.log('mobileObject=====', mobileObject);
+  // 过滤出老客户中 身份证类型
+  const certIdCardArray = value?.certInfo.filter((item) => {
+    return item.certType === '1';
+  });
 
   // 客户数据整合
   const newValue = {
@@ -325,8 +331,8 @@ const convertCustomerData = (value, type) => {
     birthday: value?.birthday,
     mobile: mobileObject?.contactNo || null,
     email: emailObject?.contactNo || null,
-    certNo: certObject?.certNo || null,
-    certType: certObject?.certType || null,
+    certNo: certIdCardArray[0]?.certNo || null,
+    certType: certIdCardArray[0]?.certType || null,
   };
   // 数据过滤，只映射投保流程中的数据，剔除客户多余部分
   console.log('insureKeys', insureKeys());
@@ -343,14 +349,7 @@ const convertCustomerData = (value, type) => {
 };
 
 const onClickClosePopup = (value) => {
-  convertCustomerData(value, 'holder');
-  console.log('---state.currentType', state.currentType);
-  console.log('--state.currentIndex', state.currentIndex);
-  console.log('--state.currentBenifitIndex', state.currentBenifitIndex);
-  console.log(
-    'state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO ',
-    state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO,
-  );
+  // convertCustomerData(value, 'holder', true);
   state.show = false;
   if (state.currentType === 'holder') {
     Object.assign(state?.holder?.personVO || {}, convertCustomerData(value, 'holder'));
@@ -545,7 +544,6 @@ watch(
 
     colorConsole(`投被保人信息变动了---${trialDataChanged}`);
     const { insuredList: insuredListProps } = props.modelValue;
-    console.log('insuredList', insuredListProps, insuredList);
 
     // productList 重新赋值到modelValue
     const result = {
@@ -614,7 +612,7 @@ watch(
       holderFactorCodes,
     });
     Object.assign(state.holder, holder);
-    console.log('-----------', holder, insured);
+
     state.config = config;
 
     if (isNotEmptyArray(insured)) {
@@ -743,7 +741,6 @@ watch(
   () => state.list,
   (val, oldVal) => {
     if (val) {
-      console.log('val----', val);
       state.list = val;
     }
   },

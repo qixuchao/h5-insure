@@ -943,17 +943,18 @@ const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
 };
 
 const trialParamsBefore = (tempParams: any, productCode: string) => {
-  const targetProduct = tempParams.insuredList?.[stateInfo.currentSelectInsure];
+  const targetProduct = tempParams.insuredList?.[0];
   const findTarget = targetProduct.productList?.find((item) => item.productCode === productCode) || {};
   targetProduct.occupationClass = findTarget?.occupationClass;
   targetProduct.occupationCodeList = findTarget?.occupationCodeList;
+  targetProduct.productList = targetProduct.productList.filter((item) => item.productCode === productCode);
   return tempParams;
 };
 
 // 修改险种
 const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsuredProductItem) => {
   stateInfo.currentProductCode = productInfo.productCode;
-  const tempParams = trailParams(convertProposalToTrialData(productInfo.productCode));
+  const tempParams = trailParams(cloneDeep(convertProposalToTrialData(productInfo.productCode)));
   stateInfo.defaultData = [trialParamsBefore(tempParams, productInfo.productCode)];
   trialPopupRef.value?.open();
 };
