@@ -222,7 +222,6 @@ watch(
       insurancePeriodList.value = insurancePeriodValueList;
     }
   },
-
   {
     deep: true,
     immediate: true,
