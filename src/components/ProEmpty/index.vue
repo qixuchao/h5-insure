@@ -45,9 +45,9 @@ const slotBtn = !!useSlots().emptyBtn;
   .empty-img {
     display: flex;
     justify-content: center;
-    margin-bottom: 37px;
+    margin-bottom: 46px;
     img {
-      width: 201px;
+      width: 200px;
       height: 200px;
     }
   }

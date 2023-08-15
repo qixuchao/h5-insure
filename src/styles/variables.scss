@@ -9,12 +9,12 @@
 // // linear-gradient(to right, #f70800, #ff5003));
 $primary-color: var(--van-primary-color);
 $btn-background: var(--van-button-primary-background-color); // 自定义主颜色背景颜色
-$text-color: #393D46; // 标准黑色字 主要文字颜色
+$text-color: #393d46; // 标准黑色字 主要文字颜色
 $label-color: #616161; // 次一级的描述文字颜色
 $tip-color: #909090; // 不重要提示文字颜色
 $label-color2: #c1c1c1;
 
-$zaui-line: #EEEFF4;//边框颜色
+$zaui-line: #dfdfdf; //边框颜色
 $zaui-base-size: 22px;
 // $zaui-base-size: 26.5px;
 // 卡片标题
@@ -137,4 +137,3 @@ $zaui-space-border-big: var(--zaui-space-border-big, 30px);
 $zaui-space-border-small: var(--zaui-space-border-small, 20px);
 // 单元格的最小高度
 $zaui-cell-height: 106px;
-

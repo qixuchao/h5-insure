@@ -6,28 +6,14 @@
         :labels="getRelationText(currentPlan?.insureProductRiskVOList || [], currentPlan.productRiskRelationVOList)"
       />
       <div class="container">
-        <Benefit
-          v-if="!hideBenefit && benefitData?.benefitRiskResultVOList"
-          class="benefit-wrap"
-          :data-source="benefitData"
-          :product-info="currentPlan"
-          :show-type-list="benefitData.showTypList"
-        />
-        <!-- 多计划 -->
-        <PlanSelect
-          v-if="isMultiPlan"
-          :plan-list="productInfo.planList"
-          :default-plan="currentPlan"
-          @plan-change="handlePlanChange"
-        />
         <!-- 这里放因子 -->
         <PersonalInfo
-          v-if="currentPlan.productFactor"
+          v-if="currentProductFactor"
           ref="personalInfoRef"
           :key="currentPlan.planCode"
           v-model="state.userData"
-          :is-trial="isTrial"
-          :product-factor="currentPlan.productFactor"
+          is-trial
+          :product-factor="currentProductFactor"
           :multi-insured-config="currentPlan?.multiInsuredConfigVO"
           @trail-change="handlePersonalInfoChange"
           @close-customer-popoup="handleClose"
@@ -35,45 +21,49 @@
       </div>
       <ProDivider size="large" />
       <div class="container">
+        <ProCard title="保障计划" class="insurePlan" :show-divider="false"></ProCard>
         <!-- 这里是标准险种信息 -->
-        <InsureInfos
-          ref="insureInfosRef"
-          :key="currentPlan.planCode"
-          :origin-data="currentPlan.insureProductRiskVOList?.[0]"
-          :product-factor="currentPlan.productFactor"
-          :default-value="
-            state.defaultValue ? state.defaultValue?.insuredList[0].productList[state.planIndex]?.riskList[0] : null
-          "
-          :trial-result="state.trialResult"
-          @trial-change="handleTrialInfoChange"
-        ></InsureInfos>
-      </div>
-      <div class="container">
-        <!-- 以下是附加险种信息 -->
-        <ProductRiskList
-          v-if="currentPlan.insureProductRiskVOList"
-          :key="currentPlan.planCode"
-          :data-source="currentPlan"
-          :show-main-risk="false"
-          :default-value="
-            state.defaultValue ? state.defaultValue?.insuredList[0].productList[state.planIndex]?.riskList : []
-          "
-          @trial-change="handleProductRiskInfoChange"
-        >
-          <template #holderForm>
-            <!-- 投保人豁免勾选时显示投保人 -->
-            <PersonalInfo
-              v-if="isTrial && dataSource.productFactor"
-              ref="personalInfoRef"
-              v-model="state.userData"
-              :is-trial="isTrial"
-              :is-only-holder="true"
-              :product-factor="dataSource.productFactor"
-              :multi-insured-config="dataSource?.multiInsuredConfigVO"
-              @trail-change="handlePersonalInfoChange"
-            />
-          </template>
-        </ProductRiskList>
+        <div v-if="Object.keys(productMap).length" class="product-list">
+          <div v-for="productCode in Object.keys(productMap)" :key="productCode" class="product-item">
+            <div
+              v-for="risk in productMap[productCode].productPlanInsureVOList[0].insureProductRiskVOList || []"
+              :key="`${productCode}-${risk.riskCode}`"
+              class="risk-item"
+            >
+              <ProTitle :title="risk.riskName" :risk-type="risk.riskType">
+                <div class="operate-bar">
+                  <div
+                    v-if="risk.riskType !== RISK_TYPE_ENUM.MAIN_RISK"
+                    class="add-risk btn"
+                    @click="addRiderRisk(risk.riskCode)"
+                  >
+                    +附加险
+                  </div>
+                  <div class="delete-risk btn" @click="addProduct">删除</div>
+                </div>
+              </ProTitle>
+              <InsureInfos
+                ref="insureInfosRef"
+                :origin-data="risk"
+                :product-factor="currentPlan.productFactor"
+                :default-value="
+                  state.defaultValue
+                    ? state.defaultValue?.insuredList[0].productList[state.planIndex]?.riskList[0]
+                    : null
+                "
+                :trial-result="state.trialResult"
+                @trial-change="handleTrialInfoChange"
+              ></InsureInfos>
+              <div class="premium-item">
+                <span class="label">首期保费</span>
+                <span class="price">¥{{ toLocal(100000.0) }}元</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="add-main-risk">
+          <ProCheckButton activated :round="34" @click="addProduct">+新增主险</ProCheckButton>
+        </div>
       </div>
       <div class="empty"></div>
     </div>
@@ -86,18 +76,16 @@
     ></slot>
   </div>
 </template>
-
 <script lang="ts" setup name="TrialBody">
 import { withDefaults, ref, defineExpose } from 'vue';
 import { Toast } from 'vant/es';
 import debounce from 'lodash-es/debounce';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { useRouter, useRoute } from 'vue-router';
+import InsureInfos from '@/views/baseInsurance/templates/components/Trial/InsureInfos.vue';
 import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
-import { PersonalInfo } from '@/views/baseInsurance/templates/long/InsureInfos/components/index';
+import PersonalInfo from '@/views/baseInsurance/templates/components/Trial/components/PersonalInfo/index.vue';
 import TrialButton from '../TrialButton.vue';
-import InsureInfos from '../../long/InsureInfos/index.vue';
-import ProductRiskList from '../../long/ProductRiskList/index.vue';
 import PlanSelect from '../../long/InsureInfos/components/PlanSelect/index.vue';
 import Benefit from '../Benefit/index.vue';
 import { PremiumCalcData, RiskVoItem } from '@/api/modules/trial.data';
@@ -121,7 +109,7 @@ import { transformData } from '@/views/baseInsurance/utils';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from '../../long/constants';
 import { nextStepOperate as nextStep } from '../../../nextStep';
 import pageJump from '@/utils/pageJump';
-import { jumpToNextPage } from '@/utils';
+import { jumpToNextPage, toLocal } from '@/utils';
 import { ProductFactor } from '@/components/RenderForm';
 
 const RISK_SELECT = [
@@ -140,6 +128,8 @@ interface Props {
   defaultData: any;
   isTrial: boolean;
   defaultOrder: any;
+  productCollection: object;
+  productFactor: object;
 }
 
 const LOADING_TEXT = '试算中...';
@@ -174,6 +164,11 @@ const props = withDefaults(defineProps<Props>(), {
   defaultData: null,
   isTrial: false,
   defaultOrder: () => ({}),
+  /**
+   * 多产品试算时，记录多个产品集合
+   */
+  productCollection: () => ({}),
+  productFactor: () => ({}),
 });
 
 const state = reactive({
@@ -208,6 +203,9 @@ const iseeBizNo = ref<string>();
 const currentShareInfo = ref<any>();
 const currentPlan = ref<any>(props.dataSource);
 const hasDefault = ref([]);
+
+const productMap = ref(); // 多产品集合
+const currentProductFactor = ref(); // 多产品对应投保要素的合集
 
 /**
  * 处理投被保人信息到state.submitData
@@ -578,9 +576,8 @@ const handleTrialAndBenefit = debounce(async (calcData: any, needCheck = true) =
 }, 500);
 
 const handleMixTrialData = debounce(async () => {
-  console.log('>>>>>调用试算<<<<<', state.ifPersonalInfoSuccess, personalInfoRef.value.canTrail());
   const { productCode, productName } = props.productInfo || {};
-  if (state.ifPersonalInfoSuccess || personalInfoRef.value.canTrail()) {
+  if (state.ifPersonalInfoSuccess || personalInfoRef.value?.canTrail?.()) {
     state.submitData.productCode = productCode;
     state.submitData.productName = productName;
     state.submitData.tenantId = props.productInfo.tenantId;
@@ -930,6 +927,29 @@ watch(
     immediate: true,
   },
 );
+
+watch(
+  () => props.productCollection,
+  (value) => {
+    productMap.value = value;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  () => props.productFactor,
+  (value) => {
+    currentProductFactor.value = value;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
 // watch(
 //   () => props.defaultData,
 //   (val) => {
@@ -944,6 +964,10 @@ watch(
 </script>
 
 <style scoped lang="scss">
+.operate-bar {
+  display: flex;
+  justify-content: flex-end;
+}
 .trial-button {
   padding: 30px;
   text-align: right;
@@ -957,6 +981,11 @@ watch(
 }
 
 .insurePlan {
+}
+
+.add-main-risk {
+  display: flex;
+  justify-content: center;
 }
 .com-body {
   // height: 100%;
@@ -992,6 +1021,53 @@ watch(
   .trial-body {
     overflow-y: scroll;
     flex: 1;
+
+    .product-item {
+      padding: 0 $zaui-card-border;
+      background: rgba(244, 245, 249, 0.5);
+      border-radius: 20px;
+      margin-bottom: 20px;
+      :deep(.van-cell) {
+        background: none;
+      }
+
+      .risk-item {
+        margin-bottom: $zaui-card-border;
+        :deep(.risk-title) {
+          .left-content {
+            width: 410px;
+          }
+          .operate-bar {
+            font-size: 28px;
+            font-weight: 500;
+            line-height: 40px;
+            .btn {
+              padding: 0 20px;
+            }
+            .add-risk {
+              color: var(--van-primary-color);
+              border-right: 1px solid #dfdfdf;
+            }
+            .delete-risk {
+              color: #999999;
+              padding-right: 0;
+            }
+          }
+        }
+        .premium-item {
+          display: flex;
+          justify-content: flex-end;
+          font-size: 30px;
+          font-weight: 400;
+          color: #393d46;
+          line-height: 106px;
+          .label {
+            margin-right: 10px;
+          }
+        }
+      }
+    }
+
     :deep(.com-pro-form-with-card.personal-info-card) .header {
       padding-left: 0;
     }

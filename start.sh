@@ -16,7 +16,7 @@ then
   then
     # 修改: Ship 开发环境 -> 应用编排 -> 高级配置 -> 环境变量, 保存并生效后等待服务重启
     # GATEWAY_PROJECT_ID 开发环境后端应用 ID
-    API_GATEWAY="http:\/\/$([ ${GATEWAY_PROJECT_ID} ] && echo "${GATEWAY_PROJECT_ID}-" || echo "")zat-planet-gateway.test.za-tech.net"
+    API_GATEWAY="http:\/\/$([ ${GATEWAY_PROJECT_ID} ] && echo "${GATEWAY_PROJECT_ID}-" || echo "")lian-planet-gateway.test.za-tech.net"
     # 银保信生产环境单独处理
   elif [ $DEPLOY_ENV = 'ybxk' ]
   then

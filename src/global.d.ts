@@ -109,6 +109,7 @@ declare module 'jquery'
 
 interface Window {
   AppJSInterface?: () => void;
+  FlutterWebBridge?: objet;
 
   webkit: {
     messageHandlers: () => void

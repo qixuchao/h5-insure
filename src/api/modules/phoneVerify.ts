@@ -11,7 +11,7 @@ import request from '../request';
 // 发送短信
 export const sendCode = (mobile: string) => {
   return request<ResponseData>({
-    url: `/api/app/insure/insurance/sendSmsCodeToC`,
+    url: `/api/app/insure/insurance/sendSmsCode`,
     method: 'POST',
     params: { mobile },
   });

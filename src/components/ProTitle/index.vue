@@ -58,14 +58,19 @@ const isShow = computed(() => {
   padding: 17px 0;
   &::after {
     content: ' ';
-    width: 720px;
+    width: 100%;
     height: 2px;
     background-color: $zaui-line;
+    transform: scaleY(0.5);
     position: absolute;
     bottom: 0;
     right: 0;
-    left: 30px;
+    left: 0;
     z-index: 1;
+  }
+  .van-cell {
+    padding-left: 0;
+    padding-right: 0;
   }
   :deep(.van-cell__title) {
     display: flex;
@@ -129,7 +134,7 @@ const isShow = computed(() => {
         }
       }
       .right-content {
-        width: 40px;
+        min-width: 40px;
         height: 40px;
       }
     }

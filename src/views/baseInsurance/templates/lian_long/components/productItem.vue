@@ -15,17 +15,14 @@
       </div>
       <slot name="checkedProduct"> </slot>
     </div>
-    <ProductTips :error-msg="errorMsg" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { withDefaults } from 'vue';
-import { ProposalItem } from '@/api/modules/proposalList.data';
-import ProductTips from './ProductTips.vue';
 
 interface Props {
-  productInfo: Partial<ProposalItem>;
+  productInfo: any;
   errorMsg: string;
 }
 
