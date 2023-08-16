@@ -111,7 +111,7 @@ const isShow = computed(() => {
           margin-right: 10px;
           // margin-right: var(--zaui-space-card);
           width: 40px;
-          background-color: $zaui-price;
+          background-color: #fb7035;
           font-size: 28px;
           line-height: 40px;
           padding: 0 6px;

@@ -54,7 +54,7 @@ const props = withDefaults(defineProps<Props>(), {
   justify-content: center;
   color: #393d46;
   font-weight: 400;
-  border: 2px solid #f6f7fc;
+  border: 0.5px solid #f6f7fc;
 
   &.activated {
     border-color: $primary-color;

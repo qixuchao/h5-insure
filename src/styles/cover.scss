@@ -164,11 +164,13 @@ body {
 .van-dialog {
   width: 560px;
   .van-dialog__message {
-    font-size: $zaui-font-size-md2;
-    color: $zaui-text;
+    font-size: 34px;
+    line-height: 48px;
+    color: #393d46;
+    font-weight: 500;
     text-align: center;
     width: 100%;
-    padding: 24px;
+    padding: 24px 54px;
   }
   .van-dialog__footer {
     display: flex;

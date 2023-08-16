@@ -117,6 +117,7 @@ export const queryCalcDynamicInsureFactor = (data: {}, config = {}) => {
     ...config,
   });
 };
+
 // 投保流程通讯录列表
 export const queryCustomerInsureList = (data: {}, config = {}) => {
   return request<any[]>({
@@ -126,3 +127,27 @@ export const queryCustomerInsureList = (data: {}, config = {}) => {
     ...config,
   });
 };
+
+// 获取主险产品列表
+export const queryListMainProduct = (data = {}) =>
+  request<Array<{ productCode: string; productName: string }>>({
+    url: '/api/app/insure/product/v2/listMainProduct',
+    method: 'POST',
+    data,
+  });
+
+// 获取可选附加险列表
+export const queryRiderRiskList = (data = {}) =>
+  request<Array<{ riskCode: string; riskName: string }>>({
+    url: '/api/app/insure/product/v2/queryRiderRiskList',
+    method: 'POST',
+    data,
+  });
+
+// 根据产品code和险种code组装产品详情
+export const mergeInsureFactor = (data = {}) =>
+  request<{ riskCode: string; riskName: string }>({
+    url: '/api/app/insure/product/v2/mergeInsureFactor',
+    method: 'POST',
+    data,
+  });

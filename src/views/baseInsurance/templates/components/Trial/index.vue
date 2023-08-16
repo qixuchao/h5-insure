@@ -12,7 +12,7 @@
           ref="personalInfoRef"
           :key="currentPlan.planCode"
           v-model="state.userData"
-          is-trial
+          :is-trial="isTrial"
           :product-factor="currentProductFactor"
           :multi-insured-config="currentPlan?.multiInsuredConfigVO"
           @trail-change="handlePersonalInfoChange"
@@ -39,7 +39,7 @@
                   >
                     +附加险
                   </div>
-                  <div class="delete-risk btn" @click="addProduct">删除</div>
+                  <div class="delete-risk btn" @click="deleteRisk(risk.mainRiskCode, risk.riskCode)">删除</div>
                 </div>
               </ProTitle>
               <InsureInfos
@@ -62,7 +62,7 @@
           </div>
         </div>
         <div class="add-main-risk">
-          <ProCheckButton activated :round="34" @click="addProduct">+新增主险</ProCheckButton>
+          <ProCheckButton activated @click="addMainRisk">+新增主险</ProCheckButton>
         </div>
       </div>
       <div class="empty"></div>
@@ -78,14 +78,12 @@
 </template>
 <script lang="ts" setup name="TrialBody">
 import { withDefaults, ref, defineExpose } from 'vue';
-import { Toast } from 'vant/es';
+import { Toast, Dialog } from 'vant/es';
 import debounce from 'lodash-es/debounce';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { useRouter, useRoute } from 'vue-router';
 import InsureInfos from '@/views/baseInsurance/templates/components/Trial/InsureInfos.vue';
-import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import PersonalInfo from '@/views/baseInsurance/templates/components/Trial/components/PersonalInfo/index.vue';
-import TrialButton from '../TrialButton.vue';
 import PlanSelect from '../../long/InsureInfos/components/PlanSelect/index.vue';
 import Benefit from '../Benefit/index.vue';
 import { PremiumCalcData, RiskVoItem } from '@/api/modules/trial.data';
@@ -102,10 +100,8 @@ import { SUCCESS_CODE } from '@/api/code';
 import { PRODUCT_KEYS_CONFIG } from '../../long/InsureInfos/components/ProductKeys/config';
 import { dealExemptPeriod, getRelationText } from './utils';
 import useOrder from '@/hooks/useOrder';
-import { formData2Order, trialData2Order } from '../../utils';
-import { ProductDetail, ProductDetail as ProductData } from '@/api/modules/newTrial.data';
+import { trialData2Order } from '../../utils';
 import { CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM, isNotEmptyArray } from '@/common/constants';
-import { transformData } from '@/views/baseInsurance/utils';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from '../../long/constants';
 import { nextStepOperate as nextStep } from '../../../nextStep';
 import pageJump from '@/utils/pageJump';
@@ -139,7 +135,15 @@ const insureInfosRef = ref(null);
 const route = useRoute();
 const router = useRouter();
 
-const emit = defineEmits(['trialStart', 'trialEnd', 'update:userData', 'closeCustomerPopoup']);
+const emit = defineEmits([
+  'trialStart',
+  'trialEnd',
+  'update:userData',
+  'closeCustomerPopoup',
+  'addRisk',
+  'addMainRisk',
+  'deleteRisk',
+]);
 
 const { tenantId, templateId, preview } = route.query;
 
@@ -207,6 +211,25 @@ const hasDefault = ref([]);
 const productMap = ref(); // 多产品集合
 const currentProductFactor = ref(); // 多产品对应投保要素的合集
 
+/* -------------------多产品逻辑--------------------------- */
+// 添加附加险
+const addRiderRisk = (mainRiskCode) => {
+  emit('addRisk');
+};
+
+// 添加主险
+const addMainRisk = () => {
+  emit('addMainRisk');
+};
+
+// 删除险种
+const deleteRisk = (mainRiskCode, riskCode) => {
+  Dialog.confirm({
+    message: '删除后将无法恢复，是否需要删除该产品？',
+  }).then(() => {
+    emit('deleteRisk', mainRiskCode, riskCode);
+  });
+};
 /**
  * 处理投被保人信息到state.submitData
  * @param data
@@ -986,6 +1009,11 @@ watch(
 .add-main-risk {
   display: flex;
   justify-content: center;
+  .com-check-btn {
+    width: 270px;
+    height: 70px;
+    border-radius: 45px;
+  }
 }
 .com-body {
   // height: 100%;
@@ -1086,7 +1114,7 @@ watch(
         padding-top: 20px;
       }
       .van-field__body {
-        display: unset;
+        display: flex;
       }
       .van-field__value {
         min-height: 74px;
@@ -1094,6 +1122,10 @@ watch(
       }
       .com-check-btn {
         font-size: 30px;
+        background-color: #ffffff;
+        &.activated {
+          background-color: var(--van-checkbox-checked-bg-color);
+        }
       }
     }
     :deep(.van-cell::after) {

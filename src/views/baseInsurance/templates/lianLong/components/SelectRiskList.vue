@@ -13,9 +13,15 @@
       <div v-if="riskList.length" class="risk-list">
         <van-radio-group v-model="checked">
           <van-cell-group inset>
-            <van-cell title="单选框 1" clickable @click="checked = '1'">
+            <van-cell
+              v-for="risk in riskList"
+              :key="risk.riskCode || risk.productCode"
+              :title="risk.riskName || risk.productName"
+              clickable
+              @click="checked = risk.riskCode || risk.productCode"
+            >
               <template #icon>
-                <van-radio name="1" />
+                <van-radio :name="risk.riskCode || risk.productCode" />
               </template>
             </van-cell>
           </van-cell-group>
@@ -26,18 +32,23 @@
   </ProPopup>
 </template>
 <script setup lang="ts" name="riskSelect">
-import { useToggle } from '@vant/use';
 import { withDefaults } from 'vue';
+import { queryRiderRiskList, queryListMainProduct } from '@/api/modules/trial';
+import { RISK_TYPE_ENUM } from '@/common/constants/trial';
 
 interface Props {
-  type: 'main' | 'rider';
+  type: 1 | 2;
   show: boolean;
   title: string;
+  insuredList: any[];
+  mainRiskCode?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  type: 'main',
+  type: 2,
   show: false,
+  insuredList: () => [],
+  mainRiskCode: '',
 });
 
 const emits = defineEmits(['cancel', 'confirm']);
@@ -54,7 +65,25 @@ const handleConfirm = () => {
   emits('confirm');
 };
 
-const getRiskList = () => {};
+const getRiskList = async () => {
+  const params = {
+    insuredVO: props.insuredList,
+    mainRiskCode: props.mainRiskCode,
+    insurerCode: '',
+    productCategory: '',
+  };
+  if (props.type === RISK_TYPE_ENUM.MAIN_RISK) {
+    const { code, data } = await queryListMainProduct(params);
+    if (code === '10000') {
+      riskList.value = data;
+    }
+  } else {
+    const { code, data } = await queryRiderRiskList(params);
+    if (code === '10000') {
+      riskList.value = data;
+    }
+  }
+};
 
 onMounted(() => {
   getRiskList();

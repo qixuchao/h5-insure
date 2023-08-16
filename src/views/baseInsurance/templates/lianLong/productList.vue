@@ -1,75 +1,71 @@
 <template>
-  <van-config-provider :theme-vars="themeVars">
-    <ProPageWrap class="page-proposal">
-      <div class="search-wrap">
-        <van-search v-model="searchValue" placeholder="搜索计划书" shape="round" class="search" @search="onSearch" />
-        <InsureFilter filter-class="filter-area" @on-select-insure="handleClickTag" />
-      </div>
-      <ProEmpty
-        v-if="!hasProduct && !state.firstLoading"
-        :empty-img="emptyImg"
-        title="没有找到相关内容~"
-        empty-class="empty-select"
+  <ProPageWrap class="page-proposal">
+    <div class="search-wrap">
+      <van-search
+        v-model="searchValue"
+        placeholder="请输入产品名称进行搜索"
+        shape="round"
+        class="search"
+        clear-trigger="always"
+        show-action
+        clearable
+        @search="onSearch"
       />
-      <div class="page-proposal-list">
-        <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
-          <van-list
-            v-model:loading="loading"
-            :finished="finished"
-            :finished-text="hasProduct ? '-&nbsp;已经到底了哦&nbsp;-' : ''"
-            @load="onLoad"
-          >
-            <ProductItem
-              v-for="productItem in productList"
-              :key="productItem.id"
-              :product-info="productItem"
-              :error-msg="state.errorMsgMap[productItem.productCode]"
-              @click="selectProposal(productItem)"
-            >
-              <template v-if="isCreateProposal" #checkedProduct>
-                <div class="check-button">
-                  <van-checkbox
-                    :key="productItem.id"
-                    :name="productItem.productCode"
-                    :model-value="state.selectProduct.includes(productItem.productCode)"
-                    shape="square"
-                    @change="(event) => onSelect(event, productItem)"
-                  ></van-checkbox>
-                </div>
-              </template>
-            </ProductItem>
-          </van-list>
-        </van-pull-refresh>
+      <div class="article-tag">
+        <div
+          v-for="(item, index) in PRODUCT_CATEGORY"
+          :key="index"
+          class="tag-item"
+          :class="{ checked: indexCheck === index }"
+          @click="onClickTag(item.value, index)"
+        >
+          <div class="tag-out" :class="{ checked: indexCheck == index }">
+            <div class="tag-item-text" :class="{ checked: indexCheck == index }">{{ item.label }}</div>
+          </div>
+        </div>
       </div>
-    </ProPageWrap>
-  </van-config-provider>
+    </div>
+    <ProEmpty
+      v-if="!hasProduct && !state.firstLoading"
+      :empty-img="emptyImg"
+      title="暂无产品"
+      empty-class="empty-select"
+    />
+    <div class="page-proposal-list">
+      <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
+        <van-list
+          v-model:loading="loading"
+          :finished="finished"
+          :finished-text="hasProduct ? '-&nbsp;已经到底了哦&nbsp;-' : ''"
+          @load="onLoad"
+        >
+          <ProductItem
+            v-for="productItem in productList"
+            :key="productItem.id"
+            :product-info="productItem"
+            :error-msg="state.errorMsgMap[productItem.productCode]"
+            @click="selectProposal(productItem)"
+          >
+          </ProductItem>
+        </van-list>
+      </van-pull-refresh>
+    </div>
+  </ProPageWrap>
 </template>
 
 <script setup lang="ts" name="productList">
 import { useToggle } from '@vant/use';
 import { useRouter, useRoute } from 'vue-router';
-import { withDefaults } from 'vue';
 import { Toast } from 'vant';
 import emptyImg from '@/assets/images/empty.png';
 import ProductItem from './components/productItem.vue';
 import createProposalStore from '@/store/proposal/createProposal';
 import { queryProposalProductList } from '@/api/modules/proposalList';
-import { queryCalcDefaultInsureFactor, queryCalcDynamicInsureFactor, insureProductDetail } from '@/api/modules/trial';
-import useTheme from '@/hooks/useTheme';
-import InsureFilter from '@/views/proposal/proposalList/components/insureFilter.vue';
-
-interface Props {
-  isCreateProposal: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  isCreateProposal: true,
-});
+import { PRODUCT_CATEGORY } from '@/common/constants';
 
 interface StateType {
   searchValue: string;
   tagLists: any[];
-  isOpen: boolean;
   loading: boolean;
   finished: boolean;
   refreshing: boolean;
@@ -96,13 +92,10 @@ interface StateType {
 const store = createProposalStore();
 const router = useRouter();
 const route = useRoute();
-const { isCreateProposal } = route.query;
-const themeVars = useTheme();
 
 const state = reactive<StateType>({
   searchValue: '',
   tagLists: [],
-  isOpen: true,
   loading: false,
   finished: false,
   refreshing: false,
@@ -130,7 +123,6 @@ const state = reactive<StateType>({
 const {
   searchValue,
   tagLists,
-  isOpen,
   loading,
   finished,
   refreshing,
@@ -144,8 +136,6 @@ const {
 
 const [showProductRisk, toggleProductRisk] = useToggle();
 const [showSelectProduct, toggleSelectProduct] = useToggle();
-
-// const addProposalType = ref<any>(isCreateProposal ? 'repeatAdd' : 'add');
 
 const getProducts = () => {
   const { excludeProductCodeList } = state;
@@ -177,10 +167,10 @@ const onSearch = (val: string) => {
   getProducts();
 };
 
-const handleClickTag = (val: any) => {
-  const { selectInsureCode, selectCategory } = val;
-  insurerCodeList.value = selectInsureCode;
-  showCategory.value = selectCategory;
+const indexCheck = ref<number>(0);
+const onClickTag = (id: any, index: number) => {
+  indexCheck.value = index;
+  showCategory.value = id;
   getProducts();
 };
 
@@ -196,102 +186,17 @@ const onLoad = () => {
   }
 };
 
-const goHistoryList = () => {
-  router.push({
-    path: 'historyProposalList',
-  });
-};
-
-const insured = computed(() => {
-  const { birthday, gender } = store.$state.proposalInfo.proposalInsuredList?.[0] || {};
-  return { birthday, gender };
-});
-
 const hasProduct = computed(() => {
   return productList.value.length > 0;
 });
 
-const fetchDefaultData = async (productCode, callback) => {
-  // TODO 加loading
-  const { code, data, message } = await queryCalcDefaultInsureFactor(
-    {
-      ...store.$state.insuredPersonVO,
-      calcProductFactorList: [
-        {
-          productCode,
-        },
-      ],
-    },
-    {
-      isCustomError: true,
-    },
-  );
-  if (code === '10000') {
-    state.errorMsgMap[productCode] = '';
-    typeof callback === 'function' && callback(true);
-  } else {
-    state.errorMsgMap[productCode] = message;
-  }
-};
-
-// const selectedProductList = computed(() =>
-//   productList.value.filter((item) => state.selectProduct.includes(item.productCode)),
-// );
-
-/** ****** 创建计划书相关逻辑 ******** */
-// eslint-disable-next-line consistent-return
 const selectProposal = ({ productCode }: any) => {
-  // showFooter.value = false;
-
-  // 如果是列表页
-  if (!isCreateProposal) {
-    // store.setInsuredPersonVO({});
-    router.push({
-      path: '/proposal/createProposal',
-      query: {
-        productCode,
-      },
-    });
-    return false;
-  }
-
-  state.productCode = productCode;
-  // 已存在
-  if (state.selectProduct.includes(productCode)) {
-    state.selectProduct = state.selectProduct.filter((code) => code !== productCode);
-    return false;
-  }
-
-  fetchDefaultData(productCode, () => {
-    state.selectProduct.push(productCode);
+  router.push({
+    path: '/proposal/createProposal',
+    query: {
+      productCode,
+    },
   });
-};
-
-/** 购物车选择产品操作 */
-const checkProductRisk = (checked: any[]) => {
-  state.selectProduct = checked;
-  state.selectedProductList = state.selectedProductList.filter((item) => checked.includes(item.productCode));
-};
-
-/** 选择产品，切换类型，只能保存产品数据 */
-const onSelect = (flag, productItem) => {
-  if (flag) {
-    state.selectedProductList.push(productItem);
-  } else {
-    state.selectedProductList = state.selectedProductList.filter(
-      (item) => item.productCode !== productItem.productCode,
-    );
-  }
-};
-
-const addProposal = () => {
-  const selectedProduct = state.proposalList.filter((proposal) => {
-    return state.selectProduct.includes(proposal.proposalInsuredList[0].proposalInsuredProductList[0].productCode);
-  });
-  store.setTrialData(selectedProduct);
-  store.setSelectedProduct(state.selectProduct);
-  store.setSelectedProductList(state.selectedProductList);
-  router.back();
 };
 
 const onRefresh = () => {
@@ -303,10 +208,6 @@ const onRefresh = () => {
   loading.value = true;
   onLoad();
 };
-
-onBeforeMount(() => {
-  state.excludeProductCodeList = store.$state.excludeProduct;
-});
 </script>
 
 <style scoped lang="scss">
@@ -329,6 +230,7 @@ onBeforeMount(() => {
   top: 0;
   z-index: 999;
   background: #ffffff;
+  padding: 0 30px;
   :deep(.van-search) {
     .van-field__body {
       width: 100%;
@@ -343,14 +245,72 @@ onBeforeMount(() => {
     width: 100%;
     min-height: 56px;
     line-height: 56px;
+    padding: 16px 0;
     .van-search__content {
-      border-radius: 8px;
       background: #f4f5f7;
       .van-cell {
         padding: 0;
         .van-field__left-icon {
           font-size: 18px;
           font-weight: bold;
+        }
+        .van-field__clear {
+          margin-right: none;
+        }
+      }
+    }
+  }
+}
+
+.article-tag {
+  overflow: auto;
+  display: flex;
+  width: 100%;
+  height: 70px;
+  padding-bottom: 24px;
+  white-space: nowrap;
+  margin-top: 8px;
+
+  .tag-item {
+    margin-right: $zaui-space-card;
+    .trianele-out {
+      display: flex;
+      justify-content: center;
+      padding-right: 20px;
+
+      .triangle {
+        width: 0;
+        height: 0;
+        border-left: 17px solid transparent;
+        border-right: 17px solid transparent;
+        border-top: 18px solid $primary-color;
+      }
+    }
+
+    .tag-out:last-child {
+      margin-right: 0;
+    }
+
+    .tag-out {
+      height: 50px;
+      line-height: 50px;
+      background: #f4f5f7;
+      border-radius: 25px;
+      padding: 0 34px;
+      margin-right: 20px;
+
+      &.checked {
+        background: $btn-background;
+      }
+
+      .tag-item-text {
+        font-size: $zaui-font-size-md;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: #959595;
+
+        &.checked {
+          color: #ffffff;
         }
       }
     }

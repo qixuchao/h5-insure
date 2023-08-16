@@ -13,16 +13,14 @@
       objectId: state.holder.personVO.id,
     }"
   >
-    <template #cardTitleExtra
-      ><div
-        v-if="!isShare && !isView && !isTrial && isApp"
+    <template #customer>
+      <div
+        v-if="true || (!isShare && !isView && !isTrial && isApp)"
         class="choose-customer"
         @click="chooseCustomers('holder', 1, 0)"
       >
-        <img src="@/assets/images/baseInsurance/customer.png" />
-        选择老用户
-      </div></template
-    >
+        <img src="@/assets/images/baseInsurance/customer.png" /></div
+    ></template>
   </ProRenderFormWithCard>
   <!-- 被保人 -->
   <template v-if="hasInsuredSchema && !isOnlyHolder">

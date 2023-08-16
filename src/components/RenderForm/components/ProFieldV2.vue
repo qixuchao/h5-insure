@@ -13,6 +13,9 @@
     <template v-if="isView" #input>
       <ValueView :value="valueView" />
     </template>
+    <template v-if="slots?.customer && ruleType === 'name'" #right-icon>
+      <slot name="customer"></slot>
+    </template>
     <!-- 继承 slots -->
     <template v-for="slotName in Object.keys(slotskeyMap)" :key="slotName" #[slotName]="slotParams">
       <slot :name="slotskeyMap?.[slotName]" v-bind="slotParams || {}" />

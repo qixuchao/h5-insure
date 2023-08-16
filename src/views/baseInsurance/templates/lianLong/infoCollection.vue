@@ -1,7 +1,7 @@
 <template>
   <div class="long-info-collection">
     <ProNavigator />
-    <TrialBody
+    <Trial
       v-if="isLoading || preview"
       ref="personalInfoRef"
       :data-source="currentPlanObj"
@@ -14,12 +14,14 @@
       }"
       :tenant-product-detail="tenantProductDetail"
       hide-benefit
-      :default-data="[state.defaultValue]"
+      :product-collection="productCollection"
+      :default-value="orderDetail"
+      :product-factor="productFactor"
       @trial-start="handleTrialStart"
       @trial-end="handleTrialEnd"
       @update:user-data="(val) => (state.userData = val)"
     >
-    </TrialBody>
+    </Trial>
 
     <PayInfo
       v-if="state.payInfo.schema.length"
@@ -107,7 +109,7 @@ import {
 } from '@/common/constants';
 import { formData2Order, orderData2trialData, trialData2Order } from '../utils';
 import { jumpToNextPage } from '@/utils';
-import TrialBody from '../components/TrialBody/index.vue';
+import Trial from '../components/Trial/index.vue';
 import { setGlobalTheme } from '@/hooks/useTheme';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
@@ -185,8 +187,8 @@ const shareInfo = ref({
 });
 
 const payInfoRef = ref<InstanceType<typeof PayInfo>>();
-const trialRef = ref<InstanceType<typeof TrialBody>>();
-const personalInfoRef = ref<InstanceType<typeof TrialBody>>();
+const trialRef = ref<InstanceType<typeof Trial>>();
+const personalInfoRef = ref<InstanceType<typeof Trial>>();
 const tenantProductDetail = ref<Partial<ProductDetail>>({}); // 核心系统产品信息
 const insureProductDetail = ref<Partial<InsureProductData>>({}); // 产品中心产品信息
 
@@ -404,6 +406,8 @@ const queryProductMaterialData = () => {
 const order = reactive({
   tenantOrderPayInfoList: [],
 });
+const productCollection = ref({});
+const productFactor = ref();
 const initData = async () => {
   querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
     if (code === '10000') {
@@ -415,9 +419,6 @@ const initData = async () => {
       } else {
         // 设置分享参数
         Object.assign(shareInfo.value, { title, desc, imgUrl: image, isShare: showWXShare });
-      }
-      if (data.BASIC_INFO && data.BASIC_INFO.themeType) {
-        setGlobalTheme(data.BASIC_INFO.themeType);
       }
     }
   });
@@ -451,6 +452,9 @@ const initData = async () => {
 
   await getInsureProductDetail({ productCode, isTenant: !preview }).then(({ data, code }) => {
     if (code === '10000') {
+      console.log('data', data, productCode);
+      productCollection.value[`${productCode}`] = data;
+      productFactor.value = data?.productPlanInsureVOList?.[0]?.productFactor;
       insureProductDetail.value = data;
       currentPlanObj.value =
         data.productPlanInsureVOList.find(
