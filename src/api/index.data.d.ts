@@ -428,6 +428,21 @@ export interface ProductInsureNoticeResVo {
   noticeObject: number;
 }
 
+export interface Trajectory {
+  name: string;
+  status: string;
+  time: string;
+  step: string
+}
+
+export interface CustomerResponseData {
+  addressInfo:Array,
+  bankCardInfo:Array,
+  contactInfo:Array,
+  certInfo:Array,
+  data: Record<string, any>,
+}
+
 
 
 

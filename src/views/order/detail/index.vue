@@ -1,35 +1,51 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
-    <div v-if="detail" class="page-order-detail">
-      <div class="card">
-        <FieldInfo>
-          <template #label>
-            <div class="header">
-              <div class="product-name">
-                {{ detail?.insuredList[0]?.productList[0]?.productName }}
-              </div>
-              <div class="company-name">{{ (detail?.abbreviation || '').substring(0, 6) }}</div>
-            </div>
-          </template>
-          <template #content>
-            <div class="status">{{ !!detail ? ORDER_STATUS_MAP[detail?.orderStatus] : '' }}</div>
-          </template>
-        </FieldInfo>
-        <FieldInfo label="投保单号" :content="detail?.orderNo" />
-        <FieldInfo label="创建时间" :content="dayjs(detail?.gmtCreated).format('YYYY-MM-DD HH:mm:ss')" />
-        <FieldInfo label="投保人" :content="detail?.holder?.name" />
-        <FieldInfo
-          v-for="(item, index) in detail?.insuredList || []"
-          :key="index"
-          label="被保人"
-          :content="item.name"
-        />
+    <div class="page-order-detail">
+      <div class="card card-head" @click="handleClick">
+        <div class="card-item-name">订单进度</div>
+        <div class="card-item-icon">
+          人工核保
+          <ProSvg name="arrow-right"></ProSvg>
+        </div>
       </div>
-      <InsureInfo
+      <div class="card card-list">
+        <p class="card-list-title">健利保倍享版</p>
+        <InfoItem label="订单号" :content="detail?.policyHolder" line is-copy min-width="other" />
+        <InfoItem label="投保单号" content="P412312321312323" line is-copy min-width="other" />
+        <InfoItem
+          label="创建时间"
+          :content="dayjs(detail?.orderStartDate).format('YYYY-MM-DD HH:mm:ss')"
+          line
+          min-width="other"
+        />
+        <InfoItem
+          label="投保时间"
+          :content="dayjs(detail?.orderStartDate).format('YYYY-MM-DD HH:mm:ss')"
+          line
+          min-width="other"
+        />
+        <InfoItem label="投保保费" content="¥2,000.00" line min-width="other" />
+        <InfoItem label="承保保费" content="¥2,000.00" line min-width="other" />
+      </div>
+      <div class="card card-list">
+        <div class="card-list-head">
+          <div class="card-list-title">险种信息</div>
+          <div class="card-list-premium">首年保费：<span>¥1,289.00</span></div>
+        </div>
+        <ProTable v-if="dataSource.length > 0" :columns="columns" class="table" :data-source="dataSource" />
+      </div>
+      <van-collapse v-model="activeList">
+        <van-collapse-item title="标题1" name="1"> 代码是写出来给人看的，附带能在机器上运行。 </van-collapse-item>
+        <van-collapse-item title="标题2" name="2"> 技术无非就是那些开发它的人的共同灵魂。 </van-collapse-item>
+        <van-collapse-item title="标题3" name="3">
+          在代码阅读过程中人们说脏话的频率是衡量代码质量的唯一标准。
+        </van-collapse-item>
+      </van-collapse>
+      <!-- <InsureInfo
         :product-data="detail?.insuredList?.[0]?.productList?.[0]"
-        :total-premium="detail.orderAmount"
+        :total-premium="detail?.orderAmount"
         class="insure-info"
-      />
+      /> -->
       <div v-loading="loading">
         <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.PENDING" class="footer-button">
           <van-button type="primary" @click.stop="handleDelete">删除</van-button>
@@ -71,16 +87,117 @@ import pageJump from '@/utils/pageJump';
 import useTheme from '@/hooks/useTheme';
 import { getPayUrl } from '@/api/modules/cashier';
 import { sendPay } from '@/views/cashier/core';
+import InfoItem from '../components/infoItem.vue';
 
 const themeVars = useTheme();
 const route = useRoute();
 const router = useRouter();
 const detail = ref<NextStepRequestData>();
+const activeList = ref<string[]>([]);
+const columns = [
+  {
+    title: '险种名称',
+    dataIndex: 'key1',
+    width: 200,
+  },
+  {
+    title: '保险金额/份数',
+    dataIndex: 'key2',
+    width: 180,
+  },
+  {
+    title: '保障期间',
+    dataIndex: 'key3',
+    width: 180,
+  },
+  {
+    title: '交费期间',
+    dataIndex: 'key4',
+    width: 180,
+  },
+  {
+    title: '首期保费',
+    dataIndex: 'key5',
+    width: 180,
+    render(row: any, index: number) {
+      return row.key1 + index;
+    },
+  },
+];
 
+const dataSource = [
+  {
+    key1: '众安家庭共享保额意外险',
+    key2: '50万',
+    key3: '1年期',
+    key4: '一次交清',
+    key5: '988.00',
+    key6: 'columnA',
+    key7: 'columnB',
+  },
+  {
+    key1: '众安家庭共享保额意外险',
+    key2: '50万',
+    key3: '1年期',
+    key4: '一次交清',
+    key5: '988.00',
+    key6: 'columnA',
+    key7: 'columnB',
+  },
+  {
+    key1: '众安家庭共享保额意外险',
+    key2: '50万',
+    key3: '1年期',
+    key4: '一次交清',
+    key5: '988.00',
+    key6: 'columnA',
+    key7: 'columnB',
+  },
+  {
+    key1: '众安家庭共享保额意外险',
+    key2: '50万',
+    key3: '1年期',
+    key4: '一次交清',
+    key5: '988.00',
+    key6: 'columnA',
+    key7: 'columnB',
+  },
+  {
+    key1: '众安家庭共享保额意外险',
+    key2: '50万',
+    key3: '1年期',
+    key4: '一次交清',
+    key5: '988.00',
+    key6: 'columnA',
+    key7: 'columnB',
+  },
+  {
+    key1: '众安家庭共享保额意外险',
+    key2: '50万',
+    key3: '1年期',
+    key4: '一次交清',
+    key5: '988.00',
+    key6: 'columnA',
+    key7: 'columnB',
+  },
+  {
+    key1: '众安家庭共享保额意外险',
+    key2: '50万',
+    key3: '1年期',
+    key4: '一次交清',
+    key5: '988.00',
+    key6: 'columnA',
+    key7: 'columnB',
+  },
+];
 const {
-  query: { orderNo, agentCode, tenantId, abbreviation, productCategory },
+  query: { orderNo, agentCode, tenantId, abbreviation, productCategory, applicationNo },
 } = route;
+const handleClick = () => {
+  console.log(orderNo, 'orderNo================');
 
+  pageJump('orderTrajectory', { orderNo, agentCode, tenantId, abbreviation, productCategory, applicationNo });
+};
 const handleDelete = () => {
   Dialog.confirm({
     title: '确认',
@@ -195,10 +312,28 @@ onMounted(() => {
     border-radius: 20px;
     margin-top: 30px;
   }
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    padding: 37px 30px;
+    margin-top: 30px;
+    .card-item-name {
+      font-size: 30px;
+      font-weight: 500;
+      color: #393d46;
+      line-height: 42px;
+    }
+    .card-item-icon {
+      font-size: 30px;
+      font-weight: 400;
+      color: #333333;
+      line-height: 42px;
+    }
+  }
   .card {
     background: #fff;
     border-radius: 20px;
-    margin-top: 30px;
+    margin-top: 20px;
     &:first-child {
       margin-top: 0;
     }
@@ -250,6 +385,31 @@ onMounted(() => {
         margin-right: 16px;
       }
     }
+  }
+  .card-list {
+    padding: 30px;
+    .card-list-head {
+      display: flex;
+      justify-content: space-between;
+    }
+    .card-list-title {
+      font-size: 30px;
+      font-weight: 500;
+      color: #393d46;
+      line-height: 42px;
+    }
+    .card-list-premium {
+      font-size: 26px;
+      font-weight: 400;
+      color: #333333;
+      line-height: 37px;
+      span {
+        color: #c41e21;
+      }
+    }
+  }
+  .table {
+    margin-top: 30px;
   }
 }
 </style>

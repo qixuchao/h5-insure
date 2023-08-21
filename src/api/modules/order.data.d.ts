@@ -30,6 +30,7 @@ export interface OrderItem {
   insurerCode: string;
   productCategory: string;
   saleChannelId?: number;
+  applicationNo: string;
 }
 
 export interface Sort {
@@ -822,6 +823,24 @@ export interface ContactInfo {
     contactName: string;
     contactPhoneNo: string;
 }
+export interface ApplicationResList {
+    invalidNum: number;
+    totalNum: number;
+    validNum: number;
+    applicationResList: Record<string, any>;
+}
+export interface NewOrderListResponse {
+    condition: Condition;
+    datas: ApplicationResList[];
+    offset: number;
+    pageNum: number;
+    pageSize: number;
+    queryAll: boolean;
+    sortCondition: string;
+    sorts: Sort[];
+    total: number;
+}
+
 
 
 

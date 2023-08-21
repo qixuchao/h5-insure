@@ -1,14 +1,6 @@
-<!--
- * @Author: za-qixuchao qixuchao@zhongan.io
- * @Date: 2022-07-28 10:28:12
- * @LastEditors: zhaopu
- * @LastEditTime: 2022-11-11 18:16:33
- * @FilePath: /zat-planet-h5-cloud-insure/src/views/order/components/fieldInfo.vue
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
--->
 <template>
   <div :class="['com-field-info', line ? 'com-field-info-line' : '']">
-    <div v-if="label" class="label">
+    <div v-if="label" :class="['label', minWidth]">
       {{ label }}
     </div>
     <slot v-if="!!slots.label" name="label" />
@@ -16,10 +8,16 @@
       {{ content }}
     </div>
     <slot v-if="!!slots.content" name="content" />
+    <div v-if="isCopy" class="link" @click="onCopy">
+      <ProSvg name="copy" class="icon" />
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { Dialog, Loading, Radio, RadioGroup, Toast } from 'vant';
+import { useClipboard } from '@vueuse/core';
+
 const slots = useSlots();
 const props = defineProps({
   label: {
@@ -34,18 +32,31 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isCopy: {
+    type: Boolean,
+    default: false,
+  },
+  minWidth: {
+    type: String,
+    default: '',
+  },
 });
+const { copy, copied, isSupported } = useClipboard();
+const onCopy = () => {
+  console.log(props.content, 'props.content=====');
+  copy(props.content);
+  Toast('复制成功');
+};
 </script>
 
 <style lang="scss" scoped>
 .com-field-info {
-  min-height: 106px;
-  line-height: 106px;
   display: flex;
-  justify-content: space-between;
-  font-size: 30px;
+  font-size: 26px;
   color: #666666;
   border-bottom: 1px solid $zaui-line;
+  font-weight: 400;
+  margin-top: 12px;
   &:last-child {
     border-bottom: none;
   }
@@ -54,13 +65,20 @@ const props = defineProps({
   }
   .label {
     min-width: 130px;
+    line-height: 37px;
+  }
+  .other {
+    min-width: 260px;
   }
   .content {
     display: flex;
     align-items: center;
     word-break: break-all;
-    line-height: 53px !important;
+    line-height: 37px;
     text-align: right;
+  }
+  .link {
+    margin-left: 24px;
   }
 }
 </style>

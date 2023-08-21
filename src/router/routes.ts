@@ -196,6 +196,22 @@ const baseInsurance = [
     meta: { title: '', requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianLong/result.vue'),
   },
+  // 客户列表
+  {
+    name: 'Customer',
+    path: '/customer',
+    meta: { title: '', requireWxJs: false },
+    component: () =>
+      import('@/views/baseInsurance/templates/components/Trial/components/PersonalInfo/components/CustomerList.vue'),
+  },
+  // 客户详情
+  {
+    name: 'CustomerDetail',
+    path: '/customerDetail',
+    meta: { title: '', requireWxJs: false },
+    component: () =>
+      import('@/views/baseInsurance/templates/components/Trial/components/PersonalInfo/components/detail/index.vue'),
+  },
 ];
 
 const asyncRoutes: Array<RouteRecordRaw> = [
@@ -265,6 +281,12 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     path: '/orderDetail',
     meta: { title: '投保单详情' },
     component: () => import('@/views/order/detail/index.vue'),
+  },
+  {
+    name: 'orderTrajectory',
+    path: '/orderTrajectory',
+    meta: { title: '订单轨迹' },
+    component: () => import('@/views/order/trajectory/index.vue'),
   },
   {
     name: 'pdfViewer',

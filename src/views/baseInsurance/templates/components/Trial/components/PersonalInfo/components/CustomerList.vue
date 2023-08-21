@@ -1,11 +1,12 @@
 <template>
-  <ProPopup
+  <!-- <ProPopup
     :class="`com-trial-wrap ${$attrs.class}`"
     :show="isShow"
     :closeable="false"
     @close="onClosePopup"
     @closed="onClosePopupAfterAni"
-  >
+  > -->
+  <div>
     <div class="search-bar">
       <van-search
         v-model="state.keyword"
@@ -19,8 +20,9 @@
         </template>
       </van-search>
     </div>
-    <List :data="state.list" :type="order" :disabled="false" @on-close="onClickClosePopup" />
-  </ProPopup>
+    <List :data="state.list" type="order" :disabled="false" @on-close="onClickClosePopup" />
+  </div>
+  <!-- </ProPopup> -->
 </template>
 <script lang="ts" setup name="CustomerList">
 import { withDefaults, ref, defineExpose } from 'vue';

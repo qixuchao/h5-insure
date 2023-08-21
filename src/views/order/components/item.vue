@@ -1,27 +1,26 @@
 <template>
   <div class="com-order-item">
     <div class="header">
-      <div class="product-name">{{ detail.goodsName }}</div>
+      <div class="product-name">{{ detail.productName }}</div>
       <!-- <div class="company-name">{{ ('众安保险科技有限' || detail.abbreviation || '').substring(0, 6) }}</div> -->
       <div class="status">{{ ORDER_STATUS_MAP[detail.orderStatus] }}</div>
     </div>
     <div class="info">
-      <div class="info-item">
-        <div class="label">投保人</div>
-        <div class="desc">
-          {{ detail.policyHolder }}
+      <InfoItem label="订单号" :content="detail.policyHolder" line is-copy />
+      <InfoItem label="投保单号" :content="detail.applicationNo" line is-copy />
+      <InfoItem label="保单号" :content="detail.policyNo" line is-copy />
+      <div class="info-bottom">
+        <div>
+          <InfoItem label="投保人" :content="detail.holderName" line />
+          <InfoItem label="被保人" :content="detail.insuredName" line />
+          <InfoItem label="创建时间" :content="dayjs(detail.orderStartDate).format('YYYY-MM-DD HH:mm:ss')" line />
         </div>
-      </div>
-      <div class="info-item">
-        <div class="label">创建时间</div>
-        <div class="desc">
-          {{ dayjs(detail.orderStartDate).format('YYYY-MM-DD HH:mm:ss') }}
-        </div>
+        <div style="width: 25%"><img src="@/assets/images/component/tree.png" alt="" style="width: 80%" /></div>
       </div>
     </div>
     <div class="footer">
       <div class="fee">
-        保费：<span class="money">￥{{ detail.prem }}</span>
+        保费：<span class="money">￥{{ detail.premium }}</span>
       </div>
       <div v-if="detail.orderTopStatus === ORDER_TOP_STATUS_ENUM.PENDING" class="buttons">
         <van-button class="button" @click.stop="handleDelete">删除</van-button>
@@ -52,12 +51,13 @@ import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP, ORDER_TOP_STATUS_ENUM } from '@/co
 import { PAGE_ROUTE_ENUMS, PRODUCT_LIST_ENUM } from '@/common/constants';
 import { TEMPLATE_TYPE_ENUM } from '@/views/baseInsurance/constant';
 import pageJump from '@/utils/pageJump';
+import InfoItem from './infoItem.vue';
 
 const emits = defineEmits(['afterDelete']);
 const router = useRouter();
 const props = defineProps({
   detail: {
-    type: Object as () => OrderItem,
+    type: Object,
     default: () => {},
   },
 });
@@ -183,11 +183,11 @@ const handleProcess = () => {
 
 <style lang="scss" scoped>
 .com-order-item {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   background: #fff;
-  border-radius: 20px;
+  border-radius: 10px;
   width: 100%;
-  padding: 30px 30px 30px 20px;
+  padding: 30px;
   .header {
     display: flex;
     align-items: center;
@@ -199,7 +199,8 @@ const handleProcess = () => {
       text-overflow: ellipsis;
       font-size: 30px;
       font-weight: 500;
-      color: #393d46;
+      color: #333333;
+      line-height: 42px;
     }
     .company-name {
       flex: 0 0 160px;
@@ -215,7 +216,9 @@ const handleProcess = () => {
     .status {
       margin-left: 30px;
       font-size: 26px;
-      color: #99a9c0;
+      font-weight: 400;
+      color: #0d6efe;
+      line-height: 37px;
     }
   }
   .holder {
@@ -231,7 +234,7 @@ const handleProcess = () => {
     color: #99a9c0;
     line-height: 33px;
     padding: 30px 0;
-    border-bottom: 1px dashed #eeeff4;
+    border-bottom: 1px dashed #dfdfdf;
     .info-item {
       display: flex;
       margin-top: 12px;
@@ -246,6 +249,10 @@ const handleProcess = () => {
         margin-left: 30px;
       }
     }
+  }
+  .info-bottom {
+    display: flex;
+    justify-content: space-between;
   }
   .footer {
     display: flex;

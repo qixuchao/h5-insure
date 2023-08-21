@@ -42,6 +42,7 @@ import { useRoute, useRouter } from 'vue-router';
 import female from '@/assets/images/baseInsurance/female.png';
 import male from '@/assets/images/baseInsurance/male.png';
 import gender from '@/assets/images/baseInsurance/gender.png';
+import pageJump from '@/utils/pageJump';
 // import { queryCustomerPhone } from '@/api/modules/businessOpportunity';
 
 const props = defineProps({
@@ -86,6 +87,7 @@ const onSelect = (val: { type: string }) => {
 // };
 
 const handleCustomerItem = (e: any) => {
+  pageJump('customerDetail', { customerId: data.customerId });
   showBg.value = true;
   e.stopPropagation();
   console.log('这里关闭弹窗', data.value);
