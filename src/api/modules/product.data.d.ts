@@ -373,6 +373,7 @@ export interface InsureProductData {
   openFlag: number;
 }
 export interface ProductQuestionnaireVoItem {
+  id: number
   planCode: string;
   productCode: string;
   productId: number;
@@ -805,8 +806,75 @@ export interface ParameterMap {
 
 
 
+// =========== 新版问卷 start===============
+/** 问卷基础信息 */
+export interface NBasicInfo {
+	id: number;
+	insurerCode: string;
+	insurerName: string;
+	objectType: number;
+	productCategory: number;
+	questionnaireCode: string;
+	questionnaireName: string;
+	questionnaireType: number;
+	title: string;
+}
 
+/** 问卷-问题选项 */
+export interface OptionList {
+	code: string;
+	detailList: any[];
+	optionType: number;
+	relationFlag: number;
+	remarkFlag: number;
+	value: string;
+}
+/** 问卷-问题配置 */
+export interface RuleConfig {
+	maxAge: number;
+	maxAgeUnit: number;
+	minAge: number;
+	minAgeUnit: number;
+	sexLimit: number;
+}
 
+/** 问卷-问题对象 */
+export interface NQuestion {
+	content: string;
+	id: number;
+	mustFlag: number;
+	optionList: OptionList[];
+	options: string;
+	position: number;
+	questionCode: string;
+	questionDesc: string;
+	questionDescPosition: number;
+	questionType: number;
+	questionnaireId: number;
+	ruleConfig: RuleConfig;
+	textType: number;
+	title: string;
+}
 
+export interface QuestionnaireDetailRes {
+	basicInfo: NBasicInfo;
+	questions: NQuestion[];
+  imageConfig: {
+    showFlag?: number;
+    name?: string;
+    maxCount?: number;
+  };
+}
 
+// 获取问卷接口
+export interface ProductQuestionnaireRes {
+	id: number;
+	planCode: string;
+	productCode: string;
+	productId: number;
+	questionnaireDetailResponseVO: QuestionnaireDetailRes;
+	questionnaireId: number;
+	questionnaireName: string;
+}
+// =========== 新版问卷 end ===============
 

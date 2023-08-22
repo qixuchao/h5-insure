@@ -30,4 +30,12 @@ export const NoTransform = [
   DictNameEnum.NATIONALITY,
 ];
 
+/** 比较两个基础数据类型的相等，主要用于 number 和 string 来比较值 不要滥用，todo 待完善 */
+export const enumEqual = (val: any, other: any) => {
+  if (typeof val === typeof other) {
+    return val === other;
+  }
+  return `${val}` === `${other}`;
+};
+
 export default DictNameEnum;
