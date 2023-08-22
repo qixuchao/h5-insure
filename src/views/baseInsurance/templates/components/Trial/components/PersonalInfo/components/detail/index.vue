@@ -51,7 +51,7 @@
           <img v-if="item.isDefault != '1'" src="@/assets/images/customer/unchecked.png" alt="" />
         </div>
         <div class="label">{{ item.contactNo }}</div>
-        <div v-if="item.isUse == '1'" class="content">常用</div>
+        <div v-if="item.useFlag == '1'" class="content">常用</div>
       </div>
     </div>
     <div class="collapse-content">
@@ -76,7 +76,7 @@
         </div>
         <div>
           <div class="address-content">
-            <div class="label">{{ item.detail }}<span v-if="item.isUse == '1'" class="content">常用</span></div>
+            <div class="label">{{ item.detail }}<span v-if="item.useFlag == '1'" class="content">常用</span></div>
           </div>
           <div class="zip-code">邮编：{{ item.postCode }}</div>
         </div>
@@ -104,7 +104,7 @@
         </div>
         <div>
           <div class="address-content">
-            <div class="label">{{ item.contactNo }} <span v-if="item.isUse == '1'" class="content">常用</span></div>
+            <div class="label">{{ item.contactNo }} <span v-if="item.useFlag == '1'" class="content">常用</span></div>
           </div>
           <div class="zip-code">{{ item.contactNo }}</div>
         </div>

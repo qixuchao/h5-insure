@@ -85,3 +85,28 @@ export const orderInsureRecord = (data = {}) =>
 // 客户详情
 export const customerDetail = (params = {}) =>
   request<CustomerResponseData>({ url: '/api/app/insure/insurance/customerDetail', method: 'GET', params });
+
+// 获取订单详情
+export const newOrderDetail = (data = {}): Promise<ResponseData<NextStepRequestData>> => {
+  return new Promise((resolve, reject) => {
+    request<NextStepRequestData>(
+      {
+        url: '/api/app/insure/insurance/orderDetail',
+        method: 'POST',
+        data,
+      },
+      { loading: true },
+    )
+      .then((res) => {
+        const { code, data: resData } = res;
+        if (code === '10000') {
+          const store = useStore();
+          store.setOrderDetail(resData as any);
+        }
+        resolve(res as any);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};

@@ -94,8 +94,8 @@ const currentStatus = computed(() => {
 });
 
 const handleClick = (item: OrderItem) => {
-  const { orderNo, saleUserId: agentCode, tenantId, abbreviation, productCategory, applicationNo } = item;
-  pageJump('orderDetail', { orderNo, agentCode, tenantId, abbreviation, productCategory, applicationNo });
+  const { orderNo, saleUserId: agentCode, tenantId, abbreviation, productCategory, applicationNo, orderId } = item;
+  pageJump('orderDetail', { orderNo, agentCode, tenantId, abbreviation, productCategory, applicationNo, orderId });
 };
 
 const getData = () => {
