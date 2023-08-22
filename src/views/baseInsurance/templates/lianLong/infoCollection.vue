@@ -21,16 +21,18 @@
       @trial-end="handleTrialEnd"
       @update:user-data="(val) => (state.userData = val)"
     >
+      <template #middleInfo>
+        <PayInfo
+          v-if="state.payInfo.schema.length"
+          ref="payInfoRef"
+          v-model="orderDetail.tenantOrderPayInfoList"
+          :schema="state.payInfo.schema"
+          :is-view="state.isView"
+          :user-data="state.userData"
+        ></PayInfo>
+      </template>
     </Trial>
 
-    <PayInfo
-      v-if="state.payInfo.schema.length"
-      ref="payInfoRef"
-      v-model="orderDetail.tenantOrderPayInfoList"
-      :schema="state.payInfo.schema"
-      :is-view="state.isView"
-      :user-data="state.userData"
-    ></PayInfo>
     <ProLazyComponent>
       <AttachmentList
         v-if="fileList?.length"

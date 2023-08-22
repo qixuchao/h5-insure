@@ -26,7 +26,7 @@ export const combineDictCode = (() => {
  * @param param0
  * @param callback
  */
-const sendSMSCode = async ({ mobile }, callback) => {
+export const sendSMSCode = async ({ mobile }, callback) => {
   const res = await sendCode(mobile);
   const { code } = res;
   if (code === '10000') {

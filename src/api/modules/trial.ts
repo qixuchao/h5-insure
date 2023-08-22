@@ -1,6 +1,6 @@
 import request from '@/api/request';
 import { InsureLinkReq, PremiumCalcResponse, PlanTrialDefaultItem } from './trial.data';
-import { InsureProductData } from '@/api/modules/product.data';
+import { InsureProductData, MergeProductDetail } from '@/api/modules/product.data';
 
 // 获取产品详情
 export const insureProductDetail = (data: any = {}) =>
@@ -146,7 +146,7 @@ export const queryRiderRiskList = (data = {}) =>
 
 // 根据产品code和险种code组装产品详情
 export const mergeInsureFactor = (data = {}) =>
-  request<{ riskCode: string; riskName: string }>({
+  request<MergeProductDetail>({
     url: '/api/app/insure/product/v2/mergeInsureFactor',
     method: 'POST',
     data,

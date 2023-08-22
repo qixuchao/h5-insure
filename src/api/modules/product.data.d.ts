@@ -803,6 +803,16 @@ export interface ProductUpgradeConfig {
 export interface ParameterMap {
 }
 
+/**
+ * 合并产品详情
+ */
+export interface MergeProductDetail {
+  productDetailResList: Array<ProductDetail>;
+  productFactor: {
+    [propName: string]: ProductFactorItem;
+  }
+}
+
 
 
 

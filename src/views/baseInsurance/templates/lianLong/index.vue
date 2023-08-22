@@ -95,7 +95,6 @@
 <script lang="ts" setup name="InsuranceLong">
 import { useRoute, useRouter } from 'vue-router';
 import { useIntersectionObserver } from '@vueuse/core';
-import { setGlobalTheme } from '@/hooks/useTheme';
 import {
   ProductSaleInfo,
   InsureProductData,
@@ -105,12 +104,6 @@ import {
 import { getTenantOrderDetail, insureProductDetail as getInsureProductDetail, premiumCalc } from '@/api/modules/trial';
 import { productDetail as getTenantProductDetail, queryProductMaterial, querySalesInfo } from '@/api/modules/product';
 
-import { INSURE_TYPE_ENUM } from '@/common/constants/infoCollection';
-
-// import Banner from '../components/Banner/index.vue';
-// import Video from '../components/Banner/Video.vue';
-// import Guarantee from '../components/Guarantee/index.vue';
-// import PreNotice from '../components/PreNotice/index.vue';
 import { YES_NO_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 
 // import ScrollInfo from '../components/ScrollInfo/index.vue';
@@ -270,10 +263,6 @@ const initData = async () => {
         } else {
           // 设置分享参数
           Object.assign(shareInfo.value, { title, desc, imgUrl: image, isShare: showWXShare });
-        }
-
-        if (data.BASIC_INFO && data.BASIC_INFO.themeType) {
-          setGlobalTheme(data.BASIC_INFO.themeType);
         }
       }
     });

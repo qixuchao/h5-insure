@@ -19,6 +19,7 @@ export const drawTextWrap = (ctx, color, textAlign, font, content, drawX, drawY,
   ctx.fillStyle = color;
   ctx.textAlign = textAlign;
   ctx.textBaseline = 'middle';
+  // 预测量文本绘制的宽度是否已经超过设定的最大宽度
   if (ctx.measureText(content).width <= lineMaxWidth) {
     ctx.fillText(content, drawX, drawY);
   } else {

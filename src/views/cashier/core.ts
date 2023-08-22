@@ -177,7 +177,12 @@ export const useSign = (payParam: PayParam) => {
   })
     .then((res) => {
       console.log('签约里面调用pay返回=====', res.data);
-      window.location.replace(res.data.redirect_url);
+      const { redirect_url } = res.data;
+      if (redirect_url.indexOf('<html>') > -1) {
+        useFormPay(redirect_url);
+        return;
+      }
+      window.location.replace(redirect_url);
     })
     .finally(() => {
       loading.value = false;

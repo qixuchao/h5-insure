@@ -13,6 +13,9 @@
     }"
   >
     <template #cardTitleExtra><slot></slot></template>
+    <template #customer>
+      <slot name="customer"></slot>
+    </template>
   </ProRenderFormWithCard>
 
   <template v-if="hasBeneficiarySchema">
@@ -36,7 +39,9 @@
         :config="beneficiary.config"
         :is-view="isView"
       >
-        <slot name="cardTitleExtraBenifit" :index="index"></slot>
+        <template #customer>
+          <slot name="benefitCustomer" :index="index"></slot>
+        </template>
         <span v-if="index > 0 && !isView" class="delete-button" @click="onDeleteBeneficiary(index)">
           <ProSvg name="delete"></ProSvg>
         </span>
