@@ -40,24 +40,22 @@
       <template #riskList>
         <slot name="riskInfo" :insured-index="index"></slot>
       </template>
-      <div
-        v-if="+insuredItem.personVO.relationToHolder !== 1 && !isShare && !isView && !isTrial && isApp"
-        class="choose-customer"
-        @click="chooseCustomers('insured', index, 0)"
-      >
-        <img src="@/assets/images/baseInsurance/customer.png" />
-        选择老用户
-      </div>
-      <template #cardTitleExtraBenifit="slotProps">
+      <template #customer>
         <div
-          v-if="!isShare && !isView && !isTrial && isApp"
+          v-if="+insuredItem.personVO.relationToHolder !== 1 && !isShare && !isView && !isTrial && !isApp"
+          class="choose-customer"
+          @click="chooseCustomers('insured', index, 0)"
+        >
+          <img src="@/assets/images/baseInsurance/customer.png" /></div
+      ></template>
+      <template #benefitCustomer="slotProps">
+        <div
+          v-if="!isShare && !isView && !isTrial && !isApp"
           class="choose-customer"
           @click="chooseCustomers('benifit', index, slotProps?.index)"
         >
-          <img src="@/assets/images/baseInsurance/customer.png" />
-          选择老用户
-        </div></template
-      >
+          <img src="@/assets/images/baseInsurance/customer.png" /></div
+      ></template>
       <span
         v-if="!isView && index + 1 > state.config.multiInsuredMinNum"
         class="delete-button"
@@ -329,8 +327,8 @@ const convertCustomerData = (value, type) => {
     birthday: value?.birthday,
     mobile: mobileObject?.contactNo || null,
     email: emailObject?.contactNo || null,
-    certNo: certIdCardArray[0]?.certNo || null,
-    certType: certIdCardArray[0]?.certType || null,
+    certNo: certIdCardArray?.[0]?.certNo || null,
+    certType: certIdCardArray?.[0]?.certType || null,
   };
   // 数据过滤，只映射投保流程中的数据，剔除客户多余部分
   console.log('insureKeys', insureKeys());
@@ -483,7 +481,7 @@ const diffDataChange = (keys, val, oldVal = {}) => {
 
 // 试算数据是否变动
 const isTrialDataChange = (val, oldVal) => {
-  const flag1 = diffDataChange(state.holder.trialFactorCodes, val[0], oldVal[0]);
+  const flag1 = diffDataChange(state.holder.trialFactorCodes, val?.[0], oldVal?.[0]);
   const flag2 = state.insured.some((insuredItem, index) => {
     const { trialFactorCodes, personVO } = insuredItem;
     return diffDataChange(trialFactorCodes, personVO, oldVal[1]?.[index]);
@@ -597,7 +595,7 @@ watch(
 watch(
   [() => props.productFactor, () => props.isTrial],
   (val, oldVal) => {
-    if (isEqual(val, oldVal) || !val[0]) {
+    if (isEqual(val, oldVal) || !val?.[0]) {
       return false;
     }
 
@@ -634,10 +632,10 @@ watch(
 
 // 受益人切换关系 清空数据
 watch(
-  () => state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO,
+  () => state?.insured?.[state.currentIndex]?.beneficiaryList?.[state.currentBenifitIndex]?.personVO,
   (val, oldVal) => {
     if (
-      state?.insured?.[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO &&
+      state?.insured?.[state.currentIndex]?.beneficiaryList?.[state.currentBenifitIndex]?.personVO &&
       val?.relationToInsured !== oldVal?.relationToInsured
     ) {
       colorConsole('受益人关系变动了+++++');
@@ -657,7 +655,7 @@ watch(
 watch(
   [
     () => {
-      const { holder, insuredList } = props.modelValue;
+      const { holder, insuredList = [] } = props.modelValue;
       console.log('表单数据', cloneDeep(holder));
       const tempInsuredList = isNotEmptyArray(insuredList)
         ? insuredList.map((item) => {

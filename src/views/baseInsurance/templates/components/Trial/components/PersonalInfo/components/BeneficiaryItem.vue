@@ -13,6 +13,9 @@
     }"
   >
     <template #cardTitleExtra><slot></slot></template>
+    <template #customer>
+      <slot name="customer"></slot>
+    </template>
   </ProRenderFormWithCard>
 </template>
 <script lang="ts" setup name="BeneficiaryItem">

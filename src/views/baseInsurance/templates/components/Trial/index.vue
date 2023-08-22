@@ -15,10 +15,9 @@
           :is-trial="isTrial"
           :product-factor="currentProductFactor"
           :multi-insured-config="currentPlan?.multiInsuredConfigVO"
-          @trail-change="handlePersonalInfoChange"
-          @close-customer-popoup="handleClose"
         />
       </div>
+      <slot name="middleInfo"></slot>
       <ProDivider size="large" />
       <div class="container">
         <ProCard title="保障计划" class="insurePlan" :show-divider="false"></ProCard>
@@ -33,13 +32,15 @@
               <ProTitle :title="risk.riskName" :risk-type="risk.riskType">
                 <div class="operate-bar">
                   <div
-                    v-if="risk.riskType !== RISK_TYPE_ENUM.MAIN_RISK"
+                    v-if="risk.riskType === RISK_TYPE_ENUM.MAIN_RISK"
                     class="add-risk btn"
-                    @click="addRiderRisk(risk.riskCode)"
+                    @click="addRiderRisk(productCode, risk.riskCode)"
                   >
                     +附加险
                   </div>
-                  <div class="delete-risk btn" @click="deleteRisk(risk.mainRiskCode, risk.riskCode)">删除</div>
+                  <div class="delete-risk btn" @click="deleteRisk(productCode, risk.mainRiskCode, risk.riskCode)">
+                    删除
+                  </div>
                 </div>
               </ProTitle>
               <InsureInfos
@@ -48,7 +49,7 @@
                 :product-factor="currentPlan.productFactor"
                 :default-value="
                   state.defaultValue
-                    ? state.defaultValue?.insuredList[0].productList[state.planIndex]?.riskList[0]
+                    ? state.defaultValue?.insuredList?.[0]?.productList?.[state.planIndex]?.riskList?.[0]
                     : null
                 "
                 :trial-result="state.trialResult"
@@ -61,7 +62,7 @@
             </div>
           </div>
         </div>
-        <div class="add-main-risk">
+        <div v-if="canAddMainRisk" class="add-main-risk">
           <ProCheckButton activated @click="addMainRisk">+新增主险</ProCheckButton>
         </div>
       </div>
@@ -87,7 +88,7 @@ import PersonalInfo from '@/views/baseInsurance/templates/components/Trial/compo
 import PlanSelect from '../../long/InsureInfos/components/PlanSelect/index.vue';
 import Benefit from '../Benefit/index.vue';
 import { PremiumCalcData, RiskVoItem } from '@/api/modules/trial.data';
-import { RISK_TYPE, RISK_TYPE_ENUM } from '@/common/constants/trial';
+import { RISK_TYPE, RISK_TYPE_ENUM, PRODUCT_CLASS_ENUM } from '@/common/constants/trial';
 import HeadWaring from '../HeadWarning/index.vue';
 import {
   benefitCalc,
@@ -107,11 +108,6 @@ import { nextStepOperate as nextStep } from '../../../nextStep';
 import pageJump from '@/utils/pageJump';
 import { jumpToNextPage, toLocal } from '@/utils';
 import { ProductFactor } from '@/components/RenderForm';
-
-const RISK_SELECT = [
-  { value: 1, label: '投保' },
-  { value: 2, label: '不投保' },
-];
 
 interface Props {
   selfKey: string;
@@ -212,24 +208,31 @@ const productMap = ref(); // 多产品集合
 const currentProductFactor = ref(); // 多产品对应投保要素的合集
 
 /* -------------------多产品逻辑--------------------------- */
+const canAddMainRisk = computed<boolean>(() => {
+  return ![PRODUCT_CLASS_ENUM.SINGLE_PRODUCT, PRODUCT_CLASS_ENUM.TWO_PRODUCT].includes(
+    Object.values(props.productCollection)?.[0]?.productClass,
+  );
+});
 // 添加附加险
-const addRiderRisk = (mainRiskCode) => {
-  emit('addRisk');
+const addRiderRisk = (productCode, mainRiskCode) => {
+  const mainRiskInfo = state.riskList.find((risk) => risk.riskCode === mainRiskCode);
+  emit('addRisk', productCode, mainRiskInfo, state.userData.insuredList);
 };
 
 // 添加主险
 const addMainRisk = () => {
-  emit('addMainRisk');
+  emit('addMainRisk', state.userData.insuredList);
 };
 
 // 删除险种
-const deleteRisk = (mainRiskCode, riskCode) => {
+const deleteRisk = (productCode, mainRiskCode, riskCode) => {
   Dialog.confirm({
     message: '删除后将无法恢复，是否需要删除该产品？',
   }).then(() => {
-    emit('deleteRisk', mainRiskCode, riskCode);
+    emit('deleteRisk', productCode, riskCode, mainRiskCode);
   });
 };
+
 /**
  * 处理投被保人信息到state.submitData
  * @param data
@@ -821,26 +824,22 @@ const transformDefaultData = (defaultData: any) => {
   // state.userData = defaultData;
   state.userData = defaultData;
   state.defaultValue = defaultData;
-  const currentPlanIndex =
-    defaultData.insuredList?.[0].productList.findIndex((p) => p.planCode === currentPlan.value.planCode) || 0;
-  state.planIndex = currentPlanIndex === -1 ? 0 : currentPlanIndex;
-  state.riskList = defaultData?.insuredList?.[0].productList?.[state.planIndex]?.riskList || [];
+  // const currentPlanIndex =
+  //   defaultData.insuredList?.[0].productList.findIndex((p) => p.planCode === currentPlan.value.planCode) || 0;
+  // state.planIndex = currentPlanIndex === -1 ? 0 : currentPlanIndex;
+  // state.riskList = defaultData?.insuredList?.[0].productList?.[state.planIndex]?.riskList || [];
   handleTrialAndBenefit(defaultData, true);
 };
 
 const fetchDefaultDataFromServer = async () => {
   const result = await queryCalcDefaultInsureFactor({
-    calcProductFactorList: [
-      {
-        planCode: currentPlan.value.planCode,
-        productCode: props.productInfo.productCode,
-      },
-    ],
+    calcProductFactor: {
+      productCode: Object.keys(props.productCollection)?.[0],
+    },
   });
   if (result.data) {
-    const targetProduct = result.data.find((d) => d.productCode === props.productInfo.productCode) || result.data[0];
-    transformDefaultData(targetProduct);
-    handlePersonInfo(result.data?.[0]);
+    transformDefaultData(result.data);
+    handlePersonInfo(result.data);
   }
 };
 const fetchDefaultData = async (changes: []) => {
@@ -887,10 +886,6 @@ onMounted(() => {
   state.isAniShow = true;
   state.isSkipFirstTrial = true;
   state.hadSkipFirstTrial = false;
-  nextTick(() => {
-    // 请求默认值接口
-    fetchDefaultData([]);
-  });
 });
 
 const validate = () => personalInfoRef.value.validate(false);
@@ -953,7 +948,11 @@ watch(
 
 watch(
   () => props.productCollection,
-  (value) => {
+  (value, oldVal) => {
+    console.log('val', value, oldVal);
+    if (Object.keys(value || {}).length) {
+      fetchDefaultData([]);
+    }
     productMap.value = value;
   },
   {
@@ -1114,7 +1113,7 @@ watch(
         padding-top: 20px;
       }
       .van-field__body {
-        display: flex;
+        display: block;
       }
       .van-field__value {
         min-height: 74px;

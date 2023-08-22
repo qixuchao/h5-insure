@@ -3,7 +3,7 @@
     <div class="popup-container">
       <div class="popup-header">
         <span class="clear-all" @click="handleCancel"> 取消 </span>
-        <span class="title"> 添加附加险 </span>
+        <span class="title"> {{ title }} </span>
         <span class="close" @click="handleConfirm">确认</span>
       </div>
       <p class="tip">已为您挑选出以下险种</p>
@@ -33,6 +33,7 @@
 </template>
 <script setup lang="ts" name="riskSelect">
 import { withDefaults } from 'vue';
+import { useRoute } from 'vue-router';
 import { queryRiderRiskList, queryListMainProduct } from '@/api/modules/trial';
 import { RISK_TYPE_ENUM } from '@/common/constants/trial';
 
@@ -51,6 +52,10 @@ const props = withDefaults(defineProps<Props>(), {
   mainRiskCode: '',
 });
 
+const route = useRoute();
+
+const { insurerCode } = route.query;
+
 const emits = defineEmits(['cancel', 'confirm']);
 
 const checked = ref();
@@ -62,14 +67,14 @@ const handleCancel = () => {
   emits('cancel');
 };
 const handleConfirm = () => {
-  emits('confirm');
+  emits('confirm', checked.value);
 };
 
 const getRiskList = async () => {
   const params = {
     insuredVO: props.insuredList,
     mainRiskCode: props.mainRiskCode,
-    insurerCode: '',
+    insurerCode,
     productCategory: '',
   };
   if (props.type === RISK_TYPE_ENUM.MAIN_RISK) {

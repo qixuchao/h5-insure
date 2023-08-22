@@ -75,9 +75,12 @@ onMounted(() => {
     const wrap = document.querySelector(props.container);
     const style = window.getComputedStyle(wrap, null);
     containerStyle.value = style;
+
+    // 设置画板的尺寸
     canvasRef.value.width = parseFloat(style.getPropertyValue('width')) * 2;
     canvasRef.value.height = parseFloat(style.getPropertyValue('height')) * 2;
 
+    // 设置canvas元素的尺寸
     canvasRef.value.style.width = style.getPropertyValue('width');
     canvasRef.value.style.height = style.getPropertyValue('height');
   }
