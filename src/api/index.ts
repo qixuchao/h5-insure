@@ -110,3 +110,11 @@ export const newOrderDetail = (data = {}): Promise<ResponseData<NextStepRequestD
       });
   });
 };
+
+// 在线投保-获取问卷详情和答案
+export const getQuestionAnswerDetail = (data = {}) =>
+  request<Array<Record<string, any>>>({
+    url: '/api/app/insure/insurance/getQuestionAnswerDetail',
+    method: 'POST',
+    data,
+  });

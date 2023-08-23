@@ -86,6 +86,18 @@
         :schema="state.payInfo.schema"
         is-view
       ></PayInfo> -->
+      <div class="insurance-notification-information card">
+        <InsuranceNotificationInformation
+          title="投保告知信息"
+          :data="
+            [
+              { title: '《万能风险告知问卷》', content: '12345556789' },
+              { title: '《被保人健康告知》', content: '12345556789' },
+            ] || state.customerQuestions
+          "
+        />
+      </div>
+
       <div v-loading="loading">
         <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.PENDING" class="footer-button">
           <van-button type="primary" @click.stop="handleDelete">删除</van-button>
@@ -114,7 +126,7 @@ import { useRoute, useRouter } from 'vue-router';
 import dayjs from 'dayjs';
 import qs from 'qs';
 import { deleteOrder } from '@/api/modules/order';
-import { newOrderDetail } from '@/api';
+import { newOrderDetail, getQuestionAnswerDetail } from '@/api';
 import { NextStepRequestData } from '@/api/index.data';
 import { ORDER_TOP_STATUS_ENUM, ORDER_STATUS_MAP, ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { insureProductDetail, queryStandardInsurerLink } from '@/api/modules/trial';
@@ -128,7 +140,9 @@ import useTheme from '@/hooks/useTheme';
 import { getPayUrl } from '@/api/modules/cashier';
 import { sendPay } from '@/views/cashier/core';
 import InfoItem from '../components/infoItem.vue';
-// import Demo from '../components/demo.vue';
+import InsuranceNotificationInformation from '../components/insuranceNotificationInformation.vue';
+import { InsureProductData, ProductPlanInsureVoItem } from '@/api/modules/product.data';
+import { ProRenderFormWithCard, PayInfo, transformFactorToSchema, isOnlyCert } from '@/components/RenderForm';
 
 const themeVars = useTheme();
 const route = useRoute();
@@ -136,6 +150,7 @@ const router = useRouter();
 const detail = ref<NextStepRequestData>();
 const activeList = ref<string[]>([]);
 const tenantOrderAttachmentList = ref<string[]>([]);
+const currentPlanObj = ref<Partial<ProductPlanInsureVoItem>>({});
 const columns = [
   {
     title: '险种名称',
@@ -169,6 +184,14 @@ const columns = [
     },
   },
 ];
+const state = reactive({
+  customerQuestions: [],
+  payInfo: {
+    schema: [],
+    config: [],
+    formData: [],
+  },
+});
 
 const dataSource = [
   {
@@ -239,8 +262,6 @@ const {
   query: { orderNo, agentCode, tenantId, abbreviation, productCategory, applicationNo, orderId },
 } = route;
 const handleClick = () => {
-  console.log(orderNo, 'orderNo================');
-
   pageJump('orderTrajectory', { orderNo, agentCode, tenantId, abbreviation, productCategory, applicationNo });
 };
 const handleDelete = () => {
@@ -335,8 +356,35 @@ const handlePay = () => {
     }
   }
 };
+const customerQuestionsDetail = () => {
+  console.log(orderNo, 'orderNo================');
+  getQuestionAnswerDetail({
+    orderNo,
+    orderId,
+    tenantId,
+  }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      state.customerQuestions = data;
+    }
+  });
+};
+const getInsureProductDetail = () => {
+  insureProductDetail({ productCode: '111', isTenant: false }).then(({ data, code }) => {
+    if (code === '10000') {
+      currentPlanObj.value = data.productPlanInsureVOList?.[0] || {};
+      const { payInfo } = transformFactorToSchema(currentPlanObj.value?.productFactor);
+      state.payInfo = {
+        ...state.payInfo,
+        ...payInfo,
+      };
+    }
+  });
+};
 
 onMounted(() => {
+  getInsureProductDetail();
+  customerQuestionsDetail();
   newOrderDetail({ orderNo, orderId, applicationNo, agentCode, tenantId }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {

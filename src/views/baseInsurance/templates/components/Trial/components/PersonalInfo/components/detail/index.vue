@@ -1,7 +1,7 @@
 <template>
   <div class="customer-detail">
     <div class="customer-img">
-      <img src="@/assets/images/customer/checked.png" alt="" class="customer-header-img" />
+      <img :src="state.data?.avatar" alt="" class="customer-header-img" />
       <div class="customer-img-content">
         <div class="customer-img-title">
           {{ state.data.name }}<img v-if="state.data.gender === '2'" src="@/assets/images/customer/mr.png" alt="" /><img
