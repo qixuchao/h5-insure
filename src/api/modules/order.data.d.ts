@@ -31,6 +31,7 @@ export interface OrderItem {
   productCategory: string;
   saleChannelId?: number;
   applicationNo: string;
+  orderId: string;
 }
 
 export interface Sort {

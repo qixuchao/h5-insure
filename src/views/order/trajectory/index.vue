@@ -12,8 +12,10 @@
       />
 
       <div class="list">
-        <van-steps direction="vertical" :active="activeIndex" active-color="#C41E21" active-icon="question">
+        <van-steps direction="vertical" :active="activeIndex" active-color="#C41E21">
           <van-step v-for="(item, index) in list" :key="index">
+            <template #inactive-icon><ProSvg name="inactive" class="icon" /></template>
+            <template #active-icon><ProSvg name="active" class="icon" /></template>
             <div class="trajectory-step">
               <div :class="['trajectory-step-name', index <= activeIndex ? 'trajectory-step-name-red' : '']">
                 {{ getZero(index + 1) }}
@@ -59,27 +61,27 @@ const {
   query: { orderNo, applicationNo },
 } = route;
 
-onMounted(() => {
-  orderInsureRecord({ orderNo, applicationNo }).then((res) => {
-    const { code, data } = res;
-    if (code === '10000') {
-      list.value = list.value.map((item, index) => {
-        data?.map((items, indexs) => {
-          // eslint-disable-next-line eqeqeq
-          if (items.step == item.step) {
-            item.status = items.status;
-            item.time = items.time;
-          }
-          return items;
-        });
-        return item;
-      });
-      if (data.length) {
-        activeIndex.value = data.length - 1;
-      }
-    }
-  });
-});
+// onMounted(() => {
+//   orderInsureRecord({ orderNo, applicationNo }).then((res) => {
+//     const { code, data } = res;
+//     if (code === '10000') {
+//       list.value = list.value.map((item, index) => {
+//         data?.map((items, indexs) => {
+//           // eslint-disable-next-line eqeqeq
+//           if (items.step == item.step) {
+//             item.status = items.status;
+//             item.time = items.time;
+//           }
+//           return items;
+//         });
+//         return item;
+//       });
+//       if (data.length) {
+//         activeIndex.value = data.length - 1;
+//       }
+//     }
+//   });
+// });
 const getZero = (num: any) => {
   return String(num).padStart(2, '0');
 };

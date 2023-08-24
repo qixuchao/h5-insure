@@ -67,7 +67,7 @@ export interface NextStepRequestData {
   id: number;
   issueTime: string;
   operateOption: Partial<OperateOption>;
-  orderAmount: number;
+  orderAmount: string;
   orderDataSource: string;
   orderCategory: number;
   orderDate: string;
@@ -94,6 +94,8 @@ export interface NextStepRequestData {
   thirdOrderNoType: number;
   updateRelationUserId: string;
   venderCode: string;
+  realAmount: string;
+  riskList:Array<Record<string, any>>,
 }
 
 export interface TenantOrderPayInfoItem {
