@@ -39,7 +39,7 @@
               />
             </VanForm>
           </div>
-          <div v-if="state.riskPlanData.length" class="plan-risk">
+          <!-- <div v-if="state.riskPlanData.length" class="plan-risk">
             <VanForm ref="riskFormRef" input-align="right" error-message-align="right">
               <VanTabs v-model:active="state.currentPlan">
                 <VanTab
@@ -61,7 +61,7 @@
                 </VanTab>
               </VanTabs>
             </VanForm>
-          </div>
+          </div> -->
         </van-collapse-item>
       </van-collapse>
     </div>
@@ -90,9 +90,9 @@ import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant/es';
 // import PersonalInfo from './PersonalInfo/index.vue';
 import { number } from '@intlify/core-base';
-import RiskList from './RiskList/index.vue';
+// import RiskList from './RiskList/index.vue';
 import { insureProductDetail, premiumCalc } from '@/api/modules/trial';
-import InsureInfos from './InsureInfos/index.vue';
+import InsureInfos from '../components/Trial/InsureInfos.vue';
 import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
 import { getDic, nextStep, getTemplateInfo } from '@/api';
 import { useCookie } from '@/hooks/useStorage';
