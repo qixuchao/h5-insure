@@ -340,6 +340,10 @@ export enum ATTACHMENT_CATEGORY_ENUM {
    */
   REVERSE_BANK_CARD = 25,
   /**
+   * 风险抄录
+   */
+  RISK_TRANSCRIPTION = 26,
+  /**
    * 其他
    */
   OTHER = 99,

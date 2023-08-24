@@ -249,9 +249,9 @@ export const proposalToTrial = async (
 export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
   const nextStepParams: any = { ...currentOrderDetail, ...trialData };
   let riskInsuredPremiumList = [];
-  const { riskInsuredDetailVOList = [], initialAmount, initialPremium = 0 } = riskPremium || {};
-  if (riskInsuredDetailVOList.length) {
-    riskInsuredPremiumList = riskInsuredDetailVOList.map((riskDetail: any) => {
+  const { insuredPremiumList = [], initialAmount, initialPremium = 0 } = riskPremium || {};
+  if (insuredPremiumList.length) {
+    riskInsuredPremiumList = insuredPremiumList.map((riskDetail: any) => {
       const riskPremiumMap = {
         totalPremium: riskDetail.totalPremium,
         riskMap: {},

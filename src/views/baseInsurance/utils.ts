@@ -131,8 +131,8 @@ export const transformData = (o: transformDataType, flag = false) => {
           };
         }) || [],
       productId,
-      currentAmount: risk.amount || 0,
-      initialAmount: riskPremium[risk.riskCode]?.amount || risk.amount,
+      currentAmount: risk.initialAmount || 0,
+      initialAmount: riskPremium[risk.riskCode]?.amount || risk.initialAmount,
     };
     return currentRisk;
   });
@@ -875,8 +875,8 @@ export const freeTransformData = (o: transformDataType) => {
         refundMethod: liab.liabilityAttributeValue,
       })),
       productId,
-      currentAmount: risk.amount || 0,
-      initialAmount: risk.amount || 0,
+      currentAmount: risk.initialAmount || 0,
+      initialAmount: risk.initialAmount || 0,
     };
     return currentRisk;
   });

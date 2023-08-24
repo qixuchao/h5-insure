@@ -497,7 +497,7 @@ const canTrail = () => {
 // 监听投被保人关系
 watch(
   () => state.holder.personVO?.certType,
-  (val, oldVal) => {
+  debounce((val, oldVal) => {
     if (`${val}` === `${oldVal}`) {
       return false;
     }
@@ -507,7 +507,7 @@ watch(
 
     merge(state.holder.config, tempConfig);
     return false;
-  },
+  }, 300),
 );
 
 // 验证是否试算
@@ -594,7 +594,7 @@ watch(
 // 投保因子变动
 watch(
   [() => props.productFactor, () => props.isTrial],
-  (val, oldVal) => {
+  debounce((val, oldVal) => {
     if (isEqual(val, oldVal) || !val?.[0]) {
       return false;
     }
@@ -623,7 +623,7 @@ watch(
     state.beneficiarySchema = cloneDeep(beneficiary?.schema || []);
 
     return false;
-  },
+  }, 300),
   {
     deep: true,
     immediate: true,
@@ -676,7 +676,7 @@ watch(
     () => state.config,
     () => state.initInsuredIList,
   ],
-  ([[holderConfig, holderFormData, insuredList]]) => {
+  debounce(([[holderConfig, holderFormData, insuredList]]) => {
     colorConsole(`投被保人数据变动了`);
     // 投保人
     Object.assign(state.holder.config, holderConfig);
@@ -725,7 +725,7 @@ watch(
       }
       return res;
     }, state.insured) as InsuredListProps;
-  },
+  }, 500),
   {
     deep: true,
     immediate: true,
