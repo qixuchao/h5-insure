@@ -823,7 +823,7 @@ export interface NBasicInfo {
 /** 问卷-问题选项 */
 export interface OptionList {
 	code: string;
-	detailList: any[];
+	detailList?: NQuestion[];
 	optionType: number;
 	relationFlag: number;
 	remarkFlag: number;
@@ -843,10 +843,14 @@ export interface NQuestion {
 	content: string;
 	id: number;
 	mustFlag: number;
+  answer: any; // 问题答案（单选、判断、单项填空时）
+  answerList: any[]; // 问题答案（多选、多项填空时）
 	optionList: OptionList[];
+	questionOptionList: OptionList[];
 	options: string;
 	position: number;
 	questionCode: string;
+  questionDescOpenFlag?: number; // 问题描述是否展示
 	questionDesc: string;
 	questionDescPosition: number;
 	questionType: number;

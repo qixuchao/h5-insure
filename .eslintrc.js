@@ -44,6 +44,9 @@ module.exports = {
     'no-nested-ternary': 'off',
     'no-param-reassign': 'off', // 参数不能被赋值
     camelcase: 'off',
+    'vue/no-unused-vars': 'off', // 未使用的变量
+    'vue/no-mutating-props': 'off', // 未使用的变量
+    'vue/no-template-shadow': 'off',
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-explicit-any': ['off'],
     '@typescript-eslint/no-unused-vars': ['off'],
