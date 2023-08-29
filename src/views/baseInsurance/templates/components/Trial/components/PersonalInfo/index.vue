@@ -30,10 +30,12 @@
       :key="`${insuredItem.nanoid}_${index}`"
       v-model="insuredItem.personVO"
       v-model:beneficiary-list="insuredItem.beneficiaryList"
+      v-model:guardian="insuredItem.guardian"
       :title="`${state.insured.length > 1 ? `被保人${index + 1}` : '被保人信息'}`"
       :holder-person-v-o="state.holder.personVO"
       :="insuredItem"
       :beneficiary-schema="state.beneficiarySchema"
+      :guardian-schema="state.guardianSchema"
       :is-view="isView"
       :multi-beneficiary-num="state.config?.multiBeneficiaryMaxNum"
     >
@@ -158,6 +160,7 @@ const props = withDefaults(defineProps<Props>(), {
 interface InsuredFormProps extends Partial<PersonFormProps> {
   beneficiaryList: Partial<PersonFormProps>[];
   beneficiarySchema: SchemaItem[];
+  guardian?: Partial<PersonFormProps>;
 }
 
 type InsuredListProps = Partial<InsuredFormProps>[];
@@ -173,6 +176,7 @@ interface StateInfo {
   holder: PersonFormProps;
   beneficiarySchema: SchemaItem[];
   initInsuredIList: InsuredListProps;
+  guardianSchema: SchemaItem[];
   insured: InsuredListProps;
   keyword: any;
   list: any;
@@ -601,7 +605,7 @@ watch(
 
     colorConsole(`投被保人要素变动了`);
     const { insuredFactorCodes, holderFactorCodes } = inject(PERSONAL_INFO_KEY) || {};
-    const { holder, insured, beneficiary, config } = transformFactorToSchema(val[0], {
+    const { holder, insured, beneficiary, guardian, config } = transformFactorToSchema(val[0], {
       isTrial: val[1],
       ...props.multiInsuredConfig,
       insuredFactorCodes,
@@ -621,6 +625,7 @@ watch(
     }
 
     state.beneficiarySchema = cloneDeep(beneficiary?.schema || []);
+    state.guardianSchema = cloneDeep(guardian?.schema || []);
 
     return false;
   }, 300),
@@ -754,11 +759,16 @@ defineExpose({
 <style scoped lang="scss">
 .personal-info-card {
   margin-bottom: 0px !important;
+
   :deep(.com-van-field) {
+    .van-field__body {
+      display: flex !important;
+    }
     &:last-child::after {
       display: block;
     }
   }
+
   .choose-customer {
     display: flex;
     align-items: center;

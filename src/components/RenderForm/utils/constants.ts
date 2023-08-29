@@ -547,6 +547,8 @@ export const MODULE_TYPE_MAP = {
   4: 'payInfo',
   /** 签字信息 */
   5: 'signInfo',
+  /** 监护人 */
+  8: 'guardian',
 };
 
 // pro from

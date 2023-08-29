@@ -8,9 +8,7 @@ export const PAGE_CODE_ENUMS = {
 };
 
 export const BUTTON_CODE_ENUMS = {
-  TRIAL_PREMIUM: 'EVENT_LONG_saveOrder',
   QUESTION_NOTICE: 'EVENT_LONG_saveNotice',
-  INFO_COLLECTION: 'EVENT_LONG_saveInfo',
-  INFO_PREVIEW: 'EVENT_LONG_underWrite',
-  SIGN: 'EVENT_LONG_pay',
+  INFO_COLLECTION: 'EVENT_LONG_underWrite',
+  SIGN: 'EVENT_LONG_signConfirm',
 };

@@ -624,7 +624,7 @@ export interface InsureLinkReq {
   };
   insurerCode: string;
   productCode: string;
-  proposalId: number;
+  proposalId?: number;
   tenantId: number;
 }
 /** 试算默认值 */

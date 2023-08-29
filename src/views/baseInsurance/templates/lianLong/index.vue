@@ -49,28 +49,8 @@
       </ProLazyComponent>
     </template>
     <div v-else class="preview-placeholder">当前页面仅用于保费试算预览<br />不展示其他产品相关配置信息</div>
-
-    <template v-if="showFooterBtn && isLoadDefaultValue">
-      <TrialPop
-        ref="trialRef"
-        :data-source="currentPlanObj"
-        :share-info="shareInfo"
-        :is-share="shareInfo.isShare"
-        :product-info="{
-          productCode: insureProductDetail.productCode,
-          productName: insureProductDetail.productName,
-          productId: '',
-          tenantId,
-          insurerCode,
-          planList: insureProductDetail.productPlanInsureVOList,
-        }"
-        :default-data="orderDetail ? [orderDetail] : null"
-        :current-order-detail="orderDetail"
-        :tenant-product-detail="tenantProductDetail"
-        :hide-benefit="insureProductDetail.openFlag !== 1"
-      ></TrialPop>
-    </template>
     <div id="insureButton"></div>
+    <TrialButton></TrialButton>
   </div>
   <ProLazyComponent>
     <PreNotice v-if="preNoticeLoading && !trialPreviewMode" :product-detail="tenantProductDetail"></PreNotice>
@@ -107,7 +87,7 @@ import { productDetail as getTenantProductDetail, queryProductMaterial, querySal
 import { YES_NO_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 
 // import ScrollInfo from '../components/ScrollInfo/index.vue';
-
+import TrialButton from '../components/TrialButton.vue';
 import useAttachment from '@/hooks/useAttachment';
 import { getFileType } from '@/views/baseInsurance/utils';
 // import TrialPop from '../components/TrialPop/index.vue';
@@ -117,6 +97,7 @@ import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
 import ProPageWrap from '@/components/ProPageWrap';
 // import ProductDesc from '../components/ProductDesc/index.vue';
 import useOrder from '@/hooks/useOrder';
+import pageJump from '@/utils/pageJump';
 // const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
 const ProductDesc = defineAsyncComponent(() => import('../components/ProductDesc/index.vue'));
 const ScrollInfo = defineAsyncComponent(() => import('../components/ScrollInfo/index.vue'));
@@ -210,7 +191,7 @@ const previewMode = computed(() => !!preview || !!trialPreview);
 const trialPreviewMode = computed(() => !!trialPreview);
 const trialRef = ref();
 const showTrial = () => {
-  trialRef.value.open();
+  pageJump('premiumTrial', route.query);
 }; // 展示试算
 
 /* -------产品资料模块------------ */
@@ -254,7 +235,7 @@ const isLoadDefaultValue = ref<boolean>(false);
 
 const initData = async () => {
   !trialPreviewMode.value &&
-    querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
+    querySalesInfo({ productCode }).then(({ data, code }) => {
       if (code === '10000') {
         tenantProductDetail.value = data;
         const { wxShareConfig, showWXShare, title, desc, image } = data?.PRODUCT_LIST || {};

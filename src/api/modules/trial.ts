@@ -21,7 +21,7 @@ export const premiumCalcV2 = (data = {}) =>
 
 // 订单保存
 export const saveOrder = (data = {}) =>
-  request<ResponseData<any>>({ url: '/api/app/insure/insurance/saveOrder', method: 'POST', data });
+  request<number>({ url: '/api/app/insure/insurance/saveOrder', method: 'POST', data });
 
 // 核保
 export const underwrite = (data = {}) =>
@@ -69,7 +69,7 @@ export const nextStep = (data = {}) =>
 // 试算前对数据进行校验
 export const underWriteRule = (data = {}) =>
   request<ResponseData<PremiumCalcResponse>>({
-    url: '/api/app/insure/insurance/underWriteRule',
+    url: '/api/app/insure/insurance/underWriteRuleV2',
     method: 'POST',
     data,
   });

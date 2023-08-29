@@ -248,25 +248,7 @@ export const proposalToTrial = async (
 
 export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
   const nextStepParams: any = { ...currentOrderDetail, ...trialData };
-  let riskInsuredPremiumList = [];
   const { insuredPremiumList = [], initialAmount, initialPremium = 0 } = riskPremium || {};
-  if (insuredPremiumList.length) {
-    riskInsuredPremiumList = insuredPremiumList.map((riskDetail: any) => {
-      const riskPremiumMap = {
-        totalPremium: riskDetail.totalPremium,
-        riskMap: {},
-      };
-
-      riskDetail.riskPremiumDetailVOList.forEach((risk) => {
-        riskPremiumMap.riskMap[risk.riskCode] = {
-          premium: risk.unitPremium,
-          amount: risk.unitAmount,
-        };
-      });
-
-      return riskPremiumMap;
-    });
-  }
 
   nextStepParams.premium = initialPremium;
   nextStepParams.orderAmount = initialPremium;
@@ -276,16 +258,25 @@ export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
       ...insurer,
       certType: insurer.certType || CERT_TYPE_ENUM.CERT,
       certNo: (insurer.certNo || '').toLocaleUpperCase(),
-      productList: (insurer.productList || []).map((item) => ({
-        premium: riskInsuredPremiumList?.[index]?.totalPremium,
-        productCode: trialData.productCode,
+      productList: (insurer.productList || []).map((item, productIndex) => ({
+        ...item,
+        premium: insuredPremiumList?.[index]?.productPremiumList?.[productIndex]?.totalPremium,
+        productCode: insuredPremiumList?.[index]?.productPremiumList?.[productIndex]?.productCode,
         productName: trialData.productName,
-        riskList: (item.riskList || []).map((risk) => {
-          const { amount, premium } = riskInsuredPremiumList?.[index]?.riskMap?.[risk.riskCode] || {};
+        riskList: (item.riskList || []).map((risk, riskIndex) => {
+          const {
+            initialAmount: initAmount,
+            initialPremium: initPremium,
+            unitAmount,
+            unitPremium,
+          } = insuredPremiumList?.[index]?.productPremiumList?.[productIndex]?.riskPremiumDetailVOList?.[riskIndex] ||
+          {};
           return {
             ...risk,
-            initialAmount: amount,
-            initialPremium: premium,
+            initialAmount: initAmount,
+            initialPremium: initPremium,
+            unitAmount,
+            unitPremium,
             regularPremium: initialPremium,
             totalPremium: initialPremium,
           };

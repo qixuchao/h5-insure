@@ -813,6 +813,23 @@ export interface MergeProductDetail {
   }
 }
 
+/**
+ * 产品列表
+ */
+export interface ProductItem {
+    amountUnit: string;
+    desc: string;
+    id: number;
+    image: string;
+    insurerCode: string;
+    price: string;
+    productCode: string;
+    productFullName: string;
+    productName: string;
+}
+
+
+
 
 
 

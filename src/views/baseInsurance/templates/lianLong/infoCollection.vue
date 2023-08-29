@@ -4,18 +4,17 @@
     <Trial
       v-if="isLoading || preview"
       ref="personalInfoRef"
-      :data-source="currentPlanObj"
       :product-info="{
         productCode,
         productName: insureProductDetail.productName,
         insurerCode,
         tenantId,
-        planList: insureProductDetail.productPlanInsureVOList,
+        planList: [],
       }"
       :tenant-product-detail="tenantProductDetail"
       hide-benefit
       :product-collection="productCollection"
-      :default-value="orderDetail"
+      :default-data="orderDetail"
       :product-factor="productFactor"
       @trial-start="handleTrialStart"
       @trial-end="handleTrialEnd"
@@ -66,8 +65,11 @@
       :handle-share="(cb) => onShare(cb)"
       :disabled="!trialResult"
       @handle-click="onNext"
-      >下一步</TrialButton
-    >
+      >下一步
+      <template #right>
+        <span @click="handleCache">暂存</span>
+      </template>
+    </TrialButton>
   </div>
 </template>
 
@@ -81,12 +83,12 @@ import {
   premiumCalc,
   insureProductDetail as getInsureProductDetail,
   getTenantOrderDetail,
+  mergeInsureFactor,
   underWriteRule,
   queryCalcDynamicInsureFactor,
   queryCalcDefaultInsureFactor,
+  saveOrder,
 } from '@/api/modules/trial';
-import InsureInfos from './InsureInfos/index.vue';
-import ProductRiskList from './ProductRiskList/index.vue';
 
 import { InsureProductData, ProductPlanInsureVoItem } from '@/api/modules/product.data';
 import { ProductDetail, ProductDetail as ProductData } from '@/api/modules/newTrial.data';
@@ -98,10 +100,6 @@ import { getFileType, transformData } from '../../utils';
 import useOrder from '@/hooks/useOrder';
 import pageJump from '@/utils/pageJump';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
-import { PersonalInfo } from './InsureInfos/components';
-import { PRODUCT_KEYS_CONFIG } from './InsureInfos/components/ProductKeys/config';
-import { dealExemptPeriod } from '../components/TrialPop/utils';
-import { SUCCESS_CODE } from '@/api/code';
 import {
   ATTACHMENT_CATEGORY_ENUM,
   ATTACHMENT_OBJECT_TYPE_ENUM,
@@ -112,7 +110,7 @@ import {
 import { formData2Order, orderData2trialData, trialData2Order } from '../utils';
 import { jumpToNextPage } from '@/utils';
 import Trial from '../components/Trial/index.vue';
-import { setGlobalTheme } from '@/hooks/useTheme';
+import { pickProductRiskCode } from './utils';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
@@ -238,11 +236,6 @@ const mainRiskVO = ref<any>(); // 标准主险的险种数据
 const iseeBizNo = ref<string>();
 const riskDefaultValue = ref<any>();
 
-const mainRiskInfo = computed(() => {
-  const { insureProductRiskVOList } = insureProductDetail.value?.productPlanInsureVOList?.[0] || {};
-  return (insureProductRiskVOList || []).find((risk) => risk.mainRiskFlag === YES_NO_ENUM.YES);
-}); //
-
 // 试算结果-保费
 const premium = ref<number>(0);
 const premiumMap = ref<any>({}); // 试算后保费
@@ -338,6 +331,26 @@ const onNext = async () => {
   });
 };
 
+const handleCache = () => {
+  Object.assign(orderDetail.value, {
+    extInfo: {
+      ...orderDetail.value.extInfo,
+      buttonCode: BUTTON_CODE_ENUMS.INFO_COLLECTION,
+      pageCode: PAGE_CODE_ENUMS.INFO_COLLECTION,
+    },
+  });
+
+  const userData = personalInfoRef.value.dealMixData();
+
+  const currentOrderDetail = trialData2Order(
+    { ...userData, productCode, productName: insureProductDetail.value.productName },
+    trialResult.value,
+    orderDetail.value,
+  );
+
+  saveOrder(currentOrderDetail);
+};
+
 // 分享时需要校验投保人手机号并且保存数据
 const onShare = (cb) => {
   personalInfoRef.value
@@ -411,19 +424,20 @@ const order = reactive({
 const productCollection = ref({});
 const productFactor = ref();
 const initData = async () => {
-  querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
-    if (code === '10000') {
-      tenantProductDetail.value = data;
+  let productRiskMap = {};
+  // querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
+  //   if (code === '10000') {
+  //     tenantProductDetail.value = data;
 
-      const { wxShareConfig, showWXShare, title, desc, image } = data?.PRODUCT_LIST || {};
-      if (showWXShare) {
-        Object.assign(shareInfo.value, { ...wxShareConfig, imgUrl: wxShareConfig.image, isShare: showWXShare });
-      } else {
-        // 设置分享参数
-        Object.assign(shareInfo.value, { title, desc, imgUrl: image, isShare: showWXShare });
-      }
-    }
-  });
+  //     const { wxShareConfig, showWXShare, title, desc, image } = data?.PRODUCT_LIST || {};
+  //     if (showWXShare) {
+  //       Object.assign(shareInfo.value, { ...wxShareConfig, imgUrl: wxShareConfig.image, isShare: showWXShare });
+  //     } else {
+  //       // 设置分享参数
+  //       Object.assign(shareInfo.value, { title, desc, imgUrl: image, isShare: showWXShare });
+  //     }
+  //   }
+  // });
 
   orderNo &&
     (await getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
@@ -446,23 +460,24 @@ const initData = async () => {
           productCode,
         });
         state.defaultValue = orderDetail.value;
+        productRiskMap = pickProductRiskCode(data.insuredList[0].productList);
         isLoading.value = true;
       }
     }));
 
   queryProductMaterialData();
 
-  await getInsureProductDetail({ productCode, isTenant: !preview }).then(({ data, code }) => {
+  await mergeInsureFactor(productRiskMap).then(({ data, code }) => {
     if (code === '10000') {
-      console.log('data', data, productCode);
-      productCollection.value[`${productCode}`] = data;
-      productFactor.value = data?.productPlanInsureVOList?.[0]?.productFactor;
-      insureProductDetail.value = data;
-      currentPlanObj.value =
-        data.productPlanInsureVOList.find(
-          (plan) => !state.defaultPlanCode || plan.planCode === state.defaultPlanCode,
-        ) || {};
-      const { payInfo } = transformFactorToSchema(currentPlanObj.value?.productFactor);
+      const { productDetailResList, productFactor: currentProductFactor } = data;
+      productFactor.value = currentProductFactor;
+
+      const currentProductCollection = {};
+      productDetailResList.forEach((product) => {
+        currentProductCollection[product.productCode] = product;
+      });
+      productCollection.value = currentProductCollection;
+      const { payInfo } = transformFactorToSchema(productFactor.value);
       state.payInfo = {
         ...state.payInfo,
         ...payInfo,

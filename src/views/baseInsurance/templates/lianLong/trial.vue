@@ -12,7 +12,7 @@
       @delete-risk="deleteRisk"
     >
       <template #trialBtn="{ riskPremium }">
-        <TrialButton :premium="riskPremium.initialPremium" @click.stop="saveOrder"></TrialButton>
+        <TrialButton :premium="riskPremium.initialPremium" @click.stop="nextStep"></TrialButton>
       </template>
     </Trial>
     <RiskList
@@ -22,6 +22,7 @@
       :insured-list="insuredList"
       :title="popupTitle"
       :main-risk-code="currentRiskInfo.riskCode"
+      :select-list="productRiskCodeMap.productList"
       @cancel="handleCancel"
       @confirm="handleConfirm"
     ></RiskList>
@@ -34,7 +35,7 @@ import Trial from '@/views/baseInsurance/templates/components/Trial/index.vue';
 import {
   getTenantOrderDetail,
   insureProductDetail as getInsureProductDetail,
-  premiumCalc,
+  saveOrder,
   mergeInsureFactor,
 } from '@/api/modules/trial';
 import RiskList from './components/SelectRiskList.vue';
@@ -42,26 +43,13 @@ import TrialButton from '../components/TrialButton.vue';
 import { RISK_TYPE_ENUM } from '@/common/constants/trial';
 import useOrder from '@/hooks/useOrder';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
-import { nextStepOperate as nextStep } from '../../nextStep';
+import pageJump from '@/utils/pageJump';
+import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { pickProductRiskCode } from './utils';
 
 const route = useRoute();
 const router = useRouter();
 const { productCode, orderNo, tenantId } = route.query;
-
-const pickProductRiskCode = (productList) => {
-  const currentProductList = productList.map((product) => {
-    return {
-      productCode: product.productCode,
-      mergeRiskReqList: product.productPlanInsureVOList?.[0]?.insureProductRiskVOList.map((risk) => ({
-        riskCode: risk.riskCode,
-        riskType: risk.riskType,
-        mainRiskCode: risk.mainRiskCode,
-      })),
-    };
-  });
-
-  return { productList: currentProductList };
-};
 
 // 以产品code为key的产品集合
 const productCollection = ref({});
@@ -143,13 +131,12 @@ const addMainRisk = (currentInsuredList) => {
 const deleteRisk = (selectProductCode, riskCode, mainRiskCode) => {
   const currentProductDetail = productCollection.value[selectProductCode];
   // 单主险或者双主线删除主险时删除整个产品
-  console.log('selectProductCode', selectProductCode, riskCode, mainRiskCode);
 
   // 没有主险code则删除的是主险，也是删除整个产品
   if (!mainRiskCode) {
     delete productCollection.value[selectProductCode];
     productRiskCodeMap.value.productList = productRiskCodeMap.value.productList.filter(
-      (product) => product.productCode !== currentProductCode,
+      (product) => product.productCode !== selectProductCode,
     );
   } else {
     productCollection.value[selectProductCode].productPlanInsureVOList[0].insureProductRiskVOList =
@@ -158,7 +145,7 @@ const deleteRisk = (selectProductCode, riskCode, mainRiskCode) => {
       );
 
     productRiskCodeMap.value.productList = productRiskCodeMap.value.productList.map((product) => {
-      if (product.productCode === currentProductCode) {
+      if (product.productCode === selectProductCode) {
         product.mergeRiskReqList = product.mergeRiskReqList.filter((risk) => risk.riskCode !== riskCode);
       }
       return product;
@@ -174,8 +161,19 @@ const getOrderDetail = () => {
   });
 };
 
-const saveOrder = () => {
-  nextStep(orderDetail.value);
+const nextStep = () => {
+  trialRef.value.onNext(async (currentOrderDetail) => {
+    const { code, data } = await saveOrder(currentOrderDetail);
+    if (code === '10000') {
+      router.push({
+        path: PAGE_ROUTE_ENUMS.infoCollection,
+        query: {
+          ...route.query,
+          orderNo: data,
+        },
+      });
+    }
+  });
 };
 
 // 获取单个产品详情

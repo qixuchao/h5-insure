@@ -31,7 +31,7 @@
               class="risk-item"
             >
               <ProTitle :title="risk.riskName" :risk-type="risk.riskType">
-                <div class="operate-bar">
+                <div v-if="isTrial" class="operate-bar">
                   <div
                     v-if="risk.riskType === RISK_TYPE_ENUM.MAIN_RISK"
                     class="add-risk btn"
@@ -63,7 +63,7 @@
             </div>
           </div>
         </div>
-        <div v-if="canAddMainRisk" class="add-main-risk">
+        <div v-if="canAddMainRisk && isTrial" class="add-main-risk">
           <ProCheckButton activated @click="addMainRisk">+新增主险</ProCheckButton>
         </div>
       </div>
@@ -294,6 +294,18 @@ const deleteRisk = (productCode, mainRiskCode, riskCode) => {
   Dialog.confirm({
     message: '删除后将无法恢复，是否需要删除该产品？',
   }).then(() => {
+    if (!mainRiskCode) {
+      state.defaultValue.insuredList[0].productList = state.defaultValue.insuredList[0].productList.filter(
+        (product) => product.productCode !== productCode,
+      );
+    } else {
+      state.defaultValue.insuredList[0].productList = state.defaultValue.insuredList[0].productList.map((product) => {
+        if (product.productCode !== productCode) {
+          product.riskList = product.riskList.filter((risk) => risk.riskCode !== riskCode);
+        }
+        return product;
+      });
+    }
     emit('deleteRisk', productCode, riskCode, mainRiskCode);
   });
 };
@@ -425,7 +437,7 @@ const dealMixData = () => {
   return submitData;
 };
 
-const onNext = () => {
+const onNext = (cb) => {
   const { productCode, productName } = props.productInfo;
   if (preview) {
     jumpToNextPage(PAGE_CODE_ENUMS.TRIAL_PREMIUM, route.query);
@@ -433,7 +445,7 @@ const onNext = () => {
   }
   if (state.trialResultPremium) {
     // 验证
-    insureInfosRef.value?.validate().then(() => {
+    Promise.all(insureInfosRef.value.map((currentRef) => currentRef.validate())).then(() => {
       Object.assign(orderDetail.value, props.defaultOrder, {
         extInfo: {
           templateId,
@@ -449,11 +461,7 @@ const onNext = () => {
         state.trialResult,
         orderDetail.value,
       );
-      nextStep(currentOrderDetail, (data, pageAction) => {
-        if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-          pageJump(data.nextPageCode, { ...route.query, orderNo: data.orderNo });
-        }
-      });
+      cb?.(currentOrderDetail);
       console.log('---- validate success ----');
     });
     state.loading = false;
@@ -618,10 +626,9 @@ const handleTrialAndBenefit = debounce(async (calcData: any, needCheck = true) =
   }
 }, 500);
 
-const handleMixTrialData = debounce(async () => {
-  const { productCode, productName } = props.productInfo || {};
+const handleMixTrialData = async () => {
   if (state.ifPersonalInfoSuccess || personalInfoRef.value?.canTrail?.()) {
-    state.submitData.tenantId = props.productInfo.tenantId;
+    state.submitData.tenantId = `${tenantId}`;
 
     if (state.submitData.insuredList?.length) {
       state.submitData.insuredList = state.submitData?.insuredList.map((insured) => {
@@ -630,7 +637,6 @@ const handleMixTrialData = debounce(async () => {
           productList: insured?.productList.map((currentProduct) => {
             return {
               ...currentProduct,
-              productName,
               riskList: state.riskList[currentProduct.productCode],
             };
           }),
@@ -642,7 +648,7 @@ const handleMixTrialData = debounce(async () => {
     console.log('>>>数据构建<<<', submitDataCopy);
     await handleTrialAndBenefit(submitDataCopy);
   }
-}, 300);
+};
 
 const handlePersonalInfoChange = async (data) => {
   console.log('人的信息更改了');
@@ -816,7 +822,7 @@ const handleDynamicConfig = async (data: any, changeData: any, productCode) => {
   return true;
 };
 
-const handleTrialInfoChange = async (data: any, changeData: any, productCode) => {
+const handleTrialInfoChange = debounce(async (data: any, changeData: any, productCode) => {
   const currentRiskInfo = state.riskList?.[productCode]?.find((risk) => risk.riskCode === data.riskCode);
   if (!currentRiskInfo) {
     if (state.riskList[productCode]?.length) {
@@ -837,7 +843,7 @@ const handleTrialInfoChange = async (data: any, changeData: any, productCode) =>
   if (!dyDeal) return;
   console.log('标准险种的信息回传', data);
   handleMixTrialData();
-};
+}, 500);
 
 // const handleProductRiskInfoChange = async (dataList: any, changeData: any) => {
 //   state.riskList = [state.mainRiskVO, ...dataList];
@@ -881,7 +887,7 @@ const fetchDefaultDataFromServer = async () => {
   });
   if (result.data) {
     transformDefaultData(result.data);
-    // handlePersonInfo(result.data);
+    handlePersonInfo(result.data);
   }
 };
 const fetchDefaultData = async (changes: []) => {
@@ -899,7 +905,7 @@ const fetchDefaultData = async (changes: []) => {
 };
 
 onBeforeMount(() => {
-  handleRestState();
+  // handleRestState();
   handleSetRiskSelect();
 });
 
@@ -975,7 +981,6 @@ watch(
 watch(
   () => props.productCollection,
   (value, oldVal) => {
-    console.log('val', value, oldVal);
     if (Object.keys(value || {}).length && !state.defaultValue) {
       fetchDefaultData([]);
     }
@@ -1000,8 +1005,12 @@ watch(
 
 watch(
   () => props.defaultData,
-  (val) => {
-    state.defaultValue = val;
+  (value, oldValue) => {
+    if (JSON.stringify(cloneDeep(value)) !== JSON.stringify(cloneDeep(oldValue))) {
+      console.log('value', value, oldValue);
+      state.defaultValue = value;
+      state.userData = value || {};
+    }
   },
   {
     deep: true,
@@ -1073,6 +1082,14 @@ watch(
   .trial-body {
     overflow-y: scroll;
     flex: 1;
+
+    .personal-info-card {
+      :deep(.van-field) {
+        .van-field__body {
+          display: flex;
+        }
+      }
+    }
 
     .product-item {
       padding: 0 $zaui-card-border;

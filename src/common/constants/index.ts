@@ -143,8 +143,9 @@ export const PAGE_API_ENUMS = {
 };
 
 export const PAGE_ROUTE_ENUMS = {
+  productList: '/baseInsurance/long/productList', // 产品详情
   productInfo: '/baseInsurance/long/productDetail', // 产品详情
-  premiumTrial: '/baseInsurance/long/productDetail', // 保费试算
+  premiumTrial: '/baseInsurance/long/trial', // 保费试算
   questionNotice: '/baseInsurance/long/healthNotice', // 问卷告知书
   infoCollection: '/baseInsurance/long/infoCollection', // 信息采集
   infoPreview: '/baseInsurance/long/infoPreview', // 信息采集预览
