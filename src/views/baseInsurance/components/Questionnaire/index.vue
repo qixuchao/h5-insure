@@ -1,7 +1,9 @@
 <template class="com-questionnaire">
   <div>问卷标题: {{ props.data.basicInfo.questionnaireName }}</div>
-
-  <Question v-for="(question, index) in props.data.questions" :key="question.id" :data="question" :index="index" />
+  <template v-if="props.data.basicInfo.questionnaireType === 1">文本问卷</template>
+  <template v-else>
+    <Question v-for="(question, index) in props.data.questions" :key="question.id" :data="question" :index="index" />
+  </template>
   <ProCard :title="props.data.imageConfig.name">
     <ProImageUpload v-model="props.data.imageConfig.images" :max-count="props.data.imageConfig.maxNum" />
   </ProCard>

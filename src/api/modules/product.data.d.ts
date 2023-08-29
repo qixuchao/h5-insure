@@ -821,12 +821,13 @@ export interface NBasicInfo {
 }
 
 /** 问卷-问题选项 */
-export interface OptionList {
+export interface OptionItem {
 	code: string;
 	detailList?: NQuestion[];
 	optionType: number;
 	relationFlag: number;
-	remarkFlag: number;
+	remarks?: string[];
+	remark: number;
 	value: string;
 }
 /** 问卷-问题配置 */
@@ -839,14 +840,21 @@ export interface RuleConfig {
 }
 
 /** 问卷-问题对象 */
+export interface AnswerVO {
+  answer: any; // 问题答案（单选、判断、单项填空时）
+  answerList: any[]; // 问题答案（多选、多项填空时）
+  questionRemark: string;
+  questionRemarks: string[];
+  childAnswerList: AnswerVO[];
+}
 export interface NQuestion {
 	content: string;
 	id: number;
 	mustFlag: number;
-  answer: any; // 问题答案（单选、判断、单项填空时）
-  answerList: any[]; // 问题答案（多选、多项填空时）
-	optionList: OptionList[];
-	questionOptionList: OptionList[];
+
+  answerVO: AnswerVO;
+	optionList: OptionItem[];
+	questionOptionList: OptionItem[];
 	options: string;
 	position: number;
 	questionCode: string;
@@ -867,6 +875,7 @@ export interface QuestionnaireDetailRes {
     showFlag?: number;
     name?: string;
     maxCount?: number;
+    images?: string[];
   };
 }
 
