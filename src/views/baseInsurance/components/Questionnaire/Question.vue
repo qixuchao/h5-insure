@@ -6,90 +6,64 @@
         v-dompurify-html="data.questionDesc"
         class="question-desc"
       />
-      <ProForm ref="formRef" input-align="left" error-message-align="left" @submit="getAllData">
-        <ProCard :title="questionTitle">
-          <div
-            v-if="data.questionDesc && enumEqual(data.questionDescPosition, 2)"
-            v-dompurify-html="data.questionDesc"
-            class="question-desc"
-          />
-          <!-- 单选/判断 -->
-          <van-field
-            v-if="
-              enumEqual(data.questionType, PRODUCT_QUESTION_OPT_TYPE_ENUM.SINGLE) ||
-              enumEqual(data.questionType, PRODUCT_QUESTION_OPT_TYPE_ENUM.JUDGE)
-            "
-            name="answer"
-            :rules="[{ required: enumEqual(data.mustFlag, 2), message: '请选择' }]"
-          >
-            <template #input>
-              <van-radio-group v-model="answerVO.answer">
-                <div v-for="(option, index) in data.optionList" :key="index" class="option-row">
-                  <van-radio :name="option.code">{{ option.value }}{{ index }}</van-radio>
-                  <div v-if="enumEqual(answerVO.answer, option.code)" class="child">
-                    <Question
-                      v-for="(child, ind) in option.detailList"
-                      :key="child.id"
-                      :parent-id="data.id"
-                      :parent-option-code="option.code"
-                      :data="child"
-                      :parent-answer="answerVO.childAnswerList[ind]"
-                    />
-                  </div>
-                  <div v-if="enumEqual(option.optionType, 2) && enumEqual(answerVO.answer, option.code)">
-                    <van-field
-                      v-model="answerVO.questionRemark"
-                      name="questionRemark"
-                      rows="2"
-                      autosize
-                      label="告知说明"
-                      type="textarea"
-                      maxlength="100"
-                      placeholder="请输入告知说明"
-                      show-word-limit
-                    />
-                  </div>
+      <!-- <ProForm ref="formRef" input-align="left" error-message-align="left" @submit="submit" @failed="onFailed"> -->
+      <ProCard :title="questionTitle">
+        <div
+          v-if="data.questionDesc && enumEqual(data.questionDescPosition, 2)"
+          v-dompurify-html="data.questionDesc"
+          class="question-desc"
+        />
+        <!-- 单选/判断 -->
+        <van-field
+          v-if="
+            enumEqual(data.questionType, PRODUCT_QUESTION_OPT_TYPE_ENUM.SINGLE) ||
+            enumEqual(data.questionType, PRODUCT_QUESTION_OPT_TYPE_ENUM.JUDGE)
+          "
+          :name="`${props.name}.answer`"
+          :rules="[{ required: enumEqual(data.mustFlag, 1), message: '请选择' }]"
+        >
+          <template #input>
+            <van-radio-group v-model="answerVO.answer">
+              <div v-for="(option, index) in data.optionList" :key="index" class="option-row">
+                <van-radio :name="option.code">{{ option.value }}</van-radio>
+                <div v-if="enumEqual(answerVO.answer, option.code)" class="child">
+                  <template v-for="(child, ind) in option.detailList" :key="child.id">
+                    <!-- <Question
+                        ref="childRef"
+                        :name="`${props.name}.childAnswerlist.${ind}.answerVO`"
+                        :data="child"
+                        :is-view="isView"
+                      /> -->zi问题
+                  </template>
                 </div>
-              </van-radio-group>
-            </template>
-          </van-field>
-          <van-field
-            v-if="data.questionType === PRODUCT_QUESTION_OPT_TYPE_ENUM.MULTIPLE"
-            name="answerList"
-            label=""
-            :rules="[{ required: data.mustFlag === 2, message: '请选择' }]"
-          >
-            <template #input>
-              <van-checkbox-group v-model="answerVO.answerList">
-                <div v-for="(item, index) in data.optionList" :key="index" class="option-row">
-                  <van-checkbox :name="index" shape="square">{{ item.value }}</van-checkbox>
-                  <div v-if="enumEqual(item.optionType, 2) && answerVO.answerList?.includes(item.code)">
-                    <van-field
-                      v-model="answerVO.questionRemarks[index]"
-                      rows="2"
-                      autosize
-                      label="告知说明"
-                      type="textarea"
-                      maxlength="100"
-                      placeholder="请输入"
-                      show-word-limit
-                    />
-                  </div>
+                <div v-if="enumEqual(option.optionType, 2) && enumEqual(answerVO.answer, option.code)">
+                  <van-field
+                    v-model="answerVO.questionRemark"
+                    :name="`${props.name}.questionRemark`"
+                    rows="2"
+                    autosize
+                    label="告知说明"
+                    type="textarea"
+                    maxlength="100"
+                    placeholder="请输入告知说明"
+                    show-word-limit
+                  />
                 </div>
-              </van-checkbox-group>
-            </template>
-          </van-field>
-          <!-- 判断 -->
-          <!-- <van-field v-if="data.questionType === 'PRODUCT_QUESTION_OPT_TYPE_ENUM.JUDGE'" name="answer" :rules="[{ required: data.mustFlag === 2, message: '请选择' }]">
-            <template #input>
-              <ProRadioButton
-                v-model="answerVO.answer"
-                :options="[
-                  { label: '是', value: 0 },
-                  { label: '否', value: 1 },
-                ]"
-              />
-              <div v-if="enumEqual(item.optionType, 2) && answerVO.answerList?.includes(item.code)">
+              </div>
+            </van-radio-group>
+          </template>
+        </van-field>
+        <van-field
+          v-if="data.questionType === PRODUCT_QUESTION_OPT_TYPE_ENUM.MULTIPLE"
+          :name="`${props.name}.answerList`"
+          label=""
+          :rules="[{ required: enumEqual(data.mustFlag, 1), message: '请选择' }]"
+        >
+          <template #input>
+            <van-checkbox-group v-model="answerVO.answerList">
+              <div v-for="(item, index) in data.optionList" :key="index" class="option-row">
+                <van-checkbox :name="index" shape="square">{{ item.value }}</van-checkbox>
+                <div v-if="enumEqual(item.optionType, 2) && answerVO.answerList?.includes(item.code)">
                   <van-field
                     v-model="answerVO.questionRemarks[index]"
                     rows="2"
@@ -100,31 +74,40 @@
                     placeholder="请输入"
                     show-word-limit
                   />
+                </div>
               </div>
-            </template>
-          </van-field> -->
-          <!-- 单项填空题 -->
-          <van-field
-            v-if="data.questionType === PRODUCT_QUESTION_OPT_TYPE_ENUM.BLANK"
-            v-model="answerVO.answer"
-            name="answer"
-            placeholder="请输入"
-            :rules="[{ required: data.mustFlag === 2, message: '请输入' }]"
-          />
-          <!-- 多项填空题 -->
-          <div v-if="data.questionType === PRODUCT_QUESTION_OPT_TYPE_ENUM.MULE_BLANK" class="question-muti-blank">
-            <van-field name="answerList" :rules="[{ required: data.mustFlag === 2, message: '请输入' }]">
-              <template #input>
-                <template v-for="(inp, i) in mutiBlank" :key="i">
-                  <span v-if="inp.type === 'literal'">{{ inp.value }}</span>
-                  <input v-else v-model="answerVO.answerList[i]" placeholder="请输入" />
-                </template>
-              </template>
+            </van-checkbox-group>
+          </template>
+        </van-field>
+        <!-- 单项填空题 -->
+        <van-field
+          v-if="data.questionType === PRODUCT_QUESTION_OPT_TYPE_ENUM.BLANK"
+          v-model="answerVO.answer"
+          :name="`${props.name}.answer`"
+          placeholder="请输入"
+          :rules="[{ required: enumEqual(data.mustFlag, 1), message: '请输入' }]"
+        />
+        <!-- 多项填空题 -->
+        <div v-if="data.questionType === PRODUCT_QUESTION_OPT_TYPE_ENUM.MULE_BLANK" class="question-muti-blank">
+          <template v-for="(inp, i) in mutiBlank" :key="i">
+            <span v-if="inp.type === 'literal'">{{ inp.value }}</span>
+            <van-field
+              v-else
+              v-model="answerVO.answerList[inp.index]"
+              class="custom-cell"
+              :name="`${props.name}.answerList.${inp.index}`"
+              placeholder="请输入"
+              :rules="[{ required: enumEqual(data.mustFlag, 1), message: '请输入' }]"
+            >
+              <!-- <template #input>
+                  <input />
+                </template> -->
             </van-field>
-          </div>
-        </ProCard>
-        <van-button round type="primary" native-type="submit"> 提交 </van-button>
-      </ProForm>
+          </template>
+        </div>
+      </ProCard>
+      <!-- <van-button round type="primary" native-type="submit"> 提交 </van-button>
+      </ProForm> -->
     </div>
   </div>
 </template>
@@ -153,12 +136,11 @@ const PRODUCT_QUESTION_OPT_TYPE_MAP = {
   5: '多项填空',
 };
 interface Props {
-  index: number; // 问题的序号
+  index?: number; // 问题的序号
   data: NQuestion;
   isView?: boolean;
-  parentAnswer?: AnswerVO;
-  parentId?: number;
-  parentOptionCode?: number | string;
+  name: string;
+  value: AnswerVO;
 }
 
 const props = defineProps<Props>();
@@ -169,41 +151,84 @@ const questionTitle = computed(() => {
 });
 const mutiBlank = computed(() => {
   if (enumEqual(data.value.questionType, PRODUCT_QUESTION_OPT_TYPE_ENUM.MULE_BLANK)) {
+    let temp = -1;
     return data.value.optionList[0].value
       .replaceAll('_____', '∝$blank∝')
       .split('∝')
       .map((blank) => {
+        if (blank === '$blank') temp += 1;
         return {
           type: blank === '$blank' ? 'variable' : 'literal',
           value: blank === '$blank' ? '' : blank,
+          index: temp,
         };
       });
   }
   return [];
 });
-const answerVO = ref<AnswerVO>(parentAnswer.value || data.value.answerVO);
+const answerVO = ref<AnswerVO>(props.value);
+const childRef = ref();
 const formRef = ref();
-const getAllData = (values) => {
-  console.log('values:', values, formRef.value.getValues());
-  // formRef.value.validate((valid) => {
-  //   debugger;
-  //   if (valid) {
-  //     console.log(data.value.answerVO);
-  //   } else {
-  //     console.error('表单错误：');
-  //   }
-  // })
+const onFailed = (errorInfo) => {
+  console.log('failed', errorInfo);
+};
+const submit = () => {
+  console.log('values:', answerVO.value, childRef.value);
+};
+const getAllData = () => {
+  // console.log('values:', answerVO.value, childRef.value);
+  const valueName = [2, 5].includes(data.value.questionType) ? 'anwserList' : 'anwser';
+  return new Promise((resolve, reject) => {
+    formRef.value
+      .validate(valueName)
+      .then((valid) => {
+        debugger;
+        if (valid) {
+          console.log(data.value.answerVO);
+          resolve({ id: props.data.id, questionCode: props.data.questionCode, answerVO: answerVO.value });
+        } else {
+          console.error('表单错误：');
+          reject();
+        }
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
+watch(
+  () => props.value,
+  () => {
+    answerVO.value = props.value;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+const getChildValue = () => {
+  const valueList = [];
+  return childRef.value.forEach((element) => {
+    console.log('child:', element);
+    valueList.push(element.getData());
+  });
 };
 defineExpose({
-  getData: getAllData,
+  getData: () => {
+    return {
+      ...answerVO.value,
+      childAnswerList: getChildValue(),
+    };
+  },
 });
 </script>
 
 <style scoped lang="scss">
 .com-question {
   .com-card {
-    border: 1px solid red;
-    padding: 32px 16px;
+    // border: 1px solid red;
+    // padding: 32px 16px;
   }
   :deep(.body) {
     background-color: $zaui-global-bg;
@@ -221,8 +246,9 @@ defineExpose({
   width: 100%;
 }
 .question-desc {
-  font-size: 12px;
-  border: 1px solid rgb(219, 235, 78);
+  font-size: 26px;
+  padding: 16px 32px;
+  background-color: #fafafa;
 }
 :deep(.radio-btn) {
   justify-content: flex-start;
@@ -236,6 +262,8 @@ defineExpose({
 }
 // }
 .question-muti-blank {
+  padding: 16px 32px;
+  background-color: #ffffff;
   input {
     width: 120px;
     border-width: 0px;
@@ -254,5 +282,18 @@ defineExpose({
   background-color: #ffffff;
   margin-bottom: 20px;
   padding: 0 30px;
+}
+:deep(.custom-cell.van-cell.van-field) {
+  display: inline !important;
+  width: 120px;
+  .van-field__value {
+    display: inline-block !important;
+  }
+  .van-field__body input {
+    width: 100px;
+    margin: 0 4px;
+    padding: 0 4px;
+    text-align: center;
+  }
 }
 </style>

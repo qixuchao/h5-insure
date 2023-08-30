@@ -45,7 +45,7 @@ interface Props {
   config?: object;
   markRequired?: boolean;
   /** 额外Provide  */
-  extraProvision: object;
+  extraProvision?: object;
 }
 
 const emits = defineEmits(['failed']);
