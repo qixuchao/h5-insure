@@ -57,3 +57,11 @@ export const getFile = (data: any) => {
     data,
   });
 };
+
+// 签名确认
+export const signatureConfirm = (data = {}) =>
+  request<boolean>({
+    url: '/api/app/insure/insurance/signatureConfirm',
+    method: 'POST',
+    data,
+  });

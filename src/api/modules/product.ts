@@ -38,6 +38,15 @@ export const queryProductMaterial = (data = {}) => {
   });
 };
 
+// 获取多产品资料信息
+export const queryListProductMaterial = (data = {}) => {
+  return request<ProductMaterialData>({
+    url: '/api/app/insure/product/v2/listProductMaterial',
+    method: 'POST',
+    data,
+  });
+};
+
 export const productList = () => {
   return request({ url: '/api/app/insure/product/listInsureProductDetail', method: 'POST' });
 };
@@ -89,6 +98,7 @@ export const queryListRelationCustomer = (data: any) => {
   });
 };
 
+// 产品列表查询
 export const queryProductList = (data = {}) => {
   return request<Array<ProductItem>>({
     url: '/api/app/insure/product/v2/listProduct',

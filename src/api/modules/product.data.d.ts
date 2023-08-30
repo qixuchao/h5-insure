@@ -809,7 +809,7 @@ export interface ParameterMap {
 export interface MergeProductDetail {
   productDetailResList: Array<ProductDetail>;
   productFactor: {
-    [propName: string]: ProductFactorItem;
+    [propName: number]: ProductFactorItem;
   }
 }
 

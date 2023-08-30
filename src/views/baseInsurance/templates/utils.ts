@@ -261,8 +261,6 @@ export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
       productList: (insurer.productList || []).map((item, productIndex) => ({
         ...item,
         premium: insuredPremiumList?.[index]?.productPremiumList?.[productIndex]?.totalPremium,
-        productCode: insuredPremiumList?.[index]?.productPremiumList?.[productIndex]?.productCode,
-        productName: trialData.productName,
         riskList: (item.riskList || []).map((risk, riskIndex) => {
           const {
             initialAmount: initAmount,

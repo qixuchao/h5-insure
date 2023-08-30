@@ -7,12 +7,20 @@
         <span class="close" @click="handleConfirm">确认</span>
       </div>
       <div class="popup-body">
-        <h3>{{ `尊敬的${checkCategory[checkType].type}${checkCategory[checkType].name}:` }}</h3>
+        <h3>{{ `尊敬的${checkCategory[checkType].type}:${checkCategory[checkType].name}` }}</h3>
         <p>{{ checkCategory[checkType].desc }}</p>
         <h3>
           {{ `${checkCategory[checkType].type}手机号验证 ${convertPhone(checkCategory[checkType].mobile || '')}` }}
         </h3>
         <ProRenderForm :model="formData">
+          <ProFieldV2
+            v-show="false"
+            v-model="formData.mobile"
+            label="被保人手机号"
+            name="mobile"
+            maxlength="11"
+            required
+          ></ProFieldV2>
           <ProSMSCode
             v-model="formData.verifyCode"
             related-name="mobile"
@@ -35,6 +43,7 @@ import { withDefaults, ref, computed, watch } from 'vue';
 import { emit } from 'process';
 import { convertPhone } from '@/utils/format';
 import { sendSMSCode } from '@/components/RenderForm/utils/constants';
+import { RegMap } from '@/components/RenderForm/utils/validate';
 
 interface Props {
   show: boolean;
@@ -84,9 +93,13 @@ const handleConfirm = () => {
 };
 
 watch(
-  props.data,
-  (value) => {
-    Object.assign(formData.value, value);
+  [() => props.data, props.type],
+  ([data, type]) => {
+    if (data) {
+      Object.assign(checkCategory.value.holder, data.holder);
+      Object.assign(checkCategory.value.insured, data?.insuredList?.[0]);
+      formData.value.mobile = checkCategory.value?.[`${props.type}`]?.mobile;
+    }
   },
   {
     immediate: true,

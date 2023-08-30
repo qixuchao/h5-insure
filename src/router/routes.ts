@@ -33,12 +33,12 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     meta: { title: '健康告知书' },
     component: () => import('@/views/baseInsurance/templates/lianLong/healthNotice.vue'),
   },
-  // {
-  //   name: 'riskNotice',
-  //   path: '/baseInsurance/long/riskNotice',
-  //   meta: { title: '风险告知书' },
-  //   component: () => import('@/views/baseInsurance/templates/lianLong/riskNotice.vue'),
-  // },
+  {
+    name: 'riskNotice',
+    path: '/baseInsurance/long/riskNotice',
+    meta: { title: '风险告知书' },
+    component: () => import('@/views/baseInsurance/templates/lianLong/riskNotice.vue'),
+  },
   {
     name: 'infoCollection',
     path: '/baseInsurance/long/infoCollection',
@@ -52,17 +52,35 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     meta: { title: '身份认证' },
     component: () => import('@/views/baseInsurance/templates/lianLong/verify.vue'),
   },
-  // {
-  //   name: 'faceVerify',
-  //   path: '/baseInsurance/long/faceVerify',
-  //   meta: { title: '人脸识别' },
-  //   component: () => import('@/views/baseInsurance/templates/lianLong/faceVerify.vue'),
-  // },
+  {
+    name: 'faceVerify',
+    path: '/baseInsurance/long/faceVerify',
+    meta: { title: '人脸识别' },
+    component: () => import('@/views/baseInsurance/templates/lianLong/faceVerify.vue'),
+  },
   {
     name: 'phoneVerify',
     path: '/baseInsurance/long/phoneVerify',
     meta: { title: '空中签名' },
     component: () => import('@/views/baseInsurance/templates/lianLong/phoneVerify.vue'),
+  },
+  {
+    name: 'agentSign',
+    path: '/baseInsurance/long/agentSign',
+    meta: { title: '代理人签字' },
+    component: () => import('@/views/baseInsurance/templates/lianLong/agentSign.vue'),
+  },
+  {
+    name: 'holderSign',
+    path: '/baseInsurance/long/holderSign',
+    meta: { title: '投保人签字' },
+    component: () => import('@/views/baseInsurance/templates/lianLong/holderSign.vue'),
+  },
+  {
+    name: 'insuredSign',
+    path: '/baseInsurance/long/insuredSign',
+    meta: { title: '被保人签字' },
+    component: () => import('@/views/baseInsurance/templates/lianLong/insuredSign.vue'),
   },
   {
     name: 'infoPreview',

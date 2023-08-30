@@ -342,11 +342,7 @@ const handleCache = () => {
 
   const userData = personalInfoRef.value.dealMixData();
 
-  const currentOrderDetail = trialData2Order(
-    { ...userData, productCode, productName: insureProductDetail.value.productName },
-    trialResult.value,
-    orderDetail.value,
-  );
+  const currentOrderDetail = trialData2Order(userData, trialResult.value, orderDetail.value);
 
   saveOrder(currentOrderDetail);
 };

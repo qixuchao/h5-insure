@@ -28,7 +28,6 @@
     <ProCard v-if="showSign" :title="`${title}签名`" :show-icon="false" class="sign-card" :show-line="false">
       <template #extra>
         <div class="sign-status">
-          <div class="status">{{ signString ? '已签名' : '未签名' }}</div>
           <div v-if="!disabled" class="resign" @click="resetSign">重签</div>
         </div>
       </template>
@@ -130,6 +129,7 @@ const signRef = ref<InstanceType<typeof Sign>>();
 const resetSign = () => {
   if (signRef.value) {
     signRef.value.rewrite();
+    signRef.value.openSign();
   }
 };
 const openSign = () => {

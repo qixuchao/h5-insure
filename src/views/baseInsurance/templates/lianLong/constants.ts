@@ -12,3 +12,22 @@ export const BUTTON_CODE_ENUMS = {
   INFO_COLLECTION: 'EVENT_LONG_underWrite',
   SIGN: 'EVENT_LONG_signConfirm',
 };
+
+export const PAGE_ROUTE_ENUMS = {
+  productList: '/baseInsurance/long/productList', // 产品详情
+  productInfo: '/baseInsurance/long/productDetail', // 产品详情
+  premiumTrial: '/baseInsurance/long/trial', // 保费试算
+  questionNotice: '/baseInsurance/long/healthNotice', // 问卷告知书
+  infoCollection: '/baseInsurance/long/infoCollection', // 信息采集
+  infoPreview: '/baseInsurance/long/infoPreview', // 信息采集预览
+  sign: '/baseInsurance/long/verify', // 认证
+  checkFace: '/baseInsurance/long/checkFace', // 认证
+  agentSign: '/baseInsurance/long/agentSign', // 代理人签字
+  holderSign: '/baseInsurance/long/holderSign', // 投保人签字
+  insuredSign: '/baseInsurance/long/insuredSign', // 被保人签字
+  orderDetail: '/orderDetail', // 订单详情
+  orderList: '/order', // 订单列表
+  paymentResult: '/baseInsurance/long/result',
+  orderTrajectory: '/orderTrajectory', // 订单轨迹
+  customerDetail: '/customerDetail', // 客户详情
+};
