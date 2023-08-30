@@ -1,0 +1,1 @@
+const i=i=>({productList:i.map((i=>{var r,s;return{productCode:i.productCode,mergeRiskReqList:null==(s=null==(r=i.productPlanInsureVOList)?void 0:r[0])?void 0:s.insureProductRiskVOList.map((i=>({riskCode:i.riskCode,riskType:i.riskType,mainRiskCode:i.mainRiskCode})))}}))});export{i as p};

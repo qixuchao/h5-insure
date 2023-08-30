@@ -1,1 +1,0 @@
-const N={TRIAL_PREMIUM:"trial",QUESTION_NOTICE:"questionNotice",INFO_COLLECTION:"infoCollection",INFO_PREVIEW:"infoPreview",SIGN:"sign",RESULT:"paymentResult"},E={QUESTION_NOTICE:"EVENT_LONG_saveNotice",INFO_COLLECTION:"EVENT_LONG_underWrite",SIGN:"EVENT_LONG_signConfirm"};export{E as B,N as P};
