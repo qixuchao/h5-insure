@@ -1,12 +1,6 @@
 <template>
   <template v-for="config in PRODUCT_KEYS_CONFIG">
-    <div
-      v-if="
-        get(originData, config.configKey) &&
-        (riskInfo.mainRiskFlag === 1 || (config.ruleKey && get(originData, config.ruleKey) === 2) || !config.ruleKey)
-      "
-      :key="riskInfo.riskCode + '_' + config.name"
-    >
+    <div v-if="get(originData, config.configKey)" :key="riskInfo.riskCode + '_' + config.name">
       <template v-if="config.type === 'checkbox'">
         <ProField
           v-model="mValues[config.valueKey]"
@@ -59,7 +53,7 @@ const formatOptions = (configKey: Array<string>) => {
   const options = get(props.originData, configKey);
   const useOptions = get(props.originData, configKey);
   // console.log('---------------change option', props.defaultValue);
-  return options.map((v) => {
+  return (options || []).map((v) => {
     const useOption = useOptions ? useOptions.find((o) => o.code === v.code) : null;
     return {
       label: v.value,

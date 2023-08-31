@@ -51,6 +51,7 @@ import {
   insureProductDetail as getInsureProductDetail,
   getTenantOrderDetail,
   underWriteRule,
+  mergeInsureFactor,
 } from '@/api/modules/trial';
 import SignPart from './components/SignPart.vue';
 import useOrder from '@/hooks/useOrder';
@@ -78,6 +79,7 @@ import { jumpToNextPage, isAppFkq } from '@/utils';
 import { setGlobalTheme } from '@/hooks/useTheme';
 import { localStore } from '@/hooks/useStorage';
 import { confirmRiskTranscription } from '@/api/modules/scribing';
+import { pickProductRiskCode } from './utils';
 
 const route = useRoute();
 const router = useRouter();
@@ -336,10 +338,6 @@ const getOrderDetail = (check = false) => {
     });
 };
 
-const handleRefresh = () => {
-  getOrderDetail(true);
-};
-
 // 分享信息
 const shareInfo = ref({
   imgUrl: '',
@@ -348,22 +346,33 @@ const shareInfo = ref({
   link: shareLink,
 });
 
-const initData = () => {
-  querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
-    if (code === '10000') {
-      const { wxShareConfig, showWXShare, title, desc, image } = data?.PRODUCT_LIST || {};
-      if (showWXShare) {
-        Object.assign(shareInfo.value, { ...wxShareConfig, imgUrl: wxShareConfig.image, isShare: showWXShare });
-      } else {
-        // 设置分享参数
-        Object.assign(shareInfo.value, { title, desc, imgUrl: image, isShare: showWXShare });
+const initData = async () => {
+  let productRiskMap = {};
+  const { code: oCode, data: orderData } = await getTenantOrderDetail({ orderNo: orderCode || orderNo, tenantId });
+  if (oCode === '10000') {
+    Object.assign(orderDetail.value, orderData);
+    signPartInfo.value.holder.personalInfo = orderData.holder;
+    signPartInfo.value.insured.personalInfo = orderData.insuredList;
+
+    productRiskMap = pickProductRiskCode(orderData.insuredList[0].productList);
+
+    Object.assign(defaultScribingConfig.value, {
+      type: SCRIBING_TYPE_MAP[orderData.extInfo.transcriptionType],
+      signInfo: orderData.riskTranscriptionList?.[0]?.uri,
+      text: orderData.riskTranscriptionList?.[0]?.content,
+      status: !!orderData.extInfo.transcriptionStatus,
+    });
+
+    orderData.tenantOrderAttachmentList.forEach((attachment) => {
+      if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
+        signPartInfo.value.holder.signData = attachment.fileBase64;
+      } else if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT) {
+        signPartInfo.value.agent.signData = attachment.fileBase64;
+      } else if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED) {
+        signPartInfo.value.insured.signData[attachment.objectId] = attachment.fileBase64;
       }
-      if (data.BASIC_INFO && data.BASIC_INFO.themeType) {
-        setGlobalTheme(data.BASIC_INFO.themeType);
-      }
-      // 设置分享参数
-    }
-  });
+    });
+  }
   queryProductMaterial({ productCode }).then(({ code, data }) => {
     if (code === '10000') {
       const { productMaterialMap } = data.productInsureMaterialVOList?.[0] || {};
@@ -382,11 +391,9 @@ const initData = () => {
     }
   });
 
-  getInsureProductDetail({ productCode, isTenant: !preview }).then(({ data, code }) => {
+  mergeInsureFactor(productRiskMap).then(({ data, code }) => {
     if (code === '10000') {
-      insureProductDetail.value = data;
-      const { productFactor } = data.productPlanInsureVOList?.[0] || {};
-      const { signInfo } = transformFactorToSchema(productFactor);
+      const { signInfo } = transformFactorToSchema(data.productFactor);
       signInfo.schema.forEach((schema) => {
         if (schema.name === 'eleSign') {
           schema.columns.forEach((column) => {

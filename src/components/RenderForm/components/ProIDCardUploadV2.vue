@@ -13,7 +13,8 @@
         @click-preview="onClick(index)"
       >
         <div class="upload-item" @click="() => onClick(index)">
-          <img :src="item.imgSrc" class="bg" />
+          <ProSvg name="idCard-front" class="bg" color="var(--van-primary-color)"></ProSvg>
+          <!-- <img :src="item.imgSrc" class="bg" /> -->
           <img v-if="!isView" :src="IDCardUploadIconImage" class="icon" />
           <div v-if="!isView" class="text">{{ item.title }}</div>
         </div>

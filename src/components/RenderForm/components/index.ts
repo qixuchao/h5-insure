@@ -10,6 +10,7 @@ export { default as ProUploadV2 } from './ProUploadV2.vue';
 export { default as ProIDCardUploadV2 } from './ProIDCardUploadV2.vue';
 export { default as ProBankUpload } from './ProBankUpload.vue';
 export { default as ProDatePickerV2 } from './ProDatePickerV2.vue';
+export { default as ProValidateDate } from './ProValidateDate.vue';
 export { default as ProSMSCode } from './ProSMSCode.vue';
 export { default as ProBank } from './ProBank.vue';
 export { default as ProAddress } from './ProAddress.vue';

@@ -1,4 +1,5 @@
 <template>
+  <!----被保人-->
   <ProRenderFormWithCard
     ref="insuredFormRef"
     class="personal-info-card"
@@ -13,6 +14,29 @@
     }"
   >
     <template #cardTitleExtra><slot></slot></template>
+    <template #customer>
+      <slot name="customer"></slot>
+    </template>
+  </ProRenderFormWithCard>
+  <!---- 监护人----->
+  <ProRenderFormWithCard
+    v-if="isShowGuardian"
+    ref="guardianFormRef"
+    class="personal-info-card"
+    title="监护人"
+    :model="state.guardian"
+    :schema="state.guardianSchema"
+    :config="state.config"
+    :is-view="isView"
+    :extra-provision="{
+      objectType: ATTACHMENT_OBJECT_TYPE_ENUM.INSURED,
+      objectId: state.personVO.id,
+    }"
+  >
+    <template #cardTitleExtra><slot></slot></template>
+    <template #customer>
+      <slot name="customer"></slot>
+    </template>
   </ProRenderFormWithCard>
 
   <template v-if="hasBeneficiarySchema">
@@ -36,7 +60,9 @@
         :config="beneficiary.config"
         :is-view="isView"
       >
-        <slot name="cardTitleExtraBenifit" :index="index"></slot>
+        <template #customer>
+          <slot name="benefitCustomer" :index="index"></slot>
+        </template>
         <span v-if="index > 0 && !isView" class="delete-button" @click="onDeleteBeneficiary(index)">
           <ProSvg name="delete"></ProSvg>
         </span>
@@ -55,6 +81,7 @@ import { Dialog } from 'vant';
 import { nanoid } from 'nanoid';
 import cloneDeep from 'lodash-es/cloneDeep';
 import merge from 'lodash-es/merge';
+import { clone, debounce } from 'lodash';
 import {
   type SchemaItem,
   type PersonFormProps,
@@ -83,9 +110,11 @@ interface InsuredProps {
   multiBeneficiaryMaxNum: number;
   beneficiaryList: Partial<PersonFormProps>[];
   beneficiarySchema: SchemaItem[];
+  guardian: Partial<PersonFormProps>;
+  guardianSchema: SchemaItem[];
 }
 
-const emit = defineEmits(['update:modelValue', 'update:beneficiaryList']);
+const emit = defineEmits(['update:modelValue', 'update:beneficiaryList', 'update:guardian']);
 const insuredFormRef = ref(null);
 const beneficiaryTypeFormRef = ref(null);
 const beneficiaryFormRef = ref(null);
@@ -107,6 +136,8 @@ const props = withDefaults(defineProps<InsuredProps>(), {
   initInsuredItem: () => [],
   beneficiaryList: () => [],
   beneficiarySchema: () => [],
+  guardian: () => ({}),
+  guardianSchema: () => [],
   isView: false,
   isTrial: false,
   multiBeneficiaryMaxNum: null,
@@ -117,6 +148,8 @@ interface StateInfo extends PersonFormProps {
   beneficiaryList: Partial<PersonFormProps>[];
   beneficiarySchemaList: SchemaItem[];
   beneficiaryTypeSchemaList: SchemaItem[];
+  guardianSchema: SchemaItem[];
+  guardian: Partial<PersonFormProps>;
 }
 
 const state = reactive<Partial<StateInfo>>({
@@ -133,6 +166,19 @@ const state = reactive<Partial<StateInfo>>({
   /** 排除受益人类型 */
   beneficiarySchemaList: [],
   beneficiaryList: [],
+  /** 监护人 */
+  guardianSchema: [],
+  guardian: {},
+});
+
+// 被保人同投保人关系非父母时，被保人年龄小于18岁则需要监护人信息
+const isShowGuardian = computed<boolean>(() => {
+  const { age, relationToHolder } = state.personVO;
+  if (!['4', '5'].includes(relationToHolder) && +age < 18) {
+    return true;
+  }
+  state.guardian = {};
+  return false;
 });
 
 // 验证表单必填
@@ -245,6 +291,17 @@ watch(
   },
 );
 
+/** 更新监护人投保要素 */
+watch(
+  () => props.guardianSchema,
+  (value) => {
+    state.guardianSchema = value;
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 // 指定受益人
 watch(
   isSpecifyBeneficiary,
@@ -408,7 +465,7 @@ watch(
 
 watch(
   () => cloneDeep(props.beneficiaryList),
-  (val, oldValue) => {
+  debounce((val, oldValue) => {
     if (JSON.stringify(val) !== JSON.stringify(oldValue)) {
       state.beneficiaryList = isNotEmptyArray(val)
         ? val.map((item) => ({
@@ -417,6 +474,18 @@ watch(
           }))
         : [];
     }
+  }, 500),
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+// 监听监护人数据更新
+watch(
+  () => cloneDeep(props.guardian),
+  (value) => {
+    state.guardian = value || {};
   },
   {
     deep: true,

@@ -4,48 +4,100 @@
       <div class="card card-head" @click="handleClick">
         <div class="card-item-name">订单进度</div>
         <div class="card-item-icon">
-          人工核保
+          {{ detail?.orderStepDesc }}
           <ProSvg name="arrow-right"></ProSvg>
         </div>
       </div>
       <div class="card card-list">
         <p class="card-list-title">健利保倍享版</p>
-        <InfoItem label="订单号" :content="detail?.policyHolder" line is-copy min-width="other" />
-        <InfoItem label="投保单号" content="P412312321312323" line is-copy min-width="other" />
+        <InfoItem label="订单号" :content="detail?.orderNo" line is-copy min-width="other" />
+        <InfoItem label="投保单号" :content="detail?.applicationNo" line is-copy min-width="other" />
         <InfoItem
           label="创建时间"
-          :content="dayjs(detail?.orderStartDate).format('YYYY-MM-DD HH:mm:ss')"
+          :content="dayjs(detail?.gmtCreated).format('YYYY-MM-DD HH:mm:ss')"
           line
           min-width="other"
         />
         <InfoItem
           label="投保时间"
-          :content="dayjs(detail?.orderStartDate).format('YYYY-MM-DD HH:mm:ss')"
+          :content="dayjs(detail?.orderDate).format('YYYY-MM-DD HH:mm:ss')"
           line
           min-width="other"
         />
-        <InfoItem label="投保保费" content="¥2,000.00" line min-width="other" />
-        <InfoItem label="承保保费" content="¥2,000.00" line min-width="other" />
+        <InfoItem label="投保保费" :content="detail?.orderAmount" line min-width="other" />
+        <InfoItem label="承保保费" :content="detail?.realAmount" line min-width="other" />
       </div>
       <div class="card card-list">
         <div class="card-list-head">
           <div class="card-list-title">险种信息</div>
-          <div class="card-list-premium">首年保费：<span>¥1,289.00</span></div>
+          <div class="card-list-premium">
+            首年保费：<span>{{ detail?.orderAmount }}</span>
+          </div>
         </div>
-        <ProTable v-if="dataSource.length > 0" :columns="columns" class="table" :data-source="dataSource" />
+        <ProTable v-if="detail?.riskList.length > 0" :columns="columns" class="table" :data-source="detail?.riskList" />
       </div>
-      <van-collapse v-model="activeList">
-        <van-collapse-item title="标题1" name="1"> 代码是写出来给人看的，附带能在机器上运行。 </van-collapse-item>
-        <van-collapse-item title="标题2" name="2"> 技术无非就是那些开发它的人的共同灵魂。 </van-collapse-item>
-        <van-collapse-item title="标题3" name="3">
-          在代码阅读过程中人们说脏话的频率是衡量代码质量的唯一标准。
-        </van-collapse-item>
-      </van-collapse>
+      <div class="card">
+        <van-collapse v-model="activeList">
+          <van-collapse-item title="投保告知信息" name="1">
+            <div class="policy-options">保单选项 <span class="policy-options-content">纸质保单和电子保单</span></div>
+          </van-collapse-item>
+        </van-collapse>
+      </div>
+      <div class="card">
+        <van-collapse v-model="tenantOrderAttachmentList">
+          <van-collapse-item title="影像信息" name="1">
+            <div class="tenantOrderAttachmentList-title">投保人资料</div>
+            <div class="tenantOrderAttachmentList-img">
+              <div
+                v-for="(item, index) in detail?.tenantOrderAttachmentList?.filter((item) => item.objectType == '2')"
+                :key="index"
+              >
+                <img :src="item.uri" alt="" />
+              </div>
+            </div>
+            <div class="tenantOrderAttachmentList-title">银行卡信息</div>
+            <div class="tenantOrderAttachmentList-img">
+              <div v-for="(item, index) in 10" :key="index" class="tenantOrderAttachmentList-img-content">
+                <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
+              </div>
+            </div>
+            <div class="tenantOrderAttachmentList-title">被保人资料</div>
+            <div class="tenantOrderAttachmentList-img">
+              <div
+                v-for="(item, index) in detail?.tenantOrderAttachmentList?.filter((item) => item.objectType == '3')"
+                :key="index"
+              >
+                <img :src="item.uri" alt="" />
+              </div>
+            </div>
+          </van-collapse-item>
+        </van-collapse>
+      </div>
       <!-- <InsureInfo
         :product-data="detail?.insuredList?.[0]?.productList?.[0]"
         :total-premium="detail?.orderAmount"
         class="insure-info"
       /> -->
+      <!-- 支付信息 -->
+      <!-- <PayInfo
+        v-if="state.payInfo.schema.length"
+        ref="payInfoRef"
+        v-model="detail?.tenantOrderPaymentInfoList"
+        :schema="state.payInfo.schema"
+        is-view
+      ></PayInfo> -->
+      <div class="insurance-notification-information card">
+        <InsuranceNotificationInformation
+          title="投保告知信息"
+          :data="
+            [
+              { title: '《万能风险告知问卷》', content: '12345556789' },
+              { title: '《被保人健康告知》', content: '12345556789' },
+            ] || state.customerQuestions
+          "
+        />
+      </div>
+
       <div v-loading="loading">
         <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.PENDING" class="footer-button">
           <van-button type="primary" @click.stop="handleDelete">删除</van-button>
@@ -74,7 +126,7 @@ import { useRoute, useRouter } from 'vue-router';
 import dayjs from 'dayjs';
 import qs from 'qs';
 import { deleteOrder } from '@/api/modules/order';
-import { getOrderDetail } from '@/api';
+import { newOrderDetail, getQuestionAnswerDetail } from '@/api';
 import { NextStepRequestData } from '@/api/index.data';
 import { ORDER_TOP_STATUS_ENUM, ORDER_STATUS_MAP, ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { insureProductDetail, queryStandardInsurerLink } from '@/api/modules/trial';
@@ -88,42 +140,58 @@ import useTheme from '@/hooks/useTheme';
 import { getPayUrl } from '@/api/modules/cashier';
 import { sendPay } from '@/views/cashier/core';
 import InfoItem from '../components/infoItem.vue';
+import InsuranceNotificationInformation from '../components/insuranceNotificationInformation.vue';
+import { InsureProductData, ProductPlanInsureVoItem } from '@/api/modules/product.data';
+import { ProRenderFormWithCard, PayInfo, transformFactorToSchema, isOnlyCert } from '@/components/RenderForm';
 
 const themeVars = useTheme();
 const route = useRoute();
 const router = useRouter();
 const detail = ref<NextStepRequestData>();
 const activeList = ref<string[]>([]);
+const tenantOrderAttachmentList = ref<string[]>([]);
+const currentPlanObj = ref<Partial<ProductPlanInsureVoItem>>({});
 const columns = [
   {
     title: '险种名称',
-    dataIndex: 'key1',
+    dataIndex: 'riskName',
     width: 200,
   },
   {
     title: '保险金额/份数',
-    dataIndex: 'key2',
+    dataIndex: 'regularPremium',
     width: 180,
+    render(row: any, index: number) {
+      return row.regularPremium / row.copy;
+    },
   },
   {
     title: '保障期间',
-    dataIndex: 'key3',
+    dataIndex: 'coveragePeriodDesc',
     width: 180,
   },
   {
     title: '交费期间',
-    dataIndex: 'key4',
+    dataIndex: 'chargePeriodDesc',
     width: 180,
   },
   {
     title: '首期保费',
-    dataIndex: 'key5',
+    dataIndex: 'initialPremium',
     width: 180,
     render(row: any, index: number) {
-      return row.key1 + index;
+      return row.initialPremium;
     },
   },
 ];
+const state = reactive({
+  customerQuestions: [],
+  payInfo: {
+    schema: [],
+    config: [],
+    formData: [],
+  },
+});
 
 const dataSource = [
   {
@@ -191,11 +259,9 @@ const dataSource = [
   },
 ];
 const {
-  query: { orderNo, agentCode, tenantId, abbreviation, productCategory, applicationNo },
+  query: { orderNo, agentCode, tenantId, abbreviation, productCategory, applicationNo, orderId },
 } = route;
 const handleClick = () => {
-  console.log(orderNo, 'orderNo================');
-
   pageJump('orderTrajectory', { orderNo, agentCode, tenantId, abbreviation, productCategory, applicationNo });
 };
 const handleDelete = () => {
@@ -218,7 +284,7 @@ const loading = ref(false);
 const handleProcess = () => {
   if (detail.value) {
     const {
-      id: orderId,
+      id,
       extInfo: { templateId, pageCode, extraInfo },
       agencyId: agencyCode,
       insurerCode: currentInsurerCode,
@@ -290,9 +356,36 @@ const handlePay = () => {
     }
   }
 };
+const customerQuestionsDetail = () => {
+  console.log(orderNo, 'orderNo================');
+  getQuestionAnswerDetail({
+    orderNo,
+    orderId,
+    tenantId,
+  }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      state.customerQuestions = data;
+    }
+  });
+};
+const getInsureProductDetail = () => {
+  insureProductDetail({ productCode: '111', isTenant: false }).then(({ data, code }) => {
+    if (code === '10000') {
+      currentPlanObj.value = data.productPlanInsureVOList?.[0] || {};
+      const { payInfo } = transformFactorToSchema(currentPlanObj.value?.productFactor);
+      state.payInfo = {
+        ...state.payInfo,
+        ...payInfo,
+      };
+    }
+  });
+};
 
 onMounted(() => {
-  getOrderDetail({ orderNo, agentCode, tenantId }).then((res) => {
+  getInsureProductDetail();
+  customerQuestionsDetail();
+  newOrderDetail({ orderNo, orderId, applicationNo, agentCode, tenantId }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
       detail.value = data;
@@ -336,6 +429,32 @@ onMounted(() => {
     margin-top: 20px;
     &:first-child {
       margin-top: 0;
+    }
+    .policy-options {
+      font-size: 26px;
+      font-weight: 400;
+      color: #666666;
+      line-height: 37px;
+    }
+    .policy-options-content {
+      margin-left: 156px;
+    }
+    .tenantOrderAttachmentList-title {
+      font-size: 26px;
+      font-weight: 400;
+      color: #333333;
+      line-height: 37px;
+      margin-top: 30px;
+    }
+    .tenantOrderAttachmentList-img {
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 20px;
+
+      .tenantOrderAttachmentList-img-content {
+        margin-right: 30px;
+        margin-top: 20px;
+      }
     }
     .header {
       display: flex;

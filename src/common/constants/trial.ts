@@ -584,3 +584,10 @@ export const RISK_TYPE_ENUM = {
   MAIN_RISK: 1, // 主险
   RIDER_RISK: 2, // 附加险
 };
+
+export const PRODUCT_CLASS_ENUM = {
+  STANDER: 1, // 标准产品
+  SINGLE_PRODUCT: 2, // 单主险产品
+  TWO_PRODUCT: 3, // 双主线产品
+  MULTI_PRODUCT: 4, // 多主线产品
+};

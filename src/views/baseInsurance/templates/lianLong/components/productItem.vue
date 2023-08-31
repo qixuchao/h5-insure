@@ -2,15 +2,14 @@
   <div class="com-product-item">
     <div class="content-wrap">
       <div class="product-image">
-        <van-image :src="productInfo.showConfig?.fileThumbnailUrl || productInfo.showConfig?.fileUrl" />
-        <p class="insure-name">{{ (productInfo.insurerName || '').substring(0, 6) }}</p>
-        <!-- <span class="is-top new">热销</span> -->
+        <van-image :src="productInfo.image" />
       </div>
       <div class="product-info">
-        <p class="title">{{ productInfo.showConfig?.title }}</p>
-        <p class="description">{{ productInfo.showConfig?.text }}</p>
-        <p class="tags">
-          <span v-for="(i, idx) of productInfo.showConfig?.tags" :key="idx" class="tag">{{ i }}</span>
+        <p class="title">{{ productInfo.productFullName }}</p>
+        <p class="description">{{ productInfo.desc }}</p>
+        <p class="price-item">
+          <span class="price">{{ productInfo.price }}</span>
+          <span>{{ productInfo.amountUnit }}</span>
         </p>
       </div>
       <slot name="checkedProduct"> </slot>
@@ -62,9 +61,11 @@ const { checked } = toRefs(state);
       position: relative;
       border-radius: 12px;
       overflow: hidden;
+      width: 160px;
+      height: 160px;
       .van-image {
-        width: 160px;
-        height: 160px;
+        width: 100%;
+        height: 100%;
         :deep(.van-image__img) {
           border-radius: 12px 12px 0 0;
         }
@@ -127,20 +128,12 @@ const { checked } = toRefs(state);
         margin: 6px 0 12px;
         @include moreline-ellipsis;
       }
-      .tags {
-        .tag {
-          display: inline-block;
-          padding: 5px 12px;
-          font-size: 22px;
-          font-family: PingFangSC-Regular, PingFang SC;
-          font-weight: 400;
-          color: $zaui-brand;
-          line-height: 30px;
-          background: rgba(13, 110, 254, 0.1);
-          border-radius: 8px;
-          &:not(:first-child) {
-            margin-left: 12px;
-          }
+      .price-item {
+        color: var(--van-primary-color);
+        font-size: 28px;
+        .price {
+          font-size: 34px;
+          font-weight: bold;
         }
       }
     }

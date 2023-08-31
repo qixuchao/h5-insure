@@ -301,7 +301,7 @@ export interface ProductPlanVoItem {
 }
 
 export interface RiskVoItem {
-  amount: number; // 保额
+  initialAmount: number; // 保额
   amountPremiumConfigVO: any;
   annuityDrawType: string;
   annuityDrawDate: number;
@@ -315,7 +315,7 @@ export interface RiskVoItem {
   mainRiskCode: string;
   mainRiskId: number;
   paymentFrequency: number;
-  premium: number; // 保费
+  initialPremium: number; // 保费
   riderRisk: boolean;
   riderRiskVOList: object[];
   riskCategory: number;
@@ -624,7 +624,7 @@ export interface InsureLinkReq {
   };
   insurerCode: string;
   productCode: string;
-  proposalId: number;
+  proposalId?: number;
   tenantId: number;
 }
 /** 试算默认值 */
@@ -635,3 +635,38 @@ export interface PlanTrialDefaultItem {
   }[];
   productCode: string;
 }
+
+
+/** 多产品试算 */
+
+export interface TrialResultV2Data {
+    alterInfo: string;
+    errorInfo: string;
+    initialAmount: number;
+    initialPremium: number;
+    insuredPremiumList: InsuredPremiumItem[];
+}
+
+export interface InsuredPremiumItem {
+    insuredId: string;
+    productPremiumList: ProductPremiumItem[];
+    totalPremium: number;
+}
+
+export interface ProductPremiumItem {
+    productCode: string;
+    riskPremiumDetailVOList: RiskPremiumDetailVoItem[];
+    totalPremium: number;
+}
+
+export interface RiskPremiumDetailVoItem {
+    initialAmount: number;
+    initialPremium: number;
+    insurantId: string;
+    riskCode: string;
+    riskPremiumDetailVOList: object[];
+    riskType: number;
+    unitAmount: number;
+    unitPremium: number;
+}
+

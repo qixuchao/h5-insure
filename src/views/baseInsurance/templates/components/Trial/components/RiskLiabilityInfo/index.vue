@@ -68,6 +68,7 @@
 <script lang="ts" setup name="riskLiabilityInfo">
 import { withDefaults } from 'vue';
 import cloneDeep from 'lodash-es/cloneDeep';
+import { debounce } from 'lodash-es';
 import ProRadioButton from '@/components/ProRadioButton/index.vue';
 import { RiskDetailVoItem, RiskVoItem } from '@/api/modules/trial.data';
 import { getCalculateRiskFormula } from '@/api/modules/trial';
@@ -160,7 +161,7 @@ const findLiabilityRelation = (index, cb) => {
 
 const handleSwitchClick = (item, index, flag?) => {
   // 可选责任 没有责任属性 且为选中投保状态需要把code传给后端
-  const key_list = state.value.liabilityList.map((i) => i.key);
+  const key_list = (state.value?.liabilityList || []).map((i) => i.key);
   // 可选责任 没有责任属性
   const canChooseNoLib = item?.liabilityAttributeValueList.length === 0 && item?.formula.length === 0;
   // 投保状态
@@ -180,7 +181,7 @@ const handleSwitchClick = (item, index, flag?) => {
 
   // 对已经存在的责任 选择投保不投保 更新当前状态
   if (key_list.indexOf(index) !== -1) {
-    state.value.liabilityList.forEach((i) => {
+    (state.value?.liabilityList || []).forEach((i) => {
       if (i.key === index) {
         i.isSwitchOn = state.value.isCheckList[index];
       }
@@ -245,7 +246,7 @@ watch(
     };
 
     // eslint-disable-next-line consistent-return
-    const liabilityItem = props.dataSource.riskLiabilityInfoVOList.map(async (liab) => {
+    const liabilityItem = (props?.dataSource?.riskLiabilityInfoVOList || []).map(async (liab) => {
       if (
         liab.formula.length > 0 &&
         (initialAmount || initialPremium) &&
@@ -278,12 +279,12 @@ watch(
 
 watch(
   () => state.value.liabilityList,
-  (value) => {
+  debounce((value) => {
     const dataList = state.value.liabilityList
       .filter((x) => x.isSwitchOn === '1')
       .map((item) => ({ ...item.liabilityValue }));
     emit('trialChange', dataList);
-  },
+  }, 300),
   {
     deep: true,
     immediate: true,
@@ -294,7 +295,7 @@ onMounted(() => {
   // 默认需要选中第一个责任
   // state.value.checkValueList = { 0: '100000', 1: '20000', 4: '1', 5: '1' };
   console.log('----mounted');
-  props.dataSource.riskLiabilityInfoVOList.map((item, index) => {
+  (props?.dataSource?.riskLiabilityInfoVOList || []).map((item, index) => {
     // 设置非公式类型初始化 默认选中第一个值
     const value =
       item.liabilityAttributeValueList.length > 0 &&
@@ -335,7 +336,7 @@ onMounted(() => {
 const liabilityOriginData = ref([]);
 watch(
   () => props.dataSource.riskLiabilityInfoVOList,
-  (value) => {
+  debounce((value) => {
     liabilityOriginData.value = (value || []).map((liability) => {
       const relation = (props.dataSource.riskLiabilityCollocationVOList || []).find(
         (liabi) => liabi.collocationLiabilityId === liability.liabilityId,
@@ -345,7 +346,7 @@ watch(
         relation: relation?.collocationType,
       };
     });
-  },
+  }, 300),
   {
     deep: true,
     immediate: true,
@@ -354,10 +355,10 @@ watch(
 
 watch(
   () => props.defaultValue,
-  (v) => {
+  debounce((v) => {
     if (v?.riskCode && v.liabilityList) {
       state.value.signLiabilityClick = [];
-      props.dataSource.riskLiabilityInfoVOList.forEach((item, index) => {
+      (props?.dataSource?.riskLiabilityInfoVOList || []).forEach((item, index) => {
         const targetLia = v?.liabilityList.find((li) => li.liabilityCode === item.liabilityCode);
         console.log('--target lia = ', targetLia);
         // state.value.isCheckList[index] = '2';
@@ -369,7 +370,7 @@ watch(
         }
       });
     }
-  },
+  }, 300),
   {
     deep: true,
     immediate: true,

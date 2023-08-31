@@ -804,6 +804,33 @@ export interface ProductUpgradeConfig {
 export interface ParameterMap {
 }
 
+/**
+ * 合并产品详情
+ */
+export interface MergeProductDetail {
+  productDetailResList: Array<ProductDetail>;
+  productFactor: {
+    [propName: number]: ProductFactorItem;
+  }
+}
+
+/**
+ * 产品列表
+ */
+export interface ProductItem {
+    amountUnit: string;
+    desc: string;
+    id: number;
+    image: string;
+    insurerCode: string;
+    price: string;
+    productCode: string;
+    productFullName: string;
+    productName: string;
+}
+
+
+
 
 
 // =========== 新版问卷 start===============

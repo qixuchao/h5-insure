@@ -26,7 +26,7 @@ export const combineDictCode = (() => {
  * @param param0
  * @param callback
  */
-const sendSMSCode = async ({ mobile }, callback) => {
+export const sendSMSCode = async ({ mobile }, callback) => {
   const res = await sendCode(mobile);
   const { code } = res;
   if (code === '10000') {
@@ -547,6 +547,8 @@ export const MODULE_TYPE_MAP = {
   4: 'payInfo',
   /** 签字信息 */
   5: 'signInfo',
+  /** 监护人 */
+  8: 'guardian',
 };
 
 // pro from

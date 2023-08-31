@@ -3,7 +3,7 @@
     <div class="popup-container">
       <div class="popup-header">
         <span class="clear-all" @click="handleCancel"> 取消 </span>
-        <span class="title"> 添加附加险 </span>
+        <span class="title"> {{ title }} </span>
         <span class="close" @click="handleConfirm">确认</span>
       </div>
       <p class="tip">已为您挑选出以下险种</p>
@@ -27,12 +27,17 @@
           </van-cell-group>
         </van-radio-group>
       </div>
-      <ProEmpty v-else title="暂无关联主险、请选择其他险种"></ProEmpty>
+      <ProEmpty
+        v-else
+        :title="`暂无关联${type === RISK_TYPE_ENUM.MAIN_RISK ? '主' : '附加'}险、请选择其他险种`"
+      ></ProEmpty>
     </div>
   </ProPopup>
 </template>
 <script setup lang="ts" name="riskSelect">
 import { withDefaults } from 'vue';
+import { useRoute } from 'vue-router';
+import { Toast } from 'vant';
 import { queryRiderRiskList, queryListMainProduct } from '@/api/modules/trial';
 import { RISK_TYPE_ENUM } from '@/common/constants/trial';
 
@@ -42,6 +47,7 @@ interface Props {
   title: string;
   insuredList: any[];
   mainRiskCode?: string;
+  selectList: any[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -49,7 +55,12 @@ const props = withDefaults(defineProps<Props>(), {
   show: false,
   insuredList: () => [],
   mainRiskCode: '',
+  selectList: () => [],
 });
+
+const route = useRoute();
+
+const { insurerCode } = route.query;
 
 const emits = defineEmits(['cancel', 'confirm']);
 
@@ -62,16 +73,28 @@ const handleCancel = () => {
   emits('cancel');
 };
 const handleConfirm = () => {
-  emits('confirm');
+  if (!checked.value) {
+    Toast(`暂未添加任何${props.type === RISK_TYPE_ENUM.MAIN_RISK ? '主' : '附加'}险`);
+    return;
+  }
+  emits('confirm', checked.value);
 };
 
 const getRiskList = async () => {
   const params = {
     insuredVO: props.insuredList,
     mainRiskCode: props.mainRiskCode,
-    insurerCode: '',
+    insurerCode,
     productCategory: '',
+    selectProductCodes: [],
+    selectRiskCodes: [],
   };
+
+  params.selectProductCodes = props.selectList.map((product) => {
+    params.selectRiskCodes.push(...product.mergeRiskReqList.map((risk) => risk.riskCode));
+    return product.productCode;
+  });
+
   if (props.type === RISK_TYPE_ENUM.MAIN_RISK) {
     const { code, data } = await queryListMainProduct(params);
     if (code === '10000') {

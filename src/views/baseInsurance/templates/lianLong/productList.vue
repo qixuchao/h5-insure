@@ -44,7 +44,7 @@
             :key="productItem.id"
             :product-info="productItem"
             :error-msg="state.errorMsgMap[productItem.productCode]"
-            @click="selectProposal(productItem)"
+            @click="handleProduct(productItem)"
           >
           </ProductItem>
         </van-list>
@@ -54,14 +54,13 @@
 </template>
 
 <script setup lang="ts" name="productList">
-import { useToggle } from '@vant/use';
 import { useRouter, useRoute } from 'vue-router';
 import { Toast } from 'vant';
 import emptyImg from '@/assets/images/empty.png';
 import ProductItem from './components/productItem.vue';
-import createProposalStore from '@/store/proposal/createProposal';
-import { queryProposalProductList } from '@/api/modules/proposalList';
-import { PRODUCT_CATEGORY } from '@/common/constants';
+import { queryProductList } from '@/api/modules/product';
+import { PRODUCT_CATEGORY, PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { PRODUCT_CLASS_ENUM } from '@/common/constants/trial';
 
 interface StateType {
   searchValue: string;
@@ -89,7 +88,6 @@ interface StateType {
   firstLoading: boolean;
 }
 
-const store = createProposalStore();
 const router = useRouter();
 const route = useRoute();
 
@@ -134,15 +132,12 @@ const {
   showFooter,
 } = toRefs(state);
 
-const [showProductRisk, toggleProductRisk] = useToggle();
-const [showSelectProduct, toggleSelectProduct] = useToggle();
-
 const getProducts = () => {
   const { excludeProductCodeList } = state;
   if (state.firstLoading) {
     Toast.loading('加载中...');
   }
-  queryProposalProductList({
+  queryProductList({
     title: searchValue.value,
     insurerCodeList: insurerCodeList.value,
     showCategory: showCategory.value,
@@ -153,7 +148,7 @@ const getProducts = () => {
     .then((res: any) => {
       const { code, data, total } = res;
       if (code === '10000') {
-        productList.value = data?.datas;
+        productList.value = data;
         productTotal.value = total;
       }
     })
@@ -174,6 +169,23 @@ const onClickTag = (id: any, index: number) => {
   getProducts();
 };
 
+const handleProduct = async (productInfo) => {
+  let path = PAGE_ROUTE_ENUMS.premiumTrial;
+  const { insurerCode = '', productCode = '', templateId, productClass } = productInfo;
+  if ([PRODUCT_CLASS_ENUM.SINGLE_PRODUCT, PRODUCT_CLASS_ENUM.TWO_PRODUCT].includes(productClass)) {
+    path = PAGE_ROUTE_ENUMS.productInfo;
+  }
+  router.push({
+    path,
+    query: {
+      insurerCode,
+      productCode,
+      tenantId: 9991000011,
+      templateId,
+    },
+  });
+};
+
 const onLoad = () => {
   if (refreshing.value) {
     productList.value = [];
@@ -181,23 +193,14 @@ const onLoad = () => {
   }
   getProducts();
   loading.value = false;
-  if (productTotal.value === productList.value.length) {
+  if (productTotal.value === productList.value?.length) {
     finished.value = true;
   }
 };
 
 const hasProduct = computed(() => {
-  return productList.value.length > 0;
+  return productList.value?.length > 0;
 });
-
-const selectProposal = ({ productCode }: any) => {
-  router.push({
-    path: '/proposal/createProposal',
-    query: {
-      productCode,
-    },
-  });
-};
 
 const onRefresh = () => {
   // 清空列表数据

@@ -22,6 +22,9 @@
         @handle-sign="(signData) => sign('AGENT', signData)"
       ></SignPart>
     </div>
+    <div class="footer-button">
+      <van-button type="primary" @click="handleSubmit">确定</van-button>
+    </div>
   </div>
 </template>
 
@@ -50,26 +53,21 @@ import {
   ATTACHMENT_CATEGORY_ENUM,
   ATTACHMENT_OBJECT_TYPE_ENUM,
   PAGE_ACTION_TYPE_ENUM,
-  PAGE_ROUTE_ENUMS,
   YES_NO_ENUM,
   SCRIBING_TYPE_ENUM,
   SCRIBING_TYPE_LIST,
   SCRIBING_TYPE_MAP,
 } from '@/common/constants';
-import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import { MATERIAL_TYPE_ENUM } from '@/common/constants/product';
 import { NOTICE_OBJECT_ENUM } from '@/common/constants/notice';
-import { faceVerify, faceVerifySave, saveSign } from '@/api/modules/verify';
+import { faceVerify, faceVerifySave, saveSign, signatureConfirm } from '@/api/modules/verify';
 import Storage from '@/utils/storage';
 import { transformFactorToSchema } from '@/components/RenderForm';
-import pageJump from '@/utils/pageJump';
-import InsureProgress from './components/InsureProgress.vue';
-import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
+import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS } from './constants';
 import ProShare from '@/components/ProShare/index.vue';
 import { jumpToNextPage, isAppFkq } from '@/utils';
 import { setGlobalTheme } from '@/hooks/useTheme';
 import { localStore } from '@/hooks/useStorage';
-import { confirmRiskTranscription } from '@/api/modules/scribing';
 
 const route = useRoute();
 const router = useRouter();
@@ -119,7 +117,6 @@ const shareLink = `${window.origin}/baseInsurance/long/phoneVerify?${stringify({
 
 const storage = new Storage({ source: 'localStorage' });
 
-const tenantProductDetail = ref<Partial<ProductDetail>>({}); // 核心系统产品信息
 const insureProductDetail = ref<Partial<InsureProductData>>({}); // 产品中心产品信息
 
 const agentSignRef = ref<InstanceType<typeof SignPart>>();
@@ -157,26 +154,6 @@ const signPartInfo = ref({
 const scribingConfig = ref({});
 
 const defaultScribingConfig = ref({});
-
-/** ------------- 人脸识别 ----------- */
-const doVerify = (name: string, certNo: string) => {
-  let jumpUrl = window.location.href;
-  jumpUrl = jumpUrl.includes('orderCode') ? jumpUrl : jumpUrl.replace(/orderNo/g, 'orderCode');
-
-  faceVerify({
-    callbackUrl: jumpUrl,
-    certiNo: certNo,
-    faceAuthMode: 'TENCENT',
-    userName: name,
-    tenantId,
-  }).then(({ code, data }) => {
-    if (code === '10000') {
-      const { originalUrl, serialNo } = data;
-      window.location.href = originalUrl;
-      localStore.set('verifyData', { serialNo, certNo, name });
-    }
-  });
-};
 
 const sign = (type, signData, bizObjectId?) => {
   saveSign(type, signData, orderDetail.value?.id, tenantId, bizObjectId);
@@ -217,49 +194,19 @@ const handleSubmit = () => {
 
   Promise.all(validateCollection)
     .then((res) => {
-      if (requiredType.value.scribing && !scribingConfig.value.status) {
-        Toast('请先完成风险抄录');
-        return;
-      }
-      orderNo &&
-        getTenantOrderDetail({
-          orderNo: orderCode || orderNo,
-          saleUserId,
-          tenantId,
-        }).then(({ code, data }) => {
-          if (code === '10000') {
-            // 订单状态为待处理,支付失败,核保成功时可进行下一步操作，否则跳入支付结果页
-            // if (
-            //   !(
-            //     [
-            //       ORDER_STATUS_ENUM.PENDING,
-            //       ORDER_STATUS_ENUM.PAYMENT_FAILED,
-            //       ORDER_STATUS_ENUM.UNDER_WRITING_SUCCESS,
-            //     ] as string[]
-            //   ).includes(data.orderStatus)
-            // ) {
-            //   pageJump('paymentResult', { ...route.query, orderNo: orderCode || orderNo });
-            // } else {
-            Dialog.confirm({
-              title: '提示',
-              message: '请确认信息填写无误后，再进行支付',
-            }).then(() => {
-              Object.assign(orderDetail.value, {
-                extInfo: {
-                  ...orderDetail.value.extInfo,
-                  buttonCode: BUTTON_CODE_ENUMS.SIGN,
-                  pageCode: PAGE_CODE_ENUMS.SIGN,
-                },
-              });
-              nextStep(orderDetail.value, (cbData, pageAction) => {
-                if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_URL) {
-                  window.location.href = cbData.paymentUrl;
-                }
-              });
-            });
-            // }
-          }
-        });
+      signatureConfirm({
+        bizObjectId: [],
+        bizObjectType: 3,
+        orderId: orderDetail.value.id,
+        tenantId,
+      }).then(({ code, data }) => {
+        if (code === '10000' && data) {
+          router.push({
+            path: PAGE_ROUTE_ENUMS.sign,
+            query: route.query,
+          });
+        }
+      });
     })
     .catch((e) => {
       Toast(e.message);
@@ -341,21 +288,21 @@ const shareInfo = ref({
 });
 
 const initData = () => {
-  querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
-    if (code === '10000') {
-      const { wxShareConfig, showWXShare, title, desc, image } = data?.PRODUCT_LIST || {};
-      if (showWXShare) {
-        Object.assign(shareInfo.value, { ...wxShareConfig, imgUrl: wxShareConfig.image, isShare: showWXShare });
-      } else {
-        // 设置分享参数
-        Object.assign(shareInfo.value, { title, desc, imgUrl: image, isShare: showWXShare });
-      }
-      if (data.BASIC_INFO && data.BASIC_INFO.themeType) {
-        setGlobalTheme(data.BASIC_INFO.themeType);
-      }
-      // 设置分享参数
-    }
-  });
+  // querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
+  //   if (code === '10000') {
+  //     const { wxShareConfig, showWXShare, title, desc, image } = data?.PRODUCT_LIST || {};
+  //     if (showWXShare) {
+  //       Object.assign(shareInfo.value, { ...wxShareConfig, imgUrl: wxShareConfig.image, isShare: showWXShare });
+  //     } else {
+  //       // 设置分享参数
+  //       Object.assign(shareInfo.value, { title, desc, imgUrl: image, isShare: showWXShare });
+  //     }
+  //     if (data.BASIC_INFO && data.BASIC_INFO.themeType) {
+  //       setGlobalTheme(data.BASIC_INFO.themeType);
+  //     }
+  //     // 设置分享参数
+  //   }
+  // });
   queryProductMaterial({ productCode }).then(({ code, data }) => {
     if (code === '10000') {
       const { productMaterialMap } = data.productInsureMaterialVOList?.[0] || {};
@@ -435,69 +382,8 @@ const initData = () => {
   getOrderDetail();
 };
 
-const submitScribing = (scribingStr?: string) => {
-  const { type, text } = scribingConfig.value;
-  const currentQuery = {
-    ...route.query,
-    orderNo: orderCode || orderNo,
-    text,
-    orderId: orderDetail.value.id,
-  };
-  if (type === 'handle') {
-    router.push({
-      path: 'scribing',
-      query: currentQuery,
-    });
-  } else {
-    confirmRiskTranscription({
-      content: text,
-      image: scribingStr,
-      orderNo: orderCode || orderNo,
-      tenantId,
-      transcriptionType: SCRIBING_TYPE_ENUM.AUTO,
-    }).then(({ code }) => {
-      if (code === '10000') {
-        getOrderDetail();
-      }
-    });
-  }
-};
-
-watch(
-  [() => defaultScribingConfig.value, () => scribingConfig.value],
-  () => {
-    Object.assign(scribingConfig.value, {
-      type: defaultScribingConfig.value.type || scribingConfig.value.type,
-      text: defaultScribingConfig.value.text || scribingConfig.value.text,
-      status: defaultScribingConfig.value.status || scribingConfig.value.status,
-      signInfo: defaultScribingConfig.value.signInfo || scribingConfig.value.signInfo,
-    });
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
-
 onBeforeMount(() => {
   initData();
-  const verifyData = localStore.get('verifyData');
-  if (verifyData) {
-    const { serialNo, certNo, name } = verifyData;
-    faceVerifySave({
-      certiNo: certNo,
-      orderNo: orderCode || orderNo,
-      serialNo,
-      tenantId,
-      userName: name,
-    }).then((res) => {
-      const { code, data } = res;
-      if (code === '10000') {
-        storage.remove('verifyData');
-        getOrderDetail();
-      }
-    });
-  }
 });
 </script>
 

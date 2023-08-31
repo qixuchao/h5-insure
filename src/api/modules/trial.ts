@@ -1,6 +1,6 @@
 import request from '@/api/request';
-import { InsureLinkReq, PremiumCalcResponse, PlanTrialDefaultItem } from './trial.data';
-import { InsureProductData } from '@/api/modules/product.data';
+import { InsureLinkReq, PremiumCalcResponse, PlanTrialDefaultItem, RiskVoItem, TrialResultV2Data } from './trial.data';
+import { InsureProductData, MergeProductDetail } from '@/api/modules/product.data';
 
 // 获取产品详情
 export const insureProductDetail = (data: any = {}) =>
@@ -17,11 +17,11 @@ export const insureProductDetailNew = (data = {}) =>
   request<ResponseData>({ url: '/api/app/insure/product/insureProductDetailNew', method: 'POST', data });
 
 export const premiumCalcV2 = (data = {}) =>
-  request<ResponseData<any>>({ url: '/api/app/insure/insurance/premiumCalcV2', method: 'POST', data });
+  request<TrialResultV2Data>({ url: '/api/app/insure/insurance/premiumCalcV2', method: 'POST', data });
 
 // 订单保存
 export const saveOrder = (data = {}) =>
-  request<ResponseData<any>>({ url: '/api/app/insure/insurance/saveOrder', method: 'POST', data });
+  request<number>({ url: '/api/app/insure/insurance/saveOrder', method: 'POST', data });
 
 // 核保
 export const underwrite = (data = {}) =>
@@ -69,7 +69,7 @@ export const nextStep = (data = {}) =>
 // 试算前对数据进行校验
 export const underWriteRule = (data = {}) =>
   request<ResponseData<PremiumCalcResponse>>({
-    url: '/api/app/insure/insurance/underWriteRule',
+    url: '/api/app/insure/insurance/underWriteRuleV2',
     method: 'POST',
     data,
   });
@@ -98,7 +98,7 @@ export const getCalculateRiskFormula = (data: {}) => {
   });
 };
 
-// 试算默认值
+// 产品试算默认值
 export const queryCalcDefaultInsureFactor = (data: {}, config = {}) => {
   return request<PlanTrialDefaultItem[]>({
     url: '/api/app/insure/product/v2/calcDefaultInsureFactor',
@@ -107,6 +107,14 @@ export const queryCalcDefaultInsureFactor = (data: {}, config = {}) => {
     ...config,
   });
 };
+
+// 险种试算默认值
+export const queryDefaultRiskInsureFactor = (data) =>
+  request<RiskVoItem>({
+    url: '/api/app/insure/product/v2/defaultRiskInsureFactor',
+    method: 'POST',
+    data,
+  });
 
 // 试算动态值
 export const queryCalcDynamicInsureFactor = (data: {}, config = {}) => {
@@ -146,7 +154,7 @@ export const queryRiderRiskList = (data = {}) =>
 
 // 根据产品code和险种code组装产品详情
 export const mergeInsureFactor = (data = {}) =>
-  request<{ riskCode: string; riskName: string }>({
+  request<MergeProductDetail>({
     url: '/api/app/insure/product/v2/mergeInsureFactor',
     method: 'POST',
     data,

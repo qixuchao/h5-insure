@@ -3,7 +3,7 @@
   <BaoeBaofei
     :v-model="state.sValues"
     :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
-    :defalut-value="state.defaultValues"
+    :default-value="state.defaultValues"
     :trial-result="trialResult"
     @trial-change="handleBaoeBaofeiChange"
   ></BaoeBaofei>
@@ -91,7 +91,7 @@ onMounted(() => {
   // console.log('--------origin data = ', props.originData);
 });
 
-const handleMixData = (changeValue: any) => {
+const handleMixData = (changeValue?: any) => {
   if (props.originData.mainRiskFlag === 1) {
     // TODO 待确认的逻辑
     // mValues.value.mainRisk = true;
@@ -123,7 +123,7 @@ const handleProductKeysChange = (data, changeValue) => {
 
 const handleBaoeBaofeiChange = (data) => {
   // eslint-disable-next-line no-unsafe-optional-chaining
-  if (+props.originData?.productRiskInsureLimitVO?.amountPremiumConfigVO.saleMethod === 1) {
+  if (+props.originData?.productRiskInsureLimitVO?.amountPremiumConfigVO?.saleMethod === 1) {
     state.basicsAmount = data?.initialAmount;
   } else {
     state.basicsAmount = data?.initialPremium;

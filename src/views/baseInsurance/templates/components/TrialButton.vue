@@ -1,10 +1,12 @@
 <template>
   <div class="trial-button-wrap" safe-area-inset-bottom>
     <div class="footer-area">
-      <div v-if="isShare && isApp" class="com-share" @click="onShare">
-        <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
-        <span>分享</span>
-      </div>
+      <slot name="right">
+        <div v-if="isShare && isApp" class="com-share" @click="onShare">
+          <ProSvg name="share-icon" font-size="24px" color="#AEAEAE"></ProSvg>
+          <span>分享</span>
+        </div>
+      </slot>
 
       <div class="price">
         <div class="label">首期总保费</div>

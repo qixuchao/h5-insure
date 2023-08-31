@@ -13,6 +13,7 @@ import {
   ProductQuestionnaireRes,
   ProductSaleInfo,
   ProductUpgradeConfig,
+  ProductItem,
 } from './product.data';
 import { TemplatePageItem } from '../index.data';
 
@@ -29,7 +30,7 @@ export const productDetail = (data: any) => {
 
 // 获取产品销售信息
 export const querySalesInfo = (data = {}) =>
-  request<ProductSaleInfo>({ url: '/api/app/insure/product/salesInfo', method: 'POST', data });
+  request<ProductSaleInfo>({ url: '/api/app/insure/product/v2/salesInfo', method: 'POST', data });
 
 // 获取产品升级保障配置
 export const queryUpgradeConfig = (data = {}) =>
@@ -43,11 +44,19 @@ export const queryProductMaterial = (data = {}) => {
     data,
   });
 };
-// 获取问卷信息（问卷中的问题可能是动态的）
 
+// 获取问卷信息[只传问卷id时]
 export const listProductQuestionnaire = (data = {}) => {
   return request<ProductQuestionnaireRes[]>({
     url: '/api/app/insure/product/v2/listProductQuestionnaire',
+    method: 'POST',
+    data,
+  });
+};
+// 获取多产品资料信息
+export const queryListProductMaterial = (data = {}) => {
+  return request<ProductMaterialData>({
+    url: '/api/app/insure/product/v2/listProductMaterial',
     method: 'POST',
     data,
   });
@@ -98,6 +107,15 @@ export const queryInsurePopupConfig = (data: any) => {
 export const queryListRelationCustomer = (data: any) => {
   return request({
     url: `/api/query/customer/listRelationCustomer`,
+    method: 'POST',
+    data,
+  });
+};
+
+// 产品列表查询
+export const queryProductList = (data = {}) => {
+  return request<Array<ProductItem>>({
+    url: '/api/app/insure/product/v2/listProduct',
     method: 'POST',
     data,
   });

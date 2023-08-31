@@ -11,6 +11,7 @@
     v-model:show="isShow"
     teleport="#app .van-config-provider"
     position="bottom"
+    :close-on-click-overlay="false"
     v-bind="$attrs"
     :style="{ height: height > 100 ? `${height}px` : `${height}%` }"
     round

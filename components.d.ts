@@ -74,6 +74,7 @@ declare module 'vue' {
     ProTimeline: typeof import('./src/components/ProTimeline/index.vue')['default']
     ProTitle: typeof import('./src/components/ProTitle/index.vue')['default']
     ProUploadV2: typeof import('./src/components/RenderForm/components/ProUploadV2.vue')['default']
+    ProValidateDate: typeof import('./src/components/RenderForm/components/ProValidateDate.vue')['default']
     ProVConsole: typeof import('./src/components/ProVConsole/index.vue')['default']
     Question: typeof import('./src/components/ProFilePreview/question.vue')['default']
     SchemaRenderField: typeof import('./src/components/RenderForm/components/SchemaRenderField.vue')['default']
