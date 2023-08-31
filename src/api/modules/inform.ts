@@ -39,7 +39,7 @@ export const getCustomerQuestionsDetail = (data: Partial<GetCustomerQuestionsDet
 export const updateOrderNoticeStatus = (data: Partial<UpdateOrderNoticeStatusProps>) =>
   request<ResponseData>({ url: `${API_PREFIXED}/updateOrderNoticeStatus`, method: 'POST', data });
 
-// 在线投保-问卷告知查询详情
+// 在线投保-问卷告知提交答案
 export const saveMarketerNotices = (data: Partial<SaveMarketerNoticesProps>) =>
   request<ResponseData>({ url: `${API_PREFIXED}/saveMarketerNotices`, method: 'POST', data });
 

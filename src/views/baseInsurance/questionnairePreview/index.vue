@@ -1,5 +1,5 @@
 <template class="com-question-wrap">
-  <Questionnaire :data="questionnaire" />
+  <Questionnaire :data="questionnaire" is-view :params="testParams" />
 </template>
 <script lang="ts" setup name="QuestionPreview">
 import { Toast } from 'vant';
@@ -17,7 +17,13 @@ interface QueryData {
 const router = useRouter();
 const route = useRoute();
 const { questionnaireId, id } = route.query as QueryData;
-
+const testParams = {
+  // 测试数据
+  objectId: 123,
+  noticeType: 1,
+  orderNo: '2023083017475048217',
+  tenantId: 9991000011,
+};
 const questionnaire = ref<QuestionnaireDetailRes>({
   basicInfo: {
     questionnaireName: '',
@@ -29,7 +35,6 @@ const questionnaire = ref<QuestionnaireDetailRes>({
     maxCount: 1,
   },
 });
-
 const transformQuestion = (originQuestionnaire: QuestionnaireDetailRes): QuestionnaireDetailRes => {
   const tempQuestionnaire = cloneDeep(originQuestionnaire);
   // if ([1,2,5].includes(originQuestion.questionType)) { // 多项
@@ -43,7 +48,7 @@ const transformQuestion = (originQuestionnaire: QuestionnaireDetailRes): Questio
         answer: '',
         answerList: [],
         questionRemark: '',
-        questionRemarks: [],
+        questionRemarkList: [],
         // ...(q.answerVO || {}),
       },
     };
@@ -53,15 +58,20 @@ const transformQuestion = (originQuestionnaire: QuestionnaireDetailRes): Questio
   return tempQuestionnaire;
 };
 onMounted(() => {
-  listProductQuestionnaire({ questionnaireId: questionnaireId || id }).then((res) => {
-    const { code, data } = res;
-    if (code === '10000' && data.productQuestionnaireVOList.length > 0) {
-      questionnaire.value = transformQuestion(data.productQuestionnaireVOList?.[0].questionnaireDetailResponseVO);
-      document.title = questionnaire.value.basicInfo.title;
-    } else {
-      Toast.error('获取问卷出错');
-    }
-  });
+  Toast.loading('加载中...');
+  listProductQuestionnaire({ questionnaireId: questionnaireId || id })
+    .then((res) => {
+      const { code, data } = res;
+      if (code === '10000' && data.productQuestionnaireVOList.length > 0) {
+        questionnaire.value = transformQuestion(data.productQuestionnaireVOList?.[0].questionnaireDetailResponseVO);
+        document.title = questionnaire.value.basicInfo.title;
+      } else {
+        Toast.error('获取问卷出错');
+      }
+    })
+    .finally(() => {
+      Toast.clear();
+    });
 });
 </script>
 <style lang="scss"></style>

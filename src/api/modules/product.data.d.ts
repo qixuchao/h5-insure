@@ -840,12 +840,17 @@ export interface RuleConfig {
 }
 
 /** 问卷-问题对象 */
+export interface AnswerReq {
+  answerVO: AnswerVO,
+  id: number | string;
+  questionCode: string;
+}
 export interface AnswerVO {
   answer: any; // 问题答案（单选、判断、单项填空时）
   answerList: any[]; // 问题答案（多选、多项填空时）
   questionRemark: string;
-  questionRemarks: string[];
-  childAnswerList: AnswerVO[];
+  questionRemarkList: string[];
+  childAnswerList: AnswerReq[];
 }
 export interface NQuestion {
 	content: string;

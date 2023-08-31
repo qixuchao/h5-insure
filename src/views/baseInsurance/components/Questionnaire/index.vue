@@ -14,39 +14,46 @@
         v-for="(question, index) in props.data.questions"
         ref="questionsRef"
         :key="question.id"
-        :value="answerVOList[index].answerVO"
+        v-model="answerVOList[index].answerVO"
         :name="`${index}.answerVO`"
         :data="question"
         :index="index"
+        :is-view="isView"
       />
     </template>
     <ProCard :title="props.data.imageConfig.name">
-      <ProImageUpload v-model="images" :max-count="props.data.imageConfig.maxNum" />
+      <van-field name="imageList">
+        <template #input>
+          <ProImageUpload v-model="imageList" :max-count="props.data.imageConfig?.maxNum || 10" />
+        </template>
+      </van-field>
     </ProCard>
     <van-button round type="primary" block native-type="submit"> 提交 </van-button>
   </ProRenderForm>
 </template>
 <script lang="ts" setup name="Questionnaire">
 import { toRefs } from 'vue';
-import { QuestionnaireDetailRes } from '@/api/modules/product.data';
+import { QuestionnaireDetailRes, AnswerReq } from '@/api/modules/product.data';
 import ProCard from '@/components/ProCard/index.vue';
 import Question from './Question.vue';
 import ProRenderForm from '@/components/RenderForm/components/ProRenderForm.vue';
+import { saveMarketerNotices } from '@/api/modules/inform';
 
 interface Props {
-  index: number; // 问题的序号
-  data: QuestionnaireDetailRes;
+  data: QuestionnaireDetailRes; // 问卷数据
+  isView: boolean; // 是否查看模式
+  params: object;
 }
 
 const props = defineProps<Props>();
 // const { basicInfo, questions, imageConfig } = toRefs(props.data); // props.data
-const answerVOList = ref([
+const answerVOList = ref<AnswerReq[]>([
   {
     // 第一题
     answerVO: {
-      answer: 1,
+      answer: '',
       answerList: [],
-      questionRemark: 'sdf',
+      questionRemark: '',
       questionRemarkList: [],
       childAnswerList: [],
     },
@@ -57,7 +64,7 @@ const answerVOList = ref([
     // 第2题
     answerVO: {
       answer: '',
-      answerList: ['di第一空', '第二空'],
+      answerList: [],
       questionRemark: '',
       questionRemarkList: [],
       childAnswerList: [],
@@ -72,7 +79,19 @@ const answerVOList = ref([
       answerList: [],
       questionRemark: '',
       questionRemarkList: [],
-      childAnswerList: [],
+      childAnswerList: [
+        {
+          answerVO: {
+            answer: '',
+            answerList: [],
+            questionRemark: '',
+            questionRemarkList: [],
+            childAnswerList: [],
+          },
+          id: '',
+          questionCode: '',
+        },
+      ],
     },
     id: '',
     questionCode: '',
@@ -81,18 +100,6 @@ const answerVOList = ref([
     // 第4题
     answerVO: {
       answer: '',
-      answerList: [1, 4],
-      questionRemark: 'sdf',
-      questionRemarkList: [],
-      childAnswerList: [],
-    },
-    id: '',
-    questionCode: '',
-  },
-  {
-    // 第5题
-    answerVO: {
-      answer: 0,
       answerList: [],
       questionRemark: '',
       questionRemarkList: [],
@@ -102,11 +109,35 @@ const answerVOList = ref([
     questionCode: '',
   },
   {
+    // 第5题
+    answerVO: {
+      answer: '',
+      answerList: [],
+      questionRemark: '',
+      questionRemarkList: [],
+      childAnswerList: [
+        {
+          answerVO: {
+            answer: '',
+            answerList: [],
+            questionRemark: '',
+            questionRemarkList: [],
+            childAnswerList: [],
+          },
+          id: '',
+          questionCode: '',
+        },
+      ],
+    },
+    id: '',
+    questionCode: '',
+  },
+  {
     // 第6题 填空
     answerVO: {
       answer: '这里是单项填空的结果',
       answerList: [],
-      questionRemark: 'sdf',
+      questionRemark: '',
       questionRemarkList: [],
       childAnswerList: [],
     },
@@ -114,18 +145,32 @@ const answerVOList = ref([
     questionCode: '',
   },
 ]);
-const images = ref([]);
+const imageList = ref<string[]>([]);
 const questionsRef = ref();
 const submitQuestion = () => {
-  // console.log('questionsRef::', questionsRef.value);
-  questionsRef.value.forEach((element) => {
-    console.log(element.getData());
+  const params = {
+    answerList: [],
+    objectType: props.data.basicInfo.objectType || 1,
+    contentType: props.data.basicInfo.questionnaireType,
+    questionnaireId: props.data.basicInfo.id,
+    ...props.params,
+    imageList: imageList.value,
+  };
+  questionsRef.value.forEach((element, index) => {
+    params.answerList.push({
+      answerVO: element.getData(),
+      id: props.data.questions[index].id,
+      questionCode: props.data.questions[index].questionCode,
+    });
+  });
+  console.log('请求参数：', answerVOList);
+  saveMarketerNotices(params).then((res) => {
+    debugger;
   });
 };
 const formRef = ref();
 const submit = (values) => {
   console.log('values:', values);
-  debugger;
   submitQuestion();
 };
 </script>
