@@ -46,7 +46,7 @@
                     type="textarea"
                     maxlength="100"
                     placeholder="请输入告知说明"
-                    show-word-limit
+                    :show-word-limit="!isView"
                   />
                 </div>
               </div>
@@ -64,16 +64,17 @@
             <van-checkbox-group v-model="answerVO.answerList">
               <div v-for="(item, index) in data.optionList" :key="index" class="option-row">
                 <van-checkbox :name="index" shape="square">{{ item.value }}</van-checkbox>
-                <div v-if="enumEqual(item.optionType, 2) && answerVO.answerList?.includes(item.code)">
+                <div v-if="enumEqual(item.optionType, 2) && answerVO.answerList?.indexOf(+item.code) > -1">
                   <van-field
                     v-model="answerVO.questionRemarkList[index]"
+                    :name="`${props.name}.questionRemarkList.${index}`"
                     rows="2"
                     autosize
                     label=""
                     type="textarea"
-                    maxlength="100"
-                    placeholder="请输入"
-                    show-word-limit
+                    :maxlength="100"
+                    placeholder="请输入告知说明"
+                    :show-word-limit="!isView"
                   />
                 </div>
               </div>
@@ -86,7 +87,7 @@
           v-model="answerVO.answer"
           :name="`${props.name}.answer`"
           placeholder="请输入"
-          maxlength="100"
+          :maxlength="100"
           :rules="[{ required: enumEqual(data.mustFlag, YES_NO_ENUM.YES), message: '请输入' }]"
         />
         <!-- 多项填空题 -->

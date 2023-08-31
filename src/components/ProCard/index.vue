@@ -27,7 +27,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="ProCard">
 import { useSlots } from 'vue';
 import { useToggle } from '@vant/use';
 import { getHiddenDomHeight } from '@/utils/dom';

@@ -1,11 +1,12 @@
 <template class="com-questionnaire">
-  <div class="que-title">{{ props.data.basicInfo.questionnaireName }}</div>
+  <!-- <div class="que-title">{{ props.data.basicInfo.questionnaireName }}</div> -->
   <ProRenderForm
     ref="formRef"
     :model="answerVOList"
     input-align="left"
     scroll-to-error
     show-error-message
+    :is-view="isView"
     @submit="submit"
   >
     <template v-if="props.data.basicInfo.questionnaireType === 1">文本问卷</template>
@@ -28,7 +29,9 @@
         </template>
       </van-field>
     </ProCard>
-    <van-button round type="primary" block native-type="submit"> 提交 </van-button>
+    <template v-if="isDev">
+      <van-button round type="primary" block native-type="submit"> 提交 </van-button>
+    </template>
   </ProRenderForm>
 </template>
 <script lang="ts" setup name="Questionnaire">
@@ -41,8 +44,8 @@ import { saveMarketerNotices } from '@/api/modules/inform';
 
 interface Props {
   data: QuestionnaireDetailRes; // 问卷数据
-  isView: boolean; // 是否查看模式
-  params: object;
+  isView?: boolean; // 是否查看模式
+  params: object; // 其他要在答题时一起提交的参数
 }
 
 const props = defineProps<Props>();
@@ -173,6 +176,7 @@ const submit = (values) => {
   console.log('values:', values);
   submitQuestion();
 };
+const isDev = window.location.origin.indexOf('localhost') > 0;
 </script>
 <style lang="scss">
 .que-title {

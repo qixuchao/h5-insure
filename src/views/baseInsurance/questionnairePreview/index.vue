@@ -1,5 +1,5 @@
 <template class="com-question-wrap">
-  <Questionnaire :data="questionnaire" is-view :params="testParams" />
+  <Questionnaire :data="questionnaire" :params="testParams" />
 </template>
 <script lang="ts" setup name="QuestionPreview">
 import { Toast } from 'vant';
