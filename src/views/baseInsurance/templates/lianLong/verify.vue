@@ -86,7 +86,7 @@
       </ProRenderForm>
     </div>
     <div class="footer-button">
-      <van-button type="primary">下一步</van-button>
+      <van-button type="primary" @click="onNext">下一步</van-button>
     </div>
     <CheckCodePopup
       :type="checkType"
@@ -100,6 +100,7 @@
 
 <script setup name="verify" lang="ts">
 import { useRoute, useRouter } from 'vue-router';
+import { Toast } from 'vant';
 import { nextStepOperate as nextStep } from '../../nextStep.ts';
 import { ProFieldV2, ProSMSCode, ProRenderForm } from '@/components/RenderForm/components';
 import { sendSMSCode } from '@/components/RenderForm/utils/constants';
@@ -111,6 +112,8 @@ import { transformFactorToSchema } from '@/components/RenderForm/utils/tools';
 import useOrder from '@/hooks/useOrder';
 import { PAGE_ROUTE_ENUMS } from './constants';
 import { VERIFY_STATUS_MAP } from '@/common/constants/verify';
+import { PAGE_ACTION_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
+import pageJump from '@/utils/pageJump';
 
 const route = useRoute();
 const router = useRouter();
@@ -195,7 +198,7 @@ const handleConfirm = () => {
     }
   } else {
     if (signPartInfo.value[checkType.value].isVerify) {
-      path = PAGE_ROUTE_ENUMS.checkFace;
+      path = PAGE_ROUTE_ENUMS.insuredSign;
     } else {
       path = PAGE_ROUTE_ENUMS.insuredSign;
     }
@@ -263,6 +266,20 @@ const initData = async () => {
           });
         }
       });
+    }
+  });
+};
+
+const onNext = () => {
+  const { holder, insuredList, extInfo } = orderDetail.value;
+  if ([extInfo.agentAuthFlag, holder.isCert, insuredList[0].isCert].includes(YES_NO_ENUM.NO)) {
+    Toast('请先完成签名');
+    return;
+  }
+
+  nextStep(orderDetail.value, (data, pageAction) => {
+    if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+      pageJump(data.nextPageCode, route.query);
     }
   });
 };

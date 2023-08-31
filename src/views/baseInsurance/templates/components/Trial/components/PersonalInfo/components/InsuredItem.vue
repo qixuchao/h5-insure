@@ -24,7 +24,7 @@
     ref="guardianFormRef"
     class="personal-info-card"
     title="监护人"
-    :model="state.guardian"
+    :model="state.guardian.personVO"
     :schema="state.guardianSchema"
     :config="state.config"
     :is-view="isView"
@@ -82,6 +82,7 @@ import { nanoid } from 'nanoid';
 import cloneDeep from 'lodash-es/cloneDeep';
 import merge from 'lodash-es/merge';
 import { clone, debounce } from 'lodash';
+import { JSONStringify } from 'lib/tool';
 import {
   type SchemaItem,
   type PersonFormProps,
@@ -245,7 +246,7 @@ const validateTrialFields = () => {
 // 监听投保人信息
 watch(
   () => props.holderPersonVO,
-  (val) => {
+  debounce((val) => {
     colorConsole('------投保人信息变动了-----');
     // 投保人id不同步到被保人
     const { id, ...holderPersonVO } = val || {};
@@ -267,7 +268,7 @@ watch(
 
       Object.assign(state.personVO, tempData);
     }
-  },
+  }, 300),
   {
     deep: true,
     immediate: true,
@@ -484,9 +485,24 @@ watch(
 // 监听监护人数据更新
 watch(
   () => cloneDeep(props.guardian),
-  (value) => {
-    state.guardian = value || {};
+  debounce((value, oldValue) => {
+    if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
+      state.guardian = value;
+    }
+  }, 300),
+  {
+    deep: true,
+    immediate: true,
   },
+);
+
+watch(
+  () => state.guardian,
+  debounce((val) => {
+    if (val) {
+      // emit('update:guardian', val);
+    }
+  }, 500),
   {
     deep: true,
     immediate: true,

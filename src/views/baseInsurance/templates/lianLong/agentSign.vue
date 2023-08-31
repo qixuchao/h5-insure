@@ -30,44 +30,23 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Dialog, Toast } from 'vant';
+import { Toast } from 'vant';
 import { stringify } from 'qs';
-import { merge } from 'lodash-es';
-import { productDetail as getTenantProductDetail, queryProductMaterial, querySalesInfo } from '@/api/modules/product';
-import { nextStepOperate as nextStep } from '../../nextStep';
-import {
-  InsureProductData,
-  ProductDetail,
-  ProductPlanInsureVoItem,
-  ProductMaterialVoItem,
-} from '@/api/modules/product.data';
-import {
-  premiumCalc,
-  insureProductDetail as getInsureProductDetail,
-  getTenantOrderDetail,
-  underWriteRule,
-} from '@/api/modules/trial';
+import { queryListProductMaterial } from '@/api/modules/product';
+import { InsureProductData, ProductMaterialVoItem } from '@/api/modules/product.data';
+import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
 import SignPart from './components/SignPart.vue';
 import useOrder from '@/hooks/useOrder';
-import {
-  ATTACHMENT_CATEGORY_ENUM,
-  ATTACHMENT_OBJECT_TYPE_ENUM,
-  PAGE_ACTION_TYPE_ENUM,
-  YES_NO_ENUM,
-  SCRIBING_TYPE_ENUM,
-  SCRIBING_TYPE_LIST,
-  SCRIBING_TYPE_MAP,
-} from '@/common/constants';
+import { NOTICE_TYPE_ENUM } from '@/common/constants';
 import { MATERIAL_TYPE_ENUM } from '@/common/constants/product';
 import { NOTICE_OBJECT_ENUM } from '@/common/constants/notice';
-import { faceVerify, faceVerifySave, saveSign, signatureConfirm } from '@/api/modules/verify';
+import { saveSign, signatureConfirm } from '@/api/modules/verify';
 import Storage from '@/utils/storage';
 import { transformFactorToSchema } from '@/components/RenderForm';
-import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS } from './constants';
+import { PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS } from './constants';
 import ProShare from '@/components/ProShare/index.vue';
-import { jumpToNextPage, isAppFkq } from '@/utils';
-import { setGlobalTheme } from '@/hooks/useTheme';
-import { localStore } from '@/hooks/useStorage';
+import { jumpToNextPage } from '@/utils';
+import { pickProductRiskCode } from './utils';
 
 const route = useRoute();
 const router = useRouter();
@@ -115,13 +94,7 @@ const shareLink = `${window.origin}/baseInsurance/long/phoneVerify?${stringify({
   orderNo: orderCode || orderNo,
 })}`;
 
-const storage = new Storage({ source: 'localStorage' });
-
-const insureProductDetail = ref<Partial<InsureProductData>>({}); // 产品中心产品信息
-
 const agentSignRef = ref<InstanceType<typeof SignPart>>();
-const holderSignRef = ref<InstanceType<typeof SignPart>>();
-const insuredSignRef = ref<InstanceType<typeof SignPart>>();
 
 const signPartInfo = ref({
   holder: {
@@ -150,11 +123,6 @@ const signPartInfo = ref({
   }, // 代理人
 });
 
-// 抄录配置
-const scribingConfig = ref({});
-
-const defaultScribingConfig = ref({});
-
 const sign = (type, signData, bizObjectId?) => {
   saveSign(type, signData, orderDetail.value?.id, tenantId, bizObjectId);
 };
@@ -174,29 +142,12 @@ const handleSubmit = () => {
   if (agentSignRef.value && requiredType.value.sign.includes('1')) {
     validateCollection.push(agentSignRef.value.validateSign());
   }
-  if (holderSignRef.value) {
-    if (isShare ? requiredType.value.sign.includes('4') : requiredType.value.sign.includes('2')) {
-      validateCollection.push(holderSignRef.value.validateSign());
-    }
-    if (requiredType.value.verify.includes('1')) {
-      validateCollection.push(holderSignRef.value.validateVerify());
-    }
-  }
-
-  if (insuredSignRef.value) {
-    if (isShare ? requiredType.value.sign.includes('5') : requiredType.value.sign.includes('3')) {
-      validateCollection.push(...(insuredSignRef.value || []).map((validate) => validate.validateSign()));
-    }
-    if (requiredType.value.verify.includes('2')) {
-      validateCollection.push(...(insuredSignRef.value || []).map((validate) => validate.validateVerify()));
-    }
-  }
 
   Promise.all(validateCollection)
     .then((res) => {
       signatureConfirm({
         bizObjectId: [],
-        bizObjectType: 3,
+        bizObjectType: NOTICE_TYPE_ENUM.AGENT,
         orderId: orderDetail.value.id,
         tenantId,
       }).then(({ code, data }) => {
@@ -233,35 +184,6 @@ const getOrderDetail = (check = false) => {
   orderNo &&
     getTenantOrderDetail({ orderNo: orderCode || orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
-        if (check) {
-          if (data?.holder?.isCert === YES_NO_ENUM.NO || data?.insuredList.some((x) => x.isCert === YES_NO_ENUM.NO)) {
-            Toast('用户未完身份认证及签字');
-          } else if (
-            !data?.tenantOrderAttachmentList.find(
-              (x) =>
-                x.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN &&
-                x.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER,
-            ) ||
-            !data?.tenantOrderAttachmentList.find(
-              (x) =>
-                x.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN &&
-                x.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.INSURED,
-            )
-          ) {
-            Toast('用户未完身份认证及签字');
-          }
-        }
-        Object.assign(orderDetail.value, data);
-        signPartInfo.value.holder.personalInfo = data.holder;
-        signPartInfo.value.insured.personalInfo = data.insuredList;
-
-        Object.assign(defaultScribingConfig.value, {
-          type: SCRIBING_TYPE_MAP[data.extInfo.transcriptionType],
-          signInfo: data.riskTranscriptionList?.[0]?.uri,
-          text: data.riskTranscriptionList?.[0]?.content,
-          status: !!data.extInfo.transcriptionStatus,
-        });
-
         data.tenantOrderAttachmentList.forEach((attachment) => {
           if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
             signPartInfo.value.holder.signData = attachment.fileBase64;
@@ -287,7 +209,7 @@ const shareInfo = ref({
   link: shareLink,
 });
 
-const initData = () => {
+const initData = async () => {
   // querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
   //   if (code === '10000') {
   //     const { wxShareConfig, showWXShare, title, desc, image } = data?.PRODUCT_LIST || {};
@@ -303,9 +225,24 @@ const initData = () => {
   //     // 设置分享参数
   //   }
   // });
-  queryProductMaterial({ productCode }).then(({ code, data }) => {
+  let productRiskMap = {};
+  const { code: oCode, data: orderData } = await getTenantOrderDetail({ orderNo, tenantId });
+  if (oCode === '10000') {
+    productRiskMap = pickProductRiskCode(orderData.insuredList[0].productList);
+    orderData.tenantOrderAttachmentList.forEach((attachment) => {
+      if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
+        signPartInfo.value.holder.signData = attachment.fileBase64;
+      } else if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT) {
+        signPartInfo.value.agent.signData = attachment.fileBase64;
+      } else if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED) {
+        signPartInfo.value.insured.signData[attachment.objectId] = attachment.fileBase64;
+      }
+    });
+  }
+
+  queryListProductMaterial({ productCode }).then(({ code, data }) => {
     if (code === '10000') {
-      const { productMaterialMap } = data.productInsureMaterialVOList?.[0] || {};
+      const { productMaterialMap } = data.productMaterialPlanVOList?.[0] || {};
       const signMaterialCollection = (Object.values(productMaterialMap || {}) || [])
         .flat()
         .filter((material: ProductMaterialVoItem) => material.materialType === MATERIAL_TYPE_ENUM.SIGN);
@@ -321,11 +258,9 @@ const initData = () => {
     }
   });
 
-  getInsureProductDetail({ productCode, isTenant: !preview }).then(({ data, code }) => {
+  mergeInsureFactor(productRiskMap).then(({ data, code }) => {
     if (code === '10000') {
-      insureProductDetail.value = data;
-      const { productFactor } = data.productPlanInsureVOList?.[0] || {};
-      const { signInfo } = transformFactorToSchema(productFactor);
+      const { signInfo } = transformFactorToSchema(data.productFactor);
       signInfo.schema.forEach((schema) => {
         if (schema.name === 'eleSign') {
           schema.columns.forEach((column) => {
@@ -347,19 +282,6 @@ const initData = () => {
               // 被保人空中签字
             } else if (column.code === '5') {
               signPartInfo.value.insured.isShareSign = true;
-            }
-          });
-        }
-
-        // 风险抄录
-        if (schema.name === 'riskNotificationCopy') {
-          scribingConfig.value.text = schema.remark;
-          requiredType.value.scribing = schema.required;
-          schema.columns.forEach((column) => {
-            if (column.code === '1') {
-              scribingConfig.value.type = 'handle';
-            } else {
-              scribingConfig.value.type = 'auto';
             }
           });
         }

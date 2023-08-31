@@ -30,53 +30,33 @@
       title="为了保障您的权益请抄录以下声明内容"
       @on-submit="submitScribing"
     ></ProScribing>
+    <div class="footer-button">
+      <van-button type="primary" @click="handleSubmit">确定</van-button>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Dialog, Toast } from 'vant';
+import { Toast } from 'vant';
 import { stringify } from 'qs';
-import { merge } from 'lodash-es';
-import { productDetail as getTenantProductDetail, queryProductMaterial, querySalesInfo } from '@/api/modules/product';
-import { nextStepOperate as nextStep } from '../../nextStep';
-import {
-  InsureProductData,
-  ProductDetail,
-  ProductPlanInsureVoItem,
-  ProductMaterialVoItem,
-} from '@/api/modules/product.data';
-import {
-  premiumCalc,
-  insureProductDetail as getInsureProductDetail,
-  getTenantOrderDetail,
-  underWriteRule,
-  mergeInsureFactor,
-} from '@/api/modules/trial';
+import { queryListProductMaterial } from '@/api/modules/product';
+
+import { InsureProductData, ProductDetail, ProductMaterialVoItem } from '@/api/modules/product.data';
+import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
 import SignPart from './components/SignPart.vue';
 import useOrder from '@/hooks/useOrder';
-import {
-  ATTACHMENT_CATEGORY_ENUM,
-  ATTACHMENT_OBJECT_TYPE_ENUM,
-  PAGE_ACTION_TYPE_ENUM,
-  PAGE_ROUTE_ENUMS,
-  YES_NO_ENUM,
-  SCRIBING_TYPE_ENUM,
-  SCRIBING_TYPE_LIST,
-  SCRIBING_TYPE_MAP,
-} from '@/common/constants';
-import { ORDER_STATUS_ENUM } from '@/common/constants/order';
+import { PAGE_ROUTE_ENUMS, SCRIBING_TYPE_ENUM, SCRIBING_TYPE_MAP, NOTICE_TYPE_ENUM } from '@/common/constants';
+
 import { MATERIAL_TYPE_ENUM } from '@/common/constants/product';
 import { NOTICE_OBJECT_ENUM } from '@/common/constants/notice';
-import { faceVerify, faceVerifySave, saveSign } from '@/api/modules/verify';
+import { faceVerify, faceVerifySave, saveSign, signatureConfirm } from '@/api/modules/verify';
 import Storage from '@/utils/storage';
 import { transformFactorToSchema } from '@/components/RenderForm';
-import pageJump from '@/utils/pageJump';
-import InsureProgress from './components/InsureProgress.vue';
-import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
+
+import { PAGE_CODE_ENUMS } from './constants';
 import ProShare from '@/components/ProShare/index.vue';
-import { jumpToNextPage, isAppFkq } from '@/utils';
-import { setGlobalTheme } from '@/hooks/useTheme';
+import { jumpToNextPage } from '@/utils';
 import { localStore } from '@/hooks/useStorage';
 import { confirmRiskTranscription } from '@/api/modules/scribing';
 import { pickProductRiskCode } from './utils';
@@ -129,12 +109,7 @@ const shareLink = `${window.origin}/baseInsurance/long/phoneVerify?${stringify({
 
 const storage = new Storage({ source: 'localStorage' });
 
-const tenantProductDetail = ref<Partial<ProductDetail>>({}); // 核心系统产品信息
-const insureProductDetail = ref<Partial<InsureProductData>>({}); // 产品中心产品信息
-
-const agentSignRef = ref<InstanceType<typeof SignPart>>();
 const holderSignRef = ref<InstanceType<typeof SignPart>>();
-const insuredSignRef = ref<InstanceType<typeof SignPart>>();
 
 const signPartInfo = ref({
   holder: {
@@ -168,26 +143,6 @@ const scribingConfig = ref({});
 
 const defaultScribingConfig = ref({});
 
-/** ------------- 人脸识别 ----------- */
-const doVerify = (name: string, certNo: string) => {
-  let jumpUrl = window.location.href;
-  jumpUrl = jumpUrl.includes('orderCode') ? jumpUrl : jumpUrl.replace(/orderNo/g, 'orderCode');
-
-  faceVerify({
-    callbackUrl: jumpUrl,
-    certiNo: certNo,
-    faceAuthMode: 'TENCENT',
-    userName: name,
-    tenantId,
-  }).then(({ code, data }) => {
-    if (code === '10000') {
-      const { originalUrl, serialNo } = data;
-      window.location.href = originalUrl;
-      localStore.set('verifyData', { serialNo, certNo, name });
-    }
-  });
-};
-
 const sign = (type, signData, bizObjectId?) => {
   saveSign(type, signData, orderDetail.value?.id, tenantId, bizObjectId);
 };
@@ -204,9 +159,6 @@ const handleSubmit = () => {
     return;
   }
   const validateCollection = [];
-  if (agentSignRef.value && requiredType.value.sign.includes('1')) {
-    validateCollection.push(agentSignRef.value.validateSign());
-  }
   if (holderSignRef.value) {
     if (isShare ? requiredType.value.sign.includes('4') : requiredType.value.sign.includes('2')) {
       validateCollection.push(holderSignRef.value.validateSign());
@@ -216,104 +168,35 @@ const handleSubmit = () => {
     }
   }
 
-  if (insuredSignRef.value) {
-    if (isShare ? requiredType.value.sign.includes('5') : requiredType.value.sign.includes('3')) {
-      validateCollection.push(...(insuredSignRef.value || []).map((validate) => validate.validateSign()));
-    }
-    if (requiredType.value.verify.includes('2')) {
-      validateCollection.push(...(insuredSignRef.value || []).map((validate) => validate.validateVerify()));
-    }
-  }
-
   Promise.all(validateCollection)
     .then((res) => {
       if (requiredType.value.scribing && !scribingConfig.value.status) {
         Toast('请先完成风险抄录');
         return;
       }
-      orderNo &&
-        getTenantOrderDetail({
-          orderNo: orderCode || orderNo,
-          saleUserId,
-          tenantId,
-        }).then(({ code, data }) => {
-          if (code === '10000') {
-            // 订单状态为待处理,支付失败,核保成功时可进行下一步操作，否则跳入支付结果页
-            // if (
-            //   !(
-            //     [
-            //       ORDER_STATUS_ENUM.PENDING,
-            //       ORDER_STATUS_ENUM.PAYMENT_FAILED,
-            //       ORDER_STATUS_ENUM.UNDER_WRITING_SUCCESS,
-            //     ] as string[]
-            //   ).includes(data.orderStatus)
-            // ) {
-            //   pageJump('paymentResult', { ...route.query, orderNo: orderCode || orderNo });
-            // } else {
-            Dialog.confirm({
-              title: '提示',
-              message: '请确认信息填写无误后，再进行支付',
-            }).then(() => {
-              Object.assign(orderDetail.value, {
-                extInfo: {
-                  ...orderDetail.value.extInfo,
-                  buttonCode: BUTTON_CODE_ENUMS.SIGN,
-                  pageCode: PAGE_CODE_ENUMS.SIGN,
-                },
-              });
-              nextStep(orderDetail.value, (cbData, pageAction) => {
-                if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_URL) {
-                  window.location.href = cbData.paymentUrl;
-                }
-              });
-            });
-            // }
-          }
-        });
+      signatureConfirm({
+        bizObjectId: [orderDetail.value.holder.id],
+        bizObjectType: NOTICE_TYPE_ENUM.HOLDER,
+        orderId: orderDetail.value.id,
+        tenantId,
+      }).then(({ code, data }) => {
+        if (code === '10000' && data) {
+          router.push({
+            path: PAGE_ROUTE_ENUMS.sign,
+            query: route.query,
+          });
+        }
+      });
     })
     .catch((e) => {
       Toast(e.message);
     });
 };
 
-const shareRef = ref<InstanceType<typeof ProShare>>();
-const handleShare = () => {
-  if (agentSignRef.value && requiredType.value.sign.includes('1')) {
-    agentSignRef.value
-      .validateSign()
-      .then(() => {
-        if (shareRef.value) {
-          shareRef.value.handleShare();
-        }
-      })
-      .catch(() => {
-        Toast('请完成代理人签字后进行分享');
-      });
-  }
-};
-
-const getOrderDetail = (check = false) => {
+const getOrderDetail = () => {
   orderNo &&
     getTenantOrderDetail({ orderNo: orderCode || orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
-        if (check) {
-          if (data?.holder?.isCert === YES_NO_ENUM.NO || data?.insuredList.some((x) => x.isCert === YES_NO_ENUM.NO)) {
-            Toast('用户未完身份认证及签字');
-          } else if (
-            !data?.tenantOrderAttachmentList.find(
-              (x) =>
-                x.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN &&
-                x.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER,
-            ) ||
-            !data?.tenantOrderAttachmentList.find(
-              (x) =>
-                x.category === ATTACHMENT_CATEGORY_ENUM.ELECTRIC_SIGN &&
-                x.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.INSURED,
-            )
-          ) {
-            Toast('用户未完身份认证及签字');
-          }
-        }
         Object.assign(orderDetail.value, data);
         signPartInfo.value.holder.personalInfo = data.holder;
         signPartInfo.value.insured.personalInfo = data.insuredList;
@@ -323,16 +206,6 @@ const getOrderDetail = (check = false) => {
           signInfo: data.riskTranscriptionList?.[0]?.uri,
           text: data.riskTranscriptionList?.[0]?.content,
           status: !!data.extInfo.transcriptionStatus,
-        });
-
-        data.tenantOrderAttachmentList.forEach((attachment) => {
-          if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
-            signPartInfo.value.holder.signData = attachment.fileBase64;
-          } else if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT) {
-            signPartInfo.value.agent.signData = attachment.fileBase64;
-          } else if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED) {
-            signPartInfo.value.insured.signData[attachment.objectId] = attachment.fileBase64;
-          }
         });
       }
     });
@@ -351,8 +224,7 @@ const initData = async () => {
   const { code: oCode, data: orderData } = await getTenantOrderDetail({ orderNo: orderCode || orderNo, tenantId });
   if (oCode === '10000') {
     Object.assign(orderDetail.value, orderData);
-    signPartInfo.value.holder.personalInfo = orderData.holder;
-    signPartInfo.value.insured.personalInfo = orderData.insuredList;
+    signPartInfo.value.holder.personalInfo = { ...orderData.holder, isCert: 1 };
 
     productRiskMap = pickProductRiskCode(orderData.insuredList[0].productList);
 
@@ -373,9 +245,9 @@ const initData = async () => {
       }
     });
   }
-  queryProductMaterial({ productCode }).then(({ code, data }) => {
+  queryListProductMaterial({ productCodeList: [] }).then(({ code, data }) => {
     if (code === '10000') {
-      const { productMaterialMap } = data.productInsureMaterialVOList?.[0] || {};
+      const { productMaterialMap } = data.productMaterialPlanVOList?.[0] || {};
       const signMaterialCollection = (Object.values(productMaterialMap || {}) || [])
         .flat()
         .filter((material: ProductMaterialVoItem) => material.materialType === MATERIAL_TYPE_ENUM.SIGN);
@@ -446,8 +318,6 @@ const initData = async () => {
       });
     }
   });
-
-  getOrderDetail();
 };
 
 const submitScribing = (scribingStr?: string) => {

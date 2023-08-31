@@ -426,6 +426,7 @@ const filterFormData = (data) => {
     schema,
     trialFactorCodes,
     beneficiaryList,
+    guardian,
     personVO,
     nanoid: tempNanoid,
     ...formData
@@ -445,7 +446,7 @@ const onAddInsured = () => {
   );
 };
 
-// 添加被保人
+// 删除被保人
 const onDeleteInsured = (index) => {
   Dialog.confirm({
     message: `确定要删除该被保人吗？`,
@@ -465,7 +466,7 @@ const addible = computed(() => {
 // 是否有投保人
 const hasHolderSchema = computed(() => isNotEmptyArray(state.holder.schema));
 
-// 是否有投保人
+// 是否有被保人
 const hasInsuredSchema = computed(() => state.insured.some((insuredItem) => isNotEmptyArray(insuredItem.schema)));
 
 const filterData = (keys, data) => {
@@ -498,7 +499,7 @@ const canTrail = () => {
   return state.trialValidated;
 };
 
-// 监听投被保人关系
+// 监听投保人证件类型
 watch(
   () => state.holder.personVO?.certType,
   debounce((val, oldVal) => {
@@ -520,7 +521,7 @@ watch(
     () => ({ ...state.holder?.personVO }),
     () =>
       state.insured.map((insuredItem) => {
-        const { beneficiaryList: list, personVO } = insuredItem || {};
+        const { beneficiaryList: list, guardian, personVO } = insuredItem || {};
         const beneficiaryList = isNotEmptyArray(list)
           ? list.map((beneficiaryItem) => ({
               ...beneficiaryItem.personVO,
@@ -528,15 +529,16 @@ watch(
           : [];
         return {
           ...personVO,
+          guardian,
           beneficiaryList,
         };
       }),
   ],
   // eslint-disable-next-line consistent-return
   debounce((val, oldVal) => {
-    // if (JSON.stringify(val) === JSON.stringify(oldVal)) {
-    //   return false;
-    // }
+    if (JSON.stringify(val) === JSON.stringify(oldVal)) {
+      return false;
+    }
 
     const [holder, insuredList] = val;
     // 试算因子的值是否变动
@@ -619,6 +621,7 @@ watch(
       state.initInsuredIList = insured.map((insuredItem) => {
         return {
           ...insuredItem,
+          guardian: {},
           beneficiaryList: [],
         };
       });
@@ -656,17 +659,36 @@ watch(
   },
 );
 
+// 监护人切换关系 清空数据
+watch(
+  () => state?.insured?.[state.currentIndex]?.guardian?.personVO?.relationToInsured,
+  (val, oldVal) => {
+    if (val !== oldVal) {
+      colorConsole('监护人关系变动了+++++');
+      state.insured[state.currentIndex].guardian.personVO = {
+        relationToInsured: val?.relationToInsured,
+      };
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+const canUpdateFormData = ref<boolean>(false);
+
 // 表单数据变动
 watch(
   [
     () => {
       const { holder, insuredList = [] } = props.modelValue;
-      console.log('表单数据', cloneDeep(holder));
       const tempInsuredList = isNotEmptyArray(insuredList)
         ? insuredList.map((item) => {
             return {
               config: item.config,
               personVO: filterFormData(item),
+              guardian: { personVO: item.guardian || {} },
               beneficiaryList: isNotEmptyArray(item.beneficiaryList)
                 ? item.beneficiaryList.map(({ config, ...rest }) => ({
                     config,
@@ -681,9 +703,17 @@ watch(
     () => state.config,
     () => state.initInsuredIList,
   ],
-  debounce(([[holderConfig, holderFormData, insuredList]]) => {
-    colorConsole(`投被保人数据变动了`);
-    // 投保人
+  debounce(([[holderConfig, holderFormData, insuredList]], [[oldHolderConfig, oldHolderData, oldInured]]) => {
+    if (
+      JSON.stringify(holderConfig) === JSON.stringify(oldHolderConfig) &&
+      JSON.stringify(holderFormData) === JSON.stringify(oldHolderData) &&
+      JSON.stringify(insuredList) === JSON.stringify(oldInured) &&
+      canUpdateFormData.value
+    ) {
+      // 投保人
+      return;
+    }
+    canUpdateFormData.value = true;
     Object.assign(state.holder.config, holderConfig);
     console.log('投保人数据===', cloneDeep(state.holder.personVO), cloneDeep(holderFormData));
     console.log('投保人数据===', cloneDeep(state.holder.personVO), cloneDeep(holderFormData));
@@ -709,13 +739,14 @@ watch(
         : stateInsuredLen || multiInsuredMinNum;
 
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
-      const { personVO, config = {}, beneficiaryList } = insuredList?.[index] || {};
+      const { personVO, config = {}, guardian, beneficiaryList } = insuredList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
       if (!res[index]) {
         res[index] = {
           ...initInsuredTempData,
           personVO,
           config,
+          guardian,
           beneficiaryList,
           nanoid: nanoid(),
         };
@@ -724,13 +755,14 @@ watch(
           ...cloneDeep(initInsuredTempData),
           personVO,
           config,
+          guardian,
           beneficiaryList,
           // nanoid: nanoid(),
         });
       }
       return res;
     }, state.insured) as InsuredListProps;
-  }, 500),
+  }, 300),
   {
     deep: true,
     immediate: true,

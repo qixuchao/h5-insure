@@ -876,7 +876,7 @@ const handleRestState = () => {
 const transformDefaultData = (defaultData: any) => {
   state.userData = defaultData;
   state.defaultValue = defaultData;
-  handleTrialAndBenefit(defaultData, true);
+  // handleTrialAndBenefit(defaultData, true);
 };
 
 const fetchDefaultDataFromServer = async () => {
