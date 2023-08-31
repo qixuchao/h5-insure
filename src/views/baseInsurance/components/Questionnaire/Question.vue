@@ -184,7 +184,7 @@ watch(
 watch(
   () => answerVO.value,
   (val) => {
-    console.log(data.value.id, '变动了:', val);
+    // console.log(data.value.id, '变动了:', val);
     emit('update:modelValue', val);
   },
   {
