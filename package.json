@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --mode=test",
     "build": "vite build",
-    "lint": "eslint src --fix",
+    "lint": "lint-staged",
     "preview": "vite preview",
     "prepare": "husky install",
     "docs:dev": "vuepress dev docs",
