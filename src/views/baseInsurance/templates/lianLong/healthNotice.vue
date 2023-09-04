@@ -1,10 +1,9 @@
 <template>
   <div class="long-health-notice-wrap">
     <ProNavigator />
-    <Questionnaire :data="currentQuestion" :params="testParams"></Questionnaire>
+    <Questionnaire :data="currentQuestion" :params="questionParams"> </Questionnaire>
     <div class="footer-btn">
-      <VanButton plain type="primary" @click="questionReject">部分为是</VanButton>
-      <VanButton type="primary" @click="questionResolve">以上皆否</VanButton>
+      <VanButton plain type="primary" @click="questionReject">下一步</VanButton>
     </div>
   </div>
 </template>
@@ -12,7 +11,7 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { Dialog } from 'vant';
-import { queryListProductMaterial, queryProductMaterial } from '@/api/modules/product';
+import { listProductQuestionnaire, queryListProductMaterial, queryProductMaterial } from '@/api/modules/product';
 import ProFilePreview from '@/components/ProFilePreview/index.vue';
 import { QUESTIONNAIRE_TYPE_ENUM, OBJECT_TYPE_ENUM } from '@/common/constants/questionnaire';
 import { getFileType } from '../../utils';
@@ -25,7 +24,10 @@ import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
 import { jumpToNextPage } from '@/utils';
-import Questionnaire from '../components/Questionnaire/index.vue';
+import Questionnaire from '../../components/Questionnaire/index.vue';
+import { getTenantOrderDetail } from '@/api/modules/trial';
+import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
+import { NOTICE_OBJECT_ENUM } from '@/common/constants/notice';
 
 const route = useRoute();
 const router = useRouter();
@@ -37,6 +39,11 @@ const { productCode, orderNo, templateId, tenantId, preview, questionnaireId: qu
 const currentQuestion = ref<any>({});
 const nextQuestionnaireId = ref<number>();
 const objectType = ref<number>();
+const questionParams = ref({
+  orderNo,
+  tenantId,
+  noticeType: NOTICE_OBJECT_ENUM.INSURED,
+});
 
 const onNext = () => {
   if (preview) {
@@ -80,8 +87,8 @@ const questionResolve = () => {
   }
 };
 
-const getQuestionInfo = async () => {
-  const { code, data } = await queryListProductMaterial({ productCode });
+const getQuestionInfo = async (params) => {
+  const { code, data } = await listProductQuestionnaire(params);
 
   if (code === '10000') {
     const { productQuestionnaireVOList } = data || {};
@@ -115,18 +122,13 @@ const getQuestionInfo = async () => {
         questionnaireName,
       };
     } else {
-      currentQuestion.value = {
-        content: questions,
-        contentType: 'question',
-        questionnaireId,
-        questionnaireName,
-      };
+      currentQuestion.value = questionnaireDetailResponseVO;
     }
   }
 };
 
 const getOrderDetail = async () => {
-  const { code, data } = await queryOrderDetail({ orderNo, tenantId });
+  const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
   if (code === '10000') {
     Object.assign(orderDetail.value, data, {
       extInfo: {
@@ -136,12 +138,14 @@ const getOrderDetail = async () => {
         buttonCode: BUTTON_CODE_ENUMS.QUESTION_NOTICE,
       },
     });
+    const productCodeList = data.insuredList[0].productList.map((product) => product.productCode);
+    questionParams.value.objectId = data.insuredList[0].id;
+    getQuestionInfo({ productCodeList });
   }
 };
 
 onBeforeMount(() => {
   !preview && getOrderDetail();
-  getQuestionInfo();
 });
 </script>
 

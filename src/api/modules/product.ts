@@ -47,7 +47,7 @@ export const queryProductMaterial = (data = {}) => {
 
 // 获取问卷信息[只传问卷id时]
 export const listProductQuestionnaire = (data = {}) => {
-  return request<ProductQuestionnaireRes[]>({
+  return request<{ productQuestionnaireVOList: ProductQuestionnaireRes[] }>({
     url: '/api/app/insure/product/v2/listProductQuestionnaire',
     method: 'POST',
     data,
