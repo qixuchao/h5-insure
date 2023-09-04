@@ -61,10 +61,10 @@ const transformQuestion = (originQuestionnaire: QuestionnaireDetailRes): Questio
 onMounted(() => {
   Toast.loading('加载中...');
   // listProductQuestionnaire getQuestionAnswerDetail
-  getQuestionAnswerDetail({
+  listProductQuestionnaire({
     questionnaireId: questionnaireId || id,
-    orderNo: '2023083017475048217',
-    tenantId: 9991000011,
+    // orderNo: '2023083017475048217',
+    // tenantId: 9991000011,
   })
     .then((res) => {
       const { code, data } = res;
