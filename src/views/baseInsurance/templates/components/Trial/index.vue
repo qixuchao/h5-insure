@@ -958,11 +958,11 @@ watch(
         insuredList,
       };
       Object.assign(state.submitData, userData);
-
       emit('update:userData', userData);
     }
   },
   {
+    immediate: true,
     deep: true,
   },
 );

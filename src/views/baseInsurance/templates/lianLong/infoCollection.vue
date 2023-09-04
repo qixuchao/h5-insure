@@ -18,7 +18,7 @@
       :product-factor="productFactor"
       @trial-start="handleTrialStart"
       @trial-end="handleTrialEnd"
-      @update:user-data="(val) => (state.userData = val)"
+      @update:user-data="updateUserData"
     >
       <template #middleInfo>
         <PayInfo
@@ -331,6 +331,11 @@ const onNext = async () => {
   });
 };
 
+const updateUserData = (val) => {
+  console.log('val', val);
+  Object.assign(state.userData, val);
+};
+
 const handleCache = () => {
   Object.assign(orderDetail.value, {
     extInfo: {
@@ -460,8 +465,6 @@ const initData = async () => {
         isLoading.value = true;
       }
     }));
-
-  queryProductMaterialData();
 
   await mergeInsureFactor(productRiskMap).then(({ data, code }) => {
     if (code === '10000') {

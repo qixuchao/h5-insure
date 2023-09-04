@@ -10,7 +10,7 @@
     :is-view="isView"
     :extra-provision="{
       objectType: ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER,
-      objectId: state.holder.personVO.id,
+      objectId: state.holder?.personVO?.id,
     }"
   >
     <template #customer>
@@ -529,7 +529,7 @@ watch(
           : [];
         return {
           ...personVO,
-          guardian,
+          guardian: guardian.personVO || {},
           beneficiaryList,
         };
       }),
@@ -659,22 +659,22 @@ watch(
   },
 );
 
-// 监护人切换关系 清空数据
-watch(
-  () => state?.insured?.[state.currentIndex]?.guardian?.personVO?.relationToInsured,
-  (val, oldVal) => {
-    if (val !== oldVal) {
-      colorConsole('监护人关系变动了+++++');
-      state.insured[state.currentIndex].guardian.personVO = {
-        relationToInsured: val?.relationToInsured,
-      };
-    }
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
+// // 监护人切换关系 清空数据
+// watch(
+//   () => state?.insured?.[state.currentIndex]?.guardian?.personVO?.relationToInsured,
+//   (val, oldVal) => {
+//     if (val !== oldVal) {
+//       colorConsole('监护人关系变动了+++++');
+//       state.insured[state.currentIndex].guardian.personVO = {
+//         relationToInsured: val?.relationToInsured,
+//       };
+//     }
+//   },
+//   {
+//     deep: true,
+//     immediate: true,
+//   },
+// );
 
 const canUpdateFormData = ref<boolean>(false);
 

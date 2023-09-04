@@ -71,11 +71,23 @@ const state = reactive({
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
+const extraProvisionData = reactive({});
+watch(
+  () => props.extraProvision,
+  (value) => {
+    Object.assign(extraProvisionData, props.extraProvision);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
 provide(VAN_PRO_FORM_KEY, {
   formState: state,
   formRef,
   markRequired: props.markRequired && !props.isView,
-  ...props.extraProvision,
+  extraProvision: extraProvisionData,
 });
 
 // 非默认 slots

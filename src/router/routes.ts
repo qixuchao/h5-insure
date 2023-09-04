@@ -83,6 +83,12 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/baseInsurance/templates/lianLong/insuredSign.vue'),
   },
   {
+    name: 'payAuth',
+    path: '/baseInsurance/long/payAuth',
+    meta: { title: '支付绑卡' },
+    component: () => import('@/views/baseInsurance/templates/lianLong/payAuth.vue'),
+  },
+  {
     name: 'infoPreview',
     path: '/baseInsurance/long/infoPreview',
     meta: { title: '保单预览' },

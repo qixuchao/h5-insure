@@ -65,3 +65,11 @@ export const signatureConfirm = (data = {}) =>
     method: 'POST',
     data,
   });
+
+// 银行卡授权确认
+export const authorizeConfirm = (data = {}) =>
+  request<boolean>({
+    url: '/api/app/insure/insurance/authorizeConfirm',
+    method: 'POST',
+    data,
+  });

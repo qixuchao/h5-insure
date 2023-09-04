@@ -384,6 +384,10 @@ export enum ATTACHMENT_OBJECT_TYPE_ENUM {
    * 受益人
    */
   BENEFICIARY = 8,
+  /**
+   * 监护人
+   */
+  GUARDIAN = 9,
 }
 
 export const OCR_TYPE_ENUM = {

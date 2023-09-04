@@ -1,26 +1,27 @@
 <template>
   <div class="com-insured-part-wrapper">
-    <ProCard title="保障信息">
-      <div class="content-wrapper">
-        <div v-for="(riskInfo, index) in productData?.riskList || []" :key="index" class="risk-item">
-          <template v-if="riskInfo.riskType === RISK_TYPE_ENUM.MAIN_RISK">
-            <p class="risk-name">{{ riskInfo.riskName }}</p>
-            <ProCell title="保障期间" :content="riskInfo.coveragePeriodDesc"> </ProCell>
-            <ProCell title="交费期间" :content="riskInfo.chargePeriodDesc"> </ProCell>
-          </template>
-          <template v-else>
-            <ProCell :title="riskInfo.riskName" content="投保"> </ProCell>
-            <template v-if="riskInfo.exemptFlag === YES_NO_ENUM.YES">
-              <ProCell title="交费期间" :content="riskInfo.chargePeriodDesc"> </ProCell>
-            </template>
-            <template v-else-if="riskInfo.liabilityList?.length">
-              <ProCell title="保障期间" :content="riskInfo.coveragePeriodDesc"> </ProCell>
-              <ProCell title="交费期间" :content="riskInfo.chargePeriodDesc"> </ProCell>
-              <ProCell title="交费方式" :content="PAYMENT_FREQUENCY_MAP[riskInfo.paymentFrequency]"> </ProCell>
-            </template>
-          </template>
+    <ProCard title="保障信息" :show-icon="false">
+      <template v-for="product in productData" :key="product.productCode">
+        <ProCard v-for="riskInfo in product.riskList" :key="riskInfo.riskCode" :title="riskInfo.riskName">
+          <div class="content-wrapper">
+            <div class="risk-item">
+              <template v-if="riskInfo.riskType === RISK_TYPE_ENUM.MAIN_RISK">
+                <ProCell title="保障期间" :content="riskInfo.coveragePeriodDesc"> </ProCell>
+                <ProCell title="交费期间" :content="riskInfo.chargePeriodDesc"> </ProCell>
+              </template>
+              <template v-else>
+                <ProCell :title="riskInfo.riskName" content="投保"> </ProCell>
+                <template v-if="riskInfo.exemptFlag === YES_NO_ENUM.YES">
+                  <ProCell title="交费期间" :content="riskInfo.chargePeriodDesc"> </ProCell>
+                </template>
+                <template v-else-if="riskInfo.liabilityList?.length">
+                  <ProCell title="保障期间" :content="riskInfo.coveragePeriodDesc"> </ProCell>
+                  <ProCell title="交费期间" :content="riskInfo.chargePeriodDesc"> </ProCell>
+                  <ProCell title="交费方式" :content="PAYMENT_FREQUENCY_MAP[riskInfo.paymentFrequency]"> </ProCell>
+                </template>
+              </template>
 
-          <!-- <ProCell
+              <!-- <ProCell
             v-if="riskInfo.annuityDrawDateDesc"
             title="年金领取时间"
             :content="riskInfo.annuityDrawDate"
@@ -31,31 +32,37 @@
             :content="ANNUITY_DRAW_TYPE_MAP[riskInfo.annuityDrawFrequency]"
           ></ProCell> -->
 
-          <!-- <ProCell
+              <!-- <ProCell
             v-for="(liability, ind) in riskInfo.liabilityDetails"
             :key="ind"
             :title="liability.liabilityName"
             content="投保"
           ></ProCell> -->
-          <ProCell
-            title="保障金额"
-            :content="(riskInfo.initialAmount || 0).toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })"
-          >
-          </ProCell>
-          <ProCell
-            title="首期保费"
-            class="price"
-            :content="(riskInfo.initialPremium || 0).toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })"
-          >
-          </ProCell>
-        </div>
-        <ProCell
-          title="首期总保费"
-          class="price"
-          :content="(totalPremium || 0).toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })"
-        >
-        </ProCell>
-      </div>
+              <ProCell
+                title="保障金额"
+                :content="
+                  (riskInfo.initialAmount || 0).toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })
+                "
+              >
+              </ProCell>
+              <ProCell
+                title="首期保费"
+                class="price"
+                :content="
+                  (riskInfo.initialPremium || 0).toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })
+                "
+              >
+              </ProCell>
+            </div>
+            <!-- <ProCell
+              title="首期总保费"
+              class="price"
+              :content="(totalPremium || 0).toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })"
+            >
+            </ProCell> -->
+          </div>
+        </ProCard>
+      </template>
     </ProCard>
   </div>
 </template>
@@ -78,7 +85,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  productData: () => ({}),
+  productData: () => [],
   totalPremium: 0,
 });
 </script>

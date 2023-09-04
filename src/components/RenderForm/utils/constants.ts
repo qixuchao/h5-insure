@@ -39,7 +39,7 @@ export const COMPONENT_ENUM = {
   /** 1:单行文本/2:多行文本/3:数字输入框 */
   ProFieldV2: 'ProFieldV2',
   /** 4:日期 */
-  ProDatePickerV2: 'ProDatePickerV2',
+  ProDatePickerV2: 'ProValidateDate',
   /** 5:下拉框 */
   ProPickerV2: 'ProPickerV2',
   /** 6:单选框 */
@@ -68,6 +68,8 @@ export const COMPONENT_ENUM = {
   ProBaseUpload: 'ProBaseUpload',
   /** 银行卡照片 */
   ProBankUpload: 'ProBankUpload',
+  /** 证件有效期 */
+  ProValidateDate: 'ProValidateDate',
 };
 
 // 输入框最大长度
@@ -337,6 +339,12 @@ export const COMPONENT_MAPPING_LIST = [
     code: 'stepper',
     name: '步进器',
     value: 13,
+    componentName: COMPONENT_ENUM.ProStepperV2,
+  },
+  {
+    code: 'langDate',
+    name: '日期-长期',
+    value: 14,
     componentName: COMPONENT_ENUM.ProStepperV2,
   },
 ];

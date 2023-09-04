@@ -46,7 +46,7 @@ import { transformFactorToSchema } from '@/components/RenderForm';
 import { PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS } from './constants';
 import ProShare from '@/components/ProShare/index.vue';
 import { jumpToNextPage } from '@/utils';
-import { pickProductRiskCode } from './utils';
+import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 
 const route = useRoute();
 const router = useRouter();
@@ -228,7 +228,7 @@ const initData = async () => {
   let productRiskMap = {};
   const { code: oCode, data: orderData } = await getTenantOrderDetail({ orderNo, tenantId });
   if (oCode === '10000') {
-    productRiskMap = pickProductRiskCode(orderData.insuredList[0].productList);
+    productRiskMap = pickProductRiskCodeFromOrder(orderData.insuredList[0].productList);
     orderData.tenantOrderAttachmentList.forEach((attachment) => {
       if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
         signPartInfo.value.holder.signData = attachment.fileBase64;
@@ -240,7 +240,7 @@ const initData = async () => {
     });
   }
 
-  queryListProductMaterial({ productCode }).then(({ code, data }) => {
+  queryListProductMaterial(productRiskMap).then(({ code, data }) => {
     if (code === '10000') {
       const { productMaterialMap } = data.productMaterialPlanVOList?.[0] || {};
       const signMaterialCollection = (Object.values(productMaterialMap || {}) || [])

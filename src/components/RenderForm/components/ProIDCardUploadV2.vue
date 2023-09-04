@@ -75,7 +75,7 @@ const uploaderList = [
 
 const { filedAttrs } = toRefs(useAttrsAndSlots());
 
-const { formState, objectType, objectId } = inject(VAN_PRO_FORM_KEY) || {};
+const { formState, extraProvision } = inject(VAN_PRO_FORM_KEY) || {};
 
 const tempUploaderRef = ref<UploaderInstance>();
 
@@ -117,11 +117,11 @@ const handleRead = (e: UploaderFileListItem, index) => {
     if (code === '10000' && data.url) {
       state.modelValue[index] = {
         ...state.modelValue[index],
-        objectId,
+        objectId: extraProvision.objectId,
         uri: data.url,
         category,
         name: title,
-        objectType: props.objectType || objectType,
+        objectType: props.objectType || extraProvision.objectType,
       };
       state.ossKeyList[index] = data.ossKey;
       if (formState.formData && filedAttrs.value.name) {

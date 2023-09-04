@@ -29,8 +29,8 @@
     :config="state.config"
     :is-view="isView"
     :extra-provision="{
-      objectType: ATTACHMENT_OBJECT_TYPE_ENUM.INSURED,
-      objectId: state.personVO.id,
+      objectType: ATTACHMENT_OBJECT_TYPE_ENUM.GUARDIAN,
+      objectId: state.guardian?.personVO?.id,
     }"
   >
     <template #cardTitleExtra><slot></slot></template>
@@ -82,7 +82,6 @@ import { nanoid } from 'nanoid';
 import cloneDeep from 'lodash-es/cloneDeep';
 import merge from 'lodash-es/merge';
 import { clone, debounce } from 'lodash';
-import { JSONStringify } from 'lib/tool';
 import {
   type SchemaItem,
   type PersonFormProps,
@@ -484,7 +483,7 @@ watch(
 
 // 监听监护人数据更新
 watch(
-  () => cloneDeep(props.guardian),
+  () => props.guardian,
   debounce((value, oldValue) => {
     if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
       state.guardian = value;
@@ -498,11 +497,11 @@ watch(
 
 watch(
   () => state.guardian,
-  debounce((val) => {
+  (val) => {
     if (val) {
       // emit('update:guardian', val);
     }
-  }, 500),
+  },
   {
     deep: true,
     immediate: true,
