@@ -373,6 +373,7 @@ export interface InsureProductData {
   openFlag: number;
 }
 export interface ProductQuestionnaireVoItem {
+  id: number
   planCode: string;
   productCode: string;
   productId: number;
@@ -832,8 +833,93 @@ export interface ProductItem {
 
 
 
+// =========== 新版问卷 start===============
+/** 问卷基础信息 */
+export interface NBasicInfo {
+	id: number;
+	insurerCode: string;
+	insurerName: string;
+	objectType: number;
+	productCategory: number;
+	questionnaireCode: string;
+	questionnaireName: string;
+	questionnaireType: number;
+	title: string;
+}
 
+/** 问卷-问题选项 */
+export interface OptionItem {
+	code: string;
+	detailList?: NQuestion[];
+	optionType: number;
+	relationFlag: number;
+	remarks?: string[];
+	remark: number;
+	value: string;
+}
+/** 问卷-问题配置 */
+export interface RuleConfig {
+	maxAge: number;
+	maxAgeUnit: number;
+	minAge: number;
+	minAgeUnit: number;
+	sexLimit: number;
+}
 
+/** 问卷-问题对象 */
+export interface AnswerReq {
+  answerVO: AnswerVO,
+  id: number | string;
+  questionCode: string;
+}
+export interface AnswerVO {
+  answer: any; // 问题答案（单选、判断、单项填空时）
+  answerList: any[]; // 问题答案（多选、多项填空时）
+  questionRemark: string;
+  questionRemarkList: string[];
+  childAnswerList: AnswerReq[];
+}
+export interface NQuestion {
+	content: string;
+	id: number;
+	mustFlag: number;
 
+  answerVO: AnswerVO;
+	optionList: OptionItem[];
+	questionOptionList: OptionItem[];
+	options: string;
+	position: number;
+	questionCode: string;
+  questionDescOpenFlag?: number; // 问题描述是否展示
+	questionDesc: string;
+	questionDescPosition: number;
+	questionType: number;
+	questionnaireId: number;
+	ruleConfig: RuleConfig;
+	textType: number;
+	title: string;
+}
 
+export interface QuestionnaireDetailRes {
+	basicInfo: NBasicInfo;
+	questions: NQuestion[];
+  imageConfig: {
+    showFlag?: number;
+    name?: string;
+    maxCount?: number;
+    images?: string[];
+  };
+}
+
+// 获取问卷接口
+export interface ProductQuestionnaireRes {
+	id: number;
+	planCode: string;
+	productCode: string;
+	productId: number;
+	questionnaireDetailResponseVO: QuestionnaireDetailRes;
+	questionnaireId: number;
+	questionnaireName: string;
+}
+// =========== 新版问卷 end ===============
 

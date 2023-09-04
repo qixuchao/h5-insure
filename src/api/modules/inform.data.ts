@@ -1,3 +1,5 @@
+import { AnswerReq } from './product.data';
+
 export interface ListCustomerQuestionsProps {
   insurerCode: string;
   noticeType: number;
@@ -79,9 +81,10 @@ export interface tenantOrderNoticeProps {
 }
 
 export interface SaveMarketerNoticesProps {
-  content: string;
+  content?: string;
+  images: string[];
   contentType: number;
-  isDone: number;
+  answerList: AnswerReq;
   noticeType: number;
   objectId: string;
   objectType: number;

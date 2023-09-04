@@ -1,15 +1,7 @@
 <template>
   <div class="long-health-notice-wrap">
     <ProNavigator />
-    <ProFilePreview
-      v-if="currentQuestion.content"
-      :type="currentQuestion.contentType"
-      :content="currentQuestion.content"
-    >
-      <!-- <template #title>
-        {{ currentQuestion.questionnaireName }}
-      </template> -->
-    </ProFilePreview>
+    <Questionnaire :data="currentQuestion" :params="testParams"></Questionnaire>
     <div class="footer-btn">
       <VanButton plain type="primary" @click="questionReject">部分为是</VanButton>
       <VanButton type="primary" @click="questionResolve">以上皆否</VanButton>
@@ -20,7 +12,7 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { Dialog } from 'vant';
-import { queryProductMaterial } from '@/api/modules/product';
+import { queryListProductMaterial, queryProductMaterial } from '@/api/modules/product';
 import ProFilePreview from '@/components/ProFilePreview/index.vue';
 import { QUESTIONNAIRE_TYPE_ENUM, OBJECT_TYPE_ENUM } from '@/common/constants/questionnaire';
 import { getFileType } from '../../utils';
@@ -33,6 +25,7 @@ import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
 import { jumpToNextPage } from '@/utils';
+import Questionnaire from '../components/Questionnaire/index.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -88,7 +81,7 @@ const questionResolve = () => {
 };
 
 const getQuestionInfo = async () => {
-  const { code, data } = await queryProductMaterial({ productCode });
+  const { code, data } = await queryListProductMaterial({ productCode });
 
   if (code === '10000') {
     const { productQuestionnaireVOList } = data || {};
