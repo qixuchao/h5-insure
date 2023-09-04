@@ -15,18 +15,22 @@
     <!-- 图片 -->
     <van-image v-else-if="isPicture" class="pic-wrap" fit="contain" :src="props.content" />
 
-    <QuestionPreview v-else-if="isQuestion" :current-page-info="props.content" />
+    <!-- <QuestionPreview v-else-if="isQuestion" :current-page-info="props.content" /> -->
+    <Questionnaire v-else-if="isQuestion" :data="props.content" :params="props.params" @success="props.successCallback">
+      <slot name="footer"></slot>
+    </Questionnaire>
     <!-- 外联 -->
     <iframe v-else-if="!isIframe" :src="content" frameborder="0" width="100%" style="height: 100vh"></iframe>
     <slot name="footer-btn"></slot>
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" name="ProFilePreview">
 import { nanoid } from 'nanoid';
 import { Toast } from 'vant/es';
 // import Pdfh5 from 'pdfh5';
 import QuestionPreview from './question.vue';
+import Questionnaire from '../../views/baseInsurance/components/Questionnaire/index.vue';
 import 'pdfh5/css/pdfh5.css';
 
 const props = defineProps({
@@ -45,6 +49,14 @@ const props = defineProps({
   isIframe: {
     type: Boolean,
     default: true,
+  },
+  params: {
+    type: Object,
+    default: () => ({}),
+  },
+  successCallback: {
+    type: Function,
+    default: () => {},
   },
 });
 const isRichText = computed(() => {
@@ -132,6 +144,7 @@ watch(
   width: 100%;
   height: 100%;
   // min-height: 100vh;
+  padding-bottom: 80px;
   .title {
     font-size: 32px;
     font-family: PingFangSC-Semibold, PingFang SC;

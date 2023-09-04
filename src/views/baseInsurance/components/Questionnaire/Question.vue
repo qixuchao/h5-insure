@@ -24,13 +24,13 @@
           <template #input>
             <van-radio-group v-model="answerVO.answer">
               <div v-for="(option, index) in data.optionList" :key="index" class="option-row">
-                <van-radio :name="option.code">{{ option.value }}</van-radio>
+                <van-radio :name="`${option.code}`">{{ option.value }}</van-radio>
                 <div v-if="enumEqual(answerVO.answer, option.code)" class="child">
                   <template v-for="(child, ind) in option.detailList" :key="child.id">
                     <Question
                       ref="childRef"
                       v-model="answerVO.childAnswerList[ind].answerVO"
-                      :name="`${props.name}.childAnswerlist.${ind}.answerVO`"
+                      :name="`${props.name}.childAnswerList.${ind}.answerVO`"
                       :data="child"
                       :is-view="isView"
                     />
@@ -63,8 +63,8 @@
           <template #input>
             <van-checkbox-group v-model="answerVO.answerList">
               <div v-for="(item, index) in data.optionList" :key="index" class="option-row">
-                <van-checkbox :name="index" shape="square">{{ item.value }}</van-checkbox>
-                <div v-if="enumEqual(item.optionType, 2) && answerVO.answerList?.indexOf(+item.code) > -1">
+                <van-checkbox :name="`${index}`" shape="square">{{ item.value }}</van-checkbox>
+                <div v-if="enumEqual(item.optionType, 2) && answerVO.answerList?.indexOf(item.code) > -1">
                   <van-field
                     v-model="answerVO.questionRemarkList[index]"
                     :name="`${props.name}.questionRemarkList.${index}`"
@@ -107,17 +107,13 @@
           </template>
         </div>
       </ProCard>
-      <!-- <van-button round type="primary" native-type="submit"> 提交 </van-button>
-      </ProForm> -->
     </div>
   </div>
 </template>
 
 <script setup lang="ts" name="Question">
-import { Toast } from 'vant/es';
-import { ref, toRefs, onBeforeUpdate } from 'vue';
+import { ref, toRefs } from 'vue';
 import ProCard from '@/components/ProCard/index.vue';
-import ProRadioButton from '@/components/ProRadioButton/index.vue';
 import { AnswerVO, NQuestion } from '@/api/modules/product.data';
 import { enumEqual } from '@/common/constants/dict';
 import { YES_NO_ENUM } from '@/common/constants';
@@ -129,13 +125,7 @@ const PRODUCT_QUESTION_OPT_TYPE_ENUM = {
   BLANK: 4, // 单项填空
   MULE_BLANK: 5, // 多项填空
 };
-const PRODUCT_QUESTION_OPT_TYPE_MAP = {
-  1: '单选',
-  2: '多选题',
-  3: '判断题',
-  4: '单项填空',
-  5: '多项填空',
-};
+
 interface Props {
   index?: number; // 问题的序号
   data: NQuestion;
@@ -146,10 +136,12 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const { index, data, parentAnswer } = toRefs(props);
+const { data } = toRefs(props);
+// 问题的序号计算
 const questionTitle = computed(() => {
   return props.index === undefined ? props.data.title : `问题${props.index + 1}. ${props.data.title}`;
 });
+// 多项填空的下换线转换
 const mutiBlank = computed(() => {
   if (enumEqual(data.value.questionType, PRODUCT_QUESTION_OPT_TYPE_ENUM.MULE_BLANK)) {
     let temp = -1;
@@ -167,6 +159,7 @@ const mutiBlank = computed(() => {
   }
   return [];
 });
+// 当前问题模型
 const answerVO = ref<AnswerVO>(props.modelValue);
 const childRef = ref();
 
@@ -178,13 +171,13 @@ watch(
   },
   {
     deep: true,
-    // immediate: true,
+    immediate: true,
   },
 );
 watch(
   () => answerVO.value,
   (val) => {
-    // console.log(data.value.id, '变动了:', val);
+    console.log('问卷数据变动了:', val);
     emit('update:modelValue', val);
   },
   {
@@ -192,22 +185,29 @@ watch(
     immediate: true,
   },
 );
-
+// 递归获取子组件的数据
 const getChildValue = () => {
   const valueList = [];
   if (childRef.value && childRef.value.length) {
-    return childRef.value.forEach((element) => {
+    childRef.value.forEach((element) => {
       console.log('child:', element.getData());
       valueList.push(element.getData());
     });
   }
-  return [];
+  return valueList;
 };
 defineExpose({
+  /**
+   * 将问题组件的答案及子问题的答案获取到
+   */
   getData: () => {
     return {
-      ...answerVO.value,
-      childAnswerList: getChildValue(),
+      answerVO: {
+        ...answerVO.value,
+        childAnswerList: getChildValue(),
+      },
+      id: props.data.id,
+      questionCode: props.data.questionCode,
     };
   },
 });

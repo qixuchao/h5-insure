@@ -46,3 +46,11 @@ export const saveMarketerNotices = (data: Partial<SaveMarketerNoticesProps>) =>
 export const listProductManuscripts = (data: any) => {
   return request({ url: '/api/app/insure/insurance/listProductManuscripts', method: 'POST', data });
 };
+
+// 在线投保-获取问卷详情和答案
+export const getQuestionAnswerDetail = (data = {}) =>
+  request<Array<Record<string, any>>>({
+    url: '/api/app/insure/insurance/getQuestionAnswerDetail',
+    method: 'POST',
+    data,
+  });

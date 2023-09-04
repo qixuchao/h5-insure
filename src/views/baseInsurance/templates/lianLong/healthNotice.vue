@@ -2,25 +2,30 @@
   <div class="long-health-notice-wrap">
     <ProNavigator />
     <ProFilePreview
-      v-if="currentQuestion.content"
+      v-if="currentQuestion"
       :type="currentQuestion.contentType"
-      :content="currentQuestion.content"
+      :content="currentQuestion"
+      :params="testParams"
+      :success-callback="questionResolve"
     >
       <!-- <template #title>
         {{ currentQuestion.questionnaireName }}
       </template> -->
+      <template #footer>
+        <div class="footer-btn">
+          <!-- <VanButton plain type="primary" @click="questionReject">部分为是</VanButton>
+          <VanButton type="primary" @click="questionResolve">以上皆否</VanButton> -->
+          <van-button round type="primary" block native-type="submit"> 提交 </van-button>
+        </div>
+      </template>
     </ProFilePreview>
-    <div class="footer-btn">
-      <VanButton plain type="primary" @click="questionReject">部分为是</VanButton>
-      <VanButton type="primary" @click="questionResolve">以上皆否</VanButton>
-    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { Dialog } from 'vant';
-import { queryProductMaterial } from '@/api/modules/product';
+import { getQuestionAnswerDetail } from '@/api/modules/inform';
 import ProFilePreview from '@/components/ProFilePreview/index.vue';
 import { QUESTIONNAIRE_TYPE_ENUM, OBJECT_TYPE_ENUM } from '@/common/constants/questionnaire';
 import { getFileType } from '../../utils';
@@ -72,7 +77,13 @@ const questionReject = () => {
       // });
     });
 };
-
+const testParams = {
+  // 测试数据
+  objectId: 123,
+  noticeType: 1,
+  orderNo: '2023083017475048217',
+  tenantId: 9991000011,
+};
 const questionResolve = () => {
   if (nextQuestionnaireId.value) {
     router.push({
@@ -88,7 +99,7 @@ const questionResolve = () => {
 };
 
 const getQuestionInfo = async () => {
-  const { code, data } = await queryProductMaterial({ productCode });
+  const { code, data } = await getQuestionAnswerDetail({ productCode, orderNo, tenantId, questionnaireId: questionId });
 
   if (code === '10000') {
     const { productQuestionnaireVOList } = data || {};
@@ -123,7 +134,8 @@ const getQuestionInfo = async () => {
       };
     } else {
       currentQuestion.value = {
-        content: questions,
+        // content: questions,
+        ...questionnaireDetailResponseVO,
         contentType: 'question',
         questionnaireId,
         questionnaireName,
@@ -171,6 +183,9 @@ onBeforeMount(() => {
     .van-button,
     .pro-shadow-button {
       width: 335px;
+      &.van-button--block {
+        width: 100%;
+      }
     }
     .pro-shadow-button {
       display: flex;

@@ -1,11 +1,12 @@
 <template class="com-question-wrap">
-  <Questionnaire :data="questionnaire" :params="testParams" />
+  <Questionnaire :data="questionnaire" is-view :params="testParams" />
 </template>
 <script lang="ts" setup name="QuestionPreview">
 import { Toast } from 'vant';
 import { useRoute, useRouter } from 'vue-router';
 import { cloneDeep } from 'lodash-es';
 import { listProductQuestionnaire } from '@/api/modules/product';
+import { getQuestionAnswerDetail } from '@/api/modules/inform';
 import { NQuestion, QuestionnaireDetailRes } from '@/api/modules/product.data';
 import Questionnaire from '../components/Questionnaire/index.vue';
 
@@ -59,11 +60,16 @@ const transformQuestion = (originQuestionnaire: QuestionnaireDetailRes): Questio
 };
 onMounted(() => {
   Toast.loading('加载中...');
-  listProductQuestionnaire({ questionnaireId: questionnaireId || id })
+  // listProductQuestionnaire getQuestionAnswerDetail
+  getQuestionAnswerDetail({
+    questionnaireId: questionnaireId || id,
+    orderNo: '2023083017475048217',
+    tenantId: 9991000011,
+  })
     .then((res) => {
       const { code, data } = res;
       if (code === '10000' && data.productQuestionnaireVOList.length > 0) {
-        questionnaire.value = transformQuestion(data.productQuestionnaireVOList?.[0].questionnaireDetailResponseVO);
+        questionnaire.value = data.productQuestionnaireVOList?.[0].questionnaireDetailResponseVO;
         document.title = questionnaire.value.basicInfo.title;
       } else {
         Toast.error('获取问卷出错');
