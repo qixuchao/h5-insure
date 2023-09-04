@@ -33,12 +33,18 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     meta: { title: '健康告知书' },
     component: () => import('@/views/baseInsurance/templates/lianLong/healthNotice.vue'),
   },
-  // {
-  //   name: 'riskNotice',
-  //   path: '/baseInsurance/long/riskNotice',
-  //   meta: { title: '风险告知书' },
-  //   component: () => import('@/views/baseInsurance/templates/lianLong/riskNotice.vue'),
-  // },
+  {
+    name: 'transcription',
+    path: '/baseInsurance/long/transcription',
+    meta: { title: '风险告知书' },
+    component: () => import('@/views/baseInsurance/templates/lianLong/transcription.vue'),
+  },
+  {
+    name: 'transcriptionView',
+    path: '/baseInsurance/long/transcription/:id',
+    meta: { title: '风险告知书' },
+    component: () => import('@/views/baseInsurance/templates/lianLong/transcription.vue'),
+  },
   {
     name: 'infoCollection',
     path: '/baseInsurance/long/infoCollection',

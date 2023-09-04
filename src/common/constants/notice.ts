@@ -34,3 +34,10 @@ export const NOTICE_OBJECT_TYPE = {
   2: 5,
   3: 9,
 };
+
+// 问卷类型
+export const QUESTIONNAIRE_TYPE_ENUM = {
+  NEW_CONTRACT: 1, // 新契约问卷
+  VISIT: 2, // 回访问卷
+  RISK_NOTIFICATION: 3, // 风险告知问卷
+};

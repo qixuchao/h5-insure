@@ -1,6 +1,7 @@
 export const PAGE_CODE_ENUMS = {
   TRIAL_PREMIUM: 'trial',
   QUESTION_NOTICE: 'questionNotice', // 健康告知
+  TRANSCRIPTION: 'transcription', // 健康告知
   INFO_COLLECTION: 'infoCollection', // 信息采集
   INFO_PREVIEW: 'infoPreview', // 保单预览
   SIGN: 'sign', // 认证
@@ -9,6 +10,7 @@ export const PAGE_CODE_ENUMS = {
 
 export const BUTTON_CODE_ENUMS = {
   QUESTION_NOTICE: 'EVENT_LONG_saveNotice',
+  TRANSCRIPTION: 'EVENT_LONG_saveNotice',
   INFO_COLLECTION: 'EVENT_LONG_underWrite',
   SIGN: 'EVENT_LONG_signConfirm',
 };
@@ -18,6 +20,7 @@ export const PAGE_ROUTE_ENUMS = {
   productInfo: '/baseInsurance/long/productDetail', // 产品详情
   premiumTrial: '/baseInsurance/long/trial', // 保费试算
   questionNotice: '/baseInsurance/long/healthNotice', // 问卷告知书
+  transcription: '/baseInsurance/long/transcriptionNotice', // 问卷告知书
   infoCollection: '/baseInsurance/long/infoCollection', // 信息采集
   infoPreview: '/baseInsurance/long/infoPreview', // 信息采集预览
   sign: '/baseInsurance/long/verify', // 认证

@@ -901,9 +901,11 @@ export interface NQuestion {
 }
 
 export interface QuestionnaireDetailRes {
-	basicInfo: NBasicInfo;
-	questions: NQuestion[];
-  imageConfig: {
+	basicInfo: NBasicInfo; // 基础信息
+	questions: NQuestion[]; // 问题列表
+  answerList: AnswerReq[]; // 答案列表
+  imageList: string[]; // 上传的影像文件url列表
+  imageConfig: { // 影像信息
     showFlag?: number;
     name?: string;
     maxCount?: number;

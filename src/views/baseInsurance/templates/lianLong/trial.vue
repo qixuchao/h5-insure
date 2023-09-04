@@ -166,7 +166,7 @@ const nextStep = () => {
     const { code, data } = await saveOrder(currentOrderDetail);
     if (code === '10000') {
       router.push({
-        path: PAGE_ROUTE_ENUMS.infoCollection,
+        path: PAGE_ROUTE_ENUMS.questionNotice,
         query: {
           ...route.query,
           orderNo: data,

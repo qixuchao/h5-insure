@@ -8,7 +8,7 @@
       {{ content }}
     </div>
     <slot v-if="!!slots.content" name="content" />
-    <div v-if="isCopy" class="link" @click="onCopy">
+    <div v-if="isCopy" class="link" @click.stop="onCopy">
       <ProSvg name="copy" class="icon" />
     </div>
   </div>

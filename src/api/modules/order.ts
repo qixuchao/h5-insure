@@ -25,3 +25,11 @@ export const deleteOrder = (id: number, status: string) => {
 export const getListOrder = (data = {}) => {
   return request<NewOrderListResponse>({ url: '/api/app/insure/insurance/listOrder', method: 'POST', data });
 };
+
+// 利安-订单列表
+export const queryOrderList = (data = {}) =>
+  request({
+    url: '/api/app/insure/insurance/pageOrder',
+    method: 'POST',
+    data,
+  });

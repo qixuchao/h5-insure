@@ -147,6 +147,7 @@ export const PAGE_ROUTE_ENUMS = {
   productInfo: '/baseInsurance/long/productDetail', // 产品详情
   premiumTrial: '/baseInsurance/long/trial', // 保费试算
   questionNotice: '/baseInsurance/long/healthNotice', // 问卷告知书
+  transcription: '/baseInsurance/long/transcription', // 风险告知书
   infoCollection: '/baseInsurance/long/infoCollection', // 信息采集
   infoPreview: '/baseInsurance/long/infoPreview', // 信息采集预览
   sign: '/baseInsurance/long/verify', // 人脸识别

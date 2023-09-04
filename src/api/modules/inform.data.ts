@@ -82,13 +82,14 @@ export interface tenantOrderNoticeProps {
 
 export interface SaveMarketerNoticesProps {
   content?: string;
-  images: string[];
+  imageList: string[];
   contentType: number;
-  answerList: AnswerReq;
-  noticeType: number;
-  objectId: string;
+  answerList: AnswerReq[];
+  questionniareId?: number;
+  noticeType?: number;
+  objectId?: string;
   objectType: number;
-  orderNo: string;
-  tenantId: number | string;
-  orderId: number | string;
+  orderNo?: string;
+  tenantId?: number | string;
+  orderId?: number | string;
 }

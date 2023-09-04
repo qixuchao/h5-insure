@@ -11,14 +11,11 @@
       <!-- <template #title>
         {{ currentQuestion.questionnaireName }}
       </template> -->
-      <template v-if="currentQuestion.contentType === 'question'" #footer>
+      <template #footer>
         <div class="footer-btn">
+          <!-- <VanButton plain type="primary" @click="questionReject">部分为是</VanButton>
+          <VanButton type="primary" @click="questionResolve">以上皆否</VanButton> -->
           <van-button round type="primary" block native-type="submit"> 下一步 </van-button>
-        </div>
-      </template>
-      <template v-else #footer-btn>
-        <div class="footer-btn">
-          <van-button round type="primary" block @click="questionResolve"> 下一步 </van-button>
         </div>
       </template>
     </ProFilePreview>
@@ -28,24 +25,29 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { Dialog } from 'vant';
-import { listProductQuestionnaire } from '@/api/modules/product';
+import { listProductQuestionnaire, queryListProductMaterial, queryProductMaterial } from '@/api/modules/product';
 import { getQuestionAnswerDetail } from '@/api/modules/inform';
 import ProFilePreview from '@/components/ProFilePreview/index.vue';
-import { QUESTIONNAIRE_TYPE_ENUM } from '@/common/constants/questionnaire';
+import { QUESTIONNAIRE_TYPE_ENUM, OBJECT_TYPE_ENUM } from '@/common/constants/questionnaire';
 import { getFileType } from '../../utils';
+import ProShadowButton from '../components/ProShadowButton/index.vue';
 import { closeWebView } from '@/utils/jsbridgePromise';
 import { nextStepOperate as nextStep } from '../../nextStep';
+import { getOrderDetail as queryOrderDetail } from '@/api';
 import useOrder from '@/hooks/useOrder';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
 import { jumpToNextPage } from '@/utils';
+import Questionnaire from '../../components/Questionnaire/index.vue';
 import { getTenantOrderDetail } from '@/api/modules/trial';
 import { NOTICE_OBJECT_ENUM, QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE } from '@/common/constants/notice';
 
 const route = useRoute();
 const router = useRouter();
 const orderDetail = useOrder();
+
+console.log('route', route);
 
 const { productCode, orderNo, templateId, tenantId, preview, questionnaireId: questionId } = route.query;
 const currentQuestion = ref<any>({});
@@ -59,7 +61,7 @@ const questionParams = ref({
 
 const onNext = () => {
   if (preview) {
-    jumpToNextPage(PAGE_CODE_ENUMS.QUESTION_NOTICE, route.query);
+    jumpToNextPage(PAGE_CODE_ENUMS.TRANSCRIPTION, route.query);
     return;
   }
   nextStep(orderDetail.value, (data, pageAction) => {
@@ -83,13 +85,13 @@ const questionResolve = () => {
   }
 };
 
-// 获取问卷资料信息
 const getQuestionInfo = async (params) => {
   let answerList = [];
   const { code: answerCode, data: answerData } = await getQuestionAnswerDetail({ orderNo, tenantId });
   if (answerCode === '10000') {
     answerList = answerData.productQuestionnaireVOList;
   }
+
   const { code, data } = await listProductQuestionnaire(params);
 
   if (code === '10000') {
@@ -97,7 +99,7 @@ const getQuestionInfo = async (params) => {
 
     // 过滤出风险告知问卷
     const productQuestionnaireVOList = questionList.filter(
-      (question) => question.businessType === QUESTION_OBJECT_TYPE.NEW_CONTRACT,
+      (question) => question.businessType === QUESTION_OBJECT_TYPE.RISK_NOTIFICATION,
     );
     let questionInfo = productQuestionnaireVOList[0] || {};
     if (productQuestionnaireVOList?.length > 1) {
@@ -146,8 +148,8 @@ const getOrderDetail = async () => {
       extInfo: {
         ...data.extInfo,
         templateId,
-        pageCode: PAGE_CODE_ENUMS.QUESTION_NOTICE,
-        buttonCode: BUTTON_CODE_ENUMS.QUESTION_NOTICE,
+        pageCode: PAGE_CODE_ENUMS.TRANSCRIPTION,
+        buttonCode: BUTTON_CODE_ENUMS.TRANSCRIPTION,
       },
     });
     const productCodeList = data.insuredList[0].productList.map((product) => product.productCode);
