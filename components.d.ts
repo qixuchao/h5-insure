@@ -11,6 +11,8 @@ declare module 'vue' {
     CustomInput: typeof import('./src/components/RenderForm/components/ProFormItem/CustomInput.vue')['default']
     Demo: typeof import('./src/components/ProFilePreview/demo.vue')['default']
     HandleScribing: typeof import('./src/components/ProScribing/components/HandleScribing.vue')['default']
+    'HandleScribing copy': typeof import('./src/components/ProScribing/components/HandleScribing copy.vue')['default']
+    HandleScribingLian: typeof import('./src/components/ProScribing/components/HandleScribingLian.vue')['default']
     Indev_blk: typeof import('./src/components/ProChart/indev_blk.vue')['default']
     PayInfo: typeof import('./src/components/RenderForm/PayInfo.vue')['default']
     Play: typeof import('./src/components/ZaVoice/play.vue')['default']

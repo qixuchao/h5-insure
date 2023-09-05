@@ -6,7 +6,7 @@
 
 <script lang="ts" setup name="handleScribingPage">
 import { useRoute, useRouter } from 'vue-router';
-import HandleScribing from '@/components/ProScribing/components/HandleScribing.vue';
+import HandleScribing from '@/components/ProScribing/components/HandleScribingLian.vue';
 import { saveRiskTranscription } from '@/api/modules/scribing';
 
 interface RouterParams {

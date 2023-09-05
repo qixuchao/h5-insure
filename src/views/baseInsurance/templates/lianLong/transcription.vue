@@ -131,7 +131,7 @@ const getQuestionInfo = async (params) => {
         questionnaireName,
       };
     } else {
-      const currentAnswer = answerList.find((answer) => answer.questionnaireId === questionnaireId);
+      const currentAnswer = (answerList || []).find((answer) => answer.questionnaireId === questionnaireId);
       currentQuestion.value = {
         ...questionnaireDetailResponseVO,
         contentType: 'question',
