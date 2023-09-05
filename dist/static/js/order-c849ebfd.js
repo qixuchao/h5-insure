@@ -1,1 +1,0 @@
-import{a2 as a}from"./index-27d17939.js";const d=(d,e)=>a({url:"/api/app/order/v1/delete",method:"POST",data:{id:d,status:e}}),e=(d={})=>a({url:"/api/app/insure/insurance/listOrder",method:"POST",data:d});export{d,e as g};
