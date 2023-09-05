@@ -15,24 +15,22 @@
             >
           </p>
           <div class="sign-result">
-            <van-space wrap>
-              <template v-for="(sign, index) in signCollection" :key="index">
-                <div class="scribing-item" @click="updateSign(sign)">
-                  <img :src="sign" alt="" />
-                </div>
-              </template>
-            </van-space>
+            <template v-for="(sign, index) in signCollection" :key="index">
+              <div class="scribing-item" @click="updateSign(sign)">
+                <img :src="sign" alt="" />
+              </div>
+            </template>
           </div>
         </div>
         <van-swipe ref="swipeRef" :loop="false" :initial-swipe="0" :show-indicators="false" vertical :touchable="false">
-          <van-swipe-item v-for="(slice, index) in scribingSlice" :key="index">
+          <van-swipe-item v-for="(sign, index) in scribingSlice" :key="index">
             <div class="sign-list">
-              <div v-for="(t, i) in slice" :key="i + index + index" class="sign-item">
+              <div class="sign-item">
                 <ProSign
                   ref="signRef"
-                  :key="index + index + i"
-                  v-model="signCollection[index + index + i]"
-                  :placeholder="t"
+                  :key="index"
+                  v-model="signCollection[index]"
+                  :placeholder="sign"
                   :="$attrs"
                 ></ProSign>
               </div>
@@ -232,8 +230,25 @@ const handleConfirm = () => {
         height: 50%;
         display: flex;
         flex-direction: row-reverse;
+        background-color: #f2f2f2;
         .scribing-text {
           height: 100%;
+        }
+        .sign-result {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          flex-wrap: wrap-reverse;
+          .scribing-item {
+            width: 67px;
+            height: 67px;
+            background-color: #ffffff;
+            margin: 0 13px 13px 0;
+
+            img {
+              width: 100%;
+            }
+          }
         }
       }
       .van-swipe {

@@ -124,6 +124,7 @@ const signPartInfo = ref({
 });
 
 const sign = (type, signData, bizObjectId?) => {
+  console.log('orderDetail.value', orderDetail.value);
   saveSign(type, signData, orderDetail.value?.id, tenantId, bizObjectId);
 };
 
@@ -184,6 +185,7 @@ const getOrderDetail = (check = false) => {
   orderNo &&
     getTenantOrderDetail({ orderNo: orderCode || orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
+        Object.assign(orderDetail.value, data);
         data.tenantOrderAttachmentList.forEach((attachment) => {
           if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
             signPartInfo.value.holder.signData = attachment.fileBase64;
