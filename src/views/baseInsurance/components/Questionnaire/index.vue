@@ -174,6 +174,5 @@ watch(
 }
 .fix-button {
   margin-top: 140px;
-  border: 1px solid red;
 }
 </style>

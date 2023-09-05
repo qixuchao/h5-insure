@@ -6,7 +6,13 @@
         v-dompurify-html="data.questionDesc"
         class="question-desc"
       />
-      <ProCard :title="questionTitle">
+      <div class="question-card">
+        <div class="header">
+          <div class="title">
+            {{ questionTitle }}
+            <span v-if="enumEqual(data.mustFlag, YES_NO_ENUM.YES)" class="error">*</span>
+          </div>
+        </div>
         <div
           v-if="data.questionDesc && enumEqual(data.questionDescPosition, 2)"
           v-dompurify-html="data.questionDesc"
@@ -93,7 +99,8 @@
         <!-- 多项填空题 -->
         <div v-if="data.questionType === PRODUCT_QUESTION_OPT_TYPE_ENUM.MULE_BLANK" class="question-muti-blank">
           <template v-for="(inp, i) in mutiBlank" :key="i">
-            <span v-if="inp.type === 'literal'" class="literal">{{ inp.value }}</span>
+            <br v-if="inp.type === 'wrap'" />
+            <span v-else-if="inp.type === 'literal'" class="literal"> {{ inp.value }}</span>
             <van-field
               v-else
               v-model="answerVO.answerList[inp.index]"
@@ -106,14 +113,13 @@
             </van-field>
           </template>
         </div>
-      </ProCard>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts" name="Question">
 import { ref, toRefs } from 'vue';
-import ProCard from '@/components/ProCard/index.vue';
 import { AnswerVO, NQuestion } from '@/api/modules/product.data';
 import { enumEqual } from '@/common/constants/dict';
 import { YES_NO_ENUM } from '@/common/constants';
@@ -145,13 +151,15 @@ const questionTitle = computed(() => {
 const mutiBlank = computed(() => {
   if (enumEqual(data.value.questionType, PRODUCT_QUESTION_OPT_TYPE_ENUM.MULE_BLANK)) {
     let temp = -1;
+    console.log('换行：', data.value.optionList[0].value.replaceAll('_____', '∝$blank∝').replaceAll('\n', '∝<br />∝'));
     return data.value.optionList[0].value
       .replaceAll('_____', '∝$blank∝')
+      .replaceAll('\n', '∝<br />∝')
       .split('∝')
       .map((blank) => {
         if (blank === '$blank') temp += 1;
         return {
-          type: blank === '$blank' ? 'variable' : 'literal',
+          type: blank === '$blank' ? 'variable' : blank === '<br />' ? 'wrap' : 'literal',
           value: blank === '$blank' ? '' : blank,
           index: temp,
         };
@@ -225,6 +233,34 @@ defineExpose({
     // margin-bottom: 12px;
     .com-radio-btn {
       justify-content: flex-start;
+    }
+  }
+}
+.question-card {
+  background-color: #ffffff;
+  border-bottom: 12px solid var(--zaui-line, #f1f1f1);
+  .header {
+    margin-left: 28px;
+    border-bottom: 1px solid var(--zaui-line, #f1f1f1);
+    position: relative;
+    .title {
+      font-size: 32px;
+      font-weight: 500;
+      line-height: 40px;
+      padding: 20px 20px 20px 0;
+      &::before {
+        content: ' ';
+        display: inline-block;
+        width: 7px;
+        height: 28px;
+        background: var(--van-primary-color);
+        margin-right: 16px;
+        border-radius: 4px;
+        vertical-align: revert;
+      }
+    }
+    .error {
+      color: red;
     }
   }
 }
