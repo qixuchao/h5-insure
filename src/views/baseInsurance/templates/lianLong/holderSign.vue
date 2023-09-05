@@ -59,7 +59,7 @@ import ProShare from '@/components/ProShare/index.vue';
 import { jumpToNextPage } from '@/utils';
 import { localStore } from '@/hooks/useStorage';
 import { confirmRiskTranscription } from '@/api/modules/scribing';
-import { pickProductRiskCode } from './utils';
+import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 
 const route = useRoute();
 const router = useRouter();
@@ -226,7 +226,7 @@ const initData = async () => {
     Object.assign(orderDetail.value, orderData);
     signPartInfo.value.holder.personalInfo = { ...orderData.holder, isCert: 1 };
 
-    productRiskMap = pickProductRiskCode(orderData.insuredList[0].productList);
+    productRiskMap = pickProductRiskCodeFromOrder(orderData.insuredList[0].productList);
 
     Object.assign(defaultScribingConfig.value, {
       type: SCRIBING_TYPE_MAP[orderData.extInfo.transcriptionType],
@@ -245,7 +245,7 @@ const initData = async () => {
       }
     });
   }
-  queryListProductMaterial({ productCodeList: [] }).then(({ code, data }) => {
+  queryListProductMaterial(productRiskMap).then(({ code, data }) => {
     if (code === '10000') {
       const { productMaterialMap } = data.productMaterialPlanVOList?.[0] || {};
       const signMaterialCollection = (Object.values(productMaterialMap || {}) || [])

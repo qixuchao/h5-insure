@@ -302,10 +302,10 @@ const onNext = async () => {
   }
 
   Promise.all(validateList).then(() => {
-    if (!isAgree.value) {
-      Toast('请勾选投保人阅读并接受');
-      return;
-    }
+    // if (!isAgree.value) {
+    //   Toast('请勾选投保人阅读并接受');
+    //   return;
+    // }
 
     Object.assign(orderDetail.value, {
       extInfo: {
