@@ -10,13 +10,13 @@
             <span
               v-for="(t, index) in text"
               :key="index"
-              :class="`text-item ${activityIndex * signAccount > index ? 'activity' : ''} `"
+              :class="`text-item ${activityIndex === index ? 'activity' : ''} `"
               >{{ t }}</span
             >
           </p>
           <div class="sign-result">
             <template v-for="(sign, index) in signCollection" :key="index">
-              <div class="scribing-item" @click="updateSign(sign)">
+              <div class="scribing-item" @click="updateSign(index)">
                 <img :src="sign" alt="" />
               </div>
             </template>
@@ -32,6 +32,7 @@
                   v-model="signCollection[index]"
                   :placeholder="sign"
                   :="$attrs"
+                  @sign-success="handleNext"
                 ></ProSign>
               </div>
             </div>
@@ -40,24 +41,11 @@
       </div>
 
       <div class="operate-bar">
-        <div class="btns">
-          <van-space>
-            <van-button plain hairline type="primary" :disabled="activityIndex === 0" class="btn" @click="handlePre"
-              >上一页</van-button
-            >
-            <van-button
-              plain
-              hairline
-              type="primary"
-              :disabled="activityIndex === scribingSlice.length - 1"
-              class="btn"
-              @click="handleNext"
-              >下一页</van-button
-            >
-            <van-button plain hairline type="primary" class="btn" @click="handleChancel">取消</van-button>
-            <van-button type="primary" class="btn" @click="handleConfirm">保存</van-button>
-          </van-space>
-        </div>
+        <van-button plain hairline type="primary" :disabled="activityIndex === 0" class="btn" @click="handlePre"
+          >后退</van-button
+        >
+        <van-button plain hairline type="primary" class="btn" @click="handleChancel">取消</van-button>
+        <van-button type="primary" class="btn" @click="handleConfirm">保存</van-button>
       </div>
     </div>
   </div>
@@ -82,7 +70,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emits = defineEmits(['onSubmit', 'onCancel']);
 
-const scribingTip = '请投保人王小于抄录并确保内容清晰完整';
+const scribingTip = '请投保人抄录并确保内容清晰完整';
 const activityIndex = ref<number>(0);
 const swipeRef = ref();
 
@@ -111,6 +99,11 @@ const scribingSlice = computed(() => {
 const signCollection = ref<any[]>([]);
 const isEmpty = ref<string>('');
 
+const updateSign = (index) => {
+  activityIndex.value = index;
+  swipeRef.value.swipeTo(activityIndex.value);
+};
+
 const handleNext = () => {
   if (activityIndex.value === scribingSlice.value.length - 1) {
     return;
@@ -121,11 +114,9 @@ const handleNext = () => {
   let msg = '';
   scribingSlice.value.forEach((signStr: string, index) => {
     if (index === activityIndex.value) {
-      signStr.split('').forEach((t, i) => {
-        if (!signCollection.value[index + i + index]) {
-          msg = '请抄录当前页面文字';
-        }
-      });
+      if (!signCollection.value[index]) {
+        msg = '请抄录当前页面文字';
+      }
     }
   });
   if (msg) {
@@ -226,19 +217,29 @@ const handleConfirm = () => {
 
     .sign-wrap {
       width: calc(100% - 250px);
+      padding: 200px 0 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       .sign-preview {
-        height: 50%;
+        width: 440px;
+        height: 440px;
         display: flex;
         flex-direction: row-reverse;
         background-color: #f2f2f2;
+        padding: 14px;
         .scribing-text {
           height: 100%;
+          min-width: 120px;
+          width: unset;
+          padding: 0 10px;
         }
         .sign-result {
           display: flex;
           flex-direction: column;
           height: 100%;
           flex-wrap: wrap-reverse;
+          overflow: auto;
           .scribing-item {
             width: 67px;
             height: 67px;
@@ -252,7 +253,9 @@ const handleConfirm = () => {
         }
       }
       .van-swipe {
-        height: 100%;
+        height: 400px;
+        width: 400px;
+        margin-top: 167px;
       }
       .sign-list {
         display: flex;
@@ -260,7 +263,6 @@ const handleConfirm = () => {
         align-items: center;
         justify-content: space-between;
         height: 100%;
-        padding: 150px;
       }
 
       .sign-item {
@@ -293,7 +295,7 @@ const handleConfirm = () => {
       align-items: center;
       transform: rotateZ(90deg);
       padding-left: 100px;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
       transform: rotateZ(90deg) translate3d(95vh, 660px, 0px);
       padding: 20px;

@@ -94,6 +94,7 @@ export const useTheme = (color: string = import.meta.env.VITE_THEME_COLOR || the
     stepCircleColor: '#DEE0E3',
     checkboxCheckedIconColor: color, // checkbox选中状态的颜色
     borderRadiusMd: '35px',
+    buttonBorderRadius: '35px',
     searchActionTextColor: color, // 搜索框取消文字颜色
     searchActionPadding: '0 0 0 15px',
     // ..其他组件的颜色覆盖

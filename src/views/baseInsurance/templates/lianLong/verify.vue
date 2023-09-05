@@ -222,7 +222,7 @@ const initData = async () => {
       productRiskMap = pickProductRiskCode(data.insuredList[0].productList);
       signPartInfo.value.agent.verifyStatus = data.extInfo.agentAuthFlag;
       signPartInfo.value.holder.verifyStatus = data.holder.isCert;
-      signPartInfo.value.insured.verifyStatus = data.extInfo.insured?.[0].isCert;
+      signPartInfo.value.insured.verifyStatus = data.insuredList?.[0]?.isCert;
     }
   });
 

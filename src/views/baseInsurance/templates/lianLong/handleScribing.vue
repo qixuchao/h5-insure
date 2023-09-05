@@ -7,7 +7,8 @@
 <script lang="ts" setup name="handleScribingPage">
 import { useRoute, useRouter } from 'vue-router';
 import HandleScribing from '@/components/ProScribing/components/HandleScribingLian.vue';
-import { saveRiskTranscription } from '@/api/modules/scribing';
+import { confirmRiskTranscription, saveRiskTranscription } from '@/api/modules/scribing';
+import { SCRIBING_TYPE_ENUM } from '@/common/constants';
 
 interface RouterParams {
   orderNo: string;
@@ -30,9 +31,16 @@ const handleConfirm = (params) => {
     riskTranscriptionList: params,
   }).then(({ code, data }) => {
     if (code === '10000') {
-      router.replace({
-        path: 'scribingPreview',
-        query: route.query,
+      confirmRiskTranscription({
+        content: text,
+        image: '',
+        orderNo,
+        tenantId,
+        transcriptionType: SCRIBING_TYPE_ENUM.HANDLE,
+      }).then(({ code: confirmCode }) => {
+        if (confirmCode === '10000') {
+          router.back();
+        }
       });
     }
   });

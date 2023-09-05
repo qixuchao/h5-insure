@@ -45,7 +45,7 @@ const props = withDefaults(defineProps<Props>(), {
   hasBg: false,
 });
 
-const emits = defineEmits(['stroke', 'update:modelValue']);
+const emits = defineEmits(['stroke', 'update:modelValue', 'signSuccess']);
 
 const signatureIns = ref<SignaturePad>();
 const canvas = ref<HTMLCanvasElement>();
@@ -110,6 +110,7 @@ onMounted(() => {
     });
     signatureIns.value.addEventListener('endStroke', () => {
       emits('update:modelValue', saveSign());
+      emits('signSuccess');
     });
   }
 });
