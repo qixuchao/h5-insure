@@ -1,119 +1,123 @@
 <template>
   <div class="com-question">
-    <div class="question-item">
+    <div
+      v-if="data.questionDesc && enumEqual(data.questionDescPosition, 1)"
+      v-dompurify-html="data.questionDesc"
+      class="question-desc"
+    />
+    <div class="question-card">
+      <div class="header">
+        <div class="title">
+          {{ questionTitle }}
+          <span v-if="enumEqual(data.mustFlag, YES_NO_ENUM.YES)" class="error">*</span>
+        </div>
+      </div>
       <div
-        v-if="data.questionDesc && enumEqual(data.questionDescPosition, 1)"
+        v-if="data.questionDesc && enumEqual(data.questionDescPosition, 2)"
         v-dompurify-html="data.questionDesc"
         class="question-desc"
       />
-      <ProCard :title="questionTitle">
-        <div
-          v-if="data.questionDesc && enumEqual(data.questionDescPosition, 2)"
-          v-dompurify-html="data.questionDesc"
-          class="question-desc"
-        />
-        <!-- 单选/判断 -->
-        <van-field
-          v-if="
-            enumEqual(data.questionType, PRODUCT_QUESTION_OPT_TYPE_ENUM.SINGLE) ||
-            enumEqual(data.questionType, PRODUCT_QUESTION_OPT_TYPE_ENUM.JUDGE)
-          "
-          :name="`${props.name}.answer`"
-          :rules="[{ required: enumEqual(data.mustFlag, YES_NO_ENUM.YES), message: '请选择' }]"
-        >
-          <template #input>
-            <van-radio-group v-model="answerVO.answer">
-              <div v-for="(option, index) in data.optionList" :key="index" class="option-row">
-                <van-radio :name="`${option.code}`">{{ option.value }}</van-radio>
-                <div v-if="enumEqual(answerVO.answer, option.code)" class="child">
-                  <template v-for="(child, ind) in option.detailList" :key="child.id">
-                    <Question
-                      ref="childRef"
-                      v-model="answerVO.childAnswerList[ind].answerVO"
-                      :name="`${props.name}.childAnswerList.${ind}.answerVO`"
-                      :data="child"
-                      :is-view="isView"
-                    />
-                  </template>
-                </div>
-                <div v-if="enumEqual(option.optionType, 2) && enumEqual(answerVO.answer, option.code)">
-                  <van-field
-                    v-model="answerVO.questionRemark"
-                    :name="`${props.name}.questionRemark`"
-                    rows="2"
-                    autosize
-                    label=""
-                    type="textarea"
-                    maxlength="100"
-                    placeholder="请输入告知说明"
-                    :show-word-limit="!isView"
+      <!-- 单选/判断 -->
+      <van-field
+        v-if="
+          enumEqual(data.questionType, PRODUCT_QUESTION_OPT_TYPE_ENUM.SINGLE) ||
+          enumEqual(data.questionType, PRODUCT_QUESTION_OPT_TYPE_ENUM.JUDGE)
+        "
+        :name="`${props.name}.answer`"
+        :rules="[{ required: enumEqual(data.mustFlag, YES_NO_ENUM.YES), message: '请选择' }]"
+      >
+        <template #input>
+          <van-radio-group v-model="answerVO.answer">
+            <div v-for="(option, index) in data.optionList" :key="index" class="option-row">
+              <van-radio :name="`${option.code}`">{{ option.value }}</van-radio>
+              <div v-if="enumEqual(answerVO.answer, option.code)" class="child">
+                <template v-for="(child, ind) in option.detailList" :key="child.id">
+                  <Question
+                    ref="childRef"
+                    v-model="answerVO.childAnswerList[ind].answerVO"
+                    :name="`${props.name}.childAnswerList.${ind}.answerVO`"
+                    :data="child"
+                    :is-view="isView"
                   />
-                </div>
+                </template>
               </div>
-            </van-radio-group>
-          </template>
-        </van-field>
-        <!-- 多选题 【多选可以有告知说明，但是没有关联题目】 -->
-        <van-field
-          v-if="data.questionType === PRODUCT_QUESTION_OPT_TYPE_ENUM.MULTIPLE"
-          :name="`${props.name}.answerList`"
-          label=""
-          :rules="[{ required: enumEqual(data.mustFlag, YES_NO_ENUM.YES), message: '请选择' }]"
-        >
-          <template #input>
-            <van-checkbox-group v-model="answerVO.answerList">
-              <div v-for="(item, index) in data.optionList" :key="index" class="option-row">
-                <van-checkbox :name="`${index}`" shape="square">{{ item.value }}</van-checkbox>
-                <div v-if="enumEqual(item.optionType, 2) && answerVO.answerList?.indexOf(item.code) > -1">
-                  <van-field
-                    v-model="answerVO.questionRemarkList[index]"
-                    :name="`${props.name}.questionRemarkList.${index}`"
-                    rows="2"
-                    autosize
-                    label=""
-                    type="textarea"
-                    :maxlength="100"
-                    placeholder="请输入告知说明"
-                    :show-word-limit="!isView"
-                  />
-                </div>
+              <div v-if="enumEqual(option.optionType, 2) && enumEqual(answerVO.answer, option.code)">
+                <van-field
+                  v-model="answerVO.questionRemark"
+                  :name="`${props.name}.questionRemark`"
+                  rows="2"
+                  autosize
+                  label=""
+                  type="textarea"
+                  maxlength="100"
+                  placeholder="请输入告知说明"
+                  :show-word-limit="!isView"
+                />
               </div>
-            </van-checkbox-group>
-          </template>
-        </van-field>
-        <!-- 单项填空题 -->
-        <van-field
-          v-if="data.questionType === PRODUCT_QUESTION_OPT_TYPE_ENUM.BLANK"
-          v-model="answerVO.answer"
-          :name="`${props.name}.answer`"
-          placeholder="请输入"
-          :maxlength="100"
-          :rules="[{ required: enumEqual(data.mustFlag, YES_NO_ENUM.YES), message: '请输入' }]"
-        />
-        <!-- 多项填空题 -->
-        <div v-if="data.questionType === PRODUCT_QUESTION_OPT_TYPE_ENUM.MULE_BLANK" class="question-muti-blank">
-          <template v-for="(inp, i) in mutiBlank" :key="i">
-            <span v-if="inp.type === 'literal'" class="literal">{{ inp.value }}</span>
-            <van-field
-              v-else
-              v-model="answerVO.answerList[inp.index]"
-              class="custom-cell"
-              :name="`${props.name}.answerList.${inp.index}`"
-              placeholder="请输入"
-              maxlength="100"
-              :rules="[{ required: enumEqual(data.mustFlag, YES_NO_ENUM.YES), message: '请输入' }]"
-            >
-            </van-field>
-          </template>
-        </div>
-      </ProCard>
+            </div>
+          </van-radio-group>
+        </template>
+      </van-field>
+      <!-- 多选题 【多选可以有告知说明，但是没有关联题目】 -->
+      <van-field
+        v-if="data.questionType === PRODUCT_QUESTION_OPT_TYPE_ENUM.MULTIPLE"
+        :name="`${props.name}.answerList`"
+        label=""
+        :rules="[{ required: enumEqual(data.mustFlag, YES_NO_ENUM.YES), message: '请选择' }]"
+      >
+        <template #input>
+          <van-checkbox-group v-model="answerVO.answerList">
+            <div v-for="(item, index) in data.optionList" :key="index" class="option-row">
+              <van-checkbox :name="`${index}`" shape="square">{{ item.value }}</van-checkbox>
+              <div v-if="enumEqual(item.optionType, 2) && answerVO.answerList?.indexOf(item.code) > -1">
+                <van-field
+                  v-model="answerVO.questionRemarkList[index]"
+                  :name="`${props.name}.questionRemarkList.${index}`"
+                  rows="2"
+                  autosize
+                  label=""
+                  type="textarea"
+                  :maxlength="100"
+                  placeholder="请输入告知说明"
+                  :show-word-limit="!isView"
+                />
+              </div>
+            </div>
+          </van-checkbox-group>
+        </template>
+      </van-field>
+      <!-- 单项填空题 -->
+      <van-field
+        v-if="data.questionType === PRODUCT_QUESTION_OPT_TYPE_ENUM.BLANK"
+        v-model="answerVO.answer"
+        :name="`${props.name}.answer`"
+        placeholder="请输入"
+        :maxlength="100"
+        :rules="[{ required: enumEqual(data.mustFlag, YES_NO_ENUM.YES), message: '请输入' }]"
+      />
+      <!-- 多项填空题 -->
+      <div v-if="data.questionType === PRODUCT_QUESTION_OPT_TYPE_ENUM.MULE_BLANK" class="question-muti-blank">
+        <template v-for="(inp, i) in mutiBlank" :key="i">
+          <br v-if="inp.type === 'wrap'" />
+          <span v-else-if="inp.type === 'literal'" class="literal"> {{ inp.value }}</span>
+          <van-field
+            v-else
+            v-model="answerVO.answerList[inp.index]"
+            class="custom-cell"
+            :name="`${props.name}.answerList.${inp.index}`"
+            placeholder="请输入"
+            maxlength="100"
+            :rules="[{ required: enumEqual(data.mustFlag, YES_NO_ENUM.YES), message: '请输入' }]"
+          >
+          </van-field>
+        </template>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts" name="Question">
 import { ref, toRefs } from 'vue';
-import ProCard from '@/components/ProCard/index.vue';
 import { AnswerVO, NQuestion } from '@/api/modules/product.data';
 import { enumEqual } from '@/common/constants/dict';
 import { YES_NO_ENUM } from '@/common/constants';
@@ -145,13 +149,15 @@ const questionTitle = computed(() => {
 const mutiBlank = computed(() => {
   if (enumEqual(data.value.questionType, PRODUCT_QUESTION_OPT_TYPE_ENUM.MULE_BLANK)) {
     let temp = -1;
+    console.log('换行：', data.value.optionList[0].value.replaceAll('_____', '∝$blank∝').replaceAll('\n', '∝<br />∝'));
     return data.value.optionList[0].value
       .replaceAll('_____', '∝$blank∝')
+      .replaceAll('\n', '∝<br />∝')
       .split('∝')
       .map((blank) => {
         if (blank === '$blank') temp += 1;
         return {
-          type: blank === '$blank' ? 'variable' : 'literal',
+          type: blank === '$blank' ? 'variable' : blank === '<br />' ? 'wrap' : 'literal',
           value: blank === '$blank' ? '' : blank,
           index: temp,
         };
@@ -215,9 +221,10 @@ defineExpose({
 
 <style scoped lang="scss">
 .com-question {
+  margin-bottom: 30px;
   // 子层的问题，不要下边线
-  :deep(.com-card .van-cell__value .com-card > .com-divider-normal) {
-    height: 0px;
+  .child .question-card {
+    border: none;
   }
   :deep(.body) {
     background-color: $zaui-global-bg;
@@ -225,6 +232,34 @@ defineExpose({
     // margin-bottom: 12px;
     .com-radio-btn {
       justify-content: flex-start;
+    }
+  }
+}
+.question-card {
+  background-color: #ffffff;
+  border-bottom: 8px solid var(--zaui-line, #f1f1f1);
+  .header {
+    margin-left: 28px;
+    border-bottom: 1px solid var(--zaui-line, #f1f1f1);
+    position: relative;
+    .title {
+      font-size: 32px;
+      font-weight: 500;
+      line-height: 40px;
+      padding: 20px 20px 20px 0;
+      &::before {
+        content: ' ';
+        display: inline-block;
+        width: 7px;
+        height: 28px;
+        background: var(--van-primary-color);
+        margin-right: 16px;
+        border-radius: 4px;
+        vertical-align: revert;
+      }
+    }
+    .error {
+      color: red;
     }
   }
 }
@@ -268,6 +303,11 @@ defineExpose({
 .option-row {
   width: 100%;
   min-height: 64px;
+  :deep(.van-field__body textarea) {
+    background-color: #fafafa;
+    border-radius: 6px;
+    padding: 0 10px;
+  }
 }
 .option-item {
   background-color: #ffffff;
