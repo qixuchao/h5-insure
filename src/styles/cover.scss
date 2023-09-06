@@ -137,17 +137,20 @@ body {
     border-width: 0;
   }
 }
-
-.van-icon-success {
-  &::before {
-    content: '';
-    background-image: url('@/assets/images/check-gouxuan.png');
-    background-repeat: no-repeat;
-    background-size: contain;
-    width: 20px;
-    height: 20px;
-  }
+// 富文本textarea 的字数限制小文字
+.van-field__word-limit {
+  width: 100%;
 }
+// .van-icon-success {
+//   &::before {
+//     content: '';
+//     background-image: url('@/assets/images/check-gouxuan.png');
+//     background-repeat: no-repeat;
+//     background-size: contain;
+//     width: 20px;
+//     height: 20px;
+//   }
+// }
 
 // .van-icon-cross {
 //   &::before {

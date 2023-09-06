@@ -1,5 +1,7 @@
-<template class="com-question-wrap">
-  <Questionnaire :data="questionnaire" is-view :params="testParams" />
+<template>
+  <div class="com-question-wrap">
+    <Questionnaire :data="questionnaire" :params="testParams" />
+  </div>
 </template>
 <script lang="ts" setup name="QuestionPreview">
 import { Toast } from 'vant';
@@ -33,31 +35,9 @@ const questionnaire = ref<QuestionnaireDetailRes>({
   imageConfig: {
     showFlag: 2,
     name: '',
-    maxCount: 1,
+    maxNum: 1,
   },
 });
-const transformQuestion = (originQuestionnaire: QuestionnaireDetailRes): QuestionnaireDetailRes => {
-  const tempQuestionnaire = cloneDeep(originQuestionnaire);
-  // if ([1,2,5].includes(originQuestion.questionType)) { // 多项
-  tempQuestionnaire.questions = originQuestionnaire.questions.map((q) => {
-    // if(q.optionList.filter(i => i.detailList.length) {
-    //   q.optionList.map((i) => i.detailList.)
-    // })
-    return {
-      ...q,
-      answerVO: {
-        answer: '',
-        answerList: [],
-        questionRemark: '',
-        questionRemarkList: [],
-        // ...(q.answerVO || {}),
-      },
-    };
-  });
-  tempQuestionnaire.imageConfig.images ??= [];
-  // }
-  return tempQuestionnaire;
-};
 onMounted(() => {
   Toast.loading('加载中...');
   // listProductQuestionnaire getQuestionAnswerDetail
@@ -70,6 +50,7 @@ onMounted(() => {
       const { code, data } = res;
       if (code === '10000' && data.productQuestionnaireVOList.length > 0) {
         questionnaire.value = data.productQuestionnaireVOList?.[0].questionnaireDetailResponseVO;
+
         document.title = questionnaire.value.basicInfo.title;
       } else {
         Toast.error('获取问卷出错');
@@ -80,4 +61,8 @@ onMounted(() => {
     });
 });
 </script>
-<style lang="scss"></style>
+<style lang="scss">
+.com-question-wrap {
+  padding: 32px;
+}
+</style>
