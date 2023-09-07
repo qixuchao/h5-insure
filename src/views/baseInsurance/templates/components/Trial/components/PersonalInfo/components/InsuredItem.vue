@@ -97,6 +97,7 @@ import { isNotEmptyArray } from '@/common/constants/utils';
 import { BENEFICIARY_ENUM } from '@/common/constants/infoCollection';
 import { ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import BeneficiaryItem from './BeneficiaryItem.vue';
+import { OBJECT_TYPE_ENUM } from '@/common/constants/questionnaire';
 
 interface InsuredProps {
   modelValue: any;
@@ -265,7 +266,13 @@ watch(
           }, {})
         : holderPersonVO;
 
-      Object.assign(state.personVO, tempData);
+      const certImage = holderPersonVO.certImage.map((image) => ({
+        ...image,
+        objectId: state.personVO.id,
+        objectType: OBJECT_TYPE_ENUM.INSURED,
+      }));
+
+      Object.assign(state.personVO, tempData, { certImage });
     }
   }, 300),
   {

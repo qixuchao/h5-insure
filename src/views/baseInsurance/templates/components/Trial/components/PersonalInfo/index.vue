@@ -660,21 +660,21 @@ watch(
 );
 
 // // 监护人切换关系 清空数据
-// watch(
-//   () => state?.insured?.[state.currentIndex]?.guardian?.personVO?.relationToInsured,
-//   (val, oldVal) => {
-//     if (val !== oldVal) {
-//       colorConsole('监护人关系变动了+++++');
-//       state.insured[state.currentIndex].guardian.personVO = {
-//         relationToInsured: val?.relationToInsured,
-//       };
-//     }
-//   },
-//   {
-//     deep: true,
-//     immediate: true,
-//   },
-// );
+watch(
+  () => state?.insured?.[state.currentIndex]?.guardian?.personVO?.relationToInsured,
+  (val, oldVal) => {
+    if (val !== oldVal) {
+      colorConsole('监护人关系变动了+++++');
+      state.insured[state.currentIndex].guardian.personVO = {
+        relationToInsured: val?.relationToInsured,
+      };
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 const canUpdateFormData = ref<boolean>(false);
 

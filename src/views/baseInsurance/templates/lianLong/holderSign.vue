@@ -45,15 +45,15 @@ import { InsureProductData, ProductDetail, ProductMaterialVoItem } from '@/api/m
 import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
 import SignPart from './components/SignPart.vue';
 import useOrder from '@/hooks/useOrder';
-import { PAGE_ROUTE_ENUMS, SCRIBING_TYPE_ENUM, SCRIBING_TYPE_MAP, NOTICE_TYPE_ENUM } from '@/common/constants';
+import { SCRIBING_TYPE_ENUM, SCRIBING_TYPE_MAP, NOTICE_TYPE_ENUM } from '@/common/constants';
 
 import { MATERIAL_TYPE_ENUM } from '@/common/constants/product';
 import { NOTICE_OBJECT_ENUM } from '@/common/constants/notice';
-import { faceVerify, faceVerifySave, saveSign, signatureConfirm } from '@/api/modules/verify';
+import { applyAuthorize, faceVerify, faceVerifySave, saveSign, signatureConfirm } from '@/api/modules/verify';
 import Storage from '@/utils/storage';
 import { transformFactorToSchema } from '@/components/RenderForm';
 
-import { PAGE_CODE_ENUMS } from './constants';
+import { PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS } from './constants';
 import ProShare from '@/components/ProShare/index.vue';
 import { jumpToNextPage } from '@/utils';
 import { localStore } from '@/hooks/useStorage';
@@ -173,19 +173,27 @@ const handleSubmit = () => {
         Toast('请先完成风险抄录');
         return;
       }
-      signatureConfirm({
-        bizObjectId: [orderDetail.value.holder.id],
-        bizObjectType: NOTICE_TYPE_ENUM.HOLDER,
-        orderId: orderDetail.value.id,
-        tenantId,
-      }).then(({ code, data }) => {
-        if (code === '10000' && data) {
+      applyAuthorize(orderDetail.value).then(({ code, data }) => {
+        if (code === '10000') {
           router.push({
-            path: PAGE_ROUTE_ENUMS.sign,
+            path: PAGE_ROUTE_ENUMS.payAuth,
             query: route.query,
           });
         }
       });
+      // signatureConfirm({
+      //   bizObjectId: [orderDetail.value.holder.id],
+      //   bizObjectType: NOTICE_TYPE_ENUM.HOLDER,
+      //   orderId: orderDetail.value.id,
+      //   tenantId,
+      // }).then(({ code, data }) => {
+      //   if (code === '10000' && data) {
+      //     router.push({
+      //       path: PAGE_ROUTE_ENUMS.sign,
+      //       query: route.query,
+      //     });
+      //   }
+      // });
     })
     .catch((e) => {
       Toast(e.message);
@@ -198,7 +206,6 @@ const getOrderDetail = () => {
       if (code === '10000') {
         Object.assign(orderDetail.value, data);
         signPartInfo.value.holder.personalInfo = data.holder;
-        signPartInfo.value.insured.personalInfo = data.insuredList;
 
         Object.assign(defaultScribingConfig.value, {
           type: SCRIBING_TYPE_MAP[data.extInfo.transcriptionType],

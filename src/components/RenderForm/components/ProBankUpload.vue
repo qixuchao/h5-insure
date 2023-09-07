@@ -63,8 +63,7 @@ const bankDic = useDicData('BANK');
 
 const { filedAttrs } = toRefs(useAttrsAndSlots());
 
-const { objectType, objectId } = inject(VAN_PRO_FORM_KEY) || {};
-
+const { extraProvision } = inject(VAN_PRO_FORM_KEY) || {};
 const emits = defineEmits(['update:modelValue', 'ocr']);
 
 const props = defineProps({
@@ -118,11 +117,11 @@ const handleRead = (e: UploaderFileListItem, index) => {
     if (code === '10000' && data.url) {
       state.modelValue[index] = {
         ...state.modelValue[index],
-        objectId,
+        objectId: extraProvision.objectId,
         uri: data.url,
         category,
         name: title,
-        objectType: props.objectType || objectType,
+        objectType: props.objectType || extraProvision.objectType,
       };
       state.ossKeyList[index] = data.ossKey;
     }

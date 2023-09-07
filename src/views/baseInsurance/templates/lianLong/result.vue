@@ -13,7 +13,7 @@
       <InfoItem label="保费" :content="result.orderAmount" line />
     </div>
     <div class="footer">
-      <van-button block type="primary">返回</van-button>
+      <van-button block type="primary" @click="handleBack">返回</van-button>
     </div>
   </div>
 </template>
@@ -102,6 +102,11 @@ const okText = computed(() => {
 const cancelText = computed(() => {
   return isSuccess.value ? TEXT_MAP.orderList : isFail.value ? TEXT_MAP.updatePayInfo : '';
 });
+
+const handleBack = () => {
+  router.back();
+};
+
 const handleOk = () => {
   if (okText.value === TEXT_MAP.goPolicy) {
     // 点击【查看保单详情】，进入保单详情页面

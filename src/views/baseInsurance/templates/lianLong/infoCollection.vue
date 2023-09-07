@@ -29,6 +29,12 @@
           :is-view="state.isView"
           :user-data="state.userData"
         ></PayInfo>
+        <PolicyInfo
+          v-if="state.policyInfo.schema.length"
+          v-model="orderDetail"
+          :schema="state.policyInfo.schema"
+          :is-view="state.isView"
+        ></PolicyInfo>
       </template>
     </Trial>
 
@@ -77,7 +83,13 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import debounce from 'lodash-es/debounce';
-import { ProRenderFormWithCard, PayInfo, transformFactorToSchema, isOnlyCert } from '@/components/RenderForm';
+import {
+  ProRenderFormWithCard,
+  PayInfo,
+  PolicyInfo,
+  transformFactorToSchema,
+  isOnlyCert,
+} from '@/components/RenderForm';
 import { sendCode, checkCode } from '@/api/modules/phoneVerify';
 import {
   premiumCalc,
@@ -170,6 +182,11 @@ const state = reactive({
     schema: [],
     config: [],
     formData: [],
+  },
+  policyInfo: {
+    schema: [],
+    config: [],
+    formData: {},
   },
   defaultValue: null,
   isAutoChange: false,
@@ -417,11 +434,6 @@ const queryProductMaterialData = () => {
     }
   });
 };
-
-// 初始化数据，获取产品配置详情和产品详情
-const order = reactive({
-  tenantOrderPayInfoList: [],
-});
 const productCollection = ref({});
 const productFactor = ref();
 const initData = async () => {
@@ -476,10 +488,15 @@ const initData = async () => {
         currentProductCollection[product.productCode] = product;
       });
       productCollection.value = currentProductCollection;
-      const { payInfo } = transformFactorToSchema(productFactor.value);
+      const { payInfo, other } = transformFactorToSchema(productFactor.value);
       state.payInfo = {
         ...state.payInfo,
         ...payInfo,
+      };
+
+      state.policyInfo = {
+        ...state.policyInfo,
+        ...other,
       };
     }
   });

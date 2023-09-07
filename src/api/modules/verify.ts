@@ -66,6 +66,14 @@ export const signatureConfirm = (data = {}) =>
     data,
   });
 
+// 银行卡授权查询
+export const applyAuthorize = (data = {}) =>
+  request({
+    url: '/api/app/insure/insurance/applyAuthorize',
+    method: 'POST',
+    data,
+  });
+
 // 银行卡授权确认
 export const authorizeConfirm = (data = {}) =>
   request<boolean>({

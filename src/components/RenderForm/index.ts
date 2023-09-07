@@ -9,3 +9,5 @@ export * from './components';
 
 // 支付信息
 export { default as PayInfo } from './PayInfo.vue';
+// 保单信息
+export { default as PolicyInfo } from './PolicyInfo.vue';
