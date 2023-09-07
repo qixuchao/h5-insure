@@ -17,6 +17,7 @@ import clipboard from '@/common/directives/clipboard';
 import resize from '@/common/directives/resize';
 import { initNative } from '@/utils/native';
 import { isTestEnv, isDebugger } from './utils';
+import '@/styles/zaToken.scss';
 import '@/styles/index.scss';
 
 const start = async () => {

@@ -6,26 +6,37 @@
     input-align="left"
     scroll-to-error
     show-error-message
-    :is-view="isView"
     @submit="submitForm"
   >
     <template v-if="props.data.basicInfo.questionnaireType === 1">文本问卷</template>
     <template v-else>
-      <Question
-        v-for="(question, index) in props.data.questions"
-        ref="questionsRef"
-        :key="question.id"
-        v-model="answerVOList[index].answerVO"
-        :name="`${index}.answerVO`"
-        :data="question"
-        :index="index"
-        :is-view="isView"
-      />
+      <template v-if="props.isView">
+        <Viewer
+          v-for="(question, index) in props.data.questions"
+          :key="question.id"
+          v-model="answerVOList[index].answerVO"
+          :name="`${index}.answerVO`"
+          :data="question"
+          :index="index"
+        />
+      </template>
+      <template v-else>
+        <Question
+          v-for="(question, index) in props.data.questions"
+          ref="questionsRef"
+          :key="question.id"
+          v-model="answerVOList[index].answerVO"
+          :name="`${index}.answerVO`"
+          :data="question"
+          :index="index"
+          :is-view="isView"
+        />
+      </template>
     </template>
     <ProCard v-if="enumEqual(props.data.imageConfig.showFlag, YES_NO_ENUM.YES)" :title="props.data.imageConfig.name">
       <van-field name="imageList">
         <template #input>
-          <ProImageUpload v-model="imageList" :max-count="props.data.imageConfig?.maxNum || 10" />
+          <ProImageUpload v-model="imageList" :disabled="isView" :max-count="props.data.imageConfig?.maxNum || 10" />
         </template>
       </van-field>
     </ProCard>
@@ -48,6 +59,7 @@ import ProRenderForm from '@/components/RenderForm/components/ProRenderForm.vue'
 import { saveMarketerNotices } from '@/api/modules/inform';
 import { enumEqual } from '@/common/constants/dict';
 import { YES_NO_ENUM } from '@/common/constants';
+import Viewer from './Viewer.vue';
 
 interface Props {
   data: QuestionnaireDetailRes; // 问卷数据
@@ -176,8 +188,8 @@ watch(
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
 .fix-button {
   margin-top: 140px;
-  border: 1px solid red;
 }
 </style>

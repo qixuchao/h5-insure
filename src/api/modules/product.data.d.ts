@@ -908,7 +908,7 @@ export interface QuestionnaireDetailRes {
   imageConfig: { // 影像信息
     showFlag?: number;
     name?: string;
-    maxCount?: number;
+    maxNum?: number;
     images?: string[];
   };
 }
