@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { Toast } from 'vant/es';
 import ProTab from '@/components/ProTab/index.vue';
 import Item from './components/item.vue';
@@ -96,8 +96,8 @@ const currentStatus = computed(() => {
 });
 
 const handleClick = (item: OrderItem) => {
-  const { orderNo, saleUserId, abbreviation, productCategory, applicationNo, orderId } = item;
-  pageJump('orderDetail', { orderNo, agentCode, tenantId, abbreviation, productCategory, applicationNo, orderId });
+  const { orderNo } = item;
+  pageJump('orderDetail', { orderNo, agentCode, tenantId });
 };
 
 const getData = () => {

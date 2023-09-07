@@ -54,7 +54,7 @@ const props = defineProps({
    */
   relatedName: {
     type: String,
-    default: '',
+    default: 'certEndType',
   },
   /**
    * 选择类型，同 van-datetime-picker type 属性
@@ -125,6 +125,7 @@ const extraAttrs = computed(() => {
 const onEffect = (type, val) => {
   if (props.relatedName && type) {
     const effectFn = (relatedConfigMap[props.relatedName] || {})[`${type}Effect`];
+    console.log('type', type);
     typeof effectFn === 'function' && effectFn(val, formState);
   }
 };

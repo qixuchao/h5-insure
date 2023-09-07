@@ -32,6 +32,11 @@ body {
   background: var(--van-button-default-background-color);
 }
 
+.van-button--small {
+  height: 60px;
+  min-width: 154px;
+}
+
 // 单元格
 .van-cell {
   padding: 14px $zaui-card-border;

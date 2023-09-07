@@ -20,7 +20,6 @@
         :personal-info="signPartInfo.holder.personalInfo"
         title="投保人"
         @handle-sign="(signData) => sign('HOLDER', signData, signPartInfo.holder.personalInfo.id)"
-        @handle-verify="doVerify"
       ></SignPart>
     </div>
 

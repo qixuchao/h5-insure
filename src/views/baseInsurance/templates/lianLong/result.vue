@@ -1,55 +1,30 @@
 <template>
-  <ProNavigator />
-  <ProResult
-    :title="title"
-    :status="status"
-    :ok-text="okText"
-    :cancel-text="cancelText"
-    @ok="handleOk"
-    @cancel="handleCancel"
-  >
-    <template #order>
-      <div v-if="isSuccess" class="order-result">
-        <van-row>
-          <van-col class="order-label" span="10">订 单 号：</van-col>
-          <van-col span="14">{{ result.orderNo }}</van-col>
-          <van-col class="order-label" span="10">支付方式：</van-col>
-          <van-col span="14">{{ result.paymentMethod }}</van-col>
-          <van-col class="order-label" span="10">支付金额：</van-col>
-          <van-col span="14">{{ result.orderAmount }}</van-col>
-          <van-col class="order-label" span="10">保单状态：</van-col>
-          <van-col span="14">{{ result.orderStatusDesc }}</van-col>
-        </van-row>
+  <div class="page-insure-result-wrap">
+    <div class="header">{{ TEXT_MAP.congratulate }}</div>
+    <div class="content">
+      <div class="content-header">
+        <h4 class="product-name"></h4>
+        <span>保障中</span>
       </div>
-      <div v-if="isFail" class="order-result">
-        <van-row v-if="result.paymentResultDesc">
-          <van-col class="order-label" span="10">失败原因：</van-col>
-          <van-col span="14">{{ result.paymentResultDesc }}</van-col>
-        </van-row>
-      </div>
-      <div v-if="isPaying" class="order-result">
-        <van-row class="tac">
-          <van-col span="24" class="mb20">支付中请耐心等待</van-col>
-          <van-col span="24">点击【刷新】按钮刷新支付结果</van-col>
-        </van-row>
-        <van-row class="tac buttons">
-          <van-col span="24">
-            <van-button type="primary" block @click="refresh">刷新</van-button>
-          </van-col>
-        </van-row>
-      </div>
-    </template>
-  </ProResult>
+      <InfoItem label="投保人" :content="result.holderName" line />
+      <InfoItem label="保单号" :content="result.policyNo" line />
+      <InfoItem label="生效日期" :content="result.holderName" line />
+      <InfoItem label="保障期间" :content="result.coverage" line />
+      <InfoItem label="保费" :content="result.orderAmount" line />
+    </div>
+    <div class="footer">
+      <van-button block type="primary">返回</van-button>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup name="OrderResult">
 import { useRouter, useRoute } from 'vue-router';
-import ProResult from '@/components/ProResult/index.vue';
-import { getOrderDetail } from '@/api';
+import { getTenantOrderDetail } from '@/api/modules/trial';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 import { PAYMENT_METHOD_MAP } from '@/common/constants/bankCard';
 import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
-
+import InfoItem from '@/views/order/components/infoItem.vue';
 /**
  * 本页面只有三种结果状态
  * @since success 成功
@@ -58,15 +33,10 @@ import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
  */
 interface PayResultData {
   orderNo: string;
-  /** 支付方式 */
-  paymentMethod: string;
   orderAmount: string;
   // 订单状态
   orderStatus: string;
-  /** 订单状态（已承保） */
-  orderStatusDesc: string;
-  /** 支付结果 */
-  paymentResultDesc: string;
+  [propName: string]: any;
 }
 
 const TEXT_MAP = {
@@ -80,11 +50,9 @@ const TEXT_MAP = {
 
 const result = ref<PayResultData>({
   orderNo: '',
-  paymentMethod: '',
+  holderName: '',
   orderAmount: '',
   orderStatus: '',
-  orderStatusDesc: '',
-  paymentResultDesc: '',
 });
 const route = useRoute();
 const router = useRouter();
@@ -170,23 +138,31 @@ onMounted(() => {
   if (preview) {
     return;
   }
-  getOrderDetail({
+  getTenantOrderDetail({
     orderNo,
-    saleUserId,
     tenantId,
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
+      const {
+        holder: { name },
+        policyNo,
+        insuredList,
+      } = data;
       orderInfo.value = data;
       // 支付信息
       const payMentInfo = data.tenantOrderPaymentInfoList?.[0];
+      const { productName, riskList } = insuredList?.[0]?.productList?.[0] || {};
       result.value = {
+        holderName: name,
+        productName,
+        policyNo,
+        validateDate: '',
+        coverage: riskList?.[0].coverage,
         orderStatusDesc: ORDER_STATUS_MAP[data.orderStatus],
         orderStatus: data.orderStatus,
         orderNo: data.orderNo,
-        paymentMethod: PAYMENT_METHOD_MAP[payMentInfo.paymentMethod] || '',
         orderAmount: `￥${data.orderAmount}`,
-        paymentResultDesc: payMentInfo.paymentResultDesc,
       };
     }
   });
@@ -194,21 +170,30 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.order-result {
-  width: 600px;
-  padding: 40px;
-  text-align: left;
-
-  .order-label {
-    margin-bottom: $zaui-space-card;
-    text-align: right;
+.page-insure-result-wrap {
+  width: 100%;
+  min-height: 100vh;
+  background-image: url('@/assets/images/baseInsurance/cardbg.png');
+  background-size: 100%;
+  background-repeat: no-repeat;
+  padding: 0 $zaui-card-border;
+  background-color: #f4f5f9;
+  .header {
+    margin: 112px 0;
+    font-size: 48px;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 48px;
+    text-align: center;
   }
 
-  .mb20 {
-    margin-bottom: 20px;
-  }
-  .buttons {
-    margin-top: 96px;
+  .content {
+    border-radius: 20px;
+    padding: 40px 30px;
+    background-color: #ffffff;
+    margin-bottom: 60px;
+    .content-header {
+    }
   }
 }
 </style>

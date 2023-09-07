@@ -47,7 +47,7 @@ import { Trajectory } from '@/api/index.data';
 import InfoItem from '../components/infoItem.vue';
 
 const route = useRoute();
-const router = useRouter();
+
 const activeIndex = ref<number>(0);
 const list = ref<Array<Trajectory>>([
   { name: '投保提交', status: '', time: '', step: '01' },
@@ -58,30 +58,30 @@ const list = ref<Array<Trajectory>>([
 ]);
 
 const {
-  query: { orderNo, applicationNo },
+  query: { orderId, orderNo, tenantId },
 } = route;
 
-// onMounted(() => {
-//   orderInsureRecord({ orderNo, applicationNo }).then((res) => {
-//     const { code, data } = res;
-//     if (code === '10000') {
-//       list.value = list.value.map((item, index) => {
-//         data?.map((items, indexs) => {
-//           // eslint-disable-next-line eqeqeq
-//           if (items.step == item.step) {
-//             item.status = items.status;
-//             item.time = items.time;
-//           }
-//           return items;
-//         });
-//         return item;
-//       });
-//       if (data.length) {
-//         activeIndex.value = data.length - 1;
-//       }
-//     }
-//   });
-// });
+onMounted(() => {
+  orderInsureRecord({ orderId, tenantId }).then((res) => {
+    const { code, data } = res;
+    if (code === '10000') {
+      list.value = list.value.map((item, index) => {
+        data?.map((items, indexs) => {
+          // eslint-disable-next-line eqeqeq
+          if (items.step == item.step) {
+            item.status = items.status;
+            item.time = items.time;
+          }
+          return items;
+        });
+        return item;
+      });
+      if (data.length) {
+        activeIndex.value = data.length - 1;
+      }
+    }
+  });
+});
 const getZero = (num: any) => {
   return String(num).padStart(2, '0');
 };

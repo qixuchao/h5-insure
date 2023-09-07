@@ -215,6 +215,10 @@ export const transformToSchema = (arr: FieldConfItem[], trialFactorCodesArr: str
     const isBirthdayExisted = hasBirthday(arr);
 
     schema = arr.map((item) => {
+      // 如果是长日期类型
+      if (item.displayType === 4 && item.attributeValueList?.[0].code === '2') {
+        item.displayType = 14;
+      }
       // 当前组件配置
       const { code, name, value, componentName, ...rest } =
         COMPONENT_MAPPING_LIST.find((component) => `${component.value}` === `${item.displayType}`) || {};
@@ -685,6 +689,7 @@ export const relatedConfigMap = {
       },
     },
     onChangeEffect: (val, formState) => {
+      console.log('certType', val, formState);
       // 身份证号码/户口簿
       if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(String(formState.formData.certType))) {
         const data = parseCertNo(val);
@@ -700,6 +705,15 @@ export const relatedConfigMap = {
         const age = val ? calculateAge(val) : null;
         Object.assign(formState.formData, {
           age,
+        });
+      }
+    },
+  },
+  certEndType: {
+    onChangeEffect: (val, formState) => {
+      if (val === '9999-12-31') {
+        Object.assign(formState.formData, {
+          certEndType: 1,
         });
       }
     },

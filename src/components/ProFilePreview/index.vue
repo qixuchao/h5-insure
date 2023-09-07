@@ -16,7 +16,13 @@
     <van-image v-else-if="isPicture" class="pic-wrap" fit="contain" :src="props.content" />
 
     <!-- <QuestionPreview v-else-if="isQuestion" :current-page-info="props.content" /> -->
-    <Questionnaire v-else-if="isQuestion" :data="props.content" :params="props.params" @success="props.successCallback">
+    <Questionnaire
+      v-else-if="isQuestion"
+      :is-view="isView"
+      :data="props.content"
+      :params="props.params"
+      @success="props.successCallback"
+    >
       <slot name="footer"></slot>
     </Questionnaire>
     <!-- 外联 -->
@@ -48,6 +54,10 @@ const props = defineProps({
   isIframe: {
     type: Boolean,
     default: true,
+  },
+  isView: {
+    type: Boolean,
+    default: false,
   },
   params: {
     type: Object,

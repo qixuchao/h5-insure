@@ -51,6 +51,12 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     meta: { title: '信息采集' },
     component: () => import('@/views/baseInsurance/templates/lianLong/infoCollection.vue'),
   },
+  {
+    name: 'infoCollectionTest',
+    path: '/baseInsurance/long/infoCollectionTest',
+    meta: { title: '信息采集' },
+    component: () => import('@/views/baseInsurance/templates/long/infoCollection.vue'),
+  },
 
   {
     name: 'verify',
@@ -93,6 +99,12 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     path: '/baseInsurance/long/payAuth',
     meta: { title: '支付绑卡' },
     component: () => import('@/views/baseInsurance/templates/lianLong/payAuth.vue'),
+  },
+  {
+    name: 'updateBankInfo',
+    path: '/baseInsurance/long/updateBankInfo',
+    meta: { title: '支付绑卡' },
+    component: () => import('@/views/baseInsurance/templates/lianLong/updateBankInfo.vue'),
   },
   {
     name: 'infoPreview',

@@ -3,40 +3,24 @@
     <div class="header">
       <div class="product-name">{{ detail.productName }}</div>
       <!-- <div class="company-name">{{ ('众安保险科技有限' || detail.abbreviation || '').substring(0, 6) }}</div> -->
-      <div class="status">{{ ORDER_STATUS_MAP[detail.orderStatus] }}</div>
+      <div class="status">{{ detail.orderStatusDesc }}</div>
     </div>
     <div class="info">
       <InfoItem label="订单号" :content="detail.orderNo" line is-copy />
-      <InfoItem label="投保单号" :content="detail.applicationNo" line is-copy />
+      <InfoItem v-for="no in detail.applicationNo" :key="no" label="投保单号" :content="no" line is-copy />
       <InfoItem label="保单号" :content="detail.policyNo" line is-copy />
       <div class="info-bottom">
         <div>
           <InfoItem label="投保人" :content="detail.holderName" line />
           <InfoItem label="被保人" :content="detail.insuredName?.[0]" line />
           <InfoItem label="创建时间" :content="dayjs(detail.orderStartDate).format('YYYY-MM-DD HH:mm:ss')" line />
+          <InfoItem label="保费：" :content="`￥${detail.premium}`" line />
         </div>
         <div style="width: 25%"><img src="@/assets/images/component/tree.png" alt="" style="width: 80%" /></div>
       </div>
     </div>
     <div class="footer">
-      <div class="fee">
-        保费：<span class="money">￥{{ detail.premium }}</span>
-      </div>
-      <div v-if="detail.orderTopStatus === ORDER_TOP_STATUS_ENUM.PENDING" class="buttons">
-        <van-button class="button" @click.stop="handleDelete">删除</van-button>
-        <van-button
-          v-if="ORDER_STATUS_ENUM.UNDERWRITING_FAILED !== detail.orderStatus"
-          class="button primary"
-          @click.stop="handleProcess()"
-          >去处理</van-button
-        >
-      </div>
-      <div v-if="detail.orderTopStatus === ORDER_TOP_STATUS_ENUM.PAYING" class="buttons">
-        <van-button class="button primary" @click.stop="handlePay">去支付</van-button>
-      </div>
-      <div v-if="detail.orderTopStatus === ORDER_TOP_STATUS_ENUM.TIMEOUT" class="buttons">
-        <van-button class="button" @click.stop="handleDelete">删除</van-button>
-      </div>
+      <OperateBtn :detail="detail"></OperateBtn>
     </div>
   </div>
 </template>
@@ -49,9 +33,9 @@ import { OrderItem } from '@/api/modules/order.data';
 import { deleteOrder } from '@/api/modules/order';
 import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP, ORDER_TOP_STATUS_ENUM } from '@/common/constants/order';
 import { PAGE_ROUTE_ENUMS, PRODUCT_LIST_ENUM } from '@/common/constants';
-import { TEMPLATE_TYPE_ENUM } from '@/views/baseInsurance/constant';
 import pageJump from '@/utils/pageJump';
 import InfoItem from './infoItem.vue';
+import OperateBtn from './OperateBtn.vue';
 
 const emits = defineEmits(['afterDelete']);
 const router = useRouter();
@@ -257,8 +241,11 @@ const handleProcess = () => {
   .footer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     margin-top: 20px;
+    .operate-wrap {
+      text-align: right;
+    }
     .fee {
       font-size: 26px;
       color: #333333;

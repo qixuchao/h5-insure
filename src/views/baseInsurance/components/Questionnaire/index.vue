@@ -159,6 +159,10 @@ watch(
     imageList.value = props.data.imageList;
     console.log('初始的答案结果:', answerVOList.value);
   },
+  {
+    immediate: true,
+    deep: true,
+  },
 );
 </script>
 <style lang="scss">

@@ -3,15 +3,23 @@
     <div class="insurance-notification-information-title">{{ title }}</div>
     <div class="insurance-notification-information-collapse">
       <van-collapse v-model="activeList">
-        <van-collapse-item v-for="(item, index) in data" :key="index" :title="item.title" :name="index">
-          <div class="insurance-notification-information-content">{{ item.content }}</div>
+        <van-collapse-item
+          v-for="(item, index) in data"
+          :key="index"
+          :title="item.questionnaireName || index"
+          :name="index"
+        >
+          <div class="insurance-notification-information-content">
+            <ProFilePreview v-if="item" :type="item.contentType" is-view :content="item" :params="{}"> </ProFilePreview>
+          </div>
         </van-collapse-item>
       </van-collapse>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
-import { withDefaults, reactive, shallowRef, useSlots } from 'vue';
+import { withDefaults } from 'vue';
+import ProFilePreview from '@/components/ProFilePreview/index.vue';
 
 interface Props {
   title: string;
@@ -23,10 +31,16 @@ const props = withDefaults(defineProps<Props>(), {
   data: () => [],
 });
 const activeList = ref<string[]>([]);
-const state = reactive({
-  text: '',
-  occupationClass: '',
-});
+const questionList = ref([]);
+
+watch(
+  () => props.data,
+  () => {},
+  {
+    immediate: true,
+    deep: true,
+  },
+);
 </script>
 <style lang="scss" scoped>
 .insurance-notification-information {

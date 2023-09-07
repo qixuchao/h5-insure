@@ -11,7 +11,15 @@
       <div class="card card-list">
         <p class="card-list-title">健利保倍享版</p>
         <InfoItem label="订单号" :content="detail?.orderNo" line is-copy min-width="other" />
-        <InfoItem label="投保单号" :content="detail?.applicationNo" line is-copy min-width="other" />
+        <InfoItem
+          v-for="no in detail?.applicationNo"
+          :key="no"
+          label="投保单号"
+          :content="applicationNo"
+          line
+          is-copy
+          min-width="other"
+        />
         <InfoItem
           label="创建时间"
           :content="dayjs(detail?.gmtCreated).format('YYYY-MM-DD HH:mm:ss')"
@@ -25,7 +33,7 @@
           min-width="other"
         />
         <InfoItem label="投保保费" :content="detail?.orderAmount" line min-width="other" />
-        <InfoItem label="承保保费" :content="detail?.realAmount" line min-width="other" />
+        <InfoItem label="承保保费" :content="detail?.orderAmount" line min-width="other" />
       </div>
       <div class="card card-list">
         <div class="card-list-head">
@@ -34,7 +42,12 @@
             首年保费：<span>{{ detail?.orderAmount }}</span>
           </div>
         </div>
-        <ProTable v-if="detail?.riskList.length > 0" :columns="columns" class="table" :data-source="detail?.riskList" />
+        <ProTable
+          v-if="detail?.riskList?.length > 0"
+          :columns="columns"
+          class="table"
+          :data-source="detail?.riskList"
+        />
       </div>
       <div class="card">
         <van-collapse v-model="activeList">
@@ -49,23 +62,49 @@
             <div class="tenantOrderAttachmentList-title">投保人资料</div>
             <div class="tenantOrderAttachmentList-img">
               <div
-                v-for="(item, index) in detail?.tenantOrderAttachmentList?.filter((item) => item.objectType == '2')"
+                v-for="(item, index) in attachmentList(ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER)"
                 :key="index"
+                class="attachment-item"
+              >
+                <img :src="item.uri" alt="" />
+              </div>
+            </div>
+            <div class="tenantOrderAttachmentList-title">被保人资料</div>
+            <div class="tenantOrderAttachmentList-img">
+              <div
+                v-for="(item, index) in attachmentList(ATTACHMENT_OBJECT_TYPE_ENUM.INSURED)"
+                :key="index"
+                class="attachment-item"
+              >
+                <img :src="item.uri" alt="" />
+              </div>
+            </div>
+            <div class="tenantOrderAttachmentList-title">受益人资料</div>
+            <div class="tenantOrderAttachmentList-img">
+              <div
+                v-for="(item, index) in attachmentList(ATTACHMENT_OBJECT_TYPE_ENUM.BENEFICIARY)"
+                :key="index"
+                class="attachment-item"
+              >
+                <img :src="item.uri" alt="" />
+              </div>
+            </div>
+            <div class="tenantOrderAttachmentList-title">监护人资料</div>
+            <div class="tenantOrderAttachmentList-img">
+              <div
+                v-for="(item, index) in attachmentList(ATTACHMENT_OBJECT_TYPE_ENUM.GUARDIAN)"
+                :key="index"
+                class="attachment-item"
               >
                 <img :src="item.uri" alt="" />
               </div>
             </div>
             <div class="tenantOrderAttachmentList-title">银行卡信息</div>
             <div class="tenantOrderAttachmentList-img">
-              <div v-for="(item, index) in 10" :key="index" class="tenantOrderAttachmentList-img-content">
-                <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
-              </div>
-            </div>
-            <div class="tenantOrderAttachmentList-title">被保人资料</div>
-            <div class="tenantOrderAttachmentList-img">
               <div
-                v-for="(item, index) in detail?.tenantOrderAttachmentList?.filter((item) => item.objectType == '3')"
+                v-for="(item, index) in attachmentList(ATTACHMENT_OBJECT_TYPE_ENUM.INIT_SIGN)"
                 :key="index"
+                class="attachment-item"
               >
                 <img :src="item.uri" alt="" />
               </div>
@@ -73,48 +112,29 @@
           </van-collapse-item>
         </van-collapse>
       </div>
-      <!-- <InsureInfo
-        :product-data="detail?.insuredList?.[0]?.productList?.[0]"
-        :total-premium="detail?.orderAmount"
-        class="insure-info"
-      /> -->
-      <!-- 支付信息 -->
-      <!-- <PayInfo
-        v-if="state.payInfo.schema.length"
-        ref="payInfoRef"
-        v-model="detail?.tenantOrderPaymentInfoList"
-        :schema="state.payInfo.schema"
-        is-view
-      ></PayInfo> -->
       <div class="insurance-notification-information card">
-        <InsuranceNotificationInformation
-          title="投保告知信息"
-          :data="
-            [
-              { title: '《万能风险告知问卷》', content: '12345556789' },
-              { title: '《被保人健康告知》', content: '12345556789' },
-            ] || state.customerQuestions
-          "
-        />
+        <InsuranceNotificationInformation title="投保告知信息" :data="state.customerQuestions || []" />
       </div>
 
-      <div v-loading="loading">
-        <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.PENDING" class="footer-button">
-          <van-button type="primary" @click.stop="handleDelete">删除</van-button>
-          <van-button
-            v-if="ORDER_STATUS_ENUM.UNDERWRITING_FAILED !== detail.orderStatus"
-            type="primary"
-            @click.stop="handleProcess"
-            >去处理</van-button
-          >
-        </div>
-        <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.PAYING" class="footer-button">
-          <van-button type="primary" @click.stop="handleDelete">删除</van-button>
-          <van-button type="primary" @click.stop="handlePay">去支付</van-button>
-        </div>
-        <div v-if="detail?.orderTopStatus === ORDER_TOP_STATUS_ENUM.TIMEOUT" class="footer-button">
-          <van-button type="primary" @click.stop="handleDelete">删除</van-button>
-        </div>
+      <PersonalInfo
+        v-if="productFactor"
+        ref="personalInfoRef"
+        v-model="personalInfo"
+        :product-factor="productFactor"
+        is-view
+      >
+      </PersonalInfo>
+
+      <PayInfo
+        v-if="state.payInfo.schema.length"
+        ref="payInfoRef"
+        v-model="detail.tenantOrderPayInfoList"
+        :schema="state.payInfo.schema"
+        is-view
+      ></PayInfo>
+
+      <div v-loading="loading" class="footer-button">
+        <OperateBtn :detail="detail"></OperateBtn>
       </div>
     </div>
   </van-config-provider>
@@ -130,9 +150,14 @@ import { newOrderDetail } from '@/api';
 import { getQuestionAnswerDetail } from '@/api/modules/inform';
 import { NextStepRequestData } from '@/api/index.data';
 import { ORDER_TOP_STATUS_ENUM, ORDER_STATUS_MAP, ORDER_STATUS_ENUM } from '@/common/constants/order';
-import { insureProductDetail, queryStandardInsurerLink } from '@/api/modules/trial';
+import { insureProductDetail, mergeInsureFactor, queryStandardInsurerLink } from '@/api/modules/trial';
 import { InsureLinkReq } from '@/api/modules/trial.data';
-import { PRODUCT_LIST_ENUM, PAGE_ROUTE_ENUMS, ORDER_STATUS_MAPPING_PAGE } from '@/common/constants';
+import {
+  PRODUCT_LIST_ENUM,
+  PAGE_ROUTE_ENUMS,
+  ORDER_STATUS_MAPPING_PAGE,
+  ATTACHMENT_OBJECT_TYPE_ENUM,
+} from '@/common/constants';
 import { TEMPLATE_NAME_ENUM, getTemplateNameById } from '@/common/constants/infoCollection';
 import FieldInfo from '../components/fieldInfo.vue';
 import InsureInfo from '../components/InsuredPart.vue';
@@ -144,14 +169,20 @@ import InfoItem from '../components/infoItem.vue';
 import InsuranceNotificationInformation from '../components/insuranceNotificationInformation.vue';
 import { InsureProductData, ProductPlanInsureVoItem } from '@/api/modules/product.data';
 import { ProRenderFormWithCard, PayInfo, transformFactorToSchema, isOnlyCert } from '@/components/RenderForm';
+import { listProductQuestionnaire, queryListProductMaterial } from '@/api/modules/product';
+import { pickProductRiskCodeFromOrder } from '@/views/baseInsurance/templates/lianLong/utils';
+import { OBJECT_TYPE_ENUM, QUESTIONNAIRE_TYPE_ENUM } from '@/common/constants/questionnaire';
+import PersonalInfo from '../../baseInsurance/templates/components/Trial/components/PersonalInfo/index.vue';
+import { QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE } from '@/common/constants/notice';
+import { getFileType } from '@/views/baseInsurance/utils';
+import OperateBtn from '../components/OperateBtn.vue';
 
 const themeVars = useTheme();
 const route = useRoute();
 const router = useRouter();
-const detail = ref<NextStepRequestData>();
+const detail = ref();
 const activeList = ref<string[]>([]);
 const tenantOrderAttachmentList = ref<string[]>([]);
-const currentPlanObj = ref<Partial<ProductPlanInsureVoItem>>({});
 const columns = [
   {
     title: '险种名称',
@@ -194,76 +225,11 @@ const state = reactive({
   },
 });
 
-const dataSource = [
-  {
-    key1: '众安家庭共享保额意外险',
-    key2: '50万',
-    key3: '1年期',
-    key4: '一次交清',
-    key5: '988.00',
-    key6: 'columnA',
-    key7: 'columnB',
-  },
-  {
-    key1: '众安家庭共享保额意外险',
-    key2: '50万',
-    key3: '1年期',
-    key4: '一次交清',
-    key5: '988.00',
-    key6: 'columnA',
-    key7: 'columnB',
-  },
-  {
-    key1: '众安家庭共享保额意外险',
-    key2: '50万',
-    key3: '1年期',
-    key4: '一次交清',
-    key5: '988.00',
-    key6: 'columnA',
-    key7: 'columnB',
-  },
-  {
-    key1: '众安家庭共享保额意外险',
-    key2: '50万',
-    key3: '1年期',
-    key4: '一次交清',
-    key5: '988.00',
-    key6: 'columnA',
-    key7: 'columnB',
-  },
-  {
-    key1: '众安家庭共享保额意外险',
-    key2: '50万',
-    key3: '1年期',
-    key4: '一次交清',
-    key5: '988.00',
-    key6: 'columnA',
-    key7: 'columnB',
-  },
-  {
-    key1: '众安家庭共享保额意外险',
-    key2: '50万',
-    key3: '1年期',
-    key4: '一次交清',
-    key5: '988.00',
-    key6: 'columnA',
-    key7: 'columnB',
-  },
-  {
-    key1: '众安家庭共享保额意外险',
-    key2: '50万',
-    key3: '1年期',
-    key4: '一次交清',
-    key5: '988.00',
-    key6: 'columnA',
-    key7: 'columnB',
-  },
-];
 const {
-  query: { orderNo, agentCode, tenantId, abbreviation, productCategory, applicationNo, orderId },
+  query: { orderNo, agentCode, tenantId },
 } = route;
 const handleClick = () => {
-  pageJump('orderTrajectory', { orderNo, agentCode, tenantId, abbreviation, productCategory, applicationNo });
+  pageJump('orderTrajectory', { orderNo, orderId: detail.value.id, tenantId });
 };
 const handleDelete = () => {
   Dialog.confirm({
@@ -357,24 +323,63 @@ const handlePay = () => {
     }
   }
 };
-const customerQuestionsDetail = () => {
-  console.log(orderNo, 'orderNo================');
-  getQuestionAnswerDetail({
-    orderNo,
-    orderId,
-    tenantId,
-  }).then((res) => {
-    const { code, data } = res;
+
+const getQuestionInfo = async (params) => {
+  let answerList = [];
+  const { code: answerCode, data: answerData } = await getQuestionAnswerDetail({ orderNo, tenantId });
+  if (answerCode === '10000') {
+    answerList = answerData.productQuestionnaireVOList;
+  }
+  const { code, data } = await listProductQuestionnaire(params);
+
+  if (code === '10000') {
+    const { productQuestionnaireVOList: questionList } = data || {};
+
+    // 过滤出风险告知问卷
+    const productQuestionnaireVOList = questionList.filter(
+      (question) => question.businessType !== QUESTION_OBJECT_TYPE.VISIT,
+    );
+
+    state.customerQuestions = productQuestionnaireVOList.map((questionInfo) => {
+      const { questionnaireDetailResponseVO, questionnaireId, questionnaireName } = questionInfo || {};
+      const { questions, basicInfo } = questionnaireDetailResponseVO || {};
+      const { objectType: objType, questionnaireType } = basicInfo || {};
+
+      if (questionnaireType === QUESTIONNAIRE_TYPE_ENUM.TEXT) {
+        const { content, textType } = questions?.[0] || {};
+        return {
+          content,
+          contentType: getFileType(`${textType}`, content),
+          questionnaireId,
+          questionnaireName,
+        };
+      }
+      const currentAnswer = (answerList || []).find((answer) => answer.questionnaireId === questionnaireId);
+      return {
+        ...questionnaireDetailResponseVO,
+        contentType: 'question',
+        ...currentAnswer?.questionnaireDetailResponseVO,
+        questionnaireId,
+        questionnaireName,
+      };
+    });
+  }
+};
+
+const productFactor = ref();
+const riskMaterialList = ref([]);
+const getInsureProductDetail = (params) => {
+  queryListProductMaterial(params).then(({ data, code }) => {
     if (code === '10000') {
-      state.customerQuestions = data;
+      riskMaterialList.value = data.riskMaterialList?.[0]?.productMaterialList;
     }
   });
-};
-const getInsureProductDetail = () => {
-  insureProductDetail({ productCode: '111', isTenant: false }).then(({ data, code }) => {
+
+  mergeInsureFactor(params).then(({ data, code }) => {
     if (code === '10000') {
-      currentPlanObj.value = data.productPlanInsureVOList?.[0] || {};
-      const { payInfo } = transformFactorToSchema(currentPlanObj.value?.productFactor);
+      const { productDetailResList, productFactor: currentProductFactor } = data;
+      productFactor.value = currentProductFactor;
+      const { payInfo } = transformFactorToSchema(currentProductFactor);
       state.payInfo = {
         ...state.payInfo,
         ...payInfo,
@@ -383,13 +388,29 @@ const getInsureProductDetail = () => {
   });
 };
 
+// 获取资料数据
+const attachmentList = computed(() => (objectType) => {
+  const { tenantOrderAttachmentList: currentAttachmentList } = detail.value;
+  if (currentAttachmentList?.length) {
+    return currentAttachmentList.filter((attachment) => attachment.objectType === objectType);
+  }
+  return [];
+});
+
+const personalInfo = ref();
+
 onMounted(() => {
-  getInsureProductDetail();
-  customerQuestionsDetail();
-  newOrderDetail({ orderNo, orderId, applicationNo, agentCode, tenantId }).then((res) => {
-    const { code, data } = res;
+  newOrderDetail({ orderNo, agentCode, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       detail.value = data;
+      personalInfo.value = data;
+      detail.value.tenantOrderPayInfoList = data.tenantOrderPayInfoList || [];
+      const productCodeList = Object.keys(detail.value.productCodeList).map((productCode) => ({
+        productCode,
+        mergeRiskReqList: detail.value.productCodeList[productCode],
+      }));
+      getInsureProductDetail({ productList: productCodeList });
+      getQuestionInfo({ productCodeList: Object.keys(detail.value.productCodeList) });
     }
   });
 });
@@ -452,9 +473,15 @@ onMounted(() => {
       flex-wrap: wrap;
       margin-top: 20px;
 
-      .tenantOrderAttachmentList-img-content {
-        margin-right: 30px;
-        margin-top: 20px;
+      .attachment-item {
+        width: 160px;
+        height: 160px;
+        margin: 0 30px 30px 0;
+        border-radius: 12px;
+        img {
+          width: 100%;
+          height: 100%;
+        }
       }
     }
     .header {
