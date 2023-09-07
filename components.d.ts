@@ -14,7 +14,6 @@ declare module 'vue' {
     HandleScribingLian: typeof import('./src/components/ProScribing/components/HandleScribingLian.vue')['default']
     Indev_blk: typeof import('./src/components/ProChart/indev_blk.vue')['default']
     PayInfo: typeof import('./src/components/RenderForm/PayInfo.vue')['default']
-    'PayInfo copy': typeof import('./src/components/RenderForm/PayInfo copy.vue')['default']
     Play: typeof import('./src/components/ZaVoice/play.vue')['default']
     PlayBar: typeof import('./src/components/ZaVoice/playBar.vue')['default']
     PolicyInfo: typeof import('./src/components/RenderForm/PolicyInfo.vue')['default']
