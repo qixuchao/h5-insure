@@ -1,0 +1,1 @@
+import{_ as s,d as a,o as e,c as t,a as d,e as i,f as o}from"./index-498c0d29.js";const c={class:"com-custom-card"},l={class:"title"};var r=s(a({__name:"index",props:{title:{type:String,required:!0}},setup:s=>(a,r)=>(e(),t("div",c,[d("div",l,i(s.title),1),d("div",null,[o(a.$slots,"default",{},void 0,!0)])]))}),[["__scopeId","data-v-059c21ee"]]);export{r as default};
