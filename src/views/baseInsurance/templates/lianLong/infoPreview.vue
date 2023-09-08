@@ -83,9 +83,9 @@ const router = useRouter();
 const orderDetail = useOrder();
 
 const routeEnum = {
-  '1': PAGE_ROUTE_ENUMS.holderSign,
-  '2': PAGE_ROUTE_ENUMS.insuredSign,
-  '3': PAGE_ROUTE_ENUMS.agentSign,
+  holder: PAGE_ROUTE_ENUMS.holderSign,
+  insured: PAGE_ROUTE_ENUMS.insuredSign,
+  agent: PAGE_ROUTE_ENUMS.agentSign,
 };
 
 /** 页面query参数类型 */
@@ -99,7 +99,7 @@ interface QueryData {
   pageCode: string;
   from: string; // from = 'check' 审核版
   preview: string;
-  objectType: '1' | '2' | '3'; // 1:投保人、2:被保人、
+  objectType: 'holder' | 'insured' | 'agent';
   [key: string]: string;
 }
 

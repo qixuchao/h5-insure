@@ -74,14 +74,7 @@
           required
         ></ProSMSCode>
       </ProRenderForm>
-      <van-cell
-        v-if="isShowItem('agent')"
-        title="保单双录"
-        required
-        is-link
-        value="去双录"
-        @click="handleDMOS"
-      ></van-cell>
+      <van-cell v-if="needBMOS" title="保单双录" required is-link value="去双录" @click="handleDMOS"></van-cell>
     </div>
     <div class="footer-button">
       <van-button type="primary" @click="onNext">下一步</van-button>
@@ -203,18 +196,18 @@ const handleCancel = () => {
 const handleConfirm = () => {
   let path = '';
   if (checkType.value === 'agent') {
-    path = PAGE_ROUTE_ENUMS.agentSign;
+    path = PAGE_ROUTE_ENUMS.infoPreview;
   } else if (checkType.value === 'holder') {
     if (signPartInfo.value[checkType.value].isVerify) {
-      path = PAGE_ROUTE_ENUMS.holderSign;
+      path = PAGE_ROUTE_ENUMS.infoPreview;
     } else {
-      path = PAGE_ROUTE_ENUMS.holderSign;
+      path = PAGE_ROUTE_ENUMS.infoPreview;
     }
   } else {
     if (signPartInfo.value[checkType.value].isVerify) {
-      path = PAGE_ROUTE_ENUMS.insuredSign;
+      path = PAGE_ROUTE_ENUMS.infoPreview;
     } else {
-      path = PAGE_ROUTE_ENUMS.insuredSign;
+      path = PAGE_ROUTE_ENUMS.infoPreview;
     }
   }
 
@@ -222,7 +215,7 @@ const handleConfirm = () => {
     path,
     query: {
       ...route.query,
-      type: checkType.value,
+      objectType: checkType.value,
     },
   });
 };
