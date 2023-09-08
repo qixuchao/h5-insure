@@ -45,7 +45,7 @@ import { InsureProductData, ProductDetail, ProductMaterialVoItem } from '@/api/m
 import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
 import SignPart from './components/SignPart.vue';
 import useOrder from '@/hooks/useOrder';
-import { SCRIBING_TYPE_ENUM, SCRIBING_TYPE_MAP, NOTICE_TYPE_ENUM } from '@/common/constants';
+import { SCRIBING_TYPE_ENUM, SCRIBING_TYPE_MAP, NOTICE_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 
 import { MATERIAL_TYPE_ENUM } from '@/common/constants/product';
 import { NOTICE_OBJECT_ENUM } from '@/common/constants/notice';
@@ -175,25 +175,28 @@ const handleSubmit = () => {
       }
       applyAuthorize(orderDetail.value).then(({ code, data }) => {
         if (code === '10000') {
-          router.push({
-            path: PAGE_ROUTE_ENUMS.payAuth,
-            query: route.query,
-          });
+          if (data.authStatus === `${YES_NO_ENUM.YES}`) {
+            router.push({
+              path: PAGE_ROUTE_ENUMS.payAuth,
+              query: route.query,
+            });
+          } else {
+            signatureConfirm({
+              bizObjectId: [orderDetail.value.holder.id],
+              bizObjectType: NOTICE_TYPE_ENUM.HOLDER,
+              orderId: orderDetail.value.id,
+              tenantId,
+            }).then(({ code: cCode, data: cData }) => {
+              if (cCode === '10000' && cData) {
+                router.push({
+                  path: PAGE_ROUTE_ENUMS.sign,
+                  query: route.query,
+                });
+              }
+            });
+          }
         }
       });
-      // signatureConfirm({
-      //   bizObjectId: [orderDetail.value.holder.id],
-      //   bizObjectType: NOTICE_TYPE_ENUM.HOLDER,
-      //   orderId: orderDetail.value.id,
-      //   tenantId,
-      // }).then(({ code, data }) => {
-      //   if (code === '10000' && data) {
-      //     router.push({
-      //       path: PAGE_ROUTE_ENUMS.sign,
-      //       query: route.query,
-      //     });
-      //   }
-      // });
     })
     .catch((e) => {
       Toast(e.message);
