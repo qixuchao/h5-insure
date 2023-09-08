@@ -39,14 +39,9 @@
           </template>
         </van-cell>
       </template>
-      <ProRenderForm v-else :model="formData">
+      <ProRenderForm v-else ref="formRef" :model="formData">
         <ProFieldV2
           v-model="formData.holder.mobile"
-          :rules="[
-            {
-              pattern: new RegExp(RegMap.isPhone),
-            },
-          ]"
           label="投保人手机号"
           name="holder.mobile"
           maxlength="11"
@@ -68,11 +63,6 @@
           name="insuredList.0.mobile"
           maxlength="11"
           required
-          :rules="[
-            {
-              pattern: new RegExp(RegMap.isPhone),
-            },
-          ]"
         ></ProFieldV2>
         <ProSMSCode
           v-model="formData.insuredList[0].verifyCode"
@@ -84,6 +74,14 @@
           required
         ></ProSMSCode>
       </ProRenderForm>
+      <van-cell
+        v-if="isShowItem('agent')"
+        title="保单双录"
+        required
+        is-link
+        value="去双录"
+        @click="handleDMOS"
+      ></van-cell>
     </div>
     <div class="footer-button">
       <van-button type="primary" @click="onNext">下一步</van-button>
@@ -100,7 +98,7 @@
 
 <script setup name="verify" lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { Toast } from 'vant';
+import { Dialog, Toast } from 'vant';
 import { nextStepOperate as nextStep } from '../../nextStep.ts';
 import { ProFieldV2, ProSMSCode, ProRenderForm } from '@/components/RenderForm/components';
 import { sendSMSCode } from '@/components/RenderForm/utils/constants';
@@ -110,10 +108,12 @@ import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
 import { pickProductRiskCode } from './utils';
 import { transformFactorToSchema } from '@/components/RenderForm/utils/tools';
 import useOrder from '@/hooks/useOrder';
-import { PAGE_ROUTE_ENUMS } from './constants';
+import { PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS, BUTTON_CODE_ENUMS } from './constants';
 import { VERIFY_STATUS_MAP } from '@/common/constants/verify';
-import { PAGE_ACTION_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
+import { ALERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
+import { dualUploadFiles, queryDualStatus } from '@/api/modules/verify';
+import { PAGE_CODE_ENUM } from '@/common/constants/infoCollection';
 
 const route = useRoute();
 const router = useRouter();
@@ -122,7 +122,10 @@ const { orderNo, tenantId } = route.query;
 
 // 是否需要双录
 const needBMOS = ref<boolean>(false);
+// 双录状态
+const BMOSStatus = ref<boolean>(false);
 
+const formRef = ref();
 const formData = ref({
   holder: {},
   insuredList: [{}],
@@ -183,6 +186,17 @@ const checkMobile = (type: 'agent' | 'holder' | 'insured') => {
   show.value = true;
 };
 
+// 去双录
+const handleDMOS = () => {
+  dualUploadFiles(orderDetail.value).then(({ code, data }) => {
+    if (code === '10000') {
+      if (data) {
+        Toast('双录已完成');
+      }
+    }
+  });
+};
+
 const handleCancel = () => {
   show.value = false;
 };
@@ -215,12 +229,21 @@ const handleConfirm = () => {
 
 const initData = async () => {
   let productRiskMap = {};
+  queryDualStatus({ orderNo, tenantId }).then(({ code, data }) => {
+    if (code === '10000') {
+      const { doubleRecordFlag, doubleRecordStatus } = data;
+      needBMOS.value = !!doubleRecordFlag;
+      BMOSStatus.value = !!doubleRecordStatus;
+    }
+  });
   await getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       Object.assign(orderDetail.value, data);
+      const { agentAuthFlag } = data.extInfo;
       formData.value = data;
+
       productRiskMap = pickProductRiskCode(data.insuredList[0].productList);
-      signPartInfo.value.agent.verifyStatus = data.extInfo.agentAuthFlag;
+      signPartInfo.value.agent.verifyStatus = agentAuthFlag;
       signPartInfo.value.holder.verifyStatus = data.holder.isCert;
       signPartInfo.value.insured.verifyStatus = data.insuredList?.[0]?.isCert;
     }
@@ -272,14 +295,37 @@ const initData = async () => {
 
 const onNext = () => {
   const { holder, insuredList, extInfo } = orderDetail.value;
-  if ([extInfo.agentAuthFlag, holder.isCert, insuredList[0].isCert].includes(YES_NO_ENUM.NO)) {
-    Toast('请先完成签名');
-    return;
+  if (!needBMOS.value) {
+    if ([extInfo.agentAuthFlag, holder.isCert, insuredList[0].isCert].includes(YES_NO_ENUM.NO)) {
+      Toast('请先完成签名');
+      return;
+    }
+  } else {
+    if (!extInfo.agentAuthFlag) {
+      Toast('请先完成代理人签名');
+      return;
+    }
   }
-
-  nextStep(orderDetail.value, (data, pageAction) => {
+  const currentOrderDetail = Object.assign(orderDetail.value, {
+    extInfo: { ...orderDetail.value.extInfo, pageCode: PAGE_CODE_ENUMS.SIGN, buttonCode: BUTTON_CODE_ENUMS.SIGN },
+  });
+  nextStep(currentOrderDetail, (data, pageAction) => {
     if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
       pageJump(data.nextPageCode, route.query);
+    } else if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_ALERT) {
+      if (data.alertType === ALERT_TYPE_ENUM.PAY_AUTH) {
+        Dialog.confirm({
+          title: '投保提示',
+          message:
+            '根据央行发布《关于规范支付创新业务的通知》，明确代收服务机构应当要求收款人事先与付款人签订收款协议，取得持卡人授权，并在代收交易处理中验证协议关系，银行与持卡人的直接授权。',
+          confirmButtonText: '去鉴权',
+        }).then(() => {
+          router.push({
+            path: PAGE_ROUTE_ENUMS.payAuth,
+            query: route.query,
+          });
+        });
+      }
     }
   });
 };

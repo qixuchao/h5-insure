@@ -9,16 +9,10 @@
   />
 </template>
 <script lang="ts" setup name="policyInfo">
-import { withDefaults, ComputedRef } from 'vue';
-import { nanoid } from 'nanoid';
-import debounce from 'lodash-es/debounce';
-import merge from 'lodash-es/merge';
-import cloneDeep from 'lodash-es/cloneDeep';
-import isEqual from 'lodash-es/isEqual';
-import { useVModel } from '@vueuse/core';
+import { withDefaults } from 'vue';
+import { isEqual } from 'lodash-es';
 import { ProRenderFormWithCard } from './components';
 import { SchemaItem } from './index.data';
-import { isNotEmptyArray } from '@/common/constants/utils';
 
 interface PayInfoProps {
   schema: SchemaItem[];
@@ -85,8 +79,8 @@ watch(
 
 watch(
   () => props.modelValue,
-  (val) => {
-    if (val) {
+  (val, oldVal) => {
+    if (val !== oldVal) {
       Object.assign(state.modelValue, val);
     }
   },
@@ -96,20 +90,18 @@ watch(
   },
 );
 
-useVModel(state, 'modelValue', emit);
+// useVModel(state, 'modelValue', emit);
 
-// watch(
-//   () => state.formData,
-//   (val) => {
-//     if (isNotEmptyArray(val)) {
-//       emit('update:modelValue', val);
-//     }
-//   },
-//   {
-//     deep: true,
-//     immediate: true,
-//   },
-// );
+watch(
+  () => state.modelValue,
+  (val) => {
+    emit('update:modelValue', val);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 defineExpose({
   // validate,

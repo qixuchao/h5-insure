@@ -411,6 +411,12 @@ export const PAGE_ACTION_TYPE_ENUM = {
   JUMP_ALERT: 'jumpToAlert',
 };
 
+export const ALERT_TYPE_ENUM = {
+  PAY_AUTH: 'payAuth', // 支付授权
+  UNDER_WRITE_FAIL: 'underWriteFile', // 自核失败提示
+  QUESTIONNAIRE: 'questionnaire', // 问卷异常提示
+};
+
 // 风险抄录
 export const SCRIBING_TYPE_ENUM = {
   AUTO: 1, // 一键抄录

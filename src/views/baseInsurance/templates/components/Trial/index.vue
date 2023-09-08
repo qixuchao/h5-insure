@@ -942,11 +942,6 @@ defineExpose({
   onNext,
   dealMixData,
 });
-watch(
-  () => state.riskIsInsure,
-  (v) => {},
-  { deep: true, immediate: true },
-);
 
 watch(
   () => state.userData,

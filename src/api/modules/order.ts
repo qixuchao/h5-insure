@@ -33,3 +33,11 @@ export const queryOrderList = (data = {}) =>
     method: 'POST',
     data,
   });
+
+// 撤销投保单
+export const cancelOrder = (data = {}) =>
+  request<boolean>({
+    url: '/api/app/insure/insurance/cancelOrder',
+    method: 'POST',
+    data,
+  });

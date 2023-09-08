@@ -81,7 +81,7 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Toast } from 'vant';
+import { Dialog, Toast } from 'vant';
 import debounce from 'lodash-es/debounce';
 import {
   ProRenderFormWithCard,
@@ -111,8 +111,9 @@ import { queryProductMaterial, querySalesInfo } from '@/api/modules/product';
 import { getFileType, transformData } from '../../utils';
 import useOrder from '@/hooks/useOrder';
 import pageJump from '@/utils/pageJump';
-import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
+import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS } from './constants';
 import {
+  ALERT_TYPE_ENUM,
   ATTACHMENT_CATEGORY_ENUM,
   ATTACHMENT_OBJECT_TYPE_ENUM,
   CERT_TYPE_ENUM,
@@ -123,6 +124,7 @@ import { formData2Order, orderData2trialData, trialData2Order } from '../utils';
 import { jumpToNextPage } from '@/utils';
 import Trial from '../components/Trial/index.vue';
 import { pickProductRiskCode } from './utils';
+import router from '@/router';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
@@ -343,13 +345,30 @@ const onNext = async () => {
     nextStep(currentOrderDetail, (data, pageAction) => {
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
         pageJump(data.nextPageCode, route.query);
+      } else if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_ALERT) {
+        // 投被保人信息与健告不符
+        if (data.alertType === ALERT_TYPE_ENUM.QUESTIONNAIRE) {
+          Dialog.confirm({
+            confirmButtonText: '返回修改',
+            message: '当前投被保人年龄、性别不符合健康告知规则，请修改健康告知',
+          }).then(() => {
+            router.push({
+              path: PAGE_ROUTE_ENUMS.premiumTrial,
+              query: route.query,
+            });
+          });
+        } else if (data.alertType === ALERT_TYPE_ENUM.UNDER_WRITE_FAIL) {
+          router.push({
+            path: PAGE_ROUTE_ENUMS.underWriteResult,
+            query: route.query,
+          });
+        }
       }
     });
   });
 };
 
 const updateUserData = (val) => {
-  console.log('val', val);
   Object.assign(state.userData, val);
 };
 

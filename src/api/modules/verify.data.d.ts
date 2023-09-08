@@ -24,3 +24,14 @@ export interface INotice {
    */
   noticeObject: number;
 }
+
+// 查询双录状态
+export interface DoubleData {
+    /** 是否需要双录 */
+    doubleRecordFlag: number;
+    /** 双录状态 */
+    doubleRecordStatus: number;
+    id: number;
+    orderNo: string;
+}
+

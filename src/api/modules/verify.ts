@@ -7,7 +7,7 @@
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import request from '@/api/request';
-import { INotice } from './verify.data';
+import { DoubleData, INotice } from './verify.data';
 import { NOTICE_TYPE_MAP } from '@/common/constants/index';
 
 export const faceVerify = (data: any) => {
@@ -78,6 +78,30 @@ export const applyAuthorize = (data = {}) =>
 export const authorizeConfirm = (data = {}) =>
   request<boolean>({
     url: '/api/app/insure/insurance/authorizeConfirm',
+    method: 'POST',
+    data,
+  });
+
+// 银行卡授权，发送短信
+export const authorizeSysCode = (data = {}) =>
+  request({
+    url: '/api/app/insure/insurance/authorize',
+    method: 'POST',
+    data,
+  });
+
+// 查询双录状态
+export const queryDualStatus = (data = {}) =>
+  request<DoubleData>({
+    url: '/api/app/insure/insurance/dualStatus',
+    method: 'POST',
+    data,
+  });
+
+// 双录文件上传
+export const dualUploadFiles = (data = {}) =>
+  request<boolean>({
+    url: '/api/app/insure/insurance/dualUploadFiles',
     method: 'POST',
     data,
   });

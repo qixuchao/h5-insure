@@ -21,6 +21,7 @@ import { convertPhone } from '@/utils/format';
 import { ORDER_STATUS_ENUM } from '@/common/constants/order';
 import pageJump from '@/utils/pageJump';
 import useOrder from '@/hooks/useOrder';
+import { PAGE_ROUTE_ENUMS } from './constants';
 
 const orderDetail = useOrder();
 const phone = ref('');
@@ -29,7 +30,8 @@ const second = ref(0);
 let timer: ReturnType<typeof setInterval>;
 
 const route = useRoute();
-const { agentCode, tenantId, templateId, productCode, insurerCode, orderNo, orderCode } = route.query;
+const router = useRouter();
+const { agentCode, tenantId, nextPageCode, orderNo, orderCode } = route.query;
 
 const countDown = () => {
   timer = setInterval(() => {
@@ -66,18 +68,10 @@ const handleSubmit = () => {
   checkCode(phone.value, smsCode.value).then(({ code, data }) => {
     if (code === '10000' && data) {
       Toast.success('验证成功');
-      if (orderDetail.value.orderStatus === ORDER_STATUS_ENUM.PROCESSING) {
-        pageJump('infoCollection', { ...route.query, isShare: 1 });
-      } else if (
-        [
-          ORDER_STATUS_ENUM.WAIT_IDENTIFICATION,
-          ORDER_STATUS_ENUM.IDENTIFICATION_COMPLETE,
-          ORDER_STATUS_ENUM.IN_IDENTIFICATION,
-          ORDER_STATUS_ENUM.UNDER_WRITING_SUCCESS,
-        ].includes(orderDetail.value.orderStatus)
-      ) {
-        pageJump('infoPreview', { ...route.query, isShare: 1 });
-      }
+      router.push({
+        path: PAGE_ROUTE_ENUMS[nextPageCode as string],
+        query: route.query,
+      });
     } else {
       Toast.fail('验证失败');
     }

@@ -18,12 +18,20 @@
         </div>
       </div>
       <ProRenderForm v-if="formData" ref="formRef" :model="formData.holder">
-        <ProFieldV2 v-model="formData.holder.name" label="姓名" name="name" maxlength="11" required></ProFieldV2>
+        <ProFieldV2
+          v-model="formData.holder.name"
+          label="姓名"
+          name="name"
+          maxlength="11"
+          is-view
+          required
+        ></ProFieldV2>
         <ProFieldV2
           v-model="formData.holder.certNo"
           :label="certNoLabel"
           name="certNo"
           maxlength="18"
+          is-view
           required
         ></ProFieldV2>
         <ProFieldV2
@@ -31,6 +39,7 @@
           label="银行预留手机"
           name="mobile"
           maxlength="11"
+          is-view
           required
         ></ProFieldV2>
         <ProSMSCode
@@ -39,7 +48,7 @@
           maxlength="6"
           name="verifyCode"
           related-name="mobile"
-          :send-s-m-s-code="sendSMSCode"
+          :send-s-m-s-code="sendCode"
           required
         ></ProSMSCode>
       </ProRenderForm>
@@ -56,7 +65,7 @@ import { Toast } from 'vant';
 import { getTenantOrderDetail } from '@/api/modules/trial';
 import { sendSMSCode } from '@/components/RenderForm/utils/constants';
 import { CERT_TYPE_ENUM } from '@/common/constants';
-import { authorizeConfirm } from '@/api/modules/verify';
+import { authorizeConfirm, authorizeSysCode } from '@/api/modules/verify';
 
 const route = useRoute();
 const router = useRouter();
@@ -73,6 +82,14 @@ const certNoLabel = computed(() => {
   }
   return '证件号';
 });
+
+const sendCode = (params, callback) => {
+  authorizeSysCode(formData.value).then(({ code, data }) => {
+    if (code === '10000') {
+      callback?.();
+    }
+  });
+};
 
 const onSubmit = () => {
   formRef.value
