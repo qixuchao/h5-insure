@@ -209,6 +209,65 @@ const hasDefault = ref([]);
 const productMap = ref(); // 多产品集合
 const currentProductFactor = ref(); // 多产品对应投保要素的合集
 
+const premiumMap = ref({});
+
+// 利益演示数据
+const benefitData = ref({
+  // benefitRiskResultVOList: [],
+  // showTypList: [],
+});
+
+const handleTrialAndBenefit = debounce(async (calcData: any, needCheck = true) => {
+  state.trialMsg = LOADING_TEXT;
+  state.trialResultPremium = 0;
+  state.loading = true;
+  emit('trialStart');
+  let checkResult = false;
+  if (needCheck) {
+    const { code } = await underWriteRule(calcData);
+    checkResult = code === '10000';
+  }
+  if (checkResult || !needCheck) {
+    // 是否显示利益演示
+    state.isQuerying = true;
+    if (!props.hideBenefit) {
+      benefitCalc(calcData)
+        .then((res) => {
+          // 利益演示接口
+          if (res.data && res.code === SUCCESS_CODE) benefitData.value = res.data;
+        })
+        .finally(() => {
+          state.loading = false;
+        });
+    }
+    premiumCalc(calcData)
+      .then(({ code, data }) => {
+        // benefitData.value = res.data;
+        // console.log('----res =', res);
+        // state.trialMsg = `${res.data.premium}元`;
+        if (data && code === SUCCESS_CODE) {
+          if (data?.errorInfo) {
+            Toast(`${data?.errorInfo}`);
+          }
+          state.trialMsg = '';
+          state.trialResultPremium = data.initialPremium;
+          state.trialResult = data;
+
+          data.insuredPremiumList?.[0]?.productPremiumList.forEach((product) => {
+            premiumMap.value[product.productCode] = product.riskPremiumDetailVOList;
+          });
+
+          emit('trialEnd', data, calcData);
+        }
+      })
+      .finally(() => {
+        state.loading = false;
+        state.isQuerying = false;
+        // state.trialMsg = '000';
+      });
+  }
+}, 500);
+
 /* -------------------多产品逻辑--------------------------- */
 const canAddMainRisk = computed<boolean>(() => {
   return ![PRODUCT_CLASS_ENUM.SINGLE_PRODUCT, PRODUCT_CLASS_ENUM.TWO_PRODUCT].includes(
@@ -279,8 +338,8 @@ const getProductDefaultValue = async (productCode) => {
   });
 
   if (code === '10000') {
-    const currentDefaultValue = data.insuredList[0].productList[0];
-    state.defaultValue.insuredList[0].productList.push(currentDefaultValue);
+    state.defaultValue.insuredList[0].productList = data.insuredList[0].productList;
+    Object.assign(state.userData, data);
   }
 };
 
@@ -298,14 +357,25 @@ const deleteRisk = (productCode, mainRiskCode, riskCode) => {
       state.defaultValue.insuredList[0].productList = state.defaultValue.insuredList[0].productList.filter(
         (product) => product.productCode !== productCode,
       );
+
+      state.userData.insuredList[0].productList = state.userData.insuredList[0].productList.filter(
+        (product) => product.productCode !== productCode,
+      );
     } else {
       state.defaultValue.insuredList[0].productList = state.defaultValue.insuredList[0].productList.map((product) => {
-        if (product.productCode !== productCode) {
+        if (product.productCode === productCode) {
+          product.riskList = product.riskList.filter((risk) => risk.riskCode !== riskCode);
+        }
+        return product;
+      });
+      state.userData.insuredList[0].productList = state.userData.insuredList[0].productList.map((product) => {
+        if (product.productCode === productCode) {
           product.riskList = product.riskList.filter((risk) => risk.riskCode !== riskCode);
         }
         return product;
       });
     }
+    handleTrialAndBenefit(state.userData);
     emit('deleteRisk', productCode, riskCode, mainRiskCode);
   });
 };
@@ -499,12 +569,6 @@ const onClosePopup = () => {
   state.loading = false;
 };
 
-// 利益演示数据
-const benefitData = ref({
-  // benefitRiskResultVOList: [],
-  // showTypList: [],
-});
-
 const DYNAMIC_FACTOR_PARAMS = ['annuityDrawDate', 'coveragePeriod', 'chargePeriod', 'paymentFrequency'];
 
 const handleSetRiskSelect = () => {
@@ -573,59 +637,6 @@ const handleDealDyResult = (dyResult: any, productCode) => {
   return true;
 };
 
-const premiumMap = ref({});
-
-const handleTrialAndBenefit = debounce(async (calcData: any, needCheck = true) => {
-  state.trialMsg = LOADING_TEXT;
-  state.trialResultPremium = 0;
-  state.loading = true;
-  emit('trialStart');
-  let checkResult = false;
-  if (needCheck) {
-    const { code } = await underWriteRule(calcData);
-    checkResult = code === '10000';
-  }
-  if (checkResult || !needCheck) {
-    // 是否显示利益演示
-    state.isQuerying = true;
-    if (!props.hideBenefit) {
-      benefitCalc(calcData)
-        .then((res) => {
-          // 利益演示接口
-          if (res.data && res.code === SUCCESS_CODE) benefitData.value = res.data;
-        })
-        .finally(() => {
-          state.loading = false;
-        });
-    }
-    premiumCalc(calcData)
-      .then(({ code, data }) => {
-        // benefitData.value = res.data;
-        // console.log('----res =', res);
-        // state.trialMsg = `${res.data.premium}元`;
-        if (data && code === SUCCESS_CODE) {
-          if (data?.errorInfo) {
-            Toast(`${data?.errorInfo}`);
-          }
-          state.trialMsg = '';
-          state.trialResultPremium = data.initialPremium;
-          state.trialResult = data;
-
-          data.insuredPremiumList?.[0]?.productPremiumList.forEach((product) => {
-            premiumMap.value[product.productCode] = product.riskPremiumDetailVOList;
-          });
-
-          emit('trialEnd', data, calcData);
-        }
-      })
-      .finally(() => {
-        state.loading = false;
-        state.isQuerying = false;
-        // state.trialMsg = '000';
-      });
-  }
-}, 500);
-
 const handleMixTrialData = async () => {
   if (state.ifPersonalInfoSuccess || personalInfoRef.value?.canTrail?.()) {
     state.submitData.tenantId = `${tenantId}`;
@@ -637,7 +648,7 @@ const handleMixTrialData = async () => {
           productList: insured?.productList.map((currentProduct) => {
             return {
               ...currentProduct,
-              riskList: state.riskList[currentProduct.productCode],
+              riskList: currentProduct.riskList || state.riskList[currentProduct.productCode],
             };
           }),
         };

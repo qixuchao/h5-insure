@@ -516,6 +516,7 @@ watch(
 );
 
 // 验证是否试算
+let isTrialChange = true;
 watch(
   [
     () => ({ ...state.holder?.personVO }),
@@ -536,15 +537,17 @@ watch(
   ],
   // eslint-disable-next-line consistent-return
   debounce((val, oldVal) => {
-    if (JSON.stringify(val) === JSON.stringify(oldVal)) {
+    if (JSON.stringify(val) === JSON.stringify(oldVal) && !isTrialChange) {
       return false;
     }
 
+    isTrialChange = false;
+
     const [holder, insuredList] = val;
     // 试算因子的值是否变动
-    const trialDataChanged = isTrialDataChange([holder, insuredList], oldVal);
+    // const trialDataChanged = isTrialDataChange([holder, insuredList], oldVal);
 
-    colorConsole(`投被保人信息变动了---${trialDataChanged}`);
+    // colorConsole(`投被保人信息变动了---${trialDataChanged}`);
     const { insuredList: insuredListProps } = props.modelValue;
 
     // productList 重新赋值到modelValue
@@ -583,7 +586,7 @@ watch(
         state.trialValidated = true;
         // 只有试算因子数据变动才调用试算
         // 试算时投被保人分开不需要多次试算
-        if (trialDataChanged && !props.isOnlyHolder) {
+        if (!props.isOnlyHolder) {
           emit('trailChange', result);
         }
       })

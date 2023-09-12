@@ -13,15 +13,14 @@
         @click-preview="onClick(index)"
       >
         <div class="upload-item" @click="() => onClick(index)">
-          <ProSvg name="idCard-front" class="bg" color="var(--van-primary-color)"></ProSvg>
-          <!-- <img :src="item.imgSrc" class="bg" /> -->
-          <img v-if="!isView" :src="IDCardUploadIconImage" class="icon" />
+          <ProSvg :name="item.imgSrc" class="bg" color="var(--van-primary-color)"></ProSvg>
+          <ProSvg v-if="!isView" name="camera" class="icon" />
           <div v-if="!isView" class="text">{{ item.title }}</div>
         </div>
         <template #preview-cover>
           <div v-if="!isView" class="upload-item cover">
             <div class="bg" />
-            <img :src="IDCardUploadIconImage" class="icon" />
+            <ProSvg name="camera" color="green" class="icon" />
             <div class="text">{{ item.title }}</div>
           </div>
         </template>
@@ -40,9 +39,6 @@ import type { UploaderInstance, UploaderFileListItem } from 'vant';
 import { useCustomFieldValue } from '@vant/use';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { fileUpload, ocr } from '@/api/modules/file';
-import IDCardUploadIconImage from '@/assets/images/component/idcard-upload.png';
-import IDCardUploadFrontImage from '@/assets/images/component/idcard-front.png';
-import IDCardUploadBackImage from '@/assets/images/component/idcard-back.png';
 import {
   UPLOAD_TYPE_ENUM,
   OCR_TYPE_ENUM,
@@ -63,13 +59,13 @@ const uploaderList = [
     uploadType: UPLOAD_TYPE_ENUM.ID_CARD_FRONT,
     category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_CERT,
     title: '上传人像面',
-    imgSrc: IDCardUploadFrontImage,
+    imgSrc: 'idCard-front',
   },
   {
     uploadType: UPLOAD_TYPE_ENUM.ID_CARD_BACK,
     category: ATTACHMENT_CATEGORY_ENUM.REVERSE_CERT,
     title: '上传国徽面',
-    imgSrc: IDCardUploadBackImage,
+    imgSrc: 'idCard-back',
   },
 ];
 
@@ -168,23 +164,23 @@ watch(
   () => state.ossKeyList,
   (val) => {
     if (isNotEmptyArray(val) && val.length === 2) {
-      ocr({
-        ossKey: val,
-        imageType: OCR_TYPE_ENUM.ID_CARD,
-      }).then((res) => {
-        const { data, code } = res;
-        if (code === '10000' && data && data.idCardOcrVO) {
-          // personAddress 户籍所在地, issueBy 发证机关, race 民族
-          const { personName, personIdCard, validDateEnd, validDateStart, ...rest } = data.idCardOcrVO || {};
-          emits('ocr', {
-            name: personName,
-            certNo: personIdCard,
-            certEndDate: validDateEnd,
-            certStartDate: validDateStart,
-            ...rest,
-          });
-        }
-      });
+      // ocr({
+      //   ossKey: val,
+      //   imageType: OCR_TYPE_ENUM.ID_CARD,
+      // }).then((res) => {
+      //   const { data, code } = res;
+      //   if (code === '10000' && data && data.idCardOcrVO) {
+      //     // personAddress 户籍所在地, issueBy 发证机关, race 民族
+      //     const { personName, personIdCard, validDateEnd, validDateStart, ...rest } = data.idCardOcrVO || {};
+      //     emits('ocr', {
+      //       name: personName,
+      //       certNo: personIdCard,
+      //       certEndDate: validDateEnd,
+      //       certStartDate: validDateStart,
+      //       ...rest,
+      //     });
+      //   }
+      // });
     }
   },
   {

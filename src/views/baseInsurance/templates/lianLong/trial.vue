@@ -12,7 +12,7 @@
       @delete-risk="deleteRisk"
     >
       <template #trialBtn="{ riskPremium }">
-        <TrialButton :premium="riskPremium.initialPremium" @click.stop="nextStep"></TrialButton>
+        <TrialButton :premium="riskPremium.initialPremium" @handle-click="nextStep"></TrialButton>
       </template>
     </Trial>
     <RiskList

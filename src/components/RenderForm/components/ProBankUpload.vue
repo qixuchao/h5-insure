@@ -158,21 +158,21 @@ watch(
   () => state.ossKeyList,
   (val) => {
     if (isNotEmptyArray(val) && val.length === 2) {
-      ocr({
-        ossKey: val,
-        imageType: OCR_TYPE_ENUM.BANK_CARD,
-      }).then((res) => {
-        const { data, code } = res;
-        if (code === '10000' && data && data.bankCardOcrVO) {
-          const { cardNo, bankName } = data.bankCardOcrVO;
-          const { code } = bankDic.value?.find((x) => x.name === bankName) || {};
-          emits('ocr', {
-            bankName,
-            payBank: code,
-            bankCardNo: cardNo,
-          });
-        }
-      });
+      // ocr({
+      //   ossKey: val,
+      //   imageType: OCR_TYPE_ENUM.BANK_CARD,
+      // }).then((res) => {
+      //   const { data, code } = res;
+      //   if (code === '10000' && data && data.bankCardOcrVO) {
+      //     const { cardNo, bankName } = data.bankCardOcrVO;
+      //     const { code } = bankDic.value?.find((x) => x.name === bankName) || {};
+      //     emits('ocr', {
+      //       bankName,
+      //       payBank: code,
+      //       bankCardNo: cardNo,
+      //     });
+      //   }
+      // });
     }
   },
   {

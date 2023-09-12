@@ -123,7 +123,7 @@ import {
 import { formData2Order, orderData2trialData, trialData2Order } from '../utils';
 import { jumpToNextPage } from '@/utils';
 import Trial from '../components/Trial/index.vue';
-import { pickProductRiskCode } from './utils';
+import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import router from '@/router';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
@@ -492,7 +492,7 @@ const initData = async () => {
           productCode,
         });
         state.defaultValue = orderDetail.value;
-        productRiskMap = pickProductRiskCode(data.insuredList[0].productList);
+        productRiskMap = pickProductRiskCodeFromOrder(data.insuredList[0].productList);
         isLoading.value = true;
       }
     }));
@@ -544,4 +544,3 @@ onBeforeMount(() => {
   }
 }
 </style>
-../components/Trial/InsureInfos/components../components/Trial/InsureInfos/components/ProductKeys/config
