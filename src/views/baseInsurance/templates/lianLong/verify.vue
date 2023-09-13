@@ -347,6 +347,7 @@ onMounted(() => {
 
       .inner-cell {
         display: flex;
+        justify-content: flex-end;
         .van-cell {
           padding: 0;
           display: flex;

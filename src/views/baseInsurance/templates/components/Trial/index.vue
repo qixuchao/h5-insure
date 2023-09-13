@@ -648,7 +648,7 @@ const handleMixTrialData = async () => {
           productList: insured?.productList.map((currentProduct) => {
             return {
               ...currentProduct,
-              riskList: currentProduct.riskList || state.riskList[currentProduct.productCode],
+              riskList: state.riskList[currentProduct.productCode],
             };
           }),
         };
@@ -834,6 +834,7 @@ const handleDynamicConfig = async (data: any, changeData: any, productCode) => {
 };
 
 const handleTrialInfoChange = debounce(async (data: any, changeData: any, productCode) => {
+  console.log('data', data);
   const currentRiskInfo = state.riskList?.[productCode]?.find((risk) => risk.riskCode === data.riskCode);
   if (!currentRiskInfo) {
     if (state.riskList[productCode]?.length) {

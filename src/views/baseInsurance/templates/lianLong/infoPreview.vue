@@ -21,6 +21,12 @@
       :schema="state.payInfo.schema"
       is-view
     ></PayInfo>
+    <PolicyInfo
+      v-if="state.policyInfo.schema.length"
+      v-model="orderDetail"
+      :schema="state.policyInfo.schema"
+      is-view
+    ></PolicyInfo>
     <ProCard title="产品资料" :show-line="false" :show-icon="false">
       <van-cell
         v-for="(material, index) in riskMaterialList"
@@ -52,7 +58,13 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import debounce from 'lodash-es/debounce';
-import { ProRenderFormWithCard, PayInfo, transformFactorToSchema, isOnlyCert } from '@/components/RenderForm';
+import {
+  ProRenderFormWithCard,
+  PayInfo,
+  PolicyInfo,
+  transformFactorToSchema,
+  isOnlyCert,
+} from '@/components/RenderForm';
 import {
   premiumCalc,
   insureProductDetail as getInsureProductDetail,
@@ -129,6 +141,11 @@ const state = reactive({
   isView: false,
   // 投保人
   personalInfo: {},
+  policyInfo: {
+    schema: [],
+    config: [],
+    formData: {},
+  },
   payInfo: {
     schema: [],
     config: [],
@@ -200,10 +217,15 @@ const initData = async () => {
     if (code === '10000') {
       const { productDetailResList, productFactor: currentProductFactor } = data;
       productFactor.value = currentProductFactor;
-      const { payInfo } = transformFactorToSchema(currentProductFactor);
+      const { payInfo, other } = transformFactorToSchema(currentProductFactor);
       state.payInfo = {
         ...state.payInfo,
         ...payInfo,
+      };
+
+      state.policyInfo = {
+        ...state.policyInfo,
+        ...other,
       };
     }
   });

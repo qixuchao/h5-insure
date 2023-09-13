@@ -154,6 +154,7 @@ watch(
   height: 100%;
   // min-height: 100vh;
   padding-bottom: 80px;
+  overflow-y: auto;
   .title {
     font-size: 32px;
     font-family: PingFangSC-Semibold, PingFang SC;
