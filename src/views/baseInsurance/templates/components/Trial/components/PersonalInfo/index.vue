@@ -15,7 +15,7 @@
   >
     <template #customer>
       <div
-        v-if="true || (!isShare && !isView && !isTrial && isApp)"
+        v-if="!isShare && !isView && !isTrial && isApp"
         class="choose-customer"
         @click="chooseCustomers('holder', 1, 0)"
       >
@@ -44,7 +44,7 @@
       </template>
       <template #customer>
         <div
-          v-if="+insuredItem.personVO.relationToHolder !== 1 && !isShare && !isView && !isTrial && !isApp"
+          v-if="+insuredItem.personVO.relationToHolder !== 1 && !isShare && !isView && !isTrial && isApp"
           class="choose-customer"
           @click="chooseCustomers('insured', index, 0)"
         >
@@ -52,7 +52,7 @@
       ></template>
       <template #benefitCustomer="slotProps">
         <div
-          v-if="!isShare && !isView && !isTrial && !isApp"
+          v-if="!isShare && !isView && !isTrial && isApp"
           class="choose-customer"
           @click="chooseCustomers('benifit', index, slotProps?.index)"
         >
