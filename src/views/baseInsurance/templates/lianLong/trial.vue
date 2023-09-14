@@ -5,6 +5,7 @@
       :product-collection="productCollection"
       :default-value="orderDetail"
       :product-factor="productFactor"
+      :product-risk-code-map="productRiskCodeMap"
       is-trial
       hide-benefit
       @add-risk="addRisk"

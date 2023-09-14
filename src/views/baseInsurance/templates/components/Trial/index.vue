@@ -124,6 +124,7 @@ interface Props {
   defaultOrder: any;
   productCollection: object;
   productFactor: object;
+  productRiskCodeMap: object;
 }
 
 const LOADING_TEXT = '试算中...';
