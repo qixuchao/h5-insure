@@ -345,25 +345,6 @@ const onNext = async () => {
     nextStep(currentOrderDetail, (data, pageAction) => {
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
         pageJump(data.nextPageCode, route.query);
-      } else if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_ALERT) {
-        console.log('data', data);
-        // 投被保人信息与健告不符
-        if (data.alertType === ALERT_TYPE_ENUM.QUESTIONNAIRE) {
-          Dialog.confirm({
-            confirmButtonText: '返回修改',
-            message: '当前投被保人年龄、性别不符合健康告知规则，请修改健康告知',
-          }).then(() => {
-            router.push({
-              path: PAGE_ROUTE_ENUMS.premiumTrial,
-              query: route.query,
-            });
-          });
-        } else if (data.alertType === ALERT_TYPE_ENUM.UNDER_WRITE_FAIL) {
-          router.push({
-            path: PAGE_ROUTE_ENUMS.underWriteResult,
-            query: route.query,
-          });
-        }
       }
     });
   });

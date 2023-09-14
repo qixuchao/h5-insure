@@ -7,13 +7,17 @@ import { Toast, Dialog } from 'vant';
  * @FilePath: /zat-planet-h5-cloud-insure/src/utils/nextStep.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
+import { useRoute, useRouter } from 'vue-router';
 import { nextStep } from '@/api';
 import { getQueryObject } from '@/utils/index';
 import { sendPay } from '@/views/cashier/core';
-import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
+import { ALERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 import { TEMPLATE_TYPE_ENUM } from './constant';
+import { PAGE_ROUTE_ENUMS } from './templates/lianLong/constants';
 
 const { VITE_BASE } = import.meta.env;
+const router = useRouter();
+const route = useRoute();
 
 export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: string) => void) => {
   const currentParams = params;
@@ -53,35 +57,49 @@ export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: 
     }
     // 去支付待支付的订单
     if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_ALERT) {
-      if (extInfo.templateId === TEMPLATE_TYPE_ENUM.NETSALE) {
-        Dialog.alert({
-          title: '提示',
-          message: `该被保人已存在一笔待支付的订单`,
-          confirmButtonText: '取消',
-        }).then(() => {});
-      } else {
+      if (resData.alertType === ALERT_TYPE_ENUM.PAY_AUTH) {
         Dialog.confirm({
-          title: '提示',
-          className: 'xinao-custom-dialog',
-          teleport: '#xinaoDialog',
-          message: `该被保人已存在一笔待支付的订单`,
-          confirmButtonText: '去支付',
+          title: '投保提示',
+          message:
+            '根据央行发布《关于规范支付创新业务的通知》，明确代收服务机构应当要求收款人事先与付款人签订收款协议，取得持卡人授权，并在代收交易处理中验证协议关系，银行与持卡人的直接授权。',
+          confirmButtonText: '去鉴权',
         }).then(() => {
-          if (resData.orderNo) {
-            // router.push({ // 在keep-alive时跳转有点问题，改用 href
-            //   path: '/baseInsurance/orderDetail',
-            //   query: {
-            //     // orderNo: resData.orderNo,
-            //     // tenantId: params.tenantId,
-            //     // ISEE_BIZ: params.extInfo.iseeBizNo,
-            //     // productCode: params.productCode,
-            //   },
-            // });
-            window.location.href = `${`${window.location.origin}${VITE_BASE}baseInsurance/orderDetail`}?orderNo=${
-              resData.orderNo
-            }&tenantId=${params.tenantId}&ISEE_BIZ=${params.extInfo.iseeBizNo}&productCode=${params.productCode}`;
-          }
-          // sendPay(resData?.paymentUrl);
+          router.push({
+            path: PAGE_ROUTE_ENUMS.payAuth,
+            query: route.query,
+          });
+        });
+        // 核保不通过走人核
+      } else if (resData.alertType === ALERT_TYPE_ENUM.SIGN_FAIL) {
+        router.push({
+          path: PAGE_ROUTE_ENUMS.underWriteResult,
+          query: {
+            ...route.query,
+            underwriteStatus: ALERT_TYPE_ENUM.SIGN_FAIL,
+          },
+        });
+      } else if (resData.alertType === ALERT_TYPE_ENUM.PAY_FAIL) {
+        router.push({
+          path: PAGE_ROUTE_ENUMS.updateBankInfo,
+          query: route.query,
+        });
+      } else if (resData.alertType === ALERT_TYPE_ENUM.QUESTIONNAIRE) {
+        Dialog.confirm({
+          confirmButtonText: '返回修改',
+          message: '当前投被保人年龄、性别不符合健康告知规则，请修改健康告知',
+        }).then(() => {
+          router.push({
+            path: PAGE_ROUTE_ENUMS.premiumTrial,
+            query: route.query,
+          });
+        });
+      } else if (resData.alertType === ALERT_TYPE_ENUM.UNDER_WRITE_FAIL) {
+        router.push({
+          path: PAGE_ROUTE_ENUMS.underWriteResult,
+          query: {
+            ...route.query,
+            underwriteStatus: ALERT_TYPE_ENUM.UNDER_WRITE_FAIL,
+          },
         });
       }
     }

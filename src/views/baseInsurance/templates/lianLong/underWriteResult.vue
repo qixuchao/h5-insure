@@ -4,12 +4,15 @@
       <div class="result-icon">
         <ProSvg name="wrong" font-size="32px" color="var(--van-primary-color)"></ProSvg>
       </div>
-      <p class="result-status">核保未通过</p>
-      <p class="result-desc">核保结果： BMI>24</p>
-      <div class="operate-btn">
+      <p class="result-status">{{ underWriteMap[`${underwriteStatus}`].resultStatus }}</p>
+      <p class="result-desc">{{ underWriteMap[`${underwriteStatus}`].resultDesc }}</p>
+      <div v-if="underwriteStatus === ALERT_TYPE_ENUM.UNDER_WRITE_FAIL" class="operate-btn">
         <van-button type="primary" plain @click="handleUpdate">返回修改</van-button>
         <van-button type="primary" @click="handleInsure">继续投保</van-button>
         <van-button class="no-border" @click="handleGiveUp">放弃投保</van-button>
+      </div>
+      <div v-else class="operate-btn">
+        <van-button type="primary" @click="offline">确定</van-button>
       </div>
     </div>
     <van-dialog
@@ -40,14 +43,41 @@ import { useToggle } from '@vant/use';
 import { Dialog, Toast } from 'vant/es';
 import { PAGE_ROUTE_ENUMS } from './constants';
 import { cancelOrder } from '@/api/modules/order';
+import { ALERT_TYPE_ENUM } from '@/common/constants';
+import { offlineReview } from '@/api/modules/verify';
+
+const underWriteMap = {
+  [ALERT_TYPE_ENUM.SIGN_FAIL]: {
+    resultStatus: '人工核保中',
+    resultDesc: '您提交的投保资料需进一步人工审核，请耐心等待公司审核结果',
+  },
+  [ALERT_TYPE_ENUM.UNDER_WRITE_FAIL]: {
+    resultStatus: '核保未通过',
+    resultDesc: '核保结果: BMI>24',
+  },
+};
 
 const route = useRoute();
 const router = useRouter();
-const { orderNo, tenantId } = route.query;
+const { orderNo, tenantId, underwriteStatus } = route.query;
 const VanDialog = Dialog.Component;
 
 const [isShow, toggleStatus] = useToggle(false);
 const checkedPage = ref<string>();
+
+// 转线下
+const offline = async () => {
+  const { code, data } = await offlineReview({ orderNo, tenantId });
+  if (code === '10000' && data) {
+    delete route.query.orderNo;
+    router.push({
+      path: PAGE_ROUTE_ENUMS.orderList,
+      query: {
+        ...route.query,
+      },
+    });
+  }
+};
 
 // 撤单
 const canceledOrder = (cb) => {

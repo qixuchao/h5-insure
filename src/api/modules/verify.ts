@@ -105,3 +105,11 @@ export const dualUploadFiles = (data = {}) =>
     method: 'POST',
     data,
   });
+
+// 转线下接口
+export const offlineReview = (data = {}) =>
+  request<boolean>({
+    url: '/api/app/insure/insurance/offlineReview',
+    method: 'POST',
+    data,
+  });

@@ -92,7 +92,7 @@
 <script setup name="verify" lang="ts">
 import { useRoute, useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
-import { nextStepOperate as nextStep } from '../../nextStep.ts';
+import { nextStepOperate as nextStep } from '../../nextStep';
 import { ProFieldV2, ProSMSCode, ProRenderForm } from '@/components/RenderForm/components';
 import { sendSMSCode } from '@/components/RenderForm/utils/constants';
 import { RegMap } from '@/components/RenderForm/utils/validate';
@@ -312,20 +312,6 @@ const onNext = () => {
   nextStep(currentOrderDetail, (data, pageAction) => {
     if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
       pageJump(data.nextPageCode, route.query);
-    } else if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_ALERT) {
-      if (data.alertType === ALERT_TYPE_ENUM.PAY_AUTH) {
-        Dialog.confirm({
-          title: '投保提示',
-          message:
-            '根据央行发布《关于规范支付创新业务的通知》，明确代收服务机构应当要求收款人事先与付款人签订收款协议，取得持卡人授权，并在代收交易处理中验证协议关系，银行与持卡人的直接授权。',
-          confirmButtonText: '去鉴权',
-        }).then(() => {
-          router.push({
-            path: PAGE_ROUTE_ENUMS.payAuth,
-            query: route.query,
-          });
-        });
-      }
     }
   });
 };
