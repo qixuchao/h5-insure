@@ -82,7 +82,7 @@ const handleConfirm = () => {
 
 const getRiskList = async () => {
   const params = {
-    insuredVO: props.insuredList,
+    insuredList: props.insuredList,
     mainRiskCode: props.mainRiskCode,
     insurerCode,
     productCategory: '',

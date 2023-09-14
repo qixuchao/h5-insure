@@ -166,8 +166,8 @@ const initData = async () => {
     nextTick(() => {
       thread.run();
     });
+    noticeShow.value = true;
   }
-  noticeShow.value = true;
   useEventListener(noticeRef, 'click', (ev) => {
     const e: any = ev || window.event;
     // 阻止默认事件[兼容处理]
