@@ -8,13 +8,14 @@
 <script lang="ts" name="operateBtn" setup>
 import { withDefaults } from 'vue';
 import { useRouter } from 'vue-router';
-import { Dialog } from 'vant';
+import { Dialog, Toast } from 'vant';
 import { PAGE_ROUTE_ENUMS } from '@/views/baseInsurance/templates/lianLong/constants';
+import { cancelOrder } from '@/api/modules/order';
 
 const router = useRouter();
 const route = useRoute();
 
-const { tenantId } = route.query;
+const { tenantId, nextPageCode } = route.query;
 
 const props = withDefaults(
   defineProps<{
@@ -29,7 +30,7 @@ const props = withDefaults(
 const isDealOrder = computed<boolean>(() => {
   const { orderTopStatus } = props.detail;
   // 待处理
-  return orderTopStatus === '-1';
+  return orderTopStatus === '-1' && PAGE_ROUTE_ENUMS.orderList === route.path;
 });
 // 撤单按钮展示权限
 const isReturnOrder = computed<boolean>(() => {
@@ -66,6 +67,20 @@ const handleDeal = () => {
 // 撤单
 const handleReturn = () => {
   const { orderNo, orderId } = props.detail;
+
+  if (nextPageCode) {
+    Dialog.confirm({
+      message: '撤单后将无法恢复，请您确认是否撤销本次投保',
+    }).then(() => {
+      cancelOrder({ orderNo, tenantId }).then(({ code, data }) => {
+        if (code === '10000') {
+          Toast('撤单成功');
+        }
+      });
+    });
+    return;
+  }
+
   Dialog.confirm({
     message: '确认取消当前订单？',
   }).then(() => {

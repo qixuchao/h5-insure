@@ -1,32 +1,34 @@
 <template>
   <!-- 产品要素 -->
-  <BaoeBaofei
-    :v-model="state.sValues"
-    :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
-    :default-value="state.defaultValues"
-    :trial-result="trialResult"
-    @trial-change="handleBaoeBaofeiChange"
-  ></BaoeBaofei>
-  <ProductKeys
-    :v-model="state.sValues"
-    :use-data="state.sValues"
-    :origin-data="originData.productRiskInsureLimitVO"
-    :risk-info="originData"
-    :default-value="state.defaultValues"
-    @trial-change="handleProductKeysChange"
-  ></ProductKeys>
-  <RiskLiabilityInfo
-    :data-source-folmulate="mValues"
-    :data-source="originData"
-    :params="{
-      amountUnit: originData?.productRiskInsureLimitVO?.amountPremiumConfigVO.displayUnit,
-      basicsAmount: state.basicsAmount,
-      basicsPremium: state.basicsPremium,
-      riskId: originData?.riskId,
-    }"
-    :default-value="state.defaultValues"
-    @trial-change="handleRiskLiabilityChange"
-  />
+  <dev v-show="originData.exemptFlag === YES_NO_ENUM.NO">
+    <BaoeBaofei
+      :v-model="state.sValues"
+      :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
+      :default-value="state.defaultValues"
+      :trial-result="trialResult"
+      @trial-change="handleBaoeBaofeiChange"
+    ></BaoeBaofei>
+    <ProductKeys
+      :v-model="state.sValues"
+      :use-data="state.sValues"
+      :origin-data="originData.productRiskInsureLimitVO"
+      :risk-info="originData"
+      :default-value="state.defaultValues"
+      @trial-change="handleProductKeysChange"
+    ></ProductKeys>
+    <RiskLiabilityInfo
+      :data-source-folmulate="mValues"
+      :data-source="originData"
+      :params="{
+        amountUnit: originData?.productRiskInsureLimitVO?.amountPremiumConfigVO.displayUnit,
+        basicsAmount: state.basicsAmount,
+        basicsPremium: state.basicsPremium,
+        riskId: originData?.riskId,
+      }"
+      :default-value="state.defaultValues"
+      @trial-change="handleRiskLiabilityChange"
+    />
+  </dev>
 </template>
 
 <script lang="ts" setup name="InsureInfos">
@@ -49,6 +51,7 @@ import {
 
 import { RiskDetailVoItem, ProductInfo, RiskVoItem, ProductPlanInsure, ProductFactor } from '@/api/modules/trial.data';
 import { BaoeBaofei, ProductKeys, RiskLiabilityInfo } from './components';
+import { YES_NO_ENUM } from '@/common/constants';
 
 interface Props {
   originData: RiskDetailVoItem;

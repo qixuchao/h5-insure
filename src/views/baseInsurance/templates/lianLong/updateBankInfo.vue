@@ -20,8 +20,12 @@ import useOrder from '@/hooks/useOrder';
 import { pickProductRiskCodeFromOrder } from './utils';
 import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
 import { transformFactorToSchema } from '@/components/RenderForm/utils/tools';
+import { nextStepOperate as nextStep } from '../../nextStep';
+import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
+import pageJump from '@/utils/pageJump';
 
 const route = useRoute();
+const router = useRouter();
 const { orderNo, isShare, tenantId } = route.query;
 const orderDetail = useOrder();
 const payInfo = ref({
@@ -30,10 +34,29 @@ const payInfo = ref({
   formData: [],
 });
 const isView = ref(!!isShare);
+const payInfoRef = ref<InstanceType<typeof PayInfo>>();
 
-const handleCancel = () => {};
+const handleCancel = () => {
+  router.back();
+};
 
-const handleConfirm = () => {};
+const handleConfirm = () => {
+  if (payInfoRef.value) {
+    payInfoRef.value.validate((validate) => {
+      if (validate) {
+        nextStep(
+          orderDetail.value,
+          (data, pageAction) => {
+            if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+              pageJump(data.nextPageCode, route.query);
+            }
+          },
+          route,
+        );
+      }
+    });
+  }
+};
 
 const initData = async () => {
   let productRiskMap = {};

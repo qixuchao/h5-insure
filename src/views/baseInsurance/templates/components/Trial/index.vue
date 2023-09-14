@@ -12,6 +12,7 @@
           ref="personalInfoRef"
           :key="currentPlan.planCode"
           v-model="state.userData"
+          :is-holder-exempt="isIncludeExempt"
           :is-trial="isTrial"
           :product-factor="currentProductFactor"
           :multi-insured-config="currentPlan?.multiInsuredConfigVO"
@@ -104,7 +105,7 @@ import { PRODUCT_KEYS_CONFIG } from '../../long/InsureInfos/components/ProductKe
 import { dealExemptPeriod, getRelationText } from './utils';
 import useOrder from '@/hooks/useOrder';
 import { trialData2Order } from '../../utils';
-import { CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM, isNotEmptyArray } from '@/common/constants';
+import { CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM, YES_NO_ENUM, isNotEmptyArray } from '@/common/constants';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from '../../long/constants';
 import { nextStepOperate as nextStep } from '../../../nextStep';
 import pageJump from '@/utils/pageJump';
@@ -124,6 +125,7 @@ interface Props {
   defaultOrder: any;
   productCollection: object;
   productFactor: object;
+  productRiskCodeMap: object;
 }
 
 const LOADING_TEXT = '试算中...';
@@ -171,6 +173,7 @@ const props = withDefaults(defineProps<Props>(), {
    */
   productCollection: () => ({}),
   productFactor: () => ({}),
+  productRiskCodeMap: () => ({}),
 });
 
 const state = reactive({
@@ -210,6 +213,18 @@ const productMap = ref(); // 多产品集合
 const currentProductFactor = ref(); // 多产品对应投保要素的合集
 
 const premiumMap = ref({});
+
+// 是否含有投保人豁免险
+const isIncludeExempt = computed(() => {
+  let isExempt = false;
+  (props.productRiskCodeMap?.productList || []).forEach((product) => {
+    const exemptRisk = product.mergeRiskReqList.find((risk) => risk.exemptType === 1);
+    if (exemptRisk) {
+      isExempt = true;
+    }
+  });
+  return isExempt;
+});
 
 // 利益演示数据
 const benefitData = ref({
@@ -375,7 +390,15 @@ const deleteRisk = (productCode, mainRiskCode, riskCode) => {
         return product;
       });
     }
-    handleTrialAndBenefit(state.userData);
+    if (state.userData.insuredList[0]?.productList?.length) {
+      handleTrialAndBenefit(state.userData);
+    } else {
+      state.trialResult = {
+        initialPremium: 0,
+        initialAmount: 0,
+      };
+    }
+
     emit('deleteRisk', productCode, riskCode, mainRiskCode);
   });
 };
@@ -833,8 +856,7 @@ const handleDynamicConfig = async (data: any, changeData: any, productCode) => {
   return true;
 };
 
-const handleTrialInfoChange = debounce(async (data: any, changeData: any, productCode) => {
-  console.log('data', data);
+const handleTrialInfoChange = async (data: any, changeData: any, productCode) => {
   const currentRiskInfo = state.riskList?.[productCode]?.find((risk) => risk.riskCode === data.riskCode);
   if (!currentRiskInfo) {
     if (state.riskList[productCode]?.length) {
@@ -855,7 +877,7 @@ const handleTrialInfoChange = debounce(async (data: any, changeData: any, produc
   if (!dyDeal) return;
   console.log('标准险种的信息回传', data);
   handleMixTrialData();
-}, 500);
+};
 
 // const handleProductRiskInfoChange = async (dataList: any, changeData: any) => {
 //   state.riskList = [state.mainRiskVO, ...dataList];

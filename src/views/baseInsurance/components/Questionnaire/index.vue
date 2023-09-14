@@ -91,7 +91,6 @@ function dealAnswerData(qs = [], ans = []) {
     const an = ans[index] || getInitAnswerVO(q.id, q.questionCode); // mergeWith(getInitAnswerVO(q.id, q.questionCode), ans[index], customizer);
     q.optionList.forEach((o, i) => {
       let childList = an[index]?.[i] || [];
-      console.log('当前问题序号', index, '当前option序号:', i, '当前option下面的detialList：', o.detailList);
       if (o.detailList && o.detailList.length > 0) {
         childList = dealAnswerData(o.detailList, an.answerVO.childAnswerList);
       }
@@ -136,10 +135,9 @@ const emit = defineEmits(['success']);
  * 提交按钮（本页面仅）
  */
 const submitForm = (values) => {
-  console.log('values:', values);
   const params = {
     answerList: [],
-    objectType: props.data.basicInfo.objectType || 1,
+    objectType: props.params.noticeType,
     contentType: props.data.basicInfo.questionnaireType,
     questionnaireId: props.data.basicInfo.id,
     imageList: imageList.value,
@@ -153,7 +151,6 @@ const submitForm = (values) => {
     //   questionCode: props.data.questions[index].questionCode,
     // });
   });
-  console.log('请求参数：', params);
   if (props.submit) {
     props.submit(params);
   } else {
@@ -169,7 +166,6 @@ watch(
   () => {
     answerVOList.value = dealAnswerData(props.data.questions, props.data.answerList);
     imageList.value = props.data.imageList;
-    console.log('初始的答案结果:', answerVOList.value);
   },
   {
     immediate: true,

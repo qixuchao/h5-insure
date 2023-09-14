@@ -842,6 +842,24 @@ export interface NewOrderListResponse {
     total: number;
 }
 
+// 订单轨迹
+export interface InsureRecordData {
+    originList: Array<Partial<OriginItem>>;
+    recordResVOList: RecordResVoItem[];
+}
+
+type RecordResVoItem = OriginItem;
+
+export interface OriginItem {
+    step: number;
+    stepDesc: string;
+    stepStatus: string;
+    stepStatusDesc: string;
+    stepTime: string;
+}
+
+
+
 
 
 

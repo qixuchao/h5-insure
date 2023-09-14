@@ -149,7 +149,6 @@ const questionTitle = computed(() => {
 const mutiBlank = computed(() => {
   if (enumEqual(data.value.questionType, PRODUCT_QUESTION_OPT_TYPE_ENUM.MULE_BLANK)) {
     let temp = -1;
-    console.log('换行：', data.value.optionList[0].value.replaceAll('_____', '∝$blank∝').replaceAll('\n', '∝<br />∝'));
     return data.value.optionList[0].value
       .replaceAll('_____', '∝$blank∝')
       .replaceAll('\n', '∝<br />∝')
@@ -196,7 +195,6 @@ const getChildValue = () => {
   const valueList = [];
   if (childRef.value && childRef.value.length) {
     childRef.value.forEach((element) => {
-      console.log('child:', element.getData());
       valueList.push(element.getData());
     });
   }

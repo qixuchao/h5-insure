@@ -125,7 +125,6 @@ const extraAttrs = computed(() => {
 const onEffect = (type, val) => {
   if (props.relatedName && type) {
     const effectFn = (relatedConfigMap[props.relatedName] || {})[`${type}Effect`];
-    console.log('type', type);
     typeof effectFn === 'function' && effectFn(val, formState);
   }
 };
@@ -193,6 +192,28 @@ watch(
   {
     immediate: true,
     deep: true,
+  },
+);
+
+watch(
+  () => formState.formData.certStartDate,
+  (val) => {
+    const { age } = formState.formData;
+    if (val && age) {
+      let certEndDate = '9999-12-31';
+
+      if (+age < 16) {
+        certEndDate = dayjs(`${val}`).add(5, 'y').format('YYYY-MM-DD');
+      } else if (+age < 25) {
+        certEndDate = dayjs(`${val}`).add(10, 'y').format('YYYY-MM-DD');
+      } else if (+age < 45) {
+        certEndDate = dayjs(`${val}`).add(20, 'y').format('YYYY-MM-DD');
+      }
+      onConfirm(certEndDate);
+    }
+  },
+  {
+    immediate: true,
   },
 );
 </script>

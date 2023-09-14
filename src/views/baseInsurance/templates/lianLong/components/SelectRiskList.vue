@@ -82,12 +82,13 @@ const handleConfirm = () => {
 
 const getRiskList = async () => {
   const params = {
-    insuredVO: props.insuredList,
+    insuredList: props.insuredList,
     mainRiskCode: props.mainRiskCode,
     insurerCode,
     productCategory: '',
     selectProductCodes: [],
     selectRiskCodes: [],
+    filterFlag: props.selectList?.length ? 1 : 2,
   };
 
   params.selectProductCodes = props.selectList.map((product) => {

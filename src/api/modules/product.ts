@@ -97,7 +97,7 @@ export const queryInsurePopupConfig = (data: any) => {
       title: string;
     };
   }>({
-    url: `/api/app/insure/product/queryInsurePopupConfigV2`,
+    url: `/api/app/insure/product/v2/queryInsurePopupConfigV2`,
     method: 'POST',
     data,
   });

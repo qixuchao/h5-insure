@@ -416,6 +416,8 @@ export const ALERT_TYPE_ENUM = {
   PAY_AUTH: 'payAuth', // 支付授权
   UNDER_WRITE_FAIL: 'underWriteFile', // 自核失败提示
   QUESTIONNAIRE: 'questionnaire', // 问卷异常提示
+  PAY_FAIL: 'payFail', // 支付失败
+  SIGN_FAIL: 'signFail', // 签名核保失败
 };
 
 // 风险抄录

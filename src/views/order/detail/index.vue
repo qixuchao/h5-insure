@@ -9,13 +9,13 @@
         </div>
       </div>
       <div class="card card-list">
-        <p class="card-list-title">健利保倍享版</p>
+        <p class="card-list-title">{{ detail?.productName }}</p>
         <InfoItem label="订单号" :content="detail?.orderNo" line is-copy min-width="other" />
         <InfoItem
-          v-for="no in detail?.applicationNo"
+          v-for="no in detail?.applicationNoList"
           :key="no"
           label="投保单号"
-          :content="applicationNo"
+          :content="no"
           line
           is-copy
           min-width="other"
@@ -49,13 +49,12 @@
           :data-source="detail?.riskList"
         />
       </div>
-      <div class="card">
-        <van-collapse v-model="activeList">
-          <van-collapse-item title="投保告知信息" name="1">
-            <div class="policy-options">保单选项 <span class="policy-options-content">纸质保单和电子保单</span></div>
-          </van-collapse-item>
-        </van-collapse>
-      </div>
+      <PolicyInfo
+        v-if="state.policyInfo.schema.length"
+        v-model="detail"
+        :schema="state.policyInfo.schema"
+        is-view
+      ></PolicyInfo>
       <div class="card">
         <van-collapse v-model="tenantOrderAttachmentList">
           <van-collapse-item title="影像信息" name="1">
@@ -168,7 +167,7 @@ import { sendPay } from '@/views/cashier/core';
 import InfoItem from '../components/infoItem.vue';
 import InsuranceNotificationInformation from '../components/insuranceNotificationInformation.vue';
 import { InsureProductData, ProductPlanInsureVoItem } from '@/api/modules/product.data';
-import { ProRenderFormWithCard, PayInfo, transformFactorToSchema, isOnlyCert } from '@/components/RenderForm';
+import { PolicyInfo, PayInfo, transformFactorToSchema, isOnlyCert } from '@/components/RenderForm';
 import { listProductQuestionnaire, queryListProductMaterial } from '@/api/modules/product';
 import { pickProductRiskCodeFromOrder } from '@/views/baseInsurance/templates/lianLong/utils';
 import { OBJECT_TYPE_ENUM, QUESTIONNAIRE_TYPE_ENUM } from '@/common/constants/questionnaire';
@@ -222,6 +221,11 @@ const state = reactive({
     schema: [],
     config: [],
     formData: [],
+  },
+  policyInfo: {
+    schema: [],
+    config: [],
+    formData: {},
   },
 });
 
@@ -379,10 +383,15 @@ const getInsureProductDetail = (params) => {
     if (code === '10000') {
       const { productDetailResList, productFactor: currentProductFactor } = data;
       productFactor.value = currentProductFactor;
-      const { payInfo } = transformFactorToSchema(currentProductFactor);
+      const { payInfo, other } = transformFactorToSchema(currentProductFactor);
       state.payInfo = {
         ...state.payInfo,
         ...payInfo,
+      };
+
+      state.policyInfo = {
+        ...state.policyInfo,
+        ...other,
       };
     }
   });

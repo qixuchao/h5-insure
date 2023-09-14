@@ -147,6 +147,8 @@ const initData = async () => {
     tenantId,
   });
   if (code === '10000') {
+    noticeShow.value = true;
+
     state.insureConfig = data as any;
     currentTime.value = state.insureConfig.readingSeconds || 0;
     // state.statement = `本产品由${data.tenantName}销售本页面仅做产品展示，具体承保方案以实际保单约定为准`;
@@ -167,7 +169,6 @@ const initData = async () => {
       thread.run();
     });
   }
-  noticeShow.value = true;
   useEventListener(noticeRef, 'click', (ev) => {
     const e: any = ev || window.event;
     // 阻止默认事件[兼容处理]
