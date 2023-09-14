@@ -50,7 +50,7 @@
     </template>
     <div v-else class="preview-placeholder">当前页面仅用于保费试算预览<br />不展示其他产品相关配置信息</div>
     <div id="insureButton"></div>
-    <TrialButton></TrialButton>
+    <TrialButton @handle-click="onNext"></TrialButton>
   </div>
   <ProLazyComponent>
     <PreNotice v-if="preNoticeLoading && !trialPreviewMode" :product-detail="tenantProductDetail"></PreNotice>
@@ -81,7 +81,13 @@ import {
   ProductPlanInsureVoItem,
   RiskDetailVoItem,
 } from '@/api/modules/product.data';
-import { getTenantOrderDetail, insureProductDetail as getInsureProductDetail, premiumCalc } from '@/api/modules/trial';
+import {
+  getTenantOrderDetail,
+  insureProductDetail as getInsureProductDetail,
+  premiumCalc,
+  saveOrder,
+  queryCalcDefaultInsureFactor,
+} from '@/api/modules/trial';
 import { productDetail as getTenantProductDetail, queryProductMaterial, querySalesInfo } from '@/api/modules/product';
 
 import { YES_NO_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
@@ -98,6 +104,7 @@ import ProPageWrap from '@/components/ProPageWrap';
 // import ProductDesc from '../components/ProductDesc/index.vue';
 import useOrder from '@/hooks/useOrder';
 import pageJump from '@/utils/pageJump';
+import { PAGE_ROUTE_ENUMS } from './constants';
 // const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
 const ProductDesc = defineAsyncComponent(() => import('../components/ProductDesc/index.vue'));
 const ScrollInfo = defineAsyncComponent(() => import('../components/ScrollInfo/index.vue'));
@@ -229,7 +236,6 @@ const queryProductMaterialData = () => {
 };
 
 // 初始化数据，获取产品配置详情和产品详情
-const orderDetail = ref<any>();
 const defaultOrderDetail = useOrder();
 const isLoadDefaultValue = ref<boolean>(false);
 
@@ -252,37 +258,6 @@ const initData = async () => {
     isLoadDefaultValue.value = true;
   }
 
-  orderNo &&
-    getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
-      if (code === '10000') {
-        data.productCode = productCode;
-        orderDetail.value = data;
-        isLoadDefaultValue.value = true;
-      }
-    });
-
-  proposalId &&
-    queryProposalDetailInsurer({ id: proposalId, tenantId: saTenantId || tenantId }).then(({ code, data }) => {
-      if (code === '10000') {
-        const { holder, insuredList } = data;
-        orderDetail.value = Object.assign(defaultOrderDetail.value, {
-          productCode,
-          productName: '',
-          renewFlag: '',
-          holder,
-          tenantId,
-          insuredList: (insuredList || [])
-            .filter((item) => item.id === +proposalInsuredId)
-            .map((insured) => ({
-              ...insured,
-              productList: insured.productList.filter((product) => product.productCode === productCode),
-            })),
-        });
-        isLoadDefaultValue.value = true;
-      }
-    });
-
-  // await getInsureProductDetail({ productCode, isTenant: !preview || !trialPreview }).then(({ data, code }) => {
   await getInsureProductDetail({ productCode, isTenant: false }).then(({ data, code }) => {
     if (code === '10000') {
       showFooterBtn.value = true;
@@ -343,6 +318,31 @@ const onResetFileFlag = () => {
   isOnlyView.value = true;
 };
 
+const getDefaultData = async () => {
+  const { code, data } = await queryCalcDefaultInsureFactor({
+    calcProductFactor: {
+      productCode,
+    },
+  });
+
+  if (code === '10000') {
+    Object.assign(defaultOrderDetail.value, data);
+  }
+};
+
+const onNext = async () => {
+  const { code, data } = await saveOrder(defaultOrderDetail.value);
+  if (code === '10000') {
+    router.push({
+      path: PAGE_ROUTE_ENUMS.questionNotice,
+      query: {
+        ...route.query,
+        orderNo: data,
+      },
+    });
+  }
+};
+
 // 切换计划时,
 watch(
   () => currentPlanObj.value,
@@ -371,6 +371,7 @@ nextTick(() => {
 // useWXCode();
 onMounted(() => {
   loading.value = true;
+  getDefaultData();
   initData();
   // 调用千里眼插件获取一个iseeBiz
   setTimeout(async () => {
