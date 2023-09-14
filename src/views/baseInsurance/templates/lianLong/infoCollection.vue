@@ -390,11 +390,15 @@ const onShare = (cb) => {
         orderDetail.value,
       );
 
-      nextStep(currentOrderDetail, (data, pageAction) => {
-        if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-          cb?.();
-        }
-      });
+      nextStep(
+        currentOrderDetail,
+        (data, pageAction) => {
+          if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+            cb?.();
+          }
+        },
+        route,
+      );
     })
     .catch(() => {
       Toast('请录入投保人手机号后进行分享');

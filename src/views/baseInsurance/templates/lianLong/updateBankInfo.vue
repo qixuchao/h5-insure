@@ -44,11 +44,15 @@ const handleConfirm = () => {
   if (payInfoRef.value) {
     payInfoRef.value.validate((validate) => {
       if (validate) {
-        nextStep(orderDetail.value, (data, pageAction) => {
-          if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-            pageJump(data.nextPageCode, route.query);
-          }
-        });
+        nextStep(
+          orderDetail.value,
+          (data, pageAction) => {
+            if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+              pageJump(data.nextPageCode, route.query);
+            }
+          },
+          route,
+        );
       }
     });
   }

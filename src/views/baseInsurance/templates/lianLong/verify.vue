@@ -232,8 +232,8 @@ const initData = async () => {
   queryDualStatus({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       const { doubleRecordFlag, doubleRecordStatus } = data;
-      needBMOS.value = !!doubleRecordFlag;
-      BMOSStatus.value = !!doubleRecordStatus;
+      needBMOS.value = doubleRecordFlag === YES_NO_ENUM.YES;
+      BMOSStatus.value = doubleRecordStatus === YES_NO_ENUM.YES;
     }
   });
   await getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
@@ -309,11 +309,15 @@ const onNext = () => {
   const currentOrderDetail = Object.assign(orderDetail.value, {
     extInfo: { ...orderDetail.value.extInfo, pageCode: PAGE_CODE_ENUMS.SIGN, buttonCode: BUTTON_CODE_ENUMS.SIGN },
   });
-  nextStep(currentOrderDetail, (data, pageAction) => {
-    if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-      pageJump(data.nextPageCode, route.query);
-    }
-  });
+  nextStep(
+    currentOrderDetail,
+    (data, pageAction) => {
+      if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+        pageJump(data.nextPageCode, route.query);
+      }
+    },
+    route,
+  );
 };
 
 onMounted(() => {

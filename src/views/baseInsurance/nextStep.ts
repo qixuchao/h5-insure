@@ -7,19 +7,18 @@ import { Toast, Dialog } from 'vant';
  * @FilePath: /zat-planet-h5-cloud-insure/src/utils/nextStep.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { nextStep } from '@/api';
 import { getQueryObject } from '@/utils/index';
 import { sendPay } from '@/views/cashier/core';
 import { ALERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 import { TEMPLATE_TYPE_ENUM } from './constant';
 import { PAGE_ROUTE_ENUMS } from './templates/lianLong/constants';
+import router from '@/router';
 
 const { VITE_BASE } = import.meta.env;
-const router = useRouter();
-const route = useRoute();
 
-export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: string) => void) => {
+export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: string) => void, route?: any) => {
   const currentParams = params;
   // 判断订单是否生成,增加订单详情的跳转连接
   const { extInfo, orderNo, tenantOrderInsuredList, tenantId } = currentParams || {};
