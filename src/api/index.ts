@@ -78,10 +78,6 @@ export const queryInsuredMaterial = (data = {}) =>
     data,
   });
 
-// 查询订单轨迹
-export const orderInsureRecord = (data = {}) =>
-  request<ResponseData>({ url: '/api/app/insure/insurance/orderInsureRecord', method: 'POST', data });
-
 // 客户详情
 export const customerDetail = (params = {}) =>
   request<CustomerResponseData>({ url: '/api/app/insure/insurance/customerDetail', method: 'GET', params });

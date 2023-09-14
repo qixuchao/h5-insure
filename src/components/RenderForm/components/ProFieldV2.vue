@@ -3,7 +3,7 @@
     :model-value="state.modelValue"
     :class="`com-van-field ${markRequired ? '' : 'field-mark--hidden'} ${
       attrs.visible === false ? 'com-van-field--hidden' : ''
-    }`"
+    } ${isView ? 'com-van-field-view' : ''}`"
     autocomplete="off"
     :formatter="formatter"
     v-bind="{ maxlength: 25, ...$attrs, placeholder, required, rules, ...extraAttrs }"
@@ -248,7 +248,7 @@ export default {
   min-height: 106px;
   // align-items: center;
 
-  &.field-mark--hidden .van-field__label--required::before {
+  &.field-mark--hidden .van-field__label--required::after {
     display: none;
   }
 

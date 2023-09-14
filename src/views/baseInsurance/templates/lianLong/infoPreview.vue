@@ -27,6 +27,9 @@
       :schema="state.policyInfo.schema"
       is-view
     ></PolicyInfo>
+    <div class="insurance-notification-information card">
+      <InsuranceNotificationInformation title="投保告知信息" :data="state.customerQuestions || []" />
+    </div>
     <ProCard title="产品资料" :show-line="false" :show-icon="false">
       <van-cell
         v-for="(material, index) in riskMaterialList"
@@ -86,6 +89,7 @@ import InsureInfo from './components/InsureInfo.vue';
 import ProShare from '@/components/ProShare/index.vue';
 import { jumpToNextPage, isAppFkq } from '@/utils';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
+import InsuranceNotificationInformation from '../components/insuranceNotificationInformation.vue';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
@@ -151,6 +155,7 @@ const state = reactive({
     config: [],
     formData: [],
   },
+  customerQuestions: [],
 });
 const shareLink = `${window.origin}/baseInsurance/long/phoneVerify${window.location.search}`;
 

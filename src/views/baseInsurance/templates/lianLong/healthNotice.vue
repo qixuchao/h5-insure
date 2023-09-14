@@ -12,7 +12,8 @@
         {{ currentQuestion.questionnaireName }}
       </template> -->
       <template v-if="currentQuestion.contentType === 'question'" #footer>
-        <div class="footer-btn">
+        <div class="footer-button">
+          <van-button v-if="isShowAsync" round type="primary" plain @click="asyncInsured">同被保人</van-button>
           <van-button round type="primary" block native-type="submit"> 下一步 </van-button>
         </div>
       </template>
@@ -31,7 +32,7 @@ import { Dialog } from 'vant';
 import { listProductQuestionnaire } from '@/api/modules/product';
 import { getQuestionAnswerDetail } from '@/api/modules/inform';
 import ProFilePreview from '@/components/ProFilePreview/index.vue';
-import { QUESTIONNAIRE_TYPE_ENUM } from '@/common/constants/questionnaire';
+import { OBJECT_TYPE_ENUM, QUESTIONNAIRE_TYPE_ENUM } from '@/common/constants/questionnaire';
 import { getFileType } from '../../utils';
 import { closeWebView } from '@/utils/jsbridgePromise';
 import { nextStepOperate as nextStep } from '../../nextStep';
@@ -47,14 +48,16 @@ const route = useRoute();
 const router = useRouter();
 const orderDetail = useOrder();
 
-const { productCode, orderNo, templateId, tenantId, preview, questionnaireId: questionId } = route.query;
-const currentQuestion = ref<any>({});
-const nextQuestionnaireId = ref<number>();
-const objectType = ref<number>();
+const { orderNo, templateId, tenantId, preview, questionnaireId: questionId } = route.query;
+const currentQuestion = ref<any>({}); // 当前问卷内容
+const nextQuestionnaireId = ref<number>(); // 下个问卷id
+const objectType = ref<number>(); // 问卷关联对象
+const questionnaireId = ref<number>(); // 问卷id
+const answerList = ref([]); // 问卷答案
 const questionParams = ref({
   orderNo,
   tenantId,
-  noticeType: NOTICE_OBJECT_ENUM.INSURED,
+  noticeType: objectType,
 });
 
 const onNext = () => {
@@ -82,23 +85,36 @@ const questionResolve = () => {
     onNext();
   }
 };
+// 问卷告知列表
+const healthQuestionList = ref([]);
+// 投保人同步被保人问卷
+const isShowAsync = computed(() => {
+  if (healthQuestionList.value.length && objectType.value === OBJECT_TYPE_ENUM.HOLDER) {
+    return !!healthQuestionList.value.find((question) => `${question.id}` === questionId);
+  }
+  return false;
+});
+const asyncInsured = () => {
+  const currentAnswer = answerList.value.find((answer) => answer.id === questionnaireId.value);
+  Object.assign(currentQuestion.value, currentAnswer?.questionnaireDetailResponseVO);
+};
 
 // 获取问卷资料信息
 const getQuestionInfo = async (params) => {
-  let answerList = [];
   const { code: answerCode, data: answerData } = await getQuestionAnswerDetail({ orderNo, tenantId });
   if (answerCode === '10000') {
-    answerList = answerData.productQuestionnaireVOList;
+    answerList.value = answerData.productQuestionnaireVOList;
   }
   const { code, data } = await listProductQuestionnaire(params);
 
   if (code === '10000') {
     const { productQuestionnaireVOList: questionList } = data || {};
 
-    // 过滤出风险告知问卷
+    // 过滤出健康告知问卷
     const productQuestionnaireVOList = questionList.filter(
       (question) => question.businessType === QUESTION_OBJECT_TYPE.NEW_CONTRACT,
     );
+    healthQuestionList.value = productQuestionnaireVOList;
     let questionInfo = productQuestionnaireVOList[0] || {};
     if (productQuestionnaireVOList?.length > 1) {
       if (questionId) {
@@ -115,21 +131,29 @@ const getQuestionInfo = async (params) => {
         nextQuestionnaireId.value = productQuestionnaireVOList[1]?.id;
       }
     }
-    const { questionnaireDetailResponseVO, questionnaireId, questionnaireName } = questionInfo || {};
+    const {
+      questionnaireDetailResponseVO,
+      questionnaireId: currentQuestionnaireId,
+      questionnaireName,
+      noticeObject,
+    } = questionInfo || {};
     const { questions, basicInfo } = questionnaireDetailResponseVO || {};
-    const { objectType: objType, questionnaireType } = basicInfo || {};
-    objectType.value = objType;
+    const { questionnaireType } = basicInfo || {};
+    objectType.value = noticeObject;
+    questionnaireId.value = currentQuestionnaireId;
 
     if (questionnaireType === QUESTIONNAIRE_TYPE_ENUM.TEXT) {
       const { content, textType } = questions?.[0] || {};
       currentQuestion.value = {
         content,
         contentType: getFileType(`${textType}`, content),
-        questionnaireId,
+        questionnaireId: currentQuestionnaireId,
         questionnaireName,
       };
     } else {
-      const currentAnswer = (answerList || []).find((answer) => answer.questionnaireId === questionnaireId);
+      const currentAnswer = (answerList.value || []).find(
+        (answer) => answer.questionnaireId === questionnaireId && answer.noticeObject === objectType.value,
+      );
       currentQuestion.value = {
         ...questionnaireDetailResponseVO,
         contentType: 'question',

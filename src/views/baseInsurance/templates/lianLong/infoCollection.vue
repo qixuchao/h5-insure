@@ -349,7 +349,6 @@ const onNext = async () => {
         console.log('data', data);
         // 投被保人信息与健告不符
         if (data.alertType === ALERT_TYPE_ENUM.QUESTIONNAIRE) {
-          console.log('data.alertType', data.alertType);
           Dialog.confirm({
             confirmButtonText: '返回修改',
             message: '当前投被保人年龄、性别不符合健康告知规则，请修改健康告知',

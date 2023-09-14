@@ -27,10 +27,12 @@
                     index <= activeIndex ? 'trajectory-step-name-active' : 'trajectory-step-name-grey',
                   ]"
                 >
-                  {{ item.name }}
+                  {{ item.stepDesc }}
                 </p>
-                <p class="trajectory-step-status">{{ item.status }}</p>
-                <p class="trajectory-step-time">{{ item.time }}</p>
+                <p class="trajectory-step-status">{{ item.stepStatusDesc }}</p>
+                <p class="trajectory-step-time">
+                  {{ item.stepTime && dayjs(item.stepTime).format('YYYY-MM-DD HH:mm:ss') }}
+                </p>
               </div>
             </div>
           </van-step>
@@ -42,42 +44,32 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { orderInsureRecord } from '@/api';
-import { Trajectory } from '@/api/index.data';
+import dayjs from 'dayjs';
+import { orderInsureRecord } from '@/api/modules/order';
+import { OriginItem } from '@/api/modules/order.data';
 import InfoItem from '../components/infoItem.vue';
 
 const route = useRoute();
 
 const activeIndex = ref<number>(0);
-const list = ref<Array<Trajectory>>([
-  { name: '投保提交', status: '', time: '', step: '01' },
-  { name: '自核', status: '', time: '', step: '02' },
-  { name: '人工核保', status: '', time: '', step: '03' },
-  { name: '支付', status: '', time: '', step: '04' },
-  { name: '承保', status: '', time: '', step: '05' },
-]);
+const list = ref<OriginItem[]>();
 
 const {
   query: { orderId, orderNo, tenantId },
 } = route;
 
 onMounted(() => {
-  orderInsureRecord({ orderId, tenantId }).then((res) => {
-    const { code, data } = res;
+  orderInsureRecord({ orderId, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
-      list.value = list.value.map((item, index) => {
-        data?.map((items, indexs) => {
-          // eslint-disable-next-line eqeqeq
-          if (items.step == item.step) {
-            item.status = items.status;
-            item.time = items.time;
-          }
-          return items;
-        });
-        return item;
+      const { originList, recordResVOList } = data;
+      list.value = ((originList as OriginItem[]) || []).map((item, index) => {
+        return {
+          ...item,
+          ...recordResVOList[index],
+        };
       });
-      if (data.length) {
-        activeIndex.value = data.length - 1;
+      if (recordResVOList.length) {
+        activeIndex.value = recordResVOList.length - 1;
       }
     }
   });
@@ -103,6 +95,12 @@ const getZero = (num: any) => {
 .list {
   border-top: 1px dashed #dfdfdf;
   padding-top: 40px;
+  :deep(.van-step--vertical) {
+    min-height: 130px;
+    &:after {
+      display: none;
+    }
+  }
 }
 .trajectory-step {
   display: flex;
