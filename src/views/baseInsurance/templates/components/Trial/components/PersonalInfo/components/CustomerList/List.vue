@@ -29,10 +29,10 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="list">
 import { useScrollParent } from '@vant/use';
 import { ref, toRefs, watch } from 'vue';
-import Item from './item.vue';
+import Item from './Item.vue';
 
 const props = defineProps({
   data: {

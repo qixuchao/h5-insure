@@ -15,12 +15,13 @@
   >
     <template #customer>
       <div
-        v-if="!isShare && !isView && !isTrial && isApp"
+        v-if="true || (!isShare && !isView && !isTrial && isApp)"
         class="choose-customer"
         @click="chooseCustomers('holder', 1, 0)"
       >
-        <img src="@/assets/images/baseInsurance/customer.png" /></div
-    ></template>
+        <ProSvg name="customer" color="#333" />
+      </div>
+    </template>
   </ProRenderFormWithCard>
   <!-- 被保人 -->
   <template v-if="hasInsuredSchema && !isOnlyHolder">
@@ -44,26 +45,29 @@
       </template>
       <template #customer>
         <div
-          v-if="+insuredItem.personVO.relationToHolder !== 1 && !isShare && !isView && !isTrial && isApp"
+          v-if="true || (+insuredItem.personVO.relationToHolder !== 1 && !isShare && !isView && !isTrial && isApp)"
           class="choose-customer"
           @click="chooseCustomers('insured', index, 0)"
         >
-          <img src="@/assets/images/baseInsurance/customer.png" /></div
-      ></template>
+          <ProSvg name="customer" color="#333" />
+        </div>
+      </template>
       <template #benefitCustomer="slotProps">
         <div
-          v-if="!isShare && !isView && !isTrial && isApp"
+          v-if="true || (!isShare && !isView && !isTrial && isApp)"
           class="choose-customer"
           @click="chooseCustomers('benifit', index, slotProps?.index)"
         >
-          <img src="@/assets/images/baseInsurance/customer.png" /></div
-      ></template>
+          <ProSvg name="customer" color="#333" />
+        </div>
+      </template>
       <span
         v-if="!isView && index + 1 > state.config.multiInsuredMinNum"
         class="delete-button"
         @click="onDeleteInsured(index)"
-        ><ProSvg name="delete" color="var(--van-primary-color)"></ProSvg
-      ></span>
+      >
+        <ProSvg name="delete" color="var(--van-primary-color)" />
+      </span>
     </InsuredItem>
     <van-cell v-if="!isView && addible" class="add-button-wrap">
       <template #title>
@@ -72,7 +76,7 @@
     </van-cell>
   </template>
   <!-- <CustomerList v-if="state.show" :key="state.uniqKey" :close-customer-popoup="onClickClosePopup" /> -->
-  <ProPopup
+  <!-- <ProPopup
     v-if="state.show"
     :round="false"
     :show="state.show"
@@ -98,12 +102,13 @@
       <p><img src="@/assets/images/baseInsurance/empth.png" class="ig" /></p>
       <p class="p1">暂时还没有客户哦～</p>
     </div>
-  </ProPopup>
+  </ProPopup> -->
 </template>
 <script lang="ts" setup name="PersonalInfo">
-import { withDefaults } from 'vue';
+import { withDefaults, onActivated } from 'vue';
 import { Dialog, Toast } from 'vant';
 import { nanoid } from 'nanoid';
+import { useRoute } from 'vue-router';
 import cloneDeep from 'lodash-es/cloneDeep';
 import debounce from 'lodash-es/debounce';
 import merge from 'lodash-es/merge';
@@ -123,13 +128,21 @@ import { ProductFactor } from '@/api/modules/trial.data';
 import { queryCustomerInsureList } from '@/api/modules/trial';
 import { isNotEmptyArray, PERSONAL_INFO_KEY, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import InsuredItem from './components/InsuredItem.vue';
-import CustomerList from './components/list/index.vue';
+import CustomerList from './components/CustomerList/index.vue';
 import SearchLeftIcon from '@/assets/images/baseInsurance/search.png';
 import { isAppFkq } from '@/utils';
+import pageJump from '@/utils/pageJump';
+import { getCusomterData, convertCustomerData, transformCustomerToPerson } from './util';
 
-const router = useRoute();
+interface QueryData {
+  isShare: boolean;
+  saleChannelId: number;
+  [key: string]: any;
+}
+
+const route = useRoute();
 const isApp = isAppFkq();
-const { isShare, saleChannelId } = router.query;
+const { isShare, saleChannelId } = route.query as QueryData;
 
 interface Props {
   productFactor?: ProductFactor;
@@ -227,42 +240,6 @@ const state = reactive<Partial<StateInfo>>({
   insured: [],
 });
 
-const getCustomerList = async (params: any) => {
-  const reqs11 = {
-    pageNum: '1',
-    pageSize: '999',
-    queryBean: {
-      orderBy: { tagName: '按首字母排序', tagCode: 'firstLetter' },
-      customerListType: '01',
-      keyword: state.keyword || '',
-      ...params,
-    },
-  };
-  const reqs = {
-    pageNum: 1,
-    pageSize: 999,
-    queryBean: {
-      keyword: state.keyword || '',
-    },
-  };
-  const res = await queryCustomerInsureList(reqs);
-  const temp: { label: string; children: any }[] = [];
-  Object.keys(res?.data?.customerMaps || {}).forEach((item) => {
-    temp.push({
-      label: item,
-      children: res?.data?.customerMaps[item],
-    });
-  });
-  state.list = temp;
-  state.count = res?.data?.count;
-};
-// 搜索
-const handleSearch = () => {
-  getCustomerList({ keyword: state.keyword });
-};
-const onCancel = () => {
-  getCustomerList({ keyword: '' });
-};
 // 是否显示holder
 const isShowHolder = computed(() => !props.isTrial || props.isOnlyHolder);
 
@@ -274,16 +251,11 @@ const chooseCustomers = (type: string, index, benifitIndex) => {
     state.currentIndex = index;
     state.currentBenifitIndex = benifitIndex;
   }
-  state.uniqKey = nanoid();
-  getCustomerList({ keyword: '' });
-  state.show = true;
+  const { selectedType, customerId, selected, ...others } = route.query; // 去掉下级页面的参数
+
+  pageJump('customerList', { ...others, selectedType: type });
 };
 
-const onClosePopup = () => {
-  setTimeout(() => {
-    state.show = false;
-  }, 300);
-};
 // 当前模块要素code集合
 // eslint-disable-next-line consistent-return
 const insureKeys = () => {
@@ -313,46 +285,11 @@ const holderCertType = computed(() => {
 const holderCertNo = computed(() => {
   return state?.holder?.personVO?.certNo;
 });
-// 处理客户数据 证件信息 取第一个  联系方式信息前端过滤
-const convertCustomerData = (value, type) => {
-  console.log('convertCustomerData', value);
-  const mobileObject = value?.contactInfo?.find((contact) => contact.contactType === '01');
-  const emailObject = value?.contactInfo?.find((contact) => contact.contactType === '02');
-  // 过滤出老客户中 身份证类型
-  const certIdCardArray = value?.certInfo.filter((item) => {
-    return item.certType === '1';
-  });
 
-  // 客户数据整合
-  const newValue = {
-    // ...value,
-    name: value?.name,
-    gender: value?.gender,
-    birthday: value?.birthday,
-    mobile: mobileObject?.contactNo || null,
-    email: emailObject?.contactNo || null,
-    certNo: certIdCardArray?.[0]?.certNo || null,
-    certType: certIdCardArray?.[0]?.certType || null,
-  };
-  // 数据过滤，只映射投保流程中的数据，剔除客户多余部分
-  console.log('insureKeys', insureKeys());
-  const extractedObject = insureKeys()?.reduce((result, key) => {
-    // eslint-disable-next-line no-prototype-builtins
-    if (newValue.hasOwnProperty(key)) {
-      return { ...result, [key]: newValue[key] };
-    }
-    return result;
-  }, {});
-  console.log('extractedObject===', extractedObject);
-  console.log('state.holder.schema=====', state.holder.schema);
-  return extractedObject;
-};
-
-const onClickClosePopup = (value) => {
-  // convertCustomerData(value, 'holder', true);
-  state.show = false;
+const setCustomerToPerson = (value) => {
+  const keys = insureKeys();
   if (state.currentType === 'holder') {
-    Object.assign(state?.holder?.personVO || {}, convertCustomerData(value, 'holder'));
+    Object.assign(state?.holder?.personVO || {}, convertCustomerData(value, keys));
   }
   if (state.currentType === 'insured') {
     // 被保人中关系是否有本人
@@ -363,7 +300,7 @@ const onClickClosePopup = (value) => {
       return false;
     });
 
-    const { name, gender, birthday, certType, certNo } = convertCustomerData(value, 'insured');
+    const { name, gender, birthday, certType, certNo } = convertCustomerData(value, keys);
     // 五要素判断 相同 被保人关系置为本人
     if (
       holderName.value === name &&
@@ -379,12 +316,12 @@ const onClickClosePopup = (value) => {
       Toast('与投保人关系未配置本人');
       return;
     }
-    Object.assign(state?.insured[state.currentIndex]?.personVO || {}, convertCustomerData(value, 'insured'));
+    Object.assign(state?.insured[state.currentIndex]?.personVO || {}, convertCustomerData(value, keys));
   }
   //  受益人
   if (state.currentType === 'benifit') {
     // 五要素判断和被保人相同 受益人信息不同步
-    const { name, gender, birthday, certType, certNo } = convertCustomerData(value, 'benifit');
+    const { name, gender, birthday, certType, certNo } = convertCustomerData(value, keys);
     if (
       state?.insured[state.currentIndex]?.personVO.name === name &&
       state?.insured[state.currentIndex]?.personVO.gender === gender &&
@@ -396,7 +333,7 @@ const onClickClosePopup = (value) => {
     } else {
       Object.assign(
         state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO || {},
-        convertCustomerData(value, 'benifit'),
+        convertCustomerData(value, keys),
       );
     }
   }
@@ -788,6 +725,13 @@ defineExpose({
     return holderFormRef.value?.validate(...rest);
   },
   canTrail,
+});
+onActivated(() => {
+  const tempCust = getCusomterData();
+  if (tempCust) {
+    const person = transformCustomerToPerson(tempCust);
+    setCustomerToPerson(tempCust);
+  }
 });
 </script>
 

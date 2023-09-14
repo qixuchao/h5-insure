@@ -437,14 +437,6 @@ export interface Trajectory {
   step: string
 }
 
-export interface CustomerResponseData {
-  addressInfo:Array,
-  bankCardInfo:Array,
-  contactInfo:Array,
-  certInfo:Array,
-  data: Record<string, any>,
-}
-
 
 
 

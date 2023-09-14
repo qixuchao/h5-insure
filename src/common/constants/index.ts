@@ -155,7 +155,8 @@ export const PAGE_ROUTE_ENUMS = {
   orderList: '/order', // 订单列表
   paymentResult: '/baseInsurance/long/result',
   orderTrajectory: '/orderTrajectory', // 订单轨迹
-  customerDetail: '/customerDetail', // 客户详情
+  customerList: '/baseInsurance/customerList', // 客户详情
+  customerDetail: '/baseInsurance/customerDetail', // 客户详情
 };
 
 export const NEXT_BUTTON_CODE_ENUMS = {

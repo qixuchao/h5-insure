@@ -20,15 +20,20 @@
         </template>
       </van-search>
     </div>
-    <List :data="state.list" type="order" :disabled="false" @on-close="onClickClosePopup" />
+    <List :data="state.list" type="firstLetter" :disabled="false" @on-close="onClickClosePopup" />
+    <div v-if="!state.list?.length" style="padding-top: 50px">
+      <!-- <p><img src="@/assets/images/baseInsurance/empth.png" class="ig" /></p> -->
+      <ProEmpty :title="loading ? '加载中...' : '暂无客户'" />
+    </div>
   </div>
   <!-- </ProPopup> -->
 </template>
 <script lang="ts" setup name="CustomerList">
 import { withDefaults, ref, defineExpose } from 'vue';
-import { getCalculateRiskFormula } from '@/api/modules/trial';
+import { Toast } from 'vant';
+import { getCustomerList } from '@/api/modules/third';
 import SearchLeftIcon from '@/assets/images/baseInsurance/search.png';
-import List from './list/index.vue';
+import List from './List.vue';
 
 const emit = defineEmits(['closeCustomerPopoup']);
 interface StateInfo {
@@ -50,13 +55,15 @@ const state = reactive<Partial<StateInfo>>({
 });
 const mockData = {
   count: 112,
-  customerMaps: {
+  customersMap: {
     A: [],
     B: [
       {
         id: null,
         tenantId: 9991000007,
         userId: null,
+        certType: '1',
+        certNo: 'afadsfasdfasdf1',
         agentCustomerId: '1074001',
         name: '北京乐',
         customerType: '02',
@@ -2115,49 +2122,45 @@ const mockData = {
     ],
   },
 };
-const onClosePopup = () => {
-  // setTimeout(() => {
-  //   state.show = false;
-  // }, 100);
-  state.show = false;
-};
-const onClickClosePopup = (value) => {
-  console.log('---close---', value);
-  state.show = false;
-  onClosePopup();
-  emit('closeCustomerPopoup', value);
-};
-const getCustomerList = async (params: any) => {
+const loading = ref(false);
+const getData = async (params: { [key: string]: string }) => {
+  if (loading.value) return;
+  loading.value = true;
+  Toast.loading('加载中...');
   const reqs = {
-    pageNum: '1',
-    pageSize: '999',
-    queryBean: {
-      orderBy: { tagName: '按首字母排序', tagCode: 'firstLetter' },
-      customerListType: '01',
-      keyword: state.keyword || '',
-      ...params,
-    },
+    pageNum: 1,
+    pageSize: 999,
+    accessKey: 'ToDo', // TODO @za-qixuchao
+    keyword: state.keyword || '',
+    ...params,
   };
-  const res = await getCalculateRiskFormula(reqs);
-  const temp: { label: string; children: any }[] = [];
-  Object.keys(mockData?.customerMaps || {}).forEach((item) => {
-    temp.push({
-      label: item,
-      children: mockData.customerMaps[item],
+  getCustomerList(reqs)
+    .then((res) => {
+      const temp: { label: string; children: any }[] = [];
+
+      Object.keys(res.data?.customersMap || {}).forEach((item) => {
+        temp.push({
+          label: item,
+          children: res.data.customersMap[item],
+        });
+      });
+      state.list = temp;
+    })
+    .finally(() => {
+      loading.value = false;
+      Toast.clear();
     });
-  });
-  state.list = temp;
 };
 
 onBeforeMount(() => {
   console.log('111122');
-  getCustomerList({ keyword: '' });
+  getData({ keyword: '' });
 });
 onMounted(() => {
   console.log('3333');
 });
 // 搜索
 const handleSearch = () => {
-  getCustomerList({ keyword: state.keyword });
+  getData({ keyword: state.keyword });
 };
 </script>

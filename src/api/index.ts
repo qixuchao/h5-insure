@@ -6,9 +6,7 @@ import {
   TemplatePageItem,
   NextStepResponseData,
   ProductInsureNoticeResVo,
-  CustomerResponseData,
 } from './index.data';
-import { PAGE_API_ENUMS } from '@/common/constants/index';
 import useStore from '@/store/app';
 
 // 获取视频封面图 和 缩略图
@@ -81,10 +79,6 @@ export const queryInsuredMaterial = (data = {}) =>
 // 查询订单轨迹
 export const orderInsureRecord = (data = {}) =>
   request<ResponseData>({ url: '/api/app/insure/insurance/orderInsureRecord', method: 'POST', data });
-
-// 客户详情
-export const customerDetail = (params = {}) =>
-  request<CustomerResponseData>({ url: '/api/app/insure/insurance/customerDetail', method: 'GET', params });
 
 // 获取订单详情
 export const newOrderDetail = (data = {}): Promise<ResponseData<NextStepRequestData>> => {

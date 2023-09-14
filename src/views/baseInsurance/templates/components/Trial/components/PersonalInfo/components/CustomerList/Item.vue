@@ -1,27 +1,27 @@
 <template>
   <div class="customer-list-item">
-    <van-swipe-cell :disabled="disabled">
-      <div :class="['list-item', showBg === true ? 'item-bg' : '']" @click="(e) => handleCustomerItem(e)">
+    <van-swipe-cell>
+      <div class="list-item" @click="handleCustomerItem">
         <div class="left">
           <div>
             <img :src="data.gender ? (data.gender === '1' ? female : male) : gender" alt="" class="mf" />
           </div>
           <div>
             <div class="left-item">
-              <div class="name">{{ data.name }}</div>
-              <div v-if="data?.certInfo[0]?.certNo && +data?.certInfo[0]?.certType === 1" class="cert-no">
-                {{ data.certInfo[0].desensitizaCertNo }}
-                <span class="cert-type-name">{{ data.certInfo[0].certTypeName }}</span>
+              <div class="name">{{ data.customerName }} | {{ ageStr }}岁</div>
+              <div v-if="data?.certNo && +data?.certType === 1" class="cert-no">
+                {{ data.certNo }}
+                <span class="cert-type-name">{{ data.certTypeName }}</span>
               </div>
-              <div v-if="data?.certInfo[0]?.certNo && +data?.certInfo[0]?.certType !== 1" class="cert-no">
+              <!-- <div v-if="data?.certInfo[0]?.certNo && +data?.certInfo[0]?.certType !== 1" class="cert-no">
                 {{ data.certInfo[0].certNo }}
                 <span class="cert-type-name">{{ data.certInfo[0].certTypeName }}</span>
-              </div>
+              </div> -->
             </div>
-            <div v-if="data.relative" class="from-wx">
+            <!-- <div v-if="data.relative" class="from-wx">
               <img class="img-wx" alt="" />
               微信客户
-            </div>
+            </div> -->
           </div>
         </div>
         <!-- <div class="right">
@@ -36,15 +36,19 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup name="item">
 import { ref, toRefs } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import dayjs from 'dayjs';
 import female from '@/assets/images/baseInsurance/female.png';
 import male from '@/assets/images/baseInsurance/male.png';
 import gender from '@/assets/images/baseInsurance/gender.png';
 import pageJump from '@/utils/pageJump';
+import { useSessionStorage } from '@/hooks/useStorage';
+import { setCusomterParams } from '../../util';
 // import { queryCustomerPhone } from '@/api/modules/businessOpportunity';
-
+const storage = useSessionStorage();
+const route = useRoute();
 const props = defineProps({
   data: {
     type: Object,
@@ -57,41 +61,36 @@ const props = defineProps({
     default: () => true,
   },
 });
-const showBg = ref(false);
-const emit = defineEmits(['on-delete', 'on-close']);
 
 const { data, disabled } = toRefs(props);
 
-const actions = [
-  { name: '拨打电话', color: '$zaui-brand', type: '1' },
-  { name: '发送短信', type: '2' },
-];
-const onSelect = (val: { type: string }) => {
-  // show.value = false;
-  // queryCustomerPhone({
-  //   agentCustomerId: data.value.agentCustomerId,
-  //   customerType: data.value.customerType,
-  //   businessType: '06',
-  //   useType: val.type === '1' ? 'TEL' : 'SMS',
-  // }).then((res) => {
-  //   if (val.type === '1') {
-  //     window.location.href = `tel:${res.data.data}`;
-  //   } else {
-  //     window.location.href = `sms:${res.data.data}`;
-  //   }
-  // });
+const ageStr = computed(() => {
+  return dayjs().diff(data.value.birthday, 'y');
+});
+
+const a = {
+  customerType: '0',
+  customerName: '测受益人',
+  certNo: '410802196901010143',
+  certType: '1',
+  birthday: '1969-01-01',
+  gender: 1,
 };
-
-// const handleDelete = () => {
-//   emit('on-delete', data.value);
-// };
-
+const b = {
+  id: data.value.id,
+  customerType: data.value.customerType,
+  customerName: '公孙林',
+  certNo: '432523198301260085',
+  certType: '1',
+  birthday: '1983-01-26',
+  gender: 2,
+};
 const handleCustomerItem = (e: any) => {
-  pageJump('customerDetail', { customerId: data.customerId });
-  showBg.value = true;
-  e.stopPropagation();
-  console.log('这里关闭弹窗', data.value);
-  emit('on-close', data.value);
+  // storage.set('thirdCustomerInfo', b);
+  // 设置参数到session，避免URL上带敏感信息
+  setCusomterParams(b || data.value);
+  // const { selectedType, customerId, selected, ...others } = route.query; // 去掉下级页面的参数
+  pageJump('customerDetail', { ...route.query, customerId: data.value.id });
 };
 </script>
 
@@ -176,12 +175,12 @@ const handleCustomerItem = (e: any) => {
         .cert-type-name {
           margin-left: 8px;
           padding: 2px 8px;
-          background: #ffeee7;
+          background: var(--zaui-brand-1);
           border-radius: 8px;
           font-size: 20px;
 
           font-weight: 400;
-          color: #ff6600;
+          color: var(--zaui-brand);
         }
       }
       .from-wx {
