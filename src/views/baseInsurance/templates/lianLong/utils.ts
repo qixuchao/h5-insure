@@ -5,6 +5,7 @@ export const pickProductRiskCode = (productList) => {
       mergeRiskReqList: product.productPlanInsureVOList?.[0]?.insureProductRiskVOList.map((risk) => ({
         riskCode: risk.riskCode,
         riskType: risk.riskType,
+        exemptType: risk.exemptType,
         mainRiskCode: risk.mainRiskCode,
       })),
     };

@@ -138,6 +138,8 @@ interface Props {
   isView?: boolean;
   // 豁免险仅显示投保人
   isOnlyHolder?: boolean;
+  // 是否为投保人豁免险
+  isHolderExempt?: boolean;
   multiInsuredConfig: {
     multiInsuredNum: number;
     multiInsuredSupportFlag: number;
@@ -155,6 +157,7 @@ const props = withDefaults(defineProps<Props>(), {
   isTrial: false,
   multiInsuredNum: null,
   isOnlyHolder: false,
+  isHolderExempt: false,
 });
 
 interface InsuredFormProps extends Partial<PersonFormProps> {
@@ -264,7 +267,7 @@ const onCancel = () => {
   getCustomerList({ keyword: '' });
 };
 // 是否显示holder
-const isShowHolder = computed(() => !props.isTrial || props.isOnlyHolder);
+const isShowHolder = computed(() => !props.isTrial || props.isHolderExempt);
 
 const chooseCustomers = (type: string, index, benifitIndex) => {
   state.currentType = type;

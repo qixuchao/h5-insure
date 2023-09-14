@@ -37,15 +37,28 @@
 
 <script lang="ts" setup name="underwriteResult">
 import { useToggle } from '@vant/use';
-import { Dialog } from 'vant/es';
+import { Dialog, Toast } from 'vant/es';
 import { PAGE_ROUTE_ENUMS } from './constants';
+import { cancelOrder } from '@/api/modules/order';
 
 const route = useRoute();
 const router = useRouter();
+const { orderNo, tenantId } = route.query;
 const VanDialog = Dialog.Component;
 
 const [isShow, toggleStatus] = useToggle(false);
 const checkedPage = ref<string>();
+
+// 撤单
+const canceledOrder = (cb) => {
+  cancelOrder({ orderNo, tenantId }).then(({ code, data }) => {
+    if (code === '10000') {
+      Toast('撤单成功');
+
+      cb?.();
+    }
+  });
+};
 
 // 返回指定页面修改数据
 const handleUpdate = () => {
@@ -62,20 +75,25 @@ const handleInsure = () => {
 
 // 放弃投保,跳转至产品列表
 const handleGiveUp = () => {
-  delete route.query.orderNo;
-  router.push({
-    path: PAGE_ROUTE_ENUMS.productList,
-    query: route.query,
+  canceledOrder(() => {
+    delete route.query.orderNo;
+    router.push({
+      path: PAGE_ROUTE_ENUMS.productList,
+      query: route.query,
+    });
   });
 };
 
 const handleConfirm = () => {
-  toggleStatus(false);
-  router.push({
-    path: checkedPage.value,
-    query: route.query,
+  canceledOrder(() => {
+    toggleStatus(false);
+    router.push({
+      path: checkedPage.value,
+      query: route.query,
+    });
   });
 };
+
 const handleCancel = () => {
   toggleStatus(false);
   handleGiveUp();

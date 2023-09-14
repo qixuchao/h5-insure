@@ -444,9 +444,8 @@ watch(
   () => props.schema,
   (val, oldVal) => {
     if (val) {
-      // state.schema = val;
-      if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
-        Object.assign(state.schema, cloneDeep(val));
+      if (JSON.stringify(val) !== JSON.stringify(state.schema)) {
+        state.schema = cloneDeep(val);
       }
     }
   },

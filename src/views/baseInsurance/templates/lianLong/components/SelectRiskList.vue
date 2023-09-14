@@ -88,6 +88,7 @@ const getRiskList = async () => {
     productCategory: '',
     selectProductCodes: [],
     selectRiskCodes: [],
+    filterFlag: props.selectList?.length ? 1 : 2,
   };
 
   params.selectProductCodes = props.selectList.map((product) => {

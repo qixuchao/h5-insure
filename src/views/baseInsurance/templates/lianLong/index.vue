@@ -52,9 +52,9 @@
     <div id="insureButton"></div>
     <TrialButton @handle-click="onNext"></TrialButton>
   </div>
-  <!-- <ProLazyComponent>
+  <ProLazyComponent>
     <PreNotice v-if="preNoticeLoading && !trialPreviewMode" :product-detail="tenantProductDetail"></PreNotice>
-  </ProLazyComponent> -->
+  </ProLazyComponent>
 
   <div id="xinaoDialog"></div>
   <ProLazyComponent>
