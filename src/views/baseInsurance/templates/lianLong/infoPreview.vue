@@ -89,7 +89,7 @@ import InsureInfo from './components/InsureInfo.vue';
 import ProShare from '@/components/ProShare/index.vue';
 import { jumpToNextPage, isAppFkq } from '@/utils';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
-import InsuranceNotificationInformation from '../components/insuranceNotificationInformation.vue';
+import InsuranceNotificationInformation from '../../../order/components/insuranceNotificationInformation.vue';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
