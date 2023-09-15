@@ -68,6 +68,7 @@ router.beforeEach(async (to, from, next) => {
     if (storage.get('token')) {
       next();
     } else {
+      next();
       // window.location.href = '/login';
     }
   }

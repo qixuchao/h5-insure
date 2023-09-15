@@ -19,7 +19,7 @@
         class="choose-customer"
         @click="chooseCustomers('holder', 1, 0)"
       >
-        <img src="@/assets/images/baseInsurance/customer.png" />
+        <ProSvg name="customer" color="#333" />
         选择老用户
       </div></template
     >
@@ -47,7 +47,7 @@
         class="choose-customer"
         @click="chooseCustomers('insured', index, 0)"
       >
-        <img src="@/assets/images/baseInsurance/customer.png" />
+        <ProSvg name="customer" color="#333" />
         选择老用户
       </div>
       <template #cardTitleExtraBenifit="slotProps">
@@ -56,7 +56,7 @@
           class="choose-customer"
           @click="chooseCustomers('benifit', index, slotProps?.index)"
         >
-          <img src="@/assets/images/baseInsurance/customer.png" />
+          <ProSvg name="customer" color="#333" />
           选择老用户
         </div></template
       >

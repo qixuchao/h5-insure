@@ -22,6 +22,12 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/baseInsurance/templates/lianLong/trial.vue'),
   },
   {
+    name: 'trial',
+    path: '/baseInsurance/long/trial',
+    meta: { title: '试算' },
+    component: () => import('@/views/baseInsurance/templates/lianLong/trial.vue'),
+  },
+  {
     name: 'healthNotice',
     path: '/baseInsurance/long/healthNotice',
     meta: { title: '健康告知书' },
@@ -48,7 +54,7 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'infoCollection',
     path: '/baseInsurance/long/infoCollection',
-    meta: { title: '信息采集' },
+    meta: { title: '信息采集', keepAlive: true },
     component: () => import('@/views/baseInsurance/templates/lianLong/infoCollection.vue'),
   },
   {
@@ -253,18 +259,22 @@ const baseInsurance = [
   // 客户列表
   {
     name: 'Customer',
-    path: '/customer',
+    path: '/baseInsurance/customerList',
     meta: { title: '', requireWxJs: false },
     component: () =>
-      import('@/views/baseInsurance/templates/components/Trial/components/PersonalInfo/components/CustomerList.vue'),
+      import(
+        '@/views/baseInsurance/templates/components/Trial/components/PersonalInfo/components/CustomerList/index.vue'
+      ),
   },
   // 客户详情
   {
     name: 'CustomerDetail',
-    path: '/customerDetail',
+    path: '/baseInsurance/customerDetail',
     meta: { title: '', requireWxJs: false },
     component: () =>
-      import('@/views/baseInsurance/templates/components/Trial/components/PersonalInfo/components/detail/index.vue'),
+      import(
+        '@/views/baseInsurance/templates/components/Trial/components/PersonalInfo/components/CustomerDetail/index.vue'
+      ),
   },
 ];
 

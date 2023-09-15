@@ -1,13 +1,4 @@
 import { Toast, Dialog } from 'vant';
-/*
- * @Author: za-qixuchao qixuchao@zhongan.com
- * @Date: 2022-12-01 11:06:22
- * @LastEditors: kevin.liang
- * @LastEditTime: 2023-02-22 17:44:55
- * @FilePath: /zat-planet-h5-cloud-insure/src/utils/nextStep.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
-import { useRoute } from 'vue-router';
 import { nextStep } from '@/api';
 import { getQueryObject } from '@/utils/index';
 import { sendPay } from '@/views/cashier/core';
