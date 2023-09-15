@@ -113,3 +113,11 @@ export const offlineReview = (data = {}) =>
     method: 'POST',
     data,
   });
+
+// 线下扣款接口
+export const offlineBatchPay = (data = {}) =>
+  request<boolean>({
+    url: '/api/app/insure/insurance/offlineBatchPay',
+    method: 'POST',
+    data,
+  });

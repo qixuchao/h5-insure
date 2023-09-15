@@ -1,30 +1,39 @@
 <template>
-  <div class="page-insure-result-wrap">
-    <div class="header">{{ TEXT_MAP.congratulate }}</div>
-    <div class="content">
-      <div class="content-header">
-        <h4 class="product-name"></h4>
-        <span>保障中</span>
+  <div class="">
+    <ProNavigator />
+    <div class="page-insure-result-wrap">
+      <div class="header">{{ TEXT_MAP[orderInfo.orderStatus] }}</div>
+      <div class="content">
+        <div class="content-header">
+          <h4 class="product-name">{{ result.productName }}</h4>
+          <span>保障中</span>
+        </div>
+        <InfoItem label="投保人" :content="result.holderName" line />
+        <InfoItem label="保单号" :content="result.policyNo" line />
+        <!-- <InfoItem label="生效日期" :content="result.holderName" line /> -->
+        <!-- <InfoItem label="保障期间" :content="result.coverage" line /> -->
+        <InfoItem label="保费" :content="result.orderAmount" line />
       </div>
-      <InfoItem label="投保人" :content="result.holderName" line />
-      <InfoItem label="保单号" :content="result.policyNo" line />
-      <InfoItem label="生效日期" :content="result.holderName" line />
-      <InfoItem label="保障期间" :content="result.coverage" line />
-      <InfoItem label="保费" :content="result.orderAmount" line />
-    </div>
-    <div class="footer">
-      <van-button block type="primary" @click="handleBack">返回</van-button>
+      <div class="footer-button">
+        <template v-if="!isPayFail">
+          <van-button type="primary" plain @click="handleUpdateBank">变更卡号</van-button>
+          <van-button type="primary" @click="handleOfflinePay">线下扣款</van-button>
+        </template>
+        <van-button v-else block type="primary" @click="handleBack">返回</van-button>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup name="OrderResult">
 import { useRouter, useRoute } from 'vue-router';
+import { Dialog, Toast } from 'vant';
 import { getTenantOrderDetail } from '@/api/modules/trial';
-import { PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { PAGE_ROUTE_ENUMS } from './constants';
 import { PAYMENT_METHOD_MAP } from '@/common/constants/bankCard';
 import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
 import InfoItem from '@/views/order/components/infoItem.vue';
+import { offlineBatchPay } from '@/api/modules/verify';
 /**
  * 本页面只有三种结果状态
  * @since success 成功
@@ -40,12 +49,9 @@ interface PayResultData {
 }
 
 const TEXT_MAP = {
-  payFail: '支付失败',
-  congratulate: '恭喜你完成投保',
-  repay: '重新支付',
-  goPolicy: '查看保单详情',
-  updatePayInfo: '修改支付信息',
-  orderList: '确定',
+  paymentFailed: '支付失败',
+  paymentSuccess: '恭喜你完成投保',
+  acceptingPolicy: '承保中',
 };
 
 const result = ref<PayResultData>({
@@ -58,8 +64,8 @@ const route = useRoute();
 const router = useRouter();
 const { orderNo = '', preview, saleUserId = '', tenantId = '', templateId = 1 } = route.query;
 const orderInfo = ref({});
-/** 当前订单是成功 */
-const isSuccess = computed((status) => {
+/** 当前订单支付成功 */
+const isPaySuccess = computed((status) => {
   return (
     result.value &&
     [
@@ -69,8 +75,9 @@ const isSuccess = computed((status) => {
     ].some((i) => i === result.value?.orderStatus)
   );
 });
-/** 当前订单是失败 */
-const isFail = computed((status) => {
+
+/** 当前订单支付失败 */
+const isPayFail = computed((status) => {
   return (
     result.value &&
     [
@@ -84,61 +91,32 @@ const isFail = computed((status) => {
 });
 const isPaying = computed(() => result.value.orderStatus === ORDER_STATUS_ENUM.PAYING);
 
-const status = computed(() => {
-  if (result.value) {
-    return isSuccess.value ? 'success' : isFail.value ? 'fail' : 'process';
-  }
-  return 'process';
-});
-
-const title = computed(() => {
-  return isSuccess.value ? TEXT_MAP.congratulate : isFail.value ? TEXT_MAP.payFail : '处理中';
-});
-
-const okText = computed(() => {
-  return isSuccess.value ? TEXT_MAP.goPolicy : isFail.value ? TEXT_MAP.repay : '';
-});
-
-const cancelText = computed(() => {
-  return isSuccess.value ? TEXT_MAP.orderList : isFail.value ? TEXT_MAP.updatePayInfo : '';
-});
-
 const handleBack = () => {
-  router.back();
+  router.push({
+    path: PAGE_ROUTE_ENUMS.orderList,
+    query: route.query,
+  });
 };
 
-const handleOk = () => {
-  if (okText.value === TEXT_MAP.goPolicy) {
-    // 点击【查看保单详情】，进入保单详情页面
-    router.push({
-      path: PAGE_ROUTE_ENUMS.orderDetail,
-      query: route.query,
-    });
-  } else if (okText.value === TEXT_MAP.repay) {
-    // 点击【重新支付】按钮，唤起支付
-    router.push({
-      path: PAGE_ROUTE_ENUMS.infoPreview,
-      query: route.query,
-    });
-  }
+// 修改银行卡信息
+const handleUpdateBank = () => {
+  router.push({
+    path: PAGE_ROUTE_ENUMS.updateBankInfo,
+    query: route.query,
+  });
 };
 
-const handleCancel = () => {
-  if (cancelText.value === TEXT_MAP.updatePayInfo) {
-    router.push({
-      path: PAGE_ROUTE_ENUMS.infoCollection,
-      query: route.query,
-    });
-  } else if (cancelText.value === TEXT_MAP.orderList) {
-    router.push({
-      path: PAGE_ROUTE_ENUMS.orderList,
-      query: route.query,
-    });
-  }
+// 线下扣款
+const handleOfflinePay = () => {
+  Dialog.confirm({
+    title: '投保提示',
+    message: '选择转批扣后将对该笔订单进行转换批次扣款，提交后将无法操作变更卡号，再次划款',
+    cancelButtonText: '返回重选',
+  }).then(async () => {
+    const { code, data } = await offlineBatchPay({ orderNo, tenantId });
+  });
 };
-const refresh = () => {
-  window.location.reload();
-};
+
 onMounted(() => {
   if (preview) {
     return;
@@ -177,8 +155,8 @@ onMounted(() => {
 <style lang="scss" scoped>
 .page-insure-result-wrap {
   width: 100%;
-  min-height: 100vh;
-  background-image: url('@/assets/images/baseInsurance/cardbg.png');
+  min-height: calc(100vh - 100px);
+  background-image: url('@/assets/images/baseInsurance/header-bg.jpg');
   background-size: 100%;
   background-repeat: no-repeat;
   padding: 0 $zaui-card-border;
@@ -198,7 +176,15 @@ onMounted(() => {
     background-color: #ffffff;
     margin-bottom: 60px;
     .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: c;
     }
+  }
+  .footer-button {
+    position: static;
+    background: none;
+    border: none;
   }
 }
 </style>

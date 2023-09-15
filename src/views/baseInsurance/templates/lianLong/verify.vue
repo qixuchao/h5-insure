@@ -1,37 +1,49 @@
 <template>
   <div class="page-verify-wrap">
     <ProNavigator />
-    <div v-if="needBMOS" class="header">
-      <ProMessage type="warning" content="为保障您的合法权益，当前保单需要进行双录" />
-    </div>
     <div class="sign-list">
-      <van-cell
-        v-if="isShowItem('agent')"
-        title="代理人签名"
-        :required="isRequired('agent')"
-        is-link
-        :value="VERIFY_STATUS_MAP[signPartInfo.agent.verifyStatus]"
-        @click="checkMobile('agent')"
-      ></van-cell>
+      <van-cell v-if="isShowItem('agent')" title="代理人签名" :required="isRequired('agent')">
+        <template #value>
+          <div class="inner-cell">
+            <van-cell
+              is-link
+              :value="VERIFY_STATUS_MAP[signPartInfo.agent.verifyStatus]"
+              @click="checkMobile('agent')"
+            ></van-cell>
+          </div>
+        </template>
+      </van-cell>
       <template v-if="!needBMOS">
         <van-cell v-if="isShowItem('holder')" title="投保人签名" :required="isRequired('holder')">
           <template #value>
             <div class="inner-cell">
-              <van-cell v-if="isShareSing('holder')" is-link value="分享空签邀约"></van-cell>
+              <van-cell
+                v-if="isShareSing('holder')"
+                :value-class="`${isDisabled ? 'disable' : ''}`"
+                is-link
+                value="分享空签邀约"
+              ></van-cell>
               <van-cell
                 is-link
                 :value="VERIFY_STATUS_MAP[signPartInfo.holder.verifyStatus]"
+                :value-class="`${isDisabled ? 'disable' : ''}`"
                 @click="checkMobile('holder')"
               ></van-cell>
             </div>
           </template>
         </van-cell>
-        <van-cell v-if="isShowItem('insured')" title="被保人签名" :required="isRequired('insured')">
+        <van-cell v-if="isShowItem('insured') && isShowInsured" title="被保人签名" :required="isRequired('insured')">
           <template #value>
             <div class="inner-cell">
-              <van-cell v-if="isShareSing('insured')" is-link value="分享空签邀约"></van-cell>
+              <van-cell
+                v-if="isShareSing('insured')"
+                :value-class="`${isDisabled ? 'disable' : ''}`"
+                is-link
+                value="分享空签邀约"
+              ></van-cell>
               <van-cell
                 is-link
+                :value-class="`${isDisabled ? 'disable' : ''}`"
                 :value="VERIFY_STATUS_MAP[signPartInfo.insured.verifyStatus]"
                 @click="checkMobile('insured')"
               ></van-cell>
@@ -57,24 +69,37 @@
           rules=""
           required
         ></ProSMSCode>
-        <ProFieldV2
-          v-model="formData.insuredList[0].mobile"
-          label="被保人手机号"
-          name="insuredList.0.mobile"
-          maxlength="11"
-          required
-        ></ProFieldV2>
-        <ProSMSCode
-          v-model="formData.insuredList[0].verifyCode"
-          label="验证码"
-          maxlength="6"
-          name="insuredList.0.verifyCode"
-          related-name="insuredList.0.mobile"
-          :send-s-m-s-code="sendSMSCode"
-          required
-        ></ProSMSCode>
+        <template v-if="isShowInsured">
+          <ProFieldV2
+            v-model="formData.insuredList[0].mobile"
+            label="被保人手机号"
+            name="insuredList.0.mobile"
+            maxlength="11"
+            required
+          ></ProFieldV2>
+          <ProSMSCode
+            v-model="formData.insuredList[0].verifyCode"
+            label="验证码"
+            maxlength="6"
+            name="insuredList.0.verifyCode"
+            related-name="insuredList.0.mobile"
+            :send-s-m-s-code="sendSMSCode"
+            required
+          ></ProSMSCode>
+        </template>
       </ProRenderForm>
-      <van-cell v-if="needBMOS" title="保单双录" required is-link value="去双录" @click="handleDMOS"></van-cell>
+      <van-cell v-if="needBMOS" title="保单双录" required>
+        <template #value>
+          <div class="inner-cell">
+            <van-cell
+              is-link
+              :value-class="`${isDisabled ? 'disable' : ''}`"
+              :value="DUAL_STATUS_MAP[BMOSStatus]"
+              @click="handleDMOS"
+            ></van-cell>
+          </div>
+        </template>
+      </van-cell>
     </div>
     <div class="footer-button">
       <van-button type="primary" @click="onNext">下一步</van-button>
@@ -102,11 +127,10 @@ import { pickProductRiskCode } from './utils';
 import { transformFactorToSchema } from '@/components/RenderForm/utils/tools';
 import useOrder from '@/hooks/useOrder';
 import { PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS, BUTTON_CODE_ENUMS } from './constants';
-import { VERIFY_STATUS_MAP } from '@/common/constants/verify';
-import { ALERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
+import { VERIFY_STATUS_MAP, DUAL_STATUS_MAP, DUAL_STATUS_ENUM } from '@/common/constants/verify';
+import { ALERT_TYPE_ENUM, CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
 import { dualUploadFiles, queryDualStatus } from '@/api/modules/verify';
-import { PAGE_CODE_ENUM } from '@/common/constants/infoCollection';
 
 const route = useRoute();
 const router = useRouter();
@@ -116,7 +140,7 @@ const { orderNo, tenantId } = route.query;
 // 是否需要双录
 const needBMOS = ref<boolean>(false);
 // 双录状态
-const BMOSStatus = ref<boolean>(false);
+const BMOSStatus = ref<number>();
 
 const formRef = ref();
 const formData = ref({
@@ -168,6 +192,20 @@ const isRequired = computed(
   () => (code) => requiredType.value.sign.includes(code) || requiredType.value.verify.includes(code),
 );
 
+// 代理人未签名完成前，禁止其他操作
+const isDisabled = computed(() => {
+  return signPartInfo.value.agent.verifyStatus !== YES_NO_ENUM.YES;
+});
+
+const isShowInsured = computed(() => {
+  const { insuredList } = orderDetail.value || {};
+  const { age, relationToHolder } = insuredList[0] || {};
+  if (age < 18 || `${relationToHolder}` === CERT_TYPE_ENUM.CERT) {
+    return false;
+  }
+  return true;
+});
+
 // 签字、认证是否展示
 const isShowItem = computed(() => (type) => signPartInfo.value[type].isSign || signPartInfo.value[type].isVerify);
 // 空中签名
@@ -175,6 +213,9 @@ const isShareSing = computed(() => (type) => signPartInfo.value[type].isShareSig
 
 // 非双录场景下验证投被保人、代理人手机号
 const checkMobile = (type: 'agent' | 'holder' | 'insured') => {
+  if (isDisabled.value) {
+    return;
+  }
   checkType.value = type;
   if (type === 'agent') {
     router.push({
@@ -188,6 +229,9 @@ const checkMobile = (type: 'agent' | 'holder' | 'insured') => {
 
 // 去双录
 const handleDMOS = () => {
+  if (isDisabled.value || BMOSStatus.value === DUAL_STATUS_ENUM.DUAL_SUCCESS) {
+    return;
+  }
   dualUploadFiles(orderDetail.value).then(({ code, data }) => {
     if (code === '10000') {
       if (data) {
@@ -233,7 +277,7 @@ const initData = async () => {
     if (code === '10000') {
       const { doubleRecordFlag, doubleRecordStatus } = data;
       needBMOS.value = doubleRecordFlag === YES_NO_ENUM.YES;
-      BMOSStatus.value = doubleRecordStatus === YES_NO_ENUM.YES;
+      BMOSStatus.value = doubleRecordStatus;
     }
   });
   await getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
@@ -320,6 +364,15 @@ const onNext = () => {
   );
 };
 
+watch(
+  () => formData.value,
+  () => {},
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
 onMounted(() => {
   initData();
 });
@@ -351,6 +404,9 @@ onMounted(() => {
           justify-content: flex-end;
           .van-cell__value {
             flex: unset;
+            &.disable {
+              color: #3333339c;
+            }
           }
 
           &:after {
@@ -358,7 +414,7 @@ onMounted(() => {
           }
 
           &:last-child {
-            width: 200px;
+            width: 240px;
           }
         }
       }
