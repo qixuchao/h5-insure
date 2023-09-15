@@ -8,7 +8,7 @@
     show-error-message
     @submit="submitForm"
   >
-    <template v-if="props.data.basicInfo.questionnaireType === 1">文本问卷</template>
+    <template v-if="props.data?.basicInfo?.questionnaireType === 1">文本问卷</template>
     <template v-else>
       <template v-if="props.isView">
         <Viewer
@@ -33,7 +33,7 @@
         />
       </template>
     </template>
-    <ProCard v-if="enumEqual(props.data.imageConfig.showFlag, YES_NO_ENUM.YES)" :title="props.data.imageConfig.name">
+    <ProCard v-if="enumEqual(props.data?.imageConfig?.showFlag, YES_NO_ENUM.YES)" :title="props.data.imageConfig.name">
       <van-field name="imageList">
         <template #input>
           <ProImageUpload v-model="imageList" :disabled="isView" :max-count="props.data.imageConfig?.maxNum || 10" />

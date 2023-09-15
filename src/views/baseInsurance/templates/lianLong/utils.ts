@@ -1,3 +1,5 @@
+import { getFileType } from '../../utils';
+
 export const pickProductRiskCode = (productList) => {
   const currentProductList = productList.map((product) => {
     return {
@@ -6,6 +8,7 @@ export const pickProductRiskCode = (productList) => {
         riskCode: risk.riskCode,
         riskType: risk.riskType,
         exemptType: risk.exemptType,
+        mainRiskId: risk.mainRiskId,
         mainRiskCode: risk.mainRiskCode,
       })),
     };
@@ -18,15 +21,48 @@ export const pickProductRiskCodeFromOrder = (productList) => {
   const currentProductList = productList.map((product) => {
     return {
       productCode: product.productCode,
-      mergeRiskReqList: product.riskList.map((risk) => ({
-        riskCode: risk.riskCode,
-        riskType: risk.riskType,
-        mainRiskCode: risk.mainRiskCode,
-      })),
+      mergeRiskReqList: product.riskList.map((risk) => {
+        const { riskCode, riskType, mainRiskCode, mainRiskId } = risk;
+        return {
+          riskCode,
+          riskType,
+          mainRiskCode,
+          mainRiskId,
+        };
+      }),
     };
   });
-
   return { productList: currentProductList };
 };
 
-export default {};
+export const dealMaterialList = (materialCollection) => {
+  const { riskMaterialList, productMaterialPlanVOList } = materialCollection;
+  const { productMaterialMap } = productMaterialPlanVOList?.[0] || {};
+
+  const productMaterialList = Object.keys(productMaterialMap).map((e) => {
+    const materialTabList = productMaterialMap[e].map((attachmentItem) => {
+      return {
+        ...attachmentItem,
+        materialSource: getFileType(`${attachmentItem?.materialSource}`, attachmentItem?.materialContent),
+      };
+    });
+
+    return {
+      attachmentName: e,
+      attachmentList: materialTabList,
+    };
+  });
+
+  return {
+    productMaterialList,
+    riskMaterialList: riskMaterialList.map((material) => ({
+      attachmentName: material.name,
+      attachmentList: [
+        {
+          ...material,
+          materialSource: getFileType(`${material?.materialSource}`, material?.materialContent),
+        },
+      ],
+    })),
+  };
+};

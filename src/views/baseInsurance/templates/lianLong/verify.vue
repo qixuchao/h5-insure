@@ -123,7 +123,7 @@ import { sendSMSCode } from '@/components/RenderForm/utils/constants';
 import { RegMap } from '@/components/RenderForm/utils/validate';
 import CheckCodePopup from './components/CheckCodePopup.vue';
 import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
-import { pickProductRiskCode } from './utils';
+import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import { transformFactorToSchema } from '@/components/RenderForm/utils/tools';
 import useOrder from '@/hooks/useOrder';
 import { PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS, BUTTON_CODE_ENUMS } from './constants';
@@ -286,7 +286,7 @@ const initData = async () => {
       const { agentAuthFlag } = data.extInfo;
       formData.value = data;
 
-      productRiskMap = pickProductRiskCode(data.insuredList[0].productList);
+      productRiskMap = pickProductRiskCodeFromOrder(data.insuredList[0].productList);
       signPartInfo.value.agent.verifyStatus = agentAuthFlag;
       signPartInfo.value.holder.verifyStatus = data.holder.isCert;
       signPartInfo.value.insured.verifyStatus = data.insuredList?.[0]?.isCert;
