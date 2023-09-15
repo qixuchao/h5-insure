@@ -11,7 +11,7 @@
       <!-- <template #title>
         {{ currentQuestion.questionnaireName }}
       </template> -->
-      <template v-if="currentQuestion.contentType === 'question'" #footer>
+      <template v-if="currentQuestion.contentType === 'question' && currentQuestion.questionnaireId" #footer>
         <div class="footer-button">
           <van-button v-if="isShowAsync" round type="primary" plain @click="asyncInsured">同被保人</van-button>
           <van-button round type="primary" block native-type="submit"> 下一步 </van-button>

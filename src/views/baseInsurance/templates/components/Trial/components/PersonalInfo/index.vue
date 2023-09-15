@@ -14,11 +14,7 @@
     }"
   >
     <template #customer>
-      <div
-        v-if="true || (!isShare && !isView && !isTrial && isApp)"
-        class="choose-customer"
-        @click="chooseCustomers('holder', 1, 0)"
-      >
+      <div v-if="canShowCustomerIcon" class="choose-customer" @click="chooseCustomers('holder', 1, 0)">
         <ProSvg name="customer" color="#333" />
       </div>
     </template>
@@ -45,7 +41,7 @@
       </template>
       <template #customer>
         <div
-          v-if="true || (+insuredItem.personVO.relationToHolder !== 1 && !isShare && !isView && !isTrial && isApp)"
+          v-if="+insuredItem.personVO.relationToHolder !== 1 && canShowCustomerIcon"
           class="choose-customer"
           @click="chooseCustomers('insured', index, 0)"
         >
@@ -54,7 +50,7 @@
       </template>
       <template #benefitCustomer="slotProps">
         <div
-          v-if="true || (!isShare && !isView && !isTrial && isApp)"
+          v-if="canShowCustomerIcon"
           class="choose-customer"
           @click="chooseCustomers('benifit', index, slotProps?.index)"
         >
@@ -75,34 +71,6 @@
       </template>
     </van-cell>
   </template>
-  <!-- <CustomerList v-if="state.show" :key="state.uniqKey" :close-customer-popoup="onClickClosePopup" /> -->
-  <!-- <ProPopup
-    v-if="state.show"
-    :round="false"
-    :show="state.show"
-    :closeable="false"
-    @close="onClosePopup"
-    @closed="onClosePopupAfterAni"
-  >
-    <div class="search-bar">
-      <van-search
-        v-model="state.keyword"
-        placeholder="客户 姓名/手机号"
-        class="icon-sercher"
-        @search="handleSearch"
-        @cancel="onCancel"
-      >
-        <template #left-icon>
-          <img :src="SearchLeftIcon" alt="" class="search-icon-img" style="width: 22px; height: 23px" />
-        </template>
-      </van-search>
-    </div>
-    <CustomerList v-if="state.count" :data="state.list" :type="order" :disabled="false" @on-close="onClickClosePopup" />
-    <div v-else class="empth">
-      <p><img src="@/assets/images/baseInsurance/empth.png" class="ig" /></p>
-      <p class="p1">暂时还没有客户哦～</p>
-    </div>
-  </ProPopup> -->
 </template>
 <script lang="ts" setup name="PersonalInfo">
 import { withDefaults, onActivated } from 'vue';
@@ -125,14 +93,11 @@ import {
   getCertConfig,
 } from '@/components/RenderForm';
 import { ProductFactor } from '@/api/modules/trial.data';
-import { queryCustomerInsureList } from '@/api/modules/trial';
 import { isNotEmptyArray, PERSONAL_INFO_KEY, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import InsuredItem from './components/InsuredItem.vue';
-import CustomerList from './components/CustomerList/index.vue';
-import SearchLeftIcon from '@/assets/images/baseInsurance/search.png';
 import { isAppFkq } from '@/utils';
 import pageJump from '@/utils/pageJump';
-import { getCusomterData, convertCustomerData, transformCustomerToPerson } from './util';
+import { getCusomterData, convertCustomerData, transformCustomerToPerson, isSamePersonByFiveFactor } from './util';
 
 interface QueryData {
   isShare: boolean;
@@ -149,7 +114,7 @@ interface Props {
   modelValue?: any;
   isTrial?: boolean;
   isView?: boolean;
-  // 豁免险仅显示投保人
+  /** 豁免险仅显示投保人 */
   isOnlyHolder?: boolean;
   // 是否为投保人豁免险
   isHolderExempt?: boolean;
@@ -242,10 +207,14 @@ const state = reactive<Partial<StateInfo>>({
   /** 被保人 */
   insured: [],
 });
-
 // 是否显示holder
 const isShowHolder = computed(() => !props.isTrial || props.isHolderExempt);
 
+// 是否能显示选客户的icon（非分享、非查看、非试算、且是App时）
+const canShowCustomerIcon = computed(() => {
+  return !isShare && !props.isView && !props.isTrial && isApp;
+});
+// 通过客户列表去选客户填充到 投被保人
 const chooseCustomers = (type: string, index, benifitIndex) => {
   state.currentType = type;
   if (type !== 'benifit') {
@@ -260,7 +229,6 @@ const chooseCustomers = (type: string, index, benifitIndex) => {
 };
 
 // 当前模块要素code集合
-// eslint-disable-next-line consistent-return
 const insureKeys = () => {
   if (state.currentType === 'holder') {
     return state.holder.schema.map((obj) => obj.name) || [];
@@ -271,28 +239,14 @@ const insureKeys = () => {
   if (state.currentType === 'benifit') {
     return state.beneficiarySchema.map((obj) => obj.name) || [];
   }
+  return [];
 };
-// 投保人五要素
-const holderName = computed(() => {
-  return state?.holder?.personVO?.name;
-});
-const holderGender = computed(() => {
-  return state?.holder?.personVO?.gender;
-});
-const holderBirthday = computed(() => {
-  return state?.holder?.personVO?.birthday;
-});
-const holderCertType = computed(() => {
-  return state?.holder?.personVO?.certType;
-});
-const holderCertNo = computed(() => {
-  return state?.holder?.personVO?.certNo;
-});
-
+// 将客户信息设置到对应的人
 const setCustomerToPerson = (value) => {
   const keys = insureKeys();
+  const selectedCustomer = convertCustomerData(value, keys);
   if (state.currentType === 'holder') {
-    Object.assign(state?.holder?.personVO || {}, convertCustomerData(value, keys));
+    Object.assign(state?.holder?.personVO || {}, selectedCustomer);
   }
   if (state.currentType === 'insured') {
     // 被保人中关系是否有本人
@@ -303,40 +257,28 @@ const setCustomerToPerson = (value) => {
       return false;
     });
 
-    const { name, gender, birthday, certType, certNo } = convertCustomerData(value, keys);
     // 五要素判断 相同 被保人关系置为本人
-    if (
-      holderName.value === name &&
-      holderGender.value === gender &&
-      holderBirthday.value === birthday &&
-      holderCertType.value === certType &&
-      holderCertNo.value === certNo
-    ) {
+    if (isSamePersonByFiveFactor(state?.holder?.personVO, selectedCustomer)) {
       if (hasInsuredRelationSlef) {
+        // 是本人，就直接修改关系
         Object.assign(state?.insured[state.currentIndex]?.personVO || {}, { relationToHolder: '1' });
         return;
       }
       Toast('与投保人关系未配置本人');
       return;
     }
-    Object.assign(state?.insured[state.currentIndex]?.personVO || {}, convertCustomerData(value, keys));
+    // 不是的话，就设置到被保人
+    Object.assign(state?.insured[state.currentIndex]?.personVO || {}, selectedCustomer);
   }
   //  受益人
   if (state.currentType === 'benifit') {
     // 五要素判断和被保人相同 受益人信息不同步
-    const { name, gender, birthday, certType, certNo } = convertCustomerData(value, keys);
-    if (
-      state?.insured[state.currentIndex]?.personVO.name === name &&
-      state?.insured[state.currentIndex]?.personVO.gender === gender &&
-      state?.insured[state.currentIndex]?.personVO.birthday === birthday &&
-      state?.insured[state.currentIndex]?.personVO.certType === certType &&
-      state?.insured[state.currentIndex]?.personVO.certNo === certNo
-    ) {
+    if (isSamePersonByFiveFactor(state?.insured[state.currentIndex]?.personVO, selectedCustomer)) {
       Toast('指定受益人不可为被保人本人');
     } else {
       Object.assign(
         state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO || {},
-        convertCustomerData(value, keys),
+        selectedCustomer,
       );
     }
   }

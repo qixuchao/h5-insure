@@ -20,7 +20,7 @@
         </template>
       </van-search>
     </div>
-    <List :data="state.list" type="firstLetter" :disabled="false" @on-close="onClickClosePopup" />
+    <List :data="state.list" type="firstLetter" :disabled="false" />
     <div v-if="!state.list?.length" style="padding-top: 50px">
       <!-- <p><img src="@/assets/images/baseInsurance/empth.png" class="ig" /></p> -->
       <ProEmpty :title="loading ? '加载中...' : '暂无客户'" />

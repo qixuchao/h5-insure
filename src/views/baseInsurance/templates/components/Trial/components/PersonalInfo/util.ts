@@ -58,8 +58,7 @@ export const convertCustomerData = (value, keys: string[]) => {
 
   // 数据过滤，只映射投保流程中的数据，剔除客户多余部分
   const extractedObject = keys.reduce((result, key) => {
-    // eslint-disable-next-line no-prototype-builtins
-    if (newValue.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(newValue, key)) {
       result[key] = newValue[key];
     }
     return result;
@@ -70,4 +69,15 @@ export const convertCustomerData = (value, keys: string[]) => {
 export const transformCustomerToPerson = (customer: CustomerDetail): PersonVo => {
   const person = {} as PersonVo;
   return person;
+};
+
+/** 判断拿过来的客户与投被保人是否是同一人 */
+export const isSamePersonByFiveFactor = (origin, customer) => {
+  return (
+    origin.name === customer.name &&
+    origin.gender === customer.gender &&
+    origin.birthday === customer.birthday &&
+    origin.certType === customer.certType &&
+    origin.certNo === customer.certNo
+  );
 };

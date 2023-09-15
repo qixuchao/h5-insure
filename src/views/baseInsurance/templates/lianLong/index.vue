@@ -88,7 +88,12 @@ import {
   saveOrder,
   queryCalcDefaultInsureFactor,
 } from '@/api/modules/trial';
-import { productDetail as getTenantProductDetail, queryProductMaterial, querySalesInfo } from '@/api/modules/product';
+import {
+  productDetail as getTenantProductDetail,
+  queryListProductMaterial,
+  queryProductMaterial,
+  querySalesInfo,
+} from '@/api/modules/product';
 
 import { YES_NO_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 
@@ -105,6 +110,10 @@ import ProPageWrap from '@/components/ProPageWrap';
 import useOrder from '@/hooks/useOrder';
 import pageJump from '@/utils/pageJump';
 import { PAGE_ROUTE_ENUMS } from './constants';
+import { ProductMaterialVoItem } from '@/api/modules/trial.data';
+import { NOTICE_OBJECT_ENUM } from '@/common/constants/notice';
+import { MATERIAL_TYPE_ENUM } from '@/common/constants/product';
+import { dealMaterialList, pickProductRiskCodeFromOrder } from './utils';
 // const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
 const ProductDesc = defineAsyncComponent(() => import('../components/ProductDesc/index.vue'));
 const ScrollInfo = defineAsyncComponent(() => import('../components/ScrollInfo/index.vue'));
@@ -201,40 +210,6 @@ const showTrial = () => {
   pageJump('premiumTrial', route.query);
 }; // 展示试算
 
-/* -------产品资料模块------------ */
-const healthAttachmentList = ref([]);
-const productMaterialPlanList = ref();
-const queryProductMaterialData = () => {
-  queryProductMaterial({ productCode }).then(({ code, data }) => {
-    if (code === '10000') {
-      const { productMaterialPlanVOList, productQuestionnaireVOList } = data;
-      productMaterialPlanList.value = productMaterialPlanVOList || [];
-      const {
-        basicInfo: { questionnaireType },
-        questions,
-        questionnaireName,
-      } = productQuestionnaireVOList?.[0]?.questionnaireDetailResponseVO || { basicInfo: {} };
-      // 1: 文本 2、问答
-      if (questionnaireType === 2) {
-        healthAttachmentList.value = [
-          {
-            attachmentName: questionnaireName,
-            attachmentUri: questions,
-            attachmentType: 'question',
-          },
-        ];
-      }
-      healthAttachmentList.value = [
-        {
-          attachmentName: questionnaireName,
-          attachmentUri: questions?.[0]?.content,
-          attachmentType: getFileType(String(questions?.[0]?.textType), questions?.[0]?.content),
-        },
-      ];
-    }
-  });
-};
-
 // 初始化数据，获取产品配置详情和产品详情
 const defaultOrderDetail = useOrder();
 const isLoadDefaultValue = ref<boolean>(false);
@@ -271,7 +246,6 @@ const initData = async () => {
   });
 
   loading.value = false;
-  queryProductMaterialData();
 };
 
 watch(
@@ -291,9 +265,6 @@ const onClickToInsure = () => {
 
 const premiumLoadingText = ref<string>('');
 const premium = ref<number>(0);
-
-/** -----------资料阅读模块开始-------------------- */
-const { fileList, mustReadFileCount, popupFileList } = useAttachment(currentPlanObj, productMaterialPlanList);
 
 // 文件预览
 const previewFile = (index: number) => {
@@ -318,6 +289,16 @@ const onResetFileFlag = () => {
   isOnlyView.value = true;
 };
 
+const fileList = ref([]);
+const queryMaterial = (productRiskMap) => {
+  queryListProductMaterial(productRiskMap).then(({ code, data }) => {
+    if (code === '10000') {
+      const { productMaterialList, riskMaterialList } = dealMaterialList(data);
+      fileList.value = productMaterialList.concat(riskMaterialList);
+    }
+  });
+};
+
 const getDefaultData = async () => {
   const { code, data } = await queryCalcDefaultInsureFactor({
     calcProductFactor: {
@@ -327,6 +308,8 @@ const getDefaultData = async () => {
 
   if (code === '10000') {
     Object.assign(defaultOrderDetail.value, data);
+    const productRiskMap = pickProductRiskCodeFromOrder(data.insuredList?.[0]?.productList);
+    queryMaterial(productRiskMap);
   }
 };
 
