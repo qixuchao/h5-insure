@@ -22,6 +22,22 @@
         @handle-sign="(signData) => sign('AGENT', signData)"
       ></SignPart>
     </div>
+    <AttachmentList
+      v-if="signPartInfo.agent?.fileList?.length"
+      :attachment-list="signPartInfo.agent?.fileList"
+      pre-text="请阅读"
+      @preview-file="(index) => previewFile(index)"
+    />
+    <FilePreview
+      v-if="showFilePreview"
+      v-model:show="showFilePreview"
+      :content-list="[signPartInfo.agent?.fileList[activeIndex]]"
+      is-only-view
+      :active-index="activeIndex"
+      text="关闭"
+      :force-read-cound="0"
+      @on-close-file-preview-by-mask="onResetFileFlag"
+    ></FilePreview>
     <div class="footer-button">
       <van-button type="primary" @click="handleSubmit">确定</van-button>
     </div>
@@ -48,6 +64,8 @@ import ProShare from '@/components/ProShare/index.vue';
 import { jumpToNextPage } from '@/utils';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 
+const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
+const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const route = useRoute();
 const router = useRouter();
 
@@ -133,6 +151,22 @@ const requiredType = ref<any>({
   verify: [],
   scribing: '',
 });
+
+// 文件预览
+const showFilePreview = ref<boolean>(false);
+const activeIndex = ref<number>(0);
+const previewMaterial = (material) => {
+  showFilePreview.value = true;
+};
+
+const previewFile = (index: number) => {
+  activeIndex.value = index;
+  showFilePreview.value = true;
+};
+
+const onResetFileFlag = () => {
+  showFilePreview.value = false;
+};
 
 const handleSubmit = () => {
   if (preview) {
@@ -244,10 +278,8 @@ const initData = async () => {
 
   queryListProductMaterial(productRiskMap).then(({ code, data }) => {
     if (code === '10000') {
-      const { productMaterialMap } = data.productMaterialPlanVOList?.[0] || {};
-      const signMaterialCollection = (Object.values(productMaterialMap || {}) || [])
-        .flat()
-        .filter((material: ProductMaterialVoItem) => material.materialType === MATERIAL_TYPE_ENUM.SIGN);
+      const { signMaterialMap } = data.productMaterialPlanVOList?.[1] || {};
+      const signMaterialCollection = Object.values(signMaterialMap) || [];
       signMaterialCollection.forEach((material: ProductMaterialVoItem) => {
         if (material.noticeObject === NOTICE_OBJECT_ENUM.AGENT) {
           signPartInfo.value.agent.fileList.push(material);

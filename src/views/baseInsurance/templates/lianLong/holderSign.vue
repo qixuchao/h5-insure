@@ -191,13 +191,21 @@ const handleSubmit = () => {
               query: route.query,
             });
           } else {
-            signatureConfirm({
-              bizObjectId: [orderDetail.value.holder.id],
-              bizObjectType: NOTICE_TYPE_ENUM.HOLDER,
-              orderId: orderDetail.value.id,
-              tenantId,
-            }).then(({ code: cCode, data: cData }) => {
-              if (cCode === '10000' && cData) {
+            Promise.all([
+              signatureConfirm({
+                bizObjectId: [orderDetail.value.holder.id],
+                bizObjectType: NOTICE_TYPE_ENUM.HOLDER,
+                orderId: orderDetail.value.id,
+                tenantId,
+              }),
+              signatureConfirm({
+                bizObjectId: [orderDetail.value.insuredList[0].id],
+                bizObjectType: NOTICE_TYPE_ENUM.INSURED,
+                orderId: orderDetail.value.id,
+                tenantId,
+              }),
+            ]).then((res1) => {
+              if (res1[0].code === '10000' && res1[1].code === '10000') {
                 router.push({
                   path: PAGE_ROUTE_ENUMS.sign,
                   query: route.query,
