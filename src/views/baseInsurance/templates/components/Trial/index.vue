@@ -856,8 +856,11 @@ const handleTrialInfoChange = async (data: any, changeData: any, productCode) =>
     });
   }
   // TODO 这里未来需要看一下  多倍保人的情况，回传需要加入被保人的Index或者别的key
-  const dyDeal = await handleDynamicConfig(data, changeData, productCode);
-  if (!dyDeal) return;
+  if (data.exemptFlag !== YES_NO_ENUM.YES) {
+    const dyDeal = await handleDynamicConfig(data, changeData, productCode);
+    if (!dyDeal) return;
+  }
+
   console.log('标准险种的信息回传', data);
   handleMixTrialData();
 };

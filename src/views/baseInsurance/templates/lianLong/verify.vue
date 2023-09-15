@@ -58,6 +58,7 @@
           name="holder.mobile"
           maxlength="11"
           required
+          is-view
         ></ProFieldV2>
         <ProSMSCode
           v-model="formData.holder.verifyCode"
@@ -76,6 +77,7 @@
             name="insuredList.0.mobile"
             maxlength="11"
             required
+            is-view
           ></ProFieldV2>
           <ProSMSCode
             v-model="formData.insuredList[0].verifyCode"

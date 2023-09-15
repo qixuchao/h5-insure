@@ -156,6 +156,7 @@ const getQuestionInfo = async (params) => {
       );
       currentQuestion.value = {
         ...questionnaireDetailResponseVO,
+        questionnaireId: currentQuestionnaireId,
         contentType: 'question',
         ...currentAnswer?.questionnaireDetailResponseVO,
       };

@@ -45,7 +45,13 @@ import { InsureProductData, ProductDetail, ProductMaterialVoItem } from '@/api/m
 import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
 import SignPart from './components/SignPart.vue';
 import useOrder from '@/hooks/useOrder';
-import { SCRIBING_TYPE_ENUM, SCRIBING_TYPE_MAP, NOTICE_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
+import {
+  SCRIBING_TYPE_ENUM,
+  SCRIBING_TYPE_MAP,
+  NOTICE_TYPE_ENUM,
+  YES_NO_ENUM,
+  CERT_TYPE_ENUM,
+} from '@/common/constants';
 
 import { MATERIAL_TYPE_ENUM } from '@/common/constants/product';
 import { NOTICE_OBJECT_ENUM } from '@/common/constants/notice';
@@ -144,6 +150,10 @@ const defaultScribingConfig = ref({});
 
 const sign = (type, signData, bizObjectId?) => {
   saveSign(type, signData, orderDetail.value?.id, tenantId, bizObjectId);
+  const { age, relationToHolder, id } = signPartInfo.value.insured.personalInfo[0];
+  if (`${relationToHolder}` === CERT_TYPE_ENUM.CERT || age < 18) {
+    saveSign('INSURED', signData, orderDetail.value?.id, tenantId, id);
+  }
 };
 
 const requiredType = ref<any>({
@@ -234,7 +244,7 @@ const initData = async () => {
   if (oCode === '10000') {
     Object.assign(orderDetail.value, orderData);
     signPartInfo.value.holder.personalInfo = { ...orderData.holder, isCert: 1 };
-
+    signPartInfo.value.insured.personalInfo.push(...orderData.insuredList);
     productRiskMap = pickProductRiskCodeFromOrder(orderData.insuredList[0].productList);
 
     Object.assign(defaultScribingConfig.value, {
@@ -244,8 +254,8 @@ const initData = async () => {
       status: !!orderData.extInfo.transcriptionStatus,
     });
 
-    orderData.tenantOrderAttachmentList.forEach((attachment) => {
-      if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
+    orderDetail.value.tenantOrderAttachmentList.forEach((attachment) => {
+      if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER && attachment.category === 21) {
         signPartInfo.value.holder.signData = attachment.fileBase64;
       } else if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT) {
         signPartInfo.value.agent.signData = attachment.fileBase64;

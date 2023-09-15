@@ -181,12 +181,12 @@ const initData = async () => {
     });
     productRiskMap = pickProductRiskCode(orderData.insuredList[0].productList);
     orderData.tenantOrderAttachmentList.forEach((attachment) => {
-      if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED) {
+      if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED && attachment.category === 21) {
         signPartInfo.value.insured.signData[attachment.objectId] = attachment.fileBase64;
       }
     });
   }
-  queryListProductMaterial({ productCodeList: [] }).then(({ code, data }) => {
+  queryListProductMaterial(productRiskMap).then(({ code, data }) => {
     if (code === '10000') {
       const { productMaterialMap } = data.productMaterialPlanVOList?.[0] || {};
       const signMaterialCollection = (Object.values(productMaterialMap || {}) || [])

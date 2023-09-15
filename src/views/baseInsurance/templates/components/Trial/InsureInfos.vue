@@ -109,6 +109,7 @@ const handleMixData = (changeValue?: any) => {
   mValues.value.riskType = props.originData.riskType;
   mValues.value.mainRiskCode = props.originData.mainRiskCode;
   mValues.value.mainRiskId = props.originData.mainRiskId;
+  mValues.value.exemptFlag = props.originData.exemptFlag;
   if (changeValue) emit('trialChange', mValues.value, changeValue);
   else emit('trialChange', mValues.value);
 };
