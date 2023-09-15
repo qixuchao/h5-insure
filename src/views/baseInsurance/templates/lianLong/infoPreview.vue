@@ -32,10 +32,10 @@
     </div>
     <ProCard title="产品资料" :show-line="false" :show-icon="false">
       <van-cell
-        v-for="(material, index) in riskMaterialList"
+        v-for="(material, index) in fileList"
         :key="index"
         is-link
-        :label="material.materialName"
+        :title="material.attachmentName"
         @click="previewMaterial(material)"
       ></van-cell>
     </ProCard>
@@ -53,7 +53,16 @@
         <slot>下一步</slot>
       </ProShadowButton>
     </div>
-    <FilePreview></FilePreview>
+    <FilePreview
+      v-if="showFilePreview"
+      v-model:show="showFilePreview"
+      :content-list="[fileList[activeIndex]]"
+      is-only-view
+      :active-index="activeIndex"
+      text="关闭"
+      :force-read-cound="0"
+      @on-close-file-preview-by-mask="onResetFileFlag"
+    ></FilePreview>
   </div>
 </template>
 
@@ -88,11 +97,10 @@ import ProShadowButton from '../components/ProShadowButton/index.vue';
 import InsureInfo from './components/InsureInfo.vue';
 import ProShare from '@/components/ProShare/index.vue';
 import { jumpToNextPage, isAppFkq } from '@/utils';
-import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
+import { dealMaterialList, pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import InsuranceNotificationInformation from '../../../order/components/insuranceNotificationInformation.vue';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
-const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
 
 const route = useRoute();
 const router = useRouter();
@@ -179,6 +187,10 @@ const previewMaterial = (material) => {
   showFilePreview.value = true;
 };
 
+const onResetFileFlag = () => {
+  showFilePreview.value = false;
+};
+
 const shareRef = ref<InstanceType<typeof ProShare>>();
 const handleShare = () => {
   nextStep(orderDetail.value, (data, pageAction) => {
@@ -201,7 +213,7 @@ const onNext = async () => {
 
 const personInfo = ref();
 const productFactor = ref();
-const riskMaterialList = ref([]);
+const fileList = ref([]);
 const initData = async () => {
   let productRiskMap = {};
   const { code: oCode, data: oData } = await getTenantOrderDetail({ orderNo, tenantId });
@@ -214,7 +226,8 @@ const initData = async () => {
 
   queryListProductMaterial(productRiskMap).then(({ code, data }) => {
     if (code === '10000') {
-      riskMaterialList.value = data.riskMaterialList?.[0]?.productMaterialList;
+      const { productMaterialList, riskMaterialList } = dealMaterialList(data);
+      fileList.value = productMaterialList.concat(riskMaterialList);
     }
   });
 

@@ -54,7 +54,7 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'infoCollection',
     path: '/baseInsurance/long/infoCollection',
-    meta: { title: '信息采集', keepAlive: true },
+    meta: { title: '信息采集' },
     component: () => import('@/views/baseInsurance/templates/lianLong/infoCollection.vue'),
   },
   {

@@ -213,15 +213,15 @@ const isShareSing = computed(() => (type) => signPartInfo.value[type].isShareSig
 
 // 非双录场景下验证投被保人、代理人手机号
 const checkMobile = (type: 'agent' | 'holder' | 'insured') => {
-  if (isDisabled.value) {
-    return;
-  }
   checkType.value = type;
   if (type === 'agent') {
     router.push({
       path: PAGE_ROUTE_ENUMS.agentSign,
       query: route.query,
     });
+    return;
+  }
+  if (isDisabled.value) {
     return;
   }
   show.value = true;

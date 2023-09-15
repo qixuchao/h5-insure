@@ -55,8 +55,8 @@ export const dealMaterialList = (materialCollection) => {
 
   return {
     productMaterialList,
-    riskMaterialList: riskMaterialList.map((material) => ({
-      attachmentName: material.name,
+    riskMaterialList: (riskMaterialList?.[0]?.productMaterialList || []).map((material) => ({
+      attachmentName: material.materialName,
       attachmentList: [
         {
           ...material,
