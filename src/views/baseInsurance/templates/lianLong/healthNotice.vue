@@ -152,7 +152,7 @@ const getQuestionInfo = async (params) => {
       };
     } else {
       const currentAnswer = (answerList.value || []).find(
-        (answer) => answer.questionnaireId === questionnaireId && answer.noticeObject === objectType.value,
+        (answer) => answer.questionnaireId === questionnaireId.value && answer.noticeObject === objectType.value,
       );
       currentQuestion.value = {
         ...questionnaireDetailResponseVO,

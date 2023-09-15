@@ -302,27 +302,10 @@ const getRiderRiskDefaultValue = async (productCode, riskCode, mainRiskCode) => 
     },
   });
   if (code === '10000') {
-    let flag = false;
     let insertIndex = 0;
-    if (state.riskList[productCode]?.length === 1) {
-      insertIndex = 1;
-    } else {
-      insertIndex = state.riskList[productCode].findIndex((risk, index) => {
-        if (risk.riskCode === mainRiskCode) {
-          flag = true;
-        } else {
-          if (flag && riskCode.riskType === RISK_TYPE_ENUM.MAIN_RISK) {
-            return flag;
-          }
-        }
-
-        if (index + 1 === state.riskList[productCode].length) {
-          return true;
-        }
-
-        return false;
-      });
-    }
+    insertIndex = state.riskList[productCode].findIndex((risk, index) => {
+      return risk.riskCode === riskCode;
+    });
 
     state.defaultValue.insuredList[0].productList = state.defaultValue?.insuredList?.[0]?.productList.map((product) => {
       if (productCode === product.productCode) {
@@ -879,17 +862,6 @@ const handleTrialInfoChange = async (data: any, changeData: any, productCode) =>
   handleMixTrialData();
 };
 
-// const handleProductRiskInfoChange = async (dataList: any, changeData: any) => {
-//   state.riskList = [state.mainRiskVO, ...dataList];
-//   console.log('附加险列表数据回传', dataList);
-//   if (changeData) {
-//     const targetRisk = dataList.find((d) => d.riskCode === changeData.riskCode);
-//     const dyDeal = await handleDynamicConfig(targetRisk, changeData);
-//     if (!dyDeal) return;
-//   }
-//   handleMixTrialData();
-// };
-
 const onClosePopupAfterAni = () => {
   state.isAniShow = false;
 };
@@ -1014,6 +986,16 @@ watch(
       fetchDefaultData([]);
     }
     productMap.value = value;
+
+    Object.keys(value || []).forEach((productCode) => {
+      state.riskList[productCode] = value[productCode].productPlanInsureVOList[0].insureProductRiskVOList.map(
+        (risk) => {
+          return (
+            (state.riskList[productCode] || []).find((currentRisk) => currentRisk.riskCode === risk.riskCode) || risk
+          );
+        },
+      );
+    });
   },
   {
     deep: true,
@@ -1036,7 +1018,6 @@ watch(
   () => props.defaultData,
   (value, oldValue) => {
     if (JSON.stringify(cloneDeep(value)) !== JSON.stringify(cloneDeep(oldValue))) {
-      console.log('value', value, oldValue);
       state.defaultValue = value;
       state.userData = value || {};
     }

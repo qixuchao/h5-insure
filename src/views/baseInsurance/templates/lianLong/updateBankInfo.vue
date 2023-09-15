@@ -23,6 +23,7 @@ import { transformFactorToSchema } from '@/components/RenderForm/utils/tools';
 import { nextStepOperate as nextStep } from '../../nextStep';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
+import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
 
 const route = useRoute();
 const router = useRouter();
@@ -42,7 +43,7 @@ const handleCancel = () => {
 
 const handleConfirm = () => {
   if (payInfoRef.value) {
-    payInfoRef.value.validate((validate) => {
+    payInfoRef.value.validate(false).then((validate) => {
       if (validate) {
         nextStep(
           orderDetail.value,
@@ -62,7 +63,9 @@ const initData = async () => {
   let productRiskMap = {};
   const { code: oCode, data: oData } = await getTenantOrderDetail({ orderNo, tenantId });
   if (oCode === '10000') {
-    Object.assign(orderDetail.value, oData);
+    Object.assign(orderDetail.value, oData, {
+      extInfo: { ...oData.extInfo, buttonCode: BUTTON_CODE_ENUMS.SIGN, pageCode: PAGE_CODE_ENUMS.SIGN },
+    });
     productRiskMap = pickProductRiskCodeFromOrder(oData.insuredList[0].productList);
   }
 
@@ -85,6 +88,6 @@ onBeforeMount(() => {
 
 <style lang="scss" scoped>
 .bank-info-wrap {
-  margin-bottom: 150px;
+  padding-bottom: 150px;
 }
 </style>

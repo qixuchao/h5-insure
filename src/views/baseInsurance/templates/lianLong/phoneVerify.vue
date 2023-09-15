@@ -69,7 +69,7 @@ const handleSubmit = () => {
     if (code === '10000' && data) {
       Toast.success('验证成功');
       router.push({
-        path: PAGE_ROUTE_ENUMS[nextPageCode as string],
+        path: PAGE_ROUTE_ENUMS[(nextPageCode as string).replace('/', '') as string],
         query: route.query,
       });
     } else {
