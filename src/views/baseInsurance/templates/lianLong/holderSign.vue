@@ -65,6 +65,7 @@ import { jumpToNextPage } from '@/utils';
 import { localStore } from '@/hooks/useStorage';
 import { confirmRiskTranscription } from '@/api/modules/scribing';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
+import { getFileType } from '../../utils';
 
 const route = useRoute();
 const router = useRouter();
@@ -274,17 +275,17 @@ const initData = async () => {
   }
   queryListProductMaterial(productRiskMap).then(({ code, data }) => {
     if (code === '10000') {
-      const { productMaterialMap } = data.productMaterialPlanVOList?.[0] || {};
-      const signMaterialCollection = (Object.values(productMaterialMap || {}) || [])
-        .flat()
-        .filter((material: ProductMaterialVoItem) => material.materialType === MATERIAL_TYPE_ENUM.SIGN);
+      const { signMaterialMap } = data.productMaterialPlanVOList?.[1] || {};
+      const signMaterialCollection = Object.values(signMaterialMap).flat() || [];
+
       signMaterialCollection.forEach((material: ProductMaterialVoItem) => {
-        if (material.noticeObject === NOTICE_OBJECT_ENUM.AGENT) {
-          signPartInfo.value.agent.fileList.push(material);
-        } else if (material.noticeObject === NOTICE_OBJECT_ENUM.HOlDER) {
-          signPartInfo.value.holder.fileList.push(material);
-        } else if (material.noticeObject === NOTICE_OBJECT_ENUM.INSURED) {
-          signPartInfo.value.insured.fileList.push(material);
+        if (material.noticeObject === NOTICE_OBJECT_ENUM.HOlDER) {
+          signPartInfo.value.holder.fileList.push({
+            attachmentName: material.materialName,
+            attachmentList: [
+              { ...material, materialSource: getFileType(`${material?.materialSource}`, material?.materialContent) },
+            ],
+          });
         }
       });
     }

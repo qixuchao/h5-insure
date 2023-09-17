@@ -51,7 +51,8 @@ import { PAGE_CODE_ENUMS } from './constants';
 
 import { jumpToNextPage } from '@/utils';
 
-import { pickProductRiskCode } from './utils';
+import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
+import { getFileType } from '../../utils';
 
 const route = useRoute();
 const router = useRouter();
@@ -179,7 +180,7 @@ const initData = async () => {
       insured.isCert = 1;
       return insured;
     });
-    productRiskMap = pickProductRiskCode(orderData.insuredList[0].productList);
+    productRiskMap = pickProductRiskCodeFromOrder(orderData.insuredList[0].productList);
     orderData.tenantOrderAttachmentList.forEach((attachment) => {
       if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED && attachment.category === 21) {
         signPartInfo.value.insured.signData[attachment.objectId] = attachment.fileBase64;
@@ -188,17 +189,17 @@ const initData = async () => {
   }
   queryListProductMaterial(productRiskMap).then(({ code, data }) => {
     if (code === '10000') {
-      const { productMaterialMap } = data.productMaterialPlanVOList?.[0] || {};
-      const signMaterialCollection = (Object.values(productMaterialMap || {}) || [])
-        .flat()
-        .filter((material: ProductMaterialVoItem) => material.materialType === MATERIAL_TYPE_ENUM.SIGN);
+      const { signMaterialMap } = data.productMaterialPlanVOList?.[1] || {};
+      const signMaterialCollection = Object.values(signMaterialMap).flat() || [];
+
       signMaterialCollection.forEach((material: ProductMaterialVoItem) => {
-        if (material.noticeObject === NOTICE_OBJECT_ENUM.AGENT) {
-          signPartInfo.value.agent.fileList.push(material);
-        } else if (material.noticeObject === NOTICE_OBJECT_ENUM.HOlDER) {
-          signPartInfo.value.holder.fileList.push(material);
-        } else if (material.noticeObject === NOTICE_OBJECT_ENUM.INSURED) {
-          signPartInfo.value.insured.fileList.push(material);
+        if (material.noticeObject === NOTICE_OBJECT_ENUM.INSURED) {
+          signPartInfo.value.insured.fileList.push({
+            attachmentName: material.materialName,
+            attachmentList: [
+              { ...material, materialSource: getFileType(`${material?.materialSource}`, material?.materialContent) },
+            ],
+          });
         }
       });
     }

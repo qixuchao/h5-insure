@@ -67,8 +67,10 @@
 import { withDefaults } from 'vue';
 import dayjs from 'dayjs';
 import { CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
-import useAttachment from '@/hooks/useAttachment';
 import Sign from '../../components/Sign/index.vue';
+
+const AttachmentList = defineAsyncComponent(() => import('../../components/AttachmentList/index.vue'));
+const FilePreview = defineAsyncComponent(() => import('../../components/FilePreview/index.vue'));
 
 interface Props {
   signString?: string; // 签字配置信息
@@ -100,7 +102,6 @@ const currentPlanObj = ref({});
 const isOnlyView = ref<boolean>(true); // 资料查看模式
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
-const { fileList } = useAttachment(currentPlanObj, productMaterialPlanList);
 
 // 文件预览
 const previewFile = (index: number) => {

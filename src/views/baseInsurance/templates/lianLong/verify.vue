@@ -13,7 +13,7 @@
           </div>
         </template>
       </van-cell>
-      <template v-if="!needBMOS">
+      <template v-if="needBMOS">
         <van-cell v-if="isShowItem('holder')" title="投保人签名" :required="isRequired('holder')">
           <template #value>
             <div class="inner-cell">
@@ -53,38 +53,38 @@
       </template>
       <ProRenderForm v-else ref="formRef" :model="formData">
         <ProFieldV2
-          v-model="formData.holder.mobile"
+          v-model="formData.holderMobile"
           label="投保人手机号"
-          name="holder.mobile"
+          name="holderMobile"
           maxlength="11"
           required
           is-view
         ></ProFieldV2>
         <ProSMSCode
-          v-model="formData.holder.verifyCode"
-          related-name="holder.mobile"
+          v-model="formData.holderVerifyCode"
+          related-name="holderMobile"
           label="验证码"
           maxlength="6"
-          name="holder.verifyCode"
+          name="holderVerifyCode"
           :send-s-m-s-code="sendSMSCode"
           rules=""
           required
         ></ProSMSCode>
         <template v-if="isShowInsured">
           <ProFieldV2
-            v-model="formData.insuredList[0].mobile"
+            v-model="formData.insuredMobile"
             label="被保人手机号"
-            name="insuredList.0.mobile"
+            name="insuredMobile"
             maxlength="11"
             required
             is-view
           ></ProFieldV2>
           <ProSMSCode
-            v-model="formData.insuredList[0].verifyCode"
+            v-model="formData.insuredVerifyCode"
             label="验证码"
             maxlength="6"
-            name="insuredList.0.verifyCode"
-            related-name="insuredList.0.mobile"
+            name="insuredVerifyCode"
+            related-name="insuredMobile"
             :send-s-m-s-code="sendSMSCode"
             required
           ></ProSMSCode>
@@ -146,8 +146,10 @@ const BMOSStatus = ref<number>();
 
 const formRef = ref();
 const formData = ref({
-  holder: {},
-  insuredList: [{}],
+  holderMobile: '',
+  holderVerifyCode: '',
+  insuredMobile: '',
+  insuredVerifyCode: '',
 });
 
 const orderDetail = useOrder();
@@ -286,7 +288,12 @@ const initData = async () => {
     if (code === '10000') {
       Object.assign(orderDetail.value, data);
       const { agentAuthFlag } = data.extInfo;
-      formData.value = data;
+      const { mobile } = data.holder;
+      const { mobile: insuredMobile } = data.insuredList?.[0] || {};
+      Object.assign(formData.value, {
+        holderMobile: mobile,
+        insuredMobile,
+      });
 
       productRiskMap = pickProductRiskCodeFromOrder(data.insuredList[0].productList);
       signPartInfo.value.agent.verifyStatus = agentAuthFlag;
@@ -352,6 +359,7 @@ const onNext = () => {
       return;
     }
   }
+
   const currentOrderDetail = Object.assign(orderDetail.value, {
     extInfo: { ...orderDetail.value.extInfo, pageCode: PAGE_CODE_ENUMS.SIGN, buttonCode: BUTTON_CODE_ENUMS.SIGN },
   });
