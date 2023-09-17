@@ -236,6 +236,7 @@ const handleDMOS = () => {
   if (isDisabled.value || BMOSStatus.value === DUAL_STATUS_ENUM.DUAL_SUCCESS) {
     return;
   }
+
   dualUploadFiles(orderDetail.value).then(({ code, data }) => {
     if (code === '10000') {
       if (data) {

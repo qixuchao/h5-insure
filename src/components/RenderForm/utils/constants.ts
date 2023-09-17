@@ -107,9 +107,9 @@ export const INPUT_MAX_LENGTH = {
    */
   TWENTY: 20,
   /**
-   * 姓名长度 25
+   * 姓名长度 40
    */
-  TWENTY_FIVE: 25,
+  FORTY: 40,
   /**
    * 详细地址长度/单位名称 50
    */
@@ -182,7 +182,7 @@ export const RULE_CONFIG_MAP = {
    * 姓名 长度最大 25
    */
   NAME: {
-    maxlength: INPUT_MAX_LENGTH.TWENTY_FIVE,
+    maxlength: INPUT_MAX_LENGTH.FORTY,
     ruleType: RULE_TYPE_ENUM.NAME,
   },
   /**

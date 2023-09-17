@@ -71,7 +71,7 @@ interface StateType {
   productList: any[];
   selectProduct: any[];
   insurerCodeList: string[];
-  showCategory: number | string;
+  productCategory: number | string;
   productTotal: number;
   productCode?: number;
   checked: string;
@@ -100,7 +100,7 @@ const state = reactive<StateType>({
   productList: [],
   selectProduct: [],
   insurerCodeList: [],
-  showCategory: '',
+  productCategory: '',
   productTotal: 0,
   checked: '',
   productCode: undefined,
@@ -127,7 +127,7 @@ const {
   productList,
   selectProduct,
   insurerCodeList,
-  showCategory,
+  productCategory,
   productTotal,
   showFooter,
 } = toRefs(state);
@@ -138,10 +138,9 @@ const getProducts = () => {
     Toast.loading('加载中...');
   }
   queryProductList({
-    title: searchValue.value,
+    keyword: searchValue.value,
     insurerCodeList: insurerCodeList.value,
-    showCategory: showCategory.value,
-    excludeProductCodeList: Array.isArray(excludeProductCodeList) ? excludeProductCodeList : [],
+    productCategory: productCategory.value,
     pageNum: 1,
     pageSize: 999,
   })
@@ -165,7 +164,7 @@ const onSearch = (val: string) => {
 const indexCheck = ref<number>(0);
 const onClickTag = (id: any, index: number) => {
   indexCheck.value = index;
-  showCategory.value = id;
+  productCategory.value = id;
   getProducts();
 };
 

@@ -647,7 +647,7 @@ watch(
       }
       return res;
     }, state.insured) as InsuredListProps;
-  }, 300),
+  }, 500),
   {
     deep: true,
     immediate: true,

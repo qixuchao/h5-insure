@@ -8,7 +8,15 @@
       </div>
       <p class="tip">已为您挑选出以下险种</p>
       <div class="search">
-        <van-search shape="round" placeholder="请输入产品名称进行搜索"></van-search>
+        <van-search
+          v-model="searchValue"
+          shape="round"
+          placeholder="请输入产品名称进行搜索"
+          clear-trigger="always"
+          show-action
+          clearable
+          @search="getRiskList"
+        ></van-search>
       </div>
       <div v-if="riskList.length" class="risk-list">
         <van-radio-group v-model="checked">
@@ -66,7 +74,7 @@ const emits = defineEmits(['cancel', 'confirm']);
 
 const checked = ref();
 const riskList = ref<any[]>([]);
-
+const searchValue = ref<string>();
 const show = computed(() => props.show);
 
 const handleCancel = () => {
@@ -86,6 +94,7 @@ const getRiskList = async () => {
     mainRiskCode: props.mainRiskCode,
     insurerCode,
     productCategory: '',
+    keyword: searchValue.value,
     selectProductCodes: [],
     selectRiskCodes: [],
     filterFlag: props.selectList?.length ? 1 : 2,
@@ -154,6 +163,13 @@ onMounted(() => {
   .search {
     :deep(.van-search) {
       padding: 16px 0;
+    }
+    :deep(.van-search__field) {
+      .van-field__value {
+        .van-field__body {
+          width: 100%;
+        }
+      }
     }
   }
   .risk-list {
