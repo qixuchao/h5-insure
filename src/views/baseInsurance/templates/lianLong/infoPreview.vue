@@ -36,7 +36,7 @@
         :key="index"
         is-link
         :title="material.attachmentName"
-        @click="previewMaterial(material)"
+        @click="previewMaterial(index)"
       ></van-cell>
     </ProCard>
     <div class="footer-btn">
@@ -58,7 +58,7 @@
       v-model:show="showFilePreview"
       :content-list="[fileList[activeIndex]]"
       is-only-view
-      :active-index="activeIndex"
+      :active-index="0"
       text="关闭"
       :force-read-cound="0"
       @on-close-file-preview-by-mask="onResetFileFlag"
@@ -183,7 +183,8 @@ const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const isLoading = ref<boolean>(false);
 // 文件预览
-const previewMaterial = (material) => {
+const previewMaterial = (index) => {
+  activeIndex.value = index;
   showFilePreview.value = true;
 };
 
