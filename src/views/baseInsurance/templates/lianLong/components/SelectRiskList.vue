@@ -19,21 +19,14 @@
         ></van-search>
       </div>
       <div v-if="riskList.length" class="risk-list">
-        <van-radio-group v-model="checked">
-          <van-cell-group inset>
-            <van-cell
-              v-for="risk in riskList"
-              :key="risk.riskCode || risk.productCode"
-              :title="risk.riskName || risk.productName"
-              clickable
-              @click="checked = risk.riskCode || risk.productCode"
-            >
-              <template #icon>
-                <van-radio :name="risk.riskCode || risk.productCode" />
-              </template>
-            </van-cell>
-          </van-cell-group>
-        </van-radio-group>
+        <van-checkbox-group v-model="checked">
+          <van-checkbox
+            v-for="risk in riskList"
+            :key="risk.riskCode || risk.productCode"
+            :name="risk.riskCode || risk.productCode"
+            >{{ risk.riskName || risk.productName }}</van-checkbox
+          >
+        </van-checkbox-group>
       </div>
       <ProEmpty
         v-else
@@ -72,7 +65,7 @@ const { insurerCode } = route.query;
 
 const emits = defineEmits(['cancel', 'confirm']);
 
-const checked = ref();
+const checked = ref<Array<string>>([]);
 const riskList = ref<any[]>([]);
 const searchValue = ref<string>();
 const show = computed(() => props.show);
@@ -81,7 +74,7 @@ const handleCancel = () => {
   emits('cancel');
 };
 const handleConfirm = () => {
-  if (!checked.value) {
+  if (!checked.value?.length) {
     Toast(`暂未添加任何${props.type === RISK_TYPE_ENUM.MAIN_RISK ? '主' : '附加'}险`);
     return;
   }
@@ -173,11 +166,11 @@ onMounted(() => {
     }
   }
   .risk-list {
-    :deep(.van-cell-group--inset) {
+    :deep(.van-checkbox-group) {
       margin: 0;
-      .van-cell {
+      .van-checkbox {
         padding: 0;
-        line-height: 102px;
+        min-height: 102px;
         display: flex;
         align-items: center;
         position: relative;

@@ -890,9 +890,11 @@ const transformDefaultData = (defaultData: any) => {
 
 const fetchDefaultDataFromServer = async () => {
   const result = await queryCalcDefaultInsureFactor({
-    calcProductFactor: {
-      productCode: Object.keys(props.productCollection)?.[0],
-    },
+    calcProductFactorList: [
+      {
+        productCode: Object.keys(props.productCollection)?.[0],
+      },
+    ],
   });
   if (result.data) {
     transformDefaultData(result.data);

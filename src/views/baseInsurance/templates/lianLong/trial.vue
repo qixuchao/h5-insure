@@ -94,20 +94,21 @@ const handleCancel = () => {
   popupShow.value = false;
 };
 
-const handleConfirm = (selectCode) => {
+const handleConfirm = (selectCodeList: Array<string>) => {
   if (popupType.value === RISK_TYPE_ENUM.MAIN_RISK) {
-    productRiskCodeMap.value.productList.push({ productCode: selectCode, mergeRiskReqList: [] });
-    trialRef.value.getProductDefaultValue(selectCode);
+    productRiskCodeMap.value.productList.push({ productCode: selectCodeList, mergeRiskReqList: [] });
+    trialRef.value.getProductDefaultValue(selectCodeList);
   } else {
     const currentProduct = productRiskCodeMap.value.productList.find(
       (product) => product.productCode === currentProductCode.value,
     );
     currentProduct.mergeRiskReqList.push({
-      riskCode: selectCode,
+      riskCodeList: selectCodeList,
       riskType: RISK_TYPE_ENUM.RIDER_RISK,
       mainRiskCode: currentRiskInfo.value.riskCode,
     });
-    trialRef.value.getRiderRiskDefaultValue(currentProductCode.value, selectCode, currentRiskInfo.value.riskCode);
+    productRiskCodeMap.value = currentProduct;
+    trialRef.value.getRiderRiskDefaultValue(currentProductCode.value, selectCodeList, currentRiskInfo.value.riskCode);
   }
   getMergeProductDetail();
   popupShow.value = false;
