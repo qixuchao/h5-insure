@@ -15,7 +15,7 @@
         <InfoItem label="保费" :content="result.orderAmount" line />
       </div>
       <div class="footer-button">
-        <template v-if="!isPayFail">
+        <template v-if="isPayFail">
           <van-button type="primary" plain @click="handleUpdateBank">变更卡号</van-button>
           <van-button type="primary" @click="handleOfflinePay">线下扣款</van-button>
         </template>
