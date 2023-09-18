@@ -22,6 +22,7 @@
       :show="popupShow"
       :insured-list="insuredList"
       :title="popupTitle"
+      :current-product-code="currentProductCode"
       :main-risk-code="currentRiskInfo.riskCode"
       :select-list="productRiskCodeMap.productList"
       @cancel="handleCancel"
@@ -94,20 +95,26 @@ const handleCancel = () => {
   popupShow.value = false;
 };
 
-const handleConfirm = (selectCode) => {
+const handleConfirm = (selectCodeList: Array<string>) => {
   if (popupType.value === RISK_TYPE_ENUM.MAIN_RISK) {
-    productRiskCodeMap.value.productList.push({ productCode: selectCode, mergeRiskReqList: [] });
-    trialRef.value.getProductDefaultValue(selectCode);
+    const productList = selectCodeList.map((code) => ({
+      productCode: code,
+      mergeRiskReqList: [],
+    }));
+    productRiskCodeMap.value.productList.push(...productList);
+    trialRef.value.getProductDefaultValue(selectCodeList);
   } else {
     const currentProduct = productRiskCodeMap.value.productList.find(
       (product) => product.productCode === currentProductCode.value,
     );
-    currentProduct.mergeRiskReqList.push({
-      riskCode: selectCode,
+    const riskList = selectCodeList.map((riskCode) => ({
+      riskCode,
       riskType: RISK_TYPE_ENUM.RIDER_RISK,
       mainRiskCode: currentRiskInfo.value.riskCode,
-    });
-    trialRef.value.getRiderRiskDefaultValue(currentProductCode.value, selectCode, currentRiskInfo.value.riskCode);
+    }));
+    currentProduct.mergeRiskReqList.push(...riskList);
+    // productRiskCodeMap.value = currentProduct;
+    trialRef.value.getRiderRiskDefaultValue(currentProductCode.value, selectCodeList, currentRiskInfo.value.riskCode);
   }
   getMergeProductDetail();
   popupShow.value = false;

@@ -39,7 +39,7 @@ export const dealMaterialList = (materialCollection) => {
   const { riskMaterialList, productMaterialPlanVOList } = materialCollection;
   const { productMaterialMap } = productMaterialPlanVOList?.[0] || {};
 
-  const productMaterialList = Object.keys(productMaterialMap).map((e) => {
+  const productMaterialList = Object.keys(productMaterialMap || {}).map((e) => {
     const materialTabList = productMaterialMap[e].map((attachmentItem) => {
       return {
         ...attachmentItem,

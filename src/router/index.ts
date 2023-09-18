@@ -10,6 +10,7 @@ import useAppStore from '@/store/app';
 import { getWxJsSdkSignature } from '@/api/modules/wechat';
 import { isWechat } from '@/utils/index';
 import { cachePage } from '@/utils/cachePage';
+import SDK from '@/utils/lianSDK';
 
 const router: Router = createRouter({
   // 新的vue-router4 使用 history路由模式 和 base前缀
@@ -59,6 +60,13 @@ router.beforeEach(async (to, from, next) => {
   console.log(window.location.href, `${ORIGIN}${to.path}`);
   // set title 给App或浏览器标题栏显示
   useTitle(to.meta?.title as string); // || (VITE_TITLE as string));
+  SDK(
+    'setNavigationBarTitle',
+    {
+      title: to.meta?.title,
+    },
+    () => {},
+  );
   if (to.path === '/login' || to.query.flag === 'N') {
     next();
   } else {
