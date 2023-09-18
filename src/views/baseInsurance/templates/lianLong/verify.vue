@@ -13,7 +13,7 @@
           </div>
         </template>
       </van-cell>
-      <template v-if="needBMOS">
+      <template v-if="!needBMOS">
         <van-cell v-if="isShowItem('holder')" title="投保人签名" :required="isRequired('holder')">
           <template #value>
             <div class="inner-cell">

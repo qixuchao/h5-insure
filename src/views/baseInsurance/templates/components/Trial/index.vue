@@ -8,7 +8,7 @@
       <div class="container">
         <!-- 这里放因子 -->
         <PersonalInfo
-          v-if="currentProductFactor"
+          v-if="Object.keys(currentProductFactor)?.length"
           ref="personalInfoRef"
           :key="currentPlan.planCode"
           v-model="state.userData"
@@ -291,27 +291,27 @@ const canAddMainRisk = computed<boolean>(() => {
 });
 
 // 添加附加险后计算对应附加险的默认值
-const getRiderRiskDefaultValue = async (productCode, riskCode, mainRiskCode) => {
+const getRiderRiskDefaultValue = async (productCode, riskCodeList, mainRiskCode) => {
   const mainRiskInfo = state.riskList[productCode].find((risk) => risk.riskCode === mainRiskCode);
   const { code, data } = await queryDefaultRiskInsureFactor({
     holder: state.userData.holder,
     insuredList: state.userData.insuredList,
     calcRiskDefaultFactorVO: {
       mainRiskInfo,
-      riskCode,
+      riskCodeList,
     },
   });
   if (code === '10000') {
     let insertIndex = 0;
     insertIndex = state.riskList[productCode].findIndex((risk, index) => {
-      return risk.riskCode === riskCode;
+      return risk.riskCode === riskCodeList[0];
     });
 
     state.defaultValue.insuredList[0].productList = state.defaultValue?.insuredList?.[0]?.productList.map((product) => {
       if (productCode === product.productCode) {
         product.riskList = [
           ...product.riskList.slice(0, insertIndex),
-          data,
+          ...data,
           ...product.riskList.slice(insertIndex, product.riskList.length),
         ];
       }
@@ -326,11 +326,9 @@ const addRiderRisk = (productCode, mainRiskCode) => {
 };
 
 // 添加主险重新获取默认值
-const getProductDefaultValue = async (productCode) => {
+const getProductDefaultValue = async (productCodeList: Array<string>) => {
   const { code, data } = await queryCalcDefaultInsureFactor({
-    calcProductFactor: {
-      productCode,
-    },
+    calcProductFactorList: productCodeList.map((productCode) => ({ productCode })),
     holderVO: state.userData.holder,
     insuredVOList: state.userData.insuredList,
   });

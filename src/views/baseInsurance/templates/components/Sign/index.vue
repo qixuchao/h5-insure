@@ -18,14 +18,21 @@
   >
     <div class="popup-body">
       <div class="sign-container-wrap">
-        <ProSign ref="signRef" placeholder="请在此处签名" @stroke="isEmpty = false"></ProSign>
+        <van-swipe ref="swipeRef" vertical :loop="false" :show-indicators="false" :touchable="false">
+          <van-swipe-item v-for="(sign, index) in signSlice" :key="index">
+            <ProSign
+              ref="signRef"
+              v-model="signCollection[index]"
+              :placeholder="sign"
+              @stroke="isEmpty = false"
+            ></ProSign>
+          </van-swipe-item>
+        </van-swipe>
         <div class="operate-bar">
-          <span><van-icon name="info" color="#ffaf22" /> 请投保人正楷签署您的签名:</span>
-          <div class="btns">
-            <van-button type="default" class="btn" @click="goBack">返回</van-button>
-            <van-button type="default" class="btn" @click="rewrite">重写</van-button>
-            <van-button type="primary" class="btn" :disabled="isEmpty" @click="confirm">确定签字</van-button>
-          </div>
+          <van-button type="primary" class="btn" :disabled="isEmpty" @click="handleConfirm">确定</van-button>
+          <van-button type="primary" plain class="btn" @click="handlePre">上一页</van-button>
+          <van-button type="primary" plain class="btn" @click="rewrite">重签</van-button>
+          <van-button type="default" class="btn" @click="goBack">取消</van-button>
         </div>
       </div>
     </div>
@@ -34,26 +41,69 @@
 <script lang="ts" setup name="sign">
 import { withDefaults } from 'vue';
 import { ImagePreview } from 'vant';
+import Toast from 'vant/es/toast';
 import ProSign from '@/components/ProSign/index.vue';
+import { rotateBase64 } from '@/components/ProScribing/utils';
 
 const props = withDefaults(
   defineProps<{
     option: any;
     modelValue: string;
+    signString: string;
+    signAccount: number;
   }>(),
   {
     option: {},
     modelValue: '',
+    signString: '房间卡贺卡和大伙副书记环境发好',
+    signAccount: 3,
   },
 );
 
-const isShowSign = ref<boolean>(false);
+const isShowSign = ref<boolean>(true);
 const signRef = ref<InstanceType<typeof ProSign>>();
 const emits = defineEmits(['update:modelValue', 'submitSign']);
 
 const signString = ref<string>('');
+const signCollection = ref<string[]>([]);
+const activityIndex = ref<number>(0);
+
+const signSlice = computed(() => {
+  if (props.signString && props.signString.length >= props.signAccount) {
+    const sliceArray = [];
+    let currentIndex = 0;
+    for (let t = 0; t <= props.signString.length; t++) {
+      if (t && !(t % props.signAccount)) {
+        currentIndex += 1;
+      }
+      if (props.signString[t]) {
+        if (sliceArray[currentIndex]) {
+          sliceArray[currentIndex] += props.signString[t];
+        } else {
+          sliceArray[currentIndex] = props.signString[t];
+        }
+      }
+    }
+
+    return sliceArray;
+  }
+  return [''];
+});
 
 const isEmpty = ref<boolean>(true);
+const swipeRef = ref();
+
+// 上一步
+const handlePre = () => {
+  if (activityIndex.value === 0) {
+    return;
+  }
+
+  if (swipeRef.value) {
+    activityIndex.value -= 1;
+    swipeRef.value.swipeTo(activityIndex.value);
+  }
+};
 
 const openSign = () => {
   isShowSign.value = true;
@@ -83,11 +133,30 @@ const rewrite = () => {
   emits('update:modelValue', '');
 };
 
-const confirm = () => {
-  signString.value = signRef.value?.save();
-  emits('update:modelValue', signString.value);
-  emits('submitSign', signString.value);
-  isShowSign.value = false;
+const handleConfirm = () => {
+  if (signCollection.value?.length !== signSlice.value?.length) {
+    Toast({
+      message: '请完成抄录',
+      className: 'toast-vertical',
+    });
+    return;
+  }
+  const promiseList = [];
+
+  signCollection.value.forEach(async (sign, index) => {
+    promiseList.push(rotateBase64(sign, 270));
+  });
+
+  Promise.all(promiseList).then((newBase64) => {
+    const params = newBase64.map((base64, index) => {
+      return {
+        image: base64,
+      };
+    });
+    emits('update:modelValue', params);
+    emits('submitSign', params);
+    isShowSign.value = false;
+  });
 };
 
 watch(
@@ -119,6 +188,7 @@ defineExpose({
 .popup-body {
   width: 100%;
   height: 100%;
+  padding: 70px;
 }
 
 .preview-sign {
@@ -130,7 +200,6 @@ defineExpose({
 }
 .sign-container-wrap {
   width: 100%;
-  padding-left: 150px;
   height: 100%;
   display: flex;
   flex-direction: row-reverse;
@@ -139,27 +208,29 @@ defineExpose({
 
   .operate-bar {
     position: absolute;
-    width: 100vh;
+    width: 240px;
+    height: calc(100vw - 140px);
     display: flex;
-    margin: 20px;
+    flex-direction: column;
     align-items: center;
-    transform: rotateZ(90deg);
-    padding-left: 100px;
     justify-content: space-between;
     align-items: center;
-    transform: rotateZ(90deg) translate3d(95vh, 660px, 0px);
-    padding: 20px;
+    transform: rotateZ(90deg) translate3d(20vh, 40vw, 0px);
     transform-origin: right;
-    box-shadow: 0px -2px 10px 0px #eaeaea;
+    bottom: 0;
     .btn {
       width: 240px;
       margin-right: 20px;
     }
   }
-
+  .van-swipe {
+    height: calc(100% - 240px);
+    width: 100%;
+  }
   :deep(.com-sign-wrapper) {
     width: 100%;
     height: 100%;
+
     .placeholder {
       transform: rotateZ(90deg);
     }

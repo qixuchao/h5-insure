@@ -49,6 +49,7 @@ interface Props {
   insuredList: any[];
   mainRiskCode?: string;
   selectList: any[];
+  currentProductCode: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -57,6 +58,7 @@ const props = withDefaults(defineProps<Props>(), {
   insuredList: () => [],
   mainRiskCode: '',
   selectList: () => [],
+  currentProductCode: '',
 });
 
 const route = useRoute();
@@ -94,7 +96,9 @@ const getRiskList = async () => {
   };
 
   params.selectProductCodes = props.selectList.map((product) => {
-    params.selectRiskCodes.push(...product.mergeRiskReqList.map((risk) => risk.riskCode));
+    if (product.productCode === props.currentProductCode) {
+      params.selectRiskCodes.push(...product.mergeRiskReqList.map((risk) => risk.riskCode));
+    }
     return product.productCode;
   });
 
