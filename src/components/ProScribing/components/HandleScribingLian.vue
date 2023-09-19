@@ -90,7 +90,6 @@ const scribingSlice = computed(() => {
         }
       }
     }
-
     return sliceArray;
   }
   return [''];

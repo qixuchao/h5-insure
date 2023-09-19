@@ -743,8 +743,39 @@ watch(
 
 // 获取当前产品修改的险种信息，以及如果有同主险逻辑获取附加险信息
 const pickRiskInfoList = (productCode, riskCode, riskType) => {
-  return productMap.value[productCode].productPlanInsureVOList?.[0].insureProductRiskVOList.filter((risk) => {
-    const { paymentPeriodRule, paymentTypeRule, insurancePeriodRule } = risk.productRiskInsureLimitVO;
+  let paymentPeriodRule = null;
+  let paymentTypeRule = null;
+  let insurancePeriodRule = null;
+  let mainRiskCode = null;
+  if (riskType === RISK_TYPE_ENUM.RIDER_RISK) {
+    const riskInfo = productMap.value[productCode].productPlanInsureVOList?.[0].insureProductRiskVOList.find(
+      (risk) => risk.riskCode === riskCode,
+    );
+    const { mainRiskCode: mCode, productRiskInsureLimitVO } = riskInfo;
+    const {
+      paymentPeriodRule: periodRule,
+      paymentTypeRule: typeRule,
+      insurancePeriodRule: iPeriodRule,
+    } = productRiskInsureLimitVO || {};
+    paymentPeriodRule = periodRule;
+    paymentTypeRule = typeRule;
+    insurancePeriodRule = iPeriodRule;
+    mainRiskCode = mCode;
+  }
+
+  console.log('mainRiskCode', mainRiskCode);
+
+  const riskList = productMap.value[productCode].productPlanInsureVOList?.[0].insureProductRiskVOList.filter((risk) => {
+    if (riskType === RISK_TYPE_ENUM.MAIN_RISK) {
+      const {
+        paymentPeriodRule: periodRule,
+        paymentTypeRule: typeRule,
+        insurancePeriodRule: iPeriodRule,
+      } = risk.productRiskInsureLimitVO || {};
+      paymentPeriodRule = periodRule;
+      paymentTypeRule = typeRule;
+      insurancePeriodRule = iPeriodRule;
+    }
     // 如果修改的是主险信息,需要找到产品下关联主险
     if (
       riskType === RISK_TYPE_ENUM.MAIN_RISK &&
@@ -752,10 +783,19 @@ const pickRiskInfoList = (productCode, riskCode, riskType) => {
       ([paymentPeriodRule, paymentTypeRule, insurancePeriodRule].includes(RULE_ENUM.MAIN_RISK_SAME) ||
         [paymentPeriodRule, paymentTypeRule, insurancePeriodRule].includes(RULE_ENUM.MAIN_RISK_1))
     ) {
-      return risk;
+      return true;
+    }
+    if (
+      riskType !== RISK_TYPE_ENUM.MAIN_RISK &&
+      (risk.riskCode === riskCode || risk.riskCode === mainRiskCode) &&
+      ([paymentPeriodRule, paymentTypeRule, insurancePeriodRule].includes(RULE_ENUM.MAIN_RISK_SAME) ||
+        [paymentPeriodRule, paymentTypeRule, insurancePeriodRule].includes(RULE_ENUM.MAIN_RISK_1))
+    ) {
+      return true;
     }
     return risk.riskCode === riskCode;
   });
+  return riskList;
 };
 
 const handleDynamicConfig = async (data: any, changeData: any, productCode) => {
@@ -791,7 +831,8 @@ const handleDynamicConfig = async (data: any, changeData: any, productCode) => {
         }
       }
 
-      const riskInfoList = pickRiskInfoList(productCode, data.riskCode, data.riskType);
+      const riskInfoList = pickRiskInfoList(productCode, data.riskCode, data.riskType).flat();
+      console.log('riskInfoList', riskInfoList);
       const riskEditVOList = (riskInfoList || []).map((risk) => {
         if (risk.riskCode !== data.riskCode) {
           return {

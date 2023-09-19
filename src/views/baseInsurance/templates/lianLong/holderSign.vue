@@ -272,7 +272,7 @@ const initData = async () => {
   queryListProductMaterial(productRiskMap).then(({ code, data }) => {
     if (code === '10000') {
       const { signMaterialMap } = data.productMaterialPlanVOList?.[1] || {};
-      const signMaterialCollection = Object.values(signMaterialMap).flat() || [];
+      const signMaterialCollection = Object.values(signMaterialMap || {}).flat() || [];
 
       signMaterialCollection.forEach((material: ProductMaterialVoItem) => {
         if (material.noticeObject === NOTICE_OBJECT_ENUM.HOlDER) {

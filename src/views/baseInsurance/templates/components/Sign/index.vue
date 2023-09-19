@@ -110,26 +110,23 @@ const handlePre = () => {
 const openSign = () => {
   isShowSign.value = true;
 
-  if (signRef.value) {
-    (signRef.value || []).forEach((currentRef, index) => {
-      if (index === activityIndex.value) {
-        currentRef.clear?.();
-      }
-    });
-
-    setTimeout(() => {
-      (signRef.value || []).forEach((currentRef, index) => {
-        if (index === activityIndex.value) {
-          currentRef.setDataURL?.(signCollection.value?.[index] || '');
-        }
-      });
+  setTimeout(() => {
+    if (signRef.value) {
+      // (signRef.value || []).forEach((currentRef, index) => {
+      //   if (index === activityIndex.value) {
+      //     currentRef.clear?.();
+      //   }
+      // });
+      // (signRef.value || []).forEach((currentRef, index) => {
+      //   currentRef.setDataURL?.(signCollection.value?.[index] || '');
+      // });
       if (props.modelValue?.length) {
         isEmpty.value = false;
       } else {
         isEmpty.value = true;
       }
-    });
-  }
+    }
+  }, 200);
 };
 
 const preview = () => {
@@ -168,25 +165,29 @@ const rewrite = () => {
 const handleConfirm = () => {
   if (signCollection.value?.length !== signSlice.value?.length) {
     Toast({
-      message: '请完成抄录',
+      message: '请完成签名',
       className: 'toast-vertical',
     });
     return;
   }
   const promiseList = [];
 
-  signCollection.value.forEach(async (sign, index) => {
-    promiseList.push(rotateBase64(sign, 270));
-  });
+  // signCollection.value.forEach(async (sign, index) => {
+  //   promiseList.push(rotateBase64(sign, 270));
+  // });
 
-  Promise.all(promiseList).then((newBase64) => {
-    const params = newBase64.map((base64, index) => {
-      return base64;
-    });
-    emits('update:modelValue', signCollection.value);
-    emits('submitSign', signCollection.value);
-    isShowSign.value = false;
-  });
+  emits('update:modelValue', signCollection.value);
+  emits('submitSign', signCollection.value);
+  isShowSign.value = false;
+
+  // Promise.all(promiseList).then((newBase64) => {
+  //   const params = newBase64.map((base64, index) => {
+  //     return base64;
+  //   });
+  //   emits('update:modelValue', signCollection.value);
+  //   emits('submitSign', signCollection.value);
+  //   isShowSign.value = false;
+  // });
 };
 
 watch(
