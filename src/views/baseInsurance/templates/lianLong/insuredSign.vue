@@ -116,8 +116,25 @@ const signPartInfo = ref({
   }, // 代理人
 });
 
+const getOrderDetail = () => {
+  orderNo &&
+    getTenantOrderDetail({ orderNo: orderCode || orderNo, tenantId }).then(({ code, data }) => {
+      if (code === '10000') {
+        const signAttachmentList = {};
+        orderDetail.value.tenantOrderAttachmentList.forEach((attachment) => {
+          if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED && attachment.category === 30) {
+            signAttachmentList[attachment.objectId].push(attachment.fileBase64);
+          }
+        });
+        signPartInfo.value.insured.signData = signAttachmentList;
+      }
+    });
+};
+
 const sign = (type, signData, bizObjectId?) => {
-  saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId);
+  saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId).then(() => {
+    getOrderDetail();
+  });
 };
 
 const requiredType = ref<any>({
@@ -182,7 +199,7 @@ const initData = async () => {
     });
     productRiskMap = pickProductRiskCodeFromOrder(orderData.insuredList[0].productList);
     orderData.tenantOrderAttachmentList.forEach((attachment) => {
-      if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED && attachment.category === 21) {
+      if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED && attachment.category === 30) {
         signPartInfo.value.insured.signData[attachment.objectId].push(attachment.fileBase64);
       }
     });

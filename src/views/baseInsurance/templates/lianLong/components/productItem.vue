@@ -7,6 +7,9 @@
       <div class="product-info">
         <p class="title">{{ productInfo.productFullName }}</p>
         <p class="description">{{ productInfo.desc }}</p>
+        <p class="tags">
+          <span v-for="(i, idx) of productInfo.showConfig?.tags" :key="idx" class="tag">{{ i }}</span>
+        </p>
         <p class="price-item">
           <span class="price">{{ productInfo.price }}</span>
           <span>{{ productInfo.amountUnit }}</span>

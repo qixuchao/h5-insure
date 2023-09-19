@@ -110,7 +110,7 @@ const getRiskList = async () => {
   } else {
     const { code, data } = await queryRiderRiskList(params);
     if (code === '10000') {
-      riskList.value = data;
+      riskList.value = data.riskInfoList;
     }
   }
 };

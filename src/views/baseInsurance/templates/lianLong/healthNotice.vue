@@ -112,7 +112,7 @@ const getQuestionInfo = async (params) => {
 
     // 过滤出健康告知问卷
     const productQuestionnaireVOList = questionList.filter(
-      (question) => question.businessType === QUESTION_OBJECT_TYPE.NEW_CONTRACT,
+      (question) => question.businessType === QUESTION_OBJECT_TYPE.NEW_CONTRACT && question.noticeObject !== -1,
     );
     healthQuestionList.value = productQuestionnaireVOList;
     let questionInfo = productQuestionnaireVOList[0] || {};
