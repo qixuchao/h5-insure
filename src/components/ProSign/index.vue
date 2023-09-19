@@ -95,7 +95,6 @@ const clearSign = () => {
 };
 
 const setDataURL = (data: string, option: any = { ratio: 1 }) => {
-  clearSign();
   signatureIns.value?.fromDataURL(data, option);
   empty.value = false;
 };
@@ -124,16 +123,6 @@ onMounted(() => {
     });
   }
 });
-
-watch(
-  () => props.modelValue,
-  (value) => {
-    emits('update:modelValue', value);
-  },
-  {
-    immediate: true,
-  },
-);
 
 defineExpose({
   save: saveSign,

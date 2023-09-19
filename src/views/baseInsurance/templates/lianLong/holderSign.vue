@@ -218,9 +218,6 @@ const getOrderDetail = () => {
   orderNo &&
     getTenantOrderDetail({ orderNo: orderCode || orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
-        Object.assign(orderDetail.value, data);
-        signPartInfo.value.holder.personalInfo = data.holder;
-
         const signAttachmentList = [];
         orderDetail.value.tenantOrderAttachmentList.forEach((attachment) => {
           if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER && attachment.category === 30) {

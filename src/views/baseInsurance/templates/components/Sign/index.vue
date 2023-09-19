@@ -193,7 +193,7 @@ const handleConfirm = () => {
 watch(
   [() => props.modelValue, () => signSlice.value],
   () => {
-    signCollection.value = props.modelValue.slice(0, signSlice.value.length);
+    signCollection.value = props.modelValue;
   },
   {
     immediate: true,

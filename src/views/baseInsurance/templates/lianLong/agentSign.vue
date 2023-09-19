@@ -126,31 +126,11 @@ const signPartInfo = ref({
   }, // 代理人
 });
 
-const sign = (type, signData, bizObjectId?) => {
-  saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId);
-};
-
 const requiredType = ref<any>({
   sign: [],
   verify: [],
   scribing: '',
 });
-
-// 文件预览
-const showFilePreview = ref<boolean>(false);
-const activeIndex = ref<number>(0);
-const previewMaterial = (material) => {
-  showFilePreview.value = true;
-};
-
-const previewFile = (index: number) => {
-  activeIndex.value = index;
-  showFilePreview.value = true;
-};
-
-const onResetFileFlag = () => {
-  showFilePreview.value = false;
-};
 
 const handleSubmit = () => {
   if (preview) {
@@ -199,26 +179,30 @@ const handleShare = () => {
   }
 };
 
-const getOrderDetail = (check = false) => {
+const getOrderDetail = () => {
   orderNo &&
     getTenantOrderDetail({ orderNo: orderCode || orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         Object.assign(orderDetail.value, data);
+        const signAttachmentList = [];
         data.tenantOrderAttachmentList.forEach((attachment) => {
-          if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
-            signPartInfo.value.holder.signData = attachment.fileBase64;
-          } else if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT) {
-            signPartInfo.value.agent.signData = attachment.fileBase64;
-          } else if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED) {
-            signPartInfo.value.insured.signData[attachment.objectId] = attachment.fileBase64;
+          if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT && attachment.category === 30) {
+            signAttachmentList.push(attachment.fileBase64);
           }
         });
+        signPartInfo.value.agent.signData = signAttachmentList;
       }
     });
 };
 
+const sign = (type, signData, bizObjectId?) => {
+  saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId).then(() => {
+    getOrderDetail();
+  });
+};
+
 const handleRefresh = () => {
-  getOrderDetail(true);
+  getOrderDetail();
 };
 
 // 分享信息
