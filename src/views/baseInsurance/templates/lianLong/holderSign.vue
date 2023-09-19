@@ -124,7 +124,7 @@ const signPartInfo = ref({
     isSign: false,
     isVerify: false,
     isShareSign: false,
-    signData: '',
+    signData: [],
   }, // 投保人
   insured: {
     fileList: [],
@@ -264,12 +264,8 @@ const initData = async () => {
     });
 
     orderDetail.value.tenantOrderAttachmentList.forEach((attachment) => {
-      if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER && attachment.category === 21) {
-        signPartInfo.value.holder.signData = attachment.fileBase64;
-      } else if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT) {
-        signPartInfo.value.agent.signData = attachment.fileBase64;
-      } else if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED) {
-        signPartInfo.value.insured.signData[attachment.objectId] = attachment.fileBase64;
+      if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER && attachment.category === 30) {
+        signPartInfo.value.holder.signData.push(attachment.fileBase64);
       }
     });
   }

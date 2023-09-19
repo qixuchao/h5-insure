@@ -230,11 +230,11 @@ const shareInfo = ref({
 });
 
 const initData = async () => {
-  querySignList({ orderNo, tenantId, bizObjectType: 'AGENT', category: 'SIGN_TEMP' }).then(({ code, data }) => {
-    if (code === '10000') {
-      signPartInfo.value.agent.signData = data.map((d) => d.fileBase64);
-    }
-  });
+  // querySignList({ orderNo, tenantId, bizObjectType: 'AGENT', category: 'SIGN_TEMP' }).then(({ code, data }) => {
+  //   if (code === '10000') {
+  //     signPartInfo.value.agent.signData = data.map((d) => d.fileBase64);
+  //   }
+  // });
 
   let productRiskMap = {};
   const { code: oCode, data: orderData } = await getTenantOrderDetail({ orderNo, tenantId });
@@ -242,12 +242,8 @@ const initData = async () => {
     Object.assign(orderDetail.value, orderData);
     productRiskMap = pickProductRiskCodeFromOrder(orderData.insuredList[0].productList);
     orderData.tenantOrderAttachmentList.forEach((attachment) => {
-      if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
-        signPartInfo.value.holder.signData = attachment.fileBase64;
-      } else if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT) {
-        signPartInfo.value.agent.signData = attachment.fileBase64;
-      } else if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED) {
-        signPartInfo.value.insured.signData[attachment.objectId] = attachment.fileBase64;
+      if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT && attachment.category === 30) {
+        signPartInfo.value.agent.signData.push(attachment.fileBase64);
       }
     });
   }

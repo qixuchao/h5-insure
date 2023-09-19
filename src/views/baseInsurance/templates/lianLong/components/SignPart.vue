@@ -73,7 +73,7 @@ const AttachmentList = defineAsyncComponent(() => import('../../components/Attac
 const FilePreview = defineAsyncComponent(() => import('../../components/FilePreview/index.vue'));
 
 interface Props {
-  signString?: string; // 签字配置信息
+  signString?: string[]; // 签字配置信息
   personalInfo: any; // 投被保人信息
   fileList: any[];
   title: string;
@@ -89,12 +89,12 @@ const props = withDefaults(defineProps<Props>(), {
   showSign: false,
   showVerify: false,
   showShareSign: false,
-  signString: '',
+  signString: () => [],
   disabled: false,
 });
 const emits = defineEmits(['handleVerify', 'handleSign']);
 const currentPersonalInfo = ref<any>({});
-const signString = ref<string>('');
+const signString = ref<string[]>([]);
 
 /** -----------资料阅读模块开始-------------------- */
 const productMaterialPlanList = ref([]);
@@ -148,7 +148,7 @@ const submitSign = (str) => {
 
 const validateSign = () => {
   return new Promise((resolve, reject) => {
-    if (signString.value) {
+    if (signString.value?.length) {
       resolve(true);
       return;
     }
@@ -178,6 +178,7 @@ watch(
   },
   {
     immediate: true,
+    deep: true,
   },
 );
 

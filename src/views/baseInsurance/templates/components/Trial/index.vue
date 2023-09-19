@@ -694,7 +694,9 @@ const handlePersonalInfoChange = async (data) => {
   // if (!handleDealDyResult(dyResult)) return;
   // // }
   // console.log('投被保人的信息回传 ', data);
-  handleMixTrialData();
+  if (state.userData.insuredList?.[0]?.productList?.length) {
+    handleMixTrialData();
+  }
 };
 
 const birthdayList = computed(() => {

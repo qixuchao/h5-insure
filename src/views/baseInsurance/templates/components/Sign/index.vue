@@ -1,7 +1,7 @@
 <template>
   <div class="sign-wrap">
-    <slot name="signImg" :data="signString">
-      <img v-if="signString" class="preview-sign" :src="signString" alt="" @click="preview" />
+    <slot name="signImg" :data="signCollection?.[0]">
+      <img v-if="signCollection.length" class="preview-sign" :src="signCollection?.[0]" alt="" @click="preview" />
 
       <van-button type="primary" round size="small" @click="openSign">{{
         signString ? '重新签名' : '点击签字'
@@ -30,7 +30,7 @@
           </van-swipe-item>
         </van-swipe>
         <div class="operate-bar">
-          <van-button type="primary" class="btn" @click="handleConfirm">确定</van-button>
+          <van-button type="primary" class="btn" :disabled="confirmDisabled" @click="handleConfirm">确定</van-button>
           <van-button type="primary" plain class="btn" @click="handlePre">上一页</van-button>
           <van-button type="primary" plain class="btn" @click="rewrite">重签</van-button>
           <van-button type="default" class="btn" @click="goBack">取消</van-button>
@@ -49,13 +49,13 @@ import { rotateBase64 } from '@/components/ProScribing/utils';
 const props = withDefaults(
   defineProps<{
     option: any;
-    modelValue: string;
+    modelValue: string[];
     signString: string;
     signAccount: number;
   }>(),
   {
     option: {},
-    modelValue: '',
+    modelValue: () => [],
     signString: '房间卡贺卡和大伙副书记环境发好',
     signAccount: 3,
   },
@@ -65,7 +65,6 @@ const isShowSign = ref<boolean>(false);
 const signRef = ref<InstanceType<typeof ProSign>>();
 const emits = defineEmits(['update:modelValue', 'submitSign']);
 
-const signString = ref<string>('');
 const signCollection = ref<string[]>([]);
 const activityIndex = ref<number>(0);
 
@@ -110,19 +109,31 @@ const handlePre = () => {
 
 const openSign = () => {
   isShowSign.value = true;
-  signRef.value?.clear();
-  setTimeout(() => {
-    signRef.value?.setDataURL(signString.value);
-    if (props.modelValue) {
-      isEmpty.value = false;
-    } else {
-      isEmpty.value = true;
-    }
-  });
+
+  if (signRef.value) {
+    (signRef.value || []).forEach((currentRef, index) => {
+      if (index === activityIndex.value) {
+        currentRef.clear?.();
+      }
+    });
+
+    setTimeout(() => {
+      (signRef.value || []).forEach((currentRef, index) => {
+        if (index === activityIndex.value) {
+          currentRef.setDataURL?.(signCollection.value?.[index] || '');
+        }
+      });
+      if (props.modelValue?.length) {
+        isEmpty.value = false;
+      } else {
+        isEmpty.value = true;
+      }
+    });
+  }
 };
 
 const preview = () => {
-  ImagePreview({ images: [signString.value], className: 'customer-sign-preview' });
+  ImagePreview({ images: signCollection.value, className: 'customer-sign-preview' });
 };
 
 const goBack = () => {
@@ -144,15 +155,17 @@ const handleNext = () => {
 };
 
 const rewrite = () => {
-  signCollection.value = [];
-  signRef.value?.clear?.();
-  signString.value = '';
-  isEmpty.value = true;
-  emits('update:modelValue', '');
+  (signRef.value || []).forEach((currentRef, index) => {
+    if (index === activityIndex.value) {
+      currentRef.clear?.();
+    }
+  });
+  // signString.value = '';
+  // isEmpty.value = true;
+  // emits('update:modelValue', '');
 };
 
 const handleConfirm = () => {
-  console.log('222222');
   if (signCollection.value?.length !== signSlice.value?.length) {
     Toast({
       message: '请完成抄录',
@@ -170,9 +183,8 @@ const handleConfirm = () => {
     const params = newBase64.map((base64, index) => {
       return base64;
     });
-    console.log('222222');
-    emits('update:modelValue', params);
-    emits('submitSign', params);
+    emits('update:modelValue', signCollection.value);
+    emits('submitSign', signCollection.value);
     isShowSign.value = false;
   });
 };
@@ -180,10 +192,11 @@ const handleConfirm = () => {
 watch(
   () => props.modelValue,
   () => {
-    signString.value = props.modelValue;
+    signCollection.value = props.modelValue;
   },
   {
     immediate: true,
+    deep: true,
   },
 );
 
@@ -236,6 +249,7 @@ defineExpose({
     transform: rotateZ(90deg) translate3d(20vh, 40vw, 0px);
     transform-origin: right;
     bottom: 0;
+    padding: 40px 0;
     .btn {
       width: 240px;
       margin-right: 20px;
@@ -248,6 +262,10 @@ defineExpose({
   :deep(.com-sign-wrapper) {
     width: 100%;
     height: 100%;
+
+    .sign-container {
+      background-color: rgba(234, 234, 234, 1);
+    }
 
     .placeholder {
       transform: rotateZ(90deg);
