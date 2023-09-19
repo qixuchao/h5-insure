@@ -133,7 +133,7 @@
       ></PayInfo>
 
       <div v-loading="loading" class="footer-button">
-        <OperateBtn :detail="detail"></OperateBtn>
+        <OperateBtn :detail="detail" @handle-cancel="handleCancel"></OperateBtn>
       </div>
     </div>
   </van-config-provider>
@@ -144,7 +144,7 @@ import { Dialog, Toast } from 'vant';
 import { useRoute, useRouter } from 'vue-router';
 import dayjs from 'dayjs';
 import qs from 'qs';
-import { deleteOrder } from '@/api/modules/order';
+import { cancelOrder, deleteOrder } from '@/api/modules/order';
 import { newOrderDetail } from '@/api';
 import { getQuestionAnswerDetail } from '@/api/modules/inform';
 import { NextStepRequestData } from '@/api/index.data';
@@ -235,21 +235,6 @@ const {
 const handleClick = () => {
   pageJump('orderTrajectory', { orderNo, orderId: detail.value.id, tenantId });
 };
-const handleDelete = () => {
-  Dialog.confirm({
-    title: '确认',
-    message: '确认删除订单？',
-  }).then(() => {
-    if (detail.value) {
-      deleteOrder(detail.value.id, detail.value.orderStatus).then((res) => {
-        const { code, data } = res;
-        if (code === '10000') {
-          Toast.success('删除成功');
-        }
-      });
-    }
-  });
-};
 
 const loading = ref(false);
 const handleProcess = () => {
@@ -296,19 +281,6 @@ const handleProcess = () => {
         }
       }
     });
-    // pageJump(pageCode, {
-    //   productCode,
-    //   orderNo,
-    //   orderId,
-    //   agentCode,
-    //   templateId,
-    //   tenantId,
-    //   productCategory,
-    //   insurerCode,
-    //   agencyCode,
-    //   // 是否从订单列表来的，用来判断是否展示导航栏
-    //   isFromOrderList: '1',
-    // });
   }
 };
 const handlePay = () => {
@@ -408,10 +380,13 @@ const attachmentList = computed(() => (objectType) => {
 
 const personalInfo = ref();
 
-onMounted(() => {
+const getOrderDetail = (isOther = true) => {
   newOrderDetail({ orderNo, agentCode, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       detail.value = data;
+      if (!isOther) {
+        return;
+      }
       personalInfo.value = data;
       detail.value.tenantOrderPayInfoList = data.tenantOrderPayInfoList || [];
       const productCodeList = Object.keys(detail.value.productCodeList).map((productCode) => ({
@@ -422,6 +397,19 @@ onMounted(() => {
       getQuestionInfo({ productCodeList: Object.keys(detail.value.productCodeList) });
     }
   });
+};
+
+const handleCancel = () => {
+  cancelOrder({ orderNo, tenantId }).then(({ code, data }) => {
+    if (code === '10000') {
+      Toast('撤单成功');
+      getOrderDetail(false);
+    }
+  });
+};
+
+onMounted(() => {
+  getOrderDetail();
 });
 </script>
 

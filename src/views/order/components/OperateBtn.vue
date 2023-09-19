@@ -10,7 +10,6 @@ import { withDefaults } from 'vue';
 import { useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
 import { PAGE_ROUTE_ENUMS } from '@/views/baseInsurance/templates/lianLong/constants';
-import { cancelOrder } from '@/api/modules/order';
 
 const router = useRouter();
 const route = useRoute();
@@ -26,6 +25,8 @@ const props = withDefaults(
   },
 );
 
+const emits = defineEmits(['handleCancel']);
+
 // 去处理按钮展示权限
 const isDealOrder = computed<boolean>(() => {
   const { orderTopStatus } = props.detail;
@@ -36,7 +37,7 @@ const isDealOrder = computed<boolean>(() => {
 const isReturnOrder = computed<boolean>(() => {
   const { orderStatus } = props.detail;
   // 已承保、已撤单的订单不展示
-  return !['acceptPolicy', 'canceled'].includes(orderStatus);
+  return !['acceptPolicy', 'cancel'].includes(orderStatus);
 });
 // 银行卡修改按钮展示权限
 const isUpdateBankInfo = computed<boolean>(() => {
@@ -72,11 +73,7 @@ const handleReturn = () => {
     Dialog.confirm({
       message: '撤单后将无法恢复，请您确认是否撤销本次投保',
     }).then(() => {
-      cancelOrder({ orderNo, tenantId }).then(({ code, data }) => {
-        if (code === '10000') {
-          Toast('撤单成功');
-        }
-      });
+      emits('handleCancel');
     });
     return;
   }
