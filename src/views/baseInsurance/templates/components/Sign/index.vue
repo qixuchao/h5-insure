@@ -90,7 +90,7 @@ const signSlice = computed(() => {
   return [''];
 });
 
-const confirmDisabled = computed(() => signSlice.value?.length !== signCollection.value?.length);
+const confirmDisabled = computed(() => signSlice.value?.length > signCollection.value?.length);
 
 const isEmpty = ref<boolean>(true);
 const swipeRef = ref();
@@ -117,9 +117,9 @@ const openSign = () => {
       //     currentRef.clear?.();
       //   }
       // });
-      // (signRef.value || []).forEach((currentRef, index) => {
-      //   currentRef.setDataURL?.(signCollection.value?.[index] || '');
-      // });
+      (signRef.value || []).forEach((currentRef, index) => {
+        currentRef.setDataURL?.(signCollection.value?.[index] || '');
+      });
       if (props.modelValue?.length) {
         isEmpty.value = false;
       } else {
@@ -163,7 +163,7 @@ const rewrite = () => {
 };
 
 const handleConfirm = () => {
-  if (signCollection.value?.length !== signSlice.value?.length) {
+  if (signCollection.value?.length < signSlice.value?.length) {
     Toast({
       message: '请完成签名',
       className: 'toast-vertical',
@@ -191,9 +191,9 @@ const handleConfirm = () => {
 };
 
 watch(
-  () => props.modelValue,
+  [() => props.modelValue, () => signSlice.value],
   () => {
-    signCollection.value = props.modelValue;
+    signCollection.value = props.modelValue.slice(0, signSlice.value.length);
   },
   {
     immediate: true,

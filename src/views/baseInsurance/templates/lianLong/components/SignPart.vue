@@ -31,7 +31,13 @@
           <div v-if="!disabled" class="resign" @click="resetSign">重签</div>
         </div>
       </template>
-      <Sign ref="signRef" v-model="signString" class="sign" @submit-sign="submitSign">
+      <Sign
+        ref="signRef"
+        v-model="signString"
+        :sign-string="currentPersonalInfo?.name || ''"
+        class="sign"
+        @submit-sign="submitSign"
+      >
         <template #signImg="{ data }">
           <div class="sign-board" @click="openSign">
             <img v-if="data" :src="data" class="sign-img" alt="" />

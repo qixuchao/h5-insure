@@ -125,6 +125,16 @@ onMounted(() => {
   }
 });
 
+watch(
+  () => props.modelValue,
+  (value) => {
+    emits('update:modelValue', value);
+  },
+  {
+    immediate: true,
+  },
+);
+
 defineExpose({
   save: saveSign,
   isEmpty,

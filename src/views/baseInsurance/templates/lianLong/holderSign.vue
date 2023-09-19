@@ -149,14 +149,6 @@ const scribingConfig = ref({});
 
 const defaultScribingConfig = ref({});
 
-const sign = (type, signData, bizObjectId?) => {
-  saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId);
-  const { age, relationToHolder, id } = signPartInfo.value.insured.personalInfo[0];
-  if (`${relationToHolder}` === CERT_TYPE_ENUM.CERT || age < 18) {
-    saveSignList('INSURED', signData, orderDetail.value?.id, tenantId, id);
-  }
-};
-
 const requiredType = ref<any>({
   sign: [],
   verify: [],
@@ -229,6 +221,14 @@ const getOrderDetail = () => {
         Object.assign(orderDetail.value, data);
         signPartInfo.value.holder.personalInfo = data.holder;
 
+        const signAttachmentList = [];
+        orderDetail.value.tenantOrderAttachmentList.forEach((attachment) => {
+          if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER && attachment.category === 30) {
+            signAttachmentList.push(attachment.fileBase64);
+          }
+        });
+        signPartInfo.value.holder.signData = signAttachmentList;
+
         Object.assign(defaultScribingConfig.value, {
           type: SCRIBING_TYPE_MAP[data.extInfo.transcriptionType],
           signInfo: data.riskTranscriptionList?.[0]?.uri,
@@ -237,6 +237,18 @@ const getOrderDetail = () => {
         });
       }
     });
+};
+
+const sign = (type, signData, bizObjectId?) => {
+  const promiseList = [saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId)];
+  const { age, relationToHolder, id } = signPartInfo.value.insured.personalInfo[0];
+  if (`${relationToHolder}` === CERT_TYPE_ENUM.CERT || age < 18) {
+    promiseList.push(saveSignList('INSURED', signData, orderDetail.value?.id, tenantId, id));
+  }
+
+  Promise.all(promiseList).then(() => {
+    getOrderDetail();
+  });
 };
 
 // 分享信息
