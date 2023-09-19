@@ -301,9 +301,11 @@ const queryMaterial = (productRiskMap) => {
 
 const getDefaultData = async () => {
   const { code, data } = await queryCalcDefaultInsureFactor({
-    calcProductFactor: {
-      productCode,
-    },
+    calcProductFactorList: [
+      {
+        productCode,
+      },
+    ],
   });
 
   if (code === '10000') {

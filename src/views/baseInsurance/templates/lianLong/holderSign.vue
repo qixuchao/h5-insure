@@ -55,7 +55,7 @@ import {
 
 import { MATERIAL_TYPE_ENUM } from '@/common/constants/product';
 import { NOTICE_OBJECT_ENUM } from '@/common/constants/notice';
-import { applyAuthorize, faceVerify, faceVerifySave, saveSign, signatureConfirm } from '@/api/modules/verify';
+import { applyAuthorize, faceVerify, faceVerifySave, saveSignList, signatureConfirm } from '@/api/modules/verify';
 import Storage from '@/utils/storage';
 import { transformFactorToSchema } from '@/components/RenderForm';
 
@@ -150,10 +150,10 @@ const scribingConfig = ref({});
 const defaultScribingConfig = ref({});
 
 const sign = (type, signData, bizObjectId?) => {
-  saveSign(type, signData, orderDetail.value?.id, tenantId, bizObjectId);
+  saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId);
   const { age, relationToHolder, id } = signPartInfo.value.insured.personalInfo[0];
   if (`${relationToHolder}` === CERT_TYPE_ENUM.CERT || age < 18) {
-    saveSign('INSURED', signData, orderDetail.value?.id, tenantId, id);
+    saveSignList('INSURED', signData, orderDetail.value?.id, tenantId, id);
   }
 };
 

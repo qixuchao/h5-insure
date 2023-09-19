@@ -7,7 +7,7 @@
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import request from '@/api/request';
-import { DoubleData, INotice } from './verify.data';
+import { DoubleData, INotice, SignResultItem } from './verify.data';
 import { NOTICE_TYPE_MAP } from '@/common/constants/index';
 
 export const faceVerify = (data: any) => {
@@ -49,6 +49,39 @@ export const saveSign = (
     data,
   });
 };
+
+// 多个签名信息报错
+export const saveSignList = (
+  type: 'HOLDER' | 'INSURED' | 'AGENT',
+  fileBase64List: string[],
+  orderId: string | number,
+  tenantId: string | number,
+  bizObjectId?: number,
+) => {
+  const data = {
+    bizObjectType: type,
+    bizObjectId,
+    docCategory: 'SIGN_TEMP',
+    docType: 'png',
+    fileBase64List,
+    docName: `${NOTICE_TYPE_MAP[type]}电子签名`,
+    orderId,
+    tenantId,
+  };
+  return request<boolean>({
+    url: '/api/app/insure/insurance/saveCustomerSignList',
+    method: 'POST',
+    data,
+  });
+};
+
+// 获取签名信息
+export const querySignList = (data = {}) =>
+  request<SignResultItem[]>({
+    url: '/api/app/insure/insurance/attachmentList',
+    method: 'POST',
+    data,
+  });
 
 export const getFile = (data: any) => {
   return request<ResponseData<Array<INotice>>>({

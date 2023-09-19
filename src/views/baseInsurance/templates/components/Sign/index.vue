@@ -25,11 +25,12 @@
               v-model="signCollection[index]"
               :placeholder="sign"
               @stroke="isEmpty = false"
+              @sign-success="handleNext"
             ></ProSign>
           </van-swipe-item>
         </van-swipe>
         <div class="operate-bar">
-          <van-button type="primary" class="btn" :disabled="isEmpty" @click="handleConfirm">确定</van-button>
+          <van-button type="primary" class="btn" @click="handleConfirm">确定</van-button>
           <van-button type="primary" plain class="btn" @click="handlePre">上一页</van-button>
           <van-button type="primary" plain class="btn" @click="rewrite">重签</van-button>
           <van-button type="default" class="btn" @click="goBack">取消</van-button>
@@ -60,7 +61,7 @@ const props = withDefaults(
   },
 );
 
-const isShowSign = ref<boolean>(true);
+const isShowSign = ref<boolean>(false);
 const signRef = ref<InstanceType<typeof ProSign>>();
 const emits = defineEmits(['update:modelValue', 'submitSign']);
 
@@ -89,6 +90,8 @@ const signSlice = computed(() => {
   }
   return [''];
 });
+
+const confirmDisabled = computed(() => signSlice.value?.length !== signCollection.value?.length);
 
 const isEmpty = ref<boolean>(true);
 const swipeRef = ref();
@@ -126,7 +129,22 @@ const goBack = () => {
   isShowSign.value = false;
 };
 
+const handleNext = () => {
+  if (activityIndex.value === signSlice.value.length - 1) {
+    return;
+  }
+
+  const minValue = activityIndex.value * props.signAccount;
+  const maxValue = minValue + signSlice.value[activityIndex.value].length;
+
+  if (swipeRef.value) {
+    activityIndex.value += 1;
+    swipeRef.value.swipeTo(activityIndex.value);
+  }
+};
+
 const rewrite = () => {
+  signCollection.value = [];
   signRef.value?.clear?.();
   signString.value = '';
   isEmpty.value = true;
@@ -134,6 +152,7 @@ const rewrite = () => {
 };
 
 const handleConfirm = () => {
+  console.log('222222');
   if (signCollection.value?.length !== signSlice.value?.length) {
     Toast({
       message: '请完成抄录',
@@ -149,10 +168,9 @@ const handleConfirm = () => {
 
   Promise.all(promiseList).then((newBase64) => {
     const params = newBase64.map((base64, index) => {
-      return {
-        image: base64,
-      };
+      return base64;
     });
+    console.log('222222');
     emits('update:modelValue', params);
     emits('submitSign', params);
     isShowSign.value = false;
