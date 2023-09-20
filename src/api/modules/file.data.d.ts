@@ -1,7 +1,7 @@
 export interface OCRResponse {
   bankCardOcrVO: {
     bankName: string;
-    bankNo: string;
+    cardNumber: string;
     cardName: string;
     cardNo: string;
     cardType: string;

@@ -300,6 +300,33 @@ const updateAttachment = (orderData) => {
   });
 };
 
+const compareOcrData = () => {
+  const { holder, insuredList } = state.userData;
+  const msg = [];
+  const compareData = (data, type) => {
+    if (data.ocrData) {
+      const findData = Object.keys(data.ocrData).find(
+        (key) => (data[key] || data.ocrData[key]) && data.ocrData[key] !== data[key],
+      );
+      if (findData) {
+        msg.push(`${type}信息影像识别与录入信息不一致，请确认`);
+      }
+    }
+  };
+
+  compareData(holder, '投保人');
+  compareData(insuredList?.[0], '被保人');
+  (insuredList?.[0]?.beneficiaryList || []).forEach((benefit, index) => {
+    compareData(benefit, `收益人${index}`);
+  });
+  compareData(insuredList?.[0].guardian, '监护人');
+  compareData(insuredList?.[0].guardian, '监护人');
+  (orderDetail.value?.tenantOrderPayInfoList || []).forEach((payInfo) => {
+    compareData(insuredList?.[0].guardian, '银行卡');
+  });
+  return msg;
+};
+
 const onNext = async () => {
   if (preview) {
     jumpToNextPage(PAGE_CODE_ENUMS.INFO_COLLECTION, route.query);
@@ -342,15 +369,33 @@ const onNext = async () => {
       orderDetail.value,
     );
 
-    nextStep(
-      currentOrderDetail,
-      (data, pageAction) => {
-        if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-          pageJump(data.nextPageCode, route.query);
-        }
-      },
-      route,
-    );
+    // 校验ocr信息是否被修改
+    const msgList = compareOcrData();
+    if (msgList?.length) {
+      Dialog.confirm({
+        message: msgList?.[0],
+      }).then(() => {
+        nextStep(
+          currentOrderDetail,
+          (data, pageAction) => {
+            if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+              pageJump(data.nextPageCode, route.query);
+            }
+          },
+          route,
+        );
+      });
+    } else {
+      nextStep(
+        currentOrderDetail,
+        (data, pageAction) => {
+          if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+            pageJump(data.nextPageCode, route.query);
+          }
+        },
+        route,
+      );
+    }
   });
 };
 

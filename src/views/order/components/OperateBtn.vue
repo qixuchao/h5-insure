@@ -35,9 +35,9 @@ const isDealOrder = computed<boolean>(() => {
 });
 // 撤单按钮展示权限
 const isReturnOrder = computed<boolean>(() => {
-  const { orderStatus } = props.detail;
+  const { policyNo, applicationNo } = props.detail;
   // 已承保、已撤单的订单不展示
-  return !['acceptPolicy', 'cancel'].includes(orderStatus);
+  return !policyNo && applicationNo;
 });
 // 银行卡修改按钮展示权限
 const isUpdateBankInfo = computed<boolean>(() => {
