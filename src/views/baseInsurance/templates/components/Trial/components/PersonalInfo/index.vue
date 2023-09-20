@@ -200,7 +200,9 @@ const state = reactive<Partial<StateInfo>>({
     personVO: {},
     schema: [],
     trialFactorCodes: [],
-    config: {},
+    config: {
+      occupationCode: { isView: true },
+    },
   },
   beneficiarySchema: [],
   initInsuredIList: [],
@@ -626,6 +628,7 @@ watch(
     state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
       const { personVO, config = {}, guardian, beneficiaryList } = insuredList?.[index] || {};
       const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
+      Object.assign(config, { occupationCode: { isView: true } });
       if (!res[index]) {
         res[index] = {
           ...initInsuredTempData,

@@ -124,7 +124,9 @@ const beneficiaryFormRef = ref(null);
 const initBeneficiaryItem = {
   schema: [],
   trialFactorCodes: [],
-  config: {},
+  config: {
+    occupationCode: { isView: true },
+  },
   personVO: {},
 };
 
@@ -445,6 +447,7 @@ watch(
   (val, oldVal) => {
     if (val) {
       if (JSON.stringify(val) !== JSON.stringify(state.schema)) {
+        console.log('');
         state.schema = cloneDeep(val);
       }
     }
