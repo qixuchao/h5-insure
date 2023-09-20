@@ -33,6 +33,7 @@
 
 <script setup lang="ts" name="trial">
 import { useRoute, useRouter } from 'vue-router';
+import { findLastIndex, findIndex } from 'lodash-es';
 import Trial from '@/views/baseInsurance/templates/components/Trial/index.vue';
 import {
   getTenantOrderDetail,
@@ -112,8 +113,27 @@ const handleConfirm = (selectCodeList: Array<string>) => {
       riskType: RISK_TYPE_ENUM.RIDER_RISK,
       mainRiskCode: currentRiskInfo.value.riskCode,
     }));
-    currentProduct.mergeRiskReqList.push(...riskList);
-    // productRiskCodeMap.value = currentProduct;
+
+    const firstIndex = findIndex(
+      currentProduct.mergeRiskReqList,
+      (risk) => risk.riskCode === currentRiskInfo.value.riskCode,
+    );
+    const lastIndex = findLastIndex(currentProduct.mergeRiskReqList, (risk) => {
+      return risk.mainRiskCode === currentRiskInfo.value.riskCode;
+    });
+
+    let insertIndex = firstIndex;
+
+    if (lastIndex !== -1) {
+      insertIndex = lastIndex;
+    }
+
+    currentProduct.mergeRiskReqList = [
+      ...currentProduct.mergeRiskReqList.slice(0, insertIndex + 1),
+      ...riskList,
+      ...currentProduct.mergeRiskReqList.slice(insertIndex, currentProduct.mergeRiskReqList.length),
+    ];
+
     trialRef.value.getRiderRiskDefaultValue(currentProductCode.value, selectCodeList, currentRiskInfo.value.riskCode);
   }
   getMergeProductDetail();

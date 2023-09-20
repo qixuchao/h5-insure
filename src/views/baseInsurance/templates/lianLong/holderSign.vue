@@ -55,7 +55,7 @@ import {
 
 import { MATERIAL_TYPE_ENUM } from '@/common/constants/product';
 import { NOTICE_OBJECT_ENUM } from '@/common/constants/notice';
-import { applyAuthorize, faceVerify, faceVerifySave, saveSign, signatureConfirm } from '@/api/modules/verify';
+import { applyAuthorize, faceVerify, faceVerifySave, saveSignList, signatureConfirm } from '@/api/modules/verify';
 import Storage from '@/utils/storage';
 import { transformFactorToSchema } from '@/components/RenderForm';
 
@@ -124,7 +124,7 @@ const signPartInfo = ref({
     isSign: false,
     isVerify: false,
     isShareSign: false,
-    signData: '',
+    signData: [],
   }, // 投保人
   insured: {
     fileList: [],
@@ -148,14 +148,6 @@ const signPartInfo = ref({
 const scribingConfig = ref({});
 
 const defaultScribingConfig = ref({});
-
-const sign = (type, signData, bizObjectId?) => {
-  saveSign(type, signData, orderDetail.value?.id, tenantId, bizObjectId);
-  const { age, relationToHolder, id } = signPartInfo.value.insured.personalInfo[0];
-  if (`${relationToHolder}` === CERT_TYPE_ENUM.CERT || age < 18) {
-    saveSign('INSURED', signData, orderDetail.value?.id, tenantId, id);
-  }
-};
 
 const requiredType = ref<any>({
   sign: [],
@@ -229,6 +221,14 @@ const getOrderDetail = () => {
         Object.assign(orderDetail.value, data);
         signPartInfo.value.holder.personalInfo = data.holder;
 
+        const signAttachmentList = [];
+        orderDetail.value.tenantOrderAttachmentList.forEach((attachment) => {
+          if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER && attachment.category === 30) {
+            signAttachmentList.push(attachment.fileBase64);
+          }
+        });
+        signPartInfo.value.holder.signData = signAttachmentList;
+
         Object.assign(defaultScribingConfig.value, {
           type: SCRIBING_TYPE_MAP[data.extInfo.transcriptionType],
           signInfo: data.riskTranscriptionList?.[0]?.uri,
@@ -237,6 +237,18 @@ const getOrderDetail = () => {
         });
       }
     });
+};
+
+const sign = (type, signData, bizObjectId?) => {
+  const promiseList = [saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId)];
+  const { age, relationToHolder, id } = signPartInfo.value.insured.personalInfo[0];
+  if (`${relationToHolder}` === CERT_TYPE_ENUM.CERT || age < 18) {
+    promiseList.push(saveSignList('INSURED', signData, orderDetail.value?.id, tenantId, id));
+  }
+
+  Promise.all(promiseList).then(() => {
+    getOrderDetail();
+  });
 };
 
 // 分享信息
@@ -264,19 +276,15 @@ const initData = async () => {
     });
 
     orderDetail.value.tenantOrderAttachmentList.forEach((attachment) => {
-      if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER && attachment.category === 21) {
-        signPartInfo.value.holder.signData = attachment.fileBase64;
-      } else if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT) {
-        signPartInfo.value.agent.signData = attachment.fileBase64;
-      } else if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED) {
-        signPartInfo.value.insured.signData[attachment.objectId] = attachment.fileBase64;
+      if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER && attachment.category === 30) {
+        signPartInfo.value.holder.signData.push(attachment.fileBase64);
       }
     });
   }
   queryListProductMaterial(productRiskMap).then(({ code, data }) => {
     if (code === '10000') {
       const { signMaterialMap } = data.productMaterialPlanVOList?.[1] || {};
-      const signMaterialCollection = Object.values(signMaterialMap).flat() || [];
+      const signMaterialCollection = Object.values(signMaterialMap || {}).flat() || [];
 
       signMaterialCollection.forEach((material: ProductMaterialVoItem) => {
         if (material.noticeObject === NOTICE_OBJECT_ENUM.HOlDER) {

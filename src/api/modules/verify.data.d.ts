@@ -35,3 +35,22 @@ export interface DoubleData {
     orderNo: string;
 }
 
+// 获取签名列表
+export interface SignResultItem {
+    category: number;
+    desc: string;
+    fileBase64: string;
+    id: number;
+    name: string;
+    objectId: string;
+    objectType: number;
+    orderId: number;
+    size: number;
+    tenantId: number;
+    type: string;
+    uri: string;
+    uriKey: string;
+}
+
+
+

@@ -44,7 +44,7 @@ import useOrder from '@/hooks/useOrder';
 import { PAGE_ROUTE_ENUMS, NOTICE_TYPE_ENUM } from '@/common/constants';
 import { MATERIAL_TYPE_ENUM } from '@/common/constants/product';
 import { NOTICE_OBJECT_ENUM } from '@/common/constants/notice';
-import { saveSign, signatureConfirm } from '@/api/modules/verify';
+import { saveSign, saveSignList, signatureConfirm } from '@/api/modules/verify';
 
 import { transformFactorToSchema } from '@/components/RenderForm';
 import { PAGE_CODE_ENUMS } from './constants';
@@ -117,7 +117,7 @@ const signPartInfo = ref({
 });
 
 const sign = (type, signData, bizObjectId?) => {
-  saveSign(type, signData, orderDetail.value?.id, tenantId, bizObjectId);
+  saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId);
 };
 
 const requiredType = ref<any>({
@@ -183,7 +183,7 @@ const initData = async () => {
     productRiskMap = pickProductRiskCodeFromOrder(orderData.insuredList[0].productList);
     orderData.tenantOrderAttachmentList.forEach((attachment) => {
       if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED && attachment.category === 21) {
-        signPartInfo.value.insured.signData[attachment.objectId] = attachment.fileBase64;
+        signPartInfo.value.insured.signData[attachment.objectId].push(attachment.fileBase64);
       }
     });
   }

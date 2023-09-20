@@ -35,6 +35,7 @@ interface Props {
   closeable: boolean;
   modelValue: string;
   hasBg: boolean;
+  delay?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -43,6 +44,7 @@ const props = withDefaults(defineProps<Props>(), {
   closeable: false,
   modelValue: '',
   hasBg: false,
+  delay: 1000, // 签字完成延迟时间
 });
 
 const emits = defineEmits(['stroke', 'update:modelValue', 'signSuccess']);
@@ -98,6 +100,9 @@ const setDataURL = (data: string, option: any = { ratio: 1 }) => {
   empty.value = false;
 };
 
+const startTime = ref<number>(+new Date());
+const timer = ref();
+
 onMounted(() => {
   if (canvas.value && container.value) {
     const containerRect = container.value.getBoundingClientRect();
@@ -105,15 +110,30 @@ onMounted(() => {
     canvas.value.height = containerRect.height;
     signatureIns.value = new SignaturePad(canvas.value);
     signatureIns.value.addEventListener('beginStroke', () => {
+      startTime.value = +new Date();
+      clearTimeout(timer.value);
       empty.value = false;
       emits('stroke');
     });
     signatureIns.value.addEventListener('endStroke', () => {
-      emits('update:modelValue', saveSign());
-      emits('signSuccess');
+      startTime.value = +new Date();
+      timer.value = setTimeout(() => {
+        emits('update:modelValue', saveSign());
+        emits('signSuccess');
+      }, props.delay);
     });
   }
 });
+
+watch(
+  () => props.modelValue,
+  (value) => {
+    emits('update:modelValue', value);
+  },
+  {
+    immediate: true,
+  },
+);
 
 defineExpose({
   save: saveSign,

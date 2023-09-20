@@ -40,7 +40,7 @@ import useOrder from '@/hooks/useOrder';
 import { NOTICE_TYPE_ENUM } from '@/common/constants';
 import { MATERIAL_TYPE_ENUM } from '@/common/constants/product';
 import { NOTICE_OBJECT_ENUM } from '@/common/constants/notice';
-import { saveSign, signatureConfirm } from '@/api/modules/verify';
+import { saveSignList, signatureConfirm, querySignList } from '@/api/modules/verify';
 import Storage from '@/utils/storage';
 import { transformFactorToSchema } from '@/components/RenderForm';
 import { PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS } from './constants';
@@ -122,13 +122,12 @@ const signPartInfo = ref({
     isSign: false,
     isVerify: false,
     isShareSign: false,
-    signData: '',
+    signData: [],
   }, // 代理人
 });
 
 const sign = (type, signData, bizObjectId?) => {
-  console.log('orderDetail.value', orderDetail.value);
-  saveSign(type, signData, orderDetail.value?.id, tenantId, bizObjectId);
+  saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId);
 };
 
 const requiredType = ref<any>({
@@ -231,32 +230,20 @@ const shareInfo = ref({
 });
 
 const initData = async () => {
-  // querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
+  // querySignList({ orderNo, tenantId, bizObjectType: 'AGENT', category: 'SIGN_TEMP' }).then(({ code, data }) => {
   //   if (code === '10000') {
-  //     const { wxShareConfig, showWXShare, title, desc, image } = data?.PRODUCT_LIST || {};
-  //     if (showWXShare) {
-  //       Object.assign(shareInfo.value, { ...wxShareConfig, imgUrl: wxShareConfig.image, isShare: showWXShare });
-  //     } else {
-  //       // 设置分享参数
-  //       Object.assign(shareInfo.value, { title, desc, imgUrl: image, isShare: showWXShare });
-  //     }
-  //     if (data.BASIC_INFO && data.BASIC_INFO.themeType) {
-  //       setGlobalTheme(data.BASIC_INFO.themeType);
-  //     }
-  //     // 设置分享参数
+  //     signPartInfo.value.agent.signData = data.map((d) => d.fileBase64);
   //   }
   // });
+
   let productRiskMap = {};
   const { code: oCode, data: orderData } = await getTenantOrderDetail({ orderNo, tenantId });
   if (oCode === '10000') {
+    Object.assign(orderDetail.value, orderData);
     productRiskMap = pickProductRiskCodeFromOrder(orderData.insuredList[0].productList);
     orderData.tenantOrderAttachmentList.forEach((attachment) => {
-      if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
-        signPartInfo.value.holder.signData = attachment.fileBase64;
-      } else if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT) {
-        signPartInfo.value.agent.signData = attachment.fileBase64;
-      } else if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED) {
-        signPartInfo.value.insured.signData[attachment.objectId] = attachment.fileBase64;
+      if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT && attachment.category === 30) {
+        signPartInfo.value.agent.signData.push(attachment.fileBase64);
       }
     });
   }
@@ -264,7 +251,7 @@ const initData = async () => {
   queryListProductMaterial(productRiskMap).then(({ code, data }) => {
     if (code === '10000') {
       const { signMaterialMap } = data.productMaterialPlanVOList?.[1] || {};
-      const signMaterialCollection = Object.values(signMaterialMap).flat() || [];
+      const signMaterialCollection = Object.values(signMaterialMap || {}).flat() || [];
 
       signMaterialCollection.forEach((material: ProductMaterialVoItem) => {
         if (material.noticeObject === NOTICE_OBJECT_ENUM.AGENT) {
@@ -321,8 +308,6 @@ const initData = async () => {
       });
     }
   });
-
-  getOrderDetail();
 };
 
 onBeforeMount(() => {
