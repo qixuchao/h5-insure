@@ -88,7 +88,7 @@ const b = {
 const handleCustomerItem = (e: any) => {
   // storage.set('thirdCustomerInfo', b);
   // 设置参数到session，避免URL上带敏感信息
-  setCusomterParams(b || data.value);
+  setCusomterParams({ ...data.value, certNo: data.value.originCertNo });
   // const { selectedType, customerId, selected, ...others } = route.query; // 去掉下级页面的参数
   pageJump('customerDetail', { ...route.query, customerId: data.value.id });
 };

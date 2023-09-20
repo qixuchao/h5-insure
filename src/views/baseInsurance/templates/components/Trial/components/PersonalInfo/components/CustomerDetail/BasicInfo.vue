@@ -2,8 +2,10 @@
   <van-collapse v-model="activeList">
     <van-collapse-item title="基础信息" name="1">
       <div v-for="(item, index) in list" :key="index" class="collapse-list">
-        <div class="label">{{ item.label }}</div>
-        <div class="content">{{ item.value }} {{ item.unit }}</div>
+        <template v-if="item.value">
+          <div class="label">{{ item.label }}</div>
+          <div class="content">{{ item.value }} {{ item.unit }}</div>
+        </template>
       </div>
     </van-collapse-item>
   </van-collapse>
@@ -33,15 +35,15 @@ const list = computed(() => [
   { label: '出生日期', value: props.data.birthday },
   { label: '电子邮箱', value: props.data.email },
   { label: '国籍', value: props.data.nationalityName },
-  { label: '年收入', value: props.data.salary, unit: '万元' },
+  { label: '年收入', value: props.data.personalAnnualIncome, unit: '万元' },
   { label: '社保', value: props.data.hasSocialInsuranceName },
   { label: '是否吸烟', value: props.data.smokeFlagName },
   { label: '收入来源', value: incomeSourceMap[props.data.incomeSource] },
   { label: '身高', value: props.data.height, unit: '厘米' },
   { label: '体重', value: props.data.weight, unit: '千克' },
-  { label: '婚姻状况', value: props.data.marriage },
-  { label: '教育程度', value: props.data.degree },
-  { label: '职业', value: props.data.occupation },
+  { label: '婚姻状况', value: props.data.marriageName },
+  { label: '教育程度', value: props.data.educationDegreeName },
+  { label: '职业', value: props.data?.occunationNamelist?.join('/') },
 ]);
 </script>
 <style lang="scss">

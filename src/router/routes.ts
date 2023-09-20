@@ -52,9 +52,9 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/baseInsurance/templates/lianLong/transcription.vue'),
   },
   {
-    name: 'infoCollection',
+    name: 'InfoCollection',
     path: '/baseInsurance/long/infoCollection',
-    meta: { title: '信息采集' },
+    meta: { title: '信息采集', cacheTarget: ['InfoCollection', 'CustomerDetail', 'CustomerList'] },
     component: () => import('@/views/baseInsurance/templates/lianLong/infoCollection.vue'),
   },
   {
@@ -258,9 +258,9 @@ const baseInsurance = [
   },
   // 客户列表
   {
-    name: 'Customer',
+    name: 'CustomerList',
     path: '/baseInsurance/customerList',
-    meta: { title: '', requireWxJs: false },
+    meta: { title: '', requireWxJs: false, cacheSource: ['InfoCollection'] },
     component: () =>
       import(
         '@/views/baseInsurance/templates/components/Trial/components/PersonalInfo/components/CustomerList/index.vue'
@@ -270,7 +270,7 @@ const baseInsurance = [
   {
     name: 'CustomerDetail',
     path: '/baseInsurance/customerDetail',
-    meta: { title: '', requireWxJs: false },
+    meta: { title: '', requireWxJs: false, cacheSource: ['CustomerList', 'InfoCollection'] },
     component: () =>
       import(
         '@/views/baseInsurance/templates/components/Trial/components/PersonalInfo/components/CustomerDetail/index.vue'

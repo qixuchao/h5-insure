@@ -14,7 +14,7 @@
     <div class="collapse-content">
       <BasicInfo :data="state" />
     </div>
-    <CardSelect title="证件信息" :data="state.certInfo">
+    <CardSelect title="证件信息" :data="state.certInfo" @update:selected="(v) => (selectedIndex.certIndex = v)">
       <template #default="{ scope }">
         <div class="cert-row">
           <div class="label">{{ (scope as CertInfo).certTypeName }}</div>
@@ -22,11 +22,15 @@
         </div>
         <div class="cert-row">
           <div class="label">证件有效期</div>
-          <div class="value">{{ (scope as CertInfo).certStart }}~{{ (scope as CertInfo).certValidity }}</div>
+          <div class="value">{{ formatCertDate((scope as CertInfo).certStart, (scope as CertInfo).certValidity) }}</div>
         </div>
       </template>
     </CardSelect>
-    <CardSelect title="常用通讯信息" :data="state.contactInfo">
+    <CardSelect
+      title="常用通讯信息"
+      :data="state.contactInfo"
+      @update:selected="(v) => (selectedIndex.contactIndex = v)"
+    >
       <template #default="{ scope }">
         <div class="cert-row">
           <div class="value">{{ (scope as ContactInfo).contactNo }}</div>
@@ -36,8 +40,8 @@
     <CardSelect
       title="常用通讯地址"
       :data="state.addressInfo"
-      :selected="addressIndex"
-      @update:selected="(v) => (addressIndex = v)"
+      :selected="selectedIndex.addressIndex"
+      @update:selected="(v) => (selectedIndex.addressIndex = v)"
     >
       <template #default="{ scope }">
         <div class="cert-row">
@@ -48,7 +52,7 @@
         </div>
       </template>
     </CardSelect>
-    <CardSelect title="银行卡信息" :data="state.bankCardInfo">
+    <CardSelect title="银行卡信息" :data="state.bankCardInfo" @update:selected="(v) => (selectedIndex.bankIndex = v)">
       <template #default="{ scope }">
         <div class="cert-row">
           <div class="value">{{ (scope as BankCardInfo).bankBranch }}</div>
@@ -73,7 +77,7 @@ import { getCustomerDetail } from '@/api/modules/third';
 import { CertInfo, ContactInfo, BankCardInfo, AddressInfo, CustomerDetail } from '@/api/modules/third.data';
 import pageJump from '@/utils/pageJump';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
-import { getCusomterParams, setCusomterData } from '../../util';
+import { getCusomterParams, setCusomterData, filterCustomerOption } from '../../util';
 import avatar from '@/assets/images/customer-avatar.png';
 import BasicInfo from './BasicInfo.vue';
 import CardSelect from './CardSelect.vue';
@@ -87,7 +91,12 @@ const route = useRoute();
 const router = useRouter();
 
 const { customerId } = route.query as QueryData;
-const addressIndex = ref(0);
+const selectedIndex = ref({
+  addressIndex: 0,
+  certIndex: 0,
+  bankIndex: 0,
+  contactIndex: 0,
+});
 const state = ref<Partial<CustomerDetail>>({
   addressInfo: [],
   certInfo: [],
@@ -112,18 +121,19 @@ const getData = () => {
     birthday: '1969-01-01',
     gender: 2,
   };
-  const selectFirst = (dts) => {
-    if (dts.length) {
+  const selectFirst = (dts = []) => {
+    if (dts && dts.length) {
       dts[0].isDefault = '1';
     }
-    return dts;
+    return dts || [];
   };
   getCustomerDetail(params)
     .then((res) => {
       const { code, data } = res;
       if (code === '10000' && data) {
-        const { bankCardInfo, addressInfo, contactInfo, certInfo, ...others } = data;
+        const { bankCardInfo = [], addressInfo = [], contactInfo = [], certInfo = [], ...others } = data;
         state.value = data;
+
         state.value.addressInfo = selectFirst(addressInfo);
         state.value.bankCardInfo = selectFirst(bankCardInfo);
         state.value.contactInfo = selectFirst(contactInfo);
@@ -136,26 +146,16 @@ const getData = () => {
 };
 const goCollection = (e: any) => {
   // 跳转前，设置要获取的选中客户的参数， 给外面调用的地方去拿
-  setCusomterData(state.value);
-  // pageJump('infoCollection', { ...route.query, selected: true });
+  const a = setCusomterData(filterCustomerOption(state.value, selectedIndex.value));
+  console.log('暂存的客户信息：', a);
   router.replace({
     path: PAGE_ROUTE_ENUMS.infoCollection,
     query: { ...route.query, selected: 'true' },
   });
 };
-const changge = (filed, index) => {
-  const data = filed;
-  if (filed[index].isDefault !== '1') {
-    filed.map((item, i) => {
-      if (i === index) {
-        item.isDefault = '1';
-      } else {
-        item.isDefault = '2';
-      }
-      return item;
-    });
-  }
-  filed = [...data];
+// 格式化身份证有效期
+const formatCertDate = (start = '', end = '') => {
+  return `${start ? `${start}~` : ''}${end?.includes('9999') ? '长期' : end}`;
 };
 
 onMounted(() => {
