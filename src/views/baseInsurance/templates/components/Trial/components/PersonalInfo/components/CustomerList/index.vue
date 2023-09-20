@@ -31,10 +31,12 @@
 <script lang="ts" setup name="CustomerList">
 import { withDefaults, ref, defineExpose } from 'vue';
 import { Toast } from 'vant';
+import { useRoute } from 'vue-router';
 import { getCustomerList } from '@/api/modules/third';
 import SearchLeftIcon from '@/assets/images/baseInsurance/search.png';
 import List from './List.vue';
 
+const route = useRoute();
 const emit = defineEmits(['closeCustomerPopoup']);
 interface StateInfo {
   show: boolean;
@@ -2132,6 +2134,7 @@ const getData = async (params: { [key: string]: string }) => {
     pageSize: 999,
     accessKey: 'ToDo', // TODO @za-qixuchao
     keyword: state.keyword || '',
+    relation: route.query.relation,
     ...params,
   };
   getCustomerList(reqs)

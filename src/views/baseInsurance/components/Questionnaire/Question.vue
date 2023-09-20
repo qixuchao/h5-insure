@@ -52,6 +52,7 @@
                   maxlength="100"
                   placeholder="请输入告知说明"
                   :show-word-limit="!isView"
+                  :rules="[{ required: true, message: '请输入告知说明' }]"
                 />
               </div>
             </div>
@@ -80,6 +81,7 @@
                   :maxlength="100"
                   placeholder="请输入告知说明"
                   :show-word-limit="!isView"
+                  :rules="[{ required: true, message: '请输入告知说明' }]"
                 />
               </div>
             </div>
@@ -294,9 +296,6 @@ defineExpose({
     font-size: 30px;
   }
 }
-.van-cell.van-field.van-field--error .van-field__body input.van-field__control--error::placeholder {
-  color: green !important;
-}
 
 .option-row {
   width: 100%;
@@ -336,6 +335,13 @@ defineExpose({
     &.van-field__control--error::placeholder {
       color: $zaui-text-placeholder !important;
     }
+  }
+}
+// 覆盖输入框错误时，placeholder变红问题
+:deep(.van-cell.van-field.van-field--error .van-field__body) {
+  input.van-field__control--error::placeholder,
+  textarea.van-field__control--error::placeholder {
+    color: $zaui-text-placeholder !important;
   }
 }
 </style>

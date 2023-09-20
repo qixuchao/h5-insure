@@ -43,7 +43,7 @@
         <div
           v-if="+insuredItem.personVO.relationToHolder !== 1 && canShowCustomerIcon"
           class="choose-customer"
-          @click="chooseCustomers('insured', index, 0)"
+          @click="chooseCustomers('insured', index, 0, insuredItem.personVO.relationToHolder)"
         >
           <ProSvg name="customer" color="#333" />
         </div>
@@ -52,7 +52,7 @@
         <div
           v-if="canShowCustomerIcon"
           class="choose-customer"
-          @click="chooseCustomers('benifit', index, slotProps?.index)"
+          @click="chooseCustomers('benifit', index, slotProps?.index, insuredItem.personVO.relationToHolder)"
         >
           <ProSvg name="customer" color="#333" />
         </div>
@@ -97,7 +97,7 @@ import { isNotEmptyArray, PERSONAL_INFO_KEY, ATTACHMENT_OBJECT_TYPE_ENUM } from 
 import InsuredItem from './components/InsuredItem.vue';
 import { isAppFkq } from '@/utils';
 import pageJump from '@/utils/pageJump';
-import { getCusomterData, convertCustomerData, transformCustomerToPerson, isSamePersonByFiveFactor } from './util';
+import { getCusomterData, clearCustomData, transformCustomerToPerson, isSamePersonByFiveFactor } from './util';
 
 interface QueryData {
   isShare: boolean;
@@ -124,7 +124,13 @@ interface Props {
   };
 }
 
-const emit = defineEmits(['update:modelValue', 'trailChange', 'trailValidateFailed', 'closeCustomerPopoup']);
+const emit = defineEmits([
+  'update:modelValue',
+  'trailChange',
+  'trailValidateFailed',
+  'closeCustomerPopoup',
+  'updateInfo',
+]);
 const holderFormRef = ref(null);
 const insuredFormRef = ref(null);
 
@@ -212,10 +218,10 @@ const isShowHolder = computed(() => !props.isTrial || props.isHolderExempt);
 
 // 是否能显示选客户的icon（非分享、非查看、非试算、且是App时）
 const canShowCustomerIcon = computed(() => {
-  return !isShare && !props.isView && !props.isTrial && isApp;
+  return true || (!isShare && !props.isView && !props.isTrial && isApp);
 });
 // 通过客户列表去选客户填充到 投被保人
-const chooseCustomers = (type: string, index, benifitIndex) => {
+const chooseCustomers = (type: string, index, benifitIndex, relation?: string) => {
   state.currentType = type;
   if (type !== 'benifit') {
     state.currentIndex = index;
@@ -225,7 +231,7 @@ const chooseCustomers = (type: string, index, benifitIndex) => {
   }
   const { selectedType, customerId, selected, ...others } = route.query; // 去掉下级页面的参数
 
-  pageJump('customerList', { ...others, selectedType: type });
+  pageJump('customerList', { ...others, selectedType: type, relation });
 };
 
 // 当前模块要素code集合
@@ -244,9 +250,11 @@ const insureKeys = () => {
 // 将客户信息设置到对应的人
 const setCustomerToPerson = (value) => {
   const keys = insureKeys();
-  const selectedCustomer = convertCustomerData(value, keys);
+  const selectedCustomer = transformCustomerToPerson(value, keys) as { bankCardInfo: object };
   if (state.currentType === 'holder') {
     Object.assign(state?.holder?.personVO || {}, selectedCustomer);
+    Object.assign(state?.holder?.personVO || {}, selectedCustomer);
+    emit('updateInfo', selectedCustomer.bankCardInfo);
   }
   if (state.currentType === 'insured') {
     // 被保人中关系是否有本人
@@ -674,8 +682,8 @@ defineExpose({
 onActivated(() => {
   const tempCust = getCusomterData();
   if (tempCust) {
-    const person = transformCustomerToPerson(tempCust);
     setCustomerToPerson(tempCust);
+    clearCustomData();
   }
 });
 </script>

@@ -79,10 +79,9 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-import { useRoute, useRouter } from 'vue-router';
-import { Dialog, Toast } from 'vant';
-import debounce from 'lodash-es/debounce';
+<script lang="ts" setup name="InfoCollection">
+import { useRoute } from 'vue-router';
+import { Toast } from 'vant';
 import {
   ProRenderFormWithCard,
   PayInfo,

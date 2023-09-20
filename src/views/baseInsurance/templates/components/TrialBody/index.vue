@@ -31,6 +31,7 @@
           :multi-insured-config="currentPlan?.multiInsuredConfigVO"
           @trail-change="handlePersonalInfoChange"
           @close-customer-popoup="handleClose"
+          @update-info="(e) => $emit('updateInfo', e)"
         />
       </div>
       <ProDivider size="large" />
@@ -71,6 +72,7 @@
               :product-factor="dataSource.productFactor"
               :multi-insured-config="dataSource?.multiInsuredConfigVO"
               @trail-change="handlePersonalInfoChange"
+              @update-info="(e) => $emit('updateInfo', e)"
             />
           </template>
         </ProductRiskList>
@@ -149,7 +151,7 @@ const insureInfosRef = ref(null);
 const route = useRoute();
 const router = useRouter();
 
-const emit = defineEmits(['trialStart', 'trialEnd', 'update:userData', 'closeCustomerPopoup']);
+const emit = defineEmits(['trialStart', 'trialEnd', 'update:userData', 'closeCustomerPopoup', 'updateInfo']);
 
 const { tenantId, templateId, preview } = route.query;
 

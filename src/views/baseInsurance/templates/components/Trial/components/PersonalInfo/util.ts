@@ -28,32 +28,48 @@ export const clearCustomData = () => {
   sessionStore.remove(SET_SELECT_CUTOMER_DATA_KEY);
 };
 
+export const filterCustomerOption = (customer: CustomerDetail, options) => {
+  return {
+    ...customer,
+    addressInfo: customer.addressInfo[options.addressIndex] || {},
+    certInfo: customer.certInfo[options.certIndex] || {},
+    contactInfo: customer.contactInfo[options.contactIndex] || {},
+    bankCardInfo: customer.bankCardInfo[options.bankCardIndex] || {},
+  };
+};
 /**
  * 处理客户数据 证件信息 取第一个  联系方式信息前端过滤
  * @param value 客户信息
  * @param keys 当前投被保人要素code列表
  * @returns 客户信息转到投被保人要素后的personVO
  */
-export const convertCustomerData = (value, keys: string[]) => {
-  console.log('convertCustomerData', value);
+export const transformCustomerToPerson = (value, keys: string[]) => {
+  console.log('transformCustomerToPerson', value);
 
-  const mobileObject = value?.contactInfo?.find((contact) => contact.contactType === '01');
-  const emailObject = value?.contactInfo?.find((contact) => contact.contactType === '02');
-  const certInfo = value?.certInfo[0] || {};
-
+  const contact = value?.contactInfo;
+  const mobile = contact.contactType === '01' ? contact.contactNo : '';
+  const email = contact.contactType === '02' ? contact.contactNo : '';
+  const certInfo = value?.certInfo || {};
+  const addressInfo = value.addressInfo || {};
   // 客户数据整合
   const newValue = {
-    // ...value,
+    ...value,
     name: value?.name,
     gender: value?.gender,
     birthday: value?.birthday,
-    mobile: mobileObject?.contactNo || null,
-    email: emailObject?.contactNo || null,
+    mobile,
+    email,
     certNo: certInfo?.certNo || null, // 证件号，给过来什么就用什么
     certType: certInfo?.certType || null, // 证件类型
     certStartDate: certInfo?.certStart || null, // 证件有效起期
     certEndDate: certInfo?.certValidity || null, // 证件有效期
     certEndType: certInfo?.certValidity === '9999-12-31' ? 1 : null, // 是否长期
+    longArea: {
+      ...addressInfo,
+    },
+    workAddress: {
+      ...addressInfo,
+    },
   };
 
   // 数据过滤，只映射投保流程中的数据，剔除客户多余部分
@@ -65,10 +81,6 @@ export const convertCustomerData = (value, keys: string[]) => {
   }, {});
   console.log('extractedObject===', extractedObject);
   return extractedObject;
-};
-export const transformCustomerToPerson = (customer: CustomerDetail): PersonVo => {
-  const person = {} as PersonVo;
-  return person;
 };
 
 /** 判断拿过来的客户与投被保人是否是同一人 */
