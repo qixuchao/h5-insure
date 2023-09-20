@@ -207,7 +207,9 @@ const state = reactive<Partial<StateInfo>>({
     personVO: {},
     schema: [],
     trialFactorCodes: [],
-    config: {},
+    config: {
+      occupationCode: { isView: true },
+    },
   },
   beneficiarySchema: [],
   initInsuredIList: [],

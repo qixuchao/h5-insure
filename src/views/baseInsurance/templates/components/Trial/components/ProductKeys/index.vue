@@ -58,8 +58,7 @@ const formatOptions = computed(() => (configKey: Array<string>) => {
     return {
       label: v.value,
       value: v.code,
-      disabled:
-        useOption && useOption.useFlag !== null && useOption.useFlag !== undefined ? useOption.useFlag !== 1 : false,
+      disabled: useOption?.useFlag ? useOption.useFlag !== 1 : false,
     };
   });
 });

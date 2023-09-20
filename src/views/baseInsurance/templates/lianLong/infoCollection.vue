@@ -81,7 +81,7 @@
 
 <script lang="ts" setup name="InfoCollection">
 import { useRoute } from 'vue-router';
-import { Toast } from 'vant';
+import { Toast, Dialog } from 'vant';
 import {
   ProRenderFormWithCard,
   PayInfo,

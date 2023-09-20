@@ -3,13 +3,21 @@
     <div class="content-wrap">
       <div class="product-image">
         <van-image :src="productInfo.image" />
+        <div class="company-name">{{ productInfo.insurerName?.slice(0, 6) }}</div>
+        <div
+          v-if="productInfo.label"
+          :class="{
+            tag: true,
+            news: productInfo.label === '新品',
+            push: productInfo.label === '推荐',
+          }"
+        >
+          {{ productInfo.label }}
+        </div>
       </div>
       <div class="product-info">
         <p class="title">{{ productInfo.productFullName }}</p>
         <p class="description">{{ productInfo.desc }}</p>
-        <p class="tags">
-          <span v-for="(i, idx) of productInfo.showConfig?.tags" :key="idx" class="tag">{{ i }}</span>
-        </p>
         <p class="price-item">
           <span class="price">{{ productInfo.price }}</span>
           <span>{{ productInfo.amountUnit }}</span>
@@ -73,45 +81,58 @@ const { checked } = toRefs(state);
           border-radius: 12px 12px 0 0;
         }
       }
-      .insure-name {
-        width: 160px;
-        height: 44px;
-        background: $zaui-global-bg;
-        font-size: 22px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: #515865;
-        line-height: 44px;
-        text-align: center;
+    }
+
+    .company-name {
+      height: 44px;
+      line-height: 44px;
+      text-align: center;
+      width: 100%;
+      background: #f2f5fc;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      font-size: 28px;
+      color: #515865;
+      overflow: hidden;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+    }
+    .tag {
+      position: absolute;
+      right: -6px;
+      top: 8px;
+      height: 30px;
+      line-height: 30px;
+      background: linear-gradient(270deg, #ff7c29 0%, #ffa800 100%);
+      border-radius: 6px 6px 0px 6px;
+      color: #fff;
+      padding: 0 8px;
+      font-size: 24px;
+      font-weight: 500;
+      &.news {
+        background: linear-gradient(270deg, #ed4829 0%, #ff6a44 100%);
+      }
+      &.push {
+        background: linear-gradient(270deg, #2b78ff 0%, #2ba2ff 100%);
+      }
+      &::after {
+        width: 0;
+        height: 0;
+        right: 0;
+        content: ' ';
         position: absolute;
-        bottom: 0px;
-        left: 0;
-        border-radius: 0 0 12px 12px;
-      }
-      .is-top {
-        width: 51px;
-        height: 30px;
-        position: absolute;
-        top: 8px;
-        right: -2px;
-        border-radius: 6px 6px 0px 6px;
-        font-size: 22px;
-        font-family: PingFangSC-Medium, PingFang SC;
-        font-weight: 500;
-        color: #ffffff;
-        line-height: 30px;
-        text-align: center;
-      }
-      .new {
-        background: linear-gradient(270deg, #ff7c29 0%, #ffa800 100%);
-      }
-      .hot {
-        background: linear-gradient(90deg, #ff6a45 0%, #ed4829 100%);
+        top: 30px;
+        border-top: 3px solid #4a2408;
+        border-left: 3px solid #4a2408;
+        border-bottom: 3px solid transparent;
+        border-right: 3px solid transparent;
       }
     }
     .product-info {
       margin: 0 24px;
       width: 440px;
+
       .title {
         font-size: 28px;
         font-family: PingFangSC-Medium, PingFang SC;

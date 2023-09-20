@@ -589,7 +589,8 @@ const handleSetRiskSelect = () => {
 const handleDealDyResult = (dyResult: any, productCode) => {
   if (dyResult?.data?.[0]?.productRiskDyInsureFactorVOList) {
     const defaultRiskData = [];
-    currentPlan.value?.insureProductRiskVOList.forEach((risk) => {
+
+    productMap.value[productCode]?.productPlanInsureVOList?.[0]?.insureProductRiskVOList.forEach((risk) => {
       const newRisk = dyResult?.data?.[0]?.productRiskDyInsureFactorVOList.find((r) => r.riskCode === risk.riskCode);
       if (newRisk) {
         risk.productRiskInsureLimitVO = {
@@ -600,7 +601,7 @@ const handleDealDyResult = (dyResult: any, productCode) => {
         let change = false;
         PRODUCT_KEYS_CONFIG.forEach((config) => {
           if (DYNAMIC_FACTOR_PARAMS.indexOf(config.valueKey) >= 0) {
-            const configData = risk.productRiskInsureLimitVO[config.configKey];
+            const configData = risk.productRiskInsureLimitVO[config.configKey?.[0]];
             if (configData && riskTrialData) {
               // 对试算值进行比对
               const targetConfigData = configData.find((d) => d.code === riskTrialData[config.valueKey]);
@@ -832,7 +833,6 @@ const handleDynamicConfig = async (data: any, changeData: any, productCode) => {
       }
 
       const riskInfoList = pickRiskInfoList(productCode, data.riskCode, data.riskType).flat();
-      console.log('riskInfoList', riskInfoList);
       const riskEditVOList = (riskInfoList || []).map((risk) => {
         if (risk.riskCode !== data.riskCode) {
           return {
@@ -868,7 +868,7 @@ const handleDynamicConfig = async (data: any, changeData: any, productCode) => {
           holderVO: state.userData.holder,
         });
         state.isQuerying = false;
-        const result = true || handleDealDyResult(dyResult, productCode);
+        const result = handleDealDyResult(dyResult, productCode);
         if (!result) {
           state.isAutoChange = true;
         }
