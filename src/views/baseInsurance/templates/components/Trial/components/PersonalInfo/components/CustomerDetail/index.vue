@@ -23,7 +23,7 @@
       <template #default="{ scope }">
         <div class="cert-row">
           <div class="label">{{ (scope as CertInfo).certTypeName }}</div>
-          <div class="value">{{ (scope as CertInfo).desensitizaCertNo }}</div>
+          <div class="value">{{ (scope as CertInfo).certNo }}</div>
         </div>
         <div class="cert-row">
           <div class="label">证件有效期</div>
