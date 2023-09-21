@@ -80,7 +80,26 @@ const handleConfirm = () => {
     Toast(`暂未添加任何${props.type === RISK_TYPE_ENUM.MAIN_RISK ? '主' : '附加'}险`);
     return;
   }
-  emits('confirm', checked.value);
+
+  let selectedList = [];
+  if (props.type === RISK_TYPE_ENUM.RIDER_RISK) {
+    selectedList = checked.value;
+  } else {
+    selectedList = riskList.value
+      .filter((product) => checked.value.includes(product.productCode))
+      .map((product) => {
+        return {
+          productCode: product.productCode,
+          mergeRiskReqList: (product.mainRiskCollocationList || []).map((risk) => ({
+            riskCode: risk.collocationRiskCode,
+            riskType: risk.mainRiskCode ? 2 : 1,
+            mainRiskCode: risk.mainRiskCode,
+          })),
+        };
+      });
+  }
+
+  emits('confirm', selectedList);
 };
 
 const getRiskList = async () => {
