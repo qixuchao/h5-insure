@@ -130,7 +130,7 @@ const emit = defineEmits([
   'trailChange',
   'trailValidateFailed',
   'closeCustomerPopoup',
-  'updateInfo',
+  'update-bank',
 ]);
 const holderFormRef = ref(null);
 const insuredFormRef = ref(null);
@@ -258,11 +258,11 @@ const insureKeys = () => {
 // 将客户信息设置到对应的人
 const setCustomerToPerson = (value) => {
   const keys = insureKeys();
-  const selectedCustomer = transformCustomerToPerson(value, keys) as { bankCardInfo: object };
+  const selectedCustomer = transformCustomerToPerson(value, keys);
   if (state.currentType === 'holder') {
     Object.assign(state?.holder?.personVO || {}, selectedCustomer);
-    Object.assign(state?.holder?.personVO || {}, selectedCustomer);
-    emit('updateInfo', selectedCustomer.bankCardInfo);
+    console.log(keys, '转换后的客户信息:', selectedCustomer);
+    emit('update-bank', value.bankCardInfo);
   }
   if (state.currentType === 'insured') {
     // 被保人中关系是否有本人

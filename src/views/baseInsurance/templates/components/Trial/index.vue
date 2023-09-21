@@ -17,6 +17,7 @@
           :product-factor="currentProductFactor"
           :multi-insured-config="currentPlan?.multiInsuredConfigVO"
           @trail-change="handlePersonalInfoChange"
+          @update-bank="(e) => $emit('update-bank', e)"
         />
       </div>
       <slot name="middleInfo"></slot>
@@ -79,7 +80,7 @@
     ></slot>
   </div>
 </template>
-<script lang="ts" setup name="TrialBody">
+<script lang="ts" setup name="TrialBody3">
 import { withDefaults, ref, defineExpose } from 'vue';
 import { Toast, Dialog } from 'vant/es';
 import debounce from 'lodash-es/debounce';
@@ -143,6 +144,7 @@ const emit = defineEmits([
   'addRisk',
   'addMainRisk',
   'deleteRisk',
+  'update-bank', // 子组件从客户带过来的银行卡信息抛给父页面
 ]);
 
 const { tenantId, templateId, preview } = route.query;

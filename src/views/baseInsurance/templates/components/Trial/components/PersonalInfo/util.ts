@@ -34,7 +34,7 @@ export const filterCustomerOption = (customer: CustomerDetail, options) => {
     addressInfo: customer.addressInfo[options.addressIndex] || {},
     certInfo: customer.certInfo[options.certIndex] || {},
     contactInfo: customer.contactInfo[options.contactIndex] || {},
-    bankCardInfo: customer.bankCardInfo[options.bankCardIndex] || {},
+    bankCardInfo: customer.bankCardInfo[options.bankIndex] || {},
   };
 };
 /**
@@ -51,6 +51,7 @@ export const transformCustomerToPerson = (value, keys: string[]) => {
   const email = contact.contactType === '02' ? contact.contactNo : '';
   const certInfo = value?.certInfo || {};
   const addressInfo = value.addressInfo || {};
+  const bankCardInfo = value.bankCardInfo || {};
   // 客户数据整合
   const newValue = {
     ...value,
@@ -59,17 +60,15 @@ export const transformCustomerToPerson = (value, keys: string[]) => {
     birthday: value?.birthday,
     mobile,
     email,
-    certNo: certInfo?.certNo || null, // 证件号，给过来什么就用什么
-    certType: certInfo?.certType || null, // 证件类型
-    certStartDate: certInfo?.certStart || null, // 证件有效起期
-    certEndDate: certInfo?.certValidity || null, // 证件有效期
-    certEndType: certInfo?.certValidity === '9999-12-31' ? 1 : null, // 是否长期
+    ...certInfo,
+    certEndType: certInfo?.certEndType === '9999-12-31' ? 1 : null, // 是否长期
     longArea: {
       ...addressInfo,
     },
     workAddress: {
       ...addressInfo,
     },
+    initialBankCard: bankCardInfo, // 首期银行卡
   };
 
   // 数据过滤，只映射投保流程中的数据，剔除客户多余部分
