@@ -13,19 +13,7 @@ import { getDic } from '@/api';
 
 let promise: Promise<ResponseData<DictData[]>> | null = null;
 const DIC_DATA: { [key: string]: { dictList: DictItemItem[]; refList: Array<Ref> } } = {};
-const DIC_CODE: string[] = [
-  'CERT_TYPE',
-  'GENDER',
-  'MARRIAGE_STATUS',
-  'DEGREE',
-  'NATIONALITY',
-  'NATIONAL_REGION_CODE',
-  'HAS_SOCIAL_INSURANCE',
-  'WORK_STATUS',
-  'RISK_PAYMENT_PERIOD',
-  'RISK_INSURANCE_PERIOD',
-  '_OCCUPATION',
-];
+const DIC_CODE: string[] = ['NATIONALITY', 'NATIONAL_REGION_CODE', 'OCCUPATION'];
 DIC_CODE.forEach((item) => {
   DIC_DATA[item] = {
     dictList: [],

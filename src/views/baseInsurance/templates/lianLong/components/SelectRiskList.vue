@@ -18,7 +18,7 @@
           @search="getRiskList"
         ></van-search>
       </div>
-      <div v-if="riskList.length" class="risk-list">
+      <div v-if="riskList?.length" class="risk-list">
         <van-checkbox-group v-model="checked">
           <van-checkbox
             v-for="risk in riskList"
@@ -110,7 +110,7 @@ const getRiskList = async () => {
   } else {
     const { code, data } = await queryRiderRiskList(params);
     if (code === '10000') {
-      riskList.value = data;
+      riskList.value = data.riskInfoList;
     }
   }
 };

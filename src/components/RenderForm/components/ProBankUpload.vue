@@ -63,7 +63,7 @@ const bankDic = useDicData('BANK');
 
 const { filedAttrs } = toRefs(useAttrsAndSlots());
 
-const { extraProvision } = inject(VAN_PRO_FORM_KEY) || {};
+const { extraProvision, formState } = inject(VAN_PRO_FORM_KEY) || {};
 const emits = defineEmits(['update:modelValue', 'ocr']);
 
 const props = defineProps({
@@ -158,21 +158,27 @@ watch(
   () => state.ossKeyList,
   (val) => {
     if (isNotEmptyArray(val) && val.length === 2) {
-      // ocr({
-      //   ossKey: val,
-      //   imageType: OCR_TYPE_ENUM.BANK_CARD,
-      // }).then((res) => {
-      //   const { data, code } = res;
-      //   if (code === '10000' && data && data.bankCardOcrVO) {
-      //     const { cardNo, bankName } = data.bankCardOcrVO;
-      //     const { code } = bankDic.value?.find((x) => x.name === bankName) || {};
-      //     emits('ocr', {
-      //       bankName,
-      //       payBank: code,
-      //       bankCardNo: cardNo,
-      //     });
-      //   }
-      // });
+      ocr({
+        ossKey: val,
+        imageType: OCR_TYPE_ENUM.BANK_CARD,
+      }).then((res) => {
+        const { data, code } = res;
+        if (code === '10000' && data && data.bankCardOcrVO) {
+          const { cardNumber, bankName } = data.bankCardOcrVO;
+          const { code } = bankDic.value?.find((x) => x.name === bankName) || {};
+          const ocrData = {
+            bankName,
+            payBank: code,
+            bankCardNo: cardNumber,
+          };
+
+          if (formState.formData) {
+            Object.assign(formState.formData, ocrData, { ocrData });
+          }
+
+          emits('ocr', ocrData);
+        }
+      });
     }
   },
   {

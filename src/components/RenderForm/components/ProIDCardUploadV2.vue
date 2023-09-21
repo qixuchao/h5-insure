@@ -164,23 +164,29 @@ watch(
   () => state.ossKeyList,
   (val) => {
     if (isNotEmptyArray(val) && val.length === 2) {
-      // ocr({
-      //   ossKey: val,
-      //   imageType: OCR_TYPE_ENUM.ID_CARD,
-      // }).then((res) => {
-      //   const { data, code } = res;
-      //   if (code === '10000' && data && data.idCardOcrVO) {
-      //     // personAddress 户籍所在地, issueBy 发证机关, race 民族
-      //     const { personName, personIdCard, validDateEnd, validDateStart, ...rest } = data.idCardOcrVO || {};
-      //     emits('ocr', {
-      //       name: personName,
-      //       certNo: personIdCard,
-      //       certEndDate: validDateEnd,
-      //       certStartDate: validDateStart,
-      //       ...rest,
-      //     });
-      //   }
-      // });
+      ocr({
+        ossKey: val,
+        imageType: OCR_TYPE_ENUM.ID_CARD,
+      }).then((res) => {
+        const { data, code } = res;
+        if (code === '10000' && data && data.idCardOcrVO) {
+          // personAddress 户籍所在地, issueBy 发证机关, race 民族
+          const { personName, personIdCard, validDateEnd, validDateStart, ...rest } = data.idCardOcrVO || {};
+          const ocrData = {
+            name: personName,
+            certNo: personIdCard,
+            certEndDate: validDateEnd,
+            certStartDate: validDateStart,
+            ...rest,
+          };
+
+          if (formState.formData) {
+            Object.assign(formState.formData, ocrData, { ocrData });
+          }
+
+          emits('ocr', ocrData);
+        }
+      });
     }
   },
   {

@@ -12,6 +12,7 @@
       objectType: ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER,
       objectId: state.holder?.personVO?.id,
     }"
+    @ocr="updateHolderData"
   >
     <template #customer>
       <div v-if="canShowCustomerIcon" class="choose-customer" @click="chooseCustomers('holder', 1, 0)">
@@ -206,7 +207,9 @@ const state = reactive<Partial<StateInfo>>({
     personVO: {},
     schema: [],
     trialFactorCodes: [],
-    config: {},
+    config: {
+      occupationCode: { isView: true },
+    },
   },
   beneficiarySchema: [],
   initInsuredIList: [],
@@ -215,6 +218,11 @@ const state = reactive<Partial<StateInfo>>({
 });
 // 是否显示holder
 const isShowHolder = computed(() => !props.isTrial || props.isHolderExempt);
+
+const updateHolderData = (holderData) => {
+  console.log('holderData', holderData);
+  Object.assign(state.holder.personVO, holderData);
+};
 
 // 是否能显示选客户的icon（非分享、非查看、非试算、且是App时）
 const canShowCustomerIcon = computed(() => {
@@ -596,66 +604,74 @@ watch(
     () => state.config,
     () => state.initInsuredIList,
   ],
-  debounce(([[holderConfig, holderFormData, insuredList]], [[oldHolderConfig, oldHolderData, oldInured]]) => {
-    if (
-      JSON.stringify(holderConfig) === JSON.stringify(oldHolderConfig) &&
-      JSON.stringify(holderFormData) === JSON.stringify(oldHolderData) &&
-      JSON.stringify(insuredList) === JSON.stringify(oldInured) &&
-      canUpdateFormData.value
-    ) {
-      // 投保人
-      return;
-    }
-    canUpdateFormData.value = true;
-    Object.assign(state.holder.config, holderConfig);
-    console.log('投保人数据===', cloneDeep(state.holder.personVO), cloneDeep(holderFormData));
-    console.log('投保人数据===', cloneDeep(state.holder.personVO), cloneDeep(holderFormData));
-
-    Object.assign(state.holder.personVO, holderFormData);
-
-    // 处理被保人数据
-    const { length: propsInsuredLen } = insuredList || [];
-    const { length: stateInsuredLen } = state.insured;
-
-    // 预览时，被保人数量多于默认数量
-    const { length, 0: mainInsuredItem = {}, [length - 1]: lastInsuredItem } = state.initInsuredIList;
-    const { multiInsuredMaxNum = 1, multiInsuredMinNum = 1, multiInsuredSupportFlag } = state?.config || {};
-    // const insuredLen = !multiInsuredSupportFlag
-    //   ? 1
-    //   : props.isView || propsInsuredLen > stateInsuredLen
-    //   ? propsInsuredLen
-    //   : stateInsuredLen || multiInsuredMinNum;
-    // 查看模式，或者编辑模式并且数据大于默认被保人数，则显示数据的长度与最大被保人数两者的最小值，否则显示最小值
-    const insuredLen =
-      props.isView || propsInsuredLen > stateInsuredLen
-        ? Math.min(propsInsuredLen, multiInsuredMaxNum)
-        : stateInsuredLen || multiInsuredMinNum;
-
-    state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
-      const { personVO, config = {}, guardian, beneficiaryList } = insuredList?.[index] || {};
-      const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
-      if (!res[index]) {
-        res[index] = {
-          ...initInsuredTempData,
-          personVO,
-          config,
-          guardian,
-          beneficiaryList,
-          nanoid: nanoid(),
-        };
-      } else {
-        merge(res[index], {
-          ...cloneDeep(initInsuredTempData),
-          personVO,
-          config,
-          guardian,
-          beneficiaryList,
-          // nanoid: nanoid(),
-        });
+  debounce(
+    (
+      [[holderConfig, holderFormData, insuredList], newConfig, newInitInsured],
+      [[oldHolderConfig, oldHolderData, oldInured], oldConfig, oldInitInsured],
+    ) => {
+      if (
+        JSON.stringify(holderConfig) === JSON.stringify(oldHolderConfig) &&
+        JSON.stringify(holderFormData) === JSON.stringify(oldHolderData) &&
+        JSON.stringify(insuredList) === JSON.stringify(oldInured) &&
+        JSON.stringify(newInitInsured) === JSON.stringify(oldInitInsured) &&
+        canUpdateFormData.value
+      ) {
+        // 投保人
+        return;
       }
-      return res;
-    }, state.insured) as InsuredListProps;
-  }, 500),
+
+      canUpdateFormData.value = true;
+      Object.assign(state.holder.config, holderConfig);
+      console.log('投保人数据===', cloneDeep(state.holder.personVO), cloneDeep(holderFormData));
+      console.log('投保人数据===', cloneDeep(state.holder.personVO), cloneDeep(holderFormData));
+
+      Object.assign(state.holder.personVO, holderFormData);
+
+      // 处理被保人数据
+      const { length: propsInsuredLen } = insuredList || [];
+      const { length: stateInsuredLen } = state.insured;
+
+      // 预览时，被保人数量多于默认数量
+      const { length, 0: mainInsuredItem = {}, [length - 1]: lastInsuredItem } = state.initInsuredIList;
+      const { multiInsuredMaxNum = 1, multiInsuredMinNum = 1, multiInsuredSupportFlag } = state?.config || {};
+      // const insuredLen = !multiInsuredSupportFlag
+      //   ? 1
+      //   : props.isView || propsInsuredLen > stateInsuredLen
+      //   ? propsInsuredLen
+      //   : stateInsuredLen || multiInsuredMinNum;
+      // 查看模式，或者编辑模式并且数据大于默认被保人数，则显示数据的长度与最大被保人数两者的最小值，否则显示最小值
+      const insuredLen =
+        props.isView || propsInsuredLen > stateInsuredLen
+          ? Math.min(propsInsuredLen, multiInsuredMaxNum)
+          : stateInsuredLen || multiInsuredMinNum;
+
+      state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
+        const { personVO, config = {}, guardian, beneficiaryList } = insuredList?.[index] || {};
+        const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
+        if (!res[index]) {
+          res[index] = {
+            ...initInsuredTempData,
+            personVO,
+            config,
+            guardian,
+            beneficiaryList,
+            nanoid: nanoid(),
+          };
+        } else {
+          merge(res[index], {
+            ...cloneDeep(initInsuredTempData),
+            personVO,
+            config,
+            guardian,
+            beneficiaryList,
+            // nanoid: nanoid(),
+          });
+        }
+        return res;
+      }, state.insured) as InsuredListProps;
+    },
+    500,
+  ),
   {
     deep: true,
     immediate: true,

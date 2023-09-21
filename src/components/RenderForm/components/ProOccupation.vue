@@ -75,6 +75,7 @@ const updateFullValue = (arr = []) => {
 
     if (formState?.formData) {
       formState.formData.occupationClass = occupationClass;
+      formState.formData.occupationCode = arr[arr.length - 1]?.code;
     }
   }
   state.modelValue = val;

@@ -127,11 +127,10 @@ const handleConfirm = (selectCodeList: Array<string>) => {
     if (lastIndex !== -1) {
       insertIndex = lastIndex;
     }
-
     currentProduct.mergeRiskReqList = [
       ...currentProduct.mergeRiskReqList.slice(0, insertIndex + 1),
       ...riskList,
-      ...currentProduct.mergeRiskReqList.slice(insertIndex, currentProduct.mergeRiskReqList.length),
+      ...currentProduct.mergeRiskReqList.slice(insertIndex + 1, currentProduct.mergeRiskReqList.length),
     ];
 
     trialRef.value.getRiderRiskDefaultValue(currentProductCode.value, selectCodeList, currentRiskInfo.value.riskCode);

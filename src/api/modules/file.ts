@@ -40,5 +40,5 @@ export const ocr = (data: any) => {
   // Object.keys(data).forEach((key) => {
   //   formData.append(key, data[key]);
   // });
-  return request<OCRResponse>({ url: '/api/app/ocrByFile', method: 'POST', data });
+  return request<OCRResponse>({ url: '/api/app/insure/insurance/ocrAuthenticate', method: 'POST', data });
 };

@@ -199,6 +199,13 @@ export const isOnlyCert = (item) => {
 // 是否有出生日期
 const hasBirthday = (arr) => isNotEmptyArray(arr) && arr.some((item) => (item.code || item.name) === 'birthday');
 
+// 设置职业代码为只读
+const setOccupationReadOnly = (item) => {
+  if (item.name === 'occupationCode') {
+    item.isView = true;
+  }
+};
+
 /**
  * 转换原始数据 ProForm 所需要的数据
  * @param [array] 投保人/被保人/受益人的因子数组
@@ -218,6 +225,10 @@ export const transformToSchema = (arr: FieldConfItem[], trialFactorCodesArr: str
       // 如果是长日期类型
       if (item.displayType === 4 && item.attributeValueList?.[0].code === '2') {
         item.displayType = 14;
+      }
+
+      if (item.code === 'occupationCode') {
+        // item.isView = true;
       }
       // 当前组件配置
       const { code, name, value, componentName, ...rest } =
