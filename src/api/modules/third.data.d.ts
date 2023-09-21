@@ -30,9 +30,9 @@ export interface CertInfo {
 	certTypeName: string;
 	certNo?: string;
 	desensitizaCertNo?: string;
-	certValidity: string;
+	certEndDate: string;
 	customerType?: string;
-	certStart: string;
+	certStartDate: string;
 	certName?: string;
 }
 /** 通讯联系信息 */
@@ -51,7 +51,7 @@ export interface BankCardInfo {
 	payBank: string;
 	bankBranch: string;
 	accountName?: any;
-	payAccount: string;
+	bankCardNo: string;
 	isDefault?: any;
 	paymentMethod?: any;
 }

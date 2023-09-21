@@ -19,6 +19,7 @@
       @trial-start="handleTrialStart"
       @trial-end="handleTrialEnd"
       @update:user-data="updateUserData"
+      @update-bank="updateInitialBank"
     >
       <template #middleInfo>
         <PayInfo
@@ -352,7 +353,11 @@ const onNext = async () => {
     );
   });
 };
-
+/** 子组件从客户页面带过来的首期银行卡信息 */
+const updateInitialBank = (d: any) => {
+  const initial = orderDetail.value.tenantOrderPayInfoList[0];
+  orderDetail.value.tenantOrderPayInfoList.splice(0, 1, { ...initial, ...d });
+};
 const updateUserData = (val) => {
   Object.assign(state.userData, val);
 };

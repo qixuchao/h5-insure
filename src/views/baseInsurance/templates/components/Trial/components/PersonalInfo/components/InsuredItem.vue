@@ -536,6 +536,9 @@ defineExpose({
 <style scoped lang="scss">
 .personal-info-card {
   :deep(.com-van-field) {
+    .van-field__body {
+      display: flex !important;
+    }
     &:last-child::after {
       display: block;
     }

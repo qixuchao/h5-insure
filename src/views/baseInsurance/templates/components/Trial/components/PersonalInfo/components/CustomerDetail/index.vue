@@ -14,7 +14,12 @@
     <div class="collapse-content">
       <BasicInfo :data="state" />
     </div>
-    <CardSelect title="证件信息" :data="state.certInfo" @update:selected="(v) => (selectedIndex.certIndex = v)">
+    <CardSelect
+      title="证件信息"
+      :data="state.certInfo"
+      :selected="selectedIndex.certIndex"
+      @update:selected="(v) => (selectedIndex.certIndex = v)"
+    >
       <template #default="{ scope }">
         <div class="cert-row">
           <div class="label">{{ (scope as CertInfo).certTypeName }}</div>
@@ -22,13 +27,16 @@
         </div>
         <div class="cert-row">
           <div class="label">证件有效期</div>
-          <div class="value">{{ formatCertDate((scope as CertInfo).certStart, (scope as CertInfo).certValidity) }}</div>
+          <div class="value">
+            {{ formatCertDate((scope as CertInfo).certStartDate, (scope as CertInfo).certEndDate) }}
+          </div>
         </div>
       </template>
     </CardSelect>
     <CardSelect
       title="常用通讯信息"
       :data="state.contactInfo"
+      :selected="selectedIndex.contactIndex"
       @update:selected="(v) => (selectedIndex.contactIndex = v)"
     >
       <template #default="{ scope }">
@@ -52,13 +60,18 @@
         </div>
       </template>
     </CardSelect>
-    <CardSelect title="银行卡信息" :data="state.bankCardInfo" @update:selected="(v) => (selectedIndex.bankIndex = v)">
+    <CardSelect
+      title="银行卡信息"
+      :data="state.bankCardInfo"
+      :selected="selectedIndex.bankIndex"
+      @update:selected="(v) => (selectedIndex.bankIndex = v)"
+    >
       <template #default="{ scope }">
         <div class="cert-row">
           <div class="value">{{ (scope as BankCardInfo).bankBranch }}</div>
         </div>
         <div class="cert-row">
-          <div class="value">{{ (scope as BankCardInfo).payAccount }}</div>
+          <div class="value">{{ (scope as BankCardInfo).bankCardNo }}</div>
         </div>
       </template>
     </CardSelect>
@@ -112,15 +125,7 @@ const getData = () => {
     forbidClick: true,
   });
 
-  const params = getCusomterParams() || {
-    id: +customerId || 33,
-    customerType: '1',
-    customerName: '测受益人',
-    certNo: '410802196901010143',
-    certType: '1',
-    birthday: '1969-01-01',
-    gender: 2,
-  };
+  const params = getCusomterParams();
   const selectFirst = (dts = []) => {
     if (dts && dts.length) {
       dts[0].isDefault = '1';
@@ -146,8 +151,9 @@ const getData = () => {
 };
 const goCollection = (e: any) => {
   // 跳转前，设置要获取的选中客户的参数， 给外面调用的地方去拿
-  const a = setCusomterData(filterCustomerOption(state.value, selectedIndex.value));
-  console.log('暂存的客户信息：', a);
+  console.log('暂存的客户信息：', state.value);
+  const a = filterCustomerOption(state.value, selectedIndex.value);
+  setCusomterData(a);
   router.replace({
     path: PAGE_ROUTE_ENUMS.infoCollection,
     query: { ...route.query, selected: 'true' },
