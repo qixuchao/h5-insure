@@ -61,7 +61,7 @@ export const transformCustomerToPerson = (value, keys: string[]) => {
     mobile,
     email,
     ...certInfo,
-    certEndType: certInfo?.certEndType === '9999-12-31' ? 1 : null, // 是否长期
+    certEndType: certInfo?.certEndDate === '9999-12-31' ? 1 : null, // 是否长期
     longArea: {
       ...addressInfo,
     },
@@ -69,6 +69,7 @@ export const transformCustomerToPerson = (value, keys: string[]) => {
       ...addressInfo,
     },
     initialBankCard: bankCardInfo, // 首期银行卡
+    occupationCodeList: value.occunationCodeList,
   };
 
   // 数据过滤，只映射投保流程中的数据，剔除客户多余部分

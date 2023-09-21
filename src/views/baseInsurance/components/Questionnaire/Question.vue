@@ -92,7 +92,7 @@
       <van-field
         v-if="data.questionType === PRODUCT_QUESTION_OPT_TYPE_ENUM.BLANK"
         v-model="answerVO.answer"
-        rows="2"
+        rows="1"
         autosize
         class="question-blank"
         type="textarea"
@@ -226,7 +226,7 @@ defineExpose({
 
 <style scoped lang="scss">
 .com-question {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   // 子层的问题，不要下边线
   .child .question-card {
     border: none;
@@ -242,7 +242,7 @@ defineExpose({
 }
 .question-card {
   background-color: #ffffff;
-  border-bottom: 8px solid var(--zaui-line, #f1f1f1);
+  // border-bottom: 8px solid var(--zaui-line, #f1f1f1);
   .header {
     margin-left: 28px;
     border-bottom: 1px solid var(--zaui-line, #f1f1f1);
@@ -318,7 +318,7 @@ defineExpose({
 }
 :deep(.question-blank.van-cell.van-field textarea) {
   background-color: #ffffff;
-  border-bottom-width: 1px;
+  border-bottom: 1px solid var(--zaui-line);
 }
 :deep(.custom-cell.van-cell.van-field) {
   display: inline-block !important;

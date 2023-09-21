@@ -43,7 +43,7 @@ const list = computed(() => [
   { label: '体重', value: props.data.weight, unit: '千克' },
   { label: '婚姻状况', value: props.data.marriageName },
   { label: '教育程度', value: props.data.educationDegreeName },
-  { label: '职业', value: props.data?.occunationNamelist?.join('/') },
+  { label: '职业', value: props.data?.occunationNameList?.join('/') },
 ]);
 </script>
 <style lang="scss">

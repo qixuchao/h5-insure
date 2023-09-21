@@ -49,11 +49,20 @@
           <ProSvg name="customer" color="#333" />
         </div>
       </template>
+      <template #guardianCustomer>
+        <div
+          v-if="canShowCustomerIcon"
+          class="choose-customer"
+          @click="chooseCustomers('guardian', index, 0, insuredItem.guardian.personVO.relationToInsured)"
+        >
+          <ProSvg name="customer" color="#333" />
+        </div>
+      </template>
       <template #benefitCustomer="slotProps">
         <div
           v-if="canShowCustomerIcon"
           class="choose-customer"
-          @click="chooseCustomers('benifit', index, slotProps?.index, insuredItem.personVO.relationToHolder)"
+          @click="chooseCustomers('benifit', index, slotProps?.index, insuredItem.personVO.relationToInsured)"
         >
           <ProSvg name="customer" color="#333" />
         </div>
@@ -253,15 +262,19 @@ const insureKeys = () => {
   if (state.currentType === 'benifit') {
     return state.beneficiarySchema.map((obj) => obj.name) || [];
   }
+  if (state.currentType === 'guardian') {
+    return state.guardianSchema.map((obj) => obj.name) || [];
+  }
   return [];
 };
 // 将客户信息设置到对应的人
 const setCustomerToPerson = (value) => {
   const keys = insureKeys();
+  keys.push('certEndType');
   const selectedCustomer = transformCustomerToPerson(value, keys);
+  console.log(state.currentType, '的keys:', keys, '转换后的客户信息:', selectedCustomer);
   if (state.currentType === 'holder') {
     Object.assign(state?.holder?.personVO || {}, selectedCustomer);
-    console.log(keys, '转换后的客户信息:', selectedCustomer);
     emit('update-bank', value.bankCardInfo);
   }
   if (state.currentType === 'insured') {
@@ -297,6 +310,10 @@ const setCustomerToPerson = (value) => {
         selectedCustomer,
       );
     }
+  }
+  // 监护人
+  if (state.currentType === 'guardian') {
+    Object.assign(state?.insured[state.currentIndex]?.guardian?.personVO || {}, selectedCustomer);
   }
 };
 /** 验证试算因子是否全部有值 */
