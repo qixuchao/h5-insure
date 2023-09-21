@@ -98,12 +98,10 @@ const handleCancel = () => {
 
 const handleConfirm = (selectCodeList: Array<string>) => {
   if (popupType.value === RISK_TYPE_ENUM.MAIN_RISK) {
-    const productList = selectCodeList.map((code) => ({
-      productCode: code,
-      mergeRiskReqList: [],
-    }));
-    productRiskCodeMap.value.productList.push(...productList);
-    trialRef.value.getProductDefaultValue(selectCodeList);
+    productRiskCodeMap.value.productList.push(...selectCodeList);
+    console.log('selectCodeList', selectCodeList);
+    const productCodeList = selectCodeList.map((product) => product.productCode);
+    trialRef.value.getProductDefaultValue(productCodeList);
   } else {
     const currentProduct = productRiskCodeMap.value.productList.find(
       (product) => product.productCode === currentProductCode.value,
