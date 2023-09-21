@@ -235,7 +235,7 @@ const updateHolderData = (holderData) => {
 
 // 是否能显示选客户的icon（非分享、非查看、非试算、且是App时）
 const canShowCustomerIcon = computed(() => {
-  return true || (!isShare && !props.isView && !props.isTrial && isApp);
+  return !isShare && !props.isView && !props.isTrial && !isApp;
 });
 // 通过客户列表去选客户填充到 投被保人
 const chooseCustomers = (type: string, index, benifitIndex, relation?: string) => {
