@@ -92,9 +92,14 @@
       <van-field
         v-if="data.questionType === PRODUCT_QUESTION_OPT_TYPE_ENUM.BLANK"
         v-model="answerVO.answer"
+        rows="2"
+        autosize
+        class="question-blank"
+        type="textarea"
         :name="`${props.name}.answer`"
         placeholder="请输入"
         :maxlength="100"
+        show-word-limit
         :rules="[{ required: enumEqual(data.mustFlag, YES_NO_ENUM.YES), message: '请输入' }]"
       />
       <!-- 多项填空题 -->
@@ -311,9 +316,13 @@ defineExpose({
   margin-bottom: 20px;
   padding: 0 30px;
 }
+:deep(.question-blank.van-cell.van-field textarea) {
+  background-color: #ffffff;
+  border-bottom-width: 1px;
+}
 :deep(.custom-cell.van-cell.van-field) {
   display: inline-block !important;
-  width: 160px;
+  width: 200px;
   padding: 0px;
   vertical-align: top;
   .van-field__value {
@@ -325,7 +334,7 @@ defineExpose({
   }
 
   .van-field__body input {
-    width: 200px;
+    // width: 200px;
     height: 48px;
     margin: 0 4px;
     padding-right: 4px;
