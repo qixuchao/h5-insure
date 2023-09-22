@@ -73,6 +73,8 @@ onMounted(() => {
 <style lang="scss">
 body {
   touch-action: manipulation;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 .router-view {
   width: 100%;
@@ -80,8 +82,6 @@ body {
   // top: 0;
   // bottom: 0;
   margin: 0 auto;
-  overflow-y: auto;
-  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;

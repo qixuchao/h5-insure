@@ -69,7 +69,6 @@ export const transformCustomerToPerson = (value, keys: string[]) => {
       ...addressInfo,
     },
     initialBankCard: bankCardInfo, // 首期银行卡
-    occupationCodeList: value.occunationCodeList,
   };
 
   // 数据过滤，只映射投保流程中的数据，剔除客户多余部分
@@ -92,4 +91,15 @@ export const isSamePersonByFiveFactor = (origin, customer) => {
     origin.certType === customer.certType &&
     origin.certNo === customer.certNo
   );
+};
+
+const PERSONAL_PAGE_KEY = 'PERSONAL_PAGE_KEY';
+export const setPersonalPageData = (param: object) => {
+  sessionStore.set(PERSONAL_PAGE_KEY, param);
+};
+export const getPersonalPageData = (): any => {
+  return sessionStore.get(PERSONAL_PAGE_KEY);
+};
+export const clearPersonalPageData = (): any => {
+  sessionStore.remove(PERSONAL_PAGE_KEY);
 };

@@ -91,6 +91,7 @@ import cloneDeep from 'lodash-es/cloneDeep';
 import debounce from 'lodash-es/debounce';
 import merge from 'lodash-es/merge';
 import isEqual from 'lodash-es/isEqual';
+import { useWindowScroll } from '@vueuse/core';
 import {
   type PersonalInfoConf,
   type PersonFormProps,
@@ -107,14 +108,23 @@ import { isNotEmptyArray, PERSONAL_INFO_KEY, ATTACHMENT_OBJECT_TYPE_ENUM } from 
 import InsuredItem from './components/InsuredItem.vue';
 import { isAppFkq } from '@/utils';
 import pageJump from '@/utils/pageJump';
-import { getCusomterData, clearCustomData, transformCustomerToPerson, isSamePersonByFiveFactor } from './util';
+import {
+  getCusomterData,
+  clearCustomData,
+  transformCustomerToPerson,
+  isSamePersonByFiveFactor,
+  getPersonalPageData,
+  setPersonalPageData,
+  clearPersonalPageData,
+} from './util';
 
 interface QueryData {
   isShare: boolean;
   saleChannelId: number;
+  selectedType: string;
   [key: string]: any;
 }
-
+const { x, y } = useWindowScroll(); // 拿到当前的滚动条，方便在通讯录回来时复原
 const route = useRoute();
 const isApp = isAppFkq();
 const { isShare, saleChannelId } = route.query as QueryData;
@@ -712,11 +722,27 @@ defineExpose({
   },
   canTrail,
 });
+onDeactivated(() => {
+  setPersonalPageData({
+    currentIndex: state.currentIndex,
+    currentBenifitIndex: state.currentBenifitIndex,
+    scrollTop: y.value,
+  });
+});
 onActivated(() => {
   const tempCust = getCusomterData();
+  const tempPersonal = getPersonalPageData();
+  state.currentType = route.query.selectedType || state.currentType;
   if (tempCust) {
     setCustomerToPerson(tempCust);
     clearCustomData();
+  }
+
+  if (tempPersonal) {
+    state.currentIndex = tempPersonal.currentIndex;
+    state.currentBenifitIndex = tempPersonal.currentBenifitIndex;
+    document.documentElement.scrollTo(0, tempPersonal.scrollTop);
+    clearPersonalPageData();
   }
 });
 </script>
