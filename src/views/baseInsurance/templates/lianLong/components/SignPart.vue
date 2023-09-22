@@ -33,7 +33,7 @@
       </template>
       <Sign
         ref="signRef"
-        v-model="signString"
+        v-model="signData"
         :sign-string="currentPersonalInfo?.name || ''"
         class="sign"
         @submit-sign="submitSign"
@@ -100,7 +100,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const emits = defineEmits(['handleVerify', 'handleSign']);
 const currentPersonalInfo = ref<any>({});
-const signString = ref<string[]>([]);
+const signData = ref<string[]>([]);
 
 /** -----------资料阅读模块开始-------------------- */
 const productMaterialPlanList = ref([]);
@@ -154,11 +154,11 @@ const submitSign = (str) => {
 
 const validateSign = () => {
   return new Promise((resolve, reject) => {
-    if (signString.value?.length) {
+    if (signData.value?.length) {
       resolve(true);
       return;
     }
-    reject(new Error(`请${props.title}完成签名后，去支付`));
+    reject(new Error(`请先完成${props.title}签名`));
   });
 };
 
@@ -168,7 +168,7 @@ const validateVerify = () => {
       resolve(true);
       return;
     }
-    reject(new Error(`请${props.title}完成认证后，去支付`));
+    reject(new Error(`请${props.title}完成认证`));
   });
 };
 
@@ -180,7 +180,7 @@ defineExpose({
 watch(
   () => props.signString,
   () => {
-    signString.value = props.signString;
+    signData.value = props.signString;
   },
   {
     immediate: true,

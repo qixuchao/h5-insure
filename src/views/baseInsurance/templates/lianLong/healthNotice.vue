@@ -39,7 +39,7 @@ import { nextStepOperate as nextStep } from '../../nextStep';
 import useOrder from '@/hooks/useOrder';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
-import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
+import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS } from './constants';
 import { jumpToNextPage } from '@/utils';
 import { getTenantOrderDetail } from '@/api/modules/trial';
 import { NOTICE_OBJECT_ENUM, QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE } from '@/common/constants/notice';
@@ -75,7 +75,7 @@ const onNext = () => {
 const questionResolve = () => {
   if (nextQuestionnaireId.value) {
     router.push({
-      path: `${route.path}/${nextQuestionnaireId.value}`,
+      path: `${PAGE_ROUTE_ENUMS.questionNotice}/${nextQuestionnaireId.value}`,
       query: {
         ...route.query,
         questionnaireId: nextQuestionnaireId.value,
