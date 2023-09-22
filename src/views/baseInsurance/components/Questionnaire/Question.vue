@@ -219,6 +219,7 @@ defineExpose({
       },
       id: props.data.id,
       questionCode: props.data.questionCode,
+      questionType: props.data.questionType,
     };
   },
 });
