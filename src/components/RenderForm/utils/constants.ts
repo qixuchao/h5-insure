@@ -256,7 +256,7 @@ export const RULE_CONFIG_MAP = {
    * 国籍
    */
   COUNTRY: {
-    dictCode: DictNameEnum.NATIONALITY,
+    dictCode: combineDictCode(DictNameEnum.NATIONALITY),
     customFieldName: { text: 'name', value: 'code', children: 'children' },
   },
 };
