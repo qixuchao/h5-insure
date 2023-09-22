@@ -7,14 +7,14 @@
     </div>
     <div class="info">
       <InfoItem label="订单号" :content="detail.orderNo" line is-copy />
-      <InfoItem v-for="no in detail.applicationNo" :key="no" label="投保单号" :content="no" line is-copy />
+      <InfoItem v-for="no in detail.applicationNo || ['']" :key="no" label="投保单号" :content="no" line is-copy />
       <InfoItem label="保单号" :content="detail.policyNo" line is-copy />
       <div class="info-bottom">
         <div>
           <InfoItem label="投保人" :content="detail.holderName" line />
           <InfoItem label="被保人" :content="detail.insuredName?.[0]" line />
           <InfoItem label="创建时间" :content="dayjs(detail.orderStartDate).format('YYYY-MM-DD HH:mm:ss')" line />
-          <InfoItem label="保费：" :content="`￥${detail.premium}`" line />
+          <InfoItem label="保费：" :content="`${toLocal(detail.premium)}`" line />
         </div>
         <div style="width: 25%"><img src="@/assets/images/component/tree.png" alt="" style="width: 80%" /></div>
       </div>

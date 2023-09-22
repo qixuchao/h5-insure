@@ -199,15 +199,19 @@ const initData = async () => {
     });
     productRiskMap = pickProductRiskCodeFromOrder(orderData.insuredList[0].productList);
     orderData.tenantOrderAttachmentList.forEach((attachment) => {
-      if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED && attachment.category === 30) {
-        signPartInfo.value.insured.signData[attachment.objectId].push(attachment.fileBase64);
+      if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED && attachment.category === 30 && attachment.objectId) {
+        if (signPartInfo.value.insured.signData[attachment.objectId]) {
+          signPartInfo.value.insured.signData[attachment.objectId].push(attachment.fileBase64);
+        } else {
+          signPartInfo.value.insured.signData[attachment.objectId] = [attachment.fileBase64];
+        }
       }
     });
   }
   queryListProductMaterial(productRiskMap).then(({ code, data }) => {
     if (code === '10000') {
       const { signMaterialMap } = data.productMaterialPlanVOList?.[1] || {};
-      const signMaterialCollection = Object.values(signMaterialMap).flat() || [];
+      const signMaterialCollection = Object.values(signMaterialMap || []).flat() || [];
 
       signMaterialCollection.forEach((material: ProductMaterialVoItem) => {
         if (material.noticeObject === NOTICE_OBJECT_ENUM.INSURED) {

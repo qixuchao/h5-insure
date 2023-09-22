@@ -24,6 +24,7 @@
             v-for="risk in riskList"
             :key="risk.riskCode || risk.productCode"
             :name="risk.riskCode || risk.productCode"
+            @click="() => handleClick(risk.riskCode)"
             >{{ risk.riskName || risk.productName }}</van-checkbox
           >
         </van-checkbox-group>
@@ -69,6 +70,7 @@ const emits = defineEmits(['cancel', 'confirm']);
 
 const checked = ref<Array<string>>([]);
 const riskList = ref<any[]>([]);
+const riskRelationList = ref([]); // 附加险关联关系列表
 const searchValue = ref<string>();
 const show = computed(() => props.show);
 
@@ -102,6 +104,58 @@ const handleConfirm = () => {
   emits('confirm', selectedList);
 };
 
+// 实现附加险与附加险之间的绑定和互斥交互
+const handleClick = (riskCode) => {
+  if (props.type === RISK_TYPE_ENUM.RIDER_RISK) {
+    riskRelationList.value.forEach((risk) => {
+      if (!checked.value.includes(riskCode)) {
+        if (riskCode === risk.relatedRiskCode) {
+          // 绑定
+          if (risk.collocationType === 2) {
+            checked.value = checked.value.filter((code) => code !== risk.collocationRiskCode);
+          }
+          // 互斥
+          if (risk.collocationType === 3) {
+            checked.value.push(riskCode);
+            checked.value = checked.value.filter((code) => code !== risk.collocationRiskCode);
+          }
+        } else if (riskCode === risk.collocationRiskCode) {
+          // 绑定
+          if (risk.collocationType === 2) {
+            checked.value = checked.value.filter((code) => code !== risk.relatedRiskCode);
+          }
+          // 互斥
+          if (risk.collocationType === 3) {
+            checked.value = checked.value.filter((code) => code !== risk.relatedRiskCode);
+          }
+        }
+      } else {
+        if (riskCode === risk.relatedRiskCode) {
+          // 绑定
+          if (risk.collocationType === 2) {
+            checked.value.push(risk.collocationRiskCode);
+          }
+          // 互斥
+          if (risk.collocationType === 3) {
+            checked.value.push(riskCode);
+            checked.value = checked.value.filter((code) => code !== risk.collocationRiskCode);
+          }
+        } else if (riskCode === risk.collocationRiskCode) {
+          // 绑定
+          if (risk.collocationType === 2) {
+            checked.value.push(risk.relatedRiskCode);
+          }
+          // 互斥
+          if (risk.collocationType === 3) {
+            checked.value = checked.value.filter((code) => code !== risk.relatedRiskCode);
+          }
+        }
+      }
+    });
+  }
+  checked.value = [...new Set(checked.value)];
+};
+
 const getRiskList = async () => {
   const params = {
     insuredList: props.insuredList,
@@ -130,6 +184,7 @@ const getRiskList = async () => {
     const { code, data } = await queryRiderRiskList(params);
     if (code === '10000') {
       riskList.value = data.riskInfoList;
+      riskRelationList.value = data.collocationInfoResList;
     }
   }
 };
@@ -137,6 +192,39 @@ const getRiskList = async () => {
 onMounted(() => {
   getRiskList();
 });
+
+// watch(
+//   () => checked.value,
+//   () => {
+//     if (props.type === RISK_TYPE_ENUM.RIDER_RISK) {
+//       riskRelationList.value.forEach((risk) => {
+//         if (checked.value.includes(risk.relatedRiskCode)) {
+//           // 绑定
+//           if (risk.collocationType === 2) {
+//             checked.value.push(risk.relatedRiskCode);
+//           }
+
+//           // 互斥
+//           if (risk.collocationType === 3) {
+//             checked.value = checked.value.filter((code) => code !== risk.relatedRiskCode);
+//           }
+//         } else {
+//           // 绑定
+//           if (risk.collocationType === 2) {
+//             checked.value = checked.value.filter((code) => code !== risk.relatedRiskCode);
+//           }
+
+//           // 互斥
+//           // if (risk.collocationType === 3) {
+//           // }
+//         }
+//       });
+//     }
+//   },
+//   {
+//     deep: true,
+//   },
+// );
 </script>
 
 <style lang="scss" scoped>

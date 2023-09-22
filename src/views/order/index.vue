@@ -3,11 +3,6 @@
     <!-- <ProPageWrap main-class="page-order-list"> -->
     <div class="page-order">
       <ProTab v-model:active="active" :list="tabList" class="tab" title-active-color="#c41e21" />
-      <!-- <div v-if="list.length" class="order-head">
-        共 <span class="order-head-num">{{ totalNum }}</span> 张保单
-        <span style="margin-left: 27px" class="order-head-num">{{ validNum }}</span> 张有效
-        <span style="margin-left: 36px" class="order-head-num">{{ invalidNum }}</span> 张失效
-      </div> -->
       <van-list v-if="list.length" class="body" :loading="loading" :finished="finished" @load="handleLoad">
         <Item
           v-for="(item, index) in list"
