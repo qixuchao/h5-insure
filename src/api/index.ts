@@ -6,6 +6,7 @@ import {
   TemplatePageItem,
   NextStepResponseData,
   ProductInsureNoticeResVo,
+  LianUserData,
 } from './index.data';
 import useStore from '@/store/app';
 
@@ -76,10 +77,6 @@ export const queryInsuredMaterial = (data = {}) =>
     data,
   });
 
-// 查询订单轨迹
-export const orderInsureRecord = (data = {}) =>
-  request<ResponseData>({ url: '/api/app/insure/insurance/orderInsureRecord', method: 'POST', data });
-
 // 获取订单详情
 export const newOrderDetail = (data = {}): Promise<ResponseData<NextStepRequestData>> => {
   return new Promise((resolve, reject) => {
@@ -104,3 +101,11 @@ export const newOrderDetail = (data = {}): Promise<ResponseData<NextStepRequestD
       });
   });
 };
+
+// 获取利安代理人信息
+export const queryLianAgentInfo = (data) =>
+  request<LianUserData>({
+    url: '/api/app/insure/insurance/getBaseUserInfo',
+    method: 'POST',
+    data,
+  });

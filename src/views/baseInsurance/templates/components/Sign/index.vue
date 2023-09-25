@@ -90,7 +90,10 @@ const signSlice = computed(() => {
   return [''];
 });
 
-const confirmDisabled = computed(() => signSlice.value?.length > signCollection.value?.length);
+const confirmDisabled = computed(() => {
+  const signList = signCollection.value.filter((sign) => sign);
+  return signSlice.value?.length > signList?.length;
+});
 
 const isEmpty = ref<boolean>(true);
 const swipeRef = ref();
@@ -193,7 +196,7 @@ const handleConfirm = () => {
 watch(
   [() => props.modelValue, () => signSlice.value],
   () => {
-    signCollection.value = props.modelValue;
+    signCollection.value = (props.modelValue || []).slice(0, signSlice.value.length);
   },
   {
     immediate: true,

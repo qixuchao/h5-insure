@@ -12,7 +12,7 @@
         <p class="card-list-title">{{ detail?.productName }}</p>
         <InfoItem label="订单号" :content="detail?.orderNo" line is-copy min-width="other" />
         <InfoItem
-          v-for="no in detail?.applicationNoList"
+          v-for="no in detail?.applicationNoList?.length ? detail?.applicationNoList : ['']"
           :key="no"
           label="投保单号"
           :content="no"

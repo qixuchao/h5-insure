@@ -244,7 +244,7 @@ const sign = (type, signData, bizObjectId?) => {
   }
 
   Promise.all(promiseList).then(() => {
-    getOrderDetail();
+    // getOrderDetail();
   });
 };
 
@@ -262,7 +262,6 @@ const initData = async () => {
   if (oCode === '10000') {
     Object.assign(orderDetail.value, orderData);
     signPartInfo.value.holder.personalInfo = { ...orderData.holder, isCert: 1 };
-    signPartInfo.value.insured.personalInfo.push(...orderData.insuredList);
     productRiskMap = pickProductRiskCodeFromOrder(orderData.insuredList[0].productList);
 
     Object.assign(defaultScribingConfig.value, {

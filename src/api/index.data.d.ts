@@ -437,6 +437,38 @@ export interface Trajectory {
   step: string
 }
 
+// 利安登录人信息
+export interface LianUserData {
+    accountId: number;
+    accountType: string;
+    agentCode: string;
+    agentGroup: string;
+    agentKind: string;
+    agentState: string;
+    birthday: string;
+    branchType: string;
+    certNo: string;
+    certStatus: string;
+    certType: string;
+    clientVersion: string;
+    deviceId: string;
+    gender: string;
+    headImg: string;
+    imUserName: string;
+    manageCom: string;
+    name: string;
+    nickName: string;
+    openid: string;
+    osDevice: string;
+    osVersion: string;
+    password: string;
+    phone: string;
+    quafNo: string;
+    smsCode: string;
+}
+
+
+
 
 
 

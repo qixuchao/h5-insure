@@ -350,13 +350,21 @@ const initData = async () => {
 const onNext = () => {
   const { holder, insuredList, extInfo } = orderDetail.value;
   if (!needBMOS.value) {
-    if ([extInfo.agentAuthFlag, holder.isCert, insuredList[0].isCert].includes(YES_NO_ENUM.NO)) {
-      Toast('请先完成签名');
+    if (extInfo.agentAuthFlag === YES_NO_ENUM.NO) {
+      Toast('代理人签名未完成');
+      return;
+    }
+    if (holder.isCert === YES_NO_ENUM.NO) {
+      Toast('投保人签名未完成');
+      return;
+    }
+    if (insuredList[0].isCert === YES_NO_ENUM.NO) {
+      Toast('被保人签名未完成');
       return;
     }
   } else {
-    if (!extInfo.agentAuthFlag) {
-      Toast('请先完成代理人签名');
+    if (extInfo.agentAuthFlag !== YES_NO_ENUM.YES) {
+      Toast('代理人签名未完成');
       return;
     }
   }

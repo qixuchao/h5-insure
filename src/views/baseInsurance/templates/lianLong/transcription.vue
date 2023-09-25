@@ -42,7 +42,7 @@ import { getOrderDetail as queryOrderDetail } from '@/api';
 import useOrder from '@/hooks/useOrder';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
-import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
+import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS } from './constants';
 import { jumpToNextPage } from '@/utils';
 import Questionnaire from '../../components/Questionnaire/index.vue';
 import { getTenantOrderDetail } from '@/api/modules/trial';
@@ -79,7 +79,7 @@ const onNext = () => {
 const questionResolve = () => {
   if (nextQuestionnaireId.value) {
     router.push({
-      path: `${route.path}/${nextQuestionnaireId.value}`,
+      path: `${PAGE_ROUTE_ENUMS.transcription}/${nextQuestionnaireId.value}`,
       query: {
         ...route.query,
         questionnaireId: nextQuestionnaireId.value,
@@ -104,7 +104,7 @@ const getQuestionInfo = async (params) => {
 
     // 过滤出风险告知问卷
     const productQuestionnaireVOList = questionList.filter(
-      (question) => question.businessType === QUESTION_OBJECT_TYPE.RISK_NOTIFICATION,
+      (question) => question.businessType === QUESTION_OBJECT_TYPE.RISK_NOTIFICATION && question.noticeObject === 1,
     );
     let questionInfo = productQuestionnaireVOList[0] || {};
     if (productQuestionnaireVOList?.length > 1) {
