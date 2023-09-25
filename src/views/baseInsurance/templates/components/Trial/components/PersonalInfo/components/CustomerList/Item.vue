@@ -4,7 +4,7 @@
       <div class="list-item" @click="handleCustomerItem">
         <div class="left">
           <div>
-            <img :src="data.gender ? (data.gender === '1' ? female : male) : gender" alt="" class="mf" />
+            <img :src="data.gender ? (+data.gender === 1 ? female : male) : gender" alt="" class="mf" />
           </div>
           <div>
             <div class="left-item">

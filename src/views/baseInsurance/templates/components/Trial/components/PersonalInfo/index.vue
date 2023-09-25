@@ -49,7 +49,7 @@
           <ProSvg name="customer" color="#333" />
         </div>
       </template>
-      <template #guardianCustomer>
+      <template #guardianCustomer="slotProps">
         <div
           v-if="canShowCustomerIcon"
           class="choose-customer"
@@ -62,7 +62,14 @@
         <div
           v-if="canShowCustomerIcon"
           class="choose-customer"
-          @click="chooseCustomers('benifit', index, slotProps?.index, insuredItem.personVO.relationToInsured)"
+          @click="
+            chooseCustomers(
+              'benifit',
+              index,
+              slotProps?.index,
+              insuredItem.beneficiaryList[slotProps?.index]?.personVO.relationToInsured,
+            )
+          "
         >
           <ProSvg name="customer" color="#333" />
         </div>
@@ -257,7 +264,7 @@ const chooseCustomers = (type: string, index, benifitIndex, relation?: string) =
     state.currentBenifitIndex = benifitIndex;
   }
   const { selectedType, customerId, selected, ...others } = route.query; // 去掉下级页面的参数
-
+  console.log('选择的关系relation:', relation);
   pageJump('customerList', { ...others, selectedType: type, relation });
 };
 
@@ -591,7 +598,7 @@ watch(
 watch(
   () => state?.insured?.[state.currentIndex]?.guardian?.personVO?.relationToInsured,
   (val, oldVal) => {
-    if (val !== oldVal) {
+    if (val !== oldVal && !val) {
       colorConsole('监护人关系变动了+++++');
       state.insured[state.currentIndex].guardian.personVO = {
         relationToInsured: val?.relationToInsured,
