@@ -20,7 +20,7 @@ export const PAGE_ROUTE_ENUMS = {
   productInfo: '/baseInsurance/long/productDetail', // 产品详情
   premiumTrial: '/baseInsurance/long/trial', // 保费试算
   questionNotice: '/baseInsurance/long/healthNotice', // 问卷告知书
-  transcription: '/baseInsurance/long/transcriptionNotice', // 问卷告知书
+  transcription: '/baseInsurance/long/transcription', // 问卷告知书
   infoCollection: '/baseInsurance/long/infoCollection', // 信息采集
   underWriteResult: '/baseInsurance/long/underWriteResult', // 核保结果
   infoPreview: '/baseInsurance/long/infoPreview', // 信息采集预览
