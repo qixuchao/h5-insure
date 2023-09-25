@@ -6,7 +6,7 @@
     @close="onClosePopup"
     @closed="onClosePopupAfterAni"
   > -->
-  <div>
+  <div class="page page-customer-list">
     <div class="search-bar">
       <van-search
         v-model="state.keyword"
@@ -2167,3 +2167,17 @@ const handleSearch = () => {
   getData({ keyword: state.keyword });
 };
 </script>
+<style lang="scss">
+.page-customer-list {
+  position: relative;
+  padding-top: 116px;
+  .search-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 112px;
+    z-index: 1;
+  }
+}
+</style>

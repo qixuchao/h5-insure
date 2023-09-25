@@ -49,7 +49,7 @@
           <ProSvg name="customer" color="#333" />
         </div>
       </template>
-      <template #guardianCustomer>
+      <template #guardianCustomer="slotProps">
         <div
           v-if="canShowCustomerIcon"
           class="choose-customer"
@@ -62,7 +62,14 @@
         <div
           v-if="canShowCustomerIcon"
           class="choose-customer"
-          @click="chooseCustomers('benifit', index, slotProps?.index, insuredItem.personVO.relationToInsured)"
+          @click="
+            chooseCustomers(
+              'benifit',
+              index,
+              slotProps?.index,
+              insuredItem.beneficiaryList[slotProps?.index]?.personVO.relationToInsured,
+            )
+          "
         >
           <ProSvg name="customer" color="#333" />
         </div>
@@ -91,6 +98,7 @@ import cloneDeep from 'lodash-es/cloneDeep';
 import debounce from 'lodash-es/debounce';
 import merge from 'lodash-es/merge';
 import isEqual from 'lodash-es/isEqual';
+import { useWindowScroll } from '@vueuse/core';
 import {
   type PersonalInfoConf,
   type PersonFormProps,
@@ -107,14 +115,23 @@ import { isNotEmptyArray, PERSONAL_INFO_KEY, ATTACHMENT_OBJECT_TYPE_ENUM } from 
 import InsuredItem from './components/InsuredItem.vue';
 import { isAppFkq } from '@/utils';
 import pageJump from '@/utils/pageJump';
-import { getCusomterData, clearCustomData, transformCustomerToPerson, isSamePersonByFiveFactor } from './util';
+import {
+  getCusomterData,
+  clearCustomData,
+  transformCustomerToPerson,
+  isSamePersonByFiveFactor,
+  getPersonalPageData,
+  setPersonalPageData,
+  clearPersonalPageData,
+} from './util';
 
 interface QueryData {
   isShare: boolean;
   saleChannelId: number;
+  selectedType: string;
   [key: string]: any;
 }
-
+const { x, y } = useWindowScroll(); // 拿到当前的滚动条，方便在通讯录回来时复原
 const route = useRoute();
 const isApp = isAppFkq();
 const { isShare, saleChannelId } = route.query as QueryData;
@@ -247,7 +264,7 @@ const chooseCustomers = (type: string, index, benifitIndex, relation?: string) =
     state.currentBenifitIndex = benifitIndex;
   }
   const { selectedType, customerId, selected, ...others } = route.query; // 去掉下级页面的参数
-
+  console.log('选择的关系relation:', relation);
   pageJump('customerList', { ...others, selectedType: type, relation });
 };
 
@@ -581,7 +598,7 @@ watch(
 watch(
   () => state?.insured?.[state.currentIndex]?.guardian?.personVO?.relationToInsured,
   (val, oldVal) => {
-    if (val !== oldVal) {
+    if (val !== oldVal && !val) {
       colorConsole('监护人关系变动了+++++');
       state.insured[state.currentIndex].guardian.personVO = {
         relationToInsured: val?.relationToInsured,
@@ -712,11 +729,27 @@ defineExpose({
   },
   canTrail,
 });
+onDeactivated(() => {
+  setPersonalPageData({
+    currentIndex: state.currentIndex,
+    currentBenifitIndex: state.currentBenifitIndex,
+    scrollTop: y.value,
+  });
+});
 onActivated(() => {
   const tempCust = getCusomterData();
+  const tempPersonal = getPersonalPageData();
+  state.currentType = route.query.selectedType || state.currentType;
   if (tempCust) {
     setCustomerToPerson(tempCust);
     clearCustomData();
+  }
+
+  if (tempPersonal) {
+    state.currentIndex = tempPersonal.currentIndex;
+    state.currentBenifitIndex = tempPersonal.currentBenifitIndex;
+    document.documentElement.scrollTo(0, tempPersonal.scrollTop);
+    clearPersonalPageData();
   }
 });
 </script>

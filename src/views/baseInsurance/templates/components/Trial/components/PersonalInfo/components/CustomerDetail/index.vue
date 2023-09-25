@@ -4,8 +4,8 @@
       <img :src="state?.avatar || avatar" alt="" class="customer-header-img" />
       <div class="customer-img-content">
         <div class="customer-img-title">
-          {{ state.name || '匿名客户' }} &nbsp;
-          <ProSvg v-if="+state.gender === 1" name="male" />
+          {{ state.name || '' }} &nbsp;
+          <ProSvg v-if="+state.gender === 2" name="male" />
           <ProSvg v-else name="female" />
         </div>
         <!-- <div class="customer-tag">客户信息收集</div> -->

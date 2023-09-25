@@ -99,6 +99,7 @@
         :name="`${props.name}.answer`"
         placeholder="请输入"
         :maxlength="100"
+        show-word-limit
         :rules="[{ required: enumEqual(data.mustFlag, YES_NO_ENUM.YES), message: '请输入' }]"
       />
       <!-- 多项填空题 -->
@@ -218,6 +219,7 @@ defineExpose({
       },
       id: props.data.id,
       questionCode: props.data.questionCode,
+      questionType: props.data.questionType,
     };
   },
 });
@@ -321,7 +323,7 @@ defineExpose({
 }
 :deep(.custom-cell.van-cell.van-field) {
   display: inline-block !important;
-  width: 160px;
+  width: 200px;
   padding: 0px;
   vertical-align: top;
   .van-field__value {
@@ -333,7 +335,7 @@ defineExpose({
   }
 
   .van-field__body input {
-    width: 200px;
+    // width: 200px;
     height: 48px;
     margin: 0 4px;
     padding-right: 4px;
