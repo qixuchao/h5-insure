@@ -1,6 +1,6 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
-    <div class="page-order-detail">
+    <div v-if="isShowOrderRecord" class="page-order-detail">
       <div class="card card-head" @click="handleClick">
         <div class="card-item-name">订单进度</div>
         <div class="card-item-icon">
@@ -232,6 +232,10 @@ const state = reactive({
 const {
   query: { orderNo, agentCode, tenantId },
 } = route;
+
+// 是否展示订单轨迹
+const isShowOrderRecord = computed(() => detail.value.orderStatus !== 'cancel');
+
 const handleClick = () => {
   pageJump('orderTrajectory', { orderNo, orderId: detail.value.id, tenantId });
 };

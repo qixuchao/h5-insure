@@ -87,7 +87,7 @@ const signSlice = computed(() => {
 
     return sliceArray;
   }
-  return [''];
+  return [props.signString || ''];
 });
 
 const confirmDisabled = computed(() => {

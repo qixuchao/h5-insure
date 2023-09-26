@@ -7,6 +7,7 @@
         :key="`${item.nanoid}_${index}`"
         v-bind="item"
         v-model="state.formData[item.name]"
+        :config="state.config[item.name]"
         :is-view="typeof item.isView === 'boolean' ? item.isView : isView"
       >
         <!-- 继承 slots -->

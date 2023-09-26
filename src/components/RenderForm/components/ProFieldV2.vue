@@ -265,6 +265,7 @@ export default {
     min-height: 0 !important;
     padding: 0;
     overflow: hidden;
+    visibility: hidden;
   }
 
   .van-field__value {

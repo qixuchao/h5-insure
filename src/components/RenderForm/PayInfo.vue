@@ -102,6 +102,11 @@ const fieldInitList: Partial<PayInfoItem>[] = [
       cardType: {
         isView: true,
       },
+      bankCard: {
+        accountName: {
+          isView: true,
+        },
+      },
     },
     objectType: ATTACHMENT_OBJECT_TYPE_ENUM.INIT_SIGN,
   },
@@ -116,6 +121,11 @@ const fieldInitList: Partial<PayInfoItem>[] = [
     config: {
       cardType: {
         isView: true,
+      },
+      bankCard: {
+        accountName: {
+          isView: true,
+        },
       },
     },
     objectType: ATTACHMENT_OBJECT_TYPE_ENUM.RENEWAL_SIGN,
