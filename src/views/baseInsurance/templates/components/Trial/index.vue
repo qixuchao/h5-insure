@@ -80,7 +80,7 @@
     ></slot>
   </div>
 </template>
-<script lang="ts" setup name="TrialBody3">
+<script lang="ts" setup name="TrialBodyLian">
 import { withDefaults, ref, defineExpose } from 'vue';
 import { Toast, Dialog } from 'vant/es';
 import debounce from 'lodash-es/debounce';

@@ -63,6 +63,7 @@ onMounted(() => {
 </script>
 <style lang="scss">
 .com-question-wrap {
-  padding: 32px;
+  padding: 20px;
+  background-color: var(--zaui-global-bg);
 }
 </style>

@@ -4,8 +4,8 @@
       <img :src="state?.avatar || avatar" alt="" class="customer-header-img" />
       <div class="customer-img-content">
         <div class="customer-img-title">
-          {{ state.name || '匿名客户' }} &nbsp;
-          <ProSvg v-if="+state.gender === 1" name="male" />
+          {{ state.name || '' }} &nbsp;
+          <ProSvg v-if="+state.gender === 2" name="male" />
           <ProSvg v-else name="female" />
         </div>
         <!-- <div class="customer-tag">客户信息收集</div> -->
@@ -23,7 +23,7 @@
       <template #default="{ scope }">
         <div class="cert-row">
           <div class="label">{{ (scope as CertInfo).certTypeName }}</div>
-          <div class="value">{{ (scope as CertInfo).desensitizaCertNo }}</div>
+          <div class="value">{{ (scope as CertInfo).certNo }}</div>
         </div>
         <div class="cert-row">
           <div class="label">证件有效期</div>

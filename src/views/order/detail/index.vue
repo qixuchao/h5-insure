@@ -49,12 +49,14 @@
           :data-source="detail?.riskList"
         />
       </div>
-      <PolicyInfo
-        v-if="state.policyInfo.schema.length"
-        v-model="detail"
-        :schema="state.policyInfo.schema"
-        is-view
-      ></PolicyInfo>
+      <div class="card">
+        <PolicyInfo
+          v-if="state.policyInfo.schema.length"
+          v-model="detail"
+          :schema="state.policyInfo.schema"
+          is-view
+        ></PolicyInfo>
+      </div>
       <div class="card">
         <van-collapse v-model="tenantOrderAttachmentList">
           <van-collapse-item title="影像信息" name="1">
@@ -111,19 +113,20 @@
           </van-collapse-item>
         </van-collapse>
       </div>
-      <div class="insurance-notification-information card">
+      <div class="card">
         <InsuranceNotificationInformation title="投保告知信息" :data="state.customerQuestions || []" />
       </div>
 
-      <PersonalInfo
-        v-if="productFactor"
-        ref="personalInfoRef"
-        v-model="personalInfo"
-        :product-factor="productFactor"
-        is-view
-      >
-      </PersonalInfo>
-
+      <div class="card">
+        <PersonalInfo
+          v-if="productFactor"
+          ref="personalInfoRef"
+          v-model="personalInfo"
+          :product-factor="productFactor"
+          is-view
+        >
+        </PersonalInfo>
+      </div>
       <PayInfo
         v-if="state.payInfo.schema.length"
         ref="payInfoRef"
@@ -555,6 +558,9 @@ onMounted(() => {
         color: #c41e21;
       }
     }
+  }
+  .insurance-notification-information {
+    margin-bottom: 30px;
   }
   .table {
     margin-top: 30px;

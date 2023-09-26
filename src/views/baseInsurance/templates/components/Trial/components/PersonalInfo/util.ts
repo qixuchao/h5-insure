@@ -61,7 +61,7 @@ export const transformCustomerToPerson = (value, keys: string[]) => {
     mobile,
     email,
     ...certInfo,
-    certEndType: certInfo?.certEndType === '9999-12-31' ? 1 : null, // 是否长期
+    certEndType: certInfo?.certEndDate === '9999-12-31' ? 1 : null, // 是否长期
     longArea: {
       ...addressInfo,
     },
@@ -91,4 +91,15 @@ export const isSamePersonByFiveFactor = (origin, customer) => {
     origin.certType === customer.certType &&
     origin.certNo === customer.certNo
   );
+};
+
+const PERSONAL_PAGE_KEY = 'PERSONAL_PAGE_KEY';
+export const setPersonalPageData = (param: object) => {
+  sessionStore.set(PERSONAL_PAGE_KEY, param);
+};
+export const getPersonalPageData = (): any => {
+  return sessionStore.get(PERSONAL_PAGE_KEY);
+};
+export const clearPersonalPageData = (): any => {
+  sessionStore.remove(PERSONAL_PAGE_KEY);
 };

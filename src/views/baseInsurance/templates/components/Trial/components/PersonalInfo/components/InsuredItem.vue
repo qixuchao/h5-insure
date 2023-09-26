@@ -35,7 +35,7 @@
   >
     <template #cardTitleExtra><slot></slot></template>
     <template #customer>
-      <slot name="customer"></slot>
+      <slot name="guardianCustomer"></slot>
     </template>
   </ProRenderFormWithCard>
 
