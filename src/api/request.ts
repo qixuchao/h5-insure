@@ -95,7 +95,7 @@ const axiosInstance: AxiosInstance = axios.create({
   // 前缀
   baseURL: BASE_PREFIX,
   // 超时
-  timeout: 1000 * 30,
+  timeout: 1000 * 60,
   // 是否允许跨域请求带cookie
   withCredentials: false,
   // 请求头，如果有特殊的，在请求时传入jie

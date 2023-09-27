@@ -598,16 +598,16 @@ watch(
 watch(
   () => state?.insured?.[state.currentIndex]?.guardian?.personVO?.relationToInsured,
   (val, oldVal) => {
-    if (val !== oldVal && !!val) {
+    if (val !== oldVal && oldVal) {
       colorConsole('监护人关系变动了+++++');
-      state.insured[state.currentIndex].guardian.personVO = {
-        relationToInsured: val,
-      };
+      Object.assign(state.insured[state.currentIndex], {
+        guardian: {
+          personVO: {
+            relationToInsured: val,
+          },
+        },
+      });
     }
-  },
-  {
-    deep: true,
-    immediate: true,
   },
 );
 
@@ -620,6 +620,7 @@ watch(
       const { holder, insuredList = [] } = props.modelValue;
       const tempInsuredList = isNotEmptyArray(insuredList)
         ? insuredList.map((item) => {
+            console.log('item.guardian', cloneDeep(item.guardian));
             return {
               config: item.config,
               personVO: filterFormData(item),
@@ -679,10 +680,13 @@ watch(
           ? Math.min(propsInsuredLen, multiInsuredMaxNum)
           : stateInsuredLen || multiInsuredMinNum;
 
+      const currentInsuredList = cloneDeep(insuredList);
       state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
-        const { personVO, config = {}, guardian, beneficiaryList } = insuredList?.[index] || {};
+        const { personVO, config = {}, guardian, beneficiaryList } = currentInsuredList?.[index] || {};
         const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
         if (!res[index]) {
+          console.log('merge', res[index], guardian);
+
           res[index] = {
             ...initInsuredTempData,
             personVO,
@@ -703,6 +707,7 @@ watch(
         }
         return res;
       }, state.insured) as InsuredListProps;
+      console.log('insuredList', cloneDeep(state.insured));
     },
     500,
   ),
