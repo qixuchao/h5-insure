@@ -601,7 +601,7 @@ watch(
     if (val !== oldVal && !!val) {
       colorConsole('监护人关系变动了+++++');
       state.insured[state.currentIndex].guardian.personVO = {
-        relationToInsured: val?.relationToInsured,
+        relationToInsured: val,
       };
     }
   },
