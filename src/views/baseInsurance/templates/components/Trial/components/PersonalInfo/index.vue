@@ -99,6 +99,7 @@ import debounce from 'lodash-es/debounce';
 import merge from 'lodash-es/merge';
 import isEqual from 'lodash-es/isEqual';
 import { useWindowScroll } from '@vueuse/core';
+import { clone } from 'lodash';
 import {
   type PersonalInfoConf,
   type PersonFormProps,
@@ -470,6 +471,7 @@ watch(
   // eslint-disable-next-line consistent-return
   debounce((val, oldVal) => {
     if (JSON.stringify(val) === JSON.stringify(oldVal) && !isTrialChange) {
+      isTrialChange = true;
       return false;
     }
 
@@ -490,6 +492,8 @@ watch(
         ...item,
       })),
     };
+
+    console.log('result', cloneDeep(result));
 
     // 多被保人为配偶,性别不符合给提示
     if (state.config?.isSpouseInsured) {

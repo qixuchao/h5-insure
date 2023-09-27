@@ -268,7 +268,7 @@ watch(
           }, {})
         : holderPersonVO;
 
-      const certImage = holderPersonVO.certImage.map((image) => ({
+      const certImage = (holderPersonVO.certImage || []).map((image) => ({
         ...image,
         objectId: state.personVO.id,
         objectType: OBJECT_TYPE_ENUM.INSURED,
