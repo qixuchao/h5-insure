@@ -586,9 +586,9 @@ watch(
       val?.relationToInsured !== oldVal?.relationToInsured
     ) {
       colorConsole('受益人关系变动了+++++');
-      state.insured[state.currentIndex].beneficiaryList[state.currentBenifitIndex].personVO = {
-        relationToInsured: val?.relationToInsured,
-      };
+      // state.insured[state.currentIndex].beneficiaryList[state.currentBenifitIndex].personVO = {
+      //   relationToInsured: val?.relationToInsured,
+      // };
       // });
     }
   },

@@ -8,7 +8,7 @@
       :is-view="isView"
     ></PayInfo>
     <div class="footer-button">
-      <van-button @click="handleCancel">取消</van-button>
+      <van-button type="primary" plain @click="handleCancel">取消</van-button>
       <van-button type="primary" @click="handleConfirm">确认</van-button>
     </div>
   </div>

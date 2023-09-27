@@ -21,6 +21,10 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  config: {
+    type: Object,
+    default: () => ({}),
+  },
   /**
    * 是否查看模式
    */
@@ -33,9 +37,10 @@ const props = defineProps({
 const schema = computed(() => {
   if (isNotEmptyArray(props.attributeValueList)) {
     return props.attributeValueList.map((item: { code: string; value: string }) => {
+      const currentItem = PRO_BANK_FIELD_MAP[item.code];
       return {
-        ...PRO_BANK_FIELD_MAP[item.code],
-        isView: props.isView,
+        ...currentItem,
+        isView: props.isView || props.config?.[currentItem.name]?.isView,
         required: props.required,
         label: item.value,
       };

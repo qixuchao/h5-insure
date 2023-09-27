@@ -471,7 +471,10 @@ export const ADDRESS_FACTOR_CONF = [
  * 因子通用配置
  */
 export const GLOBAL_CONFIG_MAP = {
-  name: RULE_CONFIG_MAP.NAME,
+  name: {
+    ...RULE_CONFIG_MAP.NAME,
+    relatedName: 'nationalityCode',
+  },
   certNo: {
     relatedName: 'certType',
     maxlength: INPUT_MAX_LENGTH.EIGHTEEN,

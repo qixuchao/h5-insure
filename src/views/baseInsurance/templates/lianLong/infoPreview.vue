@@ -6,7 +6,7 @@
 
     <!-- 投保人/被保人/受益人 -->
     <PersonalInfo
-      v-if="productFactor"
+      v-if="Object.keys(productFactor || {})?.length"
       ref="personalInfoRef"
       v-model="personInfo"
       :product-factor="productFactor"

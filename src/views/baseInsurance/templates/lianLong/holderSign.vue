@@ -155,6 +155,12 @@ const requiredType = ref<any>({
   scribing: '',
 });
 
+// 被保人签名是否同投保人一起提交
+const isHolderSameInsured = computed<boolean>(() => {
+  const { age, relationToHolder, id } = signPartInfo.value.insured?.personalInfo?.[0] || {};
+  return `${relationToHolder}` === CERT_TYPE_ENUM.CERT || age < 18;
+});
+
 const handleSubmit = () => {
   if (preview) {
     jumpToNextPage(PAGE_CODE_ENUMS.SIGN, route.query);
@@ -191,14 +197,15 @@ const handleSubmit = () => {
                 orderId: orderDetail.value.id,
                 tenantId,
               }),
-              signatureConfirm({
-                bizObjectId: [orderDetail.value.insuredList[0].id],
-                bizObjectType: NOTICE_TYPE_ENUM.INSURED,
-                orderId: orderDetail.value.id,
-                tenantId,
-              }),
+              isHolderSameInsured.value &&
+                signatureConfirm({
+                  bizObjectId: [orderDetail.value.insuredList[0].id],
+                  bizObjectType: NOTICE_TYPE_ENUM.INSURED,
+                  orderId: orderDetail.value.id,
+                  tenantId,
+                }),
             ]).then((res1) => {
-              if (res1[0].code === '10000' && res1[1].code === '10000') {
+              if (res1[0].code === '10000') {
                 router.push({
                   path: PAGE_ROUTE_ENUMS.sign,
                   query: route.query,
@@ -238,8 +245,8 @@ const getOrderDetail = () => {
 
 const sign = (type, signData, bizObjectId?) => {
   const promiseList = [saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId)];
-  const { age, relationToHolder, id } = signPartInfo.value.insured.personalInfo[0];
-  if (`${relationToHolder}` === CERT_TYPE_ENUM.CERT || age < 18) {
+  const { id } = signPartInfo.value.insured?.personalInfo?.[0] || {};
+  if (isHolderSameInsured.value) {
     promiseList.push(saveSignList('INSURED', signData, orderDetail.value?.id, tenantId, id));
   }
 
