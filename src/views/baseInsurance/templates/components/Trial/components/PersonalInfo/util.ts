@@ -59,7 +59,7 @@ export const transformCustomerToPerson = (value, keys: string[]) => {
     gender: value?.gender,
     birthday: value?.birthday,
     mobile,
-    email,
+    email: email || value.email,
     ...certInfo,
     certEndType: certInfo?.certEndDate === '9999-12-31' ? 1 : null, // 是否长期
     longArea: {

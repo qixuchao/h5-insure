@@ -326,6 +326,10 @@ const setCustomerToPerson = (value) => {
         state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO || {},
         selectedCustomer,
       );
+      console.log(
+        '合并后的受益人',
+        state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO,
+      );
     }
   }
   // 监护人
@@ -740,16 +744,15 @@ onActivated(() => {
   const tempCust = getCusomterData();
   const tempPersonal = getPersonalPageData();
   state.currentType = route.query.selectedType || state.currentType;
-  if (tempCust) {
-    setCustomerToPerson(tempCust);
-    clearCustomData();
-  }
-
   if (tempPersonal) {
     state.currentIndex = tempPersonal.currentIndex;
     state.currentBenifitIndex = tempPersonal.currentBenifitIndex;
     document.documentElement.scrollTo(0, tempPersonal.scrollTop);
     clearPersonalPageData();
+  }
+  if (tempCust) {
+    setCustomerToPerson(tempCust);
+    clearCustomData();
   }
 });
 </script>

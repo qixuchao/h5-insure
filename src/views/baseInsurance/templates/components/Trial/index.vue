@@ -395,6 +395,7 @@ const handlePersonInfo = (data) => {
   if (holder) {
     state.submitData.holder = holder;
   }
+
   if (insuredList && insuredList.length > 0) {
     insuredList.forEach((ins, index) => {
       if (state.submitData.insuredList && state.submitData.insuredList.length > index) {

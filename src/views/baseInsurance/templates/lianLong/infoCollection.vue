@@ -362,7 +362,6 @@ const onNext = async () => {
     });
 
     const userData = personalInfoRef.value.dealMixData();
-
     const currentOrderDetail = trialData2Order(
       { ...userData, productCode, productName: insureProductDetail.value.productName },
       trialResult.value,
