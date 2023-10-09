@@ -1,7 +1,7 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
-    <div v-if="isShowOrderRecord" class="page-order-detail">
-      <div class="card card-head" @click="handleClick">
+    <div class="page-order-detail">
+      <div v-if="isShowOrderRecord" class="card card-head" @click="handleClick">
         <div class="card-item-name">订单进度</div>
         <div class="card-item-icon">
           {{ detail?.orderStepDesc }}
@@ -237,7 +237,7 @@ const {
 } = route;
 
 // 是否展示订单轨迹
-const isShowOrderRecord = computed(() => detail.value.orderStatus !== 'cancel');
+const isShowOrderRecord = computed(() => detail.value?.orderStatus !== 'cancel');
 
 const handleClick = () => {
   pageJump('orderTrajectory', { orderNo, orderId: detail.value.id, tenantId });

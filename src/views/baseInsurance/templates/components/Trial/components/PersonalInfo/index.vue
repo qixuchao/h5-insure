@@ -99,6 +99,7 @@ import debounce from 'lodash-es/debounce';
 import merge from 'lodash-es/merge';
 import isEqual from 'lodash-es/isEqual';
 import { useWindowScroll } from '@vueuse/core';
+import { clone } from 'lodash';
 import {
   type PersonalInfoConf,
   type PersonFormProps,
@@ -474,6 +475,7 @@ watch(
   // eslint-disable-next-line consistent-return
   debounce((val, oldVal) => {
     if (JSON.stringify(val) === JSON.stringify(oldVal) && !isTrialChange) {
+      isTrialChange = true;
       return false;
     }
 
@@ -494,6 +496,8 @@ watch(
         ...item,
       })),
     };
+
+    console.log('result', cloneDeep(result));
 
     // 多被保人为配偶,性别不符合给提示
     if (state.config?.isSpouseInsured) {
@@ -602,16 +606,16 @@ watch(
 watch(
   () => state?.insured?.[state.currentIndex]?.guardian?.personVO?.relationToInsured,
   (val, oldVal) => {
-    if (val !== oldVal && !!val) {
+    if (val !== oldVal && oldVal) {
       colorConsole('监护人关系变动了+++++');
-      state.insured[state.currentIndex].guardian.personVO = {
-        relationToInsured: val?.relationToInsured,
-      };
+      Object.assign(state.insured[state.currentIndex], {
+        guardian: {
+          personVO: {
+            relationToInsured: val,
+          },
+        },
+      });
     }
-  },
-  {
-    deep: true,
-    immediate: true,
   },
 );
 
@@ -624,6 +628,7 @@ watch(
       const { holder, insuredList = [] } = props.modelValue;
       const tempInsuredList = isNotEmptyArray(insuredList)
         ? insuredList.map((item) => {
+            console.log('item.guardian', cloneDeep(item.guardian));
             return {
               config: item.config,
               personVO: filterFormData(item),
@@ -683,10 +688,13 @@ watch(
           ? Math.min(propsInsuredLen, multiInsuredMaxNum)
           : stateInsuredLen || multiInsuredMinNum;
 
+      const currentInsuredList = cloneDeep(insuredList);
       state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
-        const { personVO, config = {}, guardian, beneficiaryList } = insuredList?.[index] || {};
+        const { personVO, config = {}, guardian, beneficiaryList } = currentInsuredList?.[index] || {};
         const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
         if (!res[index]) {
+          console.log('merge', res[index], guardian);
+
           res[index] = {
             ...initInsuredTempData,
             personVO,
@@ -707,6 +715,7 @@ watch(
         }
         return res;
       }, state.insured) as InsuredListProps;
+      console.log('insuredList', cloneDeep(state.insured));
     },
     500,
   ),
