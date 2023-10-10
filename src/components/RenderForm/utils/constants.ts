@@ -408,6 +408,7 @@ export const PRO_BANK_FIELD_MAP = {
   verificationCode: {
     ...RULE_CONFIG_MAP.ZIP_CODE,
     sendSMSCode,
+    checkSMSCode,
     name: BANK_INFO_KEY_ENUM.VERIFICATION_CODE,
     relatedName: BANK_INFO_KEY_ENUM.MOBILE,
     componentName: COMPONENT_ENUM.ProSMSCode,
@@ -519,6 +520,7 @@ export const GLOBAL_CONFIG_MAP = {
   },
   verificationCode: {
     sendSMSCode,
+    checkSMSCode,
     componentName: COMPONENT_ENUM.ProSMSCode,
     ...RULE_CONFIG_MAP.ZIP_CODE,
   },

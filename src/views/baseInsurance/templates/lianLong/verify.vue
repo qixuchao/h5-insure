@@ -130,11 +130,11 @@ import { transformFactorToSchema } from '@/components/RenderForm/utils/tools';
 import useOrder from '@/hooks/useOrder';
 import { PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS, BUTTON_CODE_ENUMS } from './constants';
 import { VERIFY_STATUS_MAP, DUAL_STATUS_MAP, DUAL_STATUS_ENUM } from '@/common/constants/verify';
-import { CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
+import { CERT_TYPE_ENUM, NOTICE_TYPE_MAP, PAGE_ACTION_TYPE_ENUM, YES_NO_ENUM, SEX_LIMIT_MAP } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
 import { dualUploadFiles, queryDualStatus } from '@/api/modules/verify';
 import { useSessionStorage } from '@/hooks/useStorage';
-import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
+import { LIAN_STORAGE_KEY, SHARE_CONTENT } from '@/common/constants/lian';
 import { shareWeiXin } from '@/utils/lianSDK';
 
 const sessionStorage = useSessionStorage();
@@ -221,10 +221,23 @@ const isShareSing = computed(() => (type) => signPartInfo.value[type].isShareSig
 
 // 分享到微信
 const handleShare = (type) => {
+  const { holder, insured } = orderDetail.value;
+  let userInfo = {
+    name: holder.name,
+    gender: `${SEX_LIMIT_MAP[holder.gender]}士`,
+  };
+
+  if (type === 'insured') {
+    userInfo = {
+      name: insured?.[0].name,
+      gender: `${SEX_LIMIT_MAP[insured?.[0].gender]}士`,
+    };
+  }
+
   shareWeiXin({
     shareType: 0,
-    title: '分享',
-    desc: '表述',
+    title: `${SHARE_CONTENT.sign.title}（${NOTICE_TYPE_MAP[type.toLocaleUpperCase()]}）`,
+    desc: SHARE_CONTENT.sign.desc.replace('{name}', `${userInfo.name}${userInfo.gender},代理人`),
     url: `${window.location.href}&objectType=${type}&nextPageCode=infoPreview`.replace('/verify', '/phoneVerify'),
     imageUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
   });

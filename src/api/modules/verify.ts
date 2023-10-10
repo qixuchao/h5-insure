@@ -10,6 +10,7 @@ import request from '@/api/request';
 import { DoubleData, INotice, SignResultItem } from './verify.data';
 import { NOTICE_TYPE_MAP } from '@/common/constants/index';
 
+// 人脸识别
 export const faceVerify = (data: any) => {
   return request<{
     expire: number;
@@ -17,6 +18,13 @@ export const faceVerify = (data: any) => {
     serialNo: string;
   }>({ url: '/api/app/insure/insurance/customerFace', method: 'POST', data });
 };
+
+// 获取人脸识别结果
+export const queryFaceVerifyResult = (params) =>
+  request({
+    url: 'api/app/insure/insurance/customerFaceResult',
+    params,
+  });
 
 export const faceVerifySave = (data: any) => {
   return request<ResponseData<{ status: string; statusDesc: string }>>({

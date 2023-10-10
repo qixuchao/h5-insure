@@ -18,16 +18,18 @@
 import PayInfo from '@/components/RenderForm/PayInfo.vue';
 import useOrder from '@/hooks/useOrder';
 import { pickProductRiskCodeFromOrder } from './utils';
-import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
+import { getTenantOrderDetail, mergeInsureFactor, saveOrder } from '@/api/modules/trial';
 import { transformFactorToSchema } from '@/components/RenderForm/utils/tools';
 import { nextStepOperate as nextStep } from '../../nextStep';
-import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
+import { NOTICE_TYPE_MAP, PAGE_ACTION_TYPE_ENUM, SEX_LIMIT_MAP } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
+import { shareWeiXin } from '@/utils/lianSDK';
+import { SHARE_CONTENT } from '@/common/constants/lian';
 
 const route = useRoute();
 const router = useRouter();
-const { orderNo, isShare, tenantId } = route.query;
+const { orderNo, isShare, tenantId, nextPageCode } = route.query;
 const orderDetail = useOrder();
 const payInfo = ref({
   schema: [],
@@ -41,19 +43,53 @@ const handleCancel = () => {
   router.back();
 };
 
+const handleShare = (objectType, type) => {
+  const { holder, insured } = orderDetail.value;
+  let userInfo = {
+    name: holder.name,
+    gender: `${SEX_LIMIT_MAP[holder.gender]}士`,
+  };
+
+  if (objectType === 'insured') {
+    userInfo = {
+      name: insured?.[0].name,
+      gender: `${SEX_LIMIT_MAP[insured?.[0].gender]}士`,
+    };
+  }
+
+  shareWeiXin({
+    shareType: 0,
+    title: `${SHARE_CONTENT[type].title}（${NOTICE_TYPE_MAP[objectType.toLocaleUpperCase()]}）`,
+    desc: SHARE_CONTENT[type].desc.replace('{name}', `${userInfo.name}${userInfo.gender},`),
+    url: `${window.location.href}&objectType=${objectType}&isShare=1&nextPageCode=updateBankInfo`.replace(
+      '/updateBankInfo',
+      '/phoneVerify',
+    ),
+    imageUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
+  });
+};
+
 const handleConfirm = () => {
   if (payInfoRef.value) {
     payInfoRef.value.validate(false).then((validate) => {
       if (validate) {
-        nextStep(
-          orderDetail.value,
-          (data, pageAction) => {
-            if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-              pageJump(data.nextPageCode, route.query);
+        if (isShare) {
+          nextStep(
+            orderDetail.value,
+            (data, pageAction) => {
+              if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+                pageJump(data.nextPageCode, route.query);
+              }
+            },
+            route,
+          );
+        } else {
+          saveOrder(orderDetail.value).then(({ code, data }) => {
+            if (code === '10000') {
+              handleShare('holder', 'pay');
             }
-          },
-          route,
-        );
+          });
+        }
       }
     });
   }

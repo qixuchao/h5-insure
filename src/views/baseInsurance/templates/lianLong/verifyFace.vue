@@ -13,15 +13,16 @@
 
 <script lang="ts" setup name="verifyFace">
 import { useRoute, useRouter } from 'vue-router';
-import { faceVerify } from '@/api/modules/verify';
+import { faceVerify, queryFaceVerifyResult } from '@/api/modules/verify';
 import { useSessionStorage } from '@/hooks/useStorage';
 import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
+import { PAGE_ROUTE_ENUMS } from './constants';
 
 const sessionStorage = useSessionStorage();
 const route = useRoute();
 const router = useRouter();
 
-const { isFirst, tenantId, objectType, orderNo, biz_id } = route.query;
+const { isFirst, tenantId, objectType, orderNo, biz_id, nextPageCode } = route.query;
 const orderDetail = sessionStorage.get(`${LIAN_STORAGE_KEY}_orderDetail`);
 
 // 跳转第三方人脸识别页面
@@ -55,7 +56,20 @@ const goFaceVerify = () => {
   });
 };
 
-const getFaceVerifyResult = () => {};
+const getFaceVerifyResult = () => {
+  queryFaceVerifyResult({ bizId: biz_id }).then(({ code, data }) => {
+    if (code === '10000') {
+      if (data.status === 'SUCCESS') {
+        delete route.query.biz_id;
+        delete route.query.nextPageCode;
+        router.push({
+          path: PAGE_ROUTE_ENUMS[`${nextPageCode}`],
+          query: route.query,
+        });
+      }
+    }
+  });
+};
 
 onBeforeMount(() => {
   if (isFirst === '1') {

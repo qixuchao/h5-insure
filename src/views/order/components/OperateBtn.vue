@@ -10,6 +10,9 @@ import { withDefaults } from 'vue';
 import { useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
 import { PAGE_ROUTE_ENUMS } from '@/views/baseInsurance/templates/lianLong/constants';
+import { shareWeiXin } from '@/utils/lianSDK';
+import { SHARE_CONTENT } from '@/common/constants/lian';
+import { NOTICE_TYPE_MAP, SEX_LIMIT_MAP } from '@/common/constants';
 
 const router = useRouter();
 const route = useRoute();
@@ -35,9 +38,9 @@ const isDealOrder = computed<boolean>(() => {
 });
 // 撤单按钮展示权限
 const isReturnOrder = computed<boolean>(() => {
-  const { policyNo, applicationNo } = props.detail;
+  const { policyNo, applicationNo, orderStatus } = props.detail;
   // 已承保、已撤单的订单不展示
-  return !policyNo && applicationNo;
+  return !policyNo && applicationNo && orderStatus !== 'cancel';
 });
 // 银行卡修改按钮展示权限
 const isUpdateBankInfo = computed<boolean>(() => {
@@ -65,6 +68,33 @@ const handleDeal = () => {
   });
 };
 
+const handleShare = (type) => {
+  const { holder, insured, orderId } = props.detail || {};
+  let userInfo = {
+    name: holder.name,
+    gender: `${SEX_LIMIT_MAP[holder.gender]}士`,
+  };
+
+  if (type === 'insured') {
+    userInfo = {
+      name: insured?.[0].name,
+      gender: `${SEX_LIMIT_MAP[insured?.[0].gender]}士`,
+    };
+  }
+
+  shareWeiXin({
+    shareType: 0,
+    title: `${SHARE_CONTENT.sign.title}（${NOTICE_TYPE_MAP[type.toLocaleUpperCase()]}）`,
+    desc: SHARE_CONTENT.sign.desc.replace('{name}', `${userInfo.name}${userInfo.gender},代理人`),
+    url: `${window.location.href}&objectType=${type}&orderId=${orderId}&nextPageCode=orderDetail`.replace(
+      /\/order|\/orderDetail/,
+      '/phoneVerify',
+    ),
+    imageUrl:
+      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/lian_logo.png?OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Expires=1697288114&Signature=S87PMeDRxltLovmmHVTeiHoew1c%3D',
+  });
+};
+
 // 撤单
 const handleReturn = () => {
   const { orderNo, orderId } = props.detail;
@@ -81,15 +111,7 @@ const handleReturn = () => {
   Dialog.confirm({
     message: '确认取消当前订单？',
   }).then(() => {
-    router.push({
-      path: PAGE_ROUTE_ENUMS.phoneVerify,
-      query: {
-        tenantId,
-        orderNo,
-        orderId,
-        nextPageCode: PAGE_ROUTE_ENUMS.orderDetail,
-      },
-    });
+    handleShare('holder');
   });
 };
 
@@ -102,7 +124,7 @@ const handleUpdateBank = () => {
       tenantId,
       orderNo,
       orderId,
-      nextPageCode: PAGE_ROUTE_ENUMS.orderDetail,
+      nextPageCode: 'orderDetail',
     },
   });
 };

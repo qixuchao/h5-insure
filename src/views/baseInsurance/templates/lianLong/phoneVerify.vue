@@ -52,10 +52,11 @@ import { getTenantOrderDetail } from '@/api/modules/trial';
 import { convertPhone } from '@/utils/format';
 import useOrder from '@/hooks/useOrder';
 import { NOTICE_TYPE_MAP } from '@/common/constants';
-import { faceVerify } from '@/api/modules/verify';
+import { faceVerify, queryFaceVerifyResult } from '@/api/modules/verify';
 import { sendSMSCode, checkSMSCode } from '@/components/RenderForm/utils/constants';
 import faceImg from '@/assets/images/baseInsurance/face_img.png';
 import faceTip from '@/assets/images/baseInsurance/face_tip.png';
+import { PAGE_ROUTE_ENUMS } from './constants';
 
 /** 页面query参数类型 */
 interface QueryData {
@@ -125,7 +126,20 @@ const goFaceVerify = () => {
   });
 };
 
-const getFaceVerifyResult = () => {};
+const getFaceVerifyResult = () => {
+  queryFaceVerifyResult({ bizId: biz_id }).then(({ code, data }) => {
+    if (code === '10000') {
+      if (data.status === 'SUCCESS') {
+        delete route.query.biz_id;
+        delete route.query.nextPageCode;
+        router.push({
+          path: PAGE_ROUTE_ENUMS[`${nextPageCode}`],
+          query: route.query,
+        });
+      }
+    }
+  });
+};
 
 const handleSubmit = () => {
   formRef.value?.validate?.().then(() => {
