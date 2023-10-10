@@ -1,13 +1,46 @@
 <template>
   <ProPageWrap>
     <div class="page-phone-verify">
-      <div class="title">通过投保人手机号验证后，可进行投保信息填写</div>
-      <div class="phone">{{ convertPhone(phone || '') }}</div>
-      <div class="input-wrapper">
-        <input v-model="smsCode" placeholder="请输入验证码" class="input" />
-        <div :class="['btn', { second }]" @click="handleSend">{{ second ? `${second}s` : '发送验证码' }}</div>
+      <div class="title">
+        {{ `${NOTICE_TYPE_MAP[objectType.toLocaleUpperCase()]}手机号验证 ${convertPhone(formData.mobile || '')}` }}
       </div>
-      <van-button type="primary" class="submit-btn" @click="handleSubmit">下一步</van-button>
+      <ProRenderForm ref="formRef" :model="formData">
+        <ProFieldV2
+          v-show="false"
+          v-model="formData.mobile"
+          label="被保人手机号"
+          name="mobile"
+          maxlength="11"
+          required
+        ></ProFieldV2>
+        <ProSMSCode
+          v-model="formData.verifyCode"
+          related-name="mobile"
+          label=" "
+          maxlength="6"
+          input-align="left"
+          placeholder="请输入验证码"
+          name="verifyCode"
+          :send-s-m-s-code="sendSMSCode"
+          :check-s-m-s-code="checkSMSCode"
+        ></ProSMSCode>
+      </ProRenderForm>
+      <div class="title face-title">人脸识别</div>
+      <div class="face-verify-img">
+        <img :src="faceImg" alt="" />
+      </div>
+      <div class="face-verify-tip">
+        <div class="title">操作时请您配合</div>
+        <ol>
+          <li>请调亮手机屏幕亮度，确保光线充足</li>
+          <li>请保持正脸对准屏幕，确保人脸完整清晰</li>
+          <li>请确保真实本人操作</li>
+        </ol>
+      </div>
+      <van-button type="primary" class="submit-btn" @click="handleSubmit">开始验证</van-button>
+      <div class="tips">
+        <img :src="faceTip" alt="" />
+      </div>
     </div>
   </ProPageWrap>
 </template>
@@ -15,71 +48,96 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant/es';
-import { getOrderDetail } from '@/api';
-import { sendCode, checkCode } from '@/api/modules/phoneVerify';
+import { getTenantOrderDetail } from '@/api/modules/trial';
 import { convertPhone } from '@/utils/format';
-import { ORDER_STATUS_ENUM } from '@/common/constants/order';
-import pageJump from '@/utils/pageJump';
 import useOrder from '@/hooks/useOrder';
-import { PAGE_ROUTE_ENUMS } from './constants';
+import { NOTICE_TYPE_MAP } from '@/common/constants';
+import { faceVerify } from '@/api/modules/verify';
+import { sendSMSCode, checkSMSCode } from '@/components/RenderForm/utils/constants';
+import faceImg from '@/assets/images/baseInsurance/face_img.png';
+import faceTip from '@/assets/images/baseInsurance/face_tip.png';
+
+/** 页面query参数类型 */
+interface QueryData {
+  tenantId: string; // 订单id
+  orderNo: string;
+  pageCode: string;
+  from: string; // from = 'check' 审核版
+  preview: string; // 产品详情预览
+  trialPreview: string; // 保费试算预览
+  [key: string]: string;
+}
 
 const orderDetail = useOrder();
-const phone = ref('');
-const smsCode = ref('');
-const second = ref(0);
-let timer: ReturnType<typeof setInterval>;
-
 const route = useRoute();
 const router = useRouter();
-const { agentCode, tenantId, nextPageCode, orderNo, orderCode } = route.query;
-
-const countDown = () => {
-  timer = setInterval(() => {
-    second.value -= 1;
-    if (second.value <= 0) {
-      clearInterval(timer);
-    }
-  }, 1000);
-};
+const { agentCode, tenantId, nextPageCode, biz_id, orderNo, objectType, orderCode } = route.query as QueryData;
+const formData = ref({
+  mobile: '',
+  verifyCode: '',
+});
+const formRef = ref();
 
 const getDetail = () => {
-  getOrderDetail({
+  getTenantOrderDetail({
     orderNo: orderCode || orderNo,
-    saleUserId: agentCode,
     tenantId,
   }).then(({ code, data }) => {
     if (code === '10000') {
       Object.assign(orderDetail.value, data);
-      phone.value = data?.holder?.mobile;
+      if (objectType === 'holder') {
+        formData.value.mobile = data.holder.mobile;
+      } else {
+        formData.value.mobile = data.insured?.[0]?.mobile;
+      }
     }
   });
 };
 
-const handleSend = () => {
-  sendCode(phone.value).then(({ code }) => {
+// 跳转第三方人脸识别页面
+const goFaceVerify = () => {
+  const { holder, insuredList } = orderDetail.value;
+  let userInfo = {
+    userName: holder.name,
+    certiNo: holder.certNo,
+  };
+  if (objectType === 'insured') {
+    userInfo = {
+      userName: insuredList?.[0].name,
+      certiNo: insuredList?.[0].certNo,
+    };
+  }
+
+  const { userName, certiNo } = userInfo;
+
+  const params = {
+    tenantId,
+    faceAuthMode: 'TENCENT',
+    callbackUrl: window.location.href,
+    bizNo: orderNo,
+    userName,
+    certiNo,
+  };
+  faceVerify(params).then(({ code, data }) => {
     if (code === '10000') {
-      second.value = 60;
-      countDown();
+      window.location.href = data.originalUrl;
     }
   });
 };
+
+const getFaceVerifyResult = () => {};
 
 const handleSubmit = () => {
-  checkCode(phone.value, smsCode.value).then(({ code, data }) => {
-    if (code === '10000' && data) {
-      Toast.success('验证成功');
-      router.push({
-        path: PAGE_ROUTE_ENUMS[(nextPageCode as string).replace('/', '') as string],
-        query: route.query,
-      });
-    } else {
-      Toast.fail('验证失败');
-    }
+  formRef.value?.validate?.().then(() => {
+    goFaceVerify();
   });
 };
 
 onMounted(() => {
   getDetail();
+  if (biz_id) {
+    getFaceVerifyResult();
+  }
 });
 </script>
 
@@ -87,59 +145,85 @@ onMounted(() => {
 .page-phone-verify {
   width: 100%;
   height: 100%;
-  padding: 60px 50px;
-  background-image: url('@/assets/images/phoneVerify/bg.png');
+  padding: 41px 30px;
   .title {
-    font-size: 50px;
+    font-size: 36px;
     font-weight: 500;
-    color: #000000;
+    color: #333333;
+    line-height: 48px;
+    margin-bottom: 24px;
   }
-  .phone {
-    margin-top: 60px;
-    font-size: 48px;
-    font-family: DINAlternate-Bold, DINAlternate;
-    font-weight: bold;
-    color: #393d46;
+
+  .face-title {
+    margin: 40px 0 30px;
   }
-  .input-wrapper {
-    margin-top: 22px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    height: 100px;
-    background: #ffffff;
+
+  :deep(.van-cell) {
+    border: 1px solid $zaui-line;
     border-radius: 8px;
-    border: 2px solid #d7dce9;
-    .input {
-      flex: 1;
-      height: 100%;
-      border: none;
-      padding-left: 30px;
-      font-size: 30px;
+    .van-field__label {
+      width: 0;
+    }
+    .van-field__value .van-field__control {
+      text-align: left !important;
+    }
+  }
+
+  .face-verify-img {
+    display: flex;
+    justify-content: center;
+    img {
+      width: 300px;
+      height: 300px;
+    }
+  }
+
+  .face-verify-tip {
+    background-color: #f6f7f9;
+    border-radius: 20px;
+    padding: 28px 25px 30px 25px;
+    margin: 34px 30px 66px;
+
+    .title {
+      font-size: 32px;
+      font-weight: 600;
       color: #393d46;
-      &::placeholder {
-        color: #99a9c0;
+      line-height: 45px;
+    }
+
+    li {
+      position: relative;
+      padding-left: 20px;
+      font-size: 28px;
+      font-weight: 400;
+      color: #6e7586;
+      line-height: 52px;
+      &:before {
+        content: '';
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #6e7586;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        margin: auto;
       }
     }
-    .btn {
-      flex: 0 0 210px;
-      line-height: 60px;
-      text-align: center;
-      border-left: 1px solid $zaui-line;
-      font-size: 30px;
-      font-weight: 400;
-      color: $zaui-brand;
-      &.second {
-        color: #99a9c0;
-      }
+  }
+
+  .tips {
+    margin: 96px 21px;
+    padding: 0 80px;
+    img {
+      width: 100%;
     }
   }
   .submit-btn {
     width: 100%;
     height: 90px;
-    margin-top: 60px;
     background: $zaui-brand;
-    border-radius: 8px;
   }
 }
 </style>

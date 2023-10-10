@@ -22,6 +22,7 @@
                 :value-class="`${isDisabled ? 'disable' : ''}`"
                 is-link
                 value="分享空签邀约"
+                @click="handleShare"
               ></van-cell>
               <van-cell
                 is-link
@@ -40,6 +41,7 @@
                 :value-class="`${isDisabled ? 'disable' : ''}`"
                 is-link
                 value="分享空签邀约"
+                @click="handleShare"
               ></van-cell>
               <van-cell
                 is-link
@@ -67,7 +69,6 @@
           maxlength="6"
           name="holderVerifyCode"
           :send-s-m-s-code="sendSMSCode"
-          rules=""
           required
         ></ProSMSCode>
         <template v-if="isShowInsured">
@@ -122,18 +123,21 @@ import { Dialog, Toast } from 'vant';
 import { nextStepOperate as nextStep } from '../../nextStep';
 import { ProFieldV2, ProSMSCode, ProRenderForm } from '@/components/RenderForm/components';
 import { sendSMSCode } from '@/components/RenderForm/utils/constants';
-import { RegMap } from '@/components/RenderForm/utils/validate';
 import CheckCodePopup from './components/CheckCodePopup.vue';
 import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
-import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
+import { pickProductRiskCodeFromOrder } from './utils';
 import { transformFactorToSchema } from '@/components/RenderForm/utils/tools';
 import useOrder from '@/hooks/useOrder';
 import { PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS, BUTTON_CODE_ENUMS } from './constants';
 import { VERIFY_STATUS_MAP, DUAL_STATUS_MAP, DUAL_STATUS_ENUM } from '@/common/constants/verify';
-import { ALERT_TYPE_ENUM, CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
+import { CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
 import { dualUploadFiles, queryDualStatus } from '@/api/modules/verify';
+import { useSessionStorage } from '@/hooks/useStorage';
+import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
+import { shareWeiXin } from '@/utils/lianSDK';
 
+const sessionStorage = useSessionStorage();
 const route = useRoute();
 const router = useRouter();
 
@@ -215,6 +219,20 @@ const isShowItem = computed(() => (type) => signPartInfo.value[type].isSign || s
 // 空中签名
 const isShareSing = computed(() => (type) => signPartInfo.value[type].isShareSign);
 
+// 分享到微信
+const handleShare = (type) => {
+  shareWeiXin({
+    shareType: 0,
+    title: '分享',
+    desc: '表述',
+    url: `${window.location.href}&ObjectType=${type}&nextPageCode=${PAGE_ROUTE_ENUMS.infoPreview}`.replace(
+      '/verify',
+      '/phoneVerify',
+    ),
+    imageUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
+  });
+};
+
 // 非双录场景下验证投被保人、代理人手机号
 const checkMobile = (type: 'agent' | 'holder' | 'insured') => {
   checkType.value = type;
@@ -267,11 +285,14 @@ const handleConfirm = () => {
     }
   }
 
+  sessionStorage.set(`${LIAN_STORAGE_KEY}_orderDetail`, orderDetail.value);
+
   router.push({
     path,
     query: {
       ...route.query,
       objectType: checkType.value,
+      isFirst: 1,
     },
   });
 };
@@ -382,15 +403,6 @@ const onNext = () => {
     route,
   );
 };
-
-watch(
-  () => formData.value,
-  () => {},
-  {
-    deep: true,
-    immediate: true,
-  },
-);
 
 onMounted(() => {
   initData();

@@ -27,8 +27,8 @@ export const PAGE_ROUTE_ENUMS = {
   phoneVerify: '/baseInsurance/long/phoneVerify', // 空中签名
   updateBankInfo: '/baseInsurance/long/updateBankInfo', // 修改银行卡信息
   payAuth: '/baseInsurance/long/payAuth', // 银行卡授权
-  sign: '/baseInsurance/long/verify', // 认证zheg
-  checkFace: '/baseInsurance/long/checkFace', // 认证
+  sign: '/baseInsurance/long/verify', // 认证
+  verifyFace: '/baseInsurance/long/verifyFace', // 人脸识别中间页
   agentSign: '/baseInsurance/long/agentSign', // 代理人签字
   holderSign: '/baseInsurance/long/holderSign', // 投保人签字
   insuredSign: '/baseInsurance/long/insuredSign', // 被保人签字

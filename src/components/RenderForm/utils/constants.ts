@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import type { VanFormProvied } from '../index.data';
 import { DictNameEnum, CERT_TYPE_ENUM } from '@/common/constants';
 import { PAY_INFO_TYPE_LIST, PAY_INFO_TYPE_ENUM } from '@/common/constants/bankCard';
-import { sendCode } from '@/api/modules/phoneVerify';
+import { checkCode, sendCode } from '@/api/modules/phoneVerify';
 
 /**
  * 获取保司 code, 通用处理，此处无法使用 useRoute
@@ -32,6 +32,14 @@ export const sendSMSCode = async ({ mobile }, callback) => {
   const { code } = res;
   if (code === '10000') {
     typeof callback === 'function' && callback();
+  }
+};
+
+export const checkSMSCode = async ({ mobile, smsCode }, callback) => {
+  const { code, data } = await checkCode(mobile, smsCode);
+
+  if (code === '10000') {
+    callback?.();
   }
 };
 

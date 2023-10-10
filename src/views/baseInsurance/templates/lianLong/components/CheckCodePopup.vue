@@ -12,7 +12,7 @@
         <h3>
           {{ `${checkCategory[checkType].type}手机号验证 ${convertPhone(checkCategory[checkType].mobile || '')}` }}
         </h3>
-        <ProRenderForm :model="formData">
+        <ProRenderForm ref="formRef" :model="formData">
           <ProFieldV2
             v-show="false"
             v-model="formData.mobile"
@@ -30,7 +30,7 @@
             placeholder="请输入验证码"
             name="verifyCode"
             :send-s-m-s-code="sendSMSCode"
-            rules=""
+            :check-s-m-s-code="checkSMSCode"
           ></ProSMSCode>
         </ProRenderForm>
       </div>
@@ -40,10 +40,8 @@
 
 <script setup lang="ts" name="checkCodePopup">
 import { withDefaults, ref, computed, watch } from 'vue';
-import { emit } from 'process';
 import { convertPhone } from '@/utils/format';
-import { sendSMSCode } from '@/components/RenderForm/utils/constants';
-import { RegMap } from '@/components/RenderForm/utils/validate';
+import { sendSMSCode, checkSMSCode } from '@/components/RenderForm/utils/constants';
 
 interface Props {
   show: boolean;
@@ -58,6 +56,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emits = defineEmits(['cancel', 'confirm']);
+const formRef = ref();
 const show = computed<boolean>(() => props.show);
 const formData = ref({
   mobile: '',
@@ -89,7 +88,9 @@ const handleCancel = () => {
   emits('cancel');
 };
 const handleConfirm = () => {
-  emits('confirm');
+  formRef.value.validate().then(() => {
+    emits('confirm');
+  });
 };
 
 watch(

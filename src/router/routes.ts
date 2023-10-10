@@ -76,16 +76,16 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     meta: { title: '身份认证' },
     component: () => import('@/views/baseInsurance/templates/lianLong/verify.vue'),
   },
-  // {
-  //   name: 'faceVerify',
-  //   path: '/baseInsurance/long/faceVerify',
-  //   meta: { title: '人脸识别' },
-  //   component: () => import('@/views/baseInsurance/templates/lianLong/faceVerify.vue'),
-  // },
+  {
+    name: 'verifyFace',
+    path: '/baseInsurance/long/verifyFace',
+    meta: { title: '人脸识别' },
+    component: () => import('@/views/baseInsurance/templates/lianLong/verifyFace.vue'),
+  },
   {
     name: 'phoneVerify',
     path: '/baseInsurance/long/phoneVerify',
-    meta: { title: '空中签名' },
+    meta: { title: '空中签名', cacheTarget: ['phoneVerify', 'infoPreview'] },
     component: () => import('@/views/baseInsurance/templates/lianLong/phoneVerify.vue'),
   },
   {

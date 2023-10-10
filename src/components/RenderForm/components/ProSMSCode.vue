@@ -1,5 +1,13 @@
 <template>
-  <ProFieldV2 v-if="!isView" class="com-pro-sms-code" type="digit" v-bind="$attrs" :is-view="isView">
+  <ProFieldV2
+    v-if="!isView"
+    class="com-pro-sms-code"
+    type="digit"
+    v-bind="$attrs"
+    :name="name"
+    :rules="currentRules"
+    :is-view="isView"
+  >
     <template #extra>
       <van-button class="extra-button" size="small" plain type="primary" @click="onSendSmsCode">{{
         smsText
@@ -11,6 +19,8 @@
 <script lang="ts" setup>
 import { Toast } from 'vant';
 import { useCountDown } from '@vant/use';
+import { FieldRule } from 'vant/es/field/types';
+import { PropType } from 'vue';
 import { VAN_PRO_FORM_KEY } from '../utils';
 import ProFieldV2 from './ProFieldV2.vue';
 
@@ -31,7 +41,21 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  rules: {
+    type: Array as PropType<FieldRule[]>,
+    default: () => [],
+  },
+  name: {
+    type: String,
+    default: '',
+  },
   sendSMSCode: {
+    type: Function,
+    default: (callback) => {
+      typeof callback === 'function' && callback();
+    },
+  },
+  checkSMSCode: {
     type: Function,
     default: (callback) => {
       typeof callback === 'function' && callback();
@@ -46,11 +70,24 @@ const state = reactive({
 });
 
 const { current, start, reset } = useCountDown({
-  // 倒计时 24 小时
   time: props.time * 1000,
   onFinish() {
     state.isCountdowning = false;
   },
+});
+
+const isChecked = ref<boolean>(false);
+
+const currentRules = computed<any[]>(() => {
+  const validate = {
+    validator: (value, rule) => {
+      return isChecked.value ? '' : '验证码错误';
+    },
+  };
+  if (props.rules?.length) {
+    return [...props.rules, validate];
+  }
+  return [validate];
 });
 
 // 发送验证码
@@ -61,6 +98,7 @@ const onSendSmsCode = () => {
       .then(() => {
         props.sendSMSCode({ mobile: formState.formData[props.relatedName] }, () => {
           state.isCountdowning = true;
+          isChecked.value = false;
           Toast({
             message: '短信发送成功，请查收',
           });
@@ -82,6 +120,20 @@ const smsText = computed(() => {
   }
   return state.isCountdowning ? `${seconds}s` : props.smsText;
 });
+
+watch(
+  () => formState.formData[props.name],
+  (value: string) => {
+    if (value?.length === 6 && state.isCountdowning) {
+      props?.checkSMSCode?.({ mobile: formState.formData[props.relatedName], smsCode: value }, () => {
+        isChecked.value = true;
+      });
+    }
+  },
+  {
+    immediate: true,
+  },
+);
 </script>
 
 <style lang="scss" scoped>
