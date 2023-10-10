@@ -137,7 +137,6 @@ const onFailed = ({ values, errors }) => {
     }
   }
 
-  console.log('failed errors', errors);
   emits('failed', { values, errors });
 };
 
@@ -223,14 +222,28 @@ watch(
   },
 );
 
+const validate = () => {
+  return new Promise((resolve, reject) => {
+    formRef.value
+      .validate()
+      .then((...rest) => {
+        resolve(...rest);
+      })
+      .catch((error) => {
+        if (props.validateMethod === 'toast') {
+          Toast(error?.[0].message);
+        }
+        reject(error);
+      });
+  });
+};
+
 defineExpose({
-  ...['submit', 'getValues', 'validate', 'resetValidation', 'getValidationStatus', 'scrollToField'].reduce(
-    (res, key) => {
-      res[key] = (...rest) => formRef.value?.[key](...rest);
-      return res;
-    },
-    {},
-  ),
+  ...['submit', 'getValues', 'resetValidation', 'getValidationStatus', 'scrollToField'].reduce((res, key) => {
+    res[key] = (...rest) => formRef.value?.[key](...rest);
+    return res;
+  }, {}),
+  validate,
 });
 </script>
 <style lang="scss" scoped>

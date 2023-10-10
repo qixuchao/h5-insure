@@ -1,5 +1,6 @@
 import { type Ref, type InjectionKey } from 'vue';
 import dayjs from 'dayjs';
+import { Toast } from 'vant';
 import type { VanFormProvied } from '../index.data';
 import { DictNameEnum, CERT_TYPE_ENUM } from '@/common/constants';
 import { PAY_INFO_TYPE_LIST, PAY_INFO_TYPE_ENUM } from '@/common/constants/bankCard';
@@ -39,6 +40,7 @@ export const checkSMSCode = async ({ mobile, smsCode }, callback) => {
   const { code, data } = await checkCode(mobile, smsCode);
 
   if (code === '10000') {
+    Toast('短信验证成功');
     callback?.();
   }
 };

@@ -53,7 +53,7 @@
           </template>
         </van-cell>
       </template>
-      <ProRenderForm v-else ref="formRef" :model="formData">
+      <ProRenderForm v-else ref="formRef" validate-method="toast" :model="formData">
         <ProFieldV2
           v-model="formData.holderMobile"
           label="投保人手机号"
@@ -69,6 +69,7 @@
           maxlength="6"
           name="holderVerifyCode"
           :send-s-m-s-code="sendSMSCode"
+          :check-s-m-s-code="checkSMSCode"
           required
         ></ProSMSCode>
         <template v-if="isShowInsured">
@@ -87,6 +88,7 @@
             name="insuredVerifyCode"
             related-name="insuredMobile"
             :send-s-m-s-code="sendSMSCode"
+            :check-s-m-s-code="checkSMSCode"
             required
           ></ProSMSCode>
         </template>
@@ -122,7 +124,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
 import { nextStepOperate as nextStep } from '../../nextStep';
 import { ProFieldV2, ProSMSCode, ProRenderForm } from '@/components/RenderForm/components';
-import { sendSMSCode } from '@/components/RenderForm/utils/constants';
+import { sendSMSCode, checkSMSCode } from '@/components/RenderForm/utils/constants';
 import CheckCodePopup from './components/CheckCodePopup.vue';
 import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
 import { pickProductRiskCodeFromOrder } from './utils';
@@ -379,7 +381,7 @@ const initData = async () => {
   });
 };
 
-const onNext = () => {
+const onNext = async () => {
   const { holder, insuredList, extInfo } = orderDetail.value;
   if (!needBMOS.value) {
     if (extInfo.agentAuthFlag === YES_NO_ENUM.NO) {
@@ -400,6 +402,8 @@ const onNext = () => {
       return;
     }
   }
+
+  await formRef.value?.validate();
 
   const currentOrderDetail = Object.assign(orderDetail.value, {
     extInfo: { ...orderDetail.value.extInfo, pageCode: PAGE_CODE_ENUMS.SIGN, buttonCode: BUTTON_CODE_ENUMS.SIGN },

@@ -4,7 +4,7 @@
       <div class="title">
         {{ `${NOTICE_TYPE_MAP[objectType.toLocaleUpperCase()]}手机号验证 ${convertPhone(formData.mobile || '')}` }}
       </div>
-      <ProRenderForm ref="formRef" :model="formData">
+      <ProRenderForm ref="formRef" validate-method="toast" :model="formData">
         <ProFieldV2
           v-show="false"
           v-model="formData.mobile"
@@ -21,6 +21,7 @@
           input-align="left"
           placeholder="请输入验证码"
           name="verifyCode"
+          :rules="[{ required: true, message: '请输入验证码' }]"
           :send-s-m-s-code="sendSMSCode"
           :check-s-m-s-code="checkSMSCode"
         ></ProSMSCode>

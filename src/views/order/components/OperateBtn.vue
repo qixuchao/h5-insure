@@ -69,7 +69,7 @@ const handleDeal = () => {
 };
 
 const handleShare = (type) => {
-  const { holderName, holderGender, orderId } = props.detail || {};
+  const { holderName, holderGender, orderId, orderNo } = props.detail || {};
   const userInfo = {
     name: holderName,
     gender: `${SEX_LIMIT_MAP[holderGender]}士`,
@@ -79,9 +79,9 @@ const handleShare = (type) => {
     shareType: 0,
     title: `${SHARE_CONTENT.sign.title}（${NOTICE_TYPE_MAP[type.toLocaleUpperCase()]}）`,
     desc: SHARE_CONTENT.sign.desc.replace('{name}', `${userInfo.name}${userInfo.gender},代理人`),
-    url: `${window.location.href}&objectType=${type}&orderId=${orderId}&nextPageCode=orderDetail`.replace(
+    url: `${window.location.href}&objectType=${type}&orderNo=${orderNo}&orderId=${orderId}&nextPageCode=orderDetail`.replace(
       /\/order|\/orderDetail/,
-      '/phoneVerify',
+      '/baseInsurance/long/phoneVerify',
     ),
     imageUrl:
       'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/lian_logo.png?OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Expires=1697288114&Signature=S87PMeDRxltLovmmHVTeiHoew1c%3D',

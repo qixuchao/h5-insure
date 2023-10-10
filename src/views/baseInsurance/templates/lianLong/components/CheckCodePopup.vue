@@ -12,7 +12,7 @@
         <h3>
           {{ `${checkCategory[checkType].type}手机号验证 ${convertPhone(checkCategory[checkType].mobile || '')}` }}
         </h3>
-        <ProRenderForm ref="formRef" :model="formData">
+        <ProRenderForm ref="formRef" validate-method="toast" :model="formData">
           <ProFieldV2
             v-show="false"
             v-model="formData.mobile"
@@ -29,6 +29,7 @@
             input-align="left"
             placeholder="请输入验证码"
             name="verifyCode"
+            :rules="[{ required: true, message: '请输入验证码' }]"
             :send-s-m-s-code="sendSMSCode"
             :check-s-m-s-code="checkSMSCode"
           ></ProSMSCode>
