@@ -230,16 +230,17 @@ const handleShare = (type) => {
   if (type === 'insured') {
     userInfo = {
       name: insured?.[0].name,
-      gender: `${SEX_LIMIT_MAP[insured?.[0].gender]}士`,
+      gender: `${SEX_LIMIT_MAP[insured?.[0]?.gender]}士`,
     };
   }
 
   shareWeiXin({
     shareType: 0,
     title: `${SHARE_CONTENT.sign.title}（${NOTICE_TYPE_MAP[type.toLocaleUpperCase()]}）`,
-    desc: SHARE_CONTENT.sign.desc.replace('{name}', `${userInfo.name}${userInfo.gender},代理人`),
+    desc: SHARE_CONTENT.sign.desc.replace('{name}', `${userInfo.name || ''}${userInfo.gender || ''},代理人`),
     url: `${window.location.href}&objectType=${type}&nextPageCode=infoPreview`.replace('/verify', '/phoneVerify'),
-    imageUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
+    imageUrl:
+      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/lian_logo.png?OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Expires=1697288114&Signature=S87PMeDRxltLovmmHVTeiHoew1c%3D',
   });
 };
 

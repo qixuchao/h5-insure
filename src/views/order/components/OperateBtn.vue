@@ -69,18 +69,11 @@ const handleDeal = () => {
 };
 
 const handleShare = (type) => {
-  const { holder, insured, orderId } = props.detail || {};
-  let userInfo = {
-    name: holder.name,
-    gender: `${SEX_LIMIT_MAP[holder.gender]}士`,
+  const { holderName, holderGender, orderId } = props.detail || {};
+  const userInfo = {
+    name: holderName,
+    gender: `${SEX_LIMIT_MAP[holderGender]}士`,
   };
-
-  if (type === 'insured') {
-    userInfo = {
-      name: insured?.[0].name,
-      gender: `${SEX_LIMIT_MAP[insured?.[0].gender]}士`,
-    };
-  }
 
   shareWeiXin({
     shareType: 0,
