@@ -22,7 +22,7 @@
                 :value-class="`${isDisabled ? 'disable' : ''}`"
                 is-link
                 value="分享空签邀约"
-                @click="handleShare"
+                @click="handleShare('holder')"
               ></van-cell>
               <van-cell
                 is-link
@@ -41,7 +41,7 @@
                 :value-class="`${isDisabled ? 'disable' : ''}`"
                 is-link
                 value="分享空签邀约"
-                @click="handleShare"
+                @click="handleShare('insured')"
               ></van-cell>
               <van-cell
                 is-link
@@ -225,10 +225,7 @@ const handleShare = (type) => {
     shareType: 0,
     title: '分享',
     desc: '表述',
-    url: `${window.location.href}&ObjectType=${type}&nextPageCode=${PAGE_ROUTE_ENUMS.infoPreview}`.replace(
-      '/verify',
-      '/phoneVerify',
-    ),
+    url: `${window.location.href}&objectType=${type}&nextPageCode=infoPreview`.replace('/verify', '/phoneVerify'),
     imageUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
   });
 };
