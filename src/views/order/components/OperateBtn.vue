@@ -17,7 +17,7 @@ import { NOTICE_TYPE_MAP, SEX_LIMIT_MAP } from '@/common/constants';
 const router = useRouter();
 const route = useRoute();
 
-const { tenantId, nextPageCode } = route.query;
+const { tenantId, nextPageCode, isShare } = route.query;
 
 const props = withDefaults(
   defineProps<{
@@ -79,7 +79,7 @@ const handleShare = (type) => {
     shareType: 0,
     title: `${SHARE_CONTENT.cancel.title}（${NOTICE_TYPE_MAP[type.toLocaleUpperCase()]}）`,
     desc: SHARE_CONTENT.cancel.desc.replace('{name}', `${userInfo.name}${userInfo.gender},`),
-    url: `${window.location.href}&objectType=${type}&orderNo=${orderNo}&orderId=${orderId}&nextPageCode=orderDetail`.replace(
+    url: `${window.location.href}&objectType=${type}&isShare=1&orderNo=${orderNo}&orderId=${orderId}&nextPageCode=orderDetail`.replace(
       /\/orderDetail|\/order/,
       '/baseInsurance/long/phoneVerify',
     ),
@@ -92,7 +92,7 @@ const handleShare = (type) => {
 const handleReturn = () => {
   const { orderNo, orderId } = props.detail;
 
-  if (nextPageCode) {
+  if (isShare) {
     Dialog.confirm({
       message: '撤单后将无法恢复，请您确认是否撤销本次投保',
     }).then(() => {
