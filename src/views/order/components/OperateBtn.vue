@@ -80,7 +80,7 @@ const handleShare = (type) => {
     title: `${SHARE_CONTENT.cancel.title}（${NOTICE_TYPE_MAP[type.toLocaleUpperCase()]}）`,
     desc: SHARE_CONTENT.cancel.desc.replace('{name}', `${userInfo.name}${userInfo.gender},`),
     url: `${window.location.href}&objectType=${type}&orderNo=${orderNo}&orderId=${orderId}&nextPageCode=orderDetail`.replace(
-      /\/order|\/orderDetail/,
+      /\/orderDetail|\/order/,
       '/baseInsurance/long/phoneVerify',
     ),
     imageUrl:

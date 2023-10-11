@@ -418,7 +418,7 @@ const handleCache = () => {
   const userData = personalInfoRef.value.dealMixData();
 
   const currentOrderDetail = trialData2Order(userData, trialResult.value, orderDetail.value);
-
+  currentOrderDetail.orderStatus = 'collectInfo';
   saveOrder(currentOrderDetail);
 };
 
