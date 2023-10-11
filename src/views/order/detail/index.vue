@@ -410,7 +410,7 @@ const handleCancel = () => {
   cancelOrder({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       Toast('撤单成功');
-      getOrderDetail(false);
+      setTimeout(() => getOrderDetail(false), 500);
     }
   });
 };

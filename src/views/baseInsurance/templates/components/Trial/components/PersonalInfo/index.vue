@@ -288,7 +288,7 @@ const insureKeys = () => {
 // 将客户信息设置到对应的人
 const setCustomerToPerson = (value) => {
   const keys = insureKeys();
-  keys.push('certEndType');
+  keys.push('certEndType', 'age');
   const selectedCustomer = transformCustomerToPerson(value, keys);
   console.log(state.currentType, '的keys:', keys, '转换后的客户信息:', selectedCustomer);
   if (state.currentType === 'holder') {
@@ -474,8 +474,8 @@ watch(
   ],
   // eslint-disable-next-line consistent-return
   debounce((val, oldVal) => {
-    if (JSON.stringify(val) === JSON.stringify(oldVal) && !isTrialChange) {
-      isTrialChange = true;
+    if (JSON.stringify(val) === JSON.stringify(oldVal) && isTrialChange) {
+      // isTrialChange = true;
       return false;
     }
 
@@ -496,8 +496,6 @@ watch(
         ...item,
       })),
     };
-
-    console.log('result', cloneDeep(result));
 
     // 多被保人为配偶,性别不符合给提示
     if (state.config?.isSpouseInsured) {

@@ -77,12 +77,15 @@ const updateFullValue = (arr = []) => {
       formState.formData.occupationClass = occupationClass;
       formState.formData.occupationCode = arr[arr.length - 1]?.code;
     }
+    state.modelValue = val;
   }
-  state.modelValue = val;
 };
 
 const cascaderModelValue = computed(() => {
-  return isNotEmptyArray(state.modelValue) ? state.modelValue[state.modelValue.length - 1] : null;
+  if (state.modelValue?.length) {
+    return isNotEmptyArray(state.modelValue) ? state.modelValue[state.modelValue.length - 1] : null;
+  }
+  return null;
 });
 
 watch(

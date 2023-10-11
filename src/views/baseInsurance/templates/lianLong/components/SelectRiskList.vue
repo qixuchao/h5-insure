@@ -107,7 +107,7 @@ const handleConfirm = () => {
 // 实现附加险与附加险之间的绑定和互斥交互
 const handleClick = (riskCode) => {
   if (props.type === RISK_TYPE_ENUM.RIDER_RISK) {
-    riskRelationList.value.forEach((risk) => {
+    (riskRelationList.value || []).forEach((risk) => {
       if (!checked.value.includes(riskCode)) {
         if (riskCode === risk.relatedRiskCode) {
           // 绑定

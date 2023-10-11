@@ -119,6 +119,7 @@ const emit = defineEmits(['update:modelValue', 'update:beneficiaryList', 'update
 const insuredFormRef = ref(null);
 const beneficiaryTypeFormRef = ref(null);
 const beneficiaryFormRef = ref(null);
+const guardianFormRef = ref(null);
 
 // 初始化受益人数据
 const initBeneficiaryItem = {
@@ -177,7 +178,7 @@ const state = reactive<Partial<StateInfo>>({
 // 被保人同投保人关系非父母时，被保人年龄小于18岁则需要监护人信息
 const isShowGuardian = computed<boolean>(() => {
   const { age, relationToHolder } = state.personVO;
-  if (!['4', '5'].includes(relationToHolder) && +age < 18) {
+  if (!['1', '4', '5'].includes(relationToHolder) && age !== null && +age < 18) {
     return true;
   }
   state.guardian = {};
@@ -188,6 +189,7 @@ const isShowGuardian = computed<boolean>(() => {
 const validate = (isTrial) => {
   return Promise.all([
     validateForm(insuredFormRef, props.trialFactorCodes, isTrial),
+    validateForm(guardianFormRef, [], isTrial),
     validateForm(beneficiaryTypeFormRef, [], isTrial),
     ...(beneficiaryFormRef.value?.map((item) => item.validate(isTrial)) || []),
   ]);
@@ -447,8 +449,12 @@ watch(
   (val, oldVal) => {
     if (val) {
       if (JSON.stringify(val) !== JSON.stringify(state.schema)) {
-        console.log('');
-        state.schema = cloneDeep(val);
+        const isSelf = String(props.modelValue?.relationToHolder) === '1';
+        state.schema = cloneDeep(val).map((item) => {
+          item.relationToHolder = props.modelValue?.relationToHolder;
+          item.hidden = !item.isSelfInsuredNeed && isSelf;
+          return item;
+        });
       }
     }
   },
@@ -498,19 +504,6 @@ watch(
       state.guardian = value;
     }
   }, 300),
-  {
-    deep: true,
-    immediate: true,
-  },
-);
-
-watch(
-  () => state.guardian,
-  (val) => {
-    if (val) {
-      // emit('update:guardian', val);
-    }
-  },
   {
     deep: true,
     immediate: true,
