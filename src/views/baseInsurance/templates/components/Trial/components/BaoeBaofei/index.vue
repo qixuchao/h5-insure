@@ -104,10 +104,10 @@
       </template>
     </ProField>
   </div>
-  <div v-if="mConfigs.saleMethod === 2 && trialResult && trialResult.initialAmount > 0">
+  <div v-if="mConfigs.saleMethod === 2 && trialResult > 0">
     <ProField :label="`保额`" class="risk-select-field">
       <template #input>
-        <span>{{ trialResult.initialAmount }}</span>
+        <span>{{ trialResult }}</span>
       </template>
     </ProField>
   </div>
@@ -134,7 +134,7 @@ const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as RiskAmountPremiumConfig),
   modelValue: () => ({} as RiskVoItem),
   defaultValue: () => ({} as any),
-  trialResult: () => ({} as any),
+  trialResult: 0,
 });
 
 const state = reactive<StateInfo>({

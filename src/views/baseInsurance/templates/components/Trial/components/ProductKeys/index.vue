@@ -92,6 +92,17 @@ watch(
 );
 
 watch(
+  () => props.modelValue,
+  (value) => {
+    Object.assign(mValues.value, value);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
   () => mConfigs.value,
   (v) => {
     initData();

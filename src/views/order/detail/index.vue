@@ -20,18 +20,8 @@
           is-copy
           min-width="other"
         />
-        <InfoItem
-          label="创建时间"
-          :content="dayjs(detail?.gmtCreated).format('YYYY-MM-DD HH:mm:ss')"
-          line
-          min-width="other"
-        />
-        <InfoItem
-          label="投保时间"
-          :content="dayjs(detail?.orderDate).format('YYYY-MM-DD HH:mm:ss')"
-          line
-          min-width="other"
-        />
+        <InfoItem label="创建时间" :content="detail?.orderDate" line min-width="other" />
+        <InfoItem label="投保时间" :content="detail?.applicationCreateDate" line min-width="other" />
         <InfoItem label="投保保费" :content="detail?.orderAmount" line min-width="other" />
         <InfoItem label="承保保费" :content="detail?.orderAmount" line min-width="other" />
       </div>
@@ -193,10 +183,10 @@ const columns = [
   },
   {
     title: '保险金额/份数',
-    dataIndex: 'regularPremium',
+    dataIndex: 'initialAmount',
     width: 180,
     render(row: any, index: number) {
-      return row.regularPremium / row.copy;
+      return row.initialAmount / (row.copy || 1);
     },
   },
   {

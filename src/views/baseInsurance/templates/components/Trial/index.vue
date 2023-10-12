@@ -55,7 +55,7 @@
                     ? state.defaultValue?.insuredList?.[0]?.productList?.[pIndex]?.riskList?.[index]
                     : null
                 "
-                :trial-result="state.trialResult"
+                :trial-result="premiumMap?.[productCode]?.[index]?.initialAmount"
                 @trial-change="(data, changeData) => handleTrialInfoChange(data, changeData, productCode)"
               ></InsureInfos>
               <div class="premium-item">
@@ -616,13 +616,12 @@ const handleDealDyResult = (dyResult: any, productCode) => {
             }
           }
         });
-        if (change) {
-          defaultRiskData.push({
-            ...riskTrialData,
-            ...newRisk,
-            riskCode: risk.riskCode,
-          });
-        }
+
+        defaultRiskData.push({
+          ...riskTrialData,
+          ...newRisk,
+          riskCode: risk.riskCode,
+        });
       }
     });
     if (defaultRiskData.length > 0 && state.defaultValue?.insuredList?.[0]?.productList) {
@@ -853,31 +852,28 @@ const handleDynamicConfig = async (data: any, changeData: any, productCode) => {
           },
         };
       });
-      if (!state.isAutoChange) {
-        state.isQuerying = true;
-        const insuredList = state.userData.insuredList.filter((insured) => insured.birthday) || [];
-        if (!insuredList.length) {
-          return false;
-        }
-        const dyResult = await queryCalcDynamicInsureFactor({
-          calcProductFactorList: [
-            {
-              planCode: currentPlan.value.planCode,
-              productCode,
-              riskEditVOList,
-            },
-          ],
-          insuredVOList: insuredList,
-          holderVO: state.userData.holder,
-        });
-        state.isQuerying = false;
-        const result = handleDealDyResult(dyResult, productCode);
-        if (!result) {
-          state.isAutoChange = true;
-        }
-        return result;
+      state.isQuerying = true;
+      const insuredList = state.userData.insuredList.filter((insured) => insured.birthday) || [];
+      if (!insuredList.length) {
+        return false;
       }
-      state.isAutoChange = false;
+      const dyResult = await queryCalcDynamicInsureFactor({
+        calcProductFactorList: [
+          {
+            planCode: currentPlan.value.planCode,
+            productCode,
+            riskEditVOList,
+          },
+        ],
+        insuredVOList: insuredList,
+        holderVO: state.userData.holder,
+      });
+      state.isQuerying = false;
+      const result = handleDealDyResult(dyResult, productCode);
+      if (!result) {
+        state.isAutoChange = true;
+      }
+      return result;
     }
   }
   return true;

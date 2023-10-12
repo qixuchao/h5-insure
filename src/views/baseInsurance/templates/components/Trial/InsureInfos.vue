@@ -65,7 +65,7 @@ const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as RiskDetailVoItem),
   modelValue: () => ({} as RiskVoItem),
   defaultValue: () => ({} as any),
-  trialResult: () => ({} as any),
+  trialResult: 0,
 });
 
 const personalInfoRef = ref(null);

@@ -690,11 +690,10 @@ watch(
       state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
         const { personVO, config = {}, guardian, beneficiaryList } = currentInsuredList?.[index] || {};
         const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
+        console.log('cloneDeep(initInsuredTempData)', cloneDeep(initInsuredTempData));
         if (!res[index]) {
-          console.log('merge', res[index], guardian);
-
           res[index] = {
-            ...initInsuredTempData,
+            ...cloneDeep(initInsuredTempData),
             personVO,
             config,
             guardian,
@@ -702,6 +701,7 @@ watch(
             nanoid: nanoid(),
           };
         } else {
+          res[index].schema = initInsuredTempData.schema;
           merge(res[index], {
             ...cloneDeep(initInsuredTempData),
             personVO,
@@ -713,7 +713,6 @@ watch(
         }
         return res;
       }, state.insured) as InsuredListProps;
-      console.log('insuredList', cloneDeep(state.insured));
     },
     500,
   ),
