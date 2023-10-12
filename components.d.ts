@@ -8,7 +8,6 @@ declare module 'vue' {
     BankCardInfo: typeof import('./src/components/BankCardInfo/index.vue')['default']
     Blk: typeof import('./src/components/ZaDatePicker/blk.vue')['default']
     CapsuleSelect: typeof import('./src/components/CapsuleSelect/index.vue')['default']
-    CertImageUpload: typeof import('./src/components/RenderForm/components/CertImageUpload/index.vue')['default']
     CustomInput: typeof import('./src/components/RenderForm/components/ProFormItem/CustomInput.vue')['default']
     Demo: typeof import('./src/components/ProFilePreview/demo.vue')['default']
     HandleScribing: typeof import('./src/components/ProScribing/components/HandleScribing.vue')['default']
