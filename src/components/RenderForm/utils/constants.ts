@@ -74,7 +74,7 @@ export const COMPONENT_ENUM = {
   /** 职业信息 */
   ProOccupation: 'ProOccupation',
   /** 证件影像 */
-  ProIDCardUploadV2: 'ProIDCardUploadV2',
+  ProCertUpload: 'ProCertUpload',
   /** 影像上传基础组件 */
   ProBaseUpload: 'ProBaseUpload',
   /** 银行卡照片 */
@@ -544,7 +544,7 @@ export const GLOBAL_CONFIG_MAP = {
   },
   /** 证件影像 */
   certImage: {
-    componentName: COMPONENT_ENUM.ProIDCardUploadV2,
+    componentName: COMPONENT_ENUM.ProCertUpload,
   },
   /** 受益比例 */
   benefitRate: {

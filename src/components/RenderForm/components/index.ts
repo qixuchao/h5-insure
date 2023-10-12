@@ -8,6 +8,7 @@ export { default as ProCascaderV2 } from './ProCascaderV2.vue';
 export { default as ProBaseUpload } from './ProBaseUpload.vue';
 export { default as ProUploadV2 } from './ProUploadV2.vue';
 export { default as ProIDCardUploadV2 } from './ProIDCardUploadV2.vue';
+export { default as ProCertUpload } from './ProCertUpload.vue';
 export { default as ProBankUpload } from './ProBankUpload.vue';
 export { default as ProDatePickerV2 } from './ProDatePickerV2.vue';
 export { default as ProValidateDate } from './ProValidateDate.vue';
