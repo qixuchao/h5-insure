@@ -646,7 +646,7 @@ export const getCertTypeConfig = (val, schema) => {
 };
 
 /**
- * 证件类型是否只有身份真狗，则证件号码显示为身份证号，子女为户口簿
+ * 证件类型是否只有身份证，则证件号码显示为身份证号，子女为户口簿
  */
 export const getCertConfig = (schema, personVO) => {
   const config: {

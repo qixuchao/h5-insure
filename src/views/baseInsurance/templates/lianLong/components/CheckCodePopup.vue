@@ -19,7 +19,7 @@
             label="被保人手机号"
             name="mobile"
             maxlength="11"
-            required
+            :rules="[{ required: true, message: '请输入手机号' }]"
           ></ProFieldV2>
           <ProSMSCode
             v-model="formData.verifyCode"
@@ -73,8 +73,8 @@ const checkCategory = ref({
   },
   agent: {
     type: '代理人',
-    name: '李三',
-    mobile: '13262278989',
+    name: '',
+    mobile: '',
     desc: '色卡上会计核算看回放独守空房还是空巅峰计划收款方',
   },
   insured: {
@@ -100,7 +100,7 @@ watch(
     if (data) {
       Object.assign(checkCategory.value.holder, data.holder);
       Object.assign(checkCategory.value.insured, data?.insuredList?.[0]);
-      formData.value.mobile = checkCategory.value?.[`${props.type}`]?.mobile;
+      formData.value.mobile = checkCategory.value?.[props.type]?.mobile;
     }
   },
   {

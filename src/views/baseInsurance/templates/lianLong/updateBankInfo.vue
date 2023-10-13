@@ -59,7 +59,7 @@ const handleShare = (objectType, type) => {
 
   shareWeiXin({
     shareType: 0,
-    title: `${SHARE_CONTENT[type].title}（${NOTICE_TYPE_MAP[objectType.toLocaleUpperCase()]}）`,
+    title: `${SHARE_CONTENT[type].title}`,
     desc: SHARE_CONTENT[type].desc.replace('{name}', `${userInfo.name}${userInfo.gender},`),
     url: `${window.location.href}&objectType=${objectType}&isShare=1&nextPageCode=updateBankInfo`.replace(
       '/updateBankInfo',

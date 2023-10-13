@@ -3,9 +3,10 @@ import { nextStep } from '@/api';
 import { getQueryObject } from '@/utils/index';
 import { sendPay } from '@/views/cashier/core';
 import { ALERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
-import { TEMPLATE_TYPE_ENUM } from './constant';
 import { PAGE_ROUTE_ENUMS } from './templates/lianLong/constants';
 import router from '@/router';
+import { localStore } from '@/hooks/useStorage';
+import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
 
 const { VITE_BASE } = import.meta.env;
 
@@ -61,6 +62,7 @@ export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: 
         });
         // 核保不通过走人核
       } else if (resData.alertType === ALERT_TYPE_ENUM.SIGN_FAIL) {
+        localStore.set(`${LIAN_STORAGE_KEY}_underwriteResult`, { [ALERT_TYPE_ENUM.SIGN_FAIL]: message });
         router.push({
           path: PAGE_ROUTE_ENUMS.underWriteResult,
           query: {
@@ -84,6 +86,7 @@ export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: 
           });
         });
       } else if (resData.alertType === ALERT_TYPE_ENUM.UNDER_WRITE_FAIL) {
+        localStore.set(`${LIAN_STORAGE_KEY}_underwriteResult`, { [ALERT_TYPE_ENUM.UNDER_WRITE_FAIL]: message });
         router.push({
           path: PAGE_ROUTE_ENUMS.underWriteResult,
           query: {

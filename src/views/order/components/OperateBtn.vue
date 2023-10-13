@@ -77,7 +77,7 @@ const handleShare = (type) => {
 
   shareWeiXin({
     shareType: 0,
-    title: `${SHARE_CONTENT.cancel.title}（${NOTICE_TYPE_MAP[type.toLocaleUpperCase()]}）`,
+    title: `${SHARE_CONTENT.cancel.title}`,
     desc: SHARE_CONTENT.cancel.desc.replace('{name}', `${userInfo.name}${userInfo.gender},`),
     url: `${window.location.href}&objectType=${type}&isShare=1&orderNo=${orderNo}&orderId=${orderId}&nextPageCode=orderDetail`.replace(
       /\/orderDetail|\/order/,

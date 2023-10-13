@@ -644,7 +644,7 @@ const handleDealDyResult = (dyResult: any, productCode) => {
   return true;
 };
 
-const handleMixTrialData = async () => {
+const handleMixTrialData = () => {
   if (state.ifPersonalInfoSuccess || personalInfoRef.value?.canTrail?.()) {
     state.submitData.tenantId = `${tenantId}`;
 
@@ -664,11 +664,11 @@ const handleMixTrialData = async () => {
 
     const submitDataCopy = dealMixData();
     console.log('>>>数据构建<<<', submitDataCopy);
-    await handleTrialAndBenefit(submitDataCopy);
+    handleTrialAndBenefit(submitDataCopy);
   }
 };
 
-const handlePersonalInfoChange = async (data) => {
+const handlePersonalInfoChange = debounce(async (data) => {
   console.log('人的信息更改了');
   // 只有改动第一个被保人，需要调用dy接口
   const { insuredList, isFirstInsuredChange } = data;
@@ -700,7 +700,7 @@ const handlePersonalInfoChange = async (data) => {
   if (state.userData.insuredList?.[0]?.productList?.length) {
     handleMixTrialData();
   }
-};
+}, 500);
 
 const birthdayList = computed(() => {
   return (state.userData?.insuredList || []).map((insured) => insured.birthday).join(',');

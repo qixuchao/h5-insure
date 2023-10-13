@@ -247,7 +247,6 @@ const state = reactive<Partial<StateInfo>>({
 const isShowHolder = computed(() => !props.isTrial || props.isHolderExempt);
 
 const updateHolderData = (holderData) => {
-  console.log('holderData', holderData);
   Object.assign(state.holder.personVO, holderData);
 };
 
@@ -367,7 +366,8 @@ const filterFormData = (data) => {
     personVO,
     nanoid: tempNanoid,
     ...formData
-  } = data || {};
+  } = cloneDeep(data) || {};
+  console.log('formData', formData);
   return formData;
 };
 
@@ -626,7 +626,7 @@ watch(
       const { holder, insuredList = [] } = props.modelValue;
       const tempInsuredList = isNotEmptyArray(insuredList)
         ? insuredList.map((item) => {
-            console.log('item.guardian', cloneDeep(item.guardian));
+            console.log('beneficiaryList', filterFormData(item.beneficiaryList?.[0]));
             return {
               config: item.config,
               personVO: filterFormData(item),
@@ -690,7 +690,6 @@ watch(
       state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
         const { personVO, config = {}, guardian, beneficiaryList } = currentInsuredList?.[index] || {};
         const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
-        console.log('cloneDeep(initInsuredTempData)', cloneDeep(initInsuredTempData));
         if (!res[index]) {
           res[index] = {
             ...cloneDeep(initInsuredTempData),

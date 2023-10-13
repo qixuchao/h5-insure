@@ -110,6 +110,7 @@
       <van-button type="primary" @click="onNext">下一步</van-button>
     </div>
     <CheckCodePopup
+      v-if="show"
       :type="checkType"
       :show="show"
       :data="orderDetail"
@@ -286,13 +287,13 @@ const handleConfirm = () => {
     path = PAGE_ROUTE_ENUMS.infoPreview;
   } else if (checkType.value === 'holder') {
     if (signPartInfo.value[checkType.value].isVerify) {
-      path = PAGE_ROUTE_ENUMS.infoPreview;
+      path = PAGE_ROUTE_ENUMS.verifyFace;
     } else {
       path = PAGE_ROUTE_ENUMS.infoPreview;
     }
   } else {
     if (signPartInfo.value[checkType.value].isVerify) {
-      path = PAGE_ROUTE_ENUMS.infoPreview;
+      path = PAGE_ROUTE_ENUMS.verifyFace;
     } else {
       path = PAGE_ROUTE_ENUMS.infoPreview;
     }

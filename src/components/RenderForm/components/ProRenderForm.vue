@@ -222,16 +222,17 @@ watch(
   },
 );
 
-const validate = () => {
+const validate = (prams) => {
   return new Promise((resolve, reject) => {
     formRef.value
-      .validate()
+      .validate(prams)
       .then((...rest) => {
         resolve(...rest);
       })
       .catch((error) => {
+        console.log('error', error);
         if (props.validateMethod === 'toast') {
-          Toast(error?.[0].message);
+          Toast(error?.[0].message || error.message);
         }
         reject(error);
       });

@@ -250,7 +250,7 @@ const sign = (type, signData, bizObjectId?) => {
     promiseList.push(saveSignList('INSURED', signData, orderDetail.value?.id, tenantId, id));
   }
 
-  Promise.all(promiseList).then(() => {
+  Promise.all(promiseList).then((res) => {
     // getOrderDetail();
   });
 };
@@ -269,6 +269,10 @@ const initData = async () => {
   if (oCode === '10000') {
     Object.assign(orderDetail.value, orderData);
     signPartInfo.value.holder.personalInfo = { ...orderData.holder, isCert: 1 };
+    signPartInfo.value.insured.personalInfo = orderData.insuredList.map((insured) => {
+      insured.isCert = 1;
+      return insured;
+    });
     productRiskMap = pickProductRiskCodeFromOrder(orderData.insuredList[0].productList);
 
     Object.assign(defaultScribingConfig.value, {

@@ -14,6 +14,7 @@
           :max-count="maxCount"
           :before-delete="handleBeforeDelete"
           :disabled="isView"
+          accept="image/jpg"
         >
           <slot>
             <div class="upload-item">

@@ -107,7 +107,7 @@ const onSendSmsCode = () => {
         });
       })
       .catch((e) => {
-        console.log(e);
+        Toast(e.message);
       });
   }
 };

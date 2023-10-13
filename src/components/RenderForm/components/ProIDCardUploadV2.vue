@@ -7,6 +7,7 @@
         :max-count="1"
         :deletable="false"
         :preview-full-image="isView"
+        accept="image/.jpg"
         :disabled="isView"
         :model-value="fileList[index]"
         :after-read="(e: UploaderFileListItem) => handleRead(e, index)"

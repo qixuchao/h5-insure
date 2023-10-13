@@ -45,15 +45,17 @@ import { PAGE_ROUTE_ENUMS } from './constants';
 import { cancelOrder } from '@/api/modules/order';
 import { ALERT_TYPE_ENUM } from '@/common/constants';
 import { offlineReview } from '@/api/modules/verify';
+import { localStore } from '@/hooks/useStorage';
+import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
 
 const underWriteMap = {
   [ALERT_TYPE_ENUM.SIGN_FAIL]: {
     resultStatus: '人工核保中',
-    resultDesc: '您提交的投保资料需进一步人工审核，请耐心等待公司审核结果',
+    resultDesc: localStore.get(`${LIAN_STORAGE_KEY}_underwriteResult`)?.[ALERT_TYPE_ENUM.SIGN_FAIL],
   },
   [ALERT_TYPE_ENUM.UNDER_WRITE_FAIL]: {
     resultStatus: '核保未通过',
-    resultDesc: '核保结果: BMI>24',
+    resultDesc: localStore.get(`${LIAN_STORAGE_KEY}_underwriteResult`)?.[ALERT_TYPE_ENUM.UNDER_WRITE_FAIL],
   },
 };
 

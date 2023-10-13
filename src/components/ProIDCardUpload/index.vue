@@ -6,6 +6,7 @@
       :deletable="false"
       :preview-full-image="false"
       :after-read="handleFrontRead"
+      accept="image/.jpg"
     >
       <div class="upload-item">
         <img :src="IDCardUploadFrontImage" class="bg" />
@@ -26,6 +27,7 @@
       :deletable="false"
       :preview-full-image="false"
       :after-read="handleBackRead"
+      accept="image/.jpg"
     >
       <div class="upload-item">
         <img :src="IDCardUploadBackImage" class="bg" />

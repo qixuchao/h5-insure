@@ -33,7 +33,7 @@
 
 <script setup lang="ts" name="trial">
 import { useRoute, useRouter } from 'vue-router';
-import { findLastIndex, findIndex } from 'lodash-es';
+import { findLastIndex, findIndex, cloneDeep } from 'lodash-es';
 import Trial from '@/views/baseInsurance/templates/components/Trial/index.vue';
 import {
   getTenantOrderDetail,
@@ -188,7 +188,16 @@ const getOrderDetail = () => {
 
 const nextStep = () => {
   trialRef.value.onNext(async (currentOrderDetail) => {
-    const { code, data } = await saveOrder(currentOrderDetail);
+    const orderDetailCopy = cloneDeep(currentOrderDetail);
+    const excludeCodeList = ['id', 'relationToHolder', 'beneficiaryList', 'guardian', 'insuredBeneficiaryType'];
+    Object.keys(orderDetailCopy.insuredList?.[0]).reduce((res, key) => {
+      if (!excludeCodeList.includes(key) && orderDetailCopy.insuredList?.[0]?.[key]) {
+        res[key] = orderDetailCopy.insuredList?.[0]?.[key];
+      }
+      return res;
+    }, orderDetailCopy.holder);
+
+    const { code, data } = await saveOrder(orderDetailCopy);
     if (code === '10000') {
       router.push({
         path: PAGE_ROUTE_ENUMS.questionNotice,
