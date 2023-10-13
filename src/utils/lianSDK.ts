@@ -229,7 +229,7 @@ export const getAppWebStatus = () => {
 // 微信朋友圈分享
 export const shareWeiXin = (params: any) => {
   return new Promise((resolve, reject) => {
-    console.log('share==>');
+    console.log('share==>', params);
     SDK('share', params, (info: any) => {
       // shareType 分享渠道: 0: 微信聊天界面 1: 微信朋友圈 2: QQ聊天界面 3:QQ空间4:分享微信小程序
       // title 分享出去的标题

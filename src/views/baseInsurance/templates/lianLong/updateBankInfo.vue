@@ -89,6 +89,7 @@ const handleConfirm = () => {
               handleShare('holder', 'pay');
             }
           });
+          handleShare('holder', 'pay');
         }
       }
     });

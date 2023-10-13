@@ -473,9 +473,9 @@ watch(
       }),
   ],
   // eslint-disable-next-line consistent-return
-  debounce((val, oldVal) => {
+  (val, oldVal) => {
     if (JSON.stringify(val) === JSON.stringify(oldVal) && isTrialChange) {
-      // isTrialChange = true;
+      isTrialChange = true;
       return false;
     }
 
@@ -515,12 +515,16 @@ watch(
     //   emit('trailChange', result);
     //   return false;
     // }
+
+    console.log('trialStart');
     if (!validateTrialFields()) {
       state.trialValidated = false;
       return emit('trailValidateFailed', result);
     }
+    console.log('trialIng');
     validate(true)
       .then(() => {
+        console.log('trialEnd');
         state.trialValidated = true;
         // 只有试算因子数据变动才调用试算
         // 试算时投被保人分开不需要多次试算
@@ -532,7 +536,7 @@ watch(
         state.trialValidated = false;
         emit('trailValidateFailed', result);
       });
-  }, 500),
+  },
   {
     deep: true,
   },
@@ -626,7 +630,6 @@ watch(
       const { holder, insuredList = [] } = props.modelValue;
       const tempInsuredList = isNotEmptyArray(insuredList)
         ? insuredList.map((item) => {
-            console.log('beneficiaryList', filterFormData(item.beneficiaryList?.[0]));
             return {
               config: item.config,
               personVO: filterFormData(item),
