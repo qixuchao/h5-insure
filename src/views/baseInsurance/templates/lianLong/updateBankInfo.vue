@@ -70,6 +70,8 @@ const handleShare = (objectType, type) => {
 };
 
 const handleConfirm = () => {
+  handleShare('holder', 'pay');
+
   if (payInfoRef.value) {
     payInfoRef.value.validate(false).then((validate) => {
       if (validate) {
@@ -84,12 +86,11 @@ const handleConfirm = () => {
             route,
           );
         } else {
-          saveOrder(orderDetail.value).then(({ code, data }) => {
-            if (code === '10000') {
-              handleShare('holder', 'pay');
-            }
-          });
-          handleShare('holder', 'pay');
+          // saveOrder(orderDetail.value).then(({ code, data }) => {
+          //   if (code === '10000') {
+          //     handleShare('holder', 'pay');
+          //   }
+          // });
         }
       }
     });
