@@ -318,9 +318,15 @@ watch(
   isSpecifyBeneficiary,
   (val, oldVal) => {
     if (String(val) !== String(oldVal)) {
-      colorConsole('受益人类型关系变动了');
+      colorConsole('受益人类型关系变动了', val);
       // 如果是指定受益人
       if (val) {
+        state.beneficiaryList = isNotEmptyArray(props.beneficiaryList)
+          ? props.beneficiaryList.map((item) => ({
+              ...item,
+              nanoid: item.nanoid || nanoid(),
+            }))
+          : [];
         !isNotEmptyArray(state.beneficiaryList) && onAddBeneficiary();
       } else {
         state.beneficiaryList = [];

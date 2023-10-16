@@ -46,7 +46,7 @@ import {
   ATTACHMENT_CATEGORY_ENUM,
   ATTACHMENT_OBJECT_TYPE_ENUM,
 } from '@/common/constants';
-import { VAN_PRO_FORM_KEY } from '../utils';
+import { VAN_PRO_FORM_KEY, calculateAge } from '../utils';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { useAttrsAndSlots } from '../hooks';
 
@@ -172,12 +172,14 @@ watch(
         const { data, code } = res;
         if (code === '10000' && data && data.idCardOcrVO) {
           // personAddress 户籍所在地, issueBy 发证机关, race 民族
-          const { personName, personIdCard, validDateEnd, validDateStart, ...rest } = data.idCardOcrVO || {};
+          const { personName, personIdCard, validDateEnd, birthday, validDateStart, ...rest } = data.idCardOcrVO || {};
           const ocrData = {
             name: personName,
             certNo: personIdCard,
             certEndDate: validDateEnd,
             certStartDate: validDateStart,
+            birthday,
+            age: calculateAge(birthday),
             ...rest,
           };
 

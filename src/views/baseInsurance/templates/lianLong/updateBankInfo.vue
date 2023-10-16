@@ -6,6 +6,7 @@
       v-model="orderDetail.tenantOrderPayInfoList"
       :schema="payInfo.schema"
       :is-view="isView"
+      :user-data="orderDetail"
     ></PayInfo>
     <div class="footer-button">
       <van-button type="primary" plain @click="handleCancel">取消</van-button>
@@ -74,6 +75,7 @@ const handleConfirm = () => {
     payInfoRef.value.validate(false).then((validate) => {
       if (validate) {
         if (isShare) {
+          orderDetail.value.extInfo.buttonCode = BUTTON_CODE_ENUMS.UPDATE_BANK_INFO_HOLDER;
           nextStep(
             orderDetail.value,
             (data, pageAction) => {
@@ -84,11 +86,16 @@ const handleConfirm = () => {
             route,
           );
         } else {
-          saveOrder(orderDetail.value).then(({ code, data }) => {
-            if (code === '10000') {
-              handleShare('holder', 'pay');
-            }
-          });
+          orderDetail.value.extInfo.buttonCode = BUTTON_CODE_ENUMS.UPDATE_BANK_INFO_AGENT;
+          nextStep(
+            orderDetail.value,
+            (data, pageAction) => {
+              if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+                handleShare('holder', 'pay');
+              }
+            },
+            route,
+          );
         }
       }
     });

@@ -231,7 +231,6 @@ const combineFormData = (targetIndex, originIndex) => {
   const tempData = {
     // ...resetObjectValues(state.schemaList[targetIndex].formData, (key) => !RESERVE_FIELD_NAMES.includes(key)),
     // ...finalFieldList.value?.[targetIndex]?.formData,
-    ...rest,
     bankCardImage: isNotEmptyArray(rest.bankCardImage)
       ? rest.bankCardImage.map((item) => ({
           ...item,
@@ -239,7 +238,16 @@ const combineFormData = (targetIndex, originIndex) => {
         }))
       : [],
   };
-  Object.assign(state.schemaList[targetIndex]?.formData, tempData);
+
+  Object.keys(rest).reduce((tem, key) => {
+    if (rest[key]) {
+      tem[key] = rest[key];
+    }
+    return tem;
+  }, tempData);
+
+  merge(state.schemaList[targetIndex]?.formData, tempData);
+  console.log('merge', state.schemaList[targetIndex]?.formData);
 };
 
 // 验证表单必填
@@ -519,16 +527,16 @@ watch(
   () => state.schemaList?.map((item) => item.formData),
   (val) => {
     if (isNotEmptyArray(val)) {
-      emit(
-        'update:modelValue',
-        val.map((item, index) => {
-          const { payInfoType } = state.schemaList[index];
-          return {
-            ...item,
-            payInfoType,
-          };
-        }),
-      );
+      // emit(
+      //   'update:modelValue',
+      //   val.map((item, index) => {
+      //     const { payInfoType } = state.schemaList[index];
+      //     return {
+      //       ...item,
+      //       payInfoType,
+      //     };
+      //   }),
+      // );
     }
   },
   {

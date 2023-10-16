@@ -473,7 +473,7 @@ watch(
       }),
   ],
   // eslint-disable-next-line consistent-return
-  (val, oldVal) => {
+  debounce((val, oldVal) => {
     if (JSON.stringify(val) === JSON.stringify(oldVal) && isTrialChange) {
       isTrialChange = true;
       return false;
@@ -516,7 +516,6 @@ watch(
     //   return false;
     // }
 
-    console.log('trialStart');
     if (!validateTrialFields()) {
       state.trialValidated = false;
       return emit('trailValidateFailed', result);
@@ -536,7 +535,7 @@ watch(
         state.trialValidated = false;
         emit('trailValidateFailed', result);
       });
-  },
+  }, 500),
   {
     deep: true,
   },
@@ -630,6 +629,7 @@ watch(
       const { holder, insuredList = [] } = props.modelValue;
       const tempInsuredList = isNotEmptyArray(insuredList)
         ? insuredList.map((item) => {
+            console.log('beneficiaryList', filterFormData(item.beneficiaryList?.[0]));
             return {
               config: item.config,
               personVO: filterFormData(item),
