@@ -162,7 +162,7 @@ import ProTable from '@/components/ProTable/index.vue';
 import ProDatePicker from '@/components/ProDatePicker/index.vue';
 import ProPicker from '@/components/ProPicker/index.vue';
 import ProCascader from '@/components/ProCascader/index.vue';
-import useDicData from '@/hooks/useDicData';
+import useDicData from '@/hooks/useDictData';
 import ProFilePreview from '@/components/ProFilePreview/index.vue';
 
 const [isShow, toggle] = useToggle(false);

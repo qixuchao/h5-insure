@@ -87,7 +87,7 @@ import zhifubaoIcon from '@/assets/images/baseInsurance/zhifubao.png';
 import yinhangkaIcon from '@/assets/images/baseInsurance/yinhangka.png';
 import wxcut1Icon from '@/assets/images/baseInsurance/wxcut1.png';
 import wxcut2Icon from '@/assets/images/baseInsurance/wxcut2.png';
-import useDicData from '@/hooks/useDicData';
+import useDicData from '@/hooks/useDictData';
 import { validateBandcard } from '@/utils/validator';
 
 const route = useRoute();

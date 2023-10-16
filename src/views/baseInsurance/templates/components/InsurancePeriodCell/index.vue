@@ -92,7 +92,7 @@ import {
 } from '@/api/modules/trial.data';
 import { formatDate, computedAddDate, computedSubtractDate } from '@/utils/date';
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
-import useDicData from '@/hooks/useDicData';
+import useDicData from '@/hooks/useDictData';
 import ProShadowButton from '../ProShadowButton/index.vue';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { INSURANCE_PERIOD_ENUM } from '@/common/constants/trial';

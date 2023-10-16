@@ -61,6 +61,7 @@
 
 <script lang="ts" setup>
 import { Ref } from 'vue';
+import { useRoute } from 'vue-router';
 import ProField from '@/components/ProField/index.vue';
 import ProImageUpload from '@/components/ProImageUpload/index.vue';
 import ProPicker from '@/components/ProPicker/index.vue';
@@ -69,7 +70,16 @@ import { ocr } from '@/api/modules/file';
 import { OCRResponse } from '@/api/module/file.data';
 import { YES_NO_ENUM, UPLOAD_TYPE_ENUM, OCR_TYPE_ENUM } from '@/common/constants';
 import { ProductInsureFactorItem } from '@/api/index.data';
-import useDicData from '@/hooks/useDicData';
+import useDicData from '@/hooks/useDictData';
+
+const route = useRoute();
+
+interface QueryData {
+  insurerCode: string;
+  [key: string]: string;
+}
+
+const { insurerCode = '' } = route.query as QueryData;
 
 const emits = defineEmits(['update:modelValue']);
 const props = defineProps({
@@ -87,7 +97,7 @@ const props = defineProps({
   },
 });
 
-const bankDic = useDicData('BANK');
+const bankDic = useDicData(`${(insurerCode as string).toLocaleUpperCase()}_BANK`);
 const formData = ref({
   bankCardType: BANK_CARD_TYPE_ENUM.DEBIT,
   bankCardNo: '',

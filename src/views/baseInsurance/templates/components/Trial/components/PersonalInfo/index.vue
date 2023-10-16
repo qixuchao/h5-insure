@@ -453,7 +453,7 @@ watch(
 );
 
 // 验证是否试算
-let isTrialChange = true;
+let isTrialChange = false;
 watch(
   [
     () => ({ ...state.holder?.personVO }),
