@@ -527,16 +527,16 @@ watch(
   () => state.schemaList?.map((item) => item.formData),
   (val) => {
     if (isNotEmptyArray(val)) {
-      // emit(
-      //   'update:modelValue',
-      //   val.map((item, index) => {
-      //     const { payInfoType } = state.schemaList[index];
-      //     return {
-      //       ...item,
-      //       payInfoType,
-      //     };
-      //   }),
-      // );
+      emit(
+        'update:modelValue',
+        val.map((item, index) => {
+          const { payInfoType } = state.schemaList[index];
+          return {
+            ...item,
+            payInfoType,
+          };
+        }),
+      );
     }
   },
   {
