@@ -29,7 +29,7 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Dialog } from 'vant';
+import { Dialog, Toast } from 'vant';
 import { listProductQuestionnaire, queryListProductMaterial, queryProductMaterial } from '@/api/modules/product';
 import { getQuestionAnswerDetail } from '@/api/modules/inform';
 import ProFilePreview from '@/components/ProFilePreview/index.vue';
@@ -106,6 +106,11 @@ const getQuestionInfo = async (params) => {
     const productQuestionnaireVOList = questionList.filter(
       (question) => question.businessType === QUESTION_OBJECT_TYPE.RISK_NOTIFICATION && question.noticeObject === 1,
     );
+
+    if (!productQuestionnaireVOList?.length) {
+      Toast('未匹配到风险告知问卷');
+    }
+
     let questionInfo = productQuestionnaireVOList[0] || {};
     if (productQuestionnaireVOList?.length > 1) {
       if (questionId) {
