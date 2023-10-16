@@ -47,8 +47,7 @@ export const transformCustomerToPerson = (value, keys: string[]) => {
   console.log('transformCustomerToPerson', value);
 
   const contact = value?.contactInfo;
-  const mobile = contact.contactType === '01' ? contact.contactNo : '';
-  const email = contact.contactType === '02' ? contact.contactNo : '';
+  const mobile = contact.contactNo || '';
   const certInfo = value?.certInfo || {};
   const addressInfo = value.addressInfo || {};
   const bankCardInfo = value.bankCardInfo || {};
@@ -59,7 +58,7 @@ export const transformCustomerToPerson = (value, keys: string[]) => {
     gender: value?.gender,
     birthday: value?.birthday,
     mobile,
-    email: email || value.email,
+    email: value.email || '',
     ...certInfo,
     certEndType: certInfo?.certEndDate === '9999-12-31' ? 1 : null, // 是否长期
     longArea: {
@@ -68,6 +67,7 @@ export const transformCustomerToPerson = (value, keys: string[]) => {
     workAddress: {
       ...addressInfo,
     },
+    educationDegree: +value.educationDegree,
     initialBankCard: bankCardInfo, // 首期银行卡
   };
 

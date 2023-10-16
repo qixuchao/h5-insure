@@ -85,7 +85,7 @@ body {
   -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  // overflow-y: auto;
 }
 .page {
   background-color: #fff;

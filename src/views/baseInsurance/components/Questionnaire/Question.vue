@@ -8,7 +8,7 @@
     <div class="question-card">
       <div class="header">
         <div class="title">
-          {{ questionTitle }}
+          {{ data.title }}
           <span v-if="enumEqual(data.mustFlag, YES_NO_ENUM.YES)" class="error">*</span>
         </div>
       </div>
@@ -150,7 +150,7 @@ const props = defineProps<Props>();
 const { data } = toRefs(props);
 // 问题的序号计算
 const questionTitle = computed(() => {
-  return props.index === undefined ? props.data.title : `问题${props.index + 1}. ${props.data.title}`;
+  return props.index === undefined ? props.data.title : `${props.data.title}`;
 });
 // 多项填空的下换线转换
 const mutiBlank = computed(() => {
