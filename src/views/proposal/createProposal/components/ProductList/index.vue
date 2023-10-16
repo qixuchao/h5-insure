@@ -75,7 +75,7 @@ import { ProposalProductRiskItem, ProposalInsuredProductItem } from '@/api/modul
 import { ProductData, RiskDetailVoItem } from '@/api/modules/trial.data';
 import { convertPeriod, convertChargePeriod } from '@/utils/format';
 import RiskRelationList from '@/views/trial/components/RiskRelationList/index.vue';
-import useDict from '@/hooks/useDicData';
+import useDict from '@/hooks/useDictData';
 import ProductTips from '@/views/proposal/proposalList/components/ProductTips.vue';
 
 interface Props {

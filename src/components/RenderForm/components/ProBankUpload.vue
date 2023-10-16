@@ -29,6 +29,7 @@
 <script lang="ts" setup name="ProAddress">
 import type { UploaderFileListItem } from 'vant';
 import { useCustomFieldValue } from '@vant/use';
+import { useRoute } from 'vue-router';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { fileUpload, ocr } from '@/api/modules/file';
 import {
@@ -39,14 +40,23 @@ import {
 } from '@/common/constants';
 import { VAN_PRO_FORM_KEY } from '../utils';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
-import useDicData from '@/hooks/useDicData';
+import useDicData from '@/hooks/useDictData';
 import type { FileProps } from '../index.data';
 import { useAttrsAndSlots } from '../hooks';
+
+const route = useRoute();
+
+interface QueryData {
+  insurerCode: string;
+  [key: string]: string;
+}
 
 interface FileUploadRes {
   code: string;
   data: { url: string; ossKey: string };
 }
+
+const { insurerCode = '' } = route.query as QueryData;
 
 const uploaderList = [
   {
@@ -59,7 +69,7 @@ const uploaderList = [
   },
 ];
 
-const bankDic = useDicData('BANK');
+const bankDic = useDicData(`${(insurerCode as string).toLocaleUpperCase()}_BANK`);
 
 const { filedAttrs } = toRefs(useAttrsAndSlots());
 

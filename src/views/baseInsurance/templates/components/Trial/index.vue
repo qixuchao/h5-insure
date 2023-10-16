@@ -668,7 +668,7 @@ const handleMixTrialData = () => {
   }
 };
 
-const handlePersonalInfoChange = debounce(async (data) => {
+const handlePersonalInfoChange = async (data) => {
   console.log('人的信息更改了');
   // 只有改动第一个被保人，需要调用dy接口
   const { insuredList, isFirstInsuredChange } = data;
@@ -700,7 +700,7 @@ const handlePersonalInfoChange = debounce(async (data) => {
   if (state.userData.insuredList?.[0]?.productList?.length) {
     handleMixTrialData();
   }
-}, 500);
+};
 
 const birthdayList = computed(() => {
   return (state.userData?.insuredList || []).map((insured) => insured.birthday).join(',');

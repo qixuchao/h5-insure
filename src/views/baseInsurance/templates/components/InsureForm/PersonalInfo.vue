@@ -578,7 +578,7 @@ import { SEX_LIMIT_LIST, FLAG_LIST, VALIDATE_TYPE_ENUM, CERT_TYPE_ENUM, YES_NO_E
 import { validateIdCardNo, getSex, getBirth } from '@/components/ProField/utils';
 import { validateCustomName } from '@/utils/validator';
 import { OCRResponse } from '@/api/modules/file.data';
-import useDicData from '@/hooks/useDicData';
+import useDicData from '@/hooks/useDictData';
 import {
   TAX_RESIDENT,
   BENEFICIARY_ORDER,

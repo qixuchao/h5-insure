@@ -106,7 +106,7 @@ import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
 import { sendPay, useWXCode } from '../../../cashier/core';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 import FilePreview from '../components/FilePreview/index.vue';
-import useDicData from '@/hooks/useDicData';
+import useDicData from '@/hooks/useDictData';
 import { INSURANCE_PERIOD_TYPE_ENUMS } from '@/common/constants/trial';
 import { NextStepRequestData, TenantOrderRiskItem } from '@/api/index.data';
 import {

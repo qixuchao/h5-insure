@@ -91,7 +91,7 @@ import { SEX_LIMIT_LIST } from '@/common/constants';
 import Occupational from '../Occupational/index.vue';
 import { PersonVo } from '@/api/modules/trial.data';
 import ProCascader from '@/components/ProCascader/index.vue';
-import useDicData from '@/hooks/useDicData';
+import useDicData from '@/hooks/useDictData';
 
 interface Props {
   formInfo: PersonVo;

@@ -175,7 +175,7 @@ import {
   RELATION_HOLDER_ENUM,
 } from '@/common/constants/infoCollection';
 import PersonalInfo from './PersonalInfo.vue';
-import useDicData from '@/hooks/useDicData';
+import useDicData from '@/hooks/useDictData';
 
 const { insurerCode = '' } = useRoute().query;
 
