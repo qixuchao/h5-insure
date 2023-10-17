@@ -422,7 +422,6 @@ watch(
     })),
   (val, oldValue) => {
     if (JSON.stringify(val) !== JSON.stringify(oldValue)) {
-      console.log('update', val);
       emit('update:beneficiaryList', val);
     }
   },
