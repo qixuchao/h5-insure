@@ -59,14 +59,24 @@
         :title="`受益人${index + 1}`"
         :schema="state.beneficiarySchemaList"
         :config="beneficiary.config"
-        :is-view="isView"
+        :holder-person-v-o="holderPersonVO"
+        :is-view="isView || beneficiary.personVO?.isHolder === YES_NO_ENUM.YES"
       >
         <template #customer>
           <slot name="benefitCustomer" :index="index"></slot>
         </template>
-        <span v-if="index > 0 && !isView" class="delete-button" @click="onDeleteBeneficiary(index)">
-          <ProSvg name="delete"></ProSvg>
-        </span>
+        <div class="operate-wrap">
+          <van-switch
+            v-model="beneficiary.personVO.isHolder"
+            :active-value="1"
+            :inactive-value="2"
+            @click="() => holderToBeneficial(index)"
+            >同投保人</van-switch
+          >
+          <span v-if="index > 0 && !isView" class="delete-button" @click="onDeleteBeneficiary(index)">
+            <ProSvg name="delete"></ProSvg>
+          </span>
+        </div>
       </BeneficiaryItem>
 
       <span v-if="!isView && addible" class="add-button" @click="onAddBeneficiary"
@@ -96,7 +106,7 @@ import {
 } from '@/components/RenderForm';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { BENEFICIARY_ENUM } from '@/common/constants/infoCollection';
-import { ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
+import { ATTACHMENT_OBJECT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import BeneficiaryItem from './BeneficiaryItem.vue';
 import { OBJECT_TYPE_ENUM } from '@/common/constants/questionnaire';
 
@@ -146,6 +156,7 @@ const props = withDefaults(defineProps<InsuredProps>(), {
   isView: false,
   isTrial: false,
   multiBeneficiaryMaxNum: null,
+  holderPersonVO: () => ({}),
 });
 
 interface StateInfo extends PersonFormProps {
@@ -185,6 +196,69 @@ const isShowGuardian = computed<boolean>(() => {
   state.guardian = {};
   return false;
 });
+
+const mergeHolderBenefic = () => {
+  const mergeData = {};
+  state.beneficiarySchemaList.reduce((da, schema) => {
+    if (props.holderPersonVO?.[schema.name]) {
+      da[schema.name] = props.holderPersonVO?.[schema.name];
+    }
+    return da;
+  }, mergeData);
+
+  return mergeData;
+};
+
+const disHolderData = (personVO = {}) => {
+  const mergeData = personVO;
+  state.beneficiarySchemaList.reduce((da, schema) => {
+    if (props.holderPersonVO?.[schema.name]) {
+      da[schema.name] = null;
+    }
+    return da;
+  }, mergeData);
+  console.log('mergeData', mergeData);
+  return mergeData;
+};
+
+// 投保人数据同步到受益人
+const holderToBeneficial = (index: number) => {
+  if (`${state.beneficiaryList?.[index]?.personVO?.isHolder}` !== `${YES_NO_ENUM.YES}`) {
+    state.beneficiaryList = state.beneficiaryList.map((beneficiaryItem, ind) => {
+      if (index === ind) {
+        return {
+          ...beneficiaryItem,
+          personVO: { ...disHolderData(state.beneficiaryList?.[index]?.personVO) },
+        };
+      }
+      return beneficiaryItem;
+    });
+    return;
+  }
+  if (props.holderPersonVO) {
+    state.beneficiaryList = state.beneficiaryList.map((beneficiaryItem, ind) => {
+      if (index === ind) {
+        return {
+          ...beneficiaryItem,
+          personVO: { ...beneficiaryItem.personVO, ...mergeHolderBenefic() },
+          config: {
+            ...beneficiaryItem.config,
+            benefitRate: {
+              isView: false,
+            },
+            benefitOrder: {
+              isView: false,
+            },
+            relationToInsured: {
+              isView: false,
+            },
+          },
+        };
+      }
+      return beneficiaryItem;
+    });
+  }
+};
 
 // 验证表单必填
 const validate = (isTrial) => {

@@ -151,6 +151,9 @@ const dealModelValue = (val) => {
     } else {
       state.date = val as string;
     }
+  } else {
+    state.date = val;
+    state.fieldValue = val;
   }
 };
 

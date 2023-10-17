@@ -28,7 +28,7 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Dialog } from 'vant';
+import { Dialog, Toast } from 'vant';
 import { listProductQuestionnaire } from '@/api/modules/product';
 import { getQuestionAnswerDetail } from '@/api/modules/inform';
 import ProFilePreview from '@/components/ProFilePreview/index.vue';
@@ -114,6 +114,11 @@ const getQuestionInfo = async (params) => {
     const productQuestionnaireVOList = questionList.filter(
       (question) => question.businessType === QUESTION_OBJECT_TYPE.NEW_CONTRACT && question.noticeObject !== -1,
     );
+
+    if (!productQuestionnaireVOList?.length) {
+      Toast('未匹配到健康告知问卷');
+    }
+
     healthQuestionList.value = productQuestionnaireVOList;
     let questionInfo = productQuestionnaireVOList[0] || {};
     if (productQuestionnaireVOList?.length > 1) {

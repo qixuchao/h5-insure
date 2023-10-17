@@ -19,11 +19,12 @@
   </ProRenderFormWithCard>
 </template>
 <script lang="ts" setup name="BeneficiaryItem">
+import { Toast } from 'vant';
 import { withDefaults } from 'vue';
 import merge from 'lodash-es/merge';
 import isEqual from 'lodash-es/isEqual';
 import cloneDeep from 'lodash-es/cloneDeep';
-import { ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
+import { ATTACHMENT_OBJECT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import {
   type SchemaItem,
   type PersonFormProps,
@@ -42,6 +43,7 @@ interface Props {
   isView: boolean;
   isTrial: boolean;
   title: string;
+  holderPersonVO: any;
 }
 
 const emit = defineEmits(['update:modelValue', 'trailChange']);
@@ -55,6 +57,7 @@ const props = withDefaults(defineProps<Props>(), {
   isView: false,
   isTrial: false,
   title: '受益人',
+  holderPersonVO: () => ({}),
 });
 
 interface StateInfo extends PersonFormProps {
@@ -85,6 +88,25 @@ const validate = (isTrial) => {
   return validateForm(formRef, props.trialFactorCodes, isTrial);
 };
 
+// 如果受益人的信息与投保人的五要素有两个以上相同的信息，提示
+const isSameHolder = () => {
+  // 如果已经是同投保人了，则不需要再去提示
+  if (`${state.personVO.isHolder}` === `${YES_NO_ENUM.YES}`) {
+    return false;
+  }
+  const collection =
+    Object.keys(state.personVO).filter((key) => {
+      if (['gender', 'birthday', 'certType', 'certNo', 'name'].includes(key)) {
+        if (`${state.personVO?.[key]}` === `${props?.holderPersonVO?.[key]}`) {
+          return true;
+        }
+      }
+      return false;
+    }) || [];
+
+  return collection.length >= 2;
+};
+
 watch(
   () => props.config,
   (val) => {
@@ -112,11 +134,11 @@ watch(
 );
 
 watch(
-  () => props.modelValue,
+  () => cloneDeep(props.modelValue),
   (val, oldVal) => {
     if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
-      colorConsole('受益人数据变动了');
-      Object.assign(state.personVO, val);
+      colorConsole('受益人数据变动了', val);
+      state.personVO = { ...val };
     }
   },
   {
@@ -128,8 +150,10 @@ watch(
 watch(
   () => state.personVO,
   (val) => {
-    // debugger;
     if (val) {
+      if (isSameHolder()) {
+        Toast('录入的受益人同投保人基本信息，请勾选“同投保人');
+      }
       emit('update:modelValue', val);
     }
   },
