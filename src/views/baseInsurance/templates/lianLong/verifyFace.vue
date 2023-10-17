@@ -25,21 +25,11 @@ const router = useRouter();
 const { isFirst, tenantId, objectType, orderNo, biz_id, nextPageCode } = route.query;
 const orderDetail = sessionStorage.get(`${LIAN_STORAGE_KEY}_orderDetail`);
 
+const userInfo = ref();
+
 // 跳转第三方人脸识别页面
 const goFaceVerify = () => {
-  const { holder, insuredList } = orderDetail;
-  let userInfo = {
-    userName: holder.name,
-    certiNo: holder.certNo,
-  };
-  if (objectType === 'insured') {
-    userInfo = {
-      userName: insuredList?.[0].name,
-      certiNo: insuredList?.[0].certNo,
-    };
-  }
-
-  const { userName, certiNo } = userInfo;
+  const { userName, certiNo, certType } = userInfo.value;
 
   const params = {
     tenantId,
@@ -48,6 +38,7 @@ const goFaceVerify = () => {
     bizNo: orderNo,
     userName,
     certiNo,
+    certType,
   };
   faceVerify(params).then(({ code, data }) => {
     if (code === '10000') {
@@ -57,7 +48,16 @@ const goFaceVerify = () => {
 };
 
 const getFaceVerifyResult = () => {
-  queryFaceVerifyResult({ bizId: biz_id }).then(({ code, data }) => {
+  const { userName, objectId, certType } = userInfo.value;
+  const params = {
+    bizId: biz_id,
+    certType,
+    objectId,
+    objectType: `${objectType}`.toLocaleUpperCase(),
+    orderNo,
+    tenantId,
+  };
+  queryFaceVerifyResult(params).then(({ code, data }) => {
     if (code === '10000') {
       if (data.status === 'SUCCESS') {
         delete route.query.biz_id;
@@ -72,6 +72,24 @@ const getFaceVerifyResult = () => {
 };
 
 onBeforeMount(() => {
+  const { holder, insuredList } = orderDetail;
+  if (objectType === 'holder') {
+    const { name, certNo, certType, id } = holder;
+    userInfo.value = {
+      userName: name,
+      certiNo: certNo,
+      certType,
+      objectId: id,
+    };
+  } else {
+    const { name, certNo, certType, id } = insuredList?.[0] || {};
+    userInfo.value = {
+      userName: name,
+      certiNo: certNo,
+      certType,
+      objectId: id,
+    };
+  }
   if (isFirst === '1') {
     goFaceVerify();
   }

@@ -40,3 +40,8 @@ export const PAGE_ROUTE_ENUMS = {
   orderTrajectory: '/orderTrajectory', // 订单轨迹
   customerDetail: '/customerDetail', // 客户详情
 };
+
+export const MESSAGE_TYPE_ENUM = {
+  AGENT: 1, // 发送到代理人端
+  HOLDER: 2, // 发送给客户端
+};

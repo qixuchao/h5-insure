@@ -20,10 +20,11 @@ export const faceVerify = (data: any) => {
 };
 
 // 获取人脸识别结果
-export const queryFaceVerifyResult = (params) =>
-  request({
-    url: 'api/app/insure/insurance/customerFaceResult',
-    params,
+export const queryFaceVerifyResult = (data = {}) =>
+  request<{ status: string; statusDesc: string }>({
+    url: 'api/app/insure/insurance/customerFaceResultV2',
+    method: 'POST',
+    data,
   });
 
 export const faceVerifySave = (data: any) => {

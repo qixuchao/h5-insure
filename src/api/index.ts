@@ -109,3 +109,19 @@ export const queryLianAgentInfo = (data) =>
     method: 'POST',
     data,
   });
+
+// 推送消息到利安app
+export const sendMessageToLian = (data) =>
+  request<boolean>({
+    url: '/api/app/insure/insurance/sendAppMessage',
+    method: 'POST',
+    data,
+  });
+
+// 订单状态回滚
+export const rollbackEditOrder = (data) =>
+  request({
+    url: '/api/app/insure/insurance/rollbackEditOrder',
+    method: 'POST',
+    data,
+  });

@@ -47,6 +47,8 @@ import { ALERT_TYPE_ENUM } from '@/common/constants';
 import { offlineReview } from '@/api/modules/verify';
 import { localStore } from '@/hooks/useStorage';
 import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
+import { sendMessageToLian as sendMessage, rollbackEditOrder } from '@/api';
+import { MESSAGE_TYPE_ENUM } from './constants.ts';
 
 const underWriteMap = {
   [ALERT_TYPE_ENUM.SIGN_FAIL]: {
@@ -86,8 +88,14 @@ const canceledOrder = (cb) => {
   cancelOrder({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       Toast('撤单成功');
-
-      cb?.();
+      rollbackEditOrder({
+        orderNo,
+        tenantId,
+      }).then(({ code: c }) => {
+        if (c === '10000') {
+          cb?.();
+        }
+      });
     }
   });
 };
@@ -99,9 +107,17 @@ const handleUpdate = () => {
 
 // 继续投保跳转至认证页
 const handleInsure = () => {
-  router.push({
-    path: PAGE_ROUTE_ENUMS.sign,
-    query: route.query,
+  sendMessage({
+    messageType: MESSAGE_TYPE_ENUM.AGENT,
+    orderNo,
+    tenantId,
+  }).then(({ code }) => {
+    if (code === '10000') {
+      router.push({
+        path: PAGE_ROUTE_ENUMS.sign,
+        query: route.query,
+      });
+    }
   });
 };
 

@@ -9,10 +9,11 @@
 import { withDefaults } from 'vue';
 import { useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
-import { PAGE_ROUTE_ENUMS } from '@/views/baseInsurance/templates/lianLong/constants';
+import { PAGE_ROUTE_ENUMS, MESSAGE_TYPE_ENUM } from '@/views/baseInsurance/templates/lianLong/constants';
 import { shareWeiXin } from '@/utils/lianSDK';
 import { SHARE_CONTENT } from '@/common/constants/lian';
 import { NOTICE_TYPE_MAP, SEX_LIMIT_MAP } from '@/common/constants';
+import { sendMessageToLian as sendMessage } from '@/api';
 
 const router = useRouter();
 const route = useRoute();
@@ -51,7 +52,7 @@ const isUpdateBankInfo = computed<boolean>(() => {
 
 // 去处理
 const handleDeal = () => {
-  const { orderStatus, orderNo } = props.detail;
+  const { orderStatus, orderNo, insurerCode } = props.detail;
   let path = PAGE_ROUTE_ENUMS.sign;
 
   // 待信息采集页面跳转信息采集页
@@ -59,12 +60,22 @@ const handleDeal = () => {
     path = PAGE_ROUTE_ENUMS.infoCollection;
   }
 
-  router.push({
-    path,
-    query: {
-      tenantId,
-      orderNo,
-    },
+  sendMessage({
+    messageType: MESSAGE_TYPE_ENUM.AGENT,
+    orderNo,
+    tenantId,
+  }).then(({ code }) => {
+    if (code === '10000') {
+      router.push({
+        path,
+        query: {
+          ...route.query,
+          tenantId,
+          orderNo,
+          insurerCode,
+        },
+      });
+    }
   });
 };
 

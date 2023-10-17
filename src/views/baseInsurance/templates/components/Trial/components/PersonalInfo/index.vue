@@ -341,6 +341,7 @@ const setCustomerToPerson = (value) => {
 const validateTrialFields = () => {
   const insuredFlag = !insuredFormRef.value || insuredFormRef.value?.every((item) => item.validateTrialFields());
   const holderFlag = !holderFormRef.value || validateFields(state.holder);
+  console.log('insuredFlag', insuredFlag, holderFlag);
   return holderFlag && insuredFlag;
 };
 
@@ -483,7 +484,7 @@ watch(
 
     const [holder, insuredList] = val;
     // 试算因子的值是否变动
-    // const trialDataChanged = isTrialDataChange([holder, insuredList], oldVal);
+    const trialDataChanged = isTrialDataChange([holder, insuredList], oldVal);
 
     // colorConsole(`投被保人信息变动了---${trialDataChanged}`);
     const { insuredList: insuredListProps } = props.modelValue;
@@ -526,7 +527,7 @@ watch(
         state.trialValidated = true;
         // 只有试算因子数据变动才调用试算
         // 试算时投被保人分开不需要多次试算
-        if (!props.isOnlyHolder) {
+        if (!props.isOnlyHolder && trialDataChanged) {
           emit('trailChange', result);
         }
       })
@@ -534,7 +535,7 @@ watch(
         state.trialValidated = false;
         emit('trailValidateFailed', result);
       });
-  }, 0),
+  }, 200),
   {
     deep: true,
   },

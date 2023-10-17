@@ -103,7 +103,6 @@ const state = ref({
 });
 
 const signLiabilityClick = (item, index) => {
-  console.log('---click ', item, index);
   state.value.signLiabilityClick.push({
     item,
     index,
@@ -360,7 +359,6 @@ watch(
       state.value.signLiabilityClick = [];
       (props?.dataSource?.riskLiabilityInfoVOList || []).forEach((item, index) => {
         const targetLia = v?.liabilityList.find((li) => li.liabilityCode === item.liabilityCode);
-        console.log('--target lia = ', targetLia);
         // state.value.isCheckList[index] = '2';
         if (targetLia) {
           state.value.isCheckList[index] = '1';

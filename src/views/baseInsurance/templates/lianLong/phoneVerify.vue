@@ -79,56 +79,19 @@ const formData = ref({
   verifyCode: '',
 });
 const formRef = ref();
-
-const getDetail = () => {
-  getTenantOrderDetail({
-    orderNo: orderCode || orderNo,
-    tenantId,
-  }).then(({ code, data }) => {
-    if (code === '10000') {
-      Object.assign(orderDetail.value, data);
-      if (objectType === 'holder') {
-        formData.value.mobile = data.holder.mobile;
-      } else {
-        formData.value.mobile = data.insured?.[0]?.mobile;
-      }
-    }
-  });
-};
-
-// 跳转第三方人脸识别页面
-const goFaceVerify = () => {
-  const { holder, insuredList } = orderDetail.value;
-  let userInfo = {
-    userName: holder.name,
-    certiNo: holder.certNo,
-  };
-  if (objectType === 'insured') {
-    userInfo = {
-      userName: insuredList?.[0].name,
-      certiNo: insuredList?.[0].certNo,
-    };
-  }
-
-  const { userName, certiNo } = userInfo;
-
-  const params = {
-    tenantId,
-    faceAuthMode: 'TENCENT',
-    callbackUrl: window.location.href,
-    bizNo: orderNo,
-    userName,
-    certiNo,
-  };
-  faceVerify(params).then(({ code, data }) => {
-    if (code === '10000') {
-      window.location.href = data.originalUrl;
-    }
-  });
-};
+const userInfo = ref();
 
 const getFaceVerifyResult = () => {
-  queryFaceVerifyResult({ bizId: biz_id }).then(({ code, data }) => {
+  const { objectId, certType } = userInfo.value;
+  const params = {
+    bizId: biz_id,
+    certType,
+    objectId,
+    objectType: `${objectType}`.toLocaleUpperCase(),
+    orderNo,
+    tenantId,
+  };
+  queryFaceVerifyResult(params).then(({ code, data }) => {
     if (code === '10000') {
       if (data.status === 'SUCCESS') {
         delete route.query.biz_id;
@@ -142,6 +105,61 @@ const getFaceVerifyResult = () => {
   });
 };
 
+const getDetail = () => {
+  getTenantOrderDetail({
+    orderNo: orderCode || orderNo,
+    tenantId,
+  }).then(({ code, data }) => {
+    if (code === '10000') {
+      Object.assign(orderDetail.value, data);
+      const { holder, insuredList } = data;
+      if (objectType === 'holder') {
+        const { name, certNo, certType, id, mobile } = holder;
+        formData.value.mobile = mobile;
+        userInfo.value = {
+          userName: name,
+          certiNo: certNo,
+          certType,
+          objectId: id,
+        };
+      } else {
+        const { name, certNo, certType, id, mobile } = insuredList?.[0] || {};
+        formData.value.mobile = mobile;
+        userInfo.value = {
+          userName: name,
+          certiNo: certNo,
+          certType,
+          objectId: id,
+        };
+      }
+
+      if (biz_id) {
+        getFaceVerifyResult();
+      }
+    }
+  });
+};
+
+// 跳转第三方人脸识别页面
+const goFaceVerify = () => {
+  const { userName, certiNo, certType } = userInfo.value;
+
+  const params = {
+    tenantId,
+    faceAuthMode: 'TENCENT',
+    callbackUrl: window.location.href,
+    bizNo: orderNo,
+    userName,
+    certiNo,
+    certType,
+  };
+  faceVerify(params).then(({ code, data }) => {
+    if (code === '10000') {
+      window.location.href = data.originalUrl;
+    }
+  });
+};
+
 const handleSubmit = () => {
   formRef.value?.validate?.().then(() => {
     goFaceVerify();
@@ -150,9 +168,6 @@ const handleSubmit = () => {
 
 onMounted(() => {
   getDetail();
-  if (biz_id) {
-    getFaceVerifyResult();
-  }
 });
 </script>
 

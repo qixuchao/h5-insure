@@ -469,7 +469,6 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
           break;
         }
       }
-      console.log('2342432');
       const persionVo = state.submitData?.insuredVOList?.[0].personVO;
       const riskInfo = props.dataSource?.insureProductRiskVOList?.find((r) => r.riskCode === data.riskCode);
       if (!state.isAutoChange) {

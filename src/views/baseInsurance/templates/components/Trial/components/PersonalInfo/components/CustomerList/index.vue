@@ -2156,12 +2156,9 @@ const getData = async (params: { [key: string]: string }) => {
 };
 
 onBeforeMount(() => {
-  console.log('111122');
   getData({ keyword: '' });
 });
-onMounted(() => {
-  console.log('3333');
-});
+onMounted(() => {});
 // 搜索
 const handleSearch = () => {
   getData({ keyword: state.keyword });

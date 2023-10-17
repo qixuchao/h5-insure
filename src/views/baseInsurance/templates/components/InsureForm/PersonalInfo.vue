@@ -613,7 +613,7 @@ const [isShowOccupational, toggleOccupational] = useToggle();
 const { insurerCode = '' } = useRoute().query;
 const emits = defineEmits(['update:images']);
 const occupationCode = useDicData(`${(insurerCode as string).toLocaleUpperCase()}_OCCUPATION`); // 职业
-const region = useDicData('NATIONAL_REGION_CODE'); // 全国区域编码
+const region = useDicData(`${(insurerCode as string).toLocaleUpperCase()}_NATIONAL_REGION_CODE`); // 全国区域编码
 const tempImages = ref<string[]>([]);
 const isIdCard = ref(false);
 const certNoRef = ref<HTMLElement>();
@@ -860,7 +860,6 @@ const validatePositiveInteger = (value: string, rule: any) => {
 };
 
 const validateAddressLen = (value: string, rule: any) => {
-  console.log('value', value);
   if (value.length >= 5 && value.length <= 99) {
     return '';
   }

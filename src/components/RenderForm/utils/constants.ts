@@ -10,7 +10,7 @@ import { checkCode, sendCode } from '@/api/modules/phoneVerify';
  * 获取保司 code, 通用处理，此处无法使用 useRoute
  * @returns
  */
-const getInsurerCodeFormUrl = () => (window.location.search.match(/&|\?insurerCode=([^&]*)&/) || [])[1] || '';
+const getInsurerCodeFormUrl = () => (window.location.search.match(/insurerCode=([^&]*)/) || [])[1] || '';
 
 /**
  * 合并职业  dictCode
