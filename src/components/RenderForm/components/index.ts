@@ -1,6 +1,7 @@
 export { default as ProRenderForm } from './ProRenderForm.vue';
 export { default as ProFieldV2 } from './ProFieldV2.vue';
 export { default as ProRadioV2 } from './ProRadioV2.vue';
+export { default as ProCheckboxV2 } from './ProCheckboxV2.vue';
 export { default as ProPickerV2 } from './ProPickerV2.vue';
 export { default as ProSwitchV2 } from './ProSwitchV2.vue';
 export { default as ProCalendarV2 } from './ProCalendarV2.vue';

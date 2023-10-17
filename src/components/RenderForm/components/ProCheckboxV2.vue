@@ -4,7 +4,7 @@
       <ValueView v-if="isView" :value="fieldValueView" />
       <template v-else>
         <template v-if="isButtonType">
-          <ProCheckButton
+          <!-- <ProCheckButton
             v-for="column in state.columns"
             :key="column.value"
             :label="column.text"
@@ -12,16 +12,22 @@
             :activated="state.modelValue == column.value"
             :icon-name="column.iconName"
             @click="onClick(column)"
-          />
+          /> -->
         </template>
-        <van-checkbox-group v-else v-model="state.modelValue" v-bind="attrs" :disabled="disabled">
+        <van-checkbox-group
+          v-else
+          v-model="state.modelValue"
+          v-bind="attrs"
+          :disabled="disabled"
+          @change="handleChange"
+        >
           <van-checkbox
             v-for="column in state.columns"
             :key="column.value"
             :name="column.value"
             v-bind="column"
             :disabled="disabled"
-            >{{ column.label }}</van-checkbox
+            >{{ column.text }}</van-checkbox
           >
         </van-checkbox-group>
       </template>
@@ -117,7 +123,7 @@ const fieldValueView = computed(() => {
   return (state.columns.find((column) => String(column.value) === String(state.modelValue)) || {}).text || '';
 });
 
-const handleSelect = (value) => {
+const handleChange = (value) => {
   // if (formState?.formData && filedAttrs.value.name) {
   //   formState.formData[filedAttrs.value.name] = value;
   // }
@@ -126,16 +132,10 @@ const handleSelect = (value) => {
   emit('change', value);
 };
 
-const onClick = ({ disabled: dis, value }: Column) => {
-  if (!((attrs.value as RadioAttrs).disabled || dis || props.disabled)) {
-    handleSelect(value);
-  }
-};
-
 watch(
   () => props.modelValue,
   (val) => {
-    state.modelValue = val;
+    state.modelValue = val || [];
   },
   {
     immediate: true,
@@ -146,7 +146,7 @@ watch(
   () => formState.formData?.[filedAttrs.value.name],
   (val) => {
     if (val === undefined && state.modelValue !== undefined) return;
-    state.modelValue = val as string | number;
+    state.modelValue = val || [];
   },
   {
     immediate: true,
@@ -167,7 +167,7 @@ watch(
       const [{ disabled, value }] = state.columns;
       // 默认选中第一项（是否可选）
       if (props.isDefaultSelected && !disabled && (isNil(props.modelValue) || props.modelValue === '')) {
-        handleSelect(value);
+        // handleSelect(value);
       }
     }
   },
@@ -183,10 +183,19 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.com-van-radio-wrap {
+.com-van-checkbox-wrap {
   :deep(.van-field__control--custom) {
     flex-flow: wrap;
     justify-content: flex-end;
+    .van-checkbox-group {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      .van-checkbox {
+        margin: 0 0 10px 10px;
+      }
+    }
   }
   .com-check-btn {
     margin: 8px 16px 8px 0;
