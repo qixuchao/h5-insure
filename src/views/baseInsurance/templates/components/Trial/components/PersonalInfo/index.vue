@@ -449,7 +449,7 @@ watch(
 
     merge(state.holder.config, tempConfig);
     return false;
-  }, 300),
+  }, 0),
 );
 
 // 验证是否试算
@@ -520,7 +520,6 @@ watch(
       state.trialValidated = false;
       return emit('trailValidateFailed', result);
     }
-    console.log('trialIng');
     validate(true)
       .then(() => {
         console.log('trialEnd');
@@ -535,7 +534,7 @@ watch(
         state.trialValidated = false;
         emit('trailValidateFailed', result);
       });
-  }, 500),
+  }, 0),
   {
     deep: true,
   },
@@ -716,7 +715,7 @@ watch(
         return res;
       }, state.insured) as InsuredListProps;
     },
-    500,
+    0,
   ),
   {
     deep: true,

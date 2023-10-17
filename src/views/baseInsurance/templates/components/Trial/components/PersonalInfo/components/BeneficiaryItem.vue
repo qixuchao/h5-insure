@@ -134,10 +134,10 @@ watch(
 );
 
 watch(
-  () => props.modelValue,
+  () => cloneDeep(props.modelValue),
   (val, oldVal) => {
     if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
-      colorConsole('受益人数据变动了');
+      colorConsole('受益人数据变动了', val);
       state.personVO = { ...val };
     }
   },

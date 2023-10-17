@@ -3,7 +3,7 @@
     <template #input>
       <CustomInput
         :name="name"
-        :model-value="modelValue"
+        :model-value="currentModelValue"
         :is-view="isView"
         :field-value-view="fieldValueView"
         :placeholder="$attrs.placeholder"
@@ -51,6 +51,8 @@ const props = defineProps({
 
 // 非默认 slots
 const noValueViewSlots = computed(() => Object.keys(slots).filter((key) => key !== 'value-view'));
+
+const currentModelValue = computed(() => props.modelValue);
 </script>
 <style lang="scss">
 .van-cell.com-form-item {
