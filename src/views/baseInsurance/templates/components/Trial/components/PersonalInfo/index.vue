@@ -18,6 +18,9 @@
       <div v-if="canShowCustomerIcon" class="choose-customer" @click="chooseCustomers('holder', 1, 0)">
         <ProSvg name="customer" color="#333" />
       </div>
+      <div style="position: fixed; z-index: 100; top: 0; left: 165px; color: pink; text-align: center">
+        top:{{ Math.ceil(y) }}
+      </div>
     </template>
   </ProRenderFormWithCard>
   <!-- 被保人 -->
@@ -287,14 +290,14 @@ const insureKeys = () => {
 // 将客户信息设置到对应的人
 const setCustomerToPerson = (value) => {
   const keys = insureKeys();
-  keys.push('certEndType', 'age');
+  keys.push('certEndType', 'age', 'gender');
   const selectedCustomer = transformCustomerToPerson(value, keys);
   console.log(state.currentType, '的keys:', keys, '转换后的客户信息:', selectedCustomer);
   if (state.currentType === 'holder') {
-    Object.assign(state?.holder?.personVO || {}, selectedCustomer);
+    console.log('当前是投保人选信息state?.holder:', state?.holder);
+    Object.assign(state?.holder?.personVO, selectedCustomer);
     emit('update-bank', value.bankCardInfo);
-  }
-  if (state.currentType === 'insured') {
+  } else if (state.currentType === 'insured') {
     // 被保人中关系是否有本人
     const hasInsuredRelationSlef = state?.insured[state.currentIndex]?.schema.some((item) => {
       if (item.name === 'relationToHolder') {
@@ -317,7 +320,7 @@ const setCustomerToPerson = (value) => {
     Object.assign(state?.insured[state.currentIndex]?.personVO || {}, selectedCustomer);
   }
   //  受益人
-  if (state.currentType === 'benifit') {
+  else if (state.currentType === 'benifit') {
     // 五要素判断和被保人相同 受益人信息不同步
     if (isSamePersonByFiveFactor(state?.insured[state.currentIndex]?.personVO, selectedCustomer)) {
       Toast('指定受益人不可为被保人本人');
@@ -333,7 +336,7 @@ const setCustomerToPerson = (value) => {
     }
   }
   // 监护人
-  if (state.currentType === 'guardian') {
+  else if (state.currentType === 'guardian') {
     Object.assign(state?.insured[state.currentIndex]?.guardian?.personVO || {}, selectedCustomer);
   }
 };
@@ -751,11 +754,13 @@ onDeactivated(() => {
 onActivated(() => {
   const tempCust = getCusomterData();
   const tempPersonal = getPersonalPageData();
-  state.currentType = route.query.selectedType || state.currentType;
+  state.currentType = (route.query.selectedType as string) || state.currentType;
+  console.log('onActivated:', tempPersonal);
   if (tempPersonal) {
     state.currentIndex = tempPersonal.currentIndex;
     state.currentBenifitIndex = tempPersonal.currentBenifitIndex;
     document.documentElement.scrollTo(0, tempPersonal.scrollTop);
+    document.body.scrollTop = tempPersonal.scrollTop; // 兼容微信滚动
     clearPersonalPageData();
   }
   if (tempCust) {
