@@ -125,7 +125,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
 import { nextStepOperate as nextStep } from '../../nextStep';
 import { ProFieldV2, ProSMSCode, ProRenderForm } from '@/components/RenderForm/components';
-import { sendMessageToLian as sendMessage, checkSMSCode } from '@/components/RenderForm/utils/constants';
+import { checkSMSCode } from '@/components/RenderForm/utils/constants';
 import CheckCodePopup from './components/CheckCodePopup.vue';
 import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
 import { pickProductRiskCodeFromOrder } from './utils';
@@ -140,6 +140,7 @@ import { useSessionStorage } from '@/hooks/useStorage';
 import { LIAN_STORAGE_KEY, SHARE_CONTENT } from '@/common/constants/lian';
 import { shareWeiXin } from '@/utils/lianSDK';
 import { MESSAGE_TYPE_ENUM } from './constants.ts';
+import { sendMessageToLian as sendMessage } from '@/api';
 
 const sessionStorage = useSessionStorage();
 const route = useRoute();
