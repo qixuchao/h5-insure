@@ -120,7 +120,7 @@ const isButtonType = computed(() => props.type === 'button');
 
 // 查看模式值
 const fieldValueView = computed(() => {
-  return (state.columns.find((column) => String(column.value) === String(state.modelValue)) || {}).text || '';
+  return state.columns.filter((column) => state.modelValue.includes(column.value)).map((item) => item.text) || '';
 });
 
 const handleChange = (value) => {
@@ -163,12 +163,6 @@ watch(
         text: item[props.customFieldName.text],
         value: item[props.customFieldName.value],
       }));
-
-      const [{ disabled, value }] = state.columns;
-      // 默认选中第一项（是否可选）
-      if (props.isDefaultSelected && !disabled && (isNil(props.modelValue) || props.modelValue === '')) {
-        // handleSelect(value);
-      }
     }
   },
   {

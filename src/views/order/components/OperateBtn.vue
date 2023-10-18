@@ -14,6 +14,7 @@ import { shareWeiXin } from '@/utils/lianSDK';
 import { SHARE_CONTENT } from '@/common/constants/lian';
 import { NOTICE_TYPE_MAP, SEX_LIMIT_MAP } from '@/common/constants';
 import { sendMessageToLian as sendMessage } from '@/api';
+import { cancelOrder } from '@/api/modules/order';
 
 const router = useRouter();
 const route = useRoute();
@@ -111,11 +112,18 @@ const handleReturn = () => {
     });
     return;
   }
-
-  Dialog.confirm({
-    message: '确认取消当前订单？',
-  }).then(() => {
-    handleShare('holder');
+  cancelOrder({
+    tenantId,
+    orderNo,
+    type: 1,
+  }).then(({ code, data }) => {
+    if (code === '10000') {
+      Dialog.confirm({
+        message: '确认取消当前订单？',
+      }).then(() => {
+        handleShare('holder');
+      });
+    }
   });
 };
 
