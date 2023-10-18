@@ -1,9 +1,10 @@
 <template>
-  <van-config-provider :theme-vars="themeVars">
-    <!-- <ProPageWrap main-class="page-order-list"> -->
-    <div class="page-order">
-      <ProTab v-model:active="active" :list="tabList" class="tab" title-active-color="#c41e21" />
-      <van-list v-if="list.length" class="body" :loading="loading" :finished="finished" @load="handleLoad">
+  <!-- <van-config-provider :theme-vars="themeVars"> -->
+  <!-- <ProPageWrap main-class="page-order-list"> -->
+  <div class="page-order">
+    <ProTab v-model:active="active" :list="tabList" class="tab" title-active-color="#c41e21" />
+    <van-pull-refresh v-model="freshLoading" @refresh="handleAfterDelete">
+      <van-list v-if="list.length" v-model:loading="loading" class="body" :finished="finished" @load="handleLoad">
         <Item
           v-for="(item, index) in list"
           :key="index"
@@ -11,17 +12,17 @@
           @click="handleClick(item)"
           @after-delete="handleAfterDelete"
         />
-        <div class="footer">
-          <img src="@/assets/images/component/logo.png" alt="" style="width: 100%; height: 128px" />
-        </div>
+        <!-- <div class="footer">
+        <img src="@/assets/images/component/logo.png" alt="" style="width: 100%; height: 128px" />
+      </div> -->
       </van-list>
       <div v-else class="empty-box">
-        <!-- <ProEmpty title="试算前请完善投保信息" empty-class="empty-select" /> -->
         <ProEmpty title="暂无投保单" empty-class="empty-select" />
       </div>
-    </div>
-    <!-- </ProPageWrap> -->
-  </van-config-provider>
+    </van-pull-refresh>
+  </div>
+  <!-- </ProPageWrap> -->
+  <!-- </van-config-provider> -->
 </template>
 
 <script lang="ts" setup>
@@ -57,6 +58,7 @@ const active = ref(typeToActive[type] || 0);
 
 const pageNum = ref(1);
 const loading = ref(false);
+const freshLoading = ref(false);
 const finished = ref(false);
 const list = ref<Array<OrderItem>>([]);
 const invalidNum = ref(0);
@@ -107,16 +109,21 @@ const getData = () => {
     pageNum: pageNum.value,
   })
     .then((res) => {
-      loading.value = false;
       const { code, data } = res;
       if (code === '10000' && data) {
+        loading.value = false;
+        freshLoading.value = false;
+
         if (pageNum.value === 1) {
           list.value = data.datas || [];
         } else {
-          list.value = [...list.value, ...(data.datas[0]?.applicationResList || [])];
+          list.value = list.value.concat(data.datas || []);
+        }
+
+        if (data.datas.length < 10) {
+          finished.value = true;
         }
       }
-      finished.value = !data || list.value.length >= data?.total;
     })
     .then(() => {
       Toast.clear();
@@ -151,13 +158,12 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .page-order {
-  height: 100%;
   display: flex;
   flex-direction: column;
   background: #f4f5f9;
   .body {
     flex: 1;
-    height: 0;
+    height: 100%;
     overflow-y: auto;
     background: $zaui-global-bg;
     padding: 30px;

@@ -185,6 +185,7 @@ export const RULE_TYPE_ENUM = {
   BUSINESS_LICENSE: 'businessLicense',
   /** 银行卡号 */
   BAND_CARD: 'bandCard',
+  TEMPORARY_CARD: 'temporaryCard',
 };
 
 /** 规则配置 */

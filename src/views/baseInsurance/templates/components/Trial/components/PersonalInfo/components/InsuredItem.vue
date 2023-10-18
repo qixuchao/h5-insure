@@ -331,6 +331,9 @@ const setNonageValue = (holderPerson) => {
     if (state.schema.find((schema) => schema.name === 'mobile')) {
       updateData.mobile = holderPerson?.mobile || '';
     }
+    if (state.schema.find((schema) => schema.name === 'personalAnnualIncome')) {
+      updateData.personalAnnualIncome = '0';
+    }
     if (state.schema.find((schema) => schema.name === 'annuallyComeList')) {
       updateData.annuallyComeList = ['7'];
       updateData.annuallyComeDesc = '无';

@@ -1,111 +1,114 @@
 <template>
   <div class="page-verify-wrap">
     <ProNavigator />
-    <div class="sign-list">
-      <van-cell v-if="isShowItem('agent')" title="代理人签名" :required="isRequired('agent')">
-        <template #value>
-          <div class="inner-cell">
-            <van-cell
-              is-link
-              :value="VERIFY_STATUS_MAP[signPartInfo.agent.verifyStatus]"
-              @click="checkMobile('agent')"
-            ></van-cell>
-          </div>
+    <van-pull-refresh v-model="loading" @refresh="initData">
+      <div class="sign-list">
+        <van-cell v-if="isShowItem('agent')" title="代理人签名" :required="isRequired('agent')">
+          <template #value>
+            <div class="inner-cell">
+              <van-cell
+                is-link
+                :value="VERIFY_STATUS_MAP[signPartInfo.agent.verifyStatus]"
+                @click="checkMobile('agent')"
+              ></van-cell>
+            </div>
+          </template>
+        </van-cell>
+        <template v-if="!needBMOS">
+          <van-cell v-if="isShowItem('holder')" title="投保人签名" :required="isRequired('holder')">
+            <template #value>
+              <div class="inner-cell">
+                <van-cell
+                  v-if="isShareSing('holder')"
+                  :value-class="`${isDisabled ? 'disable' : ''}`"
+                  is-link
+                  value="分享空签邀约"
+                  @click="handleShare('holder')"
+                ></van-cell>
+                <van-cell
+                  is-link
+                  :value="VERIFY_STATUS_MAP[signPartInfo.holder.verifyStatus]"
+                  :value-class="`${isDisabled ? 'disable' : ''}`"
+                  @click="checkMobile('holder')"
+                ></van-cell>
+              </div>
+            </template>
+          </van-cell>
+          <van-cell v-if="isShowItem('insured') && isShowInsured" title="被保人签名" :required="isRequired('insured')">
+            <template #value>
+              <div class="inner-cell">
+                <van-cell
+                  v-if="isShareSing('insured')"
+                  :value-class="`${isDisabled ? 'disable' : ''}`"
+                  is-link
+                  value="分享空签邀约"
+                  @click="handleShare('insured')"
+                ></van-cell>
+                <van-cell
+                  is-link
+                  :value-class="`${isDisabled ? 'disable' : ''}`"
+                  :value="VERIFY_STATUS_MAP[signPartInfo.insured.verifyStatus]"
+                  @click="checkMobile('insured')"
+                ></van-cell>
+              </div>
+            </template>
+          </van-cell>
         </template>
-      </van-cell>
-      <template v-if="!needBMOS">
-        <van-cell v-if="isShowItem('holder')" title="投保人签名" :required="isRequired('holder')">
-          <template #value>
-            <div class="inner-cell">
-              <van-cell
-                v-if="isShareSing('holder')"
-                :value-class="`${isDisabled ? 'disable' : ''}`"
-                is-link
-                value="分享空签邀约"
-                @click="handleShare('holder')"
-              ></van-cell>
-              <van-cell
-                is-link
-                :value="VERIFY_STATUS_MAP[signPartInfo.holder.verifyStatus]"
-                :value-class="`${isDisabled ? 'disable' : ''}`"
-                @click="checkMobile('holder')"
-              ></van-cell>
-            </div>
-          </template>
-        </van-cell>
-        <van-cell v-if="isShowItem('insured') && isShowInsured" title="被保人签名" :required="isRequired('insured')">
-          <template #value>
-            <div class="inner-cell">
-              <van-cell
-                v-if="isShareSing('insured')"
-                :value-class="`${isDisabled ? 'disable' : ''}`"
-                is-link
-                value="分享空签邀约"
-                @click="handleShare('insured')"
-              ></van-cell>
-              <van-cell
-                is-link
-                :value-class="`${isDisabled ? 'disable' : ''}`"
-                :value="VERIFY_STATUS_MAP[signPartInfo.insured.verifyStatus]"
-                @click="checkMobile('insured')"
-              ></van-cell>
-            </div>
-          </template>
-        </van-cell>
-      </template>
-      <ProRenderForm v-else ref="formRef" validate-method="toast" :model="formData">
-        <ProFieldV2
-          v-model="formData.holderMobile"
-          label="投保人手机号"
-          name="holderMobile"
-          maxlength="11"
-          required
-          is-view
-        ></ProFieldV2>
-        <ProSMSCode
-          v-model="formData.holderVerifyCode"
-          related-name="holderMobile"
-          label="验证码"
-          maxlength="6"
-          name="holderVerifyCode"
-          :send-s-m-s-code="sendSMSCode"
-          :check-s-m-s-code="checkSMSCode"
-          required
-        ></ProSMSCode>
-        <template v-if="isShowInsured">
+        <ProRenderForm v-else ref="formRef" validate-method="toast" :model="formData">
           <ProFieldV2
-            v-model="formData.insuredMobile"
-            label="被保人手机号"
-            name="insuredMobile"
+            v-model="formData.holderMobile"
+            label="投保人手机号"
+            name="holderMobile"
             maxlength="11"
             required
             is-view
           ></ProFieldV2>
           <ProSMSCode
-            v-model="formData.insuredVerifyCode"
+            v-model="formData.holderVerifyCode"
+            related-name="holderMobile"
             label="验证码"
             maxlength="6"
-            name="insuredVerifyCode"
-            related-name="insuredMobile"
+            name="holderVerifyCode"
             :send-s-m-s-code="sendSMSCode"
             :check-s-m-s-code="checkSMSCode"
             required
           ></ProSMSCode>
-        </template>
-      </ProRenderForm>
-      <van-cell v-if="needBMOS" title="保单双录" required>
-        <template #value>
-          <div class="inner-cell">
-            <van-cell
-              is-link
-              :value-class="`${isDisabled ? 'disable' : ''}`"
-              :value="DUAL_STATUS_MAP[BMOSStatus]"
-              @click="handleDMOS"
-            ></van-cell>
-          </div>
-        </template>
-      </van-cell>
-    </div>
+          <template v-if="isShowInsured">
+            <ProFieldV2
+              v-model="formData.insuredMobile"
+              label="被保人手机号"
+              name="insuredMobile"
+              maxlength="11"
+              required
+              is-view
+            ></ProFieldV2>
+            <ProSMSCode
+              v-model="formData.insuredVerifyCode"
+              label="验证码"
+              maxlength="6"
+              name="insuredVerifyCode"
+              related-name="insuredMobile"
+              :send-s-m-s-code="sendSMSCode"
+              :check-s-m-s-code="checkSMSCode"
+              required
+            ></ProSMSCode>
+          </template>
+        </ProRenderForm>
+        <van-cell v-if="needBMOS" title="保单双录" required>
+          <template #value>
+            <div class="inner-cell">
+              <van-cell
+                is-link
+                :value-class="`${isDisabled ? 'disable' : ''}`"
+                :value="DUAL_STATUS_MAP[BMOSStatus]"
+                @click="handleDMOS"
+              ></van-cell>
+            </div>
+          </template>
+        </van-cell>
+      </div>
+    </van-pull-refresh>
+
     <div class="footer-button">
       <van-button type="primary" @click="onNext">下一步</van-button>
     </div>
@@ -152,6 +155,7 @@ const { orderNo, tenantId } = route.query;
 const needBMOS = ref<boolean>(false);
 // 双录状态
 const BMOSStatus = ref<number>();
+const loading = ref<boolean>(false);
 
 const formRef = ref();
 const formData = ref({
@@ -388,6 +392,7 @@ const initData = async () => {
       });
     }
   });
+  loading.value = false;
 };
 
 const onNext = async () => {
@@ -435,7 +440,11 @@ onMounted(() => {
 
 <style lang="scss">
 .page-verify-wrap {
+  .van-pull-refresh__track {
+    height: 100vh;
+  }
   .sign-list {
+    height: 100%;
     .van-cell {
       align-items: center;
       &.van-cell--required {

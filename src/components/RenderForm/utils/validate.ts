@@ -158,6 +158,8 @@ export const validatorMap = {
   [RULE_TYPE_ENUM.ALPHABET_NUMBER]: [RegMap.isAlphabetNumber],
   /** 身份证 */
   [RULE_TYPE_ENUM.CERT]: [RegMap.isIdCardNo],
+  /** 临时身份证 */
+  [RULE_TYPE_ENUM.TEMPORARY_CARD]: [RegMap.isIdCardNo],
   /** 户口本 */
   [RULE_TYPE_ENUM.HOUSE_HOLD]: [RegMap.isHouseHold],
   /** 出生证 */
