@@ -125,7 +125,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
 import { nextStepOperate as nextStep } from '../../nextStep';
 import { ProFieldV2, ProSMSCode, ProRenderForm } from '@/components/RenderForm/components';
-import { checkSMSCode } from '@/components/RenderForm/utils/constants';
+import { checkSMSCode, sendSMSCode } from '@/components/RenderForm/utils/constants';
 import CheckCodePopup from './components/CheckCodePopup.vue';
 import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
 import { pickProductRiskCodeFromOrder } from './utils';
