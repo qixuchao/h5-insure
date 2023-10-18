@@ -329,10 +329,6 @@ const setCustomerToPerson = (value) => {
         state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO || {},
         selectedCustomer,
       );
-      console.log(
-        '合并后的受益人',
-        state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO,
-      );
     }
   }
   // 监护人

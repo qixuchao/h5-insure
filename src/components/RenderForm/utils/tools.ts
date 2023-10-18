@@ -729,12 +729,19 @@ export const relatedConfigMap = {
       }
     },
   },
-  annuallyComeList: {
+  annuallyComeDesc: {
     onChangeEffect: (val, formState) => {
       if (val?.length && val.includes('7')) {
         Object.assign(formState.config, {
           annuallyComeDesc: {
             visible: true,
+          },
+        });
+      } else {
+        Object.assign(formState.config, {
+          annuallyComeDesc: {
+            visible: false,
+            required: false,
           },
         });
       }

@@ -41,7 +41,7 @@ import { type RadioGroupProps } from 'vant';
 import isNil from 'lodash-es/isNil';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { useAttrsAndSlots } from '../hooks';
-import { VAN_PRO_FORM_KEY } from '../utils';
+import { VAN_PRO_FORM_KEY, relatedConfigMap } from '../utils';
 import ValueView from './ProFormItem/ValueView.vue';
 import ProFieldV2 from './ProFieldV2.vue';
 
@@ -104,6 +104,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  relatedName: {
+    type: String,
+    default: '',
+  },
 });
 
 const emit = defineEmits(['update:modelValue', 'change']);
@@ -123,10 +127,18 @@ const fieldValueView = computed(() => {
   return state.columns.filter((column) => state.modelValue.includes(column.value)).map((item) => item.text) || '';
 });
 
+const onEffect = (type, val) => {
+  if (props.relatedName && type) {
+    const effectFn = (relatedConfigMap[props.relatedName] || {})[`${type}Effect`];
+    typeof effectFn === 'function' && effectFn(val, formState);
+  }
+};
+
 const handleChange = (value) => {
   // if (formState?.formData && filedAttrs.value.name) {
   //   formState.formData[filedAttrs.value.name] = value;
   // }
+  onEffect('onChange', value);
   state.modelValue = value;
   emit('update:modelValue', value);
   emit('change', value);

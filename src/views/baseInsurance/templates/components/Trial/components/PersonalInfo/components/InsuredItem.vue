@@ -88,7 +88,7 @@
 </template>
 <script lang="ts" setup name="InsuredItem">
 import { withDefaults } from 'vue';
-import { Dialog } from 'vant';
+import { Dialog, Toast } from 'vant';
 import { nanoid } from 'nanoid';
 import cloneDeep from 'lodash-es/cloneDeep';
 import merge from 'lodash-es/merge';
@@ -217,7 +217,6 @@ const disHolderData = (personVO = {}) => {
     }
     return da;
   }, mergeData);
-  console.log('mergeData', mergeData);
   return mergeData;
 };
 
@@ -250,6 +249,9 @@ const holderToBeneficial = (index: number) => {
               isView: false,
             },
             relationToInsured: {
+              isView: false,
+            },
+            beneficiaryType: {
               isView: false,
             },
           },
@@ -322,6 +324,22 @@ const validateTrialFields = () => {
   });
 };
 
+// 给未成年人设置手机号和收入来源
+const setNonageValue = (holderPerson) => {
+  const updateData = {};
+  if (state.personVO?.age < 18) {
+    if (state.schema.find((schema) => schema.name === 'mobile')) {
+      updateData.mobile = holderPerson?.mobile || '';
+    }
+    if (state.schema.find((schema) => schema.name === 'annuallyComeList')) {
+      updateData.annuallyComeList = ['7'];
+      updateData.annuallyComeDesc = '无';
+    }
+  }
+
+  Object.assign(state.personVO, updateData);
+};
+
 // 监听投保人信息
 watch(
   () => props.holderPersonVO,
@@ -352,12 +370,26 @@ watch(
       }));
 
       Object.assign(state.personVO, tempData, { certImage });
+    } else {
+      setNonageValue(val);
     }
   }, 300),
   {
     deep: true,
     immediate: true,
   },
+);
+
+watch(
+  [() => props.holderPersonVO?.familyAnnualIncome, () => state.personVO?.familyAnnualIncome],
+  debounce(([holderIncome, insuredIncome], [oldHolder, oldInsured]) => {
+    if (
+      (holderIncome !== oldHolder && (+holderIncome).toFixed().length > 5) ||
+      (insuredIncome !== oldInsured && (+insuredIncome).toFixed().length > 5)
+    ) {
+      Toast('请核实年收入是否准确');
+    }
+  }, 300),
 );
 
 /** 筛选受益人类型 */

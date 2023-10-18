@@ -509,6 +509,9 @@ export const GLOBAL_CONFIG_MAP = {
   email: {
     ruleType: RULE_TYPE_ENUM.EMAIL,
   },
+  annuallyComeList: {
+    relatedName: 'annuallyComeDesc',
+  },
   personalAnnualIncome: RULE_CONFIG_MAP.INCOME,
   familyAnnualIncome: RULE_CONFIG_MAP.INCOME,
   workZipCode: RULE_CONFIG_MAP.ZIP_CODE,

@@ -24,6 +24,7 @@ import { withDefaults } from 'vue';
 import merge from 'lodash-es/merge';
 import isEqual from 'lodash-es/isEqual';
 import cloneDeep from 'lodash-es/cloneDeep';
+import { debounce } from 'lodash-es';
 import { ATTACHMENT_OBJECT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import {
   type SchemaItem,
@@ -138,7 +139,7 @@ watch(
   (val, oldVal) => {
     if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
       colorConsole('受益人数据变动了', val);
-      state.personVO = { ...val };
+      Object.assign(state.personVO, val);
     }
   },
   {
@@ -154,9 +155,37 @@ watch(
       if (isSameHolder()) {
         Toast('录入的受益人同投保人基本信息，请勾选“同投保人');
       }
+
       emit('update:modelValue', val);
     }
   },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+// 给未成年人设置手机号和收入来源
+const setNonageValue = (holderPerson) => {
+  const updateData = {};
+  if (state.personVO?.age < 18) {
+    if (state.schema.find((schema) => schema.name === 'mobile')) {
+      updateData.mobile = holderPerson?.mobile || '';
+    }
+    if (state.schema.find((schema) => schema.name === 'annuallyComeList')) {
+      updateData.annuallyComeList = ['7'];
+      updateData.annuallyComeDesc = '无';
+    }
+  }
+
+  Object.assign(state.personVO, updateData);
+};
+
+watch(
+  () => props.holderPersonVO,
+  debounce((val) => {
+    setNonageValue(val);
+  }, 300),
   {
     deep: true,
     immediate: true,
