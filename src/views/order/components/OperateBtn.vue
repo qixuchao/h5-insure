@@ -81,7 +81,7 @@ const handleDeal = () => {
 };
 
 const handleShare = (type) => {
-  const { holderName, holderGender, orderId, orderNo } = props.detail || {};
+  const { holderName, holderGender, orderId, orderNo, insurerCode } = props.detail || {};
   const userInfo = {
     name: holderName,
     gender: `${SEX_LIMIT_MAP[holderGender]}士`,
@@ -91,7 +91,7 @@ const handleShare = (type) => {
     shareType: 0,
     title: `${SHARE_CONTENT.cancel.title}`,
     desc: SHARE_CONTENT.cancel.desc.replace('{name}', `${userInfo.name}${userInfo.gender},`),
-    url: `${window.location.href}&objectType=${type}&isShare=1&orderNo=${orderNo}&orderId=${orderId}&nextPageCode=orderDetail`.replace(
+    url: `${window.location.href}&objectType=${type}&insurerCode=${insurerCode}&isShare=1&orderNo=${orderNo}&orderId=${orderId}&nextPageCode=orderDetail`.replace(
       /\/orderDetail|\/order/,
       '/baseInsurance/long/phoneVerify',
     ),
@@ -129,13 +129,14 @@ const handleReturn = () => {
 
 // 修改银行卡信息
 const handleUpdateBank = () => {
-  const { orderNo, orderId } = props.detail;
+  const { orderNo, orderId, insurerCode } = props.detail;
   router.push({
     path: PAGE_ROUTE_ENUMS.updateBankInfo,
     query: {
       tenantId,
       orderNo,
       orderId,
+      insurerCode,
       nextPageCode: 'orderDetail',
     },
   });

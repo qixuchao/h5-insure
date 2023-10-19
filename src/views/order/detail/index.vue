@@ -22,14 +22,14 @@
         />
         <InfoItem label="创建时间" :content="detail?.orderDate" line min-width="other" />
         <InfoItem label="投保时间" :content="detail?.applicationCreateDate" line min-width="other" />
-        <InfoItem label="投保保费" :content="detail?.orderAmount" line min-width="other" />
-        <InfoItem label="承保保费" :content="detail?.orderAmount" line min-width="other" />
+        <InfoItem label="投保保费" :content="transformToMoney(detail?.orderAmount)" line min-width="other" />
+        <InfoItem label="承保保费" :content="transformToMoney(detail?.orderAmount)" line min-width="other" />
       </div>
       <div class="card card-list">
         <div class="card-list-head">
           <div class="card-list-title">险种信息</div>
           <div class="card-list-premium">
-            首年保费：<span>{{ detail?.orderAmount }}</span>
+            首年保费：<span>{{ transformToMoney(detail?.orderAmount) }}</span>
           </div>
         </div>
         <ProTable
@@ -168,6 +168,7 @@ import PersonalInfo from '../../baseInsurance/templates/components/Trial/compone
 import { QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE } from '@/common/constants/notice';
 import { getFileType } from '@/views/baseInsurance/utils';
 import OperateBtn from '../components/OperateBtn.vue';
+import { transformToMoney } from '@/utils/format';
 
 const themeVars = useTheme();
 const route = useRoute();
@@ -186,7 +187,7 @@ const columns = [
     dataIndex: 'initialAmount',
     width: 180,
     render(row: any, index: number) {
-      return row.initialAmount / (row.copy || 1);
+      return transformToMoney(row.initialAmount / (row.copy || 1));
     },
   },
   {
@@ -204,7 +205,7 @@ const columns = [
     dataIndex: 'initialPremium',
     width: 180,
     render(row: any, index: number) {
-      return row.initialPremium;
+      return transformToMoney(row.initialPremium);
     },
   },
 ];

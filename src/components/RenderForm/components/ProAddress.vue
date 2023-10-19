@@ -22,7 +22,14 @@
     type="textarea"
     :label="`${$attrs.label}详细地址`"
     :required="$attrs.required"
-    :maxlength="50"
+    :rules="[
+      { required: $attrs.required, message: '请输入详细地址' },
+      {
+        validator,
+        trigger: 'onBlur',
+      },
+    ]"
+    :maxlength="100"
   />
 </template>
 <script lang="ts" setup name="ProAddress">
@@ -85,6 +92,13 @@ const props = defineProps({
 const dealValueKey = (key: string) => {
   if (typeof key === 'string' && key) {
     return props.valuePrefix ? `${props.valuePrefix}${upperFirstLetter(key)}` : key;
+  }
+  return '';
+};
+
+const validator = (val) => {
+  if (!/^(?=.\d)(?!.[<>"&])[^<>"&]{5,}(?:号|室|队|院|房|楼|栋|幢|座组)$/.test(val)) {
+    return '详细地址必须包含：号/室/队/院/房/楼/栋/幢/座组”必须包含至少一位数字';
   }
   return '';
 };

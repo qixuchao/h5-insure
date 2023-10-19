@@ -16,8 +16,14 @@ export const formatJsonToUrlParams = (data: instanceObject) => {
     : '';
 };
 
-export const transformToMoney = (num?: number | string) => {
-  return num ? String(num).replace(/\B(?=(\d{3})+$)/g, ',') : '';
+export const transformToMoney = (num?: number, currency = 'CNY') => {
+  const formattedNumber = new Intl.NumberFormat('zh-cn', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(num);
+  return num !== null ? formattedNumber : '';
 };
 
 // 保障期间

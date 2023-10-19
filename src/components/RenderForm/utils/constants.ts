@@ -19,7 +19,6 @@ const getInsurerCodeFormUrl = () => (window.location.search.match(/insurerCode=(
  */
 export const combineDictCode = (() => {
   const insurerCode = getInsurerCodeFormUrl();
-  console.log('insurerCode', insurerCode);
   return (dictCode: string) => `${insurerCode ? `${insurerCode.toUpperCase()}_` : ''}${dictCode}`;
 })();
 

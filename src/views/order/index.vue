@@ -93,8 +93,8 @@ const currentStatus = computed(() => {
 });
 
 const handleClick = (item: OrderItem) => {
-  const { orderNo } = item;
-  pageJump('orderDetail', { orderNo, agentCode, tenantId });
+  const { orderNo, insurerCode } = item;
+  pageJump('orderDetail', { orderNo, agentCode, tenantId, insurerCode });
 };
 
 const getData = () => {
