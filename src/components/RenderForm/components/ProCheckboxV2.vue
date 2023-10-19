@@ -124,7 +124,12 @@ const isButtonType = computed(() => props.type === 'button');
 
 // 查看模式值
 const fieldValueView = computed(() => {
-  return state.columns.filter((column) => state.modelValue.includes(column.value)).map((item) => item.text) || '';
+  return (
+    state.columns
+      .filter((column) => state.modelValue.includes(column.value))
+      .map((item) => item.text)
+      .join('、') || ''
+  );
 });
 
 const onEffect = (type, val) => {
