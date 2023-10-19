@@ -94,7 +94,7 @@
             ></ProSMSCode>
           </template>
         </ProRenderForm>
-        <van-cell v-if="!needBMOS" title="保单双录" required>
+        <van-cell v-if="needBMOS" title="保单双录" required>
           <template #value>
             <div class="inner-cell">
               <van-cell
@@ -139,9 +139,9 @@ import { VERIFY_STATUS_MAP, DUAL_STATUS_MAP, DUAL_STATUS_ENUM } from '@/common/c
 import { CERT_TYPE_ENUM, NOTICE_TYPE_MAP, PAGE_ACTION_TYPE_ENUM, YES_NO_ENUM, SEX_LIMIT_MAP } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
 import { dualUploadFiles, queryDualStatus } from '@/api/modules/verify';
-import { useSessionStorage } from '@/hooks/useStorage';
+import { useSessionStorage, localStore } from '@/hooks/useStorage';
 import { LIAN_STORAGE_KEY, SHARE_CONTENT } from '@/common/constants/lian';
-import SDK, { shareWeiXin, pullUpApp, checkAppIsInstalled } from '@/utils/lianSDK';
+import SDK, { shareWeiXin, pullUpApp, checkAppIsInstalled, getDeviceInfo } from '@/utils/lianSDK';
 import { MESSAGE_TYPE_ENUM } from './constants.ts';
 import { sendMessageToLian as sendMessage } from '@/api';
 
@@ -172,6 +172,7 @@ const requiredType = ref<any>({
   verify: [],
   scribing: '',
 });
+const schemaUrl = ref('');
 
 const signPartInfo = ref({
   holder: {
@@ -277,21 +278,20 @@ const checkMobile = (type: 'agent' | 'holder' | 'insured') => {
 
 // 去双录
 const handleDMOS = () => {
-  // if (isDisabled.value || BMOSStatus.value === DUAL_STATUS_ENUM.DUAL_SUCCESS) {
-  //   return;
-  // }
-
-  checkAppIsInstalled(
-    'com.situ.lian://shuanglu?jsonParams=%7B%22agentNo%22%3A%22AGENT8848%22%2C%22data%22%3A%22SITU9527%22%2C%22orderSource%22%3A%221%22%2C%22systemSource%22%3A%224%22%7D',
-  );
-  pullUpApp(
-    'com.situ.lian://shuanglu?jsonParams=%7B%22agentNo%22%3A%22AGENT8848%22%2C%22data%22%3A%22SITU9527%22%2C%22orderSource%22%3A%221%22%2C%22systemSource%22%3A%224%22%7D',
-  );
+  if (isDisabled.value || BMOSStatus.value === DUAL_STATUS_ENUM.DUAL_SUCCESS) {
+    return;
+  }
 
   dualUploadFiles(orderDetail.value).then(({ code, data }) => {
     if (code === '10000') {
       if (data) {
-        Toast('双录已完成');
+        if (schemaUrl.value) {
+          checkAppIsInstalled(schemaUrl).then((info) => {
+            if (info.isInstall === YES_NO_ENUM.YES) {
+              pullUpApp(schemaUrl);
+            }
+          });
+        }
       }
     }
   });
@@ -332,11 +332,20 @@ const handleConfirm = () => {
 
 const initData = async () => {
   let productRiskMap = {};
+  const deviceInfo = localStore.get(`${LIAN_STORAGE_KEY}_deviceInfo`);
+
   queryDualStatus({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       const { doubleRecordFlag, doubleRecordStatus } = data;
       needBMOS.value = doubleRecordFlag === YES_NO_ENUM.YES;
       BMOSStatus.value = doubleRecordStatus;
+
+      if (deviceInfo) {
+        schemaUrl.value = data.andUrl || '';
+        if (deviceInfo.platform === 'iOS') {
+          schemaUrl.value = data.iosUrl || '';
+        }
+      }
     }
   });
   await getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
