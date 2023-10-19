@@ -236,6 +236,11 @@ export const RULE_CONFIG_MAP = {
     ruleType: RULE_TYPE_ENUM.ZIP_CODE,
     maxlength: INPUT_MAX_LENGTH.SIX,
   },
+  FAMILY_ZIP_CODE: {
+    type: 'digit',
+    ruleType: RULE_TYPE_ENUM.ZIP_CODE,
+    maxlength: INPUT_MAX_LENGTH.SIX,
+  },
   /**
    * 内容 最长200个汉字
    */
@@ -516,6 +521,7 @@ export const GLOBAL_CONFIG_MAP = {
   familyAnnualIncome: RULE_CONFIG_MAP.INCOME,
   workZipCode: RULE_CONFIG_MAP.ZIP_CODE,
   homePostalCode: RULE_CONFIG_MAP.ZIP_CODE,
+  familyZipCode: RULE_CONFIG_MAP.FAMILY_ZIP_CODE,
   // 内容
   workContent: RULE_CONFIG_MAP.CONTENT,
   // 燃气户号
