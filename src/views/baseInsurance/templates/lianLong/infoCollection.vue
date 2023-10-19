@@ -567,7 +567,7 @@ onBeforeMount(() => {
 onMounted(() => {
   timer = setInterval(() => {
     handleCache();
-  }, 3000);
+  }, 30000);
 });
 
 onBeforeUnmount(() => {
