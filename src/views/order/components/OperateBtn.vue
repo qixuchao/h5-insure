@@ -47,8 +47,8 @@ const isReturnOrder = computed<boolean>(() => {
 // 银行卡修改按钮展示权限
 const isUpdateBankInfo = computed<boolean>(() => {
   const { orderStatus } = props.detail;
-  // 转线下支付
-  return orderStatus === 'offlinePayment';
+  // 转线下支付, 人工核保中，支付失败
+  return ['offlinePayment', 'manualUnderWriting', 'paymentFailed'].includes(orderStatus);
 });
 
 // 去处理

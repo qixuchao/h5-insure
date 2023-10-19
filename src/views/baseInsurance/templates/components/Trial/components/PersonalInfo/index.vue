@@ -534,7 +534,7 @@ watch(
         state.trialValidated = false;
         emit('trailValidateFailed', result);
       });
-  }, 200),
+  }, 0),
   {
     deep: true,
   },
@@ -628,7 +628,6 @@ watch(
       const { holder, insuredList = [] } = props.modelValue;
       const tempInsuredList = isNotEmptyArray(insuredList)
         ? insuredList.map((item) => {
-            console.log('beneficiaryList', filterFormData(item.beneficiaryList?.[0]));
             return {
               config: item.config,
               personVO: filterFormData(item),

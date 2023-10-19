@@ -72,6 +72,7 @@
                 v-model="beneficiary.personVO.isHolder"
                 :active-value="1"
                 :inactive-value="2"
+                :disabled="isSameHolder"
                 @click="() => holderToBeneficial(index)"
                 >同投保人</van-switch
               >
@@ -190,6 +191,8 @@ const state = reactive<Partial<StateInfo>>({
   guardianSchema: [],
   guardian: {},
 });
+
+const isSameHolder = ref<boolean>(false);
 
 // 被保人同投保人关系非父母时，被保人年龄小于18岁则需要监护人信息
 const isShowGuardian = computed<boolean>(() => {
@@ -358,6 +361,7 @@ watch(
     // 若为本人合并投保人数据
     if (String(state.personVO?.relationToHolder) === '1') {
       // 过滤投被保人相同要素，保留证件相关的，预防关系为本人时，仅被保人有的字段被清空,后端给了null
+      isSameHolder.value = true;
       const tempData = isNotEmptyArray(isSelfInsuredNeedCods.value)
         ? Object.keys(holderPersonVO).reduce((res, key: string) => {
             if (

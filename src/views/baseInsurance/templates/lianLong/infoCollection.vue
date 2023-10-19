@@ -158,6 +158,7 @@ const {
 } = route.query as QueryData;
 
 let extInfo: any = {};
+let timer = null;
 
 try {
   extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
@@ -371,6 +372,7 @@ const onNext = async () => {
       Dialog.confirm({
         message: msgList?.[0],
       }).then(() => {
+        clearInterval(timer);
         nextStep(
           currentOrderDetail,
           (data, pageAction) => {
@@ -382,6 +384,8 @@ const onNext = async () => {
         );
       });
     } else {
+      clearInterval(timer);
+
       nextStep(
         currentOrderDetail,
         (data, pageAction) => {
@@ -560,11 +564,10 @@ onBeforeMount(() => {
   initData();
 });
 
-let timer = null;
 onMounted(() => {
   timer = setInterval(() => {
     handleCache();
-  }, 30000);
+  }, 3000);
 });
 
 onBeforeUnmount(() => {
