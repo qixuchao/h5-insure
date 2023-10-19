@@ -102,6 +102,27 @@ export const closeWebView = () => {
   SDK('closeWebView', {}, () => {});
 };
 
+// 检查app是否安装
+export const checkAppIsInstalled = (url) => {
+  return new Promise((resolve, reject) => {
+    SDK('checkIsInstallApp', { scheme: url }, (info) => {
+      window.alert(JSON.stringify(info));
+      console.log('checkIsInstallApp', info);
+      resolve(info);
+    });
+  });
+};
+
+// 通过schemaLink唤起app
+export const pullUpApp = (url) => {
+  return new Promise((resolve, reject) => {
+    SDK('pullUpApp', { scheme: url }, (info) => {
+      console.log('pullUpApp', JSON.stringify(info));
+      resolve(info);
+    });
+  });
+};
+
 // 识别身份证
 export const detectIdCard = () => {
   return new Promise((resolve, reject) => {

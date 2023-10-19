@@ -94,7 +94,7 @@
             ></ProSMSCode>
           </template>
         </ProRenderForm>
-        <van-cell v-if="needBMOS" title="保单双录" required>
+        <van-cell v-if="!needBMOS" title="保单双录" required>
           <template #value>
             <div class="inner-cell">
               <van-cell
@@ -141,7 +141,7 @@ import pageJump from '@/utils/pageJump';
 import { dualUploadFiles, queryDualStatus } from '@/api/modules/verify';
 import { useSessionStorage } from '@/hooks/useStorage';
 import { LIAN_STORAGE_KEY, SHARE_CONTENT } from '@/common/constants/lian';
-import { shareWeiXin } from '@/utils/lianSDK';
+import SDK, { shareWeiXin, pullUpApp, checkAppIsInstalled } from '@/utils/lianSDK';
 import { MESSAGE_TYPE_ENUM } from './constants.ts';
 import { sendMessageToLian as sendMessage } from '@/api';
 
@@ -281,13 +281,20 @@ const handleDMOS = () => {
     return;
   }
 
-  dualUploadFiles(orderDetail.value).then(({ code, data }) => {
-    if (code === '10000') {
-      if (data) {
-        Toast('双录已完成');
-      }
-    }
-  });
+  checkAppIsInstalled(
+    'com.situ.lian://shuanglu?jsonParams=%7B%22agentNo%22%3A%22AGENT8848%22%2C%22data%22%3A%22SITU9527%22%2C%22orderSource%22%3A%221%22%2C%22systemSource%22%3A%224%22%7D',
+  );
+  pullUpApp(
+    'com.situ.lian://shuanglu?jsonParams=%7B%22agentNo%22%3A%22AGENT8848%22%2C%22data%22%3A%22SITU9527%22%2C%22orderSource%22%3A%221%22%2C%22systemSource%22%3A%224%22%7D',
+  );
+
+  // dualUploadFiles(orderDetail.value).then(({ code, data }) => {
+  //   if (code === '10000') {
+  //     if (data) {
+  //       Toast('双录已完成');
+  //     }
+  //   }
+  // });
 };
 
 const handleCancel = () => {
