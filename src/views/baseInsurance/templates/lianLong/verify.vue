@@ -277,9 +277,9 @@ const checkMobile = (type: 'agent' | 'holder' | 'insured') => {
 
 // 去双录
 const handleDMOS = () => {
-  if (isDisabled.value || BMOSStatus.value === DUAL_STATUS_ENUM.DUAL_SUCCESS) {
-    return;
-  }
+  // if (isDisabled.value || BMOSStatus.value === DUAL_STATUS_ENUM.DUAL_SUCCESS) {
+  //   return;
+  // }
 
   checkAppIsInstalled(
     'com.situ.lian://shuanglu?jsonParams=%7B%22agentNo%22%3A%22AGENT8848%22%2C%22data%22%3A%22SITU9527%22%2C%22orderSource%22%3A%221%22%2C%22systemSource%22%3A%224%22%7D',
