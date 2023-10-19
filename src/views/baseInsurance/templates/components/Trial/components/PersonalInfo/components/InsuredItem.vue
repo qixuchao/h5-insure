@@ -65,18 +65,22 @@
         <template #customer>
           <slot name="benefitCustomer" :index="index"></slot>
         </template>
-        <div class="operate-wrap">
-          <van-switch
-            v-model="beneficiary.personVO.isHolder"
-            :active-value="1"
-            :inactive-value="2"
-            @click="() => holderToBeneficial(index)"
-            >同投保人</van-switch
-          >
-          <span v-if="index > 0 && !isView" class="delete-button" @click="onDeleteBeneficiary(index)">
-            <ProSvg name="delete"></ProSvg>
-          </span>
-        </div>
+        <template #header-item>
+          <ProFieldV2 label="是否同投保人" input-align="right">
+            <template #input>
+              <van-switch
+                v-model="beneficiary.personVO.isHolder"
+                :active-value="1"
+                :inactive-value="2"
+                @click="() => holderToBeneficial(index)"
+                >同投保人</van-switch
+              >
+            </template>
+          </ProFieldV2>
+        </template>
+        <span v-if="index > 0 && !isView" class="delete-button" @click="onDeleteBeneficiary(index)">
+          <ProSvg name="delete"></ProSvg>
+        </span>
       </BeneficiaryItem>
 
       <span v-if="!isView && addible" class="add-button" @click="onAddBeneficiary"

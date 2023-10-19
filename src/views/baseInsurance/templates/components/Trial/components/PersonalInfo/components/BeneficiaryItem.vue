@@ -13,6 +13,9 @@
     }"
   >
     <template #cardTitleExtra><slot></slot></template>
+    <template #header-item>
+      <slot name="header-item"></slot>
+    </template>
     <template #customer>
       <slot name="customer"></slot>
     </template>
@@ -168,7 +171,7 @@ watch(
 // 给未成年人设置手机号和收入来源
 const setNonageValue = (holderPerson) => {
   const updateData = {};
-  if (state.personVO?.age < 18) {
+  if (state.personVO?.age && state.personVO?.age < 18) {
     if (state.schema.find((schema) => schema.name === 'mobile')) {
       updateData.mobile = holderPerson?.mobile || '';
     }
