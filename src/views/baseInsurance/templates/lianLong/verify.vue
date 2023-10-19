@@ -288,13 +288,13 @@ const handleDMOS = () => {
     'com.situ.lian://shuanglu?jsonParams=%7B%22agentNo%22%3A%22AGENT8848%22%2C%22data%22%3A%22SITU9527%22%2C%22orderSource%22%3A%221%22%2C%22systemSource%22%3A%224%22%7D',
   );
 
-  // dualUploadFiles(orderDetail.value).then(({ code, data }) => {
-  //   if (code === '10000') {
-  //     if (data) {
-  //       Toast('双录已完成');
-  //     }
-  //   }
-  // });
+  dualUploadFiles(orderDetail.value).then(({ code, data }) => {
+    if (code === '10000') {
+      if (data) {
+        Toast('双录已完成');
+      }
+    }
+  });
 };
 
 const handleCancel = () => {
