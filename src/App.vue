@@ -78,14 +78,13 @@ body {
 }
 .router-view {
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   // top: 0;
   // bottom: 0;
   margin: 0 auto;
   -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
 }
 .page {
   background-color: #fff;
