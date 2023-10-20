@@ -85,17 +85,12 @@ const offline = async () => {
 
 // 撤单
 const canceledOrder = (cb) => {
-  cancelOrder({ orderNo, tenantId }).then(({ code, data }) => {
-    if (code === '10000') {
-      Toast('撤单成功');
-      rollbackEditOrder({
-        orderNo,
-        tenantId,
-      }).then(({ code: c }) => {
-        if (c === '10000') {
-          cb?.();
-        }
-      });
+  rollbackEditOrder({
+    orderNo,
+    tenantId,
+  }).then(({ code: c }) => {
+    if (c === '10000') {
+      cb?.();
     }
   });
 };

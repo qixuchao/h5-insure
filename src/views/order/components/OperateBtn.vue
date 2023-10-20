@@ -14,6 +14,7 @@ import { shareWeiXin } from '@/utils/lianSDK';
 import { SHARE_CONTENT } from '@/common/constants/lian';
 import { NOTICE_TYPE_MAP, SEX_LIMIT_MAP } from '@/common/constants';
 import { sendMessageToLian as sendMessage } from '@/api';
+import { cancelOrder } from '@/api/modules/order';
 
 const router = useRouter();
 const route = useRoute();
@@ -46,8 +47,8 @@ const isReturnOrder = computed<boolean>(() => {
 // 银行卡修改按钮展示权限
 const isUpdateBankInfo = computed<boolean>(() => {
   const { orderStatus } = props.detail;
-  // 转线下支付
-  return orderStatus === 'offlinePayment';
+  // 转线下支付, 人工核保中，支付失败
+  return ['offlinePayment', 'manualUnderWriting', 'paymentFailed'].includes(orderStatus);
 });
 
 // 去处理
@@ -80,7 +81,7 @@ const handleDeal = () => {
 };
 
 const handleShare = (type) => {
-  const { holderName, holderGender, orderId, orderNo } = props.detail || {};
+  const { holderName, holderGender, orderId, orderNo, insurerCode } = props.detail || {};
   const userInfo = {
     name: holderName,
     gender: `${SEX_LIMIT_MAP[holderGender]}士`,
@@ -90,7 +91,7 @@ const handleShare = (type) => {
     shareType: 0,
     title: `${SHARE_CONTENT.cancel.title}`,
     desc: SHARE_CONTENT.cancel.desc.replace('{name}', `${userInfo.name}${userInfo.gender},`),
-    url: `${window.location.href}&objectType=${type}&isShare=1&orderNo=${orderNo}&orderId=${orderId}&nextPageCode=orderDetail`.replace(
+    url: `${window.location.href}&objectType=${type}&insurerCode=${insurerCode}&isShare=1&orderNo=${orderNo}&orderId=${orderId}&nextPageCode=orderDetail`.replace(
       /\/orderDetail|\/order/,
       '/baseInsurance/long/phoneVerify',
     ),
@@ -111,23 +112,31 @@ const handleReturn = () => {
     });
     return;
   }
-
-  Dialog.confirm({
-    message: '确认取消当前订单？',
-  }).then(() => {
-    handleShare('holder');
+  cancelOrder({
+    tenantId,
+    orderNo,
+    type: 1,
+  }).then(({ code, data }) => {
+    if (code === '10000') {
+      Dialog.confirm({
+        message: '确认取消当前订单？',
+      }).then(() => {
+        handleShare('holder');
+      });
+    }
   });
 };
 
 // 修改银行卡信息
 const handleUpdateBank = () => {
-  const { orderNo, orderId } = props.detail;
+  const { orderNo, orderId, insurerCode } = props.detail;
   router.push({
     path: PAGE_ROUTE_ENUMS.updateBankInfo,
     query: {
       tenantId,
       orderNo,
       orderId,
+      insurerCode,
       nextPageCode: 'orderDetail',
     },
   });

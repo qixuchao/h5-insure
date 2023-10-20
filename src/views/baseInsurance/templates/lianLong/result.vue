@@ -1,27 +1,29 @@
 <template>
-  <div class="">
+  <div class="page-insure-result">
     <ProNavigator />
-    <div class="page-insure-result-wrap">
-      <div class="header">{{ TEXT_MAP[orderInfo.orderStatus] }}</div>
-      <div class="content">
-        <div class="content-header">
-          <h4 class="product-name">{{ result.productName }}</h4>
-          <span>保障中</span>
+    <van-pull-refresh v-model="loading" @refresh="getOrderDetail">
+      <div class="page-insure-result-wrap">
+        <div class="header">{{ orderInfo.orderStatusDesc }}</div>
+        <div class="content">
+          <div class="content-header">
+            <h4 class="product-name">{{ result.productName }}</h4>
+            <span>保障中</span>
+          </div>
+          <InfoItem label="投保人" :content="result.holderName" line />
+          <InfoItem label="保单号" :content="result.policyNo" line />
+          <!-- <InfoItem label="生效日期" :content="result.holderName" line /> -->
+          <!-- <InfoItem label="保障期间" :content="result.coverage" line /> -->
+          <InfoItem label="保费" :content="result.orderAmount" line />
         </div>
-        <InfoItem label="投保人" :content="result.holderName" line />
-        <InfoItem label="保单号" :content="result.policyNo" line />
-        <!-- <InfoItem label="生效日期" :content="result.holderName" line /> -->
-        <!-- <InfoItem label="保障期间" :content="result.coverage" line /> -->
-        <InfoItem label="保费" :content="result.orderAmount" line />
+        <div class="footer-button">
+          <template v-if="isPayFail">
+            <van-button type="primary" plain @click="handleUpdateBank">变更卡号</van-button>
+            <van-button type="primary" @click="handleOfflinePay">线下扣款</van-button>
+          </template>
+          <van-button v-else block type="primary" @click="handleBack">确定</van-button>
+        </div>
       </div>
-      <div class="footer-button">
-        <template v-if="isPayFail">
-          <van-button type="primary" plain @click="handleUpdateBank">变更卡号</van-button>
-          <van-button type="primary" @click="handleOfflinePay">线下扣款</van-button>
-        </template>
-        <van-button v-else block type="primary" @click="handleBack">返回</van-button>
-      </div>
-    </div>
+    </van-pull-refresh>
   </div>
 </template>
 
@@ -62,6 +64,7 @@ const result = ref<PayResultData>({
 });
 const route = useRoute();
 const router = useRouter();
+const loading = ref<boolean>(false);
 const { orderNo = '', preview, saleUserId = '', tenantId = '', templateId = 1 } = route.query;
 const orderInfo = ref({});
 /** 当前订单支付成功 */
@@ -117,16 +120,14 @@ const handleOfflinePay = () => {
   });
 };
 
-onMounted(() => {
-  if (preview) {
-    return;
-  }
+const getOrderDetail = () => {
   getTenantOrderDetail({
     orderNo,
     tenantId,
   }).then((res) => {
     const { code, data } = res;
     if (code === '10000') {
+      loading.value = false;
       const {
         holder: { name },
         policyNo,
@@ -149,10 +150,21 @@ onMounted(() => {
       };
     }
   });
+};
+
+onMounted(() => {
+  if (preview) {
+    return;
+  }
+
+  getOrderDetail();
 });
 </script>
 
 <style lang="scss" scoped>
+.page-insure-result {
+  min-height: 100%;
+}
 .page-insure-result-wrap {
   width: 100%;
   min-height: calc(100vh - 100px);
@@ -162,7 +174,7 @@ onMounted(() => {
   padding: 0 $zaui-card-border;
   background-color: #f4f5f9;
   .header {
-    margin: 112px 0;
+    padding: 112px 0;
     font-size: 48px;
     font-weight: 600;
     color: #ffffff;

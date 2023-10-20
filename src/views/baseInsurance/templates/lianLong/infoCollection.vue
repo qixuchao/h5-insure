@@ -73,9 +73,6 @@
       :disabled="!trialResult"
       @handle-click="onNext"
       >下一步
-      <template #right>
-        <span @click="handleCache">暂存</span>
-      </template>
     </TrialButton>
   </div>
 </template>
@@ -161,6 +158,7 @@ const {
 } = route.query as QueryData;
 
 let extInfo: any = {};
+let timer = null;
 
 try {
   extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
@@ -374,6 +372,7 @@ const onNext = async () => {
       Dialog.confirm({
         message: msgList?.[0],
       }).then(() => {
+        clearInterval(timer);
         nextStep(
           currentOrderDetail,
           (data, pageAction) => {
@@ -385,6 +384,8 @@ const onNext = async () => {
         );
       });
     } else {
+      clearInterval(timer);
+
       nextStep(
         currentOrderDetail,
         (data, pageAction) => {
@@ -561,6 +562,16 @@ const initData = async () => {
 
 onBeforeMount(() => {
   initData();
+});
+
+onMounted(() => {
+  timer = setInterval(() => {
+    handleCache();
+  }, 30000);
+});
+
+onBeforeUnmount(() => {
+  clearInterval(timer);
 });
 </script>
 

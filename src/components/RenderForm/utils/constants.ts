@@ -19,7 +19,6 @@ const getInsurerCodeFormUrl = () => (window.location.search.match(/insurerCode=(
  */
 export const combineDictCode = (() => {
   const insurerCode = getInsurerCodeFormUrl();
-  console.log('insurerCode', insurerCode);
   return (dictCode: string) => `${insurerCode ? `${insurerCode.toUpperCase()}_` : ''}${dictCode}`;
 })();
 
@@ -185,6 +184,7 @@ export const RULE_TYPE_ENUM = {
   BUSINESS_LICENSE: 'businessLicense',
   /** 银行卡号 */
   BAND_CARD: 'bandCard',
+  TEMPORARY_CARD: 'temporaryCard',
 };
 
 /** 规则配置 */
@@ -232,6 +232,11 @@ export const RULE_CONFIG_MAP = {
    * 邮编/验证码 数字6位，不支持小数
    */
   ZIP_CODE: {
+    type: 'digit',
+    ruleType: RULE_TYPE_ENUM.ZIP_CODE,
+    maxlength: INPUT_MAX_LENGTH.SIX,
+  },
+  FAMILY_ZIP_CODE: {
     type: 'digit',
     ruleType: RULE_TYPE_ENUM.ZIP_CODE,
     maxlength: INPUT_MAX_LENGTH.SIX,
@@ -509,10 +514,14 @@ export const GLOBAL_CONFIG_MAP = {
   email: {
     ruleType: RULE_TYPE_ENUM.EMAIL,
   },
+  annuallyComeList: {
+    relatedName: 'annuallyComeDesc',
+  },
   personalAnnualIncome: RULE_CONFIG_MAP.INCOME,
   familyAnnualIncome: RULE_CONFIG_MAP.INCOME,
   workZipCode: RULE_CONFIG_MAP.ZIP_CODE,
   homePostalCode: RULE_CONFIG_MAP.ZIP_CODE,
+  familyZipCode: RULE_CONFIG_MAP.FAMILY_ZIP_CODE,
   // 内容
   workContent: RULE_CONFIG_MAP.CONTENT,
   // 燃气户号

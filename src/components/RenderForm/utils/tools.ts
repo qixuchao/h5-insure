@@ -700,7 +700,6 @@ export const relatedConfigMap = {
       },
     },
     onChangeEffect: (val, formState) => {
-      console.log('certType', val, formState);
       // 身份证号码/户口簿
       if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(String(formState.formData.certType))) {
         const data = parseCertNo(val);
@@ -725,6 +724,24 @@ export const relatedConfigMap = {
       if (val === '9999-12-31') {
         Object.assign(formState.formData, {
           certEndType: 1,
+        });
+      }
+    },
+  },
+  annuallyComeDesc: {
+    onChangeEffect: (val, formState) => {
+      if (val?.length && val.includes('7')) {
+        Object.assign(formState.config, {
+          annuallyComeDesc: {
+            visible: true,
+          },
+        });
+      } else {
+        Object.assign(formState.config, {
+          annuallyComeDesc: {
+            visible: false,
+            required: false,
+          },
         });
       }
     },

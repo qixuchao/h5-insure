@@ -65,18 +65,23 @@
         <template #customer>
           <slot name="benefitCustomer" :index="index"></slot>
         </template>
-        <div class="operate-wrap">
-          <van-switch
-            v-model="beneficiary.personVO.isHolder"
-            :active-value="1"
-            :inactive-value="2"
-            @click="() => holderToBeneficial(index)"
-            >同投保人</van-switch
-          >
-          <span v-if="index > 0 && !isView" class="delete-button" @click="onDeleteBeneficiary(index)">
-            <ProSvg name="delete"></ProSvg>
-          </span>
-        </div>
+        <template #header-item>
+          <ProFieldV2 label="是否同投保人" input-align="right">
+            <template #input>
+              <van-switch
+                v-model="beneficiary.personVO.isHolder"
+                :active-value="1"
+                :inactive-value="2"
+                :disabled="isSameHolder"
+                @click="() => holderToBeneficial(index)"
+                >同投保人</van-switch
+              >
+            </template>
+          </ProFieldV2>
+        </template>
+        <span v-if="index > 0 && !isView" class="delete-button" @click="onDeleteBeneficiary(index)">
+          <ProSvg name="delete"></ProSvg>
+        </span>
       </BeneficiaryItem>
 
       <span v-if="!isView && addible" class="add-button" @click="onAddBeneficiary"
@@ -88,7 +93,7 @@
 </template>
 <script lang="ts" setup name="InsuredItem">
 import { withDefaults } from 'vue';
-import { Dialog } from 'vant';
+import { Dialog, Toast } from 'vant';
 import { nanoid } from 'nanoid';
 import cloneDeep from 'lodash-es/cloneDeep';
 import merge from 'lodash-es/merge';
@@ -187,6 +192,8 @@ const state = reactive<Partial<StateInfo>>({
   guardian: {},
 });
 
+const isSameHolder = ref<boolean>(false);
+
 // 被保人同投保人关系非父母时，被保人年龄小于18岁则需要监护人信息
 const isShowGuardian = computed<boolean>(() => {
   const { age, relationToHolder } = state.personVO;
@@ -217,7 +224,6 @@ const disHolderData = (personVO = {}) => {
     }
     return da;
   }, mergeData);
-  console.log('mergeData', mergeData);
   return mergeData;
 };
 
@@ -250,6 +256,9 @@ const holderToBeneficial = (index: number) => {
               isView: false,
             },
             relationToInsured: {
+              isView: false,
+            },
+            beneficiaryType: {
               isView: false,
             },
           },
@@ -322,6 +331,25 @@ const validateTrialFields = () => {
   });
 };
 
+// 给未成年人设置手机号和收入来源
+const setNonageValue = (holderPerson) => {
+  const updateData = {};
+  if (state.personVO?.age < 18) {
+    if (state.schema.find((schema) => schema.name === 'mobile')) {
+      updateData.mobile = holderPerson?.mobile || '';
+    }
+    if (state.schema.find((schema) => schema.name === 'personalAnnualIncome')) {
+      updateData.personalAnnualIncome = '0';
+    }
+    if (state.schema.find((schema) => schema.name === 'annuallyComeList')) {
+      updateData.annuallyComeList = ['7'];
+      updateData.annuallyComeDesc = '无';
+    }
+  }
+
+  Object.assign(state.personVO, updateData);
+};
+
 // 监听投保人信息
 watch(
   () => props.holderPersonVO,
@@ -333,6 +361,7 @@ watch(
     // 若为本人合并投保人数据
     if (String(state.personVO?.relationToHolder) === '1') {
       // 过滤投被保人相同要素，保留证件相关的，预防关系为本人时，仅被保人有的字段被清空,后端给了null
+      isSameHolder.value = true;
       const tempData = isNotEmptyArray(isSelfInsuredNeedCods.value)
         ? Object.keys(holderPersonVO).reduce((res, key: string) => {
             if (
@@ -352,12 +381,26 @@ watch(
       }));
 
       Object.assign(state.personVO, tempData, { certImage });
+    } else {
+      setNonageValue(val);
     }
   }, 300),
   {
     deep: true,
     immediate: true,
   },
+);
+
+watch(
+  [() => props.holderPersonVO?.familyAnnualIncome, () => state.personVO?.familyAnnualIncome],
+  debounce(([holderIncome, insuredIncome], [oldHolder, oldInsured]) => {
+    if (
+      (holderIncome !== oldHolder && (+holderIncome).toFixed().length > 5) ||
+      (insuredIncome !== oldInsured && (+insuredIncome).toFixed().length > 5)
+    ) {
+      Toast('请核实年收入是否准确');
+    }
+  }, 300),
 );
 
 /** 筛选受益人类型 */

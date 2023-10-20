@@ -65,6 +65,8 @@ export const CERT_TYPE_ENUM = {
   TAIWAN_RESIDENCE_PERMIT: '10',
   /** 社会信用代码 */
   SOCIAL_CREDIT_CODE: '26',
+  /** 临时身份证 */
+  TEMPORARY_CARD: '30',
 };
 
 export const FLAG_LIST = [

@@ -7,6 +7,7 @@
     <template #extra>
       <slot name="cardTitleExtra" />
     </template>
+    <slot name="header-item"></slot>
     <ProRenderForm ref="renderFormRef" v-bind="$attrs">
       <!-- 继承 slots -->
       <template v-for="slotName in noProCardSlots" :key="slotName" #[slotName]="slotParams">

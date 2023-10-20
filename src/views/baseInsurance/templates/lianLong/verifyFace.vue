@@ -63,7 +63,7 @@ const getFaceVerifyResult = () => {
         delete route.query.biz_id;
         delete route.query.nextPageCode;
         router.push({
-          path: PAGE_ROUTE_ENUMS[`${nextPageCode}`],
+          path: PAGE_ROUTE_ENUMS.infoPreview,
           query: route.query,
         });
       }

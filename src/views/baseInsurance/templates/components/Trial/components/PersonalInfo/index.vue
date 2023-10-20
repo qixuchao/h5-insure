@@ -329,10 +329,6 @@ const setCustomerToPerson = (value) => {
         state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO || {},
         selectedCustomer,
       );
-      console.log(
-        '合并后的受益人',
-        state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO,
-      );
     }
   }
   // 监护人
@@ -538,7 +534,7 @@ watch(
         state.trialValidated = false;
         emit('trailValidateFailed', result);
       });
-  }, 200),
+  }, 0),
   {
     deep: true,
   },
@@ -632,7 +628,6 @@ watch(
       const { holder, insuredList = [] } = props.modelValue;
       const tempInsuredList = isNotEmptyArray(insuredList)
         ? insuredList.map((item) => {
-            console.log('beneficiaryList', filterFormData(item.beneficiaryList?.[0]));
             return {
               config: item.config,
               personVO: filterFormData(item),
