@@ -286,9 +286,9 @@ const handleDMOS = () => {
     if (code === '10000') {
       if (data) {
         if (schemaUrl.value) {
-          checkAppIsInstalled(schemaUrl).then((info) => {
+          checkAppIsInstalled(schemaUrl.value).then((info) => {
             if (info.isInstall === YES_NO_ENUM.YES) {
-              pullUpApp(schemaUrl);
+              pullUpApp(schemaUrl.value);
             }
           });
         }
