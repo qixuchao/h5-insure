@@ -1,0 +1,1 @@
+import{d as a,o as s,c as d,a as e,e as c}from"./index-bfdeed22.js";const t={class:"product-desc-wrap"},o={class:"product-name"},r={class:"product-desc"},p=a({name:"productDesc"}),u=a({...p,props:{dataSource:{default:()=>({})}},setup:a=>(a,p)=>(s(),d("div",t,[e("div",o,c(a.dataSource.title),1),e("p",r,c(a.dataSource.productDesc),1)]))});export{u as default};
