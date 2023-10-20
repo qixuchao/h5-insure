@@ -287,7 +287,7 @@ const handleDMOS = () => {
       if (data) {
         if (schemaUrl.value) {
           checkAppIsInstalled(schemaUrl.value).then((info) => {
-            if (info.isInstall === YES_NO_ENUM.YES) {
+            if (info.isInstall === `${YES_NO_ENUM.YES}`) {
               pullUpApp(schemaUrl.value);
             }
           });
