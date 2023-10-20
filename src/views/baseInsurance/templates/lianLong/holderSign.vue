@@ -206,6 +206,10 @@ const handleSubmit = () => {
                 }),
             ]).then((res1) => {
               if (res1[0].code === '10000') {
+                if (isShare) {
+                  Toast('已完成');
+                  return;
+                }
                 router.push({
                   path: PAGE_ROUTE_ENUMS.sign,
                   query: route.query,

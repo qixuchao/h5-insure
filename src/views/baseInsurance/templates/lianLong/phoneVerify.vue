@@ -98,7 +98,7 @@ const getFaceVerifyResult = () => {
         delete route.query.nextPageCode;
         router.push({
           path: PAGE_ROUTE_ENUMS[`${nextPageCode}`],
-          query: route.query,
+          query: { ...route.query, isShare: 1 },
         });
       }
     }

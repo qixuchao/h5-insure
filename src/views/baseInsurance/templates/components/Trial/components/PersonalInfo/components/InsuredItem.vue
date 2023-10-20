@@ -197,7 +197,7 @@ const isSameHolder = ref<boolean>(false);
 // 被保人同投保人关系非父母时，被保人年龄小于18岁则需要监护人信息
 const isShowGuardian = computed<boolean>(() => {
   const { age, relationToHolder } = state.personVO;
-  if (!['1', '4', '5'].includes(relationToHolder) && age !== null && +age < 18) {
+  if (!['1', '4', '5'].includes(`${relationToHolder}`) && age !== null && +age < 18) {
     return true;
   }
   state.guardian = {};
@@ -330,23 +330,26 @@ const validateTrialFields = () => {
     trialFactorCodes: props.trialFactorCodes,
   });
 };
-
+const isInit = ref(true);
 // 给未成年人设置手机号和收入来源
-const setNonageValue = (holderPerson) => {
+const setNonageValue = (holderPerson, personVO) => {
+  if (!isInit.value) {
+    return;
+  }
   const updateData = {};
-  if (state.personVO?.age < 18) {
+  if (personVO?.age && (+personVO.age || 0) < 18) {
     if (state.schema.find((schema) => schema.name === 'mobile')) {
       updateData.mobile = holderPerson?.mobile || '';
     }
     if (state.schema.find((schema) => schema.name === 'personalAnnualIncome')) {
-      updateData.personalAnnualIncome = '0';
+      state.personVO.personalAnnualIncome = '0';
     }
     if (state.schema.find((schema) => schema.name === 'annuallyComeList')) {
       updateData.annuallyComeList = ['7'];
       updateData.annuallyComeDesc = '无';
     }
   }
-
+  isInit.value = false;
   Object.assign(state.personVO, updateData);
 };
 
@@ -382,7 +385,7 @@ watch(
 
       Object.assign(state.personVO, tempData, { certImage });
     } else {
-      setNonageValue(val);
+      setNonageValue(val, state.personVO);
     }
   }, 300),
   {
@@ -589,10 +592,16 @@ watch(
 );
 
 watch(
-  () => props.modelValue,
+  () => cloneDeep(props.modelValue),
   (val, oldVal) => {
     if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
       const { beneficiaryList, ...rest } = val;
+      console.log('11', val.age, oldVal?.age);
+
+      if (val.age !== oldVal?.age && val.age) {
+        isInit.value = true;
+        // setNonageValue(props.holderPersonVO, val);
+      }
       merge(state.personVO, rest);
     }
   },

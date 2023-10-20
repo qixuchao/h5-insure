@@ -68,6 +68,7 @@ interface QueryData {
   pageCode: string;
   from: string; // from = 'check' 审核版
   preview: string;
+  isShare?: string;
   [key: string]: string;
 }
 
@@ -168,6 +169,10 @@ const handleSubmit = () => {
         tenantId,
       }).then(({ code, data }) => {
         if (code === '10000' && data) {
+          if (isShare) {
+            Toast('已完成');
+            return;
+          }
           router.push({
             path: PAGE_ROUTE_ENUMS.sign,
             query: route.query,

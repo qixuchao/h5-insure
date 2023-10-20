@@ -88,7 +88,12 @@ import {
 import { InsureProductData, ProductPlanInsureVoItem } from '@/api/modules/product.data';
 import { nextStepOperate as nextStep } from '../../nextStep';
 import useAttachment from '@/hooks/useAttachment';
-import { queryListProductMaterial, queryProductMaterial, querySalesInfo } from '@/api/modules/product';
+import {
+  queryListProductMaterial,
+  queryProductMaterial,
+  querySalesInfo,
+  listProductQuestionnaire,
+} from '@/api/modules/product';
 import useOrder from '@/hooks/useOrder';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS } from './constants';
 import PersonalInfo from '../components/Trial/components/PersonalInfo/index.vue';
@@ -99,6 +104,10 @@ import ProShare from '@/components/ProShare/index.vue';
 import { jumpToNextPage, isAppFkq } from '@/utils';
 import { dealMaterialList, pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import InsuranceNotificationInformation from '../../../order/components/insuranceNotificationInformation.vue';
+import { getQuestionAnswerDetail } from '@/api/modules/inform';
+import { QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE } from '@/common/constants/notice';
+import { getFileType } from '@/views/baseInsurance/utils';
+import { OBJECT_TYPE_ENUM, QUESTIONNAIRE_TYPE_ENUM } from '@/common/constants/questionnaire';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 
@@ -215,6 +224,48 @@ const onNext = async () => {
 const personInfo = ref();
 const productFactor = ref();
 const fileList = ref([]);
+
+const getQuestionInfo = async (params) => {
+  let answerList = [];
+  const { code: answerCode, data: answerData } = await getQuestionAnswerDetail({ orderNo, tenantId });
+  if (answerCode === '10000') {
+    answerList = answerData.productQuestionnaireVOList;
+  }
+  const { code, data } = await listProductQuestionnaire(params);
+
+  if (code === '10000') {
+    const { productQuestionnaireVOList: questionList } = data || {};
+
+    // 过滤出风险告知问卷
+    const productQuestionnaireVOList = questionList.filter(
+      (question) => question.businessType !== QUESTION_OBJECT_TYPE.VISIT,
+    );
+
+    state.customerQuestions = productQuestionnaireVOList.map((questionInfo) => {
+      const { questionnaireDetailResponseVO, questionnaireId, questionnaireName } = questionInfo || {};
+      const { questions, basicInfo } = questionnaireDetailResponseVO || {};
+      const { objectType: objType, questionnaireType } = basicInfo || {};
+
+      if (questionnaireType === QUESTIONNAIRE_TYPE_ENUM.TEXT) {
+        const { content, textType } = questions?.[0] || {};
+        return {
+          content,
+          contentType: getFileType(`${textType}`, content),
+          questionnaireId,
+          questionnaireName,
+        };
+      }
+      const currentAnswer = (answerList || []).find((answer) => answer.questionnaireId === questionnaireId);
+      return {
+        ...questionnaireDetailResponseVO,
+        contentType: 'question',
+        ...currentAnswer?.questionnaireDetailResponseVO,
+        questionnaireId,
+        questionnaireName,
+      };
+    });
+  }
+};
 const initData = async () => {
   let productRiskMap = {};
   const { code: oCode, data: oData } = await getTenantOrderDetail({ orderNo, tenantId });
@@ -224,6 +275,7 @@ const initData = async () => {
     personInfo.value = oData;
     isLoading.value = true;
   }
+  getQuestionInfo({ productCodeList: productRiskMap.productList.map((product) => product.productCode) });
 
   queryListProductMaterial(productRiskMap).then(({ code, data }) => {
     if (code === '10000') {

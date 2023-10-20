@@ -579,6 +579,8 @@ onBeforeUnmount(() => {
 .long-info-collection {
   padding-bottom: 200px;
   background-color: #fff;
+  min-height: 100vh;
+  height: auto;
   .com-body {
     height: unset;
     overflow: unset;
