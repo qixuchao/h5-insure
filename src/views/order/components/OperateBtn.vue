@@ -2,7 +2,7 @@
   <div class="operate-wrap">
     <van-button v-if="isDealOrder" type="primary" size="small" @click.stop="handleDeal">去处理</van-button>
     <van-button v-if="isReturnOrder" type="primary" plain size="small" @click.stop="handleReturn">撤单</van-button>
-    <van-button v-if="isUpdateBankInfo" size="small" @click.stop="handleUpdateBank">银行卡修改</van-button>
+    <van-button v-if="isUpdateBankInfo" plain size="small" @click.stop="handleUpdateBank">银行卡修改</van-button>
   </div>
 </template>
 <script lang="ts" name="operateBtn" setup>
@@ -146,6 +146,7 @@ const handleUpdateBank = () => {
 <style lang="scss" scoped>
 .operate-wrap {
   width: 100%;
+  display: flex;
   button {
     & + button {
       margin-left: 30px;

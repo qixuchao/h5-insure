@@ -78,7 +78,7 @@ body {
 }
 .router-view {
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
   // top: 0;
   // bottom: 0;
   margin: 0 auto;
