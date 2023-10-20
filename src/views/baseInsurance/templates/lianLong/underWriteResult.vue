@@ -6,7 +6,10 @@
       </div>
       <p class="result-status">{{ underWriteMap[`${underwriteStatus}`].resultStatus }}</p>
       <p class="result-desc">{{ underWriteMap[`${underwriteStatus}`].resultDesc }}</p>
-      <div v-if="underwriteStatus === ALERT_TYPE_ENUM.UNDER_WRITE_FAIL" class="operate-btn">
+      <div
+        v-if="underwriteStatus === ALERT_TYPE_ENUM.UNDER_WRITE_FAIL && productClass === YES_NO_ENUM.NO + ''"
+        class="operate-btn"
+      >
         <van-button type="primary" plain @click="handleUpdate">返回修改</van-button>
         <van-button type="primary" @click="handleInsure">继续投保</van-button>
         <van-button class="no-border" @click="handleGiveUp">放弃投保</van-button>
@@ -63,7 +66,7 @@ const underWriteMap = {
 
 const route = useRoute();
 const router = useRouter();
-const { orderNo, tenantId, underwriteStatus } = route.query;
+const { orderNo, tenantId, underwriteStatus, productClass } = route.query;
 const VanDialog = Dialog.Component;
 
 const [isShow, toggleStatus] = useToggle(false);
@@ -118,7 +121,7 @@ const handleInsure = () => {
 
 // 放弃投保,跳转至产品列表
 const handleGiveUp = () => {
-  canceledOrder(() => {
+  cancelOrder(() => {
     delete route.query.orderNo;
     router.push({
       path: PAGE_ROUTE_ENUMS.productList,

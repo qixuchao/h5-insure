@@ -489,7 +489,6 @@ export const ADDRESS_FACTOR_CONF = [
 export const GLOBAL_CONFIG_MAP = {
   name: {
     ...RULE_CONFIG_MAP.NAME,
-    relatedName: 'nationalityCode',
   },
   certNo: {
     relatedName: 'certType',
@@ -538,6 +537,7 @@ export const GLOBAL_CONFIG_MAP = {
   ...ADDRESS_FACTOR_CONF,
   nationalityCode: {
     ...RULE_CONFIG_MAP.COUNTRY,
+    relatedName: 'name',
   },
   certEndDate: {
     minDate: new Date(),

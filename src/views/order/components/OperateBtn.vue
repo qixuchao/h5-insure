@@ -12,7 +12,7 @@ import { Dialog, Toast } from 'vant';
 import { PAGE_ROUTE_ENUMS, MESSAGE_TYPE_ENUM } from '@/views/baseInsurance/templates/lianLong/constants';
 import { shareWeiXin } from '@/utils/lianSDK';
 import { SHARE_CONTENT } from '@/common/constants/lian';
-import { NOTICE_TYPE_MAP, SEX_LIMIT_MAP } from '@/common/constants';
+import { NOTICE_TYPE_MAP, SEX_LIMIT_MAP, YES_NO_ENUM } from '@/common/constants';
 import { sendMessageToLian as sendMessage } from '@/api';
 import { cancelOrder } from '@/api/modules/order';
 
@@ -34,9 +34,13 @@ const emits = defineEmits(['handleCancel']);
 
 // 去处理按钮展示权限
 const isDealOrder = computed<boolean>(() => {
-  const { orderTopStatus } = props.detail;
+  const { orderTopStatus, productClassFlag, orderStatus } = props.detail;
   // 待处理
-  return orderTopStatus === '-1' && PAGE_ROUTE_ENUMS.orderList === route.path;
+  return (
+    orderTopStatus === '-1' &&
+    PAGE_ROUTE_ENUMS.orderList === route.path &&
+    !(orderStatus === 'underWritingFailed' && productClassFlag === YES_NO_ENUM.YES)
+  );
 });
 // 撤单按钮展示权限
 const isReturnOrder = computed<boolean>(() => {
@@ -147,6 +151,7 @@ const handleUpdateBank = () => {
 .operate-wrap {
   width: 100%;
   display: flex;
+  justify-content: flex-end;
   button {
     & + button {
       margin-left: 30px;

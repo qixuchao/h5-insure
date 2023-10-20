@@ -54,7 +54,7 @@
             </template>
           </van-cell>
         </template>
-        <ProRenderForm v-else ref="formRef" validate-method="toast" :model="formData">
+        <ProRenderForm v-else ref="formRef" :model="formData">
           <ProFieldV2
             v-model="formData.holderMobile"
             label="投保人手机号"
@@ -90,7 +90,7 @@
               related-name="insuredMobile"
               :send-s-m-s-code="sendSMSCode"
               :check-s-m-s-code="checkSMSCode"
-              required
+              :rules="[{ required: true, message: '请输入验证码' }]"
             ></ProSMSCode>
           </template>
         </ProRenderForm>
@@ -282,18 +282,20 @@ const handleDMOS = () => {
     return;
   }
 
-  dualUploadFiles(orderDetail.value).then(({ code, data }) => {
-    if (code === '10000') {
-      if (data) {
-        if (schemaUrl.value) {
-          checkAppIsInstalled(schemaUrl.value).then((info) => {
-            if (info.isInstall === `${YES_NO_ENUM.YES}`) {
-              pullUpApp(schemaUrl.value);
-            }
-          });
+  formRef.value?.validate().then(() => {
+    dualUploadFiles(orderDetail.value).then(({ code, data }) => {
+      if (code === '10000') {
+        if (data) {
+          if (schemaUrl.value) {
+            checkAppIsInstalled(schemaUrl.value).then((info) => {
+              if (info.isInstall === `${YES_NO_ENUM.YES}`) {
+                pullUpApp(schemaUrl.value);
+              }
+            });
+          }
         }
       }
-    }
+    });
   });
 };
 

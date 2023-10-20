@@ -746,4 +746,23 @@ export const relatedConfigMap = {
       }
     },
   },
+  name: {
+    onChangeEffect: (val, formState) => {
+      console.log('name', val);
+      let reg = '([\u4E00-\u9FFF].?[\u4E00-\u9FFF]{1,40}$|[a-zA-Z]{4,40})$';
+      if (val && val === 'CHN') {
+        reg = '[\u4E00-\u9FFF]\\.?[\u4E00-\u9FFF]{1,40}$';
+      }
+      Object.assign(formState.config, {
+        name: {
+          rules: {
+            validator: () => {
+              return new RegExp(reg).test(val);
+            },
+            message: '请输入正确姓名',
+          },
+        },
+      });
+    },
+  },
 };

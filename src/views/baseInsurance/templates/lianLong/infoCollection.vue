@@ -159,7 +159,7 @@ const {
 
 let extInfo: any = {};
 let timer = null;
-
+const productClass = ref<number>(2); // 多主险标志 1:是，2:否
 try {
   extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
 } catch (error) {
@@ -366,6 +366,8 @@ const onNext = async () => {
       orderDetail.value,
     );
 
+    route.query.productClass = productClass.value;
+
     // 校验ocr信息是否被修改
     const msgList = compareOcrData();
     if (msgList?.length) {
@@ -532,6 +534,7 @@ const initData = async () => {
         });
         state.defaultValue = orderDetail.value;
         productRiskMap = pickProductRiskCodeFromOrder(data.insuredList[0].productList);
+        productClass.value = data.insuredList[0].productList.length > 1 ? 1 : 2;
         isLoading.value = true;
       }
     }));
