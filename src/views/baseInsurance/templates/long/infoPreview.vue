@@ -310,6 +310,7 @@ onBeforeMount(() => {
 <style lang="scss" scope>
 .long-info-preview {
   padding-bottom: 150px;
+  overflow-y: auto;
   .footer-btn {
     position: fixed;
     bottom: 0;
