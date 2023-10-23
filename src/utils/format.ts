@@ -24,7 +24,7 @@ export const transformToMoney = (num?: number, currency = 'CNY', unit = '元') =
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(num) + unit;
-  return num !== null ? formattedNumber : '';
+  return num !== null && num !== undefined ? formattedNumber : '-';
 };
 
 // 保障期间

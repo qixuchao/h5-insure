@@ -695,7 +695,6 @@ export const getNameRules = (personVO) => {
       rules: [
         {
           validator: (val) => {
-            console.log('val', val);
             return reg.test(val);
           },
           message: `请输入正确姓名${nationalityCode}`,

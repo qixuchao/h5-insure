@@ -185,6 +185,7 @@ const getOrderDetail = () => {
   getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       defaultData.value = data;
+      orderDetail.value = data;
       productRiskCodeMap.value = pickProductRiskCodeFromOrder(data.insuredList[0].productList);
       getMergeProductDetail();
     }
@@ -195,12 +196,15 @@ const nextStep = () => {
   trialRef.value.onNext(async (currentOrderDetail) => {
     const orderDetailCopy = cloneDeep(currentOrderDetail);
     const excludeCodeList = ['id', 'relationToHolder', 'beneficiaryList', 'guardian', 'insuredBeneficiaryType'];
-    Object.keys(orderDetailCopy.insuredList?.[0]).reduce((res, key) => {
-      if (!excludeCodeList.includes(key) && orderDetailCopy.insuredList?.[0]?.[key]) {
-        res[key] = orderDetailCopy.insuredList?.[0]?.[key];
-      }
-      return res;
-    }, orderDetailCopy.holder);
+
+    if (!orderNo) {
+      Object.keys(orderDetailCopy.insuredList?.[0]).reduce((res, key) => {
+        if (!excludeCodeList.includes(key) && orderDetailCopy.insuredList?.[0]?.[key]) {
+          res[key] = orderDetailCopy.insuredList?.[0]?.[key];
+        }
+        return res;
+      }, orderDetailCopy.holder);
+    }
 
     const { code, data } = await saveOrder(orderDetailCopy);
     if (code === '10000') {
