@@ -46,7 +46,7 @@ import { useToggle } from '@vant/use';
 import { Dialog, Toast } from 'vant/es';
 import { PAGE_ROUTE_ENUMS } from './constants';
 import { cancelOrder } from '@/api/modules/order';
-import { ALERT_TYPE_ENUM } from '@/common/constants';
+import { ALERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import { offlineReview } from '@/api/modules/verify';
 import { localStore } from '@/hooks/useStorage';
 import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
