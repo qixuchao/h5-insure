@@ -38,6 +38,8 @@ import {
   validateFields,
   resetObjectValues,
   ProRenderFormWithCard,
+  getNameRules,
+  setCertDefaultValue,
 } from '@/components/RenderForm';
 
 interface Props {
@@ -128,6 +130,9 @@ watch(
   () => props.schema,
   (val) => {
     if (val) {
+      setCertDefaultValue(props.schema, props.modelValue, () => {
+        state.personVO.certType = '1';
+      });
       Object.assign(state.schema, cloneDeep(props.schema));
     }
   },
@@ -143,6 +148,10 @@ watch(
     if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
       colorConsole('受益人数据变动了', val);
       Object.assign(state.personVO, val);
+      setCertDefaultValue(props.schema, props.modelValue, () => {
+        console.log('123123');
+        Object.assign(state.personVO, { certType: '1' });
+      });
     }
   },
   {
@@ -222,6 +231,19 @@ watch(
     }
 
     return false;
+  },
+  {
+    immediate: true,
+  },
+);
+
+// 监听投保人国籍
+watch(
+  () => state.personVO?.nationalityCode,
+  (val, oldVal) => {
+    if (val !== oldVal) {
+      merge(state.config, getNameRules(state.personVO));
+    }
   },
   {
     immediate: true,

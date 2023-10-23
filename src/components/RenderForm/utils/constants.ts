@@ -190,7 +190,7 @@ export const RULE_TYPE_ENUM = {
 /** 规则配置 */
 export const RULE_CONFIG_MAP = {
   /**
-   * 姓名 长度最大 25
+   * 姓名 长度最大40
    */
   NAME: {
     maxlength: INPUT_MAX_LENGTH.FORTY,

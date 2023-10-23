@@ -3,7 +3,7 @@
     <Trial
       ref="trialRef"
       :product-collection="productCollection"
-      :default-value="orderDetail"
+      :default-data="orderDetail"
       :product-factor="productFactor"
       :product-risk-code-map="productRiskCodeMap"
       is-trial
@@ -13,7 +13,7 @@
       @delete-risk="deleteRisk"
     >
       <template #trialBtn="{ riskPremium }">
-        <TrialButton :premium="riskPremium.initialPremium" @handle-click="nextStep"></TrialButton>
+        <TrialButton :premium="transformToMoney(riskPremium.initialPremium)" @handle-click="nextStep"></TrialButton>
       </template>
     </Trial>
     <RiskList
@@ -48,7 +48,8 @@ import useOrder from '@/hooks/useOrder';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
 import pageJump from '@/utils/pageJump';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
-import { pickProductRiskCode } from './utils';
+import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
+import { transformToMoney } from '@/utils/format';
 
 const route = useRoute();
 const router = useRouter();
@@ -182,6 +183,8 @@ const getOrderDetail = () => {
   getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       orderDetail.value = data;
+      productRiskCodeMap.value = pickProductRiskCodeFromOrder(data.insuredList[0].productList);
+      getMergeProductDetail();
     }
   });
 };
@@ -222,7 +225,10 @@ const getProductDetail = () => {
 };
 
 onBeforeMount(() => {
-  getProductDetail();
-  orderNo && getOrderDetail();
+  if (orderNo) {
+    getOrderDetail();
+  } else {
+    getProductDetail();
+  }
 });
 </script>

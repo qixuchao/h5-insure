@@ -108,10 +108,12 @@ import {
   colorConsole,
   getCertConfig,
   resetObjectValues,
+  getNameRules,
+  setCertDefaultValue,
 } from '@/components/RenderForm';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { BENEFICIARY_ENUM } from '@/common/constants/infoCollection';
-import { ATTACHMENT_OBJECT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
+import { ATTACHMENT_OBJECT_TYPE_ENUM, YES_NO_ENUM, SEX_LIMIT_ENUM } from '@/common/constants';
 import BeneficiaryItem from './BeneficiaryItem.vue';
 import { OBJECT_TYPE_ENUM } from '@/common/constants/questionnaire';
 
@@ -492,11 +494,6 @@ watch(
 
     const isSelf = String(personVO.relationToHolder) === '1';
 
-    // 证件类型是否只有身份证
-    const [isOnlyCertFlag, tempConfig] = getCertConfig(schema, personVO);
-
-    merge(config, tempConfig);
-
     // 若被保人为本人是否要隐藏
     schema.forEach((schemaItem) => {
       schemaItem.relationToHolder = personVO.relationToHolder;
@@ -510,7 +507,7 @@ watch(
         ...personVO,
         ...holderPersonVO,
       };
-
+      const [isOnlyCertFlag, tempConfig] = getCertConfig(schema, personVO);
       // 非本人则清空数据
       if (!isSelf) {
         newPersonVo = {
@@ -520,13 +517,64 @@ watch(
         };
       }
 
+      // 投被保人为丈夫或者妻子时默认被保人的性别 2: 丈夫，3:妻子
+      const genderConfig = {
+        gender: {
+          ...config.gender,
+          isView: props.isView,
+        },
+      };
+      if (`${personVO.relationToHolder}` === '2') {
+        genderConfig.gender.isView = true;
+
+        newPersonVo.gender = SEX_LIMIT_ENUM.FEMALE;
+      }
+
+      if (`${personVO.relationToHolder}` === '3') {
+        genderConfig.gender.isView = true;
+
+        newPersonVo.gender = SEX_LIMIT_ENUM.MALE;
+      }
+
+      merge(config, genderConfig);
+
       // 若为本人合并投保人数据
       Object.assign(state.personVO, newPersonVo);
     }
+
+    // 证件类型是否只有身份证
+    const [isOnlyCertFlag, tempConfig] = getCertConfig(schema, personVO);
+    merge(config, tempConfig);
   },
   {
     // immediate: true,
     deep: true,
+  },
+);
+
+// 监听被保人国籍
+watch(
+  () => state.personVO?.nationalityCode,
+  (val, oldVal) => {
+    if (val !== oldVal) {
+      merge(state.config, getNameRules(state.personVO));
+    }
+  },
+  {
+    immediate: true,
+  },
+);
+
+// 监听监护人国籍
+watch(
+  () => state.guardian.personVO?.nationalityCode,
+  (val, oldVal) => {
+    if (val !== oldVal) {
+      merge(state.guardian.config, getNameRules(state.guardian?.personVO));
+    }
+  },
+  {
+    immediate: true,
   },
 );
 
@@ -578,6 +626,9 @@ watch(
       if (JSON.stringify(val) !== JSON.stringify(state.schema)) {
         const isSelf = String(props.modelValue?.relationToHolder) === '1';
         state.schema = cloneDeep(val).map((item) => {
+          setCertDefaultValue(props.schema, props.modelValue, () => {
+            state.personVO.certType = '1';
+          });
           item.relationToHolder = props.modelValue?.relationToHolder;
           item.hidden = !item.isSelfInsuredNeed && isSelf;
           return item;
@@ -596,13 +647,14 @@ watch(
   (val, oldVal) => {
     if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
       const { beneficiaryList, ...rest } = val;
-      console.log('11', val.age, oldVal?.age);
 
       if (val.age !== oldVal?.age && val.age) {
         isInit.value = true;
-        // setNonageValue(props.holderPersonVO, val);
       }
       merge(state.personVO, rest);
+      setCertDefaultValue(props.schema, props.modelValue, () => {
+        state.personVO.certType = '1';
+      });
     }
   },
   {

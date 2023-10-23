@@ -60,7 +60,7 @@
               ></InsureInfos>
               <div class="premium-item">
                 <span class="label">首期保费</span>
-                <span class="price">¥{{ toLocal(premiumMap?.[productCode]?.[index]?.initialPremium || '0') }}元</span>
+                <span class="price">{{ transformToMoney(premiumMap?.[productCode]?.[index]?.initialPremium) }}</span>
               </div>
             </div>
           </div>
@@ -112,6 +112,7 @@ import { nextStepOperate as nextStep } from '../../../nextStep';
 import pageJump from '@/utils/pageJump';
 import { jumpToNextPage, toLocal } from '@/utils';
 import { ProductFactor } from '@/components/RenderForm';
+import { transformToMoney } from '@/utils/format';
 
 interface Props {
   selfKey: string;

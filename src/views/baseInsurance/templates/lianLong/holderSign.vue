@@ -230,7 +230,7 @@ const getOrderDetail = () => {
     getTenantOrderDetail({ orderNo: orderCode || orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         const signAttachmentList = [];
-        orderDetail.value.tenantOrderAttachmentList.forEach((attachment) => {
+        data.tenantOrderAttachmentList.forEach((attachment) => {
           if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER && attachment.category === 30) {
             signAttachmentList.push(attachment.fileBase64);
           }
@@ -255,7 +255,7 @@ const sign = (type, signData, bizObjectId?) => {
   }
 
   Promise.all(promiseList).then((res) => {
-    // getOrderDetail();
+    getOrderDetail();
   });
 };
 

@@ -113,6 +113,7 @@ import {
   transformFactorToSchema,
   SchemaItem,
   getCertConfig,
+  getNameRules,
 } from '@/components/RenderForm';
 import { ProductFactor } from '@/api/modules/trial.data';
 import { isNotEmptyArray, PERSONAL_INFO_KEY, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
@@ -367,7 +368,6 @@ const filterFormData = (data) => {
     nanoid: tempNanoid,
     ...formData
   } = cloneDeep(data) || {};
-  console.log('formData', formData);
   return formData;
 };
 
@@ -450,6 +450,19 @@ watch(
     merge(state.holder.config, tempConfig);
     return false;
   }, 0),
+);
+
+// 监听投保人国籍
+watch(
+  () => state.holder.personVO?.nationalityCode,
+  (val, oldVal) => {
+    if (val !== oldVal) {
+      merge(state.holder.config, getNameRules(state.holder.personVO));
+    }
+  },
+  {
+    immediate: true,
+  },
 );
 
 // 验证是否试算
