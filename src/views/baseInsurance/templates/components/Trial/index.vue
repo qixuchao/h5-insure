@@ -528,8 +528,8 @@ const onNext = (cb) => {
         extInfo: {
           templateId,
 
-          ...orderDetail.value.extInfo,
-          ...(props.defaultOrder.extInfo || {}),
+          ...orderDetail.value?.extInfo,
+          ...(props.defaultOrder?.extInfo || {}),
           buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
           pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
         },
@@ -1066,7 +1066,7 @@ watch(
     if (JSON.stringify(cloneDeep(value)) !== JSON.stringify(cloneDeep(oldValue))) {
       state.defaultValue = value;
       state.userData = value || {};
-      orderDetail.value = value;
+      orderDetail.value = value || {};
     }
   },
   {
