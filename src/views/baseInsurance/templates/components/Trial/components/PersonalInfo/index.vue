@@ -18,9 +18,6 @@
       <div v-if="canShowCustomerIcon" class="choose-customer" @click="chooseCustomers('holder', 1, 0)">
         <ProSvg name="customer" color="#333" />
       </div>
-      <div style="position: fixed; z-index: 100; top: 0; left: 165px; color: pink; text-align: center">
-        top:{{ Math.ceil(y) }}
-      </div>
     </template>
   </ProRenderFormWithCard>
   <!-- 被保人 -->
