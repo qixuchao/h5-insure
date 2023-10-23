@@ -9,11 +9,11 @@
             <h4 class="product-name">{{ result.productName }}</h4>
             <span>保障中</span>
           </div>
-          <InfoItem label="投保人" :content="result.holderName" line />
-          <InfoItem label="保单号" :content="result.policyNo" line />
+          <InfoItem label="投保人:" :content="result.holderName" line />
+          <InfoItem label="投/保单号:" :content="result.policyNo" line />
           <!-- <InfoItem label="生效日期" :content="result.holderName" line /> -->
           <!-- <InfoItem label="保障期间" :content="result.coverage" line /> -->
-          <InfoItem label="保费" :content="result.orderAmount" line />
+          <InfoItem label="保费:" :content="result.orderAmount" line />
         </div>
         <div class="footer-button">
           <template v-if="isPayFail">
@@ -36,6 +36,7 @@ import { PAYMENT_METHOD_MAP } from '@/common/constants/bankCard';
 import { ORDER_STATUS_ENUM, ORDER_STATUS_MAP } from '@/common/constants/order';
 import InfoItem from '@/views/order/components/infoItem.vue';
 import { offlineBatchPay } from '@/api/modules/verify';
+import { transformToMoney } from '@/utils/format';
 /**
  * 本页面只有三种结果状态
  * @since success 成功
@@ -146,7 +147,7 @@ const getOrderDetail = () => {
         orderStatusDesc: ORDER_STATUS_MAP[data.orderStatus],
         orderStatus: data.orderStatus,
         orderNo: data.orderNo,
-        orderAmount: `￥${data.orderAmount}`,
+        orderAmount: transformToMoney(data.orderAmount),
       };
     }
   });

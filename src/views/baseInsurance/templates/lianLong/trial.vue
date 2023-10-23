@@ -13,7 +13,7 @@
       @delete-risk="deleteRisk"
     >
       <template #trialBtn="{ riskPremium }">
-        <TrialButton :premium="transformToMoney(riskPremium.initialPremium)" @handle-click="nextStep"></TrialButton>
+        <TrialButton :premium="riskPremium?.initialPremium" @handle-click="nextStep"></TrialButton>
       </template>
     </Trial>
     <RiskList
@@ -162,10 +162,11 @@ const deleteRisk = (selectProductCode, riskCode, mainRiskCode) => {
 
   // 没有主险code则删除的是主险，也是删除整个产品
   if (!mainRiskCode) {
-    delete productCollection.value[selectProductCode];
+    // delete productCollection.value[selectProductCode];
     productRiskCodeMap.value.productList = productRiskCodeMap.value.productList.filter(
       (product) => product.productCode !== selectProductCode,
     );
+    getMergeProductDetail();
   } else {
     productCollection.value[selectProductCode].productPlanInsureVOList[0].insureProductRiskVOList =
       productCollection.value[selectProductCode].productPlanInsureVOList[0].insureProductRiskVOList.filter(

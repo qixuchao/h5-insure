@@ -43,8 +43,17 @@ const props = defineProps({
 });
 const { copy, copied, isSupported } = useClipboard();
 const onCopy = () => {
-  console.log(props.content, 'props.content=====');
-  copy(props.content);
+  if (navigator.clipboard) {
+    copy(props.content);
+  } else {
+    const input = document.createElement('input');
+    input.setAttribute('value', props.content);
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+  }
+
   Toast('复制成功');
 };
 </script>
