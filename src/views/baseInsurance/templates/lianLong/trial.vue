@@ -3,7 +3,7 @@
     <Trial
       ref="trialRef"
       :product-collection="productCollection"
-      :default-data="orderDetail"
+      :default-data="defaultData"
       :product-factor="productFactor"
       :product-risk-code-map="productRiskCodeMap"
       is-trial
@@ -70,6 +70,8 @@ const orderDetail = useOrder({
     pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
   },
 });
+
+const defaultData = ref();
 const productFactor = ref();
 
 const popupType = ref<1 | 2>(1);
@@ -182,7 +184,7 @@ const deleteRisk = (selectProductCode, riskCode, mainRiskCode) => {
 const getOrderDetail = () => {
   getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
-      orderDetail.value = data;
+      defaultData.value = data;
       productRiskCodeMap.value = pickProductRiskCodeFromOrder(data.insuredList[0].productList);
       getMergeProductDetail();
     }
