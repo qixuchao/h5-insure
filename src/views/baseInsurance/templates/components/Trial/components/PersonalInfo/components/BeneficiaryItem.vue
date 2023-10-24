@@ -102,7 +102,7 @@ const isSameHolder = () => {
   }
   const collection =
     Object.keys(state.personVO).filter((key) => {
-      if (['gender', 'birthday', 'certType', 'certNo', 'name'].includes(key)) {
+      if (['gender', 'birthday', 'certType', 'certNo', 'name'].includes(key) && state.personVO[key]) {
         if (`${state.personVO?.[key]}` === `${props?.holderPersonVO?.[key]}`) {
           return true;
         }

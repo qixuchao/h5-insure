@@ -1,24 +1,26 @@
 <template>
   <!-- <van-config-provider :theme-vars="themeVars"> -->
   <!-- <ProPageWrap main-class="page-order-list"> -->
-  <div class="page-order">
+  <div id="page-order" class="page-order">
     <ProTab v-model:active="active" :list="tabList" class="tab" title-active-color="#c41e21" />
-    <van-pull-refresh v-model="freshLoading" @refresh="handleAfterDelete">
-      <van-list v-if="list.length" v-model:loading="loading" class="body" :finished="finished" @load="handleLoad">
-        <Item
-          v-for="(item, index) in list"
-          :key="index"
-          :detail="item"
-          @click="handleClick(item)"
-          @after-delete="handleAfterDelete"
-        />
-        <!-- <div class="footer">
+    <van-pull-refresh v-model="freshLoading" :disabled="refreshDisabled" @refresh="handleAfterDelete">
+      <div ref="refreshRef" class="list-wrap">
+        <van-list v-if="list.length" v-model:loading="loading" class="body" :finished="finished" @load="handleLoad">
+          <Item
+            v-for="(item, index) in list"
+            :key="index"
+            :detail="item"
+            @click="handleClick(item)"
+            @after-delete="handleAfterDelete"
+          />
+          <!-- <div class="footer">
         <img src="@/assets/images/component/logo.png" alt="" style="width: 100%; height: 128px" />
       </div> -->
-      </van-list>
-      <div v-else class="empty-box">
-        <ProEmpty title="暂无投保单" empty-class="empty-select" />
+        </van-list>
       </div>
+      <!-- <div v-else class="empty-box">
+        <ProEmpty title="暂无投保单" empty-class="empty-select" />
+      </div> -->
     </van-pull-refresh>
   </div>
   <!-- </ProPageWrap> -->
@@ -145,7 +147,28 @@ watch(currentStatus, () => {
   getData();
 });
 
+const refreshRef = ref();
+const refreshData = ref({});
+const refreshDisabled = ref(false);
+
+watch(
+  () => refreshData.value.scrollTop,
+  (val) => {
+    if (val <= 0) {
+      refreshDisabled.value = false;
+    } else {
+      refreshDisabled.value = true;
+    }
+  },
+);
+
 onMounted(() => {
+  document
+    .querySelector('#page-order')
+    .querySelector('.list-wrap')
+    ?.addEventListener?.('scroll', () => {
+      refreshData.value = refreshRef.value.scrollTop; // data中定义scrollTop为0
+    });
   getData();
 });
 </script>
@@ -161,7 +184,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   background: #f4f5f9;
-  .body {
+  .list-wrap {
     flex: 1;
     height: 100%;
     overflow-y: auto;

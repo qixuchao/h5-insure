@@ -1066,7 +1066,7 @@ watch(
     if (JSON.stringify(cloneDeep(value)) !== JSON.stringify(cloneDeep(oldValue))) {
       state.defaultValue = value;
       state.userData = value || {};
-      orderDetail.value = value || {};
+      value && (orderDetail.value = value || {});
     }
   },
   {

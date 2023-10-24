@@ -25,6 +25,8 @@ export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
     source,
   } = useRoute().query as QueryData;
 
+  console.log('insurerCode', insurerCode);
+
   let extInfo: any = {};
 
   try {

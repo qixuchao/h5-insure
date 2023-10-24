@@ -737,6 +737,7 @@ export const relatedConfigMap = {
         const data = parseCertNo(val);
         Object.assign(formState.formData, data);
       }
+      Object.assign(formState.formData, { certImage: [] });
     },
   },
   // 出生日期变动引起的年龄变化

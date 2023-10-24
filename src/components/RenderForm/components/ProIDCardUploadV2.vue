@@ -103,7 +103,7 @@ const state = reactive({
   ossKeyList: [],
 });
 
-const fileList = computed(() => state.modelValue.map((item) => [{ url: item.uri }]));
+const fileList = ref([]);
 
 useCustomFieldValue(() => state.modelValue);
 
@@ -140,6 +140,7 @@ const onClick = (index: number) => {
 watch(
   () => state.modelValue,
   (val) => {
+    fileList.value = (val || []).map((item) => [{ url: item.uri }]);
     emits('update:modelValue', val);
   },
   {
@@ -151,8 +152,8 @@ watch(
 watch(
   () => props.modelValue,
   (val) => {
-    if (Array.isArray(val) && val.length) {
-      state.modelValue = val;
+    if (Array.isArray(val)) {
+      state.modelValue = val || [];
     }
   },
   {
