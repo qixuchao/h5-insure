@@ -720,6 +720,7 @@ export const relatedConfigMap = {
       // 证件类型选择证件号/户口本时，隐藏性别和出生日期
       nextTick(() => {
         merge(formState.config, getCertTypeConfig(formState.formData.certType, formState.schema));
+        Object.assign(formState.formData, { certImage: [] });
       });
     },
   },
@@ -737,7 +738,6 @@ export const relatedConfigMap = {
         const data = parseCertNo(val);
         Object.assign(formState.formData, data);
       }
-      Object.assign(formState.formData, { certImage: [] });
     },
   },
   // 出生日期变动引起的年龄变化
