@@ -1,4 +1,4 @@
-FROM base-registry.zhonganinfo.com/env/node-ngx:11.10.1
+FROM base-registry.zhonganinfo.com/env/nginx:1.15.0
 
 COPY nginx_app.conf /etc/nginx/conf.d/
 
