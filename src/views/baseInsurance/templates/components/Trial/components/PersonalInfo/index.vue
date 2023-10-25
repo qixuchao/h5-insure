@@ -338,16 +338,25 @@ const setCustomerToPerson = (value) => {
 const validateTrialFields = () => {
   const insuredFlag = !insuredFormRef.value || insuredFormRef.value?.every((item) => item.validateTrialFields());
   const holderFlag = !holderFormRef.value || validateFields(state.holder);
-  console.log('insuredFlag', insuredFlag, holderFlag);
   return holderFlag && insuredFlag;
 };
 
 // 验证表单必填
 const validate = (isTrial) => {
-  return Promise.all([
-    ...(insuredFormRef.value?.map((item) => item.validate(isTrial)) || []),
-    validateForm(holderFormRef, state.holder.trialFactorCodes, isTrial),
-  ]);
+  return new Promise((resolve, reject) => {
+    Promise.all([
+      ...(insuredFormRef.value?.map((item) => item.validate(isTrial)) || []),
+      validateForm(holderFormRef, state.holder.trialFactorCodes, isTrial),
+    ]).then(
+      () => {
+        resolve();
+      },
+      (error, res) => {
+        console.log('person111', res, error);
+        reject(res);
+      },
+    );
+  });
 };
 
 /**

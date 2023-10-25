@@ -6,10 +6,7 @@
       </div>
       <p class="result-status">{{ underWriteMap[`${underwriteStatus}`].resultStatus }}</p>
       <p class="result-desc">{{ underWriteMap[`${underwriteStatus}`].resultDesc }}</p>
-      <div
-        v-if="underwriteStatus === ALERT_TYPE_ENUM.UNDER_WRITE_FAIL && productClass === YES_NO_ENUM.NO + ''"
-        class="operate-btn"
-      >
+      <div v-if="underwriteStatus === ALERT_TYPE_ENUM.UNDER_WRITE_FAIL && !isMultiRisk" class="operate-btn">
         <van-button type="primary" plain @click="handleUpdate">返回修改</van-button>
         <van-button type="primary" @click="handleInsure">继续投保</van-button>
         <van-button class="no-border" @click="handleGiveUp">放弃投保</van-button>
@@ -68,12 +65,25 @@ const route = useRoute();
 const router = useRouter();
 const { orderNo, tenantId, underwriteStatus, productClass } = route.query;
 const VanDialog = Dialog.Component;
+// 是否是多主险产品
+const isMultiRisk = computed(() => {
+  return productClass === `${YES_NO_ENUM.YES}`;
+});
 
 const [isShow, toggleStatus] = useToggle(false);
 const checkedPage = ref<string>();
 
 // 转线下
 const offline = async () => {
+  if (isMultiRisk.value) {
+    router.push({
+      path: PAGE_ROUTE_ENUMS.orderList,
+      query: {
+        ...route.query,
+      },
+    });
+    return;
+  }
   const { code, data } = await offlineReview({ orderNo, tenantId });
   if (code === '10000' && data) {
     delete route.query.orderNo;

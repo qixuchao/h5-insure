@@ -230,11 +230,10 @@ const validate = (prams) => {
         resolve(...rest);
       })
       .catch((error) => {
-        console.log('error', error);
         if (props.validateMethod === 'toast') {
           Toast(error?.[0].message || error.message);
         }
-        reject(error);
+        reject(error, formRef.value);
       });
   });
 };

@@ -273,12 +273,22 @@ const holderToBeneficial = (index: number) => {
 
 // 验证表单必填
 const validate = (isTrial) => {
-  return Promise.all([
-    validateForm(insuredFormRef, props.trialFactorCodes, isTrial),
-    validateForm(guardianFormRef, [], isTrial),
-    validateForm(beneficiaryTypeFormRef, [], isTrial),
-    ...(beneficiaryFormRef.value?.map((item) => item.validate(isTrial)) || []),
-  ]);
+  return new Promise((resolve, reject) => {
+    Promise.all([
+      validateForm(insuredFormRef, props.trialFactorCodes, isTrial),
+      validateForm(guardianFormRef, [], isTrial),
+      validateForm(beneficiaryTypeFormRef, [], isTrial),
+      ...(beneficiaryFormRef.value?.map((item) => item.validate(isTrial)) || []),
+    ]).then(
+      () => {
+        resolve();
+      },
+      (formRef, error) => {
+        console.log('formRef', formRef);
+        reject(formRef, error);
+      },
+    );
+  });
 };
 
 // 添加受益人

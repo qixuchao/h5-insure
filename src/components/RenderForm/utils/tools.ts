@@ -1,6 +1,7 @@
 import { nanoid } from 'nanoid';
 import merge from 'lodash-es/merge';
 import isNil from 'lodash-es/isNil';
+import { formatDate } from '../../../utils/date';
 import { PersonVo } from '../../../api/modules/trial.data.d';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { SEX_LIMIT_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
@@ -775,6 +776,9 @@ export const relatedConfigMap = {
             visible: false,
             required: false,
           },
+        });
+        Object.assign(formState.formData, {
+          annuallyComeDesc: '',
         });
       }
     },
