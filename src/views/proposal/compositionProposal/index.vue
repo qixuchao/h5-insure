@@ -153,6 +153,7 @@ import {
   checkProposalInsurer,
   proposalTransInsured,
   queryProposalThemeList,
+  queryProposalTemplateSaleInfo,
   chooseProposalTheme,
   queryProposalThemeHistoryDetail,
 } from '@/api/modules/compositionProposal';
@@ -351,6 +352,13 @@ const getThemeList = async () => {
     themeList.value = data || [];
   }
 };
+// 获取计划书预览基础配置信息
+const getProposalSaleInfo = async () => {
+  const { code, data } = await queryProposalTemplateSaleInfo({ insurerCode: 'lianlife', selectRiskCodes: [] });
+  if (code === '10000') {
+    console.log('data', data);
+  }
+};
 
 // 获取计划书下所有产品的状态
 const getProposalTransInsured = () => {
@@ -520,6 +528,7 @@ onMounted(() => {
   if (!isShare && !isPreview.value) {
     getProposalTransInsured();
     getThemeList();
+    getProposalSaleInfo();
   }
   getData();
 });
