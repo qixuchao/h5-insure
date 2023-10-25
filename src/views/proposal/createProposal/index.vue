@@ -239,7 +239,11 @@ import {
   PlanTrialData,
   ProductItem,
 } from '@/api/modules/createProposal.data';
-import { queryCalcDefaultInsureFactor, queryCalcDynamicInsureFactor, premiumCalc } from '@/api/modules/trial';
+import {
+  queryCalcDefaultInsureFactor,
+  queryCalcDynamicInsureFactor,
+  premiumCalcV2 as premiumCalc,
+} from '@/api/modules/trial';
 import TrialPopup from '../proposalList/components/TrialPopup.vue';
 import ProEmpty from '@/components/ProEmpty/index.vue';
 import emptyImg from '@/assets/images/empty.png';
@@ -591,7 +595,7 @@ const trailProduct = (params) => {
         Toast(`${data?.errorInfo}`);
       }
 
-      if (isNotEmptyArray(data.riskPremiumDetailVOList)) {
+      if (isNotEmptyArray(data.insuredPremiumList)) {
         combineToProductList(trialPopupRef.value?.formatData(tempParams, data));
       }
       setProductError(tempParams.productCode);
@@ -720,69 +724,67 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
     },
   );
   if (code === '10000' && data) {
-    if (isNotEmptyArray(data)) {
-      data.forEach((dataItem) => {
-        const { holder, insuredList, productCode } = dataItem;
-        const { productList, ...personVO } = (insuredList || [])[0] || {};
-        const [{ riskList = [], ...rest } = {}] = productList || [];
+    if (data) {
+      const { holder, insuredList, productCode } = data;
+      const { productList, ...personVO } = (insuredList || [])[0] || {};
+      const [{ riskList = [], ...rest } = {}] = productList || [];
 
-        const tempData: Partial<ProposalInsuredProductItem> = {
-          productCode,
-          ...rest,
-          riskList,
-        };
+      const tempData: Partial<ProposalInsuredProductItem> = {
+        productCode,
+        ...rest,
+        riskList,
+      };
 
-        // 初次调用
-        if (flag) {
-          if (stateInfo.insurerList[stateInfo.currentSelectInsure]) {
-            Object.assign(stateInfo.insurerList[stateInfo.currentSelectInsure].personVO, personVO, {
-              relationToHolder: 1,
-            });
-          }
-          Object.assign(stateInfo.holder, holder);
-        }
-        insuredList.forEach((insured: any, index: number) => {
-          const { productList: products, ...p } = insured;
-          // if (stateInfo.insurerList[stateInfo.currentSelectInsure]) {
-          //   products.forEach((product) => {
-          //     const hasProduct = stateInfo.insurerList[stateInfo.currentSelectInsure].productList.some(
-          //       (pro) => pro.productCode === product.productCode,
-          //     );
-          //     if (!hasProduct) {
-          //       // console.log('----push ');
-          //       stateInfo.insurerList[stateInfo.currentSelectInsure].productList.push(product);
-          //     }
-          //   });
-          // }
-          if (stateInfo.insurerList.length === 0) {
-            if (!p.relationToMainInsured) {
-              p.relationToMainInsured = RELATION_HOLDER_ENUM.SELF;
-            }
-            stateInfo.insurerList.push({
-              productList: products.map((pro) => {
-                return { ...pro, productCode };
-              }),
-              personVO: p,
-            });
-          }
-        });
-        const currentIndex = currentProductCodeListFn().findIndex((codeItem) => codeItem === productCode);
-        if (currentIndex > -1) {
-          stateInfo.productList[currentIndex] = tempData;
-        } else {
-          stateInfo.productList.push(tempData);
-        }
-        nextTick(() => {
-          trailProduct({
-            ...dataItem,
-            holder: { ...getHolderList() },
-            insuredList: [
-              {
-                ...getInsurerList(stateInfo.currentSelectInsure),
-                productList,
-              },
-            ],
+      // 初次调用
+      if (flag) {
+        if (stateInfo.insurerList[stateInfo.currentSelectInsure]) {
+          Object.assign(stateInfo.insurerList[stateInfo.currentSelectInsure].personVO, personVO, {
+            relationToHolder: 1,
           });
+        }
+        Object.assign(stateInfo.holder, holder);
+      }
+      insuredList.forEach((insured: any, index: number) => {
+        const { productList: products, ...p } = insured;
+        // if (stateInfo.insurerList[stateInfo.currentSelectInsure]) {
+        //   products.forEach((product) => {
+        //     const hasProduct = stateInfo.insurerList[stateInfo.currentSelectInsure].productList.some(
+        //       (pro) => pro.productCode === product.productCode,
+        //     );
+        //     if (!hasProduct) {
+        //       // console.log('----push ');
+        //       stateInfo.insurerList[stateInfo.currentSelectInsure].productList.push(product);
+        //     }
+        //   });
+        // }
+        if (stateInfo.insurerList.length === 0) {
+          if (!p.relationToMainInsured) {
+            p.relationToMainInsured = RELATION_HOLDER_ENUM.SELF;
+          }
+          stateInfo.insurerList.push({
+            productList: products.map((pro) => {
+              return { ...pro, productCode };
+            }),
+            personVO: p,
+          });
+        }
+      });
+      const currentIndex = currentProductCodeListFn().findIndex((codeItem) => codeItem === productCode);
+      if (currentIndex > -1) {
+        stateInfo.productList[currentIndex] = tempData;
+      } else {
+        stateInfo.productList.push(tempData);
+      }
+      nextTick(() => {
+        trailProduct({
+          ...data,
+          holder: { ...getHolderList() },
+          insuredList: [
+            {
+              ...getInsurerList(stateInfo.currentSelectInsure),
+              productList,
+            },
+          ],
         });
       });
     }

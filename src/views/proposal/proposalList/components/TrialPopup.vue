@@ -53,18 +53,21 @@ const formatData = (trialData: PremiumCalcData, trialResult: any) => {
   const { holder, insuredList, productCode } = trialData || {};
   const { productList, ...personVO } = insuredList?.[0] || {};
   const { riskList: riskVOList, ...rest } =
-    productList.find((item: any) => productCode === item.productCode) || productList?.[0] || {};
+    productList.find((item: any, index: number) => productCode === item.productCode) || productList?.[0] || {};
   // const { riskList: riskVOList, ...rest } = productList?.[0] || {};
-  const riskPremiumMap = isNotEmptyArray(trialResult?.riskPremiumDetailVOList)
-    ? trialResult?.riskPremiumDetailVOList.reduce((res, riskDetail: any) => {
-        res[riskDetail.riskCode] = {
-          initialPremium: riskDetail.initialPremium,
-          initialAmount: riskDetail.initialAmount,
-          unitAmount: riskDetail.unitAmount,
-          unitPremium: riskDetail.unitPremium,
-        };
-        return res;
-      }, {})
+  const riskPremiumMap = isNotEmptyArray(trialResult?.insuredPremiumList)
+    ? trialResult?.insuredPremiumList?.[0]?.productPremiumList?.[0].riskPremiumDetailVOList.reduce(
+        (res, riskDetail: any) => {
+          res[riskDetail.riskCode] = {
+            initialPremium: riskDetail.initialPremium,
+            initialAmount: riskDetail.initialAmount,
+            unitAmount: riskDetail.unitAmount,
+            unitPremium: riskDetail.unitPremium,
+          };
+          return res;
+        },
+        {},
+      )
     : {};
 
   const riskList = (riskVOList || []).map((risk: RiskVoItem) => {
