@@ -600,27 +600,6 @@ watch(
   },
 );
 
-// 受益人切换关系 清空数据
-watch(
-  () => state?.insured?.[state.currentIndex]?.beneficiaryList?.[state.currentBenifitIndex]?.personVO,
-  (val, oldVal) => {
-    if (
-      state?.insured?.[state.currentIndex]?.beneficiaryList?.[state.currentBenifitIndex]?.personVO &&
-      val?.relationToInsured !== oldVal?.relationToInsured
-    ) {
-      colorConsole('受益人关系变动了+++++');
-      // state.insured[state.currentIndex].beneficiaryList[state.currentBenifitIndex].personVO = {
-      //   relationToInsured: val?.relationToInsured,
-      // };
-      // });
-    }
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
-
 // // 监护人切换关系 清空数据
 watch(
   () => state?.insured?.[state.currentIndex]?.guardian?.personVO?.relationToInsured,

@@ -141,7 +141,9 @@ watch(
   () => state.modelValue,
   (val) => {
     fileList.value = (val || []).map((item) => [{ url: item.uri }]);
-    emits('update:modelValue', val);
+    if (Array.isArray(val)) {
+      // emits('update:modelValue', val);
+    }
   },
   {
     deep: true,
@@ -154,6 +156,7 @@ watch(
   (val) => {
     if (Array.isArray(val)) {
       state.modelValue = val || [];
+      console.log('props.modelValue', props.modelValue);
     }
   },
   {

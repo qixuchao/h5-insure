@@ -721,7 +721,7 @@ export const relatedConfigMap = {
       // 证件类型选择证件号/户口本时，隐藏性别和出生日期
       nextTick(() => {
         merge(formState.config, getCertTypeConfig(formState.formData.certType, formState.schema));
-        // Object.assign(formState.formData, { certImage: [] });
+        Object.assign(formState.formData, { certImage: [] });
       });
     },
   },

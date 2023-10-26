@@ -589,55 +589,55 @@ watch(
 );
 
 // 监听被保人与监护人关系
-watch(
-  () => state.guardian.personVO?.relationToInsured,
-  (val, oldVal) => {
-    if (val === oldVal) {
-      return;
-    }
-    colorConsole(`监护人与被保人关系变动了`);
+// watch(
+//   () => state.guardian.personVO?.relationToInsured,
+//   (val, oldVal) => {
+//     if (val === oldVal) {
+//       return;
+//     }
+//     colorConsole(`监护人与被保人关系变动了`);
 
-    const { certType } = state.guardian.personVO || {};
-    // 证件类型是否只有身份证, 与被保险人关系变动
-    const [isOnlyCertFlag, tempConfig] = getCertConfig(state.guardianSchema, { certType, relationToInsured: val });
-    const genderConfig = {
-      gender: {
-        ...tempConfig.gender,
-        isView: props.isView,
-      },
-    };
-    // 受益人与被保人关系切换
-    if (!props.isView && val !== oldVal) {
-      // 投被保人为丈夫或者妻子时默认被保人的性别 2: 丈夫，3:妻子
+//     const { certType } = state.guardian.personVO || {};
+//     // 证件类型是否只有身份证, 与被保险人关系变动
+//     const [isOnlyCertFlag, tempConfig] = getCertConfig(state.guardianSchema, { certType, relationToInsured: val });
+//     const genderConfig = {
+//       gender: {
+//         ...tempConfig.gender,
+//         isView: props.isView,
+//       },
+//     };
+//     // 受益人与被保人关系切换
+//     if (!props.isView && val !== oldVal) {
+//       // 投被保人为丈夫或者妻子时默认被保人的性别 2: 丈夫，3:妻子
 
-      let currentGender = null;
-      if (`${val}` === '2') {
-        genderConfig.gender.isView = true;
+//       let currentGender = null;
+//       if (`${val}` === '2') {
+//         genderConfig.gender.isView = true;
 
-        currentGender = SEX_LIMIT_ENUM.FEMALE;
-      }
+//         currentGender = SEX_LIMIT_ENUM.FEMALE;
+//       }
 
-      if (`${val}` === '3') {
-        genderConfig.gender.isView = true;
+//       if (`${val}` === '3') {
+//         genderConfig.gender.isView = true;
 
-        currentGender = SEX_LIMIT_ENUM.MALE;
-      }
+//         currentGender = SEX_LIMIT_ENUM.MALE;
+//       }
 
-      // 若为本人合并投保人数据
-      Object.assign(state.personVO, {
-        // 若只有证件类型为身份证，不清除值
-        ...resetObjectValues(state.personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
-        gender: currentGender,
-        relationToInsured: val,
-      });
-    }
+//       // 若为本人合并投保人数据
+//       Object.assign(state.guardian.personVO, {
+//         // 若只有证件类型为身份证，不清除值
+//         ...resetObjectValues(state.guardian.personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
+//         gender: currentGender,
+//         relationToInsured: val,
+//       });
+//     }
 
-    merge(state.config, tempConfig, genderConfig);
-  },
-  {
-    immediate: true,
-  },
-);
+//     merge(state.guardian.config, tempConfig, genderConfig);
+//   },
+//   {
+//     immediate: true,
+//   },
+// );
 
 // 监听与主被保人关系变动
 watch(
