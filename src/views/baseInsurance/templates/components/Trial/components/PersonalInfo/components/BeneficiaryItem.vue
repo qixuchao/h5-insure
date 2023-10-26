@@ -222,17 +222,17 @@ watch(
       },
     };
     // 受益人与被保人关系切换
-    if (!props.isView && val !== oldVal) {
+    if (!props.isView && val !== oldVal && oldVal) {
       // 投被保人为丈夫或者妻子时默认被保人的性别 2: 丈夫，3:妻子
 
       let currentGender = null;
-      if (`${val}` === '2') {
+      if (`${val}` === '3') {
         genderConfig.gender.isView = true;
 
         currentGender = SEX_LIMIT_ENUM.FEMALE;
       }
 
-      if (`${val}` === '3') {
+      if (`${val}` === '2') {
         genderConfig.gender.isView = true;
 
         currentGender = SEX_LIMIT_ENUM.MALE;

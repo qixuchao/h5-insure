@@ -709,8 +709,8 @@ const birthdayList = computed(() => {
 
 // 监听被保人出生日期变化时，重新获取动态值
 watch(
-  () => (state.userData?.insuredList || []).map((insured) => insured.birthday).join(','),
-  debounce(async (value) => {
+  [() => (state.userData?.insuredList || []).map((insured) => insured.birthday).join(','), () => productMap.value],
+  async ([value]) => {
     if (value) {
       const insuredList = state.userData.insuredList.filter((insured) => insured.birthday) || [];
       if (!insuredList.length) {
@@ -732,7 +732,7 @@ watch(
         };
       });
 
-      console.log('factorList', factorList);
+      console.log('factorList', factorList, productMap.value);
 
       const dyResult = await queryCalcDynamicInsureFactor({
         calcProductFactorList: factorList,
@@ -741,7 +741,7 @@ watch(
       });
       // handleDealDyResult(dyResult);
     }
-  }),
+  },
   {
     // deep: true,
   },
