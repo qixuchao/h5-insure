@@ -288,7 +288,7 @@ const handleDMOS = () => {
         if (data) {
           console.log('schemaUrl.value', schemaUrl.value);
           if (schemaUrl.value) {
-            const packageName = schemaUrl.value.match(/(.*)(\.app):\/\//)?.[1];
+            const packageName = schemaUrl.value.match(/(.*):\/\//)?.[1];
             console.log('packageName', packageName);
             checkAppIsInstalled({ packageName, scheme: schemaUrl.value }).then((info) => {
               if (info.isInstall === `${YES_NO_ENUM.YES}`) {

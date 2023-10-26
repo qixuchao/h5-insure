@@ -732,6 +732,8 @@ watch(
         };
       });
 
+      console.log('factorList', factorList);
+
       const dyResult = await queryCalcDynamicInsureFactor({
         calcProductFactorList: factorList,
         insuredVOList: insuredList,
@@ -1166,7 +1168,7 @@ watch(
             font-weight: 500;
             line-height: 40px;
             .btn {
-              padding: 0 18px;
+              padding: 0 10px;
             }
             .add-risk {
               color: var(--van-primary-color);
