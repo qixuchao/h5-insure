@@ -105,7 +105,7 @@ export const closeWebView = () => {
 // 检查app是否安装
 export const checkAppIsInstalled = (url) => {
   return new Promise((resolve, reject) => {
-    SDK('checkIsInstallApp', { scheme: url }, (info) => {
+    SDK('checkIsInstallApp', { scheme: url, packageName: url }, (info) => {
       resolve(info?.data);
     });
   });

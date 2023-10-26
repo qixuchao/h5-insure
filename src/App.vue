@@ -61,7 +61,7 @@ const loadXFlow = () => {
 // const ld = ref(true);
 onMounted(() => {
   // 生产环境
-  process.env.NODE_ENV === 'production' && addScript(getConfig('isee')); // 千里眼SDK
+  // process.env.NODE_ENV === 'production' && addScript(getConfig('isee')); // 千里眼SDK
   loadXFlow(); // 埋点SDK
 
   // useLoading(l);

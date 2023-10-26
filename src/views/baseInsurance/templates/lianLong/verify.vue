@@ -2,7 +2,7 @@
   <div class="page-verify-wrap">
     <ProNavigator />
     <van-pull-refresh v-model="loading" @refresh="initData">
-      <div class="sign-list">
+      <div v-if="BMOSLoading" class="sign-list">
         <van-cell v-if="isShowItem('agent')" title="代理人签名" :required="isRequired('agent')">
           <template #value>
             <div class="inner-cell">
@@ -156,6 +156,7 @@ const needBMOS = ref<boolean>(false);
 // 双录状态
 const BMOSStatus = ref<number>();
 const loading = ref<boolean>(false);
+const BMOSLoading = ref<boolean>(false);
 
 const formRef = ref();
 const formData = ref({
@@ -172,7 +173,7 @@ const requiredType = ref<any>({
   verify: [],
   scribing: '',
 });
-const schemaUrl = ref('');
+const schemaUrl = ref<string>(''); // 唤起双录app的链接
 
 const signPartInfo = ref({
   holder: {
@@ -287,6 +288,7 @@ const handleDMOS = () => {
       if (code === '10000') {
         if (data) {
           if (schemaUrl.value) {
+            const packageName = schemaUrl.value.match(/(.*)(\.app)?:\/\//)?.[1];
             checkAppIsInstalled(schemaUrl.value).then((info) => {
               if (info.isInstall === `${YES_NO_ENUM.YES}`) {
                 pullUpApp(schemaUrl.value);
@@ -336,20 +338,6 @@ const initData = async () => {
   let productRiskMap = {};
   const deviceInfo = localStore.get(`${LIAN_STORAGE_KEY}_deviceInfo`);
 
-  queryDualStatus({ orderNo, tenantId }).then(({ code, data }) => {
-    if (code === '10000') {
-      const { doubleRecordFlag, doubleRecordStatus } = data;
-      needBMOS.value = doubleRecordFlag === YES_NO_ENUM.YES;
-      BMOSStatus.value = doubleRecordStatus;
-
-      if (deviceInfo) {
-        schemaUrl.value = data.andUrl || '';
-        if (deviceInfo.platform === 'iOS') {
-          schemaUrl.value = data.iosUrl || '';
-        }
-      }
-    }
-  });
   await getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       Object.assign(orderDetail.value, data);
@@ -410,6 +398,22 @@ const initData = async () => {
       });
     }
   });
+
+  await queryDualStatus({ orderNo, tenantId }).then(({ code, data }) => {
+    if (code === '10000') {
+      const { doubleRecordFlag, doubleRecordStatus } = data;
+      needBMOS.value = doubleRecordFlag === YES_NO_ENUM.YES;
+      BMOSStatus.value = doubleRecordStatus;
+      BMOSLoading.value = true;
+
+      if (deviceInfo) {
+        schemaUrl.value = data.andUrl || '';
+        if (deviceInfo.platform === 'iOS') {
+          schemaUrl.value = data.iosUrl || '';
+        }
+      }
+    }
+  });
   loading.value = false;
 };
 
@@ -451,7 +455,7 @@ const onNext = async () => {
   );
 };
 
-onMounted(() => {
+onBeforeMount(() => {
   initData();
 });
 </script>

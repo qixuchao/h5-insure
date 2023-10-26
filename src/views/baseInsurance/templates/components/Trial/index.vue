@@ -767,8 +767,6 @@ const pickRiskInfoList = (productCode, riskCode, riskType) => {
     mainRiskCode = mCode;
   }
 
-  console.log('mainRiskCode', mainRiskCode);
-
   const riskList = productMap.value[productCode].productPlanInsureVOList?.[0].insureProductRiskVOList.filter((risk) => {
     if (riskType === RISK_TYPE_ENUM.MAIN_RISK) {
       const {
@@ -1168,7 +1166,7 @@ watch(
             font-weight: 500;
             line-height: 40px;
             .btn {
-              padding: 0 20px;
+              padding: 0 18px;
             }
             .add-risk {
               color: var(--van-primary-color);
