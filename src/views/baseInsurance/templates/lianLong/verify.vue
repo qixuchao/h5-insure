@@ -282,14 +282,14 @@ const handleDMOS = () => {
   if (isDisabled.value || BMOSStatus.value === DUAL_STATUS_ENUM.DUAL_SUCCESS) {
     return;
   }
-
   formRef.value?.validate().then(() => {
     dualUploadFiles(orderDetail.value).then(({ code, data }) => {
       if (code === '10000') {
         if (data) {
           if (schemaUrl.value) {
-            const packageName = schemaUrl.value.match(/(.*)(\.app)?:\/\//)?.[1];
-            checkAppIsInstalled(schemaUrl.value).then((info) => {
+            const packageName = schemaUrl.value.match(/(.*):\/\//)?.[1];
+            console.log('packageName', packageName);
+            checkAppIsInstalled({ packageName, scheme: schemaUrl.value }).then((info) => {
               if (info.isInstall === `${YES_NO_ENUM.YES}`) {
                 pullUpApp(schemaUrl.value);
               }
