@@ -10,14 +10,14 @@
  * 计划书转投保
 */
 export interface InsuredProductData {
-    authStatus: number;
-    insureMethod: number;
-    insured: number;
-    insurerCode: string;
-    productName: string;
-    shelfStatus: number;
-    productCode: string;
-    tenantProductCode: string;
+  authStatus: number;
+  insureMethod: number;
+  insured: number;
+  insurerCode: string;
+  productName: string;
+  shelfStatus: number;
+  productCode: string;
+  tenantProductCode: string;
 }
 
 export interface ProposalTransInsuredVO {
@@ -34,32 +34,110 @@ export interface ProposalTransInsuredVO {
  * 计划书历史主题
  */
 export interface ThemeHistoryDetail {
-    id: number;
-    proposalId: number;
-    showConfig: ShowConfig;
+  id: number;
+  proposalId: number;
+  showConfig: ShowConfig;
 }
 
 export interface ShowConfig {
-    backImage: string;
-    frontImage: string;
-    thumbnailImage: string;
+  backImage: string;
+  frontImage: string;
+  thumbnailImage: string;
 }
 
 /**
  * 主题信息
  */
 export interface ThemeItem {
-    applicableType: number;
-    creator: string;
-    enabledFlag: number;
-    gmtCreated: string;
-    gmtModified: string;
-    id: number;
-    isDeleted: string;
-    modifier: string;
-    name: string;
-    showConfig: ShowConfig;
-    tenantId: number;
+  applicableType: number;
+  creator: string;
+  enabledFlag: number;
+  gmtCreated: string;
+  gmtModified: string;
+  id: number;
+  isDeleted: string;
+  modifier: string;
+  name: string;
+  showConfig: ShowConfig;
+  tenantId: number;
 }
 
 
+export interface BasicContent {
+  configItem: string;
+  content: BasicContentItem;
+  templateId: string;
+}
+
+export interface BasicContentItem {
+  banner: string[];
+  bannerType: string;
+  defaultBanner: string[];
+  defaultVideo: string[];
+  video: string[];
+  insurerCode: string;
+  templateName: string;
+}
+
+export interface AgentCardContent {
+  configItem: string;
+  content: AgentCardContentItem;
+  templateId: string;
+}
+
+export interface AgentCardContentItem {
+  agentBgModelType: string;
+  agentDefaultPicList: string[];
+  agentPicList: string[];
+  agentShowPostion: string;
+  isShow: string;
+}
+export interface CompanyProfileContent {
+  configItem: string;
+  content: AgentCardContentItem;
+  templateId: string;
+}
+
+export interface CompanyProfileContentItem {
+  agentShowPostion: string;
+  companyPicList: string[];
+  companyDefaultPicList: string[];
+  isShow: string;
+  module: ModuleItem
+}
+
+export interface ModuleItem {
+  components: Partial<ModuleItemInner>[];
+  iconName: string;
+  iconType: string;
+  isTitleShow: string;
+  title: string;
+}
+
+
+export interface ProductDetailContent {
+  configItem: string;
+  content: ProductDetailContentItem;
+  templateId: string;
+}
+
+export interface ProductDetailContentItem {
+
+}
+export interface RiskContent {
+  configItem: string;
+  configItem: string;
+  content: RiskContentItem;
+  templateId: string;
+}
+
+export interface RiskContentItem {
+  isShow: string;
+  riskCaseType: string;
+  riskContent: string;
+  riskCaseType: string;
+  riskDefaultPicList: string[];
+  riskPicList: string[];
+
+
+}

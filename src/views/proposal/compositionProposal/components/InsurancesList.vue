@@ -192,7 +192,7 @@ const handleInsureClick = (insure, index) => {
     }
   }
   .selected {
-    background: linear-gradient(355deg, $zaui-brand 0%, #0da1fe 100%);
+    background: #ffc2b9;
     position: relative;
     span {
       color: white !important;

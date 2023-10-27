@@ -8,7 +8,32 @@
 <template>
   <ProPageWrap>
     <van-config-provider :theme-vars="themeVars">
-      <div class="page-composition-proposal" :class="{ 'page-proposal-bottom': !isShare }">
+      <div
+        v-if="+agentCard.content?.isShow === 1 && +agentCard.content?.agentShowPostion === 1"
+        class="page-composition-proposal-agent"
+        :style="
+          +agentCard.content?.agentBgModelType === 1
+            ? { backgroundImage: `url(${agentCard.content.agentDefaultPicList})` }
+            : ''
+        "
+      >
+        <img round class="agent_icon" :src="agent_img" />
+        <div class="agent_info">
+          <!-- 姓名 -->
+          <span class="agent-name">王钦玉王钦玉王钦玉</span>
+          <!-- 利安没有职级 -->
+          <!-- 公司名称 -->
+          <span class="agent-company">利安人寿南京分公司</span>
+          <span class="agent-num">工 号 688767651 </span>
+          <span class="agent-num">执业证号 02000144010400002018009987</span>
+        </div>
+        <img round class="agent_tel" :src="agent_tel" />
+      </div>
+      <div
+        class="page-composition-proposal"
+        :class="{ 'page-proposal-bottom': !isShare, 'page-proposal-bg': !isShare }"
+        :style="+basicInfo?.content?.bannerType === 1 ? { backgroundImage: `url(${basicInfo.defaultBanner})` } : ''"
+      >
         <div :class="{ 'head-bg': true, 'single-user': !isMultiple }">
           <div class="title">{{ proposalName }}</div>
           <template v-if="isMultiple">
@@ -103,6 +128,27 @@
         </div>
         <div class="back"></div>
       </div>
+      <div
+        v-if="+agentCard.content?.isShow === 1 && +agentCard.content?.agentShowPostion === 2"
+        class="page-composition-proposal-agent2"
+        :style="
+          +agentCard.content?.agentBgModelType === 1
+            ? { backgroundImage: `url(${agentCard.content.agentDefaultPicList})` }
+            : ''
+        "
+      >
+        <img round class="agent_icon" :src="agent_img" />
+        <div class="agent_info">
+          <!-- 姓名 -->
+          <span class="agent-name">王钦玉王钦玉王钦玉</span>
+          <!-- 利安没有职级 -->
+          <!-- 公司名称 -->
+          <span class="agent-company">利安人寿南京分公司</span>
+          <span class="agent-num">工 号 688767651 </span>
+          <span class="agent-num">执业证号 02000144010400002018009987</span>
+        </div>
+        <img round class="agent_tel" :src="agent_tel" />
+      </div>
       <div v-if="!isShare && !isPreview" class="footer-btn">
         <ProShare
           ref="shareButtonRef"
@@ -119,6 +165,7 @@
         <van-button plain type="primary" class="btn" @click="onCreatePdf">生成PDF</van-button>
         <van-button v-if="isShowInsured" type="primary" class="btn" @click="onInsured">立即投保</van-button>
       </div>
+
       <InsuredList
         v-if="showInsureSelect"
         :is-show="showInsureSelect"
@@ -149,6 +196,8 @@ import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
 import { toLocal, ORIGIN } from '@/utils';
 import { queryProposalDetail, queryPreviewProposalDetail, generatePdf } from '@/api/modules/proposalList';
+import agent_img from '@/assets/images/compositionProposal/all_.png';
+import agent_tel from '@/assets/images/compositionProposal/tel.png';
 import {
   checkProposalInsurer,
   proposalTransInsured,
@@ -169,6 +218,11 @@ import {
   ProposalTransInsuredVO,
   ThemeItem,
   ShowConfig,
+  BasicContent,
+  AgentCardContent,
+  CompanyProfileContent,
+  ProductDetailContent,
+  RiskContent,
 } from '@/api/modules/compositionProposal.data';
 import { queryStandardInsurerLink, queryInsureLink } from '@/api/modules/trial';
 import InsuredProductList from './components/InsuredProductList/index.vue';
@@ -204,6 +258,8 @@ const [showProductList, toggleProductList] = useToggle();
 const [showThemeSelect, toggleThemeSelect] = useToggle(); // 选择主题弹出
 const activeName = ref<string[]>([]);
 const themeList = ref<ThemeItem[]>([]); // 主题列表
+const saleInfo = ref<any>({});
+
 const shareButtonRef = ref(); // 分享按钮组件实例
 const operateType = ref<'share' | 'pdf'>('share'); // 按钮的操作类型
 let shareLink = '';
@@ -212,6 +268,21 @@ const showCaseConfig = [
   { label: '按险种', value: 1 },
   { label: '按责任', value: 2 },
 ];
+interface IState {
+  agentCard: Partial<AgentCardContent>;
+  basicInfo: Partial<BasicContent>;
+  companyProfile: Partial<CompanyProfileContent>;
+  productDetail: Partial<ProductDetailContent>;
+  riskAlert: Partial<RiskContent>;
+}
+const state = reactive<IState>({
+  agentCard: {},
+  basicInfo: {},
+  companyProfile: {},
+  productDetail: {},
+  riskAlert: {},
+});
+const { agentCard, basicInfo, companyProfile, productDetail, riskAlert } = toRefs(state);
 
 const rules = [
   {
@@ -354,9 +425,14 @@ const getThemeList = async () => {
 };
 // 获取计划书预览基础配置信息
 const getProposalSaleInfo = async () => {
-  const { code, data } = await queryProposalTemplateSaleInfo({ insurerCode: 'lianlife', selectRiskCodes: [] });
+  const { code, data } = await queryProposalTemplateSaleInfo({ insurerCode: 'lianlife', riskIds: [40020, 40037] });
   if (code === '10000') {
-    console.log('data', data);
+    saleInfo.value = data || [];
+    agentCard.value = saleInfo.value?.agentCard || {};
+    basicInfo.value = saleInfo.value?.basicInfo || {};
+    companyProfile.value = saleInfo.value?.companyProfile || {};
+    productDetail.value = saleInfo.value?.productDetail || {};
+    riskAlert.value = saleInfo.value?.riskAlert || {};
   }
 };
 
@@ -535,8 +611,62 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.page-composition-proposal-agent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-image: url('@/assets/images/compositionProposal/agent-bg.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 100%;
+  height: 177px;
+  padding: 15px 30px;
+
+  .agent_icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 80px;
+  }
+  .agent_tel {
+    width: 60px;
+    height: 60px;
+    border-radius: 60px;
+  }
+  .agent_info {
+  }
+  .agent-name {
+    font-size: 28px;
+    font-weight: 600;
+    color: #333333;
+    line-height: 40px;
+    margin-bottom: 2px;
+    display: block;
+  }
+  .agent-company {
+    font-size: 24px;
+    font-weight: 500;
+    color: #333333;
+    line-height: 36px;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .agent-num {
+    font-size: 22px;
+    font-weight: 400;
+    color: #666666;
+    line-height: 30px;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .agent_tel {
+  }
+}
+.page-composition-proposal-agent2 {
+  @extend .page-composition-proposal-agent;
+  margin-bottom: 150px;
+}
 .page-composition-proposal {
-  background-image: url('@/assets/images/compositionProposal/proposal_preview_bk.png');
+  background-image: url('@/assets/images/compositionProposal/banner.png');
   background-repeat: no-repeat;
   background-size: contain;
   // background-image: linear-gradient(#eaf1fa, #f2f5fc);
@@ -557,7 +687,7 @@ onMounted(() => {
 
   .head-bg {
     // background-image: linear-gradient(0deg, #eaf1fa 100%, #f2f5fc, 0%);
-    height: 354px;
+    // height: 354px;
     width: 100%;
     position: relative;
     box-sizing: border-box;
@@ -567,15 +697,17 @@ onMounted(() => {
       height: 200px;
     }
     .title {
-      width: 432px;
+      width: 296px;
       margin-left: 30px;
-      padding-top: 46px;
-      font-size: 42px;
+      padding-top: 252px;
+      padding-bottom: 134px;
+      font-size: 40px;
       font-weight: 600;
-      color: black;
+      color: #ffffff;
+      line-height: 56px;
     }
     .selected {
-      position: absolute;
+      // position: absolute;
       bottom: 0;
       left: 0;
     }
@@ -625,7 +757,7 @@ onMounted(() => {
         min-height: 106px;
         width: 100%;
         border-radius: 16px 16px 0 0;
-        background: linear-gradient(360deg, #ecf5ff 0%, #c9e7ff 100%);
+        // background: #ffc2b9;
         display: flex;
         .info-detail {
           width: 100%;
@@ -669,7 +801,7 @@ onMounted(() => {
       }
       .family-body {
         width: 100%;
-        margin-top: 28px;
+        margin-top: 14px;
         border-radius: 0 0 16px 16px;
         background-color: white;
       }
