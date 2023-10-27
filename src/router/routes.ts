@@ -394,6 +394,12 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     meta: { title: '问卷预览' },
     component: () => import('@/views/baseInsurance/questionnairePreview/index.vue'),
   },
+  {
+    name: '资料库',
+    path: '/productLib',
+    meta: { title: '资料库' },
+    component: () => import('@/views/productLib/index.vue'),
+  },
   ...proposalRoutes,
   ...baseInsurance,
 ];
