@@ -29,6 +29,7 @@
         </div>
         <img round class="agent_tel" :src="agent_tel" />
       </div>
+
       <div
         class="page-composition-proposal"
         :class="{ 'page-proposal-bottom': !isShare, 'page-proposal-bg': !isShare }"
@@ -36,6 +37,15 @@
       >
         <div :class="{ 'head-bg': true, 'single-user': !isMultiple }">
           <div class="title">{{ proposalName }}</div>
+          <div v-for="(item, index) in companyProfile?.content?.module" :key="index" class="company">
+            <div
+              v-if="+companyProfile?.content.agentShowPostion === 3"
+              class="company-title"
+              @click="goCompanyDetail(index)"
+            >
+              {{ item.iconName }}
+            </div>
+          </div>
           <template v-if="isMultiple">
             <van-sticky :class="`selected`" @change="stickyChange">
               <div :class="`${selectedFixed ? 'to-fixed' : ''}`">
@@ -196,7 +206,7 @@ import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
 import { toLocal, ORIGIN } from '@/utils';
 import { queryProposalDetail, queryPreviewProposalDetail, generatePdf } from '@/api/modules/proposalList';
-import agent_img from '@/assets/images/compositionProposal/all_.png';
+import agent_img from '@/assets/images/compositionProposal/addver.png';
 import agent_tel from '@/assets/images/compositionProposal/tel.png';
 import {
   checkProposalInsurer,
@@ -334,6 +344,13 @@ const isShowInsured = computed(() => {
 const isPreview = computed(() => {
   return `${preview}` === '1';
 });
+// 这里跳转公司介绍单独的页面
+const goCompanyDetail = (index) => {
+  localStorage.setItem('company_detail', JSON.stringify(companyProfile?.value.content?.module[index]));
+  history.push({
+    path: '/companyDetail',
+  });
+};
 
 watch(
   () => infos.value,
@@ -675,6 +692,21 @@ onMounted(() => {
   &.page-proposal-bottom {
     margin-bottom: 150px;
   }
+  .company {
+    &-title {
+      background-image: url('@/assets/images/compositionProposal/banner.png');
+      position: absolute;
+      top: 118px;
+      right: 0;
+      height: 60px;
+      font-size: 22px;
+      font-weight: 400;
+      color: #2a282a;
+      line-height: 60px;
+      margin-left: 9px;
+    }
+  }
+
   .back {
     position: fixed;
     background-image: linear-gradient(#eaf1fa, #f2f5fc);
