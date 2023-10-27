@@ -65,6 +65,9 @@ const onCopy = () => {
   &:last-child {
     border-bottom: none;
   }
+  .com-field-info {
+    margin: 0;
+  }
   &.com-field-info-line {
     border-bottom: none;
   }

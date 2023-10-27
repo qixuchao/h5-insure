@@ -7,8 +7,18 @@
     </div>
     <div class="info">
       <InfoItem label="订单号" :content="detail.orderNo" line is-copy />
-      <InfoItem v-for="no in detail.applicationNo || ['']" :key="no" label="投保单号" :content="no" line is-copy />
-      <InfoItem label="保单号" :content="detail.policyNo" line is-copy />
+      <InfoItem label="投/保单号" line>
+        <template #content>
+          <div class="content-list">
+            <InfoItem
+              v-for="no in detail.policyNo || detail.applicationNo || ['']"
+              :key="no"
+              is-copy
+              :content="no"
+            ></InfoItem>
+          </div>
+        </template>
+      </InfoItem>
       <div class="info-bottom">
         <div>
           <InfoItem label="投保人" :content="detail.holderName" line />
@@ -147,22 +157,6 @@ const handleProcess = () => {
   } = props.detail;
   if (redirectProductDetail()) return;
   pageJump('orderDetail', { orderNo, agentCode, tenantId, abbreviation, productCategory });
-  // router.push({
-  //   path: PAGE_ROUTE_ENUMS[props.detail.pageCode],
-  //   query: {
-  //     productCode,
-  //     orderNo,
-  //     orderId,
-  //     agentCode,
-  //     templateId,
-  //     tenantId,
-  //     insurerCode,
-  //     productCategory,
-  //     agencyCode,
-  //     // 是否从订单列表来的，用来判断是否展示导航栏
-  //     isFromOrderList: '1',
-  //   },
-  // });
 };
 </script>
 

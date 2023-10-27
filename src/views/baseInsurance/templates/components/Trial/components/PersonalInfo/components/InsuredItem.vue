@@ -191,7 +191,10 @@ const state = reactive<Partial<StateInfo>>({
   beneficiaryList: [],
   /** 监护人 */
   guardianSchema: [],
-  guardian: {},
+  guardian: {
+    personVO: {},
+    config: {},
+  },
 });
 
 const isSameHolder = ref<boolean>(false);
@@ -202,7 +205,10 @@ const isShowGuardian = computed<boolean>(() => {
   if (!['1', '4', '5'].includes(`${relationToHolder}`) && age !== null && +age < 18) {
     return true;
   }
-  state.guardian = {};
+  state.guardian = {
+    personVO: {},
+    config: {},
+  };
   return false;
 });
 
@@ -580,13 +586,12 @@ watch(
 
 // 监听被保人与监护人关系
 watch(
-  () => state.guardian.personVO?.relationToInsured,
+  () => state.guardian?.personVO?.relationToInsured,
   (val, oldVal) => {
     if (val === oldVal) {
       return;
     }
     colorConsole(`监护人与被保人关系变动了`);
-
     const { certType } = state.guardian.personVO || {};
     // 证件类型是否只有身份证, 与被保险人关系变动
     const [isOnlyCertFlag, tempConfig] = getCertConfig(state.guardianSchema, { certType, relationToInsured: val });
@@ -599,29 +604,25 @@ watch(
     // 受益人与被保人关系切换
     if (!props.isView && val !== oldVal) {
       // 投被保人为丈夫或者妻子时默认被保人的性别 2: 丈夫，3:妻子
-
       let currentGender = null;
       if (`${val}` === '2') {
         genderConfig.gender.isView = true;
-
         currentGender = SEX_LIMIT_ENUM.FEMALE;
       }
-
       if (`${val}` === '3') {
         genderConfig.gender.isView = true;
-
         currentGender = SEX_LIMIT_ENUM.MALE;
       }
 
-      // 若为本人合并投保人数据
-      Object.assign(state.guardian.personVO, {
-        // 若只有证件类型为身份证，不清除值
-        ...resetObjectValues(state.guardian.personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
-        gender: currentGender,
-        relationToInsured: val,
-      });
+      if (oldVal) {
+        Object.assign(state.guardian.personVO, {
+          // 若只有证件类型为身份证，不清除值
+          ...resetObjectValues(state.guardian.personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
+          gender: currentGender,
+          relationToInsured: val,
+        });
+      }
     }
-
     merge(state.guardian.config, tempConfig, genderConfig);
   },
   {
@@ -734,12 +735,13 @@ watch(
 
 // 监听监护人数据更新
 watch(
-  () => props.guardian,
-  debounce((value, oldValue) => {
+  () => props.guardian?.personVO,
+  (value, oldValue) => {
+    console.log('value', value);
     if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
-      state.guardian = value;
+      Object.assign(state.guardian.personVO, value);
     }
-  }, 300),
+  },
   {
     deep: true,
     immediate: true,

@@ -11,15 +11,18 @@
       <div class="card card-list">
         <p class="card-list-title">{{ detail?.productName }}</p>
         <InfoItem label="订单号" :content="detail?.orderNo" line is-copy min-width="other" />
-        <InfoItem
-          v-for="no in detail?.applicationNoList?.length ? detail?.applicationNoList : ['']"
-          :key="no"
-          label="投保单号"
-          :content="no"
-          line
-          is-copy
-          min-width="other"
-        />
+        <InfoItem label="投/保单号" line min-width="other">
+          <template #content>
+            <InfoItem
+              v-for="no in detail?.policyNoList?.length ? detail?.policyNoList : detail?.applicationNoList"
+              :key="no"
+              :content="no"
+              line
+              is-copy
+              min-width="other"
+            />
+          </template>
+        </InfoItem>
         <InfoItem label="创建时间" :content="detail?.orderDate" line min-width="other" />
         <InfoItem label="投保时间" :content="detail?.applicationCreateDate" line min-width="other" />
         <InfoItem label="投保保费" :content="transformToMoney(detail?.orderAmount)" line min-width="other" />

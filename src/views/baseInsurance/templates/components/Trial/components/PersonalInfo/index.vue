@@ -331,6 +331,7 @@ const setCustomerToPerson = (value) => {
   }
   // 监护人
   else if (state.currentType === 'guardian') {
+    console.log('selectedCustomer', selectedCustomer);
     Object.assign(state?.insured[state.currentIndex]?.guardian?.personVO || {}, selectedCustomer);
   }
 };

@@ -315,7 +315,7 @@ const compareOcrData = () => {
   compareData(holder, '投保人');
   compareData(insuredList?.[0], '被保人');
   (insuredList?.[0]?.beneficiaryList || []).forEach((benefit, index) => {
-    compareData(benefit, `收益人${index}`);
+    compareData(benefit, `受益人${index + 1}`);
   });
   compareData(insuredList?.[0].guardian, '监护人');
   compareData(insuredList?.[0].guardian, '监护人');
