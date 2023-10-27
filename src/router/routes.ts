@@ -183,6 +183,12 @@ const proposalRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/proposal/compositionProposal/index.vue'),
   },
   {
+    name: 'companyDetail',
+    path: '/companyDetail',
+    meta: { title: '组合计划书', requireWxJs: false },
+    component: () => import('@/views/proposal/compositionProposal/components/CompanyDetail.vue'),
+  },
+  {
     name: 'proposalCover',
     path: '/proposalCover',
     meta: { title: '计划书封面', requireWxJs: false },

@@ -188,7 +188,7 @@ const getProducts = () => {
     .then((res: any) => {
       const { code, data, total } = res;
       if (code === '10000') {
-        productList.value = data?.datas;
+        productList.value = data;
         productTotal.value = total;
       }
     })
