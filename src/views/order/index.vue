@@ -3,25 +3,24 @@
   <!-- <ProPageWrap main-class="page-order-list"> -->
   <div id="page-order" class="page-order">
     <ProTab v-model:active="active" :list="tabList" class="tab" title-active-color="#c41e21" />
-    <van-pull-refresh v-model="freshLoading" :disabled="refreshDisabled" @refresh="handleAfterDelete">
-      <div ref="refreshRef" class="list-wrap">
-        <van-list v-if="list.length" v-model:loading="loading" class="body" :finished="finished" @load="handleLoad">
-          <Item
-            v-for="(item, index) in list"
-            :key="index"
-            :detail="item"
-            @click="handleClick(item)"
-            @after-delete="handleAfterDelete"
-          />
-          <!-- <div class="footer">
+
+    <div ref="refreshRef" class="list-wrap">
+      <van-list v-if="list.length" v-model:loading="loading" class="body" :finished="finished" @load="handleLoad">
+        <Item
+          v-for="(item, index) in list"
+          :key="index"
+          :detail="item"
+          @click="handleClick(item)"
+          @after-delete="handleAfterDelete"
+        />
+        <!-- <div class="footer">
         <img src="@/assets/images/component/logo.png" alt="" style="width: 100%; height: 128px" />
       </div> -->
-        </van-list>
-      </div>
-      <!-- <div v-else class="empty-box">
+      </van-list>
+    </div>
+    <!-- <div v-else class="empty-box">
         <ProEmpty title="暂无投保单" empty-class="empty-select" />
       </div> -->
-    </van-pull-refresh>
   </div>
   <!-- </ProPageWrap> -->
   <!-- </van-config-provider> -->

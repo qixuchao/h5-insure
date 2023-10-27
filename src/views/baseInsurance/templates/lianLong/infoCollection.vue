@@ -118,7 +118,7 @@ import {
   YES_NO_ENUM,
 } from '@/common/constants';
 import { formData2Order, orderData2trialData, trialData2Order } from '../utils';
-import { jumpToNextPage } from '@/utils';
+import { jumpToNextPage, scrollToError } from '@/utils';
 import Trial from '../components/Trial/index.vue';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import router from '@/router';
@@ -401,8 +401,7 @@ const onNext = async () => {
         }
       },
       (formRef) => {
-        console.log('formRef', formRef);
-        formRef[0].scrollToField();
+        scrollToError('.long-info-collection', '.van-field--error');
       },
     )
     .catch((e) => {

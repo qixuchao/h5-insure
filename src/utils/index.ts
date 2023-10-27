@@ -219,3 +219,7 @@ export function subString(str: string, size: number, prefix = '...'): string {
   if (str.length <= size) return str;
   return `${str.substr(0, size)}${prefix}`;
 }
+
+export const scrollToError = (wrap, errorEle) => {
+  document.querySelector(wrap).querySelector(errorEle).scrollIntoViewIfNeeded();
+};

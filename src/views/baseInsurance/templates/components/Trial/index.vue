@@ -110,7 +110,7 @@ import { CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM, YES_NO_ENUM, isNotEmptyArray } f
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from '../../long/constants';
 import { nextStepOperate as nextStep } from '../../../nextStep';
 import pageJump from '@/utils/pageJump';
-import { jumpToNextPage, toLocal } from '@/utils';
+import { jumpToNextPage, toLocal, scrollToError } from '@/utils';
 import { ProductFactor } from '@/components/RenderForm';
 import { transformToMoney } from '@/utils/format';
 

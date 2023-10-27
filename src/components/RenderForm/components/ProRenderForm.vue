@@ -233,7 +233,7 @@ const validate = (prams) => {
         if (props.validateMethod === 'toast') {
           Toast(error?.[0].message || error.message);
         }
-        reject(error, formRef.value);
+        reject(error);
       });
   });
 };
