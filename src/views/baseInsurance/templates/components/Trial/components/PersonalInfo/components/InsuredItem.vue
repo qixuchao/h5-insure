@@ -254,7 +254,7 @@ const holderToBeneficial = (index: number) => {
       if (index === ind) {
         return {
           ...beneficiaryItem,
-          personVO: { ...beneficiaryItem.personVO, ...mergeHolderBenefic() },
+          personVO: { ...beneficiaryItem?.personVO, ...mergeHolderBenefic() },
           config: {
             ...beneficiaryItem.config,
             benefitRate: {
@@ -394,6 +394,7 @@ watch(
       Object.assign(state.personVO, tempData, { certImage });
     } else {
       setNonageValue(val, state.personVO);
+      isSameHolder.value = false;
     }
   }, 300),
   {
@@ -471,7 +472,7 @@ watch(
 watch(
   () =>
     cloneDeep(state.beneficiaryList).map((item) => ({
-      personVO: item.personVO,
+      personVO: item?.personVO,
       nanoid: item.nanoid,
     })),
   (val, oldValue) => {

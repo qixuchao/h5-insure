@@ -472,12 +472,12 @@ watch(
         const { beneficiaryList: list, guardian, personVO } = insuredItem || {};
         const beneficiaryList = isNotEmptyArray(list)
           ? list.map((beneficiaryItem) => ({
-              ...beneficiaryItem.personVO,
+              ...beneficiaryItem?.personVO,
             }))
           : [];
         return {
           ...personVO,
-          guardian: guardian.personVO || {},
+          guardian: guardian?.personVO || {},
           beneficiaryList,
         };
       }),
@@ -640,6 +640,7 @@ watch(
       [[holderConfig, holderFormData, insuredList], newConfig, newInitInsured],
       [[oldHolderConfig, oldHolderData, oldInured], oldConfig, oldInitInsured],
     ) => {
+      console.log('initInsuredTempData', cloneDeep(newInitInsured), cloneDeep(oldInitInsured));
       if (
         JSON.stringify(holderConfig) === JSON.stringify(oldHolderConfig) &&
         JSON.stringify(holderFormData) === JSON.stringify(oldHolderData) &&
@@ -677,9 +678,11 @@ watch(
           : stateInsuredLen || multiInsuredMinNum;
 
       const currentInsuredList = cloneDeep(insuredList);
+      console.log('initInsuredTempData', insuredLen);
       state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
         const { personVO, config = {}, guardian, beneficiaryList } = currentInsuredList?.[index] || {};
         const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
+        console.log('initInsuredTempData', initInsuredTempData);
         if (!res[index]) {
           res[index] = {
             ...cloneDeep(initInsuredTempData),

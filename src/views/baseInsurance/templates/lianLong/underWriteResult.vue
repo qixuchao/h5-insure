@@ -131,12 +131,14 @@ const handleInsure = () => {
 
 // 放弃投保,跳转至产品列表
 const handleGiveUp = () => {
-  cancelOrder(() => {
-    delete route.query.orderNo;
-    router.push({
-      path: PAGE_ROUTE_ENUMS.productList,
-      query: route.query,
-    });
+  cancelOrder({ orderNo, tenantId }).then(({ code, data }) => {
+    if (code === '10000') {
+      delete route.query.orderNo;
+      router.push({
+        path: PAGE_ROUTE_ENUMS.productList,
+        query: route.query,
+      });
+    }
   });
 };
 
