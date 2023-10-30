@@ -18,7 +18,7 @@ export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
   const { tenantId, agencyCode, proposalId, saleChannelId, extraInfo, insurerCode, systemCode, source } = useRoute()
     .query as QueryData;
 
-  const { agentCode, branchType, name } = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`);
+  const { agentCode, branchType, name } = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`) || {};
 
   let extInfo: any = {};
 
