@@ -129,6 +129,12 @@
           </template>
         </ProCard>
         <ProRenderFormWithCard ref="productFormRef" title="保障计划" class="product-container">
+          <template #cardTitleExtra>
+            <div class="replace-product" @click="replaceProduct">
+              <ProSvg name="refresh" color="var(--van-primary-color)"></ProSvg>
+              <span>为TA换个产品</span>
+            </div>
+          </template>
           <template v-if="stateInfo.insurerList[stateInfo.currentSelectInsure].productList.length > 0">
             <ProCard
               v-for="(productItem, index) in stateInfo.insurerList[stateInfo.currentSelectInsure].productList"
@@ -158,7 +164,7 @@
                 title="该成员还未配置产品，去添加吧！"
                 empty-class="empty-select"
               />
-              <ProCheckButton activated :round="34" @click="addProduct">添加产品</ProCheckButton>
+              <ProCheckButton activated :round="34" @click="addProduct">+新增主险</ProCheckButton>
             </div>
           </template>
         </ProRenderFormWithCard>
@@ -166,7 +172,7 @@
           v-if="showAddBtn && stateInfo.insurerList[stateInfo.currentSelectInsure].productList.length > 0"
           class="operate-bar"
         >
-          <ProCheckButton activated :round="34" @click="addProduct">添加产品</ProCheckButton>
+          <ProCheckButton activated :round="34" @click="addProduct">+新增主险</ProCheckButton>
         </div>
       </div>
       <div class="footer-bar">
@@ -564,6 +570,20 @@ const onFinished = (productInfo: PlanTrialData) => {
   trialPopupRef.value?.close();
 };
 
+// 替换主险
+const replaceProduct = () => {
+  store.setInsuredPersonVO(stateInfo.insurerList[stateInfo.currentSelectInsure].personVO);
+  store.setExcludeProduct([]);
+  store.setProposalInfo(proposalInfo.value);
+  router.push({
+    path: '/proposalListSelect',
+    query: {
+      isCreateProposal: '1',
+    },
+  });
+};
+
+// 新增主险
 const addProduct = () => {
   const validates = [insuredFormRef.value?.validate()];
 
@@ -1170,6 +1190,15 @@ onBeforeMount(() => {
   background-color: $zaui-global-bg;
   :deep(.page-main) {
     background-color: $zaui-global-bg;
+  }
+
+  .replace-product {
+    color: var(--van-primary-color);
+    padding-right: $zaui-page-border;
+    font-size: 28px;
+    span {
+      margin-left: 16px;
+    }
   }
 
   .title-tip-icon {

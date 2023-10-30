@@ -3,7 +3,6 @@
     <div class="content-wrap">
       <div class="product-image">
         <van-image :src="productInfo.showConfig?.fileThumbnailUrl || productInfo.showConfig?.fileUrl" />
-        <p class="insure-name">{{ (productInfo.insurerName || '').substring(0, 6) }}</p>
         <!-- <span class="is-top new">热销</span> -->
       </div>
       <div class="product-info">
@@ -139,7 +138,7 @@ const { checked } = toRefs(state);
           font-weight: 400;
           color: $zaui-brand;
           line-height: 30px;
-          background: rgba(13, 110, 254, 0.1);
+          background: rgba(196, 30, 33, 0.06);
           border-radius: 8px;
           &:not(:first-child) {
             margin-left: 12px;

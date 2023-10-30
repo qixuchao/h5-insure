@@ -52,18 +52,20 @@ const list = ref(props.insurerList);
 const emits = defineEmits(['listChange', 'currentChange', 'add', 'delete', 'validateTab']);
 
 const showTabs = (reLad = false) => {
-  nextTick(() => {
-    tabRef.value[state.value.currentSelected]?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
-      inline: 'start',
+  if (tabsRef.value) {
+    nextTick(() => {
+      tabRef.value[state.value.currentSelected]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'start',
+      });
+      if (state.value.currentSelected === 0) {
+        tabsRef.value.scrollLeft = 0;
+      } else if (reLad && state.value.currentSelected >= 3) {
+        tabsRef.value.scrollLeft = tabsRef.value.scrollWidth;
+      }
     });
-    if (state.value.currentSelected === 0) {
-      tabsRef.value.scrollLeft = 0;
-    } else if (reLad && state.value.currentSelected >= 3) {
-      tabsRef.value.scrollLeft = tabsRef.value.scrollWidth;
-    }
-  });
+  }
 };
 
 const updateInsurer = (index: number, info: any) => {};

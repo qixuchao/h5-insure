@@ -1,10 +1,19 @@
 <template>
   <van-config-provider :theme-vars="themeVars">
     <ProPageWrap class="page-proposal">
-      <div class="search-wrap">
-        <van-search v-model="searchValue" placeholder="搜索计划书" shape="round" class="search" @search="onSearch" />
-        <InsureFilter v-model:filter="isOpen" filter-class="filter-area" @on-select-insure="handleClickTag" />
-      </div>
+      <ProSearch v-model="searchValue" placeholder="请输入计划书名称" @search="onSearch">
+        <InsureFilter filter-class="filter-area" @on-select-insure="handleClickTag" />
+        <van-tabbar
+          v-model="productClass"
+          active-color="var(--van-primary-color)"
+          inactive-color="black"
+          :fixed="false"
+          @change="getProducts"
+        >
+          <van-tabbar-item :name="1">非组合计划书</van-tabbar-item>
+          <van-tabbar-item :name="4">组合计划书</van-tabbar-item>
+        </van-tabbar>
+      </ProSearch>
       <ProEmpty
         v-if="!hasProduct && !state.firstLoading"
         :empty-img="emptyImg"
@@ -169,6 +178,7 @@ const {
 
 const [showProductRisk, toggleProductRisk] = useToggle();
 const [showSelectProduct, toggleSelectProduct] = useToggle();
+const productClass = ref<string>(1); // 产品分类 4: 多主线产品、1：非多主线产品
 
 // const addProposalType = ref<any>(isCreateProposal ? 'repeatAdd' : 'add');
 
@@ -180,6 +190,7 @@ const getProducts = () => {
   queryProposalProductList({
     title: searchValue.value,
     insurerCodeList: insurerCodeList.value,
+    productClass: productClass.value,
     showCategory: showCategory.value,
     excludeProductCodeList: Array.isArray(excludeProductCodeList) ? excludeProductCodeList : [],
     pageNum: 1,
@@ -347,37 +358,14 @@ onBeforeMount(() => {
   .empty-select {
     margin-top: 200px;
   }
-}
 
-.search-wrap {
-  position: sticky;
-  top: 0;
-  z-index: 999;
-  background: #ffffff;
-  :deep(.van-search) {
-    .van-field__body {
-      width: 100%;
-      .van-field__control {
-        width: 100%;
-        margin: 0;
-        padding: 8px 0;
-      }
-    }
-  }
-  :deep(.search) {
-    width: 100%;
-    min-height: 56px;
-    line-height: 56px;
-    .van-search__content {
-      border-radius: 8px;
-      background: #f4f5f7;
-      .van-cell {
-        padding: 0;
-        .van-field__left-icon {
-          font-size: 18px;
-          font-weight: bold;
-        }
-      }
+  :deep(.van-tabbar) {
+    height: auto;
+    .van-tabbar-item {
+      flex: unset;
+      margin-right: 40px;
+      font-size: 26px;
+      font-weight: 600;
     }
   }
 }
