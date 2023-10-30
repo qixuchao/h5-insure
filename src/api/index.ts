@@ -125,3 +125,11 @@ export const rollbackEditOrder = (data) =>
     method: 'POST',
     data,
   });
+
+// 获取支付快照信息
+export const querySnapShotPayInfo = (data) =>
+  request({
+    url: '/api/app/insure/insurance/snapShotPayInfo',
+    method: 'POST',
+    data,
+  });
