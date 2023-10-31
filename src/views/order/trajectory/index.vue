@@ -62,12 +62,7 @@ onMounted(() => {
   orderInsureRecord({ orderId, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       const { originList, recordResVOList } = data;
-      list.value = ((originList as OriginItem[]) || []).map((item, index) => {
-        return {
-          ...item,
-          ...recordResVOList[index],
-        };
-      });
+      list.value = recordResVOList;
       if (recordResVOList.length) {
         activeIndex.value = recordResVOList.length - 1;
       }

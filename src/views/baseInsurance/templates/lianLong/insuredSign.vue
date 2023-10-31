@@ -122,7 +122,7 @@ const getOrderDetail = () => {
     getTenantOrderDetail({ orderNo: orderCode || orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
         const signAttachmentList = {};
-        orderDetail.value.tenantOrderAttachmentList.forEach((attachment) => {
+        data.tenantOrderAttachmentList.forEach((attachment) => {
           if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED && attachment.category === 30) {
             signAttachmentList[attachment.objectId].push(attachment.fileBase64);
           }

@@ -60,7 +60,7 @@
               ></InsureInfos>
               <div class="premium-item">
                 <span class="label">首期保费</span>
-                <span class="price">¥{{ toLocal(premiumMap?.[productCode]?.[index]?.initialPremium || '0') }}元</span>
+                <span class="price">{{ transformToMoney(premiumMap?.[productCode]?.[index]?.initialPremium) }}</span>
               </div>
             </div>
           </div>
@@ -110,8 +110,9 @@ import { CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM, YES_NO_ENUM, isNotEmptyArray } f
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from '../../long/constants';
 import { nextStepOperate as nextStep } from '../../../nextStep';
 import pageJump from '@/utils/pageJump';
-import { jumpToNextPage, toLocal } from '@/utils';
+import { jumpToNextPage, toLocal, scrollToError } from '@/utils';
 import { ProductFactor } from '@/components/RenderForm';
+import { transformToMoney } from '@/utils/format';
 
 interface Props {
   selfKey: string;
@@ -527,8 +528,8 @@ const onNext = (cb) => {
         extInfo: {
           templateId,
 
-          ...orderDetail.value.extInfo,
-          ...(props.defaultOrder.extInfo || {}),
+          ...orderDetail.value?.extInfo,
+          ...(props.defaultOrder?.extInfo || {}),
           buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
           pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
         },
@@ -712,8 +713,8 @@ const birthdayList = computed(() => {
 
 // 监听被保人出生日期变化时，重新获取动态值
 watch(
-  () => (state.userData?.insuredList || []).map((insured) => insured.birthday).join(','),
-  debounce(async (value) => {
+  [() => (state.userData?.insuredList || []).map((insured) => insured.birthday).join(','), () => productMap.value],
+  async ([value]) => {
     if (value) {
       const insuredList = state.userData.insuredList.filter((insured) => insured.birthday) || [];
       if (!insuredList.length) {
@@ -735,6 +736,8 @@ watch(
         };
       });
 
+      console.log('factorList', factorList, productMap.value);
+
       const dyResult = await queryCalcDynamicInsureFactor({
         calcProductFactorList: factorList,
         insuredVOList: insuredList,
@@ -742,7 +745,7 @@ watch(
       });
       // handleDealDyResult(dyResult);
     }
-  }),
+  },
   {
     // deep: true,
   },
@@ -769,8 +772,6 @@ const pickRiskInfoList = (productCode, riskCode, riskType) => {
     insurancePeriodRule = iPeriodRule;
     mainRiskCode = mCode;
   }
-
-  console.log('mainRiskCode', mainRiskCode);
 
   const riskList = productMap.value[productCode].productPlanInsureVOList?.[0].insureProductRiskVOList.filter((risk) => {
     if (riskType === RISK_TYPE_ENUM.MAIN_RISK) {
@@ -1069,6 +1070,7 @@ watch(
     if (JSON.stringify(cloneDeep(value)) !== JSON.stringify(cloneDeep(oldValue))) {
       state.defaultValue = value;
       state.userData = value || {};
+      value && (orderDetail.value = value || {});
     }
   },
   {
@@ -1171,7 +1173,7 @@ watch(
             line-height: 40px;
             display: flex;
             .btn {
-              padding: 0 20px;
+              padding: 0 10px;
             }
             .add-risk {
               color: var(--van-primary-color);

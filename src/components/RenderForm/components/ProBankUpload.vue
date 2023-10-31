@@ -140,6 +140,7 @@ const handleRead = (e: UploaderFileListItem, index) => {
 
 const handleBeforeDelete = (index: number) => {
   state.modelValue[index] = null;
+  state.ossKeyList[index] = null;
 };
 
 watch(
@@ -167,7 +168,8 @@ watch(
 watch(
   () => state.ossKeyList,
   (val) => {
-    if (isNotEmptyArray(val) && val.length === 2) {
+    const keyList = val.filter((item) => item);
+    if (isNotEmptyArray(keyList) && keyList.length === 2) {
       ocr({
         ossKey: val,
         imageType: OCR_TYPE_ENUM.BANK_CARD,

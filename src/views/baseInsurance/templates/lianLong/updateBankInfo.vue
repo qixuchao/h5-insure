@@ -1,9 +1,9 @@
 <template>
   <div class="bank-info-wrap">
     <PayInfo
-      v-if="payInfo.schema.length"
+      v-if="payInfo.schema.length && payInfoList"
       ref="payInfoRef"
-      v-model="orderDetail.tenantOrderPayInfoList"
+      v-model="payInfoList"
       :schema="payInfo.schema"
       :is-view="isView"
       :user-data="orderDetail"
@@ -27,6 +27,7 @@ import pageJump from '@/utils/pageJump';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
 import { shareWeiXin } from '@/utils/lianSDK';
 import { SHARE_CONTENT } from '@/common/constants/lian';
+import { querySnapShotPayInfo } from '@/api';
 
 const route = useRoute();
 const router = useRouter();
@@ -39,6 +40,7 @@ const payInfo = ref({
 });
 const isView = ref(!!isShare);
 const payInfoRef = ref<InstanceType<typeof PayInfo>>();
+const payInfoList = ref();
 
 const handleCancel = () => {
   router.back();
@@ -74,6 +76,7 @@ const handleConfirm = () => {
   if (payInfoRef.value) {
     payInfoRef.value.validate(false).then((validate) => {
       if (validate) {
+        orderDetail.value.tenantOrderPayInfoList = payInfoList;
         if (isShare) {
           orderDetail.value.extInfo.buttonCode = BUTTON_CODE_ENUMS.UPDATE_BANK_INFO_HOLDER;
           nextStep(
@@ -104,6 +107,13 @@ const handleConfirm = () => {
 
 const initData = async () => {
   let productRiskMap = {};
+
+  querySnapShotPayInfo({ orderNo, tenantId }).then(({ code, data }) => {
+    if (code === '10000') {
+      payInfoList.value = data.tenantOrderPayInfoList;
+    }
+  });
+
   const { code: oCode, data: oData } = await getTenantOrderDetail({ orderNo, tenantId });
   if (oCode === '10000') {
     Object.assign(orderDetail.value, oData, {

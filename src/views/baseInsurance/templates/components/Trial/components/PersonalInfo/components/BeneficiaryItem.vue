@@ -28,7 +28,7 @@ import merge from 'lodash-es/merge';
 import isEqual from 'lodash-es/isEqual';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { debounce } from 'lodash-es';
-import { ATTACHMENT_OBJECT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
+import { ATTACHMENT_OBJECT_TYPE_ENUM, YES_NO_ENUM, SEX_LIMIT_ENUM } from '@/common/constants';
 import {
   type SchemaItem,
   type PersonFormProps,
@@ -38,6 +38,8 @@ import {
   validateFields,
   resetObjectValues,
   ProRenderFormWithCard,
+  getNameRules,
+  setCertDefaultValue,
 } from '@/components/RenderForm';
 
 interface Props {
@@ -100,7 +102,7 @@ const isSameHolder = () => {
   }
   const collection =
     Object.keys(state.personVO).filter((key) => {
-      if (['gender', 'birthday', 'certType', 'certNo', 'name'].includes(key)) {
+      if (['gender', 'birthday', 'certType', 'certNo', 'name'].includes(key) && state.personVO[key]) {
         if (`${state.personVO?.[key]}` === `${props?.holderPersonVO?.[key]}`) {
           return true;
         }
@@ -128,6 +130,9 @@ watch(
   () => props.schema,
   (val) => {
     if (val) {
+      setCertDefaultValue(props.schema, props.modelValue, () => {
+        state.personVO.certType = '1';
+      });
       Object.assign(state.schema, cloneDeep(props.schema));
     }
   },
@@ -143,6 +148,9 @@ watch(
     if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
       colorConsole('受益人数据变动了', val);
       Object.assign(state.personVO, val);
+      setCertDefaultValue(props.schema, props.modelValue, () => {
+        Object.assign(state.personVO, { certType: '1' });
+      });
     }
   },
   {
@@ -207,21 +215,54 @@ watch(
     const { certType } = state.personVO || {};
     // 证件类型是否只有身份证, 与被保险人关系变动
     const [isOnlyCertFlag, tempConfig] = getCertConfig(state.schema, { certType, relationToHolder: val });
-
-    merge(state.config, tempConfig);
-
+    const genderConfig = {
+      gender: {
+        ...tempConfig.gender,
+        isView: props.isView,
+      },
+    };
     // 受益人与被保人关系切换
-    if (!props.isView && val && oldVal) {
+    if (!props.isView && val !== oldVal && oldVal) {
+      // 投被保人为丈夫或者妻子时默认被保人的性别 2: 丈夫，3:妻子
+
+      let currentGender = null;
+      if (`${val}` === '3') {
+        genderConfig.gender.isView = true;
+
+        currentGender = SEX_LIMIT_ENUM.FEMALE;
+      }
+
+      if (`${val}` === '2') {
+        genderConfig.gender.isView = true;
+
+        currentGender = SEX_LIMIT_ENUM.MALE;
+      }
+
       // 若为本人合并投保人数据
       Object.assign(state.personVO, {
         // 若只有证件类型为身份证，不清除值
         ...resetObjectValues(state.personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
+        gender: currentGender,
         relationToInsured: val,
       });
-      // debugger;
     }
 
+    merge(state.config, tempConfig, genderConfig);
+
     return false;
+  },
+  {
+    immediate: true,
+  },
+);
+
+// 监听投保人国籍
+watch(
+  () => state.personVO?.nationalityCode,
+  (val, oldVal) => {
+    if (val !== oldVal) {
+      merge(state.config, getNameRules(state.personVO));
+    }
   },
   {
     immediate: true,

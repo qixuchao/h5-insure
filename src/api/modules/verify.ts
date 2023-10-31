@@ -134,11 +134,16 @@ export const authorizeSysCode = (data = {}) =>
 
 // 查询双录状态
 export const queryDualStatus = (data = {}) =>
-  request<DoubleData>({
-    url: '/api/app/insure/insurance/dualStatus',
-    method: 'POST',
-    data,
-  });
+  request<DoubleData>(
+    {
+      url: '/api/app/insure/insurance/dualStatus',
+      method: 'POST',
+      data,
+    },
+    {
+      loading: true,
+    },
+  );
 
 // 双录文件上传
 export const dualUploadFiles = (data = {}) =>

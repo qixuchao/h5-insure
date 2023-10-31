@@ -39,7 +39,8 @@ const isDealOrder = computed<boolean>(() => {
   return (
     orderTopStatus === '-1' &&
     PAGE_ROUTE_ENUMS.orderList === route.path &&
-    !(orderStatus === 'underWritingFailed' && productClassFlag === YES_NO_ENUM.YES)
+    !(orderStatus === 'underWritingFailed' && productClassFlag === YES_NO_ENUM.YES) &&
+    !['manualUnderWriting', 'offlinePayment'].includes(orderStatus)
   );
 });
 // 撤单按钮展示权限
