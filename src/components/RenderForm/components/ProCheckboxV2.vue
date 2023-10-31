@@ -143,7 +143,7 @@ const handleChange = (value) => {
   // if (formState?.formData && filedAttrs.value.name) {
   //   formState.formData[filedAttrs.value.name] = value;
   // }
-  onEffect('onChange', value);
+
   state.modelValue = value;
   emit('update:modelValue', value);
   emit('change', value);
@@ -164,6 +164,7 @@ watch(
   (val) => {
     if (val === undefined && state.modelValue !== undefined) return;
     state.modelValue = val || [];
+    onEffect('onChange', val);
   },
   {
     immediate: true,

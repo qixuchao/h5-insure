@@ -108,10 +108,12 @@ import {
   colorConsole,
   getCertConfig,
   resetObjectValues,
+  getNameRules,
+  setCertDefaultValue,
 } from '@/components/RenderForm';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { BENEFICIARY_ENUM } from '@/common/constants/infoCollection';
-import { ATTACHMENT_OBJECT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
+import { ATTACHMENT_OBJECT_TYPE_ENUM, YES_NO_ENUM, SEX_LIMIT_ENUM } from '@/common/constants';
 import BeneficiaryItem from './BeneficiaryItem.vue';
 import { OBJECT_TYPE_ENUM } from '@/common/constants/questionnaire';
 
@@ -189,7 +191,10 @@ const state = reactive<Partial<StateInfo>>({
   beneficiaryList: [],
   /** 监护人 */
   guardianSchema: [],
-  guardian: {},
+  guardian: {
+    personVO: {},
+    config: {},
+  },
 });
 
 const isSameHolder = ref<boolean>(false);
@@ -200,7 +205,10 @@ const isShowGuardian = computed<boolean>(() => {
   if (!['1', '4', '5'].includes(`${relationToHolder}`) && age !== null && +age < 18) {
     return true;
   }
-  state.guardian = {};
+  state.guardian = {
+    personVO: {},
+    config: {},
+  };
   return false;
 });
 
@@ -246,7 +254,7 @@ const holderToBeneficial = (index: number) => {
       if (index === ind) {
         return {
           ...beneficiaryItem,
-          personVO: { ...beneficiaryItem.personVO, ...mergeHolderBenefic() },
+          personVO: { ...beneficiaryItem?.personVO, ...mergeHolderBenefic() },
           config: {
             ...beneficiaryItem.config,
             benefitRate: {
@@ -386,6 +394,7 @@ watch(
       Object.assign(state.personVO, tempData, { certImage });
     } else {
       setNonageValue(val, state.personVO);
+      isSameHolder.value = false;
     }
   }, 300),
   {
@@ -463,7 +472,7 @@ watch(
 watch(
   () =>
     cloneDeep(state.beneficiaryList).map((item) => ({
-      personVO: item.personVO,
+      personVO: item?.personVO,
       nanoid: item.nanoid,
     })),
   (val, oldValue) => {
@@ -492,11 +501,6 @@ watch(
 
     const isSelf = String(personVO.relationToHolder) === '1';
 
-    // 证件类型是否只有身份证
-    const [isOnlyCertFlag, tempConfig] = getCertConfig(schema, personVO);
-
-    merge(config, tempConfig);
-
     // 若被保人为本人是否要隐藏
     schema.forEach((schemaItem) => {
       schemaItem.relationToHolder = personVO.relationToHolder;
@@ -510,7 +514,7 @@ watch(
         ...personVO,
         ...holderPersonVO,
       };
-
+      const [isOnlyCertFlag, tempConfig] = getCertConfig(schema, personVO);
       // 非本人则清空数据
       if (!isSelf) {
         newPersonVo = {
@@ -520,13 +524,110 @@ watch(
         };
       }
 
+      // 投被保人为丈夫或者妻子时默认被保人的性别 2: 丈夫，3:妻子
+      const genderConfig = {
+        gender: {
+          ...config.gender,
+          isView: props.isView,
+        },
+      };
+      if (`${personVO.relationToHolder}` === '2') {
+        genderConfig.gender.isView = true;
+
+        newPersonVo.gender = SEX_LIMIT_ENUM.FEMALE;
+      }
+
+      if (`${personVO.relationToHolder}` === '3') {
+        genderConfig.gender.isView = true;
+
+        newPersonVo.gender = SEX_LIMIT_ENUM.MALE;
+      }
+
+      merge(config, genderConfig);
+
       // 若为本人合并投保人数据
       Object.assign(state.personVO, newPersonVo);
     }
+
+    // 证件类型是否只有身份证
+    const [isOnlyCertFlag, tempConfig] = getCertConfig(schema, personVO);
+    merge(config, tempConfig);
   },
   {
     // immediate: true,
     deep: true,
+  },
+);
+
+// 监听被保人国籍
+watch(
+  () => state.personVO?.nationalityCode,
+  (val, oldVal) => {
+    if (val !== oldVal) {
+      merge(state.config, getNameRules(state.personVO));
+    }
+  },
+  {
+    immediate: true,
+  },
+);
+
+// 监听监护人国籍
+watch(
+  () => state.guardian.personVO?.nationalityCode,
+  (val, oldVal) => {
+    if (val !== oldVal) {
+      merge(state.guardian.config, getNameRules(state.guardian?.personVO));
+    }
+  },
+  {
+    immediate: true,
+  },
+);
+
+// 监听被保人与监护人关系
+watch(
+  () => state.guardian?.personVO?.relationToInsured,
+  (val, oldVal) => {
+    if (val === oldVal) {
+      return;
+    }
+    colorConsole(`监护人与被保人关系变动了`);
+    const { certType } = state.guardian.personVO || {};
+    // 证件类型是否只有身份证, 与被保险人关系变动
+    const [isOnlyCertFlag, tempConfig] = getCertConfig(state.guardianSchema, { certType, relationToInsured: val });
+    const genderConfig = {
+      gender: {
+        ...tempConfig.gender,
+        isView: props.isView,
+      },
+    };
+    // 受益人与被保人关系切换
+    if (!props.isView && val !== oldVal) {
+      // 投被保人为丈夫或者妻子时默认被保人的性别 2: 丈夫，3:妻子
+      let currentGender = null;
+      if (`${val}` === '2') {
+        genderConfig.gender.isView = true;
+        currentGender = SEX_LIMIT_ENUM.FEMALE;
+      }
+      if (`${val}` === '3') {
+        genderConfig.gender.isView = true;
+        currentGender = SEX_LIMIT_ENUM.MALE;
+      }
+
+      if (oldVal) {
+        Object.assign(state.guardian.personVO, {
+          // 若只有证件类型为身份证，不清除值
+          ...resetObjectValues(state.guardian.personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
+          gender: currentGender,
+          relationToInsured: val,
+        });
+      }
+    }
+    merge(state.guardian.config, tempConfig, genderConfig);
+  },
+  {
+    immediate: true,
   },
 );
 
@@ -578,6 +679,9 @@ watch(
       if (JSON.stringify(val) !== JSON.stringify(state.schema)) {
         const isSelf = String(props.modelValue?.relationToHolder) === '1';
         state.schema = cloneDeep(val).map((item) => {
+          setCertDefaultValue(props.schema, props.modelValue, () => {
+            state.personVO.certType = '1';
+          });
           item.relationToHolder = props.modelValue?.relationToHolder;
           item.hidden = !item.isSelfInsuredNeed && isSelf;
           return item;
@@ -596,13 +700,14 @@ watch(
   (val, oldVal) => {
     if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
       const { beneficiaryList, ...rest } = val;
-      console.log('11', val.age, oldVal?.age);
 
       if (val.age !== oldVal?.age && val.age) {
         isInit.value = true;
-        // setNonageValue(props.holderPersonVO, val);
       }
       merge(state.personVO, rest);
+      setCertDefaultValue(props.schema, props.modelValue, () => {
+        state.personVO.certType = '1';
+      });
     }
   },
   {
@@ -631,12 +736,13 @@ watch(
 
 // 监听监护人数据更新
 watch(
-  () => props.guardian,
-  debounce((value, oldValue) => {
+  () => props.guardian?.personVO,
+  (value, oldValue) => {
+    console.log('value', value);
     if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
-      state.guardian = value;
+      Object.assign(state.guardian.personVO, value);
     }
-  }, 300),
+  },
   {
     deep: true,
     immediate: true,

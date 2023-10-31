@@ -152,6 +152,9 @@ const dealModelValue = (val) => {
     state.fieldValue = dayjs(val).format(formatValueType.value);
   } else if (typeof val === 'string') {
     state.fieldValue = val;
+    if (val === '9999-12-31') {
+      checked.value = 1;
+    }
     if (isDateType.value) {
       state.date = dayjs(val, formatValueType.value).isValid()
         ? dayjs(val, formatValueType.value).toDate()

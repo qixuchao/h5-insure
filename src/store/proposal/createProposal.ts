@@ -19,6 +19,7 @@ const useStore = defineStore<
     setProposalInfo: (data: ProposalInfo) => void;
     setTrialData: (data: ProposalInfo[]) => void;
     setExcludeProduct: (data: any[]) => void;
+    setExcludeMainRiskCode: (data: any[]) => void;
     setSelectedProduct: (data: any[]) => void;
     setSelectedProductList: (data: any[]) => void;
     setInsuredPersonVO: (data: any) => void;
@@ -31,6 +32,7 @@ const useStore = defineStore<
       proposalInfo: {},
       trialData: [],
       excludeProduct: [], // 创建计划书，查询产品时，排除已选
+      excludeMainRisk: [], // 创建计划书，已选择的产品险种
       selectedProduct: [], // 计划书选择的产品
       selectedProductList: [],
       proposalId: 0,
@@ -48,6 +50,9 @@ const useStore = defineStore<
     },
     setExcludeProduct(data) {
       this.$state.excludeProduct = data;
+    },
+    setExcludeMainRiskCode(data) {
+      this.$state.excludeMainRisk = data;
     },
     setSelectedProduct(data) {
       this.$state.selectedProduct = data;

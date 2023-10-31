@@ -12,7 +12,7 @@
   >
     <template #trialBtn="slotProps">
       <div class="trial-button">
-        <VanButton :disabled="!trialRef.getTrialSuccessFlag()" type="primary" @click="onFinished(slotProps)"
+        <VanButton :disabled="!trialRef?.getTrialSuccessFlag?.()" type="primary" @click="onFinished(slotProps)"
           >确定</VanButton
         >
       </div>
@@ -50,66 +50,40 @@ provide(PERSONAL_INFO_KEY, {
 
 // 将试算的数据转换成计划书的数据
 const formatData = (trialData: PremiumCalcData, trialResult: any) => {
-  const { holder, insuredList, productCode } = trialData || {};
+  const { holder, insuredList } = trialData || {};
   const { productList, ...personVO } = insuredList?.[0] || {};
-  const { riskList: riskVOList, ...rest } =
-    productList.find((item: any, index: number) => productCode === item.productCode) || productList?.[0] || {};
-  // const { riskList: riskVOList, ...rest } = productList?.[0] || {};
-  const riskPremiumMap = isNotEmptyArray(trialResult?.insuredPremiumList)
-    ? trialResult?.insuredPremiumList?.[0]?.productPremiumList?.[0].riskPremiumDetailVOList.reduce(
-        (res, riskDetail: any) => {
-          res[riskDetail.riskCode] = {
+
+  const productRiskPremiumMap = isNotEmptyArray(trialResult?.insuredPremiumList)
+    ? trialResult?.insuredPremiumList?.[0]?.productPremiumList.reduce((res, product: any) => {
+        res[product.productCode] = product.riskPremiumDetailVOList.reduce((riskRes, riskDetail) => {
+          riskRes[riskDetail.riskCode] = {
             initialPremium: riskDetail.initialPremium,
             initialAmount: riskDetail.initialAmount,
             unitAmount: riskDetail.unitAmount,
             unitPremium: riskDetail.unitPremium,
           };
-          return res;
-        },
-        {},
-      )
+          return riskRes;
+        }, {});
+        return res;
+      }, {})
     : {};
 
-  const riskList = (riskVOList || []).map((risk: RiskVoItem) => {
-    return {
-      ...risk,
-      unitPremium: riskPremiumMap?.[risk.riskCode]?.unitPremium,
-      unitAmount: riskPremiumMap?.[risk.riskCode]?.unitAmount,
-      initialPremium: riskPremiumMap?.[risk.riskCode]?.initialPremium,
-      initialAmount: riskPremiumMap?.[risk.riskCode]?.initialAmount,
-    };
-  });
-  // const { productCode } = props;
-  // const proposalData = {
-  //   proposalHolder: {
-  //     ...holder?.personVO,
-  //   },
-  //   proposalInsuredList: [
-  //     {
-  //       ...personVO,
-  //       proposalInsuredProductList: [
-  //         {
-  //           productCode: props.productCode,
-  //           productName: props.productName,
-  //           occupationCodeList: personVO.occupationCodeList,
-  //           proposalProductRiskList: riskList,
-  //         },
-  //       ],
-  //     },
-  //   ],
-  // };
-  // return proposalData;
   return {
-    productCode,
     holder,
     insuredPersonVO: personVO,
-    insuredProductInfo: {
-      productCode,
-      ...rest,
-      productName: props.productName,
+    insuredProductList: productList.map((product) => ({
+      productCode: product.productCode,
+      productName: product.productName,
       occupationCodeList: personVO?.occupationCodeList,
-      riskList,
-    },
+      occupationClass: personVO?.occupationClass,
+      riskList: product.riskList.map((risk) => ({
+        ...risk,
+        unitPremium: productRiskPremiumMap?.[product.productCode]?.[risk.riskCode]?.unitPremium,
+        unitAmount: productRiskPremiumMap?.[product.productCode]?.[risk.riskCode]?.unitAmount,
+        initialPremium: productRiskPremiumMap?.[product.productCode]?.[risk.riskCode]?.initialPremium,
+        initialAmount: productRiskPremiumMap?.[product.productCode]?.[risk.riskCode]?.initialAmount,
+      })),
+    })),
   };
 };
 

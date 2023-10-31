@@ -110,6 +110,7 @@ import {
   transformFactorToSchema,
   SchemaItem,
   getCertConfig,
+  getNameRules,
 } from '@/components/RenderForm';
 import { ProductFactor } from '@/api/modules/trial.data';
 import { isNotEmptyArray, PERSONAL_INFO_KEY, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
@@ -330,6 +331,7 @@ const setCustomerToPerson = (value) => {
   }
   // 监护人
   else if (state.currentType === 'guardian') {
+    console.log('selectedCustomer', selectedCustomer);
     Object.assign(state?.insured[state.currentIndex]?.guardian?.personVO || {}, selectedCustomer);
   }
 };
@@ -337,7 +339,6 @@ const setCustomerToPerson = (value) => {
 const validateTrialFields = () => {
   const insuredFlag = !insuredFormRef.value || insuredFormRef.value?.every((item) => item.validateTrialFields());
   const holderFlag = !holderFormRef.value || validateFields(state.holder);
-  console.log('insuredFlag', insuredFlag, holderFlag);
   return holderFlag && insuredFlag;
 };
 
@@ -364,7 +365,6 @@ const filterFormData = (data) => {
     nanoid: tempNanoid,
     ...formData
   } = cloneDeep(data) || {};
-  console.log('formData', formData);
   return formData;
 };
 
@@ -449,6 +449,19 @@ watch(
   }, 0),
 );
 
+// 监听投保人国籍
+watch(
+  () => state.holder.personVO?.nationalityCode,
+  (val, oldVal) => {
+    if (val !== oldVal) {
+      merge(state.holder.config, getNameRules(state.holder.personVO));
+    }
+  },
+  {
+    immediate: true,
+  },
+);
+
 // 验证是否试算
 let isTrialChange = false;
 watch(
@@ -459,12 +472,12 @@ watch(
         const { beneficiaryList: list, guardian, personVO } = insuredItem || {};
         const beneficiaryList = isNotEmptyArray(list)
           ? list.map((beneficiaryItem) => ({
-              ...beneficiaryItem.personVO,
+              ...beneficiaryItem?.personVO,
             }))
           : [];
         return {
           ...personVO,
-          guardian: guardian.personVO || {},
+          guardian: guardian?.personVO || {},
           beneficiaryList,
         };
       }),
@@ -578,27 +591,6 @@ watch(
   },
 );
 
-// 受益人切换关系 清空数据
-watch(
-  () => state?.insured?.[state.currentIndex]?.beneficiaryList?.[state.currentBenifitIndex]?.personVO,
-  (val, oldVal) => {
-    if (
-      state?.insured?.[state.currentIndex]?.beneficiaryList?.[state.currentBenifitIndex]?.personVO &&
-      val?.relationToInsured !== oldVal?.relationToInsured
-    ) {
-      colorConsole('受益人关系变动了+++++');
-      // state.insured[state.currentIndex].beneficiaryList[state.currentBenifitIndex].personVO = {
-      //   relationToInsured: val?.relationToInsured,
-      // };
-      // });
-    }
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
-
 // // 监护人切换关系 清空数据
 watch(
   () => state?.insured?.[state.currentIndex]?.guardian?.personVO?.relationToInsured,
@@ -648,6 +640,7 @@ watch(
       [[holderConfig, holderFormData, insuredList], newConfig, newInitInsured],
       [[oldHolderConfig, oldHolderData, oldInured], oldConfig, oldInitInsured],
     ) => {
+      console.log('initInsuredTempData', cloneDeep(newInitInsured), cloneDeep(oldInitInsured));
       if (
         JSON.stringify(holderConfig) === JSON.stringify(oldHolderConfig) &&
         JSON.stringify(holderFormData) === JSON.stringify(oldHolderData) &&
@@ -685,9 +678,11 @@ watch(
           : stateInsuredLen || multiInsuredMinNum;
 
       const currentInsuredList = cloneDeep(insuredList);
+      console.log('initInsuredTempData', insuredLen);
       state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
         const { personVO, config = {}, guardian, beneficiaryList } = currentInsuredList?.[index] || {};
         const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
+        console.log('initInsuredTempData', initInsuredTempData);
         if (!res[index]) {
           res[index] = {
             ...cloneDeep(initInsuredTempData),

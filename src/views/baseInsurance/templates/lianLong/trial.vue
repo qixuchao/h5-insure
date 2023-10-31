@@ -3,7 +3,7 @@
     <Trial
       ref="trialRef"
       :product-collection="productCollection"
-      :default-value="orderDetail"
+      :default-data="defaultData"
       :product-factor="productFactor"
       :product-risk-code-map="productRiskCodeMap"
       is-trial
@@ -13,7 +13,7 @@
       @delete-risk="deleteRisk"
     >
       <template #trialBtn="{ riskPremium }">
-        <TrialButton :premium="riskPremium.initialPremium" @handle-click="nextStep"></TrialButton>
+        <TrialButton :premium="riskPremium?.initialPremium" @handle-click="nextStep"></TrialButton>
       </template>
     </Trial>
     <RiskList
@@ -48,7 +48,8 @@ import useOrder from '@/hooks/useOrder';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
 import pageJump from '@/utils/pageJump';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
-import { pickProductRiskCode } from './utils';
+import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
+import { transformToMoney } from '@/utils/format';
 
 const route = useRoute();
 const router = useRouter();
@@ -69,6 +70,8 @@ const orderDetail = useOrder({
     pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
   },
 });
+
+const defaultData = ref();
 const productFactor = ref();
 
 const popupType = ref<1 | 2>(1);
@@ -159,10 +162,11 @@ const deleteRisk = (selectProductCode, riskCode, mainRiskCode) => {
 
   // 没有主险code则删除的是主险，也是删除整个产品
   if (!mainRiskCode) {
-    delete productCollection.value[selectProductCode];
+    // delete productCollection.value[selectProductCode];
     productRiskCodeMap.value.productList = productRiskCodeMap.value.productList.filter(
       (product) => product.productCode !== selectProductCode,
     );
+    getMergeProductDetail();
   } else {
     productCollection.value[selectProductCode].productPlanInsureVOList[0].insureProductRiskVOList =
       productCollection.value[selectProductCode].productPlanInsureVOList[0].insureProductRiskVOList.filter(
@@ -181,7 +185,10 @@ const deleteRisk = (selectProductCode, riskCode, mainRiskCode) => {
 const getOrderDetail = () => {
   getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
+      defaultData.value = data;
       orderDetail.value = data;
+      productRiskCodeMap.value = pickProductRiskCodeFromOrder(data.insuredList[0].productList);
+      getMergeProductDetail();
     }
   });
 };
@@ -190,12 +197,15 @@ const nextStep = () => {
   trialRef.value.onNext(async (currentOrderDetail) => {
     const orderDetailCopy = cloneDeep(currentOrderDetail);
     const excludeCodeList = ['id', 'relationToHolder', 'beneficiaryList', 'guardian', 'insuredBeneficiaryType'];
-    Object.keys(orderDetailCopy.insuredList?.[0]).reduce((res, key) => {
-      if (!excludeCodeList.includes(key) && orderDetailCopy.insuredList?.[0]?.[key]) {
-        res[key] = orderDetailCopy.insuredList?.[0]?.[key];
-      }
-      return res;
-    }, orderDetailCopy.holder);
+
+    if (!orderNo) {
+      Object.keys(orderDetailCopy.insuredList?.[0]).reduce((res, key) => {
+        if (!excludeCodeList.includes(key) && orderDetailCopy.insuredList?.[0]?.[key]) {
+          res[key] = orderDetailCopy.insuredList?.[0]?.[key];
+        }
+        return res;
+      }, orderDetailCopy.holder);
+    }
 
     const { code, data } = await saveOrder(orderDetailCopy);
     if (code === '10000') {
@@ -222,7 +232,10 @@ const getProductDetail = () => {
 };
 
 onBeforeMount(() => {
-  getProductDetail();
-  orderNo && getOrderDetail();
+  if (orderNo) {
+    getOrderDetail();
+  } else {
+    getProductDetail();
+  }
 });
 </script>

@@ -24,14 +24,11 @@
       <div class="trial-wrap">
         <TrialBody
           ref="insureInfosRef"
-          :data-source="dataSource"
-          :share-info="shareInfo"
-          is-trial
-          :product-info="productInfo"
-          :tenant-product-detail="tenantProductDetail"
-          :hide-benefit="hideBenefit"
+          :product-collection="dataSource"
           :default-data="defaultData"
-          :default-order="orderDetail"
+          :product-factor="[]"
+          :product-risk-code-map="productRiskCodeMap"
+          hide-benefit
           @trial-start="handleTrialStart"
           @trial-end="handleTrialEnd"
         >
@@ -101,7 +98,7 @@ import pageJump from '@/utils/pageJump';
 import { jumpToNextPage } from '@/utils';
 // import TrialBody from '../TrialBody/index.vue';
 
-const TrialBody = defineAsyncComponent(() => import('../TrialBody/index.vue'));
+const TrialBody = defineAsyncComponent(() => import('../Trial/index.vue'));
 
 const RISK_SELECT = [
   { value: 1, label: '投保' },

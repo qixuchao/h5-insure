@@ -13,14 +13,14 @@ export const initNative = async () => {
     {
       appKey: '',
     },
-    (info) => {
-      if (info?.data) {
-        console.log('====', info);
-        if (info.status === '1') {
-          queryLianAgentInfo({ accessKey: info.data.token }).then(({ code, data }) => {
+    ({ data, status }) => {
+      if (data) {
+        console.log('====', data);
+        if (status === '1') {
+          sessionStore.set(`${LIAN_STORAGE_KEY}_accessKey`, data || '');
+          queryLianAgentInfo({ accessKey: data.token }).then(({ code, data: userInfo }) => {
             if (code === '10000') {
-              console.log('usesrData', data);
-              sessionStore.set(`${LIAN_STORAGE_KEY}_userInfo`, data || '');
+              sessionStore.set(`${LIAN_STORAGE_KEY}_userInfo`, userInfo || '');
             }
           });
         } else {

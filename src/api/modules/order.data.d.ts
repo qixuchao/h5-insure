@@ -66,6 +66,7 @@ export interface ExtInfo {
   isReadCustomerNotice: number;
   pageCode: string;
   templateId: number;
+  [propName: string]: any;
 }
 
 export interface TenantOrderHolder {

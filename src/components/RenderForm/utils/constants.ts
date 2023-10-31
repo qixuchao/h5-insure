@@ -17,10 +17,11 @@ const getInsurerCodeFormUrl = () => (window.location.search.match(/insurerCode=(
  * @param [string] insurerCode
  * @returns `${insurerCode.toUpperCase()}_OCCUPATION`
  */
-export const combineDictCode = (() => {
+export const combineDictCode = (dictCode: string) => {
   const insurerCode = getInsurerCodeFormUrl();
-  return (dictCode: string) => `${insurerCode ? `${insurerCode.toUpperCase()}_` : ''}${dictCode}`;
-})();
+  // 默认利安保司code
+  return `${insurerCode ? `${insurerCode.toUpperCase()}_` : 'LIANLIFE_'}${dictCode}`;
+};
 
 /**
  * 发送验证码
@@ -190,7 +191,7 @@ export const RULE_TYPE_ENUM = {
 /** 规则配置 */
 export const RULE_CONFIG_MAP = {
   /**
-   * 姓名 长度最大 25
+   * 姓名 长度最大40
    */
   NAME: {
     maxlength: INPUT_MAX_LENGTH.FORTY,

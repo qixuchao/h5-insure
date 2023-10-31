@@ -1,9 +1,21 @@
 <template>
   <!-- <van-config-provider :theme-vars="themeVars"> -->
   <!-- <ProPageWrap main-class="page-order-list"> -->
-  <div class="page-order">
+  <div id="page-order" class="page-order">
+    <van-search
+      v-model="searchValue"
+      placeholder="请输入订单号/投保单号/投保人姓名"
+      shape="round"
+      class="search"
+      clear-trigger="always"
+      :show-action="!!searchValue"
+      clearable
+      @cancel="handleAfterDelete"
+      @search="handleAfterDelete"
+    />
     <ProTab v-model:active="active" :list="tabList" class="tab" title-active-color="#c41e21" />
-    <van-pull-refresh v-model="freshLoading" @refresh="handleAfterDelete">
+
+    <div ref="refreshRef" class="list-wrap">
       <van-list v-if="list.length" v-model:loading="loading" class="body" :finished="finished" @load="handleLoad">
         <Item
           v-for="(item, index) in list"
@@ -16,10 +28,10 @@
         <img src="@/assets/images/component/logo.png" alt="" style="width: 100%; height: 128px" />
       </div> -->
       </van-list>
-      <div v-else class="empty-box">
+    </div>
+    <!-- <div v-else class="empty-box">
         <ProEmpty title="暂无投保单" empty-class="empty-select" />
-      </div>
-    </van-pull-refresh>
+      </div> -->
   </div>
   <!-- </ProPageWrap> -->
   <!-- </van-config-provider> -->
@@ -61,9 +73,7 @@ const loading = ref(false);
 const freshLoading = ref(false);
 const finished = ref(false);
 const list = ref<Array<OrderItem>>([]);
-const invalidNum = ref(0);
-const totalNum = ref(0);
-const validNum = ref(0);
+const searchValue = ref<string>('');
 const tabList = [
   {
     title: '全部',
@@ -79,7 +89,7 @@ const tabList = [
   },
   {
     title: '已完成',
-    status: '1',
+    status: '3',
   },
   {
     title: '已失效',
@@ -104,7 +114,7 @@ const getData = () => {
   });
   loading.value = true;
   queryOrderList({
-    condition: { orderTopStatus: currentStatus.value, tenantId, agentCode },
+    condition: { orderTopStatus: currentStatus.value, tenantId, agentCode, keyword: searchValue.value },
     pageSize: 10,
     pageNum: pageNum.value,
   })
@@ -145,7 +155,28 @@ watch(currentStatus, () => {
   getData();
 });
 
+const refreshRef = ref();
+const refreshData = ref({});
+const refreshDisabled = ref(false);
+
+watch(
+  () => refreshData.value.scrollTop,
+  (val) => {
+    if (val <= 0) {
+      refreshDisabled.value = false;
+    } else {
+      refreshDisabled.value = true;
+    }
+  },
+);
+
 onMounted(() => {
+  document
+    .querySelector('#page-order')
+    .querySelector('.list-wrap')
+    ?.addEventListener?.('scroll', () => {
+      refreshData.value = refreshRef.value.scrollTop; // data中定义scrollTop为0
+    });
   getData();
 });
 </script>
@@ -161,7 +192,15 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   background: #f4f5f9;
-  .body {
+  :deep(.van-search) {
+    .van-field__body {
+      width: 100%;
+    }
+  }
+  :deep(.van-search--show-action) {
+    padding-right: 30px;
+  }
+  .list-wrap {
     flex: 1;
     height: 100%;
     overflow-y: auto;

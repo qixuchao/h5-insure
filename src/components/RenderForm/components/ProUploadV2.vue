@@ -52,7 +52,7 @@ interface FileUploadRes {
 
 const { filedAttrs, filedSlots, attrs, slots } = toRefs(useAttrsAndSlots());
 
-const { formState, objectType, objectId } = inject(VAN_PRO_FORM_KEY) || {};
+const { formState, extraProvision } = inject(VAN_PRO_FORM_KEY) || {};
 
 // 非默认 slots
 const noDefaultSlots = computed(() => Object.keys(slots).filter((key) => key !== 'default'));
@@ -118,10 +118,10 @@ const handleAfterRead = (e: { file: File; content: string }) => {
     const { code, data } = (res || {}) as FileUploadRes;
     if (code === '10000' && data.url) {
       state.modelValue.push({
-        objectId,
+        objectId: extraProvision.objectId,
         uri: data.url,
         category: props.category,
-        objectType: props.objectType || objectType,
+        objectType: props.objectType || extraProvision.objectType,
       });
       emits('onUploaded', data);
     }
@@ -139,7 +139,7 @@ watch(
     // if (formState?.formData && filedAttrs.value.name) {
     //   formState.formData[filedAttrs.value.name] = val;
     // }
-    emits('update:modelValue', val);
+    // emits('update:modelValue', val);
   },
   {
     deep: true,

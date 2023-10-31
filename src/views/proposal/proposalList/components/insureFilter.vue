@@ -112,17 +112,18 @@ const queryCategoryList = () => {
 };
 
 onMounted(() => {
-  queryInsurer().then((res: any) => {
-    const { code, data } = res;
-    if (code === '10000') {
-      insureList.value = data?.map((i: any) => {
-        return {
-          label: i.abbreviation,
-          value: i.insurerCode,
-        };
-      });
-    }
-  });
+  props.filter &&
+    queryInsurer().then((res: any) => {
+      const { code, data } = res;
+      if (code === '10000') {
+        insureList.value = data?.map((i: any) => {
+          return {
+            label: i.abbreviation,
+            value: i.insurerCode,
+          };
+        });
+      }
+    });
 });
 
 onBeforeMount(() => {
@@ -139,7 +140,7 @@ onMounted(() => {
 <style scoped lang="scss">
 .com-tab-filter {
   .article-mid {
-    padding: 10px 0 10px 30px;
+    padding: 10px 0 10px 0;
     display: flex;
     align-items: center;
 

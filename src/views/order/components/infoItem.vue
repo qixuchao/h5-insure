@@ -43,8 +43,13 @@ const props = defineProps({
 });
 const { copy, copied, isSupported } = useClipboard();
 const onCopy = () => {
-  console.log(props.content, 'props.content=====');
-  copy(props.content);
+  const input = document.createElement('input');
+  input.setAttribute('value', props.content);
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand('copy');
+  document.body.removeChild(input);
+
   Toast('复制成功');
 };
 </script>
@@ -59,6 +64,9 @@ const onCopy = () => {
   margin-top: 12px;
   &:last-child {
     border-bottom: none;
+  }
+  .com-field-info {
+    margin: 0;
   }
   &.com-field-info-line {
     border-bottom: none;
