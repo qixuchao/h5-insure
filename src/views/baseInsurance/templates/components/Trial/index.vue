@@ -647,7 +647,7 @@ const handleDealDyResult = (dyResult: any, productCode) => {
 
 const handleMixTrialData = () => {
   if (
-    !Object.keys(currentProductFactor)?.length ||
+    !Object.keys(currentProductFactor.value)?.length ||
     state.ifPersonalInfoSuccess ||
     personalInfoRef.value?.canTrail?.()
   ) {
@@ -953,10 +953,8 @@ const fetchDefaultData = async (changes: []) => {
     hasDefault.value.push(currentPlan.value.planCode);
     await fetchDefaultDataFromServer();
   } else {
-    const targetProduct =
-      props.defaultData.find((d) => d.productCode === props.productInfo.productCode) || props.defaultData[0];
-    transformDefaultData(targetProduct);
-    handlePersonInfo(props.defaultData?.[0]);
+    transformDefaultData(props.defaultData);
+    handlePersonInfo(props.defaultData);
   }
 };
 
