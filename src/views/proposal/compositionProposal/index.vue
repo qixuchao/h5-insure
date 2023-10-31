@@ -35,16 +35,37 @@
         :class="{ 'page-proposal-bottom': !isShare, 'page-proposal-bg': !isShare }"
         :style="+basicInfo?.content?.bannerType === 1 ? { backgroundImage: `url(${basicInfo.defaultBanner})` } : ''"
       >
+        <!-- 公司介绍 -->
         <div :class="{ 'head-bg': true, 'single-user': !isMultiple }">
           <div class="title">{{ proposalName }}</div>
-          <div v-for="(item, index) in companyProfile?.content?.module" :key="index" class="company">
-            <div
-              v-if="+companyProfile?.content.agentShowPostion === 3"
-              class="company-title"
-              @click="goCompanyDetail(index)"
-            >
-              {{ item.iconName }}
+          <div class="company">
+            <div v-for="(item, index) in companyProfile?.content?.module" :key="index">
+              <!-- 右侧icon -->
+              <div
+                v-if="+companyProfile?.content?.agentShowPostion === 3"
+                class="company-title"
+                @click="goCompanyDetail(index)"
+              >
+                <img class="one-icon" :src="company_icon" />
+                <span class="one-name">{{ item.iconName }}</span>
+              </div>
             </div>
+          </div>
+          <!-- 顶部展示 -->
+          <div
+            v-if="+companyProfile?.content?.agentShowPostion === 1"
+            class="company-all-title"
+            @click="goCompanyAllDetail"
+          >
+            <img class="bg" :src="company_bj" />
+          </div>
+          <!-- 底部展示 -->
+          <div
+            v-if="+companyProfile?.content?.agentShowPostion === 2"
+            class="company-all-title"
+            @click="goCompanyAllDetail"
+          >
+            <img class="bg" :src="company_bj" />
           </div>
           <template v-if="isMultiple">
             <van-sticky :class="`selected`" @change="stickyChange">
@@ -73,8 +94,8 @@
 
             <!-- 利益演示 -->
             <Benefit v-if="currentInfo?.benefitRiskResultVOList" :info="currentInfo" />
-
-            <div class="container">
+            <!-- 利安定制公司简介 不需要这块了 -->
+            <!-- <div class="container">
               <div class="common-title">保险公司简介</div>
 
               <van-collapse v-model="activeName" :is-link="false" :border="false" size="middle">
@@ -90,6 +111,29 @@
                   {{ item.insurerDesc }}
                 </van-collapse-item>
               </van-collapse>
+            </div> -->
+            <!-- 产品详情 TODOJJM -->
+            <div v-if="+productDetail?.content?.isShow === 1" class="lia-container">
+              <div class="lia-header">
+                <div class="info-product-detail">
+                  <span class="p1">产品详情</span>
+                </div>
+              </div>
+            </div>
+            <!-- 风险详情 -->
+            <div v-if="+riskAlert?.content?.isShow === 1" class="lia-container">
+              <!-- <div class="risk-title">风险提示</div> -->
+              <div class="lia-header">
+                <div class="info-detail">
+                  <span class="p1">风险提示</span>
+                </div>
+              </div>
+              <!-- 富文本 -->
+              <div
+                v-if="+riskAlert?.content?.riskCaseType === 1"
+                v-dompurify-html="riskAlert?.content.riskContent"
+                class="risk-content"
+              ></div>
             </div>
           </div>
           <div v-else>
@@ -208,6 +252,8 @@ import { toLocal, ORIGIN } from '@/utils';
 import { queryProposalDetail, queryPreviewProposalDetail, generatePdf } from '@/api/modules/proposalList';
 import agent_img from '@/assets/images/compositionProposal/addver.png';
 import agent_tel from '@/assets/images/compositionProposal/tel.png';
+import company_icon from '@/assets/images/compositionProposal/1-icon.png';
+import company_bj from '@/assets/images/compositionProposal/bj.png';
 import {
   checkProposalInsurer,
   proposalTransInsured,
@@ -349,6 +395,13 @@ const goCompanyDetail = (index) => {
   localStorage.setItem('company_detail', JSON.stringify(companyProfile?.value.content?.module[index]));
   history.push({
     path: '/companyDetail',
+  });
+};
+// 这里跳转公司介绍所有页面
+const goCompanyAllDetail = () => {
+  localStorage.setItem('company_all_detail', JSON.stringify(companyProfile?.value.content?.module));
+  history.push({
+    path: '/companyAllDetail',
   });
 };
 
@@ -683,27 +736,61 @@ onMounted(() => {
   margin-bottom: 150px;
 }
 .page-composition-proposal {
-  background-image: url('@/assets/images/compositionProposal/banner.png');
+  background: #ffcac1 url('@/assets/images/compositionProposal/banner.png');
   background-repeat: no-repeat;
   background-size: contain;
   // background-image: linear-gradient(#eaf1fa, #f2f5fc);
   width: 100vw;
-  min-height: 100vh;
+  min-height: 780px;
   &.page-proposal-bottom {
-    margin-bottom: 150px;
+    padding-bottom: 180px;
   }
   .company {
+    // top: 118px;
+    right: 0;
+    margin-top: 118px;
+    display: inline-block;
+    position: absolute;
+    height: 60px;
     &-title {
-      background-image: url('@/assets/images/compositionProposal/banner.png');
-      position: absolute;
-      top: 118px;
-      right: 0;
+      // display: flex;
+      // justify-content: center;
+      // align-items: center;
+      margin-bottom: 10px;
+      background-image: url('@/assets/images/compositionProposal/company-bj.png');
+      background-repeat: no-repeat;
+      background-size: 100% 60px;
       height: 60px;
       font-size: 22px;
       font-weight: 400;
       color: #2a282a;
       line-height: 60px;
       margin-left: 9px;
+    }
+    &-all-title {
+      // display: flex;
+      // justify-content: center;
+      // align-items: center;
+      position: absolute;
+      top: 20px;
+      width: 100%;
+      margin: 0 30px;
+      .bg {
+        width: 690px;
+        height: 80px;
+      }
+    }
+    .one-icon {
+      position: absolute;
+      margin-top: 14px;
+      height: 32px;
+      margin-right: 10px;
+      margin-left: 22px;
+      line-height: 60px;
+    }
+    .one-name {
+      margin-left: 59px;
+      margin-right: 13px;
     }
   }
 
@@ -729,6 +816,7 @@ onMounted(() => {
       height: 200px;
     }
     .title {
+      display: inline-block;
       width: 296px;
       margin-left: 30px;
       padding-top: 252px;
@@ -757,11 +845,22 @@ onMounted(() => {
       width: 100%;
       background-color: white;
       border-radius: 16px;
+      .risk-content {
+        font-size: 28px;
+        font-weight: 400;
+        color: #393d46;
+        line-height: 56px;
+        padding: 23px 20px 30px 20px;
+      }
       .lia-header {
         min-height: 106px;
         width: 100%;
         border-radius: 16px 16px 0 0;
         display: flex;
+        .info-product-detail {
+          @extend .info-detail;
+          margin-bottom: 30px;
+        }
         .info-detail {
           padding-left: 20px;
           width: 100%;
@@ -915,6 +1014,7 @@ onMounted(() => {
       }
     }
   }
+
   .line {
     margin: 0 -20px;
     padding-bottom: 30px;
@@ -929,7 +1029,7 @@ onMounted(() => {
     background: #ffffff;
     clip-path: inset(0 0 0 0 round 16px);
     // border-radius: 16px;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     // padding: 0 20px 30px 20px;
     .common-title {
       display: flex;
@@ -1095,6 +1195,17 @@ onMounted(() => {
   }
   .btn + .btn {
     margin-left: 20px;
+  }
+  .risk-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $zaui-space-border-big $zaui-space-border-small;
+    font-weight: 500;
+    color: #333333;
+    font-size: $zaui-font-size-md2;
+    line-height: 42px;
+    position: relative;
   }
 }
 </style>

@@ -10,7 +10,7 @@
     <div v-if="COMPANY_COMPONENTS_TYPE_LIST_ENUM.IMAGE === +item.componentType" class="com-video">
       <img :src="item.componentPicList[0]" class="company-image" />
     </div>
-    <!-- 视频 -->
+    <!-- 富文本 -->
     <div v-if="COMPANY_COMPONENTS_TYPE_LIST_ENUM.VIDEO === +item.componentType" class="com-video">
       <img :src="item.componentVideoPic" class="cover-image" @click="showVideo = true" />
       <ProSvg name="play" class="cover-image-play" @click="showVideo = true" />
@@ -29,6 +29,7 @@
 import { COMPANY_COMPONENTS_TYPE_LIST_ENUM } from '@/common/constants/propasal';
 import Storage from '@/utils/storage';
 
+const companyTile = ref('');
 const showVideo = ref(false);
 const storage = new Storage({ source: 'localStorage' });
 

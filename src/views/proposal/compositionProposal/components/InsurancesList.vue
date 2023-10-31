@@ -14,7 +14,7 @@
       @click="handleInsureClick(null, -1)"
     >
       <img v-if="currentSelected === -1" round class="insure_icon" :src="image_all" />
-      <img v-else class="insure_icon" :src="image_all_selected" />
+      <img v-else class="insure_icon" :src="image_all" />
       <div class="text-box">
         <span class="insure_title">家庭总览</span>
       </div>
@@ -49,7 +49,7 @@ import image_child_female from '@/assets/images/compositionProposal/child_female
 import image_parent_male from '@/assets/images/compositionProposal/parent_male.png';
 import image_parent_female from '@/assets/images/compositionProposal/parent_female.png';
 import image_all from '@/assets/images/compositionProposal/all_.png';
-import image_all_selected from '@/assets/images/compositionProposal/all_selected.png';
+// import image_all_selected from '@/assets/images/compositionProposal/all_.png';
 
 const props = defineProps({
   infos: {
@@ -163,18 +163,18 @@ const handleInsureClick = (insure, index) => {
       justify-content: center;
       align-items: center;
       .insure_name {
-        color: #818899;
+        color: #333333;
         font-size: $zaui-font-size-sm;
         // word-break: break-all;
         // padding: 0 4px;
       }
       .insure_relation {
-        color: #818899;
-        font-size: $zaui-base-size;
+        color: #333333;
+        font-size: 18px;
       }
       .insure_title {
-        color: #818899;
-        font-size: $zaui-font-size-sm;
+        color: #333333;
+        font-size: $zaui-base-size;
       }
     }
     .insure_icon,
@@ -192,7 +192,7 @@ const handleInsureClick = (insure, index) => {
     }
   }
   .selected {
-    background: #ffc2b9;
+    background: #c41e21;
     position: relative;
     span {
       color: white !important;
