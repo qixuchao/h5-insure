@@ -86,8 +86,8 @@ const getRelate = (relate: any) => {
 const hasProductCheck = () => {
   // 有产品的时候，才允许用户切换被保人和添加新的被保人
   const ifHasNoProduct =
-    !list.value[state.value.currentSelected].productList ||
-    list.value[state.value.currentSelected].productList.length <= 0;
+    !list.value?.[state.value.currentSelected]?.productList ||
+    list.value?.[state.value.currentSelected]?.productList?.length <= 0;
   if (ifHasNoProduct) {
     return false;
   }

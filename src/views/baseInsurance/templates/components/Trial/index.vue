@@ -645,7 +645,11 @@ const handleDealDyResult = (dyResult: any, productCode) => {
 };
 
 const handleMixTrialData = () => {
-  if (state.ifPersonalInfoSuccess || personalInfoRef.value?.canTrail?.()) {
+  if (
+    !Object.keys(currentProductFactor)?.length ||
+    state.ifPersonalInfoSuccess ||
+    personalInfoRef.value?.canTrail?.()
+  ) {
     state.submitData.tenantId = `${tenantId}`;
 
     if (state.submitData.insuredList?.length) {
@@ -1165,6 +1169,7 @@ watch(
             font-size: 28px;
             font-weight: 500;
             line-height: 40px;
+            display: flex;
             .btn {
               padding: 0 20px;
             }

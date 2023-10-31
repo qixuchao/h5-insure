@@ -158,6 +158,7 @@ const state = reactive<StateType>({
   isCreateProposal: false,
   // 选择的产品
   selectedProductList: [],
+  excludeMainRiskCode: [], // 已选择产品下的主险code
   firstLoading: true,
 });
 
@@ -192,7 +193,8 @@ const getProducts = () => {
     insurerCodeList: insurerCodeList.value,
     productClass: productClass.value,
     showCategory: showCategory.value,
-    excludeProductCodeList: Array.isArray(excludeProductCodeList) ? excludeProductCodeList : [],
+    selectProductCodes: Array.isArray(excludeProductCodeList) ? excludeProductCodeList : [],
+    selectRiskCodes: state.excludeMainRiskCode || [],
     pageNum: 1,
     pageSize: 999,
   })
@@ -342,6 +344,7 @@ const onRefresh = () => {
 
 onBeforeMount(() => {
   state.excludeProductCodeList = store.$state.excludeProduct;
+  state.excludeMainRiskCode = store.$state.excludeMainRiskCode;
 });
 </script>
 
