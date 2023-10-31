@@ -4,7 +4,7 @@
   <div id="page-order" class="page-order">
     <van-search
       v-model="searchValue"
-      placeholder="请输入订单号/投保单号/保单号/投保人姓名"
+      placeholder="请输入订单号/投保单号/投保人姓名"
       shape="round"
       class="search"
       clear-trigger="always"
