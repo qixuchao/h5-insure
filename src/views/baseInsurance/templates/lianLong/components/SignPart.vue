@@ -135,8 +135,8 @@ const onResetFileFlag = () => {
 const signRef = ref<InstanceType<typeof Sign>>();
 const resetSign = () => {
   if (signRef.value) {
+    signRef.value.openSign(true);
     signRef.value.rewrite();
-    signRef.value.openSign();
   }
 };
 const openSign = () => {

@@ -111,7 +111,7 @@ import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from '../../long/constants';
 import { nextStepOperate as nextStep } from '../../../nextStep';
 import pageJump from '@/utils/pageJump';
 import { jumpToNextPage, toLocal, scrollToError } from '@/utils';
-import { ProductFactor } from '@/components/RenderForm';
+import { ProductFactor, resetObjectValues } from '@/components/RenderForm';
 import { transformToMoney } from '@/utils/format';
 
 interface Props {
@@ -896,7 +896,7 @@ const handleTrialInfoChange = async (data: any, changeData: any, productCode) =>
       return risk;
     });
   }
-  // TODO 这里未来需要看一下  多倍保人的情况，回传需要加入被保人的Index或者别的key
+
   if (data.exemptFlag !== YES_NO_ENUM.YES) {
     const dyDeal = await handleDynamicConfig(data, changeData, productCode);
     if (!dyDeal) return;
@@ -1051,8 +1051,12 @@ watch(
 
 watch(
   () => props.productFactor,
-  (value) => {
+  (value, oldVal) => {
     currentProductFactor.value = value;
+    if (!Object.keys(value).length && state.userData.holder) {
+      Object.assign(state.userData.holder, resetObjectValues(state.userData.holder));
+      Object.assign(state.userData.insuredList[0], resetObjectValues(state.userData.insuredList[0]));
+    }
   },
   {
     deep: true,

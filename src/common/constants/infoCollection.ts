@@ -151,6 +151,7 @@ export const TEMPLATE_TYPE_ENUM = {
   UPGRADE: '4',
   LONG: '201',
   NIANJIN: '202',
+  LIAN: '203',
 };
 
 export const TEMPLATE_TYPE_MAP = {
@@ -166,6 +167,7 @@ export const TEMPLATE_TYPE_MAP = {
   [TEMPLATE_TYPE_ENUM.LONG]: 'long/productDetail',
   // 年金
   [TEMPLATE_TYPE_ENUM.NIANJIN]: 'long/productDetail',
+  [TEMPLATE_TYPE_ENUM.LIAN]: 'long/productDetail',
 };
 // 模板名称
 export const TEMPLATE_NAME_ENUM = {

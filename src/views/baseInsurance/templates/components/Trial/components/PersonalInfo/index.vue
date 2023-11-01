@@ -678,11 +678,11 @@ watch(
           : stateInsuredLen || multiInsuredMinNum;
 
       const currentInsuredList = cloneDeep(insuredList);
-      console.log('initInsuredTempData', insuredLen);
+
       state.insured = Array.from({ length: insuredLen }).reduce((res, a, index) => {
         const { personVO, config = {}, guardian, beneficiaryList } = currentInsuredList?.[index] || {};
         const initInsuredTempData = cloneDeep(index === 0 ? mainInsuredItem : lastInsuredItem);
-        console.log('initInsuredTempData', initInsuredTempData);
+
         if (!res[index]) {
           res[index] = {
             ...cloneDeep(initInsuredTempData),

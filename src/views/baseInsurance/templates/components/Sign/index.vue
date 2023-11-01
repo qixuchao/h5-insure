@@ -110,9 +110,12 @@ const handlePre = () => {
   }
 };
 
-const openSign = () => {
+const openSign = (isClear?: boolean) => {
   isShowSign.value = true;
 
+  if (isClear) {
+    return;
+  }
   setTimeout(() => {
     if (signRef.value) {
       // (signRef.value || []).forEach((currentRef, index) => {
@@ -250,7 +253,7 @@ defineExpose({
     align-items: center;
     justify-content: space-between;
     align-items: center;
-    transform: rotateZ(90deg) translate3d(20vh, 40vw, 0px);
+    transform: rotateZ(90deg) translate3d(17vh, 40vw, 0px);
     transform-origin: right;
     bottom: 0;
     padding: 40px 0;
