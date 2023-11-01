@@ -176,11 +176,11 @@ watch(
       }).then((res) => {
         const { data, code } = res;
         if (code === '10000' && data && data.bankCardOcrVO) {
-          const { cardNumber, bankName } = data.bankCardOcrVO;
-          const { code } = bankDic.value?.find((x) => x.name === bankName) || {};
+          const { cardNumber, bankName, code: payBank } = data.bankCardOcrVO;
+
           const ocrData = {
             bankName,
-            payBank: code,
+            payBank,
             bankCardNo: cardNumber,
           };
 

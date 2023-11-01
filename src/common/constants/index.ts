@@ -428,6 +428,13 @@ export const SCRIBING_TYPE_ENUM = {
   HANDLE: 2, // 手动录入
 };
 
+export const OBJECT_TYPE_ENUM = {
+  1: 'HOLDER', // 投保人
+  2: 'INSURED', // 被保人
+  3: 'BENEFICIARY', // 受益人
+  4: 'GUARDIAN', // 监护人
+};
+
 export const SCRIBING_TYPE_LIST = [
   { value: [SCRIBING_TYPE_ENUM.AUTO], label: 'auto' }, // 一键抄录
   { value: [SCRIBING_TYPE_ENUM.HANDLE], label: 'handle' }, // 手动录入
