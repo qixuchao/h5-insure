@@ -29,7 +29,7 @@ export const getListOrder = (data = {}) => {
 // 利安-订单列表
 export const queryOrderList = (data = {}) =>
   request({
-    url: '/api/app/insure/insurance/pageOrder',
+    url: '/api/app/insure/customer/pageOrder',
     method: 'POST',
     data,
   });
