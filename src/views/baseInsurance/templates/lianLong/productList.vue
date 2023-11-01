@@ -25,14 +25,14 @@
         </div>
       </div>
     </div>
-    <ProEmpty
-      v-if="!hasProduct && !state.firstLoading"
-      :empty-img="emptyImg"
-      title="暂无产品"
-      empty-class="empty-select"
-    />
-    <div class="page-proposal-list">
-      <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
+    <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
+      <ProEmpty
+        v-if="!hasProduct && !state.firstLoading"
+        :empty-img="emptyImg"
+        title="暂无产品"
+        empty-class="empty-select"
+      />
+      <div class="page-proposal-list">
         <van-list
           v-model:loading="loading"
           :finished="finished"
@@ -48,8 +48,8 @@
           >
           </ProductItem>
         </van-list>
-      </van-pull-refresh>
-    </div>
+      </div>
+    </van-pull-refresh>
   </ProPageWrap>
 </template>
 
@@ -225,6 +225,10 @@ const onRefresh = () => {
   .empty-select {
     margin-top: 200px;
   }
+}
+
+:deep(.van-pull-refresh) {
+  height: calc(100vh - 270px);
 }
 
 .search-wrap {
