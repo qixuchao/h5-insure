@@ -1,12 +1,15 @@
 <template>
   <div class="page-verify-face">
     <div class="result-content">
-      <ProSvg name="wrong" font-size="52px" color="var(--van-primary-color)"></ProSvg>
-      <h4>人脸识别验证失败</h4>
+      <template v-if="!verifyStatus">
+        <ProSvg name="wrong" font-size="52px" color="var(--van-primary-color)"></ProSvg>
+        <h4>人脸识别验证失败</h4>
+      </template>
       <p class="desc">请保持在检测框内</p>
     </div>
     <div class="operate-btn">
-      <van-button type="primary" @click="goFaceVerify">再试一次</van-button>
+      <van-button v-if="!verifyStatus" type="primary" @click="goFaceVerify">再试一次</van-button>
+      <span v-else>人脸识别中...</span>
     </div>
   </div>
 </template>
@@ -26,6 +29,7 @@ const { isFirst, tenantId, objectType, orderNo, biz_id, nextPageCode } = route.q
 const orderDetail = sessionStorage.get(`${LIAN_STORAGE_KEY}_orderDetail`);
 
 const userInfo = ref();
+const verifyStatus = ref<boolean>(true);
 
 // 跳转第三方人脸识别页面
 const goFaceVerify = () => {
@@ -66,7 +70,11 @@ const getFaceVerifyResult = () => {
           path: PAGE_ROUTE_ENUMS.infoPreview,
           query: route.query,
         });
+      } else {
+        verifyStatus.value = false;
       }
+    } else {
+      verifyStatus.value = false;
     }
   });
 };

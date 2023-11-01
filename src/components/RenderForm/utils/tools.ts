@@ -687,9 +687,9 @@ export const setCertDefaultValue = (schema, personVO, cb) => {
 
 export const getNameRules = (personVO) => {
   const { nationalityCode } = personVO;
-  let reg = /^[\u4E00-\u9FFF]\.?[\u4E00-\u9FFF]{1,40}$/;
+  let reg = /^[\u4E00-\u9FFF]·?[\u4E00-\u9FFF]{1,40}$/;
   if (nationalityCode && nationalityCode !== 'CHN') {
-    reg = /^([\u4E00-\u9FFF]\.?[\u4E00-\u9FFF]{1,40}$|[a-zA-Z]{4,40})$/;
+    reg = /^([\u4E00-\u9FFF]·?[\u4E00-\u9FFF]{1,40}$|[a-zA-Z]{4,40})$/;
   }
   return {
     name: {
