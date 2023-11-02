@@ -12,7 +12,7 @@
         <div class="label">首期总保费</div>
         <span v-if="loadingText">{{ loadingText }}</span>
         <template v-else>
-          <span> {{ productPremium }}</span>
+          <span> {{ transformToMoney(productPremium) }}</span>
           <span>{{ premiumUnit }} </span>
         </template>
       </div>
@@ -30,6 +30,7 @@ import ProShadowButton from './ProShadowButton/index.vue';
 import { PlanInsureVO } from '@/api/modules/product.data';
 import { isAppFkq } from '@/utils';
 import ProShare from '@/components/ProShare/index.vue';
+import { transformToMoney } from '@/utils/format';
 
 interface Props {
   premium: number;

@@ -2,6 +2,8 @@ import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import merge from 'lodash-es/merge';
 import { OrderDetail } from '@/api/modules/order.data';
+import { sessionStore } from './useStorage';
+import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
 
 /** 页面query参数类型 */
 interface QueryData {
@@ -13,17 +15,10 @@ interface QueryData {
 }
 
 export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
-  const {
-    tenantId,
-    agentCode = '',
-    agencyCode,
-    proposalId,
-    saleChannelId,
-    extraInfo,
-    insurerCode,
-    systemCode,
-    source,
-  } = useRoute().query as QueryData;
+  const { tenantId, agencyCode, proposalId, saleChannelId, extraInfo, insurerCode, systemCode, source } = useRoute()
+    .query as QueryData;
+
+  const { agentCode, branchType, name } = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`) || {};
 
   let extInfo: any = {};
 
@@ -44,6 +39,8 @@ export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
       iseeBizNo: '',
       source,
       systemCode,
+      branchType,
+      agentName: name,
       extraInfo: extInfo,
     },
     orderCategory: 1,

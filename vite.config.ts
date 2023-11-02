@@ -28,6 +28,7 @@ export default defineConfig((env) => {
       cors: true, // 跨域设置允许
       strictPort: false, // 如果端口已占用直接退出
       overlay: false,
+      // https: true,
       // 接口代理
       proxy: {
         // '/api/app/buriedPoint/': {

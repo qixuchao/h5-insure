@@ -118,7 +118,7 @@ import {
   YES_NO_ENUM,
 } from '@/common/constants';
 import { formData2Order, orderData2trialData, trialData2Order } from '../utils';
-import { jumpToNextPage } from '@/utils';
+import { jumpToNextPage, scrollToError } from '@/utils';
 import Trial from '../components/Trial/index.vue';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import router from '@/router';
@@ -315,7 +315,7 @@ const compareOcrData = () => {
   compareData(holder, '投保人');
   compareData(insuredList?.[0], '被保人');
   (insuredList?.[0]?.beneficiaryList || []).forEach((benefit, index) => {
-    compareData(benefit, `收益人${index}`);
+    compareData(benefit, `受益人${index + 1}`);
   });
   compareData(insuredList?.[0].guardian, '监护人');
   compareData(insuredList?.[0].guardian, '监护人');
@@ -345,60 +345,68 @@ const onNext = async () => {
     validateList.push(payInfoRef.value?.validate(false));
   }
 
-  Promise.all(validateList).then(() => {
-    // if (!isAgree.value) {
-    //   Toast('请勾选投保人阅读并接受');
-    //   return;
-    // }
-
-    Object.assign(orderDetail.value, {
-      extInfo: {
-        ...orderDetail.value.extInfo,
-        buttonCode: BUTTON_CODE_ENUMS.INFO_COLLECTION,
-        pageCode: PAGE_CODE_ENUMS.INFO_COLLECTION,
-      },
-    });
-
-    const userData = personalInfoRef.value.dealMixData();
-    const currentOrderDetail = trialData2Order(
-      { ...userData, productCode, productName: insureProductDetail.value.productName },
-      trialResult.value,
-      orderDetail.value,
-    );
-
-    route.query.productClass = productClass.value;
-
-    // 校验ocr信息是否被修改
-    const msgList = compareOcrData();
-    if (msgList?.length) {
-      Dialog.confirm({
-        message: msgList?.[0],
-      }).then(() => {
-        clearInterval(timer);
-        nextStep(
-          currentOrderDetail,
-          (data, pageAction) => {
-            if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-              pageJump(data.nextPageCode, route.query);
-            }
+  Promise.all(validateList)
+    .then(
+      (res) => {
+        // if (!isAgree.value) {
+        //   Toast('请勾选投保人阅读并接受');
+        //   return;
+        // }
+        Object.assign(orderDetail.value, {
+          extInfo: {
+            ...orderDetail.value.extInfo,
+            buttonCode: BUTTON_CODE_ENUMS.INFO_COLLECTION,
+            pageCode: PAGE_CODE_ENUMS.INFO_COLLECTION,
           },
-          route,
-        );
-      });
-    } else {
-      clearInterval(timer);
+        });
 
-      nextStep(
-        currentOrderDetail,
-        (data, pageAction) => {
-          if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-            pageJump(data.nextPageCode, route.query);
-          }
-        },
-        route,
-      );
-    }
-  });
+        const userData = personalInfoRef.value.dealMixData();
+        const currentOrderDetail = trialData2Order(
+          { ...userData, productCode, productName: insureProductDetail.value.productName },
+          trialResult.value,
+          orderDetail.value,
+        );
+
+        route.query.productClass = productClass.value;
+
+        // 校验ocr信息是否被修改
+        const msgList = compareOcrData();
+        if (msgList?.length) {
+          Dialog.confirm({
+            message: msgList?.[0],
+          }).then(() => {
+            clearInterval(timer);
+            nextStep(
+              currentOrderDetail,
+              (data, pageAction) => {
+                if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+                  pageJump(data.nextPageCode, route.query);
+                }
+              },
+              route,
+            );
+          });
+        } else {
+          clearInterval(timer);
+
+          nextStep(
+            currentOrderDetail,
+            (data, pageAction) => {
+              if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+                pageJump(data.nextPageCode, route.query);
+              }
+            },
+            route,
+          );
+        }
+      },
+      (formRef) => {
+        scrollToError('.long-info-collection', '.van-field--error');
+      },
+    )
+    .catch((e) => {
+      console.log('e', e);
+    });
 };
 /** 子组件从客户页面带过来的首期银行卡信息 */
 const updateInitialBank = (d: any) => {

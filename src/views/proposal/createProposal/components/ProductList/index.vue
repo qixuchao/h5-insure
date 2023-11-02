@@ -2,7 +2,18 @@
   <div class="com-product-list-wrapper">
     <div v-for="risk in state.productRiskList" :key="risk.riskId">
       <div class="risk-item-wrapper">
-        <ProTitle :risk-type="risk.riskType" :title="risk.riskName" class="no-border" />
+        <ProTitle :risk-type="risk.riskType" :title="risk.riskName" class="no-border">
+          <div class="operate-bar">
+            <div
+              v-if="risk.riskType === RISK_TYPE_ENUM.MAIN_RISK"
+              class="add-risk btn"
+              @click="addRiderRisk(productCode, risk.riskCode)"
+            >
+              +附加险
+            </div>
+            <div class="delete-risk btn" @click="deleteRisk(productCode, risk.mainRiskCode, risk.riskCode)">删除</div>
+          </div>
+        </ProTitle>
         <div class="content">
           <div class="risk-factor">
             <div class="factor">
@@ -25,23 +36,17 @@
               }}</span>
             </div>
             <div v-if="risk.riskType !== 2" class="operate-bar">
-              <ProCheckButton
+              <!-- <ProCheckButton
                 v-if="currentSelectInsure > 0 || (isCanDeleteRisk(risk.riskId) && productIndex > 0)"
                 :round="32"
                 class="border"
                 @click="deleteRisk(risk)"
                 >删除</ProCheckButton
-              >
-              <!-- <ProCheckButton
-              v-if="isCanAddRiderRisk"
-              activated
-              :round="32"
-              class="btn-rider-risk"
-              @click="addRiderRisk(risk)"
-            >
-              <span class="btn-plus">+</span>
-              附加险</ProCheckButton
-            > -->
+              > -->
+              <!-- <ProCheckButton activated :round="32" class="btn-rider-risk" @click="addRiderRisk(risk)">
+                <span class="btn-plus">+</span>
+                附加险</ProCheckButton
+              > -->
               <ProCheckButton activated @click="updateRisk(risk)">修改</ProCheckButton>
             </div>
           </div>
@@ -77,6 +82,7 @@ import { convertPeriod, convertChargePeriod } from '@/utils/format';
 import RiskRelationList from '@/views/trial/components/RiskRelationList/index.vue';
 import useDict from '@/hooks/useDictData';
 import ProductTips from '@/views/proposal/proposalList/components/ProductTips.vue';
+import { RISK_TYPE_ENUM } from '@/common/constants/trial';
 
 interface Props {
   productRiskList: ProposalProductRiskItem[];
@@ -269,6 +275,28 @@ watch(
       }
       &::after {
         display: none;
+      }
+    }
+    :deep(.risk-title) {
+      .left-content {
+        width: 410px;
+      }
+      .operate-bar {
+        font-size: 28px;
+        font-weight: 500;
+        line-height: 40px;
+        display: flex;
+        .btn {
+          padding: 0 20px;
+        }
+        .add-risk {
+          color: var(--van-primary-color);
+          border-right: 1px solid #dfdfdf;
+        }
+        .delete-risk {
+          color: #999999;
+          padding-right: 0;
+        }
       }
     }
     .premium {

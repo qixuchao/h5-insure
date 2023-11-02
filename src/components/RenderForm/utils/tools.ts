@@ -1,6 +1,8 @@
 import { nanoid } from 'nanoid';
 import merge from 'lodash-es/merge';
 import isNil from 'lodash-es/isNil';
+import { formatDate } from '../../../utils/date';
+import { PersonVo } from '../../../api/modules/trial.data.d';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { SEX_LIMIT_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import { COMPONENT_MAPPING_LIST, GLOBAL_CONFIG_MAP, MODULE_TYPE_MAP, INSURED_MODULE_TYPE_ENUM } from './constants';
@@ -653,7 +655,7 @@ export const getCertConfig = (schema, personVO) => {
     [x: string]: any;
   } = {};
   const { relationToHolder, certType } = personVO || {};
-  const isChild = String(relationToHolder) === '3';
+  const isChild = ['6', '7'].includes(`${relationToHolder}`);
   // 证件类型
   const certTypeSchema = schema?.find((schemaItem) => schemaItem.name === 'certType');
   const isOnlyCertFlag = isOnlyCert(certTypeSchema || {});
@@ -664,12 +666,43 @@ export const getCertConfig = (schema, personVO) => {
       label: `身份证号${isChild ? '\n(户口簿)' : ''}`,
     };
   }
-
   // 证件类型为身份证或者户口本
   if (certTypeSchema) {
     merge(config, getCertTypeConfig(certType, schema));
   }
   return [isOnlyCertFlag, config];
+};
+
+export const setCertDefaultValue = (schema, personVO, cb) => {
+  schema.forEach((item) => {
+    if (item.name === 'certType') {
+      const hasIdCard = item.columns.find((i) => i.code === '1');
+
+      if (hasIdCard && !personVO?.certType) {
+        cb?.();
+      }
+    }
+  });
+};
+
+export const getNameRules = (personVO) => {
+  const { nationalityCode } = personVO;
+  let reg = /^[\u4E00-\u9FFF]\.?[\u4E00-\u9FFF]{1,40}$/;
+  if (nationalityCode && nationalityCode !== 'CHN') {
+    reg = /^([\u4E00-\u9FFF]\.?[\u4E00-\u9FFF]{1,40}$|[a-zA-Z]{4,40})$/;
+  }
+  return {
+    name: {
+      rules: [
+        {
+          validator: (val) => {
+            return reg.test(val);
+          },
+          message: `请输入正确姓名${nationalityCode}`,
+        },
+      ],
+    },
+  };
 };
 
 /**
@@ -688,6 +721,7 @@ export const relatedConfigMap = {
       // 证件类型选择证件号/户口本时，隐藏性别和出生日期
       nextTick(() => {
         merge(formState.config, getCertTypeConfig(formState.formData.certType, formState.schema));
+        Object.assign(formState.formData, { certImage: [] });
       });
     },
   },
@@ -743,26 +777,10 @@ export const relatedConfigMap = {
             required: false,
           },
         });
+        Object.assign(formState.formData, {
+          annuallyComeDesc: '',
+        });
       }
-    },
-  },
-  name: {
-    onChangeEffect: (val, formState) => {
-      console.log('name', val);
-      let reg = '([\u4E00-\u9FFF].?[\u4E00-\u9FFF]{1,40}$|[a-zA-Z]{4,40})$';
-      if (val && val === 'CHN') {
-        reg = '[\u4E00-\u9FFF]\\.?[\u4E00-\u9FFF]{1,40}$';
-      }
-      Object.assign(formState.config, {
-        name: {
-          rules: {
-            validator: () => {
-              return new RegExp(reg).test(val);
-            },
-            message: '请输入正确姓名',
-          },
-        },
-      });
     },
   },
 };
