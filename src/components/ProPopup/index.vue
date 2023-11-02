@@ -20,7 +20,7 @@
     @close="emits('close')"
   >
     <div class="pop-container">
-      <div v-if="title" class="header">
+      <div v-if="title" class="header" :style="headerStyle">
         {{ title }}
       </div>
       <div class="body">
@@ -59,6 +59,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  headerStyle: {
+    type: Object,
+    default: () => ({}),
+  },
 });
 
 const instance = getCurrentInstance();
@@ -81,7 +85,13 @@ watch(isShow, (val) => {
   emits('update:show', val);
 });
 </script>
-<style lang="scss" scope>
+<style lang="scss" scoped>
+:deep(.van-popup .van-popup__close-icon) {
+  top: 0;
+  right: 0;
+  background: red;
+  border: 16px solid red;
+}
 .com-pro-popup {
   .pop-container {
     height: 100%;
