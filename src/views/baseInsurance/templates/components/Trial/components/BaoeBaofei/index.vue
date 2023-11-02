@@ -12,7 +12,6 @@
             :step="originData.stepValue"
             :max="originData.maxStepValue"
             theme="round"
-            @blur="handleStepBlur"
           ></VanStepper>
         </div>
       </template>
@@ -115,6 +114,7 @@
 <script lang="ts" setup name="BaoeBaofei">
 import { ref, watch, withDefaults } from 'vue';
 import cloneDeep from 'lodash-es/cloneDeep';
+import { isEqual } from 'lodash-es';
 import { RiskVoItem, RiskAmountPremiumConfig } from '@/api/modules/trial.data';
 import { PREMIUM_UNIT_TYPE_ENUM, PREMIUM_DISPLAY_TYPE_ENUM } from '@/common/constants/infoCollection';
 // 参看CollapseItem组件
@@ -313,9 +313,8 @@ watch(
 
 watch(
   () => props.defaultValue,
-  (v) => {
-    if (v?.riskCode && !state.hadSetDefault) {
-      state.hadSetDefault = true;
+  (v, oldVal) => {
+    if (v?.riskCode && isEqual(v, oldVal)) {
       mValues.value = {
         ...mValues.value,
         unitAmount: v.unitAmount,

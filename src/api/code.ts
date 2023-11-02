@@ -26,6 +26,6 @@ const showCodeMessage = (code: number | string): string => {
 export const SUCCESS_CODE = '10000';
 export const SUCCESS_STATUS = 200;
 // 未登录
-export const UNLOGIN = '403';
+export const UNLOGIN = '401';
 
 export default showCodeMessage;

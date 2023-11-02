@@ -66,22 +66,14 @@ const handleDeal = () => {
     path = PAGE_ROUTE_ENUMS.infoCollection;
   }
 
-  sendMessage({
-    messageType: MESSAGE_TYPE_ENUM.AGENT,
-    orderNo,
-    tenantId,
-  }).then(({ code }) => {
-    if (code === '10000') {
-      router.push({
-        path,
-        query: {
-          ...route.query,
-          tenantId,
-          orderNo,
-          insurerCode,
-        },
-      });
-    }
+  router.push({
+    path,
+    query: {
+      ...route.query,
+      tenantId,
+      orderNo,
+      insurerCode,
+    },
   });
 };
 

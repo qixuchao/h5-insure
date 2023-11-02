@@ -590,12 +590,19 @@ const handleSetRiskSelect = () => {
   });
 };
 
-const handleDealDyResult = (dyResult: any, productCode) => {
+const handleDealDyResult = (dyResultData: any, productCode) => {
+  const dyResult = cloneDeep(dyResultData);
   if (dyResult?.data?.[0]?.productRiskDyInsureFactorVOList) {
     const defaultRiskData = [];
 
     productMap.value[productCode]?.productPlanInsureVOList?.[0]?.insureProductRiskVOList.forEach((risk) => {
       const newRisk = dyResult?.data?.[0]?.productRiskDyInsureFactorVOList.find((r) => r.riskCode === risk.riskCode);
+      // 豁免险特殊处理交期保期
+      if (risk.exemptFlag === YES_NO_ENUM.YES) {
+        newRisk.chargePeriod = newRisk.paymentPeriodValueList?.[0].code;
+        newRisk.coveragePeriod = newRisk.insurancePeriodValueList?.[0].code;
+        newRisk.paymentFrequency = newRisk.paymentFrequencyList?.[0].code;
+      }
       if (newRisk) {
         risk.productRiskInsureLimitVO = {
           ...risk.productRiskInsureLimitVO,
@@ -625,13 +632,15 @@ const handleDealDyResult = (dyResult: any, productCode) => {
         });
       }
     });
+
     if (defaultRiskData.length > 0 && state.defaultValue?.insuredList?.[0]?.productList) {
       // 给默认值
+      let currentProductList = [];
       defaultRiskData.forEach((data) => {
-        state.defaultValue.insuredList[0].productList = state.defaultValue?.insuredList?.[0]?.productList.map((p) => {
+        currentProductList = state.defaultValue?.insuredList?.[0]?.productList.map((p) => {
           p.riskList = p?.riskList.map((r) => {
             if (r.riskCode === data.riskCode) {
-              r = data;
+              return data;
             }
             return r;
           });
@@ -731,8 +740,6 @@ watch(
           riskEditVOList,
         };
       });
-
-      console.log('factorList', factorList, productMap.value);
 
       const dyResult = await queryCalcDynamicInsureFactor({
         calcProductFactorList: factorList,
@@ -870,6 +877,7 @@ const handleDynamicConfig = async (data: any, changeData: any, productCode) => {
         holderVO: state.userData.holder,
       });
       state.isQuerying = false;
+
       const result = handleDealDyResult(dyResult, productCode);
       if (!result) {
         state.isAutoChange = true;
