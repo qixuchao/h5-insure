@@ -37,7 +37,16 @@
             </div>
           </div>
           <div v-if="showType === SHOW_TYPE_ENUM.TABLE">
-            <BenefitTable :data-source="tableData" />
+            <van-popup
+              closeable
+              :show="showTablePopup"
+              position="bottom"
+              :style="{ height: '100%' }"
+              @close="showTablePopup = false"
+            >
+              <BenefitTable :data-source="tableData" />
+            </van-popup>
+            <!-- <BenefitTable :data-source="tableData" /> -->
           </div>
 
           <div v-if="showType == SHOW_TYPE_ENUM.CHART" style="width: 100%, minWidth: 338px">
@@ -65,7 +74,7 @@
 
           <div class="btn-two">
             <van-button
-              v-if="props.dataSource.showTypeList.includes(SHOW_TYPE_ENUM.LIST)"
+              v-if="props.showTypeList.includes(SHOW_TYPE_ENUM.LIST)"
               round
               :plain="showType !== SHOW_TYPE_ENUM.LIST"
               type="primary"
@@ -74,7 +83,7 @@
               >图表展示</van-button
             >
             <van-button
-              v-if="props.dataSource.showTypeList.includes(SHOW_TYPE_ENUM.CHART)"
+              v-if="props.showTypeList.includes(SHOW_TYPE_ENUM.CHART)"
               round
               :plain="showType !== SHOW_TYPE_ENUM.CHART"
               type="primary"
@@ -83,7 +92,7 @@
               >趋势展示</van-button
             >
             <van-button
-              v-if="props.dataSource.showTypeList.includes(SHOW_TYPE_ENUM.TABLE)"
+              v-if="props.showTypeList.includes(SHOW_TYPE_ENUM.TABLE)"
               round
               :plain="showType !== SHOW_TYPE_ENUM.TABLE"
               type="primary"
@@ -154,14 +163,16 @@ import BenefitTable from './BenefitTable.vue';
 
 const props = withDefaults(
   defineProps<{
-    dataSource: { showTypeList: string[] };
+    dataSource: {};
     productInfo: any;
+    showTypeList: string[];
   }>(),
   {
     dataSource: () => ({
       showTypeList: ['1'],
     }),
     productInfo: () => null,
+    showTypeList: () => [],
   },
 );
 const SHOW_TYPE_ENUM = {
@@ -173,10 +184,11 @@ const active = ref(0);
 const ageBegin = ref(0);
 const ageEnd = ref(0);
 const benefitObj = ref(); // 利益演示结构
+const showTablePopup = ref(true); // 利益演示表格
 
 const num = ref(0);
 // 展示类型
-const showType = ref(props.dataSource.showTypeList?.[0]);
+const showType = ref(props.showTypeList?.[0]);
 const tableData = ref();
 
 const renderArray = (start: number, end: number) => {

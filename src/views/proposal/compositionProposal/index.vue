@@ -93,7 +93,7 @@
             </div>
 
             <!-- 利益演示 -->
-            <Benefit v-if="currentInfo?.benefitRiskResultVOList" :info="currentInfo" />
+            <Benefit v-if="currentInfo" :data-source="currentInfo" :show-type-list="['1', '2', '3']" />
             <!-- 利安定制公司简介 不需要这块了 -->
             <!-- <div class="container">
               <div class="common-title">保险公司简介</div>
@@ -265,7 +265,8 @@ import {
 import Storage from '@/utils/storage';
 import InsurancesList from './components/InsurancesList.vue'; // 预览页面 被保人选择
 import InsuranceList from './components/InsuranceList.vue'; // 被保人展示
-import Benefit from './components/Benefit.vue';
+// import Benefit from './components/Benefit.vue';
+import Benefit from '../../baseInsurance/templates/components/Benefit/index.vue';
 import LiabilityByRisk from './components/LiabilityByRisk.vue';
 import LiabilityByRes from './components/LiabilityByRes.vue';
 import ProShare from '@/components/ProShare/index.vue';
