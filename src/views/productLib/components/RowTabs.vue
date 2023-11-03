@@ -101,6 +101,7 @@ const selectTab = (tab: string) => {
 
 :deep(.van-tabs__line) {
   width: 60px;
+  z-index: 0;
 }
 :deep(.van-tab.van-tab--line) {
   min-width: 26%;
