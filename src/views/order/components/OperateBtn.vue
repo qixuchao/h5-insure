@@ -62,7 +62,7 @@ const handleDeal = () => {
   let path = PAGE_ROUTE_ENUMS.sign;
 
   // 待信息采集页面跳转信息采集页
-  if (orderStatus === 'collectInfo' && underwriteFlag !== YES_NO_ENUM.YES) {
+  if (orderStatus === 'collectInfo' || (orderStatus === 'underWritingFailed' && underwriteFlag === YES_NO_ENUM.NO)) {
     path = PAGE_ROUTE_ENUMS.infoCollection;
   }
 

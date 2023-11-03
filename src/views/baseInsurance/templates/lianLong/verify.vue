@@ -23,7 +23,7 @@
                   :value-class="`${isDisabled ? 'disable' : ''}`"
                   is-link
                   value="分享空签邀约"
-                  @click="handleShare('holder')"
+                  @click="!isDisabled && handleShare('holder')"
                 ></van-cell>
                 <van-cell
                   is-link
@@ -42,7 +42,7 @@
                   :value-class="`${isDisabled ? 'disable' : ''}`"
                   is-link
                   value="分享空签邀约"
-                  @click="handleShare('insured')"
+                  @click="!isDisabled && handleShare('insured')"
                 ></van-cell>
                 <van-cell
                   is-link

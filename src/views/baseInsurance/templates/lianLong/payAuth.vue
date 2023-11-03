@@ -61,11 +61,12 @@
 
 <script setup name="payAuth" lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { Toast } from 'vant';
+import { Toast, Dialog } from 'vant';
 import { getTenantOrderDetail } from '@/api/modules/trial';
 import { sendSMSCode } from '@/components/RenderForm/utils/constants';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { authorizeConfirm, authorizeSysCode } from '@/api/modules/verify';
+import { PAGE_ROUTE_ENUMS } from './constants.ts';
 
 const route = useRoute();
 const router = useRouter();
@@ -87,6 +88,16 @@ const sendCode = (params, callback) => {
   authorizeSysCode(formData.value).then(({ code, data }) => {
     if (code === '10000') {
       callback?.();
+    } else {
+      Dialog.confirm({
+        confirmButtonText: '银行卡修改',
+        message: '当前暂不支持该银行，建议更换银行卡',
+      }).then(() => {
+        router.push({
+          path: PAGE_ROUTE_ENUMS.updateBankInfo,
+          query: route.query,
+        });
+      });
     }
   });
 };

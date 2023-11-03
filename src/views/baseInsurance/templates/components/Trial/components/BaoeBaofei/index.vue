@@ -10,7 +10,7 @@
             :default-value="originData.minStepValue"
             :min="originData.minStepValue"
             :step="originData.stepValue"
-            :max="originData.maxStepValue"
+            :max="originData.maxStepValue || +Infinity"
             theme="round"
           ></VanStepper>
         </div>
@@ -64,7 +64,7 @@
               :default-value="originData.minCopiesValue"
               :min="originData.minCopiesValue || 1"
               :step="1"
-              :max="originData.maxCopiesValue"
+              :max="originData.maxCopiesValue || +Infinity"
               theme="round"
             ></VanStepper>
             <span v-else>{{ originData.minCopiesValue }}</span>
@@ -85,7 +85,7 @@
             :default-value="originData.minCopiesValue"
             :min="originData.minCopiesValue || 1"
             :step="1"
-            :max="originData.maxCopiesValue"
+            :max="originData.maxCopiesValue || +Infinity"
             theme="round"
           ></VanStepper>
           <span v-else>{{ originData.minCopiesValue }}</span>

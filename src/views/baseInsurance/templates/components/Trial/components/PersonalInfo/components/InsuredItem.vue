@@ -67,7 +67,11 @@
         }"
       >
         <template #customer>
-          <slot name="benefitCustomer" :index="index"></slot>
+          <slot
+            v-if="!(isView || beneficiary.personVO?.isHolder === YES_NO_ENUM.YES)"
+            name="benefitCustomer"
+            :index="index"
+          ></slot>
         </template>
         <template #header-item>
           <ProFieldV2 v-if="!isSameHolder" label="是否同投保人" input-align="right">
