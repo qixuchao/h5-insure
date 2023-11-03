@@ -120,6 +120,8 @@ const goFaceVerify = () => {
     return;
   }
 
+  sessionStore.clear(`${LIAN_STORAGE_KEY}_bizId`);
+
   const { name: userName, certNo: certiNo, certType } = formState.formData || {};
 
   const params = {
