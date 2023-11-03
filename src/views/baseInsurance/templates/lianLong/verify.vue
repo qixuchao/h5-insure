@@ -279,7 +279,7 @@ const checkMobile = (type: 'agent' | 'holder' | 'insured') => {
 
 // 去双录
 const handleDMOS = () => {
-  if (isDisabled.value || BMOSStatus.value === DUAL_STATUS_ENUM.DUAL_SUCCESS) {
+  if (isDisabled.value || [DUAL_STATUS_ENUM.DUAL_FINISH, DUAL_STATUS_ENUM.DUALING].includes(BMOSStatus.value)) {
     return;
   }
   formRef.value?.validate().then(() => {
@@ -438,9 +438,13 @@ const onNext = async () => {
       Toast('代理人签名未完成');
       return;
     }
-  }
+    await formRef.value?.validate();
 
-  await formRef.value?.validate();
+    if (DUAL_STATUS_ENUM.DUAL_FINISH !== BMOSStatus.value) {
+      Toast('请先完成双录');
+      return;
+    }
+  }
 
   const currentOrderDetail = Object.assign(orderDetail.value, {
     extInfo: { ...orderDetail.value.extInfo, pageCode: PAGE_CODE_ENUMS.SIGN, buttonCode: BUTTON_CODE_ENUMS.SIGN },
