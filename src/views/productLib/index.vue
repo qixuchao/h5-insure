@@ -162,7 +162,7 @@ const currentFile = ref({
   show: false,
 });
 // 客户代理人信息
-const agentInfo = reactive({ name: '高扬', agentCode: '34234' });
+const agentInfo = reactive({ name: '测试水印', agentCode: '1234' });
 const previewFile = (file: {}) => {
   console.log('文件预览', agentInfo);
   currentFile.value = { ...file, show: true };

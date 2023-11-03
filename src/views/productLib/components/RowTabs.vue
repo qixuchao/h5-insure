@@ -1,7 +1,7 @@
 <template>
   <div class="com-row-tabs">
-    <van-tabs v-if="tabs.length" v-model:active="active" class="tabs">
-      <van-tab v-for="item in [...tabs, ...tabs]" :key="item" :name="item" :title="item"></van-tab>
+    <van-tabs v-if="tabs.length" v-model:active="active" :class="['tabs', tabs.length > 3 ? 'w80' : '']">
+      <van-tab v-for="item in tabs" :key="item" :name="item" :title="item"></van-tab>
     </van-tabs>
     <div v-if="tabs.length > 3" class="more-arrow" @click="show = true">
       <ProSvg name="down-fill" color="red" />
@@ -13,7 +13,7 @@
         <template #title>
           <div class="file-name">
             <span class="dot"></span>
-            <span>{{ row.attachmentName }}</span>
+            <span>{{ row.displayName }}</span>
           </div>
         </template>
       </van-cell>
@@ -40,7 +40,7 @@ const props = defineProps({
     default: () => [],
   },
   list: {
-    type: Array<{ attachmentName: string; id: number }>,
+    type: Array<{ riskName: string; displayName: string; id: number }>,
     default: () => [],
   },
   active: {
@@ -65,7 +65,9 @@ const selectTab = (tab: string) => {
   // border-top: 1px solid var(--zaui-dividing-line);
   .van-tabs {
     flex: 1;
-    max-width: calc(100vw - 84px);
+    &.w80 {
+      max-width: calc(100vw - 84px);
+    }
   }
   .more-arrow {
     width: 84px;
@@ -74,11 +76,15 @@ const selectTab = (tab: string) => {
     height: 88px;
     line-height: 94px;
     z-index: 1;
-    box-shadow: -3px 0px 9px -1px rgba(0, 0, 0, 0.25);
+    box-shadow: -2px 0px 9px -1px rgba(0, 0, 0, 0.25);
   }
 }
 .row-data .file-name {
-  line-height: 78px;
+  line-height: 48px;
+  padding: 15px 0;
+  // .dot {
+  //   line-height: 48px;
+  // }
 }
 .pop-container {
   .tab-item {
