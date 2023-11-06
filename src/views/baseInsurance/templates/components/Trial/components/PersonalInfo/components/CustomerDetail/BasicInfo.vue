@@ -2,10 +2,8 @@
   <van-collapse v-model="activeList">
     <van-collapse-item title="基础信息" name="1">
       <div v-for="(item, index) in list" :key="index" class="collapse-list">
-        <template v-if="item.value">
-          <div class="label">{{ item.label }}</div>
-          <div class="content">{{ item.value }} {{ item.unit }}</div>
-        </template>
+        <div class="label">{{ item.label }}</div>
+        <div class="content">{{ item.value }} {{ item.unit }}</div>
       </div>
     </van-collapse-item>
   </van-collapse>

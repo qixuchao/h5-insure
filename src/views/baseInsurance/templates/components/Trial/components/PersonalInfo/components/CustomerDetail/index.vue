@@ -1,7 +1,7 @@
 <template>
   <div class="customer-detail">
     <div class="customer-img">
-      <img :src="state?.avatar || avatar" alt="" class="customer-header-img" />
+      <img :src="state.gender ? (+state.gender === 1 ? female : male) : gender" alt="" class="customer-header-img" />
       <div class="customer-img-content">
         <div class="customer-img-title">
           {{ state.name || '' }} &nbsp;
@@ -91,9 +91,12 @@ import { CertInfo, ContactInfo, BankCardInfo, AddressInfo, CustomerDetail } from
 import pageJump from '@/utils/pageJump';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 import { getCusomterParams, setCusomterData, filterCustomerOption } from '../../util';
-import avatar from '@/assets/images/customer-avatar.png';
+// import avatar from '@/assets/images/customer-avatar.png';
 import BasicInfo from './BasicInfo.vue';
 import CardSelect from './CardSelect.vue';
+import female from '@/assets/images/baseInsurance/female.png';
+import male from '@/assets/images/baseInsurance/male.png';
+import gender from '@/assets/images/baseInsurance/gender.png';
 
 interface QueryData {
   customerId: number;
@@ -117,6 +120,10 @@ const state = ref<Partial<CustomerDetail>>({
   contactInfo: [],
   gender: 1,
   name: '',
+});
+
+const avatar = computed(() => {
+  return state.value?.avatar || state.value.gender ? (+state.value.gender === 1 ? female : male) : gender;
 });
 
 const getData = () => {

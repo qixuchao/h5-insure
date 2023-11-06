@@ -745,14 +745,14 @@ onActivated(() => {
   const tempCust = getCusomterData();
   const tempPersonal = getPersonalPageData();
   state.currentType = (route.query.selectedType as string) || state.currentType;
-  console.log('onActivated:', tempPersonal);
+
   if (tempPersonal) {
     state.currentIndex = tempPersonal.currentIndex;
     state.currentBenifitIndex = tempPersonal.currentBenifitIndex;
-    document.documentElement.scrollTo(0, tempPersonal.scrollTop);
-    document.body.scrollTop = tempPersonal.scrollTop; // 兼容微信滚动
-    clearPersonalPageData();
   }
+  document.documentElement.scrollTo(0, tempPersonal.scrollTop);
+  document.body.scrollTop = tempPersonal.scrollTop; // 兼容微信滚动
+  clearPersonalPageData();
   if (tempCust) {
     setCustomerToPerson(tempCust);
     clearCustomData();

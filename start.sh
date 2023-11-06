@@ -1,4 +1,4 @@
-# #!/bin/bash
+#!/bin/bash
 
 # # 发布环境 Ship 上 配置 测试
 # # DEPLOY_ENV="dev"

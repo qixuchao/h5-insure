@@ -54,7 +54,7 @@ const orderDetail = useOrder();
 
 console.log('route', route);
 
-const { productCode, orderNo, templateId, tenantId, preview, questionnaireId: questionId } = route.query;
+const { productCode, orderNo, tenantId, preview, questionnaireId: questionId } = route.query;
 const currentQuestion = ref<any>({});
 const nextQuestionnaireId = ref<number>();
 const objectType = ref<number>();
@@ -158,7 +158,6 @@ const getOrderDetail = async () => {
     Object.assign(orderDetail.value, data, {
       extInfo: {
         ...data.extInfo,
-        templateId,
         pageCode: PAGE_CODE_ENUMS.TRANSCRIPTION,
         buttonCode: BUTTON_CODE_ENUMS.TRANSCRIPTION,
       },
