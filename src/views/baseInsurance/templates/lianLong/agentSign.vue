@@ -48,6 +48,7 @@ import ProShare from '@/components/ProShare/index.vue';
 import { jumpToNextPage } from '@/utils';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import { getFileType } from '../../utils';
+import { sessionStore } from '@/hooks/useStorage';
 
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));

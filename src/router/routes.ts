@@ -253,7 +253,7 @@ const baseInsurance = [
   {
     name: 'baseInsuranceLongResult',
     path: '/baseInsurance/long/result',
-    meta: { title: '', requireWxJs: false },
+    meta: { title: '结果页', requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianLong/result.vue'),
   },
   // 客户列表
