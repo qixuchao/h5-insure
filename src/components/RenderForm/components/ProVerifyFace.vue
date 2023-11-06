@@ -19,6 +19,7 @@ import { storeToRefs } from 'pinia';
 import { useToggle } from '@vant/use';
 import isNil from 'lodash-es/isNil';
 import { useRoute, useRouter } from 'vue-router';
+import { useWindowScroll } from '@vueuse/core';
 import useAppStore from '@/store/app';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
@@ -33,6 +34,7 @@ const globalStore = useAppStore();
 const { dictMap } = storeToRefs(globalStore);
 const route = useRoute();
 const router = useRouter();
+const { x, y } = useWindowScroll(); // 拿到当前的滚动条，方便在通讯录回来时复原
 
 const { tenantId, orderNo, biz_id } = route.query;
 
@@ -119,6 +121,11 @@ const goFaceVerify = () => {
   if (props.isView) {
     return;
   }
+
+  sessionStore.set(`${LIAN_STORAGE_KEY}_faceInfo`, {
+    userInfo: formState.formData,
+    scrollTop: y.value,
+  });
 
   sessionStore.remove(`${LIAN_STORAGE_KEY}_bizId`);
 
@@ -226,6 +233,14 @@ watch(
 
 onBeforeMount(() => {
   const bizId = sessionStore.get(`${LIAN_STORAGE_KEY}_bizId`);
+  const paceInfo = sessionStore.get(`${LIAN_STORAGE_KEY}_faceInfo`);
+  const { userInfo, scrollTop } = paceInfo || {};
+  if (scrollTop) {
+    document.documentElement.scrollTo(0, scrollTop);
+    document.body.scrollTop = scrollTop; // 兼容微信滚动
+    Object.assign(formState.formData, userInfo);
+    sessionStore.remove(`${LIAN_STORAGE_KEY}_faceInfo`);
+  }
   if (!bizId && biz_id) {
     sessionStore.set(`${LIAN_STORAGE_KEY}_bizId`, biz_id);
     getFaceVerifyResult();
