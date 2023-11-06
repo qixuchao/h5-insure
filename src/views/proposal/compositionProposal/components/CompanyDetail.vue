@@ -10,18 +10,11 @@
     <div v-if="COMPANY_COMPONENTS_TYPE_LIST_ENUM.IMAGE === +item.componentType" class="com-video">
       <img :src="item.componentPicList[0]" class="company-image" />
     </div>
-    <!-- 富文本 -->
-    <div v-if="COMPANY_COMPONENTS_TYPE_LIST_ENUM.VIDEO === +item.componentType" class="com-video">
-      <img :src="item.componentVideoPic" class="cover-image" @click="showVideo = true" />
-      <ProSvg name="play" class="cover-image-play" @click="showVideo = true" />
-      <video
-        v-if="item.componentVideoPic ? true : showVideo"
-        :src="item.componentVideoList[0]"
-        autoplay
-        controls
-        class="banner-video"
-        @ended="showVideo = false"
-      />
+    <!--视频 -->
+    <div v-if="COMPANY_COMPONENTS_TYPE_LIST_ENUM.VIDEO === +item.componentType" class="com-detail-video">
+      <video controls :poster="item.componentVideoPic" class="banner-video">
+        <source :src="item.componentVideoList[0]" />
+      </video>
     </div>
   </div>
 </template>
@@ -47,6 +40,7 @@ const convertCompanyDetail = data.components.filter((item) => {
 
 <style lang="scss" scoped>
 .com-video {
+  margin-top: 10px;
   position: relative;
   width: 750px;
   min-height: 300px;
@@ -67,11 +61,12 @@ const convertCompanyDetail = data.components.filter((item) => {
   }
   .banner-video {
     width: 100%;
-    max-width: 750px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1;
+    // max-width: 730px;
+    height: 400px;
   }
+}
+.com-detail-video {
+  @extend .com-video;
+  padding: 20px 30px 0 30px;
 }
 </style>

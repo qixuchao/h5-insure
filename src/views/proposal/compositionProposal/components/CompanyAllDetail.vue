@@ -14,16 +14,7 @@
           <img :src="element.componentPicList[0]" class="company-image" />
         </div>
         <!-- 视频 -->
-        <div v-if="COMPANY_COMPONENTS_TYPE_LIST_ENUM.VIDEO === +element.componentType" class="com-detail">
-          <!-- <img :src="element.componentVideoPic" class="cover-image" @click="showVideo = true" />
-          <ProSvg name="play" class="cover-image-play" @click="showVideo = true" />
-          <video
-            v-if="element.componentVideoPic ? true : showVideo"
-            :src="element.componentVideoList[0]"
-            autoplay="false"
-            controls
-            @ended="showVideo = false"
-          /> -->
+        <div v-if="COMPANY_COMPONENTS_TYPE_LIST_ENUM.VIDEO === +element.componentType" class="com-detail-video">
           <video controls :poster="element.componentVideoPic" class="banner-video">
             <source :src="element.componentVideoList[0]" />
           </video>
@@ -55,7 +46,7 @@ const convertAllCompanyDetail = data;
 
 <style lang="scss" scoped>
 .title-name {
-  margin-bottom: 10px;
+  margin: 30px;
   display: block;
 }
 .com-detail {
@@ -79,9 +70,13 @@ const convertAllCompanyDetail = data;
     transform: translate(-50%, -50%);
   }
 }
+.com-detail-video {
+  @extend .com-detail;
+  padding: 20px 30px 0 30px;
+}
 .banner-video {
   width: 100%;
-  max-width: 750px;
+  // max-width: 730px;
   height: 400px;
 }
 </style>

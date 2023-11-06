@@ -42,7 +42,7 @@
               :show="showTablePopup"
               position="bottom"
               :style="{ height: '100%' }"
-              @close="showTablePopup = false"
+              @click-close-icon="handleClose"
             >
               <BenefitTable :data-source="tableData" />
             </van-popup>
@@ -98,7 +98,7 @@
               type="primary"
               class="btn"
               @click="showType = SHOW_TYPE_ENUM.TABLE"
-              >表格展示</van-button
+              >查看利益演示</van-button
             >
           </div>
         </div>
@@ -184,12 +184,18 @@ const active = ref(0);
 const ageBegin = ref(0);
 const ageEnd = ref(0);
 const benefitObj = ref(); // 利益演示结构
-const showTablePopup = ref(true); // 利益演示表格
+const showTablePopup = ref(true); // 利益演示结构
 
 const num = ref(0);
+
 // 展示类型
 const showType = ref(props.showTypeList?.[0]);
 const tableData = ref();
+// 利益演示表格
+// const showTablePopup = computed(() => {
+//   // eslint-disable-next-line no-return-assign
+//   return showType === SHOW_TYPE_ENUM.TABLE;
+// });
 
 const renderArray = (start: number, end: number) => {
   const a = [];
@@ -232,6 +238,11 @@ const handleAdd = () => {
   num.value += 1;
   getData();
 };
+const handleClose = () => {
+  console.log('1111');
+  showTablePopup.value = false;
+  showType.value = '2';
+};
 const handleReduce = () => {
   if (num.value > ageBegin.value) {
     num.value -= 1;
@@ -262,6 +273,10 @@ watch(
 watch(num, () => {
   getData();
 });
+watch(showType, (val) => {
+  debugger;
+  showTablePopup.value = val === SHOW_TYPE_ENUM.TABLE;
+});
 </script>
 
 <style lang="scss" scoped>
@@ -269,7 +284,7 @@ watch(num, () => {
   widows: 100%;
   background: #ffffff;
   border-radius: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   padding: 0 20px 30px 20px;
   .common-title {
     padding-top: 34px;
@@ -401,5 +416,11 @@ watch(num, () => {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+:deep(.van-popup) {
+  z-index: 999999999 !important; // 弹窗提高层级不展示底部按钮
+  .van-popup__close-icon {
+    top: 0;
+  }
 }
 </style>

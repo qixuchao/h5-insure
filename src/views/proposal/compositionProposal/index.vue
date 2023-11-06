@@ -11,11 +11,6 @@
       <div
         v-if="+agentCard.content?.isShow === 1 && +agentCard.content?.agentShowPostion === 1"
         class="page-composition-proposal-agent"
-        :style="
-          +agentCard.content?.agentBgModelType === 1
-            ? { backgroundImage: `url(${agentCard.content.agentDefaultPicList})` }
-            : ''
-        "
       >
         <img round class="agent_icon" :src="agent_img" />
         <div class="agent_info">
@@ -33,7 +28,16 @@
       <div
         class="page-composition-proposal"
         :class="{ 'page-proposal-bottom': !isShare, 'page-proposal-bg': !isShare }"
-        :style="+basicInfo?.content?.bannerType === 1 ? { backgroundImage: `url(${basicInfo.defaultBanner})` } : ''"
+        :style="
+          +basicInfo?.content?.bannerType === 1
+            ? {
+                backgroundImage: `url(${basicInfo?.content?.defaultBanner})`,
+                backgroundColor: `${basicInfo?.content?.bannerBackgroudColor}`,
+              }
+            : {
+                backgroundColor: `${basicInfo?.content?.bannerBackgroudColor}`,
+              }
+        "
       >
         <!-- 公司介绍 -->
         <div :class="{ 'head-bg': true, 'single-user': !isMultiple }">
@@ -53,20 +57,13 @@
           </div>
           <!-- 顶部展示 -->
           <div
-            v-if="+companyProfile?.content?.agentShowPostion === 1"
-            class="company-all-title"
-            @click="goCompanyAllDetail"
-          >
-            <img class="bg" :src="company_bj" />
-          </div>
-          <!-- 底部展示 -->
-          <div
             v-if="+companyProfile?.content?.agentShowPostion === 2"
             class="company-all-title"
             @click="goCompanyAllDetail"
           >
             <img class="bg" :src="company_bj" />
           </div>
+
           <template v-if="isMultiple">
             <van-sticky :class="`selected`" @change="stickyChange">
               <div :class="`${selectedFixed ? 'to-fixed' : ''}`">
@@ -121,7 +118,7 @@
               </div>
             </div>
             <!-- 风险详情 -->
-            <div v-if="+riskAlert?.content?.isShow === 1" class="lia-container">
+            <div v-if="+riskAlert?.content?.isShow === 1" class="lia-container risk-container">
               <!-- <div class="risk-title">风险提示</div> -->
               <div class="lia-header">
                 <div class="info-detail">
@@ -134,6 +131,10 @@
                 v-dompurify-html="riskAlert?.content.riskContent"
                 class="risk-content"
               ></div>
+              <!-- 富文本 -->
+              <div v-if="+riskAlert?.content?.riskCaseType === 2" class="risk-content">
+                <img :src="riskAlert?.content?.riskDefaultPicList" class="risk-content-img" />
+              </div>
             </div>
           </div>
           <div v-else>
@@ -181,15 +182,19 @@
           </div>
         </div>
         <div class="back"></div>
+        <!--公司介绍 底部展示 -->
+        <div
+          v-if="+companyProfile?.content?.agentShowPostion === 1"
+          class="company-all-title-2"
+          @click="goCompanyAllDetail"
+        >
+          <img class="bg" :src="company_bj" />
+        </div>
       </div>
+
       <div
         v-if="+agentCard.content?.isShow === 1 && +agentCard.content?.agentShowPostion === 2"
         class="page-composition-proposal-agent2"
-        :style="
-          +agentCard.content?.agentBgModelType === 1
-            ? { backgroundImage: `url(${agentCard.content.agentDefaultPicList})` }
-            : ''
-        "
       >
         <img round class="agent_icon" :src="agent_img" />
         <div class="agent_info">
@@ -489,7 +494,7 @@ const getData = async () => {
 
 // 获取计划书列表
 const getThemeList = async () => {
-  const { code, data } = await queryProposalThemeList();
+  const { code, data } = await queryProposalThemeList({});
   if (code === '10000') {
     themeList.value = data || [];
   }
@@ -524,23 +529,30 @@ const openProductList = (insure: any) => {
 
 // 计划书产品转投保
 const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
-  const { productCode, insurerCode, tenantProductCode } = product;
+  const { productCode, insurerCode, tenantProductCode, checkedList } = product;
+  const productCodes = Object.values(checkedList).join(',');
   let targetInsureId = insuredId;
+  const productClass = '';
+  let templateId = '';
   if (targetInsureId <= 0 || insuredId === undefined) {
     if (proposal2InsuredSelectedInsurer.value) {
       targetInsureId = proposal2InsuredSelectedInsurer.value.proposalInsuredId;
+      templateId = proposal2InsuredSelectedInsurer.value.proposalTransInsuredProductVOList[0].templateId;
+      console.log('templateId---', templateId);
     } else {
       if (currentInfo.value) {
         const targetInsure = insuredProductList.value.find(
           (insure) => insure.name === currentInfo.value.name && insure.proposalInsuredId === currentInfo.value.id,
         );
         targetInsureId = targetInsure.proposalInsuredId;
+        templateId = targetInsure.proposalTransInsuredProductVOList[0].templateId;
+        console.log('templateId', templateId);
       }
     }
   }
   // 检验产品是否支持转投保
   checkProposalInsurer({
-    productCode,
+    productCode: productCodes,
     proposalId: id,
     proposalInsuredId: targetInsureId,
   }).then(({ code, data, message }) => {
@@ -555,17 +567,22 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
         //     window.location.href = newData;
         //   }
         // });
-        queryInsureLink({
-          // 后端换接口了
-          insurerCode,
-          productCode: tenantProductCode,
-          proposalId: id,
-          proposalInsuredId: targetInsureId,
-        }).then(({ code: newCode, data: newData }) => {
-          if (newCode === '10000') {
-            window.location.href = newData;
-          }
-        });
+        // queryInsureLink({
+        //   // 后端换接口了
+        //   insurerCode,
+        //   productCode: tenantProductCode,
+        //   proposalId: id,
+        //   proposalInsuredId: targetInsureId,
+        // }).then(({ code: newCode, data: newData }) => {
+        //   if (newCode === '10000') {
+        //     window.location.href = newData;
+        //   }
+        // });
+        // 需要看产品中的productClass 目前接口未返回 先默认为多主险
+        // 多主险 跳转保费试算
+        window.location.href = `${window.location.origin}/baseInsurance/long/trial?insurerCode=lianlife&productCodes=${productCodes}&tenantId=${tenantId.value}&templateId=${templateId}`;
+        // 非多主险 计划书详情
+        // window.location.href = `${window.location.origin}/baseInsurance/long/poductDetail?insurerCode=lianlife&productCodes=${productCodes}&tenantId=${tenantId.value}&&templateId=${templateId}`;
       } else {
         Toast(message);
       }
@@ -852,6 +869,9 @@ onMounted(() => {
         color: #393d46;
         line-height: 56px;
         padding: 23px 20px 30px 20px;
+        .risk-content-img {
+          width: 100%;
+        }
       }
       .lia-header {
         min-height: 106px;
@@ -1163,6 +1183,7 @@ onMounted(() => {
   }
 }
 .footer-btn {
+  z-index: 1;
   width: 100%;
   height: 150px;
   background: #ffffff;
@@ -1208,5 +1229,19 @@ onMounted(() => {
     line-height: 42px;
     position: relative;
   }
+}
+.company-all-title-2 {
+  // position: absolute;
+  // top: 20px;
+
+  width: 100%;
+  margin: 30px 30px 0 30px;
+  .bg {
+    width: 690px;
+    height: 80px;
+  }
+}
+.risk-container {
+  margin-top: 30px;
 }
 </style>

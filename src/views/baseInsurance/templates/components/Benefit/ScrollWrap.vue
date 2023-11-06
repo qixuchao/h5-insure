@@ -59,23 +59,23 @@ const { direction } = useSwipe(swiperEl, {
   },
   onSwipe(e: TouchEvent) {
     const { clientX, clientY } = e.touches[0];
-    if (['LEFT', 'RIGHT'].includes(direction.value)) {
+    if (['UP', 'DOWN'].includes(direction.value)) {
       const offsetX = state.offsetX - (state.startX - clientX);
       // 未超出边界
       if (offsetX > -width.value + parentWidth.value && offsetX < 0) {
         state.offsetX = offsetX;
         proTableState.state.offsetX = state.offsetX;
       }
-      state.startX = clientX;
+      state.startY = clientX;
     }
-    if (['UP', 'DOWN'].includes(direction.value)) {
+    if (['LEFT', 'RIGHT'].includes(direction.value)) {
       const offsetY = state.offsetY - (state.startY - clientY);
       // 未超出边界
       if (offsetY > -height.value + parentHeight.value && offsetY < 0) {
         state.offsetY = offsetY;
         proTableState.state.offsetY = state.offsetY;
       }
-      state.startY = clientY;
+      state.startX = clientY;
     }
   },
   onSwipeEnd(e: TouchEvent) {
@@ -116,7 +116,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .scroll-wrap {
   position: relative;
-  transition: transform 0.4s;
+  transition: rotate(90deg) transform 0.4s;
   scroll-behavior: smooth;
 }
 </style>

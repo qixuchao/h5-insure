@@ -16,7 +16,7 @@
           <span @click="close">X</span>
         </div>
         <div class="popup-body">
-          <van-radio-group v-model="checked">
+          <van-checkbox-group v-model="checked">
             <van-cell-group>
               <VanCell
                 v-for="item in dataSource.proposalTransInsuredProductVOList"
@@ -24,7 +24,7 @@
                 @click="onCheck(item)"
               >
                 <template #right-icon>
-                  <van-radio :name="item.productCode" :disabled="!!errorMessage(item)" />
+                  <van-checkbox :name="item.productCode" :disabled="!!errorMessage(item)" />
                 </template>
                 <template #title>
                   <div class="cell-title">
@@ -38,7 +38,7 @@
                 </template>
               </VanCell>
             </van-cell-group>
-          </van-radio-group>
+          </van-checkbox-group>
         </div>
         <div class="footer-button">
           <VanButton block type="primary" @click="onClick">立即投保</VanButton>
@@ -74,7 +74,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emits = defineEmits(['close', 'finished']);
-const checked = ref<string>('');
+const checked = ref([]);
 const currentProduct = ref<InsuredProductData | null>(null);
 
 const state = ref<State>({
@@ -100,7 +100,7 @@ const errorMessage = computed(() => (product: InsuredProductData) => {
 const onCheck = (product: InsuredProductData) => {
   if (!errorMessage.value(product)) {
     currentProduct.value = product;
-    checked.value = product.productCode;
+    // checked.value.push(product.productCode);
   }
 };
 
@@ -113,7 +113,7 @@ const onClick = () => {
   if (!checked.value) {
     return Toast('请选择投保产品');
   }
-  emits('finished', currentProduct.value);
+  emits('finished', { ...currentProduct.value, checkedList: checked.value });
 };
 
 watch(
