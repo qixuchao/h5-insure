@@ -50,7 +50,11 @@
                 class="company-title"
                 @click="goCompanyDetail(index)"
               >
-                <img class="one-icon" :src="company_icon" />
+                <img v-if="+item.iconType === 1" :src="icon1" class="one-icon" />
+                <img v-if="+item.iconType === 2" :src="icon2" class="one-icon" />
+                <img v-if="+item.iconType === 3" :src="icon3" class="one-icon" />
+                <img v-if="+item.iconType === 4" :src="icon4" class="one-icon" />
+                <img v-if="+item.iconType === 5" :src="icon5" class="one-icon" />
                 <span class="one-name">{{ item.iconName }}</span>
               </div>
             </div>
@@ -257,7 +261,11 @@ import { toLocal, ORIGIN } from '@/utils';
 import { queryProposalDetail, queryPreviewProposalDetail, generatePdf } from '@/api/modules/proposalList';
 import agent_img from '@/assets/images/compositionProposal/addver.png';
 import agent_tel from '@/assets/images/compositionProposal/tel.png';
-import company_icon from '@/assets/images/compositionProposal/1-icon.png';
+import icon1 from '@/assets/images/compositionProposal/icon-1.png';
+import icon2 from '@/assets/images/compositionProposal/icon-2.png';
+import icon3 from '@/assets/images/compositionProposal/icon-3.png';
+import icon4 from '@/assets/images/compositionProposal/icon-4.png';
+import icon5 from '@/assets/images/compositionProposal/icon-5.png';
 import company_bj from '@/assets/images/compositionProposal/bj.png';
 import {
   checkProposalInsurer,
@@ -472,6 +480,12 @@ const getData = async () => {
     const { code, data } = res;
 
     if (code === '10000') {
+      saleInfo.value = data.proposalTemplateSaleInfoMap || {};
+      agentCard.value = saleInfo.value?.agentCard || {};
+      basicInfo.value = saleInfo.value?.basicInfo || {};
+      companyProfile.value = saleInfo.value?.companyProfile || {};
+      productDetail.value = saleInfo.value?.productDetail || {};
+      riskAlert.value = saleInfo.value?.riskAlert || {};
       const realData = data?.proposalInsuredVOList || [];
       isMultiple.value = realData?.length > 1;
       let title = '家庭保障方案';
@@ -500,17 +514,17 @@ const getThemeList = async () => {
   }
 };
 // 获取计划书预览基础配置信息
-const getProposalSaleInfo = async () => {
-  const { code, data } = await queryProposalTemplateSaleInfo({ insurerCode: 'lianlife', riskIds: [40020, 40037] });
-  if (code === '10000') {
-    saleInfo.value = data || [];
-    agentCard.value = saleInfo.value?.agentCard || {};
-    basicInfo.value = saleInfo.value?.basicInfo || {};
-    companyProfile.value = saleInfo.value?.companyProfile || {};
-    productDetail.value = saleInfo.value?.productDetail || {};
-    riskAlert.value = saleInfo.value?.riskAlert || {};
-  }
-};
+// const getProposalSaleInfo = async () => {
+//   const { code, data } = await queryProposalTemplateSaleInfo({ insurerCode: 'lianlife', riskIds: [40020, 40037] });
+//   if (code === '10000') {
+//     saleInfo.value = data || [];
+//     agentCard.value = saleInfo.value?.agentCard || {};
+//     basicInfo.value = saleInfo.value?.basicInfo || {};
+//     companyProfile.value = saleInfo.value?.companyProfile || {};
+//     productDetail.value = saleInfo.value?.productDetail || {};
+//     riskAlert.value = saleInfo.value?.riskAlert || {};
+//   }
+// };
 
 // 获取计划书下所有产品的状态
 const getProposalTransInsured = () => {
@@ -692,7 +706,7 @@ onMounted(() => {
   if (!isShare && !isPreview.value) {
     getProposalTransInsured();
     getThemeList();
-    getProposalSaleInfo();
+    // getProposalSaleInfo();
   }
   getData();
 });

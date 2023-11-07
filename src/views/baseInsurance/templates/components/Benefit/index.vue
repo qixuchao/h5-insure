@@ -274,7 +274,6 @@ watch(num, () => {
   getData();
 });
 watch(showType, (val) => {
-  debugger;
   showTablePopup.value = val === SHOW_TYPE_ENUM.TABLE;
 });
 </script>
