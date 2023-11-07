@@ -36,31 +36,31 @@
   --zaui-link-color: #2d68c7;
 
   /** ==== 圆角型号 ====*/
-  --zaui-radius-sm: 2px; /* 小号圆角  */
-  --zaui-radius-md: 4px; /* 默认圆角   */
-  --zaui-radius-lg: 8px; /* 大号圆角   */
-  --zaui-radius-xlg: 12px; /* 超大号圆角   */
-  --zaui-radius-xxlg: 25px; /* 超超大号圆角   */
+  --zaui-radius-sm: 4px; /* 小号圆角  */
+  --zaui-radius-md: 8px; /* 默认圆角   */
+  --zaui-radius-lg: 16px; /* 大号圆角   */
+  --zaui-radius-xlg: 24px; /* 超大号圆角   */
+  --zaui-radius-xxlg: 40px; /* 超超大号圆角   */
 
   /** ==== 字体大小型号 ====*/
-  --zaui-text-sx: 10px; /* 超小号文字  ==小提示，徽标  */
-  --zaui-text-sm: 12px; /* 小号文字  ===提示文字，通知 */
-  --zaui-text-md: 14px; /* 普通文字   */
-  --zaui-text-lmd: 15px; /* 偏号文字  ===不常用  */
-  --zaui-text-lg: 16px; /* 大号文字   --标题*/
-  --zaui-text-xlg: 18px; /* 超大号文字  ==弹窗标题 */
+  --zaui-text-sx: 20px; /* 超小号文字  ==小提示，徽标  */
+  --zaui-text-sm: 14px; /* 小号文字  ===提示文字，通知 */
+  --zaui-text-md: 18px; /* 普通文字   */
+  --zaui-text-lmd: 30px; /* 偏号文字  ===不常用  */
+  --zaui-text-lg: 32px; /* 大号文字   --标题*/
+  --zaui-text-xlg: 36px; /* 超大号文字  ==弹窗标题 */
 
   /** ==== 间距 ====*/
-  --zaui-space-xxs: 2px; /* 超超小间距   ==文字间距或icon*/
-  --zaui-space-xs: 4px; /* 超小间距   ==文字与图标间的间距 */
-  --zaui-space-sm: 8px; /* 小间距   ==小卡片间距 */
-  --zaui-space-md: 15px; /* 普通间距   ==两个卡片间距 */
-  --zaui-space-lg: 16px; /* 大号间距   ==页面两侧padding */
+  --zaui-space-xxs: 4px; /* 超超小间距   ==文字间距或icon*/
+  --zaui-space-xs: 8px; /* 超小间距   ==文字与图标间的间距 */
+  --zaui-space-sm: 16px; /* 小间距   ==小卡片间距 */
+  --zaui-space-md: 32px; /* 普通间距   ==两个卡片间距 */
+  --zaui-space-lg: 36px; /* 大号间距   ==页面两侧padding */
 
   /** ==== 阴影 ====*/
-  --zaui-shadow-sm: 0px 1px 0px 0px #e0e0e0; /* 小号阴影  ==小卡片阴影 */
-  --zaui-shadow-md: 0px 2px 8px 0px rgba(0, 0, 0, 0.1); /* 普通阴影  == 普通卡片*/
-  --zaui-shadow-lg: 0px 4px 16px 0px rgba(0, 0, 0, 0.06); /* 大号阴影  弹窗 */
+  --zaui-shadow-sm: 0px 2px 0px 0px #e0e0e0; /* 小号阴影  ==小卡片阴影 */
+  --zaui-shadow-md: 0px 4px 16px 0px rgba(0, 0, 0, 0.1); /* 普通阴影  == 普通卡片*/
+  --zaui-shadow-lg: 0px 8px 32px 0px rgba(0, 0, 0, 0.06); /* 大号阴影  弹窗 */
 
   /** ************************************************************/
   /** ------~~~~~~~~~~~       页面token      ~~~~~~~~~~~----------*/
@@ -76,61 +76,12 @@
   --zaui-space-card-content: var(--zaui-space-md); /* 卡片 与 内容 之间的距离 */
 
   /**==== 圆角 ====*/
-  --zaui-radius-img: 4px; // 图片圆角
-  --zaui-radius-card: 12px; // 模块卡片圆角
-  --zaui-radius-dialog: 8px; // 弹窗圆角
-  --zaui-radius-popup: 8px; // 底部浮层圆角
+  --zaui-radius-img: 8px; // 图片圆角
+  --zaui-radius-card: 24px; // 模块卡片圆角
+  --zaui-radius-dialog: 16px; // 弹窗圆角
+  --zaui-radius-popup: 16px; // 底部浮层圆角
 
   /** ************************************************************/
-  /** ------~~~~~~~~~~~       组件token      ~~~~~~~~~~~----------*/
+  /** ------~~~~~~   组件token(针对需要覆盖的组件)  ~~~~~~~----------*/
   /** ************************************************************/
-  --com-tab-fontsize: var(--zaui-text-lmd); // tab的字号
-  --com-tab-color: var(--zaui-text-aide); // tab文字颜色
-  --com-tab-fontweight: 400; // tab文字粗细
-  --com-tab-fontsize-active: var(--zaui-text-lg); // 选中后的文字大小
-  --com-tab-color-active: var(--zaui-brand); // 选中后的文字颜色
-  --com-tab-fontweight-active: 600; // 选中后的字体粗细
-
-  /** ==== 按钮 ==== */
-  // 所有按钮通用
-  --com-btn-brand-background: var(--zaui-brand); // 主按钮背景
-  // --com-btn-border-radius: var(--zaui-radius-sm); // 按钮圆角
-  --com-btn-border-radius: 25px; // 按钮圆角
-  --com-btn-ghost-color: var(--zaui-brand); // 幽灵按钮颜色（空心按钮）
-  --com-btn-ghost-border-color: var(--zaui-brand); // 按钮边框颜色
-  --com-btn-color: var(--zaui-text); // 按钮文字颜色
-  // --com-btn-background: var(--zaui-base-bg); // 基础按钮背景颜色
-  --com-btn-background: var(--zaui-brand); // 基础按钮背景颜色
-
-  // 普通按钮
-  --com-btn-md-height: 44px; // 按钮高度
-  --com-btn-md-fontsize: var(--zaui-text-md); // 按钮字号
-  --com-btn-md-fontweight: 500; // 按钮字重
-  // 块级大按钮（整栏的底部提交大按钮）
-  --com-btn-block-fontsize: var(--zaui-text-lmd); // 大按钮字号
-  // 小按钮
-  --com-btn-small-height: 28px; // 小号按钮高度
-  --com-btn-small-fontsize: 12px; // 小按钮字号
-  --com-btn-small-fontweight: 400; // 小按钮字重
-  // 主按钮禁用（不常用）
-  --com-btn-disabled-background: #e28b9150; // 主按钮禁用背景
-  --com-btn-disabled-color: #ffffff; // 主按钮禁用文字颜色
-
-  /**==== 弹窗 ====*/
-  --com-dialog-width: 275px; // 弹窗宽度
-  --com-dialog-padding-h: 20px; // 正文左右padding
-  --com-dialog-padding-v: 25px; // 正文上下padding
-  --com-dialog-fontsize: var(--zaui-text-lg); // 正文字号
-  --com-dialog-fontweight: 400; // 正文粗细
-  --com-dialog-color: var(--zaui-text); // 正文颜色
-  --com-dialog-footer-height: 50px; // 底部栏高度
-  --com-dialog-footer-fontsize: var(--zaui-text-md); // 底部确认按钮字体大小
-  --com-dialog-footer-fontweight: 500; // 确认按钮的粗细
-
-  /**==== 表单 ====*/
-  --com-form-label-color: var(--zaui-text); // 表单label颜色
-  --com-form-value-placeholder: var(
-    --zaui-text-placeholder
-  ); // 表单输入占位颜色
-  --com-form-value-color: var(--zaui-text); // 表单右侧内容颜色
 }

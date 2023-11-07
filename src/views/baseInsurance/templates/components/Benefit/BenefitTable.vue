@@ -69,7 +69,8 @@ const tableData = computed(() => {
 </script>
 <style>
 .benefit-table {
-  height: 600px;
+  transform: rotate(90deg);
+  height: 700px;
   /* border: 1px solid red; */
   flex: auto;
   padding-bottom: 20px;

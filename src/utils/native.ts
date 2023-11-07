@@ -4,6 +4,7 @@ import SDK, { getDeviceInfo } from '@/utils/lianSDK';
 import { queryLianAgentInfo } from '@/api';
 import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
 
+export const LIAN_USER_KEY = `${LIAN_STORAGE_KEY}_userInfo`;
 export const initNative = async () => {
   getDeviceInfo().then((data) => {
     localStore.set(`${LIAN_STORAGE_KEY}_deviceInfo`, data);
@@ -20,7 +21,7 @@ export const initNative = async () => {
           sessionStore.set(`${LIAN_STORAGE_KEY}_accessKey`, data || '');
           queryLianAgentInfo({ accessKey: data.token }).then(({ code, data: userInfo }) => {
             if (code === '10000') {
-              sessionStore.set(`${LIAN_STORAGE_KEY}_userInfo`, userInfo || '');
+              sessionStore.set(LIAN_USER_KEY, userInfo || '');
             }
           });
         } else {

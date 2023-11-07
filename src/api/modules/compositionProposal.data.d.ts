@@ -18,6 +18,7 @@ export interface InsuredProductData {
   shelfStatus: number;
   productCode: string;
   tenantProductCode: string;
+  checkedList: string[]
 }
 
 export interface ProposalTransInsuredVO {
