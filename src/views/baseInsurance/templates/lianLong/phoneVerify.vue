@@ -2,7 +2,7 @@
   <ProPageWrap>
     <div class="page-phone-verify">
       <div class="title">
-        {{ `${NOTICE_TYPE_MAP[objectType.toLocaleUpperCase()]}手机号验证 ${convertPhone(formData.mobile || '')}` }}
+        {{ `${NOTICE_TYPE_MAP[personType]}手机号验证 ${convertPhone(formData.mobile || '')}` }}
       </div>
       <ProRenderForm ref="formRef" validate-method="toast" :model="formData">
         <ProFieldV2
@@ -81,13 +81,20 @@ const formData = ref({
 const formRef = ref();
 const userInfo = ref();
 
+const personType = computed(() => {
+  if (Array.isArray(objectType)) {
+    return `${objectType?.[0]}`.toLocaleUpperCase();
+  }
+  return `${objectType}`.toLocaleUpperCase();
+});
+
 const getFaceVerifyResult = () => {
   const { objectId, certType } = userInfo.value;
   const params = {
     bizId: biz_id,
     certType,
     objectId,
-    objectType: `${objectType}`.toLocaleUpperCase(),
+    objectType: personType.value,
     orderNo,
     tenantId,
   };

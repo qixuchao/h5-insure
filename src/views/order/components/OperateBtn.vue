@@ -11,7 +11,7 @@ import { useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
 import { PAGE_ROUTE_ENUMS, MESSAGE_TYPE_ENUM } from '@/views/baseInsurance/templates/lianLong/constants';
 import { shareWeiXin } from '@/utils/lianSDK';
-import { SHARE_CONTENT } from '@/common/constants/lian';
+import { SHARE_CONTENT, SHARE_IMAGE_LINK } from '@/common/constants/lian';
 import { NOTICE_TYPE_MAP, SEX_LIMIT_MAP, YES_NO_ENUM } from '@/common/constants';
 import { sendMessageToLian as sendMessage } from '@/api';
 import { cancelOrder } from '@/api/modules/order';
@@ -92,8 +92,7 @@ const handleShare = (type) => {
       /\/orderDetail|\/order/,
       '/baseInsurance/long/phoneVerify',
     ),
-    imageUrl:
-      'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/lian_logo.png?OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Expires=1697288114&Signature=S87PMeDRxltLovmmHVTeiHoew1c%3D',
+    imageUrl: SHARE_IMAGE_LINK,
   });
 };
 
