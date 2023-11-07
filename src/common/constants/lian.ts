@@ -14,4 +14,6 @@ export const SHARE_CONTENT = {
     desc: `尊敬的{name}，请您核实确认是否撤销本次投保，谢谢！【利安人寿】`,
   },
 };
+
+export const SHARE_IMAGE_LINK = 'https://al-s-lianapp-01-oss.oss-cn-shanghai.aliyuncs.com/lian_logo.png';
 export default {};
