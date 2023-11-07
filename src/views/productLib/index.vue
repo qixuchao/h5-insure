@@ -35,7 +35,7 @@
         @preview="previewFile"
       />
       <div v-if="loading" class="tac" style="margin-top: 50px"><van-loading type="spinner" /></div>
-      <Card :list="state.cardDatas" @preview="previewFile" />
+      <Card v-if="!loading && +config.showStyle === 2" :list="state.cardDatas" @preview="previewFile" />
       <ProEmpty v-if="!loading && !state.cardDatas.length" title="没有找到产品资料" style="margin-top: 40px" />
     </div>
     <ProPopup
