@@ -121,6 +121,13 @@ export const pullUpApp = (url) => {
   });
 };
 
+//
+export const pageBack = () => {
+  return new Promise((resolve, reject) => {
+    SDK('historyGoback', {}, (info) => {});
+  });
+};
+
 // 识别身份证
 export const detectIdCard = () => {
   return new Promise((resolve, reject) => {

@@ -41,6 +41,41 @@ export const PAGE_ROUTE_ENUMS = {
   customerDetail: '/customerDetail', // 客户详情
 };
 
+export const ROUTE_EXCLUDE = [
+  {
+    to: PAGE_ROUTE_ENUMS.infoCollection,
+    from: PAGE_ROUTE_ENUMS.sign,
+  },
+  {
+    to: PAGE_ROUTE_ENUMS.underWriteResult,
+    from: PAGE_ROUTE_ENUMS.sign,
+  },
+  {
+    to: PAGE_ROUTE_ENUMS.sign,
+    from: PAGE_ROUTE_ENUMS.verifyFace,
+  },
+  {
+    to: PAGE_ROUTE_ENUMS.verifyFace,
+    from: PAGE_ROUTE_ENUMS.infoPreview,
+  },
+  {
+    to: PAGE_ROUTE_ENUMS.infoPreview,
+    from: PAGE_ROUTE_ENUMS.agentSign,
+  },
+  {
+    to: PAGE_ROUTE_ENUMS.infoPreview,
+    from: PAGE_ROUTE_ENUMS.holderSign,
+  },
+  {
+    to: PAGE_ROUTE_ENUMS.infoPreview,
+    from: PAGE_ROUTE_ENUMS.insuredSign,
+  },
+  {
+    to: PAGE_ROUTE_ENUMS.sign,
+    from: PAGE_ROUTE_ENUMS.paymentResult,
+  },
+];
+
 export const MESSAGE_TYPE_ENUM = {
   AGENT: 1, // 发送到代理人端
   HOLDER: 2, // 发送给客户端

@@ -11,6 +11,7 @@ import { getWxJsSdkSignature } from '@/api/modules/wechat';
 import { isWechat } from '@/utils/index';
 import { cachePage } from '@/utils/cachePage';
 import SDK from '@/utils/lianSDK';
+import { ROUTE_EXCLUDE } from '@/views/baseInsurance/templates/lianLong/constants';
 
 const router: Router = createRouter({
   // 新的vue-router4 使用 history路由模式 和 base前缀
@@ -41,6 +42,21 @@ const handlePageResult = async (res: { status: number; data: string }, storage: 
 let realAuthUrl = '';
 
 router.beforeEach(async (to, from, next) => {
+  const excludeRoute = ROUTE_EXCLUDE.find((route) => {
+    return route.to === to.path && route.from === from.path;
+  });
+  if (excludeRoute) {
+    router.push({
+      path: '/order',
+      query: {
+        tenantId: to.query.tenantId,
+        laShowNavigationBar: 1,
+      },
+    });
+    return;
+  }
+
+  console.log('excludeRoute', excludeRoute);
   // 处理缓存页面
   await cachePage(from, to);
   next();

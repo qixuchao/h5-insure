@@ -58,7 +58,7 @@ const isUpdateBankInfo = computed<boolean>(() => {
 
 // 去处理
 const handleDeal = () => {
-  const { orderStatus, orderNo, insurerCode, underwriteFlag } = props.detail;
+  const { orderStatus, orderNo, insurerCode, underwriteFlag, templateId } = props.detail;
   let path = PAGE_ROUTE_ENUMS.sign;
 
   // 待信息采集页面跳转信息采集页
@@ -73,6 +73,7 @@ const handleDeal = () => {
       tenantId,
       orderNo,
       insurerCode,
+      templateId,
     },
   });
 };
