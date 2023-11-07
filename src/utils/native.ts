@@ -19,7 +19,7 @@ export const initNative = async () => {
         console.log('====', data);
         if (status === '1') {
           sessionStore.set(`${LIAN_STORAGE_KEY}_accessKey`, data || '');
-          queryLianAgentInfo({ accessKey: data.token }).then(({ code, data: userInfo }) => {
+          queryLianAgentInfo({}).then(({ code, data: userInfo }) => {
             if (code === '10000') {
               sessionStore.set(LIAN_USER_KEY, userInfo || '');
             }

@@ -20,6 +20,7 @@
     v-model="state.address.detail"
     :is-view="isView"
     type="textarea"
+    placeholder="地址详情必须包含号/室/队/院/房/楼/栋/幢/座组，详细地址必须包含至少一位数字"
     :label="`${$attrs.label}详细地址`"
     :required="$attrs.required"
     :rules="[

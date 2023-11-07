@@ -61,18 +61,25 @@
         :config="beneficiary.config"
         :holder-person-v-o="holderPersonVO"
         :is-view="isView || beneficiary.personVO?.isHolder === YES_NO_ENUM.YES"
+        :extra-provision="{
+          objectType: ATTACHMENT_OBJECT_TYPE_ENUM.BENEFICIARY,
+          objectId: beneficiary?.personVO?.id,
+        }"
       >
         <template #customer>
-          <slot name="benefitCustomer" :index="index"></slot>
+          <slot
+            v-if="!(isView || beneficiary.personVO?.isHolder === YES_NO_ENUM.YES)"
+            name="benefitCustomer"
+            :index="index"
+          ></slot>
         </template>
         <template #header-item>
-          <ProFieldV2 label="是否同投保人" input-align="right">
+          <ProFieldV2 v-if="!isSameHolder" label="是否同投保人" input-align="right">
             <template #input>
               <van-switch
                 v-model="beneficiary.personVO.isHolder"
                 :active-value="1"
                 :inactive-value="2"
-                :disabled="isSameHolder"
                 @click="() => holderToBeneficial(index)"
                 >同投保人</van-switch
               >
@@ -236,7 +243,8 @@ const disHolderData = (personVO = {}) => {
 };
 
 // 投保人数据同步到受益人
-const holderToBeneficial = (index: number) => {
+const holderToBeneficial = (index?: number) => {
+  const currentItem = state.beneficiaryList?.[index];
   if (`${state.beneficiaryList?.[index]?.personVO?.isHolder}` !== `${YES_NO_ENUM.YES}`) {
     state.beneficiaryList = state.beneficiaryList.map((beneficiaryItem, ind) => {
       if (index === ind) {
@@ -252,9 +260,21 @@ const holderToBeneficial = (index: number) => {
   if (props.holderPersonVO) {
     state.beneficiaryList = state.beneficiaryList.map((beneficiaryItem, ind) => {
       if (index === ind) {
+        const beneficiaryPersonVO = { ...beneficiaryItem?.personVO, ...mergeHolderBenefic() };
+        if (beneficiaryPersonVO?.certImage?.length) {
+          beneficiaryPersonVO.certImage = beneficiaryPersonVO?.certImage.map((image) => {
+            delete image.id;
+            return {
+              ...image,
+              objectId: beneficiaryPersonVO.id,
+              objectType: ATTACHMENT_OBJECT_TYPE_ENUM.BENEFICIARY,
+            };
+          });
+        }
+        console.log('beneficiaryPersonVO', beneficiaryPersonVO);
         return {
           ...beneficiaryItem,
-          personVO: { ...beneficiaryItem?.personVO, ...mergeHolderBenefic() },
+          personVO: beneficiaryPersonVO,
           config: {
             ...beneficiaryItem.config,
             benefitRate: {
@@ -373,6 +393,17 @@ watch(
     if (String(state.personVO?.relationToHolder) === '1') {
       // 过滤投被保人相同要素，保留证件相关的，预防关系为本人时，仅被保人有的字段被清空,后端给了null
       isSameHolder.value = true;
+
+      state.beneficiaryList = state.beneficiaryList.map((beneficiaryItem, ind) => {
+        if (`${beneficiaryItem.personVO.isHolder}` === `${YES_NO_ENUM.YES}`) {
+          return {
+            ...beneficiaryItem,
+            personVO: { ...disHolderData(state.beneficiaryList?.[ind]?.personVO), isHolder: 2 },
+          };
+        }
+        return beneficiaryItem;
+      });
+
       const tempData = isNotEmptyArray(isSelfInsuredNeedCods.value)
         ? Object.keys(holderPersonVO).reduce((res, key: string) => {
             if (
@@ -385,11 +416,14 @@ watch(
           }, {})
         : holderPersonVO;
 
-      const certImage = (holderPersonVO.certImage || []).map((image) => ({
-        ...image,
-        objectId: state.personVO.id,
-        objectType: OBJECT_TYPE_ENUM.INSURED,
-      }));
+      const certImage = (holderPersonVO.certImage || []).map((image) => {
+        delete image.id;
+        return {
+          ...image,
+          objectId: state.personVO.id,
+          objectType: OBJECT_TYPE_ENUM.INSURED,
+        };
+      });
 
       Object.assign(state.personVO, tempData, { certImage });
     } else {
@@ -479,6 +513,17 @@ watch(
     if (JSON.stringify(val) !== JSON.stringify(oldValue)) {
       emit('update:beneficiaryList', val);
     }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  () => state.guardian,
+  (value) => {
+    emit('update:guardian', value);
   },
   {
     deep: true,

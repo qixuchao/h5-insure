@@ -2,9 +2,11 @@ import axios, { type AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosErro
 // import axiosRetry from 'axios-retry';
 import { Toast } from 'vant/es';
 import useLoading from '@/hooks/useLoading';
-import Storage from '@/utils/storage';
+import { sessionStore } from '@/hooks/useStorage';
 import showCodeMessage, { SUCCESS_CODE, SUCCESS_STATUS, UNLOGIN } from '@/api/code';
 import loadingGif from '@/assets/images/loading.gif';
+import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
+import { initNative } from '@/utils/native';
 // URL前缀，默认为 /
 const BASE_PREFIX = import.meta.env.VITE_API_BASEURL;
 
@@ -116,11 +118,7 @@ axiosInstance.interceptors.request.use(
     // TODO 在这里可以加上想要在请求发送前处理的逻辑
     removePending(config);
     customOption.repeat_request_cancel && addPending(config);
-
-    const storage = new Storage({ source: 'cookie' });
-    const local = new Storage({ source: 'localStorage' });
-    const session = new Storage({ source: 'sessionStorage' });
-    const token = storage.get('token') || local.get('token') || session.get('token') || '';
+    const token = sessionStore.get(`${LIAN_STORAGE_KEY}_accessKey`)?.token || '';
     if (customOption.loading) {
       loadingInstance.count += 1;
       if (loadingInstance.count === 1) {
@@ -150,6 +148,7 @@ axiosInstance.interceptors.response.use(
     customOption.loading && closeLoading(customOption);
     if (res.code === UNLOGIN || res.status === UNLOGIN) {
       // window.location.href = '/login';
+      initNative();
       return response;
     }
     if (res.code === SUCCESS_CODE || res.status === SUCCESS_STATUS) {
@@ -163,8 +162,13 @@ axiosInstance.interceptors.response.use(
   },
   (error: AxiosError) => {
     const { response } = error;
+    console.log('res', response);
     if (response) {
       Toast(showCodeMessage(response.status));
+      if (`${response?.status}` === UNLOGIN) {
+        // window.location.href = '/login';
+        initNative();
+      }
       return Promise.reject(response.data);
     }
     Toast('网络连接异常,请稍后再试!');

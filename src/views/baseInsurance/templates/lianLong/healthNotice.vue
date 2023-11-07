@@ -48,7 +48,7 @@ const route = useRoute();
 const router = useRouter();
 const orderDetail = useOrder();
 
-const { orderNo, templateId, tenantId, preview, questionnaireId: questionId } = route.query;
+const { orderNo, tenantId, preview, questionnaireId: questionId } = route.query;
 const currentQuestion = ref<any>({}); // 当前问卷内容
 const nextQuestionnaireId = ref<number>(); // 下个问卷id
 const objectType = ref<number>(); // 问卷关联对象
@@ -175,7 +175,6 @@ const getOrderDetail = async () => {
     Object.assign(orderDetail.value, data, {
       extInfo: {
         ...data.extInfo,
-        templateId,
         pageCode: PAGE_CODE_ENUMS.QUESTION_NOTICE,
         buttonCode: BUTTON_CODE_ENUMS.QUESTION_NOTICE,
       },

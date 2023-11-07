@@ -10,9 +10,8 @@
             :default-value="originData.minStepValue"
             :min="originData.minStepValue"
             :step="originData.stepValue"
-            :max="originData.maxStepValue"
+            :max="originData.maxStepValue || +Infinity"
             theme="round"
-            @blur="handleStepBlur"
           ></VanStepper>
         </div>
       </template>
@@ -65,7 +64,7 @@
               :default-value="originData.minCopiesValue"
               :min="originData.minCopiesValue || 1"
               :step="1"
-              :max="originData.maxCopiesValue"
+              :max="originData.maxCopiesValue || +Infinity"
               theme="round"
             ></VanStepper>
             <span v-else>{{ originData.minCopiesValue }}</span>
@@ -86,7 +85,7 @@
             :default-value="originData.minCopiesValue"
             :min="originData.minCopiesValue || 1"
             :step="1"
-            :max="originData.maxCopiesValue"
+            :max="originData.maxCopiesValue || +Infinity"
             theme="round"
           ></VanStepper>
           <span v-else>{{ originData.minCopiesValue }}</span>
@@ -115,6 +114,7 @@
 <script lang="ts" setup name="BaoeBaofei">
 import { ref, watch, withDefaults } from 'vue';
 import cloneDeep from 'lodash-es/cloneDeep';
+import { isEqual } from 'lodash-es';
 import { RiskVoItem, RiskAmountPremiumConfig } from '@/api/modules/trial.data';
 import { PREMIUM_UNIT_TYPE_ENUM, PREMIUM_DISPLAY_TYPE_ENUM } from '@/common/constants/infoCollection';
 // 参看CollapseItem组件
@@ -313,9 +313,8 @@ watch(
 
 watch(
   () => props.defaultValue,
-  (v) => {
-    if (v?.riskCode && !state.hadSetDefault) {
-      state.hadSetDefault = true;
+  (v, oldVal) => {
+    if (v?.riskCode && isEqual(v, oldVal)) {
       mValues.value = {
         ...mValues.value,
         unitAmount: v.unitAmount,

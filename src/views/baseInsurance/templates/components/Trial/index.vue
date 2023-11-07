@@ -111,7 +111,7 @@ import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from '../../long/constants';
 import { nextStepOperate as nextStep } from '../../../nextStep';
 import pageJump from '@/utils/pageJump';
 import { jumpToNextPage, toLocal, scrollToError } from '@/utils';
-import { ProductFactor } from '@/components/RenderForm';
+import { ProductFactor, resetObjectValues } from '@/components/RenderForm';
 import { transformToMoney } from '@/utils/format';
 
 interface Props {
@@ -590,12 +590,19 @@ const handleSetRiskSelect = () => {
   });
 };
 
-const handleDealDyResult = (dyResult: any, productCode) => {
+const handleDealDyResult = (dyResultData: any, productCode) => {
+  const dyResult = cloneDeep(dyResultData);
   if (dyResult?.data?.[0]?.productRiskDyInsureFactorVOList) {
     const defaultRiskData = [];
 
     productMap.value[productCode]?.productPlanInsureVOList?.[0]?.insureProductRiskVOList.forEach((risk) => {
       const newRisk = dyResult?.data?.[0]?.productRiskDyInsureFactorVOList.find((r) => r.riskCode === risk.riskCode);
+      // 豁免险特殊处理交期保期
+      if (risk.exemptFlag === YES_NO_ENUM.YES) {
+        newRisk.chargePeriod = newRisk.paymentPeriodValueList?.[0].code;
+        newRisk.coveragePeriod = newRisk.insurancePeriodValueList?.[0].code;
+        newRisk.paymentFrequency = newRisk.paymentFrequencyList?.[0].code;
+      }
       if (newRisk) {
         risk.productRiskInsureLimitVO = {
           ...risk.productRiskInsureLimitVO,
@@ -625,13 +632,15 @@ const handleDealDyResult = (dyResult: any, productCode) => {
         });
       }
     });
+
     if (defaultRiskData.length > 0 && state.defaultValue?.insuredList?.[0]?.productList) {
       // 给默认值
+      let currentProductList = [];
       defaultRiskData.forEach((data) => {
-        state.defaultValue.insuredList[0].productList = state.defaultValue?.insuredList?.[0]?.productList.map((p) => {
+        currentProductList = state.defaultValue?.insuredList?.[0]?.productList.map((p) => {
           p.riskList = p?.riskList.map((r) => {
             if (r.riskCode === data.riskCode) {
-              r = data;
+              return data;
             }
             return r;
           });
@@ -735,8 +744,6 @@ watch(
           riskEditVOList,
         };
       });
-
-      console.log('factorList', factorList, productMap.value);
 
       const dyResult = await queryCalcDynamicInsureFactor({
         calcProductFactorList: factorList,
@@ -874,6 +881,7 @@ const handleDynamicConfig = async (data: any, changeData: any, productCode) => {
         holderVO: state.userData.holder,
       });
       state.isQuerying = false;
+
       const result = handleDealDyResult(dyResult, productCode);
       if (!result) {
         state.isAutoChange = true;
@@ -900,7 +908,7 @@ const handleTrialInfoChange = async (data: any, changeData: any, productCode) =>
       return risk;
     });
   }
-  // TODO 这里未来需要看一下  多倍保人的情况，回传需要加入被保人的Index或者别的key
+
   if (data.exemptFlag !== YES_NO_ENUM.YES) {
     const dyDeal = await handleDynamicConfig(data, changeData, productCode);
     if (!dyDeal) return;
@@ -1053,8 +1061,12 @@ watch(
 
 watch(
   () => props.productFactor,
-  (value) => {
+  (value, oldVal) => {
     currentProductFactor.value = value;
+    if (!Object.keys(value).length && state.userData.holder) {
+      Object.assign(state.userData.holder, resetObjectValues(state.userData.holder));
+      Object.assign(state.userData.insuredList[0], resetObjectValues(state.userData.insuredList[0]));
+    }
   },
   {
     deep: true,

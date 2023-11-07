@@ -23,7 +23,7 @@
                   :value-class="`${isDisabled ? 'disable' : ''}`"
                   is-link
                   value="分享空签邀约"
-                  @click="handleShare('holder')"
+                  @click="!isDisabled && handleShare('holder')"
                 ></van-cell>
                 <van-cell
                   is-link
@@ -42,7 +42,7 @@
                   :value-class="`${isDisabled ? 'disable' : ''}`"
                   is-link
                   value="分享空签邀约"
-                  @click="handleShare('insured')"
+                  @click="!isDisabled && handleShare('insured')"
                 ></van-cell>
                 <van-cell
                   is-link
@@ -279,20 +279,20 @@ const checkMobile = (type: 'agent' | 'holder' | 'insured') => {
 
 // 去双录
 const handleDMOS = () => {
-  if (isDisabled.value || BMOSStatus.value === DUAL_STATUS_ENUM.DUAL_SUCCESS) {
+  if (isDisabled.value || [DUAL_STATUS_ENUM.DUAL_FINISH, DUAL_STATUS_ENUM.DUALING].includes(BMOSStatus.value)) {
     return;
   }
   formRef.value?.validate().then(() => {
     dualUploadFiles(orderDetail.value).then(({ code, data }) => {
       if (code === '10000') {
         if (data) {
-          console.log('schemaUrl.value', schemaUrl.value);
           if (schemaUrl.value) {
-            const packageName = schemaUrl.value.match(/(.*):\/\//)?.[1];
-            console.log('packageName', packageName);
+            const packageName = schemaUrl.value.match(/(.*)\.app:\/\//)?.[1];
             checkAppIsInstalled({ packageName, scheme: schemaUrl.value }).then((info) => {
               if (info.isInstall === `${YES_NO_ENUM.YES}`) {
                 pullUpApp(schemaUrl.value);
+              } else {
+                Toast('请先安装双录app');
               }
             });
           }
@@ -438,9 +438,13 @@ const onNext = async () => {
       Toast('代理人签名未完成');
       return;
     }
-  }
+    await formRef.value?.validate();
 
-  await formRef.value?.validate();
+    if (DUAL_STATUS_ENUM.DUAL_FINISH !== BMOSStatus.value) {
+      Toast('请先完成双录');
+      return;
+    }
+  }
 
   const currentOrderDetail = Object.assign(orderDetail.value, {
     extInfo: { ...orderDetail.value.extInfo, pageCode: PAGE_CODE_ENUMS.SIGN, buttonCode: BUTTON_CODE_ENUMS.SIGN },

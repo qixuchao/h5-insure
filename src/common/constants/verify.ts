@@ -20,8 +20,9 @@ export const VERIFY_STATUS_MAP = constantListToMap(VERIFY_STATUS_LIST);
 // 双录状态
 export const DUAL_STATUS_ENUM = {
   DUAL: 1,
-  DUAL_SUCCESS: 2,
-  DUAL_FAIL: 3,
+  DUALING: 2,
+  DUAL_FINISH: 3,
+  DUAL_FAILED: 4,
 };
 
 export const DUAL_STATUS_LIST = [
@@ -30,12 +31,16 @@ export const DUAL_STATUS_LIST = [
     value: DUAL_STATUS_ENUM.DUAL,
   },
   {
+    label: '双录中',
+    value: DUAL_STATUS_ENUM.DUALING,
+  },
+  {
     label: '双录完成',
-    value: DUAL_STATUS_ENUM.DUAL_SUCCESS,
+    value: DUAL_STATUS_ENUM.DUAL_FINISH,
   },
   {
     label: '双录失败',
-    value: DUAL_STATUS_ENUM.DUAL_FAIL,
+    value: DUAL_STATUS_ENUM.DUAL_FAILED,
   },
 ];
 

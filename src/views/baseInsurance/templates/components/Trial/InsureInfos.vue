@@ -2,7 +2,7 @@
   <!-- 产品要素 -->
   <dev v-show="originData.exemptFlag === YES_NO_ENUM.NO">
     <BaoeBaofei
-      :v-model="state.sValues"
+      v-model="state.sValues"
       :origin-data="originData?.productRiskInsureLimitVO?.amountPremiumConfigVO"
       :default-value="state.defaultValues"
       :trial-result="trialResult"

@@ -80,6 +80,7 @@ declare module 'vue' {
     ProUploadV2: typeof import('./src/components/RenderForm/components/ProUploadV2.vue')['default']
     ProValidateDate: typeof import('./src/components/RenderForm/components/ProValidateDate.vue')['default']
     ProVConsole: typeof import('./src/components/ProVConsole/index.vue')['default']
+    ProVerifyFace: typeof import('./src/components/RenderForm/components/ProVerifyFace.vue')['default']
     Question: typeof import('./src/components/ProFilePreview/question.vue')['default']
     SchemaRenderField: typeof import('./src/components/RenderForm/components/SchemaRenderField.vue')['default']
     Scroll: typeof import('./src/components/ProTable/Scroll.vue')['default']

@@ -58,30 +58,22 @@ const isUpdateBankInfo = computed<boolean>(() => {
 
 // 去处理
 const handleDeal = () => {
-  const { orderStatus, orderNo, insurerCode } = props.detail;
+  const { orderStatus, orderNo, insurerCode, underwriteFlag } = props.detail;
   let path = PAGE_ROUTE_ENUMS.sign;
 
   // 待信息采集页面跳转信息采集页
-  if (orderStatus === 'collectInfo') {
+  if (orderStatus === 'collectInfo' || (orderStatus === 'underWritingFailed' && underwriteFlag === YES_NO_ENUM.NO)) {
     path = PAGE_ROUTE_ENUMS.infoCollection;
   }
 
-  sendMessage({
-    messageType: MESSAGE_TYPE_ENUM.AGENT,
-    orderNo,
-    tenantId,
-  }).then(({ code }) => {
-    if (code === '10000') {
-      router.push({
-        path,
-        query: {
-          ...route.query,
-          tenantId,
-          orderNo,
-          insurerCode,
-        },
-      });
-    }
+  router.push({
+    path,
+    query: {
+      ...route.query,
+      tenantId,
+      orderNo,
+      insurerCode,
+    },
   });
 };
 

@@ -48,6 +48,8 @@ import ProShare from '@/components/ProShare/index.vue';
 import { jumpToNextPage } from '@/utils';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import { getFileType } from '../../utils';
+import { sessionStore } from '@/hooks/useStorage';
+import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
 
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
@@ -98,6 +100,7 @@ const shareLink = `${window.origin}/baseInsurance/long/phoneVerify?${stringify({
 })}`;
 
 const agentSignRef = ref<InstanceType<typeof SignPart>>();
+const userInfo = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`);
 
 const signPartInfo = ref({
   holder: {
@@ -118,7 +121,9 @@ const signPartInfo = ref({
   }, // 被保人
   agent: {
     fileList: [],
-    personalInfo: {},
+    personalInfo: {
+      name: userInfo?.name || '',
+    },
     isSign: false,
     isVerify: false,
     isShareSign: false,

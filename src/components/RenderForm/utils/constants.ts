@@ -81,6 +81,8 @@ export const COMPONENT_ENUM = {
   ProBankUpload: 'ProBankUpload',
   /** 证件有效期 */
   ProValidateDate: 'ProValidateDate',
+  /** 人脸识别 */
+  ProVerifyFace: 'ProVerifyFace',
 };
 
 // 输入框最大长度
@@ -363,6 +365,12 @@ export const COMPONENT_MAPPING_LIST = [
     name: '步进器',
     value: 13,
     componentName: COMPONENT_ENUM.ProStepperV2,
+  },
+  {
+    code: 'faceId',
+    name: '人脸识别',
+    value: 15,
+    componentName: COMPONENT_ENUM.ProVerifyFace,
   },
 ];
 

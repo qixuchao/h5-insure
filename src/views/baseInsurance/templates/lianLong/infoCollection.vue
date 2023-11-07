@@ -247,7 +247,7 @@ const submitData = ref<any>({});
 const ifPersonalInfoSuccess = ref<boolean>(false);
 const riskVOList = ref<any[]>([{}]);
 const trialMsg = ref<string>('');
-const trialResult = ref<number>(0);
+const trialResult = ref({});
 const loading = ref<boolean>(false);
 const mainRiskVO = ref<any>(); // 标准主险的险种数据
 const iseeBizNo = ref<string>();
@@ -260,7 +260,7 @@ const trialData = ref();
 
 const handleTrialStart = () => {
   trialMsg.value = LOADING_TEXT;
-  trialResult.value = 0;
+  trialResult.value = null;
   loading.value = true;
 };
 
@@ -523,7 +523,6 @@ const initData = async () => {
   orderNo &&
     (await getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
-        trialResult.value = data.orderAmount;
         if (data.insuredList?.length > 0) {
           const { planCode } = data.insuredList[0];
           state.defaultPlanCode = planCode;

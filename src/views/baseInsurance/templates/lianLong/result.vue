@@ -116,17 +116,6 @@ const handleUpdateBank = () => {
   });
 };
 
-// 线下扣款
-const handleOfflinePay = () => {
-  Dialog.confirm({
-    title: '投保提示',
-    message: '选择转批扣后将对该笔订单进行转换批次扣款，提交后将无法操作变更卡号，再次划款',
-    cancelButtonText: '返回重选',
-  }).then(async () => {
-    const { code, data } = await offlineBatchPay({ orderNo, tenantId });
-  });
-};
-
 const getOrderDetail = () => {
   getTenantOrderDetail({
     orderNo,
@@ -162,6 +151,20 @@ const getOrderDetail = () => {
         orderNo: data.orderNo,
         orderAmount: transformToMoney(data.orderAmount),
       };
+    }
+  });
+};
+
+// 线下扣款
+const handleOfflinePay = () => {
+  Dialog.confirm({
+    title: '投保提示',
+    message: '选择转批扣后将对该笔订单进行转换批次扣款，提交后将无法操作变更卡号，再次划款',
+    cancelButtonText: '返回重选',
+  }).then(async () => {
+    const { code, data } = await offlineBatchPay({ orderNo, tenantId });
+    if (code === '10000') {
+      getOrderDetail();
     }
   });
 };
