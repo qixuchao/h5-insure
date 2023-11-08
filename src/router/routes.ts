@@ -64,6 +64,12 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/baseInsurance/templates/lianLong/underWriteResult.vue'),
   },
   {
+    name: 'signUnderWriteResult',
+    path: '/baseInsurance/long/signUnderWriteResult',
+    meta: { title: '核保结果' },
+    component: () => import('@/views/baseInsurance/templates/lianLong/signUnderWriteResult.vue'),
+  },
+  {
     name: 'infoCollectionTest',
     path: '/baseInsurance/long/infoCollectionTest',
     meta: { title: '信息采集' },
@@ -73,7 +79,7 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'verify',
     path: '/baseInsurance/long/verify',
-    meta: { title: '身份认证' },
+    meta: { title: '投保签名认证' },
     component: () => import('@/views/baseInsurance/templates/lianLong/verify.vue'),
   },
   {

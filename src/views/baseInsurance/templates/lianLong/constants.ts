@@ -25,6 +25,7 @@ export const PAGE_ROUTE_ENUMS = {
   transcription: '/baseInsurance/long/transcription', // 问卷告知书
   infoCollection: '/baseInsurance/long/infoCollection', // 信息采集
   underWriteResult: '/baseInsurance/long/underWriteResult', // 核保结果
+  signUnderWriteResult: '/baseInsurance/long/signUnderWriteResult', // 核保结果
   infoPreview: '/baseInsurance/long/infoPreview', // 信息采集预览
   phoneVerify: '/baseInsurance/long/phoneVerify', // 空中签名
   updateBankInfo: '/baseInsurance/long/updateBankInfo', // 修改银行卡信息
@@ -50,26 +51,26 @@ export const ROUTE_EXCLUDE = [
     to: PAGE_ROUTE_ENUMS.underWriteResult,
     from: PAGE_ROUTE_ENUMS.sign,
   },
-  {
-    to: PAGE_ROUTE_ENUMS.sign,
-    from: PAGE_ROUTE_ENUMS.verifyFace,
-  },
-  {
-    to: PAGE_ROUTE_ENUMS.verifyFace,
-    from: PAGE_ROUTE_ENUMS.infoPreview,
-  },
-  {
-    to: PAGE_ROUTE_ENUMS.infoPreview,
-    from: PAGE_ROUTE_ENUMS.agentSign,
-  },
-  {
-    to: PAGE_ROUTE_ENUMS.infoPreview,
-    from: PAGE_ROUTE_ENUMS.holderSign,
-  },
-  {
-    to: PAGE_ROUTE_ENUMS.infoPreview,
-    from: PAGE_ROUTE_ENUMS.insuredSign,
-  },
+  // {
+  //   to: PAGE_ROUTE_ENUMS.sign,
+  //   from: PAGE_ROUTE_ENUMS.verifyFace,
+  // },
+  // {
+  //   to: PAGE_ROUTE_ENUMS.verifyFace,
+  //   from: PAGE_ROUTE_ENUMS.infoPreview,
+  // },
+  // {
+  //   to: PAGE_ROUTE_ENUMS.infoPreview,
+  //   from: PAGE_ROUTE_ENUMS.agentSign,
+  // },
+  // {
+  //   to: PAGE_ROUTE_ENUMS.infoPreview,
+  //   from: PAGE_ROUTE_ENUMS.holderSign,
+  // },
+  // {
+  //   to: PAGE_ROUTE_ENUMS.infoPreview,
+  //   from: PAGE_ROUTE_ENUMS.insuredSign,
+  // },
   {
     to: PAGE_ROUTE_ENUMS.sign,
     from: PAGE_ROUTE_ENUMS.paymentResult,

@@ -64,7 +64,7 @@ export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: 
       } else if (resData.alertType === ALERT_TYPE_ENUM.SIGN_FAIL) {
         localStore.set(`${LIAN_STORAGE_KEY}_underwriteResult`, { [ALERT_TYPE_ENUM.SIGN_FAIL]: message });
         router.push({
-          path: PAGE_ROUTE_ENUMS.underWriteResult,
+          path: PAGE_ROUTE_ENUMS.signUnderWriteResult,
           query: {
             ...route.query,
             underwriteStatus: ALERT_TYPE_ENUM.SIGN_FAIL,
