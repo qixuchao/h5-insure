@@ -1,566 +1,378 @@
-<!--
- * @Author: za-qixuchao qixuchao@zhongan.io
- * @Date: 2022-07-16 13:39:05
- * @LastEditors: za-qixuchao qixuchao@zhongan.com
- * @LastEditTime: 2022-11-04 12:58:37
- * @FilePath: /zat-planet-h5-cloud-insure/src/views/proposal/createProposal/components/ProductRisk/index.vue
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
--->
 <template>
-  <div class="com-product-risk-wrapper">
-    <VanPopup v-model:show="state.isShow" round position="bottom" closeable :style="{ height: '80%' }" @close="onClose">
-      <div class="popup-container">
-        <div class="popup-title">请选择保障方案</div>
-        <ProMessage v-if="messageInfo" :content="messageInfo"></ProMessage>
-        <div class="risk-trial-wrapper">
-          <ProCard v-if="state.holderFactor.length" title="投保人" class="part-card">
-            <PersonalInfo
-              ref="holderRef"
-              :insured-code="state.riskBaseInfo?.insurerCode"
-              :form-info="holder.personVO"
-              :factor-list="state.holderFactor"
-              :age-range="state.ageRange"
-            ></PersonalInfo>
-          </ProCard>
-
-          <ProCard v-if="state.insuredFactor.length" title="被保人" class="part-card">
-            <PersonalInfo
-              ref="insuredRef"
-              :insured-code="state.riskBaseInfo?.insurerCode"
-              :form-info="insured.personVO"
-              :factor-list="state.insuredFactor"
-              :age-range="state.ageRange"
-            ></PersonalInfo>
-          </ProCard>
-          <div class="risk-content">
-            <ProCard title="投保方案" class="part-card">
-              <div v-if="state.riskData.length" class="risk">
-                <VanForm ref="riskFormRef" input-align="right" error-message-align="right">
-                  <RiskList
-                    :risk-info="riskInfo[0]"
-                    :enums="state.enumList"
-                    :origin-data="state.riskData"
-                    :pick-factor="pickFactor"
-                  />
-                </VanForm>
-              </div>
-            </ProCard>
-          </div>
-        </div>
-        <div class="footer-bar">
-          <VanButton block type="primary" @click="trial">确定</VanButton>
-        </div>
+  <ProPopup v-model:show="showPop" class="popup-risk-select" :closeable="false">
+    <div class="popup-container">
+      <div class="popup-header">
+        <span class="clear-all" @click="handleCancel"> 清空选项 </span>
+        <span class="title"> {{ title }} </span>
+        <span class="close" @click="handleCancel">X</span>
       </div>
-    </VanPopup>
-  </div>
+      <p class="tip">已为您筛选符合被保人年龄、性别的附加险</p>
+      <div class="search">
+        <ProSearch v-model="searchValue" placeholder="请输入附加险名称" @search="getRiskList"> </ProSearch>
+      </div>
+      <div v-if="riskList?.length" class="risk-list">
+        <van-checkbox-group v-model="checked">
+          <van-cell-group inset>
+            <template v-for="{ riskCode, riskName } in riskList" :key="riskCode">
+              <van-cell clickable :title="riskName" @click="handleClick(riskCode)">
+                <template #right-icon>
+                  <van-checkbox :ref="(el) => (checkboxRefs[index] = el)" :name="riskCode" @click.stop />
+                </template>
+              </van-cell>
+              <InsureInfos
+                v-if="riskValueCollection[riskCode]"
+                ref="insureInfosRef"
+                :origin-data="riskValueCollection[riskCode]?.riskDetail"
+                :default-value="riskValueCollection[riskCode]?.defaultValue"
+                @trial-change="(data, changeData) => handleTrialInfoChange(data, changeData, productCode)"
+              ></InsureInfos>
+            </template>
+          </van-cell-group>
+        </van-checkbox-group>
+      </div>
+      <ProEmpty
+        v-else
+        :title="`暂无关联${type === RISK_TYPE_ENUM.MAIN_RISK ? '主' : '附加'}险、请选择其他险种`"
+      ></ProEmpty>
+    </div>
+  </ProPopup>
 </template>
-
-<script lang="ts" setup name="ProductRisk">
-import { provide, withDefaults } from 'vue';
+<script setup lang="ts" name="riskSelect">
+import { withDefaults } from 'vue';
 import { useRoute } from 'vue-router';
-import { Toast } from 'vant/es';
-import PersonalInfo from '@/views/trial/components/PersonalInfo/index.vue';
-import RiskList from '@/views/trial/components/RiskList/index.vue';
-import { insureProductDetail, premiumCalc } from '@/api/modules/trial';
-import { getDic } from '@/api';
-import {
-  ProductBasicInfoVo,
-  RiskDetailVoItem,
-  PersonVo,
-  Holder,
-  RiskVoItem,
-  InsuredVoItem,
-  LiabilityVoItem,
-  PremiumCalcData,
-  RiskPremiumDetailVoItem,
-  ProductRelationPlanVoItem,
-} from '@/api/modules/trial.data';
-import { DictData } from '@/api/index.data';
-
-interface PageState {
-  currentPlan: string;
-
-  riskBaseInfo: Partial<ProductBasicInfoVo>;
-  holderFactor: string[];
-  insuredFactor: string[];
-  riskData: RiskDetailVoItem[];
-  riskPlanData: ProductRelationPlanVoItem[];
-  trialResult: {};
-  canTrial: boolean;
-  retrialTip: boolean;
-  enumList: any;
-  ageRange: any;
-  collapseName: string[];
-  isShow: boolean;
-  type: 'add' | 'edit' | 'addRiderRisk' | 'repeatAdd';
-}
-
-interface HolderPerson {
-  personVO: Partial<PersonVo>;
-}
+import { Toast } from 'vant';
+import { cloneDeep, debounce } from 'lodash-es';
+import { queryProposalRiderRiskList } from '@/api/modules/createProposal';
+import { RISK_TYPE_ENUM } from '@/common/constants/trial';
+import InsureInfos from '@/views/baseInsurance/templates/components/Trial/InsureInfos.vue';
+import { queryCalcDynamicInsureFactor, queryDefaultRiskInsureFactor } from '@/api/modules/trial';
 
 interface Props {
-  isShow: boolean;
-  type: 'add' | 'edit' | 'addRiderRisk' | 'repeatAdd';
-  productId?: number;
-  riskType?: 1 | 2;
-  formInfo: any;
-  productData?: any;
+  type: 1 | 2;
+  show: boolean;
+  title: string;
   holder: any;
-  insured: any;
-  riderRisk?: RiskDetailVoItem[];
-  currentRisk?: any[];
+  insuredList: any[];
+  mainRisk?: any;
+  selectList: any[];
+  currentProductCode: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  isShow: false,
-  type: 'add',
-  productId: 0,
-  formInfo: {},
-  riskType: 1,
-  productData: () => ({}),
+  type: 2,
+  show: false,
+  title: '添加附加险',
+  insuredList: () => [],
   holder: () => ({}),
-  insured: () => ({}),
-  riderRisk: () => [],
-  currentRisk: () => [],
+  mainRisk: () => ({}),
+  selectList: () => [],
+  currentProductCode: '',
 });
 
-const emits = defineEmits(['close', 'finished']);
-const holder = ref<HolderPerson>({
-  personVO: {
-    occupationCodeList: [],
-    ...props.holder,
-  },
-}); // 投保人
-const insured = ref<Omit<InsuredVoItem, 'productPlanVOList'>>({
-  insuredCode: '',
-  personVO: {
-    occupationCodeList:
-      (props.insured?.proposalInsuredProductList || []).find(
-        (product) => product.productId === props.productData.productBasicInfoVO.id,
-      )?.occupationCodeList || [],
-    ...props.insured,
-  } as PersonVo,
-}); // 被保人
-const riskInfo = ref({}); // 险种信息
-const holderRef = ref<any>({});
-const insuredRef = ref<any>({});
-const riskFormRef = ref<any>({});
-const riskPremiumRef = ref<any>({});
+const route = useRoute();
 
-const state = reactive<PageState>({
-  currentPlan: '0',
-  isShow: props.isShow,
-  riskBaseInfo: {},
-  holderFactor: [],
-  insuredFactor: [],
-  riskData: [],
-  riskPlanData: [],
-  trialResult: {},
-  canTrial: true,
-  retrialTip: false,
-  enumList: {},
-  ageRange: [],
-  collapseName: ['1'],
-  type: props.type,
-});
+const { insurerCode = 'lianlife' } = route.query;
 
-provide('premium', riskPremiumRef.value);
-provide('source', {
-  type: state.type,
-  origin: 'proposal',
-  showRiskList: props.currentRisk,
-});
+const emits = defineEmits(['cancel', 'confirm']);
 
-const closeTip = () => {
-  state.retrialTip = false;
+const checked = ref<Array<string>>([]);
+const riskList = ref<any[]>([]);
+const riskRelationList = ref([]); // 附加险关联关系列表
+const searchValue = ref<string>();
+const showPop = computed(() => props.show);
+const riskValueCollection = ref({}); // 附加险默认值集合
+const checkboxRefs = ref([]);
+
+const toggle = (index) => {
+  checkboxRefs.value[index].toggle();
 };
 
-const messageInfo = computed(() => {
-  let message = '';
-  if (state.riskData?.[0]) {
-    const mainRisk = state.riskData[0];
-    const requiredRiskNames = (mainRisk?.requiredRiderRiskVOList || []).map((risk) => risk.riskName);
-    if (requiredRiskNames.length) {
-      message = `特殊提示: ${mainRisk.riskName}和${requiredRiskNames.join('、')}必须同时投保`;
-    }
+const handleCancel = () => {
+  emits('cancel');
+};
+
+const handleConfirm = () => {
+  if (!checked.value?.length) {
+    Toast(`暂未添加任何${props.type === RISK_TYPE_ENUM.MAIN_RISK ? '主' : '附加'}险`);
+    return;
   }
 
-  return message;
-});
+  let selectedList = [];
+  if (props.type === RISK_TYPE_ENUM.RIDER_RISK) {
+    selectedList = checked.value;
+  } else {
+    selectedList = riskList.value
+      .filter((product) => checked.value.includes(product.productCode))
+      .map((product) => {
+        return {
+          productCode: product.productCode,
+          mergeRiskReqList: (product.mainRiskCollocationList || []).map((risk) => ({
+            riskCode: risk.collocationRiskCode,
+            riskType: risk.mainRiskCode ? 2 : 1,
+            mainRiskCode: risk.mainRiskCode,
+          })),
+        };
+      });
+  }
 
-// 将试算的数据转换成计划书的数据
-const formatData = (trialData: PremiumCalcData, riskPremium: any) => {
-  console.log('-----format data riskPremium= ', riskPremium);
-  const riskList = (trialData.insuredVOList[0].productPlanVOList[0].riskVOList || []).map((risk: RiskVoItem) => {
-    return {
-      ...risk,
-      premium: riskPremium[risk.riskCode].premium,
-      amount: riskPremium[risk.riskCode].amount,
-    };
-  });
-  const proposalData = {
-    proposalHolder: {
-      ...trialData.holder?.personVO,
+  emits('confirm', selectedList);
+};
+
+// 获取已选择险种的默认值
+const getRiskDefaultValue = async (riskCodeList: string[]) => {
+  const { code, data } = await queryDefaultRiskInsureFactor({
+    holder: props.holder,
+    insuredList: props.insuredList,
+    calcRiskDefaultFactorVO: {
+      mainRiskInfo: props.mainRisk,
+      riskCodeList,
     },
-    proposalInsuredList: [
-      {
-        ...trialData.insuredVOList[0].personVO,
-        dateRange: {
-          min: insuredRef.value?.ageRangeObj?.minAge,
-          max: insuredRef.value?.ageRangeObj?.maxAge,
-        },
-        proposalInsuredProductList: [
-          {
-            productId: state.riskBaseInfo.id,
-            productName: state.riskBaseInfo.productName,
-            dateRange: {
-              min: insuredRef.value?.ageRangeObj?.minAge,
-              max: insuredRef.value?.ageRangeObj?.maxAge,
-            },
-            occupationCodeList: trialData.insuredVOList[0].personVO.occupationCodeList,
-            proposalProductRiskList: riskList,
-          },
-        ],
-      },
-    ],
-  };
-  return proposalData;
-};
+  });
 
-const dealExemptPeriod = (riderRisk: RiskVoItem, mainRiskInfo: RiskVoItem) => {
-  const riskItem = riderRisk;
-  if (riskItem.chargePeriod === '3') {
-    const paymentYear: Array<string | number> = (mainRiskInfo.chargePeriod || '').split('_');
-    (paymentYear[1] as number) -= 1;
-    /** * 豁免险 */
-    if (riskItem.exemptFlag === 1) {
-      if (paymentYear[0] === 'to') {
-        let age = 0;
-        // 投保人豁免
-        if (riskItem.exemptType === 1) {
-          if (holder.value.personVO?.birthday) {
-            age = parseInt(
-              `${(+new Date() - new Date(holder.value.personVO?.birthday)) / (1000 * 60 * 60 * 24 * 365)}`,
-              10,
-            );
-          }
-        } else if (riskItem.exemptType === 2) {
-          if (insured.value.personVO?.birthday) {
-            age = parseInt(
-              `${(+new Date() - new Date(insured.value.personVO?.birthday)) / (1000 * 60 * 60 * 24 * 365)}`,
-              10,
-            );
-          }
-        }
-
-        (paymentYear[1] as number) = paymentYear[1] - age;
-      }
-      paymentYear[0] = 'year';
-      riskItem.coveragePeriod = paymentYear.join('_');
-    }
-    riskItem.chargePeriod = paymentYear.join('_');
+  if (code === '10000') {
+    data.reduce((riskMap, riskInfo) => {
+      riskMap[riskInfo.riskCode].defaultValue = riskInfo;
+      return riskMap;
+    }, riskValueCollection.value);
   }
 };
 
-const dealTrialData = () => {
-  const riskObject = JSON.parse(JSON.stringify(riskInfo.value[state.currentPlan]));
-  const mainRiskInfo = Object.values(riskObject as RiskVoItem).find((risk) => risk.riskType === 1);
-  const riskVOList = Object.values(riskObject as RiskVoItem).map((riderRisk) => {
-    const risk: RiskVoItem = riderRisk;
-    // 同主险期间减一
-    dealExemptPeriod(risk, mainRiskInfo);
-    risk.liabilityVOList = (risk.liabilityVOList || [])
-      .filter(
-        (liab) => liab.optionalFlag === 1 || (liab.liabilityAttributeValue && liab.liabilityAttributeValue !== '-1'),
-      )
-      .map((liab) => {
-        const currentLiab = liab;
-        if (currentLiab.liabilityAttributeValue === '0') {
-          currentLiab.liabilityAttributeValue = '';
-        }
-        return currentLiab;
-      });
-    return risk;
-  });
+const DYNAMIC_FACTOR_PARAMS = ['annuityDrawDate', 'coveragePeriod', 'chargePeriod', 'paymentFrequency'];
 
-  // 整合试算需要的数据结构
-  const trialData: PremiumCalcData = {
-    holder: holder.value,
-    productCode: state.riskBaseInfo.productCode as string,
-    insuredVOList: [
-      {
-        ...insured.value,
-        productPlanVOList: [
+const handleTrialInfoChange = async (data, changeData, productCode) => {
+  if (changeData) {
+    const DyData = cloneDeep(data);
+    delete DyData.insurancePeriodValueList;
+    delete DyData.paymentFrequencyList;
+    delete DyData.paymentPeriodValueList;
+    const hasDyChange =
+      DYNAMIC_FACTOR_PARAMS.indexOf(changeData.key) >= 0 && `${changeData.oldValue}` !== `${changeData.newValue}`;
+    // 需要请求dy接口
+    if (hasDyChange) {
+      const changeVO = {};
+      switch (changeData.key) {
+        case 'annuityDrawDate': {
+          changeVO.changeType = 3;
+          break;
+        }
+        case 'coveragePeriod': {
+          changeVO.changeType = 2;
+          break;
+        }
+        case 'chargePeriod': {
+          changeVO.changeType = 1;
+          break;
+        }
+        case 'paymentFrequency': {
+          changeVO.changeType = 4;
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+
+      const riskInfoList = [];
+      const riskEditVOList = [
+        {
+          insureProductRiskVO: {},
+          insureRiskEditReqVO: null,
+        },
+        {
+          insureProductRiskVO: riskValueCollection.value[data.riskCode]?.riskDetail,
+          insureRiskEditReqVO: {
+            riskId: data.riskId,
+            riskCode: data.riskCode,
+            ...DyData,
+            ...changeVO,
+          },
+        },
+      ];
+
+      const insuredList = props.insuredList.filter((insured) => insured.birthday) || [];
+      if (!insuredList.length) {
+        return false;
+      }
+      const dyResult = await queryCalcDynamicInsureFactor({
+        calcProductFactorList: [
           {
-            planCode: state.currentPlan || '',
-            insurerCode: state.riskBaseInfo?.insurerCode,
-            riskVOList,
+            planCode: '',
+            productCode,
+            riskEditVOList,
           },
         ],
-      },
-    ],
+        insuredVOList: insuredList,
+        holderVO: props.holder,
+      });
+    }
+  }
+  return true;
+};
+
+// 实现附加险与附加险之间的绑定和互斥交互
+const handleClick = (riskCode) => {
+  if (props.type === RISK_TYPE_ENUM.RIDER_RISK) {
+    (riskRelationList.value || []).forEach((risk) => {
+      if (!checked.value.includes(riskCode)) {
+        if (riskCode === risk.relatedRiskCode) {
+          // 绑定
+          if (risk.collocationType === 2) {
+            checked.value = checked.value.filter((code) => code !== risk.collocationRiskCode);
+          }
+          // 互斥
+          if (risk.collocationType === 3) {
+            checked.value.push(riskCode);
+            checked.value = checked.value.filter((code) => code !== risk.collocationRiskCode);
+          }
+        } else if (riskCode === risk.collocationRiskCode) {
+          // 绑定
+          if (risk.collocationType === 2) {
+            checked.value = checked.value.filter((code) => code !== risk.relatedRiskCode);
+          }
+          // 互斥
+          if (risk.collocationType === 3) {
+            checked.value = checked.value.filter((code) => code !== risk.relatedRiskCode);
+          }
+        }
+      } else {
+        if (riskCode === risk.relatedRiskCode) {
+          // 绑定
+          if (risk.collocationType === 2) {
+            checked.value.push(risk.collocationRiskCode);
+          }
+          // 互斥
+          if (risk.collocationType === 3) {
+            checked.value.push(riskCode);
+            checked.value = checked.value.filter((code) => code !== risk.collocationRiskCode);
+          }
+        } else if (riskCode === risk.collocationRiskCode) {
+          // 绑定
+          if (risk.collocationType === 2) {
+            checked.value.push(risk.relatedRiskCode);
+          }
+          // 互斥
+          if (risk.collocationType === 3) {
+            checked.value = checked.value.filter((code) => code !== risk.relatedRiskCode);
+          }
+        }
+      }
+    });
+  }
+  checked.value = [...new Set(checked.value)];
+};
+
+const getRiskList = async () => {
+  const params = {
+    insuredList: [] || props.insuredList,
+    holder: {} || props.holder || {},
+    mainRiskCode: props.mainRisk.riskCode,
+    insureCode: insurerCode,
+    productCategory: '',
+    keyword: searchValue.value,
+    selectRiskCodes: [],
   };
 
-  premiumCalc({ ...trialData }).then(({ code, data }) => {
-    if (code === '10000') {
-      state.retrialTip = false;
-
-      state.trialResult = data;
-      state.canTrial = false;
-      const riskPremium = {};
-      // 将试算结果中的主附险嵌套结构拍平
-      const flatRiskPremium = (premiumList: RiskPremiumDetailVoItem[] = []) => {
-        (premiumList || []).forEach((risk) => {
-          riskPremium[risk.riskCode] = risk;
-          if (risk.riskPremiumDetailVOList?.length) {
-            flatRiskPremium(risk.riskPremiumDetailVOList);
-          }
-        });
-      };
-      flatRiskPremium(data.riskPremiumDetailVOList);
-      Object.assign(riskPremiumRef.value, riskPremium);
-      emits('finished', formatData(trialData, riskPremium));
-    } else {
-      state.retrialTip = true;
+  props.selectList.map((product) => {
+    if (product.productCode === props.currentProductCode) {
+      params.selectRiskCodes.push(...product.mergeRiskReqList.map((risk) => risk.riskCode));
     }
+    return product.productCode;
   });
-};
 
-const trial = () => {
-  Promise.all([
-    holderRef.value?.validateForm?.(),
-    insuredRef.value?.validateForm?.(),
-    riskFormRef.value?.validate(),
-  ]).then(() => {
-    dealTrialData();
-  });
-};
-
-const onClose = () => {
-  emits('close');
-};
-
-const toInsured = () => {
-  Toast('准备投保');
-};
-
-// 通过字典获取保障期间和交费期间枚举值
-const queryDictList = () => {
-  const dictCodeList = ['RISK_PAYMENT_PERIOD', 'RISK_INSURANCE_PERIOD'];
-  getDic({ dictCodeList }).then(({ code, data }) => {
-    if (code === '10000') {
-      const enums = {};
-      data.forEach((i: DictData) => {
-        enums[i.dictCode] = i.dictItemList;
-      });
-      state.enumList = enums;
-    }
-  });
-};
-
-const queryProductInfo = () => {
-  insureProductDetail({ productId: props.productId, source: 2 })
-    .then(({ code, data }) => {
-      if (code === '10000') {
-        state.riskBaseInfo = data.productBasicInfoVO;
-        // 根据险种或者计划数据生成默认的form数据
-        (data.productRiskVoList[0].riskDetailVOList || []).forEach((plan, index) => {
-          if (index === 0) {
-            state.currentPlan = plan.planCode || '0';
-          }
-          Object.assign(riskInfo.value, { [plan.planCode || index]: {} });
-        });
-
-        state.riskData = data.productRiskVoList[0].riskDetailVOList || [];
-        state.riskPlanData = data.productRelationPlanVOList || [];
-      }
-    })
-    .finally(() => {});
-};
-
-// 从险种信息中提取投被保人的因子
-const pickFactor = (factorObj: { insuredFactorList: string[]; holderFactorList: string[]; ageRange: string[] }) => {
-  state.holderFactor = factorObj.holderFactorList;
-  state.insuredFactor = factorObj.insuredFactorList;
-  state.ageRange = factorObj.ageRange;
+  const { code, data } = await queryProposalRiderRiskList(params);
+  if (code === '10000') {
+    riskList.value = data.riskInfoList;
+    riskRelationList.value = data.collocationInfoResList;
+  }
 };
 
 watch(
-  [() => riskInfo.value, () => holder.value, () => insured.value],
-  (newVal) => {
-    if (newVal && !state.canTrial) {
-      state.canTrial = true;
-      state.retrialTip = true;
+  () => checked.value,
+  debounce((val) => {
+    if (val?.length) {
+      getRiskDefaultValue(val);
     }
-  },
+  }, 1000),
   {
+    immediate: true,
     deep: true,
   },
 );
 
-watch(
-  () => props.isShow,
-  (newVal) => {
-    state.isShow = newVal;
-  },
-  {
-    immediate: true,
-  },
-);
-
-watch(
-  () => props.productId,
-  (newVal) => {
-    newVal && queryProductInfo();
-  },
-  {
-    immediate: true,
-  },
-);
-
-watch(
-  () => props.formInfo,
-  (newVal = {}) => {
-    if (!(props.type === 'add' || props.type === 'repeatAdd')) {
-      const formInfo = {};
-      newVal.proposalProductRiskList.forEach((risk) => {
-        formInfo[risk.riskId] = risk;
-      });
-
-      Object.assign(riskInfo.value, { 0: formInfo });
-    }
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
-
-watch(
-  () => props.productData,
-  (newVal) => {
-    if (!(props.type === 'add' || props.type === 'repeatAdd')) {
-      state.riskBaseInfo = newVal.productBasicInfoVO;
-      state.riskData = newVal.productRiskVoList?.[0].riskDetailVOList || [];
-    }
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
-);
-
-watch(
-  () => props.type,
-  (newVal) => {
-    state.type = newVal;
-  },
-);
-
-onBeforeMount(() => {
-  queryDictList();
+onMounted(() => {
+  getRiskList();
 });
 </script>
+
 <style lang="scss" scoped>
-.com-product-risk-wrapper {
-  .popup-container {
-    background-color: $zaui-global-bg;
-
-    .popup-title {
-      height: 104px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 64px;
-      font-size: 34px;
-      font-weight: 600;
-
-      background-color: #ffffff;
-    }
-  }
-
-  .part-card {
-    background-color: #ffffff;
-    :deep(.body) {
-      padding: 0;
-    }
-  }
-
-  .risk-content {
-    :deep(.van-collapse-item__title--expanded) {
-      padding: 0 30px 0 0;
-      display: flex;
-      align-items: center;
-    }
-    :deep(.van-collapse-item__content) {
-      padding: 0;
-    }
-  }
-  .plan-risk {
-    :deep(.van-tabs__line) {
-      display: none;
-    }
-  }
-  .footer-bar {
-    position: fixed;
+.popup-container {
+  padding: 0 $zaui-card-border;
+}
+.tip {
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--van-primary-color);
+  line-height: 37px;
+  margin-top: 20px;
+}
+.com-za-empty {
+  margin-top: 120px;
+}
+.popup-risk-select {
+  .popup-header {
     width: 100%;
-    bottom: 0;
-    left: 0;
-    background-color: #ffffff;
-    height: 150px;
-    padding: 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid #efeff4;
-
-    .trial-result {
-      width: 440px;
-      color: $zaui-price;
-      font-size: 24px;
-      font-weight: 600;
-      .result-num {
-        font-size: 46px;
-        font-weight: 500;
-        margin-left: 13px;
+    font-size: 32px;
+    font-weight: 600;
+    color: #333333;
+    line-height: 100px;
+    .clear-all {
+      font-size: 32px;
+      font-weight: 400;
+      color: #999999;
+      line-height: 45px;
+    }
+    .close {
+      font-size: 32px;
+      font-weight: 400;
+      color: var(--van-primary-color);
+      line-height: 45px;
+    }
+  }
+  .search {
+    :deep(.van-search) {
+      padding: 16px 0;
+    }
+    :deep(.van-search__field) {
+      .van-field__value {
+        .van-field__body {
+          width: 100%;
+        }
       }
     }
-    .trial-operate {
-      button {
-        width: 280px;
-      }
-      .retrial-tip {
-        position: absolute;
-        z-index: 122;
-        // width: 354px;
-        height: 42px;
-        border-radius: 100px;
-        background-color: $zaui-price;
-        font-size: 26px;
-        font-family: PingFangSC-Regular, PingFang SC, sans-serif;
-        font-weight: 400;
-        color: #ffffff;
-        line-height: 37px;
-        padding: 3px 21px 2px 20px;
-        right: 30px;
-        top: -42px;
+  }
+  .risk-list {
+    :deep(.van-checkbox-group) {
+      margin: 0;
+      .van-checkbox {
+        padding: 0;
+        // min-height: 102px;
         display: flex;
         align-items: center;
-        .close-icon {
-          margin-left: 13px;
-        }
-        &:after {
-          content: ' ';
+        position: relative;
+        &:before {
+          content: '';
           position: absolute;
-          z-index: 11;
-          width: 0;
-          height: 0;
-          border: 10px solid transparent;
-          border-top: 10px solid #ff5840;
-          border-right: 10px solid #ff5840;
-          right: 37px;
-          bottom: -20px;
+          width: 100%;
+          height: 1px;
+          background-color: $zaui-line;
+          transform: scaleY(0.5);
+          bottom: 0;
+        }
+        .van-cell__title {
+          margin-left: $zaui-card-border;
         }
       }
     }

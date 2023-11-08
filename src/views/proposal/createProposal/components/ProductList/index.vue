@@ -7,7 +7,7 @@
             <div
               v-if="risk.riskType === RISK_TYPE_ENUM.MAIN_RISK"
               class="add-risk btn"
-              @click="addRiderRisk(productCode, risk.riskCode)"
+              @click="addRiderRisk(productData?.productCode, risk)"
             >
               +附加险
             </div>
@@ -185,9 +185,10 @@ const updateRisk = (riskRecord: ProposalProductRiskItem) => {
   emits('updateRisk', riskRecord, props.productInfo);
 };
 
-const addRiderRisk = (riskRecord: ProposalProductRiskItem) => {
-  toggleRelationList(true);
-  state.value.currentRiskRecord = riskRecord;
+const addRiderRisk = (productCode: string, riskInfo) => {
+  emits('addRiderRisk', productCode, riskInfo);
+
+  // state.value.currentRiskRecord = riskRecord;
 };
 
 // 添加附加险信息

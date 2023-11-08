@@ -153,6 +153,7 @@
                 :current-select-insure="stateInfo.currentSelectInsure"
                 @update-risk="updateRisk"
                 @delete-risk="deleteRisk"
+                @add-rider-risk="addRiderRisk"
               ></ProductList>
             </ProCard>
           </template>
@@ -190,19 +191,17 @@
           >
         </div>
       </div>
-      <!-- <ProductRisk
-      v-if="showProductRisk"
-      :is-show="showProductRisk"
-      :type="state.type"
-      :rider-risk="state.riderRisk?.[state.productCode] || []"
-      :product-data="state.productCollection[state.productCode]"
-      :form-info="state.productInfo"
-      :holder="proposalInfo.holder"
-      :insured="proposalInfo.insuredList[0]"
-      :current-risk="state.currentRisk"
-      @close="closeProductRisk"
-      @finished="onFinished"
-    ></ProductRisk> -->
+      <ProductRisk
+        v-if="showProductRisk"
+        :show="showProductRisk"
+        :select-list="[]"
+        :holder="stateInfo.holder"
+        :insured-list="[stateInfo.insurerList[stateInfo.currentSelectInsure]?.personVO]"
+        :main-risk="stateInfo.currentMainRisk"
+        :current-product-code="stateInfo.currentProductCode"
+        @cancel="handleCancel"
+        @confirm="onFinished"
+      ></ProductRisk>
       <VanActionSheet
         v-model:show="showActionSheet"
         :actions="SHEET_ACTIONS"
@@ -257,7 +256,7 @@ import emptyImg from '@/assets/images/empty.png';
 import { ProductData } from '@/common/constants/trial.data';
 import { SEX_LIMIT_LIST, SELF_LIST, SEX_LIMIT_ENUM } from '@/common/constants';
 import ProductList from './components/ProductList/index.vue';
-// import ProductRisk from './components/ProductRisk/index.vue';
+import ProductRisk from './components/ProductRisk/index.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import useTheme, { setGlobalTheme } from '@/hooks/useTheme';
 import InsurerList from './components/InsurerSelect/index.vue';
@@ -361,6 +360,7 @@ const stateInfo = reactive<StateInfo>({
   defaultData: null,
   currentSelectInsure: 0,
   isLoading: false,
+  currentMainRisk: () => ({}),
 });
 
 // 是否试算过
@@ -520,37 +520,6 @@ const setProductError = (productCode, msg = '') => {
 /** 合并数据到 productList  */
 // eslint-disable-next-line consistent-return
 const combineToProductList = (productInfo: PlanTrialData) => {
-  console.log('productInfo', productInfo);
-  // const currentIndex = stateInfo.insurerList[stateInfo.currentSelectInsure].productList.findIndex(
-  //   (productItem) => productItem.productCode === productInfo.productCode,
-  // );
-  // const tempData = {
-  //   ...productInfo.insuredProductInfo,
-  //   nanoid: nanoid(),
-  //   productName: product_namelist[productInfo.productCode],
-  // };
-
-  // if (currentIndex === -1) {
-  //   stateInfo.insurerList[stateInfo.currentSelectInsure].productList.push(tempData);
-  //   return false;
-  // }
-  // const currentProductItem = stateInfo.insurerList[stateInfo.currentSelectInsure].productList[currentIndex];
-  // const { riskList, ...rest } = tempData;
-
-  // // 合并两边的险种属性
-  // stateInfo.insurerList[stateInfo.currentSelectInsure].productList[currentIndex] = {
-  //   ...tempData,
-  //   ...rest,
-  //   riskList: isNotEmptyArray(riskList)
-  //     ? riskList.map((riskItem) => {
-  //         const currentRiskItem = currentProductItem.riskList.find((item) => item.riskCode === riskItem.riskCode);
-  //         return {
-  //           ...currentRiskItem,
-  //           ...riskItem,
-  //         };
-  //       })
-  //     : [],
-  // };
   productInfo.insuredProductList.reduce((productList, product) => {
     const currentProductIndex = stateInfo.insurerList?.[stateInfo.currentSelectInsure]?.productList.findIndex(
       (prod) => prod.productCode === product.productCode,
@@ -1006,12 +975,16 @@ const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
 };
 
 // 添加附加险
-// const addRiderRisk = (riskIds: any[], productInfo: ProposalInsuredProductItem) => {
-//   state.value.productInfo = productInfo;
-//   state.value.type = 'addRiderRisk';
-//   state.value.currentRisk = riskIds;
-//   toggleProductRisk(true);
-// };
+const addRiderRisk = (productCode: string, riskInfo) => {
+  stateInfo.currentProductCode = productCode;
+  stateInfo.currentMainRisk = riskInfo;
+  toggleProductRisk(true);
+};
+
+// 取消添加附加险
+const handleCancel = () => {
+  toggleProductRisk(false);
+};
 
 const validateProducts = () => {
   return !stateInfo.insurerList.some((item) => item.productList.length === 0);

@@ -40,7 +40,15 @@ const handlePageResult = async (res: { status: number; data: string }, storage: 
 };
 let realAuthUrl = '';
 
+const routeExclude = [
+  {
+    to: '',
+    from: '',
+  },
+];
+
 router.beforeEach(async (to, from, next) => {
+  console.log('to', to, from);
   // 处理缓存页面
   await cachePage(from, to);
   next();

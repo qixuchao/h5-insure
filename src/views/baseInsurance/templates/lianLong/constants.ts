@@ -41,6 +41,13 @@ export const PAGE_ROUTE_ENUMS = {
   customerDetail: '/customerDetail', // 客户详情
 };
 
+const ROUTE_EXCLUDE = [
+  {
+    to: '',
+    from: '',
+  },
+];
+
 export const MESSAGE_TYPE_ENUM = {
   AGENT: 1, // 发送到代理人端
   HOLDER: 2, // 发送给客户端

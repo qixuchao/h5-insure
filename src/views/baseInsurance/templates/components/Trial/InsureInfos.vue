@@ -55,7 +55,6 @@ import { YES_NO_ENUM } from '@/common/constants';
 
 interface Props {
   originData: RiskDetailVoItem;
-  modelValue: RiskVoItem;
   defaultValue: any;
   trialResult: any;
 }
@@ -63,7 +62,6 @@ const emit = defineEmits(['trialChange']);
 
 const props = withDefaults(defineProps<Props>(), {
   originData: () => ({} as RiskDetailVoItem),
-  modelValue: () => ({} as RiskVoItem),
   defaultValue: () => ({} as any),
   trialResult: 0,
 });

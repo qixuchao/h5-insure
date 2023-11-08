@@ -7,7 +7,7 @@
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import request from '@/api/request';
-import { ProposalInfo } from './createProposal.data';
+import { ProposalInfo, ProposalRiderRiskData } from './createProposal.data';
 // 创建计划书
 export const addOrUpdateProposal = (data: Partial<ProposalInfo>) =>
   request<ResponseData<any>>({ url: '/api/app/insure/proposal/addOrUpdateProposal', method: 'POST', data });
@@ -27,3 +27,11 @@ export const queryProposalDetailInsurer = (params = {} as any) =>
 // 获取产品详情列表（旧版接口）
 export const queryProductDetailList = (data = {}) =>
   request<any[]>({ url: '/api/app/insure/product/v2/listInsureProductDetail', method: 'POST', data });
+
+// 获取计划书附加险列表
+export const queryProposalRiderRiskList = (data = {}) =>
+  request<ProposalRiderRiskData>({
+    url: '/api/app/insure/proposal/queryProposalRiderRiskList',
+    method: 'POST',
+    data,
+  });
