@@ -17,6 +17,7 @@
           shape="round"
           clear-trigger="always"
           show-action
+          :clearable="isMobile"
           @search="getData"
         >
           <template #action>
@@ -66,6 +67,7 @@
 </template>
 <script lang="ts" setup name="ProductLib">
 import { useRoute } from 'vue-router';
+// import { isMobile } from 'vant/lib/utils';
 import { queryProductBoxConfig, riskAttachmentList } from '@/api/modules/productLib';
 import useDictData from '@/hooks/useDictData';
 import TypeFilter from './components/TypeFilter.vue';
@@ -94,6 +96,7 @@ const rowDatas = computed(() => {
   console.log('rowDatas', state.rowDataMap, state.tabs, state.currentTab);
   return state.rowDataMap[state.currentTab];
 });
+const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
 const config = ref({
   id: '',
   insurerCode: 'lianlife',

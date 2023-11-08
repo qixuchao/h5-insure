@@ -40,8 +40,14 @@ const PRODUCT_TYPE = constantListToMap(RISK_CATEGORY);
 const TYPE_CONST = ['产品说明书', '产品条款', '费率表', '风险告知书', '其他', '投保规则', '责任条款'];
 const items = [
   {
+    key: 'riskCategory',
+    label: '险种类别',
+    value: '寿险',
+    format: (v: number) => PRODUCT_TYPE[v],
+  },
+  {
     key: 'riskType',
-    label: '主 附 险',
+    label: '主附险',
     value: '主险',
     format: (v: number) => MAIN_RISK_TYPE[v],
   },
@@ -54,12 +60,6 @@ const items = [
     key: 'paymentPeriodValues',
     label: '交费期间',
     value: '终生',
-  },
-  {
-    key: 'riskCategory',
-    label: '险种类别',
-    value: '寿险',
-    format: (v: number) => PRODUCT_TYPE[v],
   },
 ];
 
