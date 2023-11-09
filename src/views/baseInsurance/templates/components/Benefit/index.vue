@@ -52,6 +52,7 @@
           <div v-if="showType == SHOW_TYPE_ENUM.CHART" style="width: 100%, minWidth: 338px">
             <ProChart :min="ageBegin" :max="ageEnd" :current="num" :data="benefitObj?.result?.benefitRiskItemList" />
           </div>
+
           <template v-if="showType != SHOW_TYPE_ENUM.TABLE">
             <div class="slider">
               <div class="opt lf" @click="handleReduce">
@@ -88,7 +89,7 @@
               :plain="showType !== SHOW_TYPE_ENUM.CHART"
               type="primary"
               class="btn"
-              @click="showType = SHOW_TYPE_ENUM.CHART"
+              @click="handleCharts"
               >趋势展示</van-button
             >
             <van-button
@@ -154,9 +155,22 @@
       <ProEmpty title="试算结果正在计算中..." empty-class="empty-select" />
     </div>
   </div>
+
+  <div v-for="(item, index) in props.dataSource?.benefitRiskResultVOList" :key="index">
+    <ProChart
+      id="chartImg"
+      :min="ageBegin"
+      :max="ageEnd"
+      :current="num"
+      :data="item?.benefitRiskItemResultVOList?.[0].benefitRiskItemList"
+      class="chart-img"
+      style="display: none"
+    />
+  </div>
 </template>
 <script lang="ts" setup name="Benefit">
 import { withDefaults } from 'vue';
+import html2canvas from 'html2canvas';
 import { toLocal } from '@/utils';
 import ProChart from '@/components/ProChart/index.vue';
 import BenefitTable from './BenefitTable.vue';
@@ -196,7 +210,22 @@ const tableData = ref();
 //   // eslint-disable-next-line no-return-assign
 //   return showType === SHOW_TYPE_ENUM.TABLE;
 // });
-
+const handleCharts = () => {
+  showType.value = SHOW_TYPE_ENUM.CHART;
+  setTimeout(() => {
+    const node = <HTMLElement>document.getElementById('chartImg');
+    html2canvas(node, {
+      useCORS: true,
+      dpi: 400,
+      height: document.getElementById('chartImg').clientHeight - 2,
+      // canvas高度与所截图高度相同或者更小，解决底部白边问题
+      width: document.getElementById('chartImg').clientWidth - 2,
+    }).then((res) => {
+      const chartsImg = res.toDataURL('image/png', 0.8);
+      console.log('chartsImg', chartsImg);
+    });
+  }, 2000);
+};
 const renderArray = (start: number, end: number) => {
   const a = [];
   const year = [];

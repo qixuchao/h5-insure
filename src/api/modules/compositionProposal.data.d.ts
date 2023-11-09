@@ -117,6 +117,7 @@ export interface ModuleItem {
 
 
 export interface ProductDetailContent {
+  attachmentListResMap: {};
   configItem: string;
   content: ProductDetailContentItem;
   templateId: string;

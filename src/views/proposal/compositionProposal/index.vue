@@ -113,11 +113,18 @@
                 </van-collapse-item>
               </van-collapse>
             </div> -->
-            <!-- 产品详情 TODOJJM -->
+            <!-- 产品详情  -->
             <div v-if="+productDetail?.content?.isShow === 1" class="lia-container">
-              <div class="lia-header">
+              <div class="lia-product-header">
                 <div class="info-product-detail">
                   <span class="p1">产品详情</span>
+                  <RowTabs
+                    :active="currentTab"
+                    :tabs="tabs"
+                    :list="rowDatas"
+                    @update:active="(v:string) => state.currentTab = v"
+                    @preview="previewFile"
+                  />
                 </div>
               </div>
             </div>
@@ -249,16 +256,43 @@
         :theme-list="themeList"
         @submit="selectTheme"
       />
+      <ProPopup
+        v-model:show="currentFile.show"
+        class="pre-file-wrap"
+        :title="currentFile.attachmentName"
+        position="bottom"
+        :close-on-click-overlay="false"
+        :style="{ overflow: 'hidden' }"
+        :header-style="{
+          paddingRight: '40px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          paddingTop: '4px',
+        }"
+        @close="resetFile"
+      >
+        <div class="review-pdf">
+          <ProFilePreview
+            :is-iframe="false"
+            :content="currentFile.attachmentContent"
+            :type="getFileType(currentFile.attachmentSource, currentFile.attachmentContent)"
+          ></ProFilePreview>
+        </div>
+      </ProPopup>
     </van-config-provider>
   </ProPageWrap>
 </template>
 <script lang="ts" setup>
 import wx from 'weixin-js-sdk';
-import { Toast } from 'vant/es';
+import { Toast, Dialog } from 'vant/es';
 import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
 import { toLocal, ORIGIN } from '@/utils';
 import { queryProposalDetail, queryPreviewProposalDetail, generatePdf } from '@/api/modules/proposalList';
+import { watermark, clearMark } from '@/utils/watermark';
+import { getFileType } from '@/views/baseInsurance/utils';
+import RowTabs from './components/RowTabs.vue';
 import agent_img from '@/assets/images/compositionProposal/addver.png';
 import agent_tel from '@/assets/images/compositionProposal/tel.png';
 import icon1 from '@/assets/images/compositionProposal/icon-1.png';
@@ -344,6 +378,9 @@ interface IState {
   companyProfile: Partial<CompanyProfileContent>;
   productDetail: Partial<ProductDetailContent>;
   riskAlert: Partial<RiskContent>;
+  rowDataMap: object;
+  currentTab: string;
+  tabs: Array;
 }
 const state = reactive<IState>({
   agentCard: {},
@@ -351,8 +388,17 @@ const state = reactive<IState>({
   companyProfile: {},
   productDetail: {},
   riskAlert: {},
+  rowDataMap: {},
+  currentTab: '',
+  tabs: [],
 });
-const { agentCard, basicInfo, companyProfile, productDetail, riskAlert } = toRefs(state);
+const { agentCard, basicInfo, companyProfile, productDetail, riskAlert, rowDataMap, currentTab, tabs } = toRefs(state);
+const rowDatas = computed(() => {
+  console.log('rowDatas', rowDataMap.value);
+  console.log('rowDatas', currentTab.value);
+  console.log('rowDatas', tabs.value);
+  return rowDataMap.value[currentTab.value];
+});
 
 const rules = [
   {
@@ -485,6 +531,9 @@ const getData = async () => {
       basicInfo.value = saleInfo.value?.basicInfo || {};
       companyProfile.value = saleInfo.value?.companyProfile || {};
       productDetail.value = saleInfo.value?.productDetail || {};
+      rowDataMap.value = productDetail.value.attachmentListResMap || {};
+      tabs.value = Object.keys(rowDataMap.value);
+      currentTab.value = state.tabs?.[0];
       riskAlert.value = saleInfo.value?.riskAlert || {};
       const realData = data?.proposalInsuredVOList || [];
       isMultiple.value = realData?.length > 1;
@@ -691,7 +740,20 @@ const onCreatePdf = () => {
   operateType.value = 'pdf';
 
   if (themeList.value.length) {
-    toggleThemeSelect(true);
+    Dialog.confirm({
+      title: '',
+      message: '是否展示利益演示趋势',
+      confirmButtonText: '是',
+      cancelButtonText: '否',
+    })
+      .then(() => {
+        console.log('我要展示趋势表');
+        toggleThemeSelect(true);
+      })
+      .catch(() => {
+        console.log('我不要展示趋势表');
+        toggleThemeSelect(true);
+      });
   } else {
     getPdf();
   }
@@ -710,6 +772,36 @@ onMounted(() => {
   }
   getData();
 });
+const currentFile = ref({
+  attachmentName: '',
+  attachmentContent: '',
+  attachmentSource: 1,
+  show: false,
+});
+// 客户代理人信息
+const agentInfo = reactive({ name: '测试水印', agentCode: '1234' });
+const previewFile = (file: {}) => {
+  console.log('文件预览', agentInfo);
+  currentFile.value = { ...file, show: true };
+  // 添加水印
+  watermark({
+    watermark_txt: `${agentInfo.name}\r\n${agentInfo.agentCode}`,
+    watermark_color: '#333',
+    watermark_angle: 30,
+    watermark_width: 100,
+    watermark_height: 60,
+  });
+};
+const resetFile = (file: {}) => {
+  console.log('关闭文件预览');
+  clearMark();
+  currentFile.value = {
+    attachmentName: '',
+    attachmentContent: '',
+    attachmentSource: 1,
+    show: false,
+  };
+};
 </script>
 
 <style lang="scss" scoped>
@@ -892,10 +984,7 @@ onMounted(() => {
         width: 100%;
         border-radius: 16px 16px 0 0;
         display: flex;
-        .info-product-detail {
-          @extend .info-detail;
-          margin-bottom: 30px;
-        }
+
         .info-detail {
           padding-left: 20px;
           width: 100%;
@@ -911,6 +1000,23 @@ onMounted(() => {
         .showcase-select {
           margin-right: 20px;
           margin-top: 30px;
+        }
+      }
+      .lia-product-header {
+        width: 100%;
+        border-radius: 16px 16px 0 0;
+        .info-product-detail {
+          // @extend .info-detail;
+
+          margin-bottom: 30px;
+          .p1 {
+            display: inline-block;
+            padding-left: 20px;
+            margin-top: 35px;
+            font-size: 32px;
+            font-weight: 600;
+            color: #333333;
+          }
         }
       }
     }
