@@ -4,13 +4,7 @@
       <div class="risk-item-wrapper">
         <ProTitle :risk-type="risk.riskType" :title="risk.riskName" class="no-border">
           <div class="operate-bar">
-            <div
-              v-if="risk.riskType === RISK_TYPE_ENUM.MAIN_RISK"
-              class="add-risk btn"
-              @click="addRiderRisk(productInfo, risk)"
-            >
-              +附加险
-            </div>
+            <div v-if="risk.exemptFlag !== YES_NO_ENUM.YES" class="add-risk btn" @click="updateRisk(risk)">修改</div>
             <div class="delete-risk btn" @click="deleteRisk(risk)">删除</div>
           </div>
         </ProTitle>
@@ -35,7 +29,7 @@
                 !errorMsg && risk.initialPremium ? `￥${risk.initialPremium?.toLocaleString()}` : '-'
               }}</span>
             </div>
-            <div class="operate-bar">
+            <div v-if="risk.riskType === RISK_TYPE_ENUM.MAIN_RISK" class="operate-bar">
               <!-- <ProCheckButton
                 v-if="currentSelectInsure > 0 || (isCanDeleteRisk(risk.riskId) && productIndex > 0)"
                 :round="32"
@@ -47,7 +41,7 @@
                 <span class="btn-plus">+</span>
                 附加险</ProCheckButton
               > -->
-              <ProCheckButton activated @click="updateRisk(risk)">修改</ProCheckButton>
+              <ProCheckButton activated @click="addRiderRisk(productInfo, risk)">+附加险</ProCheckButton>
             </div>
           </div>
         </div>
@@ -83,6 +77,7 @@ import RiskRelationList from '@/views/trial/components/RiskRelationList/index.vu
 import useDict from '@/hooks/useDictData';
 import ProductTips from '@/views/proposal/proposalList/components/ProductTips.vue';
 import { RISK_TYPE_ENUM } from '@/common/constants/trial';
+import { YES_NO_ENUM } from '@/common/constants';
 
 interface Props {
   productRiskList: ProposalProductRiskItem[];
@@ -272,9 +267,11 @@ watch(
     background-color: #f6f6fa;
     border-radius: 20px;
     :deep(.card-title) {
+      padding: 30px;
       .van-cell {
         background-color: #f6f6fa;
         padding-bottom: 0;
+        padding-top: 0;
         border-radius: 20px;
       }
       &::after {
@@ -283,7 +280,7 @@ watch(
     }
     :deep(.risk-title) {
       .left-content {
-        width: 410px;
+        width: 390px;
       }
       .operate-bar {
         font-size: 28px;

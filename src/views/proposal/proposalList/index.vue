@@ -5,9 +5,11 @@
         <InsureFilter filter-class="filter-area" @on-select-insure="handleClickTag" />
         <van-tabbar
           v-model="productClass"
+          disabled
           active-color="var(--van-primary-color)"
           inactive-color="black"
           :fixed="false"
+          :before-change="() => !productC"
           @change="getProducts"
         >
           <van-tabbar-item :name="1">非组合计划书</van-tabbar-item>
@@ -130,7 +132,7 @@ interface StateType {
 const store = createProposalStore();
 const router = useRouter();
 const route = useRoute();
-const { isCreateProposal } = route.query;
+const { isCreateProposal, productClass: productC } = route.query;
 const themeVars = useTheme();
 
 const state = reactive<StateType>({
@@ -179,7 +181,7 @@ const {
 
 const [showProductRisk, toggleProductRisk] = useToggle();
 const [showSelectProduct, toggleSelectProduct] = useToggle();
-const productClass = ref<string>(1); // 产品分类 4: 多主线产品、1：非多主线产品
+const productClass = ref<string>(+(productC || 1)); // 产品分类 4: 多主线产品、1：非多主线产品
 
 // const addProposalType = ref<any>(isCreateProposal ? 'repeatAdd' : 'add');
 

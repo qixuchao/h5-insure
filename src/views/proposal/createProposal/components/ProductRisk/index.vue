@@ -301,8 +301,8 @@ const handleClick = (riskCode) => {
 
 const getRiskList = async () => {
   const params = {
-    insuredList: [] || props.insuredList,
-    holder: {} || props.holder || {},
+    insuredList: props.insuredList,
+    holder: props.holder || {},
     mainRiskCode: props.mainRisk.riskCode,
     insureCode: insurerCode,
     productCategory: '',
@@ -373,7 +373,7 @@ onMounted(() => {
     margin: 0;
     .van-cell {
       padding: 15px 0;
-      height: 106px;
+      min-height: 106px;
       display: flex;
       align-items: center;
       &:after {

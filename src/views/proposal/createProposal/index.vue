@@ -247,7 +247,8 @@
         ref="trialPopupRef"
         :data-source="{ [currentProductDetail.productCode]: currentProductDetail }"
         :product-code="stateInfo.currentProductCode"
-        :default-data="stateInfo.defaultData?.[stateInfo.currentSelectInsure]"
+        :default-data="stateInfo.defaultData"
+        :update-risk-code="stateInfo.updateRiskCode"
         @finish="onFinished"
       />
     </ProPageWrap>
@@ -394,6 +395,7 @@ const stateInfo = reactive<StateInfo>({
   defaultData: null,
   currentSelectInsure: 0,
   isLoading: false,
+  updateRiskCode: '',
   currentMainRisk: () => ({}),
   currentRiskData: () => ({}),
 });
@@ -627,6 +629,7 @@ const addProduct = () => {
         path: '/proposalListSelect',
         query: {
           isCreateProposal: '1',
+          productClass: productClass.value,
         },
       });
     })
@@ -1007,9 +1010,9 @@ const trialParamsBefore = (tempParams: any, productCode: string) => {
 
 // 修改险种
 const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsuredProductItem) => {
+  stateInfo.updateRiskCode = riskInfo.riskCode;
   stateInfo.currentProductCode = productInfo.productCode;
   const tempParams = cloneDeep(convertProposalToTrialData(productInfo.productCode));
-  console.log('tempParams', trialParamsBefore(tempParams, productInfo.productCode));
   stateInfo.defaultData = tempParams;
   trialPopupRef.value?.open();
 };

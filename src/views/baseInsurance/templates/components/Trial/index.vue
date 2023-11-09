@@ -29,6 +29,7 @@
           <div v-for="(productCode, pIndex) in Object.keys(productMap)" :key="productCode" class="product-item">
             <div
               v-for="(risk, index) in productMap[productCode].productPlanInsureVOList[0].insureProductRiskVOList || []"
+              v-show="!updateRiskCode || risk.riskCode === updateRiskCode"
               :key="`${productCode}-${risk.riskCode}`"
               class="risk-item"
             >
@@ -128,6 +129,7 @@ interface Props {
   productCollection: object;
   productFactor: object;
   productRiskCodeMap: object;
+  updateRiskCode?: string;
 }
 
 const LOADING_TEXT = '试算中...';
@@ -177,6 +179,7 @@ const props = withDefaults(defineProps<Props>(), {
   productCollection: () => ({}),
   productFactor: () => ({}),
   productRiskCodeMap: () => ({}),
+  updateRiskCode: '',
 });
 
 const state = reactive({
@@ -1063,7 +1066,8 @@ watch(
   () => props.productFactor,
   (value, oldVal) => {
     currentProductFactor.value = value;
-    if (!Object.keys(value).length && state.userData.holder) {
+    // 处理保费试算时删除所有产品时需要清空投被保人数据
+    if (!Object.keys(value).length && state.userData.holder && props.isTrial) {
       Object.assign(state.userData.holder, resetObjectValues(state.userData.holder));
       Object.assign(state.userData.insuredList[0], resetObjectValues(state.userData.insuredList[0]));
     }

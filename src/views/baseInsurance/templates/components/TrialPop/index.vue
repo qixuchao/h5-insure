@@ -20,45 +20,44 @@
     @close="onClosePopup"
     @closed="onClosePopupAfterAni"
   >
-    <ProLazyComponent>
-      <div class="trial-wrap">
-        <TrialBody
-          ref="insureInfosRef"
-          :product-collection="dataSource"
-          :default-data="defaultData"
-          :product-factor="[]"
-          :product-risk-code-map="productRiskCodeMap"
-          hide-benefit
-          @trial-start="handleTrialStart"
-          @trial-end="handleTrialEnd"
-        >
-          <template #trialHead>
-            <div class="pop-header">
-              <span class="header-title">{{ title }}</span>
-              <van-icon name="cross" @click="state.show = false" />
-            </div>
-          </template>
-          <template #trialBtn="scope">
-            <slot name="trialBtn" v-bind="scope">
-              <TrialButton
-                :is-share="currentShareInfo.isShare"
-                :premium="scope.riskPremium?.initialPremium"
-                :share-info="currentShareInfo"
-                :loading-text="state.trialMsg"
-                :plan-code="props.dataSource.planCode"
-                :payment-frequency="
-                  scope.trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''
-                "
-                :tenant-product-detail="tenantProductDetail"
-                :handle-share="(cb) => onShare(cb, scope.trialData)"
-                @handle-click="onNext(scope.trialData)"
-                >立即投保</TrialButton
-              >
-            </slot>
-          </template>
-        </TrialBody>
-      </div>
-    </ProLazyComponent>
+    <div class="trial-wrap">
+      <TrialBody
+        ref="insureInfosRef"
+        :product-collection="dataSource"
+        :default-data="defaultData"
+        :product-factor="[]"
+        :product-risk-code-map="productRiskCodeMap"
+        hide-benefit
+        :update-risk-code="updateRiskCode"
+        @trial-start="handleTrialStart"
+        @trial-end="handleTrialEnd"
+      >
+        <template #trialHead>
+          <div class="pop-header">
+            <span class="header-title">{{ title }}</span>
+            <van-icon name="cross" @click="state.show = false" />
+          </div>
+        </template>
+        <template #trialBtn="scope">
+          <slot name="trialBtn" v-bind="scope">
+            <TrialButton
+              :is-share="currentShareInfo.isShare"
+              :premium="scope.riskPremium?.initialPremium"
+              :share-info="currentShareInfo"
+              :loading-text="state.trialMsg"
+              :plan-code="props.dataSource.planCode"
+              :payment-frequency="
+                scope.trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''
+              "
+              :tenant-product-detail="tenantProductDetail"
+              :handle-share="(cb) => onShare(cb, scope.trialData)"
+              @handle-click="onNext(scope.trialData)"
+              >立即投保</TrialButton
+            >
+          </slot>
+        </template>
+      </TrialBody>
+    </div>
   </ProPopup>
 </template>
 
@@ -115,6 +114,7 @@ interface Props {
   title: string;
   defaultData: any;
   currentOrderDetail?: any;
+  updateRiskCode?: string;
 }
 
 const LOADING_TEXT = '试算中...';
@@ -144,6 +144,7 @@ const props = withDefaults(defineProps<Props>(), {
   hidePopupButton: false,
   defaultData: null,
   currentOrderDetail: null,
+  updateRiskCode: '',
 });
 
 const state = reactive({
@@ -539,41 +540,6 @@ const handleRestState = () => {
   state.ifPersonalInfoSuccess = false;
   state.trialMsg = '';
   state.trialResultPremium = 0;
-};
-
-const transformDefaultData = (defaultData: any) => {
-  // state.userData = defaultData;
-  state.userData = defaultData;
-  state.defaultValue = defaultData;
-  const currentPlanIndex = defaultData.insuredVOList[0].productPlanVOList.findIndex(
-    (p) => p.planCode === props.dataSource.planCode,
-  );
-  state.planIndex = currentPlanIndex === -1 ? 0 : currentPlanIndex;
-  handleTrialAndBenefit(defaultData, true);
-};
-
-const fetchDefaultData = async (changes: []) => {
-  // TODO 加loading
-  if (!props.defaultData) {
-    const result = await queryCalcDefaultInsureFactor({
-      calcProductFactorList: [
-        {
-          planCode: props.dataSource.planCode,
-          productCode: props.productInfo.productCode,
-        },
-      ],
-    });
-    if (result.data) {
-      const targetProduct = result.data.find((d) => d.productCode === props.productInfo.productCode) || result.data[0];
-      transformDefaultData(targetProduct);
-    }
-  } else {
-    if (props.defaultData) {
-      const targetProduct =
-        props.defaultData.find((d) => d.productCode === props.productInfo.productCode) || props.defaultData[0];
-      transformDefaultData(targetProduct);
-    }
-  }
 };
 
 const handleTrialStart = () => {
