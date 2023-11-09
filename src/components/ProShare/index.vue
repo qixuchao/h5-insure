@@ -16,21 +16,24 @@
 <script lang="ts" setup>
 import wx from 'weixin-js-sdk';
 import { isApp, isWechat } from '@/utils';
-import { wechatShare } from '@/utils/jsbridgePromise';
+import { shareWeiXin } from '@/utils/lianSDK';
+// import { wechatShare } from '@/utils/jsbridgePromise';
 import ProShareOverlay from '@/components/ProShareOverlay/index.vue';
 
 /**
  * @module ZaShare
+ * @vue-prop {Object} shareType:分享类型
  * @vue-prop {Object} title: 分享标题
  * @vue-prop {Object} desc: 分享描述
- * @vue-prop {Object} link: 分享链接
- * @vue-prop {Object} imgUrl: 微信分享封面图
+ * @vue-prop {Object} url: 分享链接
+ * @vue-prop {Object} imageUrl: 微信分享封面图
+
  *
  * @example <ZaShare
  *  :title="分享标题"
  *  :desc="分享描述"
- *  :link="分享链接"
- *  :imgUrl="微信分享封面图"
+ *  :url="分享链接"
+ *  :imageUrl="微信分享封面图"
  *  />
  */
 
@@ -43,11 +46,11 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  link: {
+  url: {
     type: String,
     default: '',
   },
-  imgUrl: {
+  imageUrl: {
     type: String,
     default: '',
   },
@@ -68,13 +71,14 @@ const handleShare = (shareInfo = {}) => {
   if (isApp()) {
     console.log('在app内', props);
     const shareConfig = {
-      img: props.imgUrl,
+      shareType: 0,
+      imageUrl: props.imageUrl,
       title: props.title,
       desc: props.desc,
-      link: shareInfo.link || props.link,
+      url: shareInfo.url || props.url,
     };
     console.log('参数：', shareConfig);
-    wechatShare(shareConfig);
+    shareWeiXin(shareConfig);
   }
 };
 

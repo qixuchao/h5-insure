@@ -224,8 +224,8 @@
           ref="shareButtonRef"
           :title="shareConfig.title"
           :desc="shareConfig.desc"
-          :link="shareConfig.link"
-          :img-url="shareConfig.imgUrl"
+          :url="shareConfig.url"
+          :image-url="shareConfig.imageUrl"
         >
           <div class="share-btn" @click.stop="() => onShareProposal()">
             <ProSvg name="share-icon" font-size="24px" color="var(--van-primary-color)"></ProSvg>
@@ -483,10 +483,11 @@ watch(
 
 const setShareConfig = (link: string) => {
   shareConfig.value = {
+    shareType: 0,
     title: proposalName,
     desc: '您的贴心保险管家',
-    link,
-    imgUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
+    url: link,
+    imageUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
     img: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
   };
 };
@@ -641,7 +642,7 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
         //     window.location.href = newData;
         //   }
         // });
-        // 需要看产品中的productClass 目前接口未返回 先默认为多主险
+        // 需要看产品中的productClass 目前接口未返回结果 先默认为多主险
         // 多主险 跳转保费试算
         window.location.href = `${window.location.origin}/baseInsurance/long/trial?insurerCode=lianlife&productCodes=${productCodes}&tenantId=${tenantId.value}&templateId=${templateId}`;
         // 非多主险 计划书详情
