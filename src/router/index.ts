@@ -41,6 +41,13 @@ const handlePageResult = async (res: { status: number; data: string }, storage: 
 };
 let realAuthUrl = '';
 
+const routeExclude = [
+  {
+    to: '',
+    from: '',
+  },
+];
+
 router.beforeEach(async (to, from, next) => {
   const excludeRoute = ROUTE_EXCLUDE.find((route) => {
     return route.to === to.path && route.from === from.path;
@@ -55,8 +62,6 @@ router.beforeEach(async (to, from, next) => {
     });
     return;
   }
-
-  console.log('excludeRoute', excludeRoute);
   // 处理缓存页面
   await cachePage(from, to);
   next();

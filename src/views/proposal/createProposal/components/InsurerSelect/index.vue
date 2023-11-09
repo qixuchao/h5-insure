@@ -52,18 +52,20 @@ const list = ref(props.insurerList);
 const emits = defineEmits(['listChange', 'currentChange', 'add', 'delete', 'validateTab']);
 
 const showTabs = (reLad = false) => {
-  nextTick(() => {
-    tabRef.value[state.value.currentSelected]?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
-      inline: 'start',
+  if (tabsRef.value) {
+    nextTick(() => {
+      tabRef.value[state.value.currentSelected]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'start',
+      });
+      if (state.value.currentSelected === 0) {
+        tabsRef.value.scrollLeft = 0;
+      } else if (reLad && state.value.currentSelected >= 3) {
+        tabsRef.value.scrollLeft = tabsRef.value.scrollWidth;
+      }
     });
-    if (state.value.currentSelected === 0) {
-      tabsRef.value.scrollLeft = 0;
-    } else if (reLad && state.value.currentSelected >= 3) {
-      tabsRef.value.scrollLeft = tabsRef.value.scrollWidth;
-    }
-  });
+  }
 };
 
 const updateInsurer = (index: number, info: any) => {};
@@ -84,8 +86,8 @@ const getRelate = (relate: any) => {
 const hasProductCheck = () => {
   // 有产品的时候，才允许用户切换被保人和添加新的被保人
   const ifHasNoProduct =
-    !list.value[state.value.currentSelected].productList ||
-    list.value[state.value.currentSelected].productList.length <= 0;
+    !list.value?.[state.value.currentSelected]?.productList ||
+    list.value?.[state.value.currentSelected]?.productList?.length <= 0;
   if (ifHasNoProduct) {
     return false;
   }

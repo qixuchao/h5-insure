@@ -76,6 +76,7 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
 }
+
 .router-view {
   width: 100%;
   height: 100vh;

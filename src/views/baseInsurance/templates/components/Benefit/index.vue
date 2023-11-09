@@ -37,12 +37,22 @@
             </div>
           </div>
           <div v-if="showType === SHOW_TYPE_ENUM.TABLE">
-            <BenefitTable :data-source="tableData" />
+            <van-popup
+              closeable
+              :show="showTablePopup"
+              position="bottom"
+              :style="{ height: '100%' }"
+              @click-close-icon="handleClose"
+            >
+              <BenefitTable :data-source="tableData" />
+            </van-popup>
+            <!-- <BenefitTable :data-source="tableData" /> -->
           </div>
 
           <div v-if="showType == SHOW_TYPE_ENUM.CHART" style="width: 100%, minWidth: 338px">
             <ProChart :min="ageBegin" :max="ageEnd" :current="num" :data="benefitObj?.result?.benefitRiskItemList" />
           </div>
+
           <template v-if="showType != SHOW_TYPE_ENUM.TABLE">
             <div class="slider">
               <div class="opt lf" @click="handleReduce">
@@ -65,7 +75,7 @@
 
           <div class="btn-two">
             <van-button
-              v-if="props.dataSource.showTypeList.includes(SHOW_TYPE_ENUM.LIST)"
+              v-if="props.showTypeList.includes(SHOW_TYPE_ENUM.LIST)"
               round
               :plain="showType !== SHOW_TYPE_ENUM.LIST"
               type="primary"
@@ -74,22 +84,22 @@
               >图表展示</van-button
             >
             <van-button
-              v-if="props.dataSource.showTypeList.includes(SHOW_TYPE_ENUM.CHART)"
+              v-if="props.showTypeList.includes(SHOW_TYPE_ENUM.CHART)"
               round
               :plain="showType !== SHOW_TYPE_ENUM.CHART"
               type="primary"
               class="btn"
-              @click="showType = SHOW_TYPE_ENUM.CHART"
+              @click="handleCharts"
               >趋势展示</van-button
             >
             <van-button
-              v-if="props.dataSource.showTypeList.includes(SHOW_TYPE_ENUM.TABLE)"
+              v-if="props.showTypeList.includes(SHOW_TYPE_ENUM.TABLE)"
               round
               :plain="showType !== SHOW_TYPE_ENUM.TABLE"
               type="primary"
               class="btn"
               @click="showType = SHOW_TYPE_ENUM.TABLE"
-              >表格展示</van-button
+              >查看利益演示</van-button
             >
           </div>
         </div>
@@ -145,23 +155,38 @@
       <ProEmpty title="试算结果正在计算中..." empty-class="empty-select" />
     </div>
   </div>
+
+  <div v-for="(item, index) in props.dataSource?.benefitRiskResultVOList" :key="index">
+    <ProChart
+      id="chartImg"
+      :min="ageBegin"
+      :max="ageEnd"
+      :current="num"
+      :data="item?.benefitRiskItemResultVOList?.[0].benefitRiskItemList"
+      class="chart-img"
+      style="display: none"
+    />
+  </div>
 </template>
 <script lang="ts" setup name="Benefit">
 import { withDefaults } from 'vue';
+import html2canvas from 'html2canvas';
 import { toLocal } from '@/utils';
 import ProChart from '@/components/ProChart/index.vue';
 import BenefitTable from './BenefitTable.vue';
 
 const props = withDefaults(
   defineProps<{
-    dataSource: { showTypeList: string[] };
+    dataSource: {};
     productInfo: any;
+    showTypeList: string[];
   }>(),
   {
     dataSource: () => ({
       showTypeList: ['1'],
     }),
     productInfo: () => null,
+    showTypeList: () => [],
   },
 );
 const SHOW_TYPE_ENUM = {
@@ -173,12 +198,34 @@ const active = ref(0);
 const ageBegin = ref(0);
 const ageEnd = ref(0);
 const benefitObj = ref(); // 利益演示结构
+const showTablePopup = ref(true); // 利益演示结构
 
 const num = ref(0);
-// 展示类型
-const showType = ref(props.dataSource.showTypeList?.[0]);
-const tableData = ref();
 
+// 展示类型
+const showType = ref(props.showTypeList?.[0]);
+const tableData = ref();
+// 利益演示表格
+// const showTablePopup = computed(() => {
+//   // eslint-disable-next-line no-return-assign
+//   return showType === SHOW_TYPE_ENUM.TABLE;
+// });
+const handleCharts = () => {
+  showType.value = SHOW_TYPE_ENUM.CHART;
+  setTimeout(() => {
+    const node = <HTMLElement>document.getElementById('chartImg');
+    html2canvas(node, {
+      useCORS: true,
+      dpi: 400,
+      height: document.getElementById('chartImg').clientHeight - 2,
+      // canvas高度与所截图高度相同或者更小，解决底部白边问题
+      width: document.getElementById('chartImg').clientWidth - 2,
+    }).then((res) => {
+      const chartsImg = res.toDataURL('image/png', 0.8);
+      console.log('chartsImg', chartsImg);
+    });
+  }, 2000);
+};
 const renderArray = (start: number, end: number) => {
   const a = [];
   const year = [];
@@ -220,6 +267,11 @@ const handleAdd = () => {
   num.value += 1;
   getData();
 };
+const handleClose = () => {
+  console.log('1111');
+  showTablePopup.value = false;
+  showType.value = '2';
+};
 const handleReduce = () => {
   if (num.value > ageBegin.value) {
     num.value -= 1;
@@ -250,6 +302,9 @@ watch(
 watch(num, () => {
   getData();
 });
+watch(showType, (val) => {
+  showTablePopup.value = val === SHOW_TYPE_ENUM.TABLE;
+});
 </script>
 
 <style lang="scss" scoped>
@@ -257,7 +312,7 @@ watch(num, () => {
   widows: 100%;
   background: #ffffff;
   border-radius: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   padding: 0 20px 30px 20px;
   .common-title {
     padding-top: 34px;
@@ -389,5 +444,11 @@ watch(num, () => {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+:deep(.van-popup) {
+  z-index: 999999999 !important; // 弹窗提高层级不展示底部按钮
+  .van-popup__close-icon {
+    top: 0;
+  }
 }
 </style>

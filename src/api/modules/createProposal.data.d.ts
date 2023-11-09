@@ -125,3 +125,21 @@ export interface Holder {
   weight: number;
 }
 
+export interface ProposalRiderRiskData {
+    collocationInfoResList: CollocationInfoResItem[];
+    riskInfoList: RiskInfoItem[];
+}
+
+export interface RiskInfoItem {
+    riskCode: string;
+    riskName: string;
+}
+
+export interface CollocationInfoResItem {
+    collocationRiskCode: string;
+    collocationType: number;
+    relatedRiskCode: string;
+}
+
+
+

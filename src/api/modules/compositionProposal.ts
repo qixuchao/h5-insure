@@ -22,8 +22,8 @@ export const checkProposalInsurer = (params = {}) =>
   request<ResponseData<boolean>>({ url: '/api/app/insure/proposal/checkProposalInsurer', method: 'GET', params });
 
 // 查询计划书支持的主题
-export const queryProposalThemeList = (params = {}) =>
-  request<ResponseData<ThemeItem[]>>({ url: '/api/app/insure/proposal/queryProposalThemeList', method: 'GET', params });
+export const queryProposalThemeList = (data: {}) =>
+  request<ResponseData<ThemeItem[]>>({ url: '/api/app/insure/proposal/queryProposalThemeList', method: 'POST', data });
 
 // 获取主题历史详情
 export const queryProposalThemeHistoryDetail = (params = {}) =>
@@ -36,3 +36,7 @@ export const queryProposalThemeHistoryDetail = (params = {}) =>
 // 选择计划书主题
 export const chooseProposalTheme = (params = {}) =>
   request<ResponseData<number>>({ url: '/api/app/insure/proposal/chooseProposalTheme', method: 'GET', params });
+
+// 计划书预览基础配置信息
+export const queryProposalTemplateSaleInfo = (data = {}) =>
+  request({ url: '/api/app/insure/proposal/queryProposalTemplateSaleInfo', method: 'POST', data }, { loading: true });

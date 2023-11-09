@@ -189,6 +189,18 @@ const proposalRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/proposal/compositionProposal/index.vue'),
   },
   {
+    name: 'companyDetail',
+    path: '/companyDetail',
+    meta: { title: '组合计划书', requireWxJs: false },
+    component: () => import('@/views/proposal/compositionProposal/components/CompanyDetail.vue'),
+  },
+  {
+    name: 'companyAllDetail',
+    path: '/companyAllDetail',
+    meta: { title: '组合计划书', requireWxJs: false },
+    component: () => import('@/views/proposal/compositionProposal/components/CompanyAllDetail.vue'),
+  },
+  {
     name: 'proposalCover',
     path: '/proposalCover',
     meta: { title: '计划书封面', requireWxJs: false },
@@ -399,6 +411,12 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     path: '/template/questionPreview',
     meta: { title: '问卷预览' },
     component: () => import('@/views/baseInsurance/questionnairePreview/index.vue'),
+  },
+  {
+    name: '资料库',
+    path: '/productLib',
+    meta: { title: '资料库' },
+    component: () => import('@/views/productLib/index.vue'),
   },
   ...proposalRoutes,
   ...baseInsurance,

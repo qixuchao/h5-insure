@@ -18,7 +18,7 @@ const API_PREFIXED = `/api/app/insure/proposal`;
 
 // H5端查询计划书产品列表
 export const queryProposalProductList = (data: Partial<QueryProposalProductListType>) =>
-  request<ResponseData<any>>({ url: `${API_PREFIXED}/queryProposalProductList`, method: 'POST', data });
+  request<ResponseData<any>>({ url: `${API_PREFIXED}/listMainProposalRisk`, method: 'POST', data });
 
 // H5端查询计划书产品分类
 export const queryProductCategoryList = () =>

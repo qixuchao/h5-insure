@@ -655,7 +655,11 @@ const handleDealDyResult = (dyResultData: any, productCode) => {
 };
 
 const handleMixTrialData = () => {
-  if (state.ifPersonalInfoSuccess || personalInfoRef.value?.canTrail?.()) {
+  if (
+    !Object.keys(currentProductFactor.value)?.length ||
+    state.ifPersonalInfoSuccess ||
+    personalInfoRef.value?.canTrail?.()
+  ) {
     state.submitData.tenantId = `${tenantId}`;
 
     if (state.submitData.insuredList?.length) {
@@ -957,10 +961,8 @@ const fetchDefaultData = async (changes: []) => {
     hasDefault.value.push(currentPlan.value.planCode);
     await fetchDefaultDataFromServer();
   } else {
-    const targetProduct =
-      props.defaultData.find((d) => d.productCode === props.productInfo.productCode) || props.defaultData[0];
-    transformDefaultData(targetProduct);
-    handlePersonInfo(props.defaultData?.[0]);
+    transformDefaultData(props.defaultData);
+    handlePersonInfo(props.defaultData);
   }
 };
 
@@ -1179,6 +1181,7 @@ watch(
             font-size: 28px;
             font-weight: 500;
             line-height: 40px;
+            display: flex;
             .btn {
               padding: 0 10px;
             }
