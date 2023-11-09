@@ -26,6 +26,22 @@ export const SEX_LIMIT_LIST = [
 
 export const SEX_LIMIT_MAP = constantListToMap(SEX_LIMIT_LIST);
 
+export const SOCIAL_LIMIT_ENUM = {
+  YES: '1',
+  NO: '2',
+};
+
+export const SOCIAL_LIMIT_LIST = [
+  {
+    label: '有',
+    value: SOCIAL_LIMIT_ENUM.YES,
+  },
+  {
+    label: '无',
+    value: SOCIAL_LIMIT_ENUM.NO,
+  },
+];
+
 export const VALIDATE_TYPE_ENUM = {
   SMS_CODE: 'smsCode',
   PHONE: 'phone',

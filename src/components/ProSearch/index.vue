@@ -10,6 +10,7 @@
       :="$attrs"
       :show-action="!!searchValue"
       @search="onSearch"
+      @cancel="onSearch"
     />
     <slot></slot>
   </div>

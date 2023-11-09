@@ -109,12 +109,15 @@ export const queryCalcDefaultInsureFactor = (data: {}, config = {}) => {
 };
 
 // 险种试算默认值
-export const queryDefaultRiskInsureFactor = (data) =>
-  request<RiskVoItem[]>({
-    url: '/api/app/insure/product/v2/defaultRiskInsureFactor',
-    method: 'POST',
-    data,
-  });
+export const queryDefaultRiskInsureFactor = (data, config) =>
+  request<RiskVoItem[]>(
+    {
+      url: '/api/app/insure/product/v2/defaultRiskInsureFactor',
+      method: 'POST',
+      data,
+    },
+    config,
+  );
 
 // 试算动态值
 export const queryCalcDynamicInsureFactor = (data: {}, config = {}) => {

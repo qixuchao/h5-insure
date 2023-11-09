@@ -78,6 +78,20 @@
               required
               @change="changeGender"
             />
+            <ProRadioV2
+              v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.hasSocialInsurance"
+              label="社保"
+              name="hasSocialInsurance"
+              :columns="SOCIAL_LIMIT_LIST"
+              required
+            />
+            <ProOccupation
+              v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.occupationCodeList"
+              label="职业"
+              name="occupationCodeList"
+              dict-code="LIANLIFE_OCCUPATION"
+              required
+            ></ProOccupation>
           </ProRenderForm>
           <template v-if="stateInfo.currentSelectInsure === 0">
             <div class="title-tip-icon">投保人信息</div>
@@ -124,6 +138,20 @@
                   :columns="SEX_LIMIT_LIST"
                   required
                 />
+                <ProRadioV2
+                  v-model="stateInfo.holder.hasSocialInsurance"
+                  label="社保"
+                  name="hasSocialInsurance"
+                  :columns="SOCIAL_LIMIT_LIST"
+                  required
+                />
+                <ProOccupation
+                  v-model="stateInfo.holder.occupationCodeList"
+                  label="职业"
+                  name="occupationCodeList"
+                  dict-code="LIANLIFE_OCCUPATION"
+                  required
+                ></ProOccupation>
               </template>
             </ProRenderForm>
           </template>
@@ -170,7 +198,11 @@
           </template>
         </ProRenderFormWithCard>
         <div
-          v-if="showAddBtn && stateInfo.insurerList[stateInfo.currentSelectInsure].productList.length > 0"
+          v-if="
+            showAddBtn &&
+            productClass === 4 &&
+            stateInfo.insurerList[stateInfo.currentSelectInsure].productList.length > 0
+          "
           class="operate-bar"
         >
           <ProCheckButton activated :round="34" @click="addProduct">+新增主险</ProCheckButton>
@@ -194,13 +226,14 @@
       <ProductRisk
         v-if="showProductRisk"
         :show="showProductRisk"
-        :select-list="[]"
         :holder="stateInfo.holder"
         :insured-list="[stateInfo.insurerList[stateInfo.currentSelectInsure]?.personVO]"
         :main-risk="stateInfo.currentMainRisk"
-        :current-product-code="stateInfo.currentProductCode"
+        :current-risk-data="stateInfo.currentRiskData"
+        :current-product="stateInfo.currentProduct"
+        :select-list="selectedProductRiskCodeMap[stateInfo.currentProduct.productCode]"
         @cancel="handleCancel"
-        @confirm="onFinished"
+        @confirm="addRiderRiskSuccess"
       ></ProductRisk>
       <VanActionSheet
         v-model:show="showActionSheet"
@@ -252,9 +285,9 @@ import {
 import TrialPopup from '../proposalList/components/TrialPopup.vue';
 import ProEmpty from '@/components/ProEmpty/index.vue';
 import emptyImg from '@/assets/images/empty.png';
-
+import useDictData from '@/hooks/useDictData';
 import { ProductData } from '@/common/constants/trial.data';
-import { SEX_LIMIT_LIST, SELF_LIST, SEX_LIMIT_ENUM } from '@/common/constants';
+import { SEX_LIMIT_LIST, SELF_LIST, SEX_LIMIT_ENUM, SOCIAL_LIMIT_LIST, SOCIAL_LIMIT_ENUM } from '@/common/constants';
 import ProductList from './components/ProductList/index.vue';
 import ProductRisk from './components/ProductRisk/index.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
@@ -317,7 +350,7 @@ const {
 }: { productCode?: string; id?: string; preview?: string } = route.query;
 
 const trialFieldkeys = ['age', 'gender', 'birthday', 'hasSocialInsurance', 'occupationCodeList'];
-
+useDictData('LIANLIFE_OCCUPATION');
 const trialPopupRef = ref(null);
 
 interface proposalInsuredProductItem {
@@ -353,6 +386,7 @@ const stateInfo = reactive<StateInfo>({
   insuredPersonVO: {},
   insurerList: [],
   currentProductCode: '',
+  currentProduct: {},
   holder: {},
   productList: [],
   productCollection: {},
@@ -361,6 +395,7 @@ const stateInfo = reactive<StateInfo>({
   currentSelectInsure: 0,
   isLoading: false,
   currentMainRisk: () => ({}),
+  currentRiskData: () => ({}),
 });
 
 // 是否试算过
@@ -451,6 +486,7 @@ const submitDisable = computed(() => {
   return !trialFlag.value || Boolean(Object.values(stateInfo.productErrorMap).join(''));
 });
 
+const productClass = ref();
 const showAddBtn = computed(() => {
   return `${preview}` !== '1';
 });
@@ -536,6 +572,7 @@ const combineToProductList = (productInfo: PlanTrialData) => {
 // 添加或修改险种信息成功的回调
 const onFinished = (productInfo: PlanTrialData) => {
   // 是否需要更新投被保人信息
+  console.log('onFinished', productInfo);
   // 投保人
   Object.assign(stateInfo.holder, productInfo.holder);
   if (stateInfo.currentSelectInsure === 0) {
@@ -689,7 +726,7 @@ const queryProductInfo = (searchData: any) => {
     .then(({ code, data }) => {
       if (code === '10000') {
         if (isNotEmptyArray(data)) {
-          isReplace.value = data.productClass !== 4;
+          productClass.value = data?.[0]?.productClass;
           data.reduce((res, item) => {
             res[item.productCode] = item;
             product_namelist[item.productCode] = item.productName;
@@ -822,6 +859,8 @@ const queryProposalInfo = (params = {}) => {
       let isDown = false;
       stateInfo.insurerList = insuredList.map((insure, i) => {
         const { productList: products, ...personVO } = insure;
+        const { occupationCodeList, occupationClass } = products?.[0] || {};
+        Object.assign(personVO, { occupationCodeList, occupationClass });
         if (i === 0) {
           personVO.relationToHolder = !personVO.relationToHolder ? 2 : 1;
           changeHolderBirthday(stateInfo.holder.birthday);
@@ -969,16 +1008,28 @@ const trialParamsBefore = (tempParams: any, productCode: string) => {
 // 修改险种
 const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsuredProductItem) => {
   stateInfo.currentProductCode = productInfo.productCode;
-  const tempParams = trailParams(cloneDeep(convertProposalToTrialData(productInfo.productCode)));
-  stateInfo.defaultData = [trialParamsBefore(tempParams, productInfo.productCode)];
+  const tempParams = cloneDeep(convertProposalToTrialData(productInfo.productCode));
+  console.log('tempParams', trialParamsBefore(tempParams, productInfo.productCode));
+  stateInfo.defaultData = tempParams;
   trialPopupRef.value?.open();
 };
 
+// 产品下已存在的险种code集合
+const selectedProductRiskCodeMap = ref({});
 // 添加附加险
-const addRiderRisk = (productCode: string, riskInfo) => {
-  stateInfo.currentProductCode = productCode;
+const addRiderRisk = (productInfo, riskInfo, riskOriginData) => {
+  selectedProductRiskCodeMap.value[productInfo.productCode] = productInfo.riskList.map((risk) => risk.riskCode);
+  stateInfo.currentProduct = productInfo;
   stateInfo.currentMainRisk = riskInfo;
+  stateInfo.currentRiskData = riskOriginData;
   toggleProductRisk(true);
+};
+
+// 添加附加险成功回调
+const addRiderRiskSuccess = (trialData, riskCodeList) => {
+  selectedProductRiskCodeMap.value[stateInfo.currentProduct.productCode] = riskCodeList;
+  trailProduct(trialData);
+  toggleProductRisk(false);
 };
 
 // 取消添加附加险
@@ -1088,6 +1139,7 @@ const handleAddInsure = (data: any, index: number) => {
           mateIndex < 0 ? stateInfo.insurerList[0].personVO.birthday : dayjs().subtract(28, 'day').format('YYYY-MM-DD'),
         relationToMainInsured: mateIndex < 0 ? RELATION_HOLDER_ENUM.MATE : RELATION_HOLDER_ENUM.CHILD,
         gender: mateIndex < 0 ? (+stateInfo.insurerList[0].personVO.gender === 1 ? 2 : 1) : SEX_LIMIT_ENUM.MALE,
+        hasSocialInsurance: SOCIAL_LIMIT_ENUM.NO,
       },
       productList: [],
     };

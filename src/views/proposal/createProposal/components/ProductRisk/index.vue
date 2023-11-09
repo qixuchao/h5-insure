@@ -2,7 +2,7 @@
   <ProPopup v-model:show="showPop" class="popup-risk-select" :closeable="false">
     <div class="popup-container">
       <div class="popup-header">
-        <span class="clear-all" @click="handleCancel"> 清空选项 </span>
+        <span class="clear-all" @click="handleClear"> 清空选项 </span>
         <span class="title"> {{ title }} </span>
         <span class="close" @click="handleCancel">X</span>
       </div>
@@ -16,16 +16,25 @@
             <template v-for="{ riskCode, riskName } in riskList" :key="riskCode">
               <van-cell clickable :title="riskName" @click="handleClick(riskCode)">
                 <template #right-icon>
-                  <van-checkbox :ref="(el) => (checkboxRefs[index] = el)" :name="riskCode" @click.stop />
+                  <van-checkbox
+                    :ref="(el) => (checkboxRefs[index] = el)"
+                    :name="riskCode"
+                    @click.stop="handleClick(riskCode)"
+                  />
                 </template>
               </van-cell>
               <InsureInfos
-                v-if="riskValueCollection[riskCode]"
+                v-if="riskValueCollection[riskCode]?.riskDetail"
                 ref="insureInfosRef"
+                class="insure-part"
                 :origin-data="riskValueCollection[riskCode]?.riskDetail"
                 :default-value="riskValueCollection[riskCode]?.defaultValue"
                 @trial-change="(data, changeData) => handleTrialInfoChange(data, changeData, productCode)"
               ></InsureInfos>
+              <ProductTips
+                v-if="riskValueCollection[riskCode]?.errorMessage"
+                :error-msg="riskValueCollection[riskCode]?.errorMessage"
+              />
             </template>
           </van-cell-group>
         </van-checkbox-group>
@@ -34,6 +43,11 @@
         v-else
         :title="`暂无关联${type === RISK_TYPE_ENUM.MAIN_RISK ? '主' : '附加'}险、请选择其他险种`"
       ></ProEmpty>
+      <div class="footer-button">
+        <ProShadowButton :shadow="false" :disabled="!validateRiskList?.length" @click="handleConfirm">
+          <slot>确定</slot>
+        </ProShadowButton>
+      </div>
     </div>
   </ProPopup>
 </template>
@@ -41,11 +55,13 @@
 import { withDefaults } from 'vue';
 import { useRoute } from 'vue-router';
 import { Toast } from 'vant';
-import { cloneDeep, debounce } from 'lodash-es';
+import { cloneDeep, debounce, findLastIndex, findIndex } from 'lodash-es';
 import { queryProposalRiderRiskList } from '@/api/modules/createProposal';
 import { RISK_TYPE_ENUM } from '@/common/constants/trial';
 import InsureInfos from '@/views/baseInsurance/templates/components/Trial/InsureInfos.vue';
 import { queryCalcDynamicInsureFactor, queryDefaultRiskInsureFactor } from '@/api/modules/trial';
+import ProShadowButton from '@/views/baseInsurance/templates/components/ProShadowButton/index.vue';
+import ProductTips from '@/views/proposal/proposalList/components/ProductTips.vue';
 
 interface Props {
   type: 1 | 2;
@@ -55,7 +71,8 @@ interface Props {
   insuredList: any[];
   mainRisk?: any;
   selectList: any[];
-  currentProductCode: string;
+  currentProduct: any;
+  currentRiskData: any;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -66,7 +83,8 @@ const props = withDefaults(defineProps<Props>(), {
   holder: () => ({}),
   mainRisk: () => ({}),
   selectList: () => [],
-  currentProductCode: '',
+  currentProduct: () => ({}),
+  currentRiskData: () => ({}),
 });
 
 const route = useRoute();
@@ -82,6 +100,7 @@ const searchValue = ref<string>();
 const showPop = computed(() => props.show);
 const riskValueCollection = ref({}); // 附加险默认值集合
 const checkboxRefs = ref([]);
+const validateRiskList = ref([]);
 
 const toggle = (index) => {
   checkboxRefs.value[index].toggle();
@@ -91,47 +110,66 @@ const handleCancel = () => {
   emits('cancel');
 };
 
+const handleClear = () => {
+  checked.value = [];
+};
+
 const handleConfirm = () => {
   if (!checked.value?.length) {
     Toast(`暂未添加任何${props.type === RISK_TYPE_ENUM.MAIN_RISK ? '主' : '附加'}险`);
     return;
   }
 
-  let selectedList = [];
-  if (props.type === RISK_TYPE_ENUM.RIDER_RISK) {
-    selectedList = checked.value;
-  } else {
-    selectedList = riskList.value
-      .filter((product) => checked.value.includes(product.productCode))
-      .map((product) => {
-        return {
-          productCode: product.productCode,
-          mergeRiskReqList: (product.mainRiskCollocationList || []).map((risk) => ({
-            riskCode: risk.collocationRiskCode,
-            riskType: risk.mainRiskCode ? 2 : 1,
-            mainRiskCode: risk.mainRiskCode,
-          })),
-        };
-      });
+  const startIndex = findIndex(props.currentProduct.riskList, (risk) => risk.riskCode === props.mainRisk.riskCode);
+  const endIndex = findLastIndex(
+    props.currentProduct.riskList,
+    (risk) => risk.mainRiskCode === props.mainRisk.riskCode,
+  );
+
+  let insertIndex = startIndex;
+
+  if (endIndex !== -1) {
+    insertIndex = endIndex;
   }
 
-  emits('confirm', selectedList);
+  const currentRiskList = [
+    ...props.currentProduct.riskList.slice(0, insertIndex + 1),
+    ...validateRiskList.value,
+    ...props.currentProduct.riskList.slice(insertIndex + 1),
+  ];
+
+  const trialParams = {
+    holder: props.holder,
+    insuredList: props.insuredList.map((insured) => {
+      insured.productList = [{ ...props.currentProduct, riskList: currentRiskList }];
+      return insured;
+    }),
+  };
+
+  emits('confirm', trialParams);
 };
 
 // 获取已选择险种的默认值
 const getRiskDefaultValue = async (riskCodeList: string[]) => {
-  const { code, data } = await queryDefaultRiskInsureFactor({
-    holder: props.holder,
-    insuredList: props.insuredList,
-    calcRiskDefaultFactorVO: {
-      mainRiskInfo: props.mainRisk,
-      riskCodeList,
+  const { code, data } = await queryDefaultRiskInsureFactor(
+    {
+      holder: props.holder,
+      insuredList: props.insuredList,
+      calcRiskDefaultFactorVO: {
+        mainRiskInfo: props.mainRisk,
+        riskCodeList,
+      },
     },
-  });
+    { loading: true },
+  );
 
   if (code === '10000') {
-    data.reduce((riskMap, riskInfo) => {
-      riskMap[riskInfo.riskCode].defaultValue = riskInfo;
+    data.reduce((riskMap, { insureProductRiskVO, errorMessage, ...riskInfo }) => {
+      riskMap[riskInfo.riskCode] = {
+        defaultValue: riskInfo,
+        riskDetail: insureProductRiskVO,
+        errorMessage,
+      };
       return riskMap;
     }, riskValueCollection.value);
   }
@@ -175,8 +213,8 @@ const handleTrialInfoChange = async (data, changeData, productCode) => {
       const riskInfoList = [];
       const riskEditVOList = [
         {
-          insureProductRiskVO: {},
-          insureRiskEditReqVO: null,
+          insureProductRiskVO: props.currentRiskData,
+          insureRiskEditReqVO: props.mainRisk,
         },
         {
           insureProductRiskVO: riskValueCollection.value[data.riskCode]?.riskDetail,
@@ -269,15 +307,8 @@ const getRiskList = async () => {
     insureCode: insurerCode,
     productCategory: '',
     keyword: searchValue.value,
-    selectRiskCodes: [],
+    selectRiskCodes: props.selectList,
   };
-
-  props.selectList.map((product) => {
-    if (product.productCode === props.currentProductCode) {
-      params.selectRiskCodes.push(...product.mergeRiskReqList.map((risk) => risk.riskCode));
-    }
-    return product.productCode;
-  });
 
   const { code, data } = await queryProposalRiderRiskList(params);
   if (code === '10000') {
@@ -289,10 +320,36 @@ const getRiskList = async () => {
 watch(
   () => checked.value,
   debounce((val) => {
-    if (val?.length) {
-      getRiskDefaultValue(val);
+    const currentRiskCollection = {};
+    Object.keys(riskValueCollection.value).reduce((coll, riskCode) => {
+      if ((val || []).includes(riskCode)) {
+        coll[riskCode] = riskValueCollection.value[riskCode];
+      }
+      return coll;
+    }, currentRiskCollection);
+    riskValueCollection.value = currentRiskCollection;
+
+    const currentCheckedList = (val || []).filter((code) => !Object.keys(riskValueCollection.value).includes(code));
+
+    if (currentCheckedList?.length) {
+      getRiskDefaultValue(currentCheckedList);
     }
   }, 1000),
+  {
+    immediate: true,
+    deep: true,
+  },
+);
+watch(
+  () => riskValueCollection.value,
+  (val) => {
+    validateRiskList.value = Object.keys(riskValueCollection.value || {}).reduce((coll, riskCode) => {
+      if (!riskValueCollection.value[riskCode]?.errorMessage) {
+        coll.push(riskValueCollection.value[riskCode].defaultValue);
+      }
+      return coll;
+    }, []);
+  },
   {
     immediate: true,
     deep: true,
@@ -307,11 +364,34 @@ onMounted(() => {
 <style lang="scss" scoped>
 .popup-container {
   padding: 0 $zaui-card-border;
+  height: 100%;
+  :deep(.search-wrap) {
+    padding: 0;
+  }
+
+  :deep(.van-cell-group--inset) {
+    margin: 0;
+    .van-cell {
+      padding: 15px 0;
+      height: 106px;
+      display: flex;
+      align-items: center;
+      &:after {
+        width: 100%;
+        left: 0;
+        right: 0;
+      }
+    }
+  }
+  .insure-part {
+    background-color: rgba(244, 245, 249, 0.5);
+    border-radius: 20px;
+  }
 }
 .tip {
   font-size: 26px;
   font-weight: 400;
-  color: var(--van-primary-color);
+  color: rgba(0, 0, 0, 0.6);
   line-height: 37px;
   margin-top: 20px;
 }
@@ -354,11 +434,13 @@ onMounted(() => {
     }
   }
   .risk-list {
+    height: calc(100% - 390px);
+    overflow-y: auto;
+    padding-bottom: 60px;
     :deep(.van-checkbox-group) {
       margin: 0;
       .van-checkbox {
         padding: 0;
-        // min-height: 102px;
         display: flex;
         align-items: center;
         position: relative;

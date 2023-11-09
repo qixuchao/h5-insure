@@ -7,11 +7,11 @@
             <div
               v-if="risk.riskType === RISK_TYPE_ENUM.MAIN_RISK"
               class="add-risk btn"
-              @click="addRiderRisk(productData?.productCode, risk)"
+              @click="addRiderRisk(productInfo, risk)"
             >
               +附加险
             </div>
-            <div class="delete-risk btn" @click="deleteRisk(productCode, risk.mainRiskCode, risk.riskCode)">删除</div>
+            <div class="delete-risk btn" @click="deleteRisk(risk)">删除</div>
           </div>
         </ProTitle>
         <div class="content">
@@ -35,7 +35,7 @@
                 !errorMsg && risk.initialPremium ? `￥${risk.initialPremium?.toLocaleString()}` : '-'
               }}</span>
             </div>
-            <div v-if="risk.riskType !== 2" class="operate-bar">
+            <div class="operate-bar">
               <!-- <ProCheckButton
                 v-if="currentSelectInsure > 0 || (isCanDeleteRisk(risk.riskId) && productIndex > 0)"
                 :round="32"
@@ -177,16 +177,19 @@ const collocationRiderList = computed(() => {
   return mainRiskData.value.collocationVOList || [];
 });
 
-const deleteRisk = (riskRecord: ProposalProductRiskItem) => {
-  emits('deleteRisk', riskRecord, props.productInfo);
+const deleteRisk = (riskInfo: ProposalProductRiskItem) => {
+  const riskCodes = emits('deleteRisk', riskInfo, props.productInfo);
 };
 
 const updateRisk = (riskRecord: ProposalProductRiskItem) => {
   emits('updateRisk', riskRecord, props.productInfo);
 };
 
-const addRiderRisk = (productCode: string, riskInfo) => {
-  emits('addRiderRisk', productCode, riskInfo);
+const addRiderRisk = (productInfo, riskInfo) => {
+  const riskOriginData = props.productData.productPlanInsureVOList?.[0].insureProductRiskVOList.find(
+    (risk) => risk.riskCode === riskInfo.riskCode,
+  );
+  emits('addRiderRisk', productInfo, riskInfo, riskOriginData);
 
   // state.value.currentRiskRecord = riskRecord;
 };

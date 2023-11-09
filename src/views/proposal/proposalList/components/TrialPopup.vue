@@ -88,20 +88,16 @@ const formatData = (trialData: PremiumCalcData, trialResult: any) => {
 };
 
 const onFinished = ({ trialData, riskPremium, personalInfoRef }) => {
-  if (typeof personalInfoRef?.canTrail === 'function' && personalInfoRef.canTrail()) {
-    return emit(
-      'finish',
-      formatData(
-        {
-          ...trialData,
-          productCode: props.productCode,
-        },
-        riskPremium,
-      ),
-    );
-  }
-  // 验证试算表单
-  return typeof personalInfoRef?.validate === 'function' && personalInfoRef.validate();
+  return emit(
+    'finish',
+    formatData(
+      {
+        ...trialData,
+        productCode: props.productCode,
+      },
+      riskPremium,
+    ),
+  );
 };
 
 defineExpose({
