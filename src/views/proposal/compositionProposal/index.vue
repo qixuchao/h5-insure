@@ -50,7 +50,11 @@
                 class="company-title"
                 @click="goCompanyDetail(index)"
               >
-                <img class="one-icon" :src="company_icon" />
+                <img v-if="+item.iconType === 1" :src="icon1" class="one-icon" />
+                <img v-if="+item.iconType === 2" :src="icon2" class="one-icon" />
+                <img v-if="+item.iconType === 3" :src="icon3" class="one-icon" />
+                <img v-if="+item.iconType === 4" :src="icon4" class="one-icon" />
+                <img v-if="+item.iconType === 5" :src="icon5" class="one-icon" />
                 <span class="one-name">{{ item.iconName }}</span>
               </div>
             </div>
@@ -109,11 +113,18 @@
                 </van-collapse-item>
               </van-collapse>
             </div> -->
-            <!-- 产品详情 TODOJJM -->
+            <!-- 产品详情  -->
             <div v-if="+productDetail?.content?.isShow === 1" class="lia-container">
-              <div class="lia-header">
+              <div class="lia-product-header">
                 <div class="info-product-detail">
                   <span class="p1">产品详情</span>
+                  <RowTabs
+                    :active="currentTab"
+                    :tabs="tabs"
+                    :list="rowDatas"
+                    @update:active="(v:string) => state.currentTab = v"
+                    @preview="previewFile"
+                  />
                 </div>
               </div>
             </div>
@@ -213,8 +224,8 @@
           ref="shareButtonRef"
           :title="shareConfig.title"
           :desc="shareConfig.desc"
-          :link="shareConfig.link"
-          :img-url="shareConfig.imgUrl"
+          :url="shareConfig.url"
+          :image-url="shareConfig.imageUrl"
         >
           <div class="share-btn" @click.stop="() => onShareProposal()">
             <ProSvg name="share-icon" font-size="24px" color="var(--van-primary-color)"></ProSvg>
@@ -245,19 +256,50 @@
         :theme-list="themeList"
         @submit="selectTheme"
       />
+      <ProPopup
+        v-model:show="currentFile.show"
+        class="pre-file-wrap"
+        :title="currentFile.attachmentName"
+        position="bottom"
+        :close-on-click-overlay="false"
+        :style="{ overflow: 'hidden' }"
+        :header-style="{
+          paddingRight: '40px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          paddingTop: '4px',
+        }"
+        @close="resetFile"
+      >
+        <div class="review-pdf">
+          <ProFilePreview
+            :is-iframe="false"
+            :content="currentFile.attachmentContent"
+            :type="getFileType(currentFile.attachmentSource, currentFile.attachmentContent)"
+          ></ProFilePreview>
+        </div>
+      </ProPopup>
     </van-config-provider>
   </ProPageWrap>
 </template>
 <script lang="ts" setup>
 import wx from 'weixin-js-sdk';
-import { Toast } from 'vant/es';
+import { Toast, Dialog } from 'vant/es';
 import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
 import { toLocal, ORIGIN } from '@/utils';
 import { queryProposalDetail, queryPreviewProposalDetail, generatePdf } from '@/api/modules/proposalList';
+import { watermark, clearMark } from '@/utils/watermark';
+import { getFileType } from '@/views/baseInsurance/utils';
+import RowTabs from './components/RowTabs.vue';
 import agent_img from '@/assets/images/compositionProposal/addver.png';
 import agent_tel from '@/assets/images/compositionProposal/tel.png';
-import company_icon from '@/assets/images/compositionProposal/1-icon.png';
+import icon1 from '@/assets/images/compositionProposal/icon-1.png';
+import icon2 from '@/assets/images/compositionProposal/icon-2.png';
+import icon3 from '@/assets/images/compositionProposal/icon-3.png';
+import icon4 from '@/assets/images/compositionProposal/icon-4.png';
+import icon5 from '@/assets/images/compositionProposal/icon-5.png';
 import company_bj from '@/assets/images/compositionProposal/bj.png';
 import {
   checkProposalInsurer,
@@ -336,6 +378,9 @@ interface IState {
   companyProfile: Partial<CompanyProfileContent>;
   productDetail: Partial<ProductDetailContent>;
   riskAlert: Partial<RiskContent>;
+  rowDataMap: object;
+  currentTab: string;
+  tabs: Array;
 }
 const state = reactive<IState>({
   agentCard: {},
@@ -343,8 +388,17 @@ const state = reactive<IState>({
   companyProfile: {},
   productDetail: {},
   riskAlert: {},
+  rowDataMap: {},
+  currentTab: '',
+  tabs: [],
 });
-const { agentCard, basicInfo, companyProfile, productDetail, riskAlert } = toRefs(state);
+const { agentCard, basicInfo, companyProfile, productDetail, riskAlert, rowDataMap, currentTab, tabs } = toRefs(state);
+const rowDatas = computed(() => {
+  console.log('rowDatas', rowDataMap.value);
+  console.log('rowDatas', currentTab.value);
+  console.log('rowDatas', tabs.value);
+  return rowDataMap.value[currentTab.value];
+});
 
 const rules = [
   {
@@ -429,10 +483,11 @@ watch(
 
 const setShareConfig = (link: string) => {
   shareConfig.value = {
+    shareType: 0,
     title: proposalName,
     desc: '您的贴心保险管家',
-    link,
-    imgUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
+    url: link,
+    imageUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
     img: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
   };
 };
@@ -472,6 +527,15 @@ const getData = async () => {
     const { code, data } = res;
 
     if (code === '10000') {
+      saleInfo.value = data.proposalTemplateSaleInfoMap || {};
+      agentCard.value = saleInfo.value?.agentCard || {};
+      basicInfo.value = saleInfo.value?.basicInfo || {};
+      companyProfile.value = saleInfo.value?.companyProfile || {};
+      productDetail.value = saleInfo.value?.productDetail || {};
+      rowDataMap.value = productDetail.value.attachmentListResMap || {};
+      tabs.value = Object.keys(rowDataMap.value);
+      currentTab.value = state.tabs?.[0];
+      riskAlert.value = saleInfo.value?.riskAlert || {};
       const realData = data?.proposalInsuredVOList || [];
       isMultiple.value = realData?.length > 1;
       let title = '家庭保障方案';
@@ -500,17 +564,17 @@ const getThemeList = async () => {
   }
 };
 // 获取计划书预览基础配置信息
-const getProposalSaleInfo = async () => {
-  const { code, data } = await queryProposalTemplateSaleInfo({ insurerCode: 'lianlife', riskIds: [40020, 40037] });
-  if (code === '10000') {
-    saleInfo.value = data || [];
-    agentCard.value = saleInfo.value?.agentCard || {};
-    basicInfo.value = saleInfo.value?.basicInfo || {};
-    companyProfile.value = saleInfo.value?.companyProfile || {};
-    productDetail.value = saleInfo.value?.productDetail || {};
-    riskAlert.value = saleInfo.value?.riskAlert || {};
-  }
-};
+// const getProposalSaleInfo = async () => {
+//   const { code, data } = await queryProposalTemplateSaleInfo({ insurerCode: 'lianlife', riskIds: [40020, 40037] });
+//   if (code === '10000') {
+//     saleInfo.value = data || [];
+//     agentCard.value = saleInfo.value?.agentCard || {};
+//     basicInfo.value = saleInfo.value?.basicInfo || {};
+//     companyProfile.value = saleInfo.value?.companyProfile || {};
+//     productDetail.value = saleInfo.value?.productDetail || {};
+//     riskAlert.value = saleInfo.value?.riskAlert || {};
+//   }
+// };
 
 // 获取计划书下所有产品的状态
 const getProposalTransInsured = () => {
@@ -578,7 +642,7 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
         //     window.location.href = newData;
         //   }
         // });
-        // 需要看产品中的productClass 目前接口未返回 先默认为多主险
+        // 需要看产品中的productClass 目前接口未返回结果 先默认为多主险
         // 多主险 跳转保费试算
         window.location.href = `${window.location.origin}/baseInsurance/long/trial?insurerCode=lianlife&productCodes=${productCodes}&tenantId=${tenantId.value}&templateId=${templateId}`;
         // 非多主险 计划书详情
@@ -677,7 +741,20 @@ const onCreatePdf = () => {
   operateType.value = 'pdf';
 
   if (themeList.value.length) {
-    toggleThemeSelect(true);
+    Dialog.confirm({
+      title: '',
+      message: '是否展示利益演示趋势',
+      confirmButtonText: '是',
+      cancelButtonText: '否',
+    })
+      .then(() => {
+        console.log('我要展示趋势表');
+        toggleThemeSelect(true);
+      })
+      .catch(() => {
+        console.log('我不要展示趋势表');
+        toggleThemeSelect(true);
+      });
   } else {
     getPdf();
   }
@@ -692,10 +769,40 @@ onMounted(() => {
   if (!isShare && !isPreview.value) {
     getProposalTransInsured();
     getThemeList();
-    getProposalSaleInfo();
+    // getProposalSaleInfo();
   }
   getData();
 });
+const currentFile = ref({
+  attachmentName: '',
+  attachmentContent: '',
+  attachmentSource: 1,
+  show: false,
+});
+// 客户代理人信息
+const agentInfo = reactive({ name: '测试水印', agentCode: '1234' });
+const previewFile = (file: {}) => {
+  console.log('文件预览', agentInfo);
+  currentFile.value = { ...file, show: true };
+  // 添加水印
+  watermark({
+    watermark_txt: `${agentInfo.name}\r\n${agentInfo.agentCode}`,
+    watermark_color: '#333',
+    watermark_angle: 30,
+    watermark_width: 100,
+    watermark_height: 60,
+  });
+};
+const resetFile = (file: {}) => {
+  console.log('关闭文件预览');
+  clearMark();
+  currentFile.value = {
+    attachmentName: '',
+    attachmentContent: '',
+    attachmentSource: 1,
+    show: false,
+  };
+};
 </script>
 
 <style lang="scss" scoped>
@@ -878,10 +985,7 @@ onMounted(() => {
         width: 100%;
         border-radius: 16px 16px 0 0;
         display: flex;
-        .info-product-detail {
-          @extend .info-detail;
-          margin-bottom: 30px;
-        }
+
         .info-detail {
           padding-left: 20px;
           width: 100%;
@@ -897,6 +1001,23 @@ onMounted(() => {
         .showcase-select {
           margin-right: 20px;
           margin-top: 30px;
+        }
+      }
+      .lia-product-header {
+        width: 100%;
+        border-radius: 16px 16px 0 0;
+        .info-product-detail {
+          // @extend .info-detail;
+
+          margin-bottom: 30px;
+          .p1 {
+            display: inline-block;
+            padding-left: 20px;
+            margin-top: 35px;
+            font-size: 32px;
+            font-weight: 600;
+            color: #333333;
+          }
         }
       }
     }

@@ -41,7 +41,8 @@
     "vue-dompurify-html": "^3.0.0",
     "vue-i18n": "^9.1.9",
     "vue-router": "^4.0.12",
-    "weixin-js-sdk": "^1.6.0"
+    "weixin-js-sdk": "^1.6.0",
+    "html2canvas": "^1.4.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^16.1.0",

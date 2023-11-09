@@ -3,7 +3,7 @@
     <div v-for="risk in list" :key="risk.riskId" class="card">
       <div class="title">{{ risk.riskName }}<van-icon name="arrow" color="#c2c2c2" /></div>
       <div class="item-list">
-        <template v-for="{ label, value } in items">
+        <template v-for="{ label, value } in filterLabel(risk)">
           <div v-if="value" :key="label" class="item">
             <span class="label">{{ label }}:</span> <span>{{ value }}</span>
           </div>
@@ -20,6 +20,8 @@
 </template>
 <script lang="ts" setup name="Row">
 import { computed, ref, defineAsyncComponent } from 'vue';
+import { constantListToMap } from '@/common/constants/utils';
+import { RISK_CATEGORY, RISK_TYPE } from '@/common/constants/trial';
 
 const props = defineProps({
   list: {
@@ -33,15 +35,21 @@ const props = defineProps({
 });
 const emit = defineEmits(['preview']);
 
+const MAIN_RISK_TYPE = constantListToMap(RISK_TYPE);
+const PRODUCT_TYPE = constantListToMap(RISK_CATEGORY);
 const TYPE_CONST = ['产品说明书', '产品条款', '费率表', '风险告知书', '其他', '投保规则', '责任条款'];
-const attachmentList = computed(() => {
-  return [];
-});
-const items = computed(() => [
+const items = [
+  {
+    key: 'riskCategory',
+    label: '险种类别',
+    value: '寿险',
+    format: (v: number) => PRODUCT_TYPE[v],
+  },
   {
     key: 'riskType',
-    label: '主 附 险',
+    label: '主附险',
     value: '主险',
+    format: (v: number) => MAIN_RISK_TYPE[v],
   },
   {
     key: 'insurancePeriodValues',
@@ -53,12 +61,19 @@ const items = computed(() => [
     label: '交费期间',
     value: '终生',
   },
-  {
-    key: 'riskCategory',
-    label: '险种类别',
-    value: '寿险',
-  },
-]);
+];
+
+const filterLabel = (risk: any) => {
+  return items
+    .filter((it: { key: string }) => risk[it.key])
+    .map((it2: any) => {
+      const val = risk[it2.key];
+      return {
+        ...it2,
+        value: it2.format ? it2.format(val) : val,
+      };
+    });
+};
 </script>
 <style lang="scss">
 .card {
@@ -79,6 +94,7 @@ const items = computed(() => [
   .item-list {
     .item {
       line-height: 44px;
+      display: flex;
       .label {
         color: var(--zaui-text-weak);
         display: inline-block;
