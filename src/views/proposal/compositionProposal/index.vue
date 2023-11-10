@@ -649,7 +649,7 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
         // });
         // 需要看产品中的productClass 目前接口未返回结果 先默认为多主险
         // 多主险 跳转保费试算
-        window.location.href = `${window.location.origin}/baseInsurance/long/trial?insurerCode=lianlife&productCodes=${productCodes}&tenantId=${tenantId.value}&templateId=${templateId}`;
+        window.location.href = `${window.location.origin}/baseInsurance/long/trial?insurerCode=lianlife&productCode=${productCodes}&tenantId=${tenantId.value}&templateId=${templateId}`;
         // 非多主险 计划书详情
         // window.location.href = `${window.location.origin}/baseInsurance/long/poductDetail?insurerCode=lianlife&productCodes=${productCodes}&tenantId=${tenantId.value}&&templateId=${templateId}`;
       } else {

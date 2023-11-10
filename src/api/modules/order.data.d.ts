@@ -65,7 +65,7 @@ export interface ExtInfo {
   extraInfo: ExtraInfo;
   isReadCustomerNotice: number;
   pageCode: string;
-  templateId: number;
+  templateId: number | string;
   [propName: string]: any;
 }
 

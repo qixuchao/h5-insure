@@ -50,10 +50,11 @@ import pageJump from '@/utils/pageJump';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import { transformToMoney } from '@/utils/format';
+import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
 
 const route = useRoute();
 const router = useRouter();
-const { productCode, orderNo, tenantId } = route.query;
+const { productCode, orderNo, tenantId, proposalId, proposalInsuredId } = route.query;
 
 // 以产品code为key的产品集合
 const productCollection = ref({});
@@ -192,6 +193,29 @@ const getOrderDetail = () => {
   });
 };
 
+const getProposalInfo = () => {
+  queryProposalDetailInsurer({ id: proposalId, tenantId }).then(({ code, data }) => {
+    if (code === '10000') {
+      const { holder, insuredList: currentInsuredList } = data;
+      const productCodes = (productCode || '').split(',');
+      Object.assign(orderDetail.value, {
+        renewFlag: '',
+        holder,
+        tenantId,
+        insuredList: (currentInsuredList || [])
+          .filter((item) => item.id === +proposalInsuredId)
+          .map((insured) => ({
+            ...insured,
+            productList: insured.productList.filter((product) => productCodes.includes(product.productCode)),
+          })),
+      });
+      defaultData.value = orderDetail.value;
+      productRiskCodeMap.value = pickProductRiskCodeFromOrder(orderDetail.value.insuredList[0].productList);
+      getMergeProductDetail();
+    }
+  });
+};
+
 const nextStep = () => {
   trialRef.value.onNext(async (currentOrderDetail) => {
     const orderDetailCopy = cloneDeep(currentOrderDetail);
@@ -233,6 +257,8 @@ const getProductDetail = () => {
 onBeforeMount(() => {
   if (orderNo) {
     getOrderDetail();
+  } else if (proposalId) {
+    getProposalInfo();
   } else {
     getProductDetail();
   }

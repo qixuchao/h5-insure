@@ -153,6 +153,7 @@ const {
   agencyCode,
   saleChannelId,
   proposalId,
+  proposalInsuredId,
   extraInfo,
   orderNo,
   insurerCode,
@@ -168,7 +169,7 @@ try {
   //
 }
 
-const { openId, proposalInsuredId, saTenantId = '' } = extInfo;
+const { openId, saTenantId = '' } = extInfo;
 
 const formRef = ref();
 const detailScrollRef = ref();
@@ -232,6 +233,26 @@ const initData = async () => {
   if (!(orderNo || proposalId)) {
     isLoadDefaultValue.value = true;
   }
+
+  proposalId &&
+    queryProposalDetailInsurer({ id: proposalId, tenantId: saTenantId || tenantId }).then(({ code, data }) => {
+      if (code === '10000') {
+        const { holder, insuredList } = data;
+        const productCodes = (productCode || '').split(',');
+        Object.assign(defaultOrderDetail.value, {
+          renewFlag: '',
+          holder,
+          tenantId,
+          insuredList: (insuredList || [])
+            .filter((item) => item.id === +proposalInsuredId)
+            .map((insured) => ({
+              ...insured,
+              productList: insured.productList.filter((product) => productCodes.includes(product.productCode)),
+            })),
+        });
+        isLoadDefaultValue.value = true;
+      }
+    });
 
   await getInsureProductDetail({ productCode, isTenant: false }).then(({ data, code }) => {
     if (code === '10000') {
@@ -356,7 +377,7 @@ nextTick(() => {
 // useWXCode();
 onMounted(() => {
   loading.value = true;
-  getDefaultData();
+  proposalId || getDefaultData();
   initData();
   // 调用千里眼插件获取一个iseeBiz
   setTimeout(async () => {
