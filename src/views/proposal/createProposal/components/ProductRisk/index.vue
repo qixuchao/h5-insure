@@ -146,7 +146,14 @@ const handleConfirm = () => {
     }),
   };
 
-  emits('confirm', trialParams);
+  const originRiskDataList = Object.keys(riskValueCollection.value || {}).reduce((coll, riskCode) => {
+    if (!riskValueCollection.value[riskCode]?.errorMessage) {
+      coll.push(riskValueCollection.value[riskCode].riskDetail);
+    }
+    return coll;
+  }, []);
+
+  emits('confirm', trialParams, originRiskDataList);
 };
 
 // 获取已选择险种的默认值
@@ -167,7 +174,7 @@ const getRiskDefaultValue = async (riskCodeList: string[]) => {
     data.reduce((riskMap, { insureProductRiskVO, errorMessage, ...riskInfo }) => {
       riskMap[riskInfo.riskCode] = {
         defaultValue: riskInfo,
-        riskDetail: insureProductRiskVO,
+        riskDetail: { ...insureProductRiskVO, mainRiskCode: props.mainRisk.riskCode },
         errorMessage,
       };
       return riskMap;
