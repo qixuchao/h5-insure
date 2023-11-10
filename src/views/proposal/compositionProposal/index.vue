@@ -96,7 +96,11 @@
             </div>
 
             <!-- 利益演示 -->
-            <Benefit v-if="currentInfo" :data-source="currentInfo" :show-type-list="['1', '2', '3']" />
+            <Benefit
+              v-if="currentInfo && currentInfo?.benefitRiskResultVOList?.[0]?.benefitRiskTableResultVOList"
+              :data-source="currentInfo"
+              :show-type-list="['1', '2', '3']"
+            />
             <!-- 利安定制公司简介 不需要这块了 -->
             <!-- <div class="container">
               <div class="common-title">保险公司简介</div>
@@ -292,6 +296,7 @@ import wx from 'weixin-js-sdk';
 import { Toast, Dialog } from 'vant/es';
 import { useToggle } from '@vant/use';
 import dayjs from 'dayjs';
+import { useRoute, useRouter } from 'vue-router';
 import { toLocal, ORIGIN } from '@/utils';
 import { queryProposalDetail, queryPreviewProposalDetail, generatePdf } from '@/api/modules/proposalList';
 import { watermark, clearMark } from '@/utils/watermark';
@@ -341,6 +346,7 @@ import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
 import Capsule from '@/components/CapsuleSelect/index.vue';
 import InsuredList from './components/InsuredList.vue'; // 选择被保人
 import useTheme from '@/hooks/useTheme';
+import { PAGE_ROUTE_ENUMS } from '@/views/baseInsurance/templates/lianLong/constants.ts';
 
 const themeVars = useTheme();
 
@@ -444,7 +450,7 @@ const isShowInsured = computed(() => {
   insuredProductList.value.forEach((insure) => {
     if (insure.proposalTransInsuredProductVOList) {
       const filterList = insure?.proposalTransInsuredProductVOList.filter((product: InsuredProductData) => {
-        return product.authStatus === 1 && product.insureMethod === 1;
+        return product.authStatus === 1 && product.insureMethod === 1 && product.shelfStatus === 1;
       });
       products = products.concat(filterList);
     }
@@ -601,12 +607,13 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
   const { productCode, insurerCode, tenantProductCode, checkedList } = product;
   const productCodes = checkedList && Object.values(checkedList).join(',');
   let targetInsureId = insuredId;
-  const productClass = '';
+  let productClass = '';
   let templateId = '';
   if (targetInsureId <= 0 || insuredId === undefined) {
     if (proposal2InsuredSelectedInsurer.value) {
       targetInsureId = proposal2InsuredSelectedInsurer.value.proposalInsuredId;
       templateId = proposal2InsuredSelectedInsurer.value.proposalTransInsuredProductVOList[0].templateId;
+      productClass = proposal2InsuredSelectedInsurer.value.proposalTransInsuredProductVOList[0].productClass;
       console.log('templateId---', templateId);
     } else {
       if (currentInfo.value) {
@@ -615,6 +622,7 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
         );
         targetInsureId = targetInsure.proposalInsuredId;
         templateId = targetInsure.proposalTransInsuredProductVOList[0].templateId;
+        productClass = targetInsure.proposalTransInsuredProductVOList[0].productClass;
         console.log('templateId', templateId);
       }
     }
@@ -649,9 +657,23 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
         // });
         // 需要看产品中的productClass 目前接口未返回结果 先默认为多主险
         // 多主险 跳转保费试算
-        window.location.href = `${window.location.origin}/baseInsurance/long/trial?insurerCode=lianlife&productCode=${productCodes}&tenantId=${tenantId.value}&templateId=${templateId}`;
-        // 非多主险 计划书详情
-        // window.location.href = `${window.location.origin}/baseInsurance/long/poductDetail?insurerCode=lianlife&productCodes=${productCodes}&tenantId=${tenantId.value}&&templateId=${templateId}`;
+        const params = {
+          insurerCode,
+          productCode: productCodes || productCode,
+          tenantId: tenantId.value,
+          templateId,
+          proposalId: id,
+          proposalInsuredId: targetInsureId,
+        };
+        let path = PAGE_ROUTE_ENUMS.premiumTrial;
+        if (+productClass !== 4) {
+          path = PAGE_ROUTE_ENUMS.premiumTrial;
+        }
+
+        history.push({
+          path,
+          query: params,
+        });
       } else {
         Toast(message);
       }
