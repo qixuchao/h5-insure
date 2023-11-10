@@ -15,8 +15,8 @@ interface QueryData {
 }
 
 export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
-  const { tenantId, agencyCode, proposalId, saleChannelId, extraInfo, insurerCode, systemCode, source } = useRoute()
-    .query as QueryData;
+  const { tenantId, agencyCode, proposalId, saleChannelId, extraInfo, insurerCode, systemCode, source, templateId } =
+    useRoute().query as QueryData;
 
   const { agentCode, branchType, name } = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`) || {};
 
@@ -42,6 +42,7 @@ export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
       branchType,
       agentName: name,
       extraInfo: extInfo,
+      templateId,
     },
     orderCategory: 1,
     saleUserId: agentCode,

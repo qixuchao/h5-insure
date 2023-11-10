@@ -65,7 +65,7 @@ export interface ExtInfo {
   extraInfo: ExtraInfo;
   isReadCustomerNotice: number;
   pageCode: string;
-  templateId: number;
+  templateId: number | string;
   [propName: string]: any;
 }
 
@@ -119,6 +119,7 @@ export interface ExtInfo {
   workProvinceCode: string;
   workStation: string;
   workZipCode: string;
+  [propName: string]: any;
 }
 
 export interface LiabilityDetail {
