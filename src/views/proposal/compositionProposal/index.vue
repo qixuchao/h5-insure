@@ -448,7 +448,7 @@ const isShowInsured = computed(() => {
   insuredProductList.value.forEach((insure) => {
     if (insure.proposalTransInsuredProductVOList) {
       const filterList = insure?.proposalTransInsuredProductVOList.filter((product: InsuredProductData) => {
-        return product.authStatus === 1 && product.insureMethod === 1;
+        return product.authStatus === 1 && product.insureMethod === 1 && product.shelfStatus === 1;
       });
       products = products.concat(filterList);
     }
