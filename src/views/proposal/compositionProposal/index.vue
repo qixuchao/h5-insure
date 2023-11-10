@@ -15,14 +15,16 @@
         <img round class="agent_icon" :src="agent_img" />
         <div class="agent_info">
           <!-- 姓名 -->
-          <span class="agent-name">王钦玉王钦玉王钦玉</span>
+          <span class="agent-name">{{ userInfo?.name || '' }}</span>
           <!-- 利安没有职级 -->
           <!-- 公司名称 -->
           <span class="agent-company">利安人寿南京分公司</span>
-          <span class="agent-num">工 号 688767651 </span>
-          <span class="agent-num">执业证号 02000144010400002018009987</span>
+          <span class="agent-num">工 号 {{ userInfo?.agentCode }} </span>
+          <span class="agent-num">执业证号 {{ userInfo?.quafNo }}</span>
         </div>
-        <img round class="agent_tel" :src="agent_tel" />
+        <a :href="`tel:${userInfo?.phone}`" class="agent-tel">
+          <img round class="agent-tel-img" :src="agent_tel" />
+        </a>
       </div>
 
       <div
@@ -210,14 +212,16 @@
         <img round class="agent_icon" :src="agent_img" />
         <div class="agent_info">
           <!-- 姓名 -->
-          <span class="agent-name">王钦玉王钦玉王钦玉</span>
+          <span class="agent-name">{{ userInfo?.name || '' }}</span>
           <!-- 利安没有职级 -->
           <!-- 公司名称 -->
           <span class="agent-company">利安人寿南京分公司</span>
-          <span class="agent-num">工 号 688767651 </span>
-          <span class="agent-num">执业证号 02000144010400002018009987</span>
+          <span class="agent-num">工 号 {{ userInfo?.agentCode }} </span>
+          <span class="agent-num">执业证号 {{ userInfo?.quafNo }}</span>
         </div>
-        <img round class="agent_tel" :src="agent_tel" />
+        <a :href="`tel:${userInfo?.phone}`" class="agent-tel">
+          <img round class="agent-tel-img" :src="agent_tel" />
+        </a>
       </div>
       <div v-if="!isShare && !isPreview" class="footer-btn">
         <ProShare
@@ -332,7 +336,8 @@ import { queryStandardInsurerLink, queryInsureLink } from '@/api/modules/trial';
 import InsuredProductList from './components/InsuredProductList/index.vue';
 import ThemeSelect from './components/ThemeSelect/index.vue';
 import { SEX_LIMIT_ENUM } from '@/common/constants';
-import { useLocalStorage } from '@/hooks/useStorage';
+import { useLocalStorage, sessionStore } from '@/hooks/useStorage';
+import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
 import Capsule from '@/components/CapsuleSelect/index.vue';
 import InsuredList from './components/InsuredList.vue'; // 选择被保人
 import useTheme from '@/hooks/useTheme';
@@ -464,7 +469,7 @@ const goCompanyAllDetail = () => {
     path: '/companyAllDetail',
   });
 };
-
+const userInfo = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`);
 watch(
   () => infos.value,
   (val) => {
@@ -594,7 +599,7 @@ const openProductList = (insure: any) => {
 // 计划书产品转投保
 const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
   const { productCode, insurerCode, tenantProductCode, checkedList } = product;
-  const productCodes = Object.values(checkedList).join(',');
+  const productCodes = checkedList && Object.values(checkedList).join(',');
   let targetInsureId = insuredId;
   const productClass = '';
   let templateId = '';
@@ -780,9 +785,8 @@ const currentFile = ref({
   show: false,
 });
 // 客户代理人信息
-const agentInfo = reactive({ name: '测试水印', agentCode: '1234' });
+const agentInfo = reactive({ name: `${userInfo?.name}`, agentCode: `${userInfo?.agentCode}` });
 const previewFile = (file: {}) => {
-  console.log('文件预览', agentInfo);
   currentFile.value = { ...file, show: true };
   // 添加水印
   watermark({
@@ -809,7 +813,7 @@ const resetFile = (file: {}) => {
 .page-composition-proposal-agent {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  // justify-content: space-between;
   background-image: url('@/assets/images/compositionProposal/agent-bg.png');
   background-repeat: no-repeat;
   background-size: cover;
@@ -821,8 +825,16 @@ const resetFile = (file: {}) => {
     width: 80px;
     height: 80px;
     border-radius: 80px;
+    margin-right: 26px;
   }
-  .agent_tel {
+  .agent-tel {
+    width: 60px;
+    height: 60px;
+    border-radius: 60px;
+    position: absolute;
+    right: 30px;
+  }
+  .agent-tel-img {
     width: 60px;
     height: 60px;
     border-radius: 60px;
@@ -852,8 +864,6 @@ const resetFile = (file: {}) => {
     line-height: 30px;
     margin-bottom: 4px;
     display: block;
-  }
-  .agent_tel {
   }
 }
 .page-composition-proposal-agent2 {
