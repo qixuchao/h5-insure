@@ -605,12 +605,13 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
   const { productCode, insurerCode, tenantProductCode, checkedList } = product;
   const productCodes = checkedList && Object.values(checkedList).join(',');
   let targetInsureId = insuredId;
-  const productClass = '';
+  let productClass = '';
   let templateId = '';
   if (targetInsureId <= 0 || insuredId === undefined) {
     if (proposal2InsuredSelectedInsurer.value) {
       targetInsureId = proposal2InsuredSelectedInsurer.value.proposalInsuredId;
       templateId = proposal2InsuredSelectedInsurer.value.proposalTransInsuredProductVOList[0].templateId;
+      productClass = proposal2InsuredSelectedInsurer.value.proposalTransInsuredProductVOList[0].productClass;
       console.log('templateId---', templateId);
     } else {
       if (currentInfo.value) {
@@ -619,6 +620,7 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
         );
         targetInsureId = targetInsure.proposalInsuredId;
         templateId = targetInsure.proposalTransInsuredProductVOList[0].templateId;
+        productClass = targetInsure.proposalTransInsuredProductVOList[0].productClass;
         console.log('templateId', templateId);
       }
     }
@@ -653,9 +655,16 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
         // });
         // 需要看产品中的productClass 目前接口未返回结果 先默认为多主险
         // 多主险 跳转保费试算
-        window.location.href = `${window.location.origin}/baseInsurance/long/trial?insurerCode=lianlife&productCodes=${productCodes}&tenantId=${tenantId.value}&templateId=${templateId}`;
-        // 非多主险 计划书详情
-        // window.location.href = `${window.location.origin}/baseInsurance/long/poductDetail?insurerCode=lianlife&productCodes=${productCodes}&tenantId=${tenantId.value}&&templateId=${templateId}`;
+        if (+productClass === 4) {
+          window.location.href = `${window.location.origin}/baseInsurance/long/trial?insurerCode=lianlife&productCodes=${productCodes}&tenantId=${tenantId.value}&templateId=${templateId}`;
+        }
+        if (+productClass === 3 || +productClass === 2 || +productClass === 1) {
+          // 非多主险 计划书详情
+          window.location.href = `${window.location.origin}/baseInsurance/long/poductDetail?insurerCode=lianlife&productCodes=${productCodes}&tenantId=${tenantId.value}&&templateId=${templateId}`;
+        } else {
+          // 默认 多主险 跳转保费试算
+          window.location.href = `${window.location.origin}/baseInsurance/long/trial?insurerCode=lianlife&productCodes=${productCodes}&tenantId=${tenantId.value}&templateId=${templateId}`;
+        }
       } else {
         Toast(message);
       }
