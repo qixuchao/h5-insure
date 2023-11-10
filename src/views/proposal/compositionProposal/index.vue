@@ -96,7 +96,11 @@
             </div>
 
             <!-- 利益演示 -->
-            <Benefit v-if="currentInfo" :data-source="currentInfo" :show-type-list="['1', '2', '3']" />
+            <Benefit
+              v-if="currentInfo && currentInfo?.benefitRiskResultVOList?.[0]?.benefitRiskTableResultVOList"
+              :data-source="currentInfo"
+              :show-type-list="['1', '2', '3']"
+            />
             <!-- 利安定制公司简介 不需要这块了 -->
             <!-- <div class="container">
               <div class="common-title">保险公司简介</div>
