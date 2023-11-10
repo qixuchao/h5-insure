@@ -621,7 +621,7 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
   }
   // 检验产品是否支持转投保
   checkProposalInsurer({
-    productCode: productCodes,
+    productCode: productCodes || productCode,
     proposalId: id,
     proposalInsuredId: targetInsureId,
   }).then(({ code, data, message }) => {
