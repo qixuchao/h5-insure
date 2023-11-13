@@ -191,7 +191,7 @@ const getProducts = () => {
     Toast.loading('加载中...');
   }
   queryProposalProductList({
-    title: searchValue.value,
+    productName: searchValue.value,
     insurerCodeList: insurerCodeList.value,
     productClass: productClass.value,
     showCategory: showCategory.value,
