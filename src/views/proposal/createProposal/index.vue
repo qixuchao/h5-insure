@@ -606,6 +606,7 @@ const isReplace = computed(() => {
 // 替换主险
 const replaceProduct = () => {
   store.setInsuredPersonVO(stateInfo.insurerList[stateInfo.currentSelectInsure].personVO);
+  store.setHolderPersonVO(stateInfo.holder);
   store.setExcludeProduct([]);
   store.setProposalInfo(proposalInfo.value);
   stateInfo.insurerList[stateInfo.currentSelectInsure].productList = [];
@@ -625,6 +626,7 @@ const addProduct = () => {
       store.setExcludeProduct(currentProductCodeListFn());
       store.setExcludeMainRiskCode(currentProductRiskCodeListFn());
       store.setInsuredPersonVO(stateInfo.insurerList[stateInfo.currentSelectInsure].personVO);
+      store.setHolderPersonVO(stateInfo.holder);
 
       router.push({
         path: '/proposalListSelect',
@@ -640,12 +642,13 @@ const addProduct = () => {
     });
 };
 
-const trailProduct = (params) => {
+const trailProduct = (params, cb?) => {
   const tempParams = params;
   premiumCalc(tempParams, {
     isCustomError: true,
   }).then(({ code, data, message }) => {
     if (code === SUCCESS_CODE && data) {
+      cb?.();
       if (data?.errorInfo) {
         Toast(`${data?.errorInfo}`);
       }
@@ -1035,10 +1038,12 @@ const addRiderRisk = (productInfo, riskInfo, riskOriginData) => {
 // 添加附加险成功回调
 const addRiderRiskSuccess = (trialData, riskOriginData) => {
   // selectedProductRiskCodeMap.value[stateInfo.currentProduct.productCode] = riskCodeList;
-  stateInfo.productCollection[
-    trialData.insuredList[0].productList[0].productCode
-  ].productPlanInsureVOList[0].insureProductRiskVOList.push(...riskOriginData);
-  trailProduct(trialData);
+
+  trailProduct(trialData, () => {
+    stateInfo.productCollection[
+      trialData.insuredList[0].productList[0].productCode
+    ].productPlanInsureVOList[0].insureProductRiskVOList.push(...riskOriginData);
+  });
   toggleProductRisk(false);
 };
 

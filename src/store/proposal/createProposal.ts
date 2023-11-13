@@ -9,6 +9,7 @@ export interface State {
   selectedProduct: any[]; // 计划书选择的产品:
   selectedProductList: any[]; // 计划书选择的产品详细信息:
   proposalId: number; // 记录当前计划书id
+  holder: object;
 }
 
 const useStore = defineStore<
@@ -23,6 +24,7 @@ const useStore = defineStore<
     setSelectedProduct: (data: any[]) => void;
     setSelectedProductList: (data: any[]) => void;
     setInsuredPersonVO: (data: any) => void;
+    setHolderPersonVO: (data: any) => void;
   }
 >({
   // 这里的id必须为唯一ID
@@ -37,6 +39,7 @@ const useStore = defineStore<
       selectedProductList: [],
       proposalId: 0,
       insuredPersonVO: {},
+      holder: {},
     };
   },
   // pinia 放弃了 mutations 只使用 actions
@@ -62,6 +65,9 @@ const useStore = defineStore<
     },
     setInsuredPersonVO(data) {
       this.$state.insuredPersonVO = data;
+    },
+    setHolderPersonVO(data) {
+      this.$state.holder = data;
     },
   },
 });

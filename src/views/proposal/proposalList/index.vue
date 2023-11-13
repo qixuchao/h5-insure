@@ -197,6 +197,8 @@ const getProducts = () => {
     showCategory: showCategory.value,
     selectProductCodes: Array.isArray(excludeProductCodeList) ? excludeProductCodeList : [],
     selectRiskCodes: state.excludeMainRiskCode || [],
+    insuredList: [store.$state.insuredPersonVO],
+    holder: store.$state.holder,
     pageNum: 1,
     pageSize: 999,
   })
