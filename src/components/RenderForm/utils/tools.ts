@@ -678,7 +678,7 @@ export const setCertDefaultValue = (schema, personVO, cb) => {
     if (item.name === 'certType') {
       const hasIdCard = item.columns.find((i) => i.code === '1');
 
-      if (hasIdCard && !personVO?.certType) {
+      if (hasIdCard) {
         cb?.();
       }
     }

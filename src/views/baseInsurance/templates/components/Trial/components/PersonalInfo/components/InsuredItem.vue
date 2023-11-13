@@ -591,7 +591,11 @@ watch(
       merge(config, genderConfig);
 
       // 若为本人合并投保人数据
-      Object.assign(state.personVO, newPersonVo);
+      nextTick(() => {
+        Object.assign(state.personVO, newPersonVo);
+        console.log('newPersonVo', newPersonVo);
+        console.log('PersonVo', state.personVO);
+      });
     }
 
     // 证件类型是否只有身份证
@@ -599,8 +603,8 @@ watch(
     merge(config, tempConfig);
   },
   {
-    // immediate: true,
-    deep: true,
+    immediate: true,
+    // deep: true,
   },
 );
 

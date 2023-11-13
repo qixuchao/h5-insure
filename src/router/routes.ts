@@ -18,13 +18,7 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'trial',
     path: '/baseInsurance/long/trial',
-    meta: { title: '试算' },
-    component: () => import('@/views/baseInsurance/templates/lianLong/trial.vue'),
-  },
-  {
-    name: 'trial',
-    path: '/baseInsurance/long/trial',
-    meta: { title: '试算' },
+    meta: { title: '保费试算' },
     component: () => import('@/views/baseInsurance/templates/lianLong/trial.vue'),
   },
   {
