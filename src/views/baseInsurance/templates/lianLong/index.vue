@@ -243,6 +243,7 @@ const initData = async () => {
           renewFlag: '',
           holder,
           tenantId,
+          proposalId,
           insuredList: (insuredList || [])
             .filter((item) => item.id === +proposalInsuredId)
             .map((insured) => ({

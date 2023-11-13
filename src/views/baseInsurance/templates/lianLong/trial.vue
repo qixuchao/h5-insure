@@ -198,16 +198,26 @@ const getProposalInfo = () => {
     if (code === '10000') {
       const { holder, insuredList: currentInsuredList } = data;
       const productCodes = (productCode || '').split(',');
+      let occupationCodeList = [];
+      const proposalInsuredList = (currentInsuredList || [])
+        .filter((item) => item.id === +proposalInsuredId)
+        .map((insured) => ({
+          ...insured,
+          productList: insured.productList.filter((product) => {
+            if (productCodes.includes(product.productCode)) {
+              occupationCodeList = product.occupationCodeList;
+              return true;
+            }
+            return false;
+          }),
+        }));
+      proposalInsuredList[0].occupationCodeList = occupationCodeList;
       Object.assign(orderDetail.value, {
         renewFlag: '',
         holder,
         tenantId,
-        insuredList: (currentInsuredList || [])
-          .filter((item) => item.id === +proposalInsuredId)
-          .map((insured) => ({
-            ...insured,
-            productList: insured.productList.filter((product) => productCodes.includes(product.productCode)),
-          })),
+        proposalId,
+        insuredList: proposalInsuredList,
       });
       defaultData.value = orderDetail.value;
       productRiskCodeMap.value = pickProductRiskCodeFromOrder(orderDetail.value.insuredList[0].productList);
