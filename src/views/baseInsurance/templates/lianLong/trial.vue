@@ -133,7 +133,12 @@ const handleConfirm = (selectCodeList: Array<string>) => {
       ...currentProduct.mergeRiskReqList.slice(insertIndex + 1, currentProduct.mergeRiskReqList.length),
     ];
 
-    trialRef.value.getRiderRiskDefaultValue(currentProductCode.value, selectCodeList, currentRiskInfo.value.riskCode);
+    trialRef.value.getRiderRiskDefaultValue(
+      currentProductCode.value,
+      selectCodeList,
+      currentRiskInfo.value.riskCode,
+      currentProduct.mergeRiskReqList,
+    );
   }
   getMergeProductDetail();
   popupShow.value = false;

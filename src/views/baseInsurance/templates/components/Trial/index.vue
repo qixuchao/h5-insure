@@ -294,7 +294,7 @@ const canAddMainRisk = computed<boolean>(() => {
 });
 
 // 添加附加险后计算对应附加险的默认值
-const getRiderRiskDefaultValue = async (productCode, riskCodeList, mainRiskCode) => {
+const getRiderRiskDefaultValue = async (productCode, riskCodeList, mainRiskCode, mergeCodeList?) => {
   const mainRiskInfo = state.riskList[productCode].find((risk) => risk.riskCode === mainRiskCode);
   const { code, data } = await queryDefaultRiskInsureFactor({
     holder: state.userData.holder,
@@ -306,7 +306,7 @@ const getRiderRiskDefaultValue = async (productCode, riskCodeList, mainRiskCode)
   });
   if (code === '10000') {
     let insertIndex = 0;
-    insertIndex = state.riskList[productCode].findIndex((risk, index) => {
+    insertIndex = mergeCodeList.findIndex((risk, index) => {
       return risk.riskCode === riskCodeList[0];
     });
 
