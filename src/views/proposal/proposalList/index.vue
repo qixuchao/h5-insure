@@ -185,6 +185,14 @@ const productClass = ref<string>(+(productC || 1)); // 产品分类 4: 多主线
 
 // const addProposalType = ref<any>(isCreateProposal ? 'repeatAdd' : 'add');
 
+const insuredList = computed(() => {
+  const insured = store.$state.insuredPersonVO || {};
+  if (Object.keys(insured).length) {
+    return [insured];
+  }
+  return [];
+});
+
 const getProducts = () => {
   const { excludeProductCodeList } = state;
   if (state.firstLoading) {
@@ -197,7 +205,7 @@ const getProducts = () => {
     showCategory: showCategory.value,
     selectProductCodes: Array.isArray(excludeProductCodeList) ? excludeProductCodeList : [],
     selectRiskCodes: state.excludeMainRiskCode || [],
-    insuredList: [store.$state.insuredPersonVO],
+    insuredList: insuredList.value,
     holder: store.$state.holder,
     pageNum: 1,
     pageSize: 999,
