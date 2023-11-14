@@ -68,18 +68,17 @@ const handleShare = (shareInfo = {}) => {
     showOverLay.value = true;
     return;
   }
-  if (isApp()) {
-    console.log('在app内', props);
-    const shareConfig = {
-      shareType: 0,
-      imageUrl: props.imageUrl,
-      title: props.title,
-      desc: props.desc,
-      url: shareInfo.url || props.url,
-    };
-    console.log('参数：', shareConfig);
-    shareWeiXin(shareConfig);
-  }
+
+  console.log('在app内', props);
+  const shareConfig = {
+    shareType: 0,
+    imageUrl: props.imageUrl,
+    title: props.title,
+    desc: props.desc,
+    url: shareInfo.url || props.url,
+  };
+  console.log('参数：', shareConfig);
+  shareWeiXin(shareConfig);
 };
 
 const setWechatConfig = () => {
