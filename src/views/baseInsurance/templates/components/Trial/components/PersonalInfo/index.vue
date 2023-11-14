@@ -644,13 +644,10 @@ watch(
   ],
   ([[holderConfig, holderFormData, insuredList], newConfig, newInitInsured], [oldVal, oldConfig, oldInitInsured]) => {
     const [oldHolderConfig, oldHolderData, oldInured] = oldVal || [];
-    // console.log('initInsuredTempData', oldHolderConfig, oldHolderData, oldInured);
     if (
-      JSON.stringify(holderConfig) === JSON.stringify(oldHolderConfig) &&
-      JSON.stringify(holderFormData) === JSON.stringify(oldHolderData) &&
-      JSON.stringify(insuredList) === JSON.stringify(oldInured) &&
-      JSON.stringify(newInitInsured) === JSON.stringify(oldInitInsured) &&
-      canUpdateFormData.value
+      isEqual(holderConfig, oldHolderConfig) &&
+      isEqual(holderFormData, oldHolderData) &&
+      isEqual(newInitInsured, oldInitInsured)
     ) {
       // 投保人
       return;

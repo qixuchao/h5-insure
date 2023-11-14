@@ -44,7 +44,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  premium: 0,
+  premium: null,
   tenantProductDetail: () => ({}),
   planCode: undefined,
   loadingText: '',
@@ -82,7 +82,6 @@ watch(
         (data) => data.paymentFrequency === props.paymentFrequency,
       );
       const { premium: unit, minActualUnit } = currentPremium || {};
-
       if (!premium) {
         premiumUnit.value = unit;
         productPremium.value = '';
@@ -91,6 +90,7 @@ watch(
         productPremium.value = premium && `${premium}`;
       }
     } else {
+      productPremium.value = null;
       if (premium) {
         premiumUnit.value = '';
         productPremium.value = premium && `${premium}`;
