@@ -24,7 +24,7 @@
       <TrialBody
         ref="insureInfosRef"
         :product-collection="dataSource"
-        :default-data="defaultData"
+        :default-data="state.defaultData"
         :product-factor="[]"
         :product-risk-code-map="productRiskCodeMap"
         hide-benefit
@@ -115,6 +115,7 @@ interface Props {
   defaultData: any;
   currentOrderDetail?: any;
   updateRiskCode?: string;
+  insurerList: any[];
 }
 
 const LOADING_TEXT = '试算中...';
@@ -145,6 +146,7 @@ const props = withDefaults(defineProps<Props>(), {
   defaultData: null,
   currentOrderDetail: null,
   updateRiskCode: '',
+  insurerList: () => [],
 });
 
 const state = reactive({
@@ -178,6 +180,29 @@ const iseeBizNo = ref<string>();
 const currentShareInfo = ref<any>();
 
 const premiumMap = ref();
+
+watch(
+  () => props.defaultData,
+  () => {
+    if (!props.defaultData) {
+      return;
+    }
+    state.defaultData = props.defaultData || {};
+    state.defaultData.insuredList = props.defaultData?.insuredList.map((insured) => {
+      return {
+        ...insured,
+        productList: props.insurerList?.[0]?.productList.filter(
+          (product) => product.productCode === props.productInfo?.productCode,
+        ),
+      };
+    });
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
 const onNext = (trialData) => {
   insureInfosRef.value.onNext();
   // if (preview) {
@@ -209,31 +234,6 @@ const onNext = (trialData) => {
   // }
 };
 
-const onShare = (cb, trialData) => {
-  insureInfosRef.value.onShare(cb);
-  // if (state.trialResultPremium) {
-  //   // 验证
-  //   insureInfosRef.value?.validate().then(() => {
-  //     Object.assign(orderDetail.value, {
-  //       extInfo: {
-  //         ...orderDetail.value.extInfo,
-  //         buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
-  //         pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
-  //         templateId,
-  //       },
-  //     });
-  //     const currentOrderDetail = trialData2Order(trialData, state.trialResult, orderDetail.value);
-  //     nextStep(currentOrderDetail, (data, pageAction) => {
-  //       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-  //         currentShareInfo.value.link = `${window.location.href}&isShare=1&orderNo=${data.orderNo}`;
-  //         cb();
-  //       }
-  //     });
-  //     console.log('---- validate success ----');
-  //   });
-  // }
-};
-
 const onClosePopup = () => {
   console.log('---close');
   state.show = false;
@@ -257,272 +257,6 @@ const handleSetRiskSelect = () => {
     if (!relation) return;
     state.riskIsInsure[risk.riskCode] = { selected: '2', data: null, relation };
   });
-};
-
-const handleDealDyResult = (dyResult: any) => {
-  if (dyResult?.data?.[0]?.productRiskDyInsureFactorVOList) {
-    const defaultRiskData = [];
-    props.dataSource?.insureProductRiskVOList.forEach((risk) => {
-      const newRisk = dyResult?.data?.[0]?.productRiskDyInsureFactorVOList.find((r) => r.riskCode === risk.riskCode);
-      if (newRisk) {
-        risk.productRiskInsureLimitVO = {
-          ...risk.productRiskInsureLimitVO,
-          ...newRisk,
-        };
-        const riskTrialData = state.riskVOList.find((l) => l.riskCode === risk.riskCode);
-        let change = false;
-        PRODUCT_KEYS_CONFIG.forEach((config) => {
-          if (DYNAMIC_FACTOR_PARAMS.indexOf(config.valueKey) >= 0) {
-            const configData = risk.productRiskInsureLimitVO[config.configKey];
-            if (configData && riskTrialData) {
-              // 对试算值进行比对
-              const targetConfigData = configData.find((d) => d.code === riskTrialData[config.valueKey]);
-              if (targetConfigData && targetConfigData.useFlag === 2) {
-                const newTargetConfigData = configData.find((d) => d.defaultFlag === 1);
-                riskTrialData[config.valueKey] = newTargetConfigData.code;
-                change = true;
-              }
-            }
-          }
-        });
-        if (change) {
-          defaultRiskData.push({
-            ...riskTrialData,
-            ...newRisk,
-            riskCode: risk.riskCode,
-          });
-        }
-      }
-    });
-    if (defaultRiskData.length > 0 && state.defaultValue?.insuredVOList?.[0]?.productPlanVOList) {
-      // 给默认值
-      defaultRiskData.forEach((data) => {
-        state.defaultValue.insuredVOList[0].productPlanVOList =
-          state.defaultValue?.insuredVOList?.[0]?.productPlanVOList.map((p) => {
-            p.riskVOList = p?.riskVOList.map((r) => {
-              if (r.riskCode === data.riskCode) {
-                r = data;
-              }
-              return r;
-            });
-            return p;
-          });
-      });
-      // state.defaultValue = cloneDeep(state.defaultValue);
-      return false;
-    }
-  }
-  return true;
-};
-
-const handleSameMainRisk = (data: any) => {
-  // 处理同主险逻辑
-  const risk = props.dataSource.insureProductRiskVOList?.find((r) => data.riskId === r.riskId);
-  if (risk && risk.mainRiskFlag !== 1) {
-    // 只处理非标准险种 根据关联关系找到他关联的主险
-    const relation = props.dataSource?.productRiskRelationVOList?.find((r) => r.collocationRiskId === risk.riskId);
-    if (relation) {
-      const mainRiskTrialData = state.riskVOList?.find((r) => r.riskId === relation.riskId);
-      PRODUCT_KEYS_CONFIG.forEach((config) => {
-        if (config.ruleKey && risk.productRiskInsureLimitVO) {
-          // 同主险，直接赋值当前key
-          if (mainRiskTrialData) {
-            if (risk.productRiskInsureLimitVO[config.ruleKey] === 1)
-              data[config.valueKey] = mainRiskTrialData[config.valueKey];
-            if (risk.productRiskInsureLimitVO[config.ruleKey] === 3) {
-              // -1
-              if (risk.exemptFlag !== 1)
-                // 附加险为豁免险的时候 ，附加险的额交期、保期是主险的交费期间-1 @小春
-                data[config.valueKey] = dealExemptPeriod(risk, mainRiskTrialData[config.valueKey], state.submitData);
-              else
-                data[config.valueKey] = dealExemptPeriod(
-                  risk,
-                  mainRiskTrialData[config.ruleValueKey],
-                  state.submitData,
-                );
-            }
-          }
-        }
-      });
-    }
-  }
-  return data;
-};
-
-const handleTrialAndBenefit = async (calcData: any, needCheck = true) => {
-  state.trialMsg = LOADING_TEXT;
-  state.trialResultPremium = 0;
-  state.loading = true;
-  let checkResult = false;
-  if (needCheck) {
-    const { code } = await underWriteRule(calcData);
-    checkResult = code === '10000';
-  }
-  if (checkResult || !needCheck) {
-    // 是否显示利益演示
-    if (!props.hideBenefit) {
-      benefitCalc(calcData)
-        .then((res) => {
-          // 利益演示接口
-          if (res.data && res.code === SUCCESS_CODE) benefitData.value = res.data;
-        })
-        .finally(() => {
-          state.loading = false;
-        });
-    }
-    premiumCalc(calcData)
-      .then((res) => {
-        // benefitData.value = res.data;
-        // console.log('----res =', res);
-        // state.trialMsg = `${res.data.premium}元`;
-        if (res.data && res.code === SUCCESS_CODE) {
-          if (res?.data?.errorInfo) {
-            Toast(`${res?.data?.errorInfo}`);
-          }
-          state.trialMsg = '';
-          state.trialResultPremium = res.data.initialPremium;
-          state.trialResult = res.data;
-
-          const riskPremiumMap = {};
-          if (res.data.riskPremiumDetailVOList && res.data.riskPremiumDetailVOList.length) {
-            res.data.riskPremiumDetailVOList.forEach((riskDetail: any) => {
-              riskPremiumMap[riskDetail.riskCode] = {
-                initialPremium: riskDetail.initialPremium,
-                initialAmount: riskDetail.initialAmount,
-              };
-            });
-          }
-          premiumMap.value = riskPremiumMap;
-        }
-      })
-      .finally(() => {
-        state.loading = false;
-        // state.trialMsg = '000';
-      });
-  }
-};
-
-const handleMixTrialData = debounce(async () => {
-  console.log('>>>>>调用试算<<<<<');
-  if (state.ifPersonalInfoSuccess) {
-    state.submitData.productCode = props.productInfo.productCode;
-    state.submitData.tenantId = props.productInfo.tenantId;
-    // TODO 处理同主险的相关数据
-    state.riskVOList = state.riskVOList.map((trialRisk) => {
-      return handleSameMainRisk(trialRisk);
-    });
-    //  这里目前只有一个被保人，所以直接index0，后面需要用被保人code来区分
-    // state.submitData.insuredVOList[0].productPlanVOList = [
-    //   {
-    //     insurerCode: props.productInfo.insurerCode,
-    //     planCode: props.dataSource.planCode,
-    //     riskVOList: state.riskVOList,
-    //   },
-    // ];
-    if (state.submitData.insuredVOList) {
-      state.submitData.insuredVOList.forEach((ins) => {
-        ins.productPlanVOList = [
-          {
-            insurerCode: props.productInfo.insurerCode,
-            planCode: props.dataSource.planCode,
-            riskVOList: state.riskVOList,
-          },
-        ];
-      });
-    }
-    if (state.isSkipFirstTrial && !state.hadSkipFirstTrial) {
-      state.hadSkipFirstTrial = true;
-      return;
-    }
-    console.log('>>>数据构建<<<', state.submitData);
-    const submitDataCopy = cloneDeep(state.submitData);
-    await handleTrialAndBenefit(submitDataCopy);
-  }
-}, 300);
-
-const handleDynamicConfig = async (data: any, changeData: any) => {
-  if (changeData) {
-    const DyData = cloneDeep(data);
-    delete DyData.insurancePeriodValueList;
-    delete DyData.paymentFrequencyList;
-    delete DyData.paymentPeriodValueList;
-    const hasDyChange = DYNAMIC_FACTOR_PARAMS.indexOf(changeData.key) >= 0;
-    // 需要请求dy接口
-    if (hasDyChange) {
-      const changeVO = {};
-      switch (changeData.key) {
-        case 'annuityDrawDate': {
-          changeVO.changeType = 3;
-          break;
-        }
-        case 'coveragePeriod': {
-          changeVO.changeType = 2;
-          break;
-        }
-        case 'chargePeriod': {
-          changeVO.changeType = 1;
-          break;
-        }
-        default: {
-          break;
-        }
-      }
-      const persionVo = state.submitData?.insuredVOList?.[0].personVO;
-      const riskInfo = props.dataSource?.insureProductRiskVOList?.find((r) => r.riskCode === data.riskCode);
-      if (!state.isAutoChange) {
-        const dyResult = await queryCalcDynamicInsureFactor({
-          calcProductFactorList: [
-            {
-              planCode: props.dataSource.planCode,
-              productCode: props.productInfo.productCode,
-              riskEditVOList: [
-                {
-                  insureProductRiskVO: riskInfo,
-                  insureRiskEditReqVO: {
-                    riskId: data.riskId,
-                    riskCode: data.riskCode,
-                    ...DyData,
-                    ...changeVO,
-                  },
-                },
-              ],
-            },
-          ],
-          ...persionVo,
-        });
-        const result = handleDealDyResult(dyResult);
-        if (!result) {
-          state.isAutoChange = true;
-        }
-        return result;
-      }
-      state.isAutoChange = false;
-    }
-  }
-  return true;
-};
-
-const handleTrialInfoChange = async (data: any, changeData: any) => {
-  state.mainRiskVO = data;
-  // TODO 这里未来需要看一下  多倍保人的情况，回传需要加入被保人的Index或者别的key
-  const dyDeal = await handleDynamicConfig(data, changeData);
-  if (!dyDeal) return;
-  if (state.riskVOList.length > 0) {
-    state.riskVOList[0] = data;
-  }
-  console.log('标准险种的信息回传', data);
-  handleMixTrialData();
-};
-
-const handleProductRiskInfoChange = async (dataList: any, changeData: any) => {
-  state.riskVOList = [state.mainRiskVO, ...dataList];
-  console.log('附加险列表数据回传', dataList);
-  if (changeData) {
-    const targetRisk = dataList.find((d) => d.riskCode === changeData.riskCode);
-    const dyDeal = await handleDynamicConfig(targetRisk, changeData);
-    if (!dyDeal) return;
-  }
-  handleMixTrialData();
 };
 
 const onClosePopupAfterAni = () => {

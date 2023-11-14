@@ -248,6 +248,7 @@
         :data-source="{ [currentProductDetail.productCode]: currentProductDetail }"
         :product-code="stateInfo.currentProductCode"
         :default-data="stateInfo.defaultData"
+        :insurer-list="stateInfo.insurerList"
         :update-risk-code="stateInfo.updateRiskCode"
         @finish="onFinished"
       />
@@ -959,10 +960,12 @@ const calcDynamicInsureFactor = async (productCodeList: string[]) => {
     if (code === '10000' && isNotEmptyArray(data)) {
       stateInfo.insurerList[stateInfo.currentSelectInsure].productList.forEach(({ productCode: pCode, riskList }) => {
         const { productRiskDyInsureFactorVOList, errorMessage, productCode } =
-          data[0] || data.find((item) => item.productCode === pCode) || {};
+          data.find((item) => item.productCode === pCode) || {};
         setProductError(productCode, errorMessage);
         riskList.forEach((riskItem) => {
-          const currentRiskItem = productRiskDyInsureFactorVOList.find((item) => item.riskCode === riskItem.riskCode);
+          const currentRiskItem = (productRiskDyInsureFactorVOList || []).find(
+            (item) => item.riskCode === riskItem.riskCode,
+          );
           Object.assign(riskItem, {
             ...riskItem,
             ...currentRiskItem,
@@ -1174,22 +1177,27 @@ watch(
         return '';
       }),
     () => stateInfo.currentSelectInsure,
-    () =>
-      trialFieldkeys.map((key) => {
-        if (stateInfo.holder) return stateInfo.holder[key];
-        return '';
-      }),
+    stateInfo?.insurerList?.[stateInfo.currentSelectInsure]?.personVO?.relationToHolder === 2 &&
+      (() =>
+        trialFieldkeys.map((key) => {
+          if (stateInfo.holder) return stateInfo.holder[key];
+          return '';
+        })),
   ],
-  ([val, newIndex, holderInfo], [oldVal, oldIndex, oldHolderInfo]) => {
+  debounce(([val, newIndex, holderInfo], [oldVal, oldIndex, oldHolderInfo]) => {
     if (
-      (val.join(',') !== oldVal.join(',') || holderInfo.join(',') !== oldHolderInfo.join(',')) &&
+      (val.join(',') !== oldVal.join(',') || (holderInfo || []).join(',') !== (oldHolderInfo || []).join(',')) &&
       newIndex === oldIndex
     ) {
+      if (stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToHolder === 1) {
+        Object.assign(stateInfo.holder, stateInfo?.insurerList?.[0]?.personVO);
+      }
+
       if (isNotEmptyArray(Object.keys(stateInfo.productCollection))) {
         calcDynamicInsureFactor(currentProductCodeListFn());
       }
     }
-  },
+  }, 500),
   {
     deep: true,
   },
@@ -1207,11 +1215,12 @@ watch(
       const codeList = Object.keys(stateInfo.productCollection);
       const tempCodeList = val?.filter((code) => !codeList.includes(code));
       if (isNotEmptyArray(tempCodeList)) {
-        // queryProductInfo(
-        //   tempCodeList?.map((code) => ({
-        //     productCode: code,
-        //   })),
-        // );
+        queryProductInfo({
+          productList: tempCodeList?.map((code) => ({
+            mergeRiskReqList: [],
+            productCode: code,
+          })),
+        });
       }
     }
   }),

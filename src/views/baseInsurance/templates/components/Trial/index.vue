@@ -1047,13 +1047,13 @@ watch(
     productMap.value = value;
 
     Object.keys(value || []).forEach((productCode) => {
-      state.riskList[productCode] = value[productCode].productPlanInsureVOList[0].insureProductRiskVOList.map(
-        (risk) => {
-          return (
-            (state.riskList[productCode] || []).find((currentRisk) => currentRisk.riskCode === risk.riskCode) || risk
-          );
-        },
-      );
+      state.riskList[productCode] = (
+        value?.[productCode]?.productPlanInsureVOList?.[0]?.insureProductRiskVOList || []
+      ).map((risk) => {
+        return (
+          (state.riskList[productCode] || []).find((currentRisk) => currentRisk.riskCode === risk.riskCode) || risk
+        );
+      });
     });
   },
   {

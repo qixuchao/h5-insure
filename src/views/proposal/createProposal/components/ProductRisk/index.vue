@@ -62,6 +62,7 @@ import InsureInfos from '@/views/baseInsurance/templates/components/Trial/Insure
 import { queryCalcDynamicInsureFactor, queryDefaultRiskInsureFactor } from '@/api/modules/trial';
 import ProShadowButton from '@/views/baseInsurance/templates/components/ProShadowButton/index.vue';
 import ProductTips from '@/views/proposal/proposalList/components/ProductTips.vue';
+import { YES_NO_ENUM } from '@/common/constants';
 
 interface Props {
   type: 1 | 2;
@@ -185,6 +186,9 @@ const getRiskDefaultValue = async (riskCodeList: string[]) => {
 const DYNAMIC_FACTOR_PARAMS = ['annuityDrawDate', 'coveragePeriod', 'chargePeriod', 'paymentFrequency'];
 
 const handleTrialInfoChange = async (data, changeData, productCode) => {
+  if (data.exemptFlag === YES_NO_ENUM.YES) {
+    return false;
+  }
   if (changeData) {
     const DyData = cloneDeep(data);
     delete DyData.insurancePeriodValueList;
