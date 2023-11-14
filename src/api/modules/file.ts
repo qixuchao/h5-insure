@@ -31,6 +31,10 @@ export const fileUpload = (file: File, uploadType: UPLOAD_TYPE_ENUM) => {
   });
 };
 
+export const fileUploadBase64 = (data) => {
+  return request({ url: '/api/app/uploadBase64File', method: 'POST', data });
+};
+
 export const getFilePath = (key: string) => {
   return request({ url: `/api/app/client/activity/ossService/getPathByKey?key=${key}`, method: 'GET' });
 };

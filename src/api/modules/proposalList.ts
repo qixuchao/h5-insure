@@ -42,9 +42,17 @@ export const queryProposalDetail = (id: string) => {
 };
 
 // 生成计划书pdf
-export const generatePdf = (params = {}) => {
-  return request<ResponseData<any>>({ url: `${API_PREFIXED}/generatePdf`, method: 'GET', params });
-};
+// export const generatePdf = (params = {}) => {
+//   return request<ResponseData<any>>({ url: `${API_PREFIXED}/generatePdf`, method: 'GET', params });
+// };
+
+// 生成计划书PDF接口类型需要修改 GET -> PSOT
+export const generatePdf = (data: {}) =>
+  request({
+    url: `${API_PREFIXED}/generatePdf`,
+    method: 'POST',
+    data,
+  });
 
 export const queryPreviewProposalDetail = (id: string) => {
   return request({ url: `${API_PREFIXED}/sharePreview/${id}`, method: 'GET' }, { loading: true });

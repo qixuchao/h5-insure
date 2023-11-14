@@ -1,7 +1,7 @@
 <!-- 漏斗图 -->
 <template>
-  <div id="com-chart" :style="{ width: '100%' }">
-    <div id="funnel" :style="{ height: '350px' }"></div>
+  <div :id="props.idName" :style="{ width: '100%' }">
+    <div :id="`${props.idName}-funnel`" :style="{ height: '350px' }"></div>
   </div>
 </template>
 
@@ -28,6 +28,11 @@ const props = defineProps({
     type: Array,
     required: false,
     default: () => [],
+  },
+  idName: {
+    type: String,
+    required: false,
+    default: 'com-chart',
   },
 });
 
@@ -83,8 +88,8 @@ const handleChange = (val: number) => {
 };
 
 const initChart = () => {
-  const chartWapper = document.getElementById('com-chart');
-  const chartDom: any = document.getElementById('funnel');
+  const chartWapper = document.getElementById(props.idName);
+  const chartDom: any = document.getElementById(`${props.idName}-funnel`);
   chartDom.style.width = `${chartWapper?.offsetWidth}px`;
   myChart = echarts.init(chartDom);
   let header = [];
