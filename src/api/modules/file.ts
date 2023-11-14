@@ -21,7 +21,7 @@ export const fileUpload = (file: File, uploadType: UPLOAD_TYPE_ENUM) => {
           ossKey: string;
           tempUrl: string;
           url: string;
-        }>({ url: '/api/app/uploadBase64File', method: 'POST', data }).then((res) => {
+        }>({ url: '/api/app/insure/file/uploadBase64File', method: 'POST', data }).then((res) => {
           resolve(res);
         });
       })
