@@ -79,11 +79,6 @@
           </template>
         </div>
         <div class="proposal-body">
-          <BenefitCharts
-            :infos="infos"
-            @insure-select-change="handleSelectInsureChange"
-            @addBenefitCharts="uploadBenefitCharts"
-          />
           <div v-if="currentInfo !== null">
             <InsuranceList :info="currentInfo" />
             <!-- <div class="switch-btn" @click="changeLiabilityType">
@@ -295,6 +290,12 @@
       </ProPopup>
     </van-config-provider>
   </ProPageWrap>
+  <BenefitCharts
+    class="benefit-chart"
+    :infos="infos"
+    @insure-select-change="handleSelectInsureChange"
+    @add-benefit-charts="uploadBenefitCharts"
+  />
 </template>
 <script lang="ts" setup>
 import wx from 'weixin-js-sdk';
@@ -1422,5 +1423,9 @@ const resetFile = (file: {}) => {
 }
 .risk-container {
   margin-top: 30px;
+}
+.benefit-chart {
+  position: fixed;
+  display: block;
 }
 </style>
