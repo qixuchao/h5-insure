@@ -79,6 +79,11 @@
           </template>
         </div>
         <div class="proposal-body">
+          <BenefitCharts
+            :infos="infos"
+            @insure-select-change="handleSelectInsureChange"
+            @addBenefitCharts="uploadBenefitCharts"
+          />
           <div v-if="currentInfo !== null">
             <InsuranceList :info="currentInfo" />
             <!-- <div class="switch-btn" @click="changeLiabilityType">
@@ -319,6 +324,7 @@ import {
   queryProposalThemeHistoryDetail,
 } from '@/api/modules/compositionProposal';
 import Storage from '@/utils/storage';
+import BenefitCharts from './components/BenefitCharts.vue'; //
 import InsurancesList from './components/InsurancesList.vue'; // 预览页面 被保人选择
 import InsuranceList from './components/InsuranceList.vue'; // 被保人展示
 // import Benefit from './components/Benefit.vue';
@@ -367,6 +373,7 @@ const insuredProductList = ref<ProposalTransInsuredVO[]>([]);
 const currentInsuredProduct = ref();
 const proposal2InsuredSelectedInsurer = ref(null);
 const isMultiple = ref(false);
+const isShowCharts = ref(false);
 
 const [showInsureSelect, toggleInsureList] = useToggle();
 const [showProductList, toggleProductList] = useToggle();
@@ -392,6 +399,7 @@ interface IState {
   rowDataMap: object;
   currentTab: string;
   tabs: Array;
+  benefitChartsArray: Array;
 }
 const state = reactive<IState>({
   agentCard: {},
@@ -402,8 +410,19 @@ const state = reactive<IState>({
   rowDataMap: {},
   currentTab: '',
   tabs: [],
+  benefitChartsArray: [],
 });
-const { agentCard, basicInfo, companyProfile, productDetail, riskAlert, rowDataMap, currentTab, tabs } = toRefs(state);
+const {
+  agentCard,
+  basicInfo,
+  companyProfile,
+  productDetail,
+  riskAlert,
+  rowDataMap,
+  currentTab,
+  tabs,
+  benefitChartsArray,
+} = toRefs(state);
 const rowDatas = computed(() => {
   console.log('rowDatas', rowDataMap.value);
   console.log('rowDatas', currentTab.value);
@@ -524,6 +543,9 @@ const handleSelectInsureChange = (index, insure) => {
   } else {
     currentInfo.value = insure;
   }
+};
+const uploadBenefitCharts = (e) => {
+  benefitChartsArray.value = e;
 };
 
 const getData = async () => {
@@ -720,17 +742,19 @@ const getPdf = (themeHistoryId?: number) => {
     message: 'PDF生成中...',
     forbidClick: true,
   });
-  generatePdf({ id, themeHistoryId }).then((res: any) => {
-    const { code, message } = res;
-    if (code === '10000') {
-      Toast.clear();
-      if (message) {
-        history.push(`/pdfViewer?url=${encodeURIComponent(message)}&title=${encodeURIComponent(proposalName.value)}`);
-      } else {
-        Toast('计划书为空');
+  generatePdf({ benefitCharts: isShowCharts.value ? benefitChartsArray.value : null, id, themeHistoryId }).then(
+    (res: any) => {
+      const { code, message } = res;
+      if (code === '10000') {
+        Toast.clear();
+        if (message) {
+          history.push(`/pdfViewer?url=${encodeURIComponent(message)}&title=${encodeURIComponent(proposalName.value)}`);
+        } else {
+          Toast('计划书为空');
+        }
       }
-    }
-  });
+    },
+  );
 };
 
 const handleModeChange = (item: any) => {
@@ -777,10 +801,12 @@ const onCreatePdf = () => {
       .then(() => {
         console.log('我要展示趋势表');
         toggleThemeSelect(true);
+        isShowCharts.value = true;
       })
       .catch(() => {
         console.log('我不要展示趋势表');
         toggleThemeSelect(true);
+        isShowCharts.value = false;
       });
   } else {
     getPdf();
