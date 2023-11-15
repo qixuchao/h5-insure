@@ -683,7 +683,7 @@ const handleMixTrialData = () => {
       state.submitData.insuredList = state.submitData?.insuredList.map((insured) => {
         return {
           ...insured,
-          productList: insured?.productList.map((currentProduct) => {
+          productList: (insured?.productList || []).map((currentProduct) => {
             return {
               ...currentProduct,
               riskList: state.riskList[currentProduct.productCode],

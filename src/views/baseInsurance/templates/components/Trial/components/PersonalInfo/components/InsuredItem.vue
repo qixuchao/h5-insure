@@ -61,6 +61,7 @@
         :config="beneficiary.config"
         :holder-person-v-o="holderPersonVO"
         :is-view="isView || beneficiary.personVO?.isHolder === YES_NO_ENUM.YES"
+        :beneficiary-list="state.beneficiaryList"
         :extra-provision="{
           objectType: ATTACHMENT_OBJECT_TYPE_ENUM.BENEFICIARY,
           objectId: beneficiary?.personVO?.id,

@@ -295,14 +295,6 @@ const asyncRoutes: Array<RouteRecordRaw> = [
       title: '导航',
     },
   },
-  {
-    name: 'login',
-    path: '/login',
-    component: () => import('@/views/login/index.vue'),
-    meta: {
-      title: '登录',
-    },
-  },
   // {
   //   name: 'trial',
   //   path: '/trial',
