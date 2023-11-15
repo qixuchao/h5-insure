@@ -27,7 +27,7 @@
           class="com-pro-form-with-card com-card-body-no-padding insure-containe"
           :show-divider="false"
         >
-          <ProRenderForm ref="insuredFormRef" :model="stateInfo.insurerList[stateInfo.currentSelectInsure]">
+          <ProRenderForm ref="insuredFormRef" :model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO">
             <ProFieldV2
               v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.name"
               label="姓名"
@@ -629,12 +629,17 @@ const addProduct = () => {
       store.setInsuredPersonVO(stateInfo.insurerList[stateInfo.currentSelectInsure].personVO);
       store.setHolderPersonVO(stateInfo.holder);
 
+      const hasProductClass = !!stateInfo.insurerList?.[stateInfo.currentSelectInsure]?.productList?.length;
+
+      const params = {
+        isCreateProposal: '1',
+      };
+
+      hasProductClass && (params.productClass = productClass.value);
+
       router.push({
         path: '/proposalListSelect',
-        query: {
-          isCreateProposal: '1',
-          productClass: productClass.value,
-        },
+        query: params,
       });
     })
     .catch((e) => {
