@@ -53,14 +53,18 @@ const mValues = ref(props.modelValue);
 const showTypes = ref(1);
 
 const formatOptions = computed(() => (configKey: Array<string>) => {
-  const options = get(props.originData, configKey);
+  let options = get(props.originData, configKey);
   const useOptions = get(props.defaultValue, configKey);
   // console.log('---------------change option', props.defaultValue);
-  return (useOptions || []).map((v) => {
+  if (!options?.length) {
+    options = useOptions;
+  }
+  return (options || []).map((v) => {
+    const useOption = useOptions ? useOptions.find((o) => o.code === v.code) : null;
     return {
       label: v.value,
       value: v.code,
-      disabled: v?.useFlag ? v.useFlag !== 1 : false,
+      disabled: useOption?.useFlag ? useOption.useFlag !== 1 : false,
     };
   });
 });
