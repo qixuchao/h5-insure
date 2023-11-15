@@ -24,8 +24,8 @@
       <TrialBody
         ref="insureInfosRef"
         :product-collection="dataSource"
-        :default-data="state.defaultData"
         :product-factor="[]"
+        :default-data="state.defaultData"
         :product-risk-code-map="productRiskCodeMap"
         hide-benefit
         :update-risk-code="updateRiskCode"
@@ -67,6 +67,7 @@ import { Toast } from 'vant/es';
 import debounce from 'lodash-es/debounce';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { useRouter, useRoute } from 'vue-router';
+import { isEqual } from 'lodash-es';
 import cancelIcon from '@/assets/images/baseInsurance/cancel.png';
 import { PersonalInfo } from '@/views/baseInsurance/templates/long/InsureInfos/components/index';
 import TrialButton from '../TrialButton.vue';
@@ -95,7 +96,6 @@ import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from '../../long/constants';
 import { nextStepOperate as nextStep } from '../../../nextStep';
 import pageJump from '@/utils/pageJump';
 import { jumpToNextPage } from '@/utils';
-// import TrialBody from '../TrialBody/index.vue';
 
 const TrialBody = defineAsyncComponent(() => import('../Trial/index.vue'));
 
@@ -183,12 +183,14 @@ const premiumMap = ref();
 
 watch(
   () => props.defaultData,
-  () => {
-    if (!props.defaultData) {
+  (val, oldVal) => {
+    console.log('state.defaultData', state.defaultData);
+    if (isEqual(val, oldVal)) {
       return;
     }
-    state.defaultData = props.defaultData || {};
-    state.defaultData.insuredList = props.defaultData?.insuredList.map((insured) => {
+
+    state.defaultData = cloneDeep(props.defaultData) || {};
+    state.defaultData.insuredList = state.defaultData?.insuredList.map((insured) => {
       return {
         ...insured,
         productList: props.insurerList?.[0]?.productList.filter(
@@ -248,17 +250,6 @@ const benefitData = ref({
 
 const DYNAMIC_FACTOR_PARAMS = ['annuityDrawDate', 'coveragePeriod', 'chargePeriod'];
 
-const handleSetRiskSelect = () => {
-  state.riskIsInsure = {};
-  props?.dataSource?.insureProductRiskVOList?.forEach((risk) => {
-    // 1是投保， 2是不投保
-    const relation = props.dataSource.productRiskRelationVOList?.find((r) => r.collocationRiskId === risk.riskId);
-    // 数据不太正确时避免报错
-    if (!relation) return;
-    state.riskIsInsure[risk.riskCode] = { selected: '2', data: null, relation };
-  });
-};
-
 const onClosePopupAfterAni = () => {
   state.isAniShow = false;
 };
@@ -288,10 +279,6 @@ const handleTrialEnd = (result: any) => {
   state.trialResult = result;
   state.loading = false;
 };
-
-onBeforeMount(() => {
-  handleSetRiskSelect();
-});
 
 onMounted(() => {
   state.loading = true;
@@ -335,7 +322,6 @@ watch(
     if (v) {
       // 每个附加险的投保不投保状态重置
       handleRestState();
-      handleSetRiskSelect();
     }
   },
 );

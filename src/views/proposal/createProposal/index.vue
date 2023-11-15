@@ -1017,7 +1017,9 @@ const trialParamsBefore = (tempParams: any, productCode: string) => {
 };
 
 // 修改险种
+const updateTrialFlag = ref<boolean>(false);
 const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsuredProductItem) => {
+  console.log('open1');
   stateInfo.updateRiskCode = riskInfo.riskCode;
   stateInfo.currentProductCode = productInfo.productCode;
   const tempParams = cloneDeep(convertProposalToTrialData(productInfo.productCode));
