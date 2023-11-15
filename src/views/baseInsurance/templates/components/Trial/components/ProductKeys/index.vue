@@ -56,7 +56,7 @@ const formatOptions = computed(() => (configKey: Array<string>) => {
   let options = get(props.originData, configKey);
   const useOptions = get(props.defaultValue, configKey);
   // console.log('---------------change option', props.defaultValue);
-  if (!options?.length) {
+  if (useOptions?.length) {
     options = useOptions;
   }
   return (options || []).map((v) => {
