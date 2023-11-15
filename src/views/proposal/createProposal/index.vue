@@ -487,7 +487,6 @@ const multiInsured = computed(() => {
 
 /** 产品是否有错误信息 */
 const submitDisable = computed(() => {
-  // debugger;
   return !trialFlag.value || Boolean(Object.values(stateInfo.productErrorMap).join(''));
 });
 
@@ -806,7 +805,7 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
             relationToHolder: 1,
           });
         }
-        Object.assign(stateInfo.holder, holder);
+        Object.assign(stateInfo.holder, holder, { hasSocialInsurance: holder.hasSocialInsurance || '1' });
       }
       insuredList.forEach((insured: any, index: number) => {
         const { productList: products, ...p } = insured;
