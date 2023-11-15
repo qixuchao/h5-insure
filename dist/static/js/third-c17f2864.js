@@ -1,0 +1,1 @@
+import{a2 as a}from"./index-1eabcd9c.js";const t=t=>a({url:"/api/app/insure/customer/customerList",method:"POST",data:t}),e=t=>a({url:"/api/app/insure/customer/customerDetail",method:"POST",data:t});export{e as a,t as g};
