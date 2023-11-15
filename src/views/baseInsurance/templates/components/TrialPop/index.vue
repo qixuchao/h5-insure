@@ -184,13 +184,12 @@ const premiumMap = ref();
 watch(
   () => props.defaultData,
   (val, oldVal) => {
-    console.log('state.defaultData', state.defaultData);
     if (isEqual(val, oldVal)) {
       return;
     }
 
     state.defaultData = cloneDeep(props.defaultData) || {};
-    state.defaultData.insuredList = state.defaultData?.insuredList.map((insured) => {
+    state.defaultData.insuredList = (state.defaultData?.insuredList || []).map((insured) => {
       return {
         ...insured,
         productList: props.insurerList?.[0]?.productList.filter(

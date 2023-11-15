@@ -561,7 +561,7 @@ const setProductError = (productCode, msg = '') => {
 /** 合并数据到 productList  */
 // eslint-disable-next-line consistent-return
 const combineToProductList = (productInfo: PlanTrialData) => {
-  productInfo.insuredProductList.reduce((productList, product) => {
+  productInfo?.insuredProductList.reduce((productList, product) => {
     const currentProductIndex = stateInfo.insurerList?.[stateInfo.currentSelectInsure]?.productList.findIndex(
       (prod) => prod.productCode === product.productCode,
     );
@@ -1019,11 +1019,11 @@ const trialParamsBefore = (tempParams: any, productCode: string) => {
 // 修改险种
 const updateTrialFlag = ref<boolean>(false);
 const updateRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsuredProductItem) => {
-  console.log('open1');
   stateInfo.updateRiskCode = riskInfo.riskCode;
   stateInfo.currentProductCode = productInfo.productCode;
   const tempParams = cloneDeep(convertProposalToTrialData(productInfo.productCode));
   stateInfo.defaultData = tempParams;
+  updateTrialFlag.value = true;
   trialPopupRef.value?.open();
 };
 

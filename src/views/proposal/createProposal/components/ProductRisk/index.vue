@@ -138,7 +138,6 @@ const handleConfirm = () => {
     ...validateRiskList.value,
     ...props.currentProduct.riskList.slice(insertIndex + 1),
   ];
-
   const trialParams = {
     holder: props.holder,
     insuredList: props.insuredList.map((insured) => {
@@ -254,6 +253,8 @@ const handleTrialInfoChange = async (data, changeData, productCode) => {
         holderVO: props.holder,
       });
     }
+  } else {
+    Object.assign(riskValueCollection.value[data.riskCode].defaultValue, data);
   }
   return true;
 };
@@ -321,7 +322,7 @@ const getRiskList = async () => {
     selectRiskCodes: props.selectList,
   };
 
-  const { code, data } = await queryProposalRiderRiskList(params);
+  const { code, data } = await queryProposalRiderRiskList(params, { loading: true });
   if (code === '10000') {
     riskList.value = data.riskInfoList;
     riskRelationList.value = data.collocationInfoResList;

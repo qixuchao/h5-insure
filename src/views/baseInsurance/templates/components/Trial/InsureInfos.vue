@@ -37,6 +37,7 @@ import { Toast } from 'vant/es';
 import { objectKeys } from '@antfu/utils';
 import debounce from 'lodash-es/debounce';
 import cloneDeep from 'lodash-es/cloneDeep';
+import isEqual from 'lodash-es/isEqual';
 import {
   INSURANCE_PERIOD_VALUE,
   PAYMENT_PERIOD_VALUE,
@@ -146,9 +147,8 @@ const validate = async () => {
 
 watch(
   () => props.defaultValue,
-  (v) => {
-    if (v) {
-      console.log('--default change ', v);
+  (v, oldVal) => {
+    if (!isEqual(v, oldVal)) {
       state.defaultValues = cloneDeep(v);
       mValues.value = {
         ...v,
