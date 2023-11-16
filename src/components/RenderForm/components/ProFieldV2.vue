@@ -289,6 +289,7 @@ export default {
 
   .com-van-field-unit {
     margin-left: 8px;
+    margin-top: 16px;
   }
 }
 </style>

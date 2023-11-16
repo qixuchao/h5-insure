@@ -365,6 +365,10 @@ export enum ATTACHMENT_CATEGORY_ENUM {
    */
   RISK_TRANSCRIPTION = 26,
   /**
+   * 监护人资料
+   */
+  GUARDIAN_MATERIAL = 27,
+  /**
    * 其他
    */
   OTHER = 99,

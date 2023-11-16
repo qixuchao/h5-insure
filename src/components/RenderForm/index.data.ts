@@ -30,6 +30,7 @@ export interface FieldConfItem {
   visible: boolean;
   subModuleType: number;
   remark?: string;
+  category?: number;
 }
 
 export interface ProductFactor {

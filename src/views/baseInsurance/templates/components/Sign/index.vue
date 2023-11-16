@@ -1,7 +1,13 @@
 <template>
   <div class="sign-wrap">
-    <slot name="signImg" :data="signCollection?.[0]">
-      <img v-if="signCollection.length" class="preview-sign" :src="signCollection?.[0]" alt="" @click="preview" />
+    <slot name="signImg" :data="cacheSign?.[0] || signCollection?.[0]">
+      <img
+        v-if="signCollection.length"
+        class="preview-sign"
+        :src="cacheSign?.[0] || signCollection?.[0]"
+        alt=""
+        @click="preview"
+      />
 
       <van-button type="primary" round size="small" @click="openSign">{{
         signString ? '重新签名' : '点击签字'
@@ -43,6 +49,7 @@
 import { withDefaults } from 'vue';
 import { ImagePreview } from 'vant';
 import Toast from 'vant/es/toast';
+import { cloneDeep } from 'lodash-es';
 import ProSign from '@/components/ProSign/index.vue';
 import { rotateBase64 } from '@/components/ProScribing/utils';
 
@@ -66,6 +73,8 @@ const signRef = ref<InstanceType<typeof ProSign>>();
 const emits = defineEmits(['update:modelValue', 'submitSign']);
 
 const signCollection = ref<string[]>([]);
+const cacheSign = ref<string[]>([]);
+
 const activityIndex = ref<number>(0);
 
 const signSlice = computed(() => {
@@ -113,20 +122,16 @@ const handlePre = () => {
 const openSign = (isClear?: boolean) => {
   isShowSign.value = true;
 
-  if (isClear) {
-    return;
-  }
   setTimeout(() => {
     if (signRef.value) {
-      // (signRef.value || []).forEach((currentRef, index) => {
-      //   if (index === activityIndex.value) {
-      //     currentRef.clear?.();
-      //   }
-      // });
       (signRef.value || []).forEach((currentRef, index) => {
-        currentRef.setDataURL?.(signCollection.value?.[index] || '');
+        if (isClear) {
+          currentRef.clear?.();
+        } else {
+          currentRef.setDataURL?.(signCollection.value?.[index] || '');
+        }
       });
-      if (props.modelValue?.length) {
+      if (props.modelValue?.length && !isClear) {
         isEmpty.value = false;
       } else {
         isEmpty.value = true;
@@ -140,6 +145,7 @@ const preview = () => {
 };
 
 const goBack = () => {
+  signCollection.value = cloneDeep(cacheSign.value);
   isShowSign.value = false;
 };
 
@@ -200,6 +206,7 @@ watch(
   [() => props.modelValue, () => signSlice.value],
   () => {
     signCollection.value = (props.modelValue || []).slice(0, signSlice.value.length);
+    cacheSign.value = (props.modelValue || []).slice(0, signSlice.value.length);
   },
   {
     immediate: true,

@@ -12,7 +12,7 @@
         <van-button class="no-border" @click="handleGiveUp">放弃投保</van-button>
       </div>
       <div v-else class="operate-btn">
-        <van-button type="primary" @click="offline">确定</van-button>
+        <van-button type="primary" :disabled="loading" @click="offline">确定</van-button>
       </div>
     </div>
     <van-dialog
@@ -74,7 +74,9 @@ const [isShow, toggleStatus] = useToggle(false);
 const checkedPage = ref<string>();
 
 // 转线下
+const loading = ref<boolean>(false);
 const offline = async () => {
+  loading.value = true;
   if (isMultiRisk.value) {
     router.push({
       path: PAGE_ROUTE_ENUMS.orderList,
@@ -82,6 +84,7 @@ const offline = async () => {
         ...route.query,
       },
     });
+    loading.value = false;
     return;
   }
   const { code, data } = await offlineReview({ orderNo, tenantId });
@@ -94,6 +97,7 @@ const offline = async () => {
       },
     });
   }
+  loading.value = false;
 };
 
 // 撤单

@@ -50,6 +50,7 @@ interface Props {
   isTrial: boolean;
   title: string;
   holderPersonVO: any;
+  beneficiaryList: any[];
 }
 
 const emit = defineEmits(['update:modelValue', 'trailChange']);
@@ -64,6 +65,7 @@ const props = withDefaults(defineProps<Props>(), {
   isTrial: false,
   title: '受益人',
   holderPersonVO: () => ({}),
+  beneficiaryList: () => [],
 });
 
 interface StateInfo extends PersonFormProps {
@@ -146,7 +148,6 @@ watch(
   () => cloneDeep(props.modelValue),
   (val, oldVal) => {
     if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
-      colorConsole('受益人数据变动了', val);
       Object.assign(state.personVO, val);
       setCertDefaultValue(props.schema, props.modelValue, () => {
         Object.assign(state.personVO, { certType: '1' });
@@ -160,11 +161,25 @@ watch(
 );
 
 watch(
-  () => state.personVO,
-  (val) => {
+  () => cloneDeep(state.personVO),
+  (val, oldVal) => {
     if (val) {
       if (isSameHolder()) {
         Toast('录入的受益人同投保人基本信息，请勾选“同投保人');
+      }
+
+      if (
+        ['2', '3'].includes(`${val?.relationToInsured}`) &&
+        val?.relationToInsured !== oldVal?.relationToInsured &&
+        oldVal?.relationToInsured
+      ) {
+        console.log('2324234');
+        const repeatRelation = props.beneficiaryList.find(
+          (beneficiary) => `${val?.relationToInsured}` === `${beneficiary.personVO?.relationToInsured}`,
+        );
+        if (repeatRelation) {
+          Toast('已存在配偶关系的受益人');
+        }
       }
 
       emit('update:modelValue', val);
