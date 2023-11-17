@@ -291,7 +291,14 @@ import ProEmpty from '@/components/ProEmpty/index.vue';
 import emptyImg from '@/assets/images/empty.png';
 import useDictData from '@/hooks/useDictData';
 import { ProductData } from '@/common/constants/trial.data';
-import { SEX_LIMIT_LIST, SELF_LIST, SEX_LIMIT_ENUM, SOCIAL_LIMIT_LIST, SOCIAL_LIMIT_ENUM } from '@/common/constants';
+import {
+  SEX_LIMIT_LIST,
+  SELF_LIST,
+  SEX_LIMIT_ENUM,
+  SOCIAL_LIMIT_LIST,
+  SOCIAL_LIMIT_ENUM,
+  YES_NO_ENUM,
+} from '@/common/constants';
 import ProductList from './components/ProductList/index.vue';
 import ProductRisk from './components/ProductRisk/index.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
@@ -946,6 +953,10 @@ const convertProposalToTrialData = (productCode?) => {
   };
 };
 
+const pickPeriodValue = (periodList) => {
+  return periodList.find((period) => period.defaultFlag === YES_NO_ENUM.YES)?.code;
+};
+
 /**
  * 被保人数据变动再次计算默认值
  */
@@ -973,6 +984,9 @@ const calcDynamicInsureFactor = async (productCodeList: string[]) => {
           Object.assign(riskItem, {
             ...riskItem,
             ...currentRiskItem,
+            coveragePeriod: pickPeriodValue(currentRiskItem.insurancePeriodValueList),
+            chargePeriod: pickPeriodValue(currentRiskItem.paymentPeriodValueList),
+            paymentFrequency: pickPeriodValue(currentRiskItem.paymentFrequencyList),
           });
         });
       });
@@ -1001,6 +1015,14 @@ const deleteRisk = (riskInfo: ProposalProductRiskItem, productInfo: ProposalInsu
         .map((item) => ({ ...item, nanoid: nanoid() }));
     } else {
       currentProduct.riskList = currentProduct.riskList.filter((risk) => risk.riskId !== riskInfo.riskId);
+      stateInfo.productCollection[currentProduct.productCode].productPlanInsureVOList[0].insureProductRiskVOList =
+        stateInfo.productCollection[
+          currentProduct.productCode
+        ].productPlanInsureVOList[0].insureProductRiskVOList.filter((risk) => {
+          return risk.riskCode !== riskInfo.riskCode;
+        });
+
+      console.log('stateInfo.productCollection', stateInfo.productCollection);
     }
     setProductError(currentProduct.productCode);
   });
@@ -1183,16 +1205,17 @@ watch(
         return '';
       }),
     () => stateInfo.currentSelectInsure,
-    stateInfo?.insurerList?.[stateInfo.currentSelectInsure]?.personVO?.relationToHolder === 2 &&
-      (() =>
-        trialFieldkeys.map((key) => {
-          if (stateInfo.holder) return stateInfo.holder[key];
-          return '';
-        })),
+    () =>
+      trialFieldkeys.map((key) => {
+        if (stateInfo.holder) return stateInfo.holder[key];
+        return '';
+      }),
   ],
-  debounce(([val, newIndex, holderInfo], [oldVal, oldIndex, oldHolderInfo]) => {
+  ([val, newIndex, holderInfo], [oldVal, oldIndex, oldHolderInfo]) => {
     if (
-      (val.join(',') !== oldVal.join(',') || (holderInfo || []).join(',') !== (oldHolderInfo || []).join(',')) &&
+      (val.join(',') !== oldVal.join(',') ||
+        (stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToHolder === 2 &&
+          (holderInfo || []).join(',') !== (oldHolderInfo || []).join(','))) &&
       newIndex === oldIndex
     ) {
       if (stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToHolder === 1) {
@@ -1203,7 +1226,7 @@ watch(
         calcDynamicInsureFactor(currentProductCodeListFn());
       }
     }
-  }, 500),
+  },
   {
     deep: true,
   },
