@@ -1,7 +1,7 @@
 <!-- 漏斗图 -->
 <template>
-  <div :id="props.idName" :style="{ width: '100%' }">
-    <div :id="`${props.idName}-funnel`" :style="{ height: '350px' }"></div>
+  <div :id="props.idName" :style="{ width: '330px', height: '300px' }">
+    <div :id="`${props.idName}-funnel`" :style="{ width: '100%', height: '100% ' }"></div>
   </div>
 </template>
 

@@ -2,7 +2,12 @@
   <div v-if="dataSource?.benefitRiskResultVOList" class="benefit-container">
     <!-- title-active-color="#0d6efe" -->
     <van-tabs :active="active" @click-tab="changeTab">
-      <van-tab v-for="(item, i) in props.dataSource?.benefitRiskResultVOList" :key="i" :name="i" :title="item.riskName">
+      <van-tab
+        v-for="(item, i) in props.dataSource?.benefitRiskResultVOList"
+        :key="i"
+        :name="i"
+        :title="item.productName"
+      >
         <div v-if="i == active" class="benefit">
           <!-- <div class="benefit-title">{{ item?.riskName }}</div> -->
           <div class="line"></div>
