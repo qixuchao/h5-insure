@@ -45,7 +45,7 @@
       <div class="card">
         <PolicyInfo
           v-if="state.policyInfo.schema.length"
-          v-model="detail"
+          v-model="detail.extInfo"
           :schema="state.policyInfo.schema"
           is-view
         ></PolicyInfo>

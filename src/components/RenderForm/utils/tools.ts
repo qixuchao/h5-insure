@@ -2,9 +2,8 @@ import { nanoid } from 'nanoid';
 import merge from 'lodash-es/merge';
 import isNil from 'lodash-es/isNil';
 import { formatDate } from '../../../utils/date';
-import { PersonVo } from '../../../api/modules/trial.data.d';
 import { isNotEmptyArray } from '@/common/constants/utils';
-import { SEX_LIMIT_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
+import { SEX_LIMIT_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM, ATTACHMENT_CATEGORY_ENUM } from '@/common/constants';
 import { COMPONENT_MAPPING_LIST, GLOBAL_CONFIG_MAP, MODULE_TYPE_MAP, INSURED_MODULE_TYPE_ENUM } from './constants';
 import { validateIdCardNo } from './validate';
 import { Column, ComponentProps, FieldConfItem, ProductFactor } from '../index.data';
@@ -229,8 +228,8 @@ export const transformToSchema = (arr: FieldConfItem[], trialFactorCodesArr: str
         item.displayType = 14;
       }
 
-      if (item.code === 'occupationCode') {
-        // item.isView = true;
+      if (item.code === 'relationshipProof') {
+        item.category = ATTACHMENT_CATEGORY_ENUM.GUARDIAN_MATERIAL;
       }
       // 当前组件配置
       const { code, name, value, componentName, ...rest } =
@@ -266,6 +265,7 @@ export const transformToSchema = (arr: FieldConfItem[], trialFactorCodesArr: str
         customFieldName: { text: 'value', value: 'code', children: 'children' },
         label: item.title,
         name: item.code,
+        category: item.category,
         remark: item.remark,
         componentName: finalComponentName,
         required: item.isMustInput === 1,
@@ -678,7 +678,7 @@ export const setCertDefaultValue = (schema, personVO, cb) => {
     if (item.name === 'certType') {
       const hasIdCard = item.columns.find((i) => i.code === '1');
 
-      if (hasIdCard && !personVO?.certType) {
+      if (hasIdCard) {
         cb?.();
       }
     }
@@ -698,7 +698,7 @@ export const getNameRules = (personVO) => {
           validator: (val) => {
             return reg.test(val);
           },
-          message: `请输入正确姓名${nationalityCode}`,
+          message: `请输入正确姓名`,
         },
       ],
     },

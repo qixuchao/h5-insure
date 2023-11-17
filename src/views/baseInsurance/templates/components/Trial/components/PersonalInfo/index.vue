@@ -112,6 +112,7 @@ import {
   getCertConfig,
   getNameRules,
   setCertDefaultValue,
+  getCertTypeConfig,
 } from '@/components/RenderForm';
 import { ProductFactor } from '@/api/modules/trial.data';
 import { isNotEmptyArray, PERSONAL_INFO_KEY, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
@@ -484,8 +485,8 @@ watch(
       }),
   ],
   // eslint-disable-next-line consistent-return
-  debounce((val, oldVal) => {
-    if (JSON.stringify(val) === JSON.stringify(oldVal) && isTrialChange) {
+  (val, oldVal) => {
+    if (isEqual(val, oldVal)) {
       isTrialChange = true;
       return false;
     }
@@ -550,7 +551,7 @@ watch(
         state.trialValidated = false;
         emit('trailValidateFailed', result);
       });
-  }, 0),
+  },
   {
     deep: true,
   },
@@ -643,24 +644,23 @@ watch(
   ],
   ([[holderConfig, holderFormData, insuredList], newConfig, newInitInsured], [oldVal, oldConfig, oldInitInsured]) => {
     const [oldHolderConfig, oldHolderData, oldInured] = oldVal || [];
-    // console.log('initInsuredTempData', oldHolderConfig, oldHolderData, oldInured);
     if (
-      JSON.stringify(holderConfig) === JSON.stringify(oldHolderConfig) &&
-      JSON.stringify(holderFormData) === JSON.stringify(oldHolderData) &&
-      JSON.stringify(insuredList) === JSON.stringify(oldInured) &&
-      JSON.stringify(newInitInsured) === JSON.stringify(oldInitInsured) &&
-      canUpdateFormData.value
+      isEqual(holderConfig, oldHolderConfig) &&
+      isEqual(holderFormData, oldHolderData) &&
+      isEqual(newInitInsured, oldInitInsured)
     ) {
       // 投保人
       return;
     }
 
     canUpdateFormData.value = true;
-    Object.assign(state.holder.config, holderConfig);
     console.log('投保人数据===', cloneDeep(state.holder.personVO), cloneDeep(holderFormData));
     console.log('投保人数据===', cloneDeep(state.holder.personVO), cloneDeep(holderFormData));
-
+    console.log('holderFormData', holderFormData);
     setCertDefaultValue(state.holder.schema, holderFormData, () => {
+      const config = getCertTypeConfig(holderFormData.certType, state.holder.schema);
+      Object.assign(state.holder.config, holderConfig, config);
+
       holderFormData.certType = holderFormData.certType || '1';
     });
 

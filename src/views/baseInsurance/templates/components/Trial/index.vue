@@ -279,6 +279,10 @@ const handleTrialAndBenefit = debounce(async (calcData: any, needCheck = true) =
           });
 
           emit('trialEnd', data, calcData);
+        } else {
+          state.trialResultPremium = null;
+          state.trialResult = {};
+          premiumMap.value = {};
         }
       })
       .finally(() => {
@@ -297,7 +301,7 @@ const canAddMainRisk = computed<boolean>(() => {
 });
 
 // 添加附加险后计算对应附加险的默认值
-const getRiderRiskDefaultValue = async (productCode, riskCodeList, mainRiskCode) => {
+const getRiderRiskDefaultValue = async (productCode, riskCodeList, mainRiskCode, mergeCodeList?) => {
   const mainRiskInfo = state.riskList[productCode].find((risk) => risk.riskCode === mainRiskCode);
   const { code, data } = await queryDefaultRiskInsureFactor({
     holder: state.userData.holder,
@@ -309,7 +313,7 @@ const getRiderRiskDefaultValue = async (productCode, riskCodeList, mainRiskCode)
   });
   if (code === '10000') {
     let insertIndex = 0;
-    insertIndex = state.riskList[productCode].findIndex((risk, index) => {
+    insertIndex = mergeCodeList.findIndex((risk, index) => {
       return risk.riskCode === riskCodeList[0];
     });
 
@@ -524,31 +528,48 @@ const onNext = (cb) => {
     jumpToNextPage(PAGE_CODE_ENUMS.TRIAL_PREMIUM, route.query);
     return;
   }
-  if (state.trialResultPremium) {
-    // 验证
-    Promise.all(insureInfosRef.value.map((currentRef) => currentRef.validate())).then(() => {
-      Object.assign(orderDetail.value, props.defaultOrder, {
-        extInfo: {
-          templateId,
 
-          ...orderDetail.value?.extInfo,
-          ...(props.defaultOrder?.extInfo || {}),
-          buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
-          pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
-        },
-      });
-      const currentOrderDetail = trialData2Order(
-        { ...dealMixData(), productCode, productName },
-        state.trialResult,
-        orderDetail.value,
-      );
-      cb?.(currentOrderDetail);
-      console.log('---- validate success ----');
-    });
-    state.loading = false;
-    state.show = true;
-    state.isAniShow = true;
-  }
+  Object.assign(orderDetail.value, props.defaultOrder, {
+    extInfo: {
+      templateId,
+
+      ...orderDetail.value?.extInfo,
+      ...(props.defaultOrder?.extInfo || {}),
+      buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
+      pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
+    },
+  });
+  const currentOrderDetail = trialData2Order(
+    { ...dealMixData(), productCode, productName },
+    state.trialResult,
+    orderDetail.value,
+  );
+  cb?.(currentOrderDetail);
+  // if (state.trialResultPremium) {
+  //   // 验证
+  //   Promise.all(insureInfosRef.value.map((currentRef) => currentRef.validate())).then(() => {
+  //     Object.assign(orderDetail.value, props.defaultOrder, {
+  //       extInfo: {
+  //         templateId,
+
+  //         ...orderDetail.value?.extInfo,
+  //         ...(props.defaultOrder?.extInfo || {}),
+  //         buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
+  //         pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
+  //       },
+  //     });
+  //     const currentOrderDetail = trialData2Order(
+  //       { ...dealMixData(), productCode, productName },
+  //       state.trialResult,
+  //       orderDetail.value,
+  //     );
+  //     cb?.(currentOrderDetail);
+  //     console.log('---- validate success ----');
+  //   });
+  //   state.loading = false;
+  //   state.show = true;
+  //   state.isAniShow = true;
+  // }
 };
 
 const onShare = (cb) => {
@@ -669,7 +690,7 @@ const handleMixTrialData = () => {
       state.submitData.insuredList = state.submitData?.insuredList.map((insured) => {
         return {
           ...insured,
-          productList: insured?.productList.map((currentProduct) => {
+          productList: (insured?.productList || []).map((currentProduct) => {
             return {
               ...currentProduct,
               riskList: state.riskList[currentProduct.productCode],

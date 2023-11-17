@@ -61,6 +61,7 @@
         :config="beneficiary.config"
         :holder-person-v-o="holderPersonVO"
         :is-view="isView || beneficiary.personVO?.isHolder === YES_NO_ENUM.YES"
+        :beneficiary-list="state.beneficiaryList"
         :extra-provision="{
           objectType: ATTACHMENT_OBJECT_TYPE_ENUM.BENEFICIARY,
           objectId: beneficiary?.personVO?.id,
@@ -591,7 +592,11 @@ watch(
       merge(config, genderConfig);
 
       // 若为本人合并投保人数据
-      Object.assign(state.personVO, newPersonVo);
+      nextTick(() => {
+        Object.assign(state.personVO, newPersonVo);
+        console.log('newPersonVo', newPersonVo);
+        console.log('PersonVo', state.personVO);
+      });
     }
 
     // 证件类型是否只有身份证
@@ -599,8 +604,8 @@ watch(
     merge(config, tempConfig);
   },
   {
-    // immediate: true,
-    deep: true,
+    immediate: true,
+    // deep: true,
   },
 );
 

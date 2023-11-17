@@ -76,6 +76,7 @@ const updateFullValue = (arr = []) => {
     if (formState?.formData) {
       formState.formData.occupationClass = occupationClass;
       formState.formData.occupationCode = arr[arr.length - 1]?.code;
+      formState.formData.occupationCodeList = val;
     }
     state.modelValue = val;
   }
@@ -91,7 +92,7 @@ const cascaderModelValue = computed(() => {
 watch(
   () => props.modelValue,
   (val) => {
-    state.modelValue = val;
+    state.modelValue = val || [];
   },
   {
     deep: true,
@@ -102,6 +103,7 @@ watch(
 watch(
   () => state.modelValue,
   (val) => {
+    console.log('modelValue', val);
     emit('update:modelValue', val);
   },
   {

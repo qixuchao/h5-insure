@@ -23,7 +23,7 @@
     ></PayInfo>
     <PolicyInfo
       v-if="state.policyInfo.schema.length"
-      v-model="orderDetail"
+      v-model="orderDetail.extInfo"
       :schema="state.policyInfo.schema"
       is-view
     ></PolicyInfo>

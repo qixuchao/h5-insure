@@ -32,7 +32,7 @@
         ></PayInfo>
         <PolicyInfo
           v-if="state.policyInfo.schema.length"
-          v-model="orderDetail"
+          v-model="orderDetail.extInfo"
           :schema="state.policyInfo.schema"
           :is-view="state.isView"
         ></PolicyInfo>
@@ -70,7 +70,7 @@
       :payment-frequency="trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''"
       :tenant-product-detail="tenantProductDetail"
       :handle-share="(cb) => onShare(cb)"
-      :disabled="!trialResult"
+      :disabled="!trialResult || nextLoading"
       @handle-click="onNext"
       >下一步
     </TrialButton>
@@ -325,6 +325,7 @@ const compareOcrData = () => {
   return msg;
 };
 
+const nextLoading = ref<boolean>(false);
 const onNext = async () => {
   if (preview) {
     jumpToNextPage(PAGE_CODE_ENUMS.INFO_COLLECTION, route.query);
@@ -371,6 +372,7 @@ const onNext = async () => {
 
         // 校验ocr信息是否被修改
         const msgList = compareOcrData();
+        nextLoading.value = true;
         if (msgList?.length) {
           Dialog.confirm({
             message: msgList?.[0],
@@ -379,6 +381,7 @@ const onNext = async () => {
             nextStep(
               currentOrderDetail,
               (data, pageAction) => {
+                nextLoading.value = false;
                 if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
                   pageJump(data.nextPageCode, route.query);
                 }
@@ -392,6 +395,7 @@ const onNext = async () => {
           nextStep(
             currentOrderDetail,
             (data, pageAction) => {
+              nextLoading.value = false;
               if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
                 pageJump(data.nextPageCode, route.query);
               }

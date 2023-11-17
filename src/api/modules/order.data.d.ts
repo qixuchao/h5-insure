@@ -119,6 +119,7 @@ export interface ExtInfo {
   workProvinceCode: string;
   workStation: string;
   workZipCode: string;
+  [propName: string]: any;
 }
 
 export interface LiabilityDetail {
