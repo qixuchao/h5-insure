@@ -58,7 +58,7 @@ const isUpdateBankInfo = computed<boolean>(() => {
 
 // 去处理
 const handleDeal = () => {
-  const { orderStatus, orderNo, insurerCode, underwriteFlag, templateId } = props.detail;
+  const { orderStatus, orderNo, insurerCode, underwriteFlag, templateId, iseeBizNo } = props.detail;
   let path = PAGE_ROUTE_ENUMS.sign;
 
   // 待信息采集页面跳转信息采集页
@@ -74,12 +74,13 @@ const handleDeal = () => {
       orderNo,
       insurerCode,
       templateId,
+      iseeBizNo,
     },
   });
 };
 
 const handleShare = (type) => {
-  const { holderName, holderGender, orderId, orderNo, insurerCode } = props.detail || {};
+  const { holderName, holderGender, orderId, orderNo, insurerCode, iseeBizNo } = props.detail || {};
   const userInfo = {
     name: holderName,
     gender: `${SEX_LIMIT_MAP[holderGender]}士`,
@@ -89,7 +90,7 @@ const handleShare = (type) => {
     shareType: 0,
     title: `${SHARE_CONTENT.cancel.title}`,
     desc: SHARE_CONTENT.cancel.desc.replace('{name}', `${userInfo.name}${userInfo.gender},`),
-    url: `${window.location.href}&objectType=${type}&insurerCode=${insurerCode}&isShare=1&orderNo=${orderNo}&orderId=${orderId}&nextPageCode=orderDetail`.replace(
+    url: `${window.location.href}&objectType=${type}&insurerCode=${insurerCode}&isShare=1&orderNo=${orderNo}&iseeBizNo=${iseeBizNo}&orderId=${orderId}&nextPageCode=orderDetail`.replace(
       /\/orderDetail|\/order/,
       '/baseInsurance/long/phoneVerify',
     ),
@@ -126,7 +127,7 @@ const handleReturn = () => {
 
 // 修改银行卡信息
 const handleUpdateBank = () => {
-  const { orderNo, orderId, insurerCode } = props.detail;
+  const { orderNo, orderId, insurerCode, iseeBizNo } = props.detail;
   router.push({
     path: PAGE_ROUTE_ENUMS.updateBankInfo,
     query: {
@@ -135,6 +136,7 @@ const handleUpdateBank = () => {
       orderId,
       insurerCode,
       nextPageCode: 'orderDetail',
+      iseeBizNo,
     },
   });
 };

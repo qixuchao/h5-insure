@@ -122,9 +122,14 @@ const handleSubmit = () => {
 };
 const isMounted = ref<boolean>(false);
 
+const iseeBizNo = ref();
+
 onMounted(() => {
   isMounted.value = true;
   queryScribingList();
+  setTimeout(async () => {
+    iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
+  }, 1500);
 });
 </script>
 

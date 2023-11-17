@@ -117,6 +117,7 @@ const state = reactive<StateType>({
   selectedProductList: [],
   firstLoading: true,
 });
+const iseeBizNo = ref();
 
 const {
   searchValue,
@@ -181,6 +182,7 @@ const handleProduct = async (productInfo) => {
       productCode,
       tenantId: 9991000011,
       templateId,
+      iseeBizNo,
     },
   });
 };
@@ -210,6 +212,13 @@ const onRefresh = () => {
   loading.value = true;
   onLoad();
 };
+
+onMounted(() => {
+  // 调用千里眼插件获取一个iseeBiz
+  setTimeout(async () => {
+    iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
+  }, 1500);
+});
 </script>
 
 <style scoped lang="scss">

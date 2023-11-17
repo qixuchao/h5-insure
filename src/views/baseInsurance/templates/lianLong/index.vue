@@ -316,6 +316,9 @@ const getDefaultData = async () => {
 };
 
 const onNext = async () => {
+  if (defaultOrderDetail.value.extInfo) {
+    defaultOrderDetail.value.extInfo.iseeBizNo = iseeBizNo.value;
+  }
   const { code, data } = await saveOrder(defaultOrderDetail.value);
   if (code === '10000') {
     router.push({

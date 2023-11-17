@@ -160,6 +160,14 @@ const handleCancel = () => {
   toggleStatus(false);
   handleGiveUp();
 };
+
+const iseeBizNo = ref();
+onMounted(() => {
+  // 调用千里眼插件获取一个iseeBiz
+  setTimeout(async () => {
+    iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
+  }, 1500);
+});
 </script>
 
 <style lang="scss" scoped>
