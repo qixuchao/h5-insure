@@ -698,7 +698,7 @@ export const getNameRules = (personVO) => {
           validator: (val) => {
             return reg.test(val);
           },
-          message: `请输入正确姓名${nationalityCode}`,
+          message: `请输入正确姓名`,
         },
       ],
     },

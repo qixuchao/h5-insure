@@ -32,6 +32,7 @@ import { VAN_PRO_FORM_KEY } from '../utils';
 import useDictData from '@/hooks/useDictData';
 import * as FieldComponents from './index';
 import { SchemaItem } from '../index.data';
+import { useAttrsAndSlots } from '../hooks';
 
 /**
  * 验证方式 toast - 弹窗，show-error - 仅标红， show-error-message - 字段下方红色文案
@@ -53,8 +54,9 @@ const emits = defineEmits(['failed']);
 
 const slots = useSlots();
 
+const { attrs } = toRefs(useAttrsAndSlots());
 const props = withDefaults(defineProps<Props>(), {
-  validateMethod: 'show-error',
+  validateMethod: 'show-error-message',
   isView: false,
   markRequired: true,
   model: () => ({}),
@@ -102,7 +104,7 @@ const errorProps = computed(() => {
   const tempMap = {
     toast: [false, false],
     'show-error': [false, true],
-    'show-error-message': [true, false],
+    'show-error-message': [true, true],
   };
 
   const [flag1, flag2] = tempMap[props.validateMethod];
@@ -110,6 +112,7 @@ const errorProps = computed(() => {
   return {
     'show-error-message': flag1,
     'show-error': flag2,
+    'error-message-align': 'right',
   };
 });
 
@@ -248,5 +251,8 @@ defineExpose({
 </script>
 <style lang="scss" scoped>
 .com-van-form {
+  :deep(.van-field__error-message) {
+    width: 100%;
+  }
 }
 </style>

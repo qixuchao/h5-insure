@@ -160,6 +160,7 @@ const rules = computed(() => {
         }
         return '';
       },
+      message: placeholder.value,
     },
   ];
 });
