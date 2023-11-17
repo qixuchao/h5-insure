@@ -15,10 +15,13 @@
         <img round class="agent_icon" :src="agent_img" />
         <div class="agent_info">
           <!-- 姓名 -->
-          <span class="agent-name">{{ userInfo?.name || '' }}</span>
-          <!-- 利安没有职级 -->
-          <!-- 公司名称 -->
-          <span class="agent-company">利安人寿南京分公司</span>
+          <div class="agent-card">
+            <span class="agent-name">{{ userInfo?.name || '' }}</span>
+            <!-- 利安没有职级 -->
+            <!-- 公司名称 -->
+            <span class="agent-grade">{{ userInfo?.manageComName }}</span>
+          </div>
+          <span class="agent-company">{{ userInfo?.agentGradeName }}</span>
           <span class="agent-num">工 号 {{ userInfo?.agentCode }} </span>
           <span class="agent-num">执业证号 {{ userInfo?.quafNo }}</span>
         </div>
@@ -216,10 +219,13 @@
         <img round class="agent_icon" :src="agent_img" />
         <div class="agent_info">
           <!-- 姓名 -->
-          <span class="agent-name">{{ userInfo?.name || '' }}</span>
-          <!-- 利安没有职级 -->
-          <!-- 公司名称 -->
-          <span class="agent-company">利安人寿南京分公司</span>
+          <div class="agent-card">
+            <span class="agent-name">{{ userInfo?.name || '' }}</span>
+            <!-- 利安没有职级 -->
+            <!-- 公司名称 -->
+            <span class="agent-grade">{{ userInfo?.manageComName }}</span>
+          </div>
+          <span class="agent-company">{{ userInfo?.agentGradeName }}</span>
           <span class="agent-num">工 号 {{ userInfo?.agentCode }} </span>
           <span class="agent-num">执业证号 {{ userInfo?.quafNo }}</span>
         </div>
@@ -296,6 +302,20 @@
     @insure-select-change="handleSelectInsureChange"
     @add-benefit-charts="uploadBenefitCharts"
   />
+  <AgentToImage class="agent-img" :infos="userInfo" @on-uploaded-agent-img="addAgentImg" />
+
+  <!-- <img round class="agent_icon" :src="agent_img" />
+        <div class="agent_info">
+          <span class="agent-name">{{ userInfo?.name || '' }}</span>
+
+          <span class="agent-company">利安人寿南京分公司</span>
+          <span class="agent-num">工 号 {{ userInfo?.agentCode }} </span>
+          <span class="agent-num">执业证号 {{ userInfo?.quafNo }}</span>
+        </div>
+        <a :href="`tel:${userInfo?.phone}`" class="agent-tel">
+          <img round class="agent-tel-img" :src="agent_tel" />
+        </a>
+      </div> -->
 </template>
 <script lang="ts" setup>
 import wx from 'weixin-js-sdk';
@@ -305,7 +325,6 @@ import dayjs from 'dayjs';
 import { useRoute, useRouter } from 'vue-router';
 import { toLocal, ORIGIN } from '@/utils';
 import { queryProposalDetail, queryPreviewProposalDetail, generatePdf } from '@/api/modules/proposalList';
-import { watermark, clearMark } from '@/utils/watermark';
 import { getFileType } from '@/views/baseInsurance/utils';
 import RowTabs from './components/RowTabs.vue';
 import agent_img from '@/assets/images/compositionProposal/addver.png';
@@ -325,7 +344,8 @@ import {
   queryProposalThemeHistoryDetail,
 } from '@/api/modules/compositionProposal';
 import Storage from '@/utils/storage';
-import BenefitCharts from './components/BenefitCharts.vue'; //
+import BenefitCharts from './components/BenefitCharts.vue';
+import AgentToImage from './components/AgentToImage.vue';
 import InsurancesList from './components/InsurancesList.vue'; // 预览页面 被保人选择
 import InsuranceList from './components/InsuranceList.vue'; // 被保人展示
 // import Benefit from './components/Benefit.vue';
@@ -382,6 +402,7 @@ const [showThemeSelect, toggleThemeSelect] = useToggle(); // 选择主题弹出
 const activeName = ref<string[]>([]);
 const themeList = ref<ThemeItem[]>([]); // 主题列表
 const saleInfo = ref<any>({});
+const userInfo = ref<any>({});
 
 const shareButtonRef = ref(); // 分享按钮组件实例
 const operateType = ref<'share' | 'pdf'>('share'); // 按钮的操作类型
@@ -401,6 +422,7 @@ interface IState {
   currentTab: string;
   tabs: Array;
   benefitChartsArray: Array;
+  agentImg: string;
 }
 const state = reactive<IState>({
   agentCard: {},
@@ -412,6 +434,7 @@ const state = reactive<IState>({
   currentTab: '',
   tabs: [],
   benefitChartsArray: [],
+  agentImg: '',
 });
 const {
   agentCard,
@@ -423,6 +446,7 @@ const {
   currentTab,
   tabs,
   benefitChartsArray,
+  agentImg,
 } = toRefs(state);
 const rowDatas = computed(() => {
   console.log('rowDatas', rowDataMap.value);
@@ -495,7 +519,7 @@ const goCompanyAllDetail = () => {
     path: '/companyAllDetail',
   });
 };
-const userInfo = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`);
+// const userInfo = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`);
 watch(
   () => infos.value,
   (val) => {
@@ -548,6 +572,9 @@ const handleSelectInsureChange = (index, insure) => {
 const uploadBenefitCharts = (e) => {
   benefitChartsArray.value = e;
 };
+const addAgentImg = (e) => {
+  agentImg.value = e.imgUrl;
+};
 
 const getData = async () => {
   try {
@@ -562,6 +589,7 @@ const getData = async () => {
 
     if (code === '10000') {
       saleInfo.value = data.proposalTemplateSaleInfoMap || {};
+      userInfo.value = data.userInfo || {};
       agentCard.value = saleInfo.value?.agentCard || {};
       basicInfo.value = saleInfo.value?.basicInfo || {};
       companyProfile.value = saleInfo.value?.companyProfile || {};
@@ -690,7 +718,7 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
         };
         let path = PAGE_ROUTE_ENUMS.premiumTrial;
         if (+productClass !== 4) {
-          path = PAGE_ROUTE_ENUMS.premiumTrial;
+          path = PAGE_ROUTE_ENUMS.productInfo;
         }
 
         history.push({
@@ -743,19 +771,22 @@ const getPdf = (themeHistoryId?: number) => {
     message: 'PDF生成中...',
     forbidClick: true,
   });
-  generatePdf({ benefitCharts: isShowCharts.value ? benefitChartsArray.value : null, id, themeHistoryId }).then(
-    (res: any) => {
-      const { code, message } = res;
-      if (code === '10000') {
-        Toast.clear();
-        if (message) {
-          history.push(`/pdfViewer?url=${encodeURIComponent(message)}&title=${encodeURIComponent(proposalName.value)}`);
-        } else {
-          Toast('计划书为空');
-        }
+  generatePdf({
+    benefitCharts: isShowCharts.value ? benefitChartsArray.value : null,
+    agentImage: agentImg.value,
+    id,
+    themeHistoryId,
+  }).then((res: any) => {
+    const { code, message } = res;
+    if (code === '10000') {
+      Toast.clear();
+      if (message) {
+        history.push(`/pdfViewer?url=${encodeURIComponent(message)}&title=${encodeURIComponent(proposalName.value)}`);
+      } else {
+        Toast('计划书为空');
       }
-    },
-  );
+    }
+  });
 };
 
 const handleModeChange = (item: any) => {
@@ -834,21 +865,12 @@ const currentFile = ref({
   show: false,
 });
 // 客户代理人信息
-const agentInfo = reactive({ name: `${userInfo?.name}`, agentCode: `${userInfo?.agentCode}` });
+// const agentInfo = reactive({ name: `${userInfo?.name}`, agentCode: `${userInfo?.agentCode}` });
 const previewFile = (file: {}) => {
   currentFile.value = { ...file, show: true };
-  // 添加水印
-  watermark({
-    watermark_txt: `${agentInfo.name}\r\n${agentInfo.agentCode}`,
-    watermark_color: '#333',
-    watermark_angle: 30,
-    watermark_width: 100,
-    watermark_height: 60,
-  });
 };
 const resetFile = (file: {}) => {
   console.log('关闭文件预览');
-  clearMark();
   currentFile.value = {
     attachmentName: '',
     attachmentContent: '',
@@ -896,7 +918,6 @@ const resetFile = (file: {}) => {
     color: #333333;
     line-height: 40px;
     margin-bottom: 2px;
-    display: block;
   }
   .agent-company {
     font-size: 24px;
@@ -913,6 +934,19 @@ const resetFile = (file: {}) => {
     line-height: 30px;
     margin-bottom: 4px;
     display: block;
+  }
+  .agent-card {
+    display: flex;
+    align-items: center;
+  }
+  .agent-grade {
+    padding: 2px 8px;
+    margin-left: 20px;
+    border-radius: 6px;
+    border: 1px solid #c41e21;
+    font-size: 22px;
+    font-weight: 400;
+    color: #c41e21;
   }
 }
 .page-composition-proposal-agent2 {
@@ -997,7 +1031,7 @@ const resetFile = (file: {}) => {
     margin-bottom: 28px;
 
     &.single-user {
-      height: 200px;
+      // height: 200px;
     }
     .title {
       display: inline-block;
@@ -1425,6 +1459,10 @@ const resetFile = (file: {}) => {
   margin-top: 30px;
 }
 .benefit-chart {
+  position: fixed;
+  display: block;
+}
+.agent-img {
   position: fixed;
   display: block;
 }
