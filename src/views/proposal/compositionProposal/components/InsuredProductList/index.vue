@@ -19,7 +19,7 @@
           <van-checkbox-group v-model="checked">
             <van-cell-group>
               <VanCell
-                v-for="item in dataSource.proposalTransInsuredProductVOList"
+                v-for="item in dataSource?.proposalTransInsuredProductVOList"
                 :key="item.productCode"
                 @click="onCheck(item)"
               >
