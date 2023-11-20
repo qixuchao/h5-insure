@@ -188,6 +188,8 @@ export const RULE_TYPE_ENUM = {
   /** 银行卡号 */
   BAND_CARD: 'bandCard',
   TEMPORARY_CARD: 'temporaryCard',
+  /** 比例 */
+  BENEFIT_RATE: 'benefitRate',
 };
 
 /** 规则配置 */
@@ -276,6 +278,14 @@ export const RULE_CONFIG_MAP = {
   COUNTRY: {
     dictCode: combineDictCode(DictNameEnum.NATIONALITY),
     customFieldName: { text: 'name', value: 'code', children: 'children' },
+  },
+  /**
+   * 比例
+   */
+  RATE: {
+    type: 'digit',
+    maxlength: INPUT_MAX_LENGTH.THREE,
+    ruleType: RULE_TYPE_ENUM.BENEFIT_RATE,
   },
 };
 
@@ -566,7 +576,7 @@ export const GLOBAL_CONFIG_MAP = {
   },
   /** 受益比例 */
   benefitRate: {
-    ...RULE_CONFIG_MAP.AGE,
+    ...RULE_CONFIG_MAP.RATE,
     unit: '%',
   },
 };

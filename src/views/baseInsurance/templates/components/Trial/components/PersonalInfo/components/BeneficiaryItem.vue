@@ -173,12 +173,26 @@ watch(
         val?.relationToInsured !== oldVal?.relationToInsured &&
         oldVal?.relationToInsured
       ) {
-        console.log('2324234');
         const repeatRelation = props.beneficiaryList.find(
           (beneficiary) => `${val?.relationToInsured}` === `${beneficiary.personVO?.relationToInsured}`,
         );
         if (repeatRelation) {
           Toast('已存在配偶关系的受益人');
+        }
+      }
+
+      if (
+        (`${val.benefitRate}` !== `${oldVal?.benefitRate}` && oldVal?.benefitRate) ||
+        val.benefitOrder !== oldVal?.benefitOrder
+      ) {
+        const currentRate = props.beneficiaryList.reduce((sum, benefit) => {
+          if (benefit.personVO.benefitOrder === val.benefitOrder) {
+            sum += +val.benefitRate;
+          }
+          return sum;
+        }, 0);
+        if (currentRate !== 100 && oldVal?.benefitRate) {
+          Toast('同一顺位受益人的受益比例之和必须为100%');
         }
       }
 
