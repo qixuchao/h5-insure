@@ -582,6 +582,9 @@ onMounted(() => {
   timer = setInterval(() => {
     handleCache();
   }, 30000);
+  setTimeout(async () => {
+    iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
+  }, 1500);
 });
 
 onBeforeUnmount(() => {

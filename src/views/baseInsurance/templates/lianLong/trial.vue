@@ -63,6 +63,7 @@ const insuredList = ref([]);
 const currentRiskInfo = ref({});
 const trialRef = ref<InstanceType<typeof Trial>>();
 const currentProductCode = ref<string>();
+const iseeBizNo = ref();
 
 const orderDetail = useOrder({
   extInfo: {
@@ -245,6 +246,10 @@ const nextStep = () => {
       }, orderDetailCopy.holder);
     }
 
+    if (orderDetailCopy.extInfo) {
+      orderDetailCopy.extInfo.iseeBizNo = iseeBizNo.value;
+    }
+
     const { code, data } = await saveOrder(orderDetailCopy);
     if (code === '10000') {
       router.push({
@@ -277,5 +282,12 @@ onBeforeMount(() => {
   } else {
     getProductDetail();
   }
+});
+
+onMounted(() => {
+  // 调用千里眼插件获取一个iseeBiz
+  setTimeout(async () => {
+    iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
+  }, 1500);
 });
 </script>
