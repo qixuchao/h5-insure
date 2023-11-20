@@ -19,9 +19,9 @@
             <span class="agent-name">{{ userInfo?.name || '' }}</span>
             <!-- 利安没有职级 -->
             <!-- 公司名称 -->
-            <span class="agent-grade">{{ userInfo?.manageComName }}</span>
+            <span class="agent-grade">{{ userInfo?.agentGradeName }}</span>
           </div>
-          <span class="agent-company">{{ userInfo?.agentGradeName }}</span>
+          <span class="agent-company">{{ userInfo?.manageComName }}</span>
           <span class="agent-num">工 号 {{ userInfo?.agentCode }} </span>
           <span class="agent-num">执业证号 {{ userInfo?.quafNo }}</span>
         </div>
@@ -223,9 +223,9 @@
             <span class="agent-name">{{ userInfo?.name || '' }}</span>
             <!-- 利安没有职级 -->
             <!-- 公司名称 -->
-            <span class="agent-grade">{{ userInfo?.manageComName }}</span>
+            <span class="agent-grade">{{ userInfo?.agentGradeName }}</span>
           </div>
-          <span class="agent-company">{{ userInfo?.agentGradeName }}</span>
+          <span class="agent-company">{{ userInfo?.manageComName }}</span>
           <span class="agent-num">工 号 {{ userInfo?.agentCode }} </span>
           <span class="agent-num">执业证号 {{ userInfo?.quafNo }}</span>
         </div>
@@ -718,7 +718,7 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
         };
         let path = PAGE_ROUTE_ENUMS.premiumTrial;
         if (+productClass !== 4) {
-          path = PAGE_ROUTE_ENUMS.productInfo;
+          path = PAGE_ROUTE_ENUMS.premiumTrial;
         }
 
         history.push({
