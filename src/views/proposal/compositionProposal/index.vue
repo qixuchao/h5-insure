@@ -656,10 +656,9 @@ const openProductList = (insure: any) => {
 // 计划书产品转投保
 const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
   const { productCode, insurerCode, tenantProductCode, checkedList } = product;
+  let { productClass, templateId } = product;
   const productCodes = checkedList && Object.values(checkedList).join(',');
   let targetInsureId = insuredId;
-  let productClass = '';
-  let templateId = '';
   if (targetInsureId <= 0 || insuredId === undefined) {
     if (proposal2InsuredSelectedInsurer.value) {
       targetInsureId = proposal2InsuredSelectedInsurer.value.proposalInsuredId;
@@ -678,6 +677,7 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
       }
     }
   }
+
   // 检验产品是否支持转投保
   checkProposalInsurer({
     productCode: productCodes || productCode,

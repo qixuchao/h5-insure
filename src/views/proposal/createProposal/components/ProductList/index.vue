@@ -15,11 +15,11 @@
               <span class="factor-name"> 保额(元) </span>
             </div>
             <div class="factor">
-              <span class="factor-value">{{ pickPeriodValue(risk.insurancePeriodValueList) }}</span>
+              <span class="factor-value">{{ convertPeriod(risk.coveragePeriod) || '-' }}</span>
               <span class="factor-name"> 保障期间 </span>
             </div>
             <div class="factor">
-              <span class="factor-value">{{ pickPeriodValue(risk.paymentPeriodValueList) }}</span>
+              <span class="factor-value">{{ convertChargePeriod(risk.chargePeriod) || '-' }}</span>
               <span class="factor-name"> 交费期间 </span>
             </div>
           </div>
@@ -173,7 +173,7 @@ const collocationRiderList = computed(() => {
 });
 
 const pickPeriodValue = (periodList) => {
-  return periodList.find((period) => period.defaultFlag === YES_NO_ENUM.YES)?.value || '-';
+  return (periodList || []).find((period) => period.defaultFlag === YES_NO_ENUM.YES)?.value || '-';
 };
 
 const deleteRisk = (riskInfo: ProposalProductRiskItem) => {

@@ -86,7 +86,7 @@ const close = () => {
 // eslint-disable-next-line consistent-return
 const onClick = () => {
   if (!checked.value || +checked.value === -1) {
-    return Toast('请选择投保产品');
+    return Toast('请选择被保人');
   }
   emits('finished', currentProduct.value);
 };
