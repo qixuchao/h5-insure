@@ -77,7 +77,7 @@ const handleCharts = () => {
 
       emits('onUploadedAgentImg', { imgUrl: url });
     });
-  }, 500);
+  }, 1000);
 };
 
 const renderArray = (start: number, end: number) => {
