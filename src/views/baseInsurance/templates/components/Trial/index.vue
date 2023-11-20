@@ -889,7 +889,7 @@ const handleDynamicConfig = async (data: any, changeData: any, productCode) => {
         };
       });
       state.isQuerying = true;
-      const insuredList = state.userData.insuredList.filter((insured) => insured.birthday) || [];
+      const insuredList = state.userData.insuredList.filter((insured) => insured.age || insured.birthday) || [];
       if (!insuredList.length) {
         return false;
       }
