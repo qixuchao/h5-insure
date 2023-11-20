@@ -345,6 +345,12 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/order/index.vue'),
   },
   {
+    name: 'orderRecordList',
+    path: '/orderRecordList',
+    meta: { title: '投保单进度查询' },
+    component: () => import('@/views/order/index.vue'),
+  },
+  {
     name: 'orderDemo',
     path: '/orderDemo',
     meta: { title: '投保单列表1' },

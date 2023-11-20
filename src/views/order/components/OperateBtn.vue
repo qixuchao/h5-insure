@@ -1,8 +1,11 @@
 <template>
   <div class="operate-wrap">
-    <van-button v-if="isDealOrder" type="primary" size="small" @click.stop="handleDeal">去处理</van-button>
-    <van-button v-if="isReturnOrder" type="primary" plain size="small" @click.stop="handleReturn">撤单</van-button>
-    <van-button v-if="isUpdateBankInfo" plain size="small" @click.stop="handleUpdateBank">银行卡修改</van-button>
+    <template v-if="!showRecord">
+      <van-button v-if="isDealOrder" type="primary" size="small" @click.stop="handleDeal">去处理</van-button>
+      <van-button v-if="isReturnOrder" type="primary" plain size="small" @click.stop="handleReturn">撤单</van-button>
+      <van-button v-if="isUpdateBankInfo" plain size="small" @click.stop="handleUpdateBank">银行卡修改</van-button>
+    </template>
+    <van-cell v-else label="" value="查看订单状态" is-link @click.stop="previewStatus"></van-cell>
   </div>
 </template>
 <script lang="ts" name="operateBtn" setup>
@@ -31,6 +34,8 @@ const props = withDefaults(
 );
 
 const emits = defineEmits(['handleCancel']);
+
+const showRecord = computed(() => route.path === '/orderRecordList');
 
 // 去处理按钮展示权限
 const isDealOrder = computed<boolean>(() => {
@@ -97,6 +102,18 @@ const handleShare = (type) => {
   });
 };
 
+const previewStatus = () => {
+  const { orderId, orderNo } = props.detail || {};
+  router.push({
+    path: 'orderTrajectory',
+    query: {
+      ...route.query,
+      orderId,
+      orderNo,
+    },
+  });
+};
+
 // 撤单
 const handleReturn = () => {
   const { orderNo, orderId } = props.detail;
@@ -148,6 +165,23 @@ const handleUpdateBank = () => {
   button {
     & + button {
       margin-left: 30px;
+    }
+  }
+
+  :deep(.van-cell) {
+    padding: 0;
+    align-items: center;
+    .van-cell__value--alone {
+      text-align: right;
+      color: #0d6efe;
+    }
+    .van-cell__right-icon {
+      padding-top: 0;
+    }
+    .van-icon-arrow {
+      &:before {
+        color: #0d6efe;
+      }
     }
   }
 }
