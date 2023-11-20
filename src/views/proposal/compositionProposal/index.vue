@@ -302,7 +302,7 @@
     @insure-select-change="handleSelectInsureChange"
     @add-benefit-charts="uploadBenefitCharts"
   />
-  <AgentToImage class="agent-img" :infos="userInfo" @on-uploaded-agent-img="addAgentImg" />
+  <AgentToImage class="agent-img" :infos="userInfoApp" @on-uploaded-agent-img="addAgentImg" />
 
   <!-- <img round class="agent_icon" :src="agent_img" />
         <div class="agent_info">
@@ -519,7 +519,7 @@ const goCompanyAllDetail = () => {
     path: '/companyAllDetail',
   });
 };
-// const userInfo = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`);
+const userInfoApp = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`);
 watch(
   () => infos.value,
   (val) => {
