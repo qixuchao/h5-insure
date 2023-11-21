@@ -248,6 +248,7 @@ const initData = async () => {
             .filter((item) => item.id === +proposalInsuredId)
             .map((insured) => ({
               ...insured,
+              relationToHolder: null,
               productList: insured.productList.filter((product) => productCodes.includes(product.productCode)),
             })),
         });

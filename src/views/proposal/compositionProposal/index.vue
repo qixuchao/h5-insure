@@ -664,7 +664,6 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
       targetInsureId = proposal2InsuredSelectedInsurer.value.proposalInsuredId;
       templateId = proposal2InsuredSelectedInsurer.value.proposalTransInsuredProductVOList[0].templateId;
       productClass = proposal2InsuredSelectedInsurer.value.proposalTransInsuredProductVOList[0].productClass;
-      console.log('templateId---', templateId);
     } else {
       if (currentInfo.value) {
         const targetInsure = insuredProductList.value.find(

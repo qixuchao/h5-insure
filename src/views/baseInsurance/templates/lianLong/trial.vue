@@ -67,7 +67,6 @@ const iseeBizNo = ref();
 
 const orderDetail = useOrder({
   extInfo: {
-    templateId: 201,
     buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
     pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
   },
@@ -209,6 +208,7 @@ const getProposalInfo = () => {
         .filter((item) => item.id === +proposalInsuredId)
         .map((insured) => ({
           ...insured,
+          relationToHolder: null,
           productList: insured.productList.filter((product) => {
             if (productCodes.includes(product.productCode)) {
               occupationCodeList = product.occupationCodeList;
