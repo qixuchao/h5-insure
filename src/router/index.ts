@@ -85,7 +85,7 @@ router.beforeEach(async (to, from, next) => {
   SDK(
     'setNavigationBarTitle',
     {
-      title: to.meta?.title || document.title,
+      title: to.meta?.title || to.query?.title,
     },
     () => {},
   );

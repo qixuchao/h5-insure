@@ -779,7 +779,6 @@ const getPdf = (themeHistoryId?: number) => {
     const { code, message } = res;
     if (code === '10000') {
       console.log('11111----', proposalName.value);
-      debugger;
 
       Toast.clear();
       if (message) {
