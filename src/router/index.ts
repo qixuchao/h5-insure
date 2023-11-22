@@ -81,13 +81,15 @@ router.beforeEach(async (to, from, next) => {
   console.log(window.location.href, `${ORIGIN}${to.path}`);
   // set title 给App或浏览器标题栏显示
   useTitle(to.meta?.title as string); // || (VITE_TITLE as string));
+
   SDK(
     'setNavigationBarTitle',
     {
-      title: to.meta?.title,
+      title: to.meta?.title || document.title,
     },
     () => {},
   );
+
   if (to.path === '/login' || to.query.flag === 'N') {
     next();
   } else {
