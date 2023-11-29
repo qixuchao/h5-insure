@@ -19,3 +19,4 @@ export { default as ProAddress } from './ProAddress.vue';
 export { default as ProOccupation } from './ProOccupation.vue';
 export { default as ProRenderFormWithCard } from './ProRenderFormWithCard.vue';
 export { default as ProVerifyFace } from './ProVerifyFace.vue';
+export { default as ProStackPicker } from './ProStackPicker.vue';

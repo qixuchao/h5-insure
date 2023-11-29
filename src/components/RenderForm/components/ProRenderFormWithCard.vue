@@ -3,6 +3,7 @@
     :class="`com-pro-form-with-card com-card-body-no-padding ${props.class}`"
     :show-divider="false"
     :title="title"
+    :show-icon="showIcon"
   >
     <template #extra>
       <slot name="cardTitleExtra" />
@@ -17,23 +18,25 @@
   </ProCard>
 </template>
 <script lang="ts" setup>
-import { useSlots } from 'vue';
+import { useSlots, withDefaults } from 'vue';
 import ProRenderForm from './ProRenderForm.vue';
 
 const renderFormRef = ref(null);
 
 const slots = useSlots();
 
-const props = defineProps({
-  title: {
-    type: String,
-    default: '',
+const props = withDefaults(
+  defineProps<{
+    title: string;
+    class: string;
+    showIcon: boolean;
+  }>(),
+  {
+    title: '',
+    class: '',
+    showIcon: true,
   },
-  class: {
-    type: String,
-    default: '',
-  },
-});
+);
 
 /** 非ProCard 插槽 */
 const noProCardSlots = computed(() => Object.keys(slots).filter((key) => key !== 'cardTitleExtra'));

@@ -33,7 +33,14 @@ import isNil from 'lodash-es/isNil';
 import isObject from 'lodash-es/isObject';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import ValueView from './ProFormItem/ValueView.vue';
-import { VAN_PRO_FORM_KEY, RELATED_RULE_TYPE_MAP, relatedConfigMap, handleSlots, validatorMap } from '../utils';
+import {
+  VAN_PRO_FORM_KEY,
+  RELATED_RULE_TYPE_MAP,
+  relatedConfigMap,
+  handleSlots,
+  validatorMap,
+  RULE_TYPE_MSG,
+} from '../utils';
 
 const attrs = useAttrs() as FieldProps;
 const slots = useSlots();
@@ -155,7 +162,7 @@ const rules = computed(() => {
 
           // 有值则验证是否匹配
           if (!isFalseValue(val) && !regFn(val)) {
-            return `请输入正确的${attrs.label}`;
+            return RULE_TYPE_MSG[ruleType.value]?.[0] || `请输入正确的${attrs.label}`;
           }
         }
         return '';

@@ -223,3 +223,46 @@ export function subString(str: string, size: number, prefix = '...'): string {
 export const scrollToError = (wrap, errorEle) => {
   document.querySelector(wrap).querySelector(errorEle).scrollIntoViewIfNeeded();
 };
+
+interface TreeNode {
+  key: string;
+  children: TreeNode[];
+}
+
+interface ParentInfo {
+  parentKey: string | null;
+  grandparentKey: string | null;
+}
+
+export const findParentKey = (leafKeys: string[], tree: any[], key = 'code'): Record<string, string[]> => {
+  const parentDict: Record<string, any> = {};
+
+  // 遍历树结构，将每个节点的结构及对应的父节点key赋给节点的key,
+  const getParentKey = (nodeList, parent) => {
+    nodeList.forEach((node) => {
+      parentDict[node[key]] = { ...node, parentKey: parent?.[key], children: null };
+
+      if (node.children) {
+        getParentKey(node.children, node);
+      }
+    });
+  };
+
+  getParentKey(tree, null);
+  const result = {};
+
+  leafKeys.forEach((leaf) => {
+    result[leaf] = [parentDict[leaf]];
+    const pickKeyList = (code) => {
+      const parentKey = parentDict[code]?.parentKey;
+      result[leaf].unshift(parentDict[code]);
+
+      if (parentKey) {
+        pickKeyList(parentKey);
+      }
+    };
+    pickKeyList(parentDict[leaf]?.parentKey);
+  });
+
+  return result;
+};

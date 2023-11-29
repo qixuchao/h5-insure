@@ -121,7 +121,7 @@ const Banner = defineAsyncComponent(() => import('../components/Banner/index.vue
 const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
 const InsureLimit = defineAsyncComponent(() => import('../components/InsureLimit/index.vue'));
 const Video = defineAsyncComponent(() => import('../components/Banner/Video.vue'));
-const Guarantee = defineAsyncComponent(() => import('../components/Guarantee/index.vue'));
+const Guarantee = defineAsyncComponent(() => import('../components/GuaranteeLian/index.vue'));
 const PreNotice = defineAsyncComponent(() => import('../components/PreNotice/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const InscribedContent = defineAsyncComponent(() => import('../components/InscribedContent/index.vue'));
@@ -248,6 +248,7 @@ const initData = async () => {
             .filter((item) => item.id === +proposalInsuredId)
             .map((insured) => ({
               ...insured,
+              relationToHolder: null,
               productList: insured.productList.filter((product) => productCodes.includes(product.productCode)),
             })),
         });

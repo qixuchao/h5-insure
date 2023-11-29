@@ -19,9 +19,9 @@
             <span class="agent-name">{{ userInfo?.name || '' }}</span>
             <!-- 利安没有职级 -->
             <!-- 公司名称 -->
-            <span class="agent-grade">{{ userInfo?.manageComName }}</span>
+            <span class="agent-grade">{{ userInfo?.agentGradeName }}</span>
           </div>
-          <span class="agent-company">{{ userInfo?.agentGradeName }}</span>
+          <span class="agent-company">{{ userInfo?.manageComName }}</span>
           <span class="agent-num">工 号 {{ userInfo?.agentCode }} </span>
           <span class="agent-num">执业证号 {{ userInfo?.quafNo }}</span>
         </div>
@@ -223,9 +223,9 @@
             <span class="agent-name">{{ userInfo?.name || '' }}</span>
             <!-- 利安没有职级 -->
             <!-- 公司名称 -->
-            <span class="agent-grade">{{ userInfo?.manageComName }}</span>
+            <span class="agent-grade">{{ userInfo?.agentGradeName }}</span>
           </div>
-          <span class="agent-company">{{ userInfo?.agentGradeName }}</span>
+          <span class="agent-company">{{ userInfo?.manageComName }}</span>
           <span class="agent-num">工 号 {{ userInfo?.agentCode }} </span>
           <span class="agent-num">执业证号 {{ userInfo?.quafNo }}</span>
         </div>
@@ -302,7 +302,7 @@
     @insure-select-change="handleSelectInsureChange"
     @add-benefit-charts="uploadBenefitCharts"
   />
-  <AgentToImage class="agent-img" :infos="userInfo" @on-uploaded-agent-img="addAgentImg" />
+  <AgentToImage class="agent-img" :infos="userInfoApp" @on-uploaded-agent-img="addAgentImg" />
 
   <!-- <img round class="agent_icon" :src="agent_img" />
         <div class="agent_info">
@@ -519,7 +519,7 @@ const goCompanyAllDetail = () => {
     path: '/companyAllDetail',
   });
 };
-// const userInfo = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`);
+const userInfoApp = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`);
 watch(
   () => infos.value,
   (val) => {
@@ -656,16 +656,14 @@ const openProductList = (insure: any) => {
 // 计划书产品转投保
 const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
   const { productCode, insurerCode, tenantProductCode, checkedList } = product;
+  let { productClass, templateId } = product;
   const productCodes = checkedList && Object.values(checkedList).join(',');
   let targetInsureId = insuredId;
-  let productClass = '';
-  let templateId = '';
   if (targetInsureId <= 0 || insuredId === undefined) {
     if (proposal2InsuredSelectedInsurer.value) {
       targetInsureId = proposal2InsuredSelectedInsurer.value.proposalInsuredId;
       templateId = proposal2InsuredSelectedInsurer.value.proposalTransInsuredProductVOList[0].templateId;
       productClass = proposal2InsuredSelectedInsurer.value.proposalTransInsuredProductVOList[0].productClass;
-      console.log('templateId---', templateId);
     } else {
       if (currentInfo.value) {
         const targetInsure = insuredProductList.value.find(
@@ -678,6 +676,7 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
       }
     }
   }
+
   // 检验产品是否支持转投保
   checkProposalInsurer({
     productCode: productCodes || productCode,
@@ -718,7 +717,7 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
         };
         let path = PAGE_ROUTE_ENUMS.premiumTrial;
         if (+productClass !== 4) {
-          path = PAGE_ROUTE_ENUMS.productInfo;
+          path = PAGE_ROUTE_ENUMS.premiumTrial;
         }
 
         history.push({
@@ -779,6 +778,8 @@ const getPdf = (themeHistoryId?: number) => {
   }).then((res: any) => {
     const { code, message } = res;
     if (code === '10000') {
+      console.log('11111----', proposalName.value);
+
       Toast.clear();
       if (message) {
         history.push(`/pdfViewer?url=${encodeURIComponent(message)}&title=${encodeURIComponent(proposalName.value)}`);

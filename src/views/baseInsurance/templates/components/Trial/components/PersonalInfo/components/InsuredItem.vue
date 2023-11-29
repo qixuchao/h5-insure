@@ -442,8 +442,8 @@ watch(
   [() => props.holderPersonVO?.familyAnnualIncome, () => state.personVO?.familyAnnualIncome],
   debounce(([holderIncome, insuredIncome], [oldHolder, oldInsured]) => {
     if (
-      (holderIncome !== oldHolder && (+holderIncome).toFixed().length > 5) ||
-      (insuredIncome !== oldInsured && (+insuredIncome).toFixed().length > 5)
+      (holderIncome !== oldHolder && oldHolder && (+holderIncome).toFixed().length > 5) ||
+      (insuredIncome !== oldInsured && oldInsured && (+insuredIncome).toFixed().length > 5)
     ) {
       Toast('请核实年收入是否准确');
     }

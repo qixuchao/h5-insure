@@ -20,6 +20,7 @@ export const RULE_TYPE_MSG = {
   OCC: ['请输入正确的组织机构代码'],
   businessLicense: ['请输入正确的营业执照号码'],
   alphabetNumber: ['只允许输入字母、数字'],
+  benefitRate: ['只能填写1-100的正数'],
 };
 
 // rule type list
@@ -132,6 +133,8 @@ export const RegMap = {
   isBandcard: (val: any) => /^\d{12,20}$/g.test(val),
   /** 其他证件 */
   isOtherCert: (val: string) => /^.{1,18}$/.test(val),
+  /** 比例、% */
+  isRate: (val: string) => /^[1-9][0-9]?$|[1-9]00$/.test(val),
 };
 
 /** 字段验证集合 */
@@ -190,4 +193,5 @@ export const validatorMap = {
   [RULE_TYPE_ENUM.BAND_CARD]: [RegMap.isBandcard],
   /** 其他证件 */
   [RULE_TYPE_ENUM.OTHER_CERT]: [RegMap.isOtherCert],
+  [RULE_TYPE_ENUM.BENEFIT_RATE]: [RegMap.isRate],
 };

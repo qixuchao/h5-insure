@@ -1,4 +1,9 @@
 <template>
+  <ProCard title="支付方式" :show-line="false" :show-divider="false">
+    <template v-if="!isView" #extra>
+      <span class="extra" @click="openLimitPopup">银行限额表</span>
+    </template>
+  </ProCard>
   <ProRenderFormWithCard
     v-for="(schemaItem, index) in state.schemaList"
     ref="payInfoFormRef"
@@ -7,12 +12,23 @@
     :model="schemaItem.formData"
     :config="schemaItem.config"
     :title="schemaItem.title"
+    :show-icon="false"
     :is-view="isView"
     :extra-provision="{
       objectType: schemaItem.objectType,
       objectId: schemaItem.formData.id,
     }"
   />
+  <ProPopup v-model:show="showLimitPopup" title="银行卡可用列表">
+    <HeadWaring :show-icon="false" :labels="['只支持借记卡，不支持信用卡和存折']"></HeadWaring>
+    <van-tabs v-model:active="paymentType">
+      <van-tab v-for="(payment, index) in limitList" :key="index" :title="payment.title">
+        <div class="img-wrap">
+          <img :src="payment.img" alt="" />
+        </div>
+      </van-tab>
+    </van-tabs>
+  </ProPopup>
 </template>
 <script lang="ts" setup>
 import { withDefaults, ComputedRef } from 'vue';
@@ -29,6 +45,9 @@ import { colorConsole, lowerFirstLetter } from './utils';
 import { resetObjectValues, BANK_INFO_KEY_LIST } from '@/components/RenderForm';
 import { ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import { deepCopy } from '@/utils';
+import picidikou from '@/assets/images/baseInsurance/picidikou.jpg';
+import shishizhuanzhang from '@/assets/images/baseInsurance/shishizhuanzhang.jpg';
+import HeadWaring from '@/views/baseInsurance/templates/components/HeadWarning/index.vue';
 
 interface UserData {
   holder: {
@@ -67,6 +86,24 @@ const PAY_METHOD_TYPE_ENUM = {
 };
 
 const emit = defineEmits(['update:modelValue']);
+
+/* ------------------限额表-------------------- */
+const showLimitPopup = ref<boolean>(false);
+const paymentType = ref(0);
+const limitList = [
+  {
+    img: picidikou,
+    title: '实时转账',
+  },
+  {
+    img: shishizhuanzhang,
+    title: '批次抵扣',
+  },
+];
+
+const openLimitPopup = () => {
+  showLimitPopup.value = true;
+};
 
 const payInfoFormRef = ref(null);
 
@@ -313,6 +350,28 @@ watch(
   },
 );
 
+// 监听扣款方式，不同扣款方式对应的银行不同，需要将银行相关信息清空
+watch(
+  () => state.schemaList.map((item) => item?.formData?.paymentType),
+  (val, oldVal) => {
+    if (!isEqual(val, oldVal) && isNotEmptyArray(oldVal)) {
+      state.schemaList.forEach((item, index) => {
+        if (item?.formData?.paymentType !== oldVal?.[index]) {
+          merge(
+            item.formData,
+            resetObjectValues(item?.formData, (key) =>
+              ['bankCardNo', 'payBank', 'mobile', 'bankCardImage', 'verificationCode'].includes(key),
+            ),
+          );
+        }
+      });
+    }
+  },
+  {
+    deep: true,
+  },
+);
+
 // 根据 payInfoType 处理，原因是 首期/续期/年金某一个可能不配置，不能拿索引
 // 首期 数据变动，若续期/年金同首期
 watch(
@@ -514,6 +573,11 @@ watch(
     if (isNotEmptyArray(val)) {
       state.schemaList.forEach((schemaItem, index) => {
         merge(schemaItem.formData, val[index]);
+        merge(schemaItem.config, {
+          payBank: {
+            category: val?.[index]?.paymentType,
+          },
+        });
       });
     }
   },
@@ -570,3 +634,16 @@ defineExpose({
   validate,
 });
 </script>
+
+<style lang="scss" scoped>
+.extra {
+  color: $zaui-brand;
+}
+.img-wrap {
+  width: 100%;
+  padding: $zaui-page-border $zaui-page-border 63px;
+  img {
+    width: 100%;
+  }
+}
+</style>

@@ -11,6 +11,7 @@
     <template v-for="slotName in Object.keys(filedSlots)" :key="slotName" #[slotName]="slotParams">
       <slot :name="slotName" v-bind="slotParams || {}" />
     </template>
+    <template v-if="state.extraDesc" #help>{{ state.extraDesc }} </template>
   </ProFormItem>
   <ProPopup v-model:show="show" :height="40" :closeable="false">
     <van-picker
@@ -109,6 +110,7 @@ const [show, toggle] = useToggle(false);
 const state = reactive({
   fieldValue: '' as string | number,
   columns: [],
+  extraDesc: '',
 });
 
 /**
@@ -167,6 +169,19 @@ const columns = computed(() => {
   if (props.dictCode && isNotEmptyArray(singleDictData)) {
     tempColumns = singleDictData;
   }
+  const category = formState?.config?.[filedAttrs.value?.name]?.category;
+  if (category) {
+    tempColumns = tempColumns.filter((column) => {
+      let extra = {};
+      try {
+        extra = JSON.parse(column.extra);
+      } catch (e) {
+        console.log(e);
+      }
+      return extra?.supportFlag.includes(+category);
+    });
+  }
+
   return deleteEmptyChildren(dealColumns(tempColumns));
 });
 
@@ -184,6 +199,17 @@ const defaultIndex = computed(() => {
 const fieldValueView = computed(() => {
   if (isNotEmptyArray(columns.value)) {
     const currentItem = columns.value.find((item) => String(item.value) === String(state.fieldValue)) || {};
+    const category = formState?.config?.[filedAttrs.value?.name]?.category;
+    if (category) {
+      let extra = {};
+      try {
+        extra = JSON.parse(currentItem?.extra || '');
+      } catch (e) {
+        console.log(e);
+      }
+
+      state.extraDesc = extra[category];
+    }
 
     return currentItem?.text || state.fieldValue;
   }
@@ -246,6 +272,9 @@ export default {
     .placeholder {
       color: var(--van-field-placeholder-text-color);
     }
+  }
+  .van-cell__right-icon {
+    padding-top: 12px;
   }
 }
 </style>

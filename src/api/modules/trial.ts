@@ -4,10 +4,7 @@ import { InsureProductData, MergeProductDetail } from '@/api/modules/product.dat
 
 // 获取产品详情
 export const insureProductDetail = (data: any = {}) =>
-  request<InsureProductData>(
-    { url: '/api/app/insure/product/v2/insureProductDetail', method: 'POST', data },
-    { loading: true },
-  );
+  request<InsureProductData>({ url: '/api/app/insure/product/v2/insureProductDetail', method: 'POST', data });
 
 // 保费试算
 export const premiumCalc = (data = {}, config = {}) =>

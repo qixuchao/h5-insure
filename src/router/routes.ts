@@ -371,7 +371,7 @@ const asyncRoutes: Array<RouteRecordRaw> = [
   {
     name: 'pdfViewer',
     path: '/pdfViewer',
-    meta: { title: 'PDF预览' },
+    meta: { title: '' },
     component: () => import('@/views/openPdf/index.vue'),
   },
   {

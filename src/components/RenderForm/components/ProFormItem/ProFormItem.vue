@@ -9,6 +9,9 @@
         :placeholder="$attrs.placeholder"
       >
         <template #value-view="slotParams"><slot name="value-view" v-bind="slotParams || {}" /></template>
+        <template v-if="slots?.help" #help>
+          <slot name="help"></slot>
+        </template>
       </CustomInput>
     </template>
     <!-- 继承 slots -->
@@ -50,7 +53,7 @@ const props = defineProps({
 });
 
 // 非默认 slots
-const noValueViewSlots = computed(() => Object.keys(slots).filter((key) => key !== 'value-view'));
+const noValueViewSlots = computed(() => Object.keys(slots).filter((key) => !['value-view', 'help'].includes(key)));
 
 const currentModelValue = computed(() => props.modelValue);
 </script>

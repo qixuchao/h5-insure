@@ -4,6 +4,10 @@
       <ValueView :value="fieldValueView" />
     </slot>
     <span v-else class="placeholder">{{ $attrs.placeholder }}</span>
+
+    <span v-if="slots?.help" class="help">
+      <slot name="help"></slot>
+    </span>
   </div>
 </template>
 <script lang="ts" setup>
@@ -13,6 +17,7 @@ import ValueView from './ValueView.vue';
 import { VAN_PRO_FORM_KEY } from '../../utils';
 
 const attrs = useAttrs();
+const slots = useSlots();
 
 const props = defineProps({
   /**
@@ -52,7 +57,15 @@ export default {
 <style lang="scss" scope>
 .custom-input-wrap {
   width: 100%;
-  margin: 14px 0;
+  margin: 0 0 14px 0;
   text-align: right;
+  display: flex;
+  flex-direction: column;
+  .help {
+    height: 37px;
+    font-size: $zaui-font-size-spec;
+    font-weight: 400;
+    color: #999999;
+  }
 }
 </style>

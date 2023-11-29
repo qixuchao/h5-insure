@@ -2,9 +2,9 @@
   <van-config-provider :theme-vars="themeVars">
     <div class="pdf-viewer-wrap">
       <div :id="id"></div>
-      <div v-if="isAppFkq()" class="footer-btn">
-        <ProShare :link="shareLink" :title="title"> <van-button>分享</van-button></ProShare>
-        <van-button @click="downloadPdf">下载</van-button>
+      <div class="footer-btn">
+        <ProShare :url="shareLink" :title="title"> <van-button>分享</van-button></ProShare>
+        <!-- <van-button @click="downloadPdf">下载</van-button> -->
       </div>
     </div>
   </van-config-provider>
@@ -82,7 +82,7 @@ onMounted(() => {
       width: 45%;
     }
     .com-share {
-      width: 45%;
+      width: 100%;
       .van-button {
         width: 100%;
       }

@@ -11,8 +11,19 @@
       <slot :name="slotName" v-bind="slotParams || {}" />
     </template>
   </ProFormItem>
-  <ProPopup v-model:show="show" :height="60" :closeable="false" class="com-cascader-popup">
-    <van-cascader
+  <ProPopup
+    v-model:show="show"
+    :title="title"
+    :height="height"
+    :closeable="closeable"
+    class="com-cascader-popup"
+    @close="onClose"
+  >
+    <slot name="cascader-top"></slot>
+
+    <component
+      :is="displayComponent"
+      v-if="columns.length"
       :options="columns"
       :field-names="customFieldName"
       :model-value="state.modelValue"
@@ -20,11 +31,11 @@
       @close="onClose"
       @finish="onFinish"
     >
-      <!-- 继承 slots -->
       <template v-for="slotName in Object.keys(slots)" :key="slotName" #[slotName]="slotParams">
         <slot :name="slotName" v-bind="slotParams || {}" />
       </template>
-    </van-cascader>
+    </component>
+    <ProEmpty v-else title="暂无该职业"></ProEmpty>
   </ProPopup>
 </template>
 
@@ -33,16 +44,18 @@ import type { PropType } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useToggle } from '@vant/use';
 import type { CascaderOption } from 'vant';
+import { Cascader } from 'vant';
 import useAppStore from '@/store/app';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { useAttrsAndSlots } from '../hooks';
-import { filterChildrenLevel } from '../utils';
+import { filterChildrenLevel, searchTreeData } from '../utils';
+import ProStackPicker from './ProStackPicker.vue';
 
 const globalStore = useAppStore();
 const { dictMap } = storeToRefs(globalStore);
 
-const emits = defineEmits(['update:modelValue', 'update:fullValue']);
+const emits = defineEmits(['update:modelValue', 'update:fullValue', 'close']);
 
 interface Column {
   [key: string]: any;
@@ -103,6 +116,30 @@ const props = defineProps({
     type: Function,
     default: () => {},
   },
+  displayType: {
+    type: String,
+    default: 'cascader',
+  },
+  title: {
+    type: String,
+    default: ' ',
+  },
+  closeable: {
+    type: Boolean,
+    default: false,
+  },
+  height: {
+    type: [Number, String],
+    default: 60,
+  },
+  searchValue: {
+    type: String,
+    default: '',
+  },
+  commonOptions: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const { filedAttrs, filedSlots, attrs, slots } = toRefs(useAttrsAndSlots());
@@ -115,6 +152,10 @@ const state = reactive({
   fieldValue: '' as string | number | object,
 });
 
+const displayComponent = computed(() => {
+  return props.displayType === 'cascader' ? Cascader : ProStackPicker;
+});
+
 const onclick = () => {
   if (!props.isView) {
     toggle(true);
@@ -122,6 +163,7 @@ const onclick = () => {
 };
 
 const onClose = () => {
+  emits('close');
   toggle(false);
 };
 
@@ -173,6 +215,17 @@ const columns = computed(() => {
   if (props.dictCode && isNotEmptyArray(singleDictData)) {
     tempColumns = singleDictData;
   }
+
+  // 搜索场景下过滤数据
+  if (props.searchValue) {
+    return searchTreeData(props.searchValue, tempColumns);
+  }
+
+  // 常用数据展示
+  if (props.commonOptions?.length) {
+    return searchTreeData('', props.commonOptions);
+  }
+
   return filterChildrenLevel(tempColumns, props.level);
 });
 

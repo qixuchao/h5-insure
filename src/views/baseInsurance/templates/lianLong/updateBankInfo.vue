@@ -150,5 +150,6 @@ onMounted(() => {
 <style lang="scss" scoped>
 .bank-info-wrap {
   padding-bottom: 150px;
+  overflow-y: auto;
 }
 </style>

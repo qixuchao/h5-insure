@@ -1219,7 +1219,7 @@ watch(
       newIndex === oldIndex
     ) {
       if (stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToHolder === 1) {
-        Object.assign(stateInfo.holder, stateInfo?.insurerList?.[0]?.personVO);
+        Object.assign(stateInfo.holder, stateInfo?.insurerList?.[0]?.personVO, { id: stateInfo.holder?.id });
       }
 
       if (isNotEmptyArray(Object.keys(stateInfo.productCollection))) {

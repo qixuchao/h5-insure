@@ -174,6 +174,41 @@ const sendSMSCode = async ({ mobile }, callback) => {
   }
 };
 
+const factorItemTemplate = {
+  moduleType: 7,
+  subModuleType: null,
+  code: 'renewFlag',
+  title: '保单领取方式',
+  planCode: null,
+  displayName: null,
+  defaultValue: null,
+  isHidden: null,
+  isReadOnly: null,
+  isMustInput: 1,
+  isExtend: null,
+  regex: null,
+  displayType: 6,
+  datasource: null,
+  factorScript: null,
+  isCalculationFactor: 2,
+  attributeValueList: [
+    {
+      code: '1',
+      value: '是',
+      defaultFlag: null,
+      useFlag: null,
+    },
+    {
+      code: '2',
+      value: '否',
+      defaultFlag: null,
+      useFlag: null,
+    },
+  ],
+  position: null,
+  remark: '',
+};
+
 const state = reactive({
   isView: false,
   // 投保人
@@ -508,6 +543,24 @@ const queryProductMaterialData = () => {
 };
 const productCollection = ref({});
 const productFactor = ref();
+
+const pickRenewRiskList = (productList) => {
+  const renewRiskList = [];
+  productList.forEach((productItem) => {
+    const { insureProductRiskVOList } = productItem.productPlanInsureVOList?.[0] || {};
+    insureProductRiskVOList.reduce((list, riskItem) => {
+      const {
+        riskFixedRuleVO: { guaranteedRenewalFlag },
+        riskCode,
+      } = riskItem?.riskDetailResVO || {};
+      if (guaranteedRenewalFlag === YES_NO_ENUM.YES) {
+        list.push(riskCode);
+      }
+      return list;
+    }, renewRiskList);
+  });
+  return renewRiskList;
+};
 const initData = async () => {
   let productRiskMap = {};
   // querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
@@ -553,6 +606,15 @@ const initData = async () => {
   await mergeInsureFactor(productRiskMap).then(({ data, code }) => {
     if (code === '10000') {
       const { productDetailResList, productFactor: currentProductFactor } = data;
+      const renewRiskList = pickRenewRiskList(productDetailResList);
+      Object.assign(orderDetail.value.extInfo, { renewRisk: renewRiskList.join(',') });
+      if (renewRiskList?.length) {
+        if (currentProductFactor[7]?.length) {
+          currentProductFactor[7].push(factorItemTemplate);
+        } else {
+          currentProductFactor[7] = [factorItemTemplate];
+        }
+      }
       productFactor.value = currentProductFactor;
 
       const currentProductCollection = {};

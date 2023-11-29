@@ -9,7 +9,11 @@
     >
       <div class="benefit-chart-title">{{ item.productName }}</div>
       <ProChart
-        v-if="props.dataSource && props.dataSource?.benefitRiskResultVOList?.[0]?.benefitRiskTableResultVOList"
+        v-if="
+          item.productName &&
+          props.dataSource &&
+          props.dataSource?.benefitRiskResultVOList?.[0]?.benefitRiskTableResultVOList
+        "
         :id-name="`${item.productName}${i}${props.dataSourceIndex}`"
         :min="ageBegin"
         :max="ageEnd"
@@ -139,7 +143,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .benefit-chart-title {
-  font-size: 36px;
+  font-size: 24px;
   font-family: PingFangSC-Semibold, PingFang SC;
   font-weight: 600;
   color: #203e72;
