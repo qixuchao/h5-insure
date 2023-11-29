@@ -145,6 +145,32 @@ export const filterChildrenLevel = (arr: Column[], level = 0, childrenKey = 'chi
   return loop(arr);
 };
 
+/**
+ * 搜索树最底层的数据
+ * @param searchValue
+ * @param tree
+ * @returns
+ */
+export const searchTreeData = (searchValue, tree) => {
+  const resultList = [];
+  const getChildrenList = (nodeList) => {
+    nodeList.forEach((node) => {
+      if (node.children?.length) {
+        getChildrenList(node.children);
+      } else {
+        if (node.value.indexOf(searchValue) !== -1) {
+          resultList.push(node);
+        }
+      }
+    });
+  };
+  getChildrenList(tree);
+
+  console.log('resultList', resultList);
+
+  return resultList;
+};
+
 // 过滤数据
 const filterData = (data, keys, initData = {}) => {
   const dataKeys = Object.keys(data);

@@ -8,15 +8,7 @@
       </div>
       <p class="tip">已为您挑选出以下险种</p>
       <div class="search">
-        <van-search
-          v-model="searchValue"
-          shape="round"
-          placeholder="请输入产品名称进行搜索"
-          clear-trigger="always"
-          show-action
-          clearable
-          @search="getRiskList"
-        ></van-search>
+        <ProSearch v-model="searchValue" placeholder="请输入产品名称进行搜索" @search="getRiskList"></ProSearch>
       </div>
       <div v-if="riskList?.length" class="risk-list">
         <van-checkbox-group v-model="checked">
@@ -238,9 +230,6 @@ onMounted(() => {
   line-height: 37px;
   margin-top: 20px;
 }
-.com-za-empty {
-  margin-top: 120px;
-}
 .popup-risk-select {
   .popup-header {
     width: 100%;
@@ -265,15 +254,8 @@ onMounted(() => {
     }
   }
   .search {
-    :deep(.van-search) {
-      padding: 16px 0;
-    }
-    :deep(.van-search__field) {
-      .van-field__value {
-        .van-field__body {
-          width: 100%;
-        }
-      }
+    .search-wrap {
+      padding: 0;
     }
   }
   .risk-list {

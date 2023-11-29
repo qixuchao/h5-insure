@@ -1,6 +1,6 @@
 <template>
   <div class="demo-table">
-    <Table :top-height="186.5" :columns="columns" :list="list" :is-clone="true">
+    <Table :top-height="186.5" :columns="columns" :data="list" :is-clone="true">
       <!-- <template #index="{ value, item }">
         <span :style="{ fontWeight: item.propertyType === '-1' ? 'bold' : 'normal' }">{{
           value === null ? '-' : value

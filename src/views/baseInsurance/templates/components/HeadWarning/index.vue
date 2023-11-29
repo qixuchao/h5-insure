@@ -7,7 +7,7 @@
 -->
 <template>
   <div v-if="labels.length > 0" class="head-warning-wrap">
-    <div class="warning-icon"><span>!</span></div>
+    <div v-if="showIcon" class="warning-icon"><span>!</span></div>
 
     <div class="warning-text">
       <span v-for="text in labels" :key="text">{{ text }}</span>
@@ -18,8 +18,9 @@
 <script lang="ts" setup name="HeadWaring">
 import { withDefaults } from 'vue';
 
-const props = withDefaults(defineProps<{ labels: string[] }>(), {
+const props = withDefaults(defineProps<{ labels: string[]; showIcon?: boolean }>(), {
   labels: () => [],
+  showIcon: true,
 });
 </script>
 
@@ -27,10 +28,10 @@ const props = withDefaults(defineProps<{ labels: string[] }>(), {
 .head-warning-wrap {
   width: 100%;
   min-height: 50px;
-  padding: 10px 20px 10px 20px;
+  padding: 20px 30px;
   background-color: rgba(255, 88, 64, 0.1);
   color: $zaui-price;
-  font-size: $zaui-font-size-sm;
+  font-size: $zaui-font-size;
   line-height: 36px;
   display: flex;
   .warning-icon {

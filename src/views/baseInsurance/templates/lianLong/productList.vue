@@ -1,29 +1,32 @@
 <template>
   <ProPageWrap class="page-proposal">
     <div class="search-wrap">
-      <van-search
-        v-model="searchValue"
-        placeholder="请输入产品名称进行搜索"
-        shape="round"
-        class="search"
-        clear-trigger="always"
-        show-action
-        clearable
-        @search="onSearch"
-      />
-      <div class="article-tag">
-        <div
-          v-for="(item, index) in PRODUCT_CATEGORY"
-          :key="index"
-          class="tag-item"
-          :class="{ checked: indexCheck === index }"
-          @click="onClickTag(item.value, index)"
-        >
-          <div class="tag-out" :class="{ checked: indexCheck == index }">
-            <div class="tag-item-text" :class="{ checked: indexCheck == index }">{{ item.label }}</div>
+      <ProSearch v-model="searchValue" placeholder="请输入产品名称进行搜索" @cancel="getProducts" @search="getProducts">
+        <div class="article-tag">
+          <div
+            v-for="(item, index) in PRODUCT_CATEGORY"
+            :key="index"
+            class="tag-item"
+            :class="{ checked: indexCheck === index }"
+            @click="onClickTag(item.value, index)"
+          >
+            <div class="tag-out" :class="{ checked: indexCheck == index }">
+              <div class="tag-item-text" :class="{ checked: indexCheck == index }">{{ item.label }}</div>
+            </div>
           </div>
         </div>
-      </div>
+        <van-tabbar
+          v-model="productClass"
+          disabled
+          active-color="var(--van-primary-color)"
+          inactive-color="black"
+          :fixed="false"
+          @change="getProducts"
+        >
+          <van-tabbar-item :name="1">非组合产品</van-tabbar-item>
+          <van-tabbar-item :name="4">组合产品</van-tabbar-item>
+        </van-tabbar>
+      </ProSearch>
     </div>
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
       <ProEmpty
@@ -132,19 +135,24 @@ const {
   productTotal,
   showFooter,
 } = toRefs(state);
+const productClass = ref<string>(1); // 产品分类 4: 多主线产品、1：非多主线产品
 
 const getProducts = () => {
   const { excludeProductCodeList } = state;
   if (state.firstLoading) {
     Toast.loading('加载中...');
   }
-  queryProductList({
-    keyword: searchValue.value,
-    insurerCodeList: insurerCodeList.value,
-    productCategory: productCategory.value,
-    pageNum: 1,
-    pageSize: 999,
-  })
+  queryProductList(
+    {
+      keyword: searchValue.value,
+      insurerCodeList: insurerCodeList.value,
+      productCategory: productCategory.value,
+      productClass: productClass.value,
+      pageNum: 1,
+      pageSize: 999,
+    },
+    { loading: true },
+  )
     .then((res: any) => {
       const { code, data, total } = res;
       if (code === '10000') {
@@ -171,8 +179,8 @@ const onClickTag = (id: any, index: number) => {
 
 const handleProduct = async (productInfo) => {
   let path = PAGE_ROUTE_ENUMS.premiumTrial;
-  const { insurerCode = '', productCode = '', templateId, productClass } = productInfo;
-  if ([PRODUCT_CLASS_ENUM.SINGLE_PRODUCT, PRODUCT_CLASS_ENUM.TWO_PRODUCT].includes(productClass)) {
+  const { insurerCode = '', productCode = '', templateId, productClass: currentClass } = productInfo;
+  if ([PRODUCT_CLASS_ENUM.SINGLE_PRODUCT, PRODUCT_CLASS_ENUM.TWO_PRODUCT].includes(currentClass)) {
     path = PAGE_ROUTE_ENUMS.productInfo;
   }
   router.push({
@@ -182,7 +190,7 @@ const handleProduct = async (productInfo) => {
       productCode,
       tenantId: 9991000011,
       templateId,
-      iseeBizNo,
+      iseeBizNo: iseeBizNo.value,
     },
   });
 };
@@ -231,8 +239,15 @@ onMounted(() => {
     flex-direction: column;
     flex: auto;
   }
-  .empty-select {
-    margin-top: 200px;
+}
+
+:deep(.van-tabbar) {
+  height: auto;
+  .van-tabbar-item {
+    flex: unset;
+    margin-right: 40px;
+    font-size: 26px;
+    font-weight: 600;
   }
 }
 
@@ -245,7 +260,6 @@ onMounted(() => {
   top: 0;
   z-index: 999;
   background: #ffffff;
-  padding: 0 30px;
   :deep(.van-search) {
     .van-field__body {
       width: 100%;

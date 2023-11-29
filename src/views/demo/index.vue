@@ -4,11 +4,11 @@
       <template #title>
         <!-- <div class="title">标题</div> -->
       </template>
-      <template #footer-btn>
+      <!-- <template #footer-btn>
         <div class="footer-button">
           <van-button type="primary">了解并继续</van-button>
         </div>
-      </template>
+      </template> -->
     </ProFilePreview>
     <ProForm ref="formRef">
       <ProField
@@ -67,7 +67,7 @@
           <ProCheckboxButton v-model="formInfo.like" :options="options" />
         </template>
       </ProField>
-      <ProCascader
+      <!-- <ProCascader
         v-model="formInfo.area"
         v-model:field0="formInfo.province"
         v-model:field1="formInfo.city"
@@ -76,7 +76,7 @@
         :data-source="region"
         label="地址选择"
         :mapping="{ label: 'name', value: 'code', children: 'children' }"
-      />
+      /> -->
       <VanButton type="primary" @click="trial">试算</VanButton>
     </ProForm>
     <ProCard title="图片上传">
@@ -143,6 +143,22 @@
       @cancel="toggle(false)"
     />
   </van-popup>
+
+  <ProStackPicker
+    v-model="value"
+    :options="District"
+    :field-names="{
+      text: 'label',
+      value: 'value',
+      children: 'children',
+    }"
+    @change="
+      (value) => {
+        console.log('onChange', value);
+      }
+    "
+    @finish="stackFinish"
+  ></ProStackPicker>
 </template>
 
 <script lang="ts" setup>
@@ -164,6 +180,7 @@ import ProPicker from '@/components/ProPicker/index.vue';
 import ProCascader from '@/components/ProCascader/index.vue';
 import useDicData from '@/hooks/useDictData';
 import ProFilePreview from '@/components/ProFilePreview/index.vue';
+import { ProStackPicker } from '@/components/RenderForm';
 
 const [isShow, toggle] = useToggle(false);
 const region = useDicData('NATIONAL_REGION_CODE'); // 全国区域编码
@@ -379,6 +396,73 @@ const dataSource = [
     key7: 'columnB',
   },
 ];
+
+const [visible, setVisible] = useToggle(false);
+const value = ref(['340000', '340800', '340822']);
+
+const District = [
+  {
+    value: '340000',
+    label: '安徽省',
+    children: [
+      {
+        value: '340800',
+        label: '安庆市',
+        children: [
+          {
+            value: '340803',
+            label: '大观区',
+            children: [],
+          },
+          {
+            value: '340822',
+            label: '怀宁县',
+            children: [],
+          },
+          {
+            value: '340882',
+            label: '其它区',
+            children: [],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    value: '310000',
+    label: '上海',
+    children: [
+      {
+        value: '310100',
+        label: '上海市',
+        children: [
+          {
+            value: '310113',
+            label: '宝山区',
+            children: [],
+          },
+          {
+            value: '310105',
+            label: '长宁区',
+            children: [],
+          },
+          {
+            value: '310230',
+            label: '崇明县',
+            children: [],
+          },
+          {
+            value: '310152',
+            label: '川沙区',
+            children: [],
+          },
+        ],
+      },
+    ],
+  },
+];
+
+const stackFinish = () => {};
 </script>
 
 <style lang="scss" scoped>

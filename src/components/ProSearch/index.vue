@@ -11,6 +11,7 @@
       :show-action="!!searchValue"
       @search="onSearch"
       @cancel="onSearch"
+      @clear="onSearch"
     />
     <slot></slot>
   </div>
@@ -34,7 +35,7 @@ const emits = defineEmits(['search']);
 const searchValue = computed(() => props.modelValue);
 
 const onSearch = () => {
-  emits('search', searchValue);
+  emits('search', searchValue.value);
 };
 </script>
 
@@ -58,8 +59,8 @@ const onSearch = () => {
   :deep(.search) {
     width: 100%;
     min-height: 56px;
-    line-height: 56px;
     padding: 16px 0;
+    align-items: center;
     .van-search__content {
       background: #f4f5f7;
       .van-cell {

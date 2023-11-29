@@ -70,6 +70,7 @@ declare module 'vue' {
     ProShareOverlay: typeof import('./src/components/ProShareOverlay/index.vue')['default']
     ProSign: typeof import('./src/components/ProSign/index.vue')['default']
     ProSMSCode: typeof import('./src/components/RenderForm/components/ProSMSCode.vue')['default']
+    ProStackPicker: typeof import('./src/components/RenderForm/components/ProStackPicker.vue')['default']
     ProStepperV2: typeof import('./src/components/RenderForm/components/ProStepperV2.vue')['default']
     ProSvg: typeof import('./src/components/ProSvg/index.vue')['default']
     ProSwitchV2: typeof import('./src/components/RenderForm/components/ProSwitchV2.vue')['default']

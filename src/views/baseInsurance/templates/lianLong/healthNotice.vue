@@ -43,6 +43,7 @@ import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS } from './constant
 import { jumpToNextPage } from '@/utils';
 import { getTenantOrderDetail } from '@/api/modules/trial';
 import { NOTICE_OBJECT_ENUM, QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE } from '@/common/constants/notice';
+import { NOTICE_CONTENT } from './data.ts';
 
 const route = useRoute();
 const router = useRouter();
@@ -82,7 +83,15 @@ const questionResolve = () => {
       },
     });
   } else {
-    onNext();
+    Dialog.confirm({
+      title: '告知提醒',
+      message: NOTICE_CONTENT.join('\n'),
+      confirmButtonText: '确定',
+      messageAlign: 'left',
+      className: 'notice-dialog',
+    }).then(() => {
+      onNext();
+    });
   }
 };
 // 问卷告知列表
@@ -198,7 +207,15 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss" scope>
+<style lang="scss">
+.notice-dialog {
+  .van-dialog__message {
+    text-align: left;
+    color: inheritAttrs;
+    font-weight: unset;
+    font-size: 28px;
+  }
+}
 .long-health-notice-wrap {
   .com-file-preview {
     height: calc(100% - 150px);

@@ -271,6 +271,15 @@ defineExpose({
 }
 :deep(.van-radio-group) {
   width: 100%;
+  display: flex;
+  justify-content: right;
+  .option-row {
+    width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    margin-left: 20px;
+  }
 }
 :deep(.van-checkbox-group) {
   width: 100%;
