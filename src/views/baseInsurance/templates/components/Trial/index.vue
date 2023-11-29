@@ -545,31 +545,6 @@ const onNext = (cb) => {
     orderDetail.value,
   );
   cb?.(currentOrderDetail);
-  // if (state.trialResultPremium) {
-  //   // 验证
-  //   Promise.all(insureInfosRef.value.map((currentRef) => currentRef.validate())).then(() => {
-  //     Object.assign(orderDetail.value, props.defaultOrder, {
-  //       extInfo: {
-  //         templateId,
-
-  //         ...orderDetail.value?.extInfo,
-  //         ...(props.defaultOrder?.extInfo || {}),
-  //         buttonCode: BUTTON_CODE_ENUMS.TRIAL_PREMIUM,
-  //         pageCode: PAGE_CODE_ENUMS.TRIAL_PREMIUM,
-  //       },
-  //     });
-  //     const currentOrderDetail = trialData2Order(
-  //       { ...dealMixData(), productCode, productName },
-  //       state.trialResult,
-  //       orderDetail.value,
-  //     );
-  //     cb?.(currentOrderDetail);
-  //     console.log('---- validate success ----');
-  //   });
-  //   state.loading = false;
-  //   state.show = true;
-  //   state.isAniShow = true;
-  // }
 };
 
 const onShare = (cb) => {
@@ -675,6 +650,7 @@ const handleDealDyResult = (dyResultData: any, productCode) => {
       return false;
     }
   }
+  Toast(dyResult?.data?.[0]?.errorMessage);
   return true;
 };
 
@@ -711,8 +687,8 @@ const handlePersonalInfoChange = async (data) => {
   // 只有改动第一个被保人，需要调用dy接口
   const { insuredList, isFirstInsuredChange } = data;
   handlePersonInfo(data);
-
   state.ifPersonalInfoSuccess = true;
+
   // if (isFirstInsuredChange) {
   console.log('处理第一被保人修改的dy变化');
 
@@ -974,8 +950,13 @@ const fetchDefaultDataFromServer = async () => {
     ],
   });
   if (result.data) {
-    transformDefaultData(result.data);
-    handlePersonInfo(result.data);
+    const { holder, insuredList } = result.data;
+    const defaultData = {
+      holder: resetObjectValues(holder),
+      insuredList: insuredList.map((insured) => ({ ...resetObjectValues(insured), productList: insured.productList })),
+    };
+    transformDefaultData(defaultData);
+    handlePersonInfo(defaultData);
   }
 };
 const fetchDefaultData = async (changes: []) => {
