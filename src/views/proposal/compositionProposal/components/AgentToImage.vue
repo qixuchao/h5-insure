@@ -4,6 +4,11 @@
       <!-- <div class="title">个人信息</div> -->
       <img round class="agent_icon" :src="agent_img" />
       <div class="info">
+        <div class="title">
+          <span class="top-title">我的名片</span>
+          <span class="sub-title">我是您的专属顾问，您可以通过以下信息简单</span>
+          <span class="subb-title">个人信息</span>
+        </div>
         <div class="info">
           <span class="info-title">姓名</span>
           <span class="info-value">{{ infos?.name || '' }}</span>
@@ -143,7 +148,7 @@ onMounted(() => {
   padding-top: 160px;
   margin-bottom: 10px;
   background-color: #fff;
-  background-image: url('@/assets/images/compositionProposal/agent-backgroud.png');
+  background-image: url('@/assets/images/compositionProposal/agent-backgroud1.png');
   background-repeat: no-repeat;
   background-size: cover;
   width: 100%;
@@ -220,5 +225,41 @@ onMounted(() => {
   line-height: 36px;
   margin-bottom: 4px;
   display: block;
+}
+.title {
+  position: relative;
+  .top-title {
+    position: absolute;
+    top: -208px;
+    left: 80px;
+    height: 25px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333333;
+    line-height: 25px;
+    display: block;
+  }
+  .sub-title {
+    position: absolute;
+    top: -180px;
+    left: 80px;
+    // height: 18px;
+    font-size: 13px;
+    font-weight: 400;
+    color: #393d46;
+    line-height: 18px;
+    display: block;
+  }
+  .subb-title {
+    position: absolute;
+    top: -106px;
+    left: 80px;
+    height: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333333;
+    line-height: 20px;
+    display: block;
+  }
 }
 </style>

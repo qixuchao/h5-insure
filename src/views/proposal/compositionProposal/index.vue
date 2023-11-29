@@ -778,6 +778,8 @@ const getPdf = (themeHistoryId?: number) => {
   }).then((res: any) => {
     const { code, message } = res;
     if (code === '10000') {
+      console.log('11111----', proposalName.value);
+
       Toast.clear();
       if (message) {
         history.push(`/pdfViewer?url=${encodeURIComponent(message)}&title=${encodeURIComponent(proposalName.value)}`);
