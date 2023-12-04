@@ -307,17 +307,17 @@ const asyncRoutes: Array<RouteRecordRaw> = [
       title: '导航',
     },
   },
-  // {
-  //   name: 'trial',
-  //   path: '/trial',
-  //   meta: { title: '保费试算' },
-  //   component: () => import('@/views/trial/index.vue'),
-  // },
   {
     name: 'demo',
     path: '/demo',
     meta: { title: 'demo' },
     component: () => import('@/views/demo/index.vue'),
+  },
+  {
+    name: 'test',
+    path: '/test',
+    meta: { title: 'test' },
+    component: () => import('@/views/demo/test.vue'),
   },
   {
     name: 'FormDemo',

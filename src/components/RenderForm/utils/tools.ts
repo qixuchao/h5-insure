@@ -167,8 +167,6 @@ export const searchTreeData = (searchValue, tree) => {
   };
   getChildrenList(tree);
 
-  console.log('resultList', resultList);
-
   return resultList;
 };
 

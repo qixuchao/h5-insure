@@ -418,13 +418,6 @@ const filterData = (keys, data) => {
 const diffDataChange = (keys, val, oldVal = {}) => {
   if (!isNotEmptyArray(keys)) return false;
 
-  const len = keys.filter((key) => {
-    if (Array.isArray(val[key])) {
-      return isNotEmptyArray(val[key]) && !isEqual(val[key], oldVal[key]);
-    }
-    return val[key] && val[key] !== oldVal[key];
-  });
-  console.log('flag len', len);
   return !!keys.filter((key) => {
     if (Array.isArray(val[key])) {
       return isNotEmptyArray(val[key]) && !isEqual(val[key], oldVal[key]);

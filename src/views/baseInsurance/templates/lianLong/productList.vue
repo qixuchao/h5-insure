@@ -64,6 +64,8 @@ import ProductItem from './components/productItem.vue';
 import { queryProductList } from '@/api/modules/product';
 import { PRODUCT_CATEGORY, PAGE_ROUTE_ENUMS } from '@/common/constants';
 import { PRODUCT_CLASS_ENUM } from '@/common/constants/trial';
+import { getCustomerDetail } from '@/api/modules/third';
+import { setCusomterData, transformCustomerToPerson } from '../components/Trial/components/PersonalInfo/util.ts';
 
 interface StateType {
   searchValue: string;
@@ -93,6 +95,7 @@ interface StateType {
 
 const router = useRouter();
 const route = useRoute();
+const { customer } = route.query;
 
 const state = reactive<StateType>({
   searchValue: '',
@@ -110,6 +113,7 @@ const state = reactive<StateType>({
   proposalList: [],
   showFooter: true,
   productName: '',
+  insuredList: [],
   productCodeList: [],
   // 错误信息集合
   errorMsgMap: {},
@@ -121,6 +125,22 @@ const state = reactive<StateType>({
   firstLoading: true,
 });
 const iseeBizNo = ref();
+let customerInfo = null;
+try {
+  const currentInfo = JSON.parse(decodeURIComponent(customer));
+  const { idNo, idType, sex, name, ...others } = currentInfo;
+  customerInfo = {
+    ...others,
+    certNo: idNo,
+    certType: idType,
+    customerName: name,
+    customerType: 1,
+    gender: sex,
+    source: 2, // 代表客户详情
+  };
+} catch (e) {
+  console.log(e);
+}
 
 const {
   searchValue,
@@ -138,16 +158,21 @@ const {
 const productClass = ref<string>(1); // 产品分类 4: 多主线产品、1：非多主线产品
 
 const getProducts = () => {
+  if (customer && !state.insuredList?.length) {
+    return;
+  }
   const { excludeProductCodeList } = state;
   if (state.firstLoading) {
     Toast.loading('加载中...');
   }
+
   queryProductList(
     {
       keyword: searchValue.value,
       insurerCodeList: insurerCodeList.value,
       productCategory: productCategory.value,
       productClass: productClass.value,
+      insuredList: state.insuredList,
       pageNum: 1,
       pageSize: 999,
     },
@@ -164,6 +189,34 @@ const getProducts = () => {
       Toast.clear();
       state.firstLoading = false;
     });
+};
+
+// 如果链接上有客户信息，需要查询客户详情通过客户详情过滤产品列表
+const queryCustomerInfo = () => {
+  const selectFirst = (array: Array<any>) => {
+    if (array?.length) {
+      return array[0];
+    }
+    return {};
+  };
+  getCustomerDetail(customerInfo).then((res) => {
+    const { code, data } = res;
+    if (code === '10000' && data) {
+      const { bankCardInfo = [], addressInfo = [], contactInfo = [], certInfo = [], ...others } = data || {};
+
+      const insured = data;
+
+      insured.addressInfo = selectFirst(addressInfo);
+      insured.bankCardInfo = selectFirst(bankCardInfo);
+      insured.contactInfo = selectFirst(contactInfo);
+      insured.certInfo = selectFirst(certInfo);
+
+      state.insuredList = [insured];
+
+      setCusomterData(insured);
+      getProducts();
+    }
+  });
 };
 
 const onSearch = (val: string) => {
@@ -222,6 +275,9 @@ const onRefresh = () => {
 };
 
 onMounted(() => {
+  if (customerInfo) {
+    queryCustomerInfo();
+  }
   // 调用千里眼插件获取一个iseeBiz
   setTimeout(async () => {
     iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());

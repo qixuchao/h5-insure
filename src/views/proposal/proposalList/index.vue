@@ -93,6 +93,11 @@ import ProFixedButtonDefaultImage from '@/assets/images/lishijihuashu.png';
 import TrialProductPopup from './components/TrialProductPopup/index.vue';
 import { queryCalcDefaultInsureFactor, queryCalcDynamicInsureFactor, insureProductDetail } from '@/api/modules/trial';
 import useTheme from '@/hooks/useTheme';
+import { getCustomerDetail } from '@/api/modules/third';
+import {
+  setCusomterData,
+  transformCustomerToPerson,
+} from '../../baseInsurance/templates/components/Trial/components/PersonalInfo/util.ts';
 
 interface Props {
   isCreateProposal: boolean;
@@ -132,7 +137,7 @@ interface StateType {
 const store = createProposalStore();
 const router = useRouter();
 const route = useRoute();
-const { isCreateProposal, productClass: productC } = route.query;
+const { isCreateProposal, productClass: productC, customer } = route.query;
 const themeVars = useTheme();
 
 const state = reactive<StateType>({
@@ -162,6 +167,7 @@ const state = reactive<StateType>({
   selectedProductList: [],
   excludeMainRiskCode: [], // 已选择产品下的主险code
   firstLoading: true,
+  insuredList: [],
 });
 
 const {
@@ -183,9 +189,29 @@ const [showProductRisk, toggleProductRisk] = useToggle();
 const [showSelectProduct, toggleSelectProduct] = useToggle();
 const productClass = ref<string>(+(productC || 1)); // 产品分类 4: 多主线产品、1：非多主线产品
 
+let customerInfo = null;
+try {
+  const currentInfo = JSON.parse(decodeURIComponent(customer));
+  const { idNo, idType, sex, name, ...others } = currentInfo;
+  customerInfo = {
+    ...others,
+    certNo: idNo,
+    certType: idType,
+    customerName: name,
+    customerType: 1,
+    gender: sex,
+    source: 2, // 代表客户详情
+  };
+} catch (e) {
+  console.log(e);
+}
+
 // const addProposalType = ref<any>(isCreateProposal ? 'repeatAdd' : 'add');
 
 const insuredList = computed(() => {
+  if (customer && state.insuredList?.length) {
+    return state.insuredList;
+  }
   const insured = store.$state.insuredPersonVO || {};
   if (Object.keys(insured).length) {
     return [insured];
@@ -194,6 +220,9 @@ const insuredList = computed(() => {
 });
 
 const getProducts = () => {
+  if (customer && !state.insuredList?.length) {
+    return;
+  }
   const { excludeProductCodeList } = state;
   if (state.firstLoading) {
     Toast.loading('加载中...');
@@ -221,6 +250,34 @@ const getProducts = () => {
       Toast.clear();
       state.firstLoading = false;
     });
+};
+
+// 如果链接上有客户信息，需要查询客户详情通过客户详情过滤产品列表
+const queryCustomerInfo = () => {
+  const selectFirst = (array: Array<any>) => {
+    if (array?.length) {
+      return array[0];
+    }
+    return {};
+  };
+  getCustomerDetail(customerInfo).then((res) => {
+    const { code, data } = res;
+    if (code === '10000' && data) {
+      const { bankCardInfo = [], addressInfo = [], contactInfo = [], certInfo = [], ...others } = data || {};
+
+      const insured = data;
+
+      insured.addressInfo = selectFirst(addressInfo);
+      insured.bankCardInfo = selectFirst(bankCardInfo);
+      insured.contactInfo = selectFirst(contactInfo);
+      insured.certInfo = selectFirst(certInfo);
+
+      state.insuredList = [insured];
+
+      setCusomterData(insured);
+      getProducts();
+    }
+  });
 };
 
 const onSearch = (val: string) => {
@@ -357,6 +414,12 @@ const onRefresh = () => {
 onBeforeMount(() => {
   state.excludeProductCodeList = store.$state.excludeProduct;
   state.excludeMainRiskCode = store.$state.excludeMainRiskCode;
+});
+
+onMounted(() => {
+  if (customerInfo) {
+    queryCustomerInfo();
+  }
 });
 </script>
 

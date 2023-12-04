@@ -1,5 +1,5 @@
 <template>
-  <div :style="{ height: `${height}px` }">
+  <div class="table-wrap">
     <template v-if="data && data.length">
       <header class="table-header">
         <section class="table-header-fixed">
@@ -196,6 +196,9 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 $header-height: 78px;
+.table-wrap {
+  height: 100%;
+}
 .col-row-span {
   position: absolute;
   background-color: #fff;

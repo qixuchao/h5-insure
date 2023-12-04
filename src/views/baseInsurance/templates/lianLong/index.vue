@@ -114,6 +114,11 @@ import { ProductMaterialVoItem } from '@/api/modules/trial.data';
 import { NOTICE_OBJECT_ENUM } from '@/common/constants/notice';
 import { MATERIAL_TYPE_ENUM } from '@/common/constants/product';
 import { dealMaterialList, pickProductRiskCodeFromOrder } from './utils';
+import {
+  getCusomterData,
+  transformCustomerToPerson,
+  clearCustomData,
+} from '../components/Trial/components/PersonalInfo/util.ts';
 // const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
 const ProductDesc = defineAsyncComponent(() => import('../components/ProductDesc/index.vue'));
 const ScrollInfo = defineAsyncComponent(() => import('../components/ScrollInfo/index.vue'));
@@ -332,7 +337,10 @@ const getDefaultData = async () => {
   });
 
   if (code === '10000') {
-    Object.assign(defaultOrderDetail.value, data);
+    // 获取客户详情
+    const customerInfo = getCusomterData();
+    Object.assign(defaultOrderDetail.value, data, { insuredList: [{ ...data.insuredList?.[0], ...customerInfo }] });
+    clearCustomData();
     const productRiskMap = pickProductRiskCodeFromOrder(data.insuredList?.[0]?.productList);
     queryMaterial(productRiskMap);
   }
