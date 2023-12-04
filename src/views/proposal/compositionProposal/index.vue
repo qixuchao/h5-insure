@@ -302,6 +302,16 @@
     @insure-select-change="handleSelectInsureChange"
     @add-benefit-charts="uploadBenefitCharts"
   />
+  <div class="liability-pdf-wrap">
+    <LiabilityByRiskForPdf
+      v-for="(insured, index) in infos"
+      :key="insured.id"
+      :insured-id="insured.id"
+      :product-list="insured.liabilityByProductVOList"
+      @upload-img="(image) => getLiabilityImage(image, index)"
+    ></LiabilityByRiskForPdf>
+  </div>
+
   <AgentToImage class="agent-img" :infos="userInfoApp" @on-uploaded-agent-img="addAgentImg" />
 
   <!-- <img round class="agent_icon" :src="agent_img" />
@@ -374,6 +384,7 @@ import Capsule from '@/components/CapsuleSelect/index.vue';
 import InsuredList from './components/InsuredList.vue'; // 选择被保人
 import useTheme from '@/hooks/useTheme';
 import { PAGE_ROUTE_ENUMS } from '@/views/baseInsurance/templates/lianLong/constants.ts';
+import LiabilityByRiskForPdf from './components/LiabilityByRiskForPdf.vue';
 
 const themeVars = useTheme();
 
@@ -454,6 +465,8 @@ const rowDatas = computed(() => {
   console.log('rowDatas', tabs.value);
   return rowDataMap.value[currentTab.value];
 });
+
+const liabilityByProductList = ref([]);
 
 const rules = [
   {
@@ -760,6 +773,11 @@ const onShareProposal = () => {
   }
 };
 
+const liabilityImageList = ref([]);
+const getLiabilityImage = (image, index) => {
+  liabilityImageList.value[index] = image;
+};
+
 const getPdf = (themeHistoryId?: number) => {
   operateType.value = 'pdf';
   if (!id) {
@@ -772,6 +790,7 @@ const getPdf = (themeHistoryId?: number) => {
   });
   generatePdf({
     benefitCharts: isShowCharts.value ? benefitChartsArray.value : null,
+    proposalInsuredVOList: liabilityImageList.value,
     agentImage: agentImg.value,
     id,
     themeHistoryId,
@@ -1466,5 +1485,11 @@ const resetFile = (file: {}) => {
 .agent-img {
   position: fixed;
   display: block;
+}
+
+.liability-pdf-wrap {
+  height: 1px;
+  width: 100%;
+  overflow-y: auto;
 }
 </style>
