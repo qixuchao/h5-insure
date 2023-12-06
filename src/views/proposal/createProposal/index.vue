@@ -305,6 +305,11 @@ import { isNotEmptyArray } from '@/common/constants/utils';
 import useTheme, { setGlobalTheme } from '@/hooks/useTheme';
 import InsurerList from './components/InsurerSelect/index.vue';
 import { RELATION_HOLDER_LIST, RELATION_HOLDER_ENUM } from '@/common/constants/product';
+import {
+  getCusomterData,
+  transformCustomerToPerson,
+  clearCustomData,
+} from '../../baseInsurance/templates/components/Trial/components/PersonalInfo/util.ts';
 
 interface State {
   productCode: number;
@@ -804,6 +809,13 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
         ...rest,
         riskList,
       };
+
+      const customerInfo = getCusomterData();
+      if (customerInfo) {
+        const insured = transformCustomerToPerson(customerInfo, [...trialFieldkeys, 'name']);
+        Object.assign(personVO, insured);
+        clearCustomData();
+      }
 
       // 初次调用
       if (flag) {

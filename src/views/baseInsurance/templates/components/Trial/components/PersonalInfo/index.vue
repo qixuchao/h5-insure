@@ -417,7 +417,13 @@ const filterData = (keys, data) => {
 
 const diffDataChange = (keys, val, oldVal = {}) => {
   if (!isNotEmptyArray(keys)) return false;
-  return JSON.stringify(filterData(keys, val)) !== JSON.stringify(filterData(keys, oldVal));
+
+  return !!keys.filter((key) => {
+    if (Array.isArray(val[key])) {
+      return isNotEmptyArray(val[key]) && !isEqual(val[key], oldVal[key]);
+    }
+    return val[key] && val[key] !== oldVal[key];
+  })?.length;
 };
 
 // 试算数据是否变动
@@ -531,19 +537,21 @@ watch(
     //   emit('trailChange', result);
     //   return false;
     // }
-
+    console.log('validateTrialFields', validateTrialFields());
     if (!validateTrialFields()) {
       state.trialValidated = false;
       return emit('trailValidateFailed', result);
     }
 
     validate(true)
-      .then(() => {
+      .then((res) => {
         console.log('trialEnd');
-        state.trialValidated = true;
         // 只有试算因子数据变动才调用试算
         // 试算时投被保人分开不需要多次试算
+        state.trialValidated = !props.isOnlyHolder;
+
         if (!props.isOnlyHolder && trialDataChanged) {
+          state.trialValidated = true;
           emit('trailChange', result);
         }
       })

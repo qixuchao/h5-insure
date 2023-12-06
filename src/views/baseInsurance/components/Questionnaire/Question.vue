@@ -189,7 +189,6 @@ watch(
 watch(
   () => answerVO.value,
   (val) => {
-    console.log('问卷数据变动了:', val);
     emit('update:modelValue', val);
   },
   {

@@ -51,6 +51,8 @@ import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import { transformToMoney } from '@/utils/format';
 import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
+import { getCusomterData, transformCustomerToPerson } from '../components/Trial/components/PersonalInfo/util.ts';
+import { transformFactorToSchema } from '@/components/RenderForm';
 
 const route = useRoute();
 const router = useRouter();
@@ -72,6 +74,9 @@ const orderDetail = useOrder({
   },
 });
 
+// 获取客户详情
+const customerInfo = getCusomterData();
+
 const defaultData = ref();
 const productFactor = ref();
 
@@ -86,6 +91,13 @@ const getMergeProductDetail = () => {
       const { productDetailResList, productFactor: currentProductFactor } = data;
       productFactor.value = currentProductFactor;
       productRiskCodeMap.value = pickProductRiskCode(productDetailResList);
+
+      // 如果有客户信息,则需要将客户信息回显
+      // if (customerInfo) {
+      //   const insuredKeys = currentProductFactor?.[2].map((factor) => factor.code);
+      //   const insured = transformCustomerToPerson(customerInfo, insuredKeys);
+      //   defaultData.value = Object.assign(orderDetail.value, { insuredList: insured });
+      // }
 
       const currentProductCollection = {};
       productDetailResList.forEach((product) => {
@@ -270,6 +282,13 @@ const getProductDetail = () => {
       productCollection.value[`${productCode}`] = data;
       productFactor.value = data?.productPlanInsureVOList?.[0]?.productFactor;
       productRiskCodeMap.value = pickProductRiskCode([data]);
+
+      // 如果有客户信息,则需要将客户信息回显
+      // if (customerInfo) {
+      //   const insuredKeys = productFactor.value?.[2].map((factor) => factor.code);
+      //   const insured = [transformCustomerToPerson(customerInfo, insuredKeys)];
+      //   defaultData.value = Object.assign(orderDetail.value, { insuredList: insured });
+      // }
     }
   });
 };

@@ -92,6 +92,7 @@ export const validateForm = (formRef, trialFactorCodes, isTrial) => {
   if (isTrial && !isNotEmptyArray(trialFactorCodes)) {
     return Promise.resolve();
   }
+
   return formRef.value?.validate(isTrial ? trialFactorCodes : undefined);
 };
 
@@ -165,8 +166,6 @@ export const searchTreeData = (searchValue, tree) => {
     });
   };
   getChildrenList(tree);
-
-  console.log('resultList', resultList);
 
   return resultList;
 };
