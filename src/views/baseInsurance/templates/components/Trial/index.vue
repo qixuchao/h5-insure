@@ -678,7 +678,9 @@ const handleMixTrialData = () => {
 
     const submitDataCopy = dealMixData();
     console.log('>>>数据构建<<<', submitDataCopy);
-    handleTrialAndBenefit(submitDataCopy);
+    if (submitDataCopy.insuredList[0]?.productList?.length) {
+      handleTrialAndBenefit(submitDataCopy);
+    }
   }
 };
 

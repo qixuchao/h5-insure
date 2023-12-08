@@ -178,7 +178,7 @@ const factorItemTemplate = {
   moduleType: 7,
   subModuleType: null,
   code: 'renewFlag',
-  title: '保单领取方式',
+  title: '保证续保型的一年期产品在保证续保期间是否申请续保',
   planCode: null,
   displayName: null,
   defaultValue: null,
