@@ -11,6 +11,7 @@
         <van-uploader
           :model-value="fileList"
           :after-read="handleAfterRead"
+          :before-read="beforeRead"
           :max-count="maxCount"
           :before-delete="handleBeforeDelete"
           :disabled="isView"
@@ -31,7 +32,7 @@
 </template>
 
 <script lang="ts" setup>
-import { UploaderFileListItem } from 'vant';
+import { UploaderFileListItem, Toast } from 'vant';
 import { useCustomFieldValue } from '@vant/use';
 import ProSvg from '@/components/ProSvg/index.vue';
 import { fileUpload } from '@/api/modules/file';
@@ -112,6 +113,15 @@ const state = reactive({
 const fileList = computed(() => (state.modelValue || []).map(({ uri }) => ({ url: uri })));
 
 useCustomFieldValue(() => state.modelValue);
+
+const beforeRead = (e) => {
+  const fileType = (e.name || '').match(/\.([^.]+)$/)?.[1];
+  if (fileType !== 'jpg') {
+    Toast('上传只支持jpg图片');
+    return false;
+  }
+  return true;
+};
 
 const handleAfterRead = (e: { file: File; content: string }) => {
   fileUpload(e.file, props.uploadType).then((res) => {

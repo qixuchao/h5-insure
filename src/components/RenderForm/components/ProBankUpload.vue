@@ -14,6 +14,7 @@
             :model-value="fileList[index]"
             :before-delete="() => handleBeforeDelete(index)"
             :after-read="(e: UploaderFileListItem) => handleRead(e, index)"
+            :before-read="beforeRead"
           >
             <slot>
               <div class="upload-item">
@@ -30,6 +31,7 @@
 import type { UploaderFileListItem } from 'vant';
 import { useCustomFieldValue } from '@vant/use';
 import { useRoute } from 'vue-router';
+import { Toast } from 'vant';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { fileUpload, ocr } from '@/api/modules/file';
 import {
@@ -120,6 +122,14 @@ const fileList = computed(() =>
   ),
 );
 
+const beforeRead = (e) => {
+  const fileType = (e.name || '').match(/\.([^.]+)$/)?.[1];
+  if (fileType !== 'jpg') {
+    Toast('上传只支持jpg图片');
+    return false;
+  }
+  return true;
+};
 const handleRead = (e: UploaderFileListItem, index) => {
   const { title, category } = uploaderList[index];
   fileUpload(e.file, UPLOAD_TYPE_ENUM.BANK_CARD).then((res) => {

@@ -11,7 +11,6 @@
         capture="user"
         :disabled="isView"
         :model-value="fileList[index]"
-        :after-read="(e: UploaderFileListItem) => handleRead(e, index)"
         @click-preview="onClick(index)"
       >
         <div class="upload-item" @click="() => onClick(index)">
@@ -32,12 +31,14 @@
         class="temp-uploader"
         :max-count="1"
         :after-read="(e: UploaderFileListItem) => handleRead(e, state.currentIndex)"
+        :before-read="beforeRead"
       />
     </template>
   </ProFormItem>
 </template>
 <script lang="ts" setup name="ProAddress">
 import type { UploaderInstance, UploaderFileListItem } from 'vant';
+import { Toast } from 'vant';
 import { useCustomFieldValue } from '@vant/use';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { fileUpload, ocr } from '@/api/modules/file';
@@ -107,6 +108,15 @@ const state = reactive({
 const fileList = ref([]);
 
 useCustomFieldValue(() => state.modelValue);
+
+const beforeRead = (e) => {
+  const fileType = (e.name || '').match(/\.([^.]+)$/)?.[1];
+  if (fileType !== 'jpg') {
+    Toast('上传只支持jpg图片');
+    return false;
+  }
+  return true;
+};
 
 const handleRead = (e: UploaderFileListItem, index) => {
   const { uploadType, title, category } = uploaderList[index];
