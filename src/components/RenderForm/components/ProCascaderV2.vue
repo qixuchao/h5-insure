@@ -13,7 +13,7 @@
   </ProFormItem>
   <ProPopup
     v-model:show="show"
-    :title="title"
+    :title="title || attrs.title"
     :height="height"
     :closeable="closeable"
     class="com-cascader-popup"
@@ -27,6 +27,7 @@
       :options="columns"
       :field-names="customFieldName"
       :model-value="state.modelValue"
+      :show-header="false"
       v-bind="attrs"
       @close="onClose"
       @finish="onFinish"
@@ -122,7 +123,7 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: ' ',
+    default: '',
   },
   closeable: {
     type: Boolean,
@@ -137,6 +138,11 @@ const props = defineProps({
     default: '',
   },
   commonOptions: {
+    type: Array,
+    default: () => [],
+  },
+  /** 根据nodeCode过滤树节点 */
+  nodeCode: {
     type: Array,
     default: () => [],
   },
@@ -219,6 +225,14 @@ const columns = computed(() => {
   // 搜索场景下过滤数据
   if (props.searchValue) {
     return searchTreeData(props.searchValue, tempColumns);
+  }
+
+  // 查询一组节点
+  if (props.nodeCode?.length) {
+    return filterChildrenLevel(
+      tempColumns.filter((column) => props.nodeCode.includes(column[props?.customFieldName?.value])),
+      props.level,
+    );
   }
 
   // 常用数据展示

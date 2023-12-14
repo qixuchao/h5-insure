@@ -12,6 +12,7 @@
     v-bind="$attrs"
     :model-value="cascaderModelValue"
     :is-view="isView"
+    :node-code="nodeCode"
     :level="addressConfig.level"
     @update:full-value="updateFullValue"
   />
@@ -38,6 +39,8 @@ import { isNotEmptyArray } from '@/common/constants/utils';
 import ProCascaderV2 from './ProCascaderV2.vue';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
 import { upperFirstLetter } from '../utils';
+import { sessionStore, localStore } from '@/hooks/useStorage';
+import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
 
 interface Address {
   province: string;
@@ -85,6 +88,11 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+});
+
+const nodeCode = computed(() => {
+  const { provinceCode } = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`);
+  return [provinceCode];
 });
 
 /**
@@ -141,7 +149,7 @@ const addressConfig = computed(() => {
     });
     return {
       // level 为 0，则展示全部，不等于 0 则 + 1 全国
-      level: level && level + 1,
+      level,
       showDetail,
     };
   }
