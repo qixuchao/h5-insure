@@ -270,6 +270,7 @@ export default {
       width: 100%;
     }
     .placeholder {
+      margin-top: 16px;
       color: var(--van-field-placeholder-text-color);
     }
   }

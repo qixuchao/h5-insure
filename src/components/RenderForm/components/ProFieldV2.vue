@@ -6,7 +6,7 @@
     } ${isView ? 'com-van-field-view' : ''}`"
     autocomplete="off"
     :formatter="formatter"
-    v-bind="{ maxlength: 25, ...$attrs, placeholder, required, rules, ...extraAttrs }"
+    v-bind="{ maxlength: 25, textAlign: 'right', ...$attrs, placeholder, required, rules, ...extraAttrs }"
     @blur="onBlur"
     @update:model-value="updateModelValue"
   >
@@ -282,7 +282,7 @@ export default {
       width: 100%;
     }
     .van-field__control {
-      text-align: right;
+      // text-align: right;
     }
   }
 

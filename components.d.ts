@@ -4,6 +4,7 @@
 
 declare module 'vue' {
   export interface GlobalComponents {
+    AgentInfo: typeof import('./src/components/RenderForm/AgentInfo.vue')['default']
     AutoScribing: typeof import('./src/components/ProScribing/components/AutoScribing.vue')['default']
     BankCardInfo: typeof import('./src/components/BankCardInfo/index.vue')['default']
     Blk: typeof import('./src/components/ZaDatePicker/blk.vue')['default']
@@ -17,6 +18,7 @@ declare module 'vue' {
     Play: typeof import('./src/components/ZaVoice/play.vue')['default']
     PlayBar: typeof import('./src/components/ZaVoice/playBar.vue')['default']
     PolicyInfo: typeof import('./src/components/RenderForm/PolicyInfo.vue')['default']
+    'PolicyInfo copy': typeof import('./src/components/RenderForm/PolicyInfo copy.vue')['default']
     ProAddress: typeof import('./src/components/RenderForm/components/ProAddress.vue')['default']
     ProBank: typeof import('./src/components/RenderForm/components/ProBank.vue')['default']
     ProBankUpload: typeof import('./src/components/RenderForm/components/ProBankUpload.vue')['default']
@@ -40,6 +42,7 @@ declare module 'vue' {
     ProExpand: typeof import('./src/components/ProExpand/index.vue')['default']
     ProField: typeof import('./src/components/ProField/index.vue')['default']
     ProFieldV2: typeof import('./src/components/RenderForm/components/ProFieldV2.vue')['default']
+    ProFileDrawer: typeof import('./src/components/ProFileDrawer/index.vue')['default']
     ProFilePreview: typeof import('./src/components/ProFilePreview/index.vue')['default']
     ProFixedButton: typeof import('./src/components/ProFixedButton/index.vue')['default']
     ProForm: typeof import('./src/components/ProForm/index.vue')['default']

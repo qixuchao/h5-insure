@@ -3,11 +3,12 @@
     v-if="hasHolderSchema && isShowHolder"
     ref="holderFormRef"
     title="投保人信息"
-    class="personal-info-card"
+    class="personal-info-card holder"
     :model="state.holder.personVO"
     :schema="state.holder.schema"
     :config="state.holder.config"
     :is-view="isView"
+    :="$attrs"
     :extra-provision="{
       objectType: ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER,
       objectId: state.holder?.personVO?.id,

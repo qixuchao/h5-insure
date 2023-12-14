@@ -231,6 +231,9 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.wrap {
+  margin-top: 20px;
+}
 .placeholder {
   color: $zaui-aide-text;
 }

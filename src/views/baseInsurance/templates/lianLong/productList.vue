@@ -62,10 +62,12 @@ import { Toast } from 'vant';
 import emptyImg from '@/assets/images/empty.png';
 import ProductItem from './components/productItem.vue';
 import { queryProductList } from '@/api/modules/product';
-import { PRODUCT_CATEGORY, PAGE_ROUTE_ENUMS } from '@/common/constants';
+import { PRODUCT_CATEGORY } from '@/common/constants';
 import { PRODUCT_CLASS_ENUM } from '@/common/constants/trial';
 import { getCustomerDetail } from '@/api/modules/third';
+import { PAGE_ROUTE_ENUMS } from './constants.ts';
 import { setCusomterData, transformCustomerToPerson } from '../components/Trial/components/PersonalInfo/util.ts';
+import { TEMPLATE_TYPE_ENUM } from '@/common/constants/infoCollection';
 
 interface StateType {
   searchValue: string;
@@ -233,9 +235,16 @@ const onClickTag = (id: any, index: number) => {
 const handleProduct = async (productInfo) => {
   let path = PAGE_ROUTE_ENUMS.premiumTrial;
   const { insurerCode = '', productCode = '', templateId, productClass: currentClass } = productInfo;
-  if ([PRODUCT_CLASS_ENUM.SINGLE_PRODUCT, PRODUCT_CLASS_ENUM.TWO_PRODUCT].includes(currentClass)) {
-    path = PAGE_ROUTE_ENUMS.productInfo;
+  if (TEMPLATE_TYPE_ENUM.SHORT === templateId) {
+    path = PAGE_ROUTE_ENUMS.short;
+  } else if (TEMPLATE_TYPE_ENUM.FREE === templateId) {
+    path = PAGE_ROUTE_ENUMS.free;
+  } else {
+    if ([PRODUCT_CLASS_ENUM.SINGLE_PRODUCT, PRODUCT_CLASS_ENUM.TWO_PRODUCT].includes(currentClass)) {
+      path = PAGE_ROUTE_ENUMS.productInfo;
+    }
   }
+
   router.push({
     path,
     query: {

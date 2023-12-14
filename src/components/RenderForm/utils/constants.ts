@@ -603,6 +603,8 @@ export const MODULE_TYPE_MAP = {
   7: 'other',
   /** 监护人 */
   8: 'guardian',
+  /** 代理人 */
+  9: 'agent',
 };
 
 // pro from

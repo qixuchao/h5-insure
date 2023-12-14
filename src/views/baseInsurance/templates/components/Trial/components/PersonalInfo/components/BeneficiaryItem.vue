@@ -1,7 +1,7 @@
 <template>
   <ProRenderFormWithCard
     ref="formRef"
-    class="personal-info-card"
+    class="personal-info-card beneficiary"
     :title="title"
     :model="state.personVO"
     :schema="state.schema"

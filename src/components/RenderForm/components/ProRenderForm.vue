@@ -1,5 +1,11 @@
 <template>
-  <VanForm ref="formRef" class="com-van-form" v-bind="{ ...errorProps, ...$attrs }" @failed="onFailed">
+  <VanForm
+    ref="formRef"
+    class="com-van-form"
+    input-align="right"
+    v-bind="{ ...errorProps, ...$attrs }"
+    @failed="onFailed"
+  >
     <template v-if="isSchema">
       <component
         :is="item.componentName"

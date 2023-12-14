@@ -2,7 +2,7 @@
   <!----被保人-->
   <ProRenderFormWithCard
     ref="insuredFormRef"
-    class="personal-info-card"
+    class="personal-info-card insured"
     :title="hideTitle ? '' : title"
     :model="state.personVO"
     :schema="state.schema"
@@ -22,7 +22,7 @@
   <ProRenderFormWithCard
     v-if="isShowGuardian"
     ref="guardianFormRef"
-    class="personal-info-card"
+    class="personal-info-card guardian"
     title="监护人"
     :model="state.guardian.personVO"
     :schema="state.guardianSchema"

@@ -87,23 +87,7 @@ export const transformData = (o: transformDataType, flag = false) => {
   return currentRiskList.map((risk: RiskVoItem) => {
     console.log(flag, 'risk.chargePeriod=====', risk.chargePeriod);
     const currentRisk = {
-      tenantId,
       amountUnit: 1,
-      annuityDrawFrequency: risk.annuityDrawType,
-      annuityDrawDate: risk.annuityDrawDate,
-      paymentFrequency: flag ? 5 : risk.paymentFrequency,
-      paymentPeriod: risk.chargePeriod.split('_')[1],
-      paymentPeriodType: PAYMENT_PERIOD_TYPE_ENUMS[risk.chargePeriod.split('_')[0]],
-      insurancePeriodType:
-        INSURANCE_PERIOD_TYPE_ENUMS[risk.coveragePeriod === 'to_life' ? 'to_life' : risk.coveragePeriod.split('_')[0]],
-      insurancePeriodValue: Number.isNaN(+risk.coveragePeriod.split('_')[1]) ? 0 : risk.coveragePeriod.split('_')[1],
-      riskCode: risk.riskCode,
-      riskType: risk.riskType,
-      riskName: risk.riskName,
-      extInfo: {
-        riskId: risk.riskId,
-        copy: risk.copy,
-      },
       initialPremium: riskPremium[risk.riskCode]?.premium || 0,
       totalPremium: riskPremium[risk.riskCode]?.premium || 0,
       liabilityDetails:
@@ -133,6 +117,7 @@ export const transformData = (o: transformDataType, flag = false) => {
       productId,
       currentAmount: risk.initialAmount || 0,
       initialAmount: riskPremium[risk.riskCode]?.amount || risk.initialAmount,
+      ...risk,
     };
     return currentRisk;
   });
@@ -166,15 +151,15 @@ export const riskToTrial = (productRiskVoList: any) => {
 
     return {
       initialAmount: displayValues?.[0]?.code,
-      annuityDrawDate: annuityDrawValueList?.[0],
-      annuityDrawFrequency: annuityDrawFrequencyList?.[0],
-      chargePeriod: paymentPeriodValueList?.[0],
+      annuityDrawDate: annuityDrawValueList?.[0]?.code,
+      annuityDrawFrequency: annuityDrawFrequencyList?.[0]?.code,
+      chargePeriod: paymentPeriodValueList?.[0]?.code,
       copy: copies,
-      coveragePeriod: insurancePeriodValueList?.[0],
+      coveragePeriod: insurancePeriodValueList?.[0]?.code,
       liabilityList: riskLiabilityInfoVOList,
       mainRiskCode,
       mainRiskId,
-      paymentFrequency: paymentFrequencyList?.[0],
+      paymentFrequency: paymentFrequencyList?.[0]?.code,
       riskCategory,
       riskCode,
       riskName,

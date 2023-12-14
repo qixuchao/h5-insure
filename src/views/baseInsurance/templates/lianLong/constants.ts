@@ -40,6 +40,8 @@ export const PAGE_ROUTE_ENUMS = {
   paymentResult: '/baseInsurance/long/result',
   orderTrajectory: '/orderTrajectory', // 订单轨迹
   customerDetail: '/customerDetail', // 客户详情
+  short: '/baseInsurance/short', // 短期险
+  free: '/baseInsurance/free', // 赠险
 };
 
 export const ROUTE_EXCLUDE = [

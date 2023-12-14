@@ -326,7 +326,7 @@ interface InsuredFactorSchema extends ModuleResult {
   beneficiaryList: ModuleResult[];
 }
 
-type ResultEnum = 'holder' | 'beneficiary' | 'payInfo' | 'signInfo' | 'guardian';
+type ResultEnum = 'holder' | 'beneficiary' | 'payInfo' | 'signInfo' | 'guardian' | 'agent';
 
 export interface PersonalInfoConf {
   hasTrialFactorCodes?: boolean;

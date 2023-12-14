@@ -35,6 +35,7 @@ import ProPopup from './ProPopup/index.vue';
 import ProIDCardUpload from './ProIDCardUpload/index.vue';
 import ProImageUpload from './ProImageUpload/index.vue';
 import ProFilePreview from './ProFilePreview/index.vue';
+import ProFileDrawer from './ProFileDrawer/index.vue';
 import ProCascader from './ProCascader/index.vue';
 import ProPDFviewer from './ProPDFviewer/index.vue';
 import ProScrollTab from './ProScrollTab/index.vue';
@@ -84,6 +85,7 @@ export const globalComs: ComponentMap = {
   ProLazyComponent,
   ProNavigator,
   ProScribing,
+  ProFileDrawer,
 };
 
 function install(app: any) {

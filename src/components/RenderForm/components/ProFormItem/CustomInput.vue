@@ -34,6 +34,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  textAlign: {
+    type: String,
+    default: 'right',
+  },
   modelValue: {
     type: [String, Boolean, Object, Number],
     default: '',
@@ -57,12 +61,11 @@ export default {
 <style lang="scss" scope>
 .custom-input-wrap {
   width: 100%;
-  margin: 0 0 14px 0;
-  text-align: right;
   display: flex;
   flex-direction: column;
   .help {
     height: 37px;
+    margin: 14px 0 0;
     font-size: $zaui-font-size-spec;
     font-weight: 400;
     color: #999999;

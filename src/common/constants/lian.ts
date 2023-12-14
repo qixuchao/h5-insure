@@ -16,4 +16,13 @@ export const SHARE_CONTENT = {
 };
 
 export const SHARE_IMAGE_LINK = 'https://al-s-lianapp-01-oss.oss-cn-shanghai.aliyuncs.com/lian_logo.png';
+
+// 事件code
+export const EVENT_BUTTON_CODE = {
+  free: {
+    underWriteAndIssue: 'EVENT_FREE_underWriteAndIssue',
+  },
+  short: {},
+};
+
 export default {};

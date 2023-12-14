@@ -209,14 +209,14 @@ const baseInsurance = [
     name: 'baseInsuranceFree',
     path: '/baseInsurance/free',
     meta: { title: '', keepAlive: true },
-    component: () => import('@/views/baseInsurance/templates/free.vue'),
+    component: () => import('@/views/baseInsurance/templates/lianFree/index.vue'),
   },
   // 短险模板
   {
     name: 'InsuranceShort',
     path: '/baseInsurance/short',
     meta: { title: '', keepAlive: true, requireWxJs: false },
-    component: () => import('@/views/baseInsurance/templates/short.vue'),
+    component: () => import('@/views/baseInsurance/templates/lianShort/index.vue'),
   },
   // 短险-升级款（魔方）
   {

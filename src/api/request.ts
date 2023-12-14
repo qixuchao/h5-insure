@@ -164,11 +164,12 @@ axiosInstance.interceptors.response.use(
     const { response } = error;
     console.log('res', response);
     if (response) {
-      Toast(showCodeMessage(response.status));
       if (`${response?.status}` === UNLOGIN) {
         // window.location.href = '/login';
         initNative();
+        return Promise.reject(response.data);
       }
+      Toast(showCodeMessage(response.status));
       return Promise.reject(response.data);
     }
     Toast('网络连接异常,请稍后再试!');
