@@ -1,6 +1,6 @@
 <template>
-  <div v-if="state.loading">__SKELETON_FREE_CONTENT__</div>
-  <div v-else data-skeleton-root="FREE" :theme-vars="themeVars" class="page-free-product-detail">
+  <div v-if="state.loading">__SKELETON_FREE5_CONTENT__</div>
+  <div v-else data-skeleton-root="FREE5" :theme-vars="themeVars" class="page-free-product-detail">
     <Banner
       v-if="
         state.tenantProductDetail?.BASIC_INFO?.bannerType == 1 && state.tenantProductDetail?.BASIC_INFO?.banner.length
@@ -35,6 +35,7 @@
           <span class="header">代理人信息</span>
         </div>
         <AgentInfo
+          ref="agentRef"
           v-model="agentInfo"
           is-view
           :config="{ agentCode: { isView: false } }"
@@ -63,8 +64,8 @@
           ref="root"
           :class="{ 'submit-btn': true, 'is-first': !state.newAuth }"
           :is-gradient="false"
-          :text="isShare ? '立即保障并激活' : '分享至客户'"
-          @click="clickHandler"
+          :text="isShare ? '领取保障并激活' : '分享至客户'"
+          @click="onSaveOrder"
         />
         <ProLazyComponent v-if="isShare">
           <AttachmentList
@@ -102,10 +103,11 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { useIntersectionObserver, useElementBounding } from '@vueuse/core';
-import { Toast } from 'vant/es';
+import { Toast, Dialog } from 'vant/es';
 import debounce from 'lodash-es/debounce';
 import cloneDeep from 'lodash-es/cloneDeep';
 import dayjs from 'dayjs';
+import qs from 'qs';
 import { setGlobalTheme, useTheme } from '@/hooks/useTheme';
 import { queryProductMaterial, querySalesInfo } from '@/api/modules/product';
 import { insureProductDetail, saveOrder, getTenantOrderDetail } from '@/api/modules/trial';
@@ -130,9 +132,10 @@ import PreNotice from '../components/PreNotice/index.vue';
 import useAttachment from '@/hooks/useAttachment';
 import useOrder from '@/hooks/useOrder';
 import AgentInfo from '@/components/RenderForm/AgentInfo.vue';
-import { EVENT_BUTTON_CODE } from '@/common/constants/lian';
+import { EVENT_BUTTON_CODE, LIAN_STORAGE_KEY, RISK_PERIOD_TYPE_ENUM } from '@/common/constants/lian';
 import { queryAgentInfo } from '@/api/lian';
 import { transformFactorToSchema } from '@/components/RenderForm';
+import { sessionStore, localStore } from '@/hooks/useStorage';
 
 const InscribedContent = defineAsyncComponent(() => import('../components/InscribedContent/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
@@ -161,6 +164,8 @@ const {
   preview,
   isShare,
 } = route.query as QueryData;
+
+const { agentCode: currentAgentCode } = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`) || {};
 
 const iseeBizNo = ref();
 const root = ref();
@@ -228,7 +233,9 @@ const orderDetail = useOrder({
     templateId,
     iseeBizNo: '',
   },
+  period_type: RISK_PERIOD_TYPE_ENUM.free,
 });
+const agentRef = ref();
 const personalInfoRef = ref();
 const currentPlanObj = ref<Partial<ProductPlanInsureVoItem>>({});
 
@@ -337,7 +344,6 @@ const fetchData = async () => {
   state.loading = true;
   const productReq = querySalesInfo({ productCode });
   const insureReq = insureProductDetail({ productCode, isTenant: !preview });
-  // const userReq = getAppUser({ openId });
 
   await Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
     if (productRes.code === '10000') {
@@ -428,9 +434,8 @@ const trialData2Order = (
   currentOrderDetail = {},
 ) => {
   const nextStepParams: any = { ...currentOrderDetail };
-  const { insuredList } = currentOrderDetail;
+  const { insuredList, holder } = currentOrderDetail;
   const riskList = getRiskVOList();
-  console.log('riskList', riskList);
   const transformDataReq: any = {
     tenantId,
     riskList,
@@ -447,6 +452,7 @@ const trialData2Order = (
   nextStepParams.insuredList = insuredList.map((insurer: any) => {
     return {
       ...insurer,
+      nationalityCode: 'CHN',
       certType: insurer.certType || CERT_TYPE_ENUM.CERT,
       certNo: (insurer.certNo || '').toLocaleUpperCase(),
       planCode: currentPlanObj.value.planCode,
@@ -461,8 +467,16 @@ const trialData2Order = (
       ],
     };
   });
+  nextStepParams.holder.nationalityCode = 'CHN';
   console.log('nextStepParams', nextStepParams);
   return nextStepParams;
+};
+
+// 校验分享前、后的代理人code是否一致
+const agentInfo = ref();
+
+const compareAgentCode = () => {
+  return agentCode !== agentInfo.value.agentCode;
 };
 
 const onSaveOrder = async () => {
@@ -488,52 +502,38 @@ const onSaveOrder = async () => {
           ...route.query,
           isShare: 1,
           orderNo: data,
-          agentCode,
+          agentCode: currentAgentCode,
         };
-        shareRef.value.handleShare();
+        shareConfig.value.link = `${window.location.origin}?${qs.stringify(shareLinkParams)}`;
+        shareRef.value.handleShare(shareConfig.value);
       }
     } else {
       currentOrderDetail.extInfo.buttonCode = EVENT_BUTTON_CODE.free.underWriteAndIssue;
-      nextStepOperate(currentOrderDetail, (resData: any, pageAction: string) => {
-        if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE && resData.orderNo) {
-          router.push(`/baseInsurance/orderDetail?from=free&tenantId=${tenantId}&orderNo=${resData.orderNo}`);
-        }
-      });
-      personalInfoRef.value
-        .validate()
+      Promise.all([agentRef.value?.validate, personalInfoRef.value.validate()])
         .then((res) => {
-          if (state.ifPersonalInfoSuccess) {
-            nextStepOperate(currentOrderDetail, (resData: any, pageAction: string) => {
-              if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE && resData.orderNo) {
-                router.push(`/baseInsurance/orderDetail?from=free&tenantId=${tenantId}&orderNo=${resData.orderNo}`);
-              }
+          if (!compareAgentCode()) {
+            Dialog.alert({
+              message: '代理人工号有误，请核对后重新录入',
+              confirmButtonText: '我知道了',
             });
           }
+          nextStepOperate(currentOrderDetail, (resData: any, pageAction: string) => {
+            if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE && resData.orderNo) {
+              router.push(`/baseInsurance/orderDetail?from=free&tenantId=${tenantId}&orderNo=${resData.orderNo}`);
+            }
+          });
         })
         .catch((e) => {
-          // console.log(e, '表单验证失败');
-          // const dom = document.querySelector('.com-card-wrap');
-          // if (dom) {
-          //   dom.scrollIntoView();
-          // }
+          console.log(e, '表单验证失败');
+          const dom = document.querySelector('.com-card-wrap');
+          if (dom) {
+            dom.scrollIntoView();
+          }
         });
     }
   } catch (e) {
     console.log('e');
   }
-};
-
-const clickHandler = () => {
-  // const res = await validateSmsCodew();
-  // if (!res) {
-  //   return null;
-  // }
-
-  onSaveOrder();
-  //   if (popupFileList.value.length > 0) {
-  //   state.isOnlyView = false;
-  //   state.showFilePreview = true;
-  // }
 };
 
 const onCloseFilePreview = () => {
@@ -558,12 +558,11 @@ const getOrderDetail = () => {
   });
 };
 
-const agentInfo = ref();
 // 获取代理人详情
 const getAgentInfo = () => {
   queryAgentInfo({ tenantId, saleUserId: agentCode }).then(({ code, data }) => {
     if (code === '10000') {
-      agentInfo.value = data;
+      agentInfo.value = { ...data, agentCode: '' };
     }
   });
 };

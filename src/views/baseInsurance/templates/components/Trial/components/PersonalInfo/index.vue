@@ -32,7 +32,7 @@
       v-model:guardian="insuredItem.guardian"
       :title="`${state.insured.length > 1 ? `被保人${index + 1}` : '被保人信息'}`"
       :holder-person-v-o="state.holder.personVO"
-      :="insuredItem"
+      :="{ ...insuredItem, ...$attrs }"
       :beneficiary-schema="state.beneficiarySchema"
       :guardian-schema="state.guardianSchema"
       :is-view="isView"
@@ -538,7 +538,6 @@ watch(
     //   emit('trailChange', result);
     //   return false;
     // }
-    console.log('validateTrialFields', validateTrialFields());
     if (!validateTrialFields()) {
       state.trialValidated = false;
       return emit('trailValidateFailed', result);
@@ -549,7 +548,7 @@ watch(
         console.log('trialEnd');
         // 只有试算因子数据变动才调用试算
         // 试算时投被保人分开不需要多次试算
-        state.trialValidated = !props.isOnlyHolder;
+        state.trialValidated = !props.isOnlyHolder && !!state.insured?.[0].trialFactorCodes?.length;
 
         if (!props.isOnlyHolder && trialDataChanged) {
           state.trialValidated = true;
@@ -702,7 +701,9 @@ watch(
         res[index] = {
           ...cloneDeep(initInsuredTempData),
           personVO,
-          config,
+          config: {
+            ...config,
+          },
           guardian,
           beneficiaryList,
           nanoid: nanoid(),
@@ -712,7 +713,9 @@ watch(
         merge(res[index], {
           ...cloneDeep(initInsuredTempData),
           personVO,
-          config,
+          config: {
+            ...config,
+          },
           guardian,
           beneficiaryList,
           // nanoid: nanoid(),

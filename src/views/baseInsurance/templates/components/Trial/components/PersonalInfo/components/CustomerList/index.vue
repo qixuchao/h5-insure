@@ -8,17 +8,7 @@
   > -->
   <div class="page page-customer-list">
     <div class="search-bar">
-      <van-search
-        v-model="state.keyword"
-        shape="round"
-        placeholder="客户 姓名/手机号"
-        class="icon-sercher"
-        @search="handleSearch"
-      >
-        <template #left-icon>
-          <img :src="SearchLeftIcon" alt="" class="search-icon-img" style="width: 22px; height: 23px" />
-        </template>
-      </van-search>
+      <ProSearch v-model="state.keyword" placeholder="客户 姓名/手机号" @search="handleSearch"> </ProSearch>
     </div>
     <List :data="state.list" type="firstLetter" :disabled="false" />
     <div v-if="!state.list?.length" style="padding-top: 50px">

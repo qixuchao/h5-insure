@@ -146,11 +146,11 @@ axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data;
     customOption.loading && closeLoading(customOption);
-    if (res.code === UNLOGIN || res.status === UNLOGIN) {
-      // window.location.href = '/login';
-      initNative();
-      return response;
-    }
+    // if (res.code === UNLOGIN || res.status === UNLOGIN) {
+    //   // window.location.href = '/login';
+    //   initNative();
+    //   return response;
+    // }
     if (res.code === SUCCESS_CODE || res.status === SUCCESS_STATUS) {
       return response;
     }
@@ -162,7 +162,6 @@ axiosInstance.interceptors.response.use(
   },
   (error: AxiosError) => {
     const { response } = error;
-    console.log('res', response);
     if (response) {
       if (`${response?.status}` === UNLOGIN) {
         // window.location.href = '/login';

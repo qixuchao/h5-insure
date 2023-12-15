@@ -28,7 +28,7 @@ export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
     iseeBizNo,
   } = useRoute().query as QueryData;
 
-  const { agentCode, branchType, name, mangcom } = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`) || {};
+  const { agentCode, branchType, name, manageCom } = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`) || {};
 
   let extInfo: any = {};
 
@@ -39,7 +39,7 @@ export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
   }
 
   const orderDetail = ref<Partial<OrderDetail>>({
-    agencyId: mangcom,
+    agencyId: manageCom,
     commencementTime: '',
     expiryDate: '',
     proposalId,

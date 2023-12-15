@@ -413,7 +413,7 @@ const getData = async () => {
     state.orderDetail = orderRes.data;
     productCode = orderRes.data.insuredList?.[0]?.productList?.[0]?.productCode || '';
     if (!productCode) return '';
-    const productReq = !Number.isNaN(+tenantId) && tenantProductDetail({ productCode, withInsureInfo: true, tenantId });
+    const productReq = !Number.isNaN(+tenantId) && tenantProductDetail({ productCode });
     const insureReq = insureProductDetail({ productCode });
     getUpgrade(productCode);
     Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {

@@ -694,6 +694,7 @@ export const getCertConfig = (schema, personVO) => {
   // 证件类型为身份证或者户口本
   if (certTypeSchema) {
     merge(config, getCertTypeConfig(certType, schema));
+    console.log('formState', config);
   }
   return [isOnlyCertFlag, config];
 };

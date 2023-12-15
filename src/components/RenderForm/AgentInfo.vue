@@ -1,6 +1,6 @@
 <template>
   <ProRenderFormWithCard
-    ref="policyInfoFormRef"
+    ref="agentInfoFormRef"
     class="agent"
     :schema="state.schema"
     :model="state.modelValue"
@@ -53,10 +53,12 @@ const state = reactive<{
   config: {},
 });
 
-const policyInfoFormRef = ref();
+const agentInfoFormRef = ref();
 
 // // 验证表单必填
-const validate = (isTrial) => {};
+const validate = () => {
+  return agentInfoFormRef.value?.validate();
+};
 
 watch(
   [() => props.schema, () => props.config],
@@ -95,6 +97,6 @@ watch(
 );
 
 defineExpose({
-  // validate,
+  validate,
 });
 </script>

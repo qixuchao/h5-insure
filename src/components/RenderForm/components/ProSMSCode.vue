@@ -145,9 +145,9 @@ watch(
     padding: 0;
     text-align: right;
     align-self: center;
+    background: unset;
     :deep(.van-button__content) {
       justify-content: flex-end;
-      border-left: 1px solid $zaui-line;
     }
     :deep(.van-button__text) {
       font-size: var(--van-cell-font-size);

@@ -235,9 +235,9 @@ const onClickTag = (id: any, index: number) => {
 const handleProduct = async (productInfo) => {
   let path = PAGE_ROUTE_ENUMS.premiumTrial;
   const { insurerCode = '', productCode = '', templateId, productClass: currentClass } = productInfo;
-  if (TEMPLATE_TYPE_ENUM.SHORT === templateId) {
+  if (TEMPLATE_TYPE_ENUM.SHORT === `${templateId}`) {
     path = PAGE_ROUTE_ENUMS.short;
-  } else if (TEMPLATE_TYPE_ENUM.FREE === templateId) {
+  } else if (TEMPLATE_TYPE_ENUM.FREE === `${templateId}`) {
     path = PAGE_ROUTE_ENUMS.free;
   } else {
     if ([PRODUCT_CLASS_ENUM.SINGLE_PRODUCT, PRODUCT_CLASS_ENUM.TWO_PRODUCT].includes(currentClass)) {

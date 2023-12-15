@@ -4,6 +4,7 @@
     ref="insuredFormRef"
     class="personal-info-card insured"
     :title="hideTitle ? '' : title"
+    :="$attrs"
     :model="state.personVO"
     :schema="state.schema"
     :config="state.config"
@@ -22,6 +23,7 @@
   <ProRenderFormWithCard
     v-if="isShowGuardian"
     ref="guardianFormRef"
+    :="$attrs"
     class="personal-info-card guardian"
     title="监护人"
     :model="state.guardian.personVO"
@@ -43,6 +45,7 @@
     <ProRenderFormWithCard
       ref="beneficiaryTypeFormRef"
       class="personal-info-card"
+      :="$attrs"
       :title="'受益人'"
       :model="state.personVO"
       :schema="state.beneficiaryTypeSchemaList"
@@ -118,6 +121,7 @@ import {
   resetObjectValues,
   getNameRules,
   setCertDefaultValue,
+  getCertTypeConfig,
 } from '@/components/RenderForm';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { BENEFICIARY_ENUM } from '@/common/constants/infoCollection';
@@ -713,7 +717,11 @@ watch(
   () => props.config,
   (val) => {
     if (val) {
-      Object.assign(state.config, val);
+      Object.assign(state.config, val, {
+        relationToHolder: {
+          isDefaultSelected: true,
+        },
+      });
     }
   },
   {
@@ -732,6 +740,7 @@ watch(
           setCertDefaultValue(props.schema, props.modelValue, () => {
             state.personVO.certType = '1';
           });
+          Object.assign(state.config, getCertTypeConfig(state.personVO.certType, val));
           item.relationToHolder = props.modelValue?.relationToHolder;
           item.hidden = !item.isSelfInsuredNeed && isSelf;
           return item;

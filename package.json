@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite --mode=test",
+    "skt": "node ./skeleton/koa/index.ts",
     "build": "vite build",
     "lint": "lint-staged",
     "preview": "vite preview",
@@ -25,6 +26,8 @@
     "clipboard": "^2.0.10",
     "dayjs": "^1.10.8",
     "echarts": "^5.3.1",
+    "html2canvas": "^1.4.1",
+    "jquery": "^3.7.1",
     "lodash-es": "^4.17.21",
     "nanoid": "^4.0.0",
     "nprogress": "^0.2.0",
@@ -41,8 +44,7 @@
     "vue-dompurify-html": "^3.0.0",
     "vue-i18n": "^9.1.9",
     "vue-router": "^4.0.12",
-    "weixin-js-sdk": "^1.6.0",
-    "html2canvas": "^1.4.1"
+    "weixin-js-sdk": "^1.6.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^16.1.0",

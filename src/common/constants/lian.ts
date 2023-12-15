@@ -25,4 +25,11 @@ export const EVENT_BUTTON_CODE = {
   short: {},
 };
 
+// 长短险类型
+export const RISK_PERIOD_TYPE_ENUM = {
+  free: 4,
+  short: 3,
+  long: 1,
+};
+
 export default {};
