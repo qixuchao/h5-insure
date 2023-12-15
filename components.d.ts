@@ -18,7 +18,6 @@ declare module 'vue' {
     Play: typeof import('./src/components/ZaVoice/play.vue')['default']
     PlayBar: typeof import('./src/components/ZaVoice/playBar.vue')['default']
     PolicyInfo: typeof import('./src/components/RenderForm/PolicyInfo.vue')['default']
-    'PolicyInfo copy': typeof import('./src/components/RenderForm/PolicyInfo copy.vue')['default']
     ProAddress: typeof import('./src/components/RenderForm/components/ProAddress.vue')['default']
     ProBank: typeof import('./src/components/RenderForm/components/ProBank.vue')['default']
     ProBankUpload: typeof import('./src/components/RenderForm/components/ProBankUpload.vue')['default']

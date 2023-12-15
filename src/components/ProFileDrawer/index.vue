@@ -453,7 +453,7 @@ watch(
             content: '';
             width: 0;
             height: 0;
-            background: url('@/assets/images/isRead.png') no-repeat;
+            // background: url('@/assets/images/isRead.png') no-repeat;
             background-size: contain;
             transition: all 0.6s;
           }
