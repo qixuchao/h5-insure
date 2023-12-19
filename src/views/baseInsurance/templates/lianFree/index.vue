@@ -172,7 +172,7 @@ const {
 } = route.query as QueryData;
 
 const currentDate = dayjs().format('YYYY-MM-DD');
-if (date !== currentDate) {
+if (date && date !== currentDate) {
   Dialog.alert({
     message: '投保链接已过期',
     showConfirmButton: false,
