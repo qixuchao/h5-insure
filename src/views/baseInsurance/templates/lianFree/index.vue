@@ -496,7 +496,7 @@ const compareAgentCode = () => {
 const hasHolderName = ref<boolean>(false);
 // 缓存代理人code
 const cachedAgentCode = ref<string>();
-const faceVerified = ref<boolean>(true);
+const faceVerified = ref<boolean>(false);
 const thread = ref();
 const isShared = ref<boolean>(false);
 // 获取订单详情
