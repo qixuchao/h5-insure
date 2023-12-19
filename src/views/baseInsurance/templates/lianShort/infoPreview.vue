@@ -38,7 +38,7 @@
       ></van-cell>
     </ProCard>
     <div class="footer-button">
-      <ProShadowButton v-if="origin === 'confirm'" :shadow="false" @click="handleNext">
+      <ProShadowButton v-if="origin !== 'confirm'" :shadow="false" @click="handleNext">
         <slot>确认</slot>
       </ProShadowButton>
       <ProShadowButton v-else :shadow="false" @click="handleReceive">
@@ -209,8 +209,8 @@ const handleShare = () => {
 
 const handleReceive = () => {
   if (templateId === TEMPLATE_TYPE_ENUM.FREE) {
-    orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.faceVerify;
-    orderDetail.value.extInfo.pageCode = 'infoPreview';
+    orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.free.underWriteAndIssue;
+    orderDetail.value.extInfo.pageCode = 'productInfo';
     nextStepOperate(orderDetail.value, (resData, pageAction) => {
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
         router.push({
