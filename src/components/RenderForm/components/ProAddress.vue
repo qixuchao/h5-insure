@@ -91,8 +91,8 @@ const props = defineProps({
 });
 
 const nodeCode = computed(() => {
-  const { provinceCode } = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`);
-  return [provinceCode];
+  const { provinceCode = '' } = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`) || {};
+  return provinceCode ? [provinceCode] : [];
 });
 
 /**
