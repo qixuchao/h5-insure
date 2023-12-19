@@ -224,13 +224,7 @@ const handleReceive = () => {
 
 const handleNext = async () => {
   if (templateId === TEMPLATE_TYPE_ENUM.FREE) {
-    orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.free.faceVerify;
-    orderDetail.value.extInfo.pageCode = 'productInfo';
-    nextStepOperate(orderDetail.value, (resData, pageAction) => {
-      if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-        Toast('认证成功');
-      }
-    });
+    Toast('被保人已完成认证');
   }
   // if (preview) {
   //   jumpToNextPage(PAGE_CODE_ENUMS.INFO_PREVIEW, route.query);

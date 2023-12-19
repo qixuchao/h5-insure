@@ -27,17 +27,15 @@ import { getTenantOrderDetail } from '@/api/modules/trial';
 import { convertPhone } from '@/utils/format';
 import useOrder from '@/hooks/useOrder';
 import { NOTICE_TYPE_MAP, PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
-import { RISK_PERIOD_TYPE_ENUM } from '@/common/constants/lian';
+import { RISK_PERIOD_TYPE_ENUM, EVENT_BUTTON_CODE } from '@/common/constants/lian';
 import { faceVerify, queryFaceVerifyResult } from '@/api/modules/verify';
 import { sendSMSCode, checkSMSCode } from '@/components/RenderForm/utils/constants';
 import faceImg from '@/assets/images/baseInsurance/face_img.png';
 import faceTip from '@/assets/images/baseInsurance/face_tip.png';
-import { PAGE_ROUTE_ENUMS, EVENT_BUTTON_CODE } from './constants';
-import {
-  PAGE_ROUTE_ENUMS as FREE_PAGE_ROUTE_ENUMS,
-  EVENT_BUTTON_CODE as FREE_EVENT_BUTTON_CODE,
-} from '../lianFree/constants';
+import { PAGE_ROUTE_ENUMS } from './constants';
+import { PAGE_ROUTE_ENUMS as FREE_PAGE_ROUTE_ENUMS } from '../lianFree/constants';
 import { nextStepOperate } from '../../nextStep.ts';
+import { TEMPLATE_TYPE_ENUM } from '@/common/constants/infoCollection';
 
 /** 页面query参数类型 */
 interface QueryData {
@@ -84,15 +82,16 @@ const getFaceVerifyResult = () => {
       if (data.status === 'SUCCESS') {
         delete route.query.biz_id;
         delete route.query.nextPageCode;
-        if (templateId === RISK_PERIOD_TYPE_ENUM.free) {
-          router.push({
-            path: FREE_PAGE_ROUTE_ENUMS.infoPreview,
-            query: route.query,
-          });
-        } else {
-          router.push({
-            path: PAGE_ROUTE_ENUMS.infoPreview,
-            query: route.query,
+        if (templateId === TEMPLATE_TYPE_ENUM.FREE) {
+          orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.free.faceVerify;
+          orderDetail.value.extInfo.pageCode = 'faceAuth';
+          nextStepOperate(orderDetail.value, (resData, pageAction) => {
+            if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+              router.push({
+                path: FREE_PAGE_ROUTE_ENUMS[resData.nextPageCode],
+                query: route.query,
+              });
+            }
           });
         }
       }

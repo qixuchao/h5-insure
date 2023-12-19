@@ -506,14 +506,14 @@ const onSaveOrder = async () => {
           title: '标题',
           desc: '描述',
           imageUrl: SHARE_IMAGE_LINK,
-          link: `${window.location.origin}?${qs.stringify(shareLinkParams)}`,
-          url: `${window.location.origin}?${qs.stringify(shareLinkParams)}`,
+          link: `${window.location.origin}${window.location.pathname}?${qs.stringify(shareLinkParams)}`,
+          url: `${window.location.origin}${window.location.pathname}?${qs.stringify(shareLinkParams)}`,
         };
         shareRef.value.handleShare(shareConfig.value);
       }
     } else {
       currentOrderDetail.extInfo.buttonCode = EVENT_BUTTON_CODE.free.underWriteAndIssue;
-      Promise.all([agentRef.value?.validate(), personalInfoRef.value.validate()])
+      Promise.all([agentRef.value?.validate, personalInfoRef.value.validate()])
         .then((res) => {
           if (!compareAgentCode()) {
             Dialog.alert({
@@ -548,9 +548,14 @@ const onSaveOrder = async () => {
                     origin: 'share',
                   };
 
-                  shareConfig.value.link = `${window.location.origin}?${qs.stringify(shareLinkParams)}`;
+                  shareConfig.value = {
+                    title: '标题',
+                    desc: '描述',
+                    imageUrl: SHARE_IMAGE_LINK,
+                    url: `${window.location.origin}${window.location.pathname}?${qs.stringify(shareLinkParams)}`,
+                    link: `${window.location.origin}${window.location.pathname}?${qs.stringify(shareLinkParams)}`,
+                  };
                   shareRef.value.handleShare(shareConfig.value);
-                  shareRef.value.handleShare();
                 })
                 .catch(() => {
                   router.push({
