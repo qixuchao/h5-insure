@@ -21,6 +21,7 @@ export const SHARE_IMAGE_LINK = 'https://al-s-lianapp-01-oss.oss-cn-shanghai.ali
 export const EVENT_BUTTON_CODE = {
   free: {
     underWriteAndIssue: 'EVENT_FREE_underWriteAndIssue',
+    faceVerify: 'EVENT_FREE_faceAuth',
   },
   short: {},
 };

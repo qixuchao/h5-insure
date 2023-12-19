@@ -208,8 +208,22 @@ const baseInsurance = [
   {
     name: 'baseInsuranceFree',
     path: '/baseInsurance/free',
-    meta: { title: '', keepAlive: true },
+    meta: { title: '产品详情', keepAlive: true },
     component: () => import('@/views/baseInsurance/templates/lianFree/index.vue'),
+  },
+  // 赠险信息确认页
+  {
+    name: 'InsuranceFreeInfoPreview',
+    path: '/baseInsurance/free/infoPreview',
+    meta: { title: '投保信息确认', keepAlive: true, requireWxJs: false },
+    component: () => import('@/views/baseInsurance/templates/lianShort/infoPreview.vue'),
+  },
+  // 赠险人脸识别页
+  {
+    name: 'InsuranceFreeFaceAuth',
+    path: '/baseInsurance/free/faceVerify',
+    meta: { title: '被保人人脸识别', keepAlive: true, requireWxJs: false },
+    component: () => import('@/views/baseInsurance/templates/lianShort/faceVerify.vue'),
   },
   // 短险模板
   {
@@ -217,6 +231,20 @@ const baseInsurance = [
     path: '/baseInsurance/short',
     meta: { title: '', keepAlive: true, requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/index.vue'),
+  },
+  // 短险信息确认页
+  {
+    name: 'InsuranceShortInfoPreview',
+    path: '/baseInsurance/short/infoPreview',
+    meta: { title: '投保信息确认', keepAlive: true, requireWxJs: false },
+    component: () => import('@/views/baseInsurance/templates/lianShort/infoPreview.vue'),
+  },
+  // 短险人脸识别页
+  {
+    name: 'InsuranceShortFaceAuth',
+    path: '/baseInsurance/short/faceVerify',
+    meta: { title: '被保人人脸识别', keepAlive: true, requireWxJs: false },
+    component: () => import('@/views/baseInsurance/templates/lianShort/faceVerify.vue'),
   },
   // 短险-升级款（魔方）
   {

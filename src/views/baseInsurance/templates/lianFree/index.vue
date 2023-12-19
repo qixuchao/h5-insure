@@ -136,6 +136,8 @@ import { EVENT_BUTTON_CODE, LIAN_STORAGE_KEY, RISK_PERIOD_TYPE_ENUM } from '@/co
 import { queryAgentInfo } from '@/api/lian';
 import { transformFactorToSchema } from '@/components/RenderForm';
 import { sessionStore, localStore } from '@/hooks/useStorage';
+import { PAGE_ROUTE_ENUMS, BUTTON_CODE_ENUMS } from './constants.ts';
+import { jumpToNextPage, scrollToError } from '@/utils';
 
 const InscribedContent = defineAsyncComponent(() => import('../components/InscribedContent/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
@@ -476,7 +478,7 @@ const trialData2Order = (
 const agentInfo = ref();
 
 const compareAgentCode = () => {
-  return agentCode !== agentInfo.value.agentCode;
+  return agentCode === agentInfo.value.agentCode;
 };
 
 const onSaveOrder = async () => {
@@ -509,26 +511,59 @@ const onSaveOrder = async () => {
       }
     } else {
       currentOrderDetail.extInfo.buttonCode = EVENT_BUTTON_CODE.free.underWriteAndIssue;
-      Promise.all([agentRef.value?.validate, personalInfoRef.value.validate()])
+      Promise.all([agentRef.value?.validate(), personalInfoRef.value.validate()])
         .then((res) => {
           if (!compareAgentCode()) {
             Dialog.alert({
               message: '代理人工号有误，请核对后重新录入',
               confirmButtonText: '我知道了',
             });
+            return;
           }
-          nextStepOperate(currentOrderDetail, (resData: any, pageAction: string) => {
+          nextStepOperate(currentOrderDetail, (resData: any, pageAction: string, message) => {
             if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE && resData.orderNo) {
-              router.push(`/baseInsurance/orderDetail?from=free&tenantId=${tenantId}&orderNo=${resData.orderNo}`);
+              router.push({
+                path: PAGE_ROUTE_ENUMS.paymentResult,
+                query: {
+                  tenantId,
+                  from: 'free',
+                  orderNo,
+                },
+              });
+            } else if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_ALERT && resData.alertType === 'faceAuth') {
+              Dialog.confirm({
+                message,
+                confirmButtonText: '去分享',
+                cancelButtonText: '被保人确认',
+              })
+                .then(() => {
+                  const shareLinkParams = {
+                    ...route.query,
+                    isShare: 1,
+                    orderNo,
+                    agentCode: currentAgentCode,
+                    objectType: 'insured',
+                    origin: 'share',
+                  };
+                  shareConfig.value.link = `${window.location.origin}?${qs.stringify(shareLinkParams)}`;
+                  shareRef.value.handleShare(shareConfig.value);
+                  shareRef.value.handleShare();
+                })
+                .catch(() => {
+                  router.push({
+                    path: PAGE_ROUTE_ENUMS.faceVerify,
+                    query: {
+                      ...route.query,
+                      objectType: 'insured',
+                      origin: 'confirm',
+                    },
+                  });
+                });
             }
           });
         })
         .catch((e) => {
-          console.log(e, '表单验证失败');
-          const dom = document.querySelector('.com-card-wrap');
-          if (dom) {
-            dom.scrollIntoView();
-          }
+          scrollToError('.page-free-product-detail', '.van-field--error');
         });
     }
   } catch (e) {
