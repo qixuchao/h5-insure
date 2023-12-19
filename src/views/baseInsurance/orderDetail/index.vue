@@ -16,7 +16,7 @@
           <span class="value">{{ item.value }}</span>
         </div>
         <ProShadowButton
-          v-if="!(orderBtnText === '重下一单' && state.templateId.toString() === '3')"
+          v-if="!(orderBtnText === '重下一单' && state.templateId.toString() === '3') && orderBtnText"
           :theme-vars="themeVars"
           class="btn"
           :text="orderBtnText"
@@ -270,10 +270,7 @@ const initPageInfo = () => {
       if (insurancePeriodDesc) return null;
       item.riskList.forEach((node: any) => {
         if (node.riskType === 1 && !insurancePeriodDesc) {
-          insurancePeriodDesc = compositionDesc(
-            node.insurancePeriodValue,
-            INSURANCE_PERIOD_TYPE_ENUMS[node.insurancePeriodType],
-          );
+          insurancePeriodDesc = node.coveragePeriodDesc;
         }
       });
       return false;

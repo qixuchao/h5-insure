@@ -112,6 +112,10 @@ export const INPUT_MAX_LENGTH = {
    */
   ELEVEN: 11,
   /**
+   * 代理人编号 15
+   */
+  FIFTEEN: 15,
+  /**
    * 证件号长度 18
    */
   EIGHTEEN: 18,
@@ -286,6 +290,13 @@ export const RULE_CONFIG_MAP = {
     type: 'digit',
     maxlength: INPUT_MAX_LENGTH.THREE,
     ruleType: RULE_TYPE_ENUM.BENEFIT_RATE,
+  },
+  /**
+   * 代理人code
+   */
+  AGENT_CODE: {
+    type: 'digit',
+    maxlength: INPUT_MAX_LENGTH.FIFTEEN,
   },
 };
 
@@ -578,6 +589,10 @@ export const GLOBAL_CONFIG_MAP = {
   benefitRate: {
     ...RULE_CONFIG_MAP.RATE,
     unit: '%',
+  },
+  /** 代理人code */
+  agentCode: {
+    ...RULE_CONFIG_MAP.AGENT_CODE,
   },
 };
 

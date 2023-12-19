@@ -38,7 +38,7 @@
           ref="agentRef"
           v-model="agentInfo"
           is-view
-          :config="{ agentCode: { isView: false } }"
+          :config="{ agentCode: { isView: hasHolderName } }"
           :schema="agentSchema"
         ></AgentInfo>
       </div>
@@ -53,6 +53,7 @@
           ref="personalInfoRef"
           v-model="state.userData"
           input-align="left"
+          :is-view="isShared || faceVerified"
           error-message-align="left"
           :product-factor="currentPlanObj?.productFactor"
           :multi-insured-config="currentPlanObj?.multiInsuredConfigVO"
@@ -64,6 +65,7 @@
           ref="root"
           :class="{ 'submit-btn': true, 'is-first': !state.newAuth }"
           :is-gradient="false"
+          :disabled="isShared && !faceVerified"
           :text="isShare ? '领取保障并激活' : '分享至客户'"
           @click="onSaveOrder"
         />
@@ -138,6 +140,7 @@ import { transformFactorToSchema } from '@/components/RenderForm';
 import { sessionStore, localStore } from '@/hooks/useStorage';
 import { PAGE_ROUTE_ENUMS, BUTTON_CODE_ENUMS } from './constants.ts';
 import { jumpToNextPage, scrollToError } from '@/utils';
+import useThread from '@/hooks/useThread';
 
 const InscribedContent = defineAsyncComponent(() => import('../components/InscribedContent/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
@@ -165,7 +168,16 @@ const {
   orderNo,
   preview,
   isShare,
+  date,
 } = route.query as QueryData;
+
+const currentDate = dayjs().format('YYYY-MM-DD');
+if (date !== currentDate) {
+  Dialog.alert({
+    message: '投保链接已过期',
+    showConfirmButton: false,
+  });
+}
 
 const { agentCode: currentAgentCode } = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`) || {};
 
@@ -227,16 +239,20 @@ const state = reactive<{
 });
 // 保障方案相关信息
 const guaranteeObj = ref<any>({});
+
 // 订单数据
-const orderDetail = useOrder({
-  extInfo: {
-    buttonCode: 'EVENT_FREE_multiIssuePolicy',
-    pageCode: 'productInfo',
-    templateId,
-    iseeBizNo: '',
+const orderDetail = useOrder(
+  {
+    extInfo: {
+      buttonCode: 'EVENT_FREE_multiIssuePolicy',
+      pageCode: 'productInfo',
+      templateId,
+      iseeBizNo: '',
+    },
+    periodType: RISK_PERIOD_TYPE_ENUM.free,
   },
-  period_type: RISK_PERIOD_TYPE_ENUM.free,
-});
+  route,
+);
 const agentRef = ref();
 const personalInfoRef = ref();
 const currentPlanObj = ref<Partial<ProductPlanInsureVoItem>>({});
@@ -466,7 +482,6 @@ const trialData2Order = (
     };
   });
   nextStepParams.holder.nationalityCode = 'CHN';
-  console.log('nextStepParams', nextStepParams);
   return nextStepParams;
 };
 
@@ -476,6 +491,50 @@ const agentInfo = ref();
 const compareAgentCode = () => {
   return agentCode === agentInfo.value.agentCode;
 };
+
+// 代理人端是否填写了投保人姓名
+const hasHolderName = ref<boolean>(false);
+// 缓存代理人code
+const cachedAgentCode = ref<string>();
+const faceVerified = ref<boolean>(true);
+const thread = ref();
+const isShared = ref<boolean>(false);
+// 获取订单详情
+const getOrderDetail = (isLoading = true) => {
+  getTenantOrderDetail({ orderNo, tenantId }, { isLoading }).then(({ code, data }) => {
+    if (code === '10000') {
+      faceVerified.value = data.insuredList?.[0]?.faceAuthFlag === YES_NO_ENUM.YES;
+      if (faceVerified.value) {
+        if (thread.value.isStart) {
+          Toast('被保人认证完成');
+        }
+        thread.value.stop();
+      }
+      Object.assign(orderDetail.value, data);
+      hasHolderName.value = !!data.holder?.name;
+      orderDetail.value.holder.config = {
+        name: {
+          isView: hasHolderName.value,
+        },
+      };
+      state.userData = data;
+
+      hasHolderName.value && (agentInfo.value.agentCode = cachedAgentCode.value);
+    }
+  });
+};
+
+// 轮询查询被保人人脸识别是否完成
+thread.value = useThread({
+  start: () => {
+    getOrderDetail(false);
+    faceVerified.value = false;
+  },
+  stop: () => {
+    faceVerified.value = true;
+  },
+  time: 10000,
+});
 
 const onSaveOrder = async () => {
   const productInfo: any = {
@@ -501,6 +560,7 @@ const onSaveOrder = async () => {
           isShare: 1,
           orderNo: data,
           agentCode: currentAgentCode,
+          date: dayjs().format('YYYY-MM-DD'),
         };
         shareConfig.value = {
           title: '标题',
@@ -556,6 +616,8 @@ const onSaveOrder = async () => {
                     link: `${window.location.origin}${window.location.pathname}?${qs.stringify(shareLinkParams)}`,
                   };
                   shareRef.value.handleShare(shareConfig.value);
+                  isShared.value = true;
+                  thread.value.run();
                 })
                 .catch(() => {
                   router.push({
@@ -590,28 +652,18 @@ const onSubmit = () => {
   onSaveOrder();
 };
 
-// 获取订单详情
-const getOrderDetail = () => {
-  getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
-    console.log('code', code);
-    if (code === '10000') {
-      Object.assign(orderDetail.value, data);
-      state.userData = data;
-    }
-  });
-};
-
 // 获取代理人详情
 const getAgentInfo = () => {
   queryAgentInfo({ tenantId, saleUserId: agentCode }).then(({ code, data }) => {
     if (code === '10000') {
+      cachedAgentCode.value = data.agentCode;
       agentInfo.value = { ...data, agentCode: '' };
+      getOrderDetail();
     }
   });
 };
 
 onMounted(() => {
-  orderNo && getOrderDetail();
   agentCode && getAgentInfo();
   fetchData();
   // 调用千里眼插件获取一个iseeBiz

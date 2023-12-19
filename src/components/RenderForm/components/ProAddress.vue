@@ -163,7 +163,7 @@ const addressConfig = computed(() => {
 const cascaderModelValue = computed(() => {
   const { level } = addressConfig.value;
   // 字典索引多了层全国，所以为level-2
-  const key = ['province', 'city', 'area'][level === 0 ? 'area' : level - 2];
+  const key = ['province', 'city', 'area'][level === 0 ? 'area' : level - 1];
   return state.address?.[key];
 });
 
@@ -175,7 +175,7 @@ const updateFullValue = (arr = []) => {
     address = ['province', 'city', 'area']
       .slice(0, Number(addressConfig.value.level || 3))
       .reduce((res, key, index) => {
-        const item = arr[index + 1] || {};
+        const item = arr[index] || {};
         res[key] = item[value];
         res[`${key}Name`] = item[text];
         return res;

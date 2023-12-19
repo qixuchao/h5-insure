@@ -214,7 +214,7 @@ const isSameHolder = ref<boolean>(false);
 // 被保人同投保人关系非父母时，被保人年龄小于18岁则需要监护人信息
 const isShowGuardian = computed<boolean>(() => {
   const { age, relationToHolder } = state.personVO;
-  if (!['1', '4', '5'].includes(`${relationToHolder}`) && age !== null && +age < 18) {
+  if (relationToHolder && !['1', '4', '5'].includes(`${relationToHolder}`) && age !== null && +age < 18) {
     return true;
   }
   state.guardian = {
@@ -719,7 +719,7 @@ watch(
     if (val) {
       Object.assign(state.config, val, {
         relationToHolder: {
-          isDefaultSelected: true,
+          // isDefaultSelected: true,
         },
       });
     }

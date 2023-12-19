@@ -111,6 +111,8 @@ export enum ORDER_STATUS_ENUM {
    * 核保通过
    */
   UNDER_WRITING_SUCCESS = 'underWritingSuccess',
+  /** 待承保 */
+  ACCEPTING_POLICY = 'acceptingPolicy',
 }
 
 export const ORDER_STATUS_LIST = [
