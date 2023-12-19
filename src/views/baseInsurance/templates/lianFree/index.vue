@@ -132,7 +132,7 @@ import PreNotice from '../components/PreNotice/index.vue';
 import useAttachment from '@/hooks/useAttachment';
 import useOrder from '@/hooks/useOrder';
 import AgentInfo from '@/components/RenderForm/AgentInfo.vue';
-import { EVENT_BUTTON_CODE, LIAN_STORAGE_KEY, RISK_PERIOD_TYPE_ENUM } from '@/common/constants/lian';
+import { EVENT_BUTTON_CODE, LIAN_STORAGE_KEY, RISK_PERIOD_TYPE_ENUM, SHARE_IMAGE_LINK } from '@/common/constants/lian';
 import { queryAgentInfo } from '@/api/lian';
 import { transformFactorToSchema } from '@/components/RenderForm';
 import { sessionStore, localStore } from '@/hooks/useStorage';
@@ -351,10 +351,6 @@ const fetchData = async () => {
     if (productRes.code === '10000') {
       state.tenantProductDetail = productRes.data as any;
       document.title = productRes.data.BASIC_INFO.title || '';
-      const { title, desc, image: imageArr } = productRes.data?.PRODUCT_LIST.wxShareConfig || {};
-      // 设置分享参数
-      setShareLink({ title, desc, image: imageArr });
-
       if (productRes.data.BASIC_INFO && productRes.data.BASIC_INFO.themeType) {
         setGlobalTheme(productRes.data.BASIC_INFO.themeType);
       }
@@ -498,7 +494,7 @@ const onSaveOrder = async () => {
   }
   try {
     if (!isShare) {
-      const { code, data } = saveOrder(currentOrderDetail);
+      const { code, data } = await saveOrder(currentOrderDetail);
       if (code === '10000') {
         const shareLinkParams = {
           ...route.query,
@@ -506,7 +502,13 @@ const onSaveOrder = async () => {
           orderNo: data,
           agentCode: currentAgentCode,
         };
-        shareConfig.value.link = `${window.location.origin}?${qs.stringify(shareLinkParams)}`;
+        shareConfig.value = {
+          title: '标题',
+          desc: '描述',
+          imageUrl: SHARE_IMAGE_LINK,
+          link: `${window.location.origin}?${qs.stringify(shareLinkParams)}`,
+          url: `${window.location.origin}?${qs.stringify(shareLinkParams)}`,
+        };
         shareRef.value.handleShare(shareConfig.value);
       }
     } else {
@@ -545,6 +547,7 @@ const onSaveOrder = async () => {
                     objectType: 'insured',
                     origin: 'share',
                   };
+
                   shareConfig.value.link = `${window.location.origin}?${qs.stringify(shareLinkParams)}`;
                   shareRef.value.handleShare(shareConfig.value);
                   shareRef.value.handleShare();
