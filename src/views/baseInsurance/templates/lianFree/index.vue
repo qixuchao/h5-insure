@@ -59,6 +59,7 @@
           :multi-insured-config="currentPlanObj?.multiInsuredConfigVO"
           @trail-change="handlePersonalInfoChange"
         />
+        <InsurancePeriodCell :form-info="state.formInfo" :risk-info="state.mainRiskInfo" />
         <p class="page-tip">同一被保险人仅限领取1份</p>
 
         <ProShadowButton
@@ -141,6 +142,7 @@ import { sessionStore, localStore } from '@/hooks/useStorage';
 import { PAGE_ROUTE_ENUMS, BUTTON_CODE_ENUMS } from './constants.ts';
 import { jumpToNextPage, scrollToError } from '@/utils';
 import useThread from '@/hooks/useThread';
+import InsurancePeriodCell from '../components/InsurancePeriodCell/index.vue';
 
 const InscribedContent = defineAsyncComponent(() => import('../components/InscribedContent/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
@@ -234,6 +236,7 @@ const state = reactive<{
   isSelfInsure: true,
   showBtn: false,
   activeIndex: 0,
+  formInfo: {},
   showFilePreview: false,
   isOnlyView: true,
 });
@@ -296,32 +299,6 @@ const getRiskVOList = () => {
       ...riskVOList,
     };
   });
-};
-
-/* --------------计算保障开始、结束日期 ----------- */
-
-const insuranceStartDate = () => {
-  const riskInfo = state.insureDetail.productRiskVoList || [];
-  const startDateType = riskInfo?.[0]?.riskDetailVOList?.[0]?.insuranceStartType || 1;
-  if (startDateType === 1) {
-    return `${dayjs(new Date()).format('YYYY-MM-DD')} 00:00:00`;
-  }
-  return `${dayjs(new Date()).add(1, 'day').format('YYYY-MM-DD')} 00:00:00`;
-};
-
-const insuranceEndDate = () => {
-  const riskInfo = state.insureDetail.productRiskVoList || [];
-  const { insuranceEndType, riskInsureLimitVO } = riskInfo?.[0]?.riskDetailVOList?.[0] || {};
-  const { insurancePeriodValueList } = riskInsureLimitVO || {};
-  const [unit, num] = (insurancePeriodValueList?.[0] || '').split('_');
-  // 当日23:59:59失效
-  if (insuranceEndType === 1) {
-    return `${dayjs(new Date())
-      .add(num || 0, unit)
-      .format('YYYY-MM-DD')} 23:59:59`;
-  }
-  // 次日00:00:00失效
-  return insuranceEndType ? `${dayjs(new Date()).add(num, unit).format('YYYY-MM-DD')} 00:00:00` : '';
 };
 
 const queryProductMaterialData = () => {
@@ -449,6 +426,7 @@ const trialData2Order = (
 ) => {
   const nextStepParams: any = { ...currentOrderDetail };
   const { insuredList, holder } = currentOrderDetail;
+  const { insuranceStartDate, insuranceEndDate } = state.formInfo;
   const riskList = getRiskVOList();
   const transformDataReq: any = {
     tenantId,
@@ -458,8 +436,8 @@ const trialData2Order = (
   };
   nextStepParams.extInfo.iseeBizNo = iseeBizNo.value;
   nextStepParams.productCode = currentProductDetail?.productCode;
-  nextStepParams.commencementTime = nextStepParams.insuranceStartDate;
-  nextStepParams.expiryDate = nextStepParams.insuranceEndDate;
+  nextStepParams.commencementTime = insuranceStartDate;
+  nextStepParams.expiryDate = insuranceEndDate;
   nextStepParams.premium = 0;
   nextStepParams.orderAmount = 0;
   nextStepParams.orderRealAmount = 0;

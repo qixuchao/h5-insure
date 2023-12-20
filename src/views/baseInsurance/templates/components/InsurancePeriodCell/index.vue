@@ -354,7 +354,7 @@ defineExpose({});
 
   .period-custom-cell {
     width: 100%;
-    padding: 0px 40px 32px;
+    padding: 0px 30px 32px;
   }
 
   .period-check-btn-cell {
