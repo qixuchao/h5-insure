@@ -13,6 +13,18 @@
           <li>请确保真实本人操作</li>
         </ol>
       </div>
+      <div class="attachment">
+        <AttachmentList
+          v-if="fileList?.length"
+          v-model="agree"
+          :attachment-list="fileList"
+          :has-bg-color="false"
+          is-show-radio
+          pre-text="本人同意利安人寿采集本人人脸信息，用于向国家法规许可的验证机构进行本人身份验证。本人已仔细阅读并知晓"
+          suffix-text="，并同意授权。"
+          @preview-file="(index) => previewFile(index)"
+        />
+      </div>
       <div class="footer-button">
         <van-button type="primary" class="submit-btn" @click="handleSubmit">开始验证</van-button>
       </div>
@@ -22,7 +34,7 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Toast } from 'vant/es';
+import { Toast, Dialog } from 'vant/es';
 import { getTenantOrderDetail } from '@/api/modules/trial';
 import { convertPhone } from '@/utils/format';
 import useOrder from '@/hooks/useOrder';
@@ -36,6 +48,7 @@ import { PAGE_ROUTE_ENUMS } from './constants';
 import { PAGE_ROUTE_ENUMS as FREE_PAGE_ROUTE_ENUMS } from '../lianFree/constants';
 import { nextStepOperate } from '../../nextStep.ts';
 import { TEMPLATE_TYPE_ENUM } from '@/common/constants/infoCollection';
+import AttachmentList from '../components/AttachmentList/index.vue';
 
 /** 页面query参数类型 */
 interface QueryData {
@@ -59,6 +72,12 @@ const formData = ref({
 });
 const formRef = ref();
 const userInfo = ref();
+const agree = ref();
+const fileList = ref([
+  {
+    attachmentName: '隐私政策',
+  },
+]);
 
 const personType = computed(() => {
   if (Array.isArray(objectType)) {
@@ -155,6 +174,13 @@ const goFaceVerify = () => {
 };
 
 const handleSubmit = () => {
+  if (!agree.value) {
+    Dialog.alert({
+      message: '请先同意隐私政策',
+      confirmButtonText: '我知道了',
+    });
+    return;
+  }
   goFaceVerify();
 };
 
@@ -254,6 +280,9 @@ onMounted(() => {
     width: 100%;
     height: 90px;
     background: $zaui-brand;
+  }
+  .attachment {
+    margin-top: 160px;
   }
 }
 </style>

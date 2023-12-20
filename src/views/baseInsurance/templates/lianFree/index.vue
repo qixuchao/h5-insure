@@ -73,8 +73,10 @@
         <ProLazyComponent v-if="isShare">
           <AttachmentList
             v-if="fileList?.length"
+            v-model="state.agree"
             :attachment-list="fileList"
             :has-bg-color="false"
+            is-show-radio
             pre-text="请阅读"
             @preview-file="(index) => previewFile(index)"
           />
@@ -213,6 +215,7 @@ const state = reactive<{
   showFilePreview: boolean;
   isSelfInsure: boolean;
   isOnlyView: boolean;
+  agree: boolean;
 }>({
   tenantProductDetail: {},
   insureProductDetail: {},
@@ -239,6 +242,7 @@ const state = reactive<{
   formInfo: {},
   showFilePreview: false,
   isOnlyView: true,
+  agree: false,
 });
 // 保障方案相关信息
 const guaranteeObj = ref<any>({});
@@ -556,6 +560,13 @@ const onSaveOrder = async () => {
           if (!compareAgentCode()) {
             Dialog.alert({
               message: '代理人工号有误，请核对后重新录入',
+              confirmButtonText: '我知道了',
+            });
+            return;
+          }
+          if (!state.agree) {
+            Dialog.alert({
+              message: '请先阅读投保文档',
               confirmButtonText: '我知道了',
             });
             return;
