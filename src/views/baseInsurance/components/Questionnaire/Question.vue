@@ -157,8 +157,8 @@ const mutiBlank = computed(() => {
   if (enumEqual(data.value.questionType, PRODUCT_QUESTION_OPT_TYPE_ENUM.MULE_BLANK)) {
     let temp = -1;
     return data.value.optionList[0].value
-      .replaceAll('_____', '∝$blank∝')
-      .replaceAll('\n', '∝<br />∝')
+      .replace(/_____/g, '∝$blank∝')
+      .replace(/\\n/g, '∝<br />∝')
       .split('∝')
       .map((blank) => {
         if (blank === '$blank') temp += 1;

@@ -32,6 +32,7 @@
       :title="`${state.insured.length > 1 ? `被保人${index + 1}` : '被保人信息'}`"
       :holder-person-v-o="state.holder.personVO"
       :="insuredItem"
+      :config="{ ...insuredItem.config, relationToHolder: { isDefaultSelected: true } }"
       :beneficiary-schema="state.beneficiarySchema"
       :guardian-schema="state.guardianSchema"
       :is-view="isView"

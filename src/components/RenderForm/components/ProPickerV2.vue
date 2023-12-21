@@ -85,7 +85,7 @@ const props = defineProps({
    */
   isDefaultSelected: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   /**
    * 是否查看模式
@@ -231,7 +231,7 @@ watch(
   columns,
   (val = []) => {
     // TODO: children
-    if (isNotEmptyArray(val) && val.length === 1) {
+    if (isNotEmptyArray(val)) {
       const [{ disabled, value }] = columns.value;
       // 默认选中第一项（是否可选）
       if (props.isDefaultSelected && !disabled && (isNil(props.modelValue) || props.modelValue === '')) {

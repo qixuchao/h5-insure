@@ -120,10 +120,10 @@ const calcViewData = (list: any[], value: string | number[]) => {
 const mutiBlank = computed(() => {
   if (enumEqual(props.data.questionType, PRODUCT_QUESTION_OPT_TYPE_ENUM.MULE_BLANK)) {
     let temp = -1;
-    console.log('换行：', props.data.optionList[0].value.replaceAll('_____', '∝$blank∝').replaceAll('\n', '∝<br />∝'));
+    // console.log('换行：', props.data.optionList[0].value.replaceAll('_____', '∝$blank∝').replaceAll('\n', '∝<br />∝'));
     const t = props.data.optionList[0].value
-      .replaceAll('_____', '∝$blank∝')
-      .replaceAll('\n', '∝<br />∝')
+      .replace(/_____/g, '∝$blank∝')
+      .replace(/\\n/g, '∝<br />∝')
       .split('∝')
       .map((blank) => {
         if (blank === '$blank') temp += 1;
