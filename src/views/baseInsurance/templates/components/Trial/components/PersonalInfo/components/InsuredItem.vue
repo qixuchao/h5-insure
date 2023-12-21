@@ -717,11 +717,7 @@ watch(
   () => props.config,
   (val) => {
     if (val) {
-      Object.assign(state.config, val, {
-        relationToHolder: {
-          // isDefaultSelected: true,
-        },
-      });
+      Object.assign(state.config, val);
     }
   },
   {

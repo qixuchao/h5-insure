@@ -29,15 +29,22 @@
     <ScrollInfo ref="detailScrollRef" :order-detail="orderDetail" :data-source="tenantProductDetail">
       <template #form>
         <div class="custom-page-form">
-          <!-- 投保人/被保人/受益人 -->
+          <AgentInfo
+            v-if="isShare"
+            ref="agentRef"
+            v-model="agentInfo"
+            is-view
+            :config="{ agentCode: { isView: hasHolderName } }"
+            :schema="agentSchema"
+          ></AgentInfo>
           <PersonalInfo
-            v-if="currentPlanObj?.productFactor && !isLoading"
             :key="currentPlanObj.planCode"
             ref="personalInfoRef"
             v-model="state.userData"
             :is-view="isView"
             :product-factor="currentPlanObj?.productFactor"
             :multi-insured-config="currentPlanObj?.multiInsuredConfigVO"
+            @trail-change="handlePersonalInfoChange"
           />
         </div>
         <PaymentType
@@ -57,17 +64,16 @@
         :inscribed-content="tenantProductDetail?.SIGNATURE?.inscribedContent"
       />
     </ProLazyComponent>
-    <ProLazyComponent>
+    <!-- <ProLazyComponent>
       <AttachmentList
         v-if="fileList?.length"
         :attachment-list="fileList"
         pre-text="请阅读"
         @preview-file="(index) => previewFile(index)"
       />
-    </ProLazyComponent>
+    </ProLazyComponent> -->
     <template v-if="showFooterBtn">
       <TrialButton
-        :is-share="tenantProductDetail?.PRODUCT_LIST?.showWXShare"
         :premium="state.trialResult?.initialPremium"
         :share-info="shareInfo"
         :loading-text="state.trialMsg"
@@ -75,10 +81,11 @@
         :payment-frequency="guaranteeObj.paymentFrequency"
         :tenant-product-detail="tenantProductDetail"
         @handle-click="onNext"
-        >立即投保</TrialButton
+        >{{ isShare ? '立即投保' : '立即分享' }}</TrialButton
       >
     </template>
   </div>
+  <ProShare ref="shareRef"></ProShare>
   <PreNotice v-if="preNoticeLoading" :product-detail="tenantProductDetail"></PreNotice>
   <div id="xinaoDialog"></div>
   <HealthNoticePreview
@@ -108,6 +115,8 @@ import debounce from 'lodash-es/debounce';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { useIntersectionObserver, useElementBounding } from '@vueuse/core';
 import { template } from 'lodash';
+import qs from 'qs';
+import dayjs from 'dayjs';
 import { setGlobalTheme, useTheme } from '@/hooks/useTheme';
 import {
   InsureProductData,
@@ -122,6 +131,7 @@ import {
   insureProductDetail as getInsureProductDetail,
   getTenantOrderDetail,
   underWriteRule,
+  saveOrder,
 } from '@/api/modules/trial';
 import { queryProductMaterial, querySalesInfo } from '@/api/modules/product';
 import { nextStepOperate as nextStep } from '../../nextStep';
@@ -133,11 +143,11 @@ import {
   INSURE_TYPE_ENUM,
 } from '@/common/constants/infoCollection';
 import { CERT_TYPE_ENUM, isNotEmptyArray } from '@/common/constants';
-import { PersonalInfo } from '@/views/baseInsurance/templates/long/InsureInfos/components/index';
+import PersonalInfo from '@/views/baseInsurance/templates/components/Trial/components/PersonalInfo/index.vue';
 import { transformData, riskToTrial, getFileType } from '../../utils';
 import Banner from '../components/Banner/index.vue';
 import Video from '../components/Banner/Video.vue';
-import Guarantee from '../components/Guarantee/index.vue';
+import Guarantee from '../components/GuaranteeLian/index.vue';
 import PreNotice from '../components/PreNotice/index.vue';
 import Package from '../components/Package/index.vue';
 import { YES_NO_ENUM, PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
@@ -148,7 +158,11 @@ import useOrder from '@/hooks/useOrder';
 import TrialButton from '../components/TrialButton.vue';
 import useAttachment from '@/hooks/useAttachment';
 import { formData2Order, orderData2trialData, proposalToTrial, trialData2Order } from '../utils';
-import { colorConsole } from '@/components/RenderForm';
+import { colorConsole, transformFactorToSchema } from '@/components/RenderForm';
+import { jumpToNextPage, scrollToError } from '@/utils';
+import { EVENT_BUTTON_CODE, LIAN_STORAGE_KEY, RISK_PERIOD_TYPE_ENUM, SHARE_IMAGE_LINK } from '@/common/constants/lian';
+import { PAGE_ROUTE_ENUMS } from './constants.ts';
+import { queryAgentInfo } from '@/api/lian';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const HealthNoticePreview = defineAsyncComponent(() => import('../components/HealthNoticePreview/index.vue'));
@@ -179,26 +193,19 @@ interface QueryData {
 
 const {
   productCode = '',
-  orderNo: reOrderNo,
+  orderNo,
   proposalId,
   tenantId,
   extraInfo,
   insurerCode,
   preview,
+  isShare,
+  agentCode,
+  templateId,
+  proposalInsuredId,
 } = route.query as QueryData;
 
-let extInfo: any = {};
-console.log('route.query', route.query);
-
-try {
-  console.log('extInfo', decodeURIComponent(extraInfo));
-
-  extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
-} catch (error) {
-  //
-}
-
-const { saTenantId, proposalInsuredId = '' } = extInfo;
+const { agentCode: currentAgentCode } = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`) || {};
 
 // 常量
 const LOADING_TEXT = '试算中...';
@@ -237,6 +244,8 @@ const state = reactive({
 });
 
 // 分享信息
+const shareRef = ref();
+const shareConfig = ref({});
 const shareInfo = ref({
   imgUrl: '',
   desc: '',
@@ -257,13 +266,28 @@ const setShareLink = (config: { image: string; desc: string; title: string }) =>
 // 订单数据
 const orderDetail = useOrder({
   extInfo: {
-    buttonCode: 'EVENT_SHORT_saveOrder',
-    pageCode: 'productInfo',
-    extraInfo: extInfo,
-    templateId: extInfo?.templateId || '1',
+    templateId,
     iseeBizNo: '',
   },
+  periodType: RISK_PERIOD_TYPE_ENUM.short,
 });
+
+/* -------代理人模块--------*/
+const agentRef = ref();
+const agentInfo = ref();
+const agentSchema = ref();
+// 代理人端是否填写了投保人姓名
+const hasHolderName = ref<boolean>(false);
+// 缓存代理人code
+const cachedAgentCode = ref<string>();
+const faceVerified = ref<boolean>(false);
+const thread = ref();
+const isShared = ref<boolean>(false);
+
+// 校验分享前、后的代理人code是否一致
+const compareAgentCode = () => {
+  return agentCode === agentInfo.value.agentCode;
+};
 
 // 保障方案相关信息
 const guaranteeObj = ref<any>({});
@@ -319,9 +343,6 @@ const initData = async () => {
       tenantProductDetail.value = data;
       document.title = data.BASIC_INFO.title || '';
       tenantProductDetail.BASIC_INFO = data.BASIC_INFO;
-      const { title, desc, image } = data?.PRODUCT_LIST.wxShareConfig || {};
-      // 设置分享参数
-      setShareLink({ title, desc, image });
 
       if (data.BASIC_INFO && data.BASIC_INFO.themeType) {
         setGlobalTheme(data.BASIC_INFO.themeType);
@@ -340,36 +361,8 @@ const initData = async () => {
     }
   });
 
-  if (reOrderNo || extInfo.orderNo) {
-    getTenantOrderDetail({ orderNo: reOrderNo || extInfo.orderNo, tenantId }).then(({ code, data }) => {
-      if (code === '10000') {
-        orderDetail.value = data;
-        isView.value = true;
-        const orderPlanCode = orderDetail.value.insuredList?.[0]?.planCode || '';
-        if (orderPlanCode) {
-          currentPlanObj.value =
-            insureProductDetail.value.productPlanInsureVOList?.find((item) => item.planCode === orderPlanCode) ||
-            currentPlanObj.value?.productPlanInsureVOList?.[0];
-        }
-
-        Object.assign(state.userData, {
-          ...data,
-          holder: {
-            ...data.holder,
-            config: {
-              verificationCode: {
-                isView: false,
-                isHidden: false,
-                visible: true,
-              },
-            },
-          },
-        });
-        isLoading.value = false;
-      }
-    });
-  } else if (proposalId) {
-    proposalToTrial({ proposalId, productCode, tenantId: saTenantId || tenantId, proposalInsuredId }, (data) => {
+  if (proposalId) {
+    proposalToTrial({ proposalId, productCode, tenantId, proposalInsuredId }, (data) => {
       colorConsole('计划书查询参数');
       state.userData = data;
       isLoading.value = false;
@@ -402,36 +395,21 @@ const onClickToInsure = () => {
 const premiumLoadingText = ref<string>('');
 const premium = ref<number>(0);
 
-// 核保接口调用
-const onUnderWrite = async (orderNo: string) => {
-  try {
-    const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
-    if (code === '10000') {
-      // 核保 buttonCode: 'EVENT_SHORT_underWrite'
-      data.extInfo = { ...data.extInfo, buttonCode: 'EVENT_SHORT_underWrite' };
-      await nextStep(data);
-    }
-  } catch (error) {
-    //
-  }
-};
-
 // 生成订单
 const trialData = ref();
 const onSaveOrder = async () => {
   if (previewMode.value) {
-    window.location.href = `${`${window.location.origin}${VITE_BASE}baseInsurance/orderDetail`}?orderNo=mockOrderNo&tenantId=${tenantId}&ISEE_BIZ=${iseeBizNo}&productCode=${productCode}&preview=true&templateView=${
-      extInfo?.templateId
-    }`;
+    window.location.href = `${`${window.location.origin}${VITE_BASE}baseInsurance/orderDetail`}?orderNo=mockOrderNo&tenantId=${tenantId}&ISEE_BIZ=${iseeBizNo}&productCode=${productCode}&preview=true&templateView=${templateId}`;
   } else {
     try {
       const currentOrderDetail = trialData2Order(trialData.value, state.trialResult, {
         ...orderDetail.value,
         extInfo: {
           ...orderDetail.value.extInfo,
-          buttonCode: 'EVENT_SHORT_saveOrder',
           iseeBizNo: iseeBizNo.value,
           autoRenewalInfo: autoRenewalInfo.value,
+          buttonCode: EVENT_BUTTON_CODE.short.saveOrUpdate,
+          pageCode: 'productInfo',
         },
         operateOption: {
           withBeneficiaryInfo: true,
@@ -441,11 +419,52 @@ const onSaveOrder = async () => {
           withProductInfo: true,
         },
       });
-      nextStep(currentOrderDetail, async (data: any, pageAction: string) => {
+      nextStep(currentOrderDetail, async (data: any, pageAction: string, message: string) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-          if (data?.orderNo) {
-            await onUnderWrite(data?.orderNo);
-          }
+          router.push({
+            path: PAGE_ROUTE_ENUMS[data.nextPageCode],
+            query: {
+              tenantId,
+              orderNo,
+            },
+          });
+        } else if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_ALERT && data.alertType === 'faceAuth') {
+          Dialog.confirm({
+            message,
+            confirmButtonText: '去分享',
+            cancelButtonText: '被保人确认',
+          })
+            .then(() => {
+              const shareLinkParams = {
+                ...route.query,
+                isShare: 1,
+                orderNo,
+                agentCode: currentAgentCode,
+                objectType: 'insured',
+                origin: 'share',
+              };
+
+              shareConfig.value = {
+                title: '标题',
+                desc: '描述',
+                imageUrl: SHARE_IMAGE_LINK,
+                url: `${window.location.origin}${window.location.pathname}?${qs.stringify(shareLinkParams)}`,
+                link: `${window.location.origin}${window.location.pathname}?${qs.stringify(shareLinkParams)}`,
+              };
+              shareRef.value.handleShare(shareConfig.value);
+              isShared.value = true;
+              thread.value.run();
+            })
+            .catch(() => {
+              router.push({
+                path: PAGE_ROUTE_ENUMS.faceVerify,
+                query: {
+                  ...route.query,
+                  objectType: 'insured',
+                  origin: 'confirm',
+                },
+              });
+            });
         }
       });
     } catch (error) {
@@ -491,42 +510,6 @@ const getToOrderPage = () => {
   }
 };
 
-// 健告选择弹窗
-const onCloseHealth = (type: string) => {
-  // 全部为否
-  if (type === 'allFalse') {
-    showHealthPreview.value = false;
-    onSaveOrder();
-  } else {
-    Dialog.confirm({
-      className: 'xinao-custom-dialog',
-      title: '提示',
-      teleport: '#xinaoDialog',
-      message: '被保人不符合健康要求，很抱歉暂时无法投保该产品',
-      confirmButtonText: '选错了',
-      cancelButtonText: '为其他人投保',
-    })
-      .then(() => {
-        // 选错了的情况下不做特殊处理，让用户重新选择
-      })
-      .catch(() => {
-        // 为其他人投保
-        showHealthPreview.value = false;
-      });
-  }
-};
-
-// 文件阅读完毕
-const onSubmit = () => {
-  showFilePreview.value = false;
-  isOnlyView.value = true;
-  if (healthAttachmentList.value.length < 1) {
-    onSaveOrder();
-  } else {
-    showHealthPreview.value = true;
-  }
-};
-
 const onResetFileFlag = () => {
   showHealthPreview.value = false;
   showFilePreview.value = false;
@@ -554,20 +537,6 @@ const handleTrialAndBenefit = async (calcData: any, isSave = false) => {
           trialData.value = calcData;
           state.trialMsg = '';
           state.trialResult = res.data;
-
-          if (isSave) {
-            if (popupFileList.value.length > 0) {
-              // 文件弹窗
-              isOnlyView.value = false;
-              previewFile(0);
-            } else if (healthAttachmentList.value.length > 0) {
-              // 无文件，弹健告
-              showHealthPreview.value = true;
-            } else {
-              // 无文件、无健告直接生成订单
-              onSaveOrder();
-            }
-          }
         } else {
           state.trialMsg = '';
         }
@@ -688,41 +657,46 @@ const dealMixData = () => {
   return submitData;
 };
 
+const compositionData = () => {
+  const { insuranceEndDate: expiryDate, insuranceStartDate: commencementTime } = guaranteeObj.value;
+  Object.assign(state.submitData, {
+    ...state.userData,
+    tenantId,
+    productCode,
+    productName: insureProductDetail.value.productName,
+    commencementTime,
+    expiryDate,
+  });
+  // TODO 处理同主险的相关数据
+  state.riskList = getRiskVOList();
+  const submitDataCopy = state.submitData;
+
+  if (submitDataCopy.insuredList?.length) {
+    submitDataCopy.insuredList = submitDataCopy.insuredList.map((ins) => {
+      return {
+        ...ins,
+        planCode: currentPlanObj.value.planCode,
+
+        productList: [
+          {
+            insurerCode,
+            productName: insureProductDetail.value.productName,
+            productCode,
+            riskList: state.riskList,
+          },
+        ],
+      };
+    });
+  }
+  return submitDataCopy;
+};
+
 const handleMixTrialData = debounce(async (isSave = false) => {
   console.log('>>>>>调用试算<<<<<');
   if (state.ifPersonalInfoSuccess || personalInfoRef.value.canTrail()) {
-    const { insuranceEndDate: expiryDate, insuranceStartDate: commencementTime } = guaranteeObj.value;
-    Object.assign(state.submitData, {
-      ...state.userData,
-      tenantId,
-      productCode,
-      productName: insureProductDetail.value.productName,
-      commencementTime,
-      expiryDate,
-    });
-    // TODO 处理同主险的相关数据
-    state.riskList = getRiskVOList();
-    const submitDataCopy = state.submitData;
-
-    if (submitDataCopy.insuredList?.length) {
-      submitDataCopy.insuredList = submitDataCopy.insuredList.map((ins) => {
-        return {
-          ...ins,
-          planCode: currentPlanObj.value.planCode,
-
-          productList: [
-            {
-              insurerCode,
-              productName: insureProductDetail.value.productName,
-              productCode,
-              riskList: state.riskList,
-            },
-          ],
-        };
-      });
-    }
     console.log('>>>数据构建<<<', state.submitData);
-    await handleTrialAndBenefit(submitDataCopy, isSave);
+    const submitData = compositionData();
+    await handleTrialAndBenefit(submitData, isSave);
   }
 }, 300);
 
@@ -758,29 +732,72 @@ const handlePersonalInfoChange = async (data, isSave = false) => {
   handleMixTrialData();
 };
 
+const saveOrderAndShare = () => {
+  const currentOrderDetail = trialData2Order(compositionData(), state.trialResult, {
+    ...orderDetail.value,
+    extInfo: {
+      ...orderDetail.value.extInfo,
+      iseeBizNo: iseeBizNo.value,
+      autoRenewalInfo: autoRenewalInfo.value,
+    },
+    operateOption: {
+      withBeneficiaryInfo: true,
+      withHolderInfo: true,
+      withInsuredInfo: true,
+      withAttachmentInfo: true,
+      withProductInfo: true,
+    },
+  });
+  saveOrder(currentOrderDetail).then(({ code, data }) => {
+    if (code === '10000') {
+      const shareLinkParams = {
+        ...route.query,
+        isShare: 1,
+        orderNo: data,
+        agentCode: currentAgentCode,
+        date: dayjs().format('YYYY-MM-DD'),
+      };
+      shareConfig.value = {
+        title: '标题',
+        desc: '描述',
+        imageUrl: SHARE_IMAGE_LINK,
+        link: `${window.location.origin}${window.location.pathname}?${qs.stringify(shareLinkParams)}`,
+        url: `${window.location.origin}${window.location.pathname}?${qs.stringify(shareLinkParams)}`,
+      };
+      shareRef.value.handleShare(shareConfig.value);
+    }
+  });
+};
+
 // 点击立即投保
 const onNext = async () => {
-  showHealthPreview.value = false;
-  showFilePreview.value = false;
   state.isFirst = false;
 
   if (!previewMode.value) {
+    // 代理人端生成订单
+    if (!isShare) {
+      saveOrderAndShare();
+      return;
+    }
     autoRenewalInfo.value = await autoRenewRef.value.validate();
-    personalInfoRef.value
-      .validate()
+    Promise.all([agentRef.value?.validate(), personalInfoRef.value.validate()])
       .then(async (res) => {
-        const { mobile, verificationCode = '' } = state.userData.holder || {};
-        const { code, data } = await checkCode(mobile as string, verificationCode);
-        if (code === '10000') {
-          handleMixTrialData(true);
+        // const { mobile, verificationCode = '' } = state.userData.holder || {};
+        // const { code, data } = await checkCode(mobile as string, verificationCode);
+        // if (code === '10000') {
+
+        // }
+        if (!compareAgentCode()) {
+          Dialog.alert({
+            message: '代理人工号有误，请核对后重新录入',
+            confirmButtonText: '我知道了',
+          });
+          return;
         }
+        onSaveOrder();
       })
       .catch((e) => {
-        console.log(e, '表单验证失败');
-        const dom = document.querySelector('.custom-page-form');
-        if (dom) {
-          dom.scrollIntoView();
-        }
+        scrollToError('.page-internet-product-detail', '.van-field--error');
       });
   } else {
     getToOrderPage();
@@ -839,13 +856,13 @@ watch(
 watch(
   () => currentPlanObj.value,
   (newVal, oldVal) => {
-    const { oilPackageProductVOList, planCode, insureProductRiskVOList } = newVal || {};
+    const { oilPackageProductVOList, planCode, insureProductRiskVOList, productFactor } = newVal || {};
 
     // 设置默认选中的计划
     guaranteeObj.value.planCode = planCode;
 
     currentRiskInfo.value = insureProductRiskVOList;
-
+    agentSchema.value = transformFactorToSchema(productFactor)?.agent?.schema;
     mainRiskInfo.value = (insureProductRiskVOList || []).find((risk) => risk.mainRiskFlag === YES_NO_ENUM.YES);
 
     currentPackageConfigVOList.value = (oilPackageProductVOList || []).map((oli) => ({
@@ -911,8 +928,49 @@ onBeforeMount(() => {
   // }
 });
 
+const getOrderDetail = () => {
+  getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
+    if (code === '10000') {
+      orderDetail.value = data;
+      const orderPlanCode = orderDetail.value.insuredList?.[0]?.planCode || '';
+      if (orderPlanCode) {
+        currentPlanObj.value =
+          insureProductDetail.value.productPlanInsureVOList?.find((item) => item.planCode === orderPlanCode) ||
+          currentPlanObj.value?.productPlanInsureVOList?.[0];
+      }
+
+      Object.assign(state.userData, {
+        ...data,
+        holder: {
+          ...data.holder,
+          config: {
+            verificationCode: {
+              isView: false,
+              isHidden: false,
+              visible: true,
+            },
+          },
+        },
+      });
+      isLoading.value = false;
+    }
+  });
+};
+
+// 获取代理人详情
+const getAgentInfo = () => {
+  queryAgentInfo({ tenantId, saleUserId: agentCode }).then(({ code, data }) => {
+    if (code === '10000') {
+      cachedAgentCode.value = data.agentCode;
+      agentInfo.value = { ...data, agentCode: '' };
+      getOrderDetail();
+    }
+  });
+};
+
 onMounted(() => {
   loading.value = true;
+  agentCode && getAgentInfo();
   initData();
   // 调用千里眼插件获取一个iseeBiz
   setTimeout(async () => {

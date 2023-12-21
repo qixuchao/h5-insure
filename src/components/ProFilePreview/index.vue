@@ -21,6 +21,7 @@
       :is-view="isView"
       :data="props.content"
       :params="props.params"
+      :submit="submit"
       @success="props.successCallback"
     >
       <slot name="footer"></slot>

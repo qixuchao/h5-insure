@@ -231,10 +231,10 @@ watch(
   columns,
   (val = []) => {
     // TODO: children
-    if (isNotEmptyArray(val) && (val.length === 1 || props.isDefaultSelected)) {
+    if (isNotEmptyArray(val) && val.length === 1) {
       const [{ disabled, value }] = columns.value;
       // 默认选中第一项（是否可选）
-      if (!disabled && (isNil(props.modelValue) || props.modelValue === '')) {
+      if (props.isDefaultSelected && !disabled && (isNil(props.modelValue) || props.modelValue === '')) {
         handleSelect(value);
       }
     }

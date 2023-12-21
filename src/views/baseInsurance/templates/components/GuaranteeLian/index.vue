@@ -189,13 +189,16 @@ const onClickTab = (val: any) => {
 <style lang="scss" scoped>
 .guarantee-list {
   background: #ffffff;
-  padding: 0 30px;
+  padding: 0 30px 30px;
 
   :deep(.com-card) {
     .com-card-wrap {
       .header {
         margin: unset;
         padding: unset;
+        .title-wrapper {
+          width: 100%;
+        }
       }
     }
   }

@@ -555,7 +555,7 @@ const onSaveOrder = async () => {
       }
     } else {
       currentOrderDetail.extInfo.buttonCode = EVENT_BUTTON_CODE.free.underWriteAndIssue;
-      Promise.all([agentRef.value?.validate, personalInfoRef.value.validate()])
+      Promise.all([agentRef.value?.validate(), personalInfoRef.value.validate()])
         .then((res) => {
           if (!compareAgentCode()) {
             Dialog.alert({
@@ -647,6 +647,7 @@ const getAgentInfo = () => {
     if (code === '10000') {
       cachedAgentCode.value = data.agentCode;
       agentInfo.value = { ...data, agentCode: '' };
+      sessionStore.set(`${LIAN_STORAGE_KEY}_userInfo`, data);
       getOrderDetail();
     }
   });

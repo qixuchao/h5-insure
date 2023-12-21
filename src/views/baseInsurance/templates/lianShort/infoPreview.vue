@@ -55,6 +55,7 @@
       :force-read-cound="0"
       @on-close-file-preview-by-mask="onResetFileFlag"
     ></FilePreview>
+    <ProFileDrawer v-model="state.visibleFile" :data-source="state.files" @clickBtn="clickBtn"> </ProFileDrawer>
   </div>
 </template>
 
@@ -62,6 +63,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import debounce from 'lodash-es/debounce';
+import { useToggle } from '@vant/use';
 import {
   ProRenderFormWithCard,
   PayInfo,
@@ -154,7 +156,7 @@ try {
 } catch (error) {
   //
 }
-
+const [visibleFile, toggleVisible] = useToggle(false);
 const state = reactive({
   isView: false,
   // 投保人

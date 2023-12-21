@@ -23,7 +23,13 @@ export const EVENT_BUTTON_CODE = {
     underWriteAndIssue: 'EVENT_FREE_underWriteAndIssue',
     faceVerify: 'EVENT_FREE_faceAuth',
   },
-  short: {},
+  short: {
+    saveOrUpdate: 'EVENT_SHORT_saveOrder',
+    saveNotice: 'EVENT_SHORT_saveNotice',
+    saveNoticeNextPage: 'EVENT_SHORT_saveNoticeNextPage',
+    saveAuthStatus: 'EVENT_SHORT_saveAuthStatus',
+    underWrite: 'EVENT_SHORT_underWrite',
+  },
 };
 
 // 长短险类型

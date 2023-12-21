@@ -284,13 +284,13 @@ watch(
       }
     } else {
       // 当保障期间为保终身，保质某年龄等情况。 暂时无用
-      let birth = state.formInfo.tenantOrderInsuredList[0].birthday;
+      let birth = state.formInfo.insuredList?.[0]?.birthday;
       if (
-        state.formInfo.tenantOrderInsuredList[0].certType === CERT_TYPE_ENUM.CERT &&
-        state.formInfo.tenantOrderInsuredList[0].certNo &&
-        validateIdCardNo(state.formInfo.tenantOrderInsuredList[0].certNo)
+        state.formInfo.insuredList[0].certType === CERT_TYPE_ENUM.CERT &&
+        state.formInfo.insuredList[0].certNo &&
+        validateIdCardNo(state.formInfo.insuredList[0].certNo)
       ) {
-        birth = getBirth(state.formInfo.tenantOrderInsuredList[0].certNo);
+        birth = getBirth(state.formInfo.insuredList[0].certNo);
       }
       const tempBirthDate = `${computedSubtractDate(birth, 1, 'day')} 00:00:00`;
       if (num === 'single') {

@@ -150,7 +150,7 @@ export const riskToTrial = (productRiskVoList: any) => {
     const copies = 1;
 
     return {
-      initialAmount: displayValues?.[0]?.code,
+      unitAmount: displayValues?.[0]?.code,
       annuityDrawDate: annuityDrawValueList?.[0]?.code,
       annuityDrawFrequency: annuityDrawFrequencyList?.[0]?.code,
       chargePeriod: paymentPeriodValueList?.[0]?.code,
