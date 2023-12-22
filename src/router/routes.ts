@@ -208,7 +208,7 @@ const baseInsurance = [
   {
     name: 'baseInsuranceFree',
     path: '/baseInsurance/free',
-    meta: { title: '产品详情', keepAlive: true, requireWxJs: false },
+    meta: { title: '产品详情', keepAlive: true, requireWxJs: true },
     component: () => import('@/views/baseInsurance/templates/lianFree/index.vue'),
   },
   // 赠险信息确认页

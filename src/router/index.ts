@@ -111,7 +111,7 @@ router.beforeResolve(async (to, from) => {
   if (IS_WECHAT && to.meta.requireWxJs) {
     const tenantId = to.query?.tenantId as string;
     console.log('在微信环境，开始鉴权, tenantId:', tenantId, 'from:', from);
-    const res = await getWxJsSdkSignature({ url: encodeURIComponent(realAuthUrl), tenantId });
+    const res = await getWxJsSdkSignature({ pageUrl: encodeURIComponent(realAuthUrl), tenantId });
     const {
       data: { appId, timestamp, nonceStr, signature },
     } = res;

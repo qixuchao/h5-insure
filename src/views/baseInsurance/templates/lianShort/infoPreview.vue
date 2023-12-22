@@ -192,7 +192,7 @@ const shareInfo = ref({
 
 const payInfoRef = ref<InstanceType<typeof PayInfo>>();
 const personalInfoRef = ref<InstanceType<typeof PersonalInfo>>();
-
+const hasReadFile = ref<boolean>(false);
 /** -----------资料阅读模块开始-------------------- */
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
@@ -208,6 +208,7 @@ const onResetFileFlag = () => {
 };
 
 const handleSubmit = () => {
+  hasReadFile.value = true;
   orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.short.underWrite;
   orderDetail.value.extInfo.pageCode = 'infoPreview';
   nextStepOperate(orderDetail.value, (data, pageAction) => {});
@@ -226,6 +227,10 @@ const handleReceive = () => {
       }
     });
   } else {
+    if (hasReadFile.value) {
+      handleSubmit();
+      return;
+    }
     toggleVisible(true);
   }
 };
