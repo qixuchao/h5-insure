@@ -262,7 +262,7 @@ const initPageInfo = () => {
 
   state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
   state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
-  setPageTitle(state.detail?.tenantProductInsureVO?.productName || '');
+  setPageTitle(state.detail?.PRODUCT_LIST?.title || '');
   state.templateId = state.orderDetail.extInfo.templateId || '4';
   let insurancePeriodDesc = '';
   if (state.templateId.toString() === '2') {

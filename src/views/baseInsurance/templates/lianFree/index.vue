@@ -471,6 +471,9 @@ const trialData2Order = (
 const agentInfo = ref();
 
 const compareAgentCode = () => {
+  if (!agentSchema.value?.length) {
+    return true;
+  }
   return agentCode === agentInfo.value.agentCode;
 };
 
@@ -564,7 +567,7 @@ const onSaveOrder = async () => {
             });
             return;
           }
-          if (!state.agree) {
+          if (fileList.value?.length && !state.agree) {
             Dialog.alert({
               message: '请先阅读投保文档',
               confirmButtonText: '我知道了',

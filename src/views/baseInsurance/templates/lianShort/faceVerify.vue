@@ -64,7 +64,7 @@ interface QueryData {
 const orderDetail = useOrder();
 const route = useRoute();
 const router = useRouter();
-const { agentCode, tenantId, nextPageCode, templateId, biz_id, orderNo, objectType, orderCode } =
+const { agentCode, origin, tenantId, nextPageCode, templateId, biz_id, orderNo, objectType, orderCode } =
   route.query as QueryData;
 const formData = ref({
   mobile: '',
@@ -102,26 +102,18 @@ const getFaceVerifyResult = () => {
         delete route.query.biz_id;
         delete route.query.nextPageCode;
         if (templateId === TEMPLATE_TYPE_ENUM.FREE) {
-          orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.free.faceVerify;
-          orderDetail.value.extInfo.pageCode = 'faceAuth';
-          nextStepOperate(orderDetail.value, (resData, pageAction) => {
-            if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-              router.push({
-                path: FREE_PAGE_ROUTE_ENUMS[resData.nextPageCode],
-                query: route.query,
-              });
-            }
+          router.push({
+            path: FREE_PAGE_ROUTE_ENUMS.infoPreciew,
+            query: route.query,
           });
         } else {
-          orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.short.faceVerify;
-          orderDetail.value.extInfo.pageCode = 'faceAuth';
-          nextStepOperate(orderDetail.value, (resData, pageAction) => {
-            if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-              router.push({
-                path: PAGE_ROUTE_ENUMS[resData.nextPageCode],
-                query: route.query,
-              });
-            }
+          const path = PAGE_ROUTE_ENUMS.insuredInfoPreview;
+          router.push({
+            path,
+            query: {
+              ...route.query,
+              pageType: origin === 'confirm' && 'insuredInfo',
+            },
           });
         }
       }

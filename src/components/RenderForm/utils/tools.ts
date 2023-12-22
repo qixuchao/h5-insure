@@ -680,7 +680,7 @@ export const getCertConfig = (schema, personVO) => {
     [x: string]: any;
   } = {};
   const { relationToHolder, certType } = personVO || {};
-  const isChild = ['6', '7'].includes(`${relationToHolder}`);
+  const isChild = ['4', '5'].includes(`${relationToHolder}`);
   // 证件类型
   const certTypeSchema = schema?.find((schemaItem) => schemaItem.name === 'certType');
   const isOnlyCertFlag = isOnlyCert(certTypeSchema || {});

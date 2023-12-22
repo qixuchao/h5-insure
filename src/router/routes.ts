@@ -239,11 +239,18 @@ const baseInsurance = [
     meta: { title: '健康告知页', keepAlive: true, requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/healthNotice.vue'),
   },
-  // 短险信息确认页
+  // 投保人短险信息确认页
   {
-    name: 'InsuranceShortInfoPreview',
-    path: '/baseInsurance/short/infoPreview',
-    meta: { title: '投保信息确认', keepAlive: true, requireWxJs: false },
+    name: 'InsuranceShortHolderInfoPreview',
+    path: '/baseInsurance/short/holderInfoPreview',
+    meta: { title: '投保人信息确认', keepAlive: true, requireWxJs: false },
+    component: () => import('@/views/baseInsurance/templates/lianShort/infoPreview.vue'),
+  },
+  // 被保人短险信息确认页
+  {
+    name: 'InsuranceShortInsuredInfoPreview',
+    path: '/baseInsurance/short/insuredInfoPreview',
+    meta: { title: '被保人信息确认', keepAlive: true, requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/infoPreview.vue'),
   },
   // 短险人脸识别页

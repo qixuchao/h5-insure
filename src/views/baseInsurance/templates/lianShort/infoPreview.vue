@@ -38,7 +38,7 @@
       ></van-cell>
     </ProCard>
     <div class="footer-button">
-      <ProShadowButton v-if="origin === 'share'" :shadow="false" @click="handleNext">
+      <ProShadowButton v-if="origin === 'share' || pageType" :shadow="false" @click="handleNext">
         <slot>确认</slot>
       </ProShadowButton>
       <ProShadowButton v-else :shadow="false" @click="handleReceive">
@@ -154,6 +154,7 @@ const {
   templateId,
   preview,
   origin,
+  pageType,
 } = route.query as QueryData;
 
 let extInfo: any = {};
@@ -220,6 +221,7 @@ const handleReceive = () => {
     orderDetail.value.extInfo.pageCode = 'productInfo';
     nextStepOperate(orderDetail.value, (resData, pageAction) => {
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+        delete route.query.pageType;
         router.push({
           path: FREE_PAGE_ROUTE_ENUMS[resData.nextPageCode],
           query: route.query,
@@ -237,9 +239,29 @@ const handleReceive = () => {
 
 const handleNext = async () => {
   if (templateId === TEMPLATE_TYPE_ENUM.FREE) {
-    Toast('被保人已完成认证');
+    orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.free.faceVerify;
+    orderDetail.value.extInfo.pageCode = 'faceAuth';
+    nextStepOperate(orderDetail.value, (resData, pageAction) => {
+      if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+        Toast('被保人已完成认证');
+      }
+    });
   } else {
-    toggleVisible(true);
+    if (pageType) {
+      delete route.query.pageType;
+      router.push({
+        path: PAGE_ROUTE_ENUMS.holderInfoPreview,
+        query: route.query,
+      });
+    } else {
+      orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.short.faceVerify;
+      orderDetail.value.extInfo.pageCode = 'faceAuth';
+      nextStepOperate(orderDetail.value, (resData, pageAction) => {
+        if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+          Toast('被保人已完成认证');
+        }
+      });
+    }
   }
   // if (preview) {
   //   jumpToNextPage(PAGE_CODE_ENUMS.INFO_PREVIEW, route.query);

@@ -5,7 +5,7 @@
       :type="currentQuestion.contentType"
       :content="currentQuestion"
       :params="questionParams"
-      :success-callback="questionResolve"
+      :success-callback="confirmAnswer"
     >
       <!-- <template #title>
         {{ currentQuestion.questionnaireName }}
@@ -18,7 +18,7 @@
       </template>
       <template v-else #footer-btn>
         <div class="footer-btn">
-          <van-button round type="primary" block @click="questionResolve"> 下一步 </van-button>
+          <van-button round type="primary" block @click="confirmAnswer"> 下一步 </van-button>
         </div>
       </template>
     </ProFilePreview>
@@ -38,7 +38,7 @@ import { getFileType } from '../../utils';
 import { closeWebView } from '@/utils/jsbridgePromise';
 import { nextStepOperate as nextStep } from '../../nextStep';
 import useOrder from '@/hooks/useOrder';
-import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
+import { PAGE_ACTION_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
 import { jumpToNextPage } from '@/utils';
 import { getTenantOrderDetail } from '@/api/modules/trial';
@@ -46,6 +46,7 @@ import { NOTICE_OBJECT_ENUM, QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE } f
 import { NOTICE_CONTENT } from '../lianLong/data.ts';
 import { PAGE_ROUTE_ENUMS } from './constants.ts';
 import { EVENT_BUTTON_CODE, LIAN_STORAGE_KEY, RISK_PERIOD_TYPE_ENUM, SHARE_IMAGE_LINK } from '@/common/constants/lian';
+import useThread from '@/hooks/useThread';
 
 const route = useRoute();
 const router = useRouter();
@@ -67,6 +68,7 @@ const shareConfig = ref();
 const shareRef = ref();
 const isShared = ref(false);
 const thread = ref();
+const faceVerified = ref(false);
 
 const onNext = () => {
   if (preview) {
@@ -82,7 +84,7 @@ const onNext = () => {
   nextStep(orderDetail.value, (data, pageAction, message) => {
     if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
       router.push({
-        path: PAGE_ROUTE_ENUMS[data.nextPageCode],
+        path: PAGE_ROUTE_ENUMS.holderInfoPreview,
         query: route.query,
       });
     } else if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_ALERT && data.alertType === 'faceAuth') {
@@ -136,32 +138,33 @@ const questionResolve = () => {
       },
     });
   } else {
-    Dialog.confirm({
-      title: '告知提醒',
-      message: NOTICE_CONTENT.join('\n'),
-      confirmButtonText: '确定',
-      messageAlign: 'left',
-      className: 'notice-dialog',
-    }).then(() => {
-      onNext();
-    });
+    onNext();
+    // Dialog.confirm({
+    //   title: '告知提醒',
+    //   message: NOTICE_CONTENT.join('\n'),
+    //   confirmButtonText: '确定',
+    //   messageAlign: 'left',
+    //   className: 'notice-dialog',
+    // }).then(() => {
+    //   onNext();
+    // });
   }
 };
 
 const confirmAnswer = () => {
-  if (objectType.value !== NOTICE_OBJECT_ENUM.INSURE) {
+  if (objectType.value !== NOTICE_OBJECT_ENUM.INSURED) {
     questionResolve();
     return;
   }
   orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.short.saveNotice;
   orderDetail.value.extInfo.pageCode = 'healthNotice';
-  nextStep(orderDetail, (data, pageAction) => {
+  nextStep(orderDetail.value, (data, pageAction, message) => {
     if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_ALERT && data.alertType === '') {
       Dialog.alert({
-        message: '对不起，您不符合投保条件',
+        message,
         confirmButtonText: '确定',
       });
-    } else if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+    } else if (pageAction === PAGE_ACTION_TYPE_ENUM.CONTINUE) {
       questionResolve();
     }
   });
@@ -255,6 +258,13 @@ const getQuestionInfo = async (params) => {
 const getOrderDetail = async () => {
   const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
   if (code === '10000') {
+    faceVerified.value = data.insuredList?.[0]?.faceAuthFlag === YES_NO_ENUM.YES;
+    if (faceVerified.value) {
+      if (thread.value.isStart) {
+        Toast('被保人认证完成');
+      }
+      thread.value.stop();
+    }
     Object.assign(orderDetail.value, data, {
       extInfo: {
         ...data.extInfo,
@@ -267,6 +277,18 @@ const getOrderDetail = async () => {
     getQuestionInfo({ productCodeList });
   }
 };
+
+// 轮询查询被保人人脸识别是否完成
+thread.value = useThread({
+  start: () => {
+    getOrderDetail(false);
+    faceVerified.value = false;
+  },
+  stop: () => {
+    faceVerified.value = true;
+  },
+  time: 10000,
+});
 
 onBeforeMount(() => {
   !preview && getOrderDetail();
