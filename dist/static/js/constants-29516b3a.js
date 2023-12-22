@@ -1,0 +1,1 @@
+const e={holderInfoPreview:"/baseInsurance/short/holderInfoPreview",insuredInfoPreview:"/baseInsurance/short/insuredInfoPreview",faceVerify:"/baseInsurance/short/faceVerify",healthNotice:"/baseInsurance/short/healthNotice",paymentResult:"/baseInsurance/orderDetail"};export{e as P};
