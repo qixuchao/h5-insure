@@ -62,25 +62,12 @@ const onCloseOverlay = () => {
   showOverLay.value = false;
 };
 
-const handleShare = (shareInfo = {}) => {
-  if (isWechat()) {
-    console.log('在微信内，弹起遮罩');
-    showOverLay.value = true;
-    return;
-  }
-
-  console.log('在app内', props);
-
-  const shareParams = { shareType: 0, ...props, ...shareInfo };
-  console.log('参数：', shareParams);
-  shareWeiXin(shareParams);
-};
-
-const setWechatConfig = () => {
+const setWechatConfig = (shareInfo = {}) => {
   if (isWechat()) {
     wx.ready(() => {
       const shareParams = {
         ...props,
+        ...shareInfo,
         success: () => {
           console.log('分享成功');
         },
@@ -92,6 +79,20 @@ const setWechatConfig = () => {
       wx.updateTimelineShareData(shareParams);
     });
   }
+};
+
+const handleShare = (shareInfo = {}) => {
+  const shareParams = { shareType: 0, ...props, ...shareInfo };
+
+  if (isWechat()) {
+    console.log('在微信内，弹起遮罩');
+    setWechatConfig(shareParams);
+    showOverLay.value = true;
+    return;
+  }
+
+  console.log('在app内', props);
+  shareWeiXin(shareParams);
 };
 
 watch(
