@@ -91,6 +91,7 @@ const isLink = computed(() => {
 });
 
 const id = nanoid();
+const emits = defineEmits(['success']);
 
 const show = ref(false);
 
@@ -109,6 +110,9 @@ const loadPdfH5Viewer = async () => {
       if (status === 'error') {
         Toast('文件损坏，无法打开！');
       }
+    });
+    pdfh5.value.on('success', (status: string, msg: string, time: number) => {
+      emits('load', props.type);
     });
   } catch (error) {
     //
@@ -190,7 +194,7 @@ watch(
     height: 100%;
 
     :deep(.viewerContainer) {
-      height: 100vh;
+      // height: 100vh;
     }
   }
   .pic-wrap {

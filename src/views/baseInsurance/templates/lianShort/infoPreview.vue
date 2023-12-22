@@ -38,11 +38,11 @@
       ></van-cell>
     </ProCard>
     <div class="footer-button">
-      <ProShadowButton v-if="origin !== 'confirm'" :shadow="false" @click="handleNext">
+      <ProShadowButton v-if="origin === 'share'" :shadow="false" @click="handleNext">
         <slot>确认</slot>
       </ProShadowButton>
       <ProShadowButton v-else :shadow="false" @click="handleReceive">
-        <slot>领取保障并激活</slot>
+        <slot>{{ templateId === TEMPLATE_TYPE_ENUM.free ? '领取保障并激活' : '确认支付' }}</slot>
       </ProShadowButton>
     </div>
     <FilePreview
@@ -55,7 +55,14 @@
       :force-read-cound="0"
       @on-close-file-preview-by-mask="onResetFileFlag"
     ></FilePreview>
-    <ProFileDrawer v-model="state.visibleFile" :data-source="state.files" @clickBtn="clickBtn"> </ProFileDrawer>
+    <ProFileDrawer
+      v-if="visibleFile"
+      v-model="visibleFile"
+      :closeable="false"
+      :data-source="state.fileList"
+      @submit="handleSubmit"
+    >
+    </ProFileDrawer>
   </div>
 </template>
 
@@ -200,13 +207,10 @@ const onResetFileFlag = () => {
   showFilePreview.value = false;
 };
 
-const shareRef = ref<InstanceType<typeof ProShare>>();
-const handleShare = () => {
-  nextStepOperate(orderDetail.value, (data, pageAction) => {
-    if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-      shareRef.value.handleShare();
-    }
-  });
+const handleSubmit = () => {
+  orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.short.underWrite;
+  orderDetail.value.extInfo.pageCode = 'infoPreview';
+  nextStepOperate(orderDetail.value, (data, pageAction) => {});
 };
 
 const handleReceive = () => {
@@ -221,12 +225,16 @@ const handleReceive = () => {
         });
       }
     });
+  } else {
+    toggleVisible(true);
   }
 };
 
 const handleNext = async () => {
   if (templateId === TEMPLATE_TYPE_ENUM.FREE) {
     Toast('被保人已完成认证');
+  } else {
+    toggleVisible(true);
   }
   // if (preview) {
   //   jumpToNextPage(PAGE_CODE_ENUMS.INFO_PREVIEW, route.query);
@@ -297,6 +305,18 @@ const initData = async () => {
   queryListProductMaterial(productRiskMap).then(({ code, data }) => {
     if (code === '10000') {
       const { productMaterialList, riskMaterialList } = dealMaterialList(data);
+      state.fileList = productMaterialList.map((tab) => {
+        return {
+          tabName: tab.attachmentName,
+          isExpand: true,
+          files: tab.attachmentList.map((material) => ({
+            name: material.materialName,
+            file: material.materialContent,
+            type: material.materialSource,
+            mustRead: material.mustReadFlag === YES_NO_ENUM.YES,
+          })),
+        };
+      });
       fileList.value = productMaterialList.concat(riskMaterialList);
     }
   });

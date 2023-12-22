@@ -22,12 +22,14 @@
         </div>
       </template>
     </ProFilePreview>
+    <ProShare ref="shareRef"></ProShare>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
+import qs from 'qs';
 import { listProductQuestionnaire } from '@/api/modules/product';
 import { getQuestionAnswerDetail } from '@/api/modules/inform';
 import ProFilePreview from '@/components/ProFilePreview/index.vue';
@@ -49,7 +51,7 @@ const route = useRoute();
 const router = useRouter();
 const orderDetail = useOrder();
 
-const { orderNo, tenantId, preview, questionnaireId: questionId } = route.query;
+const { orderNo, tenantId, preview, agentCode, questionnaireId: questionId } = route.query;
 const currentQuestion = ref<any>({}); // 当前问卷内容
 const nextQuestionnaireId = ref<number>(); // 下个问卷id
 const objectType = ref<number>(); // 问卷关联对象
@@ -61,6 +63,11 @@ const questionParams = ref({
   noticeType: objectType,
 });
 
+const shareConfig = ref();
+const shareRef = ref();
+const isShared = ref(false);
+const thread = ref();
+
 const onNext = () => {
   if (preview) {
     router.push({
@@ -69,17 +76,55 @@ const onNext = () => {
     });
     return;
   }
-  nextStep(orderDetail.value, (data, pageAction) => {
+
+  orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.short.saveNoticeNextPage;
+  orderDetail.value.extInfo.pageCode = 'healthNotice';
+  nextStep(orderDetail.value, (data, pageAction, message) => {
     if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
       router.push({
         path: PAGE_ROUTE_ENUMS[data.nextPageCode],
         query: route.query,
       });
+    } else if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_ALERT && data.alertType === 'faceAuth') {
+      Dialog.confirm({
+        message,
+        confirmButtonText: '去分享',
+        cancelButtonText: '被保人确认',
+      })
+        .then(() => {
+          const shareLinkParams = {
+            ...route.query,
+            isShare: 1,
+            orderNo,
+            agentCode,
+            objectType: 'insured',
+            origin: 'share',
+          };
+
+          shareConfig.value = {
+            title: '标题',
+            desc: '描述',
+            imageUrl: SHARE_IMAGE_LINK,
+            url: `${window.location.origin}${window.location.pathname}?${qs.stringify(shareLinkParams)}`,
+            link: `${window.location.origin}${window.location.pathname}?${qs.stringify(shareLinkParams)}`,
+          };
+          shareRef.value.handleShare(shareConfig.value);
+          isShared.value = true;
+          thread.value.run();
+        })
+        .catch(() => {
+          router.push({
+            path: PAGE_ROUTE_ENUMS.faceVerify,
+            query: {
+              ...route.query,
+              objectType: 'insured',
+              origin: 'confirm',
+            },
+          });
+        });
     }
   });
 };
-
-const saveNotice = () => {};
 
 const questionResolve = () => {
   if (nextQuestionnaireId.value) {
@@ -102,15 +147,36 @@ const questionResolve = () => {
     });
   }
 };
+
+const confirmAnswer = () => {
+  if (objectType.value !== NOTICE_OBJECT_ENUM.INSURE) {
+    questionResolve();
+    return;
+  }
+  orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.short.saveNotice;
+  orderDetail.value.extInfo.pageCode = 'healthNotice';
+  nextStep(orderDetail, (data, pageAction) => {
+    if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_ALERT && data.alertType === '') {
+      Dialog.alert({
+        message: '对不起，您不符合投保条件',
+        confirmButtonText: '确定',
+      });
+    } else if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+      questionResolve();
+    }
+  });
+};
 // 问卷告知列表
 const healthQuestionList = ref([]);
-// 投保人同步被保人问卷
+// 是否展示同步被保人问卷
 const isShowAsync = computed(() => {
   if (healthQuestionList.value.length && objectType.value === OBJECT_TYPE_ENUM.HOLDER) {
     return !!healthQuestionList.value.find((question) => `${question.id}` === questionId);
   }
   return false;
 });
+
+// 将被保人问卷答案同步至投保人问卷
 const asyncInsured = () => {
   const currentAnswer = answerList.value.find((answer) => answer.id === questionnaireId.value);
   Object.assign(currentQuestion.value, currentAnswer?.questionnaireDetailResponseVO);

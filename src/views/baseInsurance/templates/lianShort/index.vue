@@ -428,43 +428,6 @@ const onSaveOrder = async () => {
               orderNo,
             },
           });
-        } else if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_ALERT && data.alertType === 'faceAuth') {
-          Dialog.confirm({
-            message,
-            confirmButtonText: '去分享',
-            cancelButtonText: '被保人确认',
-          })
-            .then(() => {
-              const shareLinkParams = {
-                ...route.query,
-                isShare: 1,
-                orderNo,
-                agentCode: currentAgentCode,
-                objectType: 'insured',
-                origin: 'share',
-              };
-
-              shareConfig.value = {
-                title: '标题',
-                desc: '描述',
-                imageUrl: SHARE_IMAGE_LINK,
-                url: `${window.location.origin}${window.location.pathname}?${qs.stringify(shareLinkParams)}`,
-                link: `${window.location.origin}${window.location.pathname}?${qs.stringify(shareLinkParams)}`,
-              };
-              shareRef.value.handleShare(shareConfig.value);
-              isShared.value = true;
-              thread.value.run();
-            })
-            .catch(() => {
-              router.push({
-                path: PAGE_ROUTE_ENUMS.faceVerify,
-                query: {
-                  ...route.query,
-                  objectType: 'insured',
-                  origin: 'confirm',
-                },
-              });
-            });
         }
       });
     } catch (error) {

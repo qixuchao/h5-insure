@@ -1,14 +1,14 @@
 <template>
   <ProPopup
-    v-model:visible="props.modelValue"
+    v-model:show="props.modelValue"
     position="bottom"
     round
     :="$attrs"
-    pop-class="pro-file-drawer"
+    class="pro-file-drawer"
     safe-area-inset-bottom
   >
     <van-tabs
-      v-model="state.mainIndex"
+      v-model:active="state.mainIndex"
       title-scroll
       :swipeable="isView"
       title-gutter="10"
@@ -16,14 +16,14 @@
       name="tabName"
       class="tabs-wrap"
     >
-      <template #titles>
-        <div
-          v-for="(item, i) in state.tabList"
-          :key="i"
-          class="nut-tabs__titles-item"
-          :class="{ active: i === state.mainIndex }"
-          @click="() => handleTabChange(i)"
-        >
+      <van-tab
+        v-for="(item, i) in state.tabList"
+        :key="i"
+        class="nut-tabs__titles-item"
+        :class="{ active: i === state.mainIndex }"
+        @click="() => handleTabChange(i)"
+      >
+        <template #title>
           <span
             :class="{
               'nut-tabs__titles-item__text': true,
@@ -32,12 +32,12 @@
             >{{ item.tabName }}</span
           >
           <span class="nut-tabs__titles-item__line"></span>
-        </div>
-      </template>
+        </template>
+      </van-tab>
     </van-tabs>
     <div ref="previewRef" :class="{ contain: true, 'is-expand': !currentTabExpandActive }">
       <div v-if="currentTabExpandActive" class="file-preview-wrap">
-        <ProFilePreview v-model="currentTabFileList[0].file" :type="currentTabFileList[0].type" @load="load" />
+        <ProFilePreview :content="currentTabFileList[0].file" :type="currentTabFileList[0].type" @load="load" />
       </div>
       <div v-else class="attachment-list">
         <div v-for="(file, index) in currentTabFileList" :key="index" class="attachment-list-item">
@@ -361,6 +361,7 @@ const load = (type: string) => {
         timer = null;
         if (previewRef.value) {
           previewRef.value.scrollTop = 0;
+          console.log('previewRef.value', previewRef.value);
           previewRef.value.removeEventListener('scroll', handleScroll);
           handleScroll(previewRef.value);
           previewRef.value.addEventListener('scroll', handleScroll);
@@ -406,11 +407,11 @@ const init = () => {
 
 watch(
   props.dataSource,
-  debounce((val) => {
+  (val) => {
     if (val && val.length > 0) {
       init();
     }
-  }, 500),
+  },
   { deep: true, immediate: true },
 );
 
@@ -426,7 +427,7 @@ watch(
 );
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .pro-file-drawer {
   height: 1126px;
 

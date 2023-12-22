@@ -112,6 +112,17 @@ const getFaceVerifyResult = () => {
               });
             }
           });
+        } else {
+          orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.short.faceVerify;
+          orderDetail.value.extInfo.pageCode = 'faceAuth';
+          nextStepOperate(orderDetail.value, (resData, pageAction) => {
+            if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+              router.push({
+                path: PAGE_ROUTE_ENUMS[resData.nextPageCode],
+                query: route.query,
+              });
+            }
+          });
         }
       }
     }

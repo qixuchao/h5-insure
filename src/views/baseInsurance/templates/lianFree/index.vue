@@ -601,8 +601,8 @@ const onSaveOrder = async () => {
                     title: '标题',
                     desc: '描述',
                     imageUrl: SHARE_IMAGE_LINK,
-                    url: `${window.location.origin}${window.location.pathname}?${qs.stringify(shareLinkParams)}`,
-                    link: `${window.location.origin}${window.location.pathname}?${qs.stringify(shareLinkParams)}`,
+                    url: `${window.location.origin}${PAGE_ROUTE_ENUMS.faceVerify}?${qs.stringify(shareLinkParams)}`,
+                    link: `${window.location.origin}${PAGE_ROUTE_ENUMS.faceVerify}?${qs.stringify(shareLinkParams)}`,
                   };
                   shareRef.value.handleShare(shareConfig.value);
                   isShared.value = true;

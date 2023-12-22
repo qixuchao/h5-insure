@@ -35,9 +35,9 @@ export const pickProductRiskCodeFromOrder = (productList) => {
   return { productList: currentProductList };
 };
 
-export const dealMaterialList = (materialCollection) => {
+export const dealMaterialList = (materialCollection, planCode = '') => {
   const { riskMaterialList, productMaterialPlanVOList } = materialCollection;
-  const { productMaterialMap } = productMaterialPlanVOList?.[0] || {};
+  const { productMaterialMap } = productMaterialPlanVOList.find((plan) => plan.planCode === planCode) || {};
 
   const productMaterialList = Object.keys(productMaterialMap || {}).map((e) => {
     const materialTabList = productMaterialMap[e].map((attachmentItem) => {

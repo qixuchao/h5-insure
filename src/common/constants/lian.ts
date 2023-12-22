@@ -27,7 +27,7 @@ export const EVENT_BUTTON_CODE = {
     saveOrUpdate: 'EVENT_SHORT_saveOrder',
     saveNotice: 'EVENT_SHORT_saveNotice',
     saveNoticeNextPage: 'EVENT_SHORT_saveNoticeNextPage',
-    saveAuthStatus: 'EVENT_SHORT_saveAuthStatus',
+    faceVerify: 'EVENT_SHORT_saveAuthStatus',
     underWrite: 'EVENT_SHORT_underWrite',
   },
 };
