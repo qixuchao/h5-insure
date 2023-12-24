@@ -275,7 +275,7 @@ const { fileList, mustReadFileCount, popupFileList } = useAttachment(currentPlan
 const shareInfo = ref({
   title: '标题',
   desc: '描述',
-  imgUrl: SHARE_IMAGE_LINK,
+  imageUrl: SHARE_IMAGE_LINK,
   url: `${window.location.origin}${PAGE_ROUTE_ENUMS.faceVerify}`,
   link: `${window.location.origin}${PAGE_ROUTE_ENUMS.faceVerify}`,
 });
