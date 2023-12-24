@@ -64,10 +64,12 @@ const onCloseOverlay = () => {
 
 const setWechatConfig = (shareInfo = {}) => {
   if (isWechat()) {
+    const params = { ...props, ...shareInfo };
     wx.ready(() => {
       const shareParams = {
-        ...props,
-        ...shareInfo,
+        ...params,
+        link: params.url,
+        imgUrl: params.imageUrl,
         success: () => {
           console.log('分享成功');
         },

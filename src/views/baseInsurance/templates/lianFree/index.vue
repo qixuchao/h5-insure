@@ -275,19 +275,10 @@ const { fileList, mustReadFileCount, popupFileList } = useAttachment(currentPlan
 const shareInfo = ref({
   title: '标题',
   desc: '描述',
-  imageUrl: SHARE_IMAGE_LINK,
+  imgUrl: SHARE_IMAGE_LINK,
   url: `${window.location.origin}${PAGE_ROUTE_ENUMS.faceVerify}`,
   link: `${window.location.origin}${PAGE_ROUTE_ENUMS.faceVerify}`,
 });
-
-const setShareLink = (config: { image: string; desc: string; title: string }) => {
-  shareInfo.value = {
-    desc: config.desc || '你好，这里是描述',
-    imgUrl: config.image,
-    title: config.title,
-    link: window.location.href,
-  };
-};
 
 // 是否是preview模式
 const previewMode = computed(() => !!preview);
