@@ -101,7 +101,7 @@
     @submit="onSubmit"
     @on-close-file-preview-by-mask="onCloseFilePreview"
   ></FilePreview>
-  <ProShare ref="shareRef"></ProShare>
+  <ProShare ref="shareRef" :="shareInfo"></ProShare>
   <PreNotice v-if="!state.loading" :product-detail="state.tenantProductDetail"></PreNotice>
 </template>
 
@@ -273,10 +273,11 @@ const { fileList, mustReadFileCount, popupFileList } = useAttachment(currentPlan
 
 // 分享信息
 const shareInfo = ref({
-  imgUrl: '',
-  desc: '',
-  title: '',
-  link: '',
+  title: '标题',
+  desc: '描述',
+  imageUrl: SHARE_IMAGE_LINK,
+  url: `${window.location.origin}${PAGE_ROUTE_ENUMS.faceVerify}`,
+  link: `${window.location.origin}${PAGE_ROUTE_ENUMS.faceVerify}`,
 });
 
 const setShareLink = (config: { image: string; desc: string; title: string }) => {

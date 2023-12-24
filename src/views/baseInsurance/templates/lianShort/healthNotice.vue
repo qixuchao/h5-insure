@@ -159,7 +159,7 @@ const confirmAnswer = () => {
   orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.short.saveNotice;
   orderDetail.value.extInfo.pageCode = 'healthNotice';
   nextStep(orderDetail.value, (data, pageAction, message) => {
-    if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_ALERT && data.alertType === '') {
+    if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_ALERT) {
       Dialog.alert({
         message,
         confirmButtonText: '确定',
