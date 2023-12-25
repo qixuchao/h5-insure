@@ -118,12 +118,12 @@ router.beforeEach(async (to, from, next) => {
 
 router.beforeResolve(async (to, from) => {
   const IS_WECHAT = isWechat();
-  const { wxDebugger = false } = to.query;
+  const { wxDebugger = false, ticket = '' } = to.query;
   console.log('IS_WECHAT', IS_WECHAT);
   if (IS_WECHAT && to.meta.requireWxJs) {
     const tenantId = to.query?.tenantId as string;
     console.log('在微信环境，开始鉴权, tenantId:', tenantId, 'from:', from);
-    const res = await getWxJsSdkSignature({ pageUrl: encodeURIComponent(realAuthUrl), tenantId });
+    const res = await getWxJsSdkSignature({ pageUrl: realAuthUrl, tenantId, ticket: `${ticket}` });
     const {
       data: { appId, timestamp, nonceStr, signature },
     } = res;

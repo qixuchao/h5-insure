@@ -71,38 +71,20 @@ import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
 import { useToggle } from '@vant/use';
-import {
-  ProRenderFormWithCard,
-  PayInfo,
-  PolicyInfo,
-  transformFactorToSchema,
-  isOnlyCert,
-} from '@/components/RenderForm';
-import {
-  premiumCalc,
-  insureProductDetail as getInsureProductDetail,
-  getTenantOrderDetail,
-  underWriteRule,
-  mergeInsureFactor,
-} from '@/api/modules/trial';
+import wx from 'weixin-js-sdk';
+import { PayInfo, PolicyInfo, transformFactorToSchema } from '@/components/RenderForm';
+import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
 
 import { InsureProductData, ProductPlanInsureVoItem } from '@/api/modules/product.data';
 import { nextStepOperate } from '../../nextStep';
 import useAttachment from '@/hooks/useAttachment';
-import {
-  queryListProductMaterial,
-  queryProductMaterial,
-  querySalesInfo,
-  listProductQuestionnaire,
-} from '@/api/modules/product';
+import { queryListProductMaterial, listProductQuestionnaire } from '@/api/modules/product';
 import useOrder from '@/hooks/useOrder';
-import { BUTTON_CODE_ENUMS, PAGE_ROUTE_ENUMS } from './constants';
+import { PAGE_ROUTE_ENUMS } from './constants';
 import PersonalInfo from '../components/Trial/components/PersonalInfo/index.vue';
 import { CERT_TYPE_ENUM, PAGE_ACTION_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import ProShadowButton from '../components/ProShadowButton/index.vue';
 import InsureInfo from '../lianLong/components/InsureInfo.vue';
-import ProShare from '@/components/ProShare/index.vue';
-import { jumpToNextPage, isAppFkq } from '@/utils';
 import { dealMaterialList, pickProductRiskCode, pickProductRiskCodeFromOrder } from '../lianLong/utils';
 import InsuranceNotificationInformation from '../../../order/components/insuranceNotificationInformation.vue';
 import { getQuestionAnswerDetail } from '@/api/modules/inform';
@@ -112,6 +94,7 @@ import { OBJECT_TYPE_ENUM, QUESTIONNAIRE_TYPE_ENUM } from '@/common/constants/qu
 import { RISK_PERIOD_TYPE_ENUM, EVENT_BUTTON_CODE, LIAN_STORAGE_KEY } from '@/common/constants/lian';
 import { PAGE_ROUTE_ENUMS as FREE_PAGE_ROUTE_ENUMS } from '../lianFree/constants';
 import { TEMPLATE_TYPE_ENUM } from '@/common/constants/infoCollection';
+import { isWeiXin } from '@/views/cashier/core';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 
@@ -213,7 +196,20 @@ const handleSubmit = () => {
         message,
         cancelButtonText: '修改信息',
         confirmButtonText: '放弃投保',
-      }).then();
+      })
+        .then(() => {
+          if (isWeiXin) {
+            wx.closeWindow();
+          } else {
+            window.close();
+          }
+        })
+        .catch(() => {
+          router.push({
+            path: PAGE_ROUTE_ENUMS.productInfo,
+            query: route.query,
+          });
+        });
     }
   });
 };
