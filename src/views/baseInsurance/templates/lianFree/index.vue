@@ -172,16 +172,7 @@ const {
   orderNo,
   preview,
   isShare,
-  date,
 } = route.query as QueryData;
-
-const currentDate = dayjs().format('YYYY-MM-DD');
-if (date && date !== currentDate) {
-  Dialog.alert({
-    message: '投保链接已过期',
-    showConfirmButton: false,
-  });
-}
 
 const { agentCode: currentAgentCode } = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`) || {};
 
@@ -537,7 +528,7 @@ const onSaveOrder = async () => {
           isShare: 1,
           orderNo: data,
           agentCode: currentAgentCode,
-          date: dayjs().format('YYYY-MM-DD'),
+          expiryDate: dayjs().format('YYYY-MM-DD'),
         };
         shareConfig.value = {
           title: '标题',

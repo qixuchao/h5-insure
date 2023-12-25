@@ -3,6 +3,7 @@ import { createRouter, createWebHistory, NavigationGuardNext, Router } from 'vue
 
 import { useTitle } from '@vueuse/core';
 import wx from 'weixin-js-sdk';
+import dayjs from 'dayjs';
 import Storage from '@/utils/storage';
 import { ORIGIN } from '@/utils';
 import routes from '@/router/routes';
@@ -48,7 +49,17 @@ const routeExclude = [
   },
 ];
 
+const currentDate = dayjs().format('YYYY-MM-DD');
+
 router.beforeEach(async (to, from, next) => {
+  const { expiryData, tenantId } = to.query;
+  if (expiryData && currentDate !== expiryData) {
+    Dialog.alert({
+      message: '投保链接已过期',
+      showConfirmButton: false,
+    });
+    return;
+  }
   const excludeRoute = ROUTE_EXCLUDE.find((route) => {
     return route.to === to.path && route.from === from.path;
   });
@@ -56,7 +67,7 @@ router.beforeEach(async (to, from, next) => {
     router.push({
       path: '/order',
       query: {
-        tenantId: to.query.tenantId,
+        tenantId,
         laShowNavigationBar: 1,
       },
     });

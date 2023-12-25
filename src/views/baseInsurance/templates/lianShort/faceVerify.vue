@@ -103,7 +103,7 @@ const getFaceVerifyResult = () => {
         delete route.query.nextPageCode;
         if (templateId === TEMPLATE_TYPE_ENUM.FREE) {
           router.push({
-            path: FREE_PAGE_ROUTE_ENUMS.infoPreciew,
+            path: FREE_PAGE_ROUTE_ENUMS.infoPreview,
             query: route.query,
           });
         } else {
