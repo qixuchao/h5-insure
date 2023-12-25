@@ -42,7 +42,7 @@
         <slot>确认</slot>
       </ProShadowButton>
       <ProShadowButton v-else :shadow="false" @click="handleReceive">
-        <slot>{{ templateId === TEMPLATE_TYPE_ENUM.free ? '领取保障并激活' : '确认支付' }}</slot>
+        <slot>{{ templateId === TEMPLATE_TYPE_ENUM.FREE ? '领取保障并激活' : '确认支付' }}</slot>
       </ProShadowButton>
     </div>
     <FilePreview
@@ -68,7 +68,7 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Toast } from 'vant';
+import { Toast, Dialog } from 'vant';
 import debounce from 'lodash-es/debounce';
 import { useToggle } from '@vant/use';
 import {
@@ -117,13 +117,7 @@ const FilePreview = defineAsyncComponent(() => import('../components/FilePreview
 
 const route = useRoute();
 const router = useRouter();
-const orderDetail = useOrder();
-
-const routeEnum = {
-  holder: PAGE_ROUTE_ENUMS.holderSign,
-  insured: PAGE_ROUTE_ENUMS.insuredSign,
-  agent: PAGE_ROUTE_ENUMS.agentSign,
-};
+const orderDetail = useOrder({});
 
 /** 页面query参数类型 */
 interface QueryData {
@@ -212,32 +206,14 @@ const handleSubmit = () => {
   hasReadFile.value = true;
   orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.short.underWrite;
   orderDetail.value.extInfo.pageCode = 'infoPreview';
-  nextStepOperate(orderDetail.value, (data, pageAction) => {});
-};
-
-const handleReceive = () => {
-  if (templateId === TEMPLATE_TYPE_ENUM.FREE) {
-    orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.free.underWriteAndIssue;
-    orderDetail.value.extInfo.pageCode = 'productInfo';
-    nextStepOperate(orderDetail.value, (resData, pageAction) => {
-      if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-        delete route.query.pageType;
-        router.push({
-          path: FREE_PAGE_ROUTE_ENUMS[resData.nextPageCode],
-          query: route.query,
-        });
-      }
-    });
-  } else {
-    if (hasReadFile.value) {
-      handleSubmit();
-      return;
+  nextStepOperate(orderDetail.value, (data, pageAction) => {
+    if (PAGE_ACTION_TYPE_ENUM.JUMP_ALERT === pageAction) {
+      Dialog.confirm({});
     }
-    toggleVisible(true);
-  }
+  });
 };
 
-const handleNext = async () => {
+const handleNext = () => {
   if (templateId === TEMPLATE_TYPE_ENUM.FREE) {
     orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.free.faceVerify;
     orderDetail.value.extInfo.pageCode = 'faceAuth';
@@ -271,6 +247,35 @@ const handleNext = async () => {
   //   path: routeEnum[objectType],
   //   query: route.query,
   // });
+};
+
+const handleReceive = async () => {
+  if (templateId === TEMPLATE_TYPE_ENUM.FREE) {
+    orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.free.faceVerify;
+    orderDetail.value.extInfo.pageCode = 'faceAuth';
+    await nextStepOperate(orderDetail.value);
+    const { code: oCode, data: oData } = await getTenantOrderDetail({ orderNo, tenantId });
+    if (oCode === '10000') {
+      Object.assign(orderDetail.value, oData);
+      orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.free.underWriteAndIssue;
+      orderDetail.value.extInfo.pageCode = 'productInfo';
+      nextStepOperate(orderDetail.value, (resData, pageAction) => {
+        if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+          delete route.query.pageType;
+          router.push({
+            path: FREE_PAGE_ROUTE_ENUMS[resData.nextPageCode],
+            query: route.query,
+          });
+        }
+      });
+    }
+  } else {
+    if (hasReadFile.value) {
+      handleSubmit();
+      return;
+    }
+    toggleVisible(true);
+  }
 };
 
 const personInfo = ref();

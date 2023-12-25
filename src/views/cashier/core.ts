@@ -241,6 +241,10 @@ function sendPay(payParam: PayParam | string) {
   } else {
     params = { ...payParam };
   }
+  if (!Object.keys(params).length) {
+    window.location.href = `${payParam}`;
+    return;
+  }
   if (isSignWay(params.payWay)) {
     console.log('走微签约逻辑');
     // window.location.href = `/cashier/signPay?${qs.stringify(params)}`;

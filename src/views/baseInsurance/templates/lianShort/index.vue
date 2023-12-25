@@ -281,7 +281,6 @@ const hasHolderName = ref<boolean>(false);
 // 缓存代理人code
 const cachedAgentCode = ref<string>();
 const faceVerified = ref<boolean>(false);
-const thread = ref();
 const isShared = ref<boolean>(false);
 
 // 校验分享前、后的代理人code是否一致
@@ -423,10 +422,7 @@ const onSaveOrder = async () => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
           router.push({
             path: PAGE_ROUTE_ENUMS[data.nextPageCode],
-            query: {
-              tenantId,
-              orderNo,
-            },
+            query: route.query,
           });
         }
       });

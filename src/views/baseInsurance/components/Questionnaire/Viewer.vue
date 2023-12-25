@@ -215,6 +215,7 @@ watch(
       width: 100%;
       min-height: 64px;
       line-height: 60px;
+      text-align: right;
     }
 
     .value {

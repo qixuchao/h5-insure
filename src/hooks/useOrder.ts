@@ -14,7 +14,7 @@ interface QueryData {
   [key: string]: string;
 }
 
-export default (orderItem: Partial<OrderDetail>, query: QueryData): Partial<OrderDetail> => {
+export default (orderItem: Partial<OrderDetail>, query?: QueryData): Partial<OrderDetail> => {
   const route = useRoute();
   const {
     tenantId,

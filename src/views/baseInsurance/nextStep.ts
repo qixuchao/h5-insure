@@ -48,7 +48,7 @@ export const nextStepOperate = async (
     }
     // 支付跳转
     if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_URL) {
-      sendPay(resData?.paymentUrl);
+      sendPay(resData?.payUrl);
     }
     // 去支付待支付的订单
     if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_ALERT) {

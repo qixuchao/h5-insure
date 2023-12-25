@@ -5,6 +5,7 @@
       :type="currentQuestion.contentType"
       :content="currentQuestion"
       :params="questionParams"
+      :is-view="isShared"
       :success-callback="confirmAnswer"
     >
       <!-- <template #title>
@@ -13,12 +14,14 @@
       <template v-if="currentQuestion.contentType === 'question' && currentQuestion.questionnaireId" #footer>
         <div class="footer-button">
           <van-button v-if="isShowAsync" round type="primary" plain @click="asyncInsured">同被保人</van-button>
-          <van-button round type="primary" block native-type="submit"> 下一步 </van-button>
+          <van-button round type="primary" block native-type="submit" :disabled="isShared"> 下一步 </van-button>
         </div>
       </template>
       <template v-else #footer-btn>
         <div class="footer-btn">
-          <van-button round type="primary" block @click="confirmAnswer"> 下一步 </van-button>
+          <van-button round type="primary" block :disabled="isShared && !faceVerified" @click="confirmAnswer">
+            下一步
+          </van-button>
         </div>
       </template>
     </ProFilePreview>
@@ -50,7 +53,7 @@ import useThread from '@/hooks/useThread';
 
 const route = useRoute();
 const router = useRouter();
-const orderDetail = useOrder();
+const orderDetail = useOrder({});
 
 const { orderNo, tenantId, preview, agentCode, questionnaireId: questionId } = route.query;
 const currentQuestion = ref<any>({}); // 当前问卷内容
@@ -107,8 +110,8 @@ const onNext = () => {
             title: '标题',
             desc: '描述',
             imageUrl: SHARE_IMAGE_LINK,
-            url: `${window.location.origin}${window.location.pathname}?${qs.stringify(shareLinkParams)}`,
-            link: `${window.location.origin}${window.location.pathname}?${qs.stringify(shareLinkParams)}`,
+            url: `${window.location.origin}${PAGE_ROUTE_ENUMS.faceVerify}?${qs.stringify(shareLinkParams)}`,
+            link: `${window.location.origin}${PAGE_ROUTE_ENUMS.faceVerify}?${qs.stringify(shareLinkParams)}`,
           };
           shareRef.value.handleShare(shareConfig.value);
           isShared.value = true;
@@ -255,8 +258,8 @@ const getQuestionInfo = async (params) => {
   }
 };
 
-const getOrderDetail = async () => {
-  const { code, data } = await getTenantOrderDetail({ orderNo, tenantId });
+const getOrderDetail = async (loading = true) => {
+  const { code, data } = await getTenantOrderDetail({ orderNo, tenantId }, { loading });
   if (code === '10000') {
     faceVerified.value = data.insuredList?.[0]?.faceAuthFlag === YES_NO_ENUM.YES;
     if (faceVerified.value) {
@@ -288,6 +291,7 @@ thread.value = useThread({
     faceVerified.value = true;
   },
   time: 10000,
+  number: 0,
 });
 
 onBeforeMount(() => {
@@ -300,6 +304,10 @@ onMounted(() => {
   setTimeout(async () => {
     iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
   }, 1500);
+});
+
+onBeforeUnmount(() => {
+  thread.value.stop();
 });
 </script>
 
