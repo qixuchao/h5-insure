@@ -21,8 +21,8 @@ export const getJssdkSignature = (data = {}) =>
 
 // 投保中的微信授权
 export const getWxJsSdkSignature = (data: { pageUrl: string; tenantId: string; ticket?: string }) => {
-  return request<WxSignature>({ url: `/api/app/insure/insurance/wx/js/getConfigParams/test`, method: 'POST', data });
-  // return request<WxSignature>({ url: `/api/app/insure/insurance/wx/js/getConfigParams`, method: 'POST', data });
+  // return request<WxSignature>({ url: `/api/app/insure/insurance/wx/js/getConfigParams/test`, method: 'POST', data });
+  return request<WxSignature>({ url: `/api/app/insure/insurance/wx/js/getConfigParams`, method: 'POST', data });
 };
 
 export default {};
