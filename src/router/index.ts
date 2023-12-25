@@ -118,6 +118,7 @@ router.beforeEach(async (to, from, next) => {
 
 router.beforeResolve(async (to, from) => {
   const IS_WECHAT = isWechat();
+  const { wxDebugger = false } = to.query;
   console.log('IS_WECHAT', IS_WECHAT);
   if (IS_WECHAT && to.meta.requireWxJs) {
     const tenantId = to.query?.tenantId as string;
@@ -128,7 +129,7 @@ router.beforeResolve(async (to, from) => {
     } = res;
     sessionStorage.appId = appId;
     wx.config({
-      debug: false,
+      debug: wxDebugger as boolean,
       appId,
       timestamp,
       nonceStr,

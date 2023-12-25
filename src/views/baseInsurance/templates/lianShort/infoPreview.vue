@@ -206,9 +206,14 @@ const handleSubmit = () => {
   hasReadFile.value = true;
   orderDetail.value.extInfo.buttonCode = EVENT_BUTTON_CODE.short.underWrite;
   orderDetail.value.extInfo.pageCode = 'infoPreview';
-  nextStepOperate(orderDetail.value, (data, pageAction) => {
+  nextStepOperate(orderDetail.value, (data, pageAction, message) => {
     if (PAGE_ACTION_TYPE_ENUM.JUMP_ALERT === pageAction) {
-      Dialog.confirm({});
+      Dialog.confirm({
+        title: '核保失败',
+        message,
+        cancelButtonText: '修改信息',
+        confirmButtonText: '放弃投保',
+      }).then();
     }
   });
 };
