@@ -146,7 +146,7 @@ const orderBtnText = computed(() => {
   ) {
     return '下载保单';
   }
-  if (ORDER_STATUS_ENUM.PAYING === state.orderDetail.orderStatus) {
+  if ([ORDER_STATUS_ENUM.PAYING, ORDER_STATUS_ENUM.PAYMENT_FAILED].includes(state.orderDetail.orderStatus)) {
     return '立即支付';
   }
   if (ORDER_STATUS_ENUM.TIMEOUT === state.orderDetail.orderStatus) {
@@ -246,7 +246,7 @@ const orderBtnHandler = async () => {
       },
     }).then((res) => {
       if (res.code === '10000') {
-        sendPay(res.data.paymentUrl);
+        sendPay(res.data);
       }
     });
   } else if (orderBtnText.value === '重下一单') {
@@ -444,18 +444,18 @@ const addZero = (num: number) => {
 };
 
 const orderDesc = computed(() => {
-  if (ORDER_STATUS_ENUM.PAYING === state.orderDetail?.orderStatus) {
-    if (state.timeDown?.current?.total <= 0) {
-      state.orderDetail.orderStatus = ORDER_STATUS_ENUM.TIMEOUT;
-      state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
-      state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
-      state.timeDown.pause();
-      return state.pageInfo.desc;
-    }
-    return `剩余支付时间：${addZero(state.timeDown.current.hours)}:${addZero(state.timeDown.current.minutes)}:${addZero(
-      state.timeDown.current.seconds,
-    )}`;
-  }
+  // if (ORDER_STATUS_ENUM.PAYING === state.orderDetail?.orderStatus) {
+  //   if (state.timeDown?.current?.total <= 0) {
+  //     state.orderDetail.orderStatus = ORDER_STATUS_ENUM.TIMEOUT;
+  //     state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
+  //     state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
+  //     state.timeDown.pause();
+  //     return state.pageInfo.desc;
+  //   }
+  //   return `剩余支付时间：${addZero(state.timeDown.current.hours)}:${addZero(state.timeDown.current.minutes)}:${addZero(
+  //     state.timeDown.current.seconds,
+  //   )}`;
+  // }
   return state.pageInfo.desc;
 });
 

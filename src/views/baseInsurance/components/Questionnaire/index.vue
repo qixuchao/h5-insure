@@ -29,6 +29,7 @@
           :name="`${index}.answerVO`"
           :data="question"
           :index="index"
+          :mark-requested="markRequested"
           :is-view="isView"
         />
       </template>
@@ -66,6 +67,7 @@ interface Props {
   isView?: boolean; // 是否查看模式
   params?: object; // 其他要在答题时一起提交的参数
   submit?: () => void;
+  markRequested?: boolean;
 }
 const isDev = window.location.origin.indexOf('localhost') > 0;
 const getInitAnswerVO = (id: number | string = '', code = '') => {

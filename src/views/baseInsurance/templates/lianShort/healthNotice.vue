@@ -6,6 +6,7 @@
       :content="currentQuestion"
       :params="questionParams"
       :is-view="isShared"
+      :mark-requested="false"
       :success-callback="confirmAnswer"
     >
       <!-- <template #title>
@@ -14,7 +15,9 @@
       <template v-if="currentQuestion.contentType === 'question' && currentQuestion.questionnaireId" #footer>
         <div class="footer-button">
           <van-button v-if="isShowAsync" round type="primary" plain @click="asyncInsured">同被保人</van-button>
-          <van-button round type="primary" block native-type="submit" :disabled="isShared"> 下一步 </van-button>
+          <van-button round type="primary" block native-type="submit" :disabled="isShared && !faceVerified">
+            下一步
+          </van-button>
         </div>
       </template>
       <template v-else #footer-btn>

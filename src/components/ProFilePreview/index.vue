@@ -22,6 +22,7 @@
       :data="props.content"
       :params="props.params"
       :submit="submit"
+      :mark-requested="markRequested"
       @success="props.successCallback"
     >
       <slot name="footer"></slot>
@@ -67,6 +68,10 @@ const props = defineProps({
   successCallback: {
     type: Function,
     default: () => {},
+  },
+  markRequested: {
+    type: Boolean,
+    default: true,
   },
 });
 const isRichText = computed(() => {

@@ -55,7 +55,7 @@
                 maxlength="100"
                 placeholder="请输入告知说明"
                 :show-word-limit="!isView"
-                :rules="[{ required: true, message: '请输入告知说明' }]"
+                :rules="[{ required: markRequested, message: '请输入告知说明' }]"
               />
             </div>
           </template>
@@ -83,7 +83,7 @@
                   :maxlength="100"
                   placeholder="请输入告知说明"
                   :show-word-limit="!isView"
-                  :rules="[{ required: true, message: '请输入告知说明' }]"
+                  :rules="[{ required: markRequested, message: '请输入告知说明' }]"
                 />
               </div>
             </div>
@@ -145,6 +145,7 @@ interface Props {
   isView?: boolean;
   name: string;
   modelValue: AnswerVO;
+  markRequested: boolean;
 }
 
 const props = defineProps<Props>();

@@ -112,7 +112,7 @@ const getFaceVerifyResult = () => {
             path,
             query: {
               ...route.query,
-              pageType: origin === 'confirm' && 'insuredInfo',
+              pageType: origin === 'confirm',
             },
           });
         }

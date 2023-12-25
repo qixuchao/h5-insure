@@ -502,6 +502,7 @@ thread.value = useThread({
     faceVerified.value = true;
   },
   time: 10000,
+  number: 0,
 });
 
 const onSaveOrder = async () => {

@@ -224,7 +224,7 @@ const handleNext = () => {
       }
     });
   } else {
-    if (pageType) {
+    if (pageType === 'true') {
       delete route.query.pageType;
       router.push({
         path: PAGE_ROUTE_ENUMS.holderInfoPreview,

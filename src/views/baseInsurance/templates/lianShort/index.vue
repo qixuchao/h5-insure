@@ -270,6 +270,7 @@ const orderDetail = useOrder({
     iseeBizNo: '',
   },
   periodType: RISK_PERIOD_TYPE_ENUM.short,
+  renewFlag: YES_NO_ENUM.YES, // 是否为新保
 });
 
 /* -------代理人模块--------*/
@@ -394,6 +395,64 @@ const onClickToInsure = () => {
 const premiumLoadingText = ref<string>('');
 const premium = ref<number>(0);
 
+const getPackageRiskList = () => {
+  const packageRiskList = [];
+
+  currentPackageConfigVOList.value
+    .filter((packageItem) => packageItem.value === INSURE_TYPE_ENUM.INSURE)
+    .forEach((e) => {
+      packageRiskList.push(...e.productRiskVoList);
+    });
+
+  return packageRiskList;
+};
+
+const getRiskVOList = () => {
+  const { chargePeriod, coveragePeriod, paymentFrequency, insuranceEndDate, insuranceStartDate } = guaranteeObj.value;
+
+  return riskToTrial([...currentRiskInfo.value, ...getPackageRiskList()]).map((riskVOList: any) => {
+    return {
+      ...riskVOList,
+      paymentFrequency,
+      chargePeriod, // 保障期限
+      coveragePeriod,
+    };
+  });
+};
+
+const compositionData = () => {
+  const { insuranceEndDate: expiryDate, insuranceStartDate: commencementTime } = guaranteeObj.value;
+  Object.assign(state.submitData, {
+    ...state.userData,
+    tenantId,
+    productCode,
+    productName: insureProductDetail.value.productName,
+    commencementTime,
+    expiryDate,
+  });
+  // TODO 处理同主险的相关数据
+  state.riskList = getRiskVOList();
+  const submitDataCopy = state.submitData;
+
+  if (submitDataCopy.insuredList?.length) {
+    submitDataCopy.insuredList = submitDataCopy.insuredList.map((ins) => {
+      return {
+        ...ins,
+        planCode: currentPlanObj.value.planCode,
+
+        productList: [
+          {
+            insurerCode,
+            productName: insureProductDetail.value.productName,
+            productCode,
+            riskList: state.riskList,
+          },
+        ],
+      };
+    });
+  }
+  return submitDataCopy;
+};
 // 生成订单
 const trialData = ref();
 const onSaveOrder = async () => {
@@ -401,7 +460,7 @@ const onSaveOrder = async () => {
     window.location.href = `${`${window.location.origin}${VITE_BASE}baseInsurance/orderDetail`}?orderNo=mockOrderNo&tenantId=${tenantId}&ISEE_BIZ=${iseeBizNo}&productCode=${productCode}&preview=true&templateView=${templateId}`;
   } else {
     try {
-      const currentOrderDetail = trialData2Order(trialData.value, state.trialResult, {
+      const currentOrderDetail = trialData2Order(compositionData(), state.trialResult, {
         ...orderDetail.value,
         extInfo: {
           ...orderDetail.value.extInfo,
@@ -442,19 +501,6 @@ const previewFile = (index: number) => {
 };
 
 /** -------------  保费试算 -----------------*/
-
-// 获取选中的加油包列表
-const getPackageRiskList = () => {
-  const packageRiskList = [];
-
-  currentPackageConfigVOList.value
-    .filter((packageItem) => packageItem.value === INSURE_TYPE_ENUM.INSURE)
-    .forEach((e) => {
-      packageRiskList.push(...e.productRiskVoList);
-    });
-
-  return packageRiskList;
-};
 
 const getToOrderPage = () => {
   if (popupFileList.value.length > 0) {
@@ -504,19 +550,6 @@ const handleTrialAndBenefit = async (calcData: any, isSave = false) => {
         state.isFirst = false;
       });
   }
-};
-
-const getRiskVOList = () => {
-  const { chargePeriod, coveragePeriod, paymentFrequency, insuranceEndDate, insuranceStartDate } = guaranteeObj.value;
-
-  return riskToTrial([...currentRiskInfo.value, ...getPackageRiskList()]).map((riskVOList: any) => {
-    return {
-      ...riskVOList,
-      paymentFrequency,
-      chargePeriod, // 保障期限
-      coveragePeriod,
-    };
-  });
 };
 
 // 排除不需要的数据
@@ -616,45 +649,12 @@ const dealMixData = () => {
   return submitData;
 };
 
-const compositionData = () => {
-  const { insuranceEndDate: expiryDate, insuranceStartDate: commencementTime } = guaranteeObj.value;
-  Object.assign(state.submitData, {
-    ...state.userData,
-    tenantId,
-    productCode,
-    productName: insureProductDetail.value.productName,
-    commencementTime,
-    expiryDate,
-  });
-  // TODO 处理同主险的相关数据
-  state.riskList = getRiskVOList();
-  const submitDataCopy = state.submitData;
-
-  if (submitDataCopy.insuredList?.length) {
-    submitDataCopy.insuredList = submitDataCopy.insuredList.map((ins) => {
-      return {
-        ...ins,
-        planCode: currentPlanObj.value.planCode,
-
-        productList: [
-          {
-            insurerCode,
-            productName: insureProductDetail.value.productName,
-            productCode,
-            riskList: state.riskList,
-          },
-        ],
-      };
-    });
-  }
-  return submitDataCopy;
-};
-
 const handleMixTrialData = debounce(async (isSave = false) => {
   console.log('>>>>>调用试算<<<<<');
+  const submitData = compositionData();
   if (state.ifPersonalInfoSuccess || personalInfoRef.value.canTrail()) {
     console.log('>>>数据构建<<<', state.submitData);
-    const submitData = compositionData();
+
     await handleTrialAndBenefit(submitData, isSave);
   }
 }, 300);
@@ -714,7 +714,7 @@ const saveOrderAndShare = () => {
         isShare: 1,
         orderNo: data,
         agentCode: currentAgentCode,
-        date: dayjs().format('YYYY-MM-DD'),
+        expiryDate: dayjs().format('YYYY-MM-DD'),
       };
       shareConfig.value = {
         title: '标题',
@@ -891,6 +891,7 @@ const getOrderDetail = () => {
   getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       orderDetail.value = data;
+      faceVerified.value = data.insuredList?.[0]?.faceAuthFlag === YES_NO_ENUM.YES;
       const orderPlanCode = orderDetail.value.insuredList?.[0]?.planCode || '';
       if (orderPlanCode) {
         currentPlanObj.value =
@@ -898,19 +899,20 @@ const getOrderDetail = () => {
           currentPlanObj.value?.productPlanInsureVOList?.[0];
       }
 
+      hasHolderName.value = !!data.holder?.name;
+
       Object.assign(state.userData, {
         ...data,
         holder: {
           ...data.holder,
           config: {
-            verificationCode: {
-              isView: false,
-              isHidden: false,
-              visible: true,
+            name: {
+              isView: hasHolderName.value,
             },
           },
         },
       });
+      hasHolderName.value && (agentInfo.value.agentCode = cachedAgentCode.value);
       isLoading.value = false;
     }
   });
@@ -922,6 +924,7 @@ const getAgentInfo = () => {
     if (code === '10000') {
       cachedAgentCode.value = data.agentCode;
       agentInfo.value = { ...data, agentCode: '' };
+      sessionStore.set(`${LIAN_STORAGE_KEY}_userInfo`, data);
       getOrderDetail();
     }
   });
