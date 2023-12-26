@@ -70,7 +70,7 @@ export const validateIdCardNo = (idCard) => {
 // 正则
 export const RegMap = {
   /** 姓名 */
-  isName: (val: string) => /^[\u4E00-\u9FFF]·?[\u4E00-\u9FFF]{1,40}$/.test(val), // 链接
+  isName: (val: string) => /^[\u4E00-\u9FFF]+·?[\u4E00-\u9FFF]{1,40}$/.test(val), // 链接
   /** 链接 */
   isExternal: (val: any) => /^(https?:|mailto:|tel:)/.test(val), // 链接
   /** 邮箱 */

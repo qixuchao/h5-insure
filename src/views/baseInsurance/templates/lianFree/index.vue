@@ -128,7 +128,7 @@ import PersonalInfo from '@/views/baseInsurance/templates/components/Trial/compo
 import { ProductData, PremiumCalcData, RiskVoItem } from '@/api/modules/trial.data';
 import { nextStepOperate } from '@/views/baseInsurance/nextStep';
 import { freeTransform, validateSmsCode, transformData, riskToTrial, getFileType } from '../../utils';
-import { formData2Order } from '../utils';
+import { formData2Order, validateSysCode } from '../utils';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants/index';
 import { YES_NO_ENUM, CERT_TYPE_ENUM } from '@/common/constants';
 import Banner from '../components/Banner/index.vue';
@@ -141,7 +141,7 @@ import { EVENT_BUTTON_CODE, LIAN_STORAGE_KEY, RISK_PERIOD_TYPE_ENUM, SHARE_IMAGE
 import { queryAgentInfo } from '@/api/lian';
 import { transformFactorToSchema } from '@/components/RenderForm';
 import { sessionStore, localStore } from '@/hooks/useStorage';
-import { PAGE_ROUTE_ENUMS, BUTTON_CODE_ENUMS } from './constants.ts';
+import { PAGE_ROUTE_ENUMS } from './constants';
 import { jumpToNextPage, scrollToError } from '@/utils';
 import useThread from '@/hooks/useThread';
 import InsurancePeriodCell from '../components/InsurancePeriodCell/index.vue';
@@ -543,7 +543,14 @@ const onSaveOrder = async () => {
     } else {
       currentOrderDetail.extInfo.buttonCode = EVENT_BUTTON_CODE.free.underWriteAndIssue;
       Promise.all([agentRef.value?.validate(), personalInfoRef.value.validate()])
-        .then((res) => {
+        .then(async (res) => {
+          const result = await validateSysCode(currentOrderDetail);
+
+          if (!result) {
+            Toast('验证码错误');
+            return;
+          }
+
           if (!compareAgentCode()) {
             Dialog.alert({
               message: '代理人工号有误，请核对后重新录入',
@@ -558,6 +565,7 @@ const onSaveOrder = async () => {
             });
             return;
           }
+
           nextStepOperate(currentOrderDetail, (resData: any, pageAction: string, message) => {
             if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE && resData.orderNo) {
               router.push({

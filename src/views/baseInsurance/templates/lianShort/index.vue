@@ -138,7 +138,7 @@ import { SUCCESS_CODE } from '@/api/code';
 import { SOCIAL_SECURITY_ENUM, INSURE_TYPE_ENUM } from '@/common/constants/infoCollection';
 import { isNotEmptyArray } from '@/common/constants';
 import PersonalInfo from '@/views/baseInsurance/templates/components/Trial/components/PersonalInfo/index.vue';
-import { riskToTrial, getFileType } from '../../utils';
+import { riskToTrial, getFileType, validateSmsCode } from '../../utils';
 import Banner from '../components/Banner/index.vue';
 import Video from '../components/Banner/Video.vue';
 import Guarantee from '../components/GuaranteeLian/index.vue';
@@ -738,11 +738,11 @@ const onNext = async () => {
     autoRenewalInfo.value = await autoRenewRef.value.validate();
     Promise.all([agentRef.value?.validate(), personalInfoRef.value.validate()])
       .then(async (res) => {
-        // const { mobile, verificationCode = '' } = state.userData.holder || {};
-        // const { code, data } = await checkCode(mobile as string, verificationCode);
-        // if (code === '10000') {
-
-        // }
+        const result = await validateSmsCode(state.userData);
+        if (!result) {
+          Toast('验证码错误');
+          return;
+        }
         if (!compareAgentCode()) {
           Dialog.alert({
             message: '代理人工号有误，请核对后重新录入',

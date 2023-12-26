@@ -49,7 +49,7 @@ export const useOpenId = async () => {
     wxCode: code,
   });
   if (res.code === '10000') {
-    openId = res.data || '';
+    openId = res.data?.openId || '';
     setOpenId(openId);
   }
   return openId;

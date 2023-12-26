@@ -36,13 +36,15 @@ export const sendSMSCode = async ({ mobile }, callback) => {
   }
 };
 
-export const checkSMSCode = async ({ mobile, smsCode }, callback) => {
+export const checkSMSCode = async ({ mobile, smsCode }, callback?) => {
   const { code, data } = await checkCode(mobile, smsCode);
 
   if (code === '10000') {
     Toast('短信验证成功');
     callback?.();
+    return true;
   }
+  return false;
 };
 
 /** 组件枚举 */
