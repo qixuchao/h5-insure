@@ -124,8 +124,7 @@ import {
   ProductSaleInfo,
   RiskDetailVoItem,
 } from '@/api/modules/product.data';
-import { ProductDetail as ProductData } from '@/api/modules/newTrial.data';
-import { TenantOrderRiskItem, PremiumCalcData, RiskVoItem, ProductFactor } from '@/api/modules/trial.data';
+import { PremiumCalcData, RiskVoItem, ProductFactor } from '@/api/modules/trial.data';
 import {
   premiumCalc,
   insureProductDetail as getInsureProductDetail,
@@ -136,15 +135,10 @@ import {
 import { queryProductMaterial, querySalesInfo } from '@/api/modules/product';
 import { nextStepOperate as nextStep } from '../../nextStep';
 import { SUCCESS_CODE } from '@/api/code';
-import {
-  SOCIAL_SECURITY_ENUM,
-  PAYMENT_COMMON_FREQUENCY_ENUM,
-  ORDER_DETAIL_KEY,
-  INSURE_TYPE_ENUM,
-} from '@/common/constants/infoCollection';
-import { CERT_TYPE_ENUM, isNotEmptyArray } from '@/common/constants';
+import { SOCIAL_SECURITY_ENUM, INSURE_TYPE_ENUM } from '@/common/constants/infoCollection';
+import { isNotEmptyArray } from '@/common/constants';
 import PersonalInfo from '@/views/baseInsurance/templates/components/Trial/components/PersonalInfo/index.vue';
-import { transformData, riskToTrial, getFileType } from '../../utils';
+import { riskToTrial, getFileType } from '../../utils';
 import Banner from '../components/Banner/index.vue';
 import Video from '../components/Banner/Video.vue';
 import Guarantee from '../components/GuaranteeLian/index.vue';
@@ -157,12 +151,13 @@ import { sessionStore } from '@/hooks/useStorage';
 import useOrder from '@/hooks/useOrder';
 import TrialButton from '../components/TrialButton.vue';
 import useAttachment from '@/hooks/useAttachment';
-import { formData2Order, orderData2trialData, proposalToTrial, trialData2Order } from '../utils';
+import { proposalToTrial, trialData2Order } from '../utils';
 import { colorConsole, transformFactorToSchema } from '@/components/RenderForm';
-import { jumpToNextPage, scrollToError } from '@/utils';
+import { scrollToError } from '@/utils';
 import { EVENT_BUTTON_CODE, LIAN_STORAGE_KEY, RISK_PERIOD_TYPE_ENUM, SHARE_IMAGE_LINK } from '@/common/constants/lian';
-import { PAGE_ROUTE_ENUMS } from './constants.ts';
+import { PAGE_ROUTE_ENUMS } from './constants';
 import { queryAgentInfo } from '@/api/lian';
+import { useOpenId, useWXCode } from '@/views/cashier/core';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const HealthNoticePreview = defineAsyncComponent(() => import('../components/HealthNoticePreview/index.vue'));
@@ -175,6 +170,8 @@ const { VITE_BASE } = import.meta.env;
 const themeVars = useTheme();
 const router = useRouter();
 const route = useRoute();
+
+useWXCode();
 
 /** 页面query参数类型 */
 interface QueryData {
@@ -891,6 +888,9 @@ const getOrderDetail = () => {
   getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       orderDetail.value = data;
+      if (!data.extInfo?.openId) {
+        orderDetail.value.extInfo.openId = useOpenId();
+      }
       faceVerified.value = data.insuredList?.[0]?.faceAuthFlag === YES_NO_ENUM.YES;
       const orderPlanCode = orderDetail.value.insuredList?.[0]?.planCode || '';
       if (orderPlanCode) {

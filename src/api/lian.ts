@@ -16,4 +16,11 @@ export const queryPolicyInfo = (data) =>
     data,
   });
 
+export const queryLoginInfo = (data) =>
+  request({
+    url: '/api/app/insure/insurance/wx/js/getLoginInfo',
+    method: 'POST',
+    data,
+  });
+
 export default {};

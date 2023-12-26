@@ -229,7 +229,7 @@ const baseInsurance = [
   {
     name: 'InsuranceShort',
     path: '/baseInsurance/short',
-    meta: { title: '', keepAlive: true, requireWxJs: false },
+    meta: { title: '', keepAlive: true, requireWxJs: true },
     component: () => import('@/views/baseInsurance/templates/lianShort/index.vue'),
   },
   // 短险健康告知页
