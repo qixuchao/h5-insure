@@ -738,7 +738,8 @@ const onNext = async () => {
     autoRenewalInfo.value = await autoRenewRef.value.validate();
     Promise.all([agentRef.value?.validate(), personalInfoRef.value.validate()])
       .then(async (res) => {
-        // const result = await validateSmsCode(state.userData);
+        const result = await validateSmsCode(state.userData);
+        console.log('result:', result);
         // if (!result) {
         //   Toast('验证码错误');
         //   return;
@@ -885,11 +886,11 @@ onBeforeMount(() => {
 });
 
 const getOrderDetail = () => {
-  getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
+  getTenantOrderDetail({ orderNo, tenantId }).then(async ({ code, data }) => {
     if (code === '10000') {
       orderDetail.value = data;
       if (!data.extInfo?.openId) {
-        orderDetail.value.extInfo.openId = useOpenId();
+        orderDetail.value.extInfo.openId = await useOpenId();
       }
       faceVerified.value = data.insuredList?.[0]?.faceAuthFlag === YES_NO_ENUM.YES;
       const orderPlanCode = orderDetail.value.insuredList?.[0]?.planCode || '';
