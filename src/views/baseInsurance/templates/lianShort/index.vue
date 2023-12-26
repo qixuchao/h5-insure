@@ -738,11 +738,11 @@ const onNext = async () => {
     autoRenewalInfo.value = await autoRenewRef.value.validate();
     Promise.all([agentRef.value?.validate(), personalInfoRef.value.validate()])
       .then(async (res) => {
-        const result = await validateSmsCode(state.userData);
-        if (!result) {
-          Toast('验证码错误');
-          return;
-        }
+        // const result = await validateSmsCode(state.userData);
+        // if (!result) {
+        //   Toast('验证码错误');
+        //   return;
+        // }
         if (!compareAgentCode()) {
           Dialog.alert({
             message: '代理人工号有误，请核对后重新录入',
