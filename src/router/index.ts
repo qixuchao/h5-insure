@@ -52,8 +52,8 @@ const routeExclude = [
 const currentDate = dayjs().format('YYYY-MM-DD');
 
 router.beforeEach(async (to, from, next) => {
-  const { expiryData, tenantId } = to.query;
-  if (expiryData && currentDate !== expiryData) {
+  const { expiryDate, tenantId } = to.query;
+  if (expiryDate && currentDate !== expiryDate) {
     Dialog.alert({
       message: '投保链接已过期',
       showConfirmButton: false,
