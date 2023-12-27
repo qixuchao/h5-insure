@@ -1,13 +1,6 @@
 <template class="com-questionnaire">
   <!-- <div class="que-title">{{ props.data.basicInfo.questionnaireName }}</div> -->
-  <ProRenderForm
-    ref="formRef"
-    :model="answerVOList"
-    input-align="left"
-    scroll-to-error
-    show-error-message
-    @submit="submitForm"
-  >
+  <ProRenderForm ref="formRef" :model="answerVOList" input-align="left" scroll-to-error show-error-message>
     <template v-if="props.data?.basicInfo?.questionnaireType === 1">文本问卷</template>
     <template v-else>
       <template v-if="props.isView">
@@ -45,9 +38,6 @@
       <!-- <van-button round type="primary" block native-type="submit">提交</van-button> -->
     </template>
     <!-- @slot 底部提交按钮区域 native-type="submit" -->
-    <div class="fix-button">
-      <slot></slot>
-    </div>
   </ProRenderForm>
 </template>
 <script lang="ts" setup name="Questionnaire">
@@ -174,6 +164,10 @@ watch(
     deep: true,
   },
 );
+
+defineExpose({
+  submitForm,
+});
 </script>
 <style lang="scss">
 .que-title {
@@ -188,6 +182,10 @@ watch(
 }
 
 .fix-button {
-  margin-top: 140px;
+  height: 150px;
+  bottom: 0;
+  width: 100%;
+  position: fixed;
+  z-index: 1;
 }
 </style>

@@ -2,6 +2,7 @@
   <div class="long-health-notice-wrap">
     <ProFilePreview
       v-if="currentQuestion"
+      ref="previewRef"
       :type="currentQuestion.contentType"
       :content="currentQuestion"
       :params="questionParams"
@@ -12,22 +13,18 @@
       <!-- <template #title>
         {{ currentQuestion.questionnaireName }}
       </template> -->
-      <template v-if="currentQuestion.contentType === 'question' && currentQuestion.questionnaireId" #footer>
-        <div class="footer-button">
-          <van-button v-if="isShowAsync" round type="primary" plain @click="asyncInsured">同被保人</van-button>
-          <van-button round type="primary" block native-type="submit" :disabled="isShared && !faceVerified">
-            下一步
-          </van-button>
-        </div>
-      </template>
-      <template v-else #footer-btn>
-        <div class="footer-btn">
-          <van-button round type="primary" block :disabled="isShared && !faceVerified" @click="confirmAnswer">
-            下一步
-          </van-button>
-        </div>
-      </template>
     </ProFilePreview>
+    <div v-if="currentQuestion.contentType === 'question' && currentQuestion.questionnaireId" class="footer-btn">
+      <van-button v-if="isShowAsync" round type="primary" plain @click="asyncInsured">同被保人</van-button>
+      <van-button round type="primary" block :disabled="isShared && !faceVerified" @click="submitQuestion">
+        下一步
+      </van-button>
+    </div>
+    <div v-else class="footer-btn">
+      <van-button round type="primary" block :disabled="isShared && !faceVerified" @click="confirmAnswer">
+        下一步
+      </van-button>
+    </div>
     <ProShare ref="shareRef"></ProShare>
   </div>
 </template>
@@ -75,6 +72,7 @@ const shareRef = ref();
 const isShared = ref(false);
 const thread = ref();
 const faceVerified = ref(false);
+const previewRef = ref();
 
 const onNext = () => {
   if (preview) {
@@ -296,6 +294,10 @@ thread.value = useThread({
   time: 10000,
   number: 0,
 });
+
+const submitQuestion = () => {
+  previewRef.value?.submitQuestion();
+};
 
 onBeforeMount(() => {
   !preview && getOrderDetail();

@@ -30,7 +30,7 @@
         @click-tab="onClickTab"
       >
       </ProTab>
-      <div v-if="isShare" class="part">
+      <div v-if="isShare && agentSchema?.length" class="part">
         <div class="part-header agent-header">
           <span class="header">代理人信息</span>
         </div>

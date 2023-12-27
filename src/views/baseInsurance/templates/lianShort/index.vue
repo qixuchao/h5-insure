@@ -46,6 +46,11 @@
             :multi-insured-config="currentPlanObj?.multiInsuredConfigVO"
             @trail-change="handlePersonalInfoChange"
           />
+          <PolicyInfo
+            v-if="state.policyInfo?.schema?.length"
+            v-model="orderDetail.extInfo"
+            :schema="state.policyInfo.schema"
+          ></PolicyInfo>
         </div>
         <PaymentType
           :form-info="guaranteeObj"
@@ -126,7 +131,7 @@ import {
 } from '@/api/modules/product.data';
 import { PremiumCalcData, RiskVoItem, ProductFactor } from '@/api/modules/trial.data';
 import {
-  premiumCalc,
+  premiumCalcV2 as premiumCalc,
   insureProductDetail as getInsureProductDetail,
   getTenantOrderDetail,
   underWriteRule,
@@ -200,6 +205,7 @@ const {
   agentCode,
   templateId,
   proposalInsuredId,
+  policyNo, // 保单号，用于标识是否重新投保
 } = route.query as QueryData;
 
 const { agentCode: currentAgentCode } = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`) || {};
@@ -238,6 +244,11 @@ const state = reactive({
   trialMsg: '',
   trialResult: {},
   isFirst: true,
+  policyInfo: {
+    schema: [],
+    config: [],
+    formData: {},
+  },
 });
 
 // 分享信息
@@ -267,7 +278,7 @@ const orderDetail = useOrder({
     iseeBizNo: '',
   },
   periodType: RISK_PERIOD_TYPE_ENUM.short,
-  renewFlag: YES_NO_ENUM.YES, // 是否为新保
+  renewFlag: policyNo ? YES_NO_ENUM.NO : YES_NO_ENUM.YES, // 是否为新保
 });
 
 /* -------代理人模块--------*/
@@ -819,7 +830,13 @@ watch(
     guaranteeObj.value.planCode = planCode;
 
     currentRiskInfo.value = insureProductRiskVOList;
-    agentSchema.value = transformFactorToSchema(productFactor)?.agent?.schema;
+
+    const { agent, other } = transformFactorToSchema(productFactor);
+    agentSchema.value = agent?.schema;
+    state.policyInfo = {
+      ...state.policyInfo,
+      ...other,
+    };
     mainRiskInfo.value = (insureProductRiskVOList || []).find((risk) => risk.mainRiskFlag === YES_NO_ENUM.YES);
 
     currentPackageConfigVOList.value = (oilPackageProductVOList || []).map((oli) => ({

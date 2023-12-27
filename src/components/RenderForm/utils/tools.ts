@@ -694,7 +694,6 @@ export const getCertConfig = (schema, personVO) => {
   // 证件类型为身份证或者户口本
   if (certTypeSchema) {
     merge(config, getCertTypeConfig(certType, schema));
-    console.log('formState', config);
   }
   return [isOnlyCertFlag, config];
 };
@@ -746,7 +745,7 @@ export const relatedConfigMap = {
       });
       // 证件类型选择证件号/户口本时，隐藏性别和出生日期
       nextTick(() => {
-        merge(formState.config, getCertTypeConfig(formState.formData.certType, formState.schema));
+        merge(formState.config, getCertTypeConfig(val || formState.formData.certType, formState.schema));
         Object.assign(formState.formData, { certImage: [] });
       });
     },

@@ -18,6 +18,7 @@
     <!-- <QuestionPreview v-else-if="isQuestion" :current-page-info="props.content" /> -->
     <Questionnaire
       v-else-if="isQuestion"
+      ref="questionRef"
       :is-view="isView"
       :data="props.content"
       :params="props.params"
@@ -97,6 +98,7 @@ const isLink = computed(() => {
 
 const id = nanoid();
 const emits = defineEmits(['success']);
+const questionRef = ref();
 
 const show = ref(false);
 
@@ -156,6 +158,12 @@ watch(
     immediate: true,
   },
 );
+
+defineExpose({
+  submitQuestion: () => {
+    questionRef.value?.submitForm();
+  },
+});
 </script>
 
 <style scoped lang="scss">

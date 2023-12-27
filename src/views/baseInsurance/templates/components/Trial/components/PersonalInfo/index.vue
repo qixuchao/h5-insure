@@ -33,7 +33,6 @@
       :title="`${state.insured.length > 1 ? `被保人${index + 1}` : '被保人信息'}`"
       :holder-person-v-o="state.holder.personVO"
       :="{ ...insuredItem, ...$attrs }"
-      :config="{ ...insuredItem.config, relationToHolder: { isDefaultSelected: true } }"
       :beneficiary-schema="state.beneficiarySchema"
       :guardian-schema="state.guardianSchema"
       :is-view="isView"
@@ -446,17 +445,19 @@ const canTrail = () => {
 // 监听投保人证件类型
 watch(
   () => state.holder.personVO?.certType,
-  debounce((val, oldVal) => {
+  (val, oldVal) => {
     if (`${val}` === `${oldVal}`) {
-      return false;
+      return;
     }
     colorConsole(`投保人信息变动了====`);
     // 证件类型是否只有身份证
     const [isOnlyCertFlag, tempConfig] = getCertConfig(state.holder.schema, { certType: val });
 
     merge(state.holder.config, tempConfig);
-    return false;
-  }, 0),
+  },
+  {
+    immediate: true,
+  },
 );
 
 // 监听投保人国籍

@@ -223,11 +223,11 @@ export const RULE_CONFIG_MAP = {
     maxlength: INPUT_MAX_LENGTH.THREE,
   },
   /**
-   * 身高/体重 允许一位小数
+   * 身高/体重 允许两位小数
    */
   HEIGHT_WEIGHT: {
     type: 'number',
-    precision: 1,
+    precision: 2,
     maxlength: INPUT_MAX_LENGTH.FIVE,
   },
   /**
@@ -237,7 +237,7 @@ export const RULE_CONFIG_MAP = {
     type: 'number',
     precision: 2,
     unit: '万元',
-    isPrecisionCompleted: true,
+    // isPrecisionCompleted: true,
   },
   /**
    * 邮编/验证码 数字6位，不支持小数

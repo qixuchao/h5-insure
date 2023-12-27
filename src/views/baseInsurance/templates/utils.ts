@@ -292,22 +292,24 @@ export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
  * @param orderDetail 订单模型
  * @returns Promise
  */
-export const validateSysCode = (orderDetail) => {
+export const validateSysCode = async (orderDetail) => {
   const { holder, insuredList } = orderDetail;
   const { mobile, verificationCode } = holder;
   const validateCollection = [];
   if (verificationCode) {
-    validateCollection.push(checkSMSCode({ mobile, smsCode: verificationCode }));
+    validateCollection.push(await checkSMSCode({ mobile, smsCode: verificationCode }));
   }
 
-  insuredList.forEach((insured) => {
+  insuredList.forEach(async (insured) => {
     const { mobile: mo, verificationCode: vc } = insured;
     if (vc) {
-      validateCollection.push(checkSMSCode({ mobile: mo, smsCode: vc }));
+      validateCollection.push(await checkSMSCode({ mobile: mo, smsCode: vc }));
     }
   });
 
-  return Promise.all(validateCollection);
+  const result = await Promise.all(validateCollection);
+  console.log('result: ', result);
+  return result;
 };
 
 export default {};

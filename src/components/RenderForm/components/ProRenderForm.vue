@@ -11,8 +11,9 @@
         :is="item.componentName"
         v-for="(item, index) in state.schema"
         :key="`${item.nanoid}_${index}`"
-        v-bind="item"
+        v-bind="{ ...item, ...$attrs }"
         v-model="state.formData[item.name]"
+        :input-align="$attrs['input-align']"
         :config="state.config[item.name]"
         :is-view="typeof item.isView === 'boolean' ? item.isView : isView"
       >

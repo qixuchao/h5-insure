@@ -276,7 +276,6 @@ const holderToBeneficial = (index?: number) => {
             };
           });
         }
-        console.log('beneficiaryPersonVO', beneficiaryPersonVO);
         return {
           ...beneficiaryItem,
           personVO: beneficiaryPersonVO,
@@ -560,6 +559,7 @@ watch(
     // 非查看模式处理与投保人关系变动，数据操作
     if (!props.isView && oldVal && String(val) !== String(oldVal)) {
       // 本人则本人数据覆盖
+      console.log('relationToHolder', oldVal, val);
       let newPersonVo = {
         ...personVO,
         ...holderPersonVO,
@@ -608,7 +608,7 @@ watch(
     merge(config, tempConfig);
   },
   {
-    immediate: true,
+    // immediate: true,
     // deep: true,
   },
 );
