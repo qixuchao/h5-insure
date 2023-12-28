@@ -559,7 +559,6 @@ watch(
     // 非查看模式处理与投保人关系变动，数据操作
     if (!props.isView && oldVal && String(val) !== String(oldVal)) {
       // 本人则本人数据覆盖
-      console.log('relationToHolder', oldVal, val);
       let newPersonVo = {
         ...personVO,
         ...holderPersonVO,

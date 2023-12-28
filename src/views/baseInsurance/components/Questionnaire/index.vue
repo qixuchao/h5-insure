@@ -127,30 +127,35 @@ const emit = defineEmits(['success']);
  * 提交按钮（本页面仅）
  */
 const submitForm = (values) => {
-  const params = {
-    answerList: [],
-    objectType: props.params.noticeType,
-    contentType: props.data.basicInfo.questionnaireType,
-    questionnaireId: props.data.basicInfo.id,
-    imageList: imageList.value,
-    ...(props.params || {}),
-  };
-  questionsRef.value.forEach((element, index) => {
-    params.answerList.push(element.getData());
-    // params.answerList.push({
-    //   answerVO: answerVOList[index] || element.getData(),
-    //   id: props.data.questions[index].id,
-    //   questionCode: props.data.questions[index].questionCode,
-    // });
-  });
-  if (props.submit) {
-    props.submit(params);
-  } else {
-    saveMarketerNotices(params).then((res) => {
-      isDev && Toast('提交成功');
-      emit('success');
-    });
-  }
+  formRef.value
+    .validate()
+    .then(() => {
+      const params = {
+        answerList: [],
+        objectType: props.params.noticeType,
+        contentType: props.data.basicInfo.questionnaireType,
+        questionnaireId: props.data.basicInfo.id,
+        imageList: imageList.value,
+        ...(props.params || {}),
+      };
+      questionsRef.value.forEach((element, index) => {
+        params.answerList.push(element.getData());
+        // params.answerList.push({
+        //   answerVO: answerVOList[index] || element.getData(),
+        //   id: props.data.questions[index].id,
+        //   questionCode: props.data.questions[index].questionCode,
+        // });
+      });
+      if (props.submit) {
+        props.submit(params);
+      } else {
+        saveMarketerNotices(params).then((res) => {
+          isDev && Toast('提交成功');
+          emit('success');
+        });
+      }
+    })
+    .catch((err) => {});
 };
 
 watch(

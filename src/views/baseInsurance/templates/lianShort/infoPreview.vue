@@ -11,7 +11,6 @@
       v-model="personInfo"
       :product-factor="productFactor"
       is-view
-      input-align="left"
     >
     </PersonalInfo>
 

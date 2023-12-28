@@ -378,33 +378,6 @@ watch(
   },
 );
 
-const validateSmsCodew = async () => {
-  if (previewMode.value) return true;
-  let smsCode = '';
-  let mobile = '';
-  if (state.newAuth) {
-    const res = await formRef.value.validateForm();
-    smsCode = state.order.tenantOrderHolder?.verificationCode;
-    mobile = state.order.tenantOrderHolder.mobile;
-  } else {
-    const { mobile: mobileTemp, verificationCode = '' } = state.submitData.holder?.personVO || {};
-    smsCode = verificationCode;
-    mobile = mobileTemp;
-  }
-
-  if ((state.isValidateCode || state.newAuth) && (!smsCode || !validateSmsCode(smsCode))) {
-    Toast({
-      message: '请输入正确的验证码',
-    });
-    return false;
-  }
-  if (state.newAuth || !state.isValidateCode) {
-    return true;
-  }
-  const { code, data } = await checkCode(mobile, smsCode);
-  return !!data;
-};
-
 // 试算参数转化为生成订单参数
 const trialData2Order = (
   currentProductDetail: ProductData = {} as ProductData,

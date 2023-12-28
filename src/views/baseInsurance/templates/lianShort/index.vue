@@ -276,9 +276,9 @@ const orderDetail = useOrder({
   extInfo: {
     templateId,
     iseeBizNo: '',
+    renewFlag: policyNo ? YES_NO_ENUM.YES : YES_NO_ENUM.NO, // 是否为续保
   },
   periodType: RISK_PERIOD_TYPE_ENUM.short,
-  renewFlag: policyNo ? YES_NO_ENUM.NO : YES_NO_ENUM.YES, // 是否为新保
 });
 
 /* -------代理人模块--------*/

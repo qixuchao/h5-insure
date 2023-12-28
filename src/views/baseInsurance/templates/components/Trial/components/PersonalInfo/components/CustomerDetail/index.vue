@@ -100,13 +100,14 @@ import gender from '@/assets/images/baseInsurance/gender.png';
 
 interface QueryData {
   customerId: number;
+  path: string;
   [key: string]: any;
 }
 
 const route = useRoute();
 const router = useRouter();
 
-const { customerId } = route.query as QueryData;
+const { customerId, path } = route.query as QueryData;
 const selectedIndex = ref({
   addressIndex: 0,
   certIndex: 0,
@@ -161,8 +162,9 @@ const goCollection = (e: any) => {
   console.log('暂存的客户信息：', state.value);
   const a = filterCustomerOption(state.value, selectedIndex.value);
   setCusomterData(a);
+  delete route.query.path;
   router.replace({
-    path: PAGE_ROUTE_ENUMS.infoCollection,
+    path,
     query: { ...route.query, selected: 'true' },
   });
 };

@@ -273,7 +273,7 @@ const chooseCustomers = (type: string, index, benifitIndex, relation?: string) =
   }
   const { selectedType, customerId, selected, ...others } = route.query; // 去掉下级页面的参数
   console.log('选择的关系relation:', relation);
-  pageJump('customerList', { ...others, selectedType: type, relation });
+  pageJump('customerList', { ...others, path: route.path, selectedType: type, relation });
 };
 
 // 当前模块要素code集合
