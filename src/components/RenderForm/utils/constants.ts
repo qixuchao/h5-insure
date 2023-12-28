@@ -575,6 +575,10 @@ export const GLOBAL_CONFIG_MAP = {
     minDate: new Date(),
     maxDate: dayjs().add(100, 'year').toDate(),
   },
+  certStartDate: {
+    maxDate: new Date(),
+    minDate: dayjs('1900-01-01').toDate(),
+  },
   companyName: {
     maxlength: INPUT_MAX_LENGTH.FIFTY,
   },

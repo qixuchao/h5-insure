@@ -14,7 +14,10 @@
         {{ currentQuestion.questionnaireName }}
       </template> -->
     </ProFilePreview>
-    <div v-if="currentQuestion.contentType === 'question' && currentQuestion.questionnaireId" class="footer-btn">
+    <div
+      v-if="currentQuestion.contentType === 'question' && currentQuestion.questionnaireId"
+      class="footer-btn footer-button"
+    >
       <van-button v-if="isShowAsync" round type="primary" plain @click="asyncInsured">同被保人</van-button>
       <van-button round type="primary" block :disabled="isShared && !faceVerified" @click="submitQuestion">
         下一步

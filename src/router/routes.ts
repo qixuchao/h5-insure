@@ -239,6 +239,13 @@ const baseInsurance = [
     meta: { title: '健康告知页', keepAlive: true, requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/healthNotice.vue'),
   },
+  // 短险健康告知页
+  {
+    name: 'InsuranceShortHealthNoticePreview',
+    path: '/baseInsurance/short/healthNotice/:id',
+    meta: { title: '健康告知页', keepAlive: true, requireWxJs: false },
+    component: () => import('@/views/baseInsurance/templates/lianShort/healthNotice.vue'),
+  },
   // 投保人短险信息确认页
   {
     name: 'InsuranceShortHolderInfoPreview',
