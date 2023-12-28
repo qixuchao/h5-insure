@@ -397,7 +397,6 @@ onMounted(() => {
         width: 0;
       }
       .right-part {
-        text-align: left;
       }
     }
   }

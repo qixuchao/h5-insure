@@ -77,18 +77,17 @@
         @preview-file="(index) => previewFile(index)"
       />
     </ProLazyComponent> -->
-    <template v-if="showFooterBtn">
-      <TrialButton
-        :premium="state.trialResult?.initialPremium"
-        :share-info="shareInfo"
-        :loading-text="state.trialMsg"
-        :plan-code="guaranteeObj.planCode"
-        :payment-frequency="guaranteeObj.paymentFrequency"
-        :tenant-product-detail="tenantProductDetail"
-        @handle-click="onNext"
-        >{{ isShare ? '立即投保' : '立即分享' }}</TrialButton
-      >
-    </template>
+
+    <TrialButton
+      :premium="state.trialResult?.initialPremium"
+      :share-info="shareInfo"
+      :loading-text="state.trialMsg"
+      :plan-code="guaranteeObj.planCode"
+      :payment-frequency="guaranteeObj.paymentFrequency"
+      :tenant-product-detail="tenantProductDetail"
+      @handle-click="onNext"
+      >{{ isShare ? '立即投保' : '立即分享' }}</TrialButton
+    >
   </div>
   <ProShare ref="shareRef"></ProShare>
   <PreNotice v-if="preNoticeLoading" :product-detail="tenantProductDetail"></PreNotice>

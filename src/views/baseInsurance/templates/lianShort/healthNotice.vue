@@ -135,7 +135,7 @@ const onNext = () => {
 const questionResolve = () => {
   if (nextQuestionnaireId.value) {
     router.push({
-      path: `${PAGE_ROUTE_ENUMS.questionNotice}/${nextQuestionnaireId.value}`,
+      path: `${PAGE_ROUTE_ENUMS.healthNotice}/${nextQuestionnaireId.value}`,
       query: {
         ...route.query,
         questionnaireId: nextQuestionnaireId.value,
@@ -190,7 +190,7 @@ const asyncInsured = () => {
 };
 
 // 获取问卷资料信息
-const getQuestionInfo = async (params) => {
+const getQuestionInfo = async (params, planCode) => {
   const { code: answerCode, data: answerData } = await getQuestionAnswerDetail({ orderNo, tenantId });
   if (answerCode === '10000') {
     answerList.value = answerData.productQuestionnaireVOList;
@@ -202,7 +202,10 @@ const getQuestionInfo = async (params) => {
 
     // 过滤出健康告知问卷
     const productQuestionnaireVOList = questionList.filter(
-      (question) => question.businessType === QUESTION_OBJECT_TYPE.NEW_CONTRACT && question.noticeObject !== -1,
+      (question) =>
+        question.planCode === planCode &&
+        question.businessType === QUESTION_OBJECT_TYPE.NEW_CONTRACT &&
+        question.noticeObject !== -1,
     );
 
     if (!productQuestionnaireVOList?.length) {
@@ -276,9 +279,10 @@ const getOrderDetail = async (loading = true) => {
         buttonCode: EVENT_BUTTON_CODE.short.saveNotice,
       },
     });
+    const planCode = data.insuredList[0]?.planCode;
     const productCodeList = data.insuredList[0].productList.map((product) => product.productCode);
     questionParams.value.objectId = data.insuredList[0].id;
-    getQuestionInfo({ productCodeList });
+    getQuestionInfo({ productCodeList }, planCode);
   }
 };
 
