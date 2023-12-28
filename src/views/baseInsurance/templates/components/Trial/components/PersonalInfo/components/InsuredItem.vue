@@ -534,7 +534,7 @@ watch(
     immediate: true,
   },
 );
-
+let relationToHolderChanged = false;
 // 监听投被保人关系
 watch(
   () => state.personVO?.relationToHolder,
@@ -566,7 +566,7 @@ watch(
       };
       const [isOnlyCertFlag, tempConfig] = getCertConfig(schema, personVO);
       // 非本人则清空数据
-      if (!isSelf) {
+      if (!isSelf && relationToHolderChanged) {
         newPersonVo = {
           // 若只有证件类型为身份证，不清除值
           ...resetObjectValues(personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
@@ -601,6 +601,8 @@ watch(
         console.log('newPersonVo', newPersonVo);
         console.log('PersonVo', state.personVO);
       });
+
+      relationToHolderChanged = true;
     }
 
     // 证件类型是否只有身份证
