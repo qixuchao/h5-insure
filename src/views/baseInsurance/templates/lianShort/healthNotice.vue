@@ -203,7 +203,7 @@ const getQuestionInfo = async (params, planCode) => {
     // 过滤出健康告知问卷
     const productQuestionnaireVOList = questionList.filter(
       (question) =>
-        question.planCode === planCode &&
+        (question.planCode === '-1' || !planCode || question.planCode === planCode) &&
         question.businessType === QUESTION_OBJECT_TYPE.NEW_CONTRACT &&
         question.noticeObject !== -1,
     );

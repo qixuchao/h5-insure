@@ -436,6 +436,7 @@ const compositionData = () => {
     productName: insureProductDetail.value.productName,
     commencementTime,
     expiryDate,
+    renewFlag: policyNo ? YES_NO_ENUM.YES : YES_NO_ENUM.NO,
   });
   // TODO 处理同主险的相关数据
   state.riskList = getRiskVOList();
@@ -531,32 +532,26 @@ const onResetFileFlag = () => {
 const handleTrialAndBenefit = async (calcData: any, isSave = false) => {
   state.trialMsg = LOADING_TEXT;
   state.trialResult = {};
-  let checkResult = false;
 
-  const { code } = await underWriteRule(calcData);
-  checkResult = code === '10000';
-
-  if (checkResult) {
-    premiumCalc(calcData)
-      .then((res) => {
-        // benefitData.value = res.data;
-        // console.log('----res =', res);
-        // state.trialMsg = `${res.data.premium}元`;
-        if (res.data && res.code === SUCCESS_CODE) {
-          if (res?.data?.errorInfo) {
-            Toast(`${res?.data?.errorInfo}`);
-          }
-          trialData.value = calcData;
-          state.trialMsg = '';
-          state.trialResult = res.data;
-        } else {
-          state.trialMsg = '';
+  premiumCalc(calcData)
+    .then((res) => {
+      // benefitData.value = res.data;
+      // console.log('----res =', res);
+      // state.trialMsg = `${res.data.premium}元`;
+      if (res.data && res.code === SUCCESS_CODE) {
+        if (res?.data?.errorInfo) {
+          Toast(`${res?.data?.errorInfo}`);
         }
-      })
-      .finally(() => {
-        state.isFirst = false;
-      });
-  }
+        trialData.value = calcData;
+        state.trialMsg = '';
+        state.trialResult = res.data;
+      } else {
+        state.trialMsg = '';
+      }
+    })
+    .finally(() => {
+      state.isFirst = false;
+    });
 };
 
 // 排除不需要的数据
@@ -906,6 +901,7 @@ const getOrderDetail = () => {
     if (code === '10000') {
       orderDetail.value = data;
       if (!data.extInfo?.openId) {
+        console.log('await useOpenId()', await useOpenId());
         orderDetail.value.extInfo.openId = await useOpenId();
       }
       faceVerified.value = data.insuredList?.[0]?.faceAuthFlag === YES_NO_ENUM.YES;

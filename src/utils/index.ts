@@ -159,7 +159,7 @@ export const addScript = (url: string, callback = () => {}, isAsync = true) => {
  */
 export const setPageTitle = (title: string): void => {
   document.title = title;
-  console.log('title', title);
+
   const ua: any = navigator.userAgent.toLowerCase();
   if (ua.match(/MicroMessenger/i) === 'micromessenger' && !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/i)) {
     const iframe = document.createElement('iframe');

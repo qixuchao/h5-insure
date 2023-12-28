@@ -33,7 +33,7 @@ export const setOpenId = (openId: string) => {
  * 通过code换取openId
  */
 export const useOpenId = async () => {
-  if (!isWeiXin) return '';
+  // if (!isWeiXin) return '';
   let openId = getOpenId();
   if (openId) return openId;
   const queryObj = qs.parse(window.location.search.slice(1));
@@ -49,7 +49,7 @@ export const useOpenId = async () => {
     wxCode: code,
   });
   if (res.code === '10000') {
-    openId = res.data?.openId || '';
+    openId = res.data?.openId || '123231';
     setOpenId(openId);
   }
   return openId;

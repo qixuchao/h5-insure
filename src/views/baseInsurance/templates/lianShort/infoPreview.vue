@@ -2,7 +2,9 @@
   <div class="long-info-preview">
     <ProNavigator />
 
-    <InsureInfo :product-data="orderDetail.insuredList?.[0]?.productList"></InsureInfo>
+    <InsureInfo :product-data="orderDetail.insuredList?.[0]?.productList">
+      <ProCell title="生效时间" :content="orderDetail.commencementTime"> </ProCell>
+    </InsureInfo>
 
     <!-- 投保人/被保人/受益人 -->
     <PersonalInfo
@@ -332,11 +334,12 @@ const initData = async () => {
     personInfo.value = oData;
     isLoading.value = true;
   }
-  getQuestionInfo({ productCodeList: productRiskMap.productList.map((product) => product.productCode) });
+  const { planCode } = oData.insuredList?.[0] || {};
+  getQuestionInfo({ productCodeList: productRiskMap.productList.map((product) => product.productCode) }, planCode);
 
   queryListProductMaterial(productRiskMap).then(({ code, data }) => {
     if (code === '10000') {
-      const { productMaterialList, riskMaterialList } = dealMaterialList(data);
+      const { productMaterialList, riskMaterialList } = dealMaterialList(data, planCode);
       state.fileList = productMaterialList.map((tab) => {
         return {
           tabName: tab.attachmentName,
@@ -389,16 +392,6 @@ onMounted(() => {
   padding-bottom: 150px;
   overflow-y: auto;
   .common-cell-wrapper {
-    .cell-container {
-      .large {
-        width: 186px;
-      }
-      .divider {
-        width: 0;
-      }
-      .right-part {
-      }
-    }
   }
 }
 </style>
