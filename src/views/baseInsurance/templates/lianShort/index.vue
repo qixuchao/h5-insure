@@ -434,7 +434,6 @@ const compositionData = () => {
     tenantId,
     productCode,
     productName: insureProductDetail.value.productName,
-    productClass: insureProductDetail.value.productClass,
     commencementTime,
     expiryDate,
     renewFlag: policyNo ? YES_NO_ENUM.YES : YES_NO_ENUM.NO,
@@ -454,6 +453,8 @@ const compositionData = () => {
             insurerCode,
             productName: insureProductDetail.value.productName,
             productCode,
+            productClass: insureProductDetail.value.productClass,
+
             riskList: state.riskList,
           },
         ],
