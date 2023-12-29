@@ -61,6 +61,7 @@
       v-model="visibleFile"
       :closeable="false"
       :data-source="state.fileList"
+      @click-btn="previewFile"
       @submit="handleSubmit"
     >
     </ProFileDrawer>
@@ -96,6 +97,8 @@ import { RISK_PERIOD_TYPE_ENUM, EVENT_BUTTON_CODE, LIAN_STORAGE_KEY } from '@/co
 import { PAGE_ROUTE_ENUMS as FREE_PAGE_ROUTE_ENUMS } from '../lianFree/constants';
 import { TEMPLATE_TYPE_ENUM } from '@/common/constants/infoCollection';
 import { isWeiXin } from '@/views/cashier/core';
+import { localStore } from '@/hooks/useStorage';
+import { PREVIEW_FILE_KEY } from '../../utils';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 
@@ -184,6 +187,17 @@ const previewMaterial = (index) => {
 
 const onResetFileFlag = () => {
   showFilePreview.value = false;
+};
+
+const previewFile = ({ file, type }, cb) => {
+  localStore.set(PREVIEW_FILE_KEY, { fileUri: file, fileType: type });
+  router.push({
+    path: '/template/filePreview',
+    query: {
+      fileId: file.id,
+    },
+  });
+  cb();
 };
 
 const handleSubmit = () => {

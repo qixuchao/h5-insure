@@ -1,44 +1,49 @@
-<template class="com-questionnaire">
-  <!-- <div class="que-title">{{ props.data.basicInfo.questionnaireName }}</div> -->
-  <ProRenderForm ref="formRef" :model="answerVOList" input-align="left" scroll-to-error show-error-message>
-    <template v-if="props.data?.basicInfo?.questionnaireType === 1">文本问卷</template>
-    <template v-else>
-      <template v-if="props.isView">
-        <Viewer
-          v-for="(question, index) in props.data.questions"
-          :key="question.id"
-          v-model="answerVOList[index].answerVO"
-          :name="`${index}.answerVO`"
-          :data="question"
-          :index="index"
-        />
-      </template>
+<template>
+  <div class="com-questionnaire">
+    <!-- <div class="que-title">{{ props.data.basicInfo.questionnaireName }}</div> -->
+    <ProRenderForm ref="formRef" :model="answerVOList" input-align="left" scroll-to-error show-error-message>
+      <template v-if="props.data?.basicInfo?.questionnaireType === 1">文本问卷</template>
       <template v-else>
-        <Question
-          v-for="(question, index) in props.data.questions"
-          ref="questionsRef"
-          :key="question.id"
-          v-model="answerVOList[index].answerVO"
-          :name="`${index}.answerVO`"
-          :data="question"
-          :index="index"
-          :mark-requested="markRequested"
-          :is-view="isView"
-        />
-      </template>
-    </template>
-    <ProCard v-if="enumEqual(props.data?.imageConfig?.showFlag, YES_NO_ENUM.YES)" :title="props.data.imageConfig.name">
-      <van-field name="imageList">
-        <template #input>
-          <ProImageUpload v-model="imageList" :disabled="isView" :max-count="props.data.imageConfig?.maxNum || 10" />
+        <template v-if="props.isView">
+          <Viewer
+            v-for="(question, index) in props.data.questions"
+            :key="question.id"
+            v-model="answerVOList[index].answerVO"
+            :name="`${index}.answerVO`"
+            :data="question"
+            :index="index"
+          />
         </template>
-      </van-field>
-    </ProCard>
-    <template v-if="isDev">
-      <!-- <van-button round type="primary" block native-type="submit">提交</van-button> -->
-    </template>
-    <!-- @slot 底部提交按钮区域 native-type="submit" -->
-  </ProRenderForm>
+        <template v-else>
+          <Question
+            v-for="(question, index) in props.data.questions"
+            ref="questionsRef"
+            :key="question.id"
+            v-model="answerVOList[index].answerVO"
+            :name="`${index}.answerVO`"
+            :data="question"
+            :index="index"
+            :mark-requested="markRequested"
+            :is-view="isView"
+          />
+        </template>
+      </template>
+      <ProCard
+        v-if="enumEqual(props.data?.imageConfig?.showFlag, YES_NO_ENUM.YES)"
+        :title="props.data.imageConfig.name"
+      >
+        <van-field name="imageList">
+          <template #input>
+            <ProImageUpload v-model="imageList" :disabled="isView" :max-count="props.data.imageConfig?.maxNum || 10" />
+          </template>
+        </van-field>
+      </ProCard>
+      <template v-if="isDev">
+        <!-- <van-button round type="primary" block native-type="submit">提交</van-button> -->
+      </template>
+      <!-- @slot 底部提交按钮区域 native-type="submit" -->
+    </ProRenderForm>
+  </div>
 </template>
 <script lang="ts" setup name="Questionnaire">
 import { Toast } from 'vant/es';
@@ -51,6 +56,7 @@ import { saveMarketerNotices } from '@/api/modules/inform';
 import { enumEqual } from '@/common/constants/dict';
 import { YES_NO_ENUM } from '@/common/constants';
 import Viewer from './Viewer.vue';
+import { scrollToError } from '@/utils';
 
 interface Props {
   data: QuestionnaireDetailRes; // 问卷数据
@@ -155,7 +161,9 @@ const submitForm = (values) => {
         });
       }
     })
-    .catch((err) => {});
+    .catch((err) => {
+      scrollToError('.com-questionnaire', '.van-field--error');
+    });
 };
 
 watch(
