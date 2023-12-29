@@ -529,6 +529,7 @@ const onResetFileFlag = () => {
   isOnlyView.value = true;
 };
 
+const errorMessage = ref('');
 const handleTrialAndBenefit = async (calcData: any, isSave = false) => {
   state.trialMsg = LOADING_TEXT;
   state.trialResult = {};
@@ -539,6 +540,7 @@ const handleTrialAndBenefit = async (calcData: any, isSave = false) => {
       // console.log('----res =', res);
       // state.trialMsg = `${res.data.premium}元`;
       if (res.data && res.code === SUCCESS_CODE) {
+        errorMessage.value = '';
         if (res?.data?.errorInfo) {
           Toast(`${res?.data?.errorInfo}`);
         }
@@ -547,6 +549,7 @@ const handleTrialAndBenefit = async (calcData: any, isSave = false) => {
         state.trialResult = res.data;
       } else {
         state.trialMsg = '';
+        errorMessage.value = res.message || '不符合投保条件';
       }
     })
     .finally(() => {
@@ -743,6 +746,10 @@ const onNext = async () => {
     autoRenewalInfo.value = await autoRenewRef.value.validate();
     Promise.all([agentRef.value?.validate(), personalInfoRef.value.validate()])
       .then(async (res) => {
+        if (errorMessage.value) {
+          Toast(errorMessage.value);
+          return;
+        }
         const result = await validateSmsCode(state.userData);
         console.log('result:', result);
         // if (!result) {

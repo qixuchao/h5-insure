@@ -160,6 +160,7 @@ export const riskToTrial = (productRiskVoList: any) => {
       mainRiskCode,
       mainRiskId,
       paymentFrequency: paymentFrequencyList?.[0]?.code,
+      amountUnit: '1', // 保额单位“元”
       riskCategory,
       riskCode,
       riskName,
