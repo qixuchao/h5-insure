@@ -128,6 +128,8 @@ watch(
       props?.checkSMSCode?.({ mobile: formState.formData[props.relatedName], smsCode: value }, () => {
         isChecked.value = true;
       });
+    } else {
+      isChecked.value = false;
     }
   },
   {

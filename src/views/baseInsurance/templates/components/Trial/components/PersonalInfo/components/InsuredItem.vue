@@ -555,7 +555,11 @@ watch(
       schemaItem.relationToHolder = personVO.relationToHolder;
       schemaItem.hidden = !schemaItem.isSelfInsuredNeed && isSelf;
     });
-
+    if (`${val}` === '1' && state.personVO?.id) {
+      relationToHolderChanged = true;
+    } else if (`${val}` !== '1' && state.personVO?.id) {
+      relationToHolderChanged = relationToHolderChanged || false;
+    }
     // 非查看模式处理与投保人关系变动，数据操作
     if (!props.isView && oldVal && String(val) !== String(oldVal)) {
       // 本人则本人数据覆盖
@@ -565,12 +569,16 @@ watch(
       };
       const [isOnlyCertFlag, tempConfig] = getCertConfig(schema, personVO);
       // 非本人则清空数据
-      if (!isSelf && relationToHolderChanged) {
-        newPersonVo = {
-          // 若只有证件类型为身份证，不清除值
-          ...resetObjectValues(personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
-          relationToHolder: personVO.relationToHolder,
-        };
+      if (!isSelf) {
+        if (relationToHolderChanged) {
+          newPersonVo = {
+            // 若只有证件类型为身份证，不清除值
+            ...resetObjectValues(personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
+            relationToHolder: personVO.relationToHolder,
+          };
+        } else {
+          newPersonVo = personVO;
+        }
       }
 
       // 投被保人为丈夫或者妻子时默认被保人的性别 2: 丈夫，3:妻子
