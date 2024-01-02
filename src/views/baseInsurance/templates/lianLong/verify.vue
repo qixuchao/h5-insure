@@ -279,7 +279,7 @@ const checkMobile = (type: 'agent' | 'holder' | 'insured') => {
 
 // 去双录
 const handleDMOS = () => {
-  if (isDisabled.value || [DUAL_STATUS_ENUM.DUAL_FINISH, DUAL_STATUS_ENUM.DUALING].includes(BMOSStatus.value)) {
+  if (isDisabled.value || [DUAL_STATUS_ENUM.DUAL_FINISH].includes(BMOSStatus.value)) {
     return;
   }
   formRef.value?.validate().then(() => {
