@@ -410,10 +410,7 @@ watch(
 
       const tempData = isNotEmptyArray(isSelfInsuredNeedCods.value)
         ? Object.keys(holderPersonVO).reduce((res, key: string) => {
-            if (
-              ![...isSelfInsuredNeedCods.value, 'occupationClass'].includes(key) ||
-              ['birthday', 'age', 'gender'].includes(key)
-            ) {
+            if (![...isSelfInsuredNeedCods.value].includes(key) || ['birthday', 'age', 'gender'].includes(key)) {
               res[key] = holderPersonVO[key];
             }
             return res;

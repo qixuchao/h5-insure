@@ -91,6 +91,7 @@ export const RegMap = {
   isNormalChar: (val: any) => /^[\u4e00-\u9fa5a-zA-Z0-9]+$/.test(val),
   /** 字母、数字 */
   isAlphabetNumber: (val: any) => /^[a-z0-9]+$/i.test(val),
+  isNumber: (val: any) => /^[0-9]+(\.[0-9]+)?$/.test(val),
   /** 字母、数字、特殊字符 */
   isAlphabetNumberOrSpecial: (val: any) =>
     /^[a-z0-9`~!@#$%^&*()_\-+=<>?:"{}|,./;'\\[\]·~！@#￥¥%……&*（）——\-+={}|《》？：“”【】、；‘'，。、]+$/i.test(val), // 字母数字特殊字符
@@ -147,6 +148,8 @@ export const validatorMap = {
   [RULE_TYPE_ENUM.EMAIL]: [RegMap.isEmail],
   /** 邮编 */
   [RULE_TYPE_ENUM.ZIP_CODE]: [RegMap.isZipCode],
+  /** 数字 */
+  [RULE_TYPE_ENUM.NUMBER]: [RegMap.isNumber],
   /** 电话号码 */
   [RULE_TYPE_ENUM.TEL]: [RegMap.isTel],
   /** 手机号 */

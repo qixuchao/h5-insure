@@ -196,6 +196,7 @@ export const RULE_TYPE_ENUM = {
   TEMPORARY_CARD: 'temporaryCard',
   /** 比例 */
   BENEFIT_RATE: 'benefitRate',
+  NUMBER: 'number',
 };
 
 /** 规则配置 */
@@ -229,6 +230,7 @@ export const RULE_CONFIG_MAP = {
     type: 'number',
     precision: 2,
     maxlength: INPUT_MAX_LENGTH.FIVE,
+    ruleType: RULE_TYPE_ENUM.NUMBER,
   },
   /**
    * 收入 允许2位小数，无小数位默认补全【.00】 单位: 万元
@@ -578,6 +580,7 @@ export const GLOBAL_CONFIG_MAP = {
   certStartDate: {
     maxDate: new Date(),
     minDate: dayjs('1900-01-01').toDate(),
+    relatedName: 'certEndDate',
   },
   companyName: {
     maxlength: INPUT_MAX_LENGTH.FIFTY,
