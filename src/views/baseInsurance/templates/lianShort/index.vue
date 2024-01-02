@@ -57,7 +57,7 @@
           :risk-info="mainRiskInfo"
           :tenant-product-detail="tenantProductDetail.PREMIUM"
           :plan-list="planList"
-          :premium-info="{ premium, premiumLoadingText }"
+          :premium-info="{ premium: state.trialResult?.initialPremium, premiumLoadingText }"
         />
         <Package v-if="currentPackageConfigVOList.length > 0" :package-product-list="currentPackageConfigVOList" />
         <AutoRenew ref="autoRenewRef" :ext-info="orderDetail.extInfo" :product-factor="currentPlanObj?.productFactor" />
@@ -157,7 +157,7 @@ import TrialButton from '../components/TrialButton.vue';
 import useAttachment from '@/hooks/useAttachment';
 import { proposalToTrial, trialData2Order } from '../utils';
 import { colorConsole, transformFactorToSchema } from '@/components/RenderForm';
-import { scrollToError } from '@/utils';
+import { scrollToError, setPageTitle } from '@/utils';
 import { EVENT_BUTTON_CODE, LIAN_STORAGE_KEY, RISK_PERIOD_TYPE_ENUM, SHARE_IMAGE_LINK } from '@/common/constants/lian';
 import { PAGE_ROUTE_ENUMS } from './constants';
 import { queryAgentInfo } from '@/api/lian';
@@ -348,7 +348,7 @@ const initData = async () => {
   querySalesInfo({ productCode }).then(({ data, code }) => {
     if (code === '10000') {
       tenantProductDetail.value = data;
-      document.title = data.BASIC_INFO.title || '';
+      setPageTitle(data.BASIC_INFO.title || '');
       tenantProductDetail.BASIC_INFO = data.BASIC_INFO;
 
       if (data.BASIC_INFO && data.BASIC_INFO.themeType) {

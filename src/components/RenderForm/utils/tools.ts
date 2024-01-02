@@ -782,7 +782,7 @@ export const relatedConfigMap = {
     onChangeEffect: (val, formState) => {
       if (val === '9999-12-31') {
         Object.assign(formState.formData, {
-          certEndType: 1,
+          certEndType: 2, // 长期
         });
       }
     },

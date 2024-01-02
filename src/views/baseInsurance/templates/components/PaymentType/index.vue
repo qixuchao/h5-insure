@@ -64,6 +64,7 @@ import { PlanInsureVO, ProductDetail, ProductPlanInsureConditionVo, ShowConfigVO
 import { OrderDetail, ProductData } from '@/api/modules/trial.data';
 import InsurancePeriodCell from '../InsurancePeriodCell/index.vue';
 import { openPreviewFilePage } from '@/views/baseInsurance/utils';
+import { transformToMoney } from '@/utils/format';
 
 const formRef = ref<FormInstance>({} as FormInstance);
 
@@ -79,6 +80,7 @@ interface Props {
   riskInfo: any;
   tenantProductDetail: any;
   planList: any[];
+  premiumInfo: any;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -121,7 +123,7 @@ const actualPremium = computed(() => {
       (currentPremiumObj.data || []).find((obj) => obj.paymentFrequency === state.formInfo.paymentFrequency) || {};
 
     if (props.premiumInfo?.premium) {
-      return `${props.premiumInfo.premium || ''}${minActualUnit}`;
+      return transformToMoney(props.premiumInfo.premium, 'CNY', minActualUnit);
     }
     return premium;
   }

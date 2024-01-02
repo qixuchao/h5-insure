@@ -142,7 +142,7 @@ import { queryAgentInfo } from '@/api/lian';
 import { transformFactorToSchema } from '@/components/RenderForm';
 import { sessionStore, localStore } from '@/hooks/useStorage';
 import { PAGE_ROUTE_ENUMS } from './constants';
-import { jumpToNextPage, scrollToError } from '@/utils';
+import { jumpToNextPage, scrollToError, setPageTitle } from '@/utils';
 import useThread from '@/hooks/useThread';
 import InsurancePeriodCell from '../components/InsurancePeriodCell/index.vue';
 
@@ -330,7 +330,7 @@ const fetchData = async () => {
   await Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
     if (productRes.code === '10000') {
       state.tenantProductDetail = productRes.data as any;
-      document.title = productRes.data.BASIC_INFO.title || '';
+      setPageTitle(productRes.data.BASIC_INFO.title || '');
       if (productRes.data.BASIC_INFO && productRes.data.BASIC_INFO.themeType) {
         setGlobalTheme(productRes.data.BASIC_INFO.themeType);
       }

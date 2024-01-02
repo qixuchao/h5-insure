@@ -9,9 +9,8 @@ import { ORIGIN } from '@/utils';
 import routes from '@/router/routes';
 import useAppStore from '@/store/app';
 import { getWxJsSdkSignature } from '@/api/modules/wechat';
-import { isWechat } from '@/utils/index';
+import { isWechat, setPageTitle } from '@/utils/index';
 import { cachePage } from '@/utils/cachePage';
-import SDK from '@/utils/lianSDK';
 import { ROUTE_EXCLUDE } from '@/views/baseInsurance/templates/lianLong/constants';
 
 const router: Router = createRouter({
@@ -90,16 +89,8 @@ router.beforeEach(async (to, from, next) => {
     }
   }
   console.log(window.location.href, `${ORIGIN}${to.path}`);
-  // set title 给App或浏览器标题栏显示
-  useTitle(to.meta?.title as string); // || (VITE_TITLE as string));
-
-  SDK(
-    'setNavigationBarTitle',
-    {
-      title: to.meta?.title || to.query?.title,
-    },
-    () => {},
-  );
+  // set title 给App或浏览器标题栏显示 // || (VITE_TITLE as string));
+  setPageTitle((to.meta?.title || to.query?.title) as string);
 
   if (to.path === '/login' || to.query.flag === 'N') {
     next();

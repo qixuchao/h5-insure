@@ -14,6 +14,7 @@ import { useRoute } from 'vue-router';
 import { FILE_TYPE_ENUM } from '@/common/constants';
 import { useSessionStorage } from '@/hooks/useStorage';
 import pageJump from './pageJump';
+import SDK from './lianSDK';
 
 const storage = useSessionStorage();
 dayjs.extend(quarterOfYear);
@@ -174,6 +175,14 @@ export const setPageTitle = (title: string): void => {
     };
     iframe.addEventListener('load', fn);
     document.body.appendChild(iframe);
+  } else if (ua.match(/zhongan/i)) {
+    SDK(
+      'setNavigationBarTitle',
+      {
+        title,
+      },
+      () => {},
+    );
   }
 };
 
