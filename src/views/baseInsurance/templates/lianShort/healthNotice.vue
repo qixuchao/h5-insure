@@ -46,9 +46,13 @@ import { nextStepOperate as nextStep } from '../../nextStep';
 import useOrder from '@/hooks/useOrder';
 import { PAGE_ACTION_TYPE_ENUM, YES_NO_ENUM } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
-import { jumpToNextPage } from '@/utils';
+import { jumpToNextPage, setPageTitle } from '@/utils';
 import { getTenantOrderDetail } from '@/api/modules/trial';
-import { NOTICE_OBJECT_ENUM, QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE } from '@/common/constants/notice';
+import {
+  NOTICE_OBJECT_ENUM,
+  QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE,
+  NOTICE_OBJECT_MAP,
+} from '@/common/constants/notice';
 import { NOTICE_CONTENT } from '../lianLong/data.ts';
 import { PAGE_ROUTE_ENUMS } from './constants.ts';
 import { EVENT_BUTTON_CODE, LIAN_STORAGE_KEY, RISK_PERIOD_TYPE_ENUM, SHARE_IMAGE_LINK } from '@/common/constants/lian';
@@ -241,6 +245,7 @@ const getQuestionInfo = async (params, planCode) => {
     const { questions, basicInfo } = questionnaireDetailResponseVO || {};
     const { questionnaireType } = basicInfo || {};
     objectType.value = noticeObject;
+    setPageTitle(`${NOTICE_OBJECT_MAP[noticeObject]}健康告知`);
     questionnaireId.value = currentQuestionnaireId;
 
     if (questionnaireType === QUESTIONNAIRE_TYPE_ENUM.TEXT) {

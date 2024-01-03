@@ -1,3 +1,5 @@
+import { constantListToMap } from './utils';
+
 export const NOTICE_OBJECT_ENUM = {
   HOlDER: 1, // 投保人
   INSURED: 2, // 被保人
@@ -12,6 +14,8 @@ export const NOTICE_OBJECT_LIST = [
   { label: '被保人', value: NOTICE_OBJECT_ENUM.INSURED }, // 被保人
   { label: '代理人', vale: NOTICE_OBJECT_ENUM.AGENT }, // 代理人
 ];
+
+export const NOTICE_OBJECT_MAP = constantListToMap(NOTICE_OBJECT_LIST);
 
 export const QUESTION_TEXT_TYPE = 2;
 
