@@ -283,6 +283,10 @@ export const transformToSchema = (arr: FieldConfItem[], trialFactorCodesArr: str
         extraData.visible = !isBirthdayExisted;
       }
 
+      if (item.code === 'annuallyComeDesc') {
+        extraData.visible = false;
+      }
+
       const tempItem = {
         // ...item,
         ...rest,

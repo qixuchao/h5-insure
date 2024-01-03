@@ -240,7 +240,7 @@ watch(
     if (!state.formInfo.coveragePeriod) return;
     // 将保障期间拆分为 值和单位
     const [unit, num] = state.formInfo.coveragePeriod.split('_');
-    if (!state.formInfo.insuranceStartDate) {
+    if (true || !state.formInfo.insuranceStartDate) {
       // 如果是指定日期生效，需要判断 maxInsuranceDay 字段， 可拆分为两个值【start, end】，
       // 若[start, end]一致，则默认保障日期开始日期为当前日期 + start, 同时展示标签为保障期限，不可自主选择日期
       // 若[start, end]不一致，则保障开始日期默认为当前日期 + start，同时展示为生效日期，可通过日期选择框，根据计算出的最大、最小日期，重新选择保障开始日期

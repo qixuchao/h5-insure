@@ -152,7 +152,7 @@ const dealModelValue = (val) => {
       state.date = val as string;
     }
   } else {
-    state.date = val;
+    state.date = val || defaultValue.value;
     state.fieldValue = val;
   }
 };
@@ -171,7 +171,7 @@ watch(
 watch(
   () => formState.formData?.[filedAttrs.value.name],
   (val) => {
-    dealModelValue(val);
+    // dealModelValue(val);
   },
   {
     immediate: true,
@@ -183,6 +183,7 @@ watch(
   () => {
     isDateType.value = !['time', 'month-day'].includes(props.type);
     defaultValue.value = isDateType.value ? new Date() : null;
+    console.log('type', props.type, isDateType.value, defaultValue.value);
     state.date = defaultValue.value;
   },
   { immediate: true },

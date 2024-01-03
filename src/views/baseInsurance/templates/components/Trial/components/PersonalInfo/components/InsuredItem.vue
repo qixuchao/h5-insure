@@ -109,6 +109,7 @@ import { nanoid } from 'nanoid';
 import cloneDeep from 'lodash-es/cloneDeep';
 import merge from 'lodash-es/merge';
 import { clone, debounce } from 'lodash';
+import { useRoute } from 'vue-router';
 import {
   type SchemaItem,
   type PersonFormProps,
@@ -150,6 +151,10 @@ const insuredFormRef = ref(null);
 const beneficiaryTypeFormRef = ref(null);
 const beneficiaryFormRef = ref(null);
 const guardianFormRef = ref(null);
+
+const route = useRoute();
+
+const { orderNo } = route.query;
 
 // 初始化受益人数据
 const initBeneficiaryItem = {
@@ -556,6 +561,10 @@ watch(
       relationToHolderChanged = true;
     } else if (`${val}` !== '1' && state.personVO?.id) {
       relationToHolderChanged = relationToHolderChanged || false;
+    }
+    // 处理特殊逻辑
+    if (!orderNo) {
+      relationToHolderChanged = true;
     }
     // 非查看模式处理与投保人关系变动，数据操作
     if (!props.isView && oldVal && String(val) !== String(oldVal)) {
