@@ -48,7 +48,7 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'InfoCollection',
     path: '/baseInsurance/long/infoCollection',
-    meta: { title: '信息采集', cacheTarget: ['InfoCollection', 'CustomerDetail', 'CustomerList'] },
+    meta: { title: '信息采集', cacheTarget: ['InfoCollection', 'CustomerDetail', 'CustomerList', 'InsuranceShort'] },
     component: () => import('@/views/baseInsurance/templates/lianLong/infoCollection.vue'),
   },
   {
@@ -229,42 +229,42 @@ const baseInsurance = [
   {
     name: 'InsuranceShort',
     path: '/baseInsurance/short',
-    meta: { title: '', keepAlive: true, requireWxJs: true },
+    meta: { title: '', cacheTarget: ['InsuranceShort', 'CustomerDetail', 'CustomerList'], requireWxJs: true },
     component: () => import('@/views/baseInsurance/templates/lianShort/index.vue'),
   },
   // 短险健康告知页
   {
     name: 'InsuranceShortHealthNotice',
     path: '/baseInsurance/short/healthNotice',
-    meta: { title: '健康告知页', keepAlive: true, requireWxJs: false },
+    meta: { title: '健康告知页', requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/healthNotice.vue'),
   },
   // 短险健康告知页
   {
     name: 'InsuranceShortHealthNoticePreview',
     path: '/baseInsurance/short/healthNotice/:id',
-    meta: { title: '健康告知页', keepAlive: true, requireWxJs: false },
+    meta: { title: '健康告知页', requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/healthNotice.vue'),
   },
   // 投保人短险信息确认页
   {
     name: 'InsuranceShortHolderInfoPreview',
     path: '/baseInsurance/short/holderInfoPreview',
-    meta: { title: '投保人信息确认', keepAlive: true, requireWxJs: false },
+    meta: { title: '投保人信息确认', requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/infoPreview.vue'),
   },
   // 被保人短险信息确认页
   {
     name: 'InsuranceShortInsuredInfoPreview',
     path: '/baseInsurance/short/insuredInfoPreview',
-    meta: { title: '被保人信息确认', keepAlive: true, requireWxJs: false },
+    meta: { title: '被保人信息确认', requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/infoPreview.vue'),
   },
   // 短险人脸识别页
   {
     name: 'InsuranceShortFaceAuth',
     path: '/baseInsurance/short/faceVerify',
-    meta: { title: '被保人人脸识别', keepAlive: true, requireWxJs: false },
+    meta: { title: '被保人人脸识别', requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/faceVerify.vue'),
   },
   // 短险-升级款（魔方）
@@ -321,7 +321,7 @@ const baseInsurance = [
   {
     name: 'CustomerList',
     path: '/baseInsurance/customerList',
-    meta: { title: '', requireWxJs: false, cacheSource: ['InfoCollection'] },
+    meta: { title: '', requireWxJs: false, cacheSource: ['InfoCollection', 'InsuranceShort'] },
     component: () =>
       import(
         '@/views/baseInsurance/templates/components/Trial/components/PersonalInfo/components/CustomerList/index.vue'
