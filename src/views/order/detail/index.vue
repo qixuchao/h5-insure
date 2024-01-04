@@ -172,6 +172,7 @@ import { QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE } from '@/common/consta
 import { getFileType } from '@/views/baseInsurance/utils';
 import OperateBtn from '../components/OperateBtn.vue';
 import { transformToMoney } from '@/utils/format';
+import { RISK_PERIOD_TYPE_ENUM } from '@/common/constants/lian';
 
 const themeVars = useTheme();
 const route = useRoute();
@@ -231,7 +232,9 @@ const {
 } = route;
 
 // 是否展示订单轨迹
-const isShowOrderRecord = computed(() => detail.value?.orderStatus !== 'cancel');
+const isShowOrderRecord = computed(
+  () => detail.value?.orderStatus !== 'cancel' && detail.value?.periodType === RISK_PERIOD_TYPE_ENUM.long,
+);
 
 const handleClick = () => {
   pageJump('orderTrajectory', { orderNo, orderId: detail.value.id, tenantId });

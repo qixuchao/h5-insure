@@ -220,6 +220,7 @@ const handleSubmit = () => {
           }
         })
         .catch(() => {
+          delete route.query.questionnaireId;
           router.push({
             path: PAGE_ROUTE_ENUMS.productInfo,
             query: route.query,

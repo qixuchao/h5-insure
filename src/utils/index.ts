@@ -158,7 +158,7 @@ export const addScript = (url: string, callback = () => {}, isAsync = true) => {
  * 兼容iOS少数版本document.title设置不上的问题
  * @param title 页面标题
  */
-export const setPageTitle = (title: string): void => {
+export const setPageTitle = (title = ''): void => {
   document.title = title;
 
   const ua: any = navigator.userAgent.toLowerCase();
