@@ -250,7 +250,7 @@ const baseInsurance = [
   {
     name: 'InsuranceShortHolderInfoPreview',
     path: '/baseInsurance/short/holderInfoPreview',
-    meta: { title: '投保人信息确认', requireWxJs: false },
+    meta: { title: '投保人信息确认', keepAlive: true, requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/infoPreview.vue'),
   },
   // 被保人短险信息确认页
