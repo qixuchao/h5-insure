@@ -70,7 +70,7 @@ export const validateIdCardNo = (idCard) => {
 // 正则
 export const RegMap = {
   /** 姓名 */
-  isName: (val: string) => /^[\u4e00-\u9fa5a-z].{0,23}[\u4e00-\u9fa5a-z]/i.test(val), // 链接
+  isName: (val: string) => /^[\u4E00-\u9FFF]+·?[\u4E00-\u9FFF]{1,40}$/.test(val), // 链接
   /** 链接 */
   isExternal: (val: any) => /^(https?:|mailto:|tel:)/.test(val), // 链接
   /** 邮箱 */
@@ -91,6 +91,7 @@ export const RegMap = {
   isNormalChar: (val: any) => /^[\u4e00-\u9fa5a-zA-Z0-9]+$/.test(val),
   /** 字母、数字 */
   isAlphabetNumber: (val: any) => /^[a-z0-9]+$/i.test(val),
+  isNumber: (val: any) => /^[0-9]+(\.[0-9]+)?$/.test(val),
   /** 字母、数字、特殊字符 */
   isAlphabetNumberOrSpecial: (val: any) =>
     /^[a-z0-9`~!@#$%^&*()_\-+=<>?:"{}|,./;'\\[\]·~！@#￥¥%……&*（）——\-+={}|《》？：“”【】、；‘'，。、]+$/i.test(val), // 字母数字特殊字符
@@ -147,6 +148,8 @@ export const validatorMap = {
   [RULE_TYPE_ENUM.EMAIL]: [RegMap.isEmail],
   /** 邮编 */
   [RULE_TYPE_ENUM.ZIP_CODE]: [RegMap.isZipCode],
+  /** 数字 */
+  [RULE_TYPE_ENUM.NUMBER]: [RegMap.isNumber],
   /** 电话号码 */
   [RULE_TYPE_ENUM.TEL]: [RegMap.isTel],
   /** 手机号 */

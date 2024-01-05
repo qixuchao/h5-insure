@@ -2,8 +2,9 @@
   <!----被保人-->
   <ProRenderFormWithCard
     ref="insuredFormRef"
-    class="personal-info-card"
+    class="personal-info-card insured"
     :title="hideTitle ? '' : title"
+    :="$attrs"
     :model="state.personVO"
     :schema="state.schema"
     :config="state.config"
@@ -22,7 +23,8 @@
   <ProRenderFormWithCard
     v-if="isShowGuardian"
     ref="guardianFormRef"
-    class="personal-info-card"
+    :="$attrs"
+    class="personal-info-card guardian"
     title="监护人"
     :model="state.guardian.personVO"
     :schema="state.guardianSchema"
@@ -43,6 +45,7 @@
     <ProRenderFormWithCard
       ref="beneficiaryTypeFormRef"
       class="personal-info-card"
+      :="$attrs"
       :title="'受益人'"
       :model="state.personVO"
       :schema="state.beneficiaryTypeSchemaList"
@@ -106,6 +109,7 @@ import { nanoid } from 'nanoid';
 import cloneDeep from 'lodash-es/cloneDeep';
 import merge from 'lodash-es/merge';
 import { clone, debounce } from 'lodash';
+import { useRoute } from 'vue-router';
 import {
   type SchemaItem,
   type PersonFormProps,
@@ -118,6 +122,7 @@ import {
   resetObjectValues,
   getNameRules,
   setCertDefaultValue,
+  getCertTypeConfig,
 } from '@/components/RenderForm';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { BENEFICIARY_ENUM } from '@/common/constants/infoCollection';
@@ -146,6 +151,10 @@ const insuredFormRef = ref(null);
 const beneficiaryTypeFormRef = ref(null);
 const beneficiaryFormRef = ref(null);
 const guardianFormRef = ref(null);
+
+const route = useRoute();
+
+const { orderNo } = route.query;
 
 // 初始化受益人数据
 const initBeneficiaryItem = {
@@ -210,7 +219,7 @@ const isSameHolder = ref<boolean>(false);
 // 被保人同投保人关系非父母时，被保人年龄小于18岁则需要监护人信息
 const isShowGuardian = computed<boolean>(() => {
   const { age, relationToHolder } = state.personVO;
-  if (!['1', '4', '5'].includes(`${relationToHolder}`) && age !== null && +age < 18) {
+  if (relationToHolder && !['1', '4', '5'].includes(`${relationToHolder}`) && age !== null && +age < 18) {
     return true;
   }
   state.guardian = {
@@ -272,7 +281,6 @@ const holderToBeneficial = (index?: number) => {
             };
           });
         }
-        console.log('beneficiaryPersonVO', beneficiaryPersonVO);
         return {
           ...beneficiaryItem,
           personVO: beneficiaryPersonVO,
@@ -407,10 +415,7 @@ watch(
 
       const tempData = isNotEmptyArray(isSelfInsuredNeedCods.value)
         ? Object.keys(holderPersonVO).reduce((res, key: string) => {
-            if (
-              ![...isSelfInsuredNeedCods.value, 'occupationClass'].includes(key) ||
-              ['birthday', 'age', 'gender'].includes(key)
-            ) {
+            if (![...isSelfInsuredNeedCods.value].includes(key) || ['birthday', 'age', 'gender'].includes(key)) {
               res[key] = holderPersonVO[key];
             }
             return res;
@@ -531,7 +536,7 @@ watch(
     immediate: true,
   },
 );
-
+let relationToHolderChanged = false;
 // 监听投被保人关系
 watch(
   () => state.personVO?.relationToHolder,
@@ -552,7 +557,15 @@ watch(
       schemaItem.relationToHolder = personVO.relationToHolder;
       schemaItem.hidden = !schemaItem.isSelfInsuredNeed && isSelf;
     });
-
+    if (`${val}` === '1' && state.personVO?.id) {
+      relationToHolderChanged = true;
+    } else if (`${val}` !== '1' && state.personVO?.id) {
+      relationToHolderChanged = relationToHolderChanged || false;
+    }
+    // 处理特殊逻辑
+    if (!orderNo) {
+      relationToHolderChanged = true;
+    }
     // 非查看模式处理与投保人关系变动，数据操作
     if (!props.isView && oldVal && String(val) !== String(oldVal)) {
       // 本人则本人数据覆盖
@@ -563,11 +576,15 @@ watch(
       const [isOnlyCertFlag, tempConfig] = getCertConfig(schema, personVO);
       // 非本人则清空数据
       if (!isSelf) {
-        newPersonVo = {
-          // 若只有证件类型为身份证，不清除值
-          ...resetObjectValues(personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
-          relationToHolder: personVO.relationToHolder,
-        };
+        if (relationToHolderChanged) {
+          newPersonVo = {
+            // 若只有证件类型为身份证，不清除值
+            ...resetObjectValues(personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
+            relationToHolder: personVO.relationToHolder,
+          };
+        } else {
+          newPersonVo = personVO;
+        }
       }
 
       // 投被保人为丈夫或者妻子时默认被保人的性别 2: 丈夫，3:妻子
@@ -597,6 +614,8 @@ watch(
         console.log('newPersonVo', newPersonVo);
         console.log('PersonVo', state.personVO);
       });
+
+      relationToHolderChanged = true;
     }
 
     // 证件类型是否只有身份证
@@ -604,7 +623,7 @@ watch(
     merge(config, tempConfig);
   },
   {
-    immediate: true,
+    // immediate: true,
     // deep: true,
   },
 );
@@ -732,6 +751,7 @@ watch(
           setCertDefaultValue(props.schema, props.modelValue, () => {
             state.personVO.certType = '1';
           });
+          Object.assign(state.config, getCertTypeConfig(state.personVO.certType, val));
           item.relationToHolder = props.modelValue?.relationToHolder;
           item.hidden = !item.isSelfInsuredNeed && isSelf;
           return item;

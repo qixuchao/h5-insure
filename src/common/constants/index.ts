@@ -121,7 +121,7 @@ export const PRODUCT_CATEGORY = [
     value: '',
   },
   {
-    label: '寿险',
+    label: '意外',
     value: '1',
   },
   {
@@ -129,16 +129,16 @@ export const PRODUCT_CATEGORY = [
     value: '2',
   },
   {
-    label: '年金',
+    label: '医疗',
     value: '3',
   },
   {
-    label: '医疗',
+    label: '年金',
     value: '4',
   },
 
   {
-    label: '意外',
+    label: '寿险',
     value: '5',
   },
 
@@ -432,6 +432,7 @@ export const PAGE_ACTION_TYPE_ENUM = {
   JUMP_URL: 'jumpToUrl',
   JUMP_PAGE: 'jumpToPage',
   JUMP_ALERT: 'jumpToAlert',
+  CONTINUE: 'continue',
 };
 
 export const ALERT_TYPE_ENUM = {

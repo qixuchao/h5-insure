@@ -14,6 +14,7 @@ import { useRoute } from 'vue-router';
 import { FILE_TYPE_ENUM } from '@/common/constants';
 import { useSessionStorage } from '@/hooks/useStorage';
 import pageJump from './pageJump';
+import SDK from './lianSDK';
 
 const storage = useSessionStorage();
 dayjs.extend(quarterOfYear);
@@ -157,8 +158,9 @@ export const addScript = (url: string, callback = () => {}, isAsync = true) => {
  * 兼容iOS少数版本document.title设置不上的问题
  * @param title 页面标题
  */
-export const setPageTitle = (title: string): void => {
+export const setPageTitle = (title = ''): void => {
   document.title = title;
+
   const ua: any = navigator.userAgent.toLowerCase();
   if (ua.match(/MicroMessenger/i) === 'micromessenger' && !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/i)) {
     const iframe = document.createElement('iframe');
@@ -173,6 +175,14 @@ export const setPageTitle = (title: string): void => {
     };
     iframe.addEventListener('load', fn);
     document.body.appendChild(iframe);
+  } else if (ua.match(/zhongan/i)) {
+    SDK(
+      'setNavigationBarTitle',
+      {
+        title,
+      },
+      () => {},
+    );
   }
 };
 

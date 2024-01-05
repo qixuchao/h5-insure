@@ -1,5 +1,5 @@
 <template>
-  <span class="value-view-wrap">{{ value || '-' }}</span>
+  <span class="value-view-wrap" :style="`'text-align': ${textAlign} `">{{ value || '-' }}</span>
 </template>
 <script lang="ts" setup>
 const props = defineProps({
@@ -9,6 +9,10 @@ const props = defineProps({
   value: {
     type: String,
     default: '',
+  },
+  textAlign: {
+    type: String,
+    default: 'right',
   },
   /**
    * 是否查看模式
@@ -23,6 +27,5 @@ const props = defineProps({
 .value-view-wrap {
   margin: 16px 4px 16px 0;
   width: 100%;
-  text-align: right;
 }
 </style>

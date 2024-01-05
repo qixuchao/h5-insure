@@ -57,6 +57,10 @@ export const ORDER_STATUS_LIST = [
     value: ORDER_STATUS_ENUM.INSURANCE_PROCESSING,
     label: '保司处理中',
   },
+  {
+    value: ORDER_STATUS_ENUM.ACCEPTING_POLICY,
+    label: '待承保',
+  },
 ];
 
 export const ORDER_STATUS_MAP = constantListToMap(ORDER_STATUS_LIST);
@@ -64,6 +68,6 @@ export const ORDER_STATUS_MAP = constantListToMap(ORDER_STATUS_LIST);
 export const ORDER_STATUS_DESC = {
   [ORDER_STATUS_ENUM.ACCEPT_POLICY]: '恭喜 您已成功购买保障',
   [ORDER_STATUS_ENUM.CANCELED]: '赠险保单已失效',
-  [ORDER_STATUS_ENUM.PAYING]: '剩余支付时间：23:59:59',
+  // [ORDER_STATUS_ENUM.PAYING]: '剩余支付时间：23:59:59',
   [ORDER_STATUS_ENUM.TIMEOUT]: '请您重新提交订单',
 };

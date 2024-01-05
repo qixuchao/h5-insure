@@ -16,7 +16,7 @@
           <span class="value">{{ item.value }}</span>
         </div>
         <ProShadowButton
-          v-if="!(orderBtnText === '重下一单' && state.templateId.toString() === '3')"
+          v-if="!(orderBtnText === '重下一单' && state.templateId.toString() === '3') && orderBtnText"
           :theme-vars="themeVars"
           class="btn"
           :text="orderBtnText"
@@ -146,7 +146,7 @@ const orderBtnText = computed(() => {
   ) {
     return '下载保单';
   }
-  if (ORDER_STATUS_ENUM.PAYING === state.orderDetail.orderStatus) {
+  if ([ORDER_STATUS_ENUM.PAYING, ORDER_STATUS_ENUM.PAYMENT_FAILED].includes(state.orderDetail.orderStatus)) {
     return '立即支付';
   }
   if (ORDER_STATUS_ENUM.TIMEOUT === state.orderDetail.orderStatus) {
@@ -246,7 +246,7 @@ const orderBtnHandler = async () => {
       },
     }).then((res) => {
       if (res.code === '10000') {
-        sendPay(res.data.paymentUrl);
+        sendPay(res.data);
       }
     });
   } else if (orderBtnText.value === '重下一单') {
@@ -262,7 +262,7 @@ const initPageInfo = () => {
 
   state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
   state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
-  setPageTitle(state.detail?.tenantProductInsureVO?.productName || '');
+  setPageTitle(state.detail?.PRODUCT_LIST?.title || '');
   state.templateId = state.orderDetail.extInfo.templateId || '4';
   let insurancePeriodDesc = '';
   if (state.templateId.toString() === '2') {
@@ -270,10 +270,7 @@ const initPageInfo = () => {
       if (insurancePeriodDesc) return null;
       item.riskList.forEach((node: any) => {
         if (node.riskType === 1 && !insurancePeriodDesc) {
-          insurancePeriodDesc = compositionDesc(
-            node.insurancePeriodValue,
-            INSURANCE_PERIOD_TYPE_ENUMS[node.insurancePeriodType],
-          );
+          insurancePeriodDesc = node.coveragePeriodDesc;
         }
       });
       return false;
@@ -413,7 +410,7 @@ const getData = async () => {
     state.orderDetail = orderRes.data;
     productCode = orderRes.data.insuredList?.[0]?.productList?.[0]?.productCode || '';
     if (!productCode) return '';
-    const productReq = !Number.isNaN(+tenantId) && tenantProductDetail({ productCode, withInsureInfo: true, tenantId });
+    const productReq = !Number.isNaN(+tenantId) && tenantProductDetail({ productCode });
     const insureReq = insureProductDetail({ productCode });
     getUpgrade(productCode);
     Promise.all([productReq, insureReq]).then(([productRes, insureRes]) => {
@@ -447,18 +444,18 @@ const addZero = (num: number) => {
 };
 
 const orderDesc = computed(() => {
-  if (ORDER_STATUS_ENUM.PAYING === state.orderDetail?.orderStatus) {
-    if (state.timeDown?.current?.total <= 0) {
-      state.orderDetail.orderStatus = ORDER_STATUS_ENUM.TIMEOUT;
-      state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
-      state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
-      state.timeDown.pause();
-      return state.pageInfo.desc;
-    }
-    return `剩余支付时间：${addZero(state.timeDown.current.hours)}:${addZero(state.timeDown.current.minutes)}:${addZero(
-      state.timeDown.current.seconds,
-    )}`;
-  }
+  // if (ORDER_STATUS_ENUM.PAYING === state.orderDetail?.orderStatus) {
+  //   if (state.timeDown?.current?.total <= 0) {
+  //     state.orderDetail.orderStatus = ORDER_STATUS_ENUM.TIMEOUT;
+  //     state.pageInfo.title = ORDER_STATUS_MAP[state.orderDetail.orderStatus];
+  //     state.pageInfo.desc = ORDER_STATUS_DESC[state.orderDetail.orderStatus];
+  //     state.timeDown.pause();
+  //     return state.pageInfo.desc;
+  //   }
+  //   return `剩余支付时间：${addZero(state.timeDown.current.hours)}:${addZero(state.timeDown.current.minutes)}:${addZero(
+  //     state.timeDown.current.seconds,
+  //   )}`;
+  // }
   return state.pageInfo.desc;
 });
 

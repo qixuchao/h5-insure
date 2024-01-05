@@ -1,6 +1,6 @@
 <template>
   <ProFormItem
-    :model-value="state.fieldValue"
+    model-value="state.fieldValue"
     v-bind="filedAttrs"
     :is-view="isView || checked"
     :class="`${filedAttrs.visible === false ? 'com-van-field--hidden' : ''} ${$attrs.class}`"
@@ -136,7 +136,10 @@ const onConfirm = (value: Date | string) => {
   const val = isDate(value) ? dayjs(value).format(formatValueType.value) : (value as string);
   onEffect('onChange', val);
   state.fieldValue = val;
-  emits('update:modelValue', state.fieldValue);
+  setTimeout(() => {
+    emits('update:modelValue', val);
+  });
+
   toggle(false);
 };
 
@@ -146,17 +149,20 @@ const onCancel = () => {
 };
 
 const dealModelValue = (val) => {
+  console.log('val', val);
   // 若为 Date 类型
   if (isDate(val)) {
     state.date = val;
     state.fieldValue = dayjs(val).format(formatValueType.value);
+    console.log('isDate', val);
   } else if (typeof val === 'string') {
     if (val === '9999-12-31') {
-      checked.value = 1;
+      checked.value = true;
     } else {
-      checked.value = 0;
+      checked.value = false;
     }
     state.fieldValue = val;
+    console.log('typeof', val);
     if (isDateType.value) {
       state.date = dayjs(val, formatValueType.value).isValid()
         ? dayjs(val, formatValueType.value).toDate()
@@ -177,7 +183,6 @@ watch(
   },
   {
     immediate: true,
-    deep: true,
   },
 );
 
@@ -187,7 +192,7 @@ watch(
     if (value) {
       onConfirm('9999-12-31');
     } else {
-      onConfirm(state.fieldValue);
+      onConfirm('');
     }
   },
 );
@@ -195,7 +200,7 @@ watch(
 watch(
   () => formState.formData?.[filedAttrs.value.name],
   (val) => {
-    dealModelValue(val);
+    // dealModelValue(val);
   },
   {
     immediate: true,
@@ -204,9 +209,8 @@ watch(
 );
 
 watch(
-  () => formState.formData.certStartDate,
-  (val) => {
-    const { age } = formState.formData;
+  [() => formState.formData.certStartDate, () => formState.formData.age],
+  ([val, age]) => {
     if (val && age) {
       let certEndDate = '9999-12-31';
 
@@ -222,6 +226,7 @@ watch(
   },
   {
     immediate: true,
+    deep: true,
   },
 );
 </script>
@@ -231,6 +236,9 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.wrap {
+  margin-top: 20px;
+}
 .placeholder {
   color: $zaui-aide-text;
 }

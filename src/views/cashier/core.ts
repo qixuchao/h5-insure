@@ -14,11 +14,63 @@ import { getPayUrl, loadPayment, pay } from '@/api/modules/cashier';
 import { SRC_TYPE, ORDER_DETAIL_ROUTE } from './constant';
 import useLoading from '@/hooks/useLoading';
 import router from '@/router/index';
-import { sessionStore } from '@/hooks/useStorage';
+import { sessionStore, cookie } from '@/hooks/useStorage';
+import { queryLoginInfo } from '@/api/lian';
 
 export const isWeiXin = navigator.userAgent.indexOf('MicroMessenger') > -1;
 
 export const getSrcType = () => (isWeiXin ? SRC_TYPE.JS : SRC_TYPE.H5);
+
+export const getOpenId = () => {
+  return sessionStore.get('openId') || cookie.get('openId') || '';
+};
+export const setOpenId = (openId: string) => {
+  sessionStore.set('openId', openId, 100);
+  cookie.set('openId', openId);
+};
+
+/**
+ * 通过code换取openId
+ */
+export const useOpenId = async () => {
+  if (!isWeiXin) return '';
+  let openId = getOpenId();
+  if (openId) return openId;
+  const queryObj = qs.parse(window.location.search.slice(1));
+  const code = queryObj.code || sessionStore.get('wxCode');
+  const { tenantId } = queryObj;
+  if (!code) {
+    console.error('当前页面还没有授权成功');
+    return '';
+  }
+  const res = await queryLoginInfo({
+    tenantId,
+    srcType: 'JS',
+    wxCode: code,
+  });
+  if (res.code === '10000') {
+    openId = res.data?.openId || '123231';
+    setOpenId(openId);
+  }
+  return openId;
+};
+
+/**
+ * 判断当前页面是否已经授权
+ * 判断逻辑： 微信环境下 有code 或有openId 为已授权
+ * @param code 微信授权code
+ * @returns {boolean} 已授权：true、 未授权：false
+ */
+export const useAuth = (code: string) => {
+  const storeOpenId = getOpenId();
+  const wxauthCode = code || sessionStore.get('wxCode');
+
+  if (!isWeiXin || (isWeiXin && (storeOpenId || wxauthCode))) {
+    return true;
+  }
+  return false;
+};
+
 // 获取 wxCode，去调用支付接口
 export const getWxAuthCode = (params: { appId: string; url: string }) => {
   console.log('微信oauth2授权---appId:', params.appId);
@@ -240,6 +292,10 @@ function sendPay(payParam: PayParam | string) {
     params = qs.parse(search) as PayParam;
   } else {
     params = { ...payParam };
+  }
+  if (!Object.keys(params).length) {
+    window.location.href = `${payParam}`;
+    return;
   }
   if (isSignWay(params.payWay)) {
     console.log('走微签约逻辑');

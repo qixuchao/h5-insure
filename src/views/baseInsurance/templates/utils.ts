@@ -5,6 +5,7 @@ import { CERT_TYPE_ENUM } from '@/common/constants';
 import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
 
 import { INSURANCE_PERIOD_ENUMS, PAYMENT_PERIOD_ENUMS, RISK_TYPE_ENUM } from '@/common/constants/trial';
+import { checkSMSCode } from '@/components/RenderForm';
 
 export const orderRiskTotrial = (tenantOrderProductList: any[], insuredCode: string) => {
   const riskList = [];
@@ -284,6 +285,31 @@ export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
     };
   });
   return nextStepParams;
+};
+
+/**
+ *
+ * @param orderDetail 订单模型
+ * @returns Promise
+ */
+export const validateSysCode = async (orderDetail) => {
+  const { holder, insuredList } = orderDetail;
+  const { mobile, verificationCode } = holder;
+  const validateCollection = [];
+  if (verificationCode) {
+    validateCollection.push(await checkSMSCode({ mobile, smsCode: verificationCode }));
+  }
+
+  insuredList.forEach(async (insured) => {
+    const { mobile: mo, verificationCode: vc } = insured;
+    if (vc) {
+      validateCollection.push(await checkSMSCode({ mobile: mo, smsCode: vc }));
+    }
+  });
+
+  const result = await Promise.all(validateCollection);
+  console.log('result: ', result);
+  return result;
 };
 
 export default {};

@@ -3,14 +3,14 @@ import { createRouter, createWebHistory, NavigationGuardNext, Router } from 'vue
 
 import { useTitle } from '@vueuse/core';
 import wx from 'weixin-js-sdk';
+import dayjs from 'dayjs';
 import Storage from '@/utils/storage';
 import { ORIGIN } from '@/utils';
 import routes from '@/router/routes';
 import useAppStore from '@/store/app';
 import { getWxJsSdkSignature } from '@/api/modules/wechat';
-import { isWechat } from '@/utils/index';
+import { isWechat, setPageTitle } from '@/utils/index';
 import { cachePage } from '@/utils/cachePage';
-import SDK from '@/utils/lianSDK';
 import { ROUTE_EXCLUDE } from '@/views/baseInsurance/templates/lianLong/constants';
 
 const router: Router = createRouter({
@@ -48,7 +48,17 @@ const routeExclude = [
   },
 ];
 
+const currentDate = dayjs().format('YYYY-MM-DD');
+
 router.beforeEach(async (to, from, next) => {
+  const { expiryDate, tenantId } = to.query;
+  if (expiryDate && currentDate !== expiryDate) {
+    Dialog.alert({
+      message: '投保链接已过期',
+      showConfirmButton: false,
+    });
+    return;
+  }
   const excludeRoute = ROUTE_EXCLUDE.find((route) => {
     return route.to === to.path && route.from === from.path;
   });
@@ -56,7 +66,7 @@ router.beforeEach(async (to, from, next) => {
     router.push({
       path: '/order',
       query: {
-        tenantId: to.query.tenantId,
+        tenantId,
         laShowNavigationBar: 1,
       },
     });
@@ -79,16 +89,8 @@ router.beforeEach(async (to, from, next) => {
     }
   }
   console.log(window.location.href, `${ORIGIN}${to.path}`);
-  // set title 给App或浏览器标题栏显示
-  useTitle(to.meta?.title as string); // || (VITE_TITLE as string));
-
-  SDK(
-    'setNavigationBarTitle',
-    {
-      title: to.meta?.title || to.query?.title,
-    },
-    () => {},
-  );
+  // set title 给App或浏览器标题栏显示 // || (VITE_TITLE as string));
+  setPageTitle((to.meta?.title || to.query?.title) as string);
 
   if (to.path === '/login' || to.query.flag === 'N') {
     next();
@@ -107,17 +109,18 @@ router.beforeEach(async (to, from, next) => {
 
 router.beforeResolve(async (to, from) => {
   const IS_WECHAT = isWechat();
+  const { wxDebugger = false, ticket = '' } = to.query;
   console.log('IS_WECHAT', IS_WECHAT);
   if (IS_WECHAT && to.meta.requireWxJs) {
     const tenantId = to.query?.tenantId as string;
     console.log('在微信环境，开始鉴权, tenantId:', tenantId, 'from:', from);
-    const res = await getWxJsSdkSignature({ url: encodeURIComponent(realAuthUrl), tenantId });
+    const res = await getWxJsSdkSignature({ pageUrl: realAuthUrl, tenantId, ticket: `${ticket}` });
     const {
       data: { appId, timestamp, nonceStr, signature },
     } = res;
     sessionStorage.appId = appId;
     wx.config({
-      debug: false,
+      debug: wxDebugger as boolean,
       appId,
       timestamp,
       nonceStr,

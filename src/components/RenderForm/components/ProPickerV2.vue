@@ -2,6 +2,7 @@
   <ProFormItem
     :model-value="state.fieldValue"
     :class="`${filedAttrs.visible === false ? 'com-van-field--hidden' : ''}`"
+    :name="name"
     v-bind="filedAttrs"
     :field-value-view="fieldValueView"
     :is-view="isView"
@@ -18,6 +19,7 @@
       :columns="columns"
       :default-index="defaultIndex"
       v-bind="attrs"
+      :name="name"
       @cancel="handleCancel"
       @confirm="handleConfirm"
     >
@@ -100,6 +102,10 @@ const props = defineProps({
   customFieldName: {
     type: Object,
     default: () => ({ text: 'label', value: 'value', children: 'children' }),
+  },
+  name: {
+    type: String,
+    default: '',
   },
 });
 
@@ -228,10 +234,10 @@ watch(
 );
 
 watch(
-  columns,
+  [columns, props.modelValue],
   (val = []) => {
     // TODO: children
-    if (isNotEmptyArray(val)) {
+    if (isNotEmptyArray(val?.[0])) {
       const [{ disabled, value }] = columns.value;
       // 默认选中第一项（是否可选）
       if (props.isDefaultSelected && !disabled && (isNil(props.modelValue) || props.modelValue === '')) {
@@ -270,6 +276,7 @@ export default {
       width: 100%;
     }
     .placeholder {
+      margin-top: 16px;
       color: var(--van-field-placeholder-text-color);
     }
   }

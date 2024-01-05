@@ -14,8 +14,8 @@
   </ProFormItem>
   <ProPopup v-model:show="show" :height="40" :closeable="false">
     <van-datetime-picker
+      v-model="state.date"
       :type="type"
-      :model-value="state.date"
       v-bind="{ ...extraAttrs, ...attrs }"
       @confirm="onConfirm"
       @cancel="onCancel"
@@ -82,10 +82,10 @@ const props = defineProps({
 const [show, toggle] = useToggle(false);
 
 // 是否为完整时间类型
-const isDateType = computed(() => !['time', 'month-day'].includes(props.type));
+const isDateType = ref();
 
 // 初始值
-const defaultValue = computed(() => (isDateType.value ? new Date() : null));
+const defaultValue = ref();
 
 const state = reactive({
   fieldValue: '',
@@ -152,7 +152,7 @@ const dealModelValue = (val) => {
       state.date = val as string;
     }
   } else {
-    state.date = val;
+    state.date = val || defaultValue.value;
     state.fieldValue = val;
   }
 };
@@ -171,12 +171,22 @@ watch(
 watch(
   () => formState.formData?.[filedAttrs.value.name],
   (val) => {
-    dealModelValue(val);
+    // dealModelValue(val);
   },
   {
     immediate: true,
     deep: true,
   },
+);
+watch(
+  () => props.type,
+  () => {
+    isDateType.value = !['time', 'month-day'].includes(props.type);
+    defaultValue.value = isDateType.value ? new Date() : null;
+    console.log('type', props.type, isDateType.value, defaultValue.value);
+    state.date = defaultValue.value;
+  },
+  { immediate: true },
 );
 </script>
 <script lang="ts">

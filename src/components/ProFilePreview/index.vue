@@ -18,9 +18,12 @@
     <!-- <QuestionPreview v-else-if="isQuestion" :current-page-info="props.content" /> -->
     <Questionnaire
       v-else-if="isQuestion"
+      ref="questionRef"
       :is-view="isView"
       :data="props.content"
       :params="props.params"
+      :submit="submit"
+      :mark-requested="markRequested"
       @success="props.successCallback"
     >
       <slot name="footer"></slot>
@@ -67,6 +70,10 @@ const props = defineProps({
     type: Function,
     default: () => {},
   },
+  markRequested: {
+    type: Boolean,
+    default: true,
+  },
 });
 const isRichText = computed(() => {
   return props.type === 'richText';
@@ -90,6 +97,8 @@ const isLink = computed(() => {
 });
 
 const id = nanoid();
+const emits = defineEmits(['success']);
+const questionRef = ref();
 
 const show = ref(false);
 
@@ -108,6 +117,9 @@ const loadPdfH5Viewer = async () => {
       if (status === 'error') {
         Toast('文件损坏，无法打开！');
       }
+    });
+    pdfh5.value.on('success', (status: string, msg: string, time: number) => {
+      emits('load', props.type);
     });
   } catch (error) {
     //
@@ -146,6 +158,12 @@ watch(
     immediate: true,
   },
 );
+
+defineExpose({
+  submitQuestion: () => {
+    questionRef.value?.submitForm();
+  },
+});
 </script>
 
 <style scoped lang="scss">
@@ -189,7 +207,7 @@ watch(
     height: 100%;
 
     :deep(.viewerContainer) {
-      height: 100vh;
+      // height: 100vh;
     }
   }
   .pic-wrap {

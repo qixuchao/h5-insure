@@ -11,10 +11,11 @@
       <div class="price">
         <div class="label">首期总保费</div>
         <span v-if="loadingText">{{ loadingText }}</span>
-        <template v-else>
-          <span> {{ transformToMoney(productPremium) }}</span>
+        <template v-else-if="productPremium">
+          <span> {{ transformToMoney(productPremium, undefined, ' ') }}</span>
           <span>{{ premiumUnit }} </span>
         </template>
+        <span v-else>{{ premiumUnit }}</span>
       </div>
       <ProShadowButton :="$attrs" :shadow="false" class="right" @click="emits('handleClick')">
         <slot>立即投保</slot>

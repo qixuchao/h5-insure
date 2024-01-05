@@ -3,11 +3,12 @@
     v-if="hasHolderSchema && isShowHolder"
     ref="holderFormRef"
     title="投保人信息"
-    class="personal-info-card"
+    class="personal-info-card holder"
     :model="state.holder.personVO"
     :schema="state.holder.schema"
     :config="state.holder.config"
     :is-view="isView"
+    :="$attrs"
     :extra-provision="{
       objectType: ATTACHMENT_OBJECT_TYPE_ENUM.HOLDER,
       objectId: state.holder?.personVO?.id,
@@ -31,8 +32,11 @@
       v-model:guardian="insuredItem.guardian"
       :title="`${state.insured.length > 1 ? `被保人${index + 1}` : '被保人信息'}`"
       :holder-person-v-o="state.holder.personVO"
-      :="insuredItem"
-      :config="{ ...insuredItem.config, relationToHolder: { isDefaultSelected: true } }"
+      :="{
+        ...insuredItem,
+        ...$attrs,
+        config: { ...insuredItem.config, relationToHolder: { isDefaultSelected: true } },
+      }"
       :beneficiary-schema="state.beneficiarySchema"
       :guardian-schema="state.guardianSchema"
       :is-view="isView"
@@ -269,7 +273,7 @@ const chooseCustomers = (type: string, index, benifitIndex, relation?: string) =
   }
   const { selectedType, customerId, selected, ...others } = route.query; // 去掉下级页面的参数
   console.log('选择的关系relation:', relation);
-  pageJump('customerList', { ...others, selectedType: type, relation });
+  pageJump('customerList', { ...others, path: route.path, selectedType: type, relation });
 };
 
 // 当前模块要素code集合
@@ -445,17 +449,19 @@ const canTrail = () => {
 // 监听投保人证件类型
 watch(
   () => state.holder.personVO?.certType,
-  debounce((val, oldVal) => {
+  (val, oldVal) => {
     if (`${val}` === `${oldVal}`) {
-      return false;
+      return;
     }
     colorConsole(`投保人信息变动了====`);
     // 证件类型是否只有身份证
     const [isOnlyCertFlag, tempConfig] = getCertConfig(state.holder.schema, { certType: val });
 
     merge(state.holder.config, tempConfig);
-    return false;
-  }, 0),
+  },
+  {
+    immediate: true,
+  },
 );
 
 // 监听投保人国籍
@@ -701,7 +707,9 @@ watch(
         res[index] = {
           ...cloneDeep(initInsuredTempData),
           personVO,
-          config,
+          config: {
+            ...config,
+          },
           guardian,
           beneficiaryList,
           nanoid: nanoid(),
@@ -711,7 +719,9 @@ watch(
         merge(res[index], {
           ...cloneDeep(initInsuredTempData),
           personVO,
-          config,
+          config: {
+            ...config,
+          },
           guardian,
           beneficiaryList,
           // nanoid: nanoid(),

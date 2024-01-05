@@ -14,7 +14,8 @@ interface QueryData {
   [key: string]: string;
 }
 
-export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
+export default (orderItem: Partial<OrderDetail>, query?: QueryData): Partial<OrderDetail> => {
+  const route = useRoute();
   const {
     tenantId,
     agencyCode,
@@ -26,7 +27,7 @@ export default (orderItem?: Partial<OrderDetail>): Partial<OrderDetail> => {
     source,
     templateId,
     iseeBizNo,
-  } = useRoute().query as QueryData;
+  } = (route?.query || query) as QueryData;
 
   const { agentCode, branchType, name, manageCom } = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`) || {};
 

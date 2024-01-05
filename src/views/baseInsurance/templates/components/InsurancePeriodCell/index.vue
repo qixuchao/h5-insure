@@ -240,7 +240,7 @@ watch(
     if (!state.formInfo.coveragePeriod) return;
     // 将保障期间拆分为 值和单位
     const [unit, num] = state.formInfo.coveragePeriod.split('_');
-    if (!state.formInfo.insuranceStartDate) {
+    if (true || !state.formInfo.insuranceStartDate) {
       // 如果是指定日期生效，需要判断 maxInsuranceDay 字段， 可拆分为两个值【start, end】，
       // 若[start, end]一致，则默认保障日期开始日期为当前日期 + start, 同时展示标签为保障期限，不可自主选择日期
       // 若[start, end]不一致，则保障开始日期默认为当前日期 + start，同时展示为生效日期，可通过日期选择框，根据计算出的最大、最小日期，重新选择保障开始日期
@@ -284,13 +284,13 @@ watch(
       }
     } else {
       // 当保障期间为保终身，保质某年龄等情况。 暂时无用
-      let birth = state.formInfo.tenantOrderInsuredList[0].birthday;
+      let birth = state.formInfo.insuredList?.[0]?.birthday;
       if (
-        state.formInfo.tenantOrderInsuredList[0].certType === CERT_TYPE_ENUM.CERT &&
-        state.formInfo.tenantOrderInsuredList[0].certNo &&
-        validateIdCardNo(state.formInfo.tenantOrderInsuredList[0].certNo)
+        state.formInfo.insuredList[0].certType === CERT_TYPE_ENUM.CERT &&
+        state.formInfo.insuredList[0].certNo &&
+        validateIdCardNo(state.formInfo.insuredList[0].certNo)
       ) {
-        birth = getBirth(state.formInfo.tenantOrderInsuredList[0].certNo);
+        birth = getBirth(state.formInfo.insuredList[0].certNo);
       }
       const tempBirthDate = `${computedSubtractDate(birth, 1, 'day')} 00:00:00`;
       if (num === 'single') {
@@ -354,7 +354,7 @@ defineExpose({});
 
   .period-custom-cell {
     width: 100%;
-    padding: 0px 40px 32px;
+    padding: 0px 30px 32px;
   }
 
   .period-check-btn-cell {

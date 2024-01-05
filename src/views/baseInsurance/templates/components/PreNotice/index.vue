@@ -248,6 +248,11 @@ onMounted(() => {
 </style>
 
 <style lang="scss">
+.pre-notice-wrap {
+  pre {
+    white-space: break-spaces;
+  }
+}
 .review-pdf {
   height: 100%;
   .com-file-preview {

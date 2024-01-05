@@ -19,6 +19,7 @@
         >
           《{{ item.attachmentName }}》
         </span>
+        <span>{{ suffixText }}</span>
       </div>
     </div>
   </div>
@@ -29,6 +30,7 @@ import { withDefaults } from 'vue';
 
 interface Props {
   preText: string;
+  suffixText: string;
   hasBgColor: boolean;
   attachmentList: any[];
   isShowRadio?: boolean;
@@ -37,6 +39,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   preText: '',
+  suffixText: '',
   hasBgColor: true,
   attachmentList: () => [],
   modelValue: false,
@@ -66,7 +69,10 @@ const onChange = (e) => {
 
   &.has-bg {
   }
-
+  .van-checkbox {
+    width: 80px;
+    padding-top: 10px;
+  }
   .van-checkbox__icon {
     width: 28px;
     height: 28px;
@@ -77,9 +83,10 @@ const onChange = (e) => {
       &::before {
         position: absolute;
         margin: auto;
-        top: 2px;
+        top: -4px;
         bottom: 0;
         left: 0;
+        font-size: 24px;
         right: 0;
       }
     }
@@ -99,7 +106,7 @@ const onChange = (e) => {
 
   .attachment-wrap {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
   }
 }
 </style>

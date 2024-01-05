@@ -10,13 +10,17 @@ import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
 
 const { VITE_BASE } = import.meta.env;
 
-export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: string) => void, route?: any) => {
+export const nextStepOperate = async (
+  params: any,
+  cb?: (data: any, pageAction: string, msg?: string) => void,
+  route?: any,
+) => {
   const currentParams = params;
   // 判断订单是否生成,增加订单详情的跳转连接
-  const { extInfo, orderNo, tenantOrderInsuredList, tenantId } = currentParams || {};
+  const { extInfo, orderNo, insuredList, tenantId } = currentParams || {};
   const { iseeBizNo, templateId } = extInfo || {};
   if (orderNo) {
-    const { productCode } = tenantOrderInsuredList?.[0]?.tenantOrderProductList?.[0] || {};
+    const { productCode } = insuredList?.[0]?.productList?.[0] || {};
     let redirectUrl = `${`${window.location.origin}${VITE_BASE}baseInsurance/orderDetail`}?orderNo=${orderNo}&tenantId=${tenantId}&ISEE_BIZ=${iseeBizNo}&productCode=${productCode}`;
     if (templateId > 200) {
       redirectUrl = `${`${window.location.origin}${VITE_BASE}baseInsurance/long/result`}?orderNo=${orderNo}&templateId=${templateId}&tenantId=${tenantId}&ISEE_BIZ=${iseeBizNo}&productCode=${productCode}`;
@@ -37,14 +41,14 @@ export const nextStepOperate = async (params: any, cb?: (data: any, pageAction: 
   const { code, data } = await nextStep(currentParams);
   if (code === '10000') {
     const { pageAction, message, data: resData } = data.pageAction || {};
-    cb?.(resData, pageAction);
+    cb?.(resData, pageAction, message);
     // 接口报错了
     if (pageAction === PAGE_ACTION_TYPE_ENUM.ALERT) {
       Toast(message);
     }
     // 支付跳转
     if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_URL) {
-      sendPay(resData?.paymentUrl);
+      sendPay(resData?.payUrl);
     }
     // 去支付待支付的订单
     if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_ALERT) {

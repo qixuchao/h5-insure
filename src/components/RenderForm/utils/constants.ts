@@ -36,13 +36,15 @@ export const sendSMSCode = async ({ mobile }, callback) => {
   }
 };
 
-export const checkSMSCode = async ({ mobile, smsCode }, callback) => {
+export const checkSMSCode = async ({ mobile, smsCode }, callback?) => {
   const { code, data } = await checkCode(mobile, smsCode);
 
   if (code === '10000') {
     Toast('短信验证成功');
     callback?.();
+    return true;
   }
+  return false;
 };
 
 /** 组件枚举 */
@@ -111,6 +113,10 @@ export const INPUT_MAX_LENGTH = {
    * 手机号长度 11
    */
   ELEVEN: 11,
+  /**
+   * 代理人编号 15
+   */
+  FIFTEEN: 15,
   /**
    * 证件号长度 18
    */
@@ -190,6 +196,7 @@ export const RULE_TYPE_ENUM = {
   TEMPORARY_CARD: 'temporaryCard',
   /** 比例 */
   BENEFIT_RATE: 'benefitRate',
+  NUMBER: 'number',
 };
 
 /** 规则配置 */
@@ -217,12 +224,13 @@ export const RULE_CONFIG_MAP = {
     maxlength: INPUT_MAX_LENGTH.THREE,
   },
   /**
-   * 身高/体重 允许一位小数
+   * 身高/体重 允许两位小数
    */
   HEIGHT_WEIGHT: {
     type: 'number',
-    precision: 1,
+    precision: 2,
     maxlength: INPUT_MAX_LENGTH.FIVE,
+    ruleType: RULE_TYPE_ENUM.NUMBER,
   },
   /**
    * 收入 允许2位小数，无小数位默认补全【.00】 单位: 万元
@@ -231,7 +239,7 @@ export const RULE_CONFIG_MAP = {
     type: 'number',
     precision: 2,
     unit: '万元',
-    isPrecisionCompleted: true,
+    // isPrecisionCompleted: true,
   },
   /**
    * 邮编/验证码 数字6位，不支持小数
@@ -286,6 +294,13 @@ export const RULE_CONFIG_MAP = {
     type: 'digit',
     maxlength: INPUT_MAX_LENGTH.THREE,
     ruleType: RULE_TYPE_ENUM.BENEFIT_RATE,
+  },
+  /**
+   * 代理人code
+   */
+  AGENT_CODE: {
+    type: 'digit',
+    maxlength: INPUT_MAX_LENGTH.FIFTEEN,
   },
 };
 
@@ -562,6 +577,11 @@ export const GLOBAL_CONFIG_MAP = {
     minDate: new Date(),
     maxDate: dayjs().add(100, 'year').toDate(),
   },
+  certStartDate: {
+    maxDate: new Date(),
+    minDate: dayjs('1900-01-01').toDate(),
+    relatedName: 'certEndDate',
+  },
   companyName: {
     maxlength: INPUT_MAX_LENGTH.FIFTY,
   },
@@ -578,6 +598,10 @@ export const GLOBAL_CONFIG_MAP = {
   benefitRate: {
     ...RULE_CONFIG_MAP.RATE,
     unit: '%',
+  },
+  /** 代理人code */
+  agentCode: {
+    ...RULE_CONFIG_MAP.AGENT_CODE,
   },
 };
 
@@ -603,6 +627,8 @@ export const MODULE_TYPE_MAP = {
   7: 'other',
   /** 监护人 */
   8: 'guardian',
+  /** 代理人 */
+  9: 'agent',
 };
 
 // pro from

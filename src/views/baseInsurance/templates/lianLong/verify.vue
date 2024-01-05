@@ -232,7 +232,7 @@ const isShareSing = computed(() => (type) => signPartInfo.value[type].isShareSig
 
 // 分享到微信
 const handleShare = (type) => {
-  const { holder, insured } = orderDetail.value;
+  const { holder, insuredList } = orderDetail.value;
   let userInfo = {
     name: holder.name,
     gender: `${SEX_LIMIT_MAP[holder.gender]}士`,
@@ -240,8 +240,8 @@ const handleShare = (type) => {
 
   if (type === 'insured') {
     userInfo = {
-      name: insured?.[0].name,
-      gender: `${SEX_LIMIT_MAP[insured?.[0]?.gender]}士`,
+      name: insuredList?.[0].name,
+      gender: `${SEX_LIMIT_MAP[insuredList?.[0]?.gender]}士`,
     };
   }
 

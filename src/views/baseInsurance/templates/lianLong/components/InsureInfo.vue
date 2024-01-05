@@ -20,7 +20,7 @@
                   <ProCell title="交费方式" :content="PAYMENT_FREQUENCY_MAP[riskInfo.paymentFrequency]"> </ProCell>
                 </template>
               </template>
-
+              <slot></slot>
               <!-- <ProCell
             v-if="riskInfo.annuityDrawDateDesc"
             title="年金领取时间"

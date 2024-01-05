@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 
-const filename = '../../skeleton/content.json';
+const filename = './skeleton/content.json';
 
 async function saveSkeletonContent2(name, content, pathname) {
   await fs.ensureFile(filename);

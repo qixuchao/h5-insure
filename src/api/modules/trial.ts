@@ -29,8 +29,8 @@ export const getPayUrl = (data = {}) =>
   request<{ type: number; paymentUrl: string }>({ url: '/api/app/insure/insurance/getPayUrl', method: 'POST', data });
 
 // 获取订单详情
-export const getTenantOrderDetail = (data = {}) =>
-  request<any>({ url: '/api/app/insure/insurance/getTenantOrderDetail', method: 'POST', data }, { loading: true });
+export const getTenantOrderDetail = (data = {}, config = { loading: true }) =>
+  request<any>({ url: '/api/app/insure/insurance/getTenantOrderDetail', method: 'POST', data }, config);
 
 // 获取订单详情
 export const getOrderDetailByCondition = (data = {}) =>

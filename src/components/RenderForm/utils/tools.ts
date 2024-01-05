@@ -283,6 +283,10 @@ export const transformToSchema = (arr: FieldConfItem[], trialFactorCodesArr: str
         extraData.visible = !isBirthdayExisted;
       }
 
+      if (item.code === 'annuallyComeDesc') {
+        extraData.visible = false;
+      }
+
       const tempItem = {
         // ...item,
         ...rest,
@@ -326,7 +330,7 @@ interface InsuredFactorSchema extends ModuleResult {
   beneficiaryList: ModuleResult[];
 }
 
-type ResultEnum = 'holder' | 'beneficiary' | 'payInfo' | 'signInfo' | 'guardian';
+type ResultEnum = 'holder' | 'beneficiary' | 'payInfo' | 'signInfo' | 'guardian' | 'agent';
 
 export interface PersonalInfoConf {
   hasTrialFactorCodes?: boolean;
@@ -680,7 +684,7 @@ export const getCertConfig = (schema, personVO) => {
     [x: string]: any;
   } = {};
   const { relationToHolder, certType } = personVO || {};
-  const isChild = ['6', '7'].includes(`${relationToHolder}`);
+  const isChild = ['4', '5'].includes(`${relationToHolder}`);
   // 证件类型
   const certTypeSchema = schema?.find((schemaItem) => schemaItem.name === 'certType');
   const isOnlyCertFlag = isOnlyCert(certTypeSchema || {});
@@ -745,7 +749,7 @@ export const relatedConfigMap = {
       });
       // 证件类型选择证件号/户口本时，隐藏性别和出生日期
       nextTick(() => {
-        merge(formState.config, getCertTypeConfig(formState.formData.certType, formState.schema));
+        merge(formState.config, getCertTypeConfig(val || formState.formData.certType, formState.schema));
         Object.assign(formState.formData, { certImage: [] });
       });
     },
@@ -782,7 +786,7 @@ export const relatedConfigMap = {
     onChangeEffect: (val, formState) => {
       if (val === '9999-12-31') {
         Object.assign(formState.formData, {
-          certEndType: 1,
+          certEndType: 2, // 长期
         });
       }
     },

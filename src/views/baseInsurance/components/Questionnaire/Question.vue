@@ -30,33 +30,35 @@
           <van-radio-group v-model="answerVO.answer">
             <div v-for="(option, index) in data.optionList" :key="index" class="option-row">
               <van-radio :name="`${option.code}`">{{ option.value }}</van-radio>
-              <div v-if="enumEqual(answerVO.answer, option.code)" class="child">
-                <template v-for="(child, ind) in option.detailList" :key="child.id">
-                  <Question
-                    ref="childRef"
-                    v-model="answerVO.childAnswerList[ind].answerVO"
-                    :name="`${props.name}.childAnswerList.${ind}.answerVO`"
-                    :data="child"
-                    :is-view="isView"
-                  />
-                </template>
-              </div>
-              <div v-if="enumEqual(option.optionType, 2) && enumEqual(answerVO.answer, option.code)">
-                <van-field
-                  v-model="answerVO.questionRemark"
-                  :name="`${props.name}.questionRemark`"
-                  rows="2"
-                  autosize
-                  label=""
-                  type="textarea"
-                  maxlength="100"
-                  placeholder="请输入告知说明"
-                  :show-word-limit="!isView"
-                  :rules="[{ required: true, message: '请输入告知说明' }]"
-                />
-              </div>
             </div>
           </van-radio-group>
+          <template v-for="(option, index) in data.optionList" :key="index">
+            <div v-if="enumEqual(answerVO.answer, option.code)" class="child">
+              <template v-for="(child, ind) in option.detailList" :key="child.id">
+                <Question
+                  ref="childRef"
+                  v-model="answerVO.childAnswerList[ind].answerVO"
+                  :name="`${props.name}.childAnswerList.${ind}.answerVO`"
+                  :data="child"
+                  :is-view="isView"
+                />
+              </template>
+            </div>
+            <div v-if="enumEqual(option.optionType, 2) && enumEqual(answerVO.answer, option.code)">
+              <van-field
+                v-model="answerVO.questionRemark"
+                :name="`${props.name}.questionRemark`"
+                rows="2"
+                autosize
+                label=""
+                type="textarea"
+                maxlength="100"
+                placeholder="请输入告知说明"
+                :show-word-limit="!isView"
+                :rules="[{ required: markRequested, message: '请输入告知说明' }]"
+              />
+            </div>
+          </template>
         </template>
       </van-field>
       <!-- 多选题 【多选可以有告知说明，但是没有关联题目】 -->
@@ -81,7 +83,7 @@
                   :maxlength="100"
                   placeholder="请输入告知说明"
                   :show-word-limit="!isView"
-                  :rules="[{ required: true, message: '请输入告知说明' }]"
+                  :rules="[{ required: markRequested, message: '请输入告知说明' }]"
                 />
               </div>
             </div>
@@ -143,6 +145,7 @@ interface Props {
   isView?: boolean;
   name: string;
   modelValue: AnswerVO;
+  markRequested: boolean;
 }
 
 const props = defineProps<Props>();
@@ -266,6 +269,9 @@ defineExpose({
     .error {
       color: red;
     }
+  }
+  :deep(.van-field__control--custom) {
+    display: block;
   }
 }
 :deep(.van-radio-group) {

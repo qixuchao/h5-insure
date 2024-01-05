@@ -21,6 +21,10 @@ import '@/styles/zaToken.scss';
 import '@/styles/index.scss';
 
 const start = async () => {
+  // import('../skeleton/client/index').then(({ initInject }) => {
+  //   initInject();
+  // });
+
   await initNative();
   if (isTestEnv || isDebugger) {
     // eslint-disable-next-line new-cap
