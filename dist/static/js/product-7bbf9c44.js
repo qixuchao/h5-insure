@@ -1,0 +1,1 @@
+const l={SELF:"1",MATE:"2",CHILD:"3",PARENT:"4",OTHER:"8"},a=[{label:"本人",value:l.SELF},{label:"配偶",value:l.MATE},{label:"子女",value:l.CHILD},{label:"父母",value:l.PARENT},{label:"其他",value:l.OTHER}],e={BANG_DING:1,HU_CHI:2,YI_LAI:3};export{e as L,a as R,l as a};
