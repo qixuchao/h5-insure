@@ -413,6 +413,7 @@ const trialData2Order = (
           premium: 0,
           productCode: currentProductDetail?.productCode,
           productName: currentProductDetail?.productName,
+          productClass: currentProductDetail?.productClass,
           planCode: currentPlanObj.value?.planCode,
           riskList: transformData(transformDataReq),
         },
