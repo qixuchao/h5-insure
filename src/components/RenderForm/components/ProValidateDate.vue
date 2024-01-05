@@ -192,7 +192,7 @@ watch(
     if (value) {
       onConfirm('9999-12-31');
     } else {
-      onConfirm(state.fieldValue);
+      onConfirm('');
     }
   },
 );
