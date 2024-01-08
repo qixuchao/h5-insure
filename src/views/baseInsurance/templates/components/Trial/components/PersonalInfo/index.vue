@@ -432,7 +432,8 @@ const diffDataChange = (keys, val, oldVal = {}) => {
 };
 
 // 试算数据是否变动
-const isTrialDataChange = (val, oldVal) => {
+const isTrialDataChange = (val, oVal) => {
+  const oldVal = cloneDeep(oVal);
   const flag1 = diffDataChange(state.holder.trialFactorCodes, val?.[0], oldVal?.[0]);
   const flag2 = state.insured.some((insuredItem, index) => {
     const { trialFactorCodes, personVO } = insuredItem;
@@ -554,8 +555,10 @@ watch(
         console.log('trialEnd');
         // 只有试算因子数据变动才调用试算
         // 试算时投被保人分开不需要多次试算
-        state.trialValidated = !props.isOnlyHolder && !!state.insured?.[0].trialFactorCodes?.length;
-
+        state.trialValidated =
+          !props.isOnlyHolder &&
+          !!state.insured?.[0].trialFactorCodes?.length &&
+          props.modelValue.insuredList?.[0]?.productList?.[0]?.premium;
         if (!props.isOnlyHolder && trialDataChanged) {
           state.trialValidated = true;
           emit('trailChange', result);

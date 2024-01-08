@@ -791,6 +791,11 @@ export const relatedConfigMap = {
       }
     },
   },
+  familyZipCode: {
+    onChangeEffect: (val, formState) => {
+      Object.assign(formState.formData, val);
+    },
+  },
   annuallyComeDesc: {
     onChangeEffect: (val, formState) => {
       if (val?.length && val.includes('7')) {

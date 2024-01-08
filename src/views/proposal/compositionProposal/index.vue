@@ -386,6 +386,8 @@ import useTheme from '@/hooks/useTheme';
 import { PAGE_ROUTE_ENUMS } from '@/views/baseInsurance/templates/lianLong/constants.ts';
 import LiabilityByRiskForPdf from './components/LiabilityByRiskForPdf.vue';
 
+const BASE_PREFIX = import.meta.env.VITE_BASE;
+
 const themeVars = useTheme();
 
 const isLiabilityByRisk = ref(true);
@@ -623,7 +625,7 @@ const getData = async () => {
       proposalName.value = data.proposalName;
       isLoading.value = false;
       tenantId.value = data?.tenantId;
-      shareLink = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
+      shareLink = `${ORIGIN}${BASE_PREFIX}proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
       setShareConfig(shareLink);
     }
   } catch (e) {
@@ -820,7 +822,7 @@ const selectTheme = async (selectedThemeId: number) => {
     if (operateType.value === 'pdf') {
       getPdf();
     } else {
-      shareLink = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
+      shareLink = `${ORIGIN}${BASE_PREFIX}proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
       setShareConfig(shareLink);
       setTimeout(shareButtonRef.value.handleShare, 100);
     }
@@ -831,7 +833,7 @@ const selectTheme = async (selectedThemeId: number) => {
       if (operateType.value === 'pdf') {
         getPdf(data);
       } else {
-        shareLink = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}&themeId=${data}`;
+        shareLink = `${ORIGIN}${BASE_PREFIX}proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}&themeId=${data}`;
         setShareConfig(shareLink);
         setTimeout(shareButtonRef.value.handleShare, 100);
       }
