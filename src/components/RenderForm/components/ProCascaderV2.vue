@@ -36,7 +36,7 @@
         <slot :name="slotName" v-bind="slotParams || {}" />
       </template>
     </component>
-    <ProEmpty v-else title="暂无该职业"></ProEmpty>
+    <ProEmpty v-else title="暂无数据"></ProEmpty>
   </ProPopup>
 </template>
 

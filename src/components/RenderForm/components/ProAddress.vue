@@ -13,6 +13,7 @@
     :model-value="cascaderModelValue"
     :is-view="isView"
     :node-code="nodeCode"
+    closeable
     :level="addressConfig.level"
     @update:full-value="updateFullValue"
   />
@@ -22,10 +23,10 @@
     :is-view="isView"
     type="textarea"
     placeholder="地址详情必须包含号/室/队/院/房/楼/栋/幢/座组，详细地址必须包含至少一位数字"
-    :label="`${$attrs.label}详细地址`"
-    :required="$attrs.required"
+    label="详细地址"
+    :required="!!$attrs.required"
     :rules="[
-      { required: $attrs.required, message: '请输入详细地址' },
+      { required: !!$attrs.required, message: '请输入详细地址' },
       {
         validator,
         trigger: 'onBlur',

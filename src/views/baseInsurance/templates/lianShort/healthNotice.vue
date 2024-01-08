@@ -53,8 +53,8 @@ import {
   QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE,
   NOTICE_OBJECT_MAP,
 } from '@/common/constants/notice';
-import { NOTICE_CONTENT } from '../lianLong/data.ts';
-import { PAGE_ROUTE_ENUMS } from './constants.ts';
+import { NOTICE_CONTENT } from '../lianLong/data';
+import { PAGE_ROUTE_ENUMS } from './constants';
 import { EVENT_BUTTON_CODE, LIAN_STORAGE_KEY, RISK_PERIOD_TYPE_ENUM, SHARE_IMAGE_LINK } from '@/common/constants/lian';
 import useThread from '@/hooks/useThread';
 

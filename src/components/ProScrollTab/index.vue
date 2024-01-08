@@ -17,7 +17,7 @@
             :key="index"
             :class="['tab-title', { active: active === index }]"
             :title="item.title"
-            @click="handleClickTab(item.slotName)"
+            @click="handleClickTab(item.slotName, index)"
           >
             {{ item.title }}
           </a>
@@ -49,10 +49,11 @@ const active = ref<number>(0);
 const scrollHeight = ref<Array<number>>([]);
 const tabListHeight = ref<number>(0);
 
-const handleClickTab = (id: string) => {
+const handleClickTab = (id: string, index?: number) => {
   const toScroll = document.getElementById(id)?.offsetTop as number;
   document.documentElement.scrollTop = toScroll - tabListHeight.value;
   document.body.scrollTop = toScroll - tabListHeight.value;
+  active.value = index;
 };
 
 const getScrollHeight = () => {

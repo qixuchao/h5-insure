@@ -142,7 +142,7 @@
               <!-- <div class="risk-title">风险提示</div> -->
               <div class="lia-header">
                 <div class="info-detail">
-                  <span class="p1">风险提示</span>
+                  <span class="p1">温馨提示</span>
                 </div>
               </div>
               <!-- 富文本 -->
@@ -223,7 +223,7 @@
             <span class="agent-name">{{ userInfo?.name || '' }}</span>
             <!-- 利安没有职级 -->
             <!-- 公司名称 -->
-            <span class="agent-grade">{{ userInfo?.agentGradeName }}</span>
+            <span v-if="userInfo?.agentGradeName" class="agent-grade">{{ userInfo?.agentGradeName }}</span>
           </div>
           <span class="agent-company">{{ userInfo?.manageComName }}</span>
           <span class="agent-num">工 号 {{ userInfo?.agentCode }} </span>
