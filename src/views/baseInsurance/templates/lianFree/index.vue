@@ -518,13 +518,6 @@ const onSaveOrder = async () => {
       currentOrderDetail.extInfo.buttonCode = EVENT_BUTTON_CODE.free.underWriteAndIssue;
       Promise.all([agentRef.value?.validate(), personalInfoRef.value.validate()])
         .then(async (res) => {
-          const result = await validateSysCode(currentOrderDetail);
-
-          if (!result) {
-            Toast('验证码错误');
-            return;
-          }
-
           if (!compareAgentCode()) {
             Dialog.alert({
               message: '代理人工号有误，请核对后重新录入',
