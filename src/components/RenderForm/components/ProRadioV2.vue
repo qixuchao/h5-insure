@@ -26,9 +26,9 @@
         </van-radio-group>
       </template>
     </template>
-    <template #label>
+    <!-- <template #label>
       <slot name="label"> </slot>
-    </template>
+    </template> -->
   </ProFieldV2>
 </template>
 
