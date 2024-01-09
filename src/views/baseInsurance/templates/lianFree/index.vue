@@ -485,6 +485,7 @@ const onSaveOrder = async () => {
     productCode,
     productId: '',
     productName: state.insureProductDetail?.productName || '',
+    productClass: state.insureProductDetail?.productClass || '',
     tenantId,
   };
   const currentOrderDetail = trialData2Order(productInfo, {}, Object.assign(orderDetail.value, state.userData));
