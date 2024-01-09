@@ -32,7 +32,7 @@
         </van-radio-group>
       </template>
     </template>
-    <template v-if="name === 'selfInsuranceItemFlag'" #label>
+    <!-- <template v-if="name === 'policyReceiveType'" #label>
       <slot name="label">
         <span>{{ filedAttrs.label }}</span>
         <van-popover v-model:show="visible" trigger="click" placement="top-start" theme="dark">
@@ -42,8 +42,8 @@
           <template #reference> <van-icon name="question" /> </template>
         </van-popover>
       </slot>
-    </template>
-    <template v-else-if="name === 'policyReceiveType'" #label>
+    </template> -->
+    <template v-if="name === 'selfInsuranceItemFlag'" #label>
       <slot name="label">
         <span>{{ filedAttrs.label }}</span>
         <van-popover v-model:show="visible" trigger="click" placement="top-start" theme="dark">
@@ -55,6 +55,9 @@
       </slot>
     </template>
   </ProFieldV2>
+  <div v-if="name === 'policyReceiveType'" class="error-message">
+    *电子保单与纸质保单具有同等法律效力，为了节能环保，如投保人选择”电子保单“或者”电子保单+保险权益提示函“，不需要利安人寿提供纸质保单，利安人寿将奖励投保人“利安人寿“APP的孚利豆。在保险合同犹豫期结束后，您可以登陆“利安人寿“APP领取相应奖励。如您在犹豫期内申请提供纸质保单，利安人寿将不再奖励孚利豆。如您在领取孚利豆后申请提供纸质保单，利安人寿将收取您申请纸质保单的工本费。
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -238,5 +241,11 @@ export default {
     margin: 14px 0;
     text-align: right;
   }
+}
+
+.error-message {
+  color: var(--van-primary-color);
+  padding: 30px;
+  font-size: 28px;
 }
 </style>

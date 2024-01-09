@@ -41,9 +41,13 @@ import useOrder from '@/hooks/useOrder';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS } from './constants';
-import { jumpToNextPage } from '@/utils';
+import { jumpToNextPage, setPageTitle } from '@/utils';
 import { getTenantOrderDetail } from '@/api/modules/trial';
-import { NOTICE_OBJECT_ENUM, QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE } from '@/common/constants/notice';
+import {
+  NOTICE_OBJECT_ENUM,
+  NOTICE_OBJECT_MAP,
+  QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE,
+} from '@/common/constants/notice';
 import { NOTICE_CONTENT } from './data.ts';
 
 const route = useRoute();
@@ -159,6 +163,7 @@ const getQuestionInfo = async (params) => {
     const { questions, basicInfo } = questionnaireDetailResponseVO || {};
     const { questionnaireType } = basicInfo || {};
     objectType.value = noticeObject;
+    setPageTitle(`${NOTICE_OBJECT_MAP[noticeObject]}健康告知`);
     questionnaireId.value = currentQuestionnaireId;
 
     if (questionnaireType === QUESTIONNAIRE_TYPE_ENUM.TEXT) {
