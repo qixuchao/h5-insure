@@ -273,10 +273,10 @@ export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
           {};
           return {
             ...risk,
-            initialAmount: initAmount,
-            initialPremium: initPremium,
-            unitAmount,
-            unitPremium,
+            initialAmount: initAmount || risk.initialAmount,
+            initialPremium: initPremium || risk.initialPremium,
+            unitAmount: unitAmount || risk.unitAmount,
+            unitPremium: unitPremium || risk.unitPremium,
             regularPremium: initialPremium,
             totalPremium: initialPremium,
           };
