@@ -53,7 +53,6 @@ const handleClickTab = (id: string, index?: number) => {
   const toScroll = document.getElementById(id)?.offsetTop as number;
   document.documentElement.scrollTop = toScroll - tabListHeight.value;
   document.body.scrollTop = toScroll - tabListHeight.value;
-  active.value = index;
 };
 
 const getScrollHeight = () => {

@@ -317,11 +317,24 @@ const getRiderRiskDefaultValue = async (productCode, riskCodeList, mainRiskCode,
       return risk.riskCode === riskCodeList[0];
     });
 
+    const errorMessage = [];
+
+    const currentRiskList = data.reduce((riskList, riskItem) => {
+      if (riskItem.errorMessage) {
+        errorMessage.push(`${riskItem.riskName}${riskItem.errorMessage}`);
+        return riskList;
+      }
+      riskList.push(riskItem);
+      return riskList;
+    }, []);
+
+    errorMessage.length && Toast(errorMessage.join('\n'));
+
     state.defaultValue.insuredList[0].productList = state.defaultValue?.insuredList?.[0]?.productList.map((product) => {
       if (productCode === product.productCode) {
         product.riskList = [
           ...product.riskList.slice(0, insertIndex),
-          ...data,
+          ...currentRiskList,
           ...product.riskList.slice(insertIndex, product.riskList.length),
         ];
       }
@@ -344,8 +357,14 @@ const getProductDefaultValue = async (productCodeList: Array<string>) => {
   });
 
   if (code === '10000') {
-    state.defaultValue.insuredList[0].productList = data.insuredList[0].productList;
-    Object.assign(state.userData, data);
+    const { holder, insuredList } = data;
+    const defaultData = {
+      ...data,
+      holder: resetObjectValues(holder),
+      insuredList: insuredList.map((insured) => ({ ...resetObjectValues(insured), productList: insured.productList })),
+    };
+    state.defaultValue.insuredList[0].productList = insuredList[0].productList;
+    Object.assign(state.userData, defaultData);
   }
 };
 

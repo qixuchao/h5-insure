@@ -19,6 +19,7 @@
     <RiskList
       v-if="popupShow"
       :type="popupType"
+      :product-class="productClass"
       :show="popupShow"
       :insured-list="insuredList"
       :title="popupTitle"
@@ -56,7 +57,14 @@ import { transformFactorToSchema } from '@/components/RenderForm';
 
 const route = useRoute();
 const router = useRouter();
-const { productCode, orderNo, tenantId, proposalId, proposalInsuredId } = route.query;
+
+interface QueryData {
+  productCode: string;
+  productClass: string;
+  [propName: string]: string;
+}
+
+const { productCode, orderNo, tenantId, proposalId, proposalInsuredId, productClass } = route.query as QueryData;
 
 // 以产品code为key的产品集合
 const productCollection = ref({});

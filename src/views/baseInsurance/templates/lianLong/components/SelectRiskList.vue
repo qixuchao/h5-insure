@@ -43,6 +43,7 @@ interface Props {
   mainRiskCode?: string;
   selectList: any[];
   currentProductCode: string;
+  productClass: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -52,6 +53,7 @@ const props = withDefaults(defineProps<Props>(), {
   mainRiskCode: '',
   selectList: () => [],
   currentProductCode: '',
+  productClass: '',
 });
 
 const route = useRoute();
@@ -158,6 +160,7 @@ const getRiskList = async () => {
     selectProductCodes: [],
     selectRiskCodes: [],
     filterFlag: props.selectList?.length ? 1 : 2,
+    productClass: props.productClass,
   };
 
   params.selectProductCodes = props.selectList.map((product) => {

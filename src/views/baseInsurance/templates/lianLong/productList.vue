@@ -252,6 +252,7 @@ const handleProduct = async (productInfo) => {
       productCode,
       tenantId: 9991000011,
       templateId,
+      productClass: currentClass,
       iseeBizNo: iseeBizNo.value,
     },
   });
