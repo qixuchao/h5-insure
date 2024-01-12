@@ -198,7 +198,6 @@ const updateFullValue = (arr = []) => {
       console.log(e);
     }
 
-    onEffect('onChange', extra);
     // level = 0 时，默认全部
     address = ['province', 'city', 'area']
       .slice(0, Number(addressConfig.value.level || 3))
@@ -208,6 +207,7 @@ const updateFullValue = (arr = []) => {
         res[`${key}Name`] = item[text];
         return res;
       }, {});
+    onEffect('onChange', { ...extra, [props.name]: { ...state.address, ...address } });
   }
   state.address = {
     ...state.address,
