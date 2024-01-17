@@ -6,6 +6,7 @@
       :max-count="maxCount"
       :before-delete="handleBeforeDelete"
       :disabled="isView"
+      :deletable="!isView"
     >
       <div class="upload-item">
         <ProSvg name="image-upload" class="icon" />

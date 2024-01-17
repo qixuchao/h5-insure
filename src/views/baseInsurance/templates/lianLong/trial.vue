@@ -272,6 +272,14 @@ const nextStep = () => {
       orderDetailCopy.extInfo.iseeBizNo = iseeBizNo.value;
     }
 
+    orderDetailCopy.operateOption = {
+      withBeneficiaryInfo: true,
+      withHolderInfo: true,
+      withInsuredInfo: true,
+      withAttachmentInfo: true,
+      withProductInfo: true,
+    };
+
     const { code, data } = await saveOrder(orderDetailCopy);
     if (code === '10000') {
       router.push({

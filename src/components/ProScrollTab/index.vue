@@ -85,7 +85,11 @@ const handleScroll = () => {
 
   const activeIndex = getActiveIndex(scrollTop);
 
-  if (active.value !== activeIndex) {
+  const screenHeight = window.screen.height;
+  const { scrollHeight: sh } = document.documentElement;
+  if (sh - screenHeight === scrollTop) {
+    active.value = props.list.length - 1;
+  } else if (active.value !== activeIndex) {
     active.value = activeIndex;
   }
 };

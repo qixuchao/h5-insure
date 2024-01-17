@@ -29,11 +29,11 @@ export default defineComponent({
     },
     bounce: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     useTransition: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
   emits: ['scroll'],
