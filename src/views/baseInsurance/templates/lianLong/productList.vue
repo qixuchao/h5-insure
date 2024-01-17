@@ -68,6 +68,7 @@ import { getCustomerDetail } from '@/api/modules/third';
 import { PAGE_ROUTE_ENUMS } from './constants.ts';
 import { setCusomterData, transformCustomerToPerson } from '../components/Trial/components/PersonalInfo/util.ts';
 import { TEMPLATE_TYPE_ENUM } from '@/common/constants/infoCollection';
+import { getUserInfo } from '@/views/baseInsurance/templates/utils';
 
 interface StateType {
   searchValue: string;
@@ -159,6 +160,8 @@ const {
 } = toRefs(state);
 const productClass = ref<string>(1); // 产品分类 4: 多主线产品、1：非多主线产品
 
+const { branchType } = getUserInfo();
+
 const getProducts = () => {
   if (customer && !state.insuredList?.length) {
     return;
@@ -175,6 +178,7 @@ const getProducts = () => {
       productCategory: productCategory.value,
       productClass: productClass.value,
       insuredList: state.insuredList,
+      branchType,
       pageNum: 1,
       pageSize: 999,
     },

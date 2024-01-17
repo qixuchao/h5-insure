@@ -28,6 +28,7 @@
       :current-product-code="currentProductCode"
       :main-risk-code="currentRiskInfo.riskCode"
       :select-list="productRiskCodeMap.productList"
+      :branch-type="branchType"
       @cancel="handleCancel"
       @confirm="handleConfirm"
     ></RiskList>
@@ -49,13 +50,11 @@ import TrialButton from '../components/TrialButton.vue';
 import { RISK_TYPE_ENUM } from '@/common/constants/trial';
 import useOrder from '@/hooks/useOrder';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
-import pageJump from '@/utils/pageJump';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
-import { transformToMoney } from '@/utils/format';
 import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
-import { getCusomterData, transformCustomerToPerson } from '../components/Trial/components/PersonalInfo/util.ts';
-import { transformFactorToSchema } from '@/components/RenderForm';
+import { getCusomterData } from '../components/Trial/components/PersonalInfo/util.ts';
+import { getUserInfo } from '@/views/baseInsurance/templates/utils';
 
 const route = useRoute();
 const router = useRouter();
@@ -67,6 +66,7 @@ interface QueryData {
 }
 
 const { productCode, orderNo, tenantId, proposalId, proposalInsuredId, productClass } = route.query as QueryData;
+const { branchType } = getUserInfo();
 
 // 以产品code为key的产品集合
 const productCollection = ref({});

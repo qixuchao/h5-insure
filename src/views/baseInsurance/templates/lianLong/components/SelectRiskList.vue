@@ -29,7 +29,7 @@
   </ProPopup>
 </template>
 <script setup lang="ts" name="riskSelect">
-import { withDefaults } from 'vue';
+import { withDefaults, useAttrs } from 'vue';
 import { useRoute } from 'vue-router';
 import { Toast } from 'vant';
 import { queryRiderRiskList, queryListMainProduct } from '@/api/modules/trial';
@@ -61,6 +61,7 @@ const route = useRoute();
 const { insurerCode } = route.query;
 
 const emits = defineEmits(['cancel', 'confirm']);
+const attrs = useAttrs();
 
 const checked = ref<Array<string>>([]);
 const riskList = ref<any[]>([]);
@@ -161,6 +162,7 @@ const getRiskList = async () => {
     selectRiskCodes: [],
     filterFlag: props.selectList?.length ? 1 : 2,
     productClass: props.productClass,
+    branchType: attrs['branch-type'],
   };
 
   params.selectProductCodes = props.selectList.map((product) => {
