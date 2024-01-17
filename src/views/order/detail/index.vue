@@ -195,7 +195,7 @@ const columns = [
     },
   },
   {
-    title: '保障期间',
+    title: '保险期间',
     dataIndex: 'coveragePeriodDesc',
     width: 180,
   },
@@ -205,7 +205,7 @@ const columns = [
     width: 180,
   },
   {
-    title: '首期保费',
+    title: '首年保费',
     dataIndex: 'initialPremium',
     width: 180,
     render(row: any, index: number) {

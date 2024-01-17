@@ -27,7 +27,7 @@ export const PRODUCT_KEYS_CONFIG = [
     ruleValueKey: 'chargePeriod',
   },
   {
-    name: '保障期间',
+    name: '保险期间',
     type: 'checkbox',
     configKey: ['insurancePeriodValueList'],
     valueKey: 'coveragePeriod',

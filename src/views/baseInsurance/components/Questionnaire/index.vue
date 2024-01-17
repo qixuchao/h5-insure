@@ -1,7 +1,7 @@
 <template>
   <div class="com-questionnaire">
     <!-- <div class="que-title">{{ props.data.basicInfo.questionnaireName }}</div> -->
-    <ProRenderForm ref="formRef" :model="answerVOList" input-align="left" scroll-to-error show-error-message>
+    <ProRenderForm ref="formRef" :model="answerVOList" input-align="left" scroll-to-error show-error show-error-message>
       <template v-if="props.data?.basicInfo?.questionnaireType === 1">文本问卷</template>
       <template v-else>
         <template v-if="props.isView">
@@ -28,13 +28,15 @@
           />
         </template>
       </template>
-      <ProCard
-        v-if="enumEqual(props.data?.imageConfig?.showFlag, YES_NO_ENUM.YES)"
-        :title="props.data.imageConfig.name"
-      >
+      <ProCard v-if="isShowUpload" :title="props.data.imageConfig.name">
         <van-field name="imageList">
           <template #input>
-            <ProImageUpload v-model="imageList" :disabled="isView" :max-count="props.data.imageConfig?.maxNum || 10" />
+            <ProImageUpload
+              v-model="imageList"
+              :is-view="isView"
+              :disabled="isView"
+              :max-count="props.data.imageConfig?.maxNum || 10"
+            />
           </template>
         </van-field>
       </ProCard>
@@ -57,6 +59,7 @@ import { enumEqual } from '@/common/constants/dict';
 import { YES_NO_ENUM } from '@/common/constants';
 import Viewer from './Viewer.vue';
 import { scrollToError } from '@/utils';
+import ProBaseUpload from '@/components/RenderForm/components/ProBaseUpload.vue';
 
 interface Props {
   data: QuestionnaireDetailRes; // 问卷数据
@@ -66,6 +69,7 @@ interface Props {
   markRequested?: boolean;
 }
 const isDev = window.location.origin.indexOf('localhost') > 0;
+
 const getInitAnswerVO = (id: number | string = '', code = '') => {
   return {
     answerVO: {
@@ -101,6 +105,12 @@ function dealAnswerData(qs = [], ans = []) {
 const props = defineProps<Props>();
 // 上传影像列表
 const imageList = ref<string[]>(props.data.imageList);
+const isShowUpload = computed(() => {
+  return (
+    enumEqual(props.data?.imageConfig?.showFlag, YES_NO_ENUM.YES) &&
+    (!props.isView || (props.isView && imageList.value?.length))
+  );
+});
 // 答案列表
 const answerVOList = ref<AnswerReq[]>(props.data.answerList || []);
 //   [{ 数据格式

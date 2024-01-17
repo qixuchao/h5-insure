@@ -6,7 +6,7 @@
           <div class="content-wrapper">
             <div class="risk-item">
               <template v-if="riskInfo.riskType === RISK_TYPE_ENUM.MAIN_RISK">
-                <ProCell title="保障期间" :content="riskInfo.coveragePeriodDesc"> </ProCell>
+                <ProCell title="保险期间" :content="riskInfo.coveragePeriodDesc"> </ProCell>
                 <ProCell title="交费期间" :content="riskInfo.chargePeriodDesc"> </ProCell>
               </template>
               <template v-else>
@@ -46,7 +46,7 @@
               >
               </ProCell>
               <ProCell
-                title="首期保费"
+                title="首年保费"
                 class="price"
                 :content="
                   (riskInfo.initialPremium || 0).toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })
@@ -55,7 +55,7 @@
               </ProCell>
             </div>
             <!-- <ProCell
-              title="首期总保费"
+              title="首年总保费"
               class="price"
               :content="(totalPremium || 0).toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })"
             >

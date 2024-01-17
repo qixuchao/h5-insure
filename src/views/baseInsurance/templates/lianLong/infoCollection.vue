@@ -73,6 +73,7 @@
       :disabled="!trialResult || nextLoading"
       @handle-click="onNext"
       >下一步
+      <template #label> 首年总保费 </template>
     </TrialButton>
   </div>
 </template>

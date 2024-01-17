@@ -60,7 +60,7 @@
                 @trial-change="(data, changeData) => handleTrialInfoChange(data, changeData, productCode)"
               ></InsureInfos>
               <div class="premium-item">
-                <span class="label">首期保费</span>
+                <span class="label">首年保费</span>
                 <span class="price">{{ transformToMoney(premiumMap?.[productCode]?.[index]?.initialPremium) }}</span>
               </div>
             </div>
@@ -1224,7 +1224,7 @@ watch(
         }
         .premium-item {
           display: flex;
-          justify-content: flex-end;
+          justify-content: space-between;
           font-size: 30px;
           font-weight: 400;
           color: #393d46;

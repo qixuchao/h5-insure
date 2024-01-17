@@ -52,6 +52,7 @@
                 autosize
                 label=""
                 type="textarea"
+                show-error
                 maxlength="100"
                 placeholder="请输入告知说明"
                 :show-word-limit="!isView"
@@ -81,6 +82,7 @@
                   label=""
                   type="textarea"
                   :maxlength="100"
+                  show-error
                   placeholder="请输入告知说明"
                   :show-word-limit="!isView"
                   :rules="[{ required: markRequested, message: '请输入告知说明' }]"

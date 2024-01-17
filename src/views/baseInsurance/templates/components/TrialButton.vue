@@ -9,7 +9,9 @@
       </slot>
 
       <div class="price">
-        <div class="label">首期总保费</div>
+        <div class="label">
+          <slot name="label">首期总保费</slot>
+        </div>
         <span v-if="loadingText">{{ loadingText }}</span>
         <template v-else-if="productPremium">
           <span> {{ transformToMoney(productPremium, undefined, ' ') }}</span>

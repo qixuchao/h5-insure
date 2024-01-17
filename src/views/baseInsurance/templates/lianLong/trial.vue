@@ -13,7 +13,9 @@
       @delete-risk="deleteRisk"
     >
       <template #trialBtn="{ riskPremium }">
-        <TrialButton :premium="riskPremium?.initialPremium" @handle-click="nextStep"></TrialButton>
+        <TrialButton :premium="riskPremium?.initialPremium" @handle-click="nextStep">
+          <template #label> 首年总保费 </template>
+        </TrialButton>
       </template>
     </Trial>
     <RiskList
