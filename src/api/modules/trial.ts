@@ -139,7 +139,7 @@ export const queryCustomerInsureList = (data: {}, config = {}) => {
 // 获取主险产品列表
 export const queryListMainProduct = (data = {}) =>
   request<Array<{ productCode: string; productName: string }>>({
-    url: '/api/app/insure/product/v2/listMainProduct',
+    url: '/api/app/insure/product/list/v2/listMainProduct',
     method: 'POST',
     data,
   });
@@ -147,7 +147,7 @@ export const queryListMainProduct = (data = {}) =>
 // 获取可选附加险列表
 export const queryRiderRiskList = (data = {}) =>
   request<Array<{ riskCode: string; riskName: string }>>({
-    url: '/api/app/insure/product/v2/queryRiderRiskList',
+    url: '/api/app/insure/product/list/v2/queryRiderRiskList',
     method: 'POST',
     data,
   });
