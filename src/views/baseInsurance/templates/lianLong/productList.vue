@@ -160,13 +160,13 @@ const {
 } = toRefs(state);
 const productClass = ref<string>(1); // 产品分类 4: 多主线产品、1：非多主线产品
 
-const { branchType } = getUserInfo();
-
 const getProducts = () => {
   if (customer && !state.insuredList?.length) {
     return;
   }
   const { excludeProductCodeList } = state;
+  const { branchType } = getUserInfo() || {};
+
   if (state.firstLoading) {
     Toast.loading('加载中...');
   }
