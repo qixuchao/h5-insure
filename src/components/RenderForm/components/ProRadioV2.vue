@@ -1,5 +1,11 @@
 <template>
-  <ProFieldV2 class="com-van-radio-wrap" v-bind="filedAttrs" :model-value="state.modelValue" :disabled="disabled">
+  <ProFieldV2
+    class="com-van-radio-wrap"
+    :name="name"
+    v-bind="filedAttrs"
+    :model-value="state.modelValue"
+    :disabled="disabled"
+  >
     <template #input>
       <ValueView v-if="isView" :value="fieldValueView" />
       <template v-else>
@@ -26,13 +32,40 @@
         </van-radio-group>
       </template>
     </template>
+    <!-- <template v-if="name === 'policyReceiveType'" #label>
+      <slot name="label">
+        <span>{{ filedAttrs.label }}</span>
+        <van-popover v-model:show="visible" trigger="click" placement="top-start" theme="dark">
+          <div class="tip-content">
+            *电子保单与纸质保单具有同等法律效力，为了节能环保，如投保人选择”电子保单“或者”电子保单+保险权益提示函“，不需要利安人寿提供纸质保单，利安人寿将奖励投保人“利安人寿“APP的孚利豆。在保险合同犹豫期结束后，您可以登陆“利安人寿“APP领取相应奖励。如您在犹豫期内申请提供纸质保单，利安人寿将不再奖励孚利豆。如您在领取孚利豆后申请提供纸质保单，利安人寿将收取您申请纸质保单的工本费。
+          </div>
+          <template #reference> <van-icon name="question" /> </template>
+        </van-popover>
+      </slot>
+    </template> -->
+    <template v-if="name === 'selfInsuranceItemFlag'" #label>
+      <slot name="label">
+        <span>{{ filedAttrs.label }}</span>
+        <van-popover v-model:show="visible" trigger="click" placement="top-start" theme="dark">
+          <div class="tip-content">
+            投保人、被保险人、受益人是否为本单销售人员（含本单销售人员所在公司其他销售人员)及其直系亲属（直系血亲和直系姻亲，如配偶、父母、子女、祖父母、外祖父母、孙子女、外孙子女）
+          </div>
+          <template #reference> <van-icon name="question" /> </template>
+        </van-popover>
+      </slot>
+    </template>
   </ProFieldV2>
+  <div v-if="name === 'policyReceiveType'" class="error-message">
+    *电子保单与纸质保单具有同等法律效力，为了节能环保，如投保人选择”电子保单“或者”电子保单+保险权益提示函“，不需要利安人寿提供纸质保单，利安人寿将奖励投保人“利安人寿“APP的孚利豆。在保险合同犹豫期结束后，您可以登陆“利安人寿“APP领取相应奖励。如您在犹豫期内申请提供纸质保单，利安人寿将不再奖励孚利豆。如您在领取孚利豆后申请提供纸质保单，利安人寿将收取您申请纸质保单的工本费。
+  </div>
 </template>
 
 <script lang="ts" setup>
 import type { PropType } from 'vue';
 import { type RadioGroupProps } from 'vant';
 import isNil from 'lodash-es/isNil';
+import { use } from 'echarts';
+import { useToggle } from '@vueuse/core';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { useAttrsAndSlots } from '../hooks';
 import { VAN_PRO_FORM_KEY } from '../utils';
@@ -98,9 +131,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  name: {
+    type: String,
+    default: '',
+  },
 });
 
 const emit = defineEmits(['update:modelValue', 'change']);
+const [visible, toggleType] = useToggle();
 
 const { formState } = inject(VAN_PRO_FORM_KEY) || {};
 
@@ -182,6 +220,14 @@ export default {
   inheritAttrs: false,
 };
 </script>
+
+<style lang="scss">
+.tip-content {
+  font-size: 24px;
+  width: 400px;
+  padding: 10px;
+}
+</style>
 <style lang="scss" scoped>
 .com-van-radio-wrap {
   :deep(.van-field__control--custom) {
@@ -195,5 +241,11 @@ export default {
     margin: 14px 0;
     text-align: right;
   }
+}
+
+.error-message {
+  color: var(--van-primary-color);
+  padding: 30px;
+  font-size: 28px;
 }
 </style>

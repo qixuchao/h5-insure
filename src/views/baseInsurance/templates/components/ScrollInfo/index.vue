@@ -82,13 +82,16 @@
       </template>
     </template>
     <template #tab3>
-      <slot name="form" />
+      <slot v-if="hasSlot" name="form" />
+      <CustomCard v-else title="常见问题">
+        <Question :list="dataSource.FAQ?.[0]?.data" />
+      </CustomCard>
     </template>
   </ProScrollTab>
 </template>
 
 <script lang="ts" setup name="ScrollInfo">
-import { Ref, Suspense, withDefaults } from 'vue';
+import { Ref, Suspense, withDefaults, useSlots } from 'vue';
 import { CLAIM_TYPE_ENUM } from '@/common/constants/infoCollection';
 import type { TenantProductInsureVO as ProductSaleConfig } from '@/api/modules/product.data';
 // import CustomCard from '../../../components/CustomCard/index.vue';
@@ -102,6 +105,8 @@ const ProTimeline = defineAsyncComponent(() => import('@/components/ProTimeline/
 const ProDivider = defineAsyncComponent(() => import('@/components/ProDivider/index.vue'));
 const CustomCard = defineAsyncComponent(() => import('../../../components/CustomCard/index.vue'));
 const Question = defineAsyncComponent(() => import('../Question/index.vue'));
+
+const slots = useSlots();
 
 /**
  * 本组件是产品详情的滚动区域
@@ -172,14 +177,24 @@ const isShowTab2_3 = computed(() => {
   return dataSource.value?.ISSUE_NOTICE?.noticeContent;
 });
 
+const hasSlot = computed(() => Object.keys(slots).length);
+
 const isShowTab2_4 = computed(() => {
-  return dataSource.value?.FAQ?.length;
+  return dataSource.value?.FAQ?.length && hasSlot.value;
 });
 
 const tabList = computed(() => {
   let tempTabList = [...initTabList.value];
   if (!isShowTab1.value) tempTabList = tempTabList.filter((e) => e.slotName !== 'tab1');
   if (!isShowTab2_1.value && !isShowTab2_2.value) tempTabList = tempTabList.filter((e) => e.slotName !== 'tab2');
+  if (slots) {
+    tempTabList = tempTabList.map((tab) => {
+      if (tab.slotName === 'tab3') {
+        tab.title = '常见问题';
+      }
+      return tab;
+    });
+  }
   return tempTabList;
 });
 

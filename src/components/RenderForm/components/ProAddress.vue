@@ -13,6 +13,7 @@
     :model-value="cascaderModelValue"
     :is-view="isView"
     :node-code="nodeCode"
+    closeable
     :level="addressConfig.level"
     @update:full-value="updateFullValue"
   />
@@ -22,10 +23,10 @@
     :is-view="isView"
     type="textarea"
     placeholder="地址详情必须包含号/室/队/院/房/楼/栋/幢/座组，详细地址必须包含至少一位数字"
-    :label="`${$attrs.label}详细地址`"
-    :required="$attrs.required"
+    label="详细地址"
+    :required="!!$attrs.required"
     :rules="[
-      { required: $attrs.required, message: '请输入详细地址' },
+      { required: !!$attrs.required, message: '请输入详细地址' },
       {
         validator,
         trigger: 'onBlur',
@@ -38,7 +39,7 @@
 import { isNotEmptyArray } from '@/common/constants/utils';
 import ProCascaderV2 from './ProCascaderV2.vue';
 import ProFormItem from './ProFormItem/ProFormItem.vue';
-import { upperFirstLetter } from '../utils';
+import { relatedConfigMap, upperFirstLetter, VAN_PRO_FORM_KEY } from '../utils';
 import { sessionStore, localStore } from '@/hooks/useStorage';
 import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
 
@@ -88,7 +89,13 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  relatedName: {
+    type: String,
+    default: '',
+  },
 });
+
+const { formState } = inject(VAN_PRO_FORM_KEY) || {};
 
 const nodeCode = computed(() => {
   const { provinceCode = '' } = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`) || {};
@@ -167,10 +174,30 @@ const cascaderModelValue = computed(() => {
   return state.address?.[key];
 });
 
+/**
+ * 事件副作用, 定义对应 type 的副作用函数 `${type}Effect`
+ * @param type onBlur、onChange
+ * @param val
+ */
+const onEffect = (type, val) => {
+  if (props.relatedName && type) {
+    const effectFn = (relatedConfigMap[props.relatedName] || {})[`${type}Effect`];
+    typeof effectFn === 'function' && effectFn(val, formState);
+  }
+};
+
 const updateFullValue = (arr = []) => {
   let address = {};
   if (isNotEmptyArray(arr)) {
     const { text, value } = props.customFieldName;
+    let extra = {};
+
+    try {
+      extra = JSON.parse(arr[arr.length - 1].extra);
+    } catch (e) {
+      console.log(e);
+    }
+
     // level = 0 时，默认全部
     address = ['province', 'city', 'area']
       .slice(0, Number(addressConfig.value.level || 3))
@@ -180,6 +207,7 @@ const updateFullValue = (arr = []) => {
         res[`${key}Name`] = item[text];
         return res;
       }, {});
+    onEffect('onChange', { ...extra, [props.name]: { ...state.address, ...address } });
   }
   state.address = {
     ...state.address,

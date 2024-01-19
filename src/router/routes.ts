@@ -18,13 +18,13 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'trial',
     path: '/baseInsurance/long/trial',
-    meta: { title: '保费试算' },
+    meta: { title: '保费试算', cacheTarget: ['healthNotice'] },
     component: () => import('@/views/baseInsurance/templates/lianLong/trial.vue'),
   },
   {
     name: 'healthNotice',
     path: '/baseInsurance/long/healthNotice',
-    meta: { title: '健康告知书' },
+    meta: { title: '健康告知书', cacheSource: ['trial'] },
     component: () => import('@/views/baseInsurance/templates/lianLong/healthNotice.vue'),
   },
   {
@@ -236,14 +236,14 @@ const baseInsurance = [
   {
     name: 'InsuranceShortHealthNotice',
     path: '/baseInsurance/short/healthNotice',
-    meta: { title: '健康告知页', requireWxJs: false },
+    meta: { title: '', requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/healthNotice.vue'),
   },
   // 短险健康告知页
   {
     name: 'InsuranceShortHealthNoticePreview',
     path: '/baseInsurance/short/healthNotice/:id',
-    meta: { title: '健康告知页', requireWxJs: false },
+    meta: { title: '', requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/healthNotice.vue'),
   },
   // 投保人短险信息确认页

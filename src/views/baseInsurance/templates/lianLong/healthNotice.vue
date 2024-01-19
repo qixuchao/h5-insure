@@ -3,6 +3,7 @@
     <ProNavigator />
     <ProFilePreview
       v-if="currentQuestion"
+      ref="previewRef"
       :type="currentQuestion.contentType"
       :content="currentQuestion"
       :params="questionParams"
@@ -11,18 +12,18 @@
       <!-- <template #title>
         {{ currentQuestion.questionnaireName }}
       </template> -->
-      <template v-if="currentQuestion.contentType === 'question' && currentQuestion.questionnaireId" #footer>
-        <div class="footer-button">
-          <van-button v-if="isShowAsync" round type="primary" plain @click="asyncInsured">同被保人</van-button>
-          <van-button round type="primary" block native-type="submit"> 下一步 </van-button>
-        </div>
-      </template>
-      <template v-else #footer-btn>
-        <div class="footer-btn">
-          <van-button round type="primary" block @click="questionResolve"> 下一步 </van-button>
-        </div>
-      </template>
     </ProFilePreview>
+    <div v-if="currentQuestion.contentType === 'question' && currentQuestion.questionnaireId">
+      <div class="footer-button">
+        <van-button v-if="isShowAsync" round type="primary" plain @click="asyncInsured">同被保人</van-button>
+        <van-button round type="primary" block @click="submitQuestion"> 下一步 </van-button>
+      </div>
+    </div>
+    <div v-else class="footer-btn">
+      <div class="footer-btn">
+        <van-button round type="primary" block @click="questionResolve"> 下一步 </van-button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -40,9 +41,13 @@ import useOrder from '@/hooks/useOrder';
 import { PAGE_ACTION_TYPE_ENUM } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS } from './constants';
-import { jumpToNextPage } from '@/utils';
+import { jumpToNextPage, setPageTitle } from '@/utils';
 import { getTenantOrderDetail } from '@/api/modules/trial';
-import { NOTICE_OBJECT_ENUM, QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE } from '@/common/constants/notice';
+import {
+  NOTICE_OBJECT_ENUM,
+  NOTICE_OBJECT_MAP,
+  QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE,
+} from '@/common/constants/notice';
 import { NOTICE_CONTENT } from './data.ts';
 
 const route = useRoute();
@@ -71,6 +76,10 @@ const onNext = () => {
       pageJump(data.nextPageCode, route.query);
     }
   });
+};
+const previewRef = ref();
+const submitQuestion = () => {
+  previewRef.value?.submitQuestion();
 };
 
 const questionResolve = () => {
@@ -154,6 +163,7 @@ const getQuestionInfo = async (params) => {
     const { questions, basicInfo } = questionnaireDetailResponseVO || {};
     const { questionnaireType } = basicInfo || {};
     objectType.value = noticeObject;
+    setPageTitle(`${NOTICE_OBJECT_MAP[noticeObject]}健康告知`);
     questionnaireId.value = currentQuestionnaireId;
 
     if (questionnaireType === QUESTIONNAIRE_TYPE_ENUM.TEXT) {

@@ -71,7 +71,7 @@ const handleCharts = () => {
       // canvas高度与所截图高度相同或者更小，解决底部白边问题
       width: document.getElementById(`${props.dataSourceIndex}-chartImg`).clientWidth - 2,
     }).then(async (res) => {
-      const chartsImg = res.toDataURL('image/png', 0.8);
+      const chartsImg = res.toDataURL('image/jpeg', 0.5);
 
       const res2 = await fileUploadBase64({ fileBase64: chartsImg, uploadType: '99' });
       const { url } = res2.data;

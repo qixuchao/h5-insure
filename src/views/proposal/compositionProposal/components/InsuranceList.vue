@@ -13,10 +13,7 @@
         <div class="name">
           <div>
             <span clase="p1">{{ props.info?.name }}</span>
-            <span class="p2"
-              >{{ getRelationName() }} / {{ SEX_LIMIT_MAP[props.info?.gender] }} /
-              {{ dayjs().diff(info?.birthday, 'y') }}岁</span
-            >
+            <span class="p2">{{ SEX_LIMIT_MAP[props.info?.gender] }} / {{ dayjs().diff(info?.birthday, 'y') }}岁</span>
           </div>
         </div>
         <div class="fe">
@@ -77,6 +74,7 @@ const columns = [
     title: '保障期间',
     dataIndex: 'coveragePeriod',
     width: 110,
+    render: (record) => record.coveragePeriod.replace('保终身', '终身'),
   },
   {
     title: '交费期间',

@@ -149,6 +149,7 @@ const handleGiveUp = () => {
 const handleConfirm = () => {
   canceledOrder(() => {
     toggleStatus(false);
+    delete route.query.questionnaireId;
     router.push({
       path: checkedPage.value,
       query: route.query,

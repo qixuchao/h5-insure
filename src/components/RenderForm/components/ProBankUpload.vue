@@ -223,6 +223,9 @@ export default {
 
   :deep(.van-field__value) {
     width: 100%;
+    .van-field__control--custom {
+      justify-content: flex-start;
+    }
   }
 
   .sub-label {

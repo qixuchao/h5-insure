@@ -50,7 +50,9 @@
     </template>
     <div v-else class="preview-placeholder">当前页面仅用于保费试算预览<br />不展示其他产品相关配置信息</div>
     <div id="insureButton"></div>
-    <TrialButton @handle-click="onNext"></TrialButton>
+    <TrialButton @handle-click="onNext">
+      <template #label>首年总保费</template>
+    </TrialButton>
   </div>
   <ProLazyComponent>
     <PreNotice v-if="preNoticeLoading && !trialPreviewMode" :product-detail="tenantProductDetail"></PreNotice>

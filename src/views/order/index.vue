@@ -2,14 +2,9 @@
   <!-- <van-config-provider :theme-vars="themeVars"> -->
   <!-- <ProPageWrap main-class="page-order-list"> -->
   <div id="page-order" class="page-order">
-    <van-search
+    <ProSearch
       v-model="searchValue"
       placeholder="请输入订单号/投保单号/投保人姓名"
-      shape="round"
-      class="search"
-      clear-trigger="always"
-      :show-action="!!searchValue"
-      clearable
       @cancel="handleAfterDelete"
       @search="handleAfterDelete"
     />
@@ -196,9 +191,6 @@ onMounted(() => {
     .van-field__body {
       width: 100%;
     }
-  }
-  :deep(.van-search--show-action) {
-    padding-right: 30px;
   }
   .list-wrap {
     flex: 1;
