@@ -23,4 +23,11 @@ export const queryLoginInfo = (data) =>
     data,
   });
 
+// 下载电子保单
+export const downloadPolicyInfo = (data) =>
+  request<string>({
+    url: '/api/app/policy/downloadEPolicy',
+    method: 'POST',
+    data,
+  });
 export default {};

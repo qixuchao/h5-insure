@@ -74,6 +74,7 @@ import { TEMPLATE_TYPE_ENUM } from '../constant';
 import { downloadPDFWithUrl } from '@/utils/jsbridgePromise';
 import useOrder from '@/hooks/useOrder';
 import useThread, { ThreadType } from '@/hooks/useThread';
+import { downloadPolicyInfo } from '@/api/lian';
 
 // 调用主题
 const themeVars = useTheme();
@@ -223,18 +224,11 @@ const previewHandleBtn = (msg: string) => {
 const orderBtnHandler = async () => {
   if (orderBtnText.value === '下载保单') {
     if (previewHandleBtn('预览模式无法下载保单')) {
-      if (!state.orderDetail.extInfo?.policyUrl) {
-        const orderReq = await getTenantOrderDetail({ orderNo, tenantId });
-        if (orderReq.code === '10000') {
-          state.orderDetail = orderReq.data;
-          if (state.orderDetail.extInfo?.policyUrl) {
-            downloadPDFWithUrl(state.orderDetail.extInfo?.policyUrl);
-          } else {
-            Toast('电子保单单生成中，请稍后再试');
-          }
-        }
+      const orderReq = await downloadPolicyInfo({ orderNo, tenantId });
+      if (orderReq.code === '10000') {
+        window.location.href = orderReq.data || '';
       } else {
-        state.orderDetail.extInfo?.policyUrl && downloadPDFWithUrl(state.orderDetail.extInfo?.policyUrl);
+        Toast('电子保单单生成中，请稍后再试');
       }
     }
   } else if (orderBtnText.value === '立即支付') {

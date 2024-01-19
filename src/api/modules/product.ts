@@ -116,7 +116,7 @@ export const queryListRelationCustomer = (data: any) => {
 export const queryProductList = (data, config) => {
   return request<Array<ProductItem>>(
     {
-      url: '/api/app/insure/product/v2/listProduct',
+      url: '/api/app/insure/product/list/v2/listProduct',
       method: 'POST',
       data,
     },

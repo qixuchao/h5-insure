@@ -413,6 +413,7 @@ const trialData2Order = (
           premium: 0,
           productCode: currentProductDetail?.productCode,
           productName: currentProductDetail?.productName,
+          productClass: currentProductDetail?.productClass,
           planCode: currentPlanObj.value?.planCode,
           riskList: transformData(transformDataReq),
         },
@@ -484,6 +485,7 @@ const onSaveOrder = async () => {
     productCode,
     productId: '',
     productName: state.insureProductDetail?.productName || '',
+    productClass: state.insureProductDetail?.productClass || '',
     tenantId,
   };
   const currentOrderDetail = trialData2Order(productInfo, {}, Object.assign(orderDetail.value, state.userData));
@@ -517,13 +519,6 @@ const onSaveOrder = async () => {
       currentOrderDetail.extInfo.buttonCode = EVENT_BUTTON_CODE.free.underWriteAndIssue;
       Promise.all([agentRef.value?.validate(), personalInfoRef.value.validate()])
         .then(async (res) => {
-          const result = await validateSysCode(currentOrderDetail);
-
-          if (!result) {
-            Toast('验证码错误');
-            return;
-          }
-
           if (!compareAgentCode()) {
             Dialog.alert({
               message: '代理人工号有误，请核对后重新录入',
