@@ -29,14 +29,14 @@
         </template>
       </template>
       <ProCard v-if="isShowUpload" :title="props.data.imageConfig.name">
+        <template v-if="isView">
+          <div v-for="(image, index) in imageList" :key="index" class="image-item">
+            <van-image :src="image" fit="contain"></van-image>
+          </div>
+        </template>
         <van-field name="imageList">
-          <template #input>
-            <ProImageUpload
-              v-model="imageList"
-              :is-view="isView"
-              :disabled="isView"
-              :max-count="props.data.imageConfig?.maxNum || 10"
-            />
+          <template v-if="!isView" #input>
+            <ProImageUpload v-model="imageList" :max-count="props.data.imageConfig?.maxNum || 10" />
           </template>
         </van-field>
       </ProCard>
@@ -210,5 +210,11 @@ defineExpose({
   width: 100%;
   position: fixed;
   z-index: 1;
+}
+
+.image-item {
+  margin-top: 30px;
+  width: 200px;
+  height: 200px;
 }
 </style>

@@ -28,7 +28,6 @@
       :current-product-code="currentProductCode"
       :main-risk-code="currentRiskInfo.riskCode"
       :select-list="productRiskCodeMap.productList"
-      :branch-type="branchType"
       @cancel="handleCancel"
       @confirm="handleConfirm"
     ></RiskList>
@@ -66,7 +65,6 @@ interface QueryData {
 }
 
 const { productCode, orderNo, tenantId, proposalId, proposalInsuredId, productClass } = route.query as QueryData;
-const { branchType } = getUserInfo();
 
 // 以产品code为key的产品集合
 const productCollection = ref({});

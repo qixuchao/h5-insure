@@ -34,7 +34,7 @@
               class="risk-item"
             >
               <ProTitle :title="risk.riskName" :risk-type="risk.riskType">
-                <div v-if="isTrial" class="operate-bar">
+                <div class="operate-bar">
                   <div
                     v-if="risk.riskType === RISK_TYPE_ENUM.MAIN_RISK"
                     class="add-risk btn"
@@ -42,7 +42,14 @@
                   >
                     +附加险
                   </div>
-                  <div class="delete-risk btn" @click="deleteRisk(productCode, risk.mainRiskCode, risk.riskCode)">
+                  <div
+                    v-if="
+                      risk.riskType === RISK_TYPE_ENUM.RIDER_RISK ||
+                      (risk.riskType === RISK_TYPE_ENUM.MAIN_RISK && isTrial)
+                    "
+                    class="delete-risk btn"
+                    @click="deleteRisk(productCode, risk.mainRiskCode, risk.riskCode)"
+                  >
                     删除
                   </div>
                 </div>
@@ -612,11 +619,10 @@ const handleDealDyResult = (dyResultData: any, productCode) => {
   const dyResult = cloneDeep(dyResultData);
   if (dyResult?.data?.[0]?.productRiskDyInsureFactorVOList) {
     const defaultRiskData = [];
-
     productMap.value[productCode]?.productPlanInsureVOList?.[0]?.insureProductRiskVOList.forEach((risk) => {
       const newRisk = dyResult?.data?.[0]?.productRiskDyInsureFactorVOList.find((r) => r.riskCode === risk.riskCode);
       // 豁免险特殊处理交期保期
-      if (risk.exemptFlag === YES_NO_ENUM.YES) {
+      if (risk.exemptFlag === YES_NO_ENUM.YES && newRisk?.mainRiskCode) {
         newRisk.chargePeriod = newRisk.paymentPeriodValueList?.[0].code;
         newRisk.coveragePeriod = newRisk.insurancePeriodValueList?.[0].code;
         newRisk.paymentFrequency = newRisk.paymentFrequencyList?.[0].code;
@@ -1214,7 +1220,10 @@ watch(
             }
             .add-risk {
               color: var(--van-primary-color);
-              border-right: 1px solid #dfdfdf;
+
+              & + .delete-risk {
+                border-left: 1px solid #dfdfdf;
+              }
             }
             .delete-risk {
               color: #999999;

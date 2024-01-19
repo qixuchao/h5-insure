@@ -20,6 +20,8 @@
       @trial-end="handleTrialEnd"
       @update:user-data="updateUserData"
       @update-bank="updateInitialBank"
+      @add-risk="addRisk"
+      @delete-risk="deleteRisk"
     >
       <template #middleInfo>
         <PayInfo
@@ -75,12 +77,26 @@
       >下一步
       <template #label> 首年总保费 </template>
     </TrialButton>
+    <RiskList
+      v-if="popupShow"
+      :type="RISK_TYPE_ENUM.RIDER_RISK"
+      :product-class="productClass"
+      :show="popupShow"
+      :insured-list="currentInsuredList"
+      title="添加附加险"
+      :current-product-code="currentProductCode"
+      :main-risk-code="currentRiskInfo.riskCode"
+      :select-list="productRiskCodeMap.productList"
+      @cancel="handleCancel"
+      @confirm="handleConfirm"
+    ></RiskList>
   </div>
 </template>
 
 <script lang="ts" setup name="InfoCollection">
 import { useRoute } from 'vue-router';
 import { Toast, Dialog } from 'vant';
+import { findIndex, findLastIndex } from 'lodash-es';
 import {
   ProRenderFormWithCard,
   PayInfo,
@@ -123,12 +139,14 @@ import { jumpToNextPage, scrollToError } from '@/utils';
 import Trial from '../components/Trial/index.vue';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import router from '@/router';
+import { RISK_TYPE_ENUM } from '@/common/constants/trial';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
+const RiskList = defineAsyncComponent(() => import('./components/SelectRiskList.vue'));
 
 const route = useRoute();
-const orderDetail = useOrder();
+const orderDetail = useOrder({});
 const LOADING_TEXT = '试算中...';
 
 /** 页面query参数类型 */
@@ -288,6 +306,7 @@ const loading = ref<boolean>(false);
 const mainRiskVO = ref<any>(); // 标准主险的险种数据
 const iseeBizNo = ref<string>();
 const riskDefaultValue = ref<any>();
+const currentInsuredList = ref([]);
 
 // 试算结果-保费
 const premium = ref<number>(0);
@@ -306,6 +325,113 @@ const handleTrialEnd = (result: any, data) => {
   trialResult.value = result;
   trialData.value = data;
   loading.value = false;
+};
+
+const popupShow = ref<boolean>(false);
+const currentProductCode = ref<string>();
+const currentRiskInfo = ref({});
+const productRiskCodeMap = ref({ productList: [] });
+const productCollection = ref({});
+const productFactor = ref();
+
+// 获取多个产品合并后的产品详情
+const getMergeProductDetail = () => {
+  mergeInsureFactor(productRiskCodeMap.value).then(({ code, data }) => {
+    if (code === '10000') {
+      const { productDetailResList, productFactor: currentProductFactor } = data;
+      productRiskCodeMap.value = pickProductRiskCode(productDetailResList);
+
+      // 如果有客户信息,则需要将客户信息回显
+      // if (customerInfo) {
+      //   const insuredKeys = currentProductFactor?.[2].map((factor) => factor.code);
+      //   const insured = transformCustomerToPerson(customerInfo, insuredKeys);
+      //   defaultData.value = Object.assign(orderDetail.value, { insuredList: insured });
+      // }
+
+      const currentProductCollection = {};
+      productDetailResList.forEach((product) => {
+        currentProductCollection[product.productCode] = product;
+      });
+      productCollection.value = currentProductCollection;
+    }
+  });
+};
+
+const handleCancel = () => {
+  popupShow.value = false;
+};
+
+const handleConfirm = (selectCodeList: Array<string>) => {
+  const currentProduct = productRiskCodeMap.value.productList.find(
+    (product) => product.productCode === currentProductCode.value,
+  );
+  const riskList = selectCodeList.map((riskCode) => ({
+    riskCode,
+    riskType: RISK_TYPE_ENUM.RIDER_RISK,
+    mainRiskCode: currentRiskInfo.value.riskCode,
+  }));
+
+  const firstIndex = findIndex(
+    currentProduct.mergeRiskReqList,
+    (risk) => risk.riskCode === currentRiskInfo.value.riskCode,
+  );
+  const lastIndex = findLastIndex(currentProduct.mergeRiskReqList, (risk) => {
+    return risk.mainRiskCode === currentRiskInfo.value.riskCode;
+  });
+
+  let insertIndex = firstIndex;
+
+  if (lastIndex !== -1) {
+    insertIndex = lastIndex;
+  }
+  currentProduct.mergeRiskReqList = [
+    ...currentProduct.mergeRiskReqList.slice(0, insertIndex + 1),
+    ...riskList,
+    ...currentProduct.mergeRiskReqList.slice(insertIndex + 1, currentProduct.mergeRiskReqList.length),
+  ];
+
+  personalInfoRef.value.getRiderRiskDefaultValue(
+    currentProductCode.value,
+    selectCodeList,
+    currentRiskInfo.value.riskCode,
+    currentProduct.mergeRiskReqList,
+  );
+
+  getMergeProductDetail();
+  popupShow.value = false;
+};
+
+const addRisk = (selectProductCode, riskInfo, _currentInsuredList) => {
+  popupShow.value = true;
+  currentInsuredList.value = _currentInsuredList;
+  currentRiskInfo.value = riskInfo;
+  currentProductCode.value = selectProductCode;
+};
+
+const deleteRisk = (selectProductCode, riskCode, mainRiskCode) => {
+  const currentProductDetail = productCollection.value[selectProductCode];
+  // 单主险或者双主线删除主险时删除整个产品
+
+  // 没有主险code则删除的是主险，也是删除整个产品
+  if (!mainRiskCode) {
+    // delete productCollection.value[selectProductCode];
+    productRiskCodeMap.value.productList = productRiskCodeMap.value.productList.filter(
+      (product) => product.productCode !== selectProductCode,
+    );
+    getMergeProductDetail();
+  } else {
+    productCollection.value[selectProductCode].productPlanInsureVOList[0].insureProductRiskVOList =
+      productCollection.value[selectProductCode].productPlanInsureVOList[0].insureProductRiskVOList.filter(
+        (risk) => risk.riskCode !== riskCode,
+      );
+
+    productRiskCodeMap.value.productList = productRiskCodeMap.value.productList.map((product) => {
+      if (product.productCode === selectProductCode) {
+        product.mergeRiskReqList = product.mergeRiskReqList.filter((risk) => risk.riskCode !== riskCode);
+      }
+      return product;
+    });
+  }
 };
 
 const updateAttachment = (orderData) => {
@@ -404,7 +530,7 @@ const onNext = async () => {
           orderDetail.value,
         );
 
-        route.query.productClass = productClass.value;
+        route.query.productClass = `${productClass.value}`;
 
         // 校验ocr信息是否被修改
         const msgList = compareOcrData();
@@ -453,6 +579,7 @@ const updateInitialBank = (d: any) => {
   const initial = orderDetail.value.tenantOrderPayInfoList[0];
   orderDetail.value.tenantOrderPayInfoList.splice(0, 1, { ...initial, ...d });
 };
+
 const updateUserData = (val) => {
   Object.assign(state.userData, val);
 };
@@ -542,8 +669,6 @@ const queryProductMaterialData = () => {
     }
   });
 };
-const productCollection = ref({});
-const productFactor = ref();
 
 const pickRenewRiskList = (productList) => {
   const renewRiskList = [];
@@ -563,7 +688,7 @@ const pickRenewRiskList = (productList) => {
   return renewRiskList;
 };
 const initData = async () => {
-  let productRiskMap = {};
+  const productRiskMap = {};
   // querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
   //   if (code === '10000') {
   //     tenantProductDetail.value = data;
@@ -598,13 +723,13 @@ const initData = async () => {
           productCode,
         });
         state.defaultValue = orderDetail.value;
-        productRiskMap = pickProductRiskCodeFromOrder(data.insuredList[0].productList);
+        productRiskCodeMap.value = pickProductRiskCodeFromOrder(data.insuredList[0].productList);
         productClass.value = data.insuredList[0].productList.length > 1 ? 1 : 2;
         isLoading.value = true;
       }
     }));
 
-  await mergeInsureFactor(productRiskMap).then(({ data, code }) => {
+  await mergeInsureFactor(productRiskCodeMap.value).then(({ data, code }) => {
     if (code === '10000') {
       const { productDetailResList, productFactor: currentProductFactor } = data;
       const renewRiskList = pickRenewRiskList(productDetailResList);
