@@ -84,6 +84,7 @@ export const nextStepOperate = async (
           confirmButtonText: '返回修改',
           message,
         }).then(() => {
+          delete route.query.questionnaireId;
           router.push({
             path: PAGE_ROUTE_ENUMS.premiumTrial,
             query: route.query,
