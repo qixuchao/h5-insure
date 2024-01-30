@@ -323,6 +323,7 @@ onMounted(() => {
 
 :deep(.van-pull-refresh) {
   height: calc(100vh - 270px);
+  overflow-y: auto;
 }
 
 .search-wrap {
