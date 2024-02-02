@@ -171,6 +171,7 @@ const dealModelValue = (val) => {
       state.date = val as string;
     }
   } else {
+    checked.value = false;
     state.date = val as string;
     state.fieldValue = val;
   }
@@ -192,8 +193,12 @@ watch(
     if (value) {
       onConfirm('9999-12-31');
     } else {
-      onConfirm('');
+      const currentData = state.fieldValue === '9999-12-31' ? '' : state.date;
+      onConfirm(currentData);
     }
+  },
+  {
+    immediate: true,
   },
 );
 

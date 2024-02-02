@@ -278,7 +278,7 @@
         :close-on-click-overlay="false"
         :style="{ overflow: 'hidden' }"
         :header-style="{
-          paddingRight: '40px',
+          padding: '0 40px',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',

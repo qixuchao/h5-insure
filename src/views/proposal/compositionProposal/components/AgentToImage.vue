@@ -6,7 +6,7 @@
       <div class="info">
         <div class="title">
           <span class="top-title">我的名片</span>
-          <span class="sub-title">我是您的专属顾问，您可以通过以下信息简单</span>
+          <span class="sub-title">我是您的专属顾问</span>
           <span class="subb-title">个人信息</span>
         </div>
         <div class="info">
