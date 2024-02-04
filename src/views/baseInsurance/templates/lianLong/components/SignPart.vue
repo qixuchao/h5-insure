@@ -215,6 +215,7 @@ watch(
       .sign-desc {
         position: absolute;
         z-index: 1;
+        font-size: 40px;
       }
       .sign-img {
         transform: rotateZ(-90deg);

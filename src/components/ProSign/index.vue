@@ -167,7 +167,7 @@ defineExpose({
       top: 50%;
       margin-top: -20px;
       text-align: center;
-      font-size: 120px;
+      font-size: 160px;
       color: #000000;
       pointer-events: none;
       opacity: 0.3;
