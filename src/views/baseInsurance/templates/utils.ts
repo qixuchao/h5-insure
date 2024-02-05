@@ -6,6 +6,8 @@ import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
 
 import { INSURANCE_PERIOD_ENUMS, PAYMENT_PERIOD_ENUMS, RISK_TYPE_ENUM } from '@/common/constants/trial';
 import { checkSMSCode } from '@/components/RenderForm';
+import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
+import { sessionStore } from '@/hooks/useStorage';
 
 export const orderRiskTotrial = (tenantOrderProductList: any[], insuredCode: string) => {
   const riskList = [];
@@ -273,10 +275,10 @@ export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
           {};
           return {
             ...risk,
-            initialAmount: initAmount,
-            initialPremium: initPremium,
-            unitAmount,
-            unitPremium,
+            initialAmount: initAmount || risk.initialAmount,
+            initialPremium: initPremium || risk.initialPremium,
+            unitAmount: unitAmount || risk.unitAmount,
+            unitPremium: unitPremium || risk.unitPremium,
             regularPremium: initialPremium,
             totalPremium: initialPremium,
           };
@@ -310,6 +312,10 @@ export const validateSysCode = async (orderDetail) => {
   const result = await Promise.all(validateCollection);
   console.log('result: ', result);
   return result;
+};
+
+export const getUserInfo = () => {
+  return sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`);
 };
 
 export default {};

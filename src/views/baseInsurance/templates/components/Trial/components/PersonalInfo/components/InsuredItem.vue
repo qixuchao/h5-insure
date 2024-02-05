@@ -552,6 +552,8 @@ watch(
 
     const isSelf = String(personVO.relationToHolder) === '1';
 
+    isSameHolder.value = isSelf;
+
     // 若被保人为本人是否要隐藏
     schema.forEach((schemaItem) => {
       schemaItem.relationToHolder = personVO.relationToHolder;
@@ -808,7 +810,6 @@ watch(
 watch(
   () => props.guardian?.personVO,
   (value, oldValue) => {
-    console.log('value', value);
     if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
       Object.assign(state.guardian.personVO, value);
     }

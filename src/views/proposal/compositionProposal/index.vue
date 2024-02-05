@@ -142,7 +142,7 @@
               <!-- <div class="risk-title">风险提示</div> -->
               <div class="lia-header">
                 <div class="info-detail">
-                  <span class="p1">风险提示</span>
+                  <span class="p1">温馨提示</span>
                 </div>
               </div>
               <!-- 富文本 -->
@@ -223,7 +223,7 @@
             <span class="agent-name">{{ userInfo?.name || '' }}</span>
             <!-- 利安没有职级 -->
             <!-- 公司名称 -->
-            <span class="agent-grade">{{ userInfo?.agentGradeName }}</span>
+            <span v-if="userInfo?.agentGradeName" class="agent-grade">{{ userInfo?.agentGradeName }}</span>
           </div>
           <span class="agent-company">{{ userInfo?.manageComName }}</span>
           <span class="agent-num">工 号 {{ userInfo?.agentCode }} </span>
@@ -385,6 +385,8 @@ import InsuredList from './components/InsuredList.vue'; // 选择被保人
 import useTheme from '@/hooks/useTheme';
 import { PAGE_ROUTE_ENUMS } from '@/views/baseInsurance/templates/lianLong/constants.ts';
 import LiabilityByRiskForPdf from './components/LiabilityByRiskForPdf.vue';
+
+const BASE_PREFIX = import.meta.env.VITE_BASE;
 
 const themeVars = useTheme();
 
@@ -623,7 +625,7 @@ const getData = async () => {
       proposalName.value = data.proposalName;
       isLoading.value = false;
       tenantId.value = data?.tenantId;
-      shareLink = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
+      shareLink = `${ORIGIN}${BASE_PREFIX}proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
       setShareConfig(shareLink);
     }
   } catch (e) {
@@ -820,7 +822,7 @@ const selectTheme = async (selectedThemeId: number) => {
     if (operateType.value === 'pdf') {
       getPdf();
     } else {
-      shareLink = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
+      shareLink = `${ORIGIN}${BASE_PREFIX}proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
       setShareConfig(shareLink);
       setTimeout(shareButtonRef.value.handleShare, 100);
     }
@@ -831,7 +833,7 @@ const selectTheme = async (selectedThemeId: number) => {
       if (operateType.value === 'pdf') {
         getPdf(data);
       } else {
-        shareLink = `${ORIGIN}/proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}&themeId=${data}`;
+        shareLink = `${ORIGIN}${BASE_PREFIX}proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}&themeId=${data}`;
         setShareConfig(shareLink);
         setTimeout(shareButtonRef.value.handleShare, 100);
       }

@@ -27,7 +27,7 @@
                 >
                   <VanRadio :name="item.id" :disabled="themeStatus === 0" />
                 </div>
-                <span :class="`${checked === item.id ? 'checked' : ''}`">{{ item.name }}</span>
+                <span :class="`${checked === item.id ? 'checked' : ''} multi-ellipsis`">{{ item.name }}</span>
               </div>
             </div>
           </VanCellGroup>
@@ -92,10 +92,7 @@ const submit = () => {
       color: #393d46;
       span {
         width: 216px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: inline-block;
+        text-align: left;
       }
       .checked {
         color: $zaui-brand;

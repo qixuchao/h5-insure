@@ -13,12 +13,15 @@
       @delete-risk="deleteRisk"
     >
       <template #trialBtn="{ riskPremium }">
-        <TrialButton :premium="riskPremium?.initialPremium" @handle-click="nextStep"></TrialButton>
+        <TrialButton :premium="riskPremium?.initialPremium" @handle-click="nextStep">
+          <template #label> 首年总保费 </template>
+        </TrialButton>
       </template>
     </Trial>
     <RiskList
       v-if="popupShow"
       :type="popupType"
+      :product-class="productClass"
       :show="popupShow"
       :insured-list="insuredList"
       :title="popupTitle"
@@ -46,17 +49,22 @@ import TrialButton from '../components/TrialButton.vue';
 import { RISK_TYPE_ENUM } from '@/common/constants/trial';
 import useOrder from '@/hooks/useOrder';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
-import pageJump from '@/utils/pageJump';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
-import { transformToMoney } from '@/utils/format';
 import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
-import { getCusomterData, transformCustomerToPerson } from '../components/Trial/components/PersonalInfo/util.ts';
-import { transformFactorToSchema } from '@/components/RenderForm';
+import { getCusomterData } from '../components/Trial/components/PersonalInfo/util.ts';
+import { getUserInfo } from '@/views/baseInsurance/templates/utils';
 
 const route = useRoute();
 const router = useRouter();
-const { productCode, orderNo, tenantId, proposalId, proposalInsuredId } = route.query;
+
+interface QueryData {
+  productCode: string;
+  productClass: string;
+  [propName: string]: string;
+}
+
+const { productCode, orderNo, tenantId, proposalId, proposalInsuredId, productClass } = route.query as QueryData;
 
 // 以产品code为key的产品集合
 const productCollection = ref({});
@@ -261,6 +269,14 @@ const nextStep = () => {
     if (orderDetailCopy.extInfo) {
       orderDetailCopy.extInfo.iseeBizNo = iseeBizNo.value;
     }
+
+    orderDetailCopy.operateOption = {
+      withBeneficiaryInfo: true,
+      withHolderInfo: true,
+      withInsuredInfo: true,
+      withAttachmentInfo: true,
+      withProductInfo: true,
+    };
 
     const { code, data } = await saveOrder(orderDetailCopy);
     if (code === '10000') {

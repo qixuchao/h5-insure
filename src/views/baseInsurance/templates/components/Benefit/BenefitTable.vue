@@ -50,7 +50,8 @@ const columns = computed<ColumnProps[]>(() => {
     return {
       title: h,
       key: `header_${i}`,
-      fixed: i < 2,
+      minWidth: 90,
+      fixed: i < 1,
     };
   });
 });
@@ -69,11 +70,7 @@ const tableData = computed(() => {
 </script>
 <style>
 .benefit-table {
-  transform: rotate(90deg);
-  height: 700px;
-  /* border: 1px solid red; */
-  flex: auto;
-  padding-bottom: 20px;
-  overflow: hidden;
+  height: 100vh;
+  overflow-y: auto;
 }
 </style>

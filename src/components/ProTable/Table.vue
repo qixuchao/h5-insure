@@ -8,11 +8,12 @@
             :id="column.key"
             :key="column.key"
             class="normal-text normal-padding table-header-unit"
-            :style="{ minWidth: column.minWidth + 'px !important' }"
+            :style="{ minWidth: (column.minWidth || 100) + 'px !important' }"
           >
             {{ column.title }}
           </div>
         </section>
+
         <Scroll
           ref="headerScroll"
           :scroll-x="true"
@@ -36,6 +37,7 @@
           </section>
         </Scroll>
       </header>
+
       <Scroll class="table-article" :scroll-y="true">
         <section class="table-article-content">
           <section id="table-article-fixed" class="table-article-fixed">
@@ -57,10 +59,13 @@
                     {{ item[column.key] === null ? '-' : item[column.key] }}
                   </slot>
                 </template>
+
                 <span v-else>{{ item[column.key] === null ? '-' : item[column.key] }}</span>
               </div>
             </div>
+
             <!-- 这里合并单元格，我想到的方法是指定覆盖 -->
+
             <template v-if="colSpans && colSpans.length">
               <div
                 v-for="item in colSpans"
@@ -75,6 +80,7 @@
               ></div>
             </template>
           </section>
+
           <Scroll
             ref="tableScroll"
             :scroll-x="true"
@@ -99,6 +105,7 @@
                       {{ item[column.key] === null ? '-' : item[column.key] }}
                     </slot>
                   </template>
+
                   <span v-else>{{ item[column.key] === null ? '-' : item[column.key] }}</span>
                 </div>
               </div>
@@ -107,91 +114,92 @@
         </section>
       </Scroll>
     </template>
+
     <div v-else class="no-data-wrap">
-      <img src="@/assets/images/empty.png" alt="暂无数据" />
-      <span>暂无数据～</span>
+      <slot name="empty">
+        <span>暂无数据～</span>
+      </slot>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType, ref, computed, onUpdated, onMounted } from 'vue';
-import { useWindowSize } from '@vant/use';
+<script lang="ts" setup name="proTable">
+// import { withDefault } from 'vue';
+import { useWindowSize } from '@vueuse/core';
 import Scroll from './Scroll.vue';
 import { ColumnProps, ListProps, SpanProps } from './types';
 import useTableWidth from '@/hooks/useTableWidth';
 import useTableColSpan from '@/hooks/useTableSpan';
 import { Pos } from '@/hooks/useScroll';
 
-export default defineComponent({
-  name: 'Table',
-  components: {
-    Scroll,
+interface Props {
+  topHeight: number;
+  columns: Array;
+  data: Array;
+  colSpans: Array;
+  isClone: boolean;
+}
+const props = defineProps({
+  topHeight: {
+    type: Number,
+    required: true,
   },
-  props: {
-    topHeight: {
-      type: Number,
-      required: true,
-    },
-    columns: {
-      type: Array as PropType<ColumnProps[]>,
-      required: true,
-    },
-    data: {
-      type: Array as PropType<ListProps[] | null>,
-      required: true,
-    },
-    colSpans: {
-      type: Array as PropType<SpanProps[] | null>,
-      required: false,
-      default: () => [],
-    },
-    isClone: {
-      type: Boolean,
-      default: false,
-    },
+  columns: {
+    type: Array,
+    required: true,
   },
-  setup(props) {
-    const windowHeight = useWindowSize().height;
-    const height = ref(windowHeight.value - props.topHeight);
-    console.log('表格的高度信息：', windowHeight.value, props.topHeight, height.value);
-    const fixedColumns = computed(() => {
-      return props.columns.filter((v) => v.fixed);
-    });
-    const flowColumns = computed(() => {
-      return props.columns.filter((v) => !v.fixed);
-    });
-
-    onMounted(() => {
-      useTableWidth(props.columns);
-      useTableColSpan(true, props.isClone, props.colSpans);
-    });
-    onUpdated(() => {
-      useTableWidth(props.columns);
-      useTableColSpan(true, props.isClone, props.colSpans);
-    });
-
-    const headerScroll = ref();
-    const tableScroll = ref();
-    const handleScroll = (pos: Pos, key: 'headerScroll' | 'tableScroll') => {
-      console.log('scroll', key, pos);
-      if (key === 'headerScroll') {
-        tableScroll.value?.scroll.scrollTo(pos.x, 0, 0, undefined);
-      } else {
-        headerScroll.value?.scroll.scrollTo(pos.x, 0, 0, undefined);
-      }
-    };
-
-    return {
-      height,
-      fixedColumns,
-      flowColumns,
-      headerScroll,
-      tableScroll,
-      handleScroll,
-    };
+  data: {
+    type: Array,
+    required: true,
+  },
+  colSpans: {
+    type: Array,
+    required: false,
+    default: () => [],
+  },
+  isClone: {
+    type: Boolean,
+    default: false,
   },
 });
+
+// defineProps(), {
+//   topHeight: 0,
+//   columns: () => [],
+//   data: () => [],
+//   colSpans: () => [],
+//   isClone: false,
+// });
+
+const windowHeight = useWindowSize().height;
+const height = ref(windowHeight.value - props.topHeight);
+console.log('表格的高度信息：', windowHeight.value, props.topHeight, height.value);
+const fixedColumns = computed(() => {
+  return props.columns.filter((v) => v.fixed);
+});
+const flowColumns = computed(() => {
+  return props.columns.filter((v) => !v.fixed);
+});
+
+onMounted(() => {
+  useTableWidth(props.columns);
+  useTableColSpan(true, props.isClone, props.colSpans);
+});
+onUpdated(() => {
+  useTableWidth(props.columns);
+  useTableColSpan(true, props.isClone, props.colSpans);
+});
+
+const headerScroll = ref();
+const tableScroll = ref();
+const handleScroll = (pos: Pos, key: 'headerScroll' | 'tableScroll') => {
+  console.log('scroll', key, pos);
+  if (key === 'headerScroll') {
+    tableScroll.value?.scroll.scrollTo(pos.x, 0, 0, undefined);
+  } else {
+    headerScroll.value?.scroll.scrollTo(pos.x, 0, 0, undefined);
+  }
+};
 </script>
 
 <style lang="scss" scoped>
@@ -209,7 +217,7 @@ $header-height: 78px;
   z-index: 100;
 }
 .normal-text {
-  color: $zaui-text;
+  color: #666666;
   font-size: 24px;
 }
 .normal-padding {
@@ -377,7 +385,7 @@ $header-height: 78px;
     margin-bottom: 32px;
   }
   span {
-    font-size: $zaui-font-size;
+    font-size: 30px;
     color: #888888;
     margin-left: 10px;
   }

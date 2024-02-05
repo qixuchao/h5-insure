@@ -53,6 +53,7 @@ const onSearch = () => {
         width: 100%;
         margin: 0;
         padding: 8px 0;
+        text-align: left;
       }
     }
   }

@@ -52,6 +52,7 @@
                 autosize
                 label=""
                 type="textarea"
+                show-error
                 maxlength="100"
                 placeholder="请输入告知说明"
                 :show-word-limit="!isView"
@@ -81,6 +82,7 @@
                   label=""
                   type="textarea"
                   :maxlength="100"
+                  show-error
                   placeholder="请输入告知说明"
                   :show-word-limit="!isView"
                   :rules="[{ required: markRequested, message: '请输入告知说明' }]"
@@ -160,8 +162,8 @@ const mutiBlank = computed(() => {
   if (enumEqual(data.value.questionType, PRODUCT_QUESTION_OPT_TYPE_ENUM.MULE_BLANK)) {
     let temp = -1;
     return data.value.optionList[0].value
-      .replaceAll('_____', '∝$blank∝')
-      .replaceAll('\n', '∝<br />∝')
+      .replace(/_____/g, '∝$blank∝')
+      .replace(/\\n/g, '∝<br />∝')
       .split('∝')
       .map((blank) => {
         if (blank === '$blank') temp += 1;

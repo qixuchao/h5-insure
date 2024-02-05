@@ -43,6 +43,7 @@ import ProLazyComponent from './ProLazyComponent/index.vue';
 import ProShare from './ProShare/index.vue';
 import ProNavigator from './ProNavigator/index.vue';
 import ProScribing from './ProScribing/index.vue';
+import ProTable from './ProTable/Table.vue';
 
 interface ComponentMap {
   [key: string]: Component;
@@ -86,6 +87,7 @@ export const globalComs: ComponentMap = {
   ProNavigator,
   ProScribing,
   ProFileDrawer,
+  ProTable,
 };
 
 function install(app: any) {

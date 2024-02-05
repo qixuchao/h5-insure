@@ -108,4 +108,65 @@ export const rotateBase64 = (src, edg) => {
   });
 };
 
+/**
+ *
+ * @param base64
+ * @param multiple // 压缩比例
+ * @param type // 图片类型
+ * @returns
+ */
+export const compressImg = (base64, multiple, type = 'jpeg') => {
+  const length = base64.length / 1024;
+  // 压缩方法
+  const newImage = new Image();
+  let quality = 0.6; // 压缩系数0-1之间
+  newImage.src = base64;
+  newImage.setAttribute('crossOrigin', 'Anonymous'); // url为外域时需要
+  let imgWidth;
+  let imgHeight;
+  let w;
+  return new Promise((resolve, reject) => {
+    newImage.onload = function () {
+      // 这里面的 this 指向 newImage
+      // 通过改变图片宽高来实现压缩
+      w = newImage.width * multiple;
+      imgWidth = newImage.width;
+      imgHeight = newImage.height;
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (Math.max(imgWidth, imgHeight) > w) {
+        if (imgWidth > imgHeight) {
+          canvas.width = w;
+          // 等比例缩小
+          canvas.height = w * (imgHeight / imgWidth);
+        } else {
+          canvas.height = w;
+          // 等比例缩小
+          canvas.width = w * (imgWidth / imgHeight);
+        }
+      } else {
+        canvas.width = imgWidth;
+        canvas.height = imgHeight;
+        // quality 设置转换为base64编码后图片的质量，取值范围为0-1  没什么压缩效果
+        // 还是得通过设置 canvas 的宽高来压缩
+        quality = 0.6;
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(newImage, 0, 0, canvas.width, canvas.height);
+      const smallBase64 = canvas.toDataURL(`image/${type}`, quality); // 压缩语句
+      resolve(smallBase64);
+      // 如想确保图片压缩到自己想要的尺寸,如要求在50-150kb之间，请加以下语句，quality初始值根据情况自定
+      // while (smallBase64.length / 1024 > 150) {
+      // quality -= 0.01;
+      // smallBase64 = canvas.toDataURL("image/jpeg", quality);
+      // }
+      // 防止最后一次压缩低于最低尺寸，只要quality递减合理，无需考虑
+      // while (smallBase64.length / 1024 < 50) {
+      // quality += 0.001;
+      // smallBase64 = canvas.toDataURL("image/jpeg", quality);
+      // }
+    };
+  });
+};
+
 export default {};

@@ -34,7 +34,7 @@
               class="risk-item"
             >
               <ProTitle :title="risk.riskName" :risk-type="risk.riskType">
-                <div v-if="isTrial" class="operate-bar">
+                <div class="operate-bar">
                   <div
                     v-if="risk.riskType === RISK_TYPE_ENUM.MAIN_RISK"
                     class="add-risk btn"
@@ -42,7 +42,14 @@
                   >
                     +附加险
                   </div>
-                  <div class="delete-risk btn" @click="deleteRisk(productCode, risk.mainRiskCode, risk.riskCode)">
+                  <div
+                    v-if="
+                      risk.riskType === RISK_TYPE_ENUM.RIDER_RISK ||
+                      (risk.riskType === RISK_TYPE_ENUM.MAIN_RISK && isTrial)
+                    "
+                    class="delete-risk btn"
+                    @click="deleteRisk(productCode, risk.mainRiskCode, risk.riskCode)"
+                  >
                     删除
                   </div>
                 </div>
@@ -60,7 +67,7 @@
                 @trial-change="(data, changeData) => handleTrialInfoChange(data, changeData, productCode)"
               ></InsureInfos>
               <div class="premium-item">
-                <span class="label">首期保费</span>
+                <span class="label">首年保费</span>
                 <span class="price">{{ transformToMoney(premiumMap?.[productCode]?.[index]?.initialPremium) }}</span>
               </div>
             </div>
@@ -317,11 +324,24 @@ const getRiderRiskDefaultValue = async (productCode, riskCodeList, mainRiskCode,
       return risk.riskCode === riskCodeList[0];
     });
 
+    const errorMessage = [];
+
+    const currentRiskList = data.reduce((riskList, riskItem) => {
+      if (riskItem.errorMessage) {
+        errorMessage.push(`${riskItem.riskName}${riskItem.errorMessage}`);
+        return riskList;
+      }
+      riskList.push(riskItem);
+      return riskList;
+    }, []);
+
+    errorMessage.length && Toast(errorMessage.join('\n'));
+
     state.defaultValue.insuredList[0].productList = state.defaultValue?.insuredList?.[0]?.productList.map((product) => {
       if (productCode === product.productCode) {
         product.riskList = [
           ...product.riskList.slice(0, insertIndex),
-          ...data,
+          ...currentRiskList,
           ...product.riskList.slice(insertIndex, product.riskList.length),
         ];
       }
@@ -344,8 +364,14 @@ const getProductDefaultValue = async (productCodeList: Array<string>) => {
   });
 
   if (code === '10000') {
-    state.defaultValue.insuredList[0].productList = data.insuredList[0].productList;
-    Object.assign(state.userData, data);
+    const { holder, insuredList } = data;
+    const defaultData = {
+      ...data,
+      holder: resetObjectValues(holder),
+      insuredList: insuredList.map((insured) => ({ ...resetObjectValues(insured), productList: insured.productList })),
+    };
+    state.defaultValue.insuredList[0].productList = insuredList[0].productList;
+    Object.assign(state.userData, defaultData);
   }
 };
 
@@ -593,11 +619,10 @@ const handleDealDyResult = (dyResultData: any, productCode) => {
   const dyResult = cloneDeep(dyResultData);
   if (dyResult?.data?.[0]?.productRiskDyInsureFactorVOList) {
     const defaultRiskData = [];
-
     productMap.value[productCode]?.productPlanInsureVOList?.[0]?.insureProductRiskVOList.forEach((risk) => {
       const newRisk = dyResult?.data?.[0]?.productRiskDyInsureFactorVOList.find((r) => r.riskCode === risk.riskCode);
       // 豁免险特殊处理交期保期
-      if (risk.exemptFlag === YES_NO_ENUM.YES) {
+      if (risk.exemptFlag === YES_NO_ENUM.YES && newRisk?.mainRiskCode) {
         newRisk.chargePeriod = newRisk.paymentPeriodValueList?.[0].code;
         newRisk.coveragePeriod = newRisk.insurancePeriodValueList?.[0].code;
         newRisk.paymentFrequency = newRisk.paymentFrequencyList?.[0].code;
@@ -1195,7 +1220,10 @@ watch(
             }
             .add-risk {
               color: var(--van-primary-color);
-              border-right: 1px solid #dfdfdf;
+
+              & + .delete-risk {
+                border-left: 1px solid #dfdfdf;
+              }
             }
             .delete-risk {
               color: #999999;
@@ -1205,7 +1233,7 @@ watch(
         }
         .premium-item {
           display: flex;
-          justify-content: flex-end;
+          justify-content: space-between;
           font-size: 30px;
           font-weight: 400;
           color: #393d46;

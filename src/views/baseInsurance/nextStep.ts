@@ -82,7 +82,7 @@ export const nextStepOperate = async (
       } else if (resData.alertType === ALERT_TYPE_ENUM.QUESTIONNAIRE) {
         Dialog.confirm({
           confirmButtonText: '返回修改',
-          message: '当前投被保人年龄、性别不符合健康告知规则，请修改健康告知',
+          message,
         }).then(() => {
           router.push({
             path: PAGE_ROUTE_ENUMS.premiumTrial,

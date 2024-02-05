@@ -208,7 +208,7 @@ const showTablePopup = ref(true); // 利益演示结构
 const num = ref(0);
 
 // 展示类型
-const showType = ref(props.showTypeList?.[0]);
+const showType = ref('1');
 const tableData = ref();
 // 利益演示表格
 // const showTablePopup = computed(() => {
@@ -295,7 +295,7 @@ watch(
     if (val) {
       setAge(val);
       getData();
-      showType.value = val.showTypeList?.[0];
+      showType.value = val.showTypeList?.[0] || '1';
     }
   },
   {

@@ -63,7 +63,7 @@ const slots = useSlots();
 
 const { attrs } = toRefs(useAttrsAndSlots());
 const props = withDefaults(defineProps<Props>(), {
-  validateMethod: 'show-error-message',
+  validateMethod: 'show-error',
   isView: false,
   markRequired: true,
   model: () => ({}),

@@ -1,6 +1,6 @@
 <template>
   <div v-if="data && data.length" class="pro-table-wrap">
-    <Table v-model:translate-y="state.translateY" :columns="columns" :data="data" @update:need-fixed="setNeedFixed" />
+    <!-- <Table v-model:translate-y="state.translateY" :columns="columns" :data="data" @update:need-fixed="setNeedFixed" />
     <Table
       v-if="state.needFixed"
       v-model:translate-y="state.translateY"
@@ -8,7 +8,8 @@
       style="width: 160px"
       :columns="fixedColumns"
       :data="data"
-    />
+    /> -->
+    <ProTable :columns="columns" :data="data"></ProTable>
   </div>
   <div v-else class="no-data-wrap">
     <img src="@/assets/images/empty.png" alt="暂无数据" />
@@ -18,7 +19,7 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
-import Table from './Table.vue';
+// import Table from './Table.vue';
 import { isNotEmptyArray } from '@/common/constants/utils';
 
 const tableBodyRef = ref(null);

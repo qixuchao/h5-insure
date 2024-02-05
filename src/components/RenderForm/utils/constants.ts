@@ -514,6 +514,11 @@ export const ADDRESS_FACTOR_CONF = [
   },
 ].reduce((res, { key }) => {
   res[key] = RULE_CONFIG_MAP.ADDRESS;
+
+  // 如果是长期居住地，需要和邮政编码联动
+  if (key === ADDRESS_FACTOR_ENUM.LONG_AREA) {
+    res[key].relatedName = 'familyZipCode';
+  }
   return res;
 }, {});
 
