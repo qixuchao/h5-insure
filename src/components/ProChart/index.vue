@@ -47,6 +47,13 @@ const state = reactive({
       color: '#393D46',
       backgroundColor: 'rgba(255,255,255,0.9)',
       position: ['25%', '7%'],
+      axisPointer: {
+        label: {
+          formatter() {
+            return '';
+          },
+        },
+      },
       textStyle: {
         fontSize: 12,
       }, // 修改字体大小
@@ -65,8 +72,13 @@ const state = reactive({
       type: 'category',
       boundaryGap: false,
       data: [] as any,
+      name: '年龄',
+      nameRotate: -90,
+      nameGap: 0,
     },
-    yAxis: {},
+    yAxis: {
+      name: '金额',
+    },
     series: [] as any,
   },
 });

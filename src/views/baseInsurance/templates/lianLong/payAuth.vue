@@ -10,8 +10,8 @@
       <div class="bank-card">
         <div class="card-content">
           <div class="main">
-            <span class="bank-name">{{ firstPayInfo.payBank || '中国工商银行' }}</span>
-            <span class="bank-no">{{ firstPayInfo.bankCardNo || '**** **** **** 3941' }}</span>
+            <span class="bank-name">{{ bankName }}</span>
+            <span class="bank-no">{{ firstPayInfo.bankCardNo }}</span>
           </div>
           <p class="bank-card-type">{{ firstPayInfo.bankCardType || '储蓄卡' }}</p>
           <p class="desc">实时单笔限额5W 实时单日限额5W</p>
@@ -63,10 +63,11 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import { getTenantOrderDetail } from '@/api/modules/trial';
-import { sendSMSCode } from '@/components/RenderForm/utils/constants';
+import { combineDictCode, sendSMSCode } from '@/components/RenderForm/utils/constants';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { authorizeConfirm, authorizeSysCode } from '@/api/modules/verify';
-import { PAGE_ROUTE_ENUMS } from './constants.ts';
+import { PAGE_ROUTE_ENUMS } from './constants';
+import { useDictData } from '@/hooks';
 
 const route = useRoute();
 const router = useRouter();
@@ -117,11 +118,19 @@ const onSubmit = () => {
       console.log('e', e);
     });
 };
+
+const bankName = ref();
+const getBankName = async (bankCode) => {
+  const bankDict = (await useDictData(combineDictCode('BANK'))) || [];
+  bankName.value = bankDict.find((bankItem) => bankItem.code === bankCode)?.name;
+};
+
 const initData = async () => {
   await getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       formData.value = data;
       firstPayInfo.value = data.tenantOrderPayInfoList.find((payInfo) => payInfo.payInfoType === 1);
+      getBankName(firstPayInfo.value.payBank);
     }
   });
 };

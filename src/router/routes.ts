@@ -18,13 +18,13 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'trial',
     path: '/baseInsurance/long/trial',
-    meta: { title: '保费试算', cacheTarget: ['healthNotice'] },
+    meta: { title: '保费试算', cacheTarget: ['healthNotice', 'trial'] },
     component: () => import('@/views/baseInsurance/templates/lianLong/trial.vue'),
   },
   {
     name: 'healthNotice',
     path: '/baseInsurance/long/healthNotice',
-    meta: { title: '健康告知书', cacheSource: ['trial'] },
+    meta: { title: '健康告知书', cacheSource: ['trial', 'healthNotice'] },
     component: () => import('@/views/baseInsurance/templates/lianLong/healthNotice.vue'),
   },
   {
@@ -179,19 +179,19 @@ const proposalRoutes: Array<RouteRecordRaw> = [
   {
     name: 'compositionProposal',
     path: '/compositionProposal',
-    meta: { title: '组合计划书', requireWxJs: false },
+    meta: { title: '计划书', requireWxJs: false },
     component: () => import('@/views/proposal/compositionProposal/index.vue'),
   },
   {
     name: 'companyDetail',
     path: '/companyDetail',
-    meta: { title: '组合计划书', requireWxJs: false },
+    meta: { title: '计划书', requireWxJs: false },
     component: () => import('@/views/proposal/compositionProposal/components/CompanyDetail.vue'),
   },
   {
     name: 'companyAllDetail',
     path: '/companyAllDetail',
-    meta: { title: '组合计划书', requireWxJs: false },
+    meta: { title: '计划书', requireWxJs: false },
     component: () => import('@/views/proposal/compositionProposal/components/CompanyAllDetail.vue'),
   },
   {

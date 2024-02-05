@@ -3,27 +3,25 @@
     <ProNavigator />
     <ProFilePreview
       v-if="currentQuestion"
+      ref="previewRef"
       :type="currentQuestion.contentType"
       :content="currentQuestion"
       :params="questionParams"
       :success-callback="questionResolve"
     >
-      <!-- <template #title>
-        {{ currentQuestion.questionnaireName }}
-      </template> -->
-      <template v-if="currentQuestion.contentType === 'question' && currentQuestion.questionnaireId" #footer>
-        <div class="footer-btn">
-          <!-- <VanButton plain type="primary" @click="questionReject">部分为是</VanButton>
-          <VanButton type="primary" @click="questionResolve">以上皆否</VanButton> -->
-          <van-button round type="primary" block native-type="submit"> 下一步 </van-button>
-        </div>
-      </template>
-      <template v-else #footer-btn>
-        <div class="footer-btn">
-          <van-button round type="primary" block @click="questionResolve"> 下一步 </van-button>
-        </div>
-      </template>
     </ProFilePreview>
+    <div v-if="currentQuestion.contentType === 'question' && currentQuestion.questionnaireId">
+      <div class="footer-button">
+        <!-- <VanButton plain type="primary" @click="questionReject">部分为是</VanButton>
+          <VanButton type="primary" @click="questionResolve">以上皆否</VanButton> -->
+        <van-button round type="primary" @click="submitQuestion"> 下一步 </van-button>
+      </div>
+    </div>
+    <div v-else class="footer-btn">
+      <div class="footer-btn">
+        <van-button round type="primary" block @click="questionResolve"> 下一步 </van-button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -50,7 +48,7 @@ import { NOTICE_OBJECT_ENUM, QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE } f
 
 const route = useRoute();
 const router = useRouter();
-const orderDetail = useOrder();
+const orderDetail = useOrder({});
 
 console.log('route', route);
 
@@ -74,6 +72,11 @@ const onNext = () => {
       pageJump(data.nextPageCode, route.query);
     }
   });
+};
+
+const previewRef = ref();
+const submitQuestion = () => {
+  previewRef.value?.submitQuestion();
 };
 
 const questionResolve = () => {

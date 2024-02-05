@@ -83,6 +83,8 @@ export const CERT_TYPE_ENUM = {
   SOCIAL_CREDIT_CODE: '26',
   /** 临时身份证 */
   TEMPORARY_CARD: '30',
+  /** 临时身份证 */
+  ICARD: '30',
 };
 
 export const FLAG_LIST = [

@@ -105,7 +105,7 @@ export const RegMap = {
   /** 密码 */
   isPassword: (val: any) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,20}$/.test(val),
   /** 护照 */
-  isPassportType: (val: any) => val.length >= 5 && /^[^\u4e00-\u9fa5]+$/.test(val),
+  isPassportType: (val: any) => /^[A-Z]{1,2}\d{6,8}$/.test(val),
   /** 军官证 */
   isMilitaryCard: (val: string) => /^[\u4E00-\u9FA5](字第)([0-9a-zA-Z]{4,8})(号?)$/.test(val),
   /** 士兵证 */

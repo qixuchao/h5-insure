@@ -334,12 +334,51 @@ const productRiskCodeMap = ref({ productList: [] });
 const productCollection = ref({});
 const productFactor = ref();
 
+const pickRenewRiskList = (productList, factorList) => {
+  const renewRiskList = [];
+  const currentProductFactor = factorList;
+  productList.forEach((productItem) => {
+    const { insureProductRiskVOList } = productItem.productPlanInsureVOList?.[0] || {};
+    insureProductRiskVOList.reduce((list, riskItem) => {
+      const {
+        riskFixedRuleVO: { guaranteedRenewalFlag },
+        riskCode,
+      } = riskItem?.riskDetailResVO || {};
+      if (guaranteedRenewalFlag === YES_NO_ENUM.YES) {
+        list.push(riskCode);
+      }
+      return list;
+    }, renewRiskList);
+  });
+
+  Object.assign(orderDetail.value.extInfo, { renewRisk: renewRiskList.join(',') });
+  if (renewRiskList?.length) {
+    if (currentProductFactor[7]?.length) {
+      currentProductFactor[7].push(factorItemTemplate);
+    } else {
+      currentProductFactor[7] = [factorItemTemplate];
+    }
+  } else {
+    currentProductFactor[7] = (currentProductFactor[7] || []).filter(
+      (factor) => factor.code !== factorItemTemplate.code,
+    );
+  }
+
+  return currentProductFactor;
+};
+
 // 获取多个产品合并后的产品详情
 const getMergeProductDetail = () => {
   mergeInsureFactor(productRiskCodeMap.value).then(({ code, data }) => {
     if (code === '10000') {
       const { productDetailResList, productFactor: currentProductFactor } = data;
       productRiskCodeMap.value = pickProductRiskCode(productDetailResList);
+
+      productFactor.value = pickRenewRiskList(productDetailResList, currentProductFactor);
+
+      const { other } = transformFactorToSchema(productFactor.value);
+
+      state.policyInfo = other;
 
       // 如果有客户信息,则需要将客户信息回显
       // if (customerInfo) {
@@ -670,23 +709,6 @@ const queryProductMaterialData = () => {
   });
 };
 
-const pickRenewRiskList = (productList) => {
-  const renewRiskList = [];
-  productList.forEach((productItem) => {
-    const { insureProductRiskVOList } = productItem.productPlanInsureVOList?.[0] || {};
-    insureProductRiskVOList.reduce((list, riskItem) => {
-      const {
-        riskFixedRuleVO: { guaranteedRenewalFlag },
-        riskCode,
-      } = riskItem?.riskDetailResVO || {};
-      if (guaranteedRenewalFlag === YES_NO_ENUM.YES) {
-        list.push(riskCode);
-      }
-      return list;
-    }, renewRiskList);
-  });
-  return renewRiskList;
-};
 const initData = async () => {
   const productRiskMap = {};
   // querySalesInfo({ productCode, tenantId }).then(({ data, code }) => {
@@ -732,16 +754,7 @@ const initData = async () => {
   await mergeInsureFactor(productRiskCodeMap.value).then(({ data, code }) => {
     if (code === '10000') {
       const { productDetailResList, productFactor: currentProductFactor } = data;
-      const renewRiskList = pickRenewRiskList(productDetailResList);
-      Object.assign(orderDetail.value.extInfo, { renewRisk: renewRiskList.join(',') });
-      if (renewRiskList?.length) {
-        if (currentProductFactor[7]?.length) {
-          currentProductFactor[7].push(factorItemTemplate);
-        } else {
-          currentProductFactor[7] = [factorItemTemplate];
-        }
-      }
-      productFactor.value = currentProductFactor;
+      productFactor.value = pickRenewRiskList(productDetailResList, currentProductFactor);
 
       const currentProductCollection = {};
       productDetailResList.forEach((product) => {

@@ -78,7 +78,7 @@ const handleCharts = () => {
 
       emits('onUploadedCharts', { index: props.dataSourceIndex, imgUrl: url });
     });
-  }, 500);
+  }, 1500);
 };
 
 const renderArray = (start: number, end: number) => {

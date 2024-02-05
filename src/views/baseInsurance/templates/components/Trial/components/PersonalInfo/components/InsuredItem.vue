@@ -613,8 +613,6 @@ watch(
       // 若为本人合并投保人数据
       nextTick(() => {
         Object.assign(state.personVO, newPersonVo);
-        console.log('newPersonVo', newPersonVo);
-        console.log('PersonVo', state.personVO);
       });
 
       relationToHolderChanged = true;
@@ -751,7 +749,7 @@ watch(
         const isSelf = String(props.modelValue?.relationToHolder) === '1';
         state.schema = cloneDeep(val).map((item) => {
           setCertDefaultValue(props.schema, props.modelValue, () => {
-            state.personVO.certType = '1';
+            state.personVO.certType = state.personVO.certType || '1';
           });
           Object.assign(state.config, getCertTypeConfig(state.personVO.certType, val));
           item.relationToHolder = props.modelValue?.relationToHolder;
@@ -778,7 +776,7 @@ watch(
       }
       merge(state.personVO, rest);
       setCertDefaultValue(props.schema, props.modelValue, () => {
-        state.personVO.certType = '1';
+        state.personVO.certType = state.personVO.certType || '1';
       });
     }
   },

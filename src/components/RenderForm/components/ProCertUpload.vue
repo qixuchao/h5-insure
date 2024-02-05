@@ -18,6 +18,6 @@ const { formState, extraProvision } = inject(VAN_PRO_FORM_KEY) || {};
 
 const isIDCard = computed(() => {
   const { certType } = formState.formData || {};
-  return `${certType}` === CERT_TYPE_ENUM.CERT;
+  return [CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.ICARD].includes(`${certType}`);
 });
 </script>

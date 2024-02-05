@@ -17,7 +17,6 @@ import { getConfig } from './utils/config';
 import { addScript } from '@/utils/index';
 import { useThemesStore } from './store/themes';
 import useStore from '@/store/app';
-
 import ProVConsole from '@/components/ProVConsole/index.vue';
 
 const globalStore = useStore();
