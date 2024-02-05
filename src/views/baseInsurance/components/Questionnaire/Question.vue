@@ -305,6 +305,9 @@ defineExpose({
   .van-field__body {
     width: 100%;
   }
+  .van-field__error-message {
+    font-size: 30px;
+  }
 }
 // }
 .question-muti-blank {

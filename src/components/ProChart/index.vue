@@ -46,7 +46,7 @@ const state = reactive({
       trigger: 'axis',
       color: '#393D46',
       backgroundColor: 'rgba(255,255,255,0.9)',
-      position: ['25%', '7%'],
+      position: ['35%', '7%'],
       axisPointer: {
         label: {
           formatter() {
@@ -73,8 +73,10 @@ const state = reactive({
       boundaryGap: false,
       data: [] as any,
       name: '年龄',
-      nameRotate: -90,
       nameGap: 0,
+      nameTruncate: {
+        maxWidth: 100,
+      },
     },
     yAxis: {
       name: '金额',

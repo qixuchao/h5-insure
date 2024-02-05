@@ -6,7 +6,7 @@ export const VERIFY_STATUS_LIST = [
     value: 1,
   },
   {
-    label: '去签名',
+    label: '本地签名',
     value: 2,
   },
   {

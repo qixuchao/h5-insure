@@ -22,7 +22,7 @@
                   v-if="isShareSing('holder')"
                   :value-class="`${isDisabled ? 'disable' : ''}`"
                   is-link
-                  value="分享空签邀约"
+                  value="分享签名"
                   @click="!isDisabled && handleShare('holder')"
                 ></van-cell>
                 <van-cell
@@ -41,7 +41,7 @@
                   v-if="isShareSing('insured')"
                   :value-class="`${isDisabled ? 'disable' : ''}`"
                   is-link
-                  value="分享空签邀约"
+                  value="分享签名"
                   @click="!isDisabled && handleShare('insured')"
                 ></van-cell>
                 <van-cell

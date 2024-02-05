@@ -180,7 +180,7 @@ watch(
   () => props.data.answerList,
   () => {
     answerVOList.value = dealAnswerData(props.data.questions, props.data.answerList);
-    imageList.value = props.data.imageList;
+    imageList.value = imageList.value?.length ? imageList.value : props.data.imageList;
   },
   {
     immediate: true,
