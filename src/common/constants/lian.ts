@@ -2,8 +2,8 @@ export const LIAN_STORAGE_KEY = 'lian';
 
 export const SHARE_CONTENT = {
   sign: {
-    title: '分享签名',
-    desc: `尊敬的{name}邀请您进行投保单电子签名，分享签名链接20分钟有效。【利安人寿】`,
+    title: '签名',
+    desc: `尊敬的{name}士，代理人邀请您进行电子签名。【利安人寿保险股份有限公司】`,
   },
   pay: {
     title: '支付信息修改',

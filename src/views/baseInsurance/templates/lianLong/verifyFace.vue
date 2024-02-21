@@ -1,26 +1,59 @@
 <template>
-  <div class="page-verify-face">
-    <div class="result-content">
-      <template v-if="!verifyStatus">
-        <ProSvg name="wrong" font-size="52px" color="var(--van-primary-color)"></ProSvg>
-        <h4>人脸识别验证失败</h4>
-      </template>
-      <p class="desc">请保持在检测框内</p>
+  <ProPageWrap>
+    <div class="page-phone-verify">
+      <div class="title face-title">人脸识别</div>
+      <div class="face-verify-img">
+        <img :src="faceImg" alt="" />
+      </div>
+      <div class="face-verify-tip">
+        <div class="title">操作时请您配合</div>
+        <ol>
+          <li>请调亮手机屏幕亮度，确保光线充足</li>
+          <li>请保持正脸对准屏幕，确保人脸完整清晰</li>
+          <li>请确保真实本人操作</li>
+        </ol>
+      </div>
+      <div class="attachment">
+        <AttachmentList
+          v-if="fileList?.length"
+          v-model="agree"
+          :attachment-list="fileList"
+          :has-bg-color="false"
+          is-show-radio
+          pre-text="本人同意利安人寿采集本人人脸信息，用于向国家法规许可的验证机构进行本人身份验证。本人已仔细阅读并知晓"
+          suffix-text="，并同意授权。"
+          @preview-file="() => (showFilePreview = true)"
+        />
+      </div>
+      <div class="footer-button">
+        <van-button type="primary" class="submit-btn" @click="handleSubmit">同意拍摄</van-button>
+      </div>
     </div>
-    <div class="operate-btn">
-      <van-button v-if="!verifyStatus" type="primary" @click="goFaceVerify">再试一次</van-button>
-      <span v-else>人脸识别中...</span>
-    </div>
-  </div>
+    <FilePreview
+      v-if="showFilePreview"
+      v-model:show="showFilePreview"
+      :content-list="fileList"
+      is-only-view
+      :active-index="0"
+      text="我已阅读"
+      :force-read-cound="0"
+      @submit="() => (showFilePreview = false)"
+      @on-close-file-preview-by-mask="() => (showFilePreview = false)"
+    ></FilePreview>
+  </ProPageWrap>
 </template>
 
 <script lang="ts" setup name="verifyFace">
 import { useRoute, useRouter } from 'vue-router';
+import { Dialog } from 'vant/es';
 import { faceVerify, queryFaceVerifyResult } from '@/api/modules/verify';
 import { useSessionStorage } from '@/hooks/useStorage';
 import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
 import { PAGE_ROUTE_ENUMS } from './constants';
+import faceImg from '@/assets/images/baseInsurance/face_img.png';
+import AttachmentList from '../components/AttachmentList/index.vue';
 
+const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const sessionStorage = useSessionStorage();
 const route = useRoute();
 const router = useRouter();
@@ -30,6 +63,13 @@ const orderDetail = sessionStorage.get(`${LIAN_STORAGE_KEY}_orderDetail`);
 
 const userInfo = ref();
 const verifyStatus = ref<boolean>(true);
+const agree = ref();
+const fileList = ref([
+  {
+    attachmentName: '隐私政策',
+  },
+]);
+const showFilePreview = ref(false);
 
 // 跳转第三方人脸识别页面
 const goFaceVerify = () => {
@@ -49,6 +89,17 @@ const goFaceVerify = () => {
       window.location.href = data.originalUrl;
     }
   });
+};
+
+const handleSubmit = () => {
+  if (!agree.value) {
+    Dialog.alert({
+      message: '请先同意隐私政策',
+      confirmButtonText: '我知道了',
+    });
+    return;
+  }
+  goFaceVerify();
 };
 
 const getFaceVerifyResult = () => {
@@ -97,9 +148,6 @@ onBeforeMount(() => {
       certType,
       objectId: id,
     };
-  }
-  if (isFirst === '1') {
-    goFaceVerify();
   }
   if (biz_id) {
     getFaceVerifyResult();

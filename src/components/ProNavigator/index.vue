@@ -41,15 +41,7 @@ import { useSessionStorage } from '@/hooks/useStorage';
 const storage = useSessionStorage();
 
 const route = useRoute();
-const {
-  saleUserId = 'D1234567-1',
-  tenantId = '9991000007',
-  templateId = 1,
-  productCode = 'CQ75CQ76',
-  insurerCode = 'ancheng',
-  productCategory = '1',
-  isFromOrderList,
-} = route.query;
+const { tenantId, templateId, orderNo } = route.query;
 
 // 需要展示侧边导航的页面code
 const showNavigatorPageCodeList = ['questionNotice', 'infoCollection', 'infoPreview', 'payInfo', 'salesNotice', 'sign'];
@@ -96,7 +88,7 @@ const currentNode = computed(() => {
 });
 
 onMounted(() => {
-  getTemplateInfo({ templateId }).then((res) => {
+  getTemplateInfo({ templateId, orderNo, tenantId }).then((res) => {
     const { code, data } = res;
     if (code === '10000' && data) {
       const pageCodeList = data.templatePageList.map((item) => item.pageCode);

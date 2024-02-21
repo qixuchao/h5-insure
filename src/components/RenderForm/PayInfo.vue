@@ -284,7 +284,6 @@ const combineFormData = (targetIndex, originIndex) => {
   }, tempData);
 
   merge(state.schemaList[targetIndex]?.formData, tempData);
-  console.log('merge', state.schemaList[targetIndex]?.formData);
 };
 
 // 验证表单必填
@@ -375,10 +374,10 @@ watch(
 // 根据 payInfoType 处理，原因是 首期/续期/年金某一个可能不配置，不能拿索引
 // 首期 数据变动，若续期/年金同首期
 watch(
-  () => ({ ...state.schemaList[schemaIndexMap.value.FIRST_TERM]?.formData }),
+  () => cloneDeep(state.schemaList[schemaIndexMap.value.FIRST_TERM]?.formData),
   // eslint-disable-next-line consistent-return
   (val, oldVal) => {
-    if (props.isView || isEqual(val, oldVal)) {
+    if (props.isView || JSON.stringify(val) === JSON.stringify(oldVal)) {
       return false;
     }
     const { REPRISE, RENEW_TERM } = schemaIndexMap.value;

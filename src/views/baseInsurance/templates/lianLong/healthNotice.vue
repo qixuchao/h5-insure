@@ -60,10 +60,14 @@ const nextQuestionnaireId = ref<number>(); // 下个问卷id
 const objectType = ref<number>(); // 问卷关联对象
 const questionnaireId = ref<number>(); // 问卷id
 const answerList = ref([]); // 问卷答案
-const questionParams = ref({
-  orderNo,
-  tenantId,
-  noticeType: objectType,
+const questionParams = computed(() => {
+  const { holder, insuredList } = orderDetail.value;
+  let objectId = insuredList?.[0]?.id;
+
+  if (objectType.value === NOTICE_OBJECT_ENUM.HOlDER) {
+    objectId = holder.id;
+  }
+  return { orderNo, tenantId, noticeType: objectType.value, objectId };
 });
 
 const onNext = () => {
@@ -199,7 +203,6 @@ const getOrderDetail = async () => {
       },
     });
     const productCodeList = data.insuredList[0].productList.map((product) => product.productCode);
-    questionParams.value.objectId = data.insuredList[0].id;
     getQuestionInfo({ productCodeList });
   }
 };

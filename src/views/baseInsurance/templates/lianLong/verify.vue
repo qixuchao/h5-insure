@@ -235,13 +235,13 @@ const handleShare = (type) => {
   const { holder, insuredList } = orderDetail.value;
   let userInfo = {
     name: holder.name,
-    gender: `${SEX_LIMIT_MAP[holder.gender]}士`,
+    gender: `${SEX_LIMIT_MAP[holder.gender]}`,
   };
 
   if (type === 'insured') {
     userInfo = {
       name: insuredList?.[0].name,
-      gender: `${SEX_LIMIT_MAP[insuredList?.[0]?.gender]}士`,
+      gender: `${SEX_LIMIT_MAP[insuredList?.[0]?.gender]}`,
     };
   }
 
@@ -253,8 +253,8 @@ const handleShare = (type) => {
 
   shareWeiXin({
     shareType: 0,
-    title: `${SHARE_CONTENT.sign.title}（${NOTICE_TYPE_MAP[type.toLocaleUpperCase()]}）`,
-    desc: SHARE_CONTENT.sign.desc.replace('{name}', `${userInfo.name || ''}${userInfo.gender || ''},代理人`),
+    title: `${NOTICE_TYPE_MAP[type.toLocaleUpperCase()]}${SHARE_CONTENT.sign.title}`,
+    desc: SHARE_CONTENT.sign.desc.replace('{name}', `${userInfo.name || ''}${userInfo.gender || ''}`),
     url: `${window.location.href}&objectType=${type}&nextPageCode=infoPreview`.replace('/verify', '/phoneVerify'),
     imageUrl:
       'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/lian_logo.png?OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Expires=1697288114&Signature=S87PMeDRxltLovmmHVTeiHoew1c%3D',

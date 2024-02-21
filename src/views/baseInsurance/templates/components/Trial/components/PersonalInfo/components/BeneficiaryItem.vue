@@ -164,7 +164,7 @@ watch(
   () => cloneDeep(state.personVO),
   (val, oldVal) => {
     if (val) {
-      if (isSameHolder()) {
+      if (isSameHolder() && !props.isView) {
         Toast('录入的受益人同投保人基本信息，请勾选“同投保人');
       }
 

@@ -5,6 +5,7 @@
       ref="payInfoRef"
       v-model="payInfoList"
       :schema="payInfo.schema"
+      :config="payInfo.config"
       :is-view="isView"
       :user-data="orderDetail"
     ></PayInfo>
@@ -22,7 +23,7 @@ import { pickProductRiskCodeFromOrder } from './utils';
 import { getTenantOrderDetail, mergeInsureFactor, saveOrder } from '@/api/modules/trial';
 import { transformFactorToSchema } from '@/components/RenderForm/utils/tools';
 import { nextStepOperate as nextStep } from '../../nextStep';
-import { NOTICE_TYPE_MAP, PAGE_ACTION_TYPE_ENUM, SEX_LIMIT_MAP } from '@/common/constants';
+import { NOTICE_TYPE_MAP, PAGE_ACTION_TYPE_ENUM, SEX_LIMIT_MAP, YES_NO_ENUM } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
 import { shareWeiXin } from '@/utils/lianSDK';
@@ -111,6 +112,18 @@ const initData = async () => {
   querySnapShotPayInfo({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       payInfoList.value = data.tenantOrderPayInfoList;
+      const configList = [];
+      data.tenantOrderPayInfoList.forEach((info, index) => {
+        // 如果支付方式是批量扣款
+        if (`${info.paymentType}` === `${YES_NO_ENUM.NO}`) {
+          configList[index] = {
+            paymentType: {
+              isView: true,
+            },
+          };
+        }
+      });
+      payInfo.value.config = configList;
     }
   });
 
@@ -119,6 +132,7 @@ const initData = async () => {
     Object.assign(orderDetail.value, oData, {
       extInfo: { ...oData.extInfo, buttonCode: BUTTON_CODE_ENUMS.SIGN, pageCode: PAGE_CODE_ENUMS.SIGN },
     });
+
     productRiskMap = pickProductRiskCodeFromOrder(oData.insuredList[0].productList);
   }
 

@@ -38,17 +38,39 @@
           <li>请确保真实本人操作</li>
         </ol>
       </div>
-      <van-button type="primary" class="submit-btn" @click="handleSubmit">开始验证</van-button>
-      <div class="tips">
-        <img :src="faceTip" alt="" />
+      <div class="attachment">
+        <AttachmentList
+          v-if="fileList?.length"
+          v-model="agree"
+          :attachment-list="fileList"
+          :has-bg-color="false"
+          is-show-radio
+          pre-text="本人同意利安人寿采集本人人脸信息，用于向国家法规许可的验证机构进行本人身份验证。本人已仔细阅读并知晓"
+          suffix-text="，并同意授权。"
+          @preview-file="() => (showFilePreview = true)"
+        />
       </div>
+      <div class="footer-button">
+        <van-button type="primary" class="submit-btn" @click="handleSubmit">同意拍摄</van-button>
+      </div>
+      <FilePreview
+        v-if="showFilePreview"
+        v-model:show="showFilePreview"
+        :content-list="fileList"
+        is-only-view
+        :active-index="0"
+        text="我已阅读"
+        :force-read-cound="0"
+        @submit="() => (showFilePreview = false)"
+        @on-close-file-preview-by-mask="() => (showFilePreview = false)"
+      ></FilePreview>
     </div>
   </ProPageWrap>
 </template>
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Toast } from 'vant/es';
+import { Dialog, Toast } from 'vant/es';
 import { getTenantOrderDetail } from '@/api/modules/trial';
 import { convertPhone } from '@/utils/format';
 import useOrder from '@/hooks/useOrder';
@@ -56,8 +78,8 @@ import { NOTICE_TYPE_MAP } from '@/common/constants';
 import { faceVerify, queryFaceVerifyResult } from '@/api/modules/verify';
 import { sendSMSCode, checkSMSCode } from '@/components/RenderForm/utils/constants';
 import faceImg from '@/assets/images/baseInsurance/face_img.png';
-import faceTip from '@/assets/images/baseInsurance/face_tip.png';
 import { PAGE_ROUTE_ENUMS } from './constants';
+import AttachmentList from '../components/AttachmentList/index.vue';
 
 /** 页面query参数类型 */
 interface QueryData {
@@ -80,6 +102,13 @@ const formData = ref({
 });
 const formRef = ref();
 const userInfo = ref();
+const agree = ref();
+const fileList = ref([
+  {
+    attachmentName: '隐私政策',
+  },
+]);
+const showFilePreview = ref(false);
 
 const personType = computed(() => {
   if (Array.isArray(objectType)) {
@@ -169,6 +198,13 @@ const goFaceVerify = () => {
 
 const handleSubmit = () => {
   formRef.value?.validate?.().then(() => {
+    if (!agree.value) {
+      Dialog.alert({
+        message: '请先同意隐私政策',
+        confirmButtonText: '我知道了',
+      });
+      return;
+    }
     goFaceVerify();
   });
 };

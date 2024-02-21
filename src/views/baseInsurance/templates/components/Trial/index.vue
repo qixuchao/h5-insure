@@ -570,7 +570,8 @@ const onNext = (cb) => {
     state.trialResult,
     orderDetail.value,
   );
-  cb?.(currentOrderDetail);
+  console.log('currentOrderDetail', currentOrderDetail);
+  // cb?.(currentOrderDetail);
 };
 
 const onShare = (cb) => {

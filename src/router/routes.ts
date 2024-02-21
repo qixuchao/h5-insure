@@ -121,7 +121,7 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'infoPreview',
     path: '/baseInsurance/long/infoPreview',
-    meta: { title: '保单预览' },
+    meta: { title: '投保信息确认' },
     component: () => import('@/views/baseInsurance/templates/lianLong/infoPreview.vue'),
   },
   {

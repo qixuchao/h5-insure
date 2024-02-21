@@ -78,7 +78,7 @@
           ></slot>
         </template>
         <template #header-item>
-          <ProFieldV2 v-if="!isSameHolder" label="是否同投保人" input-align="right">
+          <ProFieldV2 v-if="!isSameHolder && !isView" label="是否同投保人" input-align="right">
             <template #input>
               <van-switch
                 v-model="beneficiary.personVO.isHolder"
