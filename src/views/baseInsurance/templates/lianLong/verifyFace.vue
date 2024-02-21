@@ -1,6 +1,6 @@
 <template>
   <ProPageWrap>
-    <div class="page-phone-verify">
+    <div class="page-verify-face">
       <div class="title face-title">人脸识别</div>
       <div class="face-verify-img">
         <img :src="faceImg" alt="" />
@@ -52,6 +52,7 @@ import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
 import { PAGE_ROUTE_ENUMS } from './constants';
 import faceImg from '@/assets/images/baseInsurance/face_img.png';
 import AttachmentList from '../components/AttachmentList/index.vue';
+import policyPdf from '@/assets/pdf/policy.pdf';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const sessionStorage = useSessionStorage();
@@ -67,6 +68,13 @@ const agree = ref();
 const fileList = ref([
   {
     attachmentName: '隐私政策',
+    attachmentList: [
+      {
+        materialName: '隐私政策',
+        materialContent: policyPdf,
+        materialSource: 'pdf',
+      },
+    ],
   },
 ]);
 const showFilePreview = ref(false);
@@ -164,21 +172,87 @@ onMounted(() => {
 </script>
 <style lang="scss" scoped>
 .page-verify-face {
-  display: flex;
-  align-items: center;
-  padding-top: 150px;
-  .result-content {
-    width: 543px;
-    height: 543px;
-    border-radius: 50%;
-    background-color: #eeeeee;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 200px;
-    h4 {
-      margin: 32px 0;
+  width: 100%;
+  height: 100%;
+  padding: 41px 30px 150px;
+  .title {
+    font-size: 36px;
+    font-weight: 500;
+    color: #333333;
+    line-height: 48px;
+    margin-bottom: 24px;
+  }
+
+  .face-title {
+    margin: 40px 0 30px;
+  }
+
+  :deep(.van-cell) {
+    border: 1px solid $zaui-line;
+    border-radius: 8px;
+    .van-field__label {
+      width: 0;
     }
+    .van-field__value .van-field__control {
+      text-align: left !important;
+    }
+  }
+
+  .face-verify-img {
+    display: flex;
+    justify-content: center;
+    img {
+      width: 300px;
+      height: 300px;
+    }
+  }
+
+  .face-verify-tip {
+    background-color: #f6f7f9;
+    border-radius: 20px;
+    padding: 28px 25px 30px 25px;
+    margin: 34px 30px 66px;
+
+    .title {
+      font-size: 32px;
+      font-weight: 600;
+      color: #393d46;
+      line-height: 45px;
+    }
+
+    li {
+      position: relative;
+      padding-left: 20px;
+      font-size: 28px;
+      font-weight: 400;
+      color: #6e7586;
+      line-height: 52px;
+      &:before {
+        content: '';
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #6e7586;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        margin: auto;
+      }
+    }
+  }
+
+  .tips {
+    margin: 96px 21px;
+    padding: 0 80px;
+    img {
+      width: 100%;
+    }
+  }
+  .submit-btn {
+    width: 100%;
+    height: 90px;
+    background: $zaui-brand;
   }
 }
 </style>

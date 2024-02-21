@@ -60,6 +60,7 @@ import { PAGE_ROUTE_ENUMS as FREE_PAGE_ROUTE_ENUMS } from '../lianFree/constants
 import { nextStepOperate } from '../../nextStep.ts';
 import { TEMPLATE_TYPE_ENUM } from '@/common/constants/infoCollection';
 import AttachmentList from '../components/AttachmentList/index.vue';
+import policyPdf from '@/assets/pdf/policy.pdf';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 
@@ -89,6 +90,13 @@ const agree = ref();
 const fileList = ref([
   {
     attachmentName: '隐私政策',
+    attachmentList: [
+      {
+        materialName: '隐私政策',
+        materialContent: policyPdf,
+        materialSource: 'pdf',
+      },
+    ],
   },
 ]);
 const showFilePreview = ref(false);
@@ -218,7 +226,7 @@ onMounted(() => {
 .page-phone-verify {
   width: 100%;
   height: 100%;
-  padding: 41px 30px;
+  padding: 41px 30px 150px;
   .title {
     font-size: 36px;
     font-weight: 500;

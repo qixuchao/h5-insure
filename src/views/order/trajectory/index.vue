@@ -62,14 +62,11 @@ onMounted(() => {
   orderInsureRecord({ orderId, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       const { originList, recordResVOList } = data;
-      list.value = ((originList as OriginItem[]) || []).map((item, index) => {
-        return {
-          ...item,
-          ...recordResVOList[index],
-        };
-      });
+      list.value = originList;
       if (recordResVOList.length) {
-        activeIndex.value = recordResVOList.length - 1;
+        activeIndex.value = originList.findIndex(
+          (item) => item.step === recordResVOList[recordResVOList.length - 1].step,
+        );
       }
     }
   });
