@@ -85,25 +85,25 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'phoneVerify',
     path: '/baseInsurance/long/phoneVerify',
-    meta: { title: '空中签名', cacheTarget: ['phoneVerify', 'infoPreview'] },
+    meta: { cacheTarget: ['phoneVerify', 'infoPreview'] },
     component: () => import('@/views/baseInsurance/templates/lianLong/phoneVerify.vue'),
   },
   {
     name: 'agentSign',
     path: '/baseInsurance/long/agentSign',
-    meta: { title: '代理人签字' },
+    meta: { title: '销售人员签名' },
     component: () => import('@/views/baseInsurance/templates/lianLong/agentSign.vue'),
   },
   {
     name: 'holderSign',
     path: '/baseInsurance/long/holderSign',
-    meta: { title: '投保人签字' },
+    meta: { title: '投保人签名' },
     component: () => import('@/views/baseInsurance/templates/lianLong/holderSign.vue'),
   },
   {
     name: 'insuredSign',
     path: '/baseInsurance/long/insuredSign',
-    meta: { title: '被保险人签字' },
+    meta: { title: '被保险人签名' },
     component: () => import('@/views/baseInsurance/templates/lianLong/insuredSign.vue'),
   },
   {

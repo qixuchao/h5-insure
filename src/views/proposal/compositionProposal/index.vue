@@ -886,7 +886,7 @@ const currentFile = ref({
   attachmentSource: 1,
   show: false,
 });
-// 客户代理人信息
+// 客户销售人员信息
 // const agentInfo = reactive({ name: `${userInfo?.name}`, agentCode: `${userInfo?.agentCode}` });
 const previewFile = (file: {}) => {
   currentFile.value = { ...file, show: true };

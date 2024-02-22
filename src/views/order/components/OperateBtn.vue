@@ -51,6 +51,9 @@ const isDealOrder = computed<boolean>(() => {
 // 撤单按钮展示权限
 const isReturnOrder = computed<boolean>(() => {
   const { policyNo, applicationNo, orderStatus } = props.detail;
+  // if (!policyNo && application) {
+  //   return ['offlinePayment', 'paymentFailed'].includes(orderStatus);
+  // }
   // 已承保、已撤单的订单不展示
   return !policyNo && applicationNo && orderStatus !== 'cancel';
 });

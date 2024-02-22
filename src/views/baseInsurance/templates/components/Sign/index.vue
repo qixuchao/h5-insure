@@ -10,7 +10,7 @@
       />
 
       <van-button type="primary" round size="small" @click="openSign">{{
-        signString ? '重新签名' : '点击签字'
+        signString ? '重新签名' : '点击签名'
       }}</van-button>
     </slot>
   </div>

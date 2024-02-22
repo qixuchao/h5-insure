@@ -102,7 +102,7 @@ export const newOrderDetail = (data = {}): Promise<ResponseData<NextStepRequestD
   });
 };
 
-// 获取利安代理人信息
+// 获取利安销售人员信息
 export const queryLianAgentInfo = (data) =>
   request<LianUserData>({
     url: '/api/app/insure/customer/getBaseUserInfo',

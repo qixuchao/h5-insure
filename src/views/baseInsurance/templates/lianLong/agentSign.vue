@@ -1,6 +1,12 @@
 <template>
   <div class="long-verify">
     <ProNavigator />
+    <div class="header">
+      <ProMessage
+        type="warning"
+        :content="`本人${userInfo?.name}已面晤投保人、被保险人(被保险人为未成年人的，还包括其法定监护人)，投保过程中的告知事项已逐一向投保人、被保险人/法定监护人当面询问，并亲自见证投保人、被保险人/法定监护人在电子投保单上签名。如有不实见证或报告，本人愿承担相应的法律责任。请${userInfo?.name}签名确认。`"
+      />
+    </div>
     <div class="verify-content">
       <SignPart
         ref="agentSignRef"
@@ -11,7 +17,7 @@
         :file-list="signPartInfo.agent.fileList"
         :personal-info="signPartInfo.agent.personalInfo"
         :disabled="!!isShare"
-        title="代理人"
+        title="销售人员"
         @handle-sign="(signData) => sign('AGENT', signData)"
       ></SignPart>
     </div>
@@ -121,7 +127,7 @@ const signPartInfo = ref({
     isVerify: false,
     isShareSign: false,
     signData: [],
-  }, // 代理人
+  }, // 销售人员
 });
 
 const requiredType = ref<any>({
@@ -172,7 +178,7 @@ const handleShare = () => {
         }
       })
       .catch(() => {
-        Toast('请完成代理人签字后进行分享');
+        Toast('请完成销售人员签名后进行分享');
       });
   }
 };
@@ -257,19 +263,19 @@ const initData = async () => {
             if (schema.required) {
               requiredType.value.sign.push(column.code);
             }
-            // 代理人签字
+            // 销售人员签名
             if (column.code === '1') {
               signPartInfo.value.agent.isSign = true;
-              // 投保人签字
+              // 投保人签名
             } else if (column.code === '2') {
               signPartInfo.value.holder.isSign = true;
-              // 被保险人签字
+              // 被保险人签名
             } else if (column.code === '3') {
               signPartInfo.value.insured.isSign = true;
-              // 投保人空中签字
+              // 投保人空中签名
             } else if (column.code === '4') {
               signPartInfo.value.holder.isShareSign = true;
-              // 被保险人空中签字
+              // 被保险人空中签名
             } else if (column.code === '5') {
               signPartInfo.value.insured.isShareSign = true;
             }

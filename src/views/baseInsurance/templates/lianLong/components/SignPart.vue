@@ -79,7 +79,7 @@ const AttachmentList = defineAsyncComponent(() => import('../../components/Attac
 const FilePreview = defineAsyncComponent(() => import('../../components/FilePreview/index.vue'));
 
 interface Props {
-  signString?: string[]; // 签字配置信息
+  signString?: string[]; // 签名配置信息
   personalInfo: any; // 投被保险人信息
   fileList: any[];
   title: string;

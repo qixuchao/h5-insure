@@ -1,5 +1,5 @@
 import { constantListToMap } from './utils';
-// 签字状态描述
+// 签名状态描述
 export const VERIFY_STATUS_LIST = [
   {
     label: '签名完成',

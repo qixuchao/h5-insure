@@ -65,10 +65,6 @@ const uploaderList = [
     category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_BANK_CARD,
     title: '银行卡正面照',
   },
-  {
-    category: ATTACHMENT_CATEGORY_ENUM.REVERSE_BANK_CARD,
-    title: '银行卡反面照',
-  },
 ];
 
 const bankDic = useDicData(`${(insurerCode as string).toLocaleUpperCase()}_BANK`);
@@ -179,7 +175,7 @@ watch(
   () => state.ossKeyList,
   (val) => {
     const keyList = val.filter((item) => item);
-    if (isNotEmptyArray(keyList) && keyList.length === 2) {
+    if (isNotEmptyArray(keyList)) {
       ocr({
         ossKey: val,
         imageType: OCR_TYPE_ENUM.BANK_CARD,

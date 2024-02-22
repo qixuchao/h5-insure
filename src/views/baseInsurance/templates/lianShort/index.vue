@@ -280,18 +280,18 @@ const orderDetail = useOrder({
   periodType: RISK_PERIOD_TYPE_ENUM.short,
 });
 
-/* -------代理人模块--------*/
+/* -------销售人员模块--------*/
 const agentRef = ref();
 const agentInfo = ref();
 const agentSchema = ref();
-// 代理人端是否填写了投保人姓名
+// 销售人员端是否填写了投保人姓名
 const hasHolderName = ref<boolean>(false);
-// 缓存代理人code
+// 缓存销售人员code
 const cachedAgentCode = ref<string>();
 const faceVerified = ref<boolean>(false);
 const isShared = ref<boolean>(false);
 
-// 校验分享前、后的代理人code是否一致
+// 校验分享前、后的销售人员code是否一致
 const compareAgentCode = () => {
   return agentCode === agentInfo.value.agentCode;
 };
@@ -740,7 +740,7 @@ const onNext = async () => {
   state.isFirst = false;
 
   if (!previewMode.value) {
-    // 代理人端生成订单
+    // 销售人员端生成订单
     if (!isShare) {
       saveOrderAndShare();
       return;
@@ -760,7 +760,7 @@ const onNext = async () => {
         // }
         if (!compareAgentCode()) {
           Dialog.alert({
-            message: '代理人工号有误，请核对后重新录入',
+            message: '销售人员工号有误，请核对后重新录入',
             confirmButtonText: '我知道了',
           });
           return;
@@ -940,7 +940,7 @@ const getOrderDetail = () => {
   });
 };
 
-// 获取代理人详情
+// 获取销售人员详情
 const getAgentInfo = () => {
   queryAgentInfo({ tenantId, saleUserId: agentCode }).then(({ code, data }) => {
     if (code === '10000') {

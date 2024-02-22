@@ -81,6 +81,7 @@ import faceImg from '@/assets/images/baseInsurance/face_img.png';
 import { PAGE_ROUTE_ENUMS } from './constants';
 import AttachmentList from '../components/AttachmentList/index.vue';
 import policyPdf from '@/assets/pdf/policy.pdf';
+import { setPageTitle } from '@/utils';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 
@@ -126,6 +127,8 @@ const personType = computed(() => {
   }
   return `${objectType}`.toLocaleUpperCase();
 });
+
+setPageTitle(`${NOTICE_TYPE_MAP[personType.value]}签名`);
 
 const getFaceVerifyResult = () => {
   const { objectId, certType } = userInfo.value;

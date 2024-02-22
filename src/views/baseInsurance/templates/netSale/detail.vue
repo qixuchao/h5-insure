@@ -356,7 +356,7 @@ const submit = async () => {
       onSubmit();
     }
   } else {
-    Toast('请先签字');
+    Toast('请先签名');
   }
 };
 // useWXCode();

@@ -114,7 +114,7 @@ export const INPUT_MAX_LENGTH = {
    */
   ELEVEN: 11,
   /**
-   * 代理人编号 15
+   * 销售人员编号 15
    */
   FIFTEEN: 15,
   /**
@@ -296,7 +296,7 @@ export const RULE_CONFIG_MAP = {
     ruleType: RULE_TYPE_ENUM.BENEFIT_RATE,
   },
   /**
-   * 代理人code
+   * 销售人员code
    */
   AGENT_CODE: {
     type: 'digit',
@@ -434,8 +434,7 @@ export const PRO_BANK_FIELD_MAP = {
   },
   // 银行卡照片
   bankCardImage: {
-    maxCount: 2,
-    subLabel: '（需上传正反两面）',
+    maxCount: 1,
     name: BANK_INFO_KEY_ENUM.BANK_CARD_IMAGE,
     componentName: COMPONENT_ENUM.ProBankUpload,
   },
@@ -604,7 +603,7 @@ export const GLOBAL_CONFIG_MAP = {
     ...RULE_CONFIG_MAP.RATE,
     unit: '%',
   },
-  /** 代理人code */
+  /** 销售人员code */
   agentCode: {
     ...RULE_CONFIG_MAP.AGENT_CODE,
   },
@@ -616,7 +615,7 @@ export const INSURED_MODULE_TYPE_ENUM = {
   sub: 2,
 };
 
-/** 因子类型 1. 投保人 2. 被保险人 3. 受益人 4. 支付信息 5. 签字信息 */
+/** 因子类型 1. 投保人 2. 被保险人 3. 受益人 4. 支付信息 5. 签名信息 */
 export const MODULE_TYPE_MAP = {
   /** 投保人 */
   1: 'holder',
@@ -626,13 +625,13 @@ export const MODULE_TYPE_MAP = {
   3: 'beneficiary',
   /** 支付信息 */
   4: 'payInfo',
-  /** 签字信息 */
+  /** 签名信息 */
   5: 'signInfo',
   /** 其他信息 */
   7: 'other',
   /** 监护人 */
   8: 'guardian',
-  /** 代理人 */
+  /** 销售人员 */
   9: 'agent',
 };
 

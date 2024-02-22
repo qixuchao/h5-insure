@@ -3,7 +3,7 @@
     <ProNavigator />
     <van-pull-refresh v-model="loading" @refresh="initData">
       <div v-if="BMOSLoading" class="sign-list">
-        <van-cell v-if="isShowItem('agent')" title="代理人签名" :required="isRequired('agent')">
+        <van-cell v-if="isShowItem('agent')" title="销售人员签名" :required="isRequired('agent')">
           <template #value>
             <div class="inner-cell">
               <van-cell
@@ -181,7 +181,7 @@ const schemaUrl = ref<string>(''); // 唤起双录app的链接
 
 const signPartInfo = ref({
   holder: {
-    fileList: [], // 签字资料
+    fileList: [], // 签名资料
     personalInfo: {}, // 相关人的信息
     isSign: false, // 是否需要签名
     isVerify: false, // 是否需要人脸识别
@@ -206,16 +206,16 @@ const signPartInfo = ref({
     isShareSign: false,
     signData: '',
     verifyStatus: 2,
-  }, // 代理人
+  }, // 销售人员
 });
 
 const checkType = ref<'agent' | 'holder' | 'insured'>('agent');
-// 签字、认证是否必填
+// 签名、认证是否必填
 const isRequired = computed(
   () => (code) => requiredType.value.sign.includes(code) || requiredType.value.verify.includes(code),
 );
 
-// 代理人未签名完成前，禁止其他操作
+// 销售人员未签名完成前，禁止其他操作
 const isDisabled = computed(() => {
   return signPartInfo.value.agent.verifyStatus !== YES_NO_ENUM.YES;
 });
@@ -229,7 +229,7 @@ const isShowInsured = computed(() => {
   return true;
 });
 
-// 签字、认证是否展示
+// 签名、认证是否展示
 const isShowItem = computed(() => (type) => signPartInfo.value[type].isSign || signPartInfo.value[type].isVerify);
 // 空中签名
 const isShareSing = computed(() => (type) => signPartInfo.value[type].isShareSign);
@@ -265,7 +265,7 @@ const handleShare = (type) => {
   });
 };
 
-// 非双录场景下验证投被保险人、代理人手机号
+// 非双录场景下验证投被保险人、销售人员手机号
 const checkMobile = (type: 'agent' | 'holder' | 'insured') => {
   checkType.value = type;
   if (type === 'agent') {
@@ -370,19 +370,19 @@ const initData = async () => {
             if (schema.required) {
               requiredType.value.sign.push(column.code);
             }
-            // 代理人签字
+            // 销售人员签名
             if (column.code === '1') {
               signPartInfo.value.agent.isSign = true;
-              // 投保人签字
+              // 投保人签名
             } else if (column.code === '2') {
               signPartInfo.value.holder.isSign = true;
-              // 被保险人签字
+              // 被保险人签名
             } else if (column.code === '3') {
               signPartInfo.value.insured.isSign = true;
-              // 投保人空中签字
+              // 投保人空中签名
             } else if (column.code === '4') {
               signPartInfo.value.holder.isShareSign = true;
-              // 被保险人空中签字
+              // 被保险人空中签名
             } else if (column.code === '5') {
               signPartInfo.value.insured.isShareSign = true;
             }
@@ -426,7 +426,7 @@ const onNext = async () => {
   const { holder, insuredList, extInfo } = orderDetail.value;
   if (!needBMOS.value) {
     if (extInfo.agentAuthFlag === YES_NO_ENUM.NO) {
-      Toast('代理人签名未完成');
+      Toast('销售人员签名未完成');
       return;
     }
     if (holder.isCert === YES_NO_ENUM.NO) {
@@ -439,7 +439,7 @@ const onNext = async () => {
     }
   } else {
     if (extInfo.agentAuthFlag !== YES_NO_ENUM.YES) {
-      Toast('代理人签名未完成');
+      Toast('销售人员签名未完成');
       return;
     }
     await formRef.value?.validate();

@@ -20,7 +20,7 @@ export interface INotice {
    */
   materialType: number;
   /**
-   * 告知对象 1-投保人，2-被保险人，3-代理人
+   * 告知对象 1-投保人，2-被保险人，3-销售人员
    */
   noticeObject: number;
 }

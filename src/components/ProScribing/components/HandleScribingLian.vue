@@ -59,7 +59,7 @@ import { rotateBase64 } from '../utils';
 interface Props {
   text: string;
   modelValue: any[];
-  signAccount: number; // 签字板个数
+  signAccount: number; // 签名板个数
 }
 
 const props = withDefaults(defineProps<Props>(), {

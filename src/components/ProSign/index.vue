@@ -36,7 +36,7 @@ const props = withDefaults(defineProps<Props>(), {
   closeable: false,
   modelValue: '',
   hasBg: false,
-  delay: 1000, // 签字完成延迟时间
+  delay: 1000, // 签名完成延迟时间
 });
 
 const emits = defineEmits(['stroke', 'update:modelValue', 'signSuccess']);

@@ -164,7 +164,7 @@ const currentFile = ref({
   attachmentSource: 1,
   show: false,
 });
-// 客户代理人信息
+// 客户销售人员信息
 const agentInfo = reactive({ name: '测试水印', agentCode: '1234' });
 const previewFile = (file: {}) => {
   console.log('文件预览', agentInfo);

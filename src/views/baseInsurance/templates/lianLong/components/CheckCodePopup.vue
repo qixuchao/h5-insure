@@ -72,7 +72,7 @@ const checkCategory = ref({
     desc: '',
   },
   agent: {
-    type: '代理人',
+    type: '销售人员',
     name: '',
     mobile: '',
     desc: '色卡上会计核算看回放独守空房还是空巅峰计划收款方',

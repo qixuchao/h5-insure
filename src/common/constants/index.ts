@@ -209,11 +209,11 @@ export const ORDER_STATUS_MAPPING_PAGE = {
 // eslint-disable-next-line
 export enum UPLOAD_TYPE_ENUM {
   /**
-   * 代理人头像
+   * 销售人员头像
    */
   AGENT_AVATAR = '1',
   /**
-   * 代理人微信二维码
+   * 销售人员微信二维码
    */
   AGENT_WECHAT_QRCODE = '2',
   /**
@@ -282,7 +282,7 @@ export enum NOTICE_TYPE_ENUM {
 export const NOTICE_TYPE_MAP = {
   HOLDER: '投保人',
   INSURED: '被保险人',
-  AGENT: '代理人',
+  AGENT: '销售人员',
 };
 
 /**
@@ -387,7 +387,7 @@ export enum ATTACHMENT_OBJECT_TYPE_ENUM {
    */
   INSURED = 2,
   /**
-   * 代理人
+   * 销售人员
    */
   AGENT = 3,
   /**

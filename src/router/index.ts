@@ -95,7 +95,7 @@ router.beforeEach(async (to, from, next) => {
   if (to.path === '/login' || to.query.flag === 'N') {
     next();
   } else {
-    // 代理人登录
+    // 销售人员登录
     const storage = new Storage({ source: 'localStorage' });
     // 已登录
     if (storage.get('token')) {
