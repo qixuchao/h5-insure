@@ -15,7 +15,7 @@
     </ProFilePreview>
     <div v-if="currentQuestion.contentType === 'question' && currentQuestion.questionnaireId">
       <div class="footer-button">
-        <van-button v-if="isShowAsync" round type="primary" plain @click="asyncInsured">同被保人</van-button>
+        <van-button v-if="isShowAsync" round type="primary" plain @click="asyncInsured">同被保险人</van-button>
         <van-button round type="primary" block @click="submitQuestion"> 下一步 </van-button>
       </div>
     </div>
@@ -109,7 +109,7 @@ const questionResolve = () => {
 };
 // 问卷告知列表
 const healthQuestionList = ref([]);
-// 投保人同步被保人问卷
+// 投保人同步被保险人问卷
 const isShowAsync = computed(() => {
   if (healthQuestionList.value.length && objectType.value === OBJECT_TYPE_ENUM.HOLDER) {
     return !!healthQuestionList.value.find((question) => `${question.id}` === questionId);

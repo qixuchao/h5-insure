@@ -8,7 +8,7 @@
         :class="`insure-box ${index === state.currentSelected ? 'selected' : ''}`"
         @click="(e) => handleInsurerClick(e, index)"
       >
-        <span class="insure-name">被保人</span>
+        <span class="insure-name">被保险人</span>
         <span v-if="index === 0" class="insure-relate">本人</span>
         <span v-else class="insure-relate">{{ getRelate(insure) }}</span>
         <div v-if="index > 0" class="delete-btn" @click="(e) => handleDeleteClick(e, index)">×</div>
@@ -16,7 +16,7 @@
     </div>
     <div class="operate">
       <div class="gap"></div>
-      <div class="add-btn" @click="handleAddClick"><span>+</span> 被保人</div>
+      <div class="add-btn" @click="handleAddClick"><span>+</span> 被保险人</div>
     </div>
   </div>
 </template>
@@ -84,7 +84,7 @@ const getRelate = (relate: any) => {
 };
 
 const hasProductCheck = () => {
-  // 有产品的时候，才允许用户切换被保人和添加新的被保人
+  // 有产品的时候，才允许用户切换被保险人和添加新的被保险人
   const ifHasNoProduct =
     !list.value?.[state.value.currentSelected]?.productList ||
     list.value?.[state.value.currentSelected]?.productList?.length <= 0;
@@ -125,7 +125,7 @@ const handleDeleteClick = (e, index) => {
   e.stopPropagation();
   e.cancelBubble = true;
   Dialog.confirm({
-    message: '确定要删除该被保人吗？',
+    message: '确定要删除该被保险人吗？',
   })
     .then(() => {
       emits('delete', index, () => {

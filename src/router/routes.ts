@@ -103,7 +103,7 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'insuredSign',
     path: '/baseInsurance/long/insuredSign',
-    meta: { title: '被保人签字' },
+    meta: { title: '被保险人签字' },
     component: () => import('@/views/baseInsurance/templates/lianLong/insuredSign.vue'),
   },
   {
@@ -222,7 +222,7 @@ const baseInsurance = [
   {
     name: 'InsuranceFreeFaceAuth',
     path: '/baseInsurance/free/faceVerify',
-    meta: { title: '被保人人脸识别', keepAlive: true, requireWxJs: false },
+    meta: { title: '被保险人人脸识别', keepAlive: true, requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/faceVerify.vue'),
   },
   // 短险模板
@@ -253,18 +253,18 @@ const baseInsurance = [
     meta: { title: '投保人信息确认', keepAlive: true, requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/infoPreview.vue'),
   },
-  // 被保人短险信息确认页
+  // 被保险人短险信息确认页
   {
     name: 'InsuranceShortInsuredInfoPreview',
     path: '/baseInsurance/short/insuredInfoPreview',
-    meta: { title: '被保人信息确认', requireWxJs: false },
+    meta: { title: '被保险人信息确认', requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/infoPreview.vue'),
   },
   // 短险人脸识别页
   {
     name: 'InsuranceShortFaceAuth',
     path: '/baseInsurance/short/faceVerify',
-    meta: { title: '被保人人脸识别', requireWxJs: false },
+    meta: { title: '被保险人人脸识别', requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/faceVerify.vue'),
   },
   // 短险-升级款（魔方）

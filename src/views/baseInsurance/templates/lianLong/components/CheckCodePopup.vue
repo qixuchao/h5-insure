@@ -16,7 +16,7 @@
           <ProFieldV2
             v-show="false"
             v-model="formData.mobile"
-            label="被保人手机号"
+            label="被保险人手机号"
             name="mobile"
             maxlength="11"
             :rules="[{ required: true, message: '请输入手机号' }]"
@@ -78,7 +78,7 @@ const checkCategory = ref({
     desc: '色卡上会计核算看回放独守空房还是空巅峰计划收款方',
   },
   insured: {
-    type: '被保人',
+    type: '被保险人',
     name: '',
     mobile: '',
     desc: '',

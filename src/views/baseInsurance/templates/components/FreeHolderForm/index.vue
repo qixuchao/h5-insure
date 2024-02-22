@@ -92,7 +92,7 @@ const state = reactive<{
         title: '验证码',
       },
     ], // 投保人
-    2: [], // 被保人
+    2: [], // 被保险人
     3: [], // 受益人
   },
   isFirst: true,

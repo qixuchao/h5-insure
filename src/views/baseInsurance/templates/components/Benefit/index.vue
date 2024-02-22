@@ -14,7 +14,7 @@
           <p v-show="showType === SHOW_TYPE_ENUM.CHART" class="box-title box-title-chart">
             <img class="tl" src="@/assets/images/compositionProposal/box-title.png" alt="" />
             保单年度<span>{{ benefitObj?.year?.[benefitObj?.index] }}</span
-            >年度，被保人<span>{{ benefitObj?.age?.[benefitObj?.index] }}</span
+            >年度，被保险人<span>{{ benefitObj?.age?.[benefitObj?.index] }}</span
             >岁时
             <img class="transform-z180 tr" src="@/assets/images/compositionProposal/box-title.png" alt="" />
           </p>
@@ -23,7 +23,7 @@
               <p class="box-title">
                 <img class="tl" src="@/assets/images/compositionProposal/box-title.png" alt="" />
                 保单年度<span>{{ benefitObj?.year?.[benefitObj?.index] }}</span
-                >年度，被保人<span>{{ benefitObj?.age?.[benefitObj?.index] }}</span
+                >年度，被保险人<span>{{ benefitObj?.age?.[benefitObj?.index] }}</span
                 >岁时
                 <img class="transform-z180 tr" src="@/assets/images/compositionProposal/box-title.png" alt="" />
               </p>
@@ -122,7 +122,7 @@
               <div class="box">
                 <p class="box-title">
                   <img class="tl" src="@/assets/images/compositionProposal/box-title.png" alt="" />
-                  保单年度<span>-</span>年度，被保人<span>-</span>岁时
+                  保单年度<span>-</span>年度，被保险人<span>-</span>岁时
                   <img class="transform-z180 tr" src="@/assets/images/compositionProposal/box-title.png" alt="" />
                 </p>
                 <div class="box-price"></div>

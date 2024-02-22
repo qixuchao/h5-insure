@@ -6,7 +6,7 @@
         <span class="title"> {{ title }} </span>
         <span class="close" @click="handleCancel">X</span>
       </div>
-      <p class="tip">已为您筛选符合被保人年龄、性别的附加险</p>
+      <p class="tip">已为您筛选符合被保险人年龄、性别的附加险</p>
       <div class="search">
         <ProSearch v-model="searchValue" placeholder="请输入附加险名称" @search="getRiskList"> </ProSearch>
       </div>

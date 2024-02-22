@@ -40,9 +40,9 @@ const props = withDefaults(defineProps<Props>(), {
   productName: '',
 });
 
-// 计划书被保人仅显示社保/职业
+// 计划书被保险人仅显示社保/职业
 provide(PERSONAL_INFO_KEY, {
-  // 被保人信息中试算因子做展示（仅限于出生日期、性别、社保、职业，但被保人出生日期/性别已在页面展示，试算不展示)
+  // 被保险人信息中试算因子做展示（仅限于出生日期、性别、社保、职业，但被保险人出生日期/性别已在页面展示，试算不展示)
   insuredFactorCodes: ['hasSocialInsurance', 'occupationCodeList'],
   // 投保信息中试算因子做展示（仅限于出生日期、性别、社保、职业)
   holderFactorCodes: ['birthday', 'gender', 'hasSocialInsurance', 'occupationCodeList'],

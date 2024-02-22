@@ -154,7 +154,7 @@ const initLiabilityValue = (liab, riskId: number) => {
   return '';
 };
 
-// 计算出主险和附加险的投保人和被保人的因子
+// 计算出主险和附加险的投保人和被保险人的因子
 watch(
   () => state.currentRiskList,
   (newVal) => {
@@ -185,7 +185,7 @@ watch(
         mainRiskId: risk.riskType !== 1 ? state.mainRiskData?.id : undefined,
         riskCategory: risk.riskCategory,
         exemptFlag: props.originData.exemptFlag,
-        exemptType: props.originData.exemptType, // 头被保人豁免
+        exemptType: props.originData.exemptType, // 头被保险人豁免
         liabilityVOList: (risk.riskLiabilityInfoVOList || []).map((liab) => ({
           ...liab,
           liabilityAttributeCode: liab.liabilityAttributeType,

@@ -17,7 +17,7 @@
       :colors="state.colors"
       :preview-mode="previewMode"
     >
-      <!-- 投保人/被保人/受益人  :is-view="previewMode" -->
+      <!-- 投保人/被保险人/受益人  :is-view="previewMode" -->
       <PersonalInfo
         v-if="!state.newAuth"
         ref="personalInfoRef"
@@ -319,7 +319,7 @@ const handleMixTrialData = debounce(async () => {
 
 const handlePersonalInfoChange = async (data) => {
   console.log(data, 'slsllw--2020');
-  // 只有改动第一个被保人，需要调用dy接口
+  // 只有改动第一个被保险人，需要调用dy接口
   const { holder, insuredVOList, isFirstInsuredChange } = data;
   if (holder) {
     state.submitData.holder = holder;
@@ -442,7 +442,7 @@ const fetchData = async () => {
       // state.insureDetail.productFactor[2] = state.insureDetail.productFactor?.[2].map((item: any) => {
       //   if (item.code === 'relationToHolder' && item.isDisplay === 1) {
       //     // eslint-disable-next-line no-param-reassign
-      //     item.title = '被保人';
+      //     item.title = '被保险人';
       //     // eslint-disable-next-line no-param-reassign
       //     state.order.tenantOrderInsuredList[0].relationToHolder = item.attributeValueList?.[0]?.code || '';
       //   }

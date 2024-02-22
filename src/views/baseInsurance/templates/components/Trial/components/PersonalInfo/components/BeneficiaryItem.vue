@@ -5,7 +5,7 @@
     :title="title"
     :model="state.personVO"
     :schema="state.schema"
-    :config="state.config"
+    :config="{ ...state.config, relationToInsured: { isDefaultSelected: true } }"
     :is-view="isView"
     :extra-provision="{
       objectType: ATTACHMENT_OBJECT_TYPE_ENUM.BENEFICIARY,
@@ -171,7 +171,8 @@ watch(
       if (
         ['2', '3'].includes(`${val?.relationToInsured}`) &&
         val?.relationToInsured !== oldVal?.relationToInsured &&
-        oldVal?.relationToInsured
+        oldVal?.relationToInsured &&
+        props.beneficiaryList?.length > 1
       ) {
         const repeatRelation = props.beneficiaryList.find(
           (beneficiary) => `${val?.relationToInsured}` === `${beneficiary.personVO?.relationToInsured}`,
@@ -232,14 +233,14 @@ watch(
   },
 );
 
-// 监听与被保人关系
+// 监听与被保险人关系
 watch(
   () => state.personVO?.relationToInsured,
   (val, oldVal) => {
     if (val === oldVal) {
       return false;
     }
-    colorConsole(`受益人与被保人关系变动了`);
+    colorConsole(`受益人与被保险人关系变动了`);
 
     const { certType } = state.personVO || {};
     // 证件类型是否只有身份证, 与被保险人关系变动
@@ -250,9 +251,9 @@ watch(
         isView: props.isView,
       },
     };
-    // 受益人与被保人关系切换
+    // 受益人与被保险人关系切换
     if (!props.isView && val !== oldVal && oldVal) {
-      // 投被保人为丈夫或者妻子时默认被保人的性别 2: 丈夫，3:妻子
+      // 投被保险人为丈夫或者妻子时默认被保险人的性别 2: 丈夫，3:妻子
 
       let currentGender = null;
       if (`${val}` === '3') {

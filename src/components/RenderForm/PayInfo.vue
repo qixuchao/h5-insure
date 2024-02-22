@@ -220,7 +220,7 @@ const state = reactive<{
   schemaList: [],
 });
 
-// 主被保人名字
+// 主被保险人名字
 const mainInsuredName = computed(() => props.userData.insuredList?.[0]?.name || null);
 
 const holderName = computed(() => props.userData?.holder?.name || null);
@@ -608,13 +608,13 @@ watch(
   },
 );
 
-// 监听投被保人姓名变动, 多被保人默认主被保人/第一主被保人
+// 监听投被保险人姓名变动, 多被保险人默认主被保险人/第一主被保险人
 watch(
   () => [holderName.value, mainInsuredName.value],
   ([name1, name2]) => {
     if (name1 || name2) {
       state.schemaList.forEach((schemaItem) => {
-        // 是否为年金领取,若为年金领取则为被保人姓名
+        // 是否为年金领取,若为年金领取则为被保险人姓名
         const isReprise = schemaItem.payInfoType === PAYMENT_TYPE_ENUM.REPRISE;
         if (isReprise) {
           schemaItem.formData.accountName = name2;

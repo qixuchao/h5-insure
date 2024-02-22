@@ -610,17 +610,17 @@ export const GLOBAL_CONFIG_MAP = {
   },
 };
 
-/** 被保人类型 主被保人/次被保人 */
+/** 被保险人类型 主被保险人/次被保险人 */
 export const INSURED_MODULE_TYPE_ENUM = {
   main: 1,
   sub: 2,
 };
 
-/** 因子类型 1. 投保人 2. 被保人 3. 受益人 4. 支付信息 5. 签字信息 */
+/** 因子类型 1. 投保人 2. 被保险人 3. 受益人 4. 支付信息 5. 签字信息 */
 export const MODULE_TYPE_MAP = {
   /** 投保人 */
   1: 'holder',
-  /** 被保人 */
+  /** 被保险人 */
   2: 'insured',
   /** 受益人 */
   3: 'beneficiary',

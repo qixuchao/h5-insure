@@ -18,7 +18,7 @@
       v-if="currentQuestion.contentType === 'question' && currentQuestion.questionnaireId"
       class="footer-btn footer-button"
     >
-      <van-button v-if="isShowAsync" round type="primary" plain @click="asyncInsured">同被保人</van-button>
+      <van-button v-if="isShowAsync" round type="primary" plain @click="asyncInsured">同被保险人</van-button>
       <van-button round type="primary" block :disabled="isShared && !faceVerified" @click="submitQuestion">
         下一步
       </van-button>
@@ -102,7 +102,7 @@ const onNext = () => {
       Dialog.confirm({
         message,
         confirmButtonText: '去分享',
-        cancelButtonText: '被保人确认',
+        cancelButtonText: '被保险人确认',
       })
         .then(() => {
           const shareLinkParams = {
@@ -182,7 +182,7 @@ const confirmAnswer = () => {
 };
 // 问卷告知列表
 const healthQuestionList = ref([]);
-// 是否展示同步被保人问卷
+// 是否展示同步被保险人问卷
 const isShowAsync = computed(() => {
   if (healthQuestionList.value.length && objectType.value === OBJECT_TYPE_ENUM.HOLDER) {
     return !!healthQuestionList.value.find((question) => `${question.id}` === questionId);
@@ -190,7 +190,7 @@ const isShowAsync = computed(() => {
   return false;
 });
 
-// 将被保人问卷答案同步至投保人问卷
+// 将被保险人问卷答案同步至投保人问卷
 const asyncInsured = () => {
   const currentAnswer = answerList.value.find((answer) => answer.id === questionnaireId.value);
   Object.assign(currentQuestion.value, currentAnswer?.questionnaireDetailResponseVO);
@@ -276,7 +276,7 @@ const getOrderDetail = async (loading = true) => {
     faceVerified.value = data.insuredList?.[0]?.faceAuthFlag === YES_NO_ENUM.YES;
     if (faceVerified.value) {
       if (thread.value.isStart) {
-        Toast('被保人认证完成');
+        Toast('被保险人认证完成');
       }
       thread.value.stop();
     }
@@ -294,7 +294,7 @@ const getOrderDetail = async (loading = true) => {
   }
 };
 
-// 轮询查询被保人人脸识别是否完成
+// 轮询查询被保险人人脸识别是否完成
 thread.value = useThread({
   start: () => {
     getOrderDetail(false);

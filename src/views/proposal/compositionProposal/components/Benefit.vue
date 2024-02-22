@@ -21,7 +21,7 @@
             <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
             <div>
               保单年度<span>{{ benefitObj?.year?.[benefitObj?.index] }}</span
-              >年度，被保人<span>{{ benefitObj?.age?.[benefitObj?.index] }}</span
+              >年度，被保险人<span>{{ benefitObj?.age?.[benefitObj?.index] }}</span
               >岁时
             </div>
             <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
@@ -31,7 +31,7 @@
               <div class="box-title">
                 <img src="@/assets/images/compositionProposal/box-title.png" alt="" />
                 <div>
-                  保单年度<span> &nbsp;{{ benefitObj?.year?.[benefitObj?.index] }} &nbsp;</span>年度，被保人<span
+                  保单年度<span> &nbsp;{{ benefitObj?.year?.[benefitObj?.index] }} &nbsp;</span>年度，被保险人<span
                     >&nbsp; {{ benefitObj?.age?.[benefitObj?.index] }} &nbsp;</span
                   >岁时
                 </div>

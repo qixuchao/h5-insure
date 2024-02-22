@@ -111,7 +111,7 @@ const signPartInfo = ref({
     isVerify: false,
     isShareSign: false,
     signData: {},
-  }, // 被保人
+  }, // 被保险人
   agent: {
     fileList: [],
     personalInfo: {
@@ -263,13 +263,13 @@ const initData = async () => {
               // 投保人签字
             } else if (column.code === '2') {
               signPartInfo.value.holder.isSign = true;
-              // 被保人签字
+              // 被保险人签字
             } else if (column.code === '3') {
               signPartInfo.value.insured.isSign = true;
               // 投保人空中签字
             } else if (column.code === '4') {
               signPartInfo.value.holder.isShareSign = true;
-              // 被保人空中签字
+              // 被保险人空中签字
             } else if (column.code === '5') {
               signPartInfo.value.insured.isShareSign = true;
             }

@@ -249,7 +249,7 @@ export enum UPLOAD_TYPE_ENUM {
    */
   HOLDER_IDENTITY_DOCUMENT = '10',
   /**
-   * 被保人身份证明文件
+   * 被保险人身份证明文件
    */
   INSURED_IDENTITY_DOCUMENT = '11',
   /**
@@ -281,7 +281,7 @@ export enum NOTICE_TYPE_ENUM {
 
 export const NOTICE_TYPE_MAP = {
   HOLDER: '投保人',
-  INSURED: '被保人',
+  INSURED: '被保险人',
   AGENT: '代理人',
 };
 
@@ -383,7 +383,7 @@ export enum ATTACHMENT_OBJECT_TYPE_ENUM {
    */
   HOLDER = 1,
   /**
-   * 被保人
+   * 被保险人
    */
   INSURED = 2,
   /**
@@ -453,7 +453,7 @@ export const SCRIBING_TYPE_ENUM = {
 
 export const OBJECT_TYPE_ENUM = {
   1: 'HOLDER', // 投保人
-  2: 'INSURED', // 被保人
+  2: 'INSURED', // 被保险人
   3: 'BENEFICIARY', // 受益人
   4: 'GUARDIAN', // 监护人
 };

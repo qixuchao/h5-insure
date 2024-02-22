@@ -1,7 +1,7 @@
 <template>
   <div class="personal-wrap">
     <ProCard
-      title="被保人信息"
+      title="被保险人信息"
       class="com-pro-form-with-card com-card-body-no-padding insure-containe"
       :show-divider="false"
     >
@@ -16,7 +16,7 @@
         <ProPickerV2
           v-if="stateInfo.currentSelectInsure !== 0 && stateInfo.insurerList[stateInfo.currentSelectInsure]"
           v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToMainInsured"
-          label="与主被保人关系"
+          label="与主被保险人关系"
           :is-default-selected="true"
           name="relationToMainInsured"
           :columns="relationColumn()"
@@ -62,7 +62,7 @@
         <ProRenderForm ref="holderFormRef" :model="stateInfo.holder" class="insure-container">
           <ProRadioV2
             v-model="stateInfo.insurerList[0].personVO.relationToHolder"
-            label="投被保人是同一人"
+            label="投被保险人是同一人"
             :columns="SELF_LIST"
             required
           />
@@ -126,12 +126,12 @@ import { SEX_LIMIT_LIST, SELF_LIST, SEX_LIMIT_ENUM } from '@/common/constants';
 
 interface StateInfo {
   selectedProductCodeList: string[];
-  selectedProductList: any[]; // 当前被保人选择的产品列表
+  selectedProductList: any[]; // 当前被保险人选择的产品列表
   currentProductCode: string;
   holder: Partial<ProposalHolder>;
   insuredPersonVO: Partial<ProposalHolder>;
-  insurerList: ProposalHolder[]; // 被保人列表，包含被保人信息personVO和productList
-  currentSelectInsure: number; // 当前选择的被保人序号
+  insurerList: ProposalHolder[]; // 被保险人列表，包含被保险人信息personVO和productList
+  currentSelectInsure: number; // 当前选择的被保险人序号
   productList: ProposalInsuredProductItem[];
   productCollection: {
     [x: string]: ProductData;

@@ -322,7 +322,7 @@ const removeBeneficiary = (beneficiaryItem: BeneficiaryItem) => {
     });
 };
 
-// 将投保人信息同步到被保人信息中
+// 将投保人信息同步到被保险人信息中
 const holderInfo2InsuredInfo = () => {
   Object.assign(formInfo.value.tenantOrderInsuredList[0], formInfo.value.tenantOrderHolder, {
     id: formInfo.value.tenantOrderInsuredList[0].id,
@@ -365,7 +365,7 @@ defineExpose({
 watch(
   () => props.factorObject,
   () => {
-    // 将页面因子根据投保人、被保人、受益人进行分类
+    // 将页面因子根据投保人、被保险人、受益人进行分类
     const currentFactorObj = {
       BENEFICIARY: props.factorObject[3] as ProductInsureFactorItem[],
       INSURER: props.factorObject[2] as ProductInsureFactorItem[],
@@ -379,7 +379,7 @@ watch(
   },
 );
 
-// 监听被保人的与投保人关系，如果被保人同投保人则将
+// 监听被保险人的与投保人关系，如果被保险人同投保人则将
 watch(
   [() => formInfo.value.tenantOrderInsuredList[0].relationToHolder, () => formInfo.value.tenantOrderHolder],
   ([newHolder], [oldHolder]) => {

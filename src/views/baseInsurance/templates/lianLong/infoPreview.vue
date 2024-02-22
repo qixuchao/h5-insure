@@ -4,7 +4,7 @@
 
     <InsureInfo :product-data="orderDetail.insuredList?.[0]?.productList"></InsureInfo>
 
-    <!-- 投保人/被保人/受益人 -->
+    <!-- 投保人/被保险人/受益人 -->
     <PersonalInfo
       v-if="Object.keys(productFactor || {})?.length"
       ref="personalInfoRef"

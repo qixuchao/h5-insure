@@ -5,7 +5,7 @@
       <ProMessage
         type="warning"
         title="尊敬的客户，本次投保需要进行身份认证"
-        content="本产品投保需要对投保人、被保人进行实名认证，您购买本产品的累计总保费已超过20万，按监管要求，需要提供投保人、被保人、指定受益人证件影像，本产品非本人投保且带身故责任、需对投保人、被保人（成人）的投保意愿进行签字确认。"
+        content="本产品投保需要对投保人、被保险人进行实名认证，您购买本产品的累计总保费已超过20万，按监管要求，需要提供投保人、被保险人、指定受益人证件影像，本产品非本人投保且带身故责任、需对投保人、被保险人（成人）的投保意愿进行签字确认。"
       />
     </div>
     <div class="verify-content">
@@ -133,7 +133,7 @@ const signPartInfo = ref({
     isVerify: false,
     isShareSign: false,
     signData: {},
-  }, // 被保人
+  }, // 被保险人
   agent: {
     fileList: [],
     personalInfo: {},
@@ -155,7 +155,7 @@ const requiredType = ref<any>({
   scribing: '',
 });
 
-// 被保人签名是否同投保人一起提交
+// 被保险人签名是否同投保人一起提交
 const isHolderSameInsured = computed<boolean>(() => {
   const { age, relationToHolder, id } = signPartInfo.value.insured?.personalInfo?.[0] || {};
   return `${relationToHolder}` === CERT_TYPE_ENUM.CERT || age < 18;
@@ -325,13 +325,13 @@ const initData = async () => {
               // 投保人签字
             } else if (column.code === '2') {
               signPartInfo.value.holder.isSign = true;
-              // 被保人签字
+              // 被保险人签字
             } else if (column.code === '3') {
               signPartInfo.value.insured.isSign = true;
               // 投保人空中签字
             } else if (column.code === '4') {
               signPartInfo.value.holder.isShareSign = true;
-              // 被保人空中签字
+              // 被保险人空中签字
             } else if (column.code === '5') {
               signPartInfo.value.insured.isShareSign = true;
             }

@@ -40,8 +40,8 @@ export const filterCustomerOption = (customer: CustomerDetail, options) => {
 /**
  * 处理客户数据 证件信息 取第一个  联系方式信息前端过滤
  * @param value 客户信息
- * @param keys 当前投被保人要素code列表
- * @returns 客户信息转到投被保人要素后的personVO
+ * @param keys 当前投被保险人要素code列表
+ * @returns 客户信息转到投被保险人要素后的personVO
  */
 export const transformCustomerToPerson = (value, keys: string[]) => {
   console.log('transformCustomerToPerson', value);
@@ -82,7 +82,7 @@ export const transformCustomerToPerson = (value, keys: string[]) => {
   return extractedObject;
 };
 
-/** 判断拿过来的客户与投被保人是否是同一人 */
+/** 判断拿过来的客户与投被保险人是否是同一人 */
 export const isSamePersonByFiveFactor = (origin, customer) => {
   return (
     origin.name === customer.name &&

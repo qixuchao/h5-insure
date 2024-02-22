@@ -605,19 +605,19 @@ const dealMixData = () => {
   if (submitData.insuredList) {
     const ignoreKey = ['productList', 'beneficiaryList'];
 
-    // 主被保人code
+    // 主被保险人code
     const mainInsuredFactorCodes = getFactorCodes(
       insuredFactor,
       (item: ProductFactor) => String(item.subModuleType) !== '2',
     );
 
-    // 次被保人code
+    // 次被保险人code
     const secondaryInsuredFactorCodes = getFactorCodes(
       insuredFactor,
       (item: ProductFactor) => String(item.subModuleType) === '2',
     );
 
-    // 是否为次被保人
+    // 是否为次被保险人
     const hasSub = isNotEmptyArray(secondaryInsuredFactorCodes);
 
     // 受益人 code
@@ -628,7 +628,7 @@ const dealMixData = () => {
 
     submitData.insuredList.forEach((insured, index) => {
       const targetFactorKeys = index >= 1 && hasSub ? secondaryInsuredFactorCodes : mainInsuredFactorCodes;
-      // 处理被保人信息, 要素有受益人则保留受益人类型字段
+      // 处理被保险人信息, 要素有受益人则保留受益人类型字段
       shakeData(insured, [...targetFactorKeys, ...ignoreKey, ...(hasBeneficiary ? ['insuredBeneficiaryType'] : [])]);
 
       // 受益人信息 todo
@@ -667,7 +667,7 @@ const handleMixTrialData = debounce(async (isSave = false) => {
 }, 300);
 
 /**
- * 处理投被保人信息到state.submitData
+ * 处理投被保险人信息到state.submitData
  * @param data
  */
 const handlePersonInfo = (data) => {
@@ -694,7 +694,7 @@ const handlePersonalInfoChange = async (data, isSave = false) => {
   handlePersonInfo(data);
 
   state.ifPersonalInfoSuccess = true;
-  console.log('投被保人的信息回传 ', data);
+  console.log('投被保险人的信息回传 ', data);
   handleMixTrialData();
 };
 
@@ -783,11 +783,11 @@ const resetTrialData = debounce(() => {
   }
 }, 400);
 
-// 表单组件切换被保人时不会赋值默认社保以及身份证类型，需手动赋值
+// 表单组件切换被保险人时不会赋值默认社保以及身份证类型，需手动赋值
 watch(
   () => orderDetail.value.insuredList[0].relationToHolder,
   (newVal, oldVal) => {
-    // 被保人与投保人关系切换时，重置加油包为不投保
+    // 被保险人与投保人关系切换时，重置加油包为不投保
     if (newVal !== oldVal) {
       if (currentPackageConfigVOList.value) {
         currentPackageConfigVOList.value.forEach((e) => {

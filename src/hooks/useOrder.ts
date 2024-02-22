@@ -65,7 +65,7 @@ export default (orderItem: Partial<OrderDetail>, query?: QueryData): Partial<Ord
       occupationCodeList: [],
     },
     insuredList: [
-      // 被保人信息
+      // 被保险人信息
       {
         relationToHolder: 1,
         occupationCodeList: [],

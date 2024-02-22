@@ -201,12 +201,12 @@ watch(
   () => props.holderPersonVO,
   (val) => {
     colorConsole('------投保人信息变动了-----');
-    // 投保人id不同步到被保人
+    // 投保人id不同步到被保险人
     const { id, ...holderPersonVO } = val || {};
 
     // 若为本人合并投保人数据
     if (String(state.personVO?.relationToHolder) === '1') {
-      // 过滤投被保人相同要素，保留证件相关的，预防关系为本人时，仅被保人有的字段被清空,后端给了null
+      // 过滤投被保险人相同要素，保留证件相关的，预防关系为本人时，仅被保险人有的字段被清空,后端给了null
       const tempData = isNotEmptyArray(isSelfInsuredNeedCods.value)
         ? Object.keys(holderPersonVO).reduce((res, key: string) => {
             if (
@@ -282,17 +282,17 @@ watch(
   },
 );
 
-// 监听投被保人关系
+// 监听投被保险人关系
 watch(
   () => state.personVO?.relationToHolder,
   (val, oldVal) => {
-    // 若投被保人关系为空则不执行
+    // 若投被保险人关系为空则不执行
     if (!val) {
       return;
     }
     colorConsole('与投保人关系变动了');
     const { personVO, schema = [], config } = state || {};
-    // 投保人id不同步到被保人
+    // 投保人id不同步到被保险人
     const { id, ...holderPersonVO } = props.holderPersonVO || {};
 
     const isSelf = String(personVO.relationToHolder) === '1';
@@ -302,7 +302,7 @@ watch(
 
     merge(config, tempConfig);
 
-    // 若被保人为本人是否要隐藏
+    // 若被保险人为本人是否要隐藏
     schema.forEach((schemaItem) => {
       schemaItem.relationToHolder = personVO.relationToHolder;
       schemaItem.hidden = !schemaItem.isSelfInsuredNeed && isSelf;
@@ -335,15 +335,15 @@ watch(
   },
 );
 
-// 监听与主被保人关系变动
+// 监听与主被保险人关系变动
 watch(
   () => state.personVO?.relationToMainInsured,
   (val, oldVal) => {
-    // 若投被保人关系为空则不执行
+    // 若投被保险人关系为空则不执行
     if (!val) {
       return;
     }
-    colorConsole('次被保人与主被保人关系变动了');
+    colorConsole('次被保险人与主被保险人关系变动了');
     const { personVO, schema = [], config } = state || {};
     const { certType } = personVO || {};
 
@@ -352,7 +352,7 @@ watch(
 
     merge(config, tempConfig);
 
-    // 非查看模式处理与主被保人关系变动，数据清空操作
+    // 非查看模式处理与主被保险人关系变动，数据清空操作
     if (!props.isView && oldVal && String(val) !== String(oldVal)) {
       Object.assign(state.personVO, {
         // 若只有证件类型为身份证，不清除值

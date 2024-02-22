@@ -34,7 +34,7 @@ export const PAGE_ROUTE_ENUMS = {
   verifyFace: '/baseInsurance/long/verifyFace', // 人脸识别中间页
   agentSign: '/baseInsurance/long/agentSign', // 代理人签字
   holderSign: '/baseInsurance/long/holderSign', // 投保人签字
-  insuredSign: '/baseInsurance/long/insuredSign', // 被保人签字
+  insuredSign: '/baseInsurance/long/insuredSign', // 被保险人签字
   orderDetail: '/orderDetail', // 订单详情
   orderList: '/order', // 订单列表
   paymentResult: '/baseInsurance/long/result',

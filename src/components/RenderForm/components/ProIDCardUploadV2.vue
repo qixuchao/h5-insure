@@ -1,5 +1,5 @@
 <template>
-  <ProFormItem class="com-van-id-card-upload-wrap" :model-value="state.modelValue" :="filedAttrs">
+  <ProFormItem class="com-van-id-card-upload-wrap" :model-value="state.modelValue" :="filedAttrs" :rules="rules">
     <template #input>
       <van-uploader
         v-for="(item, index) in uploaderList"
@@ -28,11 +28,19 @@
           </div>
         </van-popover>
         <template #preview-cover>
-          <div v-if="!isView" class="upload-item cover">
-            <div class="bg" />
-            <ProSvg name="camera" color="green" class="icon" />
-            <div class="text">{{ item.title }}</div>
-          </div>
+          <van-popover v-model:show="showPopover[index]" class="upload-popover" :offset="item.offset">
+            <template #reference>
+              <div v-if="!isView" class="upload-item cover">
+                <div class="bg" />
+                <ProSvg name="camera" color="green" class="icon" />
+                <div class="text">{{ item.title }}</div>
+              </div>
+            </template>
+            <div v-for="(action, i) in actionList" :key="i" class="select-item" @click="handleRead(index, i)">
+              <span>{{ action.text }}</span>
+              <ProSvg :name="action.icon" font-size="22px" class="icon" />
+            </div>
+          </van-popover>
         </template>
       </van-uploader>
       <!-- <van-uploader
@@ -97,8 +105,23 @@ const uploaderList = [
 ];
 
 const showPopover = ref([false, false]);
+const fileList = ref([]);
 
 const { filedAttrs } = toRefs(useAttrsAndSlots());
+
+const rules = computed(() => {
+  return [
+    {
+      validator: (value) => {
+        if (filedAttrs.value.required && fileList.value.length !== 2) {
+          return false;
+        }
+        return true;
+      },
+      trigger: ['onBlur', 'onSubmit'],
+    },
+  ];
+});
 
 const { formState, extraProvision } = inject(VAN_PRO_FORM_KEY) || {};
 
@@ -111,7 +134,7 @@ const props = defineProps({
     type: Array as () => string[],
     default: () => [],
   },
-  /** 数据对象类型-属于哪个模块(被保人...) */
+  /** 数据对象类型-属于哪个模块(被保险人...) */
   objectType: {
     type: Number as () => ATTACHMENT_OBJECT_TYPE_ENUM,
     default: null,
@@ -130,8 +153,6 @@ const state = reactive({
   modelValue: [],
   ossKeyList: [],
 });
-
-const fileList = ref([]);
 
 useCustomFieldValue(() => state.modelValue);
 
@@ -222,7 +243,8 @@ watch(
         const { data, code } = res;
         if (code === '10000' && data && data.idCardOcrVO) {
           // personAddress 户籍所在地, issueBy 发证机关, race 民族
-          const { personName, personIdCard, validDateEnd, birthday, validDateStart, ...rest } = data.idCardOcrVO || {};
+          const { personName, personIdCard, validDateEnd, birthday, personAddress, validDateStart, ...rest } =
+            data.idCardOcrVO || {};
           const ocrData = {
             name: personName,
             certNo: personIdCard,
@@ -230,6 +252,10 @@ watch(
             certStartDate: validDateStart,
             birthday,
             age: calculateAge(birthday),
+            longArea: {
+              ...formState.formData.longArea,
+              detail: personAddress,
+            },
             ...rest,
           };
 
@@ -264,6 +290,7 @@ export default {
       padding: 0 32px;
       font-size: 32px;
       font-weight: 400;
+      align-items: center;
       color: #333333;
       border-bottom: 1px solid rgba(211, 211, 211, 1);
       &:last-of-type {

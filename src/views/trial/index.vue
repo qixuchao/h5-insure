@@ -11,7 +11,7 @@
       ></PersonalInfo>
     </div>
     <div v-if="state.insuredFactor.length" class="part-card">
-      <ProTitle title="被保人"></ProTitle>
+      <ProTitle title="被保险人"></ProTitle>
       <PersonalInfo
         ref="insuredRef"
         :insured-code="state.riskBaseInfo?.insurerCode"
@@ -156,7 +156,7 @@ const insured = ref<Omit<InsuredVoItem, 'productPlanVOList'>>({
   personVO: {
     occupationCodeList: [],
   },
-}); // 被保人
+}); // 被保险人
 const riskInfo = ref<Partial<ProductPlanVoItem>>({}); // 险种信息
 const holderRef = ref({});
 const insuredRef = ref({});

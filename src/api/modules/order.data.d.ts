@@ -256,7 +256,7 @@ export interface OrderDetail {
     tenantOrderAttachmentList: TenantOrderAttachmentItem[];
     /** 投保人信息 */
     holder: Partial<Holder>;
-    /** 被保人信息，按照多被保人处理 */
+    /** 被保险人信息，按照多被保险人处理 */
     insuredList: Array<Partial<InsuredItem>>;
     /** 投保人问卷告知 */
     tenantOrderNoticeList: Array<Partial<TenantOrderNoticeItem>>;

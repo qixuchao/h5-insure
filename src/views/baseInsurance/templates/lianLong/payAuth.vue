@@ -49,6 +49,7 @@
           name="verifyCode"
           related-name="mobile"
           :send-s-m-s-code="sendCode"
+          :check-s-m-s-code="checkSMSCode"
           required
         ></ProSMSCode>
       </ProRenderForm>
@@ -63,7 +64,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import { getTenantOrderDetail } from '@/api/modules/trial';
-import { combineDictCode, sendSMSCode } from '@/components/RenderForm/utils/constants';
+import { combineDictCode, checkSMSCode } from '@/components/RenderForm/utils/constants';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { authorizeConfirm, authorizeSysCode } from '@/api/modules/verify';
 import { PAGE_ROUTE_ENUMS } from './constants';

@@ -88,7 +88,7 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  /** 数据对象类型-属于哪个模块(被保人...) */
+  /** 数据对象类型-属于哪个模块(被保险人...) */
   objectType: {
     type: Number as () => ATTACHMENT_OBJECT_TYPE_ENUM,
     default: null,

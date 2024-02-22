@@ -356,8 +356,8 @@ import {
 import Storage from '@/utils/storage';
 import BenefitCharts from './components/BenefitCharts.vue';
 import AgentToImage from './components/AgentToImage.vue';
-import InsurancesList from './components/InsurancesList.vue'; // 预览页面 被保人选择
-import InsuranceList from './components/InsuranceList.vue'; // 被保人展示
+import InsurancesList from './components/InsurancesList.vue'; // 预览页面 被保险人选择
+import InsuranceList from './components/InsuranceList.vue'; // 被保险人展示
 // import Benefit from './components/Benefit.vue';
 import Benefit from '../../baseInsurance/templates/components/Benefit/index.vue';
 import LiabilityByRisk from './components/LiabilityByRisk.vue';
@@ -381,7 +381,7 @@ import { SEX_LIMIT_ENUM } from '@/common/constants';
 import { useLocalStorage, sessionStore } from '@/hooks/useStorage';
 import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
 import Capsule from '@/components/CapsuleSelect/index.vue';
-import InsuredList from './components/InsuredList.vue'; // 选择被保人
+import InsuredList from './components/InsuredList.vue'; // 选择被保险人
 import useTheme from '@/hooks/useTheme';
 import { PAGE_ROUTE_ENUMS } from '@/views/baseInsurance/templates/lianLong/constants.ts';
 import LiabilityByRiskForPdf from './components/LiabilityByRiskForPdf.vue';
@@ -749,7 +749,7 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
 // 立即投保
 const onInsured = () => {
   if (currentInfo.value) {
-    // 投保当前被保人
+    // 投保当前被保险人
     const targetInsure = insuredProductList.value.find(
       (insure) => insure.name === currentInfo.value.name && insure.proposalInsuredId === currentInfo.value.id,
     );

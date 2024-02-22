@@ -2,7 +2,7 @@
   <div class="long-info-preview">
     <ProNavigator />
 
-    <!-- 投保人/被保人/受益人 -->
+    <!-- 投保人/被保险人/受益人 -->
     <PersonalInfo
       v-if="currentPlanObj?.productFactor"
       ref="personalInfoRef"

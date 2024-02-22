@@ -479,7 +479,7 @@ const handleMixTrialData = debounce(async () => {
     state.riskVOList = state.riskVOList.map((trialRisk) => {
       return handleSameMainRisk(trialRisk);
     });
-    //  这里目前只有一个被保人，所以直接index0，后面需要用被保人code来区分
+    //  这里目前只有一个被保险人，所以直接index0，后面需要用被保险人code来区分
     // state.submitData.insuredVOList[0].productPlanVOList = [
     //   {
     //     insurerCode: props.productInfo.insurerCode,
@@ -509,7 +509,7 @@ const handleMixTrialData = debounce(async () => {
 }, 300);
 
 const handlePersonalInfoChange = async (data) => {
-  // 只有改动第一个被保人，需要调用dy接口
+  // 只有改动第一个被保险人，需要调用dy接口
   const { holder, insuredVOList, isFirstInsuredChange } = data;
   if (holder) {
     state.submitData.holder = holder;
@@ -542,7 +542,7 @@ const handlePersonalInfoChange = async (data) => {
   }
   state.ifPersonalInfoSuccess = true;
   if (isFirstInsuredChange) {
-    console.log('处理第一被保人修改的dy变化');
+    console.log('处理第一被保险人修改的dy变化');
     const dyResult = await queryCalcDynamicInsureFactor({
       calcProductFactorList: [
         {
@@ -559,7 +559,7 @@ const handlePersonalInfoChange = async (data) => {
     });
     if (!handleDealDyResult(dyResult)) return;
   }
-  console.log('投被保人的信息回传 ', state.submitData, data);
+  console.log('投被保险人的信息回传 ', state.submitData, data);
   handleMixTrialData();
 };
 
@@ -627,7 +627,7 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
 
 const handleTrialInfoChange = async (data: any, changeData: any) => {
   state.mainRiskVO = data;
-  // TODO 这里未来需要看一下  多倍保人的情况，回传需要加入被保人的Index或者别的key
+  // TODO 这里未来需要看一下  多倍保人的情况，回传需要加入被保险人的Index或者别的key
   const dyDeal = await handleDynamicConfig(data, changeData);
   if (!dyDeal) return;
   if (state.riskVOList.length > 0) {

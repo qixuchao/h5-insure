@@ -1,5 +1,5 @@
 <template>
-  <!----被保人-->
+  <!----被保险人-->
   <ProRenderFormWithCard
     ref="insuredFormRef"
     class="personal-info-card insured"
@@ -28,7 +28,7 @@
     title="监护人"
     :model="state.guardian.personVO"
     :schema="state.guardianSchema"
-    :config="state.config"
+    :config="{ ...state.config, relationToInsured: { isDefaultSelected: true } }"
     :is-view="isView"
     :extra-provision="{
       objectType: ATTACHMENT_OBJECT_TYPE_ENUM.GUARDIAN,
@@ -216,7 +216,7 @@ const state = reactive<Partial<StateInfo>>({
 
 const isSameHolder = ref<boolean>(false);
 
-// 被保人同投保人关系非父母时，被保人年龄小于18岁则需要监护人信息
+// 被保险人同投保人关系非父母时，被保险人年龄小于18岁则需要监护人信息
 const isShowGuardian = computed<boolean>(() => {
   const { age, relationToHolder } = state.personVO;
   if (relationToHolder && !['1', '4', '5'].includes(`${relationToHolder}`) && age !== null && +age < 18) {
@@ -230,7 +230,9 @@ const isShowGuardian = computed<boolean>(() => {
 });
 
 const mergeHolderBenefic = () => {
-  const mergeData = {};
+  const mergeData = {
+    relationToInsured: state.personVO.relationToHolder,
+  };
   state.beneficiarySchemaList.reduce((da, schema) => {
     if (props.holderPersonVO?.[schema.name]) {
       da[schema.name] = props.holderPersonVO?.[schema.name];
@@ -290,9 +292,6 @@ const holderToBeneficial = (index?: number) => {
               isView: false,
             },
             benefitOrder: {
-              isView: false,
-            },
-            relationToInsured: {
               isView: false,
             },
             beneficiaryType: {
@@ -395,12 +394,12 @@ watch(
   () => props.holderPersonVO,
   debounce((val) => {
     colorConsole('------投保人信息变动了-----');
-    // 投保人id不同步到被保人
+    // 投保人id不同步到被保险人
     const { id, ...holderPersonVO } = val || {};
 
     // 若为本人合并投保人数据
     if (String(state.personVO?.relationToHolder) === '1') {
-      // 过滤投被保人相同要素，保留证件相关的，预防关系为本人时，仅被保人有的字段被清空,后端给了null
+      // 过滤投被保险人相同要素，保留证件相关的，预防关系为本人时，仅被保险人有的字段被清空,后端给了null
       isSameHolder.value = true;
 
       state.beneficiaryList = state.beneficiaryList.map((beneficiaryItem, ind) => {
@@ -537,24 +536,24 @@ watch(
   },
 );
 let relationToHolderChanged = false;
-// 监听投被保人关系
+// 监听投被保险人关系
 watch(
   () => state.personVO?.relationToHolder,
   (val, oldVal) => {
-    // 若投被保人关系为空则不执行
+    // 若投被保险人关系为空则不执行
     if (!val) {
       return;
     }
     colorConsole('与投保人关系变动了');
     const { personVO, schema = [], config } = state || {};
-    // 投保人id不同步到被保人
+    // 投保人id不同步到被保险人
     const { id, ...holderPersonVO } = props.holderPersonVO || {};
 
     const isSelf = String(personVO.relationToHolder) === '1';
 
     isSameHolder.value = isSelf;
 
-    // 若被保人为本人是否要隐藏
+    // 若被保险人为本人是否要隐藏
     schema.forEach((schemaItem) => {
       schemaItem.relationToHolder = personVO.relationToHolder;
       schemaItem.hidden = !schemaItem.isSelfInsuredNeed && isSelf;
@@ -589,7 +588,7 @@ watch(
         }
       }
 
-      // 投被保人为丈夫或者妻子时默认被保人的性别 2: 丈夫，3:妻子
+      // 投被保险人为丈夫或者妻子时默认被保险人的性别 2: 丈夫，3:妻子
       const genderConfig = {
         gender: {
           ...config.gender,
@@ -628,7 +627,7 @@ watch(
   },
 );
 
-// 监听被保人国籍
+// 监听被保险人国籍
 watch(
   () => state.personVO?.nationalityCode,
   (val, oldVal) => {
@@ -654,14 +653,14 @@ watch(
   },
 );
 
-// 监听被保人与监护人关系
+// 监听被保险人与监护人关系
 watch(
   () => state.guardian?.personVO?.relationToInsured,
   (val, oldVal) => {
     if (val === oldVal) {
       return;
     }
-    colorConsole(`监护人与被保人关系变动了`);
+    colorConsole(`监护人与被保险人关系变动了`);
     const { certType } = state.guardian.personVO || {};
     // 证件类型是否只有身份证, 与被保险人关系变动
     const [isOnlyCertFlag, tempConfig] = getCertConfig(state.guardianSchema, { certType, relationToInsured: val });
@@ -671,9 +670,9 @@ watch(
         isView: props.isView,
       },
     };
-    // 受益人与被保人关系切换
+    // 受益人与被保险人关系切换
     if (!props.isView && val !== oldVal) {
-      // 投被保人为丈夫或者妻子时默认被保人的性别 2: 丈夫，3:妻子
+      // 投被保险人为丈夫或者妻子时默认被保险人的性别 2: 丈夫，3:妻子
       let currentGender = null;
       if (`${val}` === '2') {
         genderConfig.gender.isView = true;
@@ -700,15 +699,15 @@ watch(
   },
 );
 
-// 监听与主被保人关系变动
+// 监听与主被保险人关系变动
 watch(
   () => state.personVO?.relationToMainInsured,
   (val, oldVal) => {
-    // 若投被保人关系为空则不执行
+    // 若投被保险人关系为空则不执行
     if (!val) {
       return;
     }
-    colorConsole('次被保人与主被保人关系变动了');
+    colorConsole('次被保险人与主被保险人关系变动了');
     const { personVO, schema = [], config } = state || {};
     const { certType } = personVO || {};
 
@@ -717,7 +716,7 @@ watch(
 
     merge(config, tempConfig);
 
-    // 非查看模式处理与主被保人关系变动，数据清空操作
+    // 非查看模式处理与主被保险人关系变动，数据清空操作
     if (!props.isView && oldVal && String(val) !== String(oldVal)) {
       Object.assign(state.personVO, {
         // 若只有证件类型为身份证，不清除值

@@ -234,7 +234,7 @@ const setOccupationReadOnly = (item) => {
 
 /**
  * 转换原始数据 ProForm 所需要的数据
- * @param [array] 投保人/被保人/受益人的因子数组
+ * @param [array] 投保人/被保险人/受益人的因子数组
  * @returns [object] schema 和 trialFactorCodes(试算因子 code )
  */
 export const transformToSchema = (arr: FieldConfItem[], trialFactorCodesArr: string[]): ModuleResult => {
@@ -273,7 +273,7 @@ export const transformToSchema = (arr: FieldConfItem[], trialFactorCodesArr: str
       // 组件名优先级 config(code) > schema > ProFieldV2
       const finalComponentName = configComponentName || componentName || 'ProFieldV2';
 
-      // 被保人因子是否为非投保人共有
+      // 被保险人因子是否为非投保人共有
       if (item.moduleType === 2) {
         extraData.isSelfInsuredNeed = item.isSelfInsuredNeed;
       }
@@ -334,13 +334,13 @@ type ResultEnum = 'holder' | 'beneficiary' | 'payInfo' | 'signInfo' | 'guardian'
 
 export interface PersonalInfoConf {
   hasTrialFactorCodes?: boolean;
-  /** 是否支持多被保人 */
+  /** 是否支持多被保险人 */
   multiInsuredSupportFlag: boolean;
-  /** 是否为配偶被保人 */
+  /** 是否为配偶被保险人 */
   isSpouseInsured: false;
-  /** 被保人人最大个数 */
+  /** 被保险人人最大个数 */
   multiInsuredMaxNum: number;
-  /** 被保人最小个数 */
+  /** 被保险人最小个数 */
   multiInsuredMinNum: number;
   /** 受益人人个数 */
   multiBeneficiaryMaxNum: number;
@@ -352,7 +352,7 @@ type FactorToSchemaResult = {
 } & { [x in ResultEnum]: ModuleResult };
 
 /**
- * 处理被保人 schema
+ * 处理被保险人 schema
  * @param factorsMap
  * @param config
  * @returns [[],[]]
@@ -369,15 +369,15 @@ const handleHolderSchema = (factorsMap, config) => {
     .reduce(
       (res, insuredItem) => {
         const { code, subModuleType, attributeValueList } = insuredItem;
-        // 若为次被保人
+        // 若为次被保险人
         if (subModuleType === INSURED_MODULE_TYPE_ENUM.sub) {
-          // 若为主被保人关系因子
+          // 若为主被保险人关系因子
           if (code === 'relationToMainInsured') {
             const isSpouse =
               isNotEmptyArray(attributeValueList) &&
               attributeValueList.length === 1 &&
               attributeValueList.findIndex((attrItem) => attrItem.code === '2') > -1;
-            // 若是配偶，被保人最大最小数量为2,并且不可添加
+            // 若是配偶，被保险人最大最小数量为2,并且不可添加
             if (isSpouse) {
               Object.assign(config, {
                 multiInsuredMaxNum: 2,
@@ -408,21 +408,21 @@ const handleHolderSchema = (factorsMap, config) => {
 interface TransformConf {
   /** 是否过滤试算因子 */
   isTrial: boolean;
-  /** 是否支持多被保人 */
+  /** 是否支持多被保险人 */
   multiInsuredSupportFlag: number;
-  /** 被保人个数 */
+  /** 被保险人个数 */
   multiInsuredNum: number;
   /** 受益人人个数 */
   multiBeneficiaryMaxNum: number;
-  /** 被保人仅显示的要素，仅用于计划书 */
+  /** 被保险人仅显示的要素，仅用于计划书 */
   insuredFactorCodes: string[];
-  /** 被保人仅显示的要素，仅用于计划书 */
+  /** 被保险人仅显示的要素，仅用于计划书 */
   holderFactorCodes: string[];
 }
 
 /**
  * 转换原始数据 ProForm 所需要的数据
- * @param [array] 包含投保人、被保人、受益人的因子数组
+ * @param [array] 包含投保人、被保险人、受益人的因子数组
  * @param [boolean] 是否过滤试算因子
  * @returns [array] {schema 和 trialFactorCodes(试算因子 code )}[]
  */
@@ -442,22 +442,22 @@ export const transformFactorToSchema = (
   }
 
   const trialFactorCodes = [];
-  // 是否支持多被保人
+  // 是否支持多被保险人
   const multiInsuredSupportFlag = conf.multiInsuredSupportFlag === YES_NO_ENUM.YES;
   // 配置
   const config: PersonalInfoConf = {
     /** 是否有试算因子 */
     hasTrialFactorCodes: false,
-    /** 是否为配偶被保人 */
+    /** 是否为配偶被保险人 */
     isSpouseInsured: false,
-    /** 是否支持多被保人 */
+    /** 是否支持多被保险人 */
     multiInsuredSupportFlag,
-    /** 被保人最大数量，
-     * 若支持多被保人，则为被保人数量（被保人数量未配置则为无限大）
-     * 不支持多被保人，则最大数量为1
+    /** 被保险人最大数量，
+     * 若支持多被保险人，则为被保险人数量（被保险人数量未配置则为无限大）
+     * 不支持多被保险人，则最大数量为1
      * */
     multiInsuredMaxNum: multiInsuredSupportFlag ? conf.multiInsuredNum || Number.MAX_SAFE_INTEGER : 1,
-    /** 被保人最大数量 */
+    /** 被保险人最大数量 */
     multiInsuredMinNum: 1,
     /** 受益人数量, 默认 5 */
     multiBeneficiaryMaxNum: conf.multiBeneficiaryMaxNum || 5,
@@ -470,13 +470,13 @@ export const transformFactorToSchema = (
       ? factors[key].filter((factorsItem) => {
           const { subModuleType, code, attributeValueList } = factorsItem;
           if (subModuleType === INSURED_MODULE_TYPE_ENUM.sub) {
-            // 若为主被保人关系因子
+            // 若为主被保险人关系因子
             if (code === 'relationToMainInsured') {
               const isSpouse =
                 isNotEmptyArray(attributeValueList) &&
                 attributeValueList.length === 1 &&
                 attributeValueList.findIndex((attrItem) => attrItem.code === '2') > -1;
-              // 若是配偶，被保人最大最小数量为2,并且不可添加
+              // 若是配偶，被保险人最大最小数量为2,并且不可添加
               if (isSpouse) {
                 Object.assign(config, {
                   multiInsuredMaxNum: 2,
@@ -493,7 +493,7 @@ export const transformFactorToSchema = (
     return res;
   }, {});
 
-  // 多被保人逻辑
+  // 多被保险人逻辑
   const finialInsured = handleHolderSchema(factorsMap, config);
 
   const result = Object.keys(factorsMap).reduce((res, key) => {
@@ -504,20 +504,20 @@ export const transformFactorToSchema = (
       res[key] = transformToSchema(
         isHolder && isNotEmptyArray(conf.holderFactorCodes)
           ? schemaList.filter((item) => {
-              // 计划书被保人只展示职业/有无社保
+              // 计划书被保险人只展示职业/有无社保
               return conf.holderFactorCodes.includes(item.code);
             })
           : schemaList,
         trialFactorCodes,
       );
     } else {
-      // 被保人
+      // 被保险人
       res[key] = isNotEmptyArray(finialInsured)
         ? finialInsured.map((insuredSchemaListItem) =>
             transformToSchema(
               isNotEmptyArray(conf.insuredFactorCodes)
                 ? insuredSchemaListItem.filter((item) => {
-                    // 计划书被保人只展示职业/有无社保
+                    // 计划书被保险人只展示职业/有无社保
                     return conf.insuredFactorCodes.includes(item.code);
                   })
                 : insuredSchemaListItem,

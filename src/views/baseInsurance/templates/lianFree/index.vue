@@ -448,7 +448,7 @@ const getOrderDetail = (isLoading = true) => {
       faceVerified.value = data.insuredList?.[0]?.faceAuthFlag === YES_NO_ENUM.YES;
       if (faceVerified.value) {
         if (thread.value.isStart) {
-          Toast('被保人认证完成');
+          Toast('被保险人认证完成');
         }
         thread.value.stop();
       }
@@ -466,7 +466,7 @@ const getOrderDetail = (isLoading = true) => {
   });
 };
 
-// 轮询查询被保人人脸识别是否完成
+// 轮询查询被保险人人脸识别是否完成
 thread.value = useThread({
   start: () => {
     getOrderDetail(false);
@@ -548,7 +548,7 @@ const onSaveOrder = async () => {
               Dialog.confirm({
                 message,
                 confirmButtonText: '去分享',
-                cancelButtonText: '被保人确认',
+                cancelButtonText: '被保险人确认',
               })
                 .then(() => {
                   const shareLinkParams = {

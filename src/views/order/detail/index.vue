@@ -63,7 +63,7 @@
                 <img :src="item.uri" alt="" />
               </div>
             </div>
-            <div class="tenantOrderAttachmentList-title">被保人资料</div>
+            <div class="tenantOrderAttachmentList-title">被保险人资料</div>
             <div class="tenantOrderAttachmentList-img">
               <div
                 v-for="(item, index) in attachmentList(ATTACHMENT_OBJECT_TYPE_ENUM.INSURED)"

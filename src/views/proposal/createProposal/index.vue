@@ -23,7 +23,7 @@
       </div>
       <div v-if="stateInfo.insurerList[stateInfo.currentSelectInsure]" class="container">
         <ProCard
-          title="被保人信息"
+          title="被保险人信息"
           class="com-pro-form-with-card com-card-body-no-padding insure-containe"
           :show-divider="false"
         >
@@ -38,7 +38,7 @@
             <ProPickerV2
               v-if="stateInfo.currentSelectInsure !== 0 && stateInfo.insurerList[stateInfo.currentSelectInsure]"
               v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToMainInsured"
-              label="与主被保人关系"
+              label="与主被保险人关系"
               :is-default-selected="true"
               name="relationToMainInsured"
               :columns="relationColumn()"
@@ -98,7 +98,7 @@
             <ProRenderForm ref="holderFormRef" :model="stateInfo.holder" class="insure-container">
               <ProRadioV2
                 v-model="stateInfo.insurerList[0].personVO.relationToHolder"
-                label="投被保人是同一人"
+                label="投被保险人是同一人"
                 :columns="SELF_LIST"
                 required
               />
@@ -377,12 +377,12 @@ interface proposalInsuredProductItem {
 
 interface StateInfo {
   selectedProductCodeList: string[];
-  selectedProductList: any[]; // 当前被保人选择的产品列表
+  selectedProductList: any[]; // 当前被保险人选择的产品列表
   currentProductCode: string;
   holder: Partial<ProposalHolder>;
   insuredPersonVO: Partial<ProposalHolder>;
-  insurerList: ProposalHolder[]; // 被保人列表，包含被保人信息personVO和productList
-  currentSelectInsure: number; // 当前选择的被保人序号
+  insurerList: ProposalHolder[]; // 被保险人列表，包含被保险人信息personVO和productList
+  currentSelectInsure: number; // 当前选择的被保险人序号
   productList: ProposalInsuredProductItem[];
   productCollection: {
     [x: string]: ProductData;
@@ -445,7 +445,7 @@ const currentProductCodeListFn = () => {
     .filter((code) => Boolean(code));
 };
 
-// 获取当前被保人下产品中的主险code
+// 获取当前被保险人下产品中的主险code
 const currentProductRiskCodeListFn = () => {
   return stateInfo.insurerList[stateInfo.currentSelectInsure].productList.reduce((riskList, product) => {
     return riskList.concat(product.riskList.filter((risk) => risk.riskType === 1).map((risk) => risk.riskCode));
@@ -547,7 +547,7 @@ const relationColumn = () => {
     return personVO.relationToMainInsured === +RELATION_HOLDER_ENUM.MATE;
   });
   const newMap = RELATION_HOLDER_LIST.map((conf) => {
-    // 如果是本人的情况  一定是disable的，因为默认第一个被保人就是本人
+    // 如果是本人的情况  一定是disable的，因为默认第一个被保险人就是本人
     if (
       conf.value === RELATION_HOLDER_ENUM.SELF ||
       (conf.value === RELATION_HOLDER_ENUM.MATE && mateIndex >= 0 && mateIndex !== stateInfo.currentSelectInsure)
@@ -587,7 +587,7 @@ const combineToProductList = (productInfo: PlanTrialData) => {
 
 // 添加或修改险种信息成功的回调
 const onFinished = (productInfo: PlanTrialData) => {
-  // 是否需要更新投被保人信息
+  // 是否需要更新投被保险人信息
   console.log('onFinished', productInfo);
   // 投保人
   Object.assign(stateInfo.holder, productInfo.holder);
@@ -595,7 +595,7 @@ const onFinished = (productInfo: PlanTrialData) => {
     productInfo.insuredPersonVO.relationToHolder =
       stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.relationToHolder;
   }
-  // 被保人
+  // 被保险人
   if (stateInfo.insurerList[stateInfo.currentSelectInsure])
     Object.assign(stateInfo.insurerList[stateInfo.currentSelectInsure].personVO, productInfo.insuredPersonVO);
 
@@ -655,7 +655,7 @@ const addProduct = () => {
     })
     .catch((e) => {
       console.log('e', e);
-      Toast('请确认被保人信息是否录入完整!');
+      Toast('请确认被保险人信息是否录入完整!');
     });
 };
 
@@ -970,7 +970,7 @@ const pickPeriodValue = (periodList) => {
 };
 
 /**
- * 被保人数据变动再次计算默认值
+ * 被保险人数据变动再次计算默认值
  */
 const calcDynamicInsureFactor = async (productCodeList: string[]) => {
   try {
@@ -1074,7 +1074,7 @@ const addRiderRisk = (productInfo, riskInfo, riskOriginData) => {
     })
     .catch((e) => {
       console.log('e', e);
-      Toast('请确认投被保人信息是否录入完整!');
+      Toast('请确认投被保险人信息是否录入完整!');
     });
 };
 
@@ -1207,7 +1207,7 @@ const handleDeleteInsure = (index: number, cb) => {
   cb?.();
 };
 
-/** 投、被保人数据变动 */
+/** 投、被保险人数据变动 */
 watch(
   [
     () =>

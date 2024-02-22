@@ -34,7 +34,11 @@
               </div>
             </template>
           </van-cell>
-          <van-cell v-if="isShowItem('insured') && isShowInsured" title="被保人签名" :required="isRequired('insured')">
+          <van-cell
+            v-if="isShowItem('insured') && isShowInsured"
+            title="被保险人签名"
+            :required="isRequired('insured')"
+          >
             <template #value>
               <div class="inner-cell">
                 <van-cell
@@ -76,7 +80,7 @@
           <template v-if="isShowInsured">
             <ProFieldV2
               v-model="formData.insuredMobile"
-              label="被保人手机号"
+              label="被保险人手机号"
               name="insuredMobile"
               maxlength="11"
               required
@@ -193,7 +197,7 @@ const signPartInfo = ref({
     isShareSign: false,
     signData: {},
     verifyStatus: 2,
-  }, // 被保人
+  }, // 被保险人
   agent: {
     fileList: [],
     personalInfo: {},
@@ -261,7 +265,7 @@ const handleShare = (type) => {
   });
 };
 
-// 非双录场景下验证投被保人、代理人手机号
+// 非双录场景下验证投被保险人、代理人手机号
 const checkMobile = (type: 'agent' | 'holder' | 'insured') => {
   checkType.value = type;
   if (type === 'agent') {
@@ -372,13 +376,13 @@ const initData = async () => {
               // 投保人签字
             } else if (column.code === '2') {
               signPartInfo.value.holder.isSign = true;
-              // 被保人签字
+              // 被保险人签字
             } else if (column.code === '3') {
               signPartInfo.value.insured.isSign = true;
               // 投保人空中签字
             } else if (column.code === '4') {
               signPartInfo.value.holder.isShareSign = true;
-              // 被保人空中签字
+              // 被保险人空中签字
             } else if (column.code === '5') {
               signPartInfo.value.insured.isShareSign = true;
             }
@@ -430,7 +434,7 @@ const onNext = async () => {
       return;
     }
     if (insuredList[0].isCert === YES_NO_ENUM.NO) {
-      Toast('被保人签名未完成');
+      Toast('被保险人签名未完成');
       return;
     }
   } else {

@@ -8,7 +8,7 @@
         <ProFieldV2
           v-show="false"
           v-model="formData.mobile"
-          label="被保人手机号"
+          label="被保险人手机号"
           name="mobile"
           maxlength="11"
           required

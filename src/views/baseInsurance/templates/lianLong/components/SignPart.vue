@@ -80,7 +80,7 @@ const FilePreview = defineAsyncComponent(() => import('../../components/FilePrev
 
 interface Props {
   signString?: string[]; // 签字配置信息
-  personalInfo: any; // 投被保人信息
+  personalInfo: any; // 投被保险人信息
   fileList: any[];
   title: string;
   showSign: boolean;
