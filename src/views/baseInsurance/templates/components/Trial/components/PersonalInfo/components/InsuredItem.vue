@@ -28,7 +28,7 @@
     title="监护人"
     :model="state.guardian.personVO"
     :schema="state.guardianSchema"
-    :config="{ ...state.config, relationToInsured: { isDefaultSelected: true } }"
+    :config="{ ...state.guardian.config, relationToInsured: { isDefaultSelected: true } }"
     :is-view="isView"
     :extra-provision="{
       objectType: ATTACHMENT_OBJECT_TYPE_ENUM.GUARDIAN,

@@ -64,7 +64,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import { getTenantOrderDetail } from '@/api/modules/trial';
-import { combineDictCode, checkSMSCode } from '@/components/RenderForm/utils/constants';
+import { combineDictCode } from '@/components/RenderForm/utils/constants';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { authorizeConfirm, authorizeSysCode } from '@/api/modules/verify';
 import { PAGE_ROUTE_ENUMS } from './constants';
@@ -104,16 +104,21 @@ const sendCode = (params, callback) => {
   });
 };
 
+const checkSMSCode = async (params, callback) => {
+  const { code } = await authorizeConfirm(formData.value);
+  if (code === '10000') {
+    Toast('短信验证成功');
+    callback?.();
+    return true;
+  }
+  return false;
+};
+
 const onSubmit = () => {
   formRef.value
     .validate()
     .then((validate) => {
-      authorizeConfirm(formData.value).then(({ code, data }) => {
-        if (code === '10000') {
-          router.back();
-          Toast('成功');
-        }
-      });
+      router.back();
     })
     .catch((e) => {
       console.log('e', e);
