@@ -321,7 +321,7 @@ const getQuestionInfo = async (params) => {
     );
 
     state.customerQuestions = productQuestionnaireVOList.map((questionInfo) => {
-      const { questionnaireDetailResponseVO, questionnaireId, questionnaireName } = questionInfo || {};
+      const { questionnaireDetailResponseVO, questionnaireId, questionnaireName, objectType } = questionInfo || {};
       const { questions, basicInfo } = questionnaireDetailResponseVO || {};
       const { objectType: objType, questionnaireType } = basicInfo || {};
 
@@ -334,7 +334,9 @@ const getQuestionInfo = async (params) => {
           questionnaireName,
         };
       }
-      const currentAnswer = (answerList || []).find((answer) => answer.questionnaireId === questionnaireId);
+      const currentAnswer = (answerList || []).find(
+        (answer) => answer.questionnaireId === questionnaireId && answer.objectType === objectType,
+      );
       return {
         ...questionnaireDetailResponseVO,
         contentType: 'question',

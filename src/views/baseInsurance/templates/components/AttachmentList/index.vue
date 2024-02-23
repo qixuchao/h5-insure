@@ -63,7 +63,6 @@ const onChange = (e) => {
 .com-attachment-list {
   width: 100%;
   text-align: left;
-  padding: 0 10px 25px;
   margin-bottom: -15px;
   padding: 16px 39px 40px 0;
 

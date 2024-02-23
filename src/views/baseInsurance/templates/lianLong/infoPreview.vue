@@ -39,6 +39,16 @@
         @click="previewMaterial(index)"
       ></van-cell>
     </ProCard>
+    <AttachmentList
+      v-if="fileList?.length"
+      v-model="agree"
+      :attachment-list="fileList"
+      :has-bg-color="false"
+      is-show-radio
+      pre-text="本人同意利安人寿采集本人人脸信息，用于向国家法规许可的验证机构进行本人身份验证。本人已仔细阅读并知晓"
+      suffix-text="，并同意授权。"
+      @preview-file="() => (showFilePreview = true)"
+    />
     <div class="footer-btn">
       <ProShare
         v-if="!isShare && shareInfo.isShare && isAppFkq()"
@@ -59,17 +69,27 @@
       :content-list="[fileList[activeIndex]]"
       is-only-view
       :active-index="0"
-      text="关闭"
+      text="我已阅读"
       :force-read-cound="0"
       @on-close-file-preview-by-mask="onResetFileFlag"
     ></FilePreview>
+    <ProFileDrawer
+      v-if="visibleFile"
+      v-model="visibleFile"
+      :closeable="false"
+      :data-source="state.fileList"
+      @click-btn="previewFile"
+      @submit="onNext"
+    >
+    </ProFileDrawer>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Toast } from 'vant';
+import { Dialog, Toast } from 'vant';
 import debounce from 'lodash-es/debounce';
+import { useToggle } from '@vant/use';
 import {
   ProRenderFormWithCard,
   PayInfo,
@@ -85,7 +105,6 @@ import {
   mergeInsureFactor,
 } from '@/api/modules/trial';
 
-import { InsureProductData, ProductPlanInsureVoItem } from '@/api/modules/product.data';
 import { nextStepOperate as nextStep } from '../../nextStep';
 import useAttachment from '@/hooks/useAttachment';
 import {
@@ -106,8 +125,10 @@ import { dealMaterialList, pickProductRiskCode, pickProductRiskCodeFromOrder } f
 import InsuranceNotificationInformation from '../../../order/components/insuranceNotificationInformation.vue';
 import { getQuestionAnswerDetail } from '@/api/modules/inform';
 import { QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE } from '@/common/constants/notice';
-import { getFileType } from '@/views/baseInsurance/utils';
+import { PREVIEW_FILE_KEY, getFileType } from '@/views/baseInsurance/utils';
 import { OBJECT_TYPE_ENUM, QUESTIONNAIRE_TYPE_ENUM } from '@/common/constants/questionnaire';
+import { localStore } from '@/hooks/useStorage';
+import AttachmentList from '../components/AttachmentList/index.vue';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 
@@ -157,7 +178,6 @@ try {
 } catch (error) {
   //
 }
-
 const state = reactive({
   isView: false,
   // 投保人
@@ -191,6 +211,8 @@ const personalInfoRef = ref<InstanceType<typeof PersonalInfo>>();
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const isLoading = ref<boolean>(false);
+const hasReadFile = ref<boolean>(false); // 强制阅读文件已经阅读完成
+const agree = ref<boolean>(false);
 // 文件预览
 const previewMaterial = (index) => {
   activeIndex.value = index;
@@ -199,6 +221,18 @@ const previewMaterial = (index) => {
 
 const onResetFileFlag = () => {
   showFilePreview.value = false;
+};
+
+const [visibleFile, toggleVisible] = useToggle(false);
+const previewFile = ({ file, type }, cb) => {
+  localStore.set(PREVIEW_FILE_KEY, { fileUri: file, fileType: type });
+  router.push({
+    path: '/template/filePreview',
+    query: {
+      fileId: file.id,
+    },
+  });
+  cb();
 };
 
 const shareRef = ref<InstanceType<typeof ProShare>>();
@@ -215,10 +249,19 @@ const onNext = async () => {
     jumpToNextPage(PAGE_CODE_ENUMS.INFO_PREVIEW, route.query);
     return;
   }
-  router.push({
-    path: routeEnum[objectType],
-    query: route.query,
-  });
+  if (!state.fileList?.length || (hasReadFile.value && agree.value)) {
+    router.push({
+      path: routeEnum[objectType],
+      query: route.query,
+    });
+  } else if (!hasReadFile.value) {
+    toggleVisible(true);
+  } else if (!agree.value) {
+    Dialog.alert({
+      message: '请先同意隐私政策',
+      confirmButtonText: '我知道了',
+    });
+  }
 };
 
 const personInfo = ref();
@@ -280,6 +323,18 @@ const initData = async () => {
   queryListProductMaterial(productRiskMap).then(({ code, data }) => {
     if (code === '10000') {
       const { productMaterialList, riskMaterialList } = dealMaterialList(data);
+      state.fileList = productMaterialList.map((tab) => {
+        return {
+          tabName: tab.attachmentName,
+          isExpand: true,
+          files: tab.attachmentList.map((material) => ({
+            name: material.materialName,
+            file: material.materialContent,
+            type: material.materialSource,
+            mustRead: material.mustReadFlag === YES_NO_ENUM.YES,
+          })),
+        };
+      });
       fileList.value = productMaterialList.concat(riskMaterialList);
     }
   });
@@ -315,10 +370,16 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss" scope>
+<style lang="scss" scoped>
 .long-info-preview {
   padding-bottom: 150px;
   overflow-y: auto;
+  .com-attachment-list {
+    padding: 16px 30px 40px;
+    :deep(.van-checkbox) {
+      width: 200px;
+    }
+  }
   .footer-btn {
     position: fixed;
     bottom: 0;
