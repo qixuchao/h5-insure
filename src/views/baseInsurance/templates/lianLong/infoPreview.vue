@@ -249,19 +249,23 @@ const onNext = async () => {
     jumpToNextPage(PAGE_CODE_ENUMS.INFO_PREVIEW, route.query);
     return;
   }
-  if (!state.fileList?.length || (hasReadFile.value && agree.value)) {
-    router.push({
-      path: routeEnum[objectType],
-      query: route.query,
-    });
-  } else if (!hasReadFile.value) {
-    toggleVisible(true);
-  } else if (!agree.value) {
-    Dialog.alert({
-      message: '请先同意隐私政策',
-      confirmButtonText: '我知道了',
-    });
-  }
+  router.push({
+    path: routeEnum[objectType],
+    query: route.query,
+  });
+  // if (!state.fileList?.length || (hasReadFile.value && agree.value)) {
+  //   router.push({
+  //     path: routeEnum[objectType],
+  //     query: route.query,
+  //   });
+  // } else if (!hasReadFile.value) {
+  //   toggleVisible(true);
+  // } else if (!agree.value) {
+  //   Dialog.alert({
+  //     message: '请先同意隐私政策',
+  //     confirmButtonText: '我知道了',
+  //   });
+  // }
 };
 
 const personInfo = ref();
