@@ -406,7 +406,7 @@ const getOrderDetail = (isOther = true) => {
 };
 
 const handleCancel = () => {
-  cancelOrder({ orderNo, tenantId }).then(({ code, data }) => {
+  cancelOrder({ orderNo, tenantId, cancelFlag: 1 }).then(({ code, data }) => {
     if (code === '10000') {
       Toast('撤单成功');
       setTimeout(() => getOrderDetail(false), 500);
