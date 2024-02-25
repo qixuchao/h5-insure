@@ -16,6 +16,7 @@
       :product-collection="productCollection"
       :default-data="orderDetail"
       :product-factor="productFactor"
+      :page-loading="pageLoading"
       @trial-start="handleTrialStart"
       @trial-end="handleTrialEnd"
       @update:user-data="updateUserData"
@@ -23,7 +24,7 @@
       @add-risk="addRisk"
       @delete-risk="deleteRisk"
     >
-      <template #middleInfo>
+      <template v-if="!pageLoading" #middleInfo>
         <PayInfo
           v-if="state.payInfo.schema.length"
           ref="payInfoRef"
@@ -73,7 +74,7 @@
       :payment-frequency="trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''"
       :tenant-product-detail="tenantProductDetail"
       :handle-share="(cb) => onShare(cb)"
-      :disabled="!trialResult || nextLoading"
+      :disabled="!trialResult || nextLoading || pageLoading"
       @handle-click="onNext"
       >下一步
       <template #label> 首年总保费 </template>
@@ -149,6 +150,7 @@ const RiskList = defineAsyncComponent(() => import('./components/SelectRiskList.
 const route = useRoute();
 const orderDetail = useOrder({});
 const LOADING_TEXT = '试算中...';
+const pageLoading = ref(true);
 
 /** 页面query参数类型 */
 interface QueryData {
@@ -731,6 +733,8 @@ const initData = async () => {
   //   }
   // });
 
+  Toast.loading('加载中...');
+
   orderNo &&
     (await getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
@@ -777,6 +781,10 @@ const initData = async () => {
         ...state.policyInfo,
         ...other,
       };
+
+      setTimeout(() => {
+        pageLoading.value = false;
+      }, 500);
     }
   });
 };

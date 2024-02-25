@@ -22,7 +22,7 @@
       </div>
       <slot name="middleInfo"></slot>
       <ProDivider size="large" />
-      <div class="container">
+      <div v-if="!pageLoading" class="container">
         <ProCard title="保障计划" class="insurePlan" :show-divider="false"></ProCard>
         <!-- 这里是标准险种信息 -->
         <div v-if="Object.keys(productMap).length" class="product-list">
@@ -137,6 +137,7 @@ interface Props {
   productFactor: object;
   productRiskCodeMap: object;
   updateRiskCode?: string;
+  pageLoading?: boolean;
 }
 
 const LOADING_TEXT = '试算中...';
@@ -179,6 +180,7 @@ const props = withDefaults(defineProps<Props>(), {
   hidePopupButton: false,
   defaultData: null,
   isTrial: false,
+  pageLoading: false,
   defaultOrder: () => ({}),
   /**
    * 多产品试算时，记录多个产品集合

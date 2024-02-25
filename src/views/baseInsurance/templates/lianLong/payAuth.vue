@@ -55,7 +55,7 @@
       </ProRenderForm>
     </div>
     <div class="footer-button">
-      <van-button type="primary" @click="onSubmit">提交</van-button>
+      <van-button type="primary" :disabled="nextDisable" @click="onSubmit">提交</van-button>
     </div>
   </div>
 </template>
@@ -78,6 +78,7 @@ const formRef = ref();
 const formData = ref();
 
 const firstPayInfo = ref({});
+const nextDisable = ref<boolean>(false);
 
 const certNoLabel = computed(() => {
   if (formData.value.holder.certType === CERT_TYPE_ENUM.CERT) {
@@ -115,12 +116,15 @@ const checkSMSCode = async (params, callback) => {
 };
 
 const onSubmit = () => {
+  nextDisable.value = true;
   formRef.value
     .validate()
     .then((validate) => {
       router.back();
+      nextDisable.value = false;
     })
     .catch((e) => {
+      nextDisable.value = false;
       console.log('e', e);
     });
 };
