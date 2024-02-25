@@ -63,7 +63,10 @@ const combineFormData = (targetIndex, originIndex) => {
 };
 
 // // 验证表单必填
-const validate = (isTrial) => {};
+// 验证表单必填
+const validate = () => {
+  return policyInfoFormRef.value?.validate();
+};
 
 watch(
   [() => props.schema, () => props.config],
@@ -104,6 +107,6 @@ watch(
 );
 
 defineExpose({
-  // validate,
+  validate,
 });
 </script>

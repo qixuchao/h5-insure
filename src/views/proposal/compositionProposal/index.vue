@@ -555,7 +555,7 @@ const setShareConfig = (link: string) => {
   shareConfig.value = {
     shareType: 0,
     title: proposalName,
-    desc: '您的贴心保险管家',
+    desc: shareConfig.value.desc,
     url: link,
     imageUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
     img: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
@@ -620,11 +620,14 @@ const getData = async () => {
         handleSelectInsureChange(0, realData[0]);
         title = '个人保障方案';
       }
+      // 投保人
+      const { name, gender } = data?.holder || {};
       document.title = title;
       infos.value = realData;
       proposalName.value = data.proposalName;
       isLoading.value = false;
       tenantId.value = data?.tenantId;
+      shareConfig.value.desc = `尊敬的${name}${['女士', '先生'][gender - 1]}，请查看您的建议书`;
       shareLink = `${ORIGIN}${BASE_PREFIX}proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
       setShareConfig(shareLink);
     }

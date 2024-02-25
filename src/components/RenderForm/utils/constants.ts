@@ -607,6 +607,10 @@ export const GLOBAL_CONFIG_MAP = {
   agentCode: {
     ...RULE_CONFIG_MAP.AGENT_CODE,
   },
+  /** 自保件互保件告知 */
+  selfInsuranceItemFlag: {
+    isDefaultSelected: false,
+  },
 };
 
 /** 被保险人类型 主被保险人/次被保险人 */

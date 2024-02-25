@@ -34,6 +34,7 @@
         ></PayInfo>
         <PolicyInfo
           v-if="state.policyInfo.schema.length"
+          ref="policyInfoRef"
           v-model="orderDetail.extInfo"
           :schema="state.policyInfo.schema"
           :is-view="state.isView"
@@ -258,6 +259,7 @@ const shareInfo = ref({
 });
 
 const payInfoRef = ref<InstanceType<typeof PayInfo>>();
+const policyInfoRef = ref<InstanceType<typeof PolicyInfo>>();
 const trialRef = ref<InstanceType<typeof Trial>>();
 const personalInfoRef = ref<InstanceType<typeof Trial>>();
 const tenantProductDetail = ref<Partial<ProductDetail>>({}); // 核心系统产品信息
@@ -545,6 +547,10 @@ const onNext = async () => {
 
   if (payInfoRef.value) {
     validateList.push(payInfoRef.value?.validate(false));
+  }
+
+  if (policyInfoRef.value) {
+    validateList.push(policyInfoRef.value?.validate(false));
   }
 
   Promise.all(validateList)
