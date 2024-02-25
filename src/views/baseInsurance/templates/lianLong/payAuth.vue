@@ -161,6 +161,8 @@ onMounted(() => {
 <style lang="scss" scoped>
 .page-pay-auth-wrap {
   padding-bottom: 150px;
+  min-height: 100vh;
+  height: auto;
   .bank-card {
     padding: $zaui-card-border;
     background-color: #f4f5f9;
