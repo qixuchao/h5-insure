@@ -161,16 +161,19 @@ defineExpose({
     }
     .placeholder {
       position: absolute;
-      width: 100vw;
-      height: 40px;
-      line-height: 140px;
+      width: 60vh;
+      // height: 40px;
+      // line-height: 140px;
+      left: 50%;
       top: 50%;
-      margin-top: -20px;
+      // margin-top: -20px;
       text-align: center;
-      font-size: 160px;
+      letter-spacing: 50px;
+      font-size: 240px;
       color: #000000;
       pointer-events: none;
       opacity: 0.3;
+      transform: translate(-50%, -50%) rotateZ(90deg) !important;
     }
   }
 }
