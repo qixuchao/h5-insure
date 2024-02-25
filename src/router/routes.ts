@@ -10,6 +10,12 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/baseInsurance/templates/lianLong/productList.vue'),
   },
   {
+    name: 'long-proposalToInsure',
+    path: '/baseInsurance/long/proposalToInsure',
+    meta: { title: '' },
+    component: () => import('@/views/baseInsurance/templates/lianLong/proposalToInsure.vue'),
+  },
+  {
     name: 'long-productDetail',
     path: '/baseInsurance/long/productDetail',
     meta: { title: '产品详情' },

@@ -39,6 +39,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import { stringify } from 'qs';
+import wx from 'weixin-js-sdk';
 import { queryListProductMaterial } from '@/api/modules/product';
 
 import { InsureProductData, ProductDetail, ProductMaterialVoItem } from '@/api/modules/product.data';
@@ -66,6 +67,7 @@ import { localStore } from '@/hooks/useStorage';
 import { confirmRiskTranscription } from '@/api/modules/scribing';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import { getFileType } from '../../utils';
+import { isWeiXin } from '@/views/cashier/core';
 
 const route = useRoute();
 const router = useRouter();
@@ -196,6 +198,7 @@ const handleSubmit = () => {
                 bizObjectType: NOTICE_TYPE_ENUM.HOLDER,
                 orderId: orderDetail.value.id,
                 tenantId,
+                shareFlag: isShare ? 1 : 2,
               }),
               isHolderSameInsured.value &&
                 signatureConfirm({
@@ -207,7 +210,14 @@ const handleSubmit = () => {
             ]).then((res1) => {
               if (res1[0].code === '10000') {
                 if (isShare) {
-                  Toast('已完成');
+                  Toast('本次签名已完成');
+                  setTimeout(() => {
+                    if (isWeiXin) {
+                      wx.closeWindow();
+                    } else {
+                      window.close();
+                    }
+                  }, 1500);
                   return;
                 }
                 router.push({
@@ -444,6 +454,7 @@ onMounted(() => {
 <style lang="scss" scope>
 .long-verify {
   padding-bottom: 150px;
+  overflow-y: auto;
   .sign-status {
     display: flex;
   }

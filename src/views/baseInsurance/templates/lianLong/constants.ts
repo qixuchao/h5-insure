@@ -19,6 +19,7 @@ export const BUTTON_CODE_ENUMS = {
 
 export const PAGE_ROUTE_ENUMS = {
   productList: '/baseInsurance/long/productList', // 产品详情
+  proposalToInsure: '/baseInsurance/long/proposalToInsure', // 产品详情
   productInfo: '/baseInsurance/long/productDetail', // 产品详情
   premiumTrial: '/baseInsurance/long/trial', // 保费试算
   questionNotice: '/baseInsurance/long/healthNotice', // 问卷告知书

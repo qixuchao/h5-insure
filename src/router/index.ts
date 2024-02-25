@@ -12,6 +12,7 @@ import { getWxJsSdkSignature } from '@/api/modules/wechat';
 import { isWechat, setPageTitle } from '@/utils/index';
 import { cachePage } from '@/utils/cachePage';
 import { ROUTE_EXCLUDE } from '@/views/baseInsurance/templates/lianLong/constants';
+import { YES_NO_ENUM } from '@/common/constants';
 
 const router: Router = createRouter({
   // 新的vue-router4 使用 history路由模式 和 base前缀
@@ -59,8 +60,9 @@ router.beforeEach(async (to, from, next) => {
     });
     return;
   }
+  console.log('route', to, from);
   const excludeRoute = ROUTE_EXCLUDE.find((route) => {
-    return route.to === to.path && route.from === from.path;
+    return route.to === to.path && route.from === from.path && to.query.canBack !== `${YES_NO_ENUM.YES}`;
   });
   if (excludeRoute) {
     router.push({

@@ -607,6 +607,10 @@ export const GLOBAL_CONFIG_MAP = {
   agentCode: {
     ...RULE_CONFIG_MAP.AGENT_CODE,
   },
+  /** 监护人与被保人关系证明 */
+  relationshipProof: {
+    maxCount: 4,
+  },
 };
 
 /** 被保险人类型 主被保险人/次被保险人 */

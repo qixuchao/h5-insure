@@ -117,15 +117,6 @@ const fileList = computed(() =>
       : [],
   ),
 );
-
-const beforeRead = (e) => {
-  const fileType = (e.name || '').match(/\.([^.]+)$/)?.[1];
-  if (fileType !== 'jpg') {
-    Toast('上传只支持jpg图片');
-    return false;
-  }
-  return true;
-};
 const handleRead = (e: UploaderFileListItem, index) => {
   const { title, category } = uploaderList[index];
   fileUpload(e.file, UPLOAD_TYPE_ENUM.BANK_CARD).then((res) => {

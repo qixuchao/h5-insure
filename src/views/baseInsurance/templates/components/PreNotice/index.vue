@@ -67,7 +67,7 @@ interface QueryData {
 }
 
 const { tenantId = '', productCode, preview } = route.query as QueryData;
-
+const emits = defineEmits(['close']);
 const noticeRef = ref();
 const state = reactive<{
   insureConfig: {
@@ -127,6 +127,7 @@ const clickHandler = (e: any) => {
 
 const closePopup = () => {
   noticeShow.value = false;
+  emits('close');
 };
 
 const isFileUrl = (url: string) => {

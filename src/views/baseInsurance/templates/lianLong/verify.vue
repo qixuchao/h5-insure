@@ -9,7 +9,7 @@
               <van-cell
                 is-link
                 :value="VERIFY_STATUS_MAP[signPartInfo.agent.verifyStatus]"
-                @click="checkMobile('agent')"
+                @click="checkMobile('agent', signPartInfo.agent.verifyStatus)"
               ></van-cell>
             </div>
           </template>
@@ -28,8 +28,8 @@
                 <van-cell
                   is-link
                   :value="VERIFY_STATUS_MAP[signPartInfo.holder.verifyStatus]"
-                  :value-class="`${isDisabled ? 'disable' : ''}`"
-                  @click="checkMobile('holder')"
+                  :value-class="`${isDisabled || signPartInfo.holder.shareFlag ? 'disable' : ''}`"
+                  @click="checkMobile('holder', signPartInfo.holder.verifyStatus, signPartInfo.holder.shareFlag)"
                 ></van-cell>
               </div>
             </template>
@@ -50,9 +50,9 @@
                 ></van-cell>
                 <van-cell
                   is-link
-                  :value-class="`${isDisabled ? 'disable' : ''}`"
+                  :value-class="`${isDisabled || signPartInfo.insured.shareFlag ? 'disable' : ''}`"
                   :value="VERIFY_STATUS_MAP[signPartInfo.insured.verifyStatus]"
-                  @click="checkMobile('insured')"
+                  @click="checkMobile('insured', signPartInfo.insured.verifyStatus, signPartInfo.insured.shareFlag)"
                 ></van-cell>
               </div>
             </template>
@@ -103,7 +103,7 @@
             <div class="inner-cell">
               <van-cell
                 is-link
-                :value-class="`${isDisabled ? 'disable' : ''}`"
+                :value-class="{ disable: isDisabled, errorColor: isError }"
                 :value="DUAL_STATUS_MAP[BMOSStatus]"
                 @click="handleDMOS"
               ></van-cell>
@@ -114,6 +114,7 @@
     </van-pull-refresh>
 
     <div class="footer-button">
+      <van-button v-if="isShowBackPage" type="primary" plain @click="() => toggleStatus(true)">返回修改</van-button>
       <van-button type="primary" @click="onNext">下一步</van-button>
     </div>
     <CheckCodePopup
@@ -124,12 +125,33 @@
       @cancel="handleCancel"
       @confirm="handleConfirm"
     ></CheckCodePopup>
+    <van-dialog
+      v-if="isShow"
+      v-model:show="isShow"
+      show-cancel-button
+      confirm-button-text="确定"
+      :confirm-button-disabled="!checkedPage"
+      cancel-button-text="放弃投保"
+      close-on-click-overlay
+      title="请选择需要修改的页面"
+      @confirm="handleBack"
+      @cancel="handleGiveUp"
+    >
+      <div class="dialog-content">
+        <van-radio-group v-model="checkedPage">
+          <van-radio :name="PAGE_ROUTE_ENUMS.premiumTrial">保费试算页</van-radio>
+          <van-radio :name="PAGE_ROUTE_ENUMS.questionNotice">健康告知页</van-radio>
+          <van-radio :name="PAGE_ROUTE_ENUMS.infoCollection">信息采集页</van-radio>
+        </van-radio-group>
+      </div>
+    </van-dialog>
   </div>
 </template>
 
 <script setup name="verify" lang="ts">
 import { useRoute, useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
+import { useToggle } from '@vant/use';
 import { nextStepOperate as nextStep } from '../../nextStep';
 import { ProFieldV2, ProSMSCode, ProRenderForm } from '@/components/RenderForm/components';
 import { checkSMSCode, sendSMSCode } from '@/components/RenderForm/utils/constants';
@@ -147,13 +169,17 @@ import { useSessionStorage, localStore } from '@/hooks/useStorage';
 import { LIAN_STORAGE_KEY, SHARE_CONTENT } from '@/common/constants/lian';
 import SDK, { shareWeiXin, pullUpApp, checkAppIsInstalled, getDeviceInfo } from '@/utils/lianSDK';
 import { MESSAGE_TYPE_ENUM } from './constants.ts';
-import { sendMessageToLian as sendMessage } from '@/api';
+import { rollbackEditOrder, sendMessageToLian as sendMessage } from '@/api';
+import { cancelOrder } from '@/api/modules/order';
+import BackPageDialog from './components/BackPageDialog.vue';
 
 const sessionStorage = useSessionStorage();
 const route = useRoute();
 const router = useRouter();
+const [isShow, toggleStatus] = useToggle(false);
 
 const { orderNo, tenantId } = route.query;
+const VanDialog = Dialog.Component;
 
 // 是否需要双录
 const needBMOS = ref<boolean>(false);
@@ -177,8 +203,12 @@ const requiredType = ref<any>({
   verify: [],
   scribing: '',
 });
+const checkedPage = ref();
 const schemaUrl = ref<string>(''); // 唤起双录app的链接
-
+const isShowBackPage = computed<boolean>(() => {
+  const { showReturnButton } = orderDetail.value;
+  return showReturnButton === YES_NO_ENUM.YES;
+});
 const signPartInfo = ref({
   holder: {
     fileList: [], // 签名资料
@@ -188,6 +218,7 @@ const signPartInfo = ref({
     isShareSign: false, // 是否需要分享签名
     signData: '', // 签名字符串
     verifyStatus: 2, // 认证状态
+    shareFlag: 2, // 是否分享签名完成
   }, // 投保人
   insured: {
     fileList: [],
@@ -197,6 +228,7 @@ const signPartInfo = ref({
     isShareSign: false,
     signData: {},
     verifyStatus: 2,
+    shareFlag: 2, // 是否分享签名完成
   }, // 被保险人
   agent: {
     fileList: [],
@@ -219,6 +251,8 @@ const isRequired = computed(
 const isDisabled = computed(() => {
   return signPartInfo.value.agent.verifyStatus !== YES_NO_ENUM.YES;
 });
+
+const isError = ref(false);
 
 const isShowInsured = computed(() => {
   const { insuredList } = orderDetail.value || {};
@@ -266,19 +300,34 @@ const handleShare = (type) => {
 };
 
 // 非双录场景下验证投被保险人、销售人员手机号
-const checkMobile = (type: 'agent' | 'holder' | 'insured') => {
+const checkMobile = (type: 'agent' | 'holder' | 'insured', isSign, isShared?) => {
   checkType.value = type;
-  if (type === 'agent') {
-    router.push({
-      path: PAGE_ROUTE_ENUMS.agentSign,
-      query: route.query,
+
+  const handleSign = () => {
+    if (type === 'agent') {
+      router.push({
+        path: PAGE_ROUTE_ENUMS.agentSign,
+        query: route.query,
+      });
+      return;
+    }
+    if (isDisabled.value || isShared) {
+      return;
+    }
+    show.value = true;
+  };
+
+  if (`${isSign}` === `${YES_NO_ENUM.YES}`) {
+    Dialog.confirm({
+      message: '本次签名已完成，您是否需要重新签名?',
+      confirmButtonText: '是',
+      cancelButtonText: '否',
+    }).then(() => {
+      handleSign();
     });
     return;
   }
-  if (isDisabled.value) {
-    return;
-  }
-  show.value = true;
+  handleSign();
 };
 
 // 去双录
@@ -294,14 +343,55 @@ const handleDMOS = () => {
             const packageName = schemaUrl.value.match(/(.*)\.app:\/\//)?.[1];
             checkAppIsInstalled({ packageName, scheme: schemaUrl.value }).then((info) => {
               if (info.isInstall === `${YES_NO_ENUM.YES}`) {
+                isError.value = false;
                 pullUpApp(schemaUrl.value);
               } else {
+                isError.value = true;
                 Toast('请先安装双录app');
               }
             });
           }
         }
       }
+    });
+  });
+};
+
+// 放弃投保,跳转至产品列表
+const handleGiveUp = () => {
+  cancelOrder({ orderNo, tenantId }).then(({ code, data }) => {
+    if (code === '10000') {
+      delete route.query.orderNo;
+      router.push({
+        path: PAGE_ROUTE_ENUMS.productList,
+        query: route.query,
+      });
+    }
+  });
+};
+
+// 撤单
+const canceledOrder = (cb) => {
+  rollbackEditOrder({
+    orderNo,
+    tenantId,
+  }).then(({ code: c }) => {
+    if (c === '10000') {
+      cb?.();
+    }
+  });
+};
+
+const handleBack = () => {
+  canceledOrder(() => {
+    toggleStatus(false);
+    delete route.query.questionnaireId;
+    router.push({
+      path: checkedPage.value,
+      query: {
+        ...route.query,
+        canBack: checkedPage.value === PAGE_ROUTE_ENUMS.infoCollection ? 1 : 2,
+      },
     });
   });
 };
@@ -347,8 +437,8 @@ const initData = async () => {
     if (code === '10000') {
       Object.assign(orderDetail.value, data);
       const { agentAuthFlag } = data.extInfo;
-      const { mobile } = data.holder;
-      const { mobile: insuredMobile } = data.insuredList?.[0] || {};
+      const { mobile, isCert, shareFlag } = data.holder;
+      const { mobile: insuredMobile, isCert: insuredCert, shareFlag: insuredShareFlag } = data.insuredList?.[0] || {};
       Object.assign(formData.value, {
         holderMobile: mobile,
         insuredMobile,
@@ -356,8 +446,11 @@ const initData = async () => {
 
       productRiskMap = pickProductRiskCodeFromOrder(data.insuredList[0].productList);
       signPartInfo.value.agent.verifyStatus = agentAuthFlag;
-      signPartInfo.value.holder.verifyStatus = data.holder.isCert;
-      signPartInfo.value.insured.verifyStatus = data.insuredList?.[0]?.isCert;
+      Object.assign(signPartInfo.value.holder, { verifyStatus: isCert, shareFlag: shareFlag === YES_NO_ENUM.YES });
+      Object.assign(signPartInfo.value.insured, {
+        verifyStatus: insuredCert,
+        shareFlag: insuredShareFlag === YES_NO_ENUM.YES,
+      });
     }
   });
 
@@ -510,6 +603,9 @@ onMounted(() => {
             &.disable {
               color: #3333339c;
             }
+            &.errorColor {
+              color: var(--van-danger-color);
+            }
           }
 
           &:after {
@@ -517,10 +613,28 @@ onMounted(() => {
           }
 
           &:last-child {
-            width: 240px;
+            width: 280px;
           }
         }
       }
+    }
+  }
+  .dialog-content {
+    height: 234px;
+    padding: 50px 50px 0 50px;
+    .van-radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      .van-radio {
+        margin-bottom: 50px;
+      }
+    }
+  }
+
+  :deep(.van-dialog) {
+    .van-button {
+      border-radius: unset;
     }
   }
 }

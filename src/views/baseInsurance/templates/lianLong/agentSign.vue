@@ -314,6 +314,7 @@ onMounted(() => {
 <style lang="scss" scope>
 .long-verify {
   padding-bottom: 150px;
+  overflow-y: auto;
   .sign-status {
     display: flex;
   }

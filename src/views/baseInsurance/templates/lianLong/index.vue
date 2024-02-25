@@ -405,6 +405,9 @@ onMounted(() => {
 .page-internet-product-detail {
   padding-bottom: 150px;
   background: #f1f5fc;
+  .com-attachment-list {
+    padding: 16px 39px 40px 39px;
+  }
   .preview-placeholder {
     padding: 200px 60px;
     height: calc(100vh - 188px);

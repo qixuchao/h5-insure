@@ -570,6 +570,7 @@ const onNext = async () => {
         );
 
         route.query.productClass = `${productClass.value}`;
+        delete route.query.canBack;
 
         // 校验ocr信息是否被修改
         const msgList = compareOcrData();

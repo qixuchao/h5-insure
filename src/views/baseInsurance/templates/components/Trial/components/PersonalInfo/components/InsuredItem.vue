@@ -42,6 +42,21 @@
     </template>
   </ProRenderFormWithCard>
 
+  <ProRenderFormWithCard
+    v-if="isShowGuardianMaterial"
+    ref="guardianFormRef"
+    :="$attrs"
+    title="监护人"
+    class="personal-info-card guardian"
+    :model="state.guardian.personVO"
+    :schema="guardianMaterialSchema"
+    :is-view="isView"
+    :extra-provision="{
+      objectType: ATTACHMENT_OBJECT_TYPE_ENUM.GUARDIAN,
+      objectId: state.guardian?.personVO?.id,
+    }"
+  />
+
   <template v-if="hasBeneficiarySchema">
     <ProRenderFormWithCard
       ref="beneficiaryTypeFormRef"
@@ -228,6 +243,26 @@ const isShowGuardian = computed<boolean>(() => {
     config: {},
   };
   return false;
+});
+
+// 如果投被保人关系是父母，且被保人小于16岁则需要上传关系证明资料
+const isShowGuardianMaterial = computed<boolean>(() => {
+  const { age, relationToHolder } = state.personVO;
+  if (relationToHolder && ['4', '5'].includes(`${relationToHolder}`) && age !== null && +age < 16) {
+    return true;
+  }
+  state.guardian = {
+    personVO: {},
+    config: {},
+  };
+  return false;
+});
+
+const guardianMaterialSchema = computed(() => {
+  if (state.guardianSchema?.length) {
+    return (state.guardianSchema || []).filter((schema) => schema.name === 'relationshipProof');
+  }
+  return [];
 });
 
 const mergeHolderBenefic = () => {

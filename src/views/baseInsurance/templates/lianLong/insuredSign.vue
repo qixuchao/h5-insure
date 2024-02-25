@@ -36,6 +36,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import { stringify } from 'qs';
+import wx from 'weixin-js-sdk';
 import { queryListProductMaterial } from '@/api/modules/product';
 import { ProductMaterialVoItem } from '@/api/modules/product.data';
 import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
@@ -53,6 +54,7 @@ import { jumpToNextPage } from '@/utils';
 
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import { getFileType } from '../../utils';
+import { isWeiXin } from '@/views/cashier/core';
 
 const route = useRoute();
 const router = useRouter();
@@ -167,10 +169,18 @@ const handleSubmit = () => {
         bizObjectType: NOTICE_TYPE_ENUM.INSURED,
         orderId: orderDetail.value.id,
         tenantId,
+        shareFlag: isShare ? 1 : 2,
       }).then(({ code, data }) => {
         if (code === '10000' && data) {
           if (isShare) {
-            Toast('已完成');
+            Toast('本次签名已完成');
+            setTimeout(() => {
+              if (isWeiXin) {
+                wx.closeWindow();
+              } else {
+                window.close();
+              }
+            }, 1500);
             return;
           }
           router.push({
