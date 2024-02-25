@@ -8,8 +8,8 @@
       <p class="result-desc">{{ underWriteMap[`${underwriteStatus}`].resultDesc }}</p>
       <div v-if="underwriteStatus === ALERT_TYPE_ENUM.UNDER_WRITE_FAIL && !isMultiRisk" class="operate-btn">
         <van-button type="primary" plain @click="handleUpdate">返回修改</van-button>
-        <van-button type="primary" @click="handleInsure">继续投保</van-button>
-        <van-button class="no-border" @click="handleGiveUp">放弃投保</van-button>
+        <van-button type="primary" :disabled="loading" @click="handleInsure">继续投保</van-button>
+        <van-button class="no-border" :disabled="loading" @click="handleGiveUp">放弃投保</van-button>
       </div>
       <div v-else class="operate-btn">
         <van-button type="primary" :disabled="loading" @click="offline">确定</van-button>
@@ -119,31 +119,41 @@ const handleUpdate = () => {
 
 // 继续投保跳转至认证页
 const handleInsure = () => {
+  loading.value = true;
   sendMessage({
     messageType: MESSAGE_TYPE_ENUM.AGENT,
     orderNo,
     tenantId,
-  }).then(({ code }) => {
-    if (code === '10000') {
-      router.push({
-        path: PAGE_ROUTE_ENUMS.sign,
-        query: route.query,
-      });
-    }
-  });
+  })
+    .then(({ code }) => {
+      if (code === '10000') {
+        router.push({
+          path: PAGE_ROUTE_ENUMS.sign,
+          query: route.query,
+        });
+      }
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 // 放弃投保,跳转至产品列表
 const handleGiveUp = () => {
-  cancelOrder({ orderNo, tenantId }).then(({ code, data }) => {
-    if (code === '10000') {
-      delete route.query.orderNo;
-      router.push({
-        path: PAGE_ROUTE_ENUMS.productList,
-        query: route.query,
-      });
-    }
-  });
+  loading.value = true;
+  cancelOrder({ orderNo, tenantId })
+    .then(({ code, data }) => {
+      if (code === '10000') {
+        delete route.query.orderNo;
+        router.push({
+          path: PAGE_ROUTE_ENUMS.productList,
+          query: route.query,
+        });
+      }
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 const handleConfirm = () => {

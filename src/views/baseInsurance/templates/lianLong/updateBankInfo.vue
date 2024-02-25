@@ -11,7 +11,7 @@
     ></PayInfo>
     <div class="footer-button">
       <van-button type="primary" plain @click="handleCancel">取消</van-button>
-      <van-button type="primary" @click="handleConfirm">确认</van-button>
+      <van-button :disabled="nextDisable" type="primary" @click="handleConfirm">确认</van-button>
     </div>
   </div>
 </template>
@@ -30,6 +30,7 @@ import { shareWeiXin } from '@/utils/lianSDK';
 import { SHARE_CONTENT } from '@/common/constants/lian';
 import { querySnapShotPayInfo } from '@/api';
 
+const nextDisable = ref<boolean>(false);
 const route = useRoute();
 const router = useRouter();
 const { orderNo, isShare, tenantId, nextPageCode } = route.query;
@@ -77,12 +78,14 @@ const handleConfirm = () => {
   if (payInfoRef.value) {
     payInfoRef.value.validate(false).then((validate) => {
       if (validate) {
+        nextDisable.value = true;
         orderDetail.value.tenantOrderPayInfoList = payInfoList;
         if (isShare) {
           orderDetail.value.extInfo.buttonCode = BUTTON_CODE_ENUMS.UPDATE_BANK_INFO_HOLDER;
           nextStep(
             orderDetail.value,
             (data, pageAction) => {
+              nextDisable.value = false;
               if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
                 pageJump(data.nextPageCode, route.query);
               }
@@ -94,6 +97,7 @@ const handleConfirm = () => {
           nextStep(
             orderDetail.value,
             (data, pageAction) => {
+              nextDisable.value = false;
               if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
                 handleShare('holder', 'pay');
               }

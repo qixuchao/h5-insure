@@ -1,6 +1,6 @@
 <!-- 漏斗图 -->
 <template>
-  <div :id="props.idName" :style="{ width: '330px', height: '300px' }">
+  <div :id="props.idName" :style="{ width: '100%', height: '300px' }">
     <div :id="`${props.idName}-funnel`" :style="{ width: '100%', height: '100% ' }"></div>
   </div>
 </template>
@@ -63,7 +63,7 @@ const state = reactive({
     },
     grid: {
       left: '3%',
-      right: '4%',
+      right: '10%',
       bottom: '3%',
       top: '35%',
       containLabel: true,
@@ -76,6 +76,9 @@ const state = reactive({
       nameGap: 0,
       nameTruncate: {
         maxWidth: 100,
+      },
+      nameTextStyle: {
+        padding: 2,
       },
     },
     yAxis: {

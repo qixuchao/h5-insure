@@ -3,7 +3,7 @@
     <div class="content-wrap">
       <div class="product-image">
         <van-image :src="productInfo.image" />
-        <div class="company-name">{{ productInfo.insurerName?.slice(0, 6) }}</div>
+        <!-- <div class="company-name">{{ productInfo.insurerName?.slice(0, 6) }}</div> -->
         <div
           v-if="productInfo.label"
           :class="{

@@ -115,7 +115,7 @@
 
     <div class="footer-button">
       <van-button v-if="isShowBackPage" type="primary" plain @click="() => toggleStatus(true)">返回修改</van-button>
-      <van-button type="primary" @click="onNext">下一步</van-button>
+      <van-button type="primary" :disabled="nextDisable" @click="onNext">下一步</van-button>
     </div>
     <CheckCodePopup
       v-if="show"
@@ -187,6 +187,7 @@ const needBMOS = ref<boolean>(false);
 const BMOSStatus = ref<number>();
 const loading = ref<boolean>(false);
 const BMOSLoading = ref<boolean>(false);
+const nextDisable = ref<boolean>(false);
 
 const formRef = ref();
 const formData = ref({
@@ -543,12 +544,15 @@ const onNext = async () => {
     }
   }
 
+  nextDisable.value = true;
+
   const currentOrderDetail = Object.assign(orderDetail.value, {
     extInfo: { ...orderDetail.value.extInfo, pageCode: PAGE_CODE_ENUMS.SIGN, buttonCode: BUTTON_CODE_ENUMS.SIGN },
   });
   nextStep(
     currentOrderDetail,
     (data, pageAction) => {
+      nextDisable.value = false;
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
         pageJump(data.nextPageCode, route.query);
       }

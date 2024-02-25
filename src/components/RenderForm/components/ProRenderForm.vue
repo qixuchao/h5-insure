@@ -4,6 +4,7 @@
     class="com-van-form"
     input-align="right"
     v-bind="{ ...errorProps, ...$attrs }"
+    :validate-empty="false"
     @failed="onFailed"
   >
     <template v-if="isSchema">

@@ -123,6 +123,7 @@
           </van-field>
         </template>
       </div>
+      <slot />
     </div>
   </div>
 </template>

@@ -611,6 +611,10 @@ export const GLOBAL_CONFIG_MAP = {
   relationshipProof: {
     maxCount: 4,
   },
+  /** 自保件互保件告知 */
+  selfInsuranceItemFlag: {
+    isDefaultSelected: false,
+  },
 };
 
 /** 被保险人类型 主被保险人/次被保险人 */
