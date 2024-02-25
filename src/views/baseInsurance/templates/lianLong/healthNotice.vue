@@ -4,6 +4,7 @@
     <ProFilePreview
       v-if="currentQuestion"
       ref="previewRef"
+      question-type="healthNotice"
       :type="currentQuestion.contentType"
       :content="currentQuestion"
       :params="questionParams"

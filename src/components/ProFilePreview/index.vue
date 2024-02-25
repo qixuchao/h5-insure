@@ -20,6 +20,7 @@
       v-else-if="isQuestion"
       ref="questionRef"
       :is-view="isView"
+      :question-type="questionType"
       :data="props.content"
       :params="props.params"
       :submit="submit"
@@ -42,6 +43,11 @@ import Questionnaire from '../../views/baseInsurance/components/Questionnaire/in
 import 'pdfh5/css/pdfh5.css';
 
 const props = defineProps({
+  // 问卷类型
+  questionType: {
+    type: String,
+    default: '',
+  },
   type: {
     required: true,
     type: String,
