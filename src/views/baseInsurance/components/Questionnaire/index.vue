@@ -201,9 +201,18 @@ const submitForm = (values) => {
 };
 
 watch(
+  () => props.data.noticeRemark,
+  (val) => {
+    noticeRemark.value = val;
+  },
+  {
+    immediate: true,
+  },
+);
+
+watch(
   () => props.data.answerList,
   () => {
-    noticeRemark.value = props.data.noticeRemark;
     answerVOList.value = dealAnswerData(props.data.questions, props.data.answerList);
     imageList.value = imageList.value?.length ? imageList.value : props.data.imageList;
   },
