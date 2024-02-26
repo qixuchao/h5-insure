@@ -29,8 +29,8 @@ export const getInitFactor = (data = {}) =>
   request<ResponseData<TemplatePageItem>>({ url: '/api/app/insure/insurance/getInitFactor', method: 'POST', data });
 
 // 下一步操作
-export const nextStep = (data = {}) =>
-  request<NextStepResponseData>({ url: '/api/app/insure/insurance/nextStep', method: 'POST', data }, { loading: true });
+export const nextStep = (data = {}, loading = true) =>
+  request<NextStepResponseData>({ url: '/api/app/insure/insurance/nextStep', method: 'POST', data }, { loading });
 
 // 获取订单详情
 export const getOrderDetail = (data = {}): Promise<ResponseData<NextStepRequestData>> => {

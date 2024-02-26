@@ -602,29 +602,40 @@ const onNext = async () => {
             message: msgList?.[0],
           }).then(() => {
             clearInterval(timer);
+            Toast.loading({
+              duration: 0,
+              message: '自核中...',
+            });
             nextStep(
               currentOrderDetail,
               (data, pageAction) => {
                 nextLoading.value = false;
+                Toast.clear();
                 if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
                   pageJump(data.nextPageCode, route.query);
                 }
               },
               route,
+              false,
             );
           });
         } else {
           clearInterval(timer);
-
+          Toast.loading({
+            duration: 0,
+            message: '自核中...',
+          });
           nextStep(
             currentOrderDetail,
             (data, pageAction) => {
               nextLoading.value = false;
+              Toast.clear();
               if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
                 pageJump(data.nextPageCode, route.query);
               }
             },
             route,
+            false,
           );
         }
       },
