@@ -168,8 +168,8 @@ defineExpose({
       top: 50%;
       // margin-top: -20px;
       text-align: center;
-      letter-spacing: 50px;
-      font-size: 240px;
+      letter-spacing: 20px;
+      font-size: 200px;
       color: #000000;
       pointer-events: none;
       opacity: 0.3;
