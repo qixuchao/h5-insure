@@ -60,7 +60,7 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'underWriteResult',
     path: '/baseInsurance/long/underWriteResult',
-    meta: { title: '核保结果' },
+    meta: { title: '自核结果' },
     component: () => import('@/views/baseInsurance/templates/lianLong/underWriteResult.vue'),
   },
   {
