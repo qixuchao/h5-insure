@@ -272,6 +272,12 @@ export default {
     margin: 14px 0;
     text-align: right;
   }
+
+  :deep(.van-field__control--error) {
+    .com-check-btn {
+      color: var(--van-primary-color) !important;
+    }
+  }
 }
 
 .error-message {
