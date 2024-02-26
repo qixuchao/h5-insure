@@ -605,11 +605,25 @@ watch(
     }
     // 非查看模式处理与投保人关系变动，数据操作
     if (!props.isView && oldVal && String(val) !== String(oldVal)) {
-      // 本人则本人数据覆盖
+      const { certImage } = holderPersonVO || {};
+      // 本人则本人数据覆盖,处理证件类型objectId/objectType
       let newPersonVo = {
         ...personVO,
         ...holderPersonVO,
+        ...(certImage?.length
+          ? {
+              certImage: certImage.map((image) => {
+                delete image.id;
+                return {
+                  ...image,
+                  objectId: state.personVO.id,
+                  objectType: ATTACHMENT_OBJECT_TYPE_ENUM.INSURED,
+                };
+              }),
+            }
+          : {}),
       };
+
       const [isOnlyCertFlag, tempConfig] = getCertConfig(schema, personVO);
       // 非本人则清空数据
       if (!isSelf) {

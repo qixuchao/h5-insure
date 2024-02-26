@@ -905,6 +905,7 @@ export interface QuestionnaireDetailRes {
 	questions: NQuestion[]; // 问题列表
   answerList: AnswerReq[]; // 答案列表
   imageList: string[]; // 上传的影像文件url列表
+  noticeRemark: string; // 备注
   imageConfig: { // 影像信息
     showFlag?: number;
     name?: string;

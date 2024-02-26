@@ -233,7 +233,7 @@ defineExpose({
 .popup-body {
   width: 100%;
   height: 100%;
-  padding: 70px;
+  padding: 70px 70px 20px;
 }
 
 .preview-sign {
@@ -253,24 +253,23 @@ defineExpose({
 
   .operate-bar {
     position: absolute;
-    width: 240px;
+    width: 280px;
     height: calc(100vw - 140px);
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: space-between;
     align-items: center;
-    transform: rotateZ(90deg) translate3d(17vh, 40vw, 0px);
-    transform-origin: right;
     bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 120px) rotate(90deg);
     padding: 40px 0;
     .btn {
       width: 240px;
-      margin-right: 20px;
+      // margin-right: 20px;
     }
   }
   .van-swipe {
-    height: calc(100% - 240px);
+    height: calc(100% - 340px);
     width: 100%;
   }
   :deep(.com-sign-wrapper) {
