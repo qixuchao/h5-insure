@@ -4,7 +4,10 @@
     <div class="header">
       <ProMessage
         type="warning"
-        :content="`本人${signPartInfo.insured.personalInfo?.name}已阅读并同意签署《电子投保单》（投保信息确认）`"
+        :content="
+          signPartInfo.insured.personalInfo?.[0]?.name &&
+          `本人${signPartInfo.insured.personalInfo?.[0]?.name}已阅读并同意签署《电子投保单》（投保信息确认）`
+        "
       />
     </div>
     <div class="verify-content">
