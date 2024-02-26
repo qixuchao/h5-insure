@@ -733,11 +733,7 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
           proposalId: id,
           proposalInsuredId: targetInsureId,
         };
-        let path = PAGE_ROUTE_ENUMS.premiumTrial;
-        if (+productClass !== 4) {
-          path = PAGE_ROUTE_ENUMS.premiumTrial;
-        }
-
+        const path = PAGE_ROUTE_ENUMS.proposalToInsure;
         history.push({
           path,
           query: params,

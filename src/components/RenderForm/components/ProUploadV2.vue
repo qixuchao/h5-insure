@@ -15,7 +15,7 @@
           :max-count="maxCount"
           :before-delete="handleBeforeDelete"
           :disabled="isView"
-          accept="image/jpg"
+          accept="image/*"
         >
           <slot>
             <div class="upload-item">
@@ -114,15 +114,6 @@ const fileList = computed(() => (state.modelValue || []).map(({ uri }) => ({ url
 
 useCustomFieldValue(() => state.modelValue);
 
-const beforeRead = (e) => {
-  const fileType = (e.name || '').match(/\.([^.]+)$/)?.[1];
-  if (fileType !== 'jpg') {
-    Toast('上传只支持jpg图片');
-    return false;
-  }
-  return true;
-};
-
 const handleAfterRead = (e: { file: File; content: string }) => {
   fileUpload(e.file, props.uploadType).then((res) => {
     const { code, data } = (res || {}) as FileUploadRes;
@@ -219,7 +210,7 @@ watch(
       }
       .van-uploader__preview {
         margin-right: 30px;
-        margin-bottom: 0px;
+        margin-bottom: 30px;
         border-radius: 12px;
         border: 1px dashed #c1ccdd;
         .van-uploader__preview-image {

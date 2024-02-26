@@ -71,10 +71,11 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant/es';
+import wx from 'weixin-js-sdk';
 import { getTenantOrderDetail } from '@/api/modules/trial';
 import { convertPhone } from '@/utils/format';
 import useOrder from '@/hooks/useOrder';
-import { NOTICE_TYPE_MAP } from '@/common/constants';
+import { NOTICE_TYPE_MAP, YES_NO_ENUM } from '@/common/constants';
 import { faceVerify, queryFaceVerifyResult } from '@/api/modules/verify';
 import { sendSMSCode, checkSMSCode } from '@/components/RenderForm/utils/constants';
 import faceImg from '@/assets/images/baseInsurance/face_img.png';
@@ -82,6 +83,7 @@ import { PAGE_ROUTE_ENUMS } from './constants';
 import AttachmentList from '../components/AttachmentList/index.vue';
 import policyPdf from '@/assets/pdf/policy.pdf';
 import { setPageTitle } from '@/utils';
+import { isWeiXin } from '@/views/cashier/core';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 
@@ -163,7 +165,7 @@ const getDetail = () => {
       Object.assign(orderDetail.value, data);
       const { holder, insuredList } = data;
       if (objectType === 'holder') {
-        const { name, certNo, certType, id, mobile } = holder;
+        const { name, certNo, certType, id, mobile, shareFlag } = holder;
         formData.value.mobile = mobile;
         userInfo.value = {
           userName: name,
@@ -171,8 +173,22 @@ const getDetail = () => {
           certType,
           objectId: id,
         };
+
+        if (shareFlag === YES_NO_ENUM.YES) {
+          Dialog.confirm({
+            message: '本次签名已完成，您是否需要重新签名?',
+            confirmButtonText: '是',
+            cancelButtonText: '否',
+          }).catch(() => {
+            if (isWeiXin) {
+              wx.closeWindow();
+            } else {
+              window.close();
+            }
+          });
+        }
       } else {
-        const { name, certNo, certType, id, mobile } = insuredList?.[0] || {};
+        const { name, certNo, certType, id, mobile, shareFlag } = insuredList?.[0] || {};
         formData.value.mobile = mobile;
         userInfo.value = {
           userName: name,
@@ -180,6 +196,19 @@ const getDetail = () => {
           certType,
           objectId: id,
         };
+        if (shareFlag === YES_NO_ENUM.YES) {
+          Dialog.confirm({
+            message: '本次签名已完成，您是否需要重新签名?',
+            confirmButtonText: '是',
+            cancelButtonText: '否',
+          }).catch(() => {
+            if (isWeiXin) {
+              wx.closeWindow();
+            } else {
+              window.close();
+            }
+          });
+        }
       }
 
       if (biz_id) {
