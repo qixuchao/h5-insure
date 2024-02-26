@@ -571,7 +571,7 @@ const onNext = async () => {
         //   Toast('请勾选投保人阅读并接受');
         //   return;
         // }
-        if (!specNoticeFlag.value) {
+        if (hasSolvency.value && !specNoticeFlag.value) {
           Toast('请阅读并勾选特别约定');
           return;
         }
