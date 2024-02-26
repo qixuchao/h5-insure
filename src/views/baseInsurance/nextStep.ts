@@ -79,16 +79,27 @@ export const nextStepOperate = async (
           path: PAGE_ROUTE_ENUMS.updateBankInfo,
           query: route.query,
         });
-      } else if (resData.alertType === ALERT_TYPE_ENUM.QUESTIONNAIRE) {
+      } else if (
+        [ALERT_TYPE_ENUM.LONG_HOLDER_QUESTIONNAIRE, ALERT_TYPE_ENUM.LONG_INSURED_QUESTIONNAIRE].includes(
+          resData.alertType,
+        )
+      ) {
         Dialog.confirm({
           confirmButtonText: '返回修改',
           message,
         }).then(() => {
-          delete route.query.questionnaireId;
-          router.push({
-            path: PAGE_ROUTE_ENUMS.premiumTrial,
-            query: route.query,
-          });
+          if (ALERT_TYPE_ENUM.LONG_INSURED_QUESTIONNAIRE === resData.alertType) {
+            delete route.query.questionnaireId;
+            router.push({
+              path: PAGE_ROUTE_ENUMS.questionNotice,
+              query: route.query,
+            });
+          } else {
+            router.push({
+              path: `${PAGE_ROUTE_ENUMS.questionNotice}/${route.query.questionnaireId}`,
+              query: route.query,
+            });
+          }
         });
       } else if (resData.alertType === ALERT_TYPE_ENUM.UNDER_WRITE_FAIL) {
         localStore.set(`${LIAN_STORAGE_KEY}_underwriteResult`, { [ALERT_TYPE_ENUM.UNDER_WRITE_FAIL]: message });

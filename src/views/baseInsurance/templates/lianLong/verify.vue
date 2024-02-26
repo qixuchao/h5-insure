@@ -318,7 +318,7 @@ const checkMobile = (type: 'agent' | 'holder' | 'insured', isSign, isShared?) =>
     show.value = true;
   };
 
-  if (`${isSign}` === `${YES_NO_ENUM.YES}`) {
+  if (`${isSign}` === `${YES_NO_ENUM.YES}` && !isShared) {
     Dialog.confirm({
       message: '本次签名已完成，您是否需要重新签名?',
       confirmButtonText: '是',

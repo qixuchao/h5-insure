@@ -441,6 +441,8 @@ export const ALERT_TYPE_ENUM = {
   PAY_AUTH: 'payAuth', // 支付授权
   UNDER_WRITE_FAIL: 'underWriteFile', // 自核失败提示
   QUESTIONNAIRE: 'questionnaire', // 问卷异常提示
+  LONG_HOLDER_QUESTIONNAIRE: 'longHolderQuestionnaire', // 投保人健告异常
+  LONG_INSURED_QUESTIONNAIRE: 'longInsuredQuestionnaire', // 被保人健告异常
   PAY_FAIL: 'payFail', // 支付失败
   SIGN_FAIL: 'signFail', // 签名核保失败
 };

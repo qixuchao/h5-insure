@@ -174,7 +174,7 @@ const getDetail = () => {
           objectId: id,
         };
 
-        if (shareFlag === YES_NO_ENUM.YES) {
+        if (shareFlag === YES_NO_ENUM.YES && !biz_id) {
           Dialog.confirm({
             message: '本次签名已完成，您是否需要重新签名?',
             confirmButtonText: '是',
@@ -196,7 +196,7 @@ const getDetail = () => {
           certType,
           objectId: id,
         };
-        if (shareFlag === YES_NO_ENUM.YES) {
+        if (shareFlag === YES_NO_ENUM.YES && !biz_id) {
           Dialog.confirm({
             message: '本次签名已完成，您是否需要重新签名?',
             confirmButtonText: '是',
