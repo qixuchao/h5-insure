@@ -811,7 +811,8 @@ export interface MergeProductDetail {
   productDetailResList: Array<ProductDetail>;
   productFactor: {
     [propName: number]: ProductFactorItem;
-  }
+  },
+  solvency: string;
 }
 
 /**

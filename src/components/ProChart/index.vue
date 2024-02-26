@@ -46,7 +46,7 @@ const state = reactive({
       trigger: 'axis',
       color: '#393D46',
       backgroundColor: 'rgba(255,255,255,0.9)',
-      position: ['35%', '7%'],
+      position: ['30%', '7%'],
       axisPointer: {
         label: {
           formatter() {
@@ -131,6 +131,10 @@ const initChart = () => {
 
   setTimeout(() => {
     handleChange(props.current);
+    // 事件触发
+    // myChart.on('mousemove', (params) => {
+    //   console.log(11111, params);
+    // });
   });
 };
 

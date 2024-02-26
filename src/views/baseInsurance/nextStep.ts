@@ -14,6 +14,7 @@ export const nextStepOperate = async (
   params: any,
   cb?: (data: any, pageAction: string, msg?: string) => void,
   route?: any,
+  loading?: boolean,
 ) => {
   const currentParams = params;
   // 判断订单是否生成,增加订单详情的跳转连接
@@ -38,7 +39,7 @@ export const nextStepOperate = async (
     }
   }
 
-  const { code, data } = await nextStep(currentParams);
+  const { code, data } = await nextStep(currentParams, loading);
   if (code === '10000') {
     const { pageAction, message, data: resData } = data.pageAction || {};
     cb?.(resData, pageAction, message);

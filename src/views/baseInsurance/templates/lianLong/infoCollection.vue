@@ -45,12 +45,13 @@
 
     <ProLazyComponent>
       <AttachmentList
-        v-if="fileList?.length"
-        v-model="isAgree"
+        v-if="!pageLoading && hasSolvency"
+        v-model="specNoticeFlag"
+        class="special-tips"
         :has-bg-color="false"
         :attachment-list="fileList"
         is-show-radio
-        pre-text="投保人阅读并接受"
+        :pre-text="`本人已认真阅读下面的特别约定${state.solvency}`"
         @preview-file="(index) => previewFile(index)"
       />
     </ProLazyComponent>
@@ -249,6 +250,7 @@ const state = reactive({
   isAutoChange: false,
   defaultPlanCode: '',
   userData: {},
+  solvency: '',
 });
 
 // 分享信息
@@ -277,6 +279,7 @@ const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件�
 const isOnlyView = ref<boolean>(true); // 资料查看模式
 const { fileList, mustReadFileCount, popupFileList } = useAttachment(currentPlanObj, productMaterialPlanList);
 const isAgree = ref<boolean>(false);
+const specNoticeFlag = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
 // 文件预览
 const previewFile = (index: number) => {
@@ -370,6 +373,12 @@ const pickRenewRiskList = (productList, factorList) => {
 
   return currentProductFactor;
 };
+
+// 是否有特别约定
+const hasSolvency = computed(() => {
+  const arr = productFactor.value[5] || [];
+  return Boolean(arr.find((item) => item.code === 'solvency'));
+});
 
 // 获取多个产品合并后的产品详情
 const getMergeProductDetail = () => {
@@ -562,11 +571,16 @@ const onNext = async () => {
         //   Toast('请勾选投保人阅读并接受');
         //   return;
         // }
+        if (hasSolvency.value && !specNoticeFlag.value) {
+          Toast('请阅读并勾选特别约定');
+          return;
+        }
         Object.assign(orderDetail.value, {
           extInfo: {
             ...orderDetail.value.extInfo,
             buttonCode: BUTTON_CODE_ENUMS.INFO_COLLECTION,
             pageCode: PAGE_CODE_ENUMS.INFO_COLLECTION,
+            specNoticeFlag: 1, // 1 是 2 否
           },
         });
 
@@ -588,29 +602,40 @@ const onNext = async () => {
             message: msgList?.[0],
           }).then(() => {
             clearInterval(timer);
+            Toast.loading({
+              duration: 0,
+              message: '自核中...',
+            });
             nextStep(
               currentOrderDetail,
               (data, pageAction) => {
                 nextLoading.value = false;
+                Toast.clear();
                 if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
                   pageJump(data.nextPageCode, route.query);
                 }
               },
               route,
+              false,
             );
           });
         } else {
           clearInterval(timer);
-
+          Toast.loading({
+            duration: 0,
+            message: '自核中...',
+          });
           nextStep(
             currentOrderDetail,
             (data, pageAction) => {
               nextLoading.value = false;
+              Toast.clear();
               if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
                 pageJump(data.nextPageCode, route.query);
               }
             },
             route,
+            false,
           );
         }
       },
@@ -772,7 +797,7 @@ const initData = async () => {
 
   await mergeInsureFactor(productRiskCodeMap.value).then(({ data, code }) => {
     if (code === '10000') {
-      const { productDetailResList, productFactor: currentProductFactor } = data;
+      const { productDetailResList, productFactor: currentProductFactor, solvency } = data;
       productFactor.value = pickRenewRiskList(productDetailResList, currentProductFactor);
 
       const currentProductCollection = {};
@@ -785,6 +810,9 @@ const initData = async () => {
         ...state.payInfo,
         ...payInfo,
       };
+
+      // 特别约定
+      state.solvency = solvency;
 
       state.policyInfo = {
         ...state.policyInfo,
@@ -833,6 +861,13 @@ onBeforeUnmount(() => {
 
   .empty {
     display: none;
+  }
+  .special-tips {
+    padding-left: 30px;
+    .van-checkbox {
+      // margin-right: 20px;
+      width: 120px;
+    }
   }
 }
 </style>
