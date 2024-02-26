@@ -29,14 +29,15 @@
 <script lang="ts" setup name="ProNavigator">
 import { useRoute } from 'vue-router';
 import { useToggle } from '@vant/use';
+import { withDefaults } from 'vue';
 import { getTemplateInfo } from '@/api';
 import { TemplatePageItem } from '@/api/index.data';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
-import useStore from '@/store/app';
-import pageJump from '@/utils/pageJump';
-import sideNavImage from '@/assets/images/component/sidenav.png';
-import useTheme from '@/hooks/useTheme';
 import { useSessionStorage } from '@/hooks/useStorage';
+
+const props = withDefaults(defineProps<{ orderStatus?: string }>(), {
+  orderStatus: '',
+});
 
 const storage = useSessionStorage();
 
@@ -81,7 +82,10 @@ const currentNode = computed(() => {
   if (list.value?.length) {
     return list.value.find((li, index) => {
       activeIndex.value = index;
-      return li.pageCode === currentPageCode.value;
+      return (
+        li.pageCode === currentPageCode.value &&
+        (li.orderStatusList?.length && props.orderStatus ? li.orderStatusList.includes(props.orderStatus) : true)
+      );
     });
   }
   return {};

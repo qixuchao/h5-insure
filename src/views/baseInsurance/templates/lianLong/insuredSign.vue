@@ -4,8 +4,7 @@
     <div class="header">
       <ProMessage
         type="warning"
-        title="尊敬的客户，本次投保需要进行身份认证"
-        content="本产品投保需要对投保人、被保险人进行实名认证，您购买本产品的累计总保费已超过20万，按监管要求，需要提供投保人、被保险人、指定受益人证件影像，本产品非本人投保且带身故责任、需对投保人、被保险人（成人）的投保意愿进行签名确认。"
+        :content="`本人${signPartInfo.insured.personalInfo?.name}已阅读并同意签署《电子投保单》（投保信息确认）`"
       />
     </div>
     <div class="verify-content">

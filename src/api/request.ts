@@ -112,6 +112,8 @@ const axiosInstance: AxiosInstance = axios.create({
  */
 // axiosRetry(axiosInstance, { retries: 2 });
 
+let retryCount = 0;
+
 // 请求拦截器
 axiosInstance.interceptors.request.use(
   (config: AxiosRequestConf) => {
@@ -165,7 +167,11 @@ axiosInstance.interceptors.response.use(
     if (response) {
       if (`${response?.status}` === UNLOGIN) {
         // window.location.href = '/login';
-        initNative();
+        if (retryCount < 20) {
+          retryCount += 1;
+          initNative();
+        }
+
         return Promise.reject(response.data);
       }
       Toast(showCodeMessage(response.status));

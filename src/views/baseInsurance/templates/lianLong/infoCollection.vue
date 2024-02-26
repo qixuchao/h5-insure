@@ -98,7 +98,7 @@
 <script lang="ts" setup name="InfoCollection">
 import { useRoute } from 'vue-router';
 import { Toast, Dialog } from 'vant';
-import { findIndex, findLastIndex } from 'lodash-es';
+import { cloneDeep, findIndex, findLastIndex, isEqual } from 'lodash-es';
 import {
   ProRenderFormWithCard,
   PayInfo,
@@ -632,6 +632,7 @@ const updateUserData = (val) => {
   Object.assign(state.userData, val);
 };
 
+const cacheData = ref();
 const handleCache = () => {
   Object.assign(orderDetail.value, {
     extInfo: {
@@ -641,11 +642,17 @@ const handleCache = () => {
     },
   });
 
-  const userData = personalInfoRef.value.dealMixData();
+  const userData = personalInfoRef.value?.dealMixData?.();
 
   const currentOrderDetail = trialData2Order(userData, trialResult.value, orderDetail.value);
   currentOrderDetail.orderStatus = 'collectInfo';
-  saveOrder(currentOrderDetail);
+  if (!isEqual(currentOrderDetail, cacheData.value)) {
+    saveOrder(currentOrderDetail).then(({ code, data }) => {
+      if (code === '10000') {
+        cacheData.value = cloneDeep(currentOrderDetail);
+      }
+    });
+  }
 };
 
 // 分享时需要校验投保人手机号并且保存数据
@@ -755,6 +762,7 @@ const initData = async () => {
           },
           productCode,
         });
+        cacheData.value = cloneDeep(orderDetail.value);
         state.defaultValue = orderDetail.value;
         productRiskCodeMap.value = pickProductRiskCodeFromOrder(data.insuredList[0].productList);
         productClass.value = data.insuredList[0].productList.length > 1 ? 1 : 2;
@@ -796,8 +804,8 @@ onBeforeMount(() => {
 
 onMounted(() => {
   timer = setInterval(() => {
-    // handleCache();
-  }, 30000);
+    handleCache();
+  }, 10000);
   setTimeout(async () => {
     iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
   }, 1500);

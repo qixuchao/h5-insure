@@ -4,8 +4,7 @@
     <div class="header">
       <ProMessage
         type="warning"
-        title="尊敬的客户，本次投保需要进行身份认证"
-        content="本产品投保需要对投保人、被保险人进行实名认证，您购买本产品的累计总保费已超过20万，按监管要求，需要提供投保人、被保险人、指定受益人证件影像，本产品非本人投保且带身故责任、需对投保人、被保险人（成人）的投保意愿进行签名确认。"
+        :content="`本人${signPartInfo.holder.personalInfo.name}已阅读并同意签署《电子投保单》（投保信息确认）、《人身保险投保提示书》、《免责说明书》、《产品说明书》（一年期以上产品）、《风险告知问卷》（万能型产品）、《风险承受能力测评问卷》（万能型产品）。请投保人：${signPartInfo.holder.personalInfo.name}签名确认。`"
       />
     </div>
     <div class="verify-content">
@@ -302,23 +301,23 @@ const initData = async () => {
       }
     });
   }
-  queryListProductMaterial(productRiskMap).then(({ code, data }) => {
-    if (code === '10000') {
-      const { signMaterialMap } = data.productMaterialPlanVOList?.[1] || {};
-      const signMaterialCollection = Object.values(signMaterialMap || {}).flat() || [];
+  // queryListProductMaterial(productRiskMap).then(({ code, data }) => {
+  //   if (code === '10000') {
+  //     const { signMaterialMap } = data.productMaterialPlanVOList?.[1] || {};
+  //     const signMaterialCollection = Object.values(signMaterialMap || {}).flat() || [];
 
-      signMaterialCollection.forEach((material: ProductMaterialVoItem) => {
-        if (material.noticeObject === NOTICE_OBJECT_ENUM.HOlDER) {
-          signPartInfo.value.holder.fileList.push({
-            attachmentName: material.materialName,
-            attachmentList: [
-              { ...material, materialSource: getFileType(`${material?.materialSource}`, material?.materialContent) },
-            ],
-          });
-        }
-      });
-    }
-  });
+  //     signMaterialCollection.forEach((material: ProductMaterialVoItem) => {
+  //       if (material.noticeObject === NOTICE_OBJECT_ENUM.HOlDER) {
+  //         signPartInfo.value.holder.fileList.push({
+  //           attachmentName: material.materialName,
+  //           attachmentList: [
+  //             { ...material, materialSource: getFileType(`${material?.materialSource}`, material?.materialContent) },
+  //           ],
+  //         });
+  //       }
+  //     });
+  //   }
+  // });
 
   mergeInsureFactor(productRiskMap).then(({ data, code }) => {
     if (code === '10000') {

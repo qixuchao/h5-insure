@@ -1,6 +1,6 @@
 <template>
   <div class="page-insure-result">
-    <ProNavigator />
+    <ProNavigator :order-status="orderInfo.orderStatus" />
     <van-pull-refresh v-model="loading" @refresh="getOrderDetail">
       <div class="page-insure-result-wrap">
         <div class="header">{{ orderInfo.orderStatusDesc }}</div>
