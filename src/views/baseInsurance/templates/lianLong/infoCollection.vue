@@ -832,7 +832,7 @@ onBeforeMount(() => {
 
 onMounted(() => {
   timer = setInterval(() => {
-    handleCache();
+    // handleCache();
   }, 10000);
   setTimeout(async () => {
     iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
