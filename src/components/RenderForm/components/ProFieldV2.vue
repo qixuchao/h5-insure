@@ -177,6 +177,9 @@ const isNeedPrecision = computed(() => {
 });
 
 const formatter = (value) => {
+  if (typeof attrs.formatter === 'function') {
+    return attrs.formatter(value);
+  }
   // 数字类型且精度存在
   if (isNeedPrecision.value && value) {
     return value.replace(/^(0)\d+$/g, '$1').replace(new RegExp(`^(\\d+\\.\\d{${props.precision}})\\d+$`, 'g'), '$1');
@@ -213,6 +216,7 @@ const updateModelValue = (val) => {
   // if (formState?.formData && attrs.name) {
   //   formState.formData[attrs.name] = val;
   // }
+
   state.modelValue = val;
   emit('update:model-value', val);
 };

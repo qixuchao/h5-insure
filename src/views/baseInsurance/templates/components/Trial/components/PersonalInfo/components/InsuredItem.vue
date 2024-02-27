@@ -18,6 +18,15 @@
     <template #customer>
       <slot name="customer"></slot>
     </template>
+    <template v-if="!isSameHolder && !isView" #addressExtra>
+      <van-checkbox
+        v-model="state.sameHolderAddressFlag"
+        icon-size="16px"
+        class="checkbox-wrap"
+        @change="handleSameHolderAddress"
+        >通讯地址同投保人</van-checkbox
+      >
+    </template>
   </ProRenderFormWithCard>
   <!---- 监护人----->
 
@@ -206,6 +215,7 @@ interface StateInfo extends PersonFormProps {
   beneficiaryTypeSchemaList: SchemaItem[];
   guardianSchema: SchemaItem[];
   guardian: Partial<PersonFormProps>;
+  sameHolderAddressFlag: boolean;
 }
 
 const state = reactive<Partial<StateInfo>>({
@@ -228,6 +238,7 @@ const state = reactive<Partial<StateInfo>>({
     personVO: {},
     config: {},
   },
+  sameHolderAddressFlag: false, // 地址同投保人 1 是 2 否
 });
 
 const isSameHolder = ref<boolean>(false);
@@ -425,6 +436,30 @@ const setNonageValue = (holderPerson, personVO) => {
   Object.assign(state.personVO, updateData);
 };
 
+// 被保人地址同投保人
+const handleSameHolderAddress = (val) => {
+  // if (val) {
+  const { longArea } = props.holderPersonVO;
+
+  state.config.longArea = {
+    ...state.config.longArea,
+    isView: val,
+  };
+
+  nextTick(() => {
+    state.personVO.longArea = { ...longArea };
+  });
+
+  const sameHolderAddressFlag = val ? 1 : 2;
+  if (state.personVO.extInfo) {
+    state.personVO.extInfo.sameHolderAddressFlag = sameHolderAddressFlag;
+  } else {
+    state.personVO.extInfo = {
+      sameHolderAddressFlag,
+    };
+  }
+};
+
 // 监听投保人信息
 watch(
   () => props.holderPersonVO,
@@ -470,6 +505,9 @@ watch(
     } else {
       setNonageValue(val, state.personVO);
       isSameHolder.value = false;
+      if (state.sameHolderAddressFlag) {
+        state.personVO.longArea = { ...val.longArea };
+      }
     }
   }, 300),
   {
@@ -818,11 +856,13 @@ watch(
   () => cloneDeep(props.modelValue),
   (val, oldVal) => {
     if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
-      const { beneficiaryList, ...rest } = val;
+      const { beneficiaryList, extInfo, ...rest } = val;
 
       if (val.age !== oldVal?.age && val.age) {
         isInit.value = true;
       }
+      // 是否同投保人
+      state.sameHolderAddressFlag = extInfo?.sameHolderAddressFlag === 1;
       merge(state.personVO, rest);
       setCertDefaultValue(props.schema, props.modelValue, () => {
         state.personVO.certType = state.personVO.certType || '1';
@@ -903,6 +943,14 @@ defineExpose({
     width: auto;
     margin-top: 4px;
     color: var(--van-primary-color);
+  }
+}
+.checkbox-wrap {
+  height: 80px;
+  display: flex;
+  justify-content: flex-end;
+  .van-checkbox__label {
+    font-size: 28px;
   }
 }
 .add-button {

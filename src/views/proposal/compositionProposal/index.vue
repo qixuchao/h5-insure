@@ -1339,9 +1339,13 @@ const resetFile = (file: {}) => {
       font-weight: 400;
     }
     :deep(.price) {
+      flex: 1;
       font-size: 28px;
       font-weight: 400;
       color: $zaui-price;
+    }
+    :deep(.van-cell__title) {
+      flex: 3;
     }
 
     .poiner {

@@ -531,6 +531,8 @@ export const GLOBAL_CONFIG_MAP = {
   certNo: {
     relatedName: 'certType',
     maxlength: INPUT_MAX_LENGTH.EIGHTEEN,
+    isUpperValue: true,
+    formatter: (val) => (val ? val.toUpperCase() : val),
   },
   certType: {
     relatedName: 'certNo',
@@ -542,7 +544,19 @@ export const GLOBAL_CONFIG_MAP = {
   age: RULE_CONFIG_MAP.AGE,
   height: {
     ...RULE_CONFIG_MAP.HEIGHT_WEIGHT,
+    maxlength: 6,
     unit: 'cm',
+    formatter: (val) => {
+      // 替换首位0
+      if (/^0/.test(val)) {
+        return `${val}`.replace(/^0/g, '');
+      }
+      // 小数点前录入3位，小数点后录入2位
+      if (!/^[1-9]\d{2}\.\d{2}/.test(val)) {
+        return `${val}`.replace(/^([1-9]\d{2})\d+/g, '$1');
+      }
+      return val;
+    },
   },
   weight: {
     ...RULE_CONFIG_MAP.HEIGHT_WEIGHT,

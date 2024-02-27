@@ -763,6 +763,7 @@ export const relatedConfigMap = {
       },
     },
     onChangeEffect: (val, formState) => {
+      // debugger;
       // 身份证号码/户口簿
       if ([CERT_TYPE_ENUM.CERT, CERT_TYPE_ENUM.HOUSE_HOLD].includes(String(formState.formData.certType))) {
         const data = parseCertNo(val);
