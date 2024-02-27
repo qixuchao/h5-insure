@@ -1,4 +1,5 @@
 <template>
+  <slot name="addressExtra" />
   <ProFormItem
     class="com-van-field--hidden"
     :name="name"
