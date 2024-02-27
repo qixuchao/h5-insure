@@ -192,7 +192,7 @@ onMounted(() => {
 
     .result-status {
       margin: 32px 0 39px;
-      font-size: 34px;
+      font-size: 38px;
       font-weight: 500;
       color: #333333;
       line-height: 42px;
@@ -201,7 +201,7 @@ onMounted(() => {
       color: #333;
     }
     .operate-btn {
-      margin-top: 96px;
+      margin-top: 68px;
       display: flex;
       justify-content: space-around;
       flex-wrap: wrap;
@@ -235,7 +235,7 @@ onMounted(() => {
     }
   }
   .underWrite-img {
-    margin-bottom: 70px;
+    margin-bottom: 60px;
     width: 257px;
     height: 257px;
   }

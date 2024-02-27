@@ -1,9 +1,7 @@
 <template>
   <div class="page-underwrite-result-wrap">
     <div class="result-content">
-      <div class="result-icon">
-        <ProSvg name="wrong" font-size="32px" color="var(--van-primary-color)"></ProSvg>
-      </div>
+      <img class="underWrite-img" :src="underWriteSignImg" />
       <p class="result-status">{{ underWriteMap[`${underwriteStatus}`].resultStatus }}</p>
       <p class="result-desc">{{ underWriteMap[`${underwriteStatus}`].resultDesc }}</p>
       <div v-if="underwriteStatus === ALERT_TYPE_ENUM.UNDER_WRITE_FAIL && !isMultiRisk" class="operate-btn">
@@ -48,6 +46,7 @@ import { offlineReview } from '@/api/modules/verify';
 import { localStore } from '@/hooks/useStorage';
 import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
 import { sendMessageToLian as sendMessage, rollbackEditOrder } from '@/api';
+import underWriteSignImg from '@/assets/images/baseInsurance/underwriting-sign.png';
 import { MESSAGE_TYPE_ENUM } from './constants.ts';
 
 const underWriteMap = {
@@ -169,25 +168,25 @@ onMounted(() => {
 <style lang="scss" scoped>
 .page-underwrite-result-wrap {
   .result-content {
-    margin-top: 292px;
-    padding: 0 60px;
+    padding: 120px 60px 0;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    background: linear-gradient(180deg, #fcefef 0%, #fff9f9 42%, #ffffff 100%);
 
     .result-status {
       margin: 32px 0 31px;
-      font-size: 34px;
+      font-size: 38px;
       font-weight: 500;
-      color: #333333;
+      color: #333;
       line-height: 42px;
     }
     .result-desc {
-      color: #999999;
+      color: #333;
     }
     .operate-btn {
-      margin-top: 96px;
+      margin-top: 68px;
       display: flex;
       justify-content: space-around;
       flex-wrap: wrap;
@@ -196,6 +195,8 @@ onMounted(() => {
         margin-bottom: 10px;
       }
       .no-border {
+        font-size: 30px;
+        color: #787878;
         border: none;
       }
     }
@@ -211,6 +212,12 @@ onMounted(() => {
         margin-bottom: 50px;
       }
     }
+  }
+
+  .underWrite-img {
+    margin-bottom: 60px;
+    width: 257px;
+    height: 257px;
   }
 
   :deep(.van-dialog) {
