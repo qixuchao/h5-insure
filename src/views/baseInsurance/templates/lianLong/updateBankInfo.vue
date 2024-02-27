@@ -85,25 +85,27 @@ const handleConfirm = () => {
           nextStep(
             orderDetail.value,
             (data, pageAction) => {
-              nextDisable.value = false;
               if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
                 pageJump(data.nextPageCode, route.query);
               }
             },
             route,
-          );
+          ).finally(() => {
+            nextDisable.value = false;
+          });
         } else {
           orderDetail.value.extInfo.buttonCode = BUTTON_CODE_ENUMS.UPDATE_BANK_INFO_AGENT;
           nextStep(
             orderDetail.value,
             (data, pageAction) => {
-              nextDisable.value = false;
               if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
                 handleShare('holder', 'pay');
               }
             },
             route,
-          );
+          ).finally(() => {
+            nextDisable.value = false;
+          });
         }
       }
     });

@@ -552,13 +552,14 @@ const onNext = async () => {
   nextStep(
     currentOrderDetail,
     (data, pageAction) => {
-      nextDisable.value = false;
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
         pageJump(data.nextPageCode, route.query);
       }
     },
     route,
-  );
+  ).finally(() => {
+    nextDisable.value = false;
+  });
 };
 
 onBeforeMount(() => {
