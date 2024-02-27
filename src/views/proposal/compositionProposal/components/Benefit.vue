@@ -231,8 +231,8 @@ watch(num, () => {
         // border-radius: 20px;
         margin: 50px auto;
         &-title {
-        padding: 0 10px;
-        font-size: 30px;
+          padding: 0 10px;
+          font-size: 30px;
           font-weight: 500;
           color: #333333;
           text-align: center;
