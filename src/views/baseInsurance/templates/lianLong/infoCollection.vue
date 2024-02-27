@@ -580,7 +580,7 @@ const onNext = async () => {
             ...orderDetail.value.extInfo,
             buttonCode: BUTTON_CODE_ENUMS.INFO_COLLECTION,
             pageCode: PAGE_CODE_ENUMS.INFO_COLLECTION,
-            specNoticeFlag: 1, // 1 是 2 否
+            specNoticeFlag: specNoticeFlag.value ? 1 : 2, // 1 是 2 否
           },
         });
 
