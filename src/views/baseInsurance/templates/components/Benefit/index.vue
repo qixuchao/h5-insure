@@ -2,15 +2,22 @@
   <div v-if="dataSource?.benefitRiskResultVOList" class="benefit-container">
     <!-- title-active-color="#0d6efe" -->
     <van-tabs :active="active" @click-tab="changeTab">
-      <van-tab
-        v-for="(item, i) in props.dataSource?.benefitRiskResultVOList"
-        :key="i"
-        :name="i"
-        :title="item.productName"
-      >
+      <van-tab v-for="(item, i) in props.dataSource?.benefitRiskResultVOList" :key="i" :name="i" :title="item.riskName">
         <div v-if="i == active" class="benefit">
           <!-- <div class="benefit-title">{{ item?.riskName }}</div> -->
           <div class="line"></div>
+          <div v-if="item.benefitRiskItemResultVOList.length > 1" class="btn-wrapper">
+            <van-button
+              v-for="(risk, key) in item.benefitRiskItemResultVOList"
+              :key="key"
+              round
+              plain
+              :type="activeType === key ? 'primary' : 'default'"
+              class="btn"
+              @click="changeActiveType(key)"
+              >{{ risk.tableTitle }}</van-button
+            >
+          </div>
           <p v-show="showType === SHOW_TYPE_ENUM.CHART" class="box-title box-title-chart">
             <img class="tl" src="@/assets/images/compositionProposal/box-title.png" alt="" />
             保单年度<span>{{ benefitObj?.year?.[benefitObj?.index] }}</span
@@ -167,7 +174,7 @@
       :min="ageBegin"
       :max="ageEnd"
       :current="num"
-      :data="item?.benefitRiskItemResultVOList?.[0].benefitRiskItemList"
+      :data="item?.benefitRiskItemResultVOList?.[activeType].benefitRiskItemList"
       class="chart-img"
       style="display: none"
     />
@@ -210,6 +217,8 @@ const num = ref(0);
 // 展示类型
 const showType = ref('1');
 const tableData = ref();
+const activeType = ref(0);
+
 // 利益演示表格
 // const showTablePopup = computed(() => {
 //   // eslint-disable-next-line no-return-assign
@@ -252,17 +261,25 @@ const setAge = (realData: any) => {
 const getData = () => {
   // 根据num 取对应数组的值
   const benefit = props.dataSource?.benefitRiskResultVOList?.[active.value];
-  tableData.value = props.dataSource?.benefitRiskResultVOList?.[active.value].benefitRiskTableResultVOList?.[0];
+  tableData.value =
+    props.dataSource?.benefitRiskResultVOList?.[active.value].benefitRiskTableResultVOList?.[activeType.value];
   // a 年龄数组
   const { a, year } = renderArray(ageBegin.value, ageEnd.value);
   const obj = {
     index: a.indexOf(num.value.toString()),
     age: a,
     year,
-    result: benefit?.benefitRiskItemResultVOList?.[0],
+    result: benefit?.benefitRiskItemResultVOList?.[activeType.value],
   };
 
   benefitObj.value = obj;
+  console.log(benefitObj.value);
+};
+
+const changeActiveType = (key) => {
+  activeType.value = key;
+  showType.value = '1';
+  getData();
 };
 
 const handleAdd = () => {
@@ -340,7 +357,7 @@ watch(showType, (val) => {
       border: 1px solid #9fb3d2;
       padding: 40px 0;
       border-radius: 20px;
-      margin-top: 40px;
+      margin-top: 20px;
       &-title {
         padding: 0 16px;
         font-size: 32px;
@@ -426,6 +443,23 @@ watch(showType, (val) => {
       color: #99a9c0;
       text-align: center;
       margin: 20px 0 40px 0;
+    }
+    .btn-wrapper {
+      // display: flex;
+      padding: 30px 0 10px 0;
+      width: 100%;
+      // flex-wrap: nowrap;
+      white-space: nowrap;
+      overflow-x: auto;
+      .btn {
+        max-width: 560px;
+        height: 60px;
+        display: inline-block;
+        margin-right: 10px;
+        :deep(.van-button__text) {
+          font-size: 22px;
+        }
+      }
     }
 
     .btn-two {

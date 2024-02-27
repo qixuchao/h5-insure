@@ -135,6 +135,7 @@ declare module 'vue' {
     VanTabbar: typeof import('vant/es')['Tabbar']
     VanTabbarItem: typeof import('vant/es')['TabbarItem']
     VanTabs: typeof import('vant/es')['Tabs']
+    VanTag: typeof import('vant/es')['Tag']
     VanUploader: typeof import('vant/es')['Uploader']
     ZaAgencySelect: typeof import('./src/components/ZaAgencySelect/index.vue')['default']
     ZaAgencyUserSelect: typeof import('./src/components/ZaAgencyUserSelect/index.vue')['default']
