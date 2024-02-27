@@ -44,6 +44,7 @@ import ProShare from './ProShare/index.vue';
 import ProNavigator from './ProNavigator/index.vue';
 import ProScribing from './ProScribing/index.vue';
 import ProTable from './ProTable/Table.vue';
+import ProFixedButton from './ProFixedButton/index.vue';
 
 interface ComponentMap {
   [key: string]: Component;
@@ -88,6 +89,7 @@ export const globalComs: ComponentMap = {
   ProScribing,
   ProFileDrawer,
   ProTable,
+  ProFixedButton,
 };
 
 function install(app: any) {

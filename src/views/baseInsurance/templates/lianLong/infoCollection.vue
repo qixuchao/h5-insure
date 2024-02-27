@@ -93,6 +93,7 @@
       @cancel="handleCancel"
       @confirm="handleConfirm"
     ></RiskList>
+    <ProFixedButton :button-image="cacheImg" @click="handleCache" />
   </div>
 </template>
 
@@ -143,6 +144,7 @@ import Trial from '../components/Trial/index.vue';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import router from '@/router';
 import { RISK_TYPE_ENUM } from '@/common/constants/trial';
+import cacheImg from '@/assets/images/cache_icon.png';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
@@ -832,7 +834,7 @@ onBeforeMount(() => {
 
 onMounted(() => {
   timer = setInterval(() => {
-    // handleCache();
+    handleCache();
   }, 10000);
   setTimeout(async () => {
     iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
@@ -868,6 +870,10 @@ onBeforeUnmount(() => {
       // margin-right: 20px;
       width: 120px;
     }
+  }
+  .fixed-box {
+    width: 100px;
+    bottom: 274px;
   }
 }
 </style>

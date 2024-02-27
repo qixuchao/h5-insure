@@ -23,6 +23,7 @@
           :show-verify="signPartInfo.insured.isVerify"
           :file-list="signPartInfo.insured.fileList"
           :personal-info="personalInfo || {}"
+          :composition-sign="signPartInfo.insured.compositionSign"
           title="被保险人"
           @handle-sign="(signData) => sign('INSURED', signData, personalInfo.id)"
         ></SignPart>
@@ -110,6 +111,7 @@ const signPartInfo = ref({
     isVerify: false,
     isShareSign: false,
     signData: {},
+    compositionSign: '',
   }, // 被保险人
   agent: {
     fileList: [],
@@ -127,8 +129,12 @@ const getOrderDetail = () => {
       if (code === '10000') {
         const signAttachmentList = {};
         data.tenantOrderAttachmentList.forEach((attachment) => {
-          if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED && attachment.category === 30) {
-            signAttachmentList[attachment.objectId].push(attachment.fileBase64);
+          if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED) {
+            if (attachment.category === 30) {
+              signAttachmentList[attachment.objectId].push(attachment.fileBase64);
+            } else if (attachment.category === 21) {
+              signPartInfo.value.insured.compositionSign = attachment.uri;
+            }
           }
         });
         signPartInfo.value.insured.signData = signAttachmentList;
@@ -216,11 +222,15 @@ const initData = async () => {
     });
     productRiskMap = pickProductRiskCodeFromOrder(orderData.insuredList[0].productList);
     orderData.tenantOrderAttachmentList.forEach((attachment) => {
-      if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED && attachment.category === 30 && attachment.objectId) {
-        if (signPartInfo.value.insured.signData[attachment.objectId]) {
-          signPartInfo.value.insured.signData[attachment.objectId].push(attachment.fileBase64);
-        } else {
-          signPartInfo.value.insured.signData[attachment.objectId] = [attachment.fileBase64];
+      if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED && attachment.objectId) {
+        if (attachment.category === 30) {
+          if (signPartInfo.value.insured.signData[attachment.objectId]) {
+            signPartInfo.value.insured.signData[attachment.objectId].push(attachment.fileBase64);
+          } else {
+            signPartInfo.value.insured.signData[attachment.objectId] = [attachment.fileBase64];
+          }
+        } else if (attachment.category === 21) {
+          signPartInfo.value.insured.compositionSign = attachment.uri;
         }
       }
     });

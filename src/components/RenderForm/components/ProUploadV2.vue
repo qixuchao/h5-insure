@@ -3,8 +3,18 @@
     :class="{ 'com-van-upload-wrap': true, 'com-van-upload-wrap-view': isView }"
     :model-value="state.modelValue"
   >
-    <template v-if="subLabel" #label>
-      {{ filedAttrs.label }}<span class="sub-label">{{ subLabel }}</span>
+    <template v-if="$attrs.name === 'relationshipProof'" #label>
+      <slot name="label">
+        <span>{{ filedAttrs.label }}</span>
+        <van-popover v-model:show="visible" trigger="click" placement="top-start" theme="dark">
+          <div class="tip-content">
+            （请提供与监护人匹配一致的监护关系证明。出生证、具有同一户号的居民户口簿（投保人页及被保人员）或其他具有
+            法律效力的监护关系证明）
+          </div>
+          <template #reference> <van-icon name="question" /> </template>
+        </van-popover>
+        <span class="sub-label">{{ subLabel }}</span>
+      </slot>
     </template>
     <template #input>
       <div class="com-image-upload">
@@ -54,6 +64,7 @@ interface FileUploadRes {
 const { filedAttrs, filedSlots, attrs, slots } = toRefs(useAttrsAndSlots());
 
 const { formState, extraProvision } = inject(VAN_PRO_FORM_KEY) || {};
+const visible = ref(false);
 
 // 非默认 slots
 const noDefaultSlots = computed(() => Object.keys(slots).filter((key) => key !== 'default'));

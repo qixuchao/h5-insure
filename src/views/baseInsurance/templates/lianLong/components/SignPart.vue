@@ -40,7 +40,7 @@
       >
         <template #signImg="{ data }">
           <div class="sign-board" @click="openSign">
-            <img v-if="data" :src="data" class="sign-img" alt="" />
+            <img v-if="compositionSign" :src="compositionSign" class="sign-img" alt="" />
             <span v-else class="sign-desc">请签名</span>
           </div>
         </template>
@@ -87,6 +87,7 @@ interface Props {
   showVerify: boolean;
   showShareSign: boolean;
   disabled?: boolean;
+  compositionSign: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -97,6 +98,7 @@ const props = withDefaults(defineProps<Props>(), {
   showShareSign: false,
   signString: () => [],
   disabled: false,
+  compositionSign: '',
 });
 const emits = defineEmits(['handleVerify', 'handleSign']);
 const currentPersonalInfo = ref<any>({});
@@ -218,9 +220,7 @@ watch(
         font-size: 40px;
       }
       .sign-img {
-        transform: rotateZ(-90deg);
-        height: 690px;
-        width: 400px;
+        width: 100%;
       }
     }
   }
