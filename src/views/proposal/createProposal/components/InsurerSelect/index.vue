@@ -160,7 +160,8 @@ defineExpose({
 
 <style lang="scss" scoped>
 .insurer-list {
-  display: flex;
+  display: none;
+  // display: flex;
   width: 100%;
   height: 118px;
   background-color: white;

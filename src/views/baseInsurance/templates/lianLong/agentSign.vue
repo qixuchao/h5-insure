@@ -16,6 +16,7 @@
         :show-verify="signPartInfo.agent.isVerify"
         :file-list="signPartInfo.agent.fileList"
         :personal-info="signPartInfo.agent.personalInfo"
+        :composition-sign="signPartInfo.agent.compositionSign"
         :disabled="!!isShare"
         title="销售人员"
         @handle-sign="(signData) => sign('AGENT', signData)"
@@ -127,6 +128,7 @@ const signPartInfo = ref({
     isVerify: false,
     isShareSign: false,
     signData: [],
+    compositionSign: '',
   }, // 销售人员
 });
 
@@ -190,8 +192,12 @@ const getOrderDetail = () => {
         Object.assign(orderDetail.value, data);
         const signAttachmentList = [];
         data.tenantOrderAttachmentList.forEach((attachment) => {
-          if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT && attachment.category === 30) {
-            signAttachmentList.push(attachment.fileBase64);
+          if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT) {
+            if (attachment.category === 30) {
+              signAttachmentList.push(attachment.fileBase64);
+            } else if (attachment.category === 21) {
+              signPartInfo.value.agent.compositionSign = attachment.uri;
+            }
           }
         });
         signPartInfo.value.agent.signData = signAttachmentList;
@@ -230,8 +236,12 @@ const initData = async () => {
     Object.assign(orderDetail.value, orderData);
     productRiskMap = pickProductRiskCodeFromOrder(orderData.insuredList[0].productList);
     orderData.tenantOrderAttachmentList.forEach((attachment) => {
-      if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT && attachment.category === 30) {
-        signPartInfo.value.agent.signData.push(attachment.fileBase64);
+      if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT) {
+        if (attachment.category === 30) {
+          signPartInfo.value.agent.signData.push(attachment.fileBase64);
+        } else if (attachment.category === 21) {
+          signPartInfo.value.agent.compositionSign = attachment.uri;
+        }
       }
     });
   }

@@ -20,6 +20,7 @@
         :show-verify="signPartInfo.holder.isVerify"
         :file-list="signPartInfo.holder.fileList"
         :personal-info="signPartInfo.holder.personalInfo"
+        :composition-sign="signPartInfo.holder.compositionSign"
         title="投保人"
         @handle-sign="(signData) => sign('HOLDER', signData, signPartInfo.holder.personalInfo.id)"
       ></SignPart>
@@ -129,6 +130,7 @@ const signPartInfo = ref({
     isVerify: false,
     isShareSign: false,
     signData: [],
+    compositionSign: '',
   }, // 投保人
   insured: {
     fileList: [],
@@ -137,6 +139,7 @@ const signPartInfo = ref({
     isVerify: false,
     isShareSign: false,
     signData: {},
+    compositionSign: '',
   }, // 被保险人
   agent: {
     fileList: [],
@@ -145,6 +148,7 @@ const signPartInfo = ref({
     isVerify: false,
     isShareSign: false,
     signData: '',
+    compositionSign: '',
   }, // 销售人员
 });
 
@@ -243,10 +247,15 @@ const getOrderDetail = () => {
       if (code === '10000') {
         const signAttachmentList = [];
         data.tenantOrderAttachmentList.forEach((attachment) => {
-          if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER && attachment.category === 30) {
-            signAttachmentList.push(attachment.fileBase64);
+          if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
+            if (attachment.category === 30) {
+              signAttachmentList.push(attachment.fileBase64);
+            } else if (attachment.category === 21) {
+              signPartInfo.value.holder.compositionSign = attachment.uri;
+            }
           }
         });
+
         signPartInfo.value.holder.signData = signAttachmentList;
 
         Object.assign(defaultScribingConfig.value, {
@@ -284,7 +293,7 @@ const initData = async () => {
   const { code: oCode, data: orderData } = await getTenantOrderDetail({ orderNo: orderCode || orderNo, tenantId });
   if (oCode === '10000') {
     Object.assign(orderDetail.value, orderData);
-    signPartInfo.value.holder.personalInfo = { ...orderData.holder, isCert: 1 };
+    signPartInfo.value.holder.personalInfo = { ...orderData.holder, name: '是固定改过的', isCert: 1 };
     signPartInfo.value.insured.personalInfo = orderData.insuredList.map((insured) => {
       insured.isCert = 1;
       return insured;
@@ -299,8 +308,12 @@ const initData = async () => {
     });
 
     orderDetail.value.tenantOrderAttachmentList.forEach((attachment) => {
-      if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER && attachment.category === 30) {
-        signPartInfo.value.holder.signData.push(attachment.fileBase64);
+      if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
+        if (attachment.category === 30) {
+          signPartInfo.value.holder.signData.push(attachment.fileBase64);
+        } else if (attachment.category === 21) {
+          signPartInfo.value.holder.compositionSign = attachment.uri;
+        }
       }
     });
   }

@@ -171,7 +171,7 @@ import SDK, { shareWeiXin, pullUpApp, checkAppIsInstalled, getDeviceInfo } from 
 import { MESSAGE_TYPE_ENUM } from './constants.ts';
 import { rollbackEditOrder, sendMessageToLian as sendMessage } from '@/api';
 import { cancelOrder } from '@/api/modules/order';
-import BackPageDialog from './components/BackPageDialog.vue';
+import { addMetaForShare } from '@/utils/dom';
 
 const sessionStorage = useSessionStorage();
 const route = useRoute();
@@ -290,14 +290,15 @@ const handleShare = (type) => {
     tenantId,
   });
 
-  shareWeiXin({
+  const shareParams = {
     shareType: 0,
     title: `${NOTICE_TYPE_MAP[type.toLocaleUpperCase()]}${SHARE_CONTENT.sign.title}`,
     desc: SHARE_CONTENT.sign.desc.replace('{name}', `${userInfo.name || ''}${userInfo.gender || ''}`),
     url: `${window.location.href}&objectType=${type}&nextPageCode=infoPreview`.replace('/verify', '/phoneVerify'),
     imageUrl:
       'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/lian_logo.png?OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Expires=1697288114&Signature=S87PMeDRxltLovmmHVTeiHoew1c%3D',
-  });
+  };
+  shareWeiXin(shareParams);
 };
 
 // 非双录场景下验证投被保险人、销售人员手机号
@@ -637,7 +638,7 @@ onMounted(() => {
     }
   }
 
-  :deep(.van-dialog) {
+  .van-dialog {
     .van-button {
       border-radius: unset;
     }

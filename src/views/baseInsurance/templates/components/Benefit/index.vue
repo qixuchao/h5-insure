@@ -359,8 +359,8 @@ watch(showType, (val) => {
       border-radius: 20px;
       margin-top: 20px;
       &-title {
-        padding: 0 16px;
-        font-size: 32px;
+        padding: 0 10px;
+        font-size: 30px;
         font-weight: 500;
         color: #333333;
         text-align: center;
