@@ -35,6 +35,13 @@
     <div class="footer-button">
       <van-button type="primary" @click="handleSubmit">确定</van-button>
     </div>
+    <MessagePopup v-model="show" @close="toggleShow(false)">
+      <div class="content-inner">
+        <img :src="qianming" alt="" class="header-img" />
+        <h4>本次签名已完成</h4>
+        <p>感谢您对本次投保的签字确认，后续流程由销售人员在您的配合下进行</p>
+      </div>
+    </MessagePopup>
   </div>
 </template>
 
@@ -43,6 +50,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import { stringify } from 'qs';
 import wx from 'weixin-js-sdk';
+import { useToggle } from '@vant/use';
 import { queryListProductMaterial } from '@/api/modules/product';
 
 import { InsureProductData, ProductDetail, ProductMaterialVoItem } from '@/api/modules/product.data';
@@ -56,13 +64,11 @@ import {
   YES_NO_ENUM,
   CERT_TYPE_ENUM,
 } from '@/common/constants';
-
 import { MATERIAL_TYPE_ENUM } from '@/common/constants/product';
 import { NOTICE_OBJECT_ENUM } from '@/common/constants/notice';
 import { applyAuthorize, faceVerify, faceVerifySave, saveSignList, signatureConfirm } from '@/api/modules/verify';
 import Storage from '@/utils/storage';
 import { transformFactorToSchema } from '@/components/RenderForm';
-
 import { PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS } from './constants';
 import ProShare from '@/components/ProShare/index.vue';
 import { jumpToNextPage } from '@/utils';
@@ -71,9 +77,12 @@ import { confirmRiskTranscription } from '@/api/modules/scribing';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import { getFileType } from '../../utils';
 import { isWeiXin } from '@/views/cashier/core';
+import MessagePopup from './components/MessagePopup.vue';
+import qianming from '@/assets/images/qianming.jpg';
 
 const route = useRoute();
 const router = useRouter();
+const [show, toggleShow] = useToggle(false);
 
 /** 页面query参数类型 */
 interface QueryData {
@@ -216,7 +225,7 @@ const handleSubmit = () => {
             ]).then((res1) => {
               if (res1[0].code === '10000') {
                 if (isShare) {
-                  Toast('本次签名已完成');
+                  toggleShow(true);
                   setTimeout(() => {
                     if (isWeiXin) {
                       wx.closeWindow();
@@ -293,7 +302,7 @@ const initData = async () => {
   const { code: oCode, data: orderData } = await getTenantOrderDetail({ orderNo: orderCode || orderNo, tenantId });
   if (oCode === '10000') {
     Object.assign(orderDetail.value, orderData);
-    signPartInfo.value.holder.personalInfo = { ...orderData.holder, name: '是固定改过的', isCert: 1 };
+    signPartInfo.value.holder.personalInfo = { ...orderData.holder, isCert: 1 };
     signPartInfo.value.insured.personalInfo = orderData.insuredList.map((insured) => {
       insured.isCert = 1;
       return insured;
@@ -495,6 +504,22 @@ onMounted(() => {
     .submit-btn {
       width: 290px;
       flex: 1;
+    }
+  }
+  .content-inner {
+    padding: 90px 50px 99px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    .header-img {
+      width: 257px;
+    }
+    h4 {
+      margin: 70px 0 39px;
+      font-weight: 500;
+      font-size: 38px;
+      color: #333333;
+      font-style: normal;
     }
   }
 }

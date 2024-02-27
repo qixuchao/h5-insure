@@ -32,6 +32,13 @@
     <div class="footer-button footer-bar">
       <van-button type="primary" class="submit-btn" @click="handleSubmit">确定</van-button>
     </div>
+    <MessagePopup v-model="show" @close="toggleShow(false)">
+      <div class="content-inner">
+        <img :src="qianming" alt="" class="header-img" />
+        <h4>本次签名已完成</h4>
+        <p>感谢您对本次投保的签字确认，后续流程由销售人员在您的配合下进行</p>
+      </div>
+    </MessagePopup>
   </div>
 </template>
 
@@ -40,6 +47,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import { stringify } from 'qs';
 import wx from 'weixin-js-sdk';
+import { useToggle } from '@vant/use';
 import { queryListProductMaterial } from '@/api/modules/product';
 import { ProductMaterialVoItem } from '@/api/modules/product.data';
 import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
@@ -58,6 +66,8 @@ import { jumpToNextPage } from '@/utils';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import { getFileType } from '../../utils';
 import { isWeiXin } from '@/views/cashier/core';
+import MessagePopup from './components/MessagePopup.vue';
+import qianming from '@/assets/images/qianming.jpg';
 
 const route = useRoute();
 const router = useRouter();
@@ -88,6 +98,7 @@ try {
 }
 
 const orderDetail = useOrder();
+const [show, toggleShow] = useToggle(false);
 const shareLink = `${window.origin}/baseInsurance/long/phoneVerify?${stringify({
   ...route.query,
   orderNo: orderCode || orderNo,
@@ -181,14 +192,14 @@ const handleSubmit = () => {
       }).then(({ code, data }) => {
         if (code === '10000' && data) {
           if (isShare) {
-            Toast('本次签名已完成');
+            toggleShow(true);
             setTimeout(() => {
               if (isWeiXin) {
                 wx.closeWindow();
               } else {
                 window.close();
               }
-            }, 1500);
+            }, 2000);
             return;
           }
           router.push({
@@ -326,6 +337,22 @@ onMounted(() => {
     .submit-btn {
       width: 290px;
       flex: 1;
+    }
+  }
+  .content-inner {
+    padding: 90px 50px 99px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    .header-img {
+      width: 257px;
+    }
+    h4 {
+      margin: 70px 0 39px;
+      font-weight: 500;
+      font-size: 38px;
+      color: #333333;
+      font-style: normal;
     }
   }
 }

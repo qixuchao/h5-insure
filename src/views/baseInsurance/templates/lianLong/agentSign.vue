@@ -25,6 +25,13 @@
     <div class="footer-button">
       <van-button type="primary" @click="handleSubmit">确定</van-button>
     </div>
+    <MessagePopup v-model="show" @close="toggleShow(false)">
+      <div class="content-inner">
+        <img :src="qianming" alt="" class="header-img" />
+        <h4>本次签名已完成</h4>
+        <p>感谢您对本次投保的签字确认，后续流程由销售人员在您的配合下进行</p>
+      </div>
+    </MessagePopup>
   </div>
 </template>
 
@@ -32,6 +39,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import { stringify } from 'qs';
+import { useToggle } from '@vant/use';
 import { queryListProductMaterial } from '@/api/modules/product';
 import { InsureProductData, ProductMaterialVoItem } from '@/api/modules/product.data';
 import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
@@ -50,6 +58,8 @@ import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import { getFileType } from '../../utils';
 import { sessionStore } from '@/hooks/useStorage';
 import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
+import MessagePopup from './components/MessagePopup.vue';
+import qianming from '@/assets/images/qianming.jpg';
 
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
@@ -98,6 +108,7 @@ const shareLink = `${window.origin}/baseInsurance/long/phoneVerify?${stringify({
   ...route.query,
   orderNo: orderCode || orderNo,
 })}`;
+const [show, toggleShow] = useToggle(false);
 
 const agentSignRef = ref<InstanceType<typeof SignPart>>();
 const userInfo = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`);
