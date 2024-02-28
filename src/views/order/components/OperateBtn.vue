@@ -105,8 +105,6 @@ const handleRepay = () => {
   repayOrder({
     tenantId,
     orderNo,
-    type: 1,
-    cancelFlag: 1, // 1：撤单操作
   }).then(({ code, data }) => {
     if (code === '10000') {
       Dialog.confirm({

@@ -190,7 +190,7 @@ const [isShow, toggleStatus] = useToggle(false);
 const { orderNo, tenantId } = route.query;
 const VanDialog = Dialog.Component;
 
-const [visible, toggleVisible] = useToggle(true);
+const [visible, toggleVisible] = useToggle(false);
 // 是否需要双录
 const needBMOS = ref<boolean>(false);
 // 双录状态
