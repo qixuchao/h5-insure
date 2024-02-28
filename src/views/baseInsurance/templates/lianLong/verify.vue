@@ -159,7 +159,6 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
 import { useToggle } from '@vant/use';
-import QRCode from 'qrcode';
 import { nextStepOperate as nextStep } from '../../nextStep';
 import { ProFieldV2, ProSMSCode, ProRenderForm } from '@/components/RenderForm/components';
 import { checkSMSCode, sendSMSCode } from '@/components/RenderForm/utils/constants';
@@ -191,7 +190,7 @@ const [isShow, toggleStatus] = useToggle(false);
 const { orderNo, tenantId } = route.query;
 const VanDialog = Dialog.Component;
 
-const [visible, toggleVisible] = useToggle(false);
+const [visible, toggleVisible] = useToggle(true);
 // 是否需要双录
 const needBMOS = ref<boolean>(false);
 // 双录状态
@@ -535,12 +534,8 @@ const initData = async () => {
       BMOSStatus.value = doubleRecordStatus;
       BMOSLoading.value = true;
       // app下载 信息
-      QRCode.toDataURL(data?.iosDownUrl).then((url) => {
-        iosDownUrl.value = url;
-      });
-      QRCode.toDataURL(data?.andDownUrl).then((url) => {
-        androidDownUrl.value = url;
-      });
+      iosDownUrl.value = data?.iosDownUrl;
+      androidDownUrl.value = data?.andDownUrl;
 
       if (deviceInfo) {
         schemaUrl.value = data.andUrl || '';
@@ -689,14 +684,14 @@ onMounted(() => {
   .ios-qr-code,
   .android-qr-code {
     position: absolute;
-    top: 244px;
-    left: 46px;
-    width: 250px;
-    height: 250px;
+    top: 250px;
+    left: 52px;
+    width: 240px;
+    height: 240px;
     z-index: 100;
   }
   .android-qr-code {
-    left: 346px;
+    left: 352px;
   }
 }
 </style>

@@ -133,3 +133,11 @@ export const querySnapShotPayInfo = (data) =>
     method: 'POST',
     data,
   });
+
+// 重新支付
+export const repayOrder = (data) =>
+  request({
+    url: '/api/app/insure/insurance/repay',
+    method: 'POST',
+    data,
+  });
