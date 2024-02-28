@@ -132,7 +132,7 @@ const props = withDefaults(defineProps<ProSelectProp>(), {
 });
 
 const previewRef = ref();
-const emits = defineEmits(['update:modelValue', 'submit', 'clickBtn']);
+const emits = defineEmits(['update:modelValue', 'submit', 'clickBtn', 'updateFileStatus']);
 
 const state = reactive<{
   subTabIndex: number; // 在每个tab下的第几个文件
@@ -202,7 +202,6 @@ const handleTabChange = (i) => {
  * @param isScorll 是否滚动事件触发
  */
 const setReadFileByIndex = (flag = false, i = state.subTabIndex, isScorll = false) => {
-  console.log('state.mainTabIndex', state.mainTabIndex, 'i=', i);
   // 查询出当前文件信息
   const file = state.tabList[state.mainTabIndex].files[i];
   // 没有读过、且必读文件(在确保必读文件数量是否大于0，其实可以不判断)
@@ -219,10 +218,11 @@ const setReadFileByIndex = (flag = false, i = state.subTabIndex, isScorll = fals
     file.isRead = true;
   }
   const tabComplate = state.tabList[state.mainTabIndex].files.every((item) => item?.isRead);
-  console.log(tabComplate, 'tabComplate');
+
   if (state.tabList?.[state.mainTabIndex]?.files?.length === 1 || tabComplate) {
     state.tabList[state.mainTabIndex].isRead = true;
   }
+  emits('updateFileStatus', state.mainTabIndex);
 };
 
 /**
@@ -419,7 +419,7 @@ watch(
   [() => props.modelValue, () => props.activeIndex, () => props.isView],
   debounce((val) => {
     if (val) {
-      state.mainIndex = props.isView ? props.activeIndex : 0;
+      state.mainIndex = props.activeIndex || 0;
       state.mainTabIndex = 0;
     }
   }, 500),

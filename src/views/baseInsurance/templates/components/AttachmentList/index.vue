@@ -19,7 +19,9 @@
         >
           《{{ item.attachmentName }}》
         </span>
-        <span>{{ suffixText }}</span>
+        <slot name="suffixText">
+          <span>{{ suffixText }}</span>
+        </slot>
       </div>
     </div>
   </div>
@@ -35,6 +37,7 @@ interface Props {
   attachmentList: any[];
   isShowRadio?: boolean;
   modelValue?: boolean;
+  isView: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -44,6 +47,7 @@ const props = withDefaults(defineProps<Props>(), {
   attachmentList: () => [],
   modelValue: false,
   isShowRadio: false,
+  isView: false,
 });
 
 const emits = defineEmits(['preview-file', 'update:modelValue']);
@@ -51,6 +55,9 @@ const emits = defineEmits(['preview-file', 'update:modelValue']);
 const isAgree = ref<boolean>(false); // 是否同意资料
 
 const onClickReadAttachment = (index: number) => {
+  if (props.isView) {
+    return;
+  }
   emits('preview-file', index);
 };
 

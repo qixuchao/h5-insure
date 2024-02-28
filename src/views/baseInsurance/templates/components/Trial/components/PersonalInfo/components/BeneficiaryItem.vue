@@ -112,7 +112,7 @@ const isSameHolder = () => {
       return false;
     }) || [];
 
-  return collection.length >= 2;
+  return collection.length === 5;
 };
 
 watch(

@@ -171,7 +171,6 @@ import SDK, { shareWeiXin, pullUpApp, checkAppIsInstalled, getDeviceInfo } from 
 import { MESSAGE_TYPE_ENUM } from './constants.ts';
 import { rollbackEditOrder, sendMessageToLian as sendMessage } from '@/api';
 import { cancelOrder } from '@/api/modules/order';
-import { addMetaForShare } from '@/utils/dom';
 
 const sessionStorage = useSessionStorage();
 const route = useRoute();
