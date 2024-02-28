@@ -91,7 +91,6 @@
     <ProFileDrawer
       v-if="visibleFile"
       v-model="visibleFile"
-      :closeable="true"
       :active-index="activeIndex"
       :data-source="state.fileList"
       ok-text="我已阅读，已充分理解，并会遵守相关要求"
@@ -307,7 +306,6 @@ const onNext = async () => {
 watch(
   () => agree.value,
   () => {
-    console.log('12313213');
     if (agree.value) {
       if (!hasReadFile.value) {
         agree.value = false;
