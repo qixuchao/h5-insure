@@ -451,13 +451,7 @@ const handleSameHolderAddress = (val) => {
   });
 
   const sameHolderAddressFlag = val ? 1 : 2;
-  if (state.personVO.extInfo) {
-    state.personVO.extInfo.sameHolderAddressFlag = sameHolderAddressFlag;
-  } else {
-    state.personVO.extInfo = {
-      sameHolderAddressFlag,
-    };
-  }
+  state.personVO.sameHolderAddressFlag = sameHolderAddressFlag;
 };
 
 // 监听投保人信息
@@ -856,13 +850,13 @@ watch(
   () => cloneDeep(props.modelValue),
   (val, oldVal) => {
     if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
-      const { beneficiaryList, extInfo, ...rest } = val;
+      const { beneficiaryList, ...rest } = val;
 
       if (val.age !== oldVal?.age && val.age) {
         isInit.value = true;
       }
       // 是否同投保人
-      state.sameHolderAddressFlag = extInfo?.sameHolderAddressFlag === 1;
+      state.sameHolderAddressFlag = rest.sameHolderAddressFlag === 1;
       merge(state.personVO, rest);
       setCertDefaultValue(props.schema, props.modelValue, () => {
         state.personVO.certType = state.personVO.certType || '1';
