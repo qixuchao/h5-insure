@@ -17,7 +17,7 @@
       </slot>
     </template>
     <template #input>
-      <div class="com-image-upload">
+      <div :class="`com-image-upload ${isView ? 'com-image-upload-view' : ''}`">
         <van-uploader
           :model-value="fileList"
           :after-read="handleAfterRead"
@@ -200,6 +200,13 @@ watch(
   width: 690px;
   display: flex;
   justify-content: flex-start;
+
+  &.com-image-upload-view {
+    :deep(.van-uploader__input-wrapper) {
+      display: none;
+    }
+  }
+
   .upload-item {
     width: 160px;
     height: 160px;

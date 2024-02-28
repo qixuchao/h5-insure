@@ -249,10 +249,14 @@ const isShowGuardian = computed<boolean>(() => {
   if (relationToHolder && !['1', '4', '5'].includes(`${relationToHolder}`) && age !== null && +age < 18) {
     return true;
   }
-  state.guardian = {
-    personVO: {},
-    config: {},
-  };
+
+  if (!(relationToHolder && ['4', '5'].includes(`${relationToHolder}`) && age !== null && +age < 16)) {
+    state.guardian = {
+      personVO: {},
+      config: {},
+    };
+  }
+
   return false;
 });
 
@@ -262,10 +266,12 @@ const isShowGuardianMaterial = computed<boolean>(() => {
   if (relationToHolder && ['4', '5'].includes(`${relationToHolder}`) && age !== null && +age < 16) {
     return true;
   }
+
   state.guardian = {
     personVO: {},
     config: {},
   };
+
   return false;
 });
 
