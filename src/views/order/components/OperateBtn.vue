@@ -14,6 +14,7 @@
 import { withDefaults } from 'vue';
 import { useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
+import { emit } from 'process';
 import { PAGE_ROUTE_ENUMS, MESSAGE_TYPE_ENUM } from '@/views/baseInsurance/templates/lianLong/constants';
 import { shareWeiXin } from '@/utils/lianSDK';
 import { SHARE_CONTENT, SHARE_IMAGE_LINK } from '@/common/constants/lian';
@@ -35,7 +36,7 @@ const props = withDefaults(
   },
 );
 
-const emits = defineEmits(['handleCancel']);
+const emits = defineEmits(['handleCancel', 'refresh-order']);
 
 const showRecord = computed(() => route.path === '/orderRecordList');
 
@@ -101,17 +102,22 @@ const handleDeal = () => {
 // 重新支付
 const handleRepay = () => {
   const { orderNo } = props.detail || {};
-
+  const toast = Toast.loading({
+    message: '加载中...',
+    duration: 0,
+  });
   repayOrder({
     tenantId,
     orderNo,
-  }).then(({ code, data }) => {
-    if (code === '10000') {
-      Dialog.confirm({
-        message: '确认取消当前订单？',
-      }).then(() => {});
-    }
-  });
+  })
+    .then(({ code, data }) => {
+      if (code === '10000') {
+        emits('refresh-order');
+      }
+    })
+    .finally(() => {
+      toast.clear();
+    });
 };
 
 const handleShare = (type) => {
