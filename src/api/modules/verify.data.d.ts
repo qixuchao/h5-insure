@@ -32,7 +32,11 @@ export interface DoubleData {
     /** 双录状态 */
     doubleRecordStatus: number;
     id: number;
+    andUrl: string;
+    iosUrl: string;
     orderNo: string;
+    andDownUrl: string;
+    iosDownUrl: string;
 }
 
 // 获取签名列表

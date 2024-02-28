@@ -146,12 +146,20 @@
       </div>
     </van-dialog>
   </div>
+  <MessagePopup v-model="visible" @close="toggleVisible(false)">
+    <div class="verify-content-inner">
+      <img class="ios-qr-code" :src="iosDownUrl" alt="QR Code" />
+      <img class="android-qr-code" :src="androidDownUrl" alt="QR Code" />
+      <img :src="verifyBgImg" alt="" class="header-img" />
+    </div>
+  </MessagePopup>
 </template>
 
 <script setup name="verify" lang="ts">
 import { useRoute, useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
 import { useToggle } from '@vant/use';
+import QRCode from 'qrcode';
 import { nextStepOperate as nextStep } from '../../nextStep';
 import { ProFieldV2, ProSMSCode, ProRenderForm } from '@/components/RenderForm/components';
 import { checkSMSCode, sendSMSCode } from '@/components/RenderForm/utils/constants';
@@ -171,6 +179,8 @@ import SDK, { shareWeiXin, pullUpApp, checkAppIsInstalled, getDeviceInfo } from 
 import { MESSAGE_TYPE_ENUM } from './constants.ts';
 import { rollbackEditOrder, sendMessageToLian as sendMessage } from '@/api';
 import { cancelOrder } from '@/api/modules/order';
+import MessagePopup from './components/MessagePopup.vue';
+import verifyBgImg from '@/assets/images/baseInsurance/verify-bg.png';
 import { addMetaForShare } from '@/utils/dom';
 
 const sessionStorage = useSessionStorage();
@@ -181,6 +191,7 @@ const [isShow, toggleStatus] = useToggle(false);
 const { orderNo, tenantId } = route.query;
 const VanDialog = Dialog.Component;
 
+const [visible, toggleVisible] = useToggle(false);
 // 是否需要双录
 const needBMOS = ref<boolean>(false);
 // 双录状态
@@ -188,6 +199,10 @@ const BMOSStatus = ref<number>();
 const loading = ref<boolean>(false);
 const BMOSLoading = ref<boolean>(false);
 const nextDisable = ref<boolean>(false);
+
+// 下载二维码
+const iosDownUrl = ref('');
+const androidDownUrl = ref('');
 
 const formRef = ref();
 const formData = ref({
@@ -338,24 +353,38 @@ const handleDMOS = () => {
     return;
   }
   formRef.value?.validate().then(() => {
-    dualUploadFiles(orderDetail.value).then(({ code, data }) => {
-      if (code === '10000') {
-        if (data) {
-          if (schemaUrl.value) {
-            const packageName = schemaUrl.value.match(/(.*)\.app:\/\//)?.[1];
-            checkAppIsInstalled({ packageName, scheme: schemaUrl.value }).then((info) => {
-              if (info.isInstall === `${YES_NO_ENUM.YES}`) {
-                isError.value = false;
-                pullUpApp(schemaUrl.value);
-              } else {
-                isError.value = true;
-                Toast('请先安装双录app');
-              }
-            });
-          }
-        }
-      }
+    const toast = Toast.loading({
+      message: '加载中...',
+      duration: 0,
     });
+    dualUploadFiles(orderDetail.value)
+      .then(({ code, data }) => {
+        if (code === '10000') {
+          if (data) {
+            if (schemaUrl.value) {
+              const packageName = schemaUrl.value.match(/(.*)\.app:\/\//)?.[1];
+              checkAppIsInstalled({ packageName, scheme: schemaUrl.value })
+                .then((info) => {
+                  if (info.isInstall === `${YES_NO_ENUM.YES}`) {
+                    isError.value = false;
+                    pullUpApp(schemaUrl.value);
+                  } else {
+                    isError.value = true;
+                    toggleVisible(true);
+                  }
+                })
+                .finally(() => {
+                  toast.clear();
+                });
+            }
+          }
+        } else {
+          toast.clear();
+        }
+      })
+      .catch(() => {
+        toast.clear();
+      });
   });
 };
 
@@ -505,6 +534,13 @@ const initData = async () => {
       needBMOS.value = doubleRecordFlag === YES_NO_ENUM.YES;
       BMOSStatus.value = doubleRecordStatus;
       BMOSLoading.value = true;
+      // app下载 信息
+      QRCode.toDataURL(data?.iosDownUrl).then((url) => {
+        iosDownUrl.value = url;
+      });
+      QRCode.toDataURL(data?.andDownUrl).then((url) => {
+        androidDownUrl.value = url;
+      });
 
       if (deviceInfo) {
         schemaUrl.value = data.andUrl || '';
@@ -642,6 +678,25 @@ onMounted(() => {
     .van-button {
       border-radius: unset;
     }
+  }
+}
+.verify-content-inner {
+  position: relative;
+  .header-img {
+    width: 642px;
+    height: 740px;
+  }
+  .ios-qr-code,
+  .android-qr-code {
+    position: absolute;
+    top: 244px;
+    left: 46px;
+    width: 250px;
+    height: 250px;
+    z-index: 100;
+  }
+  .android-qr-code {
+    left: 346px;
   }
 }
 </style>
