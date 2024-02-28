@@ -146,6 +146,13 @@
       </div>
     </van-dialog>
   </div>
+  <MessagePopup v-model="visible" @close="toggleVisible(false)">
+    <div class="verify-content-inner">
+      <img class="ios-qr-code" :src="iosDownUrl" alt="QR Code" />
+      <img class="android-qr-code" :src="androidDownUrl" alt="QR Code" />
+      <img :src="verifyBgImg" alt="" class="header-img" />
+    </div>
+  </MessagePopup>
 </template>
 
 <script setup name="verify" lang="ts">
@@ -171,6 +178,8 @@ import SDK, { shareWeiXin, pullUpApp, checkAppIsInstalled, getDeviceInfo } from 
 import { MESSAGE_TYPE_ENUM } from './constants.ts';
 import { rollbackEditOrder, sendMessageToLian as sendMessage } from '@/api';
 import { cancelOrder } from '@/api/modules/order';
+import MessagePopup from './components/MessagePopup.vue';
+import verifyBgImg from '@/assets/images/baseInsurance/verify-bg.png';
 
 const sessionStorage = useSessionStorage();
 const route = useRoute();
@@ -180,6 +189,7 @@ const [isShow, toggleStatus] = useToggle(false);
 const { orderNo, tenantId } = route.query;
 const VanDialog = Dialog.Component;
 
+const [visible, toggleVisible] = useToggle(false);
 // 是否需要双录
 const needBMOS = ref<boolean>(false);
 // 双录状态
@@ -187,6 +197,10 @@ const BMOSStatus = ref<number>();
 const loading = ref<boolean>(false);
 const BMOSLoading = ref<boolean>(false);
 const nextDisable = ref<boolean>(false);
+
+// 下载二维码
+const iosDownUrl = ref('');
+const androidDownUrl = ref('');
 
 const formRef = ref();
 const formData = ref({
@@ -337,24 +351,38 @@ const handleDMOS = () => {
     return;
   }
   formRef.value?.validate().then(() => {
-    dualUploadFiles(orderDetail.value).then(({ code, data }) => {
-      if (code === '10000') {
-        if (data) {
-          if (schemaUrl.value) {
-            const packageName = schemaUrl.value.match(/(.*)\.app:\/\//)?.[1];
-            checkAppIsInstalled({ packageName, scheme: schemaUrl.value }).then((info) => {
-              if (info.isInstall === `${YES_NO_ENUM.YES}`) {
-                isError.value = false;
-                pullUpApp(schemaUrl.value);
-              } else {
-                isError.value = true;
-                Toast('请先安装双录app');
-              }
-            });
-          }
-        }
-      }
+    const toast = Toast.loading({
+      message: '加载中...',
+      duration: 0,
     });
+    dualUploadFiles(orderDetail.value)
+      .then(({ code, data }) => {
+        if (code === '10000') {
+          if (data) {
+            if (schemaUrl.value) {
+              const packageName = schemaUrl.value.match(/(.*)\.app:\/\//)?.[1];
+              checkAppIsInstalled({ packageName, scheme: schemaUrl.value })
+                .then((info) => {
+                  if (info.isInstall === `${YES_NO_ENUM.YES}`) {
+                    isError.value = false;
+                    pullUpApp(schemaUrl.value);
+                  } else {
+                    isError.value = true;
+                    toggleVisible(true);
+                  }
+                })
+                .finally(() => {
+                  toast.clear();
+                });
+            }
+          }
+        } else {
+          toast.clear();
+        }
+      })
+      .catch(() => {
+        toast.clear();
+      });
   });
 };
 
@@ -504,6 +532,9 @@ const initData = async () => {
       needBMOS.value = doubleRecordFlag === YES_NO_ENUM.YES;
       BMOSStatus.value = doubleRecordStatus;
       BMOSLoading.value = true;
+      // app下载 信息
+      iosDownUrl.value = data?.iosDownUrl;
+      androidDownUrl.value = data?.andDownUrl;
 
       if (deviceInfo) {
         schemaUrl.value = data.andUrl || '';
@@ -641,6 +672,25 @@ onMounted(() => {
     .van-button {
       border-radius: unset;
     }
+  }
+}
+.verify-content-inner {
+  position: relative;
+  .header-img {
+    width: 642px;
+    height: 740px;
+  }
+  .ios-qr-code,
+  .android-qr-code {
+    position: absolute;
+    top: 250px;
+    left: 52px;
+    width: 240px;
+    height: 240px;
+    z-index: 100;
+  }
+  .android-qr-code {
+    left: 352px;
   }
 }
 </style>

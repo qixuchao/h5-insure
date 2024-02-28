@@ -30,7 +30,7 @@
       </div>
     </div>
     <div class="footer">
-      <OperateBtn :detail="detail"></OperateBtn>
+      <OperateBtn :detail="detail" @refresh-order="refreshOrder"></OperateBtn>
     </div>
   </div>
 </template>
@@ -109,6 +109,10 @@ const redirectProductDetail = (): boolean => {
     }
   }
   return false;
+};
+
+const refreshOrder = () => {
+  emits('afterDelete');
 };
 
 const handlePay = () => {

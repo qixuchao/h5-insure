@@ -1484,8 +1484,11 @@ const resetFile = (file: {}) => {
   margin-top: 30px;
 }
 .benefit-chart {
-  position: fixed;
-  display: block;
+  // position: fixed;
+  // display: block;
+  height: 1px;
+  width: 100%;
+  overflow-y: auto;
 }
 .agent-img {
   position: fixed;

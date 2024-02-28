@@ -1,6 +1,7 @@
 <template>
   <div class="operate-wrap">
     <template v-if="!showRecord">
+      <van-button v-if="isRepayOrder" type="primary" size="small" @click.stop="handleRepay">去支付</van-button>
       <van-button v-if="isDealOrder" type="primary" size="small" @click.stop="handleDeal">去处理</van-button>
       <van-button v-if="isReturnOrder" type="primary" plain size="small" @click.stop="handleReturn">撤单</van-button>
       <van-button v-if="isUpdateBankInfo" plain size="small" @click.stop="handleUpdateBank">银行卡修改</van-button>
@@ -13,11 +14,12 @@
 import { withDefaults } from 'vue';
 import { useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
+import { emit } from 'process';
 import { PAGE_ROUTE_ENUMS, MESSAGE_TYPE_ENUM } from '@/views/baseInsurance/templates/lianLong/constants';
 import { shareWeiXin } from '@/utils/lianSDK';
 import { SHARE_CONTENT, SHARE_IMAGE_LINK } from '@/common/constants/lian';
 import { NOTICE_TYPE_MAP, SEX_LIMIT_MAP, YES_NO_ENUM } from '@/common/constants';
-import { sendMessageToLian as sendMessage } from '@/api';
+import { sendMessageToLian as sendMessage, repayOrder } from '@/api';
 import { cancelOrder } from '@/api/modules/order';
 
 const router = useRouter();
@@ -34,9 +36,16 @@ const props = withDefaults(
   },
 );
 
-const emits = defineEmits(['handleCancel']);
+const emits = defineEmits(['handleCancel', 'refresh-order']);
 
 const showRecord = computed(() => route.path === '/orderRecordList');
+
+// 是否可以重新支付
+const isRepayOrder = computed<boolean>(() => {
+  const { showRepayButton } = props.detail;
+  // 待处理
+  return PAGE_ROUTE_ENUMS.orderList === route.path && showRepayButton === YES_NO_ENUM.YES;
+});
 
 // 去处理按钮展示权限
 const isDealOrder = computed<boolean>(() => {
@@ -88,6 +97,27 @@ const handleDeal = () => {
       iseeBizNo,
     },
   });
+};
+
+// 重新支付
+const handleRepay = () => {
+  const { orderNo } = props.detail || {};
+  const toast = Toast.loading({
+    message: '加载中...',
+    duration: 0,
+  });
+  repayOrder({
+    tenantId,
+    orderNo,
+  })
+    .then(({ code, data }) => {
+      if (code === '10000') {
+        emits('refresh-order');
+      }
+    })
+    .finally(() => {
+      toast.clear();
+    });
 };
 
 const handleShare = (type) => {
