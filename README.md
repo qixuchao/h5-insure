@@ -1,6 +1,6 @@
 # aquarius-h5
 
-### 开发
+### 开发1
 
 只需要执行以下命令就可以在 http://localhost:8080 中看到
 
@@ -184,3 +184,4 @@ src
   - [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) - 代码质量和规则检查
   - [Prettier - Code formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) - 专注于代码格式化、美化代码
   - [EditorConfig for VS Code](https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig) - 编码风格检查
+- 
