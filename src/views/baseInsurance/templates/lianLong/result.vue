@@ -7,7 +7,6 @@
         <div class="content">
           <div class="content-header">
             <h4 class="product-name">{{ result.productName }}</h4>
-            <span>保障中</span>
           </div>
           <InfoItem label="投保人:" :content="result.holderName" line />
           <InfoItem label="投/保单号:" line>
