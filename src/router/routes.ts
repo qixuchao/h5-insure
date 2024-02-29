@@ -203,7 +203,12 @@ const proposalRoutes: Array<RouteRecordRaw> = [
   {
     name: 'proposalCover',
     path: '/proposalCover',
-    meta: { title: '计划书封面', requireWxJs: false },
+    meta: {
+      title: '计划书封面', requireWxJs: false,
+      metaTags: [
+        { name: 'description', content: '尊敬的客户,请查看您的计划书' },
+      ]
+    },
     component: () => import('@/views/proposal/compositionProposal/cover.vue'),
   },
 ];
