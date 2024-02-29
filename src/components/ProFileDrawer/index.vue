@@ -324,10 +324,10 @@ const handleScroll = debounce((el: any) => {
       state.mainTabIndex,
       'subTabIndex=',
       state.subTabIndex,
-      Math.floor(scrollHeight - scrollTop - 20) < clientHeight && calculating,
+      Math.floor(scrollHeight - scrollTop - 15) < clientHeight && calculating,
     );
 
-    if (Math.floor(scrollHeight - scrollTop - 20) < clientHeight && calculating) {
+    if (Math.floor(scrollHeight - scrollTop - 15) < clientHeight && calculating) {
       // 没有读完的文件才可以跳转
       calculating = false;
       state.mainTabIndex = parseInt(state.mainIndex.toString(), 10);
@@ -427,10 +427,30 @@ watch(
   { immediate: true },
 );
 </script>
-
+<style lang="scss">
+.pro-file-drawer {
+  .com-pop-body {
+    display: flex;
+    flex-direction: column;
+    .contain {
+      flex: 1 0 auto;
+    }
+    .footer {
+      padding-bottom: 20px;
+    }
+  }
+}
+</style>
 <style lang="scss" scoped>
 .pro-file-drawer {
   height: 1126px;
+
+  :deep(.com-pop-body) {
+    display: flex;
+    .contain {
+      flex: 1 0 auto;
+    }
+  }
 
   .nut-tabs {
     .nut-tabs__titles {
@@ -493,7 +513,7 @@ watch(
     height: 900px;
     overflow-y: auto;
     .file-preview-wrap {
-      height: 901px;
+      height: 100%;
     }
 
     .attachment-list {

@@ -91,6 +91,7 @@
     <ProFileDrawer
       v-if="visibleFile"
       v-model="visibleFile"
+      :closeable="false"
       :active-index="activeIndex"
       :data-source="state.fileList"
       ok-text="我已阅读，已充分理解，并会遵守相关要求"
