@@ -9,7 +9,7 @@
   >
     <template #extra>
       <div v-if="!isView" class="wrap" @click.stop="">
-        <van-checkbox v-model="checked">长期</van-checkbox>
+        <van-checkbox :model-value="checked" @click="changeLongTerm">长期</van-checkbox>
       </div>
     </template>
     <!-- 继承 slots -->
@@ -45,6 +45,8 @@ import { VAN_PRO_FORM_KEY, relatedConfigMap } from '../utils';
 const { filedAttrs, filedSlots, attrs, slots } = toRefs(useAttrsAndSlots());
 
 const emits = defineEmits(['update:modelValue', 'cancel']);
+
+const LONG_TERM = '9999-12-31';
 
 const { formState } = inject(VAN_PRO_FORM_KEY) || {};
 
@@ -143,6 +145,11 @@ const onConfirm = (value: Date | string) => {
   toggle(false);
 };
 
+const changeLongTerm = () => {
+  onConfirm(!checked.value ? LONG_TERM : '');
+  checked.value = !checked.value;
+};
+
 const onCancel = () => {
   toggle(false);
   emits('cancel');
@@ -156,7 +163,7 @@ const dealModelValue = (val) => {
     state.fieldValue = dayjs(val).format(formatValueType.value);
     console.log('isDate', val);
   } else if (typeof val === 'string') {
-    if (val === '9999-12-31') {
+    if (val === LONG_TERM) {
       checked.value = true;
     } else {
       checked.value = false;
@@ -180,27 +187,29 @@ const dealModelValue = (val) => {
 watch(
   () => props.modelValue,
   (val) => {
+    // 是否长期
     dealModelValue(val);
+    // checked.value = val === LONG_TERM;
   },
   {
     immediate: true,
   },
 );
 
-watch(
-  () => checked.value,
-  (value) => {
-    if (value) {
-      onConfirm('9999-12-31');
-    } else {
-      const currentData = state.fieldValue === '9999-12-31' ? '' : state.date;
-      onConfirm(currentData);
-    }
-  },
-  {
-    immediate: true,
-  },
-);
+// watch(
+//   () => checked.value,
+//   (value) => {
+//     if (value) {
+//       onConfirm(LONG_TERM);
+//     } else {
+//       const currentData = state.fieldValue === LONG_TERM ? '' : state.date;
+//       onConfirm(currentData);
+//     }
+//   },
+//   {
+//     immediate: true,
+//   },
+// );
 
 watch(
   () => formState.formData?.[filedAttrs.value.name],
@@ -213,27 +222,28 @@ watch(
   },
 );
 
-watch(
-  [() => formState.formData.certStartDate, () => formState.formData.age],
-  ([val, age]) => {
-    if (val && age) {
-      let certEndDate = '9999-12-31';
+// watch(
+//   [() => formState.formData.certStartDate, () => formState.formData.age],
+//   ([val, age]) => {
+//     if (val && age) {
+//       let certEndDate = LONG_TERM;
 
-      if (+age < 16) {
-        certEndDate = dayjs(`${val}`).add(5, 'y').format('YYYY-MM-DD');
-      } else if (+age < 25) {
-        certEndDate = dayjs(`${val}`).add(10, 'y').format('YYYY-MM-DD');
-      } else if (+age < 45) {
-        certEndDate = dayjs(`${val}`).add(20, 'y').format('YYYY-MM-DD');
-      }
-      onConfirm(certEndDate);
-    }
-  },
-  {
-    immediate: true,
-    deep: true,
-  },
-);
+//       if (+age < 16) {
+//         certEndDate = dayjs(`${val}`).add(5, 'y').format('YYYY-MM-DD');
+//       } else if (+age < 25) {
+//         certEndDate = dayjs(`${val}`).add(10, 'y').format('YYYY-MM-DD');
+//       } else if (+age < 45) {
+//         certEndDate = dayjs(`${val}`).add(20, 'y').format('YYYY-MM-DD');
+//       }
+
+//       onConfirm(certEndDate);
+//     }
+//   },
+//   {
+//     immediate: true,
+//     deep: true,
+//   },
+// );
 </script>
 <script lang="ts">
 export default {
@@ -243,6 +253,7 @@ export default {
 <style lang="scss" scoped>
 .wrap {
   margin-top: 20px;
+  margin-left: 8px;
 }
 .placeholder {
   color: $zaui-aide-text;

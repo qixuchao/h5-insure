@@ -1,6 +1,7 @@
 import { nanoid } from 'nanoid';
 import merge from 'lodash-es/merge';
 import isNil from 'lodash-es/isNil';
+import dayjs from 'dayjs';
 import { formatDate } from '../../../utils/date';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { SEX_LIMIT_ENUM, CERT_TYPE_ENUM, YES_NO_ENUM, ATTACHMENT_CATEGORY_ENUM } from '@/common/constants';
@@ -749,8 +750,26 @@ export const relatedConfigMap = {
       });
       // 证件类型选择证件号/户口本时，隐藏性别和出生日期
       nextTick(() => {
-        merge(formState.config, getCertTypeConfig(val || formState.formData.certType, formState.schema));
+        const info = getCertTypeConfig(val || formState.formData.certType, formState.schema);
+        merge(formState.config, info);
         Object.assign(formState.formData, { certImage: [] });
+
+        const { age } = info;
+        const { certStartDate } = formState.formData;
+
+        if (certStartDate && age) {
+          let certEndDate = '9999-12-31';
+
+          if (+age < 16) {
+            certEndDate = dayjs(`${certStartDate}`).add(5, 'y').format('YYYY-MM-DD');
+          } else if (+age < 25) {
+            certEndDate = dayjs(`${certStartDate}`).add(10, 'y').format('YYYY-MM-DD');
+          } else if (+age < 45) {
+            certEndDate = dayjs(`${certStartDate}`).add(20, 'y').format('YYYY-MM-DD');
+          }
+
+          formState.formData.certEndDate = certEndDate;
+        }
       });
     },
   },
@@ -780,6 +799,25 @@ export const relatedConfigMap = {
         Object.assign(formState.formData, {
           age,
         });
+      }
+    },
+  },
+  certEndDate: {
+    onChangeEffect: (val, formState) => {
+      const { age } = formState.formData;
+
+      if (val && age) {
+        let certEndDate = '9999-12-31';
+
+        if (+age < 16) {
+          certEndDate = dayjs(`${val}`).add(5, 'y').format('YYYY-MM-DD');
+        } else if (+age < 25) {
+          certEndDate = dayjs(`${val}`).add(10, 'y').format('YYYY-MM-DD');
+        } else if (+age < 45) {
+          certEndDate = dayjs(`${val}`).add(20, 'y').format('YYYY-MM-DD');
+        }
+
+        formState.formData.certEndDate = certEndDate;
       }
     },
   },
