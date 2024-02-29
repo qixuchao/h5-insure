@@ -324,9 +324,10 @@ const handleScroll = debounce((el: any) => {
       state.mainTabIndex,
       'subTabIndex=',
       state.subTabIndex,
-      Math.floor(scrollHeight - scrollTop - 15) < clientHeight && calculating,
+      Math.floor(scrollHeight - scrollTop - 20) < clientHeight && calculating,
     );
-    if (Math.floor(scrollHeight - scrollTop - 15) < clientHeight && calculating) {
+
+    if (Math.floor(scrollHeight - scrollTop - 20) < clientHeight && calculating) {
       // 没有读完的文件才可以跳转
       calculating = false;
       state.mainTabIndex = parseInt(state.mainIndex.toString(), 10);
