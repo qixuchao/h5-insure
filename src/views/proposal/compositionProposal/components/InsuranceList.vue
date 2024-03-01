@@ -66,7 +66,7 @@ const columns = [
     width: 180,
   },
   {
-    title: '保额',
+    title: '基本保险金额',
     dataIndex: 'initialAmount',
     render: (record) => `${toLocal(record.initialAmount)}元`,
   },
@@ -132,7 +132,7 @@ const getChargePay = (val: string) => {
     case 'to':
       return `交至${arr[1]}岁`;
     case 'single':
-      return `趸缴`;
+      return `趸交`;
 
     default:
       return '';

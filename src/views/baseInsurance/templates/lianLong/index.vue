@@ -78,6 +78,7 @@
 <script lang="ts" setup name="InsuranceLong">
 import { useRoute, useRouter } from 'vue-router';
 import { useIntersectionObserver } from '@vueuse/core';
+import { cloneDeep } from 'lodash-es';
 import {
   ProductSaleInfo,
   InsureProductData,
@@ -121,7 +122,7 @@ import {
   getCusomterData,
   transformCustomerToPerson,
   clearCustomData,
-} from '../components/Trial/components/PersonalInfo/util.ts';
+} from '../components/Trial/components/PersonalInfo/util';
 // const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
 const ProductDesc = defineAsyncComponent(() => import('../components/ProductDesc/index.vue'));
 const ScrollInfo = defineAsyncComponent(() => import('../components/ScrollInfo/index.vue'));
@@ -341,20 +342,30 @@ const getDefaultData = async () => {
 
   if (code === '10000') {
     // 获取客户详情
-    const customerInfo = getCusomterData();
+    const customerInfo = transformCustomerToPerson(getCusomterData(), []);
     Object.assign(defaultOrderDetail.value, data, { insuredList: [{ ...data.insuredList?.[0], ...customerInfo }] });
-    clearCustomData();
     const productRiskMap = pickProductRiskCodeFromOrder(data.insuredList?.[0]?.productList);
     queryMaterial(productRiskMap);
   }
 };
 
 const onNext = async () => {
+  const excludeCodeList = ['id', 'relationToHolder', 'beneficiaryList', 'guardian', 'insuredBeneficiaryType'];
+
   if (defaultOrderDetail.value.extInfo) {
     defaultOrderDetail.value.extInfo.iseeBizNo = iseeBizNo.value;
   }
-  const { code, data } = await saveOrder(defaultOrderDetail.value);
+  const orderDetailCopy = cloneDeep(defaultOrderDetail.value);
+  orderDetailCopy.insuredList[0].relationToHolder = 1;
+  Object.keys(orderDetailCopy.insuredList?.[0]).reduce((res, key) => {
+    if (!excludeCodeList.includes(key) && orderDetailCopy.insuredList?.[0]?.[key]) {
+      res[key] = orderDetailCopy.insuredList?.[0]?.[key];
+    }
+    return res;
+  }, orderDetailCopy.holder);
+  const { code, data } = await saveOrder(orderDetailCopy);
   if (code === '10000') {
+    clearCustomData();
     router.push({
       path: PAGE_ROUTE_ENUMS.questionNotice,
       query: {

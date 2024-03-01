@@ -22,7 +22,10 @@
       class="statement"
     ></div>
     <div class="footer">
-      <VanButton type="primary" :disabled="currentTime !== 0" block round @click="closePopup">
+      <VanButton v-if="!hasReadFile" type="primary" :disabled="!hasReadFile" block round>
+        请先阅读《隐私政策》文件
+      </VanButton>
+      <VanButton v-else type="primary" :disabled="currentTime !== 0" block round @click="closePopup">
         {{ state.insureConfig.buttonTitle }}
         <span v-if="currentTime">{{ currentTime }}s</span>
       </VanButton>
@@ -93,6 +96,7 @@ const STORAGE_PREFIX = 'PRENOTICE';
 
 const noticeShow = ref<boolean>(false);
 const pdfShow = ref<boolean>(false);
+const hasReadFile = ref<boolean>(false);
 
 const sessionStorage = new Storage({ source: 'sessionStorage' });
 let thread: ThreadType;
@@ -120,6 +124,7 @@ const fileType = computed(() => {
 });
 
 const clickHandler = (e: any) => {
+  hasReadFile.value = true;
   pdfShow.value = !pdfShow.value;
   attachmentUri.value.link = e.href;
   attachmentUri.value.title = e.innerText;

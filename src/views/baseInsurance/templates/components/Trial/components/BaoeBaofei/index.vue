@@ -104,7 +104,7 @@
     </ProField>
   </div>
   <div v-if="mConfigs.saleMethod === 2 && trialResult > 0">
-    <ProField :label="`保额`" class="risk-select-field">
+    <ProField :label="`基本保险金额`" class="risk-select-field">
       <template #input>
         <span>{{ trialResult }}</span>
       </template>
@@ -159,12 +159,12 @@ const validateSumInsured = () => {
 const getMethodName = () => {
   if (mConfigs.value.saleMethod === 2) {
     return {
-      label: '保费',
+      label: '首年保费',
       key: 'unitPremium',
     };
   }
   return {
-    label: '保额',
+    label: '基本保险金额',
     key: 'unitAmount',
   };
 };
@@ -192,12 +192,12 @@ const getUnitString = () => {
 const methodName = computed(() => {
   if (mConfigs.value.saleMethod === 2) {
     return {
-      label: '保费',
+      label: '首年保费',
       key: 'unitPremium',
     };
   }
   return {
-    label: '保额',
+    label: '基本保险金额',
     key: 'unitAmount',
   };
 });

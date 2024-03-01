@@ -142,7 +142,11 @@ const getOrderDetail = () => {
         data.tenantOrderAttachmentList.forEach((attachment) => {
           if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED) {
             if (attachment.category === 30) {
-              signAttachmentList[attachment.objectId].push(attachment.fileBase64);
+              if (signAttachmentList[attachment.objectId]) {
+                signAttachmentList[attachment.objectId].push(attachment.fileBase64);
+              } else {
+                signAttachmentList[attachment.objectId] = [attachment.fileBase64];
+              }
             } else if (attachment.category === 21) {
               signPartInfo.value.insured.compositionSign = attachment.uri;
             }

@@ -664,10 +664,18 @@ export const getCertTypeConfig = (val, schema) => {
       }
     : {};
 
+  const isShowGender = ['infoPreview', 'orderDetail'].find((pathname) => window.location.pathname.includes(pathname));
+
   const result = ['gender', 'birthday', 'age'].reduce((res, key) => {
     res[key] = {
       visible: status,
     };
+    if (key === 'gender' && isShowGender) {
+      res[key] = {
+        visible: true,
+      };
+    }
+
     return res;
   }, {});
 

@@ -199,31 +199,32 @@ const handleSubmit = () => {
         Toast('请先完成风险抄录');
         return;
       }
-      applyAuthorize(orderDetail.value).then(({ code, data }) => {
-        if (code === '10000') {
-          if (data.authStatus === `${YES_NO_ENUM.YES}`) {
-            router.push({
-              path: PAGE_ROUTE_ENUMS.payAuth,
-              query: route.query,
-            });
-          } else {
-            Promise.all([
-              signatureConfirm({
-                bizObjectId: [orderDetail.value.holder.id],
-                bizObjectType: NOTICE_TYPE_ENUM.HOLDER,
-                orderId: orderDetail.value.id,
-                tenantId,
-                shareFlag: isShare ? 1 : 2,
-              }),
-              isHolderSameInsured.value &&
-                signatureConfirm({
-                  bizObjectId: [orderDetail.value.insuredList[0].id],
-                  bizObjectType: NOTICE_TYPE_ENUM.INSURED,
-                  orderId: orderDetail.value.id,
-                  tenantId,
-                }),
-            ]).then((res1) => {
-              if (res1[0].code === '10000') {
+
+      Promise.all([
+        signatureConfirm({
+          bizObjectId: [orderDetail.value.holder.id],
+          bizObjectType: NOTICE_TYPE_ENUM.HOLDER,
+          orderId: orderDetail.value.id,
+          tenantId,
+          shareFlag: isShare ? 1 : 2,
+        }),
+        isHolderSameInsured.value &&
+          signatureConfirm({
+            bizObjectId: [orderDetail.value.insuredList[0].id],
+            bizObjectType: NOTICE_TYPE_ENUM.INSURED,
+            orderId: orderDetail.value.id,
+            tenantId,
+          }),
+      ]).then((res1) => {
+        if (res1[0].code === '10000') {
+          applyAuthorize(orderDetail.value).then(({ code, data }) => {
+            if (code === '10000') {
+              if (data.authStatus === `${YES_NO_ENUM.YES}`) {
+                router.push({
+                  path: PAGE_ROUTE_ENUMS.payAuth,
+                  query: route.query,
+                });
+              } else {
                 if (isShare) {
                   toggleShow(true);
                   setTimeout(() => {
@@ -240,8 +241,8 @@ const handleSubmit = () => {
                   query: route.query,
                 });
               }
-            });
-          }
+            }
+          });
         }
       });
     })

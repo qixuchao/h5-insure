@@ -183,7 +183,7 @@ const {
 } = route.query as QueryData;
 
 let extInfo: any = {};
-let timer = null;
+const timer = null;
 const productClass = ref<number>(2); // 多主险标志 1:是，2:否
 try {
   extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
@@ -673,13 +673,11 @@ const handleCache = () => {
 
   const currentOrderDetail = trialData2Order(userData, trialResult.value, orderDetail.value);
   currentOrderDetail.orderStatus = 'collectInfo';
-  if (!isEqual(currentOrderDetail, cacheData.value)) {
-    saveOrder(currentOrderDetail).then(({ code, data }) => {
-      if (code === '10000') {
-        cacheData.value = cloneDeep(currentOrderDetail);
-      }
-    });
-  }
+  saveOrder(currentOrderDetail).then(({ code, data }) => {
+    if (code === '10000') {
+      Toast('暂存成功');
+    }
+  });
 };
 
 // 分享时需要校验投保人手机号并且保存数据
@@ -833,9 +831,6 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {
-  timer = setInterval(() => {
-    handleCache();
-  }, 10000);
   setTimeout(async () => {
     iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
   }, 1500);

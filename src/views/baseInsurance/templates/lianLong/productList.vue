@@ -65,8 +65,8 @@ import { queryProductList } from '@/api/modules/product';
 import { PRODUCT_CATEGORY } from '@/common/constants';
 import { PRODUCT_CLASS_ENUM } from '@/common/constants/trial';
 import { getCustomerDetail } from '@/api/modules/third';
-import { PAGE_ROUTE_ENUMS } from './constants.ts';
-import { setCusomterData, transformCustomerToPerson } from '../components/Trial/components/PersonalInfo/util.ts';
+import { PAGE_ROUTE_ENUMS } from './constants';
+import { setCusomterData, transformCustomerToPerson } from '../components/Trial/components/PersonalInfo/util';
 import { TEMPLATE_TYPE_ENUM } from '@/common/constants/infoCollection';
 import { getUserInfo } from '@/views/baseInsurance/templates/utils';
 

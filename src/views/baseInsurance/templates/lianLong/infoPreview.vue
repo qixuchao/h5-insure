@@ -309,7 +309,6 @@ watch(
   () => {
     if (agree.value) {
       if (!hasReadFile.value) {
-        agree.value = false;
         Toast('请您确认已阅读并同意以上内容');
       }
     }

@@ -44,8 +44,6 @@ export const filterCustomerOption = (customer: CustomerDetail, options) => {
  * @returns 客户信息转到投被保险人要素后的personVO
  */
 export const transformCustomerToPerson = (value, keys: string[]) => {
-  console.log('transformCustomerToPerson', value);
-
   const contact = value?.contactInfo;
   const mobile = contact.contactNo || '';
   const certInfo = value?.certInfo || {};
@@ -78,7 +76,11 @@ export const transformCustomerToPerson = (value, keys: string[]) => {
     }
     return result;
   }, {});
-  console.log('extractedObject===', extractedObject);
+
+  if (!keys?.length) {
+    return newValue;
+  }
+
   return extractedObject;
 };
 

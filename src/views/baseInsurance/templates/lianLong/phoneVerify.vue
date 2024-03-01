@@ -102,6 +102,7 @@ const orderDetail = useOrder();
 const route = useRoute();
 const router = useRouter();
 const { agentCode, tenantId, nextPageCode, biz_id, orderNo, objectType, orderCode } = route.query as QueryData;
+
 const formData = ref({
   mobile: '',
   verifyCode: '',
