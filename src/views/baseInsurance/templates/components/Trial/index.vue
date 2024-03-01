@@ -66,7 +66,7 @@
                 :trial-result="premiumMap?.[productCode]?.[index]?.initialAmount"
                 @trial-change="(data, changeData) => handleTrialInfoChange(data, changeData, productCode)"
               ></InsureInfos>
-              <div class="premium-item">
+              <div v-if="risk.riskDetailResVO?.riskCalcMethodInfoVO?.saleMethod === 1" class="premium-item">
                 <span class="label">首年保费</span>
                 <span class="price">{{ transformToMoney(premiumMap?.[productCode]?.[index]?.initialPremium) }}</span>
               </div>
