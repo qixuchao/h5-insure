@@ -342,8 +342,11 @@ const getDefaultData = async () => {
 
   if (code === '10000') {
     // 获取客户详情
-    const customerInfo = transformCustomerToPerson(getCusomterData(), []);
-    Object.assign(defaultOrderDetail.value, data, { insuredList: [{ ...data.insuredList?.[0], ...customerInfo }] });
+    const customerInfo = getCusomterData();
+    const personalInfo = customerInfo ? transformCustomerToPerson(customerInfo, []) : {};
+    Object.assign(defaultOrderDetail.value, data, {
+      insuredList: [{ ...data.insuredList?.[0], ...personalInfo }],
+    });
     const productRiskMap = pickProductRiskCodeFromOrder(data.insuredList?.[0]?.productList);
     queryMaterial(productRiskMap);
   }
@@ -363,6 +366,7 @@ const onNext = async () => {
     }
     return res;
   }, orderDetailCopy.holder);
+  console.log('orderDetailCopy', orderDetailCopy, defaultOrderDetail.value);
   const { code, data } = await saveOrder(orderDetailCopy);
   if (code === '10000') {
     clearCustomData();
