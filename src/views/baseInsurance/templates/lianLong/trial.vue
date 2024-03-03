@@ -86,6 +86,7 @@ const orderDetail = useOrder({
 
 // 获取客户详情
 const customerInfo = getCusomterData();
+const customerData = ref();
 
 const defaultData = ref();
 const productFactor = ref();
@@ -104,9 +105,10 @@ const getMergeProductDetail = () => {
 
       // 如果有客户信息,则需要将客户信息回显
       if (customerInfo) {
-        const insuredKeys = currentProductFactor?.[2].map((factor) => factor.code);
+        const insuredKeys = (currentProductFactor?.[2] || []).map((factor) => factor.code);
         const insured = transformCustomerToPerson(customerInfo, insuredKeys);
-        defaultData.value = Object.assign(orderDetail.value, { insuredList: insured });
+        customerData.value = cloneDeep(insured);
+        defaultData.value = Object.assign(orderDetail.value, { insuredList: [insured] });
       }
 
       const currentProductCollection = {};
@@ -261,6 +263,9 @@ const nextStep = () => {
 
     if (!orderNo) {
       Object.keys(orderDetailCopy.insuredList?.[0]).reduce((res, key) => {
+        if (!orderDetailCopy.insuredList?.[0]?.[key] && customerData.value?.[key]) {
+          orderDetailCopy.insuredList[0][key] = customerData.value?.[key];
+        }
         if (!excludeCodeList.includes(key) && orderDetailCopy.insuredList?.[0]?.[key]) {
           res[key] = orderDetailCopy.insuredList?.[0]?.[key];
         }
@@ -305,6 +310,7 @@ const getProductDetail = () => {
       if (customerInfo) {
         const insuredKeys = productFactor.value?.[2].map((factor) => factor.code);
         const insured = [transformCustomerToPerson(customerInfo, insuredKeys)];
+        customerData.value = cloneDeep(insured[0]);
         defaultData.value = Object.assign(orderDetail.value, { insuredList: insured });
       }
     }
@@ -328,3 +334,4 @@ onMounted(() => {
   }, 1500);
 });
 </script>
+import { log } from 'console';, cloneDeep

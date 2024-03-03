@@ -133,7 +133,7 @@ watch(
   (val) => {
     if (val) {
       setCertDefaultValue(props.schema, props.modelValue, () => {
-        state.personVO.certType = '1';
+        state.personVO.certType = props.modelValue.certType || '1';
       });
       Object.assign(state.schema, cloneDeep(props.schema));
     }
@@ -150,7 +150,7 @@ watch(
     if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
       Object.assign(state.personVO, val);
       setCertDefaultValue(props.schema, props.modelValue, () => {
-        Object.assign(state.personVO, { certType: '1' });
+        Object.assign(state.personVO, { certType: state.personVO.certType || '1' });
       });
     }
   },
@@ -163,7 +163,7 @@ watch(
 watch(
   () => cloneDeep(state.personVO),
   (val, oldVal) => {
-    if (val) {
+    if (val !== oldVal) {
       if (isSameHolder() && !props.isView) {
         Toast('录入的受益人同投保人基本信息，请勾选“同投保人');
       }
@@ -252,6 +252,7 @@ watch(
       },
     };
     // 受益人与被保险人关系切换
+    console.log('relationToInsured', oldVal, val !== oldVal);
     if (!props.isView && val !== oldVal && oldVal) {
       // 投被保险人为丈夫或者妻子时默认被保险人的性别 2: 丈夫，3:妻子
 

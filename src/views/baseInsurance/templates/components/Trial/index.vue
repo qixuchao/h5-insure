@@ -91,8 +91,7 @@
 <script lang="ts" setup name="TrialBodyLian">
 import { withDefaults, ref, defineExpose } from 'vue';
 import { Toast, Dialog } from 'vant/es';
-import debounce from 'lodash-es/debounce';
-import cloneDeep from 'lodash-es/cloneDeep';
+import { debounce, cloneDeep, merge } from 'lodash-es';
 import { useRouter, useRoute } from 'vue-router';
 import InsureInfos from '@/views/baseInsurance/templates/components/Trial/InsureInfos.vue';
 import PersonalInfo from '@/views/baseInsurance/templates/components/Trial/components/PersonalInfo/index.vue';
@@ -138,6 +137,7 @@ interface Props {
   productRiskCodeMap: object;
   updateRiskCode?: string;
   pageLoading?: boolean;
+  showPersonInfo?: boolean;
 }
 
 const LOADING_TEXT = '试算中...';
@@ -189,6 +189,7 @@ const props = withDefaults(defineProps<Props>(), {
   productFactor: () => ({}),
   productRiskCodeMap: () => ({}),
   updateRiskCode: '',
+  showPersonInfo: false,
 });
 
 const state = reactive({
@@ -362,15 +363,17 @@ const getProductDefaultValue = async (productCodeList: Array<string>) => {
   const { code, data } = await queryCalcDefaultInsureFactor({
     calcProductFactorList: productCodeList.map((productCode) => ({ productCode })),
     holderVO: state.userData.holder,
-    insuredVOList: state.userData.insuredList,
+    insuredVOList: props.showPersonInfo ? props.defaultData.insuredList : state.userData.insuredList,
   });
 
   if (code === '10000') {
     const { holder, insuredList } = data;
     const defaultData = {
       ...data,
-      holder: resetObjectValues(holder),
-      insuredList: insuredList.map((insured) => ({ ...resetObjectValues(insured), productList: insured.productList })),
+      holder: props.showPersonInfo ? holder : resetObjectValues(holder),
+      insuredList: props.showPersonInfo
+        ? [{ ...props.defaultData?.insuredList?.[0], ...insuredList[0] }]
+        : insuredList.map((insured) => ({ ...resetObjectValues(insured), productList: insured.productList })),
     };
     state.defaultValue.insuredList[0].productList = insuredList[0].productList;
     Object.assign(state.userData, defaultData);
@@ -971,19 +974,22 @@ const transformDefaultData = (defaultData: any) => {
   // handleTrialAndBenefit(defaultData, true);
 };
 
-const fetchDefaultDataFromServer = async () => {
+const fetchDefaultDataFromServer = async (params) => {
   const result = await queryCalcDefaultInsureFactor({
     calcProductFactorList: [
       {
         productCode: Object.keys(props.productCollection)?.[0],
       },
     ],
+    ...params,
   });
   if (result.data) {
     const { holder, insuredList } = result.data;
     const defaultData = {
-      holder: resetObjectValues(holder),
-      insuredList: insuredList.map((insured) => ({ ...resetObjectValues(insured), productList: insured.productList })),
+      holder: props.showPersonInfo ? holder : resetObjectValues(holder),
+      insuredList: props.showPersonInfo
+        ? [merge(params.insuredVOList[0], insuredList[0], { certType: null })]
+        : insuredList.map((insured) => ({ ...resetObjectValues(insured), productList: insured.productList })),
     };
     transformDefaultData(defaultData);
     handlePersonInfo(defaultData);
@@ -992,9 +998,9 @@ const fetchDefaultDataFromServer = async () => {
 const fetchDefaultData = async (changes: []) => {
   // 主要用于mount打开的时候调用。 切换计划书需要另外写一套，以防信息采集页逻辑错误
   // TODO 加loading
-  if (!props.defaultData) {
+  if (!props.defaultData || (props.defaultData && props.showPersonInfo)) {
     hasDefault.value.push(currentPlan.value.planCode);
-    await fetchDefaultDataFromServer();
+    await fetchDefaultDataFromServer({ insuredVOList: props.defaultData?.insuredList || [] });
   } else {
     transformDefaultData(props.defaultData);
     handlePersonInfo(props.defaultData);
@@ -1113,7 +1119,7 @@ watch(
 watch(
   () => props.defaultData,
   (value, oldValue) => {
-    if (JSON.stringify(cloneDeep(value)) !== JSON.stringify(cloneDeep(oldValue))) {
+    if (JSON.stringify(cloneDeep(value)) !== JSON.stringify(cloneDeep(oldValue)) && !props.showPersonInfo) {
       state.defaultValue = value;
       state.userData = value || {};
       value && (orderDetail.value = value || {});

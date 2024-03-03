@@ -786,13 +786,24 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
   if (!isNotEmptyArray(calcProductFactorList)) {
     return;
   }
+
+  const customerInfo = getCusomterData();
+  let currentInsuredList = [
+    (stateInfo.insurerList[stateInfo.currentSelectInsure] &&
+      stateInfo.insurerList[stateInfo.currentSelectInsure].personVO) ||
+      {},
+  ];
+  if (customerInfo) {
+    const insured = transformCustomerToPerson(customerInfo, [...trialFieldkeys, 'name']);
+    currentInsuredList = [insured];
+    clearCustomData();
+  }
+
   // TODO 加loading
   const { code, data } = await queryCalcDefaultInsureFactor(
     {
       calcProductFactorList,
-      ...((stateInfo.insurerList[stateInfo.currentSelectInsure] &&
-        stateInfo.insurerList[stateInfo.currentSelectInsure].personVO) ||
-        {}),
+      insuredVOList: currentInsuredList,
     },
     {
       // 第一次弹窗提示错误信息
@@ -809,19 +820,12 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
         ...rest,
         riskList,
       };
-
-      const customerInfo = getCusomterData();
-      if (customerInfo) {
-        const insured = transformCustomerToPerson(customerInfo, [...trialFieldkeys, 'name']);
-        Object.assign(personVO, insured);
-        clearCustomData();
-      }
-
       // 初次调用
       if (flag) {
         if (stateInfo.insurerList[stateInfo.currentSelectInsure]) {
           Object.assign(stateInfo.insurerList[stateInfo.currentSelectInsure].personVO, personVO, {
             relationToHolder: 1,
+            name: personVO.name || currentInsuredList?.[0]?.name,
           });
         }
         Object.assign(stateInfo.holder, holder, { hasSocialInsurance: holder.hasSocialInsurance || '1' });
@@ -847,7 +851,7 @@ const fetchDefaultData = async (calcProductFactorList: { prodcutCode: string }[]
             productList: products.map((pro) => {
               return { ...pro };
             }),
-            personVO: p,
+            personVO: { ...p, name: personVO.name || currentInsuredList?.[0]?.name },
           });
         }
       });
@@ -1464,3 +1468,4 @@ onBeforeMount(() => {
   }
 }
 </style>
+import { log } from 'console';

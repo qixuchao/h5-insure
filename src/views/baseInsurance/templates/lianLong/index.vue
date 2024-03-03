@@ -216,9 +216,6 @@ const guaranteeObj = ref<any>({});
 const previewMode = computed(() => !!preview || !!trialPreview);
 const trialPreviewMode = computed(() => !!trialPreview);
 const trialRef = ref();
-const showTrial = () => {
-  pageJump('premiumTrial', route.query);
-}; // 展示试算
 
 // 初始化数据，获取产品配置详情和产品详情
 const defaultOrderDetail = useOrder();
@@ -331,6 +328,15 @@ const queryMaterial = (productRiskMap) => {
   });
 };
 
+const customerInfo = getCusomterData();
+
+const showTrial = () => {
+  if (customerInfo) {
+    route.query.showPersonInfo = 1;
+  }
+  pageJump('premiumTrial', route.query);
+}; // 展示试算
+
 const getDefaultData = async () => {
   const { code, data } = await queryCalcDefaultInsureFactor({
     calcProductFactorList: [
@@ -342,7 +348,6 @@ const getDefaultData = async () => {
 
   if (code === '10000') {
     // 获取客户详情
-    const customerInfo = getCusomterData();
     const personalInfo = customerInfo ? transformCustomerToPerson(customerInfo, []) : {};
     Object.assign(defaultOrderDetail.value, data, {
       insuredList: [{ ...data.insuredList?.[0], ...personalInfo }],
@@ -366,7 +371,7 @@ const onNext = async () => {
     }
     return res;
   }, orderDetailCopy.holder);
-  console.log('orderDetailCopy', orderDetailCopy, defaultOrderDetail.value);
+
   const { code, data } = await saveOrder(orderDetailCopy);
   if (code === '10000') {
     clearCustomData();

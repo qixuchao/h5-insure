@@ -41,6 +41,7 @@ const { tenantId, orderNo, biz_id } = route.query;
 const { filedAttrs, filedSlots, attrs, slots } = toRefs(useAttrsAndSlots());
 
 const { formState, extraProvision } = inject(VAN_PRO_FORM_KEY) || {};
+const cacheData = inject('handleCache');
 
 interface ColumnsFieldNames {
   text: string;
@@ -140,6 +141,7 @@ const goFaceVerify = () => {
     certiNo,
     certType,
   };
+  cacheData(false);
   faceVerify(params).then(({ code, data }) => {
     if (code === '10000') {
       window.location.href = data.originalUrl;
@@ -215,9 +217,9 @@ const fieldValueView = computed(() => {
   if (isNotEmptyArray(state.columns)) {
     const currentItem = state.columns.find((item) => String(item.value) === String(state.fieldValue)) || {};
 
-    return currentItem?.label || state.fieldValue;
+    return currentItem?.label || state.fieldValue || '去认证';
   }
-  return state.fieldValue;
+  return state.fieldValue || '去认证';
 });
 
 watch(
@@ -233,8 +235,8 @@ watch(
 
 onBeforeMount(() => {
   const bizId = sessionStore.get(`${LIAN_STORAGE_KEY}_bizId`);
-  const paceInfo = sessionStore.get(`${LIAN_STORAGE_KEY}_faceInfo`);
-  const { userInfo, scrollTop } = paceInfo || {};
+  const pageInfo = sessionStore.get(`${LIAN_STORAGE_KEY}_faceInfo`);
+  const { userInfo, scrollTop } = pageInfo || {};
   if (scrollTop) {
     document.documentElement.scrollTo(0, scrollTop);
     document.body.scrollTop = scrollTop; // 兼容微信滚动
@@ -271,3 +273,4 @@ export default {
   }
 }
 </style>
+import { userInfo } from 'os';

@@ -100,7 +100,7 @@
 <script lang="ts" setup name="InfoCollection">
 import { useRoute } from 'vue-router';
 import { Toast, Dialog } from 'vant';
-import { cloneDeep, findIndex, findLastIndex, isEqual } from 'lodash-es';
+import { cloneDeep, findIndex, findLastIndex, isEqual, merge } from 'lodash-es';
 import {
   ProRenderFormWithCard,
   PayInfo,
@@ -660,7 +660,7 @@ const updateUserData = (val) => {
 };
 
 const cacheData = ref();
-const handleCache = () => {
+const handleCache = (showToast = true) => {
   Object.assign(orderDetail.value, {
     extInfo: {
       ...orderDetail.value.extInfo,
@@ -671,14 +671,16 @@ const handleCache = () => {
 
   const userData = personalInfoRef.value?.dealMixData?.();
 
-  const currentOrderDetail = trialData2Order(userData, trialResult.value, orderDetail.value);
+  const currentOrderDetail = { ...orderDetail.value, ...userData };
   currentOrderDetail.orderStatus = 'collectInfo';
   saveOrder(currentOrderDetail).then(({ code, data }) => {
     if (code === '10000') {
-      Toast('暂存成功');
+      showToast && Toast('暂存成功');
     }
   });
 };
+
+provide('handleCache', handleCache);
 
 // 分享时需要校验投保人手机号并且保存数据
 const onShare = (cb) => {

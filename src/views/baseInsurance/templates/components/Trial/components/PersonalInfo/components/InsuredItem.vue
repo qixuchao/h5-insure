@@ -244,13 +244,15 @@ const state = reactive<Partial<StateInfo>>({
 const isSameHolder = ref<boolean>(false);
 
 // 被保险人同投保人关系非父母时，被保险人年龄小于18岁则需要监护人信息
+const isClearGuardianData = ref(false);
 const isShowGuardian = computed<boolean>(() => {
   const { age, relationToHolder } = state.personVO;
   if (relationToHolder && !['1', '4', '5'].includes(`${relationToHolder}`) && age !== null && +age < 18) {
+    isClearGuardianData.value = true;
     return true;
   }
 
-  if (!(relationToHolder && ['4', '5'].includes(`${relationToHolder}`) && age !== null && +age < 16)) {
+  if (isClearGuardianData.value) {
     state.guardian = {
       personVO: {},
       config: {},
@@ -261,16 +263,20 @@ const isShowGuardian = computed<boolean>(() => {
 });
 
 // 如果投被保人关系是父母，且被保人小于16岁则需要上传关系证明资料
+const isClearGuardianMaterial = ref(false);
 const isShowGuardianMaterial = computed<boolean>(() => {
   const { age, relationToHolder } = state.personVO;
   if (relationToHolder && ['4', '5'].includes(`${relationToHolder}`) && age !== null && +age < 16) {
+    isClearGuardianMaterial.value = true;
     return true;
   }
 
-  state.guardian = {
-    personVO: {},
-    config: {},
-  };
+  if (isClearGuardianMaterial.value) {
+    state.guardian = {
+      personVO: {},
+      config: {},
+    };
+  }
 
   return false;
 });
@@ -550,6 +556,9 @@ watch(
   () => props.guardianSchema,
   (value) => {
     state.guardianSchema = value;
+    setCertDefaultValue(props.guardianSchema, props.guardian?.personVO, () => {
+      state.guardian.personVO.certType = state.personVO.certType || '1';
+    });
   },
   {
     deep: true,
@@ -899,6 +908,9 @@ watch(
   (value, oldValue) => {
     if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
       Object.assign(state.guardian.personVO, value);
+      setCertDefaultValue(props.guardianSchema, props.guardian?.personVO, () => {
+        state.guardian.personVO.certType = state.personVO.certType || '1';
+      });
     }
   },
   {
