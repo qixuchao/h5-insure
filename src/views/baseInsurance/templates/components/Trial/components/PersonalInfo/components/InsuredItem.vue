@@ -103,7 +103,7 @@
           ></slot>
         </template>
         <template #header-item>
-          <ProFieldV2 v-if="!isSameHolder && !isView" label="是否同投保人" input-align="right">
+          <ProFieldV2 v-if="!isSameHolder && !isView && beneficiary.personVO" label="是否同投保人" input-align="right">
             <template #input>
               <van-switch
                 v-model="beneficiary.personVO.isHolder"
@@ -188,7 +188,9 @@ const initBeneficiaryItem = {
   config: {
     occupationCode: { isView: true },
   },
-  personVO: {},
+  personVO: {
+    isHolder: 2,
+  },
 };
 
 const props = withDefaults(defineProps<InsuredProps>(), {
@@ -480,7 +482,7 @@ watch(
       isSameHolder.value = true;
 
       state.beneficiaryList = state.beneficiaryList.map((beneficiaryItem, ind) => {
-        if (`${beneficiaryItem.personVO.isHolder}` === `${YES_NO_ENUM.YES}`) {
+        if (`${beneficiaryItem.personVO?.isHolder}` === `${YES_NO_ENUM.YES}`) {
           return {
             ...beneficiaryItem,
             personVO: { ...disHolderData(state.beneficiaryList?.[ind]?.personVO), isHolder: 2 },

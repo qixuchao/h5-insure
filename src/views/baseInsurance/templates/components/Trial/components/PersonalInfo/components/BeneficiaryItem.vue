@@ -99,7 +99,7 @@ const validate = (isTrial) => {
 // 如果受益人的信息与投保人的五要素有两个以上相同的信息，提示
 const isSameHolder = () => {
   // 如果已经是同投保人了，则不需要再去提示
-  if (`${state.personVO.isHolder}` === `${YES_NO_ENUM.YES}`) {
+  if (`${state.personVO?.isHolder}` === `${YES_NO_ENUM.YES}`) {
     return false;
   }
   const collection =
@@ -160,10 +160,57 @@ watch(
   },
 );
 
+const toggleRelation = (value, oldVal) => {
+  const val = value?.relationToInsured;
+  if (value === oldVal?.relationToInsured) {
+    return value;
+  }
+  colorConsole(`受益人与被保险人关系变动了`);
+
+  const { certType } = state.personVO || {};
+  // 证件类型是否只有身份证, 与被保险人关系变动
+  const [isOnlyCertFlag, tempConfig] = getCertConfig(state.schema, { certType, relationToHolder: val });
+  const genderConfig = {
+    gender: {
+      ...tempConfig.gender,
+      isView: props.isView,
+    },
+  };
+  // 受益人与被保险人关系切换
+  if (!props.isView && val !== oldVal && oldVal) {
+    // 投被保险人为丈夫或者妻子时默认被保险人的性别 2: 丈夫，3:妻子
+
+    let currentGender = null;
+    if (`${val}` === '3') {
+      genderConfig.gender.isView = true;
+
+      currentGender = SEX_LIMIT_ENUM.FEMALE;
+    }
+
+    if (`${val}` === '2') {
+      genderConfig.gender.isView = true;
+
+      currentGender = SEX_LIMIT_ENUM.MALE;
+    }
+    merge(state.config, tempConfig, genderConfig);
+
+    return {
+      ...state.personVO,
+      ...{
+        ...resetObjectValues(state.personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
+        gender: currentGender,
+        relationToInsured: val,
+      },
+    };
+  }
+  return value;
+};
+
 watch(
   () => cloneDeep(state.personVO),
   (val, oldVal) => {
-    if (val !== oldVal) {
+    if (!isEqual(val, oldVal)) {
+      const changeVal = toggleRelation(val, oldVal?.relationToInsured) || val;
       if (isSameHolder() && !props.isView) {
         Toast('录入的受益人同投保人基本信息，请勾选“同投保人');
       }
@@ -197,7 +244,7 @@ watch(
         }
       }
 
-      emit('update:modelValue', val);
+      emit('update:modelValue', changeVal);
     }
   },
   {
@@ -233,60 +280,6 @@ watch(
   },
 );
 
-// 监听与被保险人关系
-watch(
-  () => state.personVO?.relationToInsured,
-  (val, oldVal) => {
-    if (val === oldVal) {
-      return false;
-    }
-    colorConsole(`受益人与被保险人关系变动了`);
-
-    const { certType } = state.personVO || {};
-    // 证件类型是否只有身份证, 与被保险人关系变动
-    const [isOnlyCertFlag, tempConfig] = getCertConfig(state.schema, { certType, relationToHolder: val });
-    const genderConfig = {
-      gender: {
-        ...tempConfig.gender,
-        isView: props.isView,
-      },
-    };
-    // 受益人与被保险人关系切换
-    console.log('relationToInsured', oldVal, val !== oldVal);
-    if (!props.isView && val !== oldVal && oldVal) {
-      // 投被保险人为丈夫或者妻子时默认被保险人的性别 2: 丈夫，3:妻子
-
-      let currentGender = null;
-      if (`${val}` === '3') {
-        genderConfig.gender.isView = true;
-
-        currentGender = SEX_LIMIT_ENUM.FEMALE;
-      }
-
-      if (`${val}` === '2') {
-        genderConfig.gender.isView = true;
-
-        currentGender = SEX_LIMIT_ENUM.MALE;
-      }
-
-      // 若为本人合并投保人数据
-      Object.assign(state.personVO, {
-        // 若只有证件类型为身份证，不清除值
-        ...resetObjectValues(state.personVO, (key) => !(isOnlyCertFlag && key === 'certType')),
-        gender: currentGender,
-        relationToInsured: val,
-      });
-    }
-
-    merge(state.config, tempConfig, genderConfig);
-
-    return false;
-  },
-  {
-    immediate: true,
-  },
-);
-
 // 监听投保人国籍
 watch(
   () => state.personVO?.nationalityCode,
@@ -318,3 +311,4 @@ defineExpose({
   }
 }
 </style>
+, isEqual

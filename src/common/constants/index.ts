@@ -85,6 +85,8 @@ export const CERT_TYPE_ENUM = {
   TEMPORARY_CARD: '30',
   /** 临时身份证 */
   ICARD: '30',
+  /** 警官证 */
+  POLICE: '28',
 };
 
 export const FLAG_LIST = [

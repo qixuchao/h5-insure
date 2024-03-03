@@ -105,9 +105,11 @@ export const RegMap = {
   /** 密码 */
   isPassword: (val: any) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,20}$/.test(val),
   /** 护照 */
-  isPassportType: (val: any) => /^[A-Z]{1,2}\d{6,8}$/.test(val),
+  isPassportType: (val: any) => /^[a-zA-Z]{5,17}$ | [a-zA-Z0-9]{5,17}$/.test(val),
   /** 军官证 */
-  isMilitaryCard: (val: string) => /^[\u4E00-\u9FA5](字第)([0-9a-zA-Z]{4,8})(号?)$/.test(val),
+  isMilitaryCard: (val: string) => /^[0-9]{8}$/.test(val),
+  /** 警官证 */
+  isPoliceCard: (val: string) => /^[0-9]{6}$/.test(val),
   /** 士兵证 */
   isSolider: (val: string) => /^[\u4E00-\u9FA5](字第)([0-9a-zA-Z]{4,8})(号?)$/.test(val),
   /** 大陆居民往来港澳通行证 */
@@ -174,6 +176,8 @@ export const validatorMap = {
   [RULE_TYPE_ENUM.PASSPORT]: [RegMap.isPassportType],
   /** 军官证 */
   [RULE_TYPE_ENUM.MILITARY_CARD]: [RegMap.isMilitaryCard],
+  /** 警官证 */
+  [RULE_TYPE_ENUM.POLICE]: [RegMap.isPoliceCard],
   /** 士兵证 */
   [RULE_TYPE_ENUM.SOLIDER]: [RegMap.isSolider],
   /** 大陆居民往来港澳通行证 */
