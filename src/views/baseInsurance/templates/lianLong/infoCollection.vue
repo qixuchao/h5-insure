@@ -671,7 +671,13 @@ const handleCache = (showToast = true) => {
 
   const userData = personalInfoRef.value?.dealMixData?.();
 
-  const currentOrderDetail = { ...orderDetail.value, ...userData };
+  const currentOrderDetail = trialData2Order(
+    { ...userData, productCode, productName: insureProductDetail.value.productName },
+    trialResult.value,
+    orderDetail.value,
+  );
+
+  // console.log('currentOrderDetail', currentOrderDetail);
   currentOrderDetail.orderStatus = 'collectInfo';
   saveOrder(currentOrderDetail).then(({ code, data }) => {
     if (code === '10000') {

@@ -251,7 +251,7 @@ export const proposalToTrial = async (
 };
 
 export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
-  const nextStepParams: any = { ...currentOrderDetail, trialData };
+  const nextStepParams: any = merge(currentOrderDetail, trialData);
   const { insuredPremiumList = [], initialAmount, initialPremium = 0 } = riskPremium || {};
 
   nextStepParams.premium = initialPremium;
