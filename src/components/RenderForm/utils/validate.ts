@@ -101,13 +101,13 @@ export const RegMap = {
   isHouseHold: (val: string) => validateIdCardNo(val),
   // isHouseHold: (val: string) => /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(val),
   /** 出生证 */
-  isBirthType: (val: any) => /^[a-zA-Z]\d{9}$/.test(val),
+  isBirthType: (val: any) => /^[A-Z]\d{9}$/.test(val),
   /** 密码 */
   isPassword: (val: any) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,20}$/.test(val),
   /** 护照 */
-  isPassportType: (val: any) => /^[a-zA-Z]{5,17}$ | [a-zA-Z0-9]{5,17}$/.test(val),
+  isPassportType: (val: any) => /^[a-zA-Z]{6zh'g,17}$ | [a-zA-Z0-9]{5,17}$/.test(val),
   /** 军官证 */
-  isMilitaryCard: (val: string) => /^[0-9]{8}$/.test(val),
+  isMilitaryCard: (val: string) => /^[0-9]{10,}$/.test(val),
   /** 警官证 */
   isPoliceCard: (val: string) => /^[0-9]{6}$/.test(val),
   /** 士兵证 */

@@ -159,6 +159,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
 import { useToggle } from '@vant/use';
+import qs from 'qs';
 import { nextStepOperate as nextStep } from '../../nextStep';
 import { ProFieldV2, ProSMSCode, ProRenderForm } from '@/components/RenderForm/components';
 import { checkSMSCode, sendSMSCode } from '@/components/RenderForm/utils/constants';
@@ -303,11 +304,17 @@ const handleShare = (type) => {
     tenantId,
   });
 
+  const params = {
+    ...route.query,
+    objectType: type,
+    nextPageCode: 'infoPreview',
+  };
+
   const shareParams = {
     shareType: 0,
     title: `${NOTICE_TYPE_MAP[type.toLocaleUpperCase()]}${SHARE_CONTENT.sign.title}`,
     desc: SHARE_CONTENT.sign.desc.replace('{name}', `${userInfo.name || ''}${userInfo.gender || ''}`),
-    url: `${window.location.href}&objectType=${type}&nextPageCode=infoPreview`.replace('/verify', '/phoneVerify'),
+    url: `${window.location.href.split('?')?.[0]}?${qs.stringify(params)}`.replace('/verify', '/phoneVerify'),
     imageUrl:
       'https://zatech-aquarius-v2-private-test.oss-cn-hangzhou.aliyuncs.com/lian_logo.png?OSSAccessKeyId=LTAI5t9uBW78vZ4sm5i3oQ5C&Expires=1697288114&Signature=S87PMeDRxltLovmmHVTeiHoew1c%3D',
   };
@@ -694,3 +701,4 @@ onMounted(() => {
   }
 }
 </style>
+import { split } from 'lodash';import { stringify } from 'querystring';

@@ -131,7 +131,16 @@ const personType = computed(() => {
   return `${objectType}`.toLocaleUpperCase();
 });
 
-setPageTitle(`${NOTICE_TYPE_MAP[personType.value]}签名`);
+const pageTitle = {
+  updateBankInfo: '支付信息修改',
+  orderDetail: '撤销投保',
+  holderSign: '投保人签名',
+  insuredSign: '被保险人签名',
+};
+
+console.log('pageTitle', nextPageCode, pageTitle[nextPageCode]);
+
+setPageTitle(pageTitle[nextPageCode]);
 
 const getFaceVerifyResult = () => {
   const { objectId, certType } = userInfo.value;

@@ -5,6 +5,7 @@
     :model="state.modelValue"
     :config="state.config"
     title="保单信息"
+    class="policy-info"
     :is-view="isView"
   />
 </template>
@@ -110,3 +111,15 @@ defineExpose({
   validate,
 });
 </script>
+
+<style lang="scss">
+.policy-info {
+  :deep(.com-card-wrap) {
+    .com-van-radio-wrap {
+      .com-check-btn {
+        background-color: #f6f7fc;
+      }
+    }
+  }
+}
+</style>

@@ -19,6 +19,23 @@ import { initNative } from '@/utils/native';
 import { isTestEnv, isDebugger } from './utils';
 import '@/styles/zaToken.scss';
 import '@/styles/index.scss';
+import { addMetaForShare } from '@/utils/dom';
+import { SHARE_CONTENT } from '@/common/constants/lian';
+
+const setShareDesc = () => {
+  const pathnameList = window.location.pathname.split('/');
+  const pathname = pathnameList[pathnameList.length - 1];
+  let content = SHARE_CONTENT.sign.desc;
+  if (['order', 'orderDetail'].includes(pathname)) {
+    content = SHARE_CONTENT.pay.desc;
+  } else if (pathname === 'proposal') {
+    content = SHARE_CONTENT.proposal.desc;
+  }
+
+  addMetaForShare(content);
+};
+
+setShareDesc();
 
 const start = async () => {
   // import('../skeleton/client/index').then(({ initInject }) => {

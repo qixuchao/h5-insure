@@ -92,14 +92,15 @@ const currentNode = computed(() => {
 });
 
 onMounted(() => {
-  getTemplateInfo({ templateId, orderNo, tenantId }).then((res) => {
-    const { code, data } = res;
-    if (code === '10000' && data) {
-      const pageCodeList = data.templatePageList.map((item) => item.pageCode);
-      storage.set('TEMPLATE_LIST', pageCodeList);
-      list.value = (data.templatePageList || []).filter((item) => item.pageCode !== 'trial');
-    }
-  });
+  templateId &&
+    getTemplateInfo({ templateId, orderNo, tenantId }).then((res) => {
+      const { code, data } = res;
+      if (code === '10000' && data) {
+        const pageCodeList = data.templatePageList.map((item) => item.pageCode);
+        storage.set('TEMPLATE_LIST', pageCodeList);
+        list.value = (data.templatePageList || []).filter((item) => item.pageCode !== 'trial');
+      }
+    });
 });
 
 const show = computed(() => {

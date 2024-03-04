@@ -233,6 +233,21 @@ defineExpose({
 <style scoped lang="scss">
 .com-question {
   margin-bottom: 20px;
+  > .question-desc {
+    :deep(p) {
+      display: inline;
+    }
+    &::before {
+      content: ' ';
+      display: inline-block;
+      width: 7px;
+      height: 28px;
+      background: var(--van-primary-color);
+      margin-right: 16px;
+      border-radius: 4px;
+      margin-top: 4px;
+    }
+  }
   // 子层的问题，不要下边线
   .child .question-card {
     border: none;
@@ -293,9 +308,10 @@ defineExpose({
   width: 100%;
 }
 .question-desc {
-  font-size: 26px;
-  padding: 16px 32px;
-  background-color: #fafafa;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 40px;
+  padding: 20px 20px 20px 28px;
 }
 :deep(.radio-btn) {
   justify-content: flex-start;
@@ -312,8 +328,20 @@ defineExpose({
 }
 // }
 .question-muti-blank {
-  padding: 16px 32px;
-  background-color: #ffffff;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 46px;
+  padding: 20px 20px 20px 28px;
+  &::before {
+    content: ' ';
+    display: inline-block;
+    width: 7px;
+    height: 28px;
+    background: var(--van-primary-color);
+    margin-right: 16px;
+    border-radius: 4px;
+    vertical-align: sub;
+  }
   .literal {
     height: 56px;
     display: inline-block;
@@ -375,3 +403,4 @@ defineExpose({
   }
 }
 </style>
+import { display } from 'html2canvas/dist/types/css/property-descriptors/display';

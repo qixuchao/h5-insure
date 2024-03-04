@@ -1,7 +1,7 @@
 <template>
   <div v-if="showTypes === 1">
     <!-- 步进值 -->
-    <ProField :label="`基本${methodName.label}`" :name="methodName.key" class="risk-select-field">
+    <ProField :label="`${methodName.label}`" :name="methodName.key" class="risk-select-field">
       <template #input>
         <div class="custom-field">
           <VanStepper
@@ -20,7 +20,7 @@
   <div v-else-if="showTypes === 2" class="flex-field">
     <ProField
       v-model="mValues[methodName.key]"
-      :label="`基本${methodName.label}`"
+      :label="`${methodName.label}`"
       :name="methodName.key"
       class="risk-select-field"
     >
@@ -39,7 +39,7 @@
     <!-- 枚举 份数 -->
     <ProField
       v-model="mValues[methodName.key]"
-      :label="`基本${methodName.label}`"
+      :label="`${methodName.label}`"
       :name="methodName.key"
       class="risk-select-field"
     >
@@ -106,7 +106,7 @@
   <div v-if="mConfigs.saleMethod === 2 && trialResult > 0">
     <ProField :label="`基本保险金额`" class="risk-select-field">
       <template #input>
-        <span>{{ trialResult }}</span>
+        <span>{{ trialResult + getUnitString() }}</span>
       </template>
     </ProField>
   </div>

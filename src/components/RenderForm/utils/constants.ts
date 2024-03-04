@@ -533,9 +533,9 @@ export const GLOBAL_CONFIG_MAP = {
   },
   certNo: {
     relatedName: 'certType',
-    maxlength: INPUT_MAX_LENGTH.EIGHTEEN,
+    maxlength: INPUT_MAX_LENGTH.TWENTY,
     isUpperValue: true,
-    formatter: (val) => (val ? val.toUpperCase() : val),
+    formatter: (val) => (val ? val.toUpperCase().trim() : val),
   },
   certType: {
     relatedName: 'certNo',
@@ -564,6 +564,18 @@ export const GLOBAL_CONFIG_MAP = {
   weight: {
     ...RULE_CONFIG_MAP.HEIGHT_WEIGHT,
     unit: 'kg',
+    maxlength: 6,
+    formatter: (val) => {
+      // 替换首位0
+      if (/^0/.test(val)) {
+        return `${val}`.replace(/^0/g, '');
+      }
+      // 小数点前录入3位，小数点后录入2位
+      if (!/^[1-9]\d{2}\.\d{2}/.test(val)) {
+        return `${val}`.replace(/^([1-9]\d{2})\d+/g, '$1');
+      }
+      return val;
+    },
   },
   email: {
     ruleType: RULE_TYPE_ENUM.EMAIL,
@@ -630,6 +642,14 @@ export const GLOBAL_CONFIG_MAP = {
   },
   /** 自保件互保件告知 */
   selfInsuranceItemFlag: {
+    isDefaultSelected: false,
+  },
+  /** 保单格式 */
+  policyReceiveType: {
+    isDefaultSelected: false,
+  },
+  /** 保证续保 */
+  bonusReceiveType: {
     isDefaultSelected: false,
   },
 };

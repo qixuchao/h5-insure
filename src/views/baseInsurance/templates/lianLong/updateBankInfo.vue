@@ -17,6 +17,7 @@
 </template>
 
 <script lang="ts" setup name="updateBankInfo">
+import qs from 'qs';
 import PayInfo from '@/components/RenderForm/PayInfo.vue';
 import useOrder from '@/hooks/useOrder';
 import { pickProductRiskCodeFromOrder } from './utils';
@@ -62,14 +63,18 @@ const handleShare = (objectType, type) => {
     };
   }
 
+  const params = {
+    ...route.query,
+    objectType,
+    isShare: 1,
+    nextPageCode: 'updateBankInfo',
+  };
+
   shareWeiXin({
     shareType: 0,
     title: `${SHARE_CONTENT[type].title}`,
     desc: SHARE_CONTENT[type].desc.replace('{name}', `${userInfo.name}${userInfo.gender}`),
-    url: `${window.location.href}&objectType=${objectType}&isShare=1&nextPageCode=updateBankInfo`.replace(
-      '/updateBankInfo',
-      '/phoneVerify',
-    ),
+    url: `${window.location.href.split('?')?.[0]}?${qs.stringify(params)}`.replace('/updateBankInfo', '/phoneVerify'),
     imageUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
   });
 };
@@ -173,3 +178,4 @@ onMounted(() => {
   overflow-y: auto;
 }
 </style>
+import { stringify } from 'querystring';
