@@ -677,7 +677,6 @@ const handleCache = (showToast = true) => {
     orderDetail.value,
   );
 
-  // console.log('currentOrderDetail', currentOrderDetail);
   currentOrderDetail.orderStatus = 'collectInfo';
   saveOrder(currentOrderDetail).then(({ code, data }) => {
     if (code === '10000') {

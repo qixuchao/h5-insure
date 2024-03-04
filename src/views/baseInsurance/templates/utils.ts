@@ -9,6 +9,7 @@ import { INSURANCE_PERIOD_ENUMS, PAYMENT_PERIOD_ENUMS, RISK_TYPE_ENUM } from '@/
 import { checkSMSCode } from '@/components/RenderForm';
 import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
 import { sessionStore } from '@/hooks/useStorage';
+import { OrderDetail } from '@/api/modules/order.data';
 
 export const orderRiskTotrial = (tenantOrderProductList: any[], insuredCode: string) => {
   const riskList = [];
@@ -251,6 +252,7 @@ export const proposalToTrial = async (
 };
 
 export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
+  const { beneficiaryList, guardian } = trialData.insuredList?.[0] || {};
   const nextStepParams: any = merge(currentOrderDetail, trialData);
   const { insuredPremiumList = [], initialAmount, initialPremium = 0 } = riskPremium || {};
 
@@ -263,6 +265,8 @@ export const trialData2Order = (trialData, riskPremium, currentOrderDetail) => {
       ...insurer,
       certType: insurer.certType || CERT_TYPE_ENUM.CERT,
       certNo: (insurer.certNo || '').toLocaleUpperCase(),
+      beneficiaryList,
+      guardian,
       productList: (insurer.productList || []).map((item, productIndex) => ({
         ...item,
         premium: insuredPremiumList?.[index]?.productPremiumList?.[productIndex]?.totalPremium,
