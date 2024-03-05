@@ -310,22 +310,10 @@ const handleReadClick = (file: FILE, i: number) => {
 /**
  * 滚动事件触底监听
  */
-const handleScroll = debounce((el: any) => {
+const handleScroll = function (el: any) {
   if (el) {
-    const scrollHeight = el.target?.scrollHeight || el.scrollHeight;
-    const scrollTop = el.target?.scrollTop || el.scrollTop;
-    const clientHeight = el.target?.clientHeight || el.clientHeight;
-    console.log(
-      'mainIndex=',
-      state.mainIndex,
-      'subIndex=',
-      state.subIndex,
-      'mainTabIndex=',
-      state.mainTabIndex,
-      'subTabIndex=',
-      state.subTabIndex,
-      Math.floor(scrollHeight - scrollTop - 15) < clientHeight && calculating,
-    );
+    const scrollEle = el.target;
+    const { scrollHeight, scrollTop, clientHeight } = scrollEle;
 
     if (Math.floor(scrollHeight - scrollTop - 15) < clientHeight && calculating) {
       // 没有读完的文件才可以跳转
@@ -338,12 +326,10 @@ const handleScroll = debounce((el: any) => {
         clearTimeout(timer);
         timer = null;
         nextFile();
-        // console.log('滑倒底部了readCount.value', state.mainIndex, 'state.subIndex', state.subIndex);
-        el.target.scrollTop = 0;
       }, 600);
     }
   }
-}, 600);
+};
 
 /**
  * 文件资源加载完毕后的回调
@@ -357,15 +343,16 @@ const load = (type: string) => {
       // console.log('我跳出页面了');
     } else if (currentTabExpandActive.value && isAgreeBtnDisabled) {
       // 折叠不进行监听 或者必读已经读完
+
       timer = setTimeout(() => {
         clearTimeout(timer);
         timer = null;
         if (previewRef.value) {
+          const handleEle = previewRef.value.querySelector('.viewerContainer');
+          handleEle.removeEventListener('scroll', handleScroll);
+
           previewRef.value.scrollTop = 0;
-          console.log('previewRef.value', previewRef.value);
-          previewRef.value.removeEventListener('scroll', handleScroll);
-          handleScroll(previewRef.value);
-          previewRef.value.addEventListener('scroll', handleScroll);
+          handleEle.addEventListener('scroll', handleScroll);
         }
       }, 200);
     }
@@ -444,6 +431,20 @@ watch(
 <style lang="scss" scoped>
 .pro-file-drawer {
   height: 1126px;
+
+  .is-read {
+    &::before {
+      content: ' ';
+      background-image: url(/src/assets/images/customer/checked.png);
+      display: inline-block;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      width: 20px;
+      height: 20px;
+      margin-right: 5px;
+    }
+  }
 
   :deep(.com-pop-body) {
     display: flex;
@@ -647,3 +648,5 @@ watch(
   }
 }
 </style>
+import { log } from 'console';import { display } from 'html2canvas/dist/types/css/property-descriptors/display';import {
+backgroundSize } from 'html2canvas/dist/types/css/property-descriptors/background-size';

@@ -278,16 +278,37 @@ const getOrderDetail = () => {
     });
 };
 
+const saveSign = (type, signData, bizObjectId?) => {
+  return new Promise((resolve, reject) => {
+    saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId)
+      .then(({ code, message }) => {
+        if (code === '10000') {
+          resolve();
+        } else {
+          reject(message);
+        }
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 const sign = (type, signData, bizObjectId?) => {
-  const promiseList = [saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId)];
+  const promiseList = [saveSign(type, signData, bizObjectId)];
   const { id } = signPartInfo.value.insured?.personalInfo?.[0] || {};
   if (isHolderSameInsured.value) {
-    promiseList.push(saveSignList('INSURED', signData, orderDetail.value?.id, tenantId, id));
+    promiseList.push(saveSign('INSURED', signData, bizObjectId));
   }
 
-  Promise.all(promiseList).then((res) => {
-    getOrderDetail();
-  });
+  Promise.all(promiseList).then(
+    (res) => {
+      getOrderDetail();
+    },
+    (res) => {
+      Toast(res[0]);
+    },
+  );
 };
 
 // 分享信息
@@ -525,3 +546,4 @@ onMounted(() => {
   }
 }
 </style>
+import { log } from 'console';import { reject } from 'lodash';

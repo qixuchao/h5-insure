@@ -158,8 +158,10 @@ const getOrderDetail = () => {
 };
 
 const sign = (type, signData, bizObjectId?) => {
-  saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId).then(() => {
-    getOrderDetail();
+  saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId).then(({ code, message }) => {
+    if (code === '10000') {
+      getOrderDetail();
+    }
   });
 };
 

@@ -355,7 +355,7 @@ watch(
   (val, oldVal) => {
     if (!isEqual(val, oldVal) && isNotEmptyArray(oldVal)) {
       state.schemaList.forEach((item, index) => {
-        if (item?.formData?.paymentType !== oldVal?.[index] || item?.formData?.paymentGenre === 1) {
+        if (item?.formData?.paymentType !== oldVal?.[index] || `${item?.formData?.paymentGenre}` === '1') {
           Object.assign(
             item.formData,
             resetObjectValues(item?.formData, (key) =>
@@ -377,34 +377,15 @@ watch(
   (val, oldVal) => {
     if (!isEqual(val, oldVal) && isNotEmptyArray(oldVal)) {
       state.schemaList.forEach((item, index) => {
-        if (item?.formData?.payBank !== oldVal?.[index] || item?.formData?.paymentGenre === 1) {
-          Object.assign(
-            item.formData,
-            resetObjectValues(item?.formData, (key) =>
-              ['bankCardNo', 'mobile', 'bankCardImage', 'verificationCode'].includes(key),
+        if (item?.formData?.payBank !== oldVal?.[index] || `${item?.formData?.paymentGenre}` === '1') {
+          nextTick(() =>
+            Object.assign(
+              item.formData,
+              resetObjectValues(item?.formData, (key) =>
+                ['bankCardNo', 'mobile', 'bankCardImage', 'verificationCode'].includes(key),
+              ),
             ),
           );
-        }
-      });
-    }
-  },
-  {
-    deep: true,
-  },
-);
-
-// 监听卡号，清空银行卡照片
-watch(
-  () => state.schemaList.map((item) => item?.formData?.bankCardNo),
-  (val, oldVal) => {
-    if (!isEqual(val, oldVal) && isNotEmptyArray(oldVal)) {
-      state.schemaList.forEach((item, index) => {
-        if (item?.formData?.bankCardNo !== oldVal?.[index]) {
-          merge(
-            item.formData,
-            resetObjectValues(item?.formData, (key) => ['mobile', 'bankCardImage', 'verificationCode'].includes(key)),
-          );
-          console.log('item.formData', item.formData);
         }
       });
     }

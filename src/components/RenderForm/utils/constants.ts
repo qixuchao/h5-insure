@@ -199,6 +199,7 @@ export const RULE_TYPE_ENUM = {
   /** 比例 */
   BENEFIT_RATE: 'benefitRate',
   NUMBER: 'number',
+  ANNUALLY_COME_DESC: 'annuallyComeDesc',
 };
 
 /** 规则配置 */
@@ -580,8 +581,13 @@ export const GLOBAL_CONFIG_MAP = {
   email: {
     ruleType: RULE_TYPE_ENUM.EMAIL,
   },
+  // 收入来源
   annuallyComeList: {
     relatedName: 'annuallyComeDesc',
+  },
+  // 其他收入来源
+  annuallyComeDesc: {
+    ruleType: RULE_TYPE_ENUM.ANNUALLY_COME_DESC,
   },
   personalAnnualIncome: RULE_CONFIG_MAP.INCOME,
   familyAnnualIncome: RULE_CONFIG_MAP.INCOME,

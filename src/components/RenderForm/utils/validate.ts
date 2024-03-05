@@ -201,4 +201,5 @@ export const validatorMap = {
   /** 其他证件 */
   [RULE_TYPE_ENUM.OTHER_CERT]: [RegMap.isOtherCert],
   [RULE_TYPE_ENUM.BENEFIT_RATE]: [RegMap.isRate],
+  [RULE_TYPE_ENUM.ANNUALLY_COME_DESC]: [RegMap.isNormalChar],
 };
