@@ -79,7 +79,7 @@ router.beforeEach(async (to, from, next) => {
   await cachePage(from, to);
   next();
   if (!realAuthUrl) {
-    realAuthUrl = `${ORIGIN}${BASE_PREFIX}${to.redirectedFrom || to.fullPath}`;
+    realAuthUrl = `${ORIGIN}${BASE_PREFIX}${(`${to.redirectedFrom}` || `${to.fullPath}`).replace('/', '')}`;
   }
   const store = useAppStore();
   if (store.checkBack && to.hash !== '#validForm' && from.hash !== '#validForm') {
