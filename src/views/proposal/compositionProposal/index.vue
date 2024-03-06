@@ -22,7 +22,6 @@
             <span class="agent-grade">{{ userInfo?.agentGradeName }}</span>
           </div>
           <span class="agent-company">{{ userInfo?.manageComName }}</span>
-          <span class="agent-num">工 号 {{ userInfo?.agentCode }} </span>
           <span class="agent-num">执业证号 {{ userInfo?.quafNo }}</span>
         </div>
         <a :href="`tel:${userInfo?.phone}`" class="agent-tel">
@@ -226,7 +225,7 @@
             <span v-if="userInfo?.agentGradeName" class="agent-grade">{{ userInfo?.agentGradeName }}</span>
           </div>
           <span class="agent-company">{{ userInfo?.manageComName }}</span>
-          <span class="agent-num">工 号 {{ userInfo?.agentCode }} </span>
+          <!-- <span class="agent-num">工 号 {{ userInfo?.agentCode }} </span> -->
           <span class="agent-num">执业证号 {{ userInfo?.quafNo }}</span>
         </div>
         <a :href="`tel:${userInfo?.phone}`" class="agent-tel">

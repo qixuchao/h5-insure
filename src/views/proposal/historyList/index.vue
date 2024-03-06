@@ -23,7 +23,7 @@
           <div v-for="i of historyList" :key="i.id" class="proposal-item">
             <div class="title">{{ i.proposalName || getProposalName(i) }}</div>
             <p class="premium">
-              总保费：<span>¥{{ toLocal(i.totalPremium) }}</span>
+              首年总保费：<span>¥{{ toLocal(i.totalPremium) }}</span>
             </p>
             <div v-for="(item, index) in i.proposalInsuredVOList" :key="`proposal_${index}`">
               <p class="insure-info">
@@ -90,7 +90,7 @@ const columns = [
     },
   },
   {
-    title: '保费',
+    title: '首年保费',
     dataIndex: 'premium',
     width: 120,
     render: (row: any) => {

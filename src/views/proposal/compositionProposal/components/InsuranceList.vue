@@ -68,7 +68,12 @@ const columns = [
   {
     title: '基本保险金额',
     dataIndex: 'initialAmount',
-    render: (record) => `${toLocal(record.initialAmount)}元`,
+    render: (record) => {
+      if (record.riskCode === '115035') {
+        return '20元/天';
+      }
+      return `${toLocal(record.initialAmount)}元`;
+    },
   },
   {
     title: '保障期间',

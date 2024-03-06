@@ -32,6 +32,7 @@
         v-model="questionRead"
         title="投保告知信息"
         :data="state.customerQuestions || []"
+        display-status
       />
     </div>
     <ProCard title="授权与须知" :show-line="false" :show-icon="false" class="material-read-card">

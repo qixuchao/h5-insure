@@ -31,7 +31,7 @@ const props = defineProps({
   },
   smsText: {
     type: String,
-    default: '验证码',
+    default: '发送验证码',
   },
   relatedName: {
     type: String,

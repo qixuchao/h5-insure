@@ -331,6 +331,7 @@ const getQuestionInfo = async (params) => {
           content,
           contentType: getFileType(`${textType}`, content),
           questionnaireId,
+          objectType,
           questionnaireName,
         };
       }
@@ -342,6 +343,7 @@ const getQuestionInfo = async (params) => {
         contentType: 'question',
         ...currentAnswer?.questionnaireDetailResponseVO,
         questionnaireId,
+        objectType,
         questionnaireName,
       };
     });

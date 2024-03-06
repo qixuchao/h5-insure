@@ -611,6 +611,7 @@ export const GLOBAL_CONFIG_MAP = {
   nationalityCode: {
     ...RULE_CONFIG_MAP.COUNTRY,
     relatedName: 'name',
+    isDefaultSelected: true,
   },
   certEndDate: {
     minDate: new Date(),

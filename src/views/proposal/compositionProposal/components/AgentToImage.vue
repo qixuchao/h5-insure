@@ -13,10 +13,10 @@
           <span class="info-title">姓名</span>
           <span class="info-value">{{ infos?.name || '' }}</span>
         </div>
-        <div class="info">
+        <!-- <div class="info">
           <span class="info-title">职位</span>
           <span class="info-value">{{ infos?.agentGradeName || '' }}</span>
-        </div>
+        </div> -->
         <!-- <div class="info">
           <span class="info-title">职位</span>
           <span class="info-value">{{ infos?.name || '' }}</span>
@@ -26,10 +26,10 @@
         <span class="info-title-2">所属机构</span>
         <span class="info-value-2">{{ infos?.manageComName || '' }}</span>
       </div>
-      <div class="info">
+      <!-- <div class="info">
         <span class="info-title">工号</span>
         <span class="info-value">{{ infos?.agentCode || '' }}</span>
-      </div>
+      </div> -->
       <div class="info">
         <span class="info-title-2">执业证号</span>
         <span class="info-value-2">{{ infos?.quafNo || '' }}</span>
