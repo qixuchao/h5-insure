@@ -75,7 +75,7 @@
       :payment-frequency="trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''"
       :tenant-product-detail="tenantProductDetail"
       :handle-share="(cb) => onShare(cb)"
-      :disabled="!trialResult?.premium || nextLoading || pageLoading"
+      :disabled="!trialResult || nextLoading || pageLoading"
       @handle-click="onNext"
       >下一步
       <template #label> 首年总保费 </template>
