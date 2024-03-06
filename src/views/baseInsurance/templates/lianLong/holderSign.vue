@@ -6,7 +6,7 @@
         type="warning"
         :content="
           signPartInfo.holder.personalInfo?.name &&
-          `本人${signPartInfo.holder.personalInfo?.name}已阅读并同意签署《电子投保单》（投保信息确认）、《人身保险投保提示书》、《免责说明书》、《产品说明书》（一年期以上产品）、《风险告知问卷》（万能型产品）、《风险承受能力测评问卷》（万能型产品）。请投保人：${signPartInfo.holder.personalInfo?.name}签名确认。`
+          `本人${signPartInfo.holder.personalInfo?.name}已阅读并同意签署《电子投保单》（投保信息确认）、《人身保险投保提示书》、《免责说明书》、《产品说明书》（一年期以上产品）、《风险告知问卷》（万能型产品）、《风险承受能力测评问卷》（新型产品）。请投保人：${signPartInfo.holder.personalInfo?.name}签名确认。`
         "
       />
     </div>

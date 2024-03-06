@@ -7,9 +7,9 @@
           v-for="(item, index) in questionList"
           :key="index"
           :title="`${item.questionnaireName}${
-            NOTICE_OBJECT_MAP[item.objectType] ? `( ${NOTICE_OBJECT_MAP[item.objectType]})` : ''
+            NOTICE_OBJECT_MAP[item.objectType] ? `--${NOTICE_OBJECT_MAP[item.objectType]}` : ''
           }`"
-          :value="item.readStatus === YES_NO_ENUM.YES ? '已读' : '未读'"
+          :value="displayStatus && (item.readStatus === YES_NO_ENUM.YES ? '已读' : '未读')"
           :name="index"
         >
           <div class="insurance-notification-information-content">
@@ -33,12 +33,14 @@ interface Props {
   title: string;
   data: any[];
   modelValue: boolean;
+  displayStatus: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   title: '',
   data: () => [],
   modelValue: false,
+  displayStatus: false,
 });
 const emits = defineEmits(['update:modelValue']);
 

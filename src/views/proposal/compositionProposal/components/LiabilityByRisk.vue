@@ -12,6 +12,7 @@
         <div class="title">
           <img src="@/assets/images/compositionProposal/title.png" class="ig" /> {{ item.riskName }}
         </div>
+        <p class="clause-no">{{ item?.clauseNo }}</p>
       </div>
       <div class="product-detail">
         <van-collapse v-model="activeList" :is-link="false" :border="false" size="middle">
@@ -92,7 +93,8 @@ const activeList = ref<string[]>([]);
     }
     .common-title {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
+      flex-direction: column;
       justify-content: space-between;
       margin-bottom: 30px;
       font-weight: 500;
@@ -109,6 +111,11 @@ const activeList = ref<string[]>([]);
           height: 29px;
           margin-right: 16px;
         }
+      }
+      .clause-no {
+        font-size: 24px;
+        color: #393d46;
+        margin-top: 10px;
       }
     }
     .product-detail {

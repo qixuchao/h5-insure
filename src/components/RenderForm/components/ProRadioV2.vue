@@ -34,17 +34,6 @@
         </van-radio-group>
       </template>
     </template>
-    <!-- <template v-if="name === 'policyReceiveType'" #label>
-      <slot name="label">
-        <span>{{ filedAttrs.label }}</span>
-        <van-popover v-model:show="visible" trigger="click" placement="top-start" theme="dark">
-          <div class="tip-content">
-            *电子保单与纸质保单具有同等法律效力，为了节能环保，如投保人选择”电子保单“或者”电子保单+保险权益提示函“，不需要利安人寿提供纸质保单，利安人寿将奖励投保人“利安人寿“APP的孚利豆。在保险合同犹豫期结束后，您可以登陆“利安人寿“APP领取相应奖励。如您在犹豫期内申请提供纸质保单，利安人寿将不再奖励孚利豆。如您在领取孚利豆后申请提供纸质保单，利安人寿将收取您申请纸质保单的工本费。
-          </div>
-          <template #reference> <van-icon name="question" /> </template>
-        </van-popover>
-      </slot>
-    </template> -->
     <template v-if="name === 'selfInsuranceItemFlag'" #label>
       <slot name="label">
         <span>{{ filedAttrs.label }}</span>
@@ -55,6 +44,13 @@
           <template #reference> <van-icon name="question" /> </template>
         </van-popover>
       </slot>
+    </template>
+    <template v-else-if="name === 'hasSocialInsurance' && showExtra" #label>
+      <span>社保</span>
+      <van-popover v-model:show="visible" trigger="click" placement="top-start" theme="dark">
+        <div class="tip-content">社保范围包括城镇职工基本医疗保险、城镇居民基本医疗保险、新型农村合作医疗</div>
+        <template #reference> <van-icon name="question" /> </template>
+      </van-popover>
     </template>
   </ProFieldV2>
   <div v-if="name === 'policyReceiveType'" class="error-message">
@@ -143,6 +139,10 @@ const props = defineProps({
   name: {
     type: String,
     default: '',
+  },
+  showExtra: {
+    type: Boolean,
+    default: false,
   },
 });
 

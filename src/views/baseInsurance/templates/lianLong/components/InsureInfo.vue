@@ -38,20 +38,8 @@
             :title="liability.liabilityName"
             content="投保"
           ></ProCell> -->
-              <ProCell
-                title="基本保险金额"
-                :content="
-                  (riskInfo.initialAmount || 0).toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })
-                "
-              >
-              </ProCell>
-              <ProCell
-                title="首年保费"
-                class="price"
-                :content="
-                  (riskInfo.initialPremium || 0).toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })
-                "
-              >
+              <ProCell title="基本保险金额" :content="transformToMoney(riskInfo.initialAmount || 0)"> </ProCell>
+              <ProCell title="首年保费" class="price" :content="transformToMoney(riskInfo.initialPremium || 0)">
               </ProCell>
             </div>
             <!-- <ProCell
@@ -78,6 +66,7 @@ import {
 } from '@/common/constants/trial';
 import { ANNUITY_DRAW_TYPE_MAP } from '@/common/constants/infoCollection';
 import { YES_NO_ENUM } from '@/common/constants';
+import { transformToMoney } from '@/utils/format';
 
 interface Props {
   productData: any;

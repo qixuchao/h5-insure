@@ -81,6 +81,7 @@
             <ProRadioV2
               v-model="stateInfo.insurerList[stateInfo.currentSelectInsure].personVO.hasSocialInsurance"
               label="社保"
+              show-extra
               name="hasSocialInsurance"
               :columns="SOCIAL_LIMIT_LIST"
               required
@@ -141,10 +142,12 @@
                 <ProRadioV2
                   v-model="stateInfo.holder.hasSocialInsurance"
                   label="社保"
+                  show-extra
                   name="hasSocialInsurance"
                   :columns="SOCIAL_LIMIT_LIST"
                   required
-                />
+                >
+                </ProRadioV2>
                 <ProOccupation
                   v-model="stateInfo.holder.occupationCodeList"
                   label="职业"
@@ -210,7 +213,7 @@
       </div>
       <div class="footer-bar">
         <span class="trial-result"
-          >总保费<span class="result-num">{{ !submitDisable ? `￥${totalPremium?.toLocaleString()}` : '-' }}</span>
+          >首年总保费<span class="result-num">{{ !submitDisable ? `￥${totalPremium?.toLocaleString()}` : '-' }}</span>
         </span>
         <div class="trial-operate">
           <VanButton
@@ -358,6 +361,7 @@ const router = useRouter();
 const route = useRoute();
 const store = createProposalStore();
 const product_namelist = {};
+const visible = ref(false);
 
 const {
   productCode: productCodeInQuery,

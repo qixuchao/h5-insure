@@ -12,7 +12,7 @@
           <div class="risk-factor">
             <div class="factor">
               <span class="factor-value">{{ risk.initialAmount?.toLocaleString() || '-' }}</span>
-              <span class="factor-name"> 保额(元) </span>
+              <span class="factor-name"> 基本保险金额(元) </span>
             </div>
             <div class="factor">
               <span class="factor-value">{{ convertPeriod(risk.coveragePeriod) || '-' }}</span>
@@ -25,7 +25,7 @@
           </div>
           <div class="operate-bar-wrap">
             <div class="risk-premium">
-              保费:<span class="premium">{{
+              首年保费:<span class="premium">{{
                 !errorMsg && risk.initialPremium ? `￥${risk.initialPremium?.toLocaleString()}` : '-'
               }}</span>
             </div>

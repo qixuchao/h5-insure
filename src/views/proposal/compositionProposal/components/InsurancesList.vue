@@ -79,7 +79,7 @@ const columns = [
     width: 110,
   },
   {
-    title: '保费',
+    title: '首年保费',
     dataIndex: 'initialPremium',
     width: 120,
   },
