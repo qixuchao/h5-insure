@@ -136,14 +136,14 @@ watch(
   },
 );
 
-// 监听与被保人关系
+// 监听与被保险人关系
 watch(
   () => state.personVO?.relationToInsured,
   (val, oldVal) => {
     if (val === oldVal) {
       return false;
     }
-    colorConsole(`受益人与被保人关系变动了`);
+    colorConsole(`受益人与被保险人关系变动了`);
 
     const { certType } = state.personVO || {};
     // 证件类型是否只有身份证, 与被保险人关系变动
@@ -151,7 +151,7 @@ watch(
 
     merge(state.config, tempConfig);
 
-    // 受益人与被保人关系切换
+    // 受益人与被保险人关系切换
     if (!props.isView && val && oldVal) {
       // 若为本人合并投保人数据
       Object.assign(state.personVO, {

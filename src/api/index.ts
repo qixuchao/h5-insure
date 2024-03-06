@@ -29,8 +29,8 @@ export const getInitFactor = (data = {}) =>
   request<ResponseData<TemplatePageItem>>({ url: '/api/app/insure/insurance/getInitFactor', method: 'POST', data });
 
 // 下一步操作
-export const nextStep = (data = {}) =>
-  request<NextStepResponseData>({ url: '/api/app/insure/insurance/nextStep', method: 'POST', data }, { loading: true });
+export const nextStep = (data = {}, loading = true) =>
+  request<NextStepResponseData>({ url: '/api/app/insure/insurance/nextStep', method: 'POST', data }, { loading });
 
 // 获取订单详情
 export const getOrderDetail = (data = {}): Promise<ResponseData<NextStepRequestData>> => {
@@ -102,7 +102,7 @@ export const newOrderDetail = (data = {}): Promise<ResponseData<NextStepRequestD
   });
 };
 
-// 获取利安代理人信息
+// 获取利安销售人员信息
 export const queryLianAgentInfo = (data) =>
   request<LianUserData>({
     url: '/api/app/insure/customer/getBaseUserInfo',
@@ -130,6 +130,14 @@ export const rollbackEditOrder = (data) =>
 export const querySnapShotPayInfo = (data) =>
   request({
     url: '/api/app/insure/insurance/snapShotPayInfo',
+    method: 'POST',
+    data,
+  });
+
+// 重新支付
+export const repayOrder = (data) =>
+  request({
+    url: '/api/app/insure/insurance/repay',
     method: 'POST',
     data,
   });

@@ -234,11 +234,12 @@ watch(
 );
 
 watch(
-  [columns, props.modelValue],
+  [columns, props.modelValue, () => props.isDefaultSelected],
   (val = []) => {
     // TODO: children
     if (isNotEmptyArray(val?.[0])) {
       const [{ disabled, value }] = columns.value;
+
       // 默认选中第一项（是否可选）
       if (props.isDefaultSelected && !disabled && (isNil(props.modelValue) || props.modelValue === '')) {
         handleSelect(value);

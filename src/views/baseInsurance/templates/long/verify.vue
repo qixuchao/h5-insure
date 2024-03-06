@@ -5,7 +5,7 @@
       <ProMessage
         type="warning"
         title="尊敬的客户，本次投保需要进行身份认证"
-        content="本产品投保需要对投保人、被保人进行实名认证，您购买本产品的累计总保费已超过20万，按监管要求，需要提供投保人、被保人、指定受益人证件影像，本产品非本人投保且带身故责任、需对投保人、被保人（成人）的投保意愿进行签字确认。"
+        content="本产品投保需要对投保人、被保险人进行实名认证，您购买本产品的累计总保费已超过20万，按监管要求，需要提供投保人、被保险人、指定受益人证件影像，本产品非本人投保且带身故责任、需对投保人、被保险人（成人）的投保意愿进行签名确认。"
       />
     </div>
     <div class="verify-content">
@@ -18,7 +18,7 @@
         :file-list="signPartInfo.agent.fileList"
         :personal-info="signPartInfo.agent.personalInfo"
         :disabled="!!isShare"
-        title="代理人"
+        title="销售人员"
         @handle-sign="(signData) => sign('AGENT', signData)"
       ></SignPart>
       <SignPart
@@ -46,7 +46,7 @@
           :show-verify="signPartInfo.insured.isVerify"
           :file-list="signPartInfo.insured.fileList"
           :personal-info="personalInfo || {}"
-          title="被保人"
+          title="被保险人"
           @handle-sign="(signData) => sign('INSURED', signData, personalInfo.id)"
           @handle-verify="doVerify"
         ></SignPart>
@@ -188,7 +188,7 @@ const signPartInfo = ref({
     isVerify: false,
     isShareSign: false,
     signData: {},
-  }, // 被保人
+  }, // 被保险人
   agent: {
     fileList: [],
     personalInfo: {},
@@ -196,7 +196,7 @@ const signPartInfo = ref({
     isVerify: false,
     isShareSign: false,
     signData: '',
-  }, // 代理人
+  }, // 销售人员
 });
 
 // 抄录配置
@@ -323,7 +323,7 @@ const handleShare = () => {
         }
       })
       .catch(() => {
-        Toast('请完成代理人签字后进行分享');
+        Toast('请完成销售人员签名后进行分享');
       });
   }
 };
@@ -334,7 +334,7 @@ const getOrderDetail = (check = false) => {
       if (code === '10000') {
         if (check) {
           if (data?.holder?.isCert === YES_NO_ENUM.NO || data?.insuredList.some((x) => x.isCert === YES_NO_ENUM.NO)) {
-            Toast('用户未完身份认证及签字');
+            Toast('用户未完身份认证及签名');
           } else if (
             !data?.tenantOrderAttachmentList.find(
               (x) =>
@@ -347,7 +347,7 @@ const getOrderDetail = (check = false) => {
                 x.objectType === ATTACHMENT_OBJECT_TYPE_ENUM.INSURED,
             )
           ) {
-            Toast('用户未完身份认证及签字');
+            Toast('用户未完身份认证及签名');
           }
         }
         Object.assign(orderDetail.value, data);
@@ -431,19 +431,19 @@ const initData = () => {
             if (schema.required) {
               requiredType.value.sign.push(column.code);
             }
-            // 代理人签字
+            // 销售人员签名
             if (column.code === '1') {
               signPartInfo.value.agent.isSign = true;
-              // 投保人签字
+              // 投保人签名
             } else if (column.code === '2') {
               signPartInfo.value.holder.isSign = true;
-              // 被保人签字
+              // 被保险人签名
             } else if (column.code === '3') {
               signPartInfo.value.insured.isSign = true;
-              // 投保人空中签字
+              // 投保人空中签名
             } else if (column.code === '4') {
               signPartInfo.value.holder.isShareSign = true;
-              // 被保人空中签字
+              // 被保险人空中签名
             } else if (column.code === '5') {
               signPartInfo.value.insured.isShareSign = true;
             }

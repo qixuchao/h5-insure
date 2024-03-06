@@ -34,7 +34,7 @@
         ref="formRef"
         :title-collection="{
           HOLDER: '投保人信息',
-          INSURER: '被保人信息',
+          INSURER: '被保险人信息',
           BENEFICIARY: '受益人',
         }"
         :is-view="true"
@@ -356,7 +356,7 @@ const submit = async () => {
       onSubmit();
     }
   } else {
-    Toast('请先签字');
+    Toast('请先签名');
   }
 };
 // useWXCode();

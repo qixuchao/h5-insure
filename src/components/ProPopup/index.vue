@@ -23,7 +23,7 @@
       <div v-if="title" class="header" :style="headerStyle">
         {{ title }}
       </div>
-      <div class="body">
+      <div class="body com-pop-body">
         <slot> </slot>
       </div>
       <div v-if="showFooter" class="footer">

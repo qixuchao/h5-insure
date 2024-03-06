@@ -1,5 +1,5 @@
 <template>
-  <!----被保人-->
+  <!----被保险人-->
   <ProRenderFormWithCard
     ref="insuredFormRef"
     class="personal-info-card insured"
@@ -18,8 +18,18 @@
     <template #customer>
       <slot name="customer"></slot>
     </template>
+    <template v-if="!isSameHolder && !isView" #addressExtra>
+      <van-checkbox
+        v-model="state.sameHolderAddressFlag"
+        icon-size="16px"
+        class="checkbox-wrap"
+        @change="handleSameHolderAddress"
+        >通讯地址同投保人</van-checkbox
+      >
+    </template>
   </ProRenderFormWithCard>
   <!---- 监护人----->
+
   <ProRenderFormWithCard
     v-if="isShowGuardian"
     ref="guardianFormRef"
@@ -28,7 +38,7 @@
     title="监护人"
     :model="state.guardian.personVO"
     :schema="state.guardianSchema"
-    :config="state.config"
+    :config="{ ...state.guardian.config, relationToInsured: { isDefaultSelected: true } }"
     :is-view="isView"
     :extra-provision="{
       objectType: ATTACHMENT_OBJECT_TYPE_ENUM.GUARDIAN,
@@ -40,6 +50,21 @@
       <slot name="guardianCustomer"></slot>
     </template>
   </ProRenderFormWithCard>
+
+  <ProRenderFormWithCard
+    v-if="isShowGuardianMaterial"
+    ref="guardianFormRef"
+    :="$attrs"
+    title="监护人"
+    class="personal-info-card guardian"
+    :model="state.guardian.personVO"
+    :schema="guardianMaterialSchema"
+    :is-view="isView"
+    :extra-provision="{
+      objectType: ATTACHMENT_OBJECT_TYPE_ENUM.GUARDIAN,
+      objectId: state.guardian?.personVO?.id,
+    }"
+  />
 
   <template v-if="hasBeneficiarySchema">
     <ProRenderFormWithCard
@@ -78,7 +103,7 @@
           ></slot>
         </template>
         <template #header-item>
-          <ProFieldV2 v-if="!isSameHolder" label="是否同投保人" input-align="right">
+          <ProFieldV2 v-if="!isSameHolder && !isView && beneficiary.personVO" label="是否同投保人" input-align="right">
             <template #input>
               <van-switch
                 v-model="beneficiary.personVO.isHolder"
@@ -163,7 +188,9 @@ const initBeneficiaryItem = {
   config: {
     occupationCode: { isView: true },
   },
-  personVO: {},
+  personVO: {
+    isHolder: 2,
+  },
 };
 
 const props = withDefaults(defineProps<InsuredProps>(), {
@@ -190,6 +217,7 @@ interface StateInfo extends PersonFormProps {
   beneficiaryTypeSchemaList: SchemaItem[];
   guardianSchema: SchemaItem[];
   guardian: Partial<PersonFormProps>;
+  sameHolderAddressFlag: boolean;
 }
 
 const state = reactive<Partial<StateInfo>>({
@@ -212,25 +240,60 @@ const state = reactive<Partial<StateInfo>>({
     personVO: {},
     config: {},
   },
+  sameHolderAddressFlag: false, // 地址同投保人 1 是 2 否
 });
 
 const isSameHolder = ref<boolean>(false);
 
-// 被保人同投保人关系非父母时，被保人年龄小于18岁则需要监护人信息
+// 被保险人同投保人关系非父母时，被保险人年龄小于18岁则需要监护人信息
+const isClearGuardianData = ref(false);
 const isShowGuardian = computed<boolean>(() => {
   const { age, relationToHolder } = state.personVO;
   if (relationToHolder && !['1', '4', '5'].includes(`${relationToHolder}`) && age !== null && +age < 18) {
+    isClearGuardianData.value = true;
     return true;
   }
-  state.guardian = {
-    personVO: {},
-    config: {},
-  };
+
+  if (isClearGuardianData.value) {
+    state.guardian = {
+      personVO: {},
+      config: {},
+    };
+  }
+
   return false;
 });
 
+// 如果投被保人关系是父母，且被保人小于16岁则需要上传关系证明资料
+const isClearGuardianMaterial = ref(false);
+const isShowGuardianMaterial = computed<boolean>(() => {
+  const { age, relationToHolder } = state.personVO;
+  if (relationToHolder && ['4', '5'].includes(`${relationToHolder}`) && age !== null && +age < 16) {
+    isClearGuardianMaterial.value = true;
+    return true;
+  }
+
+  if (isClearGuardianMaterial.value) {
+    state.guardian = {
+      personVO: {},
+      config: {},
+    };
+  }
+
+  return false;
+});
+
+const guardianMaterialSchema = computed(() => {
+  if (state.guardianSchema?.length) {
+    return (state.guardianSchema || []).filter((schema) => schema.name === 'relationshipProof');
+  }
+  return [];
+});
+
 const mergeHolderBenefic = () => {
-  const mergeData = {};
+  const mergeData = {
+    relationToInsured: state.personVO.relationToHolder,
+  };
   state.beneficiarySchemaList.reduce((da, schema) => {
     if (props.holderPersonVO?.[schema.name]) {
       da[schema.name] = props.holderPersonVO?.[schema.name];
@@ -290,9 +353,6 @@ const holderToBeneficial = (index?: number) => {
               isView: false,
             },
             benefitOrder: {
-              isView: false,
-            },
-            relationToInsured: {
               isView: false,
             },
             beneficiaryType: {
@@ -390,21 +450,39 @@ const setNonageValue = (holderPerson, personVO) => {
   Object.assign(state.personVO, updateData);
 };
 
+// 被保人地址同投保人
+const handleSameHolderAddress = (val) => {
+  // if (val) {
+  const { longArea } = props.holderPersonVO;
+
+  state.config.longArea = {
+    ...state.config.longArea,
+    isView: val,
+  };
+
+  nextTick(() => {
+    state.personVO.longArea = { ...longArea };
+  });
+
+  const sameHolderAddressFlag = val ? 1 : 2;
+  state.personVO.sameHolderAddressFlag = sameHolderAddressFlag;
+};
+
 // 监听投保人信息
 watch(
   () => props.holderPersonVO,
   debounce((val) => {
     colorConsole('------投保人信息变动了-----');
-    // 投保人id不同步到被保人
+    // 投保人id不同步到被保险人
     const { id, ...holderPersonVO } = val || {};
 
     // 若为本人合并投保人数据
     if (String(state.personVO?.relationToHolder) === '1') {
-      // 过滤投被保人相同要素，保留证件相关的，预防关系为本人时，仅被保人有的字段被清空,后端给了null
+      // 过滤投被保险人相同要素，保留证件相关的，预防关系为本人时，仅被保险人有的字段被清空,后端给了null
       isSameHolder.value = true;
 
       state.beneficiaryList = state.beneficiaryList.map((beneficiaryItem, ind) => {
-        if (`${beneficiaryItem.personVO.isHolder}` === `${YES_NO_ENUM.YES}`) {
+        if (`${beneficiaryItem.personVO?.isHolder}` === `${YES_NO_ENUM.YES}`) {
           return {
             ...beneficiaryItem,
             personVO: { ...disHolderData(state.beneficiaryList?.[ind]?.personVO), isHolder: 2 },
@@ -435,6 +513,9 @@ watch(
     } else {
       setNonageValue(val, state.personVO);
       isSameHolder.value = false;
+      if (state.sameHolderAddressFlag) {
+        state.personVO.longArea = { ...val.longArea };
+      }
     }
   }, 300),
   {
@@ -477,6 +558,9 @@ watch(
   () => props.guardianSchema,
   (value) => {
     state.guardianSchema = value;
+    setCertDefaultValue(props.guardianSchema, props.guardian?.personVO, () => {
+      state.guardian.personVO.certType = state.personVO.certType || '1';
+    });
   },
   {
     deep: true,
@@ -537,24 +621,24 @@ watch(
   },
 );
 let relationToHolderChanged = false;
-// 监听投被保人关系
+// 监听投被保险人关系
 watch(
   () => state.personVO?.relationToHolder,
   (val, oldVal) => {
-    // 若投被保人关系为空则不执行
+    // 若投被保险人关系为空则不执行
     if (!val) {
       return;
     }
     colorConsole('与投保人关系变动了');
     const { personVO, schema = [], config } = state || {};
-    // 投保人id不同步到被保人
+    // 投保人id不同步到被保险人
     const { id, ...holderPersonVO } = props.holderPersonVO || {};
 
     const isSelf = String(personVO.relationToHolder) === '1';
 
     isSameHolder.value = isSelf;
 
-    // 若被保人为本人是否要隐藏
+    // 若被保险人为本人是否要隐藏
     schema.forEach((schemaItem) => {
       schemaItem.relationToHolder = personVO.relationToHolder;
       schemaItem.hidden = !schemaItem.isSelfInsuredNeed && isSelf;
@@ -570,11 +654,25 @@ watch(
     }
     // 非查看模式处理与投保人关系变动，数据操作
     if (!props.isView && oldVal && String(val) !== String(oldVal)) {
-      // 本人则本人数据覆盖
+      const { certImage } = holderPersonVO || {};
+      // 本人则本人数据覆盖,处理证件类型objectId/objectType
       let newPersonVo = {
         ...personVO,
         ...holderPersonVO,
+        ...(certImage?.length
+          ? {
+              certImage: certImage.map((image) => {
+                delete image.id;
+                return {
+                  ...image,
+                  objectId: state.personVO.id,
+                  objectType: ATTACHMENT_OBJECT_TYPE_ENUM.INSURED,
+                };
+              }),
+            }
+          : {}),
       };
+
       const [isOnlyCertFlag, tempConfig] = getCertConfig(schema, personVO);
       // 非本人则清空数据
       if (!isSelf) {
@@ -589,7 +687,7 @@ watch(
         }
       }
 
-      // 投被保人为丈夫或者妻子时默认被保人的性别 2: 丈夫，3:妻子
+      // 投被保险人为丈夫或者妻子时默认被保险人的性别 2: 丈夫，3:妻子
       const genderConfig = {
         gender: {
           ...config.gender,
@@ -628,7 +726,7 @@ watch(
   },
 );
 
-// 监听被保人国籍
+// 监听被保险人国籍
 watch(
   () => state.personVO?.nationalityCode,
   (val, oldVal) => {
@@ -654,14 +752,14 @@ watch(
   },
 );
 
-// 监听被保人与监护人关系
+// 监听被保险人与监护人关系
 watch(
   () => state.guardian?.personVO?.relationToInsured,
   (val, oldVal) => {
     if (val === oldVal) {
       return;
     }
-    colorConsole(`监护人与被保人关系变动了`);
+    colorConsole(`监护人与被保险人关系变动了`);
     const { certType } = state.guardian.personVO || {};
     // 证件类型是否只有身份证, 与被保险人关系变动
     const [isOnlyCertFlag, tempConfig] = getCertConfig(state.guardianSchema, { certType, relationToInsured: val });
@@ -671,9 +769,9 @@ watch(
         isView: props.isView,
       },
     };
-    // 受益人与被保人关系切换
+    // 受益人与被保险人关系切换
     if (!props.isView && val !== oldVal) {
-      // 投被保人为丈夫或者妻子时默认被保人的性别 2: 丈夫，3:妻子
+      // 投被保险人为丈夫或者妻子时默认被保险人的性别 2: 丈夫，3:妻子
       let currentGender = null;
       if (`${val}` === '2') {
         genderConfig.gender.isView = true;
@@ -700,15 +798,15 @@ watch(
   },
 );
 
-// 监听与主被保人关系变动
+// 监听与主被保险人关系变动
 watch(
   () => state.personVO?.relationToMainInsured,
   (val, oldVal) => {
-    // 若投被保人关系为空则不执行
+    // 若投被保险人关系为空则不执行
     if (!val) {
       return;
     }
-    colorConsole('次被保人与主被保人关系变动了');
+    colorConsole('次被保险人与主被保险人关系变动了');
     const { personVO, schema = [], config } = state || {};
     const { certType } = personVO || {};
 
@@ -717,7 +815,7 @@ watch(
 
     merge(config, tempConfig);
 
-    // 非查看模式处理与主被保人关系变动，数据清空操作
+    // 非查看模式处理与主被保险人关系变动，数据清空操作
     if (!props.isView && oldVal && String(val) !== String(oldVal)) {
       Object.assign(state.personVO, {
         // 若只有证件类型为身份证，不清除值
@@ -774,6 +872,8 @@ watch(
       if (val.age !== oldVal?.age && val.age) {
         isInit.value = true;
       }
+      // 是否同投保人
+      state.sameHolderAddressFlag = rest.sameHolderAddressFlag === 1;
       merge(state.personVO, rest);
       setCertDefaultValue(props.schema, props.modelValue, () => {
         state.personVO.certType = state.personVO.certType || '1';
@@ -810,6 +910,9 @@ watch(
   (value, oldValue) => {
     if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
       Object.assign(state.guardian.personVO, value);
+      setCertDefaultValue(props.guardianSchema, props.guardian?.personVO, () => {
+        state.guardian.personVO.certType = state.personVO.certType || '1';
+      });
     }
   },
   {
@@ -854,6 +957,14 @@ defineExpose({
     width: auto;
     margin-top: 4px;
     color: var(--van-primary-color);
+  }
+}
+.checkbox-wrap {
+  height: 80px;
+  display: flex;
+  justify-content: flex-end;
+  .van-checkbox__label {
+    font-size: 28px;
   }
 }
 .add-button {

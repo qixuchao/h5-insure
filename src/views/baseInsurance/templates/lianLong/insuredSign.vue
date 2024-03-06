@@ -4,8 +4,10 @@
     <div class="header">
       <ProMessage
         type="warning"
-        title="尊敬的客户，本次投保需要进行身份认证"
-        content="本产品投保需要对投保人、被保人进行实名认证，您购买本产品的累计总保费已超过20万，按监管要求，需要提供投保人、被保人、指定受益人证件影像，本产品非本人投保且带身故责任、需对投保人、被保人（成人）的投保意愿进行签字确认。"
+        :content="
+          signPartInfo.insured.personalInfo?.[0]?.name &&
+          `本人${signPartInfo.insured.personalInfo?.[0]?.name}已阅读并同意签署《电子投保单》（投保信息确认）`
+        "
       />
     </div>
     <div class="verify-content">
@@ -21,7 +23,8 @@
           :show-verify="signPartInfo.insured.isVerify"
           :file-list="signPartInfo.insured.fileList"
           :personal-info="personalInfo || {}"
-          title="被保人"
+          :composition-sign="signPartInfo.insured.compositionSign"
+          title="被保险人"
           @handle-sign="(signData) => sign('INSURED', signData, personalInfo.id)"
         ></SignPart>
       </template>
@@ -29,6 +32,13 @@
     <div class="footer-button footer-bar">
       <van-button type="primary" class="submit-btn" @click="handleSubmit">确定</van-button>
     </div>
+    <MessagePopup v-model="show" @close="toggleShow(false)">
+      <div class="content-inner">
+        <img :src="qianming" alt="" class="header-img" />
+        <h4>本次签名已完成</h4>
+        <p>感谢您对本次投保的签字确认，后续流程由销售人员在您的配合下进行</p>
+      </div>
+    </MessagePopup>
   </div>
 </template>
 
@@ -36,6 +46,8 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import { stringify } from 'qs';
+import wx from 'weixin-js-sdk';
+import { useToggle } from '@vant/use';
 import { queryListProductMaterial } from '@/api/modules/product';
 import { ProductMaterialVoItem } from '@/api/modules/product.data';
 import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
@@ -53,6 +65,9 @@ import { jumpToNextPage } from '@/utils';
 
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import { getFileType } from '../../utils';
+import { isWeiXin } from '@/views/cashier/core';
+import MessagePopup from './components/MessagePopup.vue';
+import qianming from '@/assets/images/qianming.jpg';
 
 const route = useRoute();
 const router = useRouter();
@@ -83,6 +98,7 @@ try {
 }
 
 const orderDetail = useOrder();
+const [show, toggleShow] = useToggle(false);
 const shareLink = `${window.origin}/baseInsurance/long/phoneVerify?${stringify({
   ...route.query,
   orderNo: orderCode || orderNo,
@@ -106,7 +122,8 @@ const signPartInfo = ref({
     isVerify: false,
     isShareSign: false,
     signData: {},
-  }, // 被保人
+    compositionSign: '',
+  }, // 被保险人
   agent: {
     fileList: [],
     personalInfo: {},
@@ -114,7 +131,7 @@ const signPartInfo = ref({
     isVerify: false,
     isShareSign: false,
     signData: '',
-  }, // 代理人
+  }, // 销售人员
 });
 
 const getOrderDetail = () => {
@@ -123,8 +140,16 @@ const getOrderDetail = () => {
       if (code === '10000') {
         const signAttachmentList = {};
         data.tenantOrderAttachmentList.forEach((attachment) => {
-          if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED && attachment.category === 30) {
-            signAttachmentList[attachment.objectId].push(attachment.fileBase64);
+          if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED) {
+            if (attachment.category === 30) {
+              if (signAttachmentList[attachment.objectId]) {
+                signAttachmentList[attachment.objectId].push(attachment.fileBase64);
+              } else {
+                signAttachmentList[attachment.objectId] = [attachment.fileBase64];
+              }
+            } else if (attachment.category === 21) {
+              signPartInfo.value.insured.compositionSign = attachment.uri;
+            }
           }
         });
         signPartInfo.value.insured.signData = signAttachmentList;
@@ -133,8 +158,10 @@ const getOrderDetail = () => {
 };
 
 const sign = (type, signData, bizObjectId?) => {
-  saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId).then(() => {
-    getOrderDetail();
+  saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId).then(({ code, message }) => {
+    if (code === '10000') {
+      getOrderDetail();
+    }
   });
 };
 
@@ -167,10 +194,18 @@ const handleSubmit = () => {
         bizObjectType: NOTICE_TYPE_ENUM.INSURED,
         orderId: orderDetail.value.id,
         tenantId,
+        shareFlag: isShare ? 1 : 2,
       }).then(({ code, data }) => {
         if (code === '10000' && data) {
           if (isShare) {
-            Toast('已完成');
+            toggleShow(true);
+            setTimeout(() => {
+              if (isWeiXin) {
+                wx.closeWindow();
+              } else {
+                window.close();
+              }
+            }, 2000);
             return;
           }
           router.push({
@@ -204,11 +239,15 @@ const initData = async () => {
     });
     productRiskMap = pickProductRiskCodeFromOrder(orderData.insuredList[0].productList);
     orderData.tenantOrderAttachmentList.forEach((attachment) => {
-      if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED && attachment.category === 30 && attachment.objectId) {
-        if (signPartInfo.value.insured.signData[attachment.objectId]) {
-          signPartInfo.value.insured.signData[attachment.objectId].push(attachment.fileBase64);
-        } else {
-          signPartInfo.value.insured.signData[attachment.objectId] = [attachment.fileBase64];
+      if (attachment.objectType === NOTICE_OBJECT_ENUM.INSURED && attachment.objectId) {
+        if (attachment.category === 30) {
+          if (signPartInfo.value.insured.signData[attachment.objectId]) {
+            signPartInfo.value.insured.signData[attachment.objectId].push(attachment.fileBase64);
+          } else {
+            signPartInfo.value.insured.signData[attachment.objectId] = [attachment.fileBase64];
+          }
+        } else if (attachment.category === 21) {
+          signPartInfo.value.insured.compositionSign = attachment.uri;
         }
       }
     });
@@ -240,19 +279,19 @@ const initData = async () => {
             if (schema.required) {
               requiredType.value.sign.push(column.code);
             }
-            // 代理人签字
+            // 销售人员签名
             if (column.code === '1') {
               signPartInfo.value.agent.isSign = true;
-              // 投保人签字
+              // 投保人签名
             } else if (column.code === '2') {
               signPartInfo.value.holder.isSign = true;
-              // 被保人签字
+              // 被保险人签名
             } else if (column.code === '3') {
               signPartInfo.value.insured.isSign = true;
-              // 投保人空中签字
+              // 投保人空中签名
             } else if (column.code === '4') {
               signPartInfo.value.holder.isShareSign = true;
-              // 被保人空中签字
+              // 被保险人空中签名
             } else if (column.code === '5') {
               signPartInfo.value.insured.isShareSign = true;
             }
@@ -304,6 +343,22 @@ onMounted(() => {
     .submit-btn {
       width: 290px;
       flex: 1;
+    }
+  }
+  .content-inner {
+    padding: 90px 50px 99px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    .header-img {
+      width: 257px;
+    }
+    h4 {
+      margin: 70px 0 39px;
+      font-weight: 500;
+      font-size: 38px;
+      color: #333333;
+      font-style: normal;
     }
   }
 }

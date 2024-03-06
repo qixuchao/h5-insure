@@ -14,11 +14,11 @@
     <template #namtTips>提示</template>
   </ProRenderFormWithCard>
 
-  <!-- 被保人 -->
+  <!-- 被保险人 -->
   <ProRenderFormWithCard
     v-for="(insured, index) in state.insuredList"
     :key="index"
-    title="为谁投保（被保人）"
+    title="为谁投保（被保险人）"
     :model="state.insuredList[index].formData"
     :schema="insured.schema"
     :config="insured.config"
@@ -51,7 +51,7 @@ const state = reactive({
       },
     },
   },
-  // 被保人
+  // 被保险人
   insuredList: [
     {
       formData: {},
@@ -78,7 +78,7 @@ const fetchData = () => {
     const { code, data } = res || {};
     if (code === '10000') {
 
-      // 投保人/被保人/受益人  { schema: [表单 schema], trialFactorCodes: [试算因子 name] }
+      // 投保人/被保险人/受益人  { schema: [表单 schema], trialFactorCodes: [试算因子 name] }
       const { holder, insured, beneficiary, payInfo } = transformFactorToSchema(data.productFactor);
       state.holder = {
         ...state.holder,
@@ -118,7 +118,7 @@ watch(
   },
 );
 
-// 监听投被保人关系
+// 监听投被保险人关系
 watch(
   () => state.insuredList.map((item, index) => state.insuredList[index].formData.relationToHolder),
   (newVal, oldVal) => {

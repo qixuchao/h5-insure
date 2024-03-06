@@ -51,7 +51,8 @@
     <div v-else class="preview-placeholder">当前页面仅用于保费试算预览<br />不展示其他产品相关配置信息</div>
     <div id="insureButton"></div>
     <TrialButton @handle-click="onNext">
-      <template #label>首年总保费</template>
+      <!-- 去掉首期保费展示 -->
+      <template #label><span /></template>
     </TrialButton>
   </div>
   <ProLazyComponent>
@@ -77,6 +78,7 @@
 <script lang="ts" setup name="InsuranceLong">
 import { useRoute, useRouter } from 'vue-router';
 import { useIntersectionObserver } from '@vueuse/core';
+import { cloneDeep } from 'lodash-es';
 import {
   ProductSaleInfo,
   InsureProductData,
@@ -120,7 +122,7 @@ import {
   getCusomterData,
   transformCustomerToPerson,
   clearCustomData,
-} from '../components/Trial/components/PersonalInfo/util.ts';
+} from '../components/Trial/components/PersonalInfo/util';
 // const TrialPop = defineAsyncComponent(() => import('../components/TrialPop/index.vue'));
 const ProductDesc = defineAsyncComponent(() => import('../components/ProductDesc/index.vue'));
 const ScrollInfo = defineAsyncComponent(() => import('../components/ScrollInfo/index.vue'));
@@ -191,7 +193,7 @@ const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件�
 const preNoticeLoading = ref<boolean>(false); // 首页弹窗
 const premiumMap = ref<any>({}); // 试算后保费
 const isOnlyView = ref<boolean>(true); // 资料查看模式
-const needDesensitize = ref<boolean>(true); // 投被保人身份证手机号是否需要掩码
+const needDesensitize = ref<boolean>(true); // 投被保险人身份证手机号是否需要掩码
 const loading = ref<boolean>(true);
 const iseeBizNo = ref('');
 const currentPlanObj = ref<Partial<ProductPlanInsureVoItem>>({});
@@ -214,9 +216,6 @@ const guaranteeObj = ref<any>({});
 const previewMode = computed(() => !!preview || !!trialPreview);
 const trialPreviewMode = computed(() => !!trialPreview);
 const trialRef = ref();
-const showTrial = () => {
-  pageJump('premiumTrial', route.query);
-}; // 展示试算
 
 // 初始化数据，获取产品配置详情和产品详情
 const defaultOrderDetail = useOrder();
@@ -329,6 +328,15 @@ const queryMaterial = (productRiskMap) => {
   });
 };
 
+const customerInfo = getCusomterData();
+
+const showTrial = () => {
+  if (customerInfo) {
+    route.query.showPersonInfo = 1;
+  }
+  pageJump('premiumTrial', route.query);
+}; // 展示试算
+
 const getDefaultData = async () => {
   const { code, data } = await queryCalcDefaultInsureFactor({
     calcProductFactorList: [
@@ -340,20 +348,33 @@ const getDefaultData = async () => {
 
   if (code === '10000') {
     // 获取客户详情
-    const customerInfo = getCusomterData();
-    Object.assign(defaultOrderDetail.value, data, { insuredList: [{ ...data.insuredList?.[0], ...customerInfo }] });
-    clearCustomData();
+    const personalInfo = customerInfo ? transformCustomerToPerson(customerInfo, []) : {};
+    Object.assign(defaultOrderDetail.value, data, {
+      insuredList: [{ ...data.insuredList?.[0], ...personalInfo }],
+    });
     const productRiskMap = pickProductRiskCodeFromOrder(data.insuredList?.[0]?.productList);
     queryMaterial(productRiskMap);
   }
 };
 
 const onNext = async () => {
+  const excludeCodeList = ['id', 'relationToHolder', 'beneficiaryList', 'guardian', 'insuredBeneficiaryType'];
+
   if (defaultOrderDetail.value.extInfo) {
     defaultOrderDetail.value.extInfo.iseeBizNo = iseeBizNo.value;
   }
-  const { code, data } = await saveOrder(defaultOrderDetail.value);
+  const orderDetailCopy = cloneDeep(defaultOrderDetail.value);
+  orderDetailCopy.insuredList[0].relationToHolder = 1;
+  Object.keys(orderDetailCopy.insuredList?.[0]).reduce((res, key) => {
+    if (!excludeCodeList.includes(key) && orderDetailCopy.insuredList?.[0]?.[key]) {
+      res[key] = orderDetailCopy.insuredList?.[0]?.[key];
+    }
+    return res;
+  }, orderDetailCopy.holder);
+
+  const { code, data } = await saveOrder(orderDetailCopy);
   if (code === '10000') {
+    clearCustomData();
     router.push({
       path: PAGE_ROUTE_ENUMS.questionNotice,
       query: {
@@ -405,6 +426,9 @@ onMounted(() => {
 .page-internet-product-detail {
   padding-bottom: 150px;
   background: #f1f5fc;
+  .com-attachment-list {
+    padding: 16px 39px 40px 39px;
+  }
   .preview-placeholder {
     padding: 200px 60px;
     height: calc(100vh - 188px);

@@ -5,6 +5,8 @@
     v-bind="filedAttrs"
     :model-value="state.modelValue"
     :disabled="disabled"
+    :required="required"
+    :rules="finalRules"
   >
     <template #input>
       <ValueView v-if="isView" :value="fieldValueView" />
@@ -62,9 +64,8 @@
 
 <script lang="ts" setup>
 import type { PropType } from 'vue';
-import { type RadioGroupProps } from 'vant';
+import { type RadioGroupProps, FieldProps, FieldRule } from 'vant';
 import isNil from 'lodash-es/isNil';
-import { use } from 'echarts';
 import { useToggle } from '@vueuse/core';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { useAttrsAndSlots } from '../hooks';
@@ -117,6 +118,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  required: {
+    type: Boolean,
+    default: false,
+  },
+  rules: {
+    type: Array as PropType<FieldRule[]>,
+    default: () => [],
+  },
   /**
    * 枚举映射
    */
@@ -153,6 +162,28 @@ const isButtonType = computed(() => props.type === 'button');
 // 查看模式值
 const fieldValueView = computed(() => {
   return (state.columns.find((column) => String(column.value) === String(state.modelValue)) || {}).text || '';
+});
+
+const isFalseValue = (val) => isNil(val) || val === '';
+
+const finalRules = computed(() => {
+  if (isNotEmptyArray(props.rules)) {
+    return props.rules;
+  }
+
+  return [
+    {
+      required: props.required,
+      validator: (val) => {
+        // 数值为空
+        if (props.required && isFalseValue(val)) {
+          return filedAttrs.value.placeholder;
+        }
+        return '';
+      },
+      message: filedAttrs.value.placeholder,
+    },
+  ];
 });
 
 const handleSelect = (value) => {
@@ -240,6 +271,12 @@ export default {
   .value-view-wrap {
     margin: 14px 0;
     text-align: right;
+  }
+
+  :deep(.van-field__control--error) {
+    .com-check-btn {
+      color: var(--van-primary-color) !important;
+    }
   }
 }
 

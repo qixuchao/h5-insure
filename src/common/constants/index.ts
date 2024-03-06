@@ -85,6 +85,8 @@ export const CERT_TYPE_ENUM = {
   TEMPORARY_CARD: '30',
   /** 临时身份证 */
   ICARD: '30',
+  /** 警官证 */
+  POLICE: '28',
 };
 
 export const FLAG_LIST = [
@@ -209,11 +211,11 @@ export const ORDER_STATUS_MAPPING_PAGE = {
 // eslint-disable-next-line
 export enum UPLOAD_TYPE_ENUM {
   /**
-   * 代理人头像
+   * 销售人员头像
    */
   AGENT_AVATAR = '1',
   /**
-   * 代理人微信二维码
+   * 销售人员微信二维码
    */
   AGENT_WECHAT_QRCODE = '2',
   /**
@@ -249,7 +251,7 @@ export enum UPLOAD_TYPE_ENUM {
    */
   HOLDER_IDENTITY_DOCUMENT = '10',
   /**
-   * 被保人身份证明文件
+   * 被保险人身份证明文件
    */
   INSURED_IDENTITY_DOCUMENT = '11',
   /**
@@ -281,8 +283,8 @@ export enum NOTICE_TYPE_ENUM {
 
 export const NOTICE_TYPE_MAP = {
   HOLDER: '投保人',
-  INSURED: '被保人',
-  AGENT: '代理人',
+  INSURED: '被保险人',
+  AGENT: '销售人员',
 };
 
 /**
@@ -383,11 +385,11 @@ export enum ATTACHMENT_OBJECT_TYPE_ENUM {
    */
   HOLDER = 1,
   /**
-   * 被保人
+   * 被保险人
    */
   INSURED = 2,
   /**
-   * 代理人
+   * 销售人员
    */
   AGENT = 3,
   /**
@@ -441,6 +443,8 @@ export const ALERT_TYPE_ENUM = {
   PAY_AUTH: 'payAuth', // 支付授权
   UNDER_WRITE_FAIL: 'underWriteFile', // 自核失败提示
   QUESTIONNAIRE: 'questionnaire', // 问卷异常提示
+  LONG_HOLDER_QUESTIONNAIRE: 'longHolderQuestionnaire', // 投保人健告异常
+  LONG_INSURED_QUESTIONNAIRE: 'longInsuredQuestionnaire', // 被保人健告异常
   PAY_FAIL: 'payFail', // 支付失败
   SIGN_FAIL: 'signFail', // 签名核保失败
 };
@@ -453,7 +457,7 @@ export const SCRIBING_TYPE_ENUM = {
 
 export const OBJECT_TYPE_ENUM = {
   1: 'HOLDER', // 投保人
-  2: 'INSURED', // 被保人
+  2: 'INSURED', // 被保险人
   3: 'BENEFICIARY', // 受益人
   4: 'GUARDIAN', // 监护人
 };

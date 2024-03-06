@@ -624,7 +624,7 @@ const props = withDefaults(defineProps<Props>(), {
   factorList: () => [], // 页面对应的因子列表
   images: () => [], // 证件照片
   isView: false, // 页面状态是否为查看状态
-  prefix: '', // 对投保人、被保人、受益人的数据进行区分
+  prefix: '', // 对投保人、被保险人、受益人的数据进行区分
   beneficiaryList: () => [], // 受益人列表
   sendSmsCode: (param, cb) => {}, // 发送验证码
   needDesensitize: false, // 关键信息是否需要脱敏
@@ -773,7 +773,7 @@ const isShowCertType = computed(() => {
   return true;
 });
 
-// 被保人子女的身份证表述加上户口本
+// 被保险人子女的身份证表述加上户口本
 const certNoName = computed(() => {
   if (queryFactorAttr('certType', 'attributeValueList')?.length > 1) {
     return '证件号码';
@@ -921,7 +921,7 @@ const idCardImagesValidate = (value: any) => {
   return '请上传身份证正反面照片';
 };
 
-// 验证被保人关系
+// 验证被保险人关系
 const relationValidate = (value: any) => {
   if (props.beneficiaryList.filter((x) => x.relationToInsured === RELATION_INSURED_ENUM.SPOUSE).length >= 2) {
     return '已存在配偶关系的受益人';

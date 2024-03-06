@@ -199,6 +199,13 @@ export default {
   :deep(.van-field__control--custom) {
     flex-flow: wrap;
     justify-content: flex-end;
+    &.van-field__control--error {
+      .van-checkbox-group {
+        .van-checkbox__label {
+          color: var(--van-error-color);
+        }
+      }
+    }
     .van-checkbox-group {
       width: 100%;
       display: flex;

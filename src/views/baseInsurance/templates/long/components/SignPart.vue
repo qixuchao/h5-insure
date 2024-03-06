@@ -72,8 +72,8 @@ import useAttachment from '@/hooks/useAttachment';
 import Sign from '../../components/Sign/index.vue';
 
 interface Props {
-  signString?: string; // 签字配置信息
-  personalInfo: any; // 投被保人信息
+  signString?: string; // 签名配置信息
+  personalInfo: any; // 投被保险人信息
   fileList: any[];
   title: string;
   showSign: boolean;

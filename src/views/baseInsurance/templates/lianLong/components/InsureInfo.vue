@@ -39,7 +39,7 @@
             content="投保"
           ></ProCell> -->
               <ProCell
-                title="保障金额"
+                title="基本保险金额"
                 :content="
                   (riskInfo.initialAmount || 0).toLocaleString('hanidec', { style: 'currency', currency: 'CNY' })
                 "

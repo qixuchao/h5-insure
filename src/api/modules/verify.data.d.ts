@@ -16,11 +16,11 @@ export interface INotice {
    */
   materialSource: number;
   /**
-   * 资料类型 1.健康告知 2.投保须知 3.客户告知 4.免责条款 5.投被保人声明 6.特别约定
+   * 资料类型 1.健康告知 2.投保须知 3.客户告知 4.免责条款 5.投被保险人声明 6.特别约定
    */
   materialType: number;
   /**
-   * 告知对象 1-投保人，2-被保人，3-代理人
+   * 告知对象 1-投保人，2-被保险人，3-销售人员
    */
   noticeObject: number;
 }
@@ -32,7 +32,11 @@ export interface DoubleData {
     /** 双录状态 */
     doubleRecordStatus: number;
     id: number;
+    andUrl: string;
+    iosUrl: string;
     orderNo: string;
+    andDownUrl: string;
+    iosDownUrl: string;
 }
 
 // 获取签名列表

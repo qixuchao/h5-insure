@@ -5,30 +5,33 @@
       ref="payInfoRef"
       v-model="payInfoList"
       :schema="payInfo.schema"
+      :config="payInfo.config"
       :is-view="isView"
       :user-data="orderDetail"
     ></PayInfo>
     <div class="footer-button">
       <van-button type="primary" plain @click="handleCancel">取消</van-button>
-      <van-button type="primary" @click="handleConfirm">确认</van-button>
+      <van-button :disabled="nextDisable" type="primary" @click="handleConfirm">确认</van-button>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup name="updateBankInfo">
+import qs from 'qs';
 import PayInfo from '@/components/RenderForm/PayInfo.vue';
 import useOrder from '@/hooks/useOrder';
 import { pickProductRiskCodeFromOrder } from './utils';
 import { getTenantOrderDetail, mergeInsureFactor, saveOrder } from '@/api/modules/trial';
 import { transformFactorToSchema } from '@/components/RenderForm/utils/tools';
 import { nextStepOperate as nextStep } from '../../nextStep';
-import { NOTICE_TYPE_MAP, PAGE_ACTION_TYPE_ENUM, SEX_LIMIT_MAP } from '@/common/constants';
+import { NOTICE_TYPE_MAP, PAGE_ACTION_TYPE_ENUM, SEX_LIMIT_MAP, YES_NO_ENUM } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
 import { shareWeiXin } from '@/utils/lianSDK';
 import { SHARE_CONTENT } from '@/common/constants/lian';
 import { querySnapShotPayInfo } from '@/api';
 
+const nextDisable = ref<boolean>(false);
 const route = useRoute();
 const router = useRouter();
 const { orderNo, isShare, tenantId, nextPageCode } = route.query;
@@ -60,14 +63,18 @@ const handleShare = (objectType, type) => {
     };
   }
 
+  const params = {
+    ...route.query,
+    objectType,
+    isShare: 1,
+    nextPageCode: 'updateBankInfo',
+  };
+
   shareWeiXin({
     shareType: 0,
     title: `${SHARE_CONTENT[type].title}`,
-    desc: SHARE_CONTENT[type].desc.replace('{name}', `${userInfo.name}${userInfo.gender},`),
-    url: `${window.location.href}&objectType=${objectType}&isShare=1&nextPageCode=updateBankInfo`.replace(
-      '/updateBankInfo',
-      '/phoneVerify',
-    ),
+    desc: SHARE_CONTENT[type].desc.replace('{name}', `${userInfo.name}${userInfo.gender}`),
+    url: `${window.location.href.split('?')?.[0]}?${qs.stringify(params)}`.replace('/updateBankInfo', '/phoneVerify'),
     imageUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
   });
 };
@@ -76,6 +83,7 @@ const handleConfirm = () => {
   if (payInfoRef.value) {
     payInfoRef.value.validate(false).then((validate) => {
       if (validate) {
+        nextDisable.value = true;
         orderDetail.value.tenantOrderPayInfoList = payInfoList;
         if (isShare) {
           orderDetail.value.extInfo.buttonCode = BUTTON_CODE_ENUMS.UPDATE_BANK_INFO_HOLDER;
@@ -87,7 +95,9 @@ const handleConfirm = () => {
               }
             },
             route,
-          );
+          ).finally(() => {
+            nextDisable.value = false;
+          });
         } else {
           orderDetail.value.extInfo.buttonCode = BUTTON_CODE_ENUMS.UPDATE_BANK_INFO_AGENT;
           nextStep(
@@ -98,7 +108,9 @@ const handleConfirm = () => {
               }
             },
             route,
-          );
+          ).finally(() => {
+            nextDisable.value = false;
+          });
         }
       }
     });
@@ -111,6 +123,18 @@ const initData = async () => {
   querySnapShotPayInfo({ orderNo, tenantId }).then(({ code, data }) => {
     if (code === '10000') {
       payInfoList.value = data.tenantOrderPayInfoList;
+      const configList = [];
+      data.tenantOrderPayInfoList.forEach((info, index) => {
+        // 如果支付方式是批量扣款
+        if (`${info.paymentType}` === `${YES_NO_ENUM.NO}`) {
+          configList[index] = {
+            paymentType: {
+              isView: true,
+            },
+          };
+        }
+      });
+      payInfo.value.config = configList;
     }
   });
 
@@ -119,6 +143,7 @@ const initData = async () => {
     Object.assign(orderDetail.value, oData, {
       extInfo: { ...oData.extInfo, buttonCode: BUTTON_CODE_ENUMS.SIGN, pageCode: PAGE_CODE_ENUMS.SIGN },
     });
+
     productRiskMap = pickProductRiskCodeFromOrder(oData.insuredList[0].productList);
   }
 
@@ -153,3 +178,4 @@ onMounted(() => {
   overflow-y: auto;
 }
 </style>
+import { stringify } from 'querystring';

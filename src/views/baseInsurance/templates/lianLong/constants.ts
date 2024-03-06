@@ -19,6 +19,7 @@ export const BUTTON_CODE_ENUMS = {
 
 export const PAGE_ROUTE_ENUMS = {
   productList: '/baseInsurance/long/productList', // 产品详情
+  proposalToInsure: '/baseInsurance/long/proposalToInsure', // 产品详情
   productInfo: '/baseInsurance/long/productDetail', // 产品详情
   premiumTrial: '/baseInsurance/long/trial', // 保费试算
   questionNotice: '/baseInsurance/long/healthNotice', // 问卷告知书
@@ -32,9 +33,9 @@ export const PAGE_ROUTE_ENUMS = {
   payAuth: '/baseInsurance/long/payAuth', // 银行卡授权
   sign: '/baseInsurance/long/verify', // 认证
   verifyFace: '/baseInsurance/long/verifyFace', // 人脸识别中间页
-  agentSign: '/baseInsurance/long/agentSign', // 代理人签字
-  holderSign: '/baseInsurance/long/holderSign', // 投保人签字
-  insuredSign: '/baseInsurance/long/insuredSign', // 被保人签字
+  agentSign: '/baseInsurance/long/agentSign', // 销售人员签名
+  holderSign: '/baseInsurance/long/holderSign', // 投保人签名
+  insuredSign: '/baseInsurance/long/insuredSign', // 被保险人签名
   orderDetail: '/orderDetail', // 订单详情
   orderList: '/order', // 订单列表
   paymentResult: '/baseInsurance/long/result',
@@ -80,6 +81,6 @@ export const ROUTE_EXCLUDE = [
 ];
 
 export const MESSAGE_TYPE_ENUM = {
-  AGENT: 1, // 发送到代理人端
+  AGENT: 1, // 发送到销售人员端
   HOLDER: 2, // 发送给客户端
 };

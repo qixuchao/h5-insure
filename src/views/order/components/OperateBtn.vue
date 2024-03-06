@@ -1,9 +1,11 @@
 <template>
   <div class="operate-wrap">
     <template v-if="!showRecord">
+      <van-button v-if="isRepayOrder" type="primary" size="small" @click.stop="handleRepay">去支付</van-button>
       <van-button v-if="isDealOrder" type="primary" size="small" @click.stop="handleDeal">去处理</van-button>
       <van-button v-if="isReturnOrder" type="primary" plain size="small" @click.stop="handleReturn">撤单</van-button>
       <van-button v-if="isUpdateBankInfo" plain size="small" @click.stop="handleUpdateBank">银行卡修改</van-button>
+      <van-button v-if="isDelete" plain size="small" @click="handleDelete">取消订单</van-button>
     </template>
     <van-cell v-else label="" value="查看订单状态" is-link @click.stop="previewStatus"></van-cell>
   </div>
@@ -12,11 +14,12 @@
 import { withDefaults } from 'vue';
 import { useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
+import { emit } from 'process';
 import { PAGE_ROUTE_ENUMS, MESSAGE_TYPE_ENUM } from '@/views/baseInsurance/templates/lianLong/constants';
 import { shareWeiXin } from '@/utils/lianSDK';
 import { SHARE_CONTENT, SHARE_IMAGE_LINK } from '@/common/constants/lian';
 import { NOTICE_TYPE_MAP, SEX_LIMIT_MAP, YES_NO_ENUM } from '@/common/constants';
-import { sendMessageToLian as sendMessage } from '@/api';
+import { sendMessageToLian as sendMessage, repayOrder } from '@/api';
 import { cancelOrder } from '@/api/modules/order';
 
 const router = useRouter();
@@ -33,9 +36,16 @@ const props = withDefaults(
   },
 );
 
-const emits = defineEmits(['handleCancel']);
+const emits = defineEmits(['handleCancel', 'refresh-order']);
 
 const showRecord = computed(() => route.path === '/orderRecordList');
+
+// 是否可以重新支付
+const isRepayOrder = computed<boolean>(() => {
+  const { showRepayButton } = props.detail;
+  // 待处理
+  return PAGE_ROUTE_ENUMS.orderList === route.path && showRepayButton === YES_NO_ENUM.YES;
+});
 
 // 去处理按钮展示权限
 const isDealOrder = computed<boolean>(() => {
@@ -50,15 +60,20 @@ const isDealOrder = computed<boolean>(() => {
 });
 // 撤单按钮展示权限
 const isReturnOrder = computed<boolean>(() => {
-  const { policyNo, applicationNo, orderStatus } = props.detail;
-  // 已承保、已撤单的订单不展示
-  return !policyNo && applicationNo && orderStatus !== 'cancel';
+  const { showCancelButton } = props.detail;
+  return showCancelButton === YES_NO_ENUM.YES;
 });
 // 银行卡修改按钮展示权限
 const isUpdateBankInfo = computed<boolean>(() => {
   const { orderStatus } = props.detail;
   // 转线下支付, 人工核保中，支付失败
   return ['offlinePayment', 'manualUnderWriting', 'paymentFailed'].includes(orderStatus);
+});
+
+// 是否支持删除订单
+const isDelete = computed<boolean>(() => {
+  const { showDeleteButton } = props.detail;
+  return showDeleteButton === YES_NO_ENUM.YES;
 });
 
 // 去处理
@@ -84,8 +99,29 @@ const handleDeal = () => {
   });
 };
 
+// 重新支付
+const handleRepay = () => {
+  const { orderNo } = props.detail || {};
+  const toast = Toast.loading({
+    message: '加载中...',
+    duration: 0,
+  });
+  repayOrder({
+    tenantId,
+    orderNo,
+  })
+    .then(({ code, data }) => {
+      if (code === '10000') {
+        emits('refresh-order');
+      }
+    })
+    .finally(() => {
+      toast.clear();
+    });
+};
+
 const handleShare = (type) => {
-  const { holderName, holderGender, orderId, orderNo, insurerCode, iseeBizNo } = props.detail || {};
+  const { holderName, holderGender, orderId, orderNo, insurerCode, iseeBizNo, templateId } = props.detail || {};
   const userInfo = {
     name: holderName,
     gender: `${SEX_LIMIT_MAP[holderGender]}士`,
@@ -94,8 +130,8 @@ const handleShare = (type) => {
   shareWeiXin({
     shareType: 0,
     title: `${SHARE_CONTENT.cancel.title}`,
-    desc: SHARE_CONTENT.cancel.desc.replace('{name}', `${userInfo.name}${userInfo.gender},`),
-    url: `${window.location.href}&objectType=${type}&insurerCode=${insurerCode}&isShare=1&orderNo=${orderNo}&iseeBizNo=${iseeBizNo}&orderId=${orderId}&nextPageCode=orderDetail`.replace(
+    desc: SHARE_CONTENT.cancel.desc.replace('{name}', `${userInfo.name}${userInfo.gender}`),
+    url: `${window.location.href}&objectType=${type}&insurerCode=${insurerCode}&templateId=${templateId}&isShare=1&orderNo=${orderNo}&iseeBizNo=${iseeBizNo}&orderId=${orderId}&nextPageCode=orderDetail`.replace(
       /\/orderDetail|\/order/,
       '/baseInsurance/long/phoneVerify',
     ),
@@ -131,6 +167,7 @@ const handleReturn = () => {
     tenantId,
     orderNo,
     type: 1,
+    cancelFlag: 1, // 1：撤单操作
   }).then(({ code, data }) => {
     if (code === '10000') {
       Dialog.confirm({
@@ -140,6 +177,28 @@ const handleReturn = () => {
       });
     }
   });
+};
+
+// 删单
+const handleDelete = () => {
+  const { orderNo, orderId } = props.detail;
+  if (PAGE_ROUTE_ENUMS.orderList !== route.path) {
+    Dialog.confirm({
+      message: '保单取消后不可恢复，是否确认？',
+      confirmButtonText: '是',
+      cancelButtonText: '否',
+    }).then(() => {
+      cancelOrder({
+        tenantId,
+        orderNo,
+        cancelFlag: 2, // 2:删除订单标记
+      }).then(({ code, data }) => {
+        if (code === '10000') {
+          router.back();
+        }
+      });
+    });
+  }
 };
 
 // 修改银行卡信息

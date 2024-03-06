@@ -83,8 +83,8 @@ const {
 
 const titleMap = {
   '1': '投保人',
-  '2': '被保人',
-  '3': '代理人',
+  '2': '被保险人',
+  '3': '销售人员',
 };
 const listQuestions = ref<any>([]);
 

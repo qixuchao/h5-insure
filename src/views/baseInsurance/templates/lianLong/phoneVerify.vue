@@ -8,7 +8,7 @@
         <ProFieldV2
           v-show="false"
           v-model="formData.mobile"
-          label="被保人手机号"
+          label="被保险人手机号"
           name="mobile"
           maxlength="11"
           required
@@ -38,26 +38,54 @@
           <li>请确保真实本人操作</li>
         </ol>
       </div>
-      <van-button type="primary" class="submit-btn" @click="handleSubmit">开始验证</van-button>
-      <div class="tips">
-        <img :src="faceTip" alt="" />
+      <div class="attachment">
+        <AttachmentList
+          v-if="fileList?.length"
+          v-model="agree"
+          :attachment-list="fileList"
+          :has-bg-color="false"
+          is-show-radio
+          pre-text="本人同意利安人寿采集本人人脸信息，用于向国家法规许可的验证机构进行本人身份验证。本人已仔细阅读并知晓"
+          suffix-text="，并同意授权。"
+          @preview-file="() => (showFilePreview = true)"
+        />
       </div>
+      <div class="footer-button">
+        <van-button type="primary" class="submit-btn" @click="handleSubmit">同意拍摄</van-button>
+      </div>
+      <FilePreview
+        v-if="showFilePreview"
+        v-model:show="showFilePreview"
+        :content-list="fileList"
+        is-only-view
+        :active-index="0"
+        text="我已阅读"
+        :force-read-cound="0"
+        @submit="() => (showFilePreview = false)"
+        @on-close-file-preview-by-mask="() => (showFilePreview = false)"
+      ></FilePreview>
     </div>
   </ProPageWrap>
 </template>
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Toast } from 'vant/es';
+import { Dialog, Toast } from 'vant/es';
+import wx from 'weixin-js-sdk';
 import { getTenantOrderDetail } from '@/api/modules/trial';
 import { convertPhone } from '@/utils/format';
 import useOrder from '@/hooks/useOrder';
-import { NOTICE_TYPE_MAP } from '@/common/constants';
+import { NOTICE_TYPE_MAP, YES_NO_ENUM } from '@/common/constants';
 import { faceVerify, queryFaceVerifyResult } from '@/api/modules/verify';
 import { sendSMSCode, checkSMSCode } from '@/components/RenderForm/utils/constants';
 import faceImg from '@/assets/images/baseInsurance/face_img.png';
-import faceTip from '@/assets/images/baseInsurance/face_tip.png';
 import { PAGE_ROUTE_ENUMS } from './constants';
+import AttachmentList from '../components/AttachmentList/index.vue';
+import policyPdf from '@/assets/pdf/policy.pdf';
+import { setPageTitle } from '@/utils';
+import { isWeiXin } from '@/views/cashier/core';
+
+const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 
 /** 页面query参数类型 */
 interface QueryData {
@@ -74,12 +102,27 @@ const orderDetail = useOrder();
 const route = useRoute();
 const router = useRouter();
 const { agentCode, tenantId, nextPageCode, biz_id, orderNo, objectType, orderCode } = route.query as QueryData;
+
 const formData = ref({
   mobile: '',
   verifyCode: '',
 });
 const formRef = ref();
 const userInfo = ref();
+const agree = ref();
+const fileList = ref([
+  {
+    attachmentName: '隐私政策',
+    attachmentList: [
+      {
+        materialName: '隐私政策',
+        materialContent: policyPdf,
+        materialSource: 'pdf',
+      },
+    ],
+  },
+]);
+const showFilePreview = ref(false);
 
 const personType = computed(() => {
   if (Array.isArray(objectType)) {
@@ -87,6 +130,17 @@ const personType = computed(() => {
   }
   return `${objectType}`.toLocaleUpperCase();
 });
+
+const pageTitle = {
+  updateBankInfo: '支付信息修改',
+  orderDetail: '撤销投保',
+  holderSign: '投保人签名',
+  insuredSign: '被保险人签名',
+};
+
+console.log('pageTitle', nextPageCode, pageTitle[nextPageCode]);
+
+setPageTitle(pageTitle[nextPageCode]);
 
 const getFaceVerifyResult = () => {
   const { objectId, certType } = userInfo.value;
@@ -121,7 +175,7 @@ const getDetail = () => {
       Object.assign(orderDetail.value, data);
       const { holder, insuredList } = data;
       if (objectType === 'holder') {
-        const { name, certNo, certType, id, mobile } = holder;
+        const { name, certNo, certType, id, mobile, shareFlag } = holder;
         formData.value.mobile = mobile;
         userInfo.value = {
           userName: name,
@@ -129,8 +183,22 @@ const getDetail = () => {
           certType,
           objectId: id,
         };
+
+        if (shareFlag === YES_NO_ENUM.YES && !biz_id && !['updateBankInfo', 'orderDetail'].includes(nextPageCode)) {
+          Dialog.confirm({
+            message: '本次签名已完成，您是否需要重新签名?',
+            confirmButtonText: '是',
+            cancelButtonText: '否',
+          }).catch(() => {
+            if (isWeiXin) {
+              wx.closeWindow();
+            } else {
+              window.close();
+            }
+          });
+        }
       } else {
-        const { name, certNo, certType, id, mobile } = insuredList?.[0] || {};
+        const { name, certNo, certType, id, mobile, shareFlag } = insuredList?.[0] || {};
         formData.value.mobile = mobile;
         userInfo.value = {
           userName: name,
@@ -138,6 +206,19 @@ const getDetail = () => {
           certType,
           objectId: id,
         };
+        if (shareFlag === YES_NO_ENUM.YES && !biz_id && !['updateBankInfo', 'orderDetail'].includes(nextPageCode)) {
+          Dialog.confirm({
+            message: '本次签名已完成，您是否需要重新签名?',
+            confirmButtonText: '是',
+            cancelButtonText: '否',
+          }).catch(() => {
+            if (isWeiXin) {
+              wx.closeWindow();
+            } else {
+              window.close();
+            }
+          });
+        }
       }
 
       if (biz_id) {
@@ -169,6 +250,13 @@ const goFaceVerify = () => {
 
 const handleSubmit = () => {
   formRef.value?.validate?.().then(() => {
+    if (!agree.value) {
+      Dialog.alert({
+        message: '请先同意隐私政策',
+        confirmButtonText: '我知道了',
+      });
+      return;
+    }
     goFaceVerify();
   });
 };
@@ -190,7 +278,7 @@ onMounted(() => {
 .page-phone-verify {
   width: 100%;
   height: 100%;
-  padding: 41px 30px;
+  padding: 41px 30px 150px;
   .title {
     font-size: 36px;
     font-weight: 500;
@@ -272,3 +360,4 @@ onMounted(() => {
   }
 }
 </style>
+import { includes } from 'lodash';

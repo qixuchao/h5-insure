@@ -114,7 +114,7 @@ export const INPUT_MAX_LENGTH = {
    */
   ELEVEN: 11,
   /**
-   * 代理人编号 15
+   * 销售人员编号 15
    */
   FIFTEEN: 15,
   /**
@@ -173,6 +173,8 @@ export const RULE_TYPE_ENUM = {
   OTHER_CERT: 'otherCert',
   /** 军官证 */
   MILITARY_CARD: 'militaryCard',
+  /** 警官证 */
+  POLICE: 'police',
   /** 士兵证 */
   SOLIDER: 'solider',
   /** 大陆居民往来港澳通行证 */
@@ -197,6 +199,7 @@ export const RULE_TYPE_ENUM = {
   /** 比例 */
   BENEFIT_RATE: 'benefitRate',
   NUMBER: 'number',
+  ANNUALLY_COME_DESC: 'annuallyComeDesc',
 };
 
 /** 规则配置 */
@@ -296,7 +299,7 @@ export const RULE_CONFIG_MAP = {
     ruleType: RULE_TYPE_ENUM.BENEFIT_RATE,
   },
   /**
-   * 代理人code
+   * 销售人员code
    */
   AGENT_CODE: {
     type: 'digit',
@@ -434,8 +437,7 @@ export const PRO_BANK_FIELD_MAP = {
   },
   // 银行卡照片
   bankCardImage: {
-    maxCount: 2,
-    subLabel: '（需上传正反两面）',
+    maxCount: 1,
     name: BANK_INFO_KEY_ENUM.BANK_CARD_IMAGE,
     componentName: COMPONENT_ENUM.ProBankUpload,
   },
@@ -466,6 +468,7 @@ export const RELATED_RULE_TYPE_MAP = {
     [CERT_TYPE_ENUM.MILITARY_CARD]: [RULE_TYPE_ENUM.MILITARY_CARD],
     [CERT_TYPE_ENUM.PASSPORT]: [RULE_TYPE_ENUM.PASSPORT],
     [CERT_TYPE_ENUM.HONGKONG_MACAO]: [RULE_TYPE_ENUM.HONGKONG_MACAO],
+    [CERT_TYPE_ENUM.POLICE]: [RULE_TYPE_ENUM.POLICE],
     [CERT_TYPE_ENUM.OTHER]: [RULE_TYPE_ENUM.OTHER_CERT],
     [CERT_TYPE_ENUM.SOLIDER]: [RULE_TYPE_ENUM.SOLIDER],
     [CERT_TYPE_ENUM.BIRTH]: [RULE_TYPE_ENUM.BIRTH],
@@ -531,7 +534,9 @@ export const GLOBAL_CONFIG_MAP = {
   },
   certNo: {
     relatedName: 'certType',
-    maxlength: INPUT_MAX_LENGTH.EIGHTEEN,
+    maxlength: INPUT_MAX_LENGTH.TWENTY,
+    isUpperValue: true,
+    formatter: (val) => (val ? val.toUpperCase().trim() : val),
   },
   certType: {
     relatedName: 'certNo',
@@ -543,17 +548,46 @@ export const GLOBAL_CONFIG_MAP = {
   age: RULE_CONFIG_MAP.AGE,
   height: {
     ...RULE_CONFIG_MAP.HEIGHT_WEIGHT,
+    maxlength: 6,
     unit: 'cm',
+    formatter: (val) => {
+      // 替换首位0
+      if (/^0/.test(val)) {
+        return `${val}`.replace(/^0/g, '');
+      }
+      // 小数点前录入3位，小数点后录入2位
+      if (!/^[1-9]\d{2}\.\d{2}/.test(val)) {
+        return `${val}`.replace(/^([1-9]\d{2})\d+/g, '$1');
+      }
+      return val;
+    },
   },
   weight: {
     ...RULE_CONFIG_MAP.HEIGHT_WEIGHT,
     unit: 'kg',
+    maxlength: 6,
+    formatter: (val) => {
+      // 替换首位0
+      if (/^0/.test(val)) {
+        return `${val}`.replace(/^0/g, '');
+      }
+      // 小数点前录入3位，小数点后录入2位
+      if (!/^[1-9]\d{2}\.\d{2}/.test(val)) {
+        return `${val}`.replace(/^([1-9]\d{2})\d+/g, '$1');
+      }
+      return val;
+    },
   },
   email: {
     ruleType: RULE_TYPE_ENUM.EMAIL,
   },
+  // 收入来源
   annuallyComeList: {
     relatedName: 'annuallyComeDesc',
+  },
+  // 其他收入来源
+  annuallyComeDesc: {
+    ruleType: RULE_TYPE_ENUM.ANNUALLY_COME_DESC,
   },
   personalAnnualIncome: RULE_CONFIG_MAP.INCOME,
   familyAnnualIncome: RULE_CONFIG_MAP.INCOME,
@@ -604,35 +638,51 @@ export const GLOBAL_CONFIG_MAP = {
     ...RULE_CONFIG_MAP.RATE,
     unit: '%',
   },
-  /** 代理人code */
+  /** 销售人员code */
   agentCode: {
     ...RULE_CONFIG_MAP.AGENT_CODE,
   },
+  /** 监护人与被保人关系证明 */
+  relationshipProof: {
+    maxCount: 4,
+  },
+  /** 自保件互保件告知 */
+  selfInsuranceItemFlag: {
+    isDefaultSelected: false,
+  },
+  /** 保单格式 */
+  policyReceiveType: {
+    isDefaultSelected: false,
+  },
+  /** 保证续保 */
+  bonusReceiveType: {
+    isDefaultSelected: false,
+  },
 };
 
-/** 被保人类型 主被保人/次被保人 */
+/** 被保险人类型 主被保险人/次被保险人 */
 export const INSURED_MODULE_TYPE_ENUM = {
   main: 1,
   sub: 2,
 };
 
-/** 因子类型 1. 投保人 2. 被保人 3. 受益人 4. 支付信息 5. 签字信息 */
+/** 因子类型 1. 投保人 2. 被保险人 3. 受益人 4. 支付信息 5. 签名信息 */
 export const MODULE_TYPE_MAP = {
   /** 投保人 */
   1: 'holder',
-  /** 被保人 */
+  /** 被保险人 */
   2: 'insured',
   /** 受益人 */
   3: 'beneficiary',
   /** 支付信息 */
   4: 'payInfo',
-  /** 签字信息 */
+  /** 签名信息 */
   5: 'signInfo',
   /** 其他信息 */
   7: 'other',
   /** 监护人 */
   8: 'guardian',
-  /** 代理人 */
+  /** 销售人员 */
   9: 'agent',
 };
 

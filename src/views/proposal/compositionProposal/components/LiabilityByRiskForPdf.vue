@@ -54,7 +54,7 @@ const handleCharts = () => {
       });
     });
     emits('uploadImg', { id: props.insuredId, productList: productImageList });
-  }, 500);
+  }, 1500);
 };
 
 onMounted(() => {

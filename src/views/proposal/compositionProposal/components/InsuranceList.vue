@@ -17,7 +17,7 @@
           </div>
         </div>
         <div class="fe">
-          首年保费： <span>¥{{ toLocal(props.info?.totalPremium) }}</span>
+          首年保费： <span>{{ toLocal(props.info?.totalPremium) }}元</span>
         </div>
       </template>
       <template v-else>
@@ -66,9 +66,9 @@ const columns = [
     width: 180,
   },
   {
-    title: '保额',
+    title: '基本保险金额',
     dataIndex: 'initialAmount',
-    render: (record) => toLocal(record.initialAmount),
+    render: (record) => `${toLocal(record.initialAmount)}元`,
   },
   {
     title: '保障期间',
@@ -82,10 +82,10 @@ const columns = [
     width: 110,
   },
   {
-    title: '保费',
+    title: '首年保费',
     dataIndex: 'initialPremium',
     width: 120,
-    render: (record) => toLocal(record.initialPremium),
+    render: (record) => `${toLocal(record.initialPremium)}元`,
   },
 ];
 
@@ -132,7 +132,7 @@ const getChargePay = (val: string) => {
     case 'to':
       return `交至${arr[1]}岁`;
     case 'single':
-      return `趸缴`;
+      return `趸交`;
 
     default:
       return '';

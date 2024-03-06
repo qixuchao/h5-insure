@@ -16,6 +16,7 @@
       :product-collection="productCollection"
       :default-data="orderDetail"
       :product-factor="productFactor"
+      :page-loading="pageLoading"
       @trial-start="handleTrialStart"
       @trial-end="handleTrialEnd"
       @update:user-data="updateUserData"
@@ -23,7 +24,7 @@
       @add-risk="addRisk"
       @delete-risk="deleteRisk"
     >
-      <template #middleInfo>
+      <template v-if="!pageLoading" #middleInfo>
         <PayInfo
           v-if="state.payInfo.schema.length"
           ref="payInfoRef"
@@ -34,6 +35,7 @@
         ></PayInfo>
         <PolicyInfo
           v-if="state.policyInfo.schema.length"
+          ref="policyInfoRef"
           v-model="orderDetail.extInfo"
           :schema="state.policyInfo.schema"
           :is-view="state.isView"
@@ -43,12 +45,13 @@
 
     <ProLazyComponent>
       <AttachmentList
-        v-if="fileList?.length"
-        v-model="isAgree"
+        v-if="!pageLoading && hasSolvency"
+        v-model="specNoticeFlag"
+        class="special-tips"
         :has-bg-color="false"
         :attachment-list="fileList"
         is-show-radio
-        pre-text="投保人阅读并接受"
+        :pre-text="`本人已认真阅读下面的特别约定${state.solvency}`"
         @preview-file="(index) => previewFile(index)"
       />
     </ProLazyComponent>
@@ -72,7 +75,7 @@
       :payment-frequency="trialData?.insuredList?.[0].productList?.[0].riskList?.[0]?.paymentFrequency + ''"
       :tenant-product-detail="tenantProductDetail"
       :handle-share="(cb) => onShare(cb)"
-      :disabled="!trialResult || nextLoading"
+      :disabled="!trialResult || nextLoading || pageLoading"
       @handle-click="onNext"
       >下一步
       <template #label> 首年总保费 </template>
@@ -90,13 +93,14 @@
       @cancel="handleCancel"
       @confirm="handleConfirm"
     ></RiskList>
+    <ProFixedButton :button-image="cacheImg" @click="handleCache" />
   </div>
 </template>
 
 <script lang="ts" setup name="InfoCollection">
 import { useRoute } from 'vue-router';
 import { Toast, Dialog } from 'vant';
-import { findIndex, findLastIndex } from 'lodash-es';
+import { cloneDeep, findIndex, findLastIndex, isEqual, merge } from 'lodash-es';
 import {
   ProRenderFormWithCard,
   PayInfo,
@@ -140,6 +144,7 @@ import Trial from '../components/Trial/index.vue';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import router from '@/router';
 import { RISK_TYPE_ENUM } from '@/common/constants/trial';
+import cacheImg from '@/assets/images/cache_icon.png';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
@@ -148,6 +153,7 @@ const RiskList = defineAsyncComponent(() => import('./components/SelectRiskList.
 const route = useRoute();
 const orderDetail = useOrder({});
 const LOADING_TEXT = '试算中...';
+const pageLoading = ref(true);
 
 /** 页面query参数类型 */
 interface QueryData {
@@ -177,7 +183,7 @@ const {
 } = route.query as QueryData;
 
 let extInfo: any = {};
-let timer = null;
+const timer = null;
 const productClass = ref<number>(2); // 多主险标志 1:是，2:否
 try {
   extInfo = JSON.parse(decodeURIComponent(extraInfo as string));
@@ -246,6 +252,7 @@ const state = reactive({
   isAutoChange: false,
   defaultPlanCode: '',
   userData: {},
+  solvency: '',
 });
 
 // 分享信息
@@ -258,6 +265,7 @@ const shareInfo = ref({
 });
 
 const payInfoRef = ref<InstanceType<typeof PayInfo>>();
+const policyInfoRef = ref<InstanceType<typeof PolicyInfo>>();
 const trialRef = ref<InstanceType<typeof Trial>>();
 const personalInfoRef = ref<InstanceType<typeof Trial>>();
 const tenantProductDetail = ref<Partial<ProductDetail>>({}); // 核心系统产品信息
@@ -273,6 +281,7 @@ const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件�
 const isOnlyView = ref<boolean>(true); // 资料查看模式
 const { fileList, mustReadFileCount, popupFileList } = useAttachment(currentPlanObj, productMaterialPlanList);
 const isAgree = ref<boolean>(false);
+const specNoticeFlag = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
 // 文件预览
 const previewFile = (index: number) => {
@@ -366,6 +375,12 @@ const pickRenewRiskList = (productList, factorList) => {
 
   return currentProductFactor;
 };
+
+// 是否有特别约定
+const hasSolvency = computed(() => {
+  const arr = productFactor.value[5] || [];
+  return Boolean(arr.find((item) => item.code === 'solvency'));
+});
 
 // 获取多个产品合并后的产品详情
 const getMergeProductDetail = () => {
@@ -514,7 +529,7 @@ const compareOcrData = () => {
   };
 
   compareData(holder, '投保人');
-  compareData(insuredList?.[0], '被保人');
+  compareData(insuredList?.[0], '被保险人');
   (insuredList?.[0]?.beneficiaryList || []).forEach((benefit, index) => {
     compareData(benefit, `受益人${index + 1}`);
   });
@@ -547,6 +562,10 @@ const onNext = async () => {
     validateList.push(payInfoRef.value?.validate(false));
   }
 
+  if (policyInfoRef.value) {
+    validateList.push(policyInfoRef.value?.validate(false));
+  }
+
   Promise.all(validateList)
     .then(
       (res) => {
@@ -554,11 +573,16 @@ const onNext = async () => {
         //   Toast('请勾选投保人阅读并接受');
         //   return;
         // }
+        if (hasSolvency.value && !specNoticeFlag.value) {
+          Toast('请阅读并勾选特别约定');
+          return;
+        }
         Object.assign(orderDetail.value, {
           extInfo: {
             ...orderDetail.value.extInfo,
             buttonCode: BUTTON_CODE_ENUMS.INFO_COLLECTION,
             pageCode: PAGE_CODE_ENUMS.INFO_COLLECTION,
+            specNoticeFlag: specNoticeFlag.value ? 1 : 2, // 1 是 2 否
           },
         });
 
@@ -570,6 +594,7 @@ const onNext = async () => {
         );
 
         route.query.productClass = `${productClass.value}`;
+        delete route.query.canBack;
 
         // 校验ocr信息是否被修改
         const msgList = compareOcrData();
@@ -579,29 +604,40 @@ const onNext = async () => {
             message: msgList?.[0],
           }).then(() => {
             clearInterval(timer);
+            Toast.loading({
+              duration: 0,
+              message: '自核中...',
+            });
             nextStep(
               currentOrderDetail,
               (data, pageAction) => {
                 nextLoading.value = false;
+                Toast.clear();
                 if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
                   pageJump(data.nextPageCode, route.query);
                 }
               },
               route,
+              false,
             );
           });
         } else {
           clearInterval(timer);
-
+          Toast.loading({
+            duration: 0,
+            message: '自核中...',
+          });
           nextStep(
             currentOrderDetail,
             (data, pageAction) => {
               nextLoading.value = false;
+              Toast.clear();
               if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
                 pageJump(data.nextPageCode, route.query);
               }
             },
             route,
+            false,
           );
         }
       },
@@ -623,7 +659,8 @@ const updateUserData = (val) => {
   Object.assign(state.userData, val);
 };
 
-const handleCache = () => {
+const cacheData = ref();
+const handleCache = (showToast = true) => {
   Object.assign(orderDetail.value, {
     extInfo: {
       ...orderDetail.value.extInfo,
@@ -632,12 +669,23 @@ const handleCache = () => {
     },
   });
 
-  const userData = personalInfoRef.value.dealMixData();
+  const userData = personalInfoRef.value?.dealMixData?.();
 
-  const currentOrderDetail = trialData2Order(userData, trialResult.value, orderDetail.value);
+  const currentOrderDetail = trialData2Order(
+    { ...userData, productCode, productName: insureProductDetail.value.productName },
+    trialResult.value,
+    orderDetail.value,
+  );
+
   currentOrderDetail.orderStatus = 'collectInfo';
-  saveOrder(currentOrderDetail);
+  saveOrder(currentOrderDetail).then(({ code, data }) => {
+    if (code === '10000') {
+      showToast && Toast('暂存成功');
+    }
+  });
 };
+
+provide('handleCache', handleCache);
 
 // 分享时需要校验投保人手机号并且保存数据
 const onShare = (cb) => {
@@ -725,6 +773,8 @@ const initData = async () => {
   //   }
   // });
 
+  Toast.loading('加载中...');
+
   orderNo &&
     (await getTenantOrderDetail({ orderNo, tenantId }).then(({ code, data }) => {
       if (code === '10000') {
@@ -744,6 +794,7 @@ const initData = async () => {
           },
           productCode,
         });
+        cacheData.value = cloneDeep(orderDetail.value);
         state.defaultValue = orderDetail.value;
         productRiskCodeMap.value = pickProductRiskCodeFromOrder(data.insuredList[0].productList);
         productClass.value = data.insuredList[0].productList.length > 1 ? 1 : 2;
@@ -753,7 +804,7 @@ const initData = async () => {
 
   await mergeInsureFactor(productRiskCodeMap.value).then(({ data, code }) => {
     if (code === '10000') {
-      const { productDetailResList, productFactor: currentProductFactor } = data;
+      const { productDetailResList, productFactor: currentProductFactor, solvency } = data;
       productFactor.value = pickRenewRiskList(productDetailResList, currentProductFactor);
 
       const currentProductCollection = {};
@@ -767,10 +818,17 @@ const initData = async () => {
         ...payInfo,
       };
 
+      // 特别约定
+      state.solvency = solvency;
+
       state.policyInfo = {
         ...state.policyInfo,
         ...other,
       };
+
+      setTimeout(() => {
+        pageLoading.value = false;
+      }, 500);
     }
   });
 };
@@ -780,9 +838,6 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {
-  timer = setInterval(() => {
-    // handleCache();
-  }, 30000);
   setTimeout(async () => {
     iseeBizNo.value = window.getIseeBiz && (await window.getIseeBiz());
   }, 1500);
@@ -810,6 +865,17 @@ onBeforeUnmount(() => {
 
   .empty {
     display: none;
+  }
+  .special-tips {
+    padding-left: 30px;
+    .van-checkbox {
+      // margin-right: 20px;
+      width: 120px;
+    }
+  }
+  .fixed-box {
+    width: 100px;
+    bottom: 274px;
   }
 }
 </style>

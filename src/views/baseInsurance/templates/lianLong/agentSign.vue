@@ -1,6 +1,12 @@
 <template>
   <div class="long-verify">
     <ProNavigator />
+    <div class="header">
+      <ProMessage
+        type="warning"
+        :content="`本人${userInfo?.name}已面晤投保人、被保险人(被保险人为未成年人的，还包括其法定监护人)，投保过程中的告知事项已逐一向投保人、被保险人/法定监护人当面询问，并亲自见证投保人、被保险人/法定监护人在电子投保单上签名。如有不实见证或报告，本人愿承担相应的法律责任。请${userInfo?.name}签名确认。`"
+      />
+    </div>
     <div class="verify-content">
       <SignPart
         ref="agentSignRef"
@@ -10,14 +16,22 @@
         :show-verify="signPartInfo.agent.isVerify"
         :file-list="signPartInfo.agent.fileList"
         :personal-info="signPartInfo.agent.personalInfo"
+        :composition-sign="signPartInfo.agent.compositionSign"
         :disabled="!!isShare"
-        title="代理人"
+        title="销售人员"
         @handle-sign="(signData) => sign('AGENT', signData)"
       ></SignPart>
     </div>
     <div class="footer-button">
       <van-button type="primary" @click="handleSubmit">确定</van-button>
     </div>
+    <MessagePopup v-model="show" @close="toggleShow(false)">
+      <div class="content-inner">
+        <img :src="qianming" alt="" class="header-img" />
+        <h4>本次签名已完成</h4>
+        <p>感谢您对本次投保的签字确认，后续流程由销售人员在您的配合下进行</p>
+      </div>
+    </MessagePopup>
   </div>
 </template>
 
@@ -25,6 +39,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import { stringify } from 'qs';
+import { useToggle } from '@vant/use';
 import { queryListProductMaterial } from '@/api/modules/product';
 import { InsureProductData, ProductMaterialVoItem } from '@/api/modules/product.data';
 import { getTenantOrderDetail, mergeInsureFactor } from '@/api/modules/trial';
@@ -43,6 +58,8 @@ import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import { getFileType } from '../../utils';
 import { sessionStore } from '@/hooks/useStorage';
 import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
+import MessagePopup from './components/MessagePopup.vue';
+import qianming from '@/assets/images/qianming.jpg';
 
 const AttachmentList = defineAsyncComponent(() => import('../components/AttachmentList/index.vue'));
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
@@ -91,6 +108,7 @@ const shareLink = `${window.origin}/baseInsurance/long/phoneVerify?${stringify({
   ...route.query,
   orderNo: orderCode || orderNo,
 })}`;
+const [show, toggleShow] = useToggle(false);
 
 const agentSignRef = ref<InstanceType<typeof SignPart>>();
 const userInfo = sessionStore.get(`${LIAN_STORAGE_KEY}_userInfo`);
@@ -111,7 +129,7 @@ const signPartInfo = ref({
     isVerify: false,
     isShareSign: false,
     signData: {},
-  }, // 被保人
+  }, // 被保险人
   agent: {
     fileList: [],
     personalInfo: {
@@ -121,7 +139,8 @@ const signPartInfo = ref({
     isVerify: false,
     isShareSign: false,
     signData: [],
-  }, // 代理人
+    compositionSign: '',
+  }, // 销售人员
 });
 
 const requiredType = ref<any>({
@@ -172,7 +191,7 @@ const handleShare = () => {
         }
       })
       .catch(() => {
-        Toast('请完成代理人签字后进行分享');
+        Toast('请完成销售人员签名后进行分享');
       });
   }
 };
@@ -184,8 +203,12 @@ const getOrderDetail = () => {
         Object.assign(orderDetail.value, data);
         const signAttachmentList = [];
         data.tenantOrderAttachmentList.forEach((attachment) => {
-          if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT && attachment.category === 30) {
-            signAttachmentList.push(attachment.fileBase64);
+          if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT) {
+            if (attachment.category === 30) {
+              signAttachmentList.push(attachment.fileBase64);
+            } else if (attachment.category === 21) {
+              signPartInfo.value.agent.compositionSign = attachment.uri;
+            }
           }
         });
         signPartInfo.value.agent.signData = signAttachmentList;
@@ -194,8 +217,12 @@ const getOrderDetail = () => {
 };
 
 const sign = (type, signData, bizObjectId?) => {
-  saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId).then(() => {
-    getOrderDetail();
+  saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId).then(({ code, message }) => {
+    if (code === '10000') {
+      getOrderDetail();
+    } else {
+      Toast(message);
+    }
   });
 };
 
@@ -224,8 +251,12 @@ const initData = async () => {
     Object.assign(orderDetail.value, orderData);
     productRiskMap = pickProductRiskCodeFromOrder(orderData.insuredList[0].productList);
     orderData.tenantOrderAttachmentList.forEach((attachment) => {
-      if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT && attachment.category === 30) {
-        signPartInfo.value.agent.signData.push(attachment.fileBase64);
+      if (attachment.objectType === NOTICE_OBJECT_ENUM.AGENT) {
+        if (attachment.category === 30) {
+          signPartInfo.value.agent.signData.push(attachment.fileBase64);
+        } else if (attachment.category === 21) {
+          signPartInfo.value.agent.compositionSign = attachment.uri;
+        }
       }
     });
   }
@@ -257,19 +288,19 @@ const initData = async () => {
             if (schema.required) {
               requiredType.value.sign.push(column.code);
             }
-            // 代理人签字
+            // 销售人员签名
             if (column.code === '1') {
               signPartInfo.value.agent.isSign = true;
-              // 投保人签字
+              // 投保人签名
             } else if (column.code === '2') {
               signPartInfo.value.holder.isSign = true;
-              // 被保人签字
+              // 被保险人签名
             } else if (column.code === '3') {
               signPartInfo.value.insured.isSign = true;
-              // 投保人空中签字
+              // 投保人空中签名
             } else if (column.code === '4') {
               signPartInfo.value.holder.isShareSign = true;
-              // 被保人空中签字
+              // 被保险人空中签名
             } else if (column.code === '5') {
               signPartInfo.value.insured.isShareSign = true;
             }
@@ -308,6 +339,7 @@ onMounted(() => {
 <style lang="scss" scope>
 .long-verify {
   padding-bottom: 150px;
+  overflow-y: auto;
   .sign-status {
     display: flex;
   }

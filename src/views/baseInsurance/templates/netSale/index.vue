@@ -15,7 +15,7 @@
         ref="formRef"
         :title-collection="{
           HOLDER: '投保人',
-          INSURER: '被保人',
+          INSURER: '被保险人',
           BENEFICIARY: '收益人',
         }"
         :form-info="orderDetail"
@@ -158,7 +158,7 @@ const orderDetail = ref<Partial<NextStepRequestData>>({
     },
   },
   tenantOrderInsuredList: [
-    // 被保人信息
+    // 被保险人信息
     {
       relationToHolder: '1',
       extInfo: {
@@ -391,7 +391,7 @@ const trialData2Order = (
     riskPremium: currentRiskPremium,
     productId: currentProductDetail?.productBasicInfoVO.id || 0,
   };
-  // 设置投被保人的默认证件类型为身份证
+  // 设置投被保险人的默认证件类型为身份证
   if (nextStepParams.tenantOrderHolder) {
     nextStepParams.tenantOrderHolder.certType = nextStepParams.tenantOrderHolder.certType || CERT_TYPE_ENUM.CERT;
     nextStepParams.tenantOrderHolder.certNo = (nextStepParams.tenantOrderHolder.certNo || '').toLocaleUpperCase();

@@ -87,7 +87,6 @@ import ProductItem from './components/productItem.vue';
 import InsureFilter from './components/insureFilter.vue';
 import ProductRisk from '../createProposal/components/ProductRisk/index.vue';
 import createProposalStore from '@/store/proposal/createProposal';
-import ProFixedButton from '@/components/ProFixedButton/index.vue';
 import { queryProposalProductList } from '@/api/modules/proposalList';
 import ProFixedButtonDefaultImage from '@/assets/images/lishijihuashu.png';
 import TrialProductPopup from './components/TrialProductPopup/index.vue';

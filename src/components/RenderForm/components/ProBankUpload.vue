@@ -65,10 +65,6 @@ const uploaderList = [
     category: ATTACHMENT_CATEGORY_ENUM.OBVERSE_BANK_CARD,
     title: '银行卡正面照',
   },
-  {
-    category: ATTACHMENT_CATEGORY_ENUM.REVERSE_BANK_CARD,
-    title: '银行卡反面照',
-  },
 ];
 
 const bankDic = useDicData(`${(insurerCode as string).toLocaleUpperCase()}_BANK`);
@@ -88,7 +84,7 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  /** 数据对象类型-属于哪个模块(被保人...) */
+  /** 数据对象类型-属于哪个模块(被保险人...) */
   objectType: {
     type: Number as () => ATTACHMENT_OBJECT_TYPE_ENUM,
     default: null,
@@ -121,15 +117,6 @@ const fileList = computed(() =>
       : [],
   ),
 );
-
-const beforeRead = (e) => {
-  const fileType = (e.name || '').match(/\.([^.]+)$/)?.[1];
-  if (fileType !== 'jpg') {
-    Toast('上传只支持jpg图片');
-    return false;
-  }
-  return true;
-};
 const handleRead = (e: UploaderFileListItem, index) => {
   const { title, category } = uploaderList[index];
   fileUpload(e.file, UPLOAD_TYPE_ENUM.BANK_CARD).then((res) => {
@@ -179,7 +166,7 @@ watch(
   () => state.ossKeyList,
   (val) => {
     const keyList = val.filter((item) => item);
-    if (isNotEmptyArray(keyList) && keyList.length === 2) {
+    if (isNotEmptyArray(keyList)) {
       ocr({
         ossKey: val,
         imageType: OCR_TYPE_ENUM.BANK_CARD,

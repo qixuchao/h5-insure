@@ -5,7 +5,7 @@
     :schema="state.schema"
     :model="state.modelValue"
     :config="state.config"
-    title="代理人信息"
+    title="销售人员信息"
     :is-view="isView"
   />
 </template>

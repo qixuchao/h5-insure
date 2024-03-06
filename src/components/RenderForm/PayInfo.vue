@@ -220,7 +220,7 @@ const state = reactive<{
   schemaList: [],
 });
 
-// 主被保人名字
+// 主被保险人名字
 const mainInsuredName = computed(() => props.userData.insuredList?.[0]?.name || null);
 
 const holderName = computed(() => props.userData?.holder?.name || null);
@@ -284,7 +284,6 @@ const combineFormData = (targetIndex, originIndex) => {
   }, tempData);
 
   merge(state.schemaList[targetIndex]?.formData, tempData);
-  console.log('merge', state.schemaList[targetIndex]?.formData);
 };
 
 // 验证表单必填
@@ -356,8 +355,8 @@ watch(
   (val, oldVal) => {
     if (!isEqual(val, oldVal) && isNotEmptyArray(oldVal)) {
       state.schemaList.forEach((item, index) => {
-        if (item?.formData?.paymentType !== oldVal?.[index]) {
-          merge(
+        if (item?.formData?.paymentType !== oldVal?.[index] || `${item?.formData?.paymentGenre}` === '1') {
+          Object.assign(
             item.formData,
             resetObjectValues(item?.formData, (key) =>
               ['bankCardNo', 'payBank', 'mobile', 'bankCardImage', 'verificationCode'].includes(key),
@@ -372,13 +371,37 @@ watch(
   },
 );
 
+// 监听开户银行，清空银行卡照片
+watch(
+  () => state.schemaList.map((item) => item?.formData?.payBank),
+  (val, oldVal) => {
+    if (!isEqual(val, oldVal) && isNotEmptyArray(oldVal)) {
+      state.schemaList.forEach((item, index) => {
+        if (item?.formData?.payBank !== oldVal?.[index] || `${item?.formData?.paymentGenre}` === '1') {
+          nextTick(() =>
+            Object.assign(
+              item.formData,
+              resetObjectValues(item?.formData, (key) =>
+                ['bankCardNo', 'mobile', 'bankCardImage', 'verificationCode'].includes(key),
+              ),
+            ),
+          );
+        }
+      });
+    }
+  },
+  {
+    deep: true,
+  },
+);
+
 // 根据 payInfoType 处理，原因是 首期/续期/年金某一个可能不配置，不能拿索引
 // 首期 数据变动，若续期/年金同首期
 watch(
-  () => ({ ...state.schemaList[schemaIndexMap.value.FIRST_TERM]?.formData }),
+  () => cloneDeep(state.schemaList[schemaIndexMap.value.FIRST_TERM]?.formData),
   // eslint-disable-next-line consistent-return
   (val, oldVal) => {
-    if (props.isView || isEqual(val, oldVal)) {
+    if (props.isView || JSON.stringify(val) === JSON.stringify(oldVal)) {
       return false;
     }
     const { REPRISE, RENEW_TERM } = schemaIndexMap.value;
@@ -609,13 +632,13 @@ watch(
   },
 );
 
-// 监听投被保人姓名变动, 多被保人默认主被保人/第一主被保人
+// 监听投被保险人姓名变动, 多被保险人默认主被保险人/第一主被保险人
 watch(
   () => [holderName.value, mainInsuredName.value],
   ([name1, name2]) => {
     if (name1 || name2) {
       state.schemaList.forEach((schemaItem) => {
-        // 是否为年金领取,若为年金领取则为被保人姓名
+        // 是否为年金领取,若为年金领取则为被保险人姓名
         const isReprise = schemaItem.payInfoType === PAYMENT_TYPE_ENUM.REPRISE;
         if (isReprise) {
           schemaItem.formData.accountName = name2;

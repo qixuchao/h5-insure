@@ -31,6 +31,15 @@ export const fileUpload = (file: File, uploadType: UPLOAD_TYPE_ENUM) => {
   });
 };
 
+// 调用原生上传功能，拿到的是base64
+export const fileUploadWithBase64 = (fileBase64: string, uploadType: UPLOAD_TYPE_ENUM) => {
+  return request<{
+    ossKey: string;
+    tempUrl: string;
+    url: string;
+  }>({ url: '/api/app/insure/file/uploadBase64File', method: 'POST', data: { fileBase64, uploadType } });
+};
+
 export const fileUploadBase64 = (data) => {
   return request({ url: '/api/app/uploadBase64File', method: 'POST', data });
 };

@@ -22,13 +22,24 @@
           is-show-radio
           pre-text="本人同意利安人寿采集本人人脸信息，用于向国家法规许可的验证机构进行本人身份验证。本人已仔细阅读并知晓"
           suffix-text="，并同意授权。"
-          @preview-file="(index) => previewFile(index)"
+          @preview-file="() => (showFilePreview = true)"
         />
       </div>
       <div class="footer-button">
-        <van-button type="primary" class="submit-btn" @click="handleSubmit">开始验证</van-button>
+        <van-button type="primary" class="submit-btn" @click="handleSubmit">同意拍摄</van-button>
       </div>
     </div>
+    <FilePreview
+      v-if="showFilePreview"
+      v-model:show="showFilePreview"
+      :content-list="fileList"
+      is-only-view
+      :active-index="0"
+      text="我已阅读"
+      :force-read-cound="0"
+      @submit="() => (showFilePreview = false)"
+      @on-close-file-preview-by-mask="() => (showFilePreview = false)"
+    ></FilePreview>
   </ProPageWrap>
 </template>
 
@@ -49,6 +60,9 @@ import { PAGE_ROUTE_ENUMS as FREE_PAGE_ROUTE_ENUMS } from '../lianFree/constants
 import { nextStepOperate } from '../../nextStep.ts';
 import { TEMPLATE_TYPE_ENUM } from '@/common/constants/infoCollection';
 import AttachmentList from '../components/AttachmentList/index.vue';
+import policyPdf from '@/assets/pdf/policy.pdf';
+
+const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 
 /** 页面query参数类型 */
 interface QueryData {
@@ -76,8 +90,16 @@ const agree = ref();
 const fileList = ref([
   {
     attachmentName: '隐私政策',
+    attachmentList: [
+      {
+        materialName: '隐私政策',
+        materialContent: policyPdf,
+        materialSource: 'pdf',
+      },
+    ],
   },
 ]);
+const showFilePreview = ref(false);
 
 const personType = computed(() => {
   if (Array.isArray(objectType)) {
@@ -204,7 +226,7 @@ onMounted(() => {
 .page-phone-verify {
   width: 100%;
   height: 100%;
-  padding: 41px 30px;
+  padding: 41px 30px 150px;
   .title {
     font-size: 36px;
     font-weight: 500;

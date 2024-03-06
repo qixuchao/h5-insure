@@ -356,8 +356,8 @@ import {
 import Storage from '@/utils/storage';
 import BenefitCharts from './components/BenefitCharts.vue';
 import AgentToImage from './components/AgentToImage.vue';
-import InsurancesList from './components/InsurancesList.vue'; // 预览页面 被保人选择
-import InsuranceList from './components/InsuranceList.vue'; // 被保人展示
+import InsurancesList from './components/InsurancesList.vue'; // 预览页面 被保险人选择
+import InsuranceList from './components/InsuranceList.vue'; // 被保险人展示
 // import Benefit from './components/Benefit.vue';
 import Benefit from '../../baseInsurance/templates/components/Benefit/index.vue';
 import LiabilityByRisk from './components/LiabilityByRisk.vue';
@@ -381,7 +381,7 @@ import { SEX_LIMIT_ENUM } from '@/common/constants';
 import { useLocalStorage, sessionStore } from '@/hooks/useStorage';
 import { LIAN_STORAGE_KEY } from '@/common/constants/lian';
 import Capsule from '@/components/CapsuleSelect/index.vue';
-import InsuredList from './components/InsuredList.vue'; // 选择被保人
+import InsuredList from './components/InsuredList.vue'; // 选择被保险人
 import useTheme from '@/hooks/useTheme';
 import { PAGE_ROUTE_ENUMS } from '@/views/baseInsurance/templates/lianLong/constants.ts';
 import LiabilityByRiskForPdf from './components/LiabilityByRiskForPdf.vue';
@@ -555,7 +555,7 @@ const setShareConfig = (link: string) => {
   shareConfig.value = {
     shareType: 0,
     title: proposalName,
-    desc: '您的贴心保险管家',
+    desc: shareConfig.value.desc,
     url: link,
     imageUrl: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
     img: 'https://aquarius-v100-test.oss-cn-hangzhou.aliyuncs.com/MyPicture/asdad.png',
@@ -620,11 +620,14 @@ const getData = async () => {
         handleSelectInsureChange(0, realData[0]);
         title = '个人保障方案';
       }
+      // 投保人
+      const { name, gender } = data?.holder || {};
       document.title = title;
       infos.value = realData;
       proposalName.value = data.proposalName;
       isLoading.value = false;
       tenantId.value = data?.tenantId;
+      shareConfig.value.desc = `尊敬的${name}${['女士', '先生'][gender - 1]}，请查看您的建议书`;
       shareLink = `${ORIGIN}${BASE_PREFIX}proposalCover?id=${id}&isShare=1&tenantId=${tenantId.value}`;
       setShareConfig(shareLink);
     }
@@ -730,11 +733,7 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
           proposalId: id,
           proposalInsuredId: targetInsureId,
         };
-        let path = PAGE_ROUTE_ENUMS.premiumTrial;
-        if (+productClass !== 4) {
-          path = PAGE_ROUTE_ENUMS.premiumTrial;
-        }
-
+        const path = PAGE_ROUTE_ENUMS.proposalToInsure;
         history.push({
           path,
           query: params,
@@ -749,7 +748,7 @@ const proposal2Insured = (product: InsuredProductData, insuredId: number) => {
 // 立即投保
 const onInsured = () => {
   if (currentInfo.value) {
-    // 投保当前被保人
+    // 投保当前被保险人
     const targetInsure = insuredProductList.value.find(
       (insure) => insure.name === currentInfo.value.name && insure.proposalInsuredId === currentInfo.value.id,
     );
@@ -886,7 +885,7 @@ const currentFile = ref({
   attachmentSource: 1,
   show: false,
 });
-// 客户代理人信息
+// 客户销售人员信息
 // const agentInfo = reactive({ name: `${userInfo?.name}`, agentCode: `${userInfo?.agentCode}` });
 const previewFile = (file: {}) => {
   currentFile.value = { ...file, show: true };
@@ -1340,9 +1339,13 @@ const resetFile = (file: {}) => {
       font-weight: 400;
     }
     :deep(.price) {
+      flex: 1;
       font-size: 28px;
       font-weight: 400;
       color: $zaui-price;
+    }
+    :deep(.van-cell__title) {
+      flex: 3;
     }
 
     .poiner {
@@ -1481,8 +1484,11 @@ const resetFile = (file: {}) => {
   margin-top: 30px;
 }
 .benefit-chart {
-  position: fixed;
-  display: block;
+  // position: fixed;
+  // display: block;
+  height: 1px;
+  width: 100%;
+  overflow-y: auto;
 }
 .agent-img {
   position: fixed;

@@ -22,7 +22,7 @@
       <div class="info-bottom">
         <div>
           <InfoItem label="投保人" :content="detail.holderName" line />
-          <InfoItem label="被保人" :content="detail.insuredName?.[0]" line />
+          <InfoItem label="被保险人" :content="detail.insuredName?.[0]" line />
           <InfoItem label="创建时间" :content="detail.orderStartDate" line />
           <InfoItem label="保费" :content="transformToMoney(detail.premium)" line />
         </div>
@@ -30,7 +30,7 @@
       </div>
     </div>
     <div class="footer">
-      <OperateBtn :detail="detail"></OperateBtn>
+      <OperateBtn :detail="detail" @refresh-order="refreshOrder"></OperateBtn>
     </div>
   </div>
 </template>
@@ -109,6 +109,10 @@ const redirectProductDetail = (): boolean => {
     }
   }
   return false;
+};
+
+const refreshOrder = () => {
+  emits('afterDelete');
 };
 
 const handlePay = () => {

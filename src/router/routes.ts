@@ -10,6 +10,12 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
     component: () => import('@/views/baseInsurance/templates/lianLong/productList.vue'),
   },
   {
+    name: 'long-proposalToInsure',
+    path: '/baseInsurance/long/proposalToInsure',
+    meta: { title: '' },
+    component: () => import('@/views/baseInsurance/templates/lianLong/proposalToInsure.vue'),
+  },
+  {
     name: 'long-productDetail',
     path: '/baseInsurance/long/productDetail',
     meta: { title: '产品详情' },
@@ -54,7 +60,7 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'underWriteResult',
     path: '/baseInsurance/long/underWriteResult',
-    meta: { title: '核保结果' },
+    meta: { title: '自核结果' },
     component: () => import('@/views/baseInsurance/templates/lianLong/underWriteResult.vue'),
   },
   {
@@ -85,25 +91,25 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'phoneVerify',
     path: '/baseInsurance/long/phoneVerify',
-    meta: { title: '空中签名', cacheTarget: ['phoneVerify', 'infoPreview'] },
+    meta: { cacheTarget: ['phoneVerify', 'infoPreview'] },
     component: () => import('@/views/baseInsurance/templates/lianLong/phoneVerify.vue'),
   },
   {
     name: 'agentSign',
     path: '/baseInsurance/long/agentSign',
-    meta: { title: '代理人签字' },
+    meta: { title: '销售人员签名' },
     component: () => import('@/views/baseInsurance/templates/lianLong/agentSign.vue'),
   },
   {
     name: 'holderSign',
     path: '/baseInsurance/long/holderSign',
-    meta: { title: '投保人签字' },
+    meta: { title: '投保人签名' },
     component: () => import('@/views/baseInsurance/templates/lianLong/holderSign.vue'),
   },
   {
     name: 'insuredSign',
     path: '/baseInsurance/long/insuredSign',
-    meta: { title: '被保人签字' },
+    meta: { title: '被保险人签名' },
     component: () => import('@/views/baseInsurance/templates/lianLong/insuredSign.vue'),
   },
   {
@@ -121,7 +127,7 @@ const lifeInsuranceRoutes: Array<RouteRecordRaw> = [
   {
     name: 'infoPreview',
     path: '/baseInsurance/long/infoPreview',
-    meta: { title: '保单预览' },
+    meta: { title: '投保信息确认' },
     component: () => import('@/views/baseInsurance/templates/lianLong/infoPreview.vue'),
   },
   {
@@ -197,7 +203,10 @@ const proposalRoutes: Array<RouteRecordRaw> = [
   {
     name: 'proposalCover',
     path: '/proposalCover',
-    meta: { title: '计划书封面', requireWxJs: false },
+    meta: {
+      title: '计划书封面',
+      requireWxJs: false,
+    },
     component: () => import('@/views/proposal/compositionProposal/cover.vue'),
   },
 ];
@@ -222,7 +231,7 @@ const baseInsurance = [
   {
     name: 'InsuranceFreeFaceAuth',
     path: '/baseInsurance/free/faceVerify',
-    meta: { title: '被保人人脸识别', keepAlive: true, requireWxJs: false },
+    meta: { title: '被保险人人脸识别', keepAlive: true, requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/faceVerify.vue'),
   },
   // 短险模板
@@ -253,18 +262,18 @@ const baseInsurance = [
     meta: { title: '投保人信息确认', keepAlive: true, requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/infoPreview.vue'),
   },
-  // 被保人短险信息确认页
+  // 被保险人短险信息确认页
   {
     name: 'InsuranceShortInsuredInfoPreview',
     path: '/baseInsurance/short/insuredInfoPreview',
-    meta: { title: '被保人信息确认', requireWxJs: false },
+    meta: { title: '被保险人信息确认', requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/infoPreview.vue'),
   },
   // 短险人脸识别页
   {
     name: 'InsuranceShortFaceAuth',
     path: '/baseInsurance/short/faceVerify',
-    meta: { title: '被保人人脸识别', requireWxJs: false },
+    meta: { title: '被保险人人脸识别', requireWxJs: false },
     component: () => import('@/views/baseInsurance/templates/lianShort/faceVerify.vue'),
   },
   // 短险-升级款（魔方）

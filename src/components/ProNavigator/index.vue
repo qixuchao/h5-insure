@@ -29,27 +29,20 @@
 <script lang="ts" setup name="ProNavigator">
 import { useRoute } from 'vue-router';
 import { useToggle } from '@vant/use';
+import { withDefaults } from 'vue';
 import { getTemplateInfo } from '@/api';
 import { TemplatePageItem } from '@/api/index.data';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
-import useStore from '@/store/app';
-import pageJump from '@/utils/pageJump';
-import sideNavImage from '@/assets/images/component/sidenav.png';
-import useTheme from '@/hooks/useTheme';
 import { useSessionStorage } from '@/hooks/useStorage';
+
+const props = withDefaults(defineProps<{ orderStatus?: string }>(), {
+  orderStatus: '',
+});
 
 const storage = useSessionStorage();
 
 const route = useRoute();
-const {
-  saleUserId = 'D1234567-1',
-  tenantId = '9991000007',
-  templateId = 1,
-  productCode = 'CQ75CQ76',
-  insurerCode = 'ancheng',
-  productCategory = '1',
-  isFromOrderList,
-} = route.query;
+const { tenantId, templateId, orderNo } = route.query;
 
 // 需要展示侧边导航的页面code
 const showNavigatorPageCodeList = ['questionNotice', 'infoCollection', 'infoPreview', 'payInfo', 'salesNotice', 'sign'];
@@ -89,21 +82,25 @@ const currentNode = computed(() => {
   if (list.value?.length) {
     return list.value.find((li, index) => {
       activeIndex.value = index;
-      return li.pageCode === currentPageCode.value;
+      return (
+        li.pageCode === currentPageCode.value &&
+        (li.orderStatusList?.length && props.orderStatus ? li.orderStatusList.includes(props.orderStatus) : true)
+      );
     });
   }
   return {};
 });
 
 onMounted(() => {
-  getTemplateInfo({ templateId }).then((res) => {
-    const { code, data } = res;
-    if (code === '10000' && data) {
-      const pageCodeList = data.templatePageList.map((item) => item.pageCode);
-      storage.set('TEMPLATE_LIST', pageCodeList);
-      list.value = (data.templatePageList || []).filter((item) => item.pageCode !== 'trial');
-    }
-  });
+  templateId &&
+    getTemplateInfo({ templateId, orderNo, tenantId }).then((res) => {
+      const { code, data } = res;
+      if (code === '10000' && data) {
+        const pageCodeList = data.templatePageList.map((item) => item.pageCode);
+        storage.set('TEMPLATE_LIST', pageCodeList);
+        list.value = (data.templatePageList || []).filter((item) => item.pageCode !== 'trial');
+      }
+    });
 });
 
 const show = computed(() => {

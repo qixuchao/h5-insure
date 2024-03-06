@@ -286,7 +286,7 @@ const initPageInfo = () => {
   }
   state.pageInfo.insureList = [
     ...state.pageInfo.insureList,
-    { label: '被保人', value: state.orderDetail?.insuredList?.[0]?.name },
+    { label: '被保险人', value: state.orderDetail?.insuredList?.[0]?.name },
     { label: '保障期间', value: insurancePeriodDesc || '' },
   ];
   state.templateId = state.orderDetail.extInfo.templateId;

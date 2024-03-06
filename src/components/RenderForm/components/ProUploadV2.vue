@@ -3,11 +3,21 @@
     :class="{ 'com-van-upload-wrap': true, 'com-van-upload-wrap-view': isView }"
     :model-value="state.modelValue"
   >
-    <template v-if="subLabel" #label>
-      {{ filedAttrs.label }}<span class="sub-label">{{ subLabel }}</span>
+    <template v-if="$attrs.name === 'relationshipProof'" #label>
+      <slot name="label">
+        <span>{{ filedAttrs.label }}</span>
+        <van-popover v-model:show="visible" trigger="click" placement="top-start" theme="dark">
+          <div class="tip-content">
+            （请提供与监护人匹配一致的监护关系证明。出生证、具有同一户号的居民户口簿（投保人页及被保人员）或其他具有
+            法律效力的监护关系证明）
+          </div>
+          <template #reference> <van-icon name="question" /> </template>
+        </van-popover>
+        <span class="sub-label">{{ subLabel }}</span>
+      </slot>
     </template>
     <template #input>
-      <div class="com-image-upload">
+      <div :class="`com-image-upload ${isView ? 'com-image-upload-view' : ''}`">
         <van-uploader
           :model-value="fileList"
           :after-read="handleAfterRead"
@@ -15,7 +25,7 @@
           :max-count="maxCount"
           :before-delete="handleBeforeDelete"
           :disabled="isView"
-          accept="image/jpg"
+          accept="image/*"
         >
           <slot>
             <div class="upload-item">
@@ -54,6 +64,7 @@ interface FileUploadRes {
 const { filedAttrs, filedSlots, attrs, slots } = toRefs(useAttrsAndSlots());
 
 const { formState, extraProvision } = inject(VAN_PRO_FORM_KEY) || {};
+const visible = ref(false);
 
 // 非默认 slots
 const noDefaultSlots = computed(() => Object.keys(slots).filter((key) => key !== 'default'));
@@ -92,7 +103,7 @@ const props = defineProps({
     type: Number as () => ATTACHMENT_CATEGORY_ENUM,
     default: ATTACHMENT_CATEGORY_ENUM.OTHER,
   },
-  /** 数据对象类型-属于哪个模块(被保人...) */
+  /** 数据对象类型-属于哪个模块(被保险人...) */
   objectType: {
     type: Number as () => ATTACHMENT_OBJECT_TYPE_ENUM,
     default: null,
@@ -113,15 +124,6 @@ const state = reactive({
 const fileList = computed(() => (state.modelValue || []).map(({ uri }) => ({ url: uri })));
 
 useCustomFieldValue(() => state.modelValue);
-
-const beforeRead = (e) => {
-  const fileType = (e.name || '').match(/\.([^.]+)$/)?.[1];
-  if (fileType !== 'jpg') {
-    Toast('上传只支持jpg图片');
-    return false;
-  }
-  return true;
-};
 
 const handleAfterRead = (e: { file: File; content: string }) => {
   fileUpload(e.file, props.uploadType).then((res) => {
@@ -198,6 +200,13 @@ watch(
   width: 690px;
   display: flex;
   justify-content: flex-start;
+
+  &.com-image-upload-view {
+    :deep(.van-uploader__input-wrapper) {
+      display: none;
+    }
+  }
+
   .upload-item {
     width: 160px;
     height: 160px;
@@ -219,7 +228,7 @@ watch(
       }
       .van-uploader__preview {
         margin-right: 30px;
-        margin-bottom: 0px;
+        margin-bottom: 30px;
         border-radius: 12px;
         border: 1px dashed #c1ccdd;
         .van-uploader__preview-image {

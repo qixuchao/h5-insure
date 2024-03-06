@@ -4,8 +4,10 @@
     <div class="header">
       <ProMessage
         type="warning"
-        title="尊敬的客户，本次投保需要进行身份认证"
-        content="本产品投保需要对投保人、被保人进行实名认证，您购买本产品的累计总保费已超过20万，按监管要求，需要提供投保人、被保人、指定受益人证件影像，本产品非本人投保且带身故责任、需对投保人、被保人（成人）的投保意愿进行签字确认。"
+        :content="
+          signPartInfo.holder.personalInfo?.name &&
+          `本人${signPartInfo.holder.personalInfo?.name}已阅读并同意签署《电子投保单》（投保信息确认）、《人身保险投保提示书》、《免责说明书》、《产品说明书》（一年期以上产品）、《风险告知问卷》（万能型产品）、《风险承受能力测评问卷》（万能型产品）。请投保人：${signPartInfo.holder.personalInfo?.name}签名确认。`
+        "
       />
     </div>
     <div class="verify-content">
@@ -18,6 +20,7 @@
         :show-verify="signPartInfo.holder.isVerify"
         :file-list="signPartInfo.holder.fileList"
         :personal-info="signPartInfo.holder.personalInfo"
+        :composition-sign="signPartInfo.holder.compositionSign"
         title="投保人"
         @handle-sign="(signData) => sign('HOLDER', signData, signPartInfo.holder.personalInfo.id)"
       ></SignPart>
@@ -32,6 +35,13 @@
     <div class="footer-button">
       <van-button type="primary" @click="handleSubmit">确定</van-button>
     </div>
+    <MessagePopup v-model="show" @close="toggleShow(false)">
+      <div class="content-inner">
+        <img :src="qianming" alt="" class="header-img" />
+        <h4>本次签名已完成</h4>
+        <p>感谢您对本次投保的签字确认，后续流程由销售人员在您的配合下进行</p>
+      </div>
+    </MessagePopup>
   </div>
 </template>
 
@@ -39,6 +49,8 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast } from 'vant';
 import { stringify } from 'qs';
+import wx from 'weixin-js-sdk';
+import { useToggle } from '@vant/use';
 import { queryListProductMaterial } from '@/api/modules/product';
 
 import { InsureProductData, ProductDetail, ProductMaterialVoItem } from '@/api/modules/product.data';
@@ -52,13 +64,11 @@ import {
   YES_NO_ENUM,
   CERT_TYPE_ENUM,
 } from '@/common/constants';
-
 import { MATERIAL_TYPE_ENUM } from '@/common/constants/product';
 import { NOTICE_OBJECT_ENUM } from '@/common/constants/notice';
 import { applyAuthorize, faceVerify, faceVerifySave, saveSignList, signatureConfirm } from '@/api/modules/verify';
 import Storage from '@/utils/storage';
 import { transformFactorToSchema } from '@/components/RenderForm';
-
 import { PAGE_CODE_ENUMS, PAGE_ROUTE_ENUMS } from './constants';
 import ProShare from '@/components/ProShare/index.vue';
 import { jumpToNextPage } from '@/utils';
@@ -66,9 +76,13 @@ import { localStore } from '@/hooks/useStorage';
 import { confirmRiskTranscription } from '@/api/modules/scribing';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import { getFileType } from '../../utils';
+import { isWeiXin } from '@/views/cashier/core';
+import MessagePopup from './components/MessagePopup.vue';
+import qianming from '@/assets/images/qianming.jpg';
 
 const route = useRoute();
 const router = useRouter();
+const [show, toggleShow] = useToggle(false);
 
 /** 页面query参数类型 */
 interface QueryData {
@@ -125,6 +139,7 @@ const signPartInfo = ref({
     isVerify: false,
     isShareSign: false,
     signData: [],
+    compositionSign: '',
   }, // 投保人
   insured: {
     fileList: [],
@@ -133,7 +148,8 @@ const signPartInfo = ref({
     isVerify: false,
     isShareSign: false,
     signData: {},
-  }, // 被保人
+    compositionSign: '',
+  }, // 被保险人
   agent: {
     fileList: [],
     personalInfo: {},
@@ -141,7 +157,8 @@ const signPartInfo = ref({
     isVerify: false,
     isShareSign: false,
     signData: '',
-  }, // 代理人
+    compositionSign: '',
+  }, // 销售人员
 });
 
 // 抄录配置
@@ -155,7 +172,7 @@ const requiredType = ref<any>({
   scribing: '',
 });
 
-// 被保人签名是否同投保人一起提交
+// 被保险人签名是否同投保人一起提交
 const isHolderSameInsured = computed<boolean>(() => {
   const { age, relationToHolder, id } = signPartInfo.value.insured?.personalInfo?.[0] || {};
   return `${relationToHolder}` === CERT_TYPE_ENUM.CERT || age < 18;
@@ -182,32 +199,41 @@ const handleSubmit = () => {
         Toast('请先完成风险抄录');
         return;
       }
-      applyAuthorize(orderDetail.value).then(({ code, data }) => {
-        if (code === '10000') {
-          if (data.authStatus === `${YES_NO_ENUM.YES}`) {
-            router.push({
-              path: PAGE_ROUTE_ENUMS.payAuth,
-              query: route.query,
-            });
-          } else {
-            Promise.all([
-              signatureConfirm({
-                bizObjectId: [orderDetail.value.holder.id],
-                bizObjectType: NOTICE_TYPE_ENUM.HOLDER,
-                orderId: orderDetail.value.id,
-                tenantId,
-              }),
-              isHolderSameInsured.value &&
-                signatureConfirm({
-                  bizObjectId: [orderDetail.value.insuredList[0].id],
-                  bizObjectType: NOTICE_TYPE_ENUM.INSURED,
-                  orderId: orderDetail.value.id,
-                  tenantId,
-                }),
-            ]).then((res1) => {
-              if (res1[0].code === '10000') {
+
+      Promise.all([
+        signatureConfirm({
+          bizObjectId: [orderDetail.value.holder.id],
+          bizObjectType: NOTICE_TYPE_ENUM.HOLDER,
+          orderId: orderDetail.value.id,
+          tenantId,
+          shareFlag: isShare ? 1 : 2,
+        }),
+        isHolderSameInsured.value &&
+          signatureConfirm({
+            bizObjectId: [orderDetail.value.insuredList[0].id],
+            bizObjectType: NOTICE_TYPE_ENUM.INSURED,
+            orderId: orderDetail.value.id,
+            tenantId,
+          }),
+      ]).then((res1) => {
+        if (res1[0].code === '10000') {
+          applyAuthorize(orderDetail.value).then(({ code, data }) => {
+            if (code === '10000') {
+              if (data.authStatus === `${YES_NO_ENUM.YES}`) {
+                router.push({
+                  path: PAGE_ROUTE_ENUMS.payAuth,
+                  query: route.query,
+                });
+              } else {
                 if (isShare) {
-                  Toast('已完成');
+                  toggleShow(true);
+                  setTimeout(() => {
+                    if (isWeiXin) {
+                      wx.closeWindow();
+                    } else {
+                      window.close();
+                    }
+                  }, 1500);
                   return;
                 }
                 router.push({
@@ -215,8 +241,8 @@ const handleSubmit = () => {
                   query: route.query,
                 });
               }
-            });
-          }
+            }
+          });
         }
       });
     })
@@ -231,10 +257,15 @@ const getOrderDetail = () => {
       if (code === '10000') {
         const signAttachmentList = [];
         data.tenantOrderAttachmentList.forEach((attachment) => {
-          if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER && attachment.category === 30) {
-            signAttachmentList.push(attachment.fileBase64);
+          if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
+            if (attachment.category === 30) {
+              signAttachmentList.push(attachment.fileBase64);
+            } else if (attachment.category === 21) {
+              signPartInfo.value.holder.compositionSign = attachment.uri;
+            }
           }
         });
+
         signPartInfo.value.holder.signData = signAttachmentList;
 
         Object.assign(defaultScribingConfig.value, {
@@ -247,16 +278,37 @@ const getOrderDetail = () => {
     });
 };
 
+const saveSign = (type, signData, bizObjectId?) => {
+  return new Promise((resolve, reject) => {
+    saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId)
+      .then(({ code, message }) => {
+        if (code === '10000') {
+          resolve();
+        } else {
+          reject(message);
+        }
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 const sign = (type, signData, bizObjectId?) => {
-  const promiseList = [saveSignList(type, signData, orderDetail.value?.id, tenantId, bizObjectId)];
+  const promiseList = [saveSign(type, signData, bizObjectId)];
   const { id } = signPartInfo.value.insured?.personalInfo?.[0] || {};
   if (isHolderSameInsured.value) {
-    promiseList.push(saveSignList('INSURED', signData, orderDetail.value?.id, tenantId, id));
+    promiseList.push(saveSign('INSURED', signData, bizObjectId));
   }
 
-  Promise.all(promiseList).then((res) => {
-    getOrderDetail();
-  });
+  Promise.all(promiseList).then(
+    (res) => {
+      getOrderDetail();
+    },
+    (res) => {
+      Toast(res[0]);
+    },
+  );
 };
 
 // 分享信息
@@ -287,28 +339,32 @@ const initData = async () => {
     });
 
     orderDetail.value.tenantOrderAttachmentList.forEach((attachment) => {
-      if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER && attachment.category === 30) {
-        signPartInfo.value.holder.signData.push(attachment.fileBase64);
+      if (attachment.objectType === NOTICE_OBJECT_ENUM.HOlDER) {
+        if (attachment.category === 30) {
+          signPartInfo.value.holder.signData.push(attachment.fileBase64);
+        } else if (attachment.category === 21) {
+          signPartInfo.value.holder.compositionSign = attachment.uri;
+        }
       }
     });
   }
-  queryListProductMaterial(productRiskMap).then(({ code, data }) => {
-    if (code === '10000') {
-      const { signMaterialMap } = data.productMaterialPlanVOList?.[1] || {};
-      const signMaterialCollection = Object.values(signMaterialMap || {}).flat() || [];
+  // queryListProductMaterial(productRiskMap).then(({ code, data }) => {
+  //   if (code === '10000') {
+  //     const { signMaterialMap } = data.productMaterialPlanVOList?.[1] || {};
+  //     const signMaterialCollection = Object.values(signMaterialMap || {}).flat() || [];
 
-      signMaterialCollection.forEach((material: ProductMaterialVoItem) => {
-        if (material.noticeObject === NOTICE_OBJECT_ENUM.HOlDER) {
-          signPartInfo.value.holder.fileList.push({
-            attachmentName: material.materialName,
-            attachmentList: [
-              { ...material, materialSource: getFileType(`${material?.materialSource}`, material?.materialContent) },
-            ],
-          });
-        }
-      });
-    }
-  });
+  //     signMaterialCollection.forEach((material: ProductMaterialVoItem) => {
+  //       if (material.noticeObject === NOTICE_OBJECT_ENUM.HOlDER) {
+  //         signPartInfo.value.holder.fileList.push({
+  //           attachmentName: material.materialName,
+  //           attachmentList: [
+  //             { ...material, materialSource: getFileType(`${material?.materialSource}`, material?.materialContent) },
+  //           ],
+  //         });
+  //       }
+  //     });
+  //   }
+  // });
 
   mergeInsureFactor(productRiskMap).then(({ data, code }) => {
     if (code === '10000') {
@@ -319,19 +375,19 @@ const initData = async () => {
             if (schema.required) {
               requiredType.value.sign.push(column.code);
             }
-            // 代理人签字
+            // 销售人员签名
             if (column.code === '1') {
               signPartInfo.value.agent.isSign = true;
-              // 投保人签字
+              // 投保人签名
             } else if (column.code === '2') {
               signPartInfo.value.holder.isSign = true;
-              // 被保人签字
+              // 被保险人签名
             } else if (column.code === '3') {
               signPartInfo.value.insured.isSign = true;
-              // 投保人空中签字
+              // 投保人空中签名
             } else if (column.code === '4') {
               signPartInfo.value.holder.isShareSign = true;
-              // 被保人空中签字
+              // 被保险人空中签名
             } else if (column.code === '5') {
               signPartInfo.value.insured.isShareSign = true;
             }
@@ -444,6 +500,7 @@ onMounted(() => {
 <style lang="scss" scope>
 .long-verify {
   padding-bottom: 150px;
+  overflow-y: auto;
   .sign-status {
     display: flex;
   }
@@ -471,5 +528,22 @@ onMounted(() => {
       flex: 1;
     }
   }
+  .content-inner {
+    padding: 90px 50px 99px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    .header-img {
+      width: 257px;
+    }
+    h4 {
+      margin: 70px 0 39px;
+      font-weight: 500;
+      font-size: 38px;
+      color: #333333;
+      font-style: normal;
+    }
+  }
 }
 </style>
+import { log } from 'console';import { reject } from 'lodash';

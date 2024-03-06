@@ -22,7 +22,7 @@
       </div>
       <slot name="middleInfo"></slot>
       <ProDivider size="large" />
-      <div class="container">
+      <div v-if="!pageLoading" class="container">
         <ProCard title="保障计划" class="insurePlan" :show-divider="false"></ProCard>
         <!-- 这里是标准险种信息 -->
         <div v-if="Object.keys(productMap).length" class="product-list">
@@ -66,7 +66,7 @@
                 :trial-result="premiumMap?.[productCode]?.[index]?.initialAmount"
                 @trial-change="(data, changeData) => handleTrialInfoChange(data, changeData, productCode)"
               ></InsureInfos>
-              <div class="premium-item">
+              <div v-if="risk.riskDetailResVO?.riskCalcMethodInfoVO?.saleMethod === 1" class="premium-item">
                 <span class="label">首年保费</span>
                 <span class="price">{{ transformToMoney(premiumMap?.[productCode]?.[index]?.initialPremium) }}</span>
               </div>
@@ -91,8 +91,7 @@
 <script lang="ts" setup name="TrialBodyLian">
 import { withDefaults, ref, defineExpose } from 'vue';
 import { Toast, Dialog } from 'vant/es';
-import debounce from 'lodash-es/debounce';
-import cloneDeep from 'lodash-es/cloneDeep';
+import { debounce, cloneDeep, merge } from 'lodash-es';
 import { useRouter, useRoute } from 'vue-router';
 import InsureInfos from '@/views/baseInsurance/templates/components/Trial/InsureInfos.vue';
 import PersonalInfo from '@/views/baseInsurance/templates/components/Trial/components/PersonalInfo/index.vue';
@@ -137,6 +136,8 @@ interface Props {
   productFactor: object;
   productRiskCodeMap: object;
   updateRiskCode?: string;
+  pageLoading?: boolean;
+  showPersonInfo?: boolean;
 }
 
 const LOADING_TEXT = '试算中...';
@@ -179,6 +180,7 @@ const props = withDefaults(defineProps<Props>(), {
   hidePopupButton: false,
   defaultData: null,
   isTrial: false,
+  pageLoading: false,
   defaultOrder: () => ({}),
   /**
    * 多产品试算时，记录多个产品集合
@@ -187,6 +189,7 @@ const props = withDefaults(defineProps<Props>(), {
   productFactor: () => ({}),
   productRiskCodeMap: () => ({}),
   updateRiskCode: '',
+  showPersonInfo: false,
 });
 
 const state = reactive({
@@ -360,15 +363,17 @@ const getProductDefaultValue = async (productCodeList: Array<string>) => {
   const { code, data } = await queryCalcDefaultInsureFactor({
     calcProductFactorList: productCodeList.map((productCode) => ({ productCode })),
     holderVO: state.userData.holder,
-    insuredVOList: state.userData.insuredList,
+    insuredVOList: props.showPersonInfo ? props.defaultData.insuredList : state.userData.insuredList,
   });
 
   if (code === '10000') {
     const { holder, insuredList } = data;
     const defaultData = {
       ...data,
-      holder: resetObjectValues(holder),
-      insuredList: insuredList.map((insured) => ({ ...resetObjectValues(insured), productList: insured.productList })),
+      holder: props.showPersonInfo ? holder : resetObjectValues(holder),
+      insuredList: props.showPersonInfo
+        ? [{ ...props.defaultData?.insuredList?.[0], ...insuredList[0] }]
+        : insuredList.map((insured) => ({ ...resetObjectValues(insured), productList: insured.productList })),
     };
     state.defaultValue.insuredList[0].productList = insuredList[0].productList;
     Object.assign(state.userData, defaultData);
@@ -421,7 +426,7 @@ const deleteRisk = (productCode, mainRiskCode, riskCode) => {
 };
 
 /**
- * 处理投被保人信息到state.submitData
+ * 处理投被保险人信息到state.submitData
  * @param data
  */
 const handlePersonInfo = (data) => {
@@ -497,19 +502,19 @@ const dealMixData = () => {
   if (submitData.insuredList) {
     const ignoreKey = ['productList', 'beneficiaryList'];
 
-    // 主被保人code
+    // 主被保险人code
     const mainInsuredFactorCodes = getFactorCodes(
       insuredFactor,
       (item: ProductFactor) => String(item.subModuleType) !== '2',
     );
 
-    // 次被保人code
+    // 次被保险人code
     const secondaryInsuredFactorCodes = getFactorCodes(
       insuredFactor,
       (item: ProductFactor) => String(item.subModuleType) === '2',
     );
 
-    // 是否为次被保人
+    // 是否为次被保险人
     const hasSub = isNotEmptyArray(secondaryInsuredFactorCodes);
 
     // 受益人 code
@@ -520,7 +525,7 @@ const dealMixData = () => {
 
     submitData.insuredList.forEach((insured, index) => {
       const targetFactorKeys = index >= 1 && hasSub ? secondaryInsuredFactorCodes : mainInsuredFactorCodes;
-      // 处理被保人信息, 要素有受益人则保留受益人类型字段
+      // 处理被保险人信息, 要素有受益人则保留受益人类型字段
       shakeData(insured, [...targetFactorKeys, ...ignoreKey, ...(hasBeneficiary ? ['insuredBeneficiaryType'] : [])]);
 
       // 受益人信息 todo
@@ -570,6 +575,7 @@ const onNext = (cb) => {
     state.trialResult,
     orderDetail.value,
   );
+
   cb?.(currentOrderDetail);
 };
 
@@ -711,13 +717,13 @@ const handleMixTrialData = () => {
 
 const handlePersonalInfoChange = async (data) => {
   console.log('人的信息更改了');
-  // 只有改动第一个被保人，需要调用dy接口
+  // 只有改动第一个被保险人，需要调用dy接口
   const { insuredList, isFirstInsuredChange } = data;
   handlePersonInfo(data);
   state.ifPersonalInfoSuccess = true;
 
   // if (isFirstInsuredChange) {
-  console.log('处理第一被保人修改的dy变化');
+  console.log('处理第一被保险人修改的dy变化');
 
   // state.isQuerying = true;
   // const dyResult = await queryCalcDynamicInsureFactor({
@@ -737,7 +743,7 @@ const handlePersonalInfoChange = async (data) => {
   // state.isQuerying = false;
   // if (!handleDealDyResult(dyResult)) return;
   // // }
-  // console.log('投被保人的信息回传 ', data);
+  // console.log('投被保险人的信息回传 ', data);
   if (state.userData.insuredList?.[0]?.productList?.length) {
     handleMixTrialData();
   }
@@ -747,7 +753,7 @@ const birthdayList = computed(() => {
   return (state.userData?.insuredList || []).map((insured) => insured.birthday).join(',');
 });
 
-// 监听被保人出生日期变化时，重新获取动态值
+// 监听被保险人出生日期变化时，重新获取动态值
 watch(
   [() => (state.userData?.insuredList || []).map((insured) => insured.birthday).join(','), () => productMap.value],
   async ([value]) => {
@@ -968,19 +974,22 @@ const transformDefaultData = (defaultData: any) => {
   // handleTrialAndBenefit(defaultData, true);
 };
 
-const fetchDefaultDataFromServer = async () => {
+const fetchDefaultDataFromServer = async (params) => {
   const result = await queryCalcDefaultInsureFactor({
     calcProductFactorList: [
       {
         productCode: Object.keys(props.productCollection)?.[0],
       },
     ],
+    ...params,
   });
   if (result.data) {
     const { holder, insuredList } = result.data;
     const defaultData = {
-      holder: resetObjectValues(holder),
-      insuredList: insuredList.map((insured) => ({ ...resetObjectValues(insured), productList: insured.productList })),
+      holder: props.showPersonInfo ? holder : resetObjectValues(holder),
+      insuredList: props.showPersonInfo
+        ? [merge(params.insuredVOList[0], insuredList[0], { certType: null })]
+        : insuredList.map((insured) => ({ ...resetObjectValues(insured), productList: insured.productList })),
     };
     transformDefaultData(defaultData);
     handlePersonInfo(defaultData);
@@ -989,9 +998,9 @@ const fetchDefaultDataFromServer = async () => {
 const fetchDefaultData = async (changes: []) => {
   // 主要用于mount打开的时候调用。 切换计划书需要另外写一套，以防信息采集页逻辑错误
   // TODO 加loading
-  if (!props.defaultData) {
+  if (!props.defaultData || (props.defaultData && props.showPersonInfo)) {
     hasDefault.value.push(currentPlan.value.planCode);
-    await fetchDefaultDataFromServer();
+    await fetchDefaultDataFromServer({ insuredVOList: props.defaultData?.insuredList || [] });
   } else {
     transformDefaultData(props.defaultData);
     handlePersonInfo(props.defaultData);
@@ -1095,7 +1104,7 @@ watch(
   () => props.productFactor,
   (value, oldVal) => {
     currentProductFactor.value = value;
-    // 处理保费试算时删除所有产品时需要清空投被保人数据
+    // 处理保费试算时删除所有产品时需要清空投被保险人数据
     if (!Object.keys(value).length && state.userData.holder && props.isTrial) {
       Object.assign(state.userData.holder, resetObjectValues(state.userData.holder));
       Object.assign(state.userData.insuredList[0], resetObjectValues(state.userData.insuredList[0]));
@@ -1110,7 +1119,7 @@ watch(
 watch(
   () => props.defaultData,
   (value, oldValue) => {
-    if (JSON.stringify(cloneDeep(value)) !== JSON.stringify(cloneDeep(oldValue))) {
+    if (JSON.stringify(cloneDeep(value)) !== JSON.stringify(cloneDeep(oldValue)) && !props.showPersonInfo) {
       state.defaultValue = value;
       state.userData = value || {};
       value && (orderDetail.value = value || {});

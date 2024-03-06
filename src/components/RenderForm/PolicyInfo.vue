@@ -5,6 +5,7 @@
     :model="state.modelValue"
     :config="state.config"
     title="保单信息"
+    class="policy-info"
     :is-view="isView"
   />
 </template>
@@ -63,7 +64,10 @@ const combineFormData = (targetIndex, originIndex) => {
 };
 
 // // 验证表单必填
-const validate = (isTrial) => {};
+// 验证表单必填
+const validate = () => {
+  return policyInfoFormRef.value?.validate();
+};
 
 watch(
   [() => props.schema, () => props.config],
@@ -104,6 +108,18 @@ watch(
 );
 
 defineExpose({
-  // validate,
+  validate,
 });
 </script>
+
+<style lang="scss">
+.policy-info {
+  :deep(.com-card-wrap) {
+    .com-van-radio-wrap {
+      .com-check-btn {
+        background-color: #f6f7fc;
+      }
+    }
+  }
+}
+</style>

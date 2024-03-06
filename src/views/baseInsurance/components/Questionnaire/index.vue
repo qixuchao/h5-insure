@@ -28,6 +28,24 @@
           />
         </template>
       </template>
+      <!-- 健康告知/文件预览才有备注栏 -->
+      <!-- <ProField type="textarea" name="noticeRemark" label="备注栏" /> -->
+      <Question
+        v-if="noticeRemark || questionType === 'healthNotice'"
+        :class="{ 'com-question-viewer': isView }"
+        name="noticeRemark"
+        :data="{ title: '备注栏' }"
+      >
+        <div v-if="isView" class="notice-tips">{{ noticeRemark }}</div>
+        <van-field
+          v-else
+          v-model="noticeRemark"
+          type="textarea"
+          placeholder="请输入文本"
+          maxlength="100"
+          :show-word-limit="!isView"
+        />
+      </Question>
       <ProCard v-if="isShowUpload" :title="props.data.imageConfig.name">
         <template v-if="isView">
           <div v-for="(image, index) in imageList" :key="index" class="image-item">
@@ -40,6 +58,7 @@
           </template>
         </van-field>
       </ProCard>
+
       <template v-if="isDev">
         <!-- <van-button round type="primary" block native-type="submit">提交</van-button> -->
       </template>
@@ -67,6 +86,7 @@ interface Props {
   params?: object; // 其他要在答题时一起提交的参数
   submit?: () => void;
   markRequested?: boolean;
+  questionType?: string;
 }
 const isDev = window.location.origin.indexOf('localhost') > 0;
 
@@ -136,6 +156,9 @@ const answerVOList = ref<AnswerReq[]>(props.data.answerList || []);
 //   },
 // ]);
 
+// 备注
+const noticeRemark = ref<string>('');
+
 const questionsRef = ref();
 const formRef = ref();
 const emit = defineEmits(['success']);
@@ -152,6 +175,7 @@ const submitForm = (values) => {
         contentType: props.data.basicInfo.questionnaireType,
         questionnaireId: props.data.basicInfo.id,
         imageList: imageList.value,
+        noticeRemark: noticeRemark.value,
         ...(props.params || {}),
       };
       questionsRef.value.forEach((element, index) => {
@@ -177,10 +201,20 @@ const submitForm = (values) => {
 };
 
 watch(
+  () => props.data.noticeRemark,
+  (val) => {
+    noticeRemark.value = val;
+  },
+  {
+    immediate: true,
+  },
+);
+
+watch(
   () => props.data.answerList,
   () => {
     answerVOList.value = dealAnswerData(props.data.questions, props.data.answerList);
-    imageList.value = props.data.imageList;
+    imageList.value = imageList.value?.length ? imageList.value : props.data.imageList;
   },
   {
     immediate: true,
@@ -216,5 +250,13 @@ defineExpose({
   margin-top: 30px;
   width: 200px;
   height: 200px;
+}
+.com-questionnaire {
+  .notice-tips {
+    color: var(--zaui-text-weak);
+    padding: 10px 30px;
+    font-size: 28px;
+    line-height: 1.6;
+  }
 }
 </style>

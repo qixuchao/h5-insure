@@ -67,6 +67,7 @@ const { formState, formRef } = inject(VAN_PRO_FORM_KEY) || {};
 
 const state = reactive({
   isCountdowning: false,
+  isSend: false,
 });
 
 const { current, start, reset } = useCountDown({
@@ -98,6 +99,7 @@ const onSendSmsCode = () => {
       .then(() => {
         props.sendSMSCode({ mobile: formState.formData[props.relatedName] }, () => {
           state.isCountdowning = true;
+          state.isSend = true;
           isChecked.value = false;
           Toast({
             message: '短信发送成功，请查收',
@@ -124,7 +126,7 @@ const smsText = computed(() => {
 watch(
   () => formState.formData[props.name],
   (value: string) => {
-    if (value?.length === 6 && state.isCountdowning) {
+    if (value?.length === 6 && state.isSend) {
       props?.checkSMSCode?.({ mobile: formState.formData[props.relatedName], smsCode: value }, () => {
         isChecked.value = true;
       });

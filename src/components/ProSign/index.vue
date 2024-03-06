@@ -36,7 +36,7 @@ const props = withDefaults(defineProps<Props>(), {
   closeable: false,
   modelValue: '',
   hasBg: false,
-  delay: 1000, // 签字完成延迟时间
+  delay: 1000, // 签名完成延迟时间
 });
 
 const emits = defineEmits(['stroke', 'update:modelValue', 'signSuccess']);
@@ -161,16 +161,19 @@ defineExpose({
     }
     .placeholder {
       position: absolute;
-      width: 100vw;
-      height: 40px;
-      line-height: 140px;
+      width: 60vh;
+      // height: 40px;
+      // line-height: 140px;
+      left: 50%;
       top: 50%;
-      margin-top: -20px;
+      // margin-top: -20px;
       text-align: center;
-      font-size: 160px;
+      letter-spacing: 20px;
+      font-size: 200px;
       color: #000000;
       pointer-events: none;
       opacity: 0.3;
+      transform: translate(-50%, -50%) rotateZ(90deg) !important;
     }
   }
 }

@@ -48,17 +48,22 @@ const props = defineProps({
 const active = ref<number>(0);
 const scrollHeight = ref<Array<number>>([]);
 const tabListHeight = ref<number>(0);
+const offsetHeightList = ref<Array<number>>([]);
 
 const handleClickTab = (id: string, index?: number) => {
   const toScroll = document.getElementById(id)?.offsetTop as number;
   document.documentElement.scrollTop = toScroll - tabListHeight.value;
   document.body.scrollTop = toScroll - tabListHeight.value;
+  // active.value = index;
 };
 
 const getScrollHeight = () => {
   const offsetTop: Array<number> = [];
+  offsetHeightList.value = [];
   props.list.forEach((item) => {
-    offsetTop.push(document.getElementById(item.slotName)?.offsetTop as number);
+    const ele = document.getElementById(item.slotName);
+    offsetTop.push(ele?.offsetTop as number);
+    offsetHeightList.value.push(ele?.offsetHeight);
   });
   // 页面滚动的时候，内容还没完全加载完成，如果获取到的不一样，在更新数据
   if (scrollHeight.value.toString() !== offsetTop.toString()) {
@@ -68,10 +73,10 @@ const getScrollHeight = () => {
 
 const getActiveIndex = (current: number) => {
   let index = 0;
-
+  const screenHeight = window.screen.height;
   scrollHeight.value.forEach((top: number, i: number) => {
     // 获取到的tab内容比实际少了些
-    if (current >= top - tabListHeight.value) {
+    if (current >= top - tabListHeight.value || current + screenHeight - 50 > top + offsetHeightList.value[i]) {
       index = i;
     }
   });
@@ -85,13 +90,13 @@ const handleScroll = () => {
 
   const activeIndex = getActiveIndex(scrollTop);
 
-  const screenHeight = window.screen.height;
-  const { scrollHeight: sh } = document.documentElement;
-  if (sh - screenHeight === scrollTop) {
-    active.value = props.list.length - 1;
-  } else if (active.value !== activeIndex) {
-    active.value = activeIndex;
-  }
+  // const screenHeight = window.screen.height;
+  // const { scrollHeight: sh } = document.documentElement;
+  // if (sh - screenHeight === scrollTop) {
+  //   active.value = props.list.length - 1;
+  // } else if (active.value !== activeIndex) {
+  active.value = activeIndex;
+  // }
 };
 
 onMounted(() => {

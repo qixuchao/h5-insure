@@ -6,7 +6,7 @@
       <ProCell title="生效时间" :content="orderDetail.commencementTime"> </ProCell>
     </InsureInfo>
 
-    <!-- 投保人/被保人/受益人 -->
+    <!-- 投保人/被保险人/受益人 -->
     <PersonalInfo
       v-if="Object.keys(productFactor || {})?.length"
       ref="personalInfoRef"
@@ -236,7 +236,7 @@ const handleNext = () => {
     orderDetail.value.extInfo.pageCode = 'faceAuth';
     nextStepOperate(orderDetail.value, (resData, pageAction) => {
       if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-        Toast('被保人已完成认证');
+        Toast('被保险人已完成认证');
       }
     });
   } else {
@@ -251,7 +251,7 @@ const handleNext = () => {
       orderDetail.value.extInfo.pageCode = 'faceAuth';
       nextStepOperate(orderDetail.value, (resData, pageAction) => {
         if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-          Toast('被保人已完成认证');
+          Toast('被保险人已完成认证');
         }
       });
     }

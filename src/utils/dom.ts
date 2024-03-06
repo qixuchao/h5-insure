@@ -12,3 +12,10 @@ export const getHiddenDomHeight = (dom: HTMLElement | undefined) => {
   }
   return 0;
 };
+
+export const addMetaForShare = (content) => {
+  const metaDescription = document.createElement('meta');
+  metaDescription.setAttribute('property', 'og:description');
+  metaDescription.content = content;
+  document.head.appendChild(metaDescription);
+};

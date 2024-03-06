@@ -93,7 +93,7 @@ export const EXEMPT_TYPE = [
   },
   {
     value: 2,
-    label: '被保人豁免险',
+    label: '被保险人豁免险',
   },
 ];
 

@@ -49,12 +49,13 @@
           name="verifyCode"
           related-name="mobile"
           :send-s-m-s-code="sendCode"
+          :check-s-m-s-code="checkSMSCode"
           required
         ></ProSMSCode>
       </ProRenderForm>
     </div>
     <div class="footer-button">
-      <van-button type="primary" @click="onSubmit">提交</van-button>
+      <van-button type="primary" :disabled="nextDisable" @click="onSubmit">提交</van-button>
     </div>
   </div>
 </template>
@@ -63,7 +64,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { Toast, Dialog } from 'vant';
 import { getTenantOrderDetail } from '@/api/modules/trial';
-import { combineDictCode, sendSMSCode } from '@/components/RenderForm/utils/constants';
+import { combineDictCode } from '@/components/RenderForm/utils/constants';
 import { CERT_TYPE_ENUM } from '@/common/constants';
 import { authorizeConfirm, authorizeSysCode } from '@/api/modules/verify';
 import { PAGE_ROUTE_ENUMS } from './constants';
@@ -77,6 +78,7 @@ const formRef = ref();
 const formData = ref();
 
 const firstPayInfo = ref({});
+const nextDisable = ref<boolean>(false);
 
 const certNoLabel = computed(() => {
   if (formData.value.holder.certType === CERT_TYPE_ENUM.CERT) {
@@ -103,18 +105,26 @@ const sendCode = (params, callback) => {
   });
 };
 
+const checkSMSCode = async (params, callback) => {
+  const { code } = await authorizeConfirm(formData.value);
+  if (code === '10000') {
+    Toast('短信验证成功');
+    callback?.();
+    return true;
+  }
+  return false;
+};
+
 const onSubmit = () => {
+  nextDisable.value = true;
   formRef.value
     .validate()
     .then((validate) => {
-      authorizeConfirm(formData.value).then(({ code, data }) => {
-        if (code === '10000') {
-          router.back();
-          Toast('成功');
-        }
-      });
+      router.back();
+      nextDisable.value = false;
     })
     .catch((e) => {
+      nextDisable.value = false;
       console.log('e', e);
     });
 };
@@ -151,6 +161,8 @@ onMounted(() => {
 <style lang="scss" scoped>
 .page-pay-auth-wrap {
   padding-bottom: 150px;
+  min-height: 100vh;
+  height: auto;
   .bank-card {
     padding: $zaui-card-border;
     background-color: #f4f5f9;

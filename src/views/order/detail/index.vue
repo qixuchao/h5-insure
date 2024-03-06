@@ -63,7 +63,7 @@
                 <img :src="item.uri" alt="" />
               </div>
             </div>
-            <div class="tenantOrderAttachmentList-title">被保人资料</div>
+            <div class="tenantOrderAttachmentList-title">被保险人资料</div>
             <div class="tenantOrderAttachmentList-img">
               <div
                 v-for="(item, index) in attachmentList(ATTACHMENT_OBJECT_TYPE_ENUM.INSURED)"
@@ -321,7 +321,7 @@ const getQuestionInfo = async (params) => {
     );
 
     state.customerQuestions = productQuestionnaireVOList.map((questionInfo) => {
-      const { questionnaireDetailResponseVO, questionnaireId, questionnaireName } = questionInfo || {};
+      const { questionnaireDetailResponseVO, questionnaireId, questionnaireName, objectType } = questionInfo || {};
       const { questions, basicInfo } = questionnaireDetailResponseVO || {};
       const { objectType: objType, questionnaireType } = basicInfo || {};
 
@@ -334,7 +334,9 @@ const getQuestionInfo = async (params) => {
           questionnaireName,
         };
       }
-      const currentAnswer = (answerList || []).find((answer) => answer.questionnaireId === questionnaireId);
+      const currentAnswer = (answerList || []).find(
+        (answer) => answer.questionnaireId === questionnaireId && answer.objectType === objectType,
+      );
       return {
         ...questionnaireDetailResponseVO,
         contentType: 'question',
@@ -404,7 +406,7 @@ const getOrderDetail = (isOther = true) => {
 };
 
 const handleCancel = () => {
-  cancelOrder({ orderNo, tenantId }).then(({ code, data }) => {
+  cancelOrder({ orderNo, tenantId, cancelFlag: 1 }).then(({ code, data }) => {
     if (code === '10000') {
       Toast('撤单成功');
       setTimeout(() => getOrderDetail(false), 500);

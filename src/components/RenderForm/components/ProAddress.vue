@@ -1,4 +1,5 @@
 <template>
+  <slot name="addressExtra" />
   <ProFormItem
     class="com-van-field--hidden"
     :name="name"
@@ -19,8 +20,10 @@
   />
   <ProFieldV2
     v-if="addressConfig.showDetail"
+    :key="isView ? 'field-view-key' : 'field-key'"
     v-model="state.address.detail"
     :is-view="isView"
+    class="com-address-input"
     type="textarea"
     placeholder="地址详情必须包含号/室/队/院/房/楼/栋/幢/座组，详细地址必须包含至少一位数字"
     label="详细地址"
@@ -241,4 +244,10 @@ export default {
   inheritAttrs: false,
 };
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.com-address-input {
+  :deep(.van-field__control--min-height) {
+    min-height: auto !important;
+  }
+}
+</style>

@@ -12,7 +12,7 @@
       <div class="container">
         <div class="popup-header">
           <span class="clear-all"> </span>
-          <span class="title"> 请选择被保人 </span>
+          <span class="title"> 请选择被保险人 </span>
           <span @click="close">X</span>
         </div>
         <div class="popup-body">
@@ -86,7 +86,7 @@ const close = () => {
 // eslint-disable-next-line consistent-return
 const onClick = () => {
   if (!checked.value || +checked.value === -1) {
-    return Toast('请选择被保人');
+    return Toast('请选择被保险人');
   }
   emits('finished', currentProduct.value);
 };

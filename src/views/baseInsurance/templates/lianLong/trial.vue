@@ -8,6 +8,7 @@
       :product-risk-code-map="productRiskCodeMap"
       is-trial
       hide-benefit
+      :show-person-info="!!showPersonInfo"
       @add-risk="addRisk"
       @add-main-risk="addMainRisk"
       @delete-risk="deleteRisk"
@@ -52,7 +53,7 @@ import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
 import { PAGE_ROUTE_ENUMS } from '@/common/constants';
 import { pickProductRiskCode, pickProductRiskCodeFromOrder } from './utils';
 import { queryProposalDetailInsurer } from '@/api/modules/createProposal';
-import { getCusomterData } from '../components/Trial/components/PersonalInfo/util.ts';
+import { getCusomterData, transformCustomerToPerson } from '../components/Trial/components/PersonalInfo/util.ts';
 import { getUserInfo } from '@/views/baseInsurance/templates/utils';
 
 const route = useRoute();
@@ -64,7 +65,8 @@ interface QueryData {
   [propName: string]: string;
 }
 
-const { productCode, orderNo, tenantId, proposalId, proposalInsuredId, productClass } = route.query as QueryData;
+const { productCode, orderNo, tenantId, proposalId, proposalInsuredId, productClass, showPersonInfo } =
+  route.query as QueryData;
 
 // 以产品code为key的产品集合
 const productCollection = ref({});
@@ -84,6 +86,7 @@ const orderDetail = useOrder({
 
 // 获取客户详情
 const customerInfo = getCusomterData();
+const customerData = ref();
 
 const defaultData = ref();
 const productFactor = ref();
@@ -101,11 +104,12 @@ const getMergeProductDetail = () => {
       productRiskCodeMap.value = pickProductRiskCode(productDetailResList);
 
       // 如果有客户信息,则需要将客户信息回显
-      // if (customerInfo) {
-      //   const insuredKeys = currentProductFactor?.[2].map((factor) => factor.code);
-      //   const insured = transformCustomerToPerson(customerInfo, insuredKeys);
-      //   defaultData.value = Object.assign(orderDetail.value, { insuredList: insured });
-      // }
+      if (customerInfo) {
+        const insuredKeys = (currentProductFactor?.[2] || []).map((factor) => factor.code);
+        const insured = transformCustomerToPerson(customerInfo, insuredKeys);
+        customerData.value = cloneDeep(insured);
+        defaultData.value = Object.assign(orderDetail.value, { insuredList: [insured] });
+      }
 
       const currentProductCollection = {};
       productDetailResList.forEach((product) => {
@@ -259,6 +263,9 @@ const nextStep = () => {
 
     if (!orderNo) {
       Object.keys(orderDetailCopy.insuredList?.[0]).reduce((res, key) => {
+        if (!orderDetailCopy.insuredList?.[0]?.[key] && customerData.value?.[key]) {
+          orderDetailCopy.insuredList[0][key] = customerData.value?.[key];
+        }
         if (!excludeCodeList.includes(key) && orderDetailCopy.insuredList?.[0]?.[key]) {
           res[key] = orderDetailCopy.insuredList?.[0]?.[key];
         }
@@ -300,11 +307,12 @@ const getProductDetail = () => {
       productRiskCodeMap.value = pickProductRiskCode([data]);
 
       // 如果有客户信息,则需要将客户信息回显
-      // if (customerInfo) {
-      //   const insuredKeys = productFactor.value?.[2].map((factor) => factor.code);
-      //   const insured = [transformCustomerToPerson(customerInfo, insuredKeys)];
-      //   defaultData.value = Object.assign(orderDetail.value, { insuredList: insured });
-      // }
+      if (customerInfo) {
+        const insuredKeys = productFactor.value?.[2].map((factor) => factor.code);
+        const insured = [transformCustomerToPerson(customerInfo, insuredKeys)];
+        customerData.value = cloneDeep(insured[0]);
+        defaultData.value = Object.assign(orderDetail.value, { insuredList: insured });
+      }
     }
   });
 };
@@ -326,3 +334,4 @@ onMounted(() => {
   }, 1500);
 });
 </script>
+import { log } from 'console';, cloneDeep

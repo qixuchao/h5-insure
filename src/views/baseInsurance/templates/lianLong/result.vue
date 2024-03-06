@@ -1,13 +1,12 @@
 <template>
   <div class="page-insure-result">
-    <ProNavigator />
+    <ProNavigator :order-status="orderInfo.orderStatus" />
     <van-pull-refresh v-model="loading" @refresh="getOrderDetail">
       <div class="page-insure-result-wrap">
         <div class="header">{{ orderInfo.orderStatusDesc }}</div>
         <div class="content">
           <div class="content-header">
             <h4 class="product-name">{{ result.productName }}</h4>
-            <span>保障中</span>
           </div>
           <InfoItem label="投保人:" :content="result.holderName" line />
           <InfoItem label="投/保单号:" line>

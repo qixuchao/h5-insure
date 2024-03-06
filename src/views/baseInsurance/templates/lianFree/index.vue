@@ -32,7 +32,7 @@
       </ProTab>
       <div v-if="isShare && agentSchema?.length" class="part">
         <div class="part-header agent-header">
-          <span class="header">代理人信息</span>
+          <span class="header">销售人员信息</span>
         </div>
         <AgentInfo
           ref="agentRef"
@@ -424,7 +424,7 @@ const trialData2Order = (
   return nextStepParams;
 };
 
-// 校验分享前、后的代理人code是否一致
+// 校验分享前、后的销售人员code是否一致
 const agentInfo = ref();
 
 const compareAgentCode = () => {
@@ -434,9 +434,9 @@ const compareAgentCode = () => {
   return agentCode === agentInfo.value.agentCode;
 };
 
-// 代理人端是否填写了投保人姓名
+// 销售人员端是否填写了投保人姓名
 const hasHolderName = ref<boolean>(false);
-// 缓存代理人code
+// 缓存销售人员code
 const cachedAgentCode = ref<string>();
 const faceVerified = ref<boolean>(false);
 const thread = ref();
@@ -448,7 +448,7 @@ const getOrderDetail = (isLoading = true) => {
       faceVerified.value = data.insuredList?.[0]?.faceAuthFlag === YES_NO_ENUM.YES;
       if (faceVerified.value) {
         if (thread.value.isStart) {
-          Toast('被保人认证完成');
+          Toast('被保险人认证完成');
         }
         thread.value.stop();
       }
@@ -466,7 +466,7 @@ const getOrderDetail = (isLoading = true) => {
   });
 };
 
-// 轮询查询被保人人脸识别是否完成
+// 轮询查询被保险人人脸识别是否完成
 thread.value = useThread({
   start: () => {
     getOrderDetail(false);
@@ -521,7 +521,7 @@ const onSaveOrder = async () => {
         .then(async (res) => {
           if (!compareAgentCode()) {
             Dialog.alert({
-              message: '代理人工号有误，请核对后重新录入',
+              message: '销售人员工号有误，请核对后重新录入',
               confirmButtonText: '我知道了',
             });
             return;
@@ -548,7 +548,7 @@ const onSaveOrder = async () => {
               Dialog.confirm({
                 message,
                 confirmButtonText: '去分享',
-                cancelButtonText: '被保人确认',
+                cancelButtonText: '被保险人确认',
               })
                 .then(() => {
                   const shareLinkParams = {
@@ -604,7 +604,7 @@ const onSubmit = () => {
   onSaveOrder();
 };
 
-// 获取代理人详情
+// 获取销售人员详情
 const getAgentInfo = () => {
   queryAgentInfo({ tenantId, saleUserId: agentCode }).then(({ code, data }) => {
     if (code === '10000') {

@@ -1,6 +1,6 @@
 <!-- 漏斗图 -->
 <template>
-  <div :id="props.idName" :style="{ width: '330px', height: '300px' }">
+  <div :id="props.idName" :style="{ width: '100%', height: '300px' }">
     <div :id="`${props.idName}-funnel`" :style="{ width: '100%', height: '100% ' }"></div>
   </div>
 </template>
@@ -46,7 +46,7 @@ const state = reactive({
       trigger: 'axis',
       color: '#393D46',
       backgroundColor: 'rgba(255,255,255,0.9)',
-      position: ['25%', '7%'],
+      position: ['30%', '7%'],
       axisPointer: {
         label: {
           formatter() {
@@ -63,7 +63,7 @@ const state = reactive({
     },
     grid: {
       left: '3%',
-      right: '4%',
+      right: '10%',
       bottom: '3%',
       top: '35%',
       containLabel: true,
@@ -73,8 +73,13 @@ const state = reactive({
       boundaryGap: false,
       data: [] as any,
       name: '年龄',
-      nameRotate: -90,
       nameGap: 0,
+      nameTruncate: {
+        maxWidth: 100,
+      },
+      nameTextStyle: {
+        padding: 2,
+      },
     },
     yAxis: {
       name: '金额',
@@ -126,6 +131,10 @@ const initChart = () => {
 
   setTimeout(() => {
     handleChange(props.current);
+    // 事件触发
+    // myChart.on('mousemove', (params) => {
+    //   console.log(11111, params);
+    // });
   });
 };
 

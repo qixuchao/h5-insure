@@ -4,7 +4,7 @@
 
     <InsureInfo :product-data="orderDetail.insuredList?.[0]?.productList"></InsureInfo>
 
-    <!-- 投保人/被保人/受益人 -->
+    <!-- 投保人/被保险人/受益人 -->
     <PersonalInfo
       v-if="Object.keys(productFactor || {})?.length"
       ref="personalInfoRef"
@@ -28,17 +28,42 @@
       is-view
     ></PolicyInfo>
     <div class="insurance-notification-information card">
-      <InsuranceNotificationInformation title="投保告知信息" :data="state.customerQuestions || []" />
+      <InsuranceNotificationInformation
+        v-model="questionRead"
+        title="投保告知信息"
+        :data="state.customerQuestions || []"
+      />
     </div>
-    <ProCard title="产品资料" :show-line="false" :show-icon="false">
+    <ProCard title="授权与须知" :show-line="false" :show-icon="false" class="material-read-card">
       <van-cell
         v-for="(material, index) in fileList"
         :key="index"
         is-link
+        :value="material.readStatus === YES_NO_ENUM.YES ? '已读' : '未读'"
         :title="material.attachmentName"
         @click="previewMaterial(index)"
       ></van-cell>
     </ProCard>
+    <AttachmentList
+      v-if="fileList?.length"
+      v-model="agree"
+      :attachment-list="fileList"
+      :has-bg-color="false"
+      is-show-radio
+      is-view
+      pre-text="本人已认真阅读"
+      @preview-file="() => (showFilePreview = true)"
+    >
+      <template #suffixText>
+        <span
+          >，并通过上述内容和销售人员的说明理解保险条款及退保损失、保险单现金价值、理赔要求、保险责任是否有等待期、免赔额、犹豫期等关键信息，本人同意遵守。</span
+        >
+        <br />
+        <span class="extra-text"
+          >本人已认真阅读并知晓<span style="color: var(--van-primary-color)">《隐私政策》</span>，并同意授权。</span
+        >
+      </template>
+    </AttachmentList>
     <div class="footer-btn">
       <ProShare
         v-if="!isShare && shareInfo.isShare && isAppFkq()"
@@ -59,17 +84,30 @@
       :content-list="[fileList[activeIndex]]"
       is-only-view
       :active-index="0"
-      text="关闭"
+      text="我已阅读"
       :force-read-cound="0"
       @on-close-file-preview-by-mask="onResetFileFlag"
     ></FilePreview>
+    <ProFileDrawer
+      v-if="visibleFile"
+      v-model="visibleFile"
+      :closeable="false"
+      :active-index="activeIndex"
+      :data-source="state.fileList"
+      ok-text="我已阅读，已充分理解，并会遵守相关要求"
+      @click-btn="previewFile"
+      @submit="finishRead"
+      @update-file-status="updateFileStatus"
+    >
+    </ProFileDrawer>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router';
-import { Toast } from 'vant';
+import { Dialog, Toast } from 'vant';
 import debounce from 'lodash-es/debounce';
+import { useToggle } from '@vant/use';
 import {
   ProRenderFormWithCard,
   PayInfo,
@@ -85,7 +123,6 @@ import {
   mergeInsureFactor,
 } from '@/api/modules/trial';
 
-import { InsureProductData, ProductPlanInsureVoItem } from '@/api/modules/product.data';
 import { nextStepOperate as nextStep } from '../../nextStep';
 import useAttachment from '@/hooks/useAttachment';
 import {
@@ -106,8 +143,11 @@ import { dealMaterialList, pickProductRiskCode, pickProductRiskCodeFromOrder } f
 import InsuranceNotificationInformation from '../../../order/components/insuranceNotificationInformation.vue';
 import { getQuestionAnswerDetail } from '@/api/modules/inform';
 import { QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE } from '@/common/constants/notice';
-import { getFileType } from '@/views/baseInsurance/utils';
+import { PREVIEW_FILE_KEY, getFileType } from '@/views/baseInsurance/utils';
 import { OBJECT_TYPE_ENUM, QUESTIONNAIRE_TYPE_ENUM } from '@/common/constants/questionnaire';
+import { localStore } from '@/hooks/useStorage';
+import AttachmentList from '../components/AttachmentList/index.vue';
+import policyMaterial from '@/assets/pdf/policy.pdf';
 
 const FilePreview = defineAsyncComponent(() => import('../components/FilePreview/index.vue'));
 
@@ -157,7 +197,6 @@ try {
 } catch (error) {
   //
 }
-
 const state = reactive({
   isView: false,
   // 投保人
@@ -186,19 +225,48 @@ const shareInfo = ref({
 
 const payInfoRef = ref<InstanceType<typeof PayInfo>>();
 const personalInfoRef = ref<InstanceType<typeof PersonalInfo>>();
+const questionRead = ref(false); // 健告是否阅读
 
 /** -----------资料阅读模块开始-------------------- */
 const showFilePreview = ref<boolean>(false); // 附件资料弹窗展示状态
 const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件编号
 const isLoading = ref<boolean>(false);
+const hasReadFile = ref<boolean>(false); // 强制阅读文件已经阅读完成
+const agree = ref<boolean>(false);
+const [visibleFile, toggleVisible] = useToggle(false);
+const fileList = ref([]);
+
+const finishRead = () => {
+  hasReadFile.value = true;
+};
+
 // 文件预览
 const previewMaterial = (index) => {
   activeIndex.value = index;
-  showFilePreview.value = true;
+  toggleVisible(true);
+};
+
+const updateFileStatus = (index) => {
+  fileList.value.forEach((file, i) => {
+    if (index === i) {
+      file.readStatus = YES_NO_ENUM.YES;
+    }
+  });
 };
 
 const onResetFileFlag = () => {
   showFilePreview.value = false;
+};
+
+const previewFile = ({ file, type }, cb) => {
+  localStore.set(PREVIEW_FILE_KEY, { fileUri: file, fileType: type });
+  router.push({
+    path: '/template/filePreview',
+    query: {
+      fileId: file.id,
+    },
+  });
+  cb();
 };
 
 const shareRef = ref<InstanceType<typeof ProShare>>();
@@ -215,15 +283,44 @@ const onNext = async () => {
     jumpToNextPage(PAGE_CODE_ENUMS.INFO_PREVIEW, route.query);
     return;
   }
+
+  if (!questionRead.value) {
+    Toast('请您确认已如实履行健康告知义务');
+    return;
+  }
+  if (!hasReadFile.value) {
+    Toast('请您完成文档阅读');
+    return;
+  }
+
+  if (!agree.value) {
+    Toast('请您确认已阅读并同意以上内容');
+    return;
+  }
+
   router.push({
     path: routeEnum[objectType],
     query: route.query,
   });
 };
 
+watch(
+  () => agree.value,
+  () => {
+    if (agree.value) {
+      if (!hasReadFile.value) {
+        Toast('请您确认已阅读并同意以上内容');
+      }
+    }
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
+
 const personInfo = ref();
 const productFactor = ref();
-const fileList = ref([]);
 
 const getQuestionInfo = async (params) => {
   let answerList = [];
@@ -253,6 +350,7 @@ const getQuestionInfo = async (params) => {
           contentType: getFileType(`${textType}`, content),
           questionnaireId,
           questionnaireName,
+          objectType: questionInfo.objectType,
         };
       }
       const currentAnswer = (answerList || []).find((answer) => answer.questionnaireId === questionnaireId);
@@ -261,6 +359,7 @@ const getQuestionInfo = async (params) => {
         contentType: 'question',
         ...currentAnswer?.questionnaireDetailResponseVO,
         questionnaireId,
+        objectType: questionInfo.objectType,
         questionnaireName,
       };
     });
@@ -280,7 +379,31 @@ const initData = async () => {
   queryListProductMaterial(productRiskMap).then(({ code, data }) => {
     if (code === '10000') {
       const { productMaterialList, riskMaterialList } = dealMaterialList(data);
-      fileList.value = productMaterialList.concat(riskMaterialList);
+      const otherMaterial = {
+        attachmentList: [
+          {
+            materialContent: policyMaterial,
+            materialName: '隐私政策',
+            materialSource: 'pdf',
+          },
+        ],
+        attachmentName: '隐私政策',
+      };
+      fileList.value = productMaterialList.concat(riskMaterialList).concat([otherMaterial]);
+
+      state.fileList = fileList.value.map((tab) => {
+        return {
+          tabName: tab.attachmentName,
+          isExpand: true,
+          readStatus: 2,
+          files: tab.attachmentList.map((material) => ({
+            name: material.materialName,
+            file: material.materialContent,
+            type: material.materialSource,
+            mustRead: true,
+          })),
+        };
+      });
     }
   });
 
@@ -315,10 +438,29 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss" scope>
+<style lang="scss" scoped>
 .long-info-preview {
   padding-bottom: 150px;
   overflow-y: auto;
+  .com-attachment-list {
+    padding: 16px 30px 40px;
+    :deep(.van-checkbox) {
+      width: 200px;
+    }
+  }
+  .material-read-card {
+    :deep(.com-card-wrap) {
+      .body {
+        padding: 0;
+        .van-cell {
+          align-items: center;
+          .van-cell__right-icon {
+            padding-top: 0;
+          }
+        }
+      }
+    }
+  }
   .footer-btn {
     position: fixed;
     bottom: 0;

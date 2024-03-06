@@ -1,6 +1,6 @@
 import request from './request';
 
-// 获取代理人详情
+// 获取销售人员详情
 export const queryAgentInfo = (data) =>
   request({
     url: '/api/app/policy/agent/query',

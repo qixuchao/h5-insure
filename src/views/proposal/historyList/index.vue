@@ -8,7 +8,7 @@
     <ProPageWrap class="page-history-proposal">
       <van-search
         v-model="searchValue"
-        placeholder="请输入被保人姓名/计划书名称"
+        placeholder="请输入被保险人姓名/计划书名称"
         shape="round"
         class="search"
         @search="onSearch"

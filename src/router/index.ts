@@ -12,6 +12,9 @@ import { getWxJsSdkSignature } from '@/api/modules/wechat';
 import { isWechat, setPageTitle } from '@/utils/index';
 import { cachePage } from '@/utils/cachePage';
 import { ROUTE_EXCLUDE } from '@/views/baseInsurance/templates/lianLong/constants';
+import { YES_NO_ENUM } from '@/common/constants';
+
+const BASE_PREFIX = import.meta.env.VITE_API_BASEURL;
 
 const router: Router = createRouter({
   // 新的vue-router4 使用 history路由模式 和 base前缀
@@ -60,7 +63,7 @@ router.beforeEach(async (to, from, next) => {
     return;
   }
   const excludeRoute = ROUTE_EXCLUDE.find((route) => {
-    return route.to === to.path && route.from === from.path;
+    return route.to === to.path && route.from === from.path && to.query.canBack !== `${YES_NO_ENUM.YES}`;
   });
   if (excludeRoute) {
     router.push({
@@ -76,7 +79,7 @@ router.beforeEach(async (to, from, next) => {
   await cachePage(from, to);
   next();
   if (!realAuthUrl) {
-    realAuthUrl = ORIGIN + (to.redirectedFrom || to.fullPath);
+    realAuthUrl = `${ORIGIN}${BASE_PREFIX.replace(/\/$/, '')}${to.redirectedFrom || to.fullPath}`;
   }
   const store = useAppStore();
   if (store.checkBack && to.hash !== '#validForm' && from.hash !== '#validForm') {
@@ -88,14 +91,13 @@ router.beforeEach(async (to, from, next) => {
       return;
     }
   }
-  console.log(window.location.href, `${ORIGIN}${to.path}`);
   // set title 给App或浏览器标题栏显示 // || (VITE_TITLE as string));
   setPageTitle((to.meta?.title || to.query?.title) as string);
 
   if (to.path === '/login' || to.query.flag === 'N') {
     next();
   } else {
-    // 代理人登录
+    // 销售人员登录
     const storage = new Storage({ source: 'localStorage' });
     // 已登录
     if (storage.get('token')) {

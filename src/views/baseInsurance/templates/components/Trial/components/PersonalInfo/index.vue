@@ -21,7 +21,7 @@
       </div>
     </template>
   </ProRenderFormWithCard>
-  <!-- 被保人 -->
+  <!-- 被保险人 -->
   <template v-if="hasInsuredSchema && !isOnlyHolder">
     <InsuredItem
       v-for="(insuredItem, index) in state.insured"
@@ -30,7 +30,7 @@
       v-model="insuredItem.personVO"
       v-model:beneficiary-list="insuredItem.beneficiaryList"
       v-model:guardian="insuredItem.guardian"
-      :title="`${state.insured.length > 1 ? `被保人${index + 1}` : '被保人信息'}`"
+      :title="`${state.insured.length > 1 ? `被保险人${index + 1}` : '被保险人信息'}`"
       :holder-person-v-o="state.holder.personVO"
       :="{
         ...insuredItem,
@@ -89,7 +89,7 @@
     </InsuredItem>
     <van-cell v-if="!isView && addible" class="add-button-wrap">
       <template #title>
-        <span class="add-button" @click="onAddInsured"><van-icon name="plus" />添加被保人</span>
+        <span class="add-button" @click="onAddInsured"><van-icon name="plus" />添加被保险人</span>
       </template>
     </van-cell>
   </template>
@@ -248,7 +248,7 @@ const state = reactive<Partial<StateInfo>>({
   },
   beneficiarySchema: [],
   initInsuredIList: [],
-  /** 被保人 */
+  /** 被保险人 */
   insured: [],
 });
 // 是否显示holder
@@ -262,7 +262,7 @@ const updateHolderData = (holderData) => {
 const canShowCustomerIcon = computed(() => {
   return !isShare && !props.isView && !props.isTrial && !isApp;
 });
-// 通过客户列表去选客户填充到 投被保人
+// 通过客户列表去选客户填充到 投被保险人
 const chooseCustomers = (type: string, index, benifitIndex, relation?: string) => {
   state.currentType = type;
   if (type !== 'benifit') {
@@ -303,7 +303,7 @@ const setCustomerToPerson = (value) => {
     Object.assign(state?.holder?.personVO, selectedCustomer);
     emit('update-bank', value.bankCardInfo);
   } else if (state.currentType === 'insured') {
-    // 被保人中关系是否有本人
+    // 被保险人中关系是否有本人
     const hasInsuredRelationSlef = state?.insured[state.currentIndex]?.schema.some((item) => {
       if (item.name === 'relationToHolder') {
         return item.attributeValueList.some((r) => r.code === '1');
@@ -311,7 +311,7 @@ const setCustomerToPerson = (value) => {
       return false;
     });
 
-    // 五要素判断 相同 被保人关系置为本人
+    // 五要素判断 相同 被保险人关系置为本人
     if (isSamePersonByFiveFactor(state?.holder?.personVO, selectedCustomer)) {
       if (hasInsuredRelationSlef) {
         // 是本人，就直接修改关系
@@ -321,14 +321,14 @@ const setCustomerToPerson = (value) => {
       Toast('与投保人关系未配置本人');
       return;
     }
-    // 不是的话，就设置到被保人
+    // 不是的话，就设置到被保险人
     Object.assign(state?.insured[state.currentIndex]?.personVO || {}, selectedCustomer);
   }
   //  受益人
   else if (state.currentType === 'benifit') {
-    // 五要素判断和被保人相同 受益人信息不同步
+    // 五要素判断和被保险人相同 受益人信息不同步
     if (isSamePersonByFiveFactor(state?.insured[state.currentIndex]?.personVO, selectedCustomer)) {
-      Toast('指定受益人不可为被保人本人');
+      Toast('指定受益人不可为被保险人本人');
     } else {
       Object.assign(
         state?.insured[state.currentIndex]?.beneficiaryList[state.currentBenifitIndex]?.personVO || {},
@@ -375,7 +375,7 @@ const filterFormData = (data) => {
   return formData;
 };
 
-// 添加被保人
+// 添加被保险人
 const onAddInsured = () => {
   const { length, [length - 1]: lastInsuredItem } = state.initInsuredIList;
 
@@ -387,27 +387,27 @@ const onAddInsured = () => {
   );
 };
 
-// 删除被保人
+// 删除被保险人
 const onDeleteInsured = (index) => {
   Dialog.confirm({
-    message: `确定要删除该被保人吗？`,
+    message: `确定要删除该被保险人吗？`,
   }).then(() => {
     state.insured.splice(index, 1);
   });
 };
 
-/** 被保人是否可添加的 */
+/** 被保险人是否可添加的 */
 const addible = computed(() => {
   const { multiInsuredMaxNum, multiInsuredSupportFlag } = state.config;
 
-  // 是否支持多被保人，最大数量不存在则可添加，存在则根据最大数量判断
+  // 是否支持多被保险人，最大数量不存在则可添加，存在则根据最大数量判断
   return multiInsuredSupportFlag && (!multiInsuredMaxNum || state.insured.length < multiInsuredMaxNum);
 });
 
 // 是否有投保人
 const hasHolderSchema = computed(() => isNotEmptyArray(state.holder.schema));
 
-// 是否有被保人
+// 是否有被保险人
 const hasInsuredSchema = computed(() => state.insured.some((insuredItem) => isNotEmptyArray(insuredItem.schema)));
 
 const filterData = (keys, data) => {
@@ -515,7 +515,7 @@ watch(
     // 试算因子的值是否变动
     const trialDataChanged = isTrialDataChange([holder, insuredList], oldVal);
 
-    // colorConsole(`投被保人信息变动了---${trialDataChanged}`);
+    // colorConsole(`投被保险人信息变动了---${trialDataChanged}`);
     const { insuredList: insuredListProps } = props.modelValue;
 
     // productList 重新赋值到modelValue
@@ -527,15 +527,15 @@ watch(
       })),
     };
 
-    // 多被保人为配偶,性别不符合给提示
+    // 多被保险人为配偶,性别不符合给提示
     if (state.config?.isSpouseInsured) {
       const [gender1, gender2] = insuredList.map((item) => item?.gender);
       if (gender1 && gender2 && String(gender1) === String(gender2)) {
-        return Toast('被保人性别与投保要求不符');
+        return Toast('被保险人性别与投保要求不符');
       }
     }
 
-    // TODO: 主要被保人变动 dddd
+    // TODO: 主要被保险人变动 dddd
     const isFirstInsuredChange =
       JSON.stringify(insuredList?.[0]?.personVO) !== filterFormData(props.modelValue?.insuredList?.[0]);
     console.log('-------result = ', result);
@@ -554,7 +554,7 @@ watch(
       .then((res) => {
         console.log('trialEnd');
         // 只有试算因子数据变动才调用试算
-        // 试算时投被保人分开不需要多次试算
+        // 试算时投被保险人分开不需要多次试算
         state.trialValidated =
           !props.isOnlyHolder &&
           !!state.insured?.[0].trialFactorCodes?.length &&
@@ -582,7 +582,7 @@ watch(
       return false;
     }
 
-    colorConsole(`投被保人要素变动了`);
+    colorConsole(`投被保险人要素变动了`);
     const { insuredFactorCodes, holderFactorCodes } = inject(PERSONAL_INFO_KEY) || {};
     const { holder, insured, beneficiary, guardian, config } = transformFactorToSchema(val[0], {
       isTrial: val[1],
@@ -683,11 +683,11 @@ watch(
 
     Object.assign(state.holder.personVO, holderFormData);
 
-    // 处理被保人数据
+    // 处理被保险人数据
     const { length: propsInsuredLen } = insuredList || [];
     const { length: stateInsuredLen } = state.insured;
 
-    // 预览时，被保人数量多于默认数量
+    // 预览时，被保险人数量多于默认数量
     const { length, 0: mainInsuredItem = {}, [length - 1]: lastInsuredItem } = state.initInsuredIList;
     const { multiInsuredMaxNum = 1, multiInsuredMinNum = 1, multiInsuredSupportFlag } = state?.config || {};
     // const insuredLen = !multiInsuredSupportFlag
@@ -695,7 +695,7 @@ watch(
     //   : props.isView || propsInsuredLen > stateInsuredLen
     //   ? propsInsuredLen
     //   : stateInsuredLen || multiInsuredMinNum;
-    // 查看模式，或者编辑模式并且数据大于默认被保人数，则显示数据的长度与最大被保人数两者的最小值，否则显示最小值
+    // 查看模式，或者编辑模式并且数据大于默认被保险人数，则显示数据的长度与最大被保险人数两者的最小值，否则显示最小值
     const insuredLen =
       props.isView || propsInsuredLen > stateInsuredLen
         ? Math.min(propsInsuredLen, multiInsuredMaxNum)

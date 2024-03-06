@@ -210,7 +210,7 @@ const currentPlan = ref<any>(props.dataSource);
 const hasDefault = ref([]);
 
 /**
- * 处理投被保人信息到state.submitData
+ * 处理投被保险人信息到state.submitData
  * @param data
  */
 const handlePersonInfo = (data) => {
@@ -285,19 +285,19 @@ const dealMixData = () => {
   if (submitData.insuredList) {
     const ignoreKey = ['productList', 'beneficiaryList'];
 
-    // 主被保人code
+    // 主被保险人code
     const mainInsuredFactorCodes = getFactorCodes(
       insuredFactor,
       (item: ProductFactor) => String(item.subModuleType) !== '2',
     );
 
-    // 次被保人code
+    // 次被保险人code
     const secondaryInsuredFactorCodes = getFactorCodes(
       insuredFactor,
       (item: ProductFactor) => String(item.subModuleType) === '2',
     );
 
-    // 是否为次被保人
+    // 是否为次被保险人
     const hasSub = isNotEmptyArray(secondaryInsuredFactorCodes);
 
     // 受益人 code
@@ -308,7 +308,7 @@ const dealMixData = () => {
 
     submitData.insuredList.forEach((insured, index) => {
       const targetFactorKeys = index >= 1 && hasSub ? secondaryInsuredFactorCodes : mainInsuredFactorCodes;
-      // 处理被保人信息, 要素有受益人则保留受益人类型字段
+      // 处理被保险人信息, 要素有受益人则保留受益人类型字段
       shakeData(insured, [...targetFactorKeys, ...ignoreKey, ...(hasBeneficiary ? ['insuredBeneficiaryType'] : [])]);
 
       // 受益人信息 todo
@@ -588,7 +588,7 @@ const handleMixTrialData = debounce(async () => {
     state.riskList = state.riskList.map((trialRisk) => {
       return handleSameMainRisk(trialRisk);
     });
-    //  这里目前只有一个被保人，所以直接index0，后面需要用被保人code来区分
+    //  这里目前只有一个被保险人，所以直接index0，后面需要用被保险人code来区分
     // state.submitData.insuredList[0].productList = [
     //   {
     //     insurerCode: props.productInfo.insurerCode,
@@ -620,13 +620,13 @@ const handleMixTrialData = debounce(async () => {
 
 const handlePersonalInfoChange = async (data) => {
   console.log('人的信息更改了');
-  // 只有改动第一个被保人，需要调用dy接口
+  // 只有改动第一个被保险人，需要调用dy接口
   const { insuredList, isFirstInsuredChange } = data;
   handlePersonInfo(data);
 
   state.ifPersonalInfoSuccess = true;
   // if (isFirstInsuredChange) {
-  console.log('处理第一被保人修改的dy变化');
+  console.log('处理第一被保险人修改的dy变化');
 
   // state.isQuerying = true;
   // const dyResult = await queryCalcDynamicInsureFactor({
@@ -646,7 +646,7 @@ const handlePersonalInfoChange = async (data) => {
   // state.isQuerying = false;
   // if (!handleDealDyResult(dyResult)) return;
   // // }
-  // console.log('投被保人的信息回传 ', data);
+  // console.log('投被保险人的信息回传 ', data);
   handleMixTrialData();
 };
 
@@ -654,7 +654,7 @@ const birthdayList = computed(() => {
   return (state.userData?.insuredList || []).map((insured) => insured.birthday).join(',');
 });
 
-// 监听被保人出生日期变化时，重新获取动态值
+// 监听被保险人出生日期变化时，重新获取动态值
 watch(
   () => (state.userData?.insuredList || []).map((insured) => insured.birthday).join(','),
   debounce(async (value) => {
@@ -759,7 +759,7 @@ const handleDynamicConfig = async (data: any, changeData: any) => {
 
 const handleTrialInfoChange = async (data: any, changeData: any) => {
   state.mainRiskVO = data;
-  // TODO 这里未来需要看一下  多倍保人的情况，回传需要加入被保人的Index或者别的key
+  // TODO 这里未来需要看一下  多倍保人的情况，回传需要加入被保险人的Index或者别的key
   const dyDeal = await handleDynamicConfig(data, changeData);
   if (!dyDeal) return;
   if (state.riskList.length > 0) {
