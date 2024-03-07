@@ -339,6 +339,12 @@ watch(showType, (val) => {
   border-radius: 16px;
   margin-bottom: 30px;
   padding: 0 20px 30px 20px;
+  .benefit-desc {
+    font-size: 28px;
+    font-weight: 400;
+    color: #393d46;
+    line-height: 56px;
+  }
   .common-title {
     padding-top: 34px;
     margin-bottom: 30px;
