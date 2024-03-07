@@ -172,7 +172,7 @@ import { QUESTIONNAIRE_TYPE_ENUM as QUESTION_OBJECT_TYPE } from '@/common/consta
 import { getFileType } from '@/views/baseInsurance/utils';
 import OperateBtn from '../components/OperateBtn.vue';
 import { transformToMoney } from '@/utils/format';
-import { RISK_PERIOD_TYPE_ENUM } from '@/common/constants/lian';
+import { RISK_PERIOD_TYPE_ENUM, FIXED_AMOUNT_DESC } from '@/common/constants/lian';
 
 const themeVars = useTheme();
 const route = useRoute();
@@ -191,7 +191,7 @@ const columns = [
     dataIndex: 'initialAmount',
     width: 180,
     render(row: any, index: number) {
-      return transformToMoney(row.initialAmount / (row.copy || 1));
+      return FIXED_AMOUNT_DESC[row.riskCode] || transformToMoney(row.initialAmount / (row.copy || 1));
     },
   },
   {

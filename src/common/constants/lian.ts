@@ -43,4 +43,9 @@ export const RISK_PERIOD_TYPE_ENUM = {
   long: 1,
 };
 
+// 基本保险金额固定值
+export const FIXED_AMOUNT_DESC = {
+  115044: '20元/天',
+};
+
 export default {};

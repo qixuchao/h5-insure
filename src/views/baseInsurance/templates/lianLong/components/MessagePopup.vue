@@ -30,6 +30,7 @@ const show = computed(() => props.modelValue);
 
 const handleClose = () => {
   emits('update:modelValue', false);
+  emits('close');
 };
 </script>
 

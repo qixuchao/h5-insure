@@ -15,8 +15,8 @@
     }"
     @ocr="updateHolderData"
   >
-    <template #customer>
-      <div v-if="canShowCustomerIcon" class="choose-customer" @click="chooseCustomers('holder', 1, 0)">
+    <template v-if="canShowCustomerIcon" #customer>
+      <div class="choose-customer" @click="chooseCustomers('holder', 1, 0)">
         <ProSvg name="customer" color="#333" />
       </div>
     </template>
@@ -45,27 +45,24 @@
       <template #riskList>
         <slot name="riskInfo" :insured-index="index"></slot>
       </template>
-      <template #customer>
+      <template v-if="+insuredItem.personVO.relationToHolder !== 1 && canShowCustomerIcon" #customer>
         <div
-          v-if="+insuredItem.personVO.relationToHolder !== 1 && canShowCustomerIcon"
           class="choose-customer"
           @click="chooseCustomers('insured', index, 0, insuredItem.personVO.relationToHolder)"
         >
           <ProSvg name="customer" color="#333" />
         </div>
       </template>
-      <template #guardianCustomer="slotProps">
+      <template v-if="canShowCustomerIcon" #guardianCustomer="slotProps">
         <div
-          v-if="canShowCustomerIcon"
           class="choose-customer"
           @click="chooseCustomers('guardian', index, 0, insuredItem.guardian.personVO.relationToInsured)"
         >
           <ProSvg name="customer" color="#333" />
         </div>
       </template>
-      <template #benefitCustomer="slotProps">
+      <template v-if="canShowCustomerIcon" #benefitCustomer="slotProps">
         <div
-          v-if="canShowCustomerIcon"
           class="choose-customer"
           @click="
             chooseCustomers(

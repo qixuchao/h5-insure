@@ -24,7 +24,7 @@
           <InfoItem label="投保人" :content="detail.holderName" line />
           <InfoItem label="被保险人" :content="detail.insuredName?.[0]" line />
           <InfoItem label="创建时间" :content="detail.orderStartDate" line />
-          <InfoItem label="保费" :content="transformToMoney(detail.premium)" line />
+          <InfoItem label="首年保费" :content="transformToMoney(detail.premium)" line />
         </div>
         <div style="width: 25%"><img src="@/assets/images/component/tree.png" alt="" style="width: 80%" /></div>
       </div>

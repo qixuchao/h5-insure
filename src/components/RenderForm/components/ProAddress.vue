@@ -247,7 +247,7 @@ export default {
 <style lang="scss" scoped>
 .com-address-input {
   :deep(.van-field__control--min-height) {
-    min-height: auto !important;
+    /* min-height: auto !important; */
   }
 }
 </style>

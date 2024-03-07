@@ -47,6 +47,7 @@ import { ProposalProductRisk } from '../../type';
 import ProTable from '@/components/ProTable/index.vue';
 import { SEX_LIMIT_ENUM, SEX_LIMIT_MAP } from '@/common/constants';
 import { RELATION_HOLDER_LIST } from '@/common/constants/product';
+import { FIXED_AMOUNT_DESC } from '@/common/constants/lian';
 
 const props = defineProps({
   info: {
@@ -69,10 +70,7 @@ const columns = [
     title: '基本保险金额',
     dataIndex: 'initialAmount',
     render: (record) => {
-      if (record.riskCode === '115044') {
-        return '20元/天';
-      }
-      return `${toLocal(record.initialAmount)}元`;
+      return FIXED_AMOUNT_DESC[record.riskCode] || `${toLocal(record.initialAmount)}元`;
     },
   },
   {

@@ -38,7 +38,11 @@
             :title="liability.liabilityName"
             content="投保"
           ></ProCell> -->
-              <ProCell title="基本保险金额" :content="transformToMoney(riskInfo.initialAmount || 0)"> </ProCell>
+              <ProCell
+                title="基本保险金额"
+                :content="FIXED_AMOUNT_DESC[riskInfo.riskCode] || transformToMoney(riskInfo.initialAmount || 0)"
+              >
+              </ProCell>
               <ProCell title="首年保费" class="price" :content="transformToMoney(riskInfo.initialPremium || 0)">
               </ProCell>
             </div>
@@ -67,6 +71,7 @@ import {
 import { ANNUITY_DRAW_TYPE_MAP } from '@/common/constants/infoCollection';
 import { YES_NO_ENUM } from '@/common/constants';
 import { transformToMoney } from '@/utils/format';
+import { FIXED_AMOUNT_DESC } from '@/common/constants/lian';
 
 interface Props {
   productData: any;

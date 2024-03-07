@@ -15,18 +15,20 @@
         isShare ? '确认' : '分享给客户确认'
       }}</van-button>
     </div>
-    <!-- <MessagePopup v-model="show" @close="toggleShow(false)">
+    <MessagePopup v-model="show" @close="handleClose">
       <div class="content-inner">
         <img :src="qianming" alt="" class="header-img" />
-        <h4>本次签名已完成</h4>
-        <p>感谢您对本次投保的签字确认，后续流程由销售人员在您的配合下进行</p>
+        <h4>提交成功</h4>
+        <p>您的变更已成功提交，详情结果请在我的订单中查看</p>
       </div>
-    </MessagePopup> -->
+    </MessagePopup>
   </div>
 </template>
 
 <script lang="ts" setup name="updateBankInfo">
 import qs from 'qs';
+import { useToggle } from '@vant/use';
+import wx from 'weixin-js-sdk';
 import PayInfo from '@/components/RenderForm/PayInfo.vue';
 import useOrder from '@/hooks/useOrder';
 import { pickProductRiskCodeFromOrder } from './utils';
@@ -36,9 +38,12 @@ import { nextStepOperate as nextStep } from '../../nextStep';
 import { NOTICE_TYPE_MAP, PAGE_ACTION_TYPE_ENUM, SEX_LIMIT_MAP, YES_NO_ENUM } from '@/common/constants';
 import pageJump from '@/utils/pageJump';
 import { BUTTON_CODE_ENUMS, PAGE_CODE_ENUMS } from './constants';
-import { shareWeiXin } from '@/utils/lianSDK';
+import { shareWeiXin, closeWebView } from '@/utils/lianSDK';
 import { SHARE_CONTENT } from '@/common/constants/lian';
 import { querySnapShotPayInfo } from '@/api';
+import MessagePopup from './components/MessagePopup.vue';
+import qianming from '@/assets/images/qianming.jpg';
+import { isWeiXin } from '@/views/cashier/core';
 
 const nextDisable = ref<boolean>(false);
 const route = useRoute();
@@ -53,9 +58,19 @@ const payInfo = ref({
 const isView = ref(!!isShare);
 const payInfoRef = ref<InstanceType<typeof PayInfo>>();
 const payInfoList = ref();
+const [show, toggleShow] = useToggle();
 
 const handleCancel = () => {
   router.back();
+};
+
+const handleClose = () => {
+  if (isWeiXin) {
+    wx.closeWindow();
+  } else {
+    window.close();
+  }
+  closeWebView();
 };
 
 const handleShare = (objectType, type) => {
@@ -100,7 +115,10 @@ const handleConfirm = () => {
             orderDetail.value,
             (data, pageAction) => {
               if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
-                pageJump(data.nextPageCode, route.query);
+                toggleShow(true);
+                setTimeout(() => {
+                  handleClose();
+                }, 1500);
               }
             },
             route,
@@ -113,6 +131,7 @@ const handleConfirm = () => {
             orderDetail.value,
             (data, pageAction) => {
               if (pageAction === PAGE_ACTION_TYPE_ENUM.JUMP_PAGE) {
+                toggleShow(true);
                 handleShare('holder', 'pay');
               }
             },
@@ -185,6 +204,23 @@ onMounted(() => {
 .bank-info-wrap {
   padding-bottom: 150px;
   overflow-y: auto;
+
+  .content-inner {
+    padding: 90px 50px 99px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    .header-img {
+      width: 257px;
+    }
+    h4 {
+      margin: 70px 0 39px;
+      font-weight: 500;
+      font-size: 38px;
+      color: #333333;
+      font-style: normal;
+    }
+  }
 }
 </style>
 import { stringify } from 'querystring';
