@@ -11,8 +11,17 @@
     ></PayInfo>
     <div class="footer-button">
       <van-button type="primary" plain @click="handleCancel">取消</van-button>
-      <van-button :disabled="nextDisable" type="primary" @click="handleConfirm">确认</van-button>
+      <van-button :disabled="nextDisable" type="primary" @click="handleConfirm">{{
+        isShare ? '确认' : '分享给客户确认'
+      }}</van-button>
     </div>
+    <!-- <MessagePopup v-model="show" @close="toggleShow(false)">
+      <div class="content-inner">
+        <img :src="qianming" alt="" class="header-img" />
+        <h4>本次签名已完成</h4>
+        <p>感谢您对本次投保的签字确认，后续流程由销售人员在您的配合下进行</p>
+      </div>
+    </MessagePopup> -->
   </div>
 </template>
 

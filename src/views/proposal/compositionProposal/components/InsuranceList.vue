@@ -147,13 +147,14 @@ const getChargePay = (val: string) => {
 const setProposalProductRiskVOList = (dataList: Array<any>) => {
   const list: Array<any> = [];
   dataList?.forEach((item: any) => {
-    const { riskName, initialAmount, coveragePeriod, chargePeriod, initialPremium } = item;
+    const { riskName, initialAmount, coveragePeriod, chargePeriod, initialPremium, riskCode } = item;
     list.push({
       riskName,
       initialAmount,
       coveragePeriod: getCover(coveragePeriod),
       chargePeriod: getChargePay(chargePeriod),
       initialPremium,
+      riskCode,
     });
   });
 
