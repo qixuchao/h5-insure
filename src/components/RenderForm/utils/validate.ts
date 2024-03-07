@@ -67,6 +67,38 @@ export const validateIdCardNo = (idCard) => {
   return Number(idCardLast) === idCardY[idCardMod];
 };
 
+const regPhoneNum = (val: string) => {
+  if (!/^1(3|4|5|6|7|8|9)\d{9}$/.test(val)) {
+    return false;
+  }
+  let continueCountUp = 1;
+  let continueCountDown = 1;
+  let continueCount = 1;
+  for (let i = 1; i < val.length; i++) {
+    if (+val[i] > +val[i - 1]) {
+      continueCount < 7 && (continueCount = 1);
+      if (+val[i] - +val[i - 1] === 1) {
+        continueCountUp += 1;
+        continueCountDown = 1;
+      } else if (continueCountUp < 7) {
+        continueCountUp = 1;
+      }
+    } else if (+val[i] === +val[i - 1]) {
+      continueCount += 1;
+    } else {
+      continueCount < 7 && (continueCount = 1);
+      if (+val[i - 1] - +val[i] === 1) {
+        continueCountDown += 1;
+        continueCountUp = 1;
+      } else if (continueCountDown < 7) {
+        continueCountDown = 1;
+      }
+    }
+  }
+
+  return !(continueCountUp >= 7 || continueCountDown >= 7 || continueCount >= 7);
+};
+
 // 正则
 export const RegMap = {
   /** 姓名 */
@@ -80,7 +112,7 @@ export const RegMap = {
   /** 电话号码 */
   isTel: (val: any) => /0\d{2,3}-\d{7,8}/.test(val),
   /** 手机号 */
-  isPhone: (val: any) => /^1(3|4|5|6|7|8|9)\d{9}$/.test(val),
+  isPhone: (val) => regPhoneNum(val),
   /** 中文字符 */
   isZhCN: (val: any) => /^[\u4e00-\u9fa5]+$/.test(val),
   /** 非中文字符 */
@@ -138,6 +170,10 @@ export const RegMap = {
   isOtherCert: (val: string) => /^.{1,18}$/.test(val),
   /** 比例、% */
   isRate: (val: string) => /^[1-9][0-9]?$|[1-9]00$/.test(val),
+  /** 其他收入来源 */
+  isAnnuallyComeDesc: (val: string) => /^[\u4e00-\u9fa5a-zA-Z0-9]+[\u4e00-\u9fa5]+[\u4e00-\u9fa5a-zA-Z0-9]?$/.test(val),
+  /** 工作单位 */
+  isWorkStation: (val: string) => /^[\u4e00-\u9fa5a-zA-Z]{2,}$/.test(val),
 };
 
 /** 字段验证集合 */
@@ -201,5 +237,8 @@ export const validatorMap = {
   /** 其他证件 */
   [RULE_TYPE_ENUM.OTHER_CERT]: [RegMap.isOtherCert],
   [RULE_TYPE_ENUM.BENEFIT_RATE]: [RegMap.isRate],
-  [RULE_TYPE_ENUM.ANNUALLY_COME_DESC]: [RegMap.isNormalChar],
+  /** 其他收入来源 */
+  [RULE_TYPE_ENUM.ANNUALLY_COME_DESC]: [RegMap.isAnnuallyComeDesc],
+  /**  */
+  [RULE_TYPE_ENUM.WORK_STATION]: [RegMap.isWorkStation],
 };

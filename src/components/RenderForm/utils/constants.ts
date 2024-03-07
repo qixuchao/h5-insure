@@ -200,6 +200,7 @@ export const RULE_TYPE_ENUM = {
   BENEFIT_RATE: 'benefitRate',
   NUMBER: 'number',
   ANNUALLY_COME_DESC: 'annuallyComeDesc',
+  WORK_STATION: 'workStation',
 };
 
 /** 规则配置 */
@@ -658,6 +659,9 @@ export const GLOBAL_CONFIG_MAP = {
   /** 保证续保 */
   bonusReceiveType: {
     isDefaultSelected: false,
+  },
+  workStation: {
+    ruleType: RULE_TYPE_ENUM.WORK_STATION,
   },
 };
 
