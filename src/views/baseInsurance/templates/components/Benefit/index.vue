@@ -114,6 +114,9 @@
               >查看利益演示</van-button
             >
           </div>
+          <div class="benefit-desc">
+            <div v-dompurify-html="item.benefitRemark"></div>
+          </div>
         </div>
       </van-tab>
     </van-tabs>
