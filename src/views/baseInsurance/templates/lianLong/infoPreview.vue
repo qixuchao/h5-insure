@@ -92,8 +92,11 @@
     <ProFileDrawer
       v-if="visibleFile"
       v-model="visibleFile"
-      :closeable="false"
+      closeable
+      close-on-click-overlay
+      :read-list="readList"
       :active-index="activeIndex"
+      :auto-check="false"
       :data-source="state.fileList"
       ok-text="我已阅读，已充分理解，并会遵守相关要求"
       @click-btn="previewFile"
@@ -234,7 +237,7 @@ const activeIndex = ref<number>(0); // 附件资料弹窗中要展示的附件�
 const isLoading = ref<boolean>(false);
 const hasReadFile = ref<boolean>(false); // 强制阅读文件已经阅读完成
 const agree = ref<boolean>(false);
-const [visibleFile, toggleVisible] = useToggle(false);
+const visibleFile = ref(false);
 const fileList = ref([]);
 
 const finishRead = () => {
@@ -244,12 +247,14 @@ const finishRead = () => {
 // 文件预览
 const previewMaterial = (index) => {
   activeIndex.value = index;
-  toggleVisible(true);
+  visibleFile.value = true;
 };
 
+const readList = ref([]);
 const updateFileStatus = (index) => {
   fileList.value.forEach((file, i) => {
     if (index === i) {
+      readList.value[i] = YES_NO_ENUM.YES;
       file.readStatus = YES_NO_ENUM.YES;
     }
   });

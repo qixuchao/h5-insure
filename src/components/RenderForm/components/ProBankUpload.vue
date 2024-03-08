@@ -32,6 +32,7 @@ import type { UploaderFileListItem } from 'vant';
 import { useCustomFieldValue } from '@vant/use';
 import { useRoute } from 'vue-router';
 import { Toast } from 'vant';
+import { isEqual } from 'lodash-es';
 import { isNotEmptyArray } from '@/common/constants/utils';
 import { fileUpload, ocr } from '@/api/modules/file';
 import {
@@ -142,8 +143,10 @@ const handleBeforeDelete = (index: number) => {
 
 watch(
   () => state.modelValue,
-  (val) => {
-    emits('update:modelValue', val);
+  (val, oldVal) => {
+    if (!isEqual(val, oldVal) && (isNotEmptyArray(val) || isNotEmptyArray(oldVal))) {
+      emits('update:modelValue', val);
+    }
   },
   {
     deep: true,
@@ -153,8 +156,10 @@ watch(
 
 watch(
   () => props.modelValue,
-  (val) => {
-    state.modelValue = val || [];
+  (val, oldVal) => {
+    if (!isEqual(val, oldVal) && (isNotEmptyArray(val) || isNotEmptyArray(oldVal))) {
+      state.modelValue = val || [];
+    }
   },
   {
     deep: true,
@@ -182,7 +187,15 @@ watch(
           };
 
           if (formState.formData) {
-            Object.assign(formState.formData, ocrData, { ocrData });
+            if (
+              ocrData.bankCardNo &&
+              formState.formData.bankCardNo &&
+              ocrData.bankCardNo !== formState.formData.bankCardNo
+            ) {
+              Toast('与OCR识别银行卡号不一致，请确认');
+            } else if (!formState.formData.bankCardNo) {
+              Object.assign(formState.formData, ocrData, { ocrData });
+            }
           }
 
           emits('ocr', ocrData);

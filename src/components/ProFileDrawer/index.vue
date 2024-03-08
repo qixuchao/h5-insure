@@ -1,17 +1,19 @@
 <template>
   <ProPopup
-    v-model:show="props.modelValue"
+    v-model:show="state.show"
     position="bottom"
     round
     :="$attrs"
     class="pro-file-drawer"
     safe-area-inset-bottom
+    @close="handleClose"
   >
     <van-tabs
       v-model:active="state.mainIndex"
-      title-scroll
+      scrollspy
       :swipeable="isView"
       title-gutter="10"
+      swipe-threshold="4"
       background="#fff"
       name="tabName"
       class="tabs-wrap"
@@ -60,7 +62,13 @@
       <div v-if="!isView && isAgreeBtnDisabled" class="footer-tip">
         {{ currentTabExpandActive ? '请逐页阅读至底部' : '请逐个阅读页面文件' }}
       </div>
-      <van-button :disabled="isAgreeBtnDisabled" block type="primary" @click="agreeMent">{{ okText }}</van-button>
+      <van-button
+        :disabled="!autoCheck ? !isCurrentButtonActive : isAgreeBtnDisabled"
+        block
+        type="primary"
+        @click="agreeMent"
+        >{{ okText }}</van-button
+      >
     </div>
   </ProPopup>
 </template>
@@ -117,9 +125,10 @@ interface ProSelectProp {
    * okText  底部按钮文案
    */
   okText: string;
-  /**
-   * readType
-   */
+  /** 阅读完是否自动切换到下个文件 */
+  autoCheck?: boolean;
+  /** 已阅读文件列表 */
+  readList?: any[];
 }
 
 const props = withDefaults(defineProps<ProSelectProp>(), {
@@ -129,6 +138,8 @@ const props = withDefaults(defineProps<ProSelectProp>(), {
   activeIndex: 1,
   okText: '确定',
   isView: false,
+  autoCheck: true,
+  readList: () => [],
 });
 
 const previewRef = ref();
@@ -175,6 +186,10 @@ const currentTabExpandActive = computed(() => {
 /** *  computed end  */
 
 /** *  业务处理 start  */
+
+const isCurrentButtonActive = computed(() => {
+  return !!state.tabList.find((tab, index) => tab.isRead && index === state.mainIndex);
+});
 
 /**
  * 点击第几个tab页面的下标
@@ -325,7 +340,7 @@ const handleScroll = function (el: any) {
       timer = setTimeout(() => {
         clearTimeout(timer);
         timer = null;
-        nextFile();
+        props.autoCheck && nextFile();
       }, 600);
     }
   }
@@ -363,13 +378,18 @@ const handleClose = () => {
 };
 
 const agreeMent = () => {
-  handleClose();
-  if (props.isView) return;
-  emits('submit');
+  if (!isAgreeBtnDisabled.value) {
+    console.log('agreeMent');
+    handleClose();
+    if (props.isView) return;
+    emits('submit');
+  } else {
+    nextFile();
+  }
 };
 
 const init = () => {
-  props.dataSource.forEach((item: FileType) => {
+  props.dataSource.forEach((item: FileType, index) => {
     // 设置强制阅读个数 当设置不强制阅读是 为 0
     const len = props.mustRead ? item?.files?.filter((node: FILE) => node.mustRead)?.length || 0 : 0;
     // 当文件数量大于1的时候，强制将展开属性改为折叠；
@@ -380,7 +400,7 @@ const init = () => {
     state.tabList.push({
       ...item,
       isExpand,
-      isRead: false,
+      isRead: props.readList[index] === 1,
       mustReadTab: len > 0,
       mustReadFileLen: len || 0,
       files: item?.files?.map((file: FILE) => {
@@ -407,6 +427,7 @@ watch(
   [() => props.modelValue, () => props.activeIndex, () => props.isView],
   debounce((val) => {
     if (val) {
+      state.show = props.modelValue;
       state.mainIndex = props.activeIndex || 0;
       state.mainTabIndex = 0;
     }
@@ -649,4 +670,5 @@ watch(
 }
 </style>
 import { log } from 'console';import { display } from 'html2canvas/dist/types/css/property-descriptors/display';import {
-backgroundSize } from 'html2canvas/dist/types/css/property-descriptors/background-size';
+backgroundSize } from 'html2canvas/dist/types/css/property-descriptors/background-size';import { YES_NO_ENUM } from
+'@/common/constants';

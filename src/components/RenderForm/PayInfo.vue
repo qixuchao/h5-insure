@@ -356,10 +356,12 @@ watch(
     if (!isEqual(val, oldVal) && isNotEmptyArray(oldVal)) {
       state.schemaList.forEach((item, index) => {
         if (item?.formData?.paymentType !== oldVal?.[index] || `${item?.formData?.paymentGenre}` === '1') {
-          Object.assign(
-            item.formData,
-            resetObjectValues(item?.formData, (key) =>
-              ['bankCardNo', 'payBank', 'mobile', 'bankCardImage', 'verificationCode'].includes(key),
+          nextTick(() =>
+            Object.assign(
+              item.formData,
+              resetObjectValues(item?.formData, (key) =>
+                ['bankCardNo', 'payBank', 'mobile', 'bankCardImage', 'verificationCode'].includes(key),
+              ),
             ),
           );
         }
