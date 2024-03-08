@@ -25,7 +25,7 @@ const props = defineProps({
 </script>
 <style lang="scss" scoped>
 .value-view-wrap {
-  margin: 16px 4px 16px 0;
+  margin: 16px 0 16px 0;
   width: 100%;
 }
 </style>

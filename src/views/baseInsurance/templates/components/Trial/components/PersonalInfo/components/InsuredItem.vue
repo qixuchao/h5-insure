@@ -15,7 +15,7 @@
     }"
   >
     <template #cardTitleExtra><slot></slot></template>
-    <template #customer>
+    <template v-if="!props.isView" #customer>
       <slot name="customer"></slot>
     </template>
     <template v-if="!isSameHolder && !isView" #addressExtra>
@@ -38,7 +38,7 @@
     title="监护人"
     :model="state.guardian.personVO"
     :schema="state.guardianSchema"
-    :config="{ ...state.guardian.config, relationToInsured: { isDefaultSelected: true } }"
+    :config="{ ...state.guardian.config }"
     :is-view="isView"
     :extra-provision="{
       objectType: ATTACHMENT_OBJECT_TYPE_ENUM.GUARDIAN,
@@ -46,7 +46,7 @@
     }"
   >
     <template #cardTitleExtra><slot></slot></template>
-    <template #customer>
+    <template v-if="!props.isView" #customer>
       <slot name="guardianCustomer"></slot>
     </template>
   </ProRenderFormWithCard>
@@ -95,12 +95,8 @@
           objectId: beneficiary?.personVO?.id,
         }"
       >
-        <template #customer>
-          <slot
-            v-if="!(isView || beneficiary.personVO?.isHolder === YES_NO_ENUM.YES)"
-            name="benefitCustomer"
-            :index="index"
-          ></slot>
+        <template v-if="!(isView || beneficiary.personVO?.isHolder === YES_NO_ENUM.YES)" #customer>
+          <slot name="benefitCustomer" :index="index"></slot>
         </template>
         <template #header-item>
           <ProFieldV2 v-if="!isSameHolder && !isView && beneficiary.personVO" label="是否同投保人" input-align="right">
