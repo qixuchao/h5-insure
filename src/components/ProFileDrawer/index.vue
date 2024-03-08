@@ -449,9 +449,17 @@ watch(
   }
 }
 </style>
-<style lang="scss" scoped>
+<style lang="scss">
 .pro-file-drawer {
   height: 1126px;
+  .van-popup__close-icon {
+    top: 20px;
+    color: var(--van-primary-color);
+  }
+
+  .pinch-zoom-container {
+    height: 100% !important;
+  }
 
   .is-read {
     &::before {
@@ -669,6 +677,3 @@ watch(
   }
 }
 </style>
-import { log } from 'console';import { display } from 'html2canvas/dist/types/css/property-descriptors/display';import {
-backgroundSize } from 'html2canvas/dist/types/css/property-descriptors/background-size';import { YES_NO_ENUM } from
-'@/common/constants';

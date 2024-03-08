@@ -596,7 +596,7 @@ watch(
       nanoid: item.nanoid,
     })),
   (val, oldValue) => {
-    if (JSON.stringify(val) !== JSON.stringify(oldValue)) {
+    if (JSON.stringify(val) !== JSON.stringify(oldValue) && (isNotEmptyArray(val) || isNotEmptyArray(oldValue))) {
       emit('update:beneficiaryList', val);
     }
   },
@@ -883,17 +883,16 @@ watch(
 );
 
 watch(
-  () => cloneDeep(props.beneficiaryList),
-  debounce((val, oldValue) => {
-    if (JSON.stringify(val) !== JSON.stringify(oldValue)) {
-      state.beneficiaryList = isNotEmptyArray(val)
-        ? val.map((item) => ({
-            ...item,
-            nanoid: item.nanoid || nanoid(),
-          }))
-        : [];
+  () => props.beneficiaryList,
+  (val, oldValue) => {
+    if (JSON.stringify(val) !== JSON.stringify(oldValue) && (isNotEmptyArray(val) || isNotEmptyArray(oldValue))) {
+      state.beneficiaryList =
+        val.map((item) => ({
+          ...item,
+          nanoid: item.nanoid || nanoid(),
+        })) || [];
     }
-  }, 500),
+  },
   {
     deep: true,
     immediate: true,
@@ -974,3 +973,4 @@ defineExpose({
   }
 }
 </style>
+import { log } from 'console';isNotEmptyArray, isNotEmptyArray,
