@@ -49,6 +49,7 @@ import { fileUpload } from '@/api/modules/file';
 import { UPLOAD_TYPE_ENUM, ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
 import { useAttrsAndSlots } from '../hooks';
 import { VAN_PRO_FORM_KEY } from '../utils';
+import { isNotEmptyArray } from '@/common/constants/utils';
 
 interface UploadProps {
   modelValue: UploaderFileListItem[];
@@ -147,11 +148,13 @@ const handleBeforeDelete = (file: string, target: { index: number }) => {
 
 watch(
   () => state.modelValue,
-  (val) => {
+  (val, oldVal) => {
     if (formState?.formData && filedAttrs.value.name) {
-      formState.formData[filedAttrs.value.name] = val;
+      // formState.formData[filedAttrs.value.name] = val;
     }
-    emits('update:modelValue', val || []);
+    if (JSON.stringify(val) !== JSON.stringify(oldVal) && (isNotEmptyArray(val) || isNotEmptyArray(oldVal))) {
+      emits('update:modelValue', val || []);
+    }
   },
   {
     deep: true,
@@ -161,8 +164,10 @@ watch(
 
 watch(
   () => props.modelValue,
-  (val) => {
-    state.modelValue = val || [];
+  (val, oldVal) => {
+    if (JSON.stringify(val) !== JSON.stringify(oldVal) && (isNotEmptyArray(val) || isNotEmptyArray(oldVal))) {
+      state.modelValue = val || [];
+    }
   },
   {
     deep: true,
@@ -256,3 +261,4 @@ watch(
   }
 }
 </style>
+, isNotEmptyArray, isNotEmptyArray

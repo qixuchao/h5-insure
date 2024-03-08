@@ -144,8 +144,8 @@ const handleBeforeDelete = (index: number) => {
 watch(
   () => state.modelValue,
   (val, oldVal) => {
-    if (!isEqual(val, oldVal) && (isNotEmptyArray(val) || isNotEmptyArray(oldVal))) {
-      emits('update:modelValue', val);
+    if (isNotEmptyArray(val) || isNotEmptyArray(oldVal)) {
+      emits('update:modelValue', val || []);
     }
   },
   {
@@ -157,7 +157,7 @@ watch(
 watch(
   () => props.modelValue,
   (val, oldVal) => {
-    if (!isEqual(val, oldVal) && (isNotEmptyArray(val) || isNotEmptyArray(oldVal))) {
+    if (JSON.stringify(val) !== JSON.stringify(oldVal) && (isNotEmptyArray(val) || isNotEmptyArray(oldVal))) {
       state.modelValue = val || [];
     }
   },
@@ -303,3 +303,4 @@ export default {
   }
 }
 </style>
+import { stringify } from 'querystring'; import { stringify } from 'querystring';

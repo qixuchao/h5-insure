@@ -78,7 +78,7 @@
     >
     </ProRenderFormWithCard>
 
-    <template v-if="isSpecifyBeneficiary">
+    <template v-if="false && isSpecifyBeneficiary">
       <BeneficiaryItem
         v-for="(beneficiary, index) in state.beneficiaryList"
         ref="beneficiaryFormRef"
