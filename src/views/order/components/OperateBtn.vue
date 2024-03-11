@@ -15,6 +15,7 @@ import { withDefaults } from 'vue';
 import { useRouter } from 'vue-router';
 import { Dialog, Toast } from 'vant';
 import { emit } from 'process';
+import qs from 'qs';
 import { PAGE_ROUTE_ENUMS, MESSAGE_TYPE_ENUM } from '@/views/baseInsurance/templates/lianLong/constants';
 import { shareWeiXin } from '@/utils/lianSDK';
 import { SHARE_CONTENT, SHARE_IMAGE_LINK } from '@/common/constants/lian';
@@ -133,11 +134,23 @@ const handleShare = (type) => {
     gender: `${SEX_LIMIT_MAP[holderGender]}士`,
   };
 
+  const params = {
+    ...route.query,
+    objectType: type,
+    insurerCode,
+    templateId,
+    isShare: 1,
+    orderNo,
+    iseeBizNo,
+    orderId,
+    nextPageCode: 'orderDetail',
+  };
+
   shareWeiXin({
     shareType: 0,
     title: `${SHARE_CONTENT.cancel.title}`,
     desc: SHARE_CONTENT.cancel.desc.replace('{name}', `${userInfo.name}${userInfo.gender}`),
-    url: `${window.location.href}&objectType=${type}&insurerCode=${insurerCode}&templateId=${templateId}&isShare=1&orderNo=${orderNo}&iseeBizNo=${iseeBizNo}&orderId=${orderId}&nextPageCode=orderDetail`.replace(
+    url: `${window.location.href.split('?')?.[0]}?${qs.stringify(params)}`.replace(
       /\/orderDetail|\/order/,
       '/baseInsurance/long/phoneVerify',
     ),
