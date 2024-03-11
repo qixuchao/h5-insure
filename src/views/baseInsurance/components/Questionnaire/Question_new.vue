@@ -29,11 +29,12 @@
       :rules="[{ required: enumEqual(data.mustFlag, YES_NO_ENUM.YES), message: '请选择' }]"
     >
       <template #input>
-        <van-radio-group v-model="answerVO.answer">
-          <div v-for="(option, index) in data.optionList" :key="index" class="option-row">
-            <van-radio :name="`${option.code}`">{{ option.value }}</van-radio>
-          </div>
-        </van-radio-group>
+        <ProRadio
+          v-model="answerVO.answer"
+          :columns="data.optionList"
+          :custom-field-name="{ text: 'value', value: 'code' }"
+        ></ProRadio>
+
         <template v-for="(option, index) in data.optionList" :key="index">
           <div v-if="enumEqual(answerVO.answer, option.code)" class="child">
             <template v-for="(child, ind) in option.detailList" :key="child.id">
@@ -135,6 +136,7 @@ import { ref, toRefs } from 'vue';
 import { AnswerVO, NQuestion } from '@/api/modules/product.data';
 import { enumEqual } from '@/common/constants/dict';
 import { YES_NO_ENUM } from '@/common/constants';
+import ProRadio from '@/components/RenderForm/components/ProRadioV2.vue';
 // questionType: '1' | '2' | '3' | '4' | '5'; // 1: 单选 2: 多选 3: 判断 4: 填空 5: 多项填空
 const PRODUCT_QUESTION_OPT_TYPE_ENUM = {
   SINGLE: 1, // 单选
@@ -411,4 +413,6 @@ defineExpose({
   }
 }
 </style>
-import { display } from 'html2canvas/dist/types/css/property-descriptors/display';
+import { display } from 'html2canvas/dist/types/css/property-descriptors/display';import ProRadioV2Vue from
+'@/components/RenderForm/components/ProRadioV2.vue'; import ProRadioV2Vue from
+'@/components/RenderForm/components/ProRadioV2.vue';

@@ -602,7 +602,7 @@ watch(
     })),
   (val, oldValue) => {
     if (JSON.stringify(val) !== JSON.stringify(oldValue) && (isNotEmptyArray(val) || isNotEmptyArray(oldValue))) {
-      // emit('update:beneficiaryList', val);
+      emit('update:beneficiaryList', val);
     }
   },
   {
