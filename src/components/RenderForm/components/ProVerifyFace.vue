@@ -157,8 +157,8 @@ const getFaceVerifyResult = () => {
   const params = {
     bizId: biz_id,
     certType,
-    objectId: extraProvision.object,
-    objectType: OBJECT_TYPE_ENUM[extraProvision.objectType],
+    objectId: extraProvision.objectId,
+    objectType: extraProvision.objectType,
     orderNo,
     tenantId,
   };
