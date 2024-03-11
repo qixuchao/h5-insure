@@ -16,7 +16,7 @@
     <template #header-item>
       <slot name="header-item"></slot>
     </template>
-    <template v-if="!props.isView" #customer>
+    <template v-if="!isView || `${state.personVO?.isHolder}` !== `${YES_NO_ENUM.YES}`" #customer>
       <slot name="customer"></slot>
     </template>
   </ProRenderFormWithCard>
@@ -304,6 +304,11 @@ defineExpose({
   :deep(.com-van-field) {
     &:last-child::after {
       display: block;
+    }
+  }
+  :deep(.com-van-field-view) {
+    .van-field__right-icon {
+      display: none;
     }
   }
   :deep(.com-card-wrap) .title-wrapper {
