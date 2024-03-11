@@ -16,7 +16,7 @@
     <template #header-item>
       <slot name="header-item"></slot>
     </template>
-    <template #customer>
+    <template v-if="!props.isView" #customer>
       <slot name="customer"></slot>
     </template>
   </ProRenderFormWithCard>
