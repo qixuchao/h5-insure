@@ -144,6 +144,7 @@ const handleShare = (type) => {
     iseeBizNo,
     orderId,
     nextPageCode: 'orderDetail',
+    operateType: 'returnOrder',
   };
 
   shareWeiXin({
