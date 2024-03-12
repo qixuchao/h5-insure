@@ -76,6 +76,7 @@
 <script lang="ts" setup name="proFileDrawer">
 import { debounce } from 'lodash-es';
 import { withDefaults } from 'vue';
+import { YES_NO_ENUM } from '@/common/constants';
 
 interface FILE {
   name: string;
@@ -171,7 +172,7 @@ let timer = null;
 
 // 判断所有tab的必读文件数是否大于0
 const isAgreeBtnDisabled = computed(() => {
-  return state.tabList?.some((item) => item?.mustReadFileLen > 0);
+  return state.tabList?.some((item) => !item.isRead);
 });
 
 // 当前 tab 下的所有文件列表
@@ -429,10 +430,10 @@ watch(
     if (val) {
       state.show = props.modelValue;
       state.mainIndex = props.activeIndex || 0;
-      state.mainTabIndex = 0;
+      state.mainTabIndex = props.activeIndex || 0;
     }
   }, 500),
-  { immediate: true },
+  { immediate: true, deep: true },
 );
 </script>
 <style lang="scss">
@@ -677,3 +678,4 @@ watch(
   }
 }
 </style>
+import { YES_NO_ENUM } from '@/common/constants';
