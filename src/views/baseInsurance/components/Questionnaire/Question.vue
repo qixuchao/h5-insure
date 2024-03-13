@@ -59,9 +59,9 @@
     </div>
     <!-- 多选题 【多选可以有告知说明，但是没有关联题目】 -->
     <div v-if="data.questionType === PRODUCT_QUESTION_OPT_TYPE_ENUM.MULTIPLE" class="question-checkbox">
-      <div class="label">
+      <div v-if="data.title" class="label">
         {{ data.title }}
-        <span v-if="enumEqual(data.mustFlag, YES_NO_ENUM.YES)" class="error">*</span>
+        <span v-if="enumEqual(data.mustFlag, YES_NO_ENUM.YES) && data.title" class="error">*</span>
       </div>
       <ProCheckbox
         v-model="answerVO.answerList"
@@ -107,7 +107,7 @@
 
     <!-- 多项填空题 -->
     <div v-if="data.questionType === PRODUCT_QUESTION_OPT_TYPE_ENUM.MULE_BLANK" class="question-muti-blank">
-      <div class="label">
+      <div v-if="data.title" class="label">
         {{ data.title }}
         <span v-if="enumEqual(data.mustFlag, YES_NO_ENUM.YES) && data.title" class="error">*</span>
       </div>
