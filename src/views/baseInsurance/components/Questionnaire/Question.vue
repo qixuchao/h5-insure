@@ -17,6 +17,7 @@
         v-model="answerVO.answer"
         :name="`${props.name}.answer`"
         :label="data.title"
+        :is-default-selected="false"
         :required="enumEqual(data.mustFlag, YES_NO_ENUM.YES)"
         :rules="[{ required: enumEqual(data.mustFlag, YES_NO_ENUM.YES), message: '请选择' }]"
         :columns="data.optionList"
