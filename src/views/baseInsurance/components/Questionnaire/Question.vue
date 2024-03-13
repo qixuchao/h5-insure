@@ -109,7 +109,7 @@
     <div v-if="data.questionType === PRODUCT_QUESTION_OPT_TYPE_ENUM.MULE_BLANK" class="question-muti-blank">
       <div class="label">
         {{ data.title }}
-        <span v-if="enumEqual(data.mustFlag, YES_NO_ENUM.YES)" class="error">*</span>
+        <span v-if="enumEqual(data.mustFlag, YES_NO_ENUM.YES) && data.title" class="error">*</span>
       </div>
       <template v-for="(inp, i) in mutiBlank" :key="i">
         <van-field
@@ -120,6 +120,7 @@
           placeholder="请输入"
           maxlength="100"
           error-message-align="right"
+          :required="enumEqual(data.mustFlag, YES_NO_ENUM.YES)"
           input-align="right"
           :rules="[{ required: enumEqual(data.mustFlag, YES_NO_ENUM.YES), message: '请输入' }]"
         >
@@ -270,6 +271,9 @@ defineExpose({
     .question-muti-blank {
       padding-top: 0;
       padding-bottom: 0;
+      .label {
+        padding-top: 30px;
+      }
     }
     .com-question {
       .com-question {
