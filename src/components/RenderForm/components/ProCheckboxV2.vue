@@ -4,15 +4,7 @@
       <ValueView v-if="isView" :value="fieldValueView" />
       <template v-else>
         <template v-if="isButtonType">
-          <!-- <ProCheckButton
-            v-for="column in state.columns"
-            :key="column.value"
-            :label="column.text"
-            :disabled="column.disabled || disabled"
-            :activated="state.modelValue == column.value"
-            :icon-name="column.iconName"
-            @click="onClick(column)"
-          /> -->
+          <ProCheckboxButton v-model="state.modelValue" :options="state.columns"></ProCheckboxButton>
         </template>
         <van-checkbox-group
           v-else
