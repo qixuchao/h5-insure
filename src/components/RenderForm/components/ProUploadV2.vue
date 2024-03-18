@@ -152,7 +152,7 @@ watch(
     if (formState?.formData && filedAttrs.value.name) {
       // formState.formData[filedAttrs.value.name] = val;
     }
-    if (JSON.stringify(val) !== JSON.stringify(oldVal) && (isNotEmptyArray(val) || isNotEmptyArray(oldVal))) {
+    if (isNotEmptyArray(val) || isNotEmptyArray(oldVal)) {
       emits('update:modelValue', val || []);
     }
   },

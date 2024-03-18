@@ -1472,4 +1472,3 @@ onBeforeMount(() => {
   }
 }
 </style>
-import { log } from 'console';
