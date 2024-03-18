@@ -15,7 +15,7 @@
     }"
   >
     <template #cardTitleExtra><slot></slot></template>
-    <template v-if="!props.isView" #customer>
+    <template v-if="!isView" #customer>
       <slot name="customer"></slot>
     </template>
     <template v-if="!isSameHolder && !isView" #addressExtra>
@@ -46,7 +46,7 @@
     }"
   >
     <template #cardTitleExtra><slot></slot></template>
-    <template v-if="!props.isView" #customer>
+    <template v-if="!isView" #customer>
       <slot name="guardianCustomer"></slot>
     </template>
   </ProRenderFormWithCard>
@@ -304,7 +304,11 @@ const disHolderData = (personVO = {}) => {
   const mergeData = personVO;
   state.beneficiarySchemaList.reduce((da, schema) => {
     if (props.holderPersonVO?.[schema.name]) {
-      da[schema.name] = null;
+      if (schema.name === 'certImage') {
+        da[schema.name] = [];
+      } else {
+        da[schema.name] = null;
+      }
     }
     return da;
   }, mergeData);
@@ -591,8 +595,9 @@ watch(
 // 监听受益人信息
 watch(
   () =>
-    cloneDeep(state.beneficiaryList).map((item) => ({
+    state.beneficiaryList.map((item) => ({
       personVO: item?.personVO,
+      config: item?.config,
       nanoid: item.nanoid,
     })),
   (val, oldValue) => {
