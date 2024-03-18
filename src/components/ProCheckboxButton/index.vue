@@ -10,7 +10,7 @@
   <div class="com-radio-btn">
     <div v-for="option in options" :key="option.value" class="btn-wrapper">
       <ProCheckButton
-        :label="option.label"
+        :label="option.text"
         :activated="state.currentValue.includes(option.value)"
         @click="selectBtn(option.value)"
       />

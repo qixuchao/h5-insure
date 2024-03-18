@@ -36,17 +36,22 @@
         name="noticeRemark"
         :data="{ title: '备注栏' }"
       >
-        <div v-if="isView" class="notice-tips">{{ noticeRemark }}</div>
-        <van-field
-          v-else
-          v-model="noticeRemark"
-          type="textarea"
-          placeholder="请输入文本"
-          maxlength="100"
-          :show-word-limit="!isView"
-        />
+        <div class="question-extra">
+          <div class="label">备注栏</div>
+          <div v-if="isView" class="notice-tips">{{ noticeRemark }}</div>
+
+          <van-field
+            v-else
+            v-model="noticeRemark"
+            type="textarea"
+            placeholder="请输入文本"
+            maxlength="100"
+            :show-word-limit="!isView"
+          />
+        </div>
       </Question>
-      <ProCard v-if="isShowUpload" :title="props.data.imageConfig.name">
+      <div v-if="isShowUpload" class="question-extra question-upload">
+        <div class="label">{{ props.data.imageConfig.name }}</div>
         <template v-if="isView">
           <div v-for="(image, index) in imageList" :key="index" class="image-item">
             <van-image :src="image" fit="contain"></van-image>
@@ -57,7 +62,7 @@
             <ProImageUpload v-model="imageList" :max-count="props.data.imageConfig?.maxNum || 10" />
           </template>
         </van-field>
-      </ProCard>
+      </div>
 
       <template v-if="isDev">
         <!-- <van-button round type="primary" block native-type="submit">提交</van-button> -->
@@ -196,6 +201,7 @@ const submitForm = (values) => {
       }
     })
     .catch((err) => {
+      console.log('errpr', err);
       scrollToError('.com-questionnaire', '.van-field--error');
     });
 };
@@ -252,11 +258,39 @@ defineExpose({
   height: 200px;
 }
 .com-questionnaire {
+  background-color: #f4f5f9;
   .notice-tips {
     color: var(--zaui-text-weak);
     padding: 10px 30px;
     font-size: 28px;
     line-height: 1.6;
+  }
+  .question-extra {
+    padding: 30px;
+    background-color: #ffffff;
+    .label {
+      padding: 0px 0 15px;
+      font-weight: 400;
+      font-size: 30px;
+      color: #333333;
+      line-height: 42px;
+    }
+
+    .van-field__value {
+      background-color: #f4f5f9;
+      padding: 30px;
+      border-radius: 20px;
+    }
+    &.question-upload {
+      .van-cell {
+        padding: 0;
+      }
+      .van-field__value {
+        background-color: unset;
+        padding: unset;
+        border-radius: 20px;
+      }
+    }
   }
 }
 </style>

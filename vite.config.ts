@@ -47,8 +47,8 @@ export default defineConfig((env) => {
           // target: 'https://gateway-tst.ennejb.cn',
           // target: 'https://zat-planet-h5-cloud-insure-pre.zhongan.io',
           // target: 'http://zat-planet-gateway.test.za-tech.net',
-          // target: 'https://lianapp-test.lianlife.com/h5insure/',
-          target: 'http://211280-lian-planet-gateway.test.za-tech.net',
+          target: 'https://lianapp-test.lianlife.com/h5insure/',
+          // target: 'http://211280-lian-planet-gateway.test.za-tech.net',
           // target: 'https://h5-test.ennejb.cn',http://177716-zat-planet-gateway.test.za-tech.net/
           // target: 'http://zat-planet-gateway.test.za-tech.net',
           // target: 'https://zat-planet-h5-cloud-insure-test.zhongan.io',

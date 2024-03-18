@@ -44,6 +44,7 @@
 <script lang="ts" setup>
 import { UploaderFileListItem, Toast } from 'vant';
 import { useCustomFieldValue } from '@vant/use';
+import { cloneDeep } from 'lodash-es';
 import ProSvg from '@/components/ProSvg/index.vue';
 import { fileUpload } from '@/api/modules/file';
 import { UPLOAD_TYPE_ENUM, ATTACHMENT_CATEGORY_ENUM, ATTACHMENT_OBJECT_TYPE_ENUM } from '@/common/constants';
@@ -136,7 +137,7 @@ const handleAfterRead = (e: { file: File; content: string }) => {
         category: props.category,
         objectType: props.objectType || extraProvision.objectType,
       });
-      emits('onUploaded', data);
+      // emits('onUploaded', data);
     }
   });
 };
@@ -147,12 +148,13 @@ const handleBeforeDelete = (file: string, target: { index: number }) => {
 };
 
 watch(
-  () => state.modelValue,
+  () => cloneDeep(state.modelValue),
   (val, oldVal) => {
-    if (formState?.formData && filedAttrs.value.name) {
-      // formState.formData[filedAttrs.value.name] = val;
-    }
-    if (JSON.stringify(val) !== JSON.stringify(oldVal) && (isNotEmptyArray(val) || isNotEmptyArray(oldVal))) {
+    // if (formState?.formData && filedAttrs.value.name) {
+    //   // formState.formData[filedAttrs.value.name] = val;
+    // }
+
+    if (isNotEmptyArray(val) || isNotEmptyArray(oldVal)) {
       emits('update:modelValue', val || []);
     }
   },
@@ -261,4 +263,4 @@ watch(
   }
 }
 </style>
-, isNotEmptyArray, isNotEmptyArray
+, isNotEmptyArray, isNotEmptyArrayimport { cloneDeep } from 'lodash';, cloneDeep
